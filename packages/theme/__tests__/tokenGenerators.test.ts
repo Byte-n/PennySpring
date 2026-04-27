@@ -221,7 +221,8 @@ describe('genColorMapToken', () => {
     expect(result.colorPrimaryBg).toBeTruthy();
   });
 
-  it('colorErrorBgFilledHover is a mix of error step 1 and 3', () => {
+  it('colorErrorBgFilledHover is a mix of error step 2 and step 4 at 50%', () => {
+    const { FastColor } = require('@ant-design/fast-color');
     const { defaultSeedToken } = require('../src/defaults');
     const { generateColorPalettes } = require('../src/algorithms/colorPalettes');
     const { generateNeutralColorPalettes } = require('../src/algorithms/neutralPalettes');
@@ -230,7 +231,16 @@ describe('genColorMapToken', () => {
       generateColorPalettes,
       generateNeutralColorPalettes,
     });
-    expect(result.colorErrorBgFilledHover).toBeTruthy();
+
+    // genColorMapToken uses errorColors[1] (step 2) and errorColors[3] (step 4)
+    const errorColors = generateColorPalettes(defaultSeedToken.colorError);
+    const step2 = errorColors[1]; // BgHover
+    const step4 = errorColors[3]; // BorderHover
+    const expectedMix = new FastColor(step2).mix(new FastColor(step4), 50).toHexString();
+
+    expect(result.colorErrorBgFilledHover).toBe(expectedMix);
+    expect(result.colorErrorBgFilledHover).not.toBe(step2);
+    expect(result.colorErrorBgFilledHover).not.toBe(step4);
   });
 
   it('colorLink from seed colorLink (falls back to colorInfo)', () => {
@@ -257,10 +267,96 @@ describe('genColorMapToken', () => {
     expect(result.colorWhite).toBe('#fff');
     expect(result.colorBgMask).toBe('rgba(0, 0, 0, 0.45)');
   });
+
+  it('uses custom colorLink when provided in seed', () => {
+    const { defaultSeedToken } = require('../src/defaults');
+    const { generateColorPalettes } = require('../src/algorithms/colorPalettes');
+    const { generateNeutralColorPalettes } = require('../src/algorithms/neutralPalettes');
+
+    const customSeed = { ...defaultSeedToken, colorLink: '#ff0000' };
+    const result = genColorMapToken(customSeed, {
+      generateColorPalettes,
+      generateNeutralColorPalettes,
+    });
+
+    expect(result.colorLink).toBe('#ff0000');
+    expect(result.colorLink).not.toBe(result.colorInfo);
+  });
+});
+
+describe('genColorMapToken dark mode', () => {
+  let genColorMapToken: any;
+
+  beforeAll(() => {
+    genColorMapToken = require('../src/algorithms/genColorMapToken').genColorMapToken;
+  });
+
+  it('produces different colorPrimary in dark vs default mode', () => {
+    const { defaultSeedToken } = require('../src/defaults');
+    const { generateColorPalettes } = require('../src/algorithms/colorPalettes');
+    const { generateColorPalettesDark } = require('../src/algorithms/colorPalettes');
+    const { generateNeutralColorPalettes } = require('../src/algorithms/neutralPalettes');
+    const { generateNeutralColorPalettesDark } = require('../src/algorithms/neutralPalettes');
+
+    const defaultResult = genColorMapToken(defaultSeedToken, {
+      generateColorPalettes,
+      generateNeutralColorPalettes,
+    });
+
+    const darkResult = genColorMapToken(defaultSeedToken, {
+      generateColorPalettes: generateColorPalettesDark,
+      generateNeutralColorPalettes: generateNeutralColorPalettesDark,
+    });
+
+    // Dark mode should produce different primary colors
+    expect(defaultResult.colorPrimary).not.toBe(darkResult.colorPrimary);
+    expect(defaultResult.colorPrimaryBg).not.toBe(darkResult.colorPrimaryBg);
+  });
+
+  it('produces different neutral colors in dark mode', () => {
+    const { defaultSeedToken } = require('../src/defaults');
+    const { generateColorPalettes } = require('../src/algorithms/colorPalettes');
+    const { generateColorPalettesDark } = require('../src/algorithms/colorPalettes');
+    const { generateNeutralColorPalettes } = require('../src/algorithms/neutralPalettes');
+    const { generateNeutralColorPalettesDark } = require('../src/algorithms/neutralPalettes');
+
+    const defaultResult = genColorMapToken(defaultSeedToken, {
+      generateColorPalettes,
+      generateNeutralColorPalettes,
+    });
+
+    const darkResult = genColorMapToken(defaultSeedToken, {
+      generateColorPalettes: generateColorPalettesDark,
+      generateNeutralColorPalettes: generateNeutralColorPalettesDark,
+    });
+
+    // Neutral colors should differ
+    expect(defaultResult.colorBgContainer).not.toBe(darkResult.colorBgContainer);
+    expect(defaultResult.colorText).not.toBe(darkResult.colorText);
+  });
+
+  it('preserves colorWhite and colorBgMask in dark mode', () => {
+    const { defaultSeedToken } = require('../src/defaults');
+    const { generateColorPalettesDark } = require('../src/algorithms/colorPalettes');
+    const { generateNeutralColorPalettesDark } = require('../src/algorithms/neutralPalettes');
+
+    const darkResult = genColorMapToken(defaultSeedToken, {
+      generateColorPalettes: generateColorPalettesDark,
+      generateNeutralColorPalettes: generateNeutralColorPalettesDark,
+    });
+
+    // These are hardcoded and should remain the same
+    expect(darkResult.colorWhite).toBe('#fff');
+    expect(darkResult.colorBgMask).toBe('rgba(0, 0, 0, 0.45)');
+  });
 });
 
 describe('genFontMapToken', () => {
   let genFontMapToken: (base: number) => Record<string, number>;
+
+  beforeAll(() => {
+    genFontMapToken = require('../src/algorithms/genFontMapToken').genFontMapToken;
+  });
 
   beforeAll(() => {
     genFontMapToken = require('../src/algorithms/genFontMapToken').genFontMapToken;

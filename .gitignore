@@ -86,5 +86,10 @@ yarn-error.log*
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+
+# ai
 /.claude/skills/skill-creator
 .qoder
+
+# openspec
+openspec/changes/archive

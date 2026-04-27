@@ -24,6 +24,41 @@ describe('getAlphaColor (blend variant)', () => {
     const result = getAlphaColor('#000', '#000');
     expect(result).toMatch(/^rgba?\(/);
   });
+
+  it('returns original color when front already has alpha < 1', () => {
+    const semiTransparent = 'rgba(22, 119, 255, 0.5)';
+    const result = getAlphaColor(semiTransparent, '#ffffff');
+    expect(result).toBe(semiTransparent);
+  });
+});
+
+describe('getAlphaColor (simple variant)', () => {
+  let getAlphaColorSimple: (baseColor: string, alpha: number) => string;
+
+  beforeAll(() => {
+    getAlphaColorSimple = require('../src/algorithms/colorAlgorithm').getAlphaColor;
+  });
+
+  it('returns rgba string with applied alpha', () => {
+    const result = getAlphaColorSimple('#1677ff', 0.5);
+    expect(result).toBe('rgba(22,119,255,0.5)');
+  });
+
+  it('handles full opacity', () => {
+    const result = getAlphaColorSimple('#ff0000', 1);
+    // FastColor returns rgb when alpha is 1
+    expect(result).toMatch(/^rgb\(255,0,0\)$/);
+  });
+
+  it('handles zero opacity', () => {
+    const result = getAlphaColorSimple('#00ff00', 0);
+    expect(result).toBe('rgba(0,255,0,0)');
+  });
+
+  it('rounds alpha to 2 decimal places', () => {
+    const result = getAlphaColorSimple('#0000ff', 0.333);
+    expect(result).toMatch(/^rgba\(0,0,255,0\.3[0-9]+\)$/);
+  });
 });
 
 describe('getSolidColor (default — darken)', () => {
