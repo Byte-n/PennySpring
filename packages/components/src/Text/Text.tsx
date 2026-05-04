@@ -2,12 +2,22 @@ import React from 'react';
 import { Text as RNText } from 'react-native';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import type { AliasToken } from '@pennyspring/theme';
-import type { TextProps, TextSize } from './types';
+import type { TextStyle } from 'react-native';
+import type { TextColor, TextProps, TextSize, TextWeight } from './types';
 
 interface SizeConfig {
   fontSize: (token: AliasToken) => number;
   lineHeight: (token: AliasToken) => number;
 }
+
+interface TextStyleOptions {
+  size: TextSize;
+  weight?: TextWeight;
+  color?: TextColor;
+}
+
+type FontWeightSelector = (token: AliasToken) => TextStyle['fontWeight'];
+type ColorSelector = (token: AliasToken) => string;
 
 const SIZE_MAP: Record<TextSize, SizeConfig> = {
   sm: {
@@ -48,21 +58,68 @@ const SIZE_MAP: Record<TextSize, SizeConfig> = {
   },
 };
 
-const useStyles = createUseSheetStyle<{ size: TextSize }>((token, { size }) => {
-  const config = SIZE_MAP[size];
+const WEIGHT_MAP: Record<TextWeight, FontWeightSelector> = {
+  light: t => String(t.fontWeightLight) as TextStyle['fontWeight'],
+  regular: t => String(t.fontWeightRegular) as TextStyle['fontWeight'],
+  medium: t => String(t.fontWeightMedium) as TextStyle['fontWeight'],
+  semibold: t => String(t.fontWeightSemiBold) as TextStyle['fontWeight'],
+  bold: t => String(t.fontWeightBold) as TextStyle['fontWeight'],
+  strong: t => String(t.fontWeightStrong) as TextStyle['fontWeight'],
+};
 
-  return {
-    text: {
-      fontFamily: token.fontFamily,
-      fontSize: config.fontSize(token),
-      lineHeight: config.lineHeight(token),
-      color: token.colorText,
-    },
-  };
-});
+const SIZE_DEFAULT_WEIGHT_MAP: Record<TextSize, TextWeight> = {
+  sm: 'regular',
+  md: 'regular',
+  lg: 'regular',
+  xl: 'regular',
+  h1: 'strong',
+  h2: 'strong',
+  h3: 'strong',
+  h4: 'strong',
+  h5: 'strong',
+};
 
-export function Text({ size = 'md', style, children, ...rest }: TextProps) {
-  const tokenStyles = useStyles({ size });
+const COLOR_MAP: Record<TextColor, ColorSelector> = {
+  base: t => t.colorTextBase,
+  default: t => t.colorText,
+  secondary: t => t.colorTextSecondary,
+  tertiary: t => t.colorTextTertiary,
+  quaternary: t => t.colorTextQuaternary,
+  heading: t => t.colorTextHeading,
+  label: t => t.colorTextLabel,
+  description: t => t.colorTextDescription,
+  disabled: t => t.colorTextDisabled,
+  placeholder: t => t.colorTextPlaceholder,
+  lightSolid: t => t.colorTextLightSolid,
+};
+
+const useStyles = createUseSheetStyle(
+  (token, { size, weight, color }: TextStyleOptions) => {
+    const config = SIZE_MAP[size];
+    const resolvedWeight = weight ?? SIZE_DEFAULT_WEIGHT_MAP[size];
+    const resolvedColor = color ?? 'default';
+
+    return {
+      text: {
+        fontFamily: token.fontFamily,
+        fontSize: config.fontSize(token),
+        lineHeight: config.lineHeight(token),
+        fontWeight: WEIGHT_MAP[resolvedWeight](token),
+        color: COLOR_MAP[resolvedColor](token),
+      },
+    };
+  },
+);
+
+export function Text({
+  size = 'md',
+  weight,
+  color,
+  style,
+  children,
+  ...rest
+}: TextProps) {
+  const tokenStyles = useStyles({ size, weight, color });
 
   return (
     <RNText {...rest} style={[tokenStyles.text, style]}>
