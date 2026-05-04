@@ -6,5 +6,5 @@
       "@pennyspring/theme": ["src/index.ts"]
     }
   },
-  "include": ["src"]
+  "include": ["src", "src/**/*.type-test.ts"]
 }

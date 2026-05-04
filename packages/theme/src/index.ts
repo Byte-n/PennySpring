@@ -30,7 +30,14 @@ export { useTheme } from './useTheme';
 export { toShadowStyle } from './shadowStyle';
 export { default as ThemePreview } from './ThemePreview';
 export { createUseSheetStyle } from './createUseSheetStyle';
-export type { SheetStyle, StyleGenerator } from './createUseSheetStyle';
+export type {
+  SheetStyle,
+  SheetStyleHook,
+  SheetStyleHookWithOptions,
+  StyleGenerator,
+  StyleGeneratorWithOptions,
+  StylesObject,
+} from './createUseSheetStyle';
 
 import * as presetsNamespace from './presets';
 export const presets = presetsNamespace;

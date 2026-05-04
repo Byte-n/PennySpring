@@ -38,8 +38,8 @@ const PRESET_MAP: Record<PresetName, Partial<SeedToken> | undefined> = {
   spring,
 };
 
-const useContainerStyles = createUseSheetStyle<boolean>(
-  (tokens, isDarkMode) => ({
+const useContainerStyles = createUseSheetStyle(
+  (tokens, isDarkMode: boolean) => ({
     container: {
       flex: 1,
       backgroundColor: isDarkMode ? tokens.colorBgBase : tokens.colorBgContainer,
@@ -47,7 +47,7 @@ const useContainerStyles = createUseSheetStyle<boolean>(
   }),
 );
 
-const useHeaderStyles = createUseSheetStyle<never>(tokens => ({
+const useHeaderStyles = createUseSheetStyle(tokens => ({
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -59,7 +59,7 @@ const useHeaderStyles = createUseSheetStyle<never>(tokens => ({
   },
 }));
 
-const useTitleStyles = createUseSheetStyle<boolean>((tokens, isDarkMode) => ({
+const useTitleStyles = createUseSheetStyle((tokens, isDarkMode: boolean) => ({
   title: {
     fontSize: tokens.fontSizeHeading1,
     fontWeight: 'bold',
@@ -67,8 +67,8 @@ const useTitleStyles = createUseSheetStyle<boolean>((tokens, isDarkMode) => ({
   },
 }));
 
-const useToggleButtonStyles = createUseSheetStyle<boolean>(
-  (tokens, isDarkMode) => ({
+const useToggleButtonStyles = createUseSheetStyle(
+  (tokens, isDarkMode: boolean) => ({
     button: {
       paddingHorizontal: tokens.padding,
       paddingVertical: tokens.paddingSM,
@@ -80,8 +80,8 @@ const useToggleButtonStyles = createUseSheetStyle<boolean>(
   }),
 );
 
-const useToggleTextStyles = createUseSheetStyle<boolean>(
-  (tokens, isDarkMode) => ({
+const useToggleTextStyles = createUseSheetStyle(
+  (tokens, isDarkMode: boolean) => ({
     text: {
       fontSize: tokens.fontSize,
       fontWeight: '600',
@@ -90,8 +90,8 @@ const useToggleTextStyles = createUseSheetStyle<boolean>(
   }),
 );
 
-const usePresetBarStyles = createUseSheetStyle<boolean>(
-  (tokens, isDarkMode) => ({
+const usePresetBarStyles = createUseSheetStyle(
+  (tokens, isDarkMode: boolean) => ({
     bar: {
       paddingHorizontal: tokens.padding,
       paddingVertical: tokens.paddingSM,
