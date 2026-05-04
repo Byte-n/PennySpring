@@ -89,7 +89,11 @@ yarn-error.log*
 
 # ai
 /.claude/skills/skill-creator
+/.codex/
 .qoder
 
 # openspec
 openspec/changes/archive
+/ios/Podfile.lock
+/ios/PennySpring.xcworkspace/contents.xcworkspacedata
+/Gemfile.lock
