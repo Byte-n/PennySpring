@@ -22,7 +22,7 @@ const useStyles = createUseSheetStyle<TOptions>((token, opts) => ({ /* styles */
 
 | 坑 | 正确做法 |
 |---|---|
-| RN `lineHeight` 字段要像素数值 | 用 `token.fontHeight*`（已乘好），**不用** `token.lineHeight*`（那是倍数） |
+| RN `lineHeight` 字段要像素数值 | 直接用 `token.lineHeight*`（已是像素值） |
 | `boxShadow*` 不是 ViewStyle | 必须 `...toShadowStyle(token.boxShadow)`，不能 `...token.boxShadow` |
 | Easing 曲线是 `[x1,y1,x2,y2]` 元组 | `Easing.bezier(...token.motionEaseInOut)` |
 | 动效时长是数值 ms（非字符串） | `duration: token.motionDurationMid`；`motion:false` 时自动归零，勿手写 if |
@@ -39,7 +39,7 @@ const useStyles = createUseSheetStyle<TOptions>((token, opts) => ({ /* styles */
 - **预设色**：`blue|purple|cyan|green|magenta|pink|red|orange|yellow|volcano|geekblue|gold|lime` × `1..10`（6 是基准）。**只用于稳定分类**（头像、分类 Tag、图表系列），不会随主题切换——跟品牌走的场景用语义色
 - **间距**：`size{XXS..XXL}` / `padding{XXS,XS,SM,,MD,LG,XL}` / `margin{XXS..XXL}` / `controlPaddingHorizontal{,SM}` / `paddingContent{Horizontal,Vertical}{,SM,LG}`
 - **控件高度**：`controlHeight{XS=22, SM=33, =44, LG=55}`
-- **字体**：`fontSize{SM=14, =16, LG=17, XL=20}` / `fontSizeHeading{1..5}` / `fontHeight{,SM,LG}`（像素）/ `lineHeightHeading{1..5}` / `fontWeightStrong=600` / `fontFamily` / `fontFamilyCode`
+- **字体**：`fontSize{SM=14, =16, LG=17, XL=20}` / `fontSizeHeading{1..5}` / `lineHeight{,SM,LG,XL}`（像素）/ `lineHeightHeading{1..5}`（像素）/ `fontWeightStrong=600` / `fontFamily` / `fontFamilyCode`
 - **圆角/线宽**：`borderRadius{XS=2, SM=4, =8, LG=12, Outer=6}` / `lineWidth{=1, Bold=2, Focus=3}`
 - **阴影**（由重到轻）：`boxShadow` > `boxShadowSecondary` > `boxShadowTertiary`
 - **动效**：`motionDuration{Fast=100, Mid=200, Slow=300}`（ms）/ `motionEase{InOut,OutCirc,InOutCirc,OutBack,InBack,InQuint,OutQuint,Out}`

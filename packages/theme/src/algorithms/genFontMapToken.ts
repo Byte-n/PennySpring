@@ -20,18 +20,25 @@ export function genFontMapToken(base: number): Record<string, number> {
   // 行高公式从 ant-design 原版 (fontSize + 8) 调整为 (fontSize + 10)：
   // 中文字符视觉密度高于拉丁字符，+8 在 16px 正文下行高=1.5 偏紧；
   // +10 在 16px 下行高≈ 1.625，20px 下≈ 1.5，更靠近中文阅读舒适区。
-  const lineHeight = round(((fontSize + 10) / fontSize) * 1000) / 1000;
-  const lineHeightSM = round(((fontSizeSM + 10) / fontSizeSM) * 1000) / 1000;
-  const lineHeightLG = round(((fontSizeLG + 10) / fontSizeLG) * 1000) / 1000;
-  const lineHeightHeading1 = round(((fontSizeHeading1 + 10) / fontSizeHeading1) * 1000) / 1000;
-  const lineHeightHeading2 = round(((fontSizeHeading2 + 10) / fontSizeHeading2) * 1000) / 1000;
-  const lineHeightHeading3 = round(((fontSizeHeading3 + 10) / fontSizeHeading3) * 1000) / 1000;
-  const lineHeightHeading4 = round(((fontSizeHeading4 + 10) / fontSizeHeading4) * 1000) / 1000;
-  const lineHeightHeading5 = round(((fontSizeHeading5 + 10) / fontSizeHeading5) * 1000) / 1000;
+  // 输出为像素值，可直接用于 RN lineHeight 样式。
+  const lineHeightRatio = ((fontSize + 10) / fontSize * 1000) / 1000;
+  const lineHeightSMRatio = ((fontSizeSM + 10) / fontSizeSM * 1000) / 1000;
+  const lineHeightLGRatio = ((fontSizeLG + 10) / fontSizeLG * 1000) / 1000;
+  const lineHeightHeading1Ratio = ((fontSizeHeading1 + 10) / fontSizeHeading1 * 1000) / 1000;
+  const lineHeightHeading2Ratio = ((fontSizeHeading2 + 10) / fontSizeHeading2 * 1000) / 1000;
+  const lineHeightHeading3Ratio = ((fontSizeHeading3 + 10) / fontSizeHeading3 * 1000) / 1000;
+  const lineHeightHeading4Ratio = ((fontSizeHeading4 + 10) / fontSizeHeading4 * 1000) / 1000;
+  const lineHeightHeading5Ratio = ((fontSizeHeading5 + 10) / fontSizeHeading5 * 1000) / 1000;
 
-  const fontHeight = round(lineHeight * fontSize);
-  const fontHeightSM = round(lineHeightSM * fontSizeSM);
-  const fontHeightLG = round(lineHeightLG * fontSizeLG);
+  const lineHeight = round(lineHeightRatio * fontSize);
+  const lineHeightSM = round(lineHeightSMRatio * fontSizeSM);
+  const lineHeightLG = round(lineHeightLGRatio * fontSizeLG);
+  const lineHeightXL = round(lineHeightHeading4Ratio * fontSizeXL);
+  const lineHeightHeading1 = round(lineHeightHeading1Ratio * fontSizeHeading1);
+  const lineHeightHeading2 = round(lineHeightHeading2Ratio * fontSizeHeading2);
+  const lineHeightHeading3 = round(lineHeightHeading3Ratio * fontSizeHeading3);
+  const lineHeightHeading4 = round(lineHeightHeading4Ratio * fontSizeHeading4);
+  const lineHeightHeading5 = round(lineHeightHeading5Ratio * fontSizeHeading5);
 
   return {
     fontSizeSM,
@@ -46,9 +53,7 @@ export function genFontMapToken(base: number): Record<string, number> {
     lineHeight,
     lineHeightLG,
     lineHeightSM,
-    fontHeight,
-    fontHeightSM,
-    fontHeightLG,
+    lineHeightXL,
     lineHeightHeading1,
     lineHeightHeading2,
     lineHeightHeading3,

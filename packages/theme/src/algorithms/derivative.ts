@@ -3,6 +3,7 @@ import { genPresetColorPalettes } from './genPresetColorPalettes';
 import { genColorMapToken } from './genColorMapToken';
 import { genSizeMapToken } from './genSizeMapToken';
 import { genFontMapToken } from './genFontMapToken';
+import { genFontWeightMap } from './genFontWeightMap';
 import { genControlHeight } from './genControlHeight';
 import { genCommonMapToken } from './genCommonMapToken';
 import { PresetColors } from '../presetColors';
@@ -77,6 +78,7 @@ export function derivative(
   // --- Step 3. 尺寸与字体 --- //
   const sizeMap = genSizeMapToken(seed);
   const fontMap = genFontMapToken(seed.fontSize);
+  const fontWeightMap = genFontWeightMap(seed.fontWeight);
   const heightMap = genControlHeight(seed.controlHeight);
 
   const commonMap = genCommonMapToken({
@@ -92,6 +94,7 @@ export function derivative(
     ...colorMap,
     ...sizeMap,
     ...fontMap,
+    ...fontWeightMap,
     ...heightMap,
     ...commonMap,
   } as MapToken;

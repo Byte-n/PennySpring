@@ -130,28 +130,17 @@ describe('formatToken', () => {
     expect(alias.motionDurationSlow).toBe(0);
   });
 
-  it('screen breakpoints are numeric constants', () => {
+  it('fontWeightStrong maps to fontWeightSemiBold from MapToken', () => {
     const { defaultSeedToken } = require('../src/defaults');
     const { derivative } = require('../src/algorithms/derivative');
-    const mapToken = derivative(defaultSeedToken, false);
+    const mapToken = {
+      ...derivative(defaultSeedToken, false),
+      fontWeightSemiBold: 700,
+    };
     const alias = formatToken(mapToken);
 
-    expect(alias.screenXS).toBe(480);
-    expect(alias.screenSM).toBe(576);
-    expect(alias.screenMD).toBe(768);
-    expect(alias.screenLG).toBe(992);
-    expect(alias.screenXL).toBe(1200);
-    expect(alias.screenXXL).toBe(1600);
-    expect(alias.screenXXXL).toBe(1920);
-  });
-
-  it('fontWeightStrong is 600', () => {
-    const { defaultSeedToken } = require('../src/defaults');
-    const { derivative } = require('../src/algorithms/derivative');
-    const mapToken = derivative(defaultSeedToken, false);
-    const alias = formatToken(mapToken);
-
-    expect(alias.fontWeightStrong).toBe(600);
+    expect(alias.fontWeightSemiBold).toBe(700);
+    expect(alias.fontWeightStrong).toBe(alias.fontWeightSemiBold);
   });
 
   it('colorSplit is generated from colorBorderSecondary and colorBgContainer', () => {

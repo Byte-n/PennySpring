@@ -24,6 +24,7 @@ describe('SeedToken and defaults', () => {
     expect(defaultSeedToken.colorPrimary).toBe('#1677ff');
     // 移动端修正：fontSize 16 / controlHeight 44 / borderRadius 8
     expect(defaultSeedToken.fontSize).toBe(16);
+    expect(defaultSeedToken.fontWeight).toBe(400);
     expect(defaultSeedToken.borderRadius).toBe(8);
     expect(defaultSeedToken.sizeUnit).toBe(4);
     expect(defaultSeedToken.sizeStep).toBe(4);

@@ -76,9 +76,6 @@ describe('useTheme', () => {
       expect(token.fontSize).toBeGreaterThan(0);
       expect(token.lineHeight).toBeGreaterThan(0);
 
-      // 屏幕断点
-      expect(token.screenXS).toBe(480);
-      expect(token.screenSM).toBe(576);
     });
 
     it('returns different tokens in dark mode', () => {

@@ -41,6 +41,8 @@ export interface SeedToken extends PresetColorType {
   fontFamilyCode: string;
   /** 基准字号 (px) */
   fontSize: number;
+  /** 基准字重 */
+  fontWeight: number;
   /** 线宽基准 (px) */
   lineWidth: number;
   /** 基准圆角半径 (px) */
@@ -340,28 +342,34 @@ export interface FontMapToken {
   fontSizeHeading4: number;
   /** H5 标题字号 */
   fontSizeHeading5: number;
-  /** 基准行高（倍数） */
+  /** 基准行高（像素） */
   lineHeight: number;
-  /** 大号行高 */
+  /** 大号行高（像素） */
   lineHeightLG: number;
-  /** 小号行高 */
+  /** 小号行高（像素） */
   lineHeightSM: number;
-  /** 基准字高（lineHeight × fontSize） */
-  fontHeight: number;
-  /** 小号字高 */
-  fontHeightSM: number;
-  /** 大号字高 */
-  fontHeightLG: number;
-  /** H1 行高 */
+  /** 超大号行高（像素） */
+  lineHeightXL: number;
+  /** H1 行高（像素） */
   lineHeightHeading1: number;
-  /** H2 行高 */
+  /** H2 行高（像素） */
   lineHeightHeading2: number;
-  /** H3 行高 */
+  /** H3 行高（像素） */
   lineHeightHeading3: number;
-  /** H4 行高 */
+  /** H4 行高（像素） */
   lineHeightHeading4: number;
-  /** H5 行高 */
+  /** H5 行高（像素） */
   lineHeightHeading5: number;
+  /** Light 字重 */
+  fontWeightLight: number;
+  /** Regular 字重 */
+  fontWeightRegular: number;
+  /** Medium 字重 */
+  fontWeightMedium: number;
+  /** SemiBold 字重 */
+  fontWeightSemiBold: number;
+  /** Bold 字重 */
+  fontWeightBold: number;
 }
 
 // --- Style and Common ---
@@ -484,7 +492,17 @@ export interface AliasToken extends MapToken {
   colorWarningOutline: string;
   /** 图标字号 */
   fontSizeIcon: number;
-  /** 加粗字重 */
+  /** Light 字重 */
+  fontWeightLight: number;
+  /** Regular 字重 */
+  fontWeightRegular: number;
+  /** Medium 字重 */
+  fontWeightMedium: number;
+  /** SemiBold 字重 */
+  fontWeightSemiBold: number;
+  /** Bold 字重 */
+  fontWeightBold: number;
+  /** 加粗字重（兼容别名，等同于 fontWeightSemiBold） */
   fontWeightStrong: number;
   /** 聚焦态线宽（lineWidth × 3） */
   lineWidthFocus: number;
@@ -536,46 +554,6 @@ export interface AliasToken extends MapToken {
   boxShadowSecondary: ShadowToken;
   /** 三级阴影（最浅，blur=2, opacity=0.03） */
   boxShadowTertiary: ShadowToken;
-  /** 超小屏断点宽度 (480) */
-  screenXS: number;
-  /** 超小屏最小值 */
-  screenXSMin: number;
-  /** 超小屏最大值 (575) */
-  screenXSMax: number;
-  /** 小屏断点宽度 (576) */
-  screenSM: number;
-  /** 小屏最小值 */
-  screenSMMin: number;
-  /** 小屏最大值 (767) */
-  screenSMMax: number;
-  /** 中屏断点宽度 (768) */
-  screenMD: number;
-  /** 中屏最小值 */
-  screenMDMin: number;
-  /** 中屏最大值 (991) */
-  screenMDMax: number;
-  /** 大屏断点宽度 (992) */
-  screenLG: number;
-  /** 大屏最小值 */
-  screenLGMin: number;
-  /** 大屏最大值 (1199) */
-  screenLGMax: number;
-  /** 超大屏断点宽度 (1200) */
-  screenXL: number;
-  /** 超大屏最小值 */
-  screenXLMin: number;
-  /** 超大屏最大值 (1599) */
-  screenXLMax: number;
-  /** 超超大屏断点宽度 (1600) */
-  screenXXL: number;
-  /** 超超大屏最小值 */
-  screenXXLMin: number;
-  /** 超超大屏最大值 (1919) */
-  screenXXLMax: number;
-  /** 超超超大屏断点宽度 (1920) */
-  screenXXXL: number;
-  /** 超超超大屏最小值 */
-  screenXXXLMin: number;
   /** 加载态不透明度 */
   opacityLoading: number;
   /** 控件临时轮廓色 */

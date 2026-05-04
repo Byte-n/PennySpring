@@ -23,6 +23,7 @@ export const defaultSeedToken: SeedToken = {
   }) as string,
   // 移动端正文最小 16（iOS HIG / Material）
   fontSize: 16,
+  fontWeight: 400,
   lineWidth: 1,
   // 现代移动端 UI 基准圆角
   borderRadius: 8,

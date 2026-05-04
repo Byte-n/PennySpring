@@ -389,19 +389,28 @@ describe('genFontMapToken', () => {
     expect(fonts.fontSizeHeading4).toBeGreaterThan(fonts.fontSizeHeading5);
   });
 
-  it('line heights are computed as (fontSize + 10) / fontSize (RN 中文舒适区)', () => {
+  it('line heights are pixel values derived from (fontSize + 10) formula', () => {
     const fonts = genFontMapToken(16);
-    // fontSize=16 下行高≈ (16+10)/16 = 1.625
-    expect(fonts.lineHeight).toBeCloseTo(1.625, 3);
-    // genFontSizes(16)[0] = 14 → lineHeightSM ≈ (14+10)/14 = 1.714
-    expect(fonts.lineHeightSM).toBeCloseTo(1.714, 2);
-    // genFontSizes(16)[2] = 18 → lineHeightLG ≈ (18+10)/18 = 1.556
-    expect(fonts.lineHeightLG).toBeCloseTo(1.556, 2);
+    // fontSize=16 → lineHeight = 16 + 10 = 26
+    expect(fonts.lineHeight).toBe(26);
+    // fontSizeSM=14 → lineHeightSM = 14 + 10 = 24
+    expect(fonts.lineHeightSM).toBe(24);
+    // fontSizeLG=18 → lineHeightLG = 18 + 10 = 28
+    expect(fonts.lineHeightLG).toBe(28);
+    // fontSizeXL=22, same as fontSizeHeading4 → lineHeightXL = 22 + 10 = 32
+    expect(fonts.lineHeightXL).toBe(32);
+    // All line heights are integers (pixels)
+    expect(Number.isInteger(fonts.lineHeight)).toBe(true);
+    expect(Number.isInteger(fonts.lineHeightSM)).toBe(true);
+    expect(Number.isInteger(fonts.lineHeightLG)).toBe(true);
+    expect(Number.isInteger(fonts.lineHeightXL)).toBe(true);
   });
 
-  it('fontHeights are computed from lineHeight * fontSize rounded', () => {
-    const fonts = genFontMapToken(14);
-    expect(fonts.fontHeight).toBeGreaterThan(0);
-    expect(Number.isInteger(fonts.fontHeight)).toBe(true);
+  it('heading line heights are pixel values', () => {
+    const fonts = genFontMapToken(16);
+    // fontSizeHeading1=42 → lineHeightHeading1 = 42 + 10 = 52
+    expect(fonts.lineHeightHeading1).toBe(52);
+    expect(Number.isInteger(fonts.lineHeightHeading1)).toBe(true);
+    expect(Number.isInteger(fonts.lineHeightHeading5)).toBe(true);
   });
 });

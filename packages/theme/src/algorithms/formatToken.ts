@@ -40,6 +40,11 @@ export function formatToken(mapToken: MapToken): AliasToken {
     colorWhite,
     controlHeight,
     fontSizeSM,
+    fontWeightLight,
+    fontWeightRegular,
+    fontWeightMedium,
+    fontWeightSemiBold,
+    fontWeightBold,
     lineWidth,
     sizeXXS,
     sizeXS,
@@ -93,7 +98,7 @@ export function formatToken(mapToken: MapToken): AliasToken {
 
   // 对齐 antd：图标字号归属字体梯度，不跟随 size 系统
   const fontSizeIcon = fontSizeSM;
-  const fontWeightStrong = 600;
+  const fontWeightStrong = fontWeightSemiBold;
   const lineWidthFocus = lineWidth * 3;
 
   const paddingXXS = sizeXXS;
@@ -160,6 +165,11 @@ export function formatToken(mapToken: MapToken): AliasToken {
     colorErrorOutline,
     colorWarningOutline,
     fontSizeIcon,
+    fontWeightLight,
+    fontWeightRegular,
+    fontWeightMedium,
+    fontWeightSemiBold,
+    fontWeightBold,
     fontWeightStrong,
     lineWidthFocus,
     paddingXXS,
@@ -186,26 +196,6 @@ export function formatToken(mapToken: MapToken): AliasToken {
     boxShadow,
     boxShadowSecondary,
     boxShadowTertiary,
-    screenXS: 480,
-    screenXSMin: 480,
-    screenXSMax: 575,
-    screenSM: 576,
-    screenSMMin: 576,
-    screenSMMax: 767,
-    screenMD: 768,
-    screenMDMin: 768,
-    screenMDMax: 991,
-    screenLG: 992,
-    screenLGMin: 992,
-    screenLGMax: 1199,
-    screenXL: 1200,
-    screenXLMin: 1200,
-    screenXLMax: 1599,
-    screenXXL: 1600,
-    screenXXLMin: 1600,
-    screenXXLMax: 1919,
-    screenXXXL: 1920,
-    screenXXXLMin: 1920,
     motionDurationFast,
     motionDurationMid,
     motionDurationSlow,

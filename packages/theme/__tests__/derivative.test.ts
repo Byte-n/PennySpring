@@ -68,4 +68,15 @@ describe('derivative pipeline', () => {
     expect(result.colorWhite).toBe('#fff');
     expect(result.colorBgMask).toBeTruthy();
   });
+
+  it('includes font weight map tokens', () => {
+    const { defaultSeedToken } = require('../src/defaults');
+    const result = derivative(defaultSeedToken, false);
+
+    expect(result.fontWeightLight).toBe(300);
+    expect(result.fontWeightRegular).toBe(400);
+    expect(result.fontWeightMedium).toBe(500);
+    expect(result.fontWeightSemiBold).toBe(600);
+    expect(result.fontWeightBold).toBe(700);
+  });
 });

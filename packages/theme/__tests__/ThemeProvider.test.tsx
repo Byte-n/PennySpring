@@ -207,7 +207,6 @@ describe('derivative and formatToken integration', () => {
     expect(alias.boxShadow).toHaveProperty('shadowRadius');
     expect(alias.boxShadow).toHaveProperty('elevation');
     expect(alias.paddingSM).toBe(12);
-    expect(alias.screenXS).toBe(480);
   });
 
   it('dark mode produces different alias', () => {
