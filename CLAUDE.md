@@ -72,3 +72,7 @@ scripts/              → 工具脚本
 **动态样式**：通过 `createUseSheetStyle<TOptions>` 的泛型参数传入，不在调用处拼 `[styles.a, { ... }]`。
 
 **主题注入**：全局 `<ThemeProvider>` 位于应用根；禁止在组件内判断 light/dark 分支——所有 token 已自适配。
+
+## 文本展示
+
+仅允许使用 theme 子包提供的 `Text` 组件；业务与共享组件中禁止直接使用 `react-native` 的 `Text` 做文本展示。
