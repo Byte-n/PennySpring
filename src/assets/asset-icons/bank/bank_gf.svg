@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!--
+     Copyright 2021 The Cashbook Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+--><svg xmlns:android="http://schemas.android.com/apk/res/android" height="1024" width="1024" xmlns="http://www.w3.org/2000/svg">
+    <path d="M512,423.15c-41.35,81.01 -87.91,156.99 -137.02,232.96a1934.61,1934.61 0,0 0,-372.26 58.21C165.57,537.09 302.59,306.69 374.94,78.77c31.04,113.94 77.59,230.4 137.02,344.38" fill="#BD0016"/>
+    <path d="M372.38,656.11a2473.35,2473.35 0,0 1,274.04 0c72.39,106.34 152.54,205.08 240.44,288.65 -237.84,-53.17 -511.88,-53.17 -752.32,0l5.2,-5.08 5.16,-5.04 5.16,-5.08 5.2,-5.04 5.12,-5.08 5.2,-5.08 5.16,-5.04 5.2,-5.08 5.12,-5.04 -5.12,5.04 2.56,-5.04 5.2,-5.08 5.12,-5.04 5.2,-5.12 5.16,-5.04 5.2,-5.04h-2.6l2.6,-5.08 2.56,-5.04 2.6,-5.08 2.6,-5.08 2.56,-5.04 2.6,-5.08 2.6,-5.04c62.03,-53.17 108.54,-116.5 152.5,-182.35" fill="#730000"/>
+    <path d="M649.02,656.11A2122.83,2122.83 0,0 1,512 423.15C568.87,309.17 615.42,192.75 646.42,78.77c74.99,230.4 209.41,460.84 377.46,635.55 -116.34,-30.37 -245.6,-48.09 -374.86,-58.21" fill="#E5001F"/>
+    <path d="M649.02,656.11c131.86,7.6 258.52,27.84 374.86,58.21l-134.42,230.4c-87.91,-83.5 -168.05,-179.75 -240.44,-288.61" fill="#BD0016"/>
+    <path d="M372.38,656.11c-72.39,106.34 -152.5,205.08 -237.84,286.13l-134.42,-230.4a2155.36,2155.36 0,0 1,372.26 -55.73" fill="#E5001F"/>
+    <path d="M646.42,78.77c-31,113.94 -77.55,230.4 -134.42,344.38C452.53,309.17 406.02,192.75 374.98,78.77h271.44z" fill="#730000"/>
+</svg>

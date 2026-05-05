@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!--
+     Copyright 2021 The Cashbook Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+--><svg xmlns:android="http://schemas.android.com/apk/res/android" height="1024" width="1024" xmlns="http://www.w3.org/2000/svg">
+    <path d="M24.38,512c0,-269.31 218.31,-487.62 487.62,-487.62s487.62,218.31 487.62,487.62 -218.31,487.62 -487.62,487.62 -487.62,-218.31 -487.62,-487.62z" fill="#d81e06"/>
+    <path d="M170.67,775.8h31.01a186.22,186.22 0,0 0,186.22 -186.27v-341.33L325.83,248.2v341.33a124.15,124.15 0,0 1,-124.15 124.15L170.67,713.68v62.07zM620.59,775.8L465.43,775.8L465.43,248.2h155.16C749.13,248.2 853.33,366.4 853.33,512s-104.2,263.8 -232.74,263.8zM620.59,310.32L527.56,310.32v403.36h93.14c94.26,0 170.67,-90.31 170.67,-201.68 0,-111.42 -76.41,-201.68 -170.67,-201.68z" fill="#FFFFFF"/>
+</svg>
