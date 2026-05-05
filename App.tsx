@@ -1,8 +1,10 @@
 import React from 'react';
 import { StatusBar, useColorScheme } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import { ConfigProvider } from '@pennyspring/component';
 import { createUseSheetStyle, ThemeProvider } from '@pennyspring/theme';
-import { AppNavigator } from './src/navigation';
+import { AppNavigator } from './src/navigation/AppNavigator';
+import { rootNavigationRef } from './src/navigation/rootNavigationRef';
 
 const useStyles = createUseSheetStyle((token) => ({
   safeArea: {
@@ -23,12 +25,19 @@ function AppContent() {
 
 function App() {
   const isDarkMode = useColorScheme() === 'dark';
+  const handleBack = React.useCallback(() => {
+    if (rootNavigationRef.isReady() && rootNavigationRef.canGoBack()) {
+      rootNavigationRef.goBack();
+    }
+  }, []);
 
   return (
     <SafeAreaProvider>
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
       <ThemeProvider config={{ algorithm: isDarkMode ? 'dark' : 'default' }}>
-        <AppContent />
+        <ConfigProvider page={{ onBack: handleBack }}>
+          <AppContent />
+        </ConfigProvider>
       </ThemeProvider>
     </SafeAreaProvider>
   );

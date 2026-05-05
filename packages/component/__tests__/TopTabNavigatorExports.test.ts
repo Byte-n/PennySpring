@@ -30,4 +30,11 @@ describe('TopTabNavigator exports', () => {
 
     expect(typeof TopTabNavigator).toBe('function');
   });
+
+  it('exports ConfigProvider APIs from the package entry point', () => {
+    const { ConfigProvider, useComponentConfig } = require('../src/index');
+
+    expect(typeof ConfigProvider).toBe('function');
+    expect(typeof useComponentConfig).toBe('function');
+  });
 });

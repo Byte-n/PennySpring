@@ -2,6 +2,7 @@ import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import { HomeScreen } from '../screens/home/HomeScreen';
+import { TestScreen } from '../screens/test';
 import { ROOT_ROUTES } from './routes';
 import type { RootStackParamList } from './types';
 
@@ -13,6 +14,11 @@ export function RootStackNavigator() {
       <Stack.Screen
         component={HomeScreen}
         name={ROOT_ROUTES.Home}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        component={TestScreen}
+        name={ROOT_ROUTES.Test}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>

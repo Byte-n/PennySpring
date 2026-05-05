@@ -16,6 +16,7 @@
     "react-native-reanimated": "*"
   },
   "dependencies": {
-    "@pennyspring/theme": "*"
+    "@pennyspring/theme": "*",
+    "phosphor-react-native": "*"
   }
 }

@@ -116,9 +116,16 @@ Token 管线：`SeedToken` → `derivative()` → `MapToken` → `formatToken()`
 - 测试文件使用 `*.test.ts` / `*.test.tsx`，集中在根 `__tests__/` 或各包 `__tests__/`。
 - 按 AAA（Arrange-Act-Assert）组织测试；测试名描述被验证行为。
 - 新功能和 bugfix 遵循测试先行：RED → GREEN → REFACTOR。
+- 测试默认只编写用户可感知的行为断言；不要为 props 类型形状、mock 参数结构、组件是否只是 defined、内部委托细节等
+  “类型或实现形状”编写测试。只有在 TDD 过程中确实需要临时辅助定位时，才允许短暂添加这类用例；开发完成前必须移除，
+  或改写为用户可感知的行为断言。
 - 最低覆盖率目标为 80%；关键用户流需要 E2E 覆盖，规则建议使用 Playwright。
 
 ## Git Conventions
 
 - 近期提交使用 conventional commit 风格，常见 scope 如 `data`、`theme`、`components`。
 - 提交说明使用中文，但保持 `feat:`、`fix:`、`docs:`、`chore:` 等前缀。
+
+## Accessibility
+
+- 不需要支持无障碍

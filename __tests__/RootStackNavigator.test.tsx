@@ -9,9 +9,9 @@ jest.mock('@react-navigation/native-stack', () => ({
     const ReactLocal = require('react');
 
     return {
-      Navigator: ({ children }: { children: React.ReactNode }) =>
+      Navigator: ({ children }: any) =>
         ReactLocal.createElement('mock-native-stack', null, children),
-      Screen: (props: Record<string, unknown>) => {
+      Screen: (props: any) => {
         mockStackScreen(props);
         return ReactLocal.createElement('mock-native-stack-screen');
       },
@@ -23,16 +23,24 @@ jest.mock('../src/screens/home/HomeScreen', () => ({
   HomeScreen: () => null,
 }));
 
+jest.mock('../src/screens/test/TestScreen', () => ({
+  TestScreen: () => null,
+}));
+
 describe('RootStackNavigator', () => {
-  it('registers Home with hidden native header', () => {
+  beforeEach(() => {
+    mockStackScreen.mockClear();
+  });
+
+  it('registers Home and Test root routes', () => {
     act(() => {
       renderer.create(<RootStackNavigator />);
     });
 
-    const screenProps = mockStackScreen.mock.calls[0][0];
+    const registeredNames = mockStackScreen.mock.calls.map(
+      ([props]) => props.name,
+    );
 
-    expect(screenProps.name).toBe('Home');
-    expect(screenProps.component).toBeDefined();
-    expect(screenProps.options).toEqual({ headerShown: false });
+    expect(registeredNames).toEqual(['Home', 'Test']);
   });
 });
