@@ -3,7 +3,7 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@pennyspring/components": ["src/index.ts"]
+      "@pennyspring/component": ["src/index.ts"]
     }
   },
   "include": ["src"]

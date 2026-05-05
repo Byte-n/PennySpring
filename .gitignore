@@ -97,3 +97,6 @@ openspec/changes/archive
 /ios/Podfile.lock
 /ios/PennySpring.xcworkspace/contents.xcworkspacedata
 /Gemfile.lock
+/docs/icon/
+/docs/bank-icon-mapping.md
+/docs/type-icon-mapping.md

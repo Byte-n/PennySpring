@@ -4,9 +4,9 @@
     "types": ["jest"],
     "paths": {
       "@pennyspring/theme": ["./packages/theme/src"],
-      "@pennyspring/components": ["./packages/components/src"]
+      "@pennyspring/component": ["./packages/component/src"]
     }
   },
-  "include": ["**/*.ts", "**/*.tsx"],
+  "include": ["**/*.ts", "**/*.tsx", "**/*.d.ts"],
   "exclude": ["**/node_modules", "**/Pods"]
 }

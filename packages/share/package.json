@@ -1,0 +1,14 @@
+{
+  "name": "@pennyspring/share",
+  "version": "0.0.1",
+  "private": true,
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "lodash-es": "*",
+    "@types/lodash-es": "*"
+  }
+}
