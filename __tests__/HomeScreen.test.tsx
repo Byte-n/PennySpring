@@ -2,7 +2,7 @@ import React from 'react';
 import renderer, { act } from 'react-test-renderer';
 import { HomeScreen } from '../src/screens/HomeScreen';
 
-jest.mock('@pennyspring/components', () => {
+jest.mock('../packages/component', () => {
   const ReactLocal = require('react');
   const { Text } = require('react-native');
 

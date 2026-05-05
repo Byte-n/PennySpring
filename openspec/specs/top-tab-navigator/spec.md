@@ -59,8 +59,8 @@ TopTabNavigator SHALL accept a `styles` prop of type `TopTabNavigatorStyles` tha
 - **THEN** the HeaderBar container SHALL apply the override merged with default styles
 
 ### Requirement: Types exported from package
-All type interfaces (`TopTabNavigatorProps`, `TabScreen`, `TopTabNavigatorStyles`, `HeaderBarStyles`, `SegmentedControlStyles`) SHALL be exported from `@pennyspring/components`.
+All type interfaces (`TopTabNavigatorProps`, `TabScreen`, `TopTabNavigatorStyles`, `HeaderBarStyles`, `SegmentedControlStyles`) SHALL be exported from `@pennyspring/component`.
 
 #### Scenario: Types are importable
-- **WHEN** a consumer imports from `@pennyspring/components`
+- **WHEN** a consumer imports from `@pennyspring/component`
 - **THEN** all TopTabNavigator-related types SHALL be available as named exports

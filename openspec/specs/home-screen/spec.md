@@ -30,8 +30,8 @@ App.tsx SHALL wrap the app in `NavigationContainer` with a `NativeStack.Navigato
 - **THEN** the native stack header SHALL NOT be visible
 
 ### Requirement: Components package exports TopTabNavigator
-`@pennyspring/components` SHALL export `TopTabNavigator` and its types from the package entry point. `package.json` SHALL declare `@react-navigation/material-top-tabs`, `react-native-pager-view`, and `react-native-reanimated` as peerDependencies.
+`@pennyspring/component` SHALL export `TopTabNavigator` and its types from the package entry point. `package.json` SHALL declare `@react-navigation/material-top-tabs`, `react-native-pager-view`, and `react-native-reanimated` as peerDependencies.
 
 #### Scenario: Package exports are available
-- **WHEN** a consumer imports `TopTabNavigator` from `@pennyspring/components`
+- **WHEN** a consumer imports `TopTabNavigator` from `@pennyspring/component`
 - **THEN** the import SHALL resolve successfully

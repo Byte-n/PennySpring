@@ -3,7 +3,7 @@ import {
   TopTabNavigator,
   type TabScreen,
   TextPreview,
-} from '@pennyspring/components';
+} from '../../packages/component';
 import { ChartTab } from './tabs/ChartTab';
 import { DetailTab } from './tabs/DetailTab';
 import { ThemePreview } from '@pennyspring/theme';
