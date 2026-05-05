@@ -1,20 +1,10 @@
 schema: spec-driven
 
-# Project context (optional)
-# This is shown to AI when creating artifacts.
-# Add your tech stack, conventions, style guides, domain knowledge, etc.
-# Example:
-#   context: |
-#     Tech stack: TypeScript, React, Node.js
-#     We use conventional commits
-#     Domain: e-commerce platform
-
-# Per-artifact rules (optional)
-# Add custom rules for specific artifacts.
-# Example:
-#   rules:
-#     proposal:
-#       - Keep proposals under 500 words
-#       - Always include a "Non-goals" section
-#     tasks:
-#       - Break tasks into chunks of max 2 hours
+context: |
+  - 执行 `$openspec-archive-change` 归档时，总是选择 `Sync now` 同步方式
+#rules:
+# proposal:
+#   - Keep proposals under 500 words
+#   - Always include a "Non-goals" section
+# tasks:
+#   - Break tasks into chunks of max 2 hours
