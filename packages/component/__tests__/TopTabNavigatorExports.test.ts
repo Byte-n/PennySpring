@@ -5,6 +5,10 @@ jest.mock('@react-navigation/material-top-tabs', () => ({
   }),
 }));
 
+jest.mock('react-native-drawer-layout', () => ({
+  Drawer: 'Drawer',
+}));
+
 jest.mock('react-native-reanimated', () => {
   const ReactNative = require('react-native');
 

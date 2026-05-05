@@ -11,6 +11,7 @@
     "@react-navigation/material-top-tabs": "*",
     "react": "*",
     "react-native": "*",
+    "react-native-drawer-layout": "*",
     "react-native-pager-view": "*",
     "react-native-reanimated": "*"
   },
