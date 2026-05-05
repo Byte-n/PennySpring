@@ -1,16 +1,8 @@
 import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { StatusBar, useColorScheme } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { createUseSheetStyle, ThemeProvider } from '@pennyspring/theme';
-import { HomeScreen } from './src/screens/HomeScreen';
-
-type RootStackParamList = {
-  Home: undefined;
-};
-
-const Stack = createNativeStackNavigator<RootStackParamList>();
+import { AppNavigator } from './src/navigation';
 
 const useStyles = createUseSheetStyle((token) => ({
   safeArea: {
@@ -24,15 +16,7 @@ function AppContent() {
 
   return (
     <SafeAreaView edges={['top', 'right', 'bottom', 'left']} style={[styles.safeArea]}>
-      <NavigationContainer>
-        <Stack.Navigator>
-          <Stack.Screen
-            component={HomeScreen}
-            name="Home"
-            options={{ headerShown: false }}
-          />
-        </Stack.Navigator>
-      </NavigationContainer>
+      <AppNavigator />
     </SafeAreaView>
   );
 }

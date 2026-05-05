@@ -1,24 +1,22 @@
 import React from 'react';
 import renderer, { act } from 'react-test-renderer';
-import { HomeScreen } from '../src/screens/HomeScreen';
+import { HomeScreen } from '../src/screens/home/HomeScreen';
 
-jest.mock('../packages/component', () => {
+const mockHomeTabsNavigator = jest.fn();
+
+jest.mock('../src/navigation/HomeTabsNavigator', () => {
   const ReactLocal = require('react');
-  const { Text } = require('react-native');
 
   return {
-    TopTabNavigator: ({ screens }: { screens: readonly { label: string }[] }) => (
-      <>
-        {screens.map((screen) => (
-          <Text key={screen.label}>{screen.label}</Text>
-        ))}
-      </>
-    ),
+    HomeTabsNavigator: () => {
+      mockHomeTabsNavigator();
+      return ReactLocal.createElement('mock-home-tabs-navigator');
+    },
   };
 });
 
 describe('HomeScreen', () => {
-  it('renders detail and chart tabs', () => {
+  it('delegates production tab registration to HomeTabsNavigator', () => {
     let testRenderer: renderer.ReactTestRenderer;
 
     act(() => {
@@ -27,7 +25,7 @@ describe('HomeScreen', () => {
 
     const treeString = JSON.stringify(testRenderer!.toJSON());
 
-    expect(treeString).toContain('明细');
-    expect(treeString).toContain('图表');
+    expect(treeString).toContain('mock-home-tabs-navigator');
+    expect(mockHomeTabsNavigator).toHaveBeenCalledTimes(1);
   });
 });

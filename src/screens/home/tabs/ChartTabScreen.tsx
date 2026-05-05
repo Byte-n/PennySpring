@@ -30,14 +30,14 @@ const useStyles = createUseSheetStyle((token) => ({
   },
 }));
 
-export function DetailTab() {
+export function ChartTabScreen() {
   const styles = useStyles();
 
   return (
     <ScrollView contentContainerStyle={styles.content}>
       <View style={styles.card}>
-        <Text style={styles.title}>明细占位</Text>
-        <Text style={styles.description}>这里将展示收支明细列表。</Text>
+        <Text style={styles.title}>图表占位</Text>
+        <Text style={styles.description}>这里将展示统计图表与趋势分析。</Text>
       </View>
     </ScrollView>
   );
