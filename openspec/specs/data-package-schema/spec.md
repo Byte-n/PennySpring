@@ -1,32 +1,38 @@
-## ADDED Requirements
+## Requirements
 
 ### Requirement: Drizzle schema covers all documented tables
-系统 MUST 在 `packages/data` 中提供基于 TypeScript 的 Drizzle schema，并完整覆盖 [docs/database-tables.sql](docs/database-tables.sql) 中定义的全部 10 张业务表：`tb_books`、`tb_asset`、`tb_type`、`tb_record`、`tb_record_with_record`、`tb_tag`、`tb_tag_with_record`、`tb_image_with_related`、`tb_icon`、`tb_asset_classification`。
+系统 MUST 在 `packages/data` 中提供基于 TypeScript 的 Drizzle schema，并完整覆盖 [docs/database-tables.sql](docs/database-tables.sql) 中定义的全部 8 张业务表：`tb_books`、`tb_asset`、`tb_type`、`tb_record`、`tb_record_with_record`、`tb_tag`、`tb_tag_with_record`、`tb_image_with_related`。
 
 #### Scenario: Schema 暴露全部表定义
 - **WHEN** 开发者查看 `packages/data` 的 schema 导出入口
-- **THEN** 可以导入全部 10 张表的 Drizzle `sqliteTable` 定义
+- **THEN** 可以导入全部 8 张表的 Drizzle `sqliteTable` 定义
+- **AND** 不会导出 `docs/database-tables.sql` 中不存在的 `tb_icon` 或 `tb_asset_classification` 表定义
 
 ### Requirement: Column types preserve documented domain semantics
-系统 MUST 使用 Drizzle 列类型表达 SQL 文档中的业务语义，其中金额、排序、日期、时间戳、外键与枚举字段 MUST 建模为 integer number 语义，名称、备注、路径、别名与描述字段 MUST 建模为 text 语义。
+系统 MUST 使用 Drizzle 列类型表达 SQL 文档中的业务语义，其中金额、排序、日期、时间戳与外键字段 MUST 建模为 integer number 语义，名称、备注、路径、描述与 key 枚举字段 MUST 建模为 text 语义。
 
 #### Scenario: 金额字段保持整数分单位
 - **WHEN** 开发者查看 `tb_asset.balance`、`tb_asset.total_amount`、`tb_record.amount`、`tb_record.final_amount`、`tb_record.concessions`、`tb_record.charge`
 - **THEN** 这些字段均为 integer number 列，并保留“单位为分”的业务含义
 
 #### Scenario: 文本字段保持非空字符串语义
-- **WHEN** 开发者查看 `description`、`remark`、`background`、`image_path`、`alias`
+- **WHEN** 开发者查看 `description`、`remark`、`background`、`image_path`、`icon`
 - **THEN** 这些字段以 text 列定义，并在文档要求非空时设置为 `notNull`
+
+#### Scenario: 枚举 key 字段保持 text 存储语义
+- **WHEN** 开发者查看 `tb_asset.type`、`tb_asset.classification`、`tb_asset.invisible`、`tb_type.type_category`、`tb_type.is_system`、`tb_record.reimbursable`、`tb_tag.invisible`
+- **THEN** 这些字段均以 text 列定义
+- **AND** 默认值使用 SQL 文档定义的 key 字符串
 
 ### Requirement: Schema preserves constraints and uniqueness rules
 系统 MUST 在 Drizzle schema 中保留 SQL 文档声明的主键、自增、唯一约束与必要的外键引用关系。
 
 #### Scenario: 唯一约束被映射
-- **WHEN** 开发者查看 `tb_record_with_record`、`tb_tag_with_record`、`tb_image_with_related`、`tb_icon`
-- **THEN** schema 分别保留 `(record_id, related_record_id)`、`(record_id, tag_id)`、`(record_id, image_path)` 与 `key` 的唯一约束
+- **WHEN** 开发者查看 `tb_record_with_record`、`tb_tag_with_record`、`tb_image_with_related`
+- **THEN** schema 分别保留 `(record_id, related_record_id)`、`(record_id, tag_id)` 与 `(record_id, image_path)` 的唯一约束
 
 #### Scenario: 关联列引用被映射
-- **WHEN** 开发者查看 `books_id`、`classification_id`、`icon_id`、`type_id`、`asset_id`、`into_asset_id`、`tag_id`
+- **WHEN** 开发者查看 `books_id`、`type_id`、`asset_id`、`into_asset_id`、`record_id`、`related_record_id`、`tag_id`
 - **THEN** 对应列包含指向目标表主键的引用关系定义
 
 ### Requirement: Schema exposes relational metadata for Drizzle queries
@@ -39,6 +45,11 @@
 #### Scenario: 记录表保留转入与转出双资产关系
 - **WHEN** 开发者在 relations 中查看 `tb_record`
 - **THEN** `asset_id` 与 `into_asset_id` 被建模为两个语义不同的资产关系，而不是单一模糊关联
+
+#### Scenario: 标签和图片关系匹配 SQL 文档
+- **WHEN** 开发者在 relations 中查看 `tb_tag_with_record` 与 `tb_image_with_related`
+- **THEN** 可以从记录查询关联标签关系和图片附件关系
+- **AND** 可以从标签查询关联记录关系
 
 ### Requirement: Timestamp columns use millisecond integer semantics
 系统 MUST 将 `created_time` 与 `updated_time` 建模为毫秒整数时间戳，而不是 SQLite 文本时间戳。

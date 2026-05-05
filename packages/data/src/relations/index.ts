@@ -1,8 +1,6 @@
 export {
-  assetClassificationsRelations,
   assetsRelations,
   booksRelations,
-  iconsRelations,
   imageWithRelatedRelations,
   recordsRelations,
   recordWithRecordRelations,

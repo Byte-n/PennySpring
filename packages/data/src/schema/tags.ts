@@ -1,15 +1,22 @@
 import { sqliteTable, text } from 'drizzle-orm/sqlite-core'
 
+import { VISIBILITY } from '../constants'
 import { integerColumn, primaryKeyColumn, timestampColumns } from '../shared'
-import { icons } from './icons'
 
 export const tags = sqliteTable('tb_tag', {
+  // 标签主键，自增长
   id: primaryKeyColumn(),
+  // 标签名称
   name: text('name').notNull(),
-  invisible: integerColumn('invisible').notNull().default(1),
-  iconId: integerColumn('icon_id')
-    .notNull()
-    .default(0)
-    .references(() => icons.id),
+  /**
+   * 是否隐藏 key。
+   *
+   * 可选值来自 {@link import('../constants').VISIBILITY}。
+   */
+  invisible: text('invisible').notNull().default(VISIBILITY.visible),
+  // 标签图标 key，由应用层硬编码维护；空字符串表示未设置
+  icon: text('icon').notNull().default(''),
+  // 记录创建时间（时间戳，毫秒），INSERT 时自动写入
+  // 最后修改时间（时间戳，毫秒），
   ...timestampColumns(),
 })

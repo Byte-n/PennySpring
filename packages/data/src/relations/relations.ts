@@ -1,10 +1,8 @@
 import { relations } from 'drizzle-orm'
 
 import {
-  assetClassifications,
   assets,
   books,
-  icons,
   imageWithRelated,
   records,
   recordWithRecord,
@@ -23,33 +21,11 @@ export const assetsRelations = relations(assets, ({ many, one }) => ({
     fields: [assets.booksId],
     references: [books.id],
   }),
-  classification: one(assetClassifications, {
-    fields: [assets.classificationId],
-    references: [assetClassifications.id],
-  }),
   outgoingRecords: many(records, { relationName: 'record_asset' }),
   incomingTransferRecords: many(records, { relationName: 'record_into_asset' }),
 }))
 
-export const assetClassificationsRelations = relations(assetClassifications, ({ many, one }) => ({
-  assets: many(assets),
-  icon: one(icons, {
-    fields: [assetClassifications.iconId],
-    references: [icons.id],
-  }),
-}))
-
-export const iconsRelations = relations(icons, ({ many }) => ({
-  assetClassifications: many(assetClassifications),
-  tags: many(tags),
-  types: many(types),
-}))
-
-export const typesRelations = relations(types, ({ many, one }) => ({
-  icon: one(icons, {
-    fields: [types.iconId],
-    references: [icons.id],
-  }),
+export const typesRelations = relations(types, ({ many }) => ({
   records: many(records),
 }))
 
@@ -91,11 +67,7 @@ export const recordWithRecordRelations = relations(recordWithRecord, ({ one }) =
   }),
 }))
 
-export const tagsRelations = relations(tags, ({ many, one }) => ({
-  icon: one(icons, {
-    fields: [tags.iconId],
-    references: [icons.id],
-  }),
+export const tagsRelations = relations(tags, ({ many }) => ({
   recordRelations: many(tagWithRecord),
 }))
 
