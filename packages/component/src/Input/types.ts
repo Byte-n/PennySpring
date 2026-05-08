@@ -1,0 +1,138 @@
+import type { ReactNode } from 'react';
+import type {
+  NativeSyntheticEvent,
+  StyleProp,
+  TextInputFocusEventData,
+  TextInputProps,
+  TextStyle,
+  ViewStyle,
+} from 'react-native';
+import type { ComponentSize } from '../shares/types';
+
+/**
+ * Input size semantic.
+ */
+export type InputSize = ComponentSize;
+
+/**
+ * Input validation display status.
+ */
+export type InputStatus = 'default' | 'error' | 'warning' | 'success';
+
+export interface InputStyles {
+  /** Label text style. */
+  label?: StyleProp<TextStyle>;
+
+  /** Field shell style. */
+  field?: StyleProp<ViewStyle>;
+
+  /** Focused field shell style. */
+  fieldFocused?: StyleProp<ViewStyle>;
+
+  /** Error field shell style. */
+  fieldError?: StyleProp<ViewStyle>;
+
+  /** Disabled field shell style. */
+  fieldDisabled?: StyleProp<ViewStyle>;
+
+  /** TextInput text style. */
+  input?: StyleProp<TextStyle>;
+
+  /** Prefix container style. */
+  prefix?: StyleProp<ViewStyle>;
+
+  /** Suffix container style. */
+  suffix?: StyleProp<ViewStyle>;
+
+  /** Helper text style. */
+  helper?: StyleProp<TextStyle>;
+
+  /** Error text style. */
+  error?: StyleProp<TextStyle>;
+
+  /** Clear button container style. */
+  clearButton?: StyleProp<ViewStyle>;
+}
+
+export interface InputProps
+  extends Omit<TextInputProps, 'style' | 'editable' | 'placeholder'> {
+  /**
+   * Input size. Defaults to normal.
+   */
+  size?: InputSize;
+
+  /**
+   * Validation display status. Defaults to default.
+   */
+  status?: InputStatus;
+
+  /**
+   * Field label. Placeholder must not replace label.
+   */
+  label?: ReactNode;
+
+  /**
+   * Placeholder shown while the input is empty.
+   */
+  placeholder?: string;
+
+  /**
+   * Helper text shown near the field.
+   */
+  helperText?: ReactNode;
+
+  /**
+   * Error text shown only when status is error.
+   */
+  errorText?: ReactNode;
+
+  /**
+   * Required semantic marker. Does not run validation.
+   */
+  required?: boolean;
+
+  /**
+   * Left side content.
+   */
+  prefix?: ReactNode;
+
+  /**
+   * Right side content.
+   */
+  suffix?: ReactNode;
+
+  /**
+   * Whether to show a clear button for editable non-empty values.
+   */
+  clearable?: boolean;
+
+  /**
+   * Called when the clear button is pressed.
+   */
+  onClear?: () => void;
+
+  /**
+   * Disabled inputs are not editable and expose disabled accessibility state.
+   */
+  disabled?: boolean;
+
+  /**
+   * Readonly inputs are not editable but remain visually readable.
+   */
+  readonly?: boolean;
+
+  /**
+   * Loading state shown in the right side area.
+   */
+  loading?: boolean;
+
+  /**
+   * Root style. Only controls outer layout.
+   */
+  style?: StyleProp<ViewStyle>;
+
+  /**
+   * Stable slot style overrides.
+   */
+  styles?: InputStyles;
+}

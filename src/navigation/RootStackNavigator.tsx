@@ -1,5 +1,6 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { ComponentPreviewScreen } from '@pennyspring/component-preview';
 
 import { HomeScreen } from '../screens/home/HomeScreen';
 import { TestScreen } from '../screens/test';
@@ -19,6 +20,11 @@ export function RootStackNavigator() {
       <Stack.Screen
         component={TestScreen}
         name={ROOT_ROUTES.Test}
+        options={{ title: 'Test Screen' }}
+      />
+      <Stack.Screen
+        component={ComponentPreviewScreen}
+        name={ROOT_ROUTES.ComponentPreview}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>

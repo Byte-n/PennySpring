@@ -1,0 +1,21 @@
+{
+  "name": "@pennyspring/component-preview",
+  "version": "0.0.1",
+  "private": true,
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "@react-navigation/native": "*",
+    "@react-navigation/native-stack": "*",
+    "phosphor-react-native": "*",
+    "react": "*",
+    "react-native": "*"
+  },
+  "dependencies": {
+    "@pennyspring/component": "*",
+    "@pennyspring/theme": "*"
+  }
+}

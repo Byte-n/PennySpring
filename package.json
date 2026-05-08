@@ -18,6 +18,7 @@
   "dependencies": {
     "@op-engineering/op-sqlite": "^9",
     "@pennyspring/component": "*",
+    "@pennyspring/component-preview": "*",
     "@pennyspring/data": "*",
     "@pennyspring/share": "*",
     "@pennyspring/theme": "*",

@@ -1,0 +1,74 @@
+import React from 'react';
+import { ScrollView, View } from 'react-native';
+import { List, Text } from '@pennyspring/component';
+import { CaretRightIcon } from 'phosphor-react-native';
+import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
+import { COMPONENT_PREVIEW_SECTIONS } from '../previews/registry';
+import { COMPONENT_PREVIEW_ROUTES } from '../navigation/routes';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import type { ComponentPreviewStackParamList } from '../navigation/types';
+
+type Props = NativeStackScreenProps<
+  ComponentPreviewStackParamList,
+  typeof COMPONENT_PREVIEW_ROUTES.ComponentList
+>;
+
+const useStyles = createUseSheetStyle(token => ({
+  content: {
+    paddingVertical: token.paddingMD,
+    gap: token.marginLG,
+  },
+  section: {
+    gap: token.marginXS,
+  },
+  sectionTitle: {
+    paddingHorizontal: token.paddingMD,
+  },
+  list: {
+    borderColor: token.colorSplit,
+    borderTopWidth: token.lineWidth,
+    borderBottomWidth: token.lineWidth,
+  },
+}));
+
+export function ComponentPreviewListScreen({ navigation }: Props) {
+  const styles = useStyles();
+  const { token } = useTheme();
+
+  return (
+    <ScrollView contentContainerStyle={styles.content}>
+      {COMPONENT_PREVIEW_SECTIONS.map(section => (
+        <View key={section.id} style={styles.section}>
+          <Text
+            color="description"
+            size="sm"
+            weight="medium"
+            style={styles.sectionTitle}
+          >
+            {section.title}
+          </Text>
+          <List divider="full" style={styles.list}>
+            {section.items.map(item => (
+              <List.Item
+                key={item.id}
+                title={item.title}
+                description={item.description}
+                right={(
+                  <CaretRightIcon
+                    color={token.colorIcon}
+                    size={token.fontSizeLG}
+                  />
+                )}
+                onPress={() => {
+                  navigation.navigate(COMPONENT_PREVIEW_ROUTES.ComponentDetail, {
+                    previewId: item.id,
+                  });
+                }}
+              />
+            ))}
+          </List>
+        </View>
+      ))}
+    </ScrollView>
+  );
+}

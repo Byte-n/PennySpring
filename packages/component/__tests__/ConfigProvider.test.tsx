@@ -2,16 +2,15 @@ import React from 'react';
 import { Text } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
 import { ConfigProvider, useComponentConfig } from '../src/ConfigProvider';
-import type { PageConfig } from '../src/ConfigProvider';
 
 interface ConfigProbeProps {
-  onRead: (pageConfig: PageConfig | undefined) => void;
+  onRead: (config: ReturnType<typeof useComponentConfig>) => void;
 }
 
 function ConfigProbe({ onRead }: ConfigProbeProps) {
   const config = useComponentConfig();
 
-  onRead(config.page);
+  onRead(config);
 
   return <Text>config probe</Text>;
 }
@@ -24,90 +23,36 @@ describe('ConfigProvider', () => {
       renderer.create(<ConfigProbe onRead={onRead} />);
     });
 
-    expect(onRead).toHaveBeenCalledWith(undefined);
+    expect(onRead).toHaveBeenCalledWith({});
   });
 
-  it('provides page config from top-level shortcut props', () => {
-    const onBack = jest.fn();
+  it('provides config from the config prop', () => {
     const onRead = jest.fn();
 
     act(() => {
       renderer.create(
-        <ConfigProvider page={{ onBack }}>
+        <ConfigProvider config={{}}>
           <ConfigProbe onRead={onRead} />
         </ConfigProvider>,
       );
     });
 
-    expect(onRead).toHaveBeenCalledWith({ onBack });
+    expect(onRead).toHaveBeenCalledWith({});
   });
 
-  it('provides page config from the config prop', () => {
-    const onBack = jest.fn();
+  it('inherits outer config when nested providers have no config', () => {
     const onRead = jest.fn();
 
     act(() => {
       renderer.create(
-        <ConfigProvider config={{ page: { onBack } }}>
-          <ConfigProbe onRead={onRead} />
-        </ConfigProvider>,
-      );
-    });
-
-    expect(onRead).toHaveBeenCalledWith({ onBack });
-  });
-
-  it('uses inner provider values over outer provider values', () => {
-    const outerBack = jest.fn();
-    const innerBack = jest.fn();
-    const onRead = jest.fn();
-
-    act(() => {
-      renderer.create(
-        <ConfigProvider page={{ onBack: outerBack }}>
-          <ConfigProvider page={{ onBack: innerBack }}>
+        <ConfigProvider config={{}}>
+          <ConfigProvider>
             <ConfigProbe onRead={onRead} />
           </ConfigProvider>
         </ConfigProvider>,
       );
     });
 
-    expect(onRead).toHaveBeenCalledWith({ onBack: innerBack });
-  });
-
-  it('shallow merges nested provider component groups', () => {
-    const outerBack = jest.fn();
-    const onRead = jest.fn();
-
-    act(() => {
-      renderer.create(
-        <ConfigProvider page={{ onBack: outerBack }}>
-          <ConfigProvider config={{ page: {} }}>
-            <ConfigProbe onRead={onRead} />
-          </ConfigProvider>
-        </ConfigProvider>,
-      );
-    });
-
-    expect(onRead).toHaveBeenCalledWith({ onBack: outerBack });
-  });
-
-  it('uses top-level shortcut props over config prop values on the same provider', () => {
-    const configBack = jest.fn();
-    const shortcutBack = jest.fn();
-    const onRead = jest.fn();
-
-    act(() => {
-      renderer.create(
-        <ConfigProvider
-          config={{ page: { onBack: configBack } }}
-          page={{ onBack: shortcutBack }}
-        >
-          <ConfigProbe onRead={onRead} />
-        </ConfigProvider>,
-      );
-    });
-
-    expect(onRead).toHaveBeenCalledWith({ onBack: shortcutBack });
+    expect(onRead).toHaveBeenCalledWith({});
   });
 });

@@ -1,14 +1,8 @@
 import type React from 'react';
 
-export interface PageConfig {
-  onBack?: () => void;
-}
+export type ComponentConfig = Record<string, never>;
 
-export interface ComponentConfig {
-  page?: PageConfig;
-}
-
-export interface ConfigProviderProps extends ComponentConfig {
+export interface ConfigProviderProps {
   config?: ComponentConfig;
   children?: React.ReactNode;
 }

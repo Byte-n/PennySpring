@@ -6,13 +6,8 @@
 
 #### Scenario: 使用顶级快捷配置
 
-- **WHEN** an application renders `ConfigProvider` with `page={{ onBack }}`
-- **THEN** descendant component consumers SHALL be able to read `page.onBack` from component configuration
-
-#### Scenario: 使用 config 配置
-
-- **WHEN** an application renders `ConfigProvider` with `config={{ page: { onBack } }}`
-- **THEN** descendant component consumers SHALL be able to read `page.onBack` from component configuration
+- **WHEN** an application renders `ConfigProvider` with `config={{}}`
+- **THEN** descendant component consumers SHALL be able to read an empty component configuration object
 
 ### Requirement: ConfigProvider 可选
 
@@ -29,18 +24,9 @@ Nested `ConfigProvider` instances SHALL inherit parent configuration and shallow
 
 #### Scenario: 内层覆盖同名字段
 
-- **WHEN** an outer provider supplies `page.onBack` and an inner provider supplies another `page.onBack`
-- **THEN** consumers under the inner provider SHALL receive the inner `page.onBack`
-
-#### Scenario: 内层保留外层不同字段
-
-- **WHEN** an outer provider supplies one `page` field and an inner provider supplies a different `page` field supported by the same config type
-- **THEN** consumers under the inner provider SHALL receive both the outer field and the inner field
-
-#### Scenario: 同层快捷配置覆盖 config 配置
-
-- **WHEN** one `ConfigProvider` receives both `config={{ page: { onBack: first } }}` and `page={{ onBack: second }}`
-- **THEN** consumers under that provider SHALL receive `second` as `page.onBack`
+- **WHEN** an outer provider supplies `config={{}}`
+- **AND** an inner provider supplies `config={{}}`
+- **THEN** consumers under the inner provider SHALL receive a component configuration object
 
 ### Requirement: 组件通过统一 Hook 读取配置
 
@@ -51,35 +37,11 @@ Nested `ConfigProvider` instances SHALL inherit parent configuration and shallow
 - **WHEN** a consumer imports `useComponentConfig` from `@pennyspring/component`
 - **THEN** TypeScript SHALL resolve the import and its return type as `ComponentConfig`
 
-### Requirement: Page 使用全局默认返回行为
-
-`Page` SHALL use `page.onBack` from component configuration when its local `onBack` prop is absent.
-
-#### Scenario: Page 使用 ConfigProvider onBack
-
-- **WHEN** `Page` is rendered under `ConfigProvider page={{ onBack }}`
-- **AND** `Page` does not receive a local `onBack` prop
-- **AND** its back button is pressed
-- **THEN** the configured `onBack` callback SHALL be called
-
-#### Scenario: Page 局部 onBack 优先
-
-- **WHEN** `Page` is rendered under `ConfigProvider page={{ onBack: globalBack }}`
-- **AND** `Page` receives `onBack={localBack}`
-- **AND** its back button is pressed
-- **THEN** `localBack` SHALL be called
-- **AND** `globalBack` SHALL NOT be called
-
-#### Scenario: Page 无 Provider 保持现有行为
-
-- **WHEN** `Page` is rendered without `ConfigProvider`
-- **THEN** it SHALL render without requiring global component configuration
-
 ### Requirement: TypeScript 类型完整导出
 
 `@pennyspring/component` SHALL export public TypeScript types for component configuration.
 
 #### Scenario: 导入配置类型
 
-- **WHEN** a TypeScript consumer imports `ComponentConfig`, `ConfigProviderProps`, and `PageConfig` from `@pennyspring/component`
+- **WHEN** a TypeScript consumer imports `ComponentConfig` and `ConfigProviderProps` from `@pennyspring/component`
 - **THEN** TypeScript SHALL resolve those types from the package entry point

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Pressable, View } from 'react-native';
-import { Page, Text, TextPreview } from '@pennyspring/component';
+import { Text } from '@pennyspring/component';
 import { createUseSheetStyle, ThemePreview } from '@pennyspring/theme';
 
 type TestPreviewTab = 'theme' | 'text';
@@ -75,24 +75,22 @@ export function TestScreen() {
   }, []);
 
   return (
-    <Page title="Test" >
-      <View style={styles.container}>
-        <View accessibilityRole="tablist" style={styles.tabRow}>
-          <TestTabButton
-            active={activeTab === 'theme'}
-            label="Theme"
-            onPress={showTheme}
-          />
-          <TestTabButton
-            active={activeTab === 'text'}
-            label="Text"
-            onPress={showText}
-          />
-        </View>
-        <View style={styles.previewContent}>
-          {activeTab === 'theme' ? <ThemePreview /> : <TextPreview />}
-        </View>
+    <View style={styles.container}>
+      <View accessibilityRole="tablist" style={styles.tabRow}>
+        <TestTabButton
+          active={activeTab === 'theme'}
+          label="Theme"
+          onPress={showTheme}
+        />
+        <TestTabButton
+          active={activeTab === 'text'}
+          label="Text"
+          onPress={showText}
+        />
       </View>
-    </Page>
+      <View style={styles.previewContent}>
+        <ThemePreview />
+      </View>
+    </View>
   );
 }

@@ -4,7 +4,8 @@
     "types": ["jest"],
     "paths": {
       "@pennyspring/theme": ["./packages/theme/src"],
-      "@pennyspring/component": ["./packages/component/src"]
+      "@pennyspring/component": ["./packages/component/src"],
+      "@pennyspring/component-preview": ["./packages/component-preview/src"]
     }
   },
   "include": ["**/*.ts", "**/*.tsx", "**/*.d.ts"],

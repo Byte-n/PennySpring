@@ -66,8 +66,10 @@ function MenuButton({ onPress }: MenuButtonProps) {
 }
 
 function DrawerOptionList({
+  onOpenComponentPreview,
   onOpenTestScreen,
 }: {
+  onOpenComponentPreview: () => void;
   onOpenTestScreen: () => void;
 }) {
   const styles = useStyles();
@@ -85,6 +87,19 @@ function DrawerOptionList({
       >
         <Text size="md" weight="strong">
           Test Screen
+        </Text>
+      </Pressable>
+      <Pressable
+        accessibilityLabel="打开 Component Preview"
+        accessibilityRole="button"
+        onPress={onOpenComponentPreview}
+        style={({ pressed }) => [
+          styles.optionButton,
+          pressed && styles.optionButtonPressed,
+        ]}
+      >
+        <Text size="md" weight="strong">
+          Component Preview
         </Text>
       </Pressable>
     </View>
@@ -108,13 +123,21 @@ export function HomeScreen() {
     navigation.navigate(ROOT_ROUTES.Test);
   }, [navigation]);
 
+  const openComponentPreview = React.useCallback(() => {
+    setIsDrawerOpen(false);
+    navigation.navigate(ROOT_ROUTES.ComponentPreview);
+  }, [navigation]);
+
   return (
     <Drawer
       onClose={closeDrawer}
       onOpen={openDrawer}
       open={isDrawerOpen}
       renderDrawerContent={() => (
-        <DrawerOptionList onOpenTestScreen={openTestScreen} />
+        <DrawerOptionList
+          onOpenComponentPreview={openComponentPreview}
+          onOpenTestScreen={openTestScreen}
+        />
       )}
     >
       <HomeTabsNavigator leftActions={<MenuButton onPress={openDrawer} />} />
