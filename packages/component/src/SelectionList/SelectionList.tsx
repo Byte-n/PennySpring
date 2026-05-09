@@ -198,18 +198,6 @@ export function SelectionListPopup({
   );
   const selectedValues = toValueArray(mergedValue);
 
-  function setOpen(nextOpen: boolean): void {
-    if (!isInteractive) {
-      return;
-    }
-
-    if (open === undefined) {
-      setInternalOpen(nextOpen);
-    }
-
-    onOpenChange?.(nextOpen);
-  }
-
   function closeSelectionList(): void {
     if (open === undefined) {
       setInternalOpen(false);

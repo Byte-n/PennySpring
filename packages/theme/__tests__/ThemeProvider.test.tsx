@@ -1,6 +1,6 @@
 import React from 'react';
 import renderer, { act } from 'react-test-renderer';
-import { ThemeProvider, useTheme, ThemeContext } from '../src/index';
+import { ThemeProvider, useTheme } from '../src/index';
 
 let ThemeContextLocal: any;
 
@@ -86,7 +86,7 @@ describe('ThemeProvider', () => {
     it('memoizes token when config reference is stable', () => {
       const { ThemeProvider: ThemeProviderLocal } = require('../src/ThemeProvider');
       const { useTheme: useThemeLocal } = require('../src/useTheme');
-      const React = require('react');
+      const ReactLocal = require('react');
 
       const stableConfig = { algorithm: 'default' as const };
 
@@ -103,10 +103,10 @@ describe('ThemeProvider', () => {
       let testRenderer: any;
       act(() => {
         testRenderer = renderer.create(
-          React.createElement(
+          ReactLocal.createElement(
             ThemeProviderLocal,
             { config: stableConfig },
-            React.createElement(TestComponent)
+            ReactLocal.createElement(TestComponent)
           )
         );
       });
@@ -114,10 +114,10 @@ describe('ThemeProvider', () => {
       // 重新渲染时使用相同的 config 引用
       act(() => {
         testRenderer.update(
-          React.createElement(
+          ReactLocal.createElement(
             ThemeProviderLocal,
             { config: stableConfig },
-            React.createElement(TestComponent)
+            ReactLocal.createElement(TestComponent)
           )
         );
       });

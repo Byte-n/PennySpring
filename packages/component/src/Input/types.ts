@@ -1,8 +1,6 @@
 import type { ReactNode } from 'react';
 import type {
-  NativeSyntheticEvent,
   StyleProp,
-  TextInputFocusEventData,
   TextInputProps,
   TextStyle,
   ViewStyle,

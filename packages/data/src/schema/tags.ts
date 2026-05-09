@@ -1,7 +1,7 @@
 import { sqliteTable, text } from 'drizzle-orm/sqlite-core'
 
 import { VISIBILITY } from '../constants'
-import { integerColumn, primaryKeyColumn, timestampColumns } from '../shared'
+import { primaryKeyColumn, timestampColumns } from '../shared'
 
 export const tags = sqliteTable('tb_tag', {
   // 标签主键，自增长

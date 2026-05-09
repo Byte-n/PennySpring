@@ -3,7 +3,7 @@ import { Pressable, View } from 'react-native';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import { Text } from '../Text';
 import type { AliasToken } from '@pennyspring/theme';
-import type { GestureResponderEvent, StyleProp, TextStyle, ViewStyle } from 'react-native';
+import type { GestureResponderEvent, StyleProp, TextStyle } from 'react-native';
 import type { TagColor, TagProps, TagSize, TagVariant } from './types';
 
 interface TagStyleOptions {

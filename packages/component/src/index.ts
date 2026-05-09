@@ -129,6 +129,21 @@ export type {
   TextareaStatus,
   TextareaStyles,
 } from './Textarea';
+export { Picker } from './Picker';
+export type {
+  PickerCancelParams,
+  PickerCancelReason,
+  PickerChangeParams,
+  PickerColumn,
+  PickerColumnItemData,
+  PickerOkParams,
+  PickerOpenChangeParams,
+  PickerOpenChangeReason,
+  PickerProps,
+  PickerSize,
+  PickerStyles,
+  PickerValue,
+} from './Picker';
 export { Portal, PortalProvider } from './Portal';
 export type { PortalProps, PortalProviderProps } from './Portal';
 export {

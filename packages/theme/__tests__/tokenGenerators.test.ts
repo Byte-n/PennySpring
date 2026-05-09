@@ -199,8 +199,8 @@ describe('genColorMapToken', () => {
 
   it('produces colorPrimary from palette step 6', () => {
     const { defaultSeedToken } = require('../src/defaults');
-    const { generateColorPalettes, generateColorPalettesDark } = require('../src/algorithms/colorPalettes');
-    const { generateNeutralColorPalettes, generateNeutralColorPalettesDark } = require('../src/algorithms/neutralPalettes');
+    const { generateColorPalettes } = require('../src/algorithms/colorPalettes');
+    const { generateNeutralColorPalettes } = require('../src/algorithms/neutralPalettes');
 
     const result = genColorMapToken(defaultSeedToken, {
       generateColorPalettes,

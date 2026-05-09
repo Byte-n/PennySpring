@@ -12,7 +12,6 @@ import type {
 } from 'react-native';
 import type {
   ButtonColor,
-  ButtonIconPlacement,
   ButtonLoadingConfig,
   ButtonProps,
   ButtonShape,

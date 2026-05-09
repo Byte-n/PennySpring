@@ -1,6 +1,5 @@
 import React from 'react';
 import renderer, { act } from 'react-test-renderer';
-import { ThemePreview } from '../src/index';
 
 describe('ThemePreview', () => {
   it('is a function component', () => {
