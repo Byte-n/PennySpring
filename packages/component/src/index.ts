@@ -85,6 +85,7 @@ export type {
 export { Input } from './Input';
 export type {
   InputProps,
+  InputSearchProps,
   InputSize,
   InputStatus,
   InputStyles,

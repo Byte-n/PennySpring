@@ -125,3 +125,15 @@ export interface InputProps
    */
   styles?: InputStyles;
 }
+
+export interface InputSearchProps extends Omit<InputProps, 'suffix'> {
+  /**
+   * Called when the user submits the search.
+   */
+  onSearch?: (value: string) => void;
+
+  /**
+   * Custom right side search trigger icon.
+   */
+  searchIcon?: ReactNode;
+}

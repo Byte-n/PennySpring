@@ -6,14 +6,25 @@ import {
   View,
 } from 'react-native';
 import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
+import { MagnifyingGlassIcon } from 'phosphor-react-native';
 import { Text } from '../Text';
 import type { AliasToken } from '@pennyspring/theme';
-import type { NativeSyntheticEvent, TextInputFocusEventData, TextInputProps, TextStyle } from 'react-native';
-import type { InputProps, InputSize, InputStatus } from './types';
+import type {
+  GestureResponderEvent,
+  NativeSyntheticEvent,
+  TextInputFocusEventData,
+  TextInputProps,
+  TextStyle,
+} from 'react-native';
+import type { InputProps, InputSearchProps, InputSize, InputStatus } from './types';
 
 interface InputStyleOptions {
   size: InputSize;
   status: InputStatus;
+}
+
+interface SearchInputStyleOptions {
+  size: InputSize;
 }
 
 interface SizeConfig {
@@ -29,6 +40,7 @@ type StatusColorSelector = (token: AliasToken) => string;
 
 const REQUIRED_MARK = '*';
 const CLEAR_BUTTON_LABEL = '清除输入内容';
+const SEARCH_BUTTON_LABEL = '搜索';
 
 const SIZE_MAP: Record<InputSize, SizeConfig> = {
   small: {
@@ -179,11 +191,37 @@ const useStyles = createUseSheetStyle(
   },
 );
 
+const useSearchStyles = createUseSheetStyle(
+  (token, { size }: SearchInputStyleOptions) => {
+    const sizeConfig = SIZE_MAP[size];
+
+    return {
+      searchButton: {
+        minHeight: token.controlHeightSM,
+        minWidth: token.controlHeightSM,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: token.borderRadiusSM,
+      },
+      searchButtonPressed: {
+        backgroundColor: token.colorBgTextActive,
+      },
+      searchIcon: {
+        color: token.colorTextTertiary,
+        fontSize: sizeConfig.fontSize(token),
+      },
+      searchIconDisabled: {
+        color: token.colorTextDisabled,
+      },
+    };
+  },
+);
+
 type InputAccessibilityState = TextInputProps['accessibilityState'] & {
   invalid?: boolean;
 };
 
-export function Input({
+function InputRoot({
   accessibilityLabel,
   clearable,
   defaultValue,
@@ -348,3 +386,105 @@ export function Input({
     </View>
   );
 }
+
+function SearchInput({
+  defaultValue,
+  disabled,
+  loading,
+  onClear,
+  onChangeText,
+  onSearch,
+  onSubmitEditing,
+  readonly,
+  searchIcon,
+  size,
+  value,
+  ...rest
+}: InputSearchProps) {
+  const resolvedSize = resolveSize(size);
+  const tokenStyles = useSearchStyles({ size: resolvedSize });
+  const [internalValue, setInternalValue] = useState(defaultValue ?? '');
+  const mergedValue = value ?? internalValue;
+  const canSearch = !disabled && !readonly && loading !== true;
+
+  function handleChangeText(text: string): void {
+    if (value === undefined) {
+      setInternalValue(text);
+    }
+
+    onChangeText?.(text);
+  }
+
+  function handleClear(): void {
+    if (value === undefined) {
+      setInternalValue('');
+    }
+
+    if (onClear !== undefined) {
+      onClear();
+      return;
+    }
+
+    onChangeText?.('');
+  }
+
+  function handleSearch(): void {
+    if (!canSearch) {
+      return;
+    }
+
+    onSearch?.(mergedValue);
+  }
+
+  function handleSearchPress(_event: GestureResponderEvent): void {
+    handleSearch();
+  }
+
+  function handleSubmitEditing(
+    event: Parameters<NonNullable<TextInputProps['onSubmitEditing']>>[0],
+  ): void {
+    handleSearch();
+    onSubmitEditing?.(event);
+  }
+
+  const resolvedSearchIcon = searchIcon ?? (
+    <MagnifyingGlassIcon
+      color={canSearch ? tokenStyles.searchIcon.color : tokenStyles.searchIconDisabled.color}
+      size={tokenStyles.searchIcon.fontSize}
+    />
+  );
+
+  return (
+    <InputRoot
+      {...rest}
+      defaultValue={defaultValue}
+      disabled={disabled}
+      loading={loading}
+      onClear={handleClear}
+      onChangeText={handleChangeText}
+      onSubmitEditing={handleSubmitEditing}
+      readonly={readonly}
+      returnKeyType={rest.returnKeyType ?? 'search'}
+      size={resolvedSize}
+      suffix={
+        <Pressable
+          accessibilityLabel={SEARCH_BUTTON_LABEL}
+          accessibilityRole="button"
+          disabled={!canSearch}
+          onPress={handleSearchPress}
+          style={({ pressed }) => [
+            tokenStyles.searchButton,
+            pressed && canSearch ? tokenStyles.searchButtonPressed : null,
+          ]}
+        >
+          {resolvedSearchIcon}
+        </Pressable>
+      }
+      value={mergedValue}
+    />
+  );
+}
+
+export const Input = Object.assign(InputRoot, {
+  Search: SearchInput,
+});

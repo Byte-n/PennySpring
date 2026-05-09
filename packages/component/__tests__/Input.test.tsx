@@ -24,6 +24,22 @@ function renderInput(props: Partial<React.ComponentProps<typeof Input>> = {}) {
   return testRenderer!;
 }
 
+function renderInputSearch(
+  props: Partial<React.ComponentProps<typeof Input.Search>> = {},
+) {
+  let testRenderer: renderer.ReactTestRenderer;
+
+  act(() => {
+    testRenderer = renderer.create(
+      <ThemeProvider>
+        <Input.Search {...props} />
+      </ThemeProvider>,
+    );
+  });
+
+  return testRenderer!;
+}
+
 function flattenStyle(style: unknown) {
   const styles = Array.isArray(style) ? style : [style];
 
@@ -50,6 +66,12 @@ function findClearButton(testRenderer: renderer.ReactTestRenderer) {
   return testRenderer.root.findAll(
     node => node.props.accessibilityLabel === '清除输入内容',
   );
+}
+
+function findSearchButton(testRenderer: renderer.ReactTestRenderer) {
+  return testRenderer.root.findAll(
+    node => node.props.accessibilityLabel === '搜索',
+  )[0];
 }
 
 describe('Input', () => {
@@ -225,5 +247,85 @@ describe('Input', () => {
     expect(flattenStyle(findViewWithStyle(largeRenderer, fieldStyle).props.style).minHeight).toBe(
       token.controlHeightLG,
     );
+  });
+
+  describe('Search', () => {
+    it('submits the current uncontrolled text from the keyboard', () => {
+      const onSearch = jest.fn();
+      const testRenderer = renderInputSearch({
+        defaultValue: 'Coffee',
+        onSearch,
+      });
+
+      act(() => {
+        findInput(testRenderer).props.onChangeText('Tea');
+      });
+      act(() => {
+        findInput(testRenderer).props.onSubmitEditing();
+      });
+
+      expect(onSearch).toHaveBeenCalledWith('Tea');
+    });
+
+    it('submits the current controlled text from the search button', () => {
+      const onSearch = jest.fn();
+      const testRenderer = renderInputSearch({
+        value: 'Budget',
+        onSearch,
+      });
+
+      act(() => {
+        findSearchButton(testRenderer)?.props.onPress();
+      });
+
+      expect(onSearch).toHaveBeenCalledWith('Budget');
+    });
+
+    it('does not submit when disabled, readonly, or loading', () => {
+      const onSearch = jest.fn();
+      const disabledRenderer = renderInputSearch({
+        defaultValue: 'Cash',
+        disabled: true,
+        onSearch,
+      });
+      const readonlyRenderer = renderInputSearch({
+        defaultValue: 'Cash',
+        onSearch,
+        readonly: true,
+      });
+      const loadingRenderer = renderInputSearch({
+        defaultValue: 'Cash',
+        loading: true,
+        onSearch,
+      });
+
+      act(() => {
+        findSearchButton(disabledRenderer)?.props.onPress();
+      });
+      act(() => {
+        findSearchButton(readonlyRenderer)?.props.onPress();
+      });
+      act(() => {
+        findInput(loadingRenderer).props.onSubmitEditing();
+      });
+
+      expect(onSearch).not.toHaveBeenCalled();
+    });
+
+    it('clears uncontrolled search text and calls onClear when provided', () => {
+      const onClear = jest.fn();
+      const testRenderer = renderInputSearch({
+        clearable: true,
+        defaultValue: 'Cash',
+        onClear,
+      });
+
+      act(() => {
+        findClearButton(testRenderer)[0].props.onPress();
+      });
+
+      expect(findInput(testRenderer).props.value).toBe('');
+      expect(onClear).toHaveBeenCalledTimes(1);
+    });
   });
 });
