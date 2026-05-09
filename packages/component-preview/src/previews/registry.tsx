@@ -1,9 +1,11 @@
 import { ThemePreview } from '@pennyspring/theme';
 import { CalendarPreview } from './data-entry/calendar';
 import { CascadePickerPreview } from './data-entry/cascade-picker';
+import { CheckboxPreview } from './data-entry/checkbox';
 import { DateTimePickerPreview } from './data-entry/date-time-picker';
 import { InputPreview } from './data-entry/input';
 import { PickerPreview } from './data-entry/picker';
+import { RadioPreview } from './data-entry/radio';
 import { SelectionListPreview } from './data-entry/selection-list';
 import { TextareaPreview } from './data-entry/textarea';
 import { TimePickerPreview } from './data-entry/time-picker';
@@ -18,6 +20,7 @@ import { SegmentedPreview } from './foundation/segmented';
 import { SpacePreview } from './foundation/space';
 import { TagPreview } from './foundation/tag';
 import { TextPreview } from './foundation/text';
+import { DialogPreview } from './navigation/dialog';
 import { DrawerPreview } from './navigation/drawer';
 import { PopupPreview } from './navigation/popup';
 import { PortalPreview } from './navigation/portal';
@@ -96,6 +99,18 @@ export const COMPONENT_PREVIEW_SECTIONS = [
         component: TextareaPreview,
       },
       {
+        id: 'checkbox',
+        title: 'Checkbox',
+        description: '复选、复选组、按钮形态和禁用状态。',
+        component: CheckboxPreview,
+      },
+      {
+        id: 'radio',
+        title: 'Radio',
+        description: '单选、单选组、按钮形态和禁用状态。',
+        component: RadioPreview,
+      },
+      {
         id: 'selection-list',
         title: 'SelectionList',
         description: '选项选择、分组和弹层模式。',
@@ -172,6 +187,12 @@ export const COMPONENT_PREVIEW_SECTIONS = [
         title: 'Drawer',
         description: '抽屉容器和页面侧滑。',
         component: DrawerPreview,
+      },
+      {
+        id: 'dialog',
+        title: 'Dialog',
+        description: '对话框尺寸、受控打开和操作状态。',
+        component: DialogPreview,
       },
       {
         id: 'top-tab-navigator',

@@ -14,6 +14,8 @@ const useStyles = createUseSheetStyle(token => ({
 export function InputPreview() {
   const styles = useStyles();
   const { token } = useTheme();
+  const [searchValue, setSearchValue] = React.useState('PennySpring');
+  const [submittedSearchValue, setSubmittedSearchValue] = React.useState('PennySpring');
 
   return (
     <PreviewScaffold>
@@ -27,6 +29,34 @@ export function InputPreview() {
             prefix={<MagnifyingGlassIcon color={token.colorIcon} size={token.fontSizeLG} />}
             suffix={<Text color="description">USD</Text>}
           />
+        </View>
+      </PreviewSection>
+
+      <PreviewSection title="Search">
+        <View style={styles.stack}>
+          <Input.Search
+            clearable
+            label="Default search"
+            placeholder="Search"
+            defaultValue="Component"
+            onSearch={setSubmittedSearchValue}
+          />
+          <Input.Search
+            clearable
+            label="Controlled search"
+            placeholder="Search component"
+            value={searchValue}
+            onChangeText={setSearchValue}
+            onSearch={setSubmittedSearchValue}
+          />
+          <Input.Search
+            disabled
+            label="Disabled search"
+            defaultValue="Disabled"
+          />
+          <Text color="description" size="sm">
+            Submitted: {submittedSearchValue}
+          </Text>
         </View>
       </PreviewSection>
 

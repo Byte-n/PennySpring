@@ -37,4 +37,10 @@ describe('TopTabNavigator exports', () => {
     expect(typeof ConfigProvider).toBe('function');
     expect(typeof useComponentConfig).toBe('function');
   });
+
+  it('exports App from the package entry point', () => {
+    const { App } = require('../src/index');
+
+    expect(typeof App).toBe('function');
+  });
 });

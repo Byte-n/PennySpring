@@ -1,5 +1,7 @@
 export { Text } from './Text';
 export type { TextColor, TextProps, TextSize, TextWeight } from './Text';
+export { App } from './App';
+export type { AppProps } from './App';
 export { ConfigProvider, useComponentConfig } from './ConfigProvider';
 export type {
   ComponentConfig,

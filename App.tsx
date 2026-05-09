@@ -2,6 +2,7 @@ import React from 'react';
 import { StatusBar, useColorScheme } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { createUseSheetStyle, ThemeProvider } from '@pennyspring/theme';
+import { App as PSApp } from '@pennyspring/component';
 import { AppNavigator } from './src/navigation/AppNavigator';
 
 const useStyles = createUseSheetStyle((token) => ({
@@ -28,7 +29,9 @@ function App() {
     <SafeAreaProvider>
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
       <ThemeProvider config={{ algorithm: isDarkMode ? 'dark' : 'default' }}>
-        <AppContent />
+        <PSApp>
+          <AppContent />
+        </PSApp>
       </ThemeProvider>
     </SafeAreaProvider>
   );

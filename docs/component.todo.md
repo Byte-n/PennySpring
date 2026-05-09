@@ -20,12 +20,12 @@
 - [x] Text
 - [x] Textarea
 - [x] TopTabNavigator / HeaderBar / SegmentedControl
+- [x] Input.Search
+- [x] Dialog 对话框，
+- [x] Checkbox  / Radio、Radio.Group，均支持 展示类型：普通，按钮样式
 
 ## 待办
 
-- [ ] Dialog 对话框，
-- [ ] Checkbox  / Radio、Radio.Group，均支持 展示类型：普通，按钮样式
-- [ ] Input.Search
 - [ ] Slider 滑动输入条
 - [ ] Progress 纯逻辑组件，Progress.Bar 进度条 Progress.Circle 进度圈
 - [ ] Stepper 步进器

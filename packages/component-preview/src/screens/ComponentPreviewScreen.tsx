@@ -6,7 +6,7 @@ import {
 } from '@react-navigation/native';
 import { getHeaderTitle } from '@react-navigation/elements';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { Text } from '@pennyspring/component';
+import { App, Text } from '@pennyspring/component';
 import {
   createUseSheetStyle,
   ThemeProvider,
@@ -251,12 +251,14 @@ export function ComponentPreviewScreen() {
 
   return (
     <ThemeProvider config={themeConfig}>
-      <ComponentPreviewNavigator
-        algorithm={algorithm}
-        onNextPreset={selectNextPreset}
-        onToggleAlgorithm={toggleAlgorithm}
-        preset={preset}
-      />
+      <App>
+        <ComponentPreviewNavigator
+          algorithm={algorithm}
+          onNextPreset={selectNextPreset}
+          onToggleAlgorithm={toggleAlgorithm}
+          preset={preset}
+        />
+      </App>
     </ThemeProvider>
   );
 }
