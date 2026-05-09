@@ -5,7 +5,6 @@
 - [x] Calendar
 - [x] Card
 - [x] ConfigProvider
-- [x] Drawer
 - [x] Grid / Grid.Item
 - [x] Input
 - [x] List / List.Item
@@ -26,6 +25,7 @@
 
 ## 待办
 
+- [ ] Drawer / Drawer.Layout / App 集成手势根
 - [ ] Slider 滑动输入条
 - [ ] Progress 纯逻辑组件，Progress.Bar 进度条 Progress.Circle 进度圈
 - [ ] Stepper 步进器

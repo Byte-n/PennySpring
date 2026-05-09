@@ -150,6 +150,20 @@ describe('Checkbox', () => {
 
     expect(onChange).toHaveBeenCalledWith(false);
   });
+
+  it('does not render the box indicator for button display type', () => {
+    const testRenderer = renderCheckbox({
+      defaultValue: true,
+      displayType: 'button',
+    });
+
+    expect(
+      testRenderer.root.findAllByProps({ testID: 'checkbox-indicator' }),
+    ).toHaveLength(0);
+    expect(
+      testRenderer.root.findAllByProps({ testID: 'checkbox-mark' }),
+    ).toHaveLength(0);
+  });
 });
 
 describe('Checkbox.Group', () => {
@@ -237,5 +251,23 @@ describe('Checkbox.Group', () => {
       expect.arrayContaining([expect.objectContaining({ width: '100%' })]),
     );
     expect(option.props.disabled).toBe(false);
+  });
+
+  it('does not render option box indicators for button display type', () => {
+    const testRenderer = renderCheckboxGroup({
+      defaultValue: ['food'],
+      displayType: 'button',
+    });
+
+    expect(
+      testRenderer.root.findAllByProps({
+        testID: 'checkbox-group-option-food-indicator',
+      }),
+    ).toHaveLength(0);
+    expect(
+      testRenderer.root.findAllByProps({
+        testID: 'checkbox-group-option-food-mark',
+      }),
+    ).toHaveLength(0);
   });
 });

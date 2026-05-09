@@ -1,48 +1,210 @@
 import React from 'react';
 import { View } from 'react-native';
-import { Drawer, Text } from '@pennyspring/component';
+import { Button, Drawer, PortalProvider, Text } from '@pennyspring/component';
 import { createUseSheetStyle } from '@pennyspring/theme';
-import { PreviewScaffold, PreviewSection } from '../../PreviewScaffold';
+import {
+  PreviewRow,
+  PreviewScaffold,
+  PreviewSection,
+} from '../../PreviewScaffold';
+
+type DrawerPosition = 'left' | 'right';
+type DrawerType = 'front' | 'slide' | 'back';
+
+interface DrawerContentProps {
+  onClose: () => void;
+  position: DrawerPosition;
+  title: string;
+}
+
+const DRAWER_POSITIONS: DrawerPosition[] = ['left', 'right'];
+const DRAWER_TYPES: DrawerType[] = ['front', 'slide', 'back'];
 
 const useStyles = createUseSheetStyle(token => ({
   frame: {
-    minHeight: token.controlHeightLG + token.controlHeightLG + token.controlHeightLG,
+    minHeight:
+      token.controlHeightLG + token.controlHeightLG + token.controlHeightLG,
     borderWidth: token.lineWidth,
     borderColor: token.colorBorderSecondary,
     borderRadius: token.borderRadius,
     overflow: 'hidden',
     backgroundColor: token.colorBgLayout,
   },
-  drawerContent: {
+  frameMain: {
+    flex: 1,
+    justifyContent: 'center',
     gap: token.marginSM,
+    padding: token.paddingLG,
+  },
+  drawerContent: {
+    flex: 1,
+    gap: token.marginMD,
+  },
+  drawerHeader: {
+    gap: token.marginXXS,
+  },
+  navigationList: {
+    gap: token.marginXS,
+  },
+  navigationItem: {
+    borderWidth: token.lineWidth,
+    borderColor: token.colorBorderSecondary,
+    borderRadius: token.borderRadiusSM,
+    paddingHorizontal: token.paddingMD,
+    paddingVertical: token.paddingSM,
+    backgroundColor: token.colorBgContainer,
+  },
+  navigationItemActive: {
+    borderColor: token.colorPrimaryBorder,
+    backgroundColor: token.colorPrimaryBg,
+  },
+  footer: {
+    marginTop: 'auto',
+    gap: token.marginXS,
   },
 }));
 
-export function DrawerPreview() {
+function DrawerContent({ onClose, position, title }: DrawerContentProps) {
   const styles = useStyles();
 
   return (
+    <View style={styles.drawerContent}>
+      <View style={styles.drawerHeader}>
+        <Text color="heading" weight="strong">
+          {title}
+        </Text>
+        <Text color="secondary">Position: {position}</Text>
+      </View>
+      <View style={styles.navigationList}>
+        <View style={[styles.navigationItem, styles.navigationItemActive]}>
+          <Text color="heading" weight="medium">
+            Overview
+          </Text>
+          <Text color="description" size="sm">
+            Current section
+          </Text>
+        </View>
+        <View style={styles.navigationItem}>
+          <Text color="heading" weight="medium">
+            Activity
+          </Text>
+          <Text color="description" size="sm">
+            Recent updates
+          </Text>
+        </View>
+        <View style={styles.navigationItem}>
+          <Text color="heading" weight="medium">
+            Settings
+          </Text>
+          <Text color="description" size="sm">
+            Drawer actions
+          </Text>
+        </View>
+      </View>
+      <View style={styles.footer}>
+        <Button block onPress={onClose}>
+          Close drawer
+        </Button>
+      </View>
+    </View>
+  );
+}
+
+export function DrawerPreview() {
+  const styles = useStyles();
+  const [open, setOpen] = React.useState(false);
+  const [position, setPosition] = React.useState<DrawerPosition>('left');
+  const [drawerType, setDrawerType] = React.useState<DrawerType>('front');
+
+  const openDrawer = React.useCallback((nextPosition: DrawerPosition) => {
+    setPosition(nextPosition);
+    setOpen(true);
+  }, []);
+
+  const closeDrawer = React.useCallback(() => {
+    setOpen(false);
+  }, []);
+
+  return (
     <PreviewScaffold>
-      <PreviewSection title="Drawer">
+      <PreviewSection title="Controlled">
+        <PreviewRow>
+          {DRAWER_POSITIONS.map(item => (
+            <Button
+              key={item}
+              type={open && position === item ? 'primary' : 'default'}
+              onPress={() => {
+                openDrawer(item);
+              }}
+            >
+              Open {item}
+            </Button>
+          ))}
+        </PreviewRow>
+      </PreviewSection>
+
+      <PreviewSection title="Drawer type">
+        <PreviewRow>
+          {DRAWER_TYPES.map(item => (
+            <Button
+              key={item}
+              type={drawerType === item ? 'primary' : 'default'}
+              onPress={() => {
+                setDrawerType(item);
+                setOpen(true);
+              }}
+            >
+              {item}
+            </Button>
+          ))}
+        </PreviewRow>
+      </PreviewSection>
+
+      <PreviewSection title="Embedded layout">
         <View style={styles.frame}>
-          <Drawer
+          <Drawer.Layout
+            drawerType="slide"
             open
-            onOpen={() => undefined}
+            width="68%"
             onClose={() => undefined}
+            onOpen={() => undefined}
             renderDrawerContent={() => (
-              <View style={styles.drawerContent}>
-                <Text color="heading" weight="strong">Drawer content</Text>
-                <Text color="secondary">Navigation and filters can live here.</Text>
-              </View>
+              <DrawerContent
+                position="left"
+                title="Pinned preview"
+                onClose={() => undefined}
+              />
             )}
           >
-            <View style={styles.drawerContent}>
-              <Text color="heading" weight="strong">Main content</Text>
-              <Text color="secondary">Drawer is forced open for preview.</Text>
+            <View style={styles.frameMain}>
+              <Text color="heading" weight="strong">
+                Main content
+              </Text>
+              <Text color="secondary">
+                The drawer is forced open to show how it occupies space inside a
+                framed layout.
+              </Text>
             </View>
-          </Drawer>
+          </Drawer.Layout>
         </View>
       </PreviewSection>
+
+      <Drawer
+        drawerPosition={position}
+        drawerType={drawerType}
+        open={open}
+        width="76%"
+        onClose={closeDrawer}
+        onOpen={() => {
+          setOpen(true);
+        }}
+      >
+        <DrawerContent
+          position={position}
+          title={`${drawerType} drawer`}
+          onClose={closeDrawer}
+        />
+      </Drawer>
     </PreviewScaffold>
   );
 }

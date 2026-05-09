@@ -1,9 +1,7 @@
 import type { ReactNode } from 'react';
 import type { StyleProp, TextStyle, ViewStyle } from 'react-native';
+import type { PortalMountPoint } from '../Portal/types';
 import type { PopupProps } from '../Popup';
-import type { ComponentSize } from '../shares/types';
-
-export type DialogSize = ComponentSize;
 
 export type DialogCancelReason = 'cancel' | 'mask' | 'back';
 
@@ -28,7 +26,7 @@ export interface DialogStyles {
 }
 
 export interface DialogProps {
-  size?: DialogSize;
+  mountPoint?: PortalMountPoint;
   open?: boolean;
   defaultOpen?: boolean;
   onOpenChange?: (open: boolean, params: DialogOpenChangeParams) => void;

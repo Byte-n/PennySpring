@@ -592,4 +592,52 @@ describe('Popup', () => {
     expect(JSON.stringify(testRenderer!.toJSON())).toContain('Portaled popup');
     expect(popupLayout).toBeTruthy();
   });
+
+  it('keeps content local when mountPoint is local inside a PortalProvider', () => {
+    let testRenderer: renderer.ReactTestRenderer;
+
+    act(() => {
+      testRenderer = renderer.create(
+        <ThemeProvider>
+          <PortalProvider>
+            <View testID="provider-host">
+              <Popup open mountPoint="local">
+                <RNText>Local popup</RNText>
+              </Popup>
+            </View>
+          </PortalProvider>
+        </ThemeProvider>,
+      );
+    });
+
+    const providerHost = testRenderer!.root.findByProps({
+      testID: 'provider-host',
+    });
+    const popupLayout = testRenderer!.root.findByProps({
+      testID: 'popup-layout',
+    });
+    const ancestors: renderer.ReactTestInstance[] = [];
+    let current = popupLayout.parent;
+
+    while (current) {
+      ancestors.push(current);
+      current = current.parent;
+    }
+
+    expect(ancestors).toContain(providerHost);
+  });
+
+  it('throws when mountPoint is portal without a PortalProvider', () => {
+    expect(() => {
+      act(() => {
+        renderer.create(
+          <ThemeProvider>
+            <Popup open mountPoint="portal">
+              <RNText>Portaled popup</RNText>
+            </Popup>
+          </ThemeProvider>,
+        );
+      });
+    }).toThrow('PortalProvider');
+  });
 });

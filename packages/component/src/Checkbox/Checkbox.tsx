@@ -224,6 +224,7 @@ function CheckboxControl({
   });
   const isDisabled = disabled || readonly;
   const isVisuallyChecked = checked || indeterminate;
+  const shouldRenderIndicator = displayType !== 'button';
   const label = renderLabel(children, [
     tokenStyles.label,
     optionStyle?.label,
@@ -255,35 +256,37 @@ function CheckboxControl({
       ]}
     >
       <View style={[tokenStyles.content, optionStyle?.content]}>
-        <View
-          testID={
-            testID === 'checkbox-control'
-              ? 'checkbox-indicator'
-              : `${testID}-indicator`
-          }
-          style={[
-            tokenStyles.indicator,
-            optionStyle?.indicator,
-            isVisuallyChecked ? tokenStyles.indicatorChecked : null,
-            readonly ? tokenStyles.indicatorReadonly : null,
-            disabled ? tokenStyles.indicatorDisabled : null,
-          ]}
-        >
-          {isVisuallyChecked ? (
-            <View
-              testID={
-                testID === 'checkbox-control'
-                  ? 'checkbox-mark'
-                  : `${testID}-mark`
-              }
-              style={[
-                tokenStyles.mark,
-                optionStyle?.mark,
-                indeterminate ? tokenStyles.markIndeterminate : null,
-              ]}
-            />
-          ) : null}
-        </View>
+        {shouldRenderIndicator ? (
+          <View
+            testID={
+              testID === 'checkbox-control'
+                ? 'checkbox-indicator'
+                : `${testID}-indicator`
+            }
+            style={[
+              tokenStyles.indicator,
+              optionStyle?.indicator,
+              isVisuallyChecked ? tokenStyles.indicatorChecked : null,
+              readonly ? tokenStyles.indicatorReadonly : null,
+              disabled ? tokenStyles.indicatorDisabled : null,
+            ]}
+          >
+            {isVisuallyChecked ? (
+              <View
+                testID={
+                  testID === 'checkbox-control'
+                    ? 'checkbox-mark'
+                    : `${testID}-mark`
+                }
+                style={[
+                  tokenStyles.mark,
+                  optionStyle?.mark,
+                  indeterminate ? tokenStyles.markIndeterminate : null,
+                ]}
+              />
+            ) : null}
+          </View>
+        ) : null}
         {label}
       </View>
     </Pressable>

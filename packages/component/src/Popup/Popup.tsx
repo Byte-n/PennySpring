@@ -7,20 +7,17 @@ import {
   View,
 } from 'react-native';
 import { createUseSheetStyle, toShadowStyle, useTheme } from '@pennyspring/theme';
-import type { AliasToken } from '@pennyspring/theme';
 import type { ViewStyle } from 'react-native';
-import { Portal } from '../Portal';
 import { PortalContext } from '../Portal/Portal';
+import { resolvePortalMount } from '../Portal/resolvePortalMount';
 import type {
   PopupAnimation,
   PopupCancelReason,
   PopupPosition,
   PopupProps,
-  PopupSize,
 } from './types';
 
 const DEFAULT_POSITION: PopupPosition = 'bottom';
-const DEFAULT_SIZE: PopupSize = 'normal';
 const DEFAULT_ANIMATION: PopupAnimation = 'none';
 const POPUP_SIDE_WIDTH = '70%';
 const SLIDE_OFFSET = 1000;
@@ -59,31 +56,6 @@ function getSlideTransform(
 
 interface PopupStyleOptions {
   position: PopupPosition;
-  size: PopupSize;
-}
-
-function getPadding(size: PopupSize, token: AliasToken): number {
-  if (size === 'small') {
-    return token.paddingSM;
-  }
-
-  if (size === 'large') {
-    return token.paddingLG;
-  }
-
-  return token.paddingMD;
-}
-
-function getRadius(size: PopupSize, token: AliasToken): number {
-  if (size === 'small') {
-    return token.borderRadiusSM;
-  }
-
-  if (size === 'large') {
-    return token.borderRadiusLG;
-  }
-
-  return token.borderRadius;
 }
 
 function getLayoutStyle(position: PopupPosition): ViewStyle {
@@ -145,10 +117,7 @@ function getBodyShapeStyle(position: PopupPosition, radius: number): ViewStyle {
 }
 
 const usePopupStyles = createUseSheetStyle(
-  (token, { position, size }: PopupStyleOptions) => {
-    const padding = getPadding(size, token);
-    const radius = getRadius(size, token);
-
+  (token, { position }: PopupStyleOptions) => {
     return {
       layout: {
         ...StyleSheet.absoluteFill,
@@ -160,8 +129,8 @@ const usePopupStyles = createUseSheetStyle(
         backgroundColor: token.colorBgMask,
       },
       body: {
-        ...getBodyShapeStyle(position, radius),
-        padding,
+        ...getBodyShapeStyle(position, token.borderRadius),
+        padding: token.paddingMD,
         backgroundColor: token.colorBgElevated,
         ...toShadowStyle(token.boxShadow),
       },
@@ -177,16 +146,16 @@ export function Popup({
   closeOnMaskClick = true,
   defaultOpen,
   mask = true,
+  mountPoint = 'auto',
   onCancel,
   onOpenChange,
   open,
   position = DEFAULT_POSITION,
-  size = DEFAULT_SIZE,
   style,
   styles: slotStyles,
 }: PopupProps) {
   const portalContext = useContext(PortalContext);
-  const tokenStyles = usePopupStyles({ position, size });
+  const tokenStyles = usePopupStyles({ position });
   const { token } = useTheme();
   const isOpenControlled = open !== undefined;
   const [internalOpen, setInternalOpen] = useState(defaultOpen === true);
@@ -334,9 +303,5 @@ export function Popup({
     </View>
   );
 
-  if (portalContext !== null) {
-    return <Portal>{content}</Portal>;
-  }
-
-  return content;
+  return resolvePortalMount(content, mountPoint, portalContext !== null);
 }

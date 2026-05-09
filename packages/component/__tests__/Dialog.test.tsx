@@ -6,6 +6,7 @@ import { defaultSeedToken } from '@pennyspring/theme';
 import { derivative } from '@pennyspring/theme/src/algorithms/derivative';
 import { formatToken } from '@pennyspring/theme/src/algorithms/formatToken';
 import { Dialog } from '../src/Dialog';
+import { PortalProvider } from '../src/Portal';
 
 const token = formatToken(derivative(defaultSeedToken, false));
 
@@ -239,5 +240,53 @@ describe('Dialog', () => {
     expect(
       testRenderer.root.findByProps({ testID: 'custom-dialog-child' }),
     ).toBeTruthy();
+  });
+
+  it('keeps content local when mountPoint is local inside a PortalProvider', () => {
+    let testRenderer: renderer.ReactTestRenderer;
+
+    act(() => {
+      testRenderer = renderer.create(
+        <ThemeProvider>
+          <PortalProvider>
+            <View testID="provider-host">
+              <Dialog open mountPoint="local">
+                <RNText>Dialog content</RNText>
+              </Dialog>
+            </View>
+          </PortalProvider>
+        </ThemeProvider>,
+      );
+    });
+
+    const providerHost = testRenderer!.root.findByProps({
+      testID: 'provider-host',
+    });
+    const dialogPanel = testRenderer!.root.findByProps({
+      testID: 'dialog-panel',
+    });
+    const ancestors: renderer.ReactTestInstance[] = [];
+    let current = dialogPanel.parent;
+
+    while (current) {
+      ancestors.push(current);
+      current = current.parent;
+    }
+
+    expect(ancestors).toContain(providerHost);
+  });
+
+  it('throws when mountPoint is portal without a PortalProvider', () => {
+    expect(() => {
+      act(() => {
+        renderer.create(
+          <ThemeProvider>
+            <Dialog open mountPoint="portal">
+              <RNText>Dialog content</RNText>
+            </Dialog>
+          </ThemeProvider>,
+        );
+      });
+    }).toThrow('PortalProvider');
   });
 });

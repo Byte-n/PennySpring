@@ -1,7 +1,10 @@
 import type React from 'react';
 import type { GestureResponderEvent, StyleProp, ViewStyle } from 'react-native';
+import type { ComponentSize } from '../shares/types';
 
-export type GridGap = number | [number, number];
+export type GridGapValue = number | ComponentSize;
+
+export type GridGap = GridGapValue | [GridGapValue, GridGapValue];
 
 export interface GridProps {
   columns: number;

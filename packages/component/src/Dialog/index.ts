@@ -5,6 +5,5 @@ export type {
   DialogOpenChangeParams,
   DialogOpenChangeReason,
   DialogProps,
-  DialogSize,
   DialogStyles,
 } from './types';

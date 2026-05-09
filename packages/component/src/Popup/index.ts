@@ -7,6 +7,5 @@ export type {
   PopupOpenChangeReason,
   PopupPosition,
   PopupProps,
-  PopupSize,
   PopupStyles,
 } from './types';

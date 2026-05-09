@@ -1,4 +1,3 @@
-export { AppNavigator } from './AppNavigator';
 export { HomeTabsNavigator } from './HomeTabsNavigator';
 export { RootStackNavigator } from './RootStackNavigator';
 export { rootNavigationRef } from './rootNavigationRef';

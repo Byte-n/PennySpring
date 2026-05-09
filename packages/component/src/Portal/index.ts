@@ -1,2 +1,6 @@
 export { Portal, PortalProvider } from './Portal';
-export type { PortalProps, PortalProviderProps } from './types';
+export type {
+  PortalMountPoint,
+  PortalProps,
+  PortalProviderProps,
+} from './types';

@@ -200,31 +200,33 @@ function ComponentPreviewNavigator({
   return (
     <NavigationIndependentTree>
       <NavigationContainer theme={navigationTheme}>
-        <Stack.Navigator
-          screenOptions={{
-            header: props => (
-              <ComponentPreviewHeader
-                {...props}
-                right={renderThemeControls()}
-              />
-            ),
-          }}
-        >
-          <Stack.Screen
-            component={ComponentPreviewListScreen}
-            name={COMPONENT_PREVIEW_ROUTES.ComponentList}
-            options={{ title: '组件预览' }}
-          />
-          <Stack.Screen
-            component={ComponentPreviewDetailScreen}
-            name={COMPONENT_PREVIEW_ROUTES.ComponentDetail}
-            options={({ route }) => ({
-              title:
-                getComponentPreviewById(route.params.previewId)?.title ??
-                '组件预览',
-            })}
-          />
-        </Stack.Navigator>
+        <App>
+          <Stack.Navigator
+            screenOptions={{
+              header: props => (
+                <ComponentPreviewHeader
+                  {...props}
+                  right={renderThemeControls()}
+                />
+              ),
+            }}
+          >
+            <Stack.Screen
+              component={ComponentPreviewListScreen}
+              name={COMPONENT_PREVIEW_ROUTES.ComponentList}
+              options={{ title: '组件预览' }}
+            />
+            <Stack.Screen
+              component={ComponentPreviewDetailScreen}
+              name={COMPONENT_PREVIEW_ROUTES.ComponentDetail}
+              options={({ route }) => ({
+                title:
+                  getComponentPreviewById(route.params.previewId)?.title ??
+                  '组件预览',
+              })}
+            />
+          </Stack.Navigator>
+        </App>
       </NavigationContainer>
     </NavigationIndependentTree>
   );
@@ -251,14 +253,12 @@ export function ComponentPreviewScreen() {
 
   return (
     <ThemeProvider config={themeConfig}>
-      <App>
-        <ComponentPreviewNavigator
-          algorithm={algorithm}
-          onNextPreset={selectNextPreset}
-          onToggleAlgorithm={toggleAlgorithm}
-          preset={preset}
-        />
-      </App>
+      <ComponentPreviewNavigator
+        algorithm={algorithm}
+        onNextPreset={selectNextPreset}
+        onToggleAlgorithm={toggleAlgorithm}
+        preset={preset}
+      />
     </ThemeProvider>
   );
 }

@@ -1,8 +1,10 @@
 import React from 'react';
 import { Pressable, View } from 'react-native';
-import { createUseSheetStyle } from '@pennyspring/theme';
+import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
 import type { ViewStyle } from 'react-native';
-import type { GridGap, GridItemProps, GridProps } from './types';
+import type { AliasToken } from '@pennyspring/theme';
+import type { GridGap, GridGapValue, GridItemProps, GridProps } from './types';
+import type { ComponentSize } from '../shares/types';
 
 const DEFAULT_SPAN = 1;
 const MIN_COLUMNS = 1;
@@ -64,15 +66,27 @@ function resolveColumns(columns: number): number {
   return Math.max(MIN_COLUMNS, Math.floor(columns));
 }
 
-function resolveGap(gap?: GridGap): ResolvedGap {
+function getGapValue(gap: ComponentSize, token: AliasToken): number {
+  if (gap === 'small') {
+    return token.paddingXXS;
+  }
+
+  if (gap === 'large') {
+    return token.paddingSM;
+  }
+
+  return token.paddingXS;
+}
+
+function resolveGap(gap: GridGap | undefined, token: AliasToken): ResolvedGap {
   if (Array.isArray(gap)) {
     return {
-      horizontal: resolveGapValue(gap[0]),
-      vertical: resolveGapValue(gap[1]),
+      horizontal: resolveGapValue(gap[0], token),
+      vertical: resolveGapValue(gap[1], token),
     };
   }
 
-  const value = resolveGapValue(gap);
+  const value = resolveGapValue(gap, token);
 
   return {
     horizontal: value,
@@ -80,8 +94,19 @@ function resolveGap(gap?: GridGap): ResolvedGap {
   };
 }
 
-function resolveGapValue(gap?: number): number {
-  if (gap === undefined || !Number.isFinite(gap)) {
+function resolveGapValue(
+  gap: GridGapValue | undefined,
+  token: AliasToken,
+): number {
+  if (gap === undefined) {
+    return MIN_GAP;
+  }
+
+  if (typeof gap === 'string') {
+    return getGapValue(gap, token);
+  }
+
+  if (!Number.isFinite(gap)) {
     return MIN_GAP;
   }
 
@@ -112,7 +137,7 @@ export function GridItem({
 }: GridItemProps) {
   const context = React.useContext(GridContext);
   const columns = context?.columns ?? MIN_COLUMNS;
-  const gap = context?.gap ?? resolveGap();
+  const gap = context?.gap ?? { horizontal: MIN_GAP, vertical: MIN_GAP };
   const resolvedSpan = resolveSpan(span, columns);
   const tokenStyles = useGridItemStyles({
     columns,
@@ -142,8 +167,9 @@ export function GridRoot({
   gap,
   style,
 }: GridProps) {
+  const { token } = useTheme();
   const resolvedColumns = resolveColumns(columns);
-  const resolvedGap = resolveGap(gap);
+  const resolvedGap = resolveGap(gap, token);
   const tokenStyles = useGridStyles({ gap: resolvedGap });
   const context = React.useMemo(
     () => ({

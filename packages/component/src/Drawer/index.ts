@@ -1,2 +1,2 @@
-export { Drawer } from './Drawer';
-export type { DrawerProps, DrawerStyles } from './types';
+export { Drawer } from './Drawer.tsx';
+export type { DrawerLayoutProps, DrawerLayoutStyles, DrawerProps } from './types';

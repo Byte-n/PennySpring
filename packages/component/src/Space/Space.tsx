@@ -29,14 +29,14 @@ interface SpaceItemStyleOptions {
 
 function getGap(size: SpaceSize, token: AliasToken) {
   if (size === 'small') {
-    return token.marginXXS;
+    return token.paddingXXS;
   }
 
   if (size === 'large') {
-    return token.marginSM;
+    return token.paddingSM;
   }
 
-  return token.marginXS;
+  return token.paddingXS;
 }
 
 function resolveSize(size?: SpaceSize): SpaceSize {

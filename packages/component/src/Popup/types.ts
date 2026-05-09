@@ -1,8 +1,6 @@
 import type { ReactNode } from 'react';
 import type { StyleProp, ViewStyle } from 'react-native';
-import type { ComponentSize } from '../shares/types';
-
-export type PopupSize = ComponentSize;
+import type { PortalMountPoint } from '../Portal/types';
 
 export type PopupPosition = 'top' | 'bottom' | 'left' | 'right' | 'center';
 
@@ -26,7 +24,7 @@ export interface PopupStyles {
 }
 
 export interface PopupProps {
-  size?: PopupSize;
+  mountPoint?: PortalMountPoint;
   position?: PopupPosition;
   animation?: PopupAnimation;
   animationDuration?: number;

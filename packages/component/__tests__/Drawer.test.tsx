@@ -6,7 +6,9 @@ import { defaultSeedToken } from '@pennyspring/theme';
 import { derivative } from '@pennyspring/theme/src/algorithms/derivative';
 import { formatToken } from '@pennyspring/theme/src/algorithms/formatToken';
 import { Drawer } from '../src/Drawer';
+import { PortalProvider } from '../src/Portal';
 
+const DrawerLayout = Drawer.Layout;
 const token = formatToken(derivative(defaultSeedToken, false));
 const changedToken = formatToken(
   derivative(
@@ -29,7 +31,7 @@ jest.mock('react-native-drawer-layout', () => ({
   Drawer: (props: Record<string, unknown>) => mockDrawer(props),
 }));
 
-function renderDrawer(props: Partial<React.ComponentProps<typeof Drawer>> = {}) {
+function renderDrawer(props: Partial<React.ComponentProps<typeof DrawerLayout>> = {}) {
   const onOpen = jest.fn();
   const onClose = jest.fn();
   let testRenderer: renderer.ReactTestRenderer;
@@ -37,7 +39,7 @@ function renderDrawer(props: Partial<React.ComponentProps<typeof Drawer>> = {}) 
   act(() => {
     testRenderer = renderer.create(
       <ThemeProvider>
-        <Drawer
+        <DrawerLayout
           onClose={onClose}
           onOpen={onOpen}
           open
@@ -45,7 +47,7 @@ function renderDrawer(props: Partial<React.ComponentProps<typeof Drawer>> = {}) 
           {...props}
         >
           <Text>Main content</Text>
-        </Drawer>
+        </DrawerLayout>
       </ThemeProvider>,
     );
   });
@@ -155,14 +157,14 @@ describe('Drawer', () => {
     act(() => {
       testRenderer = renderer.create(
         <ThemeProvider>
-          <Drawer
+          <DrawerLayout
             onClose={jest.fn()}
             onOpen={jest.fn()}
             open
             renderDrawerContent={() => <Text>Drawer content</Text>}
           >
             <Text>Main content</Text>
-          </Drawer>
+          </DrawerLayout>
         </ThemeProvider>,
       );
     });
@@ -170,14 +172,14 @@ describe('Drawer', () => {
     act(() => {
       testRenderer.update(
         <ThemeProvider config={{ token: { colorPrimary: '#ff4d4f' } }}>
-          <Drawer
+          <DrawerLayout
             onClose={jest.fn()}
             onOpen={jest.fn()}
             open
             renderDrawerContent={() => <Text>Drawer content</Text>}
           >
             <Text>Main content</Text>
-          </Drawer>
+          </DrawerLayout>
         </ThemeProvider>,
       );
     });
@@ -190,5 +192,99 @@ describe('Drawer', () => {
     expect(style.padding).toBe(changedToken.paddingLG);
     expect(overlayStyle.backgroundColor).toBe(changedToken.colorBgMask);
     expect(testRenderer!).toBeDefined();
+  });
+
+  it('mounts through a Portal by default when wrapped in a PortalProvider', () => {
+    let testRenderer: renderer.ReactTestRenderer;
+
+    act(() => {
+      testRenderer = renderer.create(
+        <ThemeProvider>
+          <PortalProvider>
+            <Text testID="provider-host">
+              <DrawerLayout
+                onClose={jest.fn()}
+                onOpen={jest.fn()}
+                open
+                renderDrawerContent={() => <Text>Drawer content</Text>}
+              >
+                <Text>Main content</Text>
+              </DrawerLayout>
+            </Text>
+          </PortalProvider>
+        </ThemeProvider>,
+      );
+    });
+
+    const providerHost = testRenderer!.root.findByProps({
+      testID: 'provider-host',
+    });
+    const hostDescendants = providerHost.findAllByProps({
+      children: 'Drawer content',
+    });
+
+    expect(hostDescendants).toHaveLength(0);
+  });
+
+  it('keeps content local when mountPoint is local inside a PortalProvider', () => {
+    let testRenderer: renderer.ReactTestRenderer;
+
+    act(() => {
+      testRenderer = renderer.create(
+        <ThemeProvider>
+          <PortalProvider>
+            <Text testID="provider-host">
+              <DrawerLayout
+                mountPoint="local"
+                onClose={jest.fn()}
+                onOpen={jest.fn()}
+                open
+                renderDrawerContent={() => <Text>Drawer content</Text>}
+              >
+                <Text>Main content</Text>
+              </DrawerLayout>
+            </Text>
+          </PortalProvider>
+        </ThemeProvider>,
+      );
+    });
+
+    const providerHost = testRenderer!.root.findByProps({
+      testID: 'provider-host',
+    });
+    const drawerContent = testRenderer!.root.findByProps({
+      children: 'Drawer content',
+    });
+    const ancestors: renderer.ReactTestInstance[] = [];
+    let current = drawerContent.parent;
+    const drawerProps = mockDrawer.mock.calls[mockDrawer.mock.calls.length - 1][0];
+
+    while (current) {
+      ancestors.push(current);
+      current = current.parent;
+    }
+
+    expect(ancestors).toContain(providerHost);
+    expect(drawerProps.mountPoint).toBeUndefined();
+  });
+
+  it('throws when mountPoint is portal without a PortalProvider', () => {
+    expect(() => {
+      act(() => {
+        renderer.create(
+          <ThemeProvider>
+            <DrawerLayout
+              mountPoint="portal"
+              onClose={jest.fn()}
+              onOpen={jest.fn()}
+              open
+              renderDrawerContent={() => <Text>Drawer content</Text>}
+            >
+              <Text>Main content</Text>
+            </DrawerLayout>
+          </ThemeProvider>,
+        );
+      });
+    }).toThrow('PortalProvider');
   });
 });

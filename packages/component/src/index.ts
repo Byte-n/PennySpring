@@ -8,7 +8,7 @@ export type {
   ConfigProviderProps,
 } from './ConfigProvider';
 export { Drawer } from './Drawer';
-export type { DrawerProps, DrawerStyles } from './Drawer';
+export type { DrawerLayoutProps, DrawerLayoutStyles, DrawerProps } from './Drawer';
 export { Dialog } from './Dialog';
 export type {
   DialogCancelParams,
@@ -16,11 +16,10 @@ export type {
   DialogOpenChangeParams,
   DialogOpenChangeReason,
   DialogProps,
-  DialogSize,
   DialogStyles,
 } from './Dialog';
 export { Grid } from './Grid';
-export type { GridGap, GridItemProps, GridProps } from './Grid';
+export type { GridGap, GridGapValue, GridItemProps, GridProps } from './Grid';
 export { Space } from './Space';
 export type {
   SpaceAlign,
@@ -204,7 +203,11 @@ export type {
   DateTimePickerValueParams,
 } from './DateTimePicker';
 export { Portal, PortalProvider } from './Portal';
-export type { PortalProps, PortalProviderProps } from './Portal';
+export type {
+  PortalMountPoint,
+  PortalProps,
+  PortalProviderProps,
+} from './Portal';
 export { Popup } from './Popup';
 export type {
   PopupCancelParams,
@@ -212,8 +215,8 @@ export type {
   PopupOpenChangeParams,
   PopupOpenChangeReason,
   PopupPosition,
+  PopupAnimation,
   PopupProps,
-  PopupSize,
   PopupStyles,
 } from './Popup';
 export {

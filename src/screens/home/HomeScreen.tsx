@@ -129,7 +129,7 @@ export function HomeScreen() {
   }, [navigation]);
 
   return (
-    <Drawer
+    <Drawer.Layout
       onClose={closeDrawer}
       onOpen={openDrawer}
       open={isDrawerOpen}
@@ -141,6 +141,6 @@ export function HomeScreen() {
       )}
     >
       <HomeTabsNavigator leftActions={<MenuButton onPress={openDrawer} />} />
-    </Drawer>
+    </Drawer.Layout>
   );
 }

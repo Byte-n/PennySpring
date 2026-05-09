@@ -48,6 +48,16 @@ const columns: PickerColumn[] = [
   ],
 ];
 
+interface UnsupportedBusinessPickerProps extends PickerProps {
+  ref?: React.Ref<unknown>;
+  placeholder?: string;
+  retry?: () => undefined;
+}
+
+const UnsupportedBusinessPicker = Picker as unknown as React.ComponentType<
+  UnsupportedBusinessPickerProps
+>;
+
 it('exports Picker component and public types', () => {
   const value: PickerValue[] = ['a'];
   const item: PickerColumnItemData = { labelText: 'Alpha', value: 'a' };
@@ -533,7 +543,7 @@ it('does not expose imperative business features', () => {
 
   act(() => {
     testRenderer = renderer.create(
-      <Picker
+      <UnsupportedBusinessPicker
         ref={pickerRef}
         columns={columns}
         defaultOpen

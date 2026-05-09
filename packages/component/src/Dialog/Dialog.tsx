@@ -4,54 +4,19 @@ import { createUseSheetStyle } from '@pennyspring/theme';
 import { Button } from '../Button';
 import { Popup } from '../Popup';
 import { Text } from '../Text';
-import type { AliasToken } from '@pennyspring/theme';
 import type { StyleProp, TextStyle, ViewStyle } from 'react-native';
 import type {
   DialogCancelReason,
   DialogOpenChangeReason,
   DialogProps,
-  DialogSize,
 } from './types';
 
-const DEFAULT_SIZE: DialogSize = 'normal';
 const DEFAULT_CANCEL_TEXT = 'Cancel';
 const DEFAULT_OK_TEXT = 'OK';
 const DIALOG_WIDTH_PERCENT = '82%';
 
-interface DialogStyleOptions {
-  size: DialogSize;
-}
-
-interface SizeStyleConfig {
-  padding: (token: AliasToken) => number;
-  gap: (token: AliasToken) => number;
-  radius: (token: AliasToken) => number;
-}
-
-const SIZE_STYLE_MAP: Record<DialogSize, SizeStyleConfig> = {
-  small: {
-    padding: token => token.paddingSM,
-    gap: token => token.sizeSM,
-    radius: token => token.borderRadiusSM,
-  },
-  normal: {
-    padding: token => token.paddingMD,
-    gap: token => token.sizeMD,
-    radius: token => token.borderRadius,
-  },
-  large: {
-    padding: token => token.paddingLG,
-    gap: token => token.sizeLG,
-    radius: token => token.borderRadiusLG,
-  },
-};
-
 const useStyles = createUseSheetStyle(
-  (token, { size }: DialogStyleOptions) => {
-    const sizeConfig = SIZE_STYLE_MAP[size];
-    const padding = sizeConfig.padding(token);
-    const gap = sizeConfig.gap(token);
-
+  token => {
     return {
       popup: {
         zIndex: token.zIndexPopupBase + token.zIndexBase + 200,
@@ -61,9 +26,9 @@ const useStyles = createUseSheetStyle(
       },
       panel: {
         width: DIALOG_WIDTH_PERCENT,
-        padding,
-        gap,
-        borderRadius: sizeConfig.radius(token),
+        padding: token.paddingMD,
+        gap: token.sizeMD,
+        borderRadius: token.borderRadius,
         backgroundColor: token.colorBgElevated,
       },
       header: {
@@ -152,6 +117,7 @@ export function Dialog({
   closeOnMaskClick = true,
   defaultOpen,
   mask = true,
+  mountPoint,
   ok,
   okDisabled = false,
   okText = DEFAULT_OK_TEXT,
@@ -159,13 +125,12 @@ export function Dialog({
   onOk,
   onOpenChange,
   open,
-  size = DEFAULT_SIZE,
   style,
   styles: slotStyles,
   title,
   titleText,
 }: DialogProps) {
-  const tokenStyles = useStyles({ size });
+  const tokenStyles = useStyles();
   const [internalOpen, setInternalOpen] = useState(resolveOpen(defaultOpen, open));
   const isOpenControlled = open !== undefined;
   const isOpen = isOpenControlled ? open : internalOpen;
@@ -206,6 +171,7 @@ export function Dialog({
       closeOnMaskClick={closeOnMaskClick}
       defaultOpen={defaultOpen}
       mask={mask}
+      mountPoint={mountPoint}
       onCancel={params => cancelInternal(params.reason)}
       open={isOpen}
       position="center"

@@ -46,7 +46,7 @@ export function PortalPreview() {
 
       <PreviewSection title="Trigger shape">
         <Pressable accessibilityLabel="More actions" accessibilityRole="button">
-          <DotsThreeIcon color={token.colorIcon} size={token.fontSizeHeading3} />
+          <DotsThreeIcon color={token.colorIcon} />
         </Pressable>
       </PreviewSection>
     </PreviewScaffold>
