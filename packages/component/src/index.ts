@@ -7,6 +7,16 @@ export type {
 } from './ConfigProvider';
 export { Drawer } from './Drawer';
 export type { DrawerProps, DrawerStyles } from './Drawer';
+export { Dialog } from './Dialog';
+export type {
+  DialogCancelParams,
+  DialogCancelReason,
+  DialogOpenChangeParams,
+  DialogOpenChangeReason,
+  DialogProps,
+  DialogSize,
+  DialogStyles,
+} from './Dialog';
 export { Grid } from './Grid';
 export type { GridGap, GridItemProps, GridProps } from './Grid';
 export { Space } from './Space';
