@@ -108,6 +108,7 @@ Token 管线：`SeedToken` → `derivative()` → `MapToken` → `formatToken()`
 - 分支名称：`feature/workspace-*`
 - 合并时需要压缩 commit 为一条记录。
 - 分支的命令不允许使用 `-f` / `-force` 参数强行执行操作
+- workspace 分支的任务完成后立即 commit, 并通过 Ask User 工具询问是否合并到主分支
 
 ## Accessibility
 
