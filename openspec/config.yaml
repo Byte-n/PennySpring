@@ -1,4 +1,4 @@
-schema: spec-driven
+schema: spec-driven-branch-tdd
 
 context: |
   - 执行 `$openspec-archive-change` 归档时，总是选择 `Sync now` 同步方式

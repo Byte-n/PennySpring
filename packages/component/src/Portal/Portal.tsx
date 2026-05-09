@@ -1,5 +1,6 @@
 import React from 'react';
-import { View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { createUseSheetStyle } from '@pennyspring/theme';
 import type { PortalProps, PortalProviderProps } from './types';
 
 interface PortalEntry {
@@ -15,9 +16,16 @@ interface PortalContextValue {
 
 const PortalContext = React.createContext<PortalContextValue | null>(null);
 
+const useStyles = createUseSheetStyle(() => ({
+  overlay: {
+    ...StyleSheet.absoluteFill,
+  },
+}));
+
 export function PortalProvider({ children }: PortalProviderProps) {
   const nextKeyRef = React.useRef(0);
   const [entries, setEntries] = React.useState<readonly PortalEntry[]>([]);
+  const styles = useStyles();
 
   const mount = React.useCallback((portalChildren?: React.ReactNode) => {
     const key = nextKeyRef.current;
@@ -68,9 +76,13 @@ export function PortalProvider({ children }: PortalProviderProps) {
   return (
     <PortalContext.Provider value={contextValue}>
       {children}
-      {entries.map(entry => (
-        <View key={entry.key}>{entry.children}</View>
-      ))}
+      <View pointerEvents="box-none" style={styles.overlay}>
+        {entries.map(entry => (
+          <View key={entry.key} pointerEvents="box-none" style={styles.overlay}>
+            {entry.children}
+          </View>
+        ))}
+      </View>
     </PortalContext.Provider>
   );
 }
