@@ -1,27 +1,27 @@
-import {
-  AvatarPreview,
-  ButtonPreview,
-  GridPreview,
-} from './FoundationPreviews';
 import { ThemePreview } from '@pennyspring/theme';
-import {
-  CalendarPreview,
-  InputPreview,
-  SelectionListPreview,
-  TextareaPreview,
-} from './DataEntryPreviews';
-import {
-  CardPreview,
-  ListCollapsePreview,
-  ListGroupPreview,
-  ListPreview,
-} from './DisplayPreviews';
-import {
-  DrawerPreview,
-  PortalPreview,
-  TopTabNavigatorPreview,
-} from './NavigationPreviews';
-import { TextPreview } from './TextPreview';
+import { CalendarPreview } from './data-entry/calendar';
+import { CascadePickerPreview } from './data-entry/cascade-picker';
+import { DateTimePickerPreview } from './data-entry/date-time-picker';
+import { InputPreview } from './data-entry/input';
+import { PickerPreview } from './data-entry/picker';
+import { SelectionListPreview } from './data-entry/selection-list';
+import { TextareaPreview } from './data-entry/textarea';
+import { TimePickerPreview } from './data-entry/time-picker';
+import { CardPreview } from './display/card';
+import { ListPreview } from './display/list';
+import { ListCollapsePreview } from './display/list-collapse';
+import { ListGroupPreview } from './display/list-group';
+import { AvatarPreview } from './foundation/avatar';
+import { ButtonPreview } from './foundation/button';
+import { GridPreview } from './foundation/grid';
+import { SegmentedPreview } from './foundation/segmented';
+import { SpacePreview } from './foundation/space';
+import { TagPreview } from './foundation/tag';
+import { TextPreview } from './foundation/text';
+import { DrawerPreview } from './navigation/drawer';
+import { PopupPreview } from './navigation/popup';
+import { PortalPreview } from './navigation/portal';
+import { TopTabNavigatorPreview } from './navigation/top-tab-navigator';
 import type { ComponentPreviewSection } from './types';
 
 export const COMPONENT_PREVIEW_SECTIONS = [
@@ -59,6 +59,24 @@ export const COMPONENT_PREVIEW_SECTIONS = [
         description: '宫格布局和单元格内容。',
         component: GridPreview,
       },
+      {
+        id: 'space',
+        title: 'Space',
+        description: '间距、方向、对齐和换行。',
+        component: SpacePreview,
+      },
+      {
+        id: 'tag',
+        title: 'Tag',
+        description: '标签颜色、变体、尺寸和状态。',
+        component: TagPreview,
+      },
+      {
+        id: 'segmented',
+        title: 'Segmented',
+        description: '分段选择、图标选项、尺寸和受控切换。',
+        component: SegmentedPreview,
+      },
     ],
   },
   {
@@ -88,6 +106,30 @@ export const COMPONENT_PREVIEW_SECTIONS = [
         title: 'Calendar',
         description: '日期、月份、年份和范围选择。',
         component: CalendarPreview,
+      },
+      {
+        id: 'picker',
+        title: 'Picker',
+        description: '单列、多列、默认打开和空状态。',
+        component: PickerPreview,
+      },
+      {
+        id: 'cascade-picker',
+        title: 'CascadePicker',
+        description: '多级级联选择、默认值和默认打开。',
+        component: CascadePickerPreview,
+      },
+      {
+        id: 'date-time-picker',
+        title: 'DateTimePicker',
+        description: '日期时间精度、范围和默认打开。',
+        component: DateTimePickerPreview,
+      },
+      {
+        id: 'time-picker',
+        title: 'TimePicker',
+        description: '时间精度、步长、范围和默认打开。',
+        component: TimePickerPreview,
       },
     ],
   },
@@ -142,6 +184,12 @@ export const COMPONENT_PREVIEW_SECTIONS = [
         title: 'Portal',
         description: '跨层级浮层挂载。',
         component: PortalPreview,
+      },
+      {
+        id: 'popup',
+        title: 'Popup',
+        description: '弹层位置、尺寸、遮罩和操作内容。',
+        component: PopupPreview,
       },
     ],
   },

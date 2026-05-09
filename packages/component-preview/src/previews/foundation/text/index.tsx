@@ -2,7 +2,7 @@ import React from 'react';
 import { View } from 'react-native';
 import { Text } from '@pennyspring/component';
 import { createUseSheetStyle } from '@pennyspring/theme';
-import { PreviewScaffold, PreviewSection } from './PreviewScaffold';
+import { PreviewScaffold, PreviewSection } from '../../PreviewScaffold';
 import type { TextColor, TextSize, TextWeight } from '@pennyspring/component';
 
 const SIZES: TextSize[] = [
