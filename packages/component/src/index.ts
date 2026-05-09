@@ -50,6 +50,17 @@ export type {
   ButtonType,
   ButtonVariant,
 } from './Button';
+export { Checkbox } from './Checkbox';
+export type {
+  CheckboxDisplayType,
+  CheckboxGroupOption,
+  CheckboxGroupProps,
+  CheckboxGroupStyles,
+  CheckboxProps,
+  CheckboxSize,
+  CheckboxStyles,
+  CheckboxValue,
+} from './Checkbox';
 export { Tag } from './Tag';
 export type {
   TagColor,
