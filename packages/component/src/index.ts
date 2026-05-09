@@ -132,6 +132,18 @@ export type {
   SegmentedStyles,
   SegmentedValue,
 } from './Segmented';
+export { Radio } from './Radio';
+export type {
+  RadioDisplayType,
+  RadioGroupDirection,
+  RadioGroupOption,
+  RadioGroupProps,
+  RadioGroupStyles,
+  RadioGroupValue,
+  RadioProps,
+  RadioSize,
+  RadioStyles,
+} from './Radio';
 export { Textarea } from './Textarea';
 export type {
   TextareaProps,
