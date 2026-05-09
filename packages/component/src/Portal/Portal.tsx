@@ -16,6 +16,9 @@ interface PortalContextValue {
 
 const PortalContext = React.createContext<PortalContextValue | null>(null);
 
+export { PortalContext };
+export type { PortalContextValue };
+
 const useStyles = createUseSheetStyle(() => ({
   overlay: {
     ...StyleSheet.absoluteFill,

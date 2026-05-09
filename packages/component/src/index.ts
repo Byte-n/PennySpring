@@ -169,6 +169,17 @@ export type {
 } from './DateTimePicker';
 export { Portal, PortalProvider } from './Portal';
 export type { PortalProps, PortalProviderProps } from './Portal';
+export { Popup } from './Popup';
+export type {
+  PopupCancelParams,
+  PopupCancelReason,
+  PopupOpenChangeParams,
+  PopupOpenChangeReason,
+  PopupPosition,
+  PopupProps,
+  PopupSize,
+  PopupStyles,
+} from './Popup';
 export {
   HeaderBar,
   SegmentedControl,

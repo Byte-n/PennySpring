@@ -12,6 +12,7 @@
 - [x] ListCollapse
 - [x] ListGroup
 - [x] Portal / PortalProvider
+- [x] Popup
 - [x] Segmented
 - [x] SelectionList / SelectionList.Popup
 - [x] Space
@@ -22,7 +23,6 @@
 
 ## 待办
 
-- [ ] Popup 弹窗。
 - [ ] Dialog 对话框，
 - [ ] Checkbox  / Radio、Radio.Group，均支持 展示类型：普通，按钮样式
 - [ ] Input.Search
