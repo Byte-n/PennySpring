@@ -10,7 +10,9 @@ paths:
 
 ## 目录约定
 
-- 组件目录：`packages/component/src/组件名称`
+- 组件目录结构：
+  - 组件目录 `packages/component/src/组件名称`
+  - 组件样式 `packages/component/src/组件名称/style/index.ts` 子组件样式可单独文件。
 - 非组件目录：`packages/component/src/_{name}`
 
 ## 公共 API

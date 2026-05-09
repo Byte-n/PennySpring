@@ -1,4 +1,0 @@
-interface:
-  display_name: "OpenSpec Component Dispatcher"
-  short_description: "Dispatch component OpenSpec workers"
-  default_prompt: "Use $openspec-component-dispatcher-agent to dispatch OpenSpec changes for several PennySpring components."

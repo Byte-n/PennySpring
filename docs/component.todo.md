@@ -1,4 +1,27 @@
-- [ ] 发射组件，需要调整。每一个发射的组件可选择是否提供一个全屏幕的遮罩，和左上角的坐标与可视坐标的转换能力
+## 已在 component 子包实现
+
+- [x] Avatar / Avatar.Group
+- [x] Button
+- [x] Calendar
+- [x] Card
+- [x] ConfigProvider
+- [x] Drawer
+- [x] Grid / Grid.Item
+- [x] Input
+- [x] List / List.Item
+- [x] ListCollapse
+- [x] ListGroup
+- [x] Portal / PortalProvider
+- [x] Segmented
+- [x] SelectionList / SelectionList.Popup
+- [x] Space
+- [x] Tag
+- [x] Text
+- [x] Textarea
+- [x] TopTabNavigator / HeaderBar / SegmentedControl
+
+## 待办
+
 - [ ] Popup 弹窗。
 - [ ] Dialog 对话框，
 - [ ] Checkbox  / Radio、Radio.Group，均支持 展示类型：普通，按钮样式
@@ -10,18 +33,18 @@
 - [ ] ActionSheet 动作面板
 - [ ] Empty 空状态
 - [ ] Loading 加载中
-- [ ] 目前已有的 Picker 改为 SelectionList、SelectionList.Popup
-- [ ] Grid 参考 https://github.com/ant-design/ant-design-mobile/blob/b627e1f0f9c45b75b30c66ca6fef057b02ecd9db/src/components/grid/grid.tsx#L37 做本地化重构
+- [x] 目前已有的 Picker 改为 SelectionList、SelectionList.Popup
+- [x] Grid 参考 https://github.com/ant-design/ant-design-mobile/blob/b627e1f0f9c45b75b30c66ca6fef057b02ecd9db/src/components/grid/grid.tsx#L37 做本地化重构
 - [ ] https://github.com/ant-design/ant-design-mobile/blob/b627e1f0f9c45b75b30c66ca6fef057b02ecd9db/src/components/divider/divider.tsx#L9
 - [ ] icon 结合第三方图标库，内部做 theme 结合，color 支持 主题颜色 key
-- [ ] https://github.com/ant-design/ant-design-mobile/blob/b627e1f0f9c45b75b30c66ca6fef057b02ecd9db/src/components/space/index.ts
+- [x] https://github.com/ant-design/ant-design-mobile/blob/b627e1f0f9c45b75b30c66ca6fef057b02ecd9db/src/components/space/index.ts
 - [ ] Tabs
-- [ ] Collapse 折叠面板
+- [x] Collapse 折叠面板（已实现为 ListCollapse）
 - [ ] https://github.com/ant-design/ant-design-mobile/blob/b627e1f0f9c45b75b30c66ca6fef057b02ecd9db/src/components/ellipsis/index.ts
 - [ ] InfiniteScroll 无限滚动
 - [ ] PullToRefresh 下拉刷新
-- [ ] Segmented 分段控制器
-- [ ] Tag 标签
+- [x] Segmented 分段控制器
+- [x] Tag 标签
 - [ ] SwipeAction 滑动操作
 - [ ] Result / Result.Page
 - [ ] 骨架屏
