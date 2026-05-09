@@ -1,8 +1,3 @@
----
-paths:
-  - "packages/component/src/**/*.ts"
-  - "packages/component/src/**/*.tsx"
----
 # 组件视觉与布局规范
 
 > 本文件只规定组件形态、布局、交互和可访问性。颜色、字号、间距、圆角、边框、阴影、动效数值必须遵循 `theme-tokens`，不得在本文件重复定义。
@@ -24,17 +19,8 @@ paths:
 
 ## 通用交互
 
-- 所有可点击元素必须使用 `Pressable`。
 - 小图标按钮必须提供足够的 `hitSlop`。
 - pressed、focused、disabled、loading、selected、error 状态必须由组件自身完整表达。
 - 状态变化不得导致布局尺寸跳动。
 - hover、press、focus 反馈只允许改变状态表现，不得改变组件占位尺寸。
 - 动效只用于反馈，不得用于装饰。
-
-
-## 图标
-
-- 不得使用 emoji 作为 UI 图标。
-- 同一组件库内必须使用统一图标体系。
-- 图标尺寸、颜色和状态必须由 token 或组件状态控制。
-- 纯装饰图标不得暴露为可访问内容。

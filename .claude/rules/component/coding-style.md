@@ -14,6 +14,7 @@ paths:
   - 组件目录 `packages/component/src/组件名称`
   - 组件样式 `packages/component/src/组件名称/style/index.ts` 子组件样式可单独文件。
 - 非组件目录：`packages/component/src/_{name}`
+- 公共 props 与导出的样式类型放在组件目录的 `types.ts`。
 
 ## 公共 API
 
@@ -117,3 +118,13 @@ export interface TopTabNavigatorStyles {
 - Dialog 类组件默认使用 `token.zIndexPopupBase + 200`，并且必须高于 Popup 与 Picker 等其他组件弹窗。
 - 非弹出层组件仅在需要处理局部覆盖关系时使用 `token.zIndexBase` 或 `token.zIndexBase + n`，不得超过
   `token.zIndexPopupBase`。
+
+## 组件工作空间
+
+- 在创建、修改、重构组件等场景，应优先在独立的 git-worktree 中进行。 
+git-worktree 的操作见 using-git-worktrees 技能
+
+
+## 组件复用
+
+- 优先复用 `packages/component/src` 中已有的组件，例如：`Popup` / `Button`
