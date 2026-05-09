@@ -1,4 +1,4 @@
-## 已在 component 子包实现
+## 已实现
 
 - [x] Avatar / Avatar.Group
 - [x] Button
@@ -33,18 +33,12 @@
 - [ ] ActionSheet 动作面板
 - [ ] Empty 空状态
 - [ ] Loading 加载中
-- [x] 目前已有的 Picker 改为 SelectionList、SelectionList.Popup
-- [x] Grid 参考 https://github.com/ant-design/ant-design-mobile/blob/b627e1f0f9c45b75b30c66ca6fef057b02ecd9db/src/components/grid/grid.tsx#L37 做本地化重构
 - [ ] https://github.com/ant-design/ant-design-mobile/blob/b627e1f0f9c45b75b30c66ca6fef057b02ecd9db/src/components/divider/divider.tsx#L9
 - [ ] icon 结合第三方图标库，内部做 theme 结合，color 支持 主题颜色 key
-- [x] https://github.com/ant-design/ant-design-mobile/blob/b627e1f0f9c45b75b30c66ca6fef057b02ecd9db/src/components/space/index.ts
 - [ ] Tabs
-- [x] Collapse 折叠面板（已实现为 ListCollapse）
 - [ ] https://github.com/ant-design/ant-design-mobile/blob/b627e1f0f9c45b75b30c66ca6fef057b02ecd9db/src/components/ellipsis/index.ts
 - [ ] InfiniteScroll 无限滚动
 - [ ] PullToRefresh 下拉刷新
-- [x] Segmented 分段控制器
-- [x] Tag 标签
 - [ ] SwipeAction 滑动操作
 - [ ] Result / Result.Page
 - [ ] 骨架屏
@@ -58,6 +52,8 @@
   - [ ] Steps 步骤条
   - [ ] Swiper 走马灯
   - [ ] Cascader / Cascader.View
+
+## 规范
 - [x] 组件规范
   - 可见状态 `open` 、 `onOpenChange`、`defaultOpen`（需要支持可控和非可控，受控模式触发关闭，不会触发 `onCancel`）
   - 关闭/取消：`onCancel`，禁止出现 `onClose` 等，除非已有 `onCancel`
