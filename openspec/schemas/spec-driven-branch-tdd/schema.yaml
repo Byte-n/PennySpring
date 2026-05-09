@@ -1,0 +1,467 @@
+name: spec-driven-branch-tdd
+version: 1
+description: 默认 OpenSpec 工作流 —— proposal → specs → design → tasks
+artifacts:
+  - id: proposal
+    generates: proposal.md
+    description: 阐述本次变更动机的初始提案文档
+    template: proposal.md
+    instruction: >
+      创建提案文档，阐明本次变更"为什么需要"。
+
+
+      章节组成：
+
+      - **Why**：1-2 句说明问题或机遇。这解决了什么问题？为什么是现在？
+
+      - **What Changes**：变更要点清单。具体说明新增能力、修改或移除项。
+      破坏性变更用 **BREAKING** 标记。
+
+      - **Capabilities**：识别将被创建或修改的规格：
+        - **New Capabilities**：列出本次引入的能力。每个会对应新建 `specs/<name>/spec.md`。使用 kebab-case 命名（例如 `user-auth`、`data-export`）。
+        - **Modified Capabilities**：列出已有能力中 **REQUIREMENTS** 正在变化的。仅在规格层行为改变（非实现细节）时列入。每个都需要增量规格文件。请先查 `openspec/specs/` 确认已有名称。若无需求变化则留空。
+      - **Impact**：受影响的代码、API、依赖或系统。
+
+
+      重要：Capabilities 小节是关键，它构成
+
+      proposal 阶段与 specs 阶段之间的契约。填写前先调研已有规格。
+
+      此处列出的每个能力都需要对应的规格文件。
+
+
+      保持简洁（1-2 页）。聚焦"为什么"而非"怎么做"——
+
+      实现细节属于 design.md。
+
+
+      这是地基：specs、design、tasks 都建立在其上。
+    requires: []
+  - id: specs
+    generates: specs/**/*.md
+    description: 本次变更的详细规格说明
+    template: spec.md
+    instruction: >
+      创建规格文件，定义系统"应该做什么"。
+
+
+      为 proposal 的 Capabilities 小节中列出的每个能力创建一个规格文件。
+
+      - 新能力：使用 proposal 中完全一致的 kebab-case 名称
+      （specs/<capability>/spec.md）。
+
+      - 修改能力：使用已存在于 openspec/specs/<capability>/ 的规格文件夹名，
+      在 specs/<capability>/spec.md 创建增量规格。
+
+
+      增量操作（使用 ## 标题）：
+
+      - **ADDED Requirements**：新增能力
+
+      - **MODIFIED Requirements**：变更行为 —— 必须包含更新后的完整内容
+
+      - **REMOVED Requirements**：已废弃能力 —— 必须包含 **Reason** 和 **Migration**
+
+      - **RENAMED Requirements**：仅改名 —— 使用 FROM:/TO: 格式
+
+
+      格式要求：
+
+      - 每条需求：`### Requirement: <name>` 后跟描述
+
+      - 规范性需求使用 SHALL/MUST（避免 should/may）
+
+      - 每个场景：`#### Scenario: <name>`，使用 WHEN/THEN 格式
+
+      - **关键**：场景必须严格使用 4 个井号（`####`）。使用 3 个井号或 bullet
+      会静默失败。
+
+      - 每条需求必须至少有一个场景。
+
+
+      MODIFIED 需求工作流：
+
+      1. 在 openspec/specs/<capability>/spec.md 中找到已有需求
+
+      2. 复制整个需求块（从 `### Requirement:` 到所有场景）
+
+      3. 粘贴到 `## MODIFIED Requirements` 下并编辑以反映新行为
+
+      4. 确保标题文本完全一致（忽略空白字符）
+
+
+      常见陷阱：MODIFIED 仅写部分内容会在归档时丢失细节。
+
+      若是新增关切而不改已有行为，应使用 ADDED 而非 MODIFIED。
+
+
+      示例：
+
+      ```
+
+      ## ADDED Requirements
+
+
+      ### Requirement: User can export data
+
+      The system SHALL allow users to export their data in CSV format.
+
+
+      #### Scenario: Successful export
+
+      - **WHEN** user clicks "Export" button
+
+      - **THEN** system downloads a CSV file with all user data
+
+
+      ## REMOVED Requirements
+
+
+      ### Requirement: Legacy export
+
+      **Reason**: Replaced by new export system
+
+      **Migration**: Use new export endpoint at /api/v2/export
+
+      ```
+
+
+      规格应当可测试 —— 每个场景都是一个潜在的测试用例。
+
+
+      （可选）apply 阶段的测试元数据：
+
+      为让下游 TDD 技能（openspec-tdd-task）自动定位每个场景对应的测试文件，
+      可在场景标题正下方追加一行 `Test:` 元数据。
+
+
+      示例：
+
+      ```
+
+      #### Scenario: Successful export
+
+      - **Test**: `__tests__/export.test.ts::exports csv`
+
+      - **WHEN** user clicks "Export" button
+
+      - **THEN** system downloads a CSV file with all user data
+
+      ```
+
+
+      这是建议性（schema 不强制），但对任何将通过 apply 流水线实现的能力
+      都强烈推荐。
+    requires:
+      - proposal
+  - id: design
+    generates: design.md
+    description: 包含实现细节的技术设计文档
+    template: design.md
+    instruction: >
+      创建设计文档，说明本次变更"如何实现"。
+
+
+      何时包含 design.md（任一适用即创建）：
+
+      - 跨模块变更（多个服务/模块）或新的架构模式
+
+      - 引入新的外部依赖，或数据模型发生重大变化
+
+      - 涉及安全、性能或迁移复杂度
+
+      - 存在歧义，需在编码前做技术决策
+
+
+      章节组成：
+
+      - **Context**：背景、现状、约束、利益相关方
+
+      - **Goals / Non-Goals**：本次设计要达成的目标，以及明确排除的范围
+
+      - **Decisions**：关键技术选择及理由（为什么选 X 不选 Y？）。
+      每个决策附上考虑过的替代方案。
+
+      - **Risks / Trade-offs**：已知限制、可能出错的地方。
+      格式：[Risk] → Mitigation
+
+      - **Migration Plan**：部署步骤、回滚策略（若适用）
+
+      - **Open Questions**：尚未解决的决策或未知项
+
+
+      聚焦架构与方法，而非逐行实现。
+
+      动机引用 proposal，需求引用 specs。
+
+
+      好的设计文档能解释技术决策背后的"为什么"。
+    requires:
+      - proposal
+  - id: tasks
+    generates: tasks.md
+    description: 可追踪的实现清单
+    template: tasks.md
+    instruction: >
+      创建任务清单，分解实现工作。
+
+
+      **重要：严格按以下模板格式书写。** apply 阶段通过解析复选框
+
+      格式来追踪进度。不使用 `- [ ]` 的任务不会被追踪。
+
+
+      指南：
+
+      - 将相关任务分组在编号 ## 标题下
+
+      - 每个任务必须是复选框：`- [ ] X.Y 任务描述`
+
+      - 任务粒度应可在一次会话内完成
+
+      - 按依赖顺序排列（哪些必须先做？）
+
+
+      示例：
+
+      ```
+
+      ## 1. Setup
+
+
+      - [ ] 1.1 Create new module structure
+
+      - [ ] 1.2 Add dependencies to package.json
+
+
+      ## 2. Core Implementation
+
+
+      - [ ] 2.1 Implement data export function
+
+      - [ ] 2.2 Add CSV formatting utilities
+
+      ```
+
+
+      实现什么查 specs，如何实现查 design。
+
+      每个任务都应可验证 —— 你清楚它何时算完成。
+
+
+      # 每个复选框的必备子小节（用于 apply / TDD 流水线）
+
+
+      每个 `- [ ] X.Y` 任务必须包含与其 **mode** 相匹配的子小节。
+      Mode 可通过尾部标签 `[mode: feature|refactor|removal|docs|preview|config]` 显式声明，
+      也可由 `openspec-tdd-task` 根据 `### Files` 路径自动检测。
+
+
+      ```
+
+      - [ ] X.Y <task description> [mode: feature]
+        ### Files
+        - Create: `exact/path/to/file.tsx`
+        - Modify: `exact/path/to/existing.ts:L10-L40`
+        - Test: `__tests__/exact/path/to/file.test.tsx`
+        ### Spec Refs
+        - specs/<capability>/spec.md -> Scenario: <name>
+        ### Test First (RED)
+        ```ts
+        // 完整的失败测试代码，禁止占位
+        ```
+        ### Verify
+        - `yarn test __tests__/exact/path/to/file.test.tsx`
+        - `yarn typecheck`
+      ```
+
+
+      # 按 mode 划分的必备子小节
+
+
+      | Mode     | Files | Spec Refs | Test First (RED) | Verify |
+
+      |----------|-------|-----------|------------------|--------|
+
+      | feature  | 必填   | 必填       | 必填，须失败      | 必填    |
+
+      | refactor | 必填   | 必填       | 可选（行为保持时允许 `N/A`） | 必填 |
+
+      | removal  | 必填（全部 `Delete:`/`Remove:`） | 必填 | 跳过 | 必填（必须含完整 `yarn test`） |
+
+      | docs     | 必填（全部 `*.md` / `docs/**`） | 可选 | 跳过 | 必填 |
+
+      | preview  | 必填（全部位于 `packages/component-preview/**`） | 可选 | 跳过 | 必填（至少 `yarn typecheck`） |
+
+      | config   | 必填（仅配置文件） | 可选 | 跳过 | 必填 |
+
+
+      说明：与 [AGENTS.md](AGENTS.md) 对齐（component-preview 无需测试；
+      removal 无需新测试但已有测试必须保持绿色）。
+      缺少任一必备小节即为计划失败；apply 流水线将拒绝执行此类任务。
+
+
+      非 feature 任务示例：
+
+
+      ```
+
+      - [ ] 2.3 Remove deprecated `<OldButton>` [mode: removal]
+        ### Files
+        - Delete: `packages/component/src/OldButton/`
+        - Remove: `__tests__/OldButton.test.tsx`
+        ### Spec Refs
+        - specs/button-component/spec.md -> Requirement: single Button component
+        ### Verify
+        - `yarn test`
+        - `yarn typecheck`
+        - `rg -n "OldButton" src packages` (expect no matches)
+
+      - [ ] 3.1 Update usage doc for new API [mode: docs]
+        ### Files
+        - Modify: `docs/newComponent/picker.md`
+        ### Verify
+        - `yarn lint docs/newComponent/picker.md` (if configured)
+
+      - [ ] 4.2 Add preview page for <Badge> [mode: preview]
+        ### Files
+        - Create: `packages/component-preview/src/Badge/index.tsx`
+        ### Verify
+        - `yarn typecheck`
+      ```
+
+
+      # apply 流水线所需的固定任务分组
+
+
+      以下两组必须存在。其复选框由 openspec-worktree-setup 与
+      openspec-pre-merge-verify 执行，仅作为进度追踪器。
+
+
+      ```
+
+      ## 0. Worktree & Baseline
+
+      - [ ] 0.1 Create isolated branch: `git worktree add ../<repo>-<change-id> -b feature-openspec/<change-id>`
+
+      - [ ] 0.2 Baseline green: `yarn && yarn typecheck && yarn test`
+
+
+      ## N. Pre-Merge Verification
+
+      - [ ] N.1 Full suite: `yarn test && yarn typecheck && yarn lint`
+
+      - [ ] N.2 Run openspec-verify-change and export `.verification-report.md`
+
+      - [ ] N.3 Pick Merge / Open PR / Keep / Discard via openspec-finish-branch
+
+      ```
+
+
+      # 可选：apply-strategy 元信息块（位于 tasks.md 顶部）
+
+
+      若需绕过默认的 worktree/baseline 策略（例如仅文档、仅预览任务），
+      在 `tasks.md` 最顶部放置一段 HTML 注释。`openspec-worktree-setup`
+      会优先读取它；若未提供，则按任务 mode 分布自动推断。
+
+
+      ```
+
+      <!-- apply-strategy
+
+      worktree: auto            # auto | required | disabled
+
+      baseline: auto            # auto | full | typecheck-only | skip
+
+      branch: feature-openspec/<change-id>   # 可选覆盖；必须以 feature-openspec/ 开头
+
+      -->
+
+      ```
+
+
+      解析规则（完整表见 openspec-worktree-setup）：
+
+      - 显式键始终优先于推断值。
+
+      - 仅当所有任务均为 `[mode: docs]`（或用户显式选择）时，
+        `worktree: disabled` 才合法；此时隐含 `baseline: skip` 并保留当前分支。
+
+      - 分支名覆盖必须以 `feature-openspec/` 开头。
+
+      - 禁止将此信息写入 `.openspec.yaml`（此文件归 OpenSpec CLI 所有，
+        不属于 AI 驱动的 apply 契约）。
+
+
+      零占位：每个代码块与每条命令都必须具体可执行。
+      禁止 "TODO"、"稍后补充"、"参考任务 N" 之类写法。
+    requires:
+      - specs
+      - design
+apply:
+  requires:
+    - tasks
+  tracks: tasks.md
+  instruction: |
+    apply 阶段有两条并行执行路径。一次变更只选其一，不得中途切换。
+
+    ## 路径 A —— 简易（技能：`openspec-apply-change`）
+
+    默认轻量路径：
+    - 按文档顺序执行每个 `- [ ] X.Y` 任务。
+    - 不隔离 worktree，不强制 RED-GREEN-REFACTOR TDD。
+    - 固定分组 `## 0.` / `## N.` 视作普通条目（可省略）。
+    - 适用于小变更、紧急修复、仅文档更新或手动驱动任务。
+
+    ## 路径 B —— 守卫式 TDD（技能：`openspec-apply-change-gtdd`)
+
+    可选的 Superpowers 风格流水线。严格步骤顺序，每一步都是外部技能：
+
+      1) openspec-worktree-setup
+         - 读取 tasks.md 顶部的 `<!-- apply-strategy -->`，或按任务 mode 分布推断。
+         - 涉及代码：在 `../<repo>-<change-id>` 创建 `feature-openspec/<change-id>` 分支的 worktree；基线写入 `openspec/changes/<change-id>/.baseline.json`。
+         - 仅文档：原地工作；不建 worktree，跳过基线。
+         - 任何失败 → openspec-debug-loop。
+      2) openspec-tdd-task（对 `## 1..N-1` 下每个 `- [ ]` 循环）
+         - 按任务检测 mode（`[mode: xxx]` 或基于路径）。
+         - `feature`：RED（须失败）→ GREEN（最小）→ Verify → 提交。
+         - `removal`：删除列出的文件 + 完整 `yarn test` 保持绿色。
+         - `docs` / `preview` / `config`：跳过 RED；仅 Verify。
+         - `refactor`：RED 可选（行为保持时允许 `N/A`）。
+         - 仅当提交成功后才翻转 `- [ ]` → `- [x]`。
+      3) openspec-pre-merge-verify（所有任务完成后）
+         - 完整 `yarn test && yarn typecheck && yarn lint`。
+         - 调用 openspec-verify-change；汇总写入 `.verification-report.md`。
+         - CRITICAL → debug-loop；WARNING → AskUserQuestion。
+      4) openspec-finish-branch
+         - AskUserQuestion：Open PR / Merge / Keep / Discard。
+         - 始终使用 `feature-openspec/<change-id>`；完成后调用 openspec-archive-change。
+
+    ### 失败策略（仅路径 B）
+
+    任何阶段出现任何失败，都必须在提出或实施任何修复之前移交给 `openspec-debug-loop`。
+
+    openspec-debug-loop 强制执行 4 个阶段，顺序不可调：
+      阶段 1 复现          —— 最小命令 + 完整输出
+      阶段 2 根因追踪      —— ≥2 个假设，每个都用证据证伪
+      阶段 3 根因处修复    —— 根因修复 + 纵深防御 + 回归测试
+      阶段 4 验证          —— 重跑复现 + 受影响测试 + typecheck，全部绿色
+
+    路径 B 禁止事项：
+      - 为让测试通过而打补丁或删除测试
+      - 在完成阶段 2 之前修改代码
+      - 在没有命令输出的情况下声称 "done"
+      - 在变更中途混用路径 A 和路径 B
+
+    连续 3 次失败循环 → 通过 AskUserQuestion 暂停。
+
+    ### 证据先于断言（路径 B）
+
+    每一次 "完成 / 已修复 / 已通过" 的声明，都必须有会话内或 `.debug-log.md` / `.verification-report.md` 中真实的命令输出作为支撑。
+
+    ## 哪条路径适用于本次变更？
+
+    - 用户显式调用 `openspec-apply-change-gtdd`，或 tasks.md 含 `<!-- apply-strategy -->` 元信息块 → 路径 B。
+    - 否则 → 路径 A（默认）。
+    - 必备子小节（`### Files`、`### Spec Refs`、`### Test First (RED)`、`### Verify`）与 `[mode: xxx]` 标签仅在路径 B 下强制；路径 A 视其为辅助文档。
