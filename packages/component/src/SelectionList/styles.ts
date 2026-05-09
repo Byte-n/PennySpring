@@ -121,6 +121,7 @@ export const useSelectionListStyles = createUseSheetStyle(
       },
       popup: {
         padding: token.paddingSM,
+        maxHeight: '85%',
       },
       popupContent: {
         gap: token.sizeSM,

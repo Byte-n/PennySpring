@@ -6,7 +6,7 @@ import {
   View,
 } from 'react-native';
 import { useTheme } from '@pennyspring/theme';
-import { BottomPopup } from '../shares/BottomPopup';
+import { Popup } from '../Popup';
 import { Text } from '../Text';
 import {
   SELECTION_LIST_CLOSE_TEXT,
@@ -299,14 +299,13 @@ export function SelectionListPopup({
   }
 
   return (
-    <BottomPopup
-      accessibilityLabel={SELECTION_LIST_HEADER_TEXT}
-      contentTestID="selection-list-popup"
-      contentStyle={[tokenStyles.popup, style, styles?.popup]}
-      onClose={closeSelectionList}
-      visible={mergedOpen}
+    <Popup
+      open={mergedOpen}
+      position="bottom"
+      onCancel={closeSelectionList}
+      styles={{ body: [tokenStyles.popup, style, styles?.popup] }}
     >
-      <View style={tokenStyles.popupContent}>
+      <View testID="selection-list-popup" style={tokenStyles.popupContent}>
         <View style={tokenStyles.header}>
           <Text weight="strong" style={tokenStyles.headerText}>
             {SELECTION_LIST_HEADER_TEXT}
@@ -378,7 +377,7 @@ export function SelectionListPopup({
           </Pressable>
         </View>
       </View>
-    </BottomPopup>
+    </Popup>
   );
 }
 

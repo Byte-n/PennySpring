@@ -209,7 +209,7 @@ it('calls cancel then open change for mask press', () => {
   });
 
   act(() => {
-    testRenderer!.root.findByProps({ testID: 'picker-mask' }).props.onPress();
+    testRenderer!.root.findByProps({ testID: 'popup-mask' }).props.onPress();
   });
 
   expect(calls).toEqual(['cancel:mask', 'open:false:mask']);
@@ -521,7 +521,7 @@ it('applies supported style slots', () => {
   const tree = testRenderer!.root;
 
   expect(JSON.stringify(tree.findByProps({ testID: 'picker-trigger' }).props.style)).toContain('0.91');
-  expect(JSON.stringify(tree.findByProps({ testID: 'picker-mask' }).props.style)).toContain('0.93');
+  expect(JSON.stringify(tree.findByProps({ testID: 'popup-mask' }).props.style)).toContain('0.93');
   expect(JSON.stringify(tree.findByProps({ testID: 'picker-cancel-button' }).props.style)).toContain('0.96');
   expect(JSON.stringify(tree.findByProps({ testID: 'picker-ok-button' }).props.style)).toContain('0.88');
   expect(JSON.stringify(tree.findByProps({ testID: 'picker-indicator' }).props.style)).toContain('0.77');

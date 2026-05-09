@@ -1,5 +1,5 @@
 import React from 'react';
-import { Pressable, View } from 'react-native';
+import { Popup } from '../Popup';
 import { PickerPanel } from './PickerPanel';
 import type { PickerProps, PickerValue } from './types';
 
@@ -42,17 +42,17 @@ export function PickerPopup({
   props,
   styles,
 }: PickerPopupProps) {
-  if (!open) {
-    return null;
-  }
-
   return (
-    <View style={[styles.popup, props.styles?.popup]}>
-      <Pressable
-        onPress={onMaskPress}
-        style={[styles.mask, props.styles?.mask]}
-        testID="picker-mask"
-      />
+    <Popup
+      open={open}
+      position="bottom"
+      onCancel={() => onMaskPress?.()}
+      style={[styles.popup, props.styles?.popup]}
+      styles={{
+        mask: [styles.mask, props.styles?.mask],
+        body: { padding: 0 },
+      }}
+    >
       <PickerPanel
         columns={columns}
         draftValue={draftValue}
@@ -62,6 +62,6 @@ export function PickerPopup({
         props={props}
         styles={styles}
       />
-    </View>
+    </Popup>
   );
 }
