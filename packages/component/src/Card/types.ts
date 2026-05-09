@@ -30,15 +30,6 @@ export interface CardStyles {
 
   /** 底部内容容器样式。 */
   footer?: StyleProp<ViewStyle>;
-
-  /** pressed 状态下的根容器样式。 */
-  rootPressed?: StyleProp<ViewStyle>;
-
-  /** disabled 状态下的根容器样式。 */
-  rootDisabled?: StyleProp<ViewStyle>;
-
-  /** loading 状态下的内容容器样式。 */
-  bodyLoading?: StyleProp<ViewStyle>;
 }
 
 export interface CardProps {

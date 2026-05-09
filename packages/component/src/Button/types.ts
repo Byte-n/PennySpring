@@ -49,12 +49,7 @@ export interface ButtonLoadingConfig {
 
 export interface ButtonStyles {
   icon?: StyleProp<ViewStyle>;
-  iconLoading?: StyleProp<ViewStyle>;
   content?: StyleProp<TextStyle>;
-  contentDisabled?: StyleProp<TextStyle>;
-  rootPressed?: StyleProp<ViewStyle>;
-  rootDisabled?: StyleProp<ViewStyle>;
-  rootLoading?: StyleProp<ViewStyle>;
 }
 
 export interface ButtonProps

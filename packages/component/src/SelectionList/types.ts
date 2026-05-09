@@ -89,15 +89,6 @@ export interface SelectionListStyles {
   /** 触发器外壳样式。 */
   trigger?: StyleProp<ViewStyle>;
 
-  /** 展开状态下的触发器外壳样式。 */
-  triggerOpen?: StyleProp<ViewStyle>;
-
-  /** 错误状态下的触发器外壳样式。 */
-  triggerError?: StyleProp<ViewStyle>;
-
-  /** 禁用状态下的触发器外壳样式。 */
-  triggerDisabled?: StyleProp<ViewStyle>;
-
   /** 选中值文本样式。 */
   valueText?: StyleProp<TextStyle>;
 
@@ -112,12 +103,6 @@ export interface SelectionListStyles {
 
   /** 选项容器样式。 */
   option?: StyleProp<ViewStyle>;
-
-  /** 选中选项容器样式。 */
-  optionSelected?: StyleProp<ViewStyle>;
-
-  /** 禁用选项容器样式。 */
-  optionDisabled?: StyleProp<ViewStyle>;
 
   /** 选项主文本样式。 */
   optionLabel?: StyleProp<TextStyle>;

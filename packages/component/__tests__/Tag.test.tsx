@@ -152,17 +152,11 @@ describe('Tag', () => {
     expect(onPress).toHaveBeenCalledTimes(1);
   });
 
-  it('blocks disabled press and applies disabled root style', () => {
+  it('blocks disabled press from invoking onPress', () => {
     const onPress = jest.fn();
-    const disabledStyle = { opacity: 0.31 };
-    const contentDisabledStyle = { opacity: 0.32 };
     const testRenderer = renderTag({
       disabled: true,
       onPress,
-      disabledStyle,
-      styles: {
-        contentDisabled: contentDisabledStyle,
-      },
       children: 'Disabled',
     });
     const root = getPressableRoot(testRenderer);
@@ -172,8 +166,6 @@ describe('Tag', () => {
     });
 
     expect(onPress).not.toHaveBeenCalled();
-    expect(root.props.style({ pressed: true })).toContain(disabledStyle);
-    expect(findNodesWithStyle(testRenderer, contentDisabledStyle)).toHaveLength(1);
   });
 
   it('uses View root when onPress is absent', () => {
@@ -195,19 +187,16 @@ describe('Tag', () => {
     expect(root.props.testID).toBe('static-tag');
   });
 
-  it('applies root and pressed styles after token styles', () => {
+  it('applies root style after token styles', () => {
     const rootStyle = { flex: 1 };
-    const pressedStyle = { opacity: 0.41 };
     const testRenderer = renderTag({
       onPress: jest.fn(),
-      pressedStyle,
       style: rootStyle,
       children: 'Pressable',
     });
     const root = getPressableRoot(testRenderer);
 
     expect(root.props.style({ pressed: false })).toContain(rootStyle);
-    expect(root.props.style({ pressed: true })).toContain(pressedStyle);
   });
 
   it('exports Tag from the package entry', () => {

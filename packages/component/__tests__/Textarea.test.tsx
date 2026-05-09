@@ -143,11 +143,9 @@ describe('Textarea', () => {
   it('updates focus state and forwards focus and blur callbacks', () => {
     const handleFocus = jest.fn();
     const handleBlur = jest.fn();
-    const focusedStyle = { opacity: 0.91 };
     const testRenderer = renderTextarea({
       onFocus: handleFocus,
       onBlur: handleBlur,
-      styles: { fieldFocused: focusedStyle },
     });
     const input = testRenderer.root.findByType(TextInput);
 
@@ -156,7 +154,6 @@ describe('Textarea', () => {
     });
 
     expect(handleFocus).toHaveBeenCalledTimes(1);
-    expect(findNodeWithStyle(testRenderer, focusedStyle)).toBeTruthy();
 
     act(() => {
       testRenderer.root.findByType(TextInput).props.onBlur({ nativeEvent: {} });

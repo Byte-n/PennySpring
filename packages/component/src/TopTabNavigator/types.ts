@@ -14,8 +14,6 @@ export interface SegmentedControlStyles {
   indicator?: StyleProp<ViewStyle>;
   option?: StyleProp<ViewStyle>;
   label?: StyleProp<TextStyle>;
-  activeLabel?: StyleProp<TextStyle>;
-  inactiveLabel?: StyleProp<TextStyle>;
 }
 
 export interface HeaderBarStyles {

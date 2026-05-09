@@ -182,7 +182,6 @@ export function Card({
           tokenStyles.body,
           styles?.body,
           loading ? tokenStyles.bodyLoading : null,
-          loading ? styles?.bodyLoading : null,
         ]}
       >
         {bodyContent}
@@ -202,9 +201,7 @@ export function Card({
         style={({ pressed }) => [
           tokenStyles.root,
           pressed && isInteractive ? tokenStyles.rootPressed : null,
-          pressed && isInteractive ? styles?.rootPressed : null,
           disabled ? tokenStyles.rootDisabled : null,
-          disabled ? styles?.rootDisabled : null,
           style,
         ]}
       >

@@ -31,7 +31,6 @@ packages/component/     → 共享 React Native UI 组件
 packages/data/          → Drizzle schema、relations、SQLite runtime、migrations
 packages/share/         → 跨包共享工具
 __tests__/              → 根应用测试
-openspec/               → OpenSpec 变更工作流产物
 .claude/                → Claude Code 配置：agents、rules、skills
 scripts/                → 本地工具脚本
 ```
@@ -59,7 +58,7 @@ Token 管线：`SeedToken` → `derivative()` → `MapToken` → `formatToken()`
 - 修改或新增任意代码：遵循 `.claude/rules/common/coding-style.md`
 - 编写或修改任意测试：遵循 `.claude/rules/common/testing.md`
 - 修改 `*.ts`、`*.tsx`、`*.js`、`*.jsx`：额外遵循 `.claude/rules/typescript/coding-style.md`
-- 修改 `packages/component/src/**/*.{ts,tsx}`：额外遵循 `.claude/rules/typescript/components.md`
+- 修改 `packages/component/src/**/*.{ts,tsx}`：额外遵循 `.claude/rules/component/components.md`
 - 为 TS/JS 编写或修改测试：额外遵循 `.claude/rules/typescript/testing.md`
 - 修改 React Native 视觉样式、颜色、间距、圆角、边框、阴影、字体、主题或交互态：必须使用 `theme-tokens` 技能
 

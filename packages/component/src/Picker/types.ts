@@ -57,10 +57,6 @@ export interface PickerStyles {
   column?: StyleProp<ViewStyle>;
   item?: StyleProp<ViewStyle>;
   itemText?: StyleProp<TextStyle>;
-  selectedItem?: StyleProp<ViewStyle>;
-  selectedItemText?: StyleProp<TextStyle>;
-  disabledItem?: StyleProp<ViewStyle>;
-  disabledItemText?: StyleProp<TextStyle>;
   indicator?: StyleProp<ViewStyle>;
   loading?: StyleProp<ViewStyle>;
   empty?: StyleProp<ViewStyle>;

@@ -152,9 +152,6 @@ export function ListCollapse({
           mergedExpanded ? tokenStyles.headerExpanded : null,
           isDisabled ? tokenStyles.headerDisabled : null,
           styles?.header,
-          pressed && isInteractive ? styles?.headerPressed : null,
-          mergedExpanded ? styles?.headerExpanded : null,
-          isDisabled ? styles?.headerDisabled : null,
         ]}
       >
         {left ? <View style={[tokenStyles.left, styles?.left]}>{left}</View> : null}
@@ -170,7 +167,6 @@ export function ListCollapse({
             tokenStyles.content,
             styles?.content,
             loading ? tokenStyles.contentLoading : null,
-            loading ? styles?.contentLoading : null,
           ]}
         >
           {children}

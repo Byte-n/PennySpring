@@ -214,7 +214,6 @@ export function Segmented({
           tokenStyles.track,
           styles?.track,
           disabled ? tokenStyles.trackDisabled : null,
-          disabled ? styles?.trackDisabled : null,
         ]}
       >
         {normalizedOptions.map(option => {
@@ -234,11 +233,8 @@ export function Segmented({
                 tokenStyles.item,
                 styles?.item,
                 isSelected ? tokenStyles.itemSelected : null,
-                isSelected ? styles?.itemSelected : null,
                 pressed && !isDisabled ? tokenStyles.itemPressed : null,
-                pressed && !isDisabled ? styles?.itemPressed : null,
                 isDisabled ? tokenStyles.itemDisabled : null,
-                isDisabled ? styles?.itemDisabled : null,
               ]}
             >
               <View style={[tokenStyles.content, styles?.content]}>
@@ -248,9 +244,7 @@ export function Segmented({
                       tokenStyles.icon,
                       styles?.icon,
                       isSelected ? tokenStyles.iconSelected : null,
-                      isSelected ? styles?.iconSelected : null,
                       isDisabled ? tokenStyles.iconDisabled : null,
-                      isDisabled ? styles?.iconDisabled : null,
                     ]}
                   >
                     {option.icon}
@@ -262,9 +256,7 @@ export function Segmented({
                     tokenStyles.label,
                     styles?.label,
                     isSelected ? tokenStyles.labelSelected : null,
-                    isSelected ? styles?.labelSelected : null,
                     isDisabled ? tokenStyles.labelDisabled : null,
-                    isDisabled ? styles?.labelDisabled : null,
                   ],
                 )}
               </View>

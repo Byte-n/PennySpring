@@ -16,7 +16,6 @@ export interface AvatarStyles {
   image?: StyleProp<ImageStyle>;
   text?: StyleProp<TextStyle>;
   icon?: StyleProp<ViewStyle>;
-  rootDisabled?: StyleProp<ViewStyle>;
 }
 
 export interface AvatarProps {

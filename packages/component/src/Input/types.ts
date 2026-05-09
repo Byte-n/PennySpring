@@ -24,15 +24,6 @@ export interface InputStyles {
   /** Field shell style. */
   field?: StyleProp<ViewStyle>;
 
-  /** Focused field shell style. */
-  fieldFocused?: StyleProp<ViewStyle>;
-
-  /** Error field shell style. */
-  fieldError?: StyleProp<ViewStyle>;
-
-  /** Disabled field shell style. */
-  fieldDisabled?: StyleProp<ViewStyle>;
-
   /** TextInput text style. */
   input?: StyleProp<TextStyle>;
 

@@ -35,7 +35,6 @@ export type TagVariant = 'filled' | 'outlined' | 'solid';
 
 export interface TagStyles {
   content?: StyleProp<TextStyle>;
-  contentDisabled?: StyleProp<TextStyle>;
 }
 
 export interface TagProps
@@ -47,7 +46,5 @@ export interface TagProps
   disabled?: boolean;
   onPress?: (event: GestureResponderEvent) => void;
   style?: StyleProp<ViewStyle>;
-  pressedStyle?: StyleProp<ViewStyle>;
-  disabledStyle?: StyleProp<ViewStyle>;
   styles?: TagStyles;
 }

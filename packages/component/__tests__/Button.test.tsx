@@ -156,17 +156,11 @@ describe('Button', () => {
     expect(testRenderer.root.findAllByType(ActivityIndicator)).toHaveLength(1);
   });
 
-  it('blocks disabled presses and applies disabled state styles', () => {
+  it('blocks disabled presses and exposes disabled accessibility state', () => {
     const onPress = jest.fn();
-    const rootDisabledStyle = { opacity: 0.42 };
-    const contentDisabledStyle = { opacity: 0.41 };
     const testRenderer = renderButton({
       disabled: true,
       onPress,
-      styles: {
-        rootDisabled: rootDisabledStyle,
-        contentDisabled: contentDisabledStyle,
-      },
       children: 'Disabled',
     });
     const root = getPressableRoot(testRenderer);
@@ -177,24 +171,15 @@ describe('Button', () => {
 
     expect(onPress).not.toHaveBeenCalled();
     expect(root.props.accessibilityState.disabled).toBe(true);
-    expect(root.props.style({ pressed: true })).toContain(rootDisabledStyle);
-    expect(findNodesWithStyle(testRenderer, contentDisabledStyle)).toHaveLength(1);
   });
 
-  it('supports block layout and pressed slot overrides', () => {
-    const rootPressedStyle = { opacity: 0.72 };
+  it('supports block layout', () => {
     const testRenderer = renderButton({
       block: true,
-      styles: {
-        rootPressed: rootPressedStyle,
-      },
       children: 'Submit',
     });
 
     expect(getRootStyle(testRenderer).width).toBe('100%');
-    expect(getPressableRoot(testRenderer).props.style({ pressed: true })).toContain(
-      rootPressedStyle,
-    );
   });
 
   it('uses loading delay before entering busy state', () => {

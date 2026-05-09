@@ -22,15 +22,6 @@ export interface TextareaStyles {
   /** 文本域外壳样式。 */
   field?: StyleProp<ViewStyle>;
 
-  /** 聚焦状态下的文本域外壳样式。 */
-  fieldFocused?: StyleProp<ViewStyle>;
-
-  /** 错误状态下的文本域外壳样式。 */
-  fieldError?: StyleProp<ViewStyle>;
-
-  /** 禁用状态下的文本域外壳样式。 */
-  fieldDisabled?: StyleProp<ViewStyle>;
-
   /** TextInput 文本样式。 */
   input?: StyleProp<TextStyle>;
 

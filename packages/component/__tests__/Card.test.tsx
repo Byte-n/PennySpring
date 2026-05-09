@@ -150,15 +150,11 @@ describe('Card', () => {
     expect(onPress).toHaveBeenCalledTimes(1);
   });
 
-  it('blocks disabled press and applies disabled root style', () => {
+  it('blocks disabled press from invoking onPress', () => {
     const onPress = jest.fn();
-    const rootDisabledStyle = { opacity: 0.31 };
     const testRenderer = renderCard({
       disabled: true,
       onPress,
-      styles: {
-        rootDisabled: rootDisabledStyle,
-      },
       children: <RNText>Disabled account</RNText>,
     });
     const root = getPressableRoot(testRenderer);
@@ -168,20 +164,13 @@ describe('Card', () => {
     });
 
     expect(onPress).not.toHaveBeenCalled();
-    expect(flattenStyle(root.props.style({ pressed: true })).opacity).toBe(
-      rootDisabledStyle.opacity,
-    );
   });
 
-  it('blocks loading press and suppresses pressed root style', () => {
+  it('blocks loading press from invoking onPress', () => {
     const onPress = jest.fn();
-    const rootPressedStyle = { opacity: 0.21 };
     const testRenderer = renderCard({
       loading: true,
       onPress,
-      styles: {
-        rootPressed: rootPressedStyle,
-      },
       children: <RNText>Loading account</RNText>,
     });
     const root = getPressableRoot(testRenderer);
@@ -191,7 +180,6 @@ describe('Card', () => {
     });
 
     expect(onPress).not.toHaveBeenCalled();
-    expect(root.props.style({ pressed: true })).not.toContain(rootPressedStyle);
   });
 
   it('replaces children with loadingNode while loading', () => {
@@ -206,20 +194,14 @@ describe('Card', () => {
     expect(treeString).not.toContain('Loaded summary');
   });
 
-  it('keeps children and applies bodyLoading style when loadingNode is absent', () => {
-    const bodyLoadingStyle = { opacity: 0.61 };
+  it('keeps children when loadingNode is absent', () => {
     const testRenderer = renderCard({
       loading: true,
-      styles: {
-        bodyLoading: bodyLoadingStyle,
-      },
       children: <RNText>Existing summary</RNText>,
     });
     const treeString = JSON.stringify(testRenderer.toJSON());
-    const bodyNodes = findViewNodesWithStyle(testRenderer, bodyLoadingStyle);
 
     expect(treeString).toContain('Existing summary');
-    expect(bodyNodes).toHaveLength(1);
   });
 
   it('maps size to root padding tokens', () => {
@@ -246,7 +228,6 @@ describe('Card', () => {
     const extraStyle = { paddingLeft: 0 };
     const bodyStyle = { paddingBottom: 0 };
     const footerStyle = { paddingTop: 0 };
-    const rootPressedStyle = { opacity: 0.41 };
     const testRenderer = renderCard({
       onPress: jest.fn(),
       style: rootStyle,
@@ -255,7 +236,6 @@ describe('Card', () => {
         extra: extraStyle,
         footer: footerStyle,
         header: headerStyle,
-        rootPressed: rootPressedStyle,
       },
       title: 'Card title',
       extra: <RNText>More</RNText>,
@@ -265,9 +245,6 @@ describe('Card', () => {
     const root = getPressableRoot(testRenderer);
 
     expect(root.props.style({ pressed: false })).toContain(rootStyle);
-    expect(flattenStyle(root.props.style({ pressed: true })).opacity).toBe(
-      rootPressedStyle.opacity,
-    );
     expect(flattenStyle(findViewNodesWithStyle(testRenderer, headerStyle)[0].props.style).paddingTop).toBe(0);
     expect(flattenStyle(findViewNodesWithStyle(testRenderer, extraStyle)[0].props.style).paddingLeft).toBe(0);
     expect(flattenStyle(findViewNodesWithStyle(testRenderer, bodyStyle)[0].props.style).paddingBottom).toBe(0);

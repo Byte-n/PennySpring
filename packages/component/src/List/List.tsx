@@ -260,8 +260,6 @@ export function ListItem({
     style,
     isSelected ? tokenStyles.itemSelected : null,
     isDisabled ? tokenStyles.itemDisabled : null,
-    isSelected ? styles?.itemSelected : null,
-    isDisabled ? styles?.itemDisabled : null,
   ];
 
   if (isInteractive) {
@@ -275,8 +273,6 @@ export function ListItem({
           style,
           pressed ? tokenStyles.itemPressed : null,
           isSelected ? tokenStyles.itemSelected : null,
-          pressed ? styles?.itemPressed : null,
-          isSelected ? styles?.itemSelected : null,
         ]}
       >
         {itemContent}

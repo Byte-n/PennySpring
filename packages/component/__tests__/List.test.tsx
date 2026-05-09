@@ -257,15 +257,13 @@ describe('List', () => {
     expect(flattenStyle(smallItem?.props.style).paddingVertical).toBe(SMALL_ITEM_PADDING);
   });
 
-  it('applies List.Item root, slot and state styles after token styles', () => {
+  it('applies List.Item root and slot styles after token styles', () => {
     const rootStyle = { flex: 1 };
     const leftStyle = { opacity: 0.61 };
     const contentStyle = { opacity: 0.62 };
     const rightStyle = { opacity: 0.63 };
     const titleStyle = { opacity: 0.64 };
     const descriptionStyle = { opacity: 0.65 };
-    const selectedStyle = { backgroundColor: 'transparent' as const };
-    const disabledStyle = { opacity: 0.66 };
     const testRenderer = renderList(
       <List.Item
         disabled
@@ -278,8 +276,6 @@ describe('List', () => {
         styles={{
           content: contentStyle,
           description: descriptionStyle,
-          itemDisabled: disabledStyle,
-          itemSelected: selectedStyle,
           left: leftStyle,
           right: rightStyle,
           title: titleStyle,
@@ -293,8 +289,6 @@ describe('List', () => {
     });
 
     expect(root?.props.style).toContain(rootStyle);
-    expect(flattenStyle(root?.props.style).backgroundColor).toBe('transparent');
-    expect(flattenStyle(root?.props.style).opacity).toBe(0.66);
     expect(findNodesWithStyle(testRenderer, leftStyle)).toHaveLength(1);
     expect(findNodesWithStyle(testRenderer, contentStyle)).toHaveLength(1);
     expect(findNodesWithStyle(testRenderer, rightStyle)).toHaveLength(1);

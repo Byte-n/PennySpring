@@ -201,11 +201,8 @@ describe('Input', () => {
     ).toBe('button');
   });
 
-  it('maps size and state slots to token styles', () => {
+  it('maps size to token-driven field minHeight', () => {
     const fieldStyle = { opacity: 0.91 };
-    const fieldFocusedStyle = { opacity: 0.92 };
-    const fieldErrorStyle = { opacity: 0.93 };
-    const fieldDisabledStyle = { opacity: 0.94 };
     const smallRenderer = renderInput({
       size: 'small',
       styles: { field: fieldStyle },
@@ -218,20 +215,6 @@ describe('Input', () => {
       size: 'large',
       styles: { field: fieldStyle },
     });
-    const stateRenderer = renderInput({
-      disabled: true,
-      status: 'error',
-      styles: {
-        field: fieldStyle,
-        fieldDisabled: fieldDisabledStyle,
-        fieldError: fieldErrorStyle,
-        fieldFocused: fieldFocusedStyle,
-      },
-    });
-
-    act(() => {
-      findInput(stateRenderer).props.onFocus({ nativeEvent: {} });
-    });
 
     expect(flattenStyle(findViewWithStyle(smallRenderer, fieldStyle).props.style).minHeight).toBe(
       token.controlHeightSM,
@@ -241,14 +224,6 @@ describe('Input', () => {
     );
     expect(flattenStyle(findViewWithStyle(largeRenderer, fieldStyle).props.style).minHeight).toBe(
       token.controlHeightLG,
-    );
-    expect(findViewWithStyle(stateRenderer, fieldStyle).props.style).toEqual(
-      expect.arrayContaining([
-        fieldStyle,
-        fieldFocusedStyle,
-        fieldErrorStyle,
-        fieldDisabledStyle,
-      ]),
     );
   });
 });

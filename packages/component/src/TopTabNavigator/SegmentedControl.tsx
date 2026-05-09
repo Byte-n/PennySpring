@@ -190,7 +190,6 @@ export function SegmentedControl({
                   isSelected
                     ? tokenStyles.activeLabel
                     : tokenStyles.inactiveLabel,
-                  isSelected ? styles?.activeLabel : styles?.inactiveLabel,
                 ]}
                 testID="top-tab-segment-label"
               >

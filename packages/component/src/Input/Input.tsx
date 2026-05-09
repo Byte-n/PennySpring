@@ -280,13 +280,10 @@ export function Input({
           tokenStyles.field,
           styles?.field,
           isFocused ? tokenStyles.fieldFocused : null,
-          isFocused ? styles?.fieldFocused : null,
           resolvedStatus === 'warning' ? tokenStyles.fieldWarning : null,
           resolvedStatus === 'success' ? tokenStyles.fieldSuccess : null,
           isError ? tokenStyles.fieldError : null,
-          isError ? styles?.fieldError : null,
           disabled === true ? tokenStyles.fieldDisabled : null,
-          disabled === true ? styles?.fieldDisabled : null,
         ]}
       >
         {hasPrefix ? (

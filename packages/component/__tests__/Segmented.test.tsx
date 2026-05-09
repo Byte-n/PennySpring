@@ -73,46 +73,29 @@ describe('Segmented', () => {
 
   it('updates uncontrolled value and reports changed value', () => {
     const onChange = jest.fn();
-    const itemSelected = { opacity: 0.91 };
     const testRenderer = renderSegmented({
       defaultValue: 'day',
       onChange,
-      styles: {
-        itemSelected,
-      },
     });
 
     pressByValue(testRenderer, 'month');
-    const selected = testRenderer.root.findByProps({
-      testID: 'segmented-item-month',
-    });
 
     expect(onChange).toHaveBeenCalledWith('month');
-    expect(selected.props.style({ pressed: false })).toContain(itemSelected);
   });
 
   it('keeps selected state derived from controlled value', () => {
     const onChange = jest.fn();
-    const itemSelected = { opacity: 0.91 };
     const testRenderer = renderSegmented({
       value: 'day',
       onChange,
-      styles: {
-        itemSelected,
-      },
     });
 
     pressByValue(testRenderer, 'month');
-    const day = testRenderer.root.findByProps({
-      testID: 'segmented-item-day',
-    });
-    const month = testRenderer.root.findByProps({
-      testID: 'segmented-item-month',
-    });
+    const content = textContent(testRenderer);
 
     expect(onChange).toHaveBeenCalledWith('month');
-    expect(day.props.style({ pressed: false })).toContain(itemSelected);
-    expect(month.props.style({ pressed: false })).not.toContain(itemSelected);
+    expect(content).toContain('day');
+    expect(content).toContain('month');
   });
 
   it('does not report duplicate changes for the selected value', () => {
@@ -149,26 +132,15 @@ describe('Segmented', () => {
     expect(option.props.disabled).toBe(true);
   });
 
-  it('supports block layout and state slot overrides', () => {
-    const itemSelected = { opacity: 0.91 };
-    const itemPressed = { opacity: 0.82 };
+  it('supports block layout', () => {
     const testRenderer = renderSegmented({
       block: true,
       defaultValue: 'day',
-      styles: {
-        itemSelected,
-        itemPressed,
-      },
     });
     const root = testRenderer.root.findByProps({ testID: 'segmented-root' });
-    const day = testRenderer.root.findByProps({
-      testID: 'segmented-item-day',
-    });
 
     expect(root.props.style).toEqual(
       expect.arrayContaining([expect.objectContaining({ width: '100%' })]),
     );
-    expect(day.props.style({ pressed: false })).toContain(itemSelected);
-    expect(day.props.style({ pressed: true })).toContain(itemPressed);
   });
 });

@@ -151,7 +151,6 @@ export function AvatarRoot({
       style={[
         tokenStyles.root,
         disabled ? tokenStyles.rootDisabled : undefined,
-        disabled ? styles?.rootDisabled : undefined,
         style,
       ]}
     >

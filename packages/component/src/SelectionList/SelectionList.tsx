@@ -260,9 +260,7 @@ export function SelectionListPopup({
           styles?.option,
           pressed && !isDisabled ? tokenStyles.optionPressed : null,
           isSelected ? tokenStyles.optionSelected : null,
-          isSelected ? styles?.optionSelected : null,
           isDisabled ? tokenStyles.optionDisabled : null,
-          isDisabled ? styles?.optionDisabled : null,
         ]}
       >
         <Text
@@ -494,11 +492,8 @@ function SelectionListRoot({
           styles?.trigger,
           pressed && isInteractive ? tokenStyles.triggerPressed : null,
           mergedOpen ? tokenStyles.triggerOpen : null,
-          mergedOpen ? styles?.triggerOpen : null,
           isError ? tokenStyles.triggerError : null,
-          isError ? styles?.triggerError : null,
           !isInteractive ? tokenStyles.triggerDisabled : null,
-          !isInteractive ? styles?.triggerDisabled : null,
         ]}
       >
         <View style={tokenStyles.valueArea}>

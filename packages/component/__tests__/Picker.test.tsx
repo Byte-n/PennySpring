@@ -494,10 +494,6 @@ it('applies supported style slots', () => {
     column: { opacity: 0.84 },
     item: { opacity: 0.83 },
     itemText: { opacity: 0.82 },
-    selectedItem: { opacity: 0.81 },
-    selectedItemText: { opacity: 0.8 },
-    disabledItem: { opacity: 0.79 },
-    disabledItemText: { opacity: 0.78 },
     indicator: { opacity: 0.77 },
     loading: { opacity: 0.76 },
     empty: { opacity: 0.75 },
@@ -528,8 +524,6 @@ it('applies supported style slots', () => {
   expect(JSON.stringify(tree.findByProps({ testID: 'picker-mask' }).props.style)).toContain('0.93');
   expect(JSON.stringify(tree.findByProps({ testID: 'picker-cancel-button' }).props.style)).toContain('0.96');
   expect(JSON.stringify(tree.findByProps({ testID: 'picker-ok-button' }).props.style)).toContain('0.88');
-  expect(JSON.stringify(tree.findByProps({ testID: 'picker-item-0-0' }).props.style)).toContain('0.81');
-  expect(JSON.stringify(tree.findByProps({ testID: 'picker-item-0-1' }).props.style)).toContain('0.79');
   expect(JSON.stringify(tree.findByProps({ testID: 'picker-indicator' }).props.style)).toContain('0.77');
 });
 

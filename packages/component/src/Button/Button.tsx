@@ -390,7 +390,6 @@ export function Button({
       style={[
         tokenStyles.icon,
         styles?.icon,
-        isLoading ? styles?.iconLoading : null,
       ]}
     >
       {resolvedIcon}
@@ -401,7 +400,6 @@ export function Button({
       tokenStyles.content,
       styles?.content,
       disabled ? tokenStyles.contentDisabled : null,
-      disabled ? styles?.contentDisabled : null,
     ])
     : null;
 
@@ -453,11 +451,8 @@ export function Button({
       style={({ pressed }) => [
         tokenStyles.root,
         pressed && isInteractive ? tokenStyles.rootPressed : null,
-        pressed && isInteractive ? styles?.rootPressed : null,
         disabled ? tokenStyles.rootDisabled : null,
-        disabled ? styles?.rootDisabled : null,
         isLoading ? tokenStyles.rootLoading : null,
-        isLoading ? styles?.rootLoading : null,
         style,
       ]}
     >

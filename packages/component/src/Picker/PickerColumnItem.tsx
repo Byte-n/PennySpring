@@ -56,8 +56,6 @@ export function PickerColumnItem({
         selected ? styles.selectedItem : undefined,
         item.disabled ? styles.disabledItem : undefined,
         slotStyles?.item,
-        selected ? slotStyles?.selectedItem : undefined,
-        item.disabled ? slotStyles?.disabledItem : undefined,
       ]}
       testID={`picker-item-${columnIndex}-${itemIndex}`}
     >
@@ -68,8 +66,6 @@ export function PickerColumnItem({
             selected ? styles.selectedItemText : undefined,
             item.disabled ? styles.disabledItemText : undefined,
             slotStyles?.itemText,
-            selected ? slotStyles?.selectedItemText : undefined,
-            item.disabled ? slotStyles?.disabledItemText : undefined,
           ]}
         >
           {content}

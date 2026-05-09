@@ -166,17 +166,12 @@ describe('Avatar', () => {
     expect(rootStyle.borderRadius).not.toBe(NORMAL_DIMENSION);
   });
 
-  it('applies disabled root styling and disabled slot override', () => {
-    const rootDisabledStyle = { opacity: 0.37 };
+  it('applies disabled root background from theme token', () => {
     const testRenderer = renderAvatar({
       disabled: true,
-      styles: {
-        rootDisabled: rootDisabledStyle,
-      },
     });
     const rootStyle = testRenderer.root.findByType(View).props.style;
 
-    expect(rootStyle).toContain(rootDisabledStyle);
     expect(flattenStyle(rootStyle).backgroundColor)
       .toBe(token.colorBgContainerDisabled);
   });

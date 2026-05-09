@@ -24,9 +24,6 @@ export interface ListItemStyles {
   right?: StyleProp<ViewStyle>;
   title?: StyleProp<TextStyle>;
   description?: StyleProp<TextStyle>;
-  itemPressed?: StyleProp<ViewStyle>;
-  itemSelected?: StyleProp<ViewStyle>;
-  itemDisabled?: StyleProp<ViewStyle>;
   divider?: StyleProp<ViewStyle>;
 }
 

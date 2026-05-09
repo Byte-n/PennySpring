@@ -25,18 +25,10 @@ export type SegmentedOption = SegmentedRawOption | SegmentedLabeledOption;
 
 export interface SegmentedStyles {
   track?: StyleProp<ViewStyle>;
-  trackDisabled?: StyleProp<ViewStyle>;
   item?: StyleProp<ViewStyle>;
-  itemSelected?: StyleProp<ViewStyle>;
-  itemPressed?: StyleProp<ViewStyle>;
-  itemDisabled?: StyleProp<ViewStyle>;
   content?: StyleProp<ViewStyle>;
   icon?: StyleProp<ViewStyle>;
-  iconSelected?: StyleProp<ViewStyle>;
-  iconDisabled?: StyleProp<ViewStyle>;
   label?: StyleProp<TextStyle>;
-  labelSelected?: StyleProp<TextStyle>;
-  labelDisabled?: StyleProp<TextStyle>;
 }
 
 export interface SegmentedProps

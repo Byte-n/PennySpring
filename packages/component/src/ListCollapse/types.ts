@@ -11,15 +11,11 @@ export type ListCollapseSize = ComponentSize;
 
 export interface ListCollapseStyles {
   header?: StyleProp<ViewStyle>;
-  headerPressed?: StyleProp<ViewStyle>;
-  headerExpanded?: StyleProp<ViewStyle>;
-  headerDisabled?: StyleProp<ViewStyle>;
   left?: StyleProp<ViewStyle>;
   title?: StyleProp<TextStyle>;
   summary?: StyleProp<ViewStyle>;
   indicator?: StyleProp<ViewStyle>;
   content?: StyleProp<ViewStyle>;
-  contentLoading?: StyleProp<ViewStyle>;
 }
 
 export interface ListCollapseProps {

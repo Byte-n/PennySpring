@@ -330,11 +330,8 @@ export function Textarea({
           styles?.field,
           readonly ? tokenStyles.fieldReadonly : null,
           disabled ? tokenStyles.fieldDisabled : null,
-          disabled ? styles?.fieldDisabled : null,
           isError ? tokenStyles.fieldError : null,
-          isError ? styles?.fieldError : null,
           isFocused ? tokenStyles.fieldFocused : null,
-          isFocused ? styles?.fieldFocused : null,
         ]}
       >
         <TextInput

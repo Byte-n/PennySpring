@@ -36,10 +36,6 @@ export interface CalendarStyles {
   weekText?: StyleProp<TextStyle>;
   grid?: StyleProp<ViewStyle>;
   cell?: StyleProp<ViewStyle>;
-  cellSelected?: StyleProp<ViewStyle>;
-  cellDisabled?: StyleProp<ViewStyle>;
-  cellToday?: StyleProp<ViewStyle>;
-  cellInRange?: StyleProp<ViewStyle>;
   dateText?: StyleProp<TextStyle>;
   mark?: StyleProp<ViewStyle>;
   footer?: StyleProp<ViewStyle>;

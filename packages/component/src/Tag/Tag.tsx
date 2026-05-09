@@ -242,10 +242,8 @@ function renderContent(
 export function Tag({
   children,
   color = 'default',
-  disabledStyle,
   disabled = false,
   onPress,
-  pressedStyle,
   size = 'normal',
   style,
   styles,
@@ -259,7 +257,6 @@ export function Tag({
     tokenStyles.content,
     styles?.content,
     disabled ? tokenStyles.contentDisabled : null,
-    disabled ? styles?.contentDisabled : null,
   ]);
 
   function handlePress(event: GestureResponderEvent): void {
@@ -279,9 +276,7 @@ export function Tag({
         style={({ pressed }) => [
           tokenStyles.root,
           pressed && isInteractive ? tokenStyles.rootPressed : null,
-          pressed && isInteractive ? pressedStyle : null,
           disabled ? tokenStyles.rootDisabled : null,
-          disabled ? disabledStyle : null,
           style,
         ]}
       >
@@ -296,7 +291,6 @@ export function Tag({
       style={[
         tokenStyles.root,
         disabled ? tokenStyles.rootDisabled : null,
-        disabled ? disabledStyle : null,
         style,
       ]}
     >

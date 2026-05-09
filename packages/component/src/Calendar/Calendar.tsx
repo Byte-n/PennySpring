@@ -368,10 +368,6 @@ function CalendarGrid({
               selected ? styles.cellSelected : null,
               isToday ? styles.cellToday : null,
               disabled ? styles.cellDisabled : null,
-              inRange ? slotStyles?.cellInRange : null,
-              selected ? slotStyles?.cellSelected : null,
-              isToday ? slotStyles?.cellToday : null,
-              disabled ? slotStyles?.cellDisabled : null,
             ]}
           >
             <Text style={[styles.dateText, slotStyles?.dateText]}>
