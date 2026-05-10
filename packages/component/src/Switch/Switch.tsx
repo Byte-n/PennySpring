@@ -7,7 +7,6 @@ import type { SwitchProps, SwitchSize } from './types';
 
 interface SizeStyleConfig {
   trackWidth: (token: AliasToken) => number;
-  trackHeight: (token: AliasToken) => number;
   thumbSize: (token: AliasToken) => number;
   inset: (token: AliasToken) => number;
 }
@@ -15,39 +14,36 @@ interface SizeStyleConfig {
 const SIZE_STYLE_MAP: Record<SwitchSize, SizeStyleConfig> = {
   small: {
     trackWidth: token => token.controlHeight,
-    trackHeight: token => token.controlHeightSM,
     thumbSize: token => token.fontSize,
     inset: token => token.lineWidth,
   },
   normal: {
     trackWidth: token => token.controlHeightLG,
-    trackHeight: token => token.controlHeight,
     thumbSize: token => token.fontSizeXL,
     inset: token => token.lineWidth,
   },
   large: {
-    trackWidth: token => token.controlHeightLG + token.controlHeightSM,
-    trackHeight: token => token.controlHeightLG,
-    thumbSize: token => token.controlHeight,
-    inset: token => token.lineWidthBold,
+    trackWidth: token => token.controlHeightLG + token.controlHeightXS,
+    thumbSize: token => token.controlHeightSM,
+    inset: token => token.lineWidth,
   },
 };
 
 const useStyles = createUseSheetStyle((token, size: SwitchSize) => {
   const sizeConfig = SIZE_STYLE_MAP[size];
   const trackWidth = sizeConfig.trackWidth(token);
-  const trackHeight = sizeConfig.trackHeight(token);
   const thumbSize = sizeConfig.thumbSize(token);
   const inset = sizeConfig.inset(token);
+  const checkedOffset =
+    trackWidth - thumbSize - inset - token.lineWidth - inset;
 
   return {
     track: {
       alignItems: 'flex-start',
       backgroundColor: token.colorFillTertiary,
       borderColor: token.colorBorder,
-      borderRadius: trackHeight,
+      borderRadius: 999,
       borderWidth: token.lineWidth,
-      height: trackHeight,
       justifyContent: 'center',
       width: trackWidth,
     },
@@ -73,7 +69,7 @@ const useStyles = createUseSheetStyle((token, size: SwitchSize) => {
       width: thumbSize,
     },
     thumbChecked: {
-      marginLeft: trackWidth - thumbSize - inset - token.lineWidth,
+      transform: [{ translateX: checkedOffset }],
     },
     thumbDisabled: {
       backgroundColor: token.colorTextDisabled,

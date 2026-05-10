@@ -5,8 +5,11 @@ import { CheckboxPreview } from './data-entry/checkbox';
 import { DateTimePickerPreview } from './data-entry/date-time-picker';
 import { InputPreview } from './data-entry/input';
 import { PickerPreview } from './data-entry/picker';
+import { ProgressPreview } from './data-entry/progress';
 import { RadioPreview } from './data-entry/radio';
 import { SelectionListPreview } from './data-entry/selection-list';
+import { SliderPreview } from './data-entry/slider';
+import { SwitchPreview } from './data-entry/switch';
 import { TextareaPreview } from './data-entry/textarea';
 import { TimePickerPreview } from './data-entry/time-picker';
 import { CardPreview } from './display/card';
@@ -109,6 +112,24 @@ export const COMPONENT_PREVIEW_SECTIONS = [
         title: 'Radio',
         description: '单选、单选组、按钮形态和禁用状态。',
         component: RadioPreview,
+      },
+      {
+        id: 'switch',
+        title: 'Switch',
+        description: '开关切换、尺寸和禁用只读状态。',
+        component: SwitchPreview,
+      },
+      {
+        id: 'slider',
+        title: 'Slider',
+        description: '滑块范围、步长、尺寸和状态。',
+        component: SliderPreview,
+      },
+      {
+        id: 'progress',
+        title: 'Progress',
+        description: '线性和环形进度、状态和尺寸。',
+        component: ProgressPreview,
       },
       {
         id: 'selection-list',

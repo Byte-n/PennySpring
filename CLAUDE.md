@@ -97,15 +97,12 @@ Token 管线：`SeedToken` → `derivative()` → `MapToken` → `formatToken()`
 - 需要访问导航对象时，统一使用 `src/navigation` 导出的 `useNavigation` 封装 hook。禁止直接从
   `@react-navigation/native` 导入原始 `useNavigation`。
 
-## Git Conventions
+## Git / workspace
 
 - 近期提交使用 conventional commit 风格，常见 scope 如 `data`、`theme`、`components`。
 - commit message 使用中文，但保持 `feat:`、`fix:`、`docs:`、`chore:` 等前缀。
-
-## workspace
-
-- 工作空间：`.workspace/*`
-- 分支名称：`feature/workspace-*`
+- 工作空间：`..worktrees/*`
+- 分支名称：`feature/worktrees-*`
 - 合并时需要压缩 commit 为一条记录。
 - 分支的命令不允许使用 `-f` / `-force` 参数强行执行操作
 - workspace 分支的任务完成后立即 commit, 并通过 Ask User 工具询问是否合并到主分支
