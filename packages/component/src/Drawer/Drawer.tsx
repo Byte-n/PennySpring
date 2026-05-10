@@ -47,7 +47,7 @@ const SWIPE_DISTANCE_RATIO = 0.5;
 const SWIPE_VELOCITY_THRESHOLD = 400;
 const HORIZONTAL_SWIPE_THRESHOLD = 8;
 const VERTICAL_SWIPE_CANCEL_RATIO = 1.2;
-const DRAWER_ANIMATION_DURATION = 500;
+const DRAWER_ANIMATION_DURATION = 380;
 const AnimatedPressable = createAnimatedComponent(Pressable);
 const PERCENT_WIDTH_PATTERN = /^-?\d+(?:\.\d+)?%$/;
 

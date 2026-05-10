@@ -17,12 +17,6 @@ interface DrawerContentProps {
   title: string;
 }
 
-const LAYOUT_DRAWER_NOTES: Record<DrawerType, string> = {
-  front: 'Front: drawer overlays the scene while main content remains still.',
-  slide: 'Slide: drawer and scene move together as adjacent panels.',
-  back: 'Back: scene moves to reveal a static drawer behind it.',
-};
-
 const DRAWER_POSITIONS: DrawerPosition[] = ['left', 'right'];
 const DRAWER_TYPES: DrawerType[] = ['front', 'slide', 'back'];
 
@@ -129,7 +123,6 @@ export function DrawerPreview() {
     back: true,
   });
   const [position, setPosition] = React.useState<DrawerPosition>('left');
-  const [drawerType, setDrawerType] = React.useState<DrawerType>('front');
 
   const openDrawer = React.useCallback((nextPosition: DrawerPosition) => {
     setPosition(nextPosition);
@@ -170,23 +163,6 @@ export function DrawerPreview() {
               }}
             >
               Open {item}
-            </Button>
-          ))}
-        </PreviewRow>
-      </PreviewSection>
-
-      <PreviewSection title="Drawer type">
-        <PreviewRow>
-          {DRAWER_TYPES.map(item => (
-            <Button
-              key={item}
-              type={drawerType === item ? 'primary' : 'default'}
-              onPress={() => {
-                setDrawerType(item);
-                setOpen(true);
-              }}
-            >
-              {item}
             </Button>
           ))}
         </PreviewRow>
@@ -321,7 +297,7 @@ export function DrawerPreview() {
       >
         <DrawerContent
           position={position}
-          title={`${drawerType} drawer`}
+          title="drawer"
           onClose={closeDrawer}
         />
       </Drawer>
