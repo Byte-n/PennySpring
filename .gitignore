@@ -98,3 +98,4 @@ yarn-error.log*
 /docs/icon/
 /docs/bank-icon-mapping.md
 /docs/type-icon-mapping.md
+.worktrees/
