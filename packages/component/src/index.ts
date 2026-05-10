@@ -108,6 +108,8 @@ export type {
   InputStatus,
   InputStyles,
 } from './Input';
+export { Slider } from './Slider';
+export type { SliderProps, SliderSize, SliderStyles } from './Slider';
 export { List } from './List';
 export type {
   ListDivider,
