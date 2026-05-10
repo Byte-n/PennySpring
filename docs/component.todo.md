@@ -22,10 +22,10 @@
 - [x] Input.Search
 - [x] Dialog 对话框，
 - [x] Checkbox  / Radio、Radio.Group，均支持 展示类型：普通，按钮样式
+- [x] Drawer / Drawer.Layout
 
 ## 待办
 
-- [ ] Drawer / Drawer.Layout / App 集成手势根
 - [ ] Slider 滑动输入条
 - [ ] Progress 纯逻辑组件，Progress.Bar 进度条 Progress.Circle 进度圈
 - [ ] Stepper 步进器

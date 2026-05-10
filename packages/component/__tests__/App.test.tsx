@@ -77,6 +77,7 @@ describe('App', () => {
     });
 
     const rootView = testRenderer!.root.findByType(
+      // @ts-ignore
       'mock-gesture-handler-root-view',
     );
 
