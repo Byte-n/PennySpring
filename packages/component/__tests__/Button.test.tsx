@@ -209,9 +209,6 @@ describe('Button', () => {
           Screen: 'Screen',
         }),
       }));
-      jest.doMock('react-native-drawer-layout', () => ({
-        Drawer: 'Drawer',
-      }));
       jest.doMock('react-native-reanimated', () => {
         const ReactNative = require('react-native');
 

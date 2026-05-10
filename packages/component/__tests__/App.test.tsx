@@ -5,6 +5,27 @@ import { App } from '../src/App';
 import { Portal } from '../src/Portal';
 import { useComponentConfig } from '../src/ConfigProvider';
 
+jest.mock('react-native-gesture-handler', () => {
+  const ReactLocal = require('react');
+
+  return {
+    GestureHandlerRootView: ({
+      children,
+      style,
+    }: {
+      children: React.ReactNode;
+      style?: unknown;
+    }) =>
+      ReactLocal.createElement(
+        'mock-gesture-handler-root-view',
+        {
+          style,
+        },
+        children,
+      ),
+  };
+});
+
 interface AppProbeProps {
   onRead: (config: ReturnType<typeof useComponentConfig>) => void;
 }
@@ -42,5 +63,23 @@ describe('App', () => {
     expect(onRead).toHaveBeenCalledWith({});
     expect(treeString).toContain('App content');
     expect(treeString).toContain('Portal content');
+  });
+
+  it('provides the gesture-handler root view for children', () => {
+    let testRenderer: renderer.ReactTestRenderer;
+
+    act(() => {
+      testRenderer = renderer.create(
+        <App config={{}}>
+          <Text>App content</Text>
+        </App>,
+      );
+    });
+
+    const rootView = testRenderer!.root.findByType(
+      'mock-gesture-handler-root-view',
+    );
+
+    expect(rootView.props.style).toEqual(expect.objectContaining({ flex: 1 }));
   });
 });

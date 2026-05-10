@@ -147,3 +147,6 @@ Token 管线：`SeedToken` → `derivative()` → `MapToken` → `formatToken()`
 - 静态资产新增或替换
 - 删除、移除等「减」任务：需同步移除被删行为关联的测试；若剩余用例仍覆盖保留行为，必须全部通过。
 
+## 动画
+
+- 动画使用 `react-native-reanimated` 实现，禁止使用 React Native 的动画。

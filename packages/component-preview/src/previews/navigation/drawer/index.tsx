@@ -1,6 +1,6 @@
 import React from 'react';
 import { View } from 'react-native';
-import { Button, Drawer, PortalProvider, Text } from '@pennyspring/component';
+import { Button, Checkbox, Drawer, Text } from '@pennyspring/component';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import {
   PreviewRow,
@@ -16,6 +16,12 @@ interface DrawerContentProps {
   position: DrawerPosition;
   title: string;
 }
+
+const LAYOUT_DRAWER_NOTES: Record<DrawerType, string> = {
+  front: 'Front: drawer overlays the scene while main content remains still.',
+  slide: 'Slide: drawer and scene move together as adjacent panels.',
+  back: 'Back: scene moves to reveal a static drawer behind it.',
+};
 
 const DRAWER_POSITIONS: DrawerPosition[] = ['left', 'right'];
 const DRAWER_TYPES: DrawerType[] = ['front', 'slide', 'back'];
@@ -113,6 +119,13 @@ function DrawerContent({ onClose, position, title }: DrawerContentProps) {
 export function DrawerPreview() {
   const styles = useStyles();
   const [open, setOpen] = React.useState(false);
+  const [layoutOpenMap, setLayoutOpenMap] = React.useState<
+    Record<DrawerType, boolean>
+  >({
+    front: true,
+    slide: true,
+    back: true,
+  });
   const [position, setPosition] = React.useState<DrawerPosition>('left');
   const [drawerType, setDrawerType] = React.useState<DrawerType>('front');
 
@@ -123,6 +136,23 @@ export function DrawerPreview() {
 
   const closeDrawer = React.useCallback(() => {
     setOpen(false);
+  }, []);
+
+  const updateLayoutOpen = React.useCallback(
+    (type: DrawerType, nextOpen: boolean) => {
+      setLayoutOpenMap(current => ({
+        ...current,
+        [type]: nextOpen,
+      }));
+    },
+    [],
+  );
+
+  const toggleLayoutDrawer = React.useCallback((type: DrawerType) => {
+    setLayoutOpenMap(current => ({
+      ...current,
+      [type]: !current[type],
+    }));
   }, []);
 
   return (
@@ -161,39 +191,61 @@ export function DrawerPreview() {
       </PreviewSection>
 
       <PreviewSection title="Embedded layout">
-        <View style={styles.frame}>
-          <Drawer.Layout
-            drawerType="slide"
-            open
-            width="68%"
-            onClose={() => undefined}
-            onOpen={() => undefined}
-            renderDrawerContent={() => (
-              <DrawerContent
-                position="left"
-                title="Pinned preview"
-                onClose={() => undefined}
-              />
-            )}
-          >
-            <View style={styles.frameMain}>
-              <Text color="heading" weight="strong">
-                Main content
-              </Text>
-              <Text color="secondary">
-                The drawer is forced open to show how it occupies space inside a
-                framed layout.
-              </Text>
+        {DRAWER_TYPES.map(item => {
+          const layoutOpen = layoutOpenMap[item];
+
+          return (
+            <View key={`layout-${item}`}>
+              <PreviewRow>
+                <Checkbox
+                  displayType="button"
+                  value={layoutOpen}
+                  onChange={() => {
+                    toggleLayoutDrawer(item);
+                  }}
+                >
+                  {layoutOpen
+                    ? `Close ${item} layout drawer`
+                    : `Open ${item} layout drawer`}
+                </Checkbox>
+              </PreviewRow>
+              <View style={styles.frame}>
+                <Drawer.Layout
+                  drawerType={item}
+                  open={layoutOpen}
+                  width={100}
+                  onClose={() => {
+                    updateLayoutOpen(item, false);
+                  }}
+                  onOpen={() => {
+                    updateLayoutOpen(item, true);
+                  }}
+                  renderDrawerContent={() => (
+                    <DrawerContent
+                      position="left"
+                      title={`${item} pinned preview`}
+                      onClose={() => {
+                        updateLayoutOpen(item, false);
+                      }}
+                    />
+                  )}
+                >
+                  <View style={styles.frameMain}>
+                    <Text color="heading" weight="strong">
+                      Main content ({item})
+                    </Text>
+                    <Text color="secondary">content</Text>
+                  </View>
+                </Drawer.Layout>
+              </View>
             </View>
-          </Drawer.Layout>
-        </View>
+          );
+        })}
       </PreviewSection>
 
       <Drawer
         drawerPosition={position}
-        drawerType={drawerType}
         open={open}
-        width="76%"
         onClose={closeDrawer}
         onOpen={() => {
           setOpen(true);

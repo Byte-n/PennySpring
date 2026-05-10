@@ -1,26 +1,33 @@
 import type React from 'react';
 import type { StyleProp, ViewStyle } from 'react-native';
-import type { Drawer as DrawerLayoutRN } from 'react-native-drawer-layout';
-import type { PortalMountPoint } from '../Portal';
+import type { PortalMountPoint } from '../Portal/types';
+
+export type DrawerPosition = 'left' | 'right';
+
+export type DrawerType = 'front' | 'slide' | 'back';
 
 export interface DrawerLayoutStyles {
   container?: StyleProp<ViewStyle>;
+  content?: StyleProp<ViewStyle>;
   drawer?: StyleProp<ViewStyle>;
   overlay?: StyleProp<ViewStyle>;
 }
 
-export interface DrawerLayoutProps
-  extends Omit<
-    React.ComponentProps<typeof DrawerLayoutRN>,
-    'drawerStyle' | 'overlayStyle' | 'style'
-  > {
-  width?: string | number;
+export interface DrawerProps {
+  open?: boolean;
+  defaultOpen?: boolean;
+  onOpen?: () => void;
+  onClose?: () => void;
+  onOpenChange?: (open: boolean) => void;
+  drawerPosition?: DrawerPosition;
+  width?: number;
+  swipeEnabled?: boolean;
   styles?: DrawerLayoutStyles;
   children: React.ReactNode;
+  mountPoint?: PortalMountPoint;
 }
 
-export interface DrawerProps
-  extends Omit<DrawerLayoutProps, 'renderDrawerContent' | 'children'> {
-  mountPoint?: PortalMountPoint;
-  children: React.ReactNode;
+export interface DrawerLayoutProps extends Omit<DrawerProps, 'mountPoint'> {
+  drawerType?: DrawerType;
+  renderDrawerContent: () => React.ReactNode;
 }

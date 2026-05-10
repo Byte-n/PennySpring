@@ -336,6 +336,16 @@ function renderContent(
     return <Text style={style}>{children}</Text>;
   }
 
+  const childItems = React.Children.toArray(children);
+  const isPlainTextGroup = childItems.every(
+    item => typeof item === 'string' || typeof item === 'number',
+  );
+  if (isPlainTextGroup) {
+    const content = childItems.map(item => String(item)).join('');
+
+    return <Text style={style}>{content}</Text>;
+  }
+
   return children;
 }
 

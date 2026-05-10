@@ -8,7 +8,13 @@ export type {
   ConfigProviderProps,
 } from './ConfigProvider';
 export { Drawer } from './Drawer';
-export type { DrawerLayoutProps, DrawerLayoutStyles, DrawerProps } from './Drawer';
+export type {
+  DrawerLayoutProps,
+  DrawerLayoutStyles,
+  DrawerPosition,
+  DrawerProps,
+  DrawerType,
+} from './Drawer';
 export { Dialog } from './Dialog';
 export type {
   DialogCancelParams,

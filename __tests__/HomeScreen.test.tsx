@@ -30,15 +30,21 @@ jest.mock('../src/navigation', () => {
   };
 });
 
-jest.mock('@pennyspring/component', () => ({
-  Drawer: (props: any) => mockDrawer(props),
-  Text: ({ children }: any) => {
-    const ReactLocal = require('react');
-    const ReactNative = require('react-native');
+jest.mock('@pennyspring/component', () => {
+  const Drawer = (props: any) => mockDrawer(props);
 
-    return ReactLocal.createElement(ReactNative.Text, null, children);
-  },
-}));
+  Drawer.Layout = (props: any) => mockDrawer(props);
+
+  return {
+    Drawer,
+    Text: ({ children }: any) => {
+      const ReactLocal = require('react');
+      const ReactNative = require('react-native');
+
+      return ReactLocal.createElement(ReactNative.Text, null, children);
+    },
+  };
+});
 
 jest.mock('@pennyspring/theme', () => ({
   createUseSheetStyle: (factory: any) => () =>
