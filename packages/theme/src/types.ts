@@ -559,3 +559,5 @@ export interface AliasToken extends MapToken {
   /** 控件临时轮廓色 */
   controlTmpOutline: string;
 }
+
+export type AliasColorTokenKey = Extract<keyof AliasToken, `color${string}`>;

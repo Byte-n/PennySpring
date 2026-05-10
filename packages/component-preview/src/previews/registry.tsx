@@ -13,16 +13,20 @@ import { SwitchPreview } from './data-entry/switch';
 import { TextareaPreview } from './data-entry/textarea';
 import { TimePickerPreview } from './data-entry/time-picker';
 import { CardPreview } from './display/card';
+import { EmptyPreview } from './display/empty';
 import { ListPreview } from './display/list';
 import { ListCollapsePreview } from './display/list-collapse';
 import { ListGroupPreview } from './display/list-group';
 import { AvatarPreview } from './foundation/avatar';
 import { ButtonPreview } from './foundation/button';
+import { DividerPreview } from './foundation/divider';
 import { GridPreview } from './foundation/grid';
+import { IconPreview } from './foundation/icon';
 import { SegmentedPreview } from './foundation/segmented';
 import { SpacePreview } from './foundation/space';
 import { TagPreview } from './foundation/tag';
 import { TextPreview } from './foundation/text';
+import { LoadingPreview } from './display/loading';
 import { DialogPreview } from './navigation/dialog';
 import { DrawerPreview } from './navigation/drawer';
 import { PopupPreview } from './navigation/popup';
@@ -82,6 +86,18 @@ export const COMPONENT_PREVIEW_SECTIONS = [
         title: 'Segmented',
         description: '分段选择、图标选项、尺寸和受控切换。',
         component: SegmentedPreview,
+      },
+      {
+        id: 'icon',
+        title: 'Icon',
+        description: '图标映射、尺寸、颜色和视觉权重。',
+        component: IconPreview,
+      },
+      {
+        id: 'divider',
+        title: 'Divider',
+        description: '分割线方向、内容位置和尺寸。',
+        component: DividerPreview,
       },
     ],
   },
@@ -196,6 +212,18 @@ export const COMPONENT_PREVIEW_SECTIONS = [
         title: 'ListCollapse',
         description: '可折叠列表分组。',
         component: ListCollapsePreview,
+      },
+      {
+        id: 'empty',
+        title: 'Empty',
+        description: '空状态的图标、文案、附加操作和尺寸。',
+        component: EmptyPreview,
+      },
+      {
+        id: 'loading',
+        title: 'Loading',
+        description: '加载指示器尺寸、方向和自定义内容。',
+        component: LoadingPreview,
       },
     ],
   },

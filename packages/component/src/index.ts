@@ -15,6 +15,14 @@ export type {
   DrawerProps,
   DrawerType,
 } from './Drawer';
+export { Divider } from './Divider';
+export type {
+  DividerContentPosition,
+  DividerDirection,
+  DividerProps,
+  DividerSize,
+  DividerStyles,
+} from './Divider';
 export { Dialog } from './Dialog';
 export type {
   DialogCancelParams,
@@ -57,6 +65,8 @@ export type {
   ButtonType,
   ButtonVariant,
 } from './Button';
+export { Icon } from './Icon';
+export type { IconColor, IconName, IconProps, IconSize } from './Icon';
 export { Checkbox } from './Checkbox';
 export type {
   CheckboxDisplayType,
@@ -167,6 +177,8 @@ export type {
 } from './Radio';
 export { Switch } from './Switch';
 export type { SwitchProps, SwitchSize, SwitchStyles } from './Switch';
+export { Loading } from './Loading';
+export type { LoadingProps, LoadingSize, LoadingStyles } from './Loading';
 export { Textarea } from './Textarea';
 export type {
   TextareaProps,
@@ -250,3 +262,5 @@ export type {
   ProgressSize,
   ProgressStatus,
 } from './Progress';
+export { Empty } from './Empty';
+export type { EmptyProps, EmptySize, EmptyStyles } from './Empty';

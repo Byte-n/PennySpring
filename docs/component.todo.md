@@ -23,18 +23,18 @@
 - [x] Dialog 对话框，
 - [x] Checkbox  / Radio、Radio.Group，均支持 展示类型：普通，按钮样式
 - [x] Drawer / Drawer.Layout
+- [x] Divider
+- [x] Icon（第三方图标库 + theme color key）
+- [x] Slider 滑动输入条
+- [x] Progress 纯逻辑组件，Progress.Bar 进度条 Progress.Circle 进度圈
+- [x] Switch 开关
+- [x] Empty 空状态
+- [x] Loading 加载中
 
 ## 待办
 
-- [ ] Slider 滑动输入条
-- [ ] Progress 纯逻辑组件，Progress.Bar 进度条 Progress.Circle 进度圈
 - [ ] Stepper 步进器
-- [ ] Switch 开关
 - [ ] ActionSheet 动作面板
-- [ ] Empty 空状态
-- [ ] Loading 加载中
-- [ ] https://github.com/ant-design/ant-design-mobile/blob/b627e1f0f9c45b75b30c66ca6fef057b02ecd9db/src/components/divider/divider.tsx#L9
-- [ ] icon 结合第三方图标库，内部做 theme 结合，color 支持 主题颜色 key
 - [ ] Tabs
 - [ ] https://github.com/ant-design/ant-design-mobile/blob/b627e1f0f9c45b75b30c66ca6fef057b02ecd9db/src/components/ellipsis/index.ts
 - [ ] InfiniteScroll 无限滚动
@@ -45,7 +45,7 @@
 - [ ] Toast / Message / Notiftion
 - [ ] Badge 徽标
 - 低优先级：
-    - [ ] SideBar
+  - [ ] SideBar
   - [ ] TabBar
   - [ ] IndexBar
   - [ ] FloatingPanel 浮动面板

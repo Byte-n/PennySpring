@@ -1,0 +1,150 @@
+import React from 'react';
+import { useTheme } from '@pennyspring/theme';
+import {
+  ArrowDownIcon,
+  ArrowLeftIcon,
+  ArrowRightIcon,
+  ArrowUpIcon,
+  BellIcon,
+  CalendarIcon,
+  CaretDownIcon,
+  CaretLeftIcon,
+  CaretRightIcon,
+  CaretUpIcon,
+  CheckCircleIcon,
+  CheckIcon,
+  DotsThreeIcon,
+  DownloadSimpleIcon,
+  EyeIcon,
+  EyeSlashIcon,
+  FunnelSimpleIcon,
+  GearSixIcon,
+  HeartIcon,
+  HouseIcon,
+  InfoIcon,
+  ListBulletsIcon,
+  MagnifyingGlassIcon,
+  MinusIcon,
+  PencilSimpleIcon,
+  PlusIcon,
+  ShareNetworkIcon,
+  StarIcon,
+  TrashIcon,
+  UploadSimpleIcon,
+  UserIcon,
+  WarningCircleIcon,
+  XCircleIcon,
+  XIcon,
+  type Icon,
+} from 'phosphor-react-native';
+import type { AliasColorTokenKey, AliasToken } from '@pennyspring/theme';
+import type { IconColor, IconName, IconProps, IconSize } from './types';
+
+interface IconSizeConfig {
+  value: (token: AliasToken) => number;
+}
+
+const ICON_SIZE_MAP: Record<Exclude<IconSize, number>, IconSizeConfig> = {
+  small: { value: token => token.fontSizeSM },
+  normal: { value: token => token.fontSize },
+  large: { value: token => token.fontSizeLG },
+};
+
+const DEFAULT_ICON_MAP: Record<IconName, Icon> = {
+  add: PlusIcon,
+  'arrow-down': ArrowDownIcon,
+  'arrow-left': ArrowLeftIcon,
+  'arrow-right': ArrowRightIcon,
+  'arrow-up': ArrowUpIcon,
+  calendar: CalendarIcon,
+  'caret-down': CaretDownIcon,
+  'caret-left': CaretLeftIcon,
+  'caret-right': CaretRightIcon,
+  'caret-up': CaretUpIcon,
+  check: CheckIcon,
+  'check-circle': CheckCircleIcon,
+  close: XIcon,
+  'close-circle': XCircleIcon,
+  download: DownloadSimpleIcon,
+  edit: PencilSimpleIcon,
+  eye: EyeIcon,
+  'eye-slash': EyeSlashIcon,
+  filter: FunnelSimpleIcon,
+  heart: HeartIcon,
+  home: HouseIcon,
+  info: InfoIcon,
+  list: ListBulletsIcon,
+  minus: MinusIcon,
+  more: DotsThreeIcon,
+  notification: BellIcon,
+  plus: PlusIcon,
+  search: MagnifyingGlassIcon,
+  settings: GearSixIcon,
+  share: ShareNetworkIcon,
+  star: StarIcon,
+  trash: TrashIcon,
+  upload: UploadSimpleIcon,
+  user: UserIcon,
+  warning: WarningCircleIcon,
+};
+
+function resolveIcon(icon: IconName | Icon): Icon {
+  if (typeof icon === 'string') {
+    return DEFAULT_ICON_MAP[icon];
+  }
+
+  return icon;
+}
+
+function resolveSize(size: IconSize | undefined, token: AliasToken): number {
+  if (typeof size === 'number') {
+    return size;
+  }
+
+  const resolvedSize = size ?? 'normal';
+  return ICON_SIZE_MAP[resolvedSize].value(token);
+}
+
+function isAliasColorTokenKey(value: string): value is AliasColorTokenKey {
+  return value.startsWith('color');
+}
+
+function resolveColor(color: IconColor | undefined, token: AliasToken): string {
+  if (color === undefined) {
+    return token.colorIcon;
+  }
+
+  if (isAliasColorTokenKey(color) && color in token) {
+    return token[color];
+  }
+
+  return color;
+}
+
+export function Icon({
+  icon,
+  size = 'normal',
+  color,
+  weight,
+  duotoneColor,
+  duotoneOpacity,
+  mirrored,
+  style,
+  testID,
+}: IconProps) {
+  const { token } = useTheme();
+  const IconComponent = resolveIcon(icon);
+
+  return (
+    <IconComponent
+      color={resolveColor(color, token)}
+      duotoneColor={resolveColor(duotoneColor, token)}
+      duotoneOpacity={duotoneOpacity}
+      mirrored={mirrored}
+      size={resolveSize(size, token)}
+      style={style}
+      testID={testID}
+      weight={weight}
+    />
+  );
+}

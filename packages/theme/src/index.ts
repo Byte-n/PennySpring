@@ -20,6 +20,7 @@ export type {
   CommonMapToken,
   MapToken,
   AliasToken,
+  AliasColorTokenKey,
   PresetColorGradientToken,
 } from './types';
 
