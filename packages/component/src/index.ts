@@ -165,6 +165,8 @@ export type {
   RadioSize,
   RadioStyles,
 } from './Radio';
+export { Switch } from './Switch';
+export type { SwitchProps, SwitchSize, SwitchStyles } from './Switch';
 export { Textarea } from './Textarea';
 export type {
   TextareaProps,
