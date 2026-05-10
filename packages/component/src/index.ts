@@ -237,3 +237,12 @@ export type {
   TopTabNavigatorProps,
   TopTabNavigatorStyles,
 } from './TopTabNavigator';
+export { Progress } from './Progress';
+export type {
+  ProgressBarProps,
+  ProgressBarStyles,
+  ProgressCircleProps,
+  ProgressCircleStyles,
+  ProgressSize,
+  ProgressStatus,
+} from './Progress';

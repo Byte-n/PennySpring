@@ -20,6 +20,14 @@ jest.mock('react-native-reanimated', () => {
   };
 });
 
+jest.mock('react-native-gesture-handler', () => {
+  const ReactNative = require('react-native');
+
+  return {
+    GestureHandlerRootView: ReactNative.View,
+  };
+});
+
 describe('TopTabNavigator exports', () => {
   it('exports TopTabNavigator from the package entry point', () => {
     const { TopTabNavigator } = require('../src/index');
@@ -38,5 +46,13 @@ describe('TopTabNavigator exports', () => {
     const { App } = require('../src/index');
 
     expect(typeof App).toBe('function');
+  });
+
+  it('exports Progress from the package entry point', () => {
+    const { Progress } = require('../src/index');
+
+    expect(typeof Progress).toBe('function');
+    expect(typeof Progress.Bar).toBe('function');
+    expect(typeof Progress.Circle).toBe('function');
   });
 });
