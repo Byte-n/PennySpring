@@ -3,9 +3,11 @@ import React, {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 import {
+  Dimensions,
   Pressable,
   View,
   useWindowDimensions,
@@ -25,6 +27,7 @@ import Animated, {
   interpolate,
   useAnimatedStyle,
   useSharedValue,
+  withDelay,
   withTiming,
 } from 'react-native-reanimated';
 import { PortalContext } from '../Portal/Portal';
@@ -48,6 +51,8 @@ const SWIPE_VELOCITY_THRESHOLD = 400;
 const HORIZONTAL_SWIPE_THRESHOLD = 8;
 const VERTICAL_SWIPE_CANCEL_RATIO = 1.2;
 const DRAWER_ANIMATION_DURATION = 380;
+const OVERLAY_ANIMATION_DURATION = 200;
+const OVERLAY_FIRST_DELAY = OVERLAY_ANIMATION_DURATION;
 const AnimatedPressable = createAnimatedComponent(Pressable);
 const PERCENT_WIDTH_PATTERN = /^-?\d+(?:\.\d+)?%$/;
 
@@ -175,6 +180,11 @@ function DrawerComponent({
 }: DrawerComponentProps) {
   const tokenStyles = useStyles({ position: drawerPosition, width });
   const { width: windowWidth } = useWindowDimensions();
+  const lastKnownWindowWidthRef = useRef(Dimensions.get('window').width);
+  if (windowWidth > 0) {
+    lastKnownWindowWidthRef.current = windowWidth;
+  }
+
   const portalContext = useContext(PortalContext);
   const [isOpen, setOpen] = useDrawerOpenState({
     defaultOpen,
@@ -184,20 +194,36 @@ function DrawerComponent({
   const internalProgress = useSharedValue(
     isOpen ? FULLY_OPEN_PROGRESS : FULLY_CLOSED_PROGRESS,
   );
+  const overlayProgress = useSharedValue(
+    isOpen ? FULLY_OPEN_PROGRESS : FULLY_CLOSED_PROGRESS,
+  );
   const progress = externalProgress ?? internalProgress;
-  const drawerWidth = resolveDrawerWidthPx(width, windowWidth);
+  const drawerWidth = resolveDrawerWidthPx(width, lastKnownWindowWidthRef.current);
 
   const setProgressForOpenState = useCallback(
     (nextOpen: boolean): void => {
-      progress.value = withTiming(
-        nextOpen ? FULLY_OPEN_PROGRESS : FULLY_CLOSED_PROGRESS,
-        {
+      const nextProgress = nextOpen
+        ? FULLY_OPEN_PROGRESS
+        : FULLY_CLOSED_PROGRESS;
+      const drawerDelay = nextOpen ? OVERLAY_FIRST_DELAY : 0;
+      const overlayDelay = nextOpen ? 0 : OVERLAY_FIRST_DELAY;
+
+      progress.value = withDelay(
+        drawerDelay,
+        withTiming(nextProgress, {
           duration: DRAWER_ANIMATION_DURATION,
           easing: Easing.out(Easing.cubic),
-        },
+        }),
+      );
+      overlayProgress.value = withDelay(
+        overlayDelay,
+        withTiming(nextProgress, {
+          duration: OVERLAY_ANIMATION_DURATION,
+          easing: Easing.out(Easing.cubic),
+        }),
       );
     },
-    [progress],
+    [overlayProgress, progress],
   );
 
   useEffect(() => {
@@ -239,12 +265,14 @@ function DrawerComponent({
         ])
         .onUpdate(
           (event: GestureUpdateEvent<PanGestureHandlerEventPayload>) => {
-            progress.value = getProgressFromGesture(
+            const nextProgress = getProgressFromGesture(
               isOpen,
               drawerPosition,
               drawerWidth,
               event.translationX,
             );
+            progress.value = nextProgress;
+            overlayProgress.value = nextProgress;
           },
         )
         .onEnd(
@@ -259,15 +287,18 @@ function DrawerComponent({
         )
         .onFinalize((_event, success) => {
           if (!success) {
-            progress.value = isOpen
+            const nextProgress = isOpen
               ? FULLY_OPEN_PROGRESS
               : FULLY_CLOSED_PROGRESS;
+            progress.value = nextProgress;
+            overlayProgress.value = nextProgress;
           }
         }),
     [
       drawerPosition,
       drawerWidth,
       isOpen,
+      overlayProgress,
       progress,
       requestOpenChange,
       swipeEnabled,
@@ -280,7 +311,7 @@ function DrawerComponent({
 
   const overlayAnimatedStyle = useAnimatedStyle(() => ({
     opacity: interpolate(
-      progress.value,
+      overlayProgress.value,
       [FULLY_CLOSED_PROGRESS, FULLY_OPEN_PROGRESS],
       [0, 1],
     ),

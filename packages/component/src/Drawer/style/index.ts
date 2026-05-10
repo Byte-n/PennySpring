@@ -47,7 +47,8 @@ export const useStyles = createUseSheetStyle(
     },
     sceneMask: {
       ...StyleSheet.absoluteFill,
-      backgroundColor: token.colorBgMask,
+      backgroundColor: token.colorFillContent,
+      opacity: 0.56,
       zIndex: token.zIndexBase + 1,
     },
     overlay: {
@@ -74,7 +75,7 @@ export const useStyles = createUseSheetStyle(
       zIndex: token.zIndexBase,
     },
     backMask: {
-      backgroundColor: token.colorBgMask,
+      backgroundColor: token.colorFillContent,
       opacity: 0,
     },
     frontScene: {
@@ -88,7 +89,8 @@ export const useStyles = createUseSheetStyle(
     },
     mask: {
       ...StyleSheet.absoluteFill,
-      backgroundColor: token.colorBgMask,
+      backgroundColor: token.colorFillContent,
+      opacity: 0.56,
     },
   }),
 );
