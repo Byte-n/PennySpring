@@ -100,7 +100,7 @@ Token 管线：`SeedToken` → `derivative()` → `MapToken` → `formatToken()`
 ## Git Conventions
 
 - 近期提交使用 conventional commit 风格，常见 scope 如 `data`、`theme`、`components`。
-- 提交说明使用中文，但保持 `feat:`、`fix:`、`docs:`、`chore:` 等前缀。
+- commit message 使用中文，但保持 `feat:`、`fix:`、`docs:`、`chore:` 等前缀。
 
 ## workspace
 

@@ -4,7 +4,7 @@ import type { DrawerPosition } from '../types';
 
 export interface DrawerStyleOptions {
   position: DrawerPosition;
-  width: number;
+  width: number | `${number}%`;
 }
 
 function getOverlayLayout(position: DrawerPosition): ViewStyle {

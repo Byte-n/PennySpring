@@ -5,6 +5,7 @@ import type { PortalMountPoint } from '../Portal/types';
 export type DrawerPosition = 'left' | 'right';
 
 export type DrawerType = 'front' | 'slide' | 'back';
+export type DrawerWidth = number | `${number}%`;
 
 export interface DrawerLayoutStyles {
   container?: StyleProp<ViewStyle>;
@@ -20,7 +21,7 @@ export interface DrawerProps {
   onClose?: () => void;
   onOpenChange?: (open: boolean) => void;
   drawerPosition?: DrawerPosition;
-  width?: number;
+  width?: DrawerWidth;
   swipeEnabled?: boolean;
   styles?: DrawerLayoutStyles;
   children: React.ReactNode;

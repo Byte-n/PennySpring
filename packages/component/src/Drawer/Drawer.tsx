@@ -5,7 +5,12 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { Pressable, View } from 'react-native';
+import {
+  Pressable,
+  View,
+  useWindowDimensions,
+  type LayoutChangeEvent,
+} from 'react-native';
 import {
   Gesture,
   GestureDetector,
@@ -30,19 +35,21 @@ import type {
   DrawerPosition,
   DrawerProps,
   DrawerType,
+  DrawerWidth,
 } from './types';
 
 const DEFAULT_DRAWER_POSITION: DrawerPosition = 'left';
 const DEFAULT_DRAWER_TYPE: DrawerType = 'front';
 const FULLY_CLOSED_PROGRESS = 0;
 const FULLY_OPEN_PROGRESS = 1;
-const DEFAULT_DRAWER_WIDTH = 320;
+const DEFAULT_DRAWER_WIDTH = '70%';
 const SWIPE_DISTANCE_RATIO = 0.5;
 const SWIPE_VELOCITY_THRESHOLD = 400;
 const HORIZONTAL_SWIPE_THRESHOLD = 8;
 const VERTICAL_SWIPE_CANCEL_RATIO = 1.2;
 const DRAWER_ANIMATION_DURATION = 500;
 const AnimatedPressable = createAnimatedComponent(Pressable);
+const PERCENT_WIDTH_PATTERN = /^-?\d+(?:\.\d+)?%$/;
 
 interface DrawerOpenStateProps {
   defaultOpen?: boolean;
@@ -130,6 +137,26 @@ function useDrawerOpenState({
   return [isOpen, setOpen] as const;
 }
 
+function resolveDrawerWidthPx(
+  width: DrawerWidth,
+  referenceWidth: number,
+): number {
+  if (typeof width === 'number') {
+    return Math.max(0, width);
+  }
+
+  if (!PERCENT_WIDTH_PATTERN.test(width) || referenceWidth <= 0) {
+    return 0;
+  }
+
+  const percentValue = Number.parseFloat(width.slice(0, -1));
+  if (!Number.isFinite(percentValue)) {
+    return 0;
+  }
+
+  return Math.max(0, (percentValue / 100) * referenceWidth);
+}
+
 function DrawerComponent({
   children,
   defaultOpen,
@@ -147,6 +174,7 @@ function DrawerComponent({
   width = DEFAULT_DRAWER_WIDTH,
 }: DrawerComponentProps) {
   const tokenStyles = useStyles({ position: drawerPosition, width });
+  const { width: windowWidth } = useWindowDimensions();
   const portalContext = useContext(PortalContext);
   const [isOpen, setOpen] = useDrawerOpenState({
     defaultOpen,
@@ -157,7 +185,7 @@ function DrawerComponent({
     isOpen ? FULLY_OPEN_PROGRESS : FULLY_CLOSED_PROGRESS,
   );
   const progress = externalProgress ?? internalProgress;
-  const drawerWidth = width;
+  const drawerWidth = resolveDrawerWidthPx(width, windowWidth);
 
   const setProgressForOpenState = useCallback(
     (nextOpen: boolean): void => {
@@ -338,6 +366,8 @@ function DrawerLayout({
   const progress = useSharedValue(
     isOpen ? FULLY_OPEN_PROGRESS : FULLY_CLOSED_PROGRESS,
   );
+  const [contentWidth, setContentWidth] = useState(0);
+  const drawerWidth = resolveDrawerWidthPx(width, contentWidth);
   const direction = drawerPosition === 'left' ? 1 : -1;
   const shouldMoveScene = drawerType === 'slide' || drawerType === 'back';
   const shouldForceBackOverlay = drawerType === 'back';
@@ -353,7 +383,7 @@ function DrawerLayout({
           translateX: interpolate(
             progress.value,
             [FULLY_CLOSED_PROGRESS, FULLY_OPEN_PROGRESS],
-            [0, width * direction],
+            [0, drawerWidth * direction],
           ),
         },
       ],
@@ -377,10 +407,27 @@ function DrawerLayout({
     onClose?.();
     setOpen(false);
   }, [isOpen, onClose, setOpen]);
+  const handleContainerLayout = useCallback(
+    (event: LayoutChangeEvent): void => {
+      const nextWidth = event.nativeEvent.layout.width;
+      setContentWidth((prevWidth) => {
+        if (prevWidth === nextWidth) {
+          return prevWidth;
+        }
+
+        return nextWidth;
+      });
+    },
+    [],
+  );
 
   return (
-    <View style={[tokenStyles.container, styles?.container]}>
+    <View
+      onLayout={handleContainerLayout}
+      style={[tokenStyles.container, styles?.container]}
+    >
       <Animated.View
+        testID="drawer-layout-scene"
         style={[tokenStyles.scene, sceneLayerStyle, styles?.content, sceneAnimatedStyle]}
       >
         {children}

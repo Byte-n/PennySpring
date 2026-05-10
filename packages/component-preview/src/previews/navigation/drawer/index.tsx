@@ -119,6 +119,8 @@ function DrawerContent({ onClose, position, title }: DrawerContentProps) {
 export function DrawerPreview() {
   const styles = useStyles();
   const [open, setOpen] = React.useState(false);
+  const [widthDemoOpen, setWidthDemoOpen] = React.useState(false);
+  const [layoutWidthDemoOpen, setLayoutWidthDemoOpen] = React.useState(true);
   const [layoutOpenMap, setLayoutOpenMap] = React.useState<
     Record<DrawerType, boolean>
   >({
@@ -213,7 +215,6 @@ export function DrawerPreview() {
                 <Drawer.Layout
                   drawerType={item}
                   open={layoutOpen}
-                  width={100}
                   onClose={() => {
                     updateLayoutOpen(item, false);
                   }}
@@ -243,6 +244,73 @@ export function DrawerPreview() {
         })}
       </PreviewSection>
 
+      <PreviewSection title="Width">
+        <PreviewRow>
+          <Button
+            type={widthDemoOpen ? 'primary' : 'default'}
+            onPress={() => {
+              setWidthDemoOpen(current => !current);
+            }}
+          >
+            {widthDemoOpen ? 'Close 50% Drawer' : 'Open 50% Drawer'}
+          </Button>
+        </PreviewRow>
+        <PreviewRow>
+          <Text color="secondary">
+            Drawer width=&quot;50%&quot; (based on viewport width)
+          </Text>
+        </PreviewRow>
+        <PreviewRow>
+          <Checkbox
+            displayType="button"
+            value={layoutWidthDemoOpen}
+            onChange={() => {
+              setLayoutWidthDemoOpen(current => !current);
+            }}
+          >
+            {layoutWidthDemoOpen
+              ? 'Close 50% Layout Drawer'
+              : 'Open 50% Layout Drawer'}
+          </Checkbox>
+        </PreviewRow>
+        <PreviewRow>
+          <Text color="secondary">
+            Drawer.Layout width=&quot;50%&quot; (based on main content width)
+          </Text>
+        </PreviewRow>
+        <View style={styles.frame}>
+          <Drawer.Layout
+            drawerType="slide"
+            width="50%"
+            open={layoutWidthDemoOpen}
+            onClose={() => {
+              setLayoutWidthDemoOpen(false);
+            }}
+            onOpen={() => {
+              setLayoutWidthDemoOpen(true);
+            }}
+            renderDrawerContent={() => (
+              <DrawerContent
+                position="left"
+                title='layout width "50%"'
+                onClose={() => {
+                  setLayoutWidthDemoOpen(false);
+                }}
+              />
+            )}
+          >
+            <View style={styles.frameMain}>
+              <Text color="heading" weight="strong">
+                Main content (width demo)
+              </Text>
+              <Text color="secondary">
+                Slide mode with width=&quot;50%&quot;
+              </Text>
+            </View>
+          </Drawer.Layout>
+        </View>
+      </PreviewSection>
+
       <Drawer
         drawerPosition={position}
         open={open}
@@ -255,6 +323,25 @@ export function DrawerPreview() {
           position={position}
           title={`${drawerType} drawer`}
           onClose={closeDrawer}
+        />
+      </Drawer>
+      <Drawer
+        drawerPosition="left"
+        open={widthDemoOpen}
+        width="50%"
+        onClose={() => {
+          setWidthDemoOpen(false);
+        }}
+        onOpen={() => {
+          setWidthDemoOpen(true);
+        }}
+      >
+        <DrawerContent
+          position="left"
+          title='drawer width "50%"'
+          onClose={() => {
+            setWidthDemoOpen(false);
+          }}
         />
       </Drawer>
     </PreviewScaffold>
