@@ -42,7 +42,7 @@
 - [ ] SwipeAction 滑动操作
 - [ ] Result / Result.Page
 - [ ] 骨架屏
-- [ ] Toast / Message / Notiftion
+- [x] Toast / Message / Notification
 - [ ] Badge 徽标
 - 低优先级：
   - [ ] SideBar

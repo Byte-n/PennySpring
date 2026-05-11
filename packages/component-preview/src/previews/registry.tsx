@@ -17,6 +17,7 @@ import { EmptyPreview } from './display/empty';
 import { ListPreview } from './display/list';
 import { ListCollapsePreview } from './display/list-collapse';
 import { ListGroupPreview } from './display/list-group';
+import { NotificationPreview } from './feedback/Notification';
 import { AvatarPreview } from './foundation/avatar';
 import { ButtonPreview } from './foundation/button';
 import { DividerPreview } from './foundation/divider';
@@ -293,6 +294,12 @@ export const COMPONENT_PREVIEW_SECTIONS = [
         title: 'Message',
         description: '全局提示、类型变体、自动关闭和命令式调用。',
         component: MessagePreview,
+      },
+      {
+        id: 'notification',
+        title: 'Notification',
+        description: '通知类型、尺寸、关闭按钮和命令式 API。',
+        component: NotificationPreview,
       },
     ],
   },

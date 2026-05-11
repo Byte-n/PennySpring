@@ -306,3 +306,18 @@ export type {
   ToastStyles,
   ToastType,
 } from './Toast';
+export {
+  Notification,
+  NotificationPortal,
+  notification,
+  openNotification,
+  clearAllNotifications,
+} from './Notification';
+export type {
+  NotificationOpenOptions,
+  NotificationProps,
+  NotificationSize,
+  NotificationStaticMethods,
+  NotificationStyles,
+  NotificationType,
+} from './Notification';
