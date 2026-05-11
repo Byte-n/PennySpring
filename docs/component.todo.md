@@ -30,11 +30,11 @@
 - [x] Switch 开关
 - [x] Empty 空状态
 - [x] Loading 加载中
+- [x] ActionSheet 动作面板
+- [x] Stepper 步进器
 
 ## 待办
 
-- [ ] Stepper 步进器
-- [ ] ActionSheet 动作面板
 - [ ] Tabs
 - [ ] https://github.com/ant-design/ant-design-mobile/blob/b627e1f0f9c45b75b30c66ca6fef057b02ecd9db/src/components/ellipsis/index.ts
 - [ ] InfiniteScroll 无限滚动
