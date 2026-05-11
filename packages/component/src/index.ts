@@ -264,3 +264,13 @@ export type {
 } from './Progress';
 export { Empty } from './Empty';
 export type { EmptyProps, EmptySize, EmptyStyles } from './Empty';
+export { ActionSheet } from './ActionSheet';
+export type {
+  ActionSheetAction,
+  ActionSheetCancelParams,
+  ActionSheetCancelReason,
+  ActionSheetOpenChangeParams,
+  ActionSheetOpenChangeReason,
+  ActionSheetProps,
+  ActionSheetStyles,
+} from './ActionSheet';
