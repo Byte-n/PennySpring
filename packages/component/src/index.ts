@@ -287,3 +287,13 @@ export type {
   EllipsisSize,
   EllipsisStyles,
 } from './Ellipsis';
+export { Toast, ToastPortal, toast, showToast, clearAllToasts } from './Toast';
+export type {
+  ToastPosition,
+  ToastProps,
+  ToastShowOptions,
+  ToastSize,
+  ToastStaticMethods,
+  ToastStyles,
+  ToastType,
+} from './Toast';

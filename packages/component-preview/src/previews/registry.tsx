@@ -28,6 +28,7 @@ import { TagPreview } from './foundation/tag';
 import { TextPreview } from './foundation/text';
 import { LoadingPreview } from './display/loading';
 import { ResultPreview } from './display/result';
+import { ToastPreview } from './feedback/Toast';
 import { DialogPreview } from './navigation/dialog';
 import { DrawerPreview } from './navigation/drawer';
 import { PopupPreview } from './navigation/popup';
@@ -231,6 +232,18 @@ export const COMPONENT_PREVIEW_SECTIONS = [
         title: 'Result',
         description: '操作结果状态、图标、标题、副标题和附加操作。',
         component: ResultPreview,
+      },
+    ],
+  },
+  {
+    id: 'feedback',
+    title: '反馈',
+    items: [
+      {
+        id: 'toast',
+        title: 'Toast',
+        description: '轻提示类型、位置、尺寸和命令式调用。',
+        component: ToastPreview,
       },
     ],
   },
