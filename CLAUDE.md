@@ -146,4 +146,8 @@ Token 管线：`SeedToken` → `derivative()` → `MapToken` → `formatToken()`
 
 ## 动画
 
-- 动画使用 `react-native-reanimated` 实现，禁止使用 React Native 的动画。
+- 动画实现仅允许使用 `react-native-reanimated` 实现，禁止使用 React Native 的动画。
+- **禁止** 在组件实现中使用 `react-native` 的 `Animated`、`LayoutAnimation`、`Animated.timing/spring/decay`。
+- 动画时长、缓动曲线、延迟必须优先使用主题 token（`motionDuration*`、`motionEase*`）；禁止硬编码魔法数。
+- 缓动曲线统一使用 `Easing.bezier(...token.motionEase*)`（来自 `react-native-reanimated`），避免不同组件动画手感漂移。
+- 进入/退出动画必须成对设计（含 mount/unmount 生命周期），避免只进不出、闪烁或残留占位。

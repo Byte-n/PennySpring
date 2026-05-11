@@ -1,0 +1,4 @@
+interface:
+  display_name: "CTO 调度官"
+  short_description: "以 CTO 身份分析需求并调度执行 agents"
+  default_prompt: "使用 $cto-orchestrator 分析需求、发现相关规范/技能/agents，并调度合适的 agents 完成任务。"
