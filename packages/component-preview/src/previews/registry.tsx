@@ -34,6 +34,7 @@ import { DrawerPreview } from './navigation/drawer';
 import { PopupPreview } from './navigation/popup';
 import { PortalPreview } from './navigation/portal';
 import { TopTabNavigatorPreview } from './navigation/top-tab-navigator';
+import { MessagePreview } from './feedback/message';
 import type { ComponentPreviewSection } from './types';
 
 export const COMPONENT_PREVIEW_SECTIONS = [
@@ -280,6 +281,18 @@ export const COMPONENT_PREVIEW_SECTIONS = [
         title: 'Popup',
         description: '弹层位置、尺寸、遮罩和操作内容。',
         component: PopupPreview,
+      },
+    ],
+  },
+  {
+    id: 'feedback',
+    title: '反馈',
+    items: [
+      {
+        id: 'message',
+        title: 'Message',
+        description: '全局提示、类型变体、自动关闭和命令式调用。',
+        component: MessagePreview,
       },
     ],
   },

@@ -264,6 +264,15 @@ export type {
 } from './Progress';
 export { Empty } from './Empty';
 export type { EmptyProps, EmptySize, EmptyStyles } from './Empty';
+export { Message, MessagePortal, message, showMessage, clearAllMessages } from './Message';
+export type {
+  MessageProps,
+  MessageShowOptions,
+  MessageSize,
+  MessageStaticMethods,
+  MessageStyles,
+  MessageType,
+} from './Message';
 export { ActionSheet } from './ActionSheet';
 export type {
   ActionSheetAction,
