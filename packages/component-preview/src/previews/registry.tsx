@@ -27,6 +27,7 @@ import { SpacePreview } from './foundation/space';
 import { TagPreview } from './foundation/tag';
 import { TextPreview } from './foundation/text';
 import { LoadingPreview } from './display/loading';
+import { ResultPreview } from './display/result';
 import { DialogPreview } from './navigation/dialog';
 import { DrawerPreview } from './navigation/drawer';
 import { PopupPreview } from './navigation/popup';
@@ -224,6 +225,12 @@ export const COMPONENT_PREVIEW_SECTIONS = [
         title: 'Loading',
         description: '加载指示器尺寸、方向和自定义内容。',
         component: LoadingPreview,
+      },
+      {
+        id: 'result',
+        title: 'Result',
+        description: '操作结果状态、图标、标题、副标题和附加操作。',
+        component: ResultPreview,
       },
     ],
   },
