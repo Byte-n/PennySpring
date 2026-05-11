@@ -278,3 +278,10 @@ export { Stepper } from './Stepper';
 export type { StepperProps, StepperSize, StepperStyles } from './Stepper';
 export { Result } from './Result';
 export type { ResultProps, ResultSize, ResultStatus, ResultStyles } from './Result';
+export { Ellipsis } from './Ellipsis';
+export type {
+  EllipsisDirection,
+  EllipsisProps,
+  EllipsisSize,
+  EllipsisStyles,
+} from './Ellipsis';
