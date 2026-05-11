@@ -1,256 +1,286 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Pressable, View } from 'react-native';
+import React, { useContext } from 'react';
 import Animated, {
+  Easing,
   runOnJS,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
 import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
-import { Icon } from '../Icon';
+import { PortalContext } from '../Portal/Portal';
+import { resolvePortalMount } from '../Portal/resolvePortalMount';
 import { Text } from '../Text';
-import type { AliasToken } from '@pennyspring/theme';
-import type { IconName } from '../Icon';
-import type { TextSize } from '../Text';
-import type {
-  ToastPosition,
-  ToastProps,
-  ToastSize,
-  ToastType,
-} from './types';
+import { useOverlayEmitter } from '../_hooks/useOverlayEmitter';
+import type { ViewStyle } from 'react-native';
+import type { ToastController, ToastPlacement, ToastProps, ToastShowOptions, ToastSize } from './types';
 
 const DEFAULT_DURATION = 2000;
-const ANIMATION_DURATION = 200;
-const BODY_MAX_WIDTH = '80%';
-
-interface ToastStyleOptions {
-  position: ToastPosition;
-  size: ToastSize;
-  type: ToastType;
-}
-
-interface ToastSizeConfig {
-  padding: (token: AliasToken) => number;
-  borderRadius: (token: AliasToken) => number;
-  gap: (token: AliasToken) => number;
-  iconSize: (token: AliasToken) => number;
-  textSize: TextSize;
-}
-
-interface ToastTypeConfig {
-  iconName: IconName;
-  color: (token: AliasToken) => string;
-}
-
-const SIZE_STYLE_MAP: Record<ToastSize, ToastSizeConfig> = {
+const DEFAULT_SIZE: ToastSize = 'normal';
+const DEFAULT_PLACEMENT: ToastPlacement = 'center';
+const HIDDEN_OFFSET_RATIO = 0.6;
+const SIZE_TOKEN_MAP: Record<
+  ToastSize,
+  {
+    verticalPadding: (token: ReturnType<typeof useTheme>['token']) => number;
+    horizontalPadding: (token: ReturnType<typeof useTheme>['token']) => number;
+    textSize: 'sm' | 'md' | 'lg';
+  }
+> = {
   small: {
-    padding: token => token.paddingSM,
-    borderRadius: token => token.borderRadiusLG,
-    gap: token => token.marginXS,
-    iconSize: token => token.fontSizeLG,
+    verticalPadding: token => token.paddingXXS,
+    horizontalPadding: token => token.paddingSM,
     textSize: 'sm',
   },
   normal: {
-    padding: token => token.paddingMD,
-    borderRadius: token => token.borderRadiusLG,
-    gap: token => token.marginSM,
-    iconSize: token => token.fontSizeXL,
+    verticalPadding: token => token.paddingXS,
+    horizontalPadding: token => token.paddingMD,
     textSize: 'md',
   },
   large: {
-    padding: token => token.paddingLG,
-    borderRadius: token => token.borderRadiusLG,
-    gap: token => token.marginMD,
-    iconSize: token => token.fontSizeHeading4,
+    verticalPadding: token => token.paddingSM,
+    horizontalPadding: token => token.paddingLG,
     textSize: 'lg',
   },
 };
 
-const TYPE_CONFIG_MAP: Record<ToastType, ToastTypeConfig> = {
-  info: {
-    iconName: 'info',
-    color: token => token.colorInfo,
-  },
-  success: {
-    iconName: 'check-circle',
-    color: token => token.colorSuccess,
-  },
-  fail: {
-    iconName: 'close-circle',
-    color: token => token.colorError,
-  },
-};
-
-function getPositionStyle(position: ToastPosition): object {
-  if (position === 'top') {
-    return { justifyContent: 'flex-start' as const };
+function getPlacementStyle(placement: ToastPlacement): ViewStyle {
+  if (placement === 'top') {
+    return { top: 0 };
   }
 
-  if (position === 'center') {
-    return { justifyContent: 'center' as const };
+  if (placement === 'bottom') {
+    return { bottom: 0 };
   }
 
-  return { justifyContent: 'flex-end' as const };
+  return { top: '50%' };
 }
 
-const useStyles = createUseSheetStyle(
-  (token, { position, size, type }: ToastStyleOptions) => {
-    const sizeConfig = SIZE_STYLE_MAP[size];
-    const typeConfig = TYPE_CONFIG_MAP[type];
+const useStyles = createUseSheetStyle((token, { size, placement }: { size: ToastSize; placement: ToastPlacement }) => {
+  const sizeConfig = SIZE_TOKEN_MAP[size];
 
-    return {
-      layout: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        ...getPositionStyle(position),
-        alignItems: 'center',
-        zIndex: token.zIndexPopupBase + token.zIndexBase + 100,
+  return {
+    content: {
+      position: 'absolute',
+      zIndex: token.zIndexPopupBase + 100,
+      left: token.paddingLG,
+      right: token.paddingLG,
+      ...getPlacementStyle(placement),
+      ...(placement === 'top'
+        ? { marginTop: token.paddingXL }
+        : placement === 'bottom'
+        ? { marginBottom: token.paddingXL }
+        : null),
+      alignSelf: 'center',
+      borderRadius: token.borderRadius,
+      backgroundColor: token.colorBgSpotlight,
+      paddingVertical: sizeConfig.verticalPadding(token),
+      paddingHorizontal: sizeConfig.horizontalPadding(token),
+    },
+    messageText: {
+      color: token.colorTextLightSolid,
+      textAlign: 'center',
+    },
+  };
+});
+
+interface ToastBodyProps extends ToastShowOptions {
+  isOpen: boolean;
+  onExited?: () => void;
+}
+
+function ToastBody({
+  duration,
+  isOpen,
+  message,
+  messageText,
+  onExited,
+  placement = DEFAULT_PLACEMENT,
+  size = DEFAULT_SIZE,
+  style,
+  styles,
+}: ToastBodyProps) {
+  const tokenStyles = useStyles({ placement, size });
+  const { token } = useTheme();
+  const progress = useSharedValue(0);
+  const timerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  const closedRef = React.useRef(false);
+
+  const handleClosed = React.useCallback(() => {
+    if (!closedRef.current) {
+      closedRef.current = true;
+      onExited?.();
+    }
+  }, [onExited]);
+
+  React.useEffect(() => {
+    const nextValue = isOpen ? 1 : 0;
+    progress.value = withTiming(
+      nextValue,
+      {
+        duration: token.motionDurationMid,
+        easing: Easing.bezier(...token.motionEaseInOut),
       },
-      mask: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: 'transparent',
+      finished => {
+        'worklet';
+        if (finished && !isOpen) {
+          runOnJS(handleClosed)();
+        }
       },
-      body: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        padding: sizeConfig.padding(token),
-        borderRadius: sizeConfig.borderRadius(token),
-        gap: sizeConfig.gap(token),
-        backgroundColor: token.colorBgElevated,
-        marginHorizontal: token.marginLG,
-        marginVertical: token.marginXL,
-        maxWidth: BODY_MAX_WIDTH,
-      },
-      icon: {
-        flexShrink: 0,
-      },
-      contentText: {
-        color: token.colorText,
-        fontSize: token[sizeConfig.textSize as keyof AliasToken] as number,
-        lineHeight: token[`${sizeConfig.textSize}Height` as keyof AliasToken] as number,
-        flexShrink: 1,
-      },
+    );
+  }, [handleClosed, isOpen, progress, token.motionDurationMid, token.motionEaseInOut]);
+
+  React.useEffect(() => {
+    if (duration === 0 || isOpen === false) {
+      return;
+    }
+
+    timerRef.current = setTimeout(() => {
+      progress.value = withTiming(
+        0,
+        {
+          duration: token.motionDurationMid,
+          easing: Easing.bezier(...token.motionEaseInOut),
+        },
+        finished => {
+          'worklet';
+          if (finished) {
+            runOnJS(handleClosed)();
+          }
+        },
+      );
+    }, duration ?? DEFAULT_DURATION);
+
+    return () => {
+      if (timerRef.current !== null) {
+        clearTimeout(timerRef.current);
+        timerRef.current = null;
+      }
     };
-  },
-);
+  }, [duration, handleClosed, isOpen, progress, token.motionDurationMid, token.motionEaseInOut]);
 
-function resolveOpen(defaultOpen?: boolean, open?: boolean): boolean {
-  return open ?? defaultOpen ?? false;
+  const animatedStyle = useAnimatedStyle(() => ({
+    opacity: progress.value,
+    transform: [
+      ...(placement === 'center'
+        ? [{ translateY: -token.controlHeight * HIDDEN_OFFSET_RATIO }]
+        : []),
+      {
+        translateY: (1 - progress.value) * token.controlHeight * HIDDEN_OFFSET_RATIO,
+      },
+    ],
+  }));
+
+  return (
+    <Animated.View
+      pointerEvents="box-none"
+      style={[
+        tokenStyles.content,
+        style,
+        styles?.content,
+        animatedStyle,
+      ]}
+    >
+      {message ?? (
+        <Text size={SIZE_TOKEN_MAP[size].textSize} style={[tokenStyles.messageText, styles?.messageText]}>
+          {messageText}
+        </Text>
+      )}
+    </Animated.View>
+  );
 }
 
 export function Toast({
+  afterOpenChange,
   defaultOpen,
-  duration = DEFAULT_DURATION,
-  icon,
-  mask = false,
+  duration,
+  mountPoint = 'auto',
+  message,
+  messageText,
   onCancel,
   onOpenChange,
   open,
-  position = 'bottom',
-  size = 'normal',
+  placement,
+  size,
   style,
-  styles: slotStyles,
-  type = 'info',
-  content,
-  contentText,
+  styles,
 }: ToastProps) {
-  const { token } = useTheme();
-  const isOpenControlled = open !== undefined;
-  const [internalOpen, setInternalOpen] = useState(resolveOpen(defaultOpen, open));
-  const isOpen = isOpenControlled ? open : internalOpen;
-  const [mounted, setMounted] = useState(isOpen);
-  const opacity = useSharedValue(isOpen ? 1 : 0);
-  const isMountedRef = useRef(true);
-  const tokenStyles = useStyles({ position, size, type });
-  const sizeConfig = SIZE_STYLE_MAP[size];
-  const typeConfig = TYPE_CONFIG_MAP[type];
+  const portalContext = useContext(PortalContext);
+  const isControlled = open !== undefined;
+  const [internalOpen, setInternalOpen] = React.useState(defaultOpen === true);
+  const isOpen = isControlled ? (open as boolean) : internalOpen;
+  const [mounted, setMounted] = React.useState(isOpen);
 
-  useEffect(() => {
-    return () => {
-      isMountedRef.current = false;
-    };
-  }, []);
+  React.useEffect(() => {
+    afterOpenChange?.(isOpen);
+  }, [afterOpenChange, isOpen]);
 
-  useEffect(() => {
-    if (!isOpen || duration <= 0) {
-      return;
-    }
+  React.useEffect(() => {
+    onOpenChange?.(isOpen);
+  }, [isOpen, onOpenChange]);
 
-    const timer = setTimeout(() => {
-      if (!isMountedRef.current) {
-        return;
-      }
-
-      if (!isOpenControlled) {
-        setInternalOpen(false);
-      }
-
-      onCancel?.();
-      onOpenChange?.(false);
-    }, duration);
-
-    return () => clearTimeout(timer);
-  }, [duration, isOpen, isOpenControlled, onCancel, onOpenChange]);
-
-  const handleUnmount = useCallback(() => {
-    if (!isMountedRef.current) {
-      return;
-    }
-
-    setMounted(false);
-  }, []);
-
-  useEffect(() => {
+  React.useEffect(() => {
     if (isOpen) {
       setMounted(true);
-      opacity.value = withTiming(1, { duration: ANIMATION_DURATION });
-    } else {
-      opacity.value = withTiming(0, { duration: ANIMATION_DURATION }, () => {
-        runOnJS(handleUnmount)();
-      });
     }
-  }, [isOpen, opacity, handleUnmount]);
+  }, [isOpen]);
 
   if (!isOpen && !mounted) {
     return null;
   }
 
-  const resolvedIcon = icon ?? (
-    <Icon
-      icon={typeConfig.iconName}
-      size={sizeConfig.iconSize(token)}
-      color={typeConfig.color(token)}
-      style={tokenStyles.icon}
+  const content = (
+    <ToastBody
+      duration={duration}
+      isOpen={isOpen}
+      message={message}
+      messageText={messageText}
+      onExited={() => {
+        onCancel?.();
+        if (!isControlled) {
+          setInternalOpen(false);
+        }
+        setMounted(false);
+        onOpenChange?.(false);
+        afterOpenChange?.(false);
+      }}
+      placement={placement}
+      size={size}
+      style={style}
+      styles={styles}
     />
   );
 
-  const animatedBodyStyle = useAnimatedStyle(() => ({
-    opacity: opacity.value,
-  }));
+  return resolvePortalMount(content, mountPoint, portalContext !== null);
+}
 
-  return (
-    <View pointerEvents="box-none" style={[tokenStyles.layout, style]} testID="toast-layout">
-      {mask ? (
-        <Pressable style={tokenStyles.mask} testID="toast-mask" />
-      ) : null}
-      <Animated.View
-        style={[tokenStyles.body, slotStyles?.body, animatedBodyStyle]}
-        testID="toast-body"
-      >
-        {resolvedIcon}
-        {content ?? (
-          <Text style={[tokenStyles.contentText, slotStyles?.contentText]}>
-            {contentText}
-          </Text>
-        )}
-      </Animated.View>
-    </View>
+export function useToast(): ToastController {
+  const emitter = useOverlayEmitter<ToastShowOptions>({
+    render: (options, params) => {
+      const { onCancel, ...restOptions } = options;
+
+      return (
+        resolvePortalMount(
+          <ToastBody
+            {...restOptions}
+            isOpen={params.isOpen}
+            onExited={() => {
+              onCancel?.();
+              params.onExited();
+            }}
+          />,
+          'portal',
+          true,
+        )
+      );
+    },
+  });
+
+  return React.useMemo(
+    () => ({
+      show: emitter.show,
+      hide: emitter.hide,
+      clear: emitter.clear,
+    }),
+    [emitter.clear, emitter.hide, emitter.show],
   );
 }

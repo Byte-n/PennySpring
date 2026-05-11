@@ -1,280 +1,268 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Pressable, View } from 'react-native';
+import React, { useContext } from 'react';
+import { View } from 'react-native';
 import Animated, {
+  Easing,
   runOnJS,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
-import { createUseSheetStyle } from '@pennyspring/theme';
-import { Icon } from '../Icon';
-import { Portal } from '../Portal';
+import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
+import { PortalContext } from '../Portal/Portal';
+import { resolvePortalMount } from '../Portal/resolvePortalMount';
 import { Text } from '../Text';
-import type { MessageType, MessageProps, MessageSize } from './types';
+import { useOverlayEmitter } from '../_hooks/useOverlayEmitter';
+import type {
+  MessageController,
+  MessagePlacement,
+  MessageProps,
+  MessageShowOptions,
+  MessageSize,
+  MessageType,
+} from './types';
 
-const DEFAULT_DURATION = 3000;
-const ANIMATION_DURATION = 250;
+const DEFAULT_DURATION = 2400;
+const DEFAULT_SIZE: MessageSize = 'normal';
+const DEFAULT_TYPE: MessageType = 'default';
+const DEFAULT_PLACEMENT: MessagePlacement = 'top';
 
-const ICON_MAP: Record<MessageType, 'info' | 'check-circle' | 'warning' | 'close-circle'> = {
-  info: 'info',
-  success: 'check-circle',
-  warning: 'warning',
-  error: 'close-circle',
-};
-
-const ICON_COLOR_MAP: Record<MessageType, string> = {
-  info: 'colorInfo',
-  success: 'colorSuccess',
-  warning: 'colorWarning',
-  error: 'colorError',
-};
-
-// [Issue 5] Removed unused fontSize field
-const SIZE_CONFIG: Record<MessageSize, { iconSize: 'small' | 'normal' | 'large' }> = {
-  small: { iconSize: 'small' },
-  normal: { iconSize: 'normal' },
-  large: { iconSize: 'large' },
-};
-
-function resolveOpen(defaultOpen?: boolean, open?: boolean): boolean {
-  return open ?? defaultOpen ?? false;
+function resolveTypeColor(token: ReturnType<typeof useTheme>['token'], type: MessageType): string {
+  if (type === 'success') return token.colorSuccess;
+  if (type === 'warning') return token.colorWarning;
+  if (type === 'error') return token.colorError;
+  if (type === 'info') return token.colorInfo;
+  return token.colorPrimary;
 }
 
-const useStyles = createUseSheetStyle(
-  (token, options: { size: MessageSize }) => {
-    const sizePadding = {
-      small: token.paddingXS,
-      normal: token.paddingSM,
-      large: token.paddingMD,
-    }[options.size];
+const useStyles = createUseSheetStyle((token, { size, placement }: { size: MessageSize; placement: MessagePlacement }) => ({
+  content: {
+    position: 'absolute',
+    zIndex: token.zIndexPopupBase + 120,
+    left: token.paddingLG,
+    right: token.paddingLG,
+    ...(placement === 'top'
+      ? { top: token.paddingXL }
+      : { bottom: token.paddingXL }),
+    borderRadius: token.borderRadius,
+    backgroundColor: token.colorBgElevated,
+    borderWidth: token.lineWidth,
+    borderColor: token.colorBorderSecondary,
+    paddingVertical:
+      size === 'small' ? token.paddingXXS : size === 'large' ? token.paddingSM : token.paddingXS,
+    paddingHorizontal:
+      size === 'small' ? token.paddingSM : size === 'large' ? token.paddingLG : token.paddingMD,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: token.marginXS,
+  },
+  dot: {
+    width: token.fontSizeSM,
+    height: token.fontSizeSM,
+    borderRadius: token.fontSizeSM,
+  },
+  messageText: {
+    color: token.colorText,
+    flex: 1,
+  },
+}));
 
-    const sizeGap = {
-      small: token.sizeXXS,
-      normal: token.sizeXS,
-      large: token.sizeSM,
-    }[options.size];
+interface MessageBodyProps extends MessageShowOptions {
+  isOpen: boolean;
+  onCloseStart?: () => void;
+  onExited?: () => void;
+}
 
-    const sizeBorderRadius = {
-      small: token.borderRadiusSM,
-      normal: token.borderRadius,
-      large: token.borderRadiusLG,
-    }[options.size];
+function MessageBody({
+  duration,
+  isOpen,
+  message,
+  messageText,
+  onCloseStart,
+  onExited,
+  placement = DEFAULT_PLACEMENT,
+  size = DEFAULT_SIZE,
+  style,
+  styles,
+  type = DEFAULT_TYPE,
+}: MessageBodyProps) {
+  const tokenStyles = useStyles({ size, placement });
+  const { token } = useTheme();
+  const progress = useSharedValue(0);
+  const closedRef = React.useRef(false);
+
+  const handleClosed = React.useCallback(() => {
+    if (!closedRef.current) {
+      closedRef.current = true;
+      onExited?.();
+    }
+  }, [onExited]);
+
+  React.useEffect(() => {
+    progress.value = withTiming(
+      isOpen ? 1 : 0,
+      {
+        duration: token.motionDurationMid,
+        easing: Easing.bezier(...token.motionEaseInOut),
+      },
+      finished => {
+        'worklet';
+        if (finished && !isOpen) {
+          runOnJS(handleClosed)();
+        }
+      },
+    );
+  }, [handleClosed, isOpen, progress, token.motionDurationMid, token.motionEaseInOut]);
+
+  React.useEffect(() => {
+    if (duration === 0) {
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      if (onCloseStart !== undefined) {
+        onCloseStart();
+        return;
+      }
+
+      progress.value = withTiming(
+        0,
+        {
+          duration: token.motionDurationMid,
+          easing: Easing.bezier(...token.motionEaseInOut),
+        },
+        finished => {
+          'worklet';
+          if (finished) {
+            runOnJS(handleClosed)();
+          }
+        },
+      );
+    }, duration ?? DEFAULT_DURATION);
+
+    return () => clearTimeout(timer);
+  }, [duration, handleClosed, onCloseStart, progress, token.motionDurationMid, token.motionEaseInOut]);
+
+  const animatedStyle = useAnimatedStyle(() => {
+    const distance = (1 - progress.value) * token.controlHeightSM;
 
     return {
-      overlay: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        alignItems: 'center',
-        zIndex: token.zIndexPopupBase + token.zIndexBase + 100,
-        paddingTop: token.paddingMD,
-        paddingHorizontal: token.paddingMD,
-      },
-      container: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        padding: sizePadding,
-        gap: sizeGap,
-        borderRadius: sizeBorderRadius,
-        backgroundColor: token.colorBgElevated,
-        maxWidth: '100%',
-        ...token.boxShadowSecondary,
-      },
-      body: {
-        flex: 1,
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: sizeGap,
-      },
-      contentText: {
-        flex: 1,
-        color: token.colorText,
-      },
-      closeButton: {
-        padding: token.paddingXXS,
-      },
+      opacity: progress.value,
+      transform: [{ translateY: placement === 'top' ? -distance : distance }],
     };
-  },
-);
-
-function getDefaultIcon(type: MessageType, size: MessageSize): React.ReactNode {
-  const config = SIZE_CONFIG[size];
+  });
 
   return (
-    <Icon
-      icon={ICON_MAP[type]}
-      size={config.iconSize}
-      color={ICON_COLOR_MAP[type]}
-      testID="message-icon"
-    />
+    <Animated.View
+      pointerEvents="box-none"
+      style={[
+        tokenStyles.content,
+        style,
+        styles?.content,
+        animatedStyle,
+      ]}
+    >
+      <View style={[tokenStyles.dot, { backgroundColor: resolveTypeColor(token, type) }]} />
+      {message ?? (
+        <Text
+          size={size === 'small' ? 'sm' : size === 'large' ? 'lg' : 'md'}
+          style={[tokenStyles.messageText, styles?.messageText]}
+        >
+          {messageText}
+        </Text>
+      )}
+    </Animated.View>
   );
-}
-
-function resolveFontSize(size: MessageSize): 'sm' | 'md' | 'lg' {
-  if (size === 'small') {
-    return 'sm';
-  }
-
-  if (size === 'large') {
-    return 'lg';
-  }
-
-  return 'md';
 }
 
 export function Message({
-  closeable = false,
-  content,
-  contentText,
   defaultOpen,
-  duration = DEFAULT_DURATION,
-  icon,
+  mountPoint = 'auto',
   onCancel,
-  onOpenChange,
   open,
-  size = 'normal',
-  style,
-  styles: slotStyles,
-  type = 'info',
+  onOpenChange,
+  afterOpenChange,
+  ...rest
 }: MessageProps) {
-  const tokenStyles = useStyles({ size });
-  const [internalOpen, setInternalOpen] = useState(resolveOpen(defaultOpen, open));
-  const isOpenControlled = open !== undefined;
-  const isOpen = isOpenControlled ? open : internalOpen;
-  const [isVisible, setIsVisible] = useState(isOpen);
-  const progress = useSharedValue(isOpen ? 1 : 0);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const portalContext = useContext(PortalContext);
+  const isControlled = open !== undefined;
+  const [internalOpen, setInternalOpen] = React.useState(defaultOpen === true);
+  const isOpen = isControlled ? (open as boolean) : internalOpen;
+  const [mounted, setMounted] = React.useState(isOpen);
+  const previousOpenRef = React.useRef(isOpen);
+  const internalCloseStartedRef = React.useRef(false);
 
-  // [Issue 3] Stabilize onCancel reference to prevent timer/animation resets on re-render
-  const onCancelRef = useRef(onCancel);
-  onCancelRef.current = onCancel;
-
-  // Track whether close was initiated by the component itself (auto-dismiss / user press)
-  // vs. externally by the parent changing open={false}
-  const closedBySelfRef = useRef(false);
-
-  const clearTimer = useCallback((): void => {
-    if (timerRef.current !== null) {
-      clearTimeout(timerRef.current);
-      timerRef.current = null;
-    }
-  }, []);
-
-  const handleDismiss = useCallback((): void => {
-    // [Issue 1] Semantic action callback fires first per project convention
-    // Only fire onCancel for self-initiated closes (auto-dismiss, user press),
-    // not when parent externally sets open={false}
-    if (closedBySelfRef.current) {
-      onCancelRef.current?.();
-      closedBySelfRef.current = false;
-    }
-
-    onOpenChange?.(false);
-
-    if (!isOpenControlled) {
-      setInternalOpen(false);
-    }
-
-    // [Issue 4] Hide component only after animation completes
-    setIsVisible(false);
-  }, [isOpenControlled, onOpenChange]);
-
-  const startCloseAnimation = useCallback((): void => {
-    'worklet';
-
-    progress.value = withTiming(0, { duration: ANIMATION_DURATION }, (finished) => {
-      if (finished) {
-        runOnJS(handleDismiss)();
-      }
-    });
-  }, [handleDismiss, progress]);
-
-  useEffect(() => {
+  React.useEffect(() => {
     if (isOpen) {
-      // Cancel any in-progress close animation and show the component
-      closedBySelfRef.current = false;
-      setIsVisible(true);
-      progress.value = withTiming(1, { duration: ANIMATION_DURATION });
-
-      if (duration > 0) {
-        clearTimer();
-        timerRef.current = setTimeout(() => {
-          closedBySelfRef.current = true;
-          startCloseAnimation();
-        }, duration);
-      }
-    } else if (isOpenControlled) {
-      // [Issue 4] Controlled mode: animate close when parent sets open={false}
-      // closedBySelfRef is false (default), so handleDismiss won't fire onCancel
-      startCloseAnimation();
+      setMounted(true);
+      internalCloseStartedRef.current = false;
     }
-    // Uncontrolled mode: close animation is started by timer or user press,
-    // which set closedBySelfRef = true before calling startCloseAnimation
 
-    return clearTimer;
-  }, [clearTimer, duration, isOpen, isOpenControlled, progress, startCloseAnimation]);
+    if (!previousOpenRef.current && isOpen) {
+      onOpenChange?.(true);
+      afterOpenChange?.(true);
+    }
 
-  const handleClosePress = useCallback((): void => {
-    clearTimer();
-    closedBySelfRef.current = true;
-    startCloseAnimation();
-  }, [clearTimer, startCloseAnimation]);
+    previousOpenRef.current = isOpen;
+  }, [afterOpenChange, isOpen, onOpenChange]);
 
-  const animatedStyle = useAnimatedStyle(() => ({
-    opacity: progress.value,
-    transform: [
-      {
-        translateY: (1 - progress.value) * -20,
-      },
-    ],
-  }));
+  const handleCloseStart = React.useCallback(() => {
+    if (isControlled || internalCloseStartedRef.current || !isOpen) {
+      return;
+    }
 
-  // [Issue 4] Continue rendering during close animation even when isOpen is false
-  if (!isVisible) {
+    internalCloseStartedRef.current = true;
+    onCancel?.();
+    onOpenChange?.(false);
+    setInternalOpen(false);
+  }, [isControlled, isOpen, onCancel, onOpenChange]);
+
+  const handleExited = React.useCallback(() => {
+    setMounted(false);
+    afterOpenChange?.(false);
+  }, [afterOpenChange]);
+
+  if (!isOpen && !mounted) {
     return null;
   }
 
-  const iconNode = icon ?? getDefaultIcon(type, size);
-  const fontSize = resolveFontSize(size);
+  const content = (
+    <MessageBody
+      {...rest}
+      isOpen={isOpen}
+      onCloseStart={handleCloseStart}
+      onExited={handleExited}
+    />
+  );
 
-  return (
-    <Portal>
-      <Animated.View
-        pointerEvents="box-none"
-        style={[tokenStyles.overlay, animatedStyle]}
-      >
-        <View style={[tokenStyles.container, style]} testID="message-container">
-          <View style={[tokenStyles.body, slotStyles?.body]}>
-            {iconNode ? (
-              <View style={slotStyles?.icon} testID="message-icon-wrapper">
-                {iconNode}
-              </View>
-            ) : null}
-            {content !== undefined && content !== null ? (
-              content
-            ) : contentText !== undefined ? (
-              <Text
-                size={fontSize}
-                style={[tokenStyles.contentText, slotStyles?.contentText]}
-                testID="message-content-text"
-              >
-                {contentText}
-              </Text>
-            ) : null}
-          </View>
-          {closeable ? (
-            <Pressable
-              hitSlop={8}
-              onPress={handleClosePress}
-              style={[tokenStyles.closeButton, slotStyles?.closeButton]}
-              testID="message-close-button"
-            >
-              <Icon icon="close" size="small" color="colorTextSecondary" />
-            </Pressable>
-          ) : null}
-        </View>
-      </Animated.View>
-    </Portal>
+  return resolvePortalMount(content, mountPoint, portalContext !== null);
+}
+
+export function useMessage(): MessageController {
+  const emitter = useOverlayEmitter<MessageShowOptions>({
+    render: (options, params) => {
+      const { onCancel, ...restOptions } = options;
+
+      return (
+        resolvePortalMount(
+          <MessageBody
+            {...restOptions}
+            isOpen={params.isOpen}
+            onExited={() => {
+              onCancel?.();
+              params.onExited();
+            }}
+          />,
+          'portal',
+          true,
+        )
+      );
+    },
+  });
+
+  return React.useMemo(
+    () => ({ show: emitter.show, hide: emitter.hide, clear: emitter.clear }),
+    [emitter.clear, emitter.hide, emitter.show],
   );
 }
+
+export const useMesage = useMessage;

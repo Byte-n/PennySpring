@@ -1,63 +1,58 @@
 import type { ReactNode } from 'react';
 import type { StyleProp, TextStyle, ViewStyle } from 'react-native';
+import type { PortalMountPoint } from '../Portal/types';
 import type { ComponentSize } from '../shares/types';
-
-export type NotificationType = 'info' | 'success' | 'warning' | 'error';
 
 export type NotificationSize = ComponentSize;
 
+export type NotificationType = 'default' | 'success' | 'warning' | 'error' | 'info';
+export type NotificationPlacement =
+  | 'top-left'
+  | 'top-right'
+  | 'bottom-left'
+  | 'bottom-right';
+
 export interface NotificationStyles {
-  icon?: StyleProp<ViewStyle>;
-  header?: StyleProp<ViewStyle>;
+  content?: StyleProp<ViewStyle>;
   titleText?: StyleProp<TextStyle>;
-  body?: StyleProp<ViewStyle>;
-  contentText?: StyleProp<TextStyle>;
   descriptionText?: StyleProp<TextStyle>;
-  closeButton?: StyleProp<ViewStyle>;
 }
 
 export interface NotificationProps {
+  mountPoint?: PortalMountPoint;
   open?: boolean;
   defaultOpen?: boolean;
+  onCancel?: () => void;
   onOpenChange?: (open: boolean) => void;
-  type?: NotificationType;
+  afterOpenChange?: (open: boolean) => void;
   duration?: number;
-  icon?: ReactNode;
+  size?: NotificationSize;
+  type?: NotificationType;
+  placement?: NotificationPlacement;
   titleText?: string;
   title?: ReactNode;
-  contentText?: string;
-  content?: ReactNode;
   descriptionText?: string;
   description?: ReactNode;
-  closeable?: boolean;
-  onCancel?: () => void;
-  onPress?: () => void;
   style?: StyleProp<ViewStyle>;
   styles?: NotificationStyles;
-  size?: NotificationSize;
 }
 
-export interface NotificationOpenOptions {
-  type?: NotificationType;
+export interface NotificationShowOptions {
+  onCancel?: () => void;
   duration?: number;
-  icon?: ReactNode;
+  size?: NotificationSize;
+  type?: NotificationType;
+  placement?: NotificationPlacement;
   titleText?: string;
   title?: ReactNode;
-  contentText?: string;
-  content?: ReactNode;
   descriptionText?: string;
   description?: ReactNode;
-  closeable?: boolean;
-  onCancel?: () => void;
-  onPress?: () => void;
-  size?: NotificationSize;
+  style?: StyleProp<ViewStyle>;
+  styles?: NotificationStyles;
 }
 
-export interface NotificationStaticMethods {
-  open: (options: NotificationOpenOptions) => void;
-  success: (options: NotificationOpenOptions) => void;
-  warning: (options: NotificationOpenOptions) => void;
-  error: (options: NotificationOpenOptions) => void;
-  info: (options: NotificationOpenOptions) => void;
+export interface NotificationController {
+  show: (options: NotificationShowOptions) => number;
+  hide: (key: number) => void;
   clear: () => void;
 }
