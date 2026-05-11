@@ -264,3 +264,18 @@ export type {
 } from './Progress';
 export { Empty } from './Empty';
 export type { EmptyProps, EmptySize, EmptyStyles } from './Empty';
+export {
+  Notification,
+  NotificationPortal,
+  notification,
+  openNotification,
+  clearAllNotifications,
+} from './Notification';
+export type {
+  NotificationOpenOptions,
+  NotificationProps,
+  NotificationSize,
+  NotificationStaticMethods,
+  NotificationStyles,
+  NotificationType,
+} from './Notification';
