@@ -17,7 +17,6 @@ import { EmptyPreview } from './display/empty';
 import { ListPreview } from './display/list';
 import { ListCollapsePreview } from './display/list-collapse';
 import { ListGroupPreview } from './display/list-group';
-import { NotificationPreview } from './feedback/Notification';
 import { AvatarPreview } from './foundation/avatar';
 import { ButtonPreview } from './foundation/button';
 import { DividerPreview } from './foundation/divider';
@@ -26,16 +25,18 @@ import { IconPreview } from './foundation/icon';
 import { SegmentedPreview } from './foundation/segmented';
 import { SpacePreview } from './foundation/space';
 import { TagPreview } from './foundation/tag';
+import { TabsPreview } from './foundation/tabs';
 import { TextPreview } from './foundation/text';
 import { LoadingPreview } from './display/loading';
 import { ResultPreview } from './display/result';
-import { ToastPreview } from './feedback/Toast';
+import { MessagePreview } from './feedback/message';
+import { NotificationPreview } from './feedback/notification';
+import { ToastPreview } from './feedback/toast';
 import { DialogPreview } from './navigation/dialog';
 import { DrawerPreview } from './navigation/drawer';
 import { PopupPreview } from './navigation/popup';
 import { PortalPreview } from './navigation/portal';
 import { TopTabNavigatorPreview } from './navigation/top-tab-navigator';
-import { MessagePreview } from './feedback/message';
 import type { ComponentPreviewSection } from './types';
 
 export const COMPONENT_PREVIEW_SECTIONS = [
@@ -90,6 +91,12 @@ export const COMPONENT_PREVIEW_SECTIONS = [
         title: 'Segmented',
         description: '分段选择、图标选项、尺寸和受控切换。',
         component: SegmentedPreview,
+      },
+      {
+        id: 'tabs',
+        title: 'Tabs',
+        description: '标签切换、内容面板、尺寸和受控切换。',
+        component: TabsPreview,
       },
       {
         id: 'icon',
@@ -244,8 +251,20 @@ export const COMPONENT_PREVIEW_SECTIONS = [
       {
         id: 'toast',
         title: 'Toast',
-        description: '轻提示类型、位置、尺寸和命令式调用。',
+        description: '轻提示组件与 useToast。',
         component: ToastPreview,
+      },
+      {
+        id: 'message',
+        title: 'Message',
+        description: '消息条组件与 useMessage/useMesage。',
+        component: MessagePreview,
+      },
+      {
+        id: 'notification',
+        title: 'Notification',
+        description: '通知卡片组件与 useNotification。',
+        component: NotificationPreview,
       },
     ],
   },
@@ -285,30 +304,12 @@ export const COMPONENT_PREVIEW_SECTIONS = [
       },
     ],
   },
-  {
-    id: 'feedback',
-    title: '反馈',
-    items: [
-      {
-        id: 'message',
-        title: 'Message',
-        description: '全局提示、类型变体、自动关闭和命令式调用。',
-        component: MessagePreview,
-      },
-      {
-        id: 'notification',
-        title: 'Notification',
-        description: '通知类型、尺寸、关闭按钮和命令式 API。',
-        component: NotificationPreview,
-      },
-    ],
-  },
 ] satisfies readonly ComponentPreviewSection[];
 
 export function getComponentPreviewById(
   previewId: string,
 ): ComponentPreviewSection['items'][number] | undefined {
-  return COMPONENT_PREVIEW_SECTIONS
-    .flatMap(section => section.items)
-    .find(item => item.id === previewId);
+  return COMPONENT_PREVIEW_SECTIONS.flatMap(section => section.items).find(
+    item => item.id === previewId,
+  );
 }

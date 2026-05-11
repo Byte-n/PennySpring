@@ -24,7 +24,10 @@ import { COMPONENT_PREVIEW_ROUTES } from '../navigation/routes';
 import { getComponentPreviewById } from '../previews/registry';
 import type { TextStyle } from 'react-native';
 import type { ThemeAlgorithm, ThemeConfig } from '@pennyspring/theme';
-import type { NativeStackHeaderProps } from '@react-navigation/native-stack';
+import type {
+  NativeStackHeaderProps,
+  NativeStackNavigationOptions,
+} from '@react-navigation/native-stack';
 import type { ComponentPreviewStackParamList } from '../navigation/types';
 
 const Stack = createNativeStackNavigator<ComponentPreviewStackParamList>();
@@ -139,6 +142,14 @@ function ComponentPreviewHeader({
   );
 }
 
+function createHeaderRenderer(
+  right: React.ReactNode,
+): NativeStackNavigationOptions['header'] {
+  return function renderHeader(props) {
+    return <ComponentPreviewHeader {...props} right={right} />;
+  };
+}
+
 interface ComponentPreviewNavigatorProps {
   algorithm: ThemeAlgorithm;
   preset: ComponentPreviewThemePreset;
@@ -185,7 +196,7 @@ function ComponentPreviewNavigator({
     }),
     [algorithm, token],
   );
-  const renderThemeControls = React.useCallback(
+  const headerRight = React.useMemo(
     () => (
       <ComponentPreviewThemeControls
         algorithm={algorithm}
@@ -196,6 +207,10 @@ function ComponentPreviewNavigator({
     ),
     [algorithm, onNextPreset, onToggleAlgorithm, preset],
   );
+  const headerRenderer = React.useMemo(
+    () => createHeaderRenderer(headerRight),
+    [headerRight],
+  );
 
   return (
     <NavigationIndependentTree>
@@ -203,12 +218,7 @@ function ComponentPreviewNavigator({
         <App>
           <Stack.Navigator
             screenOptions={{
-              header: props => (
-                <ComponentPreviewHeader
-                  {...props}
-                  right={renderThemeControls()}
-                />
-              ),
+              header: headerRenderer,
             }}
           >
             <Stack.Screen

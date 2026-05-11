@@ -16,6 +16,9 @@ const useStyles = createUseSheetStyle(token => ({
     paddingHorizontal: token.padding,
     paddingVertical: token.paddingSM,
   },
+  textCenter: {
+    textAlign: 'center',
+  },
 }));
 
 export function EmptyPreview() {
@@ -26,17 +29,20 @@ export function EmptyPreview() {
       <PreviewSection title="Basic">
         <View style={styles.stack}>
           <View style={styles.panel}>
-            <Empty
-              titleText="No data"
-              descriptionText="No records are available now."
-            />
+            <Empty message="No data" />
           </View>
           <View style={styles.panel}>
             <Empty
               icon={<Icon icon="list" size={28} color="colorTextDescription" />}
-              titleText="No tasks"
-              descriptionText="Create your first item to get started."
-              extra={<Button size="small">Create</Button>}
+              message={(
+                <View>
+                  <Text style={styles.textCenter}>No tasks</Text>
+                  <Text style={styles.textCenter} color="secondary">
+                    Create your first item to get started.
+                  </Text>
+                  <Button size="small">Create</Button>
+                </View>
+              )}
             />
           </View>
         </View>
@@ -45,24 +51,15 @@ export function EmptyPreview() {
       <PreviewSection title="Size">
         <View style={styles.stack}>
           <View style={styles.panel}>
-            <Empty
-              size="small"
-              titleText="Small"
-              descriptionText="Compact empty state."
-            />
+            <Empty size="small" message="Small" />
           </View>
           <View style={styles.panel}>
-            <Empty
-              size="normal"
-              titleText="Normal"
-              descriptionText="Default empty state."
-            />
+            <Empty size="normal" message="Normal" />
           </View>
           <View style={styles.panel}>
             <Empty
               size="large"
-              title={<Text size="h4" weight="strong">Large</Text>}
-              descriptionText="Expanded empty state with larger rhythm."
+              message={<Text size="h4" weight="strong">Large</Text>}
             />
           </View>
         </View>

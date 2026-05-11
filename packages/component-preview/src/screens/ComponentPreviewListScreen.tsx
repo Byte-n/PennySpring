@@ -1,6 +1,6 @@
 import React from 'react';
 import { ScrollView, View } from 'react-native';
-import { List, Text } from '@pennyspring/component';
+import { List, Tabs, Text } from '@pennyspring/component';
 import { CaretRightIcon } from 'phosphor-react-native';
 import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
 import { COMPONENT_PREVIEW_SECTIONS } from '../previews/registry';
@@ -14,9 +14,21 @@ type Props = NativeStackScreenProps<
 >;
 
 const useStyles = createUseSheetStyle(token => ({
+  container: {
+    flex: 1,
+    backgroundColor: token.colorBgLayout,
+  },
+  scroll: {
+    flex: 1,
+  },
   content: {
-    paddingVertical: token.paddingMD,
+    paddingBottom: token.paddingMD,
     gap: token.marginLG,
+  },
+  tabsWrap: {
+    paddingTop: token.paddingMD,
+    paddingHorizontal: token.paddingMD,
+    backgroundColor: token.colorBgLayout,
   },
   section: {
     gap: token.marginXS,
@@ -34,11 +46,63 @@ const useStyles = createUseSheetStyle(token => ({
 export function ComponentPreviewListScreen({ navigation }: Props) {
   const styles = useStyles();
   const { token } = useTheme();
+  const scrollViewRef = React.useRef<ScrollView>(null);
+  const [sectionId, setSectionId] = React.useState(
+    COMPONENT_PREVIEW_SECTIONS[0]?.id,
+  );
+  const [sectionOffsets, setSectionOffsets] = React.useState<
+    Record<string, number>
+  >({});
 
   return (
-    <ScrollView contentContainerStyle={styles.content}>
+    <View style={styles.container}>
+      <View style={styles.tabsWrap}>
+        <Tabs
+          block
+          value={sectionId}
+          onChange={nextValue => {
+            const nextSectionId = String(nextValue);
+            setSectionId(nextSectionId);
+
+            const nextOffset = sectionOffsets[nextSectionId];
+            if (nextOffset === undefined) {
+              return;
+            }
+
+            scrollViewRef.current?.scrollTo({
+              y: Math.max(nextOffset, 0),
+              animated: true,
+            });
+          }}
+          items={COMPONENT_PREVIEW_SECTIONS.map(section => ({
+            value: section.id,
+            label: section.title,
+          }))}
+        />
+      </View>
+      <ScrollView
+        ref={scrollViewRef}
+        style={styles.scroll}
+        contentContainerStyle={styles.content}
+      >
       {COMPONENT_PREVIEW_SECTIONS.map(section => (
-        <View key={section.id} style={styles.section}>
+        <View
+          key={section.id}
+          style={styles.section}
+          onLayout={event => {
+            const nextY = event.nativeEvent.layout.y;
+            setSectionOffsets(prev => {
+              if (prev[section.id] === nextY) {
+                return prev;
+              }
+
+              return {
+                ...prev,
+                [section.id]: nextY,
+              };
+            });
+          }}
+        >
           <Text
             color="description"
             size="sm"
@@ -69,6 +133,7 @@ export function ComponentPreviewListScreen({ navigation }: Props) {
           </List>
         </View>
       ))}
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 }
