@@ -274,3 +274,5 @@ export type {
   ActionSheetProps,
   ActionSheetStyles,
 } from './ActionSheet';
+export { Stepper } from './Stepper';
+export type { StepperProps, StepperSize, StepperStyles } from './Stepper';
