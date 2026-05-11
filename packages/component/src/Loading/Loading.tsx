@@ -78,7 +78,6 @@ export function Loading({
   styles,
   animating = true,
   hidesWhenStopped = true,
-  color,
   ...rest
 }: LoadingProps) {
   const resolvedSize = resolveSize(size);
@@ -92,7 +91,7 @@ export function Loading({
           <ActivityIndicator
             {...rest}
             animating={animating}
-            color={color ?? token.colorPrimary}
+            color={token.colorPrimary}
             hidesWhenStopped={hidesWhenStopped}
             size={resolveIndicatorSize(token, resolvedSize)}
           />

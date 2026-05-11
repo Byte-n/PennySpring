@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text } from 'react-native';
+import { createUseSheetStyle } from '../createUseSheetStyle';
 import { useTheme } from '../useTheme';
 import { Section } from './components/Section';
 import { usePreviewStyles } from './styles';
@@ -14,9 +15,19 @@ const SPACING_TOKENS = [
   ['paddingXL', 'paddingXL'],
 ] as const;
 
+const SPACING_BAR_HEIGHT = 16;
+
+const useStyles = createUseSheetStyle(token => ({
+  spacingBar: {
+    height: SPACING_BAR_HEIGHT,
+    backgroundColor: token.colorPrimary,
+  },
+}));
+
 export function SpacingPreview() {
   const { token } = useTheme();
   const previewStyles = usePreviewStyles();
+  const styles = useStyles();
 
   return (
     <Section title="Spacing">
@@ -25,7 +36,7 @@ export function SpacingPreview() {
         return (
           <View key={label} style={previewStyles.spacingRow}>
             <Text style={previewStyles.spacingLabel}>{label}</Text>
-            <View style={{ width: value * 4, height: 16, backgroundColor: token.colorPrimary }} />
+            <View style={[styles.spacingBar, { width: value * 4 }]} />
             <Text style={previewStyles.spacingValue}>{value}px</Text>
           </View>
         );

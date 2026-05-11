@@ -1,12 +1,11 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Pressable, Text as RNText, View } from 'react-native';
 import { createUseSheetStyle } from '@pennyspring/theme';
-import { useControllableValue } from '../_hooks/useControllableValue';
+import { useControllableValue } from '../_hooks';
 import { Text } from '../Text';
 import type { AliasToken } from '@pennyspring/theme';
 import type { TextLayoutEventData } from 'react-native';
 import type {
-  EllipsisDirection,
   EllipsisProps,
   EllipsisSize,
 } from './types';

@@ -47,12 +47,11 @@ interface AvatarStyleSheet {
   rootDisabled: ViewStyle;
 }
 
-const useStyles = createUseSheetStyle<[AvatarStyleOptions], AvatarStyleSheet>(
+const useStyles = createUseSheetStyle<AvatarStyleOptions, AvatarStyleSheet>(
   (token, { shape, size }: AvatarStyleOptions) => {
     const sizeConfig = AVATAR_SIZE_CONFIG[size];
     const dimension = sizeConfig.dimension(token);
-    const borderRadius =
-      shape === 'circle' ? dimension : token.borderRadius;
+    const borderRadius = shape === 'circle' ? dimension : token.borderRadius;
 
     return {
       root: {

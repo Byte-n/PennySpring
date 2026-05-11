@@ -134,15 +134,15 @@ export function enumOf<const T extends Record<string, EnumOfConfigValue>>(
   }
 
   function values() {
-    return configValues.map(option =>
-      isPlainObject(option) ? option.value : option,
+    return configValues.map(configValue =>
+      isPlainObject(configValue) ? configValue.value : configValue,
     ) as ValueOf<EnumOfExtractValues<T>>[];
   }
 
   function labels() {
-    return configValues.map(option => {
-      if (isPlainObject(option)) {
-        return option.label ? callOrReturn(option.label) : '';
+    return configValues.map(configValue => {
+      if (isPlainObject(configValue)) {
+        return configValue.label ? callOrReturn(configValue.label) : '';
       }
 
       return '';
@@ -150,9 +150,11 @@ export function enumOf<const T extends Record<string, EnumOfConfigValue>>(
   }
 
   function descriptions() {
-    return configValues.map(option => {
-      if (isPlainObject(option)) {
-        return option.description ? callOrReturn(option.description) : '';
+    return configValues.map(configValue => {
+      if (isPlainObject(configValue)) {
+        return configValue.description
+          ? callOrReturn(configValue.description)
+          : '';
       }
 
       return '';
@@ -160,12 +162,12 @@ export function enumOf<const T extends Record<string, EnumOfConfigValue>>(
   }
 
   function resolveOption(
-    option: Record<string, unknown>,
+    optionRecord: Record<string, unknown>,
   ): Record<string, unknown> {
     const result: Record<string, unknown> = {};
 
-    for (const key of Object.keys(option)) {
-      result[key] = callOrReturn(option[key]);
+    for (const key of Object.keys(optionRecord)) {
+      result[key] = callOrReturn(optionRecord[key]);
     }
 
     return result;
@@ -188,15 +190,15 @@ export function enumOf<const T extends Record<string, EnumOfConfigValue>>(
   }
 
   function options(): EnumOfExtractOptionShape<T>[] {
-    return configValues.map(option => {
-      if (isPlainObject(option)) {
+    return configValues.map(configValue => {
+      if (isPlainObject(configValue)) {
         return resolveOption(
-          option as Record<string, unknown>,
+          configValue as Record<string, unknown>,
         ) as EnumOfExtractOptionShape<T>;
       }
 
       return {
-        value: option,
+        value: configValue,
         label: '',
         description: '',
       } as EnumOfExtractOptionShape<T>;
@@ -205,7 +207,7 @@ export function enumOf<const T extends Record<string, EnumOfConfigValue>>(
 
   function getValueObject(v: ValueOf<EnumOfExtractValues<T>>) {
     return configValues.find(
-      option => isPlainObject(option) && option.value === v,
+      configValue => isPlainObject(configValue) && configValue.value === v,
     ) as EnumOfValueObject | undefined;
   }
 

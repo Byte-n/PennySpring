@@ -4,7 +4,6 @@ import { createUseSheetStyle } from '@pennyspring/theme';
 import { Text } from '../Text';
 import type { AliasToken } from '@pennyspring/theme';
 import type {
-  DividerContentPosition,
   DividerDirection,
   DividerProps,
   DividerSize,
@@ -47,7 +46,7 @@ const SIZE_STYLE_MAP: Record<DividerSize, DividerSizeStyleConfig> = {
   },
 };
 
-const CONTENT_LINE_MAX_WIDTH = '10%';
+const CONTENT_LINE_MAX_WIDTH: `${number}%` = '10%';
 
 const useStyles = createUseSheetStyle(
   (token, options: DividerStyleOptions) => {

@@ -7,7 +7,7 @@ export type SheetStyle = ViewStyle | TextStyle | ImageStyle;
 
 export type StylesObject = Record<string, SheetStyle>;
 
-type StyleOptions = [] | [unknown];
+type StyleOptions = any | undefined;
 
 export type StyleGenerator<TStyles extends StylesObject> = (
   tokens: AliasToken
@@ -26,18 +26,20 @@ export type SheetStyleHook<TStyles extends StylesObject> = () => TStyles;
 export type SheetStyleHookWithOptions<
   TOptions,
   TStyles extends StylesObject,
-> = (options: TOptions) => TStyles;
+> = undefined extends TOptions
+  ? (options?: TOptions) => TStyles
+  : (options: TOptions) => TStyles;
 
 export function createUseSheetStyle<
   TOptions extends StyleOptions,
-  TStyles extends StylesObject,
+  TStyles extends StylesObject = StylesObject,
 >(
-  generator: (tokens: AliasToken, ...options: TOptions) => TStyles
-): (...options: TOptions) => TStyles {
-  return function useSheetStyle(...options: TOptions): TStyles {
+  generator: (tokens: AliasToken, options: TOptions) => TStyles
+): SheetStyleHookWithOptions<TOptions, TStyles> {
+  return function useSheetStyle(options?: TOptions): TStyles {
     const { token } = useTheme();
     return useMemo(() => {
-      return generator(token, ...options);
+      return generator(token, options as TOptions);
     }, [token, options]);
-  };
+  } as SheetStyleHookWithOptions<TOptions, TStyles>;
 }

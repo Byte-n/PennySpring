@@ -39,45 +39,43 @@ interface AvatarGroupStyleSheet {
 }
 
 const useStyles = createUseSheetStyle<
-  [AvatarGroupStyleOptions],
+  AvatarGroupStyleOptions,
   AvatarGroupStyleSheet
->(
-  (token, { size }: AvatarGroupStyleOptions) => {
-    const overlap = AVATAR_GROUP_SIZE_CONFIG[size].overlap(token);
+>((token, { size }: AvatarGroupStyleOptions) => {
+  const overlap = AVATAR_GROUP_SIZE_CONFIG[size].overlap(token);
 
-    return {
-      root: {
-        alignItems: 'center',
-        flexDirection: 'row',
-      },
-      item: {
-        marginLeft: -overlap,
-      },
-      firstItem: {
-        marginLeft: 0,
-      },
-      rest: {
-        alignItems: 'center',
-        backgroundColor: token.colorFillTertiary,
-        borderColor: token.colorBgContainer,
-        borderRadius: token.controlHeight,
-        borderWidth: token.lineWidth,
-        height: token.controlHeight,
-        justifyContent: 'center',
-        marginLeft: -overlap,
-        minWidth: token.controlHeight,
-        paddingHorizontal: token.paddingXS,
-      },
-      restText: {
-        color: token.colorTextSecondary,
-        fontFamily: token.fontFamily,
-        fontSize: token.fontSizeSM,
-        fontWeight: String(token.fontWeightStrong) as TextStyle['fontWeight'],
-        lineHeight: token.lineHeightSM,
-      },
-    };
-  },
-);
+  return {
+    root: {
+      alignItems: 'center',
+      flexDirection: 'row',
+    },
+    item: {
+      marginLeft: -overlap,
+    },
+    firstItem: {
+      marginLeft: 0,
+    },
+    rest: {
+      alignItems: 'center',
+      backgroundColor: token.colorFillTertiary,
+      borderColor: token.colorBgContainer,
+      borderRadius: token.controlHeight,
+      borderWidth: token.lineWidth,
+      height: token.controlHeight,
+      justifyContent: 'center',
+      marginLeft: -overlap,
+      minWidth: token.controlHeight,
+      paddingHorizontal: token.paddingXS,
+    },
+    restText: {
+      color: token.colorTextSecondary,
+      fontFamily: token.fontFamily,
+      fontSize: token.fontSizeSM,
+      fontWeight: String(token.fontWeightStrong) as TextStyle['fontWeight'],
+      lineHeight: token.lineHeightSM,
+    },
+  };
+});
 
 function resolveAvatarGroupSize(size?: AvatarSize): AvatarSize {
   return size ?? 'normal';

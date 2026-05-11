@@ -22,32 +22,7 @@ interface ComponentPreviewThemeControlsProps {
   onNextPreset: () => void;
 }
 
-const useStyles = createUseSheetStyle<[], {
-  root: {
-    flexDirection: 'row';
-    alignItems: 'center';
-    gap: number;
-  };
-  button: {
-    alignItems: 'center';
-    justifyContent: 'center';
-    minHeight: number;
-    minWidth: number;
-    borderRadius: number;
-    backgroundColor: string;
-  };
-  buttonPressed: {
-    backgroundColor: string;
-  };
-  swatch: {
-    width: number;
-    height: number;
-    borderRadius: number;
-    backgroundColor: string;
-    borderColor: string;
-    borderWidth: number;
-  };
-}>(token => ({
+const useStyles = createUseSheetStyle(token => ({
     root: {
       flexDirection: 'row',
       alignItems: 'center',
