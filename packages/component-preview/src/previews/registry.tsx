@@ -13,6 +13,7 @@ import { SwitchPreview } from './data-entry/switch';
 import { TextareaPreview } from './data-entry/textarea';
 import { TimePickerPreview } from './data-entry/time-picker';
 import { CardPreview } from './display/card';
+import { CarouselPreview } from './display/carousel';
 import { EmptyPreview } from './display/empty';
 import { ListPreview } from './display/list';
 import { ListCollapsePreview } from './display/list-collapse';
@@ -200,6 +201,12 @@ export const COMPONENT_PREVIEW_SECTIONS = [
     id: 'display',
     title: '展示',
     items: [
+      {
+        id: 'carousel',
+        title: 'Carousel',
+        description: '轮播滑动、自动播放、纵向模式和自定义指示器。',
+        component: CarouselPreview,
+      },
       {
         id: 'card',
         title: 'Card',

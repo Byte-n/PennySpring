@@ -41,7 +41,7 @@
 - [x] Toast / Message / Notification
 - [x] Badge 徽标
 - [x] SideBar
-- [x] TabBar
+- [x] Carousel
 
 ## 待办
 

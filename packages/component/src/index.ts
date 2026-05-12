@@ -356,3 +356,5 @@ export type {
   SwipeActionStyles,
   SwipeActionValue,
 } from './SwipeAction';
+export { Carousel } from './Carousel';
+export type { CarouselProps, CarouselRef } from './Carousel';
