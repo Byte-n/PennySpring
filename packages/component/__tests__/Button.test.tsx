@@ -203,6 +203,16 @@ describe('Button', () => {
 
   it('exports Button from the package entry', () => {
     jest.isolateModules(() => {
+      jest.doMock('react-native-gesture-handler', () => {
+        const React = require('react');
+        const { View } = require('react-native');
+
+        return {
+          GestureHandlerRootView: React.forwardRef((props: { children?: React.ReactNode }, ref: React.Ref<unknown>) => (
+            <View ref={ref}>{props.children}</View>
+          )),
+        };
+      });
       jest.doMock('@react-navigation/material-top-tabs', () => ({
         createMaterialTopTabNavigator: () => ({
           Navigator: 'Navigator',
@@ -210,12 +220,16 @@ describe('Button', () => {
         }),
       }));
       jest.doMock('react-native-reanimated', () => {
+        const React = require('react');
         const ReactNative = require('react-native');
 
         return {
           __esModule: true,
           default: {
             View: ReactNative.View,
+          },
+          createAnimatedComponent: (Component: React.ComponentType<unknown>) => {
+            return React.forwardRef((props, ref) => <Component {...props} ref={ref} />);
           },
           interpolate: (value: number) => value,
           useAnimatedStyle: (updater: () => Record<string, unknown>) => updater(),
