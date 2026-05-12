@@ -7,6 +7,10 @@ const { getDefaultConfig, mergeConfig } = require('@react-native/metro-config');
  * @type {import('@react-native/metro-config').MetroConfig}
  */
 const config = {
+  resolver: {
+    // Exclude sibling git worktrees to avoid duplicate Haste package names.
+    blockList: [/\.worktrees\/.*/],
+  },
   transformer: {
     babelTransformerPath: require.resolve('react-native-svg-transformer'),
   },
