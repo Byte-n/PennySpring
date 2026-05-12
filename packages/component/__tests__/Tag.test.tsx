@@ -207,13 +207,26 @@ describe('Tag', () => {
           Screen: 'Screen',
         }),
       }));
+      jest.doMock('react-native-gesture-handler', () => {
+        const ReactNative = require('react-native');
+
+        return {
+          GestureHandlerRootView: ReactNative.View,
+        };
+      });
       jest.doMock('react-native-reanimated', () => {
+        const React = require('react');
         const ReactNative = require('react-native');
 
         return {
           __esModule: true,
           default: {
             View: ReactNative.View,
+          },
+          createAnimatedComponent: (Component: React.ComponentType<unknown>) => {
+            return React.forwardRef((props: unknown, ref: unknown) => {
+              return <Component {...(props as object)} ref={ref as never} />;
+            });
           },
           interpolate: (value: number) => value,
           useAnimatedStyle: (updater: () => Record<string, unknown>) => updater(),
