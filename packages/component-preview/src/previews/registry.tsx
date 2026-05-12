@@ -9,33 +9,44 @@ import { ProgressPreview } from './data-entry/progress';
 import { RadioPreview } from './data-entry/radio';
 import { SelectionListPreview } from './data-entry/selection-list';
 import { SliderPreview } from './data-entry/slider';
+import { StepperPreview } from './data-entry/stepper';
 import { SwitchPreview } from './data-entry/switch';
 import { TextareaPreview } from './data-entry/textarea';
 import { TimePickerPreview } from './data-entry/time-picker';
 import { CardPreview } from './display/card';
 import { CarouselPreview } from './display/carousel';
+import { DataListPreview } from './display/data-list';
+import { EllipsisPreview } from './display/ellipsis';
 import { EmptyPreview } from './display/empty';
 import { ListPreview } from './display/list';
 import { ListCollapsePreview } from './display/list-collapse';
+import { LoadingPreview } from './display/loading';
+import { ResultPreview } from './display/result';
+import { SkeletonPreview } from './display/skeleton';
+import { SwipeActionPreview } from './display/swipe-action';
+import { MessagePreview } from './feedback/message';
+import { NotificationPreview } from './feedback/notification';
+import { ToastPreview } from './feedback/toast';
 import { AvatarPreview } from './foundation/avatar';
+import { BadgePreview } from './foundation/badge';
 import { ButtonPreview } from './foundation/button';
 import { DividerPreview } from './foundation/divider';
 import { GridPreview } from './foundation/grid';
 import { IconPreview } from './foundation/icon';
 import { SegmentedPreview } from './foundation/segmented';
 import { SpacePreview } from './foundation/space';
-import { TagPreview } from './foundation/tag';
 import { TabsPreview } from './foundation/tabs';
+import { TagPreview } from './foundation/tag';
 import { TextPreview } from './foundation/text';
-import { LoadingPreview } from './display/loading';
-import { ResultPreview } from './display/result';
-import { MessagePreview } from './feedback/message';
-import { NotificationPreview } from './feedback/notification';
-import { ToastPreview } from './feedback/toast';
+import { ActionSheetPreview } from './navigation/action-sheet';
 import { DialogPreview } from './navigation/dialog';
 import { DrawerPreview } from './navigation/drawer';
+import { IndexBarPreview } from './navigation/index-bar';
 import { PopupPreview } from './navigation/popup';
 import { PortalPreview } from './navigation/portal';
+import { SideBarPreview } from './navigation/side-bar';
+import { TabBarPreview } from './navigation/tab-bar';
+import { StepsPreview } from './navigation/steps';
 import { TopTabNavigatorPreview } from './navigation/top-tab-navigator';
 import type { ComponentPreviewSection } from './types';
 
@@ -67,6 +78,12 @@ export const COMPONENT_PREVIEW_SECTIONS = [
         title: 'Button',
         description: '按钮类型、变体、尺寸、图标和状态。',
         component: ButtonPreview,
+      },
+      {
+        id: 'badge',
+        title: 'Badge',
+        description: '角标数字、点状态、颜色和尺寸。',
+        component: BadgePreview,
       },
       {
         id: 'grid',
@@ -153,6 +170,12 @@ export const COMPONENT_PREVIEW_SECTIONS = [
         component: SliderPreview,
       },
       {
+        id: 'stepper',
+        title: 'Stepper',
+        description: '步进器加减、范围限制、尺寸和禁用状态。',
+        component: StepperPreview,
+      },
+      {
         id: 'progress',
         title: 'Progress',
         description: '线性和环形进度、状态和尺寸。',
@@ -225,6 +248,24 @@ export const COMPONENT_PREVIEW_SECTIONS = [
         component: ListCollapsePreview,
       },
       {
+        id: 'data-list',
+        title: 'DataList',
+        description: '列表加载、上拉加载、分组列表和尾部状态。',
+        component: DataListPreview,
+      },
+      {
+        id: 'ellipsis',
+        title: 'Ellipsis',
+        description: '文本截断方向、行数和展开收起。',
+        component: EllipsisPreview,
+      },
+      {
+        id: 'swipe-action',
+        title: 'SwipeAction',
+        description: '左右滑操作、动作颜色、尺寸与只读状态。',
+        component: SwipeActionPreview,
+      },
+      {
         id: 'empty',
         title: 'Empty',
         description: '空状态的图标、文案、附加操作和尺寸。',
@@ -235,6 +276,12 @@ export const COMPONENT_PREVIEW_SECTIONS = [
         title: 'Loading',
         description: '加载指示器尺寸、方向和自定义内容。',
         component: LoadingPreview,
+      },
+      {
+        id: 'skeleton',
+        title: 'Skeleton',
+        description: '骨架屏形状、尺寸、动画和加载切换。',
+        component: SkeletonPreview,
       },
       {
         id: 'result',
@@ -285,6 +332,36 @@ export const COMPONENT_PREVIEW_SECTIONS = [
         component: DialogPreview,
       },
       {
+        id: 'action-sheet',
+        title: 'ActionSheet',
+        description: '底部动作面板、动作回调和关闭行为。',
+        component: ActionSheetPreview,
+      },
+      {
+        id: 'steps',
+        title: 'Steps',
+        description: '步骤条流程状态、尺寸、只读和禁用项。',
+        component: StepsPreview,
+      },
+      {
+        id: 'tab-bar',
+        title: 'TabBar',
+        description: '底部标签栏图标、角标、尺寸和禁用状态。',
+        component: TabBarPreview,
+      },
+      {
+        id: 'side-bar',
+        title: 'SideBar',
+        description: '侧边分类切换、滚动布局和面板渲染。',
+        component: SideBarPreview,
+      },
+      {
+        id: 'index-bar',
+        title: 'IndexBar',
+        description: '索引导航侧栏与分组面板。',
+        component: IndexBarPreview,
+      },
+      {
         id: 'top-tab-navigator',
         title: 'TopTabNavigator',
         description: '顶部标签页和分段控制。',
@@ -299,7 +376,7 @@ export const COMPONENT_PREVIEW_SECTIONS = [
       {
         id: 'popup',
         title: 'Popup',
-        description: '弹层位置、尺寸、遮罩和操作内容。',
+        description: '弹层位置、尺寸、遮罩和 FloatingPanel 操作。',
         component: PopupPreview,
       },
     ],

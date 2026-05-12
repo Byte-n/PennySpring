@@ -85,6 +85,10 @@ export function PopupPreview() {
   const [positionOpen, setPositionOpen] = React.useState(false);
   const [centerOpen, setCenterOpen] = React.useState(false);
   const [lockedOpen, setLockedOpen] = React.useState(false);
+  const [floatingOpen, setFloatingOpen] = React.useState(false);
+  const [floatingSize, setFloatingSize] = React.useState<'small' | 'normal' | 'large'>('normal');
+  const [floatingPosition, setFloatingPosition] = React.useState<'top' | 'bottom'>('bottom');
+  const [floatingHeight, setFloatingHeight] = React.useState(260);
   const [lastEvent, setLastEvent] = React.useState('No popup action yet');
 
   const closePositionPopup = (source: string): void => {
@@ -149,6 +153,44 @@ export function PopupPreview() {
           >
             Mask locked
           </Button>
+        </PreviewRow>
+      </PreviewSection>
+
+      <PreviewSection title="FloatingPanel">
+        <PreviewRow>
+          <Button
+            type={floatingOpen ? 'primary' : 'default'}
+            onPress={() => {
+              setLastEvent('Opened floating panel');
+              setFloatingOpen(true);
+            }}
+          >
+            Open panel
+          </Button>
+          {(['small', 'normal', 'large'] as const).map(item => (
+            <Button
+              key={item}
+              type={floatingSize === item ? 'primary' : 'default'}
+              onPress={() => {
+                setFloatingSize(item);
+                setLastEvent(`Floating panel size set to ${item}`);
+              }}
+            >
+              {item}
+            </Button>
+          ))}
+          {(['bottom', 'top'] as const).map(item => (
+            <Button
+              key={item}
+              type={floatingPosition === item ? 'primary' : 'default'}
+              onPress={() => {
+                setFloatingPosition(item);
+                setLastEvent(`Floating panel position set to ${item}`);
+              }}
+            >
+              {item}
+            </Button>
+          ))}
         </PreviewRow>
       </PreviewSection>
 
@@ -235,6 +277,33 @@ export function PopupPreview() {
           }}
         />
       </Popup>
+      <Popup.FloatingPanel
+        open={floatingOpen}
+        value={floatingHeight}
+        minHeight={180}
+        maxHeight={420}
+        size={floatingSize}
+        position={floatingPosition}
+        onChange={nextHeight => {
+          setFloatingHeight(nextHeight);
+        }}
+        onOpenChange={(nextOpen, params) => {
+          setFloatingOpen(nextOpen);
+          if (!nextOpen) {
+            setLastEvent(`Floating panel closed by ${params.reason}`);
+          }
+        }}
+      >
+        <PopupContent
+          title="Floating panel"
+          description="Drag the handle to resize between min and max height."
+          detail={`Height: ${String(Math.round(floatingHeight))}`}
+          onClose={() => {
+            setLastEvent('Floating panel closed by action');
+            setFloatingOpen(false);
+          }}
+        />
+      </Popup.FloatingPanel>
     </PreviewScaffold>
   );
 }
