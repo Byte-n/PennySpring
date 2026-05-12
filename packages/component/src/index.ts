@@ -243,6 +243,20 @@ export type {
   CascadePickerOption,
   CascadePickerProps,
 } from './CascadePicker';
+export { Cascader } from './Cascader';
+export type {
+  CascaderCancelParams,
+  CascaderChangeParams,
+  CascaderOpenChangeParams,
+  CascaderOpenChangeReason,
+  CascaderOption,
+  CascaderProps,
+  CascaderSize,
+  CascaderStyles,
+  CascaderValue,
+  CascaderViewProps,
+  CascaderViewStyles,
+} from './Cascader';
 export { DateTimePicker } from './DateTimePicker';
 export type {
   DateTimePickerColumnType,
