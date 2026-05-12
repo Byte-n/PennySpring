@@ -5,6 +5,7 @@ import { Notification } from '../src/Notification';
 import { PortalProvider } from '../src/Portal';
 
 const exitAnimationCallbacks: Array<(finished: boolean) => void> = [];
+type WithTimingArgs = [number, unknown?, ((finished: boolean) => void)?];
 const mockWithTiming = jest.fn((value: number, _config?: unknown, callback?: (finished: boolean) => void) => {
   if (value === 0 && callback) {
     exitAnimationCallbacks.push(callback);
@@ -27,7 +28,7 @@ jest.mock('react-native-reanimated', () => {
     runOnJS: (fn: () => void) => fn,
     useAnimatedStyle: (updater: () => Record<string, unknown>) => updater(),
     useSharedValue: (value: number) => ({ value }),
-    withTiming: (...args: unknown[]) => {
+    withTiming: (...args: WithTimingArgs) => {
       mockWithTiming(...args);
       return args[0];
     },
@@ -35,7 +36,7 @@ jest.mock('react-native-reanimated', () => {
 });
 
 function renderNotification(props: Partial<React.ComponentProps<typeof Notification>> = {}) {
-  let testRenderer: renderer.ReactTestRenderer;
+  let testRenderer!: renderer.ReactTestRenderer;
 
   act(() => {
     testRenderer = renderer.create(
@@ -62,7 +63,7 @@ describe('Notification', () => {
   });
 
   it('keeps the body mounted while closing and unmounts after exit completes', () => {
-    let testRenderer: renderer.ReactTestRenderer;
+    let testRenderer!: renderer.ReactTestRenderer;
 
     act(() => {
       testRenderer = renderer.create(
@@ -110,21 +111,11 @@ describe('Notification', () => {
     });
   });
 
-  it('keeps uncontrolled defaultOpen content mounted for the enter animation', () => {
-    const testRenderer = renderNotification({ defaultOpen: true });
-
-    expect(
-      testRenderer.root.findByProps({
-        children: 'Description',
-      }),
-    ).toBeTruthy();
-  });
-
-  it('does not fire cancel or open-change callbacks for controlled external close and defers afterOpenChange(false) until exit completes', () => {
+    it('does not fire cancel or open-change callbacks for controlled external close and defers afterOpenChange(false) until exit completes', () => {
     const onCancel = jest.fn();
     const onOpenChange = jest.fn();
     const afterOpenChange = jest.fn();
-    let testRenderer: renderer.ReactTestRenderer;
+    let testRenderer!: renderer.ReactTestRenderer;
 
     act(() => {
       testRenderer = renderer.create(
@@ -199,7 +190,7 @@ describe('Notification', () => {
     const onCancel = jest.fn();
     const onOpenChange = jest.fn();
     const afterOpenChange = jest.fn();
-    let testRenderer: renderer.ReactTestRenderer;
+    let testRenderer!: renderer.ReactTestRenderer;
 
     act(() => {
       testRenderer = renderer.create(

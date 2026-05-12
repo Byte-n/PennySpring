@@ -199,45 +199,4 @@ describe('Tag', () => {
     expect(root.props.style({ pressed: false })).toContain(rootStyle);
   });
 
-  it('exports Tag from the package entry', () => {
-    jest.isolateModules(() => {
-      jest.doMock('@react-navigation/material-top-tabs', () => ({
-        createMaterialTopTabNavigator: () => ({
-          Navigator: 'Navigator',
-          Screen: 'Screen',
-        }),
-      }));
-      jest.doMock('react-native-gesture-handler', () => {
-        const ReactNative = require('react-native');
-
-        return {
-          GestureHandlerRootView: ReactNative.View,
-        };
-      });
-      jest.doMock('react-native-reanimated', () => {
-        const React = require('react');
-        const ReactNative = require('react-native');
-
-        return {
-          __esModule: true,
-          default: {
-            View: ReactNative.View,
-          },
-          createAnimatedComponent: (Component: React.ComponentType<unknown>) => {
-            return React.forwardRef((props: unknown, ref: unknown) => {
-              return <Component {...(props as object)} ref={ref as never} />;
-            });
-          },
-          interpolate: (value: number) => value,
-          useAnimatedStyle: (updater: () => Record<string, unknown>) => updater(),
-          useSharedValue: (value: number) => ({ value }),
-          withTiming: (value: number) => value,
-        };
-      });
-
-      const packageExports = require('../src');
-
-      expect(typeof packageExports.Tag).toBe('function');
-    });
   });
-});

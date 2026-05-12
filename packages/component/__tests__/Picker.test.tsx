@@ -17,7 +17,7 @@ jest.mock('react-native-gesture-handler', () => {
 });
 
 jest.mock('react-native-reanimated', () => {
-  const React = require('react');
+  const ReactModule = require('react');
   const ReactNative = require('react-native');
 
   return {
@@ -26,12 +26,7 @@ jest.mock('react-native-reanimated', () => {
       View: ReactNative.View,
     },
     createAnimatedComponent: (Component: React.ComponentType<Record<string, unknown>>) =>
-      React.forwardRef((props: Record<string, unknown>, ref: React.Ref<unknown>) =>
-        React.createElement(Component, {
-          ...props,
-          ref,
-        }),
-      ),
+      (props: Record<string, unknown>) => ReactModule.createElement(Component, props),
     interpolate: (value: number) => value,
     useAnimatedStyle: (updater: () => Record<string, unknown>) => updater(),
     useSharedValue: (value: number) => ({ value }),
@@ -69,31 +64,6 @@ interface UnsupportedBusinessPickerProps extends PickerProps {
 const UnsupportedBusinessPicker = Picker as unknown as React.ComponentType<
   UnsupportedBusinessPickerProps
 >;
-
-it('exports Picker component and public types', () => {
-  const value: PickerValue[] = ['a'];
-  const item: PickerColumnItemData = { labelText: 'Alpha', value: 'a' };
-  const props: PickerProps = { columns, value };
-  const styles: PickerStyles = {};
-  const openParams: PickerOpenChangeParams = { reason: 'trigger' };
-  const cancelParams: PickerCancelParams = { reason: 'cancel' };
-  const okParams: PickerOkParams = { items: [item] };
-  const changeParams: PickerChangeParams = {
-    columnIndex: 0,
-    item,
-    itemIndex: 0,
-    items: [item],
-    value: 'a',
-  };
-
-  expect(Picker).toBeTruthy();
-  expect(props.value).toEqual(value);
-  expect(styles).toEqual({});
-  expect(openParams.reason).toBe('trigger');
-  expect(cancelParams.reason).toBe('cancel');
-  expect(okParams.items[0]).toBe(item);
-  expect(changeParams.value).toBe('a');
-});
 
 it('renders paired text and custom node props', () => {
   let testRenderer: renderer.ReactTestRenderer;

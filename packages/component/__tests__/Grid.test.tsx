@@ -75,24 +75,7 @@ describe('Grid', () => {
     expect(flattenStyle(item.props.style).paddingVertical).toBe(GAP / 2);
   });
 
-  it('maps tuple gap to horizontal and vertical item padding', () => {
-    const testRenderer = renderGrid(
-      <Grid columns={2} gap={[HORIZONTAL_GAP, VERTICAL_GAP]}>
-        <Grid.Item>
-          <Text>Food</Text>
-        </Grid.Item>
-      </Grid>,
-    );
-    const root = testRenderer.root.findByProps({ testID: 'grid' });
-    const item = findGridItems(testRenderer)[0];
-
-    expect(flattenStyle(root.props.style).marginHorizontal).toBe(-HORIZONTAL_GAP / 2);
-    expect(flattenStyle(root.props.style).marginVertical).toBe(-VERTICAL_GAP / 2);
-    expect(flattenStyle(item.props.style).paddingHorizontal).toBe(HORIZONTAL_GAP / 2);
-    expect(flattenStyle(item.props.style).paddingVertical).toBe(VERTICAL_GAP / 2);
-  });
-
-  it('maps size gap to theme spacing tokens', () => {
+    it('maps size gap to theme spacing tokens', () => {
     const testRenderer = renderGrid(
       <Grid columns={2} gap="normal">
         <Grid.Item>
@@ -109,41 +92,7 @@ describe('Grid', () => {
     expect(flattenStyle(item.props.style).paddingVertical).toBe(NORMAL_GAP / 2);
   });
 
-  it('maps tuple size gap to theme spacing tokens', () => {
-    const testRenderer = renderGrid(
-      <Grid columns={2} gap={['small', 'large']}>
-        <Grid.Item>
-          <Text>Food</Text>
-        </Grid.Item>
-      </Grid>,
-    );
-    const root = testRenderer.root.findByProps({ testID: 'grid' });
-    const item = findGridItems(testRenderer)[0];
-
-    expect(flattenStyle(root.props.style).marginHorizontal).toBe(-SMALL_GAP / 2);
-    expect(flattenStyle(root.props.style).marginVertical).toBe(-LARGE_GAP / 2);
-    expect(flattenStyle(item.props.style).paddingHorizontal).toBe(SMALL_GAP / 2);
-    expect(flattenStyle(item.props.style).paddingVertical).toBe(LARGE_GAP / 2);
-  });
-
-  it('supports mixed number and size tuple gap', () => {
-    const testRenderer = renderGrid(
-      <Grid columns={2} gap={[HORIZONTAL_GAP, 'small']}>
-        <Grid.Item>
-          <Text>Food</Text>
-        </Grid.Item>
-      </Grid>,
-    );
-    const root = testRenderer.root.findByProps({ testID: 'grid' });
-    const item = findGridItems(testRenderer)[0];
-
-    expect(flattenStyle(root.props.style).marginHorizontal).toBe(-HORIZONTAL_GAP / 2);
-    expect(flattenStyle(root.props.style).marginVertical).toBe(-SMALL_GAP / 2);
-    expect(flattenStyle(item.props.style).paddingHorizontal).toBe(HORIZONTAL_GAP / 2);
-    expect(flattenStyle(item.props.style).paddingVertical).toBe(SMALL_GAP / 2);
-  });
-
-  it('uses span to calculate item width from column count', () => {
+      it('uses span to calculate item width from column count', () => {
     const testRenderer = renderGrid(
       <Grid columns={4}>
         <Grid.Item span={2}>

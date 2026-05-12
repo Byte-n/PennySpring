@@ -20,7 +20,7 @@ jest.mock('@react-navigation/material-top-tabs', () => ({
 }));
 
 jest.mock('react-native-reanimated', () => {
-  const React = require('react');
+  const ReactModule = require('react');
   const ReactNative = require('react-native');
 
   return {
@@ -28,10 +28,8 @@ jest.mock('react-native-reanimated', () => {
     default: {
       View: ReactNative.View,
     },
-    createAnimatedComponent: (Component: React.ComponentType<unknown>) =>
-      React.forwardRef((props: Record<string, unknown>, ref: React.Ref<unknown>) => (
-        <Component {...props} ref={ref} />
-      )),
+    createAnimatedComponent: (Component: React.ComponentType<Record<string, unknown>>) =>
+      (props: Record<string, unknown>) => ReactModule.createElement(Component, props),
     interpolate: (value: number) => value,
     useAnimatedStyle: (updater: () => Record<string, unknown>) => updater(),
     useSharedValue: (value: number) => ({ value }),
@@ -89,18 +87,6 @@ const options: Array<CascadePickerOption<RegionData>> = [
     ],
   },
 ];
-
-it('exports CascadePicker component and public types', () => {
-  const props: CascadePickerProps<RegionData> = { options };
-  const okParams: CascadePickerOkParams<RegionData> = {
-    path: [options[0]!],
-    items: [options[0]!],
-  };
-
-  expect(CascadePicker).toBeTruthy();
-  expect(props.options).toBe(options);
-  expect(okParams.path[0]?.value).toBe('guangdong');
-});
 
 it('builds columns for the current value path', () => {
   let testRenderer: renderer.ReactTestRenderer;

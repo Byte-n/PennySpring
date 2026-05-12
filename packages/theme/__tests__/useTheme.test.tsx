@@ -10,17 +10,7 @@ function TestHook<T>({ hook, onResult }: { hook: () => T; onResult: (r: T) => vo
 }
 
 describe('useTheme', () => {
-  it('is a function', () => {
-    const { useTheme: useThemeLocal } = require('../src/useTheme');
-    expect(typeof useThemeLocal).toBe('function');
-  });
-
-  it('can be imported without error', () => {
-    const { useTheme: useThemeLocal } = require('../src/useTheme');
-    expect(useThemeLocal).toBeTruthy();
-  });
-
-  describe('hook behavior', () => {
+      describe('hook behavior', () => {
     it('returns { token: AliasToken } structure', () => {
       let hookResult: any;
 

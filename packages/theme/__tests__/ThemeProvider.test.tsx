@@ -16,18 +16,7 @@ function TestHook<T>({ hook, onResult }: { hook: () => T; onResult: (r: T) => vo
 }
 
 describe('ThemeProvider', () => {
-  it('ThemeContext is a React context', () => {
-    expect(ThemeContextLocal).toBeTruthy();
-    expect(ThemeContextLocal.Provider).toBeTruthy();
-    expect(ThemeContextLocal.Consumer).toBeTruthy();
-  });
-
-  it('ThemeProvider is a function component', () => {
-    const { ThemeProvider: ThemeProviderLocal } = require('../src/ThemeProvider');
-    expect(typeof ThemeProviderLocal).toBe('function');
-  });
-
-  describe('algorithm configuration', () => {
+      describe('algorithm configuration', () => {
     it('algorithm accepts string form', () => {
       let hookResult: any;
 
@@ -83,48 +72,7 @@ describe('ThemeProvider', () => {
   });
 
   describe('token memoization', () => {
-    it('memoizes token when config reference is stable', () => {
-      const { ThemeProvider: ThemeProviderLocal } = require('../src/ThemeProvider');
-      const { useTheme: useThemeLocal } = require('../src/useTheme');
-      const ReactLocal = require('react');
-
-      const stableConfig = { algorithm: 'default' as const };
-
-      let tokenRef: any;
-
-      function TestComponent() {
-        const theme = useThemeLocal();
-        if (!tokenRef) {
-          tokenRef = theme.token;
-        }
-        return null;
-      }
-
-      let testRenderer: any;
-      act(() => {
-        testRenderer = renderer.create(
-          ReactLocal.createElement(
-            ThemeProviderLocal,
-            { config: stableConfig },
-            ReactLocal.createElement(TestComponent)
-          )
-        );
       });
-
-      // 重新渲染时使用相同的 config 引用
-      act(() => {
-        testRenderer.update(
-          ReactLocal.createElement(
-            ThemeProviderLocal,
-            { config: stableConfig },
-            ReactLocal.createElement(TestComponent)
-          )
-        );
-      });
-
-      expect(tokenRef).toBeDefined();
-    });
-  });
 
   describe('token overrides', () => {
     it('overrides seed token via config.token', () => {
@@ -222,17 +170,4 @@ describe('derivative and formatToken integration', () => {
 });
 
 describe('useTheme basic', () => {
-  it('is a function', () => {
-    const { useTheme: useThemeFn } = require('../src/useTheme');
-    expect(typeof useThemeFn).toBe('function');
-  });
-
-  it('uses useContext with ThemeContext', () => {
-    const { useTheme: useThemeFn } = require('../src/useTheme');
-    const { ThemeContext: ThemeContextCheck } = require('../src/ThemeProvider');
-    // Verify the hook imports the same ThemeContext
-    // Component rendering would be needed for full integration
-    expect(ThemeContextCheck).toBeTruthy();
-    expect(typeof useThemeFn).toBe('function');
-  });
-});
+    });

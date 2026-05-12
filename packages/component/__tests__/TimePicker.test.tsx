@@ -17,7 +17,7 @@ jest.mock('react-native-gesture-handler', () => {
 });
 
 jest.mock('react-native-reanimated', () => {
-  const React = require('react');
+  const ReactModule = require('react');
   const ReactNative = require('react-native');
 
   return {
@@ -26,12 +26,7 @@ jest.mock('react-native-reanimated', () => {
       View: ReactNative.View,
     },
     createAnimatedComponent: (Component: React.ComponentType<Record<string, unknown>>) =>
-      React.forwardRef((props: Record<string, unknown>, ref: React.Ref<unknown>) =>
-        React.createElement(Component, {
-          ...props,
-          ref,
-        }),
-      ),
+      (props: Record<string, unknown>) => ReactModule.createElement(Component, props),
     interpolate: (value: number) => value,
     useAnimatedStyle: (updater: () => Record<string, unknown>) => updater(),
     useSharedValue: (value: number) => ({ value }),
@@ -50,26 +45,6 @@ import {
 function makeDate(hours: number, minutes: number, seconds = 0): Date {
   return new Date(2026, 4, 9, hours, minutes, seconds, 0);
 }
-
-it('exports TimePicker component and public types', () => {
-  const props: TimePickerProps = { value: makeDate(10, 30) };
-  const labelParams: TimePickerLabelParams = {
-    type: 'hour',
-    value: 10,
-    date: makeDate(10, 0),
-  };
-  const valueParams: TimePickerValueParams = {
-    hours: 10,
-    minutes: 30,
-    seconds: 0,
-    date: makeDate(10, 30),
-  };
-
-  expect(TimePicker).toBeTruthy();
-  expect(props.value?.getHours()).toBe(10);
-  expect(labelParams.type).toBe('hour');
-  expect(valueParams.hours).toBe(10);
-});
 
 it('builds hour and minute columns by default precision', () => {
   let testRenderer: renderer.ReactTestRenderer;

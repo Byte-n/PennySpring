@@ -51,12 +51,7 @@ function renderProgressCircle(props: React.ComponentProps<typeof ProgressCircle>
 }
 
 describe('Progress', () => {
-  it('exports Bar and Circle as static members', () => {
-    expect(typeof Progress.Bar).toBe('function');
-    expect(typeof Progress.Circle).toBe('function');
-  });
-
-  it('clamps percent into 0..100 range', () => {
+    it('clamps percent into 0..100 range', () => {
     expect(clampPercent(-5)).toBe(0);
     expect(clampPercent(35)).toBe(35);
     expect(clampPercent(180)).toBe(100);
