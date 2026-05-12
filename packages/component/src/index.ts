@@ -159,6 +159,14 @@ export type {
   SegmentedStyles,
   SegmentedValue,
 } from './Segmented';
+export { TabBar } from './TabBar';
+export type {
+  TabBarItem,
+  TabBarProps,
+  TabBarSize,
+  TabBarStyles,
+  TabBarValue,
+} from './TabBar';
 export { Tabs } from './Tabs';
 export type {
   TabsItem,
