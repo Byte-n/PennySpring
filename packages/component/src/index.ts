@@ -133,12 +133,6 @@ export type {
   ListCollapseSize,
   ListCollapseStyles,
 } from './ListCollapse';
-export { ListGroup } from './ListGroup';
-export type {
-  ListGroupProps,
-  ListGroupSize,
-  ListGroupStyles,
-} from './ListGroup';
 export { SelectionList } from './SelectionList';
 export type {
   SelectionListMode,

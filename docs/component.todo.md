@@ -9,7 +9,6 @@
 - [x] Input
 - [x] List / List.Item
 - [x] ListCollapse
-- [x] ListGroup
 - [x] Portal / PortalProvider
 - [x] Popup
 - [x] Segmented
@@ -62,7 +61,7 @@
   - 完成/确认：`onOk`，禁止出现 `onFinished` 等，除非已有 `onOk`
   - 值 / 主要值：`value` `onChange` `defaultValue` （需要支持可控和非可控）
   - 回调顺序：操作涉及触发多个回调时，语义动作先发生：onCancel 再 onOpenChange (false)
-  - 内部节点渲染名称与类型（例如 `Card` 的 `title`，List.Group 等组件的标题，或者选择器里面的按钮等，）：
+  - 内部节点渲染名称与类型（例如 `Card` 的 `title`，或选择器里的按钮文案等）：
     - ❌ `{ title: string | ReactNode }`
     - ❌ `{ title: string, titleNode: ReactNode }`
     - ✅ `{ titleText: string, title: ReactNode }`
