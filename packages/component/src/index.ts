@@ -259,6 +259,10 @@ export type {
 } from './Portal';
 export { Popup } from './Popup';
 export type {
+  PopupFloatingPanelPosition,
+  PopupFloatingPanelProps,
+  PopupFloatingPanelSize,
+  PopupFloatingPanelStyles,
   PopupCancelParams,
   PopupCancelReason,
   PopupOpenChangeParams,
