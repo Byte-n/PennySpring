@@ -1,6 +1,6 @@
 import React from 'react';
-import { Pressable, View } from 'react-native';
-import { Drawer, Text } from '@pennyspring/component';
+import { View } from 'react-native';
+import { Button, Drawer, Text } from '@pennyspring/component';
 import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
 import { ListIcon } from 'phosphor-react-native';
 
@@ -16,25 +16,10 @@ const useStyles = createUseSheetStyle(token => ({
     gap: token.paddingSM,
   },
   optionButton: {
-    backgroundColor: token.colorBgContainer,
-    borderColor: token.colorBorderSecondary,
-    borderRadius: token.borderRadius,
-    borderWidth: token.lineWidth,
-    paddingHorizontal: token.padding,
-    paddingVertical: token.paddingSM,
-  },
-  optionButtonPressed: {
-    backgroundColor: token.colorBgTextActive,
+    justifyContent: 'flex-start',
   },
   menuButton: {
-    alignItems: 'center',
-    borderRadius: token.borderRadius,
-    height: token.controlHeight,
-    justifyContent: 'center',
     width: token.controlHeight,
-  },
-  menuButtonPressed: {
-    backgroundColor: token.colorBgTextActive,
   },
 }));
 
@@ -47,21 +32,20 @@ function MenuButton({ onPress }: MenuButtonProps) {
   const { token } = useTheme();
 
   return (
-    <Pressable
+    <Button
       accessibilityLabel="打开菜单"
-      accessibilityRole="button"
+      icon={(
+        <ListIcon
+          color={token.colorIconHover}
+          size={token.fontSizeHeading3}
+          weight="bold"
+        />
+      )}
       onPress={onPress}
-      style={({ pressed }) => [
-        styles.menuButton,
-        pressed && styles.menuButtonPressed,
-      ]}
-    >
-      <ListIcon
-        color={token.colorIconHover}
-        size={token.fontSizeHeading3}
-        weight="bold"
-      />
-    </Pressable>
+      shape="circle"
+      style={styles.menuButton}
+      type="text"
+    />
   );
 }
 
@@ -76,32 +60,28 @@ function DrawerOptionList({
 
   return (
     <View style={styles.drawerContent}>
-      <Pressable
+      <Button
         accessibilityLabel="打开 Test Screen"
-        accessibilityRole="button"
+        block
         onPress={onOpenTestScreen}
-        style={({ pressed }) => [
-          styles.optionButton,
-          pressed && styles.optionButtonPressed,
-        ]}
+        style={styles.optionButton}
+        type="default"
       >
         <Text size="md" weight="strong">
           Test Screen
         </Text>
-      </Pressable>
-      <Pressable
+      </Button>
+      <Button
         accessibilityLabel="打开 Component Preview"
-        accessibilityRole="button"
+        block
         onPress={onOpenComponentPreview}
-        style={({ pressed }) => [
-          styles.optionButton,
-          pressed && styles.optionButtonPressed,
-        ]}
+        style={styles.optionButton}
+        type="default"
       >
         <Text size="md" weight="strong">
           Component Preview
         </Text>
-      </Pressable>
+      </Button>
     </View>
   );
 }

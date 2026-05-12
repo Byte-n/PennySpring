@@ -1,5 +1,5 @@
 import React from 'react';
-import { Pressable } from 'react-native';
+import { Button } from '../Button';
 import { Text } from '../Text';
 import type { ReactNode } from 'react';
 import type { StyleProp, TextStyle, ViewStyle } from 'react-native';
@@ -24,13 +24,15 @@ export function PickerHeaderButton({
   textStyle,
 }: PickerHeaderButtonProps) {
   return (
-    <Pressable
+    <Button
       disabled={disabled}
       onPress={onPress}
       style={style}
+      styles={{ content: textStyle }}
       testID={testID}
+      type="text"
     >
       {content ?? <Text style={textStyle}>{text}</Text>}
-    </Pressable>
+    </Button>
   );
 }

@@ -6,6 +6,7 @@ import {
   View,
 } from 'react-native';
 import { useTheme } from '@pennyspring/theme';
+import { Button } from '../Button';
 import { Popup } from '../Popup';
 import { Text } from '../Text';
 import {
@@ -310,19 +311,15 @@ export function SelectionListPopup({
           <Text weight="strong" style={tokenStyles.headerText}>
             {SELECTION_LIST_HEADER_TEXT}
           </Text>
-          <Pressable
+          <Button
             accessibilityLabel="Close selection list"
             accessibilityRole="button"
             onPress={closeSelectionList}
-            style={({ pressed }) => [
-              tokenStyles.footerButton,
-              pressed ? tokenStyles.footerButtonPressed : null,
-            ]}
+            style={tokenStyles.footerButton}
+            type="text"
           >
-            <Text style={tokenStyles.footerButtonText}>
-              {SELECTION_LIST_CLOSE_TEXT}
-            </Text>
-          </Pressable>
+            {SELECTION_LIST_CLOSE_TEXT}
+          </Button>
         </View>
         {searchable === true ? (
           <TextInput
@@ -361,20 +358,16 @@ export function SelectionListPopup({
           </View>
         )}
         <View style={tokenStyles.footer}>
-          <Pressable
+          <Button
             accessibilityLabel="Confirm selection"
             accessibilityRole="button"
             onPress={closeSelectionList}
-            style={({ pressed }) => [
-              tokenStyles.footerButton,
-              tokenStyles.footerPrimaryButton,
-              pressed ? tokenStyles.footerButtonPressed : null,
-            ]}
+            style={[tokenStyles.footerButton, tokenStyles.footerPrimaryButton]}
+            styles={{ content: tokenStyles.footerPrimaryButtonText }}
+            type="primary"
           >
-            <Text style={tokenStyles.footerPrimaryButtonText}>
-              {SELECTION_LIST_CONFIRM_TEXT}
-            </Text>
-          </Pressable>
+            {SELECTION_LIST_CONFIRM_TEXT}
+          </Button>
         </View>
       </View>
     </Popup>

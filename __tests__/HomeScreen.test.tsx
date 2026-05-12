@@ -36,6 +36,17 @@ jest.mock('@pennyspring/component', () => {
   Drawer.Layout = (props: any) => mockDrawer(props);
 
   return {
+    Button: ({ accessibilityLabel, children, icon, onPress, testID }: any) => {
+      const ReactLocal = require('react');
+      const ReactNative = require('react-native');
+
+      return ReactLocal.createElement(
+        ReactNative.Pressable,
+        { accessibilityLabel, onPress, testID },
+        icon ?? null,
+        children ?? null,
+      );
+    },
     Drawer,
     Text: ({ children }: any) => {
       const ReactLocal = require('react');

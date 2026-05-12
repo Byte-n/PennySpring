@@ -1,6 +1,7 @@
 import React from 'react';
-import { Pressable, View } from 'react-native';
+import { View } from 'react-native';
 import { createUseSheetStyle } from '@pennyspring/theme';
+import { Button } from '../Button';
 import { Popup } from '../Popup';
 import { Text } from '../Text';
 import type { StyleProp, TextStyle, ViewStyle } from 'react-native';
@@ -34,6 +35,9 @@ const useStyles = createUseSheetStyle(token => {
     },
     action: {
       padding: token.paddingMD,
+      alignItems: 'center',
+    },
+    actionContent: {
       alignItems: 'center',
     },
     actionText: {
@@ -106,6 +110,7 @@ function renderAction(
   action: ActionSheetAction,
   index: number,
   actionContainerStyle: StyleProp<ViewStyle>,
+  actionContentStyle: StyleProp<ViewStyle>,
   actionTextStyle: StyleProp<TextStyle>,
   actionDescriptionStyle: StyleProp<TextStyle>,
   dangerActionTextStyle: StyleProp<TextStyle>,
@@ -126,18 +131,21 @@ function renderAction(
   ];
 
   return (
-    <Pressable
+    <Button
+      disabled={action.disabled}
       key={index}
       onPress={handlePress}
+      style={actionContainerStyle}
       testID={`action-sheet-action-${index}`}
+      type="text"
     >
-      <View style={actionContainerStyle}>
+      <View style={actionContentStyle}>
         <Text style={textStyle}>{action.text}</Text>
         {action.description ? (
           <Text style={actionDescriptionStyle}>{action.description}</Text>
         ) : null}
       </View>
-    </Pressable>
+    </Button>
   );
 }
 
@@ -218,6 +226,7 @@ export function ActionSheet({
               action,
               index,
               tokenStyles.action,
+              tokenStyles.actionContent,
               tokenStyles.actionText,
               tokenStyles.actionDescription,
               tokenStyles.dangerActionText,
@@ -229,23 +238,24 @@ export function ActionSheet({
         {cancelText || cancel ? (
           <View style={tokenStyles.cancelButtonContainer} testID="action-sheet-cancel-container">
             <View style={tokenStyles.separator} />
-            <Pressable
+            <Button
               onPress={handleCancelPress}
+              style={tokenStyles.cancelButton}
+              styles={{ content: [tokenStyles.cancelButtonText, slotStyles?.cancelButtonText] }}
               testID="action-sheet-cancel-button"
+              type="text"
             >
-              <View style={tokenStyles.cancelButton}>
-                {cancel !== undefined && cancel !== null ? (
-                  cancel
-                ) : (
-                  <Text
-                    style={[tokenStyles.cancelButtonText, slotStyles?.cancelButtonText]}
-                    testID="action-sheet-cancel-text"
-                  >
-                    {cancelText}
-                  </Text>
-                )}
-              </View>
-            </Pressable>
+              {cancel !== undefined && cancel !== null ? (
+                cancel
+              ) : (
+                <Text
+                  style={[tokenStyles.cancelButtonText, slotStyles?.cancelButtonText]}
+                  testID="action-sheet-cancel-text"
+                >
+                  {cancelText}
+                </Text>
+              )}
+            </Button>
           </View>
         ) : null}
       </View>
