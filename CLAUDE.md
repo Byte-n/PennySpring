@@ -31,7 +31,6 @@ packages/component/     → 共享 React Native UI 组件
 packages/data/          → Drizzle schema、relations、SQLite runtime、migrations
 packages/share/         → 跨包共享工具
 __tests__/              → 根应用测试
-.claude/                → Claude Code 配置：agents、rules、skills
 scripts/                → 本地工具脚本
 ```
 
@@ -109,7 +108,7 @@ Token 管线：`SeedToken` → `derivative()` → `MapToken` → `formatToken()`
 
 ## Accessibility
 
-- 不需要支持无障碍
+- 不需要支持无障碍、可访问性设计或相关属性
 
 ## Testing
 
@@ -124,8 +123,7 @@ Token 管线：`SeedToken` → `derivative()` → `MapToken` → `formatToken()`
 
 本项目所有功能开发与 Bug 修复必须严格遵循 TDD 流程：
 
-1. **RED**：先为新行为或缺陷编写用户可感知的失败测试；结构使用 AAA，命名描述行为（对齐 `CLAUDE.md#Testing` 与
-   `.claude/rules/common/testing.md`）。
+1. **RED**：先为新行为或缺陷编写用户可感知的失败测试；结构使用 AAA，命名描述行为
 2. **GREEN**：以最小改动使目标测试通过，不附带无关重构或范围扩张。
 3. **REFACTOR**：在全部测试通过的前提下清理实现，完成后重跑相关测试。
 4. **验证**：对应 workspace 的测试脚本运行，确保无回归。

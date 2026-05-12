@@ -1,10 +1,6 @@
 # PennySpring 项目宪章
 
-继承至基础项目宪章 [CLAUDE.md](CLAUDE.md)
-
-## 项目规范
-
-- 默认不要求额外的无障碍、可访问性设计或相关属性；除非已有实现依赖、平台强制要求或用户明确指定，不新增 accessibility props。
+读取本文件时，必须立即同步读取 [CLAUDE.md](CLAUDE.md)，并将其作为基础项目宪章继承执行。
 
 ## `.claude/rules` 使用说明
 
@@ -19,3 +15,6 @@
 - 修改 `*.kt`、`*.kts` 时：额外遵循 `.claude/rules/kotlin/coding-style.md`
 - 为 `*.kt`、`*.kts` 编写或修改测试时：额外遵循 `.claude/rules/kotlin/testing.md`
 
+## ‘继承*’ 规则阅读说明
+
+- 加载、阅读 `*.md` 文件时，若遇到 “继承自*” 等描述，你应该立即以读取文档同等优先级加载、阅读引用的内容
