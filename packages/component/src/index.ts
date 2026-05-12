@@ -115,12 +115,16 @@ export type {
   ListSize,
   ListStyles,
 } from './List';
-export { InfiniteScroll } from './InfiniteScroll';
+export { DataList } from './DataList';
 export type {
-  InfiniteScrollProps,
-  InfiniteScrollSize,
-  InfiniteScrollStyles,
-} from './InfiniteScroll';
+  DataListLoadMoreProps,
+  DataListProps,
+  DataListRefreshProps,
+  DataListSection,
+  DataListSectionProps,
+  DataListSize,
+  DataListStyles,
+} from './DataList';
 export { ListCollapse } from './ListCollapse';
 export type {
   ListCollapseProps,
