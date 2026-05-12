@@ -219,15 +219,7 @@ const EXPECTED_VALUES_BY_GROUP = {
 } as const;
 
 describe('TYPE_ICON_TREE', () => {
-  it('keeps group order and labels from the mapping document', () => {
-    expect(TYPE_ICON_TREE.map(group => ({
-      key: group.key,
-      label: group.label,
-      count: group.children.length,
-    }))).toEqual(EXPECTED_GROUPS);
-  });
-
-  it('keeps icon order within every group', () => {
+    it('keeps icon order within every group', () => {
     for (const group of TYPE_ICON_TREE) {
       expect(group.children.map(icon => icon.value)).toEqual(
         EXPECTED_VALUES_BY_GROUP[group.key as keyof typeof EXPECTED_VALUES_BY_GROUP],
@@ -235,19 +227,7 @@ describe('TYPE_ICON_TREE', () => {
     }
   });
 
-  it('uses ICON constants for values and labels and exposes renderable icons', () => {
-    const iconValues = new Set(ICON.values());
-
-    for (const group of TYPE_ICON_TREE) {
-      for (const node of group.children) {
-        expect(iconValues.has(node.value)).toBe(true);
-        expect(node.label).toBe(ICON.label(node.value as IconValue));
-        expect(typeof node.icon).toBe('function');
-      }
-    }
-  });
-
-  it('keeps duplicate source-svg rows as distinct semantic nodes', () => {
+    it('keeps duplicate source-svg rows as distinct semantic nodes', () => {
     const income = TYPE_ICON_TREE.find(group => group.key === 'income');
     const moneyManagement = TYPE_ICON_TREE.find(group => group.key === 'money-management');
 

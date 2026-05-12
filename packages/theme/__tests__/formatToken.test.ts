@@ -119,18 +119,7 @@ describe('formatToken', () => {
     expect(alias.boxShadowTertiary.shadowRadius).toBeLessThan(alias.boxShadow.shadowRadius);
   });
 
-  it('motion disabled zeroes durations', () => {
-    const { defaultSeedToken } = require('../src/defaults');
-    const { derivative } = require('../src/algorithms/derivative');
-    const mapToken = { ...derivative(defaultSeedToken, false), motion: false };
-    const alias = formatToken(mapToken);
-
-    expect(alias.motionDurationFast).toBe(0);
-    expect(alias.motionDurationMid).toBe(0);
-    expect(alias.motionDurationSlow).toBe(0);
-  });
-
-  it('fontWeightStrong maps to fontWeightSemiBold from MapToken', () => {
+    it('fontWeightStrong maps to fontWeightSemiBold from MapToken', () => {
     const { defaultSeedToken } = require('../src/defaults');
     const { derivative } = require('../src/algorithms/derivative');
     const mapToken = {

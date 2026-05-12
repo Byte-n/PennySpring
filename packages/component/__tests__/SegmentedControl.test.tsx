@@ -270,47 +270,4 @@ describe('SegmentedControl', () => {
     });
   });
 
-  it('uses animated interpolation output as the translateX value', () => {
-    const interpolatedTranslateX = { translateX: 0 } as unknown as ReactNativeAnimated.AnimatedNode;
-    let testRenderer: renderer.ReactTestRenderer;
-
-    act(() => {
-      testRenderer = renderer.create(
-        <ThemeProvider>
-          <SegmentedControl
-            descriptors={{
-              detail: {
-                options: { title: '明细' },
-              },
-              chart: {
-                options: { title: '图表' },
-              },
-            }}
-            navigation={{ navigate: jest.fn() }}
-            position={{
-              interpolate: () => interpolatedTranslateX,
-              value: 0,
-            }}
-            state={{ index: 0, routes }}
-          />
-        </ThemeProvider>
-      );
-    });
-
-    const indicator = testRenderer!.root.findByProps({
-      testID: 'top-tab-segment-indicator',
-    });
-    const styles = Array.isArray(indicator?.props.style)
-      ? indicator?.props.style
-      : [indicator?.props.style];
-    const animatedStyle = styles.find(
-      (style: Record<string, unknown> | undefined) => style?.transform
-    );
-
-    expect(animatedStyle.transform).toEqual([
-      {
-        translateX: interpolatedTranslateX,
-      },
-    ]);
   });
-});

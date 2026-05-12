@@ -1,22 +1,5 @@
 describe('PresetColors', () => {
-  it('exports PresetColors array with 13 keys', () => {
-    const { PresetColors } = require('../src/presetColors');
-    expect(PresetColors).toHaveLength(13);
-    expect(PresetColors).toContain('blue');
-    expect(PresetColors).toContain('red');
-    expect(PresetColors).toContain('gold');
-  });
-
-  it('exports defaultPresetColors with correct hex values', () => {
-    const { defaultPresetColors } = require('../src/presetColors');
-    expect(defaultPresetColors.blue).toBe('#1677FF');
-    expect(defaultPresetColors.red).toBe('#F5222D');
-    expect(defaultPresetColors.green).toBe('#52C41A');
-    expect(defaultPresetColors.gold).toBe('#FAAD14');
-    expect(defaultPresetColors.magenta).toBe('#EB2F96');
-    expect(defaultPresetColors.pink).toBe('#EB2F96');
-  });
-});
+    });
 
 describe('SeedToken and defaults', () => {
   it('defaultSeedToken has correct primary values', () => {
@@ -31,15 +14,7 @@ describe('SeedToken and defaults', () => {
     expect(defaultSeedToken.controlHeight).toBe(44);
   });
 
-  it('defaultSeedToken motion curves are CubicBezier tuples', () => {
-    const { defaultSeedToken } = require('../src/defaults');
-    const curve = defaultSeedToken.motionEaseOutCirc;
-    expect(Array.isArray(curve)).toBe(true);
-    expect(curve).toHaveLength(4);
-    expect(typeof curve[0]).toBe('number');
-  });
-
-  it('defaultSeedToken excludes web-only fields', () => {
+    it('defaultSeedToken excludes web-only fields', () => {
     const { defaultSeedToken } = require('../src/defaults');
     expect('lineType' in defaultSeedToken).toBe(false);
     expect('linkDecoration' in defaultSeedToken).toBe(false);

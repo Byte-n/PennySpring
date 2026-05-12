@@ -1,8 +1,8 @@
 # PennySpring 项目宪章
 
-本文件记录给 Claude/Codex 使用的项目级约定；更细规则以 `.claude/rules/**` 为准。
+## 项目概览
 
-## Tech Stack
+### Tech Stack
 
 | Layer           | Technology                           | Version           |
 |-----------------|--------------------------------------|-------------------|
@@ -16,7 +16,7 @@
 | Package Manager | Yarn workspaces                      | -                 |
 | Node            | Node.js                              | >= 22.13.0        |
 
-## Architecture
+### Architecture
 
 Monorepo（Yarn workspaces）：根目录是 React Native App，`packages/*` 是内部共享包。
 
@@ -34,25 +34,32 @@ __tests__/              → 根应用测试
 scripts/                → 本地工具脚本
 ```
 
-数据层路径：`packages/data/src/schema` 定义表，`relations` 定义关联，`runtime/client/createDatabase()` 通过 op-sqlite
-connection 创建 Drizzle DB，`runtime/migrations/runMigrations()` 执行打包迁移。
+### 关键设计约定
 
-Token 管线：`SeedToken` → `derivative()` → `MapToken` → `formatToken()` → `AliasToken`；组件通过 `createUseSheetStyle` 消费。
+- 数据层路径：`packages/data/src/schema` 定义表，`relations` 定义关联，`runtime/client/createDatabase()` 通过
+  op-sqlite connection 创建 Drizzle DB，`runtime/migrations/runMigrations()` 执行打包迁移。
 
-## Build & Run
+## 开发命令
 
-- **Metro**: `yarn start`
-- **iOS**: `yarn ios`
-- **Android**: `yarn android`
-- **Tests**: `yarn test`
-- **Lint**: `yarn lint`
-- **Type check**: `yarn workspace @pennyspring/theme typecheck`，`yarn workspace @pennyspring/component typecheck`，
+### 常用命令
+
+- Metro：`yarn start`
+- iOS：`yarn ios`
+- Android：`yarn android`
+- Tests：`yarn test`
+- Lint：`yarn lint`
+- Init Codex：`yarn init:codex`
+- Clean：`yarn clean`
+
+### 类型与数据
+
+- Type check：`yarn workspace @pennyspring/theme typecheck`，`yarn workspace @pennyspring/component typecheck`，
   `yarn workspace @pennyspring/data typecheck`，`yarn workspace @pennyspring/share typecheck`
-- **DB check/generate**: `yarn workspace @pennyspring/data db:check`，`yarn workspace @pennyspring/data db:generate`
-- **Init Codex**: `yarn init:codex`
-- **Clean**: `yarn clean`
+- DB check / generate：`yarn workspace @pennyspring/data db:check`，`yarn workspace @pennyspring/data db:generate`
 
-## Code Style
+## 通用工程约束
+
+### Code Style
 
 - 遵循 KISS、DRY、YAGNI；优先小文件、高内聚、低耦合。
 - 数据更新保持不可变；禁止隐藏式原地 mutation。
@@ -61,7 +68,13 @@ Token 管线：`SeedToken` → `derivative()` → `MapToken` → `formatToken()`
 - 文件、变量、函数使用 `camelCase`；类型、接口、组件使用 `PascalCase`；常量使用 `UPPER_SNAKE_CASE`。
 - 生产代码不保留 `console.log`。
 
-## 样式（React Native）
+### Accessibility
+
+- 不需要支持无障碍、可访问性设计或相关属性
+
+## UI / 样式约束
+
+### 样式（React Native）
 
 **唯一构建方式**：`createUseSheetStyle`（来自 `@pennyspring/theme`）。
 
@@ -83,7 +96,7 @@ Token 管线：`SeedToken` → `derivative()` → `MapToken` → `formatToken()`
 
 **主题注入**：全局 `<ThemeProvider>` 位于应用根；禁止在组件内判断 light/dark 分支，token 已自适配。
 
-## Components
+### Components
 
 - 共享组件放在 `packages/component/src/<ComponentName>/`，由目录内 `index.ts` 和包级 `src/index.ts` 导出。
 - 公共 props 与导出的样式类型放在组件目录的 `types.ts`。
@@ -91,47 +104,45 @@ Token 管线：`SeedToken` → `derivative()` → `MapToken` → `formatToken()`
 - 业务与共享组件中的文本展示统一使用 `@pennyspring/component` 导出的 `Text` 组件；禁止直接使用 `react-native` 的 `Text`
   做展示文本。
 
-## Navigation
+### Navigation
 
 - 需要访问导航对象时，统一使用 `src/navigation` 导出的 `useNavigation` 封装 hook。禁止直接从
   `@react-navigation/native` 导入原始 `useNavigation`。
 
-## Git / workspace
+### 动画
 
-- 近期提交使用 conventional commit 风格，常见 scope 如 `data`、`theme`、`components`。
-- commit message 使用中文，但保持 `feat:`、`fix:`、`docs:`、`chore:` 等前缀。
-- 工作空间：`..worktrees/*`
-- 分支名称：`feature/worktrees-*`
-- 合并时需要压缩 commit 为一条记录。
-- 分支的命令不允许使用 `-f` / `-force` 参数强行执行操作
-- workspace 分支的任务完成后立即 commit, 并通过 Ask User 工具询问是否合并到主分支
+- 动画实现仅允许使用 `react-native-reanimated` 实现，禁止使用 React Native 的动画。
+- **禁止** 在组件实现中使用 `react-native` 的 `Animated`、`LayoutAnimation`、`Animated.timing/spring/decay`。
+- 动画时长、缓动曲线、延迟必须优先使用主题 token（`motionDuration*`、`motionEase*`）；禁止硬编码魔法数。
+- 缓动曲线统一使用 `Easing.bezier(...token.motionEase*)`（来自 `react-native-reanimated`），避免不同组件动画手感漂移。
+- 进入/退出动画必须成对设计（含 mount/unmount 生命周期），避免只进不出、闪烁或残留占位。
 
-## Accessibility
+## 测试约束
 
-- 不需要支持无障碍、可访问性设计或相关属性
+### Testing
 
-## Testing
-
-- 测试文件使用 `*.test.ts` / `*.test.tsx`，集中在根 `__tests__/` 或各包 `__tests__/`。
-- 按 AAA（Arrange-Act-Assert）组织测试；测试名描述被验证行为。
-- 测试默认只编写用户可感知的行为断言；不要为 props 类型形状、mock 参数结构、组件是否只是 defined、内部委托细节等
-  “类型或实现形状”编写测试。只有在 TDD 过程中确实需要临时辅助定位时，才允许短暂添加这类用例；开发完成前必须移除，
-  或改写为用户可感知的行为断言。
 - 最低覆盖率目标为 80%；关键用户流需要 E2E 覆盖，规则建议使用 Playwright。
 
-## TDD 测试驱动开发
+### 测试用例编写要求
+
+- 测试文件使用 `*.test.ts` / `*.test.tsx`，集中在根 `__tests__/` 或各包 `__tests__/`。
+- 按 AAA（Arrange-Act-Assert）组织测试；测试名必须直接描述被验证的行为。
+- 测试默认只编写用户可感知的行为断言。
+- 不要为 props 类型形状、mock 参数结构、组件是否只是 defined、动画、内部委托细节等“类型或实现形状”编写持久测试用例。
+- 只有在 TDD 过程中确实需要临时辅助定位时，才允许短暂添加这类实现细节用例；开发完成前必须移除，或改写为用户可感知的行为断言。
+- 缺陷修复场景中，新增用例只能覆盖本次缺陷此前未被保护的行为；原有正确用例必须继续按原行为通过，禁止为迁就实现而反向修改正确测试。
+
+### TDD 测试驱动开发
 
 本项目所有功能开发与 Bug 修复必须严格遵循 TDD 流程：
 
-1. **RED**：先为新行为或缺陷编写用户可感知的失败测试；结构使用 AAA，命名描述行为
+1. **RED**：先按照“测试用例编写要求”为新行为或缺陷编写失败测试。
 2. **GREEN**：以最小改动使目标测试通过，不附带无关重构或范围扩张。
 3. **REFACTOR**：在全部测试通过的前提下清理实现，完成后重跑相关测试。
 4. **验证**：对应 workspace 的测试脚本运行，确保无回归。
 5. **失败归因与纠偏**：测试失败时先定位真因（实现 / 用例 / 环境），再做最小修改。修复**仅针对缺陷本身纠错**，不得借修 bug
    之名改动原需求逻辑、扩大或收窄原定预期行为，避免出现“修 bug
-   导致需求不符”；修复后原有用例仍应以原行为通过，新增用例仅可覆盖本次缺陷未保护的行为。禁止为迁就实现而反向修改正确测试。
-
-**测试粒度要求**：只断言用户可感知的行为；不要为 props 形状、mock 调用结构、「组件是否 defined」等实现或类型形状编写持久用例。
+   导致需求不符”。
 
 **以下任务豁免 TDD 流程与新增测试**（仍需在完成后运行 `yarn test`，保证存量用例全绿）：
 
@@ -142,10 +153,19 @@ Token 管线：`SeedToken` → `derivative()` → `MapToken` → `formatToken()`
 - 静态资产新增或替换
 - 删除、移除等「减」任务：需同步移除被删行为关联的测试；若剩余用例仍覆盖保留行为，必须全部通过。
 
-## 动画
+## 任务收尾检查
 
-- 动画实现仅允许使用 `react-native-reanimated` 实现，禁止使用 React Native 的动画。
-- **禁止** 在组件实现中使用 `react-native` 的 `Animated`、`LayoutAnimation`、`Animated.timing/spring/decay`。
-- 动画时长、缓动曲线、延迟必须优先使用主题 token（`motionDuration*`、`motionEase*`）；禁止硬编码魔法数。
-- 缓动曲线统一使用 `Easing.bezier(...token.motionEase*)`（来自 `react-native-reanimated`），避免不同组件动画手感漂移。
-- 进入/退出动画必须成对设计（含 mount/unmount 生命周期），避免只进不出、闪烁或残留占位。
+- `yarn run lint` 与 `yarn run typecheck` 是所有任务的强制收尾检查，不得省略、不得跳过。
+- 任务执行完成后、声明完成前，必须先执行 `yarn run lint` 与 `yarn run typecheck`。
+- 仅当上述两项检查结果均无 error 时，才允许宣称任务完成或进入交付。
+- 若因环境、依赖、脚本或其他外部因素导致无法执行或未通过，必须明确报告阻塞原因与当前结果；在问题消除前，不得将任务表述为“已完成”。
+
+## Git / workspace
+
+- 近期提交使用 conventional commit 风格，常见 scope 如 `data`、`theme`、`components`。
+- commit message 使用中文，但保持 `feat:`、`fix:`、`docs:`、`chore:` 等前缀。
+- 工作空间：`.worktrees/*`
+- 分支名称：`feature/worktrees-*`
+- 合并时需要压缩 commit 为一条记录。
+- 分支的命令不允许使用 `-f` / `-force` 参数强行执行操作
+- workspace 分支的任务完成后立即 commit, 并通过 Ask User 工具询问是否合并到主分支

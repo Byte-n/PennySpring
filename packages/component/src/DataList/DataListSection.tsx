@@ -89,7 +89,7 @@ export function DataListSection<
         const loadResult = onLoadMore();
 
         if (isPromiseLike(loadResult)) {
-          void loadResult.finally(() => {
+          loadResult.finally(() => {
             loadingMoreRef.current = false;
           });
           return;

@@ -168,37 +168,4 @@ describe('Result', () => {
     expect(findWithStyle(extraStyle).length).toBeGreaterThanOrEqual(1);
   });
 
-  it('exports Result from the package entry', () => {
-    jest.isolateModules(() => {
-      jest.doMock('react-native-gesture-handler', () => ({
-        GestureHandlerRootView: ({ children }: { children: React.ReactNode }) => children,
-      }));
-      jest.doMock('@react-navigation/material-top-tabs', () => ({
-        createMaterialTopTabNavigator: () => ({
-          Navigator: 'Navigator',
-          Screen: 'Screen',
-        }),
-      }));
-      jest.doMock('react-native-reanimated', () => {
-        const ReactNative = require('react-native');
-
-        return {
-          __esModule: true,
-          default: {
-            View: ReactNative.View,
-            createAnimatedComponent: (Component: unknown) => Component,
-          },
-          createAnimatedComponent: (Component: unknown) => Component,
-          interpolate: (value: number) => value,
-          useAnimatedStyle: (updater: () => Record<string, unknown>) => updater(),
-          useSharedValue: (value: number) => ({ value }),
-          withTiming: (value: number) => value,
-        };
-      });
-
-      const packageExports = require('../src');
-
-      expect(typeof packageExports.Result).toBe('function');
-    });
   });
-});

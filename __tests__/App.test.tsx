@@ -73,12 +73,6 @@ beforeEach(() => {
   mockRootStackNavigator.mockClear();
 });
 
-test('renders correctly', async () => {
-  await ReactTestRenderer.act(() => {
-    ReactTestRenderer.create(<App />);
-  });
-});
-
 test('delegates navigation rendering to src/navigation', async () => {
   let testRenderer: ReactTestRenderer.ReactTestRenderer;
 

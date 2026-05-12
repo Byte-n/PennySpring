@@ -17,7 +17,7 @@ jest.mock('react-native-gesture-handler', () => {
 });
 
 jest.mock('react-native-reanimated', () => {
-  const React = require('react');
+  const ReactModule = require('react');
   const ReactNative = require('react-native');
 
   return {
@@ -25,10 +25,8 @@ jest.mock('react-native-reanimated', () => {
     default: {
       View: ReactNative.View,
     },
-    createAnimatedComponent: (Component: React.ComponentType<unknown>) =>
-      React.forwardRef((props: Record<string, unknown>, ref: React.Ref<unknown>) =>
-        React.createElement(Component, { ...props, ref }),
-      ),
+    createAnimatedComponent: (Component: React.ComponentType<Record<string, unknown>>) =>
+      (props: Record<string, unknown>) => ReactModule.createElement(Component, props),
     interpolate: (value: number) => value,
     useAnimatedStyle: (updater: () => Record<string, unknown>) => updater(),
     useSharedValue: (value: number) => ({ value }),
@@ -48,29 +46,6 @@ function makeDate(year: number, month: number, day: number, hours = 0, minutes =
   // month is 1-based here
   return new Date(year, month - 1, day, hours, minutes, seconds, 0);
 }
-
-it('exports DateTimePicker component and public types', () => {
-  const props: DateTimePickerProps = { value: makeDate(2026, 5, 9, 10, 30) };
-  const labelParams: DateTimePickerLabelParams = {
-    type: 'year',
-    value: 2026,
-    date: makeDate(2026, 5, 9),
-  };
-  const valueParams: DateTimePickerValueParams = {
-    date: makeDate(2026, 5, 9, 10, 30),
-    year: 2026,
-    month: 5,
-    day: 9,
-    hours: 10,
-    minutes: 30,
-    seconds: 0,
-  };
-
-  expect(DateTimePicker).toBeTruthy();
-  expect(props.value?.getFullYear()).toBe(2026);
-  expect(labelParams.value).toBe(2026);
-  expect(valueParams.month).toBe(5);
-});
 
 it('builds year/month/day/hour/minute columns at default precision', () => {
   let testRenderer: renderer.ReactTestRenderer;
