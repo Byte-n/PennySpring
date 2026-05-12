@@ -1,240 +1,141 @@
 import React from 'react';
 import renderer, { act } from 'react-test-renderer';
-import { ThemeProvider } from '@pennyspring/theme';
 import { Message } from '../src/Message';
 import { PortalProvider } from '../src/Portal';
-
 const exitAnimationCallbacks: Array<(finished: boolean) => void> = [];
 type WithTimingArgs = [number, unknown?, ((finished: boolean) => void)?];
 const mockWithTiming = jest.fn((value: number, _config?: unknown, callback?: (finished: boolean) => void) => {
   if (value === 0 && callback) {
     exitAnimationCallbacks.push(callback);
   }
-
   return value;
 });
-
 jest.mock('react-native-reanimated', () => {
   const ReactNative = require('react-native');
-
   return {
     __esModule: true,
     default: {
-      View: ReactNative.View,
+      View: ReactNative.View
     },
     Easing: {
-      bezier: (...args: unknown[]) => args,
+      bezier: (...args: unknown[]) => args
     },
     runOnJS: (fn: () => void) => fn,
     useAnimatedStyle: (updater: () => Record<string, unknown>) => updater(),
-    useSharedValue: (value: number) => ({ value }),
+    useSharedValue: (value: number) => ({
+      value
+    }),
     withTiming: (...args: WithTimingArgs) => {
       mockWithTiming(...args);
       return args[0];
-    },
+    }
   };
 });
-
-function renderMessage(props: Partial<React.ComponentProps<typeof Message>> = {}) {
-  let testRenderer!: renderer.ReactTestRenderer;
-
-  act(() => {
-    testRenderer = renderer.create(
-        <ThemeProvider>
-        <PortalProvider>
-          <Message open duration={0} messageText="Message text" {...props} />
-        </PortalProvider>
-      </ThemeProvider>,
-    );
-  });
-
-  return testRenderer!;
-}
-
 describe('Message', () => {
   beforeEach(() => {
     jest.useFakeTimers();
     mockWithTiming.mockClear();
     exitAnimationCallbacks.length = 0;
   });
-
   afterEach(() => {
     jest.useRealTimers();
   });
-
   it('keeps the body mounted while closing and unmounts after exit completes', () => {
     let testRenderer!: renderer.ReactTestRenderer;
-
     act(() => {
-      testRenderer = renderer.create(
-        <ThemeProvider>
-          <PortalProvider>
+      testRenderer = renderer.create(<><PortalProvider>
             <Message open duration={0} messageText="Message text" />
-          </PortalProvider>
-        </ThemeProvider>,
-      );
+          </PortalProvider></>);
     });
-
     const closeAnimationCallCount = mockWithTiming.mock.calls.filter(([value]) => value === 0).length;
-
     act(() => {
-      testRenderer.update(
-        <ThemeProvider>
-          <PortalProvider>
+      testRenderer.update(<><PortalProvider>
             <Message open={false} duration={0} messageText="Message text" />
-          </PortalProvider>
-        </ThemeProvider>,
-      );
+          </PortalProvider></>);
     });
-
     const nextCloseAnimationCallCount = mockWithTiming.mock.calls.filter(([value]) => value === 0).length;
-
     expect(nextCloseAnimationCallCount).toBeGreaterThan(closeAnimationCallCount);
-    expect(
-      testRenderer!.root.findByProps({
-        children: 'Message text',
-      }),
-    ).toBeTruthy();
-
+    expect(testRenderer!.root.findByProps({
+      children: 'Message text'
+    })).toBeTruthy();
     act(() => {
       exitAnimationCallbacks.at(-1)?.(true);
     });
-
-    expect(() =>
-      testRenderer!.root.findByProps({
-        children: 'Message text',
-      }),
-    ).toThrow();
-
+    expect(() => testRenderer!.root.findByProps({
+      children: 'Message text'
+    })).toThrow();
     act(() => {
       testRenderer!.unmount();
     });
   });
-
-    it('does not fire cancel or open-change callbacks for controlled external close and defers afterOpenChange(false) until exit completes', () => {
+  it('does not fire cancel or open-change callbacks for controlled external close and defers afterOpenChange(false) until exit completes', () => {
     const onCancel = jest.fn();
     const onOpenChange = jest.fn();
     const afterOpenChange = jest.fn();
     let testRenderer!: renderer.ReactTestRenderer;
-
     act(() => {
-      testRenderer = renderer.create(
-        <ThemeProvider>
-          <PortalProvider>
-            <Message
-              open
-              duration={0}
-              messageText="Message text"
-              onCancel={onCancel}
-              onOpenChange={onOpenChange}
-              afterOpenChange={afterOpenChange}
-            />
-          </PortalProvider>
-        </ThemeProvider>,
-      );
+      testRenderer = renderer.create(<><PortalProvider>
+            <Message open duration={0} messageText="Message text" onCancel={onCancel} onOpenChange={onOpenChange} afterOpenChange={afterOpenChange} />
+          </PortalProvider></>);
     });
-
     onCancel.mockClear();
     onOpenChange.mockClear();
     afterOpenChange.mockClear();
-
     act(() => {
-      testRenderer.update(
-        <ThemeProvider>
-          <PortalProvider>
-            <Message
-              open={false}
-              duration={0}
-              messageText="Message text"
-              onCancel={onCancel}
-              onOpenChange={onOpenChange}
-              afterOpenChange={afterOpenChange}
-            />
-          </PortalProvider>
-        </ThemeProvider>,
-      );
+      testRenderer.update(<><PortalProvider>
+            <Message open={false} duration={0} messageText="Message text" onCancel={onCancel} onOpenChange={onOpenChange} afterOpenChange={afterOpenChange} />
+          </PortalProvider></>);
     });
-
     expect(onCancel).not.toHaveBeenCalled();
     expect(onOpenChange).not.toHaveBeenCalled();
     expect(afterOpenChange).not.toHaveBeenCalled();
-    expect(
-      testRenderer!.root.findByProps({
-        children: 'Message text',
-      }),
-    ).toBeTruthy();
-
+    expect(testRenderer!.root.findByProps({
+      children: 'Message text'
+    })).toBeTruthy();
     act(() => {
       exitAnimationCallbacks.at(-1)?.(true);
     });
-
     expect(onCancel).not.toHaveBeenCalled();
     expect(onOpenChange).not.toHaveBeenCalled();
     expect(afterOpenChange).toHaveBeenCalledTimes(1);
     expect(afterOpenChange).toHaveBeenCalledWith(false);
-
-    expect(() =>
-      testRenderer!.root.findByProps({
-        children: 'Message text',
-      }),
-    ).toThrow();
-
+    expect(() => testRenderer!.root.findByProps({
+      children: 'Message text'
+    })).toThrow();
     act(() => {
       testRenderer!.unmount();
     });
   });
-
   it('fires cancel and open-change immediately for uncontrolled internal close and defers afterOpenChange(false) until exit completes', () => {
     const onCancel = jest.fn();
     const onOpenChange = jest.fn();
     const afterOpenChange = jest.fn();
     let testRenderer!: renderer.ReactTestRenderer;
-
     act(() => {
-      testRenderer = renderer.create(
-        <ThemeProvider>
-          <PortalProvider>
-            <Message
-              defaultOpen
-              duration={1000}
-              messageText="Message text"
-              onCancel={onCancel}
-              onOpenChange={onOpenChange}
-              afterOpenChange={afterOpenChange}
-            />
-          </PortalProvider>
-        </ThemeProvider>,
-      );
+      testRenderer = renderer.create(<><PortalProvider>
+            <Message defaultOpen duration={1000} messageText="Message text" onCancel={onCancel} onOpenChange={onOpenChange} afterOpenChange={afterOpenChange} />
+          </PortalProvider></>);
     });
-
     onCancel.mockClear();
     onOpenChange.mockClear();
     afterOpenChange.mockClear();
-
     act(() => {
       jest.advanceTimersByTime(1000);
     });
-
     expect(onCancel).toHaveBeenCalledTimes(1);
     expect(onOpenChange).toHaveBeenCalledTimes(1);
     expect(onOpenChange).toHaveBeenCalledWith(false);
     expect(afterOpenChange).not.toHaveBeenCalled();
-    expect(
-      testRenderer.root.findByProps({
-        children: 'Message text',
-      }),
-    ).toBeTruthy();
-
+    expect(testRenderer.root.findByProps({
+      children: 'Message text'
+    })).toBeTruthy();
     act(() => {
       exitAnimationCallbacks.at(-1)?.(true);
     });
-
     expect(afterOpenChange).toHaveBeenCalledTimes(1);
     expect(afterOpenChange).toHaveBeenCalledWith(false);
-    expect(() =>
-      testRenderer.root.findByProps({
-        children: 'Message text',
-      }),
-    ).toThrow();
+    expect(() => testRenderer.root.findByProps({
+      children: 'Message text'
+    })).toThrow();
   });
 });
