@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import type { StyleProp, ViewStyle } from 'react-native';
+import type { ComponentSize } from '../shares/types';
 import type { PortalMountPoint } from '../Portal/types';
 
 export type PopupPosition = 'top' | 'bottom' | 'left' | 'right' | 'center';
@@ -39,3 +40,39 @@ export interface PopupProps {
   style?: StyleProp<ViewStyle>;
   styles?: PopupStyles;
 }
+
+export type PopupFloatingPanelPosition = 'top' | 'bottom';
+export type PopupFloatingPanelSize = ComponentSize;
+export type FloatingPanelPosition = PopupFloatingPanelPosition;
+export type FloatingPanelSize = PopupFloatingPanelSize;
+
+export interface PopupFloatingPanelStyles extends PopupStyles {
+  content?: StyleProp<ViewStyle>;
+  handle?: StyleProp<ViewStyle>;
+  handleIndicator?: StyleProp<ViewStyle>;
+}
+export type FloatingPanelStyles = PopupFloatingPanelStyles;
+
+export interface PopupFloatingPanelProps {
+  mountPoint?: PortalMountPoint;
+  open?: boolean;
+  defaultOpen?: boolean;
+  onOpenChange?: PopupProps['onOpenChange'];
+  afterOpenChange?: PopupProps['afterOpenChange'];
+  onCancel?: PopupProps['onCancel'];
+  mask?: boolean;
+  closeOnMaskClick?: boolean;
+  animation?: PopupAnimation;
+  animationDuration?: number;
+  position?: PopupFloatingPanelPosition;
+  size?: PopupFloatingPanelSize;
+  value?: number;
+  defaultValue?: number;
+  minHeight?: number;
+  maxHeight?: number;
+  onChange?: (value: number) => void;
+  children?: ReactNode;
+  style?: StyleProp<ViewStyle>;
+  styles?: PopupFloatingPanelStyles;
+}
+export type FloatingPanelProps = PopupFloatingPanelProps;

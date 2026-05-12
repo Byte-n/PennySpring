@@ -1,5 +1,16 @@
-export { Popup } from './Popup';
+import { FloatingPanel } from './FloatingPanel';
+import { Popup as PopupRoot } from './Popup';
+
+export const Popup = Object.assign(PopupRoot, {
+  FloatingPanel,
+});
+
+export { FloatingPanel };
 export type {
+  PopupFloatingPanelPosition,
+  PopupFloatingPanelProps,
+  PopupFloatingPanelSize,
+  PopupFloatingPanelStyles,
   PopupAnimation,
   PopupCancelParams,
   PopupCancelReason,
