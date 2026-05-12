@@ -6,6 +6,7 @@ import { defaultSeedToken } from '@pennyspring/theme';
 import { derivative } from '@pennyspring/theme/src/algorithms/derivative';
 import { formatToken } from '@pennyspring/theme/src/algorithms/formatToken';
 import { Divider } from '../src/Divider';
+import { Text } from '../src/Text';
 
 const token = formatToken(derivative(defaultSeedToken, false));
 
@@ -106,8 +107,9 @@ describe('Divider', () => {
 
     expect(root.props.style).toContain(rootStyle);
     expect(line.props.style).toContain(lineStyle);
-    expect(
-      flattenStyle(testRenderer.root.findAllByType(View)[2].props.style).paddingHorizontal,
-    ).toBe(0);
+
+    const contentText = testRenderer.root.findByType(Text);
+
+    expect(flattenStyle(contentText.props.style).paddingHorizontal).toBe(0);
   });
 });
