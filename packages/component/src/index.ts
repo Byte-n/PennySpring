@@ -115,6 +115,12 @@ export type {
   ListSize,
   ListStyles,
 } from './List';
+export { InfiniteScroll } from './InfiniteScroll';
+export type {
+  InfiniteScrollProps,
+  InfiniteScrollSize,
+  InfiniteScrollStyles,
+} from './InfiniteScroll';
 export { ListCollapse } from './ListCollapse';
 export type {
   ListCollapseProps,
