@@ -6,16 +6,38 @@ import React from 'react';
 import ReactTestRenderer from 'react-test-renderer';
 import App from '../App';
 
-const mockAppNavigator = jest.fn();
+const mockRootStackNavigator = jest.fn();
 
-jest.mock('../src/navigation/AppNavigator', () => {
+jest.mock('../src/navigation/RootStackNavigator', () => {
   const ReactLocal = require('react');
 
   return {
-    AppNavigator: () => {
-      mockAppNavigator();
+    RootStackNavigator: () => {
+      mockRootStackNavigator();
       return ReactLocal.createElement('mock-app-navigator');
     },
+  };
+});
+
+jest.mock('@pennyspring/component', () => {
+  const ReactLocal = require('react');
+
+  return {
+    App: ({ children }: { children: React.ReactNode }) =>
+      ReactLocal.createElement('mock-ps-app', null, children),
+  };
+});
+
+jest.mock('@react-navigation/native', () => {
+  const ReactLocal = require('react');
+
+  return {
+    NavigationContainer: ({ children }: { children: React.ReactNode }) =>
+      ReactLocal.createElement('mock-navigation-container', null, children),
+    createNavigationContainerRef: () => ({
+      current: null,
+      isReady: () => false,
+    }),
   };
 });
 
@@ -48,7 +70,7 @@ jest.mock('react-native-safe-area-context', () => {
 beforeEach(() => {
   jest.restoreAllMocks();
   jest.clearAllMocks();
-  mockAppNavigator.mockClear();
+  mockRootStackNavigator.mockClear();
 });
 
 test('renders correctly', async () => {
@@ -67,7 +89,7 @@ test('delegates navigation rendering to src/navigation', async () => {
   const treeString = JSON.stringify(testRenderer!.toJSON());
 
   expect(treeString).toContain('mock-app-navigator');
-  expect(mockAppNavigator).toHaveBeenCalledTimes(1);
+  expect(mockRootStackNavigator).toHaveBeenCalledTimes(1);
 });
 
 test('renders navigation content inside a safe area view', async () => {
