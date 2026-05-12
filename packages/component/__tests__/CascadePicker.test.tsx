@@ -1,6 +1,17 @@
 import React from 'react';
 import renderer, { act } from 'react-test-renderer';
 
+jest.mock('react-native-gesture-handler', () => {
+  const ReactNative = require('react-native');
+
+  return {
+    __esModule: true,
+    GestureHandlerRootView: ({ children }: { children?: React.ReactNode }) => (
+      <ReactNative.View>{children}</ReactNative.View>
+    ),
+  };
+});
+
 jest.mock('@react-navigation/material-top-tabs', () => ({
   createMaterialTopTabNavigator: () => ({
     Navigator: 'Navigator',
@@ -9,6 +20,7 @@ jest.mock('@react-navigation/material-top-tabs', () => ({
 }));
 
 jest.mock('react-native-reanimated', () => {
+  const React = require('react');
   const ReactNative = require('react-native');
 
   return {
@@ -16,6 +28,10 @@ jest.mock('react-native-reanimated', () => {
     default: {
       View: ReactNative.View,
     },
+    createAnimatedComponent: (Component: React.ComponentType<unknown>) =>
+      React.forwardRef((props: Record<string, unknown>, ref: React.Ref<unknown>) => (
+        <Component {...props} ref={ref} />
+      )),
     interpolate: (value: number) => value,
     useAnimatedStyle: (updater: () => Record<string, unknown>) => updater(),
     useSharedValue: (value: number) => ({ value }),
