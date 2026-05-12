@@ -99,3 +99,6 @@ yarn-error.log*
 /docs/bank-icon-mapping.md
 /docs/type-icon-mapping.md
 .worktrees/
+
+# Local git worktrees
+.worktrees/
