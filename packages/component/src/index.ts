@@ -294,6 +294,14 @@ export type {
 } from './ActionSheet';
 export { Stepper } from './Stepper';
 export type { StepperProps, StepperSize, StepperStyles } from './Stepper';
+export { Steps } from './Steps';
+export type {
+  StepsItem,
+  StepsProps,
+  StepsSize,
+  StepsStatus,
+  StepsStyles,
+} from './Steps';
 export { Result } from './Result';
 export type {
   ResultProps,

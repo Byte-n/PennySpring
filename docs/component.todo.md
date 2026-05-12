@@ -46,7 +46,7 @@
 
 - [ ] IndexBar
 - [ ] FloatingPanel 浮动面板
-- [ ] Steps 步骤条
+- [x] Steps 步骤条
 - [ ] Cascader / Cascader.View
 
 ## DataList 进度
