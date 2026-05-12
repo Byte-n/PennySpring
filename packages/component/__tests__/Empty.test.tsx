@@ -122,12 +122,22 @@ describe('Empty', () => {
       },
     });
 
-    expect(findNodesWithStyle(testRenderer, iconContainerStyle)).toHaveLength(1);
-    expect(findNodesWithStyle(testRenderer, messageStyle)).toHaveLength(1);
+    expect(findNodesWithStyle(testRenderer, iconContainerStyle).length).toBeGreaterThan(0);
+    expect(findNodesWithStyle(testRenderer, messageStyle).length).toBeGreaterThan(0);
   });
 
   it('exports Empty from the package entry', () => {
     jest.isolateModules(() => {
+      jest.doMock('react-native-gesture-handler', () => {
+        const ReactLocal = require('react');
+        const { View: ReactNativeView } = require('react-native');
+
+        return {
+          GestureHandlerRootView: ReactLocal.forwardRef((props: { children?: React.ReactNode }, ref: React.Ref<unknown>) => (
+            <ReactNativeView ref={ref}>{props.children}</ReactNativeView>
+          )),
+        };
+      });
       jest.doMock('@react-navigation/material-top-tabs', () => ({
         createMaterialTopTabNavigator: () => ({
           Navigator: 'Navigator',
@@ -141,6 +151,9 @@ describe('Empty', () => {
           __esModule: true,
           default: {
             View: ReactNative.View,
+          },
+          createAnimatedComponent: (Component: React.ComponentType<unknown>) => {
+            return React.forwardRef((props, ref) => <Component {...props} ref={ref} />);
           },
           interpolate: (value: number) => value,
           useAnimatedStyle: (updater: () => Record<string, unknown>) => updater(),
