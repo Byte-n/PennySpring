@@ -176,6 +176,15 @@ export type {
   TabsStyles,
   TabsValue,
 } from './Tabs';
+export { SideBar } from './SideBar';
+export type {
+  SideBarItem,
+  SideBarLayout,
+  SideBarProps,
+  SideBarSize,
+  SideBarStyles,
+  SideBarValue,
+} from './SideBar';
 export { Radio } from './Radio';
 export type {
   RadioDisplayType,
