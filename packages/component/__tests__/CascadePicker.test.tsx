@@ -40,9 +40,7 @@ jest.mock('react-native-reanimated', () => {
 import {
   CascadePicker,
   Text,
-  type CascadePickerOkParams,
   type CascadePickerOption,
-  type CascadePickerProps,
 } from '../src';
 
 interface RegionData {

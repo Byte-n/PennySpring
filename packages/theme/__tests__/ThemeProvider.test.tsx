@@ -2,11 +2,6 @@ import React from 'react';
 import renderer, { act } from 'react-test-renderer';
 import { ThemeProvider, useTheme } from '../src/index';
 
-let ThemeContextLocal: any;
-
-beforeAll(() => {
-  ThemeContextLocal = require('../src/ThemeProvider').ThemeContext;
-});
 
 // 测试用的 Hook 包装组件
 function TestHook<T>({ hook, onResult }: { hook: () => T; onResult: (r: T) => void }) {

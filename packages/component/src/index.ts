@@ -77,6 +77,8 @@ export type {
 } from './Checkbox';
 export { Tag } from './Tag';
 export type { TagColor, TagProps, TagSize, TagStyles, TagVariant } from './Tag';
+export { Badge } from './Badge';
+export type { BadgeColor, BadgeProps, BadgeSize, BadgeStyles } from './Badge';
 export { Calendar } from './Calendar';
 export type {
   CalendarDateMark,

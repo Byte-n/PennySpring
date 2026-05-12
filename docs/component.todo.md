@@ -20,8 +20,8 @@
 - [x] Textarea
 - [x] TopTabNavigator / HeaderBar / SegmentedControl
 - [x] Input.Search
-- [x] Dialog 对话框，
-- [x] Checkbox  / Radio、Radio.Group，均支持 展示类型：普通，按钮样式
+- [x] Dialog 对话框
+- [x] Checkbox / Radio、Radio.Group，均支持展示类型：普通，按钮样式
 - [x] Drawer / Drawer.Layout
 - [x] Divider
 - [x] Icon（第三方图标库 + theme color key）
@@ -32,27 +32,29 @@
 - [x] Loading 加载中
 - [x] ActionSheet 动作面板
 - [x] Stepper 步进器
+- [x] Tabs
+- [x] Ellipsis
+- [x] DataList / DataList.Section
+- [x] SwipeAction 滑动操作
+- [x] Result
+- [x] 骨架屏
+- [x] Toast / Message / Notification
+- [x] Badge 徽标
+- [x] SideBar
+- [x] TabBar
 
 ## 待办
 
-- [ ] Tabs
-- [ ] ellipsis https://github.com/ant-design/ant-design-mobile/blob/b627e1f0f9c45b75b30c66ca6fef057b02ecd9db/src/components/ellipsis/index.ts
-- [ ] DataList / DataList.Section 
-  - 支持 InfiniteScroll 无限滚动功能
-  - 支持 PullToRefresh 下拉刷新功能
-- [ ] SwipeAction 滑动操作 https://github.com/ant-design/ant-design-mobile/blob/master/src/components/swipe-action/index.tsx
-- [ ] Result / Result.Page
-- [ ] 骨架屏
-- [x] Toast / Message / Notification
-- [ ] Badge 徽标
-- 低优先级：
-  - [ ] SideBar
-  - [ ] TabBar
-  - [ ] IndexBar
-  - [ ] FloatingPanel 浮动面板
-  - [ ] Steps 步骤条
-  - [ ] Swiper 走马灯
-  - [ ] Cascader / Cascader.View
+- [ ] IndexBar
+- [ ] FloatingPanel 浮动面板
+- [ ] Steps 步骤条
+- [ ] Swiper 走马灯
+- [ ] Cascader / Cascader.View
+
+## DataList 进度
+
+- [x] 支持 InfiniteScroll 无限滚动功能
+- [x] 支持 PullToRefresh 下拉刷新功能
 
 ## 规范
 - [x] 组件规范

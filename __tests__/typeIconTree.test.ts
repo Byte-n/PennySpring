@@ -1,29 +1,6 @@
 import { ICON } from '@pennyspring/data';
 
 import { TYPE_ICON_TREE } from '../src/constants/typeIconTree';
-import type { IconValue } from '../src/constants/typeIconTree';
-
-const EXPECTED_GROUPS = [
-  { key: 'income', label: '收入', count: 18 },
-  { key: 'transfer', label: '转账', count: 8 },
-  { key: 'money-management', label: '理财', count: 7 },
-  { key: 'dining', label: '餐饮', count: 14 },
-  { key: 'daily', label: '日常', count: 10 },
-  { key: 'shopping', label: '购物', count: 9 },
-  { key: 'dress', label: '服饰', count: 8 },
-  { key: 'digital', label: '数码', count: 4 },
-  { key: 'entertainment', label: '娱乐', count: 10 },
-  { key: 'family', label: '家庭', count: 5 },
-  { key: 'parenting', label: '育儿', count: 10 },
-  { key: 'car', label: '汽车', count: 13 },
-  { key: 'interpersonal', label: '人情', count: 4 },
-  { key: 'traffic', label: '交通', count: 8 },
-  { key: 'housing', label: '住房', count: 4 },
-  { key: 'medical', label: '医疗', count: 7 },
-  { key: 'campus', label: '校园', count: 6 },
-  { key: 'tenement', label: '物业', count: 6 },
-  { key: 'other', label: '其它', count: 1 },
-] as const;
 
 const EXPECTED_VALUES_BY_GROUP = {
   "income": [

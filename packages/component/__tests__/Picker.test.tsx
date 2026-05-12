@@ -37,15 +37,9 @@ jest.mock('react-native-reanimated', () => {
 import {
   Picker,
   Text,
-  type PickerCancelParams,
-  type PickerChangeParams,
   type PickerColumn,
-  type PickerColumnItemData,
-  type PickerOkParams,
-  type PickerOpenChangeParams,
   type PickerProps,
   type PickerStyles,
-  type PickerValue,
 } from '../src';
 
 const columns: PickerColumn[] = [

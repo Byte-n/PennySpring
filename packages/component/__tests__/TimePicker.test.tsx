@@ -37,9 +37,6 @@ jest.mock('react-native-reanimated', () => {
 import {
   Text,
   TimePicker,
-  type TimePickerLabelParams,
-  type TimePickerProps,
-  type TimePickerValueParams,
 } from '../src';
 
 function makeDate(hours: number, minutes: number, seconds = 0): Date {
