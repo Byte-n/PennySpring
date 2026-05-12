@@ -181,6 +181,15 @@ export type {
   SideBarStyles,
   SideBarValue,
 } from './SideBar';
+export { IndexBar } from './IndexBar';
+export type {
+  IndexBarComponent,
+  IndexBarPanelProps,
+  IndexBarProps,
+  IndexBarSize,
+  IndexBarStyles,
+  IndexBarValue,
+} from './IndexBar';
 export { Radio } from './Radio';
 export type {
   RadioDisplayType,

@@ -44,7 +44,7 @@
 
 ## 待办
 
-- [ ] IndexBar
+- [x] IndexBar
 - [ ] FloatingPanel 浮动面板
 - [x] Steps 步骤条
 - [ ] Cascader / Cascader.View
