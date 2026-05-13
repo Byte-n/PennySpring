@@ -8,8 +8,6 @@ import type {
 } from 'react-native';
 import type { ComponentSize } from '../shares/types';
 
-export type TagSize = ComponentSize;
-
 export type TagColor =
   | 'default'
   | 'primary'
@@ -40,7 +38,7 @@ export interface TagStyles {
 export interface TagProps
   extends Omit<PressableProps, 'style' | 'children' | 'disabled'> {
   children?: ReactNode;
-  size?: TagSize;
+  size?: ComponentSize;
   color?: TagColor;
   variant?: TagVariant;
   disabled?: boolean;

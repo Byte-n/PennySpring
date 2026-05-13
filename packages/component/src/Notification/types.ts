@@ -3,8 +3,6 @@ import type { StyleProp, TextStyle, ViewStyle } from 'react-native';
 import type { PortalMountPoint } from '../Portal/types';
 import type { ComponentSize } from '../shares/types';
 
-export type NotificationSize = ComponentSize;
-
 export type NotificationType = 'default' | 'success' | 'warning' | 'error' | 'info';
 export type NotificationPlacement =
   | 'top-left'
@@ -26,7 +24,7 @@ export interface NotificationProps {
   onOpenChange?: (open: boolean) => void;
   afterOpenChange?: (open: boolean) => void;
   duration?: number;
-  size?: NotificationSize;
+  size?: ComponentSize;
   type?: NotificationType;
   placement?: NotificationPlacement;
   titleText?: string;
@@ -40,7 +38,7 @@ export interface NotificationProps {
 export interface NotificationShowOptions {
   onCancel?: () => void;
   duration?: number;
-  size?: NotificationSize;
+  size?: ComponentSize;
   type?: NotificationType;
   placement?: NotificationPlacement;
   titleText?: string;

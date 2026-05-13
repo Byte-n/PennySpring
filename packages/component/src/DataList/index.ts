@@ -6,6 +6,5 @@ export type {
   DataListRefreshProps,
   DataListSection,
   DataListSectionProps,
-  DataListSize,
   DataListStyles,
 } from './types';

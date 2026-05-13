@@ -1,9 +1,10 @@
+import type { ComponentSize } from '../shares/types';
 import React from 'react';
 import { Pressable, View } from 'react-native';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import { useControllableValue } from '../_hooks';
 import type { AliasToken } from '@pennyspring/theme';
-import type { SwitchProps, SwitchSize } from './types';
+import type { SwitchProps } from './types';
 
 interface SizeStyleConfig {
   trackWidth: (token: AliasToken) => number;
@@ -11,7 +12,7 @@ interface SizeStyleConfig {
   inset: (token: AliasToken) => number;
 }
 
-const SIZE_STYLE_MAP: Record<SwitchSize, SizeStyleConfig> = {
+const SIZE_STYLE_MAP: Record<ComponentSize, SizeStyleConfig> = {
   small: {
     trackWidth: token => token.controlHeight,
     thumbSize: token => token.fontSize,
@@ -29,7 +30,7 @@ const SIZE_STYLE_MAP: Record<SwitchSize, SizeStyleConfig> = {
   },
 };
 
-const useStyles = createUseSheetStyle((token, size: SwitchSize) => {
+const useStyles = createUseSheetStyle((token, size: ComponentSize) => {
   const sizeConfig = SIZE_STYLE_MAP[size];
   const trackWidth = sizeConfig.trackWidth(token);
   const thumbSize = sizeConfig.thumbSize(token);

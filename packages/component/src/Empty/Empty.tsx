@@ -1,13 +1,14 @@
+import type { ComponentSize } from '../shares/types';
 import React from 'react';
 import { View } from 'react-native';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import { Text } from '../Text';
 import type { AliasToken } from '@pennyspring/theme';
-import type { EmptyProps, EmptySize } from './types';
+import type { EmptyProps } from './types';
 import type { TextSize } from '../Text';
 
 interface EmptyStyleOptions {
-  size: EmptySize;
+  size: ComponentSize;
 }
 
 interface EmptySizeConfig {
@@ -17,7 +18,7 @@ interface EmptySizeConfig {
   messageSize: TextSize;
 }
 
-const SIZE_STYLE_MAP: Record<EmptySize, EmptySizeConfig> = {
+const SIZE_STYLE_MAP: Record<ComponentSize, EmptySizeConfig> = {
   small: {
     iconSize: token => token.fontSizeXL,
     gap: token => token.marginXS,

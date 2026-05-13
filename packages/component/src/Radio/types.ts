@@ -7,8 +7,6 @@ import type {
 } from 'react-native';
 import type { ComponentSize } from '../shares/types';
 
-export type RadioSize = ComponentSize;
-
 export type RadioDisplayType = 'default' | 'button';
 
 export type RadioGroupValue = string | number;
@@ -30,7 +28,7 @@ export interface RadioProps
   disabled?: boolean;
   readonly?: boolean;
   children?: ReactNode;
-  size?: RadioSize;
+  size?: ComponentSize;
   displayType?: RadioDisplayType;
   style?: StyleProp<ViewStyle>;
   styles?: RadioStyles;
@@ -59,7 +57,7 @@ export interface RadioGroupProps
   disabled?: boolean;
   readonly?: boolean;
   displayType?: RadioDisplayType;
-  size?: RadioSize;
+  size?: ComponentSize;
   block?: boolean;
   direction?: RadioGroupDirection;
   style?: StyleProp<ViewStyle>;

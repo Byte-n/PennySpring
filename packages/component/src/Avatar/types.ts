@@ -8,8 +8,6 @@ import type {
 } from 'react-native';
 import type { ComponentSize } from '../shares/types';
 
-export type AvatarSize = ComponentSize;
-
 export type AvatarShape = 'circle' | 'square';
 
 export interface AvatarStyles {
@@ -19,7 +17,7 @@ export interface AvatarStyles {
 }
 
 export interface AvatarProps {
-  size?: AvatarSize;
+  size?: ComponentSize;
   shape?: AvatarShape;
   src?: ImageSourcePropType;
   text?: string;
@@ -41,7 +39,7 @@ export interface AvatarGroupStyles {
 }
 
 export interface AvatarGroupProps {
-  size?: AvatarSize;
+  size?: ComponentSize;
   maxCount?: number;
   items?: AvatarGroupItem[];
   style?: StyleProp<ViewStyle>;

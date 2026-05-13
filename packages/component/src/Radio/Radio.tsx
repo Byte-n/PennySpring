@@ -1,18 +1,21 @@
+import type { ComponentSize } from '../shares/types';
 import React from 'react';
 import { Pressable, View } from 'react-native';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import { Text } from '../Text';
 import { useControllableValue } from '../_hooks';
-import type { AliasToken } from '@pennyspring/theme';
+import type {
+  AliasToken } from '@pennyspring/theme';
 import type { ReactNode } from 'react';
-import type { StyleProp, TextStyle, ViewStyle } from 'react-native';
+import type { StyleProp,
+  TextStyle,
+  ViewStyle } from 'react-native';
 import type {
   RadioDisplayType,
   RadioGroupDirection,
   RadioGroupProps,
   RadioGroupValue,
   RadioProps,
-  RadioSize,
 } from './types';
 
 interface SizeStyleConfig {
@@ -30,7 +33,7 @@ interface RadioStyleOptions {
   block: boolean;
   direction: RadioGroupDirection;
   displayType: RadioDisplayType;
-  size: RadioSize;
+  size: ComponentSize;
 }
 
 interface RadioOptionState {
@@ -42,7 +45,7 @@ interface RadioOptionState {
   selected: boolean;
 }
 
-const SIZE_STYLE_MAP: Record<RadioSize, SizeStyleConfig> = {
+const SIZE_STYLE_MAP: Record<ComponentSize, SizeStyleConfig> = {
   small: {
     minHeight: token => token.controlHeightSM,
     controlSize: token => token.fontSize,

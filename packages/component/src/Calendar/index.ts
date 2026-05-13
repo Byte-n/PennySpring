@@ -10,7 +10,6 @@ export type {
   CalendarProps,
   CalendarRangeProps,
   CalendarRangeValue,
-  CalendarSize,
   CalendarStyles,
   CalendarValue,
   CalendarYearValue,

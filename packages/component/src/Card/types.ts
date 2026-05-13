@@ -7,8 +7,6 @@ import type {
 } from 'react-native';
 import type { ComponentSize } from '../shares/types';
 
-export type CardSize = ComponentSize;
-
 /**
  * Card 的视觉变体。
  * plain 用于普通容器，elevated 用于更高层级，summary 用于摘要信息。
@@ -37,7 +35,7 @@ export interface CardProps {
    * Card 尺寸。
    * 使用组件库公共尺寸语义，默认值为 normal。
    */
-  size?: CardSize;
+  size?: ComponentSize;
 
   /**
    * Card 视觉变体。

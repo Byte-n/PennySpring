@@ -2,7 +2,7 @@ import type { StyleProp, TextStyle, ViewStyle } from 'react-native';
 
 export type EllipsisDirection = 'start' | 'end' | 'middle';
 
-export type EllipsisSize = 'small' | 'normal' | 'large';
+import type { ComponentSize } from '../shares/types';
 
 export interface EllipsisProps {
   /** The text content to display */
@@ -22,7 +22,7 @@ export interface EllipsisProps {
   /** Callback when expanded state changes */
   onExpand?: (expanded: boolean) => void;
   /** Size of the component @default 'normal' */
-  size?: EllipsisSize;
+  size?: ComponentSize;
   /** Custom styles for internal elements */
   styles?: EllipsisStyles;
   /** Root container style */

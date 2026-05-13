@@ -1,20 +1,22 @@
+import type { ComponentSize } from '../shares/types';
 import React, { useMemo } from 'react';
 import { Pressable, View } from 'react-native';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import { useControllableValue } from '../_hooks';
 import { Text } from '../Text';
-import type { AliasToken } from '@pennyspring/theme';
+import type {
+  AliasToken } from '@pennyspring/theme';
 import type { ReactNode } from 'react';
-import type { StyleProp, TextStyle } from 'react-native';
+import type { StyleProp,
+  TextStyle } from 'react-native';
 import type {
   StepsItem,
   StepsProps,
-  StepsSize,
   StepsStatus,
 } from './types';
 
 interface StepsStyleOptions {
-  size: StepsSize;
+  size: ComponentSize;
 }
 
 interface SizeStyleConfig {
@@ -31,7 +33,7 @@ interface SizeStyleConfig {
   connectorMarginTop: (token: AliasToken) => number;
 }
 
-const SIZE_STYLE_MAP: Record<StepsSize, SizeStyleConfig> = {
+const SIZE_STYLE_MAP: Record<ComponentSize, SizeStyleConfig> = {
   small: {
     indicatorSize: token => token.controlHeightSM,
     indicatorFontSize: token => token.fontSizeSM,

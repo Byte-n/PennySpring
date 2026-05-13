@@ -4,6 +4,5 @@ export type {
   SpaceDirection,
   SpaceJustify,
   SpaceProps,
-  SpaceSize,
   SpaceStyles,
 } from './types';

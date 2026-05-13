@@ -1,8 +1,6 @@
 import type { PressableProps, StyleProp, ViewStyle } from 'react-native';
 import type { ComponentSize } from '../shares/types';
 
-export type SwitchSize = ComponentSize;
-
 export interface SwitchStyles {
   track?: StyleProp<ViewStyle>;
   thumb?: StyleProp<ViewStyle>;
@@ -15,7 +13,7 @@ export interface SwitchProps
   onChange?: (value: boolean) => void;
   disabled?: boolean;
   readonly?: boolean;
-  size?: SwitchSize;
+  size?: ComponentSize;
   style?: StyleProp<ViewStyle>;
   styles?: SwitchStyles;
 }

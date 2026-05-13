@@ -1,21 +1,27 @@
+import type { ComponentSize } from '../shares/types';
 import React from 'react';
 import { View } from 'react-native';
-import type { DimensionValue } from 'react-native';
-import Animated, {
+import type {
+  DimensionValue } from 'react-native';
+import Animated,
+  {
   useAnimatedStyle,
   useSharedValue,
   withRepeat,
   withTiming,
-} from 'react-native-reanimated';
-import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
+  } from 'react-native-reanimated';
+import { createUseSheetStyle,
+  useTheme } from '@pennyspring/theme';
 import type { AliasToken } from '@pennyspring/theme';
-import type { SkeletonProps, SkeletonShape, SkeletonSize } from './types';
+import type { SkeletonProps,
+  SkeletonShape,
+} from './types';
 
 function getDefaultWidth(shape: SkeletonShape, token: AliasToken): DimensionValue {
   return shape === 'circle' ? token.controlHeightSM : '100%';
 }
 
-function getDefaultHeight(shape: SkeletonShape, size: SkeletonSize, token: AliasToken): number {
+function getDefaultHeight(shape: SkeletonShape, size: ComponentSize, token: AliasToken): number {
   if (shape === 'line') {
     if (size === 'small') {
       return token.fontSizeSM;

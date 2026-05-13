@@ -1,17 +1,20 @@
+import type { ComponentSize } from '../shares/types';
 import React, { useMemo, useState } from 'react';
 import { View } from 'react-native';
 import { createUseSheetStyle } from '@pennyspring/theme';
-import type { AliasToken } from '@pennyspring/theme';
+import type {
+  AliasToken } from '@pennyspring/theme';
 import { useControllableValue } from '../_hooks';
 import type {
   GestureResponderEvent,
   LayoutChangeEvent,
   ViewStyle,
-} from 'react-native';
-import type { SliderProps, SliderSize } from './types';
+  } from 'react-native';
+import type { SliderProps,
+} from './types';
 
 interface SliderStyleOptions {
-  size: SliderSize;
+  size: ComponentSize;
   disabled: boolean;
 }
 
@@ -25,7 +28,7 @@ const DEFAULT_MIN = 0;
 const DEFAULT_MAX = 100;
 const DEFAULT_STEP = 1;
 
-const SIZE_MAP: Record<SliderSize, SliderSizeConfig> = {
+const SIZE_MAP: Record<ComponentSize, SliderSizeConfig> = {
   small: {
     height: token => token.controlHeightSM,
     thumbSize: token => token.fontSize,
@@ -43,7 +46,7 @@ const SIZE_MAP: Record<SliderSize, SliderSizeConfig> = {
   },
 };
 
-function resolveSize(size?: SliderSize): SliderSize {
+function resolveSize(size?: ComponentSize): ComponentSize {
   return size ?? 'normal';
 }
 

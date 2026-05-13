@@ -4,6 +4,5 @@ export type {
   ToastPlacement,
   ToastProps,
   ToastShowOptions,
-  ToastSize,
   ToastStyles,
 } from './types';

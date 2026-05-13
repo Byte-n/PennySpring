@@ -1,13 +1,15 @@
+import type { ComponentSize } from '../shares/types';
 import React from 'react';
 import { Pressable, View } from 'react-native';
 import { createUseSheetStyle } from '@pennyspring/theme';
-import type { AliasToken } from '@pennyspring/theme';
+import type {
+  AliasToken } from '@pennyspring/theme';
 import type {
   GestureResponderEvent,
   LayoutChangeEvent,
   TextStyle,
   ViewStyle,
-} from 'react-native';
+  } from 'react-native';
 import { useControllableValue } from '../_hooks';
 import { Text } from '../Text';
 import type {
@@ -16,12 +18,11 @@ import type {
   SwipeActionProps,
   SwipeActionRef,
   SwipeActionSide,
-  SwipeActionSize,
   SwipeActionValue,
 } from './types';
 
 interface SwipeActionStyleOptions {
-  size: SwipeActionSize;
+  size: ComponentSize;
   disabled: boolean;
 }
 
@@ -33,7 +34,7 @@ interface SizeStyleConfig {
   actionLineHeight: (token: AliasToken) => number;
 }
 
-const SIZE_STYLE_MAP: Record<SwipeActionSize, SizeStyleConfig> = {
+const SIZE_STYLE_MAP: Record<ComponentSize, SizeStyleConfig> = {
   small: {
     minHeight: token => token.controlHeightSM,
     actionMinWidth: token => token.controlHeight,

@@ -5,6 +5,5 @@ export type {
   ProgressCircleProps,
   ProgressCircleStyles,
   ProgressComponent,
-  ProgressSize,
   ProgressStatus,
 } from './types';

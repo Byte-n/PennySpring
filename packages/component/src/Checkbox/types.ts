@@ -7,8 +7,6 @@ import type {
 } from 'react-native';
 import type { ComponentSize } from '../shares/types';
 
-export type CheckboxSize = ComponentSize;
-
 export type CheckboxDisplayType = 'default' | 'button';
 
 export type CheckboxValue = string | number;
@@ -29,7 +27,7 @@ export interface CheckboxProps
   readonly?: boolean;
   indeterminate?: boolean;
   children?: ReactNode;
-  size?: CheckboxSize;
+  size?: ComponentSize;
   displayType?: CheckboxDisplayType;
   style?: StyleProp<ViewStyle>;
   styles?: CheckboxStyles;
@@ -58,7 +56,7 @@ export interface CheckboxGroupProps
   disabled?: boolean;
   readonly?: boolean;
   displayType?: CheckboxDisplayType;
-  size?: CheckboxSize;
+  size?: ComponentSize;
   block?: boolean;
   direction?: 'horizontal' | 'vertical';
   style?: StyleProp<ViewStyle>;

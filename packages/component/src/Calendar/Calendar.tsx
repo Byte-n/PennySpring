@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Pressable, View } from 'react-native';
 import { createUseSheetStyle } from '@pennyspring/theme';
+import { Icon } from '../Icon';
 import { Text } from '../Text';
 import { useControllableValue } from '../_hooks';
 import type { ReactNode } from 'react';
@@ -14,11 +15,10 @@ import type {
   CalendarSize,
   CalendarValue,
 } from './types';
+import type { ComponentSize } from '../shares/types.ts';
 
 const DEFAULT_SIZE: CalendarSize = 'normal';
 const DEFAULT_MODE: CalendarMode = 'date';
-const DEFAULT_PREVIOUS_TEXT = 'Prev';
-const DEFAULT_NEXT_TEXT = 'Next';
 const DEFAULT_TODAY_TEXT = 'Today';
 const DEFAULT_CANCEL_TEXT = 'Cancel';
 const DEFAULT_OK_TEXT = 'Confirm';
@@ -68,6 +68,10 @@ const useCalendarStyles = createUseSheetStyle(
       paddingVertical: token.paddingXXS,
       borderRadius: token.borderRadiusSM,
       backgroundColor: token.colorFillQuaternary,
+    },
+    navIcon: {
+      color: token.colorIcon,
+      fontSize: token.fontSize,
     },
     weekHeader: {
       flexDirection: 'row',
@@ -128,7 +132,7 @@ const useCalendarStyles = createUseSheetStyle(
   }),
 );
 
-function resolveSize(size?: CalendarSize): CalendarSize {
+function resolveSize(size?: ComponentSize): ComponentSize {
   return size ?? DEFAULT_SIZE;
 }
 
@@ -302,8 +306,12 @@ function renderTextNode(node: ReactNode) {
   return node;
 }
 
-function renderSlotNode(node: ReactNode, text: string) {
-  return node ?? <Text>{text}</Text>;
+function renderSlotNode(node: ReactNode, text?: string) {
+  if (node !== undefined) {
+    return node;
+  }
+
+  return text === undefined ? null : <Text>{text}</Text>;
 }
 
 interface CalendarGridProps {
@@ -404,14 +412,14 @@ function CalendarRoot({
   minDate,
   mode,
   next,
-  nextText = DEFAULT_NEXT_TEXT,
+  nextText,
   onCancel,
   onChange,
   onOk,
   ok,
   okText = DEFAULT_OK_TEXT,
   previous,
-  previousText = DEFAULT_PREVIOUS_TEXT,
+  previousText,
   readonly,
   showConfirm,
   showToday,
@@ -487,7 +495,13 @@ function CalendarRoot({
           }}
           style={tokenStyles.navButton}
         >
-          {renderSlotNode(previous, previousText)}
+          {renderSlotNode(previous, previousText) ?? (
+            <Icon
+              color="colorIcon"
+              icon="caret-left"
+              size={tokenStyles.navIcon.fontSize}
+            />
+          )}
         </Pressable>
         <Text style={[tokenStyles.title, styles?.title]}>{panelTitle(panel, resolvedMode)}</Text>
         <Pressable
@@ -500,7 +514,13 @@ function CalendarRoot({
           }}
           style={tokenStyles.navButton}
         >
-          {renderSlotNode(next, nextText)}
+          {renderSlotNode(next, nextText) ?? (
+            <Icon
+              color="colorIcon"
+              icon="caret-right"
+              size={tokenStyles.navIcon.fontSize}
+            />
+          )}
         </Pressable>
       </View>
       {resolvedMode === 'date' ? (
@@ -575,14 +595,14 @@ function CalendarRange({
   minDate,
   mode,
   next,
-  nextText = DEFAULT_NEXT_TEXT,
+  nextText,
   onCancel,
   onChange,
   onOk,
   ok,
   okText = DEFAULT_OK_TEXT,
   previous,
-  previousText = DEFAULT_PREVIOUS_TEXT,
+  previousText,
   readonly,
   showConfirm,
   showToday,
@@ -665,7 +685,13 @@ function CalendarRange({
           }}
           style={tokenStyles.navButton}
         >
-          {renderSlotNode(previous, previousText)}
+          {renderSlotNode(previous, previousText) ?? (
+            <Icon
+              color="colorIcon"
+              icon="caret-left"
+              size={tokenStyles.navIcon.fontSize}
+            />
+          )}
         </Pressable>
         <Text style={[tokenStyles.title, styles?.title]}>{panelTitle(panel, resolvedMode)}</Text>
         <Pressable
@@ -678,7 +704,13 @@ function CalendarRange({
           }}
           style={tokenStyles.navButton}
         >
-          {renderSlotNode(next, nextText)}
+          {renderSlotNode(next, nextText) ?? (
+            <Icon
+              color="colorIcon"
+              icon="caret-right"
+              size={tokenStyles.navIcon.fontSize}
+            />
+          )}
         </Pressable>
       </View>
       <CalendarGrid

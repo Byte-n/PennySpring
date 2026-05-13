@@ -1,23 +1,27 @@
+import type { ComponentSize } from '../shares/types';
 import React from 'react';
 import { View } from 'react-native';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import { Text } from '../Text';
 import { AvatarRoot } from './Avatar';
-import type { AliasToken } from '@pennyspring/theme';
-import type { TextStyle, ViewStyle } from 'react-native';
-import type { AvatarGroupProps, AvatarSize } from './types';
+import type {
+  AliasToken } from '@pennyspring/theme';
+import type { TextStyle,
+  ViewStyle } from 'react-native';
+import type { AvatarGroupProps,
+} from './types';
 
 const DEFAULT_MAX_COUNT = 3;
 
 interface AvatarGroupStyleOptions {
-  size: AvatarSize;
+  size: ComponentSize;
 }
 
 interface AvatarGroupSizeConfig {
   overlap: (token: AliasToken) => number;
 }
 
-const AVATAR_GROUP_SIZE_CONFIG: Record<AvatarSize, AvatarGroupSizeConfig> = {
+const AVATAR_GROUP_SIZE_CONFIG: Record<ComponentSize, AvatarGroupSizeConfig> = {
   small: {
     overlap: token => token.paddingXXS,
   },
@@ -77,7 +81,7 @@ const useStyles = createUseSheetStyle<
   };
 });
 
-function resolveAvatarGroupSize(size?: AvatarSize): AvatarSize {
+function resolveAvatarGroupSize(size?: ComponentSize): ComponentSize {
   return size ?? 'normal';
 }
 

@@ -12,7 +12,6 @@ import type { ComponentSize } from '../shares/types';
 import type { TabsStyles } from '../Tabs';
 
 export type CascaderValue = string | number;
-export type CascaderSize = ComponentSize;
 
 export interface CascaderOption<TData = unknown> {
   labelText?: string;
@@ -43,7 +42,7 @@ export interface CascaderViewStyles {
 }
 
 export interface CascaderViewProps<TData = unknown> {
-  size?: CascaderSize;
+  size?: ComponentSize;
   options: Array<CascaderOption<TData>>;
   value?: CascaderValue[];
   defaultValue?: CascaderValue[];

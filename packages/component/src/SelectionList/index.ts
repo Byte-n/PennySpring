@@ -5,7 +5,6 @@ export type {
   SelectionListOptionGroup,
   SelectionListPopupProps,
   SelectionListProps,
-  SelectionListSize,
   SelectionListStatus,
   SelectionListStyles,
   SelectionListValue,

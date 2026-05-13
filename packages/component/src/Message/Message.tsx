@@ -1,3 +1,4 @@
+import type { ComponentSize } from '../shares/types';
 import React, { useContext } from 'react';
 import { View } from 'react-native';
 import Animated, {
@@ -18,12 +19,11 @@ import type {
   MessagePlacement,
   MessageProps,
   MessageShowOptions,
-  MessageSize,
   MessageType,
 } from './types';
 
 const DEFAULT_DURATION = 2400;
-const DEFAULT_SIZE: MessageSize = 'normal';
+const DEFAULT_SIZE: ComponentSize = 'normal';
 const DEFAULT_TYPE: MessageType = 'default';
 const DEFAULT_PLACEMENT: MessagePlacement = 'top';
 
@@ -35,7 +35,7 @@ function resolveTypeColor(token: ReturnType<typeof useTheme>['token'], type: Mes
   return token.colorPrimary;
 }
 
-const useStyles = createUseSheetStyle((token, { size, placement }: { size: MessageSize; placement: MessagePlacement }) => ({
+const useStyles = createUseSheetStyle((token, { size, placement }: { size: ComponentSize; placement: MessagePlacement }) => ({
   content: {
     position: 'absolute',
     zIndex: token.zIndexPopupBase + 120,

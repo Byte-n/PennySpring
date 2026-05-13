@@ -4,6 +4,5 @@ export type {
   ListItemProps,
   ListItemStyles,
   ListProps,
-  ListSize,
   ListStyles,
 } from './types';

@@ -9,7 +9,6 @@ export type {
   PickerOpenChangeParams,
   PickerOpenChangeReason,
   PickerProps,
-  PickerSize,
   PickerStyles,
   PickerValue,
 } from './types';

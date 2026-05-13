@@ -13,7 +13,6 @@ export type {
   AvatarGroupStyles,
   AvatarProps,
   AvatarShape,
-  AvatarSize,
   AvatarStyles,
 } from './types';
 

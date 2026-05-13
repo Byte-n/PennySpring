@@ -1,11 +1,11 @@
 import React, { useMemo } from 'react';
 import { Pressable, View } from 'react-native';
+import { Icon } from '../Icon';
 import { Popup } from '../Popup';
 import { Text } from '../Text';
 import { useControllableValue } from '../_hooks';
 import {
   CASCADER_DEFAULT_PLACEHOLDER,
-  CASCADER_TRIGGER_SUFFIX,
   useCascaderStyles,
 } from './style';
 import { CascaderView } from './CascaderView';
@@ -152,7 +152,12 @@ function CascaderRoot<TData = unknown>({
                 </Text>
               )}
             </View>
-            <Text style={tokenStyles.suffix}>{CASCADER_TRIGGER_SUFFIX}</Text>
+            <Icon
+              color="colorIcon"
+              icon="caret-down"
+              size={tokenStyles.suffix.fontSize}
+              style={tokenStyles.suffix}
+            />
           </>
         )}
       </Pressable>

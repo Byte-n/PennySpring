@@ -1,10 +1,10 @@
 import { createUseSheetStyle } from '@pennyspring/theme';
 import type { AliasToken } from '@pennyspring/theme';
 import type { TextStyle } from 'react-native';
-import type { CascaderSize } from '../types';
+import type { ComponentSize } from '../../shares/types';
 
 interface CascaderStyleOptions {
-  size: CascaderSize;
+  size: ComponentSize;
 }
 
 interface SizeConfig {
@@ -17,7 +17,7 @@ interface SizeConfig {
   panelGap: (token: AliasToken) => number;
 }
 
-const SIZE_MAP: Record<CascaderSize, SizeConfig> = {
+const SIZE_MAP: Record<ComponentSize, SizeConfig> = {
   small: {
     minHeight: token => token.controlHeightSM,
     paddingHorizontal: token => token.controlPaddingHorizontalSM,
@@ -50,7 +50,6 @@ const SIZE_MAP: Record<CascaderSize, SizeConfig> = {
 export const CASCADER_DEFAULT_PLACEHOLDER = 'Select';
 export const CASCADER_DEFAULT_EMPTY_TEXT = 'No options';
 export const CASCADER_DEFAULT_TAB_PLACEHOLDER = 'Select';
-export const CASCADER_TRIGGER_SUFFIX = '⌄';
 export const CASCADER_SELECTED_MARK = '[x]';
 export const CASCADER_UNSELECTED_MARK = '[ ]';
 
@@ -101,7 +100,8 @@ export const useCascaderStyles = createUseSheetStyle(
         color: token.colorTextPlaceholder,
       },
       suffix: {
-        color: token.colorTextTertiary,
+        color: token.colorIcon,
+        fontSize: sizeConfig.fontSize(token),
       },
       panel: {
         flex: 1,

@@ -1,3 +1,4 @@
+export type { ComponentSize } from './shares/types';
 export { Text } from './Text';
 export type { TextColor, TextProps, TextSize, TextWeight } from './Text';
 export { App } from './App';
@@ -13,13 +14,7 @@ export type {
   DrawerType,
 } from './Drawer';
 export { Divider } from './Divider';
-export type {
-  DividerContentPosition,
-  DividerDirection,
-  DividerProps,
-  DividerSize,
-  DividerStyles,
-} from './Divider';
+export type { DividerContentPosition, DividerDirection, DividerProps, DividerStyles } from './Divider';
 export { Dialog } from './Dialog';
 export type {
   DialogCancelParams,
@@ -37,7 +32,6 @@ export type {
   SpaceDirection,
   SpaceJustify,
   SpaceProps,
-  SpaceSize,
   SpaceStyles,
 } from './Space';
 export { Avatar } from './Avatar';
@@ -47,7 +41,6 @@ export type {
   AvatarGroupStyles,
   AvatarProps,
   AvatarShape,
-  AvatarSize,
   AvatarStyles,
 } from './Avatar';
 export { Button } from './Button';
@@ -57,7 +50,6 @@ export type {
   ButtonLoadingConfig,
   ButtonProps,
   ButtonShape,
-  ButtonSize,
   ButtonStyles,
   ButtonType,
   ButtonVariant,
@@ -71,14 +63,13 @@ export type {
   CheckboxGroupProps,
   CheckboxGroupStyles,
   CheckboxProps,
-  CheckboxSize,
   CheckboxStyles,
   CheckboxValue,
 } from './Checkbox';
 export { Tag } from './Tag';
-export type { TagColor, TagProps, TagSize, TagStyles, TagVariant } from './Tag';
+export type { TagColor, TagProps, TagStyles, TagVariant } from './Tag';
 export { Badge } from './Badge';
-export type { BadgeColor, BadgeProps, BadgeSize, BadgeStyles } from './Badge';
+export type { BadgeColor, BadgeProps, BadgeStyles } from './Badge';
 export { Calendar } from './Calendar';
 export type {
   CalendarDateMark,
@@ -91,30 +82,22 @@ export type {
   CalendarProps,
   CalendarRangeProps,
   CalendarRangeValue,
-  CalendarSize,
   CalendarStyles,
   CalendarValue,
   CalendarYearValue,
 } from './Calendar';
 export { Card } from './Card';
-export type { CardProps, CardSize, CardStyles, CardVariant } from './Card';
+export type { CardProps, CardStyles, CardVariant } from './Card';
 export { Input } from './Input';
-export type {
-  InputProps,
-  InputSearchProps,
-  InputSize,
-  InputStatus,
-  InputStyles,
-} from './Input';
+export type { InputProps, InputSearchProps, InputStatus, InputStyles } from './Input';
 export { Slider } from './Slider';
-export type { SliderProps, SliderSize, SliderStyles } from './Slider';
+export type { SliderProps, SliderStyles } from './Slider';
 export { List } from './List';
 export type {
   ListDivider,
   ListItemProps,
   ListItemStyles,
   ListProps,
-  ListSize,
   ListStyles,
 } from './List';
 export { DataList } from './DataList';
@@ -124,15 +107,10 @@ export type {
   DataListRefreshProps,
   DataListSection,
   DataListSectionProps,
-  DataListSize,
   DataListStyles,
 } from './DataList';
 export { ListCollapse } from './ListCollapse';
-export type {
-  ListCollapseProps,
-  ListCollapseSize,
-  ListCollapseStyles,
-} from './ListCollapse';
+export type { ListCollapseProps, ListCollapseStyles } from './ListCollapse';
 export { SelectionList } from './SelectionList';
 export type {
   SelectionListMode,
@@ -140,7 +118,6 @@ export type {
   SelectionListOptionGroup,
   SelectionListPopupProps,
   SelectionListProps,
-  SelectionListSize,
   SelectionListStatus,
   SelectionListStyles,
   SelectionListValue,
@@ -151,24 +128,16 @@ export type {
   SegmentedOption,
   SegmentedProps,
   SegmentedRawOption,
-  SegmentedSize,
   SegmentedStyles,
   SegmentedValue,
 } from './Segmented';
 export { TabBar } from './TabBar';
-export type {
-  TabBarItem,
-  TabBarProps,
-  TabBarSize,
-  TabBarStyles,
-  TabBarValue,
-} from './TabBar';
+export type { TabBarItem, TabBarProps, TabBarStyles, TabBarValue } from './TabBar';
 export { Tabs } from './Tabs';
 export type {
   TabsItem,
   TabsLayout,
   TabsProps,
-  TabsSize,
   TabsStyles,
   TabsValue,
 } from './Tabs';
@@ -177,7 +146,6 @@ export type {
   SideBarItem,
   SideBarLayout,
   SideBarProps,
-  SideBarSize,
   SideBarStyles,
   SideBarValue,
 } from './SideBar';
@@ -186,7 +154,6 @@ export type {
   IndexBarComponent,
   IndexBarPanelProps,
   IndexBarProps,
-  IndexBarSize,
   IndexBarStyles,
   IndexBarValue,
 } from './IndexBar';
@@ -199,20 +166,14 @@ export type {
   RadioGroupStyles,
   RadioGroupValue,
   RadioProps,
-  RadioSize,
   RadioStyles,
 } from './Radio';
 export { Switch } from './Switch';
-export type { SwitchProps, SwitchSize, SwitchStyles } from './Switch';
+export type { SwitchProps, SwitchStyles } from './Switch';
 export { Loading } from './Loading';
-export type { LoadingProps, LoadingSize, LoadingStyles } from './Loading';
+export type { LoadingProps, LoadingStyles } from './Loading';
 export { Textarea } from './Textarea';
-export type {
-  TextareaProps,
-  TextareaSize,
-  TextareaStatus,
-  TextareaStyles,
-} from './Textarea';
+export type { TextareaProps, TextareaStatus, TextareaStyles } from './Textarea';
 export { Picker } from './Picker';
 export type {
   PickerCancelParams,
@@ -224,7 +185,6 @@ export type {
   PickerOpenChangeParams,
   PickerOpenChangeReason,
   PickerProps,
-  PickerSize,
   PickerStyles,
   PickerValue,
 } from './Picker';
@@ -251,7 +211,6 @@ export type {
   CascaderOpenChangeReason,
   CascaderOption,
   CascaderProps,
-  CascaderSize,
   CascaderStyles,
   CascaderValue,
   CascaderViewProps,
@@ -275,7 +234,6 @@ export { Popup } from './Popup';
 export type {
   PopupFloatingPanelPosition,
   PopupFloatingPanelProps,
-  PopupFloatingPanelSize,
   PopupFloatingPanelStyles,
   PopupCancelParams,
   PopupCancelReason,
@@ -304,11 +262,10 @@ export type {
   ProgressBarStyles,
   ProgressCircleProps,
   ProgressCircleStyles,
-  ProgressSize,
   ProgressStatus,
 } from './Progress';
 export { Empty } from './Empty';
-export type { EmptyProps, EmptySize, EmptyStyles } from './Empty';
+export type { EmptyProps, EmptyStyles } from './Empty';
 export { ActionSheet } from './ActionSheet';
 export type {
   ActionSheetAction,
@@ -320,38 +277,21 @@ export type {
   ActionSheetStyles,
 } from './ActionSheet';
 export { Stepper } from './Stepper';
-export type { StepperProps, StepperSize, StepperStyles } from './Stepper';
+export type { StepperProps, StepperStyles } from './Stepper';
 export { Steps } from './Steps';
-export type {
-  StepsItem,
-  StepsProps,
-  StepsSize,
-  StepsStatus,
-  StepsStyles,
-} from './Steps';
+export type { StepsItem, StepsProps, StepsStatus, StepsStyles } from './Steps';
 export { Result } from './Result';
-export type {
-  ResultProps,
-  ResultSize,
-  ResultStatus,
-  ResultStyles,
-} from './Result';
+export type { ResultProps, ResultStatus, ResultStyles } from './Result';
 export { Skeleton } from './Skeleton';
 export type { SkeletonProps, SkeletonShape } from './Skeleton';
 export { Ellipsis } from './Ellipsis';
-export type {
-  EllipsisDirection,
-  EllipsisProps,
-  EllipsisSize,
-  EllipsisStyles,
-} from './Ellipsis';
+export type { EllipsisDirection, EllipsisProps, EllipsisStyles } from './Ellipsis';
 export { Toast, useToast } from './Toast';
 export type {
   ToastController,
   ToastPlacement,
   ToastProps,
   ToastShowOptions,
-  ToastSize,
   ToastStyles,
 } from './Toast';
 export { Message, useMessage } from './Message';
@@ -360,7 +300,6 @@ export type {
   MessagePlacement,
   MessageProps,
   MessageShowOptions,
-  MessageSize,
   MessageStyles,
   MessageType,
 } from './Message';
@@ -370,7 +309,6 @@ export type {
   NotificationPlacement,
   NotificationProps,
   NotificationShowOptions,
-  NotificationSize,
   NotificationStyles,
   NotificationType,
 } from './Notification';
@@ -381,7 +319,6 @@ export type {
   SwipeActionProps,
   SwipeActionRef,
   SwipeActionSide,
-  SwipeActionSize,
   SwipeActionStyles,
   SwipeActionValue,
 } from './SwipeAction';

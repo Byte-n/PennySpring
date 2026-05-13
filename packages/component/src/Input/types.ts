@@ -10,7 +10,6 @@ import type { ComponentSize } from '../shares/types';
 /**
  * Input size semantic.
  */
-export type InputSize = ComponentSize;
 
 /**
  * Input validation display status.
@@ -48,7 +47,7 @@ export interface InputProps
   /**
    * Input size. Defaults to normal.
    */
-  size?: InputSize;
+  size?: ComponentSize;
 
   /**
    * Validation display status. Defaults to default.

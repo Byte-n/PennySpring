@@ -8,7 +8,6 @@ import type {
 } from 'react-native';
 import type { ComponentSize } from '../shares/types';
 
-export type StepsSize = ComponentSize;
 export type StepsStatus = 'wait' | 'process' | 'finish' | 'error';
 
 export interface StepsItem {
@@ -40,7 +39,7 @@ export interface StepsProps
   onChange?: (value: number) => void;
   disabled?: boolean;
   readonly?: boolean;
-  size?: StepsSize;
+  size?: ComponentSize;
   status?: StepsStatus;
   style?: StyleProp<ViewStyle>;
   styles?: StepsStyles;

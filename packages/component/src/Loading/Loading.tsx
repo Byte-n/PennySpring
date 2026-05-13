@@ -1,14 +1,17 @@
+import type { ComponentSize } from '../shares/types';
 import React from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
 import { Text } from '../Text';
-import type { AliasToken } from '@pennyspring/theme';
+import type {
+  AliasToken } from '@pennyspring/theme';
 import type { ReactNode } from 'react';
-import type { LoadingProps, LoadingSize } from './types';
+import type { LoadingProps,
+} from './types';
 import type { TextSize } from '../Text';
 
 interface LoadingStyleOptions {
-  size: LoadingSize;
+  size: ComponentSize;
   vertical: boolean;
 }
 
@@ -18,7 +21,7 @@ interface SizeStyleConfig {
   gap: (token: AliasToken) => number;
 }
 
-const SIZE_STYLE_MAP: Record<LoadingSize, SizeStyleConfig> = {
+const SIZE_STYLE_MAP: Record<ComponentSize, SizeStyleConfig> = {
   small: {
     indicatorSize: token => token.fontSize,
     textSize: 'sm',
@@ -36,7 +39,7 @@ const SIZE_STYLE_MAP: Record<LoadingSize, SizeStyleConfig> = {
   },
 };
 
-function resolveSize(size?: LoadingSize): LoadingSize {
+function resolveSize(size?: ComponentSize): ComponentSize {
   return size ?? 'normal';
 }
 
@@ -44,11 +47,11 @@ function shouldRenderText(text: ReactNode): boolean {
   return text !== undefined && text !== null && text !== false;
 }
 
-function resolveIndicatorSize(token: AliasToken, size: LoadingSize): number {
+function resolveIndicatorSize(token: AliasToken, size: ComponentSize): number {
   return SIZE_STYLE_MAP[size].indicatorSize(token);
 }
 
-function resolveTextSize(size: LoadingSize): TextSize {
+function resolveTextSize(size: ComponentSize): TextSize {
   return SIZE_STYLE_MAP[size].textSize;
 }
 

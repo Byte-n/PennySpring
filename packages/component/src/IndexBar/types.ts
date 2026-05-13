@@ -10,8 +10,6 @@ import type { ComponentSize } from '../shares/types';
 
 export type IndexBarValue = string | number;
 
-export type IndexBarSize = ComponentSize;
-
 export interface IndexBarPanelProps {
   index: IndexBarValue;
   titleText?: string;
@@ -43,7 +41,7 @@ export interface IndexBarProps
   onChange?: (value: IndexBarValue) => void;
   onPress?: (event: GestureResponderEvent, value: IndexBarValue) => void;
   disabled?: boolean;
-  size?: IndexBarSize;
+  size?: ComponentSize;
   children?: ReactNode;
   style?: StyleProp<ViewStyle>;
   styles?: IndexBarStyles;

@@ -1,14 +1,21 @@
+import type { ComponentSize } from '../shares/types';
 import React from 'react';
 import { Pressable, View } from 'react-native';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import { Text } from '../Text';
-import type { AliasToken } from '@pennyspring/theme';
-import type { GestureResponderEvent, StyleProp, TextStyle } from 'react-native';
-import type { TagColor, TagProps, TagSize, TagVariant } from './types';
+import type {
+  AliasToken } from '@pennyspring/theme';
+import type { GestureResponderEvent,
+  StyleProp,
+  TextStyle } from 'react-native';
+import type { TagColor,
+  TagProps,
+  TagVariant,
+} from './types';
 
 interface TagStyleOptions {
   color: TagColor;
-  size: TagSize;
+  size: ComponentSize;
   variant: TagVariant;
 }
 
@@ -36,7 +43,7 @@ interface VariantStyleConfig {
   pressedBorderColor: string;
 }
 
-const SIZE_STYLE_MAP: Record<TagSize, SizeStyleConfig> = {
+const SIZE_STYLE_MAP: Record<ComponentSize, SizeStyleConfig> = {
   small: {
     minHeight: token => token.controlHeightXS,
     paddingHorizontal: token => token.paddingXS,

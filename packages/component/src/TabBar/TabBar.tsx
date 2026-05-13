@@ -1,17 +1,24 @@
+import type { ComponentSize } from '../shares/types';
 import React, { useMemo } from 'react';
 import { Pressable, View } from 'react-native';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import { Text } from '../Text';
 import { useControllableValue } from '../_hooks';
-import type { AliasToken } from '@pennyspring/theme';
+import type {
+  AliasToken } from '@pennyspring/theme';
 import type { ReactNode } from 'react';
-import type { StyleProp, TextStyle, ViewStyle } from 'react-native';
-import type { TabBarItem, TabBarProps, TabBarSize, TabBarValue } from './types';
+import type { StyleProp,
+  TextStyle,
+  ViewStyle } from 'react-native';
+import type { TabBarItem,
+  TabBarProps,
+  TabBarValue,
+} from './types';
 
 interface TabBarStyleOptions {
   disabled: boolean;
   safeAreaInsetBottom: boolean;
-  size: TabBarSize;
+  size: ComponentSize;
 }
 
 interface SizeStyleConfig {
@@ -31,7 +38,7 @@ const TAB_ITEM_HIT_SLOP = {
   left: 6,
 } as const;
 
-const SIZE_STYLE_MAP: Record<TabBarSize, SizeStyleConfig> = {
+const SIZE_STYLE_MAP: Record<ComponentSize, SizeStyleConfig> = {
   small: {
     minHeight: token => token.controlHeightSM + token.paddingSM,
     iconBottomGap: token => token.marginXXS,

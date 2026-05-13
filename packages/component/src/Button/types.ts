@@ -8,8 +8,6 @@ import type {
 } from 'react-native';
 import type { ComponentSize } from '../shares/types';
 
-export type ButtonSize = ComponentSize;
-
 export type ButtonType = 'default' | 'primary' | 'dashed' | 'text' | 'link';
 
 export type ButtonColor =
@@ -61,7 +59,7 @@ export interface ButtonProps
   danger?: boolean;
   ghost?: boolean;
   shape?: ButtonShape;
-  size?: ButtonSize;
+  size?: ComponentSize;
   icon?: ReactNode;
   iconPlacement?: ButtonIconPlacement;
   loading?: boolean | ButtonLoadingConfig;

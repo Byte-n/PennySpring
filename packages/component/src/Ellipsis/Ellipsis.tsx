@@ -1,19 +1,20 @@
+import type { ComponentSize } from '../shares/types';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Pressable, Text as MeasurementText, View } from 'react-native';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import { useControllableValue } from '../_hooks';
 import { Text } from '../Text';
-import type { AliasToken } from '@pennyspring/theme';
+import type {
+  AliasToken } from '@pennyspring/theme';
 import type { TextLayoutEventData } from 'react-native';
 import type {
   EllipsisProps,
-  EllipsisSize,
 } from './types';
 
 const ELLIPSIS_TEXT = '...';
 
 interface StyleOptions {
-  size: EllipsisSize;
+  size: ComponentSize;
 }
 
 interface SizeConfig {
@@ -21,7 +22,7 @@ interface SizeConfig {
   lineHeight: (token: AliasToken) => number;
 }
 
-const SIZE_CONFIG: Record<EllipsisSize, SizeConfig> = {
+const SIZE_CONFIG: Record<ComponentSize, SizeConfig> = {
   small: {
     fontSize: t => t.fontSizeSM,
     lineHeight: t => t.lineHeightSM,

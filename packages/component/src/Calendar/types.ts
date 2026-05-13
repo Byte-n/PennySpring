@@ -3,6 +3,7 @@ import type { StyleProp, TextStyle, ViewStyle } from 'react-native';
 import type { ComponentSize } from '../shares/types';
 
 export type CalendarSize = ComponentSize;
+
 export type CalendarMode = 'date' | 'month' | 'year';
 export type CalendarDateValue = string;
 export type CalendarMonthValue = string;

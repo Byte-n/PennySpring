@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import type { StyleProp, ViewStyle } from 'react-native';
 import type {
   PickerCancelParams,
   PickerOpenChangeParams,
@@ -72,5 +73,6 @@ export interface DateTimePickerProps {
   readonly?: boolean;
   okDisabled?: boolean;
   children?: ReactNode;
+  style?: StyleProp<ViewStyle>;
   styles?: PickerStyles;
 }

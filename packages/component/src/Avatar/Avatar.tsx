@@ -1,17 +1,24 @@
+import type { ComponentSize } from '../shares/types';
 import React, { useEffect, useState } from 'react';
 import { Image, View } from 'react-native';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import { Text } from '../Text';
-import type { ReactNode } from 'react';
-import type { ImageSourcePropType, ImageStyle, TextStyle, ViewStyle } from 'react-native';
+import type {
+  ReactNode } from 'react';
+import type { ImageSourcePropType,
+  ImageStyle,
+  TextStyle,
+  ViewStyle } from 'react-native';
 import type { AliasToken } from '@pennyspring/theme';
-import type { AvatarProps, AvatarShape, AvatarSize } from './types';
+import type { AvatarProps,
+  AvatarShape,
+} from './types';
 
 export type AvatarDisplayType = 'image' | 'text' | 'icon' | 'empty';
 
 interface AvatarStyleOptions {
   shape: AvatarShape;
-  size: AvatarSize;
+  size: ComponentSize;
 }
 
 interface AvatarSizeConfig {
@@ -20,7 +27,7 @@ interface AvatarSizeConfig {
   lineHeight: (token: AliasToken) => number;
 }
 
-const AVATAR_SIZE_CONFIG: Record<AvatarSize, AvatarSizeConfig> = {
+const AVATAR_SIZE_CONFIG: Record<ComponentSize, AvatarSizeConfig> = {
   small: {
     dimension: token => token.controlHeightSM,
     fontSize: token => token.fontSizeSM,
@@ -86,7 +93,7 @@ const useStyles = createUseSheetStyle<AvatarStyleOptions, AvatarStyleSheet>(
   },
 );
 
-function resolveAvatarSize(size?: AvatarSize): AvatarSize {
+function resolveAvatarSize(size?: ComponentSize): ComponentSize {
   return size ?? 'normal';
 }
 

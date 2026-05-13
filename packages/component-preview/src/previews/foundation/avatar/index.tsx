@@ -4,9 +4,9 @@ import { Avatar } from '@pennyspring/component';
 import { UserIcon } from 'phosphor-react-native';
 import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
 import { PreviewRow, PreviewScaffold, PreviewSection } from '../../PreviewScaffold';
-import type { AvatarGroupItem, AvatarSize } from '@pennyspring/component';
+import type { AvatarGroupItem, ComponentSize } from '@pennyspring/component';
 
-const SIZES: AvatarSize[] = ['small', 'normal', 'large'];
+const SIZES: ComponentSize[] = ['small', 'normal', 'large'];
 
 const AVATAR_ITEMS: AvatarGroupItem[] = [
   { key: 'april', text: 'AP' },

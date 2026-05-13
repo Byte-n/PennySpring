@@ -6,10 +6,11 @@ import {
   View,
 } from 'react-native';
 import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
-import { MagnifyingGlassIcon } from 'phosphor-react-native';
+import { Icon } from '../Icon';
 import { Text } from '../Text';
 import { useControllableValue } from '../_hooks';
 import type { AliasToken } from '@pennyspring/theme';
+import type { ComponentSize } from '../shares/types';
 import type {
   GestureResponderEvent,
   NativeSyntheticEvent,
@@ -17,15 +18,19 @@ import type {
   TextInputProps,
   TextStyle,
 } from 'react-native';
-import type { InputProps, InputSearchProps, InputSize, InputStatus } from './types';
+import type {
+  InputProps,
+  InputSearchProps,
+  InputStatus,
+} from './types';
 
 interface InputStyleOptions {
-  size: InputSize;
+  size: ComponentSize;
   status: InputStatus;
 }
 
 interface SearchInputStyleOptions {
-  size: InputSize;
+  size: ComponentSize;
 }
 
 interface SizeConfig {
@@ -44,7 +49,7 @@ const CLEAR_BUTTON_LABEL = '清除输入内容';
 const SEARCH_BUTTON_LABEL = '搜索';
 const INPUT_ACTION_HIT_SLOP = 8;
 
-const SIZE_MAP: Record<InputSize, SizeConfig> = {
+const SIZE_MAP: Record<ComponentSize, SizeConfig> = {
   small: {
     minHeight: token => token.controlHeightSM,
     paddingHorizontal: token => token.controlPaddingHorizontalSM,
@@ -78,7 +83,7 @@ const STATUS_BORDER_COLOR_MAP: Record<InputStatus, StatusColorSelector> = {
   success: token => token.colorSuccessBorder,
 };
 
-function resolveSize(size?: InputSize): InputSize {
+function resolveSize(size?: ComponentSize): ComponentSize {
   return size ?? 'normal';
 }
 
@@ -178,7 +183,8 @@ const useStyles = createUseSheetStyle(
         backgroundColor: token.colorBgTextActive,
       },
       clearButtonLabel: {
-        color: token.colorTextTertiary,
+        color: token.colorIcon,
+        fontSize: sizeConfig.fontSize(token),
       },
       helper: {
         color: token.colorTextDescription,
@@ -211,9 +217,6 @@ const useSearchStyles = createUseSheetStyle(
       searchIcon: {
         color: token.colorTextTertiary,
         fontSize: sizeConfig.fontSize(token),
-      },
-      searchIconDisabled: {
-        color: token.colorTextDisabled,
       },
     };
   },
@@ -360,7 +363,11 @@ function InputRoot({
               styles?.clearButton,
             ]}
           >
-            <Text style={tokenStyles.clearButtonLabel}>×</Text>
+            <Icon
+              color="colorIcon"
+              icon="close"
+              size={tokenStyles.clearButtonLabel.fontSize}
+            />
           </Pressable>
         ) : loading === true ? (
           <ActivityIndicator
@@ -443,8 +450,9 @@ function SearchInput({
   }
 
   const resolvedSearchIcon = searchIcon ?? (
-    <MagnifyingGlassIcon
-      color={canSearch ? tokenStyles.searchIcon.color : tokenStyles.searchIconDisabled.color}
+    <Icon
+      color={canSearch ? 'colorIcon' : 'colorTextDisabled'}
+      icon="search"
       size={tokenStyles.searchIcon.fontSize}
     />
   );

@@ -7,8 +7,6 @@ import type {
 } from 'react-native';
 import type { ComponentSize } from '../shares/types';
 
-export type ListSize = ComponentSize;
-
 export type ListDivider = 'none' | 'inset' | 'full';
 
 export interface ListStyles {
@@ -28,7 +26,7 @@ export interface ListItemStyles {
 }
 
 export interface ListProps {
-  size?: ListSize;
+  size?: ComponentSize;
   header?: ReactNode;
   footer?: ReactNode;
   divider?: ListDivider;
@@ -44,7 +42,7 @@ export interface ListProps {
 }
 
 export interface ListItemProps {
-  size?: ListSize;
+  size?: ComponentSize;
   left?: ReactNode;
   titleText?: string;
   title?: ReactNode;

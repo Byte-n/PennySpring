@@ -2,8 +2,6 @@ import type React from 'react';
 import type { StyleProp, ViewStyle } from 'react-native';
 import type { ComponentSize } from '../shares/types';
 
-export type SpaceSize = ComponentSize;
-
 export type SpaceDirection = 'horizontal' | 'vertical';
 
 export type SpaceAlign = 'start' | 'end' | 'center' | 'baseline';
@@ -22,7 +20,7 @@ export interface SpaceStyles {
 }
 
 export interface SpaceProps {
-  size?: SpaceSize;
+  size?: ComponentSize;
   direction?: SpaceDirection;
   align?: SpaceAlign;
   justify?: SpaceJustify;

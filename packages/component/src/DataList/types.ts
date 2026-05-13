@@ -8,8 +8,6 @@ import type {
 } from 'react-native';
 import type { ComponentSize } from '../shares/types';
 
-export type DataListSize = ComponentSize;
-
 export interface DataListStyles {
   footer?: StyleProp<ViewStyle>;
   loadingMore?: StyleProp<ViewStyle>;
@@ -46,7 +44,7 @@ export interface DataListProps<ItemT>
     >,
     DataListLoadMoreProps,
     DataListRefreshProps {
-  size?: DataListSize;
+  size?: ComponentSize;
   style?: StyleProp<ViewStyle>;
   styles?: DataListStyles;
   footer?: ReactNode;
@@ -70,7 +68,7 @@ export interface DataListSectionProps<ItemT, SectionT extends DataListSection<It
     >,
     DataListLoadMoreProps,
     DataListRefreshProps {
-  size?: DataListSize;
+  size?: ComponentSize;
   style?: StyleProp<ViewStyle>;
   styles?: DataListStyles;
   footer?: ReactNode;

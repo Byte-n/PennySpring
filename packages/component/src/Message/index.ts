@@ -4,7 +4,6 @@ export type {
   MessagePlacement,
   MessageProps,
   MessageShowOptions,
-  MessageSize,
   MessageStyles,
   MessageType,
 } from './types';

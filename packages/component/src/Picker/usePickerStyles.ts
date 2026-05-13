@@ -1,13 +1,13 @@
 import { createUseSheetStyle } from '@pennyspring/theme';
 import type { AliasToken } from '@pennyspring/theme';
 import type { TextStyle } from 'react-native';
-import type { PickerSize } from './types';
+import type { ComponentSize } from '../shares/types';
 
 interface PickerStyleOptions {
-  size: PickerSize;
+  size: ComponentSize;
 }
 
-function getItemHeight(size: PickerSize, token: AliasToken): number {
+function getItemHeight(size: ComponentSize, token: AliasToken): number {
   if (size === 'small') {
     return token.controlHeightSM;
   }

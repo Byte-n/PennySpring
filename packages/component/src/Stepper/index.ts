@@ -1,2 +1,2 @@
 export { Stepper } from './Stepper';
-export type { StepperProps, StepperSize, StepperStyles } from './types';
+export type { StepperProps, StepperStyles } from './types';

@@ -1,8 +1,6 @@
 import type { StyleProp, ViewStyle } from 'react-native';
 import type { ComponentSize } from '../shares/types';
 
-export type SliderSize = ComponentSize;
-
 export interface SliderStyles {
   track?: StyleProp<ViewStyle>;
   trackFill?: StyleProp<ViewStyle>;
@@ -13,7 +11,7 @@ export interface SliderProps {
   /**
    * Slider size semantic. Defaults to normal.
    */
-  size?: SliderSize;
+  size?: ComponentSize;
 
   /**
    * Controlled slider value.

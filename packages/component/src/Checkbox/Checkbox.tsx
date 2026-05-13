@@ -1,18 +1,20 @@
+import type { ComponentSize } from '../shares/types';
 import React, { useMemo } from 'react';
 import { Pressable, View } from 'react-native';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import { Text } from '../Text';
 import { useControllableValue } from '../_hooks';
-import type { AliasToken } from '@pennyspring/theme';
+import type {
+  AliasToken } from '@pennyspring/theme';
 import type { ReactNode } from 'react';
-import type { StyleProp, TextStyle } from 'react-native';
+import type { StyleProp,
+  TextStyle } from 'react-native';
 import type {
   CheckboxDisplayType,
   CheckboxGroupOption,
   CheckboxGroupProps,
   CheckboxGroupStyles,
   CheckboxProps,
-  CheckboxSize,
   CheckboxValue,
 } from './types';
 
@@ -20,7 +22,7 @@ interface CheckboxStyleOptions {
   block: boolean;
   direction: 'horizontal' | 'vertical';
   displayType: CheckboxDisplayType;
-  size: CheckboxSize;
+  size: ComponentSize;
 }
 
 interface SizeStyleConfig {
@@ -34,7 +36,7 @@ interface SizeStyleConfig {
   lineHeight: (token: AliasToken) => number;
 }
 
-const SIZE_STYLE_MAP: Record<CheckboxSize, SizeStyleConfig> = {
+const SIZE_STYLE_MAP: Record<ComponentSize, SizeStyleConfig> = {
   small: {
     minHeight: token => token.controlHeightSM,
     indicatorSize: token => token.fontSizeSM,

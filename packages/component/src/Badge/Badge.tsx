@@ -1,16 +1,20 @@
+import type { ComponentSize } from '../shares/types';
 import React from 'react';
 import { View } from 'react-native';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import { Text } from '../Text';
-import type { AliasToken } from '@pennyspring/theme';
+import type {
+  AliasToken } from '@pennyspring/theme';
 import type { TextStyle } from 'react-native';
-import type { BadgeColor, BadgeProps, BadgeSize } from './types';
+import type { BadgeColor,
+  BadgeProps,
+} from './types';
 
 interface BadgeStyleOptions {
   color: BadgeColor;
   hasChildren: boolean;
   isDot: boolean;
-  size: BadgeSize;
+  size: ComponentSize;
 }
 
 interface SizeStyleConfig {
@@ -27,7 +31,7 @@ interface ColorStyleConfig {
   base: string;
 }
 
-const SIZE_STYLE_MAP: Record<BadgeSize, SizeStyleConfig> = {
+const SIZE_STYLE_MAP: Record<ComponentSize, SizeStyleConfig> = {
   small: {
     height: token => token.controlHeightXS,
     dotSize: token => token.sizeXS,

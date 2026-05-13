@@ -1,10 +1,11 @@
+import type { ComponentSize } from '../shares/types';
 import React from 'react';
 import { Pressable, View } from 'react-native';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import { useControllableValue } from '../_hooks';
 import { Text } from '../Text';
 import type { AliasToken } from '@pennyspring/theme';
-import type { StepperProps, StepperSize } from './types';
+import type { StepperProps } from './types';
 
 interface SizeStyleConfig {
   height: (token: AliasToken) => number;
@@ -13,7 +14,7 @@ interface SizeStyleConfig {
   paddingHorizontal: (token: AliasToken) => number;
 }
 
-const SIZE_STYLE_MAP: Record<StepperSize, SizeStyleConfig> = {
+const SIZE_STYLE_MAP: Record<ComponentSize, SizeStyleConfig> = {
   small: {
     height: token => token.controlHeightSM,
     buttonWidth: token => token.controlHeightSM,
@@ -35,7 +36,7 @@ const SIZE_STYLE_MAP: Record<StepperSize, SizeStyleConfig> = {
 };
 const STEPPER_BUTTON_HIT_SLOP = 8;
 
-const useStyles = createUseSheetStyle((token, size: StepperSize) => {
+const useStyles = createUseSheetStyle((token, size: ComponentSize) => {
   const config = SIZE_STYLE_MAP[size];
 
   return {

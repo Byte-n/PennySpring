@@ -1,18 +1,25 @@
+import type { ComponentSize } from '../shares/types';
 import React, { useMemo } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import { Text } from '../Text';
 import { useControllableValue } from '../_hooks';
-import type { AliasToken } from '@pennyspring/theme';
+import type {
+  AliasToken } from '@pennyspring/theme';
 import type { ReactNode } from 'react';
-import type { StyleProp, TextStyle } from 'react-native';
-import type { TabsItem, TabsLayout, TabsProps, TabsSize, TabsValue } from './types';
+import type { StyleProp,
+  TextStyle } from 'react-native';
+import type { TabsItem,
+  TabsLayout,
+  TabsProps,
+  TabsValue,
+} from './types';
 
 interface TabsStyleOptions {
   block: boolean;
   disabled: boolean;
   layout: TabsLayout;
-  size: TabsSize;
+  size: ComponentSize;
 }
 
 interface SizeStyleConfig {
@@ -25,7 +32,7 @@ interface SizeStyleConfig {
   panelPaddingTop: (token: AliasToken) => number;
 }
 
-const SIZE_STYLE_MAP: Record<TabsSize, SizeStyleConfig> = {
+const SIZE_STYLE_MAP: Record<ComponentSize, SizeStyleConfig> = {
   small: {
     tabMinHeight: token => token.controlHeightSM,
     tabPaddingHorizontal: token => token.controlPaddingHorizontalSM,

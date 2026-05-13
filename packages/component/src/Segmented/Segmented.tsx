@@ -1,15 +1,18 @@
+import type { ComponentSize } from '../shares/types';
 import React, { useMemo } from 'react';
 import { Pressable, View } from 'react-native';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import { Text } from '../Text';
 import { useControllableValue } from '../_hooks';
-import type { AliasToken } from '@pennyspring/theme';
+import type {
+  AliasToken } from '@pennyspring/theme';
 import type { ReactNode } from 'react';
-import type { GestureResponderEvent, StyleProp, TextStyle } from 'react-native';
+import type { GestureResponderEvent,
+  StyleProp,
+  TextStyle } from 'react-native';
 import type {
   SegmentedOption,
   SegmentedProps,
-  SegmentedSize,
   SegmentedValue,
 } from './types';
 
@@ -23,7 +26,7 @@ interface NormalizedSegmentedOption {
 interface SegmentedStyleOptions {
   block: boolean;
   disabled: boolean;
-  size: SegmentedSize;
+  size: ComponentSize;
 }
 
 interface SizeStyleConfig {
@@ -35,7 +38,7 @@ interface SizeStyleConfig {
   lineHeight: (token: AliasToken) => number;
 }
 
-const SIZE_STYLE_MAP: Record<SegmentedSize, SizeStyleConfig> = {
+const SIZE_STYLE_MAP: Record<ComponentSize, SizeStyleConfig> = {
   small: {
     minHeight: token => token.controlHeightSM,
     itemPaddingHorizontal: token => token.controlPaddingHorizontalSM,

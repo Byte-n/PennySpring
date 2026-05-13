@@ -2,8 +2,6 @@ import type { ReactNode } from 'react';
 import type { ActivityIndicatorProps, StyleProp, TextStyle, ViewStyle } from 'react-native';
 import type { ComponentSize } from '../shares/types';
 
-export type LoadingSize = ComponentSize;
-
 export interface LoadingStyles {
   indicator?: StyleProp<ViewStyle>;
   text?: StyleProp<TextStyle>;
@@ -11,7 +9,7 @@ export interface LoadingStyles {
 
 export interface LoadingProps
   extends Omit<ActivityIndicatorProps, 'size' | 'style' | 'color'> {
-  size?: LoadingSize;
+  size?: ComponentSize;
   text?: ReactNode;
   vertical?: boolean;
   indicator?: ReactNode;

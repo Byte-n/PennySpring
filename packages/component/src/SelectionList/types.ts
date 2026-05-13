@@ -5,7 +5,6 @@ import type { ComponentSize } from '../shares/types';
 /**
  * SelectionList 的尺寸。
  */
-export type SelectionListSize = ComponentSize;
 
 /**
  * SelectionList 的选择模式。
@@ -132,12 +131,44 @@ export interface SelectionListStyles {
   error?: StyleProp<TextStyle>;
 }
 
+export interface SelectionListTexts {
+  /**
+   * 弹层标题文本。
+   */
+  headerText?: string;
+
+  /**
+   * 关闭按钮文本。
+   */
+  closeText?: string;
+
+  /**
+   * 多选确认按钮文本。
+   */
+  confirmText?: string;
+
+  /**
+   * 搜索输入框 placeholder。
+   */
+  searchPlaceholder?: string;
+
+  /**
+   * 加载状态文本。
+   */
+  loadingText?: string;
+
+  /**
+   * 空状态文本。
+   */
+  emptyText?: string;
+}
+
 export interface SelectionListPopupProps {
   /**
    * SelectionList 尺寸。
    * 使用组件库公共尺寸语义，默认值为 normal。
    */
-  size?: SelectionListSize;
+  size?: ComponentSize;
 
   /**
    * 选择模式。
@@ -232,6 +263,11 @@ export interface SelectionListPopupProps {
    * 用于无选项或搜索无结果场景。
    */
   empty?: ReactNode;
+
+  /**
+   * 内部文本配置。组件不提供默认展示文案，未传入时对应文本不展示。
+   */
+  texts?: SelectionListTexts;
 
   /**
    * 弹层内容样式。

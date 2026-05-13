@@ -7,7 +7,6 @@ import type {
 } from 'react-native';
 import type { ComponentSize } from '../shares/types';
 
-export type ListCollapseSize = ComponentSize;
 
 export interface ListCollapseStyles {
   header?: StyleProp<ViewStyle>;
@@ -19,11 +18,13 @@ export interface ListCollapseStyles {
 }
 
 export interface ListCollapseProps {
-  size?: ListCollapseSize;
+  size?: ComponentSize;
   titleText?: string;
   title?: ReactNode;
   left?: ReactNode;
   summary?: ReactNode;
+  expandText?: string;
+  collapseText?: string;
   indicator?: ReactNode;
   expanded?: boolean;
   defaultExpanded?: boolean;

@@ -1,8 +1,6 @@
 import type { StyleProp, TextStyle, ViewStyle } from 'react-native';
 import type { ComponentSize } from '../shares/types';
 
-export type StepperSize = ComponentSize;
-
 export interface StepperStyles {
   input?: StyleProp<ViewStyle>;
   inputText?: StyleProp<TextStyle>;
@@ -11,7 +9,7 @@ export interface StepperStyles {
 }
 
 export interface StepperProps {
-  size?: StepperSize;
+  size?: ComponentSize;
   value?: number;
   defaultValue?: number;
   min?: number;

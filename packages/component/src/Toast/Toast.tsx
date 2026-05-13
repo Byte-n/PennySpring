@@ -1,3 +1,4 @@
+import type { ComponentSize } from '../shares/types';
 import React, { useContext } from 'react';
 import Animated, {
   Easing,
@@ -12,15 +13,20 @@ import { resolvePortalMount } from '../Portal/resolvePortalMount';
 import { Text } from '../Text';
 import { useControllableValue } from '../_hooks';
 import { useOverlayEmitter } from '../_hooks/useOverlayEmitter';
-import type { ViewStyle } from 'react-native';
-import type { ToastController, ToastPlacement, ToastProps, ToastShowOptions, ToastSize } from './types';
+import type {
+  ViewStyle } from 'react-native';
+import type { ToastController,
+  ToastPlacement,
+  ToastProps,
+  ToastShowOptions,
+} from './types';
 
 const DEFAULT_DURATION = 2000;
-const DEFAULT_SIZE: ToastSize = 'normal';
+const DEFAULT_SIZE: ComponentSize = 'normal';
 const DEFAULT_PLACEMENT: ToastPlacement = 'center';
 const HIDDEN_OFFSET_RATIO = 0.6;
 const SIZE_TOKEN_MAP: Record<
-  ToastSize,
+  ComponentSize,
   {
     verticalPadding: (token: ReturnType<typeof useTheme>['token']) => number;
     horizontalPadding: (token: ReturnType<typeof useTheme>['token']) => number;
@@ -56,7 +62,7 @@ function getPlacementStyle(placement: ToastPlacement): ViewStyle {
   return { top: '50%' };
 }
 
-const useStyles = createUseSheetStyle((token, { size, placement }: { size: ToastSize; placement: ToastPlacement }) => {
+const useStyles = createUseSheetStyle((token, { size, placement }: { size: ComponentSize; placement: ToastPlacement }) => {
   const sizeConfig = SIZE_TOKEN_MAP[size];
 
   return {

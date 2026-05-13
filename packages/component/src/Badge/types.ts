@@ -2,8 +2,6 @@ import type { ReactNode } from 'react';
 import type { StyleProp, TextStyle, ViewProps, ViewStyle } from 'react-native';
 import type { ComponentSize } from '../shares/types';
 
-export type BadgeSize = ComponentSize;
-
 export type BadgeColor =
   | 'default'
   | 'primary'
@@ -36,7 +34,7 @@ export interface BadgeProps extends Omit<ViewProps, 'style'> {
   showZero?: boolean;
   overflowCount?: number;
   dot?: boolean;
-  size?: BadgeSize;
+  size?: ComponentSize;
   color?: BadgeColor;
   children?: ReactNode;
   style?: StyleProp<ViewStyle>;

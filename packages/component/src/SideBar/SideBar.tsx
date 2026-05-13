@@ -1,16 +1,18 @@
+import type { ComponentSize } from '../shares/types';
 import React, { useMemo } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import { Text } from '../Text';
 import { useControllableValue } from '../_hooks';
-import type { AliasToken } from '@pennyspring/theme';
+import type {
+  AliasToken } from '@pennyspring/theme';
 import type { ReactNode } from 'react';
-import type { StyleProp, TextStyle } from 'react-native';
+import type { StyleProp,
+  TextStyle } from 'react-native';
 import type {
   SideBarItem,
   SideBarLayout,
   SideBarProps,
-  SideBarSize,
   SideBarValue,
 } from './types';
 
@@ -18,7 +20,7 @@ interface SideBarStyleOptions {
   block: boolean;
   disabled: boolean;
   layout: SideBarLayout;
-  size: SideBarSize;
+  size: ComponentSize;
 }
 
 interface SizeStyleConfig {
@@ -31,7 +33,7 @@ interface SizeStyleConfig {
   panelPaddingTop: (token: AliasToken) => number;
 }
 
-const SIZE_STYLE_MAP: Record<SideBarSize, SizeStyleConfig> = {
+const SIZE_STYLE_MAP: Record<ComponentSize, SizeStyleConfig> = {
   small: {
     sideBarMinHeight: token => token.controlHeightSM,
     sideBarPaddingHorizontal: token => token.controlPaddingHorizontalSM,

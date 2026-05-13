@@ -1,12 +1,12 @@
 import { createUseSheetStyle } from '@pennyspring/theme';
 import type { TextSize } from '../../Text';
-import type { DataListSize } from '../types';
+import type { ComponentSize } from '../../shares/types';
 
 export interface DataListStyleOptions {
-  size: DataListSize;
+  size: ComponentSize;
 }
 
-export function resolveTextSize(size: DataListSize): TextSize {
+export function resolveTextSize(size: ComponentSize): TextSize {
   if (size === 'small') {
     return 'sm';
   }

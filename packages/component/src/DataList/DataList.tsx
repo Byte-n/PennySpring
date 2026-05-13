@@ -1,3 +1,4 @@
+import type { ComponentSize } from '../shares/types';
 import React, { useCallback, useMemo, useRef } from 'react';
 import { FlatList, View } from 'react-native';
 import { Loading } from '../Loading';
@@ -9,15 +10,14 @@ import type {
   DataListProps,
   DataListSection,
   DataListSectionProps,
-  DataListSize,
 } from './types';
 
-const DEFAULT_SIZE: DataListSize = 'normal';
+const DEFAULT_SIZE: ComponentSize = 'normal';
 const DEFAULT_THRESHOLD = 0.1;
 const DEFAULT_LOADING_MORE_TEXT = '加载中...';
 const DEFAULT_COMPLETE_TEXT = '没有更多了';
 
-function resolveSize(size?: DataListSize): DataListSize {
+function resolveSize(size?: ComponentSize): ComponentSize {
   return size ?? DEFAULT_SIZE;
 }
 

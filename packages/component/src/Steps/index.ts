@@ -1,8 +1,2 @@
 export { Steps } from './Steps';
-export type {
-  StepsItem,
-  StepsProps,
-  StepsSize,
-  StepsStatus,
-  StepsStyles,
-} from './types';
+export type { StepsItem, StepsProps, StepsStatus, StepsStyles } from './types';

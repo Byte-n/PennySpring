@@ -1,15 +1,16 @@
+import type { ComponentSize } from '../shares/types';
 import React from 'react';
 import { View } from 'react-native';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import { useTheme } from '@pennyspring/theme';
-import type { ViewStyle } from 'react-native';
+import type {
+  ViewStyle } from 'react-native';
 import type { AliasToken } from '@pennyspring/theme';
 import type {
   SpaceAlign,
   SpaceDirection,
   SpaceJustify,
   SpaceProps,
-  SpaceSize,
 } from './types';
 
 interface SpaceStyleOptions {
@@ -27,7 +28,7 @@ interface SpaceItemStyleOptions {
   wrap: boolean;
 }
 
-function getGap(size: SpaceSize, token: AliasToken) {
+function getGap(size: ComponentSize, token: AliasToken) {
   if (size === 'small') {
     return token.paddingXXS;
   }
@@ -39,7 +40,7 @@ function getGap(size: SpaceSize, token: AliasToken) {
   return token.paddingXS;
 }
 
-function resolveSize(size?: SpaceSize): SpaceSize {
+function resolveSize(size?: ComponentSize): ComponentSize {
   return size ?? 'normal';
 }
 

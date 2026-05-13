@@ -7,6 +7,5 @@ export type {
   RadioGroupStyles,
   RadioGroupValue,
   RadioProps,
-  RadioSize,
   RadioStyles,
 } from './types';

@@ -7,26 +7,18 @@ import {
 } from 'react-native';
 import { useTheme } from '@pennyspring/theme';
 import { Button } from '../Button';
+import { Icon } from '../Icon';
 import { Popup } from '../Popup';
 import { Text } from '../Text';
 import { useControllableValue } from '../_hooks';
-import {
-  SELECTION_LIST_CLOSE_TEXT,
-  SELECTION_LIST_CONFIRM_TEXT,
-  SELECTION_LIST_EMPTY_TEXT,
-  SELECTION_LIST_HEADER_TEXT,
-  SELECTION_LIST_LOADING_TEXT,
-  SELECTION_LIST_SELECTED_MARK,
-  SELECTION_LIST_UNSELECTED_MARK,
-  useSelectionListStyles,
-} from './styles';
+import { useSelectionListStyles } from './styles';
+import type { ComponentSize } from '../shares/types';
 import type {
   SelectionListMode,
   SelectionListOption,
   SelectionListOptionGroup,
   SelectionListPopupProps,
   SelectionListProps,
-  SelectionListSize,
   SelectionListStatus,
   SelectionListValue,
 } from './types';
@@ -39,10 +31,11 @@ interface RenderGroup {
 }
 
 const DEFAULT_PLACEHOLDER = 'Select';
-const TRIGGER_SUFFIX = '⌄';
-const SEARCH_PLACEHOLDER = 'Search';
+const CLOSE_BUTTON_LABEL = 'Close selection list';
+const CONFIRM_BUTTON_LABEL = 'Confirm selection';
+const SEARCH_INPUT_LABEL = 'Search selection list';
 
-function resolveSize(size?: SelectionListSize): SelectionListSize {
+function resolveSize(size?: ComponentSize): ComponentSize {
   return size ?? 'normal';
 }
 
@@ -174,6 +167,7 @@ export function SelectionListPopup({
   size,
   style,
   styles,
+  texts,
   value,
 }: SelectionListPopupProps) {
   const resolvedSize = resolveSize(size);
@@ -263,15 +257,15 @@ function renderOption(option: SelectionListOption) {
           isDisabled ? tokenStyles.optionDisabled : null,
         ]}
       >
-        <Text
-          accessibilityElementsHidden
-          style={[
-            tokenStyles.marker,
-            isDisabled ? tokenStyles.markerDisabled : null,
-          ]}
-        >
-          {isSelected ? SELECTION_LIST_SELECTED_MARK : SELECTION_LIST_UNSELECTED_MARK}
-        </Text>
+        <View style={tokenStyles.marker}>
+          {isSelected ? (
+            <Icon
+              color={isDisabled ? 'colorTextDisabled' : 'colorPrimaryText'}
+              icon="check"
+              size={tokenStyles.markerIcon.fontSize}
+            />
+          ) : null}
+        </View>
         {option.prefix !== undefined ? (
           <View style={tokenStyles.optionMeta}>{option.prefix}</View>
         ) : null}
@@ -316,26 +310,34 @@ function renderOption(option: SelectionListOption) {
       styles={{ body: [tokenStyles.popup, style, styles?.popup] }}
     >
       <View testID="selection-list-popup" style={tokenStyles.popupContent}>
-        <View style={tokenStyles.header}>
-          <Text weight="strong" style={tokenStyles.headerText}>
-            {SELECTION_LIST_HEADER_TEXT}
-          </Text>
-          <Button
-            accessibilityLabel="Close selection list"
-            accessibilityRole="button"
-            onPress={closeSelectionList}
-            style={tokenStyles.footerButton}
-            type="text"
-          >
-            {SELECTION_LIST_CLOSE_TEXT}
-          </Button>
-        </View>
+        {texts?.headerText !== undefined || texts?.closeText !== undefined ? (
+          <View style={tokenStyles.header}>
+            {texts.headerText !== undefined ? (
+              <Text weight="strong" style={tokenStyles.headerText}>
+                {texts.headerText}
+              </Text>
+            ) : (
+              <View />
+            )}
+            {texts.closeText !== undefined ? (
+              <Button
+                accessibilityLabel={CLOSE_BUTTON_LABEL}
+                accessibilityRole="button"
+                onPress={closeSelectionList}
+                style={tokenStyles.footerButton}
+                type="text"
+              >
+                {texts.closeText}
+              </Button>
+            ) : null}
+          </View>
+        ) : null}
         {searchable === true ? (
           <TextInput
-            accessibilityLabel={SEARCH_PLACEHOLDER}
+            accessibilityLabel={texts?.searchPlaceholder ?? SEARCH_INPUT_LABEL}
             editable={isInteractive}
             onChangeText={handleSearchChange}
-            placeholder={SEARCH_PLACEHOLDER}
+            placeholder={texts?.searchPlaceholder}
             placeholderTextColor={token.colorTextPlaceholder}
             style={tokenStyles.search}
             value={mergedSearchValue}
@@ -343,7 +345,14 @@ function renderOption(option: SelectionListOption) {
         ) : null}
         {loading === true ? (
           <View style={tokenStyles.loading}>
-            <Text color="description">{SELECTION_LIST_LOADING_TEXT}</Text>
+            {texts?.loadingText !== undefined ? (
+              <Text color="description">{texts.loadingText}</Text>
+            ) : (
+              <ActivityIndicator
+                accessibilityElementsHidden
+                color={token.colorTextTertiary}
+              />
+            )}
           </View>
         ) : filteredGroups.length > 0 ? (
           <View style={tokenStyles.list}>
@@ -365,21 +374,30 @@ function renderOption(option: SelectionListOption) {
           </View>
         ) : (
           <View style={tokenStyles.empty}>
-            {empty ?? <Text color="description">{SELECTION_LIST_EMPTY_TEXT}</Text>}
+            {empty ?? (
+              texts?.emptyText !== undefined ? (
+                <Text color="description">{texts.emptyText}</Text>
+              ) : null
+            )}
           </View>
         )}
-        <View style={tokenStyles.footer}>
-          <Button
-            accessibilityLabel="Confirm selection"
-            accessibilityRole="button"
-            onPress={closeSelectionList}
-            style={[tokenStyles.footerButton, tokenStyles.footerPrimaryButton]}
-            styles={{ content: tokenStyles.footerPrimaryButtonText }}
-            type="primary"
-          >
-            {SELECTION_LIST_CONFIRM_TEXT}
-          </Button>
-        </View>
+        {resolvedMode === 'multiple' && texts?.confirmText !== undefined ? (
+          <View style={tokenStyles.footer}>
+            <Button
+              accessibilityLabel={CONFIRM_BUTTON_LABEL}
+              accessibilityRole="button"
+              onPress={closeSelectionList}
+              style={[
+                tokenStyles.footerButton,
+                tokenStyles.footerPrimaryButton,
+              ]}
+              styles={{ content: tokenStyles.footerPrimaryButtonText }}
+              type="primary"
+            >
+              {texts.confirmText}
+            </Button>
+          </View>
+        ) : null}
       </View>
     </Popup>
   );
@@ -524,9 +542,12 @@ function SelectionListRoot({
             color={token.colorTextTertiary}
           />
         ) : (
-          <Text accessibilityElementsHidden style={tokenStyles.suffix}>
-            {TRIGGER_SUFFIX}
-          </Text>
+          <Icon
+            color="colorIcon"
+            icon="caret-down"
+            size={tokenStyles.suffix.fontSize}
+            style={tokenStyles.suffix}
+          />
         )}
       </Pressable>
       <SelectionListPopup

@@ -1,17 +1,24 @@
+import type { ComponentSize } from '../shares/types';
 import React, { createContext, useContext } from 'react';
 import { Pressable, View } from 'react-native';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import { Text } from '../Text';
-import type { AliasToken } from '@pennyspring/theme';
+import type {
+  AliasToken } from '@pennyspring/theme';
 import type { ReactNode } from 'react';
-import type { GestureResponderEvent, StyleProp, TextStyle } from 'react-native';
-import type { ListDivider, ListItemProps, ListProps, ListSize } from './types';
+import type { GestureResponderEvent,
+  StyleProp,
+  TextStyle } from 'react-native';
+import type { ListDivider,
+  ListItemProps,
+  ListProps,
+} from './types';
 
-const DEFAULT_SIZE: ListSize = 'normal';
+const DEFAULT_SIZE: ComponentSize = 'normal';
 const DEFAULT_DIVIDER: ListDivider = 'inset';
 
 interface ListContextValue {
-  size: ListSize;
+  size: ComponentSize;
   divider: ListDivider;
 }
 
@@ -44,10 +51,10 @@ const useListStyles = createUseSheetStyle(token => ({
 
 interface ListItemStyleOptions {
   divider: ListDivider;
-  size: ListSize;
+  size: ComponentSize;
 }
 
-function getItemMinHeight(size: ListSize, token: AliasToken) {
+function getItemMinHeight(size: ComponentSize, token: AliasToken) {
   if (size === 'small') {
     return token.controlHeightSM;
   }
@@ -59,7 +66,7 @@ function getItemMinHeight(size: ListSize, token: AliasToken) {
   return token.controlHeight;
 }
 
-function getItemPadding(size: ListSize, token: AliasToken) {
+function getItemPadding(size: ComponentSize, token: AliasToken) {
   if (size === 'small') {
     return token.paddingXS;
   }
@@ -72,7 +79,7 @@ function getItemPadding(size: ListSize, token: AliasToken) {
 }
 
 function getItemHorizontalPadding(
-  size: ListSize,
+  size: ComponentSize,
   token: AliasToken,
 ) {
   if (size === 'small') {
@@ -158,7 +165,7 @@ export function isChildrenEmpty(children: ReactNode): boolean {
   return React.Children.toArray(children).length === 0;
 }
 
-function resolveSize(size?: ListSize): ListSize {
+function resolveSize(size?: ComponentSize): ComponentSize {
   return size ?? DEFAULT_SIZE;
 }
 

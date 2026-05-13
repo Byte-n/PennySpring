@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import type { StyleProp, ViewStyle } from 'react-native';
 import type {
   PickerCancelParams,
   PickerOpenChangeParams,
@@ -64,5 +65,6 @@ export interface CascadePickerProps<TData = unknown> {
   okDisabled?: boolean;
   children?: ReactNode;
   renderLabel?: (item: CascadePickerOption<TData>) => ReactNode;
+  style?: StyleProp<ViewStyle>;
   styles?: PickerStyles;
 }

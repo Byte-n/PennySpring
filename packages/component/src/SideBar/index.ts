@@ -3,7 +3,6 @@ export type {
   SideBarItem,
   SideBarLayout,
   SideBarProps,
-  SideBarSize,
   SideBarStyles,
   SideBarValue,
 } from './types';

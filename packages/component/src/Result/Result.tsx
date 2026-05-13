@@ -1,15 +1,19 @@
+import type { ComponentSize } from '../shares/types';
 import React from 'react';
 import { View } from 'react-native';
 import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
 import { Icon } from '../Icon';
 import { Text } from '../Text';
-import type { AliasToken } from '@pennyspring/theme';
+import type {
+  AliasToken } from '@pennyspring/theme';
 import type { IconName } from '../Icon';
 import type { TextSize } from '../Text';
-import type { ResultProps, ResultSize, ResultStatus } from './types';
+import type { ResultProps,
+  ResultStatus,
+} from './types';
 
 interface ResultStyleOptions {
-  size: ResultSize;
+  size: ComponentSize;
   status: ResultStatus;
 }
 
@@ -29,7 +33,7 @@ interface ResultStatusConfig {
   iconName: IconName;
 }
 
-const SIZE_STYLE_MAP: Record<ResultSize, ResultSizeConfig> = {
+const SIZE_STYLE_MAP: Record<ComponentSize, ResultSizeConfig> = {
   small: {
     iconSize: token => token.fontSizeLG,
     gap: token => token.marginXS,

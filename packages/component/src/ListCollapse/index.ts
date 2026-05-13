@@ -1,6 +1,2 @@
 export { ListCollapse } from './ListCollapse';
-export type {
-  ListCollapseProps,
-  ListCollapseSize,
-  ListCollapseStyles,
-} from './types';
+export type { ListCollapseProps, ListCollapseStyles } from './types';

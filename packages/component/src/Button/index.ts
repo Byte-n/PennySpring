@@ -5,7 +5,6 @@ export type {
   ButtonLoadingConfig,
   ButtonProps,
   ButtonShape,
-  ButtonSize,
   ButtonStyles,
   ButtonType,
   ButtonVariant,

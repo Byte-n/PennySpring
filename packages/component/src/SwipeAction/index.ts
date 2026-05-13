@@ -5,7 +5,6 @@ export type {
   SwipeActionProps,
   SwipeActionRef,
   SwipeActionSide,
-  SwipeActionSize,
   SwipeActionStyles,
   SwipeActionValue,
 } from './types';

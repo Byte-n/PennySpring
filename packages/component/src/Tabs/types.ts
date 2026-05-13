@@ -10,7 +10,6 @@ import type { ComponentSize } from '../shares/types';
 
 export type TabsValue = string | number;
 
-export type TabsSize = ComponentSize;
 export type TabsLayout = 'wrap' | 'scroll';
 
 export interface TabsItem {
@@ -37,7 +36,7 @@ export interface TabsProps
   defaultValue?: TabsValue;
   onChange?: (value: TabsValue) => void;
   disabled?: boolean;
-  size?: TabsSize;
+  size?: ComponentSize;
   layout?: TabsLayout;
   block?: boolean;
   style?: StyleProp<ViewStyle>;

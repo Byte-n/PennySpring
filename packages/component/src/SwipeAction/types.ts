@@ -2,8 +2,6 @@ import type { ReactNode } from 'react';
 import type { StyleProp, TextStyle, ViewProps, ViewStyle } from 'react-native';
 import type { ComponentSize } from '../shares/types';
 
-export type SwipeActionSize = ComponentSize;
-
 export type SwipeActionSide = 'left' | 'right';
 
 export type SwipeActionValue = SwipeActionSide | null;
@@ -37,7 +35,7 @@ export interface SwipeActionStyles {
 
 export interface SwipeActionProps
   extends Omit<ViewProps, 'style' | 'children'> {
-  size?: SwipeActionSize;
+  size?: ComponentSize;
   value?: SwipeActionValue;
   defaultValue?: SwipeActionValue;
   onChange?: (value: SwipeActionValue) => void;

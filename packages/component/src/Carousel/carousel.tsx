@@ -8,7 +8,6 @@ import {
   type ViewStyle,
 } from 'react-native';
 
-
 import { CarouselIndicator } from './carousel-indicator';
 import { CarouselSlides } from './carousel-slides';
 import {

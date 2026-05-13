@@ -1,11 +1,11 @@
 import { createUseSheetStyle } from '@pennyspring/theme';
 import type { AliasToken } from '@pennyspring/theme';
 import type { TextStyle } from 'react-native';
-import type { IndexBarSize } from '../types';
+import type { ComponentSize } from '../../shares/types';
 
 interface IndexBarStyleOptions {
   disabled: boolean;
-  size: IndexBarSize;
+  size: ComponentSize;
 }
 
 interface SizeStyleConfig {
@@ -18,7 +18,7 @@ interface SizeStyleConfig {
   panelTitlePaddingVertical: (token: AliasToken) => number;
 }
 
-const SIZE_STYLE_MAP: Record<IndexBarSize, SizeStyleConfig> = {
+const SIZE_STYLE_MAP: Record<ComponentSize, SizeStyleConfig> = {
   small: {
     sidebarPaddingVertical: token => token.paddingSM,
     sidebarGap: token => token.marginXXS,

@@ -1,20 +1,23 @@
+import type { ComponentSize } from '../shares/types';
 import React from 'react';
 import { View } from 'react-native';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import { Text } from '../Text';
-import type { ReactNode } from 'react';
-import type { StyleProp, TextStyle, ViewStyle } from 'react-native';
+import type {
+  ReactNode } from 'react';
+import type { StyleProp,
+  TextStyle,
+  ViewStyle } from 'react-native';
 import type { AliasToken } from '@pennyspring/theme';
 import type {
   ProgressBarProps,
   ProgressCircleProps,
   ProgressComponent,
-  ProgressSize,
   ProgressStatus,
 } from './types';
 
 interface ProgressStyleOptions {
-  size: ProgressSize;
+  size: ComponentSize;
   status: ProgressStatus;
 }
 
@@ -31,7 +34,7 @@ const HALF_PERCENT = 50;
 const QUARTER_TURN = '0deg';
 const HALF_TURN = '180deg';
 
-const SIZE_STYLE_MAP: Record<ProgressSize, ProgressSizeConfig> = {
+const SIZE_STYLE_MAP: Record<ComponentSize, ProgressSizeConfig> = {
   small: {
     barHeight: token => token.sizeXXS,
     circleSize: token => token.controlHeight,
@@ -71,7 +74,7 @@ function clampPercent(percent?: number): number {
   return percent;
 }
 
-function resolveSize(size?: ProgressSize): ProgressSize {
+function resolveSize(size?: ComponentSize): ComponentSize {
   return size ?? 'normal';
 }
 

@@ -3,17 +3,22 @@ import { Pressable, View } from 'react-native';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import { Text } from '../Text';
 import type { ReactNode } from 'react';
-import type { GestureResponderEvent, StyleProp, TextStyle } from 'react-native';
+import type {
+  GestureResponderEvent,
+  StyleProp,
+  TextStyle,
+} from 'react-native';
 import type { AliasToken } from '@pennyspring/theme';
-import type { ListCollapseProps, ListCollapseSize } from './types';
+import type { ComponentSize } from '../shares/types';
+import type { ListCollapseProps } from './types';
 
-const DEFAULT_SIZE: ListCollapseSize = 'normal';
+const DEFAULT_SIZE: ComponentSize = 'normal';
 
 interface ListCollapseStyleOptions {
-  size: ListCollapseSize;
+  size: ComponentSize;
 }
 
-function getHeaderPadding(size: ListCollapseSize, token: AliasToken) {
+function getHeaderPadding(size: ComponentSize, token: AliasToken) {
   if (size === 'small') {
     return token.paddingXS;
   }
@@ -75,7 +80,7 @@ const useListCollapseStyles = createUseSheetStyle(
   },
 );
 
-function resolveSize(size?: ListCollapseSize): ListCollapseSize {
+function resolveSize(size?: ComponentSize): ComponentSize {
   return size ?? DEFAULT_SIZE;
 }
 
@@ -93,8 +98,10 @@ function renderTextNode(node: ReactNode, style: StyleProp<TextStyle>) {
 
 export function ListCollapse({
   children,
+  collapseText,
   defaultExpanded,
   disabled,
+  expandText,
   expanded,
   indicator,
   left,
@@ -137,8 +144,11 @@ export function ListCollapse({
 
     setExpanded(!mergedExpanded);
   };
+  const indicatorText = mergedExpanded ? collapseText : expandText;
   const indicatorNode = indicator ?? (
-    <Text color="secondary">{mergedExpanded ? 'Collapse' : 'Expand'}</Text>
+    indicatorText === undefined ? null : (
+      <Text color="secondary">{indicatorText}</Text>
+    )
   );
 
   return (
@@ -160,7 +170,9 @@ export function ListCollapse({
         {summary ? (
           <View style={[tokenStyles.summary, styles?.summary]}>{summary}</View>
         ) : null}
-        <View style={[tokenStyles.indicator, styles?.indicator]}>{indicatorNode}</View>
+        {indicatorNode === null ? null : (
+          <View style={[tokenStyles.indicator, styles?.indicator]}>{indicatorNode}</View>
+        )}
       </Pressable>
       {mergedExpanded ? (
         <View

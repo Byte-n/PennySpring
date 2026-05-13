@@ -4,7 +4,6 @@ export type {
   SegmentedOption,
   SegmentedProps,
   SegmentedRawOption,
-  SegmentedSize,
   SegmentedStyles,
   SegmentedValue,
 } from './types';

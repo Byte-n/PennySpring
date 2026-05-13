@@ -1,19 +1,20 @@
+import type { ComponentSize } from '../shares/types';
 import React, { useRef } from 'react';
 import { Pressable, View, useWindowDimensions } from 'react-native';
 import { createUseSheetStyle } from '@pennyspring/theme';
-import type { AliasToken } from '@pennyspring/theme';
+import type {
+  AliasToken } from '@pennyspring/theme';
 import { useControllableValue } from '../_hooks';
 import { Popup as PopupRoot } from './Popup';
 import type {
   PopupFloatingPanelPosition,
   PopupFloatingPanelProps,
-  PopupFloatingPanelSize,
 } from './types';
 
 interface FloatingPanelStyleOptions {
   panelHeight: number;
   position: PopupFloatingPanelPosition;
-  size: PopupFloatingPanelSize;
+  size: ComponentSize;
 }
 
 interface FloatingPanelSizeConfig {
@@ -26,7 +27,7 @@ interface FloatingPanelSizeConfig {
 const DEFAULT_MIN_HEIGHT_RATIO = 0.35;
 const DEFAULT_MAX_HEIGHT_RATIO = 0.8;
 
-const SIZE_MAP: Record<PopupFloatingPanelSize, FloatingPanelSizeConfig> = {
+const SIZE_MAP: Record<ComponentSize, FloatingPanelSizeConfig> = {
   small: {
     contentPadding: token => token.paddingSM,
     handleHeight: token => token.controlHeightXS,
@@ -69,7 +70,7 @@ function resolvePosition(
   return 'bottom';
 }
 
-function resolveSize(size?: PopupFloatingPanelSize): PopupFloatingPanelSize {
+function resolveSize(size?: ComponentSize): ComponentSize {
   if (size === 'small' || size === 'large') {
     return size;
   }

@@ -3,8 +3,6 @@ import type { StyleProp, TextStyle, ViewStyle } from 'react-native';
 import type { PortalMountPoint } from '../Portal/types';
 import type { ComponentSize } from '../shares/types';
 
-export type ToastSize = ComponentSize;
-
 export type ToastPlacement = 'top' | 'center' | 'bottom';
 
 export interface ToastStyles {
@@ -19,7 +17,7 @@ export interface ToastProps {
   onOpenChange?: (open: boolean) => void;
   afterOpenChange?: (open: boolean) => void;
   duration?: number;
-  size?: ToastSize;
+  size?: ComponentSize;
   placement?: ToastPlacement;
   messageText?: string;
   message?: ReactNode;
@@ -31,7 +29,7 @@ export interface ToastProps {
 export interface ToastShowOptions {
   onCancel?: () => void;
   duration?: number;
-  size?: ToastSize;
+  size?: ComponentSize;
   placement?: ToastPlacement;
   messageText?: string;
   message?: ReactNode;

@@ -1,17 +1,18 @@
+import type { ComponentSize } from '../shares/types';
 import React from 'react';
 import { View } from 'react-native';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import { Text } from '../Text';
-import type { AliasToken } from '@pennyspring/theme';
+import type {
+  AliasToken } from '@pennyspring/theme';
 import type {
   DividerDirection,
   DividerProps,
-  DividerSize,
 } from './types';
 
 interface DividerStyleOptions {
   direction: DividerDirection;
-  size: DividerSize;
+  size: ComponentSize;
 }
 
 interface DividerSizeStyleConfig {
@@ -22,7 +23,7 @@ interface DividerSizeStyleConfig {
   lineHeight: (token: AliasToken) => number;
 }
 
-const SIZE_STYLE_MAP: Record<DividerSize, DividerSizeStyleConfig> = {
+const SIZE_STYLE_MAP: Record<ComponentSize, DividerSizeStyleConfig> = {
   small: {
     contentPaddingHorizontal: token => token.paddingXS,
     marginHorizontal: token => token.marginXS,

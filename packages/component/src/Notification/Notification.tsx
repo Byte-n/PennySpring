@@ -1,3 +1,4 @@
+import type { ComponentSize } from '../shares/types';
 import React, { useContext } from 'react';
 import { useWindowDimensions } from 'react-native';
 import Animated, {
@@ -18,12 +19,11 @@ import type {
   NotificationPlacement,
   NotificationProps,
   NotificationShowOptions,
-  NotificationSize,
   NotificationType,
 } from './types';
 
 const DEFAULT_DURATION = 3200;
-const DEFAULT_SIZE: NotificationSize = 'normal';
+const DEFAULT_SIZE: ComponentSize = 'normal';
 const DEFAULT_TYPE: NotificationType = 'default';
 const DEFAULT_PLACEMENT: NotificationPlacement = 'top-left';
 
@@ -68,7 +68,7 @@ const useStyles = createUseSheetStyle(
     {
       size,
       placement,
-    }: { size: NotificationSize; placement: NotificationPlacement },
+    }: { size: ComponentSize; placement: NotificationPlacement },
   ) => ({
     content: {
       position: 'absolute',

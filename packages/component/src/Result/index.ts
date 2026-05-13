@@ -1,2 +1,2 @@
 export { Result } from './Result';
-export type { ResultProps, ResultSize, ResultStatus, ResultStyles } from './types';
+export type { ResultProps, ResultStatus, ResultStyles } from './types';

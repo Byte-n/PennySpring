@@ -7,8 +7,6 @@ import type {
 } from 'react-native';
 import type { ComponentSize } from '../shares/types';
 
-export type TextareaSize = ComponentSize;
-
 /**
  * Textarea 的校验展示状态。
  * 状态只负责视觉和可访问性表达，不负责执行校验逻辑。
@@ -44,7 +42,7 @@ export interface TextareaProps
    * 文本域尺寸。
    * 使用组件库公共尺寸语义，默认值为 normal。
    */
-  size?: TextareaSize;
+  size?: ComponentSize;
 
   /**
    * 文本域状态。

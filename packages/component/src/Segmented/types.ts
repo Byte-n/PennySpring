@@ -10,8 +10,6 @@ import type { ComponentSize } from '../shares/types';
 
 export type SegmentedValue = string | number;
 
-export type SegmentedSize = ComponentSize;
-
 export type SegmentedRawOption = SegmentedValue;
 
 export interface SegmentedLabeledOption {
@@ -39,7 +37,7 @@ export interface SegmentedProps
   onChange?: (value: SegmentedValue) => void;
   disabled?: boolean;
   block?: boolean;
-  size?: SegmentedSize;
+  size?: ComponentSize;
   style?: StyleProp<ViewStyle>;
   styles?: SegmentedStyles;
   onPress?: (event: GestureResponderEvent, value: SegmentedValue) => void;

@@ -7,7 +7,6 @@ export type {
   CascaderOpenChangeReason,
   CascaderOption,
   CascaderProps,
-  CascaderSize,
   CascaderStyles,
   CascaderValue,
   CascaderViewProps,

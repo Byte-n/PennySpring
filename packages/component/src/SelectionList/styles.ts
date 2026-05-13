@@ -1,9 +1,10 @@
 import { createUseSheetStyle } from '@pennyspring/theme';
 import type { AliasToken } from '@pennyspring/theme';
-import type { SelectionListSize, SelectionListStatus } from './types';
+import type { ComponentSize } from '../shares/types';
+import type { SelectionListStatus } from './types';
 
 interface SelectionListStyleOptions {
-  size: SelectionListSize;
+  size: ComponentSize;
   status: SelectionListStatus;
 }
 
@@ -19,15 +20,7 @@ interface SizeConfig {
 
 type StatusColorSelector = (token: AliasToken) => string;
 
-export const SELECTION_LIST_EMPTY_TEXT = 'No options';
-export const SELECTION_LIST_HEADER_TEXT = 'Selection list options';
-export const SELECTION_LIST_CLOSE_TEXT = 'Close';
-export const SELECTION_LIST_CONFIRM_TEXT = 'Confirm';
-export const SELECTION_LIST_SELECTED_MARK = '[x]';
-export const SELECTION_LIST_UNSELECTED_MARK = '[ ]';
-export const SELECTION_LIST_LOADING_TEXT = 'Loading...';
-
-const SIZE_MAP: Record<SelectionListSize, SizeConfig> = {
+const SIZE_MAP: Record<ComponentSize, SizeConfig> = {
   small: {
     minHeight: token => token.controlHeightSM,
     paddingHorizontal: token => token.controlPaddingHorizontalSM,
@@ -117,7 +110,18 @@ export const useSelectionListStyles = createUseSheetStyle(
         color: token.colorTextPlaceholder,
       },
       suffix: {
-        color: token.colorTextTertiary,
+        color: token.colorIcon,
+        fontSize: sizeConfig.fontSize(token),
+      },
+      marker: {
+        minHeight: sizeConfig.fontSize(token),
+        minWidth: sizeConfig.fontSize(token),
+        alignItems: 'center',
+        justifyContent: 'center',
+      },
+      markerIcon: {
+        color: token.colorPrimaryText,
+        fontSize: sizeConfig.fontSize(token),
       },
       popup: {
         padding: token.paddingSM,
@@ -175,9 +179,6 @@ export const useSelectionListStyles = createUseSheetStyle(
       },
       optionDisabled: {
         backgroundColor: token.colorBgContainerDisabled,
-      },
-      marker: {
-        color: token.colorPrimaryText,
       },
       markerDisabled: {
         color: token.colorTextDisabled,

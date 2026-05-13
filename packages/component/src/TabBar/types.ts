@@ -10,8 +10,6 @@ import type { ComponentSize } from '../shares/types';
 
 export type TabBarValue = string | number;
 
-export type TabBarSize = ComponentSize;
-
 export interface TabBarItem {
   key: TabBarValue;
   titleText?: string;
@@ -44,7 +42,7 @@ export interface TabBarProps
   defaultValue?: TabBarValue;
   onChange?: (value: TabBarValue) => void;
   disabled?: boolean;
-  size?: TabBarSize;
+  size?: ComponentSize;
   safeAreaInsetBottom?: boolean;
   style?: StyleProp<ViewStyle>;
   styles?: TabBarStyles;

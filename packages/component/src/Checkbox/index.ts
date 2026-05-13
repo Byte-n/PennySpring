@@ -5,7 +5,6 @@ export type {
   CheckboxGroupProps,
   CheckboxGroupStyles,
   CheckboxProps,
-  CheckboxSize,
   CheckboxStyles,
   CheckboxValue,
 } from './types';

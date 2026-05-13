@@ -6,7 +6,6 @@ import type {
 } from 'react-native';
 import type { ComponentSize } from '../shares/types';
 
-export type PickerSize = ComponentSize;
 export type PickerValue = string | number;
 export type PickerOpenChangeReason = 'trigger' | 'cancel' | 'mask' | 'ok';
 export type PickerCancelReason = 'cancel' | 'mask';
@@ -87,7 +86,7 @@ export interface PickerColumnStyles {
 }
 
 export interface PickerProps {
-  size?: PickerSize;
+  size?: ComponentSize;
   columns: PickerColumn[];
   value?: PickerValue[];
   defaultValue?: PickerValue[];

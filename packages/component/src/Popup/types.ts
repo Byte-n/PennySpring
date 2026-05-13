@@ -42,9 +42,7 @@ export interface PopupProps {
 }
 
 export type PopupFloatingPanelPosition = 'top' | 'bottom';
-export type PopupFloatingPanelSize = ComponentSize;
 export type FloatingPanelPosition = PopupFloatingPanelPosition;
-export type FloatingPanelSize = PopupFloatingPanelSize;
 
 export interface PopupFloatingPanelStyles extends PopupStyles {
   content?: StyleProp<ViewStyle>;
@@ -65,7 +63,7 @@ export interface PopupFloatingPanelProps {
   animation?: PopupAnimation;
   animationDuration?: number;
   position?: PopupFloatingPanelPosition;
-  size?: PopupFloatingPanelSize;
+  size?: ComponentSize;
   value?: number;
   defaultValue?: number;
   minHeight?: number;

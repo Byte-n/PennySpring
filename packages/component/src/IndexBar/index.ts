@@ -3,7 +3,6 @@ export type {
   IndexBarComponent,
   IndexBarPanelProps,
   IndexBarProps,
-  IndexBarSize,
   IndexBarStyles,
   IndexBarValue,
 } from './types';

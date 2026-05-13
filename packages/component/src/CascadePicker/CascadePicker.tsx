@@ -284,6 +284,7 @@ export function CascadePicker<TData = unknown>(props: CascadePickerProps<TData>)
       placeholder={props.placeholder}
       readonly={props.readonly}
       renderLabel={pickerRenderLabel}
+      style={props.style}
       styles={props.styles}
       title={props.title}
       titleText={props.titleText}

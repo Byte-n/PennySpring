@@ -1,13 +1,18 @@
+import type { ComponentSize } from '../shares/types';
 import React from 'react';
 import { Pressable, View } from 'react-native';
 import { createUseSheetStyle, toShadowStyle } from '@pennyspring/theme';
 import { Text } from '../Text';
-import type { GestureResponderEvent, TextStyle } from 'react-native';
+import type {
+  GestureResponderEvent,
+  TextStyle } from 'react-native';
 import type { AliasToken } from '@pennyspring/theme';
-import type { CardProps, CardSize, CardVariant } from './types';
+import type { CardProps,
+  CardVariant,
+} from './types';
 
 interface CardStyleOptions {
-  size: CardSize;
+  size: ComponentSize;
   variant: CardVariant;
 }
 
@@ -25,7 +30,7 @@ type VariantStyleConfig = (token: AliasToken) => {
   shadow?: ReturnType<typeof toShadowStyle>;
 };
 
-const SIZE_STYLE_MAP: Record<CardSize, SizeStyleConfig> = {
+const SIZE_STYLE_MAP: Record<ComponentSize, SizeStyleConfig> = {
   small: {
     padding: token => token.paddingSM,
     gap: token => token.marginXS,

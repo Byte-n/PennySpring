@@ -1,21 +1,22 @@
+import type { ComponentSize } from '../shares/types';
 import React, { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, View } from 'react-native';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import { Text } from '../Text';
-import type { AliasToken } from '@pennyspring/theme';
+import type {
+  AliasToken } from '@pennyspring/theme';
 import type {
   GestureResponderEvent,
   PressableProps,
   StyleProp,
   TextStyle,
   ViewStyle,
-} from 'react-native';
+  } from 'react-native';
 import type {
   ButtonColor,
   ButtonLoadingConfig,
   ButtonProps,
   ButtonShape,
-  ButtonSize,
   ButtonType,
   ButtonVariant,
 } from './types';
@@ -26,7 +27,7 @@ interface ButtonStyleOptions {
   ghost: boolean;
   hasContent: boolean;
   shape: ButtonShape;
-  size: ButtonSize;
+  size: ComponentSize;
   variant: ButtonVariant;
 }
 
@@ -60,7 +61,7 @@ type TypeDefaults = {
   variant: ButtonVariant;
 };
 
-const SIZE_STYLE_MAP: Record<ButtonSize, SizeStyleConfig> = {
+const SIZE_STYLE_MAP: Record<ComponentSize, SizeStyleConfig> = {
   small: {
     height: token => token.controlHeightSM,
     paddingHorizontal: token => token.controlPaddingHorizontalSM,

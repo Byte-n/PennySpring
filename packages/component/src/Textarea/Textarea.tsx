@@ -1,3 +1,4 @@
+import type { ComponentSize } from '../shares/types';
 import React, { useState } from 'react';
 import { ActivityIndicator, TextInput, View } from 'react-native';
 import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
@@ -8,12 +9,11 @@ import type {
   TextInputContentSizeChangeEventData,
   TextInputProps,
   TextStyle,
-} from 'react-native';
+  } from 'react-native';
 import type { AccessibilityState } from 'react-native';
 import type { AliasToken } from '@pennyspring/theme';
 import type {
   TextareaProps,
-  TextareaSize,
   TextareaStatus,
 } from './types';
 
@@ -28,7 +28,7 @@ interface TextareaStyleOptions {
   status: TextareaStatus;
   minRows: number;
   maxRows: number;
-  size: TextareaSize;
+  size: ComponentSize;
 }
 
 interface SizeConfig {
@@ -43,7 +43,7 @@ type TextareaAccessibilityState = AccessibilityState & {
   invalid?: boolean;
 };
 
-const SIZE_CONFIG: Record<TextareaSize, SizeConfig> = {
+const SIZE_CONFIG: Record<ComponentSize, SizeConfig> = {
   small: {
     fontSize: token => token.fontSizeSM,
     lineHeight: token => token.lineHeightSM,
@@ -75,17 +75,17 @@ function resolveMaxRows(minRows: number, maxRows?: number): number {
   return Math.max(minRows, resolveRows(maxRows, minRows));
 }
 
-function getRowHeight(size: TextareaSize, token: AliasToken): number {
+function getRowHeight(size: ComponentSize, token: AliasToken): number {
   return SIZE_CONFIG[size].lineHeight(token);
 }
 
-function getVerticalPadding(size: TextareaSize, token: AliasToken): number {
+function getVerticalPadding(size: ComponentSize, token: AliasToken): number {
   return SIZE_CONFIG[size].paddingVertical(token);
 }
 
 function getFieldHeight(
   rows: number,
-  size: TextareaSize,
+  size: ComponentSize,
   token: AliasToken,
 ): number {
   const borderSize = token.lineWidth * 2;

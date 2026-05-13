@@ -1,19 +1,22 @@
+import type { ComponentSize } from '../shares/types';
 import React, { Children, useMemo } from 'react';
 import { Pressable, View } from 'react-native';
 import { Text } from '../Text';
 import { useControllableValue } from '../_hooks';
 import { useStyles } from './style';
-import type { ReactNode } from 'react';
-import type { StyleProp, TextStyle, ViewStyle } from 'react-native';
+import type {
+  ReactNode } from 'react';
+import type { StyleProp,
+  TextStyle,
+  ViewStyle } from 'react-native';
 import type {
   IndexBarComponent,
   IndexBarPanelProps,
   IndexBarProps,
-  IndexBarSize,
   IndexBarValue,
 } from './types';
 
-const DEFAULT_SIZE: IndexBarSize = 'normal';
+const DEFAULT_SIZE: ComponentSize = 'normal';
 
 interface NormalizedPanel {
   index: IndexBarValue;
@@ -61,7 +64,7 @@ function collectPanels(children: ReactNode): NormalizedPanel[] {
   return panels;
 }
 
-function resolveSize(size?: IndexBarSize): IndexBarSize {
+function resolveSize(size?: ComponentSize): ComponentSize {
   return size ?? DEFAULT_SIZE;
 }
 

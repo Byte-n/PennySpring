@@ -10,7 +10,6 @@ import type { ComponentSize } from '../shares/types';
 
 export type SideBarValue = string | number;
 
-export type SideBarSize = ComponentSize;
 export type SideBarLayout = 'wrap' | 'scroll';
 
 export interface SideBarItem {
@@ -37,7 +36,7 @@ export interface SideBarProps
   defaultValue?: SideBarValue;
   onChange?: (value: SideBarValue) => void;
   disabled?: boolean;
-  size?: SideBarSize;
+  size?: ComponentSize;
   layout?: SideBarLayout;
   block?: boolean;
   style?: StyleProp<ViewStyle>;

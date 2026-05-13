@@ -1,7 +1,2 @@
 export { Ellipsis } from './Ellipsis';
-export type {
-  EllipsisDirection,
-  EllipsisProps,
-  EllipsisSize,
-  EllipsisStyles,
-} from './types';
+export type { EllipsisDirection, EllipsisProps, EllipsisStyles } from './types';

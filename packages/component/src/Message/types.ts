@@ -3,8 +3,6 @@ import type { StyleProp, TextStyle, ViewStyle } from 'react-native';
 import type { PortalMountPoint } from '../Portal/types';
 import type { ComponentSize } from '../shares/types';
 
-export type MessageSize = ComponentSize;
-
 export type MessageType = 'default' | 'success' | 'warning' | 'error' | 'info';
 export type MessagePlacement = 'top' | 'bottom';
 
@@ -20,7 +18,7 @@ export interface MessageProps {
   onOpenChange?: (open: boolean) => void;
   afterOpenChange?: (open: boolean) => void;
   duration?: number;
-  size?: MessageSize;
+  size?: ComponentSize;
   type?: MessageType;
   placement?: MessagePlacement;
   messageText?: string;
@@ -33,7 +31,7 @@ export interface MessageProps {
 export interface MessageShowOptions {
   onCancel?: () => void;
   duration?: number;
-  size?: MessageSize;
+  size?: ComponentSize;
   type?: MessageType;
   placement?: MessagePlacement;
   messageText?: string;

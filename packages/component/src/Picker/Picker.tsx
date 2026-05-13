@@ -1,12 +1,13 @@
+import type { ComponentSize } from '../shares/types';
 import React, { useEffect, useRef, useState } from 'react';
 import { View } from 'react-native';
 import { PickerPopup } from './PickerPopup';
 import { PickerTrigger } from './PickerTrigger';
 import { usePickerStyles } from './usePickerStyles';
 import { useControllableValue } from '../_hooks';
-import type { PickerProps, PickerSize, PickerValue } from './types';
+import type { PickerProps, PickerValue } from './types';
 
-const DEFAULT_SIZE: PickerSize = 'normal';
+const DEFAULT_SIZE: ComponentSize = 'normal';
 const DEFAULT_CANCEL_TEXT = 'Cancel';
 const DEFAULT_OK_TEXT = 'OK';
 

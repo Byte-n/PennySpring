@@ -4,8 +4,6 @@ import type { ComponentSize } from '../shares/types';
 
 export type ResultStatus = 'success' | 'warning' | 'error' | 'info';
 
-export type ResultSize = ComponentSize;
-
 export interface ResultStyles {
   iconContainer?: StyleProp<ViewStyle>;
   titleText?: StyleProp<TextStyle>;
@@ -15,7 +13,7 @@ export interface ResultStyles {
 
 export interface ResultProps {
   status?: ResultStatus;
-  size?: ResultSize;
+  size?: ComponentSize;
   icon?: ReactNode;
   titleText?: string;
   title?: ReactNode;

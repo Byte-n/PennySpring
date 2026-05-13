@@ -9,7 +9,6 @@ export { FloatingPanel };
 export type {
   PopupFloatingPanelPosition,
   PopupFloatingPanelProps,
-  PopupFloatingPanelSize,
   PopupFloatingPanelStyles,
   PopupAnimation,
   PopupCancelParams,
