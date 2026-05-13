@@ -6,6 +6,14 @@ import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
 import { PreviewScaffold, PreviewSection } from '../../PreviewScaffold';
 
 const useStyles = createUseSheetStyle(token => ({
+  infoPanel: {
+    borderWidth: token.lineWidth,
+    borderColor: token.colorBorderSecondary,
+    borderRadius: token.borderRadius,
+    backgroundColor: token.colorBgContainer,
+    padding: token.paddingSM,
+    gap: token.marginXXS,
+  },
   portalRoot: {
     minHeight: token.controlHeightLG + token.controlHeightLG,
     justifyContent: 'center',
@@ -30,6 +38,22 @@ export function PortalPreview() {
 
   return (
     <PreviewScaffold>
+      <PreviewSection title="文字说明">
+        <View style={styles.infoPanel}>
+          <Text color="heading" weight="medium">
+            App、ConfigProvider、useComponentConfig、PortalProvider
+          </Text>
+          <Text color="secondary" size="sm">
+            App 是组合容器，内部按顺序包裹 ConfigProvider 与 PortalProvider。
+          </Text>
+          <Text color="secondary" size="sm">
+            ConfigProvider 用于注入组件级配置，useComponentConfig 在任意后代节点读取并继承合并后的配置。
+          </Text>
+          <Text color="secondary" size="sm">
+            PortalProvider 提供跨层级挂载能力，Portal 以及 useToast/useMessage/useNotification 等浮层能力都依赖它。
+          </Text>
+        </View>
+      </PreviewSection>
       <PreviewSection title="Portal">
         <PortalProvider>
           <View style={styles.portalRoot}>

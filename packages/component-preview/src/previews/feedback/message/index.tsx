@@ -1,6 +1,12 @@
 import React from 'react';
 import { View } from 'react-native';
-import { Button, Checkbox, Message, useMessage } from '@pennyspring/component';
+import {
+  Button,
+  Checkbox,
+  Message,
+  Text,
+  useMessage,
+} from '@pennyspring/component';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import {
   PreviewRow,
@@ -35,6 +41,14 @@ function isMessagePlacement(value: CheckboxValue): value is MessagePlacement {
 }
 
 const useStyles = createUseSheetStyle(token => ({
+  infoPanel: {
+    borderWidth: token.lineWidth,
+    borderColor: token.colorBorderSecondary,
+    borderRadius: token.borderRadius,
+    backgroundColor: token.colorBgContainer,
+    padding: token.paddingSM,
+    gap: token.marginXXS,
+  },
   panel: {
     borderWidth: token.lineWidth,
     borderColor: token.colorBorderSecondary,
@@ -128,6 +142,22 @@ export function MessagePreview() {
 
   return (
     <PreviewScaffold>
+      <PreviewSection title="文字说明">
+        <View style={styles.infoPanel}>
+          <Text color="heading" weight="medium">
+            useMessage
+          </Text>
+          <Text color="secondary" size="sm">
+            useMessage 提供 show、hide、clear 三个方法，用于命令式管理 Message。
+          </Text>
+          <Text color="secondary" size="sm">
+            当前页面中的 Placement checkboxes 使用 useMessage.show/hide 控制顶部与底部消息条。
+          </Text>
+          <Text color="secondary" size="sm">
+            Message 依赖 PortalProvider；在组件预览应用中由 App 自动注入，无需手动包裹。
+          </Text>
+        </View>
+      </PreviewSection>
       <PreviewSection title="Placement checkboxes">
         <View style={styles.panel}>
           <PreviewRow>

@@ -264,5 +264,3 @@ export function useMessage(): MessageController {
     [emitter.clear, emitter.hide, emitter.show],
   );
 }
-
-export const useMesage = useMessage;

@@ -1,6 +1,12 @@
 import React from 'react';
 import { View } from 'react-native';
-import { Button, Checkbox, Toast, useToast } from '@pennyspring/component';
+import {
+  Button,
+  Checkbox,
+  Text,
+  Toast,
+  useToast,
+} from '@pennyspring/component';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import {
   PreviewRow,
@@ -36,6 +42,14 @@ function isToastPlacement(value: CheckboxValue): value is ToastPlacement {
 }
 
 const useStyles = createUseSheetStyle(token => ({
+  infoPanel: {
+    borderWidth: token.lineWidth,
+    borderColor: token.colorBorderSecondary,
+    borderRadius: token.borderRadius,
+    backgroundColor: token.colorBgContainer,
+    padding: token.paddingSM,
+    gap: token.marginXXS,
+  },
   panel: {
     borderWidth: token.lineWidth,
     borderColor: token.colorBorderSecondary,
@@ -128,6 +142,22 @@ export function ToastPreview() {
 
   return (
     <PreviewScaffold>
+      <PreviewSection title="文字说明">
+        <View style={styles.infoPanel}>
+          <Text color="heading" weight="medium">
+            useToast
+          </Text>
+          <Text color="secondary" size="sm">
+            useToast 提供 show、hide、clear 三个方法，用于命令式管理 Toast。
+          </Text>
+          <Text color="secondary" size="sm">
+            当前页面中的 Placement checkboxes 使用 useToast.show/hide 控制不同位置的提示。
+          </Text>
+          <Text color="secondary" size="sm">
+            Toast 依赖 PortalProvider；在组件预览应用中由 App 自动注入，无需手动包裹。
+          </Text>
+        </View>
+      </PreviewSection>
       <PreviewSection title="Placement checkboxes">
         <View style={styles.panel}>
           <PreviewRow>

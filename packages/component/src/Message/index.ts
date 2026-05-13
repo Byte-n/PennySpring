@@ -1,4 +1,4 @@
-export { Message, useMessage, useMesage } from './Message';
+export { Message, useMessage } from './Message';
 export type {
   MessageController,
   MessagePlacement,

@@ -4,6 +4,7 @@ import {
   Button,
   Checkbox,
   Notification,
+  Text,
   type NotificationPlacement,
   useNotification,
 } from '@pennyspring/component';
@@ -44,6 +45,14 @@ function isNotificationPlacement(
 }
 
 const useStyles = createUseSheetStyle(token => ({
+  infoPanel: {
+    borderWidth: token.lineWidth,
+    borderColor: token.colorBorderSecondary,
+    borderRadius: token.borderRadius,
+    backgroundColor: token.colorBgContainer,
+    padding: token.paddingSM,
+    gap: token.marginXXS,
+  },
   panel: {
     borderWidth: token.lineWidth,
     borderColor: token.colorBorderSecondary,
@@ -137,6 +146,22 @@ export function NotificationPreview() {
 
   return (
     <PreviewScaffold>
+      <PreviewSection title="文字说明">
+        <View style={styles.infoPanel}>
+          <Text color="heading" weight="medium">
+            useNotification
+          </Text>
+          <Text color="secondary" size="sm">
+            useNotification 提供 show、hide、clear 三个方法，用于命令式管理 Notification。
+          </Text>
+          <Text color="secondary" size="sm">
+            当前页面中的 Placement checkboxes 使用 useNotification.show/hide 控制四个角落通知。
+          </Text>
+          <Text color="secondary" size="sm">
+            Notification 依赖 PortalProvider；在组件预览应用中由 App 自动注入，无需手动包裹。
+          </Text>
+        </View>
+      </PreviewSection>
       <PreviewSection title="Placement checkboxes">
         <View style={styles.panel}>
           <PreviewRow>
