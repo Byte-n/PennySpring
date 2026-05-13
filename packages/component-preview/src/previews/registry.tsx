@@ -1,5 +1,6 @@
 import { ThemePreview } from '@pennyspring/theme';
 import { CalendarPreview } from './data-entry/calendar';
+import { CascaderPreview } from './data-entry/cascader';
 import { CascadePickerPreview } from './data-entry/cascade-picker';
 import { CheckboxPreview } from './data-entry/checkbox';
 import { DateTimePickerPreview } from './data-entry/date-time-picker';
@@ -198,6 +199,12 @@ export const COMPONENT_PREVIEW_SECTIONS = [
         title: 'Picker',
         description: '单列、多列、默认打开和空状态。',
         component: PickerPreview,
+      },
+      {
+        id: 'cascader',
+        title: 'Cascader',
+        description: '多级层级选择、叶子节点提交和展开层级切换。',
+        component: CascaderPreview,
       },
       {
         id: 'cascade-picker',
