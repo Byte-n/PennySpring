@@ -1,5 +1,5 @@
-import { clamp } from 'lodash-es';
 import { type RefObject, useEffect } from 'react';
+import { clampValue } from '../utils';
 
 interface UseCarouselLifecycleParams {
   total: number;
@@ -55,7 +55,7 @@ export const useCarouselLifecycle = (params: UseCarouselLifecycleParams) => {
       return;
     }
 
-    const normalizedDefault = clamp(Math.round(defaultIndex), 0, total - 1);
+    const normalizedDefault = clampValue(Math.round(defaultIndex), 0, total - 1);
     updateCurrent(normalizedDefault);
     reportIndexRef.current = normalizedDefault;
 

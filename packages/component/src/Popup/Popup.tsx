@@ -3,7 +3,6 @@ import {
   Animated,
   BackHandler,
   Pressable,
-  StyleSheet,
   View,
 } from 'react-native';
 import { createUseSheetStyle, toShadowStyle, useTheme } from '@pennyspring/theme';
@@ -20,13 +19,13 @@ import type {
 const DEFAULT_POSITION: PopupPosition = 'bottom';
 const DEFAULT_ANIMATION: PopupAnimation = 'none';
 const POPUP_SIDE_WIDTH = '70%';
-const SLIDE_OFFSET = 1000;
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 function getSlideTransform(
   position: PopupPosition,
   progress: Animated.Value,
+  slideOffset: number,
 ): ViewStyle['transform'] | null {
   const interpolateTo = (outputRange: readonly [number, number]) =>
     progress.interpolate({
@@ -35,19 +34,19 @@ function getSlideTransform(
     });
 
   if (position === 'bottom') {
-    return [{ translateY: interpolateTo([SLIDE_OFFSET, 0]) }] as unknown as ViewStyle['transform'];
+    return [{ translateY: interpolateTo([slideOffset, 0]) }] as unknown as ViewStyle['transform'];
   }
 
   if (position === 'top') {
-    return [{ translateY: interpolateTo([-SLIDE_OFFSET, 0]) }] as unknown as ViewStyle['transform'];
+    return [{ translateY: interpolateTo([-slideOffset, 0]) }] as unknown as ViewStyle['transform'];
   }
 
   if (position === 'left') {
-    return [{ translateX: interpolateTo([-SLIDE_OFFSET, 0]) }] as unknown as ViewStyle['transform'];
+    return [{ translateX: interpolateTo([-slideOffset, 0]) }] as unknown as ViewStyle['transform'];
   }
 
   if (position === 'right') {
-    return [{ translateX: interpolateTo([SLIDE_OFFSET, 0]) }] as unknown as ViewStyle['transform'];
+    return [{ translateX: interpolateTo([slideOffset, 0]) }] as unknown as ViewStyle['transform'];
   }
 
   // center slides don't make sense — fall back to fade only
@@ -120,12 +119,20 @@ const usePopupStyles = createUseSheetStyle(
   (token, { position }: PopupStyleOptions) => {
     return {
       layout: {
-        ...StyleSheet.absoluteFill,
+        bottom: 0,
+        left: 0,
+        position: 'absolute',
+        right: 0,
+        top: 0,
         ...getLayoutStyle(position),
         zIndex: token.zIndexPopupBase + token.zIndexBase + 100,
       },
       mask: {
-        ...StyleSheet.absoluteFill,
+        bottom: 0,
+        left: 0,
+        position: 'absolute',
+        right: 0,
+        top: 0,
         backgroundColor: token.colorBgMask,
       },
       body: {
@@ -163,8 +170,8 @@ export function Popup({
   const previousOpenRef = useRef(isOpen);
 
   const animated = animation !== 'none';
-  const duration =
-    animationDuration ?? token.motionDurationMid ?? 200;
+  const duration = animationDuration ?? token.motionDurationMid;
+  const slideOffset = token.zIndexPopupBase;
   const progressRef = useRef(new Animated.Value(isOpen ? 1 : 0));
   const progress = progressRef.current;
   const [mounted, setMounted] = useState(isOpen);
@@ -275,7 +282,7 @@ export function Popup({
   const fadeStyle = animated ? { opacity: progress } : null;
   const slideTransform =
     animated && animation === 'slide'
-      ? getSlideTransform(position, progress)
+      ? getSlideTransform(position, progress, slideOffset)
       : null;
   const bodyAnimatedStyle =
     animated

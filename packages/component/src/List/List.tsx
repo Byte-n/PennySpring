@@ -194,6 +194,7 @@ function renderTextNode(
 export function ListItem({
   children,
   description,
+  descriptionText,
   disabled,
   divider,
   left,
@@ -204,6 +205,7 @@ export function ListItem({
   style,
   styles,
   title,
+  titleText,
 }: ListItemProps) {
   const listContext = useListContext();
   const resolvedSize = size ?? listContext.size;
@@ -228,16 +230,16 @@ export function ListItem({
   };
   const content = isChildrenEmpty(children) ? (
     <>
-      {renderTextNode(title, [
-        tokenStyles.title,
-        styles?.title,
-        isDisabled ? tokenStyles.titleDisabled : null,
-      ], isDisabled, 'title')}
-      {renderTextNode(description, [
-        tokenStyles.description,
-        styles?.description,
-        isDisabled ? tokenStyles.descriptionDisabled : null,
-      ], isDisabled, 'description')}
+      {title ?? renderTextNode(titleText, [
+          tokenStyles.title,
+          styles?.titleText,
+          isDisabled ? tokenStyles.titleDisabled : null,
+        ], isDisabled, 'title')}
+      {description ?? renderTextNode(descriptionText, [
+          tokenStyles.description,
+          styles?.descriptionText,
+          isDisabled ? tokenStyles.descriptionDisabled : null,
+        ], isDisabled, 'description')}
     </>
   ) : children;
   const itemContent = (

@@ -1,6 +1,6 @@
 import { useMemoizedFn } from '../../_hooks';
-import { clamp } from 'lodash-es';
 import { useCallback, useRef, useState } from 'react';
+import { clampValue } from '../utils';
 
 /**
  * 橡皮筋效果阻尼系数
@@ -70,7 +70,7 @@ export const useCarouselIndex = (params: UseCarouselIndexParams) => {
 
   const updateCurrent = useCallback(
     (next: number) => {
-      const normalized = total > 0 ? clamp(next, 0, total - 1) : 0;
+      const normalized = total > 0 ? clampValue(next, 0, total - 1) : 0;
       setCurrent(normalized);
     },
     [total],
@@ -86,14 +86,14 @@ export const useCarouselIndex = (params: UseCarouselIndexParams) => {
   const getExtIndexFromIndex = useCallback(
     (index: number) => {
       if (!loopEnabled) return index;
-      return clamp(index, 0, total - 1) + clonesBefore;
+      return clampValue(index, 0, total - 1) + clonesBefore;
     },
     [clonesBefore, loopEnabled, total],
   );
 
   const getIndexFromExtIndex = useCallback(
     (extIndex: number) => {
-      if (!loopEnabled) return clamp(extIndex, 0, total - 1);
+      if (!loopEnabled) return clampValue(extIndex, 0, total - 1);
       if (extIndex < clonesBefore) {
         return (((extIndex - clonesBefore) % total) + total) % total;
       }
@@ -107,10 +107,10 @@ export const useCarouselIndex = (params: UseCarouselIndexParams) => {
 
   const getTargetExtIndexForIndex = useCallback(
     (targetIndex: number) => {
-      if (!loopEnabled) return clamp(targetIndex, 0, total - 1);
+      if (!loopEnabled) return clampValue(targetIndex, 0, total - 1);
 
       const currentExt = extIndexRef.current;
-      const normalizedTarget = clamp(targetIndex, 0, total - 1);
+      const normalizedTarget = clampValue(targetIndex, 0, total - 1);
       const targetExt = normalizedTarget + clonesBefore;
 
       if (currentExt === clonesBefore && normalizedTarget === total - 1)

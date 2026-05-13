@@ -1,6 +1,6 @@
 import { useMemoizedFn } from '../../_hooks';
-import { clamp } from 'lodash-es';
 import { type RefObject, useImperativeHandle } from 'react';
+import { clampValue } from '../utils';
 
 interface UseCarouselSwipeParams {
   total: number;
@@ -93,13 +93,13 @@ export const useCarouselSwipe = (params: UseCarouselSwipeParams) => {
   const swipeToExtIndex = useMemoizedFn((targetExtIndex: number) => {
     if (total <= 0) return;
     if (slidePixels <= 0) {
-      extIndexRef.current = clamp(targetExtIndex, 0, extTotal - 1);
+      extIndexRef.current = clampValue(targetExtIndex, 0, extTotal - 1);
       setAnimating(false);
       updateCurrent(getIndexFromExtIndex(extIndexRef.current));
       return;
     }
 
-    const boundedExtIndex = clamp(targetExtIndex, 0, extTotal - 1);
+    const boundedExtIndex = clampValue(targetExtIndex, 0, extTotal - 1);
     extIndexRef.current = boundedExtIndex;
 
     const nextIndex = getIndexFromExtIndex(boundedExtIndex);
@@ -120,7 +120,7 @@ export const useCarouselSwipe = (params: UseCarouselSwipeParams) => {
 
   const swipeTo = useMemoizedFn((index: number) => {
     if (total <= 0) return;
-    const targetIndex = clamp(Math.round(index), 0, total - 1);
+    const targetIndex = clampValue(Math.round(index), 0, total - 1);
     const targetExtIndex = getTargetExtIndexForIndex(targetIndex);
     swipeToExtIndex(targetExtIndex);
   });

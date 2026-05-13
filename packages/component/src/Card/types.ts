@@ -19,8 +19,8 @@ export interface CardStyles {
   /** 标题区容器样式。 */
   header?: StyleProp<ViewStyle>;
 
-  /** 标题文本样式。仅当 title 为 string 或 number 时生效。 */
-  title?: StyleProp<TextStyle>;
+  /** 标题文本样式。仅作用于 titleText 渲染出的内部文本。 */
+  titleText?: StyleProp<TextStyle>;
 
   /** 标题区右侧容器样式。 */
   extra?: StyleProp<ViewStyle>;
@@ -46,9 +46,14 @@ export interface CardProps {
   variant?: CardVariant;
 
   /**
-   * Card 标题。
-   * 用于标题区主内容。string 或 number 由组件内部渲染为 Text；
-   * 自定义 ReactNode 完全由外部控制。
+   * Card 标题文本。
+   * 由组件内部渲染为 Text。
+   */
+  titleText?: string;
+
+  /**
+   * Card 标题自定义节点。
+   * 传入后由外部完全控制节点渲染。
    */
   title?: ReactNode;
 

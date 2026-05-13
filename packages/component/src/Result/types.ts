@@ -8,8 +8,8 @@ export type ResultSize = ComponentSize;
 
 export interface ResultStyles {
   iconContainer?: StyleProp<ViewStyle>;
-  title?: StyleProp<TextStyle>;
-  subtitle?: StyleProp<TextStyle>;
+  titleText?: StyleProp<TextStyle>;
+  subtitleText?: StyleProp<TextStyle>;
   extra?: StyleProp<ViewStyle>;
 }
 

@@ -155,12 +155,12 @@ describe('List', () => {
     const descriptionStyle = {
       opacity: 0.65
     };
-    const testRenderer = renderList(<List.Item disabled selected left={<View>Icon</View>} right={<View>Balance</View>} title="Checking" description="Main account" style={rootStyle} styles={{
+    const testRenderer = renderList(<List.Item disabled selected left={<View>Icon</View>} right={<View>Balance</View>} titleText="Checking" descriptionText="Main account" style={rootStyle} styles={{
       content: contentStyle,
-      description: descriptionStyle,
+      descriptionText: descriptionStyle,
       left: leftStyle,
       right: rightStyle,
-      title: titleStyle
+      titleText: titleStyle
     }} />);
     const root = testRenderer.root.findAllByType(View).find(node => {
       const style = node.props.style;

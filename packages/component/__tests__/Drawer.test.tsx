@@ -11,6 +11,7 @@ jest.mock('react-native-reanimated', () => {
       View: ReactNative.View
     },
     Easing: {
+      bezier: () => 'bezier',
       cubic: 'cubic',
       out: (value: unknown) => value
     },

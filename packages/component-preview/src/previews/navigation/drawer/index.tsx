@@ -191,7 +191,7 @@ export function DrawerPreview() {
                 <Drawer.Layout
                   drawerType={item}
                   open={layoutOpen}
-                  onClose={() => {
+                  onCancel={() => {
                     updateLayoutOpen(item, false);
                   }}
                   onOpen={() => {
@@ -259,7 +259,7 @@ export function DrawerPreview() {
             drawerType="slide"
             width="50%"
             open={layoutWidthDemoOpen}
-            onClose={() => {
+            onCancel={() => {
               setLayoutWidthDemoOpen(false);
             }}
             onOpen={() => {
@@ -290,7 +290,7 @@ export function DrawerPreview() {
       <Drawer
         drawerPosition={position}
         open={open}
-        onClose={closeDrawer}
+        onCancel={closeDrawer}
         onOpen={() => {
           setOpen(true);
         }}
@@ -305,7 +305,7 @@ export function DrawerPreview() {
         drawerPosition="left"
         open={widthDemoOpen}
         width="50%"
-        onClose={() => {
+        onCancel={() => {
           setWidthDemoOpen(false);
         }}
         onOpen={() => {

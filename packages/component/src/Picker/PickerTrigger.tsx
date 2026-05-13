@@ -7,6 +7,7 @@ import type { PickerProps } from './types';
 interface PickerTriggerProps {
   children?: ReactNode;
   disabled?: boolean;
+  placeholder?: string;
   styles: ReturnType<typeof import('./usePickerStyles').usePickerStyles>;
   slotStyles?: PickerProps['styles'];
   onPress?: () => void;
@@ -16,6 +17,7 @@ export function PickerTrigger({
   children,
   disabled,
   onPress,
+  placeholder,
   slotStyles,
   styles,
 }: PickerTriggerProps) {
@@ -26,7 +28,7 @@ export function PickerTrigger({
       style={[styles.trigger, slotStyles?.trigger]}
       testID="picker-trigger"
     >
-      {children ?? <Text />}
+      {children ?? (placeholder ? <Text>{placeholder}</Text> : <Text />)}
     </Pressable>
   );
 }

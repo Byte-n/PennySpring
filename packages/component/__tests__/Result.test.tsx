@@ -74,8 +74,8 @@ describe('Result', () => {
       extra: <RNText>Action</RNText>,
       styles: {
         iconContainer: iconContainerStyle,
-        title: titleStyle,
-        subtitle: subtitleStyle,
+        titleText: titleStyle,
+        subtitleText: subtitleStyle,
         extra: extraStyle
       }
     });

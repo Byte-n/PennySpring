@@ -67,8 +67,9 @@ export interface DateTimePickerProps {
   loadingIndicator?: ReactNode;
   emptyText?: string;
   empty?: ReactNode;
+  placeholder?: string;
   disabled?: boolean;
-  readOnly?: boolean;
+  readonly?: boolean;
   okDisabled?: boolean;
   children?: ReactNode;
   styles?: PickerStyles;

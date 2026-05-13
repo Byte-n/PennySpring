@@ -1,10 +1,6 @@
 import { useCallback, useRef } from 'react';
 import { Animated, Easing } from 'react-native';
-
-/**
- * 轮播图动画时长（毫秒）
- */
-const CAROUSEL_ANIMATION_DURATION = 300;
+import { useTheme } from '@pennyspring/theme';
 
 /**
  * 轮播图位置和动画控制 Hook
@@ -19,6 +15,7 @@ const CAROUSEL_ANIMATION_DURATION = 300;
  * @returns setPositionImmediate - 立即设置位置（无动画）的方法
  */
 export const useCarouselPosition = () => {
+  const { token } = useTheme();
   const position = useRef(new Animated.Value(0));
   const positionValueRef = useRef(0);
 
@@ -28,8 +25,8 @@ export const useCarouselPosition = () => {
     });
     Animated.timing(position.current, {
       toValue,
-      duration: CAROUSEL_ANIMATION_DURATION,
-      easing: Easing.out(Easing.cubic),
+      duration: token.motionDurationSlow,
+      easing: Easing.bezier(...token.motionEaseOut),
       useNativeDriver: true,
     }).start(({ finished }) => {
       position.current.removeListener(listenerId);
@@ -38,7 +35,7 @@ export const useCarouselPosition = () => {
         onFinished?.();
       }
     });
-  }, []);
+  }, [token]);
 
   const setPositionImmediate = useCallback((toValue: number) => {
     position.current.stopAnimation();

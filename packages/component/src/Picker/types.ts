@@ -85,8 +85,9 @@ export interface PickerProps {
   loadingIndicator?: ReactNode;
   emptyText?: string;
   empty?: ReactNode;
+  placeholder?: string;
   disabled?: boolean;
-  readOnly?: boolean;
+  readonly?: boolean;
   okDisabled?: boolean;
   renderLabel?: (
     item: PickerColumnItemData,

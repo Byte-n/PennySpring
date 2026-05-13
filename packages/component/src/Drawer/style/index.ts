@@ -1,4 +1,4 @@
-import { StyleSheet, type ViewStyle } from 'react-native';
+import type { ViewStyle } from 'react-native';
 import { createUseSheetStyle, toShadowStyle } from '@pennyspring/theme';
 import type { DrawerPosition } from '../types';
 
@@ -46,13 +46,21 @@ export const useStyles = createUseSheetStyle(
       backgroundColor: token.colorBgContainer,
     },
     sceneMask: {
-      ...StyleSheet.absoluteFill,
+      bottom: 0,
+      left: 0,
+      position: 'absolute',
+      right: 0,
+      top: 0,
       backgroundColor: token.colorFillContent,
-      opacity: 0.56,
+      opacity: token.opacityLoading,
       zIndex: token.zIndexBase + 1,
     },
     overlay: {
-      ...StyleSheet.absoluteFill,
+      bottom: 0,
+      left: 0,
+      position: 'absolute',
+      right: 0,
+      top: 0,
       ...getOverlayLayout(position),
       zIndex: token.zIndexPopupBase,
     },
@@ -88,9 +96,13 @@ export const useStyles = createUseSheetStyle(
       zIndex: token.zIndexPopupBase + token.zIndexBase + 1,
     },
     mask: {
-      ...StyleSheet.absoluteFill,
+      bottom: 0,
+      left: 0,
+      position: 'absolute',
+      right: 0,
+      top: 0,
       backgroundColor: token.colorFillContent,
-      opacity: 0.56,
+      opacity: token.opacityLoading,
     },
   }),
 );

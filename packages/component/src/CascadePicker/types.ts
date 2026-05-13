@@ -58,8 +58,9 @@ export interface CascadePickerProps<TData = unknown> {
   loadingIndicator?: ReactNode;
   emptyText?: string;
   empty?: ReactNode;
+  placeholder?: string;
   disabled?: boolean;
-  readOnly?: boolean;
+  readonly?: boolean;
   okDisabled?: boolean;
   children?: ReactNode;
   renderLabel?: (item: CascadePickerOption<TData>) => ReactNode;

@@ -110,7 +110,7 @@ export function HomeScreen() {
 
   return (
     <Drawer.Layout
-      onClose={closeDrawer}
+      onCancel={closeDrawer}
       onOpen={openDrawer}
       open={isDrawerOpen}
       renderDrawerContent={() => (

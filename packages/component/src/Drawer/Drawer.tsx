@@ -30,6 +30,7 @@ import Animated, {
   withDelay,
   withTiming,
 } from 'react-native-reanimated';
+import { useTheme } from '@pennyspring/theme';
 import { PortalContext } from '../Portal/Portal';
 import { resolvePortalMount } from '../Portal/resolvePortalMount';
 import { useStyles } from './style';
@@ -50,9 +51,6 @@ const SWIPE_DISTANCE_RATIO = 0.5;
 const SWIPE_VELOCITY_THRESHOLD = 400;
 const HORIZONTAL_SWIPE_THRESHOLD = 8;
 const VERTICAL_SWIPE_CANCEL_RATIO = 1.2;
-const DRAWER_ANIMATION_DURATION = 380;
-const OVERLAY_ANIMATION_DURATION = 200;
-const OVERLAY_FIRST_DELAY = OVERLAY_ANIMATION_DURATION;
 const AnimatedPressable = createAnimatedComponent(Pressable);
 const PERCENT_WIDTH_PATTERN = /^-?\d+(?:\.\d+)?%$/;
 
@@ -169,7 +167,7 @@ function DrawerComponent({
   drawerType = DEFAULT_DRAWER_TYPE,
   forceBackOverlay = false,
   externalProgress,
-  onClose,
+  onCancel,
   mountPoint = 'auto',
   onOpen,
   onOpenChange,
@@ -179,6 +177,7 @@ function DrawerComponent({
   width = DEFAULT_DRAWER_WIDTH,
 }: DrawerComponentProps) {
   const tokenStyles = useStyles({ position: drawerPosition, width });
+  const { token } = useTheme();
   const { width: windowWidth } = useWindowDimensions();
   const lastKnownWindowWidthRef = useRef(Dimensions.get('window').width);
   if (windowWidth > 0) {
@@ -205,25 +204,26 @@ function DrawerComponent({
       const nextProgress = nextOpen
         ? FULLY_OPEN_PROGRESS
         : FULLY_CLOSED_PROGRESS;
-      const drawerDelay = nextOpen ? OVERLAY_FIRST_DELAY : 0;
-      const overlayDelay = nextOpen ? 0 : OVERLAY_FIRST_DELAY;
+      const drawerDelay = nextOpen ? token.motionDurationMid : 0;
+      const overlayDelay = nextOpen ? 0 : token.motionDurationMid;
+      const animationEasing = Easing.bezier(...token.motionEaseOut);
 
       progress.value = withDelay(
         drawerDelay,
         withTiming(nextProgress, {
-          duration: DRAWER_ANIMATION_DURATION,
-          easing: Easing.out(Easing.cubic),
+          duration: token.motionDurationSlow,
+          easing: animationEasing,
         }),
       );
       overlayProgress.value = withDelay(
         overlayDelay,
         withTiming(nextProgress, {
-          duration: OVERLAY_ANIMATION_DURATION,
-          easing: Easing.out(Easing.cubic),
+          duration: token.motionDurationMid,
+          easing: animationEasing,
         }),
       );
     },
-    [overlayProgress, progress],
+    [overlayProgress, progress, token],
   );
 
   useEffect(() => {
@@ -241,12 +241,12 @@ function DrawerComponent({
       if (nextOpen) {
         onOpen?.();
       } else {
-        onClose?.();
+        onCancel?.();
       }
 
       setOpen(nextOpen);
     },
-    [isOpen, onClose, onOpen, setOpen, setProgressForOpenState],
+    [isOpen, onCancel, onOpen, setOpen, setProgressForOpenState],
   );
 
   const panGesture = useMemo(
@@ -379,7 +379,7 @@ function DrawerLayout({
   defaultOpen,
   drawerPosition = DEFAULT_DRAWER_POSITION,
   drawerType = DEFAULT_DRAWER_TYPE,
-  onClose,
+  onCancel,
   onOpen,
   onOpenChange,
   open,
@@ -435,9 +435,9 @@ function DrawerLayout({
       return;
     }
 
-    onClose?.();
+    onCancel?.();
     setOpen(false);
-  }, [isOpen, onClose, setOpen]);
+  }, [isOpen, onCancel, setOpen]);
   const handleContainerLayout = useCallback(
     (event: LayoutChangeEvent): void => {
       const nextWidth = event.nativeEvent.layout.width;
@@ -476,7 +476,7 @@ function DrawerLayout({
         externalProgress={progress}
         forceBackOverlay={shouldForceBackOverlay}
         mountPoint="local"
-        onClose={onClose}
+        onCancel={onCancel}
         onOpen={onOpen}
         onOpenChange={setOpen}
         open={isOpen}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { View } from 'react-native';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import type { PortalProps, PortalProviderProps } from './types';
 
@@ -21,7 +21,11 @@ export type { PortalContextValue };
 
 const useStyles = createUseSheetStyle(() => ({
   overlay: {
-    ...StyleSheet.absoluteFill,
+    bottom: 0,
+    left: 0,
+    position: 'absolute',
+    right: 0,
+    top: 0,
   },
 }));
 

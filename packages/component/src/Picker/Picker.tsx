@@ -62,7 +62,8 @@ export function Picker({
   onOk,
   onOpenChange,
   open,
-  readOnly,
+  placeholder,
+  readonly,
   renderLabel,
   size = DEFAULT_SIZE,
   style,
@@ -76,7 +77,7 @@ export function Picker({
     resolveOpen(defaultOpen, open),
   );
   const isOpenControlled = open !== undefined;
-  const isOpen = isOpenControlled ? open : internalOpen || Boolean(readOnly);
+  const isOpen = isOpenControlled ? open : internalOpen || Boolean(readonly);
   const isValueControlled = value !== undefined;
   const [internalValue, setInternalValue] = useState(
     resolveValue(defaultValue, value),
@@ -143,7 +144,7 @@ export function Picker({
   const handleItemPress = (columnIndex: number, itemIndex: number) => {
     const item = columns[columnIndex]?.[itemIndex];
 
-    if (item === undefined || item.disabled || readOnly) {
+    if (item === undefined || item.disabled || readonly) {
       return;
     }
 
@@ -171,6 +172,7 @@ export function Picker({
       <PickerTrigger
         disabled={disabled}
         onPress={handleTriggerPress}
+        placeholder={placeholder}
         slotStyles={slotStyles}
         styles={tokenStyles}
       >

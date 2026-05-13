@@ -2,13 +2,13 @@ import React, { useState } from 'react';
 import {
   Animated,
   Pressable,
-  Text,
   View,
   type Animated as ReactNativeAnimated,
   type LayoutChangeEvent,
   type TextStyle,
 } from 'react-native';
 import { createUseSheetStyle, toShadowStyle } from '@pennyspring/theme';
+import { Text } from '../Text';
 import type { SegmentedControlStyles } from './types';
 
 interface RouteLike {

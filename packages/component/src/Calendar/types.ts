@@ -54,18 +54,28 @@ export interface CalendarProps {
   marks?: CalendarDateMark[];
   showToday?: boolean;
   showConfirm?: boolean;
-  onConfirm?: (value: CalendarValue) => void;
+  onOk?: (value: CalendarValue) => void;
   onCancel?: () => void;
   disabled?: boolean;
   readonly?: boolean;
+  previousText?: string;
+  previous?: ReactNode;
+  nextText?: string;
+  next?: ReactNode;
+  todayText?: string;
+  today?: ReactNode;
+  cancelText?: string;
+  cancel?: ReactNode;
+  okText?: string;
+  ok?: ReactNode;
   style?: StyleProp<ViewStyle>;
   styles?: CalendarStyles;
 }
 
 export interface CalendarRangeProps
-  extends Omit<CalendarProps, 'value' | 'defaultValue' | 'onChange' | 'onConfirm'> {
+  extends Omit<CalendarProps, 'value' | 'defaultValue' | 'onChange' | 'onOk'> {
   value?: CalendarRangeValue;
   defaultValue?: CalendarRangeValue;
   onChange?: (value: CalendarRangeValue) => void;
-  onConfirm?: (value: CalendarRangeValue) => void;
+  onOk?: (value: CalendarRangeValue) => void;
 }

@@ -121,10 +121,6 @@ const useStyles = createUseSheetStyle(
   },
 );
 
-function isPrimitiveTitle(title: CardProps['title']) {
-  return typeof title === 'string' || typeof title === 'number';
-}
-
 export function Card({
   children,
   disabled = false,
@@ -137,12 +133,13 @@ export function Card({
   style,
   styles,
   title,
+  titleText,
   variant = 'plain',
 }: CardProps) {
   const tokenStyles = useStyles({ size, variant });
   const isInteractive = Boolean(onPress) && !disabled && !loading;
   const shouldUsePressable = Boolean(onPress);
-  const shouldRenderHeader = title !== undefined || extra !== undefined;
+  const shouldRenderHeader = title !== undefined || titleText !== undefined || extra !== undefined;
   const shouldRenderFooter = footer !== undefined;
   const shouldRenderLoadingNode = loading && loadingNode !== undefined;
   const bodyContent = shouldRenderLoadingNode ? loadingNode : children;
@@ -156,15 +153,15 @@ export function Card({
   }
 
   function renderTitle() {
-    if (title === undefined) {
-      return null;
+    if (title !== undefined) {
+      return title;
     }
 
-    if (isPrimitiveTitle(title)) {
-      return <Text style={[tokenStyles.title, styles?.title]}>{title}</Text>;
+    if (titleText !== undefined) {
+      return <Text style={[tokenStyles.title, styles?.titleText]}>{titleText}</Text>;
     }
 
-    return title;
+    return null;
   }
 
   const content = (

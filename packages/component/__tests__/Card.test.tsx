@@ -67,9 +67,9 @@ describe('Card', () => {
       opacity: 0.91
     };
     const testRenderer = renderCard({
-      title: 'Budget',
+      titleText: 'Budget',
       styles: {
-        title: titleStyle
+        titleText: titleStyle
       }
     });
     const titleNodes = findNodesWithStyle(testRenderer, titleStyle);
@@ -86,7 +86,7 @@ describe('Card', () => {
     const testRenderer = renderCard({
       title: <RNText style={customTitleStyle}>Custom budget</RNText>,
       styles: {
-        title: titleStyle
+        titleText: titleStyle
       }
     });
     expect(findNodesWithStyle(testRenderer, titleStyle)).toHaveLength(0);

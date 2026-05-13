@@ -159,7 +159,7 @@ export function Result({
           size={sizeConfig.titleSize}
           weight="semibold"
           color="heading"
-          style={[tokenStyles.title, styles?.title]}
+          style={[tokenStyles.title, styles?.titleText]}
         >
           {resolvedTitle}
         </Text>
@@ -170,7 +170,7 @@ export function Result({
         <Text
           size={sizeConfig.subtitleSize}
           color="secondary"
-          style={[tokenStyles.subtitle, styles?.subtitle]}
+          style={[tokenStyles.subtitle, styles?.subtitleText]}
         >
           {resolvedSubtitle}
         </Text>

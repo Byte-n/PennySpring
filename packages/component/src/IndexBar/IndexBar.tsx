@@ -18,6 +18,7 @@ const DEFAULT_SIZE: IndexBarSize = 'normal';
 interface NormalizedPanel {
   index: IndexBarValue;
   title?: ReactNode;
+  titleText?: string;
   disabled?: boolean;
   style?: StyleProp<ViewStyle>;
   children?: ReactNode;
@@ -52,7 +53,8 @@ function collectPanels(children: ReactNode): NormalizedPanel[] {
       disabled: panelProps.disabled,
       index: panelProps.index,
       style: panelProps.style,
-      title: toPanelTitle(panelProps),
+      title: panelProps.title,
+      titleText: panelProps.titleText ?? String(panelProps.index),
     });
   });
 
@@ -73,18 +75,6 @@ function renderTextNode(node: ReactNode, style: StyleProp<TextStyle>) {
   }
 
   return node;
-}
-
-function toPanelTitle(panel: IndexBarPanelProps): ReactNode {
-  if (panel.title !== undefined) {
-    return panel.title;
-  }
-
-  if (panel.titleText !== undefined) {
-    return panel.titleText;
-  }
-
-  return panel.index;
 }
 
 function getInitialValue(
@@ -137,7 +127,7 @@ function IndexBarRoot({
             style={[tokenStyles.panel, styles?.panel, panel.style]}
           >
             <View style={[tokenStyles.panelTitleContainer, styles?.panelTitleContainer]}>
-              {renderTextNode(panel.title, [tokenStyles.panelTitleText, styles?.panelTitleText])}
+              {panel.title ?? renderTextNode(panel.titleText, [tokenStyles.panelTitleText, styles?.panelTitleText])}
             </View>
             {panel.children}
           </View>

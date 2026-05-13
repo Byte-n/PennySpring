@@ -12,7 +12,7 @@ export type ListCollapseSize = ComponentSize;
 export interface ListCollapseStyles {
   header?: StyleProp<ViewStyle>;
   left?: StyleProp<ViewStyle>;
-  title?: StyleProp<TextStyle>;
+  titleText?: StyleProp<TextStyle>;
   summary?: StyleProp<ViewStyle>;
   indicator?: StyleProp<ViewStyle>;
   content?: StyleProp<ViewStyle>;
@@ -20,6 +20,7 @@ export interface ListCollapseStyles {
 
 export interface ListCollapseProps {
   size?: ListCollapseSize;
+  titleText?: string;
   title?: ReactNode;
   left?: ReactNode;
   summary?: ReactNode;

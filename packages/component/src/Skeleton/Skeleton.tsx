@@ -9,23 +9,38 @@ import Animated, {
 } from 'react-native-reanimated';
 import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
 import type { AliasToken } from '@pennyspring/theme';
-import type { SkeletonProps, SkeletonShape } from './types';
-
-const SHIMMER_DURATION = 1500;
+import type { SkeletonProps, SkeletonShape, SkeletonSize } from './types';
 
 function getDefaultWidth(shape: SkeletonShape, token: AliasToken): DimensionValue {
   return shape === 'circle' ? token.controlHeightSM : '100%';
 }
 
-function getDefaultHeight(shape: SkeletonShape, token: AliasToken): number {
+function getDefaultHeight(shape: SkeletonShape, size: SkeletonSize, token: AliasToken): number {
+  if (shape === 'line') {
+    if (size === 'small') {
+      return token.fontSizeSM;
+    }
+
+    if (size === 'large') {
+      return token.fontSizeLG;
+    }
+
+    return token.fontSize;
+  }
+
+  if (size === 'small') {
+    return token.controlHeightSM;
+  }
+
+  if (size === 'large') {
+    return token.controlHeightLG;
+  }
+
   switch (shape) {
     case 'circle':
-      return token.controlHeightSM;
     case 'rect':
-      return token.controlHeightSM;
-    case 'line':
     default:
-      return token.fontSize;
+      return token.controlHeight;
   }
 }
 
@@ -71,19 +86,17 @@ const useStyles = createUseSheetStyle(
 
 export function Skeleton({
   shape = 'line',
+  size = 'normal',
   width,
-  height,
-  borderRadius,
   animated = true,
   loading = true,
   style,
   children,
 }: SkeletonProps) {
   const { token } = useTheme();
-  const defaultHeight = getDefaultHeight(shape, token);
-  const resolvedHeight = height ?? defaultHeight;
+  const resolvedHeight = getDefaultHeight(shape, size, token);
   const resolvedWidth = width ?? getDefaultWidth(shape, token);
-  const resolvedBorderRadius = borderRadius ?? getDefaultBorderRadius(shape, token, resolvedHeight);
+  const resolvedBorderRadius = getDefaultBorderRadius(shape, token, resolvedHeight);
 
   const tokenStyles = useStyles({
     borderRadius: resolvedBorderRadius,
@@ -97,12 +110,23 @@ export function Skeleton({
 
   return (
     <View style={[tokenStyles.root, style]}>
-      {animated ? <ShimmerAnimation borderRadius={tokenStyles.shimmer.borderRadius as number} /> : null}
+      {animated ? (
+        <ShimmerAnimation
+          borderRadius={tokenStyles.shimmer.borderRadius as number}
+          duration={token.motionDurationSlow * token.lineWidthFocus}
+        />
+      ) : null}
     </View>
   );
 }
 
-function ShimmerAnimation({ borderRadius }: { borderRadius: number }) {
+function ShimmerAnimation({
+  borderRadius,
+  duration,
+}: {
+  borderRadius: number;
+  duration: number;
+}) {
   const translateX = useSharedValue(-100);
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: `${translateX.value}%` }],
@@ -110,7 +134,7 @@ function ShimmerAnimation({ borderRadius }: { borderRadius: number }) {
 
   React.useEffect(() => {
     translateX.value = withRepeat(
-      withTiming(200, { duration: SHIMMER_DURATION }),
+      withTiming(200, { duration }),
       -1,
       false,
     );

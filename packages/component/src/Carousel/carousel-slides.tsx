@@ -1,7 +1,7 @@
 import { useMemoizedFn } from '../_hooks';
-import { clamp } from 'lodash-es';
 import { type ReactNode, useMemo } from 'react';
 import { View, type ViewStyle } from 'react-native';
+import { clampValue } from './utils';
 
 interface CarouselSlidesProps<Data = unknown> {
   /** 数据源数组 */
@@ -94,7 +94,7 @@ export const CarouselSlides = <Data = unknown,>(
   }, [virtualRange, slidePixels, extTotal, direction]);
 
   const getIndexFromExtIndex = useMemoizedFn((extIndex: number) => {
-    if (!loopEnabled) return clamp(extIndex, 0, total - 1);
+    if (!loopEnabled) return clampValue(extIndex, 0, total - 1);
     if (extIndex < clonesBefore) {
       return (((extIndex - clonesBefore) % total) + total) % total;
     }
@@ -114,7 +114,7 @@ export const CarouselSlides = <Data = unknown,>(
     const getElementForExtIndex = (extIndex: number) => {
       const logicalIndex = loopEnabled
         ? getIndexFromExtIndex(extIndex)
-        : clamp(extIndex, 0, total - 1);
+        : clampValue(extIndex, 0, total - 1);
 
       const item = data[logicalIndex];
       return renderItem(item, logicalIndex);

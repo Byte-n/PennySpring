@@ -107,6 +107,7 @@ export function ListCollapse({
   styles,
   summary,
   title,
+  titleText,
 }: ListCollapseProps) {
   const [internalExpanded, setInternalExpanded] = useState(Boolean(defaultExpanded));
   const resolvedSize = resolveSize(size);
@@ -155,7 +156,7 @@ export function ListCollapse({
         ]}
       >
         {left ? <View style={[tokenStyles.left, styles?.left]}>{left}</View> : null}
-        {renderTextNode(title, [tokenStyles.title, styles?.title])}
+        {title ?? renderTextNode(titleText, [tokenStyles.title, styles?.titleText])}
         {summary ? (
           <View style={[tokenStyles.summary, styles?.summary]}>{summary}</View>
         ) : null}

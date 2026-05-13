@@ -18,7 +18,7 @@ export interface DrawerProps {
   open?: boolean;
   defaultOpen?: boolean;
   onOpen?: () => void;
-  onClose?: () => void;
+  onCancel?: () => void;
   onOpenChange?: (open: boolean) => void;
   drawerPosition?: DrawerPosition;
   width?: DrawerWidth;

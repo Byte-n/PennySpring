@@ -71,10 +71,16 @@ export interface SelectionListOptionGroup {
   key: string;
 
   /**
-   * 分组标题。
-   * 不得内置业务格式。
+   * 分组标题文本。
+   * 由组件内部渲染为 Text。
    */
-  title: ReactNode;
+  titleText?: string;
+
+  /**
+   * 分组标题自定义节点。
+   * 传入后由外部完全控制节点渲染。
+   */
+  title?: ReactNode;
 
   /**
    * 分组内选项。

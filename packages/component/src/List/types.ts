@@ -22,8 +22,8 @@ export interface ListItemStyles {
   left?: StyleProp<ViewStyle>;
   content?: StyleProp<ViewStyle>;
   right?: StyleProp<ViewStyle>;
-  title?: StyleProp<TextStyle>;
-  description?: StyleProp<TextStyle>;
+  titleText?: StyleProp<TextStyle>;
+  descriptionText?: StyleProp<TextStyle>;
   divider?: StyleProp<ViewStyle>;
 }
 
@@ -42,7 +42,9 @@ export interface ListProps {
 export interface ListItemProps {
   size?: ListSize;
   left?: ReactNode;
+  titleText?: string;
   title?: ReactNode;
+  descriptionText?: string;
   description?: ReactNode;
   right?: ReactNode;
   children?: ReactNode;

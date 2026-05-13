@@ -1,10 +1,10 @@
-import { clamp } from 'lodash-es';
 import { type RefObject, useMemo, useRef } from 'react';
 import {
   type Animated,
   PanResponder,
   type PanResponderInstance,
 } from 'react-native';
+import { clampValue } from '../utils';
 
 /**
  * 手势识别最小移动距离（像素）
@@ -149,7 +149,7 @@ export const useCarouselPanResponder = (
         position.current.setValue(bounded);
         positionValueRef.current = bounded;
 
-        const nextExtIndex = clamp(
+        const nextExtIndex = clampValue(
           Math.round(bounded / slidePixels),
           0,
           extTotal - 1,
@@ -170,7 +170,7 @@ export const useCarouselPanResponder = (
           const minAdj = Math.floor(baseIndex);
           const maxAdj = minAdj + 1;
           const rounded = Math.round(projectedIndex);
-          const adjacent = clamp(rounded, minAdj, maxAdj);
+          const adjacent = clampValue(rounded, minAdj, maxAdj);
           callbacksRef.current.swipeToExtIndex(adjacent);
         });
       },

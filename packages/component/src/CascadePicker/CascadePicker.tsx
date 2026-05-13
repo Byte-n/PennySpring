@@ -281,7 +281,8 @@ export function CascadePicker<TData = unknown>(props: CascadePickerProps<TData>)
       }}
       onOpenChange={props.onOpenChange}
       open={props.open}
-      readOnly={props.readOnly}
+      placeholder={props.placeholder}
+      readonly={props.readonly}
       renderLabel={pickerRenderLabel}
       styles={props.styles}
       title={props.title}

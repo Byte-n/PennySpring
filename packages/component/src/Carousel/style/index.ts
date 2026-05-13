@@ -1,7 +1,5 @@
 import { createUseSheetStyle } from '@pennyspring/theme';
 
-const INDICATOR_DOT_SIZE = 6;
-
 export const useCarouselStyles = createUseSheetStyle(theme => ({
   container: {
     overflow: 'hidden',
@@ -44,11 +42,11 @@ export const useCarouselStyles = createUseSheetStyle(theme => ({
     gap: theme.marginSM,
   },
   indicatorDot: {
-    width: INDICATOR_DOT_SIZE,
-    height: INDICATOR_DOT_SIZE,
-    borderRadius: 999,
+    width: theme.sizeXXS,
+    height: theme.sizeXXS,
+    borderRadius: theme.borderRadiusXS,
     backgroundColor: theme.colorBgContainer,
-    opacity: 0.6,
+    opacity: theme.opacityLoading,
   },
   indicatorDotActive: {
     opacity: 1,

@@ -74,18 +74,18 @@ describe('Calendar', () => {
   });
   it('delays single value submission in confirm mode', () => {
     const onChange = jest.fn();
-    const onConfirm = jest.fn();
+    const onOk = jest.fn();
     const testRenderer = renderCalendar({
       defaultValue: '2026-05-01',
       onChange,
-      onConfirm,
+      onOk,
       showConfirm: true
     });
     pressByLabel(testRenderer, 'Select 2026-05-07');
     expect(onChange).not.toHaveBeenCalled();
     pressByLabel(testRenderer, 'Confirm date');
     expect(onChange).toHaveBeenCalledWith('2026-05-07');
-    expect(onConfirm).toHaveBeenCalledWith('2026-05-07');
+    expect(onOk).toHaveBeenCalledWith('2026-05-07');
   });
   it('formats selected value and applies slot styles', () => {
     const gridStyle = {

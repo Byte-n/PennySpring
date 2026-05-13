@@ -40,15 +40,15 @@ export function SkeletonPreview() {
             <Skeleton shape="line" width="50%" />
             <Skeleton shape="line" width="100%" />
             <Skeleton shape="line" width="85%" />
-            <Skeleton shape="rect" height={72} style={styles.block} />
+            <Skeleton shape="rect" size="large" style={styles.block} />
           </View>
         </View>
       </PreviewSection>
 
       <PreviewSection title="Animated and static">
         <PreviewRow>
-          <Skeleton shape="rect" width="46%" height={88} />
-          <Skeleton shape="rect" width="46%" height={88} animated={false} />
+          <Skeleton shape="rect" width="46%" size="large" />
+          <Skeleton shape="rect" width="46%" size="large" animated={false} />
         </PreviewRow>
       </PreviewSection>
 

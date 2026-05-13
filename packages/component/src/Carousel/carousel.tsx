@@ -1,4 +1,3 @@
-import { clamp } from 'lodash-es';
 import React, { useCallback, useMemo, useState } from 'react';
 import {
   Animated,
@@ -22,6 +21,7 @@ import {
 import { useCarouselStyles } from './style';
 import type { CarouselProps } from './types';
 import { useTheme } from '@pennyspring/theme';
+import { clampValue } from './utils';
 
 interface LayoutState {
   width: number;
@@ -101,13 +101,15 @@ export const Carousel = <Data = unknown,>(props: CarouselProps<Data>) => {
 
   // 合并归一化计算，减少 useMemo 调用
   const { normalizedSlideSize, normalizedTrackOffset } = useMemo(() => {
-    const slideSize_ = Number.isFinite(slideSize) ? clamp(slideSize, 0, 100) : 100;
+    const slideSize_ = Number.isFinite(slideSize)
+      ? clampValue(slideSize, 0, 100)
+      : 100;
     let trackOffset_: number;
     if (stuckAtBoundary) {
       trackOffset_ = 100 - slideSize_;
     } else {
       trackOffset_ = Number.isFinite(trackOffset)
-        ? clamp(trackOffset, 0, 100 - slideSize_)
+        ? clampValue(trackOffset, 0, 100 - slideSize_)
         : 0;
     }
     return {
@@ -285,10 +287,10 @@ export const Carousel = <Data = unknown,>(props: CarouselProps<Data>) => {
     // 使用 current 计算 extIndex，确保响应式更新
     const currentExtIndex = loopEnabled ? current + clonesBefore : current;
     const start = isVirtual
-      ? clamp(currentExtIndex - effectiveOverscan, 0, extTotal - 1)
+      ? clampValue(currentExtIndex - effectiveOverscan, 0, extTotal - 1)
       : 0;
     const end = isVirtual
-      ? clamp(currentExtIndex + effectiveOverscan, 0, extTotal - 1)
+      ? clampValue(currentExtIndex + effectiveOverscan, 0, extTotal - 1)
       : extTotal - 1;
 
     return { start, end, isVirtual };

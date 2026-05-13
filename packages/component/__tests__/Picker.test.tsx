@@ -353,7 +353,7 @@ it('opens readonly picker but prevents selection changes', () => {
 
   act(() => {
     testRenderer = renderer.create(
-      <Picker columns={columns} readOnly onChange={onChange}>
+      <Picker columns={columns} readonly onChange={onChange}>
         <Text>Open picker</Text>
       </Picker>,
     );
@@ -507,10 +507,10 @@ it('applies supported style slots', () => {
   const tree = testRenderer!.root;
   const cancelButtonStyle = tree
     .findByProps({ testID: 'picker-cancel-button' })
-    .props.style({ pressed: false });
+    .props.style;
   const okButtonStyle = tree
     .findByProps({ testID: 'picker-ok-button' })
-    .props.style({ pressed: false });
+    .props.style;
 
   expect(JSON.stringify(tree.findByProps({ testID: 'picker-trigger' }).props.style)).toContain('0.91');
   expect(JSON.stringify(tree.findByProps({ testID: 'popup-mask' }).props.style)).toContain('0.93');
@@ -529,12 +529,11 @@ it('does not expose imperative business features', () => {
         ref={pickerRef}
         columns={columns}
         defaultOpen
-        placeholder="Pick one"
         retry={() => undefined}
       />,
     );
   });
 
   expect(pickerRef.current).toBeNull();
-  expect(JSON.stringify(testRenderer!.toJSON())).not.toContain('Pick one');
+  expect(JSON.stringify(testRenderer!.toJSON())).not.toContain('retry');
 });

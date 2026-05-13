@@ -33,6 +33,7 @@ import type {
 interface RenderGroup {
   key: string;
   title?: React.ReactNode;
+  titleText?: string;
   options: SelectionListOption[];
 }
 
@@ -95,6 +96,7 @@ function buildRenderGroups(
     return groups.map(group => ({
       key: group.key,
       title: group.title,
+      titleText: group.titleText,
       options: group.options,
     }));
   }
@@ -341,11 +343,13 @@ export function SelectionListPopup({
             {filteredGroups.map(group => (
               <View key={group.key} style={tokenStyles.group}>
                 {group.title !== undefined ? (
+                  group.title
+                ) : group.titleText !== undefined ? (
                   <Text
                     size="sm"
                     style={[tokenStyles.groupTitle, styles?.groupTitle]}
                   >
-                    {group.title}
+                    {group.titleText}
                   </Text>
                 ) : null}
                 {group.options.map(renderOption)}

@@ -16,6 +16,11 @@ import type {
 
 const DEFAULT_SIZE: CalendarSize = 'normal';
 const DEFAULT_MODE: CalendarMode = 'date';
+const DEFAULT_PREVIOUS_TEXT = 'Prev';
+const DEFAULT_NEXT_TEXT = 'Next';
+const DEFAULT_TODAY_TEXT = 'Today';
+const DEFAULT_CANCEL_TEXT = 'Cancel';
+const DEFAULT_OK_TEXT = 'Confirm';
 const WEEK_DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const MONTH_COUNT = 12;
 const YEAR_WINDOW = 12;
@@ -295,6 +300,10 @@ function renderTextNode(node: ReactNode) {
   return node;
 }
 
+function renderSlotNode(node: ReactNode, text: string) {
+  return node ?? <Text>{text}</Text>;
+}
+
 interface CalendarGridProps {
   disabledProps: Pick<CalendarProps, 'disabled' | 'disabledDate' | 'maxDate' | 'minDate'>;
   draftRange?: CalendarValue[];
@@ -382,6 +391,8 @@ function CalendarGrid({
 }
 
 function CalendarRoot({
+  cancel,
+  cancelText = DEFAULT_CANCEL_TEXT,
   defaultValue,
   disabled,
   disabledDate,
@@ -390,15 +401,23 @@ function CalendarRoot({
   maxDate,
   minDate,
   mode,
+  next,
+  nextText = DEFAULT_NEXT_TEXT,
   onCancel,
   onChange,
-  onConfirm,
+  onOk,
+  ok,
+  okText = DEFAULT_OK_TEXT,
+  previous,
+  previousText = DEFAULT_PREVIOUS_TEXT,
   readonly,
   showConfirm,
   showToday,
   size,
   style,
   styles,
+  today,
+  todayText = DEFAULT_TODAY_TEXT,
   value,
 }: CalendarProps) {
   const resolvedMode = resolveMode(mode);
@@ -438,7 +457,7 @@ function CalendarRoot({
     }
 
     commitValue(draftValue);
-    onConfirm?.(draftValue);
+    onOk?.(draftValue);
     setDraftValue(undefined);
   };
   const handleToday = (): void => {
@@ -467,7 +486,7 @@ function CalendarRoot({
           }}
           style={tokenStyles.navButton}
         >
-          <Text>Prev</Text>
+          {renderSlotNode(previous, previousText)}
         </Pressable>
         <Text style={[tokenStyles.title, styles?.title]}>{panelTitle(panel, resolvedMode)}</Text>
         <Pressable
@@ -480,7 +499,7 @@ function CalendarRoot({
           }}
           style={tokenStyles.navButton}
         >
-          <Text>Next</Text>
+          {renderSlotNode(next, nextText)}
         </Pressable>
       </View>
       {resolvedMode === 'date' ? (
@@ -507,7 +526,7 @@ function CalendarRoot({
         <View style={[tokenStyles.footer, styles?.footer]}>
           {showToday ? (
             <Pressable accessibilityLabel="Select today" onPress={handleToday}>
-              <Text>Today</Text>
+              {renderSlotNode(today, todayText)}
             </Pressable>
           ) : null}
           {showConfirm ? (
@@ -520,14 +539,14 @@ function CalendarRoot({
                 }}
                 style={tokenStyles.footerAction}
               >
-                <Text>Cancel</Text>
+                {renderSlotNode(cancel, cancelText)}
               </Pressable>
               <Pressable
                 accessibilityLabel="Confirm date"
                 onPress={handleConfirm}
                 style={tokenStyles.footerAction}
               >
-                <Text>Confirm</Text>
+                {renderSlotNode(ok, okText)}
               </Pressable>
             </>
           ) : null}
@@ -538,6 +557,8 @@ function CalendarRoot({
 }
 
 function CalendarRange({
+  cancel,
+  cancelText = DEFAULT_CANCEL_TEXT,
   defaultValue,
   disabled,
   disabledDate,
@@ -546,15 +567,23 @@ function CalendarRange({
   maxDate,
   minDate,
   mode,
+  next,
+  nextText = DEFAULT_NEXT_TEXT,
   onCancel,
   onChange,
-  onConfirm,
+  onOk,
+  ok,
+  okText = DEFAULT_OK_TEXT,
+  previous,
+  previousText = DEFAULT_PREVIOUS_TEXT,
   readonly,
   showConfirm,
   showToday,
   size,
   style,
   styles,
+  today,
+  todayText = DEFAULT_TODAY_TEXT,
   value,
 }: CalendarRangeProps) {
   const resolvedMode = resolveMode(mode);
@@ -610,7 +639,7 @@ function CalendarRange({
 
     const sorted = sortRange([draftRange[0], draftRange[1]]);
     commitRange(sorted);
-    onConfirm?.(sorted);
+    onOk?.(sorted);
     setDraftRange([]);
   };
   const displayValue = committedValue
@@ -631,7 +660,7 @@ function CalendarRange({
           }}
           style={tokenStyles.navButton}
         >
-          <Text>Prev</Text>
+          {renderSlotNode(previous, previousText)}
         </Pressable>
         <Text style={[tokenStyles.title, styles?.title]}>{panelTitle(panel, resolvedMode)}</Text>
         <Pressable
@@ -644,7 +673,7 @@ function CalendarRange({
           }}
           style={tokenStyles.navButton}
         >
-          <Text>Next</Text>
+          {renderSlotNode(next, nextText)}
         </Pressable>
       </View>
       <CalendarGrid
@@ -670,7 +699,7 @@ function CalendarRange({
                 handleSelect(nextToday);
               }}
             >
-              <Text>Today</Text>
+              {renderSlotNode(today, todayText)}
             </Pressable>
           ) : null}
           {showConfirm ? (
@@ -683,14 +712,14 @@ function CalendarRange({
                 }}
                 style={tokenStyles.footerAction}
               >
-                <Text>Cancel</Text>
+                {renderSlotNode(cancel, cancelText)}
               </Pressable>
               <Pressable
                 accessibilityLabel="Confirm date"
                 onPress={handleConfirm}
                 style={tokenStyles.footerAction}
               >
-                <Text>Confirm</Text>
+                {renderSlotNode(ok, okText)}
               </Pressable>
             </>
           ) : null}

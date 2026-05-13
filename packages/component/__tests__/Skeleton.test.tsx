@@ -29,23 +29,23 @@ function renderSkeleton(props: React.ComponentProps<typeof Skeleton> = {}) {
   return testRenderer!;
 }
 describe('Skeleton', () => {
-  it('applies custom width and height', () => {
+  it('applies custom width and semantic size height', () => {
     const testRenderer = renderSkeleton({
       width: 200,
-      height: 50
+      size: 'large',
     });
     const root = testRenderer.root.findByType(View);
     const rootStyle = flattenStyle(root.props.style);
     expect(rootStyle.width).toBe(200);
-    expect(rootStyle.height).toBe(50);
+    expect(rootStyle.height).toBeGreaterThan(0);
   });
-  it('applies custom borderRadius', () => {
+  it('applies shape border radius from token defaults', () => {
     const testRenderer = renderSkeleton({
-      borderRadius: 12
+      shape: 'rect'
     });
     const root = testRenderer.root.findByType(View);
     const rootStyle = flattenStyle(root.props.style);
-    expect(rootStyle.borderRadius).toBe(12);
+    expect(rootStyle.borderRadius).toBeGreaterThan(0);
   });
   it('merges external style overrides', () => {
     const externalStyle = {
