@@ -111,7 +111,7 @@ export function HomeScreen() {
   return (
     <Drawer.Layout
       onCancel={closeDrawer}
-      onOpen={openDrawer}
+      onOpenChange={setIsDrawerOpen}
       open={isDrawerOpen}
       renderDrawerContent={() => (
         <DrawerOptionList

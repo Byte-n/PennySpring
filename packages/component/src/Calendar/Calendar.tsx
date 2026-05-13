@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Pressable, View } from 'react-native';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import { Text } from '../Text';
+import { useControllableValue } from '../_hooks';
 import type { ReactNode } from 'react';
 import type { AliasToken } from '@pennyspring/theme';
 import type {
@@ -423,21 +424,20 @@ function CalendarRoot({
   const resolvedMode = resolveMode(mode);
   const resolvedSize = resolveSize(size);
   const tokenStyles = useCalendarStyles({ size: resolvedSize });
-  const [internalValue, setInternalValue] = useState(
+  const normalizedControlledValue =
+    value === undefined ? undefined : normalizeValue(value, resolvedMode);
+  const [committedValue, setCommittedValue] = useControllableValue(
     defaultValue ? normalizeValue(defaultValue, resolvedMode) : undefined,
+    normalizedControlledValue,
+    onChange,
   );
-  const committedValue = value ? normalizeValue(value, resolvedMode) : internalValue;
   const [draftValue, setDraftValue] = useState<CalendarValue | undefined>(undefined);
   const visibleValue = draftValue ?? committedValue;
   const [panel, setPanel] = useState(parsePanel(visibleValue));
   const isInteractive = !disabled && !readonly;
 
   const commitValue = (nextValue: CalendarValue): void => {
-    if (value === undefined) {
-      setInternalValue(nextValue);
-    }
-
-    onChange?.(nextValue);
+    setCommittedValue(nextValue);
   };
   const handleSelect = (nextValue: CalendarValue): void => {
     if (!isInteractive) {
@@ -589,26 +589,24 @@ function CalendarRange({
   const resolvedMode = resolveMode(mode);
   const resolvedSize = resolveSize(size);
   const tokenStyles = useCalendarStyles({ size: resolvedSize });
-  const [internalValue, setInternalValue] = useState<CalendarRangeValue | undefined>(
+  const normalizedControlledValue =
+    value === undefined
+      ? undefined
+      : [normalizeValue(value[0], resolvedMode), normalizeValue(value[1], resolvedMode)] as CalendarRangeValue;
+  const [committedValue, setCommittedValue] = useControllableValue<CalendarRangeValue>(
     defaultValue
       ? [normalizeValue(defaultValue[0], resolvedMode), normalizeValue(defaultValue[1], resolvedMode)]
       : undefined,
+    normalizedControlledValue,
+    onChange,
   );
-  const committedValue = value
-    ? [normalizeValue(value[0], resolvedMode), normalizeValue(value[1], resolvedMode)] as CalendarRangeValue
-    : internalValue;
   const [draftRange, setDraftRange] = useState<CalendarValue[]>([]);
   const [panel, setPanel] = useState(parsePanel(committedValue?.[0]));
   const isInteractive = !disabled && !readonly;
 
   const commitRange = (nextRange: CalendarRangeValue): void => {
     const sorted = sortRange(nextRange);
-
-    if (value === undefined) {
-      setInternalValue(sorted);
-    }
-
-    onChange?.(sorted);
+    setCommittedValue(sorted);
   };
   const handleSelect = (nextValue: CalendarValue): void => {
     if (!isInteractive) {

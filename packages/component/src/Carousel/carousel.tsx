@@ -2,6 +2,7 @@ import React, { useCallback, useMemo, useState } from 'react';
 import {
   Animated,
   type LayoutChangeEvent,
+  Pressable,
   type StyleProp,
   View,
   type ViewStyle,
@@ -318,7 +319,7 @@ export const Carousel = <Data = unknown,>(props: CarouselProps<Data>) => {
 
   return (
     <View style={[styles.container, style]}>
-      <View
+      <Pressable
         style={styles.track}
         onLayout={onLayoutTrack}
         {...panResponder?.panHandlers}
@@ -347,7 +348,7 @@ export const Carousel = <Data = unknown,>(props: CarouselProps<Data>) => {
           inactiveColor={token.colorPrimaryBg}
           styles={styles}
         />
-      </View>
+      </Pressable>
     </View>
   );
 };

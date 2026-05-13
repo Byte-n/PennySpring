@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ActivityIndicator, TextInput, View } from 'react-native';
 import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
 import { Text } from '../Text';
+import { useControllableValue } from '../_hooks';
 import type {
   NativeSyntheticEvent,
   TextInputContentSizeChangeEventData,
@@ -253,10 +254,13 @@ export function Textarea({
   const { token } = useTheme();
   const [isFocused, setIsFocused] = useState(false);
   const [contentHeight, setContentHeight] = useState(0);
-  const [internalValue, setInternalValue] = useState(defaultValue ?? '');
+  const [mergedValue = '', setMergedValue] = useControllableValue(
+    defaultValue ?? '',
+    value,
+    onChangeText,
+  );
   const resolvedMinRows = resolveRows(minRows, DEFAULT_MIN_ROWS);
   const resolvedMaxRows = resolveMaxRows(resolvedMinRows, maxRows);
-  const mergedValue = value ?? internalValue;
   const textValue = String(mergedValue);
   const isEditable = !disabled && !readonly;
   const isError = status === 'error';
@@ -293,11 +297,7 @@ export function Textarea({
   }
 
   function handleChangeText(text: string): void {
-    if (value === undefined) {
-      setInternalValue(text);
-    }
-
-    onChangeText?.(text);
+    setMergedValue(text);
   }
 
   function handleContentSizeChange(

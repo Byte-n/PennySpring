@@ -9,6 +9,7 @@ import { createUseSheetStyle, toShadowStyle, useTheme } from '@pennyspring/theme
 import type { ViewStyle } from 'react-native';
 import { PortalContext } from '../Portal/Portal';
 import { resolvePortalMount } from '../Portal/resolvePortalMount';
+import { useControllableValue } from '../_hooks';
 import type {
   PopupAnimation,
   PopupCancelReason,
@@ -164,9 +165,12 @@ export function Popup({
   const portalContext = useContext(PortalContext);
   const tokenStyles = usePopupStyles({ position });
   const { token } = useTheme();
-  const isOpenControlled = open !== undefined;
-  const [internalOpen, setInternalOpen] = useState(defaultOpen === true);
-  const isOpen = isOpenControlled ? (open as boolean) : internalOpen;
+  const [resolvedOpen, setResolvedOpen] = useControllableValue(
+    defaultOpen === true,
+    open,
+    undefined,
+  );
+  const isOpen = resolvedOpen === true;
   const previousOpenRef = useRef(isOpen);
 
   const animated = animation !== 'none';
@@ -238,10 +242,7 @@ export function Popup({
   const close = (reason: PopupCancelReason): void => {
     onCancel?.({ reason });
 
-    if (!isOpenControlled) {
-      setInternalOpen(false);
-    }
-
+    setResolvedOpen(false);
     onOpenChange?.(false, { reason });
   };
 
@@ -255,17 +256,14 @@ export function Popup({
       () => {
         onCancel?.({ reason: 'back' });
 
-        if (!isOpenControlled) {
-          setInternalOpen(false);
-        }
-
+        setResolvedOpen(false);
         onOpenChange?.(false, { reason: 'back' });
         return true;
       },
     );
 
     return () => subscription.remove();
-  }, [isOpen, isOpenControlled, onCancel, onOpenChange]);
+  }, [isOpen, onCancel, onOpenChange, setResolvedOpen]);
 
   const handleMaskPress = (): void => {
     if (!closeOnMaskClick) {

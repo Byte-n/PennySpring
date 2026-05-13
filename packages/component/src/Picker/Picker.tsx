@@ -3,17 +3,14 @@ import { View } from 'react-native';
 import { PickerPopup } from './PickerPopup';
 import { PickerTrigger } from './PickerTrigger';
 import { usePickerStyles } from './usePickerStyles';
+import { useControllableValue } from '../_hooks';
 import type { PickerProps, PickerSize, PickerValue } from './types';
 
 const DEFAULT_SIZE: PickerSize = 'normal';
 const DEFAULT_CANCEL_TEXT = 'Cancel';
 const DEFAULT_OK_TEXT = 'OK';
 
-function resolveOpen(defaultOpen?: boolean, open?: boolean): boolean {
-  return open ?? defaultOpen ?? false;
-}
-
-function resolveValue(
+function getInitialValue(
   defaultValue?: PickerValue[],
   value?: PickerValue[],
 ): PickerValue[] {
@@ -73,16 +70,17 @@ export function Picker({
   value,
 }: PickerProps) {
   const tokenStyles = usePickerStyles({ size });
-  const [internalOpen, setInternalOpen] = useState(
-    resolveOpen(defaultOpen, open),
+  const [resolvedOpen, setResolvedOpen] = useControllableValue(
+    defaultOpen === true,
+    open,
+    undefined,
   );
-  const isOpenControlled = open !== undefined;
-  const isOpen = isOpenControlled ? open : internalOpen || Boolean(readonly);
-  const isValueControlled = value !== undefined;
-  const [internalValue, setInternalValue] = useState(
-    resolveValue(defaultValue, value),
+  const isOpen = resolvedOpen === true || Boolean(readonly);
+  const [mainValue = [], setMainValue] = useControllableValue(
+    getInitialValue(defaultValue, value),
+    value,
+    undefined,
   );
-  const mainValue = isValueControlled ? value : internalValue;
   const [draftValue, setDraftValue] = useState(mainValue);
   const draftValueRef = useRef(draftValue);
 
@@ -98,18 +96,12 @@ export function Picker({
       return;
     }
 
-    if (!isOpenControlled) {
-      setInternalOpen(true);
-    }
-
+    setResolvedOpen(true);
     onOpenChange?.(true, { reason: 'trigger' });
   };
 
   const closeInternal = (reason: 'cancel' | 'mask' | 'ok') => {
-    if (!isOpenControlled) {
-      setInternalOpen(false);
-    }
-
+    setResolvedOpen(false);
     onOpenChange?.(false, { reason });
   };
 
@@ -130,10 +122,7 @@ export function Picker({
 
     const nextValue = draftValueRef.current;
 
-    if (!isValueControlled) {
-      setInternalValue(nextValue);
-    }
-
+    setMainValue(nextValue);
     onOk?.(nextValue, { items: getSelectedItems(columns, nextValue) });
 
     if (!loading && !hasEmptyColumn(columns)) {

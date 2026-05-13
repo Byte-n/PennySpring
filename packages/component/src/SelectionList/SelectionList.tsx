@@ -9,6 +9,7 @@ import { useTheme } from '@pennyspring/theme';
 import { Button } from '../Button';
 import { Popup } from '../Popup';
 import { Text } from '../Text';
+import { useControllableValue } from '../_hooks';
 import {
   SELECTION_LIST_CLOSE_TEXT,
   SELECTION_LIST_CONFIRM_TEXT,
@@ -115,8 +116,8 @@ function optionMatchesSearch(option: SelectionListOption, query: string): boolea
   }
 
   const searchableText = [
-    extractText(option.label),
-    extractText(option.description),
+    option.labelText ?? extractText(option.label),
+    option.descriptionText ?? extractText(option.description),
   ]
     .join(' ')
     .toLowerCase();
@@ -142,7 +143,7 @@ function getSelectedLabel(
   return selectedValues
     .map(value => options.find(option => option.value === value))
     .filter((option): option is SelectionListOption => option !== undefined)
-    .map(option => extractText(option.label))
+    .map(option => option.labelText ?? extractText(option.label))
     .filter(Boolean)
     .join(', ');
 }
@@ -182,13 +183,17 @@ export function SelectionListPopup({
     status: 'default',
   });
   const { token } = useTheme();
-  const [internalOpen, setInternalOpen] = useState(defaultOpen === true);
-  const [internalValue, setInternalValue] = useState(
+  const [mergedOpen, setMergedOpen] = useControllableValue(
+    defaultOpen === true,
+    open,
+    onOpenChange,
+  );
+  const [mergedValue, setMergedValue] = useControllableValue(
     normalizeValue(resolvedMode, defaultValue),
+    value,
+    onChange,
   );
   const [internalSearchValue, setInternalSearchValue] = useState('');
-  const mergedOpen = open ?? internalOpen;
-  const mergedValue = value ?? internalValue;
   const mergedSearchValue = searchValue ?? internalSearchValue;
   const isInteractive = !disabled && !readonly && !loading;
   const renderGroups = useMemo(
@@ -202,19 +207,11 @@ export function SelectionListPopup({
   const selectedValues = toValueArray(mergedValue);
 
   function closeSelectionList(): void {
-    if (open === undefined) {
-      setInternalOpen(false);
-    }
-
-    onOpenChange?.(false);
+    setMergedOpen(false);
   }
 
   function commitValue(nextValue: SelectionListValue | SelectionListValue[]): void {
-    if (value === undefined) {
-      setInternalValue(nextValue);
-    }
-
-    onChange?.(nextValue);
+    setMergedValue(nextValue);
   }
 
   function handleSelect(option: SelectionListOption): void {
@@ -243,10 +240,10 @@ export function SelectionListPopup({
     onSearchChange?.(nextValue);
   }
 
-  function renderOption(option: SelectionListOption) {
+function renderOption(option: SelectionListOption) {
     const isSelected = isValueSelected(selectedValues, option.value);
     const isDisabled = option.disabled === true || !isInteractive;
-    const labelText = extractText(option.label);
+    const labelText = option.labelText ?? extractText(option.label);
 
     return (
       <Pressable
@@ -279,16 +276,26 @@ export function SelectionListPopup({
           <View style={tokenStyles.optionMeta}>{option.prefix}</View>
         ) : null}
         <View style={tokenStyles.optionContent}>
-          <Text
-            style={[
-              tokenStyles.optionLabel,
-              styles?.optionLabel,
+          {option.label !== undefined && typeof option.label !== 'string' ? (
+            option.label
+          ) : (
+            <Text
+              style={[
+                tokenStyles.optionLabel,
+                styles?.optionLabel,
               isDisabled ? tokenStyles.optionLabelDisabled : null,
             ]}
           >
-            {option.label}
-          </Text>
-          {option.description !== undefined ? (
+              {option.labelText ?? option.label}
+            </Text>
+          )}
+          {option.description !== undefined && typeof option.description !== 'string' ? (
+            option.description
+          ) : option.descriptionText !== undefined ? (
+            <Text size="sm" style={tokenStyles.optionDescription}>
+              {option.descriptionText}
+            </Text>
+          ) : typeof option.description === 'string' ? (
             <Text size="sm" style={tokenStyles.optionDescription}>
               {option.description}
             </Text>
@@ -386,6 +393,7 @@ function SelectionListRoot({
   groups,
   helperText,
   label,
+  labelText,
   loading,
   mode,
   onChange,
@@ -409,12 +417,16 @@ function SelectionListRoot({
     status: resolvedStatus,
   });
   const { token } = useTheme();
-  const [internalOpen, setInternalOpen] = useState(defaultOpen === true);
-  const [internalValue, setInternalValue] = useState(
-    normalizeValue(resolvedMode, defaultValue),
+  const [mergedOpen, setMergedOpen] = useControllableValue(
+    defaultOpen === true,
+    open,
+    onOpenChange,
   );
-  const mergedOpen = open ?? internalOpen;
-  const mergedValue = value ?? internalValue;
+  const [mergedValue, setMergedValue] = useControllableValue(
+    normalizeValue(resolvedMode, defaultValue),
+    value,
+    onChange,
+  );
   const isInteractive = !disabled && !readonly && !loading;
   const isError = resolvedStatus === 'error';
   const renderGroups = useMemo(
@@ -429,8 +441,10 @@ function SelectionListRoot({
   const selectedLabel = getSelectedLabel(flatOptions, selectedValues);
   const message = isError && errorText !== undefined ? errorText : helperText;
   const triggerLabel =
-    typeof label === 'string'
-      ? label
+    labelText !== undefined
+      ? labelText
+      : typeof label === 'string'
+        ? label
       : selectedLabel.length > 0
         ? selectedLabel
         : (placeholder ?? DEFAULT_PLACEHOLDER);
@@ -440,27 +454,15 @@ function SelectionListRoot({
       return;
     }
 
-    if (open === undefined) {
-      setInternalOpen(nextOpen);
-    }
-
-    onOpenChange?.(nextOpen);
+    setMergedOpen(nextOpen);
   }
 
   function closeSelectionList(): void {
-    if (open === undefined) {
-      setInternalOpen(false);
-    }
-
-    onOpenChange?.(false);
+    setMergedOpen(false);
   }
 
   function commitValue(nextValue: SelectionListValue | SelectionListValue[]): void {
-    if (value === undefined) {
-      setInternalValue(nextValue);
-    }
-
-    onChange?.(nextValue);
+    setMergedValue(nextValue);
   }
 
   function handlePopupChange(
@@ -469,11 +471,18 @@ function SelectionListRoot({
     commitValue(nextValue);
   }
 
+  const labelNode =
+    label !== undefined && typeof label !== 'string' ? (
+      label
+    ) : labelText !== undefined || typeof label === 'string' ? (
+      <Text style={[tokenStyles.label, styles?.label]}>
+        {labelText ?? label}
+      </Text>
+    ) : null;
+
   return (
     <View testID="selection-list-root" style={[tokenStyles.root, style]}>
-      {label !== undefined ? (
-        <Text style={[tokenStyles.label, styles?.label]}>{label}</Text>
-      ) : null}
+      {labelNode}
       <Pressable
         accessibilityLabel={triggerLabel}
         accessibilityRole="button"

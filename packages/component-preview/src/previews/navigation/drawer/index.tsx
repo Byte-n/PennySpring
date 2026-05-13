@@ -194,8 +194,8 @@ export function DrawerPreview() {
                   onCancel={() => {
                     updateLayoutOpen(item, false);
                   }}
-                  onOpen={() => {
-                    updateLayoutOpen(item, true);
+                  onOpenChange={nextOpen => {
+                    updateLayoutOpen(item, nextOpen);
                   }}
                   renderDrawerContent={() => (
                     <DrawerContent
@@ -262,8 +262,8 @@ export function DrawerPreview() {
             onCancel={() => {
               setLayoutWidthDemoOpen(false);
             }}
-            onOpen={() => {
-              setLayoutWidthDemoOpen(true);
+            onOpenChange={nextOpen => {
+              setLayoutWidthDemoOpen(nextOpen);
             }}
             renderDrawerContent={() => (
               <DrawerContent
@@ -291,8 +291,8 @@ export function DrawerPreview() {
         drawerPosition={position}
         open={open}
         onCancel={closeDrawer}
-        onOpen={() => {
-          setOpen(true);
+        onOpenChange={nextOpen => {
+          setOpen(nextOpen);
         }}
       >
         <DrawerContent
@@ -308,8 +308,8 @@ export function DrawerPreview() {
         onCancel={() => {
           setWidthDemoOpen(false);
         }}
-        onOpen={() => {
-          setWidthDemoOpen(true);
+        onOpenChange={nextOpen => {
+          setWidthDemoOpen(nextOpen);
         }}
       >
         <DrawerContent

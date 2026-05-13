@@ -10,6 +10,7 @@ import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
 import { PortalContext } from '../Portal/Portal';
 import { resolvePortalMount } from '../Portal/resolvePortalMount';
 import { Text } from '../Text';
+import { useControllableValue } from '../_hooks';
 import { useOverlayEmitter } from '../_hooks/useOverlayEmitter';
 import type { ViewStyle } from 'react-native';
 import type { ToastController, ToastPlacement, ToastProps, ToastShowOptions, ToastSize } from './types';
@@ -205,9 +206,12 @@ export function Toast({
   styles,
 }: ToastProps) {
   const portalContext = useContext(PortalContext);
-  const isControlled = open !== undefined;
-  const [internalOpen, setInternalOpen] = React.useState(defaultOpen === true);
-  const isOpen = isControlled ? (open as boolean) : internalOpen;
+  const [resolvedOpen, setResolvedOpen] = useControllableValue(
+    defaultOpen === true,
+    open,
+    undefined,
+  );
+  const isOpen = resolvedOpen === true;
   const [mounted, setMounted] = React.useState(isOpen);
 
   React.useEffect(() => {
@@ -236,9 +240,7 @@ export function Toast({
       messageText={messageText}
       onExited={() => {
         onCancel?.();
-        if (!isControlled) {
-          setInternalOpen(false);
-        }
+        setResolvedOpen(false);
         setMounted(false);
         onOpenChange?.(false);
         afterOpenChange?.(false);

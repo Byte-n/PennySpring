@@ -11,6 +11,7 @@ import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
 import { PortalContext } from '../Portal/Portal';
 import { resolvePortalMount } from '../Portal/resolvePortalMount';
 import { Text } from '../Text';
+import { useControllableValue } from '../_hooks';
 import { useOverlayEmitter } from '../_hooks/useOverlayEmitter';
 import type {
   NotificationController,
@@ -240,9 +241,12 @@ export function Notification({
   ...rest
 }: NotificationProps) {
   const portalContext = useContext(PortalContext);
-  const isControlled = open !== undefined;
-  const [internalOpen, setInternalOpen] = React.useState(defaultOpen === true);
-  const isOpen = isControlled ? (open as boolean) : internalOpen;
+  const [resolvedOpen, setResolvedOpen, isControlled] = useControllableValue(
+    defaultOpen === true,
+    open,
+    undefined,
+  );
+  const isOpen = resolvedOpen === true;
   const [mounted, setMounted] = React.useState(isOpen);
   const previousOpenRef = React.useRef(isOpen);
   const internalCloseStartedRef = React.useRef(false);
@@ -269,8 +273,8 @@ export function Notification({
     internalCloseStartedRef.current = true;
     onCancel?.();
     onOpenChange?.(false);
-    setInternalOpen(false);
-  }, [isControlled, isOpen, onCancel, onOpenChange]);
+    setResolvedOpen(false);
+  }, [isControlled, isOpen, onCancel, onOpenChange, setResolvedOpen]);
 
   const handleExited = React.useCallback(() => {
     setMounted(false);

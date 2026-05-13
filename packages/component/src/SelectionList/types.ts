@@ -34,13 +34,25 @@ export interface SelectionListOption {
 
   /**
    * 选项主文本。
-   * 用于展示和无障碍朗读。
+   * 由组件内部渲染为 Text。
    */
-  label: ReactNode;
+  labelText?: string;
+
+  /**
+   * 选项主内容自定义节点。
+   * 传入后由外部完全控制节点渲染。
+   */
+  label?: ReactNode;
 
   /**
    * 选项辅助文本。
-   * 用于说明账户余额、分类备注等非主信息。
+   * 由组件内部渲染为 Text。
+   */
+  descriptionText?: string;
+
+  /**
+   * 选项辅助内容自定义节点。
+   * 传入后由外部完全控制节点渲染。
    */
   description?: ReactNode;
 
@@ -242,8 +254,14 @@ export interface SelectionListProps extends SelectionListPopupProps {
   status?: SelectionListStatus;
 
   /**
-   * 字段标签。
-   * 不得用 placeholder 替代 label。
+   * 字段标签文本。
+   * 由组件内部渲染为 Text，不得用 placeholder 替代。
+   */
+  labelText?: string;
+
+  /**
+   * 字段标签自定义节点。
+   * 传入后由外部完全控制节点渲染。
    */
   label?: ReactNode;
 

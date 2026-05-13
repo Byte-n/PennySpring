@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { View } from 'react-native';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import { Button } from '../Button';
 import { Popup } from '../Popup';
 import { Text } from '../Text';
+import { useControllableValue } from '../_hooks';
 import type { StyleProp, TextStyle, ViewStyle } from 'react-native';
 import type {
   DialogCancelReason,
@@ -51,10 +52,6 @@ const useStyles = createUseSheetStyle(
     };
   },
 );
-
-function resolveOpen(defaultOpen?: boolean, open?: boolean): boolean {
-  return open ?? defaultOpen ?? false;
-}
 
 function renderTitle(
   title: DialogProps['title'],
@@ -131,19 +128,19 @@ export function Dialog({
   titleText,
 }: DialogProps) {
   const tokenStyles = useStyles();
-  const [internalOpen, setInternalOpen] = useState(resolveOpen(defaultOpen, open));
-  const isOpenControlled = open !== undefined;
-  const isOpen = isOpenControlled ? open : internalOpen;
+  const [resolvedOpen, setResolvedOpen] = useControllableValue(
+    defaultOpen === true,
+    open,
+    undefined,
+  );
+  const isOpen = resolvedOpen === true;
   const titleNode = renderTitle(title, titleText, [
     tokenStyles.titleText,
     slotStyles?.titleText,
   ]);
 
   const closeInternal = (reason: DialogOpenChangeReason): void => {
-    if (!isOpenControlled) {
-      setInternalOpen(false);
-    }
-
+    setResolvedOpen(false);
     onOpenChange?.(false, { reason });
   };
 

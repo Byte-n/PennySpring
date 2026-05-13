@@ -112,6 +112,5 @@ export interface CascaderProps<TData = unknown>
   onPanelChange?: (value: number) => void;
   children?: ReactNode;
   style?: StyleProp<ViewStyle>;
-  panelStyle?: StyleProp<ViewStyle>;
   styles?: CascaderStyles;
 }

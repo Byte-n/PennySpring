@@ -1,7 +1,8 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { Pressable, View } from 'react-native';
 import { Popup } from '../Popup';
 import { Text } from '../Text';
+import { useControllableValue } from '../_hooks';
 import {
   CASCADER_DEFAULT_PLACEHOLDER,
   CASCADER_TRIGGER_SUFFIX,
@@ -50,7 +51,6 @@ function CascaderRoot<TData = unknown>({
   onPanelChange,
   open,
   options,
-  panelStyle,
   panelValue,
   placeholder = CASCADER_DEFAULT_PLACEHOLDER,
   position,
@@ -63,16 +63,19 @@ function CascaderRoot<TData = unknown>({
 }: CascaderProps<TData>) {
   const resolvedSize = resolveSize(size);
   const tokenStyles = useCascaderStyles({ size: resolvedSize });
-  const [internalOpen, setInternalOpen] = useState(defaultOpen === true);
-  const isOpenControlled = open !== undefined;
-  const mergedOpen = isOpenControlled ? open : internalOpen;
-  const [internalValue, setInternalValue] = useState(
-    normalizeValue(options, defaultValue),
+  const [resolvedOpen, setResolvedOpen] = useControllableValue(
+    defaultOpen === true,
+    open,
+    undefined,
   );
-  const isValueControlled = value !== undefined;
-  const mergedValue = isValueControlled
-    ? normalizeValue(options, value)
-    : internalValue;
+  const mergedOpen = resolvedOpen === true;
+  const normalizedControlledValue =
+    value === undefined ? undefined : normalizeValue(options, value);
+  const [mergedValue, setMergedValue] = useControllableValue(
+    normalizeValue(options, defaultValue),
+    normalizedControlledValue,
+    undefined,
+  );
   const isInteractive = !disabled && !readonly;
   const selectedLabel = useMemo(
     () => getSelectedLabel(options, mergedValue),
@@ -80,10 +83,7 @@ function CascaderRoot<TData = unknown>({
   );
 
   function setOpen(nextOpen: boolean, reason: 'trigger' | 'select'): void {
-    if (!isOpenControlled) {
-      setInternalOpen(nextOpen);
-    }
-
+    setResolvedOpen(nextOpen);
     onOpenChange?.(nextOpen, { reason });
   }
 
@@ -103,10 +103,7 @@ function CascaderRoot<TData = unknown>({
     nextOpen: boolean,
     params: { reason: 'mask' | 'back' },
   ): void {
-    if (!isOpenControlled) {
-      setInternalOpen(nextOpen);
-    }
-
+    setResolvedOpen(nextOpen);
     onOpenChange?.(nextOpen, params);
   }
 
@@ -114,10 +111,7 @@ function CascaderRoot<TData = unknown>({
     nextValue: CascaderValue[],
     params: CascaderChangeParams<TData>,
   ): void {
-    if (!isValueControlled) {
-      setInternalValue(nextValue);
-    }
-
+    setMergedValue(nextValue);
     onChange?.(nextValue, params);
 
     if (params.isLeaf && closeOnSelectLeaf) {
@@ -179,7 +173,6 @@ function CascaderRoot<TData = unknown>({
         open={mergedOpen}
         position={position}
         size={resolvedSize}
-        style={panelStyle}
         styles={{
           ...styles?.floatingPanel,
           content: [

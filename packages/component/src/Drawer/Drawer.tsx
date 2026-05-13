@@ -33,6 +33,7 @@ import Animated, {
 import { useTheme } from '@pennyspring/theme';
 import { PortalContext } from '../Portal/Portal';
 import { resolvePortalMount } from '../Portal/resolvePortalMount';
+import { useControllableValue } from '../_hooks';
 import { useStyles } from './style';
 import type {
   DrawerLayoutProps,
@@ -122,19 +123,18 @@ function useDrawerOpenState({
   onOpenChange,
   open,
 }: DrawerOpenStateProps) {
-  const isControlled = open !== undefined;
-  const [internalOpen, setInternalOpen] = useState(defaultOpen === true);
-  const isOpen = isControlled ? (open as boolean) : internalOpen;
+  const [resolvedOpen, setResolvedOpen] = useControllableValue(
+    defaultOpen === true,
+    open,
+    onOpenChange,
+  );
+  const isOpen = resolvedOpen === true;
 
   const setOpen = useCallback(
     (nextOpen: boolean): void => {
-      if (!isControlled) {
-        setInternalOpen(nextOpen);
-      }
-
-      onOpenChange?.(nextOpen);
+      setResolvedOpen(nextOpen);
     },
-    [isControlled, onOpenChange],
+    [setResolvedOpen],
   );
 
   return [isOpen, setOpen] as const;
@@ -169,7 +169,6 @@ function DrawerComponent({
   externalProgress,
   onCancel,
   mountPoint = 'auto',
-  onOpen,
   onOpenChange,
   open,
   styles: slotStyles,
@@ -238,15 +237,13 @@ function DrawerComponent({
         return;
       }
 
-      if (nextOpen) {
-        onOpen?.();
-      } else {
+      if (!nextOpen) {
         onCancel?.();
       }
 
       setOpen(nextOpen);
     },
-    [isOpen, onCancel, onOpen, setOpen, setProgressForOpenState],
+    [isOpen, onCancel, setOpen, setProgressForOpenState],
   );
 
   const panGesture = useMemo(
@@ -380,7 +377,6 @@ function DrawerLayout({
   drawerPosition = DEFAULT_DRAWER_POSITION,
   drawerType = DEFAULT_DRAWER_TYPE,
   onCancel,
-  onOpen,
   onOpenChange,
   open,
   renderDrawerContent,
@@ -477,7 +473,6 @@ function DrawerLayout({
         forceBackOverlay={shouldForceBackOverlay}
         mountPoint="local"
         onCancel={onCancel}
-        onOpen={onOpen}
         onOpenChange={setOpen}
         open={isOpen}
         styles={{

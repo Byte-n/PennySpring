@@ -8,6 +8,7 @@ import {
 import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
 import { MagnifyingGlassIcon } from 'phosphor-react-native';
 import { Text } from '../Text';
+import { useControllableValue } from '../_hooks';
 import type { AliasToken } from '@pennyspring/theme';
 import type {
   GestureResponderEvent,
@@ -255,8 +256,11 @@ function InputRoot({
   });
   const { token } = useTheme();
   const [isFocused, setIsFocused] = useState(false);
-  const [internalValue, setInternalValue] = useState(defaultValue ?? '');
-  const mergedValue = value ?? internalValue;
+  const [mergedValue = '', setMergedValue] = useControllableValue(
+    defaultValue ?? '',
+    value,
+    onChangeText,
+  );
   const isEditable = !disabled && !readonly;
   const isError = resolvedStatus === 'error';
   const shouldShowClearButton =
@@ -267,24 +271,17 @@ function InputRoot({
   const hasSuffix = suffix !== undefined && suffix !== null;
 
   function handleClear(): void {
-    if (value === undefined) {
-      setInternalValue('');
-    }
-
     if (onClear !== undefined) {
+      setMergedValue('');
       onClear();
       return;
     }
 
-    onChangeText?.('');
+    setMergedValue('');
   }
 
   function handleChangeText(text: string): void {
-    if (value === undefined) {
-      setInternalValue(text);
-    }
-
-    onChangeText?.(text);
+    setMergedValue(text);
   }
 
   function handleFocus(
@@ -403,29 +400,25 @@ function SearchInput({
 }: InputSearchProps) {
   const resolvedSize = resolveSize(size);
   const tokenStyles = useSearchStyles({ size: resolvedSize });
-  const [internalValue, setInternalValue] = useState(defaultValue ?? '');
-  const mergedValue = value ?? internalValue;
+  const [mergedValue = '', setMergedValue] = useControllableValue(
+    defaultValue ?? '',
+    value,
+    onChangeText,
+  );
   const canSearch = !disabled && !readonly && loading !== true;
 
   function handleChangeText(text: string): void {
-    if (value === undefined) {
-      setInternalValue(text);
-    }
-
-    onChangeText?.(text);
+    setMergedValue(text);
   }
 
   function handleClear(): void {
-    if (value === undefined) {
-      setInternalValue('');
-    }
-
     if (onClear !== undefined) {
+      setMergedValue('');
       onClear();
       return;
     }
 
-    onChangeText?.('');
+    setMergedValue('');
   }
 
   function handleSearch(): void {
