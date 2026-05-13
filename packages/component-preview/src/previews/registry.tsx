@@ -311,7 +311,7 @@ export const COMPONENT_PREVIEW_SECTIONS = [
       {
         id: 'message',
         title: 'Message',
-        description: '消息条组件与 useMessage/useMesage。',
+        description: '消息条组件与 useMessage。',
         component: MessagePreview,
       },
       {

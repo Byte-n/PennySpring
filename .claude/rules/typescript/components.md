@@ -20,7 +20,8 @@ paths:
 - 将公共组件 props 和导出的样式类型保留在组件目录下的 `types.ts` 中。
 - 使用具名 `interface XxxProps` 定义组件 props。
 - 不要暴露仅供实现内部使用的 props。公共 props 应描述组件行为或受支持的自定义点。
-- 每个组件都必须提供 `size?: XxxSize`，并导出对应的 `type XxxSize = 'small' | 'normal' | 'large'`。
+- 是否提供 `size?: XxxSize` 必须按组件类型判断；只有存在明确尺寸语义的组件才应提供 `size`，并导出对应的
+  `type XxxSize = 'small' | 'normal' | 'large'`。
 - 对于受支持的变体、状态、尺寸和行为，优先使用明确的语义 props，而不是让调用方重写内部样式。
 - 输入类组件必须显式支持 `placeholder`、`readonly` 和 `disabled`。
 
@@ -57,24 +58,29 @@ paths:
 
 ## 尺寸
 
-- `size` 只支持 `small`、`normal`、`large` 三个值，默认值必须是 `normal`。
-- 组件应在内部完整实现三种尺寸，不要要求调用方通过 `style` 或 `styles` 拼出尺寸差异。
+- 交互控件、展示控件、表单控件、反馈控件等存在明确尺寸语义的组件应提供 `size`。
+- Provider、Portal、Config、App 包装器、纯逻辑组件、无可见根节点组件，以及尺寸完全由内容、容器或数据决定的复合组件，不强制提供
+  `size`。
+- 提供 `size` 的组件只支持 `small`、`normal`、`large` 三个值，默认值必须是 `normal`。
+- 提供 `size` 的组件应在内部完整实现三种尺寸，不要要求调用方通过 `style` 或 `styles` 拼出尺寸差异。
 - 交互控件的 `size` 应影响高度、内边距、图标尺寸、文字尺寸或圆角等与尺寸语义相关的 token 样式。
-- 布局组件的 `size` 应影响布局间隙、内边距、分隔距离或内容密度等布局语义，不应只改变视觉装饰。
+- 布局组件如果提供 `size`，应影响布局间隙、内边距、分隔距离或内容密度等布局语义，不应只改变视觉装饰。
 - 尺寸样式必须使用 `AliasToken`，并通过 `createUseSheetStyle<TOptions>` options 传入 `size`。
 
 ## 样式 Props
 
-- 每个组件都必须提供 `style`，用于表示根元素样式。
+- 是否提供 `style` 必须按组件类型判断；有可见根元素、且调用方存在布局定位或外观覆盖需求的组件应提供 `style`，用于表示根元素样式。
+- Provider、Portal、Config、App 包装器、纯逻辑组件、无可见根节点组件，或根布局必须由组件自身完全持有才能保证行为正确的组件，不强制提供
+  `style`。
 - 当组件包含多个内部元素，并且这些元素的样式需要独立自定义时，额外提供 `styles?: XxxStyles`。
-- `styles` 不需要包含与 `style` 重叠的根元素部分；根元素样式统一由 `style` 表达。
+- 当组件提供 `style` 时，`styles` 不需要包含与 `style` 重叠的根元素部分；根元素样式统一由 `style` 表达。
 - 不要在同一组件上同时混用 `styles` 和零散插槽 props，例如 `containerStyle`、`labelStyle` 或 `iconStyle`。
 
 ## `styles` 结构
 
 - `styles` 是内部插槽级覆盖对象。每个 key 必须映射到稳定且有文档说明的组件内部插槽。
 - 插槽名称应匹配组件结构，并使用 `content`、`label`、`icon`、`track`、`indicator`、`leftActions` 或 `rightActions` 等名称。
-- 不要在 `styles` 中定义根元素插槽，例如 `container` 或 `root`；根元素样式使用组件的 `style`。
+- 当组件提供 `style` 时，不要在 `styles` 中定义根元素插槽，例如 `container` 或 `root`；根元素样式使用组件的 `style`。
 - 嵌套组件应通过将子组件样式归组到子组件名称下，保留所有权边界。
 
 ```ts
