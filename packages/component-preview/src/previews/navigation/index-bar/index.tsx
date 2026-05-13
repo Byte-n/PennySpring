@@ -26,11 +26,14 @@ function PanelList({ prefix }: { prefix: string }) {
   const styles = useStyles();
 
   return (
-    <List style={styles.listBorder}>
-      <List.Item title={`${prefix}lpha`} description="Item" />
-      <List.Item title={`${prefix}eta`} description="Item" />
-      <List.Item title={`${prefix}amma`} description="Item" />
-    </List>
+    <List
+      items={[
+        { titleText: `${prefix}lpha`, descriptionText: 'Item' },
+        { titleText: `${prefix}eta`, descriptionText: 'Item' },
+        { titleText: `${prefix}amma`, descriptionText: 'Item' },
+      ]}
+      style={styles.listBorder}
+    />
   );
 }
 

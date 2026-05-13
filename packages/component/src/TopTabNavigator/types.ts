@@ -9,7 +9,6 @@ export interface TabScreen {
 }
 
 export interface SegmentedControlStyles {
-  container?: StyleProp<ViewStyle>;
   track?: StyleProp<ViewStyle>;
   indicator?: StyleProp<ViewStyle>;
   option?: StyleProp<ViewStyle>;
@@ -17,7 +16,6 @@ export interface SegmentedControlStyles {
 }
 
 export interface HeaderBarStyles {
-  container?: StyleProp<ViewStyle>;
   leftActions?: StyleProp<ViewStyle>;
   center?: StyleProp<ViewStyle>;
   rightActions?: StyleProp<ViewStyle>;
@@ -33,5 +31,6 @@ export interface TopTabNavigatorProps {
   screens: readonly TabScreen[];
   leftActions?: React.ReactNode;
   rightActions?: React.ReactNode;
+  style?: StyleProp<ViewStyle>;
   styles?: TopTabNavigatorStyles;
 }

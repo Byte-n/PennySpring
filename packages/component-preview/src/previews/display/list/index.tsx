@@ -20,37 +20,47 @@ const useStyles = createUseSheetStyle(token => ({
 
 export function ListPreview() {
   const styles = useStyles();
+  const items = [
+    {
+      left: <Avatar size="small" text="FD" />,
+      titleText: 'Food',
+      descriptionText: 'Today 12:30',
+      right: (
+        <View style={styles.rowText}>
+          <Text weight="strong">-24.00</Text>
+          <Text color="description" size="sm">Done</Text>
+        </View>
+      ),
+      selected: true,
+    },
+    {
+      left: <Avatar size="small" text="TR" />,
+      titleText: 'Transport',
+      descriptionText: 'Today 08:10',
+      right: <Text weight="strong">-6.00</Text>,
+    },
+    {
+      disabled: true,
+      titleText: 'Disabled item',
+      descriptionText: 'Unavailable action',
+    },
+  ];
 
   return (
     <PreviewScaffold>
       <PreviewSection title="Items">
-        <List header={<Text weight="strong">Recent</Text>} footer={<Text color="description">End</Text>} style={styles.listBorder}>
-          <List.Item
-            left={<Avatar size="small" text="FD" />}
-            title="Food"
-            description="Today 12:30"
-            right={(
-              <View style={styles.rowText}>
-                <Text weight="strong">-24.00</Text>
-                <Text color="description" size="sm">Done</Text>
-              </View>
-            )}
-            selected
-          />
-          <List.Item
-            left={<Avatar size="small" text="TR" />}
-            title="Transport"
-            description="Today 08:10"
-            right={<Text weight="strong">-6.00</Text>}
-          />
-          <List.Item disabled title="Disabled item" description="Unavailable action" />
-        </List>
+        <List
+          footer={<Text color="description">End</Text>}
+          header={<Text weight="strong">Recent</Text>}
+          items={items}
+          style={styles.listBorder}
+        />
       </PreviewSection>
 
       <PreviewSection title="States">
         <View style={styles.stack}>
           <List empty={<Text color="description">No records</Text>} style={styles.listBorder} />
-          <List loading style={styles.listBorder} />
+          <List loading loadingText="Loading records" style={styles.listBorder} />
         </View>
       </PreviewSection>
     </PreviewScaffold>

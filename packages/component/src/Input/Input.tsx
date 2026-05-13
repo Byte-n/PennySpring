@@ -42,6 +42,7 @@ type StatusColorSelector = (token: AliasToken) => string;
 const REQUIRED_MARK = '*';
 const CLEAR_BUTTON_LABEL = '清除输入内容';
 const SEARCH_BUTTON_LABEL = '搜索';
+const INPUT_ACTION_HIT_SLOP = 8;
 
 const SIZE_MAP: Record<InputSize, SizeConfig> = {
   small: {
@@ -351,6 +352,7 @@ function InputRoot({
           <Pressable
             accessibilityLabel={CLEAR_BUTTON_LABEL}
             accessibilityRole="button"
+            hitSlop={INPUT_ACTION_HIT_SLOP}
             onPress={handleClear}
             style={({ pressed }) => [
               tokenStyles.clearButton,

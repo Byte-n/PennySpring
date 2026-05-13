@@ -42,25 +42,48 @@ export interface PickerChangeParams {
 
 export interface PickerStyles {
   trigger?: StyleProp<ViewStyle>;
+  popup?: PickerPopupStyles;
+  panel?: PickerPanelStyles;
+}
+
+export interface PickerPopupStyles {
   popup?: StyleProp<ViewStyle>;
   mask?: StyleProp<ViewStyle>;
+}
+
+export interface PickerPanelStyles {
   panel?: StyleProp<ViewStyle>;
-  header?: StyleProp<ViewStyle>;
+  header?: PickerHeaderStyles;
+  body?: PickerBodyStyles;
+  safeArea?: StyleProp<ViewStyle>;
+}
+
+export interface PickerHeaderStyles {
   cancelButton?: StyleProp<ViewStyle>;
   cancelText?: StyleProp<TextStyle>;
   titleContainer?: StyleProp<ViewStyle>;
   titleText?: StyleProp<TextStyle>;
   okButton?: StyleProp<ViewStyle>;
   okText?: StyleProp<TextStyle>;
+}
+
+export interface PickerBodyStyles {
   body?: StyleProp<ViewStyle>;
-  view?: StyleProp<ViewStyle>;
+  view?: PickerViewStyles;
+  loading?: StyleProp<ViewStyle>;
+  empty?: StyleProp<ViewStyle>;
+}
+
+export interface PickerViewStyles {
+  column?: PickerColumnStyles;
+  indicator?: StyleProp<ViewStyle>;
+}
+
+export interface PickerColumnStyles {
   column?: StyleProp<ViewStyle>;
   item?: StyleProp<ViewStyle>;
   itemText?: StyleProp<TextStyle>;
-  indicator?: StyleProp<ViewStyle>;
-  loading?: StyleProp<ViewStyle>;
   empty?: StyleProp<ViewStyle>;
-  safeArea?: StyleProp<ViewStyle>;
 }
 
 export interface PickerProps {

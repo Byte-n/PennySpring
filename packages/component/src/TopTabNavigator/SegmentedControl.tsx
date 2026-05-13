@@ -159,7 +159,7 @@ export function SegmentedControl({
   };
 
   return (
-    <View style={[tokenStyles.container, styles?.container]}>
+    <View style={tokenStyles.container}>
       <View
         style={[tokenStyles.track, styles?.track]}
       >

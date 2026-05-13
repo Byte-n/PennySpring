@@ -8,7 +8,6 @@ export type DrawerType = 'front' | 'slide' | 'back';
 export type DrawerWidth = number | `${number}%`;
 
 export interface DrawerLayoutStyles {
-  container?: StyleProp<ViewStyle>;
   content?: StyleProp<ViewStyle>;
   drawer?: StyleProp<ViewStyle>;
   overlay?: StyleProp<ViewStyle>;
@@ -22,6 +21,7 @@ export interface DrawerProps {
   drawerPosition?: DrawerPosition;
   width?: DrawerWidth;
   swipeEnabled?: boolean;
+  style?: StyleProp<ViewStyle>;
   styles?: DrawerLayoutStyles;
   children: React.ReactNode;
   mountPoint?: PortalMountPoint;

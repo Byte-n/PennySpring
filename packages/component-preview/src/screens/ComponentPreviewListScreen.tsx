@@ -111,26 +111,25 @@ export function ComponentPreviewListScreen({ navigation }: Props) {
           >
             {section.title}
           </Text>
-          <List divider="full" style={styles.list}>
-            {section.items.map(item => (
-              <List.Item
-                key={item.id}
-                title={item.title}
-                description={item.description}
-                right={(
+          <List
+            divider="full"
+            items={section.items.map(item => ({
+              titleText: item.title,
+              descriptionText: item.description,
+              right: (
                   <CaretRightIcon
                     color={token.colorIcon}
                     size={token.fontSizeLG}
                   />
-                )}
-                onPress={() => {
+              ),
+              onPress: () => {
                   navigation.navigate(COMPONENT_PREVIEW_ROUTES.ComponentDetail, {
                     previewId: item.id,
                   });
-                }}
-              />
-            ))}
-          </List>
+              },
+            }))}
+            style={styles.list}
+          />
         </View>
       ))}
       </ScrollView>

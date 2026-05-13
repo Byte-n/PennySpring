@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Pressable, Text as RNText, View } from 'react-native';
+import { Pressable, Text as MeasurementText, View } from 'react-native';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import { useControllableValue } from '../_hooks';
 import { Text } from '../Text';
@@ -63,6 +63,29 @@ const useStyles = createUseSheetStyle(
 );
 
 type MeasurementStatus = 'measuring' | 'searching' | 'done';
+
+interface HiddenMeasurementTextProps {
+  children: string;
+  onTextLayout: (event: { nativeEvent: TextLayoutEventData }) => void;
+  style: ReturnType<typeof useStyles>['content'];
+}
+
+function HiddenMeasurementText({
+  children,
+  onTextLayout,
+  style,
+}: HiddenMeasurementTextProps) {
+  return (
+    <MeasurementText
+      accessibilityElementsHidden
+      importantForAccessibility="no-hide-descendants"
+      onTextLayout={onTextLayout}
+      style={style}
+    >
+      {children}
+    </MeasurementText>
+  );
+}
 
 export function Ellipsis({
   content,
@@ -240,24 +263,24 @@ export function Ellipsis({
       {/* Measurement view: full content */}
       {status === 'measuring' && (
         <View style={styles.measure} key="measure-full">
-          <RNText
+          <HiddenMeasurementText
             style={styles.content}
             onTextLayout={handleFullTextLayout}
           >
             {content}
-          </RNText>
+          </HiddenMeasurementText>
         </View>
       )}
 
       {/* Measurement view: search candidate */}
       {status === 'searching' && (
         <View style={styles.measure} key={`search-${midIndex}`}>
-          <RNText
+          <HiddenMeasurementText
             style={styles.content}
             onTextLayout={handleSearchTextLayout}
           >
             {searchCandidate}
-          </RNText>
+          </HiddenMeasurementText>
         </View>
       )}
 

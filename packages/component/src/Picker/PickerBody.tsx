@@ -3,7 +3,7 @@ import { View } from 'react-native';
 import { Text } from '../Text';
 import { PickerView } from './PickerView';
 import type { ReactNode } from 'react';
-import type { PickerProps, PickerValue } from './types';
+import type { PickerBodyStyles, PickerProps, PickerValue } from './types';
 
 interface PickerBodyProps {
   columns: PickerProps['columns'];
@@ -15,7 +15,7 @@ interface PickerBodyProps {
   renderLabel?: PickerProps['renderLabel'];
   selectedValue: PickerValue[];
   styles: ReturnType<typeof import('./usePickerStyles').usePickerStyles>;
-  slotStyles?: PickerProps['styles'];
+  slotStyles?: PickerBodyStyles;
   onItemPress?: (columnIndex: number, itemIndex: number) => void;
 }
 

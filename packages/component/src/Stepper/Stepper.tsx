@@ -33,6 +33,7 @@ const SIZE_STYLE_MAP: Record<StepperSize, SizeStyleConfig> = {
     paddingHorizontal: token => token.controlPaddingHorizontal,
   },
 };
+const STEPPER_BUTTON_HIT_SLOP = 8;
 
 const useStyles = createUseSheetStyle((token, size: StepperSize) => {
   const config = SIZE_STYLE_MAP[size];
@@ -150,7 +151,7 @@ export function Stepper({
             ? tokenStyles.buttonPressed
             : null,
         ]}
-        hitSlop={0}
+        hitSlop={STEPPER_BUTTON_HIT_SLOP}
       >
         <Text
           style={[
@@ -191,7 +192,7 @@ export function Stepper({
             ? tokenStyles.buttonPressed
             : null,
         ]}
-        hitSlop={0}
+        hitSlop={STEPPER_BUTTON_HIT_SLOP}
       >
         <Text
           style={[

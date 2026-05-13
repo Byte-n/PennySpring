@@ -1,13 +1,13 @@
 import React from 'react';
 import { View } from 'react-native';
 import { Text } from '../Text';
-import type { PickerProps } from './types';
+import type { PickerHeaderStyles, PickerProps } from './types';
 
 interface PickerTitleProps {
   title?: PickerProps['title'];
   titleText?: PickerProps['titleText'];
   styles: ReturnType<typeof import('./usePickerStyles').usePickerStyles>;
-  slotStyles?: PickerProps['styles'];
+  slotStyles?: PickerHeaderStyles;
 }
 
 export function PickerTitle({

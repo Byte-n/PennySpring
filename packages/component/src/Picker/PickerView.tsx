@@ -3,7 +3,7 @@ import { View } from 'react-native';
 import { Text } from '../Text';
 import { PickerColumn } from './PickerColumn';
 import type { ReactNode } from 'react';
-import type { PickerProps, PickerValue } from './types';
+import type { PickerBodyStyles, PickerProps, PickerValue } from './types';
 
 interface PickerViewProps {
   columns: PickerProps['columns'];
@@ -12,7 +12,7 @@ interface PickerViewProps {
   renderLabel?: PickerProps['renderLabel'];
   selectedValue: PickerValue[];
   styles: ReturnType<typeof import('./usePickerStyles').usePickerStyles>;
-  slotStyles?: PickerProps['styles'];
+  slotStyles?: PickerBodyStyles;
   onItemPress?: (columnIndex: number, itemIndex: number) => void;
 }
 
@@ -26,18 +26,20 @@ export function PickerView({
   slotStyles,
   styles,
 }: PickerViewProps) {
+  const viewStyles = slotStyles?.view;
+
   return (
-    <View style={[styles.view, slotStyles?.view]}>
+    <View style={styles.view}>
       <View
         pointerEvents="none"
-        style={[styles.indicator, slotStyles?.indicator]}
+        style={[styles.indicator, viewStyles?.indicator]}
         testID="picker-indicator"
       />
       {columns.map((column, columnIndex) => (
         column.length === 0 ? (
           <View
             key={columnIndex}
-            style={[styles.column, styles.empty, slotStyles?.column, slotStyles?.empty]}
+            style={[styles.column, styles.empty, viewStyles?.column?.column, slotStyles?.empty]}
           >
             {empty ?? <Text>{emptyText}</Text>}
           </View>
@@ -49,7 +51,7 @@ export function PickerView({
             onItemPress={onItemPress}
             renderLabel={renderLabel}
             selectedValue={selectedValue[columnIndex]}
-            slotStyles={slotStyles}
+            slotStyles={slotStyles?.view?.column}
             styles={styles}
           />
         )

@@ -47,9 +47,9 @@ export function PickerPopup({
       open={open}
       position="bottom"
       onCancel={() => onMaskPress?.()}
-      style={[styles.popup, props.styles?.popup]}
+      style={[styles.popup, props.styles?.popup?.popup]}
       styles={{
-        mask: [styles.mask, props.styles?.mask],
+        mask: [styles.mask, props.styles?.popup?.mask],
         body: { padding: 0 },
       }}
     >

@@ -3,6 +3,7 @@ import { View } from 'react-native';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import { SegmentedControl } from './SegmentedControl';
 import type { HeaderBarStyles, SegmentedControlStyles } from './types';
+import type { StyleProp, ViewStyle } from 'react-native';
 
 interface HeaderBarProps {
   descriptors: React.ComponentProps<typeof SegmentedControl>['descriptors'];
@@ -11,6 +12,7 @@ interface HeaderBarProps {
   position?: React.ComponentProps<typeof SegmentedControl>['position'];
   rightActions?: React.ReactNode;
   state: React.ComponentProps<typeof SegmentedControl>['state'];
+  style?: StyleProp<ViewStyle>;
   styles?: HeaderBarStyles;
   segmentedControlStyles?: SegmentedControlStyles;
 }
@@ -51,13 +53,14 @@ export function HeaderBar({
   position,
   rightActions,
   state,
+  style,
   styles,
   segmentedControlStyles,
 }: HeaderBarProps) {
   const tokenStyles = useStyles();
 
   return (
-    <View style={[tokenStyles.container, styles?.container]}>
+    <View style={[tokenStyles.container, style]}>
       <View style={[tokenStyles.leftActions, styles?.leftActions]}>{leftActions}</View>
       <View style={[tokenStyles.center, styles?.center]}>
         <SegmentedControl

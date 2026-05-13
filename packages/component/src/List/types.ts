@@ -34,6 +34,10 @@ export interface ListProps {
   divider?: ListDivider;
   empty?: ReactNode;
   loading?: boolean;
+  loadingText?: string;
+  loadingContent?: ReactNode;
+  items?: readonly ListItemProps[];
+  renderItem?: (item: ListItemProps, index: number) => ReactNode;
   children?: ReactNode;
   style?: StyleProp<ViewStyle>;
   styles?: ListStyles;

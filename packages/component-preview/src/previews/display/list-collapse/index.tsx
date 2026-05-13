@@ -28,10 +28,14 @@ export function ListCollapsePreview() {
             summary={<Text color="description">2 items</Text>}
             title="Expanded group"
           >
-            <List divider="inset" style={styles.listBorder}>
-              <List.Item title="Item A" right={<Text>12.00</Text>} />
-              <List.Item title="Item B" right={<Text>24.00</Text>} />
-            </List>
+            <List
+              divider="inset"
+              items={[
+                { titleText: 'Item A', right: <Text>12.00</Text> },
+                { titleText: 'Item B', right: <Text>24.00</Text> },
+              ]}
+              style={styles.listBorder}
+            />
           </ListCollapse>
           <ListCollapse title="Collapsed group">
             <Text color="secondary">Collapsed content.</Text>

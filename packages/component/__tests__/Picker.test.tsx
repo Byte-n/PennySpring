@@ -465,25 +465,35 @@ it('does not auto fallback for missing or invalid values', () => {
 it('applies supported style slots', () => {
   const styles: PickerStyles = {
     trigger: { opacity: 0.91 },
-    popup: { opacity: 0.92 },
-    mask: { opacity: 0.93 },
-    panel: { opacity: 0.94 },
-    header: { opacity: 0.95 },
-    cancelButton: { opacity: 0.96 },
-    cancelText: { opacity: 0.97 },
-    titleContainer: { opacity: 0.98 },
-    titleText: { opacity: 0.99 },
-    okButton: { opacity: 0.88 },
-    okText: { opacity: 0.87 },
-    body: { opacity: 0.86 },
-    view: { opacity: 0.85 },
-    column: { opacity: 0.84 },
-    item: { opacity: 0.83 },
-    itemText: { opacity: 0.82 },
-    indicator: { opacity: 0.77 },
-    loading: { opacity: 0.76 },
-    empty: { opacity: 0.75 },
-    safeArea: { opacity: 0.74 },
+    popup: {
+      popup: { opacity: 0.92 },
+      mask: { opacity: 0.93 },
+    },
+    panel: {
+      panel: { opacity: 0.94 },
+      header: {
+        cancelButton: { opacity: 0.96 },
+        cancelText: { opacity: 0.97 },
+        titleContainer: { opacity: 0.98 },
+        titleText: { opacity: 0.99 },
+        okButton: { opacity: 0.88 },
+        okText: { opacity: 0.87 },
+      },
+      body: {
+        body: { opacity: 0.86 },
+        view: {
+          column: {
+            column: { opacity: 0.84 },
+            item: { opacity: 0.83 },
+            itemText: { opacity: 0.82 },
+          },
+          indicator: { opacity: 0.77 },
+        },
+        loading: { opacity: 0.76 },
+        empty: { opacity: 0.75 },
+      },
+      safeArea: { opacity: 0.74 },
+    },
   };
   const styledColumns: PickerColumn[] = [[
     { labelText: 'Alpha', value: 'a' },

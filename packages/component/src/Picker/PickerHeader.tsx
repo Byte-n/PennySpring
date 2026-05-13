@@ -2,7 +2,7 @@ import React from 'react';
 import { View } from 'react-native';
 import { PickerHeaderButton } from './PickerHeaderButton';
 import { PickerTitle } from './PickerTitle';
-import type { PickerProps } from './types';
+import type { PickerHeaderStyles, PickerProps } from './types';
 
 interface PickerHeaderProps {
   cancel?: PickerProps['cancel'];
@@ -15,7 +15,7 @@ interface PickerHeaderProps {
   onCancelPress?: () => void;
   onOkPress?: () => void;
   styles: ReturnType<typeof import('./usePickerStyles').usePickerStyles>;
-  slotStyles?: PickerProps['styles'];
+  slotStyles?: PickerHeaderStyles;
 }
 
 export function PickerHeader({
@@ -32,7 +32,7 @@ export function PickerHeader({
   titleText,
 }: PickerHeaderProps) {
   return (
-    <View style={[styles.header, slotStyles?.header]}>
+    <View style={styles.header}>
       <PickerHeaderButton
         content={cancel}
         onPress={onCancelPress}

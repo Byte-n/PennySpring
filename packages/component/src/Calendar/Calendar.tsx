@@ -26,6 +26,7 @@ const WEEK_DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const MONTH_COUNT = 12;
 const YEAR_WINDOW = 12;
 const GRID_CELL_PERCENT = '14.2857%';
+const ACTION_HIT_SLOP = 8;
 
 interface CalendarStyleOptions {
   size: CalendarSize;
@@ -525,7 +526,11 @@ function CalendarRoot({
       {showToday || showConfirm ? (
         <View style={[tokenStyles.footer, styles?.footer]}>
           {showToday ? (
-            <Pressable accessibilityLabel="Select today" onPress={handleToday}>
+            <Pressable
+              accessibilityLabel="Select today"
+              hitSlop={ACTION_HIT_SLOP}
+              onPress={handleToday}
+            >
               {renderSlotNode(today, todayText)}
             </Pressable>
           ) : null}
@@ -533,6 +538,7 @@ function CalendarRoot({
             <>
               <Pressable
                 accessibilityLabel="Cancel date"
+                hitSlop={ACTION_HIT_SLOP}
                 onPress={() => {
                   setDraftValue(undefined);
                   onCancel?.();
@@ -543,6 +549,7 @@ function CalendarRoot({
               </Pressable>
               <Pressable
                 accessibilityLabel="Confirm date"
+                hitSlop={ACTION_HIT_SLOP}
                 onPress={handleConfirm}
                 style={tokenStyles.footerAction}
               >
@@ -691,6 +698,7 @@ function CalendarRange({
           {showToday ? (
             <Pressable
               accessibilityLabel="Select today"
+              hitSlop={ACTION_HIT_SLOP}
               onPress={() => {
                 const nextToday = todayValue(resolvedMode);
                 setPanel(parsePanel(nextToday));
@@ -704,6 +712,7 @@ function CalendarRange({
             <>
               <Pressable
                 accessibilityLabel="Cancel date"
+                hitSlop={ACTION_HIT_SLOP}
                 onPress={() => {
                   setDraftRange([]);
                   onCancel?.();
@@ -714,6 +723,7 @@ function CalendarRange({
               </Pressable>
               <Pressable
                 accessibilityLabel="Confirm date"
+                hitSlop={ACTION_HIT_SLOP}
                 onPress={handleConfirm}
                 style={tokenStyles.footerAction}
               >

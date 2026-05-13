@@ -40,8 +40,10 @@ export function PickerPanel({
   props,
   styles,
 }: PickerPanelProps) {
+  const panelStyles = props.styles?.panel;
+
   return (
-    <View style={[styles.panel, props.styles?.panel]}>
+    <View style={[styles.panel, panelStyles?.panel]}>
       <PickerHeader
         cancel={props.cancel}
         cancelText={props.cancelText}
@@ -50,12 +52,12 @@ export function PickerPanel({
         okText={props.okText}
         onCancelPress={onCancelPress}
         onOkPress={onOkPress}
-        slotStyles={props.styles}
+        slotStyles={panelStyles?.header}
         styles={styles}
         title={props.title}
         titleText={props.titleText}
       />
-      <PickerSafeArea slotStyles={props.styles} styles={styles}>
+      <PickerSafeArea slotStyles={panelStyles} styles={styles}>
         <PickerBody
           columns={columns}
           empty={props.empty}
@@ -66,7 +68,7 @@ export function PickerPanel({
           onItemPress={onItemPress}
           renderLabel={props.renderLabel}
           selectedValue={draftValue}
-          slotStyles={props.styles}
+          slotStyles={panelStyles?.body}
           styles={styles}
         />
       </PickerSafeArea>

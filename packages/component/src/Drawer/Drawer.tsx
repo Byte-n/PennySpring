@@ -380,6 +380,7 @@ function DrawerLayout({
   onOpenChange,
   open,
   renderDrawerContent,
+  style,
   styles,
   swipeEnabled,
   width = DEFAULT_DRAWER_WIDTH,
@@ -451,7 +452,7 @@ function DrawerLayout({
   return (
     <View
       onLayout={handleContainerLayout}
-      style={[tokenStyles.container, styles?.container]}
+      style={[tokenStyles.container, style]}
     >
       <Animated.View
         testID="drawer-layout-scene"

@@ -1,7 +1,7 @@
 import React from 'react';
 import { View } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
-import { List } from '../src/List';
+import { List, ListItem } from '../src/List';
 function renderList(element: React.ReactElement) {
   let testRenderer: renderer.ReactTestRenderer;
   act(() => {
@@ -42,7 +42,9 @@ describe('List', () => {
     expect(treeString).not.toContain('Nothing yet');
   });
   it('renders loading without replacing empty content', () => {
-    const testRenderer = renderList(<List loading empty={<View testID="empty">Nothing yet</View>} />);
+    const testRenderer = renderList(
+      <List loading loadingText="Loading" empty={<View testID="empty">Nothing yet</View>} />,
+    );
     const treeString = JSON.stringify(testRenderer.toJSON());
     expect(treeString).toContain('Loading');
     expect(treeString).toContain('Nothing yet');
@@ -63,7 +65,7 @@ describe('List', () => {
     const loadingStyle = {
       opacity: 0.94
     };
-    const testRenderer = renderList(<List loading style={rootStyle} styles={{
+    const testRenderer = renderList(<List loading loadingText="Loading" style={rootStyle} styles={{
       empty: emptyStyle,
       footer: footerStyle,
       header: headerStyle,
@@ -77,58 +79,58 @@ describe('List', () => {
     expect(findNodesWithStyle(testRenderer, loadingStyle)).toHaveLength(1);
     expect(flattenStyle(findNodesWithStyle(testRenderer, emptyStyle)[0].props.style).opacity).toBe(0.93);
   });
-  it('renders List.Item standard slots in order', () => {
-    const testRenderer = renderList(<List.Item left={<View>Icon</View>} title="Checking" description="Main account" right={<View>Balance</View>} />);
+  it('renders ListItem standard slots in order', () => {
+    const testRenderer = renderList(<ListItem left={<View>Icon</View>} title="Checking" description="Main account" right={<View>Balance</View>} />);
     const treeString = JSON.stringify(testRenderer.toJSON());
     expect(treeString.indexOf('Icon')).toBeLessThan(treeString.indexOf('Checking'));
     expect(treeString.indexOf('Checking')).toBeLessThan(treeString.indexOf('Main account'));
     expect(treeString.indexOf('Main account')).toBeLessThan(treeString.indexOf('Balance'));
   });
-  it('renders List.Item children instead of default title and description', () => {
-    const testRenderer = renderList(<List.Item title="Checking" description="Main account">
+  it('renders ListItem children instead of default title and description', () => {
+    const testRenderer = renderList(<ListItem title="Checking" description="Main account">
         <View>Custom body</View>
-      </List.Item>);
+      </ListItem>);
     const treeString = JSON.stringify(testRenderer.toJSON());
     expect(treeString).toContain('Custom body');
     expect(treeString).not.toContain('Checking');
     expect(treeString).not.toContain('Main account');
   });
-  it('uses button semantics and calls onPress when List.Item is interactive', () => {
+  it('uses button semantics and calls onPress when ListItem is interactive', () => {
     const onPress = jest.fn();
-    const testRenderer = renderList(<List.Item title="Checking" onPress={onPress} />);
+    const testRenderer = renderList(<ListItem title="Checking" onPress={onPress} />);
     const button = testRenderer.root.find(node => node.props.accessibilityRole === 'button');
     act(() => {
       button.props.onPress({} as never);
     });
     expect(onPress).toHaveBeenCalledTimes(1);
   });
-  it('does not expose button semantics when List.Item is display only', () => {
-    const testRenderer = renderList(<List.Item title="Checking" />);
+  it('does not expose button semantics when ListItem is display only', () => {
+    const testRenderer = renderList(<ListItem title="Checking" />);
     expect(testRenderer.root.findAll(node => node.props.accessibilityRole === 'button')).toHaveLength(0);
   });
-  it('does not call onPress when List.Item is disabled', () => {
+  it('does not call onPress when ListItem is disabled', () => {
     const onPress = jest.fn();
-    const testRenderer = renderList(<List.Item title="Checking" onPress={onPress} disabled />);
+    const testRenderer = renderList(<ListItem title="Checking" onPress={onPress} disabled />);
     expect(onPress).not.toHaveBeenCalled();
     expect(testRenderer.root.findAll(node => node.props.accessibilityState?.disabled === true)).not.toHaveLength(0);
   });
   it('exposes selected state and renders a selected marker', () => {
-    const testRenderer = renderList(<List.Item title="Checking" selected />);
+    const testRenderer = renderList(<ListItem title="Checking" selected />);
     const treeString = JSON.stringify(testRenderer.toJSON());
     expect(testRenderer.root.findAll(node => node.props.accessibilityState?.selected === true)).not.toHaveLength(0);
     expect(treeString).toContain('selected-marker');
   });
-  it('inherits List divider and allows List.Item divider override', () => {
+  it('inherits List divider and allows ListItem divider override', () => {
     const dividerStyle = {
       opacity: 0.82
     };
     const inheritedRenderer = renderList(<List divider="full">
-        <List.Item title="Checking" styles={{
+        <ListItem title="Checking" styles={{
         divider: dividerStyle
       }} />
       </List>);
     const overrideRenderer = renderList(<List divider="full">
-        <List.Item title="Checking" divider="none" styles={{
+        <ListItem title="Checking" divider="none" styles={{
         divider: dividerStyle
       }} />
       </List>);
@@ -136,7 +138,7 @@ describe('List', () => {
     expect(flattenStyle(findNodesWithStyle(inheritedRenderer, dividerStyle)[0].props.style).left).toBe(0);
     expect(findNodesWithStyle(overrideRenderer, dividerStyle)).toHaveLength(0);
   });
-  it('applies List.Item root and slot styles after token styles', () => {
+  it('applies ListItem root and slot styles after token styles', () => {
     const rootStyle = {
       flex: 1
     };
@@ -155,7 +157,7 @@ describe('List', () => {
     const descriptionStyle = {
       opacity: 0.65
     };
-    const testRenderer = renderList(<List.Item disabled selected left={<View>Icon</View>} right={<View>Balance</View>} titleText="Checking" descriptionText="Main account" style={rootStyle} styles={{
+    const testRenderer = renderList(<ListItem disabled selected left={<View>Icon</View>} right={<View>Balance</View>} titleText="Checking" descriptionText="Main account" style={rootStyle} styles={{
       content: contentStyle,
       descriptionText: descriptionStyle,
       left: leftStyle,

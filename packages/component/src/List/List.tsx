@@ -295,13 +295,23 @@ export function ListRoot({
   empty,
   footer,
   header,
+  items,
   loading,
+  loadingContent,
+  loadingText,
+  renderItem,
   size,
   style,
   styles,
 }: ListProps) {
   const tokenStyles = useListStyles();
-  const shouldRenderEmpty = isChildrenEmpty(children) && Boolean(empty);
+  const itemNodes = items?.map((item, index) => (
+    <React.Fragment key={index}>
+      {renderItem?.(item, index) ?? <ListItem {...item} />}
+    </React.Fragment>
+  ));
+  const content = itemNodes === undefined ? children : itemNodes;
+  const shouldRenderEmpty = isChildrenEmpty(content) && Boolean(empty);
   const contextValue = {
     divider: resolveDivider(divider),
     size: resolveSize(size),
@@ -313,10 +323,12 @@ export function ListRoot({
         {header ? (
           <View style={[tokenStyles.header, styles?.header]}>{header}</View>
         ) : null}
-        {isChildrenEmpty(children) ? null : children}
+        {isChildrenEmpty(content) ? null : content}
         {loading ? (
           <View style={[tokenStyles.loading, styles?.loading]}>
-            <Text color="secondary">Loading</Text>
+            {loadingContent ?? (loadingText === undefined ? null : (
+              <Text color="secondary">{loadingText}</Text>
+            ))}
           </View>
         ) : null}
         {shouldRenderEmpty ? (
@@ -334,6 +346,4 @@ export function useListContext(): ListContextValue {
   return useContext(ListContext);
 }
 
-export const List = Object.assign(ListRoot, {
-  Item: ListItem,
-});
+export const List = ListRoot;

@@ -17,7 +17,7 @@ const useStyles = createUseSheetStyle((token) => ({
 
 function renderHeaderBar(
   props: MaterialTopTabBarProps,
-  options: Pick<TopTabNavigatorProps, 'leftActions' | 'rightActions' | 'styles'>
+  options: Pick<TopTabNavigatorProps, 'leftActions' | 'rightActions' | 'style' | 'styles'>
 ) {
   return (
     <HeaderBar
@@ -27,6 +27,7 @@ function renderHeaderBar(
       position={props.position}
       rightActions={options.rightActions}
       state={props.state}
+      style={options.style}
       segmentedControlStyles={options.styles?.segmentedControl}
       styles={options.styles?.headerBar}
     />
@@ -37,6 +38,7 @@ export function TopTabNavigator({
   leftActions,
   rightActions,
   screens,
+  style,
   styles,
 }: TopTabNavigatorProps) {
   const tokenStyles = useStyles();
@@ -52,6 +54,7 @@ export function TopTabNavigator({
         renderHeaderBar(props, {
           leftActions,
           rightActions,
+          style,
           styles,
         })
       }

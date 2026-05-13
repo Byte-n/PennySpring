@@ -5,7 +5,7 @@ import { defaultSeedToken } from '@pennyspring/theme';
 import { derivative } from '@pennyspring/theme/src/algorithms/derivative';
 import { formatToken } from '@pennyspring/theme/src/algorithms/formatToken';
 import { IndexBar } from '../src/IndexBar';
-import { List } from '../src/List';
+import { List, ListItem } from '../src/List';
 import type { IndexBarProps } from '../src/IndexBar';
 
 const token = formatToken(derivative(defaultSeedToken, false));
@@ -17,19 +17,19 @@ function renderIndexBar(props: Partial<IndexBarProps> = {}) {
       <>
         <IndexBar.Panel index="A" title="标题A">
           <List>
-            <List.Item>苹果</List.Item>
-            <List.Item>杏子</List.Item>
+            <ListItem>苹果</ListItem>
+            <ListItem>杏子</ListItem>
           </List>
         </IndexBar.Panel>
         <IndexBar.Panel index="B" title="标题B">
           <List>
-            <List.Item>香蕉</List.Item>
-            <List.Item>菠萝</List.Item>
+            <ListItem>香蕉</ListItem>
+            <ListItem>菠萝</ListItem>
           </List>
         </IndexBar.Panel>
         <IndexBar.Panel index="C" title={<RNText>标题C</RNText>}>
           <List>
-            <List.Item>车厘子</List.Item>
+            <ListItem>车厘子</ListItem>
           </List>
         </IndexBar.Panel>
       </>
@@ -141,12 +141,12 @@ describe('IndexBar', () => {
         <>
           <IndexBar.Panel index="A" title="标题A">
             <List>
-              <List.Item>苹果</List.Item>
+              <ListItem>苹果</ListItem>
             </List>
           </IndexBar.Panel>
           <IndexBar.Panel index="B" title="标题B" disabled>
             <List>
-              <List.Item>香蕉</List.Item>
+              <ListItem>香蕉</ListItem>
             </List>
           </IndexBar.Panel>
         </>
