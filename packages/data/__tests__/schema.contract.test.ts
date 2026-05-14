@@ -37,6 +37,28 @@ describe('data package schema exports', () => {
     expect(publicApi.assets).toBe(schema.assets);
   });
 
+  test('exports RECORD_TYPE_SPECIAL_BEHAVIOR enum with documented values', () => {
+    expect(publicApi.RECORD_TYPE_SPECIAL_BEHAVIOR.values()).toEqual([
+      '',
+      'refund_absorption',
+      'reimbursement_absorption',
+      'credit_card_payment',
+      'debt_borrow',
+      'debt_lend',
+      'debt_repayment',
+      'debt_proceeds',
+    ]);
+  });
+
+  test('tb_type schema includes specialBehavior column', () => {
+    expect(schema.types.specialBehavior).toBeDefined();
+    expect(schema.types.specialBehavior.name).toBe('special_behavior');
+  });
+
+  test('tb_record schema does not include concessions column', () => {
+    expect('concessions' in schema.records).toBe(false);
+  });
+
   test('exports documented enum key constants from the package root', () => {
     expect(publicApi.VISIBILITY.visible).toBe('visible');
     expect(publicApi.SYSTEM_STATUS.custom).toBe('custom');

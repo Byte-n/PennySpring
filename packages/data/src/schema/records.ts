@@ -29,10 +29,8 @@ export const records = sqliteTable('tb_record', {
     .references(() => books.id),
   // 原始金额，单位：分
   amount: integerColumn('amount').notNull().default(0),
-  // 最终金额，单位：分（扣除优惠、加上手续费后的实际金额、+/- 关联记录的金额）
+  // 最终金额，单位：分（加上手续费后的实际金额、+/- 关联记录的金额）
   finalAmount: integerColumn('final_amount').notNull().default(0),
-  // 优惠金额，单位：分
-  concessions: integerColumn('concessions').notNull().default(0),
   // 手续费，单位：分
   charge: integerColumn('charge').notNull().default(0),
   // 备注信息

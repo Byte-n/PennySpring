@@ -477,6 +477,49 @@ export const RECORD_TYPE_CATEGORY = enumOf({
   },
 });
 
+export const RECORD_TYPE_SPECIAL_BEHAVIOR = enumOf({
+  none: {
+    value: '',
+    label: '无',
+    description: '普通分类，无特殊行为',
+  },
+  refundAbsorption: {
+    value: 'refund_absorption',
+    label: '退款吸收',
+    description: '退款收入必须关联普通支出，并按吸收规则抵扣支出统计',
+  },
+  reimbursementAbsorption: {
+    value: 'reimbursement_absorption',
+    label: '报销吸收',
+    description: '报销收入必须关联可报销支出，并按吸收规则抵扣支出统计',
+  },
+  creditCardPayment: {
+    value: 'credit_card_payment',
+    label: '还信用卡',
+    description: '转入资产必须是信用卡/信用付资产，并减少待还金额',
+  },
+  debtBorrow: {
+    value: 'debt_borrow',
+    label: '债务借入',
+    description: '资金账户增加，借入债务余额增加',
+  },
+  debtLend: {
+    value: 'debt_lend',
+    label: '债权借出',
+    description: '资金账户减少，借出债权余额增加',
+  },
+  debtRepayment: {
+    value: 'debt_repayment',
+    label: '债务还款',
+    description: '资金账户减少，借入债务余额减少',
+  },
+  debtProceeds: {
+    value: 'debt_proceeds',
+    label: '债权收款',
+    description: '资金账户增加，借出债权余额减少',
+  },
+});
+
 export const REIMBURSABLE = enumOf({
   notReimbursable: {
     value: 'not_reimbursable',
