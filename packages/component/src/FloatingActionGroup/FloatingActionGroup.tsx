@@ -2,6 +2,7 @@ import React, { useContext, useMemo, useState } from 'react';
 import { Pressable, View } from 'react-native';
 import Animated, {
   Easing,
+  runOnJS,
   type SharedValue,
   useAnimatedStyle,
   useSharedValue,
@@ -25,23 +26,21 @@ interface FloatingStyleOptions {
     bottom?: number;
     left?: number;
   };
+  alignEnd: boolean;
+  expandUp: boolean;
 }
 
 const DEFAULT_VISIBLE_COUNT = 1;
-const DEFAULT_SPACING_FACTOR = 1;
-const DEFAULT_RADIAL_START_ANGLE = -90;
-const DEFAULT_RADIAL_SWEEP_ANGLE = 120;
-const DEFAULT_DIRECTION = 'vertical' as const;
 const DEFAULT_PLACEMENT = 'bottomRight' as const;
 
 const useStyles = createUseSheetStyle(
-  (token, { positionStyle }: FloatingStyleOptions) => ({
+  (token, { positionStyle, alignEnd, expandUp }: FloatingStyleOptions) => ({
     root: {
       ...positionStyle,
       position: 'absolute',
       zIndex: token.zIndexPopupBase + token.zIndexBase,
       gap: token.paddingXS,
-      alignItems: 'flex-end',
+      alignItems: alignEnd ? 'flex-end' : 'flex-start',
     },
     outsideOverlay: {
       position: 'absolute',
@@ -52,10 +51,9 @@ const useStyles = createUseSheetStyle(
     },
     hiddenLayer: {
       position: 'absolute',
-      right: 0,
-      bottom: 0,
-      gap: token.paddingXS,
-      alignItems: 'flex-end',
+      ...(alignEnd ? { right: 0 } : { left: 0 }),
+      ...(expandUp ? { top: 0 } : { bottom: 0 }),
+      alignItems: alignEnd ? 'flex-end' : 'flex-start',
     },
   }),
 );
@@ -77,118 +75,89 @@ function resolvePlacementPosition(
   return { bottom: baseY, right: baseX };
 }
 
-function resolvePositionStyle(
-  position: FloatingActionGroupProps['position'] | undefined,
-  placement: FloatingPlacement,
-  offset: NonNullable<FloatingActionGroupProps['offset']>,
-  token: ReturnType<typeof useTheme>['token'],
-): { top?: number; right?: number; bottom?: number; left?: number } {
-  if (position !== undefined) {
-    return {
-      top: position.top,
-      right: position.right,
-      bottom: position.bottom,
-      left: position.left,
-    };
-  }
-
-  return resolvePlacementPosition(placement, offset, token);
-}
-
 function resolveHiddenItemTransform(
   index: number,
-  hiddenCount: number,
-  direction: NonNullable<FloatingActionGroupProps['direction']>,
+  placement: FloatingPlacement,
   spacing: number,
-  radialRadius: number,
-  radialStartAngle: number,
-  radialSweepAngle: number,
+  gap: number,
 ): { x: number; y: number } {
-  const offsetIndex = index + 1;
+  'worklet';
 
-  if (direction === 'horizontal') {
-    return { x: -(offsetIndex * spacing), y: 0 };
-  }
+  const expandUp = placement.startsWith('bottom');
+  const offsetDistance = expandUp
+    ? (index + 1) * spacing
+    : gap + index * spacing;
+  const verticalSign = expandUp ? -1 : 1;
 
-  if (direction === 'radial') {
-    const segment = hiddenCount > 1 ? radialSweepAngle / (hiddenCount - 1) : 0;
-    const angle = ((radialStartAngle + segment * index) * Math.PI) / 180;
-
-    return {
-      x: Math.cos(angle) * radialRadius,
-      y: Math.sin(angle) * radialRadius,
-    };
-  }
-
-  return { x: 0, y: -(offsetIndex * spacing) };
+  return { x: 0, y: verticalSign * offsetDistance };
 }
 
 function HiddenActionItem({
   action,
-  direction,
-  hiddenCount,
   index,
   isExpanded,
   progress,
-  radialRadius,
-  radialStartAngle,
-  radialSweepAngle,
+  shadowProgress,
+  placement,
   spacing,
+  gap,
   style,
 }: {
   action: FloatingActionItem;
-  direction: NonNullable<FloatingActionGroupProps['direction']>;
-  hiddenCount: number;
   index: number;
   isExpanded: boolean;
   progress: SharedValue<number>;
-  radialRadius: number;
-  radialStartAngle: number;
-  radialSweepAngle: number;
+  shadowProgress: SharedValue<number>;
+  placement: FloatingPlacement;
   spacing: number;
+  gap: number;
   style: FloatingActionGroupStyles['actionButton'];
 }) {
+  const { token } = useTheme();
+
   const animatedStyle = useAnimatedStyle(() => {
     const baseTransform = resolveHiddenItemTransform(
       index,
-      hiddenCount,
-      direction,
+      placement,
       spacing,
-      radialRadius,
-      radialStartAngle,
-      radialSweepAngle,
+      gap,
     );
+    const shadow = token.boxShadowSecondary;
 
     return {
+      position: 'absolute',
       opacity: progress.value,
+      borderRadius: token.borderRadiusLG,
+      shadowColor: shadow.shadowColor,
+      shadowOffset: shadow.shadowOffset,
+      shadowRadius: shadow.shadowRadius,
+      elevation: shadow.elevation,
+      shadowOpacity: shadow.shadowOpacity * shadowProgress.value,
       transform: [
         { translateX: baseTransform.x * progress.value },
         { translateY: baseTransform.y * progress.value },
         { scale: 0.8 + progress.value * 0.2 },
       ],
     };
-  }, [
-    direction,
-    hiddenCount,
-    index,
-    radialRadius,
-    radialStartAngle,
-    radialSweepAngle,
-    spacing,
-  ]);
+  }, [placement, index, spacing, gap, token]);
 
   if (!isExpanded) {
     return null;
   }
 
   return (
-    <Animated.View style={animatedStyle} testID="floating-action-group-hidden-item">
+    <Animated.View
+      style={animatedStyle}
+      testID="floating-action-group-hidden-item"
+    >
       <FloatingActionButton
         disabled={action.disabled}
         icon={action.icon}
         label={action.label}
         onPress={action.onPress}
+        shadow={false}
         style={style}
+        variant="filled"
       />
     </Animated.View>
   );
@@ -198,14 +167,9 @@ export function FloatingActionGroup({
   actions,
   collapseOnOutsidePress = true,
   defaultVisibleCount = DEFAULT_VISIBLE_COUNT,
-  direction = DEFAULT_DIRECTION,
   mountPoint = 'auto',
   offset,
   placement = DEFAULT_PLACEMENT,
-  position,
-  radialRadius,
-  radialStartAngle = DEFAULT_RADIAL_START_ANGLE,
-  radialSweepAngle = DEFAULT_RADIAL_SWEEP_ANGLE,
   spacing,
   style,
   styles,
@@ -214,23 +178,25 @@ export function FloatingActionGroup({
   const portalContext = useContext(PortalContext);
   const { token } = useTheme();
   const [expanded, setExpanded] = useState(false);
+  const [hiddenActionsMounted, setHiddenActionsMounted] = useState(false);
   const progress = useSharedValue(0);
+  const shadowProgress = useSharedValue(0);
 
   const visibleCount = Math.max(DEFAULT_VISIBLE_COUNT, defaultVisibleCount);
   const visibleActions = useMemo(() => actions.slice(0, visibleCount), [actions, visibleCount]);
   const hiddenActions = useMemo(() => actions.slice(visibleCount), [actions, visibleCount]);
   const hasMore = hiddenActions.length > 0;
 
-  const computedSpacing = spacing ?? token.controlHeightLG * DEFAULT_SPACING_FACTOR;
-  const computedRadius = radialRadius ?? token.controlHeightLG * 2;
+  const computedSpacing = spacing ?? token.controlHeightLG + token.paddingXS;
+  const alignEnd = !placement.endsWith('Left');
+  const expandUp = placement.startsWith('bottom');
 
-  const positionStyle = resolvePositionStyle(
-    position,
+  const positionStyle = resolvePlacementPosition(
     placement,
     offset ?? {},
     token,
   );
-  const tokenStyles = useStyles({ positionStyle });
+  const tokenStyles = useStyles({ positionStyle, alignEnd, expandUp });
 
   const handleToggleExpand = (): void => {
     if (!hasMore) {
@@ -238,10 +204,26 @@ export function FloatingActionGroup({
     }
 
     const nextExpanded = toggleOnMorePress ? !expanded : true;
+    if (nextExpanded) {
+      setHiddenActionsMounted(true);
+      shadowProgress.value = 0;
+    } else {
+      shadowProgress.value = 0;
+    }
     setExpanded(nextExpanded);
     progress.value = withTiming(nextExpanded ? 1 : 0, {
       duration: token.motionDurationMid,
       easing: Easing.bezier(...token.motionEaseInOut),
+    }, (finished) => {
+      if (nextExpanded && finished) {
+        shadowProgress.value = withTiming(1, {
+          duration: token.motionDurationFast,
+          easing: Easing.bezier(...token.motionEaseInOut),
+        });
+      }
+      if (!nextExpanded && finished) {
+        runOnJS(setHiddenActionsMounted)(false);
+      }
     });
   };
 
@@ -251,9 +233,14 @@ export function FloatingActionGroup({
     }
 
     setExpanded(false);
+    shadowProgress.value = 0;
     progress.value = withTiming(0, {
       duration: token.motionDurationMid,
       easing: Easing.bezier(...token.motionEaseInOut),
+    }, (finished) => {
+      if (finished) {
+        runOnJS(setHiddenActionsMounted)(false);
+      }
     });
   };
 
@@ -275,20 +262,27 @@ export function FloatingActionGroup({
           {hiddenActions.map((action, index) => (
             <HiddenActionItem
               action={action}
-              direction={direction}
-              hiddenCount={hiddenActions.length}
               index={index}
-              isExpanded={expanded}
+              isExpanded={hiddenActionsMounted}
               key={action.key}
               progress={progress}
-              radialRadius={computedRadius}
-              radialStartAngle={radialStartAngle}
-              radialSweepAngle={radialSweepAngle}
+              shadowProgress={shadowProgress}
+              placement={placement}
               spacing={computedSpacing}
+              gap={token.paddingXS}
               style={styles?.actionButton}
             />
           ))}
         </View>
+        {placement.startsWith('bottom') && hasMore ? (
+          <FloatingActionButton
+            label={expanded ? '收起' : '更多'}
+            onPress={handleToggleExpand}
+            style={styles?.moreButton}
+            testID="floating-action-group-more-button"
+            variant="filled"
+          />
+        ) : null}
         {visibleActions.map(action => (
           <FloatingActionButton
             disabled={action.disabled}
@@ -299,13 +293,13 @@ export function FloatingActionGroup({
             style={styles?.actionButton}
           />
         ))}
-        {hasMore ? (
+        {!placement.startsWith('bottom') && hasMore ? (
           <FloatingActionButton
             label={expanded ? '收起' : '更多'}
             onPress={handleToggleExpand}
             style={styles?.moreButton}
             testID="floating-action-group-more-button"
-            variant={expanded ? 'filled' : 'solid'}
+            variant="filled"
           />
         ) : null}
       </View>
@@ -319,6 +313,5 @@ export type {
   FloatingActionGroupProps,
   FloatingActionGroupStyles,
   FloatingActionItem,
-  FloatingDirection,
   FloatingPlacement,
 } from './types';

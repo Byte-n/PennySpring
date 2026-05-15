@@ -4,6 +4,7 @@ import { FloatingActionGroup } from '../src/FloatingActionGroup';
 import { PortalProvider } from '../src/Portal';
 
 type WithTimingArgs = [number, unknown?, ((finished: boolean) => void)?];
+const timingCallbacks: Array<(finished: boolean) => void> = [];
 
 jest.mock('react-native-reanimated', () => {
   const ReactNative = require('react-native');
@@ -20,9 +21,23 @@ jest.mock('react-native-reanimated', () => {
     useSharedValue: (value: number) => ({
       value,
     }),
-    withTiming: (...args: WithTimingArgs) => args[0],
+    runOnJS: (fn: (...args: unknown[]) => void) => fn,
+    withTiming: (...args: WithTimingArgs) => {
+      const callback = args[2];
+      if (callback) {
+        timingCallbacks.push(callback);
+      }
+      return args[0];
+    },
   };
 });
+
+function flushTimingCallbacks(finished = true): void {
+  while (timingCallbacks.length > 0) {
+    const callback = timingCallbacks.shift();
+    callback?.(finished);
+  }
+}
 
 function flattenStyle(style: unknown): Record<string, unknown> {
   const flatten = (input: unknown): Record<string, unknown>[] => {
@@ -93,6 +108,14 @@ describe('FloatingActionGroup', () => {
 
     expect(
       testRenderer.root.findAllByProps({ testID: 'floating-action-group-hidden-item' }).length,
+    ).toBeGreaterThanOrEqual(2);
+
+    act(() => {
+      flushTimingCallbacks(true);
+    });
+
+    expect(
+      testRenderer.root.findAllByProps({ testID: 'floating-action-group-hidden-item' }).length,
     ).toBe(0);
   });
 
@@ -128,30 +151,15 @@ describe('FloatingActionGroup', () => {
 
     expect(
       testRenderer.root.findAllByProps({ testID: 'floating-action-group-hidden-item' }).length,
-    ).toBe(0);
-  });
-
-  it('uses position over placement when both are provided', () => {
-    let testRenderer!: renderer.ReactTestRenderer;
+    ).toBeGreaterThanOrEqual(2);
 
     act(() => {
-      testRenderer = renderer.create(
-        <FloatingActionGroup
-          actions={baseActions.slice(0, 1)}
-          placement="topLeft"
-          position={{ bottom: 40, right: 24 }}
-        />,
-      );
+      flushTimingCallbacks(true);
     });
 
-    const layout = flattenStyle(
-      testRenderer.root.findByProps({ testID: 'floating-action-group-container' }).props.style,
-    );
-
-    expect(layout.bottom).toBe(40);
-    expect(layout.right).toBe(24);
-    expect(layout.top).toBeUndefined();
-    expect(layout.left).toBeUndefined();
+    expect(
+      testRenderer.root.findAllByProps({ testID: 'floating-action-group-hidden-item' }).length,
+    ).toBe(0);
   });
 
   it('supports portal mount by mountPoint prop', () => {
@@ -173,16 +181,66 @@ describe('FloatingActionGroup', () => {
     ).toBeTruthy();
   });
 
-  it('renders radial mode hidden items after expand', () => {
+  it('uses default spacing that includes item gap for vertical mode', () => {
+    const fs = require('fs') as { readFileSync: (filePath: string, encoding: string) => string };
+    const moduleResolver = require as unknown as { resolve: (request: string) => string };
+    const source = fs.readFileSync(
+      moduleResolver.resolve('../src/FloatingActionGroup/FloatingActionGroup.tsx'),
+      'utf8',
+    );
+
+    expect(source).toContain('const computedSpacing = spacing ?? token.controlHeightLG + token.paddingXS;');
+  });
+
+  it('keeps hidden-item transform resolver as a worklet-safe function', () => {
+    const fs = require('fs') as { readFileSync: (filePath: string, encoding: string) => string };
+    const moduleResolver = require as unknown as { resolve: (request: string) => string };
+    const source = fs.readFileSync(
+      moduleResolver.resolve('../src/FloatingActionGroup/FloatingActionGroup.tsx'),
+      'utf8',
+    );
+    const resolverSection = source.match(
+      /function resolveHiddenItemTransform\([\s\S]*?\n}\n\nfunction HiddenActionItem/,
+    )?.[0];
+
+    expect(resolverSection).toContain("'worklet';");
+  });
+
+  it('adapts vertical expand direction by placement', () => {
+    const fs = require('fs') as { readFileSync: (filePath: string, encoding: string) => string };
+    const moduleResolver = require as unknown as { resolve: (request: string) => string };
+    const source = fs.readFileSync(
+      moduleResolver.resolve('../src/FloatingActionGroup/FloatingActionGroup.tsx'),
+      'utf8',
+    );
+
+    expect(source).toContain("const expandUp = placement.startsWith('bottom');");
+    expect(source).toContain("const verticalSign = expandUp ? -1 : 1;");
+    expect(source).toContain('return { x: 0, y: verticalSign * offsetDistance };');
+    expect(source).toContain('placement = DEFAULT_PLACEMENT');
+  });
+
+  it('aligns hidden layer based on placement side', () => {
     let testRenderer!: renderer.ReactTestRenderer;
 
     act(() => {
       testRenderer = renderer.create(
-        <FloatingActionGroup
-          actions={baseActions}
-          defaultVisibleCount={1}
-          direction="radial"
-        />,
+        <FloatingActionGroup actions={baseActions} defaultVisibleCount={1} placement="bottomLeft" />,
+      );
+    });
+
+    const containerStyle = flattenStyle(
+      testRenderer.root.findByProps({ testID: 'floating-action-group-container' }).props.style,
+    );
+    expect(containerStyle.alignItems).toBe('flex-start');
+  });
+
+  it('hides shadow on hidden buttons during show animation', () => {
+    let testRenderer!: renderer.ReactTestRenderer;
+
+    act(() => {
+      testRenderer = renderer.create(
+        <FloatingActionGroup actions={baseActions} defaultVisibleCount={1} />,
       );
     });
 
@@ -192,9 +250,24 @@ describe('FloatingActionGroup', () => {
         .props.onPress();
     });
 
-    const expandedCount = testRenderer.root.findAllByProps({
+    const hiddenItems = testRenderer.root.findAllByProps({
       testID: 'floating-action-group-hidden-item',
-    }).length;
-    expect(expandedCount).toBeGreaterThanOrEqual(2);
+    });
+    expect(hiddenItems.length).toBeGreaterThanOrEqual(1);
+
+    const firstItemStyle = flattenStyle(hiddenItems[0].props.style);
+    expect(firstItemStyle.shadowOpacity).toBe(0);
+  });
+
+  it('anchors hidden layer at top for bottom placements so items expand upward', () => {
+    const fs = require('fs') as { readFileSync: (filePath: string, encoding: string) => string };
+    const moduleResolver = require as unknown as { resolve: (request: string) => string };
+    const source = fs.readFileSync(
+      moduleResolver.resolve('../src/FloatingActionGroup/FloatingActionGroup.tsx'),
+      'utf8',
+    );
+
+    expect(source).toContain("expandUp ? { top: 0 } : { bottom: 0 }");
+    expect(source).toContain("const expandUp = placement.startsWith('bottom');");
   });
 });

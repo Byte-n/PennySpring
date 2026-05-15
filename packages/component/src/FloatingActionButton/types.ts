@@ -12,6 +12,7 @@ export interface FloatingActionButtonProps {
   disabled?: boolean;
   color?: ButtonColor;
   variant?: ButtonVariant;
+  shadow?: boolean;
   onPress?: () => void;
   style?: StyleProp<ViewStyle>;
   styles?: FloatingActionButtonStyles;

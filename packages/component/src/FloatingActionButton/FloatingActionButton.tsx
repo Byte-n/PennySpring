@@ -1,14 +1,18 @@
 import React from 'react';
-import { createUseSheetStyle } from '@pennyspring/theme';
+import { createUseSheetStyle, toShadowStyle } from '@pennyspring/theme';
 import { Button } from '../Button';
 import type { FloatingActionButtonProps } from './types';
 
-const useStyles = createUseSheetStyle(token => ({
+interface StyleOptions {
+  shadow: boolean;
+}
+
+const useStyles = createUseSheetStyle((token, { shadow }: StyleOptions) => ({
   button: {
-    minWidth: token.controlHeightLG,
     height: token.controlHeightLG,
     borderRadius: token.borderRadiusLG,
     paddingHorizontal: token.paddingSM,
+    ...(shadow ? toShadowStyle(token.boxShadowSecondary) : undefined),
   },
 }));
 
@@ -18,12 +22,13 @@ export function FloatingActionButton({
   icon,
   label,
   onPress,
+  shadow = true,
   style,
   styles,
   testID,
   variant = 'solid',
 }: FloatingActionButtonProps) {
-  const tokenStyles = useStyles();
+  const tokenStyles = useStyles({ shadow });
 
   return (
     <Button
