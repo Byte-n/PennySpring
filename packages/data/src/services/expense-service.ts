@@ -8,6 +8,7 @@ import type { CreateRecordInput, RecordRow, Tx } from './types'
 export async function createExpense(tx: Tx, input: CreateRecordInput): Promise<RecordRow> {
   const asset = await tx.select().from(assets).where(eq(assets.id, input.assetId)).get()
   if (!asset) throw new Error(`Asset not found: ${input.assetId}`)
+  if (asset.booksId !== input.booksId) throw new Error(`Asset ${input.assetId} does not belong to books ${input.booksId}`)
   const charge = input.charge ?? 0
   const finalAmount = input.amount + charge
 

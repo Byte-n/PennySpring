@@ -19,12 +19,31 @@ function isAbsorptionBehavior(specialBehavior: string): boolean {
   )
 }
 
+async function validateAbsorptionTargets(tx: Tx, typeRow: TypeRow, relatedRecordIds: number[], booksId: number) {
+  for (const expenseId of relatedRecordIds) {
+    const expense = await tx.select().from(records).where(eq(records.id, expenseId)).get()
+    if (!expense) throw new Error(`Related expense not found: ${expenseId}`)
+    if (expense.booksId !== booksId) throw new Error(`Expense ${expenseId} does not belong to the same books`)
+    if (typeRow.specialBehavior === RECORD_TYPE_SPECIAL_BEHAVIOR.reimbursementAbsorption) {
+      if (expense.reimbursable !== REIMBURSABLE.reimbursable) {
+        throw new Error(`Expense ${expenseId} is not reimbursable`)
+      }
+    } else if (typeRow.specialBehavior === RECORD_TYPE_SPECIAL_BEHAVIOR.refundAbsorption) {
+      if (expense.reimbursable !== REIMBURSABLE.notReimbursable) {
+        throw new Error(`Expense ${expenseId} is not refundable`)
+      }
+    }
+  }
+}
+
 export async function createIncome(tx: Tx, input: CreateRecordInput, typeRow: TypeRow): Promise<RecordRow> {
   const asset = await tx.select().from(assets).where(eq(assets.id, input.assetId)).get()
   if (!asset) throw new Error(`Asset not found: ${input.assetId}`)
+  if (asset.booksId !== input.booksId) throw new Error(`Asset ${input.assetId} does not belong to books ${input.booksId}`)
   const charge = input.charge ?? 0
   const isAbsorption = isAbsorptionBehavior(typeRow.specialBehavior)
   const finalAmount = input.amount - charge
+  if (finalAmount < 0) throw new Error('Income final amount (amount - charge) must be >= 0')
 
   const [inserted] = await tx
     .insert(records)
@@ -46,6 +65,7 @@ export async function createIncome(tx: Tx, input: CreateRecordInput, typeRow: Ty
   await applyBalanceChange(tx, input.assetId, balanceChange)
 
   if (isAbsorption && input.relatedRecordIds?.length) {
+    await validateAbsorptionTargets(tx, typeRow, input.relatedRecordIds, input.booksId)
     await syncRecordRelations(tx, inserted.id, input.relatedRecordIds)
     for (const expenseId of input.relatedRecordIds) {
       await recalculateAbsorption(tx, expenseId)
@@ -86,6 +106,7 @@ export async function applyIncome(tx: Tx, record: RecordRow, typeRow: TypeRow, r
   await applyBalanceChange(tx, record.assetId, change)
 
   if (isAbsorptionBehavior(typeRow.specialBehavior) && relatedRecordIds?.length) {
+    await validateAbsorptionTargets(tx, typeRow, relatedRecordIds, record.booksId)
     await syncRecordRelations(tx, record.id, relatedRecordIds)
     for (const expenseId of relatedRecordIds) {
       await recalculateAbsorption(tx, expenseId)

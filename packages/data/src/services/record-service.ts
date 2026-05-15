@@ -52,7 +52,7 @@ export function createRecord(db: Database, input: CreateRecordInput): Promise<Re
       case RECORD_TYPE_CATEGORY.income:
         return createIncome(tx, input, typeRow)
       case RECORD_TYPE_CATEGORY.transfer:
-        return createTransfer(tx, input)
+        return createTransfer(tx, input, typeRow)
       default:
         throw new Error(`Unknown type category: ${typeRow.typeCategory}`)
     }
@@ -77,6 +77,7 @@ export function updateRecord(db: Database, input: UpdateRecordInput): Promise<Re
         break
       case RECORD_TYPE_CATEGORY.income:
         finalAmount = input.amount - charge
+        if (finalAmount < 0) throw new Error('Income final amount (amount - charge) must be >= 0')
         break
       case RECORD_TYPE_CATEGORY.transfer:
         finalAmount = charge
@@ -149,12 +150,30 @@ export function deleteRecord(db: Database, recordId: number): Promise<void> {
 
     if (absorbedByLinks.length > 0) {
       await tx.delete(recordWithRecord).where(eq(recordWithRecord.relatedRecordId, recordId))
+
+      const affectedExpenseIds = new Set<number>()
       for (const link of absorbedByLinks) {
-        const incomeRecord = await tx.select().from(records).where(eq(records.id, link.recordId)).get()
-        if (incomeRecord) {
-          const incomeFinalAmount = incomeRecord.amount - incomeRecord.charge
-          await tx.update(records).set({ finalAmount: incomeFinalAmount }).where(eq(records.id, link.recordId))
+        const remainingLinks = await tx
+          .select({ relatedRecordId: recordWithRecord.relatedRecordId })
+          .from(recordWithRecord)
+          .where(eq(recordWithRecord.recordId, link.recordId))
+
+        if (remainingLinks.length === 0) {
+          const incomeRecord = await tx.select().from(records).where(eq(records.id, link.recordId)).get()
+          if (incomeRecord) {
+            await tx.update(records)
+              .set({ finalAmount: incomeRecord.amount - incomeRecord.charge })
+              .where(eq(records.id, link.recordId))
+          }
+        } else {
+          for (const r of remainingLinks) {
+            affectedExpenseIds.add(r.relatedRecordId)
+          }
         }
+      }
+
+      for (const expenseId of affectedExpenseIds) {
+        await recalculateAbsorption(tx, expenseId)
       }
     }
 
