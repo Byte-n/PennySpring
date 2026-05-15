@@ -66,7 +66,7 @@ export function generateNeutralColorPalettesDark(
 ): ColorNeutralMapToken {
   const colorTextBase = textBaseColor || '#fff';
   const colorBgBase = bgBaseColor || '#000';
-  const colorShadow = 'rgba(255, 255, 255, 0.2)';
+  const colorShadow = '#fff';
   const colorBgBlur = getAlphaColor(colorTextBase, 0.04);
 
   const colorText = getAlphaColor(colorTextBase, 0.85);

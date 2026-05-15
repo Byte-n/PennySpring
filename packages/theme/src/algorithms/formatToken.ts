@@ -1,6 +1,5 @@
 import type { MapToken, AliasToken, ShadowToken } from '../types';
 import { getAlphaColor } from './getAlphaColor';
-import { getAlphaColor as simpleGetAlpha } from './colorAlgorithm';
 
 function getShadowToken(
   colorShadow: string,
@@ -10,9 +9,8 @@ function getShadowToken(
   opacity: number,
   elevation: number,
 ): ShadowToken {
-  const shadowColor = simpleGetAlpha(colorShadow, opacity);
   return {
-    shadowColor,
+    shadowColor: colorShadow,
     shadowOffset: { width: offsetX, height: offsetY },
     shadowOpacity: opacity,
     shadowRadius: blur,
