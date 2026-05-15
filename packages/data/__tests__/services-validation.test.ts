@@ -82,26 +82,28 @@ describe('income-service reimbursable validation', () => {
 
   const reimbursementType: TypeRow = {
     id: 2,
+    parentId: 0,
     name: '报销',
     icon: '',
     typeCategory: RECORD_TYPE_CATEGORY.income,
+    isSystem: 'system',
     specialBehavior: RECORD_TYPE_SPECIAL_BEHAVIOR.reimbursementAbsorption,
-    booksId: 1,
     sort: 0,
-    visibility: 'visible',
-    systemStatus: 'system',
+    createdTime: Date.now(),
+    updatedTime: Date.now(),
   } as TypeRow
 
   const refundType: TypeRow = {
     id: 3,
+    parentId: 0,
     name: '退款',
     icon: '',
     typeCategory: RECORD_TYPE_CATEGORY.income,
+    isSystem: 'system',
     specialBehavior: RECORD_TYPE_SPECIAL_BEHAVIOR.refundAbsorption,
-    booksId: 1,
     sort: 0,
-    visibility: 'visible',
-    systemStatus: 'system',
+    createdTime: Date.now(),
+    updatedTime: Date.now(),
   } as TypeRow
 
   test('reimbursement throws when expense is not reimbursable', async () => {
