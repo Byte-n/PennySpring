@@ -55,7 +55,7 @@ export type {
   ButtonVariant,
 } from './Button';
 export { Icon } from './Icon';
-export type { IconColor, IconName, IconProps, IconSize } from './Icon';
+export type { IconColor, IconComponent, IconName, IconProps, IconSize } from './Icon';
 export { Checkbox } from './Checkbox';
 export type {
   CheckboxDisplayType,

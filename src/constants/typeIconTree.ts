@@ -1,5 +1,4 @@
-import type { ComponentType } from 'react';
-import type { SvgProps } from 'react-native-svg';
+import type { IconComponent } from '@pennyspring/component';
 
 import { ICON } from '@pennyspring/data';
 
@@ -24,7 +23,7 @@ import { tenementTypeIconGroup } from './typeIconGroups/tenement';
 import { otherTypeIconGroup } from './typeIconGroups/other';
 
 export type IconValue = ReturnType<typeof ICON.values>[number];
-export type TypeIconComponent = ComponentType<SvgProps>;
+export type TypeIconComponent = IconComponent;
 
 export interface TypeIconNode {
   value: IconValue;
