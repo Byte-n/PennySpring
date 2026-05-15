@@ -1,6 +1,7 @@
 import React from 'react';
-import { View } from 'react-native';
-import { Grid, Text } from '@pennyspring/component';
+import type { ImageStyle, StyleProp } from 'react-native';
+import { Image, View } from 'react-native';
+import { Grid, Tabs, Text } from '@pennyspring/component';
 import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
 import {
   ASSET_CLASSIFICATION_TREE,
@@ -9,31 +10,44 @@ import {
 } from '../../../../../../src/constants/assetClassificationTree';
 import {
   TYPE_ICON_TREE,
+  type TypeIconGroupNode,
+  type TypeIconNode,
   type TypeIconComponent,
 } from '../../../../../../src/constants/typeIconTree';
 import { PreviewScaffold, PreviewSection } from '../../PreviewScaffold';
 
 type PreviewIconComponent = AssetClassificationIcon | TypeIconComponent;
+type IconKind = 'asset' | 'type';
 type RenderIconProps = {
   color?: string;
   size?: number;
   width?: number;
   height?: number;
+  viewBox?: string;
 };
 
 interface IconCellItem {
   key: string;
+  iconKind: IconKind;
   label: string;
-  value: string;
   icon: PreviewIconComponent;
 }
 
-const GRID_COLUMNS_BASE = 4;
+interface IconGridTabItem {
+  value: string;
+  label: string;
+  items: readonly IconCellItem[];
+}
 
-const useStyles = createUseSheetStyle(token => ({
-  groupStack: {
-    gap: token.marginXS,
-  },
+const GRID_COLUMNS = 3;
+const ASSET_ICON_VIEW_BOX = '0 0 1024 1024';
+const ASSET_TAB_VALUE = 'asset-classification';
+
+interface StyleOptions {
+  iconSize: number;
+}
+
+const useStyles = createUseSheetStyle<StyleOptions>((token, { iconSize }) => ({
   gridFrame: {
     backgroundColor: token.colorFillTertiary,
     borderRadius: token.borderRadius,
@@ -52,14 +66,25 @@ const useStyles = createUseSheetStyle(token => ({
   valueText: {
     textAlign: 'center',
   },
+  imageIcon: {
+    width: iconSize,
+    height: iconSize,
+  },
 }));
 
-function flattenAssetNodes(nodes: readonly AssetClassificationTreeNode[]): IconCellItem[] {
+function flattenAssetNodes(
+  nodes: readonly AssetClassificationTreeNode[],
+  parentKey = '',
+): IconCellItem[] {
   return nodes.flatMap(node => {
+    const nodeKey =
+      parentKey.length > 0
+        ? `${parentKey}-${String(node.value)}`
+        : String(node.value);
     const current: IconCellItem = {
-      key: String(node.value),
+      key: nodeKey,
+      iconKind: 'asset',
       label: node.label,
-      value: String(node.value),
       icon: node.icon,
     };
 
@@ -67,31 +92,100 @@ function flattenAssetNodes(nodes: readonly AssetClassificationTreeNode[]): IconC
       return [current];
     }
 
-    return [current, ...flattenAssetNodes(node.children)];
+    return [current, ...flattenAssetNodes(node.children, nodeKey)];
   });
+}
+
+function mapTypeIconItem(groupKey: string, item: TypeIconNode): IconCellItem {
+  return {
+    key: `${groupKey}-${item.value}`,
+    iconKind: 'type',
+    label: item.label,
+    icon: item.icon,
+  };
+}
+
+function mapTypeGroupTab(group: TypeIconGroupNode): IconGridTabItem {
+  return {
+    value: `type-${group.key}`,
+    label: group.label,
+    items: group.children.map(item => mapTypeIconItem(group.key, item)),
+  };
+}
+
+const ICON_GRID_TABS: readonly IconGridTabItem[] = [
+  {
+    value: ASSET_TAB_VALUE,
+    label: '资产分类树',
+    items: flattenAssetNodes(ASSET_CLASSIFICATION_TREE),
+  },
+  ...TYPE_ICON_TREE.map(mapTypeGroupTab),
+];
+
+const ICON_GRID_TAB_ITEMS = ICON_GRID_TABS.map(({ label, value }) => ({
+  label,
+  value,
+}));
+
+const ICON_GRID_TAB_ITEM_MAP = new Map(
+  ICON_GRID_TABS.map(tab => [tab.value, tab] as const),
+);
+
+function renderIcon(
+  iconKind: IconKind,
+  icon: PreviewIconComponent,
+  iconColor: string | undefined,
+  iconSize: number,
+  styles: ReturnType<typeof useStyles>,
+) {
+  if (typeof icon === 'number') {
+    return (
+      <Image source={icon} style={styles.imageIcon as StyleProp<ImageStyle>} />
+    );
+  }
+
+  const IconComponent = icon as React.ComponentType<RenderIconProps>;
+
+  if (iconKind === 'asset') {
+    return (
+      <IconComponent
+        height={iconSize}
+        viewBox={ASSET_ICON_VIEW_BOX}
+        width={iconSize}
+      />
+    );
+  }
+
+  return (
+    <IconComponent
+      color={iconColor}
+      height={iconSize}
+      size={iconSize}
+      width={iconSize}
+    />
+  );
 }
 
 function renderGrid(
   items: readonly IconCellItem[],
   columns: number,
   iconSize: number,
-  iconColor: string,
+  iconColor: string | undefined,
   styles: ReturnType<typeof useStyles>,
 ) {
   return (
     <Grid columns={columns} gap="small" style={styles.gridFrame}>
       {items.map(item => {
-        const ItemIcon = item.icon as React.ComponentType<RenderIconProps>;
-
         return (
           <Grid.Item key={item.key}>
             <View style={styles.cell}>
-              <ItemIcon
-                color={iconColor}
-                height={iconSize}
-                size={iconSize}
-                width={iconSize}
-              />
+              {renderIcon(
+                item.iconKind,
+                item.icon,
+                iconColor,
+                iconSize,
+                styles,
+              )}
               <Text
                 color="heading"
                 size="sm"
@@ -99,9 +193,6 @@ function renderGrid(
                 style={styles.valueText}
               >
                 {item.label}
-              </Text>
-              <Text color="description" size="sm" style={styles.valueText}>
-                {item.value}
               </Text>
             </View>
           </Grid.Item>
@@ -112,38 +203,35 @@ function renderGrid(
 }
 
 export function ClassificationAndIconsPreview() {
-  const styles = useStyles();
   const { token } = useTheme();
-  const columns = token.lineWidthBold + GRID_COLUMNS_BASE;
+  const columns = GRID_COLUMNS;
   const iconSize = token.fontSizeXL;
+  const styles = useStyles({ iconSize });
   const iconColor = token.colorIcon;
-  const assetItems = flattenAssetNodes(ASSET_CLASSIFICATION_TREE);
+  const defaultTabValue = ICON_GRID_TABS[0]?.value;
 
   return (
     <PreviewScaffold>
-      <PreviewSection title="资产分类树（全部）">
-        {renderGrid(assetItems, columns, iconSize, iconColor, styles)}
-      </PreviewSection>
+      <PreviewSection title="分类与图标（按分组切换）">
+        <Tabs
+          defaultValue={defaultTabValue}
+          layout="scroll"
+          items={ICON_GRID_TAB_ITEMS}
+          renderContent={item => {
+            const selectedTab = ICON_GRID_TAB_ITEM_MAP.get(String(item.value));
+            if (selectedTab === undefined) {
+              return null;
+            }
 
-      <PreviewSection title="类型图标分类（按分组）">
-        <View style={styles.groupStack}>
-          {TYPE_ICON_TREE.map(group =>
-            <PreviewSection key={group.key} title={group.label}>
-                {renderGrid(
-                  group.children.map(item => ({
-                    key: `${group.key}-${item.value}`,
-                    label: item.label,
-                    value: String(item.value),
-                    icon: item.icon,
-                  })),
-                  columns,
-                  iconSize,
-                  iconColor,
-                  styles,
-                )}
-            </PreviewSection>,
-          )}
-        </View>
+            return renderGrid(
+              selectedTab.items,
+              columns,
+              iconSize,
+              iconColor,
+              styles,
+            );
+          }}
+        />
       </PreviewSection>
     </PreviewScaffold>
   );
