@@ -1,7 +1,12 @@
 import { createTransfer } from '../src/services/transfer-service'
 import { createIncome } from '../src/services/income-service'
 import { createExpense } from '../src/services/expense-service'
-import { REIMBURSABLE, RECORD_TYPE_SPECIAL_BEHAVIOR, RECORD_TYPE_CATEGORY } from '../src/constants'
+import {
+  REIMBURSABLE,
+  RECORD_TYPE_SPECIAL_BEHAVIOR,
+  RECORD_TYPE_CATEGORY,
+  IconValue,
+} from '../src/constants';
 import type { CreateRecordInput, Tx, TypeRow } from '../src/services/types'
 
 function mockTx(queryResults: Record<string, unknown>): Tx {
@@ -84,20 +89,20 @@ describe('income-service reimbursable validation', () => {
     id: 2,
     parentId: 0,
     name: '报销',
-    icon: '',
+    icon: '' as IconValue,
     typeCategory: RECORD_TYPE_CATEGORY.income,
     isSystem: 'system',
     specialBehavior: RECORD_TYPE_SPECIAL_BEHAVIOR.reimbursementAbsorption,
     sort: 0,
     createdTime: Date.now(),
     updatedTime: Date.now(),
-  } as TypeRow
+  } as TypeRow;
 
   const refundType: TypeRow = {
     id: 3,
     parentId: 0,
     name: '退款',
-    icon: '',
+    icon: '' as IconValue,
     typeCategory: RECORD_TYPE_CATEGORY.income,
     isSystem: 'system',
     specialBehavior: RECORD_TYPE_SPECIAL_BEHAVIOR.refundAbsorption,

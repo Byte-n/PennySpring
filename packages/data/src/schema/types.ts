@@ -1,4 +1,4 @@
-import { sqliteTable, text } from 'drizzle-orm/sqlite-core'
+import { sqliteTable, text } from 'drizzle-orm/sqlite-core';
 
 import {
   type RecordTypeCategoryValue,
@@ -6,8 +6,14 @@ import {
   type SystemStatusValue,
   RECORD_TYPE_SPECIAL_BEHAVIOR,
   SYSTEM_STATUS,
-} from '../constants'
-import { enumColumn, integerColumn, primaryKeyColumn, timestampColumns } from '../shared'
+  IconValue,
+} from '../constants';
+import {
+  enumColumn,
+  integerColumn,
+  primaryKeyColumn,
+  timestampColumns,
+} from '../shared';
 
 export const types = sqliteTable('tb_type', {
   // 类型主键，自增长
@@ -17,7 +23,7 @@ export const types = sqliteTable('tb_type', {
   // 类型名称（如"餐饮"、"工资"）
   name: text('name').notNull(),
   // 类型图标 key，由应用层硬编码维护
-  icon: text('icon').notNull(),
+  icon: enumColumn<IconValue>('icon').notNull(),
   /**
    * 类型分类 key。
    *
@@ -29,13 +35,17 @@ export const types = sqliteTable('tb_type', {
    *
    * 可选值来自 {@link import('../constants').SYSTEM_STATUS}。
    */
-  isSystem: enumColumn<SystemStatusValue>('is_system').notNull().default(SYSTEM_STATUS.custom),
+  isSystem: enumColumn<SystemStatusValue>('is_system')
+    .notNull()
+    .default(SYSTEM_STATUS.custom),
   /**
    * 特殊行为标识。
    *
    * 可选值来自 {@link import('../constants').RECORD_TYPE_SPECIAL_BEHAVIOR}。
    */
-  specialBehavior: enumColumn<RecordTypeSpecialBehaviorValue>('special_behavior')
+  specialBehavior: enumColumn<RecordTypeSpecialBehaviorValue>(
+    'special_behavior',
+  )
     .notNull()
     .default(RECORD_TYPE_SPECIAL_BEHAVIOR.none),
   // 排序权重，值越小越靠前
@@ -43,4 +53,4 @@ export const types = sqliteTable('tb_type', {
   // 记录创建时间（时间戳，毫秒），INSERT 时自动写入
   // 最后修改时间（时间戳，毫秒），
   ...timestampColumns(),
-})
+});
