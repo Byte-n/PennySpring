@@ -1,126 +1,139 @@
 import React from 'react';
 import { View } from 'react-native';
-import {
-  Button,
-  FloatingActionGroup,
-  PortalProvider,
-  Text,
+import type {
+  FloatingPlacement,
+  PortalMountPoint,
 } from '@pennyspring/component';
-import { createUseSheetStyle } from '@pennyspring/theme';
+import { Button, FloatingActionGroup, Text } from '@pennyspring/component';
+import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
+import {
+  ArrowsOutCardinalIcon,
+  CircleIcon,
+  CompassIcon,
+  ListIcon,
+  MapPinIcon,
+  PlusIcon,
+} from 'phosphor-react-native';
 import {
   PreviewRow,
   PreviewScaffold,
   PreviewSection,
 } from '../../PreviewScaffold';
-import type {
-  FloatingActionItem,
-  FloatingDirection,
-  PortalMountPoint,
-} from '@pennyspring/component';
+
+const PLACEMENTS: FloatingPlacement[] = [
+  'bottomRight',
+  'bottomLeft',
+  'topLeft',
+  'topRight',
+];
+const MOUNT_POINTS: PortalMountPoint[] = ['auto', 'local', 'portal'];
 
 const useStyles = createUseSheetStyle(token => ({
-  frame: {
-    height: token.controlHeightLG * 6,
+  canvas: {
+    minHeight: token.controlHeightLG * 5,
     borderWidth: token.lineWidth,
     borderColor: token.colorBorderSecondary,
     borderRadius: token.borderRadius,
+    backgroundColor: token.colorBgContainer,
     overflow: 'hidden',
-    backgroundColor: token.colorBgLayout,
-    position: 'relative',
+    padding: token.paddingSM,
+    gap: token.marginXXS,
   },
-  frameContent: {
-    flex: 1,
-    padding: token.paddingMD,
-    gap: token.marginXS,
+  helper: {
+    maxWidth: '50%',
   },
-  eventLine: {
+  statusLine: {
     paddingVertical: token.paddingXXS,
   },
 }));
 
-const DIRECTIONS: FloatingDirection[] = ['vertical', 'horizontal', 'radial'];
-const MOUNT_POINTS: PortalMountPoint[] = ['auto', 'local', 'portal'];
-
 export function FloatingActionGroupPreview() {
   const styles = useStyles();
-  const [direction, setDirection] = React.useState<FloatingDirection>('vertical');
+  const { token } = useTheme();
+  const [placement, setPlacement] =
+    React.useState<FloatingPlacement>('bottomRight');
   const [mountPoint, setMountPoint] = React.useState<PortalMountPoint>('auto');
-  const [eventText, setEventText] = React.useState('No action yet');
+  const [lastEvent, setLastEvent] = React.useState('No action yet');
 
-  const actions = React.useMemo<FloatingActionItem[]>(
+  const actions = React.useMemo(
     () => [
       {
         key: 'create',
-        label: '创建',
+        label: 'Create',
+        icon: (
+          <PlusIcon
+            color={token.colorIcon}
+            size={token.fontSizeLG}
+            weight="bold"
+          />
+        ),
         onPress: () => {
-          setEventText('点击了 创建');
+          setLastEvent('Pressed Create');
         },
       },
       {
-        key: 'scan',
-        label: '扫描',
+        key: 'map',
+        label: 'Map',
+        icon: (
+          <MapPinIcon
+            color={token.colorIcon}
+            size={token.fontSizeLG}
+            weight="bold"
+          />
+        ),
         onPress: () => {
-          setEventText('点击了 扫描');
+          setLastEvent('Pressed Map');
         },
       },
       {
-        key: 'share',
-        label: '分享',
+        key: 'list',
+        label: 'List',
+        icon: (
+          <ListIcon
+            color={token.colorIcon}
+            size={token.fontSizeLG}
+            weight="bold"
+          />
+        ),
         onPress: () => {
-          setEventText('点击了 分享');
+          setLastEvent('Pressed List');
         },
       },
       {
-        key: 'archive',
-        label: '归档',
+        key: 'focus',
+        label: 'Focus',
+        icon: (
+          <CompassIcon
+            color={token.colorIcon}
+            size={token.fontSizeLG}
+            weight="bold"
+          />
+        ),
         onPress: () => {
-          setEventText('点击了 归档');
+          setLastEvent('Pressed Focus');
         },
       },
     ],
-    [],
-  );
-
-  const demo = (
-    <View style={styles.frame}>
-      <View style={styles.frameContent}>
-        <Text color="heading" weight="strong">
-          FloatingActionGroup
-        </Text>
-        <Text color="secondary" size="sm">
-          direction={direction} mountPoint={mountPoint}
-        </Text>
-      </View>
-      <FloatingActionGroup
-        actions={actions}
-        defaultVisibleCount={1}
-        direction={direction}
-        mountPoint={mountPoint}
-        placement="bottomRight"
-      />
-    </View>
+    [token.colorIcon, token.fontSizeLG],
   );
 
   return (
     <PreviewScaffold>
-      <PreviewSection title="Direction">
+      <PreviewSection title="Placement and mountPoint">
         <PreviewRow>
-          {DIRECTIONS.map(item => (
+          {PLACEMENTS.map(item => (
             <Button
               key={item}
-              type={direction === item ? 'primary' : 'default'}
+              type={placement === item ? 'primary' : 'default'}
               onPress={() => {
-                setDirection(item);
-                setEventText(`direction 切换为 ${item}`);
+                setPlacement(item);
+                setLastEvent(`Placement set to ${item}`);
               }}
             >
               {item}
             </Button>
           ))}
         </PreviewRow>
-      </PreviewSection>
-
-      <PreviewSection title="MountPoint">
         <PreviewRow>
           {MOUNT_POINTS.map(item => (
             <Button
@@ -128,7 +141,7 @@ export function FloatingActionGroupPreview() {
               type={mountPoint === item ? 'primary' : 'default'}
               onPress={() => {
                 setMountPoint(item);
-                setEventText(`mountPoint 切换为 ${item}`);
+                setLastEvent(`mountPoint set to ${item}`);
               }}
             >
               {item}
@@ -137,16 +150,44 @@ export function FloatingActionGroupPreview() {
         </PreviewRow>
       </PreviewSection>
 
-      <PreviewSection title="Preview">
-        <PortalProvider>{demo}</PortalProvider>
+      <PreviewSection title="Preview canvas">
+        <View style={styles.canvas}>
+          <View style={styles.helper}>
+            <Text color="secondary" size="sm">
+              Trigger “更多” to expand hidden actions. Tap outside to collapse.
+            </Text>
+          </View>
+          <FloatingActionGroup
+            collapseOnOutsidePress={false}
+            actions={actions}
+            defaultVisibleCount={1}
+            mountPoint={mountPoint}
+            placement={placement}
+          />
+        </View>
       </PreviewSection>
 
       <PreviewSection title="Event feedback">
-        <View style={styles.eventLine}>
+        <View style={styles.statusLine}>
           <Text color="description" size="sm">
-            {eventText}
+            {lastEvent}
           </Text>
         </View>
+        <PreviewRow>
+          <ArrowsOutCardinalIcon
+            color={token.colorIcon}
+            size={token.fontSizeLG}
+            weight="bold"
+          />
+          <CircleIcon
+            color={token.colorIcon}
+            size={token.fontSizeLG}
+            weight="fill"
+          />
+          <Text color="tertiary" size="sm">
+            Icons only demonstrate custom action icons.
+          </Text>
+        </PreviewRow>
       </PreviewSection>
     </PreviewScaffold>
   );
