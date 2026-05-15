@@ -35,10 +35,9 @@ import {
   WarningCircleIcon,
   XCircleIcon,
   XIcon,
-  type Icon,
 } from 'phosphor-react-native';
 import type { AliasColorTokenKey, AliasToken } from '@pennyspring/theme';
-import type { IconColor, IconName, IconProps, IconSize } from './types';
+import type { IconColor, IconComponent, IconName, IconProps, IconSize } from './types';
 
 interface IconSizeConfig {
   value: (token: AliasToken) => number;
@@ -50,7 +49,7 @@ const ICON_SIZE_MAP: Record<Exclude<IconSize, number>, IconSizeConfig> = {
   large: { value: token => token.fontSizeLG },
 };
 
-const DEFAULT_ICON_MAP: Record<IconName, Icon> = {
+const DEFAULT_ICON_MAP: Record<IconName, IconComponent> = {
   add: PlusIcon,
   'arrow-down': ArrowDownIcon,
   'arrow-left': ArrowLeftIcon,
@@ -88,7 +87,7 @@ const DEFAULT_ICON_MAP: Record<IconName, Icon> = {
   warning: WarningCircleIcon,
 };
 
-function resolveIcon(icon: IconName | Icon): Icon {
+function resolveIcon(icon: IconName | IconComponent): IconComponent {
   if (typeof icon === 'string') {
     return DEFAULT_ICON_MAP[icon];
   }

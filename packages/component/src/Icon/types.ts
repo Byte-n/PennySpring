@@ -1,11 +1,13 @@
 import type { AliasColorTokenKey } from '@pennyspring/theme';
-import type { Icon, IconWeight } from 'phosphor-react-native';
+import type { IconProps as PhosphorIconProps, IconWeight } from 'phosphor-react-native';
+import type { ComponentType } from 'react';
 import type { StyleProp, TextStyle, ViewStyle } from 'react-native';
 import type { ComponentSize } from '../shares/types';
 
 export type IconSize = ComponentSize | number;
 
 export type IconColor = AliasColorTokenKey | string;
+export type IconComponent = ComponentType<PhosphorIconProps>;
 
 export type IconName =
   | 'add'
@@ -45,7 +47,7 @@ export type IconName =
   | 'warning';
 
 export interface IconProps {
-  icon: IconName | Icon;
+  icon: IconName | IconComponent;
   size?: IconSize;
   color?: IconColor;
   weight?: IconWeight;
