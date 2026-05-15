@@ -13,6 +13,6 @@
      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
      See the License for the specific language governing permissions and
      limitations under the License.
---><svg xmlns:android="http://schemas.android.com/apk/res/android" height="1024" width="1024" xmlns="http://www.w3.org/2000/svg">
+--><svg height="1024" width="1024" xmlns="http://www.w3.org/2000/svg">
     <path d="M341.33,580.27h-102.4L512,853.33l273.07,-273.07h-102.4V238.93H341.33v341.33zM512,0c282.76,0 512,229.24 512,512s-229.24,512 -512,512S0,794.76 0,512 229.24,0 512,0z" fill="#db321d"/>
 </svg>
