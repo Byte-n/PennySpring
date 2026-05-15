@@ -134,6 +134,7 @@ describe('Tabs', () => {
     });
     expect(scrollList.props.horizontal).toBe(true);
     const contentContainerStyles = Array.isArray(scrollList.props.contentContainerStyle) ? scrollList.props.contentContainerStyle : [scrollList.props.contentContainerStyle];
+    const scrollStyles = Array.isArray(scrollList.props.style) ? scrollList.props.style : [scrollList.props.style];
     const firstTabStyleResult = firstTab.props.style({
       pressed: false
     });
@@ -141,6 +142,9 @@ describe('Tabs', () => {
     expect(contentContainerStyles.some((style: {
       flexWrap?: string;
     } | undefined) => style?.flexWrap === 'nowrap')).toBe(true);
+    expect(scrollStyles.some((style: {
+      flexGrow?: number;
+    } | undefined) => style?.flexGrow === 0)).toBe(true);
     expect(firstTabStyles.some((style: {
       flexShrink?: number;
     } | undefined) => style?.flexShrink === 0)).toBe(true);

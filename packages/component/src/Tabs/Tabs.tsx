@@ -98,6 +98,9 @@ const useStyles = createUseSheetStyle(
         gap: sizeConfig.tabGap(token),
         minWidth: block ? '100%' : undefined,
       },
+      scrollList: {
+        flexGrow: 0,
+      },
       tab: {
         minHeight: sizeConfig.tabMinHeight(token),
         paddingHorizontal: sizeConfig.tabPaddingHorizontal(token),
@@ -181,6 +184,7 @@ export function Tabs({
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
+          style={tokenStyles.scrollList}
           contentContainerStyle={[tokenStyles.tabList, styles?.tabList]}
           testID="tabs-list-scroll"
         >
