@@ -42,6 +42,7 @@ import { TextPreview } from './foundation/text';
 import { ActionSheetPreview } from './navigation/action-sheet';
 import { DialogPreview } from './navigation/dialog';
 import { DrawerPreview } from './navigation/drawer';
+import { FloatingActionGroupPreview } from './navigation/floating-action-group';
 import { IndexBarPreview } from './navigation/index-bar';
 import { PopupPreview } from './navigation/popup';
 import { PortalPreview } from './navigation/portal';
@@ -379,6 +380,12 @@ export const COMPONENT_PREVIEW_SECTIONS = [
         title: 'Portal',
         description: '跨层级浮层挂载。',
         component: PortalPreview,
+      },
+      {
+        id: 'floating-action-group',
+        title: 'FloatingActionGroup',
+        description: '悬浮按钮组：任意定位、更多展开、三种展开方向与 mountPoint。',
+        component: FloatingActionGroupPreview,
       },
       {
         id: 'popup',
