@@ -1,4 +1,5 @@
 import { ThemePreview } from '@pennyspring/theme';
+import { ClassificationAndIconsPreview } from './business/classification-and-icons';
 import { CalendarPreview } from './data-entry/calendar';
 import { CascaderPreview } from './data-entry/cascader';
 import { CascadePickerPreview } from './data-entry/cascade-picker';
@@ -53,6 +54,19 @@ import { TopTabNavigatorPreview } from './navigation/top-tab-navigator';
 import type { ComponentPreviewSection } from './types';
 
 export const COMPONENT_PREVIEW_SECTIONS = [
+  {
+    id: 'business',
+    title: '业务',
+    items: [
+      {
+        id: 'classification-and-icons',
+        title: '分类与图标',
+        description:
+          '资产分类树与类型图标树完整预览，按网格展示并按类型图标分组。',
+        component: ClassificationAndIconsPreview,
+      },
+    ],
+  },
   {
     id: 'foundation',
     title: '基础',
