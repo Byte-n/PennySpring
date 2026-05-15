@@ -14,8 +14,7 @@ CREATE TABLE `tb_asset` (
 	`remark` text DEFAULT '' NOT NULL,
 	`sort` integer DEFAULT 1 NOT NULL,
 	`created_time` integer DEFAULT (cast(unixepoch('subsec') * 1000 as integer)) NOT NULL,
-	`updated_time` integer DEFAULT (cast(unixepoch('subsec') * 1000 as integer)) NOT NULL,
-	FOREIGN KEY (`books_id`) REFERENCES `tb_books`(`id`) ON UPDATE no action ON DELETE no action
+	`updated_time` integer DEFAULT (cast(unixepoch('subsec') * 1000 as integer)) NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE `tb_books` (
@@ -32,8 +31,7 @@ CREATE TABLE `tb_image_with_related` (
 	`record_id` integer NOT NULL,
 	`image_path` text NOT NULL,
 	`created_time` integer DEFAULT (cast(unixepoch('subsec') * 1000 as integer)) NOT NULL,
-	`updated_time` integer DEFAULT (cast(unixepoch('subsec') * 1000 as integer)) NOT NULL,
-	FOREIGN KEY (`record_id`) REFERENCES `tb_record`(`id`) ON UPDATE no action ON DELETE no action
+	`updated_time` integer DEFAULT (cast(unixepoch('subsec') * 1000 as integer)) NOT NULL
 );
 --> statement-breakpoint
 CREATE UNIQUE INDEX `tb_image_with_related_record_id_image_path_unique` ON `tb_image_with_related` (`record_id`,`image_path`);--> statement-breakpoint
@@ -42,9 +40,7 @@ CREATE TABLE `tb_record_with_record` (
 	`record_id` integer NOT NULL,
 	`related_record_id` integer NOT NULL,
 	`created_time` integer DEFAULT (cast(unixepoch('subsec') * 1000 as integer)) NOT NULL,
-	`updated_time` integer DEFAULT (cast(unixepoch('subsec') * 1000 as integer)) NOT NULL,
-	FOREIGN KEY (`record_id`) REFERENCES `tb_record`(`id`) ON UPDATE no action ON DELETE no action,
-	FOREIGN KEY (`related_record_id`) REFERENCES `tb_record`(`id`) ON UPDATE no action ON DELETE no action
+	`updated_time` integer DEFAULT (cast(unixepoch('subsec') * 1000 as integer)) NOT NULL
 );
 --> statement-breakpoint
 CREATE UNIQUE INDEX `tb_record_with_record_record_id_related_record_id_unique` ON `tb_record_with_record` (`record_id`,`related_record_id`);--> statement-breakpoint
@@ -61,11 +57,7 @@ CREATE TABLE `tb_record` (
 	`reimbursable` text DEFAULT 'not_reimbursable' NOT NULL,
 	`record_time` integer NOT NULL,
 	`created_time` integer DEFAULT (cast(unixepoch('subsec') * 1000 as integer)) NOT NULL,
-	`updated_time` integer DEFAULT (cast(unixepoch('subsec') * 1000 as integer)) NOT NULL,
-	FOREIGN KEY (`type_id`) REFERENCES `tb_type`(`id`) ON UPDATE no action ON DELETE no action,
-	FOREIGN KEY (`asset_id`) REFERENCES `tb_asset`(`id`) ON UPDATE no action ON DELETE no action,
-	FOREIGN KEY (`into_asset_id`) REFERENCES `tb_asset`(`id`) ON UPDATE no action ON DELETE no action,
-	FOREIGN KEY (`books_id`) REFERENCES `tb_books`(`id`) ON UPDATE no action ON DELETE no action
+	`updated_time` integer DEFAULT (cast(unixepoch('subsec') * 1000 as integer)) NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE `tb_tag_with_record` (
@@ -73,9 +65,7 @@ CREATE TABLE `tb_tag_with_record` (
 	`record_id` integer NOT NULL,
 	`tag_id` integer NOT NULL,
 	`created_time` integer DEFAULT (cast(unixepoch('subsec') * 1000 as integer)) NOT NULL,
-	`updated_time` integer DEFAULT (cast(unixepoch('subsec') * 1000 as integer)) NOT NULL,
-	FOREIGN KEY (`record_id`) REFERENCES `tb_record`(`id`) ON UPDATE no action ON DELETE no action,
-	FOREIGN KEY (`tag_id`) REFERENCES `tb_tag`(`id`) ON UPDATE no action ON DELETE no action
+	`updated_time` integer DEFAULT (cast(unixepoch('subsec') * 1000 as integer)) NOT NULL
 );
 --> statement-breakpoint
 CREATE UNIQUE INDEX `tb_tag_with_record_record_id_tag_id_unique` ON `tb_tag_with_record` (`record_id`,`tag_id`);--> statement-breakpoint
@@ -100,6 +90,8 @@ CREATE TABLE `tb_type` (
 	`created_time` integer DEFAULT (cast(unixepoch('subsec') * 1000 as integer)) NOT NULL,
 	`updated_time` integer DEFAULT (cast(unixepoch('subsec') * 1000 as integer)) NOT NULL
 );
+
+
 --> statement-breakpoint
 -- 初始化系统类型数据
 -- 支出类型

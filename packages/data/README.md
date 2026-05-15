@@ -52,6 +52,6 @@ SQL 文档（`docs/database-tables.sql`）与 Drizzle TypeScript schema 之间�
 
 时间戳字段（`created_time` / `updated_time`）统一建模为毫秒整数（`integer({ mode: 'number' })`），与 React Native 侧消费方式保持一致。
 
-## Schema 类型收窄方案
+## 外键约束
 
-Drizzle 列支持通过 `.$type<T>()` 映射为业务自定义 TypeScript 类型。对于 `tb_type.type_category` 这类由业务常量维护的文本字段，可将列类型收窄为 `EnumOf<typeof RECORD_TYPE_CATEGORY>`，让 `InferSelectModel` 推断出对应业务枚举值联合类型。
+表结构定义中禁止使用外键约束，外键约束逻辑应该在数据库调用侧完成。

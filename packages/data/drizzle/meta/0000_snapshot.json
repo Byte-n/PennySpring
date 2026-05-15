@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "1898ba60-9788-4ce2-96b9-88c2551ae3c5",
+  "id": "76b499e7-6bfe-4067-aab4-b86d202d7a6a",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "tb_asset": {
@@ -132,21 +132,7 @@
         }
       },
       "indexes": {},
-      "foreignKeys": {
-        "tb_asset_books_id_tb_books_id_fk": {
-          "name": "tb_asset_books_id_tb_books_id_fk",
-          "tableFrom": "tb_asset",
-          "tableTo": "tb_books",
-          "columnsFrom": [
-            "books_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
+      "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "checkConstraints": {}
@@ -258,21 +244,7 @@
           "isUnique": true
         }
       },
-      "foreignKeys": {
-        "tb_image_with_related_record_id_tb_record_id_fk": {
-          "name": "tb_image_with_related_record_id_tb_record_id_fk",
-          "tableFrom": "tb_image_with_related",
-          "tableTo": "tb_record",
-          "columnsFrom": [
-            "record_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
+      "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "checkConstraints": {}
@@ -328,34 +300,7 @@
           "isUnique": true
         }
       },
-      "foreignKeys": {
-        "tb_record_with_record_record_id_tb_record_id_fk": {
-          "name": "tb_record_with_record_record_id_tb_record_id_fk",
-          "tableFrom": "tb_record_with_record",
-          "tableTo": "tb_record",
-          "columnsFrom": [
-            "record_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "tb_record_with_record_related_record_id_tb_record_id_fk": {
-          "name": "tb_record_with_record_related_record_id_tb_record_id_fk",
-          "tableFrom": "tb_record_with_record",
-          "tableTo": "tb_record",
-          "columnsFrom": [
-            "related_record_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
+      "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "checkConstraints": {}
@@ -464,60 +409,7 @@
         }
       },
       "indexes": {},
-      "foreignKeys": {
-        "tb_record_type_id_tb_type_id_fk": {
-          "name": "tb_record_type_id_tb_type_id_fk",
-          "tableFrom": "tb_record",
-          "tableTo": "tb_type",
-          "columnsFrom": [
-            "type_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "tb_record_asset_id_tb_asset_id_fk": {
-          "name": "tb_record_asset_id_tb_asset_id_fk",
-          "tableFrom": "tb_record",
-          "tableTo": "tb_asset",
-          "columnsFrom": [
-            "asset_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "tb_record_into_asset_id_tb_asset_id_fk": {
-          "name": "tb_record_into_asset_id_tb_asset_id_fk",
-          "tableFrom": "tb_record",
-          "tableTo": "tb_asset",
-          "columnsFrom": [
-            "into_asset_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "tb_record_books_id_tb_books_id_fk": {
-          "name": "tb_record_books_id_tb_books_id_fk",
-          "tableFrom": "tb_record",
-          "tableTo": "tb_books",
-          "columnsFrom": [
-            "books_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
+      "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "checkConstraints": {}
@@ -573,34 +465,7 @@
           "isUnique": true
         }
       },
-      "foreignKeys": {
-        "tb_tag_with_record_record_id_tb_record_id_fk": {
-          "name": "tb_tag_with_record_record_id_tb_record_id_fk",
-          "tableFrom": "tb_tag_with_record",
-          "tableTo": "tb_record",
-          "columnsFrom": [
-            "record_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "tb_tag_with_record_tag_id_tb_tag_id_fk": {
-          "name": "tb_tag_with_record_tag_id_tb_tag_id_fk",
-          "tableFrom": "tb_tag_with_record",
-          "tableTo": "tb_tag",
-          "columnsFrom": [
-            "tag_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
+      "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "checkConstraints": {}
