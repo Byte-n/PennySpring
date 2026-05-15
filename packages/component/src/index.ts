@@ -334,6 +334,5 @@ export type {
   FloatingActionGroupProps,
   FloatingActionGroupStyles,
   FloatingActionItem,
-  FloatingDirection,
   FloatingPlacement,
 } from './FloatingActionGroup';
