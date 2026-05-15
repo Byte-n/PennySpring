@@ -1,5 +1,6 @@
 import type { InferSelectModel } from 'drizzle-orm'
 
+import type { ReimbursableValue } from '../constants'
 import type { assets, records, types } from '../schema'
 import type { Database } from '../runtime'
 
@@ -17,7 +18,7 @@ export interface CreateRecordInput {
   amount: number
   charge?: number
   remark?: string
-  reimbursable?: string
+  reimbursable?: ReimbursableValue
   recordTime: number
   tagIds?: number[]
   imagePaths?: string[]
@@ -33,7 +34,7 @@ export interface UpdateRecordInput {
   amount: number
   charge?: number
   remark?: string
-  reimbursable?: string
+  reimbursable?: ReimbursableValue
   recordTime: number
   tagIds?: number[]
   imagePaths?: string[]

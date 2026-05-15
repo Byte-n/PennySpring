@@ -1,7 +1,7 @@
 import { sqliteTable, text } from 'drizzle-orm/sqlite-core'
 
-import { VISIBILITY } from '../constants'
-import { primaryKeyColumn, timestampColumns } from '../shared'
+import { type VisibilityValue, VISIBILITY } from '../constants'
+import { enumColumn, primaryKeyColumn, timestampColumns } from '../shared'
 
 export const tags = sqliteTable('tb_tag', {
   // 标签主键，自增长
@@ -10,10 +10,8 @@ export const tags = sqliteTable('tb_tag', {
   name: text('name').notNull(),
   /**
    * 是否隐藏 key。
-   *
-   * 可选值来自 {@link import('../constants').VISIBILITY}。
    */
-  invisible: text('invisible').notNull().default(VISIBILITY.visible),
+  invisible: enumColumn<VisibilityValue>('invisible').notNull().default(VISIBILITY.visible),
   // 标签图标 key，由应用层硬编码维护；空字符串表示未设置
   icon: text('icon').notNull().default(''),
   // 记录创建时间（时间戳，毫秒），INSERT 时自动写入

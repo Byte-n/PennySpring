@@ -1,7 +1,7 @@
 import { sqliteTable, text, unique } from 'drizzle-orm/sqlite-core'
 
-import { REIMBURSABLE } from '../constants'
-import { integerColumn, primaryKeyColumn, timestampColumns } from '../shared'
+import { type ReimbursableValue, REIMBURSABLE } from '../constants'
+import { enumColumn, integerColumn, primaryKeyColumn, timestampColumns } from '../shared'
 import { assets } from './assets'
 import { books } from './books'
 import { tags } from './tags'
@@ -37,10 +37,10 @@ export const records = sqliteTable('tb_record', {
   remark: text('remark').notNull().default(''),
   /**
    * 是否可报销 key。
-   *
-   * 可选值来自 {@link import('../constants').REIMBURSABLE}。
    */
-  reimbursable: text('reimbursable').notNull().default(REIMBURSABLE.notReimbursable),
+  reimbursable: enumColumn<ReimbursableValue>('reimbursable')
+    .notNull()
+    .default(REIMBURSABLE.notReimbursable),
   // 记账时间（时间戳，毫秒），业务字段，用户选择的记账日期
   recordTime: integerColumn('record_time').notNull(),
   // 记录创建时间（时间戳，毫秒），INSERT 时自动写入

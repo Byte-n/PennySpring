@@ -1,7 +1,13 @@
 import { sqliteTable, text } from 'drizzle-orm/sqlite-core'
 
-import { RECORD_TYPE_SPECIAL_BEHAVIOR, SYSTEM_STATUS } from '../constants'
-import { integerColumn, primaryKeyColumn, timestampColumns } from '../shared'
+import {
+  type RecordTypeCategoryValue,
+  type RecordTypeSpecialBehaviorValue,
+  type SystemStatusValue,
+  RECORD_TYPE_SPECIAL_BEHAVIOR,
+  SYSTEM_STATUS,
+} from '../constants'
+import { enumColumn, integerColumn, primaryKeyColumn, timestampColumns } from '../shared'
 
 export const types = sqliteTable('tb_type', {
   // 类型主键，自增长
@@ -17,19 +23,21 @@ export const types = sqliteTable('tb_type', {
    *
    * 可选值来自 {@link import('../constants').RECORD_TYPE_CATEGORY}。
    */
-  typeCategory: text('type_category').notNull(),
+  typeCategory: enumColumn<RecordTypeCategoryValue>('type_category').notNull(),
   /**
    * 是否系统内置 key。
    *
    * 可选值来自 {@link import('../constants').SYSTEM_STATUS}。
    */
-  isSystem: text('is_system').notNull().default(SYSTEM_STATUS.custom),
+  isSystem: enumColumn<SystemStatusValue>('is_system').notNull().default(SYSTEM_STATUS.custom),
   /**
    * 特殊行为标识。
    *
    * 可选值来自 {@link import('../constants').RECORD_TYPE_SPECIAL_BEHAVIOR}。
    */
-  specialBehavior: text('special_behavior').notNull().default(RECORD_TYPE_SPECIAL_BEHAVIOR.none),
+  specialBehavior: enumColumn<RecordTypeSpecialBehaviorValue>('special_behavior')
+    .notNull()
+    .default(RECORD_TYPE_SPECIAL_BEHAVIOR.none),
   // 排序权重，值越小越靠前
   sort: integerColumn('sort').notNull().default(1),
   // 记录创建时间（时间戳，毫秒），INSERT 时自动写入

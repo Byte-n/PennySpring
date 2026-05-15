@@ -1,8 +1,18 @@
-import { sqliteTable, text } from 'drizzle-orm/sqlite-core'
+import { sqliteTable, text } from 'drizzle-orm/sqlite-core';
 
-import { VISIBILITY } from '../constants'
-import { integerColumn, primaryKeyColumn, timestampColumns } from '../shared'
-import { books } from './books'
+import {
+  type AssetClassificationValue,
+  type AssetTypeValue,
+  type VisibilityValue,
+  VISIBILITY,
+} from '../constants';
+import {
+  enumColumn,
+  integerColumn,
+  primaryKeyColumn,
+  timestampColumns,
+} from '../shared';
+import { books } from './books';
 
 export const assets = sqliteTable('tb_asset', {
   // 资产主键，自增长
@@ -26,21 +36,19 @@ export const assets = sqliteTable('tb_asset', {
   /**
    * 资产大类 key。
    *
-   * 可选值来自 {@link import('../constants').ASSET_TYPE}。
    */
-  type: text('type').notNull(),
+  type: enumColumn<AssetTypeValue>('type').notNull(),
   /**
    * 资产分类 key。
-   *
-   * 可选值来自 {@link import('../constants').ASSET_CLASSIFICATION}。
    */
-  classification: text('classification').notNull(),
+  classification:
+    enumColumn<AssetClassificationValue>('classification').notNull(),
   /**
    * 是否隐藏 key。
-   *
-   * 可选值来自 {@link import('../constants').VISIBILITY}。
    */
-  invisible: text('invisible').notNull().default(VISIBILITY.visible),
+  invisible: enumColumn<VisibilityValue>('invisible')
+    .notNull()
+    .default(VISIBILITY.visible),
   // 开户行名称
   openBank: text('open_bank').notNull().default(''),
   // 卡号
@@ -52,4 +60,4 @@ export const assets = sqliteTable('tb_asset', {
   // 记录创建时间（时间戳，毫秒），INSERT 时自动写入
   // 最后修改时间（时间戳，毫秒），INSERT 和 UPDATE 时自动写入
   ...timestampColumns(),
-})
+});

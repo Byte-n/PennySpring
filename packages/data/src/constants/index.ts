@@ -1,4 +1,4 @@
-import { enumOf } from '@pennyspring/share';
+import { enumOf, type EnumOf } from '@pennyspring/share';
 
 export const ASSET_TYPE = enumOf({
   capitalAccount: {
@@ -532,3 +532,12 @@ export const REIMBURSABLE = enumOf({
     description: '记录可报销',
   },
 });
+
+export type AssetTypeValue = EnumOf<typeof ASSET_TYPE>;
+export type AssetClassificationValue = EnumOf<typeof ASSET_CLASSIFICATION>;
+export type IconValue = EnumOf<typeof ICON>;
+export type VisibilityValue = EnumOf<typeof VISIBILITY>;
+export type SystemStatusValue = EnumOf<typeof SYSTEM_STATUS>;
+export type RecordTypeCategoryValue = EnumOf<typeof RECORD_TYPE_CATEGORY>;
+export type RecordTypeSpecialBehaviorValue = EnumOf<typeof RECORD_TYPE_SPECIAL_BEHAVIOR>;
+export type ReimbursableValue = EnumOf<typeof REIMBURSABLE>;
