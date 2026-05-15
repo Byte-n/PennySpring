@@ -1,6 +1,7 @@
 import { ThemePreview } from '@pennyspring/theme';
 import { ClassificationAndIconsPreview } from './business/classification-and-icons';
 import { CalendarPreview } from './data-entry/calendar';
+import { CalculatorInputPreview } from './data-entry/calculator-input';
 import { CascaderPreview } from './data-entry/cascader';
 import { CascadePickerPreview } from './data-entry/cascade-picker';
 import { CheckboxPreview } from './data-entry/checkbox';
@@ -154,6 +155,12 @@ export const COMPONENT_PREVIEW_SECTIONS = [
         title: 'Input',
         description: '单行输入、状态、前后缀和清除操作。',
         component: InputPreview,
+      },
+      {
+        id: 'calculator-input',
+        title: 'CalculatorInput',
+        description: '表达式录入、即时计算、清空退格和确认操作。',
+        component: CalculatorInputPreview,
       },
       {
         id: 'textarea',

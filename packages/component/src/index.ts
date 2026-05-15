@@ -90,6 +90,12 @@ export { Card } from './Card';
 export type { CardProps, CardStyles, CardVariant } from './Card';
 export { Input } from './Input';
 export type { InputProps, InputSearchProps, InputStatus, InputStyles } from './Input';
+export { CalculatorInput } from './CalculatorInput';
+export type {
+  CalculatorInputOkParams,
+  CalculatorInputProps,
+  CalculatorInputStyles,
+} from './CalculatorInput';
 export { Slider } from './Slider';
 export type { SliderProps, SliderStyles } from './Slider';
 export { List } from './List';
