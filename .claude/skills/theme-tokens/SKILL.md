@@ -18,6 +18,30 @@ const useStyles = createUseSheetStyle<TOptions>((token, opts) => ({ /* styles */
 
 内部是 `useMemo` + hook，主题切换自动响应。**这是唯一合法的样式构建方式**（见 `CLAUDE.md`）。
 
+## Token 取值规则
+
+- 需要确认 token 具体值时，先用 `get-tokens.js` 查询。
+- 禁止凭记忆推断或硬编码 token 值。
+
+## get-tokens.js 使用说明
+
+支持查询一个或多个 token，也支持查询嵌套路径（如阴影对象字段）。
+
+命令：
+
+```bash
+node scripts/get-tokens.js <tokenPath> [tokenPath ...]
+node scripts/get-tokens.js --json <tokenPath> [tokenPath ...]
+```
+
+示例：
+
+```bash
+node scripts/get-tokens.js colorPrimary paddingSM
+node scripts/get-tokens.js boxShadow.shadowOpacity
+node scripts/get-tokens.js --json colorPrimary motionDurationMid
+```
+
 ## RN 踩坑（必记）
 
 | 坑 | 正确做法 |
