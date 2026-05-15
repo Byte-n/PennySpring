@@ -22,6 +22,7 @@ paths:
 - 时间戳统一毫秒整数，禁止 SQLite 文本时间戳（`CURRENT_TIMESTAMP`）。
 - 字段默认值类型必须与字段类型一致，整数字段禁止 `default('')`。
 - 禁止在 schema 中定义外键约束（`references()`）；外键约束由 Service 层业务逻辑保证。
+- 外键为 `0` 代表此字段值为 `0`, 不需要校验直接写入数据库中。
 
 ## Service 层
 
