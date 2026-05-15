@@ -2,10 +2,6 @@ import { sqliteTable, text, unique } from 'drizzle-orm/sqlite-core'
 
 import { type ReimbursableValue, REIMBURSABLE } from '../constants'
 import { enumColumn, integerColumn, primaryKeyColumn, timestampColumns } from '../shared'
-import { assets } from './assets'
-import { books } from './books'
-import { tags } from './tags'
-import { types } from './types'
 
 export const records = sqliteTable('tb_record', {
   // 记录主键，自增长

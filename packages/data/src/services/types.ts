@@ -10,33 +10,45 @@ export type RecordRow = InferSelectModel<typeof records>
 export type AssetRow = InferSelectModel<typeof assets>
 export type TypeRow = InferSelectModel<typeof types>
 
-export interface CreateRecordInput {
+interface CreateRecordInputBase {
   typeId: number
-  assetId: number
-  intoAssetId?: number
   booksId: number
   amount: number
   charge?: number
   remark?: string
-  reimbursable?: ReimbursableValue
   recordTime: number
   tagIds?: number[]
   imagePaths?: string[]
   relatedRecordIds?: number[]
 }
 
-export interface UpdateRecordInput {
+interface UpdateRecordInputBase extends CreateRecordInputBase {
   id: number
-  typeId: number
-  assetId: number
-  intoAssetId?: number
-  booksId: number
-  amount: number
-  charge?: number
-  remark?: string
-  reimbursable?: ReimbursableValue
-  recordTime: number
-  tagIds?: number[]
-  imagePaths?: string[]
-  relatedRecordIds?: number[]
 }
+
+export interface CreateCashflowRecordInput extends CreateRecordInputBase {
+  assetId?: number
+  intoAssetId?: number
+  reimbursable: ReimbursableValue
+}
+
+export interface UpdateCashflowRecordInput extends UpdateRecordInputBase {
+  assetId?: number
+  intoAssetId?: number
+  reimbursable: ReimbursableValue
+}
+
+export interface CreateTransferRecordInput extends CreateRecordInputBase {
+  assetId: number
+  intoAssetId: number
+  reimbursable?: ReimbursableValue
+}
+
+export interface UpdateTransferRecordInput extends UpdateRecordInputBase {
+  assetId: number
+  intoAssetId: number
+  reimbursable?: ReimbursableValue
+}
+
+export type CreateRecordInput = CreateCashflowRecordInput | CreateTransferRecordInput
+export type UpdateRecordInput = UpdateCashflowRecordInput | UpdateTransferRecordInput

@@ -1,14 +1,15 @@
-import { eq } from 'drizzle-orm'
+import { records } from '../schema'
+import {
+  applyBalanceChange,
+  computeBalanceChange,
+  getOptionalAssetForBooks,
+  syncImages,
+  syncTags,
+} from './helpers'
+import type { CreateCashflowRecordInput, RecordRow, Tx } from './types'
 
-import { REIMBURSABLE } from '../constants'
-import { assets, records } from '../schema'
-import { applyBalanceChange, computeBalanceChange, syncImages, syncTags } from './helpers'
-import type { CreateRecordInput, RecordRow, Tx } from './types'
-
-export async function createExpense(tx: Tx, input: CreateRecordInput): Promise<RecordRow> {
-  const asset = await tx.select().from(assets).where(eq(assets.id, input.assetId)).get()
-  if (!asset) throw new Error(`Asset not found: ${input.assetId}`)
-  if (asset.booksId !== input.booksId) throw new Error(`Asset ${input.assetId} does not belong to books ${input.booksId}`)
+export async function createExpense(tx: Tx, input: CreateCashflowRecordInput): Promise<RecordRow> {
+  const asset = await getOptionalAssetForBooks(tx, input, 'assetId', 'booksId')
   const charge = input.charge ?? 0
   const finalAmount = input.amount + charge
 
@@ -16,20 +17,22 @@ export async function createExpense(tx: Tx, input: CreateRecordInput): Promise<R
     .insert(records)
     .values({
       typeId: input.typeId,
-      assetId: input.assetId,
+      assetId: input.assetId ?? 0,
       intoAssetId: 0,
       booksId: input.booksId,
       amount: input.amount,
       finalAmount,
       charge,
       remark: input.remark ?? '',
-      reimbursable: input.reimbursable ?? REIMBURSABLE.notReimbursable,
+      reimbursable: input.reimbursable,
       recordTime: input.recordTime,
     })
     .returning()
 
-  const balanceChange = computeBalanceChange(asset, 'expense', input.amount, charge)
-  await applyBalanceChange(tx, input.assetId, balanceChange)
+  if (asset) {
+    const balanceChange = computeBalanceChange(asset, 'expense', input.amount, charge)
+    await applyBalanceChange(tx, asset.id, balanceChange)
+  }
 
   if (input.tagIds?.length) await syncTags(tx, inserted.id, input.tagIds)
   if (input.imagePaths?.length) await syncImages(tx, inserted.id, input.imagePaths)
@@ -38,15 +41,17 @@ export async function createExpense(tx: Tx, input: CreateRecordInput): Promise<R
 }
 
 export async function rollbackExpense(tx: Tx, record: RecordRow) {
-  const asset = await tx.select().from(assets).where(eq(assets.id, record.assetId)).get()
-  if (!asset) throw new Error(`Asset not found: ${record.assetId}`)
+  const asset = await getOptionalAssetForBooks(tx, record, 'assetId', 'booksId')
+  if (!asset) return
+
   const reverseChange = -computeBalanceChange(asset, 'expense', record.amount, record.charge)
-  await applyBalanceChange(tx, record.assetId, reverseChange)
+  await applyBalanceChange(tx, asset.id, reverseChange)
 }
 
 export async function applyExpense(tx: Tx, record: RecordRow) {
-  const asset = await tx.select().from(assets).where(eq(assets.id, record.assetId)).get()
-  if (!asset) throw new Error(`Asset not found: ${record.assetId}`)
+  const asset = await getOptionalAssetForBooks(tx, record, 'assetId', 'booksId')
+  if (!asset) return
+
   const change = computeBalanceChange(asset, 'expense', record.amount, record.charge)
-  await applyBalanceChange(tx, record.assetId, change)
+  await applyBalanceChange(tx, asset.id, change)
 }

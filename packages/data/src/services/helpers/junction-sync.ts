@@ -2,16 +2,18 @@ import { and, eq, inArray } from 'drizzle-orm'
 
 import { imageWithRelated, recordWithRecord, tagWithRecord } from '../../schema'
 import type { Tx } from '../types'
+import { compactForeignKeys, validateTagIdsExist } from './reference-validation'
 
 export async function syncTags(tx: Tx, recordId: number, tagIds: number[]) {
+  const normalizedTagIds = await validateTagIdsExist(tx, tagIds)
   const existing = await tx
     .select({ tagId: tagWithRecord.tagId })
     .from(tagWithRecord)
     .where(eq(tagWithRecord.recordId, recordId))
 
   const existingIds = existing.map((r) => r.tagId)
-  const toAdd = tagIds.filter((id) => !existingIds.includes(id))
-  const toRemove = existingIds.filter((id) => !tagIds.includes(id))
+  const toAdd = normalizedTagIds.filter((id) => !existingIds.includes(id))
+  const toRemove = existingIds.filter((id) => !normalizedTagIds.includes(id))
 
   if (toRemove.length > 0) {
     await tx.delete(tagWithRecord)
@@ -42,14 +44,15 @@ export async function syncImages(tx: Tx, recordId: number, imagePaths: string[])
 }
 
 export async function syncRecordRelations(tx: Tx, recordId: number, relatedRecordIds: number[]) {
+  const normalizedRelatedRecordIds = compactForeignKeys(relatedRecordIds)
   const existing = await tx
     .select({ relatedRecordId: recordWithRecord.relatedRecordId })
     .from(recordWithRecord)
     .where(eq(recordWithRecord.recordId, recordId))
 
   const existingIds = existing.map((r) => r.relatedRecordId)
-  const toAdd = relatedRecordIds.filter((id) => !existingIds.includes(id))
-  const toRemove = existingIds.filter((id) => !relatedRecordIds.includes(id))
+  const toAdd = normalizedRelatedRecordIds.filter((id) => !existingIds.includes(id))
+  const toRemove = existingIds.filter((id) => !normalizedRelatedRecordIds.includes(id))
 
   if (toRemove.length > 0) {
     await tx.delete(recordWithRecord)

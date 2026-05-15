@@ -1,16 +1,18 @@
 import { eq } from 'drizzle-orm'
 
 import { REIMBURSABLE, RECORD_TYPE_SPECIAL_BEHAVIOR } from '../constants'
-import { assets, records, recordWithRecord } from '../schema'
+import { records, recordWithRecord } from '../schema'
 import {
   applyBalanceChange,
+  compactForeignKeys,
   computeBalanceChange,
+  getOptionalAssetForBooks,
   recalculateAbsorption,
   syncImages,
   syncRecordRelations,
   syncTags,
 } from './helpers'
-import type { CreateRecordInput, RecordRow, Tx, TypeRow } from './types'
+import type { CreateCashflowRecordInput, RecordRow, Tx, TypeRow } from './types'
 
 function isAbsorptionBehavior(specialBehavior: string): boolean {
   return (
@@ -36,12 +38,11 @@ async function validateAbsorptionTargets(tx: Tx, typeRow: TypeRow, relatedRecord
   }
 }
 
-export async function createIncome(tx: Tx, input: CreateRecordInput, typeRow: TypeRow): Promise<RecordRow> {
-  const asset = await tx.select().from(assets).where(eq(assets.id, input.assetId)).get()
-  if (!asset) throw new Error(`Asset not found: ${input.assetId}`)
-  if (asset.booksId !== input.booksId) throw new Error(`Asset ${input.assetId} does not belong to books ${input.booksId}`)
+export async function createIncome(tx: Tx, input: CreateCashflowRecordInput, typeRow: TypeRow): Promise<RecordRow> {
+  const asset = await getOptionalAssetForBooks(tx, input, 'assetId', 'booksId')
   const charge = input.charge ?? 0
   const isAbsorption = isAbsorptionBehavior(typeRow.specialBehavior)
+  const relatedRecordIds = compactForeignKeys(input.relatedRecordIds)
   const finalAmount = input.amount - charge
   if (finalAmount < 0) throw new Error('Income final amount (amount - charge) must be >= 0')
 
@@ -49,25 +50,27 @@ export async function createIncome(tx: Tx, input: CreateRecordInput, typeRow: Ty
     .insert(records)
     .values({
       typeId: input.typeId,
-      assetId: input.assetId,
+      assetId: input.assetId ?? 0,
       intoAssetId: 0,
       booksId: input.booksId,
       amount: input.amount,
       finalAmount,
       charge,
       remark: input.remark ?? '',
-      reimbursable: REIMBURSABLE.notReimbursable,
+      reimbursable: input.reimbursable,
       recordTime: input.recordTime,
     })
     .returning()
 
-  const balanceChange = computeBalanceChange(asset, 'income', input.amount, charge)
-  await applyBalanceChange(tx, input.assetId, balanceChange)
+  if (asset) {
+    const balanceChange = computeBalanceChange(asset, 'income', input.amount, charge)
+    await applyBalanceChange(tx, asset.id, balanceChange)
+  }
 
-  if (isAbsorption && input.relatedRecordIds?.length) {
-    await validateAbsorptionTargets(tx, typeRow, input.relatedRecordIds, input.booksId)
-    await syncRecordRelations(tx, inserted.id, input.relatedRecordIds)
-    for (const expenseId of input.relatedRecordIds) {
+  if (isAbsorption && relatedRecordIds.length) {
+    await validateAbsorptionTargets(tx, typeRow, relatedRecordIds, input.booksId)
+    await syncRecordRelations(tx, inserted.id, relatedRecordIds)
+    for (const expenseId of relatedRecordIds) {
       await recalculateAbsorption(tx, expenseId)
     }
   }
@@ -80,10 +83,11 @@ export async function createIncome(tx: Tx, input: CreateRecordInput, typeRow: Ty
 }
 
 export async function rollbackIncome(tx: Tx, record: RecordRow, typeRow: TypeRow) {
-  const asset = await tx.select().from(assets).where(eq(assets.id, record.assetId)).get()
-  if (!asset) throw new Error(`Asset not found: ${record.assetId}`)
-  const reverseChange = -computeBalanceChange(asset, 'income', record.amount, record.charge)
-  await applyBalanceChange(tx, record.assetId, reverseChange)
+  const asset = await getOptionalAssetForBooks(tx, record, 'assetId', 'booksId')
+  if (asset) {
+    const reverseChange = -computeBalanceChange(asset, 'income', record.amount, record.charge)
+    await applyBalanceChange(tx, asset.id, reverseChange)
+  }
 
   if (isAbsorptionBehavior(typeRow.specialBehavior)) {
     const links = await tx
@@ -100,15 +104,17 @@ export async function rollbackIncome(tx: Tx, record: RecordRow, typeRow: TypeRow
 }
 
 export async function applyIncome(tx: Tx, record: RecordRow, typeRow: TypeRow, relatedRecordIds?: number[]) {
-  const asset = await tx.select().from(assets).where(eq(assets.id, record.assetId)).get()
-  if (!asset) throw new Error(`Asset not found: ${record.assetId}`)
-  const change = computeBalanceChange(asset, 'income', record.amount, record.charge)
-  await applyBalanceChange(tx, record.assetId, change)
+  const asset = await getOptionalAssetForBooks(tx, record, 'assetId', 'booksId')
+  if (asset) {
+    const change = computeBalanceChange(asset, 'income', record.amount, record.charge)
+    await applyBalanceChange(tx, asset.id, change)
+  }
+  const normalizedRelatedRecordIds = compactForeignKeys(relatedRecordIds)
 
-  if (isAbsorptionBehavior(typeRow.specialBehavior) && relatedRecordIds?.length) {
-    await validateAbsorptionTargets(tx, typeRow, relatedRecordIds, record.booksId)
-    await syncRecordRelations(tx, record.id, relatedRecordIds)
-    for (const expenseId of relatedRecordIds) {
+  if (isAbsorptionBehavior(typeRow.specialBehavior) && normalizedRelatedRecordIds.length) {
+    await validateAbsorptionTargets(tx, typeRow, normalizedRelatedRecordIds, record.booksId)
+    await syncRecordRelations(tx, record.id, normalizedRelatedRecordIds)
+    for (const expenseId of normalizedRelatedRecordIds) {
       await recalculateAbsorption(tx, expenseId)
     }
   }

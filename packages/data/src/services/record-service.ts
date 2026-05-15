@@ -1,17 +1,37 @@
 import { eq } from 'drizzle-orm'
 
-import { RECORD_TYPE_CATEGORY } from '../constants'
+import { RECORD_TYPE_CATEGORY, REIMBURSABLE } from '../constants'
 import type { Database } from '../runtime'
 import { records, recordWithRecord, types } from '../schema'
 import { applyExpense, createExpense, rollbackExpense } from './expense-service'
-import { deleteAllJunctions, recalculateAbsorption, syncImages, syncTags } from './helpers'
+import {
+  deleteAllJunctions,
+  getAssetForBooks,
+  getOptionalAssetForBooks,
+  getRequiredForeignKey,
+  recalculateAbsorption,
+  syncImages,
+  syncTags,
+  validateBookExists,
+} from './helpers'
 import { applyIncome, createIncome, rollbackIncome } from './income-service'
 import { applyTransfer, createTransfer, rollbackTransfer } from './transfer-service'
-import type { CreateRecordInput, RecordRow, Tx, TypeRow, UpdateRecordInput } from './types'
+import type {
+  CreateCashflowRecordInput,
+  CreateRecordInput,
+  CreateTransferRecordInput,
+  RecordRow,
+  Tx,
+  TypeRow,
+  UpdateCashflowRecordInput,
+  UpdateRecordInput,
+  UpdateTransferRecordInput,
+} from './types'
 
 async function getTypeRow(tx: Tx, typeId: number): Promise<TypeRow> {
-  const row = await tx.select().from(types).where(eq(types.id, typeId)).get()
-  if (!row) throw new Error(`Type not found: ${typeId}`)
+  const requiredTypeId = getRequiredForeignKey({ typeId }, 'typeId')
+  const row = await tx.select().from(types).where(eq(types.id, requiredTypeId)).get()
+  if (!row) throw new Error(`Type not found: ${requiredTypeId}`)
   return row
 }
 
@@ -22,8 +42,18 @@ async function getRecordRow(tx: Tx, recordId: number): Promise<RecordRow> {
 }
 
 function validateInput(input: CreateRecordInput | UpdateRecordInput) {
+  getRequiredForeignKey(input, 'typeId')
+  getRequiredForeignKey(input, 'booksId')
   if (input.amount < 0) throw new Error('amount must be >= 0')
   if ((input.charge ?? 0) < 0) throw new Error('charge must be >= 0')
+}
+
+function assertCreateCashflowInput(input: CreateRecordInput): asserts input is CreateCashflowRecordInput {
+  if (input.reimbursable === undefined) throw new Error('reimbursable is required')
+}
+
+function assertUpdateCashflowInput(input: UpdateRecordInput): asserts input is UpdateCashflowRecordInput {
+  if (input.reimbursable === undefined) throw new Error('reimbursable is required')
 }
 
 async function rollbackRecord(tx: Tx, record: RecordRow, typeRow: TypeRow) {
@@ -40,19 +70,44 @@ async function rollbackRecord(tx: Tx, record: RecordRow, typeRow: TypeRow) {
   }
 }
 
+async function validateUpdateRecordReferences(
+  tx: Tx,
+  input: UpdateRecordInput,
+  typeRow: TypeRow
+): Promise<number> {
+  if (typeRow.typeCategory !== RECORD_TYPE_CATEGORY.transfer) {
+    await getOptionalAssetForBooks(tx, input as UpdateCashflowRecordInput, 'assetId', 'booksId')
+    return 0
+  }
+
+  const transferInput = input as UpdateTransferRecordInput
+  const intoAssetId = getRequiredForeignKey(transferInput, 'intoAssetId')
+  if (transferInput.assetId === intoAssetId) {
+    throw new Error('Transfer source and destination assets must be different')
+  }
+
+  await getAssetForBooks(tx, transferInput, 'assetId', 'booksId')
+  await getAssetForBooks(tx, transferInput, 'intoAssetId', 'booksId')
+
+  return intoAssetId
+}
+
 export function createRecord(db: Database, input: CreateRecordInput): Promise<RecordRow> {
   validateInput(input)
 
   return db.transaction(async (tx) => {
     const typeRow = await getTypeRow(tx, input.typeId)
+    await validateBookExists(tx, input, 'booksId')
 
     switch (typeRow.typeCategory) {
       case RECORD_TYPE_CATEGORY.expense:
+        assertCreateCashflowInput(input)
         return createExpense(tx, input)
       case RECORD_TYPE_CATEGORY.income:
+        assertCreateCashflowInput(input)
         return createIncome(tx, input, typeRow)
       case RECORD_TYPE_CATEGORY.transfer:
-        return createTransfer(tx, input, typeRow)
+        return createTransfer(tx, input as CreateTransferRecordInput, typeRow)
       default:
         throw new Error(`Unknown type category: ${typeRow.typeCategory}`)
     }
@@ -66,6 +121,8 @@ export function updateRecord(db: Database, input: UpdateRecordInput): Promise<Re
     const oldRecord = await getRecordRow(tx, input.id)
     const oldTypeRow = await getTypeRow(tx, oldRecord.typeId)
     const newTypeRow = await getTypeRow(tx, input.typeId)
+    await validateBookExists(tx, input, 'booksId')
+    const intoAssetId = await validateUpdateRecordReferences(tx, input, newTypeRow)
     const charge = input.charge ?? 0
 
     await rollbackRecord(tx, oldRecord, oldTypeRow)
@@ -73,9 +130,11 @@ export function updateRecord(db: Database, input: UpdateRecordInput): Promise<Re
     let finalAmount: number
     switch (newTypeRow.typeCategory) {
       case RECORD_TYPE_CATEGORY.expense:
+        assertUpdateCashflowInput(input)
         finalAmount = input.amount + charge
         break
       case RECORD_TYPE_CATEGORY.income:
+        assertUpdateCashflowInput(input)
         finalAmount = input.amount - charge
         if (finalAmount < 0) throw new Error('Income final amount (amount - charge) must be >= 0')
         break
@@ -86,21 +145,21 @@ export function updateRecord(db: Database, input: UpdateRecordInput): Promise<Re
         throw new Error(`Unknown type category: ${newTypeRow.typeCategory}`)
     }
 
-    const intoAssetId = newTypeRow.typeCategory === RECORD_TYPE_CATEGORY.transfer
-      ? input.intoAssetId!
-      : 0
-
     await tx.update(records)
       .set({
         typeId: input.typeId,
-        assetId: input.assetId,
+        assetId: newTypeRow.typeCategory === RECORD_TYPE_CATEGORY.transfer
+          ? (input as UpdateTransferRecordInput).assetId
+          : (input as UpdateCashflowRecordInput).assetId ?? 0,
         intoAssetId,
         booksId: input.booksId,
         amount: input.amount,
         finalAmount,
         charge,
         remark: input.remark ?? '',
-        reimbursable: input.reimbursable ?? oldRecord.reimbursable,
+        reimbursable: newTypeRow.typeCategory === RECORD_TYPE_CATEGORY.transfer
+          ? REIMBURSABLE.notReimbursable
+          : (input as UpdateCashflowRecordInput).reimbursable,
         recordTime: input.recordTime,
       })
       .where(eq(records.id, input.id))
