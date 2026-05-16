@@ -22,7 +22,6 @@ paths:
 - 时间戳统一毫秒整数，禁止 SQLite 文本时间戳（`CURRENT_TIMESTAMP`）。
 - 字段默认值类型必须与字段类型一致，整数字段禁止 `default('')`。
 - 禁止在 schema 中定义外键约束（`references()`）；外键约束由 Service 层业务逻辑保证。
-- 外键为 `0` 代表此字段值为 `0`, 不需要校验直接写入数据库中。
 
 ## Service 层
 
@@ -33,6 +32,8 @@ paths:
 - Service 函数只接受 `Database` 或 `Tx`，禁止直接 import `drizzle` 或 `op-sqlite` 连接对象。
 - 输入类型定义在 `services/types.ts`，禁止在 service 文件内联定义 input interface。
 - 禁止在 service 层直接操作 `relations`，关联查询通过 Drizzle `with` 子句完成。
+- 外键为 `0` 代表此字段值为 `0`, 不需要校验直接写入数据库中。
+- 参数错误、外键约束不通过等违反业务规格的，统一直接抛出对应的异常(中文)
 
 ## Migration 工作流
 

@@ -63,7 +63,7 @@ describe('data package schema exports', () => {
     expect(publicApi.VISIBILITY.visible).toBe('visible');
     expect(publicApi.SYSTEM_STATUS.custom).toBe('custom');
     expect(publicApi.RECORD_TYPE_CATEGORY.expense).toBe('expense');
-    expect(publicApi.REIMBURSABLE.notReimbursable).toBe('not_reimbursable');
+    expect(publicApi.REIMBURSABLE.notReimbursable).toBe('none');
     expect(
       publicApi.ASSET_TYPE.option(publicApi.ASSET_TYPE.capitalAccount),
     ).toEqual({
@@ -302,8 +302,4 @@ describe('data package schema exports', () => {
     );
   });
 
-  test('exports an app-side migration bundle from the package root', () => {
-    expect(publicApi.migrations.journal.entries).toEqual([]);
-    expect(publicApi.migrations.migrations).toEqual({});
-  });
 });

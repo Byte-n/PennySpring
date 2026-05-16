@@ -439,7 +439,7 @@ describe('income final_amount non-negative validation', () => {
 describe('absorption target books validation', () => {
   function mockTxWithExpenseFromDifferentBooks(): Tx {
     const assetRow = { id: 10, type: 'capital_account', classification: '', balance: 5000, booksId: 1 }
-    const expenseRecord = { id: 5, amount: 1000, charge: 0, reimbursable: 'not_reimbursable', booksId: 999 }
+    const expenseRecord = { id: 5, amount: 1000, charge: 0, reimbursable: 'none', booksId: 999 }
     let callCount = 0
     const chainable = {
       from: jest.fn().mockReturnThis(),
