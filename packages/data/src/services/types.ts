@@ -1,14 +1,46 @@
 import type { InferSelectModel } from 'drizzle-orm'
 
-import type { ReimbursableValue } from '../constants'
-import type { assets, records, types } from '../schema'
+import type {
+  IconValue,
+  RecordTypeCategoryValue,
+  RecordTypeSpecialBehaviorValue,
+  ReimbursableValue,
+  SystemStatusValue,
+  VisibilityValue,
+} from '../constants'
+import type { assets, records, tags, types } from '../schema'
 import type { Database } from '../runtime'
 
 export type Tx = Parameters<Parameters<Database['transaction']>[0]>[0]
 
 export type RecordRow = InferSelectModel<typeof records>
 export type AssetRow = InferSelectModel<typeof assets>
+export type TagRow = InferSelectModel<typeof tags>
 export type TypeRow = InferSelectModel<typeof types>
+
+export interface CreateTagInput {
+  name: string
+  icon?: IconValue | ''
+  invisible?: VisibilityValue
+}
+
+export interface UpdateTagInput extends CreateTagInput {
+  id: number
+}
+
+export interface CreateTypeInput {
+  parentId?: number
+  name: string
+  icon: IconValue
+  typeCategory: RecordTypeCategoryValue
+  isSystem?: SystemStatusValue
+  specialBehavior?: RecordTypeSpecialBehaviorValue
+  sort?: number
+}
+
+export interface UpdateTypeInput extends CreateTypeInput {
+  id: number
+}
 
 interface CreateRecordInputBase {
   typeId: number
