@@ -1,6 +1,8 @@
 import type { InferSelectModel } from 'drizzle-orm'
 
 import type {
+  AssetClassificationValue,
+  AssetTypeValue,
   IconValue,
   RecordTypeCategoryValue,
   RecordTypeSpecialBehaviorValue,
@@ -85,3 +87,31 @@ export interface UpdateTransferRecordInput extends UpdateRecordInputBase {
 
 export type CreateRecordInput = CreateCashflowRecordInput | CreateTransferRecordInput
 export type UpdateRecordInput = UpdateCashflowRecordInput | UpdateTransferRecordInput
+
+export interface CreateBookInput {
+  name: string
+  description?: string
+}
+
+export interface UpdateBookInput extends CreateBookInput {
+  id: number
+}
+
+export interface CreateAssetInput {
+  booksId: number
+  name: string
+  balance?: number
+  totalAmount?: number
+  billingDate?: number
+  repaymentDate?: number
+  type: AssetTypeValue
+  classification: AssetClassificationValue
+  invisible?: VisibilityValue
+  openBank?: string
+  cardNo?: string
+  remark?: string
+}
+
+export interface UpdateAssetInput extends CreateAssetInput {
+  id: number
+}
