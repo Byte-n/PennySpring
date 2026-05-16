@@ -26,7 +26,7 @@ export function ListCollapsePreview() {
             defaultExpanded
             left={<Avatar size="small" text="M" />}
             summary={<Text color="description">2 items</Text>}
-            title="Expanded group"
+            titleText="Expanded group"
           >
             <List
               divider="inset"
@@ -37,10 +37,14 @@ export function ListCollapsePreview() {
               style={styles.listBorder}
             />
           </ListCollapse>
-          <ListCollapse title="Collapsed group">
+          <ListCollapse titleText="Collapsed group">
             <Text color="secondary">Collapsed content.</Text>
           </ListCollapse>
-          <ListCollapse disabled title="Disabled group" summary={<Text color="description">Locked</Text>} />
+          <ListCollapse
+            disabled
+            title="Disabled group"
+            summary={<Text color="description">Locked</Text>}
+          />
         </View>
       </PreviewSection>
     </PreviewScaffold>

@@ -40,17 +40,15 @@ const useListCollapseStyles = createUseSheetStyle(
         backgroundColor: token.colorBgContainer,
       },
       header: {
-        minHeight: size === 'large' ? token.controlHeightLG : token.controlHeight,
+        minHeight:
+          size === 'large' ? token.controlHeightLG : token.controlHeight,
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: token.paddingMD,
+        paddingHorizontal: token.paddingContentHorizontal,
         paddingVertical: headerPadding,
       },
       headerPressed: {
         backgroundColor: token.colorBgTextHover,
-      },
-      headerExpanded: {
-        backgroundColor: token.colorFillQuaternary,
       },
       headerDisabled: {
         opacity: token.opacityLoading,
@@ -72,6 +70,7 @@ const useListCollapseStyles = createUseSheetStyle(
       content: {
         paddingHorizontal: token.paddingMD,
         paddingVertical: token.paddingSM,
+        backgroundColor: token.colorFillSecondary,
       },
       contentLoading: {
         opacity: token.opacityLoading,
@@ -160,7 +159,6 @@ export function ListCollapse({
         style={({ pressed }) => [
           tokenStyles.header,
           pressed && isInteractive ? tokenStyles.headerPressed : null,
-          mergedExpanded ? tokenStyles.headerExpanded : null,
           isDisabled ? tokenStyles.headerDisabled : null,
           styles?.header,
         ]}
