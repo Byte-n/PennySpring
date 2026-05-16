@@ -64,7 +64,7 @@ export const useCarouselLifecycle = (params: UseCarouselLifecycleParams) => {
     if (slidePixels > 0) {
       setPositionImmediate(getBoundedPosition(extIndex * slidePixels));
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [
     defaultIndex,
     getExtIndexFromIndex,
@@ -81,6 +81,6 @@ export const useCarouselLifecycle = (params: UseCarouselLifecycleParams) => {
     if (slidePixels <= 0) return;
     const extIndex = extIndexRef.current;
     setPositionImmediate(getBoundedPosition(extIndex * slidePixels));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [getBoundedPosition, setPositionImmediate, slidePixels]);
 };

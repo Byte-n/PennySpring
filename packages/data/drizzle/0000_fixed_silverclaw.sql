@@ -335,3 +335,7 @@ INSERT INTO tb_type (parent_id, name, icon, type_category, is_system, sort) VALU
 (19, '债券', 'bond', 'transfer', 'system', 5),
 (19, '外汇', 'forex', 'transfer', 'system', 6),
 (19, '手续费', 'charge', 'transfer', 'system', 7);
+-> statementbreakpoint
+-- 初始化默认账本
+INSERT INTO tb_books (name, description, background) VALUES
+('默认账本', '', '');

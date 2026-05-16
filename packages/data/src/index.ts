@@ -79,4 +79,14 @@ export const api = {
       return services.getTypesByCategory(database, typeCategory);
     },
   },
+  book: {
+    getDefault: async () => {
+      const database = await getDatabase();
+      return services.getDefaultBook(database);
+    },
+    getById: async (bookId: number) => {
+      const database = await getDatabase();
+      return services.getBookById(database, bookId);
+    },
+  },
 };

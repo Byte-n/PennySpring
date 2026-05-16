@@ -8,7 +8,7 @@ import type {
   SystemStatusValue,
   VisibilityValue,
 } from '../constants'
-import type { assets, records, tags, types } from '../schema'
+import type { assets, books, records, tags, types } from '../schema'
 import type { Database } from '../runtime'
 
 export type Tx = Parameters<Parameters<Database['transaction']>[0]>[0]
@@ -17,6 +17,7 @@ export type RecordRow = InferSelectModel<typeof records>
 export type AssetRow = InferSelectModel<typeof assets>
 export type TagRow = InferSelectModel<typeof tags>
 export type TypeRow = InferSelectModel<typeof types>
+export type BookRow = InferSelectModel<typeof books>
 
 export interface CreateTagInput {
   name: string
