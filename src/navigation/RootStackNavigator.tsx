@@ -1,21 +1,20 @@
 import React from 'react';
-import { View } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { ComponentPreviewScreen } from '@pennyspring/component-preview';
 
 import { AddRecordScreen } from '../screens/addRecord/AddRecordScreen';
+import { AssetEditScreen } from '../screens/assetManage/AssetEditScreen';
+import { AssetManageScreen } from '../screens/assetManage/AssetManageScreen';
 import { BookManageScreen } from '../screens/bookManage/BookManageScreen';
 import { HomeScreen } from '../screens/home/HomeScreen';
 import { TestScreen } from '../screens/test';
 import { TagManageScreen } from '../screens/tagManage/TagManageScreen';
+import { TypeManageScreen } from '../screens/typeManage/TypeManageScreen';
+import { TypeChildrenScreen } from '../screens/typeManage/TypeChildrenScreen';
 import { ROOT_ROUTES } from './routes';
 import type { RootStackParamList } from './types';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
-
-function PlaceholderScreen() {
-  return <View />;
-}
 
 export function RootStackNavigator() {
   return (
@@ -53,24 +52,24 @@ export function RootStackNavigator() {
         options={{ title: '标签管理' }}
       />
       <Stack.Screen
-        component={PlaceholderScreen}
+        component={TypeManageScreen}
         name={ROOT_ROUTES.TypeManage}
         options={{ title: '类型管理' }}
       />
       <Stack.Screen
-        component={PlaceholderScreen}
+        component={TypeChildrenScreen}
         name={ROOT_ROUTES.TypeChildren}
-        options={{ title: '子类型' }}
+        options={({ route }) => ({ title: route.params.parentName })}
       />
       <Stack.Screen
-        component={PlaceholderScreen}
+        component={AssetManageScreen}
         name={ROOT_ROUTES.AssetManage}
         options={{ title: '资产管理' }}
       />
       <Stack.Screen
-        component={PlaceholderScreen}
+        component={AssetEditScreen}
         name={ROOT_ROUTES.AssetEdit}
-        options={{ title: '编辑资产' }}
+        options={({ route }) => ({ title: route.params?.assetId ? '编辑资产' : '新增资产' })}
       />
     </Stack.Navigator>
   );
