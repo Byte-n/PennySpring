@@ -50,16 +50,64 @@ function MenuButton({ onPress }: MenuButtonProps) {
 }
 
 function DrawerOptionList({
+  onOpenAssetManage,
+  onOpenBookManage,
   onOpenComponentPreview,
+  onOpenTagManage,
   onOpenTestScreen,
+  onOpenTypeManage,
 }: {
+  onOpenAssetManage: () => void;
+  onOpenBookManage: () => void;
   onOpenComponentPreview: () => void;
+  onOpenTagManage: () => void;
   onOpenTestScreen: () => void;
+  onOpenTypeManage: () => void;
 }) {
   const styles = useStyles();
 
   return (
     <View style={styles.drawerContent}>
+      <Button
+        block
+        onPress={onOpenBookManage}
+        style={styles.optionButton}
+        type="default"
+      >
+        <Text size="md" weight="strong">
+          账本管理
+        </Text>
+      </Button>
+      <Button
+        block
+        onPress={onOpenAssetManage}
+        style={styles.optionButton}
+        type="default"
+      >
+        <Text size="md" weight="strong">
+          资产管理
+        </Text>
+      </Button>
+      <Button
+        block
+        onPress={onOpenTypeManage}
+        style={styles.optionButton}
+        type="default"
+      >
+        <Text size="md" weight="strong">
+          类型管理
+        </Text>
+      </Button>
+      <Button
+        block
+        onPress={onOpenTagManage}
+        style={styles.optionButton}
+        type="default"
+      >
+        <Text size="md" weight="strong">
+          标签管理
+        </Text>
+      </Button>
       <Button
         accessibilityLabel="打开 Test Screen"
         block
@@ -108,6 +156,26 @@ export function HomeScreen() {
     navigation.navigate(ROOT_ROUTES.ComponentPreview);
   }, [navigation]);
 
+  const openBookManage = React.useCallback(() => {
+    setIsDrawerOpen(false);
+    navigation.navigate(ROOT_ROUTES.BookManage);
+  }, [navigation]);
+
+  const openAssetManage = React.useCallback(() => {
+    setIsDrawerOpen(false);
+    navigation.navigate(ROOT_ROUTES.AssetManage);
+  }, [navigation]);
+
+  const openTypeManage = React.useCallback(() => {
+    setIsDrawerOpen(false);
+    navigation.navigate(ROOT_ROUTES.TypeManage);
+  }, [navigation]);
+
+  const openTagManage = React.useCallback(() => {
+    setIsDrawerOpen(false);
+    navigation.navigate(ROOT_ROUTES.TagManage);
+  }, [navigation]);
+
   return (
     <Drawer.Layout
       onCancel={closeDrawer}
@@ -115,8 +183,12 @@ export function HomeScreen() {
       open={isDrawerOpen}
       renderDrawerContent={() => (
         <DrawerOptionList
+          onOpenAssetManage={openAssetManage}
+          onOpenBookManage={openBookManage}
           onOpenComponentPreview={openComponentPreview}
+          onOpenTagManage={openTagManage}
           onOpenTestScreen={openTestScreen}
+          onOpenTypeManage={openTypeManage}
         />
       )}
     >
