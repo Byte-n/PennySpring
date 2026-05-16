@@ -54,7 +54,7 @@ CREATE TABLE `tb_record` (
 	`final_amount` integer DEFAULT 0 NOT NULL,
 	`charge` integer DEFAULT 0 NOT NULL,
 	`remark` text DEFAULT '' NOT NULL,
-	`reimbursable` text DEFAULT 'not_reimbursable' NOT NULL,
+	`reimbursable` text DEFAULT 'none' NOT NULL,
 	`record_time` integer NOT NULL,
 	`created_time` integer DEFAULT (cast(unixepoch('subsec') * 1000 as integer)) NOT NULL,
 	`updated_time` integer DEFAULT (cast(unixepoch('subsec') * 1000 as integer)) NOT NULL

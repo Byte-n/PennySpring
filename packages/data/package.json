@@ -10,15 +10,15 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "drizzle-orm": "^0.38.4",
-    "@pennyspring/share": "*"
+    "@pennyspring/share": "*",
+    "drizzle-orm": "^0.45.2"
   },
   "devDependencies": {
-    "drizzle-kit": "^0.30.5",
+    "drizzle-kit": "^0.31.10",
     "ts-jest": "^29.4.9"
   },
   "peerDependencies": {
-    "@op-engineering/op-sqlite": "*",
+    "@op-engineering/op-sqlite": "^11.4.2",
     "react-native": "*"
   }
 }

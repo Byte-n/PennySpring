@@ -17,7 +17,7 @@
     "clean": "bash scripts/clean.sh"
   },
   "dependencies": {
-    "@op-engineering/op-sqlite": "^9",
+    "@op-engineering/op-sqlite": "^15.2.14",
     "@pennyspring/component": "*",
     "@pennyspring/component-preview": "*",
     "@pennyspring/data": "*",

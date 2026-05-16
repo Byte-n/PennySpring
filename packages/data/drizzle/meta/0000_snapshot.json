@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "76b499e7-6bfe-4067-aab4-b86d202d7a6a",
+  "id": "bad0c5e4-60b4-42b8-96fc-85cd09ae7a59",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "tb_asset": {
@@ -382,7 +382,7 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
-          "default": "'not_reimbursable'"
+          "default": "'none'"
         },
         "record_time": {
           "name": "record_time",
