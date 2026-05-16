@@ -1,4 +1,11 @@
-import type { CreateRecordInput, UpdateRecordInput } from './services';
+import type {
+  CreateRecordInput,
+  CreateTagInput,
+  CreateTypeInput,
+  UpdateRecordInput,
+  UpdateTagInput,
+  UpdateTypeInput,
+} from './services';
 export * from './services/types'
 export * from './constants';
 export * from './schema';
@@ -35,6 +42,34 @@ export const api = {
     delete: async (recordId: number) => {
       const database = await getDatabase();
       return services.deleteRecord(database, recordId);
+    },
+  },
+  tag: {
+    create: async (input: CreateTagInput) => {
+      const database = await getDatabase();
+      return services.createTag(database, input);
+    },
+    update: async (input: UpdateTagInput) => {
+      const database = await getDatabase();
+      return services.updateTag(database, input);
+    },
+    delete: async (tagId: number) => {
+      const database = await getDatabase();
+      return services.deleteTag(database, tagId);
+    },
+  },
+  type: {
+    create: async (input: CreateTypeInput) => {
+      const database = await getDatabase();
+      return services.createType(database, input);
+    },
+    update: async (input: UpdateTypeInput) => {
+      const database = await getDatabase();
+      return services.updateType(database, input);
+    },
+    delete: async (typeId: number) => {
+      const database = await getDatabase();
+      return services.deleteType(database, typeId);
     },
   },
 };
