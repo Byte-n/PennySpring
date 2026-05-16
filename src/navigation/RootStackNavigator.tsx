@@ -1,4 +1,5 @@
 import React from 'react';
+import { View } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { ComponentPreviewScreen } from '@pennyspring/component-preview';
 
@@ -9,6 +10,10 @@ import { ROOT_ROUTES } from './routes';
 import type { RootStackParamList } from './types';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
+
+function PlaceholderScreen() {
+  return <View />;
+}
 
 export function RootStackNavigator() {
   return (
@@ -34,6 +39,36 @@ export function RootStackNavigator() {
         component={ComponentPreviewScreen}
         name={ROOT_ROUTES.ComponentPreview}
         options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        component={PlaceholderScreen}
+        name={ROOT_ROUTES.BookManage}
+        options={{ title: '账本管理' }}
+      />
+      <Stack.Screen
+        component={PlaceholderScreen}
+        name={ROOT_ROUTES.TagManage}
+        options={{ title: '标签管理' }}
+      />
+      <Stack.Screen
+        component={PlaceholderScreen}
+        name={ROOT_ROUTES.TypeManage}
+        options={{ title: '类型管理' }}
+      />
+      <Stack.Screen
+        component={PlaceholderScreen}
+        name={ROOT_ROUTES.TypeChildren}
+        options={{ title: '子类型' }}
+      />
+      <Stack.Screen
+        component={PlaceholderScreen}
+        name={ROOT_ROUTES.AssetManage}
+        options={{ title: '资产管理' }}
+      />
+      <Stack.Screen
+        component={PlaceholderScreen}
+        name={ROOT_ROUTES.AssetEdit}
+        options={{ title: '编辑资产' }}
       />
     </Stack.Navigator>
   );
