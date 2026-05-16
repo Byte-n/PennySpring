@@ -36,6 +36,7 @@ export function CalculatorInputPreview() {
         <View style={styles.stack}>
           <Input
             readonly
+            showSoftInputOnFocus={false}
             label="Tap to open calculator"
             placeholder="Select calculated value"
             value={popupDisplayValue}
