@@ -1,17 +1,12 @@
 import React from 'react';
-import { Pressable, View } from 'react-native';
+import { Pressable } from 'react-native';
 import {
   Grid,
   Column,
-  Row,
-  Tag,
   Text,
   Icon,
   ListCollapse,
-  Avatar,
-  List,
   GridProps,
-  Ellipsis,
 } from '@pennyspring/component';
 import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
 import { ICON_MAP } from '../../../constants/typeIconTree.ts';
@@ -62,7 +57,7 @@ export function CategoryGrid(props: CategoryGridProps) {
       <Column>
         {chunk(firstCategory, 5).map(list => {
           const allIds = list
-            .map(v => (v.children ?? []).map(v => v.id).concat([v.id]))
+            .map(v => (v.children ?? []).map(child => child.id).concat([v.id]))
             .flat(1);
           const children = findExpandedCategory(selectedId)?.children;
           return (

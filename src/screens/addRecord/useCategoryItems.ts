@@ -1,14 +1,16 @@
-import { useEffect, useState } from 'react'
+import { useRequest } from 'ahooks'
 import { api, buildCategoryTree, type CategoryItem, type RecordTypeCategoryValue } from '@pennyspring/data'
 
-export function useCategoryItems(typeCategory: RecordTypeCategoryValue): CategoryItem[] {
-  const [items, setItems] = useState<CategoryItem[]>([])
+interface UseCategoryItemsResult {
+  categories: CategoryItem[];
+  loading: boolean;
+}
 
-  useEffect(() => {
-    api.type.getByCategory(typeCategory).then(rows => {
-      setItems(buildCategoryTree(rows))
-    })
-  }, [typeCategory])
+export function useCategoryItems(typeCategory: RecordTypeCategoryValue): UseCategoryItemsResult {
+  const { data = [], loading } = useRequest(
+    () => api.type.getByCategory(typeCategory).then(buildCategoryTree),
+    { refreshDeps: [typeCategory] },
+  )
 
-  return items
+  return { categories: data, loading }
 }

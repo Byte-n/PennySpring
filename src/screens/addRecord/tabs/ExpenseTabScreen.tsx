@@ -21,7 +21,7 @@ export function ExpenseTabScreen() {
   const [typeId, setTypeId] = useState<number | null>(null);
   const [assetId, _setAssetId] = useState<number | null>(null);
   const [reimbursable, setReimbursable] = useState<string>('none');
-  const categories = useCategoryItems(RECORD_TYPE_CATEGORY.expense);
+  const { categories } = useCategoryItems(RECORD_TYPE_CATEGORY.expense);
 
   return (
     <ScrollView style={styles.container}>

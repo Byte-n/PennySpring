@@ -20,7 +20,7 @@ export function IncomeTabScreen() {
   const { token } = useTheme();
   const [typeId, setTypeId] = useState<number | null>(null);
   const [assetId, _setAssetId] = useState<number | null>(null);
-  const categories = useCategoryItems(RECORD_TYPE_CATEGORY.income);
+  const { categories } = useCategoryItems(RECORD_TYPE_CATEGORY.income);
 
   return (
     <ScrollView style={styles.container}>

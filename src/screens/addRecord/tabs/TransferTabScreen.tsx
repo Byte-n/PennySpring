@@ -22,7 +22,7 @@ export function TransferTabScreen() {
   const [assetId, _setAssetId] = useState<number | null>(null);
   const [intoAssetId, _setIntoAssetId] = useState<number | null>(null);
   const [charge, _setCharge] = useState<number | undefined>(undefined);
-  const categories = useCategoryItems(RECORD_TYPE_CATEGORY.transfer);
+  const { categories } = useCategoryItems(RECORD_TYPE_CATEGORY.transfer);
 
   return (
     <ScrollView style={styles.container}>
