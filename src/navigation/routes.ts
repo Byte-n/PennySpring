@@ -1,5 +1,6 @@
 export const ROOT_ROUTES = {
   Home: 'Home',
+  AddRecord: 'AddRecord',
   Test: 'Test',
   ComponentPreview: 'ComponentPreview',
 } as const;

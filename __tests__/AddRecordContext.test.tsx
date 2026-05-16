@@ -9,16 +9,6 @@ jest.mock('@pennyspring/theme', () => ({
   },
 }));
 
-function makeCapture<T>() {
-  let captured: T | undefined;
-  function Capture({ onCapture }: { onCapture: (v: T) => void }) {
-    const value = useAddRecordContext();
-    onCapture(value as unknown as T);
-    return null;
-  }
-  return { Capture, getCaptured: () => captured!, setCaptured: (v: T) => { captured = v; } };
-}
-
 describe('AddRecordContext', () => {
   test('provides default state', () => {
     let ctx: ReturnType<typeof useAddRecordContext> | undefined;

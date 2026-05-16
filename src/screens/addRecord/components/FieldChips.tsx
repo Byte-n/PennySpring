@@ -1,7 +1,7 @@
 import React from 'react';
 import { Alert } from 'react-native';
 import { Row, Tag } from '@pennyspring/component';
-import { createUseSheetStyle } from '@pennyspring/theme';
+import { useTheme } from '@pennyspring/theme';
 import { useAddRecordContext } from '../AddRecordContext';
 
 interface FieldChipsProps {
@@ -16,16 +16,10 @@ interface FieldChipsProps {
   onChargePress?: () => void;
 }
 
-const useStyles = createUseSheetStyle((token) => ({
-  gap: token.marginXS,
-}));
-
 export function FieldChips(props: FieldChipsProps) {
   const {
     tabType,
-    assetId,
     onAssetPress,
-    intoAssetId,
     onIntoAssetPress,
     reimbursable,
     onReimbursableToggle,
@@ -34,7 +28,7 @@ export function FieldChips(props: FieldChipsProps) {
   } = props;
 
   const { recordTime } = useAddRecordContext();
-  const styles = useStyles();
+  const { token } = useTheme();
 
   const formatTime = (time: number) => {
     return new Date(time).toLocaleString('zh-CN', {
@@ -87,7 +81,7 @@ export function FieldChips(props: FieldChipsProps) {
   );
 
   return (
-    <Row wrap gap={styles.gap}>
+    <Row wrap gap={token.marginXS}>
       {tabType === 'expense' && renderExpenseChips()}
       {tabType === 'income' && renderIncomeChips()}
       {tabType === 'transfer' && renderTransferChips()}

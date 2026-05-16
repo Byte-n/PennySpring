@@ -2,6 +2,7 @@ import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { ComponentPreviewScreen } from '@pennyspring/component-preview';
 
+import { AddRecordScreen } from '../screens/addRecord/AddRecordScreen';
 import { HomeScreen } from '../screens/home/HomeScreen';
 import { TestScreen } from '../screens/test';
 import { ROOT_ROUTES } from './routes';
@@ -15,7 +16,14 @@ export function RootStackNavigator() {
       <Stack.Screen
         component={HomeScreen}
         name={ROOT_ROUTES.Home}
-        options={{ headerShown: false }}
+        options={{ title: 'PennySpring' }}
+      />
+      <Stack.Screen
+        component={AddRecordScreen}
+        name={ROOT_ROUTES.AddRecord}
+        options={{
+          title: '新增记录',
+        }}
       />
       <Stack.Screen
         component={TestScreen}

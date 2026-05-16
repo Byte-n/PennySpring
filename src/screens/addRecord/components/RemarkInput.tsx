@@ -4,7 +4,7 @@ import { createUseSheetStyle } from '@pennyspring/theme';
 import { Input } from '@pennyspring/component';
 import { useAddRecordContext } from '../AddRecordContext';
 
-const useStyles = createUseSheetStyle((token) => ({
+const useStyles = createUseSheetStyle((_token) => ({
   container: {},
 }));
 

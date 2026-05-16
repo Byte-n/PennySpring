@@ -9,6 +9,7 @@ jest.mock('@pennyspring/theme', () => ({
     const token = new Proxy({}, { get: () => 0 });
     return fn(token, {});
   },
+  useTheme: () => ({ token: new Proxy({}, { get: () => 0 }) }),
 }));
 
 jest.mock('../packages/component', () => {

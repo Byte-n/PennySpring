@@ -1,3 +1,4 @@
+export { AddRecordTabsNavigator } from './AddRecordTabsNavigator';
 export { HomeTabsNavigator } from './HomeTabsNavigator';
 export { RootStackNavigator } from './RootStackNavigator';
 export { rootNavigationRef } from './rootNavigationRef';
