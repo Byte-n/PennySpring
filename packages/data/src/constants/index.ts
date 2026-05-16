@@ -522,12 +522,12 @@ export const RECORD_TYPE_SPECIAL_BEHAVIOR = enumOf({
 
 export const REIMBURSABLE = enumOf({
   notReimbursable: {
-    value: 'not_reimbursable',
+    value: 'none',
     label: '不可报销',
     description: '记录不可报销',
   },
   reimbursable: {
-    value: 'reimbursable',
+    value: 'able',
     label: '可报销',
     description: '记录可报销',
   },

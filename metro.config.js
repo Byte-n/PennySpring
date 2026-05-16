@@ -14,7 +14,7 @@ const config = {
     // Exclude sibling git worktrees to avoid duplicate Haste package names.
     blockList: [/\.worktrees\/.*/],
     assetExts: assetExts.filter(ext => ext !== 'svg'),
-    sourceExts: [...sourceExts, 'svg'],
+    sourceExts: [...sourceExts, 'svg', 'sql'],
   },
   transformer: {
     babelTransformerPath: require.resolve('react-native-svg-transformer'),

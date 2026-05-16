@@ -8,6 +8,13 @@
       "when": 1778856354740,
       "tag": "0000_funny_lilandra",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1778895966841,
+      "tag": "0001_wooden_white_tiger",
+      "breakpoints": true
     }
   ]
 }

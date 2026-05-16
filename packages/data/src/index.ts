@@ -4,7 +4,6 @@ export * from './constants';
 export * from './schema';
 export * from './relations';
 export { createDatabase, runMigrations, schema } from './runtime';
-export { migrations } from './runtime/migrations';
 
 import { createDatabase, runMigrations, type Database } from './runtime';
 import * as services from './services';
