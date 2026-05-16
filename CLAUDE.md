@@ -101,6 +101,7 @@ scripts/                → 本地工具脚本
 - 共享组件放在 `packages/component/src/<ComponentName>/`，由目录内 `index.ts` 和包级 `src/index.ts` 导出。
 - 公共 props 与导出的样式类型放在组件目录的 `types.ts`。
 - 优先使用 `@pennyspring/component` 中的组件
+- 界面布局优先使用 `@pennyspring/component` 中已有的布局组件（如 `Row`、`Column`、`Spacer`、`GeometryReader`、`Grid` 等），禁止用 `View` 手写等效布局结构。
 - 业务与共享组件中的文本展示统一使用 `@pennyspring/component` 导出的 `Text` 组件；禁止直接使用 `react-native` 的 `Text`
   做展示文本。
 

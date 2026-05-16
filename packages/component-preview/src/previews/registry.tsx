@@ -36,6 +36,7 @@ import { ButtonPreview } from './foundation/button';
 import { DividerPreview } from './foundation/divider';
 import { GridPreview } from './foundation/grid';
 import { IconPreview } from './foundation/icon';
+import { LayoutPreview } from './foundation/layout';
 import { SegmentedPreview } from './foundation/segmented';
 import { SpacePreview } from './foundation/space';
 import { TabsPreview } from './foundation/tabs';
@@ -107,6 +108,12 @@ export const COMPONENT_PREVIEW_SECTIONS = [
         title: 'Grid',
         description: '宫格布局和单元格内容。',
         component: GridPreview,
+      },
+      {
+        id: 'layout',
+        title: 'Layout',
+        description: 'Row、Column、Spacer、GeometryReader 布局原语。',
+        component: LayoutPreview,
       },
       {
         id: 'space',

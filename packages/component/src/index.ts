@@ -342,3 +342,11 @@ export type {
   FloatingActionItem,
   FloatingPlacement,
 } from './FloatingActionGroup';
+export { Row } from './Row';
+export type { FlexAlign, FlexJustify, RowProps } from './Row';
+export { Column } from './Column';
+export type { ColumnProps } from './Column';
+export { Spacer } from './Spacer';
+export type { SpacerProps } from './Spacer';
+export { GeometryReader } from './GeometryReader';
+export type { Geometry, GeometryReaderProps } from './GeometryReader';
