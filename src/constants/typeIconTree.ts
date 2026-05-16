@@ -21,6 +21,7 @@ import { medicalTypeIconGroup } from './typeIconGroups/medical';
 import { campusTypeIconGroup } from './typeIconGroups/campus';
 import { tenementTypeIconGroup } from './typeIconGroups/tenement';
 import { otherTypeIconGroup } from './typeIconGroups/other';
+import { Icon } from 'phosphor-react-native';
 
 export type IconValue = ReturnType<typeof ICON.values>[number];
 export type TypeIconComponent = IconComponent;
@@ -58,3 +59,10 @@ export const TYPE_ICON_TREE = [
   tenementTypeIconGroup,
   otherTypeIconGroup,
 ] as const satisfies readonly TypeIconGroupNode[];
+
+export const ICON_MAP = TYPE_ICON_TREE.map(v => v.children)
+  .flat(1)
+  .reduce((acc: any, cur) => {
+    acc[cur.value as any] = cur.icon;
+    return acc;
+  }, {}) as { [key: string]: Icon };

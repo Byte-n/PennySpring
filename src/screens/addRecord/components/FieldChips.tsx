@@ -50,6 +50,7 @@ export function FieldChips(props: FieldChipsProps) {
       <Tag
         variant={reimbursable ? 'solid' : 'outlined'}
         onPress={onReimbursableToggle}
+        color="primary"
       >
         可报销
       </Tag>

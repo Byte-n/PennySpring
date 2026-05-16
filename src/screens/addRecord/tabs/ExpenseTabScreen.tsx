@@ -9,7 +9,7 @@ import { CategoryGrid } from '../components/CategoryGrid';
 import { RemarkInput } from '../components/RemarkInput';
 import { useCategoryItems } from '../useCategoryItems';
 
-const useStyles = createUseSheetStyle((_token) => ({
+const useStyles = createUseSheetStyle(_token => ({
   container: {
     flex: 1,
   },
@@ -25,16 +25,22 @@ export function ExpenseTabScreen() {
 
   return (
     <ScrollView style={styles.container}>
-      <Column gap={token.marginLG}>
+      <Column gap={token.marginXS}>
         <AmountDisplay />
         <FieldChips
           tabType="expense"
           assetId={assetId}
           onAssetPress={() => {}}
           reimbursable={reimbursable === 'able'}
-          onReimbursableToggle={() => setReimbursable(prev => prev === 'none' ? 'able' : 'none')}
+          onReimbursableToggle={() =>
+            setReimbursable(prev => (prev === 'none' ? 'able' : 'none'))
+          }
         />
-        <CategoryGrid categories={categories} selectedId={typeId} onSelect={setTypeId} />
+        <CategoryGrid
+          categories={categories}
+          selectedId={typeId}
+          onSelect={setTypeId}
+        />
         <RemarkInput />
       </Column>
     </ScrollView>

@@ -6,7 +6,6 @@ export function useCategoryItems(typeCategory: RecordTypeCategoryValue): Categor
 
   useEffect(() => {
     api.type.getByCategory(typeCategory).then(rows => {
-      console.log('rows:', rows);
       setItems(buildCategoryTree(rows))
     })
   }, [typeCategory])
