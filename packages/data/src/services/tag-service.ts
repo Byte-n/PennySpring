@@ -5,6 +5,10 @@ import type { Database } from '../runtime'
 import { tagWithRecord, tags } from '../schema'
 import type { CreateTagInput, TagRow, Tx, UpdateTagInput } from './types'
 
+export async function getAllTags(db: Database): Promise<TagRow[]> {
+  return db.select().from(tags).all()
+}
+
 function validateTagInput(input: CreateTagInput | UpdateTagInput): void {
   if (!input.name.trim()) {
     throw new Error('name is required')

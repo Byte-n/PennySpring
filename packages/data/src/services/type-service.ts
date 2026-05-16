@@ -29,6 +29,10 @@ export function buildCategoryTree(rows: TypeRow[]): CategoryItem[] {
   }))
 }
 
+export async function getAllTypes(db: Database): Promise<TypeRow[]> {
+  return db.select().from(types).orderBy(asc(types.sort)).all()
+}
+
 function validateTypeInput(input: CreateTypeInput | UpdateTypeInput): void {
   if (!input.name.trim()) {
     throw new Error('name is required')
