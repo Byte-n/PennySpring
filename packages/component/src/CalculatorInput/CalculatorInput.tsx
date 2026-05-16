@@ -1,7 +1,9 @@
 import React, { useMemo } from 'react';
-import { Pressable, TextInput, View } from 'react-native';
+import { Pressable, TextInput } from 'react-native';
 import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
+import { Column } from '../Column';
 import { Icon } from '../Icon';
+import { Row } from '../Row';
 import { Text } from '../Text';
 import { useControllableValue } from '../_hooks';
 import type { AliasToken } from '@pennyspring/theme';
@@ -10,8 +12,8 @@ import type { CalculatorInputProps, CalculatorInputStyles } from './types';
 
 type Operator = '+' | '-' | '×' | '/';
 type EvaluationOperator = '+' | '-' | '*' | '/';
-type Token = number | Operator;
-type CalculatorKeyRole = 'digit' | 'decimal' | 'operator' | 'clear' | 'backspace';
+type Token = number | Operator | '(' | ')';
+type CalculatorKeyRole = 'digit' | 'decimal' | 'operator' | 'clear' | 'backspace' | 'paren';
 
 interface CalculatorKeyConfig {
   label: string;
@@ -80,6 +82,7 @@ const KEY_ROWS: readonly (readonly CalculatorKeyConfig[])[] = [
     { label: '3', accessibilityLabel: '数字 3', role: 'digit', value: '3' },
   ],
   [
+    { label: '()', accessibilityLabel: '括号', role: 'paren' },
     { label: '0', accessibilityLabel: '数字 0', role: 'digit', value: '0' },
     { label: '.', accessibilityLabel: '小数点', role: 'decimal', value: '.' },
   ],
@@ -87,9 +90,6 @@ const KEY_ROWS: readonly (readonly CalculatorKeyConfig[])[] = [
 
 const useStyles = createUseSheetStyle(
   (token, { disabled }: CalculatorInputStyleOptions) => ({
-    root: {
-      gap: token.sizeSM,
-    },
     display: {
       minHeight: token.controlHeightLG + token.controlHeightSM,
       paddingHorizontal: token.controlPaddingHorizontal,
@@ -101,7 +101,6 @@ const useStyles = createUseSheetStyle(
         ? token.colorBgContainerDisabled
         : token.colorBgContainer,
       justifyContent: 'center',
-      gap: token.sizeXXS,
     },
     input: {
       padding: 0,
@@ -120,21 +119,6 @@ const useStyles = createUseSheetStyle(
       lineHeight: token.lineHeight,
       textAlign: 'right',
     } as TextStyle,
-    keypad: {
-      gap: token.sizeXS,
-    },
-    row: {
-      flexDirection: 'row',
-      gap: token.sizeXS,
-    },
-    leftPad: {
-      flex: 1,
-      gap: token.sizeXS,
-    },
-    bottomRow: {
-      flexDirection: 'row',
-      gap: token.sizeXS,
-    },
     key: {
       flex: 1,
       minHeight: SIZE_CONFIG.keyHeight(token),
@@ -191,9 +175,8 @@ const useStyles = createUseSheetStyle(
     okKeyTextUnavailable: {
       color: token.colorTextDisabled,
     },
-    spacerKey: {
-      flex: 1,
-      minHeight: SIZE_CONFIG.keyHeight(token),
+    leftPad: {
+      width: '75%'
     },
     backspaceIcon: {
       color: disabled ? token.colorTextDisabled : token.colorTextSecondary,
@@ -268,6 +251,38 @@ function appendOperator(expression: string, operator: Operator): string {
   return `${expression}${operator}`;
 }
 
+function countChar(str: string, char: string): number {
+  let count = 0;
+
+  for (let i = 0; i < str.length; i++) {
+    if (str[i] === char) {
+      count += 1;
+    }
+  }
+
+  return count;
+}
+
+function appendParen(expression: string): string {
+  const openCount = countChar(expression, '(');
+  const closeCount = countChar(expression, ')');
+  const lastChar = expression[expression.length - 1];
+
+  if (
+    expression.length === 0
+    || lastChar === '('
+    || isOperator(lastChar)
+  ) {
+    return `${expression}(`;
+  }
+
+  if (openCount > closeCount) {
+    return `${expression})`;
+  }
+
+  return `${expression}(`;
+}
+
 function parseNumber(
   expression: string,
   startIndex: number,
@@ -318,38 +333,33 @@ function parseNumber(
 function tokenizeExpression(expression: string): Token[] | null {
   const tokens: Token[] = [];
   let index = 0;
-  let shouldReadNumber = true;
 
   while (index < expression.length) {
     const char = expression[index];
 
-    if (shouldReadNumber) {
-      const parsedNumber = parseNumber(expression, index);
-
-      if (parsedNumber === null) {
-        return null;
-      }
-
-      tokens.push(parsedNumber.value);
-      index = parsedNumber.nextIndex;
-      shouldReadNumber = false;
+    if (char === '(' || char === ')') {
+      tokens.push(char);
+      index += 1;
       continue;
     }
 
-    if (!isOperator(char)) {
+    if (isOperator(char)) {
+      tokens.push(char);
+      index += 1;
+      continue;
+    }
+
+    const parsedNumber = parseNumber(expression, index);
+
+    if (parsedNumber === null) {
       return null;
     }
 
-    tokens.push(char);
-    index += 1;
-    shouldReadNumber = true;
+    tokens.push(parsedNumber.value);
+    index = parsedNumber.nextIndex;
   }
 
-  if (tokens.length === 0 || typeof tokens[tokens.length - 1] !== 'number') {
-    return null;
-  }
-
-  return tokens;
+  return tokens.length === 0 ? null : tokens;
 }
 
 function applyOperator(
@@ -413,7 +423,61 @@ function applyPrecedence(tokens: Token[]): Token[] | null {
   return output;
 }
 
-function evaluateTokens(tokens: Token[]): number | null {
+function resolveParentheses(tokens: Token[]): Token[] | null {
+  const output: Token[] = [];
+  let index = 0;
+
+  while (index < tokens.length) {
+    const token = tokens[index];
+
+    if (token === '(') {
+      let depth = 1;
+      let end = index + 1;
+
+      while (end < tokens.length && depth > 0) {
+        if (tokens[end] === '(') {
+          depth += 1;
+        } else if (tokens[end] === ')') {
+          depth -= 1;
+        }
+
+        end += 1;
+      }
+
+      if (depth !== 0) {
+        return null;
+      }
+
+      const inner = tokens.slice(index + 1, end - 1);
+      const resolved = resolveParentheses(inner);
+
+      if (resolved === null) {
+        return null;
+      }
+
+      const value = evaluateFlat(resolved);
+
+      if (value === null) {
+        return null;
+      }
+
+      output.push(value);
+      index = end;
+      continue;
+    }
+
+    if (token === ')') {
+      return null;
+    }
+
+    output.push(token);
+    index += 1;
+  }
+
+  return output;
+}
+
+function evaluateFlat(tokens: Token[]): number | null {
   const collapsedTokens = applyPrecedence(tokens);
 
   if (collapsedTokens === null || typeof collapsedTokens[0] !== 'number') {
@@ -450,6 +514,16 @@ function evaluateTokens(tokens: Token[]): number | null {
   }
 
   return result;
+}
+
+function evaluateTokens(tokens: Token[]): number | null {
+  const resolved = resolveParentheses(tokens);
+
+  if (resolved === null) {
+    return null;
+  }
+
+  return evaluateFlat(resolved);
 }
 
 function normalizeResult(value: number): number {
@@ -493,7 +567,7 @@ function evaluateExpression(expression: string): CalculatorInputResult {
 }
 
 function isMutedKey(key: CalculatorKeyConfig): boolean {
-  return key.role === 'operator' || key.role === 'clear' || key.role === 'backspace';
+  return key.role === 'operator' || key.role === 'clear' || key.role === 'backspace' || key.role === 'paren';
 }
 
 function renderKeyContent(
@@ -570,6 +644,11 @@ export function CalculatorInput({
       return;
     }
 
+    if (key.role === 'paren') {
+      updateExpression(appendParen(expression));
+      return;
+    }
+
     if (key.role === 'operator' && key.value !== undefined) {
       updateExpression(appendOperator(expression, key.value as Operator));
       return;
@@ -619,8 +698,8 @@ export function CalculatorInput({
   }
 
   return (
-    <View style={[tokenStyles.root, style]}>
-      <View style={[tokenStyles.display, styles?.display]}>
+    <Column gap={token.sizeSM} style={style}>
+      <Column gap={token.sizeXXS} style={[tokenStyles.display, styles?.display]}>
         <TextInput
           editable={false}
           placeholder={placeholder}
@@ -631,28 +710,27 @@ export function CalculatorInput({
         <Text style={[tokenStyles.result, styles?.result]}>
           {result.display}
         </Text>
-      </View>
-      <View style={[tokenStyles.keypad, styles?.keypad]}>
+      </Column>
+      <Column gap={token.sizeXS} style={styles?.keypad}>
         {KEY_ROWS.slice(0, KEYPAD_TOP_ROW_COUNT).map(row => (
-          <View
+          <Row
             key={row.map(key => key.accessibilityLabel).join('-')}
-            style={tokenStyles.row}
+            gap={token.sizeXS}
           >
             {row.map(renderKey)}
-          </View>
+          </Row>
         ))}
-        <View style={tokenStyles.bottomRow}>
-          <View style={tokenStyles.leftPad}>
+        <Row gap={token.sizeXS}>
+          <Column gap={token.sizeXS} style={tokenStyles.leftPad}>
             {KEY_ROWS.slice(KEYPAD_TOP_ROW_COUNT).map(row => (
-              <View
+              <Row
                 key={row.map(key => key.accessibilityLabel).join('-')}
-                style={tokenStyles.row}
+                gap={token.sizeXS}
               >
                 {row.map(renderKey)}
-                {row.length < 3 ? <View style={tokenStyles.spacerKey} /> : null}
-              </View>
+              </Row>
             ))}
-          </View>
+          </Column>
           <Pressable
             accessibilityLabel="确认"
             accessibilityRole="button"
@@ -678,8 +756,8 @@ export function CalculatorInput({
               {OK_KEY_LABEL}
             </Text>
           </Pressable>
-        </View>
-      </View>
-    </View>
+        </Row>
+      </Column>
+    </Column>
   );
 }

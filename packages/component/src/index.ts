@@ -93,6 +93,7 @@ export type { InputProps, InputSearchProps, InputStatus, InputStyles } from './I
 export { CalculatorInput } from './CalculatorInput';
 export type {
   CalculatorInputOkParams,
+  CalculatorInputPopupProps,
   CalculatorInputProps,
   CalculatorInputStyles,
 } from './CalculatorInput';

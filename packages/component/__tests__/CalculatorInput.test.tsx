@@ -3,6 +3,7 @@ import renderer, { act } from 'react-test-renderer';
 import { TextInput } from 'react-native';
 import { CalculatorInput } from '../src/CalculatorInput';
 import { Text } from '../src/Text';
+import { Popup } from '../src/Popup';
 
 function renderCalculatorInput(
   props: Partial<React.ComponentProps<typeof CalculatorInput>> = {},
@@ -107,6 +108,41 @@ describe('CalculatorInput', () => {
     expect(onOk).toHaveBeenCalledTimes(1);
   });
 
+  it('evaluates expressions with parentheses correctly', () => {
+    const onOk = jest.fn();
+    const testRenderer = renderCalculatorInput({
+      defaultValue: '(1+2)×3',
+      onOk,
+    });
+
+    expect(JSON.stringify(testRenderer.toJSON())).toContain('9');
+
+    press(testRenderer, '确认');
+    expect(onOk).toHaveBeenCalledWith({
+      expression: '(1+2)×3',
+      result: 9,
+    });
+  });
+
+  it('inserts open paren at start or after operator, close paren after digit with unmatched open', () => {
+    const testRenderer = renderCalculatorInput();
+
+    press(testRenderer, '括号');
+    expect(findDisplay(testRenderer).props.value).toBe('(');
+
+    press(testRenderer, '数字 1');
+    press(testRenderer, '加');
+    press(testRenderer, '括号');
+    expect(findDisplay(testRenderer).props.value).toBe('(1+(');
+
+    press(testRenderer, '数字 2');
+    press(testRenderer, '括号');
+    expect(findDisplay(testRenderer).props.value).toBe('(1+(2)');
+
+    press(testRenderer, '括号');
+    expect(findDisplay(testRenderer).props.value).toBe('(1+(2))');
+  });
+
   it('does not edit or confirm when disabled or readonly', () => {
     const onChange = jest.fn();
     const onOk = jest.fn();
@@ -129,5 +165,64 @@ describe('CalculatorInput', () => {
     expect(findDisplay(disabledRenderer).props.value).toBe('1');
     expect(onChange).not.toHaveBeenCalled();
     expect(onOk).not.toHaveBeenCalled();
+  });
+});
+
+describe('CalculatorInput.Popup', () => {
+  it('renders CalculatorInput inside a Popup', () => {
+    let testRenderer: renderer.ReactTestRenderer;
+
+    act(() => {
+      testRenderer = renderer.create(
+        <CalculatorInput.Popup open defaultValue="1+2" />,
+      );
+    });
+
+    const popup = testRenderer!.root.findByType(Popup);
+    expect(popup.props.open).toBe(true);
+    expect(testRenderer!.root.findByType(TextInput).props.value).toBe('1+2');
+  });
+
+  it('calls onOk with result and closes when = is pressed', () => {
+    const onOk = jest.fn();
+    const onOpenChange = jest.fn();
+    let testRenderer: renderer.ReactTestRenderer;
+
+    act(() => {
+      testRenderer = renderer.create(
+        <CalculatorInput.Popup
+          defaultOpen
+          defaultValue="3×4"
+          onOk={onOk}
+          onOpenChange={onOpenChange}
+        />,
+      );
+    });
+
+    act(() => {
+      findButton(testRenderer!, '确认').props.onPress();
+    });
+
+    expect(onOk).toHaveBeenCalledWith({ expression: '3×4', result: 12 });
+    expect(onOpenChange).toHaveBeenCalledWith(false);
+  });
+
+  it('calls onCancel when popup mask is pressed', () => {
+    const onCancel = jest.fn();
+    let testRenderer: renderer.ReactTestRenderer;
+
+    act(() => {
+      testRenderer = renderer.create(
+        <CalculatorInput.Popup open onCancel={onCancel} />,
+      );
+    });
+
+    const popup = testRenderer!.root.findByType(Popup);
+
+    act(() => {
+      popup.props.onCancel({ reason: 'mask' });
+    });
+
+    expect(onCancel).toHaveBeenCalledWith({ reason: 'mask' });
   });
 });

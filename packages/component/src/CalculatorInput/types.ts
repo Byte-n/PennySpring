@@ -1,4 +1,5 @@
 import type { StyleProp, TextStyle, ViewStyle } from 'react-native';
+import type { PopupCancelParams } from '../Popup/types';
 
 export interface CalculatorInputOkParams {
   /** Current expression shown in the input display. */
@@ -79,4 +80,16 @@ export interface CalculatorInputProps {
    * Stable slot style overrides.
    */
   styles?: CalculatorInputStyles;
+}
+
+export interface CalculatorInputPopupProps
+  extends Pick<
+    CalculatorInputProps,
+    'value' | 'defaultValue' | 'onChange' | 'onOk' | 'placeholder' | 'disabled' | 'readonly' | 'styles'
+  > {
+  open?: boolean;
+  defaultOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  onCancel?: (params: PopupCancelParams) => void;
+  style?: StyleProp<ViewStyle>;
 }
