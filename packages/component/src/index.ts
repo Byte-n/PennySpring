@@ -99,7 +99,7 @@ export type {
 } from './CalculatorInput';
 export { Slider } from './Slider';
 export type { SliderProps, SliderStyles } from './Slider';
-export { List } from './List';
+export { List, ListItem } from './List';
 export type {
   ListDivider,
   ListItemProps,

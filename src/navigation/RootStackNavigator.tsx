@@ -4,8 +4,10 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { ComponentPreviewScreen } from '@pennyspring/component-preview';
 
 import { AddRecordScreen } from '../screens/addRecord/AddRecordScreen';
+import { BookManageScreen } from '../screens/bookManage/BookManageScreen';
 import { HomeScreen } from '../screens/home/HomeScreen';
 import { TestScreen } from '../screens/test';
+import { TagManageScreen } from '../screens/tagManage/TagManageScreen';
 import { ROOT_ROUTES } from './routes';
 import type { RootStackParamList } from './types';
 
@@ -41,12 +43,12 @@ export function RootStackNavigator() {
         options={{ headerShown: false }}
       />
       <Stack.Screen
-        component={PlaceholderScreen}
+        component={BookManageScreen}
         name={ROOT_ROUTES.BookManage}
         options={{ title: '账本管理' }}
       />
       <Stack.Screen
-        component={PlaceholderScreen}
+        component={TagManageScreen}
         name={ROOT_ROUTES.TagManage}
         options={{ title: '标签管理' }}
       />
