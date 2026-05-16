@@ -1,9 +1,33 @@
-import { count, eq } from 'drizzle-orm'
+import { asc, count, eq } from 'drizzle-orm'
 
+import type { RecordTypeCategoryValue } from '../constants'
 import { RECORD_TYPE_SPECIAL_BEHAVIOR, SYSTEM_STATUS } from '../constants'
 import type { Database } from '../runtime'
 import { records, types } from '../schema'
 import type { CreateTypeInput, Tx, TypeRow, UpdateTypeInput } from './types'
+
+export interface CategoryItem {
+  id: number
+  name: string
+  icon: string
+  children?: CategoryItem[]
+}
+
+export async function getTypesByCategory(db: Database, typeCategory: RecordTypeCategoryValue): Promise<TypeRow[]> {
+  return db.select().from(types).where(eq(types.typeCategory, typeCategory)).orderBy(asc(types.sort)).all()
+}
+
+export function buildCategoryTree(rows: TypeRow[]): CategoryItem[] {
+  const parents = rows.filter(r => r.parentId === 0)
+  return parents.map(p => ({
+    id: p.id,
+    name: p.name,
+    icon: p.icon,
+    children: rows
+      .filter(r => r.parentId === p.id)
+      .map(c => ({ id: c.id, name: c.name, icon: c.icon })),
+  }))
+}
 
 function validateTypeInput(input: CreateTypeInput | UpdateTypeInput): void {
   if (!input.name.trim()) {

@@ -9,9 +9,6 @@ const useStyles = createUseSheetStyle((token) => ({
     paddingVertical: token.paddingLG,
     alignItems: 'center' as const,
   },
-  amount: {
-    fontSize: token.fontSizeHeading1,
-  },
 }));
 
 export function AmountDisplay() {
@@ -24,7 +21,7 @@ export function AmountDisplay() {
   return (
     <Column>
       <Pressable testID="amount-pressable" style={styles.pressable} onPress={() => setPopupOpen(true)}>
-        <Text testID="amount-text" style={styles.amount}>{displayText}</Text>
+        <Text testID="amount-text" size={'h1'}>{displayText}</Text>
       </Pressable>
       <CalculatorInput.Popup
         open={popupOpen}

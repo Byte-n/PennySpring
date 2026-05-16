@@ -6,10 +6,13 @@ import type {
   UpdateTagInput,
   UpdateTypeInput,
 } from './services';
+import type { RecordTypeCategoryValue } from './constants';
 export * from './services/types'
+export type { CategoryItem } from './services'
 export * from './constants';
 export * from './schema';
 export * from './relations';
+export { buildCategoryTree } from './services';
 export { createDatabase, runMigrations, schema } from './runtime';
 
 import { createDatabase, runMigrations, type Database } from './runtime';
@@ -70,6 +73,10 @@ export const api = {
     delete: async (typeId: number) => {
       const database = await getDatabase();
       return services.deleteType(database, typeId);
+    },
+    getByCategory: async (typeCategory: RecordTypeCategoryValue) => {
+      const database = await getDatabase();
+      return services.getTypesByCategory(database, typeCategory);
     },
   },
 };
