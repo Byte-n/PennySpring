@@ -1,14 +1,10 @@
 import type { ComponentSize } from '../shares/types';
 import React, { useRef } from 'react';
-import {
-  PanResponder,
-  Pressable,
-  View,
-  useWindowDimensions,
-} from 'react-native';
+import { Pressable, View, useWindowDimensions } from 'react-native';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import type {
   AliasToken } from '@pennyspring/theme';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { useControllableValue } from '../_hooks';
 import { Popup as PopupRoot } from './Popup';
 import type {
@@ -197,40 +193,16 @@ export function FloatingPanel({
   });
 
   const dragStartHeightRef = useRef(normalizedPanelHeight);
-  const dragStartPageYRef = useRef(0);
 
   const direction = resolvedPosition === 'bottom' ? 1 : -1;
 
-  function resolveDeltaY(
-    event: { nativeEvent?: { pageY?: number } },
-    gestureState?: { dy?: number },
-  ): number {
-    if (gestureState?.dy !== undefined) {
-      return gestureState.dy;
-    }
-
-    if (event.nativeEvent?.pageY !== undefined) {
-      return event.nativeEvent.pageY - dragStartPageYRef.current;
-    }
-
-    return 0;
-  }
-
-  function handleResponderGrant(
-    event: { nativeEvent?: { pageY?: number } },
-    _gestureState?: { dy?: number },
-  ): void {
+  function handleGestureBegin(): void {
     dragStartHeightRef.current = normalizedPanelHeight;
-    dragStartPageYRef.current = event.nativeEvent?.pageY ?? 0;
   }
 
-  function handleResponderMove(
-    event: { nativeEvent?: { pageY?: number } },
-    gestureState?: { dy?: number },
-  ): void {
-    const deltaY = resolveDeltaY(event, gestureState);
+  function handleGestureUpdate(translationY: number): void {
     const nextHeight = clamp(
-      dragStartHeightRef.current - deltaY * direction,
+      dragStartHeightRef.current - translationY * direction,
       resolvedMinHeight,
       resolvedMaxHeight,
     );
@@ -238,33 +210,23 @@ export function FloatingPanel({
     setPanelHeight(nextHeight);
   }
 
-  const dragPanResponder = PanResponder.create({
-    onMoveShouldSetPanResponder: () => true,
-    onMoveShouldSetPanResponderCapture: () => true,
-    onPanResponderGrant: handleResponderGrant,
-    onPanResponderMove: handleResponderMove,
-    onPanResponderRelease: handleResponderMove,
-    onStartShouldSetPanResponder: () => true,
-    onStartShouldSetPanResponderCapture: () => true,
-  });
+  const dragGesture = Gesture.Pan()
+    .runOnJS(true)
+    .onBegin(handleGestureBegin)
+    .onUpdate(event => {
+      handleGestureUpdate(event.translationY);
+    });
 
   const handleNode = (
-    <Pressable
-      {...dragPanResponder.panHandlers}
-      onMoveShouldSetResponder={() => true}
-      onResponderGrant={handleResponderGrant}
-      onResponderMove={handleResponderMove}
-      onResponderRelease={handleResponderMove}
-      onStartShouldSetResponder={() => true}
-      style={[tokenStyles.handle, styles?.handle]}
-      testID="floating-panel-handle"
-    >
-      <View
-        pointerEvents="none"
-        style={[tokenStyles.handleIndicator, styles?.handleIndicator]}
-        testID="floating-panel-handle-indicator"
-      />
-    </Pressable>
+    <GestureDetector gesture={dragGesture}>
+      <Pressable style={[tokenStyles.handle, styles?.handle]} testID="floating-panel-handle">
+        <View
+          pointerEvents="none"
+          style={[tokenStyles.handleIndicator, styles?.handleIndicator]}
+          testID="floating-panel-handle-indicator"
+        />
+      </Pressable>
+    </GestureDetector>
   );
 
   const handleAtTop = resolvedPosition === 'bottom';
