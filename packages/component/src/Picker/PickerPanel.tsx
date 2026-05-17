@@ -7,12 +7,14 @@ import type {
   PickerColumn,
   PickerColumnItemData,
   PickerItemValue,
+  PickerPanelStyles,
   PickerPopupProps,
 } from './types';
 
 interface PickerPanelProps<TItem extends PickerColumnItemData> {
   columns: Array<PickerColumn<TItem>>;
   draftValue: Array<PickerItemValue<TItem>>;
+  externalPanelStyles?: PickerPanelStyles;
   hasDisabledFocusedItem?: boolean;
   isWheelScrolling?: boolean;
   props: PickerPopupProps<TItem>;
@@ -27,6 +29,7 @@ interface PickerPanelProps<TItem extends PickerColumnItemData> {
 export function PickerPanel<TItem extends PickerColumnItemData>({
   columns,
   draftValue,
+  externalPanelStyles,
   hasDisabledFocusedItem,
   isWheelScrolling,
   onCancelPress,
@@ -37,10 +40,8 @@ export function PickerPanel<TItem extends PickerColumnItemData>({
   props,
   styles,
 }: PickerPanelProps<TItem>) {
-  const panelStyles = props.styles?.panel;
-
   return (
-    <View style={[styles.panel, panelStyles?.panel]}>
+    <View style={[styles.panel, externalPanelStyles?.root]}>
       {props.renderHeader ? (
         props.renderHeader({
           draftValue,
@@ -60,13 +61,13 @@ export function PickerPanel<TItem extends PickerColumnItemData>({
           okText={props.okText}
           onCancelPress={onCancelPress}
           onOkPress={onOkPress}
-          slotStyles={panelStyles?.header}
+          slotStyles={externalPanelStyles?.header}
           styles={styles}
           title={props.title}
           titleText={props.titleText}
         />
       )}
-      <PickerSafeArea slotStyles={panelStyles} styles={styles}>
+      <PickerSafeArea slotStyles={externalPanelStyles} styles={styles}>
         <PickerBody
           columns={columns}
           empty={props.empty}
@@ -81,7 +82,7 @@ export function PickerPanel<TItem extends PickerColumnItemData>({
           onWheelScrollStateChange={onWheelScrollStateChange}
           renderLabel={props.renderLabel}
           selectedValue={draftValue}
-          slotStyles={panelStyles?.body}
+          slotStyles={externalPanelStyles?.body}
           styles={styles}
         />
       </PickerSafeArea>

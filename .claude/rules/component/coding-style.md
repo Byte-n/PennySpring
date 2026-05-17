@@ -64,16 +64,12 @@ paths:
 
 ## 样式 API
 
-- 有可见根元素且调用方存在布局定位或外观覆盖需求的组件应提供 `style`，用于表示根元素样式。
-- 当组件包含多个内部元素需要独立自定义时，额外提供 `styles?: XxxStyles`。
-- 当组件提供 `style` 时，`styles` 不需要包含根元素部分；根元素样式统一由 `style` 表达。
-- 不要在同一组件上同时混用 `styles` 和零散插槽 props（如 `containerStyle`、`labelStyle`）。
-- `styles` 是内部插槽级覆盖对象，每个 key 必须映射到稳定且有文档说明的组件内部插槽。
-- 插槽名称应匹配组件结构，使用 `content`、`label`、`con`、`track`、`indicator`、`leftActions`、`rightActions` 等名称。
-- 嵌套组件应通过将子组件样式归组到子组件名称下，保留所有权边界。
-- 通过 `xxxProps` 配置或透传内部复用组件 props 时，`xxxProps` 只承载非样式行为配置。
-- `xxxProps` 中必须移除内部组件的 `style`、`styles`，例如使用 `Omit<InnerProps, 'style' | 'styles'>`。
-- 内部复用组件的样式插槽必须映射到当前组件顶层 `styles.xxx` 下，禁止通过 `xxxProps.styles` 暴露第二套样式入口。
+- `style` 控制组件外层布局，`styles?: XxxStyles` 控制语义化内部插槽。
+- `styles` 类型由当前组件的对外语义定义，不直接复用底层实现组件的 `styles` 类型。
+- 插槽命名表达组件结构和职责，不表达实现细节；可见内部根节点统一使用 `root`。
+- 嵌套结构用语义命名空间分组，保持层级与对外结构一致，例如 `styles.xxx.root`、`styles.xxx.content`。
+- 内部复用组件的样式映射到当前组件 `styles.<semanticSlot>`；`xxxProps` 只承载非样式配置，必须 `Omit<InnerProps, 'style' | 'styles'>`。
+- 禁止新增 `containerStyle`、`labelStyle` 等零散样式 props；新增样式能力统一进入 `styles`。
 
 ## 样式实现
 

@@ -42,13 +42,13 @@ export const usePickerStyles = createUseSheetStyle(
       backgroundColor: token.colorFillTertiary,
     },
     popup: {
-      ...({
-        ...{},
-      }),
       bottom: 0,
       left: 0,
       right: 0,
       zIndex: token.zIndexPopupBase,
+    },
+    popupContent: {
+      padding: 0,
     },
     mask: {
       backgroundColor: token.colorBgMask,

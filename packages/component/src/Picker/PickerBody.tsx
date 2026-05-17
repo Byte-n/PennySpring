@@ -73,7 +73,7 @@ export function PickerBody<TItem extends PickerColumnItemData>({
   }
 
   return (
-    <View style={[styles.body, slotStyles?.body]}>
+    <View style={[styles.body, slotStyles?.root]}>
       <GeometryReader defaultGeometry={{ width: 0, height: defaultWheelHeight }}>
         {({ height }) => {
           if (lockedHeightRef.current === 0 && height > 0) {

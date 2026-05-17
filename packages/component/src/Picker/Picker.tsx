@@ -118,9 +118,10 @@ export function Picker<TItem extends PickerColumnItemData = PickerColumnItemData
   onOpenChange,
   open,
   placeholder,
+  readonly,
   size = DEFAULT_SIZE,
   style,
-  triggerStyle,
+  styles: externalStyles,
   value,
 }: PickerProps<TItem>) {
   const tokenStyles = usePickerStyles({ size });
@@ -164,7 +165,7 @@ export function Picker<TItem extends PickerColumnItemData = PickerColumnItemData
   }, [columns, isOpen, mainValue]);
 
   const handleTriggerPress = () => {
-    if (disabled) {
+    if (disabled || readonly) {
       return;
     }
 
@@ -258,13 +259,14 @@ export function Picker<TItem extends PickerColumnItemData = PickerColumnItemData
         allowClear={allowClear}
         displayInputProps={displayInputProps}
         disabled={disabled}
+        externalInputStyles={externalStyles?.input}
+        externalTriggerStyle={externalStyles?.trigger}
         hasValue={hasMainValue}
         label={label}
         onClearPress={handleClearPress}
         onPress={handleTriggerPress}
         placeholder={placeholder}
         styles={tokenStyles}
-        triggerStyle={triggerStyle}
         valueText={triggerValueText}
       >
         {children}
@@ -272,6 +274,7 @@ export function Picker<TItem extends PickerColumnItemData = PickerColumnItemData
       <PickerPopup
         columns={columns}
         draftValue={draftValue}
+        externalStyles={externalStyles}
         hasDisabledFocusedItem={hasDisabledFocusedItem}
         isWheelScrolling={isWheelScrolling}
         onItemPress={handleItemPress}

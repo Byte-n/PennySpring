@@ -247,6 +247,7 @@ export function CascadePicker<TData = unknown>(props: CascadePickerProps<TData>)
       defaultOpen={props.defaultOpen}
       defaultValue={defaultPickerValue}
       disabled={props.disabled}
+      displayInputProps={props.displayInputProps}
       onCancel={props.onCancel}
       onChange={(_nextPickerValue, pickerParams) => {
         if (pickerParams.reason === 'clear') {
@@ -288,12 +289,11 @@ export function CascadePicker<TData = unknown>(props: CascadePickerProps<TData>)
         okDisabled: props.okDisabled,
         okText: props.okText,
         renderLabel: pickerRenderLabel,
-        styles: props.styles,
         title: props.title,
         titleText: props.titleText,
       }}
       style={props.style}
-      triggerStyle={props.styles?.trigger}
+      styles={props.styles}
       value={pickerValue}
     >
       {props.children}

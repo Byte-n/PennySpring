@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import type { StyleProp, ViewStyle } from 'react-native';
 import type {
   PickerCancelParams,
+  PickerDisplayInputProps,
   PickerOpenChangeParams,
   PickerStyles,
 } from '../Picker';
@@ -54,6 +55,7 @@ export interface TimePickerProps {
   emptyText?: string;
   empty?: ReactNode;
   placeholder?: string;
+  displayInputProps?: PickerDisplayInputProps;
   disabled?: boolean;
   okDisabled?: boolean;
   children?: ReactNode;

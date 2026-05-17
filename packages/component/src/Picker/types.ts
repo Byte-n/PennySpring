@@ -5,7 +5,7 @@ import type {
   ViewStyle,
 } from 'react-native';
 import type { ComponentSize } from '../shares/types';
-import type { DisplayInputProps } from '../DisplayInput';
+import type { DisplayInputProps, DisplayInputStyles } from '../DisplayInput';
 
 export type PickerValue = string | number;
 export type PickerOpenChangeReason = 'trigger' | 'cancel' | 'mask' | 'ok';
@@ -72,17 +72,26 @@ export type PickerChangeParams<
 
 export interface PickerStyles {
   trigger?: StyleProp<ViewStyle>;
+  input?: PickerInputStyles;
   popup?: PickerPopupStyles;
   panel?: PickerPanelStyles;
 }
 
+export interface PickerInputStyles extends DisplayInputStyles {
+  root?: StyleProp<ViewStyle>;
+}
+
 export interface PickerPopupStyles {
-  popup?: StyleProp<ViewStyle>;
+  root?: StyleProp<ViewStyle>;
   mask?: StyleProp<ViewStyle>;
+  container?: StyleProp<ViewStyle>;
+  content?: StyleProp<ViewStyle>;
+  handle?: StyleProp<ViewStyle>;
+  handleIndicator?: StyleProp<ViewStyle>;
 }
 
 export interface PickerPanelStyles {
-  panel?: StyleProp<ViewStyle>;
+  root?: StyleProp<ViewStyle>;
   header?: PickerHeaderStyles;
   body?: PickerBodyStyles;
   safeArea?: StyleProp<ViewStyle>;
@@ -98,7 +107,7 @@ export interface PickerHeaderStyles {
 }
 
 export interface PickerBodyStyles {
-  body?: StyleProp<ViewStyle>;
+  root?: StyleProp<ViewStyle>;
   view?: PickerViewStyles;
   loading?: StyleProp<ViewStyle>;
   empty?: StyleProp<ViewStyle>;
@@ -110,7 +119,7 @@ export interface PickerViewStyles {
 }
 
 export interface PickerColumnStyles {
-  column?: StyleProp<ViewStyle>;
+  root?: StyleProp<ViewStyle>;
   item?: StyleProp<ViewStyle>;
   itemText?: StyleProp<TextStyle>;
   empty?: StyleProp<ViewStyle>;
@@ -149,12 +158,11 @@ export interface PickerPopupProps<
     itemIndex: number,
   ) => ReactNode;
   renderHeader?: (params: PickerRenderHeaderParams<TItem>) => ReactNode;
-  styles?: Omit<PickerStyles, 'trigger'>;
 }
 
-type PickerDisplayInputProps = Omit<
+export type PickerDisplayInputProps = Omit<
   DisplayInputProps,
-  'label' | 'placeholder' | 'disabled' | 'readonly' | 'valueText'
+  'label' | 'placeholder' | 'disabled' | 'readonly' | 'valueText' | 'style' | 'styles'
 >;
 
 export interface PickerProps<
@@ -178,12 +186,13 @@ export interface PickerProps<
   onCancel?: (params: PickerCancelParams) => void;
   label?: DisplayInputProps['label'];
   placeholder?: string;
+  readonly?: boolean;
   displayInputProps?: PickerDisplayInputProps;
   popupProps?: PickerPopupProps<TItem>;
   allowClear?: boolean;
   onClear?: () => void;
   disabled?: boolean;
   style?: StyleProp<ViewStyle>;
-  triggerStyle?: StyleProp<ViewStyle>;
+  styles?: PickerStyles;
   children?: ReactNode;
 }

@@ -296,6 +296,7 @@ export function DateTimePicker(props: DateTimePickerProps) {
       defaultOpen={props.defaultOpen}
       defaultValue={defaultPickerValue}
       disabled={props.disabled}
+      displayInputProps={props.displayInputProps}
       onCancel={props.onCancel}
       onChange={nextPickerValue => {
         const nextDate = pickerValueToDate(nextPickerValue, precision, baseDate);
@@ -320,12 +321,11 @@ export function DateTimePicker(props: DateTimePickerProps) {
         okDisabled: props.okDisabled,
         okText: props.okText,
         renderLabel: pickerRenderLabel,
-        styles: props.styles,
         title: props.title,
         titleText: props.titleText,
       }}
       style={props.style}
-      triggerStyle={props.styles?.trigger}
+      styles={props.styles}
       value={pickerValue}
     >
       {props.children}

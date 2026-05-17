@@ -91,7 +91,7 @@ export function PickerColumn<TItem extends PickerColumnItemData>({
         styles.column,
         styles.columnScroll,
         wheelHeight > 0 ? wheelStyles.columnScroll : undefined,
-        slotStyles?.column,
+        slotStyles?.root,
       ]}
       testID={`picker-column-scroll-${columnIndex}`}
       onMomentumScrollBegin={() => onWheelScrollStateChange?.(true)}

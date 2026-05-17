@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import type { StyleProp, ViewStyle } from 'react-native';
 import type {
   PickerCancelParams,
+  PickerDisplayInputProps,
   PickerOpenChangeParams,
   PickerStyles,
   PickerValue,
@@ -60,6 +61,7 @@ export interface CascadePickerProps<TData = unknown> {
   emptyText?: string;
   empty?: ReactNode;
   placeholder?: string;
+  displayInputProps?: PickerDisplayInputProps;
   disabled?: boolean;
   okDisabled?: boolean;
   children?: ReactNode;

@@ -74,7 +74,7 @@ export function PickerView<TItem extends PickerColumnItemData>({
         column.length === 0 ? (
           <View
             key={columnIndex}
-            style={[styles.column, styles.empty, viewStyles?.column?.column, slotStyles?.empty]}
+            style={[styles.column, styles.empty, viewStyles?.column?.root, slotStyles?.empty]}
           >
             {empty ?? <Text>{emptyText}</Text>}
           </View>

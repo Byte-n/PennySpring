@@ -6,11 +6,13 @@ import type {
   PickerColumnItemData,
   PickerItemValue,
   PickerPopupProps as PickerPopupConfig,
+  PickerStyles,
 } from './types';
 
 interface PickerPopupContainerProps<TItem extends PickerColumnItemData> {
   columns: Array<PickerColumn<TItem>>;
   draftValue: Array<PickerItemValue<TItem>>;
+  externalStyles?: PickerStyles;
   hasDisabledFocusedItem?: boolean;
   isWheelScrolling?: boolean;
   open: boolean;
@@ -27,6 +29,7 @@ interface PickerPopupContainerProps<TItem extends PickerColumnItemData> {
 export function PickerPopup<TItem extends PickerColumnItemData>({
   columns,
   draftValue,
+  externalStyles,
   hasDisabledFocusedItem,
   isWheelScrolling,
   onCancelPress,
@@ -44,16 +47,19 @@ export function PickerPopup<TItem extends PickerColumnItemData>({
       open={open}
       position="bottom"
       onCancel={() => onMaskPress?.()}
-      style={props.styles?.popup?.popup}
+      style={externalStyles?.popup?.root}
       styles={{
-        mask: [styles.mask, props.styles?.popup?.mask],
-        body: styles.popup,
-        content: { padding: 0 },
+        mask: [styles.mask, externalStyles?.popup?.mask],
+        body: [styles.popup, externalStyles?.popup?.container],
+        content: [styles.popupContent, externalStyles?.popup?.content],
+        handle: externalStyles?.popup?.handle,
+        handleIndicator: externalStyles?.popup?.handleIndicator,
       }}
     >
       <PickerPanel
         columns={columns}
         draftValue={draftValue}
+        externalPanelStyles={externalStyles?.panel}
         hasDisabledFocusedItem={hasDisabledFocusedItem}
         isWheelScrolling={isWheelScrolling}
         onCancelPress={onCancelPress}

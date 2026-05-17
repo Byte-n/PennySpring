@@ -216,6 +216,7 @@ export function TimePicker(props: TimePickerProps) {
       defaultOpen={props.defaultOpen}
       defaultValue={defaultPickerValue}
       disabled={props.disabled}
+      displayInputProps={props.displayInputProps}
       onCancel={props.onCancel}
       onChange={nextPickerValue => {
         const nextDate = pickerValueToDate(nextPickerValue, baseDate, precision);
@@ -240,12 +241,11 @@ export function TimePicker(props: TimePickerProps) {
         okDisabled: props.okDisabled,
         okText: props.okText,
         renderLabel: pickerRenderLabel,
-        styles: props.styles,
         title: props.title,
         titleText: props.titleText,
       }}
       style={props.style}
-      triggerStyle={props.styles?.trigger}
+      styles={props.styles}
       value={pickerValue}
     >
       {props.children}

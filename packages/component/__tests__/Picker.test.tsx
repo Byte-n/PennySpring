@@ -137,16 +137,21 @@ it('renders custom header via renderHeader', () => {
   expect(customHeader).toBeDefined();
 });
 
-it('does not expose readonly in public picker props', () => {
-  const element = (
-    <Picker
-      columns={columns}
-      // @ts-expect-error Picker no longer supports readonly.
-      readonly
-    />
-  );
+it('does not open when readonly', () => {
+  const onOpenChange = jest.fn();
+  let testRenderer: renderer.ReactTestRenderer;
 
-  expect(element.props.readonly).toBe(true);
+  act(() => {
+    testRenderer = renderer.create(
+      <Picker columns={columns} onOpenChange={onOpenChange} readonly />,
+    );
+  });
+
+  act(() => {
+    testRenderer!.root.findByProps({ testID: 'picker-trigger' }).props.onPress();
+  });
+
+  expect(onOpenChange).not.toHaveBeenCalled();
 });
 
 it('infers value and callback params from picker column item type', () => {
@@ -639,12 +644,26 @@ it('does not auto fallback for missing or invalid values', () => {
 it('applies supported style slots', () => {
   const styles: PickerStyles = {
     trigger: { opacity: 0.91 },
+    input: {
+      root: { opacity: 0.81 },
+      field: { opacity: 0.8 },
+      value: { opacity: 0.79 },
+      placeholder: { opacity: 0.78 },
+      prefix: { opacity: 0.73 },
+      suffix: { opacity: 0.72 },
+      helper: { opacity: 0.71 },
+      error: { opacity: 0.7 },
+    },
     popup: {
-      popup: { opacity: 0.92 },
+      root: { opacity: 0.92 },
       mask: { opacity: 0.93 },
+      container: { opacity: 0.69 },
+      content: { opacity: 0.68 },
+      handle: { opacity: 0.67 },
+      handleIndicator: { opacity: 0.66 },
     },
     panel: {
-      panel: { opacity: 0.94 },
+      root: { opacity: 0.94 },
       header: {
         cancelButton: { opacity: 0.96 },
         cancelText: { opacity: 0.97 },
@@ -654,10 +673,10 @@ it('applies supported style slots', () => {
         okText: { opacity: 0.87 },
       },
       body: {
-        body: { opacity: 0.86 },
+        root: { opacity: 0.86 },
         view: {
           column: {
-            column: { opacity: 0.84 },
+            root: { opacity: 0.84 },
             item: { opacity: 0.83 },
             itemText: { opacity: 0.82 },
           },
@@ -680,15 +699,16 @@ it('applies supported style slots', () => {
       <Picker
         columns={styledColumns}
         defaultOpen
+        displayInputProps={{
+          helperText: 'Helper',
+          prefix: <Text>Prefix</Text>,
+          suffix: <Text>Suffix</Text>,
+        }}
         popupProps={{
           emptyText: 'No data',
-          styles: {
-            popup: styles.popup,
-            panel: styles.panel,
-          },
           titleText: 'Title',
         }}
-        triggerStyle={styles.trigger}
+        styles={styles}
         value={['a']}
       />,
     );
@@ -703,7 +723,12 @@ it('applies supported style slots', () => {
     .props.style;
 
   expect(JSON.stringify(tree.findByProps({ testID: 'picker-trigger' }).props.style)).toContain('0.91');
+  expect(JSON.stringify(tree.findByType(DisplayInput).props.style)).toContain('0.81');
+  expect(JSON.stringify(tree.findByType(DisplayInput).props.styles)).toContain('0.8');
   expect(JSON.stringify(tree.findByProps({ testID: 'popup-mask' }).props.style)).toContain('0.93');
+  expect(JSON.stringify(tree.findByProps({ testID: 'floating-panel-root' }).props.style)).toContain('0.92');
+  expect(JSON.stringify(tree.findByProps({ testID: 'floating-panel-handle' }).props.style)).toContain('0.67');
+  expect(JSON.stringify(tree.findByProps({ testID: 'floating-panel-handle-indicator' }).props.style)).toContain('0.66');
   expect(JSON.stringify(cancelButtonStyle)).toContain('0.96');
   expect(JSON.stringify(okButtonStyle)).toContain('0.88');
   expect(JSON.stringify(tree.findByProps({ testID: 'picker-indicator' }).props.style)).toContain('0.77');
@@ -911,6 +936,20 @@ it('allows overriding non-flattened display input props from picker', () => {
   expect(triggerInput.props.display).toBe('block');
   expect(triggerInput.props.placeholder).toBe('Please select');
   expect(triggerInput.props.readonly).toBe(true);
+});
+
+it('keeps display input style props out of display input props', () => {
+  const element = (
+    <Picker
+      columns={columns}
+      displayInputProps={{
+        // @ts-expect-error Display input styles are exposed through Picker styles.input.
+        style: { opacity: 0.5 },
+      }}
+    />
+  );
+
+  expect(element.props.displayInputProps.style).toEqual({ opacity: 0.5 });
 });
 
 it('does not expose imperative business features', () => {
