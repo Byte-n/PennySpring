@@ -24,6 +24,15 @@ export const usePickerStyles = createUseSheetStyle(
     trigger: {
       alignSelf: 'stretch',
     },
+    triggerClearButton: {
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: token.paddingXXS,
+      borderRadius: token.borderRadiusSM,
+    },
+    triggerClearButtonPressed: {
+      backgroundColor: token.colorFillTertiary,
+    },
     popup: {
       ...({
         ...{},

@@ -39,35 +39,60 @@ function hasEmptyColumn(columns: PickerProps['columns']): boolean {
   return columns.some(column => column.length === 0);
 }
 
+function getItemDisplayText(
+  item: ReturnType<typeof getSelectedItems>[number],
+): string | undefined {
+  if (item === undefined) {
+    return undefined;
+  }
+
+  if (item.labelText !== undefined && item.labelText !== '') {
+    return item.labelText;
+  }
+
+  if (typeof item.label === 'string' || typeof item.label === 'number') {
+    return String(item.label);
+  }
+
+  return undefined;
+}
+
+function getTriggerValueText(
+  columns: PickerProps['columns'],
+  pickerValue: PickerValue[],
+): string | undefined {
+  const itemTexts = getSelectedItems(columns, pickerValue)
+    .map(item => getItemDisplayText(item))
+    .filter((item): item is string => item !== undefined);
+
+  if (itemTexts.length === 0) {
+    return undefined;
+  }
+
+  return itemTexts.join(' / ');
+}
+
 export function Picker({
-  cancel,
-  cancelText = DEFAULT_CANCEL_TEXT,
+  allowClear,
   children,
   columns,
   defaultOpen,
   defaultValue,
+  displayInputProps,
   disabled,
-  empty,
-  emptyText,
-  loading,
-  loadingIndicator,
-  loadingIndicatorText,
-  ok,
-  okDisabled,
-  okText = DEFAULT_OK_TEXT,
+  label,
+  popupProps,
   onCancel,
   onChange,
+  onClear,
   onOk,
   onOpenChange,
   open,
   placeholder,
   readonly,
-  renderLabel,
   size = DEFAULT_SIZE,
   style,
-  styles: slotStyles,
-  title,
-  titleText,
+  triggerStyle,
   value,
 }: PickerProps) {
   const tokenStyles = usePickerStyles({ size });
@@ -84,6 +109,8 @@ export function Picker({
   );
   const [draftValue, setDraftValue] = useState(mainValue);
   const draftValueRef = useRef(draftValue);
+  const triggerValueText = getTriggerValueText(columns, mainValue);
+  const hasMainValue = mainValue.length > 0;
 
   useEffect(() => {
     if (isOpen) {
@@ -117,7 +144,7 @@ export function Picker({
   };
 
   const handleOkPress = () => {
-    if (disabled || okDisabled) {
+    if (disabled || popupProps?.okDisabled) {
       return;
     }
 
@@ -126,7 +153,7 @@ export function Picker({
     setMainValue(nextValue);
     onOk?.(nextValue, { items: getSelectedItems(columns, nextValue) });
 
-    if (!loading && !hasEmptyColumn(columns)) {
+    if (!popupProps?.loading && !hasEmptyColumn(columns)) {
       closeInternal('ok');
     }
   };
@@ -149,6 +176,7 @@ export function Picker({
     draftValueRef.current = nextDraftValue;
     setDraftValue(nextDraftValue);
     onChange?.(nextDraftValue, {
+      reason: 'select',
       columnIndex,
       item,
       itemIndex,
@@ -157,14 +185,33 @@ export function Picker({
     });
   };
 
+  const handleClearPress = () => {
+    const nextValue: PickerValue[] = [];
+    draftValueRef.current = nextValue;
+    setDraftValue(nextValue);
+    setMainValue(nextValue);
+    onChange?.(nextValue, {
+      reason: 'clear',
+      items: getSelectedItems(columns, nextValue),
+    });
+    onClear?.();
+  };
+
   return (
     <View style={style}>
       <PickerTrigger
+        allowClear={allowClear}
+        displayInputProps={displayInputProps}
         disabled={disabled}
+        hasValue={hasMainValue}
+        label={label}
+        onClearPress={handleClearPress}
         onPress={handleTriggerPress}
         placeholder={placeholder}
-        slotStyles={slotStyles}
+        readonly={readonly}
         styles={tokenStyles}
+        triggerStyle={triggerStyle}
+        valueText={triggerValueText}
       >
         {children}
       </PickerTrigger>
@@ -177,20 +224,9 @@ export function Picker({
         onMaskPress={handleMaskPress}
         onOkPress={handleOkPress}
         props={{
-          cancel,
-          cancelText,
-          empty,
-          emptyText,
-          loading,
-          loadingIndicator,
-          loadingIndicatorText,
-          ok,
-          okDisabled,
-          okText,
-          renderLabel,
-          styles: slotStyles,
-          title,
-          titleText,
+          ...popupProps,
+          cancelText: popupProps?.cancelText ?? DEFAULT_CANCEL_TEXT,
+          okText: popupProps?.okText ?? DEFAULT_OK_TEXT,
         }}
         styles={tokenStyles}
       />

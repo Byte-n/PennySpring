@@ -1,12 +1,12 @@
 import React from 'react';
 import { View } from 'react-native';
 import { PickerColumnItem } from './PickerColumnItem';
-import type { PickerColumn as PickerColumnData, PickerColumnStyles, PickerProps, PickerValue } from './types';
+import type { PickerColumn as PickerColumnData, PickerColumnStyles, PickerPopupProps, PickerValue } from './types';
 
 interface PickerColumnProps {
   column: PickerColumnData;
   columnIndex: number;
-  renderLabel?: PickerProps['renderLabel'];
+  renderLabel?: PickerPopupProps['renderLabel'];
   selectedValue?: PickerValue;
   styles: ReturnType<typeof import('./usePickerStyles').usePickerStyles>;
   slotStyles?: PickerColumnStyles;

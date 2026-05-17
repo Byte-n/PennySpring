@@ -1,6 +1,6 @@
 import React from 'react';
 import { View } from 'react-native';
-import { Picker, Text } from '@pennyspring/component';
+import { Picker } from '@pennyspring/component';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import { PreviewScaffold, PreviewSection } from '../../PreviewScaffold';
 import type { PickerColumn } from '@pennyspring/component';
@@ -9,39 +9,55 @@ const ACCOUNT_COLUMN: PickerColumn = [
   { labelText: 'Cash', value: 'cash' },
   { labelText: 'Primary card', value: 'card' },
   { labelText: 'Savings', value: 'saving', disabled: true },
+  { labelText: 'Salary card', value: 'salary-card' },
+  { labelText: 'Travel card', value: 'travel-card' },
+  { labelText: 'USD wallet', value: 'usd-wallet' },
+  { labelText: 'HKD wallet', value: 'hkd-wallet' },
+  { labelText: 'Digital wallet', value: 'digital-wallet' },
+  { labelText: 'Investment account', value: 'investment-account' },
+  { labelText: 'Emergency fund', value: 'emergency-fund' },
+  { labelText: 'Family account', value: 'family-account' },
+  { labelText: 'Trip budget', value: 'trip-budget' },
+  { labelText: 'Petty cash', value: 'petty-cash' },
 ];
 
 const CATEGORY_COLUMN: PickerColumn = [
   { labelText: 'Food', value: 'food' },
   { labelText: 'Traffic', value: 'traffic' },
   { labelText: 'Shopping', value: 'shopping' },
+  { labelText: 'Rent', value: 'rent' },
+  { labelText: 'Utilities', value: 'utilities' },
+  { labelText: 'Medical', value: 'medical' },
+  { labelText: 'Insurance', value: 'insurance' },
+  { labelText: 'Education', value: 'education' },
+  { labelText: 'Entertainment', value: 'entertainment' },
+  { labelText: 'Travel', value: 'travel' },
+  { labelText: 'Gift', value: 'gift' },
+  { labelText: 'Sports', value: 'sports' },
+  { labelText: 'Subscriptions', value: 'subscriptions' },
+  { labelText: 'Other', value: 'other' },
 ];
 
 const MONTH_COLUMN: PickerColumn = [
+  { labelText: 'January', value: 'january' },
+  { labelText: 'February', value: 'february' },
+  { labelText: 'March', value: 'march' },
+  { labelText: 'April', value: 'april' },
   { labelText: 'May', value: 'may' },
   { labelText: 'June', value: 'june' },
   { labelText: 'July', value: 'july' },
+  { labelText: 'August', value: 'august' },
+  { labelText: 'September', value: 'september' },
+  { labelText: 'October', value: 'october' },
+  { labelText: 'November', value: 'november' },
+  { labelText: 'December', value: 'december' },
 ];
 
 const useStyles = createUseSheetStyle(token => ({
   stack: {
     gap: token.marginSM,
   },
-  triggerContent: {
-    gap: token.marginXXS,
-  },
 }));
-
-function TriggerContent({ label, value }: { label: string; value: string }) {
-  const styles = useStyles();
-
-  return (
-    <View style={styles.triggerContent}>
-      <Text color="description" size="sm">{label}</Text>
-      <Text color="heading" weight="strong">{value}</Text>
-    </View>
-  );
-}
 
 export function PickerPreview() {
   const styles = useStyles();
@@ -51,57 +67,26 @@ export function PickerPreview() {
       <PreviewSection title="Trigger">
         <View style={styles.stack}>
           <Picker
+            allowClear
+            label="Account"
             placeholder="Single column"
             columns={[ACCOUNT_COLUMN]}
-            titleText="Account"
+            popupProps={{ titleText: 'Account' }}
           />
           <Picker
+            allowClear
             columns={[MONTH_COLUMN, CATEGORY_COLUMN]}
             defaultValue={['may', 'food']}
-            titleText="Month and category"
-          >
-            <TriggerContent label="Multiple columns" value="May / Food" />
-          </Picker>
-          <Picker disabled columns={[ACCOUNT_COLUMN]} titleText="Disabled">
-            <TriggerContent label="Disabled" value="Not selectable" />
-          </Picker>
-        </View>
-      </PreviewSection>
-
-      <PreviewSection title="Open and state">
-        <View style={styles.stack}>
+            placeholder="请输入"
+            label="MC"
+            popupProps={{ titleText: 'Month and category' }}
+          />
           <Picker
-            defaultOpen
-            columns={[ACCOUNT_COLUMN, CATEGORY_COLUMN]}
-            defaultValue={['card', 'traffic']}
-            titleText="Default open"
-          >
-            <TriggerContent label="Default open" value="Card / Traffic" />
-          </Picker>
-          <Picker columns={[[]]} emptyText="No options" titleText="Empty">
-            <TriggerContent label="Empty state" value="No options" />
-          </Picker>
-        </View>
-      </PreviewSection>
-
-      <PreviewSection title="Size">
-        <View style={styles.stack}>
-          <Picker
-            size="small"
+            disabled
             columns={[ACCOUNT_COLUMN]}
-            defaultValue={['cash']}
-            titleText="Small"
-          >
-            <TriggerContent label="Small" value="Cash" />
-          </Picker>
-          <Picker
-            size="large"
-            columns={[ACCOUNT_COLUMN]}
-            defaultValue={['card']}
-            titleText="Large"
-          >
-            <TriggerContent label="Large" value="Primary card" />
-          </Picker>
+            placeholder="placeholder"
+            popupProps={{ titleText: 'Disabled' }}
+          />
         </View>
       </PreviewSection>
     </PreviewScaffold>

@@ -2,16 +2,16 @@ import React from 'react';
 import { View } from 'react-native';
 import { PickerHeaderButton } from './PickerHeaderButton';
 import { PickerTitle } from './PickerTitle';
-import type { PickerHeaderStyles, PickerProps } from './types';
+import type { PickerHeaderStyles, PickerPopupProps } from './types';
 
 interface PickerHeaderProps {
-  cancel?: PickerProps['cancel'];
-  cancelText?: PickerProps['cancelText'];
-  ok?: PickerProps['ok'];
-  okText?: PickerProps['okText'];
+  cancel?: PickerPopupProps['cancel'];
+  cancelText?: PickerPopupProps['cancelText'];
+  ok?: PickerPopupProps['ok'];
+  okText?: PickerPopupProps['okText'];
   okDisabled?: boolean;
-  title?: PickerProps['title'];
-  titleText?: PickerProps['titleText'];
+  title?: PickerPopupProps['title'];
+  titleText?: PickerPopupProps['titleText'];
   onCancelPress?: () => void;
   onOkPress?: () => void;
   styles: ReturnType<typeof import('./usePickerStyles').usePickerStyles>;

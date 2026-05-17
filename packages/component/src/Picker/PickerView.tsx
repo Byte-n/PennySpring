@@ -3,13 +3,13 @@ import { View } from 'react-native';
 import { Text } from '../Text';
 import { PickerColumn } from './PickerColumn';
 import type { ReactNode } from 'react';
-import type { PickerBodyStyles, PickerProps, PickerValue } from './types';
+import type { PickerBodyStyles, PickerColumn as PickerColumnData, PickerPopupProps, PickerValue } from './types';
 
 interface PickerViewProps {
-  columns: PickerProps['columns'];
+  columns: PickerColumnData[];
   empty?: ReactNode;
   emptyText?: string;
-  renderLabel?: PickerProps['renderLabel'];
+  renderLabel?: PickerPopupProps['renderLabel'];
   selectedValue: PickerValue[];
   styles: ReturnType<typeof import('./usePickerStyles').usePickerStyles>;
   slotStyles?: PickerBodyStyles;

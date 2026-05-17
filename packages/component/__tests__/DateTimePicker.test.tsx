@@ -9,9 +9,20 @@ jest.mock('@react-navigation/material-top-tabs', () => ({
 }));
 
 jest.mock('react-native-gesture-handler', () => {
+  const ReactModule = require('react');
   const ReactNative = require('react-native');
+  const gesture = {
+    onBegin: () => gesture,
+    onUpdate: () => gesture,
+    runOnJS: () => gesture,
+  };
 
   return {
+    Gesture: {
+      Pan: () => gesture,
+    },
+    GestureDetector: ({ children }: { children: React.ReactNode }) =>
+      ReactModule.createElement(ReactModule.Fragment, null, children),
     GestureHandlerRootView: ReactNative.View,
   };
 });

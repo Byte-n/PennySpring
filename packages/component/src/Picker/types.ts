@@ -5,6 +5,7 @@ import type {
   ViewStyle,
 } from 'react-native';
 import type { ComponentSize } from '../shares/types';
+import type { DisplayInputProps } from '../DisplayInput';
 
 export type PickerValue = string | number;
 export type PickerOpenChangeReason = 'trigger' | 'cancel' | 'mask' | 'ok';
@@ -31,13 +32,25 @@ export interface PickerOkParams {
   items: Array<PickerColumnItemData | undefined>;
 }
 
-export interface PickerChangeParams {
+export type PickerChangeReason = 'select' | 'clear';
+
+export interface PickerSelectChangeParams {
+  reason: 'select';
   columnIndex: number;
   item: PickerColumnItemData;
   itemIndex: number;
   items: Array<PickerColumnItemData | undefined>;
   value: PickerValue;
 }
+
+export interface PickerClearChangeParams {
+  reason: 'clear';
+  items: Array<PickerColumnItemData | undefined>;
+}
+
+export type PickerChangeParams =
+  | PickerSelectChangeParams
+  | PickerClearChangeParams;
 
 export interface PickerStyles {
   trigger?: StyleProp<ViewStyle>;
@@ -85,17 +98,7 @@ export interface PickerColumnStyles {
   empty?: StyleProp<ViewStyle>;
 }
 
-export interface PickerProps {
-  size?: ComponentSize;
-  columns: PickerColumn[];
-  value?: PickerValue[];
-  defaultValue?: PickerValue[];
-  onChange?: (value: PickerValue[], params: PickerChangeParams) => void;
-  open?: boolean;
-  defaultOpen?: boolean;
-  onOpenChange?: (open: boolean, params: PickerOpenChangeParams) => void;
-  onOk?: (value: PickerValue[], params: PickerOkParams) => void;
-  onCancel?: (params: PickerCancelParams) => void;
+export interface PickerPopupProps {
   titleText?: string;
   title?: ReactNode;
   cancelText?: string;
@@ -107,16 +110,40 @@ export interface PickerProps {
   loadingIndicator?: ReactNode;
   emptyText?: string;
   empty?: ReactNode;
-  placeholder?: string;
-  disabled?: boolean;
-  readonly?: boolean;
   okDisabled?: boolean;
   renderLabel?: (
     item: PickerColumnItemData,
     columnIndex: number,
     itemIndex: number,
   ) => ReactNode;
+  styles?: Omit<PickerStyles, 'trigger'>;
+}
+
+type PickerDisplayInputProps = Omit<
+  DisplayInputProps,
+  'label' | 'placeholder' | 'disabled' | 'readonly' | 'valueText'
+>;
+
+export interface PickerProps {
+  size?: ComponentSize;
+  columns: PickerColumn[];
+  value?: PickerValue[];
+  defaultValue?: PickerValue[];
+  onChange?: (value: PickerValue[], params: PickerChangeParams) => void;
+  open?: boolean;
+  defaultOpen?: boolean;
+  onOpenChange?: (open: boolean, params: PickerOpenChangeParams) => void;
+  onOk?: (value: PickerValue[], params: PickerOkParams) => void;
+  onCancel?: (params: PickerCancelParams) => void;
+  label?: DisplayInputProps['label'];
+  placeholder?: string;
+  displayInputProps?: PickerDisplayInputProps;
+  popupProps?: PickerPopupProps;
+  allowClear?: boolean;
+  onClear?: () => void;
+  disabled?: boolean;
+  readonly?: boolean;
   style?: StyleProp<ViewStyle>;
-  styles?: PickerStyles;
+  triggerStyle?: StyleProp<ViewStyle>;
   children?: ReactNode;
 }

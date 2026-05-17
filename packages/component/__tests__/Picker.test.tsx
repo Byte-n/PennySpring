@@ -9,9 +9,20 @@ jest.mock('@react-navigation/material-top-tabs', () => ({
 }));
 
 jest.mock('react-native-gesture-handler', () => {
+  const ReactModule = require('react');
   const ReactNative = require('react-native');
+  const gesture = {
+    onBegin: () => gesture,
+    onUpdate: () => gesture,
+    runOnJS: () => gesture,
+  };
 
   return {
+    Gesture: {
+      Pan: () => gesture,
+    },
+    GestureDetector: ({ children }: { children: React.ReactNode }) =>
+      ReactModule.createElement(ReactModule.Fragment, null, children),
     GestureHandlerRootView: ReactNative.View,
   };
 });
@@ -35,11 +46,13 @@ jest.mock('react-native-reanimated', () => {
 });
 
 import {
+  DisplayInput,
   Picker,
   Text,
   type PickerColumn,
   type PickerProps,
   type PickerStyles,
+  type PickerValue,
 } from '../src';
 
 const columns: PickerColumn[] = [
@@ -59,6 +72,29 @@ const UnsupportedBusinessPicker = Picker as unknown as React.ComponentType<
   UnsupportedBusinessPickerProps
 >;
 
+function ControlledClearPicker({
+  onChange,
+  onClear,
+}: {
+  onChange?: PickerProps['onChange'];
+  onClear?: PickerProps['onClear'];
+}) {
+  const [pickerValue, setPickerValue] = React.useState<PickerValue[]>(['b']);
+
+  return (
+    <Picker
+      allowClear
+      columns={columns}
+      onClear={onClear}
+      onChange={(nextValue, params) => {
+        setPickerValue(nextValue);
+        onChange?.(nextValue, params);
+      }}
+      value={pickerValue}
+    />
+  );
+}
+
 it('renders paired text and custom node props', () => {
   let testRenderer: renderer.ReactTestRenderer;
 
@@ -67,9 +103,11 @@ it('renders paired text and custom node props', () => {
       <Picker
         columns={columns}
         defaultOpen
-        title={<Text>Custom title</Text>}
-        cancel={<Text>Custom cancel</Text>}
-        ok={<Text>Custom ok</Text>}
+        popupProps={{
+          title: <Text>Custom title</Text>,
+          cancel: <Text>Custom cancel</Text>,
+          ok: <Text>Custom ok</Text>,
+        }}
       />,
     );
   });
@@ -165,7 +203,7 @@ it('calls cancel then open change for cancel button', () => {
       <Picker
         columns={columns}
         defaultOpen
-        cancelText="Cancel"
+        popupProps={{ cancelText: 'Cancel' }}
         onCancel={params => calls.push(`cancel:${params.reason}`)}
         onOpenChange={(open, params) => calls.push(`open:${open}:${params.reason}`)}
       />,
@@ -210,7 +248,7 @@ it('calls ok then open change for ok button', () => {
       <Picker
         columns={columns}
         defaultOpen
-        okText="OK"
+        popupProps={{ okText: 'OK' }}
         onCancel={() => calls.push('cancel')}
         onOk={value => calls.push(`ok:${value.join(',')}`)}
         onOpenChange={(open, params) => calls.push(`open:${open}:${params.reason}`)}
@@ -393,7 +431,7 @@ it('renders empty state when all columns are empty', () => {
 
   act(() => {
     testRenderer = renderer.create(
-      <Picker columns={[]} defaultOpen emptyText="No data" />,
+      <Picker columns={[]} defaultOpen popupProps={{ emptyText: 'No data' }} />,
     );
   });
 
@@ -409,7 +447,7 @@ it('renders empty column placeholder without selected value', () => {
       <Picker
         columns={[[], [{ labelText: 'One', value: 1 }]]}
         defaultOpen
-        emptyText="No options"
+        popupProps={{ emptyText: 'No options' }}
         onOk={onOk}
       />,
     );
@@ -434,8 +472,7 @@ it('renders loading content without combining disabled state', () => {
       <Picker
         columns={columns}
         defaultOpen
-        loading
-        loadingIndicatorText="Loading"
+        popupProps={{ loading: true, loadingIndicatorText: 'Loading' }}
         onOk={onOk}
       />,
     );
@@ -506,9 +543,15 @@ it('applies supported style slots', () => {
       <Picker
         columns={styledColumns}
         defaultOpen
-        emptyText="No data"
-        styles={styles}
-        titleText="Title"
+        popupProps={{
+          emptyText: 'No data',
+          styles: {
+            popup: styles.popup,
+            panel: styles.panel,
+          },
+          titleText: 'Title',
+        }}
+        triggerStyle={styles.trigger}
         value={['a']}
       />,
     );
@@ -545,7 +588,7 @@ it('shows floating panel drag handle indicator by default', () => {
   expect(JSON.stringify(indicatorStyle)).not.toContain('"height":0');
 });
 
-it('renders input trigger when children is not provided', () => {
+it('renders display input trigger when children is not provided', () => {
   let testRenderer: renderer.ReactTestRenderer;
 
   act(() => {
@@ -554,12 +597,102 @@ it('renders input trigger when children is not provided', () => {
     );
   });
 
-  const triggerInput = testRenderer!.root.findByProps({
-    testID: 'picker-trigger-input',
-  });
+  const triggerInput = testRenderer!.root.findByType(DisplayInput);
 
   expect(triggerInput.props.readonly).toBe(true);
+  expect(triggerInput.props.display).toBe('inline');
   expect(triggerInput.props.placeholder).toBe('Please select');
+});
+
+it('passes label to display input trigger', () => {
+  let testRenderer: renderer.ReactTestRenderer;
+
+  act(() => {
+    testRenderer = renderer.create(
+      <Picker columns={columns} label="Account" />,
+    );
+  });
+
+  const triggerInput = testRenderer!.root.findByType(DisplayInput);
+
+  expect(triggerInput.props.label).toBe('Account');
+});
+
+it('shows selected label text in display input trigger', () => {
+  let testRenderer: renderer.ReactTestRenderer;
+
+  act(() => {
+    testRenderer = renderer.create(
+      <Picker columns={columns} value={['b']} />,
+    );
+  });
+
+  const triggerInput = testRenderer!.root.findByType(DisplayInput);
+
+  expect(triggerInput.props.valueText).toBe('Beta');
+});
+
+it('clears controlled value through onChange', () => {
+  const onChange = jest.fn();
+  const onClear = jest.fn();
+  let testRenderer: renderer.ReactTestRenderer;
+
+  act(() => {
+    testRenderer = renderer.create(
+      <ControlledClearPicker onChange={onChange} onClear={onClear} />,
+    );
+  });
+
+  expect(testRenderer!.root.findByType(DisplayInput).props.valueText).toBe('Beta');
+
+  act(() => {
+    testRenderer!.root
+      .findByProps({ testID: 'picker-trigger-clear-button' })
+      .props.onPress();
+  });
+
+  expect(onChange).toHaveBeenCalledWith([], expect.objectContaining({
+    items: [undefined],
+    reason: 'clear',
+  }));
+  expect(onClear).toHaveBeenCalledTimes(1);
+  expect(testRenderer!.root.findByType(DisplayInput).props.valueText).toBeUndefined();
+});
+
+it('shows combined selected labels for multi-column picker trigger', () => {
+  let testRenderer: renderer.ReactTestRenderer;
+
+  act(() => {
+    testRenderer = renderer.create(
+      <Picker columns={twoColumns} value={['a', 2]} />,
+    );
+  });
+
+  const triggerInput = testRenderer!.root.findByType(DisplayInput);
+
+  expect(triggerInput.props.valueText).toBe('A / Two');
+});
+
+it('allows overriding non-flattened display input props from picker', () => {
+  let testRenderer: renderer.ReactTestRenderer;
+
+  act(() => {
+    testRenderer = renderer.create(
+      <Picker
+        columns={columns}
+        placeholder="Please select"
+        displayInputProps={{
+          display: 'block',
+        }}
+      />,
+    );
+  });
+
+  const triggerInput = testRenderer!.root.findByType(DisplayInput);
+
+  expect(triggerInput.props.display).toBe('block');
+  expect(triggerInput.props.placeholder).toBe('Please select');
+  expect(triggerInput.props.readonly).toBe(true);
 });
 
 it('does not expose imperative business features', () => {

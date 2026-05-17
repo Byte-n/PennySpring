@@ -243,22 +243,16 @@ export function CascadePicker<TData = unknown>(props: CascadePickerProps<TData>)
 
   return (
     <Picker
-      cancel={props.cancel}
-      cancelText={props.cancelText}
       columns={columns}
       defaultOpen={props.defaultOpen}
       defaultValue={defaultPickerValue}
       disabled={props.disabled}
-      empty={props.empty}
-      emptyText={props.emptyText}
-      loading={props.loading}
-      loadingIndicator={props.loadingIndicator}
-      loadingIndicatorText={props.loadingIndicatorText}
-      ok={props.ok}
-      okDisabled={props.okDisabled}
-      okText={props.okText}
       onCancel={props.onCancel}
       onChange={(_nextPickerValue, pickerParams) => {
+        if (pickerParams.reason === 'clear') {
+          return;
+        }
+
         const nextValue = completePathFromColumn(
           options,
           draftValue,
@@ -282,12 +276,25 @@ export function CascadePicker<TData = unknown>(props: CascadePickerProps<TData>)
       onOpenChange={props.onOpenChange}
       open={props.open}
       placeholder={props.placeholder}
+      popupProps={{
+        cancel: props.cancel,
+        cancelText: props.cancelText,
+        empty: props.empty,
+        emptyText: props.emptyText,
+        loading: props.loading,
+        loadingIndicator: props.loadingIndicator,
+        loadingIndicatorText: props.loadingIndicatorText,
+        ok: props.ok,
+        okDisabled: props.okDisabled,
+        okText: props.okText,
+        renderLabel: pickerRenderLabel,
+        styles: props.styles,
+        title: props.title,
+        titleText: props.titleText,
+      }}
       readonly={props.readonly}
-      renderLabel={pickerRenderLabel}
       style={props.style}
-      styles={props.styles}
-      title={props.title}
-      titleText={props.titleText}
+      triggerStyle={props.styles?.trigger}
       value={pickerValue}
     >
       {props.children}

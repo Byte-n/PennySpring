@@ -3,28 +3,12 @@ import { View } from 'react-native';
 import { PickerBody } from './PickerBody';
 import { PickerHeader } from './PickerHeader';
 import { PickerSafeArea } from './PickerSafeArea';
-import type { PickerProps, PickerValue } from './types';
+import type { PickerColumn, PickerPopupProps, PickerValue } from './types';
 
 interface PickerPanelProps {
-  columns: PickerProps['columns'];
+  columns: PickerColumn[];
   draftValue: PickerValue[];
-  props: Pick<
-    PickerProps,
-    | 'cancel'
-    | 'cancelText'
-    | 'empty'
-    | 'emptyText'
-    | 'loading'
-    | 'loadingIndicator'
-    | 'loadingIndicatorText'
-    | 'ok'
-    | 'okDisabled'
-    | 'okText'
-    | 'renderLabel'
-    | 'styles'
-    | 'title'
-    | 'titleText'
-  >;
+  props: PickerPopupProps;
   styles: ReturnType<typeof import('./usePickerStyles').usePickerStyles>;
   onCancelPress?: () => void;
   onItemPress?: (columnIndex: number, itemIndex: number) => void;

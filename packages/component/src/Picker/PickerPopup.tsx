@@ -1,29 +1,13 @@
 import React from 'react';
 import { Popup } from '../Popup';
 import { PickerPanel } from './PickerPanel';
-import type { PickerProps, PickerValue } from './types';
+import type { PickerColumn, PickerPopupProps as PickerPopupConfig, PickerValue } from './types';
 
-interface PickerPopupProps {
-  columns: PickerProps['columns'];
+interface PickerPopupContainerProps {
+  columns: PickerColumn[];
   draftValue: PickerValue[];
   open: boolean;
-  props: Pick<
-    PickerProps,
-    | 'cancel'
-    | 'cancelText'
-    | 'empty'
-    | 'emptyText'
-    | 'loading'
-    | 'loadingIndicator'
-    | 'loadingIndicatorText'
-    | 'ok'
-    | 'okDisabled'
-    | 'okText'
-    | 'renderLabel'
-    | 'styles'
-    | 'title'
-    | 'titleText'
-  >;
+  props: PickerPopupConfig;
   styles: ReturnType<typeof import('./usePickerStyles').usePickerStyles>;
   onCancelPress?: () => void;
   onItemPress?: (columnIndex: number, itemIndex: number) => void;
@@ -41,7 +25,7 @@ export function PickerPopup({
   open,
   props,
   styles,
-}: PickerPopupProps) {
+}: PickerPopupContainerProps) {
   return (
     <Popup.FloatingPanel
       open={open}

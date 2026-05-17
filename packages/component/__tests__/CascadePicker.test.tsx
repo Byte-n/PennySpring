@@ -2,10 +2,21 @@ import React from 'react';
 import renderer, { act } from 'react-test-renderer';
 
 jest.mock('react-native-gesture-handler', () => {
+  const ReactModule = require('react');
   const ReactNative = require('react-native');
+  const gesture = {
+    onBegin: () => gesture,
+    onUpdate: () => gesture,
+    runOnJS: () => gesture,
+  };
 
   return {
     __esModule: true,
+    Gesture: {
+      Pan: () => gesture,
+    },
+    GestureDetector: ({ children }: { children: React.ReactNode }) =>
+      ReactModule.createElement(ReactModule.Fragment, null, children),
     GestureHandlerRootView: ({ children }: { children?: React.ReactNode }) => (
       <ReactNative.View>{children}</ReactNative.View>
     ),

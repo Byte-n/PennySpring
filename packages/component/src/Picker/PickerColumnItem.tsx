@@ -3,7 +3,7 @@ import { Pressable } from 'react-native';
 import { Text } from '../Text';
 import type { ReactNode } from 'react';
 import type { PressableProps } from 'react-native';
-import type { PickerColumnItemData, PickerColumnStyles, PickerProps } from './types';
+import type { PickerColumnItemData, PickerColumnStyles, PickerPopupProps } from './types';
 
 type PickerItemPressableProps = PressableProps & {
   selected?: boolean;
@@ -16,7 +16,7 @@ interface PickerColumnItemProps {
   columnIndex: number;
   item: PickerColumnItemData;
   itemIndex: number;
-  renderLabel?: PickerProps['renderLabel'];
+  renderLabel?: PickerPopupProps['renderLabel'];
   selected?: boolean;
   styles: ReturnType<typeof import('./usePickerStyles').usePickerStyles>;
   slotStyles?: PickerColumnStyles;
@@ -27,7 +27,7 @@ function renderItemLabel(
   item: PickerColumnItemData,
   columnIndex: number,
   itemIndex: number,
-  renderLabel?: PickerProps['renderLabel'],
+  renderLabel?: PickerPopupProps['renderLabel'],
 ): ReactNode {
   return renderLabel?.(item, columnIndex, itemIndex) ?? item.label ?? (
     <Text>{item.labelText}</Text>

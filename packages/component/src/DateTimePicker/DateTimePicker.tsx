@@ -292,20 +292,10 @@ export function DateTimePicker(props: DateTimePickerProps) {
 
   return (
     <Picker
-      cancel={props.cancel}
-      cancelText={props.cancelText}
       columns={columns}
       defaultOpen={props.defaultOpen}
       defaultValue={defaultPickerValue}
       disabled={props.disabled}
-      empty={props.empty}
-      emptyText={props.emptyText}
-      loading={props.loading}
-      loadingIndicator={props.loadingIndicator}
-      loadingIndicatorText={props.loadingIndicatorText}
-      ok={props.ok}
-      okDisabled={props.okDisabled}
-      okText={props.okText}
       onCancel={props.onCancel}
       onChange={nextPickerValue => {
         const nextDate = pickerValueToDate(nextPickerValue, precision, baseDate);
@@ -318,12 +308,25 @@ export function DateTimePicker(props: DateTimePickerProps) {
       onOpenChange={props.onOpenChange}
       open={props.open}
       placeholder={props.placeholder}
+      popupProps={{
+        cancel: props.cancel,
+        cancelText: props.cancelText,
+        empty: props.empty,
+        emptyText: props.emptyText,
+        loading: props.loading,
+        loadingIndicator: props.loadingIndicator,
+        loadingIndicatorText: props.loadingIndicatorText,
+        ok: props.ok,
+        okDisabled: props.okDisabled,
+        okText: props.okText,
+        renderLabel: pickerRenderLabel,
+        styles: props.styles,
+        title: props.title,
+        titleText: props.titleText,
+      }}
       readonly={props.readonly}
-      renderLabel={pickerRenderLabel}
       style={props.style}
-      styles={props.styles}
-      title={props.title}
-      titleText={props.titleText}
+      triggerStyle={props.styles?.trigger}
       value={pickerValue}
     >
       {props.children}
