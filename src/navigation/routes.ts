@@ -6,9 +6,7 @@ export const ROOT_ROUTES = {
   BookManage: 'BookManage',
   TagManage: 'TagManage',
   TypeManage: 'TypeManage',
-  TypeChildren: 'TypeChildren',
   AssetManage: 'AssetManage',
-  AssetEdit: 'AssetEdit',
 } as const;
 
 export const HOME_TAB_ROUTES = {

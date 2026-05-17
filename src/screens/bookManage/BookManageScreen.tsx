@@ -7,9 +7,8 @@ import {
   Empty,
   FloatingActionGroup,
   Input,
-  List,
-  ListItem,
   SwipeAction,
+  Text,
   useToast,
 } from '@pennyspring/component';
 import { api, type BookRow } from '@pennyspring/data';
@@ -18,10 +17,27 @@ import { createUseSheetStyle } from '@pennyspring/theme';
 const useStyles = createUseSheetStyle(token => ({
   container: {
     flex: 1,
+    backgroundColor: token.colorBgLayout,
   },
   content: {
     flex: 1,
     padding: token.padding,
+    gap: token.marginSM,
+  },
+  card: {
+    backgroundColor: token.colorBgContainer,
+    borderRadius: token.borderRadiusLG,
+    padding: token.padding,
+  },
+  cardName: {
+    fontSize: token.fontSize,
+    fontWeight: '500',
+    color: token.colorText,
+  },
+  cardDesc: {
+    fontSize: token.fontSizeSM,
+    color: token.colorTextSecondary,
+    marginTop: token.marginXXS,
   },
   dialogBody: {
     gap: token.marginSM,
@@ -62,8 +78,7 @@ export function BookManageScreen() {
       setDialogOpen(false);
       refresh();
     } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : '操作失败';
-      toast.show({ messageText: msg });
+      toast.show({ messageText: e instanceof Error ? e.message : '操作失败' });
     }
   }, [editingBook, name, description, refresh, toast]);
 
@@ -73,8 +88,7 @@ export function BookManageScreen() {
         await api.book.delete(id);
         refresh();
       } catch (e: unknown) {
-        const msg = e instanceof Error ? e.message : '删除失败';
-        toast.show({ messageText: msg });
+        toast.show({ messageText: e instanceof Error ? e.message : '删除失败' });
       }
     },
     [refresh, toast],
@@ -82,31 +96,24 @@ export function BookManageScreen() {
 
   return (
     <Column style={styles.container}>
-      <ScrollView style={styles.content}>
+      <ScrollView contentContainerStyle={styles.content}>
         {books.length === 0 ? (
           <Empty />
         ) : (
-          <List divider="inset">
-            {books.map(book => (
-              <SwipeAction
-                key={book.id}
-                rightActions={[
-                  {
-                    key: 'delete',
-                    text: '删除',
-                    color: 'danger',
-                    onPress: () => handleDelete(book.id),
-                  },
-                ]}
-              >
-                <ListItem
-                  titleText={book.name}
-                  descriptionText={book.description}
-                  onPress={() => openEditDialog(book)}
-                />
-              </SwipeAction>
-            ))}
-          </List>
+          books.map(book => (
+            <SwipeAction
+              key={book.id}
+              rightActions={[
+                { key: 'edit', text: '编辑', color: 'primary', onPress: () => openEditDialog(book) },
+                { key: 'delete', text: '删除', color: 'danger', onPress: () => handleDelete(book.id) },
+              ]}
+            >
+              <Column style={styles.card}>
+                <Text style={styles.cardName}>{book.name}</Text>
+                {book.description ? <Text style={styles.cardDesc}>{book.description}</Text> : null}
+              </Column>
+            </SwipeAction>
+          ))
         )}
       </ScrollView>
 
@@ -114,20 +121,14 @@ export function BookManageScreen() {
 
       <Dialog
         open={dialogOpen}
-        onOpenChange={open => {
-          if (!open) setDialogOpen(false);
-        }}
+        onOpenChange={open => { if (!open) setDialogOpen(false); }}
         titleText={editingBook ? '编辑账本' : '新增账本'}
         onOk={handleOk}
         okDisabled={!name.trim()}
       >
         <Column style={styles.dialogBody}>
           <Input placeholder="账本名称" value={name} onChangeText={setName} />
-          <Input
-            placeholder="描述(可选)"
-            value={description}
-            onChangeText={setDescription}
-          />
+          <Input placeholder="描述(可选)" value={description} onChangeText={setDescription} />
         </Column>
       </Dialog>
     </Column>

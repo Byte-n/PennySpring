@@ -8,7 +8,5 @@ export type RootStackParamList = {
   [ROOT_ROUTES.BookManage]: undefined;
   [ROOT_ROUTES.TagManage]: undefined;
   [ROOT_ROUTES.TypeManage]: undefined;
-  [ROOT_ROUTES.TypeChildren]: { parentId: number; parentName: string; typeCategory: string };
   [ROOT_ROUTES.AssetManage]: undefined;
-  [ROOT_ROUTES.AssetEdit]: { assetId?: number };
 };
