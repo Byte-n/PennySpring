@@ -36,7 +36,7 @@ export function BadgePreview() {
           <Badge count={128} overflowCount={99}>
             <Avatar size="large" text="OV" />
           </Badge>
-          <Badge dot count={1}>
+          <Badge dot count={1} offset={[-6, 6]}>
             <Avatar size="large" text="DT" />
           </Badge>
           <Badge showZero count={0}>

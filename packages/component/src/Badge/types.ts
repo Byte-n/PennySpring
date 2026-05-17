@@ -34,6 +34,7 @@ export interface BadgeProps extends Omit<ViewProps, 'style'> {
   showZero?: boolean;
   overflowCount?: number;
   dot?: boolean;
+  offset?: number | [number, number];
   size?: ComponentSize;
   color?: BadgeColor;
   children?: ReactNode;

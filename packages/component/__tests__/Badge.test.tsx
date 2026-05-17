@@ -98,6 +98,23 @@ function getDotStyle(testRenderer: renderer.ReactTestRenderer) {
   return flattenStyle(dotNode.props.style);
 }
 
+function getDotIndicatorStyle(testRenderer: renderer.ReactTestRenderer) {
+  const dotNode = testRenderer.root.findAll((node) => {
+    const flattened = flattenStyle(node.props.style);
+
+    return flattened.width !== undefined
+      && flattened.height !== undefined
+      && flattened.width === flattened.height
+      && flattened.borderRadius === flattened.width;
+  })[0];
+
+  if (dotNode?.parent == null) {
+    throw new Error('Cannot find dot indicator style node');
+  }
+
+  return flattenStyle(dotNode.parent.props.style);
+}
+
 describe('Badge', () => {
   it('renders nothing when count is missing and dot is disabled', () => {
     const testRenderer = renderBadge();
@@ -140,12 +157,16 @@ describe('Badge', () => {
     const smallBadge = renderBadge({ size: 'small', count: 8 });
     const normalBadge = renderBadge({ size: 'normal', count: 8 });
     const largeBadge = renderBadge({ size: 'large', count: 8 });
+    const smallDot = renderBadge({ size: 'small', dot: true });
+    const normalDot = renderBadge({ size: 'normal', dot: true });
     const largeDot = renderBadge({ size: 'large', dot: true });
 
-    expect(getIndicatorStyleByText(smallBadge, '8').minHeight).toBe(token.controlHeightXS);
-    expect(getIndicatorStyleByText(normalBadge, '8').minHeight).toBe(token.controlHeightSM);
-    expect(getIndicatorStyleByText(largeBadge, '8').minHeight).toBe(token.controlHeight);
+    expect(getIndicatorStyleByText(smallBadge, '8').minHeight).toBe(token.size);
+    expect(getIndicatorStyleByText(normalBadge, '8').minHeight).toBe(token.sizeMD);
+    expect(getIndicatorStyleByText(largeBadge, '8').minHeight).toBe(token.controlHeightXS);
 
+    expect(getDotStyle(smallDot).width).toBe(token.sizeXXS);
+    expect(getDotStyle(normalDot).width).toBe(token.sizeXS);
     const dotStyle = getDotStyle(largeDot);
 
     expect(dotStyle.width).toBe(token.sizeSM);
@@ -191,6 +212,62 @@ describe('Badge', () => {
 
     expect(getIndicatorStyleByText(withChildRenderer, '6').position).toBe('absolute');
     expect(getIndicatorStyleByText(standaloneRenderer, '6').position).toBeUndefined();
+  });
+
+  it('positions child dot badge by its own radius', () => {
+    const testRenderer = renderBadge({
+      count: 1,
+      dot: true,
+      children: <View />,
+    });
+    const indicatorStyle = getDotIndicatorStyle(testRenderer);
+
+    expect(indicatorStyle.transform).toEqual([
+      { translateX: token.sizeXS / 2 },
+      { translateY: -token.sizeXS / 2 },
+    ]);
+  });
+
+  it('applies tuple offset to child badge position', () => {
+    const testRenderer = renderBadge({
+      count: 1,
+      dot: true,
+      offset: [3, 5],
+      children: <View />,
+    });
+    const indicatorStyle = getDotIndicatorStyle(testRenderer);
+
+    expect(indicatorStyle.transform).toEqual([
+      { translateX: token.sizeXS / 2 + 3 },
+      { translateY: -token.sizeXS / 2 + 5 },
+    ]);
+  });
+
+  it('applies numeric offset to both child badge axes', () => {
+    const testRenderer = renderBadge({
+      count: 1,
+      dot: true,
+      offset: 4,
+      children: <View />,
+    });
+    const indicatorStyle = getDotIndicatorStyle(testRenderer);
+
+    expect(indicatorStyle.transform).toEqual([
+      { translateX: token.sizeXS / 2 + 4 },
+      { translateY: -token.sizeXS / 2 + 4 },
+    ]);
+  });
+
+  it('keeps child badge root sized to content for overlay positioning', () => {
+    const testRenderer = renderBadge({
+      count: <RNText>VIP</RNText>,
+      children: <View />,
+    });
+    const root = testRenderer.root.findAllByType(View)[0];
+    const rootStyle = flattenStyle(root.props.style);
+
+    expect(rootStyle.alignSelf).toBe('flex-start');
+    expect(rootStyle.position).toBe('relative');
   });
 
   it('applies root and slot style overrides after token styles', () => {

@@ -14,6 +14,7 @@ interface BadgeStyleOptions {
   color: BadgeColor;
   hasChildren: boolean;
   isDot: boolean;
+  offset: BadgeOffset;
   size: ComponentSize;
 }
 
@@ -21,7 +22,6 @@ interface SizeStyleConfig {
   height: (token: AliasToken) => number;
   dotSize: (token: AliasToken) => number;
   fontSize: (token: AliasToken) => number;
-  lineHeight: (token: AliasToken) => number;
   paddingHorizontal: (token: AliasToken) => number;
   offsetTop: (token: AliasToken) => number;
   offsetRight: (token: AliasToken) => number;
@@ -31,30 +31,34 @@ interface ColorStyleConfig {
   base: string;
 }
 
+type BadgeOffset = NonNullable<BadgeProps['offset']>;
+
+interface ResolvedBadgeOffset {
+  x: number;
+  y: number;
+}
+
 const SIZE_STYLE_MAP: Record<ComponentSize, SizeStyleConfig> = {
   small: {
-    height: token => token.controlHeightXS,
-    dotSize: token => token.sizeXS,
+    height: token => token.size,
+    dotSize: token => token.sizeXXS,
     fontSize: token => token.fontSizeSM,
-    lineHeight: token => token.lineHeightSM,
     paddingHorizontal: token => token.paddingXXS,
     offsetTop: token => token.marginXXS,
     offsetRight: token => token.marginXXS,
   },
   normal: {
-    height: token => token.controlHeightSM,
+    height: token => token.sizeMD,
     dotSize: token => token.sizeXS,
     fontSize: token => token.fontSizeSM,
-    lineHeight: token => token.lineHeightSM,
     paddingHorizontal: token => token.paddingXS,
     offsetTop: token => token.marginXS,
     offsetRight: token => token.marginXS,
   },
   large: {
-    height: token => token.controlHeight,
+    height: token => token.controlHeightXS,
     dotSize: token => token.sizeSM,
     fontSize: token => token.fontSize,
-    lineHeight: token => token.lineHeight,
     paddingHorizontal: token => token.paddingSM,
     offsetTop: token => token.marginSM,
     offsetRight: token => token.marginSM,
@@ -76,6 +80,22 @@ const PRESET_COLORS = [
   'lime',
   'gold',
 ] as const;
+
+const BADGE_ANCHOR_OFFSET_RATIO = 2;
+
+function resolveBadgeOffset(offset: BadgeProps['offset']): ResolvedBadgeOffset {
+  if (Array.isArray(offset)) {
+    return {
+      x: offset[0],
+      y: offset[1],
+    };
+  }
+
+  return {
+    x: offset ?? 0,
+    y: offset ?? 0,
+  };
+}
 
 function isPresetColor(color: BadgeColor): color is (typeof PRESET_COLORS)[number] {
   return PRESET_COLORS.includes(color as (typeof PRESET_COLORS)[number]);
@@ -186,15 +206,22 @@ function resolveDisplayCount(
 }
 
 const useStyles = createUseSheetStyle(
-  (token, { color, hasChildren, isDot, size }: BadgeStyleOptions) => {
+  (token, { color, hasChildren, isDot, offset, size }: BadgeStyleOptions) => {
     const sizeConfig = SIZE_STYLE_MAP[size];
     const colorConfig = resolveColorConfig(token, color);
     const indicatorHeight = sizeConfig.height(token);
     const dotSize = sizeConfig.dotSize(token);
+    const resolvedOffset = resolveBadgeOffset(offset);
+    const childTranslateX = isDot
+      ? dotSize / BADGE_ANCHOR_OFFSET_RATIO + resolvedOffset.x
+      : sizeConfig.offsetRight(token) + resolvedOffset.x;
+    const childTranslateY = isDot
+      ? -(dotSize / BADGE_ANCHOR_OFFSET_RATIO) + resolvedOffset.y
+      : -sizeConfig.offsetTop(token) + resolvedOffset.y;
 
     return {
       root: {
-        alignSelf: hasChildren ? 'auto' : 'flex-start',
+        alignSelf: 'flex-start',
         position: 'relative',
       },
       contentWrapper: {
@@ -214,8 +241,8 @@ const useStyles = createUseSheetStyle(
             right: 0,
             top: 0,
             transform: [
-              { translateX: sizeConfig.offsetRight(token) },
-              { translateY: -sizeConfig.offsetTop(token) },
+              { translateX: childTranslateX },
+              { translateY: childTranslateY },
             ],
             zIndex: token.zIndexBase + 1,
           }
@@ -231,7 +258,7 @@ const useStyles = createUseSheetStyle(
         fontFamily: token.fontFamily,
         fontSize: sizeConfig.fontSize(token),
         fontWeight: String(token.fontWeightStrong) as TextStyle['fontWeight'],
-        lineHeight: sizeConfig.lineHeight(token),
+        lineHeight: indicatorHeight,
       },
     };
   },
@@ -262,6 +289,7 @@ export function Badge({
   color = 'default',
   count,
   dot = false,
+  offset = 0,
   overflowCount,
   size = 'normal',
   showZero = false,
@@ -274,6 +302,7 @@ export function Badge({
     color,
     hasChildren,
     isDot: dot,
+    offset,
     size,
   });
   const normalizedOverflowCount = normalizeOverflowCount(overflowCount);
