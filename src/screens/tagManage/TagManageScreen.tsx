@@ -7,7 +7,6 @@ import {
   Dialog,
   Empty,
   FloatingActionGroup,
-  Icon,
   Input,
   ListItem,
   Row,
@@ -131,7 +130,7 @@ export function TagManageScreen() {
       </ScrollView>
 
       <FloatingActionGroup
-        actions={[{ key: 'create-tag', icon: <Icon icon="add" />, onPress: openCreateDialog }]}
+        actions={[{ key: 'create-tag', icon: 'add', onPress: openCreateDialog }]}
       />
 
       <Dialog

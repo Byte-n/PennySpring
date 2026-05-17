@@ -1,5 +1,5 @@
-import type { ReactNode } from 'react';
 import type { StyleProp, ViewStyle } from 'react-native';
+import type { IconComponent, IconName } from '../Icon';
 import type { PortalMountPoint } from '../Portal/types';
 
 export type FloatingPlacement =
@@ -13,7 +13,7 @@ export type FloatingPlacement =
 export interface FloatingActionItem {
   key: string;
   label?: string;
-  icon?: ReactNode;
+  icon?: IconName | IconComponent;
   disabled?: boolean;
   onPress: () => void;
 }

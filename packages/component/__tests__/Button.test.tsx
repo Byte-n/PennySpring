@@ -1,7 +1,9 @@
 import React from 'react';
-import { ActivityIndicator, Text as RNText, View } from 'react-native';
+import { ActivityIndicator, View } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
 import { Button } from '../src/Button';
+import { Icon } from '../src/Icon';
+import { Text } from '../src/Text';
 function renderButton(props: Partial<React.ComponentProps<typeof Button>> = {}) {
   let testRenderer: renderer.ReactTestRenderer;
   act(() => {
@@ -25,6 +27,10 @@ function getRootStyle(testRenderer: renderer.ReactTestRenderer, pressed = false)
   }) : root.props.style;
   return flattenStyle(style);
 }
+function getContentTextStyle(testRenderer: renderer.ReactTestRenderer) {
+  const textNode = testRenderer.root.findByType(Text);
+  return flattenStyle(textNode.props.style) as Record<string, unknown>;
+}
 function findNodesWithStyle(testRenderer: renderer.ReactTestRenderer, markerStyle: Record<string, unknown>) {
   return testRenderer.root.findAll(node => {
     const style = node.props.style;
@@ -42,18 +48,58 @@ describe('Button', () => {
   });
   it('orders icon and content by icon placement', () => {
     const startIcon = renderButton({
-      icon: <RNText>Icon</RNText>,
+      icon: 'check',
       children: 'Label'
     });
     const endIcon = renderButton({
-      icon: <RNText>Icon</RNText>,
+      icon: 'check',
       iconPlacement: 'end',
       children: 'Label'
     });
-    const startTree = JSON.stringify(startIcon.toJSON());
-    const endTree = JSON.stringify(endIcon.toJSON());
-    expect(startTree.indexOf('Icon')).toBeLessThan(startTree.indexOf('Label'));
-    expect(endTree.indexOf('Label')).toBeLessThan(endTree.indexOf('Icon'));
+    const startChildren = (startIcon.toJSON() as renderer.ReactTestRendererJSON).children ?? [];
+    const endChildren = (endIcon.toJSON() as renderer.ReactTestRendererJSON).children ?? [];
+    expect((startChildren[0] as renderer.ReactTestRendererJSON).type).toBe('View');
+    expect((endChildren[0] as renderer.ReactTestRendererJSON).type).toBe('Text');
+  });
+  it('passes iconProps to internal icon renderer', () => {
+    const testRenderer = renderButton({
+      icon: 'check',
+      iconProps: { weight: 'fill' },
+      children: 'Save'
+    });
+    const iconNode = testRenderer.root.findByType(Icon);
+    expect(iconNode.props.weight).toBe('fill');
+  });
+  it('scales icon size with button size', () => {
+    const smallRenderer = renderButton({
+      icon: 'check',
+      size: 'small',
+      children: 'Save'
+    });
+    const normalRenderer = renderButton({
+      icon: 'check',
+      size: 'normal',
+      children: 'Save'
+    });
+    const largeRenderer = renderButton({
+      icon: 'check',
+      size: 'large',
+      children: 'Save'
+    });
+    const smallIcon = smallRenderer.root.findByType(Icon);
+    const normalIcon = normalRenderer.root.findByType(Icon);
+    const largeIcon = largeRenderer.root.findByType(Icon);
+    const smallTextStyle = getContentTextStyle(smallRenderer);
+    const normalTextStyle = getContentTextStyle(normalRenderer);
+    const largeTextStyle = getContentTextStyle(largeRenderer);
+    expect(typeof smallIcon.props.size).toBe('number');
+    expect(typeof normalIcon.props.size).toBe('number');
+    expect(typeof largeIcon.props.size).toBe('number');
+    expect(normalIcon.props.size).toBeGreaterThan(smallIcon.props.size);
+    expect(largeIcon.props.size).toBeGreaterThan(normalIcon.props.size);
+    expect(smallIcon.props.size).toBeGreaterThan(smallTextStyle.fontSize as number);
+    expect(normalIcon.props.size).toBeGreaterThan(normalTextStyle.fontSize as number);
+    expect(largeIcon.props.size).toBeGreaterThan(largeTextStyle.fontSize as number);
   });
   it('blocks presses while loading and exposes busy state', () => {
     const onPress = jest.fn();

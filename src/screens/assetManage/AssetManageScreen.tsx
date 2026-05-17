@@ -5,7 +5,6 @@ import {
   Column,
   Empty,
   FloatingActionGroup,
-  Icon,
   ListCollapse,
   ListItem,
   SwipeAction,
@@ -112,7 +111,7 @@ export function AssetManageScreen() {
       </ScrollView>
 
       <FloatingActionGroup
-        actions={[{ key: 'create-asset', icon: <Icon icon="add" />, onPress: handleCreate }]}
+        actions={[{ key: 'create-asset', icon: 'add', onPress: handleCreate }]}
       />
     </Column>
   );

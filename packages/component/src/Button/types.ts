@@ -7,6 +7,7 @@ import type {
   ViewStyle,
 } from 'react-native';
 import type { ComponentSize } from '../shares/types';
+import type { IconComponent, IconName, IconProps } from '../Icon';
 
 export type ButtonType = 'default' | 'primary' | 'dashed' | 'text' | 'link';
 
@@ -60,7 +61,8 @@ export interface ButtonProps
   ghost?: boolean;
   shape?: ButtonShape;
   size?: ComponentSize;
-  icon?: ReactNode;
+  icon?: IconName | IconComponent;
+  iconProps?: Omit<IconProps, 'icon'>;
   iconPlacement?: ButtonIconPlacement;
   loading?: boolean | ButtonLoadingConfig;
   disabled?: boolean;

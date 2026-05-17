@@ -1,7 +1,7 @@
 import React from 'react';
 import { View } from 'react-native';
 import { Button, Drawer, Text } from '@pennyspring/component';
-import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
+import { createUseSheetStyle } from '@pennyspring/theme';
 import { ListIcon } from 'phosphor-react-native';
 
 import {
@@ -29,18 +29,12 @@ interface MenuButtonProps {
 
 function MenuButton({ onPress }: MenuButtonProps) {
   const styles = useStyles();
-  const { token } = useTheme();
 
   return (
     <Button
       accessibilityLabel="打开菜单"
-      icon={(
-        <ListIcon
-          color={token.colorIconHover}
-          size={token.fontSizeHeading3}
-          weight="bold"
-        />
-      )}
+      icon={ListIcon}
+      iconProps={{ weight: 'bold' }}
       onPress={onPress}
       shape="circle"
       style={styles.menuButton}

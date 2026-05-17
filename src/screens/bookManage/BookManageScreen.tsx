@@ -6,7 +6,6 @@ import {
   Dialog,
   Empty,
   FloatingActionGroup,
-  Icon,
   Input,
   List,
   ListItem,
@@ -111,7 +110,7 @@ export function BookManageScreen() {
         )}
       </ScrollView>
 
-      <FloatingActionGroup actions={[{ key: 'create-book', icon: <Icon icon="add" />, onPress: openCreateDialog }]} />
+      <FloatingActionGroup actions={[{ key: 'create-book', icon: 'add', onPress: openCreateDialog }]} />
 
       <Dialog
         open={dialogOpen}

@@ -1,6 +1,6 @@
 import React from 'react';
 import { ScrollView, View, type TextStyle } from 'react-native';
-import { FloatingActionGroup, Icon, Text } from '@pennyspring/component';
+import { FloatingActionGroup, Text } from '@pennyspring/component';
 import { createUseSheetStyle } from '@pennyspring/theme';
 
 import { useNavigation } from '../../../navigation/useNavigation';
@@ -57,7 +57,7 @@ export function DetailTabScreen() {
         actions={[
           {
             key: 'add-record',
-            icon: <Icon icon="plus" />,
+            icon: 'plus',
             onPress: () => navigation.navigate('AddRecord'),
           },
         ]}

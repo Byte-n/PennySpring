@@ -20,7 +20,7 @@ const useStyles = createUseSheetStyle<TOptions>((token, opts) => ({ /* styles */
 
 ## Token 取值规则
 
-- 需要确认 token 具体值时，先用 `get-tokens.js` 查询。
+- 使用 token 时，先用 `get-tokens.js` 查询。
 - 禁止凭记忆推断或硬编码 token 值。
 
 ## get-tokens.js 使用说明

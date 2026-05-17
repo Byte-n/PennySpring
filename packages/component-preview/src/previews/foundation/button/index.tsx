@@ -1,18 +1,11 @@
 import React from 'react';
 import { Button } from '@pennyspring/component';
-import {
-  CheckIcon,
-  PlusIcon,
-  TrashIcon,
-} from 'phosphor-react-native';
-import { useTheme } from '@pennyspring/theme';
+import { PlusIcon } from 'phosphor-react-native';
 import { PreviewRow, PreviewScaffold, PreviewSection } from '../../PreviewScaffold';
 
 const BUTTON_SIZES = ['small', 'normal', 'large'] as const;
 
 export function ButtonPreview() {
-  const { token } = useTheme();
-
   return (
     <PreviewScaffold>
       <PreviewSection title="Type">
@@ -55,12 +48,7 @@ export function ButtonPreview() {
           </Button>
           <Button
             accessibilityLabel="Add"
-            icon={
-              <PlusIcon
-                color={token.colorPrimaryText}
-                size={token.fontSizeLG}
-              />
-            }
+            icon={PlusIcon}
             shape="circle"
           />
         </PreviewRow>
@@ -69,20 +57,13 @@ export function ButtonPreview() {
       <PreviewSection title="Icon and state">
         <PreviewRow>
           <Button
-            icon={
-              <CheckIcon
-                color={token.colorTextLightSolid}
-                size={token.fontSizeLG}
-              />
-            }
+            icon="check"
             type="primary"
           >
             Confirm
           </Button>
           <Button
-            icon={
-              <TrashIcon color={token.colorErrorText} size={token.fontSizeLG} />
-            }
+            icon="trash"
             iconPlacement="end"
             danger
           >

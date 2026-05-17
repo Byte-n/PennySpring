@@ -60,13 +60,7 @@ export function FloatingActionGroupPreview() {
       {
         key: 'create',
         label: 'Create',
-        icon: (
-          <PlusIcon
-            color={token.colorIcon}
-            size={token.fontSizeLG}
-            weight="bold"
-          />
-        ),
+        icon: PlusIcon,
         onPress: () => {
           setLastEvent('Pressed Create');
         },
@@ -74,13 +68,7 @@ export function FloatingActionGroupPreview() {
       {
         key: 'map',
         label: 'Map',
-        icon: (
-          <MapPinIcon
-            color={token.colorIcon}
-            size={token.fontSizeLG}
-            weight="bold"
-          />
-        ),
+        icon: MapPinIcon,
         onPress: () => {
           setLastEvent('Pressed Map');
         },
@@ -88,13 +76,7 @@ export function FloatingActionGroupPreview() {
       {
         key: 'list',
         label: 'List',
-        icon: (
-          <ListIcon
-            color={token.colorIcon}
-            size={token.fontSizeLG}
-            weight="bold"
-          />
-        ),
+        icon: ListIcon,
         onPress: () => {
           setLastEvent('Pressed List');
         },
@@ -102,19 +84,13 @@ export function FloatingActionGroupPreview() {
       {
         key: 'focus',
         label: 'Focus',
-        icon: (
-          <CompassIcon
-            color={token.colorIcon}
-            size={token.fontSizeLG}
-            weight="bold"
-          />
-        ),
+        icon: CompassIcon,
         onPress: () => {
           setLastEvent('Pressed Focus');
         },
       },
     ],
-    [token.colorIcon, token.fontSizeLG],
+    [],
   );
 
   return (

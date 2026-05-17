@@ -12,6 +12,7 @@ import Animated, {
 import { createUseSheetStyle, toShadowStyle, useTheme } from '@pennyspring/theme';
 import { Button } from '../Button';
 import type { ButtonColor, ButtonVariant } from '../Button';
+import type { IconComponent, IconName } from '../Icon';
 import { PortalContext } from '../Portal/Portal';
 import { resolvePortalMount } from '../Portal/resolvePortalMount';
 import type {
@@ -38,7 +39,7 @@ interface FloatingActionButtonStyles {
 
 interface FloatingActionButtonProps {
   label?: string;
-  icon?: React.ReactNode;
+  icon?: IconName | IconComponent;
   disabled?: boolean;
   color?: ButtonColor;
   variant?: ButtonVariant;

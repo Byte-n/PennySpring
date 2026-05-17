@@ -1,7 +1,8 @@
 import type { ComponentSize } from '../shares/types';
 import React, { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, View } from 'react-native';
-import { createUseSheetStyle } from '@pennyspring/theme';
+import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
+import { Icon } from '../Icon';
 import { Text } from '../Text';
 import type {
   AliasToken } from '@pennyspring/theme';
@@ -165,6 +166,10 @@ function resolveLoadingConfig(
   }
 
   return loading;
+}
+
+function resolveIconSize(size: ComponentSize, token: AliasToken): number {
+  return SIZE_STYLE_MAP[size].height(token) / 2;
 }
 
 function resolveColorConfig(token: AliasToken, color: ButtonColor): ColorStyleConfig {
@@ -360,6 +365,7 @@ export function Button({
   disabled = false,
   ghost = false,
   icon,
+  iconProps,
   iconPlacement = 'start',
   loading,
   onPress,
@@ -371,6 +377,7 @@ export function Button({
   variant,
   ...rest
 }: ButtonProps) {
+  const { token } = useTheme();
   const typeDefault = TYPE_DEFAULTS[type];
   const resolvedColor = resolveButtonColor(color, danger, typeDefault);
   const resolvedVariant = resolveButtonVariant(variant, typeDefault);
@@ -392,8 +399,14 @@ export function Button({
   });
   const isInteractive = !disabled && !isLoading;
   const loadingIcon = loadingConfig?.icon ?? <ActivityIndicator />;
-  const resolvedIcon = isLoading ? loadingIcon : icon;
-  const shouldRenderIcon = resolvedIcon !== undefined && resolvedIcon !== null;
+  const shouldRenderIcon = isLoading || (icon !== undefined && icon !== null);
+  const variantStyle = resolveVariantStyle(
+    token,
+    resolvedColor,
+    resolvedVariant,
+    ghost,
+  );
+  const resolvedIconColor = disabled ? token.colorTextDisabled : variantStyle.color;
   const iconNode = shouldRenderIcon ? (
     <View
       accessibilityElementsHidden
@@ -403,7 +416,14 @@ export function Button({
         styles?.icon,
       ]}
     >
-      {resolvedIcon}
+      {isLoading ? loadingIcon : (
+        <Icon
+          color={resolvedIconColor}
+          size={resolveIconSize(size, token)}
+          {...iconProps}
+          icon={icon!}
+        />
+      )}
     </View>
   ) : null;
   const contentNode = hasContent
