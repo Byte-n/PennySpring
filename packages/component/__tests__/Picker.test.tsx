@@ -862,3 +862,31 @@ it('does not expose imperative business features', () => {
   expect(pickerRef.current).toBeNull();
   expect(JSON.stringify(testRenderer!.toJSON())).not.toContain('retry');
 });
+
+it('centers title relative to panel when buttons have different widths', () => {
+  let testRenderer: renderer.ReactTestRenderer;
+
+  act(() => {
+    testRenderer = renderer.create(
+      <Picker
+        columns={columns}
+        defaultOpen
+        popupProps={{
+          cancelText: 'Cancel',
+          titleText: 'Title',
+          okText: 'OK',
+        }}
+      />,
+    );
+  });
+
+  const header = testRenderer!.root.findByProps({ testID: 'picker-header' });
+  const cancelSide = testRenderer!.root.findByProps({ testID: 'picker-header-cancel-side' });
+  const titleCenter = testRenderer!.root.findByProps({ testID: 'picker-header-title-center' });
+  const okSide = testRenderer!.root.findByProps({ testID: 'picker-header-ok-side' });
+
+  expect(JSON.stringify(header.props.style)).toContain('"flexDirection":"row"');
+  expect(JSON.stringify(cancelSide.props.style)).toContain('"flex":1');
+  expect(JSON.stringify(titleCenter.props.style)).toContain('"flex":1');
+  expect(JSON.stringify(okSide.props.style)).toContain('"flex":1');
+});

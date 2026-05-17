@@ -8,8 +8,8 @@ import { useControllableValue } from '../_hooks';
 import type { PickerProps, PickerValue } from './types';
 
 const DEFAULT_SIZE: ComponentSize = 'normal';
-const DEFAULT_CANCEL_TEXT = 'Cancel';
-const DEFAULT_OK_TEXT = 'OK';
+const DEFAULT_CANCEL_TEXT = '取消';
+const DEFAULT_OK_TEXT = '确定';
 
 function getInitialValue(
   defaultValue?: PickerValue[],

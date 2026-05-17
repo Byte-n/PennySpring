@@ -64,9 +64,20 @@ export const usePickerStyles = createUseSheetStyle(
       paddingHorizontal: token.paddingMD,
       flexDirection: 'row',
       alignItems: 'center',
-      justifyContent: 'space-between',
       borderBottomWidth: token.lineWidth,
       borderBottomColor: token.colorSplit,
+    },
+    headerSide: {
+      flex: 1,
+      flexDirection: 'row',
+      justifyContent: 'flex-start',
+    },
+    headerSideEnd: {
+      justifyContent: 'flex-end',
+    },
+    headerCenter: {
+      flex: 1,
+      alignItems: 'center',
     },
     headerButton: {
       minHeight: token.controlHeightSM,
@@ -80,6 +91,7 @@ export const usePickerStyles = createUseSheetStyle(
     titleContainer: {
       flex: 1,
       alignItems: 'center',
+      justifyContent: 'center',
       paddingHorizontal: token.paddingSM,
     },
     titleText: {
