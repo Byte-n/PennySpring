@@ -22,7 +22,7 @@ function getItemHeight(size: ComponentSize, token: AliasToken): number {
 export const usePickerStyles = createUseSheetStyle(
   (token, { size }: PickerStyleOptions) => ({
     trigger: {
-      alignSelf: 'flex-start',
+      alignSelf: 'stretch',
     },
     popup: {
       ...({

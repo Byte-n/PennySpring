@@ -1,6 +1,6 @@
 import React from 'react';
 import { Pressable } from 'react-native';
-import { Text } from '../Text';
+import { Input } from '../Input';
 import type { ReactNode } from 'react';
 import type { PickerProps } from './types';
 
@@ -28,7 +28,15 @@ export function PickerTrigger({
       style={[styles.trigger, slotStyles?.trigger]}
       testID="picker-trigger"
     >
-      {children ?? (placeholder ? <Text>{placeholder}</Text> : <Text />)}
+      {children ?? (
+        <Input
+          disabled={disabled}
+          placeholder={placeholder}
+          readonly
+          testID="picker-trigger-input"
+          showSoftInputOnFocus={false}
+        />
+      )}
     </Pressable>
   );
 }

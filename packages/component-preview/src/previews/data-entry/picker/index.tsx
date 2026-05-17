@@ -50,9 +50,11 @@ export function PickerPreview() {
     <PreviewScaffold>
       <PreviewSection title="Trigger">
         <View style={styles.stack}>
-          <Picker columns={[ACCOUNT_COLUMN]} defaultValue={['cash']} titleText="Account">
-            <TriggerContent label="Single column" value="Cash" />
-          </Picker>
+          <Picker
+            placeholder="Single column"
+            columns={[ACCOUNT_COLUMN]}
+            titleText="Account"
+          />
           <Picker
             columns={[MONTH_COLUMN, CATEGORY_COLUMN]}
             defaultValue={['may', 'food']}
@@ -76,11 +78,7 @@ export function PickerPreview() {
           >
             <TriggerContent label="Default open" value="Card / Traffic" />
           </Picker>
-          <Picker
-            columns={[[]]}
-            emptyText="No options"
-            titleText="Empty"
-          >
+          <Picker columns={[[]]} emptyText="No options" titleText="Empty">
             <TriggerContent label="Empty state" value="No options" />
           </Picker>
         </View>
@@ -88,10 +86,20 @@ export function PickerPreview() {
 
       <PreviewSection title="Size">
         <View style={styles.stack}>
-          <Picker size="small" columns={[ACCOUNT_COLUMN]} defaultValue={['cash']} titleText="Small">
+          <Picker
+            size="small"
+            columns={[ACCOUNT_COLUMN]}
+            defaultValue={['cash']}
+            titleText="Small"
+          >
             <TriggerContent label="Small" value="Cash" />
           </Picker>
-          <Picker size="large" columns={[ACCOUNT_COLUMN]} defaultValue={['card']} titleText="Large">
+          <Picker
+            size="large"
+            columns={[ACCOUNT_COLUMN]}
+            defaultValue={['card']}
+            titleText="Large"
+          >
             <TriggerContent label="Large" value="Primary card" />
           </Picker>
         </View>

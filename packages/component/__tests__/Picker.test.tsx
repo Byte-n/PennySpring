@@ -529,6 +529,39 @@ it('applies supported style slots', () => {
   expect(JSON.stringify(tree.findByProps({ testID: 'picker-indicator' }).props.style)).toContain('0.77');
 });
 
+it('shows floating panel drag handle indicator by default', () => {
+  let testRenderer: renderer.ReactTestRenderer;
+
+  act(() => {
+    testRenderer = renderer.create(
+      <Picker columns={columns} defaultOpen />,
+    );
+  });
+
+  const indicatorStyle = testRenderer!.root.findByProps({
+    testID: 'floating-panel-handle-indicator',
+  }).props.style;
+
+  expect(JSON.stringify(indicatorStyle)).not.toContain('"height":0');
+});
+
+it('renders input trigger when children is not provided', () => {
+  let testRenderer: renderer.ReactTestRenderer;
+
+  act(() => {
+    testRenderer = renderer.create(
+      <Picker columns={columns} placeholder="Please select" />,
+    );
+  });
+
+  const triggerInput = testRenderer!.root.findByProps({
+    testID: 'picker-trigger-input',
+  });
+
+  expect(triggerInput.props.readonly).toBe(true);
+  expect(triggerInput.props.placeholder).toBe('Please select');
+});
+
 it('does not expose imperative business features', () => {
   const pickerRef = React.createRef<unknown>();
   let testRenderer: renderer.ReactTestRenderer;

@@ -43,14 +43,15 @@ export function PickerPopup({
   styles,
 }: PickerPopupProps) {
   return (
-    <Popup
+    <Popup.FloatingPanel
       open={open}
       position="bottom"
       onCancel={() => onMaskPress?.()}
-      style={[styles.popup, props.styles?.popup?.popup]}
+      style={props.styles?.popup?.popup}
       styles={{
         mask: [styles.mask, props.styles?.popup?.mask],
-        body: { padding: 0 },
+        body: styles.popup,
+        content: { padding: 0 },
       }}
     >
       <PickerPanel
@@ -62,6 +63,6 @@ export function PickerPopup({
         props={props}
         styles={styles}
       />
-    </Popup>
+    </Popup.FloatingPanel>
   );
 }

@@ -5,7 +5,6 @@ export const Popup = Object.assign(PopupRoot, {
   FloatingPanel,
 });
 
-export { FloatingPanel };
 export type {
   PopupFloatingPanelPosition,
   PopupFloatingPanelProps,
