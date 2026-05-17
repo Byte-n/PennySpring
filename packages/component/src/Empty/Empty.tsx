@@ -2,10 +2,12 @@ import type { ComponentSize } from '../shares/types';
 import React from 'react';
 import { View } from 'react-native';
 import { createUseSheetStyle } from '@pennyspring/theme';
+import { Icon } from '../Icon';
 import { Text } from '../Text';
 import type { AliasToken } from '@pennyspring/theme';
 import type { EmptyProps } from './types';
 import type { TextSize } from '../Text';
+import { EmptyIcon } from 'phosphor-react-native';
 
 interface EmptyStyleOptions {
   size: ComponentSize;
@@ -56,13 +58,6 @@ const useStyles = createUseSheetStyle((token, { size }: EmptyStyleOptions) => {
       alignItems: 'center',
       justifyContent: 'center',
     },
-    iconPlaceholder: {
-      borderColor: token.colorBorder,
-      borderRadius: token.borderRadiusSM,
-      borderWidth: token.lineWidth,
-      height: sizeConfig.iconSize(token),
-      width: sizeConfig.iconSize(token),
-    },
     message: {
       color: token.colorTextSecondary,
       textAlign: 'center',
@@ -89,7 +84,7 @@ export function Empty({
   return (
     <View style={[tokenStyles.root, style]}>
       <View style={[tokenStyles.iconContainer, styles?.iconContainer]}>
-        {icon ?? <View style={tokenStyles.iconPlaceholder} />}
+        {icon ?? <Icon icon={EmptyIcon} size={size} color="colorTextQuaternary" />}
       </View>
       {isPrimitiveContent(resolvedMessage) ? (
         <Text
