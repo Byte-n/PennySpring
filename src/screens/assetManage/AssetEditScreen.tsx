@@ -1,21 +1,20 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { ScrollView } from 'react-native';
 import { useRoute, type RouteProp } from '@react-navigation/native';
 import { useRequest } from 'ahooks';
 import {
   Button,
+  Cascader,
   Column,
   Input,
-  ListItem,
-  Picker,
   Row,
   Spacer,
   Switch,
   Text,
   Textarea,
   useToast,
-  type PickerOkParams,
-  type PickerValue,
+  type CascaderOption,
+  type CascaderValue,
 } from '@pennyspring/component';
 import {
   api,
@@ -27,6 +26,10 @@ import {
 } from '@pennyspring/data';
 import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
 
+import {
+  ASSET_CLASSIFICATION_TREE,
+  type AssetClassificationTreeNode,
+} from '../../constants/assetClassificationTree';
 import { useNavigation, type RootStackParamList } from '../../navigation';
 import { useBookStore } from '../../stores/bookStore';
 
@@ -53,6 +56,47 @@ const useStyles = createUseSheetStyle(token => ({
   },
 }));
 
+function toCascaderOptions(
+  nodes: readonly AssetClassificationTreeNode[],
+): Array<CascaderOption> {
+  return nodes.map(node => ({
+    value: node.value,
+    labelText: node.label,
+    children: node.children ? toCascaderOptions(node.children) : undefined,
+  }));
+}
+
+function buildPathLookup(options: Array<CascaderOption>): Map<CascaderValue, CascaderValue[]> {
+  const result = new Map<CascaderValue, CascaderValue[]>();
+  const stack: Array<{ node: CascaderOption; parentPath: CascaderValue[] }> = options.map(
+    node => ({
+      node,
+      parentPath: [],
+    }),
+  );
+
+  while (stack.length > 0) {
+    const current = stack.pop();
+    if (!current) {
+      continue;
+    }
+
+    const nextPath = [...current.parentPath, current.node.value];
+    result.set(current.node.value, nextPath);
+
+    if (current.node.children && current.node.children.length > 0) {
+      stack.push(
+        ...current.node.children.map(child => ({
+          node: child,
+          parentPath: nextPath,
+        })),
+      );
+    }
+  }
+
+  return result;
+}
+
 export function AssetEditScreen() {
   const styles = useStyles();
   const { token } = useTheme();
@@ -64,20 +108,22 @@ export function AssetEditScreen() {
   const assetId = route.params?.assetId;
   const isEditMode = assetId !== undefined;
 
-  const [name, setName] = useState('');
-  const [type, setType] = useState<AssetTypeValue>(ASSET_TYPE.capitalAccount);
-  const [classification, setClassification] = useState<AssetClassificationValue>(
-    ASSET_CLASSIFICATION.cash,
+  const cascaderOptions = useMemo(
+    () => toCascaderOptions(ASSET_CLASSIFICATION_TREE),
+    [],
   );
+  const pathLookup = useMemo(() => buildPathLookup(cascaderOptions), [cascaderOptions]);
+  const [name, setName] = useState('');
+  const [assetPath, setAssetPath] = useState<CascaderValue[]>([
+    ASSET_TYPE.capitalAccount,
+    ASSET_CLASSIFICATION.cash,
+  ]);
   const [balance, setBalance] = useState('');
   const [totalAmount, setTotalAmount] = useState('');
   const [billingDate, setBillingDate] = useState('');
   const [repaymentDate, setRepaymentDate] = useState('');
   const [remark, setRemark] = useState('');
   const [invisible, setInvisible] = useState(false);
-
-  const [typePickerOpen, setTypePickerOpen] = useState(false);
-  const [classificationPickerOpen, setClassificationPickerOpen] = useState(false);
 
   const { data: existingAsset, loading } = useRequest(
     async () => {
@@ -89,34 +135,28 @@ export function AssetEditScreen() {
   );
 
   useEffect(() => {
-    if (existingAsset) {
-      setName(existingAsset.name);
-      setType(existingAsset.type);
-      setClassification(existingAsset.classification);
-      setBalance((existingAsset.balance / 100).toFixed(2));
-      setTotalAmount((existingAsset.totalAmount / 100).toFixed(2));
-      setBillingDate(existingAsset.billingDate > 0 ? String(existingAsset.billingDate) : '');
-      setRepaymentDate(
-        existingAsset.repaymentDate > 0 ? String(existingAsset.repaymentDate) : '',
-      );
-      setRemark(existingAsset.remark);
-      setInvisible(existingAsset.invisible === VISIBILITY.hidden);
+    if (!existingAsset) {
+      return;
     }
-  }, [existingAsset]);
 
-  const typeOptions = ASSET_TYPE.options().map(item => ({
-    value: item.value,
-    labelText: item.label,
-  }));
+    setName(existingAsset.name);
+    const classificationPath = pathLookup.get(existingAsset.classification);
+    const typePath = pathLookup.get(existingAsset.type);
+    setAssetPath(
+      classificationPath ?? typePath ?? [ASSET_TYPE.capitalAccount, ASSET_CLASSIFICATION.cash],
+    );
+    setBalance((existingAsset.balance / 100).toFixed(2));
+    setTotalAmount((existingAsset.totalAmount / 100).toFixed(2));
+    setBillingDate(existingAsset.billingDate > 0 ? String(existingAsset.billingDate) : '');
+    setRepaymentDate(existingAsset.repaymentDate > 0 ? String(existingAsset.repaymentDate) : '');
+    setRemark(existingAsset.remark);
+    setInvisible(existingAsset.invisible === VISIBILITY.hidden);
+  }, [existingAsset, pathLookup]);
 
-  const classificationOptions = ASSET_CLASSIFICATION.options().map(item => ({
-    value: item.value,
-    labelText: item.label,
-  }));
-
-  const selectedTypeLabel = ASSET_TYPE.label(type);
-  const selectedClassificationLabel = ASSET_CLASSIFICATION.label(classification);
-
+  const type = assetPath[0] as AssetTypeValue | undefined;
+  const classification = assetPath[assetPath.length - 1] as
+    | AssetClassificationValue
+    | undefined;
   const handleSave = useCallback(async () => {
     if (!name.trim()) {
       toast.show({ messageText: '请输入资产名称' });
@@ -125,6 +165,10 @@ export function AssetEditScreen() {
 
     if (!currentBook) {
       toast.show({ messageText: '未找到当前账本' });
+      return;
+    }
+    if (!type || !classification) {
+      toast.show({ messageText: '请选择资产类型和分类' });
       return;
     }
 
@@ -188,16 +232,12 @@ export function AssetEditScreen() {
         <Column style={styles.section}>
           <Input placeholder="资产名称" value={name} onChangeText={setName} />
 
-          <ListItem
-            titleText="资产类型"
-            right={<Text>{selectedTypeLabel}</Text>}
-            onPress={() => setTypePickerOpen(true)}
-          />
-
-          <ListItem
-            titleText="资产分类"
-            right={<Text>{selectedClassificationLabel}</Text>}
-            onPress={() => setClassificationPickerOpen(true)}
+          <Cascader
+            options={cascaderOptions}
+            value={assetPath}
+            tabPlaceholderText="请选择"
+            placeholder="请选择资产类型和分类"
+            onChange={setAssetPath}
           />
 
           <Input
@@ -230,7 +270,11 @@ export function AssetEditScreen() {
             </>
           )}
 
-          <Textarea placeholder="备注(可选)" value={remark} onChangeText={setRemark} />
+          <Textarea
+            placeholder="备注(可选)"
+            value={remark}
+            onChangeText={setRemark}
+          />
 
           <Row>
             <Text>隐藏资产</Text>
@@ -243,32 +287,6 @@ export function AssetEditScreen() {
       <Column style={styles.footer}>
         <Button onPress={handleSave}>保存</Button>
       </Column>
-
-      <Picker
-        open={typePickerOpen}
-        onOpenChange={(open: boolean) => setTypePickerOpen(open)}
-        columns={[typeOptions]}
-        value={[type]}
-        onOk={(values: PickerValue[], _params: PickerOkParams) => {
-          if (values[0]) {
-            setType(values[0] as AssetTypeValue);
-          }
-        }}
-        titleText="选择资产类型"
-      />
-
-      <Picker
-        open={classificationPickerOpen}
-        onOpenChange={(open: boolean) => setClassificationPickerOpen(open)}
-        columns={[classificationOptions]}
-        value={[classification]}
-        onOk={(values: PickerValue[], _params: PickerOkParams) => {
-          if (values[0]) {
-            setClassification(values[0] as AssetClassificationValue);
-          }
-        }}
-        titleText="选择资产分类"
-      />
     </Column>
   );
 }

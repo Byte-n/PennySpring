@@ -77,7 +77,7 @@ export function AssetManageScreen() {
     <Column style={styles.container}>
       <ScrollView style={styles.content}>
         {!hasAssets && !loading ? (
-          <Empty />
+          <Empty size='large' />
         ) : (
           assetTypes.map(typeInfo => {
             const assets = groupedAssets[typeInfo.value] ?? [];
