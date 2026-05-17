@@ -16,7 +16,8 @@ CREATE TABLE `tb_asset` (
 	`created_time` integer DEFAULT (cast(unixepoch('subsec') * 1000 as integer)) NOT NULL,
 	`updated_time` integer DEFAULT (cast(unixepoch('subsec') * 1000 as integer)) NOT NULL
 );
---> statement-breakpoint
+
+
 CREATE TABLE `tb_books` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`name` text NOT NULL,
@@ -25,7 +26,8 @@ CREATE TABLE `tb_books` (
 	`created_time` integer DEFAULT (cast(unixepoch('subsec') * 1000 as integer)) NOT NULL,
 	`updated_time` integer DEFAULT (cast(unixepoch('subsec') * 1000 as integer)) NOT NULL
 );
---> statement-breakpoint
+
+
 CREATE TABLE `tb_image_with_related` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`record_id` integer NOT NULL,
@@ -33,8 +35,11 @@ CREATE TABLE `tb_image_with_related` (
 	`created_time` integer DEFAULT (cast(unixepoch('subsec') * 1000 as integer)) NOT NULL,
 	`updated_time` integer DEFAULT (cast(unixepoch('subsec') * 1000 as integer)) NOT NULL
 );
---> statement-breakpoint
-CREATE UNIQUE INDEX `tb_image_with_related_record_id_image_path_unique` ON `tb_image_with_related` (`record_id`,`image_path`);--> statement-breakpoint
+
+
+CREATE UNIQUE INDEX `tb_image_with_related_record_id_image_path_unique` ON `tb_image_with_related` (`record_id`,`image_path`);
+
+
 CREATE TABLE `tb_record_with_record` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`record_id` integer NOT NULL,
@@ -42,8 +47,11 @@ CREATE TABLE `tb_record_with_record` (
 	`created_time` integer DEFAULT (cast(unixepoch('subsec') * 1000 as integer)) NOT NULL,
 	`updated_time` integer DEFAULT (cast(unixepoch('subsec') * 1000 as integer)) NOT NULL
 );
---> statement-breakpoint
-CREATE UNIQUE INDEX `tb_record_with_record_record_id_related_record_id_unique` ON `tb_record_with_record` (`record_id`,`related_record_id`);--> statement-breakpoint
+
+
+CREATE UNIQUE INDEX `tb_record_with_record_record_id_related_record_id_unique` ON `tb_record_with_record` (`record_id`,`related_record_id`);
+
+
 CREATE TABLE `tb_record` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`type_id` integer NOT NULL,
@@ -59,7 +67,8 @@ CREATE TABLE `tb_record` (
 	`created_time` integer DEFAULT (cast(unixepoch('subsec') * 1000 as integer)) NOT NULL,
 	`updated_time` integer DEFAULT (cast(unixepoch('subsec') * 1000 as integer)) NOT NULL
 );
---> statement-breakpoint
+
+
 CREATE TABLE `tb_tag_with_record` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`record_id` integer NOT NULL,
@@ -67,8 +76,10 @@ CREATE TABLE `tb_tag_with_record` (
 	`created_time` integer DEFAULT (cast(unixepoch('subsec') * 1000 as integer)) NOT NULL,
 	`updated_time` integer DEFAULT (cast(unixepoch('subsec') * 1000 as integer)) NOT NULL
 );
---> statement-breakpoint
-CREATE UNIQUE INDEX `tb_tag_with_record_record_id_tag_id_unique` ON `tb_tag_with_record` (`record_id`,`tag_id`);--> statement-breakpoint
+
+
+CREATE UNIQUE INDEX `tb_tag_with_record_record_id_tag_id_unique` ON `tb_tag_with_record` (`record_id`,`tag_id`);
+
 CREATE TABLE `tb_tag` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`name` text NOT NULL,
@@ -77,7 +88,8 @@ CREATE TABLE `tb_tag` (
 	`created_time` integer DEFAULT (cast(unixepoch('subsec') * 1000 as integer)) NOT NULL,
 	`updated_time` integer DEFAULT (cast(unixepoch('subsec') * 1000 as integer)) NOT NULL
 );
---> statement-breakpoint
+
+
 CREATE TABLE `tb_type` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`parent_id` integer DEFAULT 0 NOT NULL,
@@ -92,7 +104,8 @@ CREATE TABLE `tb_type` (
 );
 
 
---> statement-breakpoint
+
+
 -- 初始化系统类型数据
 -- 支出类型
 INSERT INTO tb_type (parent_id, name, icon, type_category, is_system, sort) VALUES
@@ -112,7 +125,8 @@ INSERT INTO tb_type (parent_id, name, icon, type_category, is_system, sort) VALU
 (0, '文教', 'books_education', 'expense', 'system', 14),
 (0, '物业', 'property_costs', 'expense', 'system', 15),
 (0, '其它', 'other', 'expense', 'system', 16);
---> statement-breakpoint
+
+
 -- 餐饮二级类型
 INSERT INTO tb_type (parent_id, name, icon, type_category, is_system, sort) VALUES
 (1, '餐饮', 'dining', 'expense', 'system', 1),
@@ -130,7 +144,8 @@ INSERT INTO tb_type (parent_id, name, icon, type_category, is_system, sort) VALU
 (1, '饮料', 'drinks', 'expense', 'system', 13),
 (1, '烟酒', 'at', 'expense', 'system', 14),
 (1, '烟酒零食', 'ats', 'expense', 'system', 15);
---> statement-breakpoint
+
+
 -- 日常二级类型
 INSERT INTO tb_type (parent_id, name, icon, type_category, is_system, sort) VALUES
 (2, '日用', 'daily_necessities', 'expense', 'system', 1),
@@ -149,7 +164,8 @@ INSERT INTO tb_type (parent_id, name, icon, type_category, is_system, sort) VALU
 (2, '垃圾费', 'garbage_fee', 'expense', 'system', 14),
 (2, '物业费', 'property_costs', 'expense', 'system', 15),
 (2, '取暖费', 'heating_fee', 'expense', 'system', 16);
---> statement-breakpoint
+
+
 -- 购物二级类型
 INSERT INTO tb_type (parent_id, name, icon, type_category, is_system, sort) VALUES
 (3, '购物', 'shopping', 'expense', 'system', 1),
@@ -160,7 +176,8 @@ INSERT INTO tb_type (parent_id, name, icon, type_category, is_system, sort) VALU
 (3, '鞋服', 'clothes', 'expense', 'system', 6),
 (3, '饰品', 'accessories', 'expense', 'system', 7),
 (3, '家具', 'furniture', 'expense', 'system', 8);
---> statement-breakpoint
+
+
 -- 服饰二级类型
 INSERT INTO tb_type (parent_id, name, icon, type_category, is_system, sort) VALUES
 (4, '帽子', 'hat', 'expense', 'system', 1),
@@ -171,14 +188,16 @@ INSERT INTO tb_type (parent_id, name, icon, type_category, is_system, sort) VALU
 (4, '鞋子', 'shoes', 'expense', 'system', 6),
 (4, '袜子', 'socks', 'expense', 'system', 7),
 (4, '饰品', 'accessories', 'expense', 'system', 8);
---> statement-breakpoint
+
+
 -- 数码二级类型
 INSERT INTO tb_type (parent_id, name, icon, type_category, is_system, sort) VALUES
 (5, '手机', 'mobile_phone', 'expense', 'system', 1),
 (5, '手机配件', 'mobile_phone_accessories', 'expense', 'system', 2),
 (5, '付费会员', 'member', 'expense', 'system', 3),
 (5, '相机', 'camera', 'expense', 'system', 4);
---> statement-breakpoint
+
+
 -- 娱乐二级类型
 INSERT INTO tb_type (parent_id, name, icon, type_category, is_system, sort) VALUES
 (6, '娱乐', 'amusement', 'expense', 'system', 1),
@@ -194,7 +213,8 @@ INSERT INTO tb_type (parent_id, name, icon, type_category, is_system, sort) VALU
 (6, '酒店', 'hotel', 'expense', 'system', 11),
 (6, '纪念品', 'souvenir', 'expense', 'system', 12),
 (6, '运动', 'sport', 'expense', 'system', 13);
---> statement-breakpoint
+
+
 -- 家庭二级类型
 INSERT INTO tb_type (parent_id, name, icon, type_category, is_system, sort) VALUES
 (7, '家人', 'family', 'expense', 'system', 1),
@@ -202,7 +222,8 @@ INSERT INTO tb_type (parent_id, name, icon, type_category, is_system, sort) VALU
 (7, '恋爱', 'love', 'expense', 'system', 3),
 (7, '孩子', 'child', 'expense', 'system', 4),
 (7, '宠物', 'pet', 'expense', 'system', 5);
---> statement-breakpoint
+
+
 -- 育儿二级类型
 INSERT INTO tb_type (parent_id, name, icon, type_category, is_system, sort) VALUES
 (8, '育儿', 'parenting', 'expense', 'system', 1),
@@ -216,7 +237,8 @@ INSERT INTO tb_type (parent_id, name, icon, type_category, is_system, sort) VALU
 (8, '早教', 'early_education', 'expense', 'system', 9),
 (8, '亲子游', 'family_trip', 'expense', 'system', 10),
 (8, '疫苗接种', 'vaccination', 'expense', 'system', 11);
---> statement-breakpoint
+
+
 -- 汽车二级类型
 INSERT INTO tb_type (parent_id, name, icon, type_category, is_system, sort) VALUES
 (9, '汽车', 'car', 'expense', 'system', 1),
@@ -232,14 +254,16 @@ INSERT INTO tb_type (parent_id, name, icon, type_category, is_system, sort) VALU
 (9, '车贷', 'car_loan', 'expense', 'system', 11),
 (9, '通行费', 'toll', 'expense', 'system', 12),
 (9, '汽车配件', 'auto_parts', 'expense', 'system', 13);
---> statement-breakpoint
+
+
 -- 人际关系二级类型
 INSERT INTO tb_type (parent_id, name, icon, type_category, is_system, sort) VALUES
 (10, '人际关系', 'interpersonal', 'expense', 'system', 1),
 (10, '礼金', 'cash_gift', 'expense', 'system', 2),
 (10, '礼品', 'gift', 'expense', 'system', 3),
 (10, '请客', 'treat', 'expense', 'system', 4);
---> statement-breakpoint
+
+
 -- 交通二级类型
 INSERT INTO tb_type (parent_id, name, icon, type_category, is_system, sort) VALUES
 (11, '交通', 'traffic', 'expense', 'system', 1),
@@ -250,13 +274,15 @@ INSERT INTO tb_type (parent_id, name, icon, type_category, is_system, sort) VALU
 (11, '飞机', 'plane', 'expense', 'system', 6),
 (11, '轮船', 'ship', 'expense', 'system', 7),
 (11, '自行车', 'bicycle', 'expense', 'system', 8);
---> statement-breakpoint
+
+
 -- 住房二级类型
 INSERT INTO tb_type (parent_id, name, icon, type_category, is_system, sort) VALUES
 (12, '住房', 'housing', 'expense', 'system', 1),
 (12, '房租', 'house_rent', 'expense', 'system', 2),
 (12, '房贷', 'house_loan', 'expense', 'system', 3);
---> statement-breakpoint
+
+
 -- 医疗二级类型
 INSERT INTO tb_type (parent_id, name, icon, type_category, is_system, sort) VALUES
 (13, '医疗', 'medical', 'expense', 'system', 1),
@@ -265,7 +291,8 @@ INSERT INTO tb_type (parent_id, name, icon, type_category, is_system, sort) VALU
 (13, '药品', 'drug', 'expense', 'system', 4),
 (13, '住院', 'hospitalization', 'expense', 'system', 5),
 (13, '保健', 'hygiene', 'expense', 'system', 6);
---> statement-breakpoint
+
+
 -- 文教二级类型
 INSERT INTO tb_type (parent_id, name, icon, type_category, is_system, sort) VALUES
 (14, '文教', 'books_education', 'expense', 'system', 1),
@@ -274,16 +301,19 @@ INSERT INTO tb_type (parent_id, name, icon, type_category, is_system, sort) VALU
 (14, '考试', 'exam', 'expense', 'system', 4),
 (14, '培训', 'training', 'expense', 'system', 5),
 (14, '书籍', 'books', 'expense', 'system', 6);
---> statement-breakpoint
+
+
 -- 物业二级类型 (已在日常中包含)
 -- 其它二级类型
 INSERT INTO tb_type (parent_id, name, icon, type_category, is_system, sort) VALUES
 (16, '其它', 'other', 'expense', 'system', 1);
---> statement-breakpoint
+
+
 -- 收入类型
 INSERT INTO tb_type (parent_id, name, icon, type_category, is_system, special_behavior, sort) VALUES
 (0, '收入', 'salary', 'income', 'system', '', 100);
---> statement-breakpoint
+
+
 -- 收入二级类型
 INSERT INTO tb_type (parent_id, name, icon, type_category, is_system, special_behavior, sort) VALUES
 (17, '报销', 'reimburse', 'income', 'system', 'reimbursement_absorption', 1),
@@ -305,11 +335,13 @@ INSERT INTO tb_type (parent_id, name, icon, type_category, is_system, special_be
 (17, '分红', 'dividend', 'income', 'system', '', 17),
 (17, '奖学金', 'scholarship', 'income', 'system', '', 18),
 (17, '津贴', 'benefit', 'income', 'system', '', 19);
---> statement-breakpoint
+
+
 -- 转账类型
 INSERT INTO tb_type (parent_id, name, icon, type_category, is_system, special_behavior, sort) VALUES
 (0, '转账', 'account_transfer', 'transfer', 'system', '', 200);
---> statement-breakpoint
+
+
 -- 转账二级类型
 INSERT INTO tb_type (parent_id, name, icon, type_category, is_system, special_behavior, sort) VALUES
 (18, '账户互转', 'account_transfer', 'transfer', 'system', '', 1),
@@ -321,11 +353,13 @@ INSERT INTO tb_type (parent_id, name, icon, type_category, is_system, special_be
 (18, '还款', 'repayment', 'transfer', 'system', 'debt_repayment', 7),
 (18, '收款', 'proceeds', 'transfer', 'system', 'debt_proceeds', 8),
 (18, '其他', 'other', 'transfer', 'system', '', 9);
---> statement-breakpoint
+
+
 -- 理财类型
 INSERT INTO tb_type (parent_id, name, icon, type_category, is_system, sort) VALUES
 (0, '理财', 'money_management', 'transfer', 'system', 300);
---> statement-breakpoint
+
+
 -- 理财二级类型
 INSERT INTO tb_type (parent_id, name, icon, type_category, is_system, sort) VALUES
 (19, '股票', 'stock', 'transfer', 'system', 1),
@@ -335,7 +369,6 @@ INSERT INTO tb_type (parent_id, name, icon, type_category, is_system, sort) VALU
 (19, '债券', 'bond', 'transfer', 'system', 5),
 (19, '外汇', 'forex', 'transfer', 'system', 6),
 (19, '手续费', 'charge', 'transfer', 'system', 7);
--> statementbreakpoint
--- 初始化默认账本
+
 INSERT INTO tb_books (name, description, background) VALUES
 ('默认账本', '', '');
