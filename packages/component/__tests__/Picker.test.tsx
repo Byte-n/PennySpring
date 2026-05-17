@@ -655,7 +655,7 @@ it('shows floating panel drag handle indicator by default', () => {
   expect(JSON.stringify(indicatorStyle)).not.toContain('"height":0');
 });
 
-it('adapts wheel height when panel content height changes', () => {
+it('locks wheel height after initial measurement to prevent indicator drift', () => {
   let testRenderer: renderer.ReactTestRenderer;
 
   act(() => {
@@ -705,8 +705,8 @@ it('adapts wheel height when panel content height changes', () => {
     testID: 'picker-indicator',
   }).props.style;
 
-  expect(JSON.stringify(nextScrollStyle)).toContain('"height":280');
-  expect(JSON.stringify(nextIndicatorStyle)).toContain('"top":118');
+  expect(JSON.stringify(nextScrollStyle)).toContain('"height":220');
+  expect(JSON.stringify(nextIndicatorStyle)).toContain('"top":88');
 });
 
 it('renders display input trigger when children is not provided', () => {
