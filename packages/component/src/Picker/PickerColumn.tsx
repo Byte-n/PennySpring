@@ -11,13 +11,17 @@ interface PickerColumnProps {
   selectedValue?: PickerValue;
   styles: ReturnType<typeof import('./usePickerStyles').usePickerStyles>;
   slotStyles?: PickerColumnStyles;
+  onFocusIndexChange?: (columnIndex: number, itemIndex: number) => void;
   onItemPress?: (columnIndex: number, itemIndex: number) => void;
+  onWheelScrollStateChange?: (isScrolling: boolean) => void;
 }
 
 export function PickerColumn({
   column,
   columnIndex,
+  onFocusIndexChange,
   onItemPress,
+  onWheelScrollStateChange,
   renderLabel,
   selectedValue,
   slotStyles,
@@ -54,7 +58,9 @@ export function PickerColumn({
       Math.min(itemIndex, column.length - 1),
     );
 
+    onFocusIndexChange?.(columnIndex, normalizedItemIndex);
     onItemPress?.(columnIndex, normalizedItemIndex);
+    onWheelScrollStateChange?.(false);
   };
 
   return (
@@ -67,7 +73,10 @@ export function PickerColumn({
       snapToInterval={itemHeight > 0 ? itemHeight : undefined}
       style={[styles.column, styles.columnScroll, slotStyles?.column]}
       testID={`picker-column-scroll-${columnIndex}`}
+      onMomentumScrollBegin={() => onWheelScrollStateChange?.(true)}
       onMomentumScrollEnd={handleMomentumScrollEnd}
+      onScrollBeginDrag={() => onWheelScrollStateChange?.(true)}
+      onScrollEndDrag={() => onWheelScrollStateChange?.(false)}
     >
       {column.map((item, index) => (
         <PickerColumnItem

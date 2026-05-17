@@ -35,8 +35,30 @@ function getSelectedItems(
   );
 }
 
+function getSelectedIndexes(
+  columns: PickerProps['columns'],
+  pickerValue: PickerValue[],
+): number[] {
+  return columns.map((column, columnIndex) =>
+    column.findIndex(item => item.value === pickerValue[columnIndex]),
+  );
+}
+
 function hasEmptyColumn(columns: PickerProps['columns']): boolean {
   return columns.some(column => column.length === 0);
+}
+
+function updateFocusIndex(
+  currentIndexes: number[],
+  columns: PickerProps['columns'],
+  columnIndex: number,
+  itemIndex: number,
+): number[] {
+  const baseIndexes = currentIndexes.length === columns.length
+    ? currentIndexes
+    : getSelectedIndexes(columns, []);
+
+  return baseIndexes.map((value, index) => (index === columnIndex ? itemIndex : value));
 }
 
 function getItemDisplayText(
@@ -108,16 +130,30 @@ export function Picker({
     undefined,
   );
   const [draftValue, setDraftValue] = useState(mainValue);
+  const [focusedIndexes, setFocusedIndexes] = useState<number[]>(() =>
+    getSelectedIndexes(columns, mainValue),
+  );
+  const [isWheelScrolling, setIsWheelScrolling] = useState(false);
   const draftValueRef = useRef(draftValue);
   const triggerValueText = getTriggerValueText(columns, mainValue);
   const hasMainValue = mainValue.length > 0;
+  const hasDisabledFocusedItem = focusedIndexes.some((itemIndex, columnIndex) => {
+    if (itemIndex < 0) {
+      return false;
+    }
+
+    return columns[columnIndex]?.[itemIndex]?.disabled === true;
+  });
+  const okDisabled = popupProps?.okDisabled === true || hasDisabledFocusedItem;
 
   useEffect(() => {
     if (isOpen) {
       setDraftValue(mainValue);
       draftValueRef.current = mainValue;
+      setFocusedIndexes(getSelectedIndexes(columns, mainValue));
+      setIsWheelScrolling(false);
     }
-  }, [isOpen, mainValue]);
+  }, [columns, isOpen, mainValue]);
 
   const handleTriggerPress = () => {
     if (disabled) {
@@ -144,7 +180,7 @@ export function Picker({
   };
 
   const handleOkPress = () => {
-    if (disabled || popupProps?.okDisabled) {
+    if (disabled || okDisabled) {
       return;
     }
 
@@ -159,6 +195,10 @@ export function Picker({
   };
 
   const handleItemPress = (columnIndex: number, itemIndex: number) => {
+    setFocusedIndexes(currentIndexes =>
+      updateFocusIndex(currentIndexes, columns, columnIndex, itemIndex),
+    );
+
     const item = columns[columnIndex]?.[itemIndex];
 
     if (item === undefined || item.disabled || readonly) {
@@ -185,11 +225,18 @@ export function Picker({
     });
   };
 
+  const handleWheelFocusChange = (columnIndex: number, itemIndex: number) => {
+    setFocusedIndexes(currentIndexes =>
+      updateFocusIndex(currentIndexes, columns, columnIndex, itemIndex),
+    );
+  };
+
   const handleClearPress = () => {
     const nextValue: PickerValue[] = [];
     draftValueRef.current = nextValue;
     setDraftValue(nextValue);
     setMainValue(nextValue);
+    setFocusedIndexes(getSelectedIndexes(columns, nextValue));
     onChange?.(nextValue, {
       reason: 'clear',
       items: getSelectedItems(columns, nextValue),
@@ -218,13 +265,18 @@ export function Picker({
       <PickerPopup
         columns={columns}
         draftValue={draftValue}
+        hasDisabledFocusedItem={hasDisabledFocusedItem}
+        isWheelScrolling={isWheelScrolling}
         onItemPress={handleItemPress}
         open={isOpen}
         onCancelPress={handleCancelPress}
+        onFocusIndexChange={handleWheelFocusChange}
         onMaskPress={handleMaskPress}
         onOkPress={handleOkPress}
+        onWheelScrollStateChange={setIsWheelScrolling}
         props={{
           ...popupProps,
+          okDisabled,
           cancelText: popupProps?.cancelText ?? DEFAULT_CANCEL_TEXT,
           okText: popupProps?.okText ?? DEFAULT_OK_TEXT,
         }}

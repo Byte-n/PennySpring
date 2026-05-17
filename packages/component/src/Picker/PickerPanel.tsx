@@ -8,19 +8,27 @@ import type { PickerColumn, PickerPopupProps, PickerValue } from './types';
 interface PickerPanelProps {
   columns: PickerColumn[];
   draftValue: PickerValue[];
+  hasDisabledFocusedItem?: boolean;
+  isWheelScrolling?: boolean;
   props: PickerPopupProps;
   styles: ReturnType<typeof import('./usePickerStyles').usePickerStyles>;
   onCancelPress?: () => void;
+  onFocusIndexChange?: (columnIndex: number, itemIndex: number) => void;
   onItemPress?: (columnIndex: number, itemIndex: number) => void;
   onOkPress?: () => void;
+  onWheelScrollStateChange?: (isScrolling: boolean) => void;
 }
 
 export function PickerPanel({
   columns,
   draftValue,
+  hasDisabledFocusedItem,
+  isWheelScrolling,
   onCancelPress,
+  onFocusIndexChange,
   onItemPress,
   onOkPress,
+  onWheelScrollStateChange,
   props,
   styles,
 }: PickerPanelProps) {
@@ -46,10 +54,14 @@ export function PickerPanel({
           columns={columns}
           empty={props.empty}
           emptyText={props.emptyText}
+          hasDisabledFocusedItem={hasDisabledFocusedItem}
+          isWheelScrolling={isWheelScrolling}
           loading={props.loading}
           loadingIndicator={props.loadingIndicator}
           loadingIndicatorText={props.loadingIndicatorText}
+          onFocusIndexChange={onFocusIndexChange}
           onItemPress={onItemPress}
+          onWheelScrollStateChange={onWheelScrollStateChange}
           renderLabel={props.renderLabel}
           selectedValue={draftValue}
           slotStyles={panelStyles?.body}

@@ -325,6 +325,48 @@ it('updates value when wheel column scroll settles', () => {
   }));
 });
 
+it('disables ok when wheel focus is on disabled item', () => {
+  const onOk = jest.fn();
+  const disabledColumns: PickerColumn[] = [[
+    { labelText: 'Alpha', value: 'a' },
+    { labelText: 'Beta', value: 'b', disabled: true },
+  ]];
+  let testRenderer: renderer.ReactTestRenderer;
+
+  act(() => {
+    testRenderer = renderer.create(
+      <Picker columns={disabledColumns} defaultOpen value={['a']} onOk={onOk} />,
+    );
+  });
+
+  act(() => {
+    testRenderer!.root.findByProps({ testID: 'picker-column-scroll-0' }).props.onMomentumScrollEnd({
+      nativeEvent: {
+        contentOffset: { y: 44 },
+      },
+    });
+  });
+
+  expect(testRenderer!.root.findByProps({ testID: 'picker-ok-button' }).props.disabled).toBe(true);
+  expect(
+    JSON.stringify(testRenderer!.root.findByProps({ testID: 'picker-indicator' }).props.style),
+  ).toContain('#ffccc7');
+
+  act(() => {
+    testRenderer!.root.findByProps({ testID: 'picker-column-scroll-0' }).props.onScrollBeginDrag();
+  });
+
+  expect(
+    JSON.stringify(testRenderer!.root.findByProps({ testID: 'picker-indicator' }).props.style),
+  ).not.toContain('#ffccc7');
+
+  act(() => {
+    testRenderer!.root.findByProps({ testID: 'picker-ok-button' }).props.onPress();
+  });
+
+  expect(onOk).not.toHaveBeenCalled();
+});
+
 it('commits uncontrolled main value on ok', () => {
   const onOk = jest.fn();
   let testRenderer: renderer.ReactTestRenderer;

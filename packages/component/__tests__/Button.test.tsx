@@ -130,6 +130,30 @@ describe('Button', () => {
     expect(onPress).not.toHaveBeenCalled();
     expect(root.props.accessibilityState.disabled).toBe(true);
   });
+  it('applies disabled opacity for text button variant', () => {
+    const testRenderer = renderButton({
+      type: 'text',
+      disabled: true,
+      children: <Text>Disabled text</Text>,
+    });
+
+    expect(getRootStyle(testRenderer).opacity).toBeDefined();
+  });
+  it('overrides custom text color with disabled text color for text button', () => {
+    const enabledRenderer = renderButton({
+      type: 'text',
+      disabled: false,
+      children: <Text style={{ color: 'red' }}>Enabled text</Text>,
+    });
+    const disabledRenderer = renderButton({
+      type: 'text',
+      disabled: true,
+      children: <Text style={{ color: 'red' }}>Disabled text</Text>,
+    });
+
+    expect(getContentTextStyle(enabledRenderer).color).toBe('red');
+    expect(getContentTextStyle(disabledRenderer).color).not.toBe('red');
+  });
   it('supports block layout', () => {
     const testRenderer = renderButton({
       block: true,

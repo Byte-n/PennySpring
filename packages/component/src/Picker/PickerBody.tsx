@@ -12,21 +12,29 @@ interface PickerBodyProps {
   loading?: boolean;
   loadingIndicator?: ReactNode;
   loadingIndicatorText?: string;
+  hasDisabledFocusedItem?: boolean;
+  isWheelScrolling?: boolean;
   renderLabel?: PickerPopupProps['renderLabel'];
   selectedValue: PickerValue[];
   styles: ReturnType<typeof import('./usePickerStyles').usePickerStyles>;
   slotStyles?: PickerBodyStyles;
+  onFocusIndexChange?: (columnIndex: number, itemIndex: number) => void;
   onItemPress?: (columnIndex: number, itemIndex: number) => void;
+  onWheelScrollStateChange?: (isScrolling: boolean) => void;
 }
 
 export function PickerBody({
   columns,
   empty,
   emptyText,
+  hasDisabledFocusedItem,
+  isWheelScrolling,
   loading,
   loadingIndicator,
   loadingIndicatorText,
+  onFocusIndexChange,
   onItemPress,
+  onWheelScrollStateChange,
   renderLabel,
   selectedValue,
   slotStyles,
@@ -56,7 +64,11 @@ export function PickerBody({
         columns={columns}
         empty={empty}
         emptyText={emptyText}
+        hasDisabledFocusedItem={hasDisabledFocusedItem}
+        isWheelScrolling={isWheelScrolling}
+        onFocusIndexChange={onFocusIndexChange}
         onItemPress={onItemPress}
+        onWheelScrollStateChange={onWheelScrollStateChange}
         renderLabel={renderLabel}
         selectedValue={selectedValue}
         slotStyles={slotStyles}

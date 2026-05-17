@@ -13,14 +13,22 @@ interface PickerViewProps {
   selectedValue: PickerValue[];
   styles: ReturnType<typeof import('./usePickerStyles').usePickerStyles>;
   slotStyles?: PickerBodyStyles;
+  hasDisabledFocusedItem?: boolean;
+  isWheelScrolling?: boolean;
+  onFocusIndexChange?: (columnIndex: number, itemIndex: number) => void;
   onItemPress?: (columnIndex: number, itemIndex: number) => void;
+  onWheelScrollStateChange?: (isScrolling: boolean) => void;
 }
 
 export function PickerView({
   columns,
   empty,
   emptyText,
+  hasDisabledFocusedItem,
+  isWheelScrolling,
+  onFocusIndexChange,
   onItemPress,
+  onWheelScrollStateChange,
   renderLabel,
   selectedValue,
   slotStyles,
@@ -32,7 +40,11 @@ export function PickerView({
     <View style={styles.view}>
       <View
         pointerEvents="none"
-        style={[styles.indicator, viewStyles?.indicator]}
+        style={[
+          styles.indicator,
+          hasDisabledFocusedItem && !isWheelScrolling ? styles.indicatorError : undefined,
+          viewStyles?.indicator,
+        ]}
         testID="picker-indicator"
       />
       {columns.map((column, columnIndex) => (
@@ -48,7 +60,9 @@ export function PickerView({
             column={column}
             columnIndex={columnIndex}
             key={columnIndex}
+            onFocusIndexChange={onFocusIndexChange}
             onItemPress={onItemPress}
+            onWheelScrollStateChange={onWheelScrollStateChange}
             renderLabel={renderLabel}
             selectedValue={selectedValue[columnIndex]}
             slotStyles={slotStyles?.view?.column}

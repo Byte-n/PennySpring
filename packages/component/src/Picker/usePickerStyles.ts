@@ -134,6 +134,9 @@ export const usePickerStyles = createUseSheetStyle(
       borderBottomWidth: token.lineWidth,
       borderColor: token.colorBorderSecondary,
     },
+    indicatorError: {
+      borderColor: token.colorErrorBorder,
+    },
     loading: {
       minHeight: token.controlHeight,
       alignItems: 'center',

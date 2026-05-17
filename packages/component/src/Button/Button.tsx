@@ -1,6 +1,6 @@
 import type { ComponentSize } from '../shares/types';
 import React, { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Pressable, View } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
 import { Icon } from '../Icon';
 import { Text } from '../Text';
@@ -311,6 +311,7 @@ const useStyles = createUseSheetStyle(
       rootDisabled: {
         backgroundColor: isTextButton ? TRANSPARENT : token.colorBgContainerDisabled,
         borderColor: isTextButton ? TRANSPARENT : token.colorBorderDisabled,
+        opacity: isTextButton ? token.opacityLoading : undefined,
       },
       rootLoading: {
         opacity: token.opacityLoading,
@@ -337,6 +338,7 @@ const useStyles = createUseSheetStyle(
 function renderContent(
   children: ButtonProps['children'],
   style: StyleProp<TextStyle>,
+  disabled: boolean,
 ) {
   if (typeof children === 'string' || typeof children === 'number') {
     return <Text style={style}>{children}</Text>;
@@ -350,6 +352,19 @@ function renderContent(
     const content = childItems.map(item => String(item)).join('');
 
     return <Text style={style}>{content}</Text>;
+  }
+
+  if (
+    React.isValidElement<{ style?: StyleProp<TextStyle> }>(children)
+    && children.type === Text
+  ) {
+    return React.cloneElement(children, {
+      style: StyleSheet.flatten(
+        disabled
+          ? [children.props.style, style]
+          : [style, children.props.style],
+      ),
+    });
   }
 
   return children;
@@ -431,7 +446,7 @@ export function Button({
       tokenStyles.content,
       styles?.content,
       disabled ? tokenStyles.contentDisabled : null,
-    ])
+    ], disabled)
     : null;
 
   useEffect(() => {
