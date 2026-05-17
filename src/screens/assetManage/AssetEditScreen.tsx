@@ -6,6 +6,7 @@ import {
   Button,
   Cascader,
   Column,
+  DateTimePicker,
   Input,
   Row,
   Spacer,
@@ -34,6 +35,21 @@ import { useNavigation, type RootStackParamList } from '../../navigation';
 import { useBookStore } from '../../stores/bookStore';
 
 type AssetEditRouteProp = RouteProp<RootStackParamList, 'AssetEdit'>;
+
+const PICKER_BASE_YEAR = 2026;
+const PICKER_BASE_MONTH = 0;
+
+function dayToPickerDate(day?: number): Date | undefined {
+  if (!day || day < 1 || day > 31) {
+    return undefined;
+  }
+
+  return new Date(PICKER_BASE_YEAR, PICKER_BASE_MONTH, day);
+}
+
+function formatDayText(day?: number): string {
+  return day ? `每月${day}日` : '请选择';
+}
 
 const useStyles = createUseSheetStyle(token => ({
   container: {
@@ -120,8 +136,8 @@ export function AssetEditScreen() {
   ]);
   const [balance, setBalance] = useState('');
   const [totalAmount, setTotalAmount] = useState('');
-  const [billingDate, setBillingDate] = useState('');
-  const [repaymentDate, setRepaymentDate] = useState('');
+  const [billingDate, setBillingDate] = useState<number | undefined>(undefined);
+  const [repaymentDate, setRepaymentDate] = useState<number | undefined>(undefined);
   const [remark, setRemark] = useState('');
   const [invisible, setInvisible] = useState(false);
 
@@ -147,8 +163,8 @@ export function AssetEditScreen() {
     );
     setBalance((existingAsset.balance / 100).toFixed(2));
     setTotalAmount((existingAsset.totalAmount / 100).toFixed(2));
-    setBillingDate(existingAsset.billingDate > 0 ? String(existingAsset.billingDate) : '');
-    setRepaymentDate(existingAsset.repaymentDate > 0 ? String(existingAsset.repaymentDate) : '');
+    setBillingDate(existingAsset.billingDate > 0 ? existingAsset.billingDate : undefined);
+    setRepaymentDate(existingAsset.repaymentDate > 0 ? existingAsset.repaymentDate : undefined);
     setRemark(existingAsset.remark);
     setInvisible(existingAsset.invisible === VISIBILITY.hidden);
   }, [existingAsset, pathLookup]);
@@ -175,8 +191,8 @@ export function AssetEditScreen() {
     try {
       const balanceCents = Math.round(parseFloat(balance || '0') * 100);
       const totalAmountCents = Math.round(parseFloat(totalAmount || '0') * 100);
-      const billingDateNum = parseInt(billingDate || '0', 10);
-      const repaymentDateNum = parseInt(repaymentDate || '0', 10);
+      const billingDateNum = billingDate ?? 0;
+      const repaymentDateNum = repaymentDate ?? 0;
 
       const input = {
         booksId: currentBook.id,
@@ -255,18 +271,34 @@ export function AssetEditScreen() {
                 onChangeText={setTotalAmount}
                 keyboardType="numeric"
               />
-              <Input
-                placeholder="账单日(1-31)"
-                value={billingDate}
-                onChangeText={setBillingDate}
-                keyboardType="numeric"
-              />
-              <Input
-                placeholder="还款日(1-31)"
-                value={repaymentDate}
-                onChangeText={setRepaymentDate}
-                keyboardType="numeric"
-              />
+              <DateTimePicker
+                precision="day"
+                value={dayToPickerDate(billingDate)}
+                titleText="选择账单日"
+                onOk={(_value, params) => {
+                  setBillingDate(params.day);
+                }}
+              >
+                <Input
+                  placeholder="账单日"
+                  value={formatDayText(billingDate)}
+                  readonly
+                />
+              </DateTimePicker>
+              <DateTimePicker
+                precision="day"
+                value={dayToPickerDate(repaymentDate)}
+                titleText="选择还款日"
+                onOk={(_value, params) => {
+                  setRepaymentDate(params.day);
+                }}
+              >
+                <Input
+                  placeholder="还款日"
+                  value={formatDayText(repaymentDate)}
+                  readonly
+                />
+              </DateTimePicker>
             </>
           )}
 
