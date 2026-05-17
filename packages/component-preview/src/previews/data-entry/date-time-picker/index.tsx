@@ -1,40 +1,25 @@
 import React from 'react';
-import { View } from 'react-native';
-import { DateTimePicker, Text } from '@pennyspring/component';
-import { createUseSheetStyle } from '@pennyspring/theme';
+import { DateTimePicker } from '@pennyspring/component';
 import { PreviewScaffold, PreviewSection } from '../../PreviewScaffold';
+import {
+  InlineValue,
+  PreviewStack,
+  TriggerContent,
+  formatDate,
+  formatDateTime,
+} from '../pickerPreviewShared';
 
 const BASE_DATE = new Date(2026, 4, 9, 14, 30, 20);
 const MIN_DATE = new Date(2026, 0, 1, 0, 0, 0);
 const MAX_DATE = new Date(2026, 11, 31, 23, 59, 59);
 
-const useStyles = createUseSheetStyle(token => ({
-  stack: {
-    gap: token.marginSM,
-  },
-  triggerContent: {
-    gap: token.marginXXS,
-  },
-}));
-
-function TriggerContent({ label, value }: { label: string; value: string }) {
-  const styles = useStyles();
-
-  return (
-    <View style={styles.triggerContent}>
-      <Text color="description" size="sm">{label}</Text>
-      <Text color="heading" weight="strong">{value}</Text>
-    </View>
-  );
-}
-
 export function DateTimePickerPreview() {
-  const styles = useStyles();
+  const [controlledDate, setControlledDate] = React.useState(BASE_DATE);
 
   return (
     <PreviewScaffold>
       <PreviewSection title="Precision">
-        <View style={styles.stack}>
+        <PreviewStack>
           <DateTimePicker precision="day" defaultValue={BASE_DATE} titleText="Date">
             <TriggerContent label="Date" value="2026-05-09" />
           </DateTimePicker>
@@ -49,13 +34,33 @@ export function DateTimePickerPreview() {
           >
             <TriggerContent label="Second step" value="2026-05-09 14:30:20" />
           </DateTimePicker>
-        </View>
+        </PreviewStack>
       </PreviewSection>
 
-      <PreviewSection title="Range and open">
-        <View style={styles.stack}>
+      <PreviewSection title="Controlled">
+        <PreviewStack>
           <DateTimePicker
-            defaultOpen
+            precision="minute"
+            value={controlledDate}
+            min={MIN_DATE}
+            max={MAX_DATE}
+            minuteStep={15}
+            onChange={setControlledDate}
+            titleText="Controlled date time"
+          >
+            <TriggerContent
+              label="Controlled"
+              value={formatDateTime(controlledDate)}
+              meta="15 minute step"
+            />
+          </DateTimePicker>
+          <InlineValue label="Current" value={formatDateTime(controlledDate)} />
+        </PreviewStack>
+      </PreviewSection>
+
+      <PreviewSection title="Range and state">
+        <PreviewStack>
+          <DateTimePicker
             precision="month"
             min={MIN_DATE}
             max={MAX_DATE}
@@ -65,9 +70,9 @@ export function DateTimePickerPreview() {
             <TriggerContent label="Default open" value="2026-05" />
           </DateTimePicker>
           <DateTimePicker disabled defaultValue={BASE_DATE} titleText="Disabled">
-            <TriggerContent label="Disabled" value="Not selectable" />
+            <TriggerContent label="Disabled" value={formatDate(BASE_DATE)} />
           </DateTimePicker>
-        </View>
+        </PreviewStack>
       </PreviewSection>
     </PreviewScaffold>
   );

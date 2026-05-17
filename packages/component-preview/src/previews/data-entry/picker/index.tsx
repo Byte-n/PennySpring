@@ -1,9 +1,13 @@
 import React from 'react';
-import { View } from 'react-native';
 import { Picker } from '@pennyspring/component';
-import { createUseSheetStyle } from '@pennyspring/theme';
 import { PreviewScaffold, PreviewSection } from '../../PreviewScaffold';
-import type { PickerColumn } from '@pennyspring/component';
+import {
+  InlineValue,
+  PreviewStack,
+  TriggerContent,
+  joinLabels,
+} from '../pickerPreviewShared';
+import type { PickerChangeParams, PickerColumn, PickerValue } from '@pennyspring/component';
 
 const ACCOUNT_COLUMN: PickerColumn = [
   { labelText: 'Cash', value: 'cash' },
@@ -53,23 +57,27 @@ const MONTH_COLUMN: PickerColumn = [
   { labelText: 'December', value: 'december' },
 ];
 
-const useStyles = createUseSheetStyle(token => ({
-  stack: {
-    gap: token.marginSM,
-  },
-}));
+const EMPTY_COLUMN: PickerColumn = [];
+
+function getPickerSummary(params: PickerChangeParams): string {
+  return joinLabels(params.items.map(item => item?.labelText));
+}
 
 export function PickerPreview() {
-  const styles = useStyles();
+  const [controlledValue, setControlledValue] = React.useState<PickerValue[]>([
+    'may',
+    'food',
+  ]);
+  const [controlledSummary, setControlledSummary] = React.useState('May / Food');
 
   return (
     <PreviewScaffold>
-      <PreviewSection title="Trigger">
-        <View style={styles.stack}>
+      <PreviewSection title="Basic">
+        <PreviewStack>
           <Picker
             allowClear
             label="Account"
-            placeholder="Single column"
+            placeholder="Select account"
             columns={[ACCOUNT_COLUMN]}
             popupProps={{ titleText: 'Account' }}
           />
@@ -77,17 +85,66 @@ export function PickerPreview() {
             allowClear
             columns={[MONTH_COLUMN, CATEGORY_COLUMN]}
             defaultValue={['may', 'food']}
-            placeholder="请输入"
-            label="MC"
+            placeholder="Select month and category"
+            label="Month category"
             popupProps={{ titleText: 'Month and category' }}
           />
           <Picker
+            columns={[ACCOUNT_COLUMN]}
+            defaultValue={['cash']}
+            placeholder="Custom trigger"
+            popupProps={{ titleText: 'Custom trigger' }}
+          >
+            <TriggerContent
+              label="Custom trigger"
+              value="Cash"
+              meta="Uses the picker trigger slot"
+            />
+          </Picker>
+        </PreviewStack>
+      </PreviewSection>
+
+      <PreviewSection title="Controlled">
+        <PreviewStack>
+          <Picker
+            allowClear
+            columns={[MONTH_COLUMN, CATEGORY_COLUMN]}
+            label="Controlled value"
+            value={controlledValue}
+            onChange={(nextValue, params) => {
+              setControlledValue(nextValue);
+              setControlledSummary(getPickerSummary(params));
+            }}
+            popupProps={{ titleText: 'Controlled picker' }}
+          />
+          <InlineValue label="Current" value={controlledSummary} />
+        </PreviewStack>
+      </PreviewSection>
+
+      <PreviewSection title="State">
+        <PreviewStack>
+          <Picker
             disabled
             columns={[ACCOUNT_COLUMN]}
-            placeholder="placeholder"
+            label="Disabled"
+            placeholder="Not selectable"
             popupProps={{ titleText: 'Disabled' }}
           />
-        </View>
+          <Picker
+            readonly
+            columns={[ACCOUNT_COLUMN]}
+            defaultValue={['salary-card']}
+            label="Readonly"
+            placeholder="Cannot open"
+            popupProps={{ titleText: 'Readonly' }}
+          />
+          <Picker
+            columns={[EMPTY_COLUMN]}
+            label="Empty"
+            placeholder="No options"
+            popupProps={{ emptyText: 'No accounts', titleText: 'Empty picker' }}
+          />
+        </PreviewStack>
       </PreviewSection>
     </PreviewScaffold>
   );
