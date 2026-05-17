@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Pressable, View } from 'react-native';
+import { FlatList, Pressable, View } from 'react-native';
 import { Tabs } from '../Tabs';
 import { Text } from '../Text';
 import { useControllableValue } from '../_hooks';
@@ -142,8 +142,12 @@ export function CascaderView<TData = unknown>({
           <Text color="description">Loading...</Text>
         </View>
       ) : currentOptions.length > 0 ? (
-        <View style={[tokenStyles.list, styles?.list]} testID="cascader-list">
-          {currentOptions.map((option, optionIndex) => {
+        <FlatList
+          contentContainerStyle={tokenStyles.listContent}
+          data={currentOptions}
+          keyExtractor={option => String(option.value)}
+          nestedScrollEnabled
+          renderItem={({ item: option, index: optionIndex }) => {
             const selected = selectedValue?.[currentLevel] === option.value;
             const optionDisabled = option.disabled === true || !isInteractive;
             const content = renderOptionLabel(
@@ -156,7 +160,6 @@ export function CascaderView<TData = unknown>({
             return (
               <Pressable
                 disabled={optionDisabled}
-                key={String(option.value)}
                 onPress={() => handleOptionPress(option, optionIndex)}
                 style={({ pressed }) => [
                   tokenStyles.option,
@@ -193,8 +196,10 @@ export function CascaderView<TData = unknown>({
                 </View>
               </Pressable>
             );
-          })}
-        </View>
+          }}
+          style={[tokenStyles.list, styles?.list]}
+          testID="cascader-list"
+        />
       ) : (
         <View style={[tokenStyles.empty, styles?.empty]} testID="cascader-empty">
           {empty ?? <Text color="description">{emptyText}</Text>}

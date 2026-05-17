@@ -109,6 +109,8 @@ export const useCascaderStyles = createUseSheetStyle(
       },
       list: {
         flex: 1,
+      },
+      listContent: {
         gap: token.sizeXXS,
       },
       option: {
