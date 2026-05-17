@@ -37,7 +37,7 @@ describe('DisplayInput', () => {
     const onPress = jest.fn();
     const testRenderer = renderDisplayInput({
       onPress,
-      value: '可点击内容',
+      children: '可点击内容',
     });
 
     const trigger = testRenderer.root.findByProps({
@@ -54,7 +54,7 @@ describe('DisplayInput', () => {
   it('shows placeholder when value is empty', () => {
     const testRenderer = renderDisplayInput({
       placeholder: '请选择',
-      value: '',
+      children: '',
     });
 
     expect(JSON.stringify(testRenderer.toJSON())).toContain('请选择');
@@ -74,7 +74,7 @@ describe('DisplayInput', () => {
 
   it('does not render TextInput to avoid cursor', () => {
     const testRenderer = renderDisplayInput({
-      value: '展示文本',
+      children: '展示文本',
     });
 
     expect(() => testRenderer.root.findByType(TextInput)).toThrow();
@@ -82,11 +82,11 @@ describe('DisplayInput', () => {
 
   it('uses block display by default and inline display when requested', () => {
     const blockRenderer = renderDisplayInput({
-      value: '默认块级',
+      children: '默认块级',
     });
     const inlineRenderer = renderDisplayInput({
       display: 'inline',
-      value: '行内展示',
+      children: '行内展示',
     });
 
     const blockStyle = findRootStyle(blockRenderer);
@@ -100,7 +100,7 @@ describe('DisplayInput', () => {
 
   it('renders custom value node without wrapping it in text', () => {
     const testRenderer = renderDisplayInput({
-      value: <View testID="custom-value-node" />,
+      children: <View testID="custom-value-node" />,
       placeholder: '请选择',
     });
 
@@ -110,12 +110,12 @@ describe('DisplayInput', () => {
     expect(JSON.stringify(testRenderer.toJSON())).not.toContain('请选择');
   });
 
-  it('uses ellipsis by default and allows visible text overflow when configured', () => {
+  it('uses hidden overflow by default and allows visible overflow when configured', () => {
     const defaultRenderer = renderDisplayInput({
       valueText: '默认省略',
     });
     const visibleRenderer = renderDisplayInput({
-      textOverflow: 'visible',
+      overflow: 'visible',
       valueText: '允许换行',
     });
 
@@ -134,5 +134,29 @@ describe('DisplayInput', () => {
     expect(defaultText.props.ellipsizeMode).toBe('tail');
     expect(visibleText.props.numberOfLines).toBeUndefined();
     expect(visibleText.props.ellipsizeMode).toBeUndefined();
+  });
+
+  it('applies clipping style to custom value container when overflow is hidden', () => {
+    const hiddenRenderer = renderDisplayInput({
+      overflow: 'hidden',
+      children: <View testID="custom-value-hidden" />,
+    });
+    const visibleRenderer = renderDisplayInput({
+      overflow: 'visible',
+      children: <View testID="custom-value-visible" />,
+    });
+
+    const hiddenContainer = hiddenRenderer.root.findByProps({
+      testID: 'custom-value-hidden',
+    }).parent;
+    const visibleContainer = visibleRenderer.root.findByProps({
+      testID: 'custom-value-visible',
+    }).parent;
+
+    const hiddenStyleText = JSON.stringify(hiddenContainer?.props.style ?? []);
+    const visibleStyleText = JSON.stringify(visibleContainer?.props.style ?? []);
+
+    expect(hiddenStyleText).toContain('"overflow":"hidden"');
+    expect(visibleStyleText).toContain('"overflow":"visible"');
   });
 });

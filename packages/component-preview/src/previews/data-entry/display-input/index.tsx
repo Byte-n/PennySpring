@@ -1,5 +1,5 @@
 import React from 'react';
-import { Column, DisplayInput, Text } from '@pennyspring/component';
+import { Column, DisplayInput, Icon, Text } from '@pennyspring/component';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import { PreviewScaffold, PreviewSection } from '../../PreviewScaffold';
 
@@ -80,18 +80,18 @@ export function DisplayInputPreview() {
             label="value (ReactNode)"
             onPress={() => setPressedValue('点击了 自定义节点')}
             placeholder="这个占位不会显示"
-            value={<Text style={styles.customValue}>自定义节点值</Text>}
-          />
+          >
+            <Text style={styles.customValue}>自定义节点值</Text>
+          </DisplayInput>
           <DisplayInput
             display="inline"
             label="inline custom node"
             onPress={() => setPressedValue('点击了 行内自定义节点')}
-            value={
-              <Text color="description" size="sm">
-                行内节点值（可放图标+文本组合）
-              </Text>
-            }
-          />
+          >
+            <Text color="description" size="sm">
+              行内节点值（可放图标+文本组合）
+            </Text>
+          </DisplayInput>
         </Column>
       </PreviewSection>
 
@@ -113,22 +113,35 @@ export function DisplayInputPreview() {
             display="block"
             label="block + custom node"
             onPress={() => setPressedValue('点击了 block 自定义节点')}
-            value={
-              <Text style={styles.customValue}>
+          >
+            <Column>
+              <Text
+                ellipsizeMode="tail"
+                numberOfLines={1}
+                style={styles.customValue}
+              >
                 block 自定义节点：这是一个很长的节点文本，用于观察节点分支在默认容器下的表现
               </Text>
-            }
-          />
+              <Icon color="colorSuccess" icon="check-circle" size="small" />
+            </Column>
+          </DisplayInput>
           <DisplayInput
             display="inline"
             label="inline + custom node"
             onPress={() => setPressedValue('点击了 inline 自定义节点')}
-            value={
-              <Text color="description" size="sm">
+          >
+            <Column>
+              <Text
+                color="description"
+                ellipsizeMode="tail"
+                numberOfLines={1}
+                size="sm"
+              >
                 inline 自定义节点：这是一个很长的节点文本，用于观察节点分支在默认容器下的表现
               </Text>
-            }
-          />
+              <Icon color="colorTextDescription" icon="info" size="small" />
+            </Column>
+          </DisplayInput>
         </Column>
       </PreviewSection>
       <PreviewSection title="Overflow visible">
@@ -136,8 +149,8 @@ export function DisplayInputPreview() {
           <DisplayInput
             display="block"
             label="block + valueText + overflowVisible"
+            overflow="visible"
             style={styles.overflowVisible}
-            textOverflow="visible"
             onPress={() =>
               setPressedValue('点击了 block valueText overflowVisible')
             }
@@ -146,8 +159,8 @@ export function DisplayInputPreview() {
           <DisplayInput
             display="inline"
             label="inline + valueText + overflowVisible"
+            overflow="visible"
             style={styles.overflowVisible}
-            textOverflow="visible"
             onPress={() =>
               setPressedValue('点击了 inline valueText overflowVisible')
             }
@@ -158,23 +171,21 @@ export function DisplayInputPreview() {
             label="block + custom node + overflowVisible"
             style={styles.overflowVisible}
             onPress={() => setPressedValue('点击了 block 节点 overflowVisible')}
-            value={
-              <Text style={styles.customValue}>
-                block 自定义节点：这是一个很长的节点文本，用于观察 overflowVisible 对节点容器的影响
-              </Text>
-            }
-          />
+          >
+            <Text style={styles.customValue}>
+              block 自定义节点：这是一个很长的节点文本，用于观察 overflowVisible 对节点容器的影响
+            </Text>
+          </DisplayInput>
           <DisplayInput
             display="inline"
             label="inline + custom node + overflowVisible"
             style={styles.overflowVisible}
             onPress={() => setPressedValue('点击了 inline 节点 overflowVisible')}
-            value={
-              <Text color="description" size="sm">
-                inline 自定义节点：这是一个很长的节点文本，用于观察 overflowVisible 对节点容器的影响
-              </Text>
-            }
-          />
+          >
+            <Text color="description" size="sm">
+              inline 自定义节点：这是一个很长的节点文本，用于观察 overflowVisible 对节点容器的影响
+            </Text>
+          </DisplayInput>
           <Text color="description" size="sm">
             说明：文本截断由内部 Text 的 numberOfLines 控制，overflow 不会取消省略号。
           </Text>
@@ -183,7 +194,9 @@ export function DisplayInputPreview() {
 
       <PreviewSection title="State">
         <Column style={styles.stack}>
-          <DisplayInput disabled label="Disabled" value="禁用态" />
+          <DisplayInput disabled label="Disabled">
+            禁用态
+          </DisplayInput>
           <DisplayInput readonly label="Readonly" valueText="只读态" />
           <DisplayInput
             errorText="请选择有效值"
