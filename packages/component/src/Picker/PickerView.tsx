@@ -47,6 +47,9 @@ export function PickerView({
     itemHeight,
     wheelHeight,
   });
+  const hasUnselectedValue = columns.length > 0 && columns.every((column, columnIndex) =>
+    column.findIndex(item => item.value === selectedValue[columnIndex]) < 0,
+  );
 
   return (
     <View style={styles.view}>
@@ -55,6 +58,7 @@ export function PickerView({
         style={[
           styles.indicator,
           wheelHeight > 0 ? wheelStyles.indicator : undefined,
+          hasUnselectedValue ? wheelStyles.indicatorUnselected : undefined,
           hasDisabledFocusedItem && !isWheelScrolling ? styles.indicatorError : undefined,
           viewStyles?.indicator,
         ]}

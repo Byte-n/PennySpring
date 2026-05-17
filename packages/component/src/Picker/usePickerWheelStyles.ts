@@ -24,6 +24,9 @@ export const usePickerWheelStyles = createUseSheetStyle(
       indicator: {
         top: wheelInset,
       },
+      indicatorUnselected: {
+        top: Math.max(0, wheelInset - itemHeight),
+      },
     };
   },
 );

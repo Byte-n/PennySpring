@@ -737,6 +737,22 @@ it('locks wheel height after initial measurement to prevent indicator drift', ()
   expect(JSON.stringify(nextIndicatorStyle)).toContain('"top":88');
 });
 
+it('positions indicator above first option when no value is selected', () => {
+  let testRenderer: renderer.ReactTestRenderer;
+
+  act(() => {
+    testRenderer = renderer.create(
+      <Picker columns={columns} defaultOpen value={[]} />,
+    );
+  });
+
+  const indicatorStyle = testRenderer!.root.findByProps({
+    testID: 'picker-indicator',
+  }).props.style;
+
+  expect(JSON.stringify(indicatorStyle)).toContain('"top":44');
+});
+
 it('renders display input trigger when children is not provided', () => {
   let testRenderer: renderer.ReactTestRenderer;
 
