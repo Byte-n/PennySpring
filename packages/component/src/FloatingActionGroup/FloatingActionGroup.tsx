@@ -1,4 +1,5 @@
 import React, { useContext, useMemo, useState } from 'react';
+import type { StyleProp, ViewStyle } from 'react-native';
 import { Pressable, View } from 'react-native';
 import Animated, {
   Easing,
@@ -8,8 +9,9 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
-import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
-import { FloatingActionButton } from '../FloatingActionButton';
+import { createUseSheetStyle, toShadowStyle, useTheme } from '@pennyspring/theme';
+import { Button } from '../Button';
+import type { ButtonColor, ButtonVariant } from '../Button';
 import { PortalContext } from '../Portal/Portal';
 import { resolvePortalMount } from '../Portal/resolvePortalMount';
 import type {
@@ -28,6 +30,23 @@ interface FloatingStyleOptions {
   };
   alignEnd: boolean;
   expandUp: boolean;
+}
+
+interface FloatingActionButtonStyles {
+  button?: StyleProp<ViewStyle>;
+}
+
+interface FloatingActionButtonProps {
+  label?: string;
+  icon?: React.ReactNode;
+  disabled?: boolean;
+  color?: ButtonColor;
+  variant?: ButtonVariant;
+  shadow?: boolean;
+  onPress?: () => void;
+  style?: StyleProp<ViewStyle>;
+  styles?: FloatingActionButtonStyles;
+  testID?: string;
 }
 
 const DEFAULT_VISIBLE_COUNT = 1;
@@ -57,6 +76,46 @@ const useStyles = createUseSheetStyle(
     },
   }),
 );
+
+const useButtonStyles = createUseSheetStyle((token, shadow: boolean) => ({
+  button: {
+    height: token.controlHeightLG,
+    borderRadius: token.borderRadiusLG,
+    paddingHorizontal: token.paddingSM,
+    ...(shadow ? toShadowStyle(token.boxShadowSecondary) : undefined),
+  },
+}));
+
+function FloatingActionButton({
+  color = 'primary',
+  disabled,
+  icon,
+  label,
+  onPress,
+  shadow = true,
+  style,
+  styles,
+  testID,
+  variant = 'solid',
+}: FloatingActionButtonProps) {
+  const tokenStyles = useButtonStyles(shadow);
+
+  return (
+    <Button
+      color={color}
+      disabled={disabled}
+      icon={icon}
+      onPress={onPress}
+      shape="round"
+      size="large"
+      style={[tokenStyles.button, style, styles?.button]}
+      testID={testID}
+      variant={variant}
+    >
+      {label}
+    </Button>
+  );
+}
 
 function resolvePlacementPosition(
   placement: FloatingPlacement,

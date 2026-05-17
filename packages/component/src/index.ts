@@ -331,11 +331,6 @@ export type {
 } from './SwipeAction';
 export { Carousel } from './Carousel';
 export type { CarouselProps, CarouselRef } from './Carousel';
-export { FloatingActionButton } from './FloatingActionButton';
-export type {
-  FloatingActionButtonProps,
-  FloatingActionButtonStyles,
-} from './FloatingActionButton';
 export { FloatingActionGroup } from './FloatingActionGroup';
 export type {
   FloatingActionGroupProps,

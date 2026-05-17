@@ -4,7 +4,7 @@ import { useRequest } from 'ahooks';
 import {
   Column,
   Empty,
-  FloatingActionButton,
+  FloatingActionGroup,
   Icon,
   ListCollapse,
   ListItem,
@@ -111,7 +111,9 @@ export function AssetManageScreen() {
         )}
       </ScrollView>
 
-      <FloatingActionButton icon={<Icon icon="add" />} onPress={handleCreate} />
+      <FloatingActionGroup
+        actions={[{ key: 'create-asset', icon: <Icon icon="add" />, onPress: handleCreate }]}
+      />
     </Column>
   );
 }

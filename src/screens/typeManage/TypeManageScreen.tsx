@@ -6,7 +6,7 @@ import {
   Column,
   Dialog,
   Empty,
-  FloatingActionButton,
+  FloatingActionGroup,
   Input,
   List,
   ListItem,
@@ -142,7 +142,7 @@ export function TypeManageScreen() {
         )}
       </ScrollView>
 
-      <FloatingActionButton onPress={openCreateDialog} />
+      <FloatingActionGroup actions={[{ key: 'create-type', onPress: openCreateDialog }]} />
 
       <Dialog
         open={dialogOpen}
