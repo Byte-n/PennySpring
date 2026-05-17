@@ -11,14 +11,24 @@ export type PickerValue = string | number;
 export type PickerOpenChangeReason = 'trigger' | 'cancel' | 'mask' | 'ok';
 export type PickerCancelReason = 'cancel' | 'mask';
 
-export interface PickerColumnItemData {
+export interface PickerColumnItemData<
+  TValue extends PickerValue = PickerValue,
+  TData = unknown,
+> {
   labelText?: string;
   label?: ReactNode;
-  value: PickerValue;
+  value: TValue;
   disabled?: boolean;
+  data?: TData;
 }
 
-export type PickerColumn = PickerColumnItemData[];
+export type PickerColumn<
+  TItem extends PickerColumnItemData = PickerColumnItemData,
+> = TItem[];
+
+export type PickerItemValue<
+  TItem extends PickerColumnItemData = PickerColumnItemData,
+> = TItem['value'];
 
 export interface PickerOpenChangeParams {
   reason: PickerOpenChangeReason;
@@ -28,29 +38,37 @@ export interface PickerCancelParams {
   reason: PickerCancelReason;
 }
 
-export interface PickerOkParams {
-  items: Array<PickerColumnItemData | undefined>;
+export interface PickerOkParams<
+  TItem extends PickerColumnItemData = PickerColumnItemData,
+> {
+  items: Array<TItem | undefined>;
 }
 
 export type PickerChangeReason = 'select' | 'clear';
 
-export interface PickerSelectChangeParams {
+export interface PickerSelectChangeParams<
+  TItem extends PickerColumnItemData = PickerColumnItemData,
+> {
   reason: 'select';
   columnIndex: number;
-  item: PickerColumnItemData;
+  item: TItem;
   itemIndex: number;
-  items: Array<PickerColumnItemData | undefined>;
-  value: PickerValue;
+  items: Array<TItem | undefined>;
+  value: PickerItemValue<TItem>;
 }
 
-export interface PickerClearChangeParams {
+export interface PickerClearChangeParams<
+  TItem extends PickerColumnItemData = PickerColumnItemData,
+> {
   reason: 'clear';
-  items: Array<PickerColumnItemData | undefined>;
+  items: Array<TItem | undefined>;
 }
 
-export type PickerChangeParams =
-  | PickerSelectChangeParams
-  | PickerClearChangeParams;
+export type PickerChangeParams<
+  TItem extends PickerColumnItemData = PickerColumnItemData,
+> =
+  | PickerSelectChangeParams<TItem>
+  | PickerClearChangeParams<TItem>;
 
 export interface PickerStyles {
   trigger?: StyleProp<ViewStyle>;
@@ -98,9 +116,11 @@ export interface PickerColumnStyles {
   empty?: StyleProp<ViewStyle>;
 }
 
-export interface PickerRenderHeaderParams {
-  draftValue: PickerValue[];
-  columns: PickerColumn[];
+export interface PickerRenderHeaderParams<
+  TItem extends PickerColumnItemData = PickerColumnItemData,
+> {
+  draftValue: Array<PickerItemValue<TItem>>;
+  columns: Array<PickerColumn<TItem>>;
   hasDisabledFocusedItem?: boolean;
   isWheelScrolling?: boolean;
   okDisabled?: boolean;
@@ -108,7 +128,9 @@ export interface PickerRenderHeaderParams {
   onOk: () => void;
 }
 
-export interface PickerPopupProps {
+export interface PickerPopupProps<
+  TItem extends PickerColumnItemData = PickerColumnItemData,
+> {
   titleText?: string;
   title?: ReactNode;
   cancelText?: string;
@@ -122,11 +144,11 @@ export interface PickerPopupProps {
   empty?: ReactNode;
   okDisabled?: boolean;
   renderLabel?: (
-    item: PickerColumnItemData,
+    item: TItem,
     columnIndex: number,
     itemIndex: number,
   ) => ReactNode;
-  renderHeader?: (params: PickerRenderHeaderParams) => ReactNode;
+  renderHeader?: (params: PickerRenderHeaderParams<TItem>) => ReactNode;
   styles?: Omit<PickerStyles, 'trigger'>;
 }
 
@@ -135,25 +157,32 @@ type PickerDisplayInputProps = Omit<
   'label' | 'placeholder' | 'disabled' | 'readonly' | 'valueText'
 >;
 
-export interface PickerProps {
+export interface PickerProps<
+  TItem extends PickerColumnItemData = PickerColumnItemData,
+> {
   size?: ComponentSize;
-  columns: PickerColumn[];
-  value?: PickerValue[];
-  defaultValue?: PickerValue[];
-  onChange?: (value: PickerValue[], params: PickerChangeParams) => void;
+  columns: Array<PickerColumn<TItem>>;
+  value?: Array<PickerItemValue<TItem>>;
+  defaultValue?: Array<PickerItemValue<TItem>>;
+  onChange?: (
+    value: Array<PickerItemValue<TItem>>,
+    params: PickerChangeParams<TItem>,
+  ) => void;
   open?: boolean;
   defaultOpen?: boolean;
   onOpenChange?: (open: boolean, params: PickerOpenChangeParams) => void;
-  onOk?: (value: PickerValue[], params: PickerOkParams) => void;
+  onOk?: (
+    value: Array<PickerItemValue<TItem>>,
+    params: PickerOkParams<TItem>,
+  ) => void;
   onCancel?: (params: PickerCancelParams) => void;
   label?: DisplayInputProps['label'];
   placeholder?: string;
   displayInputProps?: PickerDisplayInputProps;
-  popupProps?: PickerPopupProps;
+  popupProps?: PickerPopupProps<TItem>;
   allowClear?: boolean;
   onClear?: () => void;
   disabled?: boolean;
-  readonly?: boolean;
   style?: StyleProp<ViewStyle>;
   triggerStyle?: StyleProp<ViewStyle>;
   children?: ReactNode;

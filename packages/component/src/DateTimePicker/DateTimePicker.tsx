@@ -324,7 +324,6 @@ export function DateTimePicker(props: DateTimePickerProps) {
         title: props.title,
         titleText: props.titleText,
       }}
-      readonly={props.readonly}
       style={props.style}
       triggerStyle={props.styles?.trigger}
       value={pickerValue}

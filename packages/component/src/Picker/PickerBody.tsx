@@ -5,10 +5,16 @@ import { Text } from '../Text';
 import { PickerView } from './PickerView';
 import { WHEEL_VISIBLE_ITEM_COUNT } from './usePickerStyles';
 import type { ReactNode } from 'react';
-import type { PickerBodyStyles, PickerColumn, PickerPopupProps, PickerValue } from './types';
+import type {
+  PickerBodyStyles,
+  PickerColumn,
+  PickerColumnItemData,
+  PickerItemValue,
+  PickerPopupProps,
+} from './types';
 
-interface PickerBodyProps {
-  columns: PickerColumn[];
+interface PickerBodyProps<TItem extends PickerColumnItemData> {
+  columns: Array<PickerColumn<TItem>>;
   empty?: ReactNode;
   emptyText?: string;
   loading?: boolean;
@@ -16,8 +22,8 @@ interface PickerBodyProps {
   loadingIndicatorText?: string;
   hasDisabledFocusedItem?: boolean;
   isWheelScrolling?: boolean;
-  renderLabel?: PickerPopupProps['renderLabel'];
-  selectedValue: PickerValue[];
+  renderLabel?: PickerPopupProps<TItem>['renderLabel'];
+  selectedValue: Array<PickerItemValue<TItem>>;
   styles: ReturnType<typeof import('./usePickerStyles').usePickerStyles>;
   slotStyles?: PickerBodyStyles;
   onFocusIndexChange?: (columnIndex: number, itemIndex: number) => void;
@@ -25,7 +31,7 @@ interface PickerBodyProps {
   onWheelScrollStateChange?: (isScrolling: boolean) => void;
 }
 
-export function PickerBody({
+export function PickerBody<TItem extends PickerColumnItemData>({
   columns,
   empty,
   emptyText,
@@ -41,7 +47,7 @@ export function PickerBody({
   selectedValue,
   slotStyles,
   styles,
-}: PickerBodyProps) {
+}: PickerBodyProps<TItem>) {
   const lockedHeightRef = useRef(0);
   const isEmpty = columns.length === 0 || columns.every(column => column.length === 0);
   const itemStyle = StyleSheet.flatten(styles.item);

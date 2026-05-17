@@ -194,6 +194,7 @@ export type {
   PickerChangeParams,
   PickerColumn,
   PickerColumnItemData,
+  PickerItemValue,
   PickerOkParams,
   PickerOpenChangeParams,
   PickerOpenChangeReason,

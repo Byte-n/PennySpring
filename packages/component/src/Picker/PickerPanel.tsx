@@ -3,14 +3,19 @@ import { View } from 'react-native';
 import { PickerBody } from './PickerBody';
 import { PickerHeader } from './PickerHeader';
 import { PickerSafeArea } from './PickerSafeArea';
-import type { PickerColumn, PickerPopupProps, PickerValue } from './types';
+import type {
+  PickerColumn,
+  PickerColumnItemData,
+  PickerItemValue,
+  PickerPopupProps,
+} from './types';
 
-interface PickerPanelProps {
-  columns: PickerColumn[];
-  draftValue: PickerValue[];
+interface PickerPanelProps<TItem extends PickerColumnItemData> {
+  columns: Array<PickerColumn<TItem>>;
+  draftValue: Array<PickerItemValue<TItem>>;
   hasDisabledFocusedItem?: boolean;
   isWheelScrolling?: boolean;
-  props: PickerPopupProps;
+  props: PickerPopupProps<TItem>;
   styles: ReturnType<typeof import('./usePickerStyles').usePickerStyles>;
   onCancelPress?: () => void;
   onFocusIndexChange?: (columnIndex: number, itemIndex: number) => void;
@@ -19,7 +24,7 @@ interface PickerPanelProps {
   onWheelScrollStateChange?: (isScrolling: boolean) => void;
 }
 
-export function PickerPanel({
+export function PickerPanel<TItem extends PickerColumnItemData>({
   columns,
   draftValue,
   hasDisabledFocusedItem,
@@ -31,7 +36,7 @@ export function PickerPanel({
   onWheelScrollStateChange,
   props,
   styles,
-}: PickerPanelProps) {
+}: PickerPanelProps<TItem>) {
   const panelStyles = props.styles?.panel;
 
   return (

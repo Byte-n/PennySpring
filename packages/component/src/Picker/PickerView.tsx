@@ -5,14 +5,20 @@ import { Text } from '../Text';
 import { PickerColumn } from './PickerColumn';
 import { usePickerWheelStyles } from './usePickerWheelStyles';
 import type { ReactNode } from 'react';
-import type { PickerBodyStyles, PickerColumn as PickerColumnData, PickerPopupProps, PickerValue } from './types';
+import type {
+  PickerBodyStyles,
+  PickerColumn as PickerColumnData,
+  PickerColumnItemData,
+  PickerItemValue,
+  PickerPopupProps,
+} from './types';
 
-interface PickerViewProps {
-  columns: PickerColumnData[];
+interface PickerViewProps<TItem extends PickerColumnItemData> {
+  columns: Array<PickerColumnData<TItem>>;
   empty?: ReactNode;
   emptyText?: string;
-  renderLabel?: PickerPopupProps['renderLabel'];
-  selectedValue: PickerValue[];
+  renderLabel?: PickerPopupProps<TItem>['renderLabel'];
+  selectedValue: Array<PickerItemValue<TItem>>;
   styles: ReturnType<typeof import('./usePickerStyles').usePickerStyles>;
   slotStyles?: PickerBodyStyles;
   hasDisabledFocusedItem?: boolean;
@@ -23,7 +29,7 @@ interface PickerViewProps {
   wheelHeight: number;
 }
 
-export function PickerView({
+export function PickerView<TItem extends PickerColumnItemData>({
   columns,
   empty,
   emptyText,
@@ -37,7 +43,7 @@ export function PickerView({
   slotStyles,
   styles,
   wheelHeight,
-}: PickerViewProps) {
+}: PickerViewProps<TItem>) {
   const viewStyles = slotStyles?.view;
   const itemStyle = StyleSheet.flatten(styles.item);
   const itemHeight = typeof itemStyle?.minHeight === 'number'

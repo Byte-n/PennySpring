@@ -1,15 +1,20 @@
 import React from 'react';
 import { Popup } from '../Popup';
 import { PickerPanel } from './PickerPanel';
-import type { PickerColumn, PickerPopupProps as PickerPopupConfig, PickerValue } from './types';
+import type {
+  PickerColumn,
+  PickerColumnItemData,
+  PickerItemValue,
+  PickerPopupProps as PickerPopupConfig,
+} from './types';
 
-interface PickerPopupContainerProps {
-  columns: PickerColumn[];
-  draftValue: PickerValue[];
+interface PickerPopupContainerProps<TItem extends PickerColumnItemData> {
+  columns: Array<PickerColumn<TItem>>;
+  draftValue: Array<PickerItemValue<TItem>>;
   hasDisabledFocusedItem?: boolean;
   isWheelScrolling?: boolean;
   open: boolean;
-  props: PickerPopupConfig;
+  props: PickerPopupConfig<TItem>;
   styles: ReturnType<typeof import('./usePickerStyles').usePickerStyles>;
   onCancelPress?: () => void;
   onFocusIndexChange?: (columnIndex: number, itemIndex: number) => void;
@@ -19,7 +24,7 @@ interface PickerPopupContainerProps {
   onWheelScrollStateChange?: (isScrolling: boolean) => void;
 }
 
-export function PickerPopup({
+export function PickerPopup<TItem extends PickerColumnItemData>({
   columns,
   draftValue,
   hasDisabledFocusedItem,
@@ -33,7 +38,7 @@ export function PickerPopup({
   open,
   props,
   styles,
-}: PickerPopupContainerProps) {
+}: PickerPopupContainerProps<TItem>) {
   return (
     <Popup.FloatingPanel
       open={open}

@@ -5,16 +5,21 @@ import { PickerPopup } from './PickerPopup';
 import { PickerTrigger } from './PickerTrigger';
 import { usePickerStyles } from './usePickerStyles';
 import { useControllableValue } from '../_hooks';
-import type { PickerProps, PickerValue } from './types';
+import type {
+  PickerColumn,
+  PickerColumnItemData,
+  PickerItemValue,
+  PickerProps,
+} from './types';
 
 const DEFAULT_SIZE: ComponentSize = 'normal';
 const DEFAULT_CANCEL_TEXT = '取消';
 const DEFAULT_OK_TEXT = '确定';
 
-function getInitialValue(
-  defaultValue?: PickerValue[],
-  value?: PickerValue[],
-): PickerValue[] {
+function getInitialValue<TItem extends PickerColumnItemData>(
+  defaultValue?: Array<PickerItemValue<TItem>>,
+  value?: Array<PickerItemValue<TItem>>,
+): Array<PickerItemValue<TItem>> {
   if (value !== undefined) {
     return value;
   }
@@ -26,31 +31,33 @@ function getInitialValue(
   return [];
 }
 
-function getSelectedItems(
-  columns: PickerProps['columns'],
-  pickerValue: PickerValue[],
-) {
+function getSelectedItems<TItem extends PickerColumnItemData>(
+  columns: Array<PickerColumn<TItem>>,
+  pickerValue: Array<PickerItemValue<TItem>>,
+): Array<TItem | undefined> {
   return columns.map((column, columnIndex) =>
     column.find(item => item.value === pickerValue[columnIndex]),
   );
 }
 
-function getSelectedIndexes(
-  columns: PickerProps['columns'],
-  pickerValue: PickerValue[],
+function getSelectedIndexes<TItem extends PickerColumnItemData>(
+  columns: Array<PickerColumn<TItem>>,
+  pickerValue: Array<PickerItemValue<TItem>>,
 ): number[] {
   return columns.map((column, columnIndex) =>
     column.findIndex(item => item.value === pickerValue[columnIndex]),
   );
 }
 
-function hasEmptyColumn(columns: PickerProps['columns']): boolean {
+function hasEmptyColumn<TItem extends PickerColumnItemData>(
+  columns: Array<PickerColumn<TItem>>,
+): boolean {
   return columns.some(column => column.length === 0);
 }
 
-function updateFocusIndex(
+function updateFocusIndex<TItem extends PickerColumnItemData>(
   currentIndexes: number[],
-  columns: PickerProps['columns'],
+  columns: Array<PickerColumn<TItem>>,
   columnIndex: number,
   itemIndex: number,
 ): number[] {
@@ -61,8 +68,8 @@ function updateFocusIndex(
   return baseIndexes.map((value, index) => (index === columnIndex ? itemIndex : value));
 }
 
-function getItemDisplayText(
-  item: ReturnType<typeof getSelectedItems>[number],
+function getItemDisplayText<TItem extends PickerColumnItemData>(
+  item: TItem | undefined,
 ): string | undefined {
   if (item === undefined) {
     return undefined;
@@ -79,9 +86,9 @@ function getItemDisplayText(
   return undefined;
 }
 
-function getTriggerValueText(
-  columns: PickerProps['columns'],
-  pickerValue: PickerValue[],
+function getTriggerValueText<TItem extends PickerColumnItemData>(
+  columns: Array<PickerColumn<TItem>>,
+  pickerValue: Array<PickerItemValue<TItem>>,
 ): string | undefined {
   const itemTexts = getSelectedItems(columns, pickerValue)
     .map(item => getItemDisplayText(item))
@@ -94,7 +101,7 @@ function getTriggerValueText(
   return itemTexts.join(' / ');
 }
 
-export function Picker({
+export function Picker<TItem extends PickerColumnItemData = PickerColumnItemData>({
   allowClear,
   children,
   columns,
@@ -111,20 +118,21 @@ export function Picker({
   onOpenChange,
   open,
   placeholder,
-  readonly,
   size = DEFAULT_SIZE,
   style,
   triggerStyle,
   value,
-}: PickerProps) {
+}: PickerProps<TItem>) {
   const tokenStyles = usePickerStyles({ size });
   const [resolvedOpen, setResolvedOpen] = useControllableValue(
     defaultOpen === true,
     open,
     undefined,
   );
-  const isOpen = resolvedOpen === true || Boolean(readonly);
-  const [mainValue = [], setMainValue] = useControllableValue(
+  const isOpen = resolvedOpen === true;
+  const [mainValue = [], setMainValue] = useControllableValue<
+    Array<PickerItemValue<TItem>>
+  >(
     getInitialValue(defaultValue, value),
     value,
     undefined,
@@ -201,7 +209,7 @@ export function Picker({
 
     const item = columns[columnIndex]?.[itemIndex];
 
-    if (item === undefined || item.disabled || readonly) {
+    if (item === undefined || item.disabled) {
       return;
     }
 
@@ -232,16 +240,16 @@ export function Picker({
   };
 
   const handleClearPress = () => {
-    const nextValue: PickerValue[] = [];
+    const nextValue: Array<PickerItemValue<TItem>> = [];
     draftValueRef.current = nextValue;
     setDraftValue(nextValue);
     setMainValue(nextValue);
     setFocusedIndexes(getSelectedIndexes(columns, nextValue));
+    onClear?.();
     onChange?.(nextValue, {
       reason: 'clear',
       items: getSelectedItems(columns, nextValue),
     });
-    onClear?.();
   };
 
   return (
@@ -255,7 +263,6 @@ export function Picker({
         onClearPress={handleClearPress}
         onPress={handleTriggerPress}
         placeholder={placeholder}
-        readonly={readonly}
         styles={tokenStyles}
         triggerStyle={triggerStyle}
         valueText={triggerValueText}

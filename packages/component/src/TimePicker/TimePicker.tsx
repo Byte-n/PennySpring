@@ -244,7 +244,6 @@ export function TimePicker(props: TimePickerProps) {
         title: props.title,
         titleText: props.titleText,
       }}
-      readonly={props.readonly}
       style={props.style}
       triggerStyle={props.styles?.trigger}
       value={pickerValue}

@@ -7,6 +7,7 @@ export type {
   PickerClearChangeParams,
   PickerColumn,
   PickerColumnItemData,
+  PickerItemValue,
   PickerOkParams,
   PickerOpenChangeParams,
   PickerOpenChangeReason,

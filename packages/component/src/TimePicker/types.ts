@@ -55,7 +55,6 @@ export interface TimePickerProps {
   empty?: ReactNode;
   placeholder?: string;
   disabled?: boolean;
-  readonly?: boolean;
   okDisabled?: boolean;
   children?: ReactNode;
   style?: StyleProp<ViewStyle>;

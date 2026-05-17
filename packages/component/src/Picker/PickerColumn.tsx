@@ -2,14 +2,20 @@ import React from 'react';
 import { ScrollView, StyleSheet } from 'react-native';
 import { PickerColumnItem } from './PickerColumnItem';
 import { usePickerWheelStyles } from './usePickerWheelStyles';
-import type { PickerColumn as PickerColumnData, PickerColumnStyles, PickerPopupProps, PickerValue } from './types';
+import type {
+  PickerColumn as PickerColumnData,
+  PickerColumnItemData,
+  PickerColumnStyles,
+  PickerItemValue,
+  PickerPopupProps,
+} from './types';
 import type { NativeScrollEvent, NativeSyntheticEvent } from 'react-native';
 
-interface PickerColumnProps {
-  column: PickerColumnData;
+interface PickerColumnProps<TItem extends PickerColumnItemData> {
+  column: PickerColumnData<TItem>;
   columnIndex: number;
-  renderLabel?: PickerPopupProps['renderLabel'];
-  selectedValue?: PickerValue;
+  renderLabel?: PickerPopupProps<TItem>['renderLabel'];
+  selectedValue?: PickerItemValue<TItem>;
   styles: ReturnType<typeof import('./usePickerStyles').usePickerStyles>;
   slotStyles?: PickerColumnStyles;
   onFocusIndexChange?: (columnIndex: number, itemIndex: number) => void;
@@ -18,7 +24,7 @@ interface PickerColumnProps {
   wheelHeight: number;
 }
 
-export function PickerColumn({
+export function PickerColumn<TItem extends PickerColumnItemData>({
   column,
   columnIndex,
   onFocusIndexChange,
@@ -29,7 +35,7 @@ export function PickerColumn({
   slotStyles,
   styles,
   wheelHeight,
-}: PickerColumnProps) {
+}: PickerColumnProps<TItem>) {
   const scrollRef = React.useRef<ScrollView | null>(null);
   const itemStyle = StyleSheet.flatten(styles.item);
   const itemHeight = typeof itemStyle?.minHeight === 'number'

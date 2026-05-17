@@ -50,6 +50,7 @@ import {
   Picker,
   Text,
   type PickerColumn,
+  type PickerColumnItemData,
   type PickerProps,
   type PickerStyles,
   type PickerValue,
@@ -71,6 +72,19 @@ interface UnsupportedBusinessPickerProps extends PickerProps {
 const UnsupportedBusinessPicker = Picker as unknown as React.ComponentType<
   UnsupportedBusinessPickerProps
 >;
+
+interface AccountPickerItem extends PickerColumnItemData<'cash' | 'card'> {
+  data: {
+    kind: 'asset';
+  };
+}
+
+const accountColumns: AccountPickerItem[][] = [
+  [
+    { labelText: 'Cash', value: 'cash', data: { kind: 'asset' } },
+    { labelText: 'Card', value: 'card', data: { kind: 'asset' } },
+  ],
+];
 
 function ControlledClearPicker({
   onChange,
@@ -121,6 +135,54 @@ it('renders custom header via renderHeader', () => {
   const allText = testRenderer!.root.findAllByType(Text);
   const customHeader = allText.find(node => node.props.children === 'Custom Header');
   expect(customHeader).toBeDefined();
+});
+
+it('does not expose readonly in public picker props', () => {
+  const element = (
+    <Picker
+      columns={columns}
+      // @ts-expect-error Picker no longer supports readonly.
+      readonly
+    />
+  );
+
+  expect(element.props.readonly).toBe(true);
+});
+
+it('infers value and callback params from picker column item type', () => {
+  const element = (
+    <Picker
+      columns={accountColumns}
+      onChange={(nextValue, params) => {
+        const value: Array<'cash' | 'card'> = nextValue;
+        const item: AccountPickerItem = params.items[0]!;
+
+        if (params.reason === 'select') {
+          const selectedValue: 'cash' | 'card' = params.value;
+          const selectedItem: AccountPickerItem = params.item;
+
+          expect(selectedItem.data.kind).toBe('asset');
+          expect(['cash', 'card']).toContain(selectedValue);
+        }
+
+        expect(value).toEqual(expect.any(Array));
+        expect(item.data.kind).toBe('asset');
+      }}
+      onOk={(nextValue, params) => {
+        const value: Array<'cash' | 'card'> = nextValue;
+        const item: AccountPickerItem = params.items[0]!;
+
+        expect(value).toEqual(expect.any(Array));
+        expect(item.data.kind).toBe('asset');
+      }}
+      popupProps={{
+        renderLabel: item => item.data.kind,
+      }}
+      value={['cash']}
+    />
+  );
+
+  expect(element.props.value).toEqual(['cash']);
 });
 
 it('renders paired text and custom node props', () => {
@@ -480,26 +542,6 @@ it('ignores disabled item selection', () => {
   expect(testRenderer!.root.findByProps({ testID: 'picker-item-0-0' }).props.selected).toBe(true);
 });
 
-it('opens readonly picker but prevents selection changes', () => {
-  const onChange = jest.fn();
-  let testRenderer: renderer.ReactTestRenderer;
-
-  act(() => {
-    testRenderer = renderer.create(
-      <Picker columns={columns} readonly onChange={onChange}>
-        <Text>Open picker</Text>
-      </Picker>,
-    );
-  });
-  act(() => {
-    testRenderer!.root.findByProps({ testID: 'picker-trigger' }).props.onPress();
-    testRenderer!.root.findByProps({ testID: 'picker-item-0-1' }).props.onPress();
-  });
-
-  expect(JSON.stringify(testRenderer!.toJSON())).toContain('Alpha');
-  expect(onChange).not.toHaveBeenCalled();
-});
-
 it('disabled picker blocks trigger and ok', () => {
   const onOk = jest.fn();
   const onOpenChange = jest.fn();
@@ -798,13 +840,23 @@ it('shows selected label text in display input trigger', () => {
 });
 
 it('clears controlled value through onChange', () => {
+  const calls: string[] = [];
   const onChange = jest.fn();
   const onClear = jest.fn();
   let testRenderer: renderer.ReactTestRenderer;
 
   act(() => {
     testRenderer = renderer.create(
-      <ControlledClearPicker onChange={onChange} onClear={onClear} />,
+      <ControlledClearPicker
+        onClear={() => {
+          calls.push('clear');
+          onClear();
+        }}
+        onChange={(nextValue, params) => {
+          calls.push(`change:${params.reason}`);
+          onChange(nextValue, params);
+        }}
+      />,
     );
   });
 
@@ -821,6 +873,7 @@ it('clears controlled value through onChange', () => {
     reason: 'clear',
   }));
   expect(onClear).toHaveBeenCalledTimes(1);
+  expect(calls).toEqual(['clear', 'change:clear']);
   expect(testRenderer!.root.findByType(DisplayInput).props.valueText).toBeUndefined();
 });
 

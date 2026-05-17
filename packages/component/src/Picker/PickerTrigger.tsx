@@ -12,7 +12,6 @@ interface PickerTriggerProps {
   disabled?: boolean;
   hasValue?: boolean;
   label?: PickerProps['label'];
-  readonly?: boolean;
   valueText?: string;
   placeholder?: string;
   displayInputProps?: PickerProps['displayInputProps'];
@@ -32,7 +31,6 @@ export function PickerTrigger({
   onPress,
   onClearPress,
   placeholder,
-  readonly,
   styles,
   triggerStyle,
   valueText,
@@ -43,7 +41,6 @@ export function PickerTrigger({
   const shouldShowClearButton = allowClear === true
     && hasValue === true
     && disabled !== true
-    && readonly !== true
     && displayInputSuffix === undefined;
 
   function handleTriggerPress(): void {

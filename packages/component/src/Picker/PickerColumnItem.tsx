@@ -12,29 +12,29 @@ type PickerItemPressableProps = PressableProps & {
 const PickerItemPressable =
   Pressable as React.ComponentType<PickerItemPressableProps>;
 
-interface PickerColumnItemProps {
+interface PickerColumnItemProps<TItem extends PickerColumnItemData> {
   columnIndex: number;
-  item: PickerColumnItemData;
+  item: TItem;
   itemIndex: number;
-  renderLabel?: PickerPopupProps['renderLabel'];
+  renderLabel?: PickerPopupProps<TItem>['renderLabel'];
   selected?: boolean;
   styles: ReturnType<typeof import('./usePickerStyles').usePickerStyles>;
   slotStyles?: PickerColumnStyles;
   onPress?: () => void;
 }
 
-function renderItemLabel(
-  item: PickerColumnItemData,
+function renderItemLabel<TItem extends PickerColumnItemData>(
+  item: TItem,
   columnIndex: number,
   itemIndex: number,
-  renderLabel?: PickerPopupProps['renderLabel'],
+  renderLabel?: PickerPopupProps<TItem>['renderLabel'],
 ): ReactNode {
   return renderLabel?.(item, columnIndex, itemIndex) ?? item.label ?? (
     <Text>{item.labelText}</Text>
   );
 }
 
-export function PickerColumnItem({
+export function PickerColumnItem<TItem extends PickerColumnItemData>({
   columnIndex,
   item,
   itemIndex,
@@ -43,7 +43,7 @@ export function PickerColumnItem({
   selected,
   slotStyles,
   styles,
-}: PickerColumnItemProps) {
+}: PickerColumnItemProps<TItem>) {
   const content = renderItemLabel(item, columnIndex, itemIndex, renderLabel);
 
   return (
