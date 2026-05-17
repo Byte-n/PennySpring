@@ -116,6 +116,12 @@ export const useStyles = createUseSheetStyle(
         flexShrink: 1,
         minWidth: 0,
       },
+      valueContainerHidden: {
+        overflow: 'hidden',
+      },
+      valueContainerVisible: {
+        overflow: 'visible',
+      },
       valueDisabled: {
         color: token.colorTextDisabled,
       },

@@ -4,7 +4,7 @@ import type { ComponentSize } from '../shares/types';
 import type { InputStatus } from '../Input';
 
 export type DisplayInputDisplay = 'inline' | 'block';
-export type DisplayInputTextOverflow = 'ellipsis' | 'visible';
+export type DisplayInputOverflow = 'hidden' | 'visible';
 
 export interface DisplayInputStyles {
   label?: StyleProp<TextStyle>;
@@ -21,14 +21,14 @@ export interface DisplayInputStyles {
 export interface DisplayInputProps {
   size?: ComponentSize;
   display?: DisplayInputDisplay;
-  textOverflow?: DisplayInputTextOverflow;
+  overflow?: DisplayInputOverflow;
   status?: InputStatus;
   label?: ReactNode;
   placeholder?: string;
   helperText?: ReactNode;
   errorText?: ReactNode;
   valueText?: string;
-  value?: ReactNode;
+  children?: ReactNode;
   prefix?: ReactNode;
   suffix?: ReactNode;
   required?: boolean;

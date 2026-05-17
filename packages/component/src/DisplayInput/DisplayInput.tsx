@@ -6,8 +6,8 @@ import type { ComponentSize } from '../shares/types';
 import type { InputStatus } from '../Input';
 import type {
   DisplayInputDisplay,
+  DisplayInputOverflow,
   DisplayInputProps,
-  DisplayInputTextOverflow,
 } from './types';
 
 const REQUIRED_MARK = '*';
@@ -24,10 +24,8 @@ function resolveDisplay(display?: DisplayInputDisplay): DisplayInputDisplay {
   return display ?? 'block';
 }
 
-function resolveTextOverflow(
-  textOverflow?: DisplayInputTextOverflow,
-): DisplayInputTextOverflow {
-  return textOverflow ?? 'ellipsis';
+function resolveOverflow(overflow?: DisplayInputOverflow): DisplayInputOverflow {
+  return overflow ?? 'hidden';
 }
 
 function resolveAccessibilityLabel(
@@ -63,17 +61,17 @@ export function DisplayInput({
   required,
   size,
   status,
-  textOverflow,
+  overflow,
   style,
   styles,
   suffix,
   valueText,
-  value,
+  children,
 }: DisplayInputProps) {
   const resolvedSize = resolveSize(size);
   const resolvedStatus = resolveStatus(status);
   const resolvedDisplay = resolveDisplay(display);
-  const resolvedTextOverflow = resolveTextOverflow(textOverflow);
+  const resolvedOverflow = resolveOverflow(overflow);
   const tokenStyles = useStyles({
     display: resolvedDisplay,
     size: resolvedSize,
@@ -87,11 +85,11 @@ export function DisplayInput({
   const hasLabel = label !== undefined && label !== null;
   const hasPrefix = prefix !== undefined && prefix !== null;
   const hasSuffix = suffix !== undefined && suffix !== null;
-  const hasCustomValue = value !== undefined && value !== null;
+  const hasCustomValue = children !== undefined && children !== null;
   const hasTextValue = valueText !== undefined && valueText !== '';
   const textValue = hasCustomValue
-    ? isTextLikeValue(value)
-      ? String(value)
+    ? isTextLikeValue(children)
+      ? String(children)
       : undefined
     : hasTextValue
       ? valueText
@@ -127,14 +125,22 @@ export function DisplayInput({
         {hasPrefix ? (
           <View style={[tokenStyles.prefix, styles?.prefix]}>{prefix}</View>
         ) : null}
-        {hasCustomValue && !isTextLikeValue(value) ? (
-          <View style={[tokenStyles.valueContainer, styles?.valueContainer]}>
-            {value}
+        {hasCustomValue && !isTextLikeValue(children) ? (
+          <View
+            style={[
+              tokenStyles.valueContainer,
+              resolvedOverflow === 'hidden'
+                ? tokenStyles.valueContainerHidden
+                : tokenStyles.valueContainerVisible,
+              styles?.valueContainer,
+            ]}
+          >
+            {children}
           </View>
         ) : (
           <Text
-            ellipsizeMode={resolvedTextOverflow === 'ellipsis' ? 'tail' : undefined}
-            numberOfLines={resolvedTextOverflow === 'ellipsis' ? 1 : undefined}
+            ellipsizeMode={resolvedOverflow === 'hidden' ? 'tail' : undefined}
+            numberOfLines={resolvedOverflow === 'hidden' ? 1 : undefined}
             style={[
               tokenStyles.value,
               styles?.value,
