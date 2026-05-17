@@ -300,6 +300,31 @@ it('changes draft value before confirmation', () => {
   expect(onOk).not.toHaveBeenCalled();
 });
 
+it('updates value when wheel column scroll settles', () => {
+  const onChange = jest.fn();
+  let testRenderer: renderer.ReactTestRenderer;
+
+  act(() => {
+    testRenderer = renderer.create(
+      <Picker columns={columns} defaultOpen value={['a']} onChange={onChange} />,
+    );
+  });
+
+  act(() => {
+    testRenderer!.root.findByProps({ testID: 'picker-column-scroll-0' }).props.onMomentumScrollEnd({
+      nativeEvent: {
+        contentOffset: { y: 44 },
+      },
+    });
+  });
+
+  expect(onChange).toHaveBeenCalledWith(['b'], expect.objectContaining({
+    columnIndex: 0,
+    itemIndex: 1,
+    value: 'b',
+  }));
+});
+
 it('commits uncontrolled main value on ok', () => {
   const onOk = jest.fn();
   let testRenderer: renderer.ReactTestRenderer;

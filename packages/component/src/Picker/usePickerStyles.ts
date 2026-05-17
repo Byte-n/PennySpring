@@ -7,6 +7,10 @@ interface PickerStyleOptions {
   size: ComponentSize;
 }
 
+const WHEEL_VISIBLE_ITEM_COUNT = 5;
+const WHEEL_SIDE_ITEM_COUNT = 2;
+const INDICATOR_Z_INDEX_OFFSET = 1;
+
 function getItemHeight(size: ComponentSize, token: AliasToken): number {
   if (size === 'small') {
     return token.controlHeightSM;
@@ -20,10 +24,14 @@ function getItemHeight(size: ComponentSize, token: AliasToken): number {
 }
 
 export const usePickerStyles = createUseSheetStyle(
-  (token, { size }: PickerStyleOptions) => ({
-    trigger: {
-      alignSelf: 'stretch',
-    },
+  (token, { size }: PickerStyleOptions) => {
+    const itemHeight = getItemHeight(size, token);
+    const wheelInset = itemHeight * WHEEL_SIDE_ITEM_COUNT;
+
+    return {
+      trigger: {
+        alignSelf: 'stretch',
+      },
     triggerClearButton: {
       justifyContent: 'center',
       alignItems: 'center',
@@ -82,12 +90,19 @@ export const usePickerStyles = createUseSheetStyle(
     },
     view: {
       flexDirection: 'row',
+      position: 'relative',
     },
     column: {
       flex: 1,
     },
+    columnScroll: {
+      height: itemHeight * WHEEL_VISIBLE_ITEM_COUNT,
+    },
+    columnContent: {
+      paddingVertical: wheelInset,
+    },
     item: {
-      minHeight: getItemHeight(size, token),
+      minHeight: itemHeight,
       alignItems: 'center',
       justifyContent: 'center',
       paddingHorizontal: token.paddingSM,
@@ -109,6 +124,12 @@ export const usePickerStyles = createUseSheetStyle(
       color: token.colorTextDisabled,
     },
     indicator: {
+      position: 'absolute',
+      top: wheelInset,
+      left: 0,
+      right: 0,
+      height: itemHeight,
+      zIndex: token.zIndexBase + INDICATOR_Z_INDEX_OFFSET,
       borderTopWidth: token.lineWidth,
       borderBottomWidth: token.lineWidth,
       borderColor: token.colorBorderSecondary,
@@ -128,5 +149,6 @@ export const usePickerStyles = createUseSheetStyle(
     safeArea: {
       paddingBottom: token.paddingMD,
     },
-  }),
+    };
+  },
 );
