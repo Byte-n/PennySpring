@@ -11,7 +11,7 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "start": "react-native start",
-    "test": "jest",
+    "test": "jest --watchman=false",
     "adb:wireless": "node scripts/adb-wireless.js",
     "init:codex": "node scripts/init-codex.js",
     "clean": "bash scripts/clean.sh"

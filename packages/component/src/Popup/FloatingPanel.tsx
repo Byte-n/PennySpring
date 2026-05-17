@@ -135,6 +135,39 @@ const useStyles = createUseSheetStyle(
   },
 );
 
+function createDragGesture(
+  onBegin: () => void,
+  onUpdate: (translationY: number) => void,
+):
+  | ReturnType<typeof Gesture.Pan>
+  | undefined {
+  const panGestureFactory = Gesture?.Pan;
+
+  if (typeof panGestureFactory !== 'function') {
+    return undefined;
+  }
+
+  return panGestureFactory()
+    .runOnJS(true)
+    .onBegin(onBegin)
+    .onUpdate(event => {
+      onUpdate(event.translationY);
+    });
+}
+
+function getResponderTranslationY(
+  gestureState?: {
+    dy?: number;
+    translationY?: number;
+  },
+): number {
+  if (gestureState?.translationY !== undefined) {
+    return gestureState.translationY;
+  }
+
+  return gestureState?.dy ?? 0;
+}
+
 export function FloatingPanel({
   afterOpenChange,
   animation,
@@ -210,23 +243,57 @@ export function FloatingPanel({
     setPanelHeight(nextHeight);
   }
 
-  const dragGesture = Gesture.Pan()
-    .runOnJS(true)
-    .onBegin(handleGestureBegin)
-    .onUpdate(event => {
-      handleGestureUpdate(event.translationY);
-    });
+  function handleResponderGrant(): void {
+    handleGestureBegin();
+  }
 
-  const handleNode = (
+  function handleResponderMove(
+    _event: unknown,
+    gestureState?: {
+      dy?: number;
+      translationY?: number;
+    },
+  ): void {
+    handleGestureUpdate(getResponderTranslationY(gestureState));
+  }
+
+  function handleResponderRelease(
+    _event: unknown,
+    gestureState?: {
+      dy?: number;
+      translationY?: number;
+    },
+  ): void {
+    handleGestureUpdate(getResponderTranslationY(gestureState));
+  }
+
+  const dragGesture = createDragGesture(
+    handleGestureBegin,
+    handleGestureUpdate,
+  );
+
+  const handleContent = (
+    <Pressable
+      onResponderGrant={handleResponderGrant}
+      onResponderMove={handleResponderMove}
+      onResponderRelease={handleResponderRelease}
+      style={[tokenStyles.handle, styles?.handle]}
+      testID="floating-panel-handle"
+    >
+      <View
+        pointerEvents="none"
+        style={[tokenStyles.handleIndicator, styles?.handleIndicator]}
+        testID="floating-panel-handle-indicator"
+      />
+    </Pressable>
+  );
+
+  const handleNode = dragGesture ? (
     <GestureDetector gesture={dragGesture}>
-      <Pressable style={[tokenStyles.handle, styles?.handle]} testID="floating-panel-handle">
-        <View
-          pointerEvents="none"
-          style={[tokenStyles.handleIndicator, styles?.handleIndicator]}
-          testID="floating-panel-handle-indicator"
-        />
-      </Pressable>
+      {handleContent}
     </GestureDetector>
+  ) : (
+    handleContent
   );
 
   const handleAtTop = resolvedPosition === 'bottom';

@@ -93,6 +93,10 @@ describe('Cascader', () => {
     expect(tree).toContain('Select');
     expect(tree).toContain('Zhejiang');
     expect(tree).toContain('Guangdong');
+
+    act(() => {
+      testRenderer!.unmount();
+    });
   });
 
   it('selects a parent option and switches list to the next level', () => {
@@ -121,6 +125,10 @@ describe('Cascader', () => {
     const tree = JSON.stringify(testRenderer!.toJSON());
     expect(tree).toContain('Hangzhou');
     expect(tree).toContain('Ningbo');
+
+    act(() => {
+      testRenderer!.unmount();
+    });
   });
 
   it('selects a leaf option and returns full path with isLeaf=true', () => {
@@ -151,6 +159,10 @@ describe('Cascader', () => {
       'zhejiang',
       'hangzhou',
     ]);
+
+    act(() => {
+      testRenderer!.unmount();
+    });
   });
 
   it('opens on trigger press and closes on leaf selection by default', () => {
@@ -183,6 +195,10 @@ describe('Cascader', () => {
 
     expect(onOpenChange).toHaveBeenCalledWith(false, { reason: 'select' });
     expect(() => testRenderer!.root.findByProps({ testID: 'floating-panel-root' })).toThrow();
+
+    act(() => {
+      testRenderer!.unmount();
+    });
   });
 
   it('keeps popup open when closeOnSelectLeaf is false', () => {
@@ -207,5 +223,9 @@ describe('Cascader', () => {
     });
 
     expect(testRenderer!.root.findByProps({ testID: 'floating-panel-root' })).toBeTruthy();
+
+    act(() => {
+      testRenderer!.unmount();
+    });
   });
 });
