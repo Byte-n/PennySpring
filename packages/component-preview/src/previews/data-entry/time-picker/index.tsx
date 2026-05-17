@@ -1,12 +1,7 @@
 import React from 'react';
 import { TimePicker } from '@pennyspring/component';
 import { PreviewScaffold, PreviewSection } from '../../PreviewScaffold';
-import {
-  InlineValue,
-  PreviewStack,
-  TriggerContent,
-  formatTime,
-} from '../pickerPreviewShared';
+import { InlineValue, PreviewStack, formatTime } from '../pickerPreviewShared';
 
 const BASE_TIME = new Date(2026, 4, 9, 14, 30, 20);
 const MIN_TIME = new Date(2026, 4, 9, 9, 0, 0);
@@ -19,20 +14,25 @@ export function TimePickerPreview() {
     <PreviewScaffold>
       <PreviewSection title="Precision">
         <PreviewStack>
-          <TimePicker precision="hour" defaultValue={BASE_TIME} titleText="Hour">
-            <TriggerContent label="Hour" value="14:00" />
-          </TimePicker>
-          <TimePicker precision="minute" defaultValue={BASE_TIME} titleText="Minute">
-            <TriggerContent label="Minute" value="14:30" />
-          </TimePicker>
+          <TimePicker
+            precision="hour"
+            defaultValue={BASE_TIME}
+            placeholder="Select hour"
+            titleText="Hour"
+          />
+          <TimePicker
+            precision="minute"
+            defaultValue={BASE_TIME}
+            placeholder="Select minute"
+            titleText="Minute"
+          />
           <TimePicker
             precision="second"
             secondStep={10}
             defaultValue={BASE_TIME}
+            placeholder="Select second"
             titleText="Second"
-          >
-            <TriggerContent label="Second step" value="14:30:20" />
-          </TimePicker>
+          />
         </PreviewStack>
       </PreviewSection>
 
@@ -45,14 +45,9 @@ export function TimePickerPreview() {
             max={MAX_TIME}
             value={controlledTime}
             onChange={setControlledTime}
+            placeholder="Select time"
             titleText="Controlled time"
-          >
-            <TriggerContent
-              label="Controlled"
-              value={formatTime(controlledTime)}
-              meta="Business hours"
-            />
-          </TimePicker>
+          />
           <InlineValue label="Current" value={formatTime(controlledTime)} />
         </PreviewStack>
       </PreviewSection>
@@ -65,13 +60,15 @@ export function TimePickerPreview() {
             min={MIN_TIME}
             max={MAX_TIME}
             defaultValue={BASE_TIME}
+            placeholder="Business hours"
             titleText="Business hours"
-          >
-            <TriggerContent label="Default open" value="14:30" />
-          </TimePicker>
-          <TimePicker disabled defaultValue={BASE_TIME} titleText="Disabled">
-            <TriggerContent label="Disabled" value={formatTime(BASE_TIME)} />
-          </TimePicker>
+          />
+          <TimePicker
+            disabled
+            defaultValue={BASE_TIME}
+            placeholder="Not selectable"
+            titleText="Disabled"
+          />
         </PreviewStack>
       </PreviewSection>
     </PreviewScaffold>

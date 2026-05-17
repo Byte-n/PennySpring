@@ -1,12 +1,7 @@
 import React from 'react';
 import { CascadePicker } from '@pennyspring/component';
 import { PreviewScaffold, PreviewSection } from '../../PreviewScaffold';
-import {
-  InlineValue,
-  PreviewStack,
-  TriggerContent,
-  joinLabels,
-} from '../pickerPreviewShared';
+import { InlineValue, PreviewStack, joinLabels } from '../pickerPreviewShared';
 import type { CascadePickerOption } from '@pennyspring/component';
 
 const CASCADE_OPTIONS: CascadePickerOption[] = [
@@ -61,17 +56,15 @@ export function CascadePickerPreview() {
           <CascadePicker
             options={CASCADE_OPTIONS}
             defaultValue={['daily', 'food', 'breakfast']}
+            placeholder="Select category"
             titleText="Category"
-          >
-            <TriggerContent label="Three levels" value="Daily / Food / Breakfast" />
-          </CascadePicker>
+          />
           <CascadePicker
             options={CASCADE_OPTIONS}
             defaultValue={['fixed', 'home', 'rent']}
+            placeholder="Select expense"
             titleText="Fixed expense"
-          >
-            <TriggerContent label="Default value" value="Fixed / Home / Rent" />
-          </CascadePicker>
+          />
         </PreviewStack>
       </PreviewSection>
 
@@ -80,37 +73,37 @@ export function CascadePickerPreview() {
           <CascadePicker
             options={CASCADE_OPTIONS}
             value={controlledValue}
+            placeholder="Select category path"
             titleText="Controlled category"
             onChange={nextValue => setControlledValue(nextValue.map(String))}
             onOk={(_nextValue, params) => {
               setControlledSummary(joinLabels(params.path.map(item => item.labelText)));
             }}
-          >
-            <TriggerContent label="Controlled path" value={controlledSummary} />
-          </CascadePicker>
+          />
           <InlineValue label="Selected" value={controlledSummary} />
         </PreviewStack>
       </PreviewSection>
 
       <PreviewSection title="State">
         <PreviewStack>
-          <CascadePicker disabled options={CASCADE_OPTIONS} titleText="Disabled">
-            <TriggerContent label="Disabled" value="Not selectable" />
-          </CascadePicker>
+          <CascadePicker
+            disabled
+            options={CASCADE_OPTIONS}
+            placeholder="Not selectable"
+            titleText="Disabled"
+          />
           <CascadePicker
             options={CASCADE_OPTIONS}
             defaultValue={['daily', 'traffic', 'metro']}
+            placeholder="Default open"
             titleText="Default open"
-          >
-            <TriggerContent label="Default open" value="Daily / Traffic / Metro" />
-          </CascadePicker>
+          />
           <CascadePicker
             emptyText="No category"
             options={EMPTY_OPTIONS}
+            placeholder="No category"
             titleText="Empty"
-          >
-            <TriggerContent label="Empty" value="No category" />
-          </CascadePicker>
+          />
         </PreviewStack>
       </PreviewSection>
     </PreviewScaffold>
