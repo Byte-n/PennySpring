@@ -10,8 +10,14 @@ const useStyles = createUseSheetStyle(() => ({
   },
 }));
 
-export function GeometryReader({ children, style }: GeometryReaderProps) {
-  const [geometry, setGeometry] = useState<Geometry | null>(null);
+export function GeometryReader({
+  children,
+  defaultGeometry,
+  style,
+}: GeometryReaderProps) {
+  const [geometry, setGeometry] = useState<Geometry | null>(
+    defaultGeometry ?? null,
+  );
   const tokenStyles = useStyles();
 
   function handleLayout(event: LayoutChangeEvent) {

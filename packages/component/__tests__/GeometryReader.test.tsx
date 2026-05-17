@@ -37,6 +37,16 @@ describe('GeometryReader', () => {
     expect(children).toHaveBeenCalledWith({ width: 200, height: 100 });
   });
 
+  it('renders with default geometry before layout measurement', () => {
+    const children = jest.fn(() => <Text>Content</Text>);
+    render(
+      <GeometryReader defaultGeometry={{ width: 200, height: 100 }}>
+        {children}
+      </GeometryReader>,
+    );
+    expect(children).toHaveBeenCalledWith({ width: 200, height: 100 });
+  });
+
   it('has flex 1 by default to fill parent', () => {
     const testRenderer = render(
       <GeometryReader>{() => null}</GeometryReader>,

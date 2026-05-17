@@ -655,6 +655,60 @@ it('shows floating panel drag handle indicator by default', () => {
   expect(JSON.stringify(indicatorStyle)).not.toContain('"height":0');
 });
 
+it('adapts wheel height when panel content height changes', () => {
+  let testRenderer: renderer.ReactTestRenderer;
+
+  act(() => {
+    testRenderer = renderer.create(
+      <Picker columns={columns} defaultOpen />,
+    );
+  });
+
+  const geometryReader = testRenderer!.root.findByProps({ testID: 'geometry-reader' });
+
+  act(() => {
+    geometryReader.props.onLayout({
+      nativeEvent: {
+        layout: {
+          width: 320,
+          height: 220,
+        },
+      },
+    });
+  });
+
+  const initialScrollStyle = testRenderer!.root.findByProps({
+    testID: 'picker-column-scroll-0',
+  }).props.style;
+  const initialIndicatorStyle = testRenderer!.root.findByProps({
+    testID: 'picker-indicator',
+  }).props.style;
+
+  expect(JSON.stringify(initialScrollStyle)).toContain('"height":220');
+  expect(JSON.stringify(initialIndicatorStyle)).toContain('"top":88');
+
+  act(() => {
+    geometryReader.props.onLayout({
+      nativeEvent: {
+        layout: {
+          width: 320,
+          height: 280,
+        },
+      },
+    });
+  });
+
+  const nextScrollStyle = testRenderer!.root.findByProps({
+    testID: 'picker-column-scroll-0',
+  }).props.style;
+  const nextIndicatorStyle = testRenderer!.root.findByProps({
+    testID: 'picker-indicator',
+  }).props.style;
+
+  expect(JSON.stringify(nextScrollStyle)).toContain('"height":280');
+  expect(JSON.stringify(nextIndicatorStyle)).toContain('"top":118');
+});
+
 it('renders display input trigger when children is not provided', () => {
   let testRenderer: renderer.ReactTestRenderer;
 

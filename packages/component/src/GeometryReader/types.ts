@@ -8,5 +8,6 @@ export interface Geometry {
 
 export interface GeometryReaderProps {
   children: (geometry: Geometry) => ReactNode;
+  defaultGeometry?: Geometry;
   style?: StyleProp<ViewStyle>;
 }

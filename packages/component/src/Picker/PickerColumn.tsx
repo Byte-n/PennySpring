@@ -1,6 +1,7 @@
 import React from 'react';
 import { ScrollView, StyleSheet } from 'react-native';
 import { PickerColumnItem } from './PickerColumnItem';
+import { usePickerWheelStyles } from './usePickerWheelStyles';
 import type { PickerColumn as PickerColumnData, PickerColumnStyles, PickerPopupProps, PickerValue } from './types';
 import type { NativeScrollEvent, NativeSyntheticEvent } from 'react-native';
 
@@ -14,6 +15,7 @@ interface PickerColumnProps {
   onFocusIndexChange?: (columnIndex: number, itemIndex: number) => void;
   onItemPress?: (columnIndex: number, itemIndex: number) => void;
   onWheelScrollStateChange?: (isScrolling: boolean) => void;
+  wheelHeight: number;
 }
 
 export function PickerColumn({
@@ -26,6 +28,7 @@ export function PickerColumn({
   selectedValue,
   slotStyles,
   styles,
+  wheelHeight,
 }: PickerColumnProps) {
   const scrollRef = React.useRef<ScrollView | null>(null);
   const itemStyle = StyleSheet.flatten(styles.item);
@@ -33,6 +36,10 @@ export function PickerColumn({
     ? itemStyle.minHeight
     : 0;
   const selectedIndex = column.findIndex(item => item.value === selectedValue);
+  const wheelStyles = usePickerWheelStyles({
+    itemHeight,
+    wheelHeight,
+  });
 
   React.useEffect(() => {
     if (selectedIndex < 0 || itemHeight <= 0) {
@@ -65,13 +72,21 @@ export function PickerColumn({
 
   return (
     <ScrollView
-      contentContainerStyle={styles.columnContent}
+      contentContainerStyle={[
+        styles.columnContent,
+        wheelHeight > 0 ? wheelStyles.columnContent : undefined,
+      ]}
       decelerationRate="fast"
       ref={scrollRef}
       showsVerticalScrollIndicator={false}
       snapToAlignment="start"
       snapToInterval={itemHeight > 0 ? itemHeight : undefined}
-      style={[styles.column, styles.columnScroll, slotStyles?.column]}
+      style={[
+        styles.column,
+        styles.columnScroll,
+        wheelHeight > 0 ? wheelStyles.columnScroll : undefined,
+        slotStyles?.column,
+      ]}
       testID={`picker-column-scroll-${columnIndex}`}
       onMomentumScrollBegin={() => onWheelScrollStateChange?.(true)}
       onMomentumScrollEnd={handleMomentumScrollEnd}

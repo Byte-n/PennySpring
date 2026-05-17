@@ -1,7 +1,9 @@
 import React from 'react';
-import { View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { GeometryReader } from '../GeometryReader';
 import { Text } from '../Text';
 import { PickerView } from './PickerView';
+import { WHEEL_VISIBLE_ITEM_COUNT } from './usePickerStyles';
 import type { ReactNode } from 'react';
 import type { PickerBodyStyles, PickerColumn, PickerPopupProps, PickerValue } from './types';
 
@@ -41,6 +43,11 @@ export function PickerBody({
   styles,
 }: PickerBodyProps) {
   const isEmpty = columns.length === 0 || columns.every(column => column.length === 0);
+  const itemStyle = StyleSheet.flatten(styles.item);
+  const itemHeight = typeof itemStyle?.minHeight === 'number'
+    ? itemStyle.minHeight
+    : 0;
+  const defaultWheelHeight = itemHeight * WHEEL_VISIBLE_ITEM_COUNT;
 
   if (loading) {
     return (
@@ -60,20 +67,25 @@ export function PickerBody({
 
   return (
     <View style={[styles.body, slotStyles?.body]}>
-      <PickerView
-        columns={columns}
-        empty={empty}
-        emptyText={emptyText}
-        hasDisabledFocusedItem={hasDisabledFocusedItem}
-        isWheelScrolling={isWheelScrolling}
-        onFocusIndexChange={onFocusIndexChange}
-        onItemPress={onItemPress}
-        onWheelScrollStateChange={onWheelScrollStateChange}
-        renderLabel={renderLabel}
-        selectedValue={selectedValue}
-        slotStyles={slotStyles}
-        styles={styles}
-      />
+      <GeometryReader defaultGeometry={{ width: 0, height: defaultWheelHeight }}>
+        {({ height }) => (
+          <PickerView
+            columns={columns}
+            empty={empty}
+            emptyText={emptyText}
+            hasDisabledFocusedItem={hasDisabledFocusedItem}
+            isWheelScrolling={isWheelScrolling}
+            onFocusIndexChange={onFocusIndexChange}
+            onItemPress={onItemPress}
+            onWheelScrollStateChange={onWheelScrollStateChange}
+            renderLabel={renderLabel}
+            selectedValue={selectedValue}
+            slotStyles={slotStyles}
+            styles={styles}
+            wheelHeight={height}
+          />
+        )}
+      </GeometryReader>
     </View>
   );
 }

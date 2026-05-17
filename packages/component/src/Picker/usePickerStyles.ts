@@ -7,7 +7,7 @@ interface PickerStyleOptions {
   size: ComponentSize;
 }
 
-const WHEEL_VISIBLE_ITEM_COUNT = 5;
+export const WHEEL_VISIBLE_ITEM_COUNT = 5;
 const WHEEL_SIDE_ITEM_COUNT = 2;
 const INDICATOR_Z_INDEX_OFFSET = 1;
 
@@ -54,6 +54,7 @@ export const usePickerStyles = createUseSheetStyle(
       backgroundColor: token.colorBgMask,
     },
     panel: {
+      flex: 1,
       backgroundColor: token.colorBgElevated,
       borderTopLeftRadius: token.borderRadiusLG,
       borderTopRightRadius: token.borderRadiusLG,
@@ -86,9 +87,11 @@ export const usePickerStyles = createUseSheetStyle(
       fontWeight: String(token.fontWeightStrong) as TextStyle['fontWeight'],
     },
     body: {
+      flex: 1,
       paddingVertical: token.paddingSM,
     },
     view: {
+      flex: 1,
       flexDirection: 'row',
       position: 'relative',
     },
@@ -150,6 +153,7 @@ export const usePickerStyles = createUseSheetStyle(
       padding: token.paddingMD,
     },
     safeArea: {
+      flex: 1,
       paddingBottom: token.paddingMD,
     },
     };

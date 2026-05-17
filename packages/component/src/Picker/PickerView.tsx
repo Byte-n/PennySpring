@@ -1,7 +1,9 @@
 import React from 'react';
+import { StyleSheet } from 'react-native';
 import { View } from 'react-native';
 import { Text } from '../Text';
 import { PickerColumn } from './PickerColumn';
+import { usePickerWheelStyles } from './usePickerWheelStyles';
 import type { ReactNode } from 'react';
 import type { PickerBodyStyles, PickerColumn as PickerColumnData, PickerPopupProps, PickerValue } from './types';
 
@@ -18,6 +20,7 @@ interface PickerViewProps {
   onFocusIndexChange?: (columnIndex: number, itemIndex: number) => void;
   onItemPress?: (columnIndex: number, itemIndex: number) => void;
   onWheelScrollStateChange?: (isScrolling: boolean) => void;
+  wheelHeight: number;
 }
 
 export function PickerView({
@@ -33,8 +36,17 @@ export function PickerView({
   selectedValue,
   slotStyles,
   styles,
+  wheelHeight,
 }: PickerViewProps) {
   const viewStyles = slotStyles?.view;
+  const itemStyle = StyleSheet.flatten(styles.item);
+  const itemHeight = typeof itemStyle?.minHeight === 'number'
+    ? itemStyle.minHeight
+    : 0;
+  const wheelStyles = usePickerWheelStyles({
+    itemHeight,
+    wheelHeight,
+  });
 
   return (
     <View style={styles.view}>
@@ -42,6 +54,7 @@ export function PickerView({
         pointerEvents="none"
         style={[
           styles.indicator,
+          wheelHeight > 0 ? wheelStyles.indicator : undefined,
           hasDisabledFocusedItem && !isWheelScrolling ? styles.indicatorError : undefined,
           viewStyles?.indicator,
         ]}
@@ -67,6 +80,7 @@ export function PickerView({
             selectedValue={selectedValue[columnIndex]}
             slotStyles={slotStyles?.view?.column}
             styles={styles}
+            wheelHeight={wheelHeight}
           />
         )
       ))}
