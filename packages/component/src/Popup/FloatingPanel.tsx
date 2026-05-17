@@ -1,6 +1,11 @@
 import type { ComponentSize } from '../shares/types';
 import React, { useRef } from 'react';
-import { Pressable, View, useWindowDimensions } from 'react-native';
+import {
+  PanResponder,
+  Pressable,
+  View,
+  useWindowDimensions,
+} from 'react-native';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import type {
   AliasToken } from '@pennyspring/theme';
@@ -233,8 +238,19 @@ export function FloatingPanel({
     setPanelHeight(nextHeight);
   }
 
+  const dragPanResponder = PanResponder.create({
+    onMoveShouldSetPanResponder: () => true,
+    onMoveShouldSetPanResponderCapture: () => true,
+    onPanResponderGrant: handleResponderGrant,
+    onPanResponderMove: handleResponderMove,
+    onPanResponderRelease: handleResponderMove,
+    onStartShouldSetPanResponder: () => true,
+    onStartShouldSetPanResponderCapture: () => true,
+  });
+
   const handleNode = (
     <Pressable
+      {...dragPanResponder.panHandlers}
       onMoveShouldSetResponder={() => true}
       onResponderGrant={handleResponderGrant}
       onResponderMove={handleResponderMove}
@@ -244,6 +260,7 @@ export function FloatingPanel({
       testID="floating-panel-handle"
     >
       <View
+        pointerEvents="none"
         style={[tokenStyles.handleIndicator, styles?.handleIndicator]}
         testID="floating-panel-handle-indicator"
       />
