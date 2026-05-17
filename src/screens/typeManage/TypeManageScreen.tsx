@@ -7,6 +7,7 @@ import {
   Dialog,
   Empty,
   FloatingActionGroup,
+  Icon as PSIcon,
   Input,
   List,
   ListItem,
@@ -142,7 +143,7 @@ export function TypeManageScreen() {
         )}
       </ScrollView>
 
-      <FloatingActionGroup actions={[{ key: 'create-type', onPress: openCreateDialog }]} />
+      <FloatingActionGroup actions={[{ key: 'create-type', icon: <PSIcon icon="add" />, onPress: openCreateDialog }]} />
 
       <Dialog
         open={dialogOpen}
