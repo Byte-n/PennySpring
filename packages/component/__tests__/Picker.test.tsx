@@ -95,6 +95,34 @@ function ControlledClearPicker({
   );
 }
 
+it('renders custom header via renderHeader', () => {
+  const renderHeader = jest.fn(() => <Text>Custom Header</Text>);
+  let testRenderer: renderer.ReactTestRenderer;
+
+  act(() => {
+    testRenderer = renderer.create(
+      <Picker
+        columns={columns}
+        defaultOpen
+        popupProps={{ renderHeader }}
+      />,
+    );
+  });
+
+  expect(renderHeader).toHaveBeenCalledWith(
+    expect.objectContaining({
+      draftValue: [],
+      columns,
+      onCancel: expect.any(Function),
+      onOk: expect.any(Function),
+    }),
+  );
+
+  const allText = testRenderer!.root.findAllByType(Text);
+  const customHeader = allText.find(node => node.props.children === 'Custom Header');
+  expect(customHeader).toBeDefined();
+});
+
 it('renders paired text and custom node props', () => {
   let testRenderer: renderer.ReactTestRenderer;
 

@@ -98,6 +98,16 @@ export interface PickerColumnStyles {
   empty?: StyleProp<ViewStyle>;
 }
 
+export interface PickerRenderHeaderParams {
+  draftValue: PickerValue[];
+  columns: PickerColumn[];
+  hasDisabledFocusedItem?: boolean;
+  isWheelScrolling?: boolean;
+  okDisabled?: boolean;
+  onCancel: () => void;
+  onOk: () => void;
+}
+
 export interface PickerPopupProps {
   titleText?: string;
   title?: ReactNode;
@@ -116,6 +126,7 @@ export interface PickerPopupProps {
     columnIndex: number,
     itemIndex: number,
   ) => ReactNode;
+  renderHeader?: (params: PickerRenderHeaderParams) => ReactNode;
   styles?: Omit<PickerStyles, 'trigger'>;
 }
 
