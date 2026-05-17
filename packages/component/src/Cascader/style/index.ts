@@ -23,7 +23,7 @@ const SIZE_MAP: Record<ComponentSize, SizeConfig> = {
     paddingHorizontal: token => token.controlPaddingHorizontalSM,
     paddingVertical: token => token.paddingXXS,
     gap: token => token.sizeXXS,
-    fontSize: token => token.fontSizeSM,
+    fontSize: token => token.fontSize,
     lineHeight: token => token.lineHeightSM,
     panelGap: token => token.paddingSM,
   },
@@ -32,7 +32,7 @@ const SIZE_MAP: Record<ComponentSize, SizeConfig> = {
     paddingHorizontal: token => token.controlPaddingHorizontal,
     paddingVertical: token => token.paddingXS,
     gap: token => token.sizeXS,
-    fontSize: token => token.fontSize,
+    fontSize: token => token.fontSizeLG,
     lineHeight: token => token.lineHeight,
     panelGap: token => token.paddingMD,
   },
@@ -41,7 +41,7 @@ const SIZE_MAP: Record<ComponentSize, SizeConfig> = {
     paddingHorizontal: token => token.paddingMD,
     paddingVertical: token => token.paddingSM,
     gap: token => token.sizeSM,
-    fontSize: token => token.fontSizeLG,
+    fontSize: token => token.fontSizeXL,
     lineHeight: token => token.lineHeightLG,
     panelGap: token => token.paddingLG,
   },
@@ -50,8 +50,6 @@ const SIZE_MAP: Record<ComponentSize, SizeConfig> = {
 export const CASCADER_DEFAULT_PLACEHOLDER = 'Select';
 export const CASCADER_DEFAULT_EMPTY_TEXT = 'No options';
 export const CASCADER_DEFAULT_TAB_PLACEHOLDER = 'Select';
-export const CASCADER_SELECTED_MARK = '[x]';
-export const CASCADER_UNSELECTED_MARK = '[ ]';
 
 export const useCascaderStyles = createUseSheetStyle(
   (token, { size }: CascaderStyleOptions) => {
@@ -133,10 +131,15 @@ export const useCascaderStyles = createUseSheetStyle(
         backgroundColor: token.colorBgContainerDisabled,
       },
       marker: {
-        color: token.colorPrimaryText,
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: sizeConfig.lineHeight(token),
       },
       markerDisabled: {
-        color: token.colorTextDisabled,
+        opacity: token.opacityLoading,
+      },
+      markerIcon: {
+        fontSize: sizeConfig.fontSize(token),
       },
       optionContent: {
         flex: 1,

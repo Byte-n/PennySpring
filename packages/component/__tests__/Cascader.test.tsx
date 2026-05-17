@@ -41,6 +41,7 @@ import {
   Cascader,
   type CascaderOption,
 } from '../src/Cascader';
+import { Icon } from '../src/Icon';
 
 interface RegionData {
   code: string;
@@ -125,6 +126,33 @@ describe('Cascader', () => {
     const tree = JSON.stringify(testRenderer!.toJSON());
     expect(tree).toContain('Hangzhou');
     expect(tree).toContain('Ningbo');
+
+    act(() => {
+      testRenderer!.unmount();
+    });
+  });
+
+  it('renders selected and unselected markers with Icon components', () => {
+    let testRenderer: renderer.ReactTestRenderer;
+
+    act(() => {
+      testRenderer = renderer.create(
+        <Cascader.View
+          defaultValue={['zhejiang']}
+          defaultActiveLevel={0}
+          options={options}
+        />,
+      );
+    });
+
+    const markerIcons = testRenderer!.root.findAllByType(Icon);
+    expect(markerIcons).toHaveLength(2);
+    expect(markerIcons[0].props.testID).toBe('cascader-option-marker-selected');
+    expect(markerIcons[1].props.testID).toBe('cascader-option-marker-unselected');
+
+    const tree = JSON.stringify(testRenderer!.toJSON());
+    expect(tree).not.toContain('[x]');
+    expect(tree).not.toContain('[ ]');
 
     act(() => {
       testRenderer!.unmount();

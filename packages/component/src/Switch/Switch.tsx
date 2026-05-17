@@ -7,24 +7,20 @@ import type { AliasToken } from '@pennyspring/theme';
 import type { SwitchProps } from './types';
 
 interface SizeStyleConfig {
-  trackWidth: (token: AliasToken) => number;
   thumbSize: (token: AliasToken) => number;
   inset: (token: AliasToken) => number;
 }
 
 const SIZE_STYLE_MAP: Record<ComponentSize, SizeStyleConfig> = {
   small: {
-    trackWidth: token => token.controlHeight,
     thumbSize: token => token.fontSize,
     inset: token => token.lineWidth,
   },
   normal: {
-    trackWidth: token => token.controlHeightLG,
     thumbSize: token => token.fontSizeXL,
     inset: token => token.lineWidth,
   },
   large: {
-    trackWidth: token => token.controlHeightLG + token.controlHeightXS,
     thumbSize: token => token.controlHeightSM,
     inset: token => token.lineWidth,
   },
@@ -32,8 +28,8 @@ const SIZE_STYLE_MAP: Record<ComponentSize, SizeStyleConfig> = {
 
 const useStyles = createUseSheetStyle((token, size: ComponentSize) => {
   const sizeConfig = SIZE_STYLE_MAP[size];
-  const trackWidth = sizeConfig.trackWidth(token);
   const thumbSize = sizeConfig.thumbSize(token);
+  const trackWidth = thumbSize * 2;
   const inset = sizeConfig.inset(token);
   const checkedOffset =
     trackWidth - thumbSize - inset - token.lineWidth - inset;

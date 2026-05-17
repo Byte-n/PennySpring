@@ -1,13 +1,13 @@
 import React, { useMemo } from 'react';
 import { FlatList, Pressable, View } from 'react-native';
+import { CircleIcon } from 'phosphor-react-native';
+import { Icon } from '../Icon';
 import { Tabs } from '../Tabs';
 import { Text } from '../Text';
 import { useControllableValue } from '../_hooks';
 import {
   CASCADER_DEFAULT_EMPTY_TEXT,
   CASCADER_DEFAULT_TAB_PLACEHOLDER,
-  CASCADER_SELECTED_MARK,
-  CASCADER_UNSELECTED_MARK,
   useCascaderStyles,
 } from './style';
 import type { CascaderOption, CascaderViewProps } from './types';
@@ -32,6 +32,22 @@ function renderOptionLabel<TData>(
 ) {
   return customRenderOptionLabel?.(option, level, optionIndex) ?? option.label ?? (
     <Text>{option.labelText}</Text>
+  );
+}
+
+function renderOptionMarker(
+  selected: boolean,
+  disabled: boolean,
+  tokenStyles: ReturnType<typeof useCascaderStyles>,
+) {
+  return (
+    <Icon
+      color={disabled ? 'colorTextDisabled' : selected ? 'colorPrimaryText' : 'colorTextQuaternary'}
+      icon={selected ? 'check' : CircleIcon}
+      size={tokenStyles.markerIcon.fontSize}
+      style={tokenStyles.markerIcon}
+      testID={selected ? 'cascader-option-marker-selected' : 'cascader-option-marker-unselected'}
+    />
   );
 }
 
@@ -170,14 +186,14 @@ export function CascaderView<TData = unknown>({
                 ]}
                 testID={`cascader-option-${currentLevel}-${optionIndex}`}
               >
-                <Text
+                <View
                   style={[
                     tokenStyles.marker,
                     optionDisabled ? tokenStyles.markerDisabled : null,
                   ]}
                 >
-                  {selected ? CASCADER_SELECTED_MARK : CASCADER_UNSELECTED_MARK}
-                </Text>
+                  {renderOptionMarker(selected, optionDisabled, tokenStyles)}
+                </View>
                 <View style={tokenStyles.optionContent}>
                   {typeof content === 'string' || typeof content === 'number' ? (
                     <Text
