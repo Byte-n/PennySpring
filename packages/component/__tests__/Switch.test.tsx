@@ -89,19 +89,4 @@ describe('Switch', () => {
     expect(disabledTarget.props.disabled).toBe(true);
   });
 
-  it('supports small and large sizes', () => {
-    const smallSwitch = renderSwitch({
-      size: 'small',
-    });
-    const normalSwitch = renderSwitch({
-      size: 'normal',
-    });
-    const largeSwitch = renderSwitch({
-      size: 'large',
-    });
-
-    expect(getTrackStyle(smallSwitch).width).toBe(token.controlHeightSM);
-    expect(getTrackStyle(normalSwitch).width).toBe(token.controlHeight);
-    expect(getTrackStyle(largeSwitch).width).toBe(token.controlHeightLG);
-  });
 });

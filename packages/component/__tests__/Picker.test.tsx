@@ -110,7 +110,12 @@ function ControlledClearPicker({
 }
 
 it('renders custom header via renderHeader', () => {
-  const renderHeader = jest.fn(() => <Text>Custom Header</Text>);
+  const renderHeader = jest.fn(({ header }) => (
+    <>
+      {header}
+      <Text>Custom Header</Text>
+    </>
+  ));
   let testRenderer: renderer.ReactTestRenderer;
 
   act(() => {
@@ -118,7 +123,7 @@ it('renders custom header via renderHeader', () => {
       <Picker
         columns={columns}
         defaultOpen
-        popupProps={{ renderHeader }}
+        popupProps={{ renderHeader, titleText: 'Default Header' }}
       />,
     );
   });
@@ -127,13 +132,16 @@ it('renders custom header via renderHeader', () => {
     expect.objectContaining({
       draftValue: [],
       columns,
+      header: expect.anything(),
       onCancel: expect.any(Function),
       onOk: expect.any(Function),
     }),
   );
 
   const allText = testRenderer!.root.findAllByType(Text);
+  const defaultHeader = allText.find(node => node.props.children === 'Default Header');
   const customHeader = allText.find(node => node.props.children === 'Custom Header');
+  expect(defaultHeader).toBeDefined();
   expect(customHeader).toBeDefined();
 });
 
@@ -995,6 +1003,6 @@ it('centers title relative to panel when buttons have different widths', () => {
 
   expect(JSON.stringify(header.props.style)).toContain('"flexDirection":"row"');
   expect(JSON.stringify(cancelSide.props.style)).toContain('"flex":1');
-  expect(JSON.stringify(titleCenter.props.style)).toContain('"flex":1');
+  expect(JSON.stringify(titleCenter.props.style)).toContain('"flex":4');
   expect(JSON.stringify(okSide.props.style)).toContain('"flex":1');
 });

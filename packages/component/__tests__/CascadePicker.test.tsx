@@ -50,106 +50,87 @@ jest.mock('react-native-reanimated', () => {
 
 import {
   CascadePicker,
+  Tabs,
   Text,
-  type CascadePickerOption,
+  type CascadePickerTab,
 } from '../src';
 
 interface RegionData {
   code: string;
 }
 
-const options: Array<CascadePickerOption<RegionData>> = [
+const tabs: Array<CascadePickerTab<RegionData, 'daily' | 'fixed'>> = [
   {
-    labelText: 'Guangdong',
-    value: 'guangdong',
-    data: { code: 'gd' },
-    children: [
+    tabKey: 'daily',
+    labelText: 'Daily',
+    options: [
       {
-        labelText: 'Shenzhen',
-        value: 'shenzhen',
-        data: { code: 'sz' },
+        labelText: 'Food',
+        value: 'food',
+        data: { code: 'daily-food' },
         children: [
-          { labelText: 'Nanshan', value: 'nanshan', data: { code: 'ns' } },
-          { labelText: 'Futian', value: 'futian', data: { code: 'ft' } },
+          { labelText: 'Breakfast', value: 'breakfast', data: { code: 'daily-breakfast' } },
+          { labelText: 'Dinner', value: 'dinner', data: { code: 'daily-dinner' } },
         ],
       },
       {
-        labelText: 'Guangzhou',
-        value: 'guangzhou',
-        data: { code: 'gz' },
+        labelText: 'Traffic',
+        value: 'traffic',
+        data: { code: 'daily-traffic' },
         children: [
-          { labelText: 'Tianhe', value: 'tianhe', data: { code: 'th' } },
+          { labelText: 'Metro', value: 'metro', data: { code: 'daily-metro' } },
+          { labelText: 'Taxi', value: 'taxi', data: { code: 'daily-taxi' } },
         ],
       },
     ],
   },
   {
-    labelText: 'Beijing',
-    value: 'beijing',
-    data: { code: 'bj' },
-    children: [
+    tabKey: 'fixed',
+    labelText: 'Fixed',
+    options: [
       {
-        labelText: 'Haidian',
-        value: 'haidian',
-        data: { code: 'hd' },
+        labelText: 'Home',
+        value: 'home',
+        data: { code: 'fixed-home' },
+        children: [
+          { labelText: 'Rent', value: 'rent', data: { code: 'fixed-rent' } },
+          { labelText: 'Utilities', value: 'utilities', data: { code: 'fixed-utilities' } },
+        ],
       },
     ],
   },
 ];
 
-it('builds columns for the current value path', () => {
+it('builds columns for the active tab value path', () => {
   let testRenderer: renderer.ReactTestRenderer;
 
   act(() => {
     testRenderer = renderer.create(
       <CascadePicker
         defaultOpen
-        options={options}
-        value={['guangdong', 'shenzhen', 'nanshan']}
+        tabs={tabs}
+        value={{
+          daily: ['traffic', 'metro'],
+          fixed: ['home', 'rent'],
+        }}
       />,
     );
   });
 
   const tree = JSON.stringify(testRenderer!.toJSON());
-  expect(tree).toContain('Guangdong');
-  expect(tree).toContain('Shenzhen');
-  expect(tree).toContain('Nanshan');
+  expect(tree).toContain('Daily');
+  expect(tree).toContain('Traffic');
+  expect(tree).toContain('Metro');
 
-  // Selected state reflects the path
   expect(
-    testRenderer!.root.findByProps({ testID: 'picker-item-0-0' }).props.selected,
+    testRenderer!.root.findByProps({ testID: 'picker-item-0-1' }).props.selected,
   ).toBe(true);
   expect(
     testRenderer!.root.findByProps({ testID: 'picker-item-1-0' }).props.selected,
   ).toBe(true);
-  expect(
-    testRenderer!.root.findByProps({ testID: 'picker-item-2-0' }).props.selected,
-  ).toBe(true);
 });
 
-it('drops deeper columns when node has no children', () => {
-  let testRenderer: renderer.ReactTestRenderer;
-
-  act(() => {
-    testRenderer = renderer.create(
-      <CascadePicker
-        defaultOpen
-        options={options}
-        value={['beijing', 'haidian']}
-      />,
-    );
-  });
-
-  // Column 0 and 1 exist
-  expect(testRenderer!.root.findByProps({ testID: 'picker-item-0-0' })).toBeTruthy();
-  expect(testRenderer!.root.findByProps({ testID: 'picker-item-1-0' })).toBeTruthy();
-  // No third column because 'haidian' has no children
-  expect(() =>
-    testRenderer!.root.findByProps({ testID: 'picker-item-2-0' }),
-  ).toThrow();
-});
-
-it('recomputes subsequent columns when parent column changes', () => {
+it('switches between tabs and keeps each tab value independent', () => {
   const onChange = jest.fn();
   let testRenderer: renderer.ReactTestRenderer;
 
@@ -157,53 +138,83 @@ it('recomputes subsequent columns when parent column changes', () => {
     testRenderer = renderer.create(
       <CascadePicker
         defaultOpen
-        options={options}
-        value={['guangdong', 'shenzhen', 'nanshan']}
         onChange={onChange}
+        tabs={tabs}
+        value={{
+          daily: ['traffic', 'metro'],
+          fixed: ['home', 'rent'],
+        }}
       />,
     );
   });
 
-  // Change column 0 from Guangdong to Beijing (itemIndex 1)
   act(() => {
-    testRenderer!.root.findByProps({ testID: 'picker-item-0-1' }).props.onPress();
+    testRenderer!.root.findByProps({ testID: 'tabs-item-fixed' }).props.onPress();
   });
 
-  expect(onChange).toHaveBeenCalledTimes(1);
-  const [nextValue, params] = onChange.mock.calls[0];
-  // Should complete the path to first child of Beijing → Haidian
-  expect(nextValue).toEqual(['beijing', 'haidian']);
-  expect(params.columnIndex).toBe(0);
-  expect(params.path).toHaveLength(2);
-  expect(params.path[0].value).toBe('beijing');
-  expect(params.path[1].value).toBe('haidian');
-});
+  const tabsComponent = testRenderer!.root.findByType(Tabs);
+  expect(tabsComponent.props.value).toBe('fixed');
 
-it('keeps parent values and recomputes only child columns on child change', () => {
-  const onChange = jest.fn();
-  let testRenderer: renderer.ReactTestRenderer;
+  const tree = JSON.stringify(testRenderer!.toJSON());
+  expect(tree).toContain('Home');
+  expect(tree).toContain('Rent');
 
-  act(() => {
-    testRenderer = renderer.create(
-      <CascadePicker
-        defaultOpen
-        options={options}
-        value={['guangdong', 'shenzhen', 'nanshan']}
-        onChange={onChange}
-      />,
-    );
-  });
-
-  // Change column 1 from Shenzhen to Guangzhou (itemIndex 1)
   act(() => {
     testRenderer!.root.findByProps({ testID: 'picker-item-1-1' }).props.onPress();
   });
 
-  const [nextValue] = onChange.mock.calls[0];
-  expect(nextValue).toEqual(['guangdong', 'guangzhou', 'tianhe']);
+  expect(onChange).toHaveBeenCalledTimes(1);
+  const [nextValue, params] = onChange.mock.calls[0];
+  expect(nextValue).toEqual({
+    daily: ['traffic', 'metro'],
+    fixed: ['home', 'utilities'],
+  });
+  expect(params.tabKey).toBe('fixed');
+  expect(params.tabIndex).toBe(1);
+  expect(params.path.map((it: CascadePickerTab<RegionData>['options'][number]) => it.value)).toEqual([
+    'home',
+    'utilities',
+  ]);
 });
 
-it('calls onOk with the final path', () => {
+it('updates only the active tab when a picker column changes', () => {
+  const onChange = jest.fn();
+  let testRenderer: renderer.ReactTestRenderer;
+
+  act(() => {
+    testRenderer = renderer.create(
+      <CascadePicker
+        defaultOpen
+        onChange={onChange}
+        tabs={tabs}
+        value={{
+          daily: ['traffic', 'metro'],
+          fixed: ['home', 'rent'],
+        }}
+      />,
+    );
+  });
+
+  act(() => {
+    testRenderer!.root.findByProps({ testID: 'picker-item-0-0' }).props.onPress();
+  });
+
+  expect(onChange).toHaveBeenCalledTimes(1);
+  const [nextValue, params] = onChange.mock.calls[0];
+  expect(nextValue).toEqual({
+    daily: ['food', 'breakfast'],
+    fixed: ['home', 'rent'],
+  });
+  expect(params.tabKey).toBe('daily');
+  expect(params.tabIndex).toBe(0);
+  expect(params.columnIndex).toBe(0);
+  expect(params.items.map((it: CascadePickerTab<RegionData>['options'][number] | undefined) => it?.value)).toEqual([
+    'food',
+    'breakfast',
+  ]);
+});
+
+it('calls onOk with the full record and current tab details', () => {
   const onOk = jest.fn();
   let testRenderer: renderer.ReactTestRenderer;
 
@@ -211,9 +222,12 @@ it('calls onOk with the final path', () => {
     testRenderer = renderer.create(
       <CascadePicker
         defaultOpen
-        options={options}
-        defaultValue={['guangdong', 'shenzhen', 'nanshan']}
         onOk={onOk}
+        tabs={tabs}
+        value={{
+          daily: ['traffic', 'metro'],
+          fixed: ['home', 'rent'],
+        }}
       />,
     );
   });
@@ -224,13 +238,16 @@ it('calls onOk with the final path', () => {
 
   expect(onOk).toHaveBeenCalledTimes(1);
   const [okValue, okParams] = onOk.mock.calls[0];
-  expect(okValue).toEqual(['guangdong', 'shenzhen', 'nanshan']);
-  expect(okParams.path.map((it: CascadePickerOption<RegionData>) => it.value)).toEqual([
-    'guangdong',
-    'shenzhen',
-    'nanshan',
+  expect(okValue).toEqual({
+    daily: ['traffic', 'metro'],
+    fixed: ['home', 'rent'],
+  });
+  expect(okParams.tabKey).toBe('daily');
+  expect(okParams.tabIndex).toBe(0);
+  expect(okParams.path.map((it: CascadePickerTab<RegionData>['options'][number]) => it.value)).toEqual([
+    'traffic',
+    'metro',
   ]);
-  expect(okParams.path[2].data).toEqual({ code: 'ns' });
 });
 
 it('passes through onCancel and onOpenChange', () => {
@@ -242,10 +259,13 @@ it('passes through onCancel and onOpenChange', () => {
     testRenderer = renderer.create(
       <CascadePicker
         defaultOpen
-        options={options}
-        value={['guangdong', 'shenzhen', 'nanshan']}
         onCancel={onCancel}
         onOpenChange={onOpenChange}
+        tabs={tabs}
+        value={{
+          daily: ['traffic', 'metro'],
+          fixed: ['home', 'rent'],
+        }}
       />,
     );
   });
@@ -258,58 +278,89 @@ it('passes through onCancel and onOpenChange', () => {
   expect(onOpenChange).toHaveBeenCalledWith(false, { reason: 'cancel' });
 });
 
-it('uses renderLabel with original option', () => {
+it('renders tabs between the header and picker body', () => {
   let testRenderer: renderer.ReactTestRenderer;
 
   act(() => {
     testRenderer = renderer.create(
-      <CascadePicker<RegionData>
+      <CascadePicker defaultOpen tabs={tabs} titleText="Category" />,
+    );
+  });
+
+  const tabsComponent = testRenderer!.root.findByType(Tabs);
+  expect(tabsComponent.props.value).toBe('daily');
+
+  const tree = JSON.stringify(testRenderer!.toJSON());
+  expect(tree).toContain('Category');
+  expect(tree).toContain('Daily');
+  expect(tree).toContain('Fixed');
+});
+
+it('uses renderLabel with the original option from the active tab', () => {
+  let testRenderer: renderer.ReactTestRenderer;
+
+  act(() => {
+    testRenderer = renderer.create(
+      <CascadePicker<RegionData, 'daily' | 'fixed'>
         defaultOpen
-        options={options}
-        value={['guangdong']}
         renderLabel={option => <Text>{`node-${option.data?.code ?? 'x'}`}</Text>}
+        tabs={tabs}
+        value={{
+          daily: ['traffic'],
+          fixed: ['home'],
+        }}
       />,
     );
   });
 
   const tree = JSON.stringify(testRenderer!.toJSON());
-  expect(tree).toContain('node-gd');
-  expect(tree).toContain('node-bj');
+  expect(tree).toContain('node-daily-traffic');
+  expect(tree).toContain('node-daily-metro');
 });
 
-it('truncates value when intermediate node is missing', () => {
+it('truncates invalid values within the active tab', () => {
   let testRenderer: renderer.ReactTestRenderer;
 
   act(() => {
     testRenderer = renderer.create(
       <CascadePicker
         defaultOpen
-        options={options}
-        value={['guangdong', 'unknown', 'nanshan']}
+        tabs={tabs}
+        value={{
+          daily: ['traffic', 'unknown', 'metro'],
+          fixed: ['home', 'rent'],
+        }}
       />,
     );
   });
 
-  // Guangdong still selected in column 0
   expect(
-    testRenderer!.root.findByProps({ testID: 'picker-item-0-0' }).props.selected,
+    testRenderer!.root.findByProps({ testID: 'picker-item-0-1' }).props.selected,
   ).toBe(true);
-  // Column 1 exists but no item selected for unknown
   expect(
     testRenderer!.root.findByProps({ testID: 'picker-item-1-0' }).props.selected,
   ).toBe(false);
-  // No column 2 because chain broke at column 1
   expect(() =>
     testRenderer!.root.findByProps({ testID: 'picker-item-2-0' }),
   ).toThrow();
 });
 
-it('renders empty state when options is empty', () => {
+it('renders empty state when the active tab has no options', () => {
   let testRenderer: renderer.ReactTestRenderer;
 
   act(() => {
     testRenderer = renderer.create(
-      <CascadePicker defaultOpen options={[]} emptyText="No data" />,
+      <CascadePicker
+        defaultOpen
+        tabs={[
+          {
+            tabKey: 'daily',
+            labelText: 'Daily',
+            options: [],
+          },
+        ]}
+        emptyText="No data"
+      />,
     );
   });
 

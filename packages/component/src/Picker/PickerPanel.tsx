@@ -40,10 +40,27 @@ export function PickerPanel<TItem extends PickerColumnItemData>({
   props,
   styles,
 }: PickerPanelProps<TItem>) {
+  const header = (
+    <PickerHeader
+      cancel={props.cancel}
+      cancelText={props.cancelText}
+      ok={props.ok}
+      okDisabled={props.okDisabled}
+      okText={props.okText}
+      onCancelPress={onCancelPress}
+      onOkPress={onOkPress}
+      slotStyles={externalPanelStyles?.header}
+      styles={styles}
+      title={props.title}
+      titleText={props.titleText}
+    />
+  );
+
   return (
     <View style={[styles.panel, externalPanelStyles?.root]}>
       {props.renderHeader ? (
         props.renderHeader({
+          header,
           draftValue,
           columns,
           hasDisabledFocusedItem,
@@ -52,21 +69,7 @@ export function PickerPanel<TItem extends PickerColumnItemData>({
           onCancel: onCancelPress ?? (() => {}),
           onOk: onOkPress ?? (() => {}),
         })
-      ) : (
-        <PickerHeader
-          cancel={props.cancel}
-          cancelText={props.cancelText}
-          ok={props.ok}
-          okDisabled={props.okDisabled}
-          okText={props.okText}
-          onCancelPress={onCancelPress}
-          onOkPress={onOkPress}
-          slotStyles={externalPanelStyles?.header}
-          styles={styles}
-          title={props.title}
-          titleText={props.titleText}
-        />
-      )}
+      ) : header}
       <PickerSafeArea slotStyles={externalPanelStyles} styles={styles}>
         <PickerBody
           columns={columns}

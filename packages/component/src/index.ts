@@ -218,7 +218,10 @@ export type {
   CascadePickerChangeParams,
   CascadePickerOkParams,
   CascadePickerOption,
+  CascadePickerTab,
+  CascadePickerTabKey,
   CascadePickerProps,
+  CascadePickerValue,
 } from './CascadePicker';
 export { Cascader } from './Cascader';
 export type {

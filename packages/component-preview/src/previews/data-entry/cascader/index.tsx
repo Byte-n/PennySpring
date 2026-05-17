@@ -113,7 +113,6 @@ export function CascaderPreview() {
       <PreviewSection title="Open and state">
         <View style={styles.stack}>
           <Cascader
-            defaultOpen
             options={CASCADER_OPTIONS}
             defaultValue={['daily', 'traffic', 'metro']}
             closeOnSelectLeaf={false}

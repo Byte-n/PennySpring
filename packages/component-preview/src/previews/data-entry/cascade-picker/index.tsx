@@ -2,13 +2,18 @@ import React from 'react';
 import { CascadePicker } from '@pennyspring/component';
 import { PreviewScaffold, PreviewSection } from '../../PreviewScaffold';
 import { InlineValue, PreviewStack, joinLabels } from '../pickerPreviewShared';
-import type { CascadePickerOption } from '@pennyspring/component';
+import type {
+  CascadePickerTab,
+  CascadePickerValue,
+} from '@pennyspring/component';
 
-const CASCADE_OPTIONS: CascadePickerOption[] = [
+type ExpenseTabKey = 'daily' | 'fixed';
+
+const EXPENSE_TABS: Array<CascadePickerTab<unknown, ExpenseTabKey>> = [
   {
+    tabKey: 'daily',
     labelText: 'Daily',
-    value: 'daily',
-    children: [
+    options: [
       {
         labelText: 'Food',
         value: 'food',
@@ -28,9 +33,9 @@ const CASCADE_OPTIONS: CascadePickerOption[] = [
     ],
   },
   {
+    tabKey: 'fixed',
     labelText: 'Fixed',
-    value: 'fixed',
-    children: [
+    options: [
       {
         labelText: 'Home',
         value: 'home',
@@ -43,10 +48,19 @@ const CASCADE_OPTIONS: CascadePickerOption[] = [
   },
 ];
 
-const EMPTY_OPTIONS: CascadePickerOption[] = [];
+const EMPTY_TABS: Array<CascadePickerTab<unknown, ExpenseTabKey>> = [
+  {
+    tabKey: 'daily',
+    labelText: 'Daily',
+    options: [],
+  },
+];
 
 export function CascadePickerPreview() {
-  const [controlledValue, setControlledValue] = React.useState(['daily', 'traffic', 'metro']);
+  const [controlledValue, setControlledValue] = React.useState<CascadePickerValue<ExpenseTabKey>>({
+    daily: ['traffic', 'metro'],
+    fixed: ['home', 'rent'],
+  });
   const [controlledSummary, setControlledSummary] = React.useState('Daily / Traffic / Metro');
 
   return (
@@ -54,14 +68,20 @@ export function CascadePickerPreview() {
       <PreviewSection title="Basic">
         <PreviewStack>
           <CascadePicker
-            options={CASCADE_OPTIONS}
-            defaultValue={['daily', 'food', 'breakfast']}
+            tabs={EXPENSE_TABS}
+            defaultValue={{
+              daily: ['food', 'breakfast'],
+              fixed: ['home', 'rent'],
+            }}
             placeholder="Select category"
             titleText="Category"
           />
           <CascadePicker
-            options={CASCADE_OPTIONS}
-            defaultValue={['fixed', 'home', 'rent']}
+            tabs={EXPENSE_TABS}
+            defaultValue={{
+              daily: ['traffic', 'metro'],
+              fixed: ['home', 'utilities'],
+            }}
             placeholder="Select expense"
             titleText="Fixed expense"
           />
@@ -71,11 +91,11 @@ export function CascadePickerPreview() {
       <PreviewSection title="Controlled">
         <PreviewStack>
           <CascadePicker
-            options={CASCADE_OPTIONS}
+            tabs={EXPENSE_TABS}
             value={controlledValue}
             placeholder="Select category path"
             titleText="Controlled category"
-            onChange={nextValue => setControlledValue(nextValue.map(String))}
+            onChange={nextValue => setControlledValue(nextValue)}
             onOk={(_nextValue, params) => {
               setControlledSummary(joinLabels(params.path.map(item => item.labelText)));
             }}
@@ -88,19 +108,22 @@ export function CascadePickerPreview() {
         <PreviewStack>
           <CascadePicker
             disabled
-            options={CASCADE_OPTIONS}
+            tabs={EXPENSE_TABS}
             placeholder="Not selectable"
             titleText="Disabled"
           />
           <CascadePicker
-            options={CASCADE_OPTIONS}
-            defaultValue={['daily', 'traffic', 'metro']}
+            tabs={EXPENSE_TABS}
+            defaultValue={{
+              daily: ['traffic', 'metro'],
+              fixed: ['home', 'rent'],
+            }}
             placeholder="Default open"
             titleText="Default open"
           />
           <CascadePicker
             emptyText="No category"
-            options={EMPTY_OPTIONS}
+            tabs={EMPTY_TABS}
             placeholder="No category"
             titleText="Empty"
           />

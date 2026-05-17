@@ -3,5 +3,8 @@ export type {
   CascadePickerChangeParams,
   CascadePickerOkParams,
   CascadePickerOption,
+  CascadePickerTab,
+  CascadePickerTabKey,
   CascadePickerProps,
+  CascadePickerValue,
 } from './types';

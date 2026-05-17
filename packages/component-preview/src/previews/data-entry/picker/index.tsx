@@ -1,5 +1,5 @@
-import React from 'react';
-import { Picker } from '@pennyspring/component';
+import React, { useState } from 'react';
+import { Icon, Picker, Text } from '@pennyspring/component';
 import { PreviewScaffold, PreviewSection } from '../../PreviewScaffold';
 import {
   InlineValue,
@@ -7,7 +7,11 @@ import {
   TriggerContent,
   joinLabels,
 } from '../pickerPreviewShared';
-import type { PickerChangeParams, PickerColumn, PickerValue } from '@pennyspring/component';
+import type {
+  PickerChangeParams,
+  PickerColumn,
+  PickerValue,
+} from '@pennyspring/component';
 
 const ACCOUNT_COLUMN: PickerColumn = [
   { labelText: 'Cash', value: 'cash' },
@@ -68,8 +72,10 @@ export function PickerPreview() {
     'may',
     'food',
   ]);
-  const [controlledSummary, setControlledSummary] = React.useState('May / Food');
+  const [controlledSummary, setControlledSummary] =
+    React.useState('May / Food');
 
+  const [account1, setAccount1] = useState<string[]>();
   return (
     <PreviewScaffold>
       <PreviewSection title="Basic">
@@ -80,7 +86,23 @@ export function PickerPreview() {
             placeholder="Select account"
             columns={[ACCOUNT_COLUMN]}
             popupProps={{ titleText: 'Account' }}
+            value={account1}
+            onChange={v => setAccount1(v as string[])}
           />
+          <Picker
+            allowClear
+            label="Account"
+            placeholder="Select account"
+            columns={[ACCOUNT_COLUMN]}
+            popupProps={{ titleText: 'Account' }}
+            value={account1}
+            onChange={v => setAccount1(v as string[])}
+          >
+            <Icon icon="info" />
+            <Text color={account1?.length ? 'default' : 'placeholder'}>
+              {account1?.length ? account1.join(' / ') : '点击进行选择'}
+            </Text>
+          </Picker>
           <Picker
             allowClear
             columns={[MONTH_COLUMN, CATEGORY_COLUMN]}

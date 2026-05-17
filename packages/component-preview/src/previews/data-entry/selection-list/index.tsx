@@ -54,7 +54,6 @@ export function SelectionListPreview() {
 
       <PreviewSection title="Open and grouped">
         <SelectionList
-          defaultOpen
           groups={SELECTION_LIST_GROUPS}
           helperText="Grouped options with search input."
           label="Grouped"

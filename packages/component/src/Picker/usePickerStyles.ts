@@ -75,6 +75,7 @@ export const usePickerStyles = createUseSheetStyle(
         justifyContent: 'flex-end',
       },
       headerCenter: {
+        // 标题占最宽
         flex: 4,
         alignItems: 'center',
       },

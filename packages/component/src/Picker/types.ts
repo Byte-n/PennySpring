@@ -128,6 +128,7 @@ export interface PickerColumnStyles {
 export interface PickerRenderHeaderParams<
   TItem extends PickerColumnItemData = PickerColumnItemData,
 > {
+  header: ReactNode;
   draftValue: Array<PickerItemValue<TItem>>;
   columns: Array<PickerColumn<TItem>>;
   hasDisabledFocusedItem?: boolean;

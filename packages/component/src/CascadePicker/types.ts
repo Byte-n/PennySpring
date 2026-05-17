@@ -8,6 +8,8 @@ import type {
   PickerValue,
 } from '../Picker';
 
+export type CascadePickerTabKey = string | number;
+
 export interface CascadePickerOption<TData = unknown> {
   labelText?: string;
   label?: ReactNode;
@@ -17,7 +19,26 @@ export interface CascadePickerOption<TData = unknown> {
   data?: TData;
 }
 
-export interface CascadePickerChangeParams<TData = unknown> {
+export interface CascadePickerTab<TData = unknown, TTabKey extends CascadePickerTabKey = string> {
+  tabKey: TTabKey;
+  labelText?: string;
+  label?: ReactNode;
+  options: Array<CascadePickerOption<TData>>;
+  disabled?: boolean;
+}
+
+export type CascadePickerValue<TTabKey extends CascadePickerTabKey = string> = Record<
+  TTabKey,
+  PickerValue[]
+>;
+
+export interface CascadePickerChangeParams<
+  TData = unknown,
+  TTabKey extends CascadePickerTabKey = string,
+> {
+  tabKey: TTabKey;
+  tabIndex: number;
+  tab: CascadePickerTab<TData, TTabKey>;
   item: CascadePickerOption<TData>;
   value: PickerValue;
   columnIndex: number;
@@ -26,26 +47,35 @@ export interface CascadePickerChangeParams<TData = unknown> {
   items: Array<CascadePickerOption<TData> | undefined>;
 }
 
-export interface CascadePickerOkParams<TData = unknown> {
+export interface CascadePickerOkParams<
+  TData = unknown,
+  TTabKey extends CascadePickerTabKey = string,
+> {
+  tabKey: TTabKey;
+  tabIndex: number;
+  tab: CascadePickerTab<TData, TTabKey>;
   path: Array<CascadePickerOption<TData>>;
   items: Array<CascadePickerOption<TData> | undefined>;
 }
 
-export interface CascadePickerProps<TData = unknown> {
+export interface CascadePickerProps<
+  TData = unknown,
+  TTabKey extends CascadePickerTabKey = string,
+> {
   open?: boolean;
   defaultOpen?: boolean;
   onOpenChange?: (open: boolean, params: PickerOpenChangeParams) => void;
 
-  options: Array<CascadePickerOption<TData>>;
-  value?: PickerValue[];
-  defaultValue?: PickerValue[];
+  tabs: Array<CascadePickerTab<TData, TTabKey>>;
+  value?: CascadePickerValue<TTabKey>;
+  defaultValue?: CascadePickerValue<TTabKey>;
   onChange?: (
-    value: PickerValue[],
-    params: CascadePickerChangeParams<TData>,
+    value: CascadePickerValue<TTabKey>,
+    params: CascadePickerChangeParams<TData, TTabKey>,
   ) => void;
   onOk?: (
-    value: PickerValue[],
-    params: CascadePickerOkParams<TData>,
+    value: CascadePickerValue<TTabKey>,
+    params: CascadePickerOkParams<TData, TTabKey>,
   ) => void;
   onCancel?: (params: PickerCancelParams) => void;
 
