@@ -13,6 +13,7 @@ import { TypeManageScreen } from '../screens/typeManage/TypeManageScreen';
 import { TypeChildrenScreen } from '../screens/typeManage/TypeChildrenScreen';
 import { ROOT_ROUTES } from './routes';
 import type { RootStackParamList } from './types';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -37,7 +38,7 @@ export function RootStackNavigator() {
         options={{ title: 'Test Screen' }}
       />
       <Stack.Screen
-        component={ComponentPreviewScreen}
+        component={ComponentPreviewScreenWrap}
         name={ROOT_ROUTES.ComponentPreview}
         options={{ headerShown: false }}
       />
@@ -69,8 +70,19 @@ export function RootStackNavigator() {
       <Stack.Screen
         component={AssetEditScreen}
         name={ROOT_ROUTES.AssetEdit}
-        options={({ route }) => ({ title: route.params?.assetId ? '编辑资产' : '新增资产' })}
+        options={({ route }) => ({
+          title: route.params?.assetId ? '编辑资产' : '新增资产',
+        })}
       />
     </Stack.Navigator>
+  );
+}
+
+function ComponentPreviewScreenWrap() {
+  return (
+    <>
+      <SafeAreaView />
+      <ComponentPreviewScreen />
+    </>
   );
 }

@@ -6,6 +6,7 @@ import { CascaderPreview } from './data-entry/cascader';
 import { CascadePickerPreview } from './data-entry/cascade-picker';
 import { CheckboxPreview } from './data-entry/checkbox';
 import { DateTimePickerPreview } from './data-entry/date-time-picker';
+import { DisplayInputPreview } from './data-entry/display-input';
 import { InputPreview } from './data-entry/input';
 import { PickerPreview } from './data-entry/picker';
 import { ProgressPreview } from './data-entry/progress';
@@ -162,6 +163,12 @@ export const COMPONENT_PREVIEW_SECTIONS = [
         title: 'Input',
         description: '单行输入、状态、前后缀和清除操作。',
         component: InputPreview,
+      },
+      {
+        id: 'display-input',
+        title: 'DisplayInput',
+        description: '可点击展示输入风格内容，无光标，支持 inline 与 block 布局。',
+        component: DisplayInputPreview,
       },
       {
         id: 'calculator-input',
