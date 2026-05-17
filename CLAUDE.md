@@ -118,6 +118,11 @@ scripts/                → 本地工具脚本
 - 缓动曲线统一使用 `Easing.bezier(...token.motionEase*)`（来自 `react-native-reanimated`），避免不同组件动画手感漂移。
 - 进入/退出动画必须成对设计（含 mount/unmount 生命周期），避免只进不出、闪烁或残留占位。
 
+### 手势
+
+- 手势相关能力统一使用 `react-native-gesture-handler`。
+- 应用根已挂载 `<GestureHandlerRootView>`，组件内可直接使用手势组件。
+
 ## 测试约束
 
 ### Testing
