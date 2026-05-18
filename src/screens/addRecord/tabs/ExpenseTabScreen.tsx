@@ -5,7 +5,7 @@ import { RECORD_TYPE_CATEGORY } from '@pennyspring/data';
 import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
 import { AmountDisplay } from '../components/AmountDisplay';
 import { FieldChips } from '../components/FieldChips';
-import { CategoryGrid } from '../components/CategoryGrid';
+import { CategoryGrid } from '../../../component/CategoryGrid';
 import { RemarkInput } from '../components/RemarkInput';
 import { useCategoryItems } from '../useCategoryItems';
 
@@ -18,7 +18,7 @@ const useStyles = createUseSheetStyle(_token => ({
 export function ExpenseTabScreen() {
   const styles = useStyles();
   const { token } = useTheme();
-  const [typeId, setTypeId] = useState<number | null>(null);
+  const [typeId, setTypeId] = useState<number>();
   const [assetId, _setAssetId] = useState<number | null>(null);
   const [reimbursable, setReimbursable] = useState<string>('none');
   const { categories } = useCategoryItems(RECORD_TYPE_CATEGORY.expense);
@@ -38,8 +38,8 @@ export function ExpenseTabScreen() {
         />
         <CategoryGrid
           categories={categories}
-          selectedId={typeId}
-          onSelect={setTypeId}
+          value={typeId}
+          onChange={setTypeId}
         />
         <RemarkInput />
       </Column>

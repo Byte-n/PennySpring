@@ -1,14 +1,18 @@
 import { useRequest } from 'ahooks'
-import { api, buildCategoryTree, type CategoryItem, type RecordTypeCategoryValue } from '@pennyspring/data'
+import {
+  api,
+  type RecordTypeCategoryValue,
+  TypeRow,
+} from '@pennyspring/data';
 
 interface UseCategoryItemsResult {
-  categories: CategoryItem[];
+  categories: TypeRow[];
   loading: boolean;
 }
 
 export function useCategoryItems(typeCategory: RecordTypeCategoryValue): UseCategoryItemsResult {
   const { data = [], loading } = useRequest(
-    () => api.type.getByCategory(typeCategory).then(buildCategoryTree),
+    () => api.type.getByCategory(typeCategory),
     { refreshDeps: [typeCategory] },
   )
 

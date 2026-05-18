@@ -5,7 +5,7 @@ import { RECORD_TYPE_CATEGORY } from '@pennyspring/data';
 import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
 import { AmountDisplay } from '../components/AmountDisplay';
 import { FieldChips } from '../components/FieldChips';
-import { CategoryGrid } from '../components/CategoryGrid';
+import { CategoryGrid } from '../../../component/CategoryGrid';
 import { RemarkInput } from '../components/RemarkInput';
 import { useCategoryItems } from '../useCategoryItems';
 
@@ -18,7 +18,7 @@ const useStyles = createUseSheetStyle((_token) => ({
 export function TransferTabScreen() {
   const styles = useStyles();
   const { token } = useTheme();
-  const [typeId, setTypeId] = useState<number | null>(null);
+  const [typeId, setTypeId] = useState<number>();
   const [assetId, _setAssetId] = useState<number | null>(null);
   const [intoAssetId, _setIntoAssetId] = useState<number | null>(null);
   const [charge, _setCharge] = useState<number | undefined>(undefined);
@@ -37,7 +37,7 @@ export function TransferTabScreen() {
           charge={charge}
           onChargePress={() => {}}
         />
-        <CategoryGrid categories={categories} selectedId={typeId} onSelect={setTypeId} />
+        <CategoryGrid categories={categories} value={typeId} onChange={setTypeId} />
         <RemarkInput />
       </Column>
     </ScrollView>

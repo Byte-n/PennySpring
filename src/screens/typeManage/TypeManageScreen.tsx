@@ -8,21 +8,23 @@ import {
   Row,
   Segmented,
   useToast,
-  type IconComponent,
 } from '@pennyspring/component';
-import { api, ICON, RECORD_TYPE_CATEGORY, type TypeRow, type RecordTypeCategoryValue } from '@pennyspring/data';
+import {
+  api,
+  ICON,
+  RECORD_TYPE_CATEGORY,
+  type TypeRow,
+  type RecordTypeCategoryValue,
+} from '@pennyspring/data';
 import { createUseSheetStyle } from '@pennyspring/theme';
-import { CategoryGrid, type CategoryItem } from '../../component/CategoryGrid';
-import { ICON_MAP } from '../../constants/typeIconTree';
+import { CategoryGrid, CategoryItem } from '../../component/CategoryGrid';
+import { PlusSquareIcon } from 'phosphor-react-native';
 
 const CATEGORY_OPTIONS = [
   { value: RECORD_TYPE_CATEGORY.expense, label: '支出' },
   { value: RECORD_TYPE_CATEGORY.income, label: '收入' },
   { value: RECORD_TYPE_CATEGORY.transfer, label: '转账' },
 ];
-
-const ADD_PARENT_ID = -1;
-const ADD_CHILD_OFFSET = 1000;
 
 const useStyles = createUseSheetStyle(token => ({
   container: { flex: 1, backgroundColor: token.colorBgLayout },
@@ -35,30 +37,48 @@ export function TypeManageScreen() {
   const styles = useStyles();
   const toast = useToast();
 
-  const [category, setCategory] = useState<RecordTypeCategoryValue>(RECORD_TYPE_CATEGORY.expense);
-  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [category, setCategory] = useState<RecordTypeCategoryValue>(
+    RECORD_TYPE_CATEGORY.expense,
+  );
 
   const { data: allTypes = [], refresh } = useRequest(
     () => api.type.getByCategory(category),
     { refreshDeps: [category] },
   );
 
-  const gridCategories = useMemo(() => {
-    const addItem: CategoryItem = { id: ADD_PARENT_ID, name: '新增图标', icon: 'add' };
-    const parents = allTypes.filter(t => t.parentId === 0);
+  const realTypes = useMemo(() => {
+    const parentTypes = allTypes.filter(v => v.parentId === 0);
     return [
-      addItem,
-      ...parents.map(p => ({
-        id: p.id,
-        name: p.name,
-        icon: ICON_MAP[p.icon] as IconComponent,
-        children: [
-          { id: -(p.id + ADD_CHILD_OFFSET), name: '新增图标', icon: 'add' as const },
-          ...allTypes
-            .filter(t => t.parentId === p.id)
-            .map(c => ({ id: c.id, name: c.name, icon: ICON_MAP[c.icon] as IconComponent })),
-        ],
-      })),
+      {
+        id: 0,
+        name: '新增',
+        parentId: 0,
+        icon: PlusSquareIcon,
+        updatedTime: Date.now(),
+        createdTime: Date.now(),
+        typeCategory: category,
+        isSystem: 'system',
+        specialBehavior: '',
+        sort: 0,
+        expand: false,
+      } satisfies CategoryItem,
+      ...parentTypes.map(
+        v =>
+          ({
+            id: -v.id,
+            name: '新增',
+            parentId: v.id,
+            icon: PlusSquareIcon,
+            updatedTime: Date.now(),
+            createdTime: Date.now(),
+            typeCategory: category,
+            isSystem: 'system',
+            specialBehavior: '',
+            sort: 0,
+            expand: false,
+          } satisfies CategoryItem),
+      ),
+      ...allTypes,
     ];
   }, [allTypes]);
 
@@ -87,16 +107,35 @@ export function TypeManageScreen() {
     try {
       const parentId = isCreatingParent ? 0 : createParentId;
       if (editingType) {
-        await api.type.update({ id: editingType.id, name, icon: editingType.icon, typeCategory: category, parentId: editingType.parentId });
+        await api.type.update({
+          id: editingType.id,
+          name,
+          icon: editingType.icon,
+          typeCategory: category,
+          parentId: editingType.parentId,
+        });
       } else {
-        await api.type.create({ name, icon: ICON.other, typeCategory: category, parentId });
+        await api.type.create({
+          name,
+          icon: ICON.other,
+          typeCategory: category,
+          parentId,
+        });
       }
       setDialogOpen(false);
       refresh();
     } catch (e: unknown) {
       toast.show({ messageText: e instanceof Error ? e.message : '操作失败' });
     }
-  }, [editingType, name, category, isCreatingParent, createParentId, refresh, toast]);
+  }, [
+    editingType,
+    name,
+    category,
+    isCreatingParent,
+    createParentId,
+    refresh,
+    toast,
+  ]);
 
   const dialogTitle = useMemo(() => {
     if (editingType) return '编辑类型';
@@ -116,15 +155,12 @@ export function TypeManageScreen() {
 
       <ScrollView style={styles.contentScroll}>
         <CategoryGrid
-          categories={gridCategories}
-          selectedId={selectedId}
+          categories={realTypes}
           onSelect={id => {
-            if (id === ADD_PARENT_ID) {
+            if (id === 0) {
               openCreateParentDialog();
-            } else if (id < -ADD_CHILD_OFFSET) {
-              openCreateChildDialog(-(id + ADD_CHILD_OFFSET));
-            } else {
-              setSelectedId(id);
+            } else if (id < 0) {
+              openCreateChildDialog(-id);
             }
           }}
         />
@@ -132,7 +168,9 @@ export function TypeManageScreen() {
 
       <Dialog
         open={dialogOpen}
-        onOpenChange={open => { if (!open) setDialogOpen(false); }}
+        onOpenChange={open => {
+          if (!open) setDialogOpen(false);
+        }}
         titleText={dialogTitle}
         onOk={handleOk}
         okDisabled={!name.trim()}

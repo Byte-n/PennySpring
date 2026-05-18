@@ -5,7 +5,7 @@ import { RECORD_TYPE_CATEGORY } from '@pennyspring/data';
 import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
 import { AmountDisplay } from '../components/AmountDisplay';
 import { FieldChips } from '../components/FieldChips';
-import { CategoryGrid } from '../components/CategoryGrid';
+import { CategoryGrid } from '../../../component/CategoryGrid';
 import { RemarkInput } from '../components/RemarkInput';
 import { useCategoryItems } from '../useCategoryItems';
 
@@ -18,7 +18,7 @@ const useStyles = createUseSheetStyle((_token) => ({
 export function IncomeTabScreen() {
   const styles = useStyles();
   const { token } = useTheme();
-  const [typeId, setTypeId] = useState<number | null>(null);
+  const [typeId, setTypeId] = useState<number>();
   const [assetId, _setAssetId] = useState<number | null>(null);
   const { categories } = useCategoryItems(RECORD_TYPE_CATEGORY.income);
 
@@ -31,7 +31,7 @@ export function IncomeTabScreen() {
           assetId={assetId}
           onAssetPress={() => {}}
         />
-        <CategoryGrid categories={categories} selectedId={typeId} onSelect={setTypeId} />
+        <CategoryGrid categories={categories} value={typeId} onChange={setTypeId} />
         <RemarkInput />
       </Column>
     </ScrollView>
