@@ -3,6 +3,8 @@ import { Pressable, View } from 'react-native';
 import { Icon } from '../Icon';
 import { Popup } from '../Popup';
 import { Text } from '../Text';
+import { TagValueDisplay } from '../_internal/TagValueDisplay';
+import type { TagValueItem } from '../_internal/TagValueDisplay';
 import { useControllableValue } from '../_hooks';
 import {
   CASCADER_DEFAULT_PLACEHOLDER,
@@ -30,6 +32,15 @@ function getSelectedLabel<TData>(
     .join(' / ');
 }
 
+function getSelectedTagItems<TData>(
+  options: CascaderProps<TData>['options'],
+  value: CascaderValue[] | undefined,
+): TagValueItem[] {
+  return getPathOptions(options, value)
+    .filter(item => item.labelText !== undefined)
+    .map(item => ({ label: item.labelText!, value: item.value }));
+}
+
 function CascaderRoot<TData = unknown>({
   afterOpenChange,
   animation,
@@ -41,6 +52,7 @@ function CascaderRoot<TData = unknown>({
   defaultPanelValue,
   defaultValue,
   disabled,
+  displayMode,
   mask,
   maxHeight,
   minHeight,
@@ -58,6 +70,7 @@ function CascaderRoot<TData = unknown>({
   size,
   style,
   styles,
+  tagProps,
   value,
   ...viewProps
 }: CascaderProps<TData>) {
@@ -81,6 +94,10 @@ function CascaderRoot<TData = unknown>({
     () => getSelectedLabel(options, mergedValue),
     [mergedValue, options],
   );
+  const tagItems = useMemo(
+    () => displayMode === 'tag' ? getSelectedTagItems(options, mergedValue) : [],
+    [displayMode, mergedValue, options],
+  );
 
   function setOpen(nextOpen: boolean, reason: 'trigger' | 'select'): void {
     setResolvedOpen(nextOpen);
@@ -93,6 +110,15 @@ function CascaderRoot<TData = unknown>({
     }
 
     setOpen(true, 'trigger');
+  }
+
+  function handleTagRemove(removedValue: CascaderValue): void {
+    if (!isInteractive || !mergedValue) return;
+    const idx = mergedValue.indexOf(removedValue);
+    if (idx >= 0) {
+      const nextValue = mergedValue.slice(0, idx);
+      setMergedValue(nextValue);
+    }
   }
 
   function handleCancel(params: { reason: 'mask' | 'back' }): void {
@@ -136,7 +162,15 @@ function CascaderRoot<TData = unknown>({
         {children ?? (
           <>
             <View style={tokenStyles.valueArea}>
-              {selectedLabel.length > 0 ? (
+              {displayMode === 'tag' && tagItems.length > 0 ? (
+                <TagValueDisplay
+                  items={tagItems}
+                  size={resolvedSize}
+                  tagProps={tagProps}
+                  disabled={!isInteractive}
+                  onRemove={handleTagRemove}
+                />
+              ) : selectedLabel.length > 0 ? (
                 <Text
                   numberOfLines={1}
                   style={[tokenStyles.valueText, styles?.valueText]}

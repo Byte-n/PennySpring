@@ -1,5 +1,6 @@
 export { SelectionList } from './SelectionList';
 export type {
+  SelectionListDisplayMode,
   SelectionListMode,
   SelectionListOption,
   SelectionListOptionGroup,

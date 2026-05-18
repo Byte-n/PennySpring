@@ -126,6 +126,7 @@ export { ListCollapse } from './ListCollapse';
 export type { ListCollapseProps, ListCollapseStyles } from './ListCollapse';
 export { SelectionList } from './SelectionList';
 export type {
+  SelectionListDisplayMode,
   SelectionListMode,
   SelectionListOption,
   SelectionListOptionGroup,
@@ -227,6 +228,7 @@ export { Cascader } from './Cascader';
 export type {
   CascaderCancelParams,
   CascaderChangeParams,
+  CascaderDisplayMode,
   CascaderOpenChangeParams,
   CascaderOpenChangeReason,
   CascaderOption,

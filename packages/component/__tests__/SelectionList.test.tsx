@@ -91,4 +91,31 @@ describe('SelectionList', () => {
     expect(treeText(testRenderer)).not.toContain('Cash');
     expect(treeText(testRenderer)).toContain('Card node');
   });
+
+  it('renders tags when displayMode is tag', () => {
+    const testRenderer = renderSelectionList({
+      mode: 'multiple',
+      displayMode: 'tag',
+      value: ['cash', 'card'],
+    });
+    const container = testRenderer.root.findByProps({ testID: 'tag-value-container' });
+    expect(container).toBeDefined();
+    const json = JSON.stringify(testRenderer.toJSON());
+    expect(json).toContain('Cash');
+  });
+
+  it('removes tag on close press in tag mode', () => {
+    const onChange = jest.fn();
+    const testRenderer = renderSelectionList({
+      mode: 'multiple',
+      displayMode: 'tag',
+      value: ['cash', 'card'],
+      onChange,
+    });
+    const closeButtons = testRenderer.root.findAll(
+      node => node.props.testID === 'tag-close' && typeof node.props.onPress === 'function',
+    );
+    act(() => { closeButtons[0].props.onPress(); });
+    expect(onChange).toHaveBeenCalledWith(['card']);
+  });
 });

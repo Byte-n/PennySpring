@@ -3,6 +3,7 @@ export { CascaderView } from './CascaderView';
 export type {
   CascaderCancelParams,
   CascaderChangeParams,
+  CascaderDisplayMode,
   CascaderOpenChangeParams,
   CascaderOpenChangeReason,
   CascaderOption,

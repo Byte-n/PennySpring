@@ -10,6 +10,8 @@ import { Button } from '../Button';
 import { Icon } from '../Icon';
 import { Popup } from '../Popup';
 import { Text } from '../Text';
+import { TagValueDisplay } from '../_internal/TagValueDisplay';
+import type { TagValueItem } from '../_internal/TagValueDisplay';
 import { useControllableValue } from '../_hooks';
 import { useSelectionListStyles } from './styles';
 import type { ComponentSize } from '../shares/types';
@@ -136,6 +138,19 @@ function getSelectedLabel(
     .map(option => option.labelText ?? extractText(option.label))
     .filter(Boolean)
     .join(', ');
+}
+
+function getSelectedTagItems(
+  options: SelectionListOption[],
+  selectedValues: SelectionListValue[],
+): TagValueItem[] {
+  return selectedValues
+    .map(value => {
+      const option = options.find(o => o.value === value);
+      if (!option) return undefined;
+      return { label: option.labelText ?? extractText(option.label), value };
+    })
+    .filter((item): item is TagValueItem => item !== undefined);
 }
 
 function isValueSelected(
@@ -391,6 +406,7 @@ function SelectionListRoot({
   defaultOpen,
   defaultValue,
   disabled,
+  displayMode,
   errorText,
   groups,
   helperText,
@@ -408,6 +424,7 @@ function SelectionListRoot({
   status,
   style,
   styles,
+  tagProps,
   value,
   ...popupProps
 }: SelectionListProps) {
@@ -441,6 +458,9 @@ function SelectionListRoot({
   );
   const selectedValues = toValueArray(mergedValue);
   const selectedLabel = getSelectedLabel(flatOptions, selectedValues);
+  const tagItems = displayMode === 'tag'
+    ? getSelectedTagItems(flatOptions, selectedValues)
+    : [];
   const message = isError && errorText !== undefined ? errorText : helperText;
 
   function setOpen(nextOpen: boolean): void {
@@ -457,6 +477,13 @@ function SelectionListRoot({
 
   function commitValue(nextValue: SelectionListValue | SelectionListValue[]): void {
     setMergedValue(nextValue);
+  }
+
+  function handleTagRemove(removedValue: SelectionListValue): void {
+    if (!isInteractive) return;
+    if (resolvedMode === 'multiple') {
+      commitValue(selectedValues.filter(v => v !== removedValue));
+    }
   }
 
   function handlePopupChange(
@@ -489,7 +516,15 @@ function SelectionListRoot({
         ]}
       >
         <View style={tokenStyles.valueArea}>
-          {selectedLabel.length > 0 ? (
+          {displayMode === 'tag' && tagItems.length > 0 ? (
+            <TagValueDisplay
+              items={tagItems}
+              size={resolvedSize}
+              tagProps={tagProps}
+              disabled={!isInteractive}
+              onRemove={handleTagRemove}
+            />
+          ) : selectedLabel.length > 0 ? (
             <Text
               numberOfLines={1}
               style={[tokenStyles.valueText, styles?.valueText]}

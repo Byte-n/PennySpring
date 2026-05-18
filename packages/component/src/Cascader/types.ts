@@ -10,8 +10,11 @@ import type {
 } from '../Popup';
 import type { ComponentSize } from '../shares/types';
 import type { TabsStyles } from '../Tabs';
+import type { TagDisplayProps } from '../_internal/TagValueDisplay';
 
 export type CascaderValue = string | number;
+
+export type CascaderDisplayMode = 'text' | 'tag';
 
 export interface CascaderOption<TData = unknown> {
   labelText?: string;
@@ -112,4 +115,6 @@ export interface CascaderProps<TData = unknown>
   children?: ReactNode;
   style?: StyleProp<ViewStyle>;
   styles?: CascaderStyles;
+  displayMode?: CascaderDisplayMode;
+  tagProps?: TagDisplayProps;
 }

@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import type { StyleProp, TextStyle, ViewStyle } from 'react-native';
 import type { ComponentSize } from '../shares/types';
+import type { TagDisplayProps } from '../_internal/TagValueDisplay';
 
 /**
  * SelectionList 的尺寸。
@@ -11,6 +12,8 @@ import type { ComponentSize } from '../shares/types';
  * single 表示单选，multiple 表示多选。
  */
 export type SelectionListMode = 'single' | 'multiple';
+
+export type SelectionListDisplayMode = 'text' | 'tag';
 
 /**
  * SelectionList 的校验展示状态。
@@ -319,4 +322,6 @@ export interface SelectionListProps extends SelectionListPopupProps {
    */
   errorText?: ReactNode;
 
+  displayMode?: SelectionListDisplayMode;
+  tagProps?: TagDisplayProps;
 }
