@@ -1,12 +1,7 @@
 import React from 'react';
 import renderer, { act } from 'react-test-renderer';
-import { defaultSeedToken } from '@pennyspring/theme';
-import { derivative } from '@pennyspring/theme/src/algorithms/derivative';
-import { formatToken } from '@pennyspring/theme/src/algorithms/formatToken';
 import { Switch } from '../src/Switch';
 import type { SwitchProps } from '../src/Switch';
-
-const token = formatToken(derivative(defaultSeedToken, false));
 
 function renderSwitch(props: Partial<SwitchProps> = {}) {
   let testRenderer: renderer.ReactTestRenderer;
@@ -32,14 +27,6 @@ function pressSwitch(testRenderer: renderer.ReactTestRenderer) {
   });
 
   return target;
-}
-
-function getTrackStyle(testRenderer: renderer.ReactTestRenderer) {
-  const track = testRenderer.root.findByProps({
-    testID: 'switch',
-  });
-
-  return Object.assign({}, ...track.props.style({ pressed: false }));
 }
 
 describe('Switch', () => {

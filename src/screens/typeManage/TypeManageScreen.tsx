@@ -1,21 +1,19 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Pressable, ScrollView, View } from 'react-native';
+import React, { useCallback, useMemo, useState } from 'react';
+import { ScrollView } from 'react-native';
 import { useRequest } from 'ahooks';
 import {
-  ActionSheet,
   Column,
   Dialog,
-  Empty,
-  FloatingActionGroup,
   Input,
   Row,
   Segmented,
-  SwipeAction,
-  Text,
   useToast,
+  type IconComponent,
 } from '@pennyspring/component';
-import { api, ICON, RECORD_TYPE_CATEGORY, SYSTEM_STATUS, type TypeRow, type RecordTypeCategoryValue } from '@pennyspring/data';
+import { api, ICON, RECORD_TYPE_CATEGORY, type TypeRow, type RecordTypeCategoryValue } from '@pennyspring/data';
 import { createUseSheetStyle } from '@pennyspring/theme';
+import { CategoryGrid, type CategoryItem } from '../../component/CategoryGrid';
+import { ICON_MAP } from '../../constants/typeIconTree';
 
 const CATEGORY_OPTIONS = [
   { value: RECORD_TYPE_CATEGORY.expense, label: '支出' },
@@ -23,47 +21,13 @@ const CATEGORY_OPTIONS = [
   { value: RECORD_TYPE_CATEGORY.transfer, label: '转账' },
 ];
 
+const ADD_PARENT_ID = -1;
+const ADD_CHILD_OFFSET = 1000;
+
 const useStyles = createUseSheetStyle(token => ({
   container: { flex: 1, backgroundColor: token.colorBgLayout },
   segmented: { padding: token.padding },
-  tabScroll: { paddingHorizontal: token.padding, paddingVertical: token.paddingXS },
-  tabRow: { gap: token.marginXS },
   contentScroll: { flex: 1 },
-  tab: {
-    paddingVertical: token.paddingXS,
-    paddingHorizontal: token.paddingSM,
-    borderRadius: token.borderRadiusLG,
-    backgroundColor: token.colorBgContainer,
-  },
-  tabActive: {
-    backgroundColor: token.colorPrimaryBg,
-  },
-  tabText: { fontSize: token.fontSizeSM, color: token.colorText },
-  tabTextActive: { color: token.colorPrimary },
-  grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    padding: token.padding,
-    gap: token.marginSM,
-  },
-  gridItem: {
-    alignItems: 'center',
-    width: 56,
-  },
-  gridIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: token.colorBgContainer,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  gridName: {
-    fontSize: token.fontSizeSM,
-    color: token.colorText,
-    marginTop: token.marginXXS,
-    textAlign: 'center',
-  },
   dialogBody: { gap: token.marginSM },
 }));
 
@@ -72,39 +36,37 @@ export function TypeManageScreen() {
   const toast = useToast();
 
   const [category, setCategory] = useState<RecordTypeCategoryValue>(RECORD_TYPE_CATEGORY.expense);
-  const [selectedParentId, setSelectedParentId] = useState<number | null>(null);
+  const [selectedId, setSelectedId] = useState<number | null>(null);
 
   const { data: allTypes = [], refresh } = useRequest(
     () => api.type.getByCategory(category),
     { refreshDeps: [category] },
   );
 
-  const parentTypes = useMemo(() => allTypes.filter(t => t.parentId === 0), [allTypes]);
-  const childTypes = useMemo(
-    () => selectedParentId ? allTypes.filter(t => t.parentId === selectedParentId) : [],
-    [allTypes, selectedParentId],
-  );
-
-  useEffect(() => {
-    if (parentTypes.length > 0 && !parentTypes.find(p => p.id === selectedParentId)) {
-      setSelectedParentId(parentTypes[0].id);
-    }
-  }, [parentTypes, selectedParentId]);
+  const gridCategories = useMemo(() => {
+    const addItem: CategoryItem = { id: ADD_PARENT_ID, name: '新增图标', icon: 'add' };
+    const parents = allTypes.filter(t => t.parentId === 0);
+    return [
+      addItem,
+      ...parents.map(p => ({
+        id: p.id,
+        name: p.name,
+        icon: ICON_MAP[p.icon] as IconComponent,
+        children: [
+          { id: -(p.id + ADD_CHILD_OFFSET), name: '新增图标', icon: 'add' as const },
+          ...allTypes
+            .filter(t => t.parentId === p.id)
+            .map(c => ({ id: c.id, name: c.name, icon: ICON_MAP[c.icon] as IconComponent })),
+        ],
+      })),
+    ];
+  }, [allTypes]);
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingType, setEditingType] = useState<TypeRow | null>(null);
   const [isCreatingParent, setIsCreatingParent] = useState(false);
+  const [createParentId, setCreateParentId] = useState(0);
   const [name, setName] = useState('');
-
-  const [actionSheetOpen, setActionSheetOpen] = useState(false);
-  const [selectedParent, setSelectedParent] = useState<TypeRow | null>(null);
-
-  const openCreateChildDialog = useCallback(() => {
-    setEditingType(null);
-    setIsCreatingParent(false);
-    setName('');
-    setDialogOpen(true);
-  }, []);
 
   const openCreateParentDialog = useCallback(() => {
     setEditingType(null);
@@ -113,22 +75,17 @@ export function TypeManageScreen() {
     setDialogOpen(true);
   }, []);
 
-  const openEditDialog = useCallback((type: TypeRow) => {
-    setEditingType(type);
-    setIsCreatingParent(type.parentId === 0);
-    setName(type.name);
+  const openCreateChildDialog = useCallback((parentId: number) => {
+    setEditingType(null);
+    setIsCreatingParent(false);
+    setCreateParentId(parentId);
+    setName('');
     setDialogOpen(true);
-  }, []);
-
-  const handleParentLongPress = useCallback((parent: TypeRow) => {
-    if (parent.isSystem === SYSTEM_STATUS.system) return;
-    setSelectedParent(parent);
-    setActionSheetOpen(true);
   }, []);
 
   const handleOk = useCallback(async () => {
     try {
-      const parentId = isCreatingParent ? 0 : (selectedParentId ?? 0);
+      const parentId = isCreatingParent ? 0 : createParentId;
       if (editingType) {
         await api.type.update({ id: editingType.id, name, icon: editingType.icon, typeCategory: category, parentId: editingType.parentId });
       } else {
@@ -139,29 +96,7 @@ export function TypeManageScreen() {
     } catch (e: unknown) {
       toast.show({ messageText: e instanceof Error ? e.message : '操作失败' });
     }
-  }, [editingType, name, category, isCreatingParent, selectedParentId, refresh, toast]);
-
-  const handleDelete = useCallback(async (id: number) => {
-    try {
-      await api.type.delete(id);
-      refresh();
-    } catch (e: unknown) {
-      toast.show({ messageText: e instanceof Error ? e.message : '删除失败' });
-    }
-  }, [refresh, toast]);
-
-  const handleParentAction = useCallback(
-    (_action: { text: string }, index: number) => {
-      if (!selectedParent) return;
-      setActionSheetOpen(false);
-      if (index === 0) {
-        openEditDialog(selectedParent);
-      } else if (index === 1) {
-        handleDelete(selectedParent.id);
-      }
-    },
-    [selectedParent, openEditDialog, handleDelete],
-  );
+  }, [editingType, name, category, isCreatingParent, createParentId, refresh, toast]);
 
   const dialogTitle = useMemo(() => {
     if (editingType) return '编辑类型';
@@ -179,75 +114,21 @@ export function TypeManageScreen() {
         />
       </Row>
 
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.tabScroll}>
-        <Row style={styles.tabRow}>
-          {parentTypes.map(parent => (
-            <Pressable
-              key={parent.id}
-              style={[styles.tab, parent.id === selectedParentId && styles.tabActive]}
-              onPress={() => setSelectedParentId(parent.id)}
-              onLongPress={() => handleParentLongPress(parent)}
-            >
-              <Text style={[styles.tabText, parent.id === selectedParentId && styles.tabTextActive]}>
-                {parent.name}
-              </Text>
-            </Pressable>
-          ))}
-        </Row>
-      </ScrollView>
-
       <ScrollView style={styles.contentScroll}>
-        {childTypes.length === 0 ? (
-          <Empty />
-        ) : (
-          <View style={styles.grid}>
-            {childTypes.map(child => {
-              const isSystem = child.isSystem === SYSTEM_STATUS.system;
-              if (isSystem) {
-                return (
-                  <Column key={child.id} style={styles.gridItem}>
-                    <View style={styles.gridIcon}>
-                      <Text>{child.icon}</Text>
-                    </View>
-                    <Text style={styles.gridName} numberOfLines={1}>{child.name}</Text>
-                  </Column>
-                );
-              }
-              return (
-                <SwipeAction
-                  key={child.id}
-                  rightActions={[
-                    { key: 'edit', text: '编辑', color: 'primary', onPress: () => openEditDialog(child) },
-                    { key: 'delete', text: '删除', color: 'danger', onPress: () => handleDelete(child.id) },
-                  ]}
-                >
-                  <Column style={styles.gridItem}>
-                    <View style={styles.gridIcon}>
-                      <Text>{child.icon}</Text>
-                    </View>
-                    <Text style={styles.gridName} numberOfLines={1}>{child.name}</Text>
-                  </Column>
-                </SwipeAction>
-              );
-            })}
-          </View>
-        )}
+        <CategoryGrid
+          categories={gridCategories}
+          selectedId={selectedId}
+          onSelect={id => {
+            if (id === ADD_PARENT_ID) {
+              openCreateParentDialog();
+            } else if (id < -ADD_CHILD_OFFSET) {
+              openCreateChildDialog(-(id + ADD_CHILD_OFFSET));
+            } else {
+              setSelectedId(id);
+            }
+          }}
+        />
       </ScrollView>
-
-      <FloatingActionGroup
-        actions={[
-          { key: 'create-child', icon: 'add', label: '新增子类型', onPress: openCreateChildDialog },
-          { key: 'create-parent', icon: 'add', label: '新增一级类型', onPress: openCreateParentDialog },
-        ]}
-      />
-
-      <ActionSheet
-        open={actionSheetOpen}
-        onOpenChange={open => { if (!open) setActionSheetOpen(false); }}
-        actions={[{ text: '编辑' }, { text: '删除', danger: true }]}
-        onAction={handleParentAction}
-        cancelText="取消"
-      />
 
       <Dialog
         open={dialogOpen}

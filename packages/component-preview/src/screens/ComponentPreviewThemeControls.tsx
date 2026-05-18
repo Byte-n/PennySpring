@@ -53,7 +53,7 @@ export function ComponentPreviewThemeControls({
   algorithm,
   onNextPreset,
   onToggleAlgorithm,
-  _preset,
+  preset: _preset,
 }: ComponentPreviewThemeControlsProps) {
   const styles = useStyles();
   const { token } = useTheme();
