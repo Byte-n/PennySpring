@@ -75,7 +75,6 @@ export const Carousel = <Data = unknown,>(props: CarouselProps<Data>) => {
     loop = false,
     direction = 'horizontal',
     onIndexChange,
-    indicatorProps,
     indicator,
     slideSize = 100,
     trackOffset = 0,
@@ -85,6 +84,7 @@ export const Carousel = <Data = unknown,>(props: CarouselProps<Data>) => {
     data,
     renderItem,
     style,
+    styles: externalStyles,
     blockNativeResponder = true,
     ref,
   } = props;
@@ -340,7 +340,7 @@ export const Carousel = <Data = unknown,>(props: CarouselProps<Data>) => {
         </Animated.View>
         <CarouselIndicator
           indicator={indicator}
-          indicatorProps={indicatorProps}
+          externalStyles={externalStyles}
           total={total}
           current={current}
           activeColor={token.colorPrimary}

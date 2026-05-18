@@ -81,8 +81,9 @@ describe('SegmentedControl', () => {
     });
     const detailLabel = labels.find(label => label.props.children === '明细');
     const chartLabel = labels.find(label => label.props.children === '图表');
-    expect(chartLabel?.props.accessibilityState.selected).toBe(true);
-    expect(detailLabel?.props.accessibilityState.selected).toBe(false);
+    const chartStyle = chartLabel?.props.style;
+    const detailStyle = detailLabel?.props.style;
+    expect(chartStyle).not.toEqual(detailStyle);
   });
   it('positions tab options above the sliding indicator', () => {
     let testRenderer: renderer.ReactTestRenderer;

@@ -294,8 +294,8 @@ export function CarouselPreview() {
               data={DEMO_SLIDES}
               renderItem={renderItem}
               style={styles.carousel}
-              indicatorProps={{
-                color: token.colorWhite,
+              styles={{
+                indicatorDotActive: { backgroundColor: token.colorWhite },
               }}
               defaultIndex={1}
             />
@@ -343,8 +343,8 @@ export function CarouselPreview() {
               renderItem={renderItem}
               direction="vertical"
               style={styles.verticalCarousel}
-              indicatorProps={{
-                style: styles.verticalIndicator,
+              styles={{
+                indicator: styles.verticalIndicator,
               }}
             />
           </View>
@@ -359,8 +359,8 @@ export function CarouselPreview() {
               trackOffset={10}
               stuckAtBoundary={false}
               style={styles.verticalCarousel}
-              indicatorProps={{
-                style: styles.verticalIndicator,
+              styles={{
+                indicator: styles.verticalIndicator,
               }}
             />
           </View>

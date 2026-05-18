@@ -13,6 +13,7 @@ export type {
   PickerOkParams,
   PickerOpenChangeParams,
   PickerOpenChangeReason,
+  PickerPanelStyles,
   PickerPopupProps,
   PickerPopupStyles,
   PickerProps,

@@ -3,12 +3,22 @@ import type { StyleProp, ViewStyle } from 'react-native';
 import type {
   PickerCancelParams,
   PickerDisplayInputProps,
+  PickerInputStyles,
   PickerOpenChangeParams,
-  PickerStyles,
+  PickerPanelStyles,
+  PickerPopupStyles,
   PickerValue,
 } from '../Picker';
 
 export type CascadePickerTabKey = string | number;
+
+export interface CascadePickerStyles {
+  trigger?: StyleProp<ViewStyle>;
+  input?: PickerInputStyles;
+  popup?: PickerPopupStyles;
+  panel?: PickerPanelStyles;
+  tabs?: StyleProp<ViewStyle>;
+}
 
 export interface CascadePickerOption<TData = unknown> {
   labelText?: string;
@@ -97,5 +107,5 @@ export interface CascadePickerProps<
   children?: ReactNode;
   renderLabel?: (item: CascadePickerOption<TData>) => ReactNode;
   style?: StyleProp<ViewStyle>;
-  styles?: PickerStyles;
+  styles?: CascadePickerStyles;
 }

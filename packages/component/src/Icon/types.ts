@@ -1,7 +1,7 @@
 import type { AliasColorTokenKey } from '@pennyspring/theme';
 import type { IconProps as PhosphorIconProps, IconWeight } from 'phosphor-react-native';
 import type { ComponentType } from 'react';
-import type { StyleProp, TextStyle, ViewStyle } from 'react-native';
+import type { StyleProp, ViewStyle } from 'react-native';
 import type { ComponentSize } from '../shares/types';
 
 export type IconSize = ComponentSize | number;
@@ -54,6 +54,6 @@ export interface IconProps {
   duotoneColor?: IconColor;
   duotoneOpacity?: number;
   mirrored?: boolean;
-  style?: StyleProp<ViewStyle | Omit<TextStyle, 'cursor'>>;
+  style?: StyleProp<ViewStyle>;
   testID?: string;
 }

@@ -11,6 +11,12 @@ export interface CarouselRef {
   swipePrev: () => void;
 }
 
+export interface CarouselStyles {
+  indicator?: StyleProp<ViewStyle>;
+  indicatorDot?: StyleProp<ViewStyle>;
+  indicatorDotActive?: StyleProp<ViewStyle>;
+}
+
 /** Carousel 组件属性 */
 export interface CarouselProps<Data = unknown> {
   /**
@@ -55,14 +61,6 @@ export interface CarouselProps<Data = unknown> {
 
   /** 索引变化回调 */
   onIndexChange?: (index: number) => void;
-
-  /** 指示器配置 */
-  indicatorProps?: {
-    /** 指示器激活状态颜色 */
-    color?: string;
-    /** 指示器容器样式 */
-    style?: StyleProp<ViewStyle>;
-  };
 
   /**
    * 自定义指示器
@@ -126,6 +124,9 @@ export interface CarouselProps<Data = unknown> {
 
   /** 容器样式 */
   style?: StyleProp<ViewStyle>;
+
+  /** 内部语义插槽样式 */
+  styles?: CarouselStyles;
 
   ref?: Ref<CarouselRef>;
 }

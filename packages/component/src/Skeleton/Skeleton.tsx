@@ -93,15 +93,15 @@ const useStyles = createUseSheetStyle(
 export function Skeleton({
   shape = 'line',
   size = 'normal',
-  width,
   animated = true,
   loading = true,
   style,
+  styles: externalStyles,
   children,
 }: SkeletonProps) {
   const { token } = useTheme();
   const resolvedHeight = getDefaultHeight(shape, size, token);
-  const resolvedWidth = width ?? getDefaultWidth(shape, token);
+  const resolvedWidth = getDefaultWidth(shape, token);
   const resolvedBorderRadius = getDefaultBorderRadius(shape, token, resolvedHeight);
 
   const tokenStyles = useStyles({
@@ -115,7 +115,7 @@ export function Skeleton({
   }
 
   return (
-    <View style={[tokenStyles.root, style]}>
+    <View style={[tokenStyles.root, externalStyles?.bone, style]}>
       {animated ? (
         <ShimmerAnimation
           borderRadius={tokenStyles.shimmer.borderRadius as number}

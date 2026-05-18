@@ -101,5 +101,6 @@ yarn-error.log*
 .worktrees/
 
 # Local git worktrees
-.worktrees/
+.worktrees
 superpowers
+.superpowers

@@ -19,6 +19,21 @@ const useStyles = createUseSheetStyle(token => ({
   block: {
     width: '100%',
   },
+  w40: {
+    width: '40%',
+  },
+  w30: {
+    width: '30%',
+  },
+  w50: {
+    width: '50%',
+  },
+  w85: {
+    width: '85%',
+  },
+  w46: {
+    width: '46%',
+  },
 }));
 
 export function SkeletonPreview() {
@@ -28,18 +43,18 @@ export function SkeletonPreview() {
     <PreviewScaffold>
       <PreviewSection title="Shape">
         <PreviewRow>
-          <Skeleton shape="line" width="40%" />
+          <Skeleton shape="line" style={styles.w40} />
           <Skeleton shape="circle" />
-          <Skeleton shape="rect" width="30%" />
+          <Skeleton shape="rect" style={styles.w30} />
         </PreviewRow>
       </PreviewSection>
 
       <PreviewSection title="Layout">
         <View style={styles.card}>
           <View style={styles.stack}>
-            <Skeleton shape="line" width="50%" />
-            <Skeleton shape="line" width="100%" />
-            <Skeleton shape="line" width="85%" />
+            <Skeleton shape="line" style={styles.w50} />
+            <Skeleton shape="line" style={styles.block} />
+            <Skeleton shape="line" style={styles.w85} />
             <Skeleton shape="rect" size="large" style={styles.block} />
           </View>
         </View>
@@ -47,8 +62,8 @@ export function SkeletonPreview() {
 
       <PreviewSection title="Animated and static">
         <PreviewRow>
-          <Skeleton shape="rect" width="46%" size="large" />
-          <Skeleton shape="rect" width="46%" size="large" animated={false} />
+          <Skeleton shape="rect" style={styles.w46} size="large" />
+          <Skeleton shape="rect" style={styles.w46} size="large" animated={false} />
         </PreviewRow>
       </PreviewSection>
 

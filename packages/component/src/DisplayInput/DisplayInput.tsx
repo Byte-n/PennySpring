@@ -103,7 +103,7 @@ export function DisplayInput({
         <View style={tokenStyles.labelRow}>
           <Text style={[tokenStyles.label, styles?.label]}>{label}</Text>
           {required === true ? (
-            <Text accessibilityElementsHidden style={tokenStyles.requiredMark}>
+            <Text style={tokenStyles.requiredMark}>
               {REQUIRED_MARK}
             </Text>
           ) : null}

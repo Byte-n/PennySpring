@@ -398,6 +398,7 @@ export function CascadePicker<TData = unknown, TTabKey extends CascadePickerTabK
           items={tabItems}
           layout="scroll"
           onChange={nextTab => setActiveTabKey(nextTab as TTabKey)}
+          style={props.styles?.tabs}
           value={resolvedActiveTabKey as TabsValue | undefined}
         />
       </View>
@@ -484,7 +485,12 @@ export function CascadePicker<TData = unknown, TTabKey extends CascadePickerTabK
         titleText: props.titleText,
       }}
       style={props.style}
-      styles={props.styles}
+      styles={props.styles && {
+        trigger: props.styles.trigger,
+        input: props.styles.input,
+        popup: props.styles.popup,
+        panel: props.styles.panel,
+      }}
       value={resolvedActiveTabKey === undefined ? [] : activeTabValue}
     >
       {props.children}

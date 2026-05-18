@@ -156,7 +156,6 @@ function CascaderRoot<TData = unknown>({
               color="colorIcon"
               icon="caret-down"
               size={tokenStyles.suffix.fontSize}
-              style={tokenStyles.suffix}
             />
           </>
         )}

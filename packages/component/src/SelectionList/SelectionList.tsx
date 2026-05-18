@@ -546,7 +546,6 @@ function SelectionListRoot({
             color="colorIcon"
             icon="caret-down"
             size={tokenStyles.suffix.fontSize}
-            style={tokenStyles.suffix}
           />
         )}
       </Pressable>

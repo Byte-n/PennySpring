@@ -116,13 +116,26 @@ export function Text({
   weight,
   color,
   style,
+  numberOfLines,
+  ellipsizeMode,
+  selectable,
+  onPress,
+  onLongPress,
+  testID,
   children,
-  ...rest
 }: TextProps) {
   const tokenStyles = useStyles({ size, weight, color });
 
   return (
-    <RNText {...rest} style={[tokenStyles.text, style]}>
+    <RNText
+      ellipsizeMode={ellipsizeMode}
+      numberOfLines={numberOfLines}
+      onLongPress={onLongPress}
+      onPress={onPress}
+      selectable={selectable}
+      style={[tokenStyles.text, style]}
+      testID={testID}
+    >
       {children}
     </RNText>
   );

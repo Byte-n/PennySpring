@@ -182,7 +182,6 @@ export function SegmentedControl({
               testID={`top-tab-segment-option-${route.key}`}
             >
               <Text
-                accessibilityState={{ selected: isSelected }}
                 numberOfLines={1}
                 style={[
                   tokenStyles.label,

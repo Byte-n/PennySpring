@@ -29,9 +29,9 @@ function renderSkeleton(props: React.ComponentProps<typeof Skeleton> = {}) {
   return testRenderer!;
 }
 describe('Skeleton', () => {
-  it('applies custom width and semantic size height', () => {
+  it('applies custom width via style and semantic size height', () => {
     const testRenderer = renderSkeleton({
-      width: 200,
+      style: { width: 200 },
       size: 'large',
     });
     const root = testRenderer.root.findByType(View);

@@ -36,7 +36,7 @@ import {
   XCircleIcon,
   XIcon,
 } from 'phosphor-react-native';
-import type { AliasColorTokenKey, AliasToken } from '@pennyspring/theme';
+import type { AliasToken } from '@pennyspring/theme';
 import type { IconColor, IconComponent, IconName, IconProps, IconSize } from './types';
 
 interface IconSizeConfig {
@@ -104,17 +104,13 @@ function resolveSize(size: IconSize | undefined, token: AliasToken): number {
   return ICON_SIZE_MAP[resolvedSize].value(token);
 }
 
-function isAliasColorTokenKey(value: string): value is AliasColorTokenKey {
-  return value.startsWith('color');
-}
-
 function resolveColor(color: IconColor | undefined, token: AliasToken): string {
   if (color === undefined) {
     return token.colorIcon;
   }
 
-  if (isAliasColorTokenKey(color) && color in token) {
-    return token[color];
+  if (color in token) {
+    return token[color as keyof AliasToken] as string;
   }
 
   return color;
