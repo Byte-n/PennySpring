@@ -17,7 +17,6 @@ type CalculatorKeyRole = 'digit' | 'decimal' | 'operator' | 'clear' | 'backspace
 
 interface CalculatorKeyConfig {
   label: string;
-  accessibilityLabel: string;
   role: CalculatorKeyRole;
   value?: string;
 }
@@ -59,32 +58,32 @@ const SIZE_CONFIG: SizeConfig = {
 
 const KEY_ROWS: readonly (readonly CalculatorKeyConfig[])[] = [
   [
-    { label: 'C', accessibilityLabel: '清空', role: 'clear' },
-    { label: '/', accessibilityLabel: '除', role: 'operator', value: '/' },
-    { label: '×', accessibilityLabel: '乘', role: 'operator', value: '×' },
-    { label: EMPTY_TEXT, accessibilityLabel: '退格', role: 'backspace' },
+    { label: 'C', role: 'clear' },
+    { label: '/', role: 'operator', value: '/' },
+    { label: '×', role: 'operator', value: '×' },
+    { label: EMPTY_TEXT, role: 'backspace' },
   ],
   [
-    { label: '7', accessibilityLabel: '数字 7', role: 'digit', value: '7' },
-    { label: '8', accessibilityLabel: '数字 8', role: 'digit', value: '8' },
-    { label: '9', accessibilityLabel: '数字 9', role: 'digit', value: '9' },
-    { label: '-', accessibilityLabel: '减', role: 'operator', value: '-' },
+    { label: '7', role: 'digit', value: '7' },
+    { label: '8', role: 'digit', value: '8' },
+    { label: '9', role: 'digit', value: '9' },
+    { label: '-', role: 'operator', value: '-' },
   ],
   [
-    { label: '4', accessibilityLabel: '数字 4', role: 'digit', value: '4' },
-    { label: '5', accessibilityLabel: '数字 5', role: 'digit', value: '5' },
-    { label: '6', accessibilityLabel: '数字 6', role: 'digit', value: '6' },
-    { label: '+', accessibilityLabel: '加', role: 'operator', value: '+' },
+    { label: '4', role: 'digit', value: '4' },
+    { label: '5', role: 'digit', value: '5' },
+    { label: '6', role: 'digit', value: '6' },
+    { label: '+', role: 'operator', value: '+' },
   ],
   [
-    { label: '1', accessibilityLabel: '数字 1', role: 'digit', value: '1' },
-    { label: '2', accessibilityLabel: '数字 2', role: 'digit', value: '2' },
-    { label: '3', accessibilityLabel: '数字 3', role: 'digit', value: '3' },
+    { label: '1', role: 'digit', value: '1' },
+    { label: '2', role: 'digit', value: '2' },
+    { label: '3', role: 'digit', value: '3' },
   ],
   [
-    { label: '()', accessibilityLabel: '括号', role: 'paren' },
-    { label: '0', accessibilityLabel: '数字 0', role: 'digit', value: '0' },
-    { label: '.', accessibilityLabel: '小数点', role: 'decimal', value: '.' },
+    { label: '()', role: 'paren' },
+    { label: '0', role: 'digit', value: '0' },
+    { label: '.', role: 'decimal', value: '.' },
   ],
 ];
 
@@ -677,11 +676,9 @@ export function CalculatorInput({
 
     return (
       <Pressable
-        accessibilityLabel={key.accessibilityLabel}
-        accessibilityRole="button"
         disabled={isReadOnly}
         hitSlop={KEYPAD_HIT_SLOP}
-        key={key.accessibilityLabel}
+        key={key.label || key.role}
         onPress={() => {
           handleKeyPress(key);
         }}
@@ -691,6 +688,7 @@ export function CalculatorInput({
           pressed && !isReadOnly ? tokenStyles.keyPressed : null,
           styles?.key,
         ]}
+        testID={`calc-key-${key.label || key.role}`}
       >
         {renderKeyContent(key, tokenStyles, styles?.keyText)}
       </Pressable>
@@ -714,7 +712,7 @@ export function CalculatorInput({
       <Column gap={token.sizeXS} style={styles?.keypad}>
         {KEY_ROWS.slice(0, KEYPAD_TOP_ROW_COUNT).map(row => (
           <Row
-            key={row.map(key => key.accessibilityLabel).join('-')}
+            key={row.map(key => key.label || key.role).join('-')}
             gap={token.sizeXS}
           >
             {row.map(renderKey)}
@@ -724,7 +722,7 @@ export function CalculatorInput({
           <Column gap={token.sizeXS} style={tokenStyles.leftPad}>
             {KEY_ROWS.slice(KEYPAD_TOP_ROW_COUNT).map(row => (
               <Row
-                key={row.map(key => key.accessibilityLabel).join('-')}
+                key={row.map(key => key.label || key.role).join('-')}
                 gap={token.sizeXS}
               >
                 {row.map(renderKey)}
@@ -732,8 +730,6 @@ export function CalculatorInput({
             ))}
           </Column>
           <Pressable
-            accessibilityLabel="确认"
-            accessibilityRole="button"
             disabled={!canConfirm}
             onPress={handleOkPress}
             style={({ pressed }) => [
@@ -744,6 +740,7 @@ export function CalculatorInput({
               styles?.key,
               styles?.okKey,
             ]}
+            testID="calc-key-ok"
           >
             <Text
               style={[

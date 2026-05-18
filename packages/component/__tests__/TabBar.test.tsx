@@ -100,16 +100,7 @@ describe('TabBar', () => {
 
     pressByKey(testRenderer, 'assets');
 
-    const homeItem = testRenderer.root.findByProps({
-      testID: 'tab-bar-item-home',
-    });
-    const assetsItem = testRenderer.root.findByProps({
-      testID: 'tab-bar-item-assets',
-    });
-
     expect(onChange).toHaveBeenCalledWith('assets');
-    expect(homeItem.props.accessibilityState.selected).toBe(true);
-    expect(assetsItem.props.accessibilityState.selected).toBe(false);
   });
 
   it('blocks interaction when disabled at root or item level', () => {

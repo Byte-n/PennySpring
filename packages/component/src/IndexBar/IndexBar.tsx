@@ -146,11 +146,6 @@ function IndexBarRoot({
               {...rest}
               key={String(panel.index)}
               testID={`index-bar-item-${String(panel.index)}`}
-              accessibilityRole="button"
-              accessibilityState={{
-                disabled: itemDisabled,
-                selected: isSelected,
-              }}
               disabled={itemDisabled}
               onPress={event => {
                 if (itemDisabled || isSelected) {

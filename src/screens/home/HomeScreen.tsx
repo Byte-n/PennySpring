@@ -32,7 +32,6 @@ function MenuButton({ onPress }: MenuButtonProps) {
 
   return (
     <Button
-      accessibilityLabel="打开菜单"
       icon={ListIcon}
       iconProps={{ weight: 'bold' }}
       onPress={onPress}
@@ -103,7 +102,6 @@ function DrawerOptionList({
         </Text>
       </Button>
       <Button
-        accessibilityLabel="打开 Test Screen"
         block
         onPress={onOpenTestScreen}
         style={styles.optionButton}
@@ -114,7 +112,6 @@ function DrawerOptionList({
         </Text>
       </Button>
       <Button
-        accessibilityLabel="打开 Component Preview"
         block
         onPress={onOpenComponentPreview}
         style={styles.optionButton}

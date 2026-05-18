@@ -45,14 +45,6 @@ function pressStep(testRenderer: renderer.ReactTestRenderer, index: number) {
   return target;
 }
 
-function getStepSelectedState(testRenderer: renderer.ReactTestRenderer, index: number) {
-  const target = testRenderer.root.findByProps({
-    testID: `steps-item-${index}`,
-  });
-
-  return target.props.accessibilityState?.selected;
-}
-
 describe('Steps', () => {
   it('renders title and description text from items', () => {
     const testRenderer = renderSteps();
@@ -71,12 +63,9 @@ describe('Steps', () => {
       onChange,
     });
 
-    expect(getStepSelectedState(testRenderer, 0)).toBe(true);
-
     pressStep(testRenderer, 2);
 
     expect(onChange).toHaveBeenCalledWith(2);
-    expect(getStepSelectedState(testRenderer, 2)).toBe(true);
   });
 
   it('keeps selected step controlled by value prop', () => {
@@ -89,8 +78,10 @@ describe('Steps', () => {
     pressStep(testRenderer, 1);
 
     expect(onChange).toHaveBeenCalledWith(1);
-    expect(getStepSelectedState(testRenderer, 0)).toBe(true);
-    expect(getStepSelectedState(testRenderer, 1)).toBe(false);
+    // Pressing the currently selected step (0) should not trigger onChange
+    onChange.mockClear();
+    pressStep(testRenderer, 0);
+    expect(onChange).not.toHaveBeenCalled();
   });
 
   it('blocks interaction when disabled, readonly, or item disabled', () => {

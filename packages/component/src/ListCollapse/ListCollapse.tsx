@@ -121,11 +121,6 @@ export function ListCollapse({
   const mergedExpanded = expanded ?? internalExpanded;
   const isDisabled = Boolean(disabled);
   const isInteractive = !isDisabled && !readonly && !loading;
-  const accessibilityState = {
-    disabled: isDisabled || undefined,
-    expanded: mergedExpanded,
-    busy: loading || undefined,
-  };
 
   const setExpanded = (nextExpanded: boolean): void => {
     if (expanded === undefined) {
@@ -153,8 +148,6 @@ export function ListCollapse({
   return (
     <View style={[tokenStyles.root, style]}>
       <Pressable
-        accessibilityRole="button"
-        accessibilityState={accessibilityState}
         onPress={handleHeaderPress}
         style={({ pressed }) => [
           tokenStyles.header,

@@ -31,9 +31,6 @@ interface RenderGroup {
 }
 
 const DEFAULT_PLACEHOLDER = 'Select';
-const CLOSE_BUTTON_LABEL = 'Close selection list';
-const CONFIRM_BUTTON_LABEL = 'Confirm selection';
-const SEARCH_INPUT_LABEL = 'Search selection list';
 
 function resolveSize(size?: ComponentSize): ComponentSize {
   return size ?? 'normal';
@@ -237,16 +234,9 @@ export function SelectionListPopup({
 function renderOption(option: SelectionListOption) {
     const isSelected = isValueSelected(selectedValues, option.value);
     const isDisabled = option.disabled === true || !isInteractive;
-    const labelText = option.labelText ?? extractText(option.label);
 
     return (
       <Pressable
-        accessibilityLabel={labelText}
-        accessibilityRole="button"
-        accessibilityState={{
-          disabled: isDisabled,
-          selected: isSelected,
-        }}
         key={String(option.value)}
         onPress={() => handleSelect(option)}
         style={({ pressed }) => [
@@ -321,8 +311,6 @@ function renderOption(option: SelectionListOption) {
             )}
             {texts.closeText !== undefined ? (
               <Button
-                accessibilityLabel={CLOSE_BUTTON_LABEL}
-                accessibilityRole="button"
                 onPress={closeSelectionList}
                 style={tokenStyles.footerButton}
                 type="text"
@@ -334,7 +322,6 @@ function renderOption(option: SelectionListOption) {
         ) : null}
         {searchable === true ? (
           <TextInput
-            accessibilityLabel={texts?.searchPlaceholder ?? SEARCH_INPUT_LABEL}
             editable={isInteractive}
             onChangeText={handleSearchChange}
             placeholder={texts?.searchPlaceholder}
@@ -349,7 +336,6 @@ function renderOption(option: SelectionListOption) {
               <Text color="description">{texts.loadingText}</Text>
             ) : (
               <ActivityIndicator
-                accessibilityElementsHidden
                 color={token.colorTextTertiary}
               />
             )}
@@ -384,8 +370,6 @@ function renderOption(option: SelectionListOption) {
         {resolvedMode === 'multiple' && texts?.confirmText !== undefined ? (
           <View style={tokenStyles.footer}>
             <Button
-              accessibilityLabel={CONFIRM_BUTTON_LABEL}
-              accessibilityRole="button"
               onPress={closeSelectionList}
               style={[
                 tokenStyles.footerButton,
@@ -458,14 +442,6 @@ function SelectionListRoot({
   const selectedValues = toValueArray(mergedValue);
   const selectedLabel = getSelectedLabel(flatOptions, selectedValues);
   const message = isError && errorText !== undefined ? errorText : helperText;
-  const triggerLabel =
-    labelText !== undefined
-      ? labelText
-      : typeof label === 'string'
-        ? label
-      : selectedLabel.length > 0
-        ? selectedLabel
-        : (placeholder ?? DEFAULT_PLACEHOLDER);
 
   function setOpen(nextOpen: boolean): void {
     if (!isInteractive) {
@@ -502,13 +478,6 @@ function SelectionListRoot({
     <View testID="selection-list-root" style={[tokenStyles.root, style]}>
       {labelNode}
       <Pressable
-        accessibilityLabel={triggerLabel}
-        accessibilityRole="button"
-        accessibilityState={{
-          busy: loading === true,
-          disabled: !isInteractive,
-          expanded: mergedOpen,
-        }}
         onPress={() => setOpen(!mergedOpen)}
         style={({ pressed }) => [
           tokenStyles.trigger,
@@ -538,7 +507,6 @@ function SelectionListRoot({
         </View>
         {loading === true ? (
           <ActivityIndicator
-            accessibilityElementsHidden
             color={token.colorTextTertiary}
           />
         ) : (

@@ -9,7 +9,7 @@ import type { ComponentSize } from '../shares/types';
 
 /**
  * Textarea 的校验展示状态。
- * 状态只负责视觉和可访问性表达，不负责执行校验逻辑。
+ * 状态只负责视觉表达，不负责执行校验逻辑。
  */
 export type TextareaStatus = 'default' | 'error' | 'warning' | 'success';
 
@@ -101,7 +101,7 @@ export interface TextareaProps
 
   /**
    * 是否禁用输入。
-   * 禁用后不可编辑，并暴露 disabled 可访问状态。
+   * 禁用后不可编辑。
    */
   disabled?: boolean;
 

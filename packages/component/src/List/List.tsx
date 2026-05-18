@@ -224,10 +224,6 @@ export function ListItem({
   const isDisabled = Boolean(disabled);
   const isSelected = Boolean(selected);
   const isInteractive = Boolean(onPress) && !isDisabled;
-  const accessibilityState = {
-    disabled: isDisabled || undefined,
-    selected: isSelected || undefined,
-  };
   const handlePress = (event: GestureResponderEvent): void => {
     if (isDisabled) {
       return;
@@ -274,8 +270,6 @@ export function ListItem({
   if (isInteractive) {
     return (
       <Pressable
-        accessibilityRole="button"
-        accessibilityState={accessibilityState}
         onPress={handlePress}
         style={({ pressed }) => [
           tokenStyles.item,
@@ -290,7 +284,7 @@ export function ListItem({
   }
 
   return (
-    <View accessibilityState={accessibilityState} style={itemStyle}>
+    <View style={itemStyle}>
       {itemContent}
     </View>
   );

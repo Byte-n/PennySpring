@@ -121,8 +121,6 @@ function ComponentPreviewHeader({
       <View style={[styles.side, styles.left]}>
         {back ? (
           <Pressable
-            accessibilityLabel="返回"
-            accessibilityRole="button"
             onPress={navigation.goBack}
             style={styles.backButton}
           >

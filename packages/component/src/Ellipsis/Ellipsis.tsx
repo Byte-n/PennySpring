@@ -78,8 +78,6 @@ function HiddenMeasurementText({
 }: HiddenMeasurementTextProps) {
   return (
     <MeasurementText
-      accessibilityElementsHidden
-      importantForAccessibility="no-hide-descendants"
       onTextLayout={onTextLayout}
       style={style}
     >

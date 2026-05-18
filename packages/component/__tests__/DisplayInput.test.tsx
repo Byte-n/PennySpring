@@ -40,9 +40,9 @@ describe('DisplayInput', () => {
       children: '可点击内容',
     });
 
-    const trigger = testRenderer.root.findByProps({
-      accessibilityRole: 'button',
-    });
+    const trigger = testRenderer.root.findAll(node =>
+      typeof node.props.onPress === 'function' && typeof node.props.style === 'function'
+    )[0];
 
     act(() => {
       trigger.props.onPress();

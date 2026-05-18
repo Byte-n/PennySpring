@@ -109,8 +109,10 @@ describe('SegmentedControl', () => {
         }} /></>);
     });
     const tabOptions = testRenderer!.root.findAllByProps({
-      accessibilityRole: 'tab'
-    });
+      testID: 'top-tab-segment-option-detail'
+    }).concat(testRenderer!.root.findAllByProps({
+      testID: 'top-tab-segment-option-chart'
+    }));
     const firstOptionStyles = Array.isArray(tabOptions[0]?.props.style) ? tabOptions[0]?.props.style : [tabOptions[0]?.props.style];
     const layeredOptionStyle = firstOptionStyles.find((style: Record<string, unknown> | undefined) => style?.zIndex);
     expect(layeredOptionStyle).toEqual(expect.objectContaining({
@@ -147,8 +149,10 @@ describe('SegmentedControl', () => {
     });
     const trackStyles = Array.isArray(track?.props.style) ? track?.props.style : [track?.props.style];
     const tabOptions = testRenderer!.root.findAllByProps({
-      accessibilityRole: 'tab'
-    });
+      testID: 'top-tab-segment-option-detail'
+    }).concat(testRenderer!.root.findAllByProps({
+      testID: 'top-tab-segment-option-chart'
+    }));
     const firstOptionStyles = Array.isArray(tabOptions[0]?.props.style) ? tabOptions[0]?.props.style : [tabOptions[0]?.props.style];
     expect(trackStyles).not.toEqual(expect.arrayContaining([expect.objectContaining({
       width: '100%'

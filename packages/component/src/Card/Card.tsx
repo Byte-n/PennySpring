@@ -197,7 +197,6 @@ export function Card({
   if (shouldUsePressable) {
     return (
       <Pressable
-        accessibilityRole="button"
         disabled={!isInteractive}
         onPress={handlePress}
         style={({ pressed }) => [

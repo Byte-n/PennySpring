@@ -16,9 +16,8 @@ function flattenStyle(style: unknown) {
   return Object.assign({}, ...styles);
 }
 function getPressableRoot(testRenderer: renderer.ReactTestRenderer) {
-  return testRenderer.root.find(node => {
-    return node.props.accessibilityRole === 'button';
-  });
+  // The Button renders a single Pressable as its root element
+  return testRenderer.root.children[0] as renderer.ReactTestInstance;
 }
 function getRootStyle(testRenderer: renderer.ReactTestRenderer, pressed = false) {
   const root = getPressableRoot(testRenderer);
@@ -38,12 +37,10 @@ function findNodesWithStyle(testRenderer: renderer.ReactTestRenderer, markerStyl
   });
 }
 describe('Button', () => {
-  it('renders text content with a button role', () => {
+  it('renders text content', () => {
     const testRenderer = renderButton({
       children: 'Save'
     });
-    const root = getPressableRoot(testRenderer);
-    expect(root.props.accessibilityRole).toBe('button');
     expect(JSON.stringify(testRenderer.toJSON())).toContain('Save');
   });
   it('orders icon and content by icon placement', () => {
@@ -101,7 +98,7 @@ describe('Button', () => {
     expect(normalIcon.props.size).toBeGreaterThan(normalTextStyle.fontSize as number);
     expect(largeIcon.props.size).toBeGreaterThan(largeTextStyle.fontSize as number);
   });
-  it('blocks presses while loading and exposes busy state', () => {
+  it('blocks presses while loading', () => {
     const onPress = jest.fn();
     const testRenderer = renderButton({
       loading: true,
@@ -113,10 +110,9 @@ describe('Button', () => {
       root.props.onPress({} as never);
     });
     expect(onPress).not.toHaveBeenCalled();
-    expect(root.props.accessibilityState.busy).toBe(true);
     expect(testRenderer.root.findAllByType(ActivityIndicator)).toHaveLength(1);
   });
-  it('blocks disabled presses and exposes disabled accessibility state', () => {
+  it('blocks disabled presses', () => {
     const onPress = jest.fn();
     const testRenderer = renderButton({
       disabled: true,
@@ -128,7 +124,7 @@ describe('Button', () => {
       root.props.onPress({} as never);
     });
     expect(onPress).not.toHaveBeenCalled();
-    expect(root.props.accessibilityState.disabled).toBe(true);
+    expect(root.props.disabled).toBe(true);
   });
   it('applies disabled opacity for text button variant', () => {
     const testRenderer = renderButton({

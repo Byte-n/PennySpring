@@ -324,14 +324,12 @@ interface CalendarGridProps {
   selectedValue?: CalendarValue;
   styles: ReturnType<typeof useCalendarStyles>;
   slotStyles: CalendarProps['styles'];
-  labelPrefix: string;
   onSelect: (value: CalendarValue) => void;
 }
 
 function CalendarGrid({
   disabledProps,
   draftRange,
-  labelPrefix,
   marks,
   mode,
   onSelect,
@@ -366,12 +364,7 @@ function CalendarGrid({
 
         return (
           <Pressable
-            accessibilityLabel={`${labelPrefix} ${normalized}`}
-            accessibilityRole="button"
-            accessibilityState={{
-              disabled: disabled || undefined,
-              selected: selected || undefined,
-            }}
+            disabled={disabled}
             key={normalized}
             onPress={() => {
               if (!disabled) {
@@ -388,6 +381,7 @@ function CalendarGrid({
               isToday ? styles.cellToday : null,
               disabled ? styles.cellDisabled : null,
             ]}
+            testID={`calendar-cell-${normalized}`}
           >
             <Text style={[styles.dateText, slotStyles?.dateText]}>
               {mode === 'year' ? normalized : normalized.split('-').at(-1)}
@@ -486,14 +480,13 @@ function CalendarRoot({
       ) : null}
       <View style={[tokenStyles.header, styles?.header]}>
         <Pressable
-          accessibilityLabel="Previous panel"
-          accessibilityRole="button"
           onPress={() => {
             if (!disabled) {
               setPanel(addPanel(panel, resolvedMode, -1));
             }
           }}
           style={tokenStyles.navButton}
+          testID="calendar-nav-prev"
         >
           {renderSlotNode(previous, previousText) ?? (
             <Icon
@@ -505,14 +498,13 @@ function CalendarRoot({
         </Pressable>
         <Text style={[tokenStyles.title, styles?.title]}>{panelTitle(panel, resolvedMode)}</Text>
         <Pressable
-          accessibilityLabel="Next panel"
-          accessibilityRole="button"
           onPress={() => {
             if (!disabled) {
               setPanel(addPanel(panel, resolvedMode, 1));
             }
           }}
           style={tokenStyles.navButton}
+          testID="calendar-nav-next"
         >
           {renderSlotNode(next, nextText) ?? (
             <Icon
@@ -534,7 +526,6 @@ function CalendarRoot({
       ) : null}
       <CalendarGrid
         disabledProps={{ disabled, disabledDate, maxDate, minDate }}
-        labelPrefix="Select"
         marks={marks}
         mode={resolvedMode}
         onSelect={handleSelect}
@@ -547,7 +538,6 @@ function CalendarRoot({
         <View style={[tokenStyles.footer, styles?.footer]}>
           {showToday ? (
             <Pressable
-              accessibilityLabel="Select today"
               hitSlop={ACTION_HIT_SLOP}
               onPress={handleToday}
             >
@@ -557,7 +547,6 @@ function CalendarRoot({
           {showConfirm ? (
             <>
               <Pressable
-                accessibilityLabel="Cancel date"
                 hitSlop={ACTION_HIT_SLOP}
                 onPress={() => {
                   setDraftValue(undefined);
@@ -568,10 +557,10 @@ function CalendarRoot({
                 {renderSlotNode(cancel, cancelText)}
               </Pressable>
               <Pressable
-                accessibilityLabel="Confirm date"
                 hitSlop={ACTION_HIT_SLOP}
                 onPress={handleConfirm}
                 style={tokenStyles.footerAction}
+                testID="calendar-confirm"
               >
                 {renderSlotNode(ok, okText)}
               </Pressable>
@@ -676,14 +665,13 @@ function CalendarRange({
       {displayValue ? <Text>{displayValue}</Text> : null}
       <View style={[tokenStyles.header, styles?.header]}>
         <Pressable
-          accessibilityLabel="Previous panel"
-          accessibilityRole="button"
           onPress={() => {
             if (!disabled) {
               setPanel(addPanel(panel, resolvedMode, -1));
             }
           }}
           style={tokenStyles.navButton}
+          testID="calendar-nav-prev"
         >
           {renderSlotNode(previous, previousText) ?? (
             <Icon
@@ -695,14 +683,13 @@ function CalendarRange({
         </Pressable>
         <Text style={[tokenStyles.title, styles?.title]}>{panelTitle(panel, resolvedMode)}</Text>
         <Pressable
-          accessibilityLabel="Next panel"
-          accessibilityRole="button"
           onPress={() => {
             if (!disabled) {
               setPanel(addPanel(panel, resolvedMode, 1));
             }
           }}
           style={tokenStyles.navButton}
+          testID="calendar-nav-next"
         >
           {renderSlotNode(next, nextText) ?? (
             <Icon
@@ -716,7 +703,6 @@ function CalendarRange({
       <CalendarGrid
         disabledProps={{ disabled, disabledDate, maxDate, minDate }}
         draftRange={draftRange}
-        labelPrefix="Select range"
         marks={marks}
         mode={resolvedMode}
         onSelect={handleSelect}
@@ -729,7 +715,6 @@ function CalendarRange({
         <View style={[tokenStyles.footer, styles?.footer]}>
           {showToday ? (
             <Pressable
-              accessibilityLabel="Select today"
               hitSlop={ACTION_HIT_SLOP}
               onPress={() => {
                 const nextToday = todayValue(resolvedMode);
@@ -743,7 +728,6 @@ function CalendarRange({
           {showConfirm ? (
             <>
               <Pressable
-                accessibilityLabel="Cancel date"
                 hitSlop={ACTION_HIT_SLOP}
                 onPress={() => {
                   setDraftRange([]);
@@ -754,10 +738,10 @@ function CalendarRange({
                 {renderSlotNode(cancel, cancelText)}
               </Pressable>
               <Pressable
-                accessibilityLabel="Confirm date"
                 hitSlop={ACTION_HIT_SLOP}
                 onPress={handleConfirm}
                 style={tokenStyles.footerAction}
+                testID="calendar-confirm"
               >
                 {renderSlotNode(ok, okText)}
               </Pressable>

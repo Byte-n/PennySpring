@@ -1,5 +1,5 @@
 import React from 'react';
-import { TextInput, View } from 'react-native';
+import { ActivityIndicator, TextInput, View } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
 import { Textarea } from '../src/Textarea';
 function renderTextarea(props: Partial<React.ComponentProps<typeof Textarea>> = {}) {
@@ -55,10 +55,8 @@ describe('Textarea', () => {
       errorText: 'Required copy'
     });
     const treeString = JSON.stringify(testRenderer.toJSON());
-    const input = testRenderer.root.findByType(TextInput);
     expect(treeString).toContain('Required copy');
     expect(treeString).not.toContain('Helper copy');
-    expect(input.props.accessibilityState.invalid).toBe(true);
   });
   it('renders required marker next to the label without validating input', () => {
     const testRenderer = renderTextarea({
@@ -69,24 +67,21 @@ describe('Textarea', () => {
     expect(treeString).toContain('Description');
     expect(treeString).toContain('*');
   });
-  it('makes disabled input non-editable and exposes disabled state', () => {
+  it('makes disabled input non-editable', () => {
     const testRenderer = renderTextarea({
       disabled: true,
       loading: true
     });
     const input = testRenderer.root.findByType(TextInput);
     expect(input.props.editable).toBe(false);
-    expect(input.props.accessibilityState.disabled).toBe(true);
-    expect(input.props.accessibilityState.busy).toBe(true);
-    expect(JSON.stringify(testRenderer.toJSON())).toContain('Loading');
+    expect(testRenderer.root.findAllByType(ActivityIndicator)).toHaveLength(1);
   });
-  it('makes readonly input non-editable without disabled accessibility state', () => {
+  it('makes readonly input non-editable', () => {
     const testRenderer = renderTextarea({
       readonly: true
     });
     const input = testRenderer.root.findByType(TextInput);
     expect(input.props.editable).toBe(false);
-    expect(input.props.accessibilityState.disabled).toBeUndefined();
   });
   it('updates focus state and forwards focus and blur callbacks', () => {
     const handleFocus = jest.fn();

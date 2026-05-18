@@ -19,7 +19,9 @@ function pressHeader(testRenderer: renderer.ReactTestRenderer) {
   });
 }
 function findHeader(testRenderer: renderer.ReactTestRenderer) {
-  return testRenderer.root.find(node => node.props.accessibilityRole === 'button');
+  return testRenderer.root.findAll(node =>
+    typeof node.props.onPress === 'function' && typeof node.props.style === 'function'
+  )[0];
 }
 function findNodesWithStyle(testRenderer: renderer.ReactTestRenderer, markerStyle: Record<string, unknown>) {
   return testRenderer.root.findAll(node => {
@@ -76,7 +78,7 @@ describe('ListCollapse', () => {
       expect(treeText(testRenderer)).not.toContain('Budget details');
     });
   });
-  it('applies slot styles and accessibility state', () => {
+  it('applies slot styles when disabled and expanded', () => {
     const headerStyle = {
       opacity: 0.81
     };
@@ -93,10 +95,6 @@ describe('ListCollapse', () => {
         header: headerStyle
       }
     });
-    const header = findHeader(testRenderer);
-    expect(header.props.accessibilityRole).toBe('button');
-    expect(header.props.accessibilityState.expanded).toBe(true);
-    expect(header.props.accessibilityState.disabled).toBe(true);
     expect(findNodesWithStyle(testRenderer, headerStyle)).toHaveLength(1);
     expect(findNodesWithStyle(testRenderer, contentStyle)).toHaveLength(1);
   });

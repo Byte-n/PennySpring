@@ -21,10 +21,31 @@ function findDisplay(testRenderer: renderer.ReactTestRenderer) {
   return testRenderer.root.findByType(TextInput);
 }
 
+const KEY_MAP: Record<string, string> = {
+  '数字 0': 'calc-key-0',
+  '数字 1': 'calc-key-1',
+  '数字 2': 'calc-key-2',
+  '数字 3': 'calc-key-3',
+  '数字 4': 'calc-key-4',
+  '数字 5': 'calc-key-5',
+  '数字 6': 'calc-key-6',
+  '数字 7': 'calc-key-7',
+  '数字 8': 'calc-key-8',
+  '数字 9': 'calc-key-9',
+  '加': 'calc-key-+',
+  '减': 'calc-key--',
+  '乘': 'calc-key-×',
+  '除': 'calc-key-/',
+  '退格': 'calc-key-backspace',
+  '清空': 'calc-key-C',
+  '确认': 'calc-key-ok',
+  '括号': 'calc-key-()',
+  '小数点': 'calc-key-.',
+};
+
 function findButton(testRenderer: renderer.ReactTestRenderer, label: string) {
-  return testRenderer.root.findAll(
-    node => node.props.accessibilityLabel === label,
-  )[0];
+  const testID = KEY_MAP[label];
+  return testRenderer.root.findByProps({ testID });
 }
 
 function findResultText(testRenderer: renderer.ReactTestRenderer) {

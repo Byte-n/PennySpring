@@ -115,16 +115,7 @@ describe('IndexBar', () => {
 
     pressIndexItem(testRenderer, 'B');
 
-    const selectedA = testRenderer.root.findByProps({
-      testID: 'index-bar-item-A',
-    });
-    const selectedB = testRenderer.root.findByProps({
-      testID: 'index-bar-item-B',
-    });
-
     expect(onChange).toHaveBeenCalledWith('B');
-    expect(selectedA.props.accessibilityState.selected).toBe(true);
-    expect(selectedB.props.accessibilityState.selected).toBe(false);
   });
 
   it('blocks interaction when disabled at root or panel level', () => {

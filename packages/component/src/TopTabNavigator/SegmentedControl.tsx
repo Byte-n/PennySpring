@@ -173,8 +173,6 @@ export function SegmentedControl({
 
           return (
             <Pressable
-              accessibilityRole="tab"
-              accessibilityState={{ selected: isSelected }}
               key={route.key}
               onLayout={(event) => updateTabLayout(route.key, event)}
               onPress={() => navigation.navigate(route.name)}

@@ -45,8 +45,6 @@ interface SizeConfig {
 type StatusColorSelector = (token: AliasToken) => string;
 
 const REQUIRED_MARK = '*';
-const CLEAR_BUTTON_LABEL = '清除输入内容';
-const SEARCH_BUTTON_LABEL = '搜索';
 const INPUT_ACTION_HIT_SLOP = 8;
 
 const SIZE_MAP: Record<ComponentSize, SizeConfig> = {
@@ -89,21 +87,6 @@ function resolveSize(size?: ComponentSize): ComponentSize {
 
 function resolveStatus(status?: InputStatus): InputStatus {
   return status ?? 'default';
-}
-
-function resolveAccessibilityLabel(
-  label: InputProps['label'],
-  accessibilityLabel?: string,
-): string | undefined {
-  if (accessibilityLabel !== undefined) {
-    return accessibilityLabel;
-  }
-
-  if (typeof label === 'string') {
-    return label;
-  }
-
-  return undefined;
 }
 
 const useStyles = createUseSheetStyle(
@@ -222,12 +205,7 @@ const useSearchStyles = createUseSheetStyle(
   },
 );
 
-type InputAccessibilityState = TextInputProps['accessibilityState'] & {
-  invalid?: boolean;
-};
-
 function InputRoot({
-  accessibilityLabel,
   clearable,
   defaultValue,
   disabled,
@@ -249,7 +227,6 @@ function InputRoot({
   styles,
   suffix,
   value,
-  accessibilityState,
   ...rest
 }: InputProps) {
   const resolvedSize = resolveSize(size);
@@ -330,13 +307,6 @@ function InputRoot({
         ) : null}
         <TextInput
           {...rest}
-          accessibilityLabel={resolveAccessibilityLabel(label, accessibilityLabel)}
-          accessibilityState={{
-            ...accessibilityState,
-            busy: loading === true,
-            disabled: disabled === true,
-            invalid: isError,
-          } as InputAccessibilityState}
           editable={isEditable}
           multiline={false}
           onBlur={handleBlur}
@@ -353,8 +323,6 @@ function InputRoot({
         />
         {shouldShowClearButton ? (
           <Pressable
-            accessibilityLabel={CLEAR_BUTTON_LABEL}
-            accessibilityRole="button"
             hitSlop={INPUT_ACTION_HIT_SLOP}
             onPress={handleClear}
             style={({ pressed }) => [
@@ -362,6 +330,7 @@ function InputRoot({
               pressed ? tokenStyles.clearButtonPressed : null,
               styles?.clearButton,
             ]}
+            testID="input-clear-button"
           >
             <Icon
               color="colorIcon"
@@ -371,7 +340,6 @@ function InputRoot({
           </Pressable>
         ) : loading === true ? (
           <ActivityIndicator
-            accessibilityElementsHidden
             color={token.colorTextTertiary}
             style={tokenStyles.loading}
           />
@@ -471,14 +439,13 @@ function SearchInput({
       size={resolvedSize}
       suffix={
         <Pressable
-          accessibilityLabel={SEARCH_BUTTON_LABEL}
-          accessibilityRole="button"
           disabled={!canSearch}
           onPress={handleSearchPress}
           style={({ pressed }) => [
             tokenStyles.searchButton,
             pressed && canSearch ? tokenStyles.searchButtonPressed : null,
           ]}
+          testID="input-search-button"
         >
           {resolvedSearchIcon}
         </Pressable>

@@ -10,7 +10,6 @@ import type {
   TextInputProps,
   TextStyle,
   } from 'react-native';
-import type { AccessibilityState } from 'react-native';
 import type { AliasToken } from '@pennyspring/theme';
 import type {
   TextareaProps,
@@ -38,10 +37,6 @@ interface SizeConfig {
   paddingVertical: (token: AliasToken) => number;
   footerGap: (token: AliasToken) => number;
 }
-
-type TextareaAccessibilityState = AccessibilityState & {
-  invalid?: boolean;
-};
 
 const SIZE_CONFIG: Record<ComponentSize, SizeConfig> = {
   small: {
@@ -226,7 +221,6 @@ const useStyles = createUseSheetStyle(
 );
 
 export function Textarea({
-  accessibilityLabel,
   defaultValue,
   disabled = false,
   errorText,
@@ -265,16 +259,6 @@ export function Textarea({
   const isEditable = !disabled && !readonly;
   const isError = status === 'error';
   const shouldShowErrorText = isError && errorText !== undefined && errorText !== null;
-  const fieldAccessibilityState: TextareaAccessibilityState = {
-    busy: loading || undefined,
-    disabled: disabled || undefined,
-    invalid: isError || undefined,
-  };
-  const inferredAccessibilityLabel =
-    accessibilityLabel ?? (typeof label === 'string' ? label : undefined);
-  const accessibilityHint =
-    rest.accessibilityHint ??
-    (shouldShowErrorText && typeof errorText === 'string' ? errorText : undefined);
   const tokenStyles = useStyles({
     contentHeight,
     isDisabled: disabled,
@@ -336,9 +320,6 @@ export function Textarea({
       >
         <TextInput
           {...rest}
-          accessibilityHint={accessibilityHint}
-          accessibilityLabel={inferredAccessibilityLabel}
-          accessibilityState={fieldAccessibilityState}
           editable={isEditable}
           maxLength={maxLength}
           multiline
@@ -353,7 +334,6 @@ export function Textarea({
         />
         {loading ? (
           <ActivityIndicator
-            accessibilityLabel="Loading"
             color={token.colorPrimary}
             size="small"
             style={tokenStyles.loading}

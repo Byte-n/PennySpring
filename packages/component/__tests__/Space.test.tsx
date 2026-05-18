@@ -91,6 +91,5 @@ describe('Space', () => {
   it('does not bind built-in press behavior', () => {
     const testRenderer = renderSpace();
     expect(testRenderer.root.findAllByType(Pressable)).toHaveLength(0);
-    expect(testRenderer.root.findAll(node => node.props.accessibilityRole === 'button')).toHaveLength(0);
   });
 });

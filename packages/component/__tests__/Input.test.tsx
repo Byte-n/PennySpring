@@ -20,10 +20,10 @@ function findInput(testRenderer: renderer.ReactTestRenderer) {
   return testRenderer.root.findByType(TextInput);
 }
 function findClearButton(testRenderer: renderer.ReactTestRenderer) {
-  return testRenderer.root.findAll(node => node.props.accessibilityLabel === '清除输入内容');
+  return testRenderer.root.findAll(node => node.props.testID === 'input-clear-button');
 }
 function findSearchButton(testRenderer: renderer.ReactTestRenderer) {
-  return testRenderer.root.findAll(node => node.props.accessibilityLabel === '搜索')[0];
+  return testRenderer.root.findAll(node => node.props.testID === 'input-search-button')[0];
 }
 describe('Input', () => {
   it('updates uncontrolled text and notifies changes', () => {
@@ -120,27 +120,6 @@ describe('Input', () => {
       readonly: true
     })).props.editable).toBe(false);
     expect(findInput(renderInput()).props.editable).toBe(true);
-  });
-  it('exposes input and clear button accessibility semantics', () => {
-    const testRenderer = renderInput({
-      clearable: true,
-      defaultValue: 'Cash',
-      disabled: true,
-      label: 'Account name',
-      loading: true,
-      status: 'error'
-    });
-    const input = findInput(testRenderer);
-    expect(input.props.accessibilityLabel).toBe('Account name');
-    expect(input.props.accessibilityState).toMatchObject({
-      busy: true,
-      disabled: true,
-      invalid: true
-    });
-    expect(findClearButton(renderInput({
-      clearable: true,
-      defaultValue: 'Cash'
-    }))[0].props.accessibilityRole).toBe('button');
   });
   describe('Search', () => {
     it('submits the current uncontrolled text from the keyboard', () => {

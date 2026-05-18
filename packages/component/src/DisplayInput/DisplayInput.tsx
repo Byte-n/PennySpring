@@ -28,27 +28,11 @@ function resolveOverflow(overflow?: DisplayInputOverflow): DisplayInputOverflow 
   return overflow ?? 'hidden';
 }
 
-function resolveAccessibilityLabel(
-  label: DisplayInputProps['label'],
-  accessibilityLabel?: string,
-): string | undefined {
-  if (accessibilityLabel !== undefined) {
-    return accessibilityLabel;
-  }
-
-  if (typeof label === 'string') {
-    return label;
-  }
-
-  return undefined;
-}
-
 function isTextLikeValue(value: React.ReactNode): value is string | number {
   return typeof value === 'string' || typeof value === 'number';
 }
 
 export function DisplayInput({
-  accessibilityLabel,
   disabled,
   display,
   errorText,
@@ -110,9 +94,6 @@ export function DisplayInput({
         </View>
       ) : null}
       <Pressable
-        accessibilityLabel={resolveAccessibilityLabel(label, accessibilityLabel)}
-        accessibilityRole="button"
-        accessibilityState={{ disabled: isDisabled || isReadonly }}
         disabled={!isClickable}
         onPress={onPress}
         style={({ pressed }) => [

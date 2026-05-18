@@ -37,5 +37,4 @@ export interface DisplayInputProps {
   onPress?: (event: GestureResponderEvent) => void;
   style?: StyleProp<ViewStyle>;
   styles?: DisplayInputStyles;
-  accessibilityLabel?: string;
 }

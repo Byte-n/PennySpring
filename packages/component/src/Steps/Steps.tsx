@@ -266,11 +266,6 @@ export function Steps({
             {...rest}
             key={item.key ?? `${String(index)}-${item.titleText ?? ''}`}
             testID={`steps-item-${String(index)}`}
-            accessibilityRole="button"
-            accessibilityState={{
-              selected: isSelected,
-              disabled: itemDisabled,
-            }}
             disabled={itemDisabled}
             onPress={event => {
               if (itemDisabled || isSelected) {

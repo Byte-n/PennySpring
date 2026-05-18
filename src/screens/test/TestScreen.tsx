@@ -45,9 +45,6 @@ function TestTabButton({ active, label, onPress }: TestTabButtonProps) {
 
   return (
     <Pressable
-      accessibilityLabel={`${label} preview tab`}
-      accessibilityRole="tab"
-      accessibilityState={{ selected: active }}
       onPress={onPress}
       style={({ pressed }) => [
         styles.tabButton,
@@ -76,7 +73,7 @@ export function TestScreen() {
 
   return (
     <View style={styles.container}>
-      <View accessibilityRole="tablist" style={styles.tabRow}>
+      <View style={styles.tabRow}>
         <TestTabButton
           active={activeTab === 'theme'}
           label="Theme"

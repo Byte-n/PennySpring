@@ -1,5 +1,5 @@
 import React from 'react';
-import { Pressable, Text as RNText, View } from 'react-native';
+import { Text as RNText, View } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
 import { Card } from '../src/Card';
 function renderCard(props: Partial<React.ComponentProps<typeof Card>> = {}) {
@@ -25,16 +25,20 @@ function findViewNodesWithStyle(testRenderer: renderer.ReactTestRenderer, marker
   });
 }
 function getRootStyle(testRenderer: renderer.ReactTestRenderer, pressed = false) {
-  const root = testRenderer.root.findAllByType(Pressable)[0] ?? testRenderer.root.findAllByType(View)[0];
+  const root = testRenderer.root.findAll(node =>
+    typeof node.props.style === 'function' && node.children.length > 0
+  )[0] ?? testRenderer.root.findAllByType(View)[0];
   const style = typeof root.props.style === 'function' ? root.props.style({
     pressed
   }) : root.props.style;
   return flattenStyle(style);
 }
 function getPressableRoot(testRenderer: renderer.ReactTestRenderer) {
-  return testRenderer.root.find(node => {
-    return node.props.accessibilityRole === 'button' && node.props.onPress;
-  });
+  return testRenderer.root.findAll(node => {
+    return typeof node.props.onPress === 'function' &&
+      typeof node.props.style === 'function' &&
+      node.children.length > 0;
+  })[0];
 }
 describe('Card', () => {
   it('renders header body and footer content in order', () => {

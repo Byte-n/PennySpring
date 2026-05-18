@@ -19,8 +19,8 @@ function renderCalendarRange(props: React.ComponentProps<typeof Calendar.Range>)
 function textOf(testRenderer: renderer.ReactTestRenderer) {
   return JSON.stringify(testRenderer.toJSON());
 }
-function pressByLabel(testRenderer: renderer.ReactTestRenderer, label: string) {
-  const node = testRenderer.root.find(item => item.props.accessibilityLabel === label);
+function pressByTestID(testRenderer: renderer.ReactTestRenderer, testID: string) {
+  const node = testRenderer.root.findByProps({ testID });
   act(() => {
     node.props.onPress({});
   });
@@ -42,7 +42,7 @@ describe('Calendar', () => {
       }],
       onChange
     });
-    pressByLabel(testRenderer, 'Select 2026-05-07');
+    pressByTestID(testRenderer, 'calendar-cell-2026-05-07');
     expect(onChange).toHaveBeenCalledWith('2026-05-07');
     expect(textOf(testRenderer)).toContain('2026-05-07');
     expect(textOf(testRenderer)).toContain('dot');
@@ -54,22 +54,22 @@ describe('Calendar', () => {
       onChange,
       value: '2026-05'
     });
-    pressByLabel(testRenderer, 'Select 2026-06');
+    pressByTestID(testRenderer, 'calendar-cell-2026-06');
     expect(onChange).toHaveBeenCalledWith('2026-06');
     expect(textOf(testRenderer)).toContain('2026-05');
   });
-  it('blocks disabled dates and exposes disabled state', () => {
+  it('blocks disabled dates', () => {
     const onChange = jest.fn();
     const testRenderer = renderCalendar({
       defaultValue: '2026-05-01',
       disabledDate: value => value === '2026-05-07',
       onChange
     });
-    const disabledCell = testRenderer.root.find(node => node.props.accessibilityLabel === 'Select 2026-05-07');
+    const disabledCell = testRenderer.root.findByProps({ testID: 'calendar-cell-2026-05-07' });
     act(() => {
       disabledCell.props.onPress({});
     });
-    expect(disabledCell.props.accessibilityState.disabled).toBe(true);
+    expect(disabledCell.props.disabled).toBe(true);
     expect(onChange).not.toHaveBeenCalled();
   });
   it('delays single value submission in confirm mode', () => {
@@ -81,9 +81,9 @@ describe('Calendar', () => {
       onOk,
       showConfirm: true
     });
-    pressByLabel(testRenderer, 'Select 2026-05-07');
+    pressByTestID(testRenderer, 'calendar-cell-2026-05-07');
     expect(onChange).not.toHaveBeenCalled();
-    pressByLabel(testRenderer, 'Confirm date');
+    pressByTestID(testRenderer, 'calendar-confirm');
     expect(onChange).toHaveBeenCalledWith('2026-05-07');
     expect(onOk).toHaveBeenCalledWith('2026-05-07');
   });
@@ -108,19 +108,18 @@ describe('Calendar', () => {
       onChange,
       value: ['2026-05', '2026-05']
     });
-    pressByLabel(testRenderer, 'Select range 2026-08');
+    pressByTestID(testRenderer, 'calendar-cell-2026-08');
     expect(onChange).not.toHaveBeenCalled();
-    pressByLabel(testRenderer, 'Select range 2026-06');
+    pressByTestID(testRenderer, 'calendar-cell-2026-06');
     expect(onChange).toHaveBeenCalledWith(['2026-06', '2026-08']);
   });
-  it('exposes cell button and selected state', () => {
+  it('exposes cell as pressable and navigation buttons', () => {
     const testRenderer = renderCalendar({
       value: '2026-05-07'
     });
-    const selectedCell = testRenderer.root.find(node => node.props.accessibilityLabel === 'Select 2026-05-07');
-    const navigationButton = testRenderer.root.find(node => node.props.accessibilityLabel === 'Previous panel');
-    expect(selectedCell.props.accessibilityRole).toBe('button');
-    expect(selectedCell.props.accessibilityState.selected).toBe(true);
-    expect(navigationButton.props.accessibilityRole).toBe('button');
+    const selectedCell = testRenderer.root.findByProps({ testID: 'calendar-cell-2026-05-07' });
+    const navigationButton = testRenderer.root.findByProps({ testID: 'calendar-nav-prev' });
+    expect(selectedCell.props.onPress).toBeDefined();
+    expect(navigationButton.props.onPress).toBeDefined();
   });
 });

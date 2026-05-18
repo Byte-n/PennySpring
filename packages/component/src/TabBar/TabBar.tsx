@@ -214,7 +214,7 @@ export function TabBar({
   );
 
   return (
-    <View accessibilityRole="tablist" testID="tab-bar-root" style={[tokenStyles.root, style]}>
+    <View testID="tab-bar-root" style={[tokenStyles.root, style]}>
       <View style={[tokenStyles.tabList, styles?.tabList]}>
         {normalizedItems.map(item => {
           const itemDisabled = disabled || item.disabled === true;
@@ -229,11 +229,6 @@ export function TabBar({
               {...rest}
               key={String(item.key)}
               testID={`tab-bar-item-${String(item.key)}`}
-              accessibilityRole="tab"
-              accessibilityState={{
-                selected: isSelected,
-                disabled: itemDisabled,
-              }}
               disabled={itemDisabled}
               hitSlop={TAB_ITEM_HIT_SLOP}
               onPress={event => {

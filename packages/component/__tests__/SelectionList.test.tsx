@@ -43,10 +43,10 @@ describe('SelectionList', () => {
     });
 
     act(() => {
-      testRenderer.root
-        .findByProps({ testID: 'selection-list-root' })
-        .findByProps({ accessibilityRole: 'button' })
-        .props.onPress();
+      const root = testRenderer.root.findByProps({ testID: 'selection-list-root' });
+      root.findAll(node =>
+        typeof node.props.onPress === 'function' && typeof node.props.style === 'function'
+      )[0].props.onPress();
     });
 
     expect(onOpenChange).toHaveBeenCalledWith(true);
@@ -65,10 +65,13 @@ describe('SelectionList', () => {
       value: 'cash',
     });
 
+    // Find option Pressables inside the popup (second option is 'card')
+    const popup = testRenderer.root.findByProps({ testID: 'selection-list-popup' });
+    const optionButtons = popup.findAll(node =>
+      typeof node.props.onPress === 'function' && typeof node.props.style === 'function'
+    );
     act(() => {
-      testRenderer.root
-        .findByProps({ accessibilityLabel: 'Card node' })
-        .props.onPress();
+      optionButtons[1].props.onPress();
     });
 
     expect(onChange).toHaveBeenCalledWith('card');

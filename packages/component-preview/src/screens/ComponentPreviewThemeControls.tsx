@@ -53,7 +53,7 @@ export function ComponentPreviewThemeControls({
   algorithm,
   onNextPreset,
   onToggleAlgorithm,
-  preset,
+  _preset,
 }: ComponentPreviewThemeControlsProps) {
   const styles = useStyles();
   const { token } = useTheme();
@@ -63,8 +63,6 @@ export function ComponentPreviewThemeControls({
   return (
     <View style={styles.root}>
       <Pressable
-        accessibilityLabel={isDark ? '切换到浅色主题' : '切换到深色主题'}
-        accessibilityRole="button"
         onPress={onToggleAlgorithm}
         style={({ pressed }) => [
           styles.button,
@@ -74,8 +72,6 @@ export function ComponentPreviewThemeControls({
         <ModeIcon color={token.colorIconHover} size={token.fontSizeLG} />
       </Pressable>
       <Pressable
-        accessibilityLabel={`切换主题预设，当前为 ${preset.label}`}
-        accessibilityRole="button"
         onPress={onNextPreset}
         style={({ pressed }) => [
           styles.button,

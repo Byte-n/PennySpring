@@ -8,7 +8,6 @@ import type {
   AliasToken } from '@pennyspring/theme';
 import type {
   GestureResponderEvent,
-  PressableProps,
   StyleProp,
   TextStyle,
   ViewStyle,
@@ -371,8 +370,6 @@ function renderContent(
 }
 
 export function Button({
-  accessibilityRole,
-  accessibilityState,
   block = false,
   children,
   color,
@@ -424,8 +421,6 @@ export function Button({
   const resolvedIconColor = disabled ? token.colorTextDisabled : variantStyle.color;
   const iconNode = shouldRenderIcon ? (
     <View
-      accessibilityElementsHidden
-      importantForAccessibility="no-hide-descendants"
       style={[
         tokenStyles.icon,
         styles?.icon,
@@ -481,17 +476,10 @@ export function Button({
   const orderedChildren = iconPlacement === 'end'
     ? [contentNode, iconNode]
     : [iconNode, contentNode];
-  const mergedAccessibilityState: PressableProps['accessibilityState'] = {
-    ...accessibilityState,
-    disabled: disabled || accessibilityState?.disabled,
-    busy: isLoading || accessibilityState?.busy,
-  };
 
   return (
     <Pressable
       {...rest}
-      accessibilityRole={accessibilityRole ?? 'button'}
-      accessibilityState={mergedAccessibilityState}
       disabled={!isInteractive}
       onPress={handlePress}
       style={({ pressed }) => [

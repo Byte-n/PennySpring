@@ -47,7 +47,6 @@ export function ButtonPreview() {
             Round
           </Button>
           <Button
-            accessibilityLabel="Add"
             icon={PlusIcon}
             shape="circle"
           />
