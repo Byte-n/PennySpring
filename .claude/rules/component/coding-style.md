@@ -21,6 +21,7 @@ paths:
 - 非组件目录：`packages/component/src/_{name}`。
 - 公共 props 与导出的样式类型放在组件目录的 `types.ts`。
 - 组件由目录内 `index.ts` 导出，并同步从包级 `packages/component/src/index.ts` 导出。
+- 新增共享组件，或对现有组件进行重大功能调整时，必须同步新增或修改 `.claude/skills/component-composer/references/component-catalog.md` 中对应条目，确保组件选型目录与实际能力一致。
 
 ## 公共 API
 

@@ -1,0 +1,4 @@
+interface:
+  display_name: "组件组合器"
+  short_description: "将 UI 需求匹配到 PennySpring 组件"
+  default_prompt: "使用 $component-composer，通过 @pennyspring/component 构建块实现这个界面。"
