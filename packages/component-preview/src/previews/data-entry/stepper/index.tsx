@@ -35,11 +35,17 @@ export function StepperPreview() {
       </PreviewSection>
 
       <PreviewSection title="Range and state">
-        <PreviewRow>
-          <Stepper defaultValue={5} min={0} max={10} step={2} />
-          <Stepper defaultValue={1} min={0} max={3} disabled />
-          <Stepper defaultValue={1} min={0} max={3} readonly />
-        </PreviewRow>
+        <View style={styles.stack}>
+          <PreviewRow>
+            <Stepper defaultValue={0} min={0} max={10} />
+            <Stepper defaultValue={10} min={0} max={10} />
+            <Stepper defaultValue={4} min={0} max={10} step={2} />
+          </PreviewRow>
+          <PreviewRow>
+            <Stepper defaultValue={1} min={0} max={3} disabled />
+            <Stepper defaultValue={1} min={0} max={3} readonly />
+          </PreviewRow>
+        </View>
       </PreviewSection>
     </PreviewScaffold>
   );

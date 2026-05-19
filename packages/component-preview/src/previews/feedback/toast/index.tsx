@@ -1,48 +1,19 @@
 import React from 'react';
 import { View } from 'react-native';
-import {
-  Button,
-  Checkbox,
-  Text,
-  Toast,
-  useToast,
-} from '@pennyspring/component';
+import { Button, Text, Toast, useToast } from '@pennyspring/component';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import {
   PreviewRow,
   PreviewScaffold,
   PreviewSection,
 } from '../../PreviewScaffold';
-import type {
-  CheckboxGroupOption,
-  CheckboxValue,
-  ToastPlacement,
-} from '@pennyspring/component';
+import type { ToastPlacement } from '@pennyspring/component';
 
-const TOAST_PLACEMENTS: readonly ToastPlacement[] = ['top', 'center', 'bottom'];
-const TOAST_PLACEMENT_OPTIONS: CheckboxGroupOption[] = TOAST_PLACEMENTS.map(
-  placement => ({
-    label: placement,
-    value: placement,
-  }),
-);
-
-type ActiveToastKeys = Record<ToastPlacement, number | null>;
-
-function createActiveToastKeys(): ActiveToastKeys {
-  return {
-    top: null,
-    center: null,
-    bottom: null,
-  };
-}
-
-function isToastPlacement(value: CheckboxValue): value is ToastPlacement {
-  return TOAST_PLACEMENTS.includes(value as ToastPlacement);
-}
+const MOUNT_PANEL_MIN_HEIGHT_FACTOR = 3;
 
 const useStyles = createUseSheetStyle(token => ({
-  infoPanel: {
+  mountPanel: {
+    minHeight: token.controlHeightLG * MOUNT_PANEL_MIN_HEIGHT_FACTOR,
     borderWidth: token.lineWidth,
     borderColor: token.colorBorderSecondary,
     borderRadius: token.borderRadius,
@@ -50,153 +21,112 @@ const useStyles = createUseSheetStyle(token => ({
     padding: token.paddingSM,
     gap: token.marginXXS,
   },
-  panel: {
-    borderWidth: token.lineWidth,
-    borderColor: token.colorBorderSecondary,
-    borderRadius: token.borderRadius,
-    backgroundColor: token.colorBgContainer,
-    padding: token.paddingSM,
-    gap: token.marginXS,
-  },
-  localPanel: {
-    minHeight: token.controlHeightLG * 3,
-  },
 }));
 
 export function ToastPreview() {
   const styles = useStyles();
   const toast = useToast();
-  const [isLocalMountVisible, setIsLocalMountVisible] = React.useState(true);
-  const [activeKeys, setActiveKeys] = React.useState<ActiveToastKeys>(
-    createActiveToastKeys,
-  );
-
-  const closePlacement = (placement: ToastPlacement): void => {
-    const activeKey = activeKeys[placement];
-
-    if (activeKey === null) {
-      return;
-    }
-
-    toast.hide(activeKey);
-    setActiveKeys(prevActiveKeys => ({
-      ...prevActiveKeys,
-      [placement]: null,
-    }));
-  };
-
-  const openPlacement = (placement: ToastPlacement): void => {
-    let nextKey = 0;
-
-    const key = toast.show({
-      messageText: `Toast from useToast (${placement})`,
-      placement,
-      onCancel: () => {
-        setActiveKeys(prevActiveKeys => {
-          if (prevActiveKeys[placement] !== nextKey) {
-            return prevActiveKeys;
-          }
-
-          return {
-            ...prevActiveKeys,
-            [placement]: null,
-          };
-        });
-      },
-    });
-
-    nextKey = key;
-    setActiveKeys(prevActiveKeys => ({
-      ...prevActiveKeys,
-      [placement]: key,
-    }));
-  };
-
-  const togglePlacement = (placement: ToastPlacement): void => {
-    if (activeKeys[placement] !== null) {
-      closePlacement(placement);
-      return;
-    }
-
-    openPlacement(placement);
-  };
-
-  const selectedPlacements = TOAST_PLACEMENTS.filter(
-    placement => activeKeys[placement] !== null,
-  );
-
-  const changePlacements = (values: CheckboxValue[]): void => {
-    const nextPlacements = values.filter(isToastPlacement);
-
-    TOAST_PLACEMENTS.forEach(placement => {
-      const shouldOpen = nextPlacements.includes(placement);
-      const isOpen = activeKeys[placement] !== null;
-
-      if (shouldOpen === isOpen) {
-        return;
-      }
-
-      togglePlacement(placement);
-    });
-  };
+  const [open, setOpen] = React.useState(false);
+  const [placement, setPlacement] = React.useState<ToastPlacement>('center');
+  const [lastEvent, setLastEvent] = React.useState('No event yet');
 
   return (
     <PreviewScaffold>
-      <PreviewSection title="文字说明">
-        <View style={styles.infoPanel}>
-          <Text color="heading" weight="medium">
-            useToast
-          </Text>
-          <Text color="secondary" size="sm">
-            useToast 提供 show、hide、clear 三个方法，用于命令式管理 Toast。
-          </Text>
-          <Text color="secondary" size="sm">
-            当前页面中的 Placement checkboxes 使用 useToast.show/hide 控制不同位置的提示。
-          </Text>
-          <Text color="secondary" size="sm">
-            Toast 依赖 PortalProvider；在组件预览应用中由 App 自动注入，无需手动包裹。
-          </Text>
-        </View>
-      </PreviewSection>
-      <PreviewSection title="Placement checkboxes">
-        <View style={styles.panel}>
-          <PreviewRow>
-            <Checkbox.Group
-              displayType="button"
-              options={TOAST_PLACEMENT_OPTIONS}
-              value={selectedPlacements}
-              onChange={changePlacements}
-            />
-            <Button
-              onPress={() => {
-                toast.clear();
-                setActiveKeys(createActiveToastKeys());
-              }}
-            >
-              clear
-            </Button>
-          </PreviewRow>
-        </View>
-      </PreviewSection>
-      <PreviewSection title="Declarative local mount">
+      <PreviewSection title="Controller placement, duration and size">
         <PreviewRow>
-          <Checkbox
-            displayType="button"
-            value={isLocalMountVisible}
-            onChange={setIsLocalMountVisible}
+          <Button
+            onPress={() => {
+              toast.show({
+                messageText: 'Top small toast (duration 1200ms)',
+                placement: 'top',
+                size: 'small',
+                duration: 1200,
+              });
+            }}
           >
-            {isLocalMountVisible ? 'Hide local mount' : 'Show local mount'}
-          </Checkbox>
+            Top / small
+          </Button>
+          <Button
+            onPress={() => {
+              toast.show({
+                messageText: 'Bottom large toast (duration 2800ms)',
+                placement: 'bottom',
+                size: 'large',
+                duration: 2800,
+              });
+            }}
+          >
+            Bottom / large
+          </Button>
+          <Button
+            onPress={() => {
+              toast.clear();
+              setLastEvent('Cleared all toast instances');
+            }}
+          >
+            Clear
+          </Button>
         </PreviewRow>
-        <View style={[styles.panel, styles.localPanel]}>
+      </PreviewSection>
+
+      <PreviewSection title="Declarative mountPoint and afterOpenChange">
+        <PreviewRow>
+          <Button
+            onPress={() => {
+              setPlacement('top');
+            }}
+            type={placement === 'top' ? 'primary' : 'default'}
+          >
+            Top
+          </Button>
+          <Button
+            onPress={() => {
+              setPlacement('center');
+            }}
+            type={placement === 'center' ? 'primary' : 'default'}
+          >
+            Center
+          </Button>
+          <Button
+            onPress={() => {
+              setPlacement('bottom');
+            }}
+            type={placement === 'bottom' ? 'primary' : 'default'}
+          >
+            Bottom
+          </Button>
+          <Button
+            type={open ? 'primary' : 'default'}
+            onPress={() => {
+              setOpen(current => !current);
+            }}
+          >
+            {open ? 'Hide local toast' : 'Show local toast'}
+          </Button>
+        </PreviewRow>
+        <View style={styles.mountPanel}>
+          <Text color="secondary" size="sm">
+            mountPoint: local
+          </Text>
           <Toast
+            open={open}
             duration={0}
-            messageText="Toast mounted inside this section"
+            placement={placement}
+            size="normal"
             mountPoint="local"
-            open={isLocalMountVisible}
-            placement="center"
+            messageText="Local mount toast"
+            onOpenChange={nextOpen => {
+              setOpen(nextOpen);
+              setLastEvent(`onOpenChange: ${String(nextOpen)}`);
+            }}
+            afterOpenChange={nextOpen => {
+              setLastEvent(`afterOpenChange: ${String(nextOpen)}`);
+            }}
           />
         </View>
+        <Text color="description" size="sm">
+          {lastEvent}
+        </Text>
       </PreviewSection>
     </PreviewScaffold>
   );

@@ -33,6 +33,21 @@ export function TimePickerPreview() {
             placeholder="Select second"
             titleText="Second"
           />
+          <TimePicker
+            precision="minute"
+            minuteStep={20}
+            defaultValue={BASE_TIME}
+            formatLabel={(value, params) => (params.type === 'minute' ? `${String(value).padStart(2, '0')}m` : String(value))}
+            placeholder="Custom format label"
+            titleText="Format label"
+          />
+          <TimePicker
+            precision="hour"
+            defaultValue={BASE_TIME}
+            renderLabel={({ type, value }) => `${type}: ${value}`}
+            placeholder="Custom render label"
+            titleText="Render label"
+          />
         </PreviewStack>
       </PreviewSection>
 
@@ -68,6 +83,19 @@ export function TimePickerPreview() {
             defaultValue={BASE_TIME}
             placeholder="Not selectable"
             titleText="Disabled"
+          />
+          <TimePicker
+            loading
+            loadingIndicatorText="Loading time ranges"
+            emptyText="No available time"
+            placeholder="Loading state"
+            titleText="Loading and empty"
+          />
+          <TimePicker
+            okDisabled
+            defaultValue={BASE_TIME}
+            placeholder="Cannot confirm"
+            titleText="Ok disabled"
           />
         </PreviewStack>
       </PreviewSection>

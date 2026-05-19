@@ -53,6 +53,9 @@ export function CheckboxPreview() {
 
       <PreviewSection title="Button type and state">
         <View style={styles.stack}>
+          <Checkbox displayType="button" defaultValue>
+            Button
+          </Checkbox>
           <Checkbox.Group
             block
             displayType="button"
@@ -65,6 +68,16 @@ export function CheckboxPreview() {
           <Checkbox readonly defaultValue>
             Readonly
           </Checkbox>
+          <Checkbox.Group
+            readonly
+            defaultValue={['daily']}
+            options={CHECKBOX_OPTIONS}
+          />
+          <Checkbox.Group
+            disabled
+            defaultValue={['weekly']}
+            options={CHECKBOX_OPTIONS}
+          />
         </View>
       </PreviewSection>
     </PreviewScaffold>

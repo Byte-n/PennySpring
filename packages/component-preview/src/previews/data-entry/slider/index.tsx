@@ -29,7 +29,9 @@ export function SliderPreview() {
 
       <PreviewSection title="Range and state">
         <View style={styles.stack}>
-          <Slider defaultValue={30} min={0} max={1} step={0.1} />
+          <Slider defaultValue={30} min={20} max={80} />
+          <Slider defaultValue={0.4} min={0} max={1} step={0.2} />
+          <Slider defaultValue={100} min={0} max={100} step={25} />
           <Slider disabled defaultValue={60} />
           <Slider readonly defaultValue={45} />
         </View>

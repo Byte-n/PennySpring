@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Icon, Picker, Text } from '@pennyspring/component';
+import { Column, Icon, Picker, Text } from '@pennyspring/component';
 import { PreviewScaffold, PreviewSection } from '../../PreviewScaffold';
 import {
   InlineValue,
@@ -76,6 +76,8 @@ export function PickerPreview() {
     React.useState('May / Food');
 
   const [account1, setAccount1] = useState<string[]>();
+  const [clearCount, setClearCount] = useState(0);
+
   return (
     <PreviewScaffold>
       <PreviewSection title="Basic">
@@ -123,6 +125,65 @@ export function PickerPreview() {
               meta="Uses the picker trigger slot"
             />
           </Picker>
+        </PreviewStack>
+      </PreviewSection>
+
+      <PreviewSection title="Popup props">
+        <PreviewStack>
+          <Picker
+            allowClear
+            columns={[ACCOUNT_COLUMN]}
+            label="allowClear / onClear"
+            placeholder="Select and clear"
+            popupProps={{ titleText: 'Clearable picker' }}
+            onClear={() => {
+              setClearCount(prev => prev + 1);
+            }}
+          />
+          <InlineValue label="onClear count" value={String(clearCount)} />
+          <Picker
+            columns={[ACCOUNT_COLUMN]}
+            label="renderLabel"
+            placeholder="Custom label"
+            popupProps={{
+              titleText: 'Custom label',
+              renderLabel: item => `${item.labelText ?? item.value} (${String(item.value)})`,
+            }}
+          />
+          <Picker
+            columns={[CATEGORY_COLUMN]}
+            label="renderHeader"
+            placeholder="Custom header"
+            popupProps={{
+              titleText: 'Header',
+              okText: 'Apply',
+              renderHeader: ({ draftValue, header }) => (
+                <Column>
+                  {header}
+                  <Text color="description" size="sm">
+                    Draft: {joinLabels(draftValue.map(value => String(value)))}
+                  </Text>
+                </Column>
+              ),
+            }}
+          />
+          <Picker
+            columns={[EMPTY_COLUMN]}
+            label="loading and empty"
+            placeholder="Loading state"
+            popupProps={{
+              loading: true,
+              loadingIndicatorText: 'Loading options',
+              emptyText: 'No options',
+              titleText: 'Loading and empty',
+            }}
+          />
+          <Picker
+            columns={[ACCOUNT_COLUMN]}
+            label="okDisabled"
+            placeholder="Cannot confirm"
+            popupProps={{ okDisabled: true, titleText: 'Confirm disabled' }}
+          />
         </PreviewStack>
       </PreviewSection>
 

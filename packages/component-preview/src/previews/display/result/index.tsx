@@ -1,6 +1,6 @@
 import React from 'react';
 import { View } from 'react-native';
-import { Button, Result } from '@pennyspring/component';
+import { Button, Icon, Result } from '@pennyspring/component';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import { PreviewScaffold, PreviewSection } from '../../PreviewScaffold';
 
@@ -64,6 +64,14 @@ export function ResultPreview() {
               titleText="Done"
               subtitleText="Operation completed successfully."
               extra={<Button size="small">Back Home</Button>}
+            />
+          </View>
+          <View style={styles.panel}>
+            <Result
+              status="info"
+              icon={<Icon icon="settings" size="large" color="colorInfo" />}
+              titleText="Custom icon"
+              subtitleText="Custom icon node overrides status icon."
             />
           </View>
         </View>

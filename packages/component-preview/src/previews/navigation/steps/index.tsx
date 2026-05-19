@@ -1,8 +1,10 @@
 import React from 'react';
-import { Steps } from '@pennyspring/component';
+import { Text, Steps } from '@pennyspring/component';
+import { createUseSheetStyle } from '@pennyspring/theme';
 import { PreviewScaffold, PreviewSection } from '../../PreviewScaffold';
+import type { StepsItem } from '@pennyspring/component';
 
-const STEP_ITEMS = [
+const STEP_ITEMS: StepsItem[] = [
   {
     key: 'create',
     titleText: 'Create plan',
@@ -18,20 +20,38 @@ const STEP_ITEMS = [
     titleText: 'Confirm',
     descriptionText: 'Submit and notify team',
   },
-] as const;
+];
+
+const useStyles = createUseSheetStyle(token => ({
+  status: {
+    paddingVertical: token.paddingXXS,
+  },
+}));
 
 export function StepsPreview() {
+  const styles = useStyles();
   const [value, setValue] = React.useState(1);
+  const [lastPress, setLastPress] = React.useState('No step pressed');
 
   return (
     <PreviewScaffold>
       <PreviewSection title="Controlled">
-        <Steps items={[...STEP_ITEMS]} value={value} onChange={setValue} />
+        <Steps
+          items={STEP_ITEMS}
+          value={value}
+          onChange={setValue}
+          onPress={(_event, stepIndex, item) => {
+            setLastPress(`Pressed ${stepIndex + 1}: ${item.titleText ?? 'step'}`);
+          }}
+        />
+        <Text color="description" size="sm" style={styles.status}>
+          {lastPress}
+        </Text>
       </PreviewSection>
 
       <PreviewSection title="Size and status">
-        <Steps items={[...STEP_ITEMS]} defaultValue={0} size="small" />
-        <Steps items={[...STEP_ITEMS]} defaultValue={1} size="normal" status="process" />
+        <Steps items={STEP_ITEMS} defaultValue={0} size="small" status="wait" />
+        <Steps items={STEP_ITEMS} defaultValue={1} size="normal" status="process" />
         <Steps
           items={[
             STEP_ITEMS[0],
@@ -53,6 +73,7 @@ export function StepsPreview() {
             STEP_ITEMS[2],
           ]}
         />
+        <Steps items={STEP_ITEMS} defaultValue={0} disabled />
       </PreviewSection>
     </PreviewScaffold>
   );

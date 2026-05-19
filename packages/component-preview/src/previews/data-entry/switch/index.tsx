@@ -35,8 +35,9 @@ export function SwitchPreview() {
             <Switch size="large" defaultValue />
           </PreviewRow>
           <PreviewRow>
-            <Switch disabled defaultValue />
-            <Switch readonly defaultValue />
+            <Switch size="small" disabled defaultValue />
+            <Switch size="normal" readonly defaultValue />
+            <Switch size="large" disabled />
           </PreviewRow>
         </View>
       </PreviewSection>

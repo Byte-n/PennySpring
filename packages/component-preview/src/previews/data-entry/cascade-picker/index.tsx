@@ -56,6 +56,35 @@ const EMPTY_TABS: Array<CascadePickerTab<unknown, ExpenseTabKey>> = [
   },
 ];
 
+const DISABLED_TABS: Array<CascadePickerTab<unknown, ExpenseTabKey>> = [
+  {
+    tabKey: 'daily',
+    labelText: 'Daily',
+    options: [
+      {
+        labelText: 'Food',
+        value: 'food',
+        children: [
+          { labelText: 'Breakfast', value: 'breakfast', disabled: true },
+          { labelText: 'Dinner', value: 'dinner' },
+        ],
+      },
+    ],
+  },
+  {
+    tabKey: 'fixed',
+    labelText: 'Fixed',
+    disabled: true,
+    options: [
+      {
+        labelText: 'Home',
+        value: 'home',
+        children: [{ labelText: 'Rent', value: 'rent' }],
+      },
+    ],
+  },
+];
+
 export function CascadePickerPreview() {
   const [controlledValue, setControlledValue] = React.useState<CascadePickerValue<ExpenseTabKey>>({
     daily: ['traffic', 'metro'],
@@ -113,19 +142,32 @@ export function CascadePickerPreview() {
             titleText="Disabled"
           />
           <CascadePicker
-            tabs={EXPENSE_TABS}
-            defaultValue={{
-              daily: ['traffic', 'metro'],
-              fixed: ['home', 'rent'],
-            }}
-            placeholder="Default open"
-            titleText="Default open"
+            tabs={DISABLED_TABS}
+            defaultValue={{ daily: ['food', 'dinner'], fixed: ['home', 'rent'] }}
+            placeholder="Disabled tab and option"
+            titleText="Disabled options"
           />
           <CascadePicker
             emptyText="No category"
             tabs={EMPTY_TABS}
             placeholder="No category"
             titleText="Empty"
+          />
+          <CascadePicker
+            tabs={EXPENSE_TABS}
+            loading
+            loadingIndicatorText="Loading categories"
+            placeholder="Loading state"
+            titleText="Loading"
+          />
+          <CascadePicker
+            tabs={EXPENSE_TABS}
+            placeholder="Custom texts and renderLabel"
+            titleText="Custom header"
+            cancelText="Dismiss"
+            okText="Confirm"
+            okDisabled
+            renderLabel={item => item.labelText ? `${item.labelText} - ${String(item.value)}` : String(item.value)}
           />
         </PreviewStack>
       </PreviewSection>

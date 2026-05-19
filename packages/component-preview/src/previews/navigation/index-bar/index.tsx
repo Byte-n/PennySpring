@@ -3,6 +3,7 @@ import { View } from 'react-native';
 import { IndexBar, List, Text } from '@pennyspring/component';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import { PreviewScaffold, PreviewSection } from '../../PreviewScaffold';
+import type { IndexBarValue } from '@pennyspring/component';
 
 const useStyles = createUseSheetStyle(token => ({
   panelBody: {
@@ -39,12 +40,13 @@ function PanelList({ prefix }: { prefix: string }) {
 
 export function IndexBarPreview() {
   const styles = useStyles();
+  const [value, setValue] = React.useState<IndexBarValue>('B');
 
   return (
     <PreviewScaffold>
-      <PreviewSection title="Panels and sidebar">
+      <PreviewSection title="Controlled and panel disabled">
         <View style={styles.panelBody}>
-          <IndexBar defaultValue="B">
+          <IndexBar value={value} onChange={setValue}>
             <IndexBar.Panel index="A" titleText="A · Accounts">
               <PanelList prefix="A" />
             </IndexBar.Panel>
@@ -55,6 +57,32 @@ export function IndexBarPreview() {
               <View style={styles.panelPadding}>
                 <Text color="description">This panel is disabled.</Text>
               </View>
+            </IndexBar.Panel>
+          </IndexBar>
+        </View>
+        <Text color="description" size="sm">
+          Current index: {String(value)}
+        </Text>
+      </PreviewSection>
+
+      <PreviewSection title="Size and disabled">
+        <View style={styles.panelBody}>
+          <IndexBar defaultValue="A" size="small">
+            <IndexBar.Panel index="A" titleText="A">
+              <PanelList prefix="A" />
+            </IndexBar.Panel>
+            <IndexBar.Panel index="B" titleText="B">
+              <PanelList prefix="B" />
+            </IndexBar.Panel>
+          </IndexBar>
+        </View>
+        <View style={styles.panelBody}>
+          <IndexBar defaultValue="A" disabled>
+            <IndexBar.Panel index="A" titleText="A">
+              <PanelList prefix="A" />
+            </IndexBar.Panel>
+            <IndexBar.Panel index="B" titleText="B">
+              <PanelList prefix="B" />
             </IndexBar.Panel>
           </IndexBar>
         </View>

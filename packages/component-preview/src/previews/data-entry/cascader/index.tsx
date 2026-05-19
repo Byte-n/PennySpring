@@ -82,6 +82,11 @@ function TriggerContent({ label, value }: TriggerContentProps) {
 
 export function CascaderPreview() {
   const styles = useStyles();
+  const [searchLikePath, setSearchLikePath] = React.useState<Array<string | number>>([
+    'daily',
+    'food',
+    'breakfast',
+  ]);
 
   return (
     <PreviewScaffold>
@@ -118,11 +123,31 @@ export function CascaderPreview() {
             closeOnSelectLeaf={false}
             placeholder="Select transport"
           >
-            <TriggerContent label="Default open" value="Daily / Traffic / Metro" />
+            <TriggerContent label="closeOnSelectLeaf=false" value="Daily / Traffic / Metro" />
           </Cascader>
           <Cascader options={EMPTY_OPTIONS} emptyText="No options" placeholder="Empty options">
             <TriggerContent label="Empty state" value="No options" />
           </Cascader>
+          <Cascader loading options={CASCADER_OPTIONS} placeholder="Loading options">
+            <TriggerContent label="Loading state" value="Loading..." />
+          </Cascader>
+          <Cascader
+            activeLevel={1}
+            options={CASCADER_OPTIONS}
+            value={searchLikePath}
+            placeholder="Active level = 1"
+            onChange={nextValue => {
+              setSearchLikePath(nextValue);
+            }}
+          >
+            <TriggerContent label="activeLevel" value="Start from second tab" />
+          </Cascader>
+          <Cascader
+            displayMode="tag"
+            options={CASCADER_OPTIONS}
+            defaultValue={['fixed', 'housing', 'utilities']}
+            placeholder="Tag mode"
+          />
         </View>
       </PreviewSection>
 

@@ -29,7 +29,7 @@ export function EmptyPreview() {
       <PreviewSection title="Basic">
         <View style={styles.stack}>
           <View style={styles.panel}>
-            <Empty message="No data" />
+            <Empty messageText="No data" />
           </View>
           <View style={styles.panel}>
             <Empty
@@ -51,15 +51,21 @@ export function EmptyPreview() {
       <PreviewSection title="Size">
         <View style={styles.stack}>
           <View style={styles.panel}>
-            <Empty size="small" message="Small" />
+            <Empty size="small" messageText="Small" />
           </View>
           <View style={styles.panel}>
-            <Empty size="normal" message="Normal" />
+            <Empty size="normal" messageText="Normal" />
           </View>
           <View style={styles.panel}>
             <Empty
               size="large"
               message={<Text size="h4" weight="strong">Large</Text>}
+            />
+          </View>
+          <View style={styles.panel}>
+            <Empty
+              icon={<Icon icon="notification" size="large" color="colorPrimary" />}
+              messageText="Custom icon with messageText"
             />
           </View>
         </View>

@@ -22,6 +22,7 @@ export function InputPreview() {
       <PreviewSection title="Basic">
         <View style={styles.stack}>
           <Input label="Normal" placeholder="Placeholder" defaultValue="PennySpring" />
+          <Input required label="Required" placeholder="Required field" />
           <Input
             clearable
             defaultValue="Search text"

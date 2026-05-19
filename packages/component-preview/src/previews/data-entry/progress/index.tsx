@@ -31,6 +31,12 @@ export function ProgressPreview() {
           <Progress.Circle percent={30} size="small" />
           <Progress.Circle percent={65} />
           <Progress.Circle percent={88} size="large" />
+          <Progress.Circle percent={100} status="success" />
+          <Progress.Circle
+            percent={42}
+            status="exception"
+            format={percent => `${Math.round(percent / 10)}/10`}
+          />
         </PreviewRow>
       </PreviewSection>
     </PreviewScaffold>

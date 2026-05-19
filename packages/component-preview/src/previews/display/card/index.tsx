@@ -17,13 +17,13 @@ export function CardPreview() {
     <PreviewScaffold>
       <PreviewSection title="Variants">
         <View style={styles.stack}>
-          <Card title="Plain card" extra={<Text color="description">Extra</Text>}>
+          <Card titleText="Plain card" extra={<Text color="description">Extra</Text>}>
             <Text color="secondary">Default container with header, body and extra content.</Text>
           </Card>
-          <Card variant="elevated" title="Elevated card" footer={<Text color="description">Footer</Text>}>
+          <Card variant="elevated" titleText="Elevated card" footer={<Text color="description">Footer</Text>}>
             <Text color="secondary">Elevated variant for higher layer content.</Text>
           </Card>
-          <Card variant="summary" title="Summary">
+          <Card variant="summary" titleText="Summary">
             <Text color="heading" size="h3" weight="strong">
               12,840.00
             </Text>
@@ -33,10 +33,13 @@ export function CardPreview() {
 
       <PreviewSection title="State">
         <View style={styles.stack}>
-          <Card onPress={() => undefined} title="Pressable">
+          <Card onPress={() => undefined} titleText="Pressable">
             <Text color="secondary">Tap feedback is owned by Card.</Text>
           </Card>
-          <Card loading loadingNode={<Text color="description">Loading...</Text>} title="Loading">
+          <Card disabled onPress={() => undefined} titleText="Disabled">
+            <Text color="secondary">Disabled state blocks interaction.</Text>
+          </Card>
+          <Card loading loadingNode={<Text color="description">Loading...</Text>} titleText="Loading">
             <Text>Hidden while loading.</Text>
           </Card>
         </View>

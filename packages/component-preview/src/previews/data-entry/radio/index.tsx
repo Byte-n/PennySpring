@@ -27,6 +27,9 @@ export function RadioPreview() {
         <View style={styles.stack}>
           <Radio defaultValue>Selected</Radio>
           <Radio>Unselected</Radio>
+          <Radio readonly defaultValue>
+            Readonly
+          </Radio>
           <Radio disabled defaultValue>
             Disabled
           </Radio>
@@ -53,10 +56,18 @@ export function RadioPreview() {
 
       <PreviewSection title="Button type and state">
         <View style={styles.stack}>
+          <Radio displayType="button" defaultValue>
+            Button
+          </Radio>
           <Radio.Group
             block
             displayType="button"
             defaultValue="week"
+            options={RADIO_OPTIONS}
+          />
+          <Radio.Group
+            readonly
+            defaultValue="day"
             options={RADIO_OPTIONS}
           />
           <Radio.Group

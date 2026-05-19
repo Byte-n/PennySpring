@@ -260,6 +260,19 @@ export function CarouselPreview() {
           </View>
 
           <View style={styles.demoBlock}>
+            <Text style={styles.blockTitle}>关闭橡皮筋</Text>
+            <Carousel<SlideItem>
+              data={DEMO_SLIDES}
+              renderItem={renderItem}
+              slideSize={80}
+              trackOffset={10}
+              stuckAtBoundary={false}
+              rubberband={false}
+              style={styles.carousel}
+            />
+          </View>
+
+          <View style={styles.demoBlock}>
             <Text style={styles.blockTitle}>居中展示</Text>
             <Carousel<SlideItem>
               data={DEMO_SLIDES}

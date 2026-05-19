@@ -33,6 +33,21 @@ export function DateTimePickerPreview() {
             placeholder="Select second precision"
             titleText="Second precision"
           />
+          <DateTimePicker
+            precision="minute"
+            defaultValue={BASE_DATE}
+            minuteStep={30}
+            formatLabel={(value, params) => (params.type === 'minute' ? `${String(value).padStart(2, '0')}m` : String(value))}
+            placeholder="Custom format label"
+            titleText="Format label"
+          />
+          <DateTimePicker
+            precision="day"
+            defaultValue={BASE_DATE}
+            renderLabel={({ type, value }) => `${type.slice(0, 1).toUpperCase()}${type.slice(1)}:${value}`}
+            placeholder="Custom render label"
+            titleText="Render label"
+          />
         </PreviewStack>
       </PreviewSection>
 
@@ -67,6 +82,19 @@ export function DateTimePickerPreview() {
             defaultValue={BASE_DATE}
             placeholder="Not selectable"
             titleText="Disabled"
+          />
+          <DateTimePicker
+            loading
+            loadingIndicatorText="Loading available dates"
+            emptyText="No available date"
+            placeholder="Loading state"
+            titleText="Loading and empty"
+          />
+          <DateTimePicker
+            okDisabled
+            defaultValue={BASE_DATE}
+            placeholder="Cannot confirm"
+            titleText="Ok disabled"
           />
         </PreviewStack>
       </PreviewSection>
