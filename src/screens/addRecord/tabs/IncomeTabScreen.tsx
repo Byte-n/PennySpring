@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ScrollView } from 'react-native';
-import { Column } from '@pennyspring/component';
+import { Column } from '@pennyspring/ui';
 import { RECORD_TYPE_CATEGORY } from '@pennyspring/data';
 import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
 import { AmountDisplay } from '../components/AmountDisplay';

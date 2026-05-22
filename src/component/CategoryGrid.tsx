@@ -8,12 +8,12 @@ import {
   ListCollapse,
   type GridProps,
   type IconComponent,
-} from '@pennyspring/component';
+} from '@pennyspring/ui';
 import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
 import { chunk, isNil } from 'es-toolkit';
 import { TypeRow } from '@pennyspring/data';
 import { ICON_MAP } from '../constants/typeIconTree.ts';
-import { useControllableValue } from '../../packages/component/src/_hooks';
+import { useControllableValue } from '../../packages/pennyspring-ui/src/_hooks';
 
 export interface CategoryItem extends Omit<TypeRow, 'icon'> {
   icon: TypeRow['icon'] | IconComponent;

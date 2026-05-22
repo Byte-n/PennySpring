@@ -2,7 +2,7 @@
 
 - [ ] 快捷记录（每天固定的的支付，点击直接创建）
 - [ ] AI 记
-- [ ] 所有的第三方组件均需要在 [component](packages/component) 子包中包裹处理。
+- [ ] 所有的第三方组件均需要在 [component](packages/pennyspring-ui) 子包中包裹处理。
 - [ ] 借款处理：
     - 方案1
         - [ ] 将借入、借出记录标记为坏账，即不用再汇总的时候计算了，额外有一个 subTitle 展示坏帐金额

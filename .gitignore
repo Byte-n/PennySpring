@@ -68,6 +68,8 @@ yarn-error.log*
 
 # Bundle artifact
 *.jsbundle
+**/.docusaurus/
+**/docs-dist/
 
 # Ruby / CocoaPods
 **/Pods/

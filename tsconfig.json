@@ -3,9 +3,11 @@
   "compilerOptions": {
     "types": ["jest"],
     "paths": {
-      "@pennyspring/theme": ["./packages/theme/src"],
-      "@pennyspring/component": ["./packages/component/src"],
-      "@pennyspring/component-preview": ["./packages/component-preview/src"]
+      "@pennyspring/theme": ["./packages/pennyspring-theme/src"],
+      "@pennyspring/theme/*": ["./packages/pennyspring-theme/*"],
+      "@pennyspring/ui": ["./packages/pennyspring-ui/src"],
+      "@pennyspring/ui/*": ["./packages/pennyspring-ui/*"],
+      "@pennyspring/ui/examples": ["./packages/pennyspring-ui/examples"]
     }
   },
   "include": ["**/*.ts", "**/*.tsx", "**/*.d.ts"],

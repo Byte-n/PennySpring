@@ -8,7 +8,7 @@
 - 编写、修改或补充任意测试时：遵循 `.claude/rules/common/testing.md`
 - 组件视觉、布局、交互或可访问性时遵循 `.claude/rules/component/component-visual-layout.md`
 - 修改 `*.ts`、`*.tsx`、`*.js`、`*.jsx` 时：额外遵循 `.claude/rules/typescript/coding-style.md`
-- 修改 `packages/component/src/**/*.{ts,tsx}` 时：额外遵循 `.claude/rules/component/coding-style.md`
+- 修改 `packages/pennyspring-ui/src/**/*.{ts,tsx}` 时：额外遵循 `.claude/rules/component/coding-style.md`
 - 修改 `packages/data/src/**/*.ts` 时：额外遵循 `.claude/rules/data/coding-style.md`
 - 为 `*.ts`、`*.tsx`、`*.js`、`*.jsx` 编写或修改测试时：额外遵循 `.claude/rules/typescript/testing.md`
 - 修改 `*.swift` 或 `Package.swift` 时：额外遵循 `.claude/rules/swift/coding-style.md`

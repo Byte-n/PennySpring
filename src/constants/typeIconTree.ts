@@ -1,4 +1,4 @@
-import type { IconComponent } from '@pennyspring/component';
+import type { IconComponent } from '@pennyspring/ui';
 
 import { ICON } from '@pennyspring/data';
 

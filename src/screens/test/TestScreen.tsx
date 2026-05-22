@@ -1,6 +1,6 @@
 import React from 'react';
 import { Pressable, View } from 'react-native';
-import { Text } from '@pennyspring/component';
+import { Text } from '@pennyspring/ui';
 import { createUseSheetStyle, ThemePreview } from '@pennyspring/theme';
 
 type TestPreviewTab = 'theme' | 'text';

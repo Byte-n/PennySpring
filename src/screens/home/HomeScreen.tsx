@@ -1,6 +1,6 @@
 import React from 'react';
 import { View } from 'react-native';
-import { Button, Drawer, Text } from '@pennyspring/component';
+import { Button, Drawer, Text } from '@pennyspring/ui';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import { ListIcon } from 'phosphor-react-native';
 

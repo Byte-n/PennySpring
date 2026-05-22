@@ -1,5 +1,5 @@
 import React from 'react';
-import { TopTabNavigator, type TabScreen } from '@pennyspring/component';
+import { TopTabNavigator, type TabScreen } from '@pennyspring/ui';
 
 import { ChartTabScreen } from '../screens/home/tabs/ChartTabScreen';
 import { DetailTabScreen } from '../screens/home/tabs/DetailTabScreen';

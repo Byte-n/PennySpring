@@ -6,7 +6,7 @@ const ts = require('typescript');
 const Module = require('node:module');
 
 const PROJECT_ROOT = path.resolve(__dirname, '../../../..');
-const THEME_SRC_ROOT = path.join(PROJECT_ROOT, 'packages/theme/src');
+const THEME_SRC_ROOT = path.join(PROJECT_ROOT, 'packages/pennyspring-theme/src');
 
 function getUsageText() {
   return (

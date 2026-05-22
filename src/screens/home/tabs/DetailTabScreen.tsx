@@ -1,6 +1,6 @@
 import React from 'react';
 import { ScrollView, View, type TextStyle } from 'react-native';
-import { FloatingActionGroup, Text } from '@pennyspring/component';
+import { FloatingActionGroup, Text } from '@pennyspring/ui';
 import { createUseSheetStyle } from '@pennyspring/theme';
 
 import { useNavigation } from '../../../navigation/useNavigation';

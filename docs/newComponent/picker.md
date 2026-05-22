@@ -561,7 +561,7 @@ function Picker<TData = unknown>(props: PickerProps<TData>) {
 如果后续落地到共享组件包，建议结构如下：
 
 ```text
-packages/component/src/Picker/
+packages/pennyspring-ui/src/Picker/
   index.ts
   Picker.tsx
   PickerTrigger.tsx

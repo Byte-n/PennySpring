@@ -199,21 +199,21 @@ export interface DataListSectionProps<ItemT, SectionT extends DataListSection<It
 
 ### 实施步骤
 
-1. 新增 `packages/component/src/DataList/`：
+1. 新增 `packages/pennyspring-ui/src/DataList/`：
 - `DataList.tsx`
 - `DataListSection.tsx`
 - `types.ts`
 - `index.ts`
 
-2. 更新 `packages/component/src/index.ts`：
+2. 更新 `packages/pennyspring-ui/src/index.ts`：
 - 新增 `DataList` 导出与类型导出。
 - 删除 `InfiniteScroll` 导出与类型导出。
 
 3. 删除目录：
-- `packages/component/src/InfiniteScroll/`
+- `packages/pennyspring-ui/src/InfiniteScroll/`
 
 4. 更新测试：
-- 删除 `packages/component/__tests__/InfiniteScroll.test.tsx`
+- 删除 `packages/pennyspring-ui/__tests__/InfiniteScroll.test.tsx`
 - 新增 `DataList.test.tsx`
 
 5. 如有预览页，新增 `DataList` 示例并移除 `InfiniteScroll` 示例入口。

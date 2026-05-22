@@ -19,7 +19,7 @@ import {
   useToast,
   type CascaderOption,
   type CascaderValue,
-} from '@pennyspring/component';
+} from '@pennyspring/ui';
 import {
   api,
   ASSET_CLASSIFICATION,

@@ -1,7 +1,7 @@
 import React from 'react';
 import { View } from 'react-native';
 import { createUseSheetStyle } from '@pennyspring/theme';
-import { Input } from '@pennyspring/component';
+import { Input } from '@pennyspring/ui';
 import { useAddRecordContext } from '../AddRecordContext';
 
 const useStyles = createUseSheetStyle((_token) => ({

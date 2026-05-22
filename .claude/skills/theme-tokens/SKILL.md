@@ -56,7 +56,7 @@ node scripts/get-tokens.js --json colorPrimary motionDurationMid
 
 ## AliasToken 分类索引
 
-字段名与 antd v5 对齐，完整注释见 [types.ts](packages/theme/src/types.ts)。拿不准的查这里。
+字段名与 antd v5 对齐，完整注释见 [types.ts](packages/pennyspring-theme/src/types.ts)。拿不准的查这里。
 
 - **中性色**：`colorText{,Secondary,Tertiary,Quaternary,Heading,Label,Description,Disabled,Placeholder,LightSolid}` / `colorBg{Layout,Container,Elevated,Spotlight,Mask,Blur,Solid,SolidHover,SolidActive}` / `colorFill{,Secondary,Tertiary,Quaternary,Alter,Content,ContentHover}` / `colorBorder{,Secondary,Disabled,Bg}` / `colorSplit` / `colorIcon{,Hover}` / `colorWhite`
 - **语义色 6 种**：`colorPrimary` `colorSuccess` `colorWarning` `colorError` `colorInfo` `colorLink`，每种带 10 阶后缀 `Bg / BgHover / Border / BorderHover / Hover / (base) / Active / Text / TextHover / TextActive`（`Error` 额外有 `BgFilledHover` `BgActive`；`Link` 只 3 阶）
@@ -85,7 +85,7 @@ import { ThemeProvider, presets } from '@pennyspring/theme';
 
 ## 当 token 不够用
 
-90% 场景都能映射，拿不准先读 [types.ts](packages/theme/src/types.ts) 的字段注释。
+90% 场景都能映射，拿不准先读 [types.ts](packages/pennyspring-theme/src/types.ts) 的字段注释。
 
 确需业务语义色（如记账「收入/支出/余额」）时，走 **ThemeProvider 覆盖 AliasToken** 在业务层扩展，不在组件里硬编码：
 
@@ -95,9 +95,9 @@ import { ThemeProvider, presets } from '@pennyspring/theme';
 
 ## 源码入口
 
-- 类型（所有字段带注释）：[types.ts](packages/theme/src/types.ts)
-- 默认 Seed：[defaults.ts](packages/theme/src/defaults.ts)
-- 样式工厂：[createUseSheetStyle.ts](packages/theme/src/createUseSheetStyle.ts)
-- 阴影工具：[shadowStyle.ts](packages/theme/src/shadowStyle.ts)
-- Provider：[ThemeProvider.tsx](packages/theme/src/ThemeProvider.tsx)
-- 预设：[presets/](packages/theme/src/presets)
+- 类型（所有字段带注释）：[types.ts](packages/pennyspring-theme/src/types.ts)
+- 默认 Seed：[defaults.ts](packages/pennyspring-theme/src/defaults.ts)
+- 样式工厂：[createUseSheetStyle.ts](packages/pennyspring-theme/src/createUseSheetStyle.ts)
+- 阴影工具：[shadowStyle.ts](packages/pennyspring-theme/src/shadowStyle.ts)
+- Provider：[ThemeProvider.tsx](packages/pennyspring-theme/src/ThemeProvider.tsx)
+- 预设：[presets/](packages/pennyspring-theme/src/presets)

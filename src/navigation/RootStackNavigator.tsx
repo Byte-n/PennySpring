@@ -1,6 +1,6 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { ComponentPreviewScreen } from '@pennyspring/component-preview';
+import { ComponentPreviewScreen } from '@pennyspring/ui/examples';
 
 import { AddRecordScreen } from '../screens/addRecord/AddRecordScreen';
 import { AssetManageScreen } from '../screens/assetManage/AssetManageScreen';

@@ -11,7 +11,7 @@ import {
   Row,
   Text,
   useToast,
-} from '@pennyspring/component';
+} from '@pennyspring/ui';
 import { api, VISIBILITY, type TagRow } from '@pennyspring/data';
 import { createUseSheetStyle } from '@pennyspring/theme';
 

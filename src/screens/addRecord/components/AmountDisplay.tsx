@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Pressable } from 'react-native';
-import { Text, CalculatorInput } from '@pennyspring/component';
+import { Text, CalculatorInput } from '@pennyspring/ui';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import { useAddRecordContext } from '../AddRecordContext';
 

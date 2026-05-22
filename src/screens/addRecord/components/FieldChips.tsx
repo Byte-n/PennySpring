@@ -1,6 +1,6 @@
 import React from 'react';
 import { Alert } from 'react-native';
-import { Row, Tag } from '@pennyspring/component';
+import { Row, Tag } from '@pennyspring/ui';
 import { useTheme } from '@pennyspring/theme';
 import { useAddRecordContext } from '../AddRecordContext';
 

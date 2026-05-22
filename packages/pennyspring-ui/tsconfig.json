@@ -1,0 +1,11 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@pennyspring/ui": ["src/index.ts"],
+      "@pennyspring/ui/*": ["*"]
+    }
+  },
+  "include": ["src", "examples", "__tests__"]
+}

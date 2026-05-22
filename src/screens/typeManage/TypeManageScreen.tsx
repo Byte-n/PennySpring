@@ -8,7 +8,7 @@ import {
   Row,
   Segmented,
   useToast,
-} from '@pennyspring/component';
+} from '@pennyspring/ui';
 import {
   api,
   ICON,

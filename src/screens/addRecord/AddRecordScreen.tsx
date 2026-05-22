@@ -1,6 +1,6 @@
 import React from 'react';
 import { AddRecordProvider } from './AddRecordContext';
-import { type TabScreen, TopTabNavigator } from '@pennyspring/component';
+import { type TabScreen, TopTabNavigator } from '@pennyspring/ui';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import { ExpenseTabScreen } from './tabs/ExpenseTabScreen.tsx';
 import { IncomeTabScreen } from './tabs/IncomeTabScreen.tsx';

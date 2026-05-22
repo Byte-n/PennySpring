@@ -26,8 +26,8 @@ index.js                → React Native AppRegistry 入口
 src/navigation/         → NavigationContainer、RootStack、HomeTabs、路由常量与类型
 src/screens/            → 业务页面
 src/constants/          → 业务常量、资产分类、类型图标树
-packages/theme/         → 设计系统：token、算法、ThemeProvider、createUseSheetStyle
-packages/component/     → 共享 React Native UI 组件
+packages/pennyspring-theme/ → 设计系统：token、算法、ThemeProvider、createUseSheetStyle
+packages/pennyspring-ui/    → 共享 React Native UI 组件与 examples
 packages/data/          → Drizzle schema、relations、SQLite runtime、migrations
 packages/share/         → 跨包共享工具
 __tests__/              → 根应用测试
@@ -53,7 +53,7 @@ scripts/                → 本地工具脚本
 
 ### 类型与数据
 
-- Type check：`yarn workspace @pennyspring/theme typecheck`，`yarn workspace @pennyspring/component typecheck`，
+- Type check：`yarn workspace @pennyspring/theme typecheck`，`yarn workspace @pennyspring/ui typecheck`，
   `yarn workspace @pennyspring/data typecheck`，`yarn workspace @pennyspring/share typecheck`
 - DB check / generate：`yarn workspace @pennyspring/data db:check`，`yarn workspace @pennyspring/data db:generate`
 
@@ -98,11 +98,11 @@ scripts/                → 本地工具脚本
 
 ### Components
 
-- 共享组件放在 `packages/component/src/<ComponentName>/`，由目录内 `index.ts` 和包级 `src/index.ts` 导出。
+- 共享组件放在 `packages/pennyspring-ui/src/<ComponentName>/`，由目录内 `index.ts` 和包级 `src/index.ts` 导出。
 - 公共 props 与导出的样式类型放在组件目录的 `types.ts`。
-- 优先使用 `@pennyspring/component` 中的组件
-- 界面布局优先使用 `@pennyspring/component` 中已有的布局组件（如 `Row`、`Column`、`Spacer`、`GeometryReader`、`Grid` 等），禁止用 `View` 手写等效布局结构。
-- 业务与共享组件中的文本展示统一使用 `@pennyspring/component` 导出的 `Text` 组件；禁止直接使用 `react-native` 的 `Text`
+- 优先使用 `@pennyspring/ui` 中的组件
+- 界面布局优先使用 `@pennyspring/ui` 中已有的布局组件（如 `Row`、`Column`、`Spacer`、`GeometryReader`、`Grid` 等），禁止用 `View` 手写等效布局结构。
+- 业务与共享组件中的文本展示统一使用 `@pennyspring/ui` 导出的 `Text` 组件；禁止直接使用 `react-native` 的 `Text`
   做展示文本。
 
 ### Navigation
@@ -150,7 +150,7 @@ scripts/                → 本地工具脚本
 
 **以下任务豁免 TDD 流程与新增测试**（仍需在完成后运行 `yarn test`，保证存量用例全绿）：
 
-- `packages/component-preview/**` 的任何修改（预览/样例专用，不进入产物行为）。
+- `packages/pennyspring-ui/examples/**` 的任何修改（预览/样例专用，不进入产物行为）。
 - 文档修改。
 - 依赖、项目工程化配置
 - 静态资产新增或替换
