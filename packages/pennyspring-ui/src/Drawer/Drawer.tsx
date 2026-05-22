@@ -8,7 +8,6 @@ import React, {
 } from 'react';
 import {
   Dimensions,
-  Pressable,
   View,
   useWindowDimensions,
   type LayoutChangeEvent,
@@ -23,7 +22,6 @@ import {
 import Animated, {
   Easing,
   type SharedValue,
-  createAnimatedComponent,
   interpolate,
   useAnimatedStyle,
   useSharedValue,
@@ -34,6 +32,7 @@ import { useTheme } from '@pennyspring/theme';
 import { PortalContext } from '../Portal/Portal';
 import { resolvePortalMount } from '../Portal/resolvePortalMount';
 import { useControllableValue } from '../_hooks';
+import { AnimatedPressable } from './AnimatedPressable';
 import { useStyles } from './style';
 import type {
   DrawerLayoutProps,
@@ -52,7 +51,6 @@ const SWIPE_DISTANCE_RATIO = 0.5;
 const SWIPE_VELOCITY_THRESHOLD = 400;
 const HORIZONTAL_SWIPE_THRESHOLD = 8;
 const VERTICAL_SWIPE_CANCEL_RATIO = 1.2;
-const AnimatedPressable = createAnimatedComponent(Pressable);
 const PERCENT_WIDTH_PATTERN = /^-?\d+(?:\.\d+)?%$/;
 
 interface DrawerOpenStateProps {
