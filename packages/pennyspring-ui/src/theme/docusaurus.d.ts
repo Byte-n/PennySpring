@@ -18,3 +18,10 @@ declare module '@docusaurus/useDocusaurusContext' {
 declare module '@docusaurus/useIsBrowser' {
   export default function useIsBrowser(): boolean;
 }
+
+declare module '@theme-original/MDXComponents' {
+  import type { MDXComponentsObject } from '@theme/MDXComponents';
+
+  const MDXComponents: MDXComponentsObject;
+  export default MDXComponents;
+}

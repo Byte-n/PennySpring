@@ -1,5 +1,59 @@
 import { ThemePreview } from '@pennyspring/theme';
-import { ClassificationAndIconsPreview } from './business/classification-and-icons';
+import { calculatorInputDemos } from './data-entry/calculator-input/demos';
+import { calendarDemos } from './data-entry/calendar/demos';
+import { cascadePickerDemos } from './data-entry/cascade-picker/demos';
+import { cascaderDemos } from './data-entry/cascader/demos';
+import { checkboxDemos } from './data-entry/checkbox/demos';
+import { dateTimePickerDemos } from './data-entry/date-time-picker/demos';
+import { displayInputDemos } from './data-entry/display-input/demos';
+import { imagePickerDemos } from './data-entry/image-picker/demos';
+import { inputDemos } from './data-entry/input/demos';
+import { pickerDemos } from './data-entry/picker/demos';
+import { progressDemos } from './data-entry/progress/demos';
+import { radioDemos } from './data-entry/radio/demos';
+import { selectionListDemos } from './data-entry/selection-list/demos';
+import { sliderDemos } from './data-entry/slider/demos';
+import { stepperDemos } from './data-entry/stepper/demos';
+import { switchDemos } from './data-entry/switch/demos';
+import { textareaDemos } from './data-entry/textarea/demos';
+import { timePickerDemos } from './data-entry/time-picker/demos';
+import { cardDemos } from './display/card/demos';
+import { carouselDemos } from './display/carousel/demos';
+import { dataListDemos } from './display/data-list/demos';
+import { ellipsisDemos } from './display/ellipsis/demos';
+import { emptyDemos } from './display/empty/demos';
+import { listCollapseDemos } from './display/list-collapse/demos';
+import { listDemos } from './display/list/demos';
+import { loadingDemos } from './display/loading/demos';
+import { resultDemos } from './display/result/demos';
+import { skeletonDemos } from './display/skeleton/demos';
+import { swipeActionDemos } from './display/swipe-action/demos';
+import { messageDemos } from './feedback/message/demos';
+import { notificationDemos } from './feedback/notification/demos';
+import { toastDemos } from './feedback/toast/demos';
+import { avatarDemos } from './foundation/avatar/demos';
+import { badgeDemos } from './foundation/badge/demos';
+import { buttonDemos } from './foundation/button/demos';
+import { dividerDemos } from './foundation/divider/demos';
+import { gridDemos } from './foundation/grid/demos';
+import { iconDemos } from './foundation/icon/demos';
+import { layoutDemos } from './foundation/layout/demos';
+import { segmentedDemos } from './foundation/segmented/demos';
+import { spaceDemos } from './foundation/space/demos';
+import { tabsDemos } from './foundation/tabs/demos';
+import { tagDemos } from './foundation/tag/demos';
+import { textDemos } from './foundation/text/demos';
+import { actionSheetDemos } from './navigation/action-sheet/demos';
+import { dialogDemos } from './navigation/dialog/demos';
+import { drawerDemos } from './navigation/drawer/demos';
+import { floatingActionGroupDemos } from './navigation/floating-action-group/demos';
+import { indexBarDemos } from './navigation/index-bar/demos';
+import { popupDemos } from './navigation/popup/demos';
+import { portalDemos } from './navigation/portal/demos';
+import { sideBarDemos } from './navigation/side-bar/demos';
+import { stepsDemos } from './navigation/steps/demos';
+import { tabBarDemos } from './navigation/tab-bar/demos';
+import { topTabNavigatorDemos } from './navigation/top-tab-navigator/demos';
 import { CalendarPreview } from './data-entry/calendar';
 import { CalculatorInputPreview } from './data-entry/calculator-input';
 import { CascaderPreview } from './data-entry/cascader';
@@ -7,6 +61,7 @@ import { CascadePickerPreview } from './data-entry/cascade-picker';
 import { CheckboxPreview } from './data-entry/checkbox';
 import { DateTimePickerPreview } from './data-entry/date-time-picker';
 import { DisplayInputPreview } from './data-entry/display-input';
+import { ImagePickerPreview } from './data-entry/image-picker';
 import { InputPreview } from './data-entry/input';
 import { PickerPreview } from './data-entry/picker';
 import { ProgressPreview } from './data-entry/progress';
@@ -54,22 +109,130 @@ import { SideBarPreview } from './navigation/side-bar';
 import { TabBarPreview } from './navigation/tab-bar';
 import { StepsPreview } from './navigation/steps';
 import { TopTabNavigatorPreview } from './navigation/top-tab-navigator';
-import type { ComponentPreviewSection } from './types';
+import { PreviewScaffold, PreviewSection } from './PreviewScaffold';
+import type { ComponentType } from 'react';
+import type { ComponentPreviewItem, ComponentPreviewSection } from './types';
+
+interface ComponentDemoPreview {
+  id: string;
+  title: string;
+  Component: ComponentType;
+}
+
+function createDemoPreviewItems(
+  componentId: string,
+  componentTitle: string,
+  demos: readonly ComponentDemoPreview[],
+): ComponentPreviewItem[] {
+  return demos.map(({ Component, id, title }) => {
+    function DemoPreview() {
+      return (
+        <PreviewScaffold>
+          <PreviewSection title={title}>
+            <Component />
+          </PreviewSection>
+        </PreviewScaffold>
+      );
+    }
+
+    return {
+      id: `${componentId}/${id}`,
+      title: `${componentTitle} / ${title}`,
+      description: title,
+      component: DemoPreview,
+    };
+  });
+}
+
+const DEMO_PREVIEW_ITEMS = [
+  {
+    id: 'theme/basic',
+    title: 'Theme / Basic',
+    description: '主题算法、预设色和设计 token 预览。',
+    component: ThemePreview,
+  },
+  ...createDemoPreviewItems(
+    'calculator-input',
+    'CalculatorInput',
+    calculatorInputDemos,
+  ),
+  ...createDemoPreviewItems('calendar', 'Calendar', calendarDemos),
+  ...createDemoPreviewItems(
+    'cascade-picker',
+    'CascadePicker',
+    cascadePickerDemos,
+  ),
+  ...createDemoPreviewItems('cascader', 'Cascader', cascaderDemos),
+  ...createDemoPreviewItems('checkbox', 'Checkbox', checkboxDemos),
+  ...createDemoPreviewItems(
+    'date-time-picker',
+    'DateTimePicker',
+    dateTimePickerDemos,
+  ),
+  ...createDemoPreviewItems('display-input', 'DisplayInput', displayInputDemos),
+  ...createDemoPreviewItems('image-picker', 'ImagePicker', imagePickerDemos),
+  ...createDemoPreviewItems('input', 'Input', inputDemos),
+  ...createDemoPreviewItems('picker', 'Picker', pickerDemos),
+  ...createDemoPreviewItems('progress', 'Progress', progressDemos),
+  ...createDemoPreviewItems('radio', 'Radio', radioDemos),
+  ...createDemoPreviewItems(
+    'selection-list',
+    'SelectionList',
+    selectionListDemos,
+  ),
+  ...createDemoPreviewItems('slider', 'Slider', sliderDemos),
+  ...createDemoPreviewItems('stepper', 'Stepper', stepperDemos),
+  ...createDemoPreviewItems('switch', 'Switch', switchDemos),
+  ...createDemoPreviewItems('textarea', 'Textarea', textareaDemos),
+  ...createDemoPreviewItems('time-picker', 'TimePicker', timePickerDemos),
+  ...createDemoPreviewItems('card', 'Card', cardDemos),
+  ...createDemoPreviewItems('carousel', 'Carousel', carouselDemos),
+  ...createDemoPreviewItems('data-list', 'DataList', dataListDemos),
+  ...createDemoPreviewItems('ellipsis', 'Ellipsis', ellipsisDemos),
+  ...createDemoPreviewItems('empty', 'Empty', emptyDemos),
+  ...createDemoPreviewItems('list-collapse', 'ListCollapse', listCollapseDemos),
+  ...createDemoPreviewItems('list', 'List', listDemos),
+  ...createDemoPreviewItems('loading', 'Loading', loadingDemos),
+  ...createDemoPreviewItems('result', 'Result', resultDemos),
+  ...createDemoPreviewItems('skeleton', 'Skeleton', skeletonDemos),
+  ...createDemoPreviewItems('swipe-action', 'SwipeAction', swipeActionDemos),
+  ...createDemoPreviewItems('message', 'Message', messageDemos),
+  ...createDemoPreviewItems('notification', 'Notification', notificationDemos),
+  ...createDemoPreviewItems('toast', 'Toast', toastDemos),
+  ...createDemoPreviewItems('avatar', 'Avatar', avatarDemos),
+  ...createDemoPreviewItems('badge', 'Badge', badgeDemos),
+  ...createDemoPreviewItems('button', 'Button', buttonDemos),
+  ...createDemoPreviewItems('divider', 'Divider', dividerDemos),
+  ...createDemoPreviewItems('grid', 'Grid', gridDemos),
+  ...createDemoPreviewItems('icon', 'Icon', iconDemos),
+  ...createDemoPreviewItems('layout', 'Layout', layoutDemos),
+  ...createDemoPreviewItems('segmented', 'Segmented', segmentedDemos),
+  ...createDemoPreviewItems('space', 'Space', spaceDemos),
+  ...createDemoPreviewItems('tabs', 'Tabs', tabsDemos),
+  ...createDemoPreviewItems('tag', 'Tag', tagDemos),
+  ...createDemoPreviewItems('text', 'Text', textDemos),
+  ...createDemoPreviewItems('action-sheet', 'ActionSheet', actionSheetDemos),
+  ...createDemoPreviewItems('dialog', 'Dialog', dialogDemos),
+  ...createDemoPreviewItems('drawer', 'Drawer', drawerDemos),
+  ...createDemoPreviewItems(
+    'floating-action-group',
+    'FloatingActionGroup',
+    floatingActionGroupDemos,
+  ),
+  ...createDemoPreviewItems('index-bar', 'IndexBar', indexBarDemos),
+  ...createDemoPreviewItems('popup', 'Popup', popupDemos),
+  ...createDemoPreviewItems('portal', 'Portal', portalDemos),
+  ...createDemoPreviewItems('side-bar', 'SideBar', sideBarDemos),
+  ...createDemoPreviewItems('steps', 'Steps', stepsDemos),
+  ...createDemoPreviewItems('tab-bar', 'TabBar', tabBarDemos),
+  ...createDemoPreviewItems(
+    'top-tab-navigator',
+    'TopTabNavigator',
+    topTabNavigatorDemos,
+  ),
+] satisfies ComponentPreviewItem[];
 
 export const COMPONENT_PREVIEW_SECTIONS = [
-  {
-    id: 'business',
-    title: '业务',
-    items: [
-      {
-        id: 'classification-and-icons',
-        title: '分类与图标',
-        description:
-          '资产分类树与类型图标树完整预览，按网格展示并按类型图标分组。',
-        component: ClassificationAndIconsPreview,
-      },
-    ],
-  },
   {
     id: 'foundation',
     title: '基础',
@@ -167,8 +330,15 @@ export const COMPONENT_PREVIEW_SECTIONS = [
       {
         id: 'display-input',
         title: 'DisplayInput',
-        description: '可点击展示输入风格内容，无光标，支持 inline 与 block 布局。',
+        description:
+          '可点击展示输入风格内容，无光标，支持 inline 与 block 布局。',
         component: DisplayInputPreview,
+      },
+      {
+        id: 'image-picker',
+        title: 'ImagePicker',
+        description: '图片选择器，支持相册和文件系统来源。',
+        component: ImagePickerPreview,
       },
       {
         id: 'calculator-input',
@@ -419,7 +589,8 @@ export const COMPONENT_PREVIEW_SECTIONS = [
       {
         id: 'floating-action-group',
         title: 'FloatingActionGroup',
-        description: '悬浮按钮组：任意定位、更多展开、三种展开方向与 mountPoint。',
+        description:
+          '悬浮按钮组：任意定位、更多展开、三种展开方向与 mountPoint。',
         component: FloatingActionGroupPreview,
       },
       {
@@ -435,7 +606,18 @@ export const COMPONENT_PREVIEW_SECTIONS = [
 export function getComponentPreviewById(
   previewId: string,
 ): ComponentPreviewSection['items'][number] | undefined {
-  return COMPONENT_PREVIEW_SECTIONS.flatMap(section => section.items).find(
-    item => item.id === previewId,
-  );
+  const previewItems = [
+    ...COMPONENT_PREVIEW_SECTIONS.flatMap(section => section.items),
+    ...DEMO_PREVIEW_ITEMS,
+  ];
+
+  return previewItems.find(item => item.id === previewId);
+}
+
+export function getComponentDemoPreviewsByComponentId(
+  componentId: string,
+): ComponentPreviewItem[] {
+  const demoPrefix = `${componentId}/`;
+
+  return DEMO_PREVIEW_ITEMS.filter(item => item.id.startsWith(demoPrefix));
 }

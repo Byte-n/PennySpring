@@ -3,6 +3,7 @@ export const ROOT_ROUTES = {
   AddRecord: 'AddRecord',
   Test: 'Test',
   ComponentPreview: 'ComponentPreview',
+  BusinessPreview: 'BusinessPreview',
   BookManage: 'BookManage',
   TagManage: 'TagManage',
   TypeManage: 'TypeManage',

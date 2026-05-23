@@ -3,11 +3,15 @@
   "version": "0.0.1",
   "private": true,
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "packages/pennyspring-ui/examples"
   ],
   "scripts": {
     "android": "react-native run-android",
     "ios": "react-native run-ios",
+    "ui:examples:android": "yarn workspace @pennyspring/ui-examples android",
+    "ui:examples:ios": "yarn workspace @pennyspring/ui-examples ios",
+    "ui:examples:start": "yarn workspace @pennyspring/ui-examples start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "start": "react-native start",
@@ -34,6 +38,8 @@
     "react-native-linear-gradient": "^2.8.3",
     "react-native-pager-view": "^8.0.1",
     "react-native-reanimated": "^4.3.0",
+    "@react-native-documents/picker": "^10.1.7",
+    "react-native-image-picker": "^8.2.1",
     "react-native-safe-area-context": "^5.5.2",
     "react-native-screens": "^4.24.0",
     "react-native-svg": "^15.15.4",

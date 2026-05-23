@@ -1,11 +1,43 @@
 import React from 'react';
-import { ScrollView, View } from 'react-native';
+import BrowserOnly from '@docusaurus/BrowserOnly';
 import { ThemeProvider } from '@pennyspring/theme';
-import { App, Text } from '../index';
-import { getComponentPreviewById } from '../../examples/previews/registry';
+import { DeviceFrameset } from 'react-device-frameset';
+import 'react-device-frameset/styles/marvel-devices.min.css';
+import { App } from '../index';
+import {
+  getComponentDemoPreviewsByComponentId,
+  getComponentPreviewById,
+} from '../../examples/previews/registry';
+import { getPreviewDocIntro } from './liveCode';
 
 interface PreviewDocProps {
   id: string;
+}
+
+export function PreviewDocIntro({ id }: PreviewDocProps) {
+  const intro = getPreviewDocIntro(id, previewId => {
+    const preview = getComponentPreviewById(previewId);
+
+    if (!preview) {
+      return undefined;
+    }
+
+    return {
+      title: preview.title,
+      description: preview.description,
+    };
+  });
+
+  if (!intro) {
+    return null;
+  }
+
+  return (
+    <>
+      <h1>{intro.title}</h1>
+      <p>{intro.description}</p>
+    </>
+  );
 }
 
 export default function PreviewDoc({ id }: PreviewDocProps) {
@@ -20,27 +52,40 @@ export default function PreviewDoc({ id }: PreviewDocProps) {
   }
 
   const PreviewComponent = preview.component;
+  return <PreviewComponent />;
+}
+
+export function PreviewDocs({ id }: PreviewDocProps) {
+  const previews = getComponentDemoPreviewsByComponentId(id);
+
+  if (previews.length === 0) {
+    return (
+      <div className="preview-doc preview-doc-empty">
+        <p>未找到组件预览：{id}</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="preview-doc">
-      <div className="preview-doc-meta">
-        <h2>{preview.title}</h2>
-        <p>{preview.description}</p>
-      </div>
-      <div className="preview-doc-device">
-        <ThemeProvider>
-          <App>
-            <ScrollView>
-              <View>
-                <Text size="lg" weight="strong">
-                  {preview.title}
-                </Text>
-                <PreviewComponent />
-              </View>
-            </ScrollView>
-          </App>
-        </ThemeProvider>
-      </div>
-    </div>
+    <BrowserOnly fallback={<div className="preview-doc-loading" />}>
+      {() => (
+        <DeviceFrameset device="iPhone X">
+          <ThemeProvider>
+            <App style={{ height: '100%' }}>
+              <div className="preview-doc-screen">
+                <div className="preview-doc-safe-area">
+                  {previews.map(preview => (
+                    <React.Fragment key={preview.id}>
+                      <h2>{preview.description}</h2>
+                      <PreviewDoc id={preview.id} />
+                    </React.Fragment>
+                  ))}
+                </div>
+              </div>
+            </App>
+          </ThemeProvider>
+        </DeviceFrameset>
+      )}
+    </BrowserOnly>
   );
 }

@@ -11,11 +11,11 @@ const useStyles = createUseSheetStyle(() => ({
   },
 }));
 
-export function App({ children, config }: AppProps): React.JSX.Element {
+export function App({ children, config, style }: AppProps): React.JSX.Element {
   const styles = useStyles();
 
   return (
-    <GestureHandlerRootView style={styles.root}>
+    <GestureHandlerRootView style={[styles.root, style]}>
       <ConfigProvider config={config}>
         <PortalProvider>{children}</PortalProvider>
       </ConfigProvider>

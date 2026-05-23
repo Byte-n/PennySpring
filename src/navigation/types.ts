@@ -5,6 +5,7 @@ export type RootStackParamList = {
   [ROOT_ROUTES.AddRecord]: undefined;
   [ROOT_ROUTES.Test]: undefined;
   [ROOT_ROUTES.ComponentPreview]: undefined;
+  [ROOT_ROUTES.BusinessPreview]: undefined;
   [ROOT_ROUTES.BookManage]: undefined;
   [ROOT_ROUTES.TagManage]: undefined;
   [ROOT_ROUTES.TypeManage]: undefined;

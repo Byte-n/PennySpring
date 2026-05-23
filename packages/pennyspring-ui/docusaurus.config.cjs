@@ -1,8 +1,64 @@
+const fs = require('node:fs');
 const path = require('node:path');
 const webpack = require('webpack');
 const { themes: prismThemes } = require('prism-react-renderer');
 
 const repoRoot = path.resolve(__dirname, '../..');
+const previewRoot = path.resolve(__dirname, 'examples/previews');
+const themePreviewPath = path.resolve(
+  repoRoot,
+  'packages/pennyspring-theme/src/ThemePreview.tsx',
+)
+function collectPreviewSources(rootDir) {
+  const sources = {};
+
+  function visit(dir) {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      const entryPath = path.join(dir, entry.name);
+
+      if (entry.isDirectory()) {
+        visit(entryPath);
+      }
+    }
+
+    const previewSourcePath = ['index.web.tsx', 'index.tsx']
+      .map(fileName => path.join(dir, fileName))
+      .find(filePath => fs.existsSync(filePath));
+
+    if (previewSourcePath) {
+      sources[path.basename(dir)] = fs.readFileSync(previewSourcePath, 'utf8');
+    }
+
+    const demosDir = path.join(dir, 'demos');
+    if (!fs.existsSync(demosDir)) {
+      return;
+    }
+
+    for (const entry of fs.readdirSync(demosDir, { withFileTypes: true })) {
+      if (!entry.isFile() || !entry.name.endsWith('.tsx')) {
+        continue;
+      }
+
+      const previewId = `${path.basename(dir)}/${path.basename(
+        entry.name,
+        '.tsx',
+      )}`;
+      sources[previewId] = fs.readFileSync(
+        path.join(demosDir, entry.name),
+        'utf8',
+      );
+    }
+  }
+
+  visit(rootDir);
+
+  if (fs.existsSync(themePreviewPath)) {
+    sources.theme = fs.readFileSync(themePreviewPath, 'utf8');
+    sources['theme/basic'] = fs.readFileSync(themePreviewPath, 'utf8');
+  }
+
+  return sources;
+}
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
@@ -60,9 +116,18 @@ const config = {
           return {
             resolve: {
               alias: {
-                '@pennyspring/data$': path.resolve(repoRoot, 'packages/data/src/constants'),
-                '@pennyspring/data': path.resolve(repoRoot, 'packages/data/src/constants'),
-                '@pennyspring/theme': path.resolve(repoRoot, 'packages/pennyspring-theme/src'),
+                '@pennyspring/data$': path.resolve(
+                  repoRoot,
+                  'packages/data/src/constants',
+                ),
+                '@pennyspring/data': path.resolve(
+                  repoRoot,
+                  'packages/data/src/constants',
+                ),
+                '@pennyspring/theme': path.resolve(
+                  repoRoot,
+                  'packages/pennyspring-theme/src',
+                ),
                 '@pennyspring/ui': path.resolve(__dirname, 'src'),
                 'react-native$': 'react-native-web',
               },
@@ -115,6 +180,9 @@ const config = {
             plugins: [
               new webpack.DefinePlugin({
                 __DEV__: JSON.stringify(false),
+                __PENNYSPRING_UI_PREVIEW_SOURCES__: JSON.stringify(
+                  collectPreviewSources(previewRoot),
+                ),
               }),
             ],
           };
@@ -130,7 +198,11 @@ const config = {
         title: 'PennySpring UI',
         items: [
           { to: '/guide', label: '指南', position: 'left' },
-          { to: '/components/foundation/button', label: '组件', position: 'left' },
+          {
+            to: '/components/foundation/button',
+            label: '组件',
+            position: 'left',
+          },
           { to: '/api', label: 'API', position: 'left' },
         ],
       },

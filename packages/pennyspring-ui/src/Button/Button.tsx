@@ -337,7 +337,6 @@ const useStyles = createUseSheetStyle(
 function renderContent(
   children: ButtonProps['children'],
   style: StyleProp<TextStyle>,
-  disabled: boolean,
 ) {
   if (typeof children === 'string' || typeof children === 'number') {
     return <Text style={style}>{children}</Text>;
@@ -358,11 +357,7 @@ function renderContent(
     && children.type === Text
   ) {
     return React.cloneElement(children, {
-      style: StyleSheet.flatten(
-        disabled
-          ? [children.props.style, style]
-          : [style, children.props.style],
-      ),
+      style: StyleSheet.flatten([style, children.props.style]),
     });
   }
 
@@ -441,7 +436,7 @@ export function Button({
       tokenStyles.content,
       styles?.content,
       disabled ? tokenStyles.contentDisabled : null,
-    ], disabled)
+    ])
     : null;
 
   useEffect(() => {

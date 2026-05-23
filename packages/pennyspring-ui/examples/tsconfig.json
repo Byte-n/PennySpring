@@ -1,0 +1,13 @@
+{
+  "extends": "@react-native/typescript-config",
+  "compilerOptions": {
+    "paths": {
+      "@pennyspring/theme": ["../../pennyspring-theme/src"],
+      "@pennyspring/theme/*": ["../../pennyspring-theme/*"],
+      "@pennyspring/ui": ["../src"],
+      "@pennyspring/ui/*": ["../*"]
+    }
+  },
+  "include": ["**/*.ts", "**/*.tsx", "**/*.d.ts"],
+  "exclude": ["**/node_modules", "**/Pods"]
+}

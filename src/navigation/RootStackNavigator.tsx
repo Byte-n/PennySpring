@@ -1,17 +1,16 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { ComponentPreviewScreen } from '@pennyspring/ui/examples';
 
 import { AddRecordScreen } from '../screens/addRecord/AddRecordScreen';
 import { AssetManageScreen } from '../screens/assetManage/AssetManageScreen';
 import { BookManageScreen } from '../screens/bookManage/BookManageScreen';
+import { BusinessPreviewScreen } from '../screens/businessPreview/BusinessPreviewScreen';
 import { HomeScreen } from '../screens/home/HomeScreen';
 import { TestScreen } from '../screens/test';
 import { TagManageScreen } from '../screens/tagManage/TagManageScreen';
 import { TypeManageScreen } from '../screens/typeManage/TypeManageScreen';
 import { ROOT_ROUTES } from './routes';
 import type { RootStackParamList } from './types';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -36,9 +35,9 @@ export function RootStackNavigator() {
         options={{ title: 'Test Screen' }}
       />
       <Stack.Screen
-        component={ComponentPreviewScreenWrap}
-        name={ROOT_ROUTES.ComponentPreview}
-        options={{ headerShown: false }}
+        component={BusinessPreviewScreen}
+        name={ROOT_ROUTES.BusinessPreview}
+        options={{ title: '业务预览' }}
       />
       <Stack.Screen
         component={BookManageScreen}
@@ -64,11 +63,3 @@ export function RootStackNavigator() {
   );
 }
 
-function ComponentPreviewScreenWrap() {
-  return (
-    <>
-      <SafeAreaView />
-      <ComponentPreviewScreen />
-    </>
-  );
-}

@@ -1,8 +1,12 @@
 import BrowserOnly from '@docusaurus/BrowserOnly';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import useIsBrowser from '@docusaurus/useIsBrowser';
-import React, { useCallback, useContext, useRef, useState } from 'react';
+import React, { useContext, useRef, useState } from 'react';
 import { LiveContext, LiveEditor, LiveError, LivePreview, LiveProvider } from 'react-live';
+import {
+  resolveLiveExecutableCode,
+  resolvePreviewDocLiveCode,
+} from './liveCode';
 
 declare const navigator: {
   clipboard: {
@@ -25,13 +29,11 @@ function PlaygroundAction({
 }
 
 function PlaygroundCodeBlock({
-  initialCode,
+  displayCode,
   defaultCodeCollapsed,
-  pruneCode,
 }: {
-  initialCode?: string;
+  displayCode?: string;
   defaultCodeCollapsed?: boolean;
-  pruneCode: (code?: string) => string;
 }) {
   const isBrowser = useIsBrowser();
   const { error, onChange } = useContext(LiveContext);
@@ -49,7 +51,7 @@ function PlaygroundCodeBlock({
             <div className="playground-toolbar">
               <PlaygroundAction
                 onClick={async () => {
-                  await navigator.clipboard.writeText(initialCode ?? '');
+                  await navigator.clipboard.writeText(displayCode ?? '');
                   setCopied(true);
                   if (copyTimer.current) clearTimeout(copyTimer.current);
                   copyTimer.current = setTimeout(() => setCopied(false), 1500);
@@ -67,8 +69,10 @@ function PlaygroundCodeBlock({
       {showCode && (
         <LiveEditor
           key={String(isBrowser)}
-          code={initialCode}
-          onChange={(latestCode) => onChange(pruneCode(latestCode))}
+          code={displayCode}
+          onChange={(latestCode) => {
+            onChange(resolveLiveExecutableCode(latestCode));
+          }}
           className="playground-editor"
         />
       )}
@@ -83,18 +87,13 @@ export default function Playground({ children, ...props }: { children?: string }
   };
 
   const initialCode = children?.replace(/\n$/, '');
-  const pruneCode = useCallback((code?: string) => {
-    return (code ?? '')
-      .replace(/\n$/, '')
-      .replace(/import\s+[\s\S]*?\s+from.*?\n/g, '')
-      .replace(/export\s+(default\s+)?/g, '');
-  }, []);
+  const displayCode = resolvePreviewDocLiveCode(children);
+  const executableCode = resolveLiveExecutableCode(initialCode);
 
   return (
-    <LiveProvider {...props} code={pruneCode(children)}>
+    <LiveProvider {...props} code={executableCode} noInline>
       <PlaygroundCodeBlock
-        initialCode={initialCode}
-        pruneCode={pruneCode}
+        displayCode={displayCode}
         defaultCodeCollapsed={customFields.liveCodeBlock?.defaultCollapsed}
       />
     </LiveProvider>

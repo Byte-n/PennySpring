@@ -100,11 +100,6 @@ const sidebars = {
             'components/navigation/top-tab-navigator',
           ],
         },
-        {
-          type: 'category',
-          label: '业务',
-          items: ['components/business/classification-and-icons'],
-        },
       ],
     },
     'api/index',

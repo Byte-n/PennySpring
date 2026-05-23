@@ -1,0 +1,30 @@
+import React from 'react';
+import { Space, Tag } from '@pennyspring/ui';
+import type { TagColor } from '@pennyspring/ui';
+
+const SEMANTIC_COLORS: TagColor[] = [
+  'default',
+  'primary',
+  'success',
+  'warning',
+  'danger',
+  'info',
+];
+
+export const tagSemanticColorsDemoTitle = 'Semantic colors';
+
+export function TagSemanticColorsDemo() {
+  return (
+    <>
+      <Space align="center" size="large" wrap>
+        {SEMANTIC_COLORS.map(color => (
+          <Tag key={color} color={color}>
+            {color}
+          </Tag>
+        ))}
+      </Space>
+    </>
+  );
+}
+
+export default TagSemanticColorsDemo;

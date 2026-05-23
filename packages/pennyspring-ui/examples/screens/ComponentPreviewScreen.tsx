@@ -29,6 +29,8 @@ import type {
   NativeStackNavigationOptions,
 } from '@react-navigation/native-stack';
 import type { ComponentPreviewStackParamList } from '../navigation/types';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const Stack = createNativeStackNavigator<ComponentPreviewStackParamList>();
 const HEADER_SIDE_WIDTH_MULTIPLIER = 2;
@@ -120,10 +122,7 @@ function ComponentPreviewHeader({
     <View style={styles.header}>
       <View style={[styles.side, styles.left]}>
         {back ? (
-          <Pressable
-            onPress={navigation.goBack}
-            style={styles.backButton}
-          >
+          <Pressable onPress={navigation.goBack} style={styles.backButton}>
             <ArrowLeftIcon
               color={token.colorIconHover}
               size={token.fontSizeHeading3}
@@ -260,13 +259,16 @@ export function ComponentPreviewScreen() {
   }, []);
 
   return (
-    <ThemeProvider config={themeConfig}>
-      <ComponentPreviewNavigator
-        algorithm={algorithm}
-        onNextPreset={selectNextPreset}
-        onToggleAlgorithm={toggleAlgorithm}
-        preset={preset}
-      />
-    </ThemeProvider>
+    <SafeAreaProvider>
+      <SafeAreaView></SafeAreaView>
+      <ThemeProvider config={themeConfig}>
+        <ComponentPreviewNavigator
+          algorithm={algorithm}
+          onNextPreset={selectNextPreset}
+          onToggleAlgorithm={toggleAlgorithm}
+          preset={preset}
+        />
+      </ThemeProvider>
+    </SafeAreaProvider>
   );
 }

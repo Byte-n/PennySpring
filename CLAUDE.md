@@ -150,7 +150,7 @@ scripts/                → 本地工具脚本
 
 **以下任务豁免 TDD 流程与新增测试**（仍需在完成后运行 `yarn test`，保证存量用例全绿）：
 
-- `packages/pennyspring-ui/examples/**` 的任何修改（预览/样例专用，不进入产物行为）。
+- `packages/pennyspring-ui/examples/` 的任何修改（预览/样例专用，不进入产物行为）。
 - 文档修改。
 - 依赖、项目工程化配置
 - 静态资产新增或替换

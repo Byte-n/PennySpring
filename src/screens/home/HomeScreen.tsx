@@ -45,6 +45,7 @@ function MenuButton({ onPress }: MenuButtonProps) {
 function DrawerOptionList({
   onOpenAssetManage,
   onOpenBookManage,
+  onOpenBusinessPreview,
   onOpenComponentPreview,
   onOpenTagManage,
   onOpenTestScreen,
@@ -52,6 +53,7 @@ function DrawerOptionList({
 }: {
   onOpenAssetManage: () => void;
   onOpenBookManage: () => void;
+  onOpenBusinessPreview: () => void;
   onOpenComponentPreview: () => void;
   onOpenTagManage: () => void;
   onOpenTestScreen: () => void;
@@ -113,6 +115,16 @@ function DrawerOptionList({
       </Button>
       <Button
         block
+        onPress={onOpenBusinessPreview}
+        style={styles.optionButton}
+        type="default"
+      >
+        <Text size="md" weight="strong">
+          业务预览
+        </Text>
+      </Button>
+      <Button
+        block
         onPress={onOpenComponentPreview}
         style={styles.optionButton}
         type="default"
@@ -147,6 +159,11 @@ export function HomeScreen() {
     navigation.navigate(ROOT_ROUTES.ComponentPreview);
   }, [navigation]);
 
+  const openBusinessPreview = React.useCallback(() => {
+    setIsDrawerOpen(false);
+    navigation.navigate(ROOT_ROUTES.BusinessPreview);
+  }, [navigation]);
+
   const openBookManage = React.useCallback(() => {
     setIsDrawerOpen(false);
     navigation.navigate(ROOT_ROUTES.BookManage);
@@ -176,6 +193,7 @@ export function HomeScreen() {
         <DrawerOptionList
           onOpenAssetManage={openAssetManage}
           onOpenBookManage={openBookManage}
+          onOpenBusinessPreview={openBusinessPreview}
           onOpenComponentPreview={openComponentPreview}
           onOpenTagManage={openTagManage}
           onOpenTestScreen={openTestScreen}

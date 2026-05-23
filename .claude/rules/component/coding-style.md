@@ -1,7 +1,7 @@
 ---
 paths:
-  - "packages/component/src/**/*.ts"
-  - "packages/component/src/**/*.tsx"
+  - "packages/pennyspring-ui/**/*.ts"
+  - "packages/pennyspring-ui/**/*.tsx"
 ---
 
 # 组件编码风格
@@ -10,17 +10,17 @@ paths:
 
 ## 适用范围
 
-- 本文件适用于 `packages/component/src/**/*.{ts,tsx}` 中的共享 React Native 组件。
+- 本文件适用于 `packages/pennyspring-ui/**/*.{ts,tsx}` 中的共享 React Native 组件。
 - 组件实现必须继承 TypeScript/JavaScript 编码风格、通用编码风格和项目宪章中的样式约束。
-- 组件应优先复用 `packages/component/src` 中已有能力。
+- 组件应优先复用 `packages/pennyspring-ui` 中已有能力。
 - 创建、修改、重构组件时，应优先在独立 git worktree 中进行。
 
 ## 目录与导出
 
-- 组件目录：`packages/component/src/组件名称`，样式文件：`style/index.ts`。
-- 非组件目录：`packages/component/src/_{name}`。
+- 组件目录：`packages/pennyspring-ui/组件名称`，样式文件：`style/index.ts`。
+- 非组件目录：`packages/pennyspring-ui/_{name}`。
 - 公共 props 与导出的样式类型放在组件目录的 `types.ts`。
-- 组件由目录内 `index.ts` 导出，并同步从包级 `packages/component/src/index.ts` 导出。
+- 组件由目录内 `index.ts` 导出，并同步从包级 `packages/pennyspring-ui/index.ts` 导出。
 - 新增共享组件，或对现有组件进行重大功能调整时，必须同步新增或修改 `.claude/skills/component-composer/references/component-catalog.md` 中对应条目，确保组件选型目录与实际能力一致。
 
 ## 公共 API
