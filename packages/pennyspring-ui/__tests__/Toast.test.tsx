@@ -1,8 +1,36 @@
 import React from 'react';
+import { View } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
 import type { WithTimingConfig } from 'react-native-reanimated';
 import { Toast } from '../src/Toast';
 import { PortalProvider } from '../src/Portal';
+
+function flattenStyle(style: unknown) {
+  const flatten = (input: unknown): Record<string, unknown>[] => {
+    if (input === null || input === undefined || input === false) {
+      return [];
+    }
+
+    if (Array.isArray(input)) {
+      return input.flatMap(flatten);
+    }
+
+    return [input as Record<string, unknown>];
+  };
+
+  return Object.assign({}, ...flatten(style));
+}
+
+function findToastContent(testRenderer: renderer.ReactTestRenderer) {
+  return testRenderer.root.findAllByType(View).find(node => {
+    const flattenedStyle = flattenStyle(node.props.style);
+
+    return flattenedStyle.position === 'absolute'
+      && flattenedStyle.backgroundColor !== undefined
+      && flattenedStyle.paddingHorizontal !== undefined;
+  });
+}
+
 type WithTimingArgs = [number, WithTimingConfig?, (() => void)?];
 const mockWithTiming = jest.fn((value: number, _config?: WithTimingConfig, _callback?: () => void) => value);
 jest.mock('react-native-reanimated', () => {
@@ -67,5 +95,14 @@ describe('Toast', () => {
     expect(testRenderer!.root.findByProps({
       children: 'Toast message'
     })).toBeTruthy();
+  });
+  it('lets the content define toast width instead of stretching to both sides', () => {
+    const testRenderer = renderToast();
+    const toastContent = findToastContent(testRenderer);
+    const toastContentStyle = flattenStyle(toastContent?.props.style);
+
+    expect(toastContentStyle.left).toBeUndefined();
+    expect(toastContentStyle.right).toBeUndefined();
+    expect(toastContentStyle.alignSelf).toBe('center');
   });
 });

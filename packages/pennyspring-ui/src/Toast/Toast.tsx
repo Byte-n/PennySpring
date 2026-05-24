@@ -69,8 +69,7 @@ const useStyles = createUseSheetStyle((token, { size, placement }: { size: Compo
     content: {
       position: 'absolute',
       zIndex: token.zIndexPopupBase + 100,
-      left: token.paddingLG,
-      right: token.paddingLG,
+      maxWidth: '100%',
       ...getPlacementStyle(placement),
       ...(placement === 'top'
         ? { marginTop: token.paddingXL }
