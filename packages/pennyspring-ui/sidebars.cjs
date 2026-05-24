@@ -40,6 +40,7 @@ const sidebars = {
           items: [
             'components/data-entry/input',
             'components/data-entry/display-input',
+            'components/data-entry/image-picker',
             'components/data-entry/calculator-input',
             'components/data-entry/textarea',
             'components/data-entry/checkbox',
