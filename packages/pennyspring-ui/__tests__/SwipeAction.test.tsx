@@ -3,6 +3,90 @@ import { View } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
 import { SwipeAction } from '../src/SwipeAction';
 import type { SwipeActionAction } from '../src/SwipeAction';
+
+jest.mock('react-native-reanimated', () => {
+  const ReactNative = require('react-native');
+
+  return {
+    __esModule: true,
+    default: {
+      View: ReactNative.View,
+    },
+    Easing: {
+      bezier: () => 'bezier',
+    },
+    cancelAnimation: jest.fn(),
+    useAnimatedStyle: (updater: () => Record<string, unknown>) => updater(),
+    useSharedValue: (value: number) => {
+      const ReactLocal = require('react');
+      const sharedValueRef = ReactLocal.useRef({ value });
+
+      return sharedValueRef.current;
+    },
+    withTiming: (value: number) => value,
+  };
+});
+
+jest.mock('react-native-gesture-handler', () => {
+  const ReactLocal = require('react');
+  const ReactNative = require('react-native');
+  type MockGestureHandler = (
+    mockEvent?: unknown,
+    mockSuccess?: boolean,
+  ) => void;
+
+  const createPanGesture = () => {
+    const handlers: Record<string, MockGestureHandler> = {};
+    const gesture = {
+      __handlers: handlers,
+      activeOffsetX: () => gesture,
+      enabled: () => gesture,
+      failOffsetY: () => gesture,
+      minDistance: () => gesture,
+      onBegin: (handler: MockGestureHandler) => {
+        handlers.onBegin = handler;
+        return gesture;
+      },
+      onEnd: (handler: MockGestureHandler) => {
+        handlers.onEnd = handler;
+        return gesture;
+      },
+      onFinalize: (handler: MockGestureHandler) => {
+        handlers.onFinalize = handler;
+        return gesture;
+      },
+      onUpdate: (handler: MockGestureHandler) => {
+        handlers.onUpdate = handler;
+        return gesture;
+      },
+      runOnJS: () => gesture,
+    };
+
+    return gesture;
+  };
+
+  return {
+    Gesture: {
+      Pan: createPanGesture,
+    },
+    GestureDetector: ({
+      children,
+      gesture,
+    }: {
+      children: React.ReactNode;
+      gesture: unknown;
+    }) =>
+      ReactLocal.createElement(
+        ReactNative.View,
+        {
+          gesture,
+          testID: 'swipe-action-gesture-detector',
+        },
+        children,
+      ),
+  };
+});
+
 function renderSwipeAction(props: Partial<React.ComponentProps<typeof SwipeAction>> = {}) {
   const leftActions: SwipeActionAction[] = [{
     key: 'left-archive',
@@ -52,28 +136,27 @@ function swipeRow(testRenderer: renderer.ReactTestRenderer, options: {
   endX: number;
   pageY?: number;
 }): void {
-  const root = testRenderer.root.findByProps({
-    testID: 'swipe-action-root'
+  const gestureDetector = testRenderer.root.findByProps({
+    testID: 'swipe-action-gesture-detector'
   });
+  const gesture = gestureDetector.props.gesture as {
+    __handlers: {
+      onBegin?: () => void;
+      onEnd?: (event: { translationX: number; velocityX: number }) => void;
+      onUpdate?: (event: { translationX: number; translationY: number }) => void;
+    };
+  };
   const pageY = options.pageY ?? 0;
+  const translationX = options.endX - options.startX;
   act(() => {
-    root.props.onResponderGrant({
-      nativeEvent: {
-        pageX: options.startX,
-        pageY
-      }
+    gesture.__handlers.onBegin?.();
+    gesture.__handlers.onUpdate?.({
+      translationX,
+      translationY: pageY,
     });
-    root.props.onResponderMove({
-      nativeEvent: {
-        pageX: options.endX,
-        pageY
-      }
-    });
-    root.props.onResponderRelease({
-      nativeEvent: {
-        pageX: options.endX,
-        pageY
-      }
+    gesture.__handlers.onEnd?.({
+      translationX,
+      velocityX: 0,
     });
   });
 }

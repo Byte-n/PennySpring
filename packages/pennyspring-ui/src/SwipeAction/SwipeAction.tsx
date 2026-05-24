@@ -1,14 +1,27 @@
 import type { ComponentSize } from '../shares/types';
 import React from 'react';
 import { Pressable, View } from 'react-native';
-import { createUseSheetStyle } from '@pennyspring/theme';
+import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
 import type { AliasToken } from '@pennyspring/theme';
 import type {
-  GestureResponderEvent,
   LayoutChangeEvent,
   TextStyle,
   ViewStyle,
 } from 'react-native';
+import {
+  Gesture,
+  GestureDetector,
+  type GestureStateChangeEvent,
+  type GestureUpdateEvent,
+  type PanGestureHandlerEventPayload,
+} from 'react-native-gesture-handler';
+import Animated, {
+  Easing,
+  cancelAnimation,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
 import { useControllableValue } from '../_hooks';
 import { Text } from '../Text';
 import type {
@@ -173,6 +186,16 @@ function resolveOffsetByValue(
   return 0;
 }
 
+function shouldHandleHorizontalGesture(
+  translationX: number,
+  translationY: number,
+): boolean {
+  return (
+    Math.abs(translationX) > DRAG_START_DISTANCE &&
+    Math.abs(translationX) > Math.abs(translationY)
+  );
+}
+
 function resolveNearestValue(
   offset: number,
   leftWidth: number,
@@ -283,6 +306,7 @@ export const SwipeAction = React.forwardRef<SwipeActionRef, SwipeActionProps>(
       disabled: disabled || readonly,
       size,
     }) as Record<string, ViewStyle | TextStyle>;
+    const { token } = useTheme();
     const [swipeValue, setSwipeValue] = useControllableValue<SwipeActionValue>(
       defaultValue,
       value,
@@ -290,12 +314,10 @@ export const SwipeAction = React.forwardRef<SwipeActionRef, SwipeActionProps>(
     );
     const [leftWidth, setLeftWidth] = React.useState(0);
     const [rightWidth, setRightWidth] = React.useState(0);
-    const [dragOffset, setDragOffset] = React.useState<number | null>(null);
 
-    const startPageXRef = React.useRef(0);
-    const startPageYRef = React.useRef(0);
     const startOffsetRef = React.useRef(0);
     const draggingRef = React.useRef(false);
+    const translateX = useSharedValue(0);
 
     const isGestureBlocked = disabled || readonly;
     const currentValue = swipeValue ?? null;
@@ -304,23 +326,37 @@ export const SwipeAction = React.forwardRef<SwipeActionRef, SwipeActionProps>(
       leftWidth,
       rightWidth,
     );
-    const trackOffset = dragOffset ?? settledOffset;
-
-    const trackTransformStyle = React.useMemo<ViewStyle>(
-      () => ({
-        transform: [
-          {
-            translateX: trackOffset,
-          },
-        ],
-      }),
-      [trackOffset],
+    const animationEasing = React.useMemo(
+      () => Easing.bezier(...token.motionEaseOut),
+      [token.motionEaseOut],
     );
 
+    const animateToOffset = React.useCallback(
+      (nextOffset: number): void => {
+        translateX.value = withTiming(nextOffset, {
+          duration: token.motionDurationMid,
+          easing: animationEasing,
+        });
+      },
+      [animationEasing, token.motionDurationMid, translateX],
+    );
+
+    const trackTransformStyle = useAnimatedStyle<ViewStyle>(() => ({
+      transform: [
+        {
+          translateX: translateX.value,
+        },
+      ],
+    }));
+
+    React.useEffect(() => {
+      animateToOffset(settledOffset);
+    }, [animateToOffset, settledOffset]);
+
     const close = React.useCallback((): void => {
-      setDragOffset(null);
+      animateToOffset(0);
       setSwipeValue(null);
-    }, [setSwipeValue]);
+    }, [animateToOffset, setSwipeValue]);
 
     const show = React.useCallback(
       (side: SwipeActionSide = 'right'): void => {
@@ -332,11 +368,19 @@ export const SwipeAction = React.forwardRef<SwipeActionRef, SwipeActionProps>(
           return;
         }
 
-        setDragOffset(null);
+        animateToOffset(resolveOffsetByValue(side, leftWidth, rightWidth));
         setSwipeValue(side);
         onActionsReveal?.(side);
       },
-      [leftActions.length, onActionsReveal, rightActions.length, setSwipeValue],
+      [
+        animateToOffset,
+        leftActions.length,
+        leftWidth,
+        onActionsReveal,
+        rightActions.length,
+        rightWidth,
+        setSwipeValue,
+      ],
     );
 
     React.useImperativeHandle(
@@ -356,69 +400,99 @@ export const SwipeAction = React.forwardRef<SwipeActionRef, SwipeActionProps>(
       setRightWidth(event.nativeEvent.layout.width);
     }
 
-    function handleResponderGrant(event: GestureResponderEvent): void {
-      if (isGestureBlocked) {
-        return;
-      }
+    const settleOffset = React.useCallback(
+      (nextOffset: number): void => {
+        const nextValue = resolveNearestValue(nextOffset, leftWidth, rightWidth);
 
-      startPageXRef.current = event.nativeEvent.pageX;
-      startPageYRef.current = event.nativeEvent.pageY;
-      startOffsetRef.current = settledOffset;
-      draggingRef.current = false;
-    }
+        animateToOffset(resolveOffsetByValue(nextValue, leftWidth, rightWidth));
+        setSwipeValue(nextValue);
 
-    function handleResponderMove(event: GestureResponderEvent): void {
-      if (isGestureBlocked) {
-        return;
-      }
-
-      const deltaX = event.nativeEvent.pageX - startPageXRef.current;
-      const deltaY = event.nativeEvent.pageY - startPageYRef.current;
-
-      if (
-        draggingRef.current === false &&
-        (Math.abs(deltaX) <= DRAG_START_DISTANCE ||
-          Math.abs(deltaX) <= Math.abs(deltaY))
-      ) {
-        return;
-      }
-
-      draggingRef.current = true;
-
-      const nextOffset = clamp(
-        startOffsetRef.current + deltaX,
-        -rightWidth,
+        if (nextValue !== null) {
+          onActionsReveal?.(nextValue);
+        }
+      },
+      [
+        animateToOffset,
         leftWidth,
-      );
-      setDragOffset(nextOffset);
-    }
+        onActionsReveal,
+        rightWidth,
+        setSwipeValue,
+      ],
+    );
 
-    function settleOffset(nextOffset: number): void {
-      const nextValue = resolveNearestValue(nextOffset, leftWidth, rightWidth);
-
-      setDragOffset(null);
-      setSwipeValue(nextValue);
-
-      if (nextValue !== null) {
-        onActionsReveal?.(nextValue);
-      }
-    }
-
-    function handleResponderRelease(event: GestureResponderEvent): void {
+    const handleGestureBegin = React.useCallback((): void => {
       if (isGestureBlocked) {
         return;
       }
 
-      const deltaX = event.nativeEvent.pageX - startPageXRef.current;
-      const nextOffset = clamp(
-        startOffsetRef.current + deltaX,
-        -rightWidth,
-        leftWidth,
-      );
-
-      settleOffset(nextOffset);
+      cancelAnimation(translateX);
+      startOffsetRef.current = translateX.value;
       draggingRef.current = false;
-    }
+    }, [isGestureBlocked, translateX]);
+
+    const handleGestureUpdate = React.useCallback(
+      (event: GestureUpdateEvent<PanGestureHandlerEventPayload>): void => {
+        if (
+          isGestureBlocked ||
+          !shouldHandleHorizontalGesture(event.translationX, event.translationY)
+        ) {
+          return;
+        }
+
+        draggingRef.current = true;
+        const nextOffset = clamp(
+          startOffsetRef.current + event.translationX,
+          -rightWidth,
+          leftWidth,
+        );
+
+        translateX.value = nextOffset;
+      },
+      [isGestureBlocked, leftWidth, rightWidth, translateX],
+    );
+
+    const handleGestureEnd = React.useCallback(
+      (event: GestureStateChangeEvent<PanGestureHandlerEventPayload>): void => {
+        if (isGestureBlocked) {
+          return;
+        }
+
+        const translationY = event.translationY ?? 0;
+
+        if (!shouldHandleHorizontalGesture(event.translationX, translationY)) {
+          animateToOffset(settledOffset);
+          draggingRef.current = false;
+          return;
+        }
+
+        const nextOffset = clamp(
+          startOffsetRef.current + event.translationX,
+          -rightWidth,
+          leftWidth,
+        );
+
+        settleOffset(nextOffset);
+        draggingRef.current = false;
+      },
+      [
+        animateToOffset,
+        isGestureBlocked,
+        leftWidth,
+        rightWidth,
+        settleOffset,
+        settledOffset,
+      ],
+    );
+
+    const handleGestureFinalize = React.useCallback((
+      _event: unknown,
+      success: boolean,
+    ): void => {
+      if (!success) {
+        animateToOffset(settledOffset);
+        draggingRef.current = false;
+      }
+    }, [animateToOffset, settledOffset]);
 
     function handleContentResponderRelease(): void {
       if (draggingRef.current || currentValue === null) {
@@ -491,56 +565,73 @@ export const SwipeAction = React.forwardRef<SwipeActionRef, SwipeActionProps>(
       renderAction(action, index, 'right'),
     );
 
+    const panGesture = React.useMemo(
+      () =>
+        Gesture.Pan()
+          .enabled(!isGestureBlocked)
+          .runOnJS(true)
+          .minDistance(DRAG_START_DISTANCE)
+          .activeOffsetX([-DRAG_START_DISTANCE, DRAG_START_DISTANCE])
+          .onBegin(handleGestureBegin)
+          .onUpdate(handleGestureUpdate)
+          .onEnd(handleGestureEnd)
+          .onFinalize(handleGestureFinalize),
+      [
+        handleGestureBegin,
+        handleGestureEnd,
+        handleGestureFinalize,
+        handleGestureUpdate,
+        isGestureBlocked,
+      ],
+    );
+
     return (
-      <View
-        {...rest}
-        onMoveShouldSetResponder={() => !isGestureBlocked}
-        onResponderGrant={handleResponderGrant}
-        onResponderMove={handleResponderMove}
-        onResponderRelease={handleResponderRelease}
-        onStartShouldSetResponder={() => !isGestureBlocked}
-        style={[tokenStyles.root, tokenStyles.rootDisabled, style]}
-        testID="swipe-action-root"
-      >
+      <GestureDetector gesture={panGesture}>
         <View
-          onLayout={handleLeftActionsLayout}
-          style={[
-            tokenStyles.actionsBase,
-            tokenStyles.leftActions,
-            styles?.leftActions,
-          ]}
-          testID="swipe-action-left-actions"
-        >
-          {leftActionsNode}
-        </View>
-        <View
-          onLayout={handleRightActionsLayout}
-          style={[
-            tokenStyles.actionsBase,
-            tokenStyles.rightActions,
-            styles?.rightActions,
-          ]}
-          testID="swipe-action-right-actions"
-        >
-          {rightActionsNode}
-        </View>
-        <View
-          style={[tokenStyles.track, trackTransformStyle, styles?.track]}
-          testID="swipe-action-track"
+          {...rest}
+          style={[tokenStyles.root, tokenStyles.rootDisabled, style]}
+          testID="swipe-action-root"
         >
           <View
-            onResponderRelease={handleContentResponderRelease}
+            onLayout={handleLeftActionsLayout}
             style={[
-              tokenStyles.content,
-              isGestureBlocked ? tokenStyles.contentDisabled : null,
-              styles?.content,
+              tokenStyles.actionsBase,
+              tokenStyles.leftActions,
+              styles?.leftActions,
             ]}
-            testID="swipe-action-content"
+            testID="swipe-action-left-actions"
           >
-            {children}
+            {leftActionsNode}
           </View>
+          <View
+            onLayout={handleRightActionsLayout}
+            style={[
+              tokenStyles.actionsBase,
+              tokenStyles.rightActions,
+              styles?.rightActions,
+            ]}
+            testID="swipe-action-right-actions"
+          >
+            {rightActionsNode}
+          </View>
+          <Animated.View
+            style={[tokenStyles.track, trackTransformStyle, styles?.track]}
+            testID="swipe-action-track"
+          >
+            <View
+              onResponderRelease={handleContentResponderRelease}
+              style={[
+                tokenStyles.content,
+                isGestureBlocked ? tokenStyles.contentDisabled : null,
+                styles?.content,
+              ]}
+              testID="swipe-action-content"
+            >
+              {children}
+            </View>
+          </Animated.View>
         </View>
-      </View>
+      </GestureDetector>
     );
   },
 );
