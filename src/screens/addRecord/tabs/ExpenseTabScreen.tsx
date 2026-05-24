@@ -1,22 +1,14 @@
 import React, { useState } from 'react';
-import { ScrollView } from 'react-native';
-import { Column } from '@pennyspring/ui';
+import { Column, KeyboardAwareFormScroll } from '@pennyspring/ui';
 import { RECORD_TYPE_CATEGORY } from '@pennyspring/data';
-import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
+import { useTheme } from '@pennyspring/theme';
 import { AmountDisplay } from '../components/AmountDisplay';
 import { FieldChips } from '../components/FieldChips';
 import { CategoryGrid } from '../../../component/CategoryGrid';
 import { RemarkInput } from '../components/RemarkInput';
 import { useCategoryItems } from '../useCategoryItems';
 
-const useStyles = createUseSheetStyle(_token => ({
-  container: {
-    flex: 1,
-  },
-}));
-
 export function ExpenseTabScreen() {
-  const styles = useStyles();
   const { token } = useTheme();
   const [typeId, setTypeId] = useState<number>();
   const [assetId, _setAssetId] = useState<number | null>(null);
@@ -24,7 +16,10 @@ export function ExpenseTabScreen() {
   const { categories } = useCategoryItems(RECORD_TYPE_CATEGORY.expense);
 
   return (
-    <ScrollView style={styles.container}>
+    <KeyboardAwareFormScroll
+      extraBottomInset={token.paddingXL}
+      focusedInputBottomOffset={token.paddingXL}
+    >
       <Column gap={token.marginXS}>
         <AmountDisplay />
         <FieldChips
@@ -43,6 +38,6 @@ export function ExpenseTabScreen() {
         />
         <RemarkInput />
       </Column>
-    </ScrollView>
+    </KeyboardAwareFormScroll>
   );
 }

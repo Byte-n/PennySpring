@@ -1,6 +1,10 @@
 import React from 'react';
 import { AddRecordProvider } from './AddRecordContext';
-import { type TabScreen, TopTabNavigator } from '@pennyspring/ui';
+import {
+  KeyboardAwareScreen,
+  type TabScreen,
+  TopTabNavigator,
+} from '@pennyspring/ui';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import { ExpenseTabScreen } from './tabs/ExpenseTabScreen.tsx';
 import { IncomeTabScreen } from './tabs/IncomeTabScreen.tsx';
@@ -10,12 +14,14 @@ export function AddRecordScreen() {
   const styles = useStyles();
   return (
     <AddRecordProvider>
-      <TopTabNavigator
-        screens={ADD_RECORD_TAB_SCREENS}
-        styles={{
-          sceneContainer: styles.sceneContainer,
-        }}
-      />
+      <KeyboardAwareScreen>
+        <TopTabNavigator
+          screens={ADD_RECORD_TAB_SCREENS}
+          styles={{
+            sceneContainer: styles.sceneContainer,
+          }}
+        />
+      </KeyboardAwareScreen>
     </AddRecordProvider>
   );
 }
