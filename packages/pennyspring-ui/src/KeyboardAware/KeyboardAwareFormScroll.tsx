@@ -50,6 +50,8 @@ export function KeyboardAwareFormScroll({
   const resolvedFocusedInputBottomOffset =
     focusedInputBottomOffset ?? token.paddingMD;
 
+  const layoutCallback = useRef<VoidFunction>(null);
+
   const scrollFocusedInputIntoView = useCallback(() => {
     const scrollView = scrollRef.current;
     const focusedInput = TextInput.State.currentlyFocusedInput();
@@ -94,10 +96,13 @@ export function KeyboardAwareFormScroll({
             return;
           }
 
-          scrollView.scrollTo({
-            y: scrollOffsetY + inputBottomY - visibleHeight,
-            animated: true,
-          });
+          layoutCallback.current = () => {
+            layoutCallback.current = null;
+            scrollView.scrollTo({
+              y: scrollOffsetY + inputBottomY - visibleHeight,
+              animated: true,
+            });
+          };
         },
       );
     });
@@ -106,7 +111,6 @@ export function KeyboardAwareFormScroll({
     keyboardInsets.keyboardScreenY,
     resolvedFocusedInputBottomOffset,
   ]);
-
   useLayoutEffect(() => {
     if (!keyboardInsets.isKeyboardVisible) {
       return;
@@ -122,6 +126,8 @@ export function KeyboardAwareFormScroll({
 
   function handleLayout(event: LayoutChangeEvent): void {
     onLayout?.(event);
+    layoutCallback.current?.();
+    console.log('layoutCallback:', layoutCallback);
   }
 
   function handleScroll(
