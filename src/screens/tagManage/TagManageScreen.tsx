@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { Pressable, ScrollView } from 'react-native';
+import { ScrollView } from 'react-native';
 import { useRequest } from 'ahooks';
 import {
   ActionSheet,
@@ -7,7 +7,7 @@ import {
   Dialog,
   Input,
   Row,
-  Text,
+  Tag,
   useToast,
 } from '@pennyspring/ui';
 import { api, VISIBILITY, type TagRow } from '@pennyspring/data';
@@ -26,30 +26,8 @@ const useStyles = createUseSheetStyle(token => ({
     flexWrap: 'wrap',
     gap: token.marginSM,
   },
-  chip: {
-    paddingVertical: token.paddingXS,
-    paddingHorizontal: token.paddingSM,
-    backgroundColor: token.colorBgContainer,
-    borderRadius: token.borderRadiusLG,
-  },
   chipHidden: {
     opacity: 0.5,
-  },
-  chipAdd: {
-    paddingVertical: token.paddingXS,
-    paddingHorizontal: token.paddingSM,
-    borderRadius: token.borderRadiusLG,
-    borderWidth: 1,
-    borderStyle: 'dashed',
-    borderColor: token.colorBorder,
-  },
-  chipText: {
-    fontSize: token.fontSizeSM,
-    color: token.colorText,
-  },
-  chipAddText: {
-    fontSize: token.fontSizeSM,
-    color: token.colorTextTertiary,
   },
   dialogBody: {
     gap: token.marginSM,
@@ -110,7 +88,9 @@ export function TagManageScreen() {
         await api.tag.delete(id);
         refresh();
       } catch (e: unknown) {
-        toast.show({ messageText: e instanceof Error ? e.message : '删除失败' });
+        toast.show({
+          messageText: e instanceof Error ? e.message : '删除失败',
+        });
       }
     },
     [refresh, toast],
@@ -119,11 +99,16 @@ export function TagManageScreen() {
   const handleToggleVisibility = useCallback(
     async (tag: TagRow) => {
       try {
-        const invisible = tag.invisible === VISIBILITY.hidden ? VISIBILITY.visible : VISIBILITY.hidden;
+        const invisible =
+          tag.invisible === VISIBILITY.hidden
+            ? VISIBILITY.visible
+            : VISIBILITY.hidden;
         await api.tag.update({ id: tag.id, name: tag.name, invisible });
         refresh();
       } catch (e: unknown) {
-        toast.show({ messageText: e instanceof Error ? e.message : '操作失败' });
+        toast.show({
+          messageText: e instanceof Error ? e.message : '操作失败',
+        });
       }
     },
     [refresh, toast],
@@ -157,24 +142,27 @@ export function TagManageScreen() {
     <Column style={styles.container}>
       <ScrollView contentContainerStyle={styles.content}>
         <Row style={styles.grid}>
+          <Tag variant="outlined" onPress={openCreateDialog}>
+            + 新增标签
+          </Tag>
           {tags.map(tag => (
-            <Pressable
+            <Tag
               key={tag.id}
-              style={[styles.chip, tag.invisible === VISIBILITY.hidden && styles.chipHidden]}
+              variant="outlined"
+              style={[tag.invisible === VISIBILITY.hidden && styles.chipHidden]}
               onLongPress={() => handleLongPress(tag)}
             >
-              <Text style={styles.chipText}>{tag.name}</Text>
-            </Pressable>
+              {tag.name}
+            </Tag>
           ))}
-          <Pressable style={styles.chipAdd} onPress={openCreateDialog}>
-            <Text style={styles.chipAddText}>+ 新增标签</Text>
-          </Pressable>
         </Row>
       </ScrollView>
 
       <ActionSheet
         open={actionSheetOpen}
-        onOpenChange={open => { if (!open) setActionSheetOpen(false); }}
+        onOpenChange={open => {
+          if (!open) setActionSheetOpen(false);
+        }}
         actions={actionSheetActions}
         onAction={handleActionSheetAction}
         cancelText="取消"
@@ -182,7 +170,9 @@ export function TagManageScreen() {
 
       <Dialog
         open={dialogOpen}
-        onOpenChange={open => { if (!open) setDialogOpen(false); }}
+        onOpenChange={open => {
+          if (!open) setDialogOpen(false);
+        }}
         titleText={editingTag ? '编辑标签' : '新增标签'}
         onOk={handleSave}
         okDisabled={!name.trim()}
