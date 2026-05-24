@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useLayoutEffect, useRef } from 'react';
 import { ScrollView, TextInput } from 'react-native';
 import type { KeyboardAwareFormScrollProps } from './types';
 import { useFormScrollStyles } from './style';
@@ -107,7 +107,7 @@ export function KeyboardAwareFormScroll({
     resolvedFocusedInputBottomOffset,
   ]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!keyboardInsets.isKeyboardVisible) {
       return;
     }
