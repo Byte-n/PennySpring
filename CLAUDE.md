@@ -72,9 +72,7 @@ scripts/                → 本地工具脚本
 
 - 不需要支持无障碍、可访问性设计或相关属性
 
-## UI / 样式约束
-
-### 样式（React Native）
+## 样式约束（React Native）
 
 **唯一构建方式**：`createUseSheetStyle`（来自 `@pennyspring/theme`）。
 
@@ -96,7 +94,7 @@ scripts/                → 本地工具脚本
 
 **主题注入**：全局 `<ThemeProvider>` 位于应用根；禁止在组件内判断 light/dark 分支，token 已自适配。
 
-### Components
+## 组件约束
 
 - 共享组件放在 `packages/pennyspring-ui/src/<ComponentName>/`，由目录内 `index.ts` 和包级 `src/index.ts` 导出。
 - 公共 props 与导出的样式类型放在组件目录的 `types.ts`。
@@ -106,12 +104,12 @@ scripts/                → 本地工具脚本
   做展示文本。
 - `Text` 字号、颜色等优先使用 `TextProps` 实现，其次再是 `style`；禁止优先使用 `style`
 
-### Navigation
+## 导航约束
 
 - 需要访问导航对象时，统一使用 `src/navigation` 导出的 `useNavigation` 封装 hook。禁止直接从
   `@react-navigation/native` 导入原始 `useNavigation`。
 
-### 动画
+## 动画约束
 
 - 动画实现仅允许使用 `react-native-reanimated` 实现，禁止使用 React Native 的动画。
 - **禁止** 在组件实现中使用 `react-native` 的 `Animated`、`LayoutAnimation`、`Animated.timing/spring/decay`。
@@ -119,10 +117,14 @@ scripts/                → 本地工具脚本
 - 缓动曲线统一使用 `Easing.bezier(...token.motionEase*)`（来自 `react-native-reanimated`），避免不同组件动画手感漂移。
 - 进入/退出动画必须成对设计（含 mount/unmount 生命周期），避免只进不出、闪烁或残留占位。
 
-### 手势
+## 手势约束
 
 - 手势相关能力统一使用 `react-native-gesture-handler`。
 - 应用根已挂载 `<GestureHandlerRootView>`，组件内可直接使用手势组件。
+
+## 设计 / 布局约束
+
+- 界面的组成优先使用 `component-composer` 技能来获取布局指导。
 
 ## 测试约束
 
