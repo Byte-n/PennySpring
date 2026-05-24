@@ -5,6 +5,7 @@
   "main": "app.js",
   "scripts": {
     "android": "react-native run-android",
+    "clean": "bash scripts/clean.sh",
     "ios": "react-native run-ios",
     "lint": "eslint .",
     "start": "react-native start",
