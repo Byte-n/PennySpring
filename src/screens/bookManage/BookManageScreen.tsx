@@ -1,5 +1,6 @@
 import React, { useCallback, useState } from 'react';
-import { Image, ScrollView, View } from 'react-native';
+import { Image, ScrollView } from 'react-native';
+import type { ImageStyle, StyleProp, TextStyle } from 'react-native';
 import { useRequest } from 'ahooks';
 import {
   Column,
@@ -31,28 +32,62 @@ const useStyles = createUseSheetStyle(token => ({
     backgroundColor: token.colorBgContainer,
     borderRadius: token.borderRadiusLG,
     padding: token.padding,
-    minHeight: token.controlHeightLG * 2,
+    gap: token.marginSM,
     ...toShadowStyle(token.boxShadowTertiary),
+  },
+  cardMain: {
+    gap: token.marginSM,
   },
   cardInfo: {
     flex: 1,
-    justifyContent: 'center',
-    paddingRight: token.padding,
+    gap: token.marginXS,
   },
   cardName: {
-    fontSize: token.fontSize,
-    fontWeight: '500',
-    color: token.colorText,
+    fontSize: token.fontSizeLG,
+    lineHeight: token.lineHeightLG,
+    fontWeight: token.fontWeightStrong as TextStyle['fontWeight'],
+    color: token.colorTextHeading,
   },
   cardDesc: {
     fontSize: token.fontSizeSM,
+    lineHeight: token.lineHeightSM,
+    color: token.colorTextDescription,
+  },
+  cardDescEmpty: {
+    color: token.colorTextTertiary,
+  },
+  cardMetaGrid: {
+    gap: token.marginXS,
+    paddingTop: token.paddingSM,
+    borderTopWidth: token.lineWidth,
+    borderTopColor: token.colorBorderSecondary,
+  },
+  cardMetaRow: {
+    gap: token.marginXS,
+  },
+  cardMetaItem: {
+    flex: 1,
+    gap: token.marginXXS,
+    minHeight: token.controlHeightSM,
+    paddingVertical: token.paddingXS,
+    paddingHorizontal: token.paddingSM,
+    borderRadius: token.borderRadius,
+    backgroundColor: token.colorFillQuaternary,
+  },
+  cardMetaLabel: {
+    fontSize: token.fontSizeSM,
+    lineHeight: token.lineHeightSM,
+    color: token.colorTextTertiary,
+  },
+  cardMetaValue: {
+    fontSize: token.fontSizeSM,
+    lineHeight: token.lineHeightSM,
     color: token.colorTextSecondary,
-    marginTop: token.marginXXS,
   },
   cardCover: {
     width: token.controlHeightLG * 2,
     height: token.controlHeightLG * 2,
-    borderRadius: token.borderRadius,
+    borderRadius: token.borderRadiusLG,
     backgroundColor: token.colorFillTertiary,
     overflow: 'hidden',
   },
@@ -71,10 +106,53 @@ const useStyles = createUseSheetStyle(token => ({
     color: token.colorTextTertiary,
     textAlign: 'center',
   },
+  cardCoverStatus: {
+    alignSelf: 'flex-start',
+    paddingVertical: token.paddingXXS,
+    paddingHorizontal: token.paddingXS,
+    borderRadius: token.borderRadiusSM,
+    backgroundColor: token.colorPrimaryBg,
+  },
+  cardCoverStatusEmpty: {
+    backgroundColor: token.colorFillTertiary,
+  },
+  cardCoverStatusText: {
+    fontSize: token.fontSizeSM,
+    lineHeight: token.lineHeightSM,
+    color: token.colorPrimaryText,
+  },
+  cardCoverStatusTextEmpty: {
+    color: token.colorTextTertiary,
+  },
   dialogBody: {
     gap: token.marginSM,
   },
 }));
+
+const DATE_TIME_FORMAT_OPTIONS: Intl.DateTimeFormatOptions = {
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+  hour: '2-digit',
+  minute: '2-digit',
+};
+
+type BookManageStyles = ReturnType<typeof useStyles>;
+
+interface BookMetaProps {
+  label: string;
+  styles: BookManageStyles;
+  value: string;
+}
+
+function BookMeta({ label, styles, value }: BookMetaProps) {
+  return (
+    <Column style={styles.cardMetaItem}>
+      <Text style={styles.cardMetaLabel}>{label}</Text>
+      <Text style={styles.cardMetaValue}>{value}</Text>
+    </Column>
+  );
+}
 
 function getImageValue(background: string): ImagePickerValue | undefined {
   return background ? { uri: background } : undefined;
@@ -84,8 +162,17 @@ function getImageUri(imageValue: ImagePickerValue | undefined): string {
   return imageValue?.uri ?? '';
 }
 
+function formatBookTime(time: number): string {
+  if (!Number.isFinite(time) || time <= 0) {
+    return '未知';
+  }
+
+  return new Date(time).toLocaleString('zh-CN', DATE_TIME_FORMAT_OPTIONS);
+}
+
 export function BookManageScreen() {
   const styles = useStyles();
+  const cardCoverImageStyle = styles.cardCoverImage as StyleProp<ImageStyle>;
   const toast = useToast();
   const { data: books = [], refresh } = useRequest(() => api.book.getAll());
 
@@ -153,21 +240,50 @@ export function BookManageScreen() {
                 { key: 'delete', text: '删除', color: 'danger', onPress: () => handleDelete(book.id) },
               ]}
             >
-              <Row align="stretch" style={styles.card}>
-                <Column style={styles.cardInfo}>
-                  <Text style={styles.cardName}>{book.name}</Text>
-                  {book.description ? <Text style={styles.cardDesc}>{book.description}</Text> : null}
+              <Column style={styles.card}>
+                <Row align="stretch" style={styles.cardMain}>
+                  <Column style={styles.cardInfo}>
+                    <Text style={styles.cardName}>{book.name}</Text>
+                    <Text style={[styles.cardDesc, !book.description && styles.cardDescEmpty]}>
+                      {book.description || '暂无描述'}
+                    </Text>
+                    <Column
+                      style={[
+                        styles.cardCoverStatus,
+                        !book.background && styles.cardCoverStatusEmpty,
+                      ]}
+                    >
+                      <Text
+                        style={[
+                          styles.cardCoverStatusText,
+                          !book.background && styles.cardCoverStatusTextEmpty,
+                        ]}
+                      >
+                        {book.background ? '已设置封面' : '未设置封面'}
+                      </Text>
+                    </Column>
+                  </Column>
+                  <Column style={styles.cardCover}>
+                    {book.background ? (
+                      <Image resizeMode="cover" source={{ uri: book.background }} style={cardCoverImageStyle} />
+                    ) : (
+                      <Column style={styles.cardCoverPlaceholder}>
+                        <Text style={styles.cardCoverPlaceholderText}>暂无图片</Text>
+                      </Column>
+                    )}
+                  </Column>
+                </Row>
+                <Column style={styles.cardMetaGrid}>
+                  <Row align="stretch" style={styles.cardMetaRow}>
+                    <BookMeta label="账本编号" styles={styles} value={`#${book.id}`} />
+                    <BookMeta label="创建时间" styles={styles} value={formatBookTime(book.createdTime)} />
+                  </Row>
+                  <Row align="stretch" style={styles.cardMetaRow}>
+                    <BookMeta label="更新时间" styles={styles} value={formatBookTime(book.updatedTime)} />
+                    <BookMeta label="封面数据" styles={styles} value={book.background ? '已保存 URI' : '空'} />
+                  </Row>
                 </Column>
-                <View style={styles.cardCover}>
-                  {book.background ? (
-                    <Image resizeMode="cover" source={{ uri: book.background }} style={styles.cardCoverImage} />
-                  ) : (
-                    <View style={styles.cardCoverPlaceholder}>
-                      <Text style={styles.cardCoverPlaceholderText}>暂无图片</Text>
-                    </View>
-                  )}
-                </View>
-              </Row>
+              </Column>
             </SwipeAction>
           ))
         )}
