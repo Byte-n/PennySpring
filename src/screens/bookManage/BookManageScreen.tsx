@@ -3,6 +3,7 @@ import { Image, ScrollView } from 'react-native';
 import type { ImageStyle, StyleProp, TextStyle } from 'react-native';
 import { useRequest } from 'ahooks';
 import {
+  Card,
   Column,
   Dialog,
   Empty,
@@ -31,18 +32,22 @@ const useStyles = createUseSheetStyle(token => ({
     padding: token.padding,
     gap: token.marginSM,
   },
-  card: {
-    backgroundColor: token.colorBgContainer,
-    borderRadius: token.borderRadiusLG,
-    borderWidth: token.lineWidth,
-    borderColor: 'transparent',
-    padding: token.padding,
-    gap: token.marginSM,
+  item: {
     ...toShadowStyle(token.boxShadowTertiary),
+    borderRadius: token.borderRadiusLG,
+  },
+  card: {
+    borderWidth: token.lineWidth,
+    padding: token.padding,
+    borderRadius: token.borderRadiusLG,
+    gap: token.marginSM,
   },
   cardSelected: {
     borderColor: token.colorPrimaryBorder,
     backgroundColor: token.colorPrimaryBg,
+  },
+  cardPressed: {
+    backgroundColor: token.colorFillTertiary,
   },
   cardMain: {
     gap: token.marginSM,
@@ -79,21 +84,18 @@ const useStyles = createUseSheetStyle(token => ({
   cardDesc: {
     fontSize: token.fontSizeSM,
     lineHeight: token.lineHeightSM,
-    color: token.colorTextDescription,
   },
   cardDescEmpty: {
     color: token.colorTextTertiary,
   },
   cardTimeSummary: {
-    gap: token.marginXS,
-    paddingTop: token.paddingSM,
+    paddingTop: token.paddingXXS,
     borderTopWidth: token.lineWidth,
     borderTopColor: token.colorBorderSecondary,
   },
   cardTimeText: {
     fontSize: token.fontSizeSM,
     lineHeight: token.lineHeightSM,
-    color: token.colorTextSecondary,
   },
   cardCover: {
     width: token.controlHeightLG * 2,
@@ -159,7 +161,9 @@ export function BookManageScreen() {
   const [editingBook, setEditingBook] = useState<BookRow | null>(null);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-  const [backgroundImage, setBackgroundImage] = useState<ImagePickerValue | undefined>();
+  const [backgroundImage, setBackgroundImage] = useState<
+    ImagePickerValue | undefined
+  >();
 
   const openCreateDialog = useCallback(() => {
     setEditingBook(null);
@@ -182,7 +186,12 @@ export function BookManageScreen() {
 
     try {
       if (editingBook) {
-        const updatedBook = await api.book.update({ id: editingBook.id, name, description, background });
+        const updatedBook = await api.book.update({
+          id: editingBook.id,
+          name,
+          description,
+          background,
+        });
         if (currentBook?.id === updatedBook.id) {
           setCurrentBook(updatedBook);
         }
@@ -194,7 +203,16 @@ export function BookManageScreen() {
     } catch (e: unknown) {
       toast.show({ messageText: e instanceof Error ? e.message : '操作失败' });
     }
-  }, [backgroundImage, currentBook, editingBook, name, description, refresh, setCurrentBook, toast]);
+  }, [
+    backgroundImage,
+    currentBook,
+    editingBook,
+    name,
+    description,
+    refresh,
+    setCurrentBook,
+    toast,
+  ]);
 
   const handleDelete = useCallback(
     async (id: number) => {
@@ -205,7 +223,9 @@ export function BookManageScreen() {
         }
         refresh();
       } catch (e: unknown) {
-        toast.show({ messageText: e instanceof Error ? e.message : '删除失败' });
+        toast.show({
+          messageText: e instanceof Error ? e.message : '删除失败',
+        });
       }
     },
     [currentBook, initializeBook, refresh, toast],
@@ -255,7 +275,9 @@ export function BookManageScreen() {
                   },
                 ]}
               >
-                <Column style={[styles.card, isCurrentBook && styles.cardSelected]}>
+                <Card
+                  style={[styles.card, isCurrentBook && styles.cardSelected]}
+                >
                   <Row align="center" style={styles.cardMain}>
                     <Column style={styles.cardInfo}>
                       <Row style={styles.cardTitle}>
@@ -270,7 +292,11 @@ export function BookManageScreen() {
                             variant="filled"
                           >
                             <Row style={styles.currentTagContent}>
-                              <Icon color="colorPrimaryText" icon="check" size="small" />
+                              <Icon
+                                color="colorPrimaryText"
+                                icon="check"
+                                size="small"
+                              />
                               <Text style={styles.currentTagText}>当前</Text>
                             </Row>
                           </Tag>
@@ -288,14 +314,15 @@ export function BookManageScreen() {
                           styles.cardDesc,
                           !book.description && styles.cardDescEmpty,
                         ]}
+                        color="tertiary"
                       >
                         {book.description || '暂无描述'}
                       </Text>
                       <Column style={styles.cardTimeSummary}>
-                        <Text style={styles.cardTimeText}>
+                        <Text color="quaternary" style={styles.cardTimeText}>
                           {`创建：${formatBookTime(book.createdTime)}`}
                         </Text>
-                        <Text style={styles.cardTimeText}>
+                        <Text color="quaternary" style={styles.cardTimeText}>
                           {`更新：${formatBookTime(book.updatedTime)}`}
                         </Text>
                       </Column>
@@ -316,7 +343,7 @@ export function BookManageScreen() {
                       )}
                     </Column>
                   </Row>
-                </Column>
+                </Card>
               </SwipeAction>
             );
           })
