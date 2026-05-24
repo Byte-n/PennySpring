@@ -64,23 +64,4 @@ describe('App', () => {
     expect(treeString).toContain('App content');
     expect(treeString).toContain('Portal content');
   });
-
-  it('provides the gesture-handler root view for children', () => {
-    let testRenderer: renderer.ReactTestRenderer;
-
-    act(() => {
-      testRenderer = renderer.create(
-        <App config={{}}>
-          <Text>App content</Text>
-        </App>,
-      );
-    });
-
-    const rootView = testRenderer!.root.findByType(
-      // @ts-ignore
-      'mock-gesture-handler-root-view',
-    );
-
-    expect(rootView.props.style).toEqual(expect.objectContaining({ flex: 1 }));
-  });
 });

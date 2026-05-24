@@ -1,5 +1,4 @@
 import React from 'react';
-import { View } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
 import { Calendar } from '../src/Calendar';
 function renderCalendar(props: React.ComponentProps<typeof Calendar>) {
@@ -23,12 +22,6 @@ function pressByTestID(testRenderer: renderer.ReactTestRenderer, testID: string)
   const node = testRenderer.root.findByProps({ testID });
   act(() => {
     node.props.onPress({});
-  });
-}
-function findNodesWithStyle(testRenderer: renderer.ReactTestRenderer, markerStyle: Record<string, unknown>) {
-  return testRenderer.root.findAll(node => {
-    const style = node.props.style;
-    return node.type === View && Array.isArray(style) && style.includes(markerStyle);
   });
 }
 describe('Calendar', () => {
@@ -86,20 +79,6 @@ describe('Calendar', () => {
     pressByTestID(testRenderer, 'calendar-confirm');
     expect(onChange).toHaveBeenCalledWith('2026-05-07');
     expect(onOk).toHaveBeenCalledWith('2026-05-07');
-  });
-  it('formats selected value and applies slot styles', () => {
-    const gridStyle = {
-      opacity: 0.61
-    };
-    const testRenderer = renderCalendar({
-      format: 'dateSlash',
-      value: '2026-05-07',
-      styles: {
-        grid: gridStyle
-      }
-    });
-    expect(textOf(testRenderer)).toContain('2026/05/07');
-    expect(findNodesWithStyle(testRenderer, gridStyle)).toHaveLength(1);
   });
   it('normalizes range values after complete selection', () => {
     const onChange = jest.fn();

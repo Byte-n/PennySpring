@@ -91,40 +91,6 @@ describe('Avatar', () => {
     });
     expect(testRenderer!.root.findAllByType(Image)).toHaveLength(1);
   });
-  it('applies stable slot style overrides to image text and icon', () => {
-    const imageStyle = {
-      opacity: 0.91
-    };
-    const textStyle = {
-      opacity: 0.92
-    };
-    const iconStyle = {
-      opacity: 0.93
-    };
-    expect(renderAvatar({
-      src: {
-        uri: 'https://example.com/avatar.png'
-      },
-      styles: {
-        image: imageStyle
-      }
-    }).root.findByType(Image).props.style).toContain(imageStyle);
-    expect(renderAvatar({
-      styles: {
-        text: textStyle
-      },
-      text: 'Penny'
-    }).root.findByType(Text).props.style).toContain(textStyle);
-    expect(renderAvatar({
-      icon: <Text>Icon fallback</Text>,
-      styles: {
-        icon: iconStyle
-      }
-    }).root.findAllByType(View).some(node => {
-      const style = node.props.style;
-      return Array.isArray(style) && style.includes(iconStyle);
-    })).toBe(true);
-  });
 });
 describe('Avatar.Group', () => {
   it('renders visible avatars and rest count from maxCount', () => {

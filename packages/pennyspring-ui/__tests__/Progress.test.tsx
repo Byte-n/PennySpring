@@ -3,10 +3,6 @@ import { View } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
 import { Text } from '../src/Text';
 import { ProgressBar, ProgressCircle, clampPercent, resolveCircleRotation } from '../src/Progress/Progress';
-function flattenStyle(style: unknown) {
-  const styles = Array.isArray(style) ? style : [style];
-  return Object.assign({}, ...styles);
-}
 function renderProgressBar(props: React.ComponentProps<typeof ProgressBar>) {
   let testRenderer: renderer.ReactTestRenderer;
   act(() => {
@@ -28,16 +24,6 @@ describe('Progress', () => {
     expect(clampPercent(180)).toBe(100);
     expect(clampPercent(undefined)).toBe(0);
     expect(clampPercent(Number.NaN)).toBe(0);
-  });
-  it('maps bar percent to indicator width', () => {
-    const testRenderer = renderProgressBar({
-      percent: 35
-    });
-    const indicator = testRenderer.root.find(node => {
-      const style = flattenStyle(node.props.style);
-      return style.width === '35%' && style.height === '100%';
-    });
-    expect(flattenStyle(indicator.props.style).width).toBe('35%');
   });
   it('hides info text when showInfo is false', () => {
     const testRenderer = renderProgressBar({

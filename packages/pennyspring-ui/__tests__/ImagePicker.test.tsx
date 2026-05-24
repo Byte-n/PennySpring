@@ -67,8 +67,8 @@ describe('ImagePicker', () => {
 
     expect(actionSheet.props.open).toBe(true);
     expect(actionSheet.props.actions).toEqual([
-      { text: 'Photo Library' },
-      { text: 'Files' },
+      { text: '相册' },
+      { text: '文件' },
     ]);
   });
 

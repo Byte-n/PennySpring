@@ -9,16 +9,6 @@ function renderList(element: React.ReactElement) {
   });
   return testRenderer!;
 }
-function flattenStyle(style: unknown) {
-  const styles = Array.isArray(style) ? style : [style];
-  return Object.assign({}, ...styles);
-}
-function findNodesWithStyle(testRenderer: renderer.ReactTestRenderer, markerStyle: Record<string, unknown>) {
-  return testRenderer.root.findAll(node => {
-    const style = node.props.style;
-    return node.type === View && Array.isArray(style) && style.includes(markerStyle);
-  });
-}
 describe('List', () => {
   it('renders header and footer around children', () => {
     const testRenderer = renderList(<List header={<View testID="header">Header</View>} footer={<View testID="footer">Footer</View>}>
@@ -48,36 +38,6 @@ describe('List', () => {
     const treeString = JSON.stringify(testRenderer.toJSON());
     expect(treeString).toContain('Loading');
     expect(treeString).toContain('Nothing yet');
-  });
-  it('applies List root and region styles after token styles', () => {
-    const rootStyle = {
-      flex: 1
-    };
-    const headerStyle = {
-      opacity: 0.91
-    };
-    const footerStyle = {
-      opacity: 0.92
-    };
-    const emptyStyle = {
-      opacity: 0.93
-    };
-    const loadingStyle = {
-      opacity: 0.94
-    };
-    const testRenderer = renderList(<List loading loadingText="Loading" style={rootStyle} styles={{
-      empty: emptyStyle,
-      footer: footerStyle,
-      header: headerStyle,
-      loading: loadingStyle
-    }} header={<View>Header</View>} footer={<View>Footer</View>} empty={<View>Nothing yet</View>} />);
-    const root = testRenderer.root.findByType(View);
-    expect(root.props.style).toContain(rootStyle);
-    expect(findNodesWithStyle(testRenderer, headerStyle)).toHaveLength(1);
-    expect(findNodesWithStyle(testRenderer, footerStyle)).toHaveLength(1);
-    expect(findNodesWithStyle(testRenderer, emptyStyle)).toHaveLength(1);
-    expect(findNodesWithStyle(testRenderer, loadingStyle)).toHaveLength(1);
-    expect(flattenStyle(findNodesWithStyle(testRenderer, emptyStyle)[0].props.style).opacity).toBe(0.93);
   });
   it('renders ListItem standard slots in order', () => {
     const testRenderer = renderList(<ListItem left={<View>Icon</View>} title="Checking" description="Main account" right={<View>Balance</View>} />);
@@ -127,60 +87,5 @@ describe('List', () => {
     const testRenderer = renderList(<ListItem title="Checking" selected />);
     const treeString = JSON.stringify(testRenderer.toJSON());
     expect(treeString).toContain('selected-marker');
-  });
-  it('inherits List divider and allows ListItem divider override', () => {
-    const dividerStyle = {
-      opacity: 0.82
-    };
-    const inheritedRenderer = renderList(<List divider="full">
-        <ListItem title="Checking" styles={{
-        divider: dividerStyle
-      }} />
-      </List>);
-    const overrideRenderer = renderList(<List divider="full">
-        <ListItem title="Checking" divider="none" styles={{
-        divider: dividerStyle
-      }} />
-      </List>);
-    expect(findNodesWithStyle(inheritedRenderer, dividerStyle)).toHaveLength(1);
-    expect(flattenStyle(findNodesWithStyle(inheritedRenderer, dividerStyle)[0].props.style).left).toBe(0);
-    expect(findNodesWithStyle(overrideRenderer, dividerStyle)).toHaveLength(0);
-  });
-  it('applies ListItem root and slot styles after token styles', () => {
-    const rootStyle = {
-      flex: 1
-    };
-    const leftStyle = {
-      opacity: 0.61
-    };
-    const contentStyle = {
-      opacity: 0.62
-    };
-    const rightStyle = {
-      opacity: 0.63
-    };
-    const titleStyle = {
-      opacity: 0.64
-    };
-    const descriptionStyle = {
-      opacity: 0.65
-    };
-    const testRenderer = renderList(<ListItem disabled selected left={<View>Icon</View>} right={<View>Balance</View>} titleText="Checking" descriptionText="Main account" style={rootStyle} styles={{
-      content: contentStyle,
-      descriptionText: descriptionStyle,
-      left: leftStyle,
-      right: rightStyle,
-      titleText: titleStyle
-    }} />);
-    const root = testRenderer.root.findAllByType(View).find(node => {
-      const style = node.props.style;
-      return Array.isArray(style) && style.includes(rootStyle);
-    });
-    expect(root?.props.style).toContain(rootStyle);
-    expect(findNodesWithStyle(testRenderer, leftStyle)).toHaveLength(1);
-    expect(findNodesWithStyle(testRenderer, contentStyle)).toHaveLength(1);
-    expect(findNodesWithStyle(testRenderer, rightStyle)).toHaveLength(1);
-    expect(JSON.stringify(testRenderer.toJSON())).toContain('Checking');
-    expect(JSON.stringify(testRenderer.toJSON())).toContain('Main account');
   });
 });

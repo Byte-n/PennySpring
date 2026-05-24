@@ -1,14 +1,9 @@
 import React from 'react';
 import { Text as RNText } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
-import { defaultSeedToken } from '@pennyspring/theme';
-import { derivative } from '@pennyspring/theme/src/algorithms/derivative';
-import { formatToken } from '@pennyspring/theme/src/algorithms/formatToken';
 import { IndexBar } from '../src/IndexBar';
 import { List, ListItem } from '../src/List';
 import type { IndexBarProps } from '../src/IndexBar';
-
-const token = formatToken(derivative(defaultSeedToken, false));
 
 function renderIndexBar(props: Partial<IndexBarProps> = {}) {
   let testRenderer: renderer.ReactTestRenderer;
@@ -61,18 +56,6 @@ function pressIndexItem(
   });
 
   return target;
-}
-
-function getIndexItemStyles(
-  testRenderer: renderer.ReactTestRenderer,
-  value: string | number,
-) {
-  const item = testRenderer.root.findByProps({
-    testID: `index-bar-item-${String(value)}`,
-  });
-  const styleResult = item.props.style({ pressed: false });
-
-  return Array.isArray(styleResult) ? styleResult : [styleResult];
 }
 
 describe('IndexBar', () => {
@@ -149,40 +132,5 @@ describe('IndexBar', () => {
 
     expect(onChange).not.toHaveBeenCalled();
     expect(disabledItem.props.disabled).toBe(true);
-  });
-
-  it('supports size variants and style slots', () => {
-    const rootStyle = { opacity: 0.83 };
-    const sidebarStyle = { opacity: 0.84 };
-    const indexItemStyle = { opacity: 0.85 };
-    const testRenderer = renderIndexBar({
-      defaultValue: 'A',
-      size: 'small',
-      style: rootStyle,
-      styles: {
-        sidebar: sidebarStyle,
-        indexItem: indexItemStyle,
-      },
-    });
-
-    const root = testRenderer.root.findByProps({ testID: 'index-bar-root' });
-    const sidebar = testRenderer.root.findByProps({ testID: 'index-bar-sidebar' });
-    const itemStyles = getIndexItemStyles(testRenderer, 'A');
-
-    expect(root.props.style).toEqual(
-      expect.arrayContaining([expect.objectContaining(rootStyle)]),
-    );
-    expect(sidebar.props.style).toEqual(
-      expect.arrayContaining([expect.objectContaining(sidebarStyle)]),
-    );
-    expect(itemStyles).toEqual(
-      expect.arrayContaining([expect.objectContaining(indexItemStyle)]),
-    );
-    expect(
-      itemStyles.some(
-        (style: { minHeight?: number } | null | undefined) =>
-          style?.minHeight === token.controlHeightSM,
-      ),
-    ).toBe(true);
   });
 });

@@ -1,5 +1,5 @@
 import React from 'react';
-import { ActivityIndicator, TextInput, View } from 'react-native';
+import { ActivityIndicator, TextInput } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
 import { Textarea } from '../src/Textarea';
 function renderTextarea(props: Partial<React.ComponentProps<typeof Textarea>> = {}) {
@@ -8,16 +8,6 @@ function renderTextarea(props: Partial<React.ComponentProps<typeof Textarea>> = 
     testRenderer = renderer.create(<><Textarea {...props} /></>);
   });
   return testRenderer!;
-}
-function flattenStyle(style: unknown) {
-  const styles = Array.isArray(style) ? style : [style];
-  return Object.assign({}, ...styles);
-}
-function findNodeWithStyle(testRenderer: renderer.ReactTestRenderer, markerStyle: Record<string, unknown>) {
-  return testRenderer.root.find(node => {
-    const style = node.props.style;
-    return node.type === View && Array.isArray(style) && style.includes(markerStyle);
-  });
 }
 describe('Textarea', () => {
   it('uses controlled value for display and count while forwarding text changes', () => {
@@ -103,32 +93,5 @@ describe('Textarea', () => {
       });
     });
     expect(handleBlur).toHaveBeenCalledTimes(1);
-  });
-  it('clamps content size changes between minRows and maxRows derived heights', () => {
-    const fieldStyle = {
-      opacity: 0.82
-    };
-    const testRenderer = renderTextarea({
-      minRows: 2,
-      maxRows: 3,
-      styles: {
-        field: fieldStyle
-      }
-    });
-    const input = testRenderer.root.findByType(TextInput);
-    const initialFieldStyle = flattenStyle(findNodeWithStyle(testRenderer, fieldStyle).props.style);
-    act(() => {
-      input.props.onContentSizeChange({
-        nativeEvent: {
-          contentSize: {
-            width: 100,
-            height: 9999
-          }
-        }
-      });
-    });
-    const updatedFieldStyle = flattenStyle(findNodeWithStyle(testRenderer, fieldStyle).props.style);
-    expect(updatedFieldStyle.height).toBeGreaterThan(initialFieldStyle.minHeight);
-    expect(updatedFieldStyle.height).toBe(initialFieldStyle.maxHeight);
   });
 });

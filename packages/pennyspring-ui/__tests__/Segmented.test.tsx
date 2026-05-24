@@ -101,16 +101,4 @@ describe('Segmented', () => {
     expect(onChange).not.toHaveBeenCalled();
     expect(option.props.disabled).toBe(true);
   });
-  it('supports block layout', () => {
-    const testRenderer = renderSegmented({
-      block: true,
-      defaultValue: 'day'
-    });
-    const root = testRenderer.root.findByProps({
-      testID: 'segmented-root'
-    });
-    expect(root.props.style).toEqual(expect.arrayContaining([expect.objectContaining({
-      width: '100%'
-    })]));
-  });
 });

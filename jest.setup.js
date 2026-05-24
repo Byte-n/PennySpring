@@ -31,3 +31,20 @@ jest.mock('react-native-gesture-handler', () => {
       React.createElement(ReactNative.View, null, children),
   };
 });
+
+jest.mock('@react-native-documents/picker', () => ({
+  __esModule: true,
+  errorCodes: {
+    OPERATION_CANCELED: 'OPERATION_CANCELED',
+  },
+  isErrorWithCode: error => error && typeof error.code === 'string',
+  pick: jest.fn(),
+  types: {
+    images: 'image/*',
+  },
+}));
+
+jest.mock('react-native-image-picker', () => ({
+  __esModule: true,
+  launchImageLibrary: jest.fn(),
+}));

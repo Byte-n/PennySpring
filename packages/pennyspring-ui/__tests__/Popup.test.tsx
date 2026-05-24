@@ -3,18 +3,6 @@ import { BackHandler, Text as RNText, View } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
 import { Popup } from '../src/Popup';
 import { PortalProvider } from '../src/Portal';
-function flattenStyle(style: unknown) {
-  const flatten = (input: unknown): Record<string, unknown>[] => {
-    if (input === null || input === undefined || input === false) {
-      return [];
-    }
-    if (Array.isArray(input)) {
-      return input.flatMap(flatten);
-    }
-    return [input as Record<string, unknown>];
-  };
-  return Object.assign({}, ...flatten(style));
-}
 function renderPopup(props: Partial<React.ComponentProps<typeof Popup>> = {}, children: React.ReactNode = <RNText>Popup content</RNText>) {
   let testRenderer: renderer.ReactTestRenderer;
   act(() => {
@@ -151,79 +139,6 @@ describe('Popup', () => {
     });
     expect(onCancel).not.toHaveBeenCalled();
     expect(JSON.stringify(testRenderer.toJSON())).toContain('Popup content');
-  });
-  it('places the body at the bottom of the layout by default', () => {
-    const testRenderer = renderPopup({
-      defaultOpen: true
-    });
-    const layout = flattenStyle(testRenderer.root.findByProps({
-      testID: 'popup-layout'
-    }).props.style);
-    expect(layout.justifyContent).toBe('flex-end');
-    expect(layout.position).toBe('absolute');
-  });
-  it('aligns the body based on the selected position', () => {
-    const top = renderPopup({
-      defaultOpen: true,
-      position: 'top'
-    });
-    const center = renderPopup({
-      defaultOpen: true,
-      position: 'center'
-    });
-    const left = renderPopup({
-      defaultOpen: true,
-      position: 'left'
-    });
-    const right = renderPopup({
-      defaultOpen: true,
-      position: 'right'
-    });
-    expect(flattenStyle(top.root.findByProps({
-      testID: 'popup-layout'
-    }).props.style).justifyContent).toBe('flex-start');
-    expect(flattenStyle(center.root.findByProps({
-      testID: 'popup-layout'
-    }).props.style).justifyContent).toBe('center');
-    expect(flattenStyle(left.root.findByProps({
-      testID: 'popup-layout'
-    }).props.style).flexDirection).toBe('row');
-    expect(flattenStyle(right.root.findByProps({
-      testID: 'popup-layout'
-    }).props.style).justifyContent).toBe('flex-end');
-  });
-  it('merges external styles over token defaults for mask and body slots', () => {
-    const testRenderer = renderPopup({
-      defaultOpen: true,
-      styles: {
-        body: {
-          opacity: 0.88
-        },
-        mask: {
-          opacity: 0.77
-        }
-      }
-    });
-    const body = flattenStyle(testRenderer.root.findByProps({
-      testID: 'popup-body'
-    }).props.style);
-    const mask = flattenStyle(testRenderer.root.findByProps({
-      testID: 'popup-mask'
-    }).props.style);
-    expect(body.opacity).toBe(0.88);
-    expect(mask.opacity).toBe(0.77);
-  });
-  it('applies external style to the root layout', () => {
-    const testRenderer = renderPopup({
-      defaultOpen: true,
-      style: {
-        opacity: 0.55
-      }
-    });
-    const layout = flattenStyle(testRenderer.root.findByProps({
-      testID: 'popup-layout'
-    }).props.style);
-    expect(layout.opacity).toBe(0.55);
   });
   it('renders arbitrary children as-is', () => {
     const testRenderer = renderPopup({

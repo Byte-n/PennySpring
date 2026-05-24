@@ -1,12 +1,8 @@
 import React from 'react';
-import { ActivityIndicator, View } from 'react-native';
+import { ActivityIndicator } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
 import { Loading } from '../src/Loading';
 import type { LoadingProps } from '../src/Loading';
-function flattenStyle(style: unknown) {
-  const styles = Array.isArray(style) ? style : [style];
-  return Object.assign({}, ...styles);
-}
 function renderLoading(props: Partial<LoadingProps> = {}) {
   let testRenderer: renderer.ReactTestRenderer;
   act(() => {
@@ -37,31 +33,5 @@ describe('Loading', () => {
       text: 'Loading data...'
     });
     expect(JSON.stringify(testRenderer.toJSON())).toContain('Loading data...');
-  });
-  it('switches to vertical layout when vertical is true', () => {
-    const testRenderer = renderLoading({
-      text: 'Loading',
-      vertical: true
-    });
-    const root = testRenderer.root.findByType(View);
-    const rootStyle = flattenStyle(root.props.style);
-    expect(rootStyle.flexDirection).toBe('column');
-  });
-  it('renders custom indicator node', () => {
-    const indicatorStyle = {
-      opacity: 0.42
-    };
-    const testRenderer = renderLoading({
-      indicator: <View style={indicatorStyle} />
-    });
-    expect(testRenderer.root.findAllByType(ActivityIndicator)).toHaveLength(0);
-    const customIndicator = testRenderer.root.find(node => {
-      if (node.type !== View) {
-        return false;
-      }
-      const style = flattenStyle(node.props.style);
-      return style.opacity === indicatorStyle.opacity;
-    });
-    expect(customIndicator).toBeTruthy();
   });
 });

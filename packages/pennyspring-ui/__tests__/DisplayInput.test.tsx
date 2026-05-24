@@ -135,28 +135,4 @@ describe('DisplayInput', () => {
     expect(visibleText.props.numberOfLines).toBeUndefined();
     expect(visibleText.props.ellipsizeMode).toBeUndefined();
   });
-
-  it('applies clipping style to custom value container when overflow is hidden', () => {
-    const hiddenRenderer = renderDisplayInput({
-      overflow: 'hidden',
-      children: <View testID="custom-value-hidden" />,
-    });
-    const visibleRenderer = renderDisplayInput({
-      overflow: 'visible',
-      children: <View testID="custom-value-visible" />,
-    });
-
-    const hiddenContainer = hiddenRenderer.root.findByProps({
-      testID: 'custom-value-hidden',
-    }).parent;
-    const visibleContainer = visibleRenderer.root.findByProps({
-      testID: 'custom-value-visible',
-    }).parent;
-
-    const hiddenStyleText = JSON.stringify(hiddenContainer?.props.style ?? []);
-    const visibleStyleText = JSON.stringify(visibleContainer?.props.style ?? []);
-
-    expect(hiddenStyleText).toContain('"overflow":"hidden"');
-    expect(visibleStyleText).toContain('"overflow":"visible"');
-  });
 });

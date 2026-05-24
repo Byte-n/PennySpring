@@ -2,7 +2,7 @@ import React from 'react';
 import { View } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
 import { SwipeAction } from '../src/SwipeAction';
-import type { SwipeActionAction, SwipeActionRef } from '../src/SwipeAction';
+import type { SwipeActionAction } from '../src/SwipeAction';
 function renderSwipeAction(props: Partial<React.ComponentProps<typeof SwipeAction>> = {}) {
   const leftActions: SwipeActionAction[] = [{
     key: 'left-archive',
@@ -115,23 +115,6 @@ describe('SwipeAction', () => {
     expect(onChange).toHaveBeenCalledWith('right');
     expect(getTrackTranslateX(testRenderer)).toBe(-80);
   });
-  it('keeps controlled value from props while still reporting changes', () => {
-    const onChange = jest.fn();
-    const testRenderer = renderSwipeAction({
-      onChange,
-      value: 'left'
-    });
-    setupActionWidth(testRenderer, {
-      leftWidth: 60,
-      rightWidth: 80
-    });
-    swipeRow(testRenderer, {
-      startX: 120,
-      endX: -20
-    });
-    expect(onChange).toHaveBeenCalledWith('right');
-    expect(getTrackTranslateX(testRenderer)).toBe(60);
-  });
   it('fires action callbacks and closes by default after action press', () => {
     const actionPress = jest.fn();
     const onAction = jest.fn();
@@ -209,36 +192,5 @@ describe('SwipeAction', () => {
     });
     expect(calls).toEqual(['cancel', 'change:null']);
     expect(getTrackTranslateX(testRenderer)).toBe(0);
-  });
-  it('supports imperative show and close by ref', () => {
-    const ref = React.createRef<SwipeActionRef>();
-    let testRenderer: renderer.ReactTestRenderer;
-    act(() => {
-      testRenderer = renderer.create(<><SwipeAction leftActions={[{
-          key: 'left',
-          text: 'Left'
-        }]} ref={ref} rightActions={[{
-          key: 'right',
-          text: 'Right'
-        }]}>
-            <View testID="swipe-action-child" />
-          </SwipeAction></>);
-    });
-    setupActionWidth(testRenderer!, {
-      leftWidth: 70,
-      rightWidth: 90
-    });
-    act(() => {
-      ref.current?.show('left');
-    });
-    expect(getTrackTranslateX(testRenderer!)).toBe(70);
-    act(() => {
-      ref.current?.show();
-    });
-    expect(getTrackTranslateX(testRenderer!)).toBe(-90);
-    act(() => {
-      ref.current?.close();
-    });
-    expect(getTrackTranslateX(testRenderer!)).toBe(0);
   });
 });

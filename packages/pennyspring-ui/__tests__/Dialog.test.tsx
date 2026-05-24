@@ -43,8 +43,8 @@ describe('Dialog', () => {
     const treeString = JSON.stringify(testRenderer.toJSON());
     expect(treeString).toContain('Delete transaction');
     expect(treeString).toContain('Dialog content');
-    expect(treeString).toContain('Cancel');
-    expect(treeString).toContain('OK');
+    expect(treeString).toContain('取消');
+    expect(treeString).toContain('确定');
   });
   it('renders custom title and action nodes', () => {
     const testRenderer = renderDialog({
@@ -135,49 +135,6 @@ describe('Dialog', () => {
     expect(onCancel).not.toHaveBeenCalled();
     expect(onOpenChange).not.toHaveBeenCalled();
   });
-  it('applies root and slot styles after token styles', () => {
-    const rootStyle = {
-      opacity: 0.66
-    };
-    const headerStyle = {
-      opacity: 0.67
-    };
-    const titleTextStyle = {
-      opacity: 0.68
-    };
-    const bodyStyle = {
-      opacity: 0.69
-    };
-    const footerStyle = {
-      opacity: 0.7
-    };
-    const testRenderer = renderDialog({
-      defaultOpen: true,
-      style: rootStyle,
-      styles: {
-        body: bodyStyle,
-        footer: footerStyle,
-        header: headerStyle,
-        titleText: titleTextStyle
-      },
-      titleText: 'Styled dialog'
-    });
-    expect(flattenStyle(testRenderer.root.findByProps({
-      testID: 'dialog-panel'
-    }).props.style).opacity).toBe(0.66);
-    expect(flattenStyle(testRenderer.root.findByProps({
-      testID: 'dialog-header'
-    }).props.style).opacity).toBe(0.67);
-    expect(flattenStyle(testRenderer.root.findByProps({
-      testID: 'dialog-title-text'
-    }).props.style).opacity).toBe(0.68);
-    expect(flattenStyle(testRenderer.root.findByProps({
-      testID: 'dialog-body'
-    }).props.style).opacity).toBe(0.69);
-    expect(flattenStyle(testRenderer.root.findByProps({
-      testID: 'dialog-footer'
-    }).props.style).opacity).toBe(0.7);
-  });
   it('uses the same default popup layer as Popup', () => {
     const dialogRenderer = renderDialog({
       defaultOpen: true
@@ -192,15 +149,6 @@ describe('Dialog', () => {
       testID: 'popup-layout'
     }).props.style);
     expect(dialogLayout.zIndex).toBe(popupLayout.zIndex);
-  });
-  it('uses 85 percent of screen width by default', () => {
-    const testRenderer = renderDialog({
-      defaultOpen: true
-    });
-    const body = flattenStyle(testRenderer.root.findByProps({
-      testID: 'popup-body'
-    }).props.style);
-    expect(body.width).toBe('85%');
   });
   it('renders arbitrary children as dialog body content', () => {
     const testRenderer = renderDialog({

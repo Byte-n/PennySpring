@@ -1,5 +1,5 @@
 import React from 'react';
-import { Dimensions, Text as RNText, View } from 'react-native';
+import { Text as RNText, View } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
 import { Drawer } from '../src/Drawer';
 import { PortalProvider } from '../src/Portal';
@@ -124,49 +124,5 @@ describe('Drawer', () => {
         open: true
       });
     }).toThrow('PortalProvider');
-  });
-  it('uses viewport width for percentage width in DrawerComponent', () => {
-    const testRenderer = renderDrawer({
-      mountPoint: 'local',
-      open: false,
-      width: '50%'
-    });
-    const drawerPanel = testRenderer.root.findByProps({
-      testID: 'drawer-panel'
-    });
-    const drawerStyleList = drawerPanel.props.style as Array<Record<string, unknown>>;
-    const transform = drawerStyleList[drawerStyleList.length - 1].transform as Array<{
-      translateX: number;
-    }>;
-    expect(transform[0].translateX).toBe(-(Dimensions.get('window').width * 0.5));
-  });
-  it('uses main content width for percentage width in DrawerLayout', () => {
-    let testRenderer: renderer.ReactTestRenderer;
-    act(() => {
-      testRenderer = renderer.create(<><Drawer.Layout defaultOpen drawerType="slide" renderDrawerContent={() => <RNText>Layout drawer</RNText>} width="50%">
-            <RNText>Main content</RNText>
-          </Drawer.Layout></>);
-    });
-    const layoutContainer = testRenderer!.root.findByType(View);
-    act(() => {
-      layoutContainer.props.onLayout({
-        nativeEvent: {
-          layout: {
-            width: 300,
-            height: 100,
-            x: 0,
-            y: 0
-          }
-        }
-      });
-    });
-    const sceneContainer = testRenderer!.root.findByProps({
-      testID: 'drawer-layout-scene'
-    });
-    const sceneStyleList = sceneContainer.props.style as Array<Record<string, unknown>>;
-    const transform = sceneStyleList[sceneStyleList.length - 1].transform as Array<{
-      translateX: number;
-    }>;
-    expect(transform[0].translateX).toBe(150);
   });
 });

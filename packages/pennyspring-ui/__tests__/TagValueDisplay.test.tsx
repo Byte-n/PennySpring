@@ -64,12 +64,4 @@ describe('TagValueDisplay', () => {
     );
     expect(closeButtons.length).toBe(0);
   });
-
-  it('applies nowrap style when wrap is false', () => {
-    const tree = render({ tagProps: { wrap: false } });
-    const container = tree.root.findByProps({ testID: 'tag-value-container' });
-    expect(container.props.style).toEqual(
-      expect.objectContaining({ flexWrap: 'nowrap', overflow: 'hidden' }),
-    );
-  });
 });

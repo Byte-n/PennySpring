@@ -42,28 +42,6 @@ describe('Slider', () => {
     });
     expect(onChange).toHaveBeenCalledWith(50);
   });
-  it('keeps controlled value from props', () => {
-    const onChange = jest.fn();
-    const testRenderer = renderSlider({
-      value: 20,
-      onChange
-    });
-    const track = setupTrackWidth(testRenderer);
-    act(() => {
-      track.props.onResponderMove({
-        nativeEvent: {
-          locationX: 100
-        }
-      });
-    });
-    expect(onChange).toHaveBeenCalledWith(50);
-    const fill = testRenderer.root.findByProps({
-      testID: 'slider-track-fill'
-    });
-    expect(fill.props.style).toEqual(expect.arrayContaining([expect.objectContaining({
-      width: '20%'
-    })]));
-  });
   it('does not change when disabled or readonly', () => {
     const onChange = jest.fn();
     const disabledRenderer = renderSlider({

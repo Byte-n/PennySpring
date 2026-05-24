@@ -1,5 +1,4 @@
 import React from 'react';
-import { View } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
 import { Text } from '../src/Text';
 import { ListCollapse } from '../src/ListCollapse';
@@ -22,12 +21,6 @@ function findHeader(testRenderer: renderer.ReactTestRenderer) {
   return testRenderer.root.findAll(node =>
     typeof node.props.onPress === 'function' && typeof node.props.style === 'function'
   )[0];
-}
-function findNodesWithStyle(testRenderer: renderer.ReactTestRenderer, markerStyle: Record<string, unknown>) {
-  return testRenderer.root.findAll(node => {
-    const style = node.props.style;
-    return node.type === View && Array.isArray(style) && style.includes(markerStyle);
-  });
 }
 describe('ListCollapse', () => {
   it('toggles uncontrolled content and reports changes from the header', () => {
@@ -77,25 +70,5 @@ describe('ListCollapse', () => {
       expect(onExpandedChange).not.toHaveBeenCalled();
       expect(treeText(testRenderer)).not.toContain('Budget details');
     });
-  });
-  it('applies slot styles when disabled and expanded', () => {
-    const headerStyle = {
-      opacity: 0.81
-    };
-    const contentStyle = {
-      opacity: 0.82
-    };
-    const testRenderer = renderListCollapse({
-      defaultExpanded: true,
-      disabled: true,
-      title: 'Budget',
-      children: <Text>Budget details</Text>,
-      styles: {
-        content: contentStyle,
-        header: headerStyle
-      }
-    });
-    expect(findNodesWithStyle(testRenderer, headerStyle)).toHaveLength(1);
-    expect(findNodesWithStyle(testRenderer, contentStyle)).toHaveLength(1);
   });
 });

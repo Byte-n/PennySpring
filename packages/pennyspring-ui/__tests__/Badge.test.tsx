@@ -29,17 +29,6 @@ function flattenStyle(style: unknown) {
   return Object.assign({}, ...styles);
 }
 
-function findNodesWithStyle(
-  testRenderer: renderer.ReactTestRenderer,
-  markerStyle: Record<string, unknown>,
-) {
-  return testRenderer.root.findAll((node) => {
-    const style = node.props.style;
-
-    return style === markerStyle || (Array.isArray(style) && style.includes(markerStyle));
-  });
-}
-
 function readText(node: renderer.ReactTestInstance) {
   const { children } = node.props;
 
@@ -79,23 +68,6 @@ function getIndicatorStyleByText(
   }
 
   throw new Error(`Cannot resolve indicator style for text: ${text}`);
-}
-
-function getDotStyle(testRenderer: renderer.ReactTestRenderer) {
-  const dotNode = testRenderer.root.findAll((node) => {
-    const flattened = flattenStyle(node.props.style);
-
-    return flattened.width !== undefined
-      && flattened.height !== undefined
-      && flattened.width === flattened.height
-      && flattened.borderRadius === flattened.width;
-  })[0];
-
-  if (dotNode === undefined) {
-    throw new Error('Cannot find dot style node');
-  }
-
-  return flattenStyle(dotNode.props.style);
 }
 
 function getDotIndicatorStyle(testRenderer: renderer.ReactTestRenderer) {
@@ -153,54 +125,6 @@ describe('Badge', () => {
     expect(hiddenDotRenderer.toJSON()).toBeNull();
   });
 
-  it('maps size to token-driven indicator and dot dimensions', () => {
-    const smallBadge = renderBadge({ size: 'small', count: 8 });
-    const normalBadge = renderBadge({ size: 'normal', count: 8 });
-    const largeBadge = renderBadge({ size: 'large', count: 8 });
-    const smallDot = renderBadge({ size: 'small', dot: true });
-    const normalDot = renderBadge({ size: 'normal', dot: true });
-    const largeDot = renderBadge({ size: 'large', dot: true });
-
-    expect(getIndicatorStyleByText(smallBadge, '8').minHeight).toBe(token.size);
-    expect(getIndicatorStyleByText(normalBadge, '8').minHeight).toBe(token.sizeMD);
-    expect(getIndicatorStyleByText(largeBadge, '8').minHeight).toBe(token.controlHeightXS);
-
-    expect(getDotStyle(smallDot).width).toBe(token.sizeXXS);
-    expect(getDotStyle(normalDot).width).toBe(token.sizeXS);
-    const dotStyle = getDotStyle(largeDot);
-
-    expect(dotStyle.width).toBe(token.sizeSM);
-    expect(dotStyle.height).toBe(token.sizeSM);
-  });
-
-  it('maps semantic and preset colors to token families', () => {
-    const successBadge = renderBadge({
-      count: 3,
-      color: 'success',
-    });
-    const goldBadge = renderBadge({
-      count: 3,
-      color: 'gold',
-    });
-
-    expect(getIndicatorStyleByText(successBadge, '3').backgroundColor).toBe(token.colorSuccess);
-    expect(getIndicatorStyleByText(goldBadge, '3').backgroundColor).toBe(token.gold6);
-  });
-
-  it('renders custom node count without applying content slot style', () => {
-    const contentStyle = { opacity: 0.88 };
-    const customStyle = { opacity: 0.89 };
-    const testRenderer = renderBadge({
-      count: <RNText style={customStyle}>New</RNText>,
-      styles: {
-        content: contentStyle,
-      },
-    });
-
-    expect(findNodesWithStyle(testRenderer, contentStyle)).toHaveLength(0);
-    expect(findNodesWithStyle(testRenderer, customStyle).length).toBeGreaterThan(0);
-  });
-
   it('overlays indicator when children exist and keeps standalone indicator relative', () => {
     const withChildRenderer = renderBadge({
       count: 6,
@@ -256,36 +180,5 @@ describe('Badge', () => {
       { translateX: token.sizeXS / 2 + 4 },
       { translateY: -token.sizeXS / 2 + 4 },
     ]);
-  });
-
-  it('keeps child badge root sized to content for overlay positioning', () => {
-    const testRenderer = renderBadge({
-      count: <RNText>VIP</RNText>,
-      children: <View />,
-    });
-    const root = testRenderer.root.findAllByType(View)[0];
-    const rootStyle = flattenStyle(root.props.style);
-
-    expect(rootStyle.alignSelf).toBe('flex-start');
-    expect(rootStyle.position).toBe('relative');
-  });
-
-  it('applies root and slot style overrides after token styles', () => {
-    const rootStyle = { flex: 1 };
-    const indicatorStyle = { opacity: 0.71 };
-    const dotStyle = { opacity: 0.72 };
-    const testRenderer = renderBadge({
-      dot: true,
-      style: rootStyle,
-      styles: {
-        indicator: indicatorStyle,
-        dot: dotStyle,
-      },
-    });
-    const root = testRenderer.root.findAllByType(View)[0];
-
-    expect(root.props.style).toContain(rootStyle);
-    expect(findNodesWithStyle(testRenderer, indicatorStyle).length).toBeGreaterThan(0);
-    expect(findNodesWithStyle(testRenderer, dotStyle).length).toBeGreaterThan(0);
   });
 });

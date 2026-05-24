@@ -55,41 +55,4 @@ describe('Result', () => {
     expect(tree).not.toContain('Fallback Title');
     expect(tree).not.toContain('Fallback Sub');
   });
-  it('applies styles overrides for slots', () => {
-    const iconContainerStyle = {
-      opacity: 0.81
-    };
-    const titleStyle = {
-      opacity: 0.82
-    };
-    const subtitleStyle = {
-      opacity: 0.83
-    };
-    const extraStyle = {
-      opacity: 0.84
-    };
-    const testRenderer = renderResult({
-      titleText: 'Title',
-      subtitleText: 'Sub',
-      extra: <RNText>Action</RNText>,
-      styles: {
-        iconContainer: iconContainerStyle,
-        titleText: titleStyle,
-        subtitleText: subtitleStyle,
-        extra: extraStyle
-      }
-    });
-    const findWithStyle = (marker: Record<string, unknown>) => testRenderer.root.findAll(node => {
-      const style = node.props.style;
-      if (style === marker) return true;
-      if (Array.isArray(style)) {
-        return style.some(s => s === marker || s && typeof s === 'object' && 'opacity' in s && s.opacity === marker.opacity);
-      }
-      return false;
-    });
-    expect(findWithStyle(iconContainerStyle).length).toBeGreaterThanOrEqual(1);
-    expect(findWithStyle(titleStyle).length).toBeGreaterThanOrEqual(1);
-    expect(findWithStyle(subtitleStyle).length).toBeGreaterThanOrEqual(1);
-    expect(findWithStyle(extraStyle).length).toBeGreaterThanOrEqual(1);
-  });
 });

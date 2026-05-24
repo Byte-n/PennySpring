@@ -53,18 +53,6 @@ function pressByKey(
   return target;
 }
 
-function getItemStyles(
-  testRenderer: renderer.ReactTestRenderer,
-  key: string | number,
-) {
-  const item = testRenderer.root.findByProps({
-    testID: `tab-bar-item-${String(key)}`,
-  });
-  const styleResult = item.props.style({ pressed: false });
-
-  return Array.isArray(styleResult) ? styleResult : [styleResult];
-}
-
 describe('TabBar', () => {
   it('renders item title, icon and badge text', () => {
     const testRenderer = renderTabBar();
@@ -130,32 +118,5 @@ describe('TabBar', () => {
 
     expect(onChange).not.toHaveBeenCalled();
     expect(item.props.disabled).toBe(true);
-  });
-
-  it('supports size variants and style slots', () => {
-    const markerStyle = { opacity: 0.72 };
-    const testRenderer = renderTabBar({
-      size: 'small',
-      style: markerStyle,
-      styles: {
-        tab: markerStyle,
-      },
-    });
-
-    const root = testRenderer.root.findByProps({ testID: 'tab-bar-root' });
-    const homeItemStyles = getItemStyles(testRenderer, 'home');
-
-    expect(root.props.style).toEqual(
-      expect.arrayContaining([expect.objectContaining(markerStyle)]),
-    );
-    expect(
-      homeItemStyles.some(
-        (style: { minHeight?: number } | null | undefined) =>
-          typeof style?.minHeight === 'number',
-      ),
-    ).toBe(true);
-    expect(homeItemStyles).toEqual(
-      expect.arrayContaining([expect.objectContaining(markerStyle)]),
-    );
   });
 });

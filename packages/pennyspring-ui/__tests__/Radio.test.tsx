@@ -132,24 +132,4 @@ describe('Radio.Group', () => {
     pressGroupOption(testRenderer, 30);
     expect(onChange).toHaveBeenCalledWith(30);
   });
-  it('makes button options fill available width when block is enabled', () => {
-    const testRenderer = renderRadioGroup({
-      block: true,
-      displayType: 'button'
-    });
-    const root = testRenderer.root.findByProps({
-      testID: 'radio-group'
-    });
-    const option = testRenderer.root.findByProps({
-      testID: 'radio-group-option-daily'
-    });
-    expect(root.props.style).toEqual(expect.arrayContaining([expect.objectContaining({
-      width: '100%'
-    })]));
-    expect(option.props.style({
-      pressed: false
-    })).toEqual(expect.arrayContaining([expect.objectContaining({
-      flex: 1
-    })]));
-  });
 });

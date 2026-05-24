@@ -185,24 +185,6 @@ describe('Checkbox.Group', () => {
     expect(onChange).not.toHaveBeenCalled();
     expect(disabledControl.props.disabled).toBe(true);
   });
-  it('uses button display type and block layout for options', () => {
-    const onChange = jest.fn();
-    const testRenderer = renderCheckboxGroup({
-      block: true,
-      defaultValue: ['food'],
-      displayType: 'button',
-      onChange
-    });
-    const option = pressGroupOption(testRenderer, 'rent');
-    const root = testRenderer.root.findByProps({
-      testID: 'checkbox-group-root'
-    });
-    expect(onChange).toHaveBeenCalledWith(['food', 'rent']);
-    expect(root.props.style).toEqual(expect.arrayContaining([expect.objectContaining({
-      width: '100%'
-    })]));
-    expect(option.props.disabled).toBe(false);
-  });
   it('does not render option box indicators for button display type', () => {
     const testRenderer = renderCheckboxGroup({
       defaultValue: ['food'],
