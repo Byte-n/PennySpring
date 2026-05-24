@@ -2,14 +2,13 @@ import type { ComponentSize } from '../shares/types';
 import React from 'react';
 import { Pressable, View } from 'react-native';
 import { createUseSheetStyle } from '@pennyspring/theme';
-import type {
-  AliasToken } from '@pennyspring/theme';
+import type { AliasToken } from '@pennyspring/theme';
 import type {
   GestureResponderEvent,
   LayoutChangeEvent,
   TextStyle,
   ViewStyle,
-  } from 'react-native';
+} from 'react-native';
 import { useControllableValue } from '../_hooks';
 import { Text } from '../Text';
 import type {
@@ -138,7 +137,9 @@ const useStyles = createUseSheetStyle(
         color: token.colorTextDisabled,
       },
       rootDisabled: {
-        backgroundColor: disabled ? token.colorBgContainerDisabled : token.colorBgContainer,
+        backgroundColor: disabled
+          ? token.colorBgContainerDisabled
+          : token.colorBgContainer,
       },
     };
   },
@@ -298,7 +299,11 @@ export const SwipeAction = React.forwardRef<SwipeActionRef, SwipeActionProps>(
 
     const isGestureBlocked = disabled || readonly;
     const currentValue = swipeValue ?? null;
-    const settledOffset = resolveOffsetByValue(currentValue, leftWidth, rightWidth);
+    const settledOffset = resolveOffsetByValue(
+      currentValue,
+      leftWidth,
+      rightWidth,
+    );
     const trackOffset = dragOffset ?? settledOffset;
 
     const trackTransformStyle = React.useMemo<ViewStyle>(
@@ -372,14 +377,19 @@ export const SwipeAction = React.forwardRef<SwipeActionRef, SwipeActionProps>(
 
       if (
         draggingRef.current === false &&
-        (Math.abs(deltaX) <= DRAG_START_DISTANCE || Math.abs(deltaX) <= Math.abs(deltaY))
+        (Math.abs(deltaX) <= DRAG_START_DISTANCE ||
+          Math.abs(deltaX) <= Math.abs(deltaY))
       ) {
         return;
       }
 
       draggingRef.current = true;
 
-      const nextOffset = clamp(startOffsetRef.current + deltaX, -rightWidth, leftWidth);
+      const nextOffset = clamp(
+        startOffsetRef.current + deltaX,
+        -rightWidth,
+        leftWidth,
+      );
       setDragOffset(nextOffset);
     }
 
@@ -400,7 +410,11 @@ export const SwipeAction = React.forwardRef<SwipeActionRef, SwipeActionProps>(
       }
 
       const deltaX = event.nativeEvent.pageX - startPageXRef.current;
-      const nextOffset = clamp(startOffsetRef.current + deltaX, -rightWidth, leftWidth);
+      const nextOffset = clamp(
+        startOffsetRef.current + deltaX,
+        -rightWidth,
+        leftWidth,
+      );
 
       settleOffset(nextOffset);
       draggingRef.current = false;
@@ -490,14 +504,22 @@ export const SwipeAction = React.forwardRef<SwipeActionRef, SwipeActionProps>(
       >
         <View
           onLayout={handleLeftActionsLayout}
-          style={[tokenStyles.actionsBase, tokenStyles.leftActions, styles?.leftActions]}
+          style={[
+            tokenStyles.actionsBase,
+            tokenStyles.leftActions,
+            styles?.leftActions,
+          ]}
           testID="swipe-action-left-actions"
         >
           {leftActionsNode}
         </View>
         <View
           onLayout={handleRightActionsLayout}
-          style={[tokenStyles.actionsBase, tokenStyles.rightActions, styles?.rightActions]}
+          style={[
+            tokenStyles.actionsBase,
+            tokenStyles.rightActions,
+            styles?.rightActions,
+          ]}
           testID="swipe-action-right-actions"
         >
           {rightActionsNode}
