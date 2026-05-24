@@ -125,6 +125,7 @@ scripts/                → 本地工具脚本
 ## 设计 / 布局约束
 
 - 界面的组成优先使用 `component-composer` 技能来获取布局指导。
+- 适配键盘弹出时必须优先使用 `@pennyspring/ui` 的 `KeyboardAware` 系列能力。
 
 ## 测试约束
 
