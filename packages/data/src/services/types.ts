@@ -91,6 +91,7 @@ export type UpdateRecordInput = UpdateCashflowRecordInput | UpdateTransferRecord
 export interface CreateBookInput {
   name: string
   description?: string
+  background?: string
 }
 
 export interface UpdateBookInput extends CreateBookInput {

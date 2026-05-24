@@ -44,6 +44,7 @@ export function createBook(db: Database, input: CreateBookInput): Promise<BookRo
     const inserted = await tx.insert(books).values({
       name: input.name,
       description: input.description ?? '',
+      background: input.background ?? '',
     }).returning({ id: books.id })
     const id = inserted[0]?.id
     if (!id) throw new Error('创建账本失败')
@@ -58,6 +59,7 @@ export function updateBook(db: Database, input: UpdateBookInput): Promise<BookRo
     await tx.update(books).set({
       name: input.name,
       description: input.description ?? '',
+      background: input.background ?? '',
     }).where(eq(books.id, input.id))
     return getBookRow(tx, input.id)
   })
