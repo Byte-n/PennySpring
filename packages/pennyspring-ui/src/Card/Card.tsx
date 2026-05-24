@@ -65,8 +65,9 @@ const VARIANT_STYLE_MAP: Record<CardVariant, VariantStyleConfig> = {
     shadow: toShadowStyle(token.boxShadowTertiary),
   }),
   summary: token => ({
-    backgroundColor: token.colorFillQuaternary,
-    borderColor: token.colorBorder,
+    backgroundColor: token.colorBgContainer,
+    borderColor: token.colorPrimaryBorder,
+    shadow: toShadowStyle(token.boxShadowTertiary),
   }),
 };
 

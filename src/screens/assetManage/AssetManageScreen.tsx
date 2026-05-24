@@ -32,7 +32,7 @@ import {
   type AssetRow,
   type AssetTypeValue,
 } from '@pennyspring/data';
-import { createUseSheetStyle, toShadowStyle, useTheme } from '@pennyspring/theme';
+import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
 
 import {
   ASSET_CLASSIFICATION_TREE,
@@ -111,9 +111,6 @@ const useStyles = createUseSheetStyle(token => ({
     flex: 1,
     gap: token.marginMD,
     padding: token.padding,
-  },
-  summaryCard: {
-    ...toShadowStyle(token.boxShadowTertiary),
   },
   summaryHeader: {
     alignItems: 'flex-start',
@@ -349,7 +346,6 @@ export function AssetManageScreen() {
             <Card
               size="large"
               variant="summary"
-              style={styles.summaryCard}
             >
               <Row style={styles.summaryHeader}>
                 <Column style={styles.summaryTitleArea}>

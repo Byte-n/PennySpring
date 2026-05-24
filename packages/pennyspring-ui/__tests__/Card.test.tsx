@@ -1,6 +1,7 @@
 import React from 'react';
-import { Text as RNText } from 'react-native';
+import { StyleSheet, Text as RNText, View } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
+import { ThemeProvider } from '@pennyspring/theme';
 import { Card } from '../src/Card';
 function renderCard(props: Partial<React.ComponentProps<typeof Card>> = {}) {
   let testRenderer: renderer.ReactTestRenderer;
@@ -15,6 +16,9 @@ function getPressableRoot(testRenderer: renderer.ReactTestRenderer) {
       typeof node.props.style === 'function' &&
       node.children.length > 0;
   })[0];
+}
+function getRootView(testRenderer: renderer.ReactTestRenderer) {
+  return testRenderer.root.findAllByType(View)[0];
 }
 describe('Card', () => {
   it('renders header body and footer content in order', () => {
@@ -84,5 +88,36 @@ describe('Card', () => {
     });
     const treeString = JSON.stringify(testRenderer.toJSON());
     expect(treeString).toContain('Existing summary');
+  });
+  it('uses a clean elevated surface for summary variant', () => {
+    const shadowToken = {
+      shadowColor: 'summaryShadowToken',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.02,
+      shadowRadius: 4,
+      elevation: 2
+    };
+    let testRenderer: renderer.ReactTestRenderer;
+    act(() => {
+      testRenderer = renderer.create(
+        <ThemeProvider config={{
+          token: {
+            colorBgContainer: 'summaryContainerToken',
+            colorPrimaryBorder: 'summaryBorderToken',
+            boxShadowTertiary: shadowToken
+          }
+        }}
+        >
+          <Card variant="summary">
+            <RNText>Summary content</RNText>
+          </Card>
+        </ThemeProvider>
+      );
+    });
+    const rootStyle = StyleSheet.flatten(getRootView(testRenderer!).props.style);
+    expect(rootStyle.backgroundColor).toBe('summaryContainerToken');
+    expect(rootStyle.borderColor).toBe('summaryBorderToken');
+    expect(rootStyle.shadowColor).toBe('summaryShadowToken');
+    expect(rootStyle.shadowRadius).toBe(shadowToken.shadowRadius);
   });
 });
