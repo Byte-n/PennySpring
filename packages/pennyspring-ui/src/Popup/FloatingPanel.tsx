@@ -91,10 +91,18 @@ function resolveHeightRange(
   const resolvedHeight = resolveHeightValue(height, viewportHeight);
   const resolvedMinHeight = resolveHeightValue(minHeight, viewportHeight);
   const resolvedMaxHeight = resolveHeightValue(maxHeight, viewportHeight);
+  const defaultMinHeight = viewportHeight * DEFAULT_MIN_HEIGHT_RATIO;
+  const defaultMaxHeight = viewportHeight * DEFAULT_MAX_HEIGHT_RATIO;
   const rawMinHeight =
-    resolvedMinHeight ?? resolvedHeight ?? viewportHeight * DEFAULT_MIN_HEIGHT_RATIO;
+    resolvedMinHeight
+      ?? (resolvedHeight === undefined
+        ? defaultMinHeight
+        : Math.min(resolvedHeight, defaultMinHeight));
   const rawMaxHeight =
-    resolvedMaxHeight ?? resolvedHeight ?? viewportHeight * DEFAULT_MAX_HEIGHT_RATIO;
+    resolvedMaxHeight
+      ?? (resolvedHeight === undefined
+        ? defaultMaxHeight
+        : Math.max(resolvedHeight, defaultMaxHeight));
 
   if (rawMinHeight <= rawMaxHeight) {
     return [rawMinHeight, rawMaxHeight];
