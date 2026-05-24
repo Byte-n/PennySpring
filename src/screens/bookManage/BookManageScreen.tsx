@@ -11,6 +11,7 @@ import {
   Input,
   Row,
   SwipeAction,
+  Tag,
   Text,
   useToast,
 } from '@pennyspring/ui';
@@ -42,11 +43,20 @@ const useStyles = createUseSheetStyle(token => ({
     flex: 1,
     gap: token.marginXS,
   },
+  cardTitle: {
+    alignItems: 'center',
+    gap: token.marginXS,
+  },
   cardName: {
+    flex: 1,
     fontSize: token.fontSizeLG,
     lineHeight: token.lineHeightLG,
     fontWeight: token.fontWeightStrong as TextStyle['fontWeight'],
     color: token.colorTextHeading,
+  },
+  cardIdTagText: {
+    fontSize: token.fontSizeSM,
+    lineHeight: token.lineHeightSM,
   },
   cardDesc: {
     fontSize: token.fontSizeSM,
@@ -56,30 +66,13 @@ const useStyles = createUseSheetStyle(token => ({
   cardDescEmpty: {
     color: token.colorTextTertiary,
   },
-  cardMetaGrid: {
+  cardTimeSummary: {
     gap: token.marginXS,
     paddingTop: token.paddingSM,
     borderTopWidth: token.lineWidth,
     borderTopColor: token.colorBorderSecondary,
   },
-  cardMetaRow: {
-    gap: token.marginXS,
-  },
-  cardMetaItem: {
-    flex: 1,
-    gap: token.marginXXS,
-    minHeight: token.controlHeightSM,
-    paddingVertical: token.paddingXS,
-    paddingHorizontal: token.paddingSM,
-    borderRadius: token.borderRadius,
-    backgroundColor: token.colorFillQuaternary,
-  },
-  cardMetaLabel: {
-    fontSize: token.fontSizeSM,
-    lineHeight: token.lineHeightSM,
-    color: token.colorTextTertiary,
-  },
-  cardMetaValue: {
+  cardTimeText: {
     fontSize: token.fontSizeSM,
     lineHeight: token.lineHeightSM,
     color: token.colorTextSecondary,
@@ -106,24 +99,6 @@ const useStyles = createUseSheetStyle(token => ({
     color: token.colorTextTertiary,
     textAlign: 'center',
   },
-  cardCoverStatus: {
-    alignSelf: 'flex-start',
-    paddingVertical: token.paddingXXS,
-    paddingHorizontal: token.paddingXS,
-    borderRadius: token.borderRadiusSM,
-    backgroundColor: token.colorPrimaryBg,
-  },
-  cardCoverStatusEmpty: {
-    backgroundColor: token.colorFillTertiary,
-  },
-  cardCoverStatusText: {
-    fontSize: token.fontSizeSM,
-    lineHeight: token.lineHeightSM,
-    color: token.colorPrimaryText,
-  },
-  cardCoverStatusTextEmpty: {
-    color: token.colorTextTertiary,
-  },
   dialogBody: {
     gap: token.marginSM,
   },
@@ -136,23 +111,6 @@ const DATE_TIME_FORMAT_OPTIONS: Intl.DateTimeFormatOptions = {
   hour: '2-digit',
   minute: '2-digit',
 };
-
-type BookManageStyles = ReturnType<typeof useStyles>;
-
-interface BookMetaProps {
-  label: string;
-  styles: BookManageStyles;
-  value: string;
-}
-
-function BookMeta({ label, styles, value }: BookMetaProps) {
-  return (
-    <Column style={styles.cardMetaItem}>
-      <Text style={styles.cardMetaLabel}>{label}</Text>
-      <Text style={styles.cardMetaValue}>{value}</Text>
-    </Column>
-  );
-}
 
 function getImageValue(background: string): ImagePickerValue | undefined {
   return background ? { uri: background } : undefined;
@@ -236,71 +194,96 @@ export function BookManageScreen() {
             <SwipeAction
               key={book.id}
               rightActions={[
-                { key: 'edit', text: '编辑', color: 'primary', onPress: () => openEditDialog(book) },
-                { key: 'delete', text: '删除', color: 'danger', onPress: () => handleDelete(book.id) },
+                {
+                  key: 'edit',
+                  text: '编辑',
+                  color: 'primary',
+                  onPress: () => openEditDialog(book),
+                },
+                {
+                  key: 'delete',
+                  text: '删除',
+                  color: 'danger',
+                  onPress: () => handleDelete(book.id),
+                },
               ]}
             >
               <Column style={styles.card}>
-                <Row align="stretch" style={styles.cardMain}>
+                <Row align="center" style={styles.cardMain}>
                   <Column style={styles.cardInfo}>
-                    <Text style={styles.cardName}>{book.name}</Text>
-                    <Text style={[styles.cardDesc, !book.description && styles.cardDescEmpty]}>
-                      {book.description || '暂无描述'}
-                    </Text>
-                    <Column
+                    <Row style={styles.cardTitle}>
+                      <Text numberOfLines={1} style={styles.cardName}>
+                        {book.name}
+                      </Text>
+                      <Tag
+                        size="small"
+                        variant="outlined"
+                        styles={{ content: styles.cardIdTagText }}
+                      >
+                        {`#${book.id}`}
+                      </Tag>
+                    </Row>
+                    <Text
                       style={[
-                        styles.cardCoverStatus,
-                        !book.background && styles.cardCoverStatusEmpty,
+                        styles.cardDesc,
+                        !book.description && styles.cardDescEmpty,
                       ]}
                     >
-                      <Text
-                        style={[
-                          styles.cardCoverStatusText,
-                          !book.background && styles.cardCoverStatusTextEmpty,
-                        ]}
-                      >
-                        {book.background ? '已设置封面' : '未设置封面'}
+                      {book.description || '暂无描述'}
+                    </Text>
+                    <Column style={styles.cardTimeSummary}>
+                      <Text style={styles.cardTimeText}>
+                        {`创建：${formatBookTime(book.createdTime)}`}
+                      </Text>
+                      <Text style={styles.cardTimeText}>
+                        {`更新：${formatBookTime(book.updatedTime)}`}
                       </Text>
                     </Column>
                   </Column>
                   <Column style={styles.cardCover}>
                     {book.background ? (
-                      <Image resizeMode="cover" source={{ uri: book.background }} style={cardCoverImageStyle} />
+                      <Image
+                        resizeMode="cover"
+                        source={{ uri: book.background }}
+                        style={cardCoverImageStyle}
+                      />
                     ) : (
                       <Column style={styles.cardCoverPlaceholder}>
-                        <Text style={styles.cardCoverPlaceholderText}>暂无图片</Text>
+                        <Text style={styles.cardCoverPlaceholderText}>
+                          暂无图片
+                        </Text>
                       </Column>
                     )}
                   </Column>
                 </Row>
-                <Column style={styles.cardMetaGrid}>
-                  <Row align="stretch" style={styles.cardMetaRow}>
-                    <BookMeta label="账本编号" styles={styles} value={`#${book.id}`} />
-                    <BookMeta label="创建时间" styles={styles} value={formatBookTime(book.createdTime)} />
-                  </Row>
-                  <Row align="stretch" style={styles.cardMetaRow}>
-                    <BookMeta label="更新时间" styles={styles} value={formatBookTime(book.updatedTime)} />
-                    <BookMeta label="封面数据" styles={styles} value={book.background ? '已保存 URI' : '空'} />
-                  </Row>
-                </Column>
               </Column>
             </SwipeAction>
           ))
         )}
       </ScrollView>
 
-      <FloatingActionGroup actions={[{ key: 'create-book', icon: 'add', onPress: openCreateDialog }]} />
+      <FloatingActionGroup
+        actions={[
+          { key: 'create-book', icon: 'add', onPress: openCreateDialog },
+        ]}
+      />
 
       <Dialog
         open={dialogOpen}
-        onOpenChange={open => { if (!open) setDialogOpen(false); }}
+        onOpenChange={open => {
+          if (!open) setDialogOpen(false);
+        }}
         titleText={editingBook ? '编辑账本' : '新增账本'}
         onOk={handleOk}
         okDisabled={!name.trim()}
       >
         <Column style={styles.dialogBody}>
           <Input placeholder="账本名称" value={name} onChangeText={setName} />
-          <Input placeholder="描述(可选)" value={description} onChangeText={setDescription} />
+          <Input
+            placeholder="描述(可选)"
+            value={description}
+            onChangeText={setDescription}
+          />
           <ImagePicker
             label="图片"
             onChange={setBackgroundImage}
