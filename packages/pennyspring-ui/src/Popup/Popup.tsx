@@ -5,6 +5,7 @@ import {
   Pressable,
   View,
 } from 'react-native';
+import { createAnimatedComponent } from 'react-native-reanimated';
 import { createUseSheetStyle, toShadowStyle, useTheme } from '@pennyspring/theme';
 import type { ViewStyle } from 'react-native';
 import { PortalContext } from '../Portal/Portal';
@@ -22,6 +23,7 @@ const DEFAULT_ANIMATION: PopupAnimation = 'none';
 const POPUP_SIDE_WIDTH = '70%';
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+const ReanimatedView = createAnimatedComponent(View);
 
 function getSlideTransform(
   position: PopupPosition,
@@ -291,7 +293,7 @@ export function Popup({
       : null;
 
   const content = (
-    <View style={[tokenStyles.layout, style]} testID="popup-layout">
+    <ReanimatedView style={[tokenStyles.layout, style]} testID="popup-layout">
       {mask ? (
         <AnimatedPressable
           onPress={handleMaskPress}
@@ -305,7 +307,7 @@ export function Popup({
       >
         {children}
       </Animated.View>
-    </View>
+    </ReanimatedView>
   );
 
   return resolvePortalMount(content, mountPoint, portalContext !== null);

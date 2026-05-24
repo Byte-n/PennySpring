@@ -1,9 +1,31 @@
 import React from 'react';
-import { StyleSheet, Text as RNText } from 'react-native';
+import {
+  type EmitterSubscription,
+  Keyboard,
+  StyleSheet,
+  Text as RNText,
+} from 'react-native';
+import { withTiming } from 'react-native-reanimated';
 import renderer, { act } from 'react-test-renderer';
 import { Popup } from '../src/Popup';
 
+type KeyboardHandler = (event: {
+  endCoordinates?: {
+    height?: number;
+    screenY?: number;
+  };
+}) => void;
+
+function createKeyboardSubscription(): EmitterSubscription {
+  return {
+    remove: jest.fn(),
+  } as unknown as EmitterSubscription;
+}
+
 describe('Popup.FloatingPanel', () => {
+  beforeEach(() => {
+    jest.restoreAllMocks();
+  });
 
   it('places the drag handle at top for bottom position', () => {
     let testRenderer: renderer.ReactTestRenderer;
@@ -128,5 +150,42 @@ describe('Popup.FloatingPanel', () => {
     const flattenedStyle = StyleSheet.flatten(popupBody.props.style);
 
     expect(flattenedStyle.height).toBe(667);
+  });
+
+  it('moves bottom panel above keyboard when keyboard avoiding is enabled', () => {
+    const handlers: KeyboardHandler[] = [];
+    jest.spyOn(Keyboard, 'addListener').mockImplementation((_, handler) => {
+      handlers.push(handler as KeyboardHandler);
+
+      return createKeyboardSubscription();
+    });
+
+    let testRenderer: renderer.ReactTestRenderer;
+
+    act(() => {
+      testRenderer = renderer.create(
+        <Popup.FloatingPanel defaultOpen keyboardAvoiding position="bottom">
+          <RNText>content</RNText>
+        </Popup.FloatingPanel>,
+      );
+    });
+
+    act(() => {
+      handlers[0]({ endCoordinates: { height: 280, screenY: 560 } });
+    });
+
+    const popupLayout = testRenderer!.root.findByProps({
+      testID: 'popup-layout',
+    });
+    const flattenedStyle = StyleSheet.flatten(popupLayout.props.style);
+
+    expect(flattenedStyle.bottom).toBe(280);
+    expect(withTiming).toHaveBeenLastCalledWith(
+      280,
+      expect.objectContaining({
+        duration: expect.any(Number),
+        easing: expect.any(Function),
+      }),
+    );
   });
 });

@@ -1,5 +1,4 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { ScrollView } from 'react-native';
 import { useRequest } from 'ahooks';
 import {
   Column,
@@ -16,9 +15,10 @@ import {
   type TypeRow,
   type RecordTypeCategoryValue,
 } from '@pennyspring/data';
-import { createUseSheetStyle } from '@pennyspring/theme';
+import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
 import { CategoryGrid, CategoryItem } from '../../component/CategoryGrid';
 import { PlusSquareIcon } from 'phosphor-react-native';
+import { ScrollView } from 'react-native';
 
 const CATEGORY_OPTIONS = [
   { value: RECORD_TYPE_CATEGORY.expense, label: '支出' },
@@ -36,6 +36,7 @@ const useStyles = createUseSheetStyle(token => ({
 export function TypeManageScreen() {
   const styles = useStyles();
   const toast = useToast();
+  const { token } = useTheme()
 
   const [category, setCategory] = useState<RecordTypeCategoryValue>(
     RECORD_TYPE_CATEGORY.expense,
@@ -155,6 +156,7 @@ export function TypeManageScreen() {
 
       <ScrollView style={styles.contentScroll}>
         <CategoryGrid
+          style={{ marginHorizontal: token.marginMD }}
           categories={realTypes}
           onSelect={id => {
             if (id === 0) {

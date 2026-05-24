@@ -64,6 +64,7 @@ export interface PopupFloatingPanelProps {
   animation?: PopupAnimation;
   animationDuration?: number;
   position?: PopupFloatingPanelPosition;
+  keyboardAvoiding?: boolean;
   size?: ComponentSize;
   height?: PopupFloatingPanelHeight;
   value?: number;

@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
-import { Pressable } from 'react-native';
+import { Pressable, StyleProp, ViewStyle } from 'react-native';
 import {
   Grid,
   Column,
@@ -26,6 +26,7 @@ interface CategoryGridProps {
   value?: number;
   onChange?: (id?: number) => void;
   defaultValue?: number;
+  style?: StyleProp<ViewStyle>;
 }
 
 const useStyles = createUseSheetStyle(_token => ({
@@ -34,7 +35,7 @@ const useStyles = createUseSheetStyle(_token => ({
 }));
 
 export function CategoryGrid(props: CategoryGridProps) {
-  const { categories } = props;
+  const { categories, style } = props;
   const [value, onChange] = useControllableValue(props.defaultValue, props.value, props.onChange)
   const onSelect = useCallback((v: number) => {
     onChange?.(v)
@@ -66,7 +67,7 @@ export function CategoryGrid(props: CategoryGridProps) {
   };
 
   return (
-    <Column>
+    <Column style={style}>
       {chunk(tree, 5).map(list => {
         const allIds = list
           .map(v => (v.children ?? []).map(child => child.id).concat([v.id]))

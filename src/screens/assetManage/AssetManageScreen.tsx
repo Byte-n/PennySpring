@@ -11,6 +11,7 @@ import {
   FloatingActionGroup,
   Icon,
   Input,
+  KeyboardAwareFormScroll,
   Popup,
   Row,
   Spacer,
@@ -484,9 +485,15 @@ export function AssetManageScreen() {
           if (!open) setPanelOpen(false);
         }}
         position="bottom"
+        keyboardAvoiding
         height="70%"
       >
-        <ScrollView contentContainerStyle={styles.panelContent}>
+        <KeyboardAwareFormScroll
+          useKeyboardInset={false}
+          styles={{
+            content: styles.panelContent,
+          }}
+        >
           <Input placeholder="资产名称" value={name} onChangeText={setName} />
           <Cascader
             options={cascaderOptions}
@@ -542,7 +549,7 @@ export function AssetManageScreen() {
             <Switch value={invisible} onChange={setInvisible} />
           </Row>
           <Button onPress={handleSave}>{editingAsset ? '保存' : '新增'}</Button>
-        </ScrollView>
+        </KeyboardAwareFormScroll>
       </Popup.FloatingPanel>
     </Column>
   );

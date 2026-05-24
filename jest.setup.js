@@ -32,6 +32,37 @@ jest.mock('react-native-gesture-handler', () => {
   };
 });
 
+jest.mock('react-native-reanimated', () => {
+  const ReactNative = require('react-native');
+
+  return {
+    __esModule: true,
+    default: {
+      View: ReactNative.View,
+      createAnimatedComponent: component => component,
+    },
+    createAnimatedComponent: component => component,
+    Easing: {
+      bezier: jest.fn(() => value => value),
+    },
+    interpolate: (value, inputRange, outputRange) => {
+      if (value <= inputRange[0]) {
+        return outputRange[0];
+      }
+
+      if (value >= inputRange[inputRange.length - 1]) {
+        return outputRange[outputRange.length - 1];
+      }
+
+      return outputRange[0];
+    },
+    useAnimatedStyle: updater => updater(),
+    useSharedValue: value => ({ value }),
+    withDelay: (_delay, value) => value,
+    withTiming: jest.fn(value => value),
+  };
+});
+
 jest.mock('@react-native-documents/picker', () => ({
   __esModule: true,
   errorCodes: {

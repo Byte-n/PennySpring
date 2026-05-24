@@ -1,10 +1,28 @@
 import type { ComponentSize } from '../shares/types';
-import React, { useRef } from 'react';
-import { Pressable, View, useWindowDimensions } from 'react-native';
-import { createUseSheetStyle } from '@pennyspring/theme';
+import React, { useEffect, useRef, useState } from 'react';
+import {
+  Keyboard,
+  Platform,
+  Pressable,
+  View,
+  useWindowDimensions,
+} from 'react-native';
 import type {
-  AliasToken } from '@pennyspring/theme';
+  EmitterSubscription,
+  KeyboardEvent,
+  StyleProp,
+  ViewStyle,
+} from 'react-native';
+import { createUseSheetStyle } from '@pennyspring/theme';
+import type { AliasToken } from '@pennyspring/theme';
+import { useTheme } from '@pennyspring/theme';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import {
+  Easing,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
 import { useControllableValue } from '../_hooks';
 import { Popup as PopupRoot } from './Popup';
 import type {
@@ -206,6 +224,48 @@ function getResponderTranslationY(
   return gestureState?.dy ?? 0;
 }
 
+function resolveKeyboardHeight(event: KeyboardEvent): number {
+  const height = event.endCoordinates?.height ?? 0;
+
+  return Math.max(height, 0);
+}
+
+function useKeyboardOffset(
+  enabled: boolean,
+  position: PopupFloatingPanelPosition,
+): number {
+  const [keyboardOffset, setKeyboardOffset] = useState(0);
+
+  useEffect(() => {
+    if (!enabled || position !== 'bottom') {
+      setKeyboardOffset(0);
+      return;
+    }
+
+    const showEvent =
+      Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+    const hideEvent =
+      Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+
+    const subscriptions: EmitterSubscription[] = [
+      Keyboard.addListener(showEvent, event => {
+        setKeyboardOffset(resolveKeyboardHeight(event));
+      }),
+      Keyboard.addListener(hideEvent, () => {
+        setKeyboardOffset(0);
+      }),
+    ];
+
+    return () => {
+      subscriptions.forEach(subscription => {
+        subscription.remove();
+      });
+    };
+  }, [enabled, position]);
+
+  return keyboardOffset;
+}
+
 export function FloatingPanel({
   afterOpenChange,
   animation,
@@ -215,6 +275,7 @@ export function FloatingPanel({
   defaultOpen,
   defaultValue,
   height,
+  keyboardAvoiding = false,
   mask = true,
   maxHeight,
   minHeight,
@@ -229,9 +290,12 @@ export function FloatingPanel({
   styles,
   value,
 }: PopupFloatingPanelProps) {
+  const { token } = useTheme();
   const { height: viewportHeight } = useWindowDimensions();
   const resolvedPosition = resolvePosition(position);
   const resolvedSize = resolveSize(size);
+  const keyboardOffset = useKeyboardOffset(keyboardAvoiding, resolvedPosition);
+  const keyboardOffsetProgress = useSharedValue(keyboardOffset);
   const resolvedHeight = resolveHeightValue(height, viewportHeight);
   const [resolvedMinHeight, resolvedMaxHeight] = resolveHeightRange(
     viewportHeight,
@@ -265,6 +329,25 @@ export function FloatingPanel({
     position: resolvedPosition,
     size: resolvedSize,
   });
+  const keyboardAnimatedStyle = useAnimatedStyle(() => ({
+    bottom: keyboardOffsetProgress.value,
+  }));
+  const popupLayoutStyle =
+    keyboardAnimatedStyle as unknown as StyleProp<ViewStyle>;
+
+  useEffect(() => {
+    const easing = Easing?.bezier?.(...token.motionEaseOut);
+
+    keyboardOffsetProgress.value = withTiming(keyboardOffset, {
+      duration: token.motionDurationMid,
+      ...(easing ? { easing } : null),
+    });
+  }, [
+    keyboardOffset,
+    keyboardOffsetProgress,
+    token.motionDurationMid,
+    token.motionEaseOut,
+  ]);
 
   const dragStartHeightRef = useRef(normalizedPanelHeight);
 
@@ -352,6 +435,7 @@ export function FloatingPanel({
       onOpenChange={onOpenChange}
       open={open}
       position={resolvedPosition}
+      style={popupLayoutStyle}
       styles={{
         body: [tokenStyles.popupBody, styles?.body],
         mask: styles?.mask,
