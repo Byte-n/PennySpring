@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text as RNText } from 'react-native';
+import { StyleSheet, Text as RNText } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
 import { Popup } from '../src/Popup';
 
@@ -38,5 +38,24 @@ describe('Popup.FloatingPanel', () => {
     expect(tree.indexOf('floating-panel-handle')).toBeGreaterThan(
       tree.indexOf('content'),
     );
+  });
+
+  it('uses the height prop as the panel height', () => {
+    let testRenderer: renderer.ReactTestRenderer;
+
+    act(() => {
+      testRenderer = renderer.create(
+        <Popup.FloatingPanel defaultOpen height={320}>
+          <RNText>content</RNText>
+        </Popup.FloatingPanel>,
+      );
+    });
+
+    const popupBody = testRenderer!.root.findByProps({
+      testID: 'popup-body',
+    });
+    const flattenedStyle = StyleSheet.flatten(popupBody.props.style);
+
+    expect(flattenedStyle.height).toBe(320);
   });
 });

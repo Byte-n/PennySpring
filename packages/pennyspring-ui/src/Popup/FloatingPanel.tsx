@@ -81,11 +81,14 @@ function resolveSize(size?: ComponentSize): ComponentSize {
 
 function resolveHeightRange(
   viewportHeight: number,
+  height?: number,
   minHeight?: number,
   maxHeight?: number,
 ): readonly [number, number] {
-  const rawMinHeight = minHeight ?? viewportHeight * DEFAULT_MIN_HEIGHT_RATIO;
-  const rawMaxHeight = maxHeight ?? viewportHeight * DEFAULT_MAX_HEIGHT_RATIO;
+  const rawMinHeight =
+    minHeight ?? height ?? viewportHeight * DEFAULT_MIN_HEIGHT_RATIO;
+  const rawMaxHeight =
+    maxHeight ?? height ?? viewportHeight * DEFAULT_MAX_HEIGHT_RATIO;
 
   if (rawMinHeight <= rawMaxHeight) {
     return [rawMinHeight, rawMaxHeight];
@@ -176,6 +179,7 @@ export function FloatingPanel({
   closeOnMaskClick = true,
   defaultOpen,
   defaultValue,
+  height,
   mask = true,
   maxHeight,
   minHeight,
@@ -195,12 +199,13 @@ export function FloatingPanel({
   const resolvedSize = resolveSize(size);
   const [resolvedMinHeight, resolvedMaxHeight] = resolveHeightRange(
     viewportHeight,
+    height,
     minHeight,
     maxHeight,
   );
 
   const defaultPanelHeight = clamp(
-    defaultValue ?? resolvedMinHeight,
+    defaultValue ?? height ?? resolvedMinHeight,
     resolvedMinHeight,
     resolvedMaxHeight,
   );
