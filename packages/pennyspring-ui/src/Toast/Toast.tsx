@@ -23,7 +23,7 @@ import type { ToastController,
 
 const DEFAULT_DURATION = 2000;
 const DEFAULT_SIZE: ComponentSize = 'normal';
-const DEFAULT_PLACEMENT: ToastPlacement = 'center';
+const DEFAULT_PLACEMENT: ToastPlacement = 'bottom';
 const HIDDEN_OFFSET_RATIO = 0.6;
 const SIZE_TOKEN_MAP: Record<
   ComponentSize,

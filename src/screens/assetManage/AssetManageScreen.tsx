@@ -228,13 +228,28 @@ export function AssetManageScreen() {
                       {idx > 0 && <Column style={styles.divider} />}
                       <SwipeAction
                         rightActions={[
-                          { key: 'edit', text: '编辑', color: 'primary', onPress: () => openEdit(asset) },
-                          { key: 'delete', text: '删除', color: 'danger', onPress: () => handleDelete(asset.id) },
+                          {
+                            key: 'edit',
+                            text: '编辑',
+                            color: 'primary',
+                            onPress: () => openEdit(asset),
+                          },
+                          {
+                            key: 'delete',
+                            text: '删除',
+                            color: 'danger',
+                            onPress: () => handleDelete(asset.id),
+                          },
                         ]}
                       >
                         <Row style={styles.item}>
                           <Text style={styles.itemName}>{asset.name}</Text>
-                          <Text style={[styles.itemBalance, asset.balance < 0 && styles.itemBalanceNegative]}>
+                          <Text
+                            style={[
+                              styles.itemBalance,
+                              asset.balance < 0 && styles.itemBalanceNegative,
+                            ]}
+                          >
                             ¥ {(asset.balance / 100).toFixed(2)}
                           </Text>
                         </Row>
@@ -248,12 +263,17 @@ export function AssetManageScreen() {
         )}
       </ScrollView>
 
-      <FloatingActionGroup actions={[{ key: 'create-asset', icon: 'add', onPress: openCreate }]} />
+      <FloatingActionGroup
+        actions={[{ key: 'create-asset', icon: 'add', onPress: openCreate }]}
+      />
 
       <Popup.FloatingPanel
         open={panelOpen}
-        onOpenChange={open => { if (!open) setPanelOpen(false); }}
+        onOpenChange={open => {
+          if (!open) setPanelOpen(false);
+        }}
         position="bottom"
+        height="70%"
       >
         <ScrollView contentContainerStyle={styles.panelContent}>
           <Input placeholder="资产名称" value={name} onChangeText={setName} />
@@ -264,17 +284,31 @@ export function AssetManageScreen() {
             placeholder="资产类型和分类"
             onChange={setAssetPath}
           />
-          <Input placeholder="余额(元)" value={balance} onChangeText={setBalance} keyboardType="numeric" />
+          <Input
+            placeholder="余额(元)"
+            value={balance}
+            onChangeText={setBalance}
+            keyboardType="numeric"
+          />
           {isCreditCard && (
             <>
-              <Input placeholder="总额度(元)" value={totalAmount} onChangeText={setTotalAmount} keyboardType="numeric" />
+              <Input
+                placeholder="总额度(元)"
+                value={totalAmount}
+                onChangeText={setTotalAmount}
+                keyboardType="numeric"
+              />
               <DateTimePicker
                 precision="day"
                 value={dayToPickerDate(billingDate)}
                 titleText="选择账单日"
                 onOk={(_v, params) => setBillingDate(params.day)}
               >
-                <Input placeholder="账单日" value={formatDayText(billingDate)} readonly />
+                <Input
+                  placeholder="账单日"
+                  value={formatDayText(billingDate)}
+                  readonly
+                />
               </DateTimePicker>
               <DateTimePicker
                 precision="day"
@@ -282,7 +316,11 @@ export function AssetManageScreen() {
                 titleText="选择还款日"
                 onOk={(_v, params) => setRepaymentDate(params.day)}
               >
-                <Input placeholder="还款日" value={formatDayText(repaymentDate)} readonly />
+                <Input
+                  placeholder="还款日"
+                  value={formatDayText(repaymentDate)}
+                  readonly
+                />
               </DateTimePicker>
             </>
           )}
