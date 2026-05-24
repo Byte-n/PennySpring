@@ -7,6 +7,7 @@ import {
   Dialog,
   Empty,
   FloatingActionGroup,
+  Icon,
   ImagePicker,
   Input,
   Row,
@@ -18,6 +19,7 @@ import {
 import type { ImagePickerValue } from '@pennyspring/ui';
 import { api, type BookRow } from '@pennyspring/data';
 import { createUseSheetStyle, toShadowStyle } from '@pennyspring/theme';
+import { useBookStore } from '../../stores/bookStore';
 
 const useStyles = createUseSheetStyle(token => ({
   container: {
@@ -32,9 +34,15 @@ const useStyles = createUseSheetStyle(token => ({
   card: {
     backgroundColor: token.colorBgContainer,
     borderRadius: token.borderRadiusLG,
+    borderWidth: token.lineWidth,
+    borderColor: 'transparent',
     padding: token.padding,
     gap: token.marginSM,
     ...toShadowStyle(token.boxShadowTertiary),
+  },
+  cardSelected: {
+    borderColor: token.colorPrimaryBorder,
+    backgroundColor: token.colorPrimaryBg,
   },
   cardMain: {
     gap: token.marginSM,
@@ -57,6 +65,16 @@ const useStyles = createUseSheetStyle(token => ({
   cardIdTagText: {
     fontSize: token.fontSizeSM,
     lineHeight: token.lineHeightSM,
+  },
+  currentTagContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: token.marginXXS,
+  },
+  currentTagText: {
+    fontSize: token.fontSizeSM,
+    lineHeight: token.lineHeightSM,
+    color: token.colorPrimaryText,
   },
   cardDesc: {
     fontSize: token.fontSizeSM,
@@ -133,6 +151,9 @@ export function BookManageScreen() {
   const cardCoverImageStyle = styles.cardCoverImage as StyleProp<ImageStyle>;
   const toast = useToast();
   const { data: books = [], refresh } = useRequest(() => api.book.getAll());
+  const currentBook = useBookStore(state => state.currentBook);
+  const initializeBook = useBookStore(state => state.initializeBook);
+  const setCurrentBook = useBookStore(state => state.setCurrentBook);
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingBook, setEditingBook] = useState<BookRow | null>(null);
@@ -161,7 +182,10 @@ export function BookManageScreen() {
 
     try {
       if (editingBook) {
-        await api.book.update({ id: editingBook.id, name, description, background });
+        const updatedBook = await api.book.update({ id: editingBook.id, name, description, background });
+        if (currentBook?.id === updatedBook.id) {
+          setCurrentBook(updatedBook);
+        }
       } else {
         await api.book.create({ name, description, background });
       }
@@ -170,18 +194,29 @@ export function BookManageScreen() {
     } catch (e: unknown) {
       toast.show({ messageText: e instanceof Error ? e.message : '操作失败' });
     }
-  }, [backgroundImage, editingBook, name, description, refresh, toast]);
+  }, [backgroundImage, currentBook, editingBook, name, description, refresh, setCurrentBook, toast]);
 
   const handleDelete = useCallback(
     async (id: number) => {
       try {
         await api.book.delete(id);
+        if (currentBook?.id === id) {
+          await initializeBook();
+        }
         refresh();
       } catch (e: unknown) {
         toast.show({ messageText: e instanceof Error ? e.message : '删除失败' });
       }
     },
-    [refresh, toast],
+    [currentBook, initializeBook, refresh, toast],
+  );
+
+  const handleSelectBook = useCallback(
+    (book: BookRow) => {
+      setCurrentBook(book);
+      toast.show({ messageText: `已切换到${book.name}` });
+    },
+    [setCurrentBook, toast],
   );
 
   return (
@@ -190,75 +225,101 @@ export function BookManageScreen() {
         {books.length === 0 ? (
           <Empty />
         ) : (
-          books.map(book => (
-            <SwipeAction
-              key={book.id}
-              rightActions={[
-                {
-                  key: 'edit',
-                  text: '编辑',
-                  color: 'primary',
-                  onPress: () => openEditDialog(book),
-                },
-                {
-                  key: 'delete',
-                  text: '删除',
-                  color: 'danger',
-                  onPress: () => handleDelete(book.id),
-                },
-              ]}
-            >
-              <Column style={styles.card}>
-                <Row align="center" style={styles.cardMain}>
-                  <Column style={styles.cardInfo}>
-                    <Row style={styles.cardTitle}>
-                      <Text numberOfLines={1} style={styles.cardName}>
-                        {book.name}
-                      </Text>
-                      <Tag
-                        size="small"
-                        variant="outlined"
-                        styles={{ content: styles.cardIdTagText }}
+          books.map(book => {
+            const isCurrentBook = currentBook?.id === book.id;
+
+            return (
+              <SwipeAction
+                key={book.id}
+                leftActions={[
+                  {
+                    key: 'select',
+                    text: isCurrentBook ? '当前' : '选择',
+                    color: isCurrentBook ? 'weak' : 'success',
+                    disabled: isCurrentBook,
+                    onPress: () => handleSelectBook(book),
+                  },
+                ]}
+                rightActions={[
+                  {
+                    key: 'edit',
+                    text: '编辑',
+                    color: 'primary',
+                    onPress: () => openEditDialog(book),
+                  },
+                  {
+                    key: 'delete',
+                    text: '删除',
+                    color: 'danger',
+                    onPress: () => handleDelete(book.id),
+                  },
+                ]}
+              >
+                <Column style={[styles.card, isCurrentBook && styles.cardSelected]}>
+                  <Row align="center" style={styles.cardMain}>
+                    <Column style={styles.cardInfo}>
+                      <Row style={styles.cardTitle}>
+                        <Text numberOfLines={1} style={styles.cardName}>
+                          {book.name}
+                        </Text>
+                        {isCurrentBook ? (
+                          <Tag
+                            color="primary"
+                            size="small"
+                            styles={{ content: styles.currentTagText }}
+                            variant="filled"
+                          >
+                            <Row style={styles.currentTagContent}>
+                              <Icon color="colorPrimaryText" icon="check" size="small" />
+                              <Text style={styles.currentTagText}>当前</Text>
+                            </Row>
+                          </Tag>
+                        ) : null}
+                        <Tag
+                          size="small"
+                          variant="outlined"
+                          styles={{ content: styles.cardIdTagText }}
+                        >
+                          {`#${book.id}`}
+                        </Tag>
+                      </Row>
+                      <Text
+                        style={[
+                          styles.cardDesc,
+                          !book.description && styles.cardDescEmpty,
+                        ]}
                       >
-                        {`#${book.id}`}
-                      </Tag>
-                    </Row>
-                    <Text
-                      style={[
-                        styles.cardDesc,
-                        !book.description && styles.cardDescEmpty,
-                      ]}
-                    >
-                      {book.description || '暂无描述'}
-                    </Text>
-                    <Column style={styles.cardTimeSummary}>
-                      <Text style={styles.cardTimeText}>
-                        {`创建：${formatBookTime(book.createdTime)}`}
+                        {book.description || '暂无描述'}
                       </Text>
-                      <Text style={styles.cardTimeText}>
-                        {`更新：${formatBookTime(book.updatedTime)}`}
-                      </Text>
-                    </Column>
-                  </Column>
-                  <Column style={styles.cardCover}>
-                    {book.background ? (
-                      <Image
-                        resizeMode="cover"
-                        source={{ uri: book.background }}
-                        style={cardCoverImageStyle}
-                      />
-                    ) : (
-                      <Column style={styles.cardCoverPlaceholder}>
-                        <Text style={styles.cardCoverPlaceholderText}>
-                          暂无图片
+                      <Column style={styles.cardTimeSummary}>
+                        <Text style={styles.cardTimeText}>
+                          {`创建：${formatBookTime(book.createdTime)}`}
+                        </Text>
+                        <Text style={styles.cardTimeText}>
+                          {`更新：${formatBookTime(book.updatedTime)}`}
                         </Text>
                       </Column>
-                    )}
-                  </Column>
-                </Row>
-              </Column>
-            </SwipeAction>
-          ))
+                    </Column>
+                    <Column style={styles.cardCover}>
+                      {book.background ? (
+                        <Image
+                          resizeMode="cover"
+                          source={{ uri: book.background }}
+                          style={cardCoverImageStyle}
+                        />
+                      ) : (
+                        <Column style={styles.cardCoverPlaceholder}>
+                          <Text style={styles.cardCoverPlaceholderText}>
+                            暂无图片
+                          </Text>
+                        </Column>
+                      )}
+                    </Column>
+                  </Row>
+                </Column>
+              </SwipeAction>
+            );
+          })
         )}
       </ScrollView>
 
