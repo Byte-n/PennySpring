@@ -337,9 +337,10 @@ const useStyles = createUseSheetStyle(
 function renderContent(
   children: ButtonProps['children'],
   style: StyleProp<TextStyle>,
+  stateStyle?: StyleProp<TextStyle>,
 ) {
   if (typeof children === 'string' || typeof children === 'number') {
-    return <Text style={style}>{children}</Text>;
+    return <Text style={[style, stateStyle]}>{children}</Text>;
   }
 
   const childItems = React.Children.toArray(children);
@@ -349,7 +350,7 @@ function renderContent(
   if (isPlainTextGroup) {
     const content = childItems.map(item => String(item)).join('');
 
-    return <Text style={style}>{content}</Text>;
+    return <Text style={[style, stateStyle]}>{content}</Text>;
   }
 
   if (
@@ -357,7 +358,7 @@ function renderContent(
     && children.type === Text
   ) {
     return React.cloneElement(children, {
-      style: StyleSheet.flatten([style, children.props.style]),
+      style: StyleSheet.flatten([style, children.props.style, stateStyle]),
     });
   }
 
@@ -435,8 +436,7 @@ export function Button({
     ? renderContent(children, [
       tokenStyles.content,
       styles?.content,
-      disabled ? tokenStyles.contentDisabled : null,
-    ])
+    ], disabled ? tokenStyles.contentDisabled : null)
     : null;
 
   useEffect(() => {

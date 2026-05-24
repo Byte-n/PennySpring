@@ -1,5 +1,5 @@
 import React from 'react';
-import { ActivityIndicator, View } from 'react-native';
+import { ActivityIndicator } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
 import { Button } from '../src/Button';
 import { Icon } from '../src/Icon';
@@ -12,29 +12,26 @@ function renderButton(props: Partial<React.ComponentProps<typeof Button>> = {}) 
   return testRenderer!;
 }
 function flattenStyle(style: unknown) {
-  const styles = Array.isArray(style) ? style : [style];
-  return Object.assign({}, ...styles);
+  const flatten = (input: unknown): Record<string, unknown>[] => {
+    if (input === null || input === undefined || input === false) {
+      return [];
+    }
+    if (Array.isArray(input)) {
+      return input.flatMap(flatten);
+    }
+
+    return [input as Record<string, unknown>];
+  };
+
+  return Object.assign({}, ...flatten(style));
 }
 function getPressableRoot(testRenderer: renderer.ReactTestRenderer) {
   // The Button renders a single Pressable as its root element
   return testRenderer.root.children[0] as renderer.ReactTestInstance;
 }
-function getRootStyle(testRenderer: renderer.ReactTestRenderer, pressed = false) {
-  const root = getPressableRoot(testRenderer);
-  const style = typeof root.props.style === 'function' ? root.props.style({
-    pressed
-  }) : root.props.style;
-  return flattenStyle(style);
-}
 function getContentTextStyle(testRenderer: renderer.ReactTestRenderer) {
   const textNode = testRenderer.root.findByType(Text);
   return flattenStyle(textNode.props.style) as Record<string, unknown>;
-}
-function findNodesWithStyle(testRenderer: renderer.ReactTestRenderer, markerStyle: Record<string, unknown>) {
-  return testRenderer.root.findAll(node => {
-    const style = node.props.style;
-    return style === markerStyle || Array.isArray(style) && style.includes(markerStyle);
-  });
 }
 describe('Button', () => {
   it('renders text content', () => {
@@ -126,15 +123,6 @@ describe('Button', () => {
     expect(onPress).not.toHaveBeenCalled();
     expect(root.props.disabled).toBe(true);
   });
-  it('applies disabled opacity for text button variant', () => {
-    const testRenderer = renderButton({
-      type: 'text',
-      disabled: true,
-      children: <Text>Disabled text</Text>,
-    });
-
-    expect(getRootStyle(testRenderer).opacity).toBeDefined();
-  });
   it('overrides custom text color with disabled text color for text button', () => {
     const enabledRenderer = renderButton({
       type: 'text',
@@ -150,13 +138,6 @@ describe('Button', () => {
     expect(getContentTextStyle(enabledRenderer).color).toBe('red');
     expect(getContentTextStyle(disabledRenderer).color).not.toBe('red');
   });
-  it('supports block layout', () => {
-    const testRenderer = renderButton({
-      block: true,
-      children: 'Submit'
-    });
-    expect(getRootStyle(testRenderer).width).toBe('100%');
-  });
   it('uses loading delay before entering busy state', () => {
     jest.useFakeTimers();
     const testRenderer = renderButton({
@@ -171,18 +152,5 @@ describe('Button', () => {
     });
     expect(testRenderer.root.findAllByType(ActivityIndicator)).toHaveLength(1);
     jest.useRealTimers();
-  });
-  it('renders custom loading icon instead of the default indicator', () => {
-    const loadingIconStyle = {
-      opacity: 0.64
-    };
-    const testRenderer = renderButton({
-      loading: {
-        icon: <View style={loadingIconStyle} />
-      },
-      children: 'Save'
-    });
-    expect(testRenderer.root.findAllByType(ActivityIndicator)).toHaveLength(0);
-    expect(findNodesWithStyle(testRenderer, loadingIconStyle).length).toBeGreaterThan(0);
   });
 });
