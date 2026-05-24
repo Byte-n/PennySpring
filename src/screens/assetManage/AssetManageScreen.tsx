@@ -73,16 +73,23 @@ function formatCurrency(cents: number): string {
 }
 
 function formatCreditDate(asset: AssetRow): string {
-  const billingText = asset.billingDate > 0 ? `${asset.billingDate}日出账` : '账单日未设';
-  const repaymentText = asset.repaymentDate > 0 ? `${asset.repaymentDate}日还款` : '还款日未设';
+  const billingText =
+    asset.billingDate > 0 ? `${asset.billingDate}日出账` : '账单日未设';
+  const repaymentText =
+    asset.repaymentDate > 0 ? `${asset.repaymentDate}日还款` : '还款日未设';
   return `${billingText} · ${repaymentText}`;
 }
 
 function getClassificationLabel(asset: AssetRow): string {
-  return ASSET_CLASSIFICATION.label(asset.classification) || ASSET_TYPE.label(asset.type);
+  return (
+    ASSET_CLASSIFICATION.label(asset.classification) ||
+    ASSET_TYPE.label(asset.type)
+  );
 }
 
-function toCascaderOptions(nodes: readonly AssetClassificationTreeNode[]): Array<CascaderOption> {
+function toCascaderOptions(
+  nodes: readonly AssetClassificationTreeNode[],
+): Array<CascaderOption> {
   return nodes.map(node => ({
     value: node.value,
     labelText: node.label,
@@ -90,17 +97,23 @@ function toCascaderOptions(nodes: readonly AssetClassificationTreeNode[]): Array
   }));
 }
 
-function buildPathLookup(options: Array<CascaderOption>): Map<CascaderValue, CascaderValue[]> {
+function buildPathLookup(
+  options: Array<CascaderOption>,
+): Map<CascaderValue, CascaderValue[]> {
   const result = new Map<CascaderValue, CascaderValue[]>();
-  const stack: Array<{ node: CascaderOption; parentPath: CascaderValue[] }> = options.map(
-    node => ({ node, parentPath: [] }),
-  );
+  const stack: Array<{ node: CascaderOption; parentPath: CascaderValue[] }> =
+    options.map(node => ({ node, parentPath: [] }));
   while (stack.length > 0) {
     const current = stack.pop()!;
     const nextPath = [...current.parentPath, current.node.value];
     result.set(current.node.value, nextPath);
     if (current.node.children && current.node.children.length > 0) {
-      stack.push(...current.node.children.map(child => ({ node: child, parentPath: nextPath })));
+      stack.push(
+        ...current.node.children.map(child => ({
+          node: child,
+          parentPath: nextPath,
+        })),
+      );
     }
   }
   return result;
@@ -212,13 +225,22 @@ export function AssetManageScreen() {
 
   const { data, loading, refresh } = useRequest(() => api.asset.getAll());
 
-  const cascaderOptions = useMemo(() => toCascaderOptions(ASSET_CLASSIFICATION_TREE), []);
-  const pathLookup = useMemo(() => buildPathLookup(cascaderOptions), [cascaderOptions]);
+  const cascaderOptions = useMemo(
+    () => toCascaderOptions(ASSET_CLASSIFICATION_TREE),
+    [],
+  );
+  const pathLookup = useMemo(
+    () => buildPathLookup(cascaderOptions),
+    [cascaderOptions],
+  );
 
   const [panelOpen, setPanelOpen] = useState(false);
   const [editingAsset, setEditingAsset] = useState<AssetRow | null>(null);
   const [name, setName] = useState('');
-  const [assetPath, setAssetPath] = useState<CascaderValue[]>([ASSET_TYPE.capitalAccount, ASSET_CLASSIFICATION.cash]);
+  const [assetPath, setAssetPath] = useState<CascaderValue[]>([
+    ASSET_TYPE.capitalAccount,
+    ASSET_CLASSIFICATION.cash,
+  ]);
   const [balance, setBalance] = useState('');
   const [totalAmount, setTotalAmount] = useState('');
   const [billingDate, setBillingDate] = useState<number | undefined>();
@@ -247,9 +269,14 @@ export function AssetManageScreen() {
     return assets.reduce<AssetSummary>(
       (summary, asset) => ({
         totalBalance: summary.totalBalance + asset.balance,
-        visibleCount: summary.visibleCount + (asset.invisible === VISIBILITY.visible ? 1 : 0),
-        hiddenCount: summary.hiddenCount + (asset.invisible === VISIBILITY.hidden ? 1 : 0),
-        creditLimit: summary.creditLimit + (asset.type === ASSET_TYPE.creditCard ? asset.totalAmount : 0),
+        visibleCount:
+          summary.visibleCount +
+          (asset.invisible === VISIBILITY.visible ? 1 : 0),
+        hiddenCount:
+          summary.hiddenCount + (asset.invisible === VISIBILITY.hidden ? 1 : 0),
+        creditLimit:
+          summary.creditLimit +
+          (asset.type === ASSET_TYPE.creditCard ? asset.totalAmount : 0),
       }),
       {
         totalBalance: 0,
@@ -277,35 +304,56 @@ export function AssetManageScreen() {
     setPanelOpen(true);
   }, [resetForm]);
 
-  const openEdit = useCallback((asset: AssetRow) => {
-    setEditingAsset(asset);
-    setName(asset.name);
-    const classificationPath = pathLookup.get(asset.classification);
-    const typePath = pathLookup.get(asset.type);
-    setAssetPath(classificationPath ?? typePath ?? [ASSET_TYPE.capitalAccount, ASSET_CLASSIFICATION.cash]);
-    setBalance((asset.balance / CENTS_PER_YUAN).toFixed(2));
-    setTotalAmount((asset.totalAmount / CENTS_PER_YUAN).toFixed(2));
-    setBillingDate(asset.billingDate > 0 ? asset.billingDate : undefined);
-    setRepaymentDate(asset.repaymentDate > 0 ? asset.repaymentDate : undefined);
-    setRemark(asset.remark);
-    setInvisible(asset.invisible === VISIBILITY.hidden);
-    setPanelOpen(true);
-  }, [pathLookup]);
+  const openEdit = useCallback(
+    (asset: AssetRow) => {
+      setEditingAsset(asset);
+      setName(asset.name);
+      const classificationPath = pathLookup.get(asset.classification);
+      const typePath = pathLookup.get(asset.type);
+      setAssetPath(
+        classificationPath ??
+          typePath ?? [ASSET_TYPE.capitalAccount, ASSET_CLASSIFICATION.cash],
+      );
+      setBalance((asset.balance / CENTS_PER_YUAN).toFixed(2));
+      setTotalAmount((asset.totalAmount / CENTS_PER_YUAN).toFixed(2));
+      setBillingDate(asset.billingDate > 0 ? asset.billingDate : undefined);
+      setRepaymentDate(
+        asset.repaymentDate > 0 ? asset.repaymentDate : undefined,
+      );
+      setRemark(asset.remark);
+      setInvisible(asset.invisible === VISIBILITY.hidden);
+      setPanelOpen(true);
+    },
+    [pathLookup],
+  );
 
   const type = assetPath[0] as AssetTypeValue | undefined;
-  const classification = assetPath[assetPath.length - 1] as AssetClassificationValue | undefined;
+  const classification = assetPath[assetPath.length - 1] as
+    | AssetClassificationValue
+    | undefined;
   const isCreditCard = type === ASSET_TYPE.creditCard;
 
   const handleSave = useCallback(async () => {
-    if (!name.trim()) { toast.show({ messageText: '请输入资产名称' }); return; }
-    if (!currentBook) { toast.show({ messageText: '未找到当前账本' }); return; }
-    if (!type || !classification) { toast.show({ messageText: '请选择资产类型和分类' }); return; }
+    if (!name.trim()) {
+      toast.show({ messageText: '请输入资产名称' });
+      return;
+    }
+    if (!currentBook) {
+      toast.show({ messageText: '未找到当前账本' });
+      return;
+    }
+    if (!type || !classification) {
+      toast.show({ messageText: '请选择资产类型和分类' });
+      return;
+    }
     try {
       const input = {
         booksId: currentBook.id,
         name: name.trim(),
         balance: Math.round(parseFloat(balance || '0') * CENTS_PER_YUAN),
-        totalAmount: Math.round(parseFloat(totalAmount || '0') * CENTS_PER_YUAN),
+        totalAmount: Math.round(
+          parseFloat(totalAmount || '0') * CENTS_PER_YUAN,
+        ),
         billingDate: billingDate ?? 0,
         repaymentDate: repaymentDate ?? 0,
         type,
@@ -323,16 +371,35 @@ export function AssetManageScreen() {
     } catch (e: unknown) {
       toast.show({ messageText: e instanceof Error ? e.message : '保存失败' });
     }
-  }, [name, type, classification, balance, totalAmount, billingDate, repaymentDate, remark, invisible, currentBook, editingAsset, refresh, toast]);
+  }, [
+    name,
+    type,
+    classification,
+    balance,
+    totalAmount,
+    billingDate,
+    repaymentDate,
+    remark,
+    invisible,
+    currentBook,
+    editingAsset,
+    refresh,
+    toast,
+  ]);
 
-  const handleDelete = useCallback(async (id: number) => {
-    try {
-      await api.asset.delete(id);
-      refresh();
-    } catch (e: unknown) {
-      toast.show({ messageText: e instanceof Error ? e.message : '删除失败' });
-    }
-  }, [refresh, toast]);
+  const handleDelete = useCallback(
+    async (id: number) => {
+      try {
+        await api.asset.delete(id);
+        refresh();
+      } catch (e: unknown) {
+        toast.show({
+          messageText: e instanceof Error ? e.message : '删除失败',
+        });
+      }
+    },
+    [refresh, toast],
+  );
 
   const assetTypes = ASSET_TYPE.options();
   const hasAssets = (data?.length ?? 0) > 0;
@@ -344,14 +411,15 @@ export function AssetManageScreen() {
           <Empty />
         ) : (
           <>
-            <Card
-              size="large"
-              variant="summary"
-            >
+            <Card size="large" variant="summary">
               <Row style={styles.summaryHeader}>
                 <Column style={styles.summaryTitleArea}>
-                  <Text color="secondary" size="sm">资产总览</Text>
-                  <Text color="description" size="sm">按账户类型归集当前账本资产</Text>
+                  <Text color="secondary" size="sm">
+                    资产总览
+                  </Text>
+                  <Text color="description" size="sm">
+                    按账户类型归集当前账本资产
+                  </Text>
                 </Column>
                 <Column style={styles.summaryIcon}>
                   <Icon color="colorPrimaryText" icon="list" size="normal" />
@@ -368,16 +436,24 @@ export function AssetManageScreen() {
               </Text>
               <Row style={styles.summaryMetrics}>
                 <Column style={styles.summaryMetric}>
-                  <Text color="secondary" size="sm">展示中</Text>
+                  <Text color="secondary" size="sm">
+                    展示中
+                  </Text>
                   <Text weight="semibold">{assetSummary.visibleCount} 个</Text>
                 </Column>
                 <Column style={styles.summaryMetric}>
-                  <Text color="secondary" size="sm">已隐藏</Text>
+                  <Text color="secondary" size="sm">
+                    已隐藏
+                  </Text>
                   <Text weight="semibold">{assetSummary.hiddenCount} 个</Text>
                 </Column>
                 <Column style={styles.summaryMetric}>
-                  <Text color="secondary" size="sm">信用额度</Text>
-                  <Text weight="semibold">{formatCurrency(assetSummary.creditLimit)}</Text>
+                  <Text color="secondary" size="sm">
+                    信用额度
+                  </Text>
+                  <Text weight="semibold">
+                    {formatCurrency(assetSummary.creditLimit)}
+                  </Text>
                 </Column>
               </Row>
             </Card>
@@ -389,19 +465,29 @@ export function AssetManageScreen() {
                 <Column key={typeInfo.value} style={styles.section}>
                   <Row style={styles.groupHeader}>
                     <Column style={styles.groupTitleArea}>
-                      <Text size="lg" weight="semibold" style={styles.groupTitle}>
+                      <Text
+                        size="lg"
+                        weight="semibold"
+                        style={styles.groupTitle}
+                      >
                         {typeInfo.label}
                       </Text>
-                      <Text color="secondary" size="sm">{typeInfo.description}</Text>
+                      <Text color="secondary" size="sm">
+                        {typeInfo.description}
+                      </Text>
                     </Column>
                     <Column align="end">
                       <Text
                         weight="semibold"
-                        style={group.totalBalance < 0 && styles.itemBalanceNegative}
+                        style={
+                          group.totalBalance < 0 && styles.itemBalanceNegative
+                        }
                       >
                         {formatCurrency(group.totalBalance)}
                       </Text>
-                      <Text color="tertiary" size="sm">{group.assets.length} 个资产</Text>
+                      <Text color="tertiary" size="sm">
+                        {group.assets.length} 个资产
+                      </Text>
                     </Column>
                   </Row>
                   <Column style={styles.group}>
@@ -435,14 +521,24 @@ export function AssetManageScreen() {
                                   {asset.name}
                                 </Text>
                                 {asset.invisible === VISIBILITY.hidden ? (
-                                  <Tag color="default" size="small">隐藏</Tag>
+                                  <Tag color="default" size="small">
+                                    隐藏
+                                  </Tag>
                                 ) : null}
                               </Row>
                               <Row wrap style={styles.itemMeta}>
-                                <Tag color="blue" size="small" variant="outlined">
+                                <Tag
+                                  color="blue"
+                                  size="small"
+                                  variant="outlined"
+                                >
                                   {getClassificationLabel(asset)}
                                 </Tag>
-                                <Text color="secondary" numberOfLines={1} size="sm">
+                                <Text
+                                  color="secondary"
+                                  numberOfLines={1}
+                                  size="sm"
+                                >
                                   {asset.type === ASSET_TYPE.creditCard
                                     ? formatCreditDate(asset)
                                     : typeInfo.description}
@@ -453,7 +549,10 @@ export function AssetManageScreen() {
                               <Text
                                 size="lg"
                                 weight="semibold"
-                                style={asset.balance < 0 && styles.itemBalanceNegative}
+                                style={
+                                  asset.balance < 0 &&
+                                  styles.itemBalanceNegative
+                                }
                               >
                                 {formatCurrency(asset.balance)}
                               </Text>
@@ -476,7 +575,14 @@ export function AssetManageScreen() {
       </ScrollView>
 
       <FloatingActionGroup
-        actions={[{ key: 'create-asset', icon: 'add', onPress: openCreate }]}
+        actions={[
+          {
+            key: 'create-asset',
+            icon: 'add',
+            onPress: openCreate,
+            buttonProps: { color: 'cyan' },
+          },
+        ]}
       />
 
       <Popup.FloatingPanel
@@ -542,7 +648,11 @@ export function AssetManageScreen() {
               </DateTimePicker>
             </>
           )}
-          <Textarea placeholder="备注(可选)" value={remark} onChangeText={setRemark} />
+          <Textarea
+            placeholder="备注(可选)"
+            value={remark}
+            onChangeText={setRemark}
+          />
           <Row>
             <Text>隐藏资产</Text>
             <Spacer size={token.marginSM} />

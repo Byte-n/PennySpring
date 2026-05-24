@@ -1,5 +1,6 @@
 import React from 'react';
 import renderer, { act } from 'react-test-renderer';
+import { Button } from '../src/Button';
 import { FloatingActionGroup } from '../src/FloatingActionGroup';
 import { PortalProvider } from '../src/Portal';
 
@@ -163,5 +164,31 @@ describe('FloatingActionGroup', () => {
     expect(
       testRenderer.root.findByProps({ testID: 'floating-action-group-container' }),
     ).toBeTruthy();
+  });
+
+  it('passes buttonProps to action buttons', () => {
+    let testRenderer!: renderer.ReactTestRenderer;
+
+    act(() => {
+      testRenderer = renderer.create(
+        <FloatingActionGroup
+          actions={[
+            {
+              key: 'create',
+              label: 'Create',
+              onPress: jest.fn(),
+              buttonProps: {
+                testID: 'book-manage-create-button',
+                hitSlop: { top: 12, bottom: 12, left: 12, right: 12 },
+              },
+            },
+          ]}
+        />,
+      );
+    });
+
+    const button = testRenderer.root.findByType(Button);
+    expect(button.props.testID).toBe('book-manage-create-button');
+    expect(button.props.hitSlop).toEqual({ top: 12, bottom: 12, left: 12, right: 12 });
   });
 });

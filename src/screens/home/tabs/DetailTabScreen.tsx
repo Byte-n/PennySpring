@@ -1,11 +1,9 @@
 import React from 'react';
 import { ScrollView, View, type TextStyle } from 'react-native';
-import { FloatingActionGroup, Text } from '@pennyspring/ui';
+import { Text } from '@pennyspring/ui';
 import { createUseSheetStyle } from '@pennyspring/theme';
 
-import { useNavigation } from '../../../navigation/useNavigation';
-
-const useStyles = createUseSheetStyle((token) => ({
+const useStyles = createUseSheetStyle(token => ({
   container: {
     flex: 1,
   },
@@ -34,16 +32,10 @@ const useStyles = createUseSheetStyle((token) => ({
     lineHeight: token.lineHeight,
     marginTop: token.marginSM,
   },
-  fab: {
-    position: 'absolute',
-    bottom: token.paddingLG,
-    right: token.paddingLG,
-  },
 }));
 
 export function DetailTabScreen() {
   const styles = useStyles();
-  const navigation = useNavigation();
 
   return (
     <View style={styles.container}>
@@ -53,16 +45,6 @@ export function DetailTabScreen() {
           <Text style={styles.description}>这里将展示收支明细列表。</Text>
         </View>
       </ScrollView>
-      <FloatingActionGroup
-        actions={[
-          {
-            key: 'add-record',
-            icon: 'plus',
-            onPress: () => navigation.navigate('AddRecord'),
-          },
-        ]}
-        style={styles.fab}
-      />
     </View>
   );
 }

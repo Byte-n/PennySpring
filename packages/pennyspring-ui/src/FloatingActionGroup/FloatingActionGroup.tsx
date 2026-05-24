@@ -11,7 +11,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { createUseSheetStyle, toShadowStyle, useTheme } from '@pennyspring/theme';
 import { Button } from '../Button';
-import type { ButtonColor, ButtonVariant } from '../Button';
+import type { ButtonColor, ButtonProps, ButtonVariant } from '../Button';
 import type { IconComponent, IconName } from '../Icon';
 import { PortalContext } from '../Portal/Portal';
 import { resolvePortalMount } from '../Portal/resolvePortalMount';
@@ -33,10 +33,6 @@ interface FloatingStyleOptions {
   expandUp: boolean;
 }
 
-interface FloatingActionButtonStyles {
-  button?: StyleProp<ViewStyle>;
-}
-
 interface FloatingActionButtonProps {
   label?: string;
   icon?: IconName | IconComponent;
@@ -46,7 +42,7 @@ interface FloatingActionButtonProps {
   shadow?: boolean;
   onPress?: () => void;
   style?: StyleProp<ViewStyle>;
-  styles?: FloatingActionButtonStyles;
+  buttonProps?: Omit<ButtonProps, 'children' | 'icon' | 'onPress'>;
   testID?: string;
 }
 
@@ -95,22 +91,31 @@ function FloatingActionButton({
   onPress,
   shadow = true,
   style,
-  styles,
+  buttonProps,
   testID,
   variant = 'solid',
 }: FloatingActionButtonProps) {
   const tokenStyles = useButtonStyles(shadow);
+  const {
+    style: buttonStyle,
+    styles: buttonStyles,
+    testID: buttonTestID,
+    ...restButtonProps
+  } = buttonProps ?? {};
+  const resolvedTestID = testID ?? buttonTestID;
 
   return (
     <Button
       color={color}
-      disabled={disabled}
+      {...restButtonProps}
+      disabled={disabled || restButtonProps.disabled}
       icon={icon}
       onPress={onPress}
       shape="round"
       size="large"
-      style={[tokenStyles.button, style, styles?.button]}
-      testID={testID}
+      style={[tokenStyles.button, style, buttonStyle]}
+      styles={buttonStyles}
+      testID={resolvedTestID}
       variant={variant}
     >
       {label}
@@ -162,6 +167,7 @@ function HiddenActionItem({
   spacing,
   gap,
   style,
+  buttonProps,
 }: {
   action: FloatingActionItem;
   index: number;
@@ -172,6 +178,7 @@ function HiddenActionItem({
   spacing: number;
   gap: number;
   style: FloatingActionGroupStyles['actionButton'];
+  buttonProps?: Omit<ButtonProps, 'children' | 'icon' | 'onPress'>;
 }) {
   const { token } = useTheme();
 
@@ -216,7 +223,8 @@ function HiddenActionItem({
         label={action.label}
         onPress={action.onPress}
         shadow={false}
-        style={style}
+        style={[style, action.buttonProps?.style]}
+        buttonProps={buttonProps}
         variant="filled"
       />
     </Animated.View>
@@ -331,6 +339,7 @@ export function FloatingActionGroup({
               spacing={computedSpacing}
               gap={token.paddingXS}
               style={styles?.actionButton}
+              buttonProps={action.buttonProps}
             />
           ))}
         </View>
@@ -350,7 +359,8 @@ export function FloatingActionGroup({
             key={action.key}
             label={action.label}
             onPress={action.onPress}
-            style={styles?.actionButton}
+            style={[styles?.actionButton, action.buttonProps?.style]}
+            buttonProps={action.buttonProps}
           />
         ))}
         {!placement.startsWith('bottom') && hasMore ? (

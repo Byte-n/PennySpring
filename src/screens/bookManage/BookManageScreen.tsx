@@ -348,7 +348,12 @@ export function BookManageScreen() {
 
       <FloatingActionGroup
         actions={[
-          { key: 'create-book', icon: 'add', onPress: openCreateDialog },
+          {
+            key: 'create-book',
+            icon: 'add',
+            onPress: openCreateDialog,
+            buttonProps: { color: 'orange' },
+          },
         ]}
       />
 

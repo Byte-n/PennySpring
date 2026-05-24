@@ -1,7 +1,13 @@
 import React from 'react';
 import { View } from 'react-native';
-import { Button, Drawer, Text } from '@pennyspring/ui';
+import {
+  Button,
+  Drawer,
+  FloatingActionGroup,
+  Text,
+} from '@pennyspring/ui';
 import { createUseSheetStyle } from '@pennyspring/theme';
+import { useIsFocused } from '@react-navigation/native';
 import { ListIcon } from 'phosphor-react-native';
 
 import {
@@ -139,6 +145,7 @@ function DrawerOptionList({
 
 export function HomeScreen() {
   const navigation = useNavigation();
+  const isFocused = useIsFocused();
   const [isDrawerOpen, setIsDrawerOpen] = React.useState(false);
 
   const openDrawer = React.useCallback(() => {
@@ -185,23 +192,36 @@ export function HomeScreen() {
   }, [navigation]);
 
   return (
-    <Drawer.Layout
-      onCancel={closeDrawer}
-      onOpenChange={setIsDrawerOpen}
-      open={isDrawerOpen}
-      renderDrawerContent={() => (
-        <DrawerOptionList
-          onOpenAssetManage={openAssetManage}
-          onOpenBookManage={openBookManage}
-          onOpenBusinessPreview={openBusinessPreview}
-          onOpenComponentPreview={openComponentPreview}
-          onOpenTagManage={openTagManage}
-          onOpenTestScreen={openTestScreen}
-          onOpenTypeManage={openTypeManage}
+    <>
+      <Drawer.Layout
+        onCancel={closeDrawer}
+        onOpenChange={setIsDrawerOpen}
+        open={isDrawerOpen}
+        renderDrawerContent={() => (
+          <DrawerOptionList
+            onOpenAssetManage={openAssetManage}
+            onOpenBookManage={openBookManage}
+            onOpenBusinessPreview={openBusinessPreview}
+            onOpenComponentPreview={openComponentPreview}
+            onOpenTagManage={openTagManage}
+            onOpenTestScreen={openTestScreen}
+            onOpenTypeManage={openTypeManage}
+          />
+        )}
+      >
+        <HomeTabsNavigator leftActions={<MenuButton onPress={openDrawer} />} />
+      </Drawer.Layout>
+      {isFocused && (
+        <FloatingActionGroup
+          actions={[
+            {
+              key: 'add-record',
+              icon: 'plus',
+              onPress: () => navigation.navigate('AddRecord'),
+            },
+          ]}
         />
       )}
-    >
-      <HomeTabsNavigator leftActions={<MenuButton onPress={openDrawer} />} />
-    </Drawer.Layout>
+    </>
   );
 }

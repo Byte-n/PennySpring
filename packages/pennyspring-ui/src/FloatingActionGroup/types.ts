@@ -1,4 +1,5 @@
 import type { StyleProp, ViewStyle } from 'react-native';
+import type { ButtonProps } from '../Button';
 import type { IconComponent, IconName } from '../Icon';
 import type { PortalMountPoint } from '../Portal/types';
 
@@ -16,6 +17,7 @@ export interface FloatingActionItem {
   icon?: IconName | IconComponent;
   disabled?: boolean;
   onPress: () => void;
+  buttonProps?: Omit<ButtonProps, 'children' | 'icon' | 'onPress'>;
 }
 
 export interface FloatingActionGroupStyles {
