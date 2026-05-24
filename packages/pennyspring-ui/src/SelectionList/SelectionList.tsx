@@ -32,7 +32,7 @@ interface RenderGroup {
   options: SelectionListOption[];
 }
 
-const DEFAULT_PLACEHOLDER = 'Select';
+const DEFAULT_PLACEHOLDER = '请选择';
 
 function resolveSize(size?: ComponentSize): ComponentSize {
   return size ?? 'normal';

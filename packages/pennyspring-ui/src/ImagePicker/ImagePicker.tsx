@@ -11,9 +11,9 @@ import type {
   ImagePickerValue,
 } from './types';
 
-const DEFAULT_PHOTO_TEXT = 'Photo Library';
-const DEFAULT_FILE_SYSTEM_TEXT = 'Files';
-const DEFAULT_CANCEL_TEXT = 'Cancel';
+const DEFAULT_PHOTO_TEXT = '相册';
+const DEFAULT_FILE_SYSTEM_TEXT = '文件';
+const DEFAULT_CANCEL_TEXT = '取消';
 const DEFAULT_SOURCES: ImagePickerSource[] = ['photo', 'fileSystem'];
 
 function getValueText(value: ImagePickerValue | undefined): string | undefined {

@@ -19,10 +19,10 @@ import type { ComponentSize } from '../shares/types.ts';
 
 const DEFAULT_SIZE: CalendarSize = 'normal';
 const DEFAULT_MODE: CalendarMode = 'date';
-const DEFAULT_TODAY_TEXT = 'Today';
-const DEFAULT_CANCEL_TEXT = 'Cancel';
-const DEFAULT_OK_TEXT = 'Confirm';
-const WEEK_DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const DEFAULT_TODAY_TEXT = '今天';
+const DEFAULT_CANCEL_TEXT = '取消';
+const DEFAULT_OK_TEXT = '确定';
+const WEEK_DAYS = ['日', '一', '二', '三', '四', '五', '六'];
 const MONTH_COUNT = 12;
 const YEAR_WINDOW = 12;
 const GRID_CELL_PERCENT = '14.2857%';

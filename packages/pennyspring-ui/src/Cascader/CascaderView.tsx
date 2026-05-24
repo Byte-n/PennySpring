@@ -154,7 +154,7 @@ export function CascaderView<TData = unknown>({
       />
       {loading === true ? (
         <View style={[tokenStyles.loading, styles?.loading]} testID="cascader-loading">
-          <Text color="description">Loading...</Text>
+          <Text color="description">加载中...</Text>
         </View>
       ) : currentOptions.length > 0 ? (
         <FlatList

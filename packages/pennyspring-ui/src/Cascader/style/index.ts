@@ -47,9 +47,9 @@ const SIZE_MAP: Record<ComponentSize, SizeConfig> = {
   },
 };
 
-export const CASCADER_DEFAULT_PLACEHOLDER = 'Select';
-export const CASCADER_DEFAULT_EMPTY_TEXT = 'No options';
-export const CASCADER_DEFAULT_TAB_PLACEHOLDER = 'Select';
+export const CASCADER_DEFAULT_PLACEHOLDER = '请选择';
+export const CASCADER_DEFAULT_EMPTY_TEXT = '暂无选项';
+export const CASCADER_DEFAULT_TAB_PLACEHOLDER = '请选择';
 
 export const useCascaderStyles = createUseSheetStyle(
   (token, { size }: CascaderStyleOptions) => {
