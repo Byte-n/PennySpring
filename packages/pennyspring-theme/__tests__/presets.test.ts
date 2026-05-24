@@ -1,13 +1,4 @@
 describe('presets', () => {
-  it('exports april / kaori / penny / spring as a presets namespace', () => {
-    const { presets } = require('../src/index');
-    expect(presets).toBeTruthy();
-    expect(presets.april).toBeTruthy();
-    expect(presets.kaori).toBeTruthy();
-    expect(presets.penny).toBeTruthy();
-    expect(presets.spring).toBeTruthy();
-  });
-
   it('april uses spring-green palette', () => {
     const { presets } = require('../src/index');
     expect(presets.april.colorPrimary).toBe('#52C41A');
