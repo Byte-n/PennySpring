@@ -5,8 +5,6 @@ import {
   ActionSheet,
   Column,
   Dialog,
-  Empty,
-  FloatingActionGroup,
   Input,
   Row,
   Text,
@@ -62,7 +60,7 @@ export function TagManageScreen() {
   const styles = useStyles();
   const toast = useToast();
 
-  const { data, loading, refresh } = useRequest(() => api.tag.getAll());
+  const { data, refresh } = useRequest(() => api.tag.getAll());
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingTag, setEditingTag] = useState<TagRow | null>(null);
@@ -158,27 +156,21 @@ export function TagManageScreen() {
   return (
     <Column style={styles.container}>
       <ScrollView contentContainerStyle={styles.content}>
-        {tags.length === 0 && !loading ? (
-          <Empty />
-        ) : (
-          <Row style={styles.grid}>
-            {tags.map(tag => (
-              <Pressable
-                key={tag.id}
-                style={[styles.chip, tag.invisible === VISIBILITY.hidden && styles.chipHidden]}
-                onLongPress={() => handleLongPress(tag)}
-              >
-                <Text style={styles.chipText}>{tag.name}</Text>
-              </Pressable>
-            ))}
-            <Pressable style={styles.chipAdd} onPress={openCreateDialog}>
-              <Text style={styles.chipAddText}>+ 新增标签</Text>
+        <Row style={styles.grid}>
+          {tags.map(tag => (
+            <Pressable
+              key={tag.id}
+              style={[styles.chip, tag.invisible === VISIBILITY.hidden && styles.chipHidden]}
+              onLongPress={() => handleLongPress(tag)}
+            >
+              <Text style={styles.chipText}>{tag.name}</Text>
             </Pressable>
-          </Row>
-        )}
+          ))}
+          <Pressable style={styles.chipAdd} onPress={openCreateDialog}>
+            <Text style={styles.chipAddText}>+ 新增标签</Text>
+          </Pressable>
+        </Row>
       </ScrollView>
-
-      <FloatingActionGroup actions={[{ key: 'create-tag', icon: 'add', onPress: openCreateDialog }]} />
 
       <ActionSheet
         open={actionSheetOpen}
