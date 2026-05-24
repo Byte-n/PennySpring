@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useMemo, useState } from 'react';
+import React, { createContext, useCallback, useContext, useMemo, useState } from 'react';
 
 export interface AddRecordContextValue {
   amount: number;
@@ -11,6 +11,7 @@ export interface AddRecordContextValue {
   setTags: (v: number[]) => void;
   images: string[];
   setImages: (v: string[]) => void;
+  reset: () => void;
 }
 
 const AddRecordContext = createContext<AddRecordContextValue | null>(null);
@@ -25,10 +26,29 @@ export function AddRecordProvider({ children }: AddRecordProviderProps) {
   const [recordTime, setRecordTime] = useState(() => Date.now());
   const [tags, setTags] = useState<number[]>([]);
   const [images, setImages] = useState<string[]>([]);
+  const reset = useCallback(() => {
+    setAmount(0);
+    setRemark('');
+    setRecordTime(Date.now());
+    setTags([]);
+    setImages([]);
+  }, []);
 
   const value = useMemo<AddRecordContextValue>(
-    () => ({ amount, setAmount, remark, setRemark, recordTime, setRecordTime, tags, setTags, images, setImages }),
-    [amount, remark, recordTime, tags, images]
+    () => ({
+      amount,
+      setAmount,
+      remark,
+      setRemark,
+      recordTime,
+      setRecordTime,
+      tags,
+      setTags,
+      images,
+      setImages,
+      reset,
+    }),
+    [amount, images, recordTime, remark, reset, tags]
   );
 
   return <AddRecordContext.Provider value={value}>{children}</AddRecordContext.Provider>;

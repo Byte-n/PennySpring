@@ -2,6 +2,7 @@ import { records } from '../schema'
 import {
   applyBalanceChange,
   computeBalanceChange,
+  getAssetForBooks,
   getOptionalAssetForBooks,
   syncImages,
   syncTags,
@@ -9,7 +10,7 @@ import {
 import type { CreateCashflowRecordInput, RecordRow, Tx } from './types'
 
 export async function createExpense(tx: Tx, input: CreateCashflowRecordInput): Promise<RecordRow> {
-  const asset = await getOptionalAssetForBooks(tx, input, 'assetId', 'booksId')
+  const asset = await getAssetForBooks(tx, input, 'assetId', 'booksId')
   const charge = input.charge ?? 0
   const finalAmount = input.amount + charge
 
@@ -29,10 +30,8 @@ export async function createExpense(tx: Tx, input: CreateCashflowRecordInput): P
     })
     .returning()
 
-  if (asset) {
-    const balanceChange = computeBalanceChange(asset, 'expense', input.amount, charge)
-    await applyBalanceChange(tx, asset.id, balanceChange)
-  }
+  const balanceChange = computeBalanceChange(asset, 'expense', input.amount, charge)
+  await applyBalanceChange(tx, asset.id, balanceChange)
 
   if (input.tagIds?.length) await syncTags(tx, inserted.id, input.tagIds)
   if (input.imagePaths?.length) await syncImages(tx, inserted.id, input.imagePaths)

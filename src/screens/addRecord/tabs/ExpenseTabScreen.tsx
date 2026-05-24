@@ -1,42 +1,189 @@
-import React, { useState } from 'react';
-import { Column, KeyboardAwareFormScroll } from '@pennyspring/ui';
-import { RECORD_TYPE_CATEGORY } from '@pennyspring/data';
+import React, { useCallback, useMemo, useState } from 'react';
+import {
+  Button,
+  Column,
+  KeyboardAwareFormScroll,
+  Row,
+  SelectionList,
+  Switch,
+  Text,
+  useToast,
+} from '@pennyspring/ui';
+import { api, RECORD_TYPE_CATEGORY } from '@pennyspring/data';
 import { useTheme } from '@pennyspring/theme';
 import { AmountDisplay } from '../components/AmountDisplay';
-import { FieldChips } from '../components/FieldChips';
 import { CategoryGrid } from '../../../component/CategoryGrid';
 import { RemarkInput } from '../components/RemarkInput';
 import { useCategoryItems } from '../useCategoryItems';
+import { useAddRecordContext } from '../AddRecordContext';
+import { ImageAttachmentsInput } from '../components/ImageAttachmentsInput';
+import { MoneyField } from '../components/MoneyField';
+import { RecordDateTimeField } from '../components/RecordDateTimeField';
+import {
+  buildCreateRecordInput,
+  validateAddRecordDraft,
+} from '../addRecordDraft';
+import { toAssetOptions, toTagOptions } from '../recordOptions';
+import { toNumberValue, toNumberValues } from '../selectValues';
+import { useAddRecordResources } from '../useAddRecordResources';
+import { useNavigation } from '../../../navigation';
 
 export function ExpenseTabScreen() {
   const { token } = useTheme();
+  const toast = useToast();
+  const navigation = useNavigation();
+  const {
+    amount,
+    images,
+    recordTime,
+    remark,
+    reset,
+    setImages,
+    setRecordTime,
+    setTags,
+    tags,
+  } = useAddRecordContext();
   const [typeId, setTypeId] = useState<number>();
-  const [assetId, _setAssetId] = useState<number | null>(null);
-  const [reimbursable, setReimbursable] = useState<string>('none');
-  const { categories } = useCategoryItems(RECORD_TYPE_CATEGORY.expense);
+  const [assetId, setAssetId] = useState<number | null>(null);
+  const [charge, setCharge] = useState(0);
+  const [isReimbursable, setIsReimbursable] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const { categories, loading: categoriesLoading } = useCategoryItems(
+    RECORD_TYPE_CATEGORY.expense,
+  );
+  const {
+    assetsLoading,
+    currentBook,
+    tagsLoading,
+    visibleAssets,
+    visibleTags,
+  } = useAddRecordResources();
+  const selectedType = useMemo(
+    () => categories.find(category => category.id === typeId),
+    [categories, typeId],
+  );
+  const assetOptions = useMemo(
+    () => toAssetOptions(visibleAssets),
+    [visibleAssets],
+  );
+  const tagOptions = useMemo(
+    () => toTagOptions(visibleTags),
+    [visibleTags],
+  );
+
+  const handleSave = useCallback(async () => {
+    const draft = {
+      booksId: currentBook?.id,
+      amount,
+      charge,
+      typeId,
+      selectedType,
+      assetId,
+      reimbursable: isReimbursable,
+      recordTime,
+      remark,
+      tagIds: tags,
+      imagePaths: images,
+      relatedRecordIds: [],
+    };
+    const validationMessage = validateAddRecordDraft('expense', draft);
+    if (validationMessage !== undefined) {
+      toast.show({ messageText: validationMessage });
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+      await api.record.create(buildCreateRecordInput('expense', draft));
+      reset();
+      toast.show({ messageText: '已新增支出' });
+      navigation.goBack();
+    } catch (error: unknown) {
+      toast.show({
+        messageText: error instanceof Error ? error.message : '保存失败',
+      });
+    } finally {
+      setSubmitting(false);
+    }
+  }, [
+    amount,
+    assetId,
+    charge,
+    currentBook,
+    images,
+    isReimbursable,
+    navigation,
+    recordTime,
+    remark,
+    reset,
+    selectedType,
+    tags,
+    toast,
+    typeId,
+  ]);
 
   return (
     <KeyboardAwareFormScroll
       extraBottomInset={token.paddingXL}
       focusedInputBottomOffset={token.paddingXL}
     >
-      <Column gap={token.marginXS}>
+      <Column gap={token.marginMD}>
         <AmountDisplay />
-        <FieldChips
-          tabType="expense"
-          assetId={assetId}
-          onAssetPress={() => {}}
-          reimbursable={reimbursable === 'able'}
-          onReimbursableToggle={() =>
-            setReimbursable(prev => (prev === 'none' ? 'able' : 'none'))
-          }
-        />
         <CategoryGrid
           categories={categories}
           value={typeId}
           onChange={setTypeId}
         />
+        {categoriesLoading ? (
+          <Text color="description" size="sm">分类加载中</Text>
+        ) : null}
+        <SelectionList
+          label="付款资产"
+          loading={assetsLoading}
+          onChange={value => setAssetId(toNumberValue(value) ?? null)}
+          options={assetOptions}
+          placeholder="请选择付款资产"
+          searchable
+          texts={{
+            headerText: '选择付款资产',
+            searchPlaceholder: '搜索资产',
+            emptyText: '暂无可用资产',
+          }}
+          value={assetId ?? undefined}
+        />
+        <MoneyField labelText="手续费" value={charge} onChange={setCharge} />
+        <RecordDateTimeField value={recordTime} onChange={setRecordTime} />
+        <Row justify="between">
+          <Text>可报销</Text>
+          <Switch value={isReimbursable} onChange={setIsReimbursable} />
+        </Row>
+        <SelectionList
+          displayMode="tag"
+          label="标签"
+          loading={tagsLoading}
+          mode="multiple"
+          onChange={value => setTags(toNumberValues(value))}
+          options={tagOptions}
+          placeholder="请选择标签"
+          searchable
+          texts={{
+            headerText: '选择标签',
+            searchPlaceholder: '搜索标签',
+            emptyText: '暂无标签',
+            confirmText: '确定',
+          }}
+          value={tags}
+        />
+        <ImageAttachmentsInput value={images} onChange={setImages} />
         <RemarkInput />
+        <Button
+          block
+          loading={submitting}
+          onPress={handleSave}
+          type="primary"
+        >
+          保存支出
+        </Button>
       </Column>
     </KeyboardAwareFormScroll>
   );

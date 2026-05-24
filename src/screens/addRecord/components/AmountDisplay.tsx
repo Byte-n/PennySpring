@@ -3,6 +3,7 @@ import { Pressable } from 'react-native';
 import { Text, CalculatorInput } from '@pennyspring/ui';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import { useAddRecordContext } from '../AddRecordContext';
+import { yuanToCents } from '../addRecordDraft';
 
 const useStyles = createUseSheetStyle(() => ({
   pressable: {
@@ -32,7 +33,7 @@ export function AmountDisplay() {
         open={popupOpen}
         onOpenChange={setPopupOpen}
         onOk={params => {
-          setAmount(Math.round(params.result * 100));
+          setAmount(yuanToCents(params.result));
           setPopupOpen(false);
         }}
       />

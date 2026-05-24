@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm'
+import { desc, eq } from 'drizzle-orm'
 
 import { RECORD_TYPE_CATEGORY, REIMBURSABLE } from '../constants'
 import type { Database } from '../runtime'
@@ -7,7 +7,6 @@ import { applyExpense, createExpense, rollbackExpense } from './expense-service'
 import {
   deleteAllJunctions,
   getAssetForBooks,
-  getOptionalAssetForBooks,
   getRequiredForeignKey,
   recalculateAbsorption,
   syncImages,
@@ -76,7 +75,7 @@ async function validateUpdateRecordReferences(
   typeRow: TypeRow
 ): Promise<number> {
   if (typeRow.typeCategory !== RECORD_TYPE_CATEGORY.transfer) {
-    await getOptionalAssetForBooks(tx, input as UpdateCashflowRecordInput, 'assetId', 'booksId')
+    await getAssetForBooks(tx, input as UpdateCashflowRecordInput, 'assetId', 'booksId')
     return 0
   }
 
@@ -90,6 +89,17 @@ async function validateUpdateRecordReferences(
   await getAssetForBooks(tx, transferInput, 'intoAssetId', 'booksId')
 
   return intoAssetId
+}
+
+export function getRecordsByBook(db: Database, booksId: number): Promise<RecordRow[]> {
+  const requiredBooksId = getRequiredForeignKey({ booksId }, 'booksId')
+
+  return db
+    .select()
+    .from(records)
+    .where(eq(records.booksId, requiredBooksId))
+    .orderBy(desc(records.recordTime))
+    .all()
 }
 
 export function createRecord(db: Database, input: CreateRecordInput): Promise<RecordRow> {
@@ -159,7 +169,9 @@ export function updateRecord(db: Database, input: UpdateRecordInput): Promise<Re
         remark: input.remark ?? '',
         reimbursable: newTypeRow.typeCategory === RECORD_TYPE_CATEGORY.transfer
           ? REIMBURSABLE.notReimbursable
-          : (input as UpdateCashflowRecordInput).reimbursable,
+          : newTypeRow.typeCategory === RECORD_TYPE_CATEGORY.income
+            ? REIMBURSABLE.notReimbursable
+            : (input as UpdateCashflowRecordInput).reimbursable,
         recordTime: input.recordTime,
       })
       .where(eq(records.id, input.id))

@@ -1,7 +1,7 @@
 import { createTransfer } from '../src/services/transfer-service'
 import { createIncome } from '../src/services/income-service'
 import { createExpense } from '../src/services/expense-service'
-import { createRecord, updateRecord } from '../src/services/record-service'
+import { createRecord, getRecordsByBook, updateRecord } from '../src/services/record-service'
 import { syncRecordRelations, syncTags } from '../src/services/helpers'
 import {
   REIMBURSABLE,
@@ -272,32 +272,11 @@ describe('asset books ownership validation', () => {
     )
   })
 
-  test('expense allows empty asset without updating asset balance', async () => {
-    const insertValues = jest.fn().mockReturnThis()
-    const returning = jest.fn().mockResolvedValue([{ id: 99 }])
-    const update = jest.fn()
-    const chainable = {
-      from: jest.fn().mockReturnThis(),
-      where: jest.fn().mockReturnThis(),
-      orderBy: jest.fn().mockReturnThis(),
-      set: jest.fn().mockReturnThis(),
-      values: insertValues,
-      returning,
-      get: jest.fn(),
-    }
-    const tx = {
-      select: jest.fn().mockReturnValue(chainable),
-      insert: jest.fn().mockReturnValue(chainable),
-      update,
-      delete: jest.fn().mockReturnValue(chainable),
-    } as unknown as Tx
+  test('expense throws when asset is empty', async () => {
+    const tx = mockTx({})
     const input = baseCashflowInput({ assetId: 0 })
 
-    await expect(createExpense(tx, input)).resolves.toEqual({ id: 99 })
-    expect(insertValues).toHaveBeenCalledWith(
-      expect.objectContaining({ assetId: 0 })
-    )
-    expect(update).not.toHaveBeenCalled()
+    await expect(createExpense(tx, input)).rejects.toThrow('assetId is required')
   })
 
   test('transfer throws when fromAsset belongs to different books', async () => {
@@ -391,11 +370,19 @@ describe('income final_amount non-negative validation', () => {
     )
   })
 
-  test('allows empty asset without updating asset balance', async () => {
+  test('income throws when asset is empty', async () => {
+    const tx = mockTx({})
+    const input = baseCashflowInput({ assetId: 0 })
+    const typeRow = { id: 1, typeCategory: RECORD_TYPE_CATEGORY.income, specialBehavior: RECORD_TYPE_SPECIAL_BEHAVIOR.none } as TypeRow
+
+    await expect(createIncome(tx, input, typeRow)).rejects.toThrow('assetId is required')
+  })
+
+  test('ordinary income stores not reimbursable even when input is reimbursable', async () => {
     const insertedRecord = {
       id: 99,
       typeId: 1,
-      assetId: 0,
+      assetId: 10,
       intoAssetId: 0,
       booksId: 1,
       amount: 1000,
@@ -409,7 +396,6 @@ describe('income final_amount non-negative validation', () => {
     }
     const insertValues = jest.fn().mockReturnThis()
     const returning = jest.fn().mockResolvedValue([{ id: 99 }])
-    const update = jest.fn()
     const chainable = {
       from: jest.fn().mockReturnThis(),
       where: jest.fn().mockReturnThis(),
@@ -422,17 +408,16 @@ describe('income final_amount non-negative validation', () => {
     const tx = {
       select: jest.fn().mockReturnValue(chainable),
       insert: jest.fn().mockReturnValue(chainable),
-      update,
+      update: jest.fn().mockReturnValue(chainable),
       delete: jest.fn().mockReturnValue(chainable),
     } as unknown as Tx
-    const input = baseCashflowInput({ assetId: 0 })
+    const input = baseCashflowInput({ reimbursable: REIMBURSABLE.reimbursable })
     const typeRow = { id: 1, typeCategory: RECORD_TYPE_CATEGORY.income, specialBehavior: RECORD_TYPE_SPECIAL_BEHAVIOR.none } as TypeRow
 
     await expect(createIncome(tx, input, typeRow)).resolves.toEqual(insertedRecord)
     expect(insertValues).toHaveBeenCalledWith(
-      expect.objectContaining({ assetId: 0 })
+      expect.objectContaining({ reimbursable: REIMBURSABLE.notReimbursable })
     )
-    expect(update).not.toHaveBeenCalled()
   })
 })
 
@@ -572,24 +557,9 @@ describe('junction foreign key validation', () => {
 })
 
 describe('absorption empty foreign key handling', () => {
-  test('income absorption ignores zero related record IDs', async () => {
+  test('income absorption throws when related record IDs are empty', async () => {
     const assetRow = { id: 10, type: 'capital_account', classification: '', balance: 5000, booksId: 1 }
-    const insertedRecord = {
-      id: 99,
-      typeId: 2,
-      assetId: 10,
-      intoAssetId: 0,
-      booksId: 1,
-      amount: 1000,
-      finalAmount: 1000,
-      charge: 0,
-      remark: '',
-      reimbursable: REIMBURSABLE.notReimbursable,
-      recordTime: Date.now(),
-      createdTime: Date.now(),
-      updatedTime: Date.now(),
-    }
-    const tx = mockTxWithGetResults([assetRow, insertedRecord])
+    const tx = mockTxWithGetResults([assetRow])
     const input = baseCashflowInput({ relatedRecordIds: [0] })
     const reimbursementType = {
       id: 2,
@@ -597,6 +567,51 @@ describe('absorption empty foreign key handling', () => {
       specialBehavior: RECORD_TYPE_SPECIAL_BEHAVIOR.reimbursementAbsorption,
     } as TypeRow
 
-    await expect(createIncome(tx, input, reimbursementType)).resolves.toEqual(insertedRecord)
+    await expect(createIncome(tx, input, reimbursementType)).rejects.toThrow(
+      '关联支出不能为空'
+    )
+  })
+})
+
+describe('record-service query', () => {
+  test('getRecordsByBook throws when books is empty', () => {
+    const db = {
+      select: jest.fn(),
+    } as unknown as Database
+
+    expect(() => getRecordsByBook(db, 0)).toThrow('booksId is required')
+  })
+
+  test('getRecordsByBook returns records for a books', async () => {
+    const rows = [
+      {
+        id: 1,
+        typeId: 1,
+        assetId: 10,
+        intoAssetId: 0,
+        booksId: 1,
+        amount: 1000,
+        finalAmount: 1000,
+        charge: 0,
+        remark: '',
+        reimbursable: REIMBURSABLE.notReimbursable,
+        recordTime: Date.now(),
+        createdTime: Date.now(),
+        updatedTime: Date.now(),
+      },
+    ]
+    const all = jest.fn().mockResolvedValue(rows)
+    const chainable = {
+      from: jest.fn().mockReturnThis(),
+      where: jest.fn().mockReturnThis(),
+      orderBy: jest.fn().mockReturnThis(),
+      all,
+    }
+    const db = {
+      select: jest.fn().mockReturnValue(chainable),
+    } as unknown as Database
+
+    await expect(getRecordsByBook(db, 1)).resolves.toEqual(rows)
+    expect(all).toHaveBeenCalledTimes(1)
   })
 })

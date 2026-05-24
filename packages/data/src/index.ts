@@ -51,6 +51,10 @@ export const api = {
       const database = await getDatabase();
       return services.deleteRecord(database, recordId);
     },
+    getByBook: async (booksId: number) => {
+      const database = await getDatabase();
+      return services.getRecordsByBook(database, booksId);
+    },
   },
   tag: {
     getAll: async () => {

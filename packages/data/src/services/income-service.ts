@@ -6,6 +6,7 @@ import {
   applyBalanceChange,
   compactForeignKeys,
   computeBalanceChange,
+  getAssetForBooks,
   getOptionalAssetForBooks,
   recalculateAbsorption,
   syncImages,
@@ -39,12 +40,13 @@ async function validateAbsorptionTargets(tx: Tx, typeRow: TypeRow, relatedRecord
 }
 
 export async function createIncome(tx: Tx, input: CreateCashflowRecordInput, typeRow: TypeRow): Promise<RecordRow> {
-  const asset = await getOptionalAssetForBooks(tx, input, 'assetId', 'booksId')
+  const asset = await getAssetForBooks(tx, input, 'assetId', 'booksId')
   const charge = input.charge ?? 0
   const isAbsorption = isAbsorptionBehavior(typeRow.specialBehavior)
   const relatedRecordIds = compactForeignKeys(input.relatedRecordIds)
   const finalAmount = input.amount - charge
   if (finalAmount < 0) throw new Error('Income final amount (amount - charge) must be >= 0')
+  if (isAbsorption && relatedRecordIds.length === 0) throw new Error('关联支出不能为空')
 
   const [inserted] = await tx
     .insert(records)
@@ -57,17 +59,15 @@ export async function createIncome(tx: Tx, input: CreateCashflowRecordInput, typ
       finalAmount,
       charge,
       remark: input.remark ?? '',
-      reimbursable: input.reimbursable,
+      reimbursable: REIMBURSABLE.notReimbursable,
       recordTime: input.recordTime,
     })
     .returning()
 
-  if (asset) {
-    const balanceChange = computeBalanceChange(asset, 'income', input.amount, charge)
-    await applyBalanceChange(tx, asset.id, balanceChange)
-  }
+  const balanceChange = computeBalanceChange(asset, 'income', input.amount, charge)
+  await applyBalanceChange(tx, asset.id, balanceChange)
 
-  if (isAbsorption && relatedRecordIds.length) {
+  if (isAbsorption) {
     await validateAbsorptionTargets(tx, typeRow, relatedRecordIds, input.booksId)
     await syncRecordRelations(tx, inserted.id, relatedRecordIds)
     for (const expenseId of relatedRecordIds) {
