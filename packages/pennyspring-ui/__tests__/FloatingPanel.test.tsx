@@ -58,4 +58,47 @@ describe('Popup.FloatingPanel', () => {
 
     expect(flattenedStyle.height).toBe(320);
   });
+
+  it('resolves percentage height against the viewport height', () => {
+    let testRenderer: renderer.ReactTestRenderer;
+
+    act(() => {
+      testRenderer = renderer.create(
+        <Popup.FloatingPanel defaultOpen height="50%">
+          <RNText>content</RNText>
+        </Popup.FloatingPanel>,
+      );
+    });
+
+    const popupBody = testRenderer!.root.findByProps({
+      testID: 'popup-body',
+    });
+    const flattenedStyle = StyleSheet.flatten(popupBody.props.style);
+
+    expect(flattenedStyle.height).toBe(667);
+  });
+
+  it('resolves percentage minHeight and maxHeight before clamping value', () => {
+    let testRenderer: renderer.ReactTestRenderer;
+
+    act(() => {
+      testRenderer = renderer.create(
+        <Popup.FloatingPanel
+          defaultOpen
+          maxHeight="50%"
+          minHeight="25%"
+          value={800}
+        >
+          <RNText>content</RNText>
+        </Popup.FloatingPanel>,
+      );
+    });
+
+    const popupBody = testRenderer!.root.findByProps({
+      testID: 'popup-body',
+    });
+    const flattenedStyle = StyleSheet.flatten(popupBody.props.style);
+
+    expect(flattenedStyle.height).toBe(667);
+  });
 });

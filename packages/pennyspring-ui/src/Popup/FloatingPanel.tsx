@@ -8,6 +8,7 @@ import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { useControllableValue } from '../_hooks';
 import { Popup as PopupRoot } from './Popup';
 import type {
+  PopupFloatingPanelHeight,
   PopupFloatingPanelPosition,
   PopupFloatingPanelProps,
 } from './types';
@@ -27,6 +28,8 @@ interface FloatingPanelSizeConfig {
 
 const DEFAULT_MIN_HEIGHT_RATIO = 0.35;
 const DEFAULT_MAX_HEIGHT_RATIO = 0.8;
+const PERCENT_HEIGHT_UNIT = '%';
+const PERCENT_HEIGHT_RATIO = 100;
 
 const SIZE_MAP: Record<ComponentSize, FloatingPanelSizeConfig> = {
   small: {
@@ -81,20 +84,44 @@ function resolveSize(size?: ComponentSize): ComponentSize {
 
 function resolveHeightRange(
   viewportHeight: number,
-  height?: number,
-  minHeight?: number,
-  maxHeight?: number,
+  height?: PopupFloatingPanelHeight,
+  minHeight?: PopupFloatingPanelHeight,
+  maxHeight?: PopupFloatingPanelHeight,
 ): readonly [number, number] {
+  const resolvedHeight = resolveHeightValue(height, viewportHeight);
+  const resolvedMinHeight = resolveHeightValue(minHeight, viewportHeight);
+  const resolvedMaxHeight = resolveHeightValue(maxHeight, viewportHeight);
   const rawMinHeight =
-    minHeight ?? height ?? viewportHeight * DEFAULT_MIN_HEIGHT_RATIO;
+    resolvedMinHeight ?? resolvedHeight ?? viewportHeight * DEFAULT_MIN_HEIGHT_RATIO;
   const rawMaxHeight =
-    maxHeight ?? height ?? viewportHeight * DEFAULT_MAX_HEIGHT_RATIO;
+    resolvedMaxHeight ?? resolvedHeight ?? viewportHeight * DEFAULT_MAX_HEIGHT_RATIO;
 
   if (rawMinHeight <= rawMaxHeight) {
     return [rawMinHeight, rawMaxHeight];
   }
 
   return [rawMaxHeight, rawMinHeight];
+}
+
+function resolveHeightValue(
+  value: PopupFloatingPanelHeight | undefined,
+  viewportHeight: number,
+): number | undefined {
+  if (typeof value === 'number') {
+    return value;
+  }
+
+  if (value?.endsWith(PERCENT_HEIGHT_UNIT) !== true) {
+    return undefined;
+  }
+
+  const percentage = Number(value.slice(0, -PERCENT_HEIGHT_UNIT.length));
+
+  if (!Number.isFinite(percentage)) {
+    return undefined;
+  }
+
+  return viewportHeight * percentage / PERCENT_HEIGHT_RATIO;
 }
 
 const useStyles = createUseSheetStyle(
@@ -197,6 +224,7 @@ export function FloatingPanel({
   const { height: viewportHeight } = useWindowDimensions();
   const resolvedPosition = resolvePosition(position);
   const resolvedSize = resolveSize(size);
+  const resolvedHeight = resolveHeightValue(height, viewportHeight);
   const [resolvedMinHeight, resolvedMaxHeight] = resolveHeightRange(
     viewportHeight,
     height,
@@ -205,7 +233,7 @@ export function FloatingPanel({
   );
 
   const defaultPanelHeight = clamp(
-    defaultValue ?? height ?? resolvedMinHeight,
+    defaultValue ?? resolvedHeight ?? resolvedMinHeight,
     resolvedMinHeight,
     resolvedMaxHeight,
   );

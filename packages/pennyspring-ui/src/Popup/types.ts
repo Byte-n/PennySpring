@@ -43,6 +43,7 @@ export interface PopupProps {
 
 export type PopupFloatingPanelPosition = 'top' | 'bottom';
 export type FloatingPanelPosition = PopupFloatingPanelPosition;
+export type PopupFloatingPanelHeight = number | `${number}%`;
 
 export interface PopupFloatingPanelStyles extends PopupStyles {
   content?: StyleProp<ViewStyle>;
@@ -64,11 +65,11 @@ export interface PopupFloatingPanelProps {
   animationDuration?: number;
   position?: PopupFloatingPanelPosition;
   size?: ComponentSize;
-  height?: number;
+  height?: PopupFloatingPanelHeight;
   value?: number;
   defaultValue?: number;
-  minHeight?: number;
-  maxHeight?: number;
+  minHeight?: PopupFloatingPanelHeight;
+  maxHeight?: PopupFloatingPanelHeight;
   onChange?: (value: number) => void;
   children?: ReactNode;
   style?: StyleProp<ViewStyle>;
