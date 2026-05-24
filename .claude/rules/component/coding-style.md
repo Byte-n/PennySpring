@@ -90,3 +90,7 @@ paths:
 - Dialog 类组件默认与 Popup 类组件保持同一层级，使用 `token.zIndexPopupBase + 100`。
 - 同层级弹窗的覆盖关系由 `Portal` 挂载顺序决定，后打开的弹窗应后挂载并覆盖先打开的弹窗。
 - 非弹出层组件仅在需要处理局部覆盖关系时使用 `token.zIndexBase` 或 `token.zIndexBase + n`，不得超过 `token.zIndexPopupBase`。
+
+## 组件文案
+
+- 组件内默认的提示文案语言为中文
