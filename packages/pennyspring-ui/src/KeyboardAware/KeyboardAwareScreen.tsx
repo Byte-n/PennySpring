@@ -1,40 +1,48 @@
 import React from 'react';
-import { KeyboardAvoidingView, Platform } from 'react-native';
+import { View, useWindowDimensions } from 'react-native';
 import type { KeyboardAwareScreenProps } from './types';
 import { useScreenStyles } from './style';
+import { useKeyboardInsets } from './useKeyboardInsets';
+import { KeyboardAwareContext } from './KeyboardAwareContext';
 
-function resolveBehavior(
-  behavior?: KeyboardAwareScreenProps['behavior'],
-): KeyboardAwareScreenProps['behavior'] {
-  if (behavior !== undefined) {
-    return behavior;
+const NO_BOTTOM_INSET = 0;
+
+function resolveKeyboardAvoidingInset(
+  windowHeight: number,
+  keyboardScreenY: number,
+): number {
+  if (keyboardScreenY <= NO_BOTTOM_INSET) {
+    return NO_BOTTOM_INSET;
   }
 
-  if (Platform.OS === 'ios') {
-    return 'padding';
-  }
-
-  return undefined;
+  return Math.max(windowHeight - keyboardScreenY, NO_BOTTOM_INSET);
 }
 
 export function KeyboardAwareScreen({
-  behavior,
   children,
   enabled = true,
   style,
   styles,
   ...restProps
 }: KeyboardAwareScreenProps): React.JSX.Element {
-  const tokenStyles = useScreenStyles();
+  const { height: windowHeight } = useWindowDimensions();
+  const keyboardInsets = useKeyboardInsets();
+  const bottomInset =
+    enabled && keyboardInsets.isKeyboardVisible
+      ? resolveKeyboardAvoidingInset(windowHeight, keyboardInsets.keyboardScreenY)
+      : NO_BOTTOM_INSET;
+  const tokenStyles = useScreenStyles({ bottomInset });
 
   return (
-    <KeyboardAvoidingView
-      behavior={resolveBehavior(behavior)}
-      enabled={enabled}
-      style={[tokenStyles.root, style, styles?.root]}
-      {...restProps}
+    <KeyboardAwareContext.Provider
+      value={{ isScreenAvoidingKeyboard: enabled }}
     >
-      {children}
-    </KeyboardAvoidingView>
+      <View
+        style={[tokenStyles.root, style, styles?.root]}
+        {...restProps}
+      >
+        {children}
+      </View>
+    </KeyboardAwareContext.Provider>
   );
 }

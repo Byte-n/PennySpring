@@ -1,9 +1,9 @@
 import type { ReactNode } from 'react';
 import type {
-  KeyboardAvoidingViewProps,
   KeyboardEvent,
   ScrollViewProps,
   StyleProp,
+  ViewProps,
   ViewStyle,
 } from 'react-native';
 
@@ -20,9 +20,9 @@ export interface KeyboardAwareScreenStyles {
 }
 
 export interface KeyboardAwareScreenProps
-  extends Omit<KeyboardAvoidingViewProps, 'behavior' | 'children' | 'style'> {
-  behavior?: KeyboardAvoidingViewProps['behavior'];
+  extends Omit<ViewProps, 'children' | 'style'> {
   children?: ReactNode;
+  enabled?: boolean;
   style?: StyleProp<ViewStyle>;
   styles?: KeyboardAwareScreenStyles;
 }
@@ -39,6 +39,7 @@ export interface KeyboardAwareFormScrollProps
   > {
   children?: ReactNode;
   extraBottomInset?: number;
+  focusedInputBottomOffset?: number;
   style?: StyleProp<ViewStyle>;
   styles?: KeyboardAwareFormScrollStyles;
   useKeyboardInset?: boolean;

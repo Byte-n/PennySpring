@@ -4,15 +4,22 @@ interface FormScrollStyleOptions {
   bottomInset: number;
 }
 
+interface ScreenStyleOptions {
+  bottomInset: number;
+}
+
 interface StickyFooterStyleOptions {
   bottomInset: number;
 }
 
-export const useScreenStyles = createUseSheetStyle(() => ({
-  root: {
-    flex: 1,
-  },
-}));
+export const useScreenStyles = createUseSheetStyle(
+  (_token, { bottomInset }: ScreenStyleOptions) => ({
+    root: {
+      flex: 1,
+      paddingBottom: bottomInset,
+    },
+  }),
+);
 
 export const useFormScrollStyles = createUseSheetStyle(
   (token, { bottomInset }: FormScrollStyleOptions) => ({
