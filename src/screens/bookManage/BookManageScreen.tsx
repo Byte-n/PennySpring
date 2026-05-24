@@ -93,10 +93,6 @@ const useStyles = createUseSheetStyle(token => ({
     borderTopWidth: token.lineWidth,
     borderTopColor: token.colorBorderSecondary,
   },
-  cardTimeText: {
-    fontSize: token.fontSizeSM,
-    lineHeight: token.lineHeightSM,
-  },
   cardCover: {
     width: token.controlHeightLG * 2,
     height: token.controlHeightLG * 2,
@@ -319,10 +315,10 @@ export function BookManageScreen() {
                         {book.description || '暂无描述'}
                       </Text>
                       <Column style={styles.cardTimeSummary}>
-                        <Text color="quaternary" style={styles.cardTimeText}>
+                        <Text color="quaternary" size="sm">
                           {`创建：${formatBookTime(book.createdTime)}`}
                         </Text>
-                        <Text color="quaternary" style={styles.cardTimeText}>
+                        <Text color="quaternary" size="sm">
                           {`更新：${formatBookTime(book.updatedTime)}`}
                         </Text>
                       </Column>

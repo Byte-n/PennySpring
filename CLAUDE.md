@@ -104,6 +104,7 @@ scripts/                → 本地工具脚本
 - 界面布局优先使用 `@pennyspring/ui` 中已有的布局组件（如 `Row`、`Column`、`Spacer`、`GeometryReader`、`Grid` 等），禁止用 `View` 手写等效布局结构。
 - 业务与共享组件中的文本展示统一使用 `@pennyspring/ui` 导出的 `Text` 组件；禁止直接使用 `react-native` 的 `Text`
   做展示文本。
+- `Text` 字号、颜色等优先使用 `TextProps` 实现，其次再是 `style`；禁止优先使用 `style`
 
 ### Navigation
 
