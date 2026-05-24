@@ -12,21 +12,18 @@ import type {
   DialogProps,
 } from './types';
 
-const DEFAULT_CANCEL_TEXT = 'Cancel';
-const DEFAULT_OK_TEXT = 'OK';
-const DIALOG_WIDTH_PERCENT = '82%';
+const DEFAULT_CANCEL_TEXT = '取消';
+const DEFAULT_OK_TEXT = '确定';
+const DIALOG_WIDTH_PERCENT = '85%';
 
 const useStyles = createUseSheetStyle(
   token => {
     return {
-      popup: {
-        zIndex: token.zIndexPopupBase + token.zIndexBase + 200,
-      },
       popupBody: {
         padding: 0,
+        width: DIALOG_WIDTH_PERCENT,
       },
       panel: {
-        width: DIALOG_WIDTH_PERCENT,
         padding: token.paddingMD,
         gap: token.sizeMD,
         borderRadius: token.borderRadius,
@@ -172,7 +169,6 @@ export function Dialog({
       onCancel={params => cancelInternal(params.reason)}
       open={isOpen}
       position="center"
-      style={tokenStyles.popup}
       styles={{
         mask: slotStyles?.mask,
         body: tokenStyles.popupBody,

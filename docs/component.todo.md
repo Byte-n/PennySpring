@@ -73,4 +73,4 @@
     - ✅ ： <A。data={[]} renderItem={(data,index, opt?: 如果有其他A的内部属性) => ({})} />
   - 受控/非受控 判断由 特定 hook 统一处理。`const [value, onChange, isControled] = useControllableValue(props.defaultValue, props.value, props.onChange)`
   - 组件外部传入的数据相关的props必须有完善的 Ts 类型推导。例如 options 的选项类型 与 value / onChange / onOk 等...
-  - zindex 层级：Dialog > Popup > Picker 等其他组件的弹窗（这些 zindex 一致）：指定详细的规则，那种默认用 tokens 中的那个
+  - zindex 层级：Dialog 与 Popup 默认同层级；Picker 等普通同级浮层默认使用 token 中的 popup base；同层级覆盖关系由 Portal 后挂载者优先展示决定

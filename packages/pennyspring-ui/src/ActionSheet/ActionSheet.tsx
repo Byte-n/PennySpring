@@ -19,7 +19,6 @@ const useStyles = createUseSheetStyle(token => {
       padding: 0,
       borderTopLeftRadius: token.borderRadiusLG,
       borderTopRightRadius: token.borderRadiusLG,
-      backgroundColor: token.colorBgElevated,
     },
     titleContainer: {
       padding: token.paddingMD,

@@ -2,6 +2,7 @@ import React from 'react';
 import { Text as RNText, View } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
 import { Dialog } from '../src/Dialog';
+import { Popup } from '../src/Popup';
 import { PortalProvider } from '../src/Portal';
 function flattenStyle(style: unknown) {
   const flatten = (input: unknown): Record<string, unknown>[] => {
@@ -19,6 +20,13 @@ function renderDialog(props: Partial<React.ComponentProps<typeof Dialog>> = {}, 
   let testRenderer: renderer.ReactTestRenderer;
   act(() => {
     testRenderer = renderer.create(<><Dialog {...props}>{children}</Dialog></>);
+  });
+  return testRenderer!;
+}
+function renderPopup(props: Partial<React.ComponentProps<typeof Popup>> = {}, children: React.ReactNode = <RNText>Popup content</RNText>) {
+  let testRenderer: renderer.ReactTestRenderer;
+  act(() => {
+    testRenderer = renderer.create(<><Popup {...props}>{children}</Popup></>);
   });
   return testRenderer!;
 }
@@ -169,6 +177,30 @@ describe('Dialog', () => {
     expect(flattenStyle(testRenderer.root.findByProps({
       testID: 'dialog-footer'
     }).props.style).opacity).toBe(0.7);
+  });
+  it('uses the same default popup layer as Popup', () => {
+    const dialogRenderer = renderDialog({
+      defaultOpen: true
+    });
+    const popupRenderer = renderPopup({
+      defaultOpen: true
+    });
+    const dialogLayout = flattenStyle(dialogRenderer.root.findByProps({
+      testID: 'popup-layout'
+    }).props.style);
+    const popupLayout = flattenStyle(popupRenderer.root.findByProps({
+      testID: 'popup-layout'
+    }).props.style);
+    expect(dialogLayout.zIndex).toBe(popupLayout.zIndex);
+  });
+  it('uses 85 percent of screen width by default', () => {
+    const testRenderer = renderDialog({
+      defaultOpen: true
+    });
+    const body = flattenStyle(testRenderer.root.findByProps({
+      testID: 'popup-body'
+    }).props.style);
+    expect(body.width).toBe('85%');
   });
   it('renders arbitrary children as dialog body content', () => {
     const testRenderer = renderDialog({

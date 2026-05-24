@@ -80,6 +80,10 @@ function getImageValue(background: string): ImagePickerValue | undefined {
   return background ? { uri: background } : undefined;
 }
 
+function getImageUri(imageValue: ImagePickerValue | undefined): string {
+  return imageValue?.uri ?? '';
+}
+
 export function BookManageScreen() {
   const styles = useStyles();
   const toast = useToast();
@@ -89,13 +93,13 @@ export function BookManageScreen() {
   const [editingBook, setEditingBook] = useState<BookRow | null>(null);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-  const [background, setBackground] = useState('');
+  const [backgroundImage, setBackgroundImage] = useState<ImagePickerValue | undefined>();
 
   const openCreateDialog = useCallback(() => {
     setEditingBook(null);
     setName('');
     setDescription('');
-    setBackground('');
+    setBackgroundImage(undefined);
     setDialogOpen(true);
   }, []);
 
@@ -103,11 +107,13 @@ export function BookManageScreen() {
     setEditingBook(book);
     setName(book.name);
     setDescription(book.description);
-    setBackground(book.background);
+    setBackgroundImage(getImageValue(book.background));
     setDialogOpen(true);
   }, []);
 
   const handleOk = useCallback(async () => {
+    const background = getImageUri(backgroundImage);
+
     try {
       if (editingBook) {
         await api.book.update({ id: editingBook.id, name, description, background });
@@ -119,7 +125,7 @@ export function BookManageScreen() {
     } catch (e: unknown) {
       toast.show({ messageText: e instanceof Error ? e.message : '操作失败' });
     }
-  }, [editingBook, name, description, background, refresh, toast]);
+  }, [backgroundImage, editingBook, name, description, refresh, toast]);
 
   const handleDelete = useCallback(
     async (id: number) => {
@@ -181,9 +187,9 @@ export function BookManageScreen() {
           <Input placeholder="描述(可选)" value={description} onChangeText={setDescription} />
           <ImagePicker
             label="图片"
-            onChange={value => setBackground(value.uri)}
+            onChange={setBackgroundImage}
             placeholder="选择图片"
-            value={getImageValue(background)}
+            value={backgroundImage}
           />
         </Column>
       </Dialog>
