@@ -362,6 +362,21 @@ export type {
   FloatingActionItem,
   FloatingPlacement,
 } from './FloatingActionGroup';
+export {
+  KeyboardAwareFormScroll,
+  KeyboardAwareScreen,
+  KeyboardStickyFooter,
+  useKeyboardInsets,
+} from './KeyboardAware';
+export type {
+  KeyboardAwareFormScrollProps,
+  KeyboardAwareFormScrollStyles,
+  KeyboardAwareScreenProps,
+  KeyboardAwareScreenStyles,
+  KeyboardInsets,
+  KeyboardStickyFooterProps,
+  KeyboardStickyFooterStyles,
+} from './KeyboardAware';
 export { Row } from './Row';
 export type { FlexAlign, FlexJustify, RowProps } from './Row';
 export { Column } from './Column';

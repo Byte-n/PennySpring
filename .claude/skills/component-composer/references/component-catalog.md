@@ -10,6 +10,7 @@
 - `Spacer`：固定或弹性的空白占位。
 - `Grid`：网格布局和重复瓦片。
 - `GeometryReader`：布局尺寸测量。
+- `KeyboardAwareScreen`、`KeyboardAwareFormScroll`、`KeyboardStickyFooter`、`useKeyboardInsets`：页面、表单滚动与底部操作区的键盘避让布局能力。
 - `Divider`：视觉分隔。
 - `Card`：分组内容承载面。
 
