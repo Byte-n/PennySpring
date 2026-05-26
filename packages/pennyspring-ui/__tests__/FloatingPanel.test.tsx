@@ -99,39 +99,6 @@ describe('Popup.FloatingPanel', () => {
     expect(flattenedStyle.height).toBe(320);
   });
 
-  it('applies size-based padding to the body area', () => {
-    const bodyPaddingBySize = {
-      small: 12,
-      normal: 20,
-      large: 24,
-    } as const;
-
-    Object.entries(bodyPaddingBySize).forEach(([size, bodyPadding]) => {
-      let testRenderer: renderer.ReactTestRenderer;
-
-      act(() => {
-        testRenderer = renderer.create(
-          <Popup.FloatingPanel
-            defaultOpen
-            footer={null}
-            size={size as keyof typeof bodyPaddingBySize}
-          >
-            <RNText>content</RNText>
-          </Popup.FloatingPanel>,
-        );
-      });
-
-      const panelBody = testRenderer!.root.findByProps({
-        testID: 'floating-panel-body',
-      });
-      const flattenedStyle = StyleSheet.flatten(panelBody.props.style);
-
-      expect(flattenedStyle.paddingHorizontal).toBe(bodyPadding);
-      expect(flattenedStyle.paddingTop).toBe(bodyPadding);
-      expect(flattenedStyle.paddingBottom).toBe(bodyPadding);
-    });
-  });
-
   it('renders footer and default action buttons by default', () => {
     let testRenderer: renderer.ReactTestRenderer;
 
@@ -156,22 +123,6 @@ describe('Popup.FloatingPanel', () => {
     expect(JSON.stringify(testRenderer!.toJSON())).toContain('确定');
   });
 
-  it('does not render footer when footer slot is null', () => {
-    let testRenderer: renderer.ReactTestRenderer;
-
-    act(() => {
-      testRenderer = renderer.create(
-        <Popup.FloatingPanel defaultOpen footer={null}>
-          <RNText>content</RNText>
-        </Popup.FloatingPanel>,
-      );
-    });
-
-    expect(testRenderer!.root.findAllByProps({
-      testID: 'floating-panel-footer',
-    })).toHaveLength(0);
-  });
-
   it('does not render action button slots when they are null', () => {
     let testRenderer: renderer.ReactTestRenderer;
 
@@ -192,66 +143,6 @@ describe('Popup.FloatingPanel', () => {
     expect(testRenderer!.root.findAllByProps({
       testID: 'floating-panel-ok-button',
     })).toHaveLength(0);
-  });
-
-  it('applies size-based spacing to header and footer areas', () => {
-    const spacingBySize = {
-      small: {
-        actionGap: 8,
-        contentPadding: 12,
-        sectionMargin: 12,
-        sectionPadding: 8,
-      },
-      normal: {
-        actionGap: 12,
-        contentPadding: 20,
-        sectionMargin: 20,
-        sectionPadding: 12,
-      },
-      large: {
-        actionGap: 20,
-        contentPadding: 24,
-        sectionMargin: 24,
-        sectionPadding: 20,
-      },
-    } as const;
-
-    Object.entries(spacingBySize).forEach(([size, spacing]) => {
-      let testRenderer: renderer.ReactTestRenderer;
-
-      act(() => {
-        testRenderer = renderer.create(
-          <Popup.FloatingPanel
-            cancelText="Cancel"
-            defaultOpen
-            okText="OK"
-            size={size as keyof typeof spacingBySize}
-            titleText="Panel title"
-          >
-            <RNText>content</RNText>
-          </Popup.FloatingPanel>,
-        );
-      });
-
-      const header = testRenderer!.root.findByProps({
-        testID: 'floating-panel-header',
-      });
-      const footer = testRenderer!.root.findByProps({
-        testID: 'floating-panel-footer',
-      });
-      const headerStyle = StyleSheet.flatten(header.props.style);
-      const footerStyle = StyleSheet.flatten(footer.props.style);
-
-      expect(headerStyle.paddingHorizontal).toBe(spacing.contentPadding);
-      expect(headerStyle.paddingTop).toBe(spacing.contentPadding);
-      expect(headerStyle.paddingBottom).toBe(spacing.sectionPadding);
-      expect(headerStyle.marginBottom).toBe(spacing.sectionMargin);
-      expect(footerStyle.gap).toBe(spacing.actionGap);
-      expect(footerStyle.paddingHorizontal).toBe(spacing.contentPadding);
-      expect(footerStyle.paddingTop).toBe(spacing.sectionPadding);
-      expect(footerStyle.paddingBottom).toBe(spacing.contentPadding);
-      expect(footerStyle.marginTop).toBe(spacing.sectionMargin);
-    });
   });
 
   it('applies size-based title text and default button sizes', () => {

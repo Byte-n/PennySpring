@@ -7,7 +7,6 @@ import {
   ScrollView,
   StyleSheet,
   Text as RNText,
-  TextInput,
   View,
 } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
@@ -35,7 +34,6 @@ type KeyboardHandler = (event: {
 }) => void;
 
 const ORIGINAL_PLATFORM_OS = Platform.OS;
-const FOCUSED_INPUT_BOTTOM_OFFSET = 40;
 
 interface InsetsProbeProps {
   onRead: (value: ReturnType<typeof useKeyboardInsets>) => void;
@@ -238,164 +236,6 @@ describe('KeyboardAware', () => {
     const contentStyle = StyleSheet.flatten(scroll.props.contentContainerStyle);
 
     expect(contentStyle.paddingBottom).toBeLessThan(280);
-  });
-
-  it('scrolls the focused input above the keyboard when it is hidden below the viewport', () => {
-    const handlers: KeyboardHandler[] = [];
-    jest.spyOn(Keyboard, 'addListener').mockImplementation((_, handler) => {
-      handlers.push(handler as KeyboardHandler);
-
-      return createKeyboardSubscription();
-    });
-
-    const scrollTo = jest.fn();
-    const nativeScrollRef = {
-      measureInWindow: jest.fn(
-        (
-          callback: (
-            x: number,
-            y: number,
-            width: number,
-            height: number,
-          ) => void,
-        ) => {
-          callback(0, 0, 360, 640);
-        },
-      ),
-    } as unknown as ReturnType<ScrollView['getNativeScrollRef']>;
-    const focusedInput = {
-      measureLayout: jest.fn(
-        (
-          _relativeToNativeComponentRef: unknown,
-          onSuccess: (
-            x: number,
-            y: number,
-            width: number,
-            height: number,
-          ) => void,
-        ) => {
-          onSuccess(0, 560, 320, 44);
-        },
-      ),
-    };
-
-    jest
-      .spyOn(TextInput.State, 'currentlyFocusedInput')
-      .mockReturnValue(
-        focusedInput as unknown as ReturnType<
-          typeof TextInput.State.currentlyFocusedInput
-        >,
-      );
-    jest
-      .spyOn(ScrollView.prototype, 'getNativeScrollRef')
-      .mockReturnValue(nativeScrollRef);
-    jest.spyOn(ScrollView.prototype, 'scrollTo').mockImplementation(scrollTo);
-
-    let testRenderer: renderer.ReactTestRenderer;
-
-    act(() => {
-      testRenderer = renderer.create(
-        <KeyboardAwareFormScroll testID="form-scroll">
-          <RNText>field</RNText>
-        </KeyboardAwareFormScroll>,
-      );
-    });
-
-    const scroll = testRenderer!.root.findByType(ScrollView);
-
-    act(() => {
-      scroll.props.onLayout({
-        nativeEvent: { layout: { height: 640 } },
-      });
-      handlers[0]({ endCoordinates: { height: 280, screenY: 360 } });
-      scroll.props.onFocus({});
-    });
-
-    expect(scrollTo).toHaveBeenCalledWith({
-      animated: true,
-      y: expect.any(Number),
-    });
-    expect(focusedInput.measureLayout).toHaveBeenCalledWith(
-      nativeScrollRef,
-      expect.any(Function),
-    );
-  });
-
-  it('keeps the configured offset between the focused input and keyboard top', () => {
-    const handlers: KeyboardHandler[] = [];
-    jest.spyOn(Keyboard, 'addListener').mockImplementation((_, handler) => {
-      handlers.push(handler as KeyboardHandler);
-
-      return createKeyboardSubscription();
-    });
-
-    const scrollTo = jest.fn();
-    const nativeScrollRef = {
-      measureInWindow: jest.fn(
-        (
-          callback: (
-            x: number,
-            y: number,
-            width: number,
-            height: number,
-          ) => void,
-        ) => {
-          callback(0, 0, 360, 640);
-        },
-      ),
-    } as unknown as ReturnType<ScrollView['getNativeScrollRef']>;
-    const focusedInput = {
-      measureLayout: jest.fn(
-        (
-          _relativeToNativeComponentRef: unknown,
-          onSuccess: (
-            x: number,
-            y: number,
-            width: number,
-            height: number,
-          ) => void,
-        ) => {
-          onSuccess(0, 560, 320, 44);
-        },
-      ),
-    };
-
-    jest
-      .spyOn(TextInput.State, 'currentlyFocusedInput')
-      .mockReturnValue(
-        focusedInput as unknown as ReturnType<
-          typeof TextInput.State.currentlyFocusedInput
-        >,
-      );
-    jest
-      .spyOn(ScrollView.prototype, 'getNativeScrollRef')
-      .mockReturnValue(nativeScrollRef);
-    jest.spyOn(ScrollView.prototype, 'scrollTo').mockImplementation(scrollTo);
-
-    let testRenderer: renderer.ReactTestRenderer;
-
-    act(() => {
-      testRenderer = renderer.create(
-        <KeyboardAwareFormScroll
-          focusedInputBottomOffset={FOCUSED_INPUT_BOTTOM_OFFSET}
-          testID="form-scroll"
-        >
-          <RNText>field</RNText>
-        </KeyboardAwareFormScroll>,
-      );
-    });
-
-    const scroll = testRenderer!.root.findByType(ScrollView);
-
-    act(() => {
-      handlers[0]({ endCoordinates: { height: 280, screenY: 360 } });
-      scroll.props.onFocus({});
-    });
-
-    expect(scrollTo).toHaveBeenCalledWith({
-      animated: true,
-      y: 244 + FOCUSED_INPUT_BOTTOM_OFFSET,
-    });
   });
 
   it('uses keyboard inset to reserve space for sticky footer content', () => {

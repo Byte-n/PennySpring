@@ -260,7 +260,7 @@ export function ComponentPreviewScreen() {
 
   return (
     <SafeAreaProvider>
-      <SafeAreaView></SafeAreaView>
+      <SafeAreaView/>
       <ThemeProvider config={themeConfig}>
         <ComponentPreviewNavigator
           algorithm={algorithm}

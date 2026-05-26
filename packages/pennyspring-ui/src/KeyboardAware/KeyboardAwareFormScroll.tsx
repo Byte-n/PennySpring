@@ -127,7 +127,6 @@ export function KeyboardAwareFormScroll({
   function handleLayout(event: LayoutChangeEvent): void {
     onLayout?.(event);
     layoutCallback.current?.();
-    console.log('layoutCallback:', layoutCallback);
   }
 
   function handleScroll(
