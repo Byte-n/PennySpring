@@ -1,10 +1,10 @@
 import React, { useMemo } from 'react';
-import { Picker } from '../Picker';
 import type {
   PickerColumn,
   PickerColumnItemData,
   PickerValue,
 } from '../Picker';
+import { Picker } from '../Picker';
 import type {
   DateTimePickerColumnType,
   DateTimePickerLabelParams,
@@ -119,16 +119,12 @@ function buildDateTimeParams(date: Date): DateTimePickerValueParams {
 
 function defaultLabelText(type: DateTimePickerColumnType, value: number): string {
   if (type === 'year') {
-    return `${value}年`;
+    return value + '';
   }
 
   const padded = padDateTimeValue(value);
 
-  if (type === 'month') return `${padded}月`;
-  if (type === 'day') return `${padded}日`;
-  if (type === 'hour') return `${padded}时`;
-  if (type === 'minute') return `${padded}分`;
-  return `${padded}秒`;
+  return padded + '';
 }
 
 function formatDateTimeValueText(

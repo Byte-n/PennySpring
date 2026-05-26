@@ -1,10 +1,10 @@
 import React, { useMemo } from 'react';
-import { Picker } from '../Picker';
 import type {
   PickerColumn,
   PickerColumnItemData,
   PickerValue,
 } from '../Picker';
+import { Picker } from '../Picker';
 import type {
   TimePickerColumnType,
   TimePickerPrecision,
@@ -91,16 +91,7 @@ function buildTimeParams(date: Date): TimePickerValueParams {
 
 function defaultLabelText(type: TimePickerColumnType, value: number): string {
   const padded = padTimeValue(value);
-
-  if (type === 'hour') {
-    return `${padded}时`;
-  }
-
-  if (type === 'minute') {
-    return `${padded}分`;
-  }
-
-  return `${padded}秒`;
+  return padded + '';
 }
 
 function formatTimeValueText(
