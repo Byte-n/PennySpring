@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Button,
   Column,
+  ImagePicker,
   KeyboardAwareFormScroll,
   Row,
   SelectionList,
@@ -15,7 +16,6 @@ import { CategoryGrid } from '../../../component/CategoryGrid';
 import { RemarkInput } from '../components/RemarkInput';
 import { useCategoryItems } from '../useCategoryItems';
 import { useAddRecordContext } from '../AddRecordContext';
-import { ImageAttachmentsInput } from '../components/ImageAttachmentsInput';
 import { MoneyField } from '../components/MoneyField';
 import { RecordDateTimeField } from '../components/RecordDateTimeField';
 import {
@@ -110,7 +110,7 @@ export function TransferTabScreen() {
       recordTime,
       remark,
       tagIds: tags,
-      imagePaths: images,
+      imagePaths: images.map(image => image.uri),
       relatedRecordIds: [],
     };
     const validationMessage = validateAddRecordDraft('transfer', draft);
@@ -217,7 +217,13 @@ export function TransferTabScreen() {
             }}
             value={tags}
           />
-          <ImageAttachmentsInput
+          <ImagePicker
+            multiple
+            onError={(error: unknown) => {
+              toast.show({
+                messageText: error instanceof Error ? error.message : '选择图片失败',
+              });
+            }}
             placeholder="图片"
             value={images}
             onChange={setImages}

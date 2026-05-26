@@ -14,7 +14,7 @@ export const useStyles = createUseSheetStyle<ImagePickerStyleOptions>((token, {
   selected,
 }) => ({
   trigger: {
-    minHeight: token.controlHeight,
+    height: token.controlHeight,
     borderRadius: token.borderRadius,
     borderWidth: token.lineWidth,
     borderColor: selected ? token.colorPrimaryBorder : token.colorBorder,
@@ -29,7 +29,7 @@ export const useStyles = createUseSheetStyle<ImagePickerStyleOptions>((token, {
     alignItems: 'center',
     gap: token.marginXS,
     paddingHorizontal: token.paddingSM,
-    paddingVertical: token.paddingXS,
+    flex: 1
   },
   iconContainer: {
     width: token.controlHeightSM,

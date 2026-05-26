@@ -1,4 +1,5 @@
 import React, { createContext, useCallback, useContext, useMemo, useState } from 'react';
+import type { ImagePickerValue } from '@pennyspring/ui';
 
 export interface AddRecordContextValue {
   amount: number;
@@ -9,8 +10,8 @@ export interface AddRecordContextValue {
   setRecordTime: (v: number) => void;
   tags: number[];
   setTags: (v: number[]) => void;
-  images: string[];
-  setImages: (v: string[]) => void;
+  images: ImagePickerValue[];
+  setImages: (v: ImagePickerValue[]) => void;
   reset: () => void;
 }
 
@@ -25,7 +26,7 @@ export function AddRecordProvider({ children }: AddRecordProviderProps) {
   const [remark, setRemark] = useState('');
   const [recordTime, setRecordTime] = useState(() => Date.now());
   const [tags, setTags] = useState<number[]>([]);
-  const [images, setImages] = useState<string[]>([]);
+  const [images, setImages] = useState<ImagePickerValue[]>([]);
   const reset = useCallback(() => {
     setAmount(0);
     setRemark('');
