@@ -45,6 +45,7 @@ const useStyles = createUseSheetStyle((token, options: SwitchStyleOptions) => {
     thumbSize *
     (options.hasText ? TEXT_TRACK_WIDTH_SCALE : DEFAULT_TRACK_WIDTH_SCALE);
   const inset = sizeConfig.inset(token);
+  const textReservedSpace = thumbSize + inset + token.lineWidth;
   const checkedOffset =
     trackWidth - thumbSize - inset - token.lineWidth - inset;
 
@@ -66,10 +67,10 @@ const useStyles = createUseSheetStyle((token, options: SwitchStyleOptions) => {
           : token.colorTextSecondary,
       fontSize: token.fontSizeSM,
       fontWeight: token.fontWeightStrong as TextStyle['fontWeight'],
-      left: options.checked ? inset + token.lineWidth : undefined,
+      left: options.checked ? inset + token.lineWidth : textReservedSpace,
       lineHeight: token.lineHeightSM,
       position: 'absolute',
-      right: options.checked ? undefined : inset + token.lineWidth,
+      right: options.checked ? textReservedSpace : inset + token.lineWidth,
     },
     trackChecked: {
       backgroundColor: token.colorPrimary,

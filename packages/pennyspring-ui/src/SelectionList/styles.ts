@@ -131,6 +131,10 @@ export const useSelectionListStyles = createUseSheetStyle(
       optionMeta: {
         flexShrink: 0,
       },
+      optionDivider: {
+        height: token.lineWidth,
+        backgroundColor: token.colorSplit,
+      },
       empty: {
         paddingVertical: token.paddingMD,
         alignItems: 'center',

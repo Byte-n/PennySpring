@@ -2,6 +2,7 @@ import React from 'react';
 import { Text as RNText, TextInput } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
 import { DisplayInput } from '../src/DisplayInput';
+import { Icon } from '../src/Icon';
 import { Input } from '../src/Input';
 import { Popup } from '../src/Popup';
 import { SelectionList } from '../src/SelectionList';
@@ -235,5 +236,34 @@ describe('SelectionList', () => {
     expect(input.props.value).toBe('');
     expect(searchInput.props.autoFocus).toBe(true);
     expect(searchInput.props.returnKeyType).toBe('search');
+  });
+
+  it('renders selected and unselected option markers with Icon components', () => {
+    const testRenderer = renderSelectionList({
+      defaultOpen: true,
+      value: 'cash',
+    });
+
+    const markerIcons = testRenderer.root.findAllByType(Icon).filter(
+      iconNode =>
+        iconNode.props.testID === 'selection-list-option-marker-selected' ||
+        iconNode.props.testID === 'selection-list-option-marker-unselected',
+    );
+
+    expect(markerIcons).toHaveLength(2);
+    expect(markerIcons[0].props.testID).toBe('selection-list-option-marker-selected');
+    expect(markerIcons[1].props.testID).toBe('selection-list-option-marker-unselected');
+  });
+
+  it('renders dividers between options in the same group', () => {
+    const testRenderer = renderSelectionList({
+      defaultOpen: true,
+    });
+
+    const dividers = testRenderer.root.findAllByProps({
+      testID: 'selection-list-option-divider',
+    });
+
+    expect(dividers).toHaveLength(1);
   });
 });

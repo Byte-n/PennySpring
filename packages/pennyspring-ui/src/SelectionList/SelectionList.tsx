@@ -4,6 +4,7 @@ import {
   Pressable,
   View,
 } from 'react-native';
+import { CircleIcon } from 'phosphor-react-native';
 import { useTheme } from '@pennyspring/theme';
 import { Button } from '../Button';
 import { DisplayInput } from '../DisplayInput';
@@ -269,7 +270,6 @@ export function SelectionListPopup({
 
     return (
       <Pressable
-        key={String(option.value)}
         onPress={() => handleSelect(option)}
         style={({ pressed }) => [
           tokenStyles.option,
@@ -280,13 +280,12 @@ export function SelectionListPopup({
         ]}
       >
         <View style={tokenStyles.marker}>
-          {isSelected ? (
-            <Icon
-              color={isDisabled ? 'textDisabled' : 'primaryText'}
-              icon="check"
-              size={tokenStyles.markerIcon.fontSize}
-            />
-          ) : null}
+          <Icon
+            color={isDisabled ? 'textDisabled' : isSelected ? 'primaryText' : 'textQuaternary'}
+            icon={isSelected ? 'check' : CircleIcon}
+            size={tokenStyles.markerIcon.fontSize}
+            testID={isSelected ? 'selection-list-option-marker-selected' : 'selection-list-option-marker-unselected'}
+          />
         </View>
         {option.prefix !== undefined ? (
           <View style={tokenStyles.optionMeta}>{option.prefix}</View>
@@ -322,6 +321,24 @@ export function SelectionListPopup({
         ) : null}
       </Pressable>
     );
+  }
+
+  function renderGroupOptions(groupOptions: SelectionListOption[]) {
+    return groupOptions.map((option, optionIndex) => {
+      const isLastOption = optionIndex === groupOptions.length - 1;
+
+      return (
+        <React.Fragment key={String(option.value)}>
+          {renderOption(option)}
+          {!isLastOption ? (
+            <View
+              style={tokenStyles.optionDivider}
+              testID="selection-list-option-divider"
+            />
+          ) : null}
+        </React.Fragment>
+      );
+    });
   }
 
   return (
@@ -392,7 +409,7 @@ export function SelectionListPopup({
                     {group.titleText}
                   </Text>
                 ) : null}
-                {group.options.map(renderOption)}
+                {renderGroupOptions(group.options)}
               </View>
             ))}
           </View>
