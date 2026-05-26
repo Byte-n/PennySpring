@@ -66,10 +66,7 @@ export function ExpenseTabScreen() {
     () => toAssetOptions(visibleAssets),
     [visibleAssets],
   );
-  const tagOptions = useMemo(
-    () => toTagOptions(visibleTags),
-    [visibleTags],
-  );
+  const tagOptions = useMemo(() => toTagOptions(visibleTags), [visibleTags]);
 
   const handleSave = useCallback(async () => {
     const draft = {
@@ -135,53 +132,64 @@ export function ExpenseTabScreen() {
           onChange={setTypeId}
         />
         {categoriesLoading ? (
-          <Text color="description" size="sm">分类加载中</Text>
+          <Text color="description" size="sm">
+            分类加载中
+          </Text>
         ) : null}
-        <SelectionList
-          label="付款资产"
-          loading={assetsLoading}
-          onChange={value => setAssetId(toNumberValue(value) ?? null)}
-          options={assetOptions}
-          placeholder="请选择付款资产"
-          searchable
-          texts={{
-            headerText: '选择付款资产',
-            searchPlaceholder: '搜索资产',
-            emptyText: '暂无可用资产',
-          }}
-          value={assetId ?? undefined}
-        />
-        <MoneyField labelText="手续费" value={charge} onChange={setCharge} />
-        <RecordDateTimeField value={recordTime} onChange={setRecordTime} />
-        <Row justify="between">
-          <Text>可报销</Text>
-          <Switch value={isReimbursable} onChange={setIsReimbursable} />
+        <Row wrap gap={token.marginXXS}>
+          <SelectionList
+            loading={assetsLoading}
+            onChange={value => setAssetId(toNumberValue(value) ?? null)}
+            options={assetOptions}
+            placeholder="付款资产"
+            searchable
+            texts={{
+              headerText: '选择付款资产',
+              searchPlaceholder: '搜索资产',
+              emptyText: '暂无可用资产',
+            }}
+            value={assetId ?? undefined}
+          />
+          <MoneyField
+            placeholder="手续费"
+            value={charge}
+            onChange={setCharge}
+          />
+          <Switch
+            checkedText="报销"
+            uncheckedText="不报销"
+            value={isReimbursable}
+            onChange={setIsReimbursable}
+          />
+          <RecordDateTimeField
+            placeholder="记账时间"
+            value={recordTime}
+            onChange={setRecordTime}
+          />
+          <ImageAttachmentsInput
+            placeholder="图片"
+            value={images}
+            onChange={setImages}
+          />
+          <SelectionList
+            displayMode="tag"
+            loading={tagsLoading}
+            mode="multiple"
+            onChange={value => setTags(toNumberValues(value))}
+            options={tagOptions}
+            placeholder="标签"
+            searchable
+            texts={{
+              headerText: '选择标签',
+              searchPlaceholder: '搜索标签',
+              emptyText: '暂无标签',
+              confirmText: '确定',
+            }}
+            value={tags}
+          />
         </Row>
-        <SelectionList
-          displayMode="tag"
-          label="标签"
-          loading={tagsLoading}
-          mode="multiple"
-          onChange={value => setTags(toNumberValues(value))}
-          options={tagOptions}
-          placeholder="请选择标签"
-          searchable
-          texts={{
-            headerText: '选择标签',
-            searchPlaceholder: '搜索标签',
-            emptyText: '暂无标签',
-            confirmText: '确定',
-          }}
-          value={tags}
-        />
-        <ImageAttachmentsInput value={images} onChange={setImages} />
         <RemarkInput />
-        <Button
-          block
-          loading={submitting}
-          onPress={handleSave}
-          type="primary"
-        >
+        <Button block loading={submitting} onPress={handleSave} type="primary">
           保存支出
         </Button>
       </Column>

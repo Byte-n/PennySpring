@@ -66,8 +66,9 @@ export function CategoryGrid(props: CategoryGridProps) {
     return null;
   };
 
+  const { token } = useTheme();
   return (
-    <Column style={style}>
+    <Column style={[{ borderRadius: token.borderRadius, overflow: 'hidden' },style]}>
       {chunk(tree, 5).map(list => {
         const allIds = list
           .map(v => (v.children ?? []).map(child => child.id).concat([v.id]))

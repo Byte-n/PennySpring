@@ -2,13 +2,13 @@ import React, { useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   Pressable,
-  TextInput,
   View,
 } from 'react-native';
 import { useTheme } from '@pennyspring/theme';
 import { Button } from '../Button';
 import { DisplayInput } from '../DisplayInput';
 import { Icon } from '../Icon';
+import { Input } from '../Input';
 import { Popup } from '../Popup';
 import { Text } from '../Text';
 import { TagValueDisplay } from '../_internal/TagValueDisplay';
@@ -22,6 +22,7 @@ import type {
   SelectionListOptionGroup,
   SelectionListPopupProps,
   SelectionListProps,
+  SelectionListSelectedValue,
   SelectionListStatus,
   SelectionListValue,
 } from './types';
@@ -50,7 +51,7 @@ function resolveStatus(status?: SelectionListStatus): SelectionListStatus {
 function normalizeValue(
   mode: SelectionListMode,
   value: SelectionListProps['value'],
-): SelectionListValue | SelectionListValue[] | undefined {
+): SelectionListSelectedValue | undefined {
   if (mode === 'multiple') {
     return Array.isArray(value) ? value : value === undefined ? [] : [value];
   }
@@ -58,7 +59,7 @@ function normalizeValue(
   return Array.isArray(value) ? value[0] : value;
 }
 
-function toValueArray(value: SelectionListValue | SelectionListValue[] | undefined) {
+function toValueArray(value: SelectionListSelectedValue | undefined) {
   if (Array.isArray(value)) {
     return value;
   }
@@ -184,6 +185,7 @@ export function SelectionListPopup({
   styles,
   texts,
   value,
+  ...popupFloatingPanelProps
 }: SelectionListPopupProps) {
   const resolvedSize = resolveSize(size);
   const resolvedMode = resolveMode(mode);
@@ -214,18 +216,24 @@ export function SelectionListPopup({
   );
   const selectedValues = toValueArray(mergedValue);
   const {
-    keyboardAvoiding = true,
+    keyboardAvoiding: floatingPanelKeyboardAvoiding,
     position: floatingPanelPosition,
     style: floatingPanelStyle,
     styles: floatingPanelStyles,
     ...floatingPanelRestProps
   } = floatingPanelProps ?? {};
+  const resolvedFloatingPanelPosition =
+    floatingPanelPosition ?? popupFloatingPanelProps.position ?? 'bottom';
+  const resolvedKeyboardAvoiding =
+    floatingPanelKeyboardAvoiding ??
+    popupFloatingPanelProps.keyboardAvoiding ??
+    true;
 
   function closeSelectionList(): void {
     setMergedOpen(false);
   }
 
-  function commitValue(nextValue: SelectionListValue | SelectionListValue[]): void {
+  function commitValue(nextValue: SelectionListSelectedValue): void {
     setMergedValue(nextValue);
   }
 
@@ -318,15 +326,16 @@ export function SelectionListPopup({
 
   return (
     <Popup.FloatingPanel
+      {...popupFloatingPanelProps}
       {...floatingPanelRestProps}
       footer={null}
       header={null}
       open={mergedOpen}
-      position={floatingPanelPosition ?? 'bottom'}
+      position={resolvedFloatingPanelPosition}
       onCancel={closeSelectionList}
       style={[tokenStyles.popup, floatingPanelStyle, style, styles?.popup]}
       styles={floatingPanelStyles}
-      keyboardAvoiding={keyboardAvoiding}
+      keyboardAvoiding={resolvedKeyboardAvoiding}
     >
       <View testID="selection-list-popup" style={tokenStyles.popupContent}>
         {texts?.headerText !== undefined || texts?.closeText !== undefined ? (
@@ -350,13 +359,14 @@ export function SelectionListPopup({
           </View>
         ) : null}
         {searchable === true ? (
-          <TextInput
+          <Input
             {...searchInputProps}
-            editable={isInteractive}
+            disabled={disabled}
+            loading={loading}
             onChangeText={handleSearchChange}
             placeholder={texts?.searchPlaceholder}
-            placeholderTextColor={token.colorTextPlaceholder}
-            style={tokenStyles.search}
+            readonly={readonly}
+            size="small"
             value={mergedSearchValue}
           />
         ) : null}
@@ -502,7 +512,7 @@ function SelectionListRoot({
     setMergedOpen(false);
   }
 
-  function commitValue(nextValue: SelectionListValue | SelectionListValue[]): void {
+  function commitValue(nextValue: SelectionListSelectedValue): void {
     setMergedValue(nextValue);
   }
 
@@ -514,7 +524,7 @@ function SelectionListRoot({
   }
 
   function handlePopupChange(
-    nextValue: SelectionListValue | SelectionListValue[],
+    nextValue: SelectionListSelectedValue,
   ): void {
     commitValue(nextValue);
   }

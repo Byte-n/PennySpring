@@ -4,6 +4,7 @@ import {
   Button,
   Column,
   KeyboardAwareFormScroll,
+  Row,
   SelectionList,
   Text,
   useToast,
@@ -171,59 +172,70 @@ export function IncomeTabScreen() {
         {categoriesLoading ? (
           <Text color="description" size="sm">分类加载中</Text>
         ) : null}
-        <SelectionList
-          label="收款资产"
-          loading={assetsLoading}
-          onChange={value => setAssetId(toNumberValue(value) ?? null)}
-          options={assetOptions}
-          placeholder="请选择收款资产"
-          searchable
-          texts={{
-            headerText: '选择收款资产',
-            searchPlaceholder: '搜索资产',
-            emptyText: '暂无可用资产',
-          }}
-          value={assetId ?? undefined}
-        />
-        <MoneyField labelText="手续费" value={charge} onChange={setCharge} />
-        {isAbsorption ? (
+        <Row wrap gap={token.marginXXS}>
           <SelectionList
-            displayMode="tag"
-            label="关联支出"
-            loading={recordsLoading}
-            mode="multiple"
-            onChange={value => setRelatedRecordIds(toNumberValues(value))}
-            options={relatedExpenseOptions}
-            placeholder="请选择要抵扣的支出"
+            loading={assetsLoading}
+            onChange={value => setAssetId(toNumberValue(value) ?? null)}
+            options={assetOptions}
+            placeholder="收款资产"
             searchable
             texts={{
-              headerText: '选择关联支出',
-              searchPlaceholder: '搜索支出',
-              emptyText: '暂无可关联支出',
+              headerText: '选择收款资产',
+              searchPlaceholder: '搜索资产',
+              emptyText: '暂无可用资产',
+            }}
+            value={assetId ?? undefined}
+          />
+          <MoneyField
+            placeholder="手续费"
+            value={charge}
+            onChange={setCharge}
+          />
+          {isAbsorption ? (
+            <SelectionList
+              displayMode="tag"
+              loading={recordsLoading}
+              mode="multiple"
+              onChange={value => setRelatedRecordIds(toNumberValues(value))}
+              options={relatedExpenseOptions}
+              placeholder="关联支出"
+              searchable
+              texts={{
+                headerText: '选择关联支出',
+                searchPlaceholder: '搜索支出',
+                emptyText: '暂无可关联支出',
+                confirmText: '确定',
+              }}
+              value={relatedRecordIds}
+            />
+          ) : null}
+          <RecordDateTimeField
+            placeholder="记账时间"
+            value={recordTime}
+            onChange={setRecordTime}
+          />
+          <SelectionList
+            displayMode="tag"
+            loading={tagsLoading}
+            mode="multiple"
+            onChange={value => setTags(toNumberValues(value))}
+            options={tagOptions}
+            placeholder="标签"
+            searchable
+            texts={{
+              headerText: '选择标签',
+              searchPlaceholder: '搜索标签',
+              emptyText: '暂无标签',
               confirmText: '确定',
             }}
-            value={relatedRecordIds}
+            value={tags}
           />
-        ) : null}
-        <RecordDateTimeField value={recordTime} onChange={setRecordTime} />
-        <SelectionList
-          displayMode="tag"
-          label="标签"
-          loading={tagsLoading}
-          mode="multiple"
-          onChange={value => setTags(toNumberValues(value))}
-          options={tagOptions}
-          placeholder="请选择标签"
-          searchable
-          texts={{
-            headerText: '选择标签',
-            searchPlaceholder: '搜索标签',
-            emptyText: '暂无标签',
-            confirmText: '确定',
-          }}
-          value={tags}
-        />
-        <ImageAttachmentsInput value={images} onChange={setImages} />
+          <ImageAttachmentsInput
+            placeholder="图片"
+            value={images}
+            onChange={setImages}
+          />
+        </Row>
         <RemarkInput />
         <Button
           block

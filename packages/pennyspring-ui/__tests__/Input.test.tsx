@@ -1,7 +1,13 @@
 import React from 'react';
-import { TextInput } from 'react-native';
+import { StyleSheet, TextInput } from 'react-native';
+import { defaultSeedToken } from '@pennyspring/theme';
+import { derivative } from '@pennyspring/theme/src/algorithms/derivative';
+import { formatToken } from '@pennyspring/theme/src/algorithms/formatToken';
 import renderer, { act } from 'react-test-renderer';
 import { Input } from '../src/Input';
+
+const token = formatToken(derivative(defaultSeedToken, false));
+
 function renderInput(props: Partial<React.ComponentProps<typeof Input>> = {}) {
   let testRenderer: renderer.ReactTestRenderer;
   act(() => {
@@ -18,6 +24,13 @@ function renderInputSearch(props: Partial<React.ComponentProps<typeof Input.Sear
 }
 function findInput(testRenderer: renderer.ReactTestRenderer) {
   return testRenderer.root.findByType(TextInput);
+}
+function findFieldStyle(testRenderer: renderer.ReactTestRenderer) {
+  const field = testRenderer.root.findAll(
+    node => StyleSheet.flatten(node.props.style)?.borderWidth !== undefined,
+  )[0];
+
+  return StyleSheet.flatten(field.props.style);
 }
 function findClearButton(testRenderer: renderer.ReactTestRenderer) {
   return testRenderer.root.findAll(node => node.props.testID === 'input-clear-button');
@@ -120,6 +133,17 @@ describe('Input', () => {
       readonly: true
     })).props.editable).toBe(false);
     expect(findInput(renderInput()).props.editable).toBe(true);
+  });
+  it('uses compact horizontal padding for every size', () => {
+    expect(findFieldStyle(renderInput({ size: 'small' })).paddingHorizontal).toBe(
+      token.paddingXS,
+    );
+    expect(findFieldStyle(renderInput({ size: 'normal' })).paddingHorizontal).toBe(
+      token.controlPaddingHorizontalSM,
+    );
+    expect(findFieldStyle(renderInput({ size: 'large' })).paddingHorizontal).toBe(
+      token.padding,
+    );
   });
   describe('Search', () => {
     it('submits the current uncontrolled text from the keyboard', () => {

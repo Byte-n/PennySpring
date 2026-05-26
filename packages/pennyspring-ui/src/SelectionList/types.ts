@@ -1,18 +1,10 @@
 import type { ReactNode } from 'react';
-import type {
-  StyleProp,
-  TextInputProps,
-  TextStyle,
-  ViewStyle,
-} from 'react-native';
+import type { StyleProp, TextStyle, ViewStyle } from 'react-native';
 import type { DisplayInputProps, DisplayInputStyles } from '../DisplayInput';
+import type { InputProps } from '../Input';
 import type { PopupFloatingPanelProps } from '../Popup';
 import type { ComponentSize } from '../shares/types';
 import type { TagDisplayProps } from '../_internal/TagValueDisplay';
-
-/**
- * SelectionList 的尺寸。
- */
 
 /**
  * SelectionList 的选择模式。
@@ -33,6 +25,10 @@ export type SelectionListStatus = 'default' | 'error' | 'warning' | 'success';
  * 只允许稳定的字符串或数字，避免对象引用造成选中判断不稳定。
  */
 export type SelectionListValue = string | number;
+
+export type SelectionListSelectedValue =
+  | SelectionListValue
+  | SelectionListValue[];
 
 export interface SelectionListOption {
   /**
@@ -109,11 +105,6 @@ export interface SelectionListOptionGroup {
   options: SelectionListOption[];
 }
 
-export interface SelectionListDisplayInputStyles extends DisplayInputStyles {
-  /** DisplayInput 根节点样式。 */
-  root?: StyleProp<ViewStyle>;
-}
-
 export interface SelectionListPopupStyles {
   /** 弹层容器样式。 */
   popup?: StyleProp<ViewStyle>;
@@ -133,7 +124,10 @@ export interface SelectionListStyles extends SelectionListPopupStyles {
   root?: StyleProp<ViewStyle>;
 
   /** DisplayInput 触发器插槽样式。 */
-  displayInput?: SelectionListDisplayInputStyles;
+  displayInput?: DisplayInputStyles & {
+    /** DisplayInput 根节点样式。 */
+    root?: StyleProp<ViewStyle>;
+  };
 
   /** Label 文本样式。 */
   label?: StyleProp<TextStyle>;
@@ -189,18 +183,27 @@ export interface SelectionListTexts {
   emptyText?: string;
 }
 
-export type SelectionListSearchInputProps = Omit<
-  TextInputProps,
-  | 'editable'
+type SearchInputControlledKey =
+  | 'clearable'
+  | 'defaultValue'
+  | 'disabled'
+  | 'errorText'
+  | 'helperText'
+  | 'label'
+  | 'loading'
   | 'onChangeText'
+  | 'onClear'
   | 'placeholder'
-  | 'placeholderTextColor'
+  | 'readonly'
+  | 'size'
+  | 'status'
   | 'style'
-  | 'value'
->;
+  | 'styles'
+  | 'value';
 
-export type SelectionListFloatingPanelProps = Omit<
-  PopupFloatingPanelProps,
+type SearchInputConfig = Omit<InputProps, SearchInputControlledKey>;
+
+type FloatingPanelControlledKey =
   | 'children'
   | 'defaultOpen'
   | 'defaultValue'
@@ -210,10 +213,36 @@ export type SelectionListFloatingPanelProps = Omit<
   | 'onChange'
   | 'onOpenChange'
   | 'open'
-  | 'value'
+  | 'value';
+
+type FloatingPanelConfig = Omit<
+  PopupFloatingPanelProps,
+  FloatingPanelControlledKey
 >;
 
-export interface SelectionListPopupProps {
+type PopupPanelOwnedKey =
+  | 'cancel'
+  | 'cancelText'
+  | 'closeOnCancel'
+  | 'closeOnOk'
+  | 'footer'
+  | 'header'
+  | 'ok'
+  | 'okDisabled'
+  | 'okLoading'
+  | 'okText'
+  | 'onOk'
+  | 'renderFooter'
+  | 'renderHeader'
+  | 'size'
+  | 'style'
+  | 'styles'
+  | 'title'
+  | 'titleText';
+
+type PopupPanelConfig = Omit<FloatingPanelConfig, PopupPanelOwnedKey>;
+
+export interface SelectionListPopupProps extends PopupPanelConfig {
   /**
    * SelectionList 尺寸。
    * 使用组件库公共尺寸语义，默认值为 normal。
@@ -230,19 +259,19 @@ export interface SelectionListPopupProps {
    * 当前选中值。
    * single 模式使用单个值，multiple 模式使用数组。
    */
-  value?: SelectionListValue | SelectionListValue[];
+  value?: SelectionListSelectedValue;
 
   /**
    * 默认选中值。
    * 仅用于非受控选择。
    */
-  defaultValue?: SelectionListValue | SelectionListValue[];
+  defaultValue?: SelectionListSelectedValue;
 
   /**
    * 选中值变化时触发。
    * 组件只返回值，不返回业务对象。
    */
-  onChange?: (value: SelectionListValue | SelectionListValue[]) => void;
+  onChange?: (value: SelectionListSelectedValue) => void;
 
   /**
    * 扁平选项列表。
@@ -321,15 +350,15 @@ export interface SelectionListPopupProps {
 
   /**
    * 搜索输入框的非受控内部属性。
-   * editable、value、placeholder 等由 SelectionList 统一管理。
+   * value、placeholder、状态和样式由 SelectionList 统一管理。
    */
-  searchInputProps?: SelectionListSearchInputProps;
+  searchInputProps?: SearchInputConfig;
 
   /**
    * 内部 FloatingPanel 的配置。
    * open、value、onChange 等受控状态由 SelectionList 统一管理。
    */
-  floatingPanelProps?: SelectionListFloatingPanelProps;
+  floatingPanelProps?: FloatingPanelConfig;
 
   /**
    * 弹层内容样式。
@@ -344,7 +373,7 @@ export interface SelectionListPopupProps {
   styles?: SelectionListPopupStyles;
 }
 
-export type SelectionListDisplayInputProps = Omit<
+type DisplayInputConfig = Omit<
   DisplayInputProps,
   | 'children'
   | 'disabled'
@@ -359,8 +388,7 @@ export type SelectionListDisplayInputProps = Omit<
   | 'valueText'
 >;
 
-export type SelectionListPopupConfigProps = Omit<
-  SelectionListPopupProps,
+type RootControlledPopupKey =
   | 'defaultOpen'
   | 'defaultValue'
   | 'disabled'
@@ -373,8 +401,9 @@ export type SelectionListPopupConfigProps = Omit<
   | 'options'
   | 'readonly'
   | 'size'
-  | 'value'
->;
+  | 'value';
+
+type PopupConfig = Omit<SelectionListPopupProps, RootControlledPopupKey>;
 
 export interface SelectionListProps
   extends Omit<SelectionListPopupProps, 'style' | 'styles'> {
@@ -420,13 +449,13 @@ export interface SelectionListProps
    * DisplayInput 触发器的非样式配置。
    * 样式能力统一通过 styles.displayInput 提供。
    */
-  displayInputProps?: SelectionListDisplayInputProps;
+  displayInputProps?: DisplayInputConfig;
 
   /**
    * 弹层专属配置。
    * open、value、options 等由 SelectionList 根组件统一控制。
    */
-  popupProps?: SelectionListPopupConfigProps;
+  popupProps?: PopupConfig;
 
   tagProps?: TagDisplayProps;
 

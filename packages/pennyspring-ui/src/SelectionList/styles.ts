@@ -77,19 +77,6 @@ export const useSelectionListStyles = createUseSheetStyle(
       headerText: {
         color: token.colorTextHeading,
       },
-      search: {
-        minHeight: token.controlHeightSM,
-        paddingHorizontal: token.controlPaddingHorizontalSM,
-        paddingVertical: token.paddingXXS,
-        borderWidth: token.lineWidth,
-        borderRadius: token.borderRadiusSM,
-        borderColor: token.colorBorder,
-        backgroundColor: token.colorBgContainer,
-        fontFamily: token.fontFamily,
-        fontSize: token.fontSizeSM,
-        lineHeight: token.lineHeightSM,
-        color: token.colorText,
-      },
       fieldActive: {
         borderColor: token.colorPrimary,
       },

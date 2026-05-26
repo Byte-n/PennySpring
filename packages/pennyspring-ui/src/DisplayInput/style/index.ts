@@ -24,7 +24,7 @@ type StatusColorSelector = (token: AliasToken) => string;
 const SIZE_MAP: Record<ComponentSize, SizeConfig> = {
   small: {
     minHeight: token => token.controlHeightSM,
-    paddingHorizontal: token => token.controlPaddingHorizontalSM,
+    paddingHorizontal: token => token.paddingXS,
     paddingVertical: token => token.paddingXXS,
     gap: token => token.sizeXXS,
     fontSize: token => token.fontSizeSM,
@@ -32,7 +32,7 @@ const SIZE_MAP: Record<ComponentSize, SizeConfig> = {
   },
   normal: {
     minHeight: token => token.controlHeight,
-    paddingHorizontal: token => token.controlPaddingHorizontal,
+    paddingHorizontal: token => token.controlPaddingHorizontalSM,
     paddingVertical: token => token.paddingXS,
     gap: token => token.sizeXS,
     fontSize: token => token.fontSize,
@@ -40,7 +40,7 @@ const SIZE_MAP: Record<ComponentSize, SizeConfig> = {
   },
   large: {
     minHeight: token => token.controlHeightLG,
-    paddingHorizontal: token => token.paddingMD,
+    paddingHorizontal: token => token.padding,
     paddingVertical: token => token.paddingSM,
     gap: token => token.sizeSM,
     fontSize: token => token.fontSizeLG,

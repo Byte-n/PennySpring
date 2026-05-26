@@ -2,6 +2,7 @@ import React from 'react';
 import { Text as RNText, TextInput } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
 import { DisplayInput } from '../src/DisplayInput';
+import { Input } from '../src/Input';
 import { Popup } from '../src/Popup';
 import { SelectionList } from '../src/SelectionList';
 
@@ -196,7 +197,24 @@ describe('SelectionList', () => {
     expect(floatingPanel.props.mask).toBe(false);
   });
 
-  it('forwards search input props to the internal text input', () => {
+  it('forwards direct popup floating panel props to the internal panel', () => {
+    const testRenderer = renderSelectionList({
+      defaultOpen: true,
+      height: '55%',
+      keyboardAvoiding: false,
+      mask: false,
+      position: 'top',
+    });
+
+    const floatingPanel = testRenderer.root.findByType(Popup.FloatingPanel);
+
+    expect(floatingPanel.props.height).toBe('55%');
+    expect(floatingPanel.props.keyboardAvoiding).toBe(false);
+    expect(floatingPanel.props.mask).toBe(false);
+    expect(floatingPanel.props.position).toBe('top');
+  });
+
+  it('renders search with Input and forwards search input props', () => {
     const testRenderer = renderSelectionList({
       defaultOpen: true,
       searchable: true,
@@ -212,8 +230,9 @@ describe('SelectionList', () => {
     const searchInput = testRenderer.root.findByProps({
       testID: 'selection-search-input',
     });
+    const input = testRenderer.root.findByType(Input);
 
-    expect(searchInput.type).toBe(TextInput);
+    expect(input.props.value).toBe('');
     expect(searchInput.props.autoFocus).toBe(true);
     expect(searchInput.props.returnKeyType).toBe('search');
   });

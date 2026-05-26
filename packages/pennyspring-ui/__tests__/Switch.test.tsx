@@ -76,4 +76,25 @@ describe('Switch', () => {
     expect(disabledTarget.props.disabled).toBe(true);
   });
 
+  it('renders the text for the current boolean state', () => {
+    const testRenderer = renderSwitch({
+      checkedText: 'true',
+      defaultValue: true,
+      uncheckedText: 'false',
+    });
+
+    let text = testRenderer.root.findByProps({
+      testID: 'switch-text',
+    });
+
+    expect(text.props.children).toBe('true');
+
+    pressSwitch(testRenderer);
+    text = testRenderer.root.findByProps({
+      testID: 'switch-text',
+    });
+
+    expect(text.props.children).toBe('false');
+  });
+
 });

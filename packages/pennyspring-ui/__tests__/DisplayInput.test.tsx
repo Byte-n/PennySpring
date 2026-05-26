@@ -1,7 +1,12 @@
 import React from 'react';
-import { TextInput, View } from 'react-native';
+import { StyleSheet, TextInput, View } from 'react-native';
+import { defaultSeedToken } from '@pennyspring/theme';
+import { derivative } from '@pennyspring/theme/src/algorithms/derivative';
+import { formatToken } from '@pennyspring/theme/src/algorithms/formatToken';
 import renderer, { act } from 'react-test-renderer';
 import { DisplayInput } from '../src/DisplayInput';
+
+const token = formatToken(derivative(defaultSeedToken, false));
 
 function renderDisplayInput(
   props: Partial<React.ComponentProps<typeof DisplayInput>> = {},
@@ -30,6 +35,14 @@ function findRootStyle(
     maxWidth?: string;
     overflow?: string;
   }>;
+}
+
+function findFieldStyle(testRenderer: renderer.ReactTestRenderer) {
+  const field = testRenderer.root.findAll(
+    node => StyleSheet.flatten(node.props.style)?.borderWidth !== undefined,
+  )[0];
+
+  return StyleSheet.flatten(field.props.style);
 }
 
 describe('DisplayInput', () => {
@@ -134,5 +147,20 @@ describe('DisplayInput', () => {
     expect(defaultText.props.ellipsizeMode).toBe('tail');
     expect(visibleText.props.numberOfLines).toBeUndefined();
     expect(visibleText.props.ellipsizeMode).toBeUndefined();
+  });
+
+  it('uses compact horizontal padding for every size', () => {
+    expect(
+      findFieldStyle(renderDisplayInput({ size: 'small', valueText: 'Small' }))
+        .paddingHorizontal,
+    ).toBe(token.paddingXS);
+    expect(
+      findFieldStyle(renderDisplayInput({ size: 'normal', valueText: 'Normal' }))
+        .paddingHorizontal,
+    ).toBe(token.controlPaddingHorizontalSM);
+    expect(
+      findFieldStyle(renderDisplayInput({ size: 'large', valueText: 'Large' }))
+        .paddingHorizontal,
+    ).toBe(token.padding);
   });
 });

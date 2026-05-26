@@ -12,6 +12,8 @@ import { useTheme } from '@pennyspring/theme';
 interface ImageAttachmentsInputProps {
   value: string[];
   onChange: (value: string[]) => void;
+  labelText?: string;
+  placeholder?: string;
 }
 
 function getImagePath(image: ImagePickerValue): string {
@@ -24,7 +26,9 @@ function getImageName(imagePath: string): string {
 }
 
 export function ImageAttachmentsInput({
+  labelText,
   onChange,
+  placeholder = '添加图片',
   value,
 }: ImageAttachmentsInputProps) {
   const { token } = useTheme();
@@ -52,14 +56,14 @@ export function ImageAttachmentsInput({
   return (
     <Column gap={token.marginXS}>
       <ImagePicker
-        label="图片"
+        label={labelText}
         onChange={handleImageChange}
         onError={(error: unknown) => {
           toast.show({
             messageText: error instanceof Error ? error.message : '选择图片失败',
           });
         }}
-        placeholder="添加图片"
+        placeholder={placeholder}
       />
       {value.length > 0 ? (
         <Row gap={token.marginXS} wrap>

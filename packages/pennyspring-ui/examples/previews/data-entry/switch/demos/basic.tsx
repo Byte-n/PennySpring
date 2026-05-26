@@ -18,7 +18,12 @@ export function SwitchBasicDemo() {
   return (
     <>
       <View style={styles.stack}>
-        <Switch value={checked} onChange={setChecked} />
+        <Switch
+          checkedText="true"
+          uncheckedText="false"
+          value={checked}
+          onChange={setChecked}
+        />
         <Text color="description" size="sm">
           Checked: {checked ? 'true' : 'false'}
         </Text>

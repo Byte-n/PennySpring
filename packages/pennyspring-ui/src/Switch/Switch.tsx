@@ -3,12 +3,24 @@ import React from 'react';
 import { Pressable, View } from 'react-native';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import { useControllableValue } from '../_hooks';
+import { Text } from '../Text';
 import type { AliasToken } from '@pennyspring/theme';
+import type { TextStyle } from 'react-native';
 import type { SwitchProps } from './types';
+
+const DEFAULT_TRACK_WIDTH_SCALE = 2;
+const TEXT_TRACK_WIDTH_SCALE = 3;
 
 interface SizeStyleConfig {
   thumbSize: (token: AliasToken) => number;
   inset: (token: AliasToken) => number;
+}
+
+interface SwitchStyleOptions {
+  checked: boolean;
+  disabled: boolean;
+  hasText: boolean;
+  size: ComponentSize;
 }
 
 const SIZE_STYLE_MAP: Record<ComponentSize, SizeStyleConfig> = {
@@ -26,10 +38,12 @@ const SIZE_STYLE_MAP: Record<ComponentSize, SizeStyleConfig> = {
   },
 };
 
-const useStyles = createUseSheetStyle((token, size: ComponentSize) => {
-  const sizeConfig = SIZE_STYLE_MAP[size];
+const useStyles = createUseSheetStyle((token, options: SwitchStyleOptions) => {
+  const sizeConfig = SIZE_STYLE_MAP[options.size];
   const thumbSize = sizeConfig.thumbSize(token);
-  const trackWidth = thumbSize * 2;
+  const trackWidth =
+    thumbSize *
+    (options.hasText ? TEXT_TRACK_WIDTH_SCALE : DEFAULT_TRACK_WIDTH_SCALE);
   const inset = sizeConfig.inset(token);
   const checkedOffset =
     trackWidth - thumbSize - inset - token.lineWidth - inset;
@@ -43,6 +57,19 @@ const useStyles = createUseSheetStyle((token, size: ComponentSize) => {
       borderWidth: token.lineWidth,
       justifyContent: 'center',
       width: trackWidth,
+    },
+    text: {
+      color: options.disabled
+        ? token.colorTextDisabled
+        : options.checked
+          ? token.colorTextLightSolid
+          : token.colorTextSecondary,
+      fontSize: token.fontSizeSM,
+      fontWeight: token.fontWeightStrong as TextStyle['fontWeight'],
+      left: options.checked ? inset + token.lineWidth : undefined,
+      lineHeight: token.lineHeightSM,
+      position: 'absolute',
+      right: options.checked ? undefined : inset + token.lineWidth,
     },
     trackChecked: {
       backgroundColor: token.colorPrimary,
@@ -78,6 +105,8 @@ export function Switch({
   value,
   defaultValue = false,
   onChange,
+  checkedText,
+  uncheckedText,
   disabled = false,
   readonly = false,
   size = 'normal',
@@ -85,13 +114,25 @@ export function Switch({
   styles,
   ...rest
 }: SwitchProps) {
-  const tokenStyles = useStyles(size);
-  const [checked, setChecked] = useControllableValue(
+  const [resolvedChecked, setChecked] = useControllableValue(
     defaultValue,
     value,
     onChange,
   );
+  const checked = resolvedChecked ?? false;
   const isDisabled = disabled || readonly;
+  const currentText = checked ? checkedText : uncheckedText;
+  const hasText = checkedText !== undefined || uncheckedText !== undefined;
+  const styleOptions = React.useMemo<SwitchStyleOptions>(
+    () => ({
+      checked,
+      disabled: isDisabled,
+      hasText,
+      size,
+    }),
+    [checked, hasText, isDisabled, size],
+  );
+  const tokenStyles = useStyles(styleOptions);
 
   function handlePress(): void {
     if (isDisabled) {
@@ -117,6 +158,16 @@ export function Switch({
         style,
       ]}
     >
+      {currentText !== undefined ? (
+        <Text
+          numberOfLines={1}
+          size="sm"
+          style={[tokenStyles.text, styles?.text]}
+          testID="switch-text"
+        >
+          {currentText}
+        </Text>
+      ) : null}
       <View
         testID="switch-thumb"
         style={[

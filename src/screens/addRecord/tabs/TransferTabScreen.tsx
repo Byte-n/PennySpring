@@ -3,6 +3,7 @@ import {
   Button,
   Column,
   KeyboardAwareFormScroll,
+  Row,
   SelectionList,
   Text,
   useToast,
@@ -163,54 +164,65 @@ export function TransferTabScreen() {
         {categoriesLoading ? (
           <Text color="description" size="sm">分类加载中</Text>
         ) : null}
-        <SelectionList
-          label="转出资产"
-          loading={assetsLoading}
-          onChange={value => setAssetId(toNumberValue(value) ?? null)}
-          options={fromAssetOptions}
-          placeholder="请选择转出资产"
-          searchable
-          texts={{
-            headerText: '选择转出资产',
-            searchPlaceholder: '搜索资产',
-            emptyText: '暂无可用转出资产',
-          }}
-          value={assetId ?? undefined}
-        />
-        <SelectionList
-          label="转入资产"
-          loading={assetsLoading}
-          onChange={value => setIntoAssetId(toNumberValue(value) ?? null)}
-          options={intoAssetOptions}
-          placeholder="请选择转入资产"
-          searchable
-          texts={{
-            headerText: '选择转入资产',
-            searchPlaceholder: '搜索资产',
-            emptyText: '暂无可用转入资产',
-          }}
-          value={intoAssetId ?? undefined}
-        />
-        <MoneyField labelText="手续费" value={charge} onChange={setCharge} />
-        <RecordDateTimeField value={recordTime} onChange={setRecordTime} />
-        <SelectionList
-          displayMode="tag"
-          label="标签"
-          loading={tagsLoading}
-          mode="multiple"
-          onChange={value => setTags(toNumberValues(value))}
-          options={tagOptions}
-          placeholder="请选择标签"
-          searchable
-          texts={{
-            headerText: '选择标签',
-            searchPlaceholder: '搜索标签',
-            emptyText: '暂无标签',
-            confirmText: '确定',
-          }}
-          value={tags}
-        />
-        <ImageAttachmentsInput value={images} onChange={setImages} />
+        <Row wrap gap={token.marginXXS}>
+          <SelectionList
+            loading={assetsLoading}
+            onChange={value => setAssetId(toNumberValue(value) ?? null)}
+            options={fromAssetOptions}
+            placeholder="转出资产"
+            searchable
+            texts={{
+              headerText: '选择转出资产',
+              searchPlaceholder: '搜索资产',
+              emptyText: '暂无可用转出资产',
+            }}
+            value={assetId ?? undefined}
+          />
+          <SelectionList
+            loading={assetsLoading}
+            onChange={value => setIntoAssetId(toNumberValue(value) ?? null)}
+            options={intoAssetOptions}
+            placeholder="转入资产"
+            searchable
+            texts={{
+              headerText: '选择转入资产',
+              searchPlaceholder: '搜索资产',
+              emptyText: '暂无可用转入资产',
+            }}
+            value={intoAssetId ?? undefined}
+          />
+          <MoneyField
+            placeholder="手续费"
+            value={charge}
+            onChange={setCharge}
+          />
+          <RecordDateTimeField
+            placeholder="记账时间"
+            value={recordTime}
+            onChange={setRecordTime}
+          />
+          <SelectionList
+            displayMode="tag"
+            loading={tagsLoading}
+            mode="multiple"
+            onChange={value => setTags(toNumberValues(value))}
+            options={tagOptions}
+            placeholder="标签"
+            searchable
+            texts={{
+              headerText: '选择标签',
+              searchPlaceholder: '搜索标签',
+              emptyText: '暂无标签',
+              confirmText: '确定',
+            }}
+            value={tags}
+          />
+          <ImageAttachmentsInput
+            placeholder="图片"
+            value={images}
+            onChange={setImages}
+          />
+        </Row>
         <RemarkInput />
         <Button
           block

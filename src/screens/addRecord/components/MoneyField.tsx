@@ -5,7 +5,7 @@ import { CalculatorInput, Input } from '@pennyspring/ui';
 import { formatAmount, yuanToCents } from '../addRecordDraft';
 
 interface MoneyFieldProps {
-  labelText: string;
+  labelText?: string;
   value: number;
   onChange: (value: number) => void;
   placeholder?: string;
@@ -28,6 +28,7 @@ export function MoneyField({
           placeholder={placeholder}
           readonly
           value={valueText}
+          style={{ width: 100 }}
         />
       </Pressable>
       <CalculatorInput.Popup
