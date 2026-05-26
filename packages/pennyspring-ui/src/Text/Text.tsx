@@ -1,15 +1,11 @@
 import React from 'react';
 import { Text as RNText } from 'react-native';
-import {
-  createUseSheetStyle,
-  getAliasColorTokenValue,
-} from '@pennyspring/theme';
+import { createUseSheetStyle } from '@pennyspring/theme';
 import type { AliasToken } from '@pennyspring/theme';
 import type { TextStyle } from 'react-native';
+import { useTextColor } from './useTextColor';
 import type {
-  TextColor,
   TextProps,
-  TextSemanticColor,
   TextSize,
   TextWeight,
 } from './types';
@@ -22,11 +18,10 @@ interface SizeConfig {
 interface TextStyleOptions {
   size: TextSize;
   weight?: TextWeight;
-  color?: TextColor;
+  color: string;
 }
 
 type FontWeightSelector = (token: AliasToken) => TextStyle['fontWeight'];
-type ColorSelector = (token: AliasToken) => string;
 
 const SIZE_MAP: Record<TextSize, SizeConfig> = {
   sm: {
@@ -88,32 +83,6 @@ const SIZE_DEFAULT_WEIGHT_MAP: Record<TextSize, TextWeight> = {
   h5: 'strong',
 };
 
-const COLOR_MAP: Record<TextSemanticColor, ColorSelector> = {
-  base: t => t.colorTextBase,
-  default: t => t.colorText,
-  secondary: t => t.colorTextSecondary,
-  tertiary: t => t.colorTextTertiary,
-  quaternary: t => t.colorTextQuaternary,
-  heading: t => t.colorTextHeading,
-  label: t => t.colorTextLabel,
-  description: t => t.colorTextDescription,
-  disabled: t => t.colorTextDisabled,
-  placeholder: t => t.colorTextPlaceholder,
-  lightSolid: t => t.colorTextLightSolid,
-};
-
-function resolveColor(color: TextColor | undefined, token: AliasToken): string {
-  if (color === undefined) {
-    return token.colorText;
-  }
-
-  if (color in COLOR_MAP) {
-    return COLOR_MAP[color as TextSemanticColor](token);
-  }
-
-  return getAliasColorTokenValue(token, color) ?? color;
-}
-
 const useStyles = createUseSheetStyle(
   (token, { size, weight, color }: TextStyleOptions) => {
     const config = SIZE_MAP[size];
@@ -125,7 +94,7 @@ const useStyles = createUseSheetStyle(
         fontSize: config.fontSize(token),
         lineHeight: config.lineHeight(token),
         fontWeight: WEIGHT_MAP[resolvedWeight](token),
-        color: resolveColor(color, token),
+        color,
       },
     };
   },
@@ -144,7 +113,8 @@ export function Text({
   testID,
   children,
 }: TextProps) {
-  const tokenStyles = useStyles({ size, weight, color });
+  const resolvedColor = useTextColor(color);
+  const tokenStyles = useStyles({ size, weight, color: resolvedColor });
 
   return (
     <RNText

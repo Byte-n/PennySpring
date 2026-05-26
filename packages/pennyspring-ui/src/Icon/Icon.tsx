@@ -1,5 +1,5 @@
 import React from 'react';
-import { getAliasColorTokenValue, useTheme } from '@pennyspring/theme';
+import { useTheme } from '@pennyspring/theme';
 import {
   ArrowDownIcon,
   ArrowLeftIcon,
@@ -37,7 +37,8 @@ import {
   XIcon,
 } from 'phosphor-react-native';
 import type { AliasToken } from '@pennyspring/theme';
-import type { IconColor, IconComponent, IconName, IconProps, IconSize } from './types';
+import { useIconColor } from './useIconColor';
+import type { IconComponent, IconName, IconProps, IconSize } from './types';
 
 interface IconSizeConfig {
   value: (token: AliasToken) => number;
@@ -104,14 +105,6 @@ function resolveSize(size: IconSize | undefined, token: AliasToken): number {
   return ICON_SIZE_MAP[resolvedSize].value(token);
 }
 
-function resolveColor(color: IconColor | undefined, token: AliasToken): string {
-  if (color === undefined) {
-    return token.colorIcon;
-  }
-
-  return getAliasColorTokenValue(token, color) ?? color;
-}
-
 export function Icon({
   icon,
   size = 'normal',
@@ -125,11 +118,13 @@ export function Icon({
 }: IconProps) {
   const { token } = useTheme();
   const IconComponent = resolveIcon(icon);
+  const resolvedColor = useIconColor(color);
+  const resolvedDuotoneColor = useIconColor(duotoneColor);
 
   return (
     <IconComponent
-      color={resolveColor(color, token)}
-      duotoneColor={resolveColor(duotoneColor, token)}
+      color={resolvedColor}
+      duotoneColor={resolvedDuotoneColor}
       duotoneOpacity={duotoneOpacity}
       mirrored={mirrored}
       size={resolveSize(size, token)}

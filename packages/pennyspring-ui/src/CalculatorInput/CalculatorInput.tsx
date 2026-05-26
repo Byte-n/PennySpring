@@ -7,6 +7,7 @@ import { Row } from '../Row';
 import { Text } from '../Text';
 import { useControllableValue } from '../_hooks';
 import type { AliasToken } from '@pennyspring/theme';
+import type { IconColor } from '../Icon';
 import type { TextStyle } from 'react-native';
 import type { CalculatorInputProps, CalculatorInputStyles } from './types';
 
@@ -577,7 +578,7 @@ function renderKeyContent(
   if (key.role === 'backspace') {
     return (
       <Icon
-        color={tokenStyles.backspaceIcon.color}
+        color={tokenStyles.backspaceIcon.color as IconColor}
         icon="arrow-left"
         size={tokenStyles.backspaceIcon.fontSize}
       />

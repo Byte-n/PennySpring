@@ -6,6 +6,7 @@ import { Icon } from '../Icon';
 import { Text } from '../Text';
 import type {
   AliasToken } from '@pennyspring/theme';
+import type { IconColor } from '../Icon';
 import type {
   GestureResponderEvent,
   StyleProp,
@@ -424,7 +425,7 @@ export function Button({
     >
       {isLoading ? loadingIcon : (
         <Icon
-          color={resolvedIconColor}
+          color={resolvedIconColor as IconColor}
           size={resolveIconSize(size, token)}
           {...iconProps}
           icon={icon!}

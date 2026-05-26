@@ -1,12 +1,19 @@
-import type { AliasColorTokenKey } from '@pennyspring/theme';
 import type { IconProps as PhosphorIconProps, IconWeight } from 'phosphor-react-native';
 import type { ComponentType } from 'react';
 import type { StyleProp, ViewStyle } from 'react-native';
+import type { SemanticAliasColor } from '../shares/color';
 import type { ComponentSize } from '../shares/types';
 
 export type IconSize = ComponentSize | number;
 
-export type IconColor = AliasColorTokenKey | (string & {});
+export type IconSemanticColor =
+  | 'default'
+  | 'primary'
+  | 'success'
+  | 'warning'
+  | 'danger'
+  | 'info';
+export type IconColor = SemanticAliasColor<IconSemanticColor>;
 export type IconComponent = ComponentType<PhosphorIconProps>;
 
 export type IconName =

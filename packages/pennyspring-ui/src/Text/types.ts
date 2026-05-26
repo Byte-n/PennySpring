@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import type { GestureResponderEvent, StyleProp, TextStyle } from 'react-native';
-import type { AliasColorTokenKey } from '@pennyspring/theme';
+import type { SemanticAliasColor } from '../shares/color';
 
 export type TextSize =
   | 'sm'
@@ -31,7 +31,7 @@ export type TextSemanticColor =
   | 'disabled'
   | 'placeholder'
   | 'lightSolid';
-export type TextColor = TextSemanticColor | AliasColorTokenKey | (string & {});
+export type TextColor = SemanticAliasColor<TextSemanticColor>;
 
 export interface TextProps {
   size?: TextSize;

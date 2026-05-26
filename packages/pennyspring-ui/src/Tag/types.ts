@@ -7,27 +7,16 @@ import type {
   ViewStyle,
 } from 'react-native';
 import type { ComponentSize } from '../shares/types';
+import type { SemanticPresetColor } from '../shares/color';
 
-export type TagColor =
+export type TagSemanticColor =
   | 'default'
   | 'primary'
   | 'success'
   | 'warning'
   | 'danger'
-  | 'info'
-  | 'blue'
-  | 'purple'
-  | 'cyan'
-  | 'green'
-  | 'magenta'
-  | 'pink'
-  | 'red'
-  | 'orange'
-  | 'yellow'
-  | 'volcano'
-  | 'geekblue'
-  | 'lime'
-  | 'gold';
+  | 'info';
+export type TagColor = SemanticPresetColor<TagSemanticColor>;
 
 export type TagVariant = 'filled' | 'outlined' | 'solid';
 

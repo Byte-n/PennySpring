@@ -1,7 +1,7 @@
 import type { ComponentSize } from '../shares/types';
 import React from 'react';
 import { Pressable, View } from 'react-native';
-import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
+import { createUseSheetStyle, PresetColors, useTheme } from '@pennyspring/theme';
 import type { AliasToken } from '@pennyspring/theme';
 import type {
   LayoutChangeEvent,
@@ -72,6 +72,7 @@ const SIZE_STYLE_MAP: Record<ComponentSize, SizeStyleConfig> = {
 
 const DEFAULT_SWIPE_VALUE: SwipeActionValue = null;
 const DRAG_START_DISTANCE = 3;
+const PRESET_COLORS = PresetColors;
 
 const useStyles = createUseSheetStyle(
   (token, { disabled, size }: SwipeActionStyleOptions) => {
@@ -242,9 +243,14 @@ function resolveActionColor(
   return side === 'right' ? 'danger' : 'primary';
 }
 
+function isPresetColor(color: SwipeActionColor): color is (typeof PRESET_COLORS)[number] {
+  return PRESET_COLORS.includes(color as (typeof PRESET_COLORS)[number]);
+}
+
 function resolveActionBackgroundStyle(
   color: SwipeActionColor,
   tokenStyles: Record<string, ViewStyle | TextStyle>,
+  token: AliasToken,
 ): ViewStyle {
   if (color === 'light') {
     return tokenStyles.actionBgLight as ViewStyle;
@@ -266,6 +272,12 @@ function resolveActionBackgroundStyle(
     return tokenStyles.actionBgDanger as ViewStyle;
   }
 
+  if (isPresetColor(color)) {
+    return {
+      backgroundColor: token[`${color}6`],
+    };
+  }
+
   return tokenStyles.actionBgPrimary as ViewStyle;
 }
 
@@ -278,6 +290,19 @@ function resolveActionTextStyle(
   }
 
   return tokenStyles.actionTextLight as TextStyle;
+}
+
+function useSwipeActionColorResolver(
+  token: AliasToken,
+  tokenStyles: Record<string, ViewStyle | TextStyle>,
+) {
+  return React.useCallback(
+    (color: SwipeActionColor) => ({
+      backgroundStyle: resolveActionBackgroundStyle(color, tokenStyles, token),
+      textStyle: resolveActionTextStyle(color, tokenStyles),
+    }),
+    [token, tokenStyles],
+  );
 }
 
 export const SwipeAction = React.forwardRef<SwipeActionRef, SwipeActionProps>(
@@ -307,6 +332,7 @@ export const SwipeAction = React.forwardRef<SwipeActionRef, SwipeActionProps>(
       size,
     }) as Record<string, ViewStyle | TextStyle>;
     const { token } = useTheme();
+    const resolveActionColorStyle = useSwipeActionColorResolver(token, tokenStyles);
     const [swipeValue, setSwipeValue] = useControllableValue<SwipeActionValue>(
       defaultValue,
       value,
@@ -510,11 +536,12 @@ export const SwipeAction = React.forwardRef<SwipeActionRef, SwipeActionProps>(
     ): React.ReactNode {
       const actionDisabled = isGestureBlocked || action.disabled === true;
       const color = resolveActionColor(action, side);
+      const colorStyle = resolveActionColorStyle(color);
       const backgroundStyle =
         action.backgroundColor !== undefined
           ? ({ backgroundColor: action.backgroundColor } as ViewStyle)
-          : resolveActionBackgroundStyle(color, tokenStyles);
-      const textColorStyle = resolveActionTextStyle(color, tokenStyles);
+          : colorStyle.backgroundStyle;
+      const textColorStyle = colorStyle.textStyle;
 
       function handleActionPress(): void {
         if (actionDisabled) {

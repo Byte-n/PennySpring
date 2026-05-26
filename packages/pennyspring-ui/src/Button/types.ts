@@ -8,26 +8,12 @@ import type {
 } from 'react-native';
 import type { ComponentSize } from '../shares/types';
 import type { IconComponent, IconName, IconProps } from '../Icon';
+import type { SemanticPresetColor } from '../shares/color';
 
 export type ButtonType = 'default' | 'primary' | 'dashed' | 'text' | 'link';
 
-export type ButtonColor =
-  | 'default'
-  | 'primary'
-  | 'danger'
-  | 'blue'
-  | 'purple'
-  | 'cyan'
-  | 'green'
-  | 'magenta'
-  | 'pink'
-  | 'red'
-  | 'orange'
-  | 'yellow'
-  | 'volcano'
-  | 'geekblue'
-  | 'lime'
-  | 'gold';
+export type ButtonSemanticColor = 'default' | 'primary' | 'danger';
+export type ButtonColor = SemanticPresetColor<ButtonSemanticColor>;
 
 export type ButtonVariant =
   | 'solid'

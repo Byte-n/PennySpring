@@ -6,7 +6,7 @@ import { Icon } from '../Icon';
 import { Text } from '../Text';
 import type {
   AliasToken } from '@pennyspring/theme';
-import type { IconName } from '../Icon';
+import type { IconColor, IconName } from '../Icon';
 import type { TextSize } from '../Text';
 import type { ResultProps,
   ResultStatus,
@@ -154,7 +154,7 @@ export function Result({
           <Icon
             icon={statusConfig.iconName}
             size={sizeConfig.iconSize(token)}
-            color={statusConfig.iconColor(token)}
+            color={statusConfig.iconColor(token) as IconColor}
           />
         )}
       </View>

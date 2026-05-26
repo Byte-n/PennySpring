@@ -1,18 +1,20 @@
 import type { ReactNode } from 'react';
 import type { StyleProp, TextStyle, ViewProps, ViewStyle } from 'react-native';
 import type { ComponentSize } from '../shares/types';
+import type { SemanticPresetColor } from '../shares/color';
 
 export type SwipeActionSide = 'left' | 'right';
 
 export type SwipeActionValue = SwipeActionSide | null;
 
-export type SwipeActionColor =
+export type SwipeActionSemanticColor =
   | 'light'
   | 'weak'
   | 'primary'
   | 'success'
   | 'warning'
   | 'danger';
+export type SwipeActionColor = SemanticPresetColor<SwipeActionSemanticColor>;
 
 export interface SwipeActionAction {
   key: string | number;

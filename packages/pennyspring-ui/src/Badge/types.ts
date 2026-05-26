@@ -1,27 +1,16 @@
 import type { ReactNode } from 'react';
 import type { StyleProp, TextStyle, ViewProps, ViewStyle } from 'react-native';
 import type { ComponentSize } from '../shares/types';
+import type { SemanticPresetColor } from '../shares/color';
 
-export type BadgeColor =
+export type BadgeSemanticColor =
   | 'default'
   | 'primary'
   | 'success'
   | 'warning'
   | 'danger'
-  | 'info'
-  | 'blue'
-  | 'purple'
-  | 'cyan'
-  | 'green'
-  | 'magenta'
-  | 'pink'
-  | 'red'
-  | 'orange'
-  | 'yellow'
-  | 'volcano'
-  | 'geekblue'
-  | 'lime'
-  | 'gold';
+  | 'info';
+export type BadgeColor = SemanticPresetColor<BadgeSemanticColor>;
 
 export interface BadgeStyles {
   indicator?: StyleProp<ViewStyle>;
