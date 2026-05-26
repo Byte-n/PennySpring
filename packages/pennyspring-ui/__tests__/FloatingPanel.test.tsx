@@ -10,6 +10,7 @@ import { withTiming } from 'react-native-reanimated';
 import renderer, { act } from 'react-test-renderer';
 import { Button } from '../src/Button';
 import { Popup } from '../src/Popup';
+import type { PopupFloatingPanelProps } from '../src/Popup';
 
 type KeyboardHandler = (event: {
   endCoordinates?: {
@@ -27,6 +28,21 @@ function createKeyboardSubscription(): EmitterSubscription {
 describe('Popup.FloatingPanel', () => {
   beforeEach(() => {
     jest.restoreAllMocks();
+  });
+
+  it('keeps text props string-only so null rendering control uses node slots', () => {
+    // @ts-expect-error titleText must use title={null} to suppress rendering.
+    const invalidTitleText: PopupFloatingPanelProps = { titleText: null };
+    // @ts-expect-error cancelText must use cancel={null} to suppress rendering.
+    const invalidCancelText: PopupFloatingPanelProps = { cancelText: null };
+    // @ts-expect-error okText must use ok={null} to suppress rendering.
+    const invalidOkText: PopupFloatingPanelProps = { okText: null };
+
+    expect([
+      invalidTitleText,
+      invalidCancelText,
+      invalidOkText,
+    ]).toHaveLength(3);
   });
 
   it('places the drag handle at top for bottom position', () => {
@@ -97,6 +113,7 @@ describe('Popup.FloatingPanel', () => {
         testRenderer = renderer.create(
           <Popup.FloatingPanel
             defaultOpen
+            footer={null}
             size={size as keyof typeof bodyPaddingBySize}
           >
             <RNText>content</RNText>
@@ -113,6 +130,68 @@ describe('Popup.FloatingPanel', () => {
       expect(flattenedStyle.paddingTop).toBe(bodyPadding);
       expect(flattenedStyle.paddingBottom).toBe(bodyPadding);
     });
+  });
+
+  it('renders footer and default action buttons by default', () => {
+    let testRenderer: renderer.ReactTestRenderer;
+
+    act(() => {
+      testRenderer = renderer.create(
+        <Popup.FloatingPanel defaultOpen>
+          <RNText>content</RNText>
+        </Popup.FloatingPanel>,
+      );
+    });
+
+    expect(testRenderer!.root.findByProps({
+      testID: 'floating-panel-footer',
+    })).toBeTruthy();
+    expect(testRenderer!.root.findByProps({
+      testID: 'floating-panel-cancel-button',
+    })).toBeTruthy();
+    expect(testRenderer!.root.findByProps({
+      testID: 'floating-panel-ok-button',
+    })).toBeTruthy();
+    expect(JSON.stringify(testRenderer!.toJSON())).toContain('取消');
+    expect(JSON.stringify(testRenderer!.toJSON())).toContain('确定');
+  });
+
+  it('does not render footer when footer slot is null', () => {
+    let testRenderer: renderer.ReactTestRenderer;
+
+    act(() => {
+      testRenderer = renderer.create(
+        <Popup.FloatingPanel defaultOpen footer={null}>
+          <RNText>content</RNText>
+        </Popup.FloatingPanel>,
+      );
+    });
+
+    expect(testRenderer!.root.findAllByProps({
+      testID: 'floating-panel-footer',
+    })).toHaveLength(0);
+  });
+
+  it('does not render action button slots when they are null', () => {
+    let testRenderer: renderer.ReactTestRenderer;
+
+    act(() => {
+      testRenderer = renderer.create(
+        <Popup.FloatingPanel defaultOpen cancel={null} ok={null}>
+          <RNText>content</RNText>
+        </Popup.FloatingPanel>,
+      );
+    });
+
+    expect(testRenderer!.root.findAllByProps({
+      testID: 'floating-panel-footer',
+    })).toHaveLength(0);
+    expect(testRenderer!.root.findAllByProps({
+      testID: 'floating-panel-cancel-button',
+    })).toHaveLength(0);
+    expect(testRenderer!.root.findAllByProps({
+      testID: 'floating-panel-ok-button',
+    })).toHaveLength(0);
   });
 
   it('applies size-based spacing to header and footer areas', () => {
@@ -335,6 +414,25 @@ describe('Popup.FloatingPanel', () => {
     expect(testRenderer!.root.findByProps({
       testID: 'floating-panel-header',
     })).toBeTruthy();
+  });
+
+  it('does not render header when title slot is null', () => {
+    let testRenderer: renderer.ReactTestRenderer;
+
+    act(() => {
+      testRenderer = renderer.create(
+        <Popup.FloatingPanel defaultOpen title={null} titleText="Panel title">
+          <RNText>content</RNText>
+        </Popup.FloatingPanel>,
+      );
+    });
+
+    expect(testRenderer!.root.findAllByProps({
+      testID: 'floating-panel-header',
+    })).toHaveLength(0);
+    expect(testRenderer!.root.findAllByProps({
+      testID: 'floating-panel-title-text',
+    })).toHaveLength(0);
   });
 
   it('fires onCancel before onOpenChange when cancel is pressed', () => {

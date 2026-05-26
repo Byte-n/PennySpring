@@ -101,7 +101,7 @@ export interface PopupFloatingPanelProps {
   titleText?: string;
   title?: ReactNode;
   header?: ReactNode;
-  renderHeader?: (params: PopupFloatingPanelRenderHeaderParams) => ReactNode;
+  renderHeader?: ((params: PopupFloatingPanelRenderHeaderParams) => ReactNode) | null;
   cancelText?: string;
   cancel?: ReactNode;
   okText?: string;
@@ -109,7 +109,7 @@ export interface PopupFloatingPanelProps {
   okDisabled?: boolean;
   okLoading?: boolean;
   footer?: ReactNode;
-  renderFooter?: (params: PopupFloatingPanelRenderFooterParams) => ReactNode;
+  renderFooter?: ((params: PopupFloatingPanelRenderFooterParams) => ReactNode) | null;
   children?: ReactNode;
   style?: StyleProp<ViewStyle>;
   styles?: PopupFloatingPanelStyles;

@@ -44,6 +44,8 @@ export function PickerPopup<TItem extends PickerColumnItemData>({
 }: PickerPopupContainerProps<TItem>) {
   return (
     <Popup.FloatingPanel
+      footer={null}
+      header={null}
       open={open}
       position="bottom"
       onCancel={() => onMaskPress?.()}

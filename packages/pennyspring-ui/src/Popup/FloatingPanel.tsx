@@ -66,7 +66,7 @@ const PERCENT_HEIGHT_RATIO = 100;
 const SIZE_MAP: Record<ComponentSize, FloatingPanelSizeConfig> = {
   small: {
     actionGap: token => token.sizeXS,
-    contentPadding: token => token.paddingSM,
+    contentPadding: token => token.paddingXXS,
     handleHeight: token => token.controlHeightXS,
     handleWidth: token => token.controlHeightSM,
     indicatorHeight: token => token.lineWidthBold,
@@ -76,7 +76,7 @@ const SIZE_MAP: Record<ComponentSize, FloatingPanelSizeConfig> = {
   },
   normal: {
     actionGap: token => token.sizeSM,
-    contentPadding: token => token.paddingMD,
+    contentPadding: token => token.paddingXS,
     handleHeight: token => token.controlHeightSM,
     handleWidth: token => token.controlHeight,
     indicatorHeight: token => token.sizeXXS,
@@ -86,7 +86,7 @@ const SIZE_MAP: Record<ComponentSize, FloatingPanelSizeConfig> = {
   },
   large: {
     actionGap: token => token.sizeMD,
-    contentPadding: token => token.paddingLG,
+    contentPadding: token => token.paddingMD,
     handleHeight: token => token.controlHeight,
     handleWidth: token => token.controlHeightLG,
     indicatorHeight: token => token.sizeXS,
@@ -341,7 +341,11 @@ function renderTitle(
   titleTextSize: TextSize,
   titleTextStyle: StyleProp<TextStyle>,
 ): React.ReactNode {
-  if (title !== undefined && title !== null) {
+  if (title === null) {
+    return null;
+  }
+
+  if (title !== undefined) {
     return title;
   }
 
@@ -369,11 +373,15 @@ function renderPanelHeader(
   titleTextSize: TextSize,
   titleTextStyle: StyleProp<TextStyle>,
 ): React.ReactNode {
+  if (props.renderHeader === null || props.header === null) {
+    return null;
+  }
+
   if (props.renderHeader !== undefined) {
     return props.renderHeader(params);
   }
 
-  if (props.header !== undefined && props.header !== null) {
+  if (props.header !== undefined) {
     return props.header;
   }
 
@@ -387,23 +395,12 @@ function renderPanelHeader(
 
 function shouldRenderDefaultFooter({
   cancel,
-  cancelText,
   ok,
-  okText,
-  onCancel,
-  onOk,
 }: Pick<
   PopupFloatingPanelProps,
-  'cancel' | 'cancelText' | 'ok' | 'okText' | 'onCancel' | 'onOk'
+  'cancel' | 'ok'
 >): boolean {
-  return (
-    cancel !== undefined ||
-    cancelText !== undefined ||
-    ok !== undefined ||
-    okText !== undefined ||
-    onCancel !== undefined ||
-    onOk !== undefined
-  );
+  return cancel !== null && ok !== null;
 }
 
 function renderDefaultFooter(
@@ -416,27 +413,42 @@ function renderDefaultFooter(
   footerButtonStyle: StyleProp<ViewStyle>,
   defaultButtonSize: ComponentSize,
 ): React.ReactNode {
+  const cancelNode = props.cancel === undefined
+    ? props.cancelText === undefined
+      ? DEFAULT_CANCEL_TEXT
+      : props.cancelText
+    : props.cancel;
+  const okNode = props.ok === undefined
+    ? props.okText === undefined
+      ? DEFAULT_OK_TEXT
+      : props.okText
+    : props.ok;
+
   return (
     <>
-      <Button
-        onPress={params.cancel}
-        size={defaultButtonSize}
-        style={[footerButtonStyle, styles?.cancelButton]}
-        testID="floating-panel-cancel-button"
-      >
-        {props.cancel ?? props.cancelText ?? DEFAULT_CANCEL_TEXT}
-      </Button>
-      <Button
-        disabled={props.okDisabled}
-        loading={props.okLoading}
-        onPress={params.confirm}
-        size={defaultButtonSize}
-        style={[footerButtonStyle, styles?.okButton]}
-        testID="floating-panel-ok-button"
-        type="primary"
-      >
-        {props.ok ?? props.okText ?? DEFAULT_OK_TEXT}
-      </Button>
+      {cancelNode === null ? null : (
+        <Button
+          onPress={params.cancel}
+          size={defaultButtonSize}
+          style={[footerButtonStyle, styles?.cancelButton]}
+          testID="floating-panel-cancel-button"
+        >
+          {cancelNode}
+        </Button>
+      )}
+      {okNode === null ? null : (
+        <Button
+          disabled={props.okDisabled}
+          loading={props.okLoading}
+          onPress={params.confirm}
+          size={defaultButtonSize}
+          style={[footerButtonStyle, styles?.okButton]}
+          testID="floating-panel-ok-button"
+          type="primary"
+        >
+          {okNode}
+        </Button>
+      )}
     </>
   );
 }
@@ -460,11 +472,15 @@ function renderPanelFooter(
   footerButtonStyle: StyleProp<ViewStyle>,
   defaultButtonSize: ComponentSize,
 ): React.ReactNode {
+  if (props.renderFooter === null || props.footer === null) {
+    return null;
+  }
+
   if (props.renderFooter !== undefined) {
     return props.renderFooter(params);
   }
 
-  if (props.footer !== undefined && props.footer !== null) {
+  if (props.footer !== undefined) {
     return props.footer;
   }
 
@@ -560,21 +576,25 @@ export function FloatingPanel({
     resolvedMaxHeight,
   );
   const willRenderHeader =
-    renderHeader !== undefined ||
-    (header !== undefined && header !== null) ||
-    title !== undefined ||
-    titleText !== undefined;
+    renderHeader !== null &&
+    header !== null &&
+    (
+      renderHeader !== undefined ||
+      header !== undefined ||
+      (title !== undefined && title !== null) ||
+      (title === undefined && titleText !== undefined)
+    );
   const willRenderFooter =
-    renderFooter !== undefined ||
-    (footer !== undefined && footer !== null) ||
-    shouldRenderDefaultFooter({
-      cancel,
-      cancelText,
-      ok,
-      okText,
-      onCancel,
-      onOk,
-    });
+    renderFooter !== null &&
+    footer !== null &&
+    (
+      renderFooter !== undefined ||
+      footer !== undefined ||
+      shouldRenderDefaultFooter({
+        cancel,
+        ok,
+      })
+    );
   const tokenStyles = useStyles({
     hasFooter: willRenderFooter,
     hasHeader: willRenderHeader,

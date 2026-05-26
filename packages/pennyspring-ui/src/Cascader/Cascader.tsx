@@ -216,6 +216,8 @@ function CascaderRoot<TData = unknown>({
           ],
         }}
         value={panelValue}
+        footer={null}
+        header={null}
       >
         <CascaderView
           {...viewProps}
