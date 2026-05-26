@@ -1,8 +1,13 @@
 import type { ReactNode } from 'react';
-import type { StyleProp, ViewStyle } from 'react-native';
+import type {
+  ImageStyle,
+  StyleProp,
+  TextStyle,
+  ViewStyle,
+} from 'react-native';
 import type { DisplayInputProps } from '../DisplayInput';
 
-export type ImagePickerSource = 'photo' | 'fileSystem';
+export type ImagePickerSource = 'camera' | 'photo' | 'fileSystem';
 
 export interface ImagePickerValue {
   uri: string;
@@ -28,7 +33,20 @@ export interface ImagePickerStyles {
   trigger?: StyleProp<ViewStyle>;
   triggerContent?: StyleProp<ViewStyle>;
   iconContainer?: StyleProp<ViewStyle>;
-  status?: StyleProp<ViewStyle>;
+  status?: StyleProp<TextStyle>;
+  popup?: StyleProp<ViewStyle>;
+  popupHeader?: StyleProp<ViewStyle>;
+  popupTitleArea?: StyleProp<ViewStyle>;
+  popupTitle?: StyleProp<TextStyle>;
+  popupSubtitle?: StyleProp<TextStyle>;
+  popupActions?: StyleProp<ViewStyle>;
+  popupBody?: StyleProp<ViewStyle>;
+  imageGrid?: StyleProp<ViewStyle>;
+  imageItem?: StyleProp<ViewStyle>;
+  image?: StyleProp<ImageStyle>;
+  removeButton?: StyleProp<ViewStyle>;
+  empty?: StyleProp<ViewStyle>;
+  emptyText?: StyleProp<TextStyle>;
 }
 
 export type ImagePickerSelectedValue = ImagePickerValue | ImagePickerValue[];
@@ -51,9 +69,14 @@ interface ImagePickerBaseProps {
   label?: DisplayInputProps['label'];
   placeholder?: string;
   displayInputProps?: ImagePickerDisplayInputProps;
+  cameraText?: string;
   photoText?: string;
   fileSystemText?: string;
   cancelText?: string;
+  doneText?: string;
+  titleText?: string;
+  multipleHintText?: string;
+  emptyText?: string;
   sources?: ImagePickerSource[];
   selectedText?: string;
   unselectedText?: string;

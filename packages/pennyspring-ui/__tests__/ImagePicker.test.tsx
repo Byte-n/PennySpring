@@ -1,13 +1,14 @@
 import React from 'react';
 import renderer, { act } from 'react-test-renderer';
-import { ActionSheet } from '../src/ActionSheet';
 import { DisplayInput } from '../src/DisplayInput';
 import { Icon } from '../src/Icon';
 import { ImagePicker } from '../src/ImagePicker';
-import { pickImageFromFiles, pickImageFromLibrary } from '../src/ImagePicker/nativePickers';
+import { pickImageFromCamera, pickImageFromFiles, pickImageFromLibrary } from '../src/ImagePicker/nativePickers';
+import { Popup } from '../src/Popup';
 import type { ImagePickerProps, ImagePickerValue } from '../src/ImagePicker';
 
 jest.mock('../src/ImagePicker/nativePickers', () => ({
+  pickImageFromCamera: jest.fn(),
   pickImageFromFiles: jest.fn(),
   pickImageFromLibrary: jest.fn(),
 }));
@@ -21,6 +22,7 @@ jest.mock('@react-navigation/material-top-tabs', () => ({
 
 const mockPickImageFromFiles = jest.mocked(pickImageFromFiles);
 const mockPickImageFromLibrary = jest.mocked(pickImageFromLibrary);
+const mockPickImageFromCamera = jest.mocked(pickImageFromCamera);
 
 function renderImagePicker(
   props: Partial<ImagePickerProps> = {},
@@ -86,18 +88,41 @@ describe('ImagePicker', () => {
     expect(getStatusText(testRenderer)).toBe('已选择 2 张');
   });
 
-  it('opens source actions from trigger', () => {
-    const testRenderer = renderImagePicker();
+  it('opens image actions in a floating panel from trigger', () => {
+    const testRenderer = renderImagePicker({ multiple: true });
 
     pressTrigger(testRenderer);
 
-    const actionSheet = testRenderer.root.findByType(ActionSheet);
+    const floatingPanel = testRenderer.root.findByType(Popup.FloatingPanel);
 
-    expect(actionSheet.props.open).toBe(true);
-    expect(actionSheet.props.actions).toEqual([
-      { text: '相册' },
-      { text: '文件' },
-    ]);
+    expect(floatingPanel.props.open).toBe(true);
+    expect(testRenderer.root.findByProps({ testID: 'image-picker-panel-title' }).props.children).toBe('请选择图片');
+    expect(testRenderer.root.findByProps({ testID: 'image-picker-panel-subtitle' }).props.children).toBe('允许多选，最多9张');
+    expect(testRenderer.root.findByProps({ testID: 'image-picker-action-camera' })).toBeTruthy();
+    expect(testRenderer.root.findByProps({ testID: 'image-picker-action-photo' })).toBeTruthy();
+    expect(testRenderer.root.findByProps({ testID: 'image-picker-action-done' })).toBeTruthy();
+  });
+
+  it('picks image from camera and keeps the floating panel open', async () => {
+    const nextValue: ImagePickerValue = {
+      uri: 'file:///camera-image.jpg',
+      fileName: 'camera-image.jpg',
+      mimeType: 'image/jpeg',
+    };
+    const onChange = jest.fn();
+    mockPickImageFromCamera.mockResolvedValue(nextValue);
+    const testRenderer = renderImagePicker({ onChange });
+
+    pressTrigger(testRenderer);
+    await act(async () => {
+      testRenderer.root.findByProps({ testID: 'image-picker-action-camera' }).props.onPress();
+    });
+
+    expect(mockPickImageFromCamera).toHaveBeenCalledTimes(1);
+    expect(onChange).toHaveBeenCalledWith(nextValue);
+    expect(getStatusText(testRenderer)).toBe('已选择');
+    expect(testRenderer.root.findByType(Popup.FloatingPanel).props.open).toBe(true);
+    expect(JSON.stringify(testRenderer.toJSON())).toContain('camera-image.jpg');
   });
 
   it('picks image from photo library and updates uncontrolled value', async () => {
@@ -112,10 +137,7 @@ describe('ImagePicker', () => {
 
     pressTrigger(testRenderer);
     await act(async () => {
-      testRenderer.root.findByType(ActionSheet).props.onAction(
-        { text: 'Photo Library' },
-        0,
-      );
+      testRenderer.root.findByProps({ testID: 'image-picker-action-photo' }).props.onPress();
     });
 
     expect(mockPickImageFromLibrary).toHaveBeenCalledTimes(1);
@@ -124,6 +146,11 @@ describe('ImagePicker', () => {
   });
 
   it('picks multiple images from photo library and updates selected count', async () => {
+    const presetValue: ImagePickerValue = {
+      uri: 'file:///preset-image.jpg',
+      fileName: 'preset-image.jpg',
+      mimeType: 'image/jpeg',
+    };
     const nextValues: ImagePickerValue[] = [
       {
         uri: 'file:///library-image.jpg',
@@ -138,22 +165,23 @@ describe('ImagePicker', () => {
     ];
     const onChange = jest.fn();
     mockPickImageFromLibrary.mockResolvedValue(nextValues);
-    const testRenderer = renderImagePicker({ multiple: true, onChange });
+    const testRenderer = renderImagePicker({
+      defaultValue: [presetValue],
+      multiple: true,
+      onChange,
+    });
 
     pressTrigger(testRenderer);
     await act(async () => {
-      testRenderer.root.findByType(ActionSheet).props.onAction(
-        { text: 'Photo Library' },
-        0,
-      );
+      testRenderer.root.findByProps({ testID: 'image-picker-action-photo' }).props.onPress();
     });
 
     expect(mockPickImageFromLibrary).toHaveBeenCalledWith({
-      maxCount: 9,
+      maxCount: 8,
       multiple: true,
     });
-    expect(onChange).toHaveBeenCalledWith(nextValues);
-    expect(getStatusText(testRenderer)).toBe('已选择 2 张');
+    expect(onChange).toHaveBeenCalledWith([presetValue, ...nextValues]);
+    expect(getStatusText(testRenderer)).toBe('已选择 3 张');
   });
 
   it('picks image from file system and forwards result', async () => {
@@ -164,14 +192,14 @@ describe('ImagePicker', () => {
     };
     const onChange = jest.fn();
     mockPickImageFromFiles.mockResolvedValue(nextValue);
-    const testRenderer = renderImagePicker({ onChange });
+    const testRenderer = renderImagePicker({
+      onChange,
+      sources: ['photo', 'fileSystem'],
+    });
 
     pressTrigger(testRenderer);
     await act(async () => {
-      testRenderer.root.findByType(ActionSheet).props.onAction(
-        { text: 'Files' },
-        1,
-      );
+      testRenderer.root.findByProps({ testID: 'image-picker-action-fileSystem' }).props.onPress();
     });
 
     expect(mockPickImageFromFiles).toHaveBeenCalledTimes(1);
@@ -185,10 +213,7 @@ describe('ImagePicker', () => {
 
     pressTrigger(testRenderer);
     await act(async () => {
-      testRenderer.root.findByType(ActionSheet).props.onAction(
-        { text: 'Photo Library' },
-        0,
-      );
+      testRenderer.root.findByProps({ testID: 'image-picker-action-photo' }).props.onPress();
     });
 
     expect(onChange).not.toHaveBeenCalled();
@@ -199,18 +224,51 @@ describe('ImagePicker', () => {
     const onChange = jest.fn();
     const onError = jest.fn();
     mockPickImageFromFiles.mockRejectedValue(error);
-    const testRenderer = renderImagePicker({ onChange, onError });
+    const testRenderer = renderImagePicker({
+      onChange,
+      onError,
+      sources: ['photo', 'fileSystem'],
+    });
 
     pressTrigger(testRenderer);
     await act(async () => {
-      testRenderer.root.findByType(ActionSheet).props.onAction(
-        { text: 'Files' },
-        1,
-      );
+      testRenderer.root.findByProps({ testID: 'image-picker-action-fileSystem' }).props.onPress();
     });
 
     expect(onError).toHaveBeenCalledWith(error);
     expect(onChange).not.toHaveBeenCalled();
+  });
+
+  it('removes selected image from the floating panel', async () => {
+    const selectedValues: ImagePickerValue[] = [
+      { uri: 'file:///first.jpg', fileName: 'first.jpg' },
+      { uri: 'file:///second.jpg', fileName: 'second.jpg' },
+    ];
+    const onChange = jest.fn();
+    const testRenderer = renderImagePicker({
+      defaultValue: selectedValues,
+      multiple: true,
+      onChange,
+    });
+
+    pressTrigger(testRenderer);
+    await act(async () => {
+      testRenderer.root.findAllByProps({ testID: 'image-picker-remove-image' })[0].props.onPress();
+    });
+
+    expect(onChange).toHaveBeenCalledWith([selectedValues[1]]);
+    expect(getStatusText(testRenderer)).toBe('已选择 1 张');
+  });
+
+  it('closes floating panel when done is pressed', async () => {
+    const testRenderer = renderImagePicker();
+
+    pressTrigger(testRenderer);
+    await act(async () => {
+      testRenderer.root.findByProps({ testID: 'image-picker-action-done' }).props.onPress();
+    });
+
+    expect(testRenderer.root.findByType(Popup.FloatingPanel).props.open).toBe(false);
   });
 
   it('does not open when disabled', () => {
@@ -220,6 +278,6 @@ describe('ImagePicker', () => {
       testRenderer.root.findByProps({ testID: 'image-picker-trigger' }).props.onPress();
     });
 
-    expect(testRenderer.root.findByType(ActionSheet).props.open).toBe(false);
+    expect(testRenderer.root.findByType(Popup.FloatingPanel).props.open).toBe(false);
   });
 });

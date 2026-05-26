@@ -29,6 +29,12 @@ function getPressableRoot(testRenderer: renderer.ReactTestRenderer) {
   // The Button renders a single Pressable as its root element
   return testRenderer.root.children[0] as renderer.ReactTestInstance;
 }
+
+function getRootStyle(testRenderer: renderer.ReactTestRenderer) {
+  const root = getPressableRoot(testRenderer);
+  const style = root.props.style({ pressed: false });
+  return flattenStyle(style) as Record<string, unknown>;
+}
 function getContentTextStyle(testRenderer: renderer.ReactTestRenderer) {
   const textNode = testRenderer.root.findByType(Text);
   return flattenStyle(textNode.props.style) as Record<string, unknown>;
@@ -137,6 +143,16 @@ describe('Button', () => {
 
     expect(getContentTextStyle(enabledRenderer).color).toBe('red');
     expect(getContentTextStyle(disabledRenderer).color).not.toBe('red');
+  });
+  it('uses vertical padding instead of min height constraints', () => {
+    const testRenderer = renderButton({
+      size: 'normal',
+      children: 'Save',
+    });
+    const rootStyle = getRootStyle(testRenderer);
+
+    expect(rootStyle.paddingVertical).toBeDefined();
+    expect(rootStyle.minHeight).toBeUndefined();
   });
   it('uses loading delay before entering busy state', () => {
     jest.useFakeTimers();

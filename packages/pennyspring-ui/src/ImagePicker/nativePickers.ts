@@ -4,7 +4,7 @@ import {
   pick,
   types,
 } from '@react-native-documents/picker';
-import { launchImageLibrary } from 'react-native-image-picker';
+import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import type { ImagePickerPickOptions, ImagePickerValue } from './types';
 
 function normalizeFileName(value: ImagePickerValue): string | undefined {
@@ -63,6 +63,30 @@ export async function pickImageFromLibrary(
   }
 
   return options.multiple ? values : values[0];
+}
+
+export async function pickImageFromCamera(
+  _options: ImagePickerPickOptions,
+): Promise<ImagePickerValue | undefined> {
+  const response = await launchCamera({
+    mediaType: 'photo',
+  });
+  const asset = response.assets?.find(
+    (item): item is typeof item & { uri: string } => item.uri !== undefined,
+  );
+
+  if (response.didCancel === true || asset === undefined) {
+    return undefined;
+  }
+
+  return normalizeImageValue({
+    uri: asset.uri,
+    fileName: asset.fileName,
+    fileSize: asset.fileSize,
+    height: asset.height,
+    mimeType: asset.type,
+    width: asset.width,
+  });
 }
 
 export async function pickImageFromFiles(

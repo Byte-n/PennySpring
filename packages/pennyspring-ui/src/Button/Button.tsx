@@ -33,7 +33,8 @@ interface ButtonStyleOptions {
 }
 
 interface SizeStyleConfig {
-  height: (token: AliasToken) => number;
+  controlSize: (token: AliasToken) => number;
+  paddingVertical: (token: AliasToken) => number;
   paddingHorizontal: (token: AliasToken) => number;
   gap: (token: AliasToken) => number;
   fontSize: (token: AliasToken) => number;
@@ -64,21 +65,24 @@ type TypeDefaults = {
 
 const SIZE_STYLE_MAP: Record<ComponentSize, SizeStyleConfig> = {
   small: {
-    height: token => token.controlHeightSM,
-    paddingHorizontal: token => token.controlPaddingHorizontalSM,
+    controlSize: token => token.controlHeightSM,
+    paddingVertical: token => token.paddingXS / 2,
+    paddingHorizontal: token => token.paddingXS,
     gap: token => token.sizeXXS,
     fontSize: token => token.fontSizeSM,
     lineHeight: token => token.lineHeightSM,
   },
   normal: {
-    height: token => token.controlHeight,
-    paddingHorizontal: token => token.controlPaddingHorizontal,
+    controlSize: token => token.controlHeight,
+    paddingVertical: token => token.paddingSM / 2,
+    paddingHorizontal: token => token.paddingSM,
     gap: token => token.sizeXS,
     fontSize: token => token.fontSize,
     lineHeight: token => token.lineHeight,
   },
   large: {
-    height: token => token.controlHeightLG,
+    controlSize: token => token.controlHeightLG,
+    paddingVertical: token => token.paddingMD / 2,
     paddingHorizontal: token => token.paddingMD,
     gap: token => token.sizeXS,
     fontSize: token => token.fontSizeLG,
@@ -169,7 +173,7 @@ function resolveLoadingConfig(
 }
 
 function resolveIconSize(size: ComponentSize, token: AliasToken): number {
-  return SIZE_STYLE_MAP[size].height(token) / 2;
+  return SIZE_STYLE_MAP[size].controlSize(token) / 2;
 }
 
 function resolveColorConfig(token: AliasToken, color: ButtonColor): ColorStyleConfig {
@@ -279,20 +283,21 @@ const useStyles = createUseSheetStyle(
     }: ButtonStyleOptions,
   ) => {
     const sizeConfig = SIZE_STYLE_MAP[size];
-    const height = sizeConfig.height(token);
+    const controlSize = sizeConfig.controlSize(token);
     const isTextButton = variant === 'text' || variant === 'link';
     const isCircle = shape === 'circle';
     const variantStyle = resolveVariantStyle(token, color, variant, ghost);
-    const borderRadius = shape === 'default' ? token.borderRadius : height / 2;
+    const borderRadius = shape === 'default' ? token.borderRadius : controlSize / 2;
     const horizontalPadding = isCircle && !hasContent
       ? 0
       : sizeConfig.paddingHorizontal(token);
 
     return {
       root: {
-        minHeight: height,
-        minWidth: height,
-        width: block ? '100%' : isCircle && !hasContent ? height : undefined,
+        minWidth: isCircle && !hasContent ? controlSize : undefined,
+        width: block ? '100%' : isCircle && !hasContent ? controlSize : undefined,
+        height: isCircle && !hasContent ? controlSize : undefined,
+        paddingVertical: sizeConfig.paddingVertical(token),
         paddingHorizontal: horizontalPadding,
         borderRadius,
         borderWidth: isTextButton ? 0 : token.lineWidth,

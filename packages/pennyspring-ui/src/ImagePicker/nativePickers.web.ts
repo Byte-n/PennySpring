@@ -45,6 +45,12 @@ export function pickImageFromLibrary(
   return pickImageViaInput(options);
 }
 
+export function pickImageFromCamera(
+  options: ImagePickerPickOptions,
+): Promise<ImagePickerValue | ImagePickerValue[] | undefined> {
+  return pickImageViaInput(options);
+}
+
 export function pickImageFromFiles(
   options: ImagePickerPickOptions,
 ): Promise<ImagePickerValue | ImagePickerValue[] | undefined> {

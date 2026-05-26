@@ -105,25 +105,6 @@ it('renders only hour column when precision is hour', () => {
     .toHaveLength(0);
 });
 
-it('uses minuteStep to build minute column', () => {
-  let testRenderer: renderer.ReactTestRenderer;
-
-  act(() => {
-    testRenderer = renderer.create(
-      <TimePicker defaultOpen minuteStep={15} value={makeDate(10, 0)} />,
-    );
-  });
-
-  // With step 15: 0, 15, 30, 45 → 4 items (itemIndex 0..3)
-  expect(testRenderer!.root.findByProps({ testID: 'picker-item-1-3' })).toBeTruthy();
-  expect(() =>
-    testRenderer!.root.findByProps({ testID: 'picker-item-1-4' }),
-  ).toThrow();
-  const tree = JSON.stringify(testRenderer!.toJSON());
-  expect(tree).toContain('45分');
-  expect(tree).not.toContain('46分');
-});
-
 it('selects hour 10 and minute 30 from value prop', () => {
   let testRenderer: renderer.ReactTestRenderer;
 

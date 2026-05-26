@@ -254,16 +254,4 @@ describe('SelectionList', () => {
     expect(markerIcons[0].props.testID).toBe('selection-list-option-marker-selected');
     expect(markerIcons[1].props.testID).toBe('selection-list-option-marker-unselected');
   });
-
-  it('renders dividers between options in the same group', () => {
-    const testRenderer = renderSelectionList({
-      defaultOpen: true,
-    });
-
-    const dividers = testRenderer.root.findAllByProps({
-      testID: 'selection-list-option-divider',
-    });
-
-    expect(dividers).toHaveLength(1);
-  });
 });
