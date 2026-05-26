@@ -30,16 +30,16 @@ const useStyles = createUseSheetStyle<TOptions>((token, opts) => ({ /* styles */
 命令：
 
 ```bash
-node scripts/get-tokens.js <tokenPath> [tokenPath ...]
-node scripts/get-tokens.js --json <tokenPath> [tokenPath ...]
+node .claude/skills/theme-tokens/scripts/get-tokens.js <tokenPath> [tokenPath ...]
+node .claude/skills/theme-tokens/scripts/get-tokens.js --json <tokenPath> [tokenPath ...]
 ```
 
 示例：
 
 ```bash
-node scripts/get-tokens.js colorPrimary paddingSM
-node scripts/get-tokens.js boxShadow.shadowOpacity
-node scripts/get-tokens.js --json colorPrimary motionDurationMid
+node .claude/skills/theme-tokens/scripts/get-tokens.js colorPrimary paddingSM
+node .claude/skills/theme-tokens/scripts/get-tokens.js boxShadow.shadowOpacity
+node .claude/skills/theme-tokens/scripts/get-tokens.js --json colorPrimary motionDurationMid
 ```
 
 ## RN 踩坑（必记）

@@ -10,15 +10,15 @@ const THEME_SRC_ROOT = path.join(PROJECT_ROOT, 'packages/pennyspring-theme/src')
 
 function getUsageText() {
   return (
-    'Usage: node scripts/get-tokens.js [--json] <tokenPath> [tokenPath ...]\n' +
+    'Usage: node .claude/skills/theme-tokens/scripts/get-tokens.js [--json] <tokenPath> [tokenPath ...]\n' +
     '\n' +
     'Options:\n' +
     '  -h, --help   Show help\n' +
     '  --json       Output result as JSON\n' +
     '\n' +
     'Examples:\n' +
-    '  node scripts/get-tokens.js colorPrimary paddingSM\n' +
-    '  node scripts/get-tokens.js boxShadow.shadowOpacity\n'
+    '  node .claude/skills/theme-tokens/scripts/get-tokens.js colorPrimary paddingSM\n' +
+    '  node .claude/skills/theme-tokens/scripts/get-tokens.js boxShadow.shadowOpacity\n'
   );
 }
 
