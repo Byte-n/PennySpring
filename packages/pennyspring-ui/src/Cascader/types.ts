@@ -3,10 +3,8 @@ import type { StyleProp, TextStyle, ViewStyle } from 'react-native';
 import type { PortalMountPoint } from '../Portal';
 import type {
   PopupAnimation,
-  PopupCancelParams,
   PopupFloatingPanelPosition,
   PopupFloatingPanelStyles,
-  PopupOpenChangeParams,
 } from '../Popup';
 import type { ComponentSize } from '../shares/types';
 import type { TabsStyles } from '../Tabs';
@@ -73,14 +71,12 @@ export interface CascaderViewProps<TData = unknown> {
 
 export type CascaderOpenChangeReason =
   | 'trigger'
-  | PopupOpenChangeParams['reason']
+  | 'cancel'
   | 'select';
 
 export interface CascaderOpenChangeParams {
   reason: CascaderOpenChangeReason;
 }
-
-export interface CascaderCancelParams extends PopupCancelParams {}
 
 export interface CascaderStyles extends CascaderViewStyles {
   trigger?: StyleProp<ViewStyle>;
@@ -98,7 +94,7 @@ export interface CascaderProps<TData = unknown>
     params: CascaderOpenChangeParams,
   ) => void;
   afterOpenChange?: (open: boolean) => void;
-  onCancel?: (params: CascaderCancelParams) => void;
+  onCancel?: () => void;
   closeOnSelectLeaf?: boolean;
   placeholder?: string;
   mountPoint?: PortalMountPoint;

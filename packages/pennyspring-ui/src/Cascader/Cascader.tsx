@@ -121,16 +121,13 @@ function CascaderRoot<TData = unknown>({
     }
   }
 
-  function handleCancel(params: { reason: 'mask' | 'back' }): void {
-    onCancel?.(params);
+  function handleCancel(): void {
+    onCancel?.();
   }
 
-  function handleOpenChange(
-    nextOpen: boolean,
-    params: { reason: 'mask' | 'back' },
-  ): void {
+  function handleOpenChange(nextOpen: boolean): void {
     setResolvedOpen(nextOpen);
-    onOpenChange?.(nextOpen, params);
+    onOpenChange?.(nextOpen, { reason: 'cancel' });
   }
 
   function handleChange(

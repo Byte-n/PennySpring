@@ -235,7 +235,6 @@ export type {
 } from './CascadePicker';
 export { Cascader } from './Cascader';
 export type {
-  CascaderCancelParams,
   CascaderChangeParams,
   CascaderDisplayMode,
   CascaderOpenChangeParams,
