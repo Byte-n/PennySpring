@@ -170,7 +170,7 @@ scripts/                → 本地工具脚本
 
 ## Git / workspace
 
-**执行代码提交的时候，必须选择低成本的模型 + subagent 进行操作，并且按内容分类，分批次提交**
+**执行代码提交的时候，必须选择低成本的模型 + subagent 进行操作，并且按内容分类，分批次提交。不允许执行额外操作，直到 subagent 完成。**
 
 - 近期提交使用 conventional commit 风格，常见 scope 如 `data`、`theme`、`components`。
 - commit message 使用中文，但保持 `feat:`、`fix:`、`docs:`、`chore:` 等前缀。
