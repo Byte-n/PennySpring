@@ -246,7 +246,7 @@ export function SelectionListPopup({
     onSearchChange?.(nextValue);
   }
 
-function renderOption(option: SelectionListOption) {
+  function renderOption(option: SelectionListOption) {
     const isSelected = isValueSelected(selectedValues, option.value);
     const isDisabled = option.disabled === true || !isInteractive;
 
@@ -282,9 +282,9 @@ function renderOption(option: SelectionListOption) {
               style={[
                 tokenStyles.optionLabel,
                 styles?.optionLabel,
-              isDisabled ? tokenStyles.optionLabelDisabled : null,
-            ]}
-          >
+                isDisabled ? tokenStyles.optionLabelDisabled : null,
+              ]}
+            >
               {option.labelText ?? option.label}
             </Text>
           )}
@@ -308,11 +308,13 @@ function renderOption(option: SelectionListOption) {
   }
 
   return (
-    <Popup
+    <Popup.FloatingPanel
+      footer={null}
+      header={null}
       open={mergedOpen}
       position="bottom"
       onCancel={closeSelectionList}
-      styles={{ body: [tokenStyles.popup, style, styles?.popup] }}
+      style={[tokenStyles.popup, style, styles?.popup]}
     >
       <View testID="selection-list-popup" style={tokenStyles.popupContent}>
         {texts?.headerText !== undefined || texts?.closeText !== undefined ? (
@@ -398,7 +400,7 @@ function renderOption(option: SelectionListOption) {
           </View>
         ) : null}
       </View>
-    </Popup>
+    </Popup.FloatingPanel>
   );
 }
 

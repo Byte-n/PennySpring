@@ -2,6 +2,7 @@ import React from 'react';
 import { Text as RNText, TextInput } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
 import { DisplayInput } from '../src/DisplayInput';
+import { Popup } from '../src/Popup';
 import { SelectionList } from '../src/SelectionList';
 
 const options = [
@@ -77,6 +78,17 @@ describe('SelectionList', () => {
 
     expect(onChange).toHaveBeenCalledWith('card');
     expect(treeText(testRenderer)).toContain('Cash');
+  });
+
+  it('renders the popup through Popup.FloatingPanel', () => {
+    const testRenderer = renderSelectionList({
+      defaultOpen: true,
+    });
+
+    const floatingPanel = testRenderer.root.findByType(Popup.FloatingPanel);
+
+    expect(floatingPanel.props.open).toBe(true);
+    expect(testRenderer.root.findByProps({ testID: 'floating-panel-root' })).toBeDefined();
   });
 
   it('filters searchable options by text props and custom node text', () => {
@@ -156,10 +168,10 @@ describe('SelectionList', () => {
     });
 
     const root = testRenderer.root.findByProps({ testID: 'selection-list-root' });
-    const popupBody = testRenderer.root.findByProps({ testID: 'popup-body' });
+    const floatingPanel = testRenderer.root.findByType(Popup.FloatingPanel);
 
     expect(root.props.style).toBe(rootStyle);
-    expect(JSON.stringify(popupBody.props.style)).toContain('50%');
+    expect(JSON.stringify(floatingPanel.props.style)).toContain('50%');
     expect(JSON.stringify(root.props.style)).not.toContain('50%');
   });
 });
