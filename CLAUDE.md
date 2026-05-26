@@ -170,6 +170,8 @@ scripts/                → 本地工具脚本
 
 ## Git / workspace
 
+**执行代码提交的时候，必须选择低成本的模型 + subagent 进行操作，并且按内容分类，分批次提交**
+
 - 近期提交使用 conventional commit 风格，常见 scope 如 `data`、`theme`、`components`。
 - commit message 使用中文，但保持 `feat:`、`fix:`、`docs:`、`chore:` 等前缀。
 - 工作空间：`.worktrees/*`
@@ -177,3 +179,4 @@ scripts/                → 本地工具脚本
 - 合并时需要压缩 commit 为一条记录。
 - 分支的命令不允许使用 `-f` / `-force` 参数强行执行操作
 - workspace 分支的任务完成后立即 commit, 并通过 Ask User 工具询问是否合并到主分支
+- **代码提交**：必须立即将任务转给**低成本的模型** + subagent 进行操作，规定必须“分类，分批提交”

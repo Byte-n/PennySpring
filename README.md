@@ -95,3 +95,9 @@ To learn more about React Native, take a look at the following resources:
 - [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
 - [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
 - [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+
+## todo
+
+- [ ] 有 `size` 的组件是否有随着 `size` 切换
+  - [ ] 容器、布局、录入、展示：完整响应所有的边距、阴影、字号等变化？内部使用的其他组件有 `size` 的也需要响应。
+- [ ] `Text` 组件的 `color` 需要与 `Icon` 中的 `color` 一致
