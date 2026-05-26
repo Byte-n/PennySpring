@@ -39,6 +39,7 @@ export type IconName =
   | 'heart'
   | 'home'
   | 'info'
+  | 'image'
   | 'list'
   | 'minus'
   | 'more'

@@ -1,23 +1,47 @@
 import React from 'react';
-import { Pressable } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { ActionSheet } from '../ActionSheet';
-import { DisplayInput } from '../DisplayInput';
+import { Icon } from '../Icon';
+import { Text } from '../Text';
 import { useControllableValue } from '../_hooks';
 import { pickImageFromFiles, pickImageFromLibrary } from './nativePickers';
+import { useStyles } from './style';
 import type {
   ImagePickerOpenChangeParams,
   ImagePickerProps,
   ImagePickerSource,
-  ImagePickerValue,
+  ImagePickerSelectedValue,
 } from './types';
 
 const DEFAULT_PHOTO_TEXT = '相册';
 const DEFAULT_FILE_SYSTEM_TEXT = '文件';
 const DEFAULT_CANCEL_TEXT = '取消';
+const DEFAULT_SELECTED_TEXT = '已选择';
+const DEFAULT_UNSELECTED_TEXT = '未选择';
+const DEFAULT_MAX_COUNT = 9;
 const DEFAULT_SOURCES: ImagePickerSource[] = ['photo', 'fileSystem'];
 
-function getValueText(value: ImagePickerValue | undefined): string | undefined {
-  return value?.fileName ?? value?.name ?? value?.uri;
+function getSelectedCount(value: ImagePickerSelectedValue | undefined): number {
+  if (Array.isArray(value)) {
+    return value.length;
+  }
+
+  return value === undefined ? 0 : 1;
+}
+
+function getStatusText(
+  value: ImagePickerSelectedValue | undefined,
+  multiple: boolean,
+  selectedText: string,
+  unselectedText: string,
+): string {
+  const count = getSelectedCount(value);
+
+  if (count === 0) {
+    return unselectedText;
+  }
+
+  return multiple ? `${selectedText} ${count} 张` : selectedText;
 }
 
 function createOpenChangeParams(
@@ -36,29 +60,29 @@ function getActionText(
 
 export function ImagePicker({
   cancelText = DEFAULT_CANCEL_TEXT,
-  children,
   defaultOpen,
   defaultValue,
   disabled,
-  displayInputProps,
   fileSystemText = DEFAULT_FILE_SYSTEM_TEXT,
-  label,
+  maxCount = DEFAULT_MAX_COUNT,
+  multiple = false,
   photoText = DEFAULT_PHOTO_TEXT,
+  selectedText = DEFAULT_SELECTED_TEXT,
   onChange,
   onError,
   onOpenChange,
   open,
-  placeholder,
   readonly,
   sources = DEFAULT_SOURCES,
   style,
   styles,
+  unselectedText = DEFAULT_UNSELECTED_TEXT,
   value,
 }: ImagePickerProps) {
   const [resolvedValue, setResolvedValue] = useControllableValue(
-    defaultValue,
-    value,
-    onChange,
+    defaultValue as ImagePickerSelectedValue | undefined,
+    value as ImagePickerSelectedValue | undefined,
+    onChange as ((nextValue: ImagePickerSelectedValue) => void) | undefined,
   );
   const [resolvedOpen, setResolvedOpen] = useControllableValue(
     defaultOpen === true,
@@ -68,10 +92,18 @@ export function ImagePicker({
   const isOpen = resolvedOpen === true;
   const isDisabled = disabled === true;
   const isReadonly = readonly === true;
-  const {
-    root: inputRootStyle,
-    ...inputSlotStyles
-  } = styles?.input ?? {};
+  const selectedCount = getSelectedCount(resolvedValue);
+  const hasSelectedValue = selectedCount > 0;
+  const statusText = getStatusText(
+    resolvedValue,
+    multiple,
+    selectedText,
+    unselectedText,
+  );
+  const tokenStyles = useStyles({
+    disabled: isDisabled,
+    selected: hasSelectedValue,
+  });
 
   function updateOpen(
     nextOpen: boolean,
@@ -94,11 +126,13 @@ export function ImagePicker({
 
     try {
       const nextValue = source === 'photo'
-        ? await pickImageFromLibrary()
-        : await pickImageFromFiles();
+        ? await pickImageFromLibrary({ maxCount, multiple })
+        : await pickImageFromFiles({ maxCount, multiple });
 
       if (nextValue !== undefined) {
-        setResolvedValue(nextValue);
+        setResolvedValue(
+          nextValue as ImagePickerSelectedValue,
+        );
       }
     } catch (error: unknown) {
       onError?.(error);
@@ -114,22 +148,30 @@ export function ImagePicker({
       <Pressable
         disabled={isDisabled}
         onPress={handleTriggerPress}
-        style={[styles?.trigger, style]}
+        style={({ pressed }) => [
+          tokenStyles.trigger,
+          pressed && !isReadonly ? tokenStyles.triggerPressed : null,
+          styles?.trigger,
+          style,
+        ]}
         testID="image-picker-trigger"
       >
-        <DisplayInput
-          disabled={disabled}
-          display="inline"
-          label={label}
-          placeholder={placeholder}
-          readonly
-          style={inputRootStyle}
-          styles={inputSlotStyles}
-          valueText={getValueText(resolvedValue)}
-          {...displayInputProps}
-        >
-          {children}
-        </DisplayInput>
+        <View style={[tokenStyles.triggerContent, styles?.triggerContent]}>
+          <View style={[tokenStyles.iconContainer, styles?.iconContainer]}>
+            <Icon
+              color={hasSelectedValue ? 'textLightSolid' : 'default'}
+              icon="image"
+              size="large"
+              weight={hasSelectedValue ? 'fill' : undefined}
+            />
+          </View>
+          <Text
+            style={[tokenStyles.status, styles?.status]}
+            testID="image-picker-status"
+          >
+            {statusText}
+          </Text>
+        </View>
       </Pressable>
       <ActionSheet
         actions={sources.map(source => ({

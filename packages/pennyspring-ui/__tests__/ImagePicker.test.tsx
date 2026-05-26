@@ -2,9 +2,10 @@ import React from 'react';
 import renderer, { act } from 'react-test-renderer';
 import { ActionSheet } from '../src/ActionSheet';
 import { DisplayInput } from '../src/DisplayInput';
+import { Icon } from '../src/Icon';
 import { ImagePicker } from '../src/ImagePicker';
 import { pickImageFromFiles, pickImageFromLibrary } from '../src/ImagePicker/nativePickers';
-import type { ImagePickerValue } from '../src/ImagePicker';
+import type { ImagePickerProps, ImagePickerValue } from '../src/ImagePicker';
 
 jest.mock('../src/ImagePicker/nativePickers', () => ({
   pickImageFromFiles: jest.fn(),
@@ -22,12 +23,12 @@ const mockPickImageFromFiles = jest.mocked(pickImageFromFiles);
 const mockPickImageFromLibrary = jest.mocked(pickImageFromLibrary);
 
 function renderImagePicker(
-  props: Partial<React.ComponentProps<typeof ImagePicker>> = {},
+  props: Partial<ImagePickerProps> = {},
 ) {
   let testRenderer: renderer.ReactTestRenderer;
 
   act(() => {
-    testRenderer = renderer.create(<ImagePicker {...props} />);
+    testRenderer = renderer.create(<ImagePicker {...props as ImagePickerProps} />);
   });
 
   return testRenderer!;
@@ -39,23 +40,50 @@ function pressTrigger(testRenderer: renderer.ReactTestRenderer): void {
   });
 }
 
+function getStatusText(testRenderer: renderer.ReactTestRenderer): string {
+  return testRenderer.root.findByProps({ testID: 'image-picker-status' }).props.children;
+}
+
 describe('ImagePicker', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  it('renders DisplayInput as readonly trigger', () => {
+  it('renders fixed icon trigger with empty selected state', () => {
     const testRenderer = renderImagePicker({
       label: 'Image',
       placeholder: 'Choose image',
     });
 
-    const triggerInput = testRenderer.root.findByType(DisplayInput);
+    const icon = testRenderer.root.findByType(Icon);
 
-    expect(triggerInput.props.readonly).toBe(true);
-    expect(triggerInput.props.display).toBe('inline');
-    expect(triggerInput.props.label).toBe('Image');
-    expect(triggerInput.props.placeholder).toBe('Choose image');
+    expect(icon.props.icon).toBe('image');
+    expect(getStatusText(testRenderer)).toBe('未选择');
+    expect(() => testRenderer.root.findByType(DisplayInput)).toThrow();
+  });
+
+  it('renders selected state for a single selected image', () => {
+    const testRenderer = renderImagePicker({
+      value: {
+        uri: 'file:///selected.jpg',
+        fileName: 'selected.jpg',
+      },
+    });
+
+    expect(getStatusText(testRenderer)).toBe('已选择');
+  });
+
+  it('renders selected count when multiple images are selected', () => {
+    const selectedValues: ImagePickerValue[] = [
+      { uri: 'file:///first.jpg', fileName: 'first.jpg' },
+      { uri: 'file:///second.jpg', fileName: 'second.jpg' },
+    ];
+    const testRenderer = renderImagePicker({
+      multiple: true,
+      value: selectedValues,
+    });
+
+    expect(getStatusText(testRenderer)).toBe('已选择 2 张');
   });
 
   it('opens source actions from trigger', () => {
@@ -92,9 +120,40 @@ describe('ImagePicker', () => {
 
     expect(mockPickImageFromLibrary).toHaveBeenCalledTimes(1);
     expect(onChange).toHaveBeenCalledWith(nextValue);
-    expect(testRenderer.root.findByType(DisplayInput).props.valueText).toBe(
-      'library-image.jpg',
-    );
+    expect(getStatusText(testRenderer)).toBe('已选择');
+  });
+
+  it('picks multiple images from photo library and updates selected count', async () => {
+    const nextValues: ImagePickerValue[] = [
+      {
+        uri: 'file:///library-image.jpg',
+        fileName: 'library-image.jpg',
+        mimeType: 'image/jpeg',
+      },
+      {
+        uri: 'file:///second-library-image.jpg',
+        fileName: 'second-library-image.jpg',
+        mimeType: 'image/jpeg',
+      },
+    ];
+    const onChange = jest.fn();
+    mockPickImageFromLibrary.mockResolvedValue(nextValues);
+    const testRenderer = renderImagePicker({ multiple: true, onChange });
+
+    pressTrigger(testRenderer);
+    await act(async () => {
+      testRenderer.root.findByType(ActionSheet).props.onAction(
+        { text: 'Photo Library' },
+        0,
+      );
+    });
+
+    expect(mockPickImageFromLibrary).toHaveBeenCalledWith({
+      maxCount: 9,
+      multiple: true,
+    });
+    expect(onChange).toHaveBeenCalledWith(nextValues);
+    expect(getStatusText(testRenderer)).toBe('已选择 2 张');
   });
 
   it('picks image from file system and forwards result', async () => {
