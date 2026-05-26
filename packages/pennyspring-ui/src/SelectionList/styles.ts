@@ -1,11 +1,9 @@
 import { createUseSheetStyle } from '@pennyspring/theme';
 import type { AliasToken } from '@pennyspring/theme';
 import type { ComponentSize } from '../shares/types';
-import type { SelectionListStatus } from './types';
 
 interface SelectionListStyleOptions {
   size: ComponentSize;
-  status: SelectionListStatus;
 }
 
 interface SizeConfig {
@@ -17,8 +15,6 @@ interface SizeConfig {
   lineHeight: (token: AliasToken) => number;
   optionPaddingVertical: (token: AliasToken) => number;
 }
-
-type StatusColorSelector = (token: AliasToken) => string;
 
 const SIZE_MAP: Record<ComponentSize, SizeConfig> = {
   small: {
@@ -50,69 +46,11 @@ const SIZE_MAP: Record<ComponentSize, SizeConfig> = {
   },
 };
 
-const STATUS_BORDER_COLOR_MAP: Record<SelectionListStatus, StatusColorSelector> = {
-  default: token => token.colorBorder,
-  error: token => token.colorErrorBorder,
-  warning: token => token.colorWarningBorder,
-  success: token => token.colorSuccessBorder,
-};
-
 export const useSelectionListStyles = createUseSheetStyle(
-  (token, { size, status }: SelectionListStyleOptions) => {
+  (token, { size }: SelectionListStyleOptions) => {
     const sizeConfig = SIZE_MAP[size];
 
     return {
-      root: {
-        gap: token.sizeXXS,
-      },
-      label: {
-        color: token.colorTextLabel,
-      },
-      trigger: {
-        minHeight: sizeConfig.minHeight(token),
-        paddingHorizontal: sizeConfig.paddingHorizontal(token),
-        paddingVertical: sizeConfig.paddingVertical(token),
-        borderWidth: token.lineWidth,
-        borderRadius: token.borderRadius,
-        borderColor: STATUS_BORDER_COLOR_MAP[status](token),
-        backgroundColor: token.colorBgContainer,
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: sizeConfig.gap(token),
-      },
-      triggerPressed: {
-        backgroundColor: token.colorBgTextActive,
-      },
-      triggerOpen: {
-        borderColor: token.colorPrimary,
-      },
-      triggerError: {
-        borderColor: token.colorError,
-      },
-      triggerDisabled: {
-        borderColor: token.colorBorderDisabled,
-        backgroundColor: token.colorBgContainerDisabled,
-      },
-      valueArea: {
-        flex: 1,
-        minWidth: 0,
-      },
-      valueText: {
-        fontFamily: token.fontFamily,
-        fontSize: sizeConfig.fontSize(token),
-        lineHeight: sizeConfig.lineHeight(token),
-        color: token.colorText,
-      },
-      placeholder: {
-        fontFamily: token.fontFamily,
-        fontSize: sizeConfig.fontSize(token),
-        lineHeight: sizeConfig.lineHeight(token),
-        color: token.colorTextPlaceholder,
-      },
-      suffix: {
-        color: token.colorIcon,
-        fontSize: sizeConfig.fontSize(token),
-      },
       marker: {
         minHeight: sizeConfig.fontSize(token),
         minWidth: sizeConfig.fontSize(token),
@@ -234,12 +172,6 @@ export const useSelectionListStyles = createUseSheetStyle(
       },
       footerPrimaryButtonText: {
         color: token.colorTextLightSolid,
-      },
-      helper: {
-        color: token.colorTextDescription,
-      },
-      error: {
-        color: token.colorErrorText,
       },
     };
   },

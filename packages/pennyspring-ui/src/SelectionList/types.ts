@@ -106,14 +106,17 @@ export interface SelectionListStyles {
   /** Label 文本样式。 */
   label?: StyleProp<TextStyle>;
 
-  /** 触发器外壳样式。 */
-  trigger?: StyleProp<ViewStyle>;
+  /** 触发器 field 样式。 */
+  field?: StyleProp<ViewStyle>;
 
   /** 选中值文本样式。 */
-  valueText?: StyleProp<TextStyle>;
+  value?: StyleProp<TextStyle>;
 
   /** placeholder 文本样式。 */
   placeholder?: StyleProp<TextStyle>;
+
+  /** suffix 区域样式。 */
+  suffix?: StyleProp<ViewStyle>;
 
   /** 弹层容器样式。 */
   popup?: StyleProp<ViewStyle>;

@@ -7,6 +7,7 @@ import {
 } from 'react-native';
 import { useTheme } from '@pennyspring/theme';
 import { Button } from '../Button';
+import { DisplayInput } from '../DisplayInput';
 import { Icon } from '../Icon';
 import { Popup } from '../Popup';
 import { Text } from '../Text';
@@ -186,7 +187,6 @@ export function SelectionListPopup({
   const resolvedMode = resolveMode(mode);
   const tokenStyles = useSelectionListStyles({
     size: resolvedSize,
-    status: 'default',
   });
   const { token } = useTheme();
   const [mergedOpen, setMergedOpen] = useControllableValue(
@@ -431,10 +431,6 @@ function SelectionListRoot({
   const resolvedSize = resolveSize(size);
   const resolvedMode = resolveMode(mode);
   const resolvedStatus = resolveStatus(status);
-  const tokenStyles = useSelectionListStyles({
-    size: resolvedSize,
-    status: resolvedStatus,
-  });
   const { token } = useTheme();
   const [mergedOpen, setMergedOpen] = useControllableValue(
     defaultOpen === true,
@@ -461,7 +457,6 @@ function SelectionListRoot({
   const tagItems = displayMode === 'tag'
     ? getSelectedTagItems(flatOptions, selectedValues)
     : [];
-  const message = isError && errorText !== undefined ? errorText : helperText;
 
   function setOpen(nextOpen: boolean): void {
     if (!isInteractive) {
@@ -492,66 +487,56 @@ function SelectionListRoot({
     commitValue(nextValue);
   }
 
-  const labelNode =
-    label !== undefined && typeof label !== 'string' ? (
-      label
-    ) : labelText !== undefined || typeof label === 'string' ? (
-      <Text style={[tokenStyles.label, styles?.label]}>
-        {labelText ?? label}
-      </Text>
-    ) : null;
-
   return (
-    <View testID="selection-list-root" style={[tokenStyles.root, style]}>
-      {labelNode}
-      <Pressable
-        onPress={() => setOpen(!mergedOpen)}
-        style={({ pressed }) => [
-          tokenStyles.trigger,
-          styles?.trigger,
-          pressed && isInteractive ? tokenStyles.triggerPressed : null,
-          mergedOpen ? tokenStyles.triggerOpen : null,
-          isError ? tokenStyles.triggerError : null,
-          !isInteractive ? tokenStyles.triggerDisabled : null,
-        ]}
-      >
-        <View style={tokenStyles.valueArea}>
-          {displayMode === 'tag' && tagItems.length > 0 ? (
-            <TagValueDisplay
-              items={tagItems}
-              size={resolvedSize}
-              tagProps={tagProps}
-              disabled={!isInteractive}
-              onRemove={handleTagRemove}
-            />
-          ) : selectedLabel.length > 0 ? (
-            <Text
-              numberOfLines={1}
-              style={[tokenStyles.valueText, styles?.valueText]}
-            >
-              {selectedLabel}
-            </Text>
+    <View testID="selection-list-root" style={style}>
+      <DisplayInput
+        disabled={!isInteractive}
+        display="inline"
+        errorText={errorText}
+        helperText={helperText}
+        label={label ?? labelText}
+        overflow={displayMode === 'tag' ? 'visible' : 'hidden'}
+        placeholder={placeholder ?? DEFAULT_PLACEHOLDER}
+        size={resolvedSize}
+        status={resolvedStatus}
+        styles={{
+          field: [
+            styles?.field,
+            mergedOpen && !isError
+              ? { borderColor: token.colorPrimary }
+              : undefined,
+          ],
+          value: styles?.value,
+          placeholder: styles?.placeholder,
+          label: styles?.label,
+          suffix: styles?.suffix,
+          helper: styles?.helper,
+          error: styles?.error,
+        }}
+        suffix={
+          loading === true ? (
+            <ActivityIndicator color={token.colorTextTertiary} />
           ) : (
-            <Text
-              numberOfLines={1}
-              style={[tokenStyles.placeholder, styles?.placeholder]}
-            >
-              {placeholder ?? DEFAULT_PLACEHOLDER}
-            </Text>
-          )}
-        </View>
-        {loading === true ? (
-          <ActivityIndicator
-            color={token.colorTextTertiary}
+            <Icon color="icon" icon="caret-down" />
+          )
+        }
+        valueText={
+          displayMode !== 'tag' && selectedLabel.length > 0
+            ? selectedLabel
+            : undefined
+        }
+        onPress={() => setOpen(!mergedOpen)}
+      >
+        {displayMode === 'tag' && tagItems.length > 0 ? (
+          <TagValueDisplay
+            items={tagItems}
+            size={resolvedSize}
+            tagProps={tagProps}
+            disabled={!isInteractive}
+            onRemove={handleTagRemove}
           />
-        ) : (
-          <Icon
-            color="icon"
-            icon="caret-down"
-            size={tokenStyles.suffix.fontSize}
-          />
-        )}
-      </Pressable>
+        ) : undefined}
+      </DisplayInput>
       <SelectionListPopup
         {...popupProps}
         defaultOpen={defaultOpen}
@@ -571,16 +556,6 @@ function SelectionListRoot({
         styles={styles}
         value={mergedValue}
       />
-      {message !== undefined ? (
-        <Text
-          style={[
-            isError ? tokenStyles.error : tokenStyles.helper,
-            isError ? styles?.error : styles?.helper,
-          ]}
-        >
-          {message}
-        </Text>
-      ) : null}
     </View>
   );
 }
