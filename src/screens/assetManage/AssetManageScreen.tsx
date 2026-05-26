@@ -2,16 +2,16 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { ScrollView } from 'react-native';
 import { useRequest } from 'ahooks';
 import {
-  Button,
   Card,
   Cascader,
+  type CascaderOption,
+  type CascaderValue,
   Column,
   DateTimePicker,
   Empty,
   FloatingActionGroup,
   Icon,
   Input,
-  KeyboardAwareFormScroll,
   Popup,
   Row,
   Spacer,
@@ -21,17 +21,15 @@ import {
   Text,
   Textarea,
   useToast,
-  type CascaderOption,
-  type CascaderValue,
 } from '@pennyspring/ui';
 import {
   api,
   ASSET_CLASSIFICATION,
   ASSET_TYPE,
-  VISIBILITY,
   type AssetClassificationValue,
   type AssetRow,
   type AssetTypeValue,
+  VISIBILITY,
 } from '@pennyspring/data';
 import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
 
@@ -593,73 +591,69 @@ export function AssetManageScreen() {
         position="bottom"
         keyboardAvoiding
         height="70%"
+        titleText="新增资产"
+        okText={editingAsset ? '保存' : '新增'}
+        onOk={handleSave}
+        styles={{ panelBody: styles.panelContent }}
       >
-        <KeyboardAwareFormScroll
-          useKeyboardInset={false}
-          styles={{
-            content: styles.panelContent,
-          }}
-        >
-          <Input placeholder="资产名称" value={name} onChangeText={setName} />
-          <Cascader
-            options={cascaderOptions}
-            value={assetPath}
-            tabPlaceholderText="请选择"
-            placeholder="资产类型和分类"
-            onChange={setAssetPath}
-          />
-          <Input
-            placeholder="余额(元)"
-            value={balance}
-            onChangeText={setBalance}
-            keyboardType="numeric"
-          />
-          {isCreditCard && (
-            <>
+        <Input placeholder="资产名称" value={name} onChangeText={setName} />
+        <Cascader
+          options={cascaderOptions}
+          value={assetPath}
+          tabPlaceholderText="请选择"
+          placeholder="资产类型和分类"
+          onChange={setAssetPath}
+        />
+        <Input
+          placeholder="余额(元)"
+          value={balance}
+          onChangeText={setBalance}
+          keyboardType="numeric"
+        />
+        {isCreditCard && (
+          <>
+            <Input
+              placeholder="总额度(元)"
+              value={totalAmount}
+              onChangeText={setTotalAmount}
+              keyboardType="numeric"
+            />
+            <DateTimePicker
+              precision="day"
+              value={dayToPickerDate(billingDate)}
+              titleText="选择账单日"
+              onOk={(_v, params) => setBillingDate(params.day)}
+            >
               <Input
-                placeholder="总额度(元)"
-                value={totalAmount}
-                onChangeText={setTotalAmount}
-                keyboardType="numeric"
+                placeholder="账单日"
+                value={formatDayText(billingDate)}
+                readonly
               />
-              <DateTimePicker
-                precision="day"
-                value={dayToPickerDate(billingDate)}
-                titleText="选择账单日"
-                onOk={(_v, params) => setBillingDate(params.day)}
-              >
-                <Input
-                  placeholder="账单日"
-                  value={formatDayText(billingDate)}
-                  readonly
-                />
-              </DateTimePicker>
-              <DateTimePicker
-                precision="day"
-                value={dayToPickerDate(repaymentDate)}
-                titleText="选择还款日"
-                onOk={(_v, params) => setRepaymentDate(params.day)}
-              >
-                <Input
-                  placeholder="还款日"
-                  value={formatDayText(repaymentDate)}
-                  readonly
-                />
-              </DateTimePicker>
-            </>
-          )}
-          <Textarea
-            placeholder="备注(可选)"
-            value={remark}
-            onChangeText={setRemark}
-          />
-          <Row>
-            <Text>隐藏资产</Text>
-            <Spacer size={token.marginSM} />
-            <Switch value={invisible} onChange={setInvisible} />
-          </Row>
-          <Button onPress={handleSave}>{editingAsset ? '保存' : '新增'}</Button>
-        </KeyboardAwareFormScroll>
+            </DateTimePicker>
+            <DateTimePicker
+              precision="day"
+              value={dayToPickerDate(repaymentDate)}
+              titleText="选择还款日"
+              onOk={(_v, params) => setRepaymentDate(params.day)}
+            >
+              <Input
+                placeholder="还款日"
+                value={formatDayText(repaymentDate)}
+                readonly
+              />
+            </DateTimePicker>
+          </>
+        )}
+        <Textarea
+          placeholder="备注(可选)"
+          value={remark}
+          onChangeText={setRemark}
+        />
+        <Row>
+          <Text>隐藏资产</Text>
+          <Spacer size={token.marginSM} />
+          <Switch value={invisible} onChange={setInvisible} />
+        </Row>
       </Popup.FloatingPanel>
     </Column>
   );
