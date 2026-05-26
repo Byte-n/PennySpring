@@ -23,6 +23,20 @@ export function TagSemanticColorsDemo() {
           </Tag>
         ))}
       </Space>
+      <Space align="center" size="large" wrap>
+        {SEMANTIC_COLORS.map(color => (
+          <Tag key={`${color}-outlined`} color={color} variant="outlined">
+            {color}
+          </Tag>
+        ))}
+      </Space>
+      <Space align="center" size="large" wrap>
+        {SEMANTIC_COLORS.map(color => (
+          <Tag key={`${color}-solid`} color={color} variant="solid">
+            {color}
+          </Tag>
+        ))}
+      </Space>
     </>
   );
 }

@@ -83,15 +83,14 @@ describe('Text', () => {
       expect(rnText.props.style[0].color).toBeDefined();
     });
 
-    it('supports custom color strings', () => {
-      const customColor = '#123456';
+    it('falls back to default text color for unknown runtime color values', () => {
       const testRenderer = renderText({
-        color: customColor,
+        color: '#123456' as never,
         children: 'Hello',
       });
       const rnText = getRNText(testRenderer);
 
-      expect(rnText.props.style[0].color).toBe(customColor);
+      expect(rnText.props.style[0].color).not.toBe('#123456');
     });
   });
 });

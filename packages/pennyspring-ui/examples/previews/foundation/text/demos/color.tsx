@@ -17,6 +17,7 @@ const COLORS: TextColor[] = [
   'placeholder',
   'lightSolid',
 ];
+const ALIAS_COLORS: TextColor[] = ['colorPrimary', 'colorSuccessText', 'colorWarningText'];
 
 const useStyles = createUseSheetStyle(token => ({
   row: {
@@ -60,6 +61,16 @@ export function TextColorDemo() {
           </Text>
           <Text size="md" color={color} style={styles.rightText}>
             PennySpring 你好
+          </Text>
+        </View>
+      ))}
+      {ALIAS_COLORS.map(color => (
+        <View key={color} style={styles.row}>
+          <Text size="sm" color={color} style={styles.wideLabel}>
+            {color}
+          </Text>
+          <Text size="md" color={color} style={styles.rightText}>
+            Alias token color
           </Text>
         </View>
       ))}

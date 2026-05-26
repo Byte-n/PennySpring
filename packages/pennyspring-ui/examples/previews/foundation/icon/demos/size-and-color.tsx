@@ -1,5 +1,17 @@
 import React from 'react';
 import { Space, Icon } from '@pennyspring/ui';
+import type { IconColor } from '@pennyspring/ui';
+
+const SEMANTIC_COLORS: IconColor[] = [
+  'default',
+  'primary',
+  'success',
+  'warning',
+  'danger',
+  'info',
+];
+
+const ALIAS_COLORS: IconColor[] = ['colorTextDescription', 'colorPrimary', 'colorLink'];
 
 export const iconSizeAndColorDemoTitle = 'Size and color';
 
@@ -11,9 +23,16 @@ export function IconSizeAndColorDemo() {
         <Icon icon="home" size="normal" />
         <Icon icon="home" size="large" />
         <Icon icon="home" size={28} />
-        <Icon icon="warning" color="colorWarning" />
-        <Icon icon="check-circle" color="colorSuccess" />
-        <Icon icon="close-circle" color="colorError" />
+      </Space>
+      <Space align="center" size="large" wrap>
+        {SEMANTIC_COLORS.map(color => (
+          <Icon key={color} icon="check-circle" color={color} />
+        ))}
+      </Space>
+      <Space align="center" size="large" wrap>
+        {ALIAS_COLORS.map(color => (
+          <Icon key={color} icon="warning" color={color} />
+        ))}
       </Space>
     </>
   );

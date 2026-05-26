@@ -40,6 +40,15 @@ export function BadgeColorAndSizeDemo() {
           ))}
         </Space>
         <Space align="center" size="large" wrap>
+          {BADGE_COLORS.map(color => (
+            <View key={`${color}-dot`} style={styles.sampleWrap}>
+              <Badge dot color={color}>
+                <Avatar size="small" text="D" />
+              </Badge>
+            </View>
+          ))}
+        </Space>
+        <Space align="center" size="large" wrap>
           <Badge count={9} color="geekblue" size="small">
             <Avatar size="small" text="S" />
           </Badge>
