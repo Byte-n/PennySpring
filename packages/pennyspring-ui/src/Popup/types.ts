@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import type { StyleProp, ViewStyle } from 'react-native';
+import type { StyleProp, TextStyle, ViewStyle } from 'react-native';
 import type { ComponentSize } from '../shares/types';
 import type { PortalMountPoint } from '../Portal/types';
 
@@ -49,18 +49,44 @@ export interface PopupFloatingPanelStyles extends PopupStyles {
   content?: StyleProp<ViewStyle>;
   handle?: StyleProp<ViewStyle>;
   handleIndicator?: StyleProp<ViewStyle>;
+  header?: StyleProp<ViewStyle>;
+  titleText?: StyleProp<TextStyle>;
+  panelBody?: StyleProp<ViewStyle>;
+  footer?: StyleProp<ViewStyle>;
+  cancelButton?: StyleProp<ViewStyle>;
+  okButton?: StyleProp<ViewStyle>;
 }
 export type FloatingPanelStyles = PopupFloatingPanelStyles;
+
+export interface PopupFloatingPanelRenderHeaderParams {
+  cancel: () => void;
+  confirm: () => Promise<void>;
+}
+
+export interface PopupFloatingPanelRenderFooterParams {
+  cancel: () => void;
+  confirm: () => Promise<void>;
+  okDisabled: boolean;
+  okLoading: boolean;
+}
+
+export type PopupFloatingPanelOkHandler = () =>
+  | void
+  | boolean
+  | Promise<void | boolean>;
 
 export interface PopupFloatingPanelProps {
   mountPoint?: PortalMountPoint;
   open?: boolean;
   defaultOpen?: boolean;
-  onOpenChange?: PopupProps['onOpenChange'];
+  onOpenChange?: (open: boolean) => void;
   afterOpenChange?: PopupProps['afterOpenChange'];
-  onCancel?: PopupProps['onCancel'];
+  onCancel?: () => void;
+  onOk?: PopupFloatingPanelOkHandler;
   mask?: boolean;
   closeOnMaskClick?: boolean;
+  closeOnCancel?: boolean;
+  closeOnOk?: boolean;
   animation?: PopupAnimation;
   animationDuration?: number;
   position?: PopupFloatingPanelPosition;
@@ -72,6 +98,18 @@ export interface PopupFloatingPanelProps {
   minHeight?: PopupFloatingPanelHeight;
   maxHeight?: PopupFloatingPanelHeight;
   onChange?: (value: number) => void;
+  titleText?: string;
+  title?: ReactNode;
+  header?: ReactNode;
+  renderHeader?: (params: PopupFloatingPanelRenderHeaderParams) => ReactNode;
+  cancelText?: string;
+  cancel?: ReactNode;
+  okText?: string;
+  ok?: ReactNode;
+  okDisabled?: boolean;
+  okLoading?: boolean;
+  footer?: ReactNode;
+  renderFooter?: (params: PopupFloatingPanelRenderFooterParams) => ReactNode;
   children?: ReactNode;
   style?: StyleProp<ViewStyle>;
   styles?: PopupFloatingPanelStyles;

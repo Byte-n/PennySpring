@@ -79,7 +79,7 @@
 ## 浮层与反馈
 
 - `Dialog`：阻塞式确认或提示。
-- `Popup`：锚定、底部或居中的浮层容器。
+- `Popup`：锚定、底部或居中的浮层容器；`Popup.FloatingPanel` 适合可拖拽底部/顶部面板，支持 `titleText`、确认/取消按钮和自定义 header/footer。
 - `Portal`、`PortalProvider`：在常规树外渲染浮层内容。
 - `Toast`、`useToast`：短暂轻量提示。
 - `Message`、`useMessage`：行内或全局反馈消息。
@@ -96,7 +96,7 @@
 - 卡片列表：使用 `DataList` 或 `List`；仅当每个重复项都需要框定承载面时搭配 `Card`。
 - 进度状态：多阶段流程用 `Steps`，标量完成度用 `Progress`，最终成功/失败用 `Result`。
 - 破坏性操作：行操作用 `SwipeAction`，操作选项用 `ActionSheet`，确认用 `Dialog`。
-- 浮层表单：`Popup` + `Column` + 输入控件 + `Button` 操作。
+- 浮层表单：优先用 `Popup.FloatingPanel` 的 header/body/footer 与 `okText`/`onOk`/`onCancel`；更底层布局再用 `Popup` + `Column` + 输入控件 + `Button` 操作。
 
 ## 创建新 UI 前
 

@@ -1,10 +1,11 @@
 import React from 'react';
-import { Space, Button } from '@pennyspring/ui';
+import { Space, Button, Popup, Text } from '@pennyspring/ui';
 
 export const popupFloatingPanelDemoTitle = 'FloatingPanel';
 
 export function PopupFloatingPanelDemo() {
   const [floatingOpen, setFloatingOpen] = React.useState(false);
+  const [customOpen, setCustomOpen] = React.useState(false);
   const [floatingSize, setFloatingSize] = React.useState<
     'small' | 'normal' | 'large'
   >('normal');
@@ -49,7 +50,78 @@ export function PopupFloatingPanelDemo() {
             {item}
           </Button>
         ))}
+        <Button
+          type={customOpen ? 'primary' : 'default'}
+          onPress={() => {
+            setLastEvent('Opened custom floating panel');
+            setCustomOpen(true);
+          }}
+        >
+          Custom header/footer
+        </Button>
       </Space>
+      <Popup.FloatingPanel
+        closeOnMaskClick
+        okText="完成"
+        onCancel={() => {
+          setLastEvent('Floating panel cancelled');
+          setFloatingOpen(false);
+        }}
+        onOk={() => {
+          setLastEvent('Floating panel confirmed');
+          setFloatingOpen(false);
+        }}
+        onOpenChange={setFloatingOpen}
+        open={floatingOpen}
+        position={floatingPosition}
+        size={floatingSize}
+        titleText="基础浮动面板"
+      >
+        <Space direction="vertical" size="normal">
+          <Text color="secondary">
+            这是带 titleText、okText、onOk 和 onCancel 的三段式面板。
+          </Text>
+          <Text color="description">
+            拖动把手可以调整高度，点击遮罩会按取消流程关闭。
+          </Text>
+        </Space>
+      </Popup.FloatingPanel>
+      <Popup.FloatingPanel
+        onCancel={() => {
+          setLastEvent('Custom floating panel cancelled');
+          setCustomOpen(false);
+        }}
+        onOk={() => {
+          setLastEvent('Custom floating panel confirmed');
+          setCustomOpen(false);
+        }}
+        onOpenChange={setCustomOpen}
+        open={customOpen}
+        renderFooter={({ cancel, confirm }) => (
+          <Space justify="end" size="normal">
+            <Button onPress={cancel} type="text">
+              稍后
+            </Button>
+            <Button onPress={confirm} type="primary">
+              保存
+            </Button>
+          </Space>
+        )}
+        renderHeader={({ cancel }) => (
+          <Space align="center" justify="between">
+            <Text color="heading" size="lg" weight="strong">
+              自定义头部
+            </Text>
+            <Button onPress={cancel} type="text">
+              关闭
+            </Button>
+          </Space>
+        )}
+      >
+        <Text color="secondary">
+          renderHeader 与 renderFooter 可以拿到统一的 cancel / confirm 行为。
+        </Text>
+      </Popup.FloatingPanel>
     </>
   );
 }
