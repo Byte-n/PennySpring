@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import type { StyleProp, TextStyle, ViewStyle } from 'react-native';
+import type { DisplayInputProps, DisplayInputStyles } from '../DisplayInput';
 import type { ComponentSize } from '../shares/types';
 import type { TagDisplayProps } from '../_internal/TagValueDisplay';
 
@@ -102,7 +103,32 @@ export interface SelectionListOptionGroup {
   options: SelectionListOption[];
 }
 
-export interface SelectionListStyles {
+export interface SelectionListDisplayInputStyles extends DisplayInputStyles {
+  /** DisplayInput 根节点样式。 */
+  root?: StyleProp<ViewStyle>;
+}
+
+export interface SelectionListPopupStyles {
+  /** 弹层容器样式。 */
+  popup?: StyleProp<ViewStyle>;
+
+  /** 分组标题样式。 */
+  groupTitle?: StyleProp<TextStyle>;
+
+  /** 选项容器样式。 */
+  option?: StyleProp<ViewStyle>;
+
+  /** 选项主文本样式。 */
+  optionLabel?: StyleProp<TextStyle>;
+}
+
+export interface SelectionListStyles extends SelectionListPopupStyles {
+  /** SelectionList 根节点样式。 */
+  root?: StyleProp<ViewStyle>;
+
+  /** DisplayInput 触发器插槽样式。 */
+  displayInput?: SelectionListDisplayInputStyles;
+
   /** Label 文本样式。 */
   label?: StyleProp<TextStyle>;
 
@@ -117,18 +143,6 @@ export interface SelectionListStyles {
 
   /** suffix 区域样式。 */
   suffix?: StyleProp<ViewStyle>;
-
-  /** 弹层容器样式。 */
-  popup?: StyleProp<ViewStyle>;
-
-  /** 分组标题样式。 */
-  groupTitle?: StyleProp<TextStyle>;
-
-  /** 选项容器样式。 */
-  option?: StyleProp<ViewStyle>;
-
-  /** 选项主文本样式。 */
-  optionLabel?: StyleProp<TextStyle>;
 
   /** 辅助说明文本样式。 */
   helper?: StyleProp<TextStyle>;
@@ -277,7 +291,7 @@ export interface SelectionListPopupProps {
 
   /**
    * 弹层内容样式。
-   * 只用于控制 Popup 外层布局。
+   * 只用于控制 Popup body 内容布局。
    */
   style?: StyleProp<ViewStyle>;
 
@@ -285,10 +299,43 @@ export interface SelectionListPopupProps {
    * 内部插槽样式覆盖。
    * 只能覆盖声明过的稳定插槽。
    */
-  styles?: SelectionListStyles;
+  styles?: SelectionListPopupStyles;
 }
 
-export interface SelectionListProps extends SelectionListPopupProps {
+export type SelectionListDisplayInputProps = Omit<
+  DisplayInputProps,
+  | 'children'
+  | 'disabled'
+  | 'label'
+  | 'onPress'
+  | 'placeholder'
+  | 'readonly'
+  | 'size'
+  | 'status'
+  | 'style'
+  | 'styles'
+  | 'valueText'
+>;
+
+export type SelectionListPopupConfigProps = Omit<
+  SelectionListPopupProps,
+  | 'defaultOpen'
+  | 'defaultValue'
+  | 'disabled'
+  | 'groups'
+  | 'loading'
+  | 'mode'
+  | 'onChange'
+  | 'onOpenChange'
+  | 'open'
+  | 'options'
+  | 'readonly'
+  | 'size'
+  | 'value'
+>;
+
+export interface SelectionListProps
+  extends Omit<SelectionListPopupProps, 'style' | 'styles'> {
   /**
    * SelectionList 状态。
    * error 状态会优先展示 errorText。
@@ -326,5 +373,28 @@ export interface SelectionListProps extends SelectionListPopupProps {
   errorText?: ReactNode;
 
   displayMode?: SelectionListDisplayMode;
+
+  /**
+   * DisplayInput 触发器的非样式配置。
+   * 样式能力统一通过 styles.displayInput 提供。
+   */
+  displayInputProps?: SelectionListDisplayInputProps;
+
+  /**
+   * 弹层专属配置。
+   * open、value、options 等由 SelectionList 根组件统一控制。
+   */
+  popupProps?: SelectionListPopupConfigProps;
+
   tagProps?: TagDisplayProps;
+
+  /**
+   * 内部插槽样式覆盖。
+   */
+  styles?: SelectionListStyles;
+
+  /**
+   * SelectionList 根节点样式。
+   */
+  style?: StyleProp<ViewStyle>;
 }

@@ -48,7 +48,7 @@
 - `Calendar`：日历展示与日期/范围选择。
 - `CascadePicker`：级联选择弹窗。
 - `Cascader`：级联选择视图或弹窗。
-- `SelectionList`：分组或扁平选项选择。
+- `SelectionList`：分组或扁平选项选择，可通过 `displayInputProps` 定制触发器、通过 `popupProps` 定制弹层。
 - `Segmented`：紧凑分段选择。
 - `SegmentedControl`：顶部标签式分段控件。
 

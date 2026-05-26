@@ -90,6 +90,9 @@ export const useSelectionListStyles = createUseSheetStyle(
         lineHeight: token.lineHeightSM,
         color: token.colorText,
       },
+      fieldActive: {
+        borderColor: token.colorPrimary,
+      },
       list: {
         gap: token.sizeXS,
       },

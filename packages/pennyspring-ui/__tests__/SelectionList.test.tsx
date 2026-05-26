@@ -1,6 +1,7 @@
 import React from 'react';
 import { Text as RNText, TextInput } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
+import { DisplayInput } from '../src/DisplayInput';
 import { SelectionList } from '../src/SelectionList';
 
 const options = [
@@ -117,5 +118,48 @@ describe('SelectionList', () => {
     );
     act(() => { closeButtons[0].props.onPress(); });
     expect(onChange).toHaveBeenCalledWith(['card']);
+  });
+
+  it('allows overriding non-style display input props without flattening trigger internals', () => {
+    const prefix = <RNText>Prefix node</RNText>;
+    const suffix = <RNText>Suffix node</RNText>;
+    const testRenderer = renderSelectionList({
+      labelText: 'Payment method',
+      placeholder: 'Please select',
+      displayInputProps: {
+        display: 'block',
+        prefix,
+        required: true,
+        suffix,
+      },
+    });
+
+    const triggerInput = testRenderer.root.findByType(DisplayInput);
+
+    expect(triggerInput.props.display).toBe('block');
+    expect(triggerInput.props.label).toBe('Payment method');
+    expect(triggerInput.props.placeholder).toBe('Please select');
+    expect(triggerInput.props.prefix).toBe(prefix);
+    expect(triggerInput.props.required).toBe(true);
+    expect(triggerInput.props.suffix).toBe(suffix);
+  });
+
+  it('keeps root style and popup style on separate props', () => {
+    const rootStyle = { opacity: 0.5 };
+    const popupBodyStyle = { maxHeight: '50%' as const };
+    const testRenderer = renderSelectionList({
+      defaultOpen: true,
+      style: rootStyle,
+      popupProps: {
+        style: popupBodyStyle,
+      },
+    });
+
+    const root = testRenderer.root.findByProps({ testID: 'selection-list-root' });
+    const popupBody = testRenderer.root.findByProps({ testID: 'popup-body' });
+
+    expect(root.props.style).toBe(rootStyle);
+    expect(JSON.stringify(popupBody.props.style)).toContain('50%');
+    expect(JSON.stringify(root.props.style)).not.toContain('50%');
   });
 });

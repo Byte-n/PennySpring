@@ -406,6 +406,7 @@ function SelectionListRoot({
   defaultOpen,
   defaultValue,
   disabled,
+  displayInputProps,
   displayMode,
   errorText,
   groups,
@@ -419,6 +420,7 @@ function SelectionListRoot({
   open,
   options,
   placeholder,
+  popupProps,
   readonly,
   size,
   status,
@@ -426,7 +428,7 @@ function SelectionListRoot({
   styles,
   tagProps,
   value,
-  ...popupProps
+  ...directPopupProps
 }: SelectionListProps) {
   const resolvedSize = resolveSize(size);
   const resolvedMode = resolveMode(mode);
@@ -457,6 +459,24 @@ function SelectionListRoot({
   const tagItems = displayMode === 'tag'
     ? getSelectedTagItems(flatOptions, selectedValues)
     : [];
+  const tokenStyles = useSelectionListStyles({
+    size: resolvedSize,
+  });
+  const displayInputSuffix = displayInputProps?.suffix;
+  const {
+    style: popupStyle,
+    styles: popupStyles,
+    ...nestedPopupProps
+  } = popupProps ?? {};
+  const mergedPopupStyles = popupStyles === undefined
+    ? styles
+    : {
+        ...styles,
+        ...popupStyles,
+      };
+  const rootStyle = styles?.root === undefined
+    ? style
+    : [styles.root, style];
 
   function setOpen(nextOpen: boolean): void {
     if (!isInteractive) {
@@ -488,33 +508,45 @@ function SelectionListRoot({
   }
 
   return (
-    <View testID="selection-list-root" style={style}>
+    <View testID="selection-list-root" style={rootStyle}>
       <DisplayInput
+        {...displayInputProps}
         disabled={!isInteractive}
-        display="inline"
+        display={displayInputProps?.display ?? 'inline'}
         errorText={errorText}
         helperText={helperText}
         label={label ?? labelText}
-        overflow={displayMode === 'tag' ? 'visible' : 'hidden'}
+        overflow={
+          displayInputProps?.overflow
+          ?? (displayMode === 'tag' ? 'visible' : 'hidden')
+        }
         placeholder={placeholder ?? DEFAULT_PLACEHOLDER}
         size={resolvedSize}
         status={resolvedStatus}
+        style={styles?.displayInput?.root}
         styles={{
+          ...styles?.displayInput,
           field: [
+            styles?.displayInput?.field,
             styles?.field,
             mergedOpen && !isError
-              ? { borderColor: token.colorPrimary }
+              ? tokenStyles.fieldActive
               : undefined,
           ],
-          value: styles?.value,
-          placeholder: styles?.placeholder,
-          label: styles?.label,
-          suffix: styles?.suffix,
-          helper: styles?.helper,
-          error: styles?.error,
+          value: [styles?.displayInput?.value, styles?.value],
+          placeholder: [
+            styles?.displayInput?.placeholder,
+            styles?.placeholder,
+          ],
+          label: [styles?.displayInput?.label, styles?.label],
+          suffix: [styles?.displayInput?.suffix, styles?.suffix],
+          helper: [styles?.displayInput?.helper, styles?.helper],
+          error: [styles?.displayInput?.error, styles?.error],
         }}
         suffix={
-          loading === true ? (
+          displayInputSuffix !== undefined ? (
+            displayInputSuffix
+          ) : loading === true ? (
             <ActivityIndicator color={token.colorTextTertiary} />
           ) : (
             <Icon color="icon" icon="caret-down" />
@@ -538,7 +570,8 @@ function SelectionListRoot({
         ) : undefined}
       </DisplayInput>
       <SelectionListPopup
-        {...popupProps}
+        {...directPopupProps}
+        {...nestedPopupProps}
         defaultOpen={defaultOpen}
         defaultValue={defaultValue}
         disabled={disabled}
@@ -553,7 +586,8 @@ function SelectionListRoot({
         options={options}
         readonly={readonly}
         size={resolvedSize}
-        styles={styles}
+        style={popupStyle}
+        styles={mergedPopupStyles}
         value={mergedValue}
       />
     </View>
