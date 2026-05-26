@@ -84,7 +84,7 @@ export function Empty({
   return (
     <View style={[tokenStyles.root, style]}>
       <View style={[tokenStyles.iconContainer, styles?.iconContainer]}>
-        {icon ?? <Icon icon={EmptyIcon} size={size} color="colorTextQuaternary" />}
+        {icon ?? <Icon icon={EmptyIcon} size={size} color="textQuaternary" />}
       </View>
       {isPrimitiveContent(resolvedMessage) ? (
         <Text

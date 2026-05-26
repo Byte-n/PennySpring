@@ -565,6 +565,5 @@ type AliasColorTokenKeyWithoutPrefix<
 > = TKey extends `color${infer ColorName}` ? Uncapitalize<ColorName> : never;
 
 export type AliasColorTokenKey =
-  | Extract<keyof AliasToken, `color${string}`>
   | AliasColorTokenKeyWithoutPrefix<Extract<keyof AliasToken, `color${string}`>>
   | keyof PresetColorGradientToken;

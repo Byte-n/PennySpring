@@ -23,7 +23,7 @@ export function AvatarShapeAndContentDemo() {
         <Avatar
           icon={
             <View style={styles.iconCircle}>
-              <Icon icon="user" color="colorIcon" size="large" />
+              <Icon icon="user" color="icon" size="large" />
             </View>
           }
         />

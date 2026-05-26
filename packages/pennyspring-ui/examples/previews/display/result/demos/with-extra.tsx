@@ -36,7 +36,7 @@ export function ResultWithExtraDemo() {
         <View style={styles.panel}>
           <Result
             status="info"
-            icon={<Icon icon="settings" size="large" color="colorInfo" />}
+            icon={<Icon icon="settings" size="large" color="info" />}
             titleText="Custom icon"
             subtitleText="Custom icon node overrides status icon."
           />

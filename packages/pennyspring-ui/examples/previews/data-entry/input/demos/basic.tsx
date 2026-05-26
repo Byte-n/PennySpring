@@ -28,7 +28,7 @@ export function InputBasicDemo() {
           defaultValue="Search text"
           label="With addons"
           prefix={
-            <Icon icon="search" color="colorIcon" size="large" />
+            <Icon icon="search" color="icon" size="large" />
           }
           suffix={<Text color="description">USD</Text>}
         />

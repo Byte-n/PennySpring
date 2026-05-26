@@ -11,7 +11,7 @@ const SEMANTIC_COLORS: IconColor[] = [
   'info',
 ];
 
-const ALIAS_COLORS: IconColor[] = ['colorTextDescription', 'colorPrimary', 'colorLink'];
+const ALIAS_COLORS: IconColor[] = ['textDescription', 'primary', 'link'];
 
 export const iconSizeAndColorDemoTitle = 'Size and color';
 

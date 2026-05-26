@@ -90,7 +90,7 @@ export function PickerTrigger({
             ]}
             testID="picker-trigger-clear-button"
           >
-            <Icon color="colorIcon" icon="close" size="small" />
+            <Icon color="icon" icon="close" size="small" />
           </Pressable>
         ) : undefined}
         {...displayInputProps}

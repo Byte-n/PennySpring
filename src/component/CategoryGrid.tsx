@@ -134,7 +134,7 @@ function Cell({ item, onSelect, isSelected }: CellProps) {
       <Column align="center" gap={token.marginXXS}>
         <Icon
           icon={iconValue}
-          color={isSelected ? 'colorPrimary' : 'colorText'}
+          color={isSelected ? 'primary' : 'text'}
           size={24}
           weight="duotone"
         />

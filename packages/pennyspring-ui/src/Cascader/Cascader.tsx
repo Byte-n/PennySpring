@@ -184,7 +184,7 @@ function CascaderRoot<TData = unknown>({
               )}
             </View>
             <Icon
-              color="colorIcon"
+              color="icon"
               icon="caret-down"
               size={tokenStyles.suffix.fontSize}
             />

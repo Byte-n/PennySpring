@@ -490,7 +490,7 @@ function CalendarRoot({
         >
           {renderSlotNode(previous, previousText) ?? (
             <Icon
-              color="colorIcon"
+              color="icon"
               icon="caret-left"
               size={tokenStyles.navIcon.fontSize}
             />
@@ -508,7 +508,7 @@ function CalendarRoot({
         >
           {renderSlotNode(next, nextText) ?? (
             <Icon
-              color="colorIcon"
+              color="icon"
               icon="caret-right"
               size={tokenStyles.navIcon.fontSize}
             />
@@ -675,7 +675,7 @@ function CalendarRange({
         >
           {renderSlotNode(previous, previousText) ?? (
             <Icon
-              color="colorIcon"
+              color="icon"
               icon="caret-left"
               size={tokenStyles.navIcon.fontSize}
             />
@@ -693,7 +693,7 @@ function CalendarRange({
         >
           {renderSlotNode(next, nextText) ?? (
             <Icon
-              color="colorIcon"
+              color="icon"
               icon="caret-right"
               size={tokenStyles.navIcon.fontSize}
             />

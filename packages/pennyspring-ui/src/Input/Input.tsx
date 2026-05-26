@@ -333,7 +333,7 @@ function InputRoot({
             testID="input-clear-button"
           >
             <Icon
-              color="colorIcon"
+              color="icon"
               icon="close"
               size={tokenStyles.clearButtonLabel.fontSize}
             />
@@ -419,7 +419,7 @@ function SearchInput({
 
   const resolvedSearchIcon = searchIcon ?? (
     <Icon
-      color={canSearch ? 'colorIcon' : 'colorTextDisabled'}
+      color={canSearch ? 'icon' : 'textDisabled'}
       icon="search"
       size={tokenStyles.searchIcon.fontSize}
     />

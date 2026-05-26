@@ -17,7 +17,7 @@ const COLORS: TextColor[] = [
   'placeholder',
   'lightSolid',
 ];
-const ALIAS_COLORS: TextColor[] = ['colorPrimary', 'colorSuccessText', 'colorWarningText'];
+const ALIAS_COLORS: TextColor[] = ['primary', 'successText', 'warningText'];
 
 const useStyles = createUseSheetStyle(token => ({
   row: {

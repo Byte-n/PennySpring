@@ -33,7 +33,7 @@ export function TagValueDisplay({
               onPress={() => onRemove?.(item.value)}
               hitSlop={4}
             >
-              <Icon icon="close" size={10} color="colorTextTertiary" />
+              <Icon icon="close" size={10} color="textTertiary" />
             </Pressable>
           ) : null}
         </View>

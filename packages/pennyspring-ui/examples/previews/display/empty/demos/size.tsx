@@ -47,7 +47,7 @@ export function EmptySizeDemo() {
         <View style={styles.panel}>
           <Empty
             icon={
-              <Icon icon="notification" size="large" color="colorPrimary" />
+              <Icon icon="notification" size="large" color="primary" />
             }
             messageText="Custom icon with messageText"
           />

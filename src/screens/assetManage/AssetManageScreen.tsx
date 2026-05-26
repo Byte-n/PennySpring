@@ -420,7 +420,7 @@ export function AssetManageScreen() {
                   </Text>
                 </Column>
                 <Column style={styles.summaryIcon}>
-                  <Icon color="colorPrimaryText" icon="list" size="normal" />
+                  <Icon color="primaryText" icon="list" size="normal" />
                 </Column>
               </Row>
               <Text

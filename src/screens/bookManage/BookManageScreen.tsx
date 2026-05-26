@@ -289,7 +289,7 @@ export function BookManageScreen() {
                           >
                             <Row style={styles.currentTagContent}>
                               <Icon
-                                color="colorPrimaryText"
+                                color="primaryText"
                                 icon="check"
                                 size="small"
                               />

@@ -252,9 +252,9 @@ export type IconColor = IconSemanticColor | AliasColorTokenKey;
 - `<SwipeAction rightActions={[{ key: 'delete', color: 'danger' }]} />`
 - `<SwipeAction leftActions={[{ key: 'archive', color: 'blue' }]} />`
 - `<Text color="secondary" />`
-- `<Text color="colorPrimaryText" />`
+- `<Text color="primaryText" />`
 - `<Icon color="primary" />`
-- `<Icon color="colorIcon" />`
+- `<Icon color="icon" />`
 
 不作为目标 API 支持：
 

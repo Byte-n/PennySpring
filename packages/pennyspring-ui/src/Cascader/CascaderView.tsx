@@ -42,7 +42,7 @@ function renderOptionMarker(
 ) {
   return (
     <Icon
-      color={disabled ? 'colorTextDisabled' : selected ? 'colorPrimaryText' : 'colorTextQuaternary'}
+      color={disabled ? 'textDisabled' : selected ? 'primaryText' : 'textQuaternary'}
       icon={selected ? 'check' : CircleIcon}
       size={tokenStyles.markerIcon.fontSize}
       testID={selected ? 'cascader-option-marker-selected' : 'cascader-option-marker-unselected'}

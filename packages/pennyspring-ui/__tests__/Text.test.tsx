@@ -73,9 +73,9 @@ describe('Text', () => {
   });
 
   describe('color', () => {
-    it('supports alias color token names with color prefix', () => {
+    it('supports alias color token names without color prefix', () => {
       const testRenderer = renderText({
-        color: 'colorPrimary',
+        color: 'primary',
         children: 'Hello',
       });
       const rnText = getRNText(testRenderer);

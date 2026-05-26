@@ -36,14 +36,14 @@ describe('component color types', () => {
 
   it('keeps foreground colors scoped to semantic and alias token keys', () => {
     const textSemantic: TextColor = 'secondary';
-    const textAlias: TextColor = 'colorPrimaryText';
+    const textAlias: TextColor = 'primaryText';
     const iconSemantic: IconColor = 'primary';
-    const iconAlias: IconColor = 'colorIcon';
+    const iconAlias: IconColor = 'icon';
 
     expect(textSemantic).toBe('secondary');
-    expect(textAlias).toBe('colorPrimaryText');
+    expect(textAlias).toBe('primaryText');
     expect(iconSemantic).toBe('primary');
-    expect(iconAlias).toBe('colorIcon');
+    expect(iconAlias).toBe('icon');
   });
 
   it('rejects custom strings and preset-only keys for foreground colors', () => {

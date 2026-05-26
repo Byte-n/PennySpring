@@ -265,7 +265,7 @@ function renderOption(option: SelectionListOption) {
         <View style={tokenStyles.marker}>
           {isSelected ? (
             <Icon
-              color={isDisabled ? 'colorTextDisabled' : 'colorPrimaryText'}
+              color={isDisabled ? 'textDisabled' : 'primaryText'}
               icon="check"
               size={tokenStyles.markerIcon.fontSize}
             />
@@ -546,7 +546,7 @@ function SelectionListRoot({
           />
         ) : (
           <Icon
-            color="colorIcon"
+            color="icon"
             icon="caret-down"
             size={tokenStyles.suffix.fontSize}
           />

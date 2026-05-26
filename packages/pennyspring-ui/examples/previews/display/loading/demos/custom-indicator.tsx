@@ -28,7 +28,7 @@ export function LoadingCustomIndicatorDemo() {
         <View style={styles.panel}>
           <Loading
             indicator={
-              <Icon icon="notification" size="large" color="colorPrimary" />
+              <Icon icon="notification" size="large" color="primary" />
             }
             text="Icon indicator"
           />
@@ -36,7 +36,7 @@ export function LoadingCustomIndicatorDemo() {
         <View style={styles.panel}>
           <Loading
             indicator={
-              <Icon icon="settings" size="large" color="colorTextDescription" />
+              <Icon icon="settings" size="large" color="textDescription" />
             }
             text="Static indicator"
             vertical

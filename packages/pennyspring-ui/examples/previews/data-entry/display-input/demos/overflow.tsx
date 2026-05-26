@@ -49,7 +49,7 @@ export function DisplayInputOverflowDemo() {
               block
               自定义节点：这是一个很长的节点文本，用于观察节点分支在默认容器下的表现
             </Text>
-            <Icon color="colorSuccess" icon="check-circle" size="small" />
+            <Icon color="success" icon="check-circle" size="small" />
           </Column>
         </DisplayInput>
         <DisplayInput
@@ -67,7 +67,7 @@ export function DisplayInputOverflowDemo() {
               inline
               自定义节点：这是一个很长的节点文本，用于观察节点分支在默认容器下的表现
             </Text>
-            <Icon color="colorTextDescription" icon="info" size="small" />
+            <Icon color="textDescription" icon="info" size="small" />
           </Column>
         </DisplayInput>
       </Column>
