@@ -1,4 +1,5 @@
 import React from 'react';
+import { StyleSheet, View } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
 import { Message } from '../src/Message';
 import { PortalProvider } from '../src/Portal';
@@ -137,5 +138,41 @@ describe('Message', () => {
     expect(() => testRenderer.root.findByProps({
       children: 'Message text'
     })).toThrow();
+  });
+
+  it('scales status dot with size', () => {
+    let smallRenderer!: renderer.ReactTestRenderer;
+    let largeRenderer!: renderer.ReactTestRenderer;
+
+    act(() => {
+      smallRenderer = renderer.create(
+        <><PortalProvider>
+          <Message open duration={0} messageText="Small" size="small" />
+        </PortalProvider></>,
+      );
+      largeRenderer = renderer.create(
+        <><PortalProvider>
+          <Message open duration={0} messageText="Large" size="large" />
+        </PortalProvider></>,
+      );
+    });
+
+    const findDotStyle = (testRenderer: renderer.ReactTestRenderer) => {
+      const dot = testRenderer.root.findAllByType(View).find(node => {
+        const style = StyleSheet.flatten(node.props.style);
+
+        return typeof style?.width === 'number' &&
+          typeof style?.height === 'number' &&
+          style.width === style.height &&
+          style.backgroundColor !== undefined;
+      });
+
+      return StyleSheet.flatten(dot?.props.style);
+    };
+
+    const smallDotStyle = findDotStyle(smallRenderer);
+    const largeDotStyle = findDotStyle(largeRenderer);
+
+    expect(largeDotStyle.width).toBeGreaterThan(smallDotStyle.width);
   });
 });

@@ -26,6 +26,38 @@ const DEFAULT_DURATION = 2400;
 const DEFAULT_SIZE: ComponentSize = 'normal';
 const DEFAULT_TYPE: MessageType = 'default';
 const DEFAULT_PLACEMENT: MessagePlacement = 'top';
+const SIZE_MAP: Record<
+  ComponentSize,
+  {
+    dotSize: (token: ReturnType<typeof useTheme>['token']) => number;
+    gap: (token: ReturnType<typeof useTheme>['token']) => number;
+    horizontalPadding: (token: ReturnType<typeof useTheme>['token']) => number;
+    textSize: 'sm' | 'md' | 'lg';
+    verticalPadding: (token: ReturnType<typeof useTheme>['token']) => number;
+  }
+> = {
+  small: {
+    dotSize: token => token.fontSizeSM,
+    gap: token => token.marginXXS,
+    horizontalPadding: token => token.paddingSM,
+    textSize: 'sm',
+    verticalPadding: token => token.paddingXXS,
+  },
+  normal: {
+    dotSize: token => token.fontSize,
+    gap: token => token.marginXS,
+    horizontalPadding: token => token.paddingMD,
+    textSize: 'md',
+    verticalPadding: token => token.paddingXS,
+  },
+  large: {
+    dotSize: token => token.fontSizeLG,
+    gap: token => token.marginSM,
+    horizontalPadding: token => token.paddingLG,
+    textSize: 'lg',
+    verticalPadding: token => token.paddingSM,
+  },
+};
 
 function resolveTypeColor(token: ReturnType<typeof useTheme>['token'], type: MessageType): string {
   if (type === 'success') return token.colorSuccess;
@@ -35,37 +67,48 @@ function resolveTypeColor(token: ReturnType<typeof useTheme>['token'], type: Mes
   return token.colorPrimary;
 }
 
-const useStyles = createUseSheetStyle((token, { size, placement }: { size: ComponentSize; placement: MessagePlacement }) => ({
-  content: {
-    position: 'absolute',
-    zIndex: token.zIndexPopupBase + 120,
-    left: token.paddingLG,
-    right: token.paddingLG,
-    ...(placement === 'top'
-      ? { top: token.paddingXL }
-      : { bottom: token.paddingXL }),
-    borderRadius: token.borderRadius,
-    backgroundColor: token.colorBgElevated,
-    borderWidth: token.lineWidth,
-    borderColor: token.colorBorderSecondary,
-    paddingVertical:
-      size === 'small' ? token.paddingXXS : size === 'large' ? token.paddingSM : token.paddingXS,
-    paddingHorizontal:
-      size === 'small' ? token.paddingSM : size === 'large' ? token.paddingLG : token.paddingMD,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: token.marginXS,
+const useStyles = createUseSheetStyle((
+  token,
+  { size, placement, type }: {
+    size: ComponentSize;
+    placement: MessagePlacement;
+    type: MessageType;
   },
-  dot: {
-    width: token.fontSizeSM,
-    height: token.fontSizeSM,
-    borderRadius: token.fontSizeSM,
-  },
-  messageText: {
-    color: token.colorText,
-    flex: 1,
-  },
-}));
+) => {
+  const sizeConfig = SIZE_MAP[size];
+  const dotSize = sizeConfig.dotSize(token);
+
+  return {
+    content: {
+      position: 'absolute',
+      zIndex: token.zIndexPopupBase + 120,
+      left: token.paddingLG,
+      right: token.paddingLG,
+      ...(placement === 'top'
+        ? { top: token.paddingXL }
+        : { bottom: token.paddingXL }),
+      borderRadius: token.borderRadius,
+      backgroundColor: token.colorBgElevated,
+      borderWidth: token.lineWidth,
+      borderColor: token.colorBorderSecondary,
+      paddingVertical: sizeConfig.verticalPadding(token),
+      paddingHorizontal: sizeConfig.horizontalPadding(token),
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: sizeConfig.gap(token),
+    },
+    dot: {
+      width: dotSize,
+      height: dotSize,
+      borderRadius: dotSize,
+      backgroundColor: resolveTypeColor(token, type),
+    },
+    messageText: {
+      color: token.colorText,
+      flex: 1,
+    },
+  };
+});
 
 interface MessageBodyProps extends MessageShowOptions {
   isOpen: boolean;
@@ -86,7 +129,7 @@ function MessageBody({
   styles,
   type = DEFAULT_TYPE,
 }: MessageBodyProps) {
-  const tokenStyles = useStyles({ size, placement });
+  const tokenStyles = useStyles({ size, placement, type });
   const { token } = useTheme();
   const progress = useSharedValue(0);
   const closedRef = React.useRef(false);
@@ -162,10 +205,10 @@ function MessageBody({
         animatedStyle,
       ]}
     >
-      <View style={[tokenStyles.dot, { backgroundColor: resolveTypeColor(token, type) }]} />
+      <View style={tokenStyles.dot} />
       {message ?? (
         <Text
-          size={size === 'small' ? 'sm' : size === 'large' ? 'lg' : 'md'}
+          size={SIZE_MAP[size].textSize}
           style={[tokenStyles.messageText, styles?.messageText]}
         >
           {messageText}

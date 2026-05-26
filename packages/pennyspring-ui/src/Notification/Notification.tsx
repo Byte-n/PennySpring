@@ -26,6 +26,38 @@ const DEFAULT_DURATION = 3200;
 const DEFAULT_SIZE: ComponentSize = 'normal';
 const DEFAULT_TYPE: NotificationType = 'default';
 const DEFAULT_PLACEMENT: NotificationPlacement = 'top-left';
+const SIZE_MAP: Record<
+  ComponentSize,
+  {
+    descriptionTextSize: 'sm' | 'md' | 'lg';
+    gap: (token: ReturnType<typeof useTheme>['token']) => number;
+    horizontalPadding: (token: ReturnType<typeof useTheme>['token']) => number;
+    titleTextSize: 'md' | 'lg' | 'xl';
+    verticalPadding: (token: ReturnType<typeof useTheme>['token']) => number;
+  }
+> = {
+  small: {
+    descriptionTextSize: 'sm',
+    gap: token => token.marginXXS,
+    horizontalPadding: token => token.paddingSM,
+    titleTextSize: 'md',
+    verticalPadding: token => token.paddingXS,
+  },
+  normal: {
+    descriptionTextSize: 'md',
+    gap: token => token.marginXS,
+    horizontalPadding: token => token.paddingMD,
+    titleTextSize: 'lg',
+    verticalPadding: token => token.paddingSM,
+  },
+  large: {
+    descriptionTextSize: 'lg',
+    gap: token => token.marginSM,
+    horizontalPadding: token => token.paddingLG,
+    titleTextSize: 'xl',
+    verticalPadding: token => token.paddingMD,
+  },
+};
 
 function resolveTypeBgColor(
   token: ReturnType<typeof useTheme>['token'],
@@ -69,36 +101,30 @@ const useStyles = createUseSheetStyle(
       size,
       placement,
     }: { size: ComponentSize; placement: NotificationPlacement },
-  ) => ({
-    content: {
-      position: 'absolute',
-      zIndex: token.zIndexPopupBase + 140,
-      ...resolveOverlayPlacementStyle(placement, token),
-      maxWidth: '100%',
-      borderRadius: token.borderRadiusLG,
-      borderWidth: token.lineWidth,
-      borderColor: token.colorBorderSecondary,
-      paddingVertical:
-        size === 'small'
-          ? token.paddingXS
-          : size === 'large'
-          ? token.paddingMD
-          : token.paddingSM,
-      paddingHorizontal:
-        size === 'small'
-          ? token.paddingSM
-          : size === 'large'
-          ? token.paddingLG
-          : token.paddingMD,
-      gap: token.marginXXS,
-    },
-    titleText: {
-      color: token.colorTextHeading,
-    },
-    descriptionText: {
-      color: token.colorTextSecondary,
-    },
-  }),
+  ) => {
+    const sizeConfig = SIZE_MAP[size];
+
+    return {
+      content: {
+        position: 'absolute',
+        zIndex: token.zIndexPopupBase + 140,
+        ...resolveOverlayPlacementStyle(placement, token),
+        maxWidth: '100%',
+        borderRadius: token.borderRadiusLG,
+        borderWidth: token.lineWidth,
+        borderColor: token.colorBorderSecondary,
+        paddingVertical: sizeConfig.verticalPadding(token),
+        paddingHorizontal: sizeConfig.horizontalPadding(token),
+        gap: sizeConfig.gap(token),
+      },
+      titleText: {
+        color: token.colorTextHeading,
+      },
+      descriptionText: {
+        color: token.colorTextSecondary,
+      },
+    };
+  },
 );
 
 interface NotificationBodyProps extends NotificationShowOptions {
@@ -212,7 +238,7 @@ function NotificationBody({
     >
       {title ?? (
         <Text
-          size={size === 'small' ? 'md' : size === 'large' ? 'xl' : 'lg'}
+          size={SIZE_MAP[size].titleTextSize}
           weight="strong"
           style={[tokenStyles.titleText, styles?.titleText]}
         >
@@ -221,7 +247,7 @@ function NotificationBody({
       )}
       {description ?? (
         <Text
-          size={size === 'small' ? 'sm' : 'md'}
+          size={SIZE_MAP[size].descriptionTextSize}
           style={[tokenStyles.descriptionText, styles?.descriptionText]}
         >
           {descriptionText}

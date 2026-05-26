@@ -90,7 +90,7 @@ export const useSelectionListStyles = createUseSheetStyle(
         color: token.colorTextDescription,
       },
       option: {
-        minHeight: token.controlHeightSM,
+        minHeight: sizeConfig.minHeight(token),
         paddingHorizontal: sizeConfig.paddingHorizontal(token),
         paddingVertical: sizeConfig.optionPaddingVertical(token),
         borderRadius: token.borderRadiusSM,
@@ -149,11 +149,6 @@ export const useSelectionListStyles = createUseSheetStyle(
         gap: token.sizeXS,
       },
       footerButton: {
-        minHeight: token.controlHeightSM,
-        paddingHorizontal: token.controlPaddingHorizontal,
-        borderRadius: token.borderRadiusSM,
-        alignItems: 'center',
-        justifyContent: 'center',
       },
       footerButtonPressed: {
         backgroundColor: token.colorBgTextActive,

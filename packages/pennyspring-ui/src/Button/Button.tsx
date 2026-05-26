@@ -125,6 +125,7 @@ const PRESET_COLORS = [
 ] as const;
 
 const TRANSPARENT = 'transparent';
+const HALF_RATIO = 2;
 
 function isPresetColor(
   color: ButtonColor,
@@ -291,13 +292,17 @@ const useStyles = createUseSheetStyle(
     const borderRadius = shape === 'default' ? token.borderRadius : height / 2;
     const horizontalPadding =
       isCircle && !hasContent ? 0 : sizeConfig.paddingHorizontal(token);
+    const verticalPadding = Math.max(
+      0,
+      (height - sizeConfig.lineHeight(token)) / HALF_RATIO,
+    );
 
     return {
       root: {
-        minHeight: height,
         minWidth: height,
         width: block ? '100%' : isCircle && !hasContent ? height : undefined,
         paddingHorizontal: horizontalPadding,
+        paddingVertical: verticalPadding,
         borderRadius,
         borderWidth: isTextButton ? 0 : token.lineWidth,
         borderStyle: variantStyle.borderStyle,

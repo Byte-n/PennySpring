@@ -49,6 +49,18 @@ function resolveStatus(status?: SelectionListStatus): SelectionListStatus {
   return status ?? 'default';
 }
 
+function resolveTextSize(size: ComponentSize): React.ComponentProps<typeof Text>['size'] {
+  if (size === 'small') {
+    return 'sm';
+  }
+
+  if (size === 'large') {
+    return 'lg';
+  }
+
+  return 'md';
+}
+
 function normalizeValue(
   mode: SelectionListMode,
   value: SelectionListProps['value'],
@@ -307,11 +319,11 @@ export function SelectionListPopup({
           {option.description !== undefined && typeof option.description !== 'string' ? (
             option.description
           ) : option.descriptionText !== undefined ? (
-            <Text size="sm" style={tokenStyles.optionDescription}>
+            <Text size={resolveTextSize(resolvedSize)} style={tokenStyles.optionDescription}>
               {option.descriptionText}
             </Text>
           ) : typeof option.description === 'string' ? (
-            <Text size="sm" style={tokenStyles.optionDescription}>
+            <Text size={resolveTextSize(resolvedSize)} style={tokenStyles.optionDescription}>
               {option.description}
             </Text>
           ) : null}
@@ -349,6 +361,7 @@ export function SelectionListPopup({
       header={null}
       open={mergedOpen}
       position={resolvedFloatingPanelPosition}
+      size={resolvedSize}
       onCancel={closeSelectionList}
       style={[tokenStyles.popup, floatingPanelStyle, style, styles?.popup]}
       styles={floatingPanelStyles}
@@ -358,7 +371,11 @@ export function SelectionListPopup({
         {texts?.headerText !== undefined || texts?.closeText !== undefined ? (
           <View style={tokenStyles.header}>
             {texts.headerText !== undefined ? (
-              <Text weight="strong" style={tokenStyles.headerText}>
+              <Text
+                size={resolveTextSize(resolvedSize)}
+                weight="strong"
+                style={tokenStyles.headerText}
+              >
                 {texts.headerText}
               </Text>
             ) : (
@@ -367,6 +384,7 @@ export function SelectionListPopup({
             {texts.closeText !== undefined ? (
               <Button
                 onPress={closeSelectionList}
+                size={resolvedSize}
                 style={tokenStyles.footerButton}
                 type="text"
               >
@@ -383,7 +401,7 @@ export function SelectionListPopup({
             onChangeText={handleSearchChange}
             placeholder={texts?.searchPlaceholder}
             readonly={readonly}
-            size="small"
+            size={resolvedSize}
             value={mergedSearchValue}
           />
         ) : null}
@@ -403,7 +421,7 @@ export function SelectionListPopup({
                   group.title
                 ) : group.titleText !== undefined ? (
                   <Text
-                    size="sm"
+                    size={resolveTextSize(resolvedSize)}
                     style={[tokenStyles.groupTitle, styles?.groupTitle]}
                   >
                     {group.titleText}
@@ -425,6 +443,7 @@ export function SelectionListPopup({
           <View style={tokenStyles.footer}>
             <Button
               onPress={closeSelectionList}
+              size={resolvedSize}
               style={[
                 tokenStyles.footerButton,
                 tokenStyles.footerPrimaryButton,
