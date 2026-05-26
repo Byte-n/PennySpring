@@ -170,7 +170,9 @@ export function IncomeTabScreen() {
           onChange={setTypeId}
         />
         {categoriesLoading ? (
-          <Text color="description" size="sm">分类加载中</Text>
+          <Text color="description" size="sm">
+            分类加载中
+          </Text>
         ) : null}
         <Row wrap gap={token.marginXXS}>
           <SelectionList
@@ -232,9 +234,11 @@ export function IncomeTabScreen() {
           />
           <ImagePicker
             multiple
+            maxCount={3}
             onError={(error: unknown) => {
               toast.show({
-                messageText: error instanceof Error ? error.message : '选择图片失败',
+                messageText:
+                  error instanceof Error ? error.message : '选择图片失败',
               });
             }}
             placeholder="图片"
@@ -243,12 +247,7 @@ export function IncomeTabScreen() {
           />
         </Row>
         <RemarkInput />
-        <Button
-          block
-          loading={submitting}
-          onPress={handleSave}
-          type="primary"
-        >
+        <Button block loading={submitting} onPress={handleSave} type="primary">
           保存收入
         </Button>
       </Column>

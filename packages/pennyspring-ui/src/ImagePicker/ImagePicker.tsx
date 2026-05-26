@@ -29,7 +29,7 @@ const DEFAULT_EMPTY_TEXT = '暂无已选图片';
 const DEFAULT_SINGLE_HINT_TEXT = '最多1张';
 const DEFAULT_SELECTED_TEXT = '已选择';
 const DEFAULT_UNSELECTED_TEXT = '未选择';
-const DEFAULT_MAX_COUNT = 9;
+const DEFAULT_MAX_COUNT = 1;
 const DEFAULT_PANEL_HEIGHT = '45%';
 const DEFAULT_SOURCES: ImagePickerSource[] = ['camera', 'photo'];
 

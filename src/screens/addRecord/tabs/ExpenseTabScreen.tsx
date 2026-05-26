@@ -168,9 +168,11 @@ export function ExpenseTabScreen() {
           />
           <ImagePicker
             multiple
+            maxCount={3}
             onError={(error: unknown) => {
               toast.show({
-                messageText: error instanceof Error ? error.message : '选择图片失败',
+                messageText:
+                  error instanceof Error ? error.message : '选择图片失败',
               });
             }}
             placeholder="图片"
