@@ -109,6 +109,7 @@ export function Picker<TItem extends PickerColumnItemData = PickerColumnItemData
   defaultValue,
   displayInputProps,
   disabled,
+  formatValueText,
   label,
   popupProps,
   onCancel,
@@ -144,7 +145,10 @@ export function Picker<TItem extends PickerColumnItemData = PickerColumnItemData
   );
   const [isWheelScrolling, setIsWheelScrolling] = useState(false);
   const draftValueRef = useRef(draftValue);
-  const triggerValueText = getTriggerValueText(columns, mainValue);
+  const selectedItems = getSelectedItems(columns, mainValue);
+  const triggerValueText = formatValueText
+    ? formatValueText(mainValue, { items: selectedItems })
+    : getTriggerValueText(columns, mainValue);
   const hasMainValue = mainValue.length > 0;
   const hasDisabledFocusedItem = focusedIndexes.some((itemIndex, columnIndex) => {
     if (itemIndex < 0) {

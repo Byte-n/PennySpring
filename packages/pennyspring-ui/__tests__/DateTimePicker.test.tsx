@@ -47,6 +47,7 @@ jest.mock('react-native-reanimated', () => {
 
 import {
   DateTimePicker,
+  DisplayInput,
   Text,
 } from '../src';
 
@@ -191,6 +192,20 @@ it('uses year range from min/max', () => {
   expect(() =>
     testRenderer!.root.findByProps({ testID: 'picker-item-0-3' }),
   ).toThrow();
+});
+
+it('shows selected date time in display input trigger', () => {
+  let testRenderer: renderer.ReactTestRenderer;
+
+  act(() => {
+    testRenderer = renderer.create(
+      <DateTimePicker value={makeDate(2026, 5, 9, 10, 30)} />,
+    );
+  });
+
+  const triggerInput = testRenderer!.root.findByType(DisplayInput);
+
+  expect(triggerInput.props.valueText).toBe('2026-05-09 10:30');
 });
 
 it('translates picker change into Date in onChange', () => {

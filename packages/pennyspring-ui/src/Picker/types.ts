@@ -185,6 +185,10 @@ export interface PickerProps<
     params: PickerOkParams<TItem>,
   ) => void;
   onCancel?: (params: PickerCancelParams) => void;
+  formatValueText?: (
+    value: Array<PickerItemValue<TItem>>,
+    params: PickerOkParams<TItem>,
+  ) => string | undefined;
   label?: DisplayInputProps['label'];
   placeholder?: string;
   readonly?: boolean;

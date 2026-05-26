@@ -17,6 +17,10 @@ const DEFAULT_STEP = 1;
 const MAX_HOUR = 23;
 const MAX_MINUTE_OR_SECOND = 59;
 
+function padTimeValue(value: number): string {
+  return String(value).padStart(2, '0');
+}
+
 function getColumnTypes(precision: TimePickerPrecision): TimePickerColumnType[] {
   if (precision === 'hour') {
     return ['hour'];
@@ -86,7 +90,7 @@ function buildTimeParams(date: Date): TimePickerValueParams {
 }
 
 function defaultLabelText(type: TimePickerColumnType, value: number): string {
-  const padded = String(value).padStart(2, '0');
+  const padded = padTimeValue(value);
 
   if (type === 'hour') {
     return `${padded}时`;
@@ -97,6 +101,29 @@ function defaultLabelText(type: TimePickerColumnType, value: number): string {
   }
 
   return `${padded}秒`;
+}
+
+function formatTimeValueText(
+  pickerValue: PickerValue[],
+  baseDate: Date,
+  precision: TimePickerPrecision,
+): string | undefined {
+  if (pickerValue.length === 0) {
+    return undefined;
+  }
+
+  const date = pickerValueToDate(pickerValue, baseDate, precision);
+  const values = [padTimeValue(date.getHours())];
+
+  if (precision !== 'hour') {
+    values.push(padTimeValue(date.getMinutes()));
+  }
+
+  if (precision === 'second') {
+    values.push(padTimeValue(date.getSeconds()));
+  }
+
+  return values.join(':');
 }
 
 function getCandidateDate(
@@ -217,6 +244,9 @@ export function TimePicker(props: TimePickerProps) {
       defaultValue={defaultPickerValue}
       disabled={props.disabled}
       displayInputProps={props.displayInputProps}
+      formatValueText={nextPickerValue =>
+        formatTimeValueText(nextPickerValue, baseDate, precision)
+      }
       onCancel={props.onCancel}
       onChange={nextPickerValue => {
         const nextDate = pickerValueToDate(nextPickerValue, baseDate, precision);

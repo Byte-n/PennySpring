@@ -19,6 +19,10 @@ const DEFAULT_YEAR_RANGE = 10;
 const MAX_HOUR = 23;
 const MAX_MINUTE_OR_SECOND = 59;
 
+function padDateTimeValue(value: number): string {
+  return String(value).padStart(2, '0');
+}
+
 function getColumnTypes(precision: DateTimePickerPrecision): DateTimePickerColumnType[] {
   switch (precision) {
     case 'year':
@@ -118,13 +122,55 @@ function defaultLabelText(type: DateTimePickerColumnType, value: number): string
     return `${value}年`;
   }
 
-  const padded = String(value).padStart(2, '0');
+  const padded = padDateTimeValue(value);
 
   if (type === 'month') return `${padded}月`;
   if (type === 'day') return `${padded}日`;
   if (type === 'hour') return `${padded}时`;
   if (type === 'minute') return `${padded}分`;
   return `${padded}秒`;
+}
+
+function formatDateTimeValueText(
+  pickerValue: PickerValue[],
+  precision: DateTimePickerPrecision,
+  baseDate: Date,
+): string | undefined {
+  if (pickerValue.length === 0) {
+    return undefined;
+  }
+
+  const date = pickerValueToDate(pickerValue, precision, baseDate);
+  const dateParts = [String(date.getFullYear())];
+
+  if (precision !== 'year') {
+    dateParts.push(padDateTimeValue(date.getMonth() + 1));
+  }
+
+  if (
+    precision === 'day' ||
+    precision === 'hour' ||
+    precision === 'minute' ||
+    precision === 'second'
+  ) {
+    dateParts.push(padDateTimeValue(date.getDate()));
+  }
+
+  if (precision === 'year' || precision === 'month' || precision === 'day') {
+    return dateParts.join('-');
+  }
+
+  const timeParts = [padDateTimeValue(date.getHours())];
+
+  if (precision === 'minute' || precision === 'second') {
+    timeParts.push(padDateTimeValue(date.getMinutes()));
+  }
+
+  if (precision === 'second') {
+    timeParts.push(padDateTimeValue(date.getSeconds()));
+  }
+
+  return `${dateParts.join('-')} ${timeParts.join(':')}`;
 }
 
 function getYearRange(
@@ -297,6 +343,9 @@ export function DateTimePicker(props: DateTimePickerProps) {
       defaultValue={defaultPickerValue}
       disabled={props.disabled}
       displayInputProps={props.displayInputProps}
+      formatValueText={nextPickerValue =>
+        formatDateTimeValueText(nextPickerValue, precision, baseDate)
+      }
       onCancel={props.onCancel}
       onChange={nextPickerValue => {
         const nextDate = pickerValueToDate(nextPickerValue, precision, baseDate);

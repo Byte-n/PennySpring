@@ -736,6 +736,24 @@ it('shows combined selected labels for multi-column picker trigger', () => {
   expect(triggerInput.props.valueText).toBe('A / Two');
 });
 
+it('uses formatValueText to override display input trigger text', () => {
+  let testRenderer: renderer.ReactTestRenderer;
+
+  act(() => {
+    testRenderer = renderer.create(
+      <Picker
+        columns={twoColumns}
+        value={['a', 2]}
+        formatValueText={value => value.join(':')}
+      />,
+    );
+  });
+
+  const triggerInput = testRenderer!.root.findByType(DisplayInput);
+
+  expect(triggerInput.props.valueText).toBe('a:2');
+});
+
 it('allows overriding non-flattened display input props from picker', () => {
   let testRenderer: renderer.ReactTestRenderer;
 

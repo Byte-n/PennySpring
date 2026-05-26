@@ -46,6 +46,7 @@ jest.mock('react-native-reanimated', () => {
 });
 
 import {
+  DisplayInput,
   Text,
   TimePicker,
 } from '../src';
@@ -138,6 +139,20 @@ it('selects hour 10 and minute 30 from value prop', () => {
   expect(
     testRenderer!.root.findByProps({ testID: 'picker-item-1-30' }).props.selected,
   ).toBe(true);
+});
+
+it('shows selected time in display input trigger', () => {
+  let testRenderer: renderer.ReactTestRenderer;
+
+  act(() => {
+    testRenderer = renderer.create(
+      <TimePicker value={makeDate(10, 30)} />,
+    );
+  });
+
+  const triggerInput = testRenderer!.root.findByType(DisplayInput);
+
+  expect(triggerInput.props.valueText).toBe('10:30');
 });
 
 it('uses formatLabel to override column label text', () => {
