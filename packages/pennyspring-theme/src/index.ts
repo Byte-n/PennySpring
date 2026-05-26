@@ -29,6 +29,7 @@ export { ThemeProvider, ThemeContext } from './ThemeProvider';
 export type { ThemeConfig, ThemeAlgorithm, ThemeContextValue } from './ThemeProvider';
 export { useTheme } from './useTheme';
 export { toShadowStyle } from './shadowStyle';
+export { getAliasColorTokenValue } from './aliasColorToken';
 export { default as ThemePreview } from './ThemePreview';
 export { createUseSheetStyle } from './createUseSheetStyle';
 export type {

@@ -6,7 +6,7 @@ import type { ComponentSize } from '../shares/types';
 
 export type IconSize = ComponentSize | number;
 
-export type IconColor = AliasColorTokenKey | string;
+export type IconColor = AliasColorTokenKey | (string & {});
 export type IconComponent = ComponentType<PhosphorIconProps>;
 
 export type IconName =

@@ -560,4 +560,11 @@ export interface AliasToken extends MapToken {
   controlTmpOutline: string;
 }
 
-export type AliasColorTokenKey = Extract<keyof AliasToken, `color${string}`>;
+type AliasColorTokenKeyWithoutPrefix<
+  TKey extends string,
+> = TKey extends `color${infer ColorName}` ? Uncapitalize<ColorName> : never;
+
+export type AliasColorTokenKey =
+  | AliasColorTokenKeyWithoutPrefix<Extract<keyof AliasToken, `color${string}`>>
+  | PresetColorKey
+  | keyof PresetColorGradientToken;

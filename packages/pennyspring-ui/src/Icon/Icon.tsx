@@ -1,5 +1,5 @@
 import React from 'react';
-import { useTheme } from '@pennyspring/theme';
+import { getAliasColorTokenValue, useTheme } from '@pennyspring/theme';
 import {
   ArrowDownIcon,
   ArrowLeftIcon,
@@ -109,11 +109,7 @@ function resolveColor(color: IconColor | undefined, token: AliasToken): string {
     return token.colorIcon;
   }
 
-  if (color in token) {
-    return token[color as keyof AliasToken] as string;
-  }
-
-  return color;
+  return getAliasColorTokenValue(token, color) ?? color;
 }
 
 export function Icon({

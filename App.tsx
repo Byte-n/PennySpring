@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { StatusBar, useColorScheme } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ThemeProvider } from '@pennyspring/theme';
-import { App as PSApp } from '@pennyspring/ui';
+import { App as PSApp, Icon } from '@pennyspring/ui';
 import { rootNavigationRef, RootStackNavigator } from './src/navigation';
 import { NavigationContainer } from '@react-navigation/native';
 import { useBookStore } from './src/stores/bookStore';
