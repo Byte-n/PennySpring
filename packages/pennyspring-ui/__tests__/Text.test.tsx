@@ -1,33 +1,52 @@
 import React from 'react';
 import renderer, { act } from 'react-test-renderer';
+import { ThemeProvider } from '@pennyspring/theme';
 import { Text } from '../src/Text';
+
 function renderText(props: React.ComponentProps<typeof Text>) {
   let testRenderer: renderer.ReactTestRenderer;
   act(() => {
-    testRenderer = renderer.create(<><Text {...props} /></>);
+    testRenderer = renderer.create(
+      <ThemeProvider>
+        <Text {...props} />
+      </ThemeProvider>,
+    );
   });
   return testRenderer!;
 }
+
+function getRNText(testRenderer: renderer.ReactTestRenderer) {
+  const textNode = testRenderer.root.findByType(Text);
+  return textNode.findByType('Text' as unknown as React.ComponentType);
+}
+
 describe('Text', () => {
   describe('children rendering', () => {
     it('renders string children', () => {
       const testRenderer = renderText({
-        children: 'Hello'
+        children: 'Hello',
       });
-      const textNode = testRenderer.root.findByType(Text);
-      const rnText = textNode.findByType('Text' as unknown as React.ComponentType);
+      const rnText = getRNText(testRenderer);
       expect(rnText.props.children).toBe('Hello');
     });
     it('renders nested Text children', () => {
       const testRenderer = renderText({
-        children: <>
-            <Text style={{
-            fontWeight: 'bold'
-          }}>Bold</Text>
+        children: (
+          <>
+            <Text
+              style={{
+                fontWeight: 'bold',
+              }}
+            >
+              Bold
+            </Text>
             {' normal'}
           </>
+        ),
       });
-      const nestedText = testRenderer.root.findAllByType(Text).find(node => node.props.children === 'Bold');
+      const nestedText = testRenderer.root
+        .findAllByType(Text)
+        .find(node => node.props.children === 'Bold');
       expect(nestedText).toBeDefined();
     });
   });
@@ -36,10 +55,9 @@ describe('Text', () => {
       const testRenderer = renderText({
         size: 'md',
         numberOfLines: 2,
-        children: 'Hello'
+        children: 'Hello',
       });
-      const textNode = testRenderer.root.findByType(Text);
-      const rnText = textNode.findByType('Text' as unknown as React.ComponentType);
+      const rnText = getRNText(testRenderer);
       expect(rnText.props.numberOfLines).toBe(2);
     });
     it('forwards onPress to underlying RN Text', () => {
@@ -47,11 +65,33 @@ describe('Text', () => {
       const testRenderer = renderText({
         size: 'md',
         onPress,
-        children: 'Hello'
+        children: 'Hello',
       });
-      const textNode = testRenderer.root.findByType(Text);
-      const rnText = textNode.findByType('Text' as unknown as React.ComponentType);
+      const rnText = getRNText(testRenderer);
       expect(rnText.props.onPress).toBe(onPress);
+    });
+  });
+
+  describe('color', () => {
+    it('supports alias color token names with color prefix', () => {
+      const testRenderer = renderText({
+        color: 'colorPrimary',
+        children: 'Hello',
+      });
+      const rnText = getRNText(testRenderer);
+
+      expect(rnText.props.style[0].color).toBeDefined();
+    });
+
+    it('supports custom color strings', () => {
+      const customColor = '#123456';
+      const testRenderer = renderText({
+        color: customColor,
+        children: 'Hello',
+      });
+      const rnText = getRNText(testRenderer);
+
+      expect(rnText.props.style[0].color).toBe(customColor);
     });
   });
 });

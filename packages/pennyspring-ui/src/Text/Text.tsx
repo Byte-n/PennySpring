@@ -1,9 +1,18 @@
 import React from 'react';
 import { Text as RNText } from 'react-native';
-import { createUseSheetStyle } from '@pennyspring/theme';
+import {
+  createUseSheetStyle,
+  getAliasColorTokenValue,
+} from '@pennyspring/theme';
 import type { AliasToken } from '@pennyspring/theme';
 import type { TextStyle } from 'react-native';
-import type { TextColor, TextProps, TextSize, TextWeight } from './types';
+import type {
+  TextColor,
+  TextProps,
+  TextSemanticColor,
+  TextSize,
+  TextWeight,
+} from './types';
 
 interface SizeConfig {
   fontSize: (token: AliasToken) => number;
@@ -79,7 +88,7 @@ const SIZE_DEFAULT_WEIGHT_MAP: Record<TextSize, TextWeight> = {
   h5: 'strong',
 };
 
-const COLOR_MAP: Record<TextColor, ColorSelector> = {
+const COLOR_MAP: Record<TextSemanticColor, ColorSelector> = {
   base: t => t.colorTextBase,
   default: t => t.colorText,
   secondary: t => t.colorTextSecondary,
@@ -93,11 +102,22 @@ const COLOR_MAP: Record<TextColor, ColorSelector> = {
   lightSolid: t => t.colorTextLightSolid,
 };
 
+function resolveColor(color: TextColor | undefined, token: AliasToken): string {
+  if (color === undefined) {
+    return token.colorText;
+  }
+
+  if (color in COLOR_MAP) {
+    return COLOR_MAP[color as TextSemanticColor](token);
+  }
+
+  return getAliasColorTokenValue(token, color) ?? color;
+}
+
 const useStyles = createUseSheetStyle(
   (token, { size, weight, color }: TextStyleOptions) => {
     const config = SIZE_MAP[size];
     const resolvedWeight = weight ?? SIZE_DEFAULT_WEIGHT_MAP[size];
-    const resolvedColor = color ?? 'default';
 
     return {
       text: {
@@ -105,7 +125,7 @@ const useStyles = createUseSheetStyle(
         fontSize: config.fontSize(token),
         lineHeight: config.lineHeight(token),
         fontWeight: WEIGHT_MAP[resolvedWeight](token),
-        color: COLOR_MAP[resolvedColor](token),
+        color: resolveColor(color, token),
       },
     };
   },

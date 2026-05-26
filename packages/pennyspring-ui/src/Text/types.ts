@@ -1,9 +1,25 @@
 import type { ReactNode } from 'react';
 import type { GestureResponderEvent, StyleProp, TextStyle } from 'react-native';
+import type { AliasColorTokenKey } from '@pennyspring/theme';
 
-export type TextSize = 'sm' | 'md' | 'lg' | 'xl' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5';
-export type TextWeight = 'light' | 'regular' | 'medium' | 'semibold' | 'bold' | 'strong';
-export type TextColor =
+export type TextSize =
+  | 'sm'
+  | 'md'
+  | 'lg'
+  | 'xl'
+  | 'h1'
+  | 'h2'
+  | 'h3'
+  | 'h4'
+  | 'h5';
+export type TextWeight =
+  | 'light'
+  | 'regular'
+  | 'medium'
+  | 'semibold'
+  | 'bold'
+  | 'strong';
+export type TextSemanticColor =
   | 'base'
   | 'default'
   | 'secondary'
@@ -15,6 +31,7 @@ export type TextColor =
   | 'disabled'
   | 'placeholder'
   | 'lightSolid';
+export type TextColor = TextSemanticColor | AliasColorTokenKey | (string & {});
 
 export interface TextProps {
   size?: TextSize;
