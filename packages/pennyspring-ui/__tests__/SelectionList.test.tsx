@@ -174,4 +174,47 @@ describe('SelectionList', () => {
     expect(JSON.stringify(floatingPanel.props.style)).toContain('50%');
     expect(JSON.stringify(root.props.style)).not.toContain('50%');
   });
+
+  it('forwards popup floating panel props to the internal panel', () => {
+    const testRenderer = renderSelectionList({
+      defaultOpen: true,
+      popupProps: {
+        floatingPanelProps: {
+          closeOnMaskClick: false,
+          height: '60%',
+          keyboardAvoiding: true,
+          mask: false,
+        },
+      },
+    });
+
+    const floatingPanel = testRenderer.root.findByType(Popup.FloatingPanel);
+
+    expect(floatingPanel.props.closeOnMaskClick).toBe(false);
+    expect(floatingPanel.props.height).toBe('60%');
+    expect(floatingPanel.props.keyboardAvoiding).toBe(true);
+    expect(floatingPanel.props.mask).toBe(false);
+  });
+
+  it('forwards search input props to the internal text input', () => {
+    const testRenderer = renderSelectionList({
+      defaultOpen: true,
+      searchable: true,
+      popupProps: {
+        searchInputProps: {
+          autoFocus: true,
+          returnKeyType: 'search',
+          testID: 'selection-search-input',
+        },
+      },
+    });
+
+    const searchInput = testRenderer.root.findByProps({
+      testID: 'selection-search-input',
+    });
+
+    expect(searchInput.type).toBe(TextInput);
+    expect(searchInput.props.autoFocus).toBe(true);
+    expect(searchInput.props.returnKeyType).toBe('search');
+  });
 });

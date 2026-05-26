@@ -1,6 +1,12 @@
 import type { ReactNode } from 'react';
-import type { StyleProp, TextStyle, ViewStyle } from 'react-native';
+import type {
+  StyleProp,
+  TextInputProps,
+  TextStyle,
+  ViewStyle,
+} from 'react-native';
 import type { DisplayInputProps, DisplayInputStyles } from '../DisplayInput';
+import type { PopupFloatingPanelProps } from '../Popup';
 import type { ComponentSize } from '../shares/types';
 import type { TagDisplayProps } from '../_internal/TagValueDisplay';
 
@@ -183,6 +189,30 @@ export interface SelectionListTexts {
   emptyText?: string;
 }
 
+export type SelectionListSearchInputProps = Omit<
+  TextInputProps,
+  | 'editable'
+  | 'onChangeText'
+  | 'placeholder'
+  | 'placeholderTextColor'
+  | 'style'
+  | 'value'
+>;
+
+export type SelectionListFloatingPanelProps = Omit<
+  PopupFloatingPanelProps,
+  | 'children'
+  | 'defaultOpen'
+  | 'defaultValue'
+  | 'footer'
+  | 'header'
+  | 'onCancel'
+  | 'onChange'
+  | 'onOpenChange'
+  | 'open'
+  | 'value'
+>;
+
 export interface SelectionListPopupProps {
   /**
    * SelectionList 尺寸。
@@ -288,6 +318,18 @@ export interface SelectionListPopupProps {
    * 内部文本配置。组件不提供默认展示文案，未传入时对应文本不展示。
    */
   texts?: SelectionListTexts;
+
+  /**
+   * 搜索输入框的非受控内部属性。
+   * editable、value、placeholder 等由 SelectionList 统一管理。
+   */
+  searchInputProps?: SelectionListSearchInputProps;
+
+  /**
+   * 内部 FloatingPanel 的配置。
+   * open、value、onChange 等受控状态由 SelectionList 统一管理。
+   */
+  floatingPanelProps?: SelectionListFloatingPanelProps;
 
   /**
    * 弹层内容样式。

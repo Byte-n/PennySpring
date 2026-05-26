@@ -166,6 +166,7 @@ export function SelectionListPopup({
   defaultValue,
   disabled,
   empty,
+  floatingPanelProps,
   groups,
   loading,
   mode,
@@ -176,6 +177,7 @@ export function SelectionListPopup({
   options,
   readonly,
   searchable,
+  searchInputProps,
   searchValue,
   size,
   style,
@@ -211,6 +213,13 @@ export function SelectionListPopup({
     [mergedSearchValue, renderGroups],
   );
   const selectedValues = toValueArray(mergedValue);
+  const {
+    keyboardAvoiding = true,
+    position: floatingPanelPosition,
+    style: floatingPanelStyle,
+    styles: floatingPanelStyles,
+    ...floatingPanelRestProps
+  } = floatingPanelProps ?? {};
 
   function closeSelectionList(): void {
     setMergedOpen(false);
@@ -309,12 +318,15 @@ export function SelectionListPopup({
 
   return (
     <Popup.FloatingPanel
+      {...floatingPanelRestProps}
       footer={null}
       header={null}
       open={mergedOpen}
-      position="bottom"
+      position={floatingPanelPosition ?? 'bottom'}
       onCancel={closeSelectionList}
-      style={[tokenStyles.popup, style, styles?.popup]}
+      style={[tokenStyles.popup, floatingPanelStyle, style, styles?.popup]}
+      styles={floatingPanelStyles}
+      keyboardAvoiding={keyboardAvoiding}
     >
       <View testID="selection-list-popup" style={tokenStyles.popupContent}>
         {texts?.headerText !== undefined || texts?.closeText !== undefined ? (
@@ -339,6 +351,7 @@ export function SelectionListPopup({
         ) : null}
         {searchable === true ? (
           <TextInput
+            {...searchInputProps}
             editable={isInteractive}
             onChangeText={handleSearchChange}
             placeholder={texts?.searchPlaceholder}
@@ -352,9 +365,7 @@ export function SelectionListPopup({
             {texts?.loadingText !== undefined ? (
               <Text color="description">{texts.loadingText}</Text>
             ) : (
-              <ActivityIndicator
-                color={token.colorTextTertiary}
-              />
+              <ActivityIndicator color={token.colorTextTertiary} />
             )}
           </View>
         ) : filteredGroups.length > 0 ? (
@@ -377,11 +388,10 @@ export function SelectionListPopup({
           </View>
         ) : (
           <View style={tokenStyles.empty}>
-            {empty ?? (
-              texts?.emptyText !== undefined ? (
+            {empty ??
+              (texts?.emptyText !== undefined ? (
                 <Text color="description">{texts.emptyText}</Text>
-              ) : null
-            )}
+              ) : null)}
           </View>
         )}
         {resolvedMode === 'multiple' && texts?.confirmText !== undefined ? (
@@ -519,8 +529,8 @@ function SelectionListRoot({
         helperText={helperText}
         label={label ?? labelText}
         overflow={
-          displayInputProps?.overflow
-          ?? (displayMode === 'tag' ? 'visible' : 'hidden')
+          displayInputProps?.overflow ??
+          (displayMode === 'tag' ? 'visible' : 'hidden')
         }
         placeholder={placeholder ?? DEFAULT_PLACEHOLDER}
         size={resolvedSize}
@@ -531,15 +541,10 @@ function SelectionListRoot({
           field: [
             styles?.displayInput?.field,
             styles?.field,
-            mergedOpen && !isError
-              ? tokenStyles.fieldActive
-              : undefined,
+            mergedOpen && !isError ? tokenStyles.fieldActive : undefined,
           ],
           value: [styles?.displayInput?.value, styles?.value],
-          placeholder: [
-            styles?.displayInput?.placeholder,
-            styles?.placeholder,
-          ],
+          placeholder: [styles?.displayInput?.placeholder, styles?.placeholder],
           label: [styles?.displayInput?.label, styles?.label],
           suffix: [styles?.displayInput?.suffix, styles?.suffix],
           helper: [styles?.displayInput?.helper, styles?.helper],
