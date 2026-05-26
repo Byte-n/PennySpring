@@ -4,15 +4,14 @@ import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
 import { Icon } from '../Icon';
 import { Text } from '../Text';
-import type {
-  AliasToken } from '@pennyspring/theme';
+import type { AliasToken } from '@pennyspring/theme';
 import type { IconColor } from '../Icon';
 import type {
   GestureResponderEvent,
   StyleProp,
   TextStyle,
   ViewStyle,
-  } from 'react-native';
+} from 'react-native';
 import type {
   ButtonColor,
   ButtonLoadingConfig,
@@ -33,8 +32,7 @@ interface ButtonStyleOptions {
 }
 
 interface SizeStyleConfig {
-  controlSize: (token: AliasToken) => number;
-  paddingVertical: (token: AliasToken) => number;
+  height: (token: AliasToken) => number;
   paddingHorizontal: (token: AliasToken) => number;
   gap: (token: AliasToken) => number;
   fontSize: (token: AliasToken) => number;
@@ -65,24 +63,21 @@ type TypeDefaults = {
 
 const SIZE_STYLE_MAP: Record<ComponentSize, SizeStyleConfig> = {
   small: {
-    controlSize: token => token.controlHeightSM,
-    paddingVertical: token => token.paddingXS / 2,
+    height: token => token.controlHeightSM,
     paddingHorizontal: token => token.paddingXS,
     gap: token => token.sizeXXS,
     fontSize: token => token.fontSizeSM,
     lineHeight: token => token.lineHeightSM,
   },
   normal: {
-    controlSize: token => token.controlHeight,
-    paddingVertical: token => token.paddingSM / 2,
+    height: token => token.controlHeight,
     paddingHorizontal: token => token.paddingSM,
     gap: token => token.sizeXS,
     fontSize: token => token.fontSize,
     lineHeight: token => token.lineHeight,
   },
   large: {
-    controlSize: token => token.controlHeightLG,
-    paddingVertical: token => token.paddingMD / 2,
+    height: token => token.controlHeightLG,
     paddingHorizontal: token => token.paddingMD,
     gap: token => token.sizeXS,
     fontSize: token => token.fontSizeLG,
@@ -131,7 +126,9 @@ const PRESET_COLORS = [
 
 const TRANSPARENT = 'transparent';
 
-function isPresetColor(color: ButtonColor): color is (typeof PRESET_COLORS)[number] {
+function isPresetColor(
+  color: ButtonColor,
+): color is (typeof PRESET_COLORS)[number] {
   return PRESET_COLORS.includes(color as (typeof PRESET_COLORS)[number]);
 }
 
@@ -173,10 +170,13 @@ function resolveLoadingConfig(
 }
 
 function resolveIconSize(size: ComponentSize, token: AliasToken): number {
-  return SIZE_STYLE_MAP[size].controlSize(token) / 2;
+  return SIZE_STYLE_MAP[size].height(token) / 2;
 }
 
-function resolveColorConfig(token: AliasToken, color: ButtonColor): ColorStyleConfig {
+function resolveColorConfig(
+  token: AliasToken,
+  color: ButtonColor,
+): ColorStyleConfig {
   if (color === 'primary') {
     return {
       base: token.colorPrimary,
@@ -246,9 +246,10 @@ function resolveVariantStyle(
   }
 
   if (resolvedVariant === 'text' || resolvedVariant === 'link') {
-    const linkColor = resolvedVariant === 'link' && color === 'primary'
-      ? token.colorLink
-      : colorConfig.text;
+    const linkColor =
+      resolvedVariant === 'link' && color === 'primary'
+        ? token.colorLink
+        : colorConfig.text;
 
     return {
       backgroundColor: TRANSPARENT,
@@ -283,21 +284,19 @@ const useStyles = createUseSheetStyle(
     }: ButtonStyleOptions,
   ) => {
     const sizeConfig = SIZE_STYLE_MAP[size];
-    const controlSize = sizeConfig.controlSize(token);
+    const height = sizeConfig.height(token);
     const isTextButton = variant === 'text' || variant === 'link';
     const isCircle = shape === 'circle';
     const variantStyle = resolveVariantStyle(token, color, variant, ghost);
-    const borderRadius = shape === 'default' ? token.borderRadius : controlSize / 2;
-    const horizontalPadding = isCircle && !hasContent
-      ? 0
-      : sizeConfig.paddingHorizontal(token);
+    const borderRadius = shape === 'default' ? token.borderRadius : height / 2;
+    const horizontalPadding =
+      isCircle && !hasContent ? 0 : sizeConfig.paddingHorizontal(token);
 
     return {
       root: {
-        minWidth: isCircle && !hasContent ? controlSize : undefined,
-        width: block ? '100%' : isCircle && !hasContent ? controlSize : undefined,
-        height: isCircle && !hasContent ? controlSize : undefined,
-        paddingVertical: sizeConfig.paddingVertical(token),
+        minHeight: height,
+        minWidth: height,
+        width: block ? '100%' : isCircle && !hasContent ? height : undefined,
         paddingHorizontal: horizontalPadding,
         borderRadius,
         borderWidth: isTextButton ? 0 : token.lineWidth,
@@ -314,7 +313,9 @@ const useStyles = createUseSheetStyle(
         borderColor: variantStyle.pressedBorderColor,
       },
       rootDisabled: {
-        backgroundColor: isTextButton ? TRANSPARENT : token.colorBgContainerDisabled,
+        backgroundColor: isTextButton
+          ? TRANSPARENT
+          : token.colorBgContainerDisabled,
         borderColor: isTextButton ? TRANSPARENT : token.colorBorderDisabled,
         opacity: isTextButton ? token.opacityLoading : undefined,
       },
@@ -360,8 +361,8 @@ function renderContent(
   }
 
   if (
-    React.isValidElement<{ style?: StyleProp<TextStyle> }>(children)
-    && children.type === Text
+    React.isValidElement<{ style?: StyleProp<TextStyle> }>(children) &&
+    children.type === Text
   ) {
     return React.cloneElement(children, {
       style: StyleSheet.flatten([style, children.props.style, stateStyle]),
@@ -420,15 +421,14 @@ export function Button({
     resolvedVariant,
     ghost,
   );
-  const resolvedIconColor = disabled ? token.colorTextDisabled : variantStyle.color;
+  const resolvedIconColor = disabled
+    ? token.colorTextDisabled
+    : variantStyle.color;
   const iconNode = shouldRenderIcon ? (
-    <View
-      style={[
-        tokenStyles.icon,
-        styles?.icon,
-      ]}
-    >
-      {isLoading ? loadingIcon : (
+    <View style={[tokenStyles.icon, styles?.icon]}>
+      {isLoading ? (
+        loadingIcon
+      ) : (
         <Icon
           color={resolvedIconColor as IconColor}
           size={resolveIconSize(size, token)}
@@ -439,10 +439,11 @@ export function Button({
     </View>
   ) : null;
   const contentNode = hasContent
-    ? renderContent(children, [
-      tokenStyles.content,
-      styles?.content,
-    ], disabled ? tokenStyles.contentDisabled : null)
+    ? renderContent(
+        children,
+        [tokenStyles.content, styles?.content],
+        disabled ? tokenStyles.contentDisabled : null,
+      )
     : null;
 
   useEffect(() => {
@@ -474,9 +475,8 @@ export function Button({
     onPress?.(event);
   }
 
-  const orderedChildren = iconPlacement === 'end'
-    ? [contentNode, iconNode]
-    : [iconNode, contentNode];
+  const orderedChildren =
+    iconPlacement === 'end' ? [contentNode, iconNode] : [iconNode, contentNode];
 
   return (
     <Pressable
