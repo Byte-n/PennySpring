@@ -2,6 +2,7 @@ import React from 'react';
 import { Text as RNText, TextInput } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
 import { DisplayInput } from '../src/DisplayInput';
+import { Button } from '../src/Button';
 import { Icon } from '../src/Icon';
 import { Input } from '../src/Input';
 import { Popup } from '../src/Popup';
@@ -36,6 +37,22 @@ function renderSelectionList(
 
 function treeText(testRenderer: renderer.ReactTestRenderer): string {
   return JSON.stringify(testRenderer.toJSON());
+}
+
+function flattenStyle(style: unknown) {
+  const flatten = (input: unknown): Record<string, unknown>[] => {
+    if (input === null || input === undefined || input === false) {
+      return [];
+    }
+
+    if (Array.isArray(input)) {
+      return input.flatMap(flatten);
+    }
+
+    return [input as Record<string, unknown>];
+  };
+
+  return Object.assign({}, ...flatten(style));
 }
 
 describe('SelectionList', () => {
@@ -236,6 +253,70 @@ describe('SelectionList', () => {
     expect(input.props.value).toBe('');
     expect(searchInput.props.autoFocus).toBe(true);
     expect(searchInput.props.returnKeyType).toBe('search');
+  });
+
+  it('propagates size to popup controls and option typography', () => {
+    const testRenderer = renderSelectionList({
+      defaultOpen: true,
+      searchable: true,
+      size: 'large',
+      texts: {
+        closeText: 'Close',
+        confirmText: 'Done',
+        headerText: 'Header',
+      },
+      mode: 'multiple',
+      groups: [
+        {
+          key: 'wallets',
+          titleText: 'Wallets',
+          options,
+        },
+      ],
+    });
+
+    const floatingPanel = testRenderer.root.findByType(Popup.FloatingPanel);
+    const input = testRenderer.root.findByType(Input);
+    const buttons = testRenderer.root.findAllByType(Button);
+    const descriptionText = testRenderer.root.findByProps({
+      children: 'Primary wallet',
+    });
+    const groupTitleText = testRenderer.root.findByProps({
+      children: 'Wallets',
+    });
+
+    expect(floatingPanel.props.size).toBe('large');
+    expect(input.props.size).toBe('large');
+    expect(buttons.every(button => button.props.size === 'large')).toBe(true);
+    expect(descriptionText.props.size).toBe('lg');
+    expect(groupTitleText.props.size).toBe('lg');
+  });
+
+  it('scales popup option layout with size', () => {
+    const smallRenderer = renderSelectionList({
+      defaultOpen: true,
+      size: 'small',
+    });
+    const largeRenderer = renderSelectionList({
+      defaultOpen: true,
+      size: 'large',
+    });
+
+    const smallOption = smallRenderer.root.findAll(node =>
+      typeof node.props.onPress === 'function' && typeof node.props.style === 'function',
+    )[0];
+    const largeOption = largeRenderer.root.findAll(node =>
+      typeof node.props.onPress === 'function' && typeof node.props.style === 'function',
+    )[0];
+    const smallOptionStyle = flattenStyle(smallOption.props.style({ pressed: false }));
+    const largeOptionStyle = flattenStyle(largeOption.props.style({ pressed: false }));
+
+    expect(largeOptionStyle.minHeight as number).toBeGreaterThan(
+      smallOptionStyle.minHeight as number,
+    );
+    expect(largeOptionStyle.paddingVertical as number).toBeGreaterThan(
+      smallOptionStyle.paddingVertical as number,
+    );
   });
 
   it('renders selected and unselected option markers with Icon components', () => {

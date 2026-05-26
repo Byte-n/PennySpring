@@ -138,4 +138,26 @@ describe('Notification', () => {
       children: 'Description'
     })).toThrow();
   });
+
+  it('scales description text with size', () => {
+    let testRenderer!: renderer.ReactTestRenderer;
+
+    act(() => {
+      testRenderer = renderer.create(<><PortalProvider>
+        <Notification
+          open
+          duration={0}
+          size="large"
+          titleText="Title"
+          descriptionText="Description"
+        />
+      </PortalProvider></>);
+    });
+
+    const description = testRenderer.root.findByProps({
+      children: 'Description',
+    });
+
+    expect(description.props.size).toBe('lg');
+  });
 });
