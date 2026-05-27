@@ -53,9 +53,9 @@ const SIZE_MAP: Record<
   large: {
     dotSize: token => token.fontSizeLG,
     gap: token => token.marginSM,
-    horizontalPadding: token => token.paddingLG,
+    horizontalPadding: token => token.paddingMD,
     textSize: 'lg',
-    verticalPadding: token => token.paddingLG,
+    verticalPadding: token => token.paddingMD,
   },
 };
 

@@ -46,7 +46,7 @@ const SIZE_STYLE_MAP: Record<ComponentSize, SizeStyleConfig> = {
     borderRadius: token => token.borderRadius,
   },
   large: {
-    padding: token => token.paddingLG,
+    padding: token => token.paddingMD,
     gap: token => token.marginSM,
     titleFontSize: token => token.fontSizeXL,
     titleLineHeight: token => token.lineHeightXL,

@@ -44,8 +44,8 @@ const SIZE_TOKEN_MAP: Record<
     textSize: 'md',
   },
   large: {
-    verticalPadding: token => token.paddingLG,
-    horizontalPadding: token => token.paddingLG,
+    verticalPadding: token => token.paddingMD,
+    horizontalPadding: token => token.paddingMD,
     textSize: 'lg',
   },
 };

@@ -468,10 +468,10 @@ describe('Popup.FloatingPanel', () => {
               marginXS: 5,
               marginSM: 7,
               margin: 29,
-              marginLG: 31,
+              marginMD: 31,
               paddingSM: 11,
               padding: 13,
-              paddingLG: 17,
+              paddingMD: 17,
             },
           }}
         >

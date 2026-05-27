@@ -40,8 +40,8 @@ const SIZE_STYLE_MAP: Record<ComponentSize, DividerSizeStyleConfig> = {
   },
   large: {
     contentPaddingHorizontal: token => token.paddingLG,
-    marginHorizontal: token => token.marginLG,
-    marginVertical: token => token.marginLG,
+    marginHorizontal: token => token.marginMD,
+    marginVertical: token => token.marginMD,
     fontSize: token => token.fontSize,
     lineHeight: token => token.lineHeight,
   },

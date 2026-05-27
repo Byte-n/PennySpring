@@ -36,7 +36,7 @@ describe('Divider', () => {
             token: {
               marginSM: 11,
               margin: 13,
-              marginLG: 17,
+              marginMD: 17,
             },
           }}
         >

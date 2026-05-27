@@ -119,7 +119,7 @@ describe('Toast', () => {
             token: {
               paddingSM: 11,
               padding: 13,
-              paddingLG: 17,
+              paddingMD: 17,
             },
           }}
         >

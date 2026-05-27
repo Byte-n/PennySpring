@@ -86,12 +86,12 @@ const SIZE_MAP: Record<ComponentSize, FloatingPanelSizeConfig> = {
   },
   large: {
     actionGap: token => token.marginSM,
-    contentPadding: token => token.paddingLG,
+    contentPadding: token => token.paddingMD,
     handleHeight: token => token.controlHeight,
     handleWidth: token => token.controlHeightLG,
     indicatorHeight: token => token.sizeXS,
-    sectionMargin: token => token.marginLG,
-    sectionPadding: token => token.paddingLG,
+    sectionMargin: token => token.marginMD,
+    sectionPadding: token => token.paddingMD,
     titleTextSize: 'xl',
   },
 };

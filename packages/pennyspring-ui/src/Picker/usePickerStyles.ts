@@ -76,7 +76,7 @@ export const usePickerStyles = createUseSheetStyle(
       },
       headerCenter: {
         // 标题占最宽
-        flex: 4,
+        flex: 3,
         alignItems: 'center',
       },
       headerButton: {

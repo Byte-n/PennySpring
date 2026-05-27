@@ -35,14 +35,15 @@
 
 - `small` 映射到 `paddingSM`，用于小卡片、紧凑单行容器、列表内嵌容器。
 - `normal` 映射到 `padding`，用于默认移动端卡片、普通内容容器。
-- `large` 映射到 `paddingLG`，用于强调卡片、页面主容器、弹层大内容区。
-- 复杂容器、带 header、footer 或操作区的容器，`normal` 可升级为 `paddingMD`。
+- `large` 映射到 `paddingMD`，用于较松的卡片、内容容器和弹层内容区。
+- 强调卡片、页面主容器、弹层大内容区等特殊场景可升级为 `paddingLG`。
 
 ### Section Margin
 
 - `small` 映射到 `marginSM`，用于同组内轻分隔。
 - `normal` 映射到 `margin`，用于页面默认区块间距。
-- `large` 映射到 `marginLG`，用于主区块分隔。
+- `large` 映射到 `marginMD`，用于较明显的区块分隔。
+- 主区块分隔等特殊场景可升级为 `marginLG`。
 
 ## 通用交互
 

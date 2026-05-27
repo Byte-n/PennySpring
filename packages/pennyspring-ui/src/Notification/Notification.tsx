@@ -53,9 +53,9 @@ const SIZE_MAP: Record<
   large: {
     descriptionTextSize: 'lg',
     gap: token => token.marginSM,
-    horizontalPadding: token => token.paddingLG,
+    horizontalPadding: token => token.paddingMD,
     titleTextSize: 'xl',
-    verticalPadding: token => token.paddingLG,
+    verticalPadding: token => token.paddingMD,
   },
 };
 
