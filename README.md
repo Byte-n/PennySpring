@@ -121,10 +121,10 @@ To learn more about React Native, take a look at the following resources:
     - 可点击目标 `minHeight` 优先使用 `controlHeight`，不要依赖 padding 猜触达面积。
     - 视觉尺寸必须小于触达面积时，用 `hitSlop` 扩大触达区。
     - 相邻可点击元素间距不低于 `paddingXS`，不要使用 `paddingXXS` 作为唯一间距。
-- [ ] 有 `size` 的组件是否有随着 `size` 切换
-  - [ ] 容器、布局、录入、展示：完整响应所有的边距、阴影、字号等变化？内部使用的其他组件有 `size` 的也需要响应。
-- [ ] `Text` 组件的 `color` 需要与 `Icon` 中的 `color` 一致
-- [ ] 所有的 `xxxText` 、 `xxxRender` 、 `xxxx` 插槽，
+- [x] 有 `size` 的组件是否有随着 `size` 切换。
+  - [x] 容器、布局、录入、展示：完整响应所有的边距、阴影、字号等变化？内部使用的其他组件有 `size` 的也需要响应。
+- [x] `Text` 组件的 `color` 需要与 `Icon` 中的 `color` 一致
+- [x] 所有的 `xxxText` 、 `xxxRender` 、 `xxxx` 插槽，
   - 为 null 的情况下表示不渲染此部分内容。
     - 若 `header` 中仅有 `title`，`title=null`，则整个 `header` 不渲染。也可以通过 `header=null` 来表示不渲染
   - `xxxText` 类型只能是 `xxxText?: string`，不能为 `null`，不能通过 `xxxText=null` 来表示不渲染，应该额外定义 `xxx?: ReactNode | null` 来支持 `null` 控制此部分不渲染。
