@@ -39,8 +39,5 @@
       "Bash(pwd)",
       "Bash(whoami)"
     ]
-  },
-  "enabledPlugins": {
-    "superpowers@claude-plugins-official": true
   }
 }

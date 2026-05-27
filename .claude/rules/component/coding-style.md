@@ -73,6 +73,11 @@ paths:
 - 组件实现中所有垂直方向 spacing（`paddingVertical` / `marginVertical` / 垂直轴 gap）必须直接基于同语义水平 token 计算，统一使用 `horizontalToken / 2`。
 - 尺寸样式必须使用 `AliasToken`，并通过 `createUseSheetStyle<TOptions>` options 传入 `size`。
 
+## Gap Props 类型
+
+- 布局组件的 `gap` prop 允许使用具体数值（`number`），用于精确控制间距。
+- 当间隙存在多个方向（如水平和垂直）时，`gap` 应支持元组类型。
+
 ## 样式 API
 
 - `style` 控制组件外层布局，`styles?: XxxStyles` 控制语义化内部插槽。

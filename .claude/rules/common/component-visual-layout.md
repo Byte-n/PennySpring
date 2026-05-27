@@ -30,7 +30,6 @@
 - `small` 映射到 `paddingXXS` 或 `marginXXS`，仅用于紧凑视觉间距。
 - `normal` 映射到 `paddingXS` 或 `marginXS`，作为默认子项间距。
 - `large` 映射到 `paddingSM` 或 `marginSM`，用于较松的模块内排列。
-- 垂直方向间隙必须由同语义水平 token 直接计算：`verticalGap = horizontalGap / 2`。
 
 ### Container Padding
 
