@@ -100,7 +100,7 @@ export function KeyboardAwareFormScroll({
             layoutCallback.current = null;
             scrollView.scrollTo({
               y: scrollOffsetY + inputBottomY - visibleHeight,
-              animated: true,
+              animated: false,
             });
           };
         },

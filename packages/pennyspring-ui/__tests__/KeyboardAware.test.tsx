@@ -7,6 +7,7 @@ import {
   ScrollView,
   StyleSheet,
   Text as RNText,
+  TextInput,
   View,
 } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
@@ -264,5 +265,80 @@ describe('KeyboardAware', () => {
     const flattenedStyle = StyleSheet.flatten(footer.props.style);
 
     expect(flattenedStyle.paddingBottom).toBe(280);
+  });
+
+  it('scrolls focused input into view without native animation', () => {
+    const scrollToSpy = jest.spyOn(ScrollView.prototype, 'scrollTo');
+
+    const handlers: KeyboardHandler[] = [];
+    jest.spyOn(Keyboard, 'addListener').mockImplementation((_, handler) => {
+      handlers.push(handler as KeyboardHandler);
+
+      return createKeyboardSubscription();
+    });
+
+    const nativeScrollRef = {
+      measureInWindow: jest.fn(
+        (callback: (x: number, y: number, w: number, h: number) => void) => {
+          callback(0, 0, 360, 640);
+        },
+      ),
+    };
+    const mockInputRef = {
+      measureLayout: jest.fn(
+        (
+          _relativeTo: unknown,
+          callback: (x: number, y: number, w: number, h: number) => void,
+        ) => {
+          callback(0, 800, 300, 50);
+        },
+      ),
+    };
+    jest
+      .spyOn(TextInput.State, 'currentlyFocusedInput')
+      .mockReturnValue(
+        mockInputRef as unknown as ReturnType<
+          typeof TextInput.State.currentlyFocusedInput
+        >,
+      );
+    jest
+      .spyOn(ScrollView.prototype, 'getNativeScrollRef')
+      .mockReturnValue(
+        nativeScrollRef as unknown as ReturnType<
+          typeof ScrollView.prototype.getNativeScrollRef
+        >,
+      );
+
+    let testRenderer: renderer.ReactTestRenderer;
+
+    act(() => {
+      testRenderer = renderer.create(
+        <KeyboardAwareFormScroll testID="form-scroll">
+          <RNText>field</RNText>
+        </KeyboardAwareFormScroll>,
+      );
+    });
+
+    act(() => {
+      handlers[0]({ endCoordinates: { height: 280, screenY: 360 } });
+    });
+
+    // Trigger onLayout to fire the deferred layoutCallback
+    act(() => {
+      const scrollView = testRenderer!.root.findByType(ScrollView);
+      scrollView.props.onLayout({
+        nativeEvent: { layout: { x: 0, y: 0, width: 360, height: 640 } },
+      });
+    });
+
+    expect(scrollToSpy).toHaveBeenCalled();
+    const lastCall =
+      scrollToSpy.mock.calls[scrollToSpy.mock.calls.length - 1];
+
+    expect(lastCall![0]).toEqual(
+      expect.objectContaining({ animated: false }),
+    );
+
+    scrollToSpy.mockRestore();
   });
 });

@@ -2,6 +2,7 @@ import React from 'react';
 import { View } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
 import { List, ListItem } from '../src/List';
+import { Text } from '../src/Text';
 function renderList(element: React.ReactElement) {
   let testRenderer: renderer.ReactTestRenderer;
   act(() => {
@@ -87,5 +88,50 @@ describe('List', () => {
     const testRenderer = renderList(<ListItem title="Checking" selected />);
     const treeString = JSON.stringify(testRenderer.toJSON());
     expect(treeString).toContain('selected-marker');
+  });
+
+  it('wraps title string in Text component when passed as title prop', () => {
+    const testRenderer = renderList(<ListItem title="Checking" />);
+    const textNodes = testRenderer.root.findAllByType(Text);
+    const titleText = textNodes.find(node => node.props.children === 'Checking');
+    expect(titleText).toBeDefined();
+  });
+
+  it('wraps description string in Text component when passed as description prop', () => {
+    const testRenderer = renderList(<ListItem description="Main account" />);
+    const textNodes = testRenderer.root.findAllByType(Text);
+    const descText = textNodes.find(node => node.props.children === 'Main account');
+    expect(descText).toBeDefined();
+  });
+
+  it('uses Row component for horizontal layout', () => {
+    const testRenderer = renderList(<ListItem title="Checking" />);
+    const treeString = JSON.stringify(testRenderer.toJSON());
+    expect(treeString).toContain('"testID":"row"');
+  });
+
+  it('applies external style after state styles for selected items', () => {
+    const testRenderer = renderList(
+      <ListItem title="Checking" selected style={{ opacity: 0.5 }} />,
+    );
+    const root = testRenderer.root.findAll(
+      node => Array.isArray(node.props.style) && node.props.style.length >= 4,
+    )[0];
+    const styles = root.props.style as unknown[];
+    const lastStyle = styles[styles.length - 1];
+    expect(lastStyle).toEqual({ opacity: 0.5 });
+  });
+
+  it('applies external style after state styles for pressed items', () => {
+    const onPress = jest.fn();
+    const testRenderer = renderList(
+      <ListItem title="Checking" onPress={onPress} style={{ opacity: 0.5 }} />,
+    );
+    const pressable = testRenderer.root.findAll(node =>
+      typeof node.props.onPress === 'function' && typeof node.props.style === 'function',
+    )[0];
+    const resolvedStyle = pressable.props.style({ pressed: true });
+    const lastStyle = resolvedStyle[resolvedStyle.length - 1];
+    expect(lastStyle).toEqual({ opacity: 0.5 });
   });
 });

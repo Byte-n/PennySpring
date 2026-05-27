@@ -2,13 +2,13 @@
 
 ## 结论
 
-- 状态：不通过
+- 状态：通过
 - 严重程度：medium
 - 问题数量：1
 
 ## 问题列表
 
-### 1. 聚焦输入框时使用 React Native ScrollView 原生滚动动画
+### 1. 聚焦输入框时使用 React Native ScrollView 原生滚动动画 ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/KeyboardAware/KeyboardAwareFormScroll.tsx:101`

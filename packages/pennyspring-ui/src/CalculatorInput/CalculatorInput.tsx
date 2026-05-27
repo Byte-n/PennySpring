@@ -1,15 +1,14 @@
 import React, { useMemo } from 'react';
 import { Pressable, TextInput } from 'react-native';
-import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
+import { useTheme } from '@pennyspring/theme';
 import { Column } from '../Column';
 import { Icon } from '../Icon';
 import { Row } from '../Row';
 import { Text } from '../Text';
 import { useControllableValue } from '../_hooks';
-import type { AliasToken } from '@pennyspring/theme';
-import type { IconColor } from '../Icon';
-import type { TextStyle } from 'react-native';
+import { useStyles } from './style';
 import type { CalculatorInputProps, CalculatorInputStyles } from './types';
+import type { TextColor } from '../Text/types';
 
 type Operator = '+' | '-' | '×' | '/';
 type EvaluationOperator = '+' | '-' | '*' | '/';
@@ -22,10 +21,6 @@ interface CalculatorKeyConfig {
   value?: string;
 }
 
-interface CalculatorInputStyleOptions {
-  disabled: boolean;
-}
-
 interface CalculatorInputResult {
   display: string;
   value: number | null;
@@ -36,26 +31,15 @@ interface NumberParseResult {
   value: number;
 }
 
-interface SizeConfig {
-  keyHeight: (token: AliasToken) => number;
-  okKeyHeight: (token: AliasToken) => number;
-}
-
 const EXPRESSION_PLACEHOLDER = '0';
 const EMPTY_TEXT = '';
 const ZERO_TEXT = '0';
 const DECIMAL_POINT = '.';
 const OK_KEY_LABEL = '=';
-const OK_KEY_ROW_SPAN = 2;
 const KEYPAD_TOP_ROW_COUNT = 3;
 const MAX_FRACTION_DIGITS = 10;
 const KEYPAD_HIT_SLOP = 4;
 const DIVIDE_BY_ZERO = 0;
-
-const SIZE_CONFIG: SizeConfig = {
-  keyHeight: token => token.controlHeightLG,
-  okKeyHeight: token => token.controlHeightLG * OK_KEY_ROW_SPAN + token.sizeXS,
-};
 
 const KEY_ROWS: readonly (readonly CalculatorKeyConfig[])[] = [
   [
@@ -87,103 +71,6 @@ const KEY_ROWS: readonly (readonly CalculatorKeyConfig[])[] = [
     { label: '.', role: 'decimal', value: '.' },
   ],
 ];
-
-const useStyles = createUseSheetStyle(
-  (token, { disabled }: CalculatorInputStyleOptions) => ({
-    display: {
-      minHeight: token.controlHeightLG + token.controlHeightSM,
-      paddingHorizontal: token.controlPaddingHorizontal,
-      paddingVertical: token.controlPaddingHorizontal / 2,
-      borderWidth: token.lineWidth,
-      borderRadius: token.borderRadius,
-      borderColor: disabled ? token.colorBorderDisabled : token.colorBorder,
-      backgroundColor: disabled
-        ? token.colorBgContainerDisabled
-        : token.colorBgContainer,
-      justifyContent: 'center',
-    },
-    input: {
-      padding: 0,
-      margin: 0,
-      fontFamily: token.fontFamilyCode,
-      fontSize: token.fontSizeXL,
-      lineHeight: token.lineHeightXL,
-      color: disabled ? token.colorTextDisabled : token.colorTextHeading,
-      textAlign: 'right',
-    } as TextStyle,
-    result: {
-      minHeight: token.lineHeight,
-      color: disabled ? token.colorTextDisabled : token.colorTextSecondary,
-      fontFamily: token.fontFamilyCode,
-      fontSize: token.fontSize,
-      lineHeight: token.lineHeight,
-      textAlign: 'right',
-    } as TextStyle,
-    key: {
-      flex: 1,
-      minHeight: SIZE_CONFIG.keyHeight(token),
-      borderRadius: token.borderRadius,
-      borderWidth: token.lineWidth,
-      borderColor: disabled ? token.colorBorderDisabled : token.colorBorder,
-      backgroundColor: disabled
-        ? token.colorBgContainerDisabled
-        : token.colorBgContainer,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    keyPressed: {
-      backgroundColor: token.colorBgTextActive,
-      borderColor: token.colorPrimaryBorder,
-    },
-    operatorKey: {
-      backgroundColor: disabled
-        ? token.colorBgContainerDisabled
-        : token.colorFillQuaternary,
-    },
-    keyText: {
-      color: disabled ? token.colorTextDisabled : token.colorText,
-      fontFamily: token.fontFamily,
-      fontSize: token.fontSizeLG,
-      lineHeight: token.lineHeightLG,
-      fontWeight: String(token.fontWeightMedium) as TextStyle['fontWeight'],
-    },
-    mutedKeyText: {
-      color: disabled ? token.colorTextDisabled : token.colorTextSecondary,
-    },
-    okKey: {
-      minHeight: SIZE_CONFIG.okKeyHeight(token),
-      backgroundColor: disabled
-        ? token.colorBgContainerDisabled
-        : token.colorPrimary,
-      borderColor: disabled ? token.colorBorderDisabled : token.colorPrimary,
-    },
-    okKeyPressed: {
-      backgroundColor: token.colorPrimaryActive,
-      borderColor: token.colorPrimaryActive,
-    },
-    okKeyUnavailable: {
-      backgroundColor: token.colorBgContainerDisabled,
-      borderColor: token.colorBorderDisabled,
-    },
-    okKeyText: {
-      color: disabled ? token.colorTextDisabled : token.colorTextLightSolid,
-      fontFamily: token.fontFamily,
-      fontSize: token.fontSizeLG,
-      lineHeight: token.lineHeightLG,
-      fontWeight: String(token.fontWeightMedium) as TextStyle['fontWeight'],
-    },
-    okKeyTextUnavailable: {
-      color: token.colorTextDisabled,
-    },
-    leftPad: {
-      width: '75%'
-    },
-    backspaceIcon: {
-      color: disabled ? token.colorTextDisabled : token.colorTextSecondary,
-      fontSize: token.fontSizeXL,
-    },
-  }),
-);
 
 function isOperator(value: string): value is Operator {
   return value === '+' || value === '-' || value === '×' || value === '/';
@@ -570,15 +457,28 @@ function isMutedKey(key: CalculatorKeyConfig): boolean {
   return key.role === 'operator' || key.role === 'clear' || key.role === 'backspace' || key.role === 'paren';
 }
 
+function getKeyTextColor(key: CalculatorKeyConfig, disabled: boolean): TextColor {
+  if (disabled) {
+    return 'disabled';
+  }
+
+  if (isMutedKey(key)) {
+    return 'secondary';
+  }
+
+  return 'default';
+}
+
 function renderKeyContent(
   key: CalculatorKeyConfig,
   tokenStyles: ReturnType<typeof useStyles>,
   keyTextStyle: CalculatorInputStyles['keyText'],
+  disabled: boolean,
 ) {
   if (key.role === 'backspace') {
     return (
       <Icon
-        color={tokenStyles.backspaceIcon.color as IconColor}
+        color={disabled ? 'disabled' : 'secondary'}
         icon="arrow-left"
         size="large"
       />
@@ -587,9 +487,12 @@ function renderKeyContent(
 
   return (
     <Text
+      color={getKeyTextColor(key, disabled)}
+      size="lg"
+      weight="medium"
       style={[
         tokenStyles.keyText,
-        isMutedKey(key) ? tokenStyles.mutedKeyText : null,
+        isMutedKey(key) && !disabled ? tokenStyles.mutedKeyText : null,
         keyTextStyle,
       ]}
     >
@@ -691,7 +594,7 @@ export function CalculatorInput({
         ]}
         testID={`calc-key-${key.label || key.role}`}
       >
-        {renderKeyContent(key, tokenStyles, styles?.keyText)}
+        {renderKeyContent(key, tokenStyles, styles?.keyText, disabled)}
       </Pressable>
     );
   }
@@ -706,7 +609,11 @@ export function CalculatorInput({
           style={[tokenStyles.input, styles?.input]}
           value={expression}
         />
-        <Text style={[tokenStyles.result, styles?.result]}>
+        <Text
+          color={disabled ? 'disabled' : 'secondary'}
+          size="md"
+          style={[tokenStyles.result, styles?.result]}
+        >
           {result.display}
         </Text>
       </Column>
@@ -744,6 +651,9 @@ export function CalculatorInput({
             testID="calc-key-ok"
           >
             <Text
+              color={!canConfirm ? 'disabled' : 'lightSolid'}
+              size="lg"
+              weight="medium"
               style={[
                 tokenStyles.okKeyText,
                 !canConfirm ? tokenStyles.okKeyTextUnavailable : null,

@@ -1,7 +1,8 @@
 import type { ComponentSize } from '../shares/types';
 import React, { createContext, useContext } from 'react';
 import { Pressable, View } from 'react-native';
-import { createUseSheetStyle } from '@pennyspring/theme';
+import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
+import { Row } from '../Row';
 import { Text } from '../Text';
 import type {
   AliasToken } from '@pennyspring/theme';
@@ -81,11 +82,15 @@ function getItemHorizontalPadding(
   return token.paddingMD;
 }
 
+function getSlotGap(size: ComponentSize, token: AliasToken) {
+  return size === 'small' ? token.marginXS : token.marginSM;
+}
+
 const useListItemStyles = createUseSheetStyle(
   (token, { divider, size }: ListItemStyleOptions) => {
     const horizontalPadding = getItemHorizontalPadding(size, token);
     const verticalPadding = horizontalPadding / 2;
-    const slotGap = size === 'small' ? token.marginXS : token.marginSM;
+    const slotGap = getSlotGap(size, token);
 
     return {
       item: {
@@ -104,20 +109,13 @@ const useListItemStyles = createUseSheetStyle(
         opacity: token.opacityLoading,
         backgroundColor: token.colorBgContainerDisabled,
       },
-      row: {
-        flexDirection: 'row',
-        alignItems: 'center',
-      },
       selectedMarker: {
         width: token.lineWidthBold,
         alignSelf: 'stretch',
-        marginRight: slotGap,
         backgroundColor: token.colorPrimary,
         borderRadius: token.borderRadiusXS,
       },
-      left: {
-        marginRight: slotGap,
-      },
+      left: {},
       content: {
         flex: 1,
       },
@@ -134,9 +132,7 @@ const useListItemStyles = createUseSheetStyle(
       descriptionDisabled: {
         color: token.colorTextDisabled,
       },
-      right: {
-        marginLeft: slotGap,
-      },
+      right: {},
       divider: {
         position: 'absolute',
         right: 0,
@@ -205,10 +201,12 @@ export function ListItem({
   const listContext = useListContext();
   const resolvedSize = size ?? listContext.size;
   const resolvedDivider = divider ?? listContext.divider;
+  const { token } = useTheme();
   const tokenStyles = useListItemStyles({
     divider: resolvedDivider,
     size: resolvedSize,
   });
+  const slotGap = getSlotGap(resolvedSize, token);
   const isDisabled = Boolean(disabled);
   const isSelected = Boolean(selected);
   const isInteractive = Boolean(onPress) && !isDisabled;
@@ -221,12 +219,12 @@ export function ListItem({
   };
   const content = isChildrenEmpty(children) ? (
     <>
-      {title ?? renderTextNode(titleText, [
+      {renderTextNode(title ?? titleText, [
           tokenStyles.title,
           styles?.titleText,
           isDisabled ? tokenStyles.titleDisabled : null,
         ], isDisabled, 'title')}
-      {description ?? renderTextNode(descriptionText, [
+      {renderTextNode(description ?? descriptionText, [
           tokenStyles.description,
           styles?.descriptionText,
           isDisabled ? tokenStyles.descriptionDisabled : null,
@@ -235,14 +233,14 @@ export function ListItem({
   ) : children;
   const itemContent = (
     <>
-      <View style={tokenStyles.row}>
+      <Row align="center" gap={slotGap}>
         {isSelected ? (
           <View style={tokenStyles.selectedMarker} testID="selected-marker" />
         ) : null}
         {left ? <View style={[tokenStyles.left, styles?.left]}>{left}</View> : null}
         <View style={[tokenStyles.content, styles?.content]}>{content}</View>
         {right ? <View style={[tokenStyles.right, styles?.right]}>{right}</View> : null}
-      </View>
+      </Row>
       {resolvedDivider === 'none' ? null : (
         <View style={[tokenStyles.divider, styles?.divider]} />
       )}
@@ -250,9 +248,9 @@ export function ListItem({
   );
   const itemStyle = [
     tokenStyles.item,
-    style,
     isSelected ? tokenStyles.itemSelected : null,
     isDisabled ? tokenStyles.itemDisabled : null,
+    style,
   ];
 
   if (isInteractive) {
@@ -261,9 +259,9 @@ export function ListItem({
         onPress={handlePress}
         style={({ pressed }) => [
           tokenStyles.item,
-          style,
           pressed ? tokenStyles.itemPressed : null,
           isSelected ? tokenStyles.itemSelected : null,
+          style,
         ]}
       >
         {itemContent}

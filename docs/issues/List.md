@@ -2,13 +2,13 @@
 
 ## 结论
 
-- 状态：不通过
+- 状态：通过
 - 严重程度：medium
 - 问题数量：3
 
 ## 问题列表
 
-### 1. `title` / `description` 插槽允许字符串绕过项目 `Text` 组件
+### 1. `title` / `description` 插槽允许字符串绕过项目 `Text` 组件 ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/List/types.ts:48`
@@ -17,7 +17,7 @@
 - 影响：ListItem 的展示文本可能不走统一 `Text` 组件，导致字体、颜色、深浅色主题和文本语义与组件库其他展示文本不一致；同时公共 API 混淆了文本 prop 与节点插槽的边界。
 - 推荐纠正方案：将文本调用方式统一迁移到 `titleText?: string`、`descriptionText?: string`；若保留 `title` / `description` 作为节点插槽，应在类型或运行时避免字符串直接作为插槽使用，或对字符串插槽统一包装为项目 `Text`。同步调整测试使用 `titleText` / `descriptionText` 覆盖文本路径。
 
-### 2. ListItem 使用 `View` 手写等效行布局，未优先复用布局组件
+### 2. ListItem 使用 `View` 手写等效行布局，未优先复用布局组件 ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/List/List.tsx:107`
@@ -26,7 +26,7 @@
 - 影响：ListItem 作为共享基础组件绕过布局原语，会让间距、对齐、尺寸语义和后续布局能力与组件库标准布局组件产生实现漂移，增加维护成本。
 - 推荐纠正方案：将行级结构改为复用 `Row` 承载横向布局，内容区需要垂直排列标题和描述时复用 `Column`，插槽间距通过布局组件的 size/gap 语义或 token 化样式映射实现；保留必要的语义样式插槽映射，不把底层 `View` 结构暴露给调用方。
 
-### 3. 外部 `style` 合并顺序早于运行时状态样式
+### 3. 外部 `style` 合并顺序早于运行时状态样式 ✅
 
 - 严重程度：low
 - 位置：`packages/pennyspring-ui/src/List/List.tsx:251`

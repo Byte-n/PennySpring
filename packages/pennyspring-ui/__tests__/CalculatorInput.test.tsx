@@ -2,6 +2,7 @@ import React from 'react';
 import renderer, { act } from 'react-test-renderer';
 import { TextInput } from 'react-native';
 import { CalculatorInput } from '../src/CalculatorInput';
+import { Icon } from '../src/Icon';
 import { Text } from '../src/Text';
 import { Popup } from '../src/Popup';
 
@@ -266,5 +267,67 @@ describe('CalculatorInput.Popup', () => {
 
     expect(onCancel).toHaveBeenCalledTimes(1);
     expect(onCancel).toHaveBeenCalledWith({ reason: 'mask' });
+  });
+});
+
+describe('CalculatorInput styling compliance', () => {
+  it('passes semantic color key to backspace Icon instead of resolved color value', () => {
+    const testRenderer = renderCalculatorInput();
+    const backspaceKey = testRenderer.root.findByProps({
+      testID: 'calc-key-backspace',
+    });
+    const icon = backspaceKey.findByType(Icon);
+
+    expect(icon.props.color).toBe('secondary');
+  });
+
+  it('passes disabled semantic color to backspace Icon when disabled', () => {
+    const testRenderer = renderCalculatorInput({ disabled: true });
+    const backspaceKey = testRenderer.root.findByProps({
+      testID: 'calc-key-backspace',
+    });
+    const icon = backspaceKey.findByType(Icon);
+
+    expect(icon.props.color).toBe('disabled');
+  });
+
+  it('uses TextProps for key text size, weight, and color', () => {
+    const testRenderer = renderCalculatorInput();
+    const sevenKey = testRenderer.root.findByProps({
+      testID: 'calc-key-7',
+    });
+    const text = sevenKey.findByType(Text);
+
+    expect(text.props.size).toBe('lg');
+    expect(text.props.weight).toBe('medium');
+    expect(text.props.color).toBe('default');
+  });
+
+  it('uses TextProps for muted key text color', () => {
+    const testRenderer = renderCalculatorInput();
+    const plusKey = testRenderer.root.findByProps({
+      testID: 'calc-key-+',
+    });
+    const text = plusKey.findByType(Text);
+
+    expect(text.props.color).toBe('secondary');
+  });
+
+  it('uses TextProps for ok key text size, weight, and color', () => {
+    const testRenderer = renderCalculatorInput({ defaultValue: '1+2' });
+    const okKey = testRenderer.root.findByProps({ testID: 'calc-key-ok' });
+    const text = okKey.findByType(Text);
+
+    expect(text.props.size).toBe('lg');
+    expect(text.props.weight).toBe('medium');
+    expect(text.props.color).toBe('lightSolid');
+  });
+
+  it('uses TextProps for result text size and color', () => {
+    const testRenderer = renderCalculatorInput({ defaultValue: '1+2' });
+    const resultText = findResultText(testRenderer);
+
+    expect(resultText.props.size).toBe('md');
+    expect(resultText.props.color).toBe('secondary');
   });
 });
