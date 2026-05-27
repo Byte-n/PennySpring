@@ -136,7 +136,7 @@ function Cell({ item, onSelect, isSelected }: CellProps) {
         <Icon
           icon={iconValue}
           color={isSelected ? 'primary' : 'text'}
-          size={24}
+          size="large"
           weight="duotone"
         />
         <Text

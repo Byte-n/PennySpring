@@ -178,7 +178,7 @@ export function TagManageScreen() {
         okDisabled={!name.trim()}
       >
         <Column style={styles.dialogBody}>
-          <Input placeholder="标签名称" value={name} onChangeText={setName} />
+          <Input placeholder="标签名称" value={name} onChange={setName} />
         </Column>
       </Dialog>
     </Column>

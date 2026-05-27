@@ -24,7 +24,7 @@ export function MoneyField({
     <>
       <Pressable onPress={() => setPopupOpen(true)}>
         <Input
-          label={labelText}
+          labelText={labelText}
           placeholder={placeholder}
           readonly
           value={valueText}

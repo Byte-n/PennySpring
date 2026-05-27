@@ -367,11 +367,11 @@ export function BookManageScreen() {
         okDisabled={!name.trim()}
       >
         <Column style={styles.dialogBody}>
-          <Input placeholder="账本名称" value={name} onChangeText={setName} />
+          <Input placeholder="账本名称" value={name} onChange={setName} />
           <Input
             placeholder="描述(可选)"
             value={description}
-            onChangeText={setDescription}
+            onChange={setDescription}
           />
           <ImagePicker
             label="图片"

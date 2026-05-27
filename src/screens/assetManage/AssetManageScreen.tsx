@@ -596,7 +596,7 @@ export function AssetManageScreen() {
         onOk={handleSave}
         styles={{ panelBody: styles.panelContent }}
       >
-        <Input placeholder="资产名称" value={name} onChangeText={setName} />
+        <Input placeholder="资产名称" value={name} onChange={setName} />
         <Cascader
           options={cascaderOptions}
           value={assetPath}
@@ -607,7 +607,7 @@ export function AssetManageScreen() {
         <Input
           placeholder="余额(元)"
           value={balance}
-          onChangeText={setBalance}
+          onChange={setBalance}
           keyboardType="numeric"
         />
         {isCreditCard && (
@@ -615,7 +615,7 @@ export function AssetManageScreen() {
             <Input
               placeholder="总额度(元)"
               value={totalAmount}
-              onChangeText={setTotalAmount}
+              onChange={setTotalAmount}
               keyboardType="numeric"
             />
             <DateTimePicker
