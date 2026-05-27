@@ -101,4 +101,42 @@ describe('Calendar', () => {
     expect(selectedCell.props.onPress).toBeDefined();
     expect(navigationButton.props.onPress).toBeDefined();
   });
+  it('prevents range today action when today is disabled by disabledDate', () => {
+    jest.useFakeTimers().setSystemTime(new Date('2026-05-15T00:00:00.000Z'));
+    const onChange = jest.fn();
+    const testRenderer = renderCalendarRange({
+      onChange,
+      showToday: true,
+      disabledDate: value => value === '2026-05-15'
+    });
+    const todayButton = testRenderer.root.findByProps({ hitSlop: 8 });
+    act(() => {
+      todayButton.props.onPress({});
+    });
+    pressByTestID(testRenderer, 'calendar-cell-2026-05-16');
+    expect(onChange).not.toHaveBeenCalled();
+    jest.useRealTimers();
+  });
+  it('disables navigation and footer actions when calendar is disabled', () => {
+    const onCancel = jest.fn();
+    const onOk = jest.fn();
+    const testRenderer = renderCalendar({
+      defaultValue: '2026-05-01',
+      disabled: true,
+      showToday: true,
+      showConfirm: true,
+      onCancel,
+      onOk
+    });
+    const prevButton = testRenderer.root.findByProps({ testID: 'calendar-nav-prev' });
+    const nextButton = testRenderer.root.findByProps({ testID: 'calendar-nav-next' });
+    const confirmButton = testRenderer.root.findByProps({ testID: 'calendar-confirm' });
+    expect(prevButton.props.disabled).toBe(true);
+    expect(nextButton.props.disabled).toBe(true);
+    expect(confirmButton.props.disabled).toBe(true);
+    const json = textOf(testRenderer);
+    expect(json).toContain('calendar-nav-prev');
+    expect(onCancel).not.toHaveBeenCalled();
+    expect(onOk).not.toHaveBeenCalled();
+  });
 });

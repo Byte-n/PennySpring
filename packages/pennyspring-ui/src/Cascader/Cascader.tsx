@@ -41,6 +41,37 @@ function getSelectedTagItems<TData>(
     .map(item => ({ label: item.labelText!, value: item.value }));
 }
 
+function buildTagRemoveChangeParams<TData>(
+  options: CascaderProps<TData>['options'],
+  currentValue: CascaderValue[],
+  nextValue: CascaderValue[],
+  removedLevel: number,
+): CascaderChangeParams<TData> | undefined {
+  const currentPath = getPathOptions(options, currentValue);
+  const removedOption = currentPath[removedLevel];
+
+  if (!removedOption) {
+    return undefined;
+  }
+
+  const nextPath = getPathOptions(options, nextValue);
+  const siblingOptions = removedLevel === 0
+    ? options
+    : currentPath[removedLevel - 1]?.children ?? [];
+  const optionIndex = siblingOptions.findIndex(item => item.value === removedOption.value);
+
+  return {
+    reason: 'remove',
+    option: removedOption,
+    value: removedOption.value,
+    level: removedLevel,
+    optionIndex: optionIndex >= 0 ? optionIndex : 0,
+    path: nextPath,
+    items: nextValue.map((_, index) => nextPath[index]),
+    isLeaf: !(removedOption.children && removedOption.children.length > 0),
+  };
+}
+
 function CascaderRoot<TData = unknown>({
   afterOpenChange,
   animation,
@@ -117,7 +148,11 @@ function CascaderRoot<TData = unknown>({
     const idx = mergedValue.indexOf(removedValue);
     if (idx >= 0) {
       const nextValue = mergedValue.slice(0, idx);
+      const params = buildTagRemoveChangeParams(options, mergedValue, nextValue, idx);
       setMergedValue(nextValue);
+      if (params) {
+        onChange?.(nextValue, params);
+      }
     }
   }
 
@@ -135,7 +170,7 @@ function CascaderRoot<TData = unknown>({
     params: CascaderChangeParams<TData>,
   ): void {
     setMergedValue(nextValue);
-    onChange?.(nextValue, params);
+    onChange?.(nextValue, { ...params, reason: 'select' });
 
     if (params.isLeaf && closeOnSelectLeaf) {
       setOpen(false, 'select');

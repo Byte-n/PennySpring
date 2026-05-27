@@ -1,5 +1,5 @@
 import React from 'react';
-import { Image, View } from 'react-native';
+import { Image, StyleSheet, View } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
 import { Text } from '../src/Text';
 import { Avatar, formatAvatarText } from '../src/Avatar';
@@ -155,6 +155,59 @@ describe('Avatar.Group', () => {
     const treeString = JSON.stringify(testRenderer.toJSON());
     expect(treeString).not.toContain('+');
   });
+  it('scales rest count capsule styles with group size', () => {
+    const smallRenderer = renderAvatarGroup({
+      items: [{
+        key: 'alice',
+        text: 'Alice'
+      }, {
+        key: 'bob',
+        text: 'Bob'
+      }, {
+        key: 'cora',
+        text: 'Cora'
+      }],
+      maxCount: 2,
+      size: 'small'
+    });
+    const normalRenderer = renderAvatarGroup({
+      items: [{
+        key: 'alice',
+        text: 'Alice'
+      }, {
+        key: 'bob',
+        text: 'Bob'
+      }, {
+        key: 'cora',
+        text: 'Cora'
+      }],
+      maxCount: 2,
+      size: 'normal'
+    });
+    const largeRenderer = renderAvatarGroup({
+      items: [{
+        key: 'alice',
+        text: 'Alice'
+      }, {
+        key: 'bob',
+        text: 'Bob'
+      }, {
+        key: 'cora',
+        text: 'Cora'
+      }],
+      maxCount: 2,
+      size: 'large'
+    });
+
+    const smallRest = getRestCapsuleStyles(smallRenderer);
+    const normalRest = getRestCapsuleStyles(normalRenderer);
+    const largeRest = getRestCapsuleStyles(largeRenderer);
+
+    expect(smallRest.containerStyle.height).toBeLessThan(normalRest.containerStyle.height);
+    expect(normalRest.containerStyle.height).toBeLessThan(largeRest.containerStyle.height);
+    expect(smallRest.textStyle.fontSize).toBeLessThan(normalRest.textStyle.fontSize);
+    expect(normalRest.textStyle.fontSize).toBeLessThan(largeRest.textStyle.fontSize);
+  });
 });
 function renderAvatarGroup(props: React.ComponentProps<typeof Avatar.Group>) {
   let testRenderer: renderer.ReactTestRenderer;
@@ -162,4 +215,24 @@ function renderAvatarGroup(props: React.ComponentProps<typeof Avatar.Group>) {
     testRenderer = renderer.create(<><Avatar.Group {...props} /></>);
   });
   return testRenderer!;
+}
+
+function getRestCapsuleStyles(testRenderer: renderer.ReactTestRenderer) {
+  const restText = testRenderer.root
+    .findAllByType(Text)
+    .find(node => node.props.children === '+1');
+
+  if (restText === undefined) {
+    throw new Error('Avatar.Group rest count text was not rendered');
+  }
+
+  const restContainer = restText.parent;
+  if (restContainer === null) {
+    throw new Error('Avatar.Group rest count container was not rendered');
+  }
+
+  return {
+    containerStyle: StyleSheet.flatten(restContainer.props.style),
+    textStyle: StyleSheet.flatten(restText.props.style),
+  };
 }

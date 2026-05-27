@@ -85,7 +85,11 @@ function renderTitle(
   titleText: ActionSheetProps['titleText'],
   titleTextStyle: StyleProp<TextStyle>,
 ) {
-  if (title !== undefined && title !== null) {
+  if (title === null) {
+    return null;
+  }
+
+  if (title !== undefined) {
     return title;
   }
 
@@ -170,6 +174,8 @@ export function ActionSheet({
     undefined,
   );
   const isOpen = resolvedOpen === true;
+  const shouldRenderCancelSection =
+    cancel !== null && (cancel !== undefined || cancelText !== undefined);
   const titleNode = renderTitle(title, titleText, [
     tokenStyles.titleText,
     slotStyles?.titleText,
@@ -231,7 +237,7 @@ export function ActionSheet({
             ),
           )}
         </View>
-        {cancelText || cancel ? (
+        {shouldRenderCancelSection ? (
           <View style={tokenStyles.cancelButtonContainer} testID="action-sheet-cancel-container">
             <View style={tokenStyles.separator} />
             <Button
@@ -241,7 +247,7 @@ export function ActionSheet({
               testID="action-sheet-cancel-button"
               type="text"
             >
-              {cancel !== undefined && cancel !== null ? (
+              {cancel !== undefined ? (
                 cancel
               ) : (
                 <Text

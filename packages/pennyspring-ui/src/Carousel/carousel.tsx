@@ -1,13 +1,13 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import {
-  Animated,
   type LayoutChangeEvent,
-  Pressable,
-  type StyleProp,
   View,
-  type ViewStyle,
 } from 'react-native';
+import { GestureDetector } from 'react-native-gesture-handler';
+import Animated, { useAnimatedStyle } from 'react-native-reanimated';
+import { useTheme } from '@pennyspring/theme';
 
+import { useControllableValue } from '../_hooks';
 import { CarouselIndicator } from './carousel-indicator';
 import { CarouselSlides } from './carousel-slides';
 import {
@@ -20,7 +20,6 @@ import {
 } from './hooks';
 import { useCarouselStyles } from './style';
 import type { CarouselProps } from './types';
-import { useTheme } from '@pennyspring/theme';
 import { clampValue } from './utils';
 
 interface LayoutState {
@@ -28,53 +27,20 @@ interface LayoutState {
   height: number;
 }
 
-/**
- * 虚拟渲染触发阈值
- * 当轮播项数量超过此值时启用虚拟渲染优化
- */
 const VIRTUAL_RENDER_THRESHOLD = 10;
 
-/**
- * 轮播图组件
- *
- * 支持水平/垂直滑动、循环播放、自动轮播、虚拟渲染等功能的高性能轮播组件。
- *
- * @example
- * ```tsx
- * // 基础用法
- * <Carousel
- *   data={[1, 2, 3]}
- *   renderItem={(item) => <View><Text>{item}</Text></View>}
- * />
- *
- * // 循环播放和自动轮播
- * <Carousel
- *   data={items}
- *   renderItem={(item) => <View>{item.content}</View>}
- *   loop
- *   autoplay
- *   autoplayInterval={3000}
- * />
- *
- * // 虚拟渲染（大量数据）
- * <Carousel
- *   data={largeDataArray}
- *   renderItem={(item, index) => <View><Text>{index}: {item}</Text></View>}
- * />
- * ```
- *
- * @param props - 组件属性
- * @returns 轮播图组件
- */
 export const Carousel = <Data = unknown,>(props: CarouselProps<Data>) => {
   const {
-    defaultIndex = 0,
+    defaultValue,
+    value,
+    onChange,
+    defaultIndex,
+    onIndexChange,
     allowTouchMove = true,
     autoplay = false,
     autoplayInterval = 3000,
     loop = false,
     direction = 'horizontal',
-    onIndexChange,
     indicator,
     slideSize = 100,
     trackOffset = 0,
@@ -85,45 +51,41 @@ export const Carousel = <Data = unknown,>(props: CarouselProps<Data>) => {
     renderItem,
     style,
     styles: externalStyles,
-    blockNativeResponder = true,
     ref,
   } = props;
 
-  const styles = useCarouselStyles();
   const { token } = useTheme();
+  const mergedOnChange = onChange ?? onIndexChange;
+  const mergedDefaultValue = defaultValue ?? defaultIndex ?? 0;
+  const [currentValue = 0, setCurrentValue] = useControllableValue(
+    mergedDefaultValue,
+    value,
+    mergedOnChange,
+  );
 
-  // 使用 state 存储 layout，使依赖更明确
   const [layout, setLayout] = useState<LayoutState>({ width: 0, height: 0 });
-
-  // 分离拖动和动画状态，避免状态冲突
   const [isDragging, setIsDragging] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
 
-  // 合并归一化计算，减少 useMemo 调用
   const { normalizedSlideSize, normalizedTrackOffset } = useMemo(() => {
     const slideSize_ = Number.isFinite(slideSize)
       ? clampValue(slideSize, 0, 100)
       : 100;
-    let trackOffset_: number;
-    if (stuckAtBoundary) {
-      trackOffset_ = 100 - slideSize_;
-    } else {
-      trackOffset_ = Number.isFinite(trackOffset)
+    const trackOffset_ = stuckAtBoundary
+      ? 100 - slideSize_
+      : Number.isFinite(trackOffset)
         ? clampValue(trackOffset, 0, 100 - slideSize_)
         : 0;
-    }
+
     return {
       normalizedSlideSize: slideSize_,
       normalizedTrackOffset: trackOffset_,
     };
-  }, [slideSize, trackOffset, stuckAtBoundary]);
+  }, [slideSize, stuckAtBoundary, trackOffset]);
 
   const total = data.length;
-
   const loopEnabled = loop && total > 1;
 
-  // 计算循环播放时需要克隆的前置节点数量
-  // 若是非全屏的轮播项，则在循环播放开启的情况下，则会在下一轮展示第一项时看见下一项为空白（或闪烁），这需要额外渲染更多的项（与offset、slideSize相关）
   const clonesBefore = useMemo(() => {
     if (!loopEnabled) return 0;
     if (normalizedSlideSize <= 0) return 1;
@@ -132,7 +94,6 @@ export const Carousel = <Data = unknown,>(props: CarouselProps<Data>) => {
     return Math.max(1, offsetSlides + 1);
   }, [loopEnabled, normalizedSlideSize, normalizedTrackOffset]);
 
-  // 计算循环播放时需要克隆的后置节点数量
   const clonesAfter = useMemo(() => {
     if (!loopEnabled) return 0;
     if (normalizedSlideSize <= 0) return 1;
@@ -144,15 +105,15 @@ export const Carousel = <Data = unknown,>(props: CarouselProps<Data>) => {
 
   const extTotal = loopEnabled ? total + clonesBefore + clonesAfter : total;
 
-  // 合并像素计算，减少重复的 trackSize 获取
   const { slidePixels, trackOffsetPixels } = useMemo(() => {
     const trackSize = direction === 'horizontal' ? layout.width : layout.height;
     if (trackSize <= 0) return { slidePixels: 0, trackOffsetPixels: 0 };
+
     return {
       slidePixels: trackSize * (normalizedSlideSize / 100),
       trackOffsetPixels: trackSize * (normalizedTrackOffset / 100),
     };
-  }, [direction, layout, normalizedSlideSize, normalizedTrackOffset]);
+  }, [direction, layout.height, layout.width, normalizedSlideSize, normalizedTrackOffset]);
 
   const {
     current,
@@ -173,23 +134,12 @@ export const Carousel = <Data = unknown,>(props: CarouselProps<Data>) => {
     normalizedTrackOffset,
     stuckAtBoundary,
     rubberband,
-    onIndexChange,
+    current: currentValue,
+    onCurrentChange: setCurrentValue,
   });
 
-  // 位置和动画控制
-  const { position, positionValueRef, animateTo, setPositionImmediate } =
-    useCarouselPosition();
+  const { position, animateTo, setPositionImmediate } = useCarouselPosition();
 
-  // 状态设置函数
-  const setDragging = useCallback((dragging: boolean) => {
-    setIsDragging(dragging);
-  }, []);
-
-  const setAnimating = useCallback((animating: boolean) => {
-    setIsAnimating(animating);
-  }, []);
-
-  // 切换逻辑
   const { swipeNext, swipePrev, swipeToExtIndex } = useCarouselSwipe({
     total,
     loopEnabled,
@@ -202,13 +152,12 @@ export const Carousel = <Data = unknown,>(props: CarouselProps<Data>) => {
     getTargetExtIndexForIndex,
     updateCurrent,
     maybeReportIndex,
-    setAnimating,
+    setAnimating: setIsAnimating,
     animateTo,
     setPositionImmediate,
     ref,
   });
 
-  // 自动轮播
   useCarouselAutoplay({
     autoplay,
     autoplayInterval,
@@ -219,10 +168,9 @@ export const Carousel = <Data = unknown,>(props: CarouselProps<Data>) => {
     swipePrev,
   });
 
-  // 生命周期管理
   useCarouselLifecycle({
     total,
-    defaultIndex,
+    defaultIndex: currentValue,
     slidePixels,
     extIndexRef,
     reportIndexRef,
@@ -234,49 +182,30 @@ export const Carousel = <Data = unknown,>(props: CarouselProps<Data>) => {
 
   const onLayoutTrack = useCallback((e: LayoutChangeEvent) => {
     const { width, height } = e.nativeEvent.layout;
-    setLayout(prev => {
-      if (prev.width !== width || prev.height !== height) {
-        return { width, height };
-      }
-      return prev;
-    });
+    setLayout(prev =>
+      prev.width === width && prev.height === height ? prev : { width, height },
+    );
   }, []);
 
-  const panResponder = useCarouselPanResponder({
+  const panGesture = useCarouselPanResponder({
     allowTouchMove,
     total,
     slidePixels,
     direction,
     extTotal,
     clonesBefore,
-    blockNativeResponder,
     position,
-    positionValueRef,
     extIndexRef,
-    setDragging,
-    setAnimating,
+    setDragging: setIsDragging,
+    setAnimating: setIsAnimating,
     updateCurrent,
     getIndexFromExtIndex,
     getBoundedPosition,
     swipeToExtIndex,
   });
 
-  const trackTransformStyle: StyleProp<ViewStyle> = useMemo(() => {
-    const translate = Animated.add(
-      Animated.multiply(position.current, -1),
-      trackOffsetPixels,
-    );
-    return direction === 'horizontal'
-      ? { transform: [{ translateX: translate }] }
-      : { transform: [{ translateY: translate }] };
-  }, [direction, position, trackOffsetPixels]);
-
-  // 计算虚拟渲染的范围
-  // 使用 current 状态而不是 extIndexRef，确保虚拟范围与当前索引同步
   const virtualRange = useMemo(() => {
-    if (total <= 0 || slidePixels <= 0) {
-      return null;
-    }
+    if (total <= 0 || slidePixels <= 0) return null;
 
     const isVirtual = total > VIRTUAL_RENDER_THRESHOLD;
     const isInteracting = isDragging || isAnimating;
@@ -284,7 +213,6 @@ export const Carousel = <Data = unknown,>(props: CarouselProps<Data>) => {
       ? Math.max(virtualOverscan, isInteracting ? 1 : 0)
       : virtualOverscan;
 
-    // 使用 current 计算 extIndex，确保响应式更新
     const currentExtIndex = loopEnabled ? current + clonesBefore : current;
     const start = isVirtual
       ? clampValue(currentExtIndex - effectiveOverscan, 0, extTotal - 1)
@@ -295,37 +223,51 @@ export const Carousel = <Data = unknown,>(props: CarouselProps<Data>) => {
 
     return { start, end, isVirtual };
   }, [
-    total,
-    slidePixels,
-    virtualOverscan,
-    isDragging,
-    isAnimating,
-    current,
-    loopEnabled,
     clonesBefore,
+    current,
     extTotal,
+    isAnimating,
+    isDragging,
+    loopEnabled,
+    slidePixels,
+    total,
+    virtualOverscan,
   ]);
+
+  const leadingSize = virtualRange ? virtualRange.start * slidePixels : 0;
+  const trailingSize = virtualRange
+    ? (extTotal - virtualRange.end - 1) * slidePixels
+    : 0;
+
+  const styles = useCarouselStyles({
+    activeColor: token.colorPrimary,
+    inactiveColor: token.colorPrimaryBg,
+    direction,
+    slidePixels,
+    leadingSize,
+    trailingSize,
+  });
 
   const trackInnerStyle =
     direction === 'horizontal'
       ? styles.trackInnerHorizontal
       : styles.trackInnerVertical;
 
-  // 边界情况处理：空数据
+  const trackTransformStyle = useAnimatedStyle(() => {
+    const translate = -position.value + trackOffsetPixels;
+    return direction === 'horizontal'
+      ? { transform: [{ translateX: translate }] }
+      : { transform: [{ translateY: translate }] };
+  }, [direction, trackOffsetPixels]);
+
   if (!data || data.length === 0) {
     return null;
   }
 
-  return (
+  const content = (
     <View style={[styles.container, style]}>
-      <Pressable
-        style={styles.track}
-        onLayout={onLayoutTrack}
-        {...panResponder?.panHandlers}
-      >
-        <Animated.View
-          style={[styles.trackInner, trackInnerStyle, trackTransformStyle]}
-        >
+      <View style={styles.track} onLayout={onLayoutTrack}>
+        <Animated.View style={[styles.trackInner, trackInnerStyle, trackTransformStyle]}>
           <CarouselSlides<Data>
             data={data}
             renderItem={renderItem}
@@ -333,9 +275,12 @@ export const Carousel = <Data = unknown,>(props: CarouselProps<Data>) => {
             virtualRange={virtualRange}
             loopEnabled={loopEnabled}
             clonesBefore={clonesBefore}
-            direction={direction}
-            slidePixels={slidePixels}
             extTotal={extTotal}
+            styles={{
+              slideWrapper: styles.slideWrapper,
+              spacerLeading: styles.spacerLeading,
+              spacerTrailing: styles.spacerTrailing,
+            }}
           />
         </Animated.View>
         <CarouselIndicator
@@ -343,11 +288,15 @@ export const Carousel = <Data = unknown,>(props: CarouselProps<Data>) => {
           externalStyles={externalStyles}
           total={total}
           current={current}
-          activeColor={token.colorPrimary}
-          inactiveColor={token.colorPrimaryBg}
           styles={styles}
         />
-      </Pressable>
+      </View>
     </View>
   );
+
+  if (!panGesture) {
+    return content;
+  }
+
+  return <GestureDetector gesture={panGesture}>{content}</GestureDetector>;
 };

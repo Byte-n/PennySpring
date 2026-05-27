@@ -3,7 +3,7 @@ import { View } from 'react-native';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import type { AliasToken } from '@pennyspring/theme';
 import type { ViewStyle } from 'react-native';
-import type { FlexAlign, FlexJustify, ColumnProps } from '../Row/types';
+import type { FlexAlign, FlexJustify, ColumnProps } from './types';
 import type { ComponentSize } from '../shares/types';
 
 interface ColumnStyleOptions {

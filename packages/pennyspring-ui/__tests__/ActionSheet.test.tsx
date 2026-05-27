@@ -122,6 +122,32 @@ describe('ActionSheet', () => {
     const treeString = JSON.stringify(testRenderer.toJSON());
     expect(treeString).toContain('Custom cancel');
   });
+  it('does not render title when title is explicitly null', () => {
+    const testRenderer = renderActionSheet({
+      defaultOpen: true,
+      title: null,
+      titleText: 'Select an option'
+    });
+    expect(() => testRenderer.root.findByProps({
+      testID: 'action-sheet-title-container'
+    })).toThrow();
+    expect(() => testRenderer.root.findByProps({
+      testID: 'action-sheet-title-text'
+    })).toThrow();
+  });
+  it('does not render cancel area when cancel is explicitly null', () => {
+    const testRenderer = renderActionSheet({
+      cancel: null,
+      cancelText: 'Cancel',
+      defaultOpen: true
+    });
+    expect(() => testRenderer.root.findByProps({
+      testID: 'action-sheet-cancel-container'
+    })).toThrow();
+    expect(() => testRenderer.root.findByProps({
+      testID: 'action-sheet-cancel-text'
+    })).toThrow();
+  });
   it('supports actions with description', () => {
     const testRenderer = renderActionSheet({
       actions: [{

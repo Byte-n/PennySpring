@@ -24,6 +24,7 @@ export interface CascaderOption<TData = unknown> {
 }
 
 export interface CascaderChangeParams<TData = unknown> {
+  reason?: 'select' | 'remove';
   option: CascaderOption<TData>;
   value: CascaderValue;
   level: number;

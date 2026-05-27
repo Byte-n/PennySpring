@@ -145,8 +145,11 @@ export function Card({
   const tokenStyles = useStyles({ size, variant });
   const isInteractive = Boolean(onPress) && !disabled && !loading;
   const shouldUsePressable = Boolean(onPress);
-  const shouldRenderHeader = title !== undefined || titleText !== undefined || extra !== undefined;
-  const shouldRenderFooter = footer !== undefined;
+  const hasTitleNode = title !== undefined && title !== null;
+  const hasTitleText = titleText !== undefined;
+  const hasExtra = extra !== undefined && extra !== null && extra !== false;
+  const shouldRenderHeader = hasTitleNode || hasTitleText || hasExtra;
+  const shouldRenderFooter = footer !== undefined && footer !== null && footer !== false;
   const shouldRenderLoadingNode = loading && loadingNode !== undefined;
   const bodyContent = shouldRenderLoadingNode ? loadingNode : children;
 
@@ -159,11 +162,11 @@ export function Card({
   }
 
   function renderTitle() {
-    if (title !== undefined) {
+    if (hasTitleNode) {
       return title;
     }
 
-    if (titleText !== undefined) {
+    if (hasTitleText) {
       return <Text style={[tokenStyles.title, styles?.titleText]}>{titleText}</Text>;
     }
 
@@ -175,7 +178,7 @@ export function Card({
       {shouldRenderHeader ? (
         <View style={[tokenStyles.header, styles?.header]}>
           <View style={tokenStyles.titleContainer}>{renderTitle()}</View>
-          {extra !== undefined ? (
+          {hasExtra ? (
             <View style={[tokenStyles.extra, styles?.extra]}>{extra}</View>
           ) : null}
         </View>

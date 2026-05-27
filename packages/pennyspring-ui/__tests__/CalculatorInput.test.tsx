@@ -246,4 +246,25 @@ describe('CalculatorInput.Popup', () => {
 
     expect(onCancel).toHaveBeenCalledWith({ reason: 'mask' });
   });
+
+  it('calls onCancel only once when Popup cancel flow triggers onCancel and onOpenChange', () => {
+    const onCancel = jest.fn();
+    let testRenderer: renderer.ReactTestRenderer;
+
+    act(() => {
+      testRenderer = renderer.create(
+        <CalculatorInput.Popup open onCancel={onCancel} />,
+      );
+    });
+
+    const popup = testRenderer!.root.findByType(Popup);
+
+    act(() => {
+      popup.props.onCancel({ reason: 'mask' });
+      popup.props.onOpenChange(false, { reason: 'mask' });
+    });
+
+    expect(onCancel).toHaveBeenCalledTimes(1);
+    expect(onCancel).toHaveBeenCalledWith({ reason: 'mask' });
+  });
 });

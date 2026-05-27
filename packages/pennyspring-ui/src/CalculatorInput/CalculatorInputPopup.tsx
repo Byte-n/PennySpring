@@ -31,11 +31,8 @@ export function CalculatorInputPopup({
       open={isOpen}
       position="bottom"
       onCancel={onCancel}
-      onOpenChange={(nextOpen, openChangeParams) => {
+      onOpenChange={(nextOpen) => {
         setIsOpen(nextOpen);
-        if (!nextOpen) {
-          onCancel?.(openChangeParams);
-        }
       }}
     >
       <CalculatorInput

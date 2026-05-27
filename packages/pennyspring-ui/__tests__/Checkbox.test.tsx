@@ -3,6 +3,8 @@ import { Text as RNText } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
 import { Checkbox } from '../src/Checkbox';
 import type { CheckboxGroupProps, CheckboxProps } from '../src/Checkbox';
+import { Text } from '../src/Text';
+import { useStyles } from '../src/Checkbox/style';
 function renderCheckbox(props: Partial<CheckboxProps> = {}) {
   let testRenderer: renderer.ReactTestRenderer;
   act(() => {
@@ -54,6 +56,10 @@ function findPressableTargets(testRenderer: renderer.ReactTestRenderer): rendere
   return testRenderer.root.findAll(node => typeof node.props.onPress === 'function');
 }
 describe('Checkbox', () => {
+  it('keeps style hook in style/index.ts for component structure consistency', () => {
+    expect(typeof useStyles).toBe('function');
+  });
+
   it('toggles uncontrolled value and reports the next boolean', () => {
     const onChange = jest.fn();
     const testRenderer = renderCheckbox({
@@ -125,6 +131,68 @@ describe('Checkbox', () => {
   });
 });
 describe('Checkbox.Group', () => {
+  it('prefers labelText over option value for plain text labels', () => {
+    const testRenderer = renderCheckboxGroup({
+      options: [
+        {
+          value: 'food',
+          labelText: 'Food label',
+        } as never,
+      ],
+    });
+
+    const content = textContent(testRenderer);
+    expect(content).toContain('Food label');
+  });
+
+  it('applies external runtime styles after checked or disabled styles', () => {
+    const testRenderer = renderCheckboxGroup({
+      defaultValue: ['food'],
+      options: [
+        {
+          value: 'food',
+          labelText: 'Food',
+        } as never,
+      ],
+      styles: {
+        indicator: { borderColor: 'rgb(1, 2, 3)' },
+        mark: { width: 99 },
+        label: { color: 'rgb(9, 9, 9)' },
+      },
+      disabled: true,
+    });
+
+    const indicator = testRenderer.root.findByProps({
+      testID: 'checkbox-group-option-food-indicator',
+    });
+    const mark = testRenderer.root.findByProps({
+      testID: 'checkbox-group-option-food-mark',
+    });
+
+    const textNode = testRenderer.root.findByType(Text);
+    const indicatorStyles = indicator.props.style as Array<Record<string, unknown>>;
+    const markStyles = mark.props.style as Array<Record<string, unknown>>;
+    const textStyles = textNode.props.style as Array<Record<string, unknown>>;
+    const indicatorLastStyle = indicatorStyles[indicatorStyles.length - 1];
+    const markLastStyle = markStyles[markStyles.length - 1];
+    const textLastStyle = textStyles[textStyles.length - 1];
+
+    expect(indicatorLastStyle).toMatchObject({ borderColor: 'rgb(1, 2, 3)' });
+    expect(markLastStyle).toMatchObject({ width: 99 });
+    expect(textLastStyle).toMatchObject({ color: 'rgb(9, 9, 9)' });
+  });
+
+  it('maps checkbox label typography to Text semantic props by size', () => {
+    const testRenderer = renderCheckbox({
+      size: 'small',
+    });
+
+    const textNode = testRenderer.root.findByType(Text);
+    expect(textNode.props.size).toBe('sm');
+    expect(textNode.props.weight).toBe('regular');
+    expect(textNode.props.color).toBe('default');
+  });
+
   it('renders data-driven option labels', () => {
     const testRenderer = renderCheckboxGroup();
     const content = textContent(testRenderer);

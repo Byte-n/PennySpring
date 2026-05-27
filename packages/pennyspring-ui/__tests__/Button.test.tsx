@@ -169,4 +169,33 @@ describe('Button', () => {
     expect(testRenderer.root.findAllByType(ActivityIndicator)).toHaveLength(1);
     jest.useRealTimers();
   });
+  it('uses token-driven color and size for default loading indicator', () => {
+    const baselineRenderer = renderButton({
+      icon: 'check',
+      size: 'large',
+      children: 'Save',
+    });
+    const enabledRenderer = renderButton({
+      loading: true,
+      icon: 'check',
+      size: 'large',
+      children: 'Save',
+    });
+    const disabledRenderer = renderButton({
+      loading: true,
+      icon: 'check',
+      size: 'large',
+      disabled: true,
+      children: 'Save',
+    });
+
+    const enabledIndicator = enabledRenderer.root.findByType(ActivityIndicator);
+    const disabledIndicator = disabledRenderer.root.findByType(ActivityIndicator);
+    const baselineIcon = baselineRenderer.root.findByType(Icon);
+
+    expect(enabledIndicator.props.color).toBe(baselineIcon.props.color);
+    expect(enabledIndicator.props.size).toBe(baselineIcon.props.size);
+    expect(disabledIndicator.props.color).not.toBe(enabledIndicator.props.color);
+    expect(typeof enabledIndicator.props.size).toBe('number');
+  });
 });

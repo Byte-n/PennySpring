@@ -365,4 +365,32 @@ describe('SelectionList', () => {
     expect(markerIcons[0].props.testID).toBe('selection-list-option-marker-selected');
     expect(markerIcons[1].props.testID).toBe('selection-list-option-marker-unselected');
   });
+
+  it('keeps readonly semantic on trigger input without converting to disabled', () => {
+    const readonlyRenderer = renderSelectionList({
+      readonly: true,
+    });
+    const loadingRenderer = renderSelectionList({
+      loading: true,
+    });
+    const readonlyInput = readonlyRenderer.root.findByType(DisplayInput);
+    const loadingInput = loadingRenderer.root.findByType(DisplayInput);
+
+    expect(readonlyInput.props.readonly).toBe(true);
+    expect(readonlyInput.props.disabled).toBe(false);
+    expect(loadingInput.props.readonly).toBeUndefined();
+    expect(loadingInput.props.disabled).toBe(true);
+  });
+
+  it('renders option label typography through Text props first', () => {
+    const testRenderer = renderSelectionList({
+      defaultOpen: true,
+      disabled: true,
+      size: 'large',
+    });
+    const optionLabel = testRenderer.root.findByProps({ children: 'Cash' });
+
+    expect(optionLabel.props.size).toBe('lg');
+    expect(optionLabel.props.color).toBe('disabled');
+  });
 });

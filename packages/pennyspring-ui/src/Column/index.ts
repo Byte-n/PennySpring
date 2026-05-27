@@ -1,2 +1,2 @@
 export { Column } from './Column';
-export type { ColumnProps } from '../Row/types';
+export type { ColumnProps } from './types';

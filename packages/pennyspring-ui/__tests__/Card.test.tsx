@@ -23,7 +23,7 @@ function getRootView(testRenderer: renderer.ReactTestRenderer) {
 describe('Card', () => {
   it('renders header body and footer content in order', () => {
     const testRenderer = renderCard({
-      title: 'Balance',
+      titleText: 'Balance',
       extra: <RNText>More</RNText>,
       footer: <RNText>Footer action</RNText>,
       children: <RNText>Body content</RNText>
@@ -160,5 +160,26 @@ describe('Card', () => {
     expect(headerStyle.marginBottom).toBe(expectedGap);
     expect(footerStyle.marginTop).toBe(expectedGap);
     expect(footerStyle.paddingTop).toBe(expectedGap);
+  });
+
+  it('does not render header when title and extra are null', () => {
+    const testRenderer = renderCard({
+      title: null,
+      extra: null,
+      children: <RNText>Body content</RNText>,
+    });
+    const treeString = JSON.stringify(testRenderer.toJSON());
+    expect(treeString).not.toContain('marginBottom');
+    expect(treeString).not.toContain('Body content","type":"View"},{"children":null');
+  });
+
+  it('does not render footer when footer is null', () => {
+    const testRenderer = renderCard({
+      footer: null,
+      children: <RNText>Body content</RNText>,
+    });
+    const treeString = JSON.stringify(testRenderer.toJSON());
+    expect(treeString).not.toContain('borderTopWidth');
+    expect(treeString).not.toContain('paddingTop');
   });
 });

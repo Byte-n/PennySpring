@@ -47,6 +47,12 @@ interface RegionData {
   code: string;
 }
 
+function getTagCloseButtons(testRenderer: renderer.ReactTestRenderer) {
+  return testRenderer.root
+    .findAllByProps({ testID: 'tag-close' })
+    .filter(item => typeof item.props.onPress === 'function');
+}
+
 const options: Array<CascaderOption<RegionData>> = [
   {
     value: 'zhejiang',
@@ -251,6 +257,69 @@ describe('Cascader', () => {
     });
 
     expect(testRenderer!.root.findByProps({ testID: 'floating-panel-root' })).toBeTruthy();
+
+    act(() => {
+      testRenderer!.unmount();
+    });
+  });
+
+  it('calls onChange when removing a tag in uncontrolled mode', () => {
+    const onChange = jest.fn();
+    let testRenderer: renderer.ReactTestRenderer;
+
+    act(() => {
+      testRenderer = renderer.create(
+        <Cascader
+          defaultValue={['zhejiang', 'hangzhou']}
+          displayMode="tag"
+          onChange={onChange}
+          options={options}
+        />,
+      );
+    });
+
+    act(() => {
+      getTagCloseButtons(testRenderer!)[1].props.onPress();
+    });
+
+    expect(onChange).toHaveBeenCalledTimes(1);
+    const [value, params] = onChange.mock.calls[0];
+    expect(value).toEqual(['zhejiang']);
+    expect(params.value).toBe('hangzhou');
+    expect(params.level).toBe(1);
+
+    act(() => {
+      testRenderer!.unmount();
+    });
+  });
+
+  it('calls onChange when removing a tag in controlled mode', () => {
+    const onChange = jest.fn();
+    let testRenderer: renderer.ReactTestRenderer;
+
+    act(() => {
+      testRenderer = renderer.create(
+        <Cascader
+          value={['zhejiang', 'hangzhou']}
+          displayMode="tag"
+          onChange={onChange}
+          options={options}
+        />,
+      );
+    });
+
+    act(() => {
+      getTagCloseButtons(testRenderer!)[1].props.onPress();
+    });
+
+    expect(onChange).toHaveBeenCalledTimes(1);
+    const [value, params] = onChange.mock.calls[0];
+    expect(value).toEqual(['zhejiang']);
+    expect(params.value).toBe('hangzhou');
+    expect(params.level).toBe(1);
+    expect(params.path.map((item: CascaderOption<RegionData>) => item.value)).toEqual([
+      'zhejiang',
+    ]);
 
     act(() => {
       testRenderer!.unmount();

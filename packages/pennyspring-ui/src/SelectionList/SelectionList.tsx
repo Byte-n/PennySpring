@@ -7,15 +7,17 @@ import {
 import { CircleIcon } from 'phosphor-react-native';
 import { useTheme } from '@pennyspring/theme';
 import { Button } from '../Button';
+import { Column } from '../Column';
 import { DisplayInput } from '../DisplayInput';
 import { Icon } from '../Icon';
 import { Input } from '../Input';
 import { Popup } from '../Popup';
+import { Row } from '../Row';
 import { Text } from '../Text';
 import { TagValueDisplay } from '../_internal/TagValueDisplay';
 import type { TagValueItem } from '../_internal/TagValueDisplay';
 import { useControllableValue } from '../_hooks';
-import { useSelectionListStyles } from './styles';
+import { useSelectionListStyles } from './style';
 import type { ComponentSize } from '../shares/types';
 import type {
   SelectionListMode,
@@ -302,15 +304,15 @@ export function SelectionListPopup({
         {option.prefix !== undefined ? (
           <View style={tokenStyles.optionMeta}>{option.prefix}</View>
         ) : null}
-        <View style={tokenStyles.optionContent}>
+        <Column style={tokenStyles.optionContent}>
           {option.label !== undefined && typeof option.label !== 'string' ? (
             option.label
           ) : (
             <Text
+              color={isDisabled ? 'disabled' : 'default'}
+              size={resolveTextSize(resolvedSize)}
               style={[
-                tokenStyles.optionLabel,
                 styles?.optionLabel,
-                isDisabled ? tokenStyles.optionLabelDisabled : null,
               ]}
             >
               {option.labelText ?? option.label}
@@ -327,7 +329,7 @@ export function SelectionListPopup({
               {option.description}
             </Text>
           ) : null}
-        </View>
+        </Column>
         {option.suffix !== undefined ? (
           <View style={tokenStyles.optionMeta}>{option.suffix}</View>
         ) : null}
@@ -367,9 +369,10 @@ export function SelectionListPopup({
       styles={floatingPanelStyles}
       keyboardAvoiding={resolvedKeyboardAvoiding}
     >
-      <View testID="selection-list-popup" style={tokenStyles.popupContent}>
+      <View testID="selection-list-popup">
+        <Column style={tokenStyles.popupContent}>
         {texts?.headerText !== undefined || texts?.closeText !== undefined ? (
-          <View style={tokenStyles.header}>
+          <Row style={tokenStyles.header}>
             {texts.headerText !== undefined ? (
               <Text
                 size={resolveTextSize(resolvedSize)}
@@ -391,7 +394,7 @@ export function SelectionListPopup({
                 {texts.closeText}
               </Button>
             ) : null}
-          </View>
+          </Row>
         ) : null}
         {searchable === true ? (
           <Input
@@ -414,9 +417,9 @@ export function SelectionListPopup({
             )}
           </View>
         ) : filteredGroups.length > 0 ? (
-          <View style={tokenStyles.list}>
+          <Column style={tokenStyles.list}>
             {filteredGroups.map(group => (
-              <View key={group.key} style={tokenStyles.group}>
+              <Column key={group.key} style={tokenStyles.group}>
                 {group.title !== undefined ? (
                   group.title
                 ) : group.titleText !== undefined ? (
@@ -428,9 +431,9 @@ export function SelectionListPopup({
                   </Text>
                 ) : null}
                 {renderGroupOptions(group.options)}
-              </View>
+              </Column>
             ))}
-          </View>
+          </Column>
         ) : (
           <View style={tokenStyles.empty}>
             {empty ??
@@ -455,6 +458,7 @@ export function SelectionListPopup({
             </Button>
           </View>
         ) : null}
+        </Column>
       </View>
     </Popup.FloatingPanel>
   );
@@ -571,7 +575,7 @@ function SelectionListRoot({
     <View testID="selection-list-root" style={rootStyle}>
       <DisplayInput
         {...displayInputProps}
-        disabled={!isInteractive}
+        disabled={disabled === true || loading === true}
         display={displayInputProps?.display ?? 'inline'}
         error={error}
         errorText={errorText}
@@ -583,6 +587,7 @@ function SelectionListRoot({
           (displayMode === 'tag' ? 'visible' : 'hidden')
         }
         placeholder={placeholder ?? DEFAULT_PLACEHOLDER}
+        readonly={readonly}
         size={resolvedSize}
         status={resolvedStatus}
         style={styles?.displayInput?.root}

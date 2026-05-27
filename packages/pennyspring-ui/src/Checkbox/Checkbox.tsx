@@ -1,16 +1,13 @@
 import type { ComponentSize } from '../shares/types';
 import React, { useMemo } from 'react';
 import { Pressable, View } from 'react-native';
-import { createUseSheetStyle } from '@pennyspring/theme';
 import { Text } from '../Text';
 import { useControllableValue } from '../_hooks';
-import type {
-  AliasToken } from '@pennyspring/theme';
 import type { ReactNode } from 'react';
-import type { StyleProp,
-  TextStyle } from 'react-native';
+import type { StyleProp, TextStyle } from 'react-native';
+import type { TextColor, TextSize, TextWeight } from '../Text';
+import { useStyles } from './style';
 import type {
-  CheckboxDisplayType,
   CheckboxGroupOption,
   CheckboxGroupProps,
   CheckboxGroupStyles,
@@ -18,66 +15,35 @@ import type {
   CheckboxValue,
 } from './types';
 
-interface CheckboxStyleOptions {
-  block: boolean;
-  direction: 'horizontal' | 'vertical';
-  displayType: CheckboxDisplayType;
-  size: ComponentSize;
+function toTextSize(size: ComponentSize): TextSize {
+  if (size === 'small') {
+    return 'sm';
+  }
+
+  if (size === 'large') {
+    return 'lg';
+  }
+
+  return 'md';
 }
 
-interface SizeStyleConfig {
-  minHeight: (token: AliasToken) => number;
-  indicatorSize: (token: AliasToken) => number;
-  markSize: (token: AliasToken) => number;
-  paddingHorizontal: (token: AliasToken) => number;
-  paddingVertical: (token: AliasToken) => number;
-  gap: (token: AliasToken) => number;
-  fontSize: (token: AliasToken) => number;
-  lineHeight: (token: AliasToken) => number;
-}
-
-const SIZE_STYLE_MAP: Record<ComponentSize, SizeStyleConfig> = {
-  small: {
-    minHeight: token => token.controlHeightSM,
-    indicatorSize: token => token.fontSizeSM,
-    markSize: token => token.sizeXXS,
-    paddingHorizontal: token => token.controlPaddingHorizontalSM,
-    paddingVertical: token => token.controlPaddingHorizontalSM / 2,
-    gap: token => token.sizeXXS,
-    fontSize: token => token.fontSizeSM,
-    lineHeight: token => token.lineHeightSM,
-  },
-  normal: {
-    minHeight: token => token.controlHeight,
-    indicatorSize: token => token.fontSize,
-    markSize: token => token.sizeXS,
-    paddingHorizontal: token => token.controlPaddingHorizontal,
-    paddingVertical: token => token.controlPaddingHorizontal / 2,
-    gap: token => token.sizeXS,
-    fontSize: token => token.fontSize,
-    lineHeight: token => token.lineHeight,
-  },
-  large: {
-    minHeight: token => token.controlHeightLG,
-    indicatorSize: token => token.fontSizeXL,
-    markSize: token => token.sizeSM,
-    paddingHorizontal: token => token.paddingMD,
-    paddingVertical: token => token.paddingMD / 2,
-    gap: token => token.sizeXS,
-    fontSize: token => token.fontSizeLG,
-    lineHeight: token => token.lineHeightLG,
-  },
-};
-
-const TRANSPARENT = 'transparent';
-
-function renderLabel(label: ReactNode, style: StyleProp<TextStyle>) {
+function renderLabel(
+  label: ReactNode,
+  style: StyleProp<TextStyle>,
+  size: ComponentSize,
+  weight: TextWeight,
+  color: TextColor,
+) {
   if (label === undefined || label === null || label === false) {
     return null;
   }
 
   if (typeof label === 'string' || typeof label === 'number') {
-    return <Text style={style}>{label}</Text>;
+    return (
+      <Text color={color} size={toTextSize(size)} style={style} weight={weight}>
+        {label}
+      </Text>
+    );
   }
 
   return label;
@@ -90,106 +56,17 @@ function includesValue(
   return values.includes(optionValue);
 }
 
-const useStyles = createUseSheetStyle(
-  (
-    token,
-    { block, direction, displayType, size }: CheckboxStyleOptions,
-  ) => {
-    const sizeConfig = SIZE_STYLE_MAP[size];
-    const isButton = displayType === 'button';
+function getOptionLabel(option: CheckboxGroupOption): ReactNode {
+  if (option.label !== undefined) {
+    return option.label;
+  }
 
-    return {
-      root: {
-        alignSelf: block ? 'stretch' : 'flex-start',
-        width: block ? '100%' : undefined,
-      },
-      groupRoot: {
-        alignSelf: block ? 'stretch' : 'flex-start',
-        flexDirection: direction === 'horizontal' ? 'row' : 'column',
-        flexWrap: direction === 'horizontal' ? 'wrap' : undefined,
-        gap: sizeConfig.gap(token),
-        width: block ? '100%' : undefined,
-      },
-      control: {
-        alignItems: 'center',
-        alignSelf: block ? 'stretch' : 'flex-start',
-        backgroundColor: isButton ? token.colorBgContainer : TRANSPARENT,
-        borderColor: isButton ? token.colorBorder : TRANSPARENT,
-        borderRadius: token.borderRadius,
-        borderWidth: token.lineWidth,
-        flex: block && isButton ? 1 : undefined,
-        flexDirection: 'row',
-        justifyContent: isButton ? 'center' : 'flex-start',
-        minHeight: sizeConfig.minHeight(token),
-        paddingHorizontal: isButton ? sizeConfig.paddingHorizontal(token) : 0,
-        paddingVertical: isButton ? sizeConfig.paddingVertical(token) : 0,
-      },
-      controlChecked: {
-        backgroundColor: isButton ? token.colorPrimaryBg : TRANSPARENT,
-        borderColor: isButton ? token.colorPrimaryBorder : TRANSPARENT,
-      },
-      controlPressed: {
-        backgroundColor: isButton
-          ? token.controlItemBgActive
-          : token.colorBgTextActive,
-      },
-      controlDisabled: {
-        backgroundColor: isButton ? token.colorBgContainerDisabled : TRANSPARENT,
-        borderColor: isButton ? token.colorBorderDisabled : TRANSPARENT,
-      },
-      content: {
-        alignItems: 'center',
-        flexDirection: 'row',
-        gap: sizeConfig.gap(token),
-        justifyContent: isButton ? 'center' : 'flex-start',
-      },
-      indicator: {
-        alignItems: 'center',
-        backgroundColor: token.colorBgContainer,
-        borderColor: token.colorBorder,
-        borderRadius: token.borderRadiusXS,
-        borderWidth: token.lineWidth,
-        height: sizeConfig.indicatorSize(token),
-        justifyContent: 'center',
-        width: sizeConfig.indicatorSize(token),
-      },
-      indicatorChecked: {
-        backgroundColor: token.colorPrimary,
-        borderColor: token.colorPrimary,
-      },
-      indicatorDisabled: {
-        backgroundColor: token.colorBgContainerDisabled,
-        borderColor: token.colorBorderDisabled,
-      },
-      indicatorReadonly: {
-        borderColor: token.colorBorderSecondary,
-      },
-      mark: {
-        backgroundColor: token.colorTextLightSolid,
-        borderRadius: token.borderRadiusXS,
-        height: sizeConfig.markSize(token),
-        width: sizeConfig.markSize(token),
-      },
-      markIndeterminate: {
-        height: token.lineWidthBold,
-        width: sizeConfig.markSize(token),
-      },
-      label: {
-        color: token.colorText,
-        fontFamily: token.fontFamily,
-        fontSize: sizeConfig.fontSize(token),
-        fontWeight: String(token.fontWeightRegular) as TextStyle['fontWeight'],
-        lineHeight: sizeConfig.lineHeight(token),
-      },
-      labelChecked: {
-        color: isButton ? token.colorPrimaryText : token.colorText,
-      },
-      labelDisabled: {
-        color: token.colorTextDisabled,
-      },
-    };
-  },
-);
+  if (option.labelText !== undefined) {
+    return option.labelText;
+  }
+
+  return option.value;
+}
 
 interface CheckboxControlProps
   extends Omit<CheckboxProps, 'style' | 'styles'> {
@@ -227,12 +104,19 @@ function CheckboxControl({
   const isDisabled = disabled || readonly;
   const isVisuallyChecked = checked || indeterminate;
   const shouldRenderIndicator = displayType !== 'button';
-  const label = renderLabel(children, [
-    tokenStyles.label,
-    optionStyle?.label,
-    checked ? tokenStyles.labelChecked : null,
-    isDisabled ? tokenStyles.labelDisabled : null,
-  ]);
+  const labelColor: TextColor = isDisabled ? 'disabled' : 'default';
+  const label = renderLabel(
+    children,
+    [
+      tokenStyles.label,
+      checked ? tokenStyles.labelChecked : null,
+      isDisabled ? tokenStyles.labelDisabled : null,
+      optionStyle?.label,
+    ],
+    size,
+    'regular',
+    labelColor,
+  );
 
   function handlePress(): void {
     if (isDisabled) {
@@ -250,10 +134,10 @@ function CheckboxControl({
       onPress={handlePress}
       style={({ pressed }) => [
         tokenStyles.control,
-        controlStyle,
         checked ? tokenStyles.controlChecked : null,
         pressed && !isDisabled ? tokenStyles.controlPressed : null,
         isDisabled ? tokenStyles.controlDisabled : null,
+        controlStyle,
         rootStyle,
       ]}
     >
@@ -267,10 +151,10 @@ function CheckboxControl({
             }
             style={[
               tokenStyles.indicator,
-              optionStyle?.indicator,
               isVisuallyChecked ? tokenStyles.indicatorChecked : null,
               readonly ? tokenStyles.indicatorReadonly : null,
               disabled ? tokenStyles.indicatorDisabled : null,
+              optionStyle?.indicator,
             ]}
           >
             {isVisuallyChecked ? (
@@ -282,8 +166,8 @@ function CheckboxControl({
                 }
                 style={[
                   tokenStyles.mark,
-                  optionStyle?.mark,
                   indeterminate ? tokenStyles.markIndeterminate : null,
+                  optionStyle?.mark,
                 ]}
               />
             ) : null}
@@ -404,7 +288,7 @@ function CheckboxGroup({
               toggleOption(option);
             }}
           >
-            {option.label ?? option.value}
+            {getOptionLabel(option)}
           </CheckboxControl>
         );
       })}

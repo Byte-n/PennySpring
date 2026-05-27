@@ -50,6 +50,7 @@ jest.mock('react-native-reanimated', () => {
 
 import {
   CascadePicker,
+  type CascadePickerStyles,
   Tabs,
   Text,
   type CascadePickerTab,
@@ -365,4 +366,31 @@ it('renders empty state when the active tab has no options', () => {
   });
 
   expect(JSON.stringify(testRenderer!.toJSON())).toContain('No data');
+});
+
+it('exports CascadePickerStyles from the package entry', () => {
+  const cascadePickerStylesTypeCheck: CascadePickerStyles = {};
+  expect(cascadePickerStylesTypeCheck).toEqual({});
+});
+
+it('prevents opening when readonly is true', () => {
+  const onOpenChange = jest.fn();
+  let testRenderer: renderer.ReactTestRenderer;
+
+  act(() => {
+    testRenderer = renderer.create(
+      <CascadePicker
+        onOpenChange={onOpenChange}
+        readonly
+        tabs={tabs}
+      />,
+    );
+  });
+
+  act(() => {
+    testRenderer!.root.findByProps({ testID: 'picker-trigger' }).props.onPress();
+  });
+
+  expect(onOpenChange).not.toHaveBeenCalledWith(true, { reason: 'trigger' });
+  expect(() => testRenderer!.root.findByProps({ testID: 'picker-popup-mask' })).toThrow();
 });

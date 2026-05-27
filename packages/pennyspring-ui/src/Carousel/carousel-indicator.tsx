@@ -1,4 +1,4 @@
-import { View, type ViewStyle } from 'react-native';
+import { View, type StyleProp, type ViewStyle } from 'react-native';
 
 import type { CarouselProps, CarouselStyles } from './types';
 
@@ -7,25 +7,11 @@ interface CarouselIndicatorProps {
   externalStyles?: CarouselStyles;
   total: number;
   current: number;
-  activeColor: string;
-  inactiveColor: string;
-  styles: {
-    indicatorContainer: ViewStyle;
-    indicatorDot: ViewStyle;
-    indicatorDotActive: ViewStyle;
-  };
+  styles: Record<string, StyleProp<ViewStyle>>;
 }
 
 export const CarouselIndicator = (props: CarouselIndicatorProps) => {
-  const {
-    indicator,
-    externalStyles,
-    total,
-    current,
-    activeColor,
-    inactiveColor,
-    styles,
-  } = props;
+  const { indicator, externalStyles, total, current, styles } = props;
 
   if (indicator === false) return null;
   if (total <= 1) return null;
@@ -43,7 +29,6 @@ export const CarouselIndicator = (props: CarouselIndicatorProps) => {
             key={i}
             style={[
               styles.indicatorDot,
-              { backgroundColor: isActive ? activeColor : inactiveColor },
               isActive && styles.indicatorDotActive,
               externalStyles?.indicatorDot,
               isActive && externalStyles?.indicatorDotActive,

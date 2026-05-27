@@ -19,17 +19,33 @@ interface AvatarGroupStyleOptions {
 
 interface AvatarGroupSizeConfig {
   overlap: (token: AliasToken) => number;
+  restDimension: (token: AliasToken) => number;
+  restPaddingHorizontal: (token: AliasToken) => number;
+  restFontSize: (token: AliasToken) => number;
+  restLineHeight: (token: AliasToken) => number;
 }
 
 const AVATAR_GROUP_SIZE_CONFIG: Record<ComponentSize, AvatarGroupSizeConfig> = {
   small: {
     overlap: token => token.paddingXXS,
+    restDimension: token => token.controlHeightSM,
+    restPaddingHorizontal: token => token.paddingXXS,
+    restFontSize: token => token.fontSizeSM,
+    restLineHeight: token => token.lineHeightSM,
   },
   normal: {
     overlap: token => token.paddingXS,
+    restDimension: token => token.controlHeight,
+    restPaddingHorizontal: token => token.paddingXS,
+    restFontSize: token => token.fontSize,
+    restLineHeight: token => token.lineHeight,
   },
   large: {
     overlap: token => token.paddingSM,
+    restDimension: token => token.controlHeightLG,
+    restPaddingHorizontal: token => token.paddingSM,
+    restFontSize: token => token.fontSizeLG,
+    restLineHeight: token => token.lineHeightLG,
   },
 };
 
@@ -46,7 +62,9 @@ const useStyles = createUseSheetStyle<
   AvatarGroupStyleOptions,
   AvatarGroupStyleSheet
 >((token, { size }: AvatarGroupStyleOptions) => {
-  const overlap = AVATAR_GROUP_SIZE_CONFIG[size].overlap(token);
+  const sizeConfig = AVATAR_GROUP_SIZE_CONFIG[size];
+  const overlap = sizeConfig.overlap(token);
+  const restDimension = sizeConfig.restDimension(token);
 
   return {
     root: {
@@ -63,20 +81,20 @@ const useStyles = createUseSheetStyle<
       alignItems: 'center',
       backgroundColor: token.colorFillTertiary,
       borderColor: token.colorBgContainer,
-      borderRadius: token.controlHeight,
+      borderRadius: restDimension,
       borderWidth: token.lineWidth,
-      height: token.controlHeight,
+      height: restDimension,
       justifyContent: 'center',
       marginLeft: -overlap,
-      minWidth: token.controlHeight,
-      paddingHorizontal: token.paddingXS,
+      minWidth: restDimension,
+      paddingHorizontal: sizeConfig.restPaddingHorizontal(token),
     },
     restText: {
       color: token.colorTextSecondary,
       fontFamily: token.fontFamily,
-      fontSize: token.fontSizeSM,
+      fontSize: sizeConfig.restFontSize(token),
       fontWeight: String(token.fontWeightStrong) as TextStyle['fontWeight'],
-      lineHeight: token.lineHeightSM,
+      lineHeight: sizeConfig.restLineHeight(token),
     },
   };
 });

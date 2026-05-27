@@ -102,6 +102,12 @@ function isPresetColor(color: BadgeColor): color is (typeof PRESET_COLORS)[numbe
 }
 
 function resolveColorConfig(token: AliasToken, color: BadgeColor): ColorStyleConfig {
+  if (color === 'default') {
+    return {
+      base: token.colorText,
+    };
+  }
+
   if (color === 'primary') {
     return {
       base: token.colorPrimary,
@@ -308,16 +314,17 @@ export function Badge({
   const normalizedOverflowCount = normalizeOverflowCount(overflowCount);
   const shouldRender = shouldRenderBadge(count, dot, showZero);
 
-  if (!shouldRender) {
+  if (!shouldRender && !hasChildren) {
     return null;
   }
 
-  const displayCount = resolveDisplayCount(count, normalizedOverflowCount);
-  const badgeNode = (
-    <View style={[tokenStyles.indicator, styles?.indicator]}>
-      {dot ? <View style={[tokenStyles.dot, styles?.dot]} /> : renderBadgeContent(displayCount, styles, tokenStyles.content)}
-    </View>
-  );
+  const badgeNode = shouldRender
+    ? (
+      <View style={[tokenStyles.indicator, styles?.indicator]}>
+        {dot ? <View style={[tokenStyles.dot, styles?.dot]} /> : renderBadgeContent(resolveDisplayCount(count, normalizedOverflowCount), styles, tokenStyles.content)}
+      </View>
+    )
+    : null;
 
   return (
     <View {...rest} style={[tokenStyles.root, style]}>

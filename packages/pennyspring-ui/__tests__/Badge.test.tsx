@@ -181,4 +181,32 @@ describe('Badge', () => {
       { translateY: -token.sizeXS / 2 + 4 },
     ]);
   });
+
+  it('maps default color to neutral style instead of danger style', () => {
+    const defaultRenderer = renderBadge({
+      count: 1,
+    });
+    const dangerRenderer = renderBadge({
+      count: 1,
+      color: 'danger',
+    });
+
+    expect(getIndicatorStyleByText(defaultRenderer, '1').backgroundColor).toBe(token.colorText);
+    expect(getIndicatorStyleByText(dangerRenderer, '1').backgroundColor).toBe(token.colorError);
+  });
+
+  it('keeps children when badge should be hidden', () => {
+    const hiddenWithChildRenderer = renderBadge({
+      count: 0,
+      showZero: false,
+      children: <View testID="badge-child" />,
+    });
+
+    const childNode = hiddenWithChildRenderer.root.findByProps({
+      testID: 'badge-child',
+    });
+
+    expect(childNode).toBeTruthy();
+    expect(hiddenWithChildRenderer.root.findAllByType(RNText)).toHaveLength(0);
+  });
 });

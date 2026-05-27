@@ -237,6 +237,7 @@ export type {
   CascadePickerTab,
   CascadePickerTabKey,
   CascadePickerProps,
+  CascadePickerStyles,
   CascadePickerValue,
 } from './CascadePicker';
 export { Cascader } from './Cascader';

@@ -11,8 +11,10 @@ const ITEMS = [
   { id: '3', title: 'Gamma' },
 ];
 
-function renderCarousel(props = {}) {
-  let testRenderer;
+function renderCarousel(
+  props: Partial<React.ComponentProps<typeof Carousel<(typeof ITEMS)[number]>>> = {},
+): renderer.ReactTestRenderer {
+  let testRenderer: renderer.ReactTestRenderer;
 
   act(() => {
     testRenderer = renderer.create(
@@ -26,11 +28,13 @@ function renderCarousel(props = {}) {
     );
   });
 
-  return testRenderer;
+  return testRenderer!;
 }
 
-function triggerLayout(testRenderer, width = 300) {
-  const pressable = testRenderer.root.findAll(node => typeof node.props.onLayout === 'function')[0];
+function triggerLayout(testRenderer: renderer.ReactTestRenderer, width = 300): void {
+  const pressable = testRenderer.root.findAll(
+    node => typeof node.props.onLayout === 'function',
+  )[0];
 
   act(() => {
     pressable.props.onLayout({
@@ -46,7 +50,7 @@ function triggerLayout(testRenderer, width = 300) {
 
 describe('Carousel', () => {
   it('renders nothing when data is empty', () => {
-    let testRenderer;
+    let testRenderer: renderer.ReactTestRenderer;
 
     act(() => {
       testRenderer = renderer.create(
@@ -56,13 +60,13 @@ describe('Carousel', () => {
       );
     });
 
-    expect(testRenderer.toJSON()).toBeNull();
+    expect(testRenderer!.toJSON()).toBeNull();
   });
 
   it('supports hiding and customizing indicator', () => {
     const hiddenIndicator = renderCarousel({ indicator: false });
     const customIndicator = renderCarousel({
-      indicator: (total, current) => <>custom-{total}-{current}</>,
+      indicator: (total: number, current: number) => <>custom-{total}-{current}</>,
     });
 
     expect(JSON.stringify(hiddenIndicator.toJSON())).not.toContain('custom-');
@@ -74,7 +78,7 @@ describe('Carousel', () => {
 
   it('supports uncontrolled defaultValue and notifies onChange after swipeTo', () => {
     const onChange = jest.fn();
-    const ref = createRef();
+    const ref = createRef<any>();
     const testRenderer = renderCarousel({
       defaultValue: 1,
       onChange,
@@ -84,7 +88,7 @@ describe('Carousel', () => {
     triggerLayout(testRenderer, 320);
 
     act(() => {
-      ref.current.swipeTo(2);
+      ref.current?.swipeTo(2);
     });
 
     expect(onChange).toHaveBeenCalledWith(2);
@@ -92,7 +96,7 @@ describe('Carousel', () => {
 
   it('supports controlled value and only emits onChange', () => {
     const onChange = jest.fn();
-    const ref = createRef();
+    const ref = createRef<any>();
     const testRenderer = renderCarousel({
       value: 0,
       onChange,
@@ -102,7 +106,7 @@ describe('Carousel', () => {
     triggerLayout(testRenderer, 320);
 
     act(() => {
-      ref.current.swipeNext();
+      ref.current?.swipeNext();
     });
 
     expect(onChange).toHaveBeenCalledWith(1);
@@ -128,7 +132,8 @@ describe('Carousel', () => {
     const source = fs.readFileSync(sourcePath, 'utf8');
 
     expect(source).toContain('react-native-gesture-handler');
-    expect(source).not.toContain('PanResponder');
+    expect(source).not.toContain('PanResponder.create');
+    expect(source).not.toContain("from 'react-native';");
   });
 
   it('avoids dynamic inline style objects in carousel indicator and slides', () => {

@@ -1,5 +1,5 @@
 import { useMemoizedFn } from '../../_hooks';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useRef } from 'react';
 import { clampValue } from '../utils';
 
 /**
@@ -16,7 +16,8 @@ interface UseCarouselIndexParams {
   normalizedTrackOffset: number;
   stuckAtBoundary: boolean;
   rubberband: boolean;
-  onIndexChange?: (index: number) => void;
+  current: number;
+  onCurrentChange: (index: number) => void;
 }
 
 /**
@@ -61,26 +62,24 @@ export const useCarouselIndex = (params: UseCarouselIndexParams) => {
     normalizedTrackOffset,
     stuckAtBoundary,
     rubberband,
-    onIndexChange,
+    current,
+    onCurrentChange,
   } = params;
-
-  const [current, setCurrent] = useState(0);
   const extIndexRef = useRef(0);
   const reportIndexRef = useRef<number | null>(null);
 
   const updateCurrent = useCallback(
     (next: number) => {
       const normalized = total > 0 ? clampValue(next, 0, total - 1) : 0;
-      setCurrent(normalized);
+      onCurrentChange(normalized);
     },
-    [total],
+    [onCurrentChange, total],
   );
 
   const maybeReportIndex = useMemoizedFn((index: number) => {
-    if (!onIndexChange) return;
     if (reportIndexRef.current === index) return;
     reportIndexRef.current = index;
-    onIndexChange(index);
+    onCurrentChange(index);
   });
 
   const getExtIndexFromIndex = useCallback(

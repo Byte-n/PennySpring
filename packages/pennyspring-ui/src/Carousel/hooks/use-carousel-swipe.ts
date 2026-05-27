@@ -104,6 +104,7 @@ export const useCarouselSwipe = (params: UseCarouselSwipeParams) => {
 
     const nextIndex = getIndexFromExtIndex(boundedExtIndex);
     updateCurrent(nextIndex);
+    maybeReportIndex(nextIndex);
 
     const rawPosition = boundedExtIndex * slidePixels;
     const toPosition = getBoundedPosition(rawPosition);

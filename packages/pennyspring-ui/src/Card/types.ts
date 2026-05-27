@@ -12,6 +12,7 @@ import type { ComponentSize } from '../shares/types';
  * plain 用于普通容器，elevated 用于更高层级，summary 用于摘要信息。
  */
 export type CardVariant = 'plain' | 'elevated' | 'summary';
+export type CardTitleNode = Exclude<ReactNode, string | number | boolean>;
 
 export interface CardStyles {
   /** 标题区容器样式。 */
@@ -53,7 +54,7 @@ export interface CardProps {
    * Card 标题自定义节点。
    * 传入后由外部完全控制节点渲染。
    */
-  title?: ReactNode;
+  title?: CardTitleNode | null;
 
   /**
    * Card 标题区右侧内容。

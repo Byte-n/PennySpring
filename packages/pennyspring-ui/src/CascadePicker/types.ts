@@ -102,6 +102,7 @@ export interface CascadePickerProps<
   empty?: ReactNode;
   placeholder?: string;
   displayInputProps?: PickerDisplayInputProps;
+  readonly?: boolean;
   disabled?: boolean;
   okDisabled?: boolean;
   children?: ReactNode;

@@ -35,7 +35,8 @@ export interface CheckboxProps
 
 export interface CheckboxGroupOption {
   value: CheckboxValue;
-  label?: ReactNode;
+  labelText?: string;
+  label?: ReactNode | null;
   disabled?: boolean;
 }
 

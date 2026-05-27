@@ -64,7 +64,6 @@ export const useCarouselLifecycle = (params: UseCarouselLifecycleParams) => {
     if (slidePixels > 0) {
       setPositionImmediate(getBoundedPosition(extIndex * slidePixels));
     }
-     
   }, [
     defaultIndex,
     getExtIndexFromIndex,
@@ -81,6 +80,5 @@ export const useCarouselLifecycle = (params: UseCarouselLifecycleParams) => {
     if (slidePixels <= 0) return;
     const extIndex = extIndexRef.current;
     setPositionImmediate(getBoundedPosition(extIndex * slidePixels));
-     
   }, [getBoundedPosition, setPositionImmediate, slidePixels]);
 };

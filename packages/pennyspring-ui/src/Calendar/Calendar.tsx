@@ -480,6 +480,7 @@ function CalendarRoot({
       ) : null}
       <View style={[tokenStyles.header, styles?.header]}>
         <Pressable
+          disabled={disabled}
           onPress={() => {
             if (!disabled) {
               setPanel(addPanel(panel, resolvedMode, -1));
@@ -498,6 +499,7 @@ function CalendarRoot({
         </Pressable>
         <Text style={[tokenStyles.title, styles?.title]}>{panelTitle(panel, resolvedMode)}</Text>
         <Pressable
+          disabled={disabled}
           onPress={() => {
             if (!disabled) {
               setPanel(addPanel(panel, resolvedMode, 1));
@@ -538,6 +540,7 @@ function CalendarRoot({
         <View style={[tokenStyles.footer, styles?.footer]}>
           {showToday ? (
             <Pressable
+              disabled={disabled}
               hitSlop={ACTION_HIT_SLOP}
               onPress={handleToday}
             >
@@ -547,6 +550,7 @@ function CalendarRoot({
           {showConfirm ? (
             <>
               <Pressable
+                disabled={disabled}
                 hitSlop={ACTION_HIT_SLOP}
                 onPress={() => {
                   setDraftValue(undefined);
@@ -557,6 +561,7 @@ function CalendarRoot({
                 {renderSlotNode(cancel, cancelText)}
               </Pressable>
               <Pressable
+                disabled={disabled}
                 hitSlop={ACTION_HIT_SLOP}
                 onPress={handleConfirm}
                 style={tokenStyles.footerAction}
@@ -665,6 +670,7 @@ function CalendarRange({
       {displayValue ? <Text>{displayValue}</Text> : null}
       <View style={[tokenStyles.header, styles?.header]}>
         <Pressable
+          disabled={disabled}
           onPress={() => {
             if (!disabled) {
               setPanel(addPanel(panel, resolvedMode, -1));
@@ -683,6 +689,7 @@ function CalendarRange({
         </Pressable>
         <Text style={[tokenStyles.title, styles?.title]}>{panelTitle(panel, resolvedMode)}</Text>
         <Pressable
+          disabled={disabled}
           onPress={() => {
             if (!disabled) {
               setPanel(addPanel(panel, resolvedMode, 1));
@@ -715,11 +722,15 @@ function CalendarRange({
         <View style={[tokenStyles.footer, styles?.footer]}>
           {showToday ? (
             <Pressable
+              disabled={disabled}
               hitSlop={ACTION_HIT_SLOP}
               onPress={() => {
                 const nextToday = todayValue(resolvedMode);
                 setPanel(parsePanel(nextToday));
-                handleSelect(nextToday);
+
+                if (!isValueDisabled(nextToday, { disabled, disabledDate, maxDate, minDate }, resolvedMode)) {
+                  handleSelect(nextToday);
+                }
               }}
             >
               {renderSlotNode(today, todayText)}
@@ -728,6 +739,7 @@ function CalendarRange({
           {showConfirm ? (
             <>
               <Pressable
+                disabled={disabled}
                 hitSlop={ACTION_HIT_SLOP}
                 onPress={() => {
                   setDraftRange([]);
@@ -738,6 +750,7 @@ function CalendarRange({
                 {renderSlotNode(cancel, cancelText)}
               </Pressable>
               <Pressable
+                disabled={disabled}
                 hitSlop={ACTION_HIT_SLOP}
                 onPress={handleConfirm}
                 style={tokenStyles.footerAction}

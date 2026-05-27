@@ -418,7 +418,6 @@ export function Button({
     variant: resolvedVariant,
   });
   const isInteractive = !disabled && !isLoading;
-  const loadingIcon = loadingConfig?.icon ?? <ActivityIndicator />;
   const shouldRenderIcon = isLoading || (icon !== undefined && icon !== null);
   const variantStyle = resolveVariantStyle(
     token,
@@ -429,6 +428,13 @@ export function Button({
   const resolvedIconColor = disabled
     ? token.colorTextDisabled
     : variantStyle.color;
+  const loadingIcon =
+    loadingConfig?.icon ?? (
+      <ActivityIndicator
+        color={resolvedIconColor}
+        size={resolveIconSize(size, token)}
+      />
+    );
   const iconNode = shouldRenderIcon ? (
     <View style={[tokenStyles.icon, styles?.icon]}>
       {isLoading ? (
