@@ -1,6 +1,6 @@
 import type { BadgeColor } from '../src/Badge';
 import type { ButtonColor } from '../src/Button';
-import type { IconColor } from '../src/Icon';
+import type { IconColor, IconSize } from '../src/Icon';
 import type { SwipeActionColor } from '../src/SwipeAction';
 import type { TagColor } from '../src/Tag';
 import type { TextColor } from '../src/Text';
@@ -37,12 +37,12 @@ describe('component color types', () => {
   it('keeps foreground colors scoped to semantic and alias token keys', () => {
     const textSemantic: TextColor = 'secondary';
     const textAlias: TextColor = 'primaryText';
-    const iconSemantic: IconColor = 'primary';
+    const iconSemantic: IconColor = 'secondary';
     const iconAlias: IconColor = 'icon';
 
     expect(textSemantic).toBe('secondary');
     expect(textAlias).toBe('primaryText');
-    expect(iconSemantic).toBe('primary');
+    expect(iconSemantic).toBe('secondary');
     expect(iconAlias).toBe('icon');
   });
 
@@ -60,5 +60,15 @@ describe('component color types', () => {
     expect(textPreset).toBe('blue');
     expect(iconCustom).toBe('#123456');
     expect(iconPreset).toBe('gold');
+  });
+
+  it('keeps icon size scoped to semantic component sizes', () => {
+    const iconSize: IconSize = 'normal';
+
+    // @ts-expect-error Icon size does not accept arbitrary numeric values.
+    const numericIconSize: IconSize = 18;
+
+    expect(iconSize).toBe('normal');
+    expect(numericIconSize).toBe(18);
   });
 });

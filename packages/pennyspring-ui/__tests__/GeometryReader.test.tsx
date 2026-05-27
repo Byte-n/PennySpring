@@ -32,6 +32,25 @@ describe('GeometryReader', () => {
     expect(children).toHaveBeenCalledWith({ width: 200, height: 100 });
   });
 
+  it('updates children when layout size changes', () => {
+    const children = jest.fn(() => <Text>Content</Text>);
+    const testRenderer = render(
+      <GeometryReader>{children}</GeometryReader>,
+    );
+    const root = testRenderer.root.findByProps({ testID: 'geometry-reader' });
+
+    act(() => {
+      root.props.onLayout({
+        nativeEvent: { layout: { width: 200, height: 100 } },
+      });
+      root.props.onLayout({
+        nativeEvent: { layout: { width: 320, height: 180 } },
+      });
+    });
+
+    expect(children).toHaveBeenCalledWith({ width: 320, height: 180 });
+  });
+
   it('renders with default geometry before layout measurement', () => {
     const children = jest.fn(() => <Text>Content</Text>);
     render(

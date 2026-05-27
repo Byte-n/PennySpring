@@ -87,6 +87,15 @@ function driveSearchToConvergence(
   }
 }
 
+function getSearchCandidate(renderer: ReactTestRenderer): string {
+  const node = findRNTextWithOnTextLayout(renderer.root);
+  if (!node) {
+    throw new Error('No RNText with onTextLayout found');
+  }
+
+  return node.props.children as string;
+}
+
 describe('Ellipsis', () => {
   describe('text fits within rows', () => {
     test('renders full content when text fits', () => {
@@ -120,6 +129,50 @@ describe('Ellipsis', () => {
       const content = text.props.children as string;
       expect(content).toContain('...');
       expect(content.length).toBeLessThan(LONG_TEXT.length + 3);
+    });
+
+    test('uses the last fitting candidate when the overflow boundary converges', () => {
+      // Arrange
+      const lastFittingLength = 50;
+      let renderer: ReactTestRenderer;
+      act(() => {
+        renderer = create(
+          <Ellipsis content={LONG_TEXT} data-testid="ellipsis" />,
+        );
+      });
+
+      // Act
+      triggerTextLayout(renderer!, 5);
+      driveSearchToConvergence(renderer!, 1, lastFittingLength);
+
+      // Assert
+      const text = renderer!.root.findByProps({ 'data-testid': 'ellipsis-text' });
+      const content = text.props.children as string;
+      expect(content.replace('...', '').length).toBeLessThanOrEqual(
+        lastFittingLength,
+      );
+    });
+
+    test('measures collapsed text with ellipsis and expand action text', () => {
+      // Arrange
+      let renderer: ReactTestRenderer;
+      act(() => {
+        renderer = create(
+          <Ellipsis
+            content={LONG_TEXT}
+            expandText="more"
+            data-testid="ellipsis"
+          />,
+        );
+      });
+
+      // Act
+      triggerTextLayout(renderer!, 5);
+
+      // Assert
+      const candidate = getSearchCandidate(renderer!);
+      expect(candidate).toContain('...');
+      expect(candidate.endsWith('more')).toBe(true);
     });
   });
 
@@ -278,6 +331,44 @@ describe('Ellipsis', () => {
       });
       expect(onExpand).toHaveBeenCalledWith(false);
     });
+
+    test('calls onOpenChange callback with open state', () => {
+      // Arrange
+      const onOpenChange = jest.fn();
+      let renderer: ReactTestRenderer;
+      act(() => {
+        renderer = create(
+          <Ellipsis
+            content={LONG_TEXT}
+            expandText="more"
+            collapseText="less"
+            onOpenChange={onOpenChange}
+            data-testid="ellipsis"
+          />,
+        );
+      });
+      triggerTextLayout(renderer!, 5);
+      driveSearchToConvergence(renderer!, 1, 50);
+
+      // Act
+      const expandButton = renderer!.root.findByProps({
+        'data-testid': 'ellipsis-expand',
+      });
+      act(() => {
+        expandButton.props.onPress();
+      });
+
+      const collapseButton = renderer!.root.findByProps({
+        'data-testid': 'ellipsis-collapse',
+      });
+      act(() => {
+        collapseButton.props.onPress();
+      });
+
+      // Assert
+      expect(onOpenChange).toHaveBeenNthCalledWith(1, true);
+      expect(onOpenChange).toHaveBeenNthCalledWith(2, false);
+    });
   });
 
   describe('controlled expanded state', () => {
@@ -296,6 +387,48 @@ describe('Ellipsis', () => {
 
       const text = renderer!.root.findByProps({ 'data-testid': 'ellipsis-text' });
       expect(text.props.children).toBe(LONG_TEXT);
+    });
+
+    test('respects controlled open prop', () => {
+      // Arrange & Act
+      let renderer: ReactTestRenderer;
+      act(() => {
+        renderer = create(
+          <Ellipsis
+            content={LONG_TEXT}
+            open
+            collapseText="less"
+            data-testid="ellipsis"
+          />,
+        );
+      });
+
+      // Assert
+      const text = renderer!.root.findByProps({ 'data-testid': 'ellipsis-text' });
+      expect(text.props.children).toBe(LONG_TEXT);
+    });
+  });
+
+  describe('size', () => {
+    test('passes mapped text size to visible content', () => {
+      // Arrange
+      let renderer: ReactTestRenderer;
+      act(() => {
+        renderer = create(
+          <Ellipsis
+            content={SHORT_TEXT}
+            size="small"
+            data-testid="ellipsis"
+          />,
+        );
+      });
+
+      // Act
+      triggerTextLayout(renderer!, 1);
+
+      // Assert
+      const text = renderer!.root.findByProps({ 'data-testid': 'ellipsis-text' });
+      expect(text.props.size).toBe('sm');
     });
   });
 });

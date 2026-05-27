@@ -60,6 +60,13 @@ jest.mock('react-native-gesture-handler', () => {
     }) => ReactLocal.createElement(ReactLocal.Fragment, undefined, children)
   };
 });
+
+function getPointerEvents(testRenderer: renderer.ReactTestRenderer) {
+  return testRenderer.root.findByProps({
+    testID: 'drawer-overlay-container'
+  }).props.pointerEvents;
+}
+
 function renderDrawer(props: Partial<React.ComponentProps<typeof Drawer>> = {}, children: React.ReactNode = <RNText>Drawer content</RNText>) {
   let testRenderer: renderer.ReactTestRenderer;
   act(() => {
@@ -68,6 +75,97 @@ function renderDrawer(props: Partial<React.ComponentProps<typeof Drawer>> = {}, 
   return testRenderer!;
 }
 describe('Drawer', () => {
+  it('opens initially when defaultOpen is true', () => {
+    // Arrange & Act
+    const testRenderer = renderDrawer({
+      defaultOpen: true
+    });
+
+    // Assert
+    expect(getPointerEvents(testRenderer)).toBe('auto');
+    expect(JSON.stringify(testRenderer.toJSON())).toContain('Drawer content');
+  });
+
+  it('fires onCancel before onOpenChange when the overlay is pressed', () => {
+    // Arrange
+    const calls: string[] = [];
+    const testRenderer = renderDrawer({
+      defaultOpen: true,
+      onCancel: () => calls.push('cancel'),
+      onOpenChange: nextOpen => calls.push(`open:${nextOpen}`)
+    });
+
+    // Act
+    act(() => {
+      testRenderer.root.findByProps({
+        testID: 'drawer-overlay'
+      }).props.onPress();
+    });
+
+    // Assert
+    expect(calls).toEqual(['cancel', 'open:false']);
+    expect(getPointerEvents(testRenderer)).toBe('none');
+  });
+
+  it('keeps a controlled drawer visible when the overlay requests close', () => {
+    // Arrange
+    const onOpenChange = jest.fn();
+    const testRenderer = renderDrawer({
+      open: true,
+      onOpenChange
+    });
+
+    // Act
+    act(() => {
+      testRenderer.root.findByProps({
+        testID: 'drawer-overlay'
+      }).props.onPress();
+    });
+
+    // Assert
+    expect(onOpenChange).toHaveBeenCalledWith(false);
+    expect(getPointerEvents(testRenderer)).toBe('auto');
+  });
+
+  it('fires onCancel before onOpenChange when the layout back mask is pressed', () => {
+    // Arrange
+    const calls: string[] = [];
+    let testRenderer: renderer.ReactTestRenderer;
+    act(() => {
+      testRenderer = renderer.create(<><Drawer.Layout
+            defaultOpen
+            drawerType="back"
+            onCancel={() => calls.push('cancel')}
+            onOpenChange={nextOpen => calls.push(`open:${nextOpen}`)}
+            renderDrawerContent={() => <RNText>Layout drawer</RNText>}
+          >
+            <RNText>Scene content</RNText>
+          </Drawer.Layout></>);
+    });
+
+    // Act
+    act(() => {
+      testRenderer!.root.findByProps({
+        testID: 'drawer-layout-back-mask'
+      }).props.onPress();
+    });
+
+    // Assert
+    expect(calls).toEqual(['cancel', 'open:false']);
+  });
+
+  it('uses reanimated to create the web animated pressable', () => {
+    // Arrange & Act
+    const source = require('fs').readFileSync(
+      'packages/pennyspring-ui/src/Drawer/AnimatedPressable.web.ts',
+      'utf8',
+    );
+
+    // Assert
+    expect(source).toContain("from 'react-native-reanimated'");
+    expect(source).not.toContain('Animated.createAnimatedComponent');
+  });
+
   it('mounts content through a Portal when wrapped in a PortalProvider', () => {
     let testRenderer: renderer.ReactTestRenderer;
     act(() => {

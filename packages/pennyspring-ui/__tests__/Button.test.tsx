@@ -92,14 +92,11 @@ describe('Button', () => {
     const smallTextStyle = getContentTextStyle(smallRenderer);
     const normalTextStyle = getContentTextStyle(normalRenderer);
     const largeTextStyle = getContentTextStyle(largeRenderer);
-    expect(typeof smallIcon.props.size).toBe('number');
-    expect(typeof normalIcon.props.size).toBe('number');
-    expect(typeof largeIcon.props.size).toBe('number');
-    expect(normalIcon.props.size).toBeGreaterThan(smallIcon.props.size);
-    expect(largeIcon.props.size).toBeGreaterThan(normalIcon.props.size);
-    expect(smallIcon.props.size).toBeGreaterThan(smallTextStyle.fontSize as number);
-    expect(normalIcon.props.size).toBeGreaterThan(normalTextStyle.fontSize as number);
-    expect(largeIcon.props.size).toBeGreaterThan(largeTextStyle.fontSize as number);
+    expect(smallIcon.props.size).toBe('small');
+    expect(normalIcon.props.size).toBe('normal');
+    expect(largeIcon.props.size).toBe('large');
+    expect(normalTextStyle.fontSize).toBeGreaterThan(smallTextStyle.fontSize as number);
+    expect(largeTextStyle.fontSize).toBeGreaterThan(normalTextStyle.fontSize as number);
   });
   it('blocks presses while loading', () => {
     const onPress = jest.fn();
@@ -194,7 +191,7 @@ describe('Button', () => {
     const baselineIcon = baselineRenderer.root.findByType(Icon);
 
     expect(enabledIndicator.props.color).toBe(baselineIcon.props.color);
-    expect(enabledIndicator.props.size).toBe(baselineIcon.props.size);
+    expect(baselineIcon.props.size).toBe('large');
     expect(disabledIndicator.props.color).not.toBe(enabledIndicator.props.color);
     expect(typeof enabledIndicator.props.size).toBe('number');
   });

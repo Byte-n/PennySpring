@@ -46,6 +46,39 @@ describe('Dialog', () => {
     expect(treeString).toContain('取消');
     expect(treeString).toContain('确定');
   });
+  it('uses layout primitives for dialog structure when opened', () => {
+    const testRenderer = renderDialog({
+      defaultOpen: true,
+      titleText: 'Delete transaction'
+    });
+    expect(testRenderer.root.findAllByProps({
+      testID: 'column'
+    }).length).toBeGreaterThanOrEqual(2);
+    expect(testRenderer.root.findAllByProps({
+      testID: 'row'
+    }).length).toBeGreaterThanOrEqual(1);
+  });
+  it('renders title text with semantic Text props by default', () => {
+    const testRenderer = renderDialog({
+      defaultOpen: true,
+      titleText: 'Delete transaction'
+    });
+    const title = testRenderer.root.findByProps({
+      testID: 'dialog-title-text'
+    });
+    expect(title.props.size).toBe('lg');
+    expect(title.props.color).toBe('heading');
+    expect(title.props.weight).toBe('strong');
+  });
+  it('uses full-width popup body for dialog layout', () => {
+    const testRenderer = renderDialog({
+      defaultOpen: true
+    });
+    const popupBodyStyle = flattenStyle(testRenderer.root.findByProps({
+      testID: 'popup-body'
+    }).props.style);
+    expect(popupBodyStyle.width).toBe('100%');
+  });
   it('renders custom title and action nodes', () => {
     const testRenderer = renderDialog({
       cancel: <RNText>Keep</RNText>,
@@ -174,11 +207,11 @@ describe('Dialog', () => {
     const providerHost = testRenderer!.root.findByProps({
       testID: 'provider-host'
     });
-    const dialogPanel = testRenderer!.root.findByProps({
-      testID: 'dialog-panel'
+    const popupBody = testRenderer!.root.findByProps({
+      testID: 'popup-body'
     });
     const ancestors: renderer.ReactTestInstance[] = [];
-    let current = dialogPanel.parent;
+    let current = popupBody.parent;
     while (current) {
       ancestors.push(current);
       current = current.parent;

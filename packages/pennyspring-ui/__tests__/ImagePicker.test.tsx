@@ -1,10 +1,17 @@
 import React from 'react';
+import { StyleSheet } from 'react-native';
+import { defaultSeedToken } from '@pennyspring/theme';
+import { derivative } from '@pennyspring/theme/src/algorithms/derivative';
+import { formatToken } from '@pennyspring/theme/src/algorithms/formatToken';
 import renderer, { act } from 'react-test-renderer';
+import { Column } from '../src/Column';
 import { DisplayInput } from '../src/DisplayInput';
+import { Grid } from '../src/Grid';
 import { Icon } from '../src/Icon';
 import { ImagePicker } from '../src/ImagePicker';
 import { pickImageFromCamera, pickImageFromFiles, pickImageFromLibrary } from '../src/ImagePicker/nativePickers';
 import { Popup } from '../src/Popup';
+import { Row } from '../src/Row';
 import type { ImagePickerProps, ImagePickerValue } from '../src/ImagePicker';
 
 jest.mock('../src/ImagePicker/nativePickers', () => ({
@@ -23,6 +30,7 @@ jest.mock('@react-navigation/material-top-tabs', () => ({
 const mockPickImageFromFiles = jest.mocked(pickImageFromFiles);
 const mockPickImageFromLibrary = jest.mocked(pickImageFromLibrary);
 const mockPickImageFromCamera = jest.mocked(pickImageFromCamera);
+const token = formatToken(derivative(defaultSeedToken, false));
 
 function renderImagePicker(
   props: Partial<ImagePickerProps> = {},
@@ -38,12 +46,20 @@ function renderImagePicker(
 
 function pressTrigger(testRenderer: renderer.ReactTestRenderer): void {
   act(() => {
-    testRenderer.root.findByProps({ testID: 'image-picker-trigger' }).props.onPress();
+    testRenderer.root.findByType(DisplayInput).props.onPress();
   });
 }
 
 function getStatusText(testRenderer: renderer.ReactTestRenderer): string {
-  return testRenderer.root.findByProps({ testID: 'image-picker-status' }).props.children;
+  return testRenderer.root.findByType(DisplayInput).props.valueText;
+}
+
+function findImageGridStyle(testRenderer: renderer.ReactTestRenderer) {
+  const imageGrid = testRenderer.root.findAll(
+    node => StyleSheet.flatten(node.props.style)?.flexWrap === 'wrap',
+  )[0];
+
+  return StyleSheet.flatten(imageGrid.props.style);
 }
 
 describe('ImagePicker', () => {
@@ -51,17 +67,27 @@ describe('ImagePicker', () => {
     jest.clearAllMocks();
   });
 
-  it('renders fixed icon trigger with empty selected state', () => {
+  it('uses display input as trigger and forwards empty trigger props', () => {
+    const helperText = 'Only image files';
     const testRenderer = renderImagePicker({
       label: 'Image',
       placeholder: 'Choose image',
+      displayInputProps: {
+        helperText,
+        required: true,
+      },
     });
 
+    const triggerInput = testRenderer.root.findByType(DisplayInput);
     const icon = testRenderer.root.findByType(Icon);
 
+    expect(triggerInput.props.label).toBe('Image');
+    expect(triggerInput.props.placeholder).toBe('Choose image');
+    expect(triggerInput.props.helperText).toBe(helperText);
+    expect(triggerInput.props.required).toBe(true);
+    expect(triggerInput.props.valueText).toBe('未选择');
     expect(icon.props.icon).toBe('image');
-    expect(getStatusText(testRenderer)).toBe('未选择');
-    expect(() => testRenderer.root.findByType(DisplayInput)).toThrow();
+    expect(triggerInput.props.prefix).toBeTruthy();
   });
 
   it('renders selected state for a single selected image', () => {
@@ -86,6 +112,37 @@ describe('ImagePicker', () => {
     });
 
     expect(getStatusText(testRenderer)).toBe('已选择 2 张');
+  });
+
+  it('uses layout components for panel header and selected image grid', () => {
+    const selectedValues: ImagePickerValue[] = [
+      { uri: 'file:///first.jpg', fileName: 'first.jpg' },
+      { uri: 'file:///second.jpg', fileName: 'second.jpg' },
+    ];
+    const testRenderer = renderImagePicker({
+      defaultValue: selectedValues,
+      multiple: true,
+    });
+
+    pressTrigger(testRenderer);
+
+    expect(testRenderer.root.findAllByType(Row).length).toBeGreaterThan(0);
+    expect(testRenderer.root.findAllByType(Column).length).toBeGreaterThan(0);
+    expect(testRenderer.root.findAllByType(Grid).length).toBeGreaterThan(0);
+  });
+
+  it('uses large layout gap for selected image grid', () => {
+    const selectedValues: ImagePickerValue[] = [
+      { uri: 'file:///first.jpg', fileName: 'first.jpg' },
+    ];
+    const testRenderer = renderImagePicker({
+      defaultValue: selectedValues,
+      multiple: true,
+    });
+
+    pressTrigger(testRenderer);
+
+    expect(findImageGridStyle(testRenderer).gap).toBe(token.marginSM);
   });
 
   it('picks image from camera and keeps the floating panel open', async () => {
@@ -206,6 +263,32 @@ describe('ImagePicker', () => {
     expect(getStatusText(testRenderer)).toBe('已选择 1 张');
   });
 
+  it('keeps remove button visual size separate from a token based hit area', () => {
+    const selectedValues: ImagePickerValue[] = [
+      { uri: 'file:///first.jpg', fileName: 'first.jpg' },
+    ];
+    const testRenderer = renderImagePicker({
+      defaultValue: selectedValues,
+      multiple: true,
+    });
+
+    pressTrigger(testRenderer);
+
+    const removeButton = testRenderer.root.findByProps({
+      testID: 'image-picker-remove-image',
+    });
+    const removeButtonStyle = StyleSheet.flatten(removeButton.props.style);
+    const expectedHitSlop = (token.controlHeightSM - token.controlHeightXS) / 2;
+
+    expect(removeButtonStyle.width).toBe(token.controlHeightXS);
+    expect(removeButton.props.hitSlop).toEqual({
+      bottom: expectedHitSlop,
+      left: expectedHitSlop,
+      right: expectedHitSlop,
+      top: expectedHitSlop,
+    });
+  });
+
   it('closes floating panel when done is pressed', async () => {
     const testRenderer = renderImagePicker();
 
@@ -220,10 +303,18 @@ describe('ImagePicker', () => {
   it('does not open when disabled', () => {
     const testRenderer = renderImagePicker({ disabled: true });
 
-    act(() => {
-      testRenderer.root.findByProps({ testID: 'image-picker-trigger' }).props.onPress();
-    });
+    pressTrigger(testRenderer);
 
+    expect(testRenderer.root.findByType(DisplayInput).props.disabled).toBe(true);
+    expect(testRenderer.root.findByType(Popup.FloatingPanel).props.open).toBe(false);
+  });
+
+  it('does not open when readonly', () => {
+    const testRenderer = renderImagePicker({ readonly: true });
+
+    pressTrigger(testRenderer);
+
+    expect(testRenderer.root.findByType(DisplayInput).props.readonly).toBe(true);
     expect(testRenderer.root.findByType(Popup.FloatingPanel).props.open).toBe(false);
   });
 });

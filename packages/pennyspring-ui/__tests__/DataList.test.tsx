@@ -1,6 +1,7 @@
 import React from 'react';
 import { ActivityIndicator, FlatList, SectionList, View } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
+import { Column } from '../src/Column';
 import { DataList } from '../src/DataList';
 interface DemoItem {
   id: string;
@@ -76,7 +77,7 @@ describe('DataList', () => {
   it('does not trigger onLoadMore while loadingMore is true', () => {
     const onLoadMore = jest.fn();
     const testRenderer = renderDataList({
-      loadingMore: true,
+      isLoadingMore: true,
       onLoadMore
     });
     const flatList = testRenderer.root.findByType(FlatList);
@@ -134,7 +135,7 @@ describe('DataList', () => {
   });
   it('renders loading footer when loadingMore is true', () => {
     const testRenderer = renderDataList({
-      loadingMore: true
+      isLoadingMore: true
     });
     expect(testRenderer.root.findAllByType(ActivityIndicator)).toHaveLength(1);
     expect(containsText(testRenderer, '加载中...')).toBe(true);
@@ -142,27 +143,41 @@ describe('DataList', () => {
   it('renders complete footer when hasMore is false and loadingMore is false', () => {
     const testRenderer = renderDataList({
       hasMore: false,
-      loadingMore: false
+      isLoadingMore: false
     });
     expect(containsText(testRenderer, '没有更多了')).toBe(true);
   });
-  it('renders custom loadingMoreContent, complete and footer in order', () => {
+  it('renders custom loadingMore, complete and footer in order', () => {
     const completeRenderer = renderDataList({
       complete: <View>All done</View>,
       footer: <View>Custom footer</View>,
       hasMore: false,
-      loadingMore: false
+      isLoadingMore: false
     });
     const loadingRenderer = renderDataList({
       footer: <View>Custom footer</View>,
       hasMore: true,
-      loadingMore: true,
-      loadingMoreContent: <View>Custom loading</View>
+      isLoadingMore: true,
+      loadingMore: <View>Custom loading</View>
     });
     expect(containsText(completeRenderer, 'Custom footer')).toBe(true);
     expect(containsText(completeRenderer, 'All done')).toBe(true);
     expect(containsText(loadingRenderer, 'Custom footer')).toBe(true);
     expect(containsText(loadingRenderer, 'Custom loading')).toBe(true);
+  });
+  it('uses Column as footer layout container when rendering loading and complete states', () => {
+    const loadingRenderer = renderDataList({
+      hasMore: true,
+      isLoadingMore: true
+    });
+    const completeRenderer = renderDataList({
+      hasMore: false,
+      isLoadingMore: false
+    });
+    const loadingColumns = loadingRenderer.root.findAllByType(Column);
+    const completeColumns = completeRenderer.root.findAllByType(Column);
+    expect(loadingColumns.length).toBeGreaterThan(0);
+    expect(completeColumns.length).toBeGreaterThan(0);
   });
   it('passes loadMoreThreshold and onEndReached through DataList', () => {
     const onEndReached = jest.fn();
@@ -184,7 +199,7 @@ describe('DataList.Section', () => {
   it('renders sections and keeps section header render function', () => {
     const testRenderer = renderDataListSection({
       hasMore: true,
-      loadingMore: false
+      isLoadingMore: false
     });
     const sectionList = testRenderer.root.findByType(SectionList);
     expect(sectionList.props.sections).toEqual(SECTIONS);
@@ -220,11 +235,11 @@ describe('DataList.Section', () => {
   it('renders loading and complete state footer for section list', () => {
     const loadingRenderer = renderDataListSection({
       hasMore: true,
-      loadingMore: true
+      isLoadingMore: true
     });
     const completeRenderer = renderDataListSection({
       hasMore: false,
-      loadingMore: false
+      isLoadingMore: false
     });
     expect(loadingRenderer.root.findAllByType(ActivityIndicator)).toHaveLength(1);
     expect(containsText(loadingRenderer, '加载中...')).toBe(true);

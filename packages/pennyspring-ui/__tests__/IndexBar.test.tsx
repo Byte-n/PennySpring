@@ -3,44 +3,105 @@ import { Text as RNText } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
 import { IndexBar } from '../src/IndexBar';
 import { List, ListItem } from '../src/List';
-import type { IndexBarProps } from '../src/IndexBar';
+import type { IndexBarItem, IndexBarProps } from '../src/IndexBar';
+
+const mockScrollTo = jest.fn();
+
+jest.mock('react-native', () => {
+  const ReactModule = require('react');
+  const ReactNative = jest.requireActual('react-native');
+
+  const MockScrollView = ReactModule.forwardRef((props: object, ref: React.Ref<unknown>) => {
+    ReactModule.useImperativeHandle(ref, () => ({
+      scrollTo: mockScrollTo,
+    }));
+
+    return ReactModule.createElement(ReactNative.ScrollView, props);
+  });
+
+  return new Proxy(ReactNative, {
+    get(target: typeof ReactNative, prop: keyof typeof ReactNative) {
+      if (prop === 'ScrollView') {
+        return MockScrollView;
+      }
+
+      return target[prop];
+    },
+  });
+});
+
+const DEFAULT_DATA: IndexBarItem[] = [
+  {
+    index: 'A',
+    titleText: '标题A',
+  },
+  {
+    index: 'B',
+    titleText: '标题B',
+  },
+  {
+    index: 'C',
+    title: <RNText>标题C</RNText>,
+  },
+];
+
+const PANEL_ITEMS: Record<string, string[]> = {
+  A: ['苹果', '杏子'],
+  B: ['香蕉', '菠萝'],
+  C: ['车厘子'],
+};
+
+const PANEL_LAYOUT_Y: Record<string, number> = {
+  A: 0,
+  B: 120,
+  C: 240,
+};
+
+function renderPanel(item: IndexBarItem) {
+  return (
+    <List>
+      {PANEL_ITEMS[String(item.index)].map(label => (
+        <ListItem key={label}>{label}</ListItem>
+      ))}
+    </List>
+  );
+}
 
 function renderIndexBar(props: Partial<IndexBarProps> = {}) {
   let testRenderer: renderer.ReactTestRenderer;
   const {
-    children = (
-      <>
-        <IndexBar.Panel index="A" title="标题A">
-          <List>
-            <ListItem>苹果</ListItem>
-            <ListItem>杏子</ListItem>
-          </List>
-        </IndexBar.Panel>
-        <IndexBar.Panel index="B" title="标题B">
-          <List>
-            <ListItem>香蕉</ListItem>
-            <ListItem>菠萝</ListItem>
-          </List>
-        </IndexBar.Panel>
-        <IndexBar.Panel index="C" title={<RNText>标题C</RNText>}>
-          <List>
-            <ListItem>车厘子</ListItem>
-          </List>
-        </IndexBar.Panel>
-      </>
-    ),
+    data = DEFAULT_DATA,
+    renderPanel: renderPanelProp = renderPanel,
     ...restProps
   } = props;
 
   act(() => {
     testRenderer = renderer.create(
       <>
-        <IndexBar {...restProps}>{children}</IndexBar>
+        <IndexBar data={data} renderPanel={renderPanelProp} {...restProps} />
       </>,
     );
   });
 
   return testRenderer!;
+}
+
+function layoutPanels(testRenderer: renderer.ReactTestRenderer) {
+  DEFAULT_DATA.forEach(item => {
+    const panel = testRenderer.root.findByProps({
+      testID: `index-bar-panel-${String(item.index)}`,
+    });
+
+    act(() => {
+      panel.props.onLayout({
+        nativeEvent: {
+          layout: {
+            y: PANEL_LAYOUT_Y[String(item.index)],
+          },
+        },
+      });
+    });
+  });
 }
 
 function pressIndexItem(
@@ -59,10 +120,16 @@ function pressIndexItem(
 }
 
 describe('IndexBar', () => {
-  it('renders panels and sidebar indexes through IndexBar.Panel', () => {
+  beforeEach(() => {
+    mockScrollTo.mockClear();
+  });
+
+  it('renders panels and sidebar indexes from data', () => {
+    // Arrange & Act
     const testRenderer = renderIndexBar();
     const content = JSON.stringify(testRenderer.toJSON());
 
+    // Assert
     expect(content).toContain('标题A');
     expect(content).toContain('标题B');
     expect(content).toContain('标题C');
@@ -74,6 +141,7 @@ describe('IndexBar', () => {
   });
 
   it('updates uncontrolled value and calls onChange/onPress when index item is pressed', () => {
+    // Arrange
     const onChange = jest.fn();
     const onPress = jest.fn();
     const testRenderer = renderIndexBar({
@@ -82,28 +150,50 @@ describe('IndexBar', () => {
       onPress,
     });
 
+    // Act
     pressIndexItem(testRenderer, 'B');
 
+    // Assert
     expect(onPress).toHaveBeenCalledTimes(1);
     expect(onPress.mock.calls[0][1]).toBe('B');
     expect(onChange).toHaveBeenCalledWith('B');
   });
 
+  it('scrolls to the matching panel when index item is pressed', () => {
+    // Arrange
+    const testRenderer = renderIndexBar({
+      defaultValue: 'A',
+    });
+    layoutPanels(testRenderer);
+
+    // Act
+    pressIndexItem(testRenderer, 'B');
+
+    // Assert
+    expect(mockScrollTo).toHaveBeenCalledWith({
+      animated: true,
+      y: PANEL_LAYOUT_Y.B,
+    });
+  });
+
   it('keeps selected index controlled by value prop', () => {
+    // Arrange
     const onChange = jest.fn();
     const testRenderer = renderIndexBar({
       value: 'A',
       onChange,
     });
 
+    // Act
     pressIndexItem(testRenderer, 'B');
 
+    // Assert
     expect(onChange).toHaveBeenCalledWith('B');
   });
 
-  it('blocks interaction when disabled at root or panel level', () => {
+  it('blocks interaction and navigation when disabled at root or panel level', () => {
+    // Arrange
     const onChange = jest.fn();
-
     const disabledRoot = renderIndexBar({
       disabled: true,
       onChange,
@@ -111,26 +201,26 @@ describe('IndexBar', () => {
 
     const disabledPanel = renderIndexBar({
       onChange,
-      children: (
-        <>
-          <IndexBar.Panel index="A" title="标题A">
-            <List>
-              <ListItem>苹果</ListItem>
-            </List>
-          </IndexBar.Panel>
-          <IndexBar.Panel index="B" title="标题B" disabled>
-            <List>
-              <ListItem>香蕉</ListItem>
-            </List>
-          </IndexBar.Panel>
-        </>
-      ),
+      data: [
+        {
+          index: 'A',
+          titleText: '标题A',
+        },
+        {
+          disabled: true,
+          index: 'B',
+          titleText: '标题B',
+        },
+      ],
     });
 
+    // Act
     pressIndexItem(disabledRoot, 'B');
     const disabledItem = pressIndexItem(disabledPanel, 'B');
 
+    // Assert
     expect(onChange).not.toHaveBeenCalled();
+    expect(mockScrollTo).not.toHaveBeenCalled();
     expect(disabledItem.props.disabled).toBe(true);
   });
 });

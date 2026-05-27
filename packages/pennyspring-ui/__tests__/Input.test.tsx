@@ -39,6 +39,75 @@ function findSearchButton(testRenderer: renderer.ReactTestRenderer) {
   return testRenderer.root.findAll(node => node.props.testID === 'input-search-button')[0];
 }
 describe('Input', () => {
+  it('uses onChange as the only primary value change callback', () => {
+    const onChange = jest.fn();
+    const testRenderer = renderInput({
+      defaultValue: 'Cash',
+      onChange,
+    });
+
+    act(() => {
+      findInput(testRenderer).props.onChangeText('Wallet');
+    });
+
+    expect(findInput(testRenderer).props.value).toBe('Wallet');
+    expect(onChange).toHaveBeenCalledWith('Wallet');
+  });
+
+  it('keeps controlled value from props while notifying value changes', () => {
+    const onChange = jest.fn();
+    const testRenderer = renderInput({
+      value: 'Cash',
+      onChange,
+    });
+
+    act(() => {
+      findInput(testRenderer).props.onChangeText('Wallet');
+    });
+
+    expect(findInput(testRenderer).props.value).toBe('Cash');
+    expect(onChange).toHaveBeenCalledWith('Wallet');
+  });
+
+  it('does not expose onChangeText as the public value change API', () => {
+    // @ts-expect-error Input uses onChange for primary value changes.
+    const invalidInputProps: React.ComponentProps<typeof Input> = { onChangeText: jest.fn() };
+    // @ts-expect-error Input.Search uses onChange for primary value changes.
+    const invalidSearchProps: React.ComponentProps<typeof Input.Search> = { onChangeText: jest.fn() };
+
+    expect([
+      invalidInputProps,
+      invalidSearchProps,
+    ]).toHaveLength(2);
+  });
+
+  it('renders label text from labelText when label node is absent', () => {
+    const testRenderer = renderInput({ labelText: 'Account name' });
+
+    expect(JSON.stringify(testRenderer.toJSON())).toContain('Account name');
+  });
+
+  it('prefers label node and skips labelText when both are provided', () => {
+    const testRenderer = renderInput({
+      label: <>Custom label</>,
+      labelText: 'Text label',
+    });
+
+    expect(JSON.stringify(testRenderer.toJSON())).toContain('Custom label');
+    expect(JSON.stringify(testRenderer.toJSON())).not.toContain('Text label');
+  });
+
+  it('suppresses the label row when label is null', () => {
+    const testRenderer = renderInput({
+      label: null,
+      labelText: 'Text label',
+      required: true,
+    });
+
+    expect(JSON.stringify(testRenderer.toJSON())).not.toContain('Text label');
+    expect(JSON.stringify(testRenderer.toJSON())).not.toContain('*');
+  });
+
   it('keeps helper text props string-only so null rendering control uses node slots', () => {
     // @ts-expect-error helperText must use helper={null} to suppress rendering.
     const invalidHelperText: React.ComponentProps<typeof Input> = { helperText: null };
@@ -70,28 +139,28 @@ describe('Input', () => {
   });
 
   it('updates uncontrolled text and notifies changes', () => {
-    const onChangeText = jest.fn();
+    const onChange = jest.fn();
     const testRenderer = renderInput({
       defaultValue: 'Cash',
-      onChangeText
+      onChange
     });
     act(() => {
       findInput(testRenderer).props.onChangeText('Wallet');
     });
     expect(findInput(testRenderer).props.value).toBe('Wallet');
-    expect(onChangeText).toHaveBeenCalledWith('Wallet');
+    expect(onChange).toHaveBeenCalledWith('Wallet');
   });
   it('keeps controlled value from props while notifying text changes', () => {
-    const onChangeText = jest.fn();
+    const onChange = jest.fn();
     const testRenderer = renderInput({
       value: 'Cash',
-      onChangeText
+      onChange
     });
     act(() => {
       findInput(testRenderer).props.onChangeText('Wallet');
     });
     expect(findInput(testRenderer).props.value).toBe('Cash');
-    expect(onChangeText).toHaveBeenCalledWith('Wallet');
+    expect(onChange).toHaveBeenCalledWith('Wallet');
   });
   it('clears uncontrolled text and calls onClear when provided', () => {
     const onClear = jest.fn();
@@ -106,18 +175,18 @@ describe('Input', () => {
     expect(findInput(testRenderer).props.value).toBe('');
     expect(onClear).toHaveBeenCalledTimes(1);
   });
-  it('falls back to onChangeText when clearing without onClear', () => {
-    const onChangeText = jest.fn();
+  it('falls back to onChange when clearing without onClear', () => {
+    const onChange = jest.fn();
     const testRenderer = renderInput({
       clearable: true,
       defaultValue: 'Cash',
-      onChangeText
+      onChange
     });
     act(() => {
       findClearButton(testRenderer)[0].props.onPress();
     });
     expect(findInput(testRenderer).props.value).toBe('');
-    expect(onChangeText).toHaveBeenCalledWith('');
+    expect(onChange).toHaveBeenCalledWith('');
   });
   it('hides the clear button when disabled, readonly, loading, or empty', () => {
     expect(findClearButton(renderInput({
@@ -251,6 +320,12 @@ describe('Input', () => {
       });
       expect(findInput(testRenderer).props.value).toBe('');
       expect(onClear).toHaveBeenCalledTimes(1);
+    });
+
+    it('gives the search icon button a touch hitSlop', () => {
+      const testRenderer = renderInputSearch();
+
+      expect(findSearchButton(testRenderer).props.hitSlop).toBeDefined();
     });
   });
 });

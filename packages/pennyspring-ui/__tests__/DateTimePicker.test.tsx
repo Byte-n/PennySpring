@@ -47,6 +47,7 @@ jest.mock('react-native-reanimated', () => {
 
 import {
   DateTimePicker,
+  type DateTimePickerStyles,
   DisplayInput,
   Text,
 } from '../src';
@@ -365,4 +366,95 @@ it('uses minuteStep when building minute column', () => {
   expect(() =>
     testRenderer!.root.findByProps({ testID: 'picker-item-4-4' }),
   ).toThrow();
+});
+
+it('shows placeholder text when value and defaultValue are both missing', () => {
+  let testRenderer: renderer.ReactTestRenderer;
+
+  // Arrange
+  act(() => {
+    testRenderer = renderer.create(
+      <DateTimePicker placeholder="请选择日期时间" />,
+    );
+  });
+
+  // Act
+  const triggerInput = testRenderer!.root.findByType(DisplayInput);
+
+  // Assert
+  expect(triggerInput.props.valueText).toBeUndefined();
+  expect(triggerInput.props.placeholder).toBe('请选择日期时间');
+});
+
+it('does not open popup when readonly is true and trigger is pressed', () => {
+  let testRenderer: renderer.ReactTestRenderer;
+  const onOpenChange = jest.fn();
+
+  // Arrange
+  act(() => {
+    testRenderer = renderer.create(
+      <DateTimePicker
+        readonly
+        onOpenChange={onOpenChange}
+        precision="year"
+        min={makeDate(2025, 1, 1)}
+        max={makeDate(2026, 12, 31)}
+      />,
+    );
+  });
+
+  // Act
+  act(() => {
+    testRenderer!.root.findByProps({ testID: 'picker-trigger' }).props.onPress();
+  });
+
+  // Assert
+  expect(onOpenChange).not.toHaveBeenCalled();
+});
+
+it('applies size prop to picker item height semantics', () => {
+  let smallRenderer: renderer.ReactTestRenderer;
+  let largeRenderer: renderer.ReactTestRenderer;
+
+  // Arrange
+  act(() => {
+    smallRenderer = renderer.create(
+      <DateTimePicker
+        defaultOpen
+        size="small"
+        precision="year"
+        value={makeDate(2026, 5, 9)}
+      />,
+    );
+    largeRenderer = renderer.create(
+      <DateTimePicker
+        defaultOpen
+        size="large"
+        precision="year"
+        value={makeDate(2026, 5, 9)}
+      />,
+    );
+  });
+
+  // Act
+  const smallItemStyle = smallRenderer!.root.findByProps({ testID: 'picker-item-0-0' }).props.style;
+  const largeItemStyle = largeRenderer!.root.findByProps({ testID: 'picker-item-0-0' }).props.style;
+
+  // Assert
+  expect(smallItemStyle).not.toEqual(largeItemStyle);
+});
+
+it('accepts DateTimePicker semantic styles object type', () => {
+  // Arrange
+  const styles: DateTimePickerStyles = {
+    trigger: {
+      opacity: 0.9,
+    },
+  };
+
+  // Act
+  const node = <DateTimePicker styles={styles} />;
+
+  // Assert
+  expect(node).toBeTruthy();
 });
