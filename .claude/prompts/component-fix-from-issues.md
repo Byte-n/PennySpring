@@ -4,6 +4,8 @@
 
 读取 `docs/issues/` 下的巡检报告，逐个组件修复其中列出的不合规问题。每个组件的修复任务串行委派给独立 subagent，主 agent 负责进度汇报与最终收尾。
 
+已处理进度在 `.claude/prompts/ps.md` 中
+
 ---
 
 ## 主 Agent 流程
@@ -38,6 +40,8 @@ for i, component in enumerate(components):
 [3/15] Avatar — 修复完成 ✓
 [3/15] Avatar — 修复失败 ✗（原因：xxx）
 ```
+
+并同步更新 `.claude/prompts/ps.md`
 
 ### 4. 全部完成后
 
@@ -142,20 +146,4 @@ for i, component in enumerate(components):
 测试：新增 {n}，全部通过
 状态：通过 / 部分通过 / 失败
 ```
-```
-
----
-
-## 使用方式
-
-在 Claude Code 中执行：
-
-```
-请按照 .claude/prompts/component-fix-from-issues.md 的流程，修复 docs/issues/ 下的所有组件问题。
-```
-
-或指定单个组件：
-
-```
-请按照 .claude/prompts/component-fix-from-issues.md 的流程，修复 docs/issues/Button.md 中的问题。
 ```
