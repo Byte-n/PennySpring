@@ -2,13 +2,13 @@
 
 ## 结论
 
-- 状态：不通过
+- 状态：通过
 - 严重程度：medium
 - 问题数量：4
 
 ## 问题列表
 
-### 1. `size` 公共 API 允许任意数字，超出组件尺寸规范
+### 1. `size` 公共 API 允许任意数字，超出组件尺寸规范 ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/Icon/types.ts:7`
@@ -17,7 +17,7 @@
 - 影响：调用方可以绕过 token 尺寸语义传入任意硬编码数字，导致图标尺寸和文本、按钮、列表等组件的尺寸体系漂移，增加视觉一致性和维护成本。
 - 推荐纠正方案：将公开 `size` 收敛为 `ComponentSize`，保留 `small`、`normal`、`large` 且默认 `normal`；如果确有自定义图标尺寸需求，应重新评估是否需要独立语义 prop，并通过 token 或受控映射实现，避免把任意数字作为标准 `size` API。
 
-### 2. `IconColor` 与 `TextColor` 的语义取值不一致
+### 2. `IconColor` 与 `TextColor` 的语义取值不一致 ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/Icon/types.ts:9`
@@ -26,7 +26,7 @@
 - 影响：文本和图标作为常见相邻前景元素时，调用方无法用同一组语义值表达一致颜色意图，容易出现文本色和图标色语义漂移；组合组件也需要额外分支映射。
 - 推荐纠正方案：按组件规范统一 `TextColor` 与 `IconColor` 的可接受语义取值，并同步调整 `useTextColor`、`useIconColor` 的映射；完成后更新 `packages/pennyspring-ui/docs/guide/component-color-design.md` 中 Text/Icon 颜色设计说明和相关类型测试。
 
-### 3. `useIconColor` 会把无法识别的颜色字符串作为自定义颜色透传
+### 3. `useIconColor` 会把无法识别的颜色字符串作为自定义颜色透传 ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/Icon/useIconColor.ts:29`
@@ -35,7 +35,7 @@
 - 影响：TypeScript 调用方通常会被 `IconColor` 拦住，但 JS 调用方、类型绕过或内部误用仍可把 `'#123456'`、`'red'` 等自定义颜色透传到 Phosphor 图标，绕过 token 体系和深浅色适配。
 - 推荐纠正方案：将 `useIconColor` 入参收敛为 `IconColor | undefined`，解析失败时回退到 `token.colorIcon` 或显式拒绝；同时为非法自定义字符串不透传补充类型或运行时测试。
 
-### 4. Icon 测试未覆盖颜色与尺寸等关键用户可感知行为
+### 4. Icon 测试未覆盖颜色与尺寸等关键用户可感知行为 ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/__tests__/Icon.test.tsx:21`

@@ -2,13 +2,13 @@
 
 ## 结论
 
-- 状态：不通过
+- 状态：部分通过
 - 严重程度：medium
 - 问题数量：2
 
 ## 问题列表
 
-### 1. 内容位置线段宽度使用渲染处内联样式对象
+### 1. ✅ 内容位置线段宽度使用渲染处内联样式对象
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/Divider/Divider.tsx:109`
@@ -17,7 +17,7 @@
 - 影响：内容左右对齐的关键布局依赖调用处临时样式，破坏组件样式集中由 token 样式、运行时样式、外部样式合并的约定，后续主题化或样式覆盖时更容易出现顺序与行为漂移。
 - 推荐纠正方案：将 `contentPosition` 纳入 `DividerStyleOptions`，在 `createUseSheetStyle` 内生成 `firstLine`、`secondLine` 或语义化的 `startLine`、`endLine` 样式；由样式工厂根据 `contentPosition` 和 `hasContent` 返回对应 `maxWidth`，渲染处只组合 `tokenStyles.*` 与 `styles?.line`。
 
-### 2. 公开的 contentPosition 行为缺少测试覆盖
+### 2. ✅ 公开的 contentPosition 行为缺少测试覆盖
 
 - 严重程度：low
 - 位置：`packages/pennyspring-ui/__tests__/Divider.test.tsx:13`

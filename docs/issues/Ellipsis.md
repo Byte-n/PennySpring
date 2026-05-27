@@ -2,13 +2,13 @@
 
 ## 结论
 
-- 状态：不通过
+- 状态：通过
 - 严重程度：high
 - 问题数量：4
 
 ## 问题列表
 
-### 1. 截断二分搜索会把已知溢出的候选长度作为最终结果
+### 1. 截断二分搜索会把已知溢出的候选长度作为最终结果 ✅
 
 - 严重程度：high
 - 位置：`packages/pennyspring-ui/src/Ellipsis/Ellipsis.tsx:161`
@@ -17,7 +17,7 @@
 - 影响：Ellipsis 的核心行为是把长文本限制在指定 `rows` 内；当前算法可能渲染超过行数的文本，展开/收起前后的可见高度也可能发生跳动。现有测试 `packages/pennyspring-ui/__tests__/Ellipsis.test.tsx:119` 到 `packages/pennyspring-ui/__tests__/Ellipsis.test.tsx:122` 只断言包含省略号和长度变短，没有断言最终候选确实不超过 `rows`。
 - 推荐纠正方案：保持二分搜索不变量，溢出时收缩上界、可容纳时推进下界，收敛后使用最后一个可容纳长度，例如 `setMaxChars(searchLow)`；同时补充测试，模拟边界候选溢出并断言最终展示文本对应的候选不超过目标 `rows`。
 
-### 2. 测量文本未包含最终渲染的省略号与展开操作文本
+### 2. 测量文本未包含最终渲染的省略号与展开操作文本 ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/Ellipsis/Ellipsis.tsx:250`
@@ -26,7 +26,7 @@
 - 影响：即使二分搜索找到的内容片段本身能放入 `rows`，追加 `...` 或“展开”文案后仍可能多出一行，导致组件承诺的折叠行数不可靠，影响列表、卡片等密集界面的稳定布局。
 - 推荐纠正方案：测量候选应与最终折叠态渲染文本一致，把省略号和可见操作文案纳入测量；或将操作区设计为不参与行数限制的独立布局并在 API / docs 中明确说明。对应测试应覆盖带 `expandText` 的截断场景。
 
-### 3. `size` 只影响隐藏测量文本和操作文本，未作用到可见正文
+### 3. `size` 只影响隐藏测量文本和操作文本，未作用到可见正文 ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/Ellipsis/Ellipsis.tsx:221`
@@ -35,7 +35,7 @@
 - 影响：调用方传入 `size="small"` 或 `size="large"` 时，可见正文仍按 `Text` 默认尺寸渲染，而测量文本按 Ellipsis 的 `size` 计算，可能造成视觉尺寸不一致和截断计算失真。
 - 推荐纠正方案：将 Ellipsis 的 `small` / `normal` / `large` 映射到 `Text` 的 `sm` / `md` / `lg` 并传给可见正文；只有无法通过 `TextProps` 表达的样式再使用 `style`。同时增加 size 行为测试，断言正文 Text 接收到预期尺寸或渲染样式。
 
-### 4. 展开状态的受控 API 未使用项目统一命名
+### 4. 展开状态的受控 API 未使用项目统一命名 ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/Ellipsis/types.ts:18`

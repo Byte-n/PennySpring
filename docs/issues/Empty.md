@@ -2,13 +2,13 @@
 
 ## 结论
 
-- 状态：不通过
+- 状态：通过
 - 严重程度：medium
 - 问题数量：4
 
 ## 问题列表
 
-### 1. 插槽类 prop 不支持 `null` 明确关闭默认内容
+### 1. 插槽类 prop 不支持 `null` 明确关闭默认内容 ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/Empty/Empty.tsx:82`
@@ -17,7 +17,7 @@
 - 影响：调用方无法关闭 Empty 的默认图标或默认文案，公共 API 的空值语义与其他组件规范不一致，组合自定义空状态时会出现多余内容。
 - 推荐纠正方案：区分 `null` 与 `undefined`。例如 `icon === undefined` 时渲染默认图标，`icon === null` 时不渲染图标；`message === undefined` 时再回退 `messageText` 和默认文案，`message === null` 时不渲染消息区域，并在所有可见内容为 `null` 时同步移除对应外层结构。
 
-### 2. 基础布局使用 `View` 手写等效布局
+### 2. 基础布局使用 `View` 手写等效布局 ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/Empty/Empty.tsx:3`
@@ -26,7 +26,7 @@
 - 影响：Empty 的布局行为脱离共享布局组件语义，后续 spacing、size 或布局策略调整时容易与组件库其他空状态、反馈组件不一致。
 - 推荐纠正方案：将根部垂直布局改为复用 `Column` 或 `Space` 承载图标与消息；仅在确实无法由布局组件表达的测量或原生容器场景保留 `View`。
 
-### 3. Layout Gap 级别偏移（各偏大一级）
+### 3. Layout Gap 级别偏移（各偏大一级） ✅
 
 - 严重程度：low
 - 位置：`packages/pennyspring-ui/src/Empty/Empty.tsx:26`
@@ -35,7 +35,7 @@
 - 影响：Empty 在不同 size 下的间距比规范预期偏大，与组件库统一的 Layout Gap 映射不一致。
 - 推荐纠正方案：将 gap 级别下调一级：small→`marginXXS`、normal→`marginXS`、large→`marginSM`。
 
-### 4. 缺少 Empty 组件测试文件
+### 4. 缺少 Empty 组件测试文件 ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/__tests__/Empty.test.tsx:1`

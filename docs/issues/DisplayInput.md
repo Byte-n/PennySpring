@@ -2,13 +2,13 @@
 
 ## 结论
 
-- 状态：不通过
+- 状态：通过
 - 严重程度：medium
 - 问题数量：5
 
 ## 问题列表
 
-### 1. 公开 prop 依赖的 `DisplayInputOverflow` 类型没有从组件入口和包级入口导出
+### 1. ✅ 公开 prop 依赖的 `DisplayInputOverflow` 类型没有从组件入口和包级入口导出
 
 - 严重程度：low
 - 位置：`packages/pennyspring-ui/src/DisplayInput/index.ts:2`
@@ -17,7 +17,7 @@
 - 影响：调用方可以使用 `overflow` prop，但无法从组件公共入口导入其枚举类型，公共 API 类型不完整，影响类型复用和文档一致性。
 - 推荐纠正方案：从 `packages/pennyspring-ui/src/DisplayInput/index.ts` 与 `packages/pennyspring-ui/src/index.ts` 同步导出 `DisplayInputOverflow`。
 
-### 2. `label` 同时承担文本和节点语义，未按文本/节点插槽规范拆分
+### 2. ✅ `label` 同时承担文本和节点语义，未按文本/节点插槽规范拆分
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/DisplayInput/types.ts:26`
@@ -26,7 +26,7 @@
 - 影响：调用方传入自定义 label 节点时会被包进 `Text` 内，节点语义不清晰；同时无法用 `label={null}` 明确关闭默认标签结构，也不符合组件库统一的插槽 API 规则。
 - 推荐纠正方案：将文本标签改为 `labelText?: string`，自定义节点保留为 `label?: ReactNode | null`；渲染时按 `label ?? labelText` 选择，并避免把自定义节点包裹进 `Text`。
 
-### 3. 组件内部用 `View` 手写等效布局，没有优先复用布局组件
+### 3. ✅ 组件内部用 `View` 手写等效布局，没有优先复用布局组件
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/DisplayInput/DisplayInput.tsx:91`
@@ -35,7 +35,7 @@
 - 影响：DisplayInput 绕过共享布局组件，容易与 `Row`、`Column`、`Space` 的 size、gap 和布局语义漂移，降低组件库组合一致性。
 - 推荐纠正方案：用 `Column` 表达根部垂直结构，用 `Row` 表达 label 行、field 内前缀/值/后缀排列；仅在确实需要非布局承载节点时保留 `View`，并让间距和尺寸语义通过现有布局组件或 token options 统一表达。
 
-### 4. field.gap 使用 size tokens 代替 spacing tokens
+### 4. ✅ field.gap 使用 size tokens 代替 spacing tokens
 
 - 严重程度：low
 - 位置：`packages/pennyspring-ui/src/DisplayInput/style/index.ts:69`
@@ -44,7 +44,7 @@
 - 影响：field 内部间距使用了错误的 token 类型，与组件库统一的 Layout Gap 映射不一致。
 - 推荐纠正方案：将 `field.gap` 改为 spacing tokens：small→`marginXXS`、normal→`marginXS`、large→`marginSM`。
 
-### 5. 测试缺少 disabled 和 readonly 关键用户行为覆盖
+### 5. ✅ 测试缺少 disabled 和 readonly 关键用户行为覆盖
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/__tests__/DisplayInput.test.tsx:81`

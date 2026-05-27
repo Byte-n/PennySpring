@@ -204,12 +204,17 @@ export type TextColor = TextSemanticColor | AliasColorTokenKey;
 import type { AliasColorTokenKey } from '@pennyspring/theme';
 
 export type IconSemanticColor =
+  | 'base'
   | 'default'
-  | 'primary'
-  | 'success'
-  | 'warning'
-  | 'danger'
-  | 'info';
+  | 'secondary'
+  | 'tertiary'
+  | 'quaternary'
+  | 'heading'
+  | 'label'
+  | 'description'
+  | 'disabled'
+  | 'placeholder'
+  | 'lightSolid';
 
 export type IconColor = IconSemanticColor | AliasColorTokenKey;
 ```
@@ -220,8 +225,7 @@ export type IconColor = IconSemanticColor | AliasColorTokenKey;
 
 - `TextSemanticColor` 映射到文本相关 token，例如 `colorText`、`colorTextSecondary`、
   `colorTextHeading`。
-- `IconSemanticColor` 映射到图标相关或语义相关 token，例如 `colorIcon`、`colorPrimary`、
-  `colorSuccess`、`colorWarning`、`colorError`、`colorInfo`。
+- `IconSemanticColor` 与 `TextSemanticColor` 使用同一组语义 key，映射到对应文本前景 token，便于文本和图标相邻时使用一致颜色语义。
 - `AliasColorTokenKey` 使用 `getAliasColorTokenValue(token, color)` 解析。
 - 未传 `color` 时，`Text` fallback 到 `token.colorText`，`Icon` fallback 到 `token.colorIcon`。
 - 不把无法识别的值作为自定义颜色字符串透传。

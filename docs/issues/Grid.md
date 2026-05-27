@@ -2,13 +2,13 @@
 
 ## 结论
 
-- 状态：不通过
+- 状态：通过
 - 严重程度：medium
 - 问题数量：2
 
 ## 问题列表
 
-### 1. `gap` 公开 API 允许任意数字，绕过布局间距 token
+### 1. `gap` 公开 API 允许任意数字，绕过布局间距 token ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/Grid/types.ts:5`
@@ -17,7 +17,7 @@
 - 影响：调用方容易写出硬编码间距，导致同一布局组件在不同页面、主题或尺寸语义下出现不一致；测试当前只覆盖 `small`、`normal`、`large`，无法约束数字 gap 的 token 合规性。
 - 推荐纠正方案：收敛公开 API，优先改为 `gap?: ComponentSize` 或 `size?: ComponentSize` 并默认 `normal`；若确需扩展，应提供明确语义枚举并在实现中统一映射到 `AliasToken`。同步补充测试，验证默认值以及 `small`、`normal`、`large` 的 token 映射。
 
-### 2. `GridGap` 二元组类型暴露了未实现且不符合垂直间距语义的 API
+### 2. `GridGap` 二元组类型暴露了未实现且不符合垂直间距语义的 API ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/Grid/types.ts:7`

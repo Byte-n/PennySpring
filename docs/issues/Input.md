@@ -2,13 +2,13 @@
 
 ## 结论
 
-- 状态：不通过
+- 状态：通过
 - 严重程度：medium
 - 问题数量：3
 
 ## 问题列表
 
-### 1. 值变更 API 使用 `onChangeText`，未按组件规范提供 `onChange`
+### 1. 值变更 API 使用 `onChangeText`，未按组件规范提供 `onChange` ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/Input/Input.tsx:242`
@@ -17,7 +17,7 @@
 - 影响：Input 作为共享输入类组件的受控 API 与项目统一组件 API 不一致，调用方需要记忆 React Native `TextInput` 的 `onChangeText` 特例；后续与 `DisplayInput`、`Textarea`、`CalculatorInput` 等输入类组件组合时，主要值回调语义容易漂移。
 - 推荐纠正方案：在 `InputProps` 中显式定义 `onChange?: (value: string) => void`，并从继承的 `TextInputProps` 中排除 `onChange` / `onChangeText` 等会冲突的底层值变更入口；实现中改为 `useControllableValue(defaultValue ?? '', value, onChange)`。如需兼容底层事件，可另设语义清晰的内部或透传 prop，但主值 API 应以 `onChange` 为准，并补充 `value/onChange/defaultValue` 受控和非受控测试。
 
-### 2. `label` 同时承载文本和自定义节点，未拆分为文本 prop 与节点插槽
+### 2. `label` 同时承载文本和自定义节点，未拆分为文本 prop 与节点插槽 ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/Input/types.ts:60`
@@ -26,7 +26,7 @@
 - 影响：公共 API 无法区分“标签文本”和“自定义标签节点”，也无法用 `label={null}` 明确压制默认文本标签结构；自定义节点被包进项目 `Text` 组件后，还可能导致调用方节点结构与样式插槽语义不稳定。
 - 推荐纠正方案：将标签 API 调整为 `labelText?: string` 与 `label?: ReactNode | null` 的组合，`labelText` 只负责内部 `Text` 渲染，`label` 作为自定义节点插槽并支持 `null` 表示明确不渲染。同步调整 `styles` 插槽命名，确保文本样式只作用于 `labelText` 渲染出的文本。
 
-### 3. `Input.Search` 的搜索图标按钮缺少 `hitSlop`
+### 3. `Input.Search` 的搜索图标按钮缺少 `hitSlop` ✅
 
 - 严重程度：low
 - 位置：`packages/pennyspring-ui/src/Input/Input.tsx:447`

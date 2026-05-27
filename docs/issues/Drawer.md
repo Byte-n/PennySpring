@@ -2,13 +2,13 @@
 
 ## 结论
 
-- 状态：不通过
+- 状态：通过
 - 严重程度：high
 - 问题数量：3
 
 ## 问题列表
 
-### 1. Web 平台实现使用了 React Native Animated
+### 1. Web 平台实现使用了 React Native Animated ✅
 
 - 严重程度：high
 - 位置：`packages/pennyspring-ui/src/Drawer/AnimatedPressable.web.ts:1`
@@ -17,7 +17,7 @@
 - 影响：Web 端 Drawer 的动画基础设施与原生端实现不一致，会绕过统一的 reanimated/token 动画约束，增加跨端行为漂移和维护成本。
 - 推荐纠正方案：Web 端也应使用 `react-native-reanimated` 的 `createAnimatedComponent`，与 `packages/pennyspring-ui/src/Drawer/AnimatedPressable.ts:2` 的实现保持一致；如存在 Web 兼容性问题，应封装在 reanimated 兼容层中，而不是退回 React Native `Animated`。
 
-### 2. 公开导出的 Drawer 未同步维护组件目录与文档
+### 2. 公开导出的 Drawer 未同步维护组件目录与文档 ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/index.ts:8`
@@ -26,7 +26,7 @@
 - 影响：调用方无法从组件选型目录发现 Drawer，也无法在 UI 文档中确认 Drawer 的公开 API、使用场景、与 `Popup`/`Dialog` 的边界，容易导致重复造轮子或误用浮层组件。
 - 推荐纠正方案：在 `.codex/skills/component-composer/references/component-catalog.md` 的“浮层与反馈”中补充 `Drawer` 条目，并在 `packages/pennyspring-ui/docs/api/index.md` 或对应组件文档中说明 `open`、`defaultOpen`、`onOpenChange`、`onCancel`、`drawerPosition`、`drawerType`、`Drawer.Layout` 等公开能力。
 
-### 3. 测试未覆盖 Drawer 的核心用户可感知行为
+### 3. 测试未覆盖 Drawer 的核心用户可感知行为 ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/__tests__/Drawer.test.tsx:70`

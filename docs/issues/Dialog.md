@@ -2,13 +2,13 @@
 
 ## 结论
 
-- 状态：不通过
+- 状态：通过
 - 严重程度：medium
 - 问题数量：4
 
 ## 问题列表
 
-### 1. Dialog 使用 View 手写布局结构，未优先复用布局组件
+### 1. ✅ Dialog 使用 View 手写布局结构，未优先复用布局组件
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/Dialog/Dialog.tsx:177`
@@ -17,7 +17,7 @@
 - 影响：Dialog 的布局语义和 spacing 规则分散在本组件样式内，后续与其他浮层、表单或反馈组件组合时更容易出现布局语义不一致。
 - 推荐纠正方案：将面板、header、body 等纵向结构改为 `Column` 或 `Space`，将 footer 操作区改为 `Row` 或 `Space`，并把内部间距映射到布局组件的 `gap`/`size` 语义。
 
-### 2. gap 使用 size tokens 代替 spacing tokens
+### 2. ✅ gap 使用 size tokens 代替 spacing tokens
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/Dialog/Dialog.tsx:28`
@@ -26,7 +26,7 @@
 - 影响：size tokens 和 spacing tokens 语义不同，Dialog 的间距会与其他使用正确 spacing tokens 的组件不一致。
 - 推荐纠正方案：将所有 gap 值改为 spacing tokens，例如 `panel.gap: token.marginXS`、`header.gap: token.marginXXS`、`body.gap: token.marginXXS`、`footer.gap: token.marginXXS`（按 Layout Gap 规范 small→marginXXS, normal→marginXS, large→marginSM）。
 
-### 3. titleText 默认视觉样式绕过 Text 组件的 size、color、weight 语义 props
+### 3. ✅ titleText 默认视觉样式绕过 Text 组件的 size、color、weight 语义 props
 
 - 严重程度：low
 - 位置：`packages/pennyspring-ui/src/Dialog/Dialog.tsx:67`
@@ -35,7 +35,7 @@
 - 影响：标题文本的默认语义没有复用 `Text` 的 `size="lg"`、`color="heading"`、`weight="strong"` 等统一映射，可能造成文字和图标/其他文本组件的色彩、字号语义漂移。
 - 推荐纠正方案：默认标题改为通过 `Text` 的 `size`、`color`、`weight` props 表达，例如 `size="lg"`、`color="heading"`、`weight="strong"`；`styles.titleText` 仅作为外部样式覆盖入口保留。
 
-### 4. Dialog 宽度使用硬编码百分比，未由 token 或受控布局语义承载
+### 4. ✅ Dialog 宽度使用硬编码百分比，未由 token 或受控布局语义承载
 
 - 严重程度：low
 - 位置：`packages/pennyspring-ui/src/Dialog/Dialog.tsx:17`

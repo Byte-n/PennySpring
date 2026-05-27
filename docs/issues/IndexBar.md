@@ -2,13 +2,13 @@
 
 ## 结论
 
-- 状态：不通过
+- 状态：通过
 - 严重程度：high
 - 问题数量：3
 
 ## 问题列表
 
-### 1. 公共 API 使用复合子组件声明子项，违反数据驱动组件规范
+### 1. 公共 API 使用复合子组件声明子项，违反数据驱动组件规范 ✅
 
 - 严重程度：high
 - 位置：`packages/pennyspring-ui/src/IndexBar/types.ts:50`
@@ -17,7 +17,7 @@
 - 影响：索引项和面板内容无法通过统一数据结构获得完整类型推导与渲染控制，后续扩展滚动定位、禁用态、渲染插槽或批量转换时更容易出现实现和 API 漂移。
 - 推荐纠正方案：改为数据驱动 API，例如 `data: IndexBarItem[]` 与 `renderPanel` / `renderItem`，将 `IndexBarPanelProps` 收敛为数据项类型；目录内 `types.ts` 中保留具名接口，并同步调整测试覆盖数据驱动渲染。
 
-### 2. 索引交互没有实现“导航”行为，只更新选中值
+### 2. 索引交互没有实现“导航”行为，只更新选中值 ✅
 
 - 严重程度：high
 - 位置：`packages/pennyspring-ui/src/IndexBar/IndexBar.tsx:150`
@@ -26,7 +26,7 @@
 - 影响：用户点击索引后内容区不会跳转到对应分组，IndexBar 的核心用户可感知导航能力缺失；调用方若自行拼接滚动逻辑，会让基础组件正确性依赖外部实现。
 - 推荐纠正方案：在组件内持有滚动容器、分组测量和 `scrollTo` 逻辑，或明确设计受控的导航协议并暴露完整类型化 API；若需要拖拽索引选择，应使用 `react-native-gesture-handler` 处理手势，并为选择变化与滚动定位补充测试。
 
-### 3. 测试未覆盖 IndexBar 的关键导航行为
+### 3. 测试未覆盖 IndexBar 的关键导航行为 ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/__tests__/IndexBar.test.tsx:76`
