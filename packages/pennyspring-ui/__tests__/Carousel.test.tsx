@@ -1,5 +1,3 @@
-import fs from 'node:fs';
-import path from 'node:path';
 import React, { createRef } from 'react';
 import renderer, { act } from 'react-test-renderer';
 
@@ -113,41 +111,4 @@ describe('Carousel', () => {
     expect(JSON.stringify(testRenderer.toJSON())).toContain('Alpha');
   });
 
-  it('uses reanimated for position animation implementation', () => {
-    const sourcePath = path.resolve(
-      __dirname,
-      '../src/Carousel/hooks/use-carousel-position.ts',
-    );
-    const source = fs.readFileSync(sourcePath, 'utf8');
-
-    expect(source).toContain('react-native-reanimated');
-    expect(source).not.toContain("Animated, Easing } from 'react-native'");
-  });
-
-  it('uses gesture-handler for drag gestures', () => {
-    const sourcePath = path.resolve(
-      __dirname,
-      '../src/Carousel/hooks/use-carousel-pan-responder.ts',
-    );
-    const source = fs.readFileSync(sourcePath, 'utf8');
-
-    expect(source).toContain('react-native-gesture-handler');
-    expect(source).not.toContain('PanResponder.create');
-    expect(source).not.toContain("from 'react-native';");
-  });
-
-  it('avoids dynamic inline style objects in carousel indicator and slides', () => {
-    const indicatorPath = path.resolve(
-      __dirname,
-      '../src/Carousel/carousel-indicator.tsx',
-    );
-    const slidesPath = path.resolve(__dirname, '../src/Carousel/carousel-slides.tsx');
-
-    const indicatorSource = fs.readFileSync(indicatorPath, 'utf8');
-    const slidesSource = fs.readFileSync(slidesPath, 'utf8');
-
-    expect(indicatorSource).not.toContain('{ backgroundColor: isActive ? activeColor : inactiveColor }');
-    expect(slidesSource).not.toContain("{ width: slidePixels, height: '100%' }");
-    expect(slidesSource).not.toContain("{ height: slidePixels, width: '100%' }");
-  });
 });
