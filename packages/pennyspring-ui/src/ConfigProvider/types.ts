@@ -1,6 +1,9 @@
 import type React from 'react';
 
-export type ComponentConfig = {};
+export interface ComponentConfig {
+  locale?: string;
+  fallbackLocale?: string;
+}
 
 export interface ConfigProviderProps {
   config?: ComponentConfig;
