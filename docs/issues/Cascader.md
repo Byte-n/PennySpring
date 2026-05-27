@@ -2,9 +2,9 @@
 
 ## 结论
 
-- 状态：不通过
+- 状态：通过
 - 严重程度：medium
-- 问题数量：2
+- 问题数量：1
 
 ## 巡检覆盖
 
@@ -17,7 +17,7 @@
 
 ## 问题列表
 
-### 1. Tag 展示模式删除标签不会触发 `onChange`
+### 1. Tag 展示模式删除标签不会触发 `onChange` ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/Cascader/Cascader.tsx:115`

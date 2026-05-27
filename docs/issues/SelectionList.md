@@ -1,6 +1,6 @@
 # SelectionList 组件规范巡检报告
 
-状态：reported
+状态：已修复
 
 范围：
 - 组件目录：`packages/pennyspring-ui/src/SelectionList`
@@ -8,7 +8,7 @@
 - 文档：`.codex/skills/component-composer/references/component-catalog.md` 中 SelectionList 相关条目
 - 未审查：`examples/previews/demos`
 
-## 问题 1：样式文件未按组件规范放置在 `style/index.ts`
+## ✅ 问题 1：样式文件未按组件规范放置在 `style/index.ts`
 
 文件路径：`packages/pennyspring-ui/src/SelectionList/styles.ts`
 
@@ -32,7 +32,7 @@ packages/pennyspring-ui/src/SelectionList/styles.ts
 - 同步更新 `SelectionList.tsx` 中的样式导入路径。
 - 保持对外导出不变，不改变组件 API。
 
-## 问题 2：根触发器把 `readonly` 和 `loading` 合并成 `disabled`，破坏只读语义
+## ✅ 问题 2：根触发器把 `readonly` 和 `loading` 合并成 `disabled`，破坏只读语义
 
 文件路径：`packages/pennyspring-ui/src/SelectionList/SelectionList.tsx`
 
@@ -65,7 +65,7 @@ packages/pennyspring-ui/src/SelectionList/styles.ts
 - 如加载态需要阻止交互，应单独表达 loading 的视觉反馈，不要让只读态落入 disabled 样式。
 - 补充测试覆盖 `readonly` 传入时 `DisplayInput.props.readonly === true` 且 `disabled` 不因 readonly 变为 true。
 
-## 问题 3：样式中直接硬编码百分比尺寸
+## ✅ 问题 3：样式中直接硬编码百分比尺寸
 
 文件路径：`packages/pennyspring-ui/src/SelectionList/styles.ts`
 
@@ -94,7 +94,7 @@ packages/pennyspring-ui/src/SelectionList/styles.ts
 - 若确需组件内保留百分比上限，提取为语义化常量，例如 `const POPUP_MAX_HEIGHT = '85%'`，并在注释中说明它是无 token 可映射的局部布局上限。
 - 如主题层已有合适尺寸 token，应改用 token 或由调用方通过 `popupProps` 控制。
 
-## 问题 4：内部文本字号和颜色优先通过 `style` 设置
+## ✅ 问题 4：内部文本字号和颜色优先通过 `style` 设置
 
 文件路径：`packages/pennyspring-ui/src/SelectionList/SelectionList.tsx`、`packages/pennyspring-ui/src/SelectionList/styles.ts`
 
@@ -137,7 +137,7 @@ packages/pennyspring-ui/src/SelectionList/styles.ts
 - `styles.optionLabel` 仅保留确需对外暴露的文本样式覆盖。
 - 对禁用态使用 `Text` 支持的颜色语义；若现有 `Text` 颜色枚举不足，先扩展或复用组件库已有语义，不直接绕过。
 
-## 问题 5：内部布局大量使用 React Native `View` 手写等效布局，且 gap 使用 size tokens
+## ✅ 问题 5：内部布局大量使用 React Native `View` 手写等效布局，且 gap 使用 size tokens
 
 文件路径：`packages/pennyspring-ui/src/SelectionList/SelectionList.tsx`、`packages/pennyspring-ui/src/SelectionList/styles.ts`
 

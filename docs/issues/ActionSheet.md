@@ -2,13 +2,13 @@
 
 ## 结论
 
-- 状态：不通过
+- 状态：已修复
 - 严重程度：medium
-- 问题数量：2
+- 问题数量：2（已修复 2，跳过 0，失败 0）
 
 ## 问题列表
 
-### 1. `title` / `cancel` 插槽传入 `null` 时没有按“明确不渲染”处理
+### ✅ 1. `title` / `cancel` 插槽传入 `null` 时没有按“明确不渲染”处理
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/ActionSheet/ActionSheet.tsx:88`
@@ -20,4 +20,3 @@
 ## 需要人工确认
 
 - 无
-

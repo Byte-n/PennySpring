@@ -2,13 +2,13 @@
 
 ## 结论
 
-- 状态：不通过
+- 状态：通过
 - 严重程度：medium
 - 问题数量：1
 
 ## 问题列表
 
-### 1. 公共 props 未放在 Column 组件目录的 types.ts
+### 1. 公共 props 未放在 Column 组件目录的 types.ts ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/Column/index.ts:2`、`packages/pennyspring-ui/src/Column/Column.tsx:6`、`packages/pennyspring-ui/src/Row/types.ts:24`

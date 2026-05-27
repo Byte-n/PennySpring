@@ -2,13 +2,13 @@
 
 ## 结论
 
-- 状态：不通过
+- 状态：通过
 - 严重程度：medium
-- 问题数量：3
+- 问题数量：2
 
 ## 问题列表
 
-### 1. 包级导出遗漏 `CascadePickerStyles`
+### 1. 包级导出遗漏 `CascadePickerStyles` ✅
 
 - 严重程度：low
 - 位置：`packages/pennyspring-ui/src/index.ts:233`
@@ -17,7 +17,7 @@
 - 影响：外部调用方可以使用 `styles?: CascadePickerStyles`（`packages/pennyspring-ui/src/CascadePicker/types.ts:110`），但无法从包级入口直接导入该公共样式类型，和其他公共类型的导出一致性不符。
 - 推荐纠正方案：在 `packages/pennyspring-ui/src/index.ts` 的 `CascadePicker` 类型导出列表中补充 `CascadePickerStyles`，并用现有包级导入方式验证类型可用。
 
-### 2. 输入类组件缺少 `readonly` 公共 API
+### 2. 输入类组件缺少 `readonly` 公共 API ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/CascadePicker/types.ts:103`
