@@ -52,8 +52,14 @@ paths:
 - 内部节点同时支持文本和自定义节点时，文本 prop 使用 `xxxText`，节点 prop 使用 `xxx`。
 - 禁止使用 `{ title: string | ReactNode }` 或 `{ title: string, titleNode: ReactNode }`。
 - 推荐使用 `{ titleText: string, title: ReactNode }`。
+- `xxxText` 类型只能是 `xxxText?: string`，不得包含 `null`；不得通过 `xxxText={null}` 表示不渲染。
+- 需要支持调用方用 `null` 控制某部分不渲染时，应额外定义 `xxx?: ReactNode | null`。
+- `xxx`、`xxxRender` 和其他插槽类 prop 为 `null` 时，表示明确不渲染该部分内容。
+- `xxx`、`xxxText`、`xxxRender` 和其他插槽类 prop 为 `undefined` 时，表示调用方未传递该属性，组件应走默认行为。
+- 当结构插槽的所有可见内容都被置为 `null` 时，外层结构也不渲染；例如 `header` 中仅有 `title`，`title={null}` 时整个 `header` 不渲染，也可以通过 `header={null}` 明确不渲染。
 - 文本样式只作用于内部文本，例如 `styles.titleText` 仅作用于 `titleText` 渲染出的文本。
 - 如需包裹节点，使用 `titleContainer` 承载 `title ?? titleText`，不要用 `title` 表示容器。
+- `Text` 组件的 `color` 取值必须与 `Icon` 组件的 `color` 取值保持一致，避免文本和图标色彩语义漂移。
 
 ## 尺寸 API
 
@@ -61,6 +67,9 @@ paths:
 - `size` 只支持 `small`、`normal`、`large` 三个值；默认值必须是 `normal`。
 - 组件应在内部完整实现受支持尺寸，不要要求调用方通过 `style` 或 `styles` 拼出尺寸差异。
 - 交互控件的 `size` 应影响高度、内边距、图标尺寸、文字尺寸或圆角等与尺寸语义相关的 token 样式。
+- 容器、布局、录入和展示组件有 `size` 时，必须完整响应对应尺寸变化，包括边距、阴影、字号等与尺寸语义相关的样式。
+- 组件内部使用的其他组件如果也有 `size`，必须随外层 `size` 传递或映射，避免内外尺寸语义不一致。
+- 容器组件和布局组件的 `size` 到 spacing token 映射必须遵循通用组件视觉与布局规范中的语义选择策略。
 - 尺寸样式必须使用 `AliasToken`，并通过 `createUseSheetStyle<TOptions>` options 传入 `size`。
 
 ## 样式 API
