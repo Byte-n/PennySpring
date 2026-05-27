@@ -12,8 +12,8 @@ const providerProps: ConfigProviderProps = {
 // @ts-expect-error ComponentConfig should reject primitive values.
 const invalidComponentConfig: ComponentConfig = 1;
 
-// @ts-expect-error ConfigProviderProps.config should only accept ComponentConfig.
 const invalidProviderProps: ConfigProviderProps = {
+  // @ts-expect-error ConfigProviderProps.config should only accept ComponentConfig.
   config: 'invalid',
 };
 
