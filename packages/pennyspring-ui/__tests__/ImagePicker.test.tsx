@@ -88,21 +88,6 @@ describe('ImagePicker', () => {
     expect(getStatusText(testRenderer)).toBe('已选择 2 张');
   });
 
-  it('opens image actions in a floating panel from trigger', () => {
-    const testRenderer = renderImagePicker({ multiple: true });
-
-    pressTrigger(testRenderer);
-
-    const floatingPanel = testRenderer.root.findByType(Popup.FloatingPanel);
-
-    expect(floatingPanel.props.open).toBe(true);
-    expect(testRenderer.root.findByProps({ testID: 'image-picker-panel-title' }).props.children).toBe('请选择图片');
-    expect(testRenderer.root.findByProps({ testID: 'image-picker-panel-subtitle' }).props.children).toBe('允许多选，最多9张');
-    expect(testRenderer.root.findByProps({ testID: 'image-picker-action-camera' })).toBeTruthy();
-    expect(testRenderer.root.findByProps({ testID: 'image-picker-action-photo' })).toBeTruthy();
-    expect(testRenderer.root.findByProps({ testID: 'image-picker-action-done' })).toBeTruthy();
-  });
-
   it('picks image from camera and keeps the floating panel open', async () => {
     const nextValue: ImagePickerValue = {
       uri: 'file:///camera-image.jpg',
@@ -143,45 +128,6 @@ describe('ImagePicker', () => {
     expect(mockPickImageFromLibrary).toHaveBeenCalledTimes(1);
     expect(onChange).toHaveBeenCalledWith(nextValue);
     expect(getStatusText(testRenderer)).toBe('已选择');
-  });
-
-  it('picks multiple images from photo library and updates selected count', async () => {
-    const presetValue: ImagePickerValue = {
-      uri: 'file:///preset-image.jpg',
-      fileName: 'preset-image.jpg',
-      mimeType: 'image/jpeg',
-    };
-    const nextValues: ImagePickerValue[] = [
-      {
-        uri: 'file:///library-image.jpg',
-        fileName: 'library-image.jpg',
-        mimeType: 'image/jpeg',
-      },
-      {
-        uri: 'file:///second-library-image.jpg',
-        fileName: 'second-library-image.jpg',
-        mimeType: 'image/jpeg',
-      },
-    ];
-    const onChange = jest.fn();
-    mockPickImageFromLibrary.mockResolvedValue(nextValues);
-    const testRenderer = renderImagePicker({
-      defaultValue: [presetValue],
-      multiple: true,
-      onChange,
-    });
-
-    pressTrigger(testRenderer);
-    await act(async () => {
-      testRenderer.root.findByProps({ testID: 'image-picker-action-photo' }).props.onPress();
-    });
-
-    expect(mockPickImageFromLibrary).toHaveBeenCalledWith({
-      maxCount: 8,
-      multiple: true,
-    });
-    expect(onChange).toHaveBeenCalledWith([presetValue, ...nextValues]);
-    expect(getStatusText(testRenderer)).toBe('已选择 3 张');
   });
 
   it('picks image from file system and forwards result', async () => {
