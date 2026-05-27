@@ -223,7 +223,9 @@ const useStyles = createUseSheetStyle(
 export function Textarea({
   defaultValue,
   disabled = false,
+  error,
   errorText,
+  helper,
   helperText,
   label,
   loading = false,
@@ -258,7 +260,12 @@ export function Textarea({
   const textValue = String(mergedValue);
   const isEditable = !disabled && !readonly;
   const isError = status === 'error';
-  const shouldShowErrorText = isError && errorText !== undefined && errorText !== null;
+  const errorMessage = error !== undefined ? error : errorText;
+  const helperMessage = helper !== undefined ? helper : helperText;
+  const message = isError && errorMessage !== undefined
+    ? errorMessage
+    : helperMessage;
+  const shouldShowMessage = message !== undefined && message !== null;
   const tokenStyles = useStyles({
     contentHeight,
     isDisabled: disabled,
@@ -341,12 +348,21 @@ export function Textarea({
         ) : null}
       </View>
 
-      {helperText !== undefined || errorText !== undefined || showCount ? (
+      {message !== undefined || showCount ? (
         <View style={[tokenStyles.footer, styles?.footer]}>
-          {shouldShowErrorText ? (
-            <Text style={[tokenStyles.error, styles?.error]}>{errorText}</Text>
-          ) : helperText !== undefined && helperText !== null ? (
-            <Text style={[tokenStyles.helper, styles?.helper]}>{helperText}</Text>
+          {shouldShowMessage ? (
+            <Text
+              style={[
+                isError && errorMessage !== undefined
+                  ? tokenStyles.error
+                  : tokenStyles.helper,
+                isError && errorMessage !== undefined
+                  ? styles?.error
+                  : styles?.helper,
+              ]}
+            >
+              {message}
+            </Text>
           ) : (
             <View />
           )}

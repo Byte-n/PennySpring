@@ -209,7 +209,9 @@ function InputRoot({
   clearable,
   defaultValue,
   disabled,
+  error,
   errorText,
+  helper,
   helperText,
   label,
   loading,
@@ -246,7 +248,11 @@ function InputRoot({
   const isError = resolvedStatus === 'error';
   const shouldShowClearButton =
     clearable === true && Boolean(mergedValue) && isEditable && loading !== true;
-  const message = isError && errorText !== undefined ? errorText : helperText;
+  const errorMessage = error !== undefined ? error : errorText;
+  const helperMessage = helper !== undefined ? helper : helperText;
+  const message = isError && errorMessage !== undefined
+    ? errorMessage
+    : helperMessage;
   const hasLabel = label !== undefined && label !== null;
   const hasPrefix = prefix !== undefined && prefix !== null;
   const hasSuffix = suffix !== undefined && suffix !== null;

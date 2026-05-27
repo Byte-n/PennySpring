@@ -10,6 +10,36 @@ function renderTextarea(props: Partial<React.ComponentProps<typeof Textarea>> = 
   return testRenderer!;
 }
 describe('Textarea', () => {
+  it('keeps helper text props string-only so null rendering control uses node slots', () => {
+    // @ts-expect-error helperText must use helper={null} to suppress rendering.
+    const invalidHelperText: React.ComponentProps<typeof Textarea> = { helperText: null };
+    // @ts-expect-error errorText must use error={null} to suppress rendering.
+    const invalidErrorText: React.ComponentProps<typeof Textarea> = { errorText: null };
+
+    expect([
+      invalidHelperText,
+      invalidErrorText,
+    ]).toHaveLength(2);
+  });
+
+  it('uses helper and error node slots to control message rendering', () => {
+    const helperRenderer = renderTextarea({
+      helper: <>Helper node</>,
+      helperText: 'Helper text',
+    });
+    const hiddenErrorRenderer = renderTextarea({
+      error: null,
+      errorText: 'Error text',
+      helperText: 'Helper text',
+      status: 'error',
+    });
+
+    expect(JSON.stringify(helperRenderer.toJSON())).toContain('Helper node');
+    expect(JSON.stringify(helperRenderer.toJSON())).not.toContain('Helper text');
+    expect(JSON.stringify(hiddenErrorRenderer.toJSON())).not.toContain('Error text');
+    expect(JSON.stringify(hiddenErrorRenderer.toJSON())).not.toContain('Helper text');
+  });
+
   it('uses controlled value for display and count while forwarding text changes', () => {
     const handleChangeText = jest.fn();
     const testRenderer = renderTextarea({

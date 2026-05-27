@@ -40,7 +40,7 @@ export function PickerPanel<TItem extends PickerColumnItemData>({
   props,
   styles,
 }: PickerPanelProps<TItem>) {
-  const header = (
+  const header = props.renderHeader === null ? null : (
     <PickerHeader
       cancel={props.cancel}
       cancelText={props.cancelText}
@@ -58,7 +58,7 @@ export function PickerPanel<TItem extends PickerColumnItemData>({
 
   return (
     <View style={[styles.panel, externalPanelStyles?.root]}>
-      {props.renderHeader ? (
+      {props.renderHeader === null ? null : props.renderHeader !== undefined ? (
         props.renderHeader({
           header,
           draftValue,

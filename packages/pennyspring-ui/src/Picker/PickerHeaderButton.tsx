@@ -23,6 +23,14 @@ export function PickerHeaderButton({
   text,
   textStyle,
 }: PickerHeaderButtonProps) {
+  if (content === null) {
+    return null;
+  }
+
+  if (content === undefined && text === undefined) {
+    return null;
+  }
+
   return (
     <Button
       disabled={disabled}
@@ -32,7 +40,7 @@ export function PickerHeaderButton({
       testID={testID}
       type="text"
     >
-      {content ?? <Text style={textStyle}>{text}</Text>}
+      {content !== undefined ? content : <Text style={textStyle}>{text}</Text>}
     </Button>
   );
 }

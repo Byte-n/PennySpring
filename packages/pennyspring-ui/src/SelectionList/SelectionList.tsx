@@ -466,8 +466,10 @@ function SelectionListRoot({
   disabled,
   displayInputProps,
   displayMode,
+  error,
   errorText,
   groups,
+  helper,
   helperText,
   label,
   labelText,
@@ -571,7 +573,9 @@ function SelectionListRoot({
         {...displayInputProps}
         disabled={!isInteractive}
         display={displayInputProps?.display ?? 'inline'}
+        error={error}
         errorText={errorText}
+        helper={helper}
         helperText={helperText}
         label={label ?? labelText}
         overflow={

@@ -67,13 +67,25 @@ export interface TextareaProps
    * 辅助说明文本。
    * 当 status 为 error 且 errorText 存在时，优先展示 errorText。
    */
-  helperText?: ReactNode;
+  helperText?: string;
+
+  /**
+   * 辅助说明自定义节点。
+   * 传入 null 时不渲染辅助说明。
+   */
+  helper?: ReactNode | null;
 
   /**
    * 错误说明文本。
    * 只负责展示错误，不负责执行校验。
    */
-  errorText?: ReactNode;
+  errorText?: string;
+
+  /**
+   * 错误说明自定义节点。
+   * 传入 null 时不渲染错误说明。
+   */
+  error?: ReactNode | null;
 
   /**
    * 是否展示必填语义。

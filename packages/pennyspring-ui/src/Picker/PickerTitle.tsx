@@ -16,9 +16,17 @@ export function PickerTitle({
   styles,
   slotStyles,
 }: PickerTitleProps) {
+  if (title === null) {
+    return null;
+  }
+
+  if (title === undefined && titleText === undefined) {
+    return null;
+  }
+
   return (
     <View style={[styles.titleContainer, slotStyles?.titleContainer]}>
-      {title ?? (
+      {title !== undefined ? title : (
         <Text style={[styles.titleText, slotStyles?.titleText]}>
           {titleText}
         </Text>

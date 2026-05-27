@@ -25,8 +25,10 @@ export interface DisplayInputProps {
   status?: InputStatus;
   label?: ReactNode;
   placeholder?: string;
-  helperText?: ReactNode;
-  errorText?: ReactNode;
+  helperText?: string;
+  helper?: ReactNode | null;
+  errorText?: string;
+  error?: ReactNode | null;
   valueText?: string;
   children?: ReactNode;
   prefix?: ReactNode;

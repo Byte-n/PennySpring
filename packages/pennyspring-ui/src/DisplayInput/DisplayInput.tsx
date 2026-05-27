@@ -35,7 +35,9 @@ function isTextLikeValue(value: React.ReactNode): value is string | number {
 export function DisplayInput({
   disabled,
   display,
+  error,
   errorText,
+  helper,
   helperText,
   label,
   onPress,
@@ -79,7 +81,11 @@ export function DisplayInput({
       ? valueText
       : undefined;
   const hasDisplayText = textValue !== undefined && textValue !== '';
-  const message = isError && errorText !== undefined ? errorText : helperText;
+  const errorMessage = error !== undefined ? error : errorText;
+  const helperMessage = helper !== undefined ? helper : helperText;
+  const message = isError && errorMessage !== undefined
+    ? errorMessage
+    : helperMessage;
 
   return (
     <View style={[tokenStyles.root, style]}>

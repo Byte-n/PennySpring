@@ -136,6 +136,59 @@ it('renders custom header via renderHeader', () => {
   expect(customHeader).toBeDefined();
 });
 
+it('keeps header text props string-only so null rendering control uses node slots', () => {
+  // @ts-expect-error titleText must use title={null} to suppress rendering.
+  const invalidTitleText: PickerProps = { columns, popupProps: { titleText: null } };
+  // @ts-expect-error cancelText must use cancel={null} to suppress rendering.
+  const invalidCancelText: PickerProps = { columns, popupProps: { cancelText: null } };
+  // @ts-expect-error okText must use ok={null} to suppress rendering.
+  const invalidOkText: PickerProps = { columns, popupProps: { okText: null } };
+
+  expect([
+    invalidTitleText,
+    invalidCancelText,
+    invalidOkText,
+  ]).toHaveLength(3);
+});
+
+it('does not render picker header when renderHeader is null', () => {
+  let testRenderer: renderer.ReactTestRenderer;
+
+  act(() => {
+    testRenderer = renderer.create(
+      <Picker columns={columns} defaultOpen popupProps={{ renderHeader: null }} />,
+    );
+  });
+
+  expect(testRenderer!.root.findAllByProps({ testID: 'picker-header' })).toHaveLength(0);
+});
+
+it('does not render picker title or action slots when they are null', () => {
+  let testRenderer: renderer.ReactTestRenderer;
+
+  act(() => {
+    testRenderer = renderer.create(
+      <Picker
+        columns={columns}
+        defaultOpen
+        popupProps={{
+          cancel: null,
+          ok: null,
+          title: null,
+          titleText: 'Default Header',
+        }}
+      />,
+    );
+  });
+
+  const tree = JSON.stringify(testRenderer!.toJSON());
+
+  expect(tree).not.toContain('picker-title-text');
+  expect(tree).not.toContain('picker-cancel-button');
+  expect(tree).not.toContain('picker-ok-button');
+  expect(tree).not.toContain('Default Header');
+});
+
 it('does not open when readonly', () => {
   const onOpenChange = jest.fn();
   let testRenderer: renderer.ReactTestRenderer;

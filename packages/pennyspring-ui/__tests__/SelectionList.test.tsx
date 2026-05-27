@@ -56,6 +56,36 @@ function flattenStyle(style: unknown) {
 }
 
 describe('SelectionList', () => {
+  it('keeps helper text props string-only so null rendering control uses node slots', () => {
+    // @ts-expect-error helperText must use helper={null} to suppress rendering.
+    const invalidHelperText: React.ComponentProps<typeof SelectionList> = { helperText: null };
+    // @ts-expect-error errorText must use error={null} to suppress rendering.
+    const invalidErrorText: React.ComponentProps<typeof SelectionList> = { errorText: null };
+
+    expect([
+      invalidHelperText,
+      invalidErrorText,
+    ]).toHaveLength(2);
+  });
+
+  it('passes helper and error node slots to the trigger display input', () => {
+    const helperRenderer = renderSelectionList({
+      helper: <>Helper node</>,
+      helperText: 'Helper text',
+    });
+    const hiddenErrorRenderer = renderSelectionList({
+      error: null,
+      errorText: 'Error text',
+      helperText: 'Helper text',
+      status: 'error',
+    });
+
+    expect(treeText(helperRenderer)).toContain('Helper node');
+    expect(treeText(helperRenderer)).not.toContain('Helper text');
+    expect(treeText(hiddenErrorRenderer)).not.toContain('Error text');
+    expect(treeText(hiddenErrorRenderer)).not.toContain('Helper text');
+  });
+
   it('opens in uncontrolled mode and renders text/custom option nodes', () => {
     const onOpenChange = jest.fn();
     const testRenderer = renderSelectionList({

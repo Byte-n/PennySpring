@@ -46,6 +46,38 @@ function findFieldStyle(testRenderer: renderer.ReactTestRenderer) {
 }
 
 describe('DisplayInput', () => {
+  it('keeps helper text props string-only so null rendering control uses node slots', () => {
+    // @ts-expect-error helperText must use helper={null} to suppress rendering.
+    const invalidHelperText: React.ComponentProps<typeof DisplayInput> = { helperText: null };
+    // @ts-expect-error errorText must use error={null} to suppress rendering.
+    const invalidErrorText: React.ComponentProps<typeof DisplayInput> = { errorText: null };
+
+    expect([
+      invalidHelperText,
+      invalidErrorText,
+    ]).toHaveLength(2);
+  });
+
+  it('uses helper and error node slots to control message rendering', () => {
+    const helperRenderer = renderDisplayInput({
+      helper: <View testID="helper-node" />,
+      helperText: 'Helper text',
+    });
+    const hiddenErrorRenderer = renderDisplayInput({
+      error: null,
+      errorText: 'Error text',
+      helperText: 'Helper text',
+      status: 'error',
+    });
+
+    const helperTree = JSON.stringify(helperRenderer.toJSON());
+
+    expect(helperTree).toContain('helper-node');
+    expect(helperTree).not.toContain('Helper text');
+    expect(JSON.stringify(hiddenErrorRenderer.toJSON())).not.toContain('Error text');
+    expect(JSON.stringify(hiddenErrorRenderer.toJSON())).not.toContain('Helper text');
+  });
+
   it('calls onPress when pressed', () => {
     const onPress = jest.fn();
     const testRenderer = renderDisplayInput({

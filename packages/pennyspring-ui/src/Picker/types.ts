@@ -158,7 +158,7 @@ export interface PickerPopupProps<
     columnIndex: number,
     itemIndex: number,
   ) => ReactNode;
-  renderHeader?: (params: PickerRenderHeaderParams<TItem>) => ReactNode;
+  renderHeader?: ((params: PickerRenderHeaderParams<TItem>) => ReactNode) | null;
 }
 
 export type PickerDisplayInputProps = Omit<

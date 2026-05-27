@@ -39,6 +39,36 @@ function findSearchButton(testRenderer: renderer.ReactTestRenderer) {
   return testRenderer.root.findAll(node => node.props.testID === 'input-search-button')[0];
 }
 describe('Input', () => {
+  it('keeps helper text props string-only so null rendering control uses node slots', () => {
+    // @ts-expect-error helperText must use helper={null} to suppress rendering.
+    const invalidHelperText: React.ComponentProps<typeof Input> = { helperText: null };
+    // @ts-expect-error errorText must use error={null} to suppress rendering.
+    const invalidErrorText: React.ComponentProps<typeof Input> = { errorText: null };
+
+    expect([
+      invalidHelperText,
+      invalidErrorText,
+    ]).toHaveLength(2);
+  });
+
+  it('uses helper and error node slots to control message rendering', () => {
+    const helperRenderer = renderInput({
+      helper: <>Helper node</>,
+      helperText: 'Helper text',
+    });
+    const hiddenErrorRenderer = renderInput({
+      error: null,
+      errorText: 'Error text',
+      helperText: 'Helper text',
+      status: 'error',
+    });
+
+    expect(JSON.stringify(helperRenderer.toJSON())).toContain('Helper node');
+    expect(JSON.stringify(helperRenderer.toJSON())).not.toContain('Helper text');
+    expect(JSON.stringify(hiddenErrorRenderer.toJSON())).not.toContain('Error text');
+    expect(JSON.stringify(hiddenErrorRenderer.toJSON())).not.toContain('Helper text');
+  });
+
   it('updates uncontrolled text and notifies changes', () => {
     const onChangeText = jest.fn();
     const testRenderer = renderInput({

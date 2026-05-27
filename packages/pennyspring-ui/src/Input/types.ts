@@ -67,12 +67,22 @@ export interface InputProps
   /**
    * Helper text shown near the field.
    */
-  helperText?: ReactNode;
+  helperText?: string;
+
+  /**
+   * Helper custom node. Pass null to suppress helper rendering.
+   */
+  helper?: ReactNode | null;
 
   /**
    * Error text shown only when status is error.
    */
-  errorText?: ReactNode;
+  errorText?: string;
+
+  /**
+   * Error custom node. Pass null to suppress error rendering.
+   */
+  error?: ReactNode | null;
 
   /**
    * Required semantic marker. Does not run validation.
