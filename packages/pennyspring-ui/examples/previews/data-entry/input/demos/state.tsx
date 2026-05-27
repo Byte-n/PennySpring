@@ -17,9 +17,9 @@ export function InputStateDemo() {
   return (
     <>
       <View style={styles.stack}>
-        <Input disabled label="Disabled" defaultValue="Disabled value" />
-        <Input readonly label="Readonly" defaultValue="Readonly value" />
-        <Input loading label="Loading" defaultValue="Checking" />
+        <Input disabled labelText="Disabled" defaultValue="Disabled value" />
+        <Input readonly labelText="Readonly" defaultValue="Readonly value" />
+        <Input loading labelText="Loading" defaultValue="Checking" />
       </View>
     </>
   );

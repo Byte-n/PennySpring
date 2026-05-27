@@ -18,19 +18,19 @@ export function InputStatusDemo() {
     <>
       <View style={styles.stack}>
         <Input
-          label="Error"
+          labelText="Error"
           status="error"
           errorText="Invalid value"
           defaultValue="100.00"
         />
         <Input
-          label="Warning"
+          labelText="Warning"
           status="warning"
           helperText="Please review this value"
           defaultValue="42"
         />
         <Input
-          label="Success"
+          labelText="Success"
           status="success"
           helperText="Looks good"
           defaultValue="Ready"

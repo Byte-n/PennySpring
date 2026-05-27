@@ -3,12 +3,17 @@ import { Space, Icon } from '@pennyspring/ui';
 import type { IconColor } from '@pennyspring/ui';
 
 const SEMANTIC_COLORS: IconColor[] = [
+  'base',
   'default',
-  'primary',
-  'success',
-  'warning',
-  'danger',
-  'info',
+  'secondary',
+  'tertiary',
+  'quaternary',
+  'heading',
+  'label',
+  'description',
+  'disabled',
+  'placeholder',
+  'lightSolid',
 ];
 
 const ALIAS_COLORS: IconColor[] = ['textDescription', 'primary', 'link'];
@@ -22,7 +27,6 @@ export function IconSizeAndColorDemo() {
         <Icon icon="home" size="small" />
         <Icon icon="home" size="normal" />
         <Icon icon="home" size="large" />
-        <Icon icon="home" size={28} />
       </Space>
       <Space align="center" size="large" wrap>
         {SEMANTIC_COLORS.map(color => (

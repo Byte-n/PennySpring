@@ -40,7 +40,7 @@ export function GridSpanDemo() {
     <>
       <Grid
         columns={token.lineWidthBold + token.lineWidth}
-        gap={[token.marginXS, token.marginSM]}
+        gap="normal"
         style={styles.inlineGrid}
       >
         <Grid.Item span={token.lineWidthBold}>

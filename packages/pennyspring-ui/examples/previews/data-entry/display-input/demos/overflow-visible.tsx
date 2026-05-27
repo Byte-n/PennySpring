@@ -25,7 +25,7 @@ export function DisplayInputOverflowVisibleDemo() {
       <Column style={styles.stack}>
         <DisplayInput
           display="block"
-          label="block + valueText + overflowVisible"
+          labelText="block + valueText + overflowVisible"
           overflow="visible"
           style={styles.overflowVisible}
           onPress={() =>
@@ -35,7 +35,7 @@ export function DisplayInputOverflowVisibleDemo() {
         />
         <DisplayInput
           display="inline"
-          label="inline + valueText + overflowVisible"
+          labelText="inline + valueText + overflowVisible"
           overflow="visible"
           style={styles.overflowVisible}
           onPress={() =>
@@ -45,7 +45,7 @@ export function DisplayInputOverflowVisibleDemo() {
         />
         <DisplayInput
           display="block"
-          label="block + custom node + overflowVisible"
+          labelText="block + custom node + overflowVisible"
           style={styles.overflowVisible}
           onPress={() => setPressedValue('点击了 block 节点 overflowVisible')}
         >
@@ -56,7 +56,7 @@ export function DisplayInputOverflowVisibleDemo() {
         </DisplayInput>
         <DisplayInput
           display="inline"
-          label="inline + custom node + overflowVisible"
+          labelText="inline + custom node + overflowVisible"
           style={styles.overflowVisible}
           onPress={() => setPressedValue('点击了 inline 节点 overflowVisible')}
         >

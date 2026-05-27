@@ -52,7 +52,7 @@ export function GridColumnsDemo() {
     <>
       <Grid
         columns={token.lineWidthBold + token.lineWidth}
-        gap={token.marginXS}
+        gap="normal"
         style={styles.gridFrame}
       >
         {GRID_ITEMS.map(item => (

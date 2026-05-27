@@ -49,7 +49,7 @@ export function DataListLoadingAndEmptyFooterDemo() {
         <DataList<DemoItem>
           data={EMPTY_DATA}
           keyExtractor={item => item.id}
-          loadingMore
+          isLoadingMore
           loadingMoreText="Loading more records..."
           renderItem={({ item }) => (
             <View style={styles.itemRow}>

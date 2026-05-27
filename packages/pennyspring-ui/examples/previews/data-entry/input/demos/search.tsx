@@ -22,22 +22,22 @@ export function InputSearchDemo() {
       <View style={styles.stack}>
         <Input.Search
           clearable
-          label="Default search"
+          labelText="Default search"
           placeholder="Search"
           defaultValue="Component"
           onSearch={setSubmittedSearchValue}
         />
         <Input.Search
           clearable
-          label="Controlled search"
+          labelText="Controlled search"
           placeholder="Search component"
           value={searchValue}
-          onChangeText={setSearchValue}
+          onChange={setSearchValue}
           onSearch={setSubmittedSearchValue}
         />
         <Input.Search
           disabled
-          label="Disabled search"
+          labelText="Disabled search"
           defaultValue="Disabled"
         />
         <Text color="description" size="sm">

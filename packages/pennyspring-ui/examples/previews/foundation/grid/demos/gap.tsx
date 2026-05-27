@@ -76,14 +76,14 @@ export function GridGapDemo() {
         ))}
         <Grid
           columns={token.lineWidthBold + token.lineWidth}
-          gap={[token.marginXXS, token.marginSM]}
+          gap="normal"
           style={styles.gridFrame}
         >
           {GRID_ITEMS.map(item => (
             <Grid.Item key={item.key}>
               <View style={styles.cell}>
                 <Text color="description" size="sm">
-                  X/Y
+                  normal
                 </Text>
                 <Text color="heading" weight="strong">
                   {item.value}

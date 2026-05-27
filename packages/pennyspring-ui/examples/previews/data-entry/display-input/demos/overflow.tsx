@@ -25,19 +25,19 @@ export function DisplayInputOverflowDemo() {
       <Column style={styles.stack}>
         <DisplayInput
           display="block"
-          label="block + valueText (默认截断)"
+          labelText="block + valueText (默认截断)"
           onPress={() => setPressedValue('点击了 block valueText 默认截断')}
           valueText="block 这是一个非常长的文本，用于验证默认最大宽度与超出隐藏行为"
         />
         <DisplayInput
           display="inline"
-          label="inline + valueText (默认截断)"
+          labelText="inline + valueText (默认截断)"
           onPress={() => setPressedValue('点击了 inline valueText 默认截断')}
           valueText="inline 这是一个非常长的文本，用于验证为用于验证为"
         />
         <DisplayInput
           display="block"
-          label="block + custom node"
+          labelText="block + custom node"
           onPress={() => setPressedValue('点击了 block 自定义节点')}
         >
           <Column>
@@ -54,7 +54,7 @@ export function DisplayInputOverflowDemo() {
         </DisplayInput>
         <DisplayInput
           display="inline"
-          label="inline + custom node"
+          labelText="inline + custom node"
           onPress={() => setPressedValue('点击了 inline 自定义节点')}
         >
           <Column>

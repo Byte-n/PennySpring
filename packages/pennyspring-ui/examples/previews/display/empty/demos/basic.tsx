@@ -33,7 +33,7 @@ export function EmptyBasicDemo() {
         </View>
         <View style={styles.panel}>
           <Empty
-            icon={<Icon icon="list" size={28} color="textDescription" />}
+            icon={<Icon icon="list" size="large" color="textDescription" />}
             message={
               <View>
                 <Text style={styles.textCenter}>No tasks</Text>

@@ -2,6 +2,7 @@ import React from 'react';
 import { View } from 'react-native';
 import { IndexBar, List } from '@pennyspring/ui';
 import { createUseSheetStyle } from '@pennyspring/theme';
+import type { IndexBarItem } from '@pennyspring/ui';
 
 const useStyles = createUseSheetStyle(token => ({
   panelBody: {
@@ -38,30 +39,40 @@ function PanelList({ prefix }: { prefix: string }) {
 
 export const indexBarSizeAndDisabledDemoTitle = 'Size and disabled';
 
+const INDEX_BAR_DATA: IndexBarItem[] = [
+  {
+    index: 'A',
+    titleText: 'A',
+  },
+  {
+    index: 'B',
+    titleText: 'B',
+  },
+];
+
 export function IndexBarSizeAndDisabledDemo() {
   const styles = useStyles();
+  const renderPanel = (item: IndexBarItem) => (
+    <PanelList prefix={String(item.index)} />
+  );
 
   return (
     <>
       <View style={styles.panelBody}>
-        <IndexBar defaultValue="A" size="small">
-          <IndexBar.Panel index="A" titleText="A">
-            <PanelList prefix="A" />
-          </IndexBar.Panel>
-          <IndexBar.Panel index="B" titleText="B">
-            <PanelList prefix="B" />
-          </IndexBar.Panel>
-        </IndexBar>
+        <IndexBar
+          data={INDEX_BAR_DATA}
+          defaultValue="A"
+          size="small"
+          renderPanel={renderPanel}
+        />
       </View>
       <View style={styles.panelBody}>
-        <IndexBar defaultValue="A" disabled>
-          <IndexBar.Panel index="A" titleText="A">
-            <PanelList prefix="A" />
-          </IndexBar.Panel>
-          <IndexBar.Panel index="B" titleText="B">
-            <PanelList prefix="B" />
-          </IndexBar.Panel>
-        </IndexBar>
+        <IndexBar
+          data={INDEX_BAR_DATA}
+          defaultValue="A"
+          disabled
+          renderPanel={renderPanel}
+        />
       </View>
     </>
   );

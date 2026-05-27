@@ -24,7 +24,7 @@ export function DisplayInputCustomValueNodeDemo() {
     <>
       <Column style={styles.stack}>
         <DisplayInput
-          label="value (ReactNode)"
+          labelText="value (ReactNode)"
           onPress={() => setPressedValue('点击了 自定义节点')}
           placeholder="这个占位不会显示"
         >
@@ -32,7 +32,7 @@ export function DisplayInputCustomValueNodeDemo() {
         </DisplayInput>
         <DisplayInput
           display="inline"
-          label="inline custom node"
+          labelText="inline custom node"
           onPress={() => setPressedValue('点击了 行内自定义节点')}
         >
           <Text color="description" size="sm">

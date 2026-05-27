@@ -18,15 +18,15 @@ export function InputBasicDemo() {
     <>
       <View style={styles.stack}>
         <Input
-          label="Normal"
+          labelText="Normal"
           placeholder="Placeholder"
           defaultValue="PennySpring"
         />
-        <Input required label="Required" placeholder="Required field" />
+        <Input required labelText="Required" placeholder="Required field" />
         <Input
           clearable
           defaultValue="Search text"
-          label="With addons"
+          labelText="With addons"
           prefix={
             <Icon icon="search" color="icon" size="large" />
           }

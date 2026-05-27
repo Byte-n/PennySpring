@@ -29,14 +29,14 @@ export function DisplayInputBasicDemo() {
     <>
       <Column style={styles.stack}>
         <DisplayInput
-          label="Block (default)"
+          labelText="Block (default)"
           onPress={() => setPressedValue('点击了 Block')}
           placeholder="请选择账户"
           valueText="现金账户"
         />
         <DisplayInput
           display="inline"
-          label="Inline"
+          labelText="Inline"
           onPress={() => setPressedValue('点击了 Inline')}
           valueText={inlineValues[inlineValueIndex]}
         />

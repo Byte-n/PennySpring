@@ -2,7 +2,7 @@ import React from 'react';
 import { View } from 'react-native';
 import { IndexBar, List, Text } from '@pennyspring/ui';
 import { createUseSheetStyle } from '@pennyspring/theme';
-import type { IndexBarValue } from '@pennyspring/ui';
+import type { IndexBarItem, IndexBarValue } from '@pennyspring/ui';
 
 const useStyles = createUseSheetStyle(token => ({
   panelBody: {
@@ -40,26 +40,47 @@ function PanelList({ prefix }: { prefix: string }) {
 export const indexBarControlledAndPanelDisabledDemoTitle =
   'Controlled and panel disabled';
 
+const INDEX_BAR_DATA: IndexBarItem[] = [
+  {
+    index: 'A',
+    titleText: 'A · Accounts',
+  },
+  {
+    index: 'B',
+    titleText: 'B · Budget',
+  },
+  {
+    disabled: true,
+    index: 'C',
+    titleText: 'C · Category',
+  },
+];
+
 export function IndexBarControlledAndPanelDisabledDemo() {
   const styles = useStyles();
   const [value, setValue] = React.useState<IndexBarValue>('B');
 
+  const renderPanel = (item: IndexBarItem) => {
+    if (item.index === 'C') {
+      return (
+        <View style={styles.panelPadding}>
+          <Text color="description">This panel is disabled.</Text>
+        </View>
+      );
+    }
+
+    return <PanelList prefix={String(item.index)} />;
+  };
+
   return (
     <>
       <View style={styles.panelBody}>
-        <IndexBar value={value} onChange={setValue}>
-          <IndexBar.Panel index="A" titleText="A · Accounts">
-            <PanelList prefix="A" />
-          </IndexBar.Panel>
-          <IndexBar.Panel index="B" titleText="B · Budget">
-            <PanelList prefix="B" />
-          </IndexBar.Panel>
-          <IndexBar.Panel index="C" titleText="C · Category" disabled>
-            <View style={styles.panelPadding}>
-              <Text color="description">This panel is disabled.</Text>
-            </View>
-          </IndexBar.Panel>
-        </IndexBar>
+        <IndexBar
+          data={INDEX_BAR_DATA}
+          value={value}
+          onChange={setValue}
+          renderPanel={renderPanel}
+        />
       </View>
       <Text color="description" size="sm">
         Current index: {String(value)}

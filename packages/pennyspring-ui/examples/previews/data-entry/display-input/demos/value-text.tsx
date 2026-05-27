@@ -24,13 +24,13 @@ export function DisplayInputValueTextDemo() {
     <>
       <Column style={styles.stack}>
         <DisplayInput
-          label="valueText"
+          labelText="valueText"
           onPress={() => setPressedValue('点击了 valueText')}
           placeholder="请选择"
           valueText="通过 valueText 展示文本值"
         />
         <DisplayInput
-          label="placeholder fallback"
+          labelText="placeholder fallback"
           onPress={() => setPressedValue('点击了 placeholder fallback')}
           placeholder="当未提供 value/valueText 时显示我"
         />
