@@ -47,6 +47,6 @@ describe('Divider', () => {
     const dividerRoot = testRenderer!.root.findAllByType(View)[0];
     const rootStyle = StyleSheet.flatten(dividerRoot.props.style);
 
-    expect(rootStyle.marginVertical).toBe(expectedMargin);
+    expect(rootStyle.marginVertical).toBe(expectedMargin / 2);
   });
 });

@@ -58,6 +58,6 @@ describe('Grid', () => {
     const itemStyle = StyleSheet.flatten(item.props.style);
 
     expect(itemStyle.paddingHorizontal).toBe(expectedGap / 2);
-    expect(itemStyle.paddingVertical).toBe(expectedGap / 2);
+    expect(itemStyle.paddingVertical).toBe(expectedGap / 4);
   });
 });

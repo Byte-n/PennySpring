@@ -72,4 +72,21 @@ describe('Space', () => {
 
     expect(itemStyles[0].marginRight).toBe(expectedGap);
   });
+
+  it.each([
+    ['small', 3],
+    ['normal', 5],
+    ['large', 7],
+  ] as const)('maps %s size to half-gap in vertical direction', (size, expectedGap) => {
+    const testRenderer = renderThemedSpace({
+      direction: 'vertical',
+      size,
+    });
+    const itemStyles = testRenderer.root
+      .findAllByType(View)
+      .map(node => StyleSheet.flatten(node.props.style))
+      .filter(style => style?.marginBottom !== undefined);
+
+    expect(itemStyles[0].marginBottom).toBe(expectedGap / 2);
+  });
 });

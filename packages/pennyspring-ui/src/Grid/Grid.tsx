@@ -79,10 +79,16 @@ function getGapValue(gap: ComponentSize, token: AliasToken): number {
 }
 
 function resolveGap(gap: GridGap | undefined, token: AliasToken): ResolvedGap {
+  const toVerticalGap = (horizontalGap: number): number => {
+    return horizontalGap / GAP_DIVISOR;
+  };
+
   if (Array.isArray(gap)) {
+    const horizontalGap = resolveGapValue(gap[0], token);
+
     return {
-      horizontal: resolveGapValue(gap[0], token),
-      vertical: resolveGapValue(gap[1], token),
+      horizontal: horizontalGap,
+      vertical: toVerticalGap(horizontalGap),
     };
   }
 
@@ -90,7 +96,7 @@ function resolveGap(gap: GridGap | undefined, token: AliasToken): ResolvedGap {
 
   return {
     horizontal: value,
-    vertical: value,
+    vertical: toVerticalGap(value),
   };
 }
 

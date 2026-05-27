@@ -30,19 +30,27 @@ function mapJustifyContent(justify?: FlexJustify): ViewStyle['justifyContent'] {
 }
 
 function resolveGap(gap: number | ComponentSize | undefined, token: AliasToken) {
+  const toVerticalGap = (value: number | undefined) => {
+    if (typeof value !== 'number') {
+      return value;
+    }
+
+    return value / 2;
+  };
+
   if (gap === 'small') {
-    return token.paddingXXS;
+    return toVerticalGap(token.paddingXXS);
   }
 
   if (gap === 'normal') {
-    return token.paddingXS;
+    return toVerticalGap(token.paddingXS);
   }
 
   if (gap === 'large') {
-    return token.paddingSM;
+    return toVerticalGap(token.paddingSM);
   }
 
-  return gap;
+  return toVerticalGap(gap);
 }
 
 const useStyles = createUseSheetStyle(

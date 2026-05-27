@@ -40,6 +40,10 @@ function getGap(size: ComponentSize, token: AliasToken) {
   return token.paddingXS;
 }
 
+function getVerticalGap(gap: number) {
+  return gap / 2;
+}
+
 function resolveSize(size?: ComponentSize): ComponentSize {
   return size ?? 'normal';
 }
@@ -118,7 +122,7 @@ const useSpaceItemStyles = createUseSheetStyle(
 
     if (options.direction === 'vertical') {
       if (!options.isLast) {
-        style.marginBottom = options.gap;
+        style.marginBottom = getVerticalGap(options.gap);
       }
 
       return {
@@ -131,7 +135,7 @@ const useSpaceItemStyles = createUseSheetStyle(
     }
 
     if (options.wrap) {
-      style.marginBottom = options.gap;
+      style.marginBottom = getVerticalGap(options.gap);
     }
 
     return {

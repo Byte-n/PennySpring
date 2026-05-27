@@ -61,7 +61,7 @@ describe('Row and Column', () => {
     });
     const style = StyleSheet.flatten(column.props.style);
 
-    expect(style.gap).toBe(expectedGap);
+    expect(style.gap).toBe(expectedGap / 2);
   });
 
   it('keeps numeric gap values for explicit layout overrides', () => {
