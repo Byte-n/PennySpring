@@ -15,3 +15,4 @@
 [11/57] Cascader ✓
 [12/57] Checkbox ✓
 [13/57] Column ✓
+[14/57] ConfigProvider ✗（部分通过）
