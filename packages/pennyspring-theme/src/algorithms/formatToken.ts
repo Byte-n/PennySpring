@@ -109,9 +109,9 @@ export function formatToken(mapToken: MapToken): AliasToken {
   const paddingContentHorizontalLG = sizeLG;
   const paddingContentHorizontal = size;
   const paddingContentHorizontalSM = sizeSM;
-  const paddingContentVerticalLG = sizeLG;
-  const paddingContentVertical = size;
-  const paddingContentVerticalSM = sizeSM;
+  const paddingContentVerticalLG = paddingContentHorizontalLG / 2;
+  const paddingContentVertical = paddingContentHorizontal / 2;
+  const paddingContentVerticalSM = paddingContentHorizontalSM / 2;
 
   const marginXXS = sizeXXS;
   const marginXS = sizeXS;

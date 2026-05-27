@@ -62,6 +62,17 @@ describe('formatToken', () => {
     expect(alias.marginXXL).toBe(alias.sizeXXL);
   });
 
+  it('uses half vertical content padding from horizontal content padding', () => {
+    const { defaultSeedToken } = require('../src/defaults');
+    const { derivative } = require('../src/algorithms/derivative');
+    const mapToken = derivative(defaultSeedToken, false);
+    const alias = formatToken(mapToken);
+
+    expect(alias.paddingContentVertical).toBe(alias.paddingContentHorizontal / 2);
+    expect(alias.paddingContentVerticalSM).toBe(alias.paddingContentHorizontalSM / 2);
+    expect(alias.paddingContentVerticalLG).toBe(alias.paddingContentHorizontalLG / 2);
+  });
+
   it('generates boxShadow tokens', () => {
     const { defaultSeedToken } = require('../src/defaults');
     const { derivative } = require('../src/algorithms/derivative');
