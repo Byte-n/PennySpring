@@ -24,19 +24,19 @@ const SIZE_STYLE_MAP: Record<ComponentSize, EmptySizeConfig> = {
   small: {
     iconSize: token => token.fontSizeXL,
     gap: token => token.marginXS,
-    paddingVertical: token => token.paddingSM,
+    paddingVertical: token => token.paddingSM / 2,
     messageSize: 'sm',
   },
   normal: {
     iconSize: token => token.fontSizeHeading4,
     gap: token => token.marginSM,
-    paddingVertical: token => token.paddingMD,
+    paddingVertical: token => token.paddingMD / 2,
     messageSize: 'md',
   },
   large: {
     iconSize: token => token.fontSizeHeading3,
     gap: token => token.marginMD,
-    paddingVertical: token => token.paddingLG,
+    paddingVertical: token => token.paddingLG / 2,
     messageSize: 'lg',
   },
 };

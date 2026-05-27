@@ -42,7 +42,7 @@ const SIZE_STYLE_MAP: Record<ComponentSize, SizeStyleConfig> = {
   small: {
     minHeight: token => token.controlHeightSM,
     itemPaddingHorizontal: token => token.controlPaddingHorizontalSM,
-    itemPaddingVertical: token => token.paddingXXS,
+    itemPaddingVertical: token => token.controlPaddingHorizontalSM / 2,
     gap: token => token.sizeXXS,
     fontSize: token => token.fontSizeSM,
     lineHeight: token => token.lineHeightSM,
@@ -50,7 +50,7 @@ const SIZE_STYLE_MAP: Record<ComponentSize, SizeStyleConfig> = {
   normal: {
     minHeight: token => token.controlHeight,
     itemPaddingHorizontal: token => token.controlPaddingHorizontal,
-    itemPaddingVertical: token => token.paddingXS,
+    itemPaddingVertical: token => token.controlPaddingHorizontal / 2,
     gap: token => token.sizeXXS,
     fontSize: token => token.fontSize,
     lineHeight: token => token.lineHeight,
@@ -58,7 +58,7 @@ const SIZE_STYLE_MAP: Record<ComponentSize, SizeStyleConfig> = {
   large: {
     minHeight: token => token.controlHeightLG,
     itemPaddingHorizontal: token => token.paddingMD,
-    itemPaddingVertical: token => token.paddingSM,
+    itemPaddingVertical: token => token.paddingMD / 2,
     gap: token => token.sizeXS,
     fontSize: token => token.fontSizeLG,
     lineHeight: token => token.lineHeightLG,

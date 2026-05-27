@@ -79,8 +79,8 @@ const useStyles = createUseSheetStyle(
         borderTopColor: disabled
           ? token.colorBorderDisabled
           : token.colorBorderSecondary,
-        paddingTop: token.paddingXXS,
-        paddingBottom: safeAreaInsetBottom ? token.paddingSM : token.paddingXXS,
+        paddingTop: token.paddingXXS / 2,
+        paddingBottom: safeAreaInsetBottom ? token.paddingSM / 2 : token.paddingXXS / 2,
       },
       tabList: {
         flexDirection: 'row',
@@ -92,7 +92,7 @@ const useStyles = createUseSheetStyle(
         alignItems: 'center',
         justifyContent: 'center',
         paddingHorizontal: token.paddingXXS,
-        paddingVertical: token.paddingXXS,
+        paddingVertical: token.paddingXXS / 2,
       },
       tabPressed: {
         backgroundColor: token.colorBgTextHover,

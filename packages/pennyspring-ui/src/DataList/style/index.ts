@@ -28,7 +28,7 @@ export const useStyles = createUseSheetStyle(
         footer: {
           alignItems: 'center',
           justifyContent: 'center',
-          paddingVertical: token.paddingXS,
+          paddingVertical: token.paddingXS / 2,
         },
         loadingMoreText: {
           color: token.colorTextSecondary,
@@ -44,7 +44,7 @@ export const useStyles = createUseSheetStyle(
         footer: {
           alignItems: 'center',
           justifyContent: 'center',
-          paddingVertical: token.paddingMD,
+          paddingVertical: token.paddingMD / 2,
         },
         loadingMoreText: {
           color: token.colorTextSecondary,
@@ -59,7 +59,7 @@ export const useStyles = createUseSheetStyle(
       footer: {
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: token.paddingSM,
+        paddingVertical: token.paddingSM / 2,
       },
       loadingMoreText: {
         color: token.colorTextSecondary,

@@ -137,6 +137,6 @@ describe('Toast', () => {
     const toastContentStyle = flattenStyle(toastContent?.props.style);
 
     expect(toastContentStyle.paddingHorizontal).toBe(expectedPadding);
-    expect(toastContentStyle.paddingVertical).toBe(expectedPadding);
+    expect(toastContentStyle.paddingVertical).toBe(expectedPadding / 2);
   });
 });

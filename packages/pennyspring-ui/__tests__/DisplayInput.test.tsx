@@ -195,4 +195,20 @@ describe('DisplayInput', () => {
         .paddingHorizontal,
     ).toBe(token.padding);
   });
+
+  it('uses half vertical padding compared with horizontal padding for every size', () => {
+    const smallFieldStyle = findFieldStyle(
+      renderDisplayInput({ size: 'small', valueText: 'Small' }),
+    );
+    const normalFieldStyle = findFieldStyle(
+      renderDisplayInput({ size: 'normal', valueText: 'Normal' }),
+    );
+    const largeFieldStyle = findFieldStyle(
+      renderDisplayInput({ size: 'large', valueText: 'Large' }),
+    );
+
+    expect(smallFieldStyle.paddingVertical).toBe(smallFieldStyle.paddingHorizontal / 2);
+    expect(normalFieldStyle.paddingVertical).toBe(normalFieldStyle.paddingHorizontal / 2);
+    expect(largeFieldStyle.paddingVertical).toBe(largeFieldStyle.paddingHorizontal / 2);
+  });
 });

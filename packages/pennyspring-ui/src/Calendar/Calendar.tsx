@@ -65,7 +65,7 @@ const useCalendarStyles = createUseSheetStyle(
     },
     navButton: {
       paddingHorizontal: token.paddingSM,
-      paddingVertical: token.paddingXXS,
+      paddingVertical: token.paddingSM / 2,
       borderRadius: token.borderRadiusSM,
       backgroundColor: token.colorFillQuaternary,
     },

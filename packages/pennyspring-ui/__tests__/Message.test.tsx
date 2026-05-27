@@ -213,7 +213,7 @@ describe('Message', () => {
     const contentStyle = StyleSheet.flatten(content?.props.style);
 
     expect(contentStyle.paddingHorizontal).toBe(expectedPadding);
-    expect(contentStyle.paddingVertical).toBe(expectedPadding);
+    expect(contentStyle.paddingVertical).toBe(expectedPadding / 2);
     expect(contentStyle.gap).toBe(expectedGap);
   });
 });

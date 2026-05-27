@@ -8,7 +8,6 @@ import type {
   StyleProp,
   TextStyle,
 } from 'react-native';
-import type { AliasToken } from '@pennyspring/theme';
 import type { ComponentSize } from '../shares/types';
 import type { ListCollapseProps } from './types';
 
@@ -18,21 +17,8 @@ interface ListCollapseStyleOptions {
   size: ComponentSize;
 }
 
-function getHeaderPadding(size: ComponentSize, token: AliasToken) {
-  if (size === 'small') {
-    return token.paddingXS;
-  }
-
-  if (size === 'large') {
-    return token.paddingMD;
-  }
-
-  return token.paddingSM;
-}
-
 const useListCollapseStyles = createUseSheetStyle(
   (token, { size }: ListCollapseStyleOptions) => {
-    const headerPadding = getHeaderPadding(size, token);
     const slotGap = size === 'small' ? token.marginXS : token.marginSM;
 
     return {
@@ -45,7 +31,7 @@ const useListCollapseStyles = createUseSheetStyle(
         flexDirection: 'row',
         alignItems: 'center',
         paddingHorizontal: token.paddingContentHorizontal,
-        paddingVertical: headerPadding,
+        paddingVertical: token.paddingContentHorizontal / 2,
       },
       headerPressed: {
         backgroundColor: token.colorBgTextHover,
@@ -69,7 +55,7 @@ const useListCollapseStyles = createUseSheetStyle(
       },
       content: {
         paddingHorizontal: token.paddingMD,
-        paddingVertical: token.paddingSM,
+        paddingVertical: token.paddingMD / 2,
         backgroundColor: token.colorFillSecondary,
       },
       contentLoading: {

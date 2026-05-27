@@ -33,19 +33,19 @@ const useListStyles = createUseSheetStyle(token => ({
   },
   header: {
     paddingHorizontal: token.paddingMD,
-    paddingVertical: token.paddingSM,
+    paddingVertical: token.paddingMD / 2,
   },
   footer: {
     paddingHorizontal: token.paddingMD,
-    paddingVertical: token.paddingSM,
+    paddingVertical: token.paddingMD / 2,
   },
   empty: {
     paddingHorizontal: token.paddingMD,
-    paddingVertical: token.paddingLG,
+    paddingVertical: token.paddingMD / 2,
   },
   loading: {
     paddingHorizontal: token.paddingMD,
-    paddingVertical: token.paddingSM,
+    paddingVertical: token.paddingMD / 2,
   },
 }));
 
@@ -66,18 +66,6 @@ function getItemMinHeight(size: ComponentSize, token: AliasToken) {
   return token.controlHeight;
 }
 
-function getItemPadding(size: ComponentSize, token: AliasToken) {
-  if (size === 'small') {
-    return token.paddingXS;
-  }
-
-  if (size === 'large') {
-    return token.paddingMD;
-  }
-
-  return token.paddingSM;
-}
-
 function getItemHorizontalPadding(
   size: ComponentSize,
   token: AliasToken,
@@ -96,7 +84,7 @@ function getItemHorizontalPadding(
 const useListItemStyles = createUseSheetStyle(
   (token, { divider, size }: ListItemStyleOptions) => {
     const horizontalPadding = getItemHorizontalPadding(size, token);
-    const verticalPadding = getItemPadding(size, token);
+    const verticalPadding = horizontalPadding / 2;
     const slotGap = size === 'small' ? token.marginXS : token.marginSM;
 
     return {

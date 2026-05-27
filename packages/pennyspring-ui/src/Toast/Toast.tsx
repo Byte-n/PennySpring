@@ -34,17 +34,17 @@ const SIZE_TOKEN_MAP: Record<
   }
 > = {
   small: {
-    verticalPadding: token => token.paddingSM,
+    verticalPadding: token => token.paddingSM / 2,
     horizontalPadding: token => token.paddingSM,
     textSize: 'sm',
   },
   normal: {
-    verticalPadding: token => token.padding,
+    verticalPadding: token => token.padding / 2,
     horizontalPadding: token => token.padding,
     textSize: 'md',
   },
   large: {
-    verticalPadding: token => token.paddingMD,
+    verticalPadding: token => token.paddingMD / 2,
     horizontalPadding: token => token.paddingMD,
     textSize: 'lg',
   },

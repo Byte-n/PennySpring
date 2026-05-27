@@ -20,29 +20,29 @@ const SIZE_MAP: Record<ComponentSize, SizeConfig> = {
   small: {
     minHeight: token => token.controlHeightSM,
     paddingHorizontal: token => token.controlPaddingHorizontalSM,
-    paddingVertical: token => token.paddingXXS,
+    paddingVertical: token => token.controlPaddingHorizontalSM / 2,
     gap: token => token.sizeXXS,
     fontSize: token => token.fontSizeSM,
     lineHeight: token => token.lineHeightSM,
-    optionPaddingVertical: token => token.paddingXS,
+    optionPaddingVertical: token => token.controlPaddingHorizontalSM / 2,
   },
   normal: {
     minHeight: token => token.controlHeight,
     paddingHorizontal: token => token.controlPaddingHorizontal,
-    paddingVertical: token => token.paddingXS,
+    paddingVertical: token => token.controlPaddingHorizontal / 2,
     gap: token => token.sizeXS,
     fontSize: token => token.fontSize,
     lineHeight: token => token.lineHeight,
-    optionPaddingVertical: token => token.paddingSM,
+    optionPaddingVertical: token => token.controlPaddingHorizontal / 2,
   },
   large: {
     minHeight: token => token.controlHeightLG,
     paddingHorizontal: token => token.paddingMD,
-    paddingVertical: token => token.paddingSM,
+    paddingVertical: token => token.paddingMD / 2,
     gap: token => token.sizeSM,
     fontSize: token => token.fontSizeLG,
     lineHeight: token => token.lineHeightLG,
-    optionPaddingVertical: token => token.paddingMD,
+    optionPaddingVertical: token => token.paddingMD / 2,
   },
 };
 
@@ -136,11 +136,11 @@ export const useSelectionListStyles = createUseSheetStyle(
         backgroundColor: token.colorSplit,
       },
       empty: {
-        paddingVertical: token.paddingMD,
+        paddingVertical: token.paddingMD / 2,
         alignItems: 'center',
       },
       loading: {
-        paddingVertical: token.paddingMD,
+        paddingVertical: token.paddingMD / 2,
         alignItems: 'center',
       },
       footer: {

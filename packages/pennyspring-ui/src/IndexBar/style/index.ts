@@ -20,31 +20,31 @@ interface SizeStyleConfig {
 
 const SIZE_STYLE_MAP: Record<ComponentSize, SizeStyleConfig> = {
   small: {
-    sidebarPaddingVertical: token => token.paddingSM,
+    sidebarPaddingVertical: token => token.paddingSM / 2,
     sidebarGap: token => token.marginXXS,
     indexItemSize: token => token.controlHeightSM,
     indexTextFontSize: token => token.fontSizeSM,
     indexTextLineHeight: token => token.lineHeightSM,
     panelGap: token => token.marginSM,
-    panelTitlePaddingVertical: token => token.paddingXS,
+    panelTitlePaddingVertical: token => token.paddingXS / 2,
   },
   normal: {
-    sidebarPaddingVertical: token => token.paddingMD,
+    sidebarPaddingVertical: token => token.paddingMD / 2,
     sidebarGap: token => token.marginXXS,
     indexItemSize: token => token.controlHeight,
     indexTextFontSize: token => token.fontSize,
     indexTextLineHeight: token => token.lineHeight,
     panelGap: token => token.marginMD,
-    panelTitlePaddingVertical: token => token.paddingSM,
+    panelTitlePaddingVertical: token => token.paddingSM / 2,
   },
   large: {
-    sidebarPaddingVertical: token => token.paddingLG,
+    sidebarPaddingVertical: token => token.paddingLG / 2,
     sidebarGap: token => token.marginXS,
     indexItemSize: token => token.controlHeightLG,
     indexTextFontSize: token => token.fontSizeLG,
     indexTextLineHeight: token => token.lineHeightLG,
     panelGap: token => token.marginLG,
-    panelTitlePaddingVertical: token => token.paddingMD,
+    panelTitlePaddingVertical: token => token.paddingMD / 2,
   },
 };
 

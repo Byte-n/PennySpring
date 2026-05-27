@@ -77,7 +77,7 @@ export const useStyles = createUseSheetStyle<ImagePickerStyleOptions>((token, {
     flexWrap: 'wrap',
     gap: token.marginMD,
     paddingHorizontal: token.paddingLG,
-    paddingVertical: token.paddingLG,
+    paddingVertical: token.paddingLG / 2,
   },
   imageItem: {
     width: token.controlHeightLG * IMAGE_THUMBNAIL_SIZE_MULTIPLIER,
@@ -106,7 +106,7 @@ export const useStyles = createUseSheetStyle<ImagePickerStyleOptions>((token, {
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: token.paddingLG,
-    paddingVertical: token.paddingLG,
+    paddingVertical: token.paddingLG / 2,
   },
   emptyText: {
     color: token.colorTextTertiary,

@@ -37,7 +37,7 @@ const SIZE_STYLE_MAP: Record<ComponentSize, ResultSizeConfig> = {
   small: {
     iconSize: token => token.fontSizeLG,
     gap: token => token.marginXS,
-    paddingVertical: token => token.paddingSM,
+    paddingVertical: token => token.paddingSM / 2,
     titleSize: 'md',
     subtitleSize: 'sm',
     iconContainerSize: token => token.sizeXL,
@@ -46,7 +46,7 @@ const SIZE_STYLE_MAP: Record<ComponentSize, ResultSizeConfig> = {
   normal: {
     iconSize: token => token.fontSizeXL,
     gap: token => token.marginSM,
-    paddingVertical: token => token.paddingMD,
+    paddingVertical: token => token.paddingMD / 2,
     titleSize: 'lg',
     subtitleSize: 'md',
     iconContainerSize: token => token.sizeXXL,
@@ -55,7 +55,7 @@ const SIZE_STYLE_MAP: Record<ComponentSize, ResultSizeConfig> = {
   large: {
     iconSize: token => token.fontSizeHeading4,
     gap: token => token.marginMD,
-    paddingVertical: token => token.paddingLG,
+    paddingVertical: token => token.paddingLG / 2,
     titleSize: 'xl',
     subtitleSize: 'lg',
     iconContainerSize: token => token.sizeXXL * 1.25,

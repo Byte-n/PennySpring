@@ -100,7 +100,7 @@ export const usePickerStyles = createUseSheetStyle(
       },
       body: {
         flex: 1,
-        paddingVertical: token.paddingSM,
+        paddingVertical: token.paddingSM / 2,
       },
       view: {
         flex: 1,

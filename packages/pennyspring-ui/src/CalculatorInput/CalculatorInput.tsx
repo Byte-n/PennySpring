@@ -93,7 +93,7 @@ const useStyles = createUseSheetStyle(
     display: {
       minHeight: token.controlHeightLG + token.controlHeightSM,
       paddingHorizontal: token.controlPaddingHorizontal,
-      paddingVertical: token.paddingSM,
+      paddingVertical: token.controlPaddingHorizontal / 2,
       borderWidth: token.lineWidth,
       borderRadius: token.borderRadius,
       borderColor: disabled ? token.colorBorderDisabled : token.colorBorder,

@@ -175,6 +175,16 @@ describe('Input', () => {
       token.padding,
     );
   });
+
+  it('uses half vertical padding compared with horizontal padding for every size', () => {
+    const smallFieldStyle = findFieldStyle(renderInput({ size: 'small' }));
+    const normalFieldStyle = findFieldStyle(renderInput({ size: 'normal' }));
+    const largeFieldStyle = findFieldStyle(renderInput({ size: 'large' }));
+
+    expect(smallFieldStyle.paddingVertical).toBe(smallFieldStyle.paddingHorizontal / 2);
+    expect(normalFieldStyle.paddingVertical).toBe(normalFieldStyle.paddingHorizontal / 2);
+    expect(largeFieldStyle.paddingVertical).toBe(largeFieldStyle.paddingHorizontal / 2);
+  });
   describe('Search', () => {
     it('submits the current uncontrolled text from the keyboard', () => {
       const onSearch = jest.fn();

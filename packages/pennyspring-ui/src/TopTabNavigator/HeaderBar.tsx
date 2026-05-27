@@ -26,7 +26,7 @@ const useStyles = createUseSheetStyle((token) => ({
     flexDirection: 'row',
     minHeight: token.controlHeightLG,
     paddingHorizontal: token.paddingMD,
-    paddingVertical: token.paddingXS,
+    paddingVertical: token.paddingMD / 2,
   },
   leftActions: {
     alignItems: 'center',
