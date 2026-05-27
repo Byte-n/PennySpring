@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
+import { ThemeProvider } from '@pennyspring/theme';
 import { Message } from '../src/Message';
 import { PortalProvider } from '../src/Portal';
 const exitAnimationCallbacks: Array<(finished: boolean) => void> = [];
@@ -174,5 +175,45 @@ describe('Message', () => {
     const largeDotStyle = findDotStyle(largeRenderer);
 
     expect(largeDotStyle.width).toBeGreaterThan(smallDotStyle.width);
+  });
+
+  it.each([
+    ['small', 11, 3],
+    ['normal', 13, 5],
+    ['large', 17, 7],
+  ] as const)('maps %s size to container padding and layout gap tokens', (size, expectedPadding, expectedGap) => {
+    let testRenderer!: renderer.ReactTestRenderer;
+
+    act(() => {
+      testRenderer = renderer.create(
+        <ThemeProvider
+          config={{
+            token: {
+              marginXXS: 3,
+              marginXS: 5,
+              marginSM: 7,
+              paddingSM: 11,
+              padding: 13,
+              paddingLG: 17,
+            },
+          }}
+        >
+          <PortalProvider>
+            <Message open duration={0} messageText="Message text" size={size} />
+          </PortalProvider>
+        </ThemeProvider>,
+      );
+    });
+
+    const content = testRenderer.root.findAllByType(View).find(node => {
+      const style = StyleSheet.flatten(node.props.style);
+
+      return style?.position === 'absolute' && style?.paddingHorizontal !== undefined;
+    });
+    const contentStyle = StyleSheet.flatten(content?.props.style);
+
+    expect(contentStyle.paddingHorizontal).toBe(expectedPadding);
+    expect(contentStyle.paddingVertical).toBe(expectedPadding);
+    expect(contentStyle.gap).toBe(expectedGap);
   });
 });

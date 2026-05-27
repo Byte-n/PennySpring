@@ -1,6 +1,7 @@
 import React from 'react';
-import { Text as RNText } from 'react-native';
+import { StyleSheet, Text as RNText, View } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
+import { ThemeProvider } from '@pennyspring/theme';
 import { Tabs } from '../src/Tabs';
 import type { TabsProps } from '../src/Tabs';
 function renderTabs(props: Partial<TabsProps> = {}) {
@@ -98,5 +99,41 @@ describe('Tabs', () => {
       value: 'overview'
     }), 0);
     expect(content).toContain('panel-overview');
+  });
+  it.each([
+    ['small', 3],
+    ['normal', 5],
+    ['large', 7],
+  ] as const)('maps %s size to layout gap token', (size, expectedGap) => {
+    let testRenderer: renderer.ReactTestRenderer;
+    act(() => {
+      testRenderer = renderer.create(
+        <ThemeProvider
+          config={{
+            token: {
+              marginXXS: 3,
+              marginXS: 5,
+              marginSM: 7,
+            },
+          }}
+        >
+          <Tabs
+            size={size}
+            items={[
+              { value: 'overview', label: 'Overview' },
+              { value: 'records', label: 'Records' },
+            ]}
+          />
+        </ThemeProvider>,
+      );
+    });
+    const tabList = testRenderer!.root.findAllByType(View).find(node => {
+      const style = StyleSheet.flatten(node.props.style);
+
+      return style?.borderBottomWidth !== undefined && style?.gap !== undefined;
+    });
+    const tabListStyle = StyleSheet.flatten(tabList?.props.style);
+
+    expect(tabListStyle.gap).toBe(expectedGap);
   });
 });

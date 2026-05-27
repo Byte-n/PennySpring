@@ -1,5 +1,7 @@
 import React from 'react';
+import { StyleSheet, View } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
+import { ThemeProvider } from '@pennyspring/theme';
 import { Notification } from '../src/Notification';
 import { PortalProvider } from '../src/Portal';
 const exitAnimationCallbacks: Array<(finished: boolean) => void> = [];
@@ -159,5 +161,51 @@ describe('Notification', () => {
     });
 
     expect(description.props.size).toBe('lg');
+  });
+
+  it.each([
+    ['small', 11, 3],
+    ['normal', 13, 5],
+    ['large', 17, 7],
+  ] as const)('maps %s size to container padding and layout gap tokens', (size, expectedPadding, expectedGap) => {
+    let testRenderer!: renderer.ReactTestRenderer;
+
+    act(() => {
+      testRenderer = renderer.create(
+        <ThemeProvider
+          config={{
+            token: {
+              marginXXS: 3,
+              marginXS: 5,
+              marginSM: 7,
+              paddingSM: 11,
+              padding: 13,
+              paddingLG: 17,
+            },
+          }}
+        >
+          <PortalProvider>
+            <Notification
+              open
+              duration={0}
+              size={size}
+              titleText="Title"
+              descriptionText="Description"
+            />
+          </PortalProvider>
+        </ThemeProvider>,
+      );
+    });
+
+    const content = testRenderer.root.findAllByType(View).find(node => {
+      const style = StyleSheet.flatten(node.props.style);
+
+      return style?.position === 'absolute' && style?.paddingHorizontal !== undefined;
+    });
+    const contentStyle = StyleSheet.flatten(content?.props.style);
+
+    expect(contentStyle.paddingHorizontal).toBe(expectedPadding);
+    expect(contentStyle.paddingVertical).toBe(expectedPadding);
+    expect(contentStyle.gap).toBe(expectedGap);
   });
 });

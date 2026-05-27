@@ -33,21 +33,21 @@ type VariantStyleConfig = (token: AliasToken) => {
 const SIZE_STYLE_MAP: Record<ComponentSize, SizeStyleConfig> = {
   small: {
     padding: token => token.paddingSM,
-    gap: token => token.marginXS,
+    gap: token => token.marginXXS,
     titleFontSize: token => token.fontSize,
     titleLineHeight: token => token.lineHeight,
     borderRadius: token => token.borderRadiusSM,
   },
   normal: {
-    padding: token => token.paddingMD,
-    gap: token => token.marginSM,
+    padding: token => token.padding,
+    gap: token => token.marginXS,
     titleFontSize: token => token.fontSizeLG,
     titleLineHeight: token => token.lineHeightLG,
     borderRadius: token => token.borderRadius,
   },
   large: {
     padding: token => token.paddingLG,
-    gap: token => token.marginMD,
+    gap: token => token.marginSM,
     titleFontSize: token => token.fontSizeXL,
     titleLineHeight: token => token.lineHeightXL,
     borderRadius: token => token.borderRadiusLG,

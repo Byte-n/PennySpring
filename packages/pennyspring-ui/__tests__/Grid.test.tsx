@@ -1,6 +1,7 @@
 import React from 'react';
-import { Text } from 'react-native';
+import { StyleSheet, Text } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
+import { ThemeProvider } from '@pennyspring/theme';
 import { Grid } from '../src/Grid';
 function renderGrid(element: React.ReactElement) {
   let testRenderer: renderer.ReactTestRenderer;
@@ -28,5 +29,35 @@ describe('Grid', () => {
       pressableNodes[0].props.onPress();
     });
     expect(handlePress).toHaveBeenCalledTimes(1);
+  });
+  it.each([
+    ['small', 3],
+    ['normal', 5],
+    ['large', 7],
+  ] as const)('maps %s gap to layout gap token', (gap, expectedGap) => {
+    const testRenderer = renderGrid(
+      <ThemeProvider
+        config={{
+          token: {
+            paddingXXS: 3,
+            paddingXS: 5,
+            paddingSM: 7,
+          },
+        }}
+      >
+        <Grid columns={2} gap={gap}>
+          <Grid.Item>
+            <Text>Income</Text>
+          </Grid.Item>
+        </Grid>
+      </ThemeProvider>,
+    );
+    const item = testRenderer.root.findByProps({
+      testID: 'grid-item',
+    });
+    const itemStyle = StyleSheet.flatten(item.props.style);
+
+    expect(itemStyle.paddingHorizontal).toBe(expectedGap / 2);
+    expect(itemStyle.paddingVertical).toBe(expectedGap / 2);
   });
 });

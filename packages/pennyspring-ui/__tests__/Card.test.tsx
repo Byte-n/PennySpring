@@ -120,4 +120,45 @@ describe('Card', () => {
     expect(rootStyle.shadowColor).toBe('summaryShadowToken');
     expect(rootStyle.shadowRadius).toBe(shadowToken.shadowRadius);
   });
+  it.each([
+    ['small', 11, 3],
+    ['normal', 13, 5],
+    ['large', 17, 7],
+  ] as const)('maps %s size to container padding and layout gap tokens', (size, expectedPadding, expectedGap) => {
+    let testRenderer: renderer.ReactTestRenderer;
+    act(() => {
+      testRenderer = renderer.create(
+        <ThemeProvider
+          config={{
+            token: {
+              marginXXS: 3,
+              marginXS: 5,
+              marginSM: 7,
+              paddingSM: 11,
+              padding: 13,
+              paddingLG: 17,
+            },
+          }}
+        >
+          <Card
+            size={size}
+            titleText="Balance"
+            footer={<RNText>Footer action</RNText>}
+          >
+            <RNText>Body content</RNText>
+          </Card>
+        </ThemeProvider>,
+      );
+    });
+    const views = testRenderer!.root.findAllByType(View);
+    const rootStyle = StyleSheet.flatten(views[0].props.style);
+    const headerStyle = StyleSheet.flatten(views[1].props.style);
+    const footerStyle = StyleSheet.flatten(views.at(-1)?.props.style);
+
+    expect(rootStyle.padding).toBe(expectedPadding);
+    expect(headerStyle.gap).toBe(expectedGap);
+    expect(headerStyle.marginBottom).toBe(expectedGap);
+    expect(footerStyle.marginTop).toBe(expectedGap);
+    expect(footerStyle.paddingTop).toBe(expectedGap);
+  });
 });

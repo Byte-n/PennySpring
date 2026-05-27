@@ -1,7 +1,17 @@
 import React from 'react';
 import { View } from 'react-native';
+import { createUseSheetStyle } from '@pennyspring/theme';
+import type { AliasToken } from '@pennyspring/theme';
 import type { ViewStyle } from 'react-native';
 import type { FlexAlign, FlexJustify, RowProps } from './types';
+import type { ComponentSize } from '../shares/types';
+
+interface RowStyleOptions {
+  align?: FlexAlign;
+  gap?: number | ComponentSize;
+  justify?: FlexJustify;
+  wrap: boolean;
+}
 
 function mapAlignItems(align?: FlexAlign): ViewStyle['alignItems'] {
   if (align === 'start') return 'flex-start';
@@ -20,6 +30,34 @@ function mapJustifyContent(justify?: FlexJustify): ViewStyle['justifyContent'] {
   return justify;
 }
 
+function resolveGap(gap: number | ComponentSize | undefined, token: AliasToken) {
+  if (gap === 'small') {
+    return token.paddingXXS;
+  }
+
+  if (gap === 'normal') {
+    return token.paddingXS;
+  }
+
+  if (gap === 'large') {
+    return token.paddingSM;
+  }
+
+  return gap;
+}
+
+const useStyles = createUseSheetStyle(
+  (token, { align, gap, justify, wrap }: RowStyleOptions) => ({
+    root: {
+      alignItems: mapAlignItems(align),
+      flexDirection: 'row',
+      flexWrap: wrap ? 'wrap' : undefined,
+      gap: resolveGap(gap, token),
+      justifyContent: mapJustifyContent(justify),
+    },
+  }),
+);
+
 export function Row({
   align,
   justify,
@@ -28,16 +66,15 @@ export function Row({
   children,
   style,
 }: RowProps) {
-  const baseStyle: ViewStyle = {
-    flexDirection: 'row',
-    alignItems: mapAlignItems(align),
-    justifyContent: mapJustifyContent(justify),
+  const tokenStyles = useStyles({
+    align,
     gap,
-    flexWrap: wrap ? 'wrap' : undefined,
-  };
+    justify,
+    wrap,
+  });
 
   return (
-    <View testID="row" style={[baseStyle, style]}>
+    <View testID="row" style={[tokenStyles.root, style]}>
       {children}
     </View>
   );

@@ -1,6 +1,7 @@
 import React from 'react';
 import { View } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
+import { ThemeProvider } from '@pennyspring/theme';
 import type { WithTimingConfig } from 'react-native-reanimated';
 import { Toast } from '../src/Toast';
 import { PortalProvider } from '../src/Portal';
@@ -104,5 +105,38 @@ describe('Toast', () => {
     expect(toastContentStyle.left).toBeUndefined();
     expect(toastContentStyle.right).toBeUndefined();
     expect(toastContentStyle.alignSelf).toBe('center');
+  });
+  it.each([
+    ['small', 11],
+    ['normal', 13],
+    ['large', 17],
+  ] as const)('maps %s size to container padding token', (size, expectedPadding) => {
+    let testRenderer!: renderer.ReactTestRenderer;
+    act(() => {
+      testRenderer = renderer.create(
+        <ThemeProvider
+          config={{
+            token: {
+              paddingSM: 11,
+              padding: 13,
+              paddingLG: 17,
+            },
+          }}
+        >
+          <PortalProvider>
+            <Toast
+              open
+              messageText="Toast message"
+              size={size}
+            />
+          </PortalProvider>
+        </ThemeProvider>,
+      );
+    });
+    const toastContent = findToastContent(testRenderer);
+    const toastContentStyle = flattenStyle(toastContent?.props.style);
+
+    expect(toastContentStyle.paddingHorizontal).toBe(expectedPadding);
+    expect(toastContentStyle.paddingVertical).toBe(expectedPadding);
   });
 });

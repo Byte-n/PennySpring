@@ -5,7 +5,9 @@ import {
   Pressable,
   StyleSheet,
   Text as RNText,
+  View,
 } from 'react-native';
+import { ThemeProvider } from '@pennyspring/theme';
 import { withTiming } from 'react-native-reanimated';
 import renderer, { act } from 'react-test-renderer';
 import { Button } from '../src/Button';
@@ -448,5 +450,64 @@ describe('Popup.FloatingPanel', () => {
 
     expect(calls).toEqual(['cancel', 'ok']);
     expect(testRenderer!.toJSON()).toBeNull();
+  });
+
+  it.each([
+    ['small', 11, 3, 7],
+    ['normal', 13, 5, 29],
+    ['large', 17, 7, 31],
+  ] as const)('maps %s size to floating panel spacing tokens', (size, expectedPadding, expectedActionGap, expectedSectionMargin) => {
+    let testRenderer: renderer.ReactTestRenderer;
+
+    act(() => {
+      testRenderer = renderer.create(
+        <ThemeProvider
+          config={{
+            token: {
+              marginXXS: 3,
+              marginXS: 5,
+              marginSM: 7,
+              margin: 29,
+              marginLG: 31,
+              paddingSM: 11,
+              padding: 13,
+              paddingLG: 17,
+            },
+          }}
+        >
+          <Popup.FloatingPanel
+            cancelText="Cancel"
+            defaultOpen
+            okText="OK"
+            size={size}
+            titleText="Panel title"
+          >
+            <RNText>content</RNText>
+          </Popup.FloatingPanel>
+        </ThemeProvider>,
+      );
+    });
+
+    const header = testRenderer!.root.findByProps({
+      testID: 'floating-panel-header',
+    });
+    const footer = testRenderer!.root.findByProps({
+      testID: 'floating-panel-footer',
+    });
+    const panelBody = testRenderer!.root.findAllByType(View).find(node => {
+      const style = StyleSheet.flatten(node.props.style);
+
+      return style?.flex === 1 && style?.paddingHorizontal !== undefined;
+    });
+    const headerStyle = StyleSheet.flatten(header.props.style);
+    const panelBodyStyle = StyleSheet.flatten(panelBody?.props.style);
+    const footerStyle = StyleSheet.flatten(footer.props.style);
+
+    expect(headerStyle.paddingHorizontal).toBe(expectedPadding);
+    expect(panelBodyStyle.paddingHorizontal).toBe(expectedPadding);
+    expect(footerStyle.paddingHorizontal).toBe(expectedPadding);
+    expect(footerStyle.gap).toBe(expectedActionGap);
+    expect(headerStyle.marginBottom).toBe(expectedSectionMargin);
+    expect(footerStyle.marginTop).toBe(expectedSectionMargin);
   });
 });

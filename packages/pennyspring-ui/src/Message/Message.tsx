@@ -41,21 +41,21 @@ const SIZE_MAP: Record<
     gap: token => token.marginXXS,
     horizontalPadding: token => token.paddingSM,
     textSize: 'sm',
-    verticalPadding: token => token.paddingXXS,
+    verticalPadding: token => token.paddingSM,
   },
   normal: {
     dotSize: token => token.fontSize,
     gap: token => token.marginXS,
-    horizontalPadding: token => token.paddingMD,
+    horizontalPadding: token => token.padding,
     textSize: 'md',
-    verticalPadding: token => token.paddingXS,
+    verticalPadding: token => token.padding,
   },
   large: {
     dotSize: token => token.fontSizeLG,
     gap: token => token.marginSM,
     horizontalPadding: token => token.paddingLG,
     textSize: 'lg',
-    verticalPadding: token => token.paddingSM,
+    verticalPadding: token => token.paddingLG,
   },
 };
 

@@ -26,15 +26,15 @@ interface DividerSizeStyleConfig {
 const SIZE_STYLE_MAP: Record<ComponentSize, DividerSizeStyleConfig> = {
   small: {
     contentPaddingHorizontal: token => token.paddingXS,
-    marginHorizontal: token => token.marginXS,
-    marginVertical: token => token.marginXS,
+    marginHorizontal: token => token.marginSM,
+    marginVertical: token => token.marginSM,
     fontSize: token => token.fontSizeSM,
     lineHeight: token => token.lineHeightSM,
   },
   normal: {
     contentPaddingHorizontal: token => token.paddingMD,
-    marginHorizontal: token => token.marginMD,
-    marginVertical: token => token.marginMD,
+    marginHorizontal: token => token.margin,
+    marginVertical: token => token.margin,
     fontSize: token => token.fontSizeSM,
     lineHeight: token => token.lineHeightSM,
   },

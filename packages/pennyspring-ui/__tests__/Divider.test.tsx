@@ -1,6 +1,7 @@
 import React from 'react';
-import { View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
+import { ThemeProvider } from '@pennyspring/theme';
 import { Divider } from '../src/Divider';
 function renderDivider(props: Partial<React.ComponentProps<typeof Divider>> = {}) {
   let testRenderer: renderer.ReactTestRenderer;
@@ -21,5 +22,31 @@ describe('Divider', () => {
       direction: 'vertical'
     });
     expect(testRenderer.root.findAllByType(View)).toHaveLength(1);
+  });
+  it.each([
+    ['small', 11],
+    ['normal', 13],
+    ['large', 17],
+  ] as const)('maps %s size to section margin token', (size, expectedMargin) => {
+    let testRenderer: renderer.ReactTestRenderer;
+    act(() => {
+      testRenderer = renderer.create(
+        <ThemeProvider
+          config={{
+            token: {
+              marginSM: 11,
+              margin: 13,
+              marginLG: 17,
+            },
+          }}
+        >
+          <Divider size={size}>Budget</Divider>
+        </ThemeProvider>,
+      );
+    });
+    const dividerRoot = testRenderer!.root.findAllByType(View)[0];
+    const rootStyle = StyleSheet.flatten(dividerRoot.props.style);
+
+    expect(rootStyle.marginVertical).toBe(expectedMargin);
   });
 });

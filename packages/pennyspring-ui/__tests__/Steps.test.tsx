@@ -1,5 +1,7 @@
 import React from 'react';
+import { StyleSheet, View } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
+import { ThemeProvider } from '@pennyspring/theme';
 import { Steps } from '../src/Steps';
 import type { StepsProps } from '../src/Steps';
 
@@ -125,5 +127,54 @@ describe('Steps', () => {
     pressStep(testRenderer, 1);
 
     expect(onChange).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ['small', 3],
+    ['normal', 5],
+    ['large', 7],
+  ] as const)('maps %s size to item layout gap token', (size, expectedGap) => {
+    let testRenderer: renderer.ReactTestRenderer;
+
+    act(() => {
+      testRenderer = renderer.create(
+        <ThemeProvider
+          config={{
+            token: {
+              marginXXS: 3,
+              marginXS: 5,
+              marginSM: 7,
+            },
+          }}
+        >
+          <Steps
+            size={size}
+            items={[
+              {
+                titleText: 'Start',
+              },
+              {
+                titleText: 'Done',
+              },
+            ]}
+          />
+        </ThemeProvider>,
+      );
+    });
+    const item = testRenderer!.root.findByProps({
+      testID: 'steps-item-0',
+    });
+    const itemStyle = StyleSheet.flatten(item.props.style({
+      pressed: false,
+    }));
+    const content = testRenderer!.root.findAllByType(View).find(node => {
+      const style = StyleSheet.flatten(node.props.style);
+
+      return style?.flex === 1 && style?.gap !== undefined;
+    });
+    const contentStyle = StyleSheet.flatten(content?.props.style);
+
+    expect(itemStyle.gap).toBe(expectedGap);
+    expect(contentStyle.paddingBottom).toBe(expectedGap);
   });
 });

@@ -1,7 +1,16 @@
 import React from 'react';
 import { View } from 'react-native';
+import { createUseSheetStyle } from '@pennyspring/theme';
+import type { AliasToken } from '@pennyspring/theme';
 import type { ViewStyle } from 'react-native';
 import type { FlexAlign, FlexJustify, ColumnProps } from '../Row/types';
+import type { ComponentSize } from '../shares/types';
+
+interface ColumnStyleOptions {
+  align?: FlexAlign;
+  gap?: number | ComponentSize;
+  justify?: FlexJustify;
+}
 
 function mapAlignItems(align?: FlexAlign): ViewStyle['alignItems'] {
   if (align === 'start') return 'flex-start';
@@ -20,6 +29,33 @@ function mapJustifyContent(justify?: FlexJustify): ViewStyle['justifyContent'] {
   return justify;
 }
 
+function resolveGap(gap: number | ComponentSize | undefined, token: AliasToken) {
+  if (gap === 'small') {
+    return token.paddingXXS;
+  }
+
+  if (gap === 'normal') {
+    return token.paddingXS;
+  }
+
+  if (gap === 'large') {
+    return token.paddingSM;
+  }
+
+  return gap;
+}
+
+const useStyles = createUseSheetStyle(
+  (token, { align, gap, justify }: ColumnStyleOptions) => ({
+    root: {
+      alignItems: mapAlignItems(align),
+      flexDirection: 'column',
+      gap: resolveGap(gap, token),
+      justifyContent: mapJustifyContent(justify),
+    },
+  }),
+);
+
 export function Column({
   align,
   justify,
@@ -27,15 +63,14 @@ export function Column({
   children,
   style,
 }: ColumnProps) {
-  const baseStyle: ViewStyle = {
-    flexDirection: 'column',
-    alignItems: mapAlignItems(align),
-    justifyContent: mapJustifyContent(justify),
+  const tokenStyles = useStyles({
+    align,
     gap,
-  };
+    justify,
+  });
 
   return (
-    <View testID="column" style={[baseStyle, style]}>
+    <View testID="column" style={[tokenStyles.root, style]}>
       {children}
     </View>
   );

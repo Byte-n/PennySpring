@@ -39,7 +39,7 @@ const SIZE_STYLE_MAP: Record<ComponentSize, SizeStyleConfig> = {
     tabPaddingVertical: token => token.paddingXXS,
     labelFontSize: token => token.fontSizeSM,
     labelLineHeight: token => token.lineHeightSM,
-    tabGap: token => token.marginXS,
+    tabGap: token => token.marginXXS,
     panelPaddingTop: token => token.paddingSM,
   },
   normal: {
@@ -48,7 +48,7 @@ const SIZE_STYLE_MAP: Record<ComponentSize, SizeStyleConfig> = {
     tabPaddingVertical: token => token.paddingXS,
     labelFontSize: token => token.fontSize,
     labelLineHeight: token => token.lineHeight,
-    tabGap: token => token.marginSM,
+    tabGap: token => token.marginXS,
     panelPaddingTop: token => token.paddingMD,
   },
   large: {
@@ -57,7 +57,7 @@ const SIZE_STYLE_MAP: Record<ComponentSize, SizeStyleConfig> = {
     tabPaddingVertical: token => token.paddingSM,
     labelFontSize: token => token.fontSizeLG,
     labelLineHeight: token => token.lineHeightLG,
-    tabGap: token => token.marginMD,
+    tabGap: token => token.marginSM,
     panelPaddingTop: token => token.paddingLG,
   },
 };
