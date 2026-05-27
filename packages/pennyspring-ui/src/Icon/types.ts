@@ -1,19 +1,13 @@
 import type { IconProps as PhosphorIconProps, IconWeight } from 'phosphor-react-native';
 import type { ComponentType } from 'react';
 import type { StyleProp, ViewStyle } from 'react-native';
-import type { SemanticAliasColor } from '../shares/color';
+import type { TextColor, TextSemanticColor } from '../Text/types';
 import type { ComponentSize } from '../shares/types';
 
-export type IconSize = ComponentSize | number;
+export type IconSize = ComponentSize;
 
-export type IconSemanticColor =
-  | 'default'
-  | 'primary'
-  | 'success'
-  | 'warning'
-  | 'danger'
-  | 'info';
-export type IconColor = SemanticAliasColor<IconSemanticColor>;
+export type IconSemanticColor = TextSemanticColor;
+export type IconColor = TextColor;
 export type IconComponent = ComponentType<PhosphorIconProps>;
 
 export type IconName =

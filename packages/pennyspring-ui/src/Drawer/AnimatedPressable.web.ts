@@ -1,3 +1,4 @@
-import { Animated, Pressable } from 'react-native';
+import { Pressable } from 'react-native';
+import { createAnimatedComponent } from 'react-native-reanimated';
 
-export const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+export const AnimatedPressable = createAnimatedComponent(Pressable);

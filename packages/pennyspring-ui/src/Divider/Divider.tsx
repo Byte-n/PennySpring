@@ -6,12 +6,15 @@ import { Text } from '../Text';
 import type {
   AliasToken } from '@pennyspring/theme';
 import type {
+  DividerContentPosition,
   DividerDirection,
   DividerProps,
 } from './types';
 
 interface DividerStyleOptions {
+  contentPosition: DividerContentPosition;
   direction: DividerDirection;
+  hasContent: boolean;
   size: ComponentSize;
 }
 
@@ -53,6 +56,12 @@ const useStyles = createUseSheetStyle(
   (token, options: DividerStyleOptions) => {
     const sizeConfig = SIZE_STYLE_MAP[options.size];
     const isHorizontal = options.direction === 'horizontal';
+    const maxWidth =
+      options.hasContent && options.contentPosition !== 'center'
+        ? CONTENT_LINE_MAX_WIDTH
+        : undefined;
+    const startLineMaxWidth = options.contentPosition === 'left' ? maxWidth : undefined;
+    const endLineMaxWidth = options.contentPosition === 'right' ? maxWidth : undefined;
 
     return {
       root: {
@@ -65,10 +74,17 @@ const useStyles = createUseSheetStyle(
         marginHorizontal: isHorizontal ? 0 : sizeConfig.marginHorizontal(token),
         marginVertical: isHorizontal ? sizeConfig.marginVertical(token) : 0,
       },
-      line: {
+      firstLine: {
         borderTopColor: token.colorSplit,
         borderTopWidth: isHorizontal ? token.lineWidth : 0,
         flexGrow: isHorizontal ? 1 : 0,
+        maxWidth: startLineMaxWidth,
+      },
+      secondLine: {
+        borderTopColor: token.colorSplit,
+        borderTopWidth: isHorizontal ? token.lineWidth : 0,
+        flexGrow: isHorizontal ? 1 : 0,
+        maxWidth: endLineMaxWidth,
       },
       contentContainer: {
         paddingHorizontal: isHorizontal
@@ -103,23 +119,13 @@ export function Divider({
 }: DividerProps) {
   const shouldRenderContent = hasContent(children);
   const tokenStyles = useStyles({
+    contentPosition,
     direction,
+    hasContent: shouldRenderContent,
     size,
   });
-  const firstLineStyle = [
-    tokenStyles.line,
-    shouldRenderContent && contentPosition === 'left'
-      ? { maxWidth: CONTENT_LINE_MAX_WIDTH }
-      : null,
-    styles?.line,
-  ];
-  const secondLineStyle = [
-    tokenStyles.line,
-    shouldRenderContent && contentPosition === 'right'
-      ? { maxWidth: CONTENT_LINE_MAX_WIDTH }
-      : null,
-    styles?.line,
-  ];
+  const firstLineStyle = [tokenStyles.firstLine, styles?.line];
+  const secondLineStyle = [tokenStyles.secondLine, styles?.line];
 
   if (direction === 'vertical') {
     return <View style={[tokenStyles.root, style]} />;

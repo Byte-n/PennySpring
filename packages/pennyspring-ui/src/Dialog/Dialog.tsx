@@ -1,8 +1,9 @@
 import React from 'react';
-import { View } from 'react-native';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import { Button } from '../Button';
+import { Column } from '../Column';
 import { Popup } from '../Popup';
+import { Row } from '../Row';
 import { Text } from '../Text';
 import { useControllableValue } from '../_hooks';
 import type { StyleProp, TextStyle, ViewStyle } from 'react-native';
@@ -14,37 +15,18 @@ import type {
 
 const DEFAULT_CANCEL_TEXT = '取消';
 const DEFAULT_OK_TEXT = '确定';
-const DIALOG_WIDTH_PERCENT = '85%';
 
 const useStyles = createUseSheetStyle(
   token => {
     return {
       popupBody: {
         padding: 0,
-        width: DIALOG_WIDTH_PERCENT,
+        width: '100%',
       },
       panel: {
         padding: token.paddingMD,
-        gap: token.sizeMD,
         borderRadius: token.borderRadius,
         backgroundColor: token.colorBgElevated,
-      },
-      header: {
-        gap: token.sizeXS,
-      },
-      titleText: {
-        color: token.colorTextHeading,
-        fontSize: token.fontSizeLG,
-        lineHeight: token.lineHeightLG,
-        fontWeight: String(token.fontWeightStrong) as TextStyle['fontWeight'],
-      },
-      body: {
-        gap: token.sizeSM,
-      },
-      footer: {
-        flexDirection: 'row',
-        justifyContent: 'flex-end',
-        gap: token.sizeSM,
       },
     };
   },
@@ -64,7 +46,13 @@ function renderTitle(
   }
 
   return (
-    <Text style={titleTextStyle} testID="dialog-title-text">
+    <Text
+      color="heading"
+      size="lg"
+      style={titleTextStyle}
+      testID="dialog-title-text"
+      weight="strong"
+    >
       {titleText}
     </Text>
   );
@@ -131,10 +119,7 @@ export function Dialog({
     undefined,
   );
   const isOpen = resolvedOpen === true;
-  const titleNode = renderTitle(title, titleText, [
-    tokenStyles.titleText,
-    slotStyles?.titleText,
-  ]);
+  const titleNode = renderTitle(title, titleText, slotStyles?.titleText);
 
   const closeInternal = (reason: DialogOpenChangeReason): void => {
     setResolvedOpen(false);
@@ -174,16 +159,16 @@ export function Dialog({
         body: tokenStyles.popupBody,
       }}
     >
-      <View style={[tokenStyles.panel, style]} testID="dialog-panel">
+      <Column gap="normal" style={[tokenStyles.panel, style]}>
         {titleNode ? (
-          <View style={[tokenStyles.header, slotStyles?.header]} testID="dialog-header">
+          <Column gap="small" style={slotStyles?.header}>
             {titleNode}
-          </View>
+          </Column>
         ) : null}
-        <View style={[tokenStyles.body, slotStyles?.body]} testID="dialog-body">
+        <Column gap="small" style={slotStyles?.body}>
           {children}
-        </View>
-        <View style={[tokenStyles.footer, slotStyles?.footer]} testID="dialog-footer">
+        </Column>
+        <Row gap="small" justify="end" style={slotStyles?.footer}>
           {renderAction(
             cancel,
             cancelText,
@@ -199,8 +184,8 @@ export function Dialog({
             'dialog-ok-button',
             okDisabled,
           )}
-        </View>
-      </View>
+        </Row>
+      </Column>
     </Popup>
   );
 }

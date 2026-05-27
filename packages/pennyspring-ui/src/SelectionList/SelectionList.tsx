@@ -297,7 +297,7 @@ export function SelectionListPopup({
           <Icon
             color={isDisabled ? 'textDisabled' : isSelected ? 'primaryText' : 'textQuaternary'}
             icon={isSelected ? 'check' : CircleIcon}
-            size={tokenStyles.markerIcon.fontSize}
+            size={resolvedSize}
             testID={isSelected ? 'selection-list-option-marker-selected' : 'selection-list-option-marker-unselected'}
           />
         </View>
@@ -401,7 +401,7 @@ export function SelectionListPopup({
             {...searchInputProps}
             disabled={disabled}
             loading={loading}
-            onChangeText={handleSearchChange}
+            onChange={handleSearchChange}
             placeholder={texts?.searchPlaceholder}
             readonly={readonly}
             size={resolvedSize}

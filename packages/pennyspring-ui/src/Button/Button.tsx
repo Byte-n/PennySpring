@@ -442,7 +442,7 @@ export function Button({
       ) : (
         <Icon
           color={resolvedIconColor as IconColor}
-          size={resolveIconSize(size, token)}
+          size={size}
           {...iconProps}
           icon={icon!}
         />

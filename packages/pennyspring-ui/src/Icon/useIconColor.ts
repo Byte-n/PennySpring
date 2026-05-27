@@ -9,15 +9,20 @@ import type { IconColor, IconSemanticColor } from './types';
 type ColorSelector = (token: AliasToken) => string;
 
 const COLOR_MAP: Record<IconSemanticColor, ColorSelector> = {
-  default: token => token.colorIcon,
-  primary: token => token.colorPrimary,
-  success: token => token.colorSuccess,
-  warning: token => token.colorWarning,
-  danger: token => token.colorError,
-  info: token => token.colorInfo,
+  base: token => token.colorTextBase,
+  default: token => token.colorText,
+  secondary: token => token.colorTextSecondary,
+  tertiary: token => token.colorTextTertiary,
+  quaternary: token => token.colorTextQuaternary,
+  heading: token => token.colorTextHeading,
+  label: token => token.colorTextLabel,
+  description: token => token.colorTextDescription,
+  disabled: token => token.colorTextDisabled,
+  placeholder: token => token.colorTextPlaceholder,
+  lightSolid: token => token.colorTextLightSolid,
 };
 
-function resolveIconColor(color: IconColor | string | undefined, token: AliasToken): string {
+function resolveIconColor(color: IconColor | undefined, token: AliasToken): string {
   if (color === undefined) {
     return token.colorIcon;
   }
@@ -26,10 +31,10 @@ function resolveIconColor(color: IconColor | string | undefined, token: AliasTok
     return COLOR_MAP[color as IconSemanticColor](token);
   }
 
-  return getAliasColorTokenValue(token, color) ?? color;
+  return getAliasColorTokenValue(token, color) ?? token.colorIcon;
 }
 
-export function useIconColor(color: IconColor | string | undefined): string {
+export function useIconColor(color: IconColor | undefined): string {
   const { token } = useTheme();
 
   return React.useMemo(

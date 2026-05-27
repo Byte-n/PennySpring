@@ -9,12 +9,18 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
-import { createUseSheetStyle, toShadowStyle, useTheme } from '@pennyspring/theme';
+import {
+  createUseSheetStyle,
+  toShadowStyle,
+  useTheme,
+  type AliasToken,
+} from '@pennyspring/theme';
 import { Button } from '../Button';
 import type { ButtonColor, ButtonProps, ButtonVariant } from '../Button';
 import type { IconComponent, IconName } from '../Icon';
 import { PortalContext } from '../Portal/Portal';
 import { resolvePortalMount } from '../Portal/resolvePortalMount';
+import type { ComponentSize } from '../shares/types';
 import type {
   FloatingActionGroupStyles,
   FloatingActionGroupProps,
@@ -33,21 +39,53 @@ interface FloatingStyleOptions {
   expandUp: boolean;
 }
 
+interface FloatingActionButtonStyleOptions {
+  shadow: boolean;
+  size: ComponentSize;
+}
+
 interface FloatingActionButtonProps {
   label?: string;
   icon?: IconName | IconComponent;
   disabled?: boolean;
   color?: ButtonColor;
   variant?: ButtonVariant;
+  size: ComponentSize;
   shadow?: boolean;
   onPress?: () => void;
   style?: StyleProp<ViewStyle>;
-  buttonProps?: Omit<ButtonProps, 'children' | 'icon' | 'onPress'>;
+  buttonProps?: Omit<ButtonProps, 'children' | 'icon' | 'onPress' | 'size'>;
   testID?: string;
 }
 
 const DEFAULT_VISIBLE_COUNT = 1;
 const DEFAULT_PLACEMENT = 'bottomRight' as const;
+const DEFAULT_SIZE = 'normal' as const;
+
+const BUTTON_SIZE_STYLES: Record<
+  ComponentSize,
+  {
+    height: (token: AliasToken) => number;
+    paddingHorizontal: (token: AliasToken) => number;
+    borderRadius: (token: AliasToken) => number;
+  }
+> = {
+  small: {
+    height: token => token.controlHeightSM,
+    paddingHorizontal: token => token.paddingXS,
+    borderRadius: token => token.borderRadius,
+  },
+  normal: {
+    height: token => token.controlHeight,
+    paddingHorizontal: token => token.paddingSM,
+    borderRadius: token => token.borderRadiusLG,
+  },
+  large: {
+    height: token => token.controlHeightLG,
+    paddingHorizontal: token => token.paddingMD,
+    borderRadius: token => token.borderRadiusLG,
+  },
+};
 
 const useStyles = createUseSheetStyle(
   (token, { positionStyle, alignEnd, expandUp }: FloatingStyleOptions) => ({
@@ -74,14 +112,20 @@ const useStyles = createUseSheetStyle(
   }),
 );
 
-const useButtonStyles = createUseSheetStyle((token, shadow: boolean) => ({
-  button: {
-    height: token.controlHeightLG,
-    borderRadius: token.borderRadiusLG,
-    paddingHorizontal: token.paddingSM,
-    ...(shadow ? toShadowStyle(token.boxShadowSecondary) : undefined),
+const useButtonStyles = createUseSheetStyle(
+  (token, { shadow, size }: FloatingActionButtonStyleOptions) => {
+    const sizeStyle = BUTTON_SIZE_STYLES[size];
+
+    return {
+      button: {
+        height: sizeStyle.height(token),
+        borderRadius: sizeStyle.borderRadius(token),
+        paddingHorizontal: sizeStyle.paddingHorizontal(token),
+        ...(shadow ? toShadowStyle(token.boxShadowSecondary) : undefined),
+      },
+    };
   },
-}));
+);
 
 function FloatingActionButton({
   color = 'primary',
@@ -90,12 +134,13 @@ function FloatingActionButton({
   label,
   onPress,
   shadow = true,
+  size,
   style,
   buttonProps,
   testID,
   variant = 'solid',
 }: FloatingActionButtonProps) {
-  const tokenStyles = useButtonStyles(shadow);
+  const tokenStyles = useButtonStyles({ shadow, size });
   const {
     style: buttonStyle,
     styles: buttonStyles,
@@ -112,7 +157,7 @@ function FloatingActionButton({
       icon={icon}
       onPress={onPress}
       shape="round"
-      size="large"
+      size={size}
       style={[tokenStyles.button, style, buttonStyle]}
       styles={buttonStyles}
       testID={resolvedTestID}
@@ -168,6 +213,7 @@ function HiddenActionItem({
   gap,
   style,
   buttonProps,
+  size,
 }: {
   action: FloatingActionItem;
   index: number;
@@ -178,9 +224,16 @@ function HiddenActionItem({
   spacing: number;
   gap: number;
   style: FloatingActionGroupStyles['actionButton'];
-  buttonProps?: Omit<ButtonProps, 'children' | 'icon' | 'onPress'>;
+  buttonProps?: Omit<ButtonProps, 'children' | 'icon' | 'onPress' | 'size'>;
+  size: ComponentSize;
 }) {
   const { token } = useTheme();
+  const baseShadowStyle = useMemo(
+    () => toShadowStyle(token.boxShadowSecondary),
+    [token.boxShadowSecondary],
+  );
+  const baseShadowOpacity = Number(baseShadowStyle.shadowOpacity ?? 0);
+  const hiddenBorderRadius = BUTTON_SIZE_STYLES[size].borderRadius(token);
 
   const animatedStyle = useAnimatedStyle(() => {
     const baseTransform = resolveHiddenItemTransform(
@@ -189,24 +242,28 @@ function HiddenActionItem({
       spacing,
       gap,
     );
-    const shadow = token.boxShadowSecondary;
 
     return {
+      ...baseShadowStyle,
       position: 'absolute',
       opacity: progress.value,
-      borderRadius: token.borderRadiusLG,
-      shadowColor: shadow.shadowColor,
-      shadowOffset: shadow.shadowOffset,
-      shadowRadius: shadow.shadowRadius,
-      elevation: shadow.elevation,
-      shadowOpacity: shadow.shadowOpacity * shadowProgress.value,
+      borderRadius: hiddenBorderRadius,
+      shadowOpacity: baseShadowOpacity * shadowProgress.value,
       transform: [
         { translateX: baseTransform.x * progress.value },
         { translateY: baseTransform.y * progress.value },
         { scale: 0.8 + progress.value * 0.2 },
       ],
     };
-  }, [placement, index, spacing, gap, token]);
+  }, [
+    baseShadowOpacity,
+    baseShadowStyle,
+    gap,
+    hiddenBorderRadius,
+    index,
+    placement,
+    spacing,
+  ]);
 
   if (!isExpanded) {
     return null;
@@ -223,6 +280,7 @@ function HiddenActionItem({
         label={action.label}
         onPress={action.onPress}
         shadow={false}
+        size={size}
         style={[style, action.buttonProps?.style]}
         buttonProps={buttonProps}
         variant="filled"
@@ -238,6 +296,7 @@ export function FloatingActionGroup({
   mountPoint = 'auto',
   offset,
   placement = DEFAULT_PLACEMENT,
+  size = DEFAULT_SIZE,
   spacing,
   style,
   styles,
@@ -255,7 +314,8 @@ export function FloatingActionGroup({
   const hiddenActions = useMemo(() => actions.slice(visibleCount), [actions, visibleCount]);
   const hasMore = hiddenActions.length > 0;
 
-  const computedSpacing = spacing ?? token.controlHeightLG + token.paddingXS;
+  const computedSpacing =
+    spacing ?? BUTTON_SIZE_STYLES[size].height(token) + token.paddingXS;
   const alignEnd = !placement.endsWith('Left');
   const expandUp = placement.startsWith('bottom');
 
@@ -323,7 +383,7 @@ export function FloatingActionGroup({
       ) : null}
       <View
         pointerEvents="box-none"
-        style={[tokenStyles.root, style, styles?.container]}
+        style={[tokenStyles.root, style, styles?.root, styles?.container]}
         testID="floating-action-group-container"
       >
         <View pointerEvents="box-none" style={tokenStyles.hiddenLayer}>
@@ -340,6 +400,7 @@ export function FloatingActionGroup({
               gap={token.paddingXS}
               style={styles?.actionButton}
               buttonProps={action.buttonProps}
+              size={size}
             />
           ))}
         </View>
@@ -347,6 +408,7 @@ export function FloatingActionGroup({
           <FloatingActionButton
             label={expanded ? '收起' : '更多'}
             onPress={handleToggleExpand}
+            size={size}
             style={styles?.moreButton}
             testID="floating-action-group-more-button"
             variant="filled"
@@ -359,6 +421,7 @@ export function FloatingActionGroup({
             key={action.key}
             label={action.label}
             onPress={action.onPress}
+            size={size}
             style={[styles?.actionButton, action.buttonProps?.style]}
             buttonProps={action.buttonProps}
           />
@@ -367,6 +430,7 @@ export function FloatingActionGroup({
           <FloatingActionButton
             label={expanded ? '收起' : '更多'}
             onPress={handleToggleExpand}
+            size={size}
             style={styles?.moreButton}
             testID="floating-action-group-more-button"
             variant="filled"

@@ -10,11 +10,10 @@ import type { ComponentSize } from '../shares/types';
 
 export type IndexBarValue = string | number;
 
-export interface IndexBarPanelProps {
+export interface IndexBarItem {
   index: IndexBarValue;
   titleText?: string;
   title?: ReactNode;
-  children?: ReactNode;
   disabled?: boolean;
   style?: StyleProp<ViewStyle>;
 }
@@ -36,18 +35,14 @@ export interface IndexBarStyles {
 
 export interface IndexBarProps
   extends Omit<PressableProps, 'style' | 'children' | 'disabled' | 'onPress'> {
+  data: readonly IndexBarItem[];
+  renderPanel?: (item: IndexBarItem, index: number) => ReactNode;
   value?: IndexBarValue;
   defaultValue?: IndexBarValue;
   onChange?: (value: IndexBarValue) => void;
   onPress?: (event: GestureResponderEvent, value: IndexBarValue) => void;
   disabled?: boolean;
   size?: ComponentSize;
-  children?: ReactNode;
   style?: StyleProp<ViewStyle>;
   styles?: IndexBarStyles;
-}
-
-export interface IndexBarComponent {
-  (props: IndexBarProps): ReactNode;
-  Panel: (props: IndexBarPanelProps) => ReactNode;
 }

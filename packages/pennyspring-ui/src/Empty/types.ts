@@ -9,9 +9,9 @@ export interface EmptyStyles {
 
 export interface EmptyProps {
   size?: ComponentSize;
-  icon?: ReactNode;
+  icon?: ReactNode | null;
   messageText?: string;
-  message?: ReactNode;
+  message?: ReactNode | null;
   style?: StyleProp<ViewStyle>;
   styles?: EmptyStyles;
 }

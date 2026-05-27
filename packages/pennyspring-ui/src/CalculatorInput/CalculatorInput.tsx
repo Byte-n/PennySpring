@@ -580,7 +580,7 @@ function renderKeyContent(
       <Icon
         color={tokenStyles.backspaceIcon.color as IconColor}
         icon="arrow-left"
-        size={tokenStyles.backspaceIcon.fontSize}
+        size="large"
       />
     );
   }

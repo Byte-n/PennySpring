@@ -25,7 +25,7 @@ export type {
   DialogStyles,
 } from './Dialog';
 export { Grid } from './Grid';
-export type { GridGap, GridGapValue, GridItemProps, GridProps } from './Grid';
+export type { GridGap, GridItemProps, GridProps } from './Grid';
 export { Space } from './Space';
 export type {
   SpaceAlign,
@@ -93,6 +93,7 @@ export type { InputProps, InputSearchProps, InputStatus, InputStyles } from './I
 export { DisplayInput } from './DisplayInput';
 export type {
   DisplayInputDisplay,
+  DisplayInputOverflow,
   DisplayInputProps,
   DisplayInputStyles,
 } from './DisplayInput';
@@ -180,8 +181,7 @@ export type {
 } from './SideBar';
 export { IndexBar } from './IndexBar';
 export type {
-  IndexBarComponent,
-  IndexBarPanelProps,
+  IndexBarItem,
   IndexBarProps,
   IndexBarStyles,
   IndexBarValue,
@@ -259,6 +259,7 @@ export type {
   DateTimePickerLabelParams,
   DateTimePickerPrecision,
   DateTimePickerProps,
+  DateTimePickerStyles,
   DateTimePickerValueParams,
 } from './DateTimePicker';
 export { Portal, PortalProvider } from './Portal';

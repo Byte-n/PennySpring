@@ -1,6 +1,7 @@
 import type { ComponentSize } from '../shares/types';
 import React, { useCallback, useMemo, useRef } from 'react';
-import { FlatList, View } from 'react-native';
+import { FlatList } from 'react-native';
+import { Column } from '../Column';
 import { Loading } from '../Loading';
 import { Text } from '../Text';
 import { DataListSection as DataListSectionComponent } from './DataListSection';
@@ -54,8 +55,9 @@ function DataListInner<ItemT>({
   completeText = DEFAULT_COMPLETE_TEXT,
   footer,
   hasMore = true,
+  isLoadingMore = false,
   loadMoreThreshold = DEFAULT_THRESHOLD,
-  loadingMore = false,
+  loadingMore,
   loadingMoreContent,
   loadingMoreText = DEFAULT_LOADING_MORE_TEXT,
   onEndReached,
@@ -75,7 +77,7 @@ function DataListInner<ItemT>({
     (info) => {
       onEndReached?.(info);
 
-      if (!hasMore || loadingMore || loadingMoreRef.current || !onLoadMore) {
+      if (!hasMore || isLoadingMore || loadingMoreRef.current || !onLoadMore) {
         return;
       }
 
@@ -97,14 +99,14 @@ function DataListInner<ItemT>({
         throw error;
       }
     },
-    [hasMore, loadingMore, onEndReached, onLoadMore],
+    [hasMore, isLoadingMore, onEndReached, onLoadMore],
   );
 
   const stateFooter = useMemo(() => {
-    if (loadingMore) {
+    if (isLoadingMore) {
       return (
-        <View style={[tokenStyles.footer, styles?.footer]}>
-          {loadingMoreContent ?? (
+        <Column style={[tokenStyles.footer, styles?.footer]}>
+          {loadingMore ?? loadingMoreContent ?? (
             <Loading
               size={resolvedSize}
               style={styles?.loadingMore}
@@ -114,13 +116,13 @@ function DataListInner<ItemT>({
               text={loadingMoreText}
             />
           )}
-        </View>
+        </Column>
       );
     }
 
     if (!hasMore) {
       return (
-        <View style={[tokenStyles.footer, styles?.footer, styles?.complete]}>
+        <Column style={[tokenStyles.footer, styles?.footer, styles?.complete]}>
           {complete ?? (
             <Text
               size={resolveTextSize(resolvedSize)}
@@ -129,7 +131,7 @@ function DataListInner<ItemT>({
               {completeText}
             </Text>
           )}
-        </View>
+        </Column>
       );
     }
 
@@ -138,6 +140,7 @@ function DataListInner<ItemT>({
     complete,
     completeText,
     hasMore,
+    isLoadingMore,
     loadingMore,
     loadingMoreContent,
     loadingMoreText,

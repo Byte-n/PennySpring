@@ -1,9 +1,14 @@
 import React from 'react';
 import { Image, Pressable, ScrollView, View } from 'react-native';
 import type { ImageStyle } from 'react-native';
+import { useTheme } from '@pennyspring/theme';
 import { Button } from '../Button';
+import { Column } from '../Column';
+import { DisplayInput } from '../DisplayInput';
+import { Grid } from '../Grid';
 import { Icon } from '../Icon';
 import { Popup } from '../Popup';
+import { Row } from '../Row';
 import { Text } from '../Text';
 import { useControllableValue } from '../_hooks';
 import {
@@ -32,6 +37,7 @@ const DEFAULT_UNSELECTED_TEXT = '未选择';
 const DEFAULT_MAX_COUNT = 1;
 const DEFAULT_PANEL_HEIGHT = '45%';
 const DEFAULT_SOURCES: ImagePickerSource[] = ['camera', 'photo'];
+const IMAGE_GRID_COLUMNS = 3;
 
 function getSelectedCount(value: ImagePickerSelectedValue | undefined): number {
   if (Array.isArray(value)) {
@@ -121,13 +127,16 @@ export function ImagePicker({
   defaultOpen,
   defaultValue,
   disabled,
+  displayInputProps,
   doneText = DEFAULT_DONE_TEXT,
   emptyText = DEFAULT_EMPTY_TEXT,
   fileSystemText = DEFAULT_FILE_SYSTEM_TEXT,
+  label,
   maxCount = DEFAULT_MAX_COUNT,
   multipleHintText,
   multiple = false,
   photoText = DEFAULT_PHOTO_TEXT,
+  placeholder,
   selectedText = DEFAULT_SELECTED_TEXT,
   onChange,
   onError,
@@ -151,6 +160,7 @@ export function ImagePicker({
     open,
     undefined,
   );
+  const { token } = useTheme();
   const isOpen = resolvedOpen === true;
   const isDisabled = disabled === true;
   const isReadonly = readonly === true;
@@ -169,6 +179,16 @@ export function ImagePicker({
     maxReached: isMaxReached,
     selected: hasSelectedValue,
   });
+  const removeButtonHitSlop = React.useMemo(() => {
+    const hitSlop = (token.controlHeightSM - token.controlHeightXS) / 2;
+
+    return {
+      bottom: hitSlop,
+      left: hitSlop,
+      right: hitSlop,
+      top: hitSlop,
+    };
+  }, [token.controlHeightSM, token.controlHeightXS]);
 
   function updateOpen(
     nextOpen: boolean,
@@ -242,8 +262,8 @@ export function ImagePicker({
 
   function renderPanelHeader(): React.ReactNode {
     return (
-      <View style={[tokenStyles.popupHeader, styles?.popupHeader]}>
-        <View style={[tokenStyles.popupTitleArea, styles?.popupTitleArea]}>
+      <Row style={[tokenStyles.popupHeader, styles?.popupHeader]}>
+        <Column style={[tokenStyles.popupTitleArea, styles?.popupTitleArea]}>
           <Text
             size="xl"
             weight="strong"
@@ -258,8 +278,8 @@ export function ImagePicker({
           >
             {getSelectionHintText(multiple, maxCount, multipleHintText)}
           </Text>
-        </View>
-        <View style={[tokenStyles.popupActions, styles?.popupActions]}>
+        </Column>
+        <Row style={[tokenStyles.popupActions, styles?.popupActions]}>
           {sources.map(source => (
             <Button
               disabled={isMaxReached}
@@ -280,63 +300,64 @@ export function ImagePicker({
           >
             {doneText}
           </Button>
-        </View>
-      </View>
+        </Row>
+      </Row>
     );
   }
 
   function renderSelectedImages(): React.ReactNode {
     if (selectedValues.length === 0) {
       return (
-        <View style={[tokenStyles.empty, styles?.empty]}>
+        <Column style={[tokenStyles.empty, styles?.empty]}>
           <Text style={[tokenStyles.emptyText, styles?.emptyText]}>
             {emptyText}
           </Text>
-        </View>
+        </Column>
       );
     }
 
     return (
-      <View style={[tokenStyles.imageGrid, styles?.imageGrid]}>
+      <Grid
+        columns={IMAGE_GRID_COLUMNS}
+        gap="large"
+        style={[tokenStyles.imageGrid, styles?.imageGrid]}
+      >
         {selectedValues.map((image, index) => (
-          <View
-            key={`${image.uri}-${index}`}
-            style={[tokenStyles.imageItem, styles?.imageItem]}
-            testID="image-picker-selected-item"
-          >
-            <Image
-              source={{ uri: image.uri }}
-              style={[tokenStyles.image as ImageStyle, styles?.image]}
-            />
-            {multiple ? (
-              <Pressable
-                onPress={() => removeSelectedValue(index)}
-                style={[tokenStyles.removeButton, styles?.removeButton]}
-                testID="image-picker-remove-image"
-              >
-                <Icon color="textLightSolid" icon="minus" size="small" />
-              </Pressable>
-            ) : null}
-          </View>
+          <Grid.Item key={`${image.uri}-${index}`}>
+            <View
+              style={[tokenStyles.imageItem, styles?.imageItem]}
+              testID="image-picker-selected-item"
+            >
+              <Image
+                source={{ uri: image.uri }}
+                style={[tokenStyles.image as ImageStyle, styles?.image]}
+              />
+              {multiple ? (
+                <Pressable
+                  hitSlop={removeButtonHitSlop}
+                  onPress={() => removeSelectedValue(index)}
+                  style={[tokenStyles.removeButton, styles?.removeButton]}
+                  testID="image-picker-remove-image"
+                >
+                  <Icon color="textLightSolid" icon="minus" size="small" />
+                </Pressable>
+              ) : null}
+            </View>
+          </Grid.Item>
         ))}
-      </View>
+      </Grid>
     );
   }
 
   return (
     <>
-      <Pressable
+      <DisplayInput
+        {...displayInputProps}
         disabled={isDisabled}
+        label={label}
         onPress={handleTriggerPress}
-        style={({ pressed }) => [
-          tokenStyles.trigger,
-          pressed && !isReadonly ? tokenStyles.triggerPressed : null,
-          styles?.trigger,
-          style,
-        ]}
-        testID="image-picker-trigger"
-      >
-        <View style={[tokenStyles.triggerContent, styles?.triggerContent]}>
+        placeholder={placeholder}
+        prefix={(
           <View style={[tokenStyles.iconContainer, styles?.iconContainer]}>
             <Icon
               color={hasSelectedValue ? 'textLightSolid' : 'default'}
@@ -345,14 +366,24 @@ export function ImagePicker({
               weight={hasSelectedValue ? 'fill' : undefined}
             />
           </View>
-          <Text
-            style={[tokenStyles.status, styles?.status]}
-            testID="image-picker-status"
-          >
-            {statusText}
-          </Text>
-        </View>
-      </Pressable>
+        )}
+        readonly={isReadonly}
+        style={style}
+        styles={{
+          field: [
+            tokenStyles.trigger,
+            styles?.trigger,
+          ],
+          prefix: [
+            styles?.triggerContent,
+          ],
+          value: [
+            tokenStyles.status,
+            styles?.status,
+          ],
+        }}
+        valueText={statusText}
+      />
       <Popup.FloatingPanel
         cancel={null}
         closeOnMaskClick

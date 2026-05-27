@@ -3,9 +3,12 @@ import type { StyleProp, ViewStyle } from 'react-native';
 import type {
   PickerCancelParams,
   PickerDisplayInputProps,
+  PickerInputStyles,
   PickerOpenChangeParams,
-  PickerStyles,
+  PickerPanelStyles,
+  PickerPopupStyles,
 } from '../Picker';
+import type { ComponentSize } from '../shares/types';
 
 export type DateTimePickerPrecision =
   | 'year'
@@ -40,6 +43,7 @@ export interface DateTimePickerValueParams {
 }
 
 export interface DateTimePickerProps {
+  size?: ComponentSize;
   open?: boolean;
   defaultOpen?: boolean;
   onOpenChange?: (open: boolean, params: PickerOpenChangeParams) => void;
@@ -71,9 +75,17 @@ export interface DateTimePickerProps {
   empty?: ReactNode;
   placeholder?: string;
   displayInputProps?: PickerDisplayInputProps;
+  readonly?: boolean;
   disabled?: boolean;
   okDisabled?: boolean;
   children?: ReactNode;
   style?: StyleProp<ViewStyle>;
-  styles?: PickerStyles;
+  styles?: DateTimePickerStyles;
+}
+
+export interface DateTimePickerStyles {
+  trigger?: StyleProp<ViewStyle>;
+  input?: PickerInputStyles;
+  popup?: PickerPopupStyles;
+  panel?: PickerPanelStyles;
 }

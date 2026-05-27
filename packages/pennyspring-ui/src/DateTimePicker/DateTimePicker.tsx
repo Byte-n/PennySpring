@@ -320,7 +320,7 @@ export function DateTimePicker(props: DateTimePickerProps) {
     : undefined;
   const defaultPickerValue = props.defaultValue
     ? dateToPickerValue(props.defaultValue, precision)
-    : dateToPickerValue(baseDate, precision);
+    : undefined;
 
   const pickerRenderLabel = renderLabel
     ? (item: PickerColumnItemData, columnIndex: number) => {
@@ -354,6 +354,7 @@ export function DateTimePicker(props: DateTimePickerProps) {
       onOpenChange={props.onOpenChange}
       open={props.open}
       placeholder={props.placeholder}
+      readonly={props.readonly}
       popupProps={{
         cancel: props.cancel,
         cancelText: props.cancelText,
@@ -370,7 +371,13 @@ export function DateTimePicker(props: DateTimePickerProps) {
         titleText: props.titleText,
       }}
       style={props.style}
-      styles={props.styles}
+      styles={props.styles ? {
+        trigger: props.styles.trigger,
+        input: props.styles.input,
+        popup: props.styles.popup,
+        panel: props.styles.panel,
+      } : undefined}
+      size={props.size}
       value={pickerValue}
     >
       {props.children}

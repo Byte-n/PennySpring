@@ -2,6 +2,7 @@ import type { StyleProp, ViewStyle } from 'react-native';
 import type { ButtonProps } from '../Button';
 import type { IconComponent, IconName } from '../Icon';
 import type { PortalMountPoint } from '../Portal/types';
+import type { ComponentSize } from '../shares/types';
 
 export type FloatingPlacement =
   | 'topLeft'
@@ -17,10 +18,12 @@ export interface FloatingActionItem {
   icon?: IconName | IconComponent;
   disabled?: boolean;
   onPress: () => void;
-  buttonProps?: Omit<ButtonProps, 'children' | 'icon' | 'onPress'>;
+  buttonProps?: Omit<ButtonProps, 'children' | 'icon' | 'onPress' | 'size'>;
 }
 
 export interface FloatingActionGroupStyles {
+  root?: StyleProp<ViewStyle>;
+  /** @deprecated Use root instead. */
   container?: StyleProp<ViewStyle>;
   moreButton?: StyleProp<ViewStyle>;
   actionButton?: StyleProp<ViewStyle>;
@@ -37,6 +40,7 @@ export interface FloatingActionGroupProps {
   };
   collapseOnOutsidePress?: boolean;
   toggleOnMorePress?: boolean;
+  size?: ComponentSize;
   spacing?: number;
   style?: StyleProp<ViewStyle>;
   styles?: FloatingActionGroupStyles;

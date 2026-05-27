@@ -23,7 +23,8 @@ export interface DisplayInputProps {
   display?: DisplayInputDisplay;
   overflow?: DisplayInputOverflow;
   status?: InputStatus;
-  label?: ReactNode;
+  labelText?: string;
+  label?: ReactNode | null;
   placeholder?: string;
   helperText?: string;
   helper?: ReactNode | null;

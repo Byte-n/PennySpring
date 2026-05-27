@@ -4,14 +4,21 @@ import { Pressable, Text as MeasurementText, View } from 'react-native';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import { useControllableValue } from '../_hooks';
 import { Text } from '../Text';
-import type {
-  AliasToken } from '@pennyspring/theme';
+import type { TextSize } from '../Text';
+import type { AliasToken } from '@pennyspring/theme';
 import type { TextLayoutEventData } from 'react-native';
 import type {
+  EllipsisDirection,
   EllipsisProps,
 } from './types';
 
 const ELLIPSIS_TEXT = '...';
+
+const TEXT_SIZE_MAP: Record<ComponentSize, TextSize> = {
+  small: 'sm',
+  normal: 'md',
+  large: 'lg',
+};
 
 interface StyleOptions {
   size: ComponentSize;
@@ -63,6 +70,45 @@ const useStyles = createUseSheetStyle(
   },
 );
 
+function getCollapsedText(
+  content: string,
+  direction: EllipsisDirection,
+  chars: number,
+): string {
+  if (direction === 'end') {
+    return content.slice(0, chars) + ELLIPSIS_TEXT;
+  }
+
+  if (direction === 'start') {
+    return ELLIPSIS_TEXT + content.slice(content.length - chars);
+  }
+
+  return (
+    content.slice(0, chars) +
+    ELLIPSIS_TEXT +
+    content.slice(content.length - chars)
+  );
+}
+
+function getMeasuredCollapsedText(
+  content: string,
+  direction: EllipsisDirection,
+  chars: number,
+  expandText?: string,
+): string {
+  const collapsedText = getCollapsedText(content, direction, chars);
+
+  if (!expandText) {
+    return collapsedText;
+  }
+
+  if (direction === 'start') {
+    return expandText + collapsedText;
+  }
+
+  return collapsedText + expandText;
+}
+
 type MeasurementStatus = 'measuring' | 'searching' | 'done';
 
 interface HiddenMeasurementTextProps {
@@ -92,6 +138,9 @@ export function Ellipsis({
   rows = 1,
   expandText,
   collapseText,
+  defaultOpen,
+  open,
+  onOpenChange,
   defaultExpanded = false,
   expanded: expandedProp,
   onExpand,
@@ -102,11 +151,21 @@ export function Ellipsis({
 }: EllipsisProps) {
   const styles = useStyles({ size });
   const safeRows = Math.max(1, Math.floor(rows));
+  const textSize = TEXT_SIZE_MAP[size];
+  const mergedDefaultOpen = defaultOpen ?? defaultExpanded;
+  const mergedOpen = open ?? expandedProp;
+  const handleOpenChange = useCallback(
+    (nextOpen: boolean) => {
+      onOpenChange?.(nextOpen);
+      onExpand?.(nextOpen);
+    },
+    [onOpenChange, onExpand],
+  );
 
   const [expanded, setExpanded] = useControllableValue(
-    defaultExpanded,
-    expandedProp,
-    onExpand,
+    mergedDefaultOpen,
+    mergedOpen,
+    handleOpenChange,
   );
 
   // Measurement state
@@ -176,7 +235,7 @@ export function Ellipsis({
     if (status !== 'searching') return;
 
     if (searchHigh - searchLow <= 1) {
-      setMaxChars(searchHigh);
+      setMaxChars(searchLow);
       setStatus('done');
     }
   }, [status, searchLow, searchHigh]);
@@ -198,20 +257,7 @@ export function Ellipsis({
   const displayText = React.useMemo(() => {
     if (!needsTruncation) return content;
 
-    if (direction === 'end') {
-      return content.slice(0, maxChars) + ELLIPSIS_TEXT;
-    }
-
-    if (direction === 'start') {
-      return ELLIPSIS_TEXT + content.slice(content.length - maxChars);
-    }
-
-    // middle: "head...tail" — maxChars is per-side count
-    return (
-      content.slice(0, maxChars) +
-      ELLIPSIS_TEXT +
-      content.slice(content.length - maxChars)
-    );
+    return getCollapsedText(content, direction, maxChars);
   }, [needsTruncation, content, maxChars, direction]);
 
   // When expanded, show full content immediately
@@ -219,7 +265,10 @@ export function Ellipsis({
 
   // Build content text node
   const contentNode = showContent ? (
-    <Text data-testid={testId ? `${testId}-text` : undefined}>
+    <Text
+      data-testid={testId ? `${testId}-text` : undefined}
+      size={textSize}
+    >
       {needsTruncation ? displayText : content}
     </Text>
   ) : null;
@@ -248,14 +297,8 @@ export function Ellipsis({
 
   // Search candidate text for measurement
   const searchCandidate = React.useMemo(() => {
-    if (direction === 'middle') {
-      return content.slice(0, midIndex) + content.slice(content.length - midIndex);
-    }
-    if (direction === 'start') {
-      return content.slice(content.length - midIndex);
-    }
-    return content.slice(0, midIndex);
-  }, [content, midIndex, direction]);
+    return getMeasuredCollapsedText(content, direction, midIndex, expandText);
+  }, [content, midIndex, direction, expandText]);
 
   return (
     <View style={style} data-testid={testId}>

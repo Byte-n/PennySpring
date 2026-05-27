@@ -18,10 +18,12 @@ export interface DataListStyles {
 
 export interface DataListLoadMoreProps {
   hasMore?: boolean;
-  loadingMore?: boolean;
+  isLoadingMore?: boolean;
   onLoadMore?: () => void | Promise<void>;
   loadMoreThreshold?: number;
   loadingMoreText?: string;
+  loadingMore?: ReactNode | null;
+  /** @deprecated use loadingMore */
   loadingMoreContent?: ReactNode;
   completeText?: string;
   complete?: ReactNode;

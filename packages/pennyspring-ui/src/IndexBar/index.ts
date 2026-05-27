@@ -1,7 +1,6 @@
 export { IndexBar } from './IndexBar';
 export type {
-  IndexBarComponent,
-  IndexBarPanelProps,
+  IndexBarItem,
   IndexBarProps,
   IndexBarStyles,
   IndexBarValue,

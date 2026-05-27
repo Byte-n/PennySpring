@@ -45,7 +45,7 @@ interface IconSizeConfig {
   value: (token: AliasToken) => number;
 }
 
-const ICON_SIZE_MAP: Record<Exclude<IconSize, number>, IconSizeConfig> = {
+const ICON_SIZE_MAP: Record<IconSize, IconSizeConfig> = {
   small: { value: token => token.fontSizeSM },
   normal: { value: token => token.fontSize },
   large: { value: token => token.fontSizeLG },
@@ -99,10 +99,6 @@ function resolveIcon(icon: IconName | IconComponent): IconComponent {
 }
 
 function resolveSize(size: IconSize | undefined, token: AliasToken): number {
-  if (typeof size === 'number') {
-    return size;
-  }
-
   const resolvedSize = size ?? 'normal';
   return ICON_SIZE_MAP[resolvedSize].value(token);
 }

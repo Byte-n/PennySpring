@@ -461,6 +461,7 @@ function DrawerLayout({
           <AnimatedPressable
             onPress={handleBackMaskPress}
             style={[tokenStyles.sceneMask, styles?.overlay, sceneMaskAnimatedStyle]}
+            testID="drawer-layout-back-mask"
           />
         ) : null}
       </Animated.View>

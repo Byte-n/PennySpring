@@ -15,11 +15,17 @@ export interface EllipsisProps {
   expandText?: string;
   /** Text for the collapse action */
   collapseText?: string;
-  /** Default expanded state (uncontrolled) @default false */
+  /** Default open state (uncontrolled) @default false */
+  defaultOpen?: boolean;
+  /** Controlled open state */
+  open?: boolean;
+  /** Callback when open state changes */
+  onOpenChange?: (open: boolean) => void;
+  /** @deprecated Use defaultOpen instead. */
   defaultExpanded?: boolean;
-  /** Controlled expanded state */
+  /** @deprecated Use open instead. */
   expanded?: boolean;
-  /** Callback when expanded state changes */
+  /** @deprecated Use onOpenChange instead. */
   onExpand?: (expanded: boolean) => void;
   /** Size of the component @default 'normal' */
   size?: ComponentSize;

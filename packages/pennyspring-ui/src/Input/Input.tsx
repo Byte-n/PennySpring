@@ -45,7 +45,6 @@ interface SizeConfig {
 type StatusColorSelector = (token: AliasToken) => string;
 
 const REQUIRED_MARK = '*';
-const INPUT_ACTION_HIT_SLOP = 8;
 
 const SIZE_MAP: Record<ComponentSize, SizeConfig> = {
   small: {
@@ -102,7 +101,7 @@ const useStyles = createUseSheetStyle(
         alignItems: 'center',
         gap: token.sizeXXS,
       },
-      label: {
+      labelText: {
         color: token.colorTextLabel,
       },
       requiredMark: {
@@ -214,9 +213,10 @@ function InputRoot({
   helper,
   helperText,
   label,
+  labelText,
   loading,
   onBlur,
-  onChangeText,
+  onChange,
   onClear,
   onFocus,
   placeholder,
@@ -242,7 +242,7 @@ function InputRoot({
   const [mergedValue = '', setMergedValue] = useControllableValue(
     defaultValue ?? '',
     value,
-    onChangeText,
+    onChange,
   );
   const isEditable = !disabled && !readonly;
   const isError = resolvedStatus === 'error';
@@ -253,7 +253,14 @@ function InputRoot({
   const message = isError && errorMessage !== undefined
     ? errorMessage
     : helperMessage;
-  const hasLabel = label !== undefined && label !== null;
+  const labelContent = label !== undefined
+    ? label
+    : labelText !== undefined ? (
+      <Text style={[tokenStyles.labelText, styles?.labelText]}>
+        {labelText}
+      </Text>
+    ) : null;
+  const hasLabel = labelContent !== null;
   const hasPrefix = prefix !== undefined && prefix !== null;
   const hasSuffix = suffix !== undefined && suffix !== null;
 
@@ -289,7 +296,7 @@ function InputRoot({
     <View style={[tokenStyles.root, style]}>
       {hasLabel ? (
         <View style={tokenStyles.labelRow}>
-          <Text style={[tokenStyles.label, styles?.label]}>{label}</Text>
+          {labelContent}
           {required === true ? (
             <Text style={tokenStyles.requiredMark}>
               {REQUIRED_MARK}
@@ -329,7 +336,7 @@ function InputRoot({
         />
         {shouldShowClearButton ? (
           <Pressable
-            hitSlop={INPUT_ACTION_HIT_SLOP}
+            hitSlop={token.sizeXS}
             onPress={handleClear}
             style={({ pressed }) => [
               tokenStyles.clearButton,
@@ -341,7 +348,7 @@ function InputRoot({
             <Icon
               color="icon"
               icon="close"
-              size={tokenStyles.clearButtonLabel.fontSize}
+              size={resolvedSize}
             />
           </Pressable>
         ) : loading === true ? (
@@ -372,7 +379,7 @@ function SearchInput({
   disabled,
   loading,
   onClear,
-  onChangeText,
+  onChange,
   onSearch,
   onSubmitEditing,
   readonly,
@@ -383,10 +390,11 @@ function SearchInput({
 }: InputSearchProps) {
   const resolvedSize = resolveSize(size);
   const tokenStyles = useSearchStyles({ size: resolvedSize });
+  const { token } = useTheme();
   const [mergedValue = '', setMergedValue] = useControllableValue(
     defaultValue ?? '',
     value,
-    onChangeText,
+    onChange,
   );
   const canSearch = !disabled && !readonly && loading !== true;
 
@@ -427,7 +435,7 @@ function SearchInput({
     <Icon
       color={canSearch ? 'icon' : 'textDisabled'}
       icon="search"
-      size={tokenStyles.searchIcon.fontSize}
+      size={resolvedSize}
     />
   );
 
@@ -438,7 +446,7 @@ function SearchInput({
       disabled={disabled}
       loading={loading}
       onClear={handleClear}
-      onChangeText={handleChangeText}
+      onChange={handleChangeText}
       onSubmitEditing={handleSubmitEditing}
       readonly={readonly}
       returnKeyType={rest.returnKeyType ?? 'search'}
@@ -446,6 +454,7 @@ function SearchInput({
       suffix={
         <Pressable
           disabled={!canSearch}
+          hitSlop={token.sizeXS}
           onPress={handleSearchPress}
           style={({ pressed }) => [
             tokenStyles.searchButton,

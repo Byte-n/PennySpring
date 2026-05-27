@@ -1,11 +1,10 @@
 import type { ComponentSize } from '../shares/types';
 import React from 'react';
 import { View } from 'react-native';
-import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
+import { createUseSheetStyle } from '@pennyspring/theme';
 import { Icon } from '../Icon';
 import { Text } from '../Text';
-import type {
-  AliasToken } from '@pennyspring/theme';
+import type { AliasToken } from '@pennyspring/theme';
 import type { IconColor, IconName } from '../Icon';
 import type { TextSize } from '../Text';
 import type { ResultProps,
@@ -18,7 +17,6 @@ interface ResultStyleOptions {
 }
 
 interface ResultSizeConfig {
-  iconSize: (token: AliasToken) => number;
   gap: (token: AliasToken) => number;
   paddingVertical: (token: AliasToken) => number;
   titleSize: TextSize;
@@ -29,13 +27,12 @@ interface ResultSizeConfig {
 
 interface ResultStatusConfig {
   iconBg: (token: AliasToken) => string;
-  iconColor: (token: AliasToken) => string;
+  iconColor: IconColor;
   iconName: IconName;
 }
 
 const SIZE_STYLE_MAP: Record<ComponentSize, ResultSizeConfig> = {
   small: {
-    iconSize: token => token.fontSizeLG,
     gap: token => token.marginXS,
     paddingVertical: token => token.paddingSM / 2,
     titleSize: 'md',
@@ -44,7 +41,6 @@ const SIZE_STYLE_MAP: Record<ComponentSize, ResultSizeConfig> = {
     iconBorderRadius: token => token.sizeXL / 2,
   },
   normal: {
-    iconSize: token => token.fontSizeXL,
     gap: token => token.marginSM,
     paddingVertical: token => token.paddingMD / 2,
     titleSize: 'lg',
@@ -53,7 +49,6 @@ const SIZE_STYLE_MAP: Record<ComponentSize, ResultSizeConfig> = {
     iconBorderRadius: token => token.sizeXXL / 2,
   },
   large: {
-    iconSize: token => token.fontSizeHeading4,
     gap: token => token.marginMD,
     paddingVertical: token => token.paddingLG / 2,
     titleSize: 'xl',
@@ -66,22 +61,22 @@ const SIZE_STYLE_MAP: Record<ComponentSize, ResultSizeConfig> = {
 const STATUS_CONFIG_MAP: Record<ResultStatus, ResultStatusConfig> = {
   success: {
     iconBg: token => token.colorSuccessBg,
-    iconColor: token => token.colorSuccess,
+    iconColor: 'success',
     iconName: 'check-circle',
   },
   warning: {
     iconBg: token => token.colorWarningBg,
-    iconColor: token => token.colorWarning,
+    iconColor: 'warning',
     iconName: 'warning',
   },
   error: {
     iconBg: token => token.colorErrorBg,
-    iconColor: token => token.colorError,
+    iconColor: 'error',
     iconName: 'close-circle',
   },
   info: {
     iconBg: token => token.colorInfoBg,
-    iconColor: token => token.colorInfo,
+    iconColor: 'info',
     iconName: 'info',
   },
 };
@@ -139,7 +134,6 @@ export function Result({
   style,
   styles,
 }: ResultProps) {
-  const { token } = useTheme();
   const tokenStyles = useStyles({ size, status });
   const sizeConfig = SIZE_STYLE_MAP[size];
   const statusConfig = STATUS_CONFIG_MAP[status];
@@ -153,8 +147,8 @@ export function Result({
         {icon ?? (
           <Icon
             icon={statusConfig.iconName}
-            size={sizeConfig.iconSize(token)}
-            color={statusConfig.iconColor(token) as IconColor}
+            size={size}
+            color={statusConfig.iconColor}
           />
         )}
       </View>

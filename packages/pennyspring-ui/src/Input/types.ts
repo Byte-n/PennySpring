@@ -18,7 +18,7 @@ export type InputStatus = 'default' | 'error' | 'warning' | 'success';
 
 export interface InputStyles {
   /** Label text style. */
-  label?: StyleProp<TextStyle>;
+  labelText?: StyleProp<TextStyle>;
 
   /** Field shell style. */
   field?: StyleProp<ViewStyle>;
@@ -43,7 +43,16 @@ export interface InputStyles {
 }
 
 export interface InputProps
-  extends Omit<TextInputProps, 'style' | 'editable' | 'placeholder'> {
+  extends Omit<
+    TextInputProps,
+    | 'defaultValue'
+    | 'editable'
+    | 'onChange'
+    | 'onChangeText'
+    | 'placeholder'
+    | 'style'
+    | 'value'
+  > {
   /**
    * Input size. Defaults to normal.
    */
@@ -55,9 +64,29 @@ export interface InputProps
   status?: InputStatus;
 
   /**
-   * Field label. Placeholder must not replace label.
+   * Initial uncontrolled field value.
    */
-  label?: ReactNode;
+  defaultValue?: string;
+
+  /**
+   * Controlled field value.
+   */
+  value?: string;
+
+  /**
+   * Called when the field value changes.
+   */
+  onChange?: (value: string) => void;
+
+  /**
+   * Field label text. Placeholder must not replace label.
+   */
+  labelText?: string;
+
+  /**
+   * Custom label node. Pass null to suppress label rendering.
+   */
+  label?: ReactNode | null;
 
   /**
    * Placeholder shown while the input is empty.

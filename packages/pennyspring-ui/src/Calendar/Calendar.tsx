@@ -493,7 +493,7 @@ function CalendarRoot({
             <Icon
               color="icon"
               icon="caret-left"
-              size={tokenStyles.navIcon.fontSize}
+              size={resolvedSize}
             />
           )}
         </Pressable>
@@ -512,7 +512,7 @@ function CalendarRoot({
             <Icon
               color="icon"
               icon="caret-right"
-              size={tokenStyles.navIcon.fontSize}
+              size={resolvedSize}
             />
           )}
         </Pressable>
@@ -683,7 +683,7 @@ function CalendarRange({
             <Icon
               color="icon"
               icon="caret-left"
-              size={tokenStyles.navIcon.fontSize}
+              size={resolvedSize}
             />
           )}
         </Pressable>
@@ -702,7 +702,7 @@ function CalendarRange({
             <Icon
               color="icon"
               icon="caret-right"
-              size={tokenStyles.navIcon.fontSize}
+              size={resolvedSize}
             />
           )}
         </Pressable>

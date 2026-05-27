@@ -1,5 +1,7 @@
 import React from 'react';
 import { Pressable, View } from 'react-native';
+import { Column } from '../Column';
+import { Row } from '../Row';
 import { Text } from '../Text';
 import { useStyles } from './style';
 import type { ComponentSize } from '../shares/types';
@@ -40,6 +42,7 @@ export function DisplayInput({
   helper,
   helperText,
   label,
+  labelText,
   onPress,
   placeholder,
   prefix,
@@ -68,7 +71,9 @@ export function DisplayInput({
   const isReadonly = readonly === true;
   const isClickable = !isDisabled && !isReadonly && onPress !== undefined;
   const isError = resolvedStatus === 'error';
-  const hasLabel = label !== undefined && label !== null;
+  const hasLabelNode = label !== undefined;
+  const hasLabelText = labelText !== undefined && labelText !== '';
+  const hasLabel = label === null ? false : hasLabelNode || hasLabelText;
   const hasPrefix = prefix !== undefined && prefix !== null;
   const hasSuffix = suffix !== undefined && suffix !== null;
   const hasCustomValue = children !== undefined && children !== null;
@@ -87,17 +92,37 @@ export function DisplayInput({
     ? errorMessage
     : helperMessage;
 
+  const renderLabel = () => {
+    if (label === null) {
+      return null;
+    }
+
+    if (label !== undefined) {
+      return label;
+    }
+
+    if (hasLabelText) {
+      return (
+        <Text style={[tokenStyles.label, styles?.label]}>
+          {labelText}
+        </Text>
+      );
+    }
+
+    return null;
+  };
+
   return (
-    <View style={[tokenStyles.root, style]}>
+    <Column style={[tokenStyles.root, style]}>
       {hasLabel ? (
-        <View style={tokenStyles.labelRow}>
-          <Text style={[tokenStyles.label, styles?.label]}>{label}</Text>
+        <Row align="center" style={tokenStyles.labelRow}>
+          {renderLabel()}
           {required === true ? (
             <Text style={tokenStyles.requiredMark}>
               {REQUIRED_MARK}
             </Text>
           ) : null}
-        </View>
+        </Row>
       ) : null}
       <Pressable
         disabled={!isClickable}
@@ -109,39 +134,41 @@ export function DisplayInput({
           isClickable && pressed ? tokenStyles.fieldPressed : null,
         ]}
       >
-        {hasPrefix ? (
-          <View style={[tokenStyles.prefix, styles?.prefix]}>{prefix}</View>
-        ) : null}
-        {hasCustomValue && !isTextLikeValue(children) ? (
-          <View
-            style={[
-              tokenStyles.valueContainer,
-              resolvedOverflow === 'hidden'
-                ? tokenStyles.valueContainerHidden
-                : tokenStyles.valueContainerVisible,
-              styles?.valueContainer,
-            ]}
-          >
-            {children}
-          </View>
-        ) : (
-          <Text
-            ellipsizeMode={resolvedOverflow === 'hidden' ? 'tail' : undefined}
-            numberOfLines={resolvedOverflow === 'hidden' ? 1 : undefined}
-            style={[
-              tokenStyles.value,
-              styles?.value,
-              !hasDisplayText ? tokenStyles.placeholder : null,
-              !hasDisplayText ? styles?.placeholder : null,
-              isDisabled ? tokenStyles.valueDisabled : null,
-            ]}
-          >
-            {hasDisplayText ? textValue : placeholder}
-          </Text>
-        )}
-        {hasSuffix ? (
-          <View style={[tokenStyles.suffix, styles?.suffix]}>{suffix}</View>
-        ) : null}
+        <Row align="center" style={tokenStyles.fieldContent}>
+          {hasPrefix ? (
+            <View style={[tokenStyles.prefix, styles?.prefix]}>{prefix}</View>
+          ) : null}
+          {hasCustomValue && !isTextLikeValue(children) ? (
+            <View
+              style={[
+                tokenStyles.valueContainer,
+                resolvedOverflow === 'hidden'
+                  ? tokenStyles.valueContainerHidden
+                  : tokenStyles.valueContainerVisible,
+                styles?.valueContainer,
+              ]}
+            >
+              {children}
+            </View>
+          ) : (
+            <Text
+              ellipsizeMode={resolvedOverflow === 'hidden' ? 'tail' : undefined}
+              numberOfLines={resolvedOverflow === 'hidden' ? 1 : undefined}
+              style={[
+                tokenStyles.value,
+                styles?.value,
+                !hasDisplayText ? tokenStyles.placeholder : null,
+                !hasDisplayText ? styles?.placeholder : null,
+                isDisabled ? tokenStyles.valueDisabled : null,
+              ]}
+            >
+              {hasDisplayText ? textValue : placeholder}
+            </Text>
+          )}
+          {hasSuffix ? (
+            <View style={[tokenStyles.suffix, styles?.suffix]}>{suffix}</View>
+          ) : null}
+        </Row>
       </Pressable>
       {message !== undefined && message !== null ? (
         <Text
@@ -153,6 +180,6 @@ export function DisplayInput({
           {message}
         </Text>
       ) : null}
-    </View>
+    </Column>
   );
 }

@@ -221,7 +221,7 @@ function CascaderRoot<TData = unknown>({
             <Icon
               color="icon"
               icon="caret-down"
-              size={tokenStyles.suffix.fontSize}
+              size={resolvedSize}
             />
           </>
         )}

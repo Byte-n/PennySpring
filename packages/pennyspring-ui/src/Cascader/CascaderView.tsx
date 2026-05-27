@@ -38,13 +38,13 @@ function renderOptionLabel<TData>(
 function renderOptionMarker(
   selected: boolean,
   disabled: boolean,
-  tokenStyles: ReturnType<typeof useCascaderStyles>,
+  size: NonNullable<CascaderViewProps['size']>,
 ) {
   return (
     <Icon
       color={disabled ? 'textDisabled' : selected ? 'primaryText' : 'textQuaternary'}
       icon={selected ? 'check' : CircleIcon}
-      size={tokenStyles.markerIcon.fontSize}
+      size={size}
       testID={selected ? 'cascader-option-marker-selected' : 'cascader-option-marker-unselected'}
     />
   );
@@ -191,7 +191,7 @@ export function CascaderView<TData = unknown>({
                     optionDisabled ? tokenStyles.markerDisabled : null,
                   ]}
                 >
-                  {renderOptionMarker(selected, optionDisabled, tokenStyles)}
+                  {renderOptionMarker(selected, optionDisabled, resolvedSize)}
                 </View>
                 <View style={tokenStyles.optionContent}>
                   {typeof content === 'string' || typeof content === 'number' ? (

@@ -4,5 +4,6 @@ export type {
   DateTimePickerLabelParams,
   DateTimePickerPrecision,
   DateTimePickerProps,
+  DateTimePickerStyles,
   DateTimePickerValueParams,
 } from './types';

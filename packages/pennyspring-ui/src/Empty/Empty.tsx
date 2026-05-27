@@ -1,7 +1,7 @@
 import type { ComponentSize } from '../shares/types';
 import React from 'react';
-import { View } from 'react-native';
 import { createUseSheetStyle } from '@pennyspring/theme';
+import { Column } from '../Column';
 import { Icon } from '../Icon';
 import { Text } from '../Text';
 import type { AliasToken } from '@pennyspring/theme';
@@ -23,19 +23,19 @@ interface EmptySizeConfig {
 const SIZE_STYLE_MAP: Record<ComponentSize, EmptySizeConfig> = {
   small: {
     iconSize: token => token.fontSizeXL,
-    gap: token => token.marginXS,
+    gap: token => token.marginXXS,
     paddingVertical: token => token.paddingSM / 2,
     messageSize: 'sm',
   },
   normal: {
     iconSize: token => token.fontSizeHeading4,
-    gap: token => token.marginSM,
+    gap: token => token.marginXS,
     paddingVertical: token => token.paddingMD / 2,
     messageSize: 'md',
   },
   large: {
     iconSize: token => token.fontSizeHeading3,
-    gap: token => token.marginMD,
+    gap: token => token.marginSM,
     paddingVertical: token => token.paddingLG / 2,
     messageSize: 'lg',
   },
@@ -48,9 +48,7 @@ const useStyles = createUseSheetStyle((token, { size }: EmptyStyleOptions) => {
 
   return {
     root: {
-      alignItems: 'center',
       gap: sizeConfig.gap(token),
-      justifyContent: 'center',
       paddingVertical: sizeConfig.paddingVertical(token),
       width: '100%',
     },
@@ -69,6 +67,10 @@ function isPrimitiveContent(content: React.ReactNode): content is string | numbe
   return typeof content === 'string' || typeof content === 'number';
 }
 
+function hasRenderableContent(content: React.ReactNode): boolean {
+  return content !== null && content !== undefined && content !== false;
+}
+
 export function Empty({
   icon,
   message,
@@ -79,13 +81,28 @@ export function Empty({
 }: EmptyProps) {
   const tokenStyles = useStyles({ size });
   const sizeConfig = SIZE_STYLE_MAP[size];
-  const resolvedMessage = message ?? messageText ?? DEFAULT_MESSAGE_TEXT;
+  const resolvedIcon = icon === undefined
+    ? <Icon icon={EmptyIcon} size={size} color="textQuaternary" />
+    : icon;
+  const resolvedMessage = message === undefined
+    ? messageText ?? DEFAULT_MESSAGE_TEXT
+    : message;
 
   return (
-    <View style={[tokenStyles.root, style]}>
-      <View style={[tokenStyles.iconContainer, styles?.iconContainer]}>
-        {icon ?? <Icon icon={EmptyIcon} size={size} color="textQuaternary" />}
-      </View>
+    <Column
+      align="center"
+      justify="center"
+      style={[tokenStyles.root, style]}
+    >
+      {hasRenderableContent(resolvedIcon) ? (
+        <Column
+          align="center"
+          justify="center"
+          style={[tokenStyles.iconContainer, styles?.iconContainer]}
+        >
+          {resolvedIcon}
+        </Column>
+      ) : null}
       {isPrimitiveContent(resolvedMessage) ? (
         <Text
           size={sizeConfig.messageSize}
@@ -97,6 +114,6 @@ export function Empty({
       ) : (
         resolvedMessage
       )}
-    </View>
+    </Column>
   );
 }

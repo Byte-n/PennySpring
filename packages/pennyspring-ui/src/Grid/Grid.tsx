@@ -3,7 +3,7 @@ import { Pressable, View } from 'react-native';
 import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
 import type { ViewStyle } from 'react-native';
 import type { AliasToken } from '@pennyspring/theme';
-import type { GridGap, GridGapValue, GridItemProps, GridProps } from './types';
+import type { GridGap, GridItemProps, GridProps } from './types';
 import type { ComponentSize } from '../shares/types';
 
 const DEFAULT_SPAN = 1;
@@ -83,40 +83,12 @@ function resolveGap(gap: GridGap | undefined, token: AliasToken): ResolvedGap {
     return horizontalGap / GAP_DIVISOR;
   };
 
-  if (Array.isArray(gap)) {
-    const horizontalGap = resolveGapValue(gap[0], token);
-
-    return {
-      horizontal: horizontalGap,
-      vertical: toVerticalGap(horizontalGap),
-    };
-  }
-
-  const value = resolveGapValue(gap, token);
+  const value = getGapValue(gap ?? 'normal', token);
 
   return {
     horizontal: value,
     vertical: toVerticalGap(value),
   };
-}
-
-function resolveGapValue(
-  gap: GridGapValue | undefined,
-  token: AliasToken,
-): number {
-  if (gap === undefined) {
-    return MIN_GAP;
-  }
-
-  if (typeof gap === 'string') {
-    return getGapValue(gap, token);
-  }
-
-  if (!Number.isFinite(gap)) {
-    return MIN_GAP;
-  }
-
-  return Math.max(MIN_GAP, gap);
 }
 
 function getNegativeHalfGap(gap: number): number {

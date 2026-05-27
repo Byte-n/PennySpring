@@ -73,9 +73,7 @@ export const useStyles = createUseSheetStyle<ImagePickerStyleOptions>((token, {
     paddingHorizontal: 0,
   },
   imageGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: token.marginMD,
+    gap: token.marginSM,
     paddingHorizontal: token.paddingLG,
     paddingVertical: token.paddingLG / 2,
   },

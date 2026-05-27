@@ -1,68 +1,23 @@
 import type { ComponentSize } from '../shares/types';
-import React, { Children, useMemo } from 'react';
-import { Pressable, View } from 'react-native';
+import React, { useRef } from 'react';
+import { Pressable, ScrollView, View } from 'react-native';
 import { Text } from '../Text';
 import { useControllableValue } from '../_hooks';
 import { useStyles } from './style';
+import type { ReactNode } from 'react';
 import type {
-  ReactNode } from 'react';
-import type { StyleProp,
+  LayoutChangeEvent,
+  ScrollView as ScrollViewType,
+  StyleProp,
   TextStyle,
-  ViewStyle } from 'react-native';
+} from 'react-native';
 import type {
-  IndexBarComponent,
-  IndexBarPanelProps,
+  IndexBarItem,
   IndexBarProps,
   IndexBarValue,
 } from './types';
 
 const DEFAULT_SIZE: ComponentSize = 'normal';
-
-interface NormalizedPanel {
-  index: IndexBarValue;
-  title?: ReactNode;
-  titleText?: string;
-  disabled?: boolean;
-  style?: StyleProp<ViewStyle>;
-  children?: ReactNode;
-}
-
-function collectPanels(children: ReactNode): NormalizedPanel[] {
-  const panels: NormalizedPanel[] = [];
-
-  Children.forEach(children, child => {
-    if (!React.isValidElement(child)) {
-      return;
-    }
-
-    if (child.type === React.Fragment) {
-      const fragmentChild = child as React.ReactElement<{ children?: ReactNode }>;
-      panels.push(...collectPanels(fragmentChild.props.children));
-      return;
-    }
-
-    if (!React.isValidElement<IndexBarPanelProps>(child)) {
-      return;
-    }
-
-    const panelProps = child.props;
-
-    if (panelProps.index === undefined) {
-      return;
-    }
-
-    panels.push({
-      children: panelProps.children,
-      disabled: panelProps.disabled,
-      index: panelProps.index,
-      style: panelProps.style,
-      title: panelProps.title,
-      titleText: panelProps.titleText ?? String(panelProps.index),
-    });
-  });
-
-  return panels;
-}
 
 function resolveSize(size?: ComponentSize): ComponentSize {
   return size ?? DEFAULT_SIZE;
@@ -81,7 +36,7 @@ function renderTextNode(node: ReactNode, style: StyleProp<TextStyle>) {
 }
 
 function getInitialValue(
-  panels: NormalizedPanel[],
+  panels: readonly IndexBarItem[],
   defaultValue?: IndexBarValue,
 ): IndexBarValue | undefined {
   if (defaultValue !== undefined) {
@@ -91,53 +46,90 @@ function getInitialValue(
   return panels.find(panel => panel.disabled !== true)?.index;
 }
 
-function IndexBarPanel(_props: IndexBarPanelProps): null {
-  return null;
-}
-
-function IndexBarRoot({
+export function IndexBar({
+  data,
+  renderPanel,
   value,
   defaultValue,
   onChange,
   onPress,
   disabled = false,
   size,
-  children,
   style,
   styles,
   ...rest
 }: IndexBarProps) {
+  const scrollViewRef = useRef<ScrollViewType | null>(null);
+  const panelOffsetYRef = useRef<Record<string, number>>({});
   const resolvedSize = resolveSize(size);
   const tokenStyles = useStyles({
     disabled,
     size: resolvedSize,
   });
-  const panels = useMemo(() => collectPanels(children), [children]);
 
   const [selectedValue, setSelectedValue] = useControllableValue(
-    getInitialValue(panels, defaultValue),
+    getInitialValue(data, defaultValue),
     value,
     onChange,
   );
 
+  const updatePanelOffset = (
+    panelValue: IndexBarValue,
+    event: LayoutChangeEvent,
+  ) => {
+    panelOffsetYRef.current = {
+      ...panelOffsetYRef.current,
+      [String(panelValue)]: event.nativeEvent.layout.y,
+    };
+  };
+
+  const scrollToPanel = (panelValue: IndexBarValue) => {
+    const offsetY = panelOffsetYRef.current[String(panelValue)];
+
+    if (offsetY === undefined) {
+      return;
+    }
+
+    scrollViewRef.current?.scrollTo({
+      animated: true,
+      y: offsetY,
+    });
+  };
+
   return (
     <View testID="index-bar-root" style={[tokenStyles.root, style]}>
-      <View testID="index-bar-content" style={[tokenStyles.content, styles?.content]}>
-        {panels.map(panel => (
+      <ScrollView
+        ref={scrollViewRef}
+        testID="index-bar-content"
+        style={[tokenStyles.content, styles?.content]}
+      >
+        {data.map((panel, panelIndex) => (
           <View
             key={String(panel.index)}
             testID={`index-bar-panel-${String(panel.index)}`}
             style={[tokenStyles.panel, styles?.panel, panel.style]}
+            onLayout={event => updatePanelOffset(panel.index, event)}
           >
-            <View style={[tokenStyles.panelTitleContainer, styles?.panelTitleContainer]}>
-              {panel.title ?? renderTextNode(panel.titleText, [tokenStyles.panelTitleText, styles?.panelTitleText])}
+            <View
+              style={[
+                tokenStyles.panelTitleContainer,
+                styles?.panelTitleContainer,
+              ]}
+            >
+              {panel.title ?? renderTextNode(panel.titleText ?? String(panel.index), [
+                tokenStyles.panelTitleText,
+                styles?.panelTitleText,
+              ])}
             </View>
-            {panel.children}
+            {renderPanel?.(panel, panelIndex)}
           </View>
         ))}
-      </View>
-      <View testID="index-bar-sidebar" style={[tokenStyles.sidebar, styles?.sidebar]}>
-        {panels.map(panel => {
+      </ScrollView>
+      <View
+        testID="index-bar-sidebar"
+        style={[tokenStyles.sidebar, styles?.sidebar]}
+      >
+        {data.map(panel => {
           const itemDisabled = disabled || panel.disabled === true;
           const isSelected = selectedValue === panel.index;
 
@@ -154,6 +146,7 @@ function IndexBarRoot({
 
                 onPress?.(event, panel.index);
                 setSelectedValue(panel.index);
+                scrollToPanel(panel.index);
               }}
               style={({ pressed }) => [
                 tokenStyles.indexItem,
@@ -181,7 +174,3 @@ function IndexBarRoot({
     </View>
   );
 }
-
-export const IndexBar = Object.assign(IndexBarRoot, {
-  Panel: IndexBarPanel,
-}) as IndexBarComponent;
