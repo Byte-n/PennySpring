@@ -70,6 +70,7 @@ paths:
 - 容器、布局、录入和展示组件有 `size` 时，必须完整响应对应尺寸变化，包括边距、阴影、字号等与尺寸语义相关的样式。
 - 组件内部使用的其他组件如果也有 `size`，必须随外层 `size` 传递或映射，避免内外尺寸语义不一致。
 - 容器组件和布局组件的 `size` 到 spacing token 映射必须遵循通用组件视觉与布局规范中的语义选择策略。
+- 组件实现中所有垂直方向 spacing（`paddingVertical` / `marginVertical` / 垂直轴 gap）必须直接基于同语义水平 token 计算，统一使用 `horizontalToken / 2`。
 - 尺寸样式必须使用 `AliasToken`，并通过 `createUseSheetStyle<TOptions>` options 传入 `size`。
 
 ## 样式 API

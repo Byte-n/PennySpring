@@ -30,6 +30,7 @@
 - `small` 映射到 `paddingXXS` 或 `marginXXS`，仅用于紧凑视觉间距。
 - `normal` 映射到 `paddingXS` 或 `marginXS`，作为默认子项间距。
 - `large` 映射到 `paddingSM` 或 `marginSM`，用于较松的模块内排列。
+- 垂直方向间隙必须由同语义水平 token 直接计算：`verticalGap = horizontalGap / 2`。
 
 ### Container Padding
 
@@ -37,6 +38,7 @@
 - `normal` 映射到 `padding`，用于默认移动端卡片、普通内容容器。
 - `large` 映射到 `paddingMD`，用于较松的卡片、内容容器和弹层内容区。
 - 强调卡片、页面主容器、弹层大内容区等特殊场景可升级为 `paddingLG`。
+- 容器内边距在需要区分方向时，垂直值必须直接使用水平 token 折半：`paddingVertical = paddingHorizontal / 2`。
 
 ### Section Margin
 
@@ -44,6 +46,7 @@
 - `normal` 映射到 `margin`，用于页面默认区块间距。
 - `large` 映射到 `marginMD`，用于较明显的区块分隔。
 - 主区块分隔等特殊场景可升级为 `marginLG`。
+- 区块外边距在需要区分方向时，垂直值必须直接使用水平 token 折半：`marginVertical = marginHorizontal / 2`。
 
 ## 通用交互
 
