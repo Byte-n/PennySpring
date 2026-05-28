@@ -1,6 +1,6 @@
 import React from 'react';
 import { View } from 'react-native';
-import { CalculatorInput } from '@pennyspring/ui';
+import { Input } from '@pennyspring/ui';
 import { createUseSheetStyle } from '@pennyspring/theme';
 
 const useStyles = createUseSheetStyle(token => ({
@@ -20,8 +20,8 @@ export function CalculatorInputBasicDemo() {
   return (
     <>
       <View style={styles.stack}>
-        <CalculatorInput defaultValue="1+2×3" />
-        <CalculatorInput defaultValue="16/" />
+        <Input defaultValue="1+2×3" labelText="Expression" />
+        <Input defaultValue="16/" labelText="Draft expression" />
       </View>
     </>
   );

@@ -1,6 +1,6 @@
 import React from 'react';
 import { View } from 'react-native';
-import { Textarea } from '@pennyspring/ui';
+import { Input } from '@pennyspring/ui';
 import { createUseSheetStyle } from '@pennyspring/theme';
 
 const useStyles = createUseSheetStyle(token => ({
@@ -17,42 +17,43 @@ export function TextareaRowsAndStatusDemo() {
   return (
     <>
       <View style={styles.stack}>
-        <Textarea
+        <Input
           labelText="Small"
           size="small"
-          minRows={2}
+          multiline
+          numberOfLines={2}
           placeholder="Small textarea"
         />
-        <Textarea
-          labelText="Large (maxRows)"
+        <Input
+          labelText="Large"
           size="large"
-          minRows={3}
-          maxRows={5}
+          multiline
+          numberOfLines={5}
           placeholder="Large textarea"
           defaultValue={'Line 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6'}
         />
-        <Textarea
+        <Input
           defaultValue="This value needs attention."
           errorText="Please shorten the content."
           labelText="Error"
           status="error"
         />
-        <Textarea
+        <Input
           defaultValue="Potential issue needs review."
           helperText="Check the content before submit."
           labelText="Warning"
           status="warning"
         />
-        <Textarea
+        <Input
           defaultValue="Saved successfully."
           helperText="Content is valid."
           labelText="Success"
           status="success"
         />
-        <Textarea labelText="Required" required placeholder="Required textarea" />
-        <Textarea readonly labelText="Readonly" defaultValue="Readonly content" />
-        <Textarea disabled labelText="Disabled" defaultValue="Disabled content" />
-        <Textarea
+        <Input labelText="Required" required placeholder="Required textarea" />
+        <Input readonly labelText="Readonly" defaultValue="Readonly content" />
+        <Input disabled labelText="Disabled" defaultValue="Disabled content" />
+        <Input
           loading
           labelText="Loading"
           defaultValue="Recognizing content..."
