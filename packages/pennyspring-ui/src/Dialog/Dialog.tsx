@@ -21,7 +21,7 @@ const useStyles = createUseSheetStyle(
     return {
       popupBody: {
         padding: 0,
-        width: '100%',
+        width: '85%',
       },
       panel: {
         padding: token.paddingMD,
