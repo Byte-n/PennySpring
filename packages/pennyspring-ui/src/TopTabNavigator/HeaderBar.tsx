@@ -1,63 +1,20 @@
 import React from 'react';
 import { View } from 'react-native';
-import { createUseSheetStyle } from '@pennyspring/theme';
 import { SegmentedControl } from './SegmentedControl';
-import type { HeaderBarStyles, SegmentedControlStyles } from './types';
-import type { StyleProp, ViewStyle } from 'react-native';
-
-interface HeaderBarProps {
-  descriptors: React.ComponentProps<typeof SegmentedControl>['descriptors'];
-  leftActions?: React.ReactNode;
-  navigation: React.ComponentProps<typeof SegmentedControl>['navigation'];
-  position?: React.ComponentProps<typeof SegmentedControl>['position'];
-  rightActions?: React.ReactNode;
-  state: React.ComponentProps<typeof SegmentedControl>['state'];
-  style?: StyleProp<ViewStyle>;
-  styles?: HeaderBarStyles;
-  segmentedControlStyles?: SegmentedControlStyles;
-}
-
-const useStyles = createUseSheetStyle((token) => ({
-  container: {
-    alignItems: 'center',
-    backgroundColor: token.colorBgContainer,
-    borderBottomColor: token.colorSplit,
-    borderBottomWidth: token.lineWidth,
-    flexDirection: 'row',
-    minHeight: token.controlHeightLG,
-    paddingHorizontal: token.paddingMD,
-    paddingVertical: token.paddingMD / 2,
-  },
-  leftActions: {
-    alignItems: 'center',
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'flex-start',
-  },
-  center: {
-    alignItems: 'center',
-    flex: 2,
-  },
-  rightActions: {
-    alignItems: 'center',
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-  },
-}));
+import { useHeaderBarStyles } from './style';
+import type { HeaderBarProps } from './types';
 
 export function HeaderBar({
   descriptors,
   leftActions,
   navigation,
-  position,
   rightActions,
   state,
   style,
   styles,
   segmentedControlStyles,
 }: HeaderBarProps) {
-  const tokenStyles = useStyles();
+  const tokenStyles = useHeaderBarStyles();
 
   return (
     <View style={[tokenStyles.container, style]}>
@@ -66,7 +23,6 @@ export function HeaderBar({
         <SegmentedControl
           descriptors={descriptors}
           navigation={navigation}
-          position={position}
           state={state}
           styles={segmentedControlStyles}
         />

@@ -4,5 +4,6 @@ export type {
   TimePickerLabelParams,
   TimePickerPrecision,
   TimePickerProps,
+  TimePickerStyles,
   TimePickerValueParams,
 } from './types';

@@ -14,12 +14,12 @@ export interface ResultStyles {
 export interface ResultProps {
   status?: ResultStatus;
   size?: ComponentSize;
-  icon?: ReactNode;
+  icon?: ReactNode | null;
   titleText?: string;
-  title?: ReactNode;
+  title?: ReactNode | null;
   subtitleText?: string;
-  subtitle?: ReactNode;
-  extra?: ReactNode;
+  subtitle?: ReactNode | null;
+  extra?: ReactNode | null;
   style?: StyleProp<ViewStyle>;
   styles?: ResultStyles;
 }

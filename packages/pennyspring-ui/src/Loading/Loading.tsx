@@ -3,17 +3,11 @@ import React from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
 import { Text } from '../Text';
-import type {
-  AliasToken } from '@pennyspring/theme';
-import type { ReactNode } from 'react';
-import type { LoadingProps,
-} from './types';
+import { Row } from '../Row';
+import { Column } from '../Column';
+import type { AliasToken } from '@pennyspring/theme';
+import type { LoadingProps } from './types';
 import type { TextSize } from '../Text';
-
-interface LoadingStyleOptions {
-  size: ComponentSize;
-  vertical: boolean;
-}
 
 interface SizeStyleConfig {
   indicatorSize: (token: AliasToken) => number;
@@ -43,10 +37,6 @@ function resolveSize(size?: ComponentSize): ComponentSize {
   return size ?? 'normal';
 }
 
-function shouldRenderText(text: ReactNode): boolean {
-  return text !== undefined && text !== null && text !== false;
-}
-
 function resolveIndicatorSize(token: AliasToken, size: ComponentSize): number {
   return SIZE_STYLE_MAP[size].indicatorSize(token);
 }
@@ -55,22 +45,12 @@ function resolveTextSize(size: ComponentSize): TextSize {
   return SIZE_STYLE_MAP[size].textSize;
 }
 
-const useStyles = createUseSheetStyle(
-  (token, { size, vertical }: LoadingStyleOptions) => ({
-    root: {
-      alignItems: 'center',
-      flexDirection: vertical ? 'column' : 'row',
-      gap: SIZE_STYLE_MAP[size].gap(token),
-    },
-    indicator: {
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    text: {
-      color: token.colorTextSecondary,
-    },
-  }),
-);
+const useStyles = createUseSheetStyle(_token => ({
+  indicator: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+}));
 
 export function Loading({
   size,
@@ -84,11 +64,14 @@ export function Loading({
   ...rest
 }: LoadingProps) {
   const resolvedSize = resolveSize(size);
-  const tokenStyles = useStyles({ size: resolvedSize, vertical });
+  const tokenStyles = useStyles();
   const { token } = useTheme();
 
+  const Layout = vertical ? Column : Row;
+  const gap = SIZE_STYLE_MAP[resolvedSize].gap(token);
+
   return (
-    <View style={[tokenStyles.root, style]}>
+    <Layout align="center" gap={gap} style={style}>
       <View style={[tokenStyles.indicator, styles?.indicator]}>
         {indicator ?? (
           <ActivityIndicator
@@ -100,14 +83,15 @@ export function Loading({
           />
         )}
       </View>
-      {shouldRenderText(text) ? (
+      {text ? (
         <Text
+          color="secondary"
           size={resolveTextSize(resolvedSize)}
-          style={[tokenStyles.text, styles?.text]}
+          style={styles?.text}
         >
           {text}
         </Text>
       ) : null}
-    </View>
+    </Layout>
   );
 }

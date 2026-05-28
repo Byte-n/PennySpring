@@ -3,9 +3,12 @@ import type { StyleProp, ViewStyle } from 'react-native';
 import type {
   PickerCancelParams,
   PickerDisplayInputProps,
+  PickerInputStyles,
   PickerOpenChangeParams,
-  PickerStyles,
+  PickerPanelStyles,
+  PickerPopupStyles,
 } from '../Picker';
+import type { ComponentSize } from '../shares/types';
 
 export type TimePickerPrecision = 'hour' | 'minute' | 'second';
 
@@ -22,6 +25,13 @@ export interface TimePickerValueParams {
   minutes: number;
   seconds: number;
   date: Date;
+}
+
+export interface TimePickerStyles {
+  trigger?: StyleProp<ViewStyle>;
+  input?: PickerInputStyles;
+  popup?: PickerPopupStyles;
+  panel?: PickerPanelStyles;
 }
 
 export interface TimePickerProps {
@@ -57,8 +67,10 @@ export interface TimePickerProps {
   placeholder?: string;
   displayInputProps?: PickerDisplayInputProps;
   disabled?: boolean;
+  readonly?: boolean;
+  size?: ComponentSize;
   okDisabled?: boolean;
   children?: ReactNode;
   style?: StyleProp<ViewStyle>;
-  styles?: PickerStyles;
+  styles?: TimePickerStyles;
 }

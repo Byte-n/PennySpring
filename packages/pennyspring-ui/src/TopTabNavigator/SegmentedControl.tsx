@@ -1,94 +1,19 @@
-import React, { useState } from 'react';
-import {
-  Animated,
-  Pressable,
-  View,
-  type Animated as ReactNativeAnimated,
-  type LayoutChangeEvent,
-  type TextStyle,
-} from 'react-native';
-import { createUseSheetStyle, toShadowStyle } from '@pennyspring/theme';
+import React, { useEffect, useState } from 'react';
+import { Pressable, View, type LayoutChangeEvent } from 'react-native';
+import Animated, {
+  Easing,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
+import { useTheme } from '@pennyspring/theme';
 import { Text } from '../Text';
-import type { SegmentedControlStyles } from './types';
-
-interface RouteLike {
-  key: string;
-  name: string;
-}
-
-interface DescriptorLike {
-  options?: {
-    title?: string;
-    tabBarLabel?:
-      | string
-      | ((
-          props: { focused: boolean; color: string; children: string }
-        ) => React.ReactNode);
-  };
-}
-
-interface SegmentedControlProps {
-  descriptors: Record<string, DescriptorLike>;
-  navigation: {
-    navigate: (name: string) => void;
-  };
-  position?: {
-    interpolate?: (config: {
-      inputRange: number[];
-      outputRange: number[];
-      extrapolate?: 'clamp';
-    }) => number | ReactNativeAnimated.AnimatedNode;
-    value?: number;
-  };
-  state: {
-    index: number;
-    routes: readonly RouteLike[];
-  };
-  styles?: SegmentedControlStyles;
-}
-
-const useStyles = createUseSheetStyle((token) => ({
-  container: {
-    alignSelf: 'center',
-  },
-  track: {
-    backgroundColor: token.colorBgLayout,
-    borderRadius: token.borderRadius,
-    flexDirection: 'row',
-    minHeight: token.controlHeightSM,
-    padding: token.paddingXXS,
-    position: 'relative',
-  },
-  indicator: {
-    backgroundColor: token.colorBgElevated,
-    borderRadius: token.borderRadiusSM,
-    bottom: token.paddingXXS,
-    left: token.paddingXXS,
-    position: 'absolute',
-    top: token.paddingXXS,
-    ...toShadowStyle(token.boxShadowTertiary),
-  },
-  option: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    minHeight: token.controlHeightSM,
-    paddingHorizontal: token.paddingSM,
-    position: 'relative',
-    zIndex: token.zIndexBase + 1,
-  },
-  label: {
-    fontFamily: token.fontFamily,
-    fontSize: token.fontSize,
-    lineHeight: token.lineHeight,
-  },
-  activeLabel: {
-    color: token.colorText,
-    fontWeight: String(token.fontWeightSemiBold) as TextStyle['fontWeight'],
-  },
-  inactiveLabel: {
-    color: token.colorTextTertiary,
-  },
-}));
+import { useSegmentedControlStyles } from './style';
+import type {
+  DescriptorLike,
+  RouteLike,
+  SegmentedControlProps,
+} from './types';
 
 interface TabLayout {
   width: number;
@@ -112,7 +37,10 @@ function updateRouteLayout(
   };
 }
 
-function getRouteLabel(route: RouteLike, descriptor?: DescriptorLike): string {
+function getRouteLabel(
+  route: RouteLike,
+  descriptor?: DescriptorLike
+): string {
   const tabBarLabel = descriptor?.options?.tabBarLabel;
 
   if (typeof tabBarLabel === 'string') {
@@ -125,27 +53,56 @@ function getRouteLabel(route: RouteLike, descriptor?: DescriptorLike): string {
 export function SegmentedControl({
   descriptors,
   navigation,
-  position,
   state,
   styles,
 }: SegmentedControlProps) {
-  const tokenStyles = useStyles();
+  const tokenStyles = useSegmentedControlStyles();
+  const { token } = useTheme();
   const [tabLayouts, setTabLayouts] = useState<Record<string, TabLayout>>({});
-  const inputRange = state.routes.map((_, index) => index);
-  const outputRange = state.routes.map((route) => tabLayouts[route.key]?.x ?? 0);
-  const selectedLayout = tabLayouts[state.routes[state.index]?.key] ?? {
-    width: 0,
-    x: 0,
-  };
-  const translateX = position?.interpolate?.({
-    inputRange,
-    outputRange,
-    extrapolate: 'clamp',
-  }) ?? selectedLayout.x;
-  const indicatorStyle = {
-    transform: [{ translateX }],
-    width: selectedLayout.width,
-  };
+  const selectedIndex = useSharedValue(state.index);
+
+  useEffect(() => {
+    selectedIndex.value = withTiming(state.index, {
+      duration: token.motionDurationFast,
+      easing: Easing.bezier(...token.motionEaseOut),
+    });
+  }, [state.index, selectedIndex, token.motionDurationFast, token.motionEaseOut]);
+
+  const indicatorAnimatedStyle = useAnimatedStyle(() => {
+    const currentIndex = selectedIndex.value;
+    const roundedIndex = Math.round(currentIndex);
+    const routes = state.routes;
+    const currentKey = routes[roundedIndex]?.key;
+    const nextKey = routes[roundedIndex + 1]?.key;
+    const prevKey = routes[roundedIndex - 1]?.key;
+
+    const currentX = tabLayouts[currentKey]?.x ?? 0;
+    const currentWidth = tabLayouts[currentKey]?.width ?? 0;
+    const fraction = currentIndex - roundedIndex;
+
+    let translateX: number;
+    let width: number;
+
+    if (fraction > 0 && nextKey !== undefined) {
+      const nextX = tabLayouts[nextKey]?.x ?? currentX;
+      translateX = currentX + fraction * (nextX - currentX);
+      const nextWidth = tabLayouts[nextKey]?.width ?? currentWidth;
+      width = currentWidth + fraction * (nextWidth - currentWidth);
+    } else if (fraction < 0 && prevKey !== undefined) {
+      const prevX = tabLayouts[prevKey]?.x ?? currentX;
+      translateX = currentX + fraction * (prevX - currentX);
+      const prevWidth = tabLayouts[prevKey]?.width ?? currentWidth;
+      width = currentWidth + fraction * (prevWidth - currentWidth);
+    } else {
+      translateX = currentX;
+      width = currentWidth;
+    }
+
+    return {
+      transform: [{ translateX }],
+      width,
+    };
+  });
 
   const updateTabLayout = (routeKey: string, event: LayoutChangeEvent) => {
     const { width, x } = event.nativeEvent.layout;
@@ -160,11 +117,9 @@ export function SegmentedControl({
 
   return (
     <View style={tokenStyles.container}>
-      <View
-        style={[tokenStyles.track, styles?.track]}
-      >
+      <View style={[tokenStyles.track, styles?.track]}>
         <Animated.View
-          style={[tokenStyles.indicator, indicatorStyle, styles?.indicator]}
+          style={[tokenStyles.indicator, indicatorAnimatedStyle, styles?.indicator]}
           testID="top-tab-segment-indicator"
         />
         {state.routes.map((route, index) => {

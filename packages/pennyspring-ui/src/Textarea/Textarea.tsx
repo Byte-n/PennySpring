@@ -1,224 +1,27 @@
-import type { ComponentSize } from '../shares/types';
 import React, { useState } from 'react';
 import { ActivityIndicator, TextInput, View } from 'react-native';
-import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
+import { useTheme } from '@pennyspring/theme';
+import { Column } from '../Column';
+import { Row } from '../Row';
+import { Spacer } from '../Spacer';
 import { Text } from '../Text';
 import { useControllableValue } from '../_hooks';
 import type {
   NativeSyntheticEvent,
   TextInputContentSizeChangeEventData,
   TextInputProps,
-  TextStyle,
-  } from 'react-native';
-import type { AliasToken } from '@pennyspring/theme';
+} from 'react-native';
 import type {
   TextareaProps,
-  TextareaStatus,
 } from './types';
-
-const DEFAULT_MIN_ROWS = 3;
-const MIN_ALLOWED_ROWS = 1;
-
-interface TextareaStyleOptions {
-  contentHeight: number;
-  isDisabled: boolean;
-  isError: boolean;
-  isFocused: boolean;
-  status: TextareaStatus;
-  minRows: number;
-  maxRows: number;
-  size: ComponentSize;
-}
-
-interface SizeConfig {
-  fontSize: (token: AliasToken) => number;
-  lineHeight: (token: AliasToken) => number;
-  paddingHorizontal: (token: AliasToken) => number;
-  paddingVertical: (token: AliasToken) => number;
-  footerGap: (token: AliasToken) => number;
-}
-
-const SIZE_CONFIG: Record<ComponentSize, SizeConfig> = {
-  small: {
-    fontSize: token => token.fontSizeSM,
-    lineHeight: token => token.lineHeightSM,
-    paddingHorizontal: token => token.controlPaddingHorizontalSM,
-    paddingVertical: token => token.controlPaddingHorizontalSM / 2,
-    footerGap: token => token.marginXXS,
-  },
-  normal: {
-    fontSize: token => token.fontSize,
-    lineHeight: token => token.lineHeight,
-    paddingHorizontal: token => token.controlPaddingHorizontal,
-    paddingVertical: token => token.controlPaddingHorizontal / 2,
-    footerGap: token => token.marginXS,
-  },
-  large: {
-    fontSize: token => token.fontSizeLG,
-    lineHeight: token => token.lineHeightLG,
-    paddingHorizontal: token => token.paddingMD,
-    paddingVertical: token => token.paddingMD / 2,
-    footerGap: token => token.marginSM,
-  },
-};
-
-function resolveRows(rows: number | undefined, fallback: number): number {
-  return Math.max(MIN_ALLOWED_ROWS, Math.floor(rows ?? fallback));
-}
-
-function resolveMaxRows(minRows: number, maxRows?: number): number {
-  return Math.max(minRows, resolveRows(maxRows, minRows));
-}
-
-function getRowHeight(size: ComponentSize, token: AliasToken): number {
-  return SIZE_CONFIG[size].lineHeight(token);
-}
-
-function getVerticalPadding(size: ComponentSize, token: AliasToken): number {
-  return SIZE_CONFIG[size].paddingVertical(token);
-}
-
-function getFieldHeight(
-  rows: number,
-  size: ComponentSize,
-  token: AliasToken,
-): number {
-  const borderSize = token.lineWidth * 2;
-
-  return getRowHeight(size, token) * rows + getVerticalPadding(size, token) * 2 + borderSize;
-}
-
-function clampHeight(value: number, minHeight: number, maxHeight: number): number {
-  return Math.min(Math.max(value, minHeight), maxHeight);
-}
-
-function getStatusBorderColor(status: TextareaStatus, token: AliasToken): string {
-  if (status === 'error') {
-    return token.colorErrorBorder;
-  }
-
-  if (status === 'warning') {
-    return token.colorWarningBorder;
-  }
-
-  if (status === 'success') {
-    return token.colorSuccessBorder;
-  }
-
-  return token.colorBorder;
-}
-
-const useStyles = createUseSheetStyle(
-  (token, options: TextareaStyleOptions) => {
-    const sizeConfig = SIZE_CONFIG[options.size];
-    const fontSize = sizeConfig.fontSize(token);
-    const lineHeight = sizeConfig.lineHeight(token);
-    const minHeight = getFieldHeight(options.minRows, options.size, token);
-    const maxHeight = getFieldHeight(options.maxRows, options.size, token);
-    const height =
-      options.contentHeight > 0
-        ? clampHeight(
-            options.contentHeight + getVerticalPadding(options.size, token) * 2,
-            minHeight,
-            maxHeight,
-          )
-        : minHeight;
-
-    return {
-      root: {
-        gap: token.marginXXS,
-      },
-      labelRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: token.marginXXS,
-      },
-      label: {
-        color: options.isDisabled ? token.colorTextDisabled : token.colorTextLabel,
-        fontFamily: token.fontFamily,
-        fontSize: token.fontSizeSM,
-        lineHeight: token.lineHeightSM,
-        fontWeight: String(token.fontWeightMedium) as TextStyle['fontWeight'],
-      },
-      requiredMark: {
-        color: token.colorError,
-        fontFamily: token.fontFamily,
-        fontSize: token.fontSizeSM,
-        lineHeight: token.lineHeightSM,
-      },
-      field: {
-        minHeight,
-        maxHeight,
-        height,
-        borderWidth: token.lineWidth,
-        borderColor: getStatusBorderColor(options.status, token),
-        borderRadius: token.borderRadius,
-        backgroundColor: options.isDisabled
-          ? token.colorBgContainerDisabled
-          : token.colorBgContainer,
-        paddingHorizontal: sizeConfig.paddingHorizontal(token),
-        paddingVertical: sizeConfig.paddingVertical(token),
-      },
-      fieldFocused: {
-        borderColor: options.isError ? token.colorError : token.colorPrimary,
-        borderWidth: token.lineWidthBold,
-      },
-      fieldError: {
-        borderColor: token.colorErrorBorder,
-        backgroundColor: token.colorErrorBg,
-      },
-      fieldDisabled: {
-        borderColor: token.colorBorderDisabled,
-        backgroundColor: token.colorBgContainerDisabled,
-      },
-      fieldReadonly: {
-        backgroundColor: token.colorFillQuaternary,
-      },
-      input: {
-        minHeight: lineHeight,
-        color: options.isDisabled ? token.colorTextDisabled : token.colorText,
-        fontFamily: token.fontFamily,
-        fontSize,
-        lineHeight,
-        padding: 0,
-        margin: 0,
-        textAlignVertical: 'top',
-      },
-      footer: {
-        minHeight: token.lineHeightSM,
-        flexDirection: 'row',
-        alignItems: 'flex-start',
-        justifyContent: 'space-between',
-        gap: sizeConfig.footerGap(token),
-      },
-      helper: {
-        flex: 1,
-        color: token.colorTextDescription,
-        fontFamily: token.fontFamily,
-        fontSize: token.fontSizeSM,
-        lineHeight: token.lineHeightSM,
-      },
-      error: {
-        flex: 1,
-        color: token.colorErrorText,
-        fontFamily: token.fontFamily,
-        fontSize: token.fontSizeSM,
-        lineHeight: token.lineHeightSM,
-      },
-      count: {
-        color: token.colorTextTertiary,
-        fontFamily: token.fontFamily,
-        fontSize: token.fontSizeSM,
-        lineHeight: token.lineHeightSM,
-      },
-      loading: {
-        position: 'absolute',
-        top: sizeConfig.paddingVertical(token),
-        right: sizeConfig.paddingHorizontal(token),
-      },
-    };
-  },
-);
+import {
+  clampHeight,
+  DEFAULT_MIN_ROWS,
+  getFieldHeight,
+  resolveMaxRows,
+  resolveRows,
+  useStyles,
+} from './style';
 
 export function Textarea({
   defaultValue,
@@ -228,6 +31,7 @@ export function Textarea({
   helper,
   helperText,
   label,
+  labelText,
   loading = false,
   maxLength,
   maxRows,
@@ -306,13 +110,31 @@ export function Textarea({
   const countText =
     maxLength === undefined ? `${textValue.length}` : `${textValue.length} / ${maxLength}`;
 
+  const labelColor = disabled ? 'disabled' : 'label';
+  const resolvedLabel = label !== undefined ? label : labelText;
+  const renderLabelContent = () => {
+    if (resolvedLabel === null || resolvedLabel === undefined) {
+      return null;
+    }
+
+    if (typeof resolvedLabel === 'string') {
+      return (
+        <Text size="sm" weight="medium" color={labelColor} style={styles?.label}>
+          {resolvedLabel}
+        </Text>
+      );
+    }
+
+    return resolvedLabel;
+  };
+
   return (
-    <View style={[tokenStyles.root, style]}>
-      {label !== undefined && label !== null ? (
-        <View style={tokenStyles.labelRow}>
-          <Text style={[tokenStyles.label, styles?.label]}>{label}</Text>
-          {required ? <Text style={tokenStyles.requiredMark}>*</Text> : null}
-        </View>
+    <Column style={[tokenStyles.root, style]}>
+      {label !== null && (label !== undefined || labelText !== undefined) ? (
+        <Row align="center" gap="small">
+          {renderLabelContent()}
+          {required ? <Text size="sm" color="error">*</Text> : null}
+        </Row>
       ) : null}
 
       <View
@@ -348,10 +170,12 @@ export function Textarea({
         ) : null}
       </View>
 
-      {message !== undefined || showCount ? (
-        <View style={[tokenStyles.footer, styles?.footer]}>
+      {shouldShowMessage || showCount ? (
+        <Row justify="between" align="start" style={[tokenStyles.footer, styles?.footer]}>
           {shouldShowMessage ? (
             <Text
+              size="sm"
+              color={isError && errorMessage !== undefined ? 'errorText' : 'description'}
               style={[
                 isError && errorMessage !== undefined
                   ? tokenStyles.error
@@ -364,13 +188,13 @@ export function Textarea({
               {message}
             </Text>
           ) : (
-            <View />
+            <Spacer />
           )}
           {showCount ? (
-            <Text style={[tokenStyles.count, styles?.count]}>{countText}</Text>
+            <Text size="sm" color="tertiary" style={styles?.count}>{countText}</Text>
           ) : null}
-        </View>
+        </Row>
       ) : null}
-    </View>
+    </Column>
   );
 }

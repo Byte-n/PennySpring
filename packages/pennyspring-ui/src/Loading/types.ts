@@ -10,7 +10,7 @@ export interface LoadingStyles {
 export interface LoadingProps
   extends Omit<ActivityIndicatorProps, 'size' | 'style' | 'color'> {
   size?: ComponentSize;
-  text?: ReactNode;
+  text?: string;
   vertical?: boolean;
   indicator?: ReactNode;
   style?: StyleProp<ViewStyle>;

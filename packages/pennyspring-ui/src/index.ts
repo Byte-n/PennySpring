@@ -186,7 +186,7 @@ export type {
   IndexBarStyles,
   IndexBarValue,
 } from './IndexBar';
-export { Radio } from './Radio';
+export { Radio, RadioGroup } from './Radio';
 export type {
   RadioDisplayType,
   RadioGroupDirection,
@@ -208,6 +208,8 @@ export type {
   PickerCancelParams,
   PickerCancelReason,
   PickerChangeParams,
+  PickerChangeReason,
+  PickerClearChangeParams,
   PickerColumn,
   PickerColumnItemData,
   PickerDisplayInputProps,
@@ -216,8 +218,10 @@ export type {
   PickerOkParams,
   PickerOpenChangeParams,
   PickerOpenChangeReason,
+  PickerPanelStyles,
   PickerPopupStyles,
   PickerProps,
+  PickerSelectChangeParams,
   PickerStyles,
   PickerValue,
 } from './Picker';
@@ -227,6 +231,7 @@ export type {
   TimePickerLabelParams,
   TimePickerPrecision,
   TimePickerProps,
+  TimePickerStyles,
   TimePickerValueParams,
 } from './TimePicker';
 export { CascadePicker } from './CascadePicker';
@@ -294,12 +299,13 @@ export type {
   TopTabNavigatorProps,
   TopTabNavigatorStyles,
 } from './TopTabNavigator';
-export { Progress } from './Progress';
+export { Progress, ProgressBar, ProgressCircle } from './Progress';
 export type {
   ProgressBarProps,
   ProgressBarStyles,
   ProgressCircleProps,
   ProgressCircleStyles,
+  ProgressComponent,
   ProgressStatus,
 } from './Progress';
 export { Empty } from './Empty';
@@ -321,7 +327,7 @@ export type { StepsItem, StepsProps, StepsStatus, StepsStyles } from './Steps';
 export { Result } from './Result';
 export type { ResultProps, ResultStatus, ResultStyles } from './Result';
 export { Skeleton } from './Skeleton';
-export type { SkeletonProps, SkeletonShape } from './Skeleton';
+export type { SkeletonProps, SkeletonShape, SkeletonStyles } from './Skeleton';
 export { Ellipsis } from './Ellipsis';
 export type { EllipsisDirection, EllipsisProps, EllipsisStyles } from './Ellipsis';
 export { Toast, useToast } from './Toast';
@@ -389,6 +395,6 @@ export type { FlexAlign, FlexJustify, RowProps } from './Row';
 export { Column } from './Column';
 export type { ColumnProps } from './Column';
 export { Spacer } from './Spacer';
-export type { SpacerProps } from './Spacer';
+export type { SpacerDirection, SpacerProps } from './Spacer';
 export { GeometryReader } from './GeometryReader';
 export type { Geometry, GeometryReaderProps } from './GeometryReader';

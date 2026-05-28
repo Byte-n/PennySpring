@@ -1,40 +1,21 @@
 import type { ComponentSize } from '../shares/types';
 import React from 'react';
 import { Pressable, View } from 'react-native';
-import { createUseSheetStyle } from '@pennyspring/theme';
+import { Column } from '../Column';
+import { Row } from '../Row';
 import { Text } from '../Text';
 import { useControllableValue } from '../_hooks';
-import type {
-  AliasToken } from '@pennyspring/theme';
+import { useStyles } from './style';
 import type { ReactNode } from 'react';
-import type { StyleProp,
-  TextStyle,
-  ViewStyle } from 'react-native';
+import type { StyleProp, TextStyle, ViewStyle } from 'react-native';
+import type { TextColor, TextSize, TextWeight } from '../Text';
 import type {
   RadioDisplayType,
-  RadioGroupDirection,
+  RadioGroupOption,
   RadioGroupProps,
   RadioGroupValue,
   RadioProps,
 } from './types';
-
-interface SizeStyleConfig {
-  minHeight: (token: AliasToken) => number;
-  controlSize: (token: AliasToken) => number;
-  indicatorSize: (token: AliasToken) => number;
-  paddingHorizontal: (token: AliasToken) => number;
-  paddingVertical: (token: AliasToken) => number;
-  gap: (token: AliasToken) => number;
-  fontSize: (token: AliasToken) => number;
-  lineHeight: (token: AliasToken) => number;
-}
-
-interface RadioStyleOptions {
-  block: boolean;
-  direction: RadioGroupDirection;
-  displayType: RadioDisplayType;
-  size: ComponentSize;
-}
 
 interface RadioOptionState {
   block: boolean;
@@ -45,145 +26,44 @@ interface RadioOptionState {
   selected: boolean;
 }
 
-const SIZE_STYLE_MAP: Record<ComponentSize, SizeStyleConfig> = {
-  small: {
-    minHeight: token => token.controlHeightSM,
-    controlSize: token => token.fontSize,
-    indicatorSize: token => token.sizeXXS,
-    paddingHorizontal: token => token.controlPaddingHorizontalSM,
-    paddingVertical: token => token.controlPaddingHorizontalSM / 2,
-    gap: token => token.sizeXS,
-    fontSize: token => token.fontSizeSM,
-    lineHeight: token => token.lineHeightSM,
-  },
-  normal: {
-    minHeight: token => token.controlHeight,
-    controlSize: token => token.fontSizeLG,
-    indicatorSize: token => token.sizeXS,
-    paddingHorizontal: token => token.controlPaddingHorizontal,
-    paddingVertical: token => token.controlPaddingHorizontal / 2,
-    gap: token => token.sizeSM,
-    fontSize: token => token.fontSize,
-    lineHeight: token => token.lineHeight,
-  },
-  large: {
-    minHeight: token => token.controlHeightLG,
-    controlSize: token => token.fontSizeXL,
-    indicatorSize: token => token.sizeSM,
-    paddingHorizontal: token => token.paddingMD,
-    paddingVertical: token => token.paddingMD / 2,
-    gap: token => token.sizeSM,
-    fontSize: token => token.fontSizeLG,
-    lineHeight: token => token.lineHeightLG,
-  },
-};
+function toTextSize(size: ComponentSize): TextSize {
+  if (size === 'small') {
+    return 'sm';
+  }
 
-const useStyles = createUseSheetStyle(
-  (token, { block, direction, displayType, size }: RadioStyleOptions) => {
-    const sizeConfig = SIZE_STYLE_MAP[size];
-    const controlSize = sizeConfig.controlSize(token);
+  if (size === 'large') {
+    return 'lg';
+  }
 
-    return {
-      group: {
-        flexDirection: direction === 'horizontal' ? 'row' : 'column',
-        alignItems: direction === 'horizontal' ? 'center' : 'stretch',
-        alignSelf: block ? 'stretch' : 'flex-start',
-        width: block ? '100%' : undefined,
-        gap: sizeConfig.gap(token),
-      },
-      option: {
-        minHeight: sizeConfig.minHeight(token),
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'flex-start',
-        gap: sizeConfig.gap(token),
-      },
-      optionButton: {
-        justifyContent: 'center',
-        paddingHorizontal: sizeConfig.paddingHorizontal(token),
-        paddingVertical: sizeConfig.paddingVertical(token),
-        borderWidth: token.lineWidth,
-        borderColor: token.colorBorder,
-        borderRadius: token.borderRadius,
-        backgroundColor: token.colorBgContainer,
-      },
-      optionButtonBlock: {
-        flex: 1,
-      },
-      optionButtonSelected: {
-        borderColor: token.colorPrimary,
-        backgroundColor: token.colorPrimaryBg,
-      },
-      optionPressed: {
-        backgroundColor:
-          displayType === 'button'
-            ? token.controlItemBgActive
-            : token.colorBgTextActive,
-      },
-      optionDisabled: {
-        backgroundColor:
-          displayType === 'button'
-            ? token.colorBgContainerDisabled
-            : 'transparent',
-        borderColor:
-          displayType === 'button' ? token.colorBorderDisabled : undefined,
-      },
-      control: {
-        width: controlSize,
-        height: controlSize,
-        borderRadius: controlSize,
-        borderWidth: token.lineWidth,
-        borderColor: token.colorBorder,
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: token.colorBgContainer,
-      },
-      controlSelected: {
-        borderColor: token.colorPrimary,
-      },
-      controlDisabled: {
-        borderColor: token.colorBorderDisabled,
-        backgroundColor: token.colorBgContainerDisabled,
-      },
-      indicator: {
-        width: sizeConfig.indicatorSize(token),
-        height: sizeConfig.indicatorSize(token),
-        borderRadius: sizeConfig.indicatorSize(token),
-        backgroundColor: token.colorPrimary,
-      },
-      indicatorDisabled: {
-        backgroundColor: token.colorTextDisabled,
-      },
-      content: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: displayType === 'button' ? 'center' : 'flex-start',
-      },
-      label: {
-        fontFamily: token.fontFamily,
-        fontSize: sizeConfig.fontSize(token),
-        lineHeight: sizeConfig.lineHeight(token),
-        color: token.colorText,
-        fontWeight: String(token.fontWeightRegular) as TextStyle['fontWeight'],
-      },
-      labelSelected: {
-        color: token.colorPrimaryText,
-      },
-      labelDisabled: {
-        color: token.colorTextDisabled,
-      },
-    };
-  },
-);
+  return 'md';
+}
 
-function renderLabel(label: ReactNode, style: StyleProp<TextStyle>) {
+function getOptionLabel(option: RadioGroupOption): ReactNode {
+  if (option.label !== undefined) {
+    return option.label;
+  }
+
+  if (option.labelText !== undefined) {
+    return option.labelText;
+  }
+
+  return option.value;
+}
+
+function renderLabel(
+  label: ReactNode,
+  style: StyleProp<TextStyle>,
+  size: ComponentSize,
+  weight: TextWeight,
+  color: TextColor,
+) {
   if (label === undefined || label === null || label === false) {
     return null;
   }
 
   if (typeof label === 'string' || typeof label === 'number') {
     return (
-      <Text size="sm" style={style}>
+      <Text color={color} size={toTextSize(size)} style={style} weight={weight}>
         {label}
       </Text>
     );
@@ -224,17 +104,17 @@ function renderControl(
     <View
       style={[
         tokenStyles.control,
-        styles?.control,
         selected ? tokenStyles.controlSelected : null,
         disabled ? tokenStyles.controlDisabled : null,
+        styles?.control,
       ]}
     >
       {selected ? (
         <View
           style={[
             tokenStyles.indicator,
-            styles?.indicator,
             disabled ? tokenStyles.indicatorDisabled : null,
+            styles?.indicator,
           ]}
         />
       ) : null}
@@ -257,7 +137,6 @@ function RadioComponent({
 }: RadioProps) {
   const tokenStyles = useStyles({
     block: false,
-    direction: 'horizontal',
     displayType,
     size,
   });
@@ -267,6 +146,8 @@ function RadioComponent({
     onChange,
   );
   const selected = selectedValue === true;
+  const isDisabled = disabled || readonly;
+  const labelColor: TextColor = isDisabled ? 'disabled' : selected ? 'default' : 'default';
 
   function handlePress() {
     if (disabled || readonly || selected) {
@@ -301,12 +182,18 @@ function RadioComponent({
         ? renderControl(tokenStyles, selected, disabled, styles)
         : null}
       <View style={[tokenStyles.content, styles?.content]}>
-        {renderLabel(children, [
-          tokenStyles.label,
-          styles?.label,
-          selected ? tokenStyles.labelSelected : null,
-          disabled ? tokenStyles.labelDisabled : null,
-        ])}
+        {renderLabel(
+          children,
+          [
+            tokenStyles.label,
+            selected ? tokenStyles.labelSelected : null,
+            disabled ? tokenStyles.labelDisabled : null,
+            styles?.label,
+          ],
+          size,
+          'regular',
+          labelColor,
+        )}
       </View>
     </Pressable>
   );
@@ -327,12 +214,13 @@ export function RadioGroup({
   styles,
   ...rest
 }: RadioGroupProps) {
-  const tokenStyles = useStyles({ block, direction, displayType, size });
+  const tokenStyles = useStyles({ block, displayType, size });
   const [selectedValue, setSelectedValue] = useControllableValue(
     defaultValue,
     value,
     onChange,
   );
+  const Layout = direction === 'horizontal' ? Row : Column;
 
   function handlePress(optionValue: RadioGroupValue, isDisabled: boolean) {
     if (isDisabled || readonly || optionValue === selectedValue) {
@@ -343,10 +231,19 @@ export function RadioGroup({
   }
 
   return (
-    <View testID="radio-group" style={[tokenStyles.group, style]}>
+    <Layout
+      testID="radio-group"
+      align={direction === 'horizontal' ? 'center' : undefined}
+      gap="small"
+      style={[tokenStyles.groupRoot, style]}
+    >
       {options.map(option => {
         const selected = option.value === selectedValue;
         const optionDisabled = disabled || option.disabled === true;
+        const isOptionDisabled = optionDisabled || readonly;
+        const labelColor: TextColor = isOptionDisabled
+          ? 'disabled'
+          : 'default';
 
         return (
           <Pressable
@@ -376,17 +273,23 @@ export function RadioGroup({
               ? renderControl(tokenStyles, selected, optionDisabled, styles)
               : null}
             <View style={[tokenStyles.content, styles?.content]}>
-              {renderLabel(option.label, [
-                tokenStyles.label,
-                styles?.label,
-                selected ? tokenStyles.labelSelected : null,
-                optionDisabled ? tokenStyles.labelDisabled : null,
-              ])}
+              {renderLabel(
+                getOptionLabel(option),
+                [
+                  tokenStyles.label,
+                  selected ? tokenStyles.labelSelected : null,
+                  optionDisabled ? tokenStyles.labelDisabled : null,
+                  styles?.label,
+                ],
+                size,
+                'regular',
+                labelColor,
+              )}
             </View>
           </Pressable>
         );
       })}
-    </View>
+    </Layout>
   );
 }
 

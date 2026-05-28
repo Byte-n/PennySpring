@@ -1,13 +1,19 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import {
-  Animated,
   BackHandler,
   Pressable,
   View,
 } from 'react-native';
-import { createAnimatedComponent } from 'react-native-reanimated';
+import {
+  cancelAnimation,
+  createAnimatedComponent,
+  Easing,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
 import { createUseSheetStyle, toShadowStyle, useTheme } from '@pennyspring/theme';
-import type { ViewStyle } from 'react-native';
+import type { StyleProp, ViewStyle } from 'react-native';
 import { PortalContext } from '../Portal/Portal';
 import { resolvePortalMount } from '../Portal/resolvePortalMount';
 import { useControllableValue } from '../_hooks';
@@ -22,34 +28,26 @@ const DEFAULT_POSITION: PopupPosition = 'bottom';
 const DEFAULT_ANIMATION: PopupAnimation = 'none';
 const POPUP_SIDE_WIDTH = '70%';
 
-const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 const ReanimatedView = createAnimatedComponent(View);
 
 function getSlideTransform(
   position: PopupPosition,
-  progress: Animated.Value,
   slideOffset: number,
-): ViewStyle['transform'] | null {
-  const interpolateTo = (outputRange: readonly [number, number]) =>
-    progress.interpolate({
-      inputRange: [0, 1],
-      outputRange: [...outputRange],
-    });
-
+): { prop: 'translateX' | 'translateY'; from: number } | null {
   if (position === 'bottom') {
-    return [{ translateY: interpolateTo([slideOffset, 0]) }] as unknown as ViewStyle['transform'];
+    return { prop: 'translateY', from: slideOffset };
   }
 
   if (position === 'top') {
-    return [{ translateY: interpolateTo([-slideOffset, 0]) }] as unknown as ViewStyle['transform'];
+    return { prop: 'translateY', from: -slideOffset };
   }
 
   if (position === 'left') {
-    return [{ translateX: interpolateTo([-slideOffset, 0]) }] as unknown as ViewStyle['transform'];
+    return { prop: 'translateX', from: -slideOffset };
   }
 
   if (position === 'right') {
-    return [{ translateX: interpolateTo([slideOffset, 0]) }] as unknown as ViewStyle['transform'];
+    return { prop: 'translateX', from: slideOffset };
   }
 
   // center slides don't make sense — fall back to fade only
@@ -128,7 +126,7 @@ const usePopupStyles = createUseSheetStyle(
         right: 0,
         top: 0,
         ...getLayoutStyle(position),
-        zIndex: token.zIndexPopupBase + token.zIndexBase + 100,
+        zIndex: token.zIndexPopupBase + 100,
       },
       mask: {
         bottom: 0,
@@ -178,8 +176,7 @@ export function Popup({
   const animated = animation !== 'none';
   const duration = animationDuration ?? token.motionDurationMid;
   const slideOffset = token.zIndexPopupBase;
-  const progressRef = useRef(new Animated.Value(isOpen ? 1 : 0));
-  const progress = progressRef.current;
+  const progress = useSharedValue(isOpen ? 1 : 0);
   const [mounted, setMounted] = useState(isOpen);
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const openTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -205,30 +202,26 @@ export function Popup({
       openTimerRef.current = null;
     }
 
+    const easing = Easing.bezier(...token.motionEaseOut);
+
     if (isOpen) {
       setMounted(true);
-      Animated.timing(progress, {
-        toValue: 1,
-        duration,
-        useNativeDriver: true,
-      }).start();
+      cancelAnimation(progress);
+      progress.value = withTiming(1, { duration, easing });
       openTimerRef.current = setTimeout(() => {
         openTimerRef.current = null;
         afterOpenChange?.(true);
       }, duration);
     } else {
-      Animated.timing(progress, {
-        toValue: 0,
-        duration,
-        useNativeDriver: true,
-      }).start();
+      cancelAnimation(progress);
+      progress.value = withTiming(0, { duration, easing });
       closeTimerRef.current = setTimeout(() => {
         closeTimerRef.current = null;
         setMounted(false);
         afterOpenChange?.(false);
       }, duration);
     }
-  }, [afterOpenChange, animated, duration, isOpen, progress]);
+  }, [afterOpenChange, animated, duration, isOpen, progress, token.motionEaseOut]);
 
   useEffect(() => {
     return () => {
@@ -275,38 +268,53 @@ export function Popup({
     close('mask');
   };
 
+  const slideConfig =
+    animated && animation === 'slide'
+      ? getSlideTransform(position, slideOffset)
+      : null;
+
+  const maskAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: animated ? progress.value : 1,
+  }));
+
+  const bodyAnimatedStyle = useAnimatedStyle(() => {
+    if (!animated) {
+      return { opacity: 1 };
+    }
+
+    const base: ViewStyle = { opacity: progress.value };
+
+    if (slideConfig) {
+      const translate = progress.value * slideConfig.from;
+      if (slideConfig.prop === 'translateY') {
+        base.transform = [{ translateY: translate }];
+      } else {
+        base.transform = [{ translateX: translate }];
+      }
+    }
+
+    return base;
+  });
+
   if (!isOpen && !(animated && mounted)) {
     return null;
   }
 
-  const fadeStyle = animated ? { opacity: progress } : null;
-  const slideTransform =
-    animated && animation === 'slide'
-      ? getSlideTransform(position, progress, slideOffset)
-      : null;
-  const bodyAnimatedStyle =
-    animated
-      ? {
-          ...fadeStyle,
-          ...(slideTransform ? { transform: slideTransform } : null),
-        }
-      : null;
-
   const content = (
     <ReanimatedView style={[tokenStyles.layout, style]} testID="popup-layout">
       {mask ? (
-        <AnimatedPressable
+        <Pressable
           onPress={handleMaskPress}
-          style={[tokenStyles.mask, slotStyles?.mask, fadeStyle]}
+          style={[tokenStyles.mask, slotStyles?.mask, maskAnimatedStyle as unknown as StyleProp<ViewStyle>]}
           testID="popup-mask"
         />
       ) : null}
-      <Animated.View
-        style={[tokenStyles.body, slotStyles?.body, bodyAnimatedStyle]}
+      <ReanimatedView
+        style={[tokenStyles.body, slotStyles?.body, bodyAnimatedStyle as unknown as StyleProp<ViewStyle>]}
         testID="popup-body"
       >
         {children}
-      </Animated.View>
+      </ReanimatedView>
     </ReanimatedView>
   );
 

@@ -5,7 +5,7 @@ import type { ComponentSize } from '../shares/types';
 export type SkeletonShape = 'line' | 'circle' | 'rect';
 
 export interface SkeletonStyles {
-  bone?: StyleProp<ViewStyle>;
+  root?: StyleProp<ViewStyle>;
 }
 
 export interface SkeletonProps {

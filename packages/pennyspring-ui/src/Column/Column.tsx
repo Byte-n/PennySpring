@@ -70,6 +70,7 @@ export function Column({
   gap,
   children,
   style,
+  testID = 'column',
 }: ColumnProps) {
   const tokenStyles = useStyles({
     align,
@@ -78,7 +79,7 @@ export function Column({
   });
 
   return (
-    <View testID="column" style={[tokenStyles.root, style]}>
+    <View testID={testID} style={[tokenStyles.root, style]}>
       {children}
     </View>
   );

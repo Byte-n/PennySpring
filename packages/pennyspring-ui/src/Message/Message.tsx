@@ -81,7 +81,7 @@ const useStyles = createUseSheetStyle((
   return {
     content: {
       position: 'absolute',
-      zIndex: token.zIndexPopupBase + 120,
+      zIndex: token.zIndexPopupBase,
       left: token.paddingLG,
       right: token.paddingLG,
       ...(placement === 'top'
@@ -253,14 +253,17 @@ export function Message({
   }, [afterOpenChange, isOpen, onOpenChange]);
 
   const handleCloseStart = React.useCallback(() => {
-    if (isControlled || internalCloseStartedRef.current || !isOpen) {
+    if (internalCloseStartedRef.current || !isOpen) {
       return;
     }
 
     internalCloseStartedRef.current = true;
     onCancel?.();
     onOpenChange?.(false);
-    setResolvedOpen(false);
+
+    if (!isControlled) {
+      setResolvedOpen(false);
+    }
   }, [isControlled, isOpen, onCancel, onOpenChange, setResolvedOpen]);
 
   const handleExited = React.useCallback(() => {

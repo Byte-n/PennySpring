@@ -14,7 +14,8 @@ export type SegmentedRawOption = SegmentedValue;
 
 export interface SegmentedLabeledOption {
   value: SegmentedValue;
-  label?: ReactNode;
+  labelText?: string;
+  label?: ReactNode | null;
   icon?: ReactNode;
   disabled?: boolean;
 }

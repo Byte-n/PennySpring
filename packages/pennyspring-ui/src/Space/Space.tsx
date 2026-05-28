@@ -1,148 +1,23 @@
-import type { ComponentSize } from '../shares/types';
 import React from 'react';
 import { View } from 'react-native';
-import { createUseSheetStyle } from '@pennyspring/theme';
 import { useTheme } from '@pennyspring/theme';
 import type {
-  ViewStyle } from 'react-native';
-import type { AliasToken } from '@pennyspring/theme';
-import type {
-  SpaceAlign,
   SpaceDirection,
-  SpaceJustify,
   SpaceProps,
 } from './types';
-
-interface SpaceStyleOptions {
-  align?: SpaceAlign;
-  block: boolean;
-  direction: SpaceDirection;
-  justify?: SpaceJustify;
-  wrap: boolean;
-}
-
-interface SpaceItemStyleOptions {
-  direction: SpaceDirection;
-  gap: number;
-  isLast: boolean;
-  wrap: boolean;
-}
-
-function getGap(size: ComponentSize, token: AliasToken) {
-  if (size === 'small') {
-    return token.paddingXXS;
-  }
-
-  if (size === 'large') {
-    return token.paddingSM;
-  }
-
-  return token.paddingXS;
-}
-
-function getVerticalGap(gap: number) {
-  return gap / 2;
-}
-
-function resolveSize(size?: ComponentSize): ComponentSize {
-  return size ?? 'normal';
-}
-
-function resolveDirection(direction?: SpaceDirection): SpaceDirection {
-  return direction ?? 'horizontal';
-}
-
-function mapFlexStartEnd(value?: 'start' | 'end' | 'center') {
-  if (value === 'start') {
-    return 'flex-start';
-  }
-
-  if (value === 'end') {
-    return 'flex-end';
-  }
-
-  return value;
-}
-
-function mapAlignItems(align?: SpaceAlign): ViewStyle['alignItems'] {
-  if (align === 'baseline') {
-    return 'baseline';
-  }
-
-  return mapFlexStartEnd(align);
-}
-
-function mapJustifyContent(justify?: SpaceJustify): ViewStyle['justifyContent'] {
-  if (justify === 'between') {
-    return 'space-between';
-  }
-
-  if (justify === 'around') {
-    return 'space-around';
-  }
-
-  if (justify === 'evenly') {
-    return 'space-evenly';
-  }
-
-  if (justify === 'stretch') {
-    return undefined;
-  }
-
-  return mapFlexStartEnd(justify);
-}
+import {
+  getGap,
+  resolveSize,
+  resolveDirection,
+  useSpaceStyles,
+  useSpaceItemStyles,
+} from './style';
 
 function getValidChildren(children: React.ReactNode) {
   return React.Children.toArray(children).filter((child) => {
     return child !== null && child !== undefined;
   });
 }
-
-const useSpaceStyles = createUseSheetStyle(
-  (_token, options: SpaceStyleOptions) => ({
-    root: {
-      alignItems: mapAlignItems(options.align),
-      alignSelf: options.block ? 'stretch' : undefined,
-      flexDirection: options.direction === 'vertical' ? 'column' : 'row',
-      flexWrap:
-        options.direction === 'horizontal' && options.wrap ? 'wrap' : undefined,
-      justifyContent: mapJustifyContent(options.justify),
-    },
-    item: {
-      flexShrink: 0,
-    },
-  }),
-);
-
-const useSpaceItemStyles = createUseSheetStyle(
-  (_token, options: SpaceItemStyleOptions) => {
-    const style: ViewStyle = {
-      flexShrink: 0,
-    };
-
-    if (options.direction === 'vertical') {
-      if (!options.isLast) {
-        style.marginBottom = getVerticalGap(options.gap);
-      }
-
-      return {
-        item: style,
-      };
-    }
-
-    if (!options.isLast) {
-      style.marginRight = options.gap;
-    }
-
-    if (options.wrap) {
-      style.marginBottom = getVerticalGap(options.gap);
-    }
-
-    return {
-      item: style,
-    };
-  },
-);
 
 interface SpaceItemProps {
   children: React.ReactNode;
@@ -181,7 +56,7 @@ export function Space({
   style,
   styles,
   wrap = false,
-}: SpaceProps) {
+}: SpaceProps): React.JSX.Element {
   const resolvedDirection = resolveDirection(direction);
   const resolvedSize = resolveSize(size);
   const tokenStyles = useSpaceStyles({

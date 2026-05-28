@@ -1,15 +1,12 @@
-import type { ComponentSize } from '../shares/types';
 import React, { useMemo } from 'react';
 import { Pressable, View } from 'react-native';
-import { createUseSheetStyle } from '@pennyspring/theme';
 import { Text } from '../Text';
 import { useControllableValue } from '../_hooks';
-import type {
-  AliasToken } from '@pennyspring/theme';
+import { useStyles } from './style';
 import type { ReactNode } from 'react';
-import type { GestureResponderEvent,
-  StyleProp,
-  TextStyle } from 'react-native';
+import type { GestureResponderEvent } from 'react-native';
+import type { TextColor, TextSize } from '../Text';
+import type { ComponentSize } from '../shares/types';
 import type {
   SegmentedOption,
   SegmentedProps,
@@ -18,52 +15,11 @@ import type {
 
 interface NormalizedSegmentedOption {
   value: SegmentedValue;
-  label?: ReactNode;
+  labelText?: string;
+  label?: ReactNode | null;
   icon?: ReactNode;
   disabled?: boolean;
 }
-
-interface SegmentedStyleOptions {
-  block: boolean;
-  disabled: boolean;
-  size: ComponentSize;
-}
-
-interface SizeStyleConfig {
-  minHeight: (token: AliasToken) => number;
-  itemPaddingHorizontal: (token: AliasToken) => number;
-  itemPaddingVertical: (token: AliasToken) => number;
-  gap: (token: AliasToken) => number;
-  fontSize: (token: AliasToken) => number;
-  lineHeight: (token: AliasToken) => number;
-}
-
-const SIZE_STYLE_MAP: Record<ComponentSize, SizeStyleConfig> = {
-  small: {
-    minHeight: token => token.controlHeightSM,
-    itemPaddingHorizontal: token => token.controlPaddingHorizontalSM,
-    itemPaddingVertical: token => token.controlPaddingHorizontalSM / 2,
-    gap: token => token.sizeXXS,
-    fontSize: token => token.fontSizeSM,
-    lineHeight: token => token.lineHeightSM,
-  },
-  normal: {
-    minHeight: token => token.controlHeight,
-    itemPaddingHorizontal: token => token.controlPaddingHorizontal,
-    itemPaddingVertical: token => token.controlPaddingHorizontal / 2,
-    gap: token => token.sizeXXS,
-    fontSize: token => token.fontSize,
-    lineHeight: token => token.lineHeight,
-  },
-  large: {
-    minHeight: token => token.controlHeightLG,
-    itemPaddingHorizontal: token => token.paddingMD,
-    itemPaddingVertical: token => token.paddingMD / 2,
-    gap: token => token.sizeXS,
-    fontSize: token => token.fontSizeLG,
-    lineHeight: token => token.lineHeightLG,
-  },
-};
 
 function isLabeledOption(
   option: SegmentedOption,
@@ -78,18 +34,48 @@ function normalizeOption(option: SegmentedOption): NormalizedSegmentedOption {
 
   return {
     value: option,
-    label: option,
+    labelText: String(option),
   };
 }
 
-function renderLabel(label: ReactNode, style: StyleProp<TextStyle>) {
+function toTextSize(size: ComponentSize): TextSize {
+  if (size === 'small') {
+    return 'sm';
+  }
+
+  if (size === 'large') {
+    return 'lg';
+  }
+
+  return 'md';
+}
+
+function getOptionLabel(option: NormalizedSegmentedOption): ReactNode {
+  if (option.label !== undefined) {
+    return option.label;
+  }
+
+  if (option.labelText !== undefined) {
+    return option.labelText;
+  }
+
+  return option.value;
+}
+
+function renderLabel(
+  label: ReactNode,
+  size: TextSize,
+  weight: 'regular' | 'strong',
+  color: TextColor,
+  style: SegmentedProps['styles'],
+) {
   if (label === undefined || label === null || label === false) {
     return null;
   }
 
   if (typeof label === 'string' || typeof label === 'number') {
     return (
-      <Text size="sm" style={style}>
+      <Text color={color} size={size} style={style?.label} weight={weight}>
         {label}
       </Text>
     );
@@ -97,81 +83,6 @@ function renderLabel(label: ReactNode, style: StyleProp<TextStyle>) {
 
   return label;
 }
-
-const useStyles = createUseSheetStyle(
-  (token, { block, disabled, size }: SegmentedStyleOptions) => {
-    const sizeConfig = SIZE_STYLE_MAP[size];
-
-    return {
-      root: {
-        alignSelf: block ? 'stretch' : 'flex-start',
-        width: block ? '100%' : undefined,
-      },
-      track: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        minHeight: sizeConfig.minHeight(token),
-        padding: token.paddingXXS,
-        borderRadius: token.borderRadius,
-        backgroundColor: disabled
-          ? token.colorBgContainerDisabled
-          : token.colorFillTertiary,
-      },
-      trackDisabled: {
-        borderColor: token.colorBorderDisabled,
-      },
-      item: {
-        flex: block ? 1 : undefined,
-        minHeight: sizeConfig.minHeight(token) - token.paddingXXS * 2,
-        paddingHorizontal: sizeConfig.itemPaddingHorizontal(token),
-        paddingVertical: sizeConfig.itemPaddingVertical(token),
-        borderRadius: token.borderRadiusSM,
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: 'transparent',
-      },
-      itemSelected: {
-        backgroundColor: token.colorBgContainer,
-      },
-      itemPressed: {
-        backgroundColor: token.controlItemBgActive,
-      },
-      itemDisabled: {
-        backgroundColor: 'transparent',
-      },
-      content: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: sizeConfig.gap(token),
-      },
-      icon: {
-        alignItems: 'center',
-        justifyContent: 'center',
-      },
-      iconSelected: {
-        opacity: 1,
-      },
-      iconDisabled: {
-        opacity: token.opacityLoading,
-      },
-      label: {
-        fontFamily: token.fontFamily,
-        fontSize: sizeConfig.fontSize(token),
-        lineHeight: sizeConfig.lineHeight(token),
-        color: token.colorTextSecondary,
-        fontWeight: String(token.fontWeightRegular) as TextStyle['fontWeight'],
-      },
-      labelSelected: {
-        color: token.colorPrimaryText,
-        fontWeight: String(token.fontWeightStrong) as TextStyle['fontWeight'],
-      },
-      labelDisabled: {
-        color: token.colorTextDisabled,
-      },
-    };
-  },
-);
 
 export function Segmented({
   options = [],
@@ -215,13 +126,18 @@ export function Segmented({
       <View
         style={[
           tokenStyles.track,
-          styles?.track,
           disabled ? tokenStyles.trackDisabled : null,
+          styles?.track,
         ]}
       >
         {normalizedOptions.map(option => {
           const isSelected = option.value === selectedValue;
           const isDisabled = disabled || option.disabled === true;
+          const labelColor: TextColor = isDisabled
+            ? 'disabled'
+            : isSelected
+              ? 'heading'
+              : 'secondary';
 
           return (
             <Pressable
@@ -234,10 +150,10 @@ export function Segmented({
               }}
               style={({ pressed }) => [
                 tokenStyles.item,
-                styles?.item,
                 isSelected ? tokenStyles.itemSelected : null,
                 pressed && !isDisabled ? tokenStyles.itemPressed : null,
                 isDisabled ? tokenStyles.itemDisabled : null,
+                styles?.item,
               ]}
             >
               <View style={[tokenStyles.content, styles?.content]}>
@@ -245,22 +161,20 @@ export function Segmented({
                   <View
                     style={[
                       tokenStyles.icon,
-                      styles?.icon,
                       isSelected ? tokenStyles.iconSelected : null,
                       isDisabled ? tokenStyles.iconDisabled : null,
+                      styles?.icon,
                     ]}
                   >
                     {option.icon}
                   </View>
                 )}
                 {renderLabel(
-                  option.label,
-                  [
-                    tokenStyles.label,
-                    styles?.label,
-                    isSelected ? tokenStyles.labelSelected : null,
-                    isDisabled ? tokenStyles.labelDisabled : null,
-                  ],
+                  getOptionLabel(option),
+                  toTextSize(size),
+                  'regular',
+                  labelColor,
+                  styles,
                 )}
               </View>
             </Pressable>

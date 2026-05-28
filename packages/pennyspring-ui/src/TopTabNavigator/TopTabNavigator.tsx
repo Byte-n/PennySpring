@@ -3,17 +3,11 @@ import {
   createMaterialTopTabNavigator,
   type MaterialTopTabBarProps,
 } from '@react-navigation/material-top-tabs';
-import { createUseSheetStyle } from '@pennyspring/theme';
 import { HeaderBar } from './HeaderBar';
+import { useTopTabNavigatorStyles } from './style';
 import type { TopTabNavigatorProps } from './types';
 
 const Tab = createMaterialTopTabNavigator();
-
-const useStyles = createUseSheetStyle((token) => ({
-  sceneContainer: {
-    backgroundColor: token.colorBgLayout,
-  },
-}));
 
 function renderHeaderBar(
   props: MaterialTopTabBarProps,
@@ -24,7 +18,6 @@ function renderHeaderBar(
       descriptors={props.descriptors}
       leftActions={options.leftActions}
       navigation={props.navigation}
-      position={props.position}
       rightActions={options.rightActions}
       state={props.state}
       style={options.style}
@@ -41,7 +34,7 @@ export function TopTabNavigator({
   style,
   styles,
 }: TopTabNavigatorProps) {
-  const tokenStyles = useStyles();
+  const tokenStyles = useTopTabNavigatorStyles();
 
   return (
     <Tab.Navigator

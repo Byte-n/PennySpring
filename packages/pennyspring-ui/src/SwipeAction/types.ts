@@ -18,10 +18,9 @@ export type SwipeActionColor = SemanticPresetColor<SwipeActionSemanticColor>;
 
 export interface SwipeActionAction {
   key: string | number;
-  text?: string;
-  content?: ReactNode;
+  actionText?: string;
+  action?: ReactNode | null;
   color?: SwipeActionColor;
-  backgroundColor?: string;
   disabled?: boolean;
   onPress?: () => void;
 }

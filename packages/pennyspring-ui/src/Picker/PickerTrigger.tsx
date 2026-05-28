@@ -5,6 +5,7 @@ import { useTheme } from '@pennyspring/theme';
 import { DisplayInput } from '../DisplayInput';
 import { Icon } from '../Icon';
 import type { ReactNode } from 'react';
+import type { ComponentSize } from '../shares/types';
 import type { PickerInputStyles, PickerProps } from './types';
 
 interface PickerTriggerProps {
@@ -15,6 +16,7 @@ interface PickerTriggerProps {
   externalTriggerStyle?: StyleProp<ViewStyle>;
   hasValue?: boolean;
   label?: PickerProps['label'];
+  size?: ComponentSize;
   valueText?: string;
   placeholder?: string;
   displayInputProps?: PickerProps['displayInputProps'];
@@ -35,6 +37,7 @@ export function PickerTrigger({
   onPress,
   onClearPress,
   placeholder,
+  size,
   styles,
   valueText,
 }: PickerTriggerProps) {
@@ -74,6 +77,7 @@ export function PickerTrigger({
       <DisplayInput
         disabled={disabled}
         display="inline"
+        size={size}
         valueText={valueText}
         placeholder={placeholder}
         readonly

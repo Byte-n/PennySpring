@@ -18,4 +18,5 @@ export interface ColumnProps {
   gap?: number | ComponentSize;
   children?: ReactNode;
   style?: StyleProp<ViewStyle>;
+  testID?: string;
 }

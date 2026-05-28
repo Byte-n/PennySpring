@@ -8,6 +8,45 @@ export interface TabScreen {
   component: ComponentType<object>;
 }
 
+export interface RouteLike {
+  key: string;
+  name: string;
+}
+
+export interface DescriptorLike {
+  options?: {
+    title?: string;
+    tabBarLabel?:
+      | string
+      | ((
+          props: { focused: boolean; color: string; children: string }
+        ) => React.ReactNode);
+  };
+}
+
+export interface SegmentedControlProps {
+  descriptors: Record<string, DescriptorLike>;
+  navigation: {
+    navigate: (name: string) => void;
+  };
+  state: {
+    index: number;
+    routes: readonly RouteLike[];
+  };
+  styles?: SegmentedControlStyles;
+}
+
+export interface HeaderBarProps {
+  descriptors: SegmentedControlProps['descriptors'];
+  leftActions?: React.ReactNode;
+  navigation: SegmentedControlProps['navigation'];
+  rightActions?: React.ReactNode;
+  state: SegmentedControlProps['state'];
+  style?: StyleProp<ViewStyle>;
+  styles?: HeaderBarStyles;
+  segmentedControlStyles?: SegmentedControlStyles;
+}
+
 export interface SegmentedControlStyles {
   track?: StyleProp<ViewStyle>;
   indicator?: StyleProp<ViewStyle>;

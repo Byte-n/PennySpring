@@ -1,11 +1,10 @@
 import type { ComponentSize } from '../shares/types';
+import type { TextSize } from '../Text/types';
 import React from 'react';
 import { Pressable, View } from 'react-native';
-import { createUseSheetStyle, PresetColors, useTheme } from '@pennyspring/theme';
-import type { AliasToken } from '@pennyspring/theme';
+import { useTheme } from '@pennyspring/theme';
 import type {
   LayoutChangeEvent,
-  TextStyle,
   ViewStyle,
 } from 'react-native';
 import {
@@ -32,132 +31,20 @@ import type {
   SwipeActionSide,
   SwipeActionValue,
 } from './types';
-
-interface SwipeActionStyleOptions {
-  size: ComponentSize;
-  disabled: boolean;
-}
-
-interface SizeStyleConfig {
-  minHeight: (token: AliasToken) => number;
-  actionMinWidth: (token: AliasToken) => number;
-  actionPaddingHorizontal: (token: AliasToken) => number;
-  actionFontSize: (token: AliasToken) => number;
-  actionLineHeight: (token: AliasToken) => number;
-}
-
-const SIZE_STYLE_MAP: Record<ComponentSize, SizeStyleConfig> = {
-  small: {
-    minHeight: token => token.controlHeightSM,
-    actionMinWidth: token => token.controlHeight,
-    actionPaddingHorizontal: token => token.paddingSM,
-    actionFontSize: token => token.fontSizeSM,
-    actionLineHeight: token => token.lineHeightSM,
-  },
-  normal: {
-    minHeight: token => token.controlHeight,
-    actionMinWidth: token => token.controlHeightLG,
-    actionPaddingHorizontal: token => token.paddingMD,
-    actionFontSize: token => token.fontSize,
-    actionLineHeight: token => token.lineHeight,
-  },
-  large: {
-    minHeight: token => token.controlHeightLG,
-    actionMinWidth: token => token.controlHeightLG + token.controlHeightXS,
-    actionPaddingHorizontal: token => token.paddingLG,
-    actionFontSize: token => token.fontSizeLG,
-    actionLineHeight: token => token.lineHeightLG,
-  },
-};
+import {
+  resolveActionBackgroundStyle,
+  resolveActionTextColor,
+  useStyles,
+} from './style';
 
 const DEFAULT_SWIPE_VALUE: SwipeActionValue = null;
 const DRAG_START_DISTANCE = 3;
-const PRESET_COLORS = PresetColors;
 
-const useStyles = createUseSheetStyle(
-  (token, { disabled, size }: SwipeActionStyleOptions) => {
-    const sizeStyle = SIZE_STYLE_MAP[size];
-
-    return {
-      root: {
-        minHeight: sizeStyle.minHeight(token),
-        overflow: 'hidden',
-        borderRadius: token.borderRadius,
-        backgroundColor: token.colorBgContainer,
-      },
-      track: {
-        flexDirection: 'row',
-        alignItems: 'stretch',
-      },
-      content: {
-        flex: 1,
-        minHeight: sizeStyle.minHeight(token),
-        justifyContent: 'center',
-        backgroundColor: token.colorBgContainer,
-      },
-      contentDisabled: {
-        backgroundColor: token.colorBgContainerDisabled,
-      },
-      actionsBase: {
-        position: 'absolute',
-        top: 0,
-        bottom: 0,
-        flexDirection: 'row',
-      },
-      leftActions: {
-        left: 0,
-      },
-      rightActions: {
-        right: 0,
-      },
-      action: {
-        minWidth: sizeStyle.actionMinWidth(token),
-        paddingHorizontal: sizeStyle.actionPaddingHorizontal(token),
-        justifyContent: 'center',
-        alignItems: 'center',
-      },
-      actionDisabled: {
-        opacity: token.opacityLoading,
-      },
-      actionText: {
-        fontSize: sizeStyle.actionFontSize(token),
-        lineHeight: sizeStyle.actionLineHeight(token),
-      },
-      actionBgLight: {
-        backgroundColor: token.colorFillSecondary,
-      },
-      actionBgWeak: {
-        backgroundColor: token.colorFillTertiary,
-      },
-      actionBgPrimary: {
-        backgroundColor: token.colorPrimary,
-      },
-      actionBgSuccess: {
-        backgroundColor: token.colorSuccess,
-      },
-      actionBgWarning: {
-        backgroundColor: token.colorWarning,
-      },
-      actionBgDanger: {
-        backgroundColor: token.colorError,
-      },
-      actionTextDark: {
-        color: token.colorText,
-      },
-      actionTextLight: {
-        color: token.colorTextLightSolid,
-      },
-      actionTextDisabled: {
-        color: token.colorTextDisabled,
-      },
-      rootDisabled: {
-        backgroundColor: disabled
-          ? token.colorBgContainerDisabled
-          : token.colorBgContainer,
-      },
-    };
-  },
-);
+const SIZE_TEXT_MAP: Record<ComponentSize, TextSize> = {
+  small: 'sm',
+  normal: 'md',
+  large: 'lg',
+};
 
 function clamp(value: number, min: number, max: number): number {
   if (value < min) {
@@ -243,68 +130,6 @@ function resolveActionColor(
   return side === 'right' ? 'danger' : 'primary';
 }
 
-function isPresetColor(color: SwipeActionColor): color is (typeof PRESET_COLORS)[number] {
-  return PRESET_COLORS.includes(color as (typeof PRESET_COLORS)[number]);
-}
-
-function resolveActionBackgroundStyle(
-  color: SwipeActionColor,
-  tokenStyles: Record<string, ViewStyle | TextStyle>,
-  token: AliasToken,
-): ViewStyle {
-  if (color === 'light') {
-    return tokenStyles.actionBgLight as ViewStyle;
-  }
-
-  if (color === 'weak') {
-    return tokenStyles.actionBgWeak as ViewStyle;
-  }
-
-  if (color === 'success') {
-    return tokenStyles.actionBgSuccess as ViewStyle;
-  }
-
-  if (color === 'warning') {
-    return tokenStyles.actionBgWarning as ViewStyle;
-  }
-
-  if (color === 'danger') {
-    return tokenStyles.actionBgDanger as ViewStyle;
-  }
-
-  if (isPresetColor(color)) {
-    return {
-      backgroundColor: token[`${color}6`],
-    };
-  }
-
-  return tokenStyles.actionBgPrimary as ViewStyle;
-}
-
-function resolveActionTextStyle(
-  color: SwipeActionColor,
-  tokenStyles: Record<string, ViewStyle | TextStyle>,
-): TextStyle {
-  if (color === 'light' || color === 'weak') {
-    return tokenStyles.actionTextDark as TextStyle;
-  }
-
-  return tokenStyles.actionTextLight as TextStyle;
-}
-
-function useSwipeActionColorResolver(
-  token: AliasToken,
-  tokenStyles: Record<string, ViewStyle | TextStyle>,
-) {
-  return React.useCallback(
-    (color: SwipeActionColor) => ({
-      backgroundStyle: resolveActionBackgroundStyle(color, tokenStyles, token),
-      textStyle: resolveActionTextStyle(color, tokenStyles),
-    }),
-    [token, tokenStyles],
-  );
-}
-
 export const SwipeAction = React.forwardRef<SwipeActionRef, SwipeActionProps>(
   function SwipeAction(
     {
@@ -330,9 +155,9 @@ export const SwipeAction = React.forwardRef<SwipeActionRef, SwipeActionProps>(
     const tokenStyles = useStyles({
       disabled: disabled || readonly,
       size,
-    }) as Record<string, ViewStyle | TextStyle>;
+    }) as Record<string, ViewStyle>;
     const { token } = useTheme();
-    const resolveActionColorStyle = useSwipeActionColorResolver(token, tokenStyles);
+    const textSize = SIZE_TEXT_MAP[size];
     const [swipeValue, setSwipeValue] = useControllableValue<SwipeActionValue>(
       defaultValue,
       value,
@@ -536,12 +361,12 @@ export const SwipeAction = React.forwardRef<SwipeActionRef, SwipeActionProps>(
     ): React.ReactNode {
       const actionDisabled = isGestureBlocked || action.disabled === true;
       const color = resolveActionColor(action, side);
-      const colorStyle = resolveActionColorStyle(color);
-      const backgroundStyle =
-        action.backgroundColor !== undefined
-          ? ({ backgroundColor: action.backgroundColor } as ViewStyle)
-          : colorStyle.backgroundStyle;
-      const textColorStyle = colorStyle.textStyle;
+      const backgroundStyle = resolveActionBackgroundStyle(
+        color,
+        tokenStyles,
+        token,
+      );
+      const textColor = resolveActionTextColor(color, actionDisabled);
 
       function handleActionPress(): void {
         if (actionDisabled) {
@@ -556,31 +381,45 @@ export const SwipeAction = React.forwardRef<SwipeActionRef, SwipeActionProps>(
         }
       }
 
+      function renderContent(): React.ReactNode {
+        if (action.action === null) {
+          return null;
+        }
+
+        if (action.action !== undefined) {
+          return action.action;
+        }
+
+        if (action.actionText !== undefined) {
+          return (
+            <Text
+              color={textColor as 'default' | 'lightSolid' | 'disabled'}
+              size={textSize}
+              style={styles?.actionText}
+            >
+              {action.actionText}
+            </Text>
+          );
+        }
+
+        return null;
+      }
+
       return (
         <Pressable
           disabled={actionDisabled}
           key={action.key}
           onPress={handleActionPress}
           testID={`swipe-action-${side}-action-${index}`}
-          style={[
+          style={({ pressed }) => [
             tokenStyles.action,
             backgroundStyle,
             actionDisabled ? tokenStyles.actionDisabled : null,
+            pressed ? tokenStyles.actionPressed : null,
             styles?.action,
           ]}
         >
-          {action.content ?? action.text ? (
-            <Text
-              style={[
-                tokenStyles.actionText,
-                textColorStyle,
-                actionDisabled ? tokenStyles.actionTextDisabled : null,
-                styles?.actionText,
-              ]}
-            >
-              {action.content ?? action.text}
-            </Text>
-          ) : null}
+          {renderContent()}
         </Pressable>
       );
     }

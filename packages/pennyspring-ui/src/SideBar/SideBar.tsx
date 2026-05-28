@@ -1,146 +1,70 @@
 import type { ComponentSize } from '../shares/types';
 import React, { useMemo } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
-import { createUseSheetStyle } from '@pennyspring/theme';
 import { Text } from '../Text';
 import { useControllableValue } from '../_hooks';
-import type {
-  AliasToken } from '@pennyspring/theme';
+import { useStyles } from './style';
 import type { ReactNode } from 'react';
-import type { StyleProp,
-  TextStyle } from 'react-native';
+import type {
+  TextStyle,
+} from 'react-native';
+import type {
+  StyleProp,
+} from 'react-native';
+import type {
+  TextColor,
+  TextSize,
+  TextWeight,
+} from '../Text';
 import type {
   SideBarItem,
-  SideBarLayout,
   SideBarProps,
   SideBarValue,
 } from './types';
 
-interface SideBarStyleOptions {
-  block: boolean;
-  disabled: boolean;
-  layout: SideBarLayout;
-  size: ComponentSize;
+function toTextSize(size: ComponentSize): TextSize {
+  if (size === 'small') {
+    return 'sm';
+  }
+
+  if (size === 'large') {
+    return 'lg';
+  }
+
+  return 'md';
 }
 
-interface SizeStyleConfig {
-  sideBarMinHeight: (token: AliasToken) => number;
-  sideBarPaddingHorizontal: (token: AliasToken) => number;
-  sideBarPaddingVertical: (token: AliasToken) => number;
-  labelFontSize: (token: AliasToken) => number;
-  labelLineHeight: (token: AliasToken) => number;
-  sideBarGap: (token: AliasToken) => number;
-  panelPaddingTop: (token: AliasToken) => number;
-}
+function renderLabel(
+  labelText: string | undefined,
+  label: ReactNode | undefined | null,
+  size: ComponentSize,
+  selected: boolean,
+  disabled: boolean,
+  style: StyleProp<TextStyle>,
+) {
+  const content = label ?? labelText;
 
-const SIZE_STYLE_MAP: Record<ComponentSize, SizeStyleConfig> = {
-  small: {
-    sideBarMinHeight: token => token.controlHeightSM,
-    sideBarPaddingHorizontal: token => token.controlPaddingHorizontalSM,
-    sideBarPaddingVertical: token => token.controlPaddingHorizontalSM / 2,
-    labelFontSize: token => token.fontSizeSM,
-    labelLineHeight: token => token.lineHeightSM,
-    sideBarGap: token => token.marginXXS,
-    panelPaddingTop: token => token.paddingSM / 2,
-  },
-  normal: {
-    sideBarMinHeight: token => token.controlHeight,
-    sideBarPaddingHorizontal: token => token.controlPaddingHorizontal,
-    sideBarPaddingVertical: token => token.controlPaddingHorizontal / 2,
-    labelFontSize: token => token.fontSize,
-    labelLineHeight: token => token.lineHeight,
-    sideBarGap: token => token.marginXS,
-    panelPaddingTop: token => token.paddingMD / 2,
-  },
-  large: {
-    sideBarMinHeight: token => token.controlHeightLG,
-    sideBarPaddingHorizontal: token => token.paddingMD,
-    sideBarPaddingVertical: token => token.paddingMD / 2,
-    labelFontSize: token => token.fontSizeLG,
-    labelLineHeight: token => token.lineHeightLG,
-    sideBarGap: token => token.marginSM,
-    panelPaddingTop: token => token.paddingLG / 2,
-  },
-};
-
-function renderLabel(label: ReactNode, style: StyleProp<TextStyle>) {
-  if (label === undefined || label === null || label === false) {
+  if (content === undefined || content === null || content === false) {
     return null;
   }
 
-  if (typeof label === 'string' || typeof label === 'number') {
+  if (typeof content === 'string' || typeof content === 'number') {
+    const weight: TextWeight = 'regular';
+    const color: TextColor = disabled
+      ? 'disabled'
+      : selected
+        ? 'default'
+        : 'secondary';
+
     return (
-      <Text size="sm" style={style}>
-        {label}
+      <Text color={color} size={toTextSize(size)} style={style} weight={weight}>
+        {content}
       </Text>
     );
   }
 
-  return label;
+  return content;
 }
-
-const useStyles = createUseSheetStyle(
-  (token, { block, disabled, layout, size }: SideBarStyleOptions) => {
-    const sizeConfig = SIZE_STYLE_MAP[size];
-
-    return {
-      root: {
-        alignSelf: block ? 'stretch' : 'flex-start',
-        width: block ? '100%' : undefined,
-      },
-      sideBarList: {
-        flexDirection: 'row',
-        flexWrap: layout === 'wrap' ? 'wrap' : 'nowrap',
-        alignItems: 'center',
-        borderBottomWidth: token.lineWidth,
-        borderBottomColor: disabled
-          ? token.colorBorderDisabled
-          : token.colorBorderSecondary,
-        gap: sizeConfig.sideBarGap(token),
-        minWidth: block ? '100%' : undefined,
-      },
-      sideBar: {
-        minHeight: sizeConfig.sideBarMinHeight(token),
-        paddingHorizontal: sizeConfig.sideBarPaddingHorizontal(token),
-        paddingVertical: sizeConfig.sideBarPaddingVertical(token),
-        borderBottomWidth: token.lineWidthBold,
-        borderBottomColor: 'transparent',
-        alignItems: 'center',
-        justifyContent: 'center',
-        flexShrink: 0,
-      },
-      sideBarBlock: {
-        maxWidth: '100%',
-      },
-      sideBarPressed: {
-        backgroundColor: token.colorBgTextHover,
-      },
-      sideBarActive: {
-        borderBottomColor: token.colorPrimary,
-      },
-      sideBarDisabled: {
-        opacity: token.opacityLoading,
-      },
-      label: {
-        fontFamily: token.fontFamily,
-        fontSize: sizeConfig.labelFontSize(token),
-        lineHeight: sizeConfig.labelLineHeight(token),
-        color: token.colorTextSecondary,
-        fontWeight: String(token.fontWeightRegular) as TextStyle['fontWeight'],
-      },
-      labelActive: {
-        color: token.colorPrimary,
-        fontWeight: String(token.fontWeightStrong) as TextStyle['fontWeight'],
-      },
-      labelDisabled: {
-        color: token.colorTextDisabled,
-      },
-      panel: {
-        paddingTop: sizeConfig.panelPaddingTop(token),
-      },
-    };
-  },
-);
 
 function getInitialValue(
   items: SideBarItem[],
@@ -209,22 +133,24 @@ export function SideBar({
                 style={({ pressed }) => [
                   tokenStyles.sideBar,
                   block ? tokenStyles.sideBarBlock : null,
-                  styles?.sideBar,
                   isSelected ? tokenStyles.sideBarActive : null,
-                  isSelected ? styles?.sideBarActive : null,
                   pressed && !itemDisabled ? tokenStyles.sideBarPressed : null,
-                  pressed && !itemDisabled ? styles?.sideBarPressed : null,
                   itemDisabled ? tokenStyles.sideBarDisabled : null,
+                  styles?.sideBar,
                 ]}
               >
-                {renderLabel(item.label, [
-                  tokenStyles.label,
-                  styles?.label,
-                  isSelected ? tokenStyles.labelActive : null,
-                  isSelected ? styles?.labelActive : null,
-                  itemDisabled ? tokenStyles.labelDisabled : null,
-                  itemDisabled ? styles?.labelDisabled : null,
-                ])}
+                {renderLabel(
+                  item.labelText,
+                  item.label,
+                  size,
+                  isSelected,
+                  itemDisabled,
+                  [
+                    styles?.label,
+                    isSelected ? styles?.labelActive : null,
+                    itemDisabled ? styles?.labelDisabled : null,
+                  ],
+                )}
               </Pressable>
             );
           })}
@@ -252,22 +178,24 @@ export function SideBar({
                 style={({ pressed }) => [
                   tokenStyles.sideBar,
                   block ? tokenStyles.sideBarBlock : null,
-                  styles?.sideBar,
                   isSelected ? tokenStyles.sideBarActive : null,
-                  isSelected ? styles?.sideBarActive : null,
                   pressed && !itemDisabled ? tokenStyles.sideBarPressed : null,
-                  pressed && !itemDisabled ? styles?.sideBarPressed : null,
                   itemDisabled ? tokenStyles.sideBarDisabled : null,
+                  styles?.sideBar,
                 ]}
               >
-                {renderLabel(item.label, [
-                  tokenStyles.label,
-                  styles?.label,
-                  isSelected ? tokenStyles.labelActive : null,
-                  isSelected ? styles?.labelActive : null,
-                  itemDisabled ? tokenStyles.labelDisabled : null,
-                  itemDisabled ? styles?.labelDisabled : null,
-                ])}
+                {renderLabel(
+                  item.labelText,
+                  item.label,
+                  size,
+                  isSelected,
+                  itemDisabled,
+                  [
+                    styles?.label,
+                    isSelected ? styles?.labelActive : null,
+                    itemDisabled ? styles?.labelDisabled : null,
+                  ],
+                )}
               </Pressable>
             );
           })}

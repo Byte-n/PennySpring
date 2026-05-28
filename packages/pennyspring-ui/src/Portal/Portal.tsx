@@ -83,7 +83,7 @@ export function PortalProvider({ children }: PortalProviderProps) {
   return (
     <PortalContext.Provider value={contextValue}>
       {children}
-      <View id='aaaaaaaa' pointerEvents="box-none" style={styles.overlay}>
+      <View pointerEvents="box-none" style={styles.overlay}>
         {entries.map(entry => (
           <View key={entry.key} pointerEvents="box-none" style={styles.overlay}>
             {entry.children}

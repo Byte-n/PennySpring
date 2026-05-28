@@ -52,10 +52,17 @@ export interface TextareaProps
   status?: TextareaStatus;
 
   /**
-   * 字段标签。
+   * 字段标签文本。
    * 不得用 placeholder 替代 label。
    */
-  label?: ReactNode;
+  labelText?: string;
+
+  /**
+   * 字段标签自定义节点。
+   * 传入 null 时不渲染标签区域。
+   * 传入 undefined 时回退到 labelText。
+   */
+  label?: ReactNode | null;
 
   /**
    * 输入为空时展示的提示文本。

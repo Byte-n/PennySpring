@@ -21,6 +21,7 @@ export type TagColor = SemanticPresetColor<TagSemanticColor>;
 export type TagVariant = 'filled' | 'outlined' | 'solid';
 
 export interface TagStyles {
+  root?: StyleProp<ViewStyle>;
   content?: StyleProp<TextStyle>;
 }
 

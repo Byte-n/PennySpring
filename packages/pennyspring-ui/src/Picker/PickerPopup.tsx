@@ -1,6 +1,7 @@
 import React from 'react';
 import { Popup } from '../Popup';
 import { PickerPanel } from './PickerPanel';
+import type { ComponentSize } from '../shares/types';
 import type {
   PickerColumn,
   PickerColumnItemData,
@@ -17,6 +18,7 @@ interface PickerPopupContainerProps<TItem extends PickerColumnItemData> {
   isWheelScrolling?: boolean;
   open: boolean;
   props: PickerPopupConfig<TItem>;
+  size?: ComponentSize;
   styles: ReturnType<typeof import('./usePickerStyles').usePickerStyles>;
   onCancelPress?: () => void;
   onFocusIndexChange?: (columnIndex: number, itemIndex: number) => void;
@@ -40,6 +42,7 @@ export function PickerPopup<TItem extends PickerColumnItemData>({
   onWheelScrollStateChange,
   open,
   props,
+  size,
   styles,
 }: PickerPopupContainerProps<TItem>) {
   return (
@@ -70,6 +73,7 @@ export function PickerPopup<TItem extends PickerColumnItemData>({
         onOkPress={onOkPress}
         onWheelScrollStateChange={onWheelScrollStateChange}
         props={props}
+        size={size}
         styles={styles}
       />
     </Popup.FloatingPanel>

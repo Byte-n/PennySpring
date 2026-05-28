@@ -2,20 +2,19 @@ import type { ComponentSize } from '../shares/types';
 import React, { useMemo, useState } from 'react';
 import { View } from 'react-native';
 import { createUseSheetStyle } from '@pennyspring/theme';
-import type {
-  AliasToken } from '@pennyspring/theme';
+import type { AliasToken } from '@pennyspring/theme';
+import {
+  Gesture,
+  GestureDetector,
+} from 'react-native-gesture-handler';
 import { useControllableValue } from '../_hooks';
-import type {
-  GestureResponderEvent,
-  LayoutChangeEvent,
-  ViewStyle,
-  } from 'react-native';
-import type { SliderProps,
-} from './types';
+import type { SliderProps } from './types';
 
 interface SliderStyleOptions {
   size: ComponentSize;
   disabled: boolean;
+  progress: number;
+  trackWidth: number;
 }
 
 interface SliderSizeConfig {
@@ -81,7 +80,7 @@ function normalizeValue(value: number, min: number, max: number, step: number): 
 }
 
 const useStyles = createUseSheetStyle(
-  (token, { size, disabled }: SliderStyleOptions) => {
+  (token, { size, disabled, progress, trackWidth }: SliderStyleOptions) => {
     const sizeConfig = SIZE_MAP[size];
 
     return {
@@ -97,6 +96,7 @@ const useStyles = createUseSheetStyle(
         overflow: 'hidden',
       },
       trackFill: {
+        width: `${progress * 100}%`,
         height: '100%',
         borderRadius: token.borderRadiusSM,
         backgroundColor: disabled ? token.colorFillContent : token.colorPrimary,
@@ -104,6 +104,7 @@ const useStyles = createUseSheetStyle(
       thumbContainer: {
         position: 'absolute',
         top: '50%',
+        left: trackWidth * progress,
       },
       thumb: {
         width: sizeConfig.thumbSize(token),
@@ -151,10 +152,6 @@ export function Slider({
     onChange,
   );
   const [trackWidth, setTrackWidth] = useState(0);
-  const tokenStyles = useStyles({
-    disabled: disabled || readonly,
-    size: resolvedSize,
-  });
   const isReadOnly = disabled || readonly;
   const currentValue = normalizeValue(
     internalValue ?? safeMin,
@@ -164,12 +161,12 @@ export function Slider({
   );
   const progress = safeMax === safeMin ? 0 : (currentValue - safeMin) / (safeMax - safeMin);
   const clampedProgress = clamp(progress, 0, 1);
-  const trackFillStyle = useMemo<ViewStyle>(
-    () => ({
-      width: `${clampedProgress * 100}%`,
-    }),
-    [clampedProgress],
-  );
+  const tokenStyles = useStyles({
+    disabled: disabled || readonly,
+    size: resolvedSize,
+    progress: clampedProgress,
+    trackWidth,
+  });
 
   function updateFromLocation(locationX: number): void {
     if (isReadOnly || trackWidth <= 0) {
@@ -187,38 +184,45 @@ export function Slider({
     setInternalValue(nextValue);
   }
 
-  function handleTrackLayout(event: LayoutChangeEvent): void {
+  function handleTrackLayout(event: { nativeEvent: { layout: { width: number } } }): void {
     setTrackWidth(event.nativeEvent.layout.width);
   }
 
-  function handlePress(event: GestureResponderEvent): void {
-    updateFromLocation(event.nativeEvent.locationX);
-  }
+  const panGesture = useMemo(
+    () =>
+      Gesture.Pan()
+        .enabled(!isReadOnly)
+        .runOnJS(true)
+        .minDistance(0)
+        .onBegin((event) => {
+          updateFromLocation(event.x);
+        })
+        .onUpdate((event) => {
+          updateFromLocation(event.x);
+        })
+        .onEnd((event) => {
+          updateFromLocation(event.x);
+        }),
+    [isReadOnly, trackWidth, safeMin, safeMax, safeStep, currentValue],
+  );
 
   return (
     <View style={[tokenStyles.root, style]}>
-      <View
-        testID="slider-track"
-        onLayout={handleTrackLayout}
-        onStartShouldSetResponder={() => !isReadOnly}
-        onResponderGrant={handlePress}
-        onResponderMove={handlePress}
-        onResponderRelease={handlePress}
-        style={[tokenStyles.track, styles?.track]}
-      >
+      <GestureDetector gesture={panGesture}>
         <View
-          testID="slider-track-fill"
-          style={[tokenStyles.trackFill, trackFillStyle, styles?.trackFill]}
-        />
-      </View>
+          testID="slider-track"
+          onLayout={handleTrackLayout}
+          style={[tokenStyles.track, styles?.track]}
+        >
+          <View
+            testID="slider-track-fill"
+            style={[tokenStyles.trackFill, styles?.trackFill]}
+          />
+        </View>
+      </GestureDetector>
       <View
         pointerEvents="none"
-        style={[
-          tokenStyles.thumbContainer,
-          {
-            left: trackWidth * clampedProgress,
-          },
-        ]}
+        style={[tokenStyles.thumbContainer]}
       >
         <View testID="slider-thumb" style={[tokenStyles.thumb, styles?.thumb]} />
       </View>

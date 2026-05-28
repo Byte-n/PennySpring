@@ -3,6 +3,7 @@ import { Button } from '../Button';
 import { Text } from '../Text';
 import type { ReactNode } from 'react';
 import type { StyleProp, TextStyle, ViewStyle } from 'react-native';
+import type { ComponentSize } from '../shares/types';
 
 interface PickerHeaderButtonProps {
   content?: ReactNode;
@@ -10,6 +11,7 @@ interface PickerHeaderButtonProps {
   testID: string;
   disabled?: boolean;
   onPress?: () => void;
+  size?: ComponentSize;
   style?: StyleProp<ViewStyle>;
   textStyle?: StyleProp<TextStyle>;
 }
@@ -18,6 +20,7 @@ export function PickerHeaderButton({
   content,
   disabled,
   onPress,
+  size,
   style,
   testID,
   text,
@@ -35,6 +38,7 @@ export function PickerHeaderButton({
     <Button
       disabled={disabled}
       onPress={onPress}
+      size={size}
       style={style}
       styles={{ content: textStyle }}
       testID={testID}

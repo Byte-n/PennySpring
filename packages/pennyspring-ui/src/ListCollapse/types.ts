@@ -12,6 +12,7 @@ export interface ListCollapseStyles {
   header?: StyleProp<ViewStyle>;
   left?: StyleProp<ViewStyle>;
   titleText?: StyleProp<TextStyle>;
+  summaryText?: StyleProp<TextStyle>;
   summary?: StyleProp<ViewStyle>;
   indicator?: StyleProp<ViewStyle>;
   content?: StyleProp<ViewStyle>;
@@ -22,13 +23,14 @@ export interface ListCollapseProps {
   titleText?: string;
   title?: ReactNode;
   left?: ReactNode;
-  summary?: ReactNode;
+  summaryText?: string;
+  summary?: ReactNode | null;
   expandText?: string;
   collapseText?: string;
   indicator?: ReactNode;
-  expanded?: boolean;
-  defaultExpanded?: boolean;
-  onExpandedChange?: (expanded: boolean) => void;
+  open?: boolean;
+  defaultOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
   onHeaderPress?: (event: GestureResponderEvent) => void;
   disabled?: boolean;
   readonly?: boolean;

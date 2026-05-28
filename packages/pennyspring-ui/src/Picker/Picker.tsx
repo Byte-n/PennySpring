@@ -270,6 +270,7 @@ export function Picker<TItem extends PickerColumnItemData = PickerColumnItemData
         onClearPress={handleClearPress}
         onPress={handleTriggerPress}
         placeholder={placeholder}
+        size={size}
         styles={tokenStyles}
         valueText={triggerValueText}
       >
@@ -294,6 +295,7 @@ export function Picker<TItem extends PickerColumnItemData = PickerColumnItemData
           cancelText: popupProps?.cancelText ?? DEFAULT_CANCEL_TEXT,
           okText: popupProps?.okText ?? DEFAULT_OK_TEXT,
         }}
+        size={size}
         styles={tokenStyles}
       />
     </View>

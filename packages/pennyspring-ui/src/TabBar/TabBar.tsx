@@ -1,149 +1,40 @@
 import type { ComponentSize } from '../shares/types';
 import React, { useMemo } from 'react';
 import { Pressable, View } from 'react-native';
-import { createUseSheetStyle } from '@pennyspring/theme';
+import { Column } from '../Column';
+import { Row } from '../Row';
 import { Text } from '../Text';
 import { useControllableValue } from '../_hooks';
-import type {
-  AliasToken } from '@pennyspring/theme';
 import type { ReactNode } from 'react';
-import type { StyleProp,
-  TextStyle,
-  ViewStyle } from 'react-native';
-import type { TabBarItem,
-  TabBarProps,
-  TabBarValue,
-} from './types';
+import type { StyleProp, TextStyle, ViewStyle } from 'react-native';
+import type { TextColor, TextSize, TextWeight } from '../Text/types';
+import type { TabBarItem, TabBarProps, TabBarValue } from './types';
+import { useStyles } from './style';
 
-interface TabBarStyleOptions {
-  disabled: boolean;
-  safeAreaInsetBottom: boolean;
-  size: ComponentSize;
-}
-
-interface SizeStyleConfig {
-  minHeight: (token: AliasToken) => number;
-  iconBottomGap: (token: AliasToken) => number;
-  titleFontSize: (token: AliasToken) => number;
-  titleLineHeight: (token: AliasToken) => number;
-  badgeHeight: (token: AliasToken) => number;
-  badgeMinWidth: (token: AliasToken) => number;
-  badgePaddingHorizontal: (token: AliasToken) => number;
-}
-
-const TAB_ITEM_HIT_SLOP = {
-  top: 6,
-  right: 6,
-  bottom: 6,
-  left: 6,
-} as const;
-
-const SIZE_STYLE_MAP: Record<ComponentSize, SizeStyleConfig> = {
-  small: {
-    minHeight: token => token.controlHeightSM + token.paddingSM,
-    iconBottomGap: token => token.marginXXS,
-    titleFontSize: token => token.fontSizeSM,
-    titleLineHeight: token => token.lineHeightSM,
-    badgeHeight: token => token.controlHeightXS,
-    badgeMinWidth: token => token.controlHeightXS,
-    badgePaddingHorizontal: token => token.paddingXXS,
-  },
-  normal: {
-    minHeight: token => token.controlHeight + token.paddingSM,
-    iconBottomGap: token => token.marginXXS,
-    titleFontSize: token => token.fontSizeSM,
-    titleLineHeight: token => token.lineHeightSM,
-    badgeHeight: token => token.controlHeightXS,
-    badgeMinWidth: token => token.controlHeightXS,
-    badgePaddingHorizontal: token => token.paddingXXS,
-  },
-  large: {
-    minHeight: token => token.controlHeightLG + token.paddingSM,
-    iconBottomGap: token => token.marginXS,
-    titleFontSize: token => token.fontSize,
-    titleLineHeight: token => token.lineHeight,
-    badgeHeight: token => token.controlHeightSM,
-    badgeMinWidth: token => token.controlHeightSM,
-    badgePaddingHorizontal: token => token.paddingXS,
-  },
+const SIZE_TEXT_SIZE_MAP: Record<ComponentSize, TextSize> = {
+  small: 'sm',
+  normal: 'sm',
+  large: 'md',
 };
 
-const useStyles = createUseSheetStyle(
-  (token, { disabled, safeAreaInsetBottom, size }: TabBarStyleOptions) => {
-    const sizeConfig = SIZE_STYLE_MAP[size];
+function getTitleColor(
+  isSelected: boolean,
+  itemDisabled: boolean,
+): TextColor {
+  if (itemDisabled) {
+    return 'disabled';
+  }
 
-    return {
-      root: {
-        backgroundColor: token.colorBgContainer,
-        borderTopWidth: token.lineWidth,
-        borderTopColor: disabled
-          ? token.colorBorderDisabled
-          : token.colorBorderSecondary,
-        paddingTop: token.paddingXXS / 2,
-        paddingBottom: safeAreaInsetBottom ? token.paddingSM / 2 : token.paddingXXS / 2,
-      },
-      tabList: {
-        flexDirection: 'row',
-        alignItems: 'stretch',
-      },
-      tab: {
-        flex: 1,
-        minHeight: sizeConfig.minHeight(token),
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingHorizontal: token.paddingXXS,
-        paddingVertical: token.paddingXXS / 2,
-      },
-      tabPressed: {
-        backgroundColor: token.colorBgTextHover,
-      },
-      tabActive: {
-        backgroundColor: token.controlItemBgActive,
-      },
-      tabDisabled: {
-        opacity: token.opacityLoading,
-      },
-      iconContainer: {
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginBottom: sizeConfig.iconBottomGap(token),
-      },
-      titleText: {
-        fontFamily: token.fontFamily,
-        fontSize: sizeConfig.titleFontSize(token),
-        lineHeight: sizeConfig.titleLineHeight(token),
-        color: token.colorTextSecondary,
-        fontWeight: String(token.fontWeightRegular) as TextStyle['fontWeight'],
-      },
-      titleTextActive: {
-        color: token.colorPrimary,
-        fontWeight: String(token.fontWeightStrong) as TextStyle['fontWeight'],
-      },
-      titleTextDisabled: {
-        color: token.colorTextDisabled,
-      },
-      badge: {
-        position: 'absolute',
-        top: token.paddingXXS,
-        right: token.paddingSM,
-        minWidth: sizeConfig.badgeMinWidth(token),
-        height: sizeConfig.badgeHeight(token),
-        borderRadius: token.borderRadiusLG,
-        backgroundColor: token.colorError,
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingHorizontal: sizeConfig.badgePaddingHorizontal(token),
-      },
-      badgeText: {
-        fontFamily: token.fontFamily,
-        color: token.colorTextLightSolid,
-        fontSize: token.fontSizeSM,
-        lineHeight: token.lineHeightSM,
-        fontWeight: String(token.fontWeightStrong) as TextStyle['fontWeight'],
-      },
-    };
-  },
-);
+  if (isSelected) {
+    return 'primary';
+  }
+
+  return 'secondary';
+}
+
+function getTitleWeight(isSelected: boolean): TextWeight {
+  return isSelected ? 'strong' : 'regular';
+}
 
 function getInitialValue(
   items: TabBarItem[],
@@ -156,14 +47,25 @@ function getInitialValue(
   return items.find(item => !item.disabled)?.key;
 }
 
-function renderTitle(title: ReactNode, style: StyleProp<TextStyle>) {
-  if (title === undefined || title === null || title === false) {
+function renderTitle(
+  title: ReactNode,
+  textSize: TextSize,
+  weight: TextWeight,
+  color: TextColor,
+  style: StyleProp<TextStyle>,
+) {
+  if (title == null || title === false) {
     return null;
   }
 
   if (typeof title === 'string' || typeof title === 'number') {
     return (
-      <Text size="sm" style={style}>
+      <Text
+        color={color}
+        size={textSize}
+        weight={weight}
+        style={style}
+      >
         {title}
       </Text>
     );
@@ -177,14 +79,16 @@ function renderBadge(
   badgeStyle: StyleProp<ViewStyle>,
   badgeTextStyle: StyleProp<TextStyle>,
 ) {
-  if (badge === undefined || badge === null || badge === false) {
+  if (badge == null || badge === false) {
     return null;
   }
 
   if (typeof badge === 'string' || typeof badge === 'number') {
     return (
       <View style={badgeStyle}>
-        <Text style={badgeTextStyle}>{badge}</Text>
+        <Text color="lightSolid" size="sm" weight="strong" style={badgeTextStyle}>
+          {badge}
+        </Text>
       </View>
     );
   }
@@ -212,17 +116,20 @@ export function TabBar({
     value,
     onChange,
   );
+  const textSize = SIZE_TEXT_SIZE_MAP[size];
 
   return (
-    <View testID="tab-bar-root" style={[tokenStyles.root, style]}>
-      <View style={[tokenStyles.tabList, styles?.tabList]}>
+    <Row align="stretch" testID="tab-bar-root" style={[tokenStyles.root, style]}>
+      <Row align="stretch" style={styles?.tabList}>
         {normalizedItems.map(item => {
           const itemDisabled = disabled || item.disabled === true;
           const isSelected = selectedValue === item.key;
-          const titleNode = item.title ?? item.titleText;
+          const titleNode = item.title !== undefined ? item.title : item.titleText;
           const iconNode =
             isSelected && item.activeIcon !== undefined ? item.activeIcon : item.icon;
-          const badgeNode = item.badge ?? item.badgeText;
+          const badgeNode = item.badge !== undefined ? item.badge : item.badgeText;
+          const titleColor = getTitleColor(isSelected, itemDisabled);
+          const titleWeight = getTitleWeight(isSelected);
 
           return (
             <Pressable
@@ -230,7 +137,7 @@ export function TabBar({
               key={String(item.key)}
               testID={`tab-bar-item-${String(item.key)}`}
               disabled={itemDisabled}
-              hitSlop={TAB_ITEM_HIT_SLOP}
+              hitSlop={tokenStyles.hitSlop}
               onPress={event => {
                 if (itemDisabled || isSelected) {
                   return;
@@ -250,26 +157,31 @@ export function TabBar({
                 itemDisabled ? styles?.tabDisabled : null,
               ]}
             >
-              {iconNode === undefined ? null : (
-                <View style={[tokenStyles.iconContainer, styles?.icon]}>{iconNode}</View>
-              )}
-              {renderTitle(titleNode, [
-                tokenStyles.titleText,
-                styles?.titleText,
-                isSelected ? tokenStyles.titleTextActive : null,
-                isSelected ? styles?.titleTextActive : null,
-                itemDisabled ? tokenStyles.titleTextDisabled : null,
-                itemDisabled ? styles?.titleTextDisabled : null,
-              ])}
-              {renderBadge(
-                badgeNode,
-                [tokenStyles.badge, styles?.badge],
-                [tokenStyles.badgeText, styles?.badgeText],
-              )}
+              <Column align="center">
+                {iconNode === undefined ? null : (
+                  <View testID="icon-container" style={[tokenStyles.iconContainer, styles?.icon]}>{iconNode}</View>
+                )}
+                {renderTitle(
+                  titleNode,
+                  textSize,
+                  titleWeight,
+                  titleColor,
+                  [
+                    styles?.titleText,
+                    isSelected ? styles?.titleTextActive : null,
+                    itemDisabled ? styles?.titleTextDisabled : null,
+                  ],
+                )}
+                {renderBadge(
+                  badgeNode,
+                  [tokenStyles.badge, styles?.badge],
+                  [styles?.badgeText],
+                )}
+              </Column>
             </Pressable>
           );
         })}
-      </View>
-    </View>
+      </Row>
+    </Row>
   );
 }

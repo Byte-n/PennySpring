@@ -14,7 +14,8 @@ export type SideBarLayout = 'wrap' | 'scroll';
 
 export interface SideBarItem {
   value: SideBarValue;
-  label?: ReactNode;
+  labelText?: string;
+  label?: ReactNode | null;
   disabled?: boolean;
 }
 

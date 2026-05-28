@@ -19,6 +19,7 @@ export interface RowProps {
   wrap?: boolean;
   children?: ReactNode;
   style?: StyleProp<ViewStyle>;
+  testID?: string;
 }
 
 export interface ColumnProps {

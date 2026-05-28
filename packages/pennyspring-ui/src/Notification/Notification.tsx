@@ -98,18 +98,26 @@ const useStyles = createUseSheetStyle(
   (
     token,
     {
-      size,
+      maxContentWidth,
       placement,
-    }: { size: ComponentSize; placement: NotificationPlacement },
+      size,
+      type,
+    }: {
+      maxContentWidth: number;
+      placement: NotificationPlacement;
+      size: ComponentSize;
+      type: NotificationType;
+    },
   ) => {
     const sizeConfig = SIZE_MAP[size];
 
     return {
       content: {
         position: 'absolute',
-        zIndex: token.zIndexPopupBase + 140,
+        zIndex: token.zIndexPopupBase + 100,
         ...resolveOverlayPlacementStyle(placement, token),
-        maxWidth: '100%',
+        maxWidth: maxContentWidth,
+        backgroundColor: resolveTypeBgColor(token, type),
         borderRadius: token.borderRadiusLG,
         borderWidth: token.lineWidth,
         borderColor: token.colorBorderSecondary,
@@ -148,12 +156,12 @@ function NotificationBody({
   titleText,
   type = DEFAULT_TYPE,
 }: NotificationBodyProps) {
-  const tokenStyles = useStyles({ size, placement });
   const { token } = useTheme();
   const { width: windowWidth } = useWindowDimensions();
+  const maxContentWidth = Math.max(0, windowWidth - token.paddingLG * 2);
+  const tokenStyles = useStyles({ maxContentWidth, placement, size, type });
   const progress = useSharedValue(0);
   const closedRef = React.useRef(false);
-  const maxContentWidth = Math.max(0, windowWidth - token.paddingLG * 2);
 
   const handleClosed = React.useCallback(() => {
     if (!closedRef.current) {
@@ -229,8 +237,6 @@ function NotificationBody({
       pointerEvents="box-none"
       style={[
         tokenStyles.content,
-        { maxWidth: maxContentWidth },
-        { backgroundColor: resolveTypeBgColor(token, type) },
         style,
         styles?.content,
         animatedStyle,
@@ -292,14 +298,17 @@ export function Notification({
   }, [afterOpenChange, isOpen, onOpenChange]);
 
   const handleCloseStart = React.useCallback(() => {
-    if (isControlled || internalCloseStartedRef.current || !isOpen) {
+    if (internalCloseStartedRef.current || !isOpen) {
       return;
     }
 
     internalCloseStartedRef.current = true;
     onCancel?.();
     onOpenChange?.(false);
-    setResolvedOpen(false);
+
+    if (!isControlled) {
+      setResolvedOpen(false);
+    }
   }, [isControlled, isOpen, onCancel, onOpenChange, setResolvedOpen]);
 
   const handleExited = React.useCallback(() => {

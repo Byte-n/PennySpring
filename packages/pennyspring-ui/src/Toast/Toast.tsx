@@ -7,87 +7,24 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
-import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
+import { useTheme } from '@pennyspring/theme';
 import { PortalContext } from '../Portal/Portal';
 import { resolvePortalMount } from '../Portal/resolvePortalMount';
 import { Text } from '../Text';
 import { useControllableValue } from '../_hooks';
 import { useOverlayEmitter } from '../_hooks/useOverlayEmitter';
 import type {
-  ViewStyle } from 'react-native';
-import type { ToastController,
+  ToastController,
   ToastPlacement,
   ToastProps,
   ToastShowOptions,
 } from './types';
+import { SIZE_TOKEN_MAP, useStyles } from './style';
 
 const DEFAULT_DURATION = 2000;
 const DEFAULT_SIZE: ComponentSize = 'normal';
 const DEFAULT_PLACEMENT: ToastPlacement = 'bottom';
 const HIDDEN_OFFSET_RATIO = 0.6;
-const SIZE_TOKEN_MAP: Record<
-  ComponentSize,
-  {
-    verticalPadding: (token: ReturnType<typeof useTheme>['token']) => number;
-    horizontalPadding: (token: ReturnType<typeof useTheme>['token']) => number;
-    textSize: 'sm' | 'md' | 'lg';
-  }
-> = {
-  small: {
-    verticalPadding: token => token.paddingSM / 2,
-    horizontalPadding: token => token.paddingSM,
-    textSize: 'sm',
-  },
-  normal: {
-    verticalPadding: token => token.padding / 2,
-    horizontalPadding: token => token.padding,
-    textSize: 'md',
-  },
-  large: {
-    verticalPadding: token => token.paddingMD / 2,
-    horizontalPadding: token => token.paddingMD,
-    textSize: 'lg',
-  },
-};
-
-function getPlacementStyle(placement: ToastPlacement): ViewStyle {
-  if (placement === 'top') {
-    return { top: 0 };
-  }
-
-  if (placement === 'bottom') {
-    return { bottom: 0 };
-  }
-
-  return { top: '50%' };
-}
-
-const useStyles = createUseSheetStyle((token, { size, placement }: { size: ComponentSize; placement: ToastPlacement }) => {
-  const sizeConfig = SIZE_TOKEN_MAP[size];
-
-  return {
-    content: {
-      position: 'absolute',
-      zIndex: token.zIndexPopupBase + 100,
-      maxWidth: '100%',
-      ...getPlacementStyle(placement),
-      ...(placement === 'top'
-        ? { marginTop: token.paddingXL }
-        : placement === 'bottom'
-        ? { marginBottom: token.paddingXL }
-        : null),
-      alignSelf: 'center',
-      borderRadius: token.borderRadius,
-      backgroundColor: token.colorBgSpotlight,
-      paddingVertical: sizeConfig.verticalPadding(token),
-      paddingHorizontal: sizeConfig.horizontalPadding(token),
-    },
-    messageText: {
-      color: token.colorTextLightSolid,
-      textAlign: 'center',
-    },
-  };
-});
 
 interface ToastBodyProps extends ToastShowOptions {
   isOpen: boolean;

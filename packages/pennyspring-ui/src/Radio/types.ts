@@ -36,7 +36,8 @@ export interface RadioProps
 
 export interface RadioGroupOption {
   value: RadioGroupValue;
-  label?: ReactNode;
+  labelText?: string;
+  label?: ReactNode | null;
   disabled?: boolean;
 }
 

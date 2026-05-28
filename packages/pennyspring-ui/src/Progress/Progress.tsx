@@ -1,14 +1,12 @@
 import type { ComponentSize } from '../shares/types';
+import type { TextSize } from '../Text/types';
 import React from 'react';
 import { View } from 'react-native';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import { Text } from '../Text';
-import type {
-  ReactNode } from 'react';
-import type { StyleProp,
-  TextStyle,
-  ViewStyle } from 'react-native';
-import type { AliasToken } from '@pennyspring/theme';
+import type { ReactNode } from 'react';
+import type { ViewStyle } from 'react-native';
+import type { AliasColorTokenKey, AliasToken } from '@pennyspring/theme';
 import type {
   ProgressBarProps,
   ProgressCircleProps,
@@ -16,16 +14,23 @@ import type {
   ProgressStatus,
 } from './types';
 
-interface ProgressStyleOptions {
+interface BarStyleOptions {
   size: ComponentSize;
   status: ProgressStatus;
+  percent: number;
+}
+
+interface CircleStyleOptions {
+  size: ComponentSize;
+  status: ProgressStatus;
+  leftRotation: string;
+  rightRotation: string;
 }
 
 interface ProgressSizeConfig {
   barHeight: (token: AliasToken) => number;
   circleSize: (token: AliasToken) => number;
-  fontSize: (token: AliasToken) => number;
-  lineHeight: (token: AliasToken) => number;
+  textSize: TextSize;
   gap: (token: AliasToken) => number;
 }
 
@@ -38,22 +43,19 @@ const SIZE_STYLE_MAP: Record<ComponentSize, ProgressSizeConfig> = {
   small: {
     barHeight: token => token.sizeXXS,
     circleSize: token => token.controlHeight,
-    fontSize: token => token.fontSizeSM,
-    lineHeight: token => token.lineHeightSM,
+    textSize: 'sm',
     gap: token => token.marginXXS,
   },
   normal: {
     barHeight: token => token.sizeXS,
     circleSize: token => token.controlHeightLG,
-    fontSize: token => token.fontSize,
-    lineHeight: token => token.lineHeight,
+    textSize: 'md',
     gap: token => token.marginXS,
   },
   large: {
     barHeight: token => token.sizeSM,
     circleSize: token => token.controlHeightLG + token.controlHeightXS,
-    fontSize: token => token.fontSizeLG,
-    lineHeight: token => token.lineHeightLG,
+    textSize: 'lg',
     gap: token => token.marginSM,
   },
 };
@@ -94,6 +96,32 @@ function resolveStatusColor(token: AliasToken, status: ProgressStatus): string {
   return token.colorPrimary;
 }
 
+function resolveStatusColorKey(status: ProgressStatus): AliasColorTokenKey {
+  if (status === 'success') {
+    return 'success';
+  }
+
+  if (status === 'exception') {
+    return 'error';
+  }
+
+  return 'primary';
+}
+
+function resolveCircleRotation(percent: number) {
+  if (percent <= HALF_PERCENT) {
+    return {
+      left: `rotate(${QUARTER_TURN})`,
+      right: `rotate(${(percent / HALF_PERCENT) * 180}deg)`,
+    };
+  }
+
+  return {
+    left: `rotate(${((percent - HALF_PERCENT) / HALF_PERCENT) * 180}deg)`,
+    right: `rotate(${HALF_TURN})`,
+  };
+}
+
 function defaultFormat(percent: number): string {
   return `${Math.round(percent)}%`;
 }
@@ -102,7 +130,8 @@ function renderInfo(
   format: ((percent: number) => ReactNode) | undefined,
   percent: number,
   showInfo: boolean,
-  style: StyleProp<TextStyle>,
+  textSize: TextSize,
+  colorKey: AliasColorTokenKey,
 ) {
   if (!showInfo) {
     return null;
@@ -116,17 +145,15 @@ function renderInfo(
     || content === null
     || content === undefined
   ) {
-    return <Text style={style}>{content ?? ''}</Text>;
+    return <Text color={colorKey} size={textSize}>{content ?? ''}</Text>;
   }
 
   return content;
 }
 
-const useStyles = createUseSheetStyle(
-  (token, { size, status }: ProgressStyleOptions) => {
+const useBarStyles = createUseSheetStyle(
+  (token, { size, status, percent }: BarStyleOptions) => {
     const sizeConfig = SIZE_STYLE_MAP[size];
-    const dimension = sizeConfig.circleSize(token);
-    const radius = dimension / 2;
     const strokeColor = resolveStatusColor(token, status);
 
     return {
@@ -146,14 +173,20 @@ const useStyles = createUseSheetStyle(
         backgroundColor: strokeColor,
         borderRadius: token.borderRadiusSM,
         height: '100%',
+        width: `${percent}%`,
       },
-      info: {
-        color: token.colorTextSecondary,
-        fontFamily: token.fontFamily,
-        fontSize: sizeConfig.fontSize(token),
-        fontWeight: String(token.fontWeightRegular) as TextStyle['fontWeight'],
-        lineHeight: sizeConfig.lineHeight(token),
-      },
+    };
+  },
+);
+
+const useCircleStyles = createUseSheetStyle(
+  (token, { size, status, leftRotation, rightRotation }: CircleStyleOptions) => {
+    const sizeConfig = SIZE_STYLE_MAP[size];
+    const dimension = sizeConfig.circleSize(token);
+    const radius = dimension / 2;
+    const strokeColor = resolveStatusColor(token, status);
+
+    return {
       circleRoot: {
         alignItems: 'center',
         gap: sizeConfig.gap(token),
@@ -201,11 +234,12 @@ const useStyles = createUseSheetStyle(
         position: 'absolute',
         width: dimension,
       },
+      halfCircleLeft: {
+        transform: [{ rotate: leftRotation }] as ViewStyle['transform'],
+      },
       halfCircleRight: {
         left: -radius,
-      },
-      indicatorText: {
-        color: strokeColor,
+        transform: [{ rotate: rightRotation }] as ViewStyle['transform'],
       },
     };
   },
@@ -223,9 +257,11 @@ export function ProgressBar({
   const resolvedSize = resolveSize(size);
   const resolvedStatus = resolveStatus(status);
   const normalizedPercent = clampPercent(percent);
-  const tokenStyles = useStyles({
+  const sizeConfig = SIZE_STYLE_MAP[resolvedSize];
+  const tokenStyles = useBarStyles({
     size: resolvedSize,
     status: resolvedStatus,
+    percent: normalizedPercent,
   });
 
   return (
@@ -234,7 +270,6 @@ export function ProgressBar({
         <View
           style={[
             tokenStyles.barIndicator,
-            { width: `${normalizedPercent}%` },
             styles?.indicator,
           ]}
         />
@@ -243,24 +278,11 @@ export function ProgressBar({
         format,
         normalizedPercent,
         showInfo,
-        [tokenStyles.info, styles?.info],
+        sizeConfig.textSize,
+        resolveStatusColorKey(resolvedStatus),
       )}
     </View>
   );
-}
-
-function resolveCircleRotation(percent: number) {
-  if (percent <= HALF_PERCENT) {
-    return {
-      left: `rotate(${QUARTER_TURN})`,
-      right: `rotate(${(percent / HALF_PERCENT) * 180}deg)`,
-    };
-  }
-
-  return {
-    left: `rotate(${((percent - HALF_PERCENT) / HALF_PERCENT) * 180}deg)`,
-    right: `rotate(${HALF_TURN})`,
-  };
 }
 
 export function ProgressCircle({
@@ -275,11 +297,14 @@ export function ProgressCircle({
   const resolvedSize = resolveSize(size);
   const resolvedStatus = resolveStatus(status);
   const normalizedPercent = clampPercent(percent);
-  const tokenStyles = useStyles({
+  const sizeConfig = SIZE_STYLE_MAP[resolvedSize];
+  const rotation = resolveCircleRotation(normalizedPercent);
+  const tokenStyles = useCircleStyles({
     size: resolvedSize,
     status: resolvedStatus,
+    leftRotation: rotation.left,
+    rightRotation: rotation.right,
   });
-  const rotation = resolveCircleRotation(normalizedPercent);
 
   return (
     <View style={[tokenStyles.circleRoot, style]}>
@@ -290,7 +315,7 @@ export function ProgressCircle({
             <View
               style={[
                 tokenStyles.halfCircle,
-                { transform: [{ rotate: rotation.left }] as ViewStyle['transform'] },
+                tokenStyles.halfCircleLeft,
                 styles?.indicator,
               ]}
             />
@@ -300,7 +325,6 @@ export function ProgressCircle({
               style={[
                 tokenStyles.halfCircle,
                 tokenStyles.halfCircleRight,
-                { transform: [{ rotate: rotation.right }] as ViewStyle['transform'] },
                 styles?.indicator,
               ]}
             />
@@ -310,7 +334,8 @@ export function ProgressCircle({
           format,
           normalizedPercent,
           showInfo,
-          [tokenStyles.info, tokenStyles.indicatorText, styles?.info],
+          sizeConfig.textSize,
+          resolveStatusColorKey(resolvedStatus),
         )}
       </View>
     </View>
@@ -325,5 +350,3 @@ export const Progress = Object.assign(ProgressRoot, {
   Bar: ProgressBar,
   Circle: ProgressCircle,
 }) as ProgressComponent;
-
-export { clampPercent, resolveCircleRotation };

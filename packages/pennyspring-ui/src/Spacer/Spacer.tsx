@@ -1,27 +1,52 @@
+import type { ComponentSize } from '../shares/types';
 import React from 'react';
 import { View } from 'react-native';
-import type { ViewStyle } from 'react-native';
-import type { SpacerProps } from './types';
+import { createUseSheetStyle } from '@pennyspring/theme';
+import type { SpacerDirection, SpacerProps } from './types';
 
-export function Spacer({ size, flex, min, max, style }: SpacerProps) {
-  const baseStyle: ViewStyle = {};
+interface SpacerStyleOptions {
+  direction: SpacerDirection;
+  flex: number;
+  size?: ComponentSize;
+}
 
-  if (size != null) {
-    baseStyle.width = size;
-    baseStyle.height = size;
-  } else {
-    baseStyle.flex = flex ?? 1;
+function getGap(size: ComponentSize, token: { paddingXXS: number; paddingXS: number; paddingSM: number }) {
+  if (size === 'small') {
+    return token.paddingXXS;
   }
 
-  if (min != null) {
-    baseStyle.minWidth = min;
-    baseStyle.minHeight = min;
+  if (size === 'large') {
+    return token.paddingSM;
   }
 
-  if (max != null) {
-    baseStyle.maxWidth = max;
-    baseStyle.maxHeight = max;
-  }
+  return token.paddingXS;
+}
 
-  return <View testID="spacer" style={[baseStyle, style]} />;
+const useStyles = createUseSheetStyle(
+  (token, options: SpacerStyleOptions) => {
+    const isHorizontal = options.direction === 'horizontal';
+
+    if (options.size) {
+      const gap = getGap(options.size, token);
+
+      return {
+        root: {
+          width: isHorizontal ? gap : undefined,
+          height: isHorizontal ? undefined : gap / 2,
+        },
+      };
+    }
+
+    return {
+      root: {
+        flex: options.flex,
+      },
+    };
+  },
+);
+
+export function Spacer({ direction = 'horizontal', size, flex = 1, style }: SpacerProps) {
+  const tokenStyles = useStyles({ direction, flex, size });
+
+  return <View testID="spacer" style={[tokenStyles.root, style]} />;
 }

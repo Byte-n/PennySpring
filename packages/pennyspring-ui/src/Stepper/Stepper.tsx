@@ -1,95 +1,11 @@
-import type { ComponentSize } from '../shares/types';
 import React from 'react';
 import { Pressable, View } from 'react-native';
-import { createUseSheetStyle } from '@pennyspring/theme';
+import { useTheme } from '@pennyspring/theme';
 import { useControllableValue } from '../_hooks';
+import { Row } from '../Row';
 import { Text } from '../Text';
-import type { AliasToken } from '@pennyspring/theme';
+import { useStyles, SIZE_TO_TEXT_SIZE } from './style';
 import type { StepperProps } from './types';
-
-interface SizeStyleConfig {
-  height: (token: AliasToken) => number;
-  buttonWidth: (token: AliasToken) => number;
-  fontSize: (token: AliasToken) => number;
-  paddingHorizontal: (token: AliasToken) => number;
-}
-
-const SIZE_STYLE_MAP: Record<ComponentSize, SizeStyleConfig> = {
-  small: {
-    height: token => token.controlHeightSM,
-    buttonWidth: token => token.controlHeightSM,
-    fontSize: token => token.fontSizeSM,
-    paddingHorizontal: token => token.controlPaddingHorizontalSM,
-  },
-  normal: {
-    height: token => token.controlHeight,
-    buttonWidth: token => token.controlHeight,
-    fontSize: token => token.fontSize,
-    paddingHorizontal: token => token.controlPaddingHorizontal,
-  },
-  large: {
-    height: token => token.controlHeightLG,
-    buttonWidth: token => token.controlHeightLG,
-    fontSize: token => token.fontSizeLG,
-    paddingHorizontal: token => token.controlPaddingHorizontal,
-  },
-};
-const STEPPER_BUTTON_HIT_SLOP = 8;
-
-const useStyles = createUseSheetStyle((token, size: ComponentSize) => {
-  const config = SIZE_STYLE_MAP[size];
-
-  return {
-    container: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      borderWidth: token.lineWidth,
-      borderColor: token.colorBorder,
-      borderRadius: token.borderRadius,
-      backgroundColor: token.colorBgContainer,
-      height: config.height(token),
-    },
-    containerDisabled: {
-      backgroundColor: token.colorBgContainerDisabled,
-      borderColor: token.colorBorderDisabled,
-    },
-    button: {
-      width: config.buttonWidth(token),
-      height: '100%',
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    buttonPressed: {
-      backgroundColor: token.controlItemBgActive,
-    },
-    buttonText: {
-      fontSize: config.fontSize(token),
-      color: token.colorText,
-    },
-    buttonTextDisabled: {
-      color: token.colorTextDisabled,
-    },
-    input: {
-      flex: 1,
-      alignItems: 'center',
-      justifyContent: 'center',
-      borderLeftWidth: token.lineWidth,
-      borderRightWidth: token.lineWidth,
-      borderColor: token.colorBorder,
-      paddingHorizontal: config.paddingHorizontal(token),
-    },
-    inputDisabled: {
-      borderColor: token.colorBorderDisabled,
-    },
-    inputText: {
-      fontSize: config.fontSize(token),
-      color: token.colorText,
-    },
-    inputTextDisabled: {
-      color: token.colorTextDisabled,
-    },
-  };
-});
 
 function clampValue(value: number, min: number, max: number): number {
   return Math.min(Math.max(value, min), max);
@@ -109,6 +25,8 @@ export function Stepper({
   styles,
 }: StepperProps) {
   const tokenStyles = useStyles(size);
+  const { token } = useTheme();
+  const hitSlop = token.paddingSM;
   const [currentValue, setCurrentValue] = useControllableValue(
     defaultValue,
     value,
@@ -118,6 +36,7 @@ export function Stepper({
   const safeValue = currentValue ?? 0;
   const isAtMin = safeValue <= min;
   const isAtMax = safeValue >= max;
+  const textSize = SIZE_TO_TEXT_SIZE[size];
 
   function handleIncrement(): void {
     if (isDisabled || isAtMax) {
@@ -134,7 +53,8 @@ export function Stepper({
   }
 
   return (
-    <View
+    <Row
+      align="center"
       style={[
         tokenStyles.container,
         disabled ? tokenStyles.containerDisabled : null,
@@ -152,14 +72,12 @@ export function Stepper({
             ? tokenStyles.buttonPressed
             : null,
         ]}
-        hitSlop={STEPPER_BUTTON_HIT_SLOP}
+        hitSlop={hitSlop}
       >
         <Text
-          style={[
-            tokenStyles.buttonText,
-            styles?.buttonText,
-            isDisabled || isAtMin ? tokenStyles.buttonTextDisabled : null,
-          ]}
+          size={textSize}
+          color={isDisabled || isAtMin ? 'disabled' : 'base'}
+          style={styles?.buttonText}
         >
           {'−'}
         </Text>
@@ -173,6 +91,8 @@ export function Stepper({
       >
         <Text
           testID="stepper-input"
+          size={textSize}
+          color={disabled ? 'disabled' : 'base'}
           style={[
             tokenStyles.inputText,
             styles?.inputText,
@@ -193,18 +113,16 @@ export function Stepper({
             ? tokenStyles.buttonPressed
             : null,
         ]}
-        hitSlop={STEPPER_BUTTON_HIT_SLOP}
+        hitSlop={hitSlop}
       >
         <Text
-          style={[
-            tokenStyles.buttonText,
-            styles?.buttonText,
-            isDisabled || isAtMax ? tokenStyles.buttonTextDisabled : null,
-          ]}
+          size={textSize}
+          color={isDisabled || isAtMax ? 'disabled' : 'base'}
+          style={styles?.buttonText}
         >
           +
         </Text>
       </Pressable>
-    </View>
+    </Row>
   );
 }

@@ -14,7 +14,8 @@ export type TabsLayout = 'wrap' | 'scroll';
 
 export interface TabsItem {
   value: TabsValue;
-  label?: ReactNode;
+  labelText?: string;
+  label?: ReactNode | null;
   disabled?: boolean;
 }
 
@@ -23,6 +24,7 @@ export interface TabsStyles {
   tab?: StyleProp<ViewStyle>;
   tabPressed?: StyleProp<ViewStyle>;
   tabActive?: StyleProp<ViewStyle>;
+  tabDisabled?: StyleProp<ViewStyle>;
   label?: StyleProp<TextStyle>;
   labelActive?: StyleProp<TextStyle>;
   labelDisabled?: StyleProp<TextStyle>;

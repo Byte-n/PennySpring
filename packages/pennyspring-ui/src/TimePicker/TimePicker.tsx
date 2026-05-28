@@ -13,6 +13,7 @@ import type {
 } from './types';
 
 const DEFAULT_PRECISION: TimePickerPrecision = 'minute';
+const DEFAULT_SIZE = 'normal' as const;
 const DEFAULT_STEP = 1;
 const MAX_HOUR = 23;
 const MAX_MINUTE_OR_SECOND = 59;
@@ -217,7 +218,7 @@ export function TimePicker(props: TimePickerProps) {
     : undefined;
   const defaultPickerValue = props.defaultValue
     ? dateToPickerValue(props.defaultValue, precision)
-    : dateToPickerValue(baseDate, precision);
+    : undefined;
 
   const pickerRenderLabel = renderLabel
     ? (item: PickerColumnItemData, columnIndex: number) => {
@@ -265,6 +266,8 @@ export function TimePicker(props: TimePickerProps) {
         title: props.title,
         titleText: props.titleText,
       }}
+      readonly={props.readonly}
+      size={props.size ?? DEFAULT_SIZE}
       style={props.style}
       styles={props.styles}
       value={pickerValue}

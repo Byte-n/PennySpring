@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Pressable, View } from 'react-native';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import { Text } from '../Text';
+import { useControllableValue } from '../_hooks';
 import type { ReactNode } from 'react';
 import type {
   GestureResponderEvent,
@@ -19,7 +20,24 @@ interface ListCollapseStyleOptions {
 
 const useListCollapseStyles = createUseSheetStyle(
   (token, { size }: ListCollapseStyleOptions) => {
-    const slotGap = size === 'small' ? token.marginXS : token.marginSM;
+    const slotGap =
+      size === 'small'
+        ? token.marginXXS
+        : size === 'large'
+          ? token.marginSM
+          : token.marginXS;
+    const contentPaddingH =
+      size === 'small'
+        ? token.paddingSM
+        : size === 'large'
+          ? token.paddingLG
+          : token.padding;
+    const headerPaddingH =
+      size === 'small'
+        ? token.paddingSM
+        : size === 'large'
+          ? token.paddingMD
+          : token.paddingContentHorizontal;
 
     return {
       root: {
@@ -27,11 +45,15 @@ const useListCollapseStyles = createUseSheetStyle(
       },
       header: {
         minHeight:
-          size === 'large' ? token.controlHeightLG : token.controlHeight,
+          size === 'large'
+            ? token.controlHeightLG
+            : size === 'small'
+              ? token.controlHeightSM
+              : token.controlHeight,
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: token.paddingContentHorizontal,
-        paddingVertical: token.paddingContentHorizontal / 2,
+        paddingHorizontal: headerPaddingH,
+        paddingVertical: headerPaddingH / 2,
       },
       headerPressed: {
         backgroundColor: token.colorBgTextHover,
@@ -47,6 +69,9 @@ const useListCollapseStyles = createUseSheetStyle(
         flex: 1,
         color: token.colorTextHeading,
       },
+      summaryText: {
+        color: token.colorTextDescription,
+      },
       summary: {
         marginLeft: slotGap,
       },
@@ -54,8 +79,8 @@ const useListCollapseStyles = createUseSheetStyle(
         marginLeft: slotGap,
       },
       content: {
-        paddingHorizontal: token.paddingMD,
-        paddingVertical: token.paddingMD / 2,
+        paddingHorizontal: contentPaddingH,
+        paddingVertical: contentPaddingH / 2,
         backgroundColor: token.colorFillSecondary,
       },
       contentLoading: {
@@ -84,37 +109,35 @@ function renderTextNode(node: ReactNode, style: StyleProp<TextStyle>) {
 export function ListCollapse({
   children,
   collapseText,
-  defaultExpanded,
+  defaultOpen,
   disabled,
   expandText,
-  expanded,
+  open,
   indicator,
   left,
   loading,
-  onExpandedChange,
+  onOpenChange,
   onHeaderPress,
   readonly,
   size,
   style,
   styles,
   summary,
+  summaryText,
   title,
   titleText,
 }: ListCollapseProps) {
-  const [internalExpanded, setInternalExpanded] = useState(Boolean(defaultExpanded));
+  const [resolvedOpen, setResolvedOpen] = useControllableValue(
+    defaultOpen,
+    open,
+    onOpenChange,
+  );
   const resolvedSize = resolveSize(size);
   const tokenStyles = useListCollapseStyles({ size: resolvedSize });
-  const mergedExpanded = expanded ?? internalExpanded;
+  const isOpen = Boolean(resolvedOpen);
   const isDisabled = Boolean(disabled);
   const isInteractive = !isDisabled && !readonly && !loading;
 
-  const setExpanded = (nextExpanded: boolean): void => {
-    if (expanded === undefined) {
-      setInternalExpanded(nextExpanded);
-    }
-
-    onExpandedChange?.(nextExpanded);
-  };
   const handleHeaderPress = (event: GestureResponderEvent): void => {
     onHeaderPress?.(event);
 
@@ -122,9 +145,9 @@ export function ListCollapse({
       return;
     }
 
-    setExpanded(!mergedExpanded);
+    setResolvedOpen(!isOpen);
   };
-  const indicatorText = mergedExpanded ? collapseText : expandText;
+  const indicatorText = isOpen ? collapseText : expandText;
   const indicatorNode = indicator ?? (
     indicatorText === undefined ? null : (
       <Text color="secondary">{indicatorText}</Text>
@@ -144,14 +167,16 @@ export function ListCollapse({
       >
         {left ? <View style={[tokenStyles.left, styles?.left]}>{left}</View> : null}
         {title ?? renderTextNode(titleText, [tokenStyles.title, styles?.titleText])}
-        {summary ? (
+        {summaryText !== undefined ? (
+          <Text style={[tokenStyles.summaryText, styles?.summaryText]}>{summaryText}</Text>
+        ) : summary !== undefined && summary !== null ? (
           <View style={[tokenStyles.summary, styles?.summary]}>{summary}</View>
         ) : null}
         {indicatorNode === null ? null : (
           <View style={[tokenStyles.indicator, styles?.indicator]}>{indicatorNode}</View>
         )}
       </Pressable>
-      {mergedExpanded ? (
+      {isOpen ? (
         <View
           style={[
             tokenStyles.content,
