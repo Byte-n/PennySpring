@@ -4,7 +4,7 @@ import { useTextColor } from './useTextColor';
 import { useStyles } from './style';
 import type { TextProps } from './types';
 
-export function Text({
+export const Text = React.forwardRef<RNText, TextProps>(function Text({
   size = 'md',
   weight,
   color,
@@ -16,12 +16,13 @@ export function Text({
   onLongPress,
   testID,
   children,
-}: TextProps) {
+}, ref) {
   const resolvedColor = useTextColor(color);
   const tokenStyles = useStyles({ size, weight, color: resolvedColor });
 
   return (
     <RNText
+      ref={ref}
       ellipsizeMode={ellipsizeMode}
       numberOfLines={numberOfLines}
       onLongPress={onLongPress}
@@ -33,4 +34,4 @@ export function Text({
       {children}
     </RNText>
   );
-}
+});
