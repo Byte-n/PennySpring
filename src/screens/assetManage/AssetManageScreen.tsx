@@ -31,7 +31,7 @@ import {
   type AssetTypeValue,
   VISIBILITY,
 } from '@pennyspring/data';
-import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
+import { createUseSheetStyle } from '@pennyspring/theme';
 
 import {
   ASSET_CLASSIFICATION_TREE,
@@ -217,7 +217,7 @@ const useStyles = createUseSheetStyle(token => ({
 
 export function AssetManageScreen() {
   const styles = useStyles();
-  const { token } = useTheme();
+
   const toast = useToast();
   const currentBook = useBookStore(state => state.currentBook);
 
@@ -496,13 +496,13 @@ export function AssetManageScreen() {
                           rightActions={[
                             {
                               key: 'edit',
-                              text: '编辑',
+                              actionText: '编辑',
                               color: 'primary',
                               onPress: () => openEdit(asset),
                             },
                             {
                               key: 'delete',
-                              text: '删除',
+                              actionText: '删除',
                               color: 'danger',
                               onPress: () => handleDelete(asset.id),
                             },
@@ -651,7 +651,7 @@ export function AssetManageScreen() {
         />
         <Row>
           <Text>隐藏资产</Text>
-          <Spacer size={token.marginSM} />
+          <Spacer size="small" />
           <Switch value={invisible} onChange={setInvisible} />
         </Row>
       </Popup.FloatingPanel>

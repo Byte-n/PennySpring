@@ -77,7 +77,7 @@ export function CategoryGrid(props: CategoryGridProps) {
         return (
           <ListCollapse
             key={list[0].id}
-            expanded={allIds.includes(value!)}
+            open={allIds.includes(value!)}
             title={<Cells list={list} onSelect={onSelect} value={value} />}
             styles={{
               header: styles.header,

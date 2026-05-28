@@ -250,7 +250,7 @@ export function BookManageScreen() {
                 leftActions={[
                   {
                     key: 'select',
-                    text: isCurrentBook ? '当前' : '选择',
+                    actionText: isCurrentBook ? '当前' : '选择',
                     color: isCurrentBook ? 'weak' : 'success',
                     disabled: isCurrentBook,
                     onPress: () => handleSelectBook(book),
@@ -259,13 +259,13 @@ export function BookManageScreen() {
                 rightActions={[
                   {
                     key: 'edit',
-                    text: '编辑',
+                    actionText: '编辑',
                     color: 'primary',
                     onPress: () => openEditDialog(book),
                   },
                   {
                     key: 'delete',
-                    text: '删除',
+                    actionText: '删除',
                     color: 'danger',
                     onPress: () => handleDelete(book.id),
                   },
