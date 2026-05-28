@@ -4,6 +4,10 @@ import {
   DisplayInputCustomValueNodeDemo,
 } from './custom-value-node';
 import {
+  displayInputInputComparisonDemoTitle,
+  DisplayInputInputComparisonDemo,
+} from './input-comparison';
+import {
   displayInputOverflowVisibleDemoTitle,
   DisplayInputOverflowVisibleDemo,
 } from './overflow-visible';
@@ -27,6 +31,11 @@ export const displayInputDemos = [
     id: 'custom-value-node',
     title: displayInputCustomValueNodeDemoTitle,
     Component: DisplayInputCustomValueNodeDemo,
+  },
+  {
+    id: 'input-comparison',
+    title: displayInputInputComparisonDemoTitle,
+    Component: DisplayInputInputComparisonDemo,
   },
   {
     id: 'overflow-visible',

@@ -22,6 +22,11 @@ export function InputStatusDemo() {
           placeholder="请输入账户名称"
         />
         <Input
+          defaultValue="现金账户"
+          labelText="账户名称"
+          placeholder="请输入账户名称"
+        />
+        <Input
           labelText="备注"
           placeholder="可选"
           helperText="最多 100 字"
