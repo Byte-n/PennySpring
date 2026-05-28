@@ -37,20 +37,23 @@ function findRootStyle(
 
 function findFieldStyle(testRenderer: renderer.ReactTestRenderer) {
   const field = testRenderer.root.findAll(
-    node => StyleSheet.flatten(node.props.style)?.borderWidth !== undefined,
+    node => StyleSheet.flatten(node.props.style)?.backgroundColor !== undefined &&
+      StyleSheet.flatten(node.props.style)?.minHeight !== undefined,
   )[0];
 
   return StyleSheet.flatten(field.props.style);
 }
 
-function findFieldContentStyle(testRenderer: renderer.ReactTestRenderer) {
-  const fieldContent = testRenderer.root.findAll(
-    node =>
-      node.props?.testID === 'row' &&
-      StyleSheet.flatten(node.props.style)?.gap !== undefined,
-  )[0];
+function findUnderlineStyle(testRenderer: renderer.ReactTestRenderer) {
+  const underline = testRenderer.root.findByProps({
+    testID: 'display-input-underline',
+  });
 
-  return StyleSheet.flatten(fieldContent.props.style);
+  return StyleSheet.flatten(underline.props.style);
+}
+
+function findFieldContentStyle(testRenderer: renderer.ReactTestRenderer) {
+  return findFieldStyle(testRenderer);
 }
 
 describe('DisplayInput', () => {
@@ -215,6 +218,43 @@ describe('DisplayInput', () => {
     expect(tree).toContain('标签文本');
   });
 
+  it('renders labelText as an in-field floating label like Input', () => {
+    const testRenderer = renderDisplayInput({
+      labelText: '标签文本',
+      placeholder: '请选择',
+      valueText: '展示值',
+    });
+
+    const label = testRenderer.root.findByProps({
+      testID: 'display-input-floating-label',
+    });
+    const labelStyle = StyleSheet.flatten(label.props.style);
+    const value = testRenderer.root.findAll(
+      node => node.props?.children === '展示值',
+    )[0];
+    const valueStyle = StyleSheet.flatten(value.props.style);
+
+    expect(labelStyle.position).toBe('absolute');
+    expect(labelStyle.left).toBe(0);
+    expect(labelStyle.right).toBe(0);
+    expect(valueStyle.paddingTop).toBeGreaterThan(valueStyle.paddingBottom);
+    expect(valueStyle.paddingBottom).toBe(0);
+    expect(JSON.stringify(testRenderer.toJSON())).not.toContain('请选择');
+  });
+
+  it('keeps placeholder hidden while an empty labeled display value is inactive', () => {
+    const testRenderer = renderDisplayInput({
+      labelText: '标签文本',
+      placeholder: '请选择',
+      valueText: '',
+    });
+
+    const tree = JSON.stringify(testRenderer.toJSON());
+
+    expect(tree).toContain('标签文本');
+    expect(tree).not.toContain('请选择');
+  });
+
   it('prefers label node and skips labelText when both are provided', () => {
     // Arrange
     const testRenderer = renderDisplayInput({
@@ -274,20 +314,21 @@ describe('DisplayInput', () => {
     ).toBe(token.padding);
   });
 
-  it('uses half vertical padding compared with horizontal padding for every size', () => {
-    const smallFieldStyle = findFieldStyle(
-      renderDisplayInput({ size: 'small', valueText: 'Small' }),
-    );
-    const normalFieldStyle = findFieldStyle(
-      renderDisplayInput({ size: 'normal', valueText: 'Normal' }),
-    );
-    const largeFieldStyle = findFieldStyle(
-      renderDisplayInput({ size: 'large', valueText: 'Large' }),
-    );
+  it('matches Input flat field styling with an independent underline', () => {
+    const testRenderer = renderDisplayInput({
+      valueText: '展示值',
+    });
 
-    expect(smallFieldStyle.paddingVertical).toBe(smallFieldStyle.paddingHorizontal / 2);
-    expect(normalFieldStyle.paddingVertical).toBe(normalFieldStyle.paddingHorizontal / 2);
-    expect(largeFieldStyle.paddingVertical).toBe(largeFieldStyle.paddingHorizontal / 2);
+    const fieldStyle = findFieldStyle(testRenderer);
+    const underlineStyle = findUnderlineStyle(testRenderer);
+
+    expect(fieldStyle.borderWidth).toBeUndefined();
+    expect(fieldStyle.borderRadius).toBeUndefined();
+    expect(fieldStyle.backgroundColor).toBe(token.colorFillTertiary);
+    expect(fieldStyle.borderTopLeftRadius).toBe(token.borderRadiusSM);
+    expect(fieldStyle.borderTopRightRadius).toBe(token.borderRadiusSM);
+    expect(underlineStyle.height).toBe(token.lineWidthBold);
+    expect(underlineStyle.backgroundColor).toBe(token.colorBorder);
   });
 
   it('uses spacing tokens for field gap across all sizes', () => {
@@ -297,9 +338,9 @@ describe('DisplayInput', () => {
     const largeFieldStyle = findFieldContentStyle(renderDisplayInput({ size: 'large', valueText: 'Large' }));
 
     // Act & Assert
-    expect(smallFieldStyle.gap).toBe(token.marginXXS);
-    expect(normalFieldStyle.gap).toBe(token.marginXS);
-    expect(largeFieldStyle.gap).toBe(token.marginSM);
+    expect(smallFieldStyle.gap).toBe(token.sizeXXS);
+    expect(normalFieldStyle.gap).toBe(token.sizeXS);
+    expect(largeFieldStyle.gap).toBe(token.sizeSM);
   });
 
   it('exports DisplayInputOverflow from component entry', () => {

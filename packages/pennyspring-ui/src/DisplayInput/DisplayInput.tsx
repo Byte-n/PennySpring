@@ -1,5 +1,14 @@
-import React from 'react';
-import { Pressable } from 'react-native';
+import React, { useEffect } from 'react';
+import { Pressable, View } from 'react-native';
+import {
+  Easing,
+  createAnimatedComponent,
+  interpolate,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
+import { useTheme } from '@pennyspring/theme';
 import { Column } from '../Column';
 import { Row } from '../Row';
 import { Text } from '../Text';
@@ -13,6 +22,7 @@ import type {
 } from './types';
 
 const REQUIRED_MARK = '*';
+const AnimatedText = createAnimatedComponent(Text);
 
 function resolveSize(size?: ComponentSize): ComponentSize {
   return size ?? 'normal';
@@ -61,19 +71,10 @@ export function DisplayInput({
   const resolvedStatus = resolveStatus(status);
   const resolvedDisplay = resolveDisplay(display);
   const resolvedOverflow = resolveOverflow(overflow);
-  const tokenStyles = useStyles({
-    display: resolvedDisplay,
-    size: resolvedSize,
-    status: resolvedStatus,
-  });
-
+  const { token } = useTheme();
   const isDisabled = disabled === true;
   const isReadonly = readonly === true;
   const isClickable = !isDisabled && !isReadonly && onPress !== undefined;
-  const isError = resolvedStatus === 'error';
-  const hasLabelNode = label !== undefined;
-  const hasLabelText = labelText !== undefined && labelText !== '';
-  const hasLabel = label === null ? false : hasLabelNode || hasLabelText;
   const hasPrefix = prefix !== undefined && prefix !== null;
   const hasSuffix = suffix !== undefined && suffix !== null;
   const hasCustomValue = children !== undefined && children !== null;
@@ -86,44 +87,67 @@ export function DisplayInput({
       ? valueText
       : undefined;
   const hasDisplayText = textValue !== undefined && textValue !== '';
+  const hasDisplayValue = hasDisplayText || (hasCustomValue && !isTextLikeValue(children));
   const errorMessage = error !== undefined ? error : errorText;
   const helperMessage = helper !== undefined ? helper : helperText;
+  const isError = resolvedStatus === 'error' ||
+    (errorMessage !== undefined && errorMessage !== null);
   const message = isError && errorMessage !== undefined
     ? errorMessage
     : helperMessage;
+  const tokenStyles = useStyles({
+    disabled: isDisabled,
+    display: resolvedDisplay,
+    isError,
+    size: resolvedSize,
+  });
+  const labelNode = label === null ? null : label ?? labelText ?? null;
+  const hasFloatingLabel = labelNode !== null && labelNode !== undefined;
+  const isFloatingLabelActive = hasFloatingLabel && hasDisplayValue;
+  const shouldShowPlaceholder = !hasFloatingLabel && !hasDisplayText;
+  const progress = useSharedValue(isFloatingLabelActive ? 1 : 0);
+  const bodyFontSize = resolvedSize === 'small'
+    ? token.fontSizeSM
+    : resolvedSize === 'large'
+      ? token.fontSizeLG
+      : token.fontSize;
+  const labelFontSize = token.fontSizeSM;
+  const labelLineHeight = token.lineHeightSM;
+  const controlHeight = resolvedSize === 'small'
+    ? token.controlHeight
+    : resolvedSize === 'large'
+      ? token.controlHeightLG + token.paddingSM
+      : token.controlHeightLG;
+  const inactiveLabelTop = controlHeight / 2 - labelLineHeight / 2;
+  const activeLabelTop = token.paddingXXS;
 
-  const renderLabel = () => {
-    if (label === null) {
-      return null;
-    }
+  useEffect(() => {
+    progress.value = withTiming(isFloatingLabelActive ? 1 : 0, {
+      duration: token.motionDurationMid,
+      easing: Easing.bezier(...token.motionEaseInOut),
+    });
+  }, [isFloatingLabelActive, progress, token.motionDurationMid, token.motionEaseInOut]);
 
-    if (label !== undefined) {
-      return label;
-    }
+  const labelAnimatedStyle = useAnimatedStyle(() => ({
+    top: interpolate(
+      progress.value,
+      [0, 1],
+      [inactiveLabelTop, activeLabelTop],
+    ),
+    fontSize: interpolate(
+      progress.value,
+      [0, 1],
+      [bodyFontSize, labelFontSize],
+    ),
+    lineHeight: labelLineHeight,
+  }));
 
-    if (hasLabelText) {
-      return (
-        <Text color="label" style={[tokenStyles.label, styles?.label]}>
-          {labelText}
-        </Text>
-      );
-    }
-
-    return null;
-  };
+  const labelContent = required === true && typeof labelNode === 'string'
+    ? `${labelNode} ${REQUIRED_MARK}`
+    : labelNode;
 
   return (
     <Column style={[tokenStyles.root, style]}>
-      {hasLabel ? (
-        <Row align="center" style={tokenStyles.labelRow}>
-          {renderLabel()}
-          {required === true ? (
-            <Text color="error" style={tokenStyles.requiredMark}>
-              {REQUIRED_MARK}
-            </Text>
-          ) : null}
-        </Row>
-      ) : null}
       <Pressable
         disabled={!isClickable}
         onPress={onPress}
@@ -134,14 +158,34 @@ export function DisplayInput({
           isClickable && pressed ? tokenStyles.fieldPressed : null,
         ]}
       >
-        <Row align="center" style={tokenStyles.fieldContent}>
-          {hasPrefix ? (
-            <Row style={[tokenStyles.prefix, styles?.prefix]}>{prefix}</Row>
+        <View
+          pointerEvents="none"
+          style={tokenStyles.underline}
+          testID="display-input-underline"
+        />
+        {hasPrefix ? (
+          <Row style={[tokenStyles.prefix, styles?.prefix]}>{prefix}</Row>
+        ) : null}
+        <View style={tokenStyles.valueWrapper}>
+          {hasFloatingLabel ? (
+            <AnimatedText
+              color={isError ? undefined : 'placeholder'}
+              numberOfLines={1}
+              style={[
+                tokenStyles.floatingLabel,
+                styles?.label,
+                labelAnimatedStyle,
+              ]}
+              testID="display-input-floating-label"
+            >
+              {labelContent}
+            </AnimatedText>
           ) : null}
           {hasCustomValue && !isTextLikeValue(children) ? (
             <Column
               style={[
                 tokenStyles.valueContainer,
+                hasFloatingLabel ? tokenStyles.valueWithLabel : tokenStyles.valueWithoutLabel,
                 resolvedOverflow === 'hidden'
                   ? tokenStyles.valueContainerHidden
                   : tokenStyles.valueContainerVisible,
@@ -155,22 +199,23 @@ export function DisplayInput({
               color={isDisabled ? 'disabled' : !hasDisplayText ? 'placeholder' : 'default'}
               size={resolvedSize === 'small' ? 'sm' : resolvedSize === 'large' ? 'lg' : 'md'}
               ellipsizeMode={resolvedOverflow === 'hidden' ? 'tail' : undefined}
-              numberOfLines={resolvedOverflow === 'hidden' ? 1 : undefined}
+              numberOfLines={resolvedOverflow === 'hidden' || !hasDisplayText ? 1 : undefined}
               style={[
                 tokenStyles.value,
+                hasFloatingLabel ? tokenStyles.valueWithLabel : tokenStyles.valueWithoutLabel,
                 styles?.value,
                 !hasDisplayText ? tokenStyles.placeholder : null,
                 !hasDisplayText ? styles?.placeholder : null,
                 isDisabled ? tokenStyles.valueDisabled : null,
               ]}
             >
-              {hasDisplayText ? textValue : placeholder}
+              {hasDisplayText ? textValue : shouldShowPlaceholder ? placeholder : ''}
             </Text>
           )}
-          {hasSuffix ? (
-            <Row style={[tokenStyles.suffix, styles?.suffix]}>{suffix}</Row>
-          ) : null}
-        </Row>
+        </View>
+        {hasSuffix ? (
+          <Row style={[tokenStyles.suffix, styles?.suffix]}>{suffix}</Row>
+        ) : null}
       </Pressable>
       {message !== undefined && message !== null ? (
         <Text

@@ -1,63 +1,51 @@
 import { createUseSheetStyle } from '@pennyspring/theme';
 import type { AliasToken } from '@pennyspring/theme';
 import type { ComponentSize } from '../../shares/types';
-import type { InputStatus } from '../../Input';
 import type { DisplayInputDisplay } from '../types';
 
 interface DisplayInputStyleOptions {
+  disabled: boolean;
   display: DisplayInputDisplay;
+  isError: boolean;
   size: ComponentSize;
-  status: InputStatus;
 }
 
 interface SizeConfig {
   minHeight: (token: AliasToken) => number;
   paddingHorizontal: (token: AliasToken) => number;
-  paddingVertical: (token: AliasToken) => number;
   gap: (token: AliasToken) => number;
   fontSize: (token: AliasToken) => number;
   lineHeight: (token: AliasToken) => number;
 }
 
-type StatusColorSelector = (token: AliasToken) => string;
-
 const SIZE_MAP: Record<ComponentSize, SizeConfig> = {
   small: {
-    minHeight: token => token.controlHeightSM,
+    minHeight: token => token.controlHeight,
     paddingHorizontal: token => token.paddingXS,
-    paddingVertical: token => token.paddingXS / 2,
-    gap: token => token.marginXXS,
+    gap: token => token.sizeXXS,
     fontSize: token => token.fontSizeSM,
     lineHeight: token => token.lineHeightSM,
   },
   normal: {
-    minHeight: token => token.controlHeight,
+    minHeight: token => token.controlHeightLG,
     paddingHorizontal: token => token.controlPaddingHorizontalSM,
-    paddingVertical: token => token.controlPaddingHorizontalSM / 2,
-    gap: token => token.marginXS,
+    gap: token => token.sizeXS,
     fontSize: token => token.fontSize,
     lineHeight: token => token.lineHeight,
   },
   large: {
-    minHeight: token => token.controlHeightLG,
+    minHeight: token => token.controlHeightLG + token.paddingSM,
     paddingHorizontal: token => token.padding,
-    paddingVertical: token => token.padding / 2,
-    gap: token => token.marginSM,
+    gap: token => token.sizeSM,
     fontSize: token => token.fontSizeLG,
     lineHeight: token => token.lineHeightLG,
   },
 };
 
-const STATUS_BORDER_COLOR_MAP: Record<InputStatus, StatusColorSelector> = {
-  default: token => token.colorBorder,
-  error: token => token.colorErrorBorder,
-  warning: token => token.colorWarningBorder,
-  success: token => token.colorSuccessBorder,
-};
-
 export const useStyles = createUseSheetStyle(
-  (token, { display, size, status }: DisplayInputStyleOptions) => {
+  (token, { disabled, display, isError, size }: DisplayInputStyleOptions) => {
     const sizeConfig = SIZE_MAP[size];
+    const underlineColor = isError ? token.colorError : token.colorBorder;
 
     return {
       root: {
@@ -76,12 +64,15 @@ export const useStyles = createUseSheetStyle(
       field: {
         minHeight: sizeConfig.minHeight(token),
         paddingHorizontal: sizeConfig.paddingHorizontal(token),
-        paddingVertical: sizeConfig.paddingVertical(token),
-        borderWidth: token.lineWidth,
-        borderRadius: token.borderRadius,
-        borderColor: STATUS_BORDER_COLOR_MAP[status](token),
-        backgroundColor: token.colorBgContainer,
+        backgroundColor: disabled ? token.colorBgContainerDisabled : token.colorFillTertiary,
+        borderTopLeftRadius: token.borderRadiusSM,
+        borderTopRightRadius: token.borderRadiusSM,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: sizeConfig.gap(token),
         justifyContent: 'center',
+        overflow: 'hidden',
+        position: 'relative',
       },
       fieldContent: {
         alignItems: 'center',
@@ -91,8 +82,15 @@ export const useStyles = createUseSheetStyle(
         backgroundColor: token.colorBgTextActive,
       },
       fieldDisabled: {
-        borderColor: token.colorBorderDisabled,
         backgroundColor: token.colorBgContainerDisabled,
+      },
+      underline: {
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        bottom: 0,
+        height: token.lineWidthBold,
+        backgroundColor: disabled ? token.colorBorderDisabled : underlineColor,
       },
       prefix: {
         flexShrink: 0,
@@ -100,11 +98,35 @@ export const useStyles = createUseSheetStyle(
       suffix: {
         flexShrink: 0,
       },
+      valueWrapper: {
+        flexGrow: display === 'inline' ? 0 : 1,
+        flexShrink: 1,
+        minWidth: 0,
+        minHeight: sizeConfig.minHeight(token),
+        justifyContent: 'flex-end',
+        position: 'relative',
+      },
+      floatingLabel: {
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        color: isError ? token.colorError : token.colorTextPlaceholder,
+        fontFamily: token.fontFamily,
+        zIndex: token.zIndexBase,
+      },
       value: {
         flexGrow: display === 'inline' ? 0 : 1,
         flexShrink: 1,
         minWidth: 0,
         fontFamily: token.fontFamily,
+      },
+      valueWithLabel: {
+        paddingTop: token.padding + token.paddingXS,
+        paddingBottom: 0,
+      },
+      valueWithoutLabel: {
+        paddingTop: token.paddingXS,
+        paddingBottom: 0,
       },
       valueContainer: {
         flexGrow: display === 'inline' ? 0 : 1,

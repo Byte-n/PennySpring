@@ -153,11 +153,12 @@ const useStyles = createUseSheetStyle(
         color: disabled ? token.colorTextDisabled : token.colorText,
       } as TextStyle,
       inputWithLabel: {
-        paddingTop: token.padding + token.paddingXXS,
-        paddingBottom: token.paddingXXS,
+        paddingTop: token.padding + token.paddingXS,
+        paddingBottom: 0,
       } as TextStyle,
       inputWithoutLabel: {
-        paddingVertical: token.paddingXXS,
+        paddingTop: token.paddingXS,
+        paddingBottom: 0,
       } as TextStyle,
       underline: {
         position: 'absolute',

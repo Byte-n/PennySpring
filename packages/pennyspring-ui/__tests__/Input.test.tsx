@@ -1,5 +1,5 @@
 import React from 'react';
-import { ActivityIndicator, TextInput, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, TextInput, View } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
 import { Input } from '../src/Input';
 import { Icon } from '../src/Icon';
@@ -57,6 +57,18 @@ describe('Input', () => {
     const label = testRenderer.root.findByProps({ testID: 'input-floating-label' });
 
     expect(JSON.stringify(label.props.style)).toContain('"right":0');
+  });
+
+  it('keeps input text closer to the underline than to the floating label', () => {
+    const testRenderer = renderInput({
+      defaultValue: '现金账户',
+      labelText: '账户名称',
+    });
+
+    const inputStyle = StyleSheet.flatten(findNativeInput(testRenderer).props.style);
+
+    expect(inputStyle.paddingTop).toBeGreaterThan(inputStyle.paddingBottom);
+    expect(inputStyle.paddingBottom).toBe(0);
   });
 
   it('uses an independent underline layer for flat active and error states', () => {
