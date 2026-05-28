@@ -29,7 +29,7 @@
 
 ## 输入与控件
 
-- `Input`：单行文本与搜索输入。
+- `Input`：Material flat 风格的单行文本与搜索输入，支持浮动 label、独立底线、错误态、清除按钮、前后缀和加载态。
 - `Textarea`：多行文本输入。
 - `DisplayInput`：只读或触发式输入展示。
 - `ImagePicker`：以 `DisplayInput` 作为触发器，从相册或文件管理选择单张图片。

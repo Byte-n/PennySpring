@@ -109,6 +109,11 @@ export interface InputProps
   error?: ReactNode | null;
 
   /**
+   * Validation status. Error status switches label, underline and message to error styling.
+   */
+  status?: InputStatus;
+
+  /**
    * Required semantic marker. Does not run validation.
    */
   required?: boolean;

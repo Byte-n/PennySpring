@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Pressable,
@@ -19,8 +19,6 @@ import { Icon } from '../Icon';
 import { Row } from '../Row';
 import { Text } from '../Text';
 import { useControllableValue } from '../_hooks';
-
-const AnimatedLabel = createAnimatedComponent(Text);
 import type { AliasToken } from '@pennyspring/theme';
 import type { ComponentSize } from '../shares/types';
 import type {
@@ -28,14 +26,20 @@ import type {
   TextInputFocusEventData,
   TextInputProps,
   TextStyle,
+  ViewStyle,
 } from 'react-native';
 import type {
   InputProps,
   InputSearchProps,
 } from './types';
 
+const AnimatedText = createAnimatedComponent(Text);
+const AnimatedView = createAnimatedComponent(View);
+
 interface InputStyleOptions {
   size: ComponentSize;
+  disabled: boolean;
+  isError: boolean;
 }
 
 interface SearchInputStyleOptions {
@@ -45,7 +49,6 @@ interface SearchInputStyleOptions {
 interface SizeConfig {
   minHeight: (token: AliasToken) => number;
   paddingHorizontal: (token: AliasToken) => number;
-  paddingVertical: (token: AliasToken) => number;
   gap: (token: AliasToken) => number;
   fontSize: (token: AliasToken) => number;
   lineHeight: (token: AliasToken) => number;
@@ -53,25 +56,22 @@ interface SizeConfig {
 
 const SIZE_MAP: Record<ComponentSize, SizeConfig> = {
   small: {
-    minHeight: token => token.controlHeightSM,
+    minHeight: token => token.controlHeight,
     paddingHorizontal: token => token.paddingXS,
-    paddingVertical: token => token.paddingXS / 2,
     gap: token => token.sizeXXS,
     fontSize: token => token.fontSizeSM,
     lineHeight: token => token.lineHeightSM,
   },
   normal: {
-    minHeight: token => token.controlHeight,
+    minHeight: token => token.controlHeightLG,
     paddingHorizontal: token => token.controlPaddingHorizontalSM,
-    paddingVertical: token => token.controlPaddingHorizontalSM / 2,
     gap: token => token.sizeXS,
     fontSize: token => token.fontSize,
     lineHeight: token => token.lineHeight,
   },
   large: {
-    minHeight: token => token.controlHeightLG,
+    minHeight: token => token.controlHeightLG + token.paddingSM,
     paddingHorizontal: token => token.padding,
-    paddingVertical: token => token.padding / 2,
     gap: token => token.sizeSM,
     fontSize: token => token.fontSizeLG,
     lineHeight: token => token.lineHeightLG,
@@ -82,9 +82,25 @@ function resolveSize(size?: ComponentSize): ComponentSize {
   return size ?? 'normal';
 }
 
+function hasNode(node: React.ReactNode | null | undefined): boolean {
+  return node !== undefined && node !== null;
+}
+
+function resolveLabel({
+  label,
+  labelText,
+}: Pick<InputProps, 'label' | 'labelText'>): React.ReactNode | null {
+  if (label === null) {
+    return null;
+  }
+
+  return label ?? labelText ?? null;
+}
+
 const useStyles = createUseSheetStyle(
-  (token, { size }: InputStyleOptions) => {
+  (token, { disabled, isError, size }: InputStyleOptions) => {
     const sizeConfig = SIZE_MAP[size];
+    const activeUnderlineColor = isError ? token.colorError : token.colorPrimary;
 
     return {
       root: {
@@ -93,21 +109,14 @@ const useStyles = createUseSheetStyle(
       field: {
         minHeight: sizeConfig.minHeight(token),
         paddingHorizontal: sizeConfig.paddingHorizontal(token),
-        paddingTop: sizeConfig.paddingVertical(token),
-        paddingBottom: sizeConfig.paddingVertical(token),
-        borderBottomWidth: token.lineWidth,
-        borderBottomColor: token.colorBorder,
-        backgroundColor: token.colorBgContainer,
+        backgroundColor: disabled ? token.colorBgContainerDisabled : token.colorFillTertiary,
+        borderTopLeftRadius: token.borderRadiusSM,
+        borderTopRightRadius: token.borderRadiusSM,
         flexDirection: 'row',
         alignItems: 'center',
         gap: sizeConfig.gap(token),
-      },
-      fieldFocused: {
-        borderBottomColor: token.colorPrimary,
-      },
-      fieldDisabled: {
-        borderBottomColor: token.colorBorderDisabled,
-        backgroundColor: token.colorBgContainerDisabled,
+        overflow: 'hidden',
+        position: 'relative',
       },
       prefix: {
         flexShrink: 0,
@@ -118,12 +127,20 @@ const useStyles = createUseSheetStyle(
       inputWrapper: {
         flex: 1,
         minWidth: 0,
-        justifyContent: 'center',
+        minHeight: sizeConfig.minHeight(token),
+        justifyContent: 'flex-end',
+        position: 'relative',
       },
-      floatingLabel: {
+      label: {
         position: 'absolute',
         left: 0,
-        pointerEvents: 'none',
+        right: 0,
+        color: isError ? token.colorError : token.colorTextPlaceholder,
+        fontFamily: token.fontFamily,
+        zIndex: token.zIndexBase,
+      } as TextStyle,
+      labelActive: {
+        color: activeUnderlineColor,
       },
       input: {
         flex: 1,
@@ -133,10 +150,25 @@ const useStyles = createUseSheetStyle(
         fontFamily: token.fontFamily,
         fontSize: sizeConfig.fontSize(token),
         lineHeight: sizeConfig.lineHeight(token),
-        color: token.colorText,
+        color: disabled ? token.colorTextDisabled : token.colorText,
       } as TextStyle,
-      inputDisabled: {
-        color: token.colorTextDisabled,
+      inputWithLabel: {
+        paddingTop: token.padding + token.paddingXXS,
+        paddingBottom: token.paddingXXS,
+      } as TextStyle,
+      inputWithoutLabel: {
+        paddingVertical: token.paddingXXS,
+      } as TextStyle,
+      underline: {
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        bottom: 0,
+        height: token.lineWidthBold,
+        backgroundColor: disabled ? token.colorBorderDisabled : token.colorBorder,
+      } as ViewStyle,
+      underlineActive: {
+        backgroundColor: activeUnderlineColor,
       },
       clearButton: {
         minHeight: token.controlHeightSM,
@@ -148,10 +180,8 @@ const useStyles = createUseSheetStyle(
       clearButtonPressed: {
         backgroundColor: token.colorBgTextActive,
       },
-      helper: {
-      },
-      error: {
-      },
+      helper: {},
+      error: {},
       loading: {
         flexShrink: 0,
       },
@@ -185,12 +215,12 @@ const useSearchStyles = createUseSheetStyle(
 function InputRoot({
   clearable,
   defaultValue,
-  disabled,
+  disabled = false,
   error,
   errorText,
   helper,
   helperText,
-  label: _label,
+  label,
   labelText,
   loading,
   onBlur,
@@ -199,9 +229,10 @@ function InputRoot({
   onFocus,
   placeholder,
   prefix,
-  readonly,
+  readonly = false,
   required,
   size,
+  status = 'default',
   style,
   styles,
   suffix,
@@ -209,7 +240,6 @@ function InputRoot({
   ...rest
 }: InputProps) {
   const resolvedSize = resolveSize(size);
-  const tokenStyles = useStyles({ size: resolvedSize });
   const { token } = useTheme();
   const [isFocused, setIsFocused] = useState(false);
   const [mergedValue = '', setMergedValue] = useControllableValue(
@@ -217,59 +247,105 @@ function InputRoot({
     value,
     onChange,
   );
-  const isEditable = !disabled && !readonly;
-  const shouldShowClearButton =
-    clearable === true && Boolean(mergedValue) && isEditable && loading !== true;
   const errorMessage = error !== undefined ? error : errorText;
   const helperMessage = helper !== undefined ? helper : helperText;
-  const isError = false;
-  const message = errorMessage !== undefined
-    ? errorMessage
-    : helperMessage;
-  const hasPrefix = prefix !== undefined && prefix !== null;
-  const hasSuffix = suffix !== undefined && suffix !== null;
-
+  const isError = status === 'error' || hasNode(errorMessage);
+  const message = hasNode(errorMessage) ? errorMessage : helperMessage;
+  const tokenStyles = useStyles({
+    disabled,
+    isError,
+    size: resolvedSize,
+  });
+  const isEditable = !disabled && !readonly;
+  const labelNode = resolveLabel({ label, labelText });
+  const hasFloatingLabel = hasNode(labelNode);
+  const hasPrefix = hasNode(prefix);
+  const hasSuffix = hasNode(suffix);
   const isActive = isFocused || Boolean(mergedValue);
-  const floatAnim = useSharedValue(isActive ? 1 : 0);
-
+  const shouldShowClearButton =
+    clearable === true && Boolean(mergedValue) && isEditable && loading !== true;
+  const progress = useSharedValue(isActive ? 1 : 0);
+  const underlineProgress = useSharedValue(isFocused || isError ? 1 : 0);
   const sizeConfig = SIZE_MAP[resolvedSize];
   const bodyFontSize = sizeConfig.fontSize(token);
   const labelFontSize = token.fontSizeSM;
-  const bodyLineHeight = sizeConfig.lineHeight(token);
+  const labelLineHeight = token.lineHeightSM;
+  const controlHeight = sizeConfig.minHeight(token);
+  const inactiveLabelTop = controlHeight / 2 - labelLineHeight / 2;
+  const activeLabelTop = token.paddingXXS;
+  const underlineInactiveScale = token.lineWidth / token.lineWidthBold;
+  const underlineActiveScale = token.lineWidthBold / token.lineWidth;
+  const placeholderTextColor = hasFloatingLabel && !isFocused
+    ? 'transparent'
+    : token.colorTextPlaceholder;
 
-  const floatingLabelStyle = useAnimatedStyle(() => {
-    const translateY = interpolate(floatAnim.value, [0, 1], [0, -(bodyLineHeight / 2 + labelFontSize / 2 + token.sizeXXS)]);
-    const fontSize = interpolate(floatAnim.value, [0, 1], [bodyFontSize, labelFontSize]);
+  useEffect(() => {
+    progress.value = withTiming(isActive ? 1 : 0, {
+      duration: token.motionDurationMid,
+      easing: Easing.bezier(...token.motionEaseInOut),
+    });
+  }, [isActive, progress, token.motionDurationMid, token.motionEaseInOut]);
+
+  useEffect(() => {
+    underlineProgress.value = withTiming(isFocused || isError ? 1 : 0, {
+      duration: token.motionDurationFast,
+      easing: Easing.bezier(...token.motionEaseInOut),
+    });
+  }, [isError, isFocused, token.motionDurationFast, token.motionEaseInOut, underlineProgress]);
+
+  const labelAnimatedStyle = useAnimatedStyle(() => {
+    const top = interpolate(
+      progress.value,
+      [0, 1],
+      [inactiveLabelTop, activeLabelTop],
+    );
+    const fontSize = interpolate(
+      progress.value,
+      [0, 1],
+      [bodyFontSize, labelFontSize],
+    );
 
     return {
-      transform: [{ translateY }],
+      top,
       fontSize,
-      lineHeight: fontSize * 1.4,
+      lineHeight: labelLineHeight,
+      opacity: interpolate(progress.value, [0, 1], [1, 1]),
     };
   });
 
-  function handleClear(): void {
-    if (onClear !== undefined) {
-      setMergedValue('');
-      onClear();
-      return;
-    }
+  const underlineAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [
+      {
+        scaleY: interpolate(
+          underlineProgress.value,
+          [0, 1],
+          [underlineInactiveScale, underlineActiveScale],
+        ),
+      },
+    ],
+  }));
 
+  function handleClear(): void {
     setMergedValue('');
+    onClear?.();
   }
 
   function handleChangeText(text: string): void {
+    if (!isEditable) {
+      return;
+    }
+
     setMergedValue(text);
   }
 
   function handleFocus(
     event: Parameters<NonNullable<TextInputProps['onFocus']>>[0],
   ): void {
+    if (!isEditable) {
+      return;
+    }
+
     setIsFocused(true);
-    floatAnim.value = withTiming(1, {
-      duration: token.motionDurationMid,
-      easing: Easing.bezier(...token.motionEaseOut),
-    });
     onFocus?.(event as NativeSyntheticEvent<TextInputFocusEventData>);
   }
 
@@ -277,59 +353,60 @@ function InputRoot({
     event: Parameters<NonNullable<TextInputProps['onBlur']>>[0],
   ): void {
     setIsFocused(false);
-    if (!mergedValue) {
-      floatAnim.value = withTiming(0, {
-        duration: token.motionDurationMid,
-        easing: Easing.bezier(...token.motionEaseOut),
-      });
-    }
     onBlur?.(event as NativeSyntheticEvent<TextInputFocusEventData>);
   }
 
-  const hasLabelText = labelText !== undefined && labelText !== '';
-  const inlinePlaceholder = hasLabelText && placeholder
-    ? `${labelText}: ${placeholder}`
-    : hasLabelText
-      ? labelText
-      : placeholder;
+  const labelContent = required === true && typeof labelNode === 'string'
+    ? `${labelNode} *`
+    : labelNode;
 
   return (
     <Column style={[tokenStyles.root, style]}>
-      <Row
-        style={[
-          tokenStyles.field,
-          styles?.field,
-          isFocused ? tokenStyles.fieldFocused : null,
-          disabled === true ? tokenStyles.fieldDisabled : null,
-        ]}
-      >
+      <Row style={[tokenStyles.field, styles?.field]}>
+        <AnimatedView
+          pointerEvents="none"
+          style={[
+            tokenStyles.underline,
+            isFocused || isError ? tokenStyles.underlineActive : null,
+            underlineAnimatedStyle,
+          ]}
+          testID="input-underline"
+        />
         {hasPrefix ? (
           <Row style={[tokenStyles.prefix, styles?.prefix]}>{prefix}</Row>
         ) : null}
         <View style={tokenStyles.inputWrapper}>
-          {hasLabelText ? (
-            <AnimatedLabel
-              color={isFocused ? 'primary' : 'label'}
-              style={[tokenStyles.floatingLabel, floatingLabelStyle]}
+          {hasFloatingLabel ? (
+            <AnimatedText
+              color={isFocused || isError ? undefined : 'placeholder'}
+              style={[
+                tokenStyles.label,
+                isFocused ? tokenStyles.labelActive : null,
+                styles?.labelText,
+                labelAnimatedStyle,
+              ]}
               testID="input-floating-label"
             >
-              {required === true ? `${labelText} *` : labelText}
-            </AnimatedLabel>
+              {labelContent}
+            </AnimatedText>
           ) : null}
           <TextInput
             {...rest}
+            cursorColor={isError ? token.colorError : token.colorPrimary}
             editable={isEditable}
             multiline={false}
             onBlur={handleBlur}
             onChangeText={handleChangeText}
             onFocus={handleFocus}
-            placeholder={isActive ? placeholder : inlinePlaceholder}
-            placeholderTextColor={token.colorTextPlaceholder}
+            placeholder={placeholder}
+            placeholderTextColor={placeholderTextColor}
+            selectionColor={isError ? token.colorError : token.colorPrimary}
             style={[
               tokenStyles.input,
+              hasFloatingLabel ? tokenStyles.inputWithLabel : tokenStyles.inputWithoutLabel,
               styles?.input,
-              disabled === true ? tokenStyles.inputDisabled : null,
             ]}
+            underlineColorAndroid="transparent"
             value={mergedValue}
           />
         </View>
@@ -359,7 +436,7 @@ function InputRoot({
           <Row style={[tokenStyles.suffix, styles?.suffix]}>{suffix}</Row>
         ) : null}
       </Row>
-      {message !== undefined && message !== null ? (
+      {hasNode(message) ? (
         <Text
           color={isError ? 'error' : 'description'}
           style={[
@@ -403,13 +480,8 @@ function SearchInput({
   }
 
   function handleClear(): void {
-    if (onClear !== undefined) {
-      setMergedValue('');
-      onClear();
-      return;
-    }
-
     setMergedValue('');
+    onClear?.();
   }
 
   function handleSearch(): void {
@@ -418,10 +490,6 @@ function SearchInput({
     }
 
     onSearch?.(mergedValue);
-  }
-
-  function handleSearchPress(): void {
-    handleSearch();
   }
 
   function handleSubmitEditing(
@@ -445,8 +513,8 @@ function SearchInput({
       defaultValue={defaultValue}
       disabled={disabled}
       loading={loading}
-      onClear={handleClear}
       onChange={handleChangeText}
+      onClear={handleClear}
       onSubmitEditing={handleSubmitEditing}
       readonly={readonly}
       returnKeyType={rest.returnKeyType ?? 'search'}
@@ -455,7 +523,7 @@ function SearchInput({
         <Pressable
           disabled={!canSearch}
           hitSlop={token.sizeXS}
-          onPress={handleSearchPress}
+          onPress={handleSearch}
           style={({ pressed }) => [
             tokenStyles.searchButton,
             pressed && canSearch ? tokenStyles.searchButtonPressed : null,

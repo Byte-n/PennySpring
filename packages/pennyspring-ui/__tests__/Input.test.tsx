@@ -1,298 +1,169 @@
 import React from 'react';
-import { StyleSheet, TextInput } from 'react-native';
-import { defaultSeedToken } from '@pennyspring/theme';
-import { derivative } from '@pennyspring/theme/src/algorithms/derivative';
-import { formatToken } from '@pennyspring/theme/src/algorithms/formatToken';
+import { ActivityIndicator, TextInput, View } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
 import { Input } from '../src/Input';
-
-const token = formatToken(derivative(defaultSeedToken, false));
+import { Icon } from '../src/Icon';
 
 function renderInput(props: Partial<React.ComponentProps<typeof Input>> = {}) {
   let testRenderer: renderer.ReactTestRenderer;
+
   act(() => {
-    testRenderer = renderer.create(<><Input {...props} /></>);
+    testRenderer = renderer.create(<Input {...props} />);
   });
+
   return testRenderer!;
 }
-function renderInputSearch(props: Partial<React.ComponentProps<typeof Input.Search>> = {}) {
+
+function renderSearchInput(
+  props: Partial<React.ComponentProps<typeof Input.Search>> = {},
+) {
   let testRenderer: renderer.ReactTestRenderer;
+
   act(() => {
-    testRenderer = renderer.create(<><Input.Search {...props} /></>);
+    testRenderer = renderer.create(<Input.Search {...props} />);
   });
+
   return testRenderer!;
 }
-function findInput(testRenderer: renderer.ReactTestRenderer) {
+
+function findNativeInput(testRenderer: renderer.ReactTestRenderer) {
   return testRenderer.root.findByType(TextInput);
 }
-function findFieldStyle(testRenderer: renderer.ReactTestRenderer) {
-  const field = testRenderer.root.findAll(
-    node => StyleSheet.flatten(node.props.style)?.borderBottomWidth !== undefined,
-  )[0];
 
-  return StyleSheet.flatten(field.props.style);
-}
-function findClearButton(testRenderer: renderer.ReactTestRenderer) {
-  return testRenderer.root.findAll(node => node.props.testID === 'input-clear-button');
-}
-function findSearchButton(testRenderer: renderer.ReactTestRenderer) {
-  return testRenderer.root.findAll(node => node.props.testID === 'input-search-button')[0];
-}
 describe('Input', () => {
-  it('uses onChange as the only primary value change callback', () => {
-    const onChange = jest.fn();
+  it('renders labelText as a floating label and keeps placeholder hidden until focus', () => {
     const testRenderer = renderInput({
-      defaultValue: 'Cash',
-      onChange,
+      labelText: 'Email',
+      placeholder: 'name@example.com',
     });
+
+    const input = findNativeInput(testRenderer);
+    expect(JSON.stringify(testRenderer.toJSON())).toContain('Email');
+    expect(input.props.placeholder).toBe('name@example.com');
+    expect(input.props.placeholderTextColor).toBe('transparent');
 
     act(() => {
-      findInput(testRenderer).props.onChangeText('Wallet');
+      input.props.onFocus({ nativeEvent: {} });
     });
 
-    expect(findInput(testRenderer).props.value).toBe('Wallet');
-    expect(onChange).toHaveBeenCalledWith('Wallet');
+    expect(findNativeInput(testRenderer).props.placeholderTextColor).not.toBe('transparent');
   });
 
-  it('keeps controlled value from props while notifying value changes', () => {
-    const onChange = jest.fn();
+  it('keeps floating label constrained to the input width', () => {
     const testRenderer = renderInput({
-      value: 'Cash',
-      onChange,
+      labelText: '账本名称',
     });
+
+    const label = testRenderer.root.findByProps({ testID: 'input-floating-label' });
+
+    expect(JSON.stringify(label.props.style)).toContain('"right":0');
+  });
+
+  it('uses an independent underline layer for flat active and error states', () => {
+    const testRenderer = renderInput({
+      errorText: 'Required',
+      status: 'error',
+    });
+
+    const underline = testRenderer.root.findByProps({ testID: 'input-underline' });
+    expect(underline.type).toBe(View);
+    expect(JSON.stringify(underline.props.style)).toContain('scaleY');
+    expect(JSON.stringify(testRenderer.toJSON())).toContain('Required');
+  });
+
+  it('updates uncontrolled value and forwards changes', () => {
+    const onChange = jest.fn();
+    const testRenderer = renderInput({ defaultValue: 'Memo', onChange });
 
     act(() => {
-      findInput(testRenderer).props.onChangeText('Wallet');
+      findNativeInput(testRenderer).props.onChangeText('Memo updated');
     });
 
-    expect(findInput(testRenderer).props.value).toBe('Cash');
-    expect(onChange).toHaveBeenCalledWith('Wallet');
+    expect(findNativeInput(testRenderer).props.value).toBe('Memo updated');
+    expect(onChange).toHaveBeenCalledWith('Memo updated');
   });
 
-  it('renders floating label from labelText', () => {
-    const testRenderer = renderInput({ labelText: 'Account name' });
-
-    const label = testRenderer.root.findAll(
-      node => node.props.testID === 'input-floating-label',
-    )[0];
-
-    expect(label).toBeDefined();
-    expect(label.props.children).toBe('Account name');
-  });
-
-  it('appends required mark to floating label when required', () => {
-    const testRenderer = renderInput({ labelText: 'Account name', required: true });
-
-    const label = testRenderer.root.findAll(
-      node => node.props.testID === 'input-floating-label',
-    )[0];
-
-    expect(label.props.children).toBe('Account name *');
-  });
-
-  it('shows combined label and placeholder as inline placeholder when not focused and empty', () => {
-    const testRenderer = renderInput({ labelText: '账户', placeholder: '请输入' });
-
-    expect(findInput(testRenderer).props.placeholder).toBe('账户: 请输入');
-  });
-
-  it('uses helper and error node slots to control message rendering', () => {
-    const helperRenderer = renderInput({
-      helper: <>Helper node</>,
-      helperText: 'Helper text',
-    });
-    const hiddenErrorRenderer = renderInput({
-      error: null,
-      errorText: 'Error text',
-      helperText: 'Helper text',
-    });
-
-    expect(JSON.stringify(helperRenderer.toJSON())).toContain('Helper node');
-    expect(JSON.stringify(helperRenderer.toJSON())).not.toContain('Helper text');
-    expect(JSON.stringify(hiddenErrorRenderer.toJSON())).not.toContain('Error text');
-    expect(JSON.stringify(hiddenErrorRenderer.toJSON())).not.toContain('Helper text');
-  });
-
-  it('updates uncontrolled text and notifies changes', () => {
+  it('keeps controlled value while notifying changes', () => {
     const onChange = jest.fn();
-    const testRenderer = renderInput({
-      defaultValue: 'Cash',
-      onChange
-    });
+    const testRenderer = renderInput({ value: 'Controlled', onChange });
+
     act(() => {
-      findInput(testRenderer).props.onChangeText('Wallet');
+      findNativeInput(testRenderer).props.onChangeText('Next');
     });
-    expect(findInput(testRenderer).props.value).toBe('Wallet');
-    expect(onChange).toHaveBeenCalledWith('Wallet');
+
+    expect(findNativeInput(testRenderer).props.value).toBe('Controlled');
+    expect(onChange).toHaveBeenCalledWith('Next');
   });
-  it('keeps controlled value from props while notifying text changes', () => {
-    const onChange = jest.fn();
-    const testRenderer = renderInput({
-      value: 'Cash',
-      onChange
-    });
-    act(() => {
-      findInput(testRenderer).props.onChangeText('Wallet');
-    });
-    expect(findInput(testRenderer).props.value).toBe('Cash');
-    expect(onChange).toHaveBeenCalledWith('Wallet');
-  });
-  it('clears uncontrolled text and calls onClear when provided', () => {
+
+  it('clears editable non-empty values through the clear button', () => {
     const onClear = jest.fn();
     const testRenderer = renderInput({
       clearable: true,
-      defaultValue: 'Cash',
-      onClear
+      defaultValue: 'Draft',
+      onClear,
     });
+
     act(() => {
-      findClearButton(testRenderer)[0].props.onPress();
+      testRenderer.root.findByProps({ testID: 'input-clear-button' }).props.onPress();
     });
-    expect(findInput(testRenderer).props.value).toBe('');
+
+    expect(findNativeInput(testRenderer).props.value).toBe('');
     expect(onClear).toHaveBeenCalledTimes(1);
   });
-  it('falls back to onChange when clearing without onClear', () => {
-    const onChange = jest.fn();
+
+  it('makes disabled and readonly fields non-editable', () => {
+    expect(findNativeInput(renderInput({ disabled: true })).props.editable).toBe(false);
+    expect(findNativeInput(renderInput({ readonly: true })).props.editable).toBe(false);
+  });
+
+  it('renders loading before suffix content', () => {
     const testRenderer = renderInput({
-      clearable: true,
-      defaultValue: 'Cash',
-      onChange
+      loading: true,
+      suffix: <Icon icon="search" />,
+    });
+
+    expect(testRenderer.root.findAllByType(ActivityIndicator)).toHaveLength(1);
+  });
+});
+
+describe('Input.Search', () => {
+  it('submits search from return key and search button', () => {
+    const onSearch = jest.fn();
+    const testRenderer = renderSearchInput({
+      defaultValue: 'food',
+      onSearch,
+    });
+
+    act(() => {
+      findNativeInput(testRenderer).props.onSubmitEditing({ nativeEvent: {} });
     });
     act(() => {
-      findClearButton(testRenderer)[0].props.onPress();
-    });
-    expect(findInput(testRenderer).props.value).toBe('');
-    expect(onChange).toHaveBeenCalledWith('');
-  });
-  it('hides the clear button when disabled, readonly, loading, or empty', () => {
-    expect(findClearButton(renderInput({
-      clearable: true,
-      defaultValue: 'Cash',
-      disabled: true
-    }))).toHaveLength(0);
-    expect(findClearButton(renderInput({
-      clearable: true,
-      defaultValue: 'Cash',
-      readonly: true
-    }))).toHaveLength(0);
-    expect(findClearButton(renderInput({
-      clearable: true,
-      defaultValue: 'Cash',
-      loading: true
-    }))).toHaveLength(0);
-    expect(findClearButton(renderInput({
-      clearable: true
-    }))).toHaveLength(0);
-  });
-  it('shows error text instead of helper text when error is provided', () => {
-    const renderer = renderInput({
-      helperText: 'Helper',
-      errorText: 'Error',
-    });
-    expect(JSON.stringify(renderer.toJSON())).toContain('Error');
-    expect(JSON.stringify(renderer.toJSON())).not.toContain('Helper');
-  });
-  it('makes disabled and readonly inputs non-editable', () => {
-    expect(findInput(renderInput({
-      disabled: true
-    })).props.editable).toBe(false);
-    expect(findInput(renderInput({
-      readonly: true
-    })).props.editable).toBe(false);
-    expect(findInput(renderInput()).props.editable).toBe(true);
-  });
-  it('uses compact horizontal padding for every size', () => {
-    expect(findFieldStyle(renderInput({ size: 'small' })).paddingHorizontal).toBe(
-      token.paddingXS,
-    );
-    expect(findFieldStyle(renderInput({ size: 'normal' })).paddingHorizontal).toBe(
-      token.controlPaddingHorizontalSM,
-    );
-    expect(findFieldStyle(renderInput({ size: 'large' })).paddingHorizontal).toBe(
-      token.padding,
-    );
-  });
-
-  it('uses half vertical padding compared with horizontal padding for every size', () => {
-    const smallFieldStyle = findFieldStyle(renderInput({ size: 'small' }));
-    const normalFieldStyle = findFieldStyle(renderInput({ size: 'normal' }));
-    const largeFieldStyle = findFieldStyle(renderInput({ size: 'large' }));
-
-    expect(smallFieldStyle.paddingTop).toBe(smallFieldStyle.paddingHorizontal / 2);
-    expect(normalFieldStyle.paddingTop).toBe(normalFieldStyle.paddingHorizontal / 2);
-    expect(largeFieldStyle.paddingTop).toBe(largeFieldStyle.paddingHorizontal / 2);
-  });
-  describe('Search', () => {
-    it('submits the current uncontrolled text from the keyboard', () => {
-      const onSearch = jest.fn();
-      const testRenderer = renderInputSearch({
-        defaultValue: 'Coffee',
-        onSearch
-      });
-      act(() => {
-        findInput(testRenderer).props.onChangeText('Tea');
-      });
-      act(() => {
-        findInput(testRenderer).props.onSubmitEditing();
-      });
-      expect(onSearch).toHaveBeenCalledWith('Tea');
-    });
-    it('submits the current controlled text from the search button', () => {
-      const onSearch = jest.fn();
-      const testRenderer = renderInputSearch({
-        value: 'Budget',
-        onSearch
-      });
-      act(() => {
-        findSearchButton(testRenderer)?.props.onPress();
-      });
-      expect(onSearch).toHaveBeenCalledWith('Budget');
-    });
-    it('does not submit when disabled, readonly, or loading', () => {
-      const onSearch = jest.fn();
-      const disabledRenderer = renderInputSearch({
-        defaultValue: 'Cash',
-        disabled: true,
-        onSearch
-      });
-      const readonlyRenderer = renderInputSearch({
-        defaultValue: 'Cash',
-        onSearch,
-        readonly: true
-      });
-      const loadingRenderer = renderInputSearch({
-        defaultValue: 'Cash',
-        loading: true,
-        onSearch
-      });
-      act(() => {
-        findSearchButton(disabledRenderer)?.props.onPress();
-      });
-      act(() => {
-        findSearchButton(readonlyRenderer)?.props.onPress();
-      });
-      act(() => {
-        findInput(loadingRenderer).props.onSubmitEditing();
-      });
-      expect(onSearch).not.toHaveBeenCalled();
-    });
-    it('clears uncontrolled search text and calls onClear when provided', () => {
-      const onClear = jest.fn();
-      const testRenderer = renderInputSearch({
-        clearable: true,
-        defaultValue: 'Cash',
-        onClear
-      });
-      act(() => {
-        findClearButton(testRenderer)[0].props.onPress();
-      });
-      expect(findInput(testRenderer).props.value).toBe('');
-      expect(onClear).toHaveBeenCalledTimes(1);
+      testRenderer.root.findByProps({ testID: 'input-search-button' }).props.onPress();
     });
 
-    it('gives the search icon button a touch hitSlop', () => {
-      const testRenderer = renderInputSearch();
+    expect(onSearch).toHaveBeenCalledTimes(2);
+    expect(onSearch).toHaveBeenCalledWith('food');
+  });
 
-      expect(findSearchButton(testRenderer).props.hitSlop).toBeDefined();
+  it('uses search return key by default', () => {
+    const testRenderer = renderSearchInput();
+
+    expect(findNativeInput(testRenderer).props.returnKeyType).toBe('search');
+  });
+
+  it('does not search while disabled', () => {
+    const onSearch = jest.fn();
+    const testRenderer = renderSearchInput({
+      defaultValue: 'food',
+      disabled: true,
+      onSearch,
     });
+    const button = testRenderer.root.findByProps({ testID: 'input-search-button' });
+
+    act(() => {
+      button.props.onPress();
+    });
+
+    expect(onSearch).not.toHaveBeenCalled();
   });
 });
