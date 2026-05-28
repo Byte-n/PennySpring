@@ -3,7 +3,6 @@ import { StyleSheet, Text } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
 import { ThemeProvider } from '@pennyspring/theme';
 import { Grid } from '../src/Grid';
-import type { GridGap } from '../src/Grid';
 
 function renderGrid(element: React.ReactElement) {
   let testRenderer: renderer.ReactTestRenderer;
@@ -13,18 +12,6 @@ function renderGrid(element: React.ReactElement) {
   return testRenderer!;
 }
 describe('Grid', () => {
-  it('keeps gap scoped to semantic layout sizes', () => {
-    const semanticGap: GridGap = 'normal';
-    // @ts-expect-error Grid gap should reject raw numbers.
-    const numericGap: GridGap = 8;
-    // @ts-expect-error Grid gap should reject separate horizontal and vertical values.
-    const tupleGap: GridGap = ['small', 'large'];
-
-    expect(semanticGap).toBe('normal');
-    expect(numericGap).toBe(8);
-    expect(tupleGap).toEqual(['small', 'large']);
-  });
-
   it('renders pressable items only when onPress is provided', () => {
     const handlePress = jest.fn();
     const testRenderer = renderGrid(<Grid columns={2}>

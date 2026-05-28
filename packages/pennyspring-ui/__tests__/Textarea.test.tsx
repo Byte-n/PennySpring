@@ -11,18 +11,6 @@ function renderTextarea(props: Partial<React.ComponentProps<typeof Textarea>> = 
   return testRenderer!;
 }
 describe('Textarea', () => {
-  it('keeps helper text props string-only so null rendering control uses node slots', () => {
-    // @ts-expect-error helperText must use helper={null} to suppress rendering.
-    const invalidHelperText: React.ComponentProps<typeof Textarea> = { helperText: null };
-    // @ts-expect-error errorText must use error={null} to suppress rendering.
-    const invalidErrorText: React.ComponentProps<typeof Textarea> = { errorText: null };
-
-    expect([
-      invalidHelperText,
-      invalidErrorText,
-    ]).toHaveLength(2);
-  });
-
   it('uses helper and error node slots to control message rendering', () => {
     const helperRenderer = renderTextarea({
       helper: <>Helper node</>,

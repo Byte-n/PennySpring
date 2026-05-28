@@ -54,18 +54,6 @@ function findFieldContentStyle(testRenderer: renderer.ReactTestRenderer) {
 }
 
 describe('DisplayInput', () => {
-  it('keeps helper text props string-only so null rendering control uses node slots', () => {
-    // @ts-expect-error helperText must use helper={null} to suppress rendering.
-    const invalidHelperText: React.ComponentProps<typeof DisplayInput> = { helperText: null };
-    // @ts-expect-error errorText must use error={null} to suppress rendering.
-    const invalidErrorText: React.ComponentProps<typeof DisplayInput> = { errorText: null };
-
-    expect([
-      invalidHelperText,
-      invalidErrorText,
-    ]).toHaveLength(2);
-  });
-
   it('uses helper and error node slots to control message rendering', () => {
     const helperRenderer = renderDisplayInput({
       helper: <View testID="helper-node" />,

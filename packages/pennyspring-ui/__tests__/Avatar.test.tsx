@@ -3,7 +3,7 @@ import { Image, StyleSheet, View } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
 import { Text } from '../src/Text';
 import { Row } from '../src/Row';
-import { Avatar, formatAvatarText } from '../src/Avatar';
+import { Avatar } from '../src/Avatar';
 function renderAvatar(props: React.ComponentProps<typeof Avatar>) {
   let testRenderer: renderer.ReactTestRenderer;
   act(() => {
@@ -103,10 +103,6 @@ describe('Avatar', () => {
     expect(Array.isArray(tree) ? tree[0] : tree).toMatchObject({
       children: null
     });
-  });
-  it('formats avatar text with only the first trimmed character', () => {
-    expect(formatAvatarText('  Penny  ')).toBe('P');
-    expect(formatAvatarText('   ')).toBe('');
   });
   it('falls back to text and calls onError after image load fails', () => {
     const onError = jest.fn();

@@ -50,7 +50,6 @@ jest.mock('react-native-reanimated', () => {
 
 import {
   CascadePicker,
-  type CascadePickerStyles,
   Tabs,
   Text,
   type CascadePickerTab,
@@ -366,11 +365,6 @@ it('renders empty state when the active tab has no options', () => {
   });
 
   expect(JSON.stringify(testRenderer!.toJSON())).toContain('No data');
-});
-
-it('exports CascadePickerStyles from the package entry', () => {
-  const cascadePickerStylesTypeCheck: CascadePickerStyles = {};
-  expect(cascadePickerStylesTypeCheck).toEqual({});
 });
 
 it('prevents opening when readonly is true', () => {

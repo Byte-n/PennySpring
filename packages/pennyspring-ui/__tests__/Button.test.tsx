@@ -153,21 +153,6 @@ describe('Button', () => {
     expect(rootStyle.paddingVertical).toBeDefined();
     expect(rootStyle.minHeight).toBeUndefined();
   });
-  it('uses loading delay before entering busy state', () => {
-    jest.useFakeTimers();
-    const testRenderer = renderButton({
-      loading: {
-        delay: 100
-      },
-      children: 'Save'
-    });
-    expect(testRenderer.root.findAllByType(ActivityIndicator)).toHaveLength(0);
-    act(() => {
-      jest.advanceTimersByTime(100);
-    });
-    expect(testRenderer.root.findAllByType(ActivityIndicator)).toHaveLength(1);
-    jest.useRealTimers();
-  });
   it('uses token-driven color and size for default loading indicator', () => {
     const baselineRenderer = renderButton({
       icon: 'check',

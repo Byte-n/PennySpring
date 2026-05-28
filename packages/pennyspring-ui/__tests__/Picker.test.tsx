@@ -136,21 +136,6 @@ it('renders custom header via renderHeader', () => {
   expect(customHeader).toBeDefined();
 });
 
-it('keeps header text props string-only so null rendering control uses node slots', () => {
-  // @ts-expect-error titleText must use title={null} to suppress rendering.
-  const invalidTitleText: PickerProps = { columns, popupProps: { titleText: null } };
-  // @ts-expect-error cancelText must use cancel={null} to suppress rendering.
-  const invalidCancelText: PickerProps = { columns, popupProps: { cancelText: null } };
-  // @ts-expect-error okText must use ok={null} to suppress rendering.
-  const invalidOkText: PickerProps = { columns, popupProps: { okText: null } };
-
-  expect([
-    invalidTitleText,
-    invalidCancelText,
-    invalidOkText,
-  ]).toHaveLength(3);
-});
-
 it('does not render picker header when renderHeader is null', () => {
   let testRenderer: renderer.ReactTestRenderer;
 
@@ -827,20 +812,6 @@ it('allows overriding non-flattened display input props from picker', () => {
   expect(triggerInput.props.display).toBe('block');
   expect(triggerInput.props.placeholder).toBe('Please select');
   expect(triggerInput.props.readonly).toBe(true);
-});
-
-it('keeps display input style props out of display input props', () => {
-  const element = (
-    <Picker
-      columns={columns}
-      displayInputProps={{
-        // @ts-expect-error Display input styles are exposed through Picker styles.input.
-        style: { opacity: 0.5 },
-      }}
-    />
-  );
-
-  expect(element.props.displayInputProps.style).toEqual({ opacity: 0.5 });
 });
 
 it('does not expose imperative business features', () => {

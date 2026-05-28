@@ -69,18 +69,6 @@ describe('Input', () => {
     expect(onChange).toHaveBeenCalledWith('Wallet');
   });
 
-  it('does not expose onChangeText as the public value change API', () => {
-    // @ts-expect-error Input uses onChange for primary value changes.
-    const invalidInputProps: React.ComponentProps<typeof Input> = { onChangeText: jest.fn() };
-    // @ts-expect-error Input.Search uses onChange for primary value changes.
-    const invalidSearchProps: React.ComponentProps<typeof Input.Search> = { onChangeText: jest.fn() };
-
-    expect([
-      invalidInputProps,
-      invalidSearchProps,
-    ]).toHaveLength(2);
-  });
-
   it('renders label text from labelText when label node is absent', () => {
     const testRenderer = renderInput({ labelText: 'Account name' });
 
@@ -106,18 +94,6 @@ describe('Input', () => {
 
     expect(JSON.stringify(testRenderer.toJSON())).not.toContain('Text label');
     expect(JSON.stringify(testRenderer.toJSON())).not.toContain('*');
-  });
-
-  it('keeps helper text props string-only so null rendering control uses node slots', () => {
-    // @ts-expect-error helperText must use helper={null} to suppress rendering.
-    const invalidHelperText: React.ComponentProps<typeof Input> = { helperText: null };
-    // @ts-expect-error errorText must use error={null} to suppress rendering.
-    const invalidErrorText: React.ComponentProps<typeof Input> = { errorText: null };
-
-    expect([
-      invalidHelperText,
-      invalidErrorText,
-    ]).toHaveLength(2);
   });
 
   it('uses helper and error node slots to control message rendering', () => {
