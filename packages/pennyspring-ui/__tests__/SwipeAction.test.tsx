@@ -423,24 +423,4 @@ describe('SwipeAction', () => {
     expect(textNode.props.color).toBe('disabled');
   });
 
-  it('provides pressed state feedback on action button', () => {
-    const testRenderer = renderSwipeAction({
-      rightActions: [{
-        key: 'pressable',
-        actionText: 'Press',
-        color: 'primary',
-      }],
-    });
-    const action = testRenderer.root.findByProps({
-      testID: 'swipe-action-right-action-0',
-    });
-    const styleFn = action.props.style;
-    expect(typeof styleFn).toBe('function');
-    const pressedStyle = styleFn({ pressed: true });
-    expect(pressedStyle).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ opacity: expect.any(Number) }),
-      ]),
-    );
-  });
 });

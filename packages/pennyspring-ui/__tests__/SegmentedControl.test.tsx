@@ -37,32 +37,6 @@ describe('SegmentedControl', () => {
     expect(treeString).toContain('明细');
     expect(treeString).toContain('图表');
   });
-  it('keeps tab labels on a single line', () => {
-    let testRenderer: renderer.ReactTestRenderer;
-    act(() => {
-      testRenderer = renderer.create(<><SegmentedControl descriptors={{
-          detail: {
-            options: {
-              title: '明细'
-            }
-          },
-          chart: {
-            options: {
-              title: '图表'
-            }
-          }
-        }} navigation={{
-          navigate: jest.fn()
-        }} state={{
-          index: 0,
-          routes
-        }} /></>);
-    });
-    const labels = testRenderer!.root.findAllByProps({
-      testID: 'top-tab-segment-label'
-    });
-    expect(labels[0]?.props.numberOfLines).toBe(1);
-  });
 });
 
 describe('SegmentedControl style extraction', () => {

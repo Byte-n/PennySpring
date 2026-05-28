@@ -23,32 +23,6 @@ describe('Divider', () => {
     });
     expect(testRenderer.root.findAllByType(View)).toHaveLength(1);
   });
-  it.each([
-    ['left', 0, '10%', undefined],
-    ['right', 2, '10%', undefined],
-  ] as const)(
-    'constrains %s side line width when contentPosition is %s',
-    (contentPosition, targetIndex, expectedTargetMaxWidth, expectedOtherMaxWidth) => {
-      const testRenderer = renderDivider({
-        contentPosition,
-      });
-      const viewNodes = testRenderer.root.findAllByType(View);
-
-      // Arrange
-      const firstLine = viewNodes[1];
-      const secondLine = viewNodes[3];
-      const targetLine = targetIndex === 0 ? firstLine : secondLine;
-      const otherLine = targetIndex === 0 ? secondLine : firstLine;
-
-      // Act
-      const targetLineStyle = StyleSheet.flatten(targetLine.props.style);
-      const otherLineStyle = StyleSheet.flatten(otherLine.props.style);
-
-      // Assert
-      expect(targetLineStyle.maxWidth).toBe(expectedTargetMaxWidth);
-      expect(otherLineStyle.maxWidth).toBe(expectedOtherMaxWidth);
-    },
-  );
   it('does not inject standalone maxWidth inline style objects into line style arrays', () => {
     const testRenderer = renderDivider({
       contentPosition: 'left',

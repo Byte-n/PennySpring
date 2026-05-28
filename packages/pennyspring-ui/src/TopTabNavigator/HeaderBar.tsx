@@ -18,7 +18,11 @@ export function HeaderBar({
 
   return (
     <View style={[tokenStyles.container, style]}>
-      <View style={[tokenStyles.leftActions, styles?.leftActions]}>{leftActions}</View>
+      {leftActions && (
+        <View style={[tokenStyles.leftActions, styles?.leftActions]}>
+          {leftActions}
+        </View>
+      )}
       <View style={[tokenStyles.center, styles?.center]}>
         <SegmentedControl
           descriptors={descriptors}
@@ -27,7 +31,11 @@ export function HeaderBar({
           styles={segmentedControlStyles}
         />
       </View>
-      <View style={[tokenStyles.rightActions, styles?.rightActions]}>{rightActions}</View>
+      {rightActions && (
+        <View style={[tokenStyles.rightActions, styles?.rightActions]}>
+          {rightActions}
+        </View>
+      )}
     </View>
   );
 }

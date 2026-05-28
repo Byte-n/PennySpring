@@ -124,7 +124,7 @@ export function Segmented({
   }
 
   return (
-    <Column testID="segmented-root" style={[tokenStyles.root, style]}>
+    <Column style={[tokenStyles.root, style]}>
       <Row
         style={[
           tokenStyles.track,

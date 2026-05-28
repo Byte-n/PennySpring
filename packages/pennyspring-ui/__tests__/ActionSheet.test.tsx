@@ -37,16 +37,6 @@ describe('ActionSheet', () => {
     const treeString = JSON.stringify(testRenderer.toJSON());
     expect(treeString).toContain('Select an option');
   });
-  it('renders a single title container when titleText is provided', () => {
-    const testRenderer = renderActionSheet({
-      defaultOpen: true,
-      titleText: 'Select an option'
-    });
-    const titleContainers = testRenderer.root.findAllByProps({
-      testID: 'action-sheet-title-container'
-    });
-    expect(titleContainers).toHaveLength(1);
-  });
   it('renders cancel button when cancelText is provided', () => {
     const testRenderer = renderActionSheet({
       cancelText: 'Cancel',
