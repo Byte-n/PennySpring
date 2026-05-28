@@ -31,6 +31,25 @@ it('renders readonly display input trigger with placeholder when no children', (
   expect(triggerInput.props.placeholder).toBe('Single column');
 });
 
+it('passes size to display input', () => {
+  let testRenderer: renderer.ReactTestRenderer;
+
+  act(() => {
+    testRenderer = renderer.create(
+      <PickerTrigger
+        size="small"
+        styles={{
+          trigger: null,
+        } as unknown as ReturnType<typeof import('../src/Picker/usePickerStyles').usePickerStyles>}
+      />,
+    );
+  });
+
+  const triggerInput = testRenderer!.root.findByType(DisplayInput);
+
+  expect(triggerInput.props.size).toBe('small');
+});
+
 it('shows clear button and clears without opening picker trigger', () => {
   const onPress = jest.fn();
   const onClearPress = jest.fn();

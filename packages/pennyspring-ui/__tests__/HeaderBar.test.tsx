@@ -2,21 +2,7 @@ import React from 'react';
 import { Text } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
 import { HeaderBar } from '../src/TopTabNavigator/HeaderBar';
-jest.mock('react-native-reanimated', () => {
-  const ReactNative = require('react-native');
-  return {
-    __esModule: true,
-    default: {
-      View: ReactNative.View
-    },
-    interpolate: (value: number) => value,
-    useAnimatedStyle: (updater: () => Record<string, unknown>) => updater(),
-    useSharedValue: (value: number) => ({
-      value
-    }),
-    withTiming: (value: number) => value
-  };
-});
+
 const routes = [{
   key: 'detail',
   name: 'Detail',
@@ -43,8 +29,6 @@ describe('HeaderBar', () => {
           }
         }} leftActions={<Text>left action</Text>} navigation={{
           navigate: jest.fn()
-        }} position={{
-          value: 0
         }} rightActions={<Text>right action</Text>} state={{
           index: 0,
           routes
@@ -55,5 +39,20 @@ describe('HeaderBar', () => {
     expect(treeString).toContain('明细');
     expect(treeString).toContain('图表');
     expect(treeString).toContain('right action');
+  });
+});
+
+describe('HeaderBar style extraction', () => {
+  it('exports useHeaderBarStyles from style/index.ts', () => {
+    const styleModule = require('../src/TopTabNavigator/style/index');
+    expect(styleModule.useHeaderBarStyles).toBeDefined();
+    expect(typeof styleModule.useHeaderBarStyles).toBe('function');
+  });
+});
+
+describe('HeaderBarProps exported from types.ts', () => {
+  it('types.ts module resolves without error', () => {
+    const typesModule = require('../src/TopTabNavigator/types');
+    expect(typesModule).toBeDefined();
   });
 });

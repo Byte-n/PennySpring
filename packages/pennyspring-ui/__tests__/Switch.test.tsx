@@ -127,4 +127,45 @@ describe('Switch', () => {
     expect(findTextStyle(checkedRenderer).right).toBe(reservedSpace);
     expect(findTextStyle(uncheckedRenderer).left).toBe(reservedSpace);
   });
+
+  it('uses Text color prop instead of style for text color', () => {
+    const testRenderer = renderSwitch({
+      checkedText: 'on',
+      uncheckedText: 'off',
+      defaultValue: true,
+    });
+    const text = testRenderer.root.findByProps({ testID: 'switch-text' });
+
+    expect(text.props.color).toBeDefined();
+    expect(typeof text.props.color).toBe('string');
+
+    const flattened = StyleSheet.flatten(text.props.style);
+    expect(flattened.color).toBeUndefined();
+  });
+
+  it('uses Text weight prop instead of style for font weight', () => {
+    const testRenderer = renderSwitch({
+      checkedText: 'on',
+      uncheckedText: 'off',
+      defaultValue: true,
+    });
+    const text = testRenderer.root.findByProps({ testID: 'switch-text' });
+
+    expect(text.props.weight).toBeDefined();
+    expect(typeof text.props.weight).toBe('string');
+
+    const flattened = StyleSheet.flatten(text.props.style);
+    expect(flattened.fontWeight).toBeUndefined();
+  });
+
+  it('derives track borderRadius from size instead of hardcoded value', () => {
+    const testRenderer = renderSwitch({ defaultValue: true });
+    const track = testRenderer.root.findByProps({ testID: 'switch' });
+    const resolvedStyle = track.props.style({ pressed: false });
+    const flattened = StyleSheet.flatten(resolvedStyle);
+
+    expect(flattened.borderRadius).not.toBe(999);
+    expect(typeof flattened.borderRadius).toBe('number');
+    expect(flattened.borderRadius).toBeGreaterThan(0);
+  });
 });

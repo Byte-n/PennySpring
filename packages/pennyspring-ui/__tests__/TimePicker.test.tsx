@@ -47,9 +47,11 @@ jest.mock('react-native-reanimated', () => {
 
 import {
   DisplayInput,
+  Picker,
   Text,
   TimePicker,
 } from '../src';
+import type { TimePickerStyles } from '../src';
 
 function makeDate(hours: number, minutes: number, seconds = 0): Date {
   return new Date(2026, 4, 9, hours, minutes, seconds, 0);
@@ -306,4 +308,90 @@ it('preserves year/month/day from base date on selection', () => {
   expect(nextDate.getMonth()).toBe(7);
   expect(nextDate.getDate()).toBe(15);
   expect(nextDate.getMinutes()).toBe(45);
+});
+
+describe('placeholder behavior', () => {
+  it('shows placeholder instead of current time when no value or defaultValue is provided', () => {
+    let testRenderer: renderer.ReactTestRenderer;
+
+    act(() => {
+      testRenderer = renderer.create(
+        <TimePicker placeholder="请选择时间" />,
+      );
+    });
+
+    const triggerInput = testRenderer!.root.findByType(DisplayInput);
+    expect(triggerInput.props.valueText).toBeUndefined();
+    expect(triggerInput.props.placeholder).toBe('请选择时间');
+  });
+
+  it('shows value text when defaultValue is provided', () => {
+    let testRenderer: renderer.ReactTestRenderer;
+
+    act(() => {
+      testRenderer = renderer.create(
+        <TimePicker defaultValue={makeDate(10, 30)} placeholder="请选择时间" />,
+      );
+    });
+
+    const triggerInput = testRenderer!.root.findByType(DisplayInput);
+    expect(triggerInput.props.valueText).toBe('10:30');
+  });
+});
+
+describe('readonly behavior', () => {
+  it('does not open popup when readonly and trigger is pressed', () => {
+    const onOpenChange = jest.fn();
+    let testRenderer: renderer.ReactTestRenderer;
+
+    act(() => {
+      testRenderer = renderer.create(
+        <TimePicker readonly onOpenChange={onOpenChange} />,
+      );
+    });
+
+    const trigger = testRenderer!.root.findByProps({ testID: 'picker-trigger' });
+    act(() => {
+      trigger.props.onPress();
+    });
+
+    expect(onOpenChange).not.toHaveBeenCalled();
+  });
+});
+
+describe('size prop', () => {
+  it('passes size prop to internal Picker', () => {
+    let testRenderer: renderer.ReactTestRenderer;
+
+    act(() => {
+      testRenderer = renderer.create(
+        <TimePicker size="small" />,
+      );
+    });
+
+    const picker = testRenderer!.root.findByType(Picker);
+    expect(picker.props.size).toBe('small');
+  });
+
+  it('defaults to normal size when size is not provided', () => {
+    let testRenderer: renderer.ReactTestRenderer;
+
+    act(() => {
+      testRenderer = renderer.create(
+        <TimePicker />,
+      );
+    });
+
+    const picker = testRenderer!.root.findByType(Picker);
+    expect(picker.props.size).toBe('normal');
+  });
+});
+
+describe('TimePickerStyles type', () => {
+  it('TimePickerStyles type is importable', () => {
+    const styles: TimePickerStyles = {
+      trigger: {},
+    };
+    expect(styles).toBeDefined();
+  });
 });

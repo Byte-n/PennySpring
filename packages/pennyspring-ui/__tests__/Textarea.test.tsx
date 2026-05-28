@@ -2,6 +2,7 @@ import React from 'react';
 import { ActivityIndicator, TextInput } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
 import { Textarea } from '../src/Textarea';
+import { Text } from '../src/Text';
 function renderTextarea(props: Partial<React.ComponentProps<typeof Textarea>> = {}) {
   let testRenderer: renderer.ReactTestRenderer;
   act(() => {
@@ -123,5 +124,96 @@ describe('Textarea', () => {
       });
     });
     expect(handleBlur).toHaveBeenCalledTimes(1);
+  });
+
+  it('renders labelText as a plain string label', () => {
+    const testRenderer = renderTextarea({ labelText: 'Description' });
+    const treeString = JSON.stringify(testRenderer.toJSON());
+    expect(treeString).toContain('Description');
+  });
+
+  it('renders label as a custom ReactNode', () => {
+    const testRenderer = renderTextarea({
+      label: <Text testID="custom-label">Custom Label</Text>,
+    });
+    const customLabel = testRenderer.root.findByProps({ testID: 'custom-label' });
+    expect(customLabel.props.children).toBe('Custom Label');
+  });
+
+  it('hides label area when label is null even if labelText is set', () => {
+    const testRenderer = renderTextarea({
+      labelText: 'Hidden',
+      label: null,
+    });
+    const treeString = JSON.stringify(testRenderer.toJSON());
+    expect(treeString).not.toContain('Hidden');
+  });
+
+  it('falls back to labelText when label is undefined', () => {
+    const testRenderer = renderTextarea({ labelText: 'Fallback Label' });
+    const treeString = JSON.stringify(testRenderer.toJSON());
+    expect(treeString).toContain('Fallback Label');
+  });
+
+  it('label node overrides labelText when both are provided', () => {
+    const testRenderer = renderTextarea({
+      labelText: 'Text Label',
+      label: <Text testID="override-label">Node Label</Text>,
+    });
+    const treeString = JSON.stringify(testRenderer.toJSON());
+    expect(treeString).not.toContain('Text Label');
+    const overrideLabel = testRenderer.root.findByProps({ testID: 'override-label' });
+    expect(overrideLabel.props.children).toBe('Node Label');
+  });
+
+  it('keeps field border width constant between focused and unfocused states', () => {
+    function getMaxBorderWidth(styleProp: unknown): number | undefined {
+      if (!Array.isArray(styleProp)) {
+        return typeof styleProp === 'object' && styleProp !== null && 'borderWidth' in styleProp
+          ? (styleProp as Record<string, number>).borderWidth
+          : undefined;
+      }
+      let max: number | undefined;
+      for (const s of styleProp) {
+        if (s && typeof s === 'object' && 'borderWidth' in s) {
+          const bw = (s as Record<string, number>).borderWidth;
+          max = max === undefined ? bw : Math.max(max, bw);
+        }
+      }
+      return max;
+    }
+
+    function findFieldNode(testR: renderer.ReactTestRenderer) {
+      // Find the node that is a parent of TextInput and has borderWidth in its style
+      const input = testR.root.findByType(TextInput);
+      let node: renderer.ReactTestInstance = input.parent!;
+      while (node) {
+        if (
+          node.props.style &&
+          Array.isArray(node.props.style) &&
+          node.props.style.some(
+            (s: Record<string, unknown>) => s && typeof s === 'object' && 'borderWidth' in s,
+          )
+        ) {
+          return node;
+        }
+        node = node.parent!;
+      }
+      throw new Error('Field node not found');
+    }
+
+    const testRenderer = renderTextarea({});
+    const input = testRenderer.root.findByType(TextInput);
+    const fieldBefore = findFieldNode(testRenderer);
+    const borderWidthBefore = getMaxBorderWidth(fieldBefore.props.style);
+
+    act(() => {
+      input.props.onFocus({ nativeEvent: {} });
+    });
+
+    const fieldAfter = findFieldNode(testRenderer);
+    const borderWidthAfter = getMaxBorderWidth(fieldAfter.props.style);
+
+    expect(borderWidthBefore).toBe(borderWidthAfter);
   });
 });

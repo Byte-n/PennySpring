@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
 import { ThemeProvider } from '@pennyspring/theme';
-import { Notification } from '../src/Notification';
+import { Notification, useNotification } from '../src/Notification';
 import { PortalProvider } from '../src/Portal';
 const exitAnimationCallbacks: Array<(finished: boolean) => void> = [];
 type WithTimingArgs = [number, unknown?, ((finished: boolean) => void)?];
@@ -207,5 +207,256 @@ describe('Notification', () => {
     expect(contentStyle.paddingHorizontal).toBe(expectedPadding);
     expect(contentStyle.paddingVertical).toBe(expectedPadding / 2);
     expect(contentStyle.gap).toBe(expectedGap);
+  });
+
+  it('fires onCancel and onOpenChange(false) when duration expires in controlled mode', () => {
+    const onCancel = jest.fn();
+    const onOpenChange = jest.fn();
+    const afterOpenChange = jest.fn();
+    let testRenderer!: renderer.ReactTestRenderer;
+
+    act(() => {
+      testRenderer = renderer.create(
+        <PortalProvider>
+          <Notification
+            open
+            duration={1000}
+            titleText="Title"
+            descriptionText="Description"
+            onCancel={onCancel}
+            onOpenChange={onOpenChange}
+            afterOpenChange={afterOpenChange}
+          />
+        </PortalProvider>,
+      );
+    });
+
+    onCancel.mockClear();
+    onOpenChange.mockClear();
+    afterOpenChange.mockClear();
+
+    act(() => {
+      jest.advanceTimersByTime(1000);
+    });
+
+    expect(onCancel).toHaveBeenCalledTimes(1);
+    expect(onOpenChange).toHaveBeenCalledTimes(1);
+    expect(onOpenChange).toHaveBeenCalledWith(false);
+    expect(afterOpenChange).not.toHaveBeenCalled();
+
+    act(() => {
+      testRenderer.update(
+        <PortalProvider>
+          <Notification
+            open={false}
+            duration={1000}
+            titleText="Title"
+            descriptionText="Description"
+            onCancel={onCancel}
+            onOpenChange={onOpenChange}
+            afterOpenChange={afterOpenChange}
+          />
+        </PortalProvider>,
+      );
+    });
+
+    act(() => {
+      exitAnimationCallbacks.at(-1)?.(true);
+    });
+
+    expect(afterOpenChange).toHaveBeenCalledTimes(1);
+    expect(afterOpenChange).toHaveBeenCalledWith(false);
+
+    act(() => {
+      testRenderer.unmount();
+    });
+  });
+
+  it('derives backgroundColor from type token rather than inline literal', () => {
+    let testRenderer!: renderer.ReactTestRenderer;
+
+    act(() => {
+      testRenderer = renderer.create(
+        <ThemeProvider
+          config={{
+            token: {
+              colorSuccessBg: '#00ff00',
+            },
+          }}
+        >
+          <PortalProvider>
+            <Notification
+              open
+              duration={0}
+              type="success"
+              titleText="Title"
+              descriptionText="Description"
+            />
+          </PortalProvider>
+        </ThemeProvider>,
+      );
+    });
+
+    const content = testRenderer.root.findAllByType(View).find(node => {
+      const style = StyleSheet.flatten(node.props.style);
+
+      return style?.position === 'absolute' && style?.paddingHorizontal !== undefined;
+    });
+    const contentStyle = StyleSheet.flatten(content?.props.style);
+
+    expect(contentStyle.backgroundColor).toBe('#00ff00');
+
+    act(() => {
+      testRenderer.unmount();
+    });
+  });
+
+  it('uses token-driven zIndex without arbitrary hardcoded offset', () => {
+    let testRenderer!: renderer.ReactTestRenderer;
+
+    act(() => {
+      testRenderer = renderer.create(
+        <ThemeProvider
+          config={{
+            token: {
+              zIndexPopupBase: 1000,
+            },
+          }}
+        >
+          <PortalProvider>
+            <Notification
+              open
+              duration={0}
+              titleText="Title"
+              descriptionText="Description"
+            />
+          </PortalProvider>
+        </ThemeProvider>,
+      );
+    });
+
+    const content = testRenderer.root.findAllByType(View).find(node => {
+      const style = StyleSheet.flatten(node.props.style);
+
+      return style?.position === 'absolute' && style?.paddingHorizontal !== undefined;
+    });
+    const contentStyle = StyleSheet.flatten(content?.props.style);
+
+    expect(contentStyle.zIndex).toBe(1100);
+
+    act(() => {
+      testRenderer.unmount();
+    });
+  });
+});
+
+describe('useNotification', () => {
+  beforeEach(() => {
+    jest.useFakeTimers();
+    mockWithTiming.mockClear();
+    exitAnimationCallbacks.length = 0;
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
+  it('show mounts a notification and hide(key) triggers exit and unmount', () => {
+    let controller!: ReturnType<typeof useNotification>;
+
+    function Host() {
+      controller = useNotification();
+
+      return null;
+    }
+
+    let testRenderer!: renderer.ReactTestRenderer;
+
+    act(() => {
+      testRenderer = renderer.create(
+        <PortalProvider>
+          <Host />
+        </PortalProvider>,
+      );
+    });
+
+    let key!: number;
+
+    act(() => {
+      key = controller.show({
+        titleText: 'Host title',
+        descriptionText: 'Host description',
+        duration: 0,
+      });
+    });
+
+    expect(testRenderer.root.findByProps({ children: 'Host description' })).toBeTruthy();
+
+    act(() => {
+      controller.hide(key);
+    });
+
+    expect(testRenderer.root.findByProps({ children: 'Host description' })).toBeTruthy();
+
+    act(() => {
+      exitAnimationCallbacks.at(-1)?.(true);
+    });
+
+    expect(() => testRenderer.root.findByProps({ children: 'Host description' })).toThrow();
+
+    act(() => {
+      testRenderer.unmount();
+    });
+  });
+
+  it('clear removes all mounted notifications', () => {
+    let controller!: ReturnType<typeof useNotification>;
+
+    function Host() {
+      controller = useNotification();
+
+      return null;
+    }
+
+    let testRenderer!: renderer.ReactTestRenderer;
+
+    act(() => {
+      testRenderer = renderer.create(
+        <PortalProvider>
+          <Host />
+        </PortalProvider>,
+      );
+    });
+
+    act(() => {
+      controller.show({
+        titleText: 'First',
+        descriptionText: 'First desc',
+        duration: 0,
+      });
+      controller.show({
+        titleText: 'Second',
+        descriptionText: 'Second desc',
+        duration: 0,
+      });
+    });
+
+    expect(testRenderer.root.findByProps({ children: 'First desc' })).toBeTruthy();
+    expect(testRenderer.root.findByProps({ children: 'Second desc' })).toBeTruthy();
+
+    act(() => {
+      controller.clear();
+    });
+
+    act(() => {
+      exitAnimationCallbacks.forEach(cb => cb(true));
+    });
+
+    expect(() => testRenderer.root.findByProps({ children: 'First desc' })).toThrow();
+    expect(() => testRenderer.root.findByProps({ children: 'Second desc' })).toThrow();
+
+    act(() => {
+      testRenderer.unmount();
+    });
   });
 });

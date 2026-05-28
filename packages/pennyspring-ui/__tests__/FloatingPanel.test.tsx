@@ -510,4 +510,103 @@ describe('Popup.FloatingPanel', () => {
     expect(headerStyle.marginBottom).toBe(expectedSectionMargin);
     expect(footerStyle.marginTop).toBe(expectedSectionMargin);
   });
+
+  it('keeps panel open when closeOnCancel is false and cancel button is pressed', () => {
+    let testRenderer: renderer.ReactTestRenderer;
+
+    act(() => {
+      testRenderer = renderer.create(
+        <Popup.FloatingPanel
+          closeOnCancel={false}
+          defaultOpen
+        >
+          <RNText>content</RNText>
+        </Popup.FloatingPanel>,
+      );
+    });
+
+    act(() => {
+      testRenderer!.root.findByProps({
+        testID: 'floating-panel-cancel-button',
+      }).props.onPress();
+    });
+
+    expect(testRenderer!.toJSON()).not.toBeNull();
+    expect(JSON.stringify(testRenderer!.toJSON())).toContain('content');
+  });
+
+  it('keeps panel open when closeOnOk is false and onOk succeeds', async () => {
+    let testRenderer: renderer.ReactTestRenderer;
+
+    act(() => {
+      testRenderer = renderer.create(
+        <Popup.FloatingPanel
+          closeOnOk={false}
+          defaultOpen
+          okText="Save"
+          onOk={() => {}}
+        >
+          <RNText>content</RNText>
+        </Popup.FloatingPanel>,
+      );
+    });
+
+    await act(async () => {
+      await testRenderer!.root.findByProps({
+        testID: 'floating-panel-ok-button',
+      }).props.onPress();
+    });
+
+    expect(testRenderer!.toJSON()).not.toBeNull();
+    expect(JSON.stringify(testRenderer!.toJSON())).toContain('content');
+  });
+
+  it('reports height changes via onChange when value is controlled', () => {
+    const onChange = jest.fn();
+    let testRenderer: renderer.ReactTestRenderer;
+
+    act(() => {
+      testRenderer = renderer.create(
+        <Popup.FloatingPanel
+          defaultOpen
+          height={320}
+          onChange={onChange}
+          value={320}
+        >
+          <RNText>content</RNText>
+        </Popup.FloatingPanel>,
+      );
+    });
+
+    const handle = testRenderer!.root.findByProps({
+      testID: 'floating-panel-handle',
+    });
+
+    act(() => {
+      handle.props.onResponderGrant();
+      handle.props.onResponderMove(undefined, { dy: -50 });
+    });
+
+    expect(onChange).toHaveBeenCalledWith(370);
+  });
+
+  it('closes via mask click when closeOnMaskClick is true', () => {
+    let testRenderer: renderer.ReactTestRenderer;
+
+    act(() => {
+      testRenderer = renderer.create(
+        <Popup.FloatingPanel closeOnMaskClick defaultOpen>
+          <RNText>content</RNText>
+        </Popup.FloatingPanel>,
+      );
+    });
+
+    act(() => {
+      testRenderer!.root.findByProps({
+        testID: 'popup-mask',
+      }).props.onPress();
+    });
+
+    expect(testRenderer!.toJSON()).toBeNull();
+  });
 });

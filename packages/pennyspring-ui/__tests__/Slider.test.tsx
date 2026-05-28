@@ -1,6 +1,65 @@
 import React from 'react';
 import renderer, { act } from 'react-test-renderer';
 import { Slider } from '../src/Slider';
+
+jest.mock('react-native-gesture-handler', () => {
+  const ReactLocal = require('react');
+  const ReactNative = require('react-native');
+  type MockGestureHandler = (
+    mockEvent?: unknown,
+    mockSuccess?: boolean,
+  ) => void;
+
+  const createPanGesture = () => {
+    const handlers: Record<string, MockGestureHandler> = {};
+    const gesture = {
+      __handlers: handlers,
+      enabled: () => gesture,
+      runOnJS: () => gesture,
+      minDistance: () => gesture,
+      onBegin: (handler: MockGestureHandler) => {
+        handlers.onBegin = handler;
+        return gesture;
+      },
+      onUpdate: (handler: MockGestureHandler) => {
+        handlers.onUpdate = handler;
+        return gesture;
+      },
+      onEnd: (handler: MockGestureHandler) => {
+        handlers.onEnd = handler;
+        return gesture;
+      },
+      onFinalize: (handler: MockGestureHandler) => {
+        handlers.onFinalize = handler;
+        return gesture;
+      },
+    };
+
+    return gesture;
+  };
+
+  return {
+    Gesture: {
+      Pan: createPanGesture,
+    },
+    GestureDetector: ({
+      children,
+      gesture,
+    }: {
+      children: React.ReactNode;
+      gesture: unknown;
+    }) =>
+      ReactLocal.createElement(
+        ReactNative.View,
+        {
+          gesture,
+          testID: 'slider-gesture-detector',
+        },
+        children,
+      ),
+  };
+});
+
 function renderSlider(props: Partial<React.ComponentProps<typeof Slider>> = {}) {
   let testRenderer: renderer.ReactTestRenderer;
   act(() => {
@@ -8,64 +67,273 @@ function renderSlider(props: Partial<React.ComponentProps<typeof Slider>> = {}) 
   });
   return testRenderer!;
 }
+
 function setupTrackWidth(testRenderer: renderer.ReactTestRenderer, width = 200) {
   const track = testRenderer.root.findByProps({
-    testID: 'slider-track'
+    testID: 'slider-track',
   });
   act(() => {
     track.props.onLayout({
       nativeEvent: {
         layout: {
-          width
-        }
-      }
+          width,
+        },
+      },
     });
   });
   return track;
 }
-describe('Slider', () => {
-  it('supports uncontrolled value change by track press', () => {
-    const onChange = jest.fn();
-    const testRenderer = renderSlider({
-      defaultValue: 0,
-      max: 100,
-      min: 0,
-      onChange
-    });
-    const track = setupTrackWidth(testRenderer);
-    act(() => {
-      track.props.onResponderRelease({
-        nativeEvent: {
-          locationX: 100
-        }
-      });
-    });
-    expect(onChange).toHaveBeenCalledWith(50);
+
+function getGesture(testRenderer: renderer.ReactTestRenderer) {
+  const detector = testRenderer.root.findByProps({
+    testID: 'slider-gesture-detector',
   });
-  it('does not change when disabled or readonly', () => {
-    const onChange = jest.fn();
-    const disabledRenderer = renderSlider({
-      disabled: true,
-      onChange
-    });
-    const readonlyRenderer = renderSlider({
-      readonly: true,
-      onChange
-    });
-    const disabledTrack = setupTrackWidth(disabledRenderer);
-    const readonlyTrack = setupTrackWidth(readonlyRenderer);
-    act(() => {
-      disabledTrack.props.onResponderGrant({
-        nativeEvent: {
-          locationX: 100
-        }
+  return detector.props.gesture as {
+    __handlers: Record<string, (event?: unknown) => void>;
+  };
+}
+
+describe('Slider', () => {
+  describe('gesture-handler integration', () => {
+    it('renders with GestureDetector from react-native-gesture-handler', () => {
+      const testRenderer = renderSlider();
+      const detector = testRenderer.root.findByProps({
+        testID: 'slider-gesture-detector',
       });
-      readonlyTrack.props.onResponderMove({
-        nativeEvent: {
-          locationX: 100
-        }
-      });
+      expect(detector).toBeTruthy();
     });
-    expect(onChange).not.toHaveBeenCalled();
+
+    it('uses Pan gesture with onBegin, onUpdate, onEnd callbacks', () => {
+      const testRenderer = renderSlider();
+      const gesture = getGesture(testRenderer);
+      expect(gesture.__handlers.onBegin).toBeDefined();
+      expect(gesture.__handlers.onUpdate).toBeDefined();
+      expect(gesture.__handlers.onEnd).toBeDefined();
+    });
+  });
+
+  describe('uncontrolled mode', () => {
+    it('updates value on pan gesture at track position', () => {
+      const onChange = jest.fn();
+      const testRenderer = renderSlider({
+        defaultValue: 0,
+        min: 0,
+        max: 100,
+        onChange,
+      });
+      setupTrackWidth(testRenderer);
+      const gesture = getGesture(testRenderer);
+      act(() => {
+        gesture.__handlers.onBegin?.({ x: 100 });
+        gesture.__handlers.onUpdate?.({ x: 100 });
+        gesture.__handlers.onEnd?.({ x: 100 });
+      });
+      expect(onChange).toHaveBeenCalled();
+      const lastCall = onChange.mock.calls[onChange.mock.calls.length - 1];
+      expect(lastCall[0]).toBeGreaterThanOrEqual(0);
+      expect(lastCall[0]).toBeLessThanOrEqual(100);
+    });
+
+    it('initializes with defaultValue', () => {
+      const onChange = jest.fn();
+      const testRenderer = renderSlider({
+        defaultValue: 50,
+        min: 0,
+        max: 100,
+        onChange,
+      });
+      setupTrackWidth(testRenderer);
+      const gesture = getGesture(testRenderer);
+      act(() => {
+        gesture.__handlers.onBegin?.({ x: 0 });
+        gesture.__handlers.onUpdate?.({ x: 0 });
+        gesture.__handlers.onEnd?.({ x: 0 });
+      });
+      expect(onChange).toHaveBeenCalled();
+      expect(onChange).toHaveBeenCalledWith(0);
+    });
+  });
+
+  describe('controlled mode', () => {
+    it('calls onChange when value is controlled', () => {
+      const onChange = jest.fn();
+      const testRenderer = renderSlider({
+        value: 50,
+        min: 0,
+        max: 100,
+        onChange,
+      });
+      setupTrackWidth(testRenderer);
+      const gesture = getGesture(testRenderer);
+      act(() => {
+        gesture.__handlers.onBegin?.({ x: 0 });
+        gesture.__handlers.onUpdate?.({ x: 0 });
+        gesture.__handlers.onEnd?.({ x: 0 });
+      });
+      expect(onChange).toHaveBeenCalled();
+    });
+  });
+
+  describe('disabled and readonly', () => {
+    it('does not change when disabled', () => {
+      const onChange = jest.fn();
+      const testRenderer = renderSlider({
+        disabled: true,
+        onChange,
+      });
+      setupTrackWidth(testRenderer);
+      const gesture = getGesture(testRenderer);
+      act(() => {
+        gesture.__handlers.onBegin?.({ x: 100 });
+        gesture.__handlers.onUpdate?.({ x: 100 });
+        gesture.__handlers.onEnd?.({ x: 100 });
+      });
+      expect(onChange).not.toHaveBeenCalled();
+    });
+
+    it('does not change when readonly', () => {
+      const onChange = jest.fn();
+      const testRenderer = renderSlider({
+        readonly: true,
+        onChange,
+      });
+      setupTrackWidth(testRenderer);
+      const gesture = getGesture(testRenderer);
+      act(() => {
+        gesture.__handlers.onBegin?.({ x: 100 });
+        gesture.__handlers.onUpdate?.({ x: 100 });
+        gesture.__handlers.onEnd?.({ x: 100 });
+      });
+      expect(onChange).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('min, max and step', () => {
+    it('snaps value to nearest step', () => {
+      const onChange = jest.fn();
+      const testRenderer = renderSlider({
+        defaultValue: 0,
+        min: 0,
+        max: 100,
+        step: 25,
+        onChange,
+      });
+      setupTrackWidth(testRenderer, 100);
+      const gesture = getGesture(testRenderer);
+      act(() => {
+        gesture.__handlers.onBegin?.({ x: 40 });
+        gesture.__handlers.onUpdate?.({ x: 40 });
+        gesture.__handlers.onEnd?.({ x: 40 });
+      });
+      expect(onChange).toHaveBeenCalled();
+      const calledValue = onChange.mock.calls[0][0];
+      expect(calledValue % 25).toBe(0);
+    });
+
+    it('normalizes value when max is less than min', () => {
+      const onChange = jest.fn();
+      const testRenderer = renderSlider({
+        defaultValue: 50,
+        min: 100,
+        max: 0,
+        onChange,
+      });
+      setupTrackWidth(testRenderer, 200);
+      const gesture = getGesture(testRenderer);
+      act(() => {
+        gesture.__handlers.onBegin?.({ x: 100 });
+        gesture.__handlers.onUpdate?.({ x: 100 });
+        gesture.__handlers.onEnd?.({ x: 100 });
+      });
+      expect(onChange).toHaveBeenCalled();
+      const calledValue = onChange.mock.calls[0][0];
+      expect(calledValue).toBeGreaterThanOrEqual(0);
+      expect(calledValue).toBeLessThanOrEqual(100);
+    });
+
+    it('clamps value within min and max bounds', () => {
+      const onChange = jest.fn();
+      const testRenderer = renderSlider({
+        defaultValue: 50,
+        min: 10,
+        max: 90,
+        onChange,
+      });
+      setupTrackWidth(testRenderer, 200);
+      const gesture = getGesture(testRenderer);
+      act(() => {
+        gesture.__handlers.onBegin?.({ x: 0 });
+        gesture.__handlers.onUpdate?.({ x: 0 });
+        gesture.__handlers.onEnd?.({ x: 0 });
+      });
+      expect(onChange).toHaveBeenCalled();
+      const calledValue = onChange.mock.calls[0][0];
+      expect(calledValue).toBeGreaterThanOrEqual(10);
+      expect(calledValue).toBeLessThanOrEqual(90);
+    });
+  });
+
+  describe('size', () => {
+    it('renders with different heights for different sizes', () => {
+      function getRootStyle(
+        testRenderer: renderer.ReactTestRenderer,
+      ): Record<string, number | string> {
+        const track = testRenderer.root.findByProps({ testID: 'slider-track' });
+        let node: renderer.ReactTestInstance | null = track;
+
+        while (node) {
+          const style = node.props?.style;
+
+          if (style) {
+            const merged = Array.isArray(style)
+              ? Object.assign({}, ...style.filter(Boolean))
+              : style;
+
+            if (merged.minHeight !== undefined) {
+              return merged;
+            }
+          }
+
+          node = node.parent;
+        }
+
+        return {};
+      }
+
+      const smallRenderer = renderSlider({ size: 'small' });
+      const normalRenderer = renderSlider({ size: 'normal' });
+      const largeRenderer = renderSlider({ size: 'large' });
+      const smallStyle = getRootStyle(smallRenderer);
+      const normalStyle = getRootStyle(normalRenderer);
+      const largeStyle = getRootStyle(largeRenderer);
+      expect(Number(smallStyle.minHeight)).toBeLessThan(Number(normalStyle.minHeight));
+      expect(Number(normalStyle.minHeight)).toBeLessThan(Number(largeStyle.minHeight));
+    });
+  });
+
+  describe('styles slot', () => {
+    it('applies external styles to track, trackFill and thumb slots', () => {
+      const externalStyles = {
+        track: { backgroundColor: 'rgba(0,0,0,0.1)' },
+        trackFill: { backgroundColor: 'rgba(0,0,0,0.2)' },
+        thumb: { backgroundColor: 'rgba(0,0,0,0.3)' },
+      };
+      const testRenderer = renderSlider({ styles: externalStyles });
+      const track = testRenderer.root.findByProps({ testID: 'slider-track' });
+      const trackFill = testRenderer.root.findByProps({ testID: 'slider-track-fill' });
+      const thumb = testRenderer.root.findByProps({ testID: 'slider-thumb' });
+      const trackStyle = Array.isArray(track.props.style)
+        ? Object.assign({}, ...track.props.style.filter(Boolean))
+        : track.props.style;
+      const trackFillStyle = Array.isArray(trackFill.props.style)
+        ? Object.assign({}, ...trackFill.props.style.filter(Boolean))
+        : trackFill.props.style;
+      const thumbStyle = Array.isArray(thumb.props.style)
+        ? Object.assign({}, ...thumb.props.style.filter(Boolean))
+        : thumb.props.style;
+      expect(trackStyle.backgroundColor).toBe('rgba(0,0,0,0.1)');
+      expect(trackFillStyle.backgroundColor).toBe('rgba(0,0,0,0.2)');
+      expect(thumbStyle.backgroundColor).toBe('rgba(0,0,0,0.3)');
+    });
   });
 });

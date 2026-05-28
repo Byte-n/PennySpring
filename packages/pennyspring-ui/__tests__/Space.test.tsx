@@ -89,4 +89,103 @@ describe('Space', () => {
 
     expect(itemStyles[0].marginBottom).toBe(expectedGap / 2);
   });
+
+  it('defaults to horizontal direction with row layout', () => {
+    const testRenderer = renderSpace();
+    const rootStyle = flattenStyle(getSpaceRoot(testRenderer).props.style);
+    expect(rootStyle.flexDirection).toBe('row');
+  });
+
+  it('renders vertical direction as column layout', () => {
+    const testRenderer = renderSpace({ direction: 'vertical' });
+    const rootStyle = flattenStyle(getSpaceRoot(testRenderer).props.style);
+    expect(rootStyle.flexDirection).toBe('column');
+  });
+
+  it.each([
+    ['start' as const, 'flex-start'],
+    ['end' as const, 'flex-end'],
+    ['center' as const, 'center'],
+    ['baseline' as const, 'baseline'],
+  ])('maps align=%s to alignItems %s', (align, expected) => {
+    const testRenderer = renderSpace({ align });
+    const rootStyle = flattenStyle(getSpaceRoot(testRenderer).props.style);
+    expect(rootStyle.alignItems).toBe(expected);
+  });
+
+  it.each([
+    ['start' as const, 'flex-start'],
+    ['end' as const, 'flex-end'],
+    ['center' as const, 'center'],
+    ['between' as const, 'space-between'],
+    ['around' as const, 'space-around'],
+    ['evenly' as const, 'space-evenly'],
+  ])('maps justify=%s to justifyContent %s', (justify, expected) => {
+    const testRenderer = renderSpace({ justify });
+    const rootStyle = flattenStyle(getSpaceRoot(testRenderer).props.style);
+    expect(rootStyle.justifyContent).toBe(expected);
+  });
+
+  it('enables flexWrap when wrap is true in horizontal direction', () => {
+    const testRenderer = renderSpace({ wrap: true });
+    const rootStyle = flattenStyle(getSpaceRoot(testRenderer).props.style);
+    expect(rootStyle.flexWrap).toBe('wrap');
+  });
+
+  it('does not enable flexWrap when wrap is true in vertical direction', () => {
+    const testRenderer = renderSpace({ direction: 'vertical', wrap: true });
+    const rootStyle = flattenStyle(getSpaceRoot(testRenderer).props.style);
+    expect(rootStyle.flexWrap).toBeUndefined();
+  });
+
+  it('adds half-gap vertical margins when wrap is enabled', () => {
+    const testRenderer = renderThemedSpace({ wrap: true, size: 'normal' });
+    const items = testRenderer.root
+      .findAllByType(View)
+      .map(node => StyleSheet.flatten(node.props.style))
+      .filter(style => style?.flexShrink === 0 && style?.marginRight !== undefined);
+
+    expect(items[0].marginBottom).toBe(2.5);
+  });
+
+  it('applies external style prop to root container', () => {
+    const testRenderer = renderSpace({ style: { opacity: 0.5 } });
+    const rootStyle = flattenStyle(getSpaceRoot(testRenderer).props.style);
+    expect(rootStyle.opacity).toBe(0.5);
+  });
+
+  it('applies styles.item to each child item', () => {
+    let testRenderer: renderer.ReactTestRenderer;
+    act(() => {
+      testRenderer = renderer.create(
+        <ThemeProvider
+          config={{
+            token: {
+              paddingXXS: 3,
+              paddingXS: 5,
+              paddingSM: 7,
+            },
+          }}
+        >
+          <Space styles={{ item: { opacity: 0.3 } }}>
+            <Text>A</Text>
+            <Text>B</Text>
+          </Space>
+        </ThemeProvider>,
+      );
+    });
+    const items = testRenderer!.root
+      .findAllByType(View)
+      .map(node => StyleSheet.flatten(node.props.style))
+      .filter(style => style?.flexShrink === 0);
+
+    expect(items[0].opacity).toBe(0.3);
+  });
+
+  it('filters out null and undefined children', () => {
+    const testRenderer = renderSpace();
+    const textNodes = testRenderer.root.findAllByType(Text);
+    expect(textNodes).toHaveLength(3);
+    expect(textNodes.map(n => n.props.children)).toEqual(['Income', 'Expense', 'Balance']);
+  });
 });

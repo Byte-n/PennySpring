@@ -3,6 +3,7 @@ import { View } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
 import { SwipeAction } from '../src/SwipeAction';
 import type { SwipeActionAction } from '../src/SwipeAction';
+import { Text } from '../src/Text';
 
 jest.mock('react-native-reanimated', () => {
   const ReactNative = require('react-native');
@@ -90,11 +91,11 @@ jest.mock('react-native-gesture-handler', () => {
 function renderSwipeAction(props: Partial<React.ComponentProps<typeof SwipeAction>> = {}) {
   const leftActions: SwipeActionAction[] = [{
     key: 'left-archive',
-    text: 'Archive'
+    actionText: 'Archive'
   }];
   const rightActions: SwipeActionAction[] = [{
     key: 'right-delete',
-    text: 'Delete'
+    actionText: 'Delete'
   }];
   let testRenderer: renderer.ReactTestRenderer;
   act(() => {
@@ -208,7 +209,7 @@ describe('SwipeAction', () => {
       rightActions: [{
         key: 'delete',
         onPress: actionPress,
-        text: 'Delete'
+        actionText: 'Delete'
       }]
     });
     setupActionWidth(testRenderer, {
@@ -275,5 +276,171 @@ describe('SwipeAction', () => {
     });
     expect(calls).toEqual(['cancel', 'change:null']);
     expect(getTrackTranslateX(testRenderer)).toBe(0);
+  });
+
+  it('rejects backgroundColor on action items', () => {
+    type ActionKeys = keyof SwipeActionAction;
+    const keys: ActionKeys[] = ['key', 'actionText', 'action', 'color', 'disabled', 'onPress'];
+    expect(keys).toHaveLength(6);
+  });
+
+  it('renders actionText as the visible text content', () => {
+    const testRenderer = renderSwipeAction({
+      rightActions: [{
+        key: 'label',
+        actionText: 'Archive',
+        color: 'success',
+      }],
+    });
+    const action = testRenderer.root.findByProps({
+      testID: 'swipe-action-right-action-0',
+    });
+    const textNode = action.findByType(Text);
+    expect(textNode.props.children).toBe('Archive');
+  });
+
+  it('renders custom action node directly without wrapping in Text', () => {
+    const customNode = React.createElement(View, { testID: 'custom-action-node' });
+    const testRenderer = renderSwipeAction({
+      rightActions: [{
+        key: 'custom',
+        action: customNode,
+      }],
+    });
+    const action = testRenderer.root.findByProps({
+      testID: 'swipe-action-right-action-0',
+    });
+    expect(() => action.findByType(Text)).toThrow();
+    expect(action.findByProps({ testID: 'custom-action-node' })).toBeTruthy();
+  });
+
+  it('suppresses rendering when action is explicitly null', () => {
+    const testRenderer = renderSwipeAction({
+      rightActions: [{
+        key: 'hidden',
+        actionText: 'Should not render',
+        action: null,
+      }],
+    });
+    const action = testRenderer.root.findByProps({
+      testID: 'swipe-action-right-action-0',
+    });
+    expect(() => action.findByType(Text)).toThrow();
+    const renderedText = testRenderer.root.findAllByType(Text);
+    const hiddenText = renderedText.find(t => t.props.children === 'Should not render');
+    expect(hiddenText).toBeUndefined();
+  });
+
+  it('falls back to actionText when action is undefined', () => {
+    const testRenderer = renderSwipeAction({
+      rightActions: [{
+        key: 'fallback',
+        actionText: 'Fallback Text',
+      }],
+    });
+    const action = testRenderer.root.findByProps({
+      testID: 'swipe-action-right-action-0',
+    });
+    const textNode = action.findByType(Text);
+    expect(textNode.props.children).toBe('Fallback Text');
+  });
+
+  it('renders actionText with correct size based on SwipeAction size', () => {
+    const testRenderer = renderSwipeAction({
+      size: 'small',
+      rightActions: [{
+        key: 'sized',
+        actionText: 'Small',
+        color: 'primary',
+      }],
+    });
+    const action = testRenderer.root.findByProps({
+      testID: 'swipe-action-right-action-0',
+    });
+    const textNode = action.findByType(Text);
+    expect(textNode.props.size).toBe('sm');
+  });
+
+  it('renders actionText with large size for large SwipeAction', () => {
+    const testRenderer = renderSwipeAction({
+      size: 'large',
+      rightActions: [{
+        key: 'sized',
+        actionText: 'Large',
+        color: 'primary',
+      }],
+    });
+    const action = testRenderer.root.findByProps({
+      testID: 'swipe-action-right-action-0',
+    });
+    const textNode = action.findByType(Text);
+    expect(textNode.props.size).toBe('lg');
+  });
+
+  it('applies lightSolid text color for strong background colors', () => {
+    const testRenderer = renderSwipeAction({
+      rightActions: [{
+        key: 'strong-bg',
+        actionText: 'Delete',
+        color: 'danger',
+      }],
+    });
+    const action = testRenderer.root.findByProps({
+      testID: 'swipe-action-right-action-0',
+    });
+    const textNode = action.findByType(Text);
+    expect(textNode.props.color).toBe('lightSolid');
+  });
+
+  it('applies default text color for light background', () => {
+    const testRenderer = renderSwipeAction({
+      rightActions: [{
+        key: 'light-bg',
+        actionText: 'Light',
+        color: 'light',
+      }],
+    });
+    const action = testRenderer.root.findByProps({
+      testID: 'swipe-action-right-action-0',
+    });
+    const textNode = action.findByType(Text);
+    expect(textNode.props.color).toBe('default');
+  });
+
+  it('applies disabled text color when action is disabled', () => {
+    const testRenderer = renderSwipeAction({
+      rightActions: [{
+        key: 'disabled-action',
+        actionText: 'Disabled',
+        color: 'primary',
+        disabled: true,
+      }],
+    });
+    const action = testRenderer.root.findByProps({
+      testID: 'swipe-action-right-action-0',
+    });
+    const textNode = action.findByType(Text);
+    expect(textNode.props.color).toBe('disabled');
+  });
+
+  it('provides pressed state feedback on action button', () => {
+    const testRenderer = renderSwipeAction({
+      rightActions: [{
+        key: 'pressable',
+        actionText: 'Press',
+        color: 'primary',
+      }],
+    });
+    const action = testRenderer.root.findByProps({
+      testID: 'swipe-action-right-action-0',
+    });
+    const styleFn = action.props.style;
+    expect(typeof styleFn).toBe('function');
+    const pressedStyle = styleFn({ pressed: true });
+    expect(pressedStyle).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ opacity: expect.any(Number) }),
+      ]),
+    );
   });
 });

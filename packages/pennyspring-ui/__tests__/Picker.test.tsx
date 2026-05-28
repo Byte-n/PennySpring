@@ -45,7 +45,7 @@ jest.mock('react-native-reanimated', () => {
   };
 });
 
-import { DisplayInput, Picker, Text, PickerColumn, PickerColumnItemData, PickerProps, PickerValue } from '../src';
+import { Button, DisplayInput, Picker, Text, PickerColumn, PickerColumnItemData, PickerProps, PickerValue } from '../src';
 
 const columns: PickerColumn[] = [
   [
@@ -860,4 +860,46 @@ it('does not expose imperative business features', () => {
 
   expect(pickerRef.current).toBeNull();
   expect(JSON.stringify(testRenderer!.toJSON())).not.toContain('retry');
+});
+
+it('passes size to display input trigger', () => {
+  let testRenderer: renderer.ReactTestRenderer;
+
+  act(() => {
+    testRenderer = renderer.create(
+      <Picker columns={columns} size="small" />,
+    );
+  });
+
+  const triggerInput = testRenderer!.root.findByType(DisplayInput);
+
+  expect(triggerInput.props.size).toBe('small');
+});
+
+it('passes size to header action buttons when open', () => {
+  let testRenderer: renderer.ReactTestRenderer;
+
+  act(() => {
+    testRenderer = renderer.create(
+      <Picker columns={columns} defaultOpen size="large" popupProps={{ okText: 'OK', cancelText: 'Cancel' }} />,
+    );
+  });
+
+  const buttons = testRenderer!.root.findAllByType(Button);
+  const cancelButton = buttons.find(
+    node => node.props.testID === 'picker-cancel-button',
+  );
+  const okButton = buttons.find(
+    node => node.props.testID === 'picker-ok-button',
+  );
+
+  expect(cancelButton?.props.size).toBe('large');
+  expect(okButton?.props.size).toBe('large');
+});
+
+it('uses Row for header horizontal layout instead of View with flexDirection', () => {
+  const PickerHeaderModule = require('../src/Picker/PickerHeader');
+  const headerSource = String(PickerHeaderModule.PickerHeader);
+
+  expect(headerSource).toContain('Row');
 });

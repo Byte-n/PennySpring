@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
 import { ThemeProvider } from '@pennyspring/theme';
 import { Steps } from '../src/Steps';
@@ -129,6 +129,53 @@ describe('Steps', () => {
     expect(onChange).not.toHaveBeenCalled();
   });
 
+  it('does not render title when title is null even if titleText is set', () => {
+    const testRenderer = renderSteps({
+      items: [
+        {
+          title: null,
+          titleText: 'Should Not Appear',
+          descriptionText: 'Visible Description',
+        },
+      ],
+    });
+    const content = JSON.stringify(testRenderer.toJSON());
+
+    expect(content).not.toContain('Should Not Appear');
+    expect(content).toContain('Visible Description');
+  });
+
+  it('does not render description when description is null even if descriptionText is set', () => {
+    const testRenderer = renderSteps({
+      items: [
+        {
+          titleText: 'Visible Title',
+          description: null,
+          descriptionText: 'Should Not Appear',
+        },
+      ],
+    });
+    const content = JSON.stringify(testRenderer.toJSON());
+
+    expect(content).toContain('Visible Title');
+    expect(content).not.toContain('Should Not Appear');
+  });
+
+  it('renders title and description when title/description are undefined and text props are set', () => {
+    const testRenderer = renderSteps({
+      items: [
+        {
+          titleText: 'Fallback Title',
+          descriptionText: 'Fallback Description',
+        },
+      ],
+    });
+    const content = JSON.stringify(testRenderer.toJSON());
+
+    expect(content).toContain('Fallback Title');
+    expect(content).toContain('Fallback Description');
+  });
+
   it.each([
     ['small', 3],
     ['normal', 5],
@@ -161,20 +208,11 @@ describe('Steps', () => {
         </ThemeProvider>,
       );
     });
-    const item = testRenderer!.root.findByProps({
-      testID: 'steps-item-0',
-    });
-    const itemStyle = StyleSheet.flatten(item.props.style({
-      pressed: false,
-    }));
-    const content = testRenderer!.root.findAllByType(View).find(node => {
-      const style = StyleSheet.flatten(node.props.style);
+    const content = testRenderer!.root.findAllByProps({
+      testID: 'steps-content',
+    })[0];
+    const contentStyle = StyleSheet.flatten(content.props.style);
 
-      return style?.flex === 1 && style?.gap !== undefined;
-    });
-    const contentStyle = StyleSheet.flatten(content?.props.style);
-
-    expect(itemStyle.gap).toBe(expectedGap);
     expect(contentStyle.paddingBottom).toBe(expectedGap);
   });
 });

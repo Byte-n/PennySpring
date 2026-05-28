@@ -1,21 +1,7 @@
 import React from 'react';
 import renderer, { act } from 'react-test-renderer';
 import { SegmentedControl } from '../src/TopTabNavigator/SegmentedControl';
-jest.mock('react-native-reanimated', () => {
-  const ReactNative = require('react-native');
-  return {
-    __esModule: true,
-    default: {
-      View: ReactNative.View
-    },
-    interpolate: (value: number) => value,
-    useAnimatedStyle: (updater: () => Record<string, unknown>) => updater(),
-    useSharedValue: (value: number) => ({
-      value
-    }),
-    withTiming: (value: number) => value
-  };
-});
+
 const routes = [{
   key: 'detail',
   name: 'Detail',
@@ -42,8 +28,6 @@ describe('SegmentedControl', () => {
           }
         }} navigation={{
           navigate: jest.fn()
-        }} position={{
-          value: 0
         }} state={{
           index: 0,
           routes
@@ -69,8 +53,6 @@ describe('SegmentedControl', () => {
           }
         }} navigation={{
           navigate: jest.fn()
-        }} position={{
-          value: 0
         }} state={{
           index: 0,
           routes
@@ -80,5 +62,20 @@ describe('SegmentedControl', () => {
       testID: 'top-tab-segment-label'
     });
     expect(labels[0]?.props.numberOfLines).toBe(1);
+  });
+});
+
+describe('SegmentedControl style extraction', () => {
+  it('exports useSegmentedControlStyles from style/index.ts', () => {
+    const styleModule = require('../src/TopTabNavigator/style/index');
+    expect(styleModule.useSegmentedControlStyles).toBeDefined();
+    expect(typeof styleModule.useSegmentedControlStyles).toBe('function');
+  });
+});
+
+describe('SegmentedControlProps exported from types.ts', () => {
+  it('types.ts module resolves without error', () => {
+    const typesModule = require('../src/TopTabNavigator/types');
+    expect(typesModule).toBeDefined();
   });
 });

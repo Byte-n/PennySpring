@@ -121,4 +121,21 @@ describe('Portal', () => {
       });
     }).toThrow('PortalProvider');
   });
+
+  it('does not expose hardcoded debug id on the overlay container', () => {
+    const testRenderer = renderWithPortal(
+      <View>
+        <Portal>
+          <Text>Portal content</Text>
+        </Portal>
+      </View>,
+    );
+
+    const allViews = testRenderer.root.findAllByType(View);
+    const viewsWithId = allViews.filter(
+      view => view.props.id !== undefined,
+    );
+
+    expect(viewsWithId).toHaveLength(0);
+  });
 });

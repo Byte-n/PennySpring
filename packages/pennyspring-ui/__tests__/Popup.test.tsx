@@ -1,5 +1,6 @@
 import React from 'react';
-import { BackHandler, Text as RNText, View } from 'react-native';
+import { BackHandler, StyleSheet, Text as RNText, View } from 'react-native';
+import { ThemeProvider } from '@pennyspring/theme';
 import renderer, { act } from 'react-test-renderer';
 import { Popup } from '../src/Popup';
 import { PortalProvider } from '../src/Portal';
@@ -223,5 +224,29 @@ describe('Popup', () => {
             </Popup></>);
       });
     }).toThrow('PortalProvider');
+  });
+  it('uses zIndexPopupBase + 100 without stacking zIndexBase', () => {
+    let testRenderer: renderer.ReactTestRenderer;
+    act(() => {
+      testRenderer = renderer.create(
+        <ThemeProvider
+          config={{
+            token: {
+              zIndexBase: 10,
+              zIndexPopupBase: 1000,
+            },
+          }}
+        >
+          <Popup open>
+            <RNText>Popup content</RNText>
+          </Popup>
+        </ThemeProvider>,
+      );
+    });
+    const layout = testRenderer!.root.findByProps({
+      testID: 'popup-layout',
+    });
+    const flattenedStyle = StyleSheet.flatten(layout.props.style);
+    expect(flattenedStyle.zIndex).toBe(1100);
   });
 });

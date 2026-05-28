@@ -3,6 +3,7 @@ import { StyleSheet, Text as RNText, View } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
 import { ThemeProvider } from '@pennyspring/theme';
 import { SideBar } from '../src/SideBar';
+import { Text } from '../src/Text';
 import type { SideBarProps } from '../src/SideBar';
 
 function renderSideBar(props: Partial<SideBarProps> = {}) {
@@ -175,5 +176,193 @@ describe('SideBar', () => {
     const sideBarListStyle = StyleSheet.flatten(sideBarList?.props.style);
 
     expect(sideBarListStyle.gap).toBe(expectedGap);
+  });
+
+  it('renders labelText as internal Text content', () => {
+    const testRenderer = renderSideBar({
+      items: [
+        { value: 'a', labelText: 'Alpha' },
+        { value: 'b', labelText: 'Beta' },
+      ],
+    });
+    const textInstances = testRenderer.root.findAll(
+      node => node.type === Text,
+    );
+    const textContents = textInstances.map(t => t.props.children);
+
+    expect(textContents).toContain('Alpha');
+    expect(textContents).toContain('Beta');
+  });
+
+  it('renders custom label node when label is a ReactNode', () => {
+    const CustomTag = () => <RNText>custom-node</RNText>;
+    const testRenderer = renderSideBar({
+      items: [
+        { value: 'a', label: <CustomTag /> },
+      ],
+    });
+    const content = JSON.stringify(testRenderer.toJSON());
+
+    expect(content).toContain('custom-node');
+  });
+
+  it('prefers label over labelText when both are provided', () => {
+    const CustomTag = () => <RNText>node-wins</RNText>;
+    const testRenderer = renderSideBar({
+      items: [
+        { value: 'a', labelText: 'text-loses', label: <CustomTag /> },
+      ],
+    });
+    const textInstances = testRenderer.root.findAll(
+      node => node.type === Text,
+    );
+    const textContents = textInstances.map(t => t.props.children);
+
+    expect(textContents).not.toContain('text-loses');
+  });
+
+  it('passes size-appropriate Text props for each SideBar size', () => {
+    const sizeCases: Array<{
+      sideBarSize: 'small' | 'normal' | 'large';
+      expectedTextSize: string;
+    }> = [
+      { sideBarSize: 'small', expectedTextSize: 'sm' },
+      { sideBarSize: 'normal', expectedTextSize: 'md' },
+      { sideBarSize: 'large', expectedTextSize: 'lg' },
+    ];
+
+    for (const { sideBarSize, expectedTextSize } of sizeCases) {
+      let testRenderer: renderer.ReactTestRenderer;
+      act(() => {
+        testRenderer = renderer.create(
+          <SideBar
+            size={sideBarSize}
+            items={[
+              { value: 'a', label: 'Alpha' },
+            ]}
+          />,
+        );
+      });
+      const textInstances = testRenderer!.root.findAll(
+        node => node.type === Text,
+      );
+      const label = textInstances.find(t => t.props.children === 'Alpha');
+
+      expect(label).toBeDefined();
+      expect(label!.props.size).toBe(expectedTextSize);
+    }
+  });
+
+  it('applies selected color via Text props when item is selected', () => {
+    let testRenderer: renderer.ReactTestRenderer;
+    act(() => {
+      testRenderer = renderer.create(
+        <SideBar
+          defaultValue="a"
+          items={[
+            { value: 'a', label: 'Alpha' },
+            { value: 'b', label: 'Beta' },
+          ]}
+        />,
+      );
+    });
+    const textInstances = testRenderer!.root.findAll(
+      node => node.type === Text,
+    );
+    const selectedText = textInstances.find(t => t.props.children === 'Alpha');
+    const normalText = textInstances.find(t => t.props.children === 'Beta');
+
+    expect(selectedText!.props.weight).toBe('regular');
+    expect(selectedText!.props.color).toBe('default');
+    expect(normalText!.props.weight).toBe('regular');
+    expect(normalText!.props.color).toBe('secondary');
+  });
+
+  it('applies disabled color via Text props when item is disabled', () => {
+    let testRenderer: renderer.ReactTestRenderer;
+    act(() => {
+      testRenderer = renderer.create(
+        <SideBar
+          items={[
+            { value: 'a', label: 'Alpha' },
+            { value: 'b', label: 'Beta', disabled: true },
+          ]}
+        />,
+      );
+    });
+    const textInstances = testRenderer!.root.findAll(
+      node => node.type === Text,
+    );
+    const disabledText = textInstances.find(t => t.props.children === 'Beta');
+
+    expect(disabledText).toBeDefined();
+    expect(disabledText!.props.color).toBe('disabled');
+  });
+
+  it('allows external styles.sideBar to override selected state borderBottomColor', () => {
+    const customStyle = { borderBottomColor: 'purple' };
+    let testRenderer: renderer.ReactTestRenderer;
+    act(() => {
+      testRenderer = renderer.create(
+        <SideBar
+          defaultValue="a"
+          styles={{ sideBar: customStyle }}
+          items={[
+            { value: 'a', label: 'Alpha' },
+          ]}
+        />,
+      );
+    });
+    const item = testRenderer!.root.findByProps({
+      testID: 'sidebar-item-a',
+    });
+    const flatStyle = StyleSheet.flatten(item.props.style({ pressed: false }));
+
+    expect(flatStyle.borderBottomColor).toBe('purple');
+  });
+
+  it('allows external styles.label to override selected state text color', () => {
+    const customLabel = { color: 'red' };
+    let testRenderer: renderer.ReactTestRenderer;
+    act(() => {
+      testRenderer = renderer.create(
+        <SideBar
+          defaultValue="a"
+          styles={{ label: customLabel }}
+          items={[
+            { value: 'a', label: 'Alpha' },
+          ]}
+        />,
+      );
+    });
+    const textInstances = testRenderer!.root.findAll(
+      node => node.type === Text,
+    );
+    const label = textInstances.find(t => t.props.children === 'Alpha');
+    const flatStyle = StyleSheet.flatten(label!.props.style);
+
+    expect(flatStyle.color).toBe('red');
+  });
+
+  it('does not change fontWeight between selected and non-selected states', () => {
+    let testRenderer: renderer.ReactTestRenderer;
+    act(() => {
+      testRenderer = renderer.create(
+        <SideBar
+          defaultValue="a"
+          items={[
+            { value: 'a', label: 'Alpha' },
+            { value: 'b', label: 'Beta' },
+          ]}
+        />,
+      );
+    });
+    const rnTexts = testRenderer!.root.findAllByType(RNText);
+    const selectedRNText = rnTexts.find(t => t.props.children === 'Alpha');
+    const normalRNText = rnTexts.find(t => t.props.children === 'Beta');
+    const selectedStyle = StyleSheet.flatten(selectedRNText!.props.style);
+    const normalStyle = StyleSheet.flatten(normalRNText!.props.style);
+
+    expect(selectedStyle.fontWeight).toBe(normalStyle.fontWeight);
   });
 });

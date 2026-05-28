@@ -24,10 +24,10 @@ function findHeader(testRenderer: renderer.ReactTestRenderer) {
 }
 describe('ListCollapse', () => {
   it('toggles uncontrolled content and reports changes from the header', () => {
-    const onExpandedChange = jest.fn();
+    const onOpenChange = jest.fn();
     const onHeaderPress = jest.fn();
     const testRenderer = renderListCollapse({
-      onExpandedChange,
+      onOpenChange,
       onHeaderPress,
       title: 'Budget',
       children: <Text>Budget details</Text>
@@ -35,19 +35,19 @@ describe('ListCollapse', () => {
     expect(treeText(testRenderer)).not.toContain('Budget details');
     pressHeader(testRenderer);
     expect(onHeaderPress).toHaveBeenCalledTimes(1);
-    expect(onExpandedChange).toHaveBeenCalledWith(true);
+    expect(onOpenChange).toHaveBeenCalledWith(true);
     expect(treeText(testRenderer)).toContain('Budget details');
   });
-  it('uses controlled expanded value without mutating internally', () => {
-    const onExpandedChange = jest.fn();
+  it('uses controlled open value without mutating internally', () => {
+    const onOpenChange = jest.fn();
     const testRenderer = renderListCollapse({
-      expanded: false,
-      onExpandedChange,
+      open: false,
+      onOpenChange,
       title: 'Budget',
       children: <Text>Budget details</Text>
     });
     pressHeader(testRenderer);
-    expect(onExpandedChange).toHaveBeenCalledWith(true);
+    expect(onOpenChange).toHaveBeenCalledWith(true);
     expect(treeText(testRenderer)).not.toContain('Budget details');
   });
   it('blocks toggling when disabled, readonly, or loading', () => {
@@ -59,16 +59,46 @@ describe('ListCollapse', () => {
       loading: true
     }];
     states.forEach(state => {
-      const onExpandedChange = jest.fn();
+      const onOpenChange = jest.fn();
       const testRenderer = renderListCollapse({
         ...state,
-        onExpandedChange,
+        onOpenChange,
         title: 'Budget',
         children: <Text>Budget details</Text>
       });
       pressHeader(testRenderer);
-      expect(onExpandedChange).not.toHaveBeenCalled();
+      expect(onOpenChange).not.toHaveBeenCalled();
       expect(treeText(testRenderer)).not.toContain('Budget details');
     });
+  });
+  it('opens uncontrolled content with defaultOpen', () => {
+    const testRenderer = renderListCollapse({
+      defaultOpen: true,
+      title: 'Budget',
+      children: <Text>Budget details</Text>
+    });
+    expect(treeText(testRenderer)).toContain('Budget details');
+  });
+  it('renders summaryText via Text component', () => {
+    const testRenderer = renderListCollapse({
+      title: 'Budget',
+      summaryText: '2 items',
+    });
+    expect(treeText(testRenderer)).toContain('2 items');
+  });
+  it('renders summary ReactNode directly', () => {
+    const testRenderer = renderListCollapse({
+      title: 'Budget',
+      summary: <Text color="description">Custom node</Text>,
+    });
+    expect(treeText(testRenderer)).toContain('Custom node');
+  });
+  it('hides summary slot when summary is null', () => {
+    const testRenderer = renderListCollapse({
+      title: 'Budget',
+      summary: null,
+    });
+    const json = treeText(testRenderer);
+    expect(json).not.toContain('summary');
   });
 });

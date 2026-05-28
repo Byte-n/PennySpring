@@ -1,6 +1,7 @@
 import React from 'react';
 import renderer, { act } from 'react-test-renderer';
 import { Radio } from '../src/Radio';
+import { Text } from '../src/Text';
 import type { RadioGroupProps, RadioProps } from '../src/Radio';
 function renderRadio(props: Partial<RadioProps> = {}) {
   let testRenderer: renderer.ReactTestRenderer;
@@ -131,5 +132,81 @@ describe('Radio.Group', () => {
     });
     pressGroupOption(testRenderer, 30);
     expect(onChange).toHaveBeenCalledWith(30);
+  });
+  it('renders labelText as plain text and label as custom node', () => {
+    let testRenderer: renderer.ReactTestRenderer;
+    act(() => {
+      testRenderer = renderer.create(
+        <Radio.Group
+          defaultValue="a"
+          options={[
+            { value: 'a', labelText: 'Plain text' },
+            { value: 'b', label: <Text>Custom node</Text> },
+          ]}
+        />,
+      );
+    });
+    const texts = testRenderer!.root.findAllByType(Text);
+    const plainTexts = texts.filter(
+      t => typeof t.props.children === 'string' && t.props.children === 'Plain text',
+    );
+    const customTexts = texts.filter(
+      t => typeof t.props.children === 'string' && t.props.children === 'Custom node',
+    );
+    expect(plainTexts.length).toBeGreaterThanOrEqual(1);
+    expect(customTexts.length).toBeGreaterThanOrEqual(1);
+  });
+  it('renders labelText with correct Text props based on size', () => {
+    let testRenderer: renderer.ReactTestRenderer;
+    act(() => {
+      testRenderer = renderer.create(
+        <Radio.Group
+          defaultValue="a"
+          size="small"
+          options={[{ value: 'a', labelText: 'Small option' }]}
+        />,
+      );
+    });
+    const texts = testRenderer!.root.findAllByType(Text);
+    const target = texts.find(t => t.props.children === 'Small option');
+    expect(target).toBeDefined();
+    expect(target!.props.size).toBe('sm');
+    expect(target!.props.color).toBe('default');
+  });
+  it('renders disabled label text with disabled color prop', () => {
+    let testRenderer: renderer.ReactTestRenderer;
+    act(() => {
+      testRenderer = renderer.create(
+        <Radio.Group
+          defaultValue="a"
+          options={[
+            { value: 'a', labelText: 'Active' },
+            { value: 'b', labelText: 'Disabled', disabled: true },
+          ]}
+        />,
+      );
+    });
+    const texts = testRenderer!.root.findAllByType(Text);
+    const disabledText = texts.find(t => t.props.children === 'Disabled');
+    expect(disabledText).toBeDefined();
+    expect(disabledText!.props.color).toBe('disabled');
+  });
+  it('allows external styles.label to override state styles', () => {
+    const customLabelStyle = { color: '#ff0000' };
+    let testRenderer: renderer.ReactTestRenderer;
+    act(() => {
+      testRenderer = renderer.create(
+        <Radio defaultValue styles={{ label: customLabelStyle }}>
+          Label
+        </Radio>,
+      );
+    });
+    const texts = testRenderer!.root.findAllByType(Text);
+    const label = texts.find(t => t.props.children === 'Label');
+    expect(label).toBeDefined();
+    const flatStyle = Array.isArray(label!.props.style)
+      ? Object.assign({}, ...label!.props.style.filter(Boolean))
+      : label!.props.style;
+    expect(flatStyle.color).toBe('#ff0000');
   });
 });
