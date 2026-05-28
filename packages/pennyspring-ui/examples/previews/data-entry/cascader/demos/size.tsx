@@ -1,6 +1,6 @@
 import React from 'react';
 import { View } from 'react-native';
-import { Cascader, Text } from '@pennyspring/ui';
+import { Cascader, DisplayInput } from '@pennyspring/ui';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import type { CascaderOption } from '@pennyspring/ui';
 
@@ -64,9 +64,6 @@ const useStyles = createUseSheetStyle(token => ({
   stack: {
     gap: token.marginSM,
   },
-  triggerContent: {
-    gap: token.marginXXS,
-  },
 }));
 
 interface TriggerContentProps {
@@ -75,17 +72,8 @@ interface TriggerContentProps {
 }
 
 function TriggerContent({ label, value }: TriggerContentProps) {
-  const styles = useStyles();
-
   return (
-    <View style={styles.triggerContent}>
-      <Text color="description" size="sm">
-        {label}
-      </Text>
-      <Text color="heading" weight="strong">
-        {value}
-      </Text>
-    </View>
+    <DisplayInput labelText={label} readonly valueText={value} />
   );
 }
 

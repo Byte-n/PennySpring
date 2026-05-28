@@ -1,17 +1,18 @@
 import React from 'react';
-import { Textarea } from '@pennyspring/ui';
+import { Input } from '@pennyspring/ui';
 
 export const textareaBasicDemoTitle = 'Basic';
 
 export function TextareaBasicDemo() {
   return (
     <>
-      <Textarea
+      <Input
         defaultValue="A multi-line note for preview."
         helperText="Helper text stays below the field."
         labelText="Note"
         maxLength={140}
-        showCount
+        multiline
+        numberOfLines={4}
       />
     </>
   );
