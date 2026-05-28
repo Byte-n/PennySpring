@@ -27,7 +27,7 @@ function findInput(testRenderer: renderer.ReactTestRenderer) {
 }
 function findFieldStyle(testRenderer: renderer.ReactTestRenderer) {
   const field = testRenderer.root.findAll(
-    node => StyleSheet.flatten(node.props.style)?.borderWidth !== undefined,
+    node => StyleSheet.flatten(node.props.style)?.borderBottomWidth !== undefined,
   )[0];
 
   return StyleSheet.flatten(field.props.style);
@@ -69,31 +69,31 @@ describe('Input', () => {
     expect(onChange).toHaveBeenCalledWith('Wallet');
   });
 
-  it('renders label text from labelText when label node is absent', () => {
+  it('renders floating label from labelText', () => {
     const testRenderer = renderInput({ labelText: 'Account name' });
 
-    expect(JSON.stringify(testRenderer.toJSON())).toContain('Account name');
+    const label = testRenderer.root.findAll(
+      node => node.props.testID === 'input-floating-label',
+    )[0];
+
+    expect(label).toBeDefined();
+    expect(label.props.children).toBe('Account name');
   });
 
-  it('prefers label node and skips labelText when both are provided', () => {
-    const testRenderer = renderInput({
-      label: <>Custom label</>,
-      labelText: 'Text label',
-    });
+  it('appends required mark to floating label when required', () => {
+    const testRenderer = renderInput({ labelText: 'Account name', required: true });
 
-    expect(JSON.stringify(testRenderer.toJSON())).toContain('Custom label');
-    expect(JSON.stringify(testRenderer.toJSON())).not.toContain('Text label');
+    const label = testRenderer.root.findAll(
+      node => node.props.testID === 'input-floating-label',
+    )[0];
+
+    expect(label.props.children).toBe('Account name *');
   });
 
-  it('suppresses the label row when label is null', () => {
-    const testRenderer = renderInput({
-      label: null,
-      labelText: 'Text label',
-      required: true,
-    });
+  it('shows combined label and placeholder as inline placeholder when not focused and empty', () => {
+    const testRenderer = renderInput({ labelText: '账户', placeholder: '请输入' });
 
-    expect(JSON.stringify(testRenderer.toJSON())).not.toContain('Text label');
-    expect(JSON.stringify(testRenderer.toJSON())).not.toContain('*');
+    expect(findInput(testRenderer).props.placeholder).toBe('账户: 请输入');
   });
 
   it('uses helper and error node slots to control message rendering', () => {
@@ -105,7 +105,6 @@ describe('Input', () => {
       error: null,
       errorText: 'Error text',
       helperText: 'Helper text',
-      status: 'error',
     });
 
     expect(JSON.stringify(helperRenderer.toJSON())).toContain('Helper node');
@@ -184,21 +183,13 @@ describe('Input', () => {
       clearable: true
     }))).toHaveLength(0);
   });
-  it('shows error text instead of helper text only in error status', () => {
-    const errorRenderer = renderInput({
-      status: 'error',
+  it('shows error text instead of helper text when error is provided', () => {
+    const renderer = renderInput({
       helperText: 'Helper',
-      errorText: 'Error'
+      errorText: 'Error',
     });
-    const warningRenderer = renderInput({
-      status: 'warning',
-      helperText: 'Helper',
-      errorText: 'Error'
-    });
-    expect(JSON.stringify(errorRenderer.toJSON())).toContain('Error');
-    expect(JSON.stringify(errorRenderer.toJSON())).not.toContain('Helper');
-    expect(JSON.stringify(warningRenderer.toJSON())).toContain('Helper');
-    expect(JSON.stringify(warningRenderer.toJSON())).not.toContain('Error');
+    expect(JSON.stringify(renderer.toJSON())).toContain('Error');
+    expect(JSON.stringify(renderer.toJSON())).not.toContain('Helper');
   });
   it('makes disabled and readonly inputs non-editable', () => {
     expect(findInput(renderInput({
@@ -226,9 +217,9 @@ describe('Input', () => {
     const normalFieldStyle = findFieldStyle(renderInput({ size: 'normal' }));
     const largeFieldStyle = findFieldStyle(renderInput({ size: 'large' }));
 
-    expect(smallFieldStyle.paddingVertical).toBe(smallFieldStyle.paddingHorizontal / 2);
-    expect(normalFieldStyle.paddingVertical).toBe(normalFieldStyle.paddingHorizontal / 2);
-    expect(largeFieldStyle.paddingVertical).toBe(largeFieldStyle.paddingHorizontal / 2);
+    expect(smallFieldStyle.paddingTop).toBe(smallFieldStyle.paddingHorizontal / 2);
+    expect(normalFieldStyle.paddingTop).toBe(normalFieldStyle.paddingHorizontal / 2);
+    expect(largeFieldStyle.paddingTop).toBe(largeFieldStyle.paddingHorizontal / 2);
   });
   describe('Search', () => {
     it('submits the current uncontrolled text from the keyboard', () => {
