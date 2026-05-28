@@ -24,9 +24,9 @@ export function SegmentedControlledBlockDemo() {
           value={value}
           onChange={setValue}
           options={[
-            { value: 'day', label: 'Day' },
-            { value: 'week', label: 'Week' },
-            { value: 'month', label: 'Month' },
+            { value: 'day', labelText: 'Day' },
+            { value: 'week', labelText: 'Week' },
+            { value: 'month', labelText: 'Month' },
           ]}
         />
         <Text color="description" size="sm">

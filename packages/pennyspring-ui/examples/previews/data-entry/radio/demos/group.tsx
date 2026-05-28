@@ -5,9 +5,9 @@ import { createUseSheetStyle } from '@pennyspring/theme';
 import type { RadioGroupOption, RadioGroupValue } from '@pennyspring/ui';
 
 const RADIO_OPTIONS: RadioGroupOption[] = [
-  { label: 'Day', value: 'day' },
-  { label: 'Week', value: 'week' },
-  { label: 'Month', value: 'month', disabled: true },
+  { labelText: 'Day', value: 'day' },
+  { labelText: 'Week', value: 'week' },
+  { labelText: 'Month', value: 'month', disabled: true },
 ];
 
 const useStyles = createUseSheetStyle(token => ({

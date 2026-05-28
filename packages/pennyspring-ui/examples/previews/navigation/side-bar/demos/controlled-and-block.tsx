@@ -3,10 +3,10 @@ import { Space, SideBar, Text } from '@pennyspring/ui';
 import type { SideBarItem, SideBarValue } from '@pennyspring/ui';
 
 const SIDEBAR_ITEMS: SideBarItem[] = [
-  { value: 'overview', label: 'Overview' },
-  { value: 'records', label: 'Records' },
-  { value: 'budget', label: 'Budget' },
-  { value: 'settings', label: 'Settings', disabled: true },
+  { value: 'overview', labelText: 'Overview' },
+  { value: 'records', labelText: 'Records' },
+  { value: 'budget', labelText: 'Budget' },
+  { value: 'settings', labelText: 'Settings', disabled: true },
 ];
 
 export const sideBarControlledAndBlockDemoTitle = 'Controlled and block';

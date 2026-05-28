@@ -4,10 +4,10 @@ import { createUseSheetStyle } from '@pennyspring/theme';
 import type { SideBarItem } from '@pennyspring/ui';
 
 const SIDEBAR_ITEMS: SideBarItem[] = [
-  { value: 'overview', label: 'Overview' },
-  { value: 'records', label: 'Records' },
-  { value: 'budget', label: 'Budget' },
-  { value: 'settings', label: 'Settings', disabled: true },
+  { value: 'overview', labelText: 'Overview' },
+  { value: 'records', labelText: 'Records' },
+  { value: 'budget', labelText: 'Budget' },
+  { value: 'settings', labelText: 'Settings', disabled: true },
 ];
 
 const useStyles = createUseSheetStyle(token => ({

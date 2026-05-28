@@ -24,9 +24,9 @@ export function ListCollapseCollapseDemo() {
     <>
       <View style={styles.stack}>
         <ListCollapse
-          defaultExpanded
+          defaultOpen
           left={<Avatar size="small" text="M" />}
-          summary={<Text color="description">2 items</Text>}
+          summaryText="2 items"
           titleText="Expanded group"
           expandText="展开"
           collapseText="收起"
@@ -48,25 +48,21 @@ export function ListCollapseCollapseDemo() {
           <Text color="secondary">Collapsed content.</Text>
         </ListCollapse>
         <ListCollapse
-          expanded={controlledExpanded}
-          onExpandedChange={setControlledExpanded}
-          summary={
-            <Text color="description">
-              {controlledExpanded ? 'Opened' : 'Closed'}
-            </Text>
-          }
+          open={controlledExpanded}
+          onOpenChange={setControlledExpanded}
+          summaryText={controlledExpanded ? 'Opened' : 'Closed'}
           titleText="Controlled expand"
           expandText="Open"
           collapseText="Close"
         >
           <Text color="secondary">
-            This panel is controlled by expanded/onExpandedChange.
+            This panel is controlled by open/onOpenChange.
           </Text>
         </ListCollapse>
         <ListCollapse
           readonly
-          defaultExpanded
-          summary={<Text color="description">Readonly</Text>}
+          defaultOpen
+          summaryText="Readonly"
           titleText="Readonly group"
           expandText="Open"
           collapseText="Close"
@@ -77,8 +73,8 @@ export function ListCollapseCollapseDemo() {
         </ListCollapse>
         <ListCollapse
           loading
-          defaultExpanded
-          summary={<Text color="description">Loading</Text>}
+          defaultOpen
+          summaryText="Loading"
           titleText="Loading group"
           expandText="Open"
           collapseText="Close"
@@ -88,9 +84,9 @@ export function ListCollapseCollapseDemo() {
           </Text>
         </ListCollapse>
         <ListCollapse
-          defaultExpanded
+          defaultOpen
           indicator={<Text color="heading">Custom</Text>}
-          summary={<Text color="description">Override indicator</Text>}
+          summaryText="Override indicator"
           titleText="Custom indicator"
         >
           <Text color="secondary">
@@ -100,7 +96,7 @@ export function ListCollapseCollapseDemo() {
         <ListCollapse
           disabled
           titleText="Disabled group"
-          summary={<Text color="description">Locked</Text>}
+          summaryText="Locked"
         />
       </View>
     </>

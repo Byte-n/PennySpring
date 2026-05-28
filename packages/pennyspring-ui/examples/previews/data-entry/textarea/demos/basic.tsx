@@ -9,7 +9,7 @@ export function TextareaBasicDemo() {
       <Textarea
         defaultValue="A multi-line note for preview."
         helperText="Helper text stays below the field."
-        label="Note"
+        labelText="Note"
         maxLength={140}
         showCount
       />

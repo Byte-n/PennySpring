@@ -18,13 +18,13 @@ export function TextareaRowsAndStatusDemo() {
     <>
       <View style={styles.stack}>
         <Textarea
-          label="Small"
+          labelText="Small"
           size="small"
           minRows={2}
           placeholder="Small textarea"
         />
         <Textarea
-          label="Large (maxRows)"
+          labelText="Large (maxRows)"
           size="large"
           minRows={3}
           maxRows={5}
@@ -34,27 +34,27 @@ export function TextareaRowsAndStatusDemo() {
         <Textarea
           defaultValue="This value needs attention."
           errorText="Please shorten the content."
-          label="Error"
+          labelText="Error"
           status="error"
         />
         <Textarea
           defaultValue="Potential issue needs review."
           helperText="Check the content before submit."
-          label="Warning"
+          labelText="Warning"
           status="warning"
         />
         <Textarea
           defaultValue="Saved successfully."
           helperText="Content is valid."
-          label="Success"
+          labelText="Success"
           status="success"
         />
-        <Textarea label="Required" required placeholder="Required textarea" />
-        <Textarea readonly label="Readonly" defaultValue="Readonly content" />
-        <Textarea disabled label="Disabled" defaultValue="Disabled content" />
+        <Textarea labelText="Required" required placeholder="Required textarea" />
+        <Textarea readonly labelText="Readonly" defaultValue="Readonly content" />
+        <Textarea disabled labelText="Disabled" defaultValue="Disabled content" />
         <Textarea
           loading
-          label="Loading"
+          labelText="Loading"
           defaultValue="Recognizing content..."
         />
       </View>

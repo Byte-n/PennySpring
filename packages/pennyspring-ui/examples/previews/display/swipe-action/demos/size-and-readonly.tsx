@@ -50,13 +50,13 @@ export function SwipeActionSizeAndReadonlyDemo() {
       <View style={styles.stack}>
         <SwipeAction
           size="small"
-          rightActions={[{ key: 'delete', text: 'Delete' }]}
+          rightActions={[{ key: 'delete', actionText: 'Delete' }]}
         >
           <SwipeRow title="Small" description="Compact row with right action" />
         </SwipeAction>
         <SwipeAction
           size="large"
-          rightActions={[{ key: 'delete', text: 'Delete' }]}
+          rightActions={[{ key: 'delete', actionText: 'Delete' }]}
         >
           <SwipeRow
             title="Large"
@@ -65,7 +65,7 @@ export function SwipeActionSizeAndReadonlyDemo() {
         </SwipeAction>
         <SwipeAction
           readonly
-          rightActions={[{ key: 'delete', text: 'Delete' }]}
+          rightActions={[{ key: 'delete', actionText: 'Delete' }]}
         >
           <SwipeRow
             title="Readonly"

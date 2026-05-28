@@ -29,9 +29,9 @@ export function SegmentedSizeAndDisabledDemo() {
         />
         <Segmented
           options={[
-            { value: 'cash', label: 'Cash' },
-            { value: 'card', label: 'Card', disabled: true },
-            { value: 'saving', label: 'Saving' },
+            { value: 'cash', labelText: 'Cash' },
+            { value: 'card', labelText: 'Card', disabled: true },
+            { value: 'saving', labelText: 'Saving' },
           ]}
           defaultValue="cash"
         />

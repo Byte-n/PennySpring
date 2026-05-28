@@ -50,14 +50,14 @@ export function SwipeActionLeftAndRightActionsDemo() {
       <View style={styles.stack}>
         <SwipeAction
           leftActions={[
-            { key: 'light', text: 'Light', color: 'light' },
-            { key: 'weak', text: 'Weak', color: 'weak' },
-            { key: 'pin', text: 'Pin', color: 'primary' },
-            { key: 'done', text: 'Done', color: 'success' },
+            { key: 'light', actionText: 'Light', color: 'light' },
+            { key: 'weak', actionText: 'Weak', color: 'weak' },
+            { key: 'pin', actionText: 'Pin', color: 'primary' },
+            { key: 'done', actionText: 'Done', color: 'success' },
           ]}
           rightActions={[
-            { key: 'warn', text: 'Warn', color: 'warning' },
-            { key: 'delete', text: 'Delete', color: 'danger' },
+            { key: 'warn', actionText: 'Warn', color: 'warning' },
+            { key: 'delete', actionText: 'Delete', color: 'danger' },
           ]}
         >
           <SwipeRow

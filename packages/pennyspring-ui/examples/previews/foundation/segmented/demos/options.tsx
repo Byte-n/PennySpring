@@ -29,7 +29,7 @@ export function SegmentedOptionsDemo() {
           options={[
             {
               value: 'list',
-              label: 'List',
+              labelText: 'List',
               icon: (
                 <ListBulletsIcon
                   color={token.colorIcon}
@@ -39,7 +39,7 @@ export function SegmentedOptionsDemo() {
             },
             {
               value: 'grid',
-              label: 'Grid',
+              labelText: 'Grid',
               icon: (
                 <SquaresFourIcon
                   color={token.colorIcon}
@@ -49,7 +49,7 @@ export function SegmentedOptionsDemo() {
             },
             {
               value: 'chart',
-              label: 'Chart',
+              labelText: 'Chart',
               icon: (
                 <ChartLineIcon
                   color={token.colorIcon}

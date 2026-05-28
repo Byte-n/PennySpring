@@ -3,10 +3,10 @@ import { SideBar, Text } from '@pennyspring/ui';
 import type { SideBarItem } from '@pennyspring/ui';
 
 const SIDEBAR_ITEMS: SideBarItem[] = [
-  { value: 'overview', label: 'Overview' },
-  { value: 'records', label: 'Records' },
-  { value: 'budget', label: 'Budget' },
-  { value: 'settings', label: 'Settings', disabled: true },
+  { value: 'overview', labelText: 'Overview' },
+  { value: 'records', labelText: 'Records' },
+  { value: 'budget', labelText: 'Budget' },
+  { value: 'settings', labelText: 'Settings', disabled: true },
 ];
 
 export const sideBarLayoutAndSizeDemoTitle = 'Layout and size';
@@ -17,9 +17,9 @@ export function SideBarLayoutAndSizeDemo() {
       <SideBar
         items={[
           ...SIDEBAR_ITEMS,
-          { value: 'assets', label: 'Assets' },
-          { value: 'reports', label: 'Reports' },
-          { value: 'audit', label: 'Audit' },
+          { value: 'assets', labelText: 'Assets' },
+          { value: 'reports', labelText: 'Reports' },
+          { value: 'audit', labelText: 'Audit' },
         ]}
         defaultValue="overview"
         layout="scroll"

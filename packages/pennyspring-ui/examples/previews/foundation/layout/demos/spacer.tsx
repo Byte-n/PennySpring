@@ -60,11 +60,11 @@ export function LayoutSpacerDemo() {
           <DemoCell>
             <Text size="sm">A</Text>
           </DemoCell>
-          <Spacer size={32} />
+          <Spacer size="large" />
           <DemoCell>
             <Text size="sm">B</Text>
           </DemoCell>
-          <Spacer min={8} max={64} />
+          <Spacer flex={2} />
           <DemoCell>
             <Text size="sm">C</Text>
           </DemoCell>
