@@ -3,10 +3,11 @@ import {
   ActivityIndicator,
   Pressable,
   TextInput,
-  View,
 } from 'react-native';
 import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
+import { Column } from '../Column';
 import { Icon } from '../Icon';
+import { Row } from '../Row';
 import { Text } from '../Text';
 import { useControllableValue } from '../_hooks';
 import type { AliasToken } from '@pennyspring/theme';
@@ -102,10 +103,8 @@ const useStyles = createUseSheetStyle(
         gap: token.sizeXXS,
       },
       labelText: {
-        color: token.colorTextLabel,
       },
       requiredMark: {
-        color: token.colorErrorText,
       },
       field: {
         minHeight: sizeConfig.minHeight(token),
@@ -164,15 +163,9 @@ const useStyles = createUseSheetStyle(
       clearButtonPressed: {
         backgroundColor: token.colorBgTextActive,
       },
-      clearButtonLabel: {
-        color: token.colorIcon,
-        fontSize: sizeConfig.fontSize(token),
-      },
       helper: {
-        color: token.colorTextDescription,
       },
       error: {
-        color: token.colorErrorText,
       },
       loading: {
         flexShrink: 0,
@@ -256,7 +249,7 @@ function InputRoot({
   const labelContent = label !== undefined
     ? label
     : labelText !== undefined ? (
-      <Text style={[tokenStyles.labelText, styles?.labelText]}>
+      <Text color="label" style={[tokenStyles.labelText, styles?.labelText]}>
         {labelText}
       </Text>
     ) : null;
@@ -293,18 +286,18 @@ function InputRoot({
   }
 
   return (
-    <View style={[tokenStyles.root, style]}>
+    <Column style={[tokenStyles.root, style]}>
       {hasLabel ? (
-        <View style={tokenStyles.labelRow}>
+        <Row style={tokenStyles.labelRow}>
           {labelContent}
           {required === true ? (
-            <Text style={tokenStyles.requiredMark}>
+            <Text color="error" style={tokenStyles.requiredMark}>
               {REQUIRED_MARK}
             </Text>
           ) : null}
-        </View>
+        </Row>
       ) : null}
-      <View
+      <Row
         style={[
           tokenStyles.field,
           styles?.field,
@@ -316,7 +309,7 @@ function InputRoot({
         ]}
       >
         {hasPrefix ? (
-          <View style={[tokenStyles.prefix, styles?.prefix]}>{prefix}</View>
+          <Row style={[tokenStyles.prefix, styles?.prefix]}>{prefix}</Row>
         ) : null}
         <TextInput
           {...rest}
@@ -357,11 +350,12 @@ function InputRoot({
             style={tokenStyles.loading}
           />
         ) : hasSuffix ? (
-          <View style={[tokenStyles.suffix, styles?.suffix]}>{suffix}</View>
+          <Row style={[tokenStyles.suffix, styles?.suffix]}>{suffix}</Row>
         ) : null}
-      </View>
+      </Row>
       {message !== undefined && message !== null ? (
         <Text
+          color={isError ? 'error' : 'description'}
           style={[
             isError ? tokenStyles.error : tokenStyles.helper,
             isError ? styles?.error : styles?.helper,
@@ -370,7 +364,7 @@ function InputRoot({
           {message}
         </Text>
       ) : null}
-    </View>
+    </Column>
   );
 }
 

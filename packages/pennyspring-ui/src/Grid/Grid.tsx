@@ -1,7 +1,6 @@
 import React from 'react';
 import { Pressable, View } from 'react-native';
 import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
-import type { ViewStyle } from 'react-native';
 import type { AliasToken } from '@pennyspring/theme';
 import type { GridGap, GridItemProps, GridProps } from './types';
 import type { ComponentSize } from '../shares/types';
@@ -10,7 +9,6 @@ const DEFAULT_SPAN = 1;
 const MIN_COLUMNS = 1;
 const MIN_GAP = 0;
 const MIN_SPAN = 1;
-const PERCENTAGE_BASE = 100;
 const GAP_DIVISOR = 2;
 
 interface ResolvedGap {
@@ -23,12 +21,14 @@ interface GridStyleOptions {
 }
 
 interface GridItemStyleOptions {
+  containerWidth: number;
   columns: number;
   gap: ResolvedGap;
   span: number;
 }
 
 interface GridContextValue {
+  containerWidth: number;
   columns: number;
   gap: ResolvedGap;
 }
@@ -45,14 +45,15 @@ const useGridStyles = createUseSheetStyle((_, { gap }: GridStyleOptions) => ({
 }));
 
 const useGridItemStyles = createUseSheetStyle(
-  (_, { columns, gap, span }: GridItemStyleOptions) => {
-    const width = `${(PERCENTAGE_BASE / columns) * span}%` as ViewStyle['width'];
+  (_, { columns, containerWidth, gap, span }: GridItemStyleOptions) => {
+    const cellWidth = columns > 0 ? containerWidth / columns : 0;
+    const itemWidth = Math.max(MIN_GAP, cellWidth * span);
 
     return {
       item: {
         paddingHorizontal: gap.horizontal / GAP_DIVISOR,
         paddingVertical: gap.vertical / GAP_DIVISOR,
-        width,
+        width: itemWidth,
       },
     };
   },
@@ -114,11 +115,13 @@ export function GridItem({
   style,
 }: GridItemProps) {
   const context = React.useContext(GridContext);
+  const containerWidth = context?.containerWidth ?? MIN_GAP;
   const columns = context?.columns ?? MIN_COLUMNS;
   const gap = context?.gap ?? { horizontal: MIN_GAP, vertical: MIN_GAP };
   const resolvedSpan = resolveSpan(span, columns);
   const tokenStyles = useGridItemStyles({
     columns,
+    containerWidth,
     gap,
     span: resolvedSpan,
   });
@@ -151,15 +154,30 @@ export function GridRoot({
   const tokenStyles = useGridStyles({ gap: resolvedGap });
   const context = React.useMemo(
     () => ({
+      containerWidth: MIN_GAP,
       columns: resolvedColumns,
       gap: resolvedGap,
     }),
     [resolvedColumns, resolvedGap],
   );
+  const [containerWidth, setContainerWidth] = React.useState(MIN_GAP);
+  const resolvedContext = React.useMemo(
+    () => ({
+      ...context,
+      containerWidth: Math.max(MIN_GAP, containerWidth),
+    }),
+    [containerWidth, context],
+  );
 
   return (
-    <GridContext.Provider value={context}>
-      <View testID="grid" style={[tokenStyles.root, style]}>
+    <GridContext.Provider value={resolvedContext}>
+      <View
+        testID="grid"
+        onLayout={event => {
+          setContainerWidth(event.nativeEvent.layout.width);
+        }}
+        style={[tokenStyles.root, style]}
+      >
         {children}
       </View>
     </GridContext.Provider>

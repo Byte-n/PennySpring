@@ -3,6 +3,7 @@ import React, { useMemo } from 'react';
 import { Pressable, View } from 'react-native';
 import { Column } from '../Column';
 import { Row } from '../Row';
+import { Badge } from '../Badge';
 import { Text } from '../Text';
 import { useControllableValue } from '../_hooks';
 import type { ReactNode } from 'react';
@@ -77,7 +78,6 @@ function renderTitle(
 function renderBadge(
   badge: ReactNode,
   badgeStyle: StyleProp<ViewStyle>,
-  badgeTextStyle: StyleProp<TextStyle>,
 ) {
   if (badge == null || badge === false) {
     return null;
@@ -85,11 +85,7 @@ function renderBadge(
 
   if (typeof badge === 'string' || typeof badge === 'number') {
     return (
-      <View style={badgeStyle}>
-        <Text color="lightSolid" size="sm" weight="strong" style={badgeTextStyle}>
-          {badge}
-        </Text>
-      </View>
+      <Badge count={badge} style={badgeStyle} />
     );
   }
 
@@ -175,7 +171,6 @@ export function TabBar({
                 {renderBadge(
                   badgeNode,
                   [tokenStyles.badge, styles?.badge],
-                  [styles?.badgeText],
                 )}
               </Column>
             </Pressable>

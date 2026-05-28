@@ -297,8 +297,8 @@ describe('Ellipsis', () => {
       expect(content).toContain('...');
     });
 
-    test('calls onExpand callback with expanded state', () => {
-      const onExpand = jest.fn();
+    test('calls onOpenChange callback with open state', () => {
+      const onOpenChange = jest.fn();
       let renderer: ReactTestRenderer;
       act(() => {
         renderer = create(
@@ -306,7 +306,7 @@ describe('Ellipsis', () => {
             content={LONG_TEXT}
             expandText="more"
             collapseText="less"
-            onExpand={onExpand}
+            onOpenChange={onOpenChange}
             data-testid="ellipsis"
           />,
         );
@@ -321,7 +321,7 @@ describe('Ellipsis', () => {
       act(() => {
         expandButton.props.onPress();
       });
-      expect(onExpand).toHaveBeenCalledWith(true);
+      expect(onOpenChange).toHaveBeenCalledWith(true);
 
       const collapseButton = renderer!.root.findByProps({
         'data-testid': 'ellipsis-collapse',
@@ -329,7 +329,7 @@ describe('Ellipsis', () => {
       act(() => {
         collapseButton.props.onPress();
       });
-      expect(onExpand).toHaveBeenCalledWith(false);
+      expect(onOpenChange).toHaveBeenCalledWith(false);
     });
 
     test('calls onOpenChange callback with open state', () => {
@@ -372,13 +372,13 @@ describe('Ellipsis', () => {
   });
 
   describe('controlled expanded state', () => {
-    test('respects controlled expanded prop', () => {
+    test('respects controlled open prop', () => {
       let renderer: ReactTestRenderer;
       act(() => {
         renderer = create(
           <Ellipsis
             content={LONG_TEXT}
-            expanded
+            open
             collapseText="less"
             data-testid="ellipsis"
           />,

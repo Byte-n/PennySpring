@@ -288,8 +288,6 @@ export type {
   PopupStyles,
 } from './Popup';
 export {
-  HeaderBar,
-  SegmentedControl,
   TopTabNavigator,
 } from './TopTabNavigator';
 export type {

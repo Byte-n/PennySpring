@@ -1,6 +1,7 @@
 import type { ComponentSize } from '../shares/types';
 import React, { createContext, useContext } from 'react';
-import { Pressable, View } from 'react-native';
+import { Pressable } from 'react-native';
+import { Column } from '../Column';
 import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
 import { Row } from '../Row';
 import { Text } from '../Text';
@@ -120,17 +121,13 @@ const useListItemStyles = createUseSheetStyle(
         flex: 1,
       },
       title: {
-        color: token.colorTextHeading,
       },
       titleDisabled: {
-        color: token.colorTextDisabled,
       },
       description: {
         marginTop: token.marginXXS,
-        color: token.colorTextDescription,
       },
       descriptionDisabled: {
-        color: token.colorTextDisabled,
       },
       right: {},
       divider: {
@@ -235,14 +232,14 @@ export function ListItem({
     <>
       <Row align="center" gap={slotGap}>
         {isSelected ? (
-          <View style={tokenStyles.selectedMarker} testID="selected-marker" />
+          <Column style={tokenStyles.selectedMarker} testID="selected-marker" />
         ) : null}
-        {left ? <View style={[tokenStyles.left, styles?.left]}>{left}</View> : null}
-        <View style={[tokenStyles.content, styles?.content]}>{content}</View>
-        {right ? <View style={[tokenStyles.right, styles?.right]}>{right}</View> : null}
+        {left ? <Column style={[tokenStyles.left, styles?.left]}>{left}</Column> : null}
+        <Column style={[tokenStyles.content, styles?.content]}>{content}</Column>
+        {right ? <Column style={[tokenStyles.right, styles?.right]}>{right}</Column> : null}
       </Row>
       {resolvedDivider === 'none' ? null : (
-        <View style={[tokenStyles.divider, styles?.divider]} />
+        <Column style={[tokenStyles.divider, styles?.divider]} />
       )}
     </>
   );
@@ -270,9 +267,9 @@ export function ListItem({
   }
 
   return (
-    <View style={itemStyle}>
+    <Column style={itemStyle}>
       {itemContent}
-    </View>
+    </Column>
   );
 }
 
@@ -306,25 +303,25 @@ export function ListRoot({
 
   return (
     <ListContext.Provider value={contextValue}>
-      <View style={[tokenStyles.root, style]}>
+      <Column style={[tokenStyles.root, style]}>
         {header ? (
-          <View style={[tokenStyles.header, styles?.header]}>{header}</View>
+          <Column style={[tokenStyles.header, styles?.header]}>{header}</Column>
         ) : null}
         {isChildrenEmpty(content) ? null : content}
         {loading ? (
-          <View style={[tokenStyles.loading, styles?.loading]}>
+          <Column style={[tokenStyles.loading, styles?.loading]}>
             {loadingContent ?? (loadingText === undefined ? null : (
               <Text color="secondary">{loadingText}</Text>
             ))}
-          </View>
+          </Column>
         ) : null}
         {shouldRenderEmpty ? (
-          <View style={[tokenStyles.empty, styles?.empty]}>{empty}</View>
+          <Column style={[tokenStyles.empty, styles?.empty]}>{empty}</Column>
         ) : null}
         {footer ? (
-          <View style={[tokenStyles.footer, styles?.footer]}>{footer}</View>
+          <Column style={[tokenStyles.footer, styles?.footer]}>{footer}</Column>
         ) : null}
-      </View>
+      </Column>
     </ListContext.Provider>
   );
 }

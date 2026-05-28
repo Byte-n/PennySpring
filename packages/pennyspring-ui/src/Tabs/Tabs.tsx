@@ -7,6 +7,7 @@ import { Text } from '../Text';
 import { useControllableValue } from '../_hooks';
 import { useStyles } from './style';
 import type { ReactNode } from 'react';
+import type { StyleProp, TextStyle } from 'react-native';
 import type { TextColor, TextSize } from '../Text';
 import type { TabsItem, TabsProps, TabsValue } from './types';
 
@@ -39,7 +40,7 @@ function renderLabel(
   size: TextSize,
   weight: 'regular' | 'strong',
   color: TextColor,
-  style: TabsProps['styles'],
+  style: StyleProp<TextStyle>,
 ) {
   if (label === undefined || label === null || label === false) {
     return null;
@@ -47,7 +48,7 @@ function renderLabel(
 
   if (typeof label === 'string' || typeof label === 'number') {
     return (
-      <Text color={color} size={size} style={style?.label} weight={weight}>
+      <Text color={color} size={size} style={style} weight={weight}>
         {label}
       </Text>
     );
@@ -109,13 +110,11 @@ function renderItem(
         itemDisabled ? styles?.tabDisabled : null,
       ]}
     >
-      {renderLabel(
-        getLabel(item),
-        size,
-        labelWeight,
-        labelColor,
-        styles,
-      )}
+      {renderLabel(getLabel(item), size, labelWeight, labelColor, [
+        styles?.label,
+        isSelected ? styles?.labelActive : null,
+        itemDisabled ? styles?.labelDisabled : null,
+      ])}
     </Pressable>
   );
 }

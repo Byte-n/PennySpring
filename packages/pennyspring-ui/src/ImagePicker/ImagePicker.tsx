@@ -35,7 +35,7 @@ const DEFAULT_SINGLE_HINT_TEXT = '最多1张';
 const DEFAULT_SELECTED_TEXT = '已选择';
 const DEFAULT_UNSELECTED_TEXT = '未选择';
 const DEFAULT_MAX_COUNT = 1;
-const DEFAULT_PANEL_HEIGHT = '45%';
+const DEFAULT_PANEL_HEIGHT = '50%';
 const DEFAULT_SOURCES: ImagePickerSource[] = ['camera', 'photo'];
 const IMAGE_GRID_COLUMNS = 3;
 
@@ -265,6 +265,7 @@ export function ImagePicker({
       <Row style={[tokenStyles.popupHeader, styles?.popupHeader]}>
         <Column style={[tokenStyles.popupTitleArea, styles?.popupTitleArea]}>
           <Text
+            color="heading"
             size="xl"
             weight="strong"
             style={[tokenStyles.popupTitle, styles?.popupTitle]}
@@ -273,6 +274,7 @@ export function ImagePicker({
             {titleText}
           </Text>
           <Text
+            color="secondary"
             style={[tokenStyles.popupSubtitle, styles?.popupSubtitle]}
             testID="image-picker-panel-subtitle"
           >
@@ -309,7 +311,7 @@ export function ImagePicker({
     if (selectedValues.length === 0) {
       return (
         <Column style={[tokenStyles.empty, styles?.empty]}>
-          <Text style={[tokenStyles.emptyText, styles?.emptyText]}>
+          <Text color="tertiary" style={[tokenStyles.emptyText, styles?.emptyText]}>
             {emptyText}
           </Text>
         </Column>

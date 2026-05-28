@@ -70,10 +70,8 @@ export const useStyles = createUseSheetStyle(
         gap: token.marginXXS,
       },
       label: {
-        color: token.colorTextLabel,
       },
       requiredMark: {
-        color: token.colorErrorText,
       },
       field: {
         minHeight: sizeConfig.minHeight(token),
@@ -106,9 +104,6 @@ export const useStyles = createUseSheetStyle(
         flexShrink: 1,
         minWidth: 0,
         fontFamily: token.fontFamily,
-        fontSize: sizeConfig.fontSize(token),
-        lineHeight: sizeConfig.lineHeight(token),
-        color: token.colorText,
       },
       valueContainer: {
         flexGrow: display === 'inline' ? 0 : 1,
@@ -122,16 +117,12 @@ export const useStyles = createUseSheetStyle(
         overflow: 'visible',
       },
       valueDisabled: {
-        color: token.colorTextDisabled,
       },
       placeholder: {
-        color: token.colorTextPlaceholder,
       },
       helper: {
-        color: token.colorTextDescription,
       },
       error: {
-        color: token.colorErrorText,
       },
     };
   },

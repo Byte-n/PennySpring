@@ -1,6 +1,8 @@
 import type { ComponentSize } from '../shares/types';
 import React, { useMemo } from 'react';
 import { Pressable, View } from 'react-native';
+import { Column } from '../Column';
+import { Row } from '../Row';
 import { Text } from '../Text';
 import { useControllableValue } from '../_hooks';
 import type { ReactNode } from 'react';
@@ -141,7 +143,7 @@ function CheckboxControl({
         rootStyle,
       ]}
     >
-      <View style={[tokenStyles.content, optionStyle?.content]}>
+      <Row style={[tokenStyles.content, optionStyle?.content]}>
         {shouldRenderIndicator ? (
           <View
             testID={
@@ -174,7 +176,7 @@ function CheckboxControl({
           </View>
         ) : null}
         {label}
-      </View>
+      </Row>
     </Pressable>
   );
 }
@@ -267,32 +269,61 @@ function CheckboxGroup({
   }
 
   return (
-    <View testID="checkbox-group-root" style={[tokenStyles.groupRoot, style]}>
-      {options.map(option => {
-        const isSelected = includesValue(safeSelectedValues, option.value);
+    direction === 'horizontal' ? (
+      <Row testID="checkbox-group-root" wrap style={[tokenStyles.groupRoot, style]}>
+        {options.map(option => {
+          const isSelected = includesValue(safeSelectedValues, option.value);
 
-        return (
-          <CheckboxControl
-            {...rest}
-            key={String(option.value)}
-            block={block}
-            checked={isSelected}
-            controlStyle={styles?.option}
-            disabled={disabled || option.disabled === true}
-            displayType={displayType}
-            optionStyle={styles}
-            readonly={readonly}
-            size={size}
-            testID={`checkbox-group-option-${String(option.value)}`}
-            onToggle={() => {
-              toggleOption(option);
-            }}
-          >
-            {getOptionLabel(option)}
-          </CheckboxControl>
-        );
-      })}
-    </View>
+          return (
+            <CheckboxControl
+              {...rest}
+              key={String(option.value)}
+              block={block}
+              checked={isSelected}
+              controlStyle={styles?.option}
+              disabled={disabled || option.disabled === true}
+              displayType={displayType}
+              optionStyle={styles}
+              readonly={readonly}
+              size={size}
+              testID={`checkbox-group-option-${String(option.value)}`}
+              onToggle={() => {
+                toggleOption(option);
+              }}
+            >
+              {getOptionLabel(option)}
+            </CheckboxControl>
+          );
+        })}
+      </Row>
+    ) : (
+      <Column testID="checkbox-group-root" style={[tokenStyles.groupRoot, style]}>
+        {options.map(option => {
+          const isSelected = includesValue(safeSelectedValues, option.value);
+
+          return (
+            <CheckboxControl
+              {...rest}
+              key={String(option.value)}
+              block={block}
+              checked={isSelected}
+              controlStyle={styles?.option}
+              disabled={disabled || option.disabled === true}
+              displayType={displayType}
+              optionStyle={styles}
+              readonly={readonly}
+              size={size}
+              testID={`checkbox-group-option-${String(option.value)}`}
+              onToggle={() => {
+                toggleOption(option);
+              }}
+            >
+              {getOptionLabel(option)}
+            </CheckboxControl>
+          );
+        })}
+      </Column>
+    )
   );
 }
 

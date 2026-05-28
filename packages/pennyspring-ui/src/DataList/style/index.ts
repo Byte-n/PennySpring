@@ -22,48 +22,36 @@ export const useStyles = createUseSheetStyle(
   (token, { size }: DataListStyleOptions) => {
     if (size === 'small') {
       return {
-        completeText: {
-          color: token.colorTextTertiary,
-        },
+        completeText: {},
         footer: {
           alignItems: 'center',
           justifyContent: 'center',
           paddingVertical: token.paddingXS / 2,
         },
-        loadingMoreText: {
-          color: token.colorTextSecondary,
-        },
+        loadingMoreText: {},
       };
     }
 
     if (size === 'large') {
       return {
-        completeText: {
-          color: token.colorTextTertiary,
-        },
+        completeText: {},
         footer: {
           alignItems: 'center',
           justifyContent: 'center',
           paddingVertical: token.paddingMD / 2,
         },
-        loadingMoreText: {
-          color: token.colorTextSecondary,
-        },
+        loadingMoreText: {},
       };
     }
 
     return {
-      completeText: {
-        color: token.colorTextTertiary,
-      },
+      completeText: {},
       footer: {
         alignItems: 'center',
         justifyContent: 'center',
         paddingVertical: token.paddingSM / 2,
       },
-      loadingMoreText: {
-        color: token.colorTextSecondary,
-      },
+      loadingMoreText: {},
     };
   },
 );

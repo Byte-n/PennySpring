@@ -18,50 +18,47 @@ interface DividerStyleOptions {
   size: ComponentSize;
 }
 
+type ContentLinePosition = DividerContentPosition | 'none';
+
 interface DividerSizeStyleConfig {
   contentPaddingHorizontal: (token: AliasToken) => number;
+  lineHeight: (token: AliasToken) => number;
   marginHorizontal: (token: AliasToken) => number;
   marginVertical: (token: AliasToken) => number;
-  fontSize: (token: AliasToken) => number;
-  lineHeight: (token: AliasToken) => number;
 }
 
 const SIZE_STYLE_MAP: Record<ComponentSize, DividerSizeStyleConfig> = {
   small: {
     contentPaddingHorizontal: token => token.paddingXS,
+    lineHeight: token => token.lineHeightSM,
     marginHorizontal: token => token.marginSM,
     marginVertical: token => token.marginSM / 2,
-    fontSize: token => token.fontSizeSM,
-    lineHeight: token => token.lineHeightSM,
   },
   normal: {
     contentPaddingHorizontal: token => token.paddingMD,
+    lineHeight: token => token.lineHeightSM,
     marginHorizontal: token => token.margin,
     marginVertical: token => token.margin / 2,
-    fontSize: token => token.fontSizeSM,
-    lineHeight: token => token.lineHeightSM,
   },
   large: {
     contentPaddingHorizontal: token => token.paddingLG,
+    lineHeight: token => token.lineHeight,
     marginHorizontal: token => token.marginMD,
     marginVertical: token => token.marginMD / 2,
-    fontSize: token => token.fontSize,
-    lineHeight: token => token.lineHeight,
   },
 };
-
-const CONTENT_LINE_MAX_WIDTH: `${number}%` = '10%';
 
 const useStyles = createUseSheetStyle(
   (token, options: DividerStyleOptions) => {
     const sizeConfig = SIZE_STYLE_MAP[options.size];
     const isHorizontal = options.direction === 'horizontal';
-    const maxWidth =
-      options.hasContent && options.contentPosition !== 'center'
-        ? CONTENT_LINE_MAX_WIDTH
-        : undefined;
-    const startLineMaxWidth = options.contentPosition === 'left' ? maxWidth : undefined;
-    const endLineMaxWidth = options.contentPosition === 'right' ? maxWidth : undefined;
+    const contentLinePosition: ContentLinePosition = options.hasContent
+      ? options.contentPosition
+      : 'none';
+    const startLineFlexGrow =
+      contentLinePosition === 'left' ? 0 : 1;
+    const endLineFlexGrow =
+      contentLinePosition === 'right' ? 0 : 1;
 
     return {
       root: {
@@ -77,25 +74,17 @@ const useStyles = createUseSheetStyle(
       firstLine: {
         borderTopColor: token.colorSplit,
         borderTopWidth: isHorizontal ? token.lineWidth : 0,
-        flexGrow: isHorizontal ? 1 : 0,
-        maxWidth: startLineMaxWidth,
+        flexGrow: isHorizontal ? startLineFlexGrow : 0,
       },
       secondLine: {
         borderTopColor: token.colorSplit,
         borderTopWidth: isHorizontal ? token.lineWidth : 0,
-        flexGrow: isHorizontal ? 1 : 0,
-        maxWidth: endLineMaxWidth,
+        flexGrow: isHorizontal ? endLineFlexGrow : 0,
       },
       contentContainer: {
         paddingHorizontal: isHorizontal
           ? sizeConfig.contentPaddingHorizontal(token)
           : 0,
-      },
-      contentText: {
-        color: token.colorTextDescription,
-        fontFamily: token.fontFamily,
-        fontSize: sizeConfig.fontSize(token),
-        lineHeight: sizeConfig.lineHeight(token),
       },
     };
   },
@@ -137,7 +126,9 @@ export function Divider({
       {shouldRenderContent ? (
         <View style={tokenStyles.contentContainer}>
           {typeof children === 'string' || typeof children === 'number' ? (
-            <Text style={[tokenStyles.contentText, styles?.content]}>{children}</Text>
+            <Text color="description" size={size === 'small' ? 'sm' : size === 'large' ? 'lg' : 'md'} style={[styles?.content]}>
+              {children}
+            </Text>
           ) : (
             renderContent(children)
           )}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Pressable, View } from 'react-native';
+import { Pressable } from 'react-native';
 import { Column } from '../Column';
 import { Row } from '../Row';
 import { Text } from '../Text';
@@ -103,7 +103,7 @@ export function DisplayInput({
 
     if (hasLabelText) {
       return (
-        <Text style={[tokenStyles.label, styles?.label]}>
+        <Text color="label" style={[tokenStyles.label, styles?.label]}>
           {labelText}
         </Text>
       );
@@ -118,7 +118,7 @@ export function DisplayInput({
         <Row align="center" style={tokenStyles.labelRow}>
           {renderLabel()}
           {required === true ? (
-            <Text style={tokenStyles.requiredMark}>
+            <Text color="error" style={tokenStyles.requiredMark}>
               {REQUIRED_MARK}
             </Text>
           ) : null}
@@ -136,10 +136,10 @@ export function DisplayInput({
       >
         <Row align="center" style={tokenStyles.fieldContent}>
           {hasPrefix ? (
-            <View style={[tokenStyles.prefix, styles?.prefix]}>{prefix}</View>
+            <Row style={[tokenStyles.prefix, styles?.prefix]}>{prefix}</Row>
           ) : null}
           {hasCustomValue && !isTextLikeValue(children) ? (
-            <View
+            <Column
               style={[
                 tokenStyles.valueContainer,
                 resolvedOverflow === 'hidden'
@@ -149,9 +149,11 @@ export function DisplayInput({
               ]}
             >
               {children}
-            </View>
+            </Column>
           ) : (
             <Text
+              color={isDisabled ? 'disabled' : !hasDisplayText ? 'placeholder' : 'default'}
+              size={resolvedSize === 'small' ? 'sm' : resolvedSize === 'large' ? 'lg' : 'md'}
               ellipsizeMode={resolvedOverflow === 'hidden' ? 'tail' : undefined}
               numberOfLines={resolvedOverflow === 'hidden' ? 1 : undefined}
               style={[
@@ -166,12 +168,13 @@ export function DisplayInput({
             </Text>
           )}
           {hasSuffix ? (
-            <View style={[tokenStyles.suffix, styles?.suffix]}>{suffix}</View>
+            <Row style={[tokenStyles.suffix, styles?.suffix]}>{suffix}</Row>
           ) : null}
         </Row>
       </Pressable>
       {message !== undefined && message !== null ? (
         <Text
+          color={isError ? 'error' : 'description'}
           style={[
             isError ? tokenStyles.error : tokenStyles.helper,
             isError ? styles?.error : styles?.helper,

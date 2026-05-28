@@ -1,5 +1,7 @@
 import React from 'react';
-import { Pressable, View } from 'react-native';
+import { Pressable } from 'react-native';
+import { Column } from '../Column';
+import { Row } from '../Row';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import { Text } from '../Text';
 import { useControllableValue } from '../_hooks';
@@ -67,10 +69,8 @@ const useListCollapseStyles = createUseSheetStyle(
       },
       title: {
         flex: 1,
-        color: token.colorTextHeading,
       },
       summaryText: {
-        color: token.colorTextDescription,
       },
       summary: {
         marginLeft: slotGap,
@@ -100,7 +100,7 @@ function renderTextNode(node: ReactNode, style: StyleProp<TextStyle>) {
   }
 
   if (typeof node === 'string' || typeof node === 'number') {
-    return <Text style={style}>{node}</Text>;
+    return <Text color="heading" style={style}>{node}</Text>;
   }
 
   return node;
@@ -155,7 +155,7 @@ export function ListCollapse({
   );
 
   return (
-    <View style={[tokenStyles.root, style]}>
+    <Column style={[tokenStyles.root, style]}>
       <Pressable
         onPress={handleHeaderPress}
         style={({ pressed }) => [
@@ -165,19 +165,19 @@ export function ListCollapse({
           styles?.header,
         ]}
       >
-        {left ? <View style={[tokenStyles.left, styles?.left]}>{left}</View> : null}
+        {left ? <Row style={[tokenStyles.left, styles?.left]}>{left}</Row> : null}
         {title ?? renderTextNode(titleText, [tokenStyles.title, styles?.titleText])}
         {summaryText !== undefined ? (
-          <Text style={[tokenStyles.summaryText, styles?.summaryText]}>{summaryText}</Text>
+          <Text color="description" style={[tokenStyles.summaryText, styles?.summaryText]}>{summaryText}</Text>
         ) : summary !== undefined && summary !== null ? (
-          <View style={[tokenStyles.summary, styles?.summary]}>{summary}</View>
+          <Row style={[tokenStyles.summary, styles?.summary]}>{summary}</Row>
         ) : null}
         {indicatorNode === null ? null : (
-          <View style={[tokenStyles.indicator, styles?.indicator]}>{indicatorNode}</View>
+          <Row style={[tokenStyles.indicator, styles?.indicator]}>{indicatorNode}</Row>
         )}
       </Pressable>
       {isOpen ? (
-        <View
+        <Column
           style={[
             tokenStyles.content,
             styles?.content,
@@ -185,8 +185,8 @@ export function ListCollapse({
           ]}
         >
           {children}
-        </View>
+        </Column>
       ) : null}
-    </View>
+    </Column>
   );
 }

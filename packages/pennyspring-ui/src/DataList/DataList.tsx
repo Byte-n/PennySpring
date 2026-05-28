@@ -125,6 +125,7 @@ function DataListInner<ItemT>({
         <Column style={[tokenStyles.footer, styles?.footer, styles?.complete]}>
           {complete ?? (
             <Text
+              color="tertiary"
               size={resolveTextSize(resolvedSize)}
               style={[tokenStyles.completeText, styles?.completeText]}
             >

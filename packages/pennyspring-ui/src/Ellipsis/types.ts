@@ -21,12 +21,6 @@ export interface EllipsisProps {
   open?: boolean;
   /** Callback when open state changes */
   onOpenChange?: (open: boolean) => void;
-  /** @deprecated Use defaultOpen instead. */
-  defaultExpanded?: boolean;
-  /** @deprecated Use open instead. */
-  expanded?: boolean;
-  /** @deprecated Use onOpenChange instead. */
-  onExpand?: (expanded: boolean) => void;
   /** Size of the component @default 'normal' */
   size?: ComponentSize;
   /** Custom styles for internal elements */

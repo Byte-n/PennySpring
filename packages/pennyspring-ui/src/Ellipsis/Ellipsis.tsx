@@ -56,10 +56,7 @@ const useStyles = createUseSheetStyle(
         color: token.colorText,
       },
       action: {
-        color: token.colorPrimary,
         fontFamily: token.fontFamily,
-        fontSize: config.fontSize(token),
-        lineHeight: config.lineHeight(token),
       },
       measure: {
         position: 'absolute',
@@ -141,9 +138,6 @@ export function Ellipsis({
   defaultOpen,
   open,
   onOpenChange,
-  defaultExpanded = false,
-  expanded: expandedProp,
-  onExpand,
   size = 'normal',
   styles: stylesProp,
   style,
@@ -152,20 +146,10 @@ export function Ellipsis({
   const styles = useStyles({ size });
   const safeRows = Math.max(1, Math.floor(rows));
   const textSize = TEXT_SIZE_MAP[size];
-  const mergedDefaultOpen = defaultOpen ?? defaultExpanded;
-  const mergedOpen = open ?? expandedProp;
-  const handleOpenChange = useCallback(
-    (nextOpen: boolean) => {
-      onOpenChange?.(nextOpen);
-      onExpand?.(nextOpen);
-    },
-    [onOpenChange, onExpand],
-  );
-
   const [expanded, setExpanded] = useControllableValue(
-    mergedDefaultOpen,
-    mergedOpen,
-    handleOpenChange,
+    defaultOpen,
+    open,
+    onOpenChange,
   );
 
   // Measurement state
@@ -281,7 +265,7 @@ export function Ellipsis({
         onPress={handleExpand}
         data-testid={testId ? `${testId}-expand` : undefined}
       >
-        <Text style={actionStyle}>{expandText}</Text>
+        <Text color="primary" size={textSize} style={actionStyle}>{expandText}</Text>
       </Pressable>
     ) : null;
 
@@ -291,7 +275,7 @@ export function Ellipsis({
         onPress={handleCollapse}
         data-testid={testId ? `${testId}-collapse` : undefined}
       >
-        <Text style={actionStyle}>{collapseText}</Text>
+        <Text color="primary" size={textSize} style={actionStyle}>{collapseText}</Text>
       </Pressable>
     ) : null;
 

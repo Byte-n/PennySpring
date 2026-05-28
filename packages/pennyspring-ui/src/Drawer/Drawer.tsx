@@ -46,7 +46,7 @@ const DEFAULT_DRAWER_POSITION: DrawerPosition = 'left';
 const DEFAULT_DRAWER_TYPE: DrawerType = 'front';
 const FULLY_CLOSED_PROGRESS = 0;
 const FULLY_OPEN_PROGRESS = 1;
-const DEFAULT_DRAWER_WIDTH = '70%';
+const DEFAULT_DRAWER_WIDTH_RATIO = 0.7;
 const SWIPE_DISTANCE_RATIO = 0.5;
 const SWIPE_VELOCITY_THRESHOLD = 400;
 const HORIZONTAL_SWIPE_THRESHOLD = 8;
@@ -171,9 +171,8 @@ function DrawerComponent({
   open,
   styles: slotStyles,
   swipeEnabled = true,
-  width = DEFAULT_DRAWER_WIDTH,
+  width,
 }: DrawerComponentProps) {
-  const tokenStyles = useStyles({ position: drawerPosition, width });
   const { token } = useTheme();
   const { width: windowWidth } = useWindowDimensions();
   const lastKnownWindowWidthRef = useRef(Dimensions.get('window').width);
@@ -194,7 +193,9 @@ function DrawerComponent({
     isOpen ? FULLY_OPEN_PROGRESS : FULLY_CLOSED_PROGRESS,
   );
   const progress = externalProgress ?? internalProgress;
-  const drawerWidth = resolveDrawerWidthPx(width, lastKnownWindowWidthRef.current);
+  const resolvedWidth = width ?? Math.round(lastKnownWindowWidthRef.current * DEFAULT_DRAWER_WIDTH_RATIO);
+  const tokenStyles = useStyles({ position: drawerPosition, width: resolvedWidth });
+  const drawerWidth = resolveDrawerWidthPx(resolvedWidth, lastKnownWindowWidthRef.current);
 
   const setProgressForOpenState = useCallback(
     (nextOpen: boolean): void => {
@@ -381,7 +382,7 @@ function DrawerLayout({
   style,
   styles,
   swipeEnabled,
-  width = DEFAULT_DRAWER_WIDTH,
+  width = Math.round(Dimensions.get('window').width * DEFAULT_DRAWER_WIDTH_RATIO),
 }: DrawerLayoutProps) {
   const tokenStyles = useStyles({ position: drawerPosition, width });
   const [isOpen, setOpen] = useDrawerOpenState({

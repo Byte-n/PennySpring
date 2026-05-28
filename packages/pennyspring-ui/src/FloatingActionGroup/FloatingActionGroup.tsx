@@ -16,6 +16,7 @@ import {
   type AliasToken,
 } from '@pennyspring/theme';
 import { Button } from '../Button';
+import { Column } from '../Column';
 import type { ButtonColor, ButtonProps, ButtonVariant } from '../Button';
 import type { IconComponent, IconName } from '../Icon';
 import { PortalContext } from '../Portal/Portal';
@@ -61,6 +62,8 @@ interface FloatingActionButtonProps {
 const DEFAULT_VISIBLE_COUNT = 1;
 const DEFAULT_PLACEMENT = 'bottomRight' as const;
 const DEFAULT_SIZE = 'normal' as const;
+const HIDDEN_SCALE_START = 0.8;
+const HIDDEN_SCALE_DELTA = 0.2;
 
 const BUTTON_SIZE_STYLES: Record<
   ComponentSize,
@@ -252,7 +255,7 @@ function HiddenActionItem({
       transform: [
         { translateX: baseTransform.x * progress.value },
         { translateY: baseTransform.y * progress.value },
-        { scale: 0.8 + progress.value * 0.2 },
+        { scale: HIDDEN_SCALE_START + progress.value * HIDDEN_SCALE_DELTA },
       ],
     };
   }, [
@@ -386,7 +389,7 @@ export function FloatingActionGroup({
         style={[tokenStyles.root, style, styles?.root, styles?.container]}
         testID="floating-action-group-container"
       >
-        <View pointerEvents="box-none" style={tokenStyles.hiddenLayer}>
+        <Column style={tokenStyles.hiddenLayer}>
           {hiddenActions.map((action, index) => (
             <HiddenActionItem
               action={action}
@@ -403,7 +406,7 @@ export function FloatingActionGroup({
               size={size}
             />
           ))}
-        </View>
+        </Column>
         {placement.startsWith('bottom') && hasMore ? (
           <FloatingActionButton
             label={expanded ? '收起' : '更多'}

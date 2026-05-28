@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { View } from 'react-native';
+import { Column } from '../Column';
 import { Picker } from '../Picker';
 import { Tabs } from '../Tabs';
 import { useControllableValue } from '../_hooks';
@@ -212,7 +212,7 @@ function getTabLabel<TData>(
     return tab.labelText;
   }
 
-  return `Tab ${tab.tabKey}`;
+  return `选项 ${tab.tabKey}`;
 }
 
 function isTabDisabled<TData, TTabKey extends CascadePickerTabKey>(
@@ -391,7 +391,7 @@ export function CascadePicker<TData = unknown, TTabKey extends CascadePickerTabK
     const tabItems = buildTabItems(tabs);
 
     return (
-      <View>
+      <Column>
         {header}
         <Tabs
           block
@@ -401,7 +401,7 @@ export function CascadePicker<TData = unknown, TTabKey extends CascadePickerTabK
           style={props.styles?.tabs}
           value={resolvedActiveTabKey as TabsValue | undefined}
         />
-      </View>
+      </Column>
     );
   };
 

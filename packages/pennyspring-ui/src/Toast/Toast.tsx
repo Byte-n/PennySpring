@@ -24,7 +24,6 @@ import { SIZE_TOKEN_MAP, useStyles } from './style';
 const DEFAULT_DURATION = 2000;
 const DEFAULT_SIZE: ComponentSize = 'normal';
 const DEFAULT_PLACEMENT: ToastPlacement = 'bottom';
-const HIDDEN_OFFSET_RATIO = 0.6;
 
 interface ToastBodyProps extends ToastShowOptions {
   isOpen: boolean;
@@ -45,6 +44,7 @@ function ToastBody({
   const tokenStyles = useStyles({ placement, size });
   const { token } = useTheme();
   const progress = useSharedValue(0);
+  const [contentHeight, setContentHeight] = React.useState(0);
   const timerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const closedRef = React.useRef(false);
 
@@ -101,21 +101,29 @@ function ToastBody({
     };
   }, [duration, handleClosed, isOpen, progress, token.motionDurationMid, token.motionEaseInOut]);
 
-  const animatedStyle = useAnimatedStyle(() => ({
-    opacity: progress.value,
-    transform: [
-      ...(placement === 'center'
-        ? [{ translateY: -token.controlHeight * HIDDEN_OFFSET_RATIO }]
-        : []),
-      {
-        translateY: (1 - progress.value) * token.controlHeight * HIDDEN_OFFSET_RATIO,
-      },
-    ],
-  }));
+  const animatedStyle = useAnimatedStyle(() => {
+    const hiddenOffset = contentHeight > 0 ? contentHeight : token.controlHeight;
+
+    return {
+      opacity: progress.value,
+      transform: [
+        ...(placement === 'center'
+          ? [{ translateY: -hiddenOffset }]
+          : []),
+        {
+          translateY: (1 - progress.value) * hiddenOffset,
+        },
+      ],
+    };
+  });
 
   return (
     <Animated.View
       pointerEvents="box-none"
+      onLayout={event => {
+        const nextHeight = event.nativeEvent.layout.height;
+        setContentHeight(nextHeight);
+      }}
       style={[
         tokenStyles.content,
         style,
