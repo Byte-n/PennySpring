@@ -59,11 +59,6 @@ export interface InputProps
   size?: ComponentSize;
 
   /**
-   * Validation display status. Defaults to default.
-   */
-  status?: InputStatus;
-
-  /**
    * Initial uncontrolled field value.
    */
   defaultValue?: string;
