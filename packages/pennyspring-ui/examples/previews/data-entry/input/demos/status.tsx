@@ -9,7 +9,7 @@ const useStyles = createUseSheetStyle(token => ({
   },
 }));
 
-export const inputStatusDemoTitle = 'Status';
+export const inputStatusDemoTitle = 'Floating Label';
 
 export function InputStatusDemo() {
   const styles = useStyles();
@@ -18,22 +18,18 @@ export function InputStatusDemo() {
     <>
       <View style={styles.stack}>
         <Input
-          labelText="Error"
-          status="error"
-          errorText="Invalid value"
-          defaultValue="100.00"
+          labelText="账户名称"
+          placeholder="请输入账户名称"
         />
         <Input
-          labelText="Warning"
-          status="warning"
-          helperText="Please review this value"
-          defaultValue="42"
+          labelText="备注"
+          placeholder="可选"
+          helperText="最多 100 字"
         />
         <Input
-          labelText="Success"
-          status="success"
-          helperText="Looks good"
-          defaultValue="Ready"
+          labelText="金额"
+          placeholder="0.00"
+          errorText="请输入有效金额"
         />
       </View>
     </>
