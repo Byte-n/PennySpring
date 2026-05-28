@@ -45,12 +45,12 @@
 [41/62] Popup ✓
 [42/62] Portal ✓
 [43/62] Progress ✓
-[44/62] Radio ✓（存量已修复）
+[44/62] Radio ✓
 [45/62] Result ✓
-[46/62] Row ✓（存量已修复）
-[47/62] Segmented ✓（存量已修复）
-[48/62] SideBar ✓（存量已修复）
-[49/62] Skeleton ✓（存量已修复）
+[46/62] Row ✓
+[47/62] Segmented ✓
+[48/62] SideBar ✓
+[49/62] Skeleton ✓
 [50/61] Steps ✓
 [51/62] Radio ✓
 [52/62] Result ✓
@@ -59,7 +59,7 @@
 [55/62] SideBar ✓
 [56/62] Skeleton ✓
 [57/62] Slider ✓
-[58/62] Space ✓（部分通过）
+[58/62] Space ✓
 [59/62] Spacer ✓
 [60/62] Stepper ✓
 [61/62] Textarea ✓
@@ -71,7 +71,7 @@
 [55/61] Tag ✓
 [56/61] Text ✓
 [57/61] Textarea ✓
-[58/61] TimePicker ✓ (已通过)
+[58/61] TimePicker ✓
 [59/61] Toast ✓
 [60/61] TopTabNavigator ✓
 
