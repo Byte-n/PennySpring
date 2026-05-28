@@ -1,5 +1,6 @@
 import { View, type StyleProp, type ViewStyle } from 'react-native';
 
+import { Row } from '../Row';
 import type { CarouselProps, CarouselStyles } from './types';
 
 interface CarouselIndicatorProps {
@@ -21,7 +22,12 @@ export const CarouselIndicator = (props: CarouselIndicatorProps) => {
   }
 
   return (
-    <View style={[styles.indicatorContainer, externalStyles?.indicator]}>
+    <Row
+      align="center"
+      justify="center"
+      style={[styles.indicatorContainer, externalStyles?.indicator]}
+      testID="carousel-indicator"
+    >
       {Array.from({ length: total }, (_, i) => {
         const isActive = i === current;
         return (
@@ -36,6 +42,6 @@ export const CarouselIndicator = (props: CarouselIndicatorProps) => {
           />
         );
       })}
-    </View>
+    </Row>
   );
 };

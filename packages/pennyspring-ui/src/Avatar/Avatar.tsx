@@ -13,6 +13,7 @@ import type { AliasToken } from '@pennyspring/theme';
 import type { AvatarProps,
   AvatarShape,
 } from './types';
+import type { TextColor, TextSize } from '../Text';
 
 export type AvatarDisplayType = 'image' | 'text' | 'icon' | 'empty';
 
@@ -23,25 +24,17 @@ interface AvatarStyleOptions {
 
 interface AvatarSizeConfig {
   dimension: (token: AliasToken) => number;
-  fontSize: (token: AliasToken) => number;
-  lineHeight: (token: AliasToken) => number;
 }
 
 const AVATAR_SIZE_CONFIG: Record<ComponentSize, AvatarSizeConfig> = {
   small: {
     dimension: token => token.controlHeightSM,
-    fontSize: token => token.fontSizeSM,
-    lineHeight: token => token.lineHeightSM,
   },
   normal: {
     dimension: token => token.controlHeight,
-    fontSize: token => token.fontSize,
-    lineHeight: token => token.lineHeight,
   },
   large: {
     dimension: token => token.controlHeightLG,
-    fontSize: token => token.fontSizeLG,
-    lineHeight: token => token.lineHeightLG,
   },
 };
 
@@ -49,7 +42,6 @@ interface AvatarStyleSheet {
   [key: string]: ViewStyle | TextStyle | ImageStyle;
   root: ViewStyle;
   image: ImageStyle;
-  text: TextStyle;
   icon: ViewStyle;
   rootDisabled: ViewStyle;
 }
@@ -74,13 +66,6 @@ const useStyles = createUseSheetStyle<AvatarStyleOptions, AvatarStyleSheet>(
         height: '100%',
         width: '100%',
       },
-      text: {
-        color: token.colorText,
-        fontFamily: token.fontFamily,
-        fontSize: sizeConfig.fontSize(token),
-        fontWeight: String(token.fontWeightStrong) as TextStyle['fontWeight'],
-        lineHeight: sizeConfig.lineHeight(token),
-      },
       icon: {
         alignItems: 'center',
         justifyContent: 'center',
@@ -95,6 +80,22 @@ const useStyles = createUseSheetStyle<AvatarStyleOptions, AvatarStyleSheet>(
 
 function resolveAvatarSize(size?: ComponentSize): ComponentSize {
   return size ?? 'normal';
+}
+
+function resolveAvatarTextSize(size: ComponentSize): TextSize {
+  if (size === 'small') {
+    return 'sm';
+  }
+
+  if (size === 'large') {
+    return 'lg';
+  }
+
+  return 'md';
+}
+
+function resolveAvatarTextColor(): TextColor {
+  return 'default';
 }
 
 export function resolveAvatarDisplayType(
@@ -168,7 +169,12 @@ export function AvatarRoot({
         />
       ) : null}
       {displayType === 'text' ? (
-        <Text style={[tokenStyles.text, styles?.text]}>
+        <Text
+          color={resolveAvatarTextColor()}
+          size={resolveAvatarTextSize(resolvedSize)}
+          weight="strong"
+          style={styles?.text}
+        >
           {formatAvatarText(text ?? '')}
         </Text>
       ) : null}

@@ -1,11 +1,13 @@
 import type { ComponentSize } from '../shares/types';
 import React, { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet } from 'react-native';
 import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
 import { Icon } from '../Icon';
+import { Row } from '../Row';
 import { Text } from '../Text';
 import type { AliasToken } from '@pennyspring/theme';
 import type { IconColor } from '../Icon';
+import type { TextColor, TextProps, TextSize, TextWeight } from '../Text';
 import type {
   GestureResponderEvent,
   StyleProp,
@@ -54,6 +56,12 @@ interface VariantStyleConfig {
   color: string;
   pressedBackgroundColor: string;
   pressedBorderColor: string;
+}
+
+interface ButtonContentTextProps {
+  color: TextColor;
+  size: TextSize;
+  weight: TextWeight;
 }
 
 type TypeDefaults = {
@@ -172,6 +180,34 @@ function resolveLoadingConfig(
 
 function resolveIconSize(size: ComponentSize, token: AliasToken): number {
   return SIZE_STYLE_MAP[size].height(token) / 2;
+}
+
+function resolveTextSize(size: ComponentSize): TextSize {
+  if (size === 'small') {
+    return 'sm';
+  }
+
+  if (size === 'large') {
+    return 'lg';
+  }
+
+  return 'md';
+}
+
+function resolveTextColor(
+  disabled: boolean,
+  variantColor: string,
+  token: AliasToken,
+): TextColor {
+  if (disabled) {
+    return 'disabled';
+  }
+
+  if (variantColor === token.colorTextLightSolid) {
+    return 'lightSolid';
+  }
+
+  return 'default';
 }
 
 function resolveColorConfig(
@@ -333,11 +369,8 @@ const useStyles = createUseSheetStyle(
         flexShrink: 0,
       },
       content: {
-        color: variantStyle.color,
         fontFamily: token.fontFamily,
-        fontSize: sizeConfig.fontSize(token),
         lineHeight: sizeConfig.lineHeight(token),
-        fontWeight: String(token.fontWeightMedium) as TextStyle['fontWeight'],
       },
       contentDisabled: {
         color: token.colorTextDisabled,
@@ -348,11 +381,21 @@ const useStyles = createUseSheetStyle(
 
 function renderContent(
   children: ButtonProps['children'],
+  textProps: ButtonContentTextProps,
   style: StyleProp<TextStyle>,
   stateStyle?: StyleProp<TextStyle>,
 ) {
   if (typeof children === 'string' || typeof children === 'number') {
-    return <Text style={[style, stateStyle]}>{children}</Text>;
+    return (
+      <Text
+        color={textProps.color}
+        size={textProps.size}
+        style={[style, stateStyle]}
+        weight={textProps.weight}
+      >
+        {children}
+      </Text>
+    );
   }
 
   const childItems = React.Children.toArray(children);
@@ -362,15 +405,24 @@ function renderContent(
   if (isPlainTextGroup) {
     const content = childItems.map(item => String(item)).join('');
 
-    return <Text style={[style, stateStyle]}>{content}</Text>;
+    return (
+      <Text
+        color={textProps.color}
+        size={textProps.size}
+        style={[style, stateStyle]}
+        weight={textProps.weight}
+      >
+        {content}
+      </Text>
+    );
   }
 
-  if (
-    React.isValidElement<{ style?: StyleProp<TextStyle> }>(children) &&
-    children.type === Text
-  ) {
+  if (React.isValidElement<TextProps>(children) && children.type === Text) {
     return React.cloneElement(children, {
+      color: children.props.color ?? textProps.color,
+      size: children.props.size ?? textProps.size,
       style: StyleSheet.flatten([style, children.props.style, stateStyle]),
+      weight: children.props.weight ?? textProps.weight,
     });
   }
 
@@ -428,6 +480,11 @@ export function Button({
   const resolvedIconColor = disabled
     ? token.colorTextDisabled
     : variantStyle.color;
+  const contentTextProps: ButtonContentTextProps = {
+    color: resolveTextColor(disabled, variantStyle.color, token),
+    size: resolveTextSize(size),
+    weight: 'medium',
+  };
   const loadingIcon =
     loadingConfig?.icon ?? (
       <ActivityIndicator
@@ -436,7 +493,7 @@ export function Button({
       />
     );
   const iconNode = shouldRenderIcon ? (
-    <View style={[tokenStyles.icon, styles?.icon]}>
+    <Row align="center" justify="center" style={[tokenStyles.icon, styles?.icon]}>
       {isLoading ? (
         loadingIcon
       ) : (
@@ -447,11 +504,12 @@ export function Button({
           icon={icon!}
         />
       )}
-    </View>
+    </Row>
   ) : null;
   const contentNode = hasContent
     ? renderContent(
         children,
+        contentTextProps,
         [tokenStyles.content, styles?.content],
         disabled ? tokenStyles.contentDisabled : null,
       )

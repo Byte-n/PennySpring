@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { Pressable, TextInput } from 'react-native';
 import { useTheme } from '@pennyspring/theme';
+import type { AliasToken } from '@pennyspring/theme';
 import { Column } from '../Column';
 import { Icon } from '../Icon';
 import { Row } from '../Row';
@@ -38,7 +39,6 @@ const DECIMAL_POINT = '.';
 const OK_KEY_LABEL = '=';
 const KEYPAD_TOP_ROW_COUNT = 3;
 const MAX_FRACTION_DIGITS = 10;
-const KEYPAD_HIT_SLOP = 4;
 const DIVIDE_BY_ZERO = 0;
 
 const KEY_ROWS: readonly (readonly CalculatorKeyConfig[])[] = [
@@ -501,6 +501,15 @@ function renderKeyContent(
   );
 }
 
+function createKeypadHitSlop(token: AliasToken) {
+  return {
+    top: token.paddingXXS,
+    right: token.paddingXXS,
+    bottom: token.paddingXXS,
+    left: token.paddingXXS,
+  };
+}
+
 export function CalculatorInput({
   defaultValue,
   disabled = false,
@@ -522,6 +531,7 @@ export function CalculatorInput({
   const isReadOnly = disabled || readonly;
   const result = useMemo(() => evaluateExpression(expression), [expression]);
   const canConfirm = !isReadOnly && result.value !== null;
+  const keyHitSlop = useMemo(() => createKeypadHitSlop(token), [token]);
 
   function updateExpression(nextExpression: string): void {
     if (isReadOnly) {
@@ -581,7 +591,7 @@ export function CalculatorInput({
     return (
       <Pressable
         disabled={isReadOnly}
-        hitSlop={KEYPAD_HIT_SLOP}
+        hitSlop={keyHitSlop}
         key={key.label || key.role}
         onPress={() => {
           handleKeyPress(key);

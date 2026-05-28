@@ -2,13 +2,13 @@
 
 ## 结论
 
-- 状态：不通过
+- 状态：通过
 - 严重程度：low
 - 问题数量：1
 
 ## 问题列表
 
-### 1. 样式实现未放在组件约定的 style/index.ts
+### 1. 样式实现未放在组件约定的 style/index.ts ✅
 
 - 严重程度：low
 - 位置：`packages/pennyspring-ui/src/Spacer/Spacer.tsx:25`

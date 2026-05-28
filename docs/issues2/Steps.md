@@ -2,13 +2,13 @@
 
 ## 结论
 
-- 状态：不通过
+- 状态：通过
 - 严重程度：medium
 - 问题数量：2
 
 ## 问题列表
 
-### 1. Text color 使用 any 绕过类型检查
+### 1. Text color 使用 any 绕过类型检查 ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/Steps/Steps.tsx:39`
@@ -17,7 +17,7 @@
 - 影响：任意字符串都可以绕过 `TextColor` 约束进入 Text，破坏文本色语义映射，类型系统无法阻止无效颜色值。
 - 推荐纠正方案：将两个渲染函数的 `color` 参数类型改为 `TextColor`，从 `../Text/types` 导入类型；调用处继续传入 `'disabled'`、`'default'`、`'secondary'` 等合法语义值，不再使用 `as any`。
 
-### 2. 已暴露的 titleText/descriptionText 样式槽未被消费
+### 2. 已暴露的 titleText/descriptionText 样式槽未被消费 ✅
 
 - 严重程度：low
 - 位置：`packages/pennyspring-ui/src/Steps/types.ts:29`

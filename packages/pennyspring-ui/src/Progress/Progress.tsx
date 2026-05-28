@@ -17,7 +17,7 @@ import type {
 interface BarStyleOptions {
   size: ComponentSize;
   status: ProgressStatus;
-  percent: number;
+  indicatorWidth: number;
 }
 
 interface CircleStyleOptions {
@@ -152,7 +152,7 @@ function renderInfo(
 }
 
 const useBarStyles = createUseSheetStyle(
-  (token, { size, status, percent }: BarStyleOptions) => {
+  (token, { size, status, indicatorWidth }: BarStyleOptions) => {
     const sizeConfig = SIZE_STYLE_MAP[size];
     const strokeColor = resolveStatusColor(token, status);
 
@@ -173,7 +173,7 @@ const useBarStyles = createUseSheetStyle(
         backgroundColor: strokeColor,
         borderRadius: token.borderRadiusSM,
         height: '100%',
-        width: `${percent}%`,
+        width: indicatorWidth,
       },
     };
   },
@@ -257,16 +257,23 @@ export function ProgressBar({
   const resolvedSize = resolveSize(size);
   const resolvedStatus = resolveStatus(status);
   const normalizedPercent = clampPercent(percent);
+  const [trackWidth, setTrackWidth] = React.useState(0);
+  const indicatorWidth = trackWidth * normalizedPercent / FULL_PERCENT;
   const sizeConfig = SIZE_STYLE_MAP[resolvedSize];
   const tokenStyles = useBarStyles({
+    indicatorWidth,
     size: resolvedSize,
     status: resolvedStatus,
-    percent: normalizedPercent,
   });
 
   return (
     <View style={[tokenStyles.barRoot, style]}>
-      <View style={[tokenStyles.barTrack, styles?.track]}>
+      <View
+        onLayout={event => {
+          setTrackWidth(event.nativeEvent.layout.width);
+        }}
+        style={[tokenStyles.barTrack, styles?.track]}
+      >
         <View
           style={[
             tokenStyles.barIndicator,

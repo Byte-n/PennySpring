@@ -44,7 +44,7 @@ export function PickerHeaderButton({
       testID={testID}
       type="text"
     >
-      {content !== undefined ? content : <Text style={textStyle}>{text}</Text>}
+      {content !== undefined ? content : <Text color="primaryText" style={textStyle}>{text}</Text>}
     </Button>
   );
 }

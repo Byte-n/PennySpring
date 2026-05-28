@@ -2,17 +2,18 @@ import React, { useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   Pressable,
-  View,
 } from 'react-native';
 import { CircleIcon } from 'phosphor-react-native';
 import { useTheme } from '@pennyspring/theme';
 import { Button } from '../Button';
 import { Column } from '../Column';
+import { Divider } from '../Divider';
 import { DisplayInput } from '../DisplayInput';
 import { Icon } from '../Icon';
 import { Input } from '../Input';
 import { Popup } from '../Popup';
 import { Row } from '../Row';
+import { Spacer } from '../Spacer';
 import { Text } from '../Text';
 import { TagValueDisplay } from '../_internal/TagValueDisplay';
 import type { TagValueItem } from '../_internal/TagValueDisplay';
@@ -293,16 +294,16 @@ export function SelectionListPopup({
           isDisabled ? tokenStyles.optionDisabled : null,
         ]}
       >
-        <View style={tokenStyles.marker}>
+        <Row align="center" justify="center" style={tokenStyles.marker}>
           <Icon
             color={isDisabled ? 'textDisabled' : isSelected ? 'primaryText' : 'textQuaternary'}
             icon={isSelected ? 'check' : CircleIcon}
             size={resolvedSize}
             testID={isSelected ? 'selection-list-option-marker-selected' : 'selection-list-option-marker-unselected'}
           />
-        </View>
+        </Row>
         {option.prefix !== undefined ? (
-          <View style={tokenStyles.optionMeta}>{option.prefix}</View>
+          <Column style={tokenStyles.optionMeta}>{option.prefix}</Column>
         ) : null}
         <Column style={tokenStyles.optionContent}>
           {option.label !== undefined && typeof option.label !== 'string' ? (
@@ -321,17 +322,17 @@ export function SelectionListPopup({
           {option.description !== undefined && typeof option.description !== 'string' ? (
             option.description
           ) : option.descriptionText !== undefined ? (
-            <Text size={resolveTextSize(resolvedSize)} style={tokenStyles.optionDescription}>
+            <Text color="description" size={resolveTextSize(resolvedSize)} style={tokenStyles.optionDescription}>
               {option.descriptionText}
             </Text>
           ) : typeof option.description === 'string' ? (
-            <Text size={resolveTextSize(resolvedSize)} style={tokenStyles.optionDescription}>
+            <Text color="description" size={resolveTextSize(resolvedSize)} style={tokenStyles.optionDescription}>
               {option.description}
             </Text>
           ) : null}
         </Column>
         {option.suffix !== undefined ? (
-          <View style={tokenStyles.optionMeta}>{option.suffix}</View>
+          <Column style={tokenStyles.optionMeta}>{option.suffix}</Column>
         ) : null}
       </Pressable>
     );
@@ -345,9 +346,8 @@ export function SelectionListPopup({
         <React.Fragment key={String(option.value)}>
           {renderOption(option)}
           {!isLastOption ? (
-            <View
+            <Divider
               style={tokenStyles.optionDivider}
-              testID="selection-list-option-divider"
             />
           ) : null}
         </React.Fragment>
@@ -369,12 +369,13 @@ export function SelectionListPopup({
       styles={floatingPanelStyles}
       keyboardAvoiding={resolvedKeyboardAvoiding}
     >
-      <View testID="selection-list-popup">
+      <Column testID="selection-list-popup">
         <Column style={tokenStyles.popupContent}>
         {texts?.headerText !== undefined || texts?.closeText !== undefined ? (
           <Row style={tokenStyles.header}>
             {texts.headerText !== undefined ? (
               <Text
+                color="heading"
                 size={resolveTextSize(resolvedSize)}
                 weight="strong"
                 style={tokenStyles.headerText}
@@ -382,7 +383,7 @@ export function SelectionListPopup({
                 {texts.headerText}
               </Text>
             ) : (
-              <View />
+              <Spacer />
             )}
             {texts.closeText !== undefined ? (
               <Button
@@ -409,13 +410,13 @@ export function SelectionListPopup({
           />
         ) : null}
         {loading === true ? (
-          <View style={tokenStyles.loading}>
+          <Column align="center" style={tokenStyles.loading}>
             {texts?.loadingText !== undefined ? (
               <Text color="description">{texts.loadingText}</Text>
             ) : (
               <ActivityIndicator color={token.colorTextTertiary} />
             )}
-          </View>
+          </Column>
         ) : filteredGroups.length > 0 ? (
           <Column style={tokenStyles.list}>
             {filteredGroups.map(group => (
@@ -424,6 +425,7 @@ export function SelectionListPopup({
                   group.title
                 ) : group.titleText !== undefined ? (
                   <Text
+                    color="description"
                     size={resolveTextSize(resolvedSize)}
                     style={[tokenStyles.groupTitle, styles?.groupTitle]}
                   >
@@ -435,15 +437,15 @@ export function SelectionListPopup({
             ))}
           </Column>
         ) : (
-          <View style={tokenStyles.empty}>
+          <Column align="center" style={tokenStyles.empty}>
             {empty ??
               (texts?.emptyText !== undefined ? (
                 <Text color="description">{texts.emptyText}</Text>
               ) : null)}
-          </View>
+          </Column>
         )}
         {resolvedMode === 'multiple' && texts?.confirmText !== undefined ? (
-          <View style={tokenStyles.footer}>
+          <Row justify="end" style={tokenStyles.footer}>
             <Button
               onPress={closeSelectionList}
               size={resolvedSize}
@@ -451,15 +453,14 @@ export function SelectionListPopup({
                 tokenStyles.footerButton,
                 tokenStyles.footerPrimaryButton,
               ]}
-              styles={{ content: tokenStyles.footerPrimaryButtonText }}
               type="primary"
             >
               {texts.confirmText}
             </Button>
-          </View>
+          </Row>
         ) : null}
         </Column>
-      </View>
+      </Column>
     </Popup.FloatingPanel>
   );
 }
@@ -572,7 +573,7 @@ function SelectionListRoot({
   }
 
   return (
-    <View testID="selection-list-root" style={rootStyle}>
+    <Column testID="selection-list-root" style={rootStyle}>
       <DisplayInput
         {...displayInputProps}
         disabled={disabled === true || loading === true}
@@ -652,7 +653,7 @@ function SelectionListRoot({
         styles={mergedPopupStyles}
         value={mergedValue}
       />
-    </View>
+    </Column>
   );
 }
 

@@ -3,6 +3,7 @@ import { Text as RNText } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
 import { Result } from '../src/Result';
 import { Icon } from '../src/Icon';
+import { RESULT_LARGE_ICON_SCALE, SIZE_STYLE_MAP, useStyles } from '../src/Result/style';
 
 function renderResult(props: Partial<React.ComponentProps<typeof Result>> = {}) {
   let testRenderer: renderer.ReactTestRenderer;
@@ -240,6 +241,32 @@ describe('Result', () => {
         expect(tree).toContain(`${size} Title`);
         expect(tree).toContain(`${size} Subtitle`);
       }
+    });
+
+    it('uses exported semantic scale constant for large icon container', () => {
+      expect(RESULT_LARGE_ICON_SCALE).toBe(1.25);
+      const tokenStub = { sizeXXL: 80 } as const;
+      expect(SIZE_STYLE_MAP.large.iconContainerSize(tokenStub as never)).toBe(
+        tokenStub.sizeXXL * RESULT_LARGE_ICON_SCALE,
+      );
+    });
+  });
+
+  describe('text color ownership', () => {
+    it('does not set title and subtitle colors in token text styles', () => {
+      let capturedStyles: ReturnType<typeof useStyles> | undefined;
+      function StyleProbe() {
+        capturedStyles = useStyles({ size: 'normal', status: 'info' });
+        return null;
+      }
+
+      act(() => {
+        renderer.create(<StyleProbe />);
+      });
+
+      expect(capturedStyles).toBeDefined();
+      expect('color' in capturedStyles!.title).toBe(false);
+      expect('color' in capturedStyles!.subtitle).toBe(false);
     });
   });
 });

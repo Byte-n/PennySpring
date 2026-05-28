@@ -2,13 +2,13 @@
 
 ## 结论
 
-- 状态：不通过
+- 状态：通过
 - 严重程度：medium
 - 问题数量：2
 
 ## 问题列表
 
-### 1. Badge 内部展示文本优先通过 style 控制字号和颜色
+### 1. Badge 内部展示文本优先通过 style 控制字号和颜色 ✅
 
 - 严重程度：low
 - 位置：`packages/pennyspring-ui/src/Badge/Badge.tsx:284`
@@ -17,7 +17,7 @@
 - 影响：Badge 计数文本绕过 `Text` 组件的颜色和尺寸语义，后续 Text 与 Icon 语义统一调整时容易产生漂移。
 - 推荐纠正方案：将计数文本的颜色、字号、字重优先映射到 `Text` 组件公开 props；只将 `TextProps` 无法表达的局部排版样式留在 `style`。
 
-### 2. 默认 overflowCount 使用未命名的硬编码业务阈值
+### 2. 默认 overflowCount 使用未命名的硬编码业务阈值 ✅
 
 - 严重程度：low
 - 位置：`packages/pennyspring-ui/src/Badge/Badge.tsx:165`

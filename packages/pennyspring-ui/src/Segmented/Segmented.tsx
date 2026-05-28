@@ -1,5 +1,7 @@
 import React, { useMemo } from 'react';
-import { Pressable, View } from 'react-native';
+import { Pressable } from 'react-native';
+import { Column } from '../Column';
+import { Row } from '../Row';
 import { Text } from '../Text';
 import { useControllableValue } from '../_hooks';
 import { useStyles } from './style';
@@ -122,8 +124,8 @@ export function Segmented({
   }
 
   return (
-    <View testID="segmented-root" style={[tokenStyles.root, style]}>
-      <View
+    <Column testID="segmented-root" style={[tokenStyles.root, style]}>
+      <Row
         style={[
           tokenStyles.track,
           disabled ? tokenStyles.trackDisabled : null,
@@ -156,9 +158,9 @@ export function Segmented({
                 styles?.item,
               ]}
             >
-              <View style={[tokenStyles.content, styles?.content]}>
+              <Row style={[tokenStyles.content, styles?.content]}>
                 {option.icon === undefined ? null : (
-                  <View
+                  <Column
                     style={[
                       tokenStyles.icon,
                       isSelected ? tokenStyles.iconSelected : null,
@@ -167,7 +169,7 @@ export function Segmented({
                     ]}
                   >
                     {option.icon}
-                  </View>
+                  </Column>
                 )}
                 {renderLabel(
                   getOptionLabel(option),
@@ -176,11 +178,11 @@ export function Segmented({
                   labelColor,
                   styles,
                 )}
-              </View>
+              </Row>
             </Pressable>
           );
         })}
-      </View>
-    </View>
+      </Row>
+    </Column>
   );
 }

@@ -11,6 +11,7 @@ import Animated, {
 import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
 import { PortalContext } from '../Portal/Portal';
 import { resolvePortalMount } from '../Portal/resolvePortalMount';
+import { Row } from '../Row';
 import { Text } from '../Text';
 import { useControllableValue } from '../_hooks';
 import { useOverlayEmitter } from '../_hooks/useOverlayEmitter';
@@ -93,9 +94,11 @@ const useStyles = createUseSheetStyle((
       borderColor: token.colorBorderSecondary,
       paddingVertical: sizeConfig.verticalPadding(token),
       paddingHorizontal: sizeConfig.horizontalPadding(token),
-      flexDirection: 'row',
+    },
+    body: {
       alignItems: 'center',
       gap: sizeConfig.gap(token),
+      width: '100%',
     },
     dot: {
       width: dotSize,
@@ -104,7 +107,6 @@ const useStyles = createUseSheetStyle((
       backgroundColor: resolveTypeColor(token, type),
     },
     messageText: {
-      color: token.colorText,
       flex: 1,
     },
   };
@@ -205,15 +207,18 @@ function MessageBody({
         animatedStyle,
       ]}
     >
-      <View style={tokenStyles.dot} />
-      {message ?? (
-        <Text
-          size={SIZE_MAP[size].textSize}
-          style={[tokenStyles.messageText, styles?.messageText]}
-        >
-          {messageText}
-        </Text>
-      )}
+      <Row style={tokenStyles.body}>
+        <View style={tokenStyles.dot} />
+        {message ?? (
+          <Text
+            color="default"
+            size={SIZE_MAP[size].textSize}
+            style={[tokenStyles.messageText, styles?.messageText]}
+          >
+            {messageText}
+          </Text>
+        )}
+      </Row>
     </Animated.View>
   );
 }

@@ -3,6 +3,9 @@ import { Text as RNText } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
 import { IndexBar } from '../src/IndexBar';
 import { List, ListItem } from '../src/List';
+import { Row } from '../src/Row';
+import { Column } from '../src/Column';
+import { Text } from '../src/Text';
 import type { IndexBarItem, IndexBarProps } from '../src/IndexBar';
 
 const mockScrollTo = jest.fn();
@@ -222,5 +225,52 @@ describe('IndexBar', () => {
     expect(onChange).not.toHaveBeenCalled();
     expect(mockScrollTo).not.toHaveBeenCalled();
     expect(disabledItem.props.disabled).toBe(true);
+  });
+
+  it('uses Text semantic props for panel title and index text', () => {
+    // Arrange
+    const testRenderer = renderIndexBar({
+      value: 'A',
+    });
+
+    // Act
+    const panelTitleText = testRenderer.root.findByProps({
+      testID: 'index-bar-panel-title-text-A',
+    });
+    const selectedIndexText = testRenderer.root.findByProps({
+      testID: 'index-bar-index-text-A',
+    });
+    const unselectedIndexText = testRenderer.root.findByProps({
+      testID: 'index-bar-index-text-B',
+    });
+
+    // Assert
+    expect(panelTitleText.type).toBe(Text);
+    expect(panelTitleText.props.size).toBe('sm');
+    expect(panelTitleText.props.color).toBe('secondary');
+    expect(panelTitleText.props.weight).toBe('strong');
+    expect(selectedIndexText.props.size).toBe('md');
+    expect(selectedIndexText.props.color).toBe('primary');
+    expect(selectedIndexText.props.weight).toBe('strong');
+    expect(unselectedIndexText.props.size).toBe('md');
+    expect(unselectedIndexText.props.color).toBe('secondary');
+    expect(unselectedIndexText.props.weight).toBe('regular');
+  });
+
+  it('uses Row and Column primitives for root and sidebar layout', () => {
+    // Arrange
+    const testRenderer = renderIndexBar();
+
+    // Act
+    const rootNodes = testRenderer.root.findAll(
+      node => node.props.testID === 'index-bar-root',
+    );
+    const sideBarNodes = testRenderer.root.findAll(
+      node => node.props.testID === 'index-bar-sidebar',
+    );
+
+    // Assert
+    expect(rootNodes.some(node => node.type === Row)).toBe(true);
+    expect(sideBarNodes.some(node => node.type === Column)).toBe(true);
   });
 });

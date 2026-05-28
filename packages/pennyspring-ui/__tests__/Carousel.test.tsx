@@ -111,4 +111,14 @@ describe('Carousel', () => {
     expect(JSON.stringify(testRenderer.toJSON())).toContain('Alpha');
   });
 
+  it('uses layout primitives for root and indicator container', () => {
+    const testRenderer = renderCarousel();
+
+    const rootColumns = testRenderer.root.findAllByProps({ testID: 'carousel-root' });
+    const indicatorRows = testRenderer.root.findAllByProps({ testID: 'carousel-indicator' });
+
+    expect(rootColumns.length).toBeGreaterThan(0);
+    expect(indicatorRows.length).toBeGreaterThan(0);
+  });
+
 });

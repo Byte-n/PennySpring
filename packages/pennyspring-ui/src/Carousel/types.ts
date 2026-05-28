@@ -18,8 +18,6 @@ export interface CarouselProps<Data = unknown> {
   value?: number;
   defaultValue?: number;
   onChange?: (index: number) => void;
-  defaultIndex?: number;
-  onIndexChange?: (index: number) => void;
   allowTouchMove?: boolean;
   autoplay?: boolean | 'reverse';
   autoplayInterval?: number;

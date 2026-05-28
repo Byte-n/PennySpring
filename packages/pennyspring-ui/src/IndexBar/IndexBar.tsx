@@ -1,6 +1,8 @@
 import type { ComponentSize } from '../shares/types';
 import React, { useRef } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
+import { Column } from '../Column';
+import { Row } from '../Row';
 import { Text } from '../Text';
 import { useControllableValue } from '../_hooks';
 import { useStyles } from './style';
@@ -11,6 +13,7 @@ import type {
   StyleProp,
   TextStyle,
 } from 'react-native';
+import type { TextColor, TextSize, TextWeight } from '../Text';
 import type {
   IndexBarItem,
   IndexBarProps,
@@ -19,20 +22,53 @@ import type {
 
 const DEFAULT_SIZE: ComponentSize = 'normal';
 
+interface IndexTextProps {
+  color: TextColor;
+  size: TextSize;
+  weight: TextWeight;
+}
+
 function resolveSize(size?: ComponentSize): ComponentSize {
   return size ?? DEFAULT_SIZE;
 }
 
-function renderTextNode(node: ReactNode, style: StyleProp<TextStyle>) {
+function renderTextNode(
+  node: ReactNode,
+  textProps: IndexTextProps,
+  style: StyleProp<TextStyle>,
+  testID?: string,
+) {
   if (node === undefined || node === null || node === false) {
     return null;
   }
 
   if (typeof node === 'string' || typeof node === 'number') {
-    return <Text style={style}>{node}</Text>;
+    return (
+      <Text
+        color={textProps.color}
+        size={textProps.size}
+        style={style}
+        testID={testID}
+        weight={textProps.weight}
+      >
+        {node}
+      </Text>
+    );
   }
 
   return node;
+}
+
+function getIndexTextSize(size: ComponentSize): TextSize {
+  if (size === 'small') {
+    return 'sm';
+  }
+
+  if (size === 'large') {
+    return 'lg';
+  }
+
+  return 'md';
 }
 
 function getInitialValue(
@@ -66,6 +102,7 @@ export function IndexBar({
     disabled,
     size: resolvedSize,
   });
+  const indexTextSize = getIndexTextSize(resolvedSize);
 
   const [selectedValue, setSelectedValue] = useControllableValue(
     getInitialValue(data, defaultValue),
@@ -97,35 +134,44 @@ export function IndexBar({
   };
 
   return (
-    <View testID="index-bar-root" style={[tokenStyles.root, style]}>
+    <Row testID="index-bar-root" style={[tokenStyles.root, style]}>
       <ScrollView
         ref={scrollViewRef}
         testID="index-bar-content"
         style={[tokenStyles.content, styles?.content]}
       >
-        {data.map((panel, panelIndex) => (
-          <View
-            key={String(panel.index)}
-            testID={`index-bar-panel-${String(panel.index)}`}
-            style={[tokenStyles.panel, styles?.panel, panel.style]}
-            onLayout={event => updatePanelOffset(panel.index, event)}
-          >
+        <Column gap={resolvedSize} style={tokenStyles.panelList}>
+          {data.map((panel, panelIndex) => (
             <View
-              style={[
-                tokenStyles.panelTitleContainer,
-                styles?.panelTitleContainer,
-              ]}
+              key={String(panel.index)}
+              testID={`index-bar-panel-${String(panel.index)}`}
+              style={[tokenStyles.panel, styles?.panel, panel.style]}
+              onLayout={event => updatePanelOffset(panel.index, event)}
             >
-              {panel.title ?? renderTextNode(panel.titleText ?? String(panel.index), [
-                tokenStyles.panelTitleText,
-                styles?.panelTitleText,
-              ])}
+              <Column
+                style={[
+                  tokenStyles.panelTitleContainer,
+                  styles?.panelTitleContainer,
+                ]}
+              >
+                {panel.title ??
+                  renderTextNode(
+                    panel.titleText ?? String(panel.index),
+                    {
+                      color: 'secondary',
+                      size: 'sm',
+                      weight: 'strong',
+                    },
+                    [tokenStyles.panelTitleText, styles?.panelTitleText],
+                    `index-bar-panel-title-text-${String(panel.index)}`,
+                  )}
+              </Column>
+              {renderPanel?.(panel, panelIndex)}
             </View>
-            {renderPanel?.(panel, panelIndex)}
-          </View>
-        ))}
+          ))}
+        </Column>
       </ScrollView>
-      <View
+      <Column
         testID="index-bar-sidebar"
         style={[tokenStyles.sidebar, styles?.sidebar]}
       >
@@ -159,18 +205,31 @@ export function IndexBar({
                 itemDisabled ? styles?.indexItemDisabled : null,
               ]}
             >
-              {renderTextNode(panel.index, [
-                tokenStyles.indexText,
-                styles?.indexText,
-                isSelected ? tokenStyles.indexTextActive : null,
-                isSelected ? styles?.indexTextActive : null,
-                itemDisabled ? tokenStyles.indexTextDisabled : null,
-                itemDisabled ? styles?.indexTextDisabled : null,
-              ])}
+              {renderTextNode(
+                panel.index,
+                {
+                  color: itemDisabled
+                    ? 'disabled'
+                    : isSelected
+                      ? 'primary'
+                      : 'secondary',
+                  size: indexTextSize,
+                  weight: isSelected ? 'strong' : 'regular',
+                },
+                [
+                  tokenStyles.indexText,
+                  styles?.indexText,
+                  isSelected ? tokenStyles.indexTextActive : null,
+                  isSelected ? styles?.indexTextActive : null,
+                  itemDisabled ? tokenStyles.indexTextDisabled : null,
+                  itemDisabled ? styles?.indexTextDisabled : null,
+                ],
+                `index-bar-index-text-${String(panel.index)}`,
+              )}
             </Pressable>
           );
         })}
-      </View>
-    </View>
+      </Column>
+    </Row>
   );
 }

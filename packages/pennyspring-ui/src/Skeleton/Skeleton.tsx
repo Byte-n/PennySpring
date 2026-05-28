@@ -16,9 +16,6 @@ import {
   useStyles,
 } from './style';
 
-const SHIMMER_TRANSLATE_START = -100;
-const SHIMMER_TRANSLATE_END = 200;
-
 export function Skeleton({
   shape = 'line',
   size = 'normal',
@@ -50,6 +47,7 @@ export function Skeleton({
           shimmerStyle={tokenStyles.shimmer}
           duration={token.motionDurationSlow}
           easing={Easing.bezier(...token.motionEaseInOut)}
+          shimmerWidth={resolvedWidth === '100%' ? undefined : Number(resolvedWidth) / 2}
         />
       ) : null}
     </View>
@@ -60,26 +58,38 @@ function ShimmerAnimation({
   shimmerStyle,
   duration,
   easing,
+  shimmerWidth,
 }: {
   shimmerStyle: object;
   duration: number;
   easing: ReturnType<typeof Easing.bezier>;
+  shimmerWidth?: number;
 }) {
-  const translateX = useSharedValue(SHIMMER_TRANSLATE_START);
+  const translateX = useSharedValue(0);
+  const [containerWidth, setContainerWidth] = React.useState(0);
+  const resolvedShimmerWidth = shimmerWidth ?? containerWidth / 2;
   const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ translateX: `${translateX.value}%` }],
+    transform: [{ translateX: translateX.value }],
   }));
 
   React.useEffect(() => {
+    if (containerWidth <= 0) {
+      return;
+    }
+
+    translateX.value = -resolvedShimmerWidth;
     translateX.value = withRepeat(
-      withTiming(SHIMMER_TRANSLATE_END, { duration, easing }),
+      withTiming(containerWidth, { duration, easing }),
       -1,
       false,
     );
-  }, [translateX, duration, easing]);
+  }, [containerWidth, duration, easing, resolvedShimmerWidth, translateX]);
 
   return (
     <Animated.View
+      onLayout={event => {
+        setContainerWidth(event.nativeEvent.layout.width);
+      }}
       style={[shimmerStyle, animatedStyle]}
     />
   );

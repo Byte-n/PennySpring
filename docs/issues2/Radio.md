@@ -2,13 +2,13 @@
 
 ## 结论
 
-- 状态：不通过
+- 状态：通过
 - 严重程度：medium
 - 问题数量：2
 
 ## 问题列表
 
-### 1. 单选控件和内容容器使用 View 手写布局
+### 1. 单选控件和内容容器使用 View 手写布局 ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/Radio/Radio.tsx:104`
@@ -17,7 +17,7 @@
 - 影响：Radio 与 Checkbox 的控件布局实现容易漂移，内容对齐和 gap 语义不统一。
 - 推荐纠正方案：组选项继续使用 `Row`/`Column`，单项内部内容使用 `Row`；仅保留绘制圆点所必需的底层 View。
 
-### 2. Label 选中/禁用颜色仍通过 style 覆盖
+### 2. Label 选中/禁用颜色仍通过 style 覆盖 ✅
 
 - 严重程度：low
 - 位置：`packages/pennyspring-ui/src/Radio/Radio.tsx:66`

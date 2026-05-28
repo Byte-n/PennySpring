@@ -2,13 +2,13 @@
 
 ## 结论
 
-- 状态：不通过
+- 状态：通过
 - 严重程度：medium
 - 问题数量：2
 
 ## 问题列表
 
-### 1. 样式中硬编码非例外百分比宽度
+### 1. 样式中硬编码非例外百分比宽度 ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/CalculatorInput/style/index.ts:98`
@@ -17,7 +17,7 @@
 - 影响：键盘布局比例以硬编码形式固化，无法由组件语义或 token 体系解释，后续尺寸调整和主题一致性较差。
 - 推荐纠正方案：使用 `flex` 布局表达三列与确认键关系，或提取语义化常量并说明这是布局算法例外；优先避免百分比硬编码。
 
-### 2. 数字键 hitSlop 使用硬编码数值
+### 2. 数字键 hitSlop 使用硬编码数值 ✅
 
 - 严重程度：low
 - 位置：`packages/pennyspring-ui/src/CalculatorInput/CalculatorInput.tsx:41`

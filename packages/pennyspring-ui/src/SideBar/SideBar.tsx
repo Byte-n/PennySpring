@@ -1,6 +1,8 @@
 import type { ComponentSize } from '../shares/types';
 import React, { useMemo } from 'react';
-import { Pressable, ScrollView, View } from 'react-native';
+import { Pressable, ScrollView } from 'react-native';
+import { Column } from '../Column';
+import { Row } from '../Row';
 import { Text } from '../Text';
 import { useControllableValue } from '../_hooks';
 import { useStyles } from './style';
@@ -104,7 +106,7 @@ export function SideBar({
   const selectedItem = selectedIndex >= 0 ? normalizedItems[selectedIndex] : undefined;
 
   return (
-    <View testID="sidebar-root" style={[tokenStyles.root, style]}>
+    <Column testID="sidebar-root" style={[tokenStyles.root, style]}>
       {layout === 'scroll' ? (
         <ScrollView
           horizontal
@@ -156,7 +158,7 @@ export function SideBar({
           })}
         </ScrollView>
       ) : (
-        <View testID="sidebar-list" style={[tokenStyles.sideBarList, styles?.sideBarList]}>
+        <Row testID="sidebar-list" style={[tokenStyles.sideBarList, styles?.sideBarList]}>
           {normalizedItems.map(item => {
             const itemDisabled = disabled || item.disabled === true;
             const isSelected = selectedValue === item.value;
@@ -199,13 +201,13 @@ export function SideBar({
               </Pressable>
             );
           })}
-        </View>
+        </Row>
       )}
       {selectedItem !== undefined && renderContent !== undefined ? (
-        <View testID="sidebar-panel" style={[tokenStyles.panel, styles?.panel]}>
+        <Column testID="sidebar-panel" style={[tokenStyles.panel, styles?.panel]}>
           {renderContent(selectedItem, selectedIndex)}
-        </View>
+        </Column>
       ) : null}
-    </View>
+    </Column>
   );
 }

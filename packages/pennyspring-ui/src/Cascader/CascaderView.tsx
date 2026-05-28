@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { FlatList, Pressable, View } from 'react-native';
 import { CircleIcon } from 'phosphor-react-native';
 import { Icon } from '../Icon';
+import { Row } from '../Row';
 import { Tabs } from '../Tabs';
 import { Text } from '../Text';
 import { useControllableValue } from '../_hooks';
@@ -24,15 +25,19 @@ function resolveSize(size: CascaderViewProps['size']) {
   return size ?? 'normal';
 }
 
+function resolveTextSize(size: NonNullable<CascaderViewProps['size']>) {
+  if (size === 'small') return 'md';
+  if (size === 'large') return 'xl';
+  return 'lg';
+}
+
 function renderOptionLabel<TData>(
   option: CascaderOption<TData>,
   level: number,
   optionIndex: number,
   customRenderOptionLabel?: CascaderViewProps<TData>['renderOptionLabel'],
 ) {
-  return customRenderOptionLabel?.(option, level, optionIndex) ?? option.label ?? (
-    <Text>{option.labelText}</Text>
-  );
+  return customRenderOptionLabel?.(option, level, optionIndex) ?? option.label ?? option.labelText ?? '';
 }
 
 function renderOptionMarker(
@@ -70,6 +75,7 @@ export function CascaderView<TData = unknown>({
   value,
 }: CascaderViewProps<TData>) {
   const resolvedSize = resolveSize(size);
+  const textSize = resolveTextSize(resolvedSize);
   const tokenStyles = useCascaderStyles({ size: resolvedSize });
   const normalizedDefaultValue = useMemo(
     () => normalizeValue(options, defaultValue),
@@ -185,30 +191,37 @@ export function CascaderView<TData = unknown>({
                 ]}
                 testID={`cascader-option-${currentLevel}-${optionIndex}`}
               >
-                <View
-                  style={[
-                    tokenStyles.marker,
-                    optionDisabled ? tokenStyles.markerDisabled : null,
-                  ]}
-                >
-                  {renderOptionMarker(selected, optionDisabled, resolvedSize)}
-                </View>
-                <View style={tokenStyles.optionContent}>
-                  {typeof content === 'string' || typeof content === 'number' ? (
-                    <Text
-                      style={[
-                        tokenStyles.optionLabel,
-                        styles?.optionLabel,
-                        selected ? tokenStyles.optionLabelSelected : null,
-                        optionDisabled ? tokenStyles.optionLabelDisabled : null,
-                      ]}
-                    >
-                      {content}
-                    </Text>
-                  ) : (
-                    content
-                  )}
-                </View>
+                <Row align="center" gap="small" style={tokenStyles.optionRow} testID="cascader-option-row">
+                  <View
+                    style={[
+                      tokenStyles.marker,
+                      optionDisabled ? tokenStyles.markerDisabled : null,
+                    ]}
+                  >
+                    {renderOptionMarker(selected, optionDisabled, resolvedSize)}
+                  </View>
+                  <View style={tokenStyles.optionContent}>
+                    {typeof content === 'string' || typeof content === 'number' ? (
+                      <Text
+                        color={
+                          optionDisabled
+                            ? 'disabled'
+                            : selected
+                              ? 'primaryText'
+                              : 'default'
+                        }
+                        size={textSize}
+                        style={styles?.optionLabel}
+                        testID={`cascader-option-label-${currentLevel}-${optionIndex}`}
+                        weight={selected ? 'strong' : undefined}
+                      >
+                        {content}
+                      </Text>
+                    ) : (
+                      content
+                    )}
+                  </View>
+                </Row>
               </Pressable>
             );
           }}

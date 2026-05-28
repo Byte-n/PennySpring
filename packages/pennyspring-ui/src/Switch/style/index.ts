@@ -2,12 +2,11 @@ import { createUseSheetStyle } from '@pennyspring/theme';
 import type { AliasToken } from '@pennyspring/theme';
 import type { ComponentSize } from '../../shares/types';
 
-const DEFAULT_TRACK_WIDTH_SCALE = 2;
-const TEXT_TRACK_WIDTH_SCALE = 3;
-
 interface SizeStyleConfig {
   thumbSize: (token: AliasToken) => number;
   inset: (token: AliasToken) => number;
+  trackWidth: (token: AliasToken) => number;
+  textTrackWidth: (token: AliasToken) => number;
 }
 
 export interface SwitchStyleOptions {
@@ -21,14 +20,21 @@ const SIZE_STYLE_MAP: Record<ComponentSize, SizeStyleConfig> = {
   small: {
     thumbSize: token => token.fontSize,
     inset: token => token.lineWidth,
+    trackWidth: token => token.controlHeight,
+    textTrackWidth: token => token.controlHeightLG,
   },
   normal: {
     thumbSize: token => token.fontSizeXL,
     inset: token => token.lineWidth,
+    trackWidth: token => token.controlHeightLG,
+    textTrackWidth: token => token.controlHeightLG + token.controlHeightSM,
   },
   large: {
     thumbSize: token => token.controlHeightSM,
     inset: token => token.lineWidth,
+    trackWidth: token => token.controlHeightLG + token.controlHeightXS,
+    textTrackWidth: token =>
+      token.controlHeightLG + token.controlHeight + token.controlHeightXS,
   },
 };
 
@@ -36,9 +42,9 @@ export const useStyles = createUseSheetStyle(
   (token, options: SwitchStyleOptions) => {
     const sizeConfig = SIZE_STYLE_MAP[options.size];
     const thumbSize = sizeConfig.thumbSize(token);
-    const trackWidth =
-      thumbSize *
-      (options.hasText ? TEXT_TRACK_WIDTH_SCALE : DEFAULT_TRACK_WIDTH_SCALE);
+    const trackWidth = options.hasText
+      ? sizeConfig.textTrackWidth(token)
+      : sizeConfig.trackWidth(token);
     const inset = sizeConfig.inset(token);
     const textReservedSpace = thumbSize + inset + token.lineWidth;
     const checkedOffset =

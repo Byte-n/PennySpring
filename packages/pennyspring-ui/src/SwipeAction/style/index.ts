@@ -97,7 +97,7 @@ export const useStyles = createUseSheetStyle(
         opacity: token.opacityLoading,
       },
       actionPressed: {
-        opacity: 0.85,
+        backgroundColor: token.colorBgTextActive,
       },
       actionBgLight: {
         backgroundColor: token.colorFillSecondary,
@@ -117,6 +117,45 @@ export const useStyles = createUseSheetStyle(
       actionBgDanger: {
         backgroundColor: token.colorError,
       },
+      actionBgBlue: {
+        backgroundColor: token.blue6,
+      },
+      actionBgPurple: {
+        backgroundColor: token.purple6,
+      },
+      actionBgCyan: {
+        backgroundColor: token.cyan6,
+      },
+      actionBgGreen: {
+        backgroundColor: token.green6,
+      },
+      actionBgMagenta: {
+        backgroundColor: token.magenta6,
+      },
+      actionBgPink: {
+        backgroundColor: token.pink6,
+      },
+      actionBgRed: {
+        backgroundColor: token.red6,
+      },
+      actionBgOrange: {
+        backgroundColor: token.orange6,
+      },
+      actionBgYellow: {
+        backgroundColor: token.yellow6,
+      },
+      actionBgVolcano: {
+        backgroundColor: token.volcano6,
+      },
+      actionBgGeekblue: {
+        backgroundColor: token.geekblue6,
+      },
+      actionBgLime: {
+        backgroundColor: token.lime6,
+      },
+      actionBgGold: {
+        backgroundColor: token.gold6,
+      },
       rootDisabled: {
         backgroundColor: disabled
           ? token.colorBgContainerDisabled
@@ -129,7 +168,6 @@ export const useStyles = createUseSheetStyle(
 export function resolveActionBackgroundStyle(
   color: SwipeActionColor,
   tokenStyles: Record<string, ViewStyle | TextStyle>,
-  token: AliasToken,
 ): ViewStyle {
   if (color === 'light') {
     return tokenStyles.actionBgLight as ViewStyle;
@@ -152,10 +190,11 @@ export function resolveActionBackgroundStyle(
   }
 
   const presetKey = color as (typeof PresetColors)[number];
-  const presetBgFn = PRESET_COLOR_BG_MAP[presetKey];
+  const styleKey = `actionBg${presetKey.charAt(0).toUpperCase()}${presetKey.slice(1)}`;
+  const presetStyle = tokenStyles[styleKey];
 
-  if (presetBgFn !== undefined) {
-    return { backgroundColor: presetBgFn(token) } as ViewStyle;
+  if (presetStyle !== undefined) {
+    return presetStyle as ViewStyle;
   }
 
   return tokenStyles.actionBgPrimary as ViewStyle;

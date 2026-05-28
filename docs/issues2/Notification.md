@@ -2,13 +2,13 @@
 
 ## 结论
 
-- 状态：不通过
+- 状态：通过
 - 严重程度：medium
 - 问题数量：2
 
 ## 问题列表
 
-### 1. 弹层 zIndex 使用硬编码偏移
+### 1. 弹层 zIndex 使用硬编码偏移 ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/Notification/Notification.tsx:117`
@@ -17,7 +17,7 @@
 - 影响：Notification 可能无意盖过同级浮层，破坏 Portal 挂载顺序决定覆盖关系的约定。
 - 推荐纠正方案：默认改为 `token.zIndexPopupBase`；如 Notification 需要更高层级，应在组件规范中明确该层级语义。
 
-### 2. 标题和描述文本优先通过 style 控制颜色
+### 2. 标题和描述文本优先通过 style 控制颜色 ✅
 
 - 严重程度：low
 - 位置：`packages/pennyspring-ui/src/Notification/Notification.tsx:246`

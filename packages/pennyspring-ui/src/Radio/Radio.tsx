@@ -181,20 +181,18 @@ function RadioComponent({
       {displayType === 'default'
         ? renderControl(tokenStyles, selected, disabled, styles)
         : null}
-      <View style={[tokenStyles.content, styles?.content]}>
+      <Row style={[tokenStyles.content, styles?.content]}>
         {renderLabel(
           children,
           [
             tokenStyles.label,
-            selected ? tokenStyles.labelSelected : null,
-            disabled ? tokenStyles.labelDisabled : null,
             styles?.label,
           ],
           size,
           'regular',
           labelColor,
         )}
-      </View>
+      </Row>
     </Pressable>
   );
 }
@@ -272,20 +270,18 @@ export function RadioGroup({
             {displayType === 'default'
               ? renderControl(tokenStyles, selected, optionDisabled, styles)
               : null}
-            <View style={[tokenStyles.content, styles?.content]}>
+            <Row style={[tokenStyles.content, styles?.content]}>
               {renderLabel(
                 getOptionLabel(option),
                 [
                   tokenStyles.label,
-                  selected ? tokenStyles.labelSelected : null,
-                  optionDisabled ? tokenStyles.labelDisabled : null,
                   styles?.label,
                 ],
                 size,
                 'regular',
                 labelColor,
               )}
-            </View>
+            </Row>
           </Pressable>
         );
       })}

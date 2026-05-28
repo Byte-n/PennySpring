@@ -2,13 +2,13 @@
 
 ## 结论
 
-- 状态：不通过
+- 状态：通过
 - 严重程度：medium
 - 问题数量：2
 
 ## 问题列表
 
-### 1. 头像组横向布局直接使用 View 手写
+### 1. 头像组横向布局直接使用 View 手写 ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/Avatar/AvatarGroup.tsx:70`
@@ -17,7 +17,7 @@
 - 影响：头像组的对齐、间距和横向布局语义脱离共享布局组件，后续尺寸、gap 或方向策略调整时更容易出现实现漂移。
 - 推荐纠正方案：使用 `Row` 作为头像组根布局，保留必要的重叠样式到 item 插槽；若需要负 margin 实现重叠，应让根布局语义仍由 `Row` 承载。
 
-### 2. Text 展示样式优先通过 style 控制字号和颜色
+### 2. Text 展示样式优先通过 style 控制字号和颜色 ✅
 
 - 严重程度：low
 - 位置：`packages/pennyspring-ui/src/Avatar/Avatar.tsx:171`

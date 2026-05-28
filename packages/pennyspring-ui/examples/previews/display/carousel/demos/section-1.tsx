@@ -181,7 +181,7 @@ export function CarouselSection1Demo() {
             data={DEMO_SLIDES}
             renderItem={renderLargeItem}
             style={[styles.carousel, styles.roundedCarousel]}
-            defaultIndex={2}
+            defaultValue={2}
           />
         </View>
       </View>

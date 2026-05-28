@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { Pressable, View } from 'react-native';
 import { Icon } from '../Icon';
 import { Popup } from '../Popup';
+import { Row } from '../Row';
 import { Text } from '../Text';
 import { TagValueDisplay } from '../_internal/TagValueDisplay';
 import type { TagValueItem } from '../_internal/TagValueDisplay';
@@ -20,6 +21,12 @@ import { getPathOptions, normalizeValue } from './utils';
 
 function resolveSize(size: CascaderProps['size']) {
   return size ?? 'normal';
+}
+
+function resolveTextSize(size: NonNullable<CascaderProps['size']>) {
+  if (size === 'small') return 'md';
+  if (size === 'large') return 'xl';
+  return 'lg';
 }
 
 function getSelectedLabel<TData>(
@@ -106,6 +113,7 @@ function CascaderRoot<TData = unknown>({
   ...viewProps
 }: CascaderProps<TData>) {
   const resolvedSize = resolveSize(size);
+  const textSize = resolveTextSize(resolvedSize);
   const tokenStyles = useCascaderStyles({ size: resolvedSize });
   const [resolvedOpen, setResolvedOpen] = useControllableValue(
     defaultOpen === true,
@@ -192,7 +200,7 @@ function CascaderRoot<TData = unknown>({
         testID="cascader-trigger"
       >
         {children ?? (
-          <>
+          <Row align="center" gap="small" style={tokenStyles.triggerRow} testID="cascader-trigger-row">
             <View style={tokenStyles.valueArea}>
               {displayMode === 'tag' && tagItems.length > 0 ? (
                 <TagValueDisplay
@@ -204,15 +212,21 @@ function CascaderRoot<TData = unknown>({
                 />
               ) : selectedLabel.length > 0 ? (
                 <Text
+                  color="default"
                   numberOfLines={1}
-                  style={[tokenStyles.valueText, styles?.valueText]}
+                  size={textSize}
+                  style={styles?.valueText}
+                  testID="cascader-trigger-value"
                 >
                   {selectedLabel}
                 </Text>
               ) : (
                 <Text
+                  color="placeholder"
                   numberOfLines={1}
-                  style={[tokenStyles.placeholder, styles?.placeholder]}
+                  size={textSize}
+                  style={styles?.placeholder}
+                  testID="cascader-trigger-placeholder"
                 >
                   {placeholder}
                 </Text>
@@ -223,7 +237,7 @@ function CascaderRoot<TData = unknown>({
               icon="caret-down"
               size={resolvedSize}
             />
-          </>
+          </Row>
         )}
       </Pressable>
       <Popup.FloatingPanel

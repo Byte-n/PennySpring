@@ -21,6 +21,7 @@ export interface BadgeStyles {
 export interface BadgeProps extends Omit<ViewProps, 'style'> {
   count?: ReactNode;
   showZero?: boolean;
+  /** 默认值为 99，超过时显示为 `${overflowCount}+`。 */
   overflowCount?: number;
   dot?: boolean;
   offset?: number | [number, number];

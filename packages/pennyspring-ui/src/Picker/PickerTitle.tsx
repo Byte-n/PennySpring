@@ -1,5 +1,5 @@
 import React from 'react';
-import { View } from 'react-native';
+import { Column } from '../Column';
 import { Text } from '../Text';
 import type { PickerHeaderStyles, PickerPopupProps } from './types';
 
@@ -25,12 +25,12 @@ export function PickerTitle({
   }
 
   return (
-    <View style={[styles.titleContainer, slotStyles?.titleContainer]}>
+    <Column style={[styles.titleContainer, slotStyles?.titleContainer]}>
       {title !== undefined ? title : (
-        <Text style={[styles.titleText, slotStyles?.titleText]}>
+        <Text color="heading" style={[styles.titleText, slotStyles?.titleText]}>
           {titleText}
         </Text>
       )}
-    </View>
+    </Column>
   );
 }

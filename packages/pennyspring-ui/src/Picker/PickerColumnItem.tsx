@@ -61,6 +61,13 @@ export function PickerColumnItem<TItem extends PickerColumnItemData>({
     >
       {typeof content === 'string' || typeof content === 'number' ? (
         <Text
+          color={
+            item.disabled
+              ? 'disabled'
+              : selected
+                ? 'primaryText'
+                : 'default'
+          }
           style={[
             styles.itemText,
             selected ? styles.selectedItemText : undefined,

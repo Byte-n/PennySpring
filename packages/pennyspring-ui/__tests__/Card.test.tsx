@@ -3,6 +3,7 @@ import { StyleSheet, Text as RNText, View } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
 import { ThemeProvider } from '@pennyspring/theme';
 import { Card } from '../src/Card';
+import { Text } from '../src/Text';
 function renderCard(props: Partial<React.ComponentProps<typeof Card>> = {}) {
   let testRenderer: renderer.ReactTestRenderer;
   act(() => {
@@ -152,8 +153,13 @@ describe('Card', () => {
     });
     const views = testRenderer!.root.findAllByType(View);
     const rootStyle = StyleSheet.flatten(views[0].props.style);
-    const headerStyle = StyleSheet.flatten(views[1].props.style);
-    const footerStyle = StyleSheet.flatten(views.at(-1)?.props.style);
+    const headerRow = testRenderer!.root.findAllByProps({ testID: 'row' })[0];
+    const headerStyle = StyleSheet.flatten(headerRow.props.style);
+    const footerView = views.find(node => {
+      const flattened = StyleSheet.flatten(node.props.style);
+      return Boolean(flattened?.borderTopWidth);
+    });
+    const footerStyle = StyleSheet.flatten(footerView?.props.style);
 
     expect(rootStyle.padding).toBe(expectedPadding);
     expect(headerStyle.gap).toBe(expectedGap);
@@ -182,4 +188,46 @@ describe('Card', () => {
     expect(treeString).not.toContain('borderTopWidth');
     expect(treeString).not.toContain('paddingTop');
   });
+
+  it('uses layout primitives for card structure instead of plain view layout containers', () => {
+    // Arrange
+    const testRenderer = renderCard({
+      titleText: 'Balance',
+      extra: <RNText>More</RNText>,
+      footer: <RNText>Footer action</RNText>,
+      children: <RNText>Body content</RNText>,
+    });
+
+    // Act
+    const rowNodes = testRenderer.root.findAllByProps({ testID: 'row' });
+    const columnNodes = testRenderer.root.findAllByProps({ testID: 'column' });
+
+    // Assert
+    expect(rowNodes.length).toBeGreaterThan(0);
+    expect(columnNodes.length).toBeGreaterThan(0);
+  });
+
+  it.each([
+    ['small', 'md'],
+    ['normal', 'lg'],
+    ['large', 'xl'],
+  ] as const)(
+    'maps %s titleText to semantic Text props',
+    (size, expectedTextSize) => {
+      // Arrange
+      const testRenderer = renderCard({
+        size,
+        titleText: 'Balance',
+        children: <RNText>Body content</RNText>,
+      });
+
+      // Act
+      const titleTextNode = testRenderer.root.findAllByType(Text)[0];
+
+      // Assert
+      expect(titleTextNode.props.size).toBe(expectedTextSize);
+      expect(titleTextNode.props.color).toBe('heading');
+      expect(titleTextNode.props.weight).toBe('strong');
+    }
+  );
 });

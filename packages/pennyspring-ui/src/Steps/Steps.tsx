@@ -7,6 +7,8 @@ import { Row } from '../Row';
 import { Text } from '../Text';
 import type { ReactNode } from 'react';
 import type { TextSize, TextWeight } from '../Text/types';
+import type { TextColor } from '../Text/types';
+import type { StyleProp, TextStyle } from 'react-native';
 import type {
   StepsItem,
   StepsProps,
@@ -25,7 +27,8 @@ function renderTitleContent(
   text: string | undefined,
   size: TextSize,
   weight: TextWeight,
-  color: string,
+  color: TextColor,
+  style?: StyleProp<TextStyle>,
 ) {
   if (node !== undefined) {
     return node === null ? null : node;
@@ -36,7 +39,7 @@ function renderTitleContent(
   }
 
   return (
-    <Text size={size} weight={weight} color={color as any}>
+    <Text size={size} weight={weight} color={color} style={style}>
       {text}
     </Text>
   );
@@ -47,7 +50,8 @@ function renderDescriptionContent(
   text: string | undefined,
   size: TextSize,
   weight: TextWeight,
-  color: string,
+  color: TextColor,
+  style?: StyleProp<TextStyle>,
 ) {
   if (node !== undefined) {
     return node === null ? null : node;
@@ -58,7 +62,7 @@ function renderDescriptionContent(
   }
 
   return (
-    <Text size={size} weight={weight} color={color as any}>
+    <Text size={size} weight={weight} color={color} style={style}>
       {text}
     </Text>
   );
@@ -192,6 +196,7 @@ export function Steps({
                   textSize,
                   'strong',
                   titleColor,
+                  styles?.titleText,
                 )}
                 {renderDescriptionContent(
                   item.description,
@@ -199,6 +204,7 @@ export function Steps({
                   textSize,
                   'regular',
                   descriptionColor,
+                  styles?.descriptionText,
                 )}
               </Column>
             </Row>

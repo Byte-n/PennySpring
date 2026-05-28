@@ -2,13 +2,13 @@
 
 ## 结论
 
-- 状态：不通过
+- 状态：通过
 - 严重程度：medium
 - 问题数量：1
 
 ## 问题列表
 
-### 1. 面板内部布局直接使用 View 手写等效结构
+### 1. 面板内部布局直接使用 View 手写等效结构 ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/ActionSheet/ActionSheet.tsx:219`

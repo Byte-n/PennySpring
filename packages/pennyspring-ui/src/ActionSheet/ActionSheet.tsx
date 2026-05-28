@@ -1,7 +1,7 @@
 import React from 'react';
-import { View } from 'react-native';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import { Button } from '../Button';
+import { Column } from '../Column';
 import { Popup } from '../Popup';
 import { Text } from '../Text';
 import { useControllableValue } from '../_hooks';
@@ -98,11 +98,9 @@ function renderTitle(
   }
 
   return (
-    <View testID="action-sheet-title-container">
-      <Text style={titleTextStyle} testID="action-sheet-title-text">
-        {titleText}
-      </Text>
-    </View>
+    <Text style={titleTextStyle} testID="action-sheet-title-text">
+      {titleText}
+    </Text>
   );
 }
 
@@ -139,12 +137,12 @@ function renderAction(
       testID={`action-sheet-action-${index}`}
       type="text"
     >
-      <View style={actionContentStyle}>
+      <Column style={actionContentStyle}>
         <Text style={textStyle}>{action.text}</Text>
         {action.description ? (
           <Text style={actionDescriptionStyle}>{action.description}</Text>
         ) : null}
-      </View>
+      </Column>
     </Button>
   );
 }
@@ -216,13 +214,13 @@ export function ActionSheet({
         body: slotStyles?.body,
       }}
     >
-      <View style={style} testID="action-sheet-panel">
+      <Column style={style} testID="action-sheet-panel">
         {titleNode ? (
-          <View style={tokenStyles.titleContainer} testID="action-sheet-title-container">
+          <Column style={tokenStyles.titleContainer} testID="action-sheet-title-container">
             {titleNode}
-          </View>
+          </Column>
         ) : null}
-        <View style={tokenStyles.actionsContainer} testID="action-sheet-actions-container">
+        <Column style={tokenStyles.actionsContainer} testID="action-sheet-actions-container">
           {actions.map((action, index) =>
             renderAction(
               action,
@@ -236,10 +234,10 @@ export function ActionSheet({
               handleActionPress,
             ),
           )}
-        </View>
+        </Column>
         {shouldRenderCancelSection ? (
-          <View style={tokenStyles.cancelButtonContainer} testID="action-sheet-cancel-container">
-            <View style={tokenStyles.separator} />
+          <Column style={tokenStyles.cancelButtonContainer} testID="action-sheet-cancel-container">
+            <Column style={tokenStyles.separator} />
             <Button
               onPress={handleCancelPress}
               style={tokenStyles.cancelButton}
@@ -258,9 +256,9 @@ export function ActionSheet({
                 </Text>
               )}
             </Button>
-          </View>
+          </Column>
         ) : null}
-      </View>
+      </Column>
     </Popup>
   );
 }

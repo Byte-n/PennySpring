@@ -2,13 +2,13 @@
 
 ## 结论
 
-- 状态：不通过
+- 状态：通过
 - 严重程度：medium
 - 问题数量：1
 
 ## 问题列表
 
-### 1. Shimmer 动效位移数值硬编码
+### 1. Shimmer 动效位移数值硬编码 ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/Skeleton/Skeleton.tsx:19`

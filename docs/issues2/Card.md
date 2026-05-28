@@ -2,13 +2,13 @@
 
 ## 结论
 
-- 状态：不通过
+- 状态：通过
 - 严重程度：medium
 - 问题数量：2
 
 ## 问题列表
 
-### 1. Header 与内容区使用 View 手写布局
+### 1. Header 与内容区使用 View 手写布局 ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/Card/Card.tsx:179`
@@ -17,7 +17,7 @@
 - 影响：Card 是基础容器组件，内部布局绕开布局原语会导致间距、方向与对齐语义难以统一，后续组合其他组件时一致性下降。
 - 推荐纠正方案：使用 `Column` 表达 Card 主体纵向结构，使用 `Row` 表达 header 与 extra 的横向布局；必要的根 Pressable 状态样式保留在根节点。
 
-### 2. 标题文本优先通过 style 控制字号和颜色
+### 2. 标题文本优先通过 style 控制字号和颜色 ✅
 
 - 严重程度：low
 - 位置：`packages/pennyspring-ui/src/Card/Card.tsx:170`

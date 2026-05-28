@@ -2,13 +2,13 @@
 
 ## 结论
 
-- 状态：不通过
+- 状态：通过
 - 严重程度：medium
 - 问题数量：1
 
 ## 问题列表
 
-### 1. 可由布局原语承载的结构直接使用 View
+### 1. 可由布局原语承载的结构直接使用 View ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/Segmented/Segmented.tsx:125`

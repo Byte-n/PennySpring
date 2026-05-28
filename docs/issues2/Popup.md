@@ -2,13 +2,13 @@
 
 ## 结论
 
-- 状态：不通过
+- 状态：通过
 - 严重程度：low
 - 问题数量：2
 
 ## 问题列表
 
-### 1. FloatingPanel 标题文本优先通过 style 控制颜色
+### 1. FloatingPanel 标题文本优先通过 style 控制颜色 ✅
 
 - 严重程度：low
 - 位置：`packages/pennyspring-ui/src/Popup/FloatingPanel.tsx:357`
@@ -17,7 +17,7 @@
 - 影响：浮层标题色彩语义绕过 `Text` API，和 Dialog、Picker 等浮层标题不易统一。
 - 推荐纠正方案：标题使用 `Text color="heading"` 和合适的 `size/weight` props；样式插槽只保留额外覆盖。
 
-### 2. FloatingPanel 内容结构使用 View 手写布局
+### 2. FloatingPanel 内容结构使用 View 手写布局 ✅
 
 - 严重程度：low
 - 位置：`packages/pennyspring-ui/src/Popup/FloatingPanel.tsx:784`

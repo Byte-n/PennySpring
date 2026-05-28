@@ -1,6 +1,5 @@
 import { createUseSheetStyle } from '@pennyspring/theme';
 import type { AliasToken } from '@pennyspring/theme';
-import type { TextStyle } from 'react-native';
 import type { ComponentSize } from '../../shares/types';
 
 interface IndexBarStyleOptions {
@@ -12,9 +11,6 @@ interface SizeStyleConfig {
   sidebarPaddingVertical: (token: AliasToken) => number;
   sidebarGap: (token: AliasToken) => number;
   indexItemSize: (token: AliasToken) => number;
-  indexTextFontSize: (token: AliasToken) => number;
-  indexTextLineHeight: (token: AliasToken) => number;
-  panelGap: (token: AliasToken) => number;
   panelTitlePaddingVertical: (token: AliasToken) => number;
 }
 
@@ -23,39 +19,29 @@ const SIZE_STYLE_MAP: Record<ComponentSize, SizeStyleConfig> = {
     sidebarPaddingVertical: token => token.paddingSM / 2,
     sidebarGap: token => token.marginXXS,
     indexItemSize: token => token.controlHeightSM,
-    indexTextFontSize: token => token.fontSizeSM,
-    indexTextLineHeight: token => token.lineHeightSM,
-    panelGap: token => token.marginSM,
     panelTitlePaddingVertical: token => token.paddingXS / 2,
   },
   normal: {
     sidebarPaddingVertical: token => token.paddingMD / 2,
     sidebarGap: token => token.marginXXS,
     indexItemSize: token => token.controlHeight,
-    indexTextFontSize: token => token.fontSize,
-    indexTextLineHeight: token => token.lineHeight,
-    panelGap: token => token.marginMD,
     panelTitlePaddingVertical: token => token.paddingSM / 2,
   },
   large: {
     sidebarPaddingVertical: token => token.paddingLG / 2,
     sidebarGap: token => token.marginXS,
     indexItemSize: token => token.controlHeightLG,
-    indexTextFontSize: token => token.fontSizeLG,
-    indexTextLineHeight: token => token.lineHeightLG,
-    panelGap: token => token.marginLG,
     panelTitlePaddingVertical: token => token.paddingMD / 2,
   },
 };
 
 export const useStyles = createUseSheetStyle(
-  (token, { disabled, size }: IndexBarStyleOptions) => {
+  (token, { disabled: _disabled, size }: IndexBarStyleOptions) => {
     const sizeConfig = SIZE_STYLE_MAP[size];
     const indexItemSize = sizeConfig.indexItemSize(token);
 
     return {
       root: {
-        flexDirection: 'row',
         alignItems: 'stretch',
       },
       content: {
@@ -63,8 +49,10 @@ export const useStyles = createUseSheetStyle(
         minWidth: 0,
         paddingRight: token.paddingSM,
       },
+      panelList: {
+        paddingVertical: token.paddingXXS,
+      },
       panel: {
-        marginBottom: sizeConfig.panelGap(token),
         backgroundColor: token.colorBgContainer,
       },
       panelTitleContainer: {
@@ -72,13 +60,7 @@ export const useStyles = createUseSheetStyle(
         paddingVertical: sizeConfig.panelTitlePaddingVertical(token),
         backgroundColor: token.colorBgContainer,
       },
-      panelTitleText: {
-        color: token.colorTextSecondary,
-        fontFamily: token.fontFamily,
-        fontSize: token.fontSizeSM,
-        lineHeight: token.lineHeightSM,
-        fontWeight: String(token.fontWeightStrong) as TextStyle['fontWeight'],
-      },
+      panelTitleText: {},
       sidebar: {
         alignItems: 'center',
         justifyContent: 'center',
@@ -102,20 +84,9 @@ export const useStyles = createUseSheetStyle(
       indexItemDisabled: {
         opacity: token.opacityLoading,
       },
-      indexText: {
-        fontFamily: token.fontFamily,
-        fontSize: sizeConfig.indexTextFontSize(token),
-        lineHeight: sizeConfig.indexTextLineHeight(token),
-        color: disabled ? token.colorTextDisabled : token.colorTextSecondary,
-        fontWeight: String(token.fontWeightRegular) as TextStyle['fontWeight'],
-      },
-      indexTextActive: {
-        color: token.colorPrimary,
-        fontWeight: String(token.fontWeightStrong) as TextStyle['fontWeight'],
-      },
-      indexTextDisabled: {
-        color: token.colorTextDisabled,
-      },
+      indexText: {},
+      indexTextActive: {},
+      indexTextDisabled: {},
     };
   },
 );

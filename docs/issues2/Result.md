@@ -2,13 +2,13 @@
 
 ## 结论
 
-- 状态：不通过
+- 状态：通过
 - 严重程度：medium
 - 问题数量：2
 
 ## 问题列表
 
-### 1. large 图标容器尺寸使用硬编码倍率
+### 1. large 图标容器尺寸使用硬编码倍率 ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/Result/style/index.ts:50`
@@ -17,7 +17,7 @@
 - 影响：Result 大尺寸图标规格缺少明确 token 语义，后续主题或尺寸调整时不易统一。
 - 推荐纠正方案：优先选择现有尺寸 token；确需 1.25 倍时提取为 `RESULT_LARGE_ICON_SCALE` 并说明这是组件级尺寸算法例外。
 
-### 2. 标题和副标题颜色同时通过 TextProps 与 style 控制
+### 2. 标题和副标题颜色同时通过 TextProps 与 style 控制 ✅
 
 - 严重程度：low
 - 位置：`packages/pennyspring-ui/src/Result/Result.tsx:55`

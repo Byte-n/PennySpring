@@ -164,7 +164,7 @@ export function CarouselSection3Demo() {
             styles={{
               indicatorDotActive: { backgroundColor: token.colorWhite },
             }}
-            defaultIndex={1}
+            defaultValue={1}
           />
         </View>
 

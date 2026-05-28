@@ -42,6 +42,7 @@ import {
   type CascaderOption,
 } from '../src/Cascader';
 import { Icon } from '../src/Icon';
+import { Row } from '../src/Row';
 
 interface RegionData {
   code: string;
@@ -320,6 +321,70 @@ describe('Cascader', () => {
     expect(params.path.map((item: CascaderOption<RegionData>) => item.value)).toEqual([
       'zhejiang',
     ]);
+
+    act(() => {
+      testRenderer!.unmount();
+    });
+  });
+
+  it('uses Text semantic props for trigger and option labels', () => {
+    let triggerRenderer: renderer.ReactTestRenderer;
+    let viewRenderer: renderer.ReactTestRenderer;
+
+    act(() => {
+      triggerRenderer = renderer.create(
+        <Cascader
+          defaultValue={['zhejiang']}
+          options={options}
+          placeholder="Pick"
+        />,
+      );
+    });
+
+    act(() => {
+      viewRenderer = renderer.create(
+        <Cascader.View
+          defaultActiveLevel={1}
+          defaultValue={['zhejiang', 'hangzhou']}
+          options={options}
+        />,
+      );
+    });
+
+    const selectedLabel = triggerRenderer!.root.findByProps({ testID: 'cascader-trigger-value' });
+    expect(selectedLabel.props.size).toBe('lg');
+    expect(selectedLabel.props.color).toBe('default');
+
+    const optionLabel = viewRenderer!.root.findByProps({ testID: 'cascader-option-label-1-1' });
+    expect(optionLabel.props.size).toBe('lg');
+    expect(optionLabel.props.color).toBe('default');
+
+    const selectedOptionLabel = viewRenderer!.root.findByProps({
+      testID: 'cascader-option-label-1-0',
+    });
+    expect(selectedOptionLabel.props.color).toBe('primaryText');
+    expect(selectedOptionLabel.props.weight).toBe('strong');
+
+    act(() => {
+      triggerRenderer!.unmount();
+      viewRenderer!.unmount();
+    });
+  });
+
+  it('uses Row primitives for trigger and option layouts', () => {
+    let testRenderer: renderer.ReactTestRenderer;
+
+    act(() => {
+      testRenderer = renderer.create(
+        <Cascader defaultOpen defaultValue={['zhejiang']} options={options} />,
+      );
+    });
+
+    const rows = testRenderer!.root.findAllByType(Row);
+    const rowTestIds = rows.map(item => item.props.testID);
+
+    expect(rowTestIds).toContain('cascader-trigger-row');
+    expect(rowTestIds).toContain('cascader-option-row');
 
     act(() => {
       testRenderer!.unmount();

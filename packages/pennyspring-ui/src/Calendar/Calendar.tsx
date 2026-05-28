@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Pressable, View } from 'react-native';
-import { createUseSheetStyle } from '@pennyspring/theme';
+import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
 import { Icon } from '../Icon';
 import { Text } from '../Text';
 import { useControllableValue } from '../_hooks';
@@ -25,8 +25,9 @@ const DEFAULT_OK_TEXT = '确定';
 const WEEK_DAYS = ['日', '一', '二', '三', '四', '五', '六'];
 const MONTH_COUNT = 12;
 const YEAR_WINDOW = 12;
-const GRID_CELL_PERCENT = '14.2857%';
-const ACTION_HIT_SLOP = 8;
+const DATE_COLUMN_COUNT = 7;
+const MONTH_COLUMN_COUNT = 3;
+const YEAR_COLUMN_COUNT = 4;
 
 interface CalendarStyleOptions {
   size: CalendarSize;
@@ -47,6 +48,22 @@ function getCellHeight(size: CalendarSize, token: AliasToken) {
   }
 
   return token.controlHeight;
+}
+
+function resolveColumnCount(mode: CalendarMode): number {
+  if (mode === 'month') {
+    return MONTH_COLUMN_COUNT;
+  }
+
+  if (mode === 'year') {
+    return YEAR_COLUMN_COUNT;
+  }
+
+  return DATE_COLUMN_COUNT;
+}
+
+function resolveCellFlexBasis(mode: CalendarMode): `${number}%` {
+  return `${100 / resolveColumnCount(mode)}%`;
 }
 
 const useCalendarStyles = createUseSheetStyle(
@@ -78,28 +95,25 @@ const useCalendarStyles = createUseSheetStyle(
       marginBottom: token.marginXXS,
     },
     weekCell: {
-      width: GRID_CELL_PERCENT,
+      flexBasis: resolveCellFlexBasis('date'),
       alignItems: 'center',
-    },
-    weekText: {
-      color: token.colorTextTertiary,
     },
     grid: {
       flexDirection: 'row',
       flexWrap: 'wrap',
     },
     cell: {
-      width: GRID_CELL_PERCENT,
+      flexBasis: resolveCellFlexBasis('date'),
       minHeight: getCellHeight(size, token),
       justifyContent: 'center',
       alignItems: 'center',
       borderRadius: token.borderRadiusSM,
     },
     monthCell: {
-      width: '33.3333%',
+      flexBasis: resolveCellFlexBasis('month'),
     },
     yearCell: {
-      width: '25%',
+      flexBasis: resolveCellFlexBasis('year'),
     },
     cellSelected: {
       backgroundColor: token.controlItemBgActive,
@@ -114,9 +128,6 @@ const useCalendarStyles = createUseSheetStyle(
     },
     cellInRange: {
       backgroundColor: token.colorPrimaryBg,
-    },
-    dateText: {
-      color: token.colorText,
     },
     mark: {
       marginTop: token.marginXXS,
@@ -383,7 +394,7 @@ function CalendarGrid({
             ]}
             testID={`calendar-cell-${normalized}`}
           >
-            <Text style={[styles.dateText, slotStyles?.dateText]}>
+            <Text color="default" style={slotStyles?.dateText}>
               {mode === 'year' ? normalized : normalized.split('-').at(-1)}
             </Text>
             {mark ? <View style={[styles.mark, slotStyles?.mark]}>{renderTextNode(mark.content)}</View> : null}
@@ -424,8 +435,10 @@ function CalendarRoot({
   todayText = DEFAULT_TODAY_TEXT,
   value,
 }: CalendarProps) {
+  const { token } = useTheme();
   const resolvedMode = resolveMode(mode);
   const resolvedSize = resolveSize(size);
+  const actionHitSlop = token.paddingXXS;
   const tokenStyles = useCalendarStyles({ size: resolvedSize });
   const normalizedControlledValue =
     value === undefined ? undefined : normalizeValue(value, resolvedMode);
@@ -497,7 +510,7 @@ function CalendarRoot({
             />
           )}
         </Pressable>
-        <Text style={[tokenStyles.title, styles?.title]}>{panelTitle(panel, resolvedMode)}</Text>
+        <Text color="heading" style={[tokenStyles.title, styles?.title]}>{panelTitle(panel, resolvedMode)}</Text>
         <Pressable
           disabled={disabled}
           onPress={() => {
@@ -521,7 +534,7 @@ function CalendarRoot({
         <View style={[tokenStyles.weekHeader, styles?.weekHeader]}>
           {WEEK_DAYS.map(day => (
             <View key={day} style={tokenStyles.weekCell}>
-              <Text style={[tokenStyles.weekText, styles?.weekText]}>{day}</Text>
+              <Text color="tertiary" style={styles?.weekText}>{day}</Text>
             </View>
           ))}
         </View>
@@ -541,7 +554,7 @@ function CalendarRoot({
           {showToday ? (
             <Pressable
               disabled={disabled}
-              hitSlop={ACTION_HIT_SLOP}
+              hitSlop={actionHitSlop}
               onPress={handleToday}
             >
               {renderSlotNode(today, todayText)}
@@ -551,7 +564,7 @@ function CalendarRoot({
             <>
               <Pressable
                 disabled={disabled}
-                hitSlop={ACTION_HIT_SLOP}
+                hitSlop={actionHitSlop}
                 onPress={() => {
                   setDraftValue(undefined);
                   onCancel?.();
@@ -562,7 +575,7 @@ function CalendarRoot({
               </Pressable>
               <Pressable
                 disabled={disabled}
-                hitSlop={ACTION_HIT_SLOP}
+                hitSlop={actionHitSlop}
                 onPress={handleConfirm}
                 style={tokenStyles.footerAction}
                 testID="calendar-confirm"
@@ -607,8 +620,10 @@ function CalendarRange({
   todayText = DEFAULT_TODAY_TEXT,
   value,
 }: CalendarRangeProps) {
+  const { token } = useTheme();
   const resolvedMode = resolveMode(mode);
   const resolvedSize = resolveSize(size);
+  const actionHitSlop = token.paddingXXS;
   const tokenStyles = useCalendarStyles({ size: resolvedSize });
   const normalizedControlledValue =
     value === undefined
@@ -687,7 +702,7 @@ function CalendarRange({
             />
           )}
         </Pressable>
-        <Text style={[tokenStyles.title, styles?.title]}>{panelTitle(panel, resolvedMode)}</Text>
+        <Text color="heading" style={[tokenStyles.title, styles?.title]}>{panelTitle(panel, resolvedMode)}</Text>
         <Pressable
           disabled={disabled}
           onPress={() => {
@@ -723,7 +738,7 @@ function CalendarRange({
           {showToday ? (
             <Pressable
               disabled={disabled}
-              hitSlop={ACTION_HIT_SLOP}
+              hitSlop={actionHitSlop}
               onPress={() => {
                 const nextToday = todayValue(resolvedMode);
                 setPanel(parsePanel(nextToday));
@@ -740,7 +755,7 @@ function CalendarRange({
             <>
               <Pressable
                 disabled={disabled}
-                hitSlop={ACTION_HIT_SLOP}
+                hitSlop={actionHitSlop}
                 onPress={() => {
                   setDraftRange([]);
                   onCancel?.();
@@ -751,7 +766,7 @@ function CalendarRange({
               </Pressable>
               <Pressable
                 disabled={disabled}
-                hitSlop={ACTION_HIT_SLOP}
+                hitSlop={actionHitSlop}
                 onPress={handleConfirm}
                 style={tokenStyles.footerAction}
                 testID="calendar-confirm"

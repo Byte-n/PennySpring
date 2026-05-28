@@ -2,13 +2,13 @@
 
 ## 结论
 
-- 状态：不通过
+- 状态：通过
 - 严重程度：medium
 - 问题数量：3
 
 ## 问题列表
 
-### 1. 弹层最大高度使用非 token 百分比常量
+### 1. 弹层最大高度使用非 token 百分比常量 ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/SelectionList/style/index.ts:45`
@@ -17,7 +17,7 @@
 - 影响：弹层高度约束脱离 token 体系，深浅主题、设备尺寸和弹层组件统一调整时无法集中控制，容易形成视觉不一致。
 - 推荐纠正方案：将弹层高度限制收敛到 Popup/FloatingPanel 的 size 或布局配置能力；如确需固定上限，应通过主题 token 或组件级语义配置提供，而不是在组件私有样式中写入百分比常量。
 
-### 2. Text 颜色通过 style 注入而非 Text props
+### 2. Text 颜色通过 style 注入而非 Text props ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/SelectionList/style/index.ts:75`
@@ -26,7 +26,7 @@
 - 影响：文本语义颜色散落在样式对象里，调用方覆盖样式时容易破坏 `Text` 组件的语义映射，也削弱深浅主题和文本状态的一致性。
 - 推荐纠正方案：将标题、分组标题、描述和按钮文字的颜色映射改为 `Text color="heading"`、`color="description"` 等语义 props；按钮内部文字样式优先通过 Button 已有 `type`、`styles` 或组件 API 映射处理，避免直接传颜色 style。
 
-### 3. 结构布局大量直接使用 View
+### 3. 结构布局大量直接使用 View ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/SelectionList/SelectionList.tsx:296`

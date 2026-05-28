@@ -6,6 +6,8 @@ import { defaultSeedToken } from '@pennyspring/theme';
 import { derivative } from '@pennyspring/theme/src/algorithms/derivative';
 import { formatToken } from '@pennyspring/theme/src/algorithms/formatToken';
 import { Badge } from '../src/Badge';
+import { Text } from '../src/Text';
+import { DEFAULT_OVERFLOW_COUNT } from '../src/Badge/Badge';
 
 const token = formatToken(derivative(defaultSeedToken, false));
 
@@ -208,5 +210,38 @@ describe('Badge', () => {
 
     expect(childNode).toBeTruthy();
     expect(hiddenWithChildRenderer.root.findAllByType(RNText)).toHaveLength(0);
+  });
+
+  it('uses Text semantic props for count content instead of injecting text color and size via style', () => {
+    // Arrange
+    const testRenderer = renderBadge({
+      count: 8,
+      size: 'large',
+    });
+
+    // Act
+    const badgeTextNode = testRenderer.root.findByType(Text);
+    const mergedStyle = flattenStyle(badgeTextNode.props.style);
+
+    // Assert
+    expect(badgeTextNode.props.color).toBe('lightSolid');
+    expect(badgeTextNode.props.weight).toBe('strong');
+    expect(badgeTextNode.props.size).toBe('md');
+    expect(mergedStyle.color).toBeUndefined();
+    expect(mergedStyle.fontSize).toBeUndefined();
+    expect(mergedStyle.fontWeight).toBeUndefined();
+  });
+
+  it('uses named default overflow threshold when overflowCount is not provided', () => {
+    // Arrange
+    const exceededCount = DEFAULT_OVERFLOW_COUNT + 1;
+
+    // Act
+    const testRenderer = renderBadge({
+      count: exceededCount,
+    });
+
+    // Assert
+    expect(JSON.stringify(testRenderer.toJSON())).toContain(`${DEFAULT_OVERFLOW_COUNT}+`);
   });
 });

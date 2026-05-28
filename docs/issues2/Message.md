@@ -2,13 +2,13 @@
 
 ## 结论
 
-- 状态：不通过
+- 状态：通过
 - 严重程度：medium
 - 问题数量：2
 
 ## 问题列表
 
-### 1. 消息文本优先通过 style 控制颜色
+### 1. 消息文本优先通过 style 控制颜色 ✅
 
 - 严重程度：low
 - 位置：`packages/pennyspring-ui/src/Message/Message.tsx:210`
@@ -17,7 +17,7 @@
 - 影响：全局反馈消息的文本色彩语义绕过 `Text` API，和 Toast/Notification 等反馈组件不易保持一致。
 - 推荐纠正方案：使用 `Text color="default"` 或相应语义 props 表达颜色，样式插槽只保留布局或额外覆盖。
 
-### 2. Message 内容布局使用 Animated.View/View 手写
+### 2. Message 内容布局使用 Animated.View/View 手写 ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/Message/Message.tsx:199`

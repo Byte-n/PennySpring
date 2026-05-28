@@ -7,6 +7,7 @@ import { GestureDetector } from 'react-native-gesture-handler';
 import Animated, { useAnimatedStyle } from 'react-native-reanimated';
 import { useTheme } from '@pennyspring/theme';
 
+import { Column } from '../Column';
 import { useControllableValue } from '../_hooks';
 import { CarouselIndicator } from './carousel-indicator';
 import { CarouselSlides } from './carousel-slides';
@@ -34,8 +35,6 @@ export const Carousel = <Data = unknown,>(props: CarouselProps<Data>) => {
     defaultValue,
     value,
     onChange,
-    defaultIndex,
-    onIndexChange,
     allowTouchMove = true,
     autoplay = false,
     autoplayInterval = 3000,
@@ -55,12 +54,11 @@ export const Carousel = <Data = unknown,>(props: CarouselProps<Data>) => {
   } = props;
 
   const { token } = useTheme();
-  const mergedOnChange = onChange ?? onIndexChange;
-  const mergedDefaultValue = defaultValue ?? defaultIndex ?? 0;
+  const mergedDefaultValue = defaultValue ?? 0;
   const [currentValue = 0, setCurrentValue] = useControllableValue(
     mergedDefaultValue,
     value,
-    mergedOnChange,
+    onChange,
   );
 
   const [layout, setLayout] = useState<LayoutState>({ width: 0, height: 0 });
@@ -265,7 +263,7 @@ export const Carousel = <Data = unknown,>(props: CarouselProps<Data>) => {
   }
 
   const content = (
-    <View style={[styles.container, style]}>
+    <Column style={[styles.container, style]} testID="carousel-root">
       <View style={styles.track} onLayout={onLayoutTrack}>
         <Animated.View style={[styles.trackInner, trackInnerStyle, trackTransformStyle]}>
           <CarouselSlides<Data>
@@ -291,7 +289,7 @@ export const Carousel = <Data = unknown,>(props: CarouselProps<Data>) => {
           styles={styles}
         />
       </View>
-    </View>
+    </Column>
   );
 
   if (!panGesture) {

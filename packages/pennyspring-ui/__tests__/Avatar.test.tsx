@@ -2,6 +2,7 @@ import React from 'react';
 import { Image, StyleSheet, View } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
 import { Text } from '../src/Text';
+import { Row } from '../src/Row';
 import { Avatar, formatAvatarText } from '../src/Avatar';
 function renderAvatar(props: React.ComponentProps<typeof Avatar>) {
   let testRenderer: renderer.ReactTestRenderer;
@@ -34,6 +35,57 @@ describe('Avatar', () => {
     const treeString = JSON.stringify(testRenderer.toJSON());
     expect(treeString).toContain('A');
     expect(treeString).not.toContain('Alice');
+  });
+  it('passes text size and semantic color through Text props when text is displayed', () => {
+    // Arrange
+    const testRenderer = renderAvatar({
+      size: 'small',
+      text: 'Alice'
+    });
+
+    // Act
+    const avatarText = testRenderer.root.findByType(Text);
+
+    // Assert
+    expect(avatarText.props.size).toBe('sm');
+    expect(avatarText.props.color).toBe('default');
+  });
+  it('maps text size prop across component sizes', () => {
+    // Arrange
+    const normalRenderer = renderAvatar({
+      size: 'normal',
+      text: 'Alice'
+    });
+    const largeRenderer = renderAvatar({
+      size: 'large',
+      text: 'Alice'
+    });
+
+    // Act
+    const normalText = normalRenderer.root.findByType(Text);
+    const largeText = largeRenderer.root.findByType(Text);
+
+    // Assert
+    expect(normalText.props.size).toBe('md');
+    expect(largeText.props.size).toBe('lg');
+  });
+  it('does not inject typography semantics through Avatar internal text style', () => {
+    // Arrange
+    const testRenderer = renderAvatar({
+      size: 'large',
+      text: 'Alice'
+    });
+
+    // Act
+    const avatarText = testRenderer.root.findByType(Text);
+    const flattenedStyle = StyleSheet.flatten(avatarText.props.style);
+
+    // Assert
+    expect(flattenedStyle?.fontFamily).toBeUndefined();
+    expect(flattenedStyle?.fontSize).toBeUndefined();
+    expect(flattenedStyle?.fontWeight).toBeUndefined();
+    expect(flattenedStyle?.lineHeight).toBeUndefined();
+    expect(flattenedStyle?.color).toBeUndefined();
   });
   it('renders icon when image and text are unavailable', () => {
     const testRenderer = renderAvatar({
@@ -116,6 +168,49 @@ describe('Avatar.Group', () => {
     expect(renderedText).not.toContain('C');
     expect(renderedText).not.toContain('D');
     expect(renderedText).toContain('+2');
+  });
+  it('uses Row as the root layout container for horizontal avatar composition', () => {
+    // Arrange
+    const testRenderer = renderAvatarGroup({
+      items: [{
+        key: 'alice',
+        text: 'Alice'
+      }, {
+        key: 'bob',
+        text: 'Bob'
+      }]
+    });
+
+    // Act
+    const rootRows = testRenderer.root.findAllByType(Row);
+
+    // Assert
+    expect(rootRows).toHaveLength(1);
+  });
+  it('passes semantic text props for rest count content', () => {
+    // Arrange
+    const testRenderer = renderAvatarGroup({
+      items: [{
+        key: 'alice',
+        text: 'Alice'
+      }, {
+        key: 'bob',
+        text: 'Bob'
+      }, {
+        key: 'cora',
+        text: 'Cora'
+      }],
+      maxCount: 2,
+      size: 'normal'
+    });
+
+    // Act
+    const restText = testRenderer.root.findAllByType(Text).find(node => node.props.children === '+1');
+
+    // Assert
+    expect(restText?.props.color).toBe('secondary');
+    expect(restText?.props.size).toBe('md');
+    expect(restText?.props.weight).toBe('strong');
   });
   it('uses default maxCount when maxCount is invalid', () => {
     const testRenderer = renderAvatarGroup({
@@ -205,8 +300,8 @@ describe('Avatar.Group', () => {
 
     expect(smallRest.containerStyle.height).toBeLessThan(normalRest.containerStyle.height);
     expect(normalRest.containerStyle.height).toBeLessThan(largeRest.containerStyle.height);
-    expect(smallRest.textStyle.fontSize).toBeLessThan(normalRest.textStyle.fontSize);
-    expect(normalRest.textStyle.fontSize).toBeLessThan(largeRest.textStyle.fontSize);
+    expect(smallRest.containerStyle.paddingHorizontal).toBeLessThan(normalRest.containerStyle.paddingHorizontal);
+    expect(normalRest.containerStyle.paddingHorizontal).toBeLessThan(largeRest.containerStyle.paddingHorizontal);
   });
 });
 function renderAvatarGroup(props: React.ComponentProps<typeof Avatar.Group>) {

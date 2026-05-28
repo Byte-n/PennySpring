@@ -114,7 +114,7 @@ const useStyles = createUseSheetStyle(
     return {
       content: {
         position: 'absolute',
-        zIndex: token.zIndexPopupBase + 100,
+        zIndex: token.zIndexPopupBase,
         ...resolveOverlayPlacementStyle(placement, token),
         maxWidth: maxContentWidth,
         backgroundColor: resolveTypeBgColor(token, type),
@@ -126,10 +126,8 @@ const useStyles = createUseSheetStyle(
         gap: sizeConfig.gap(token),
       },
       titleText: {
-        color: token.colorTextHeading,
       },
       descriptionText: {
-        color: token.colorTextSecondary,
       },
     };
   },
@@ -244,6 +242,7 @@ function NotificationBody({
     >
       {title ?? (
         <Text
+          color="heading"
           size={SIZE_MAP[size].titleTextSize}
           weight="strong"
           style={[tokenStyles.titleText, styles?.titleText]}
@@ -253,6 +252,7 @@ function NotificationBody({
       )}
       {description ?? (
         <Text
+          color="secondary"
           size={SIZE_MAP[size].descriptionTextSize}
           style={[tokenStyles.descriptionText, styles?.descriptionText]}
         >

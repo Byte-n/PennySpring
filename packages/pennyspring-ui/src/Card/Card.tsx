@@ -3,13 +3,16 @@ import React from 'react';
 import { Pressable, View } from 'react-native';
 import { createUseSheetStyle, toShadowStyle } from '@pennyspring/theme';
 import { Text } from '../Text';
+import { Column } from '../Column';
+import { Row } from '../Row';
 import type {
   GestureResponderEvent,
-  TextStyle } from 'react-native';
+} from 'react-native';
 import type { AliasToken } from '@pennyspring/theme';
 import type { CardProps,
   CardVariant,
 } from './types';
+import type { TextSize } from '../Text/types';
 
 interface CardStyleOptions {
   size: ComponentSize;
@@ -19,8 +22,7 @@ interface CardStyleOptions {
 interface SizeStyleConfig {
   padding: (token: AliasToken) => number;
   gap: (token: AliasToken) => number;
-  titleFontSize: (token: AliasToken) => number;
-  titleLineHeight: (token: AliasToken) => number;
+  titleTextSize: TextSize;
   borderRadius: (token: AliasToken) => number;
 }
 
@@ -34,22 +36,19 @@ const SIZE_STYLE_MAP: Record<ComponentSize, SizeStyleConfig> = {
   small: {
     padding: token => token.paddingSM,
     gap: token => token.marginXXS,
-    titleFontSize: token => token.fontSize,
-    titleLineHeight: token => token.lineHeight,
+    titleTextSize: 'md',
     borderRadius: token => token.borderRadiusSM,
   },
   normal: {
     padding: token => token.padding,
     gap: token => token.marginXS,
-    titleFontSize: token => token.fontSizeLG,
-    titleLineHeight: token => token.lineHeightLG,
+    titleTextSize: 'lg',
     borderRadius: token => token.borderRadius,
   },
   large: {
     padding: token => token.paddingMD,
     gap: token => token.marginSM,
-    titleFontSize: token => token.fontSizeXL,
-    titleLineHeight: token => token.lineHeightXL,
+    titleTextSize: 'xl',
     borderRadius: token => token.borderRadiusLG,
   },
 };
@@ -94,24 +93,14 @@ const useStyles = createUseSheetStyle(
         opacity: token.opacityLoading,
       },
       header: {
-        alignItems: 'center',
-        flexDirection: 'row',
         gap,
         marginBottom: gap,
       },
       titleContainer: {
         flex: 1,
       },
-      title: {
-        color: token.colorTextHeading,
-        fontFamily: token.fontFamily,
-        fontSize: sizeConfig.titleFontSize(token),
-        fontWeight: String(token.fontWeightStrong) as TextStyle['fontWeight'],
-        lineHeight: sizeConfig.titleLineHeight(token),
-      },
       extra: {
-        alignItems: 'center',
-        flexDirection: 'row',
+        alignSelf: 'center',
       },
       body: {},
       bodyLoading: {
@@ -167,23 +156,32 @@ export function Card({
     }
 
     if (hasTitleText) {
-      return <Text style={[tokenStyles.title, styles?.titleText]}>{titleText}</Text>;
+      return (
+        <Text
+          color="heading"
+          size={SIZE_STYLE_MAP[size].titleTextSize}
+          style={styles?.titleText}
+          weight="strong"
+        >
+          {titleText}
+        </Text>
+      );
     }
 
     return null;
   }
 
   const content = (
-    <>
+    <Column>
       {shouldRenderHeader ? (
-        <View style={[tokenStyles.header, styles?.header]}>
-          <View style={tokenStyles.titleContainer}>{renderTitle()}</View>
+        <Row align="center" style={[tokenStyles.header, styles?.header]}>
+          <Column style={tokenStyles.titleContainer}>{renderTitle()}</Column>
           {hasExtra ? (
-            <View style={[tokenStyles.extra, styles?.extra]}>{extra}</View>
+            <Column style={[tokenStyles.extra, styles?.extra]}>{extra}</Column>
           ) : null}
-        </View>
+        </Row>
       ) : null}
-      <View
+      <Column
         style={[
           tokenStyles.body,
           styles?.body,
@@ -191,11 +189,11 @@ export function Card({
         ]}
       >
         {bodyContent}
-      </View>
+      </Column>
       {shouldRenderFooter ? (
-        <View style={[tokenStyles.footer, styles?.footer]}>{footer}</View>
+        <Column style={[tokenStyles.footer, styles?.footer]}>{footer}</Column>
       ) : null}
-    </>
+    </Column>
   );
 
   if (shouldUsePressable) {

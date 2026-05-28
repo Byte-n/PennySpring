@@ -12,6 +12,7 @@ interface SizeConfig {
 }
 
 const OK_KEY_ROW_SPAN = 2;
+const LEFT_KEYPAD_FLEX_RATIO = 3;
 
 const SIZE_CONFIG: SizeConfig = {
   keyHeight: token => token.controlHeightLG,
@@ -95,7 +96,7 @@ export const useStyles = createUseSheetStyle(
       color: token.colorTextDisabled,
     },
     leftPad: {
-      width: '75%'
+      flex: LEFT_KEYPAD_FLEX_RATIO,
     },
   }),
 );

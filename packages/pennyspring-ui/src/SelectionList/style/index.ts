@@ -42,7 +42,7 @@ const SIZE_MAP: Record<ComponentSize, SizeConfig> = {
   },
 };
 
-const POPUP_MAX_HEIGHT = '85%';
+const POPUP_MAX_HEIGHT = '100%';
 
 export const useSelectionListStyles = createUseSheetStyle(
   (token, { size }: SelectionListStyleOptions) => {
@@ -73,7 +73,6 @@ export const useSelectionListStyles = createUseSheetStyle(
         gap: token.marginSM,
       },
       headerText: {
-        color: token.colorTextHeading,
       },
       fieldActive: {
         borderColor: token.colorPrimary,
@@ -85,7 +84,6 @@ export const useSelectionListStyles = createUseSheetStyle(
         gap: token.marginXXS / 2,
       },
       groupTitle: {
-        color: token.colorTextDescription,
       },
       option: {
         minHeight: sizeConfig.minHeight(token),
@@ -115,7 +113,6 @@ export const useSelectionListStyles = createUseSheetStyle(
         gap: token.marginXXS / 2,
       },
       optionDescription: {
-        color: token.colorTextDescription,
       },
       optionMeta: {
         flexShrink: 0,
@@ -146,10 +143,8 @@ export const useSelectionListStyles = createUseSheetStyle(
         backgroundColor: token.colorPrimary,
       },
       footerButtonText: {
-        color: token.colorText,
       },
       footerPrimaryButtonText: {
-        color: token.colorTextLightSolid,
       },
     };
   },

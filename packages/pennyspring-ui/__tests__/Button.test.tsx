@@ -3,6 +3,7 @@ import { ActivityIndicator } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
 import { Button } from '../src/Button';
 import { Icon } from '../src/Icon';
+import { Row } from '../src/Row';
 import { Text } from '../src/Text';
 function renderButton(props: Partial<React.ComponentProps<typeof Button>> = {}) {
   let testRenderer: renderer.ReactTestRenderer;
@@ -89,14 +90,15 @@ describe('Button', () => {
     const smallIcon = smallRenderer.root.findByType(Icon);
     const normalIcon = normalRenderer.root.findByType(Icon);
     const largeIcon = largeRenderer.root.findByType(Icon);
-    const smallTextStyle = getContentTextStyle(smallRenderer);
-    const normalTextStyle = getContentTextStyle(normalRenderer);
-    const largeTextStyle = getContentTextStyle(largeRenderer);
+    const smallText = smallRenderer.root.findByType(Text);
+    const normalText = normalRenderer.root.findByType(Text);
+    const largeText = largeRenderer.root.findByType(Text);
     expect(smallIcon.props.size).toBe('small');
     expect(normalIcon.props.size).toBe('normal');
     expect(largeIcon.props.size).toBe('large');
-    expect(normalTextStyle.fontSize).toBeGreaterThan(smallTextStyle.fontSize as number);
-    expect(largeTextStyle.fontSize).toBeGreaterThan(normalTextStyle.fontSize as number);
+    expect(smallText.props.size).toBe('sm');
+    expect(normalText.props.size).toBe('md');
+    expect(largeText.props.size).toBe('lg');
   });
   it('blocks presses while loading', () => {
     const onPress = jest.fn();
@@ -194,5 +196,38 @@ describe('Button', () => {
     expect(baselineIcon.props.size).toBe('large');
     expect(disabledIndicator.props.color).not.toBe(enabledIndicator.props.color);
     expect(typeof enabledIndicator.props.size).toBe('number');
+  });
+  it('maps button text semantics to Text props before style overrides', () => {
+    // Arrange
+    const testRenderer = renderButton({
+      type: 'primary',
+      size: 'small',
+      children: 'Save',
+    });
+
+    // Act
+    const textNode = testRenderer.root.findByType(Text);
+    const textStyle = getContentTextStyle(testRenderer);
+
+    // Assert
+    expect(textNode.props.size).toBe('sm');
+    expect(textNode.props.weight).toBe('medium');
+    expect(textNode.props.color).toBe('lightSolid');
+    expect(textStyle.color).toBeUndefined();
+    expect(textStyle.fontSize).toBeUndefined();
+    expect(textStyle.fontWeight).toBeUndefined();
+  });
+  it('renders icon container with Row layout primitive', () => {
+    // Arrange
+    const testRenderer = renderButton({
+      icon: 'check',
+      children: 'Save',
+    });
+
+    // Act
+    const rowNodes = testRenderer.root.findAllByType(Row);
+
+    // Assert
+    expect(rowNodes).toHaveLength(1);
   });
 });

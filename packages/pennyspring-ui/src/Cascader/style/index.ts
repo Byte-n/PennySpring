@@ -1,6 +1,5 @@
 import { createUseSheetStyle } from '@pennyspring/theme';
 import type { AliasToken } from '@pennyspring/theme';
-import type { TextStyle } from 'react-native';
 import type { ComponentSize } from '../../shares/types';
 
 interface CascaderStyleOptions {
@@ -67,7 +66,8 @@ export const useCascaderStyles = createUseSheetStyle(
         borderRadius: token.borderRadius,
         borderColor: token.colorBorder,
         backgroundColor: token.colorBgContainer,
-        flexDirection: 'row',
+      },
+      triggerRow: {
         alignItems: 'center',
         gap: sizeConfig.gap(token),
       },
@@ -84,18 +84,6 @@ export const useCascaderStyles = createUseSheetStyle(
       valueArea: {
         flex: 1,
         minWidth: 0,
-      },
-      valueText: {
-        fontFamily: token.fontFamily,
-        fontSize: sizeConfig.fontSize(token),
-        lineHeight: sizeConfig.lineHeight(token),
-        color: token.colorText,
-      },
-      placeholder: {
-        fontFamily: token.fontFamily,
-        fontSize: sizeConfig.fontSize(token),
-        lineHeight: sizeConfig.lineHeight(token),
-        color: token.colorTextPlaceholder,
       },
       suffix: {
         color: token.colorIcon,
@@ -117,7 +105,8 @@ export const useCascaderStyles = createUseSheetStyle(
         paddingVertical: sizeConfig.paddingVertical(token),
         borderRadius: token.borderRadiusSM,
         backgroundColor: token.colorBgContainer,
-        flexDirection: 'row',
+      },
+      optionRow: {
         alignItems: 'center',
         gap: sizeConfig.gap(token),
       },
@@ -144,19 +133,6 @@ export const useCascaderStyles = createUseSheetStyle(
       optionContent: {
         flex: 1,
         minWidth: 0,
-      },
-      optionLabel: {
-        fontFamily: token.fontFamily,
-        fontSize: sizeConfig.fontSize(token),
-        lineHeight: sizeConfig.lineHeight(token),
-        color: token.colorText,
-      },
-      optionLabelSelected: {
-        color: token.colorPrimaryText,
-        fontWeight: String(token.fontWeightStrong) as TextStyle['fontWeight'],
-      },
-      optionLabelDisabled: {
-        color: token.colorTextDisabled,
       },
       empty: {
         minHeight: token.controlHeight,

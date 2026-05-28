@@ -2,13 +2,13 @@
 
 ## 结论
 
-- 状态：不通过
+- 状态：通过
 - 严重程度：medium
 - 问题数量：2
 
 ## 问题列表
 
-### 1. Button 内部文本优先通过 style 控制字号和颜色
+### 1. Button 内部文本优先通过 style 控制字号和颜色 ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/Button/Button.tsx:355`
@@ -17,7 +17,7 @@
 - 影响：按钮作为核心交互组件，如果文本语义绕过 `Text` props，会增加尺寸、颜色、禁用态与 Icon 语义对齐成本。
 - 推荐纠正方案：将按钮文本颜色、字号、字重优先映射到 `Text` 的 `color`、`size`、`weight` 等公开 props；`styles.content` 仅保留必要的局部覆盖。
 
-### 2. Button 使用 View 手写图标布局容器
+### 2. Button 使用 View 手写图标布局容器 ✅
 
 - 严重程度：low
 - 位置：`packages/pennyspring-ui/src/Button/Button.tsx:439`

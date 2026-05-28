@@ -2,13 +2,13 @@
 
 ## 结论
 
-- 状态：不通过
+- 状态：通过
 - 严重程度：medium
 - 问题数量：2
 
 ## 问题列表
 
-### 1. 预设色动作背景返回内联样式对象
+### 1. 预设色动作背景返回内联样式对象 ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/SwipeAction/style/index.ts:158`
@@ -17,7 +17,7 @@
 - 影响：预设色背景样式绕过样式工厂，与其他 token 样式的创建路径不一致，增加主题切换、缓存和巡检维护成本。
 - 推荐纠正方案：将预设色背景样式纳入 `useStyles` 返回值，或通过 `createUseSheetStyle` options 传入当前 action color 后生成对应 slot；避免在普通函数中返回新的样式字面量对象。
 
-### 2. pressed 状态透明度硬编码
+### 2. pressed 状态透明度硬编码 ✅
 
 - 严重程度：low
 - 位置：`packages/pennyspring-ui/src/SwipeAction/style/index.ts:99`

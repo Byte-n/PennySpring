@@ -25,6 +25,8 @@ interface ResultStatusConfig {
   iconName: IconName;
 }
 
+export const RESULT_LARGE_ICON_SCALE = 1.25;
+
 export const SIZE_STYLE_MAP: Record<ComponentSize, ResultSizeConfig> = {
   small: {
     gap: token => token.marginXXS,
@@ -47,8 +49,8 @@ export const SIZE_STYLE_MAP: Record<ComponentSize, ResultSizeConfig> = {
     paddingVertical: token => token.paddingLG / 2,
     titleSize: 'xl',
     subtitleSize: 'lg',
-    iconContainerSize: token => token.sizeXXL * 1.25,
-    iconBorderRadius: token => (token.sizeXXL * 1.25) / 2,
+    iconContainerSize: token => token.sizeXXL * RESULT_LARGE_ICON_SCALE,
+    iconBorderRadius: token => (token.sizeXXL * RESULT_LARGE_ICON_SCALE) / 2,
   },
 };
 
@@ -95,11 +97,9 @@ export const useStyles = createUseSheetStyle(
         width: sizeConfig.iconContainerSize(token),
       },
       title: {
-        color: token.colorTextHeading,
         textAlign: 'center',
       },
       subtitle: {
-        color: token.colorTextSecondary,
         textAlign: 'center',
       },
       extra: {

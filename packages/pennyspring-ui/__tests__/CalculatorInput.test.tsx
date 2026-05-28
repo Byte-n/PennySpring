@@ -2,6 +2,7 @@ import React from 'react';
 import renderer, { act } from 'react-test-renderer';
 import { TextInput } from 'react-native';
 import { CalculatorInput } from '../src/CalculatorInput';
+import { Column } from '../src/Column';
 import { Icon } from '../src/Icon';
 import { Text } from '../src/Text';
 import { Popup } from '../src/Popup';
@@ -329,5 +330,27 @@ describe('CalculatorInput styling compliance', () => {
 
     expect(resultText.props.size).toBe('md');
     expect(resultText.props.color).toBe('secondary');
+  });
+
+  it('uses flex layout for left keypad area instead of hardcoded percentage width', () => {
+    const testRenderer = renderCalculatorInput();
+    const leftPadColumn = testRenderer.root
+      .findAllByType(Column)
+      .find(node => node.props.style?.width === '75%');
+
+    expect(leftPadColumn).toBeUndefined();
+  });
+
+  it('uses object hitSlop for keypad keys instead of numeric literal', () => {
+    const testRenderer = renderCalculatorInput();
+    const key = testRenderer.root.findByProps({ testID: 'calc-key-7' });
+
+    expect(typeof key.props.hitSlop).toBe('object');
+    expect(key.props.hitSlop).toMatchObject({
+      top: expect.any(Number),
+      right: expect.any(Number),
+      bottom: expect.any(Number),
+      left: expect.any(Number),
+    });
   });
 });

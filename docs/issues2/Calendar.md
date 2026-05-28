@@ -2,13 +2,13 @@
 
 ## 结论
 
-- 状态：不通过
+- 状态：通过
 - 严重程度：medium
 - 问题数量：3
 
 ## 问题列表
 
-### 1. 日历网格样式硬编码非例外百分比宽度
+### 1. 日历网格样式硬编码非例外百分比宽度 ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/Calendar/Calendar.tsx:28`
@@ -17,7 +17,7 @@
 - 影响：网格列数与宽度算法隐藏在硬编码样式中，后续调整模式列数、响应式布局或 token 体系时缺少语义入口。
 - 推荐纠正方案：优先用 `Grid` 组件或 `flexBasis`/布局算法表达列数；确需百分比时应提取语义化布局算法并记录为局部例外，避免裸百分比写入样式。
 
-### 2. 操作按钮 hitSlop 使用硬编码数值
+### 2. 操作按钮 hitSlop 使用硬编码数值 ✅
 
 - 严重程度：low
 - 位置：`packages/pennyspring-ui/src/Calendar/Calendar.tsx:29`
@@ -26,7 +26,7 @@
 - 影响：操作按钮热区无法随组件尺寸或主题 token 调整，可能造成不同尺寸下交互体验不一致。
 - 推荐纠正方案：通过 `useTheme().token` 或 `createUseSheetStyle` 使用 `paddingXXS`、`controlHeightSM` 等 token 计算 hitSlop。
 
-### 3. Calendar 内部展示文本优先通过 style 控制颜色
+### 3. Calendar 内部展示文本优先通过 style 控制颜色 ✅
 
 - 严重程度：low
 - 位置：`packages/pennyspring-ui/src/Calendar/Calendar.tsx:386`

@@ -2,13 +2,13 @@
 
 ## 结论
 
-- 状态：不通过
+- 状态：通过
 - 严重程度：medium
 - 问题数量：2
 
 ## 问题列表
 
-### 1. 受控索引 API 同时暴露两套命名
+### 1. 受控索引 API 同时暴露两套命名 ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/Carousel/types.ts:17`
@@ -17,7 +17,7 @@
 - 影响：调用方会面对两套等价 API，受控/非受控语义变复杂，也增加类型文档和行为测试成本。
 - 推荐纠正方案：保留 `value`、`defaultValue`、`onChange` 作为唯一主值 API；如果需要兼容旧命名，应在内部迁移期标记废弃并避免作为新公开规范继续扩展。
 
-### 2. 轮播结构使用 View 手写布局容器
+### 2. 轮播结构使用 View 手写布局容器 ✅
 
 - 严重程度：low
 - 位置：`packages/pennyspring-ui/src/Carousel/carousel.tsx:268`

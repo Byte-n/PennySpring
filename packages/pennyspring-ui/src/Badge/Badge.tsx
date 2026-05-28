@@ -2,13 +2,10 @@ import type { ComponentSize } from '../shares/types';
 import React from 'react';
 import { View } from 'react-native';
 import { createUseSheetStyle } from '@pennyspring/theme';
+import type { AliasToken } from '@pennyspring/theme';
 import { Text } from '../Text';
-import type {
-  AliasToken } from '@pennyspring/theme';
-import type { TextStyle } from 'react-native';
-import type { BadgeColor,
-  BadgeProps,
-} from './types';
+import type { TextSize } from '../Text';
+import type { BadgeColor, BadgeProps } from './types';
 
 interface BadgeStyleOptions {
   color: BadgeColor;
@@ -21,7 +18,6 @@ interface BadgeStyleOptions {
 interface SizeStyleConfig {
   height: (token: AliasToken) => number;
   dotSize: (token: AliasToken) => number;
-  fontSize: (token: AliasToken) => number;
   paddingHorizontal: (token: AliasToken) => number;
   offsetTop: (token: AliasToken) => number;
   offsetRight: (token: AliasToken) => number;
@@ -38,11 +34,20 @@ interface ResolvedBadgeOffset {
   y: number;
 }
 
+export const DEFAULT_OVERFLOW_COUNT = 99;
+
+const BADGE_ANCHOR_OFFSET_RATIO = 2;
+
+const BADGE_TEXT_SIZE_MAP: Record<ComponentSize, TextSize> = {
+  small: 'sm',
+  normal: 'sm',
+  large: 'md',
+};
+
 const SIZE_STYLE_MAP: Record<ComponentSize, SizeStyleConfig> = {
   small: {
     height: token => token.size,
     dotSize: token => token.sizeXXS,
-    fontSize: token => token.fontSizeSM,
     paddingHorizontal: token => token.paddingXXS,
     offsetTop: token => token.marginXXS,
     offsetRight: token => token.marginXXS,
@@ -50,7 +55,6 @@ const SIZE_STYLE_MAP: Record<ComponentSize, SizeStyleConfig> = {
   normal: {
     height: token => token.sizeMD,
     dotSize: token => token.sizeXS,
-    fontSize: token => token.fontSizeSM,
     paddingHorizontal: token => token.paddingXS,
     offsetTop: token => token.marginXS,
     offsetRight: token => token.marginXS,
@@ -58,7 +62,6 @@ const SIZE_STYLE_MAP: Record<ComponentSize, SizeStyleConfig> = {
   large: {
     height: token => token.controlHeightXS,
     dotSize: token => token.sizeSM,
-    fontSize: token => token.fontSize,
     paddingHorizontal: token => token.paddingSM,
     offsetTop: token => token.marginSM,
     offsetRight: token => token.marginSM,
@@ -80,8 +83,6 @@ const PRESET_COLORS = [
   'lime',
   'gold',
 ] as const;
-
-const BADGE_ANCHOR_OFFSET_RATIO = 2;
 
 function resolveBadgeOffset(offset: BadgeProps['offset']): ResolvedBadgeOffset {
   if (Array.isArray(offset)) {
@@ -162,11 +163,11 @@ function resolveNumericCount(
 
 function normalizeOverflowCount(overflowCount?: number): number {
   if (overflowCount === undefined) {
-    return 99;
+    return DEFAULT_OVERFLOW_COUNT;
   }
 
   if (!Number.isFinite(overflowCount) || overflowCount < 0) {
-    return 99;
+    return DEFAULT_OVERFLOW_COUNT;
   }
 
   return Math.floor(overflowCount);
@@ -260,10 +261,6 @@ const useStyles = createUseSheetStyle(
         width: dotSize,
       },
       content: {
-        color: token.colorTextLightSolid,
-        fontFamily: token.fontFamily,
-        fontSize: sizeConfig.fontSize(token),
-        fontWeight: String(token.fontWeightStrong) as TextStyle['fontWeight'],
         lineHeight: indicatorHeight,
       },
     };
@@ -278,10 +275,16 @@ function renderBadgeContent(
   content: BadgeProps['count'],
   badgeStyles: BadgeProps['styles'],
   tokenContentStyle: ReturnType<typeof useStyles>['content'],
+  size: ComponentSize,
 ): React.ReactNode {
   if (isPrimitiveContent(content)) {
     return (
-      <Text style={[tokenContentStyle, badgeStyles?.content]}>
+      <Text
+        color="lightSolid"
+        size={BADGE_TEXT_SIZE_MAP[size]}
+        style={[tokenContentStyle, badgeStyles?.content]}
+        weight="strong"
+      >
         {content}
       </Text>
     );
@@ -321,7 +324,9 @@ export function Badge({
   const badgeNode = shouldRender
     ? (
       <View style={[tokenStyles.indicator, styles?.indicator]}>
-        {dot ? <View style={[tokenStyles.dot, styles?.dot]} /> : renderBadgeContent(resolveDisplayCount(count, normalizedOverflowCount), styles, tokenStyles.content)}
+        {dot
+          ? <View style={[tokenStyles.dot, styles?.dot]} />
+          : renderBadgeContent(resolveDisplayCount(count, normalizedOverflowCount), styles, tokenStyles.content, size)}
       </View>
     )
     : null;

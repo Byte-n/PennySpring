@@ -25,6 +25,8 @@ import {
   withTiming,
 } from 'react-native-reanimated';
 import { Button } from '../Button';
+import { Column } from '../Column';
+import { Row } from '../Row';
 import { Text } from '../Text';
 import type { TextSize } from '../Text';
 import { useControllableValue } from '../_hooks';
@@ -214,7 +216,6 @@ const useStyles = createUseSheetStyle(
         marginBottom: sectionMargin,
       },
       titleText: {
-        color: token.colorTextHeading,
         fontWeight: String(token.fontWeightStrong) as TextStyle['fontWeight'],
       },
       panelBody: {
@@ -355,6 +356,7 @@ function renderTitle(
 
   return (
     <Text
+      color="heading"
       size={titleTextSize}
       style={titleTextStyle}
       testID="floating-panel-title-text"
@@ -781,25 +783,25 @@ export function FloatingPanel({
         mask: styles?.mask,
       }}
     >
-      <View style={[tokenStyles.root, style]} testID="floating-panel-root">
+      <Column style={[tokenStyles.root, style]} testID="floating-panel-root">
         {handleAtTop ? handleNode : null}
-        <View style={[tokenStyles.content, styles?.content]}>
+        <Column style={[tokenStyles.content, styles?.content]}>
           {headerNode ? (
-            <View style={[tokenStyles.header, styles?.header]} testID="floating-panel-header">
+            <Column style={[tokenStyles.header, styles?.header]} testID="floating-panel-header">
               {headerNode}
-            </View>
+            </Column>
           ) : null}
-          <View style={[tokenStyles.panelBody, styles?.panelBody]} testID="floating-panel-body">
+          <Column style={[tokenStyles.panelBody, styles?.panelBody]} testID="floating-panel-body">
             {children}
-          </View>
+          </Column>
           {footerNode ? (
-            <View style={[tokenStyles.footer, styles?.footer]} testID="floating-panel-footer">
+            <Row style={[tokenStyles.footer, styles?.footer]} testID="floating-panel-footer">
               {footerNode}
-            </View>
+            </Row>
           ) : null}
-        </View>
+        </Column>
         {handleAtTop ? null : handleNode}
-      </View>
+      </Column>
     </PopupRoot>
   );
 }

@@ -364,7 +364,6 @@ export const SwipeAction = React.forwardRef<SwipeActionRef, SwipeActionProps>(
       const backgroundStyle = resolveActionBackgroundStyle(
         color,
         tokenStyles,
-        token,
       );
       const textColor = resolveActionTextColor(color, actionDisabled);
 

@@ -2,13 +2,13 @@
 
 ## 结论
 
-- 状态：不通过
+- 状态：通过
 - 严重程度：medium
 - 问题数量：2
 
 ## 问题列表
 
-### 1. 面板标题与索引文本优先通过 style 控制字号和颜色
+### 1. 面板标题与索引文本优先通过 style 控制字号和颜色 ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/IndexBar/IndexBar.tsx:32`
@@ -17,7 +17,7 @@
 - 影响：索引导航文本的大小、颜色和选中态绕过 `Text` API，和 Text/Icon 语义统一规则不一致。
 - 推荐纠正方案：为面板标题和索引项映射 `Text` 的 `color`、`size`、`weight` props；样式插槽仅保留额外覆盖。
 
-### 2. IndexBar 根布局和侧边栏使用 View 手写
+### 2. IndexBar 根布局和侧边栏使用 View 手写 ✅
 
 - 严重程度：low
 - 位置：`packages/pennyspring-ui/src/IndexBar/IndexBar.tsx:100`
