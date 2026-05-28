@@ -81,6 +81,7 @@ export const useStyles = createUseSheetStyle(
         borderRadius: token.borderRadius,
         borderColor: STATUS_BORDER_COLOR_MAP[status](token),
         backgroundColor: token.colorBgContainer,
+        justifyContent: 'center',
       },
       fieldContent: {
         alignItems: 'center',
