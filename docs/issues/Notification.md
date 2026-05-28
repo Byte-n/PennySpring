@@ -2,13 +2,13 @@
 
 ## 结论
 
-- 状态：不通过
+- 状态：通过
 - 严重程度：high
 - 问题数量：4
 
 ## 问题列表
 
-### 1. 受控模式下 duration 自动关闭不会触发关闭请求
+### 1. 受控模式下 duration 自动关闭不会触发关闭请求 ✅
 
 - 严重程度：high
 - 位置：`packages/pennyspring-ui/src/Notification/Notification.tsx:187`
@@ -17,7 +17,7 @@
 - 影响：受控和非受控行为不一致，调用方使用受控 `open` 时 `duration` 公开能力失效；用户可感知的自动关闭行为无法发生，外部状态也收不到关闭意图。
 - 推荐纠正方案：计时关闭时无论是否受控都先触发 `onCancel`，再触发 `onOpenChange(false)`；仅在非受控模式下调用 `setResolvedOpen(false)`。同时保留 `internalCloseStartedRef` 防重入。
 
-### 2. 动态视觉样式在渲染处以内联对象拼接
+### 2. 动态视觉样式在渲染处以内联对象拼接 ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/Notification/Notification.tsx:230`
@@ -26,7 +26,7 @@
 - 影响：样式来源分散，绕过统一 token 样式工厂，后续主题切换、状态扩展和样式审计更难保持一致。
 - 推荐纠正方案：将 `type`、`maxContentWidth` 纳入 `useStyles` 的 options，在 `createUseSheetStyle` 内生成 `backgroundColor` 和 `maxWidth`，渲染处只合并 token 样式、外部样式与动画样式。
 
-### 3. 浮层 zIndex 使用硬编码偏移
+### 3. 浮层 zIndex 使用硬编码偏移 ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/Notification/Notification.tsx:110`
@@ -35,7 +35,7 @@
 - 影响：Notification 会以任意偏移压过其他浮层层级，破坏同级浮层由挂载顺序决定覆盖关系的规则，也增加后续维护者继续叠加魔法数的风险。
 - 推荐纠正方案：改为规范约定的 token 层级，例如反馈浮层统一使用 `token.zIndexPopupBase + 100`，或先在主题/规范中定义明确语义 token 后再使用；避免组件内自定义 `+ 140`。
 
-### 4. 测试未覆盖 Notification 的完整公开可感知行为
+### 4. 测试未覆盖 Notification 的完整公开可感知行为 ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/__tests__/Notification.test.tsx:45`

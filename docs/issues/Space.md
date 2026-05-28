@@ -2,13 +2,13 @@
 
 ## 结论
 
-- 状态：不通过
+- 状态：部分通过
 - 严重程度：medium
 - 问题数量：4
 
 ## 问题列表
 
-### 1. Space 组件样式未按组件目录规范放入 `style/index.ts`
+### 1. Space 组件样式未按组件目录规范放入 `style/index.ts` ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/Space/Space.tsx:101`
@@ -17,7 +17,7 @@
 - 影响：Space 是基础布局组件，样式与组件渲染逻辑混在同一文件中，会让后续样式复用、样式类型扩展、自动化巡检或视觉调整缺少稳定的样式入口，也与组件目录约定不一致。
 - 推荐纠正方案：新增 `packages/pennyspring-ui/src/Space/style/index.ts`，将 `SpaceStyleOptions`、`SpaceItemStyleOptions`、gap 相关样式计算和 `createUseSheetStyle` 定义迁入该文件；组件实现只导入样式 hook 并保留 `SpaceProps`、`SpaceStyles` 在 `types.ts` 中导出。
 
-### 2. 导出的 `Space` 公共组件函数缺少显式返回类型
+### 2. 导出的 `Space` 公共组件函数缺少显式返回类型 ✅
 
 - 严重程度：low
 - 位置：`packages/pennyspring-ui/src/Space/Space.tsx:174`
@@ -26,7 +26,7 @@
 - 影响：公共组件 API 的返回契约依赖 TypeScript 推断，后续重构时更容易在不显式变更 API 的情况下改变返回形态，也降低组件公共 API 文档化程度。
 - 推荐纠正方案：为 `Space` 添加显式返回类型，例如 `export function Space(...): React.ReactElement`；如团队对可空渲染有统一约定，则使用对应的显式 React 返回类型，并保持 `SpaceProps` 继续由 `types.ts` 导出。
 
-### 3. 测试未覆盖多个公开且用户可感知的布局能力
+### 3. 测试未覆盖多个公开且用户可感知的布局能力 ✅
 
 - 严重程度：low
 - 位置：`packages/pennyspring-ui/__tests__/Space.test.tsx:48`
@@ -35,7 +35,7 @@
 - 影响：Space 作为布局原语，公开布局 props 缺少回归保护；后续修改可能破坏对齐、分布、换行或样式覆盖能力，但现有测试仍可能通过。
 - 推荐纠正方案：按 AAA 结构补充用户可感知行为测试：默认 `direction` 为 horizontal 且根为 row；`direction="vertical"` 改为 column；`align`/`justify` 正确映射到 `alignItems`/`justifyContent`；`wrap` 开启 `flexWrap` 且非最后项具备 half-gap 垂直间距；`style` 与 `styles.item` 能按 token 样式、运行时样式、外部样式的顺序合并。
 
-### 4. Space 详细文档覆盖面需要人工确认
+### 4. Space 详细文档覆盖面需要人工确认 ⏭️（原因：文档内容需人工审查，无法通过代码修改自动修复）
 
 - 严重程度：low
 - 位置：`packages/pennyspring-ui/docs/components/foundation/space.mdx:1`

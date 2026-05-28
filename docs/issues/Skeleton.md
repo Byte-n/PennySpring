@@ -3,9 +3,10 @@
 - 组件：`Skeleton`
 - 范围：`packages/pennyspring-ui/src/Skeleton`、包级导出、非 demos 文档与测试引用
 - 未审查：`packages/pennyspring-ui/examples/previews/**/demos/**`
-- 结论：reported
+- 结论：通过
+- 状态：通过
 
-## 1. 包级导出未同步导出公开样式类型
+## 1. 包级导出未同步导出公开样式类型 ✅
 
 - 文件路径：`packages/pennyspring-ui/src/index.ts`
 - 行号/片段：321-322
@@ -18,7 +19,7 @@
 - 影响：调用方无法从包级入口导入 `SkeletonStyles`，样式 API 类型在组件入口和包入口之间不一致。
 - 推荐纠正方案：将包级导出改为同步导出 `SkeletonStyles`，例如 `export type { SkeletonProps, SkeletonShape, SkeletonStyles } from './Skeleton';`。
 
-## 2. 样式实现未放入组件约定的 `style/index.ts`
+## 2. 样式实现未放入组件约定的 `style/index.ts` ✅
 
 - 文件路径：`packages/pennyspring-ui/src/Skeleton/Skeleton.tsx`
 - 行号/片段：71-90
@@ -41,7 +42,7 @@
 - 影响：组件目录结构与共享组件约定不一致，后续维护者不容易按统一位置定位 token 样式和动态样式入参。
 - 推荐纠正方案：新增 `packages/pennyspring-ui/src/Skeleton/style/index.ts`，将 `SkeletonStyleOptions` 与 `useStyles` 迁入该文件，并由 `Skeleton.tsx` 导入使用。
 
-## 3. `styles` 插槽命名未使用可见根节点约定的 `root`
+## 3. `styles` 插槽命名未使用可见根节点约定的 `root` ✅
 
 - 文件路径：`packages/pennyspring-ui/src/Skeleton/types.ts`
 - 行号/片段：7-9
@@ -60,7 +61,7 @@
 - 影响：样式 API 与其他共享组件的语义槽约定不一致，调用方需要记忆 Skeleton 的特殊命名。
 - 推荐纠正方案：将公开样式类型调整为 `root?: StyleProp<ViewStyle>`，组件中按 `tokenStyles.root -> externalStyles?.root -> style` 合并；如需兼容旧调用方，可短期保留 `bone` 并标记迁移。
 
-## 4. Shimmer 动画层未应用已定义的 token 样式，且使用内联样式对象
+## 4. Shimmer 动画层未应用已定义的 token 样式，且使用内联样式对象 ✅
 
 - 文件路径：`packages/pennyspring-ui/src/Skeleton/Skeleton.tsx`
 - 行号/片段：80-89、117-123、149-152
@@ -92,7 +93,7 @@
 - 影响：`animated={true}` 时 shimmer 层不可见或布局不符合预期，`animated` API 的用户可感知行为失效；内联样式对象也绕过了项目样式约束。
 - 推荐纠正方案：让 `ShimmerAnimation` 接收并合并 token 样式，或直接在 `Skeleton` 中渲染 `<Animated.View style={[tokenStyles.shimmer, animatedStyle]} />`；移除内联 `{ borderRadius }`，保留 `createUseSheetStyle` 产出的 `borderRadius`。
 
-## 5. 动画参数未按 motion token 和统一 easing 约束实现
+## 5. 动画参数未按 motion token 和统一 easing 约束实现 ✅
 
 - 文件路径：`packages/pennyspring-ui/src/Skeleton/Skeleton.tsx`
 - 行号/片段：122、136、143
@@ -110,7 +111,7 @@
 - 影响：Skeleton 动画节奏脱离项目统一 motion 体系，后续主题 motion 配置无法准确控制该动画；硬编码位移也降低可维护性。
 - 推荐纠正方案：使用明确的 motion token 作为时长，例如 `token.motionDurationSlow`；引入 `Easing` 并传入 `easing: Easing.bezier(...token.motionEaseInOut)`；将位移边界提取为语义常量，或基于已知 shimmer 宽度计算。
 
-## 6. 未发现 Skeleton 专属测试覆盖
+## 6. 未发现 Skeleton 专属测试覆盖 ✅
 
 - 文件路径：`packages/pennyspring-ui/__tests__/Skeleton.test.tsx`（缺失）
 - 行号/片段：`rg -n "Skeleton|skeleton" __tests__ packages/pennyspring-ui/__tests__ packages/pennyspring-ui/src --glob '*.test.ts' --glob '*.test.tsx' --glob '!packages/pennyspring-ui/examples/previews/**/demos/**'` 无匹配；`find` 仅定位到源码文件 `packages/pennyspring-ui/src/Skeleton/Skeleton.tsx`。

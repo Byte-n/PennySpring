@@ -2,13 +2,13 @@
 
 ## 结论
 
-- 状态：不通过
+- 状态：通过
 - 严重程度：high
 - 问题数量：4
 
 ## 问题列表
 
-### 1. Popup 根组件使用 React Native Animated 实现动画
+### 1. Popup 根组件使用 React Native Animated 实现动画 ✅
 
 - 严重程度：high
 - 位置：`packages/pennyspring-ui/src/Popup/Popup.tsx:3`
@@ -17,7 +17,7 @@
 - 影响：Popup 是浮层基础组件，RN Animated 会让动画实现与项目统一的 reanimated 动画体系不一致，也绕开 `Easing.bezier(...token.motionEase*)` 的统一动效手感要求。
 - 推荐纠正方案：将 `progress` 改为 `useSharedValue`，使用 `withTiming`、`useAnimatedStyle` 和 `Easing.bezier(...token.motionEase*)` 实现遮罩透明度和 body 位移；移除 `react-native` 的 `Animated` 导入与 `<Animated.View>`。
 
-### 2. Popup 动画样式以内联对象拼接，未通过样式工厂或 reanimated 动态样式承载
+### 2. Popup 动画样式以内联对象拼接，未通过样式工厂或 reanimated 动态样式承载 ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/Popup/Popup.tsx:282`
@@ -26,7 +26,7 @@
 - 影响：动态视觉样式散落在渲染体内，后续 token 化、主题一致性与动画替换都更难维护，也扩大了调用处样式拼接的不可控面。
 - 推荐纠正方案：静态布局继续放入 `createUseSheetStyle`；动画相关样式用 `useAnimatedStyle` 返回，并只与 token 样式、外部 `style/styles` 按规范顺序合并。
 
-### 3. Popup 默认 zIndex 表达式不符合 Popup 类组件层级约定
+### 3. Popup 默认 zIndex 表达式不符合 Popup 类组件层级约定 ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/Popup/Popup.tsx:131`
@@ -35,7 +35,7 @@
 - 影响：浮层层级语义不稳定，可能破坏 Popup、Dialog、Picker 等同层级组件间通过 Portal 顺序建立覆盖关系的约定。
 - 推荐纠正方案：将默认层级改为 `token.zIndexPopupBase + 100`；如果存在局部覆盖需求，应在更具体的场景中用明确 token 派生，而不是改变 Popup 基础默认层级。
 
-### 4. Popup 测试未覆盖公开的 FloatingPanel 子组件行为
+### 4. Popup 测试未覆盖公开的 FloatingPanel 子组件行为 ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/__tests__/Popup.test.tsx:13`

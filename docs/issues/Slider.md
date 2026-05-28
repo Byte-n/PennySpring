@@ -2,13 +2,13 @@
 
 ## 结论
 
-- 状态：不通过
+- 状态：通过
 - 严重程度：high
 - 问题数量：4
 
 ## 问题列表
 
-### 1. 拖拽手势使用 React Native responder，未接入 gesture-handler
+### 1. 拖拽手势使用 React Native responder，未接入 gesture-handler ✅
 
 - 严重程度：high
 - 位置：`packages/pennyspring-ui/src/Slider/Slider.tsx:203`
@@ -17,7 +17,7 @@
 - 影响：Slider 的拖拽行为绕过项目统一手势体系，和根部 `GestureHandlerRootView` 约定不一致；在嵌套滚动、手势竞争和原生手势协作场景中更容易出现行为漂移，也增加后续统一手势策略的维护成本。
 - 推荐纠正方案：将轨道点击/拖动迁移到 `react-native-gesture-handler`，用 tap / pan 手势计算位置并触发 `setInternalValue`；保留 `disabled`、`readonly`、`min/max/step` 的现有语义，并补充手势更新与释放路径的测试。
 
-### 2. 动态样式在渲染处拼接对象，绕过 `createUseSheetStyle` options
+### 2. 动态样式在渲染处拼接对象，绕过 `createUseSheetStyle` options ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/Slider/Slider.tsx:167`
@@ -26,7 +26,7 @@
 - 影响：Slider 的进度宽度和拇指定位样式分散在渲染逻辑里，绕过统一样式工厂后更难检查 token 样式、运行时样式和外部样式的合并顺序；后续主题、尺寸和视觉状态调整也需要同时理解渲染逻辑与样式逻辑。
 - 推荐纠正方案：把 `trackWidth`、`clampedProgress` 等动态参数纳入 `createUseSheetStyle<SliderStyleOptions>` options，统一生成 `trackFill` 与 `thumbContainer` 的运行时样式；保持合并顺序为 token 样式、组件运行时样式、外部 `styles` 覆盖。
 
-### 3. 测试未覆盖 Slider 的主要公开行为
+### 3. 测试未覆盖 Slider 的主要公开行为 ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/__tests__/Slider.test.tsx:27`

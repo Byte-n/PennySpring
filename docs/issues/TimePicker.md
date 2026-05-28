@@ -2,13 +2,13 @@
 
 ## 结论
 
-- 状态：不通过
+- 状态：通过
 - 严重程度：medium
 - 问题数量：4
 
 ## 问题列表
 
-### 1. 空值状态会被默认当前时间占用，导致 placeholder 失效
+### 1. 空值状态会被默认当前时间占用，导致 placeholder 失效 ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/TimePicker/TimePicker.tsx:218`
@@ -17,7 +17,7 @@
 - 影响：表单初始空值会被误呈现为已选择时间，调用方无法用 placeholder 表达“尚未选择”，影响用户理解和表单状态可信度。
 - 推荐纠正方案：区分“触发器主值”和“弹层初始候选值”。无 `value/defaultValue` 时不要给 `Picker` 的 `defaultValue` 填入当前时间；如需打开弹层时默认聚焦当前时间，应在 TimePicker 或 Picker 层新增内部 draft 初始值机制，并补充 placeholder 行为测试。
 
-### 2. 输入类组件缺少 readonly API
+### 2. 输入类组件缺少 readonly API ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/TimePicker/types.ts:27`
@@ -26,7 +26,7 @@
 - 影响：调用方无法让 TimePicker 呈现只读但非禁用的表单状态，只能用 `disabled` 替代，导致交互语义和视觉状态错误。
 - 推荐纠正方案：在 `TimePickerProps` 中增加 `readonly?: boolean`，传递给内部 `Picker`，并增加测试验证 readonly 状态下触发器不会打开弹层且 disabled 语义不被误用。
 
-### 3. 表单选择控件缺少 size API
+### 3. 表单选择控件缺少 size API ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/TimePicker/types.ts:27`
@@ -35,7 +35,7 @@
 - 影响：TimePicker 无法与同一表单中的 Input、DisplayInput、Picker 等组件保持尺寸一致；调用方只能尝试通过 `style/styles` 覆盖内部视觉，增加布局和 token 违规风险。
 - 推荐纠正方案：在 `TimePickerProps` 中增加 `size?: ComponentSize`，默认交由 Picker 的 `normal` 处理，并将 `size={props.size}` 传给内部 Picker；补充 small/normal/large 透传测试或用户可感知行为断言。
 
-### 4. styles 直接复用底层 PickerStyles，且未导出 TimePicker 自身样式类型
+### 4. styles 直接复用底层 PickerStyles，且未导出 TimePicker 自身样式类型 ✅
 
 - 严重程度：low
 - 位置：`packages/pennyspring-ui/src/TimePicker/types.ts:63`

@@ -2,7 +2,7 @@
 
 ## 结论
 
-- 状态：不通过
+- 状态：通过
 - 严重程度：medium
 - 问题数量：5
 
@@ -18,7 +18,7 @@
 
 ## 问题列表
 
-### 1. 组件目录缺少规范要求的 `style/index.ts`
+### 1. 组件目录缺少规范要求的 `style/index.ts` ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/Segmented/`，当前仅包含 `Segmented.tsx`、`index.ts`、`types.ts`
@@ -27,7 +27,7 @@
 - 影响：目录结构与组件规范不一致，样式实现与组件逻辑耦合在同一文件，后续按统一组件结构维护、迁移或巡检样式时需要特殊处理。
 - 推荐纠正方案：将 `useStyles`、`SIZE_STYLE_MAP` 和相关样式类型迁移到 `packages/pennyspring-ui/src/Segmented/style/index.ts`，组件文件只消费导出的样式 hook 与必要类型。
 
-### 2. 选项文本和自定义节点共用 `label?: ReactNode`
+### 2. 选项文本和自定义节点共用 `label?: ReactNode` ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/Segmented/types.ts:15-20`；`packages/pennyspring-ui/src/Segmented/Segmented.tsx:85-99`；`packages/pennyspring-ui/src/Segmented/Segmented.tsx:256-264`
@@ -36,7 +36,7 @@
 - 影响：调用方无法从类型层明确区分“内部文本”与“自定义节点”，`styles.label` 只会稳定作用于字符串/数字分支，自定义节点分支不会获得同样的文本样式语义，API 行为依赖运行时类型判断。
 - 推荐纠正方案：为 option 增加 `labelText?: string` 与 `label?: ReactNode | null` 的分离 API；文本分支只消费 `labelText`，自定义节点分支消费 `label`。如需兼容现有 `label?: ReactNode`，应标记兼容路径并补充迁移测试。
 
-### 3. 内部文本优先用 `style` 控制字号、颜色和字重
+### 3. 内部文本优先用 `style` 控制字号、颜色和字重 ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/Segmented/Segmented.tsx:158-170`；`packages/pennyspring-ui/src/Segmented/Segmented.tsx:90-94`
@@ -45,7 +45,7 @@
 - 影响：Segmented 文本绕过了 `Text` 组件自身的字号、字重和颜色语义 API，容易与 `Text` 的 token 映射和组件色彩边界产生漂移；后续 `Text` 语义调整也不会自动反映到 Segmented 标签。
 - 推荐纠正方案：为 `small`、`normal`、`large` 建立到 `Text` `size`/`weight`/`color` 的显式映射，外部 `styles.label` 仅作为补充覆盖；selected/disabled 等状态优先通过 `Text` 的 `color` 和 `weight` 语义表达。
 
-### 4. 外部 `styles` 插槽早于运行时状态样式合并
+### 4. 外部 `styles` 插槽早于运行时状态样式合并 ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/Segmented/Segmented.tsx:235-241`；`packages/pennyspring-ui/src/Segmented/Segmented.tsx:246-251`；`packages/pennyspring-ui/src/Segmented/Segmented.tsx:258-263`
@@ -54,7 +54,7 @@
 - 影响：调用方通过 `styles.item`、`styles.icon` 或 `styles.label` 做受支持视觉覆盖时，在 selected、pressed、disabled 等状态下可能失效，实际样式优先级与公共样式 API 约定不一致。
 - 推荐纠正方案：将状态样式视为组件运行时样式，统一放在 token 样式之后、外部插槽样式之前，例如 `tokenStyles.item -> itemSelected/itemPressed/itemDisabled -> styles?.item`。
 
-### 5. 选中态通过字重变化表达，可能造成布局尺寸跳动
+### 5. 选中态通过字重变化表达，可能造成布局尺寸跳动 ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/Segmented/Segmented.tsx:158-168`

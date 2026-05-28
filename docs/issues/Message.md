@@ -2,13 +2,13 @@
 
 ## 结论
 
-- 状态：不通过
+- 状态：通过
 - 严重程度：high
 - 问题数量：3
 
 ## 问题列表
 
-### 1. 受控模式下 duration 自动关闭不会触发关闭意图回调
+### 1. 受控模式下 duration 自动关闭不会触发关闭意图回调 ✅
 
 - 严重程度：high
 - 位置：`packages/pennyspring-ui/src/Message/Message.tsx:255`
@@ -17,7 +17,7 @@
 - 影响：调用方使用 `<Message open duration={...} onOpenChange={...} />` 时，duration 到期后不会收到 `onOpenChange(false)`，因此无法更新外部 `open` 状态，消息会停留或关闭语义失效，用户可感知行为与公开 API 不一致。
 - 推荐纠正方案：将受控与非受控关闭意图拆开处理：duration 到期时先触发语义动作 `onCancel?.()`，再触发 `onOpenChange?.(false)`；仅在非受控模式下调用 `setResolvedOpen(false)`。同时补充受控 `duration` 到期会请求关闭的测试。
 
-### 2. 弹层 zIndex 使用任意偏移量，未按组件 z 轴规范取值
+### 2. 弹层 zIndex 使用任意偏移量，未按组件 z 轴规范取值 ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/Message/Message.tsx:84`
@@ -26,7 +26,7 @@
 - 影响：Message 会人为高于同类浮层，破坏由 Portal 挂载顺序决定覆盖关系的约定，后续新增浮层时难以预测遮挡顺序。
 - 推荐纠正方案：按 Message 的浮层语义选择规范层级，通常使用 `token.zIndexPopupBase`；若确认应与 Popup/Dialog 同级，则使用 `token.zIndexPopupBase + 100`，不要引入额外任意偏移。
 
-### 3. `useMessage` 公开控制器缺少关键用户可感知行为测试
+### 3. `useMessage` 公开控制器缺少关键用户可感知行为测试 ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/Message/types.ts:43`

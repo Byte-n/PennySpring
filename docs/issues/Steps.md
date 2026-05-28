@@ -2,13 +2,13 @@
 
 ## 结论
 
-- 状态：不通过
+- 状态：通过
 - 严重程度：medium
 - 问题数量：4
 
 ## 问题列表
 
-### 1. 样式实现未放入组件样式文件
+### 1. 样式实现未放入组件样式文件 ✅
 
 - 严重程度：low
 - 位置：`packages/pennyspring-ui/src/Steps/Steps.tsx:115`
@@ -17,7 +17,7 @@
 - 影响：样式 token、尺寸映射与渲染逻辑耦合，后续调整视觉规范时更容易影响组件行为实现。
 - 推荐纠正方案：新增 `packages/pennyspring-ui/src/Steps/style/index.ts`，将 `SIZE_STYLE_MAP`、`StepsStyleOptions` 与 `createUseSheetStyle` 样式定义迁移到该文件，组件实现只消费生成的样式 hook。
 
-### 2. 使用 `View` 手写等效布局结构
+### 2. 使用 `View` 手写等效布局结构 ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/Steps/Steps.tsx:248`
@@ -26,7 +26,7 @@
 - 影响：布局语义与项目布局原语脱节，后续间距、对齐和尺寸语义容易与其它组件漂移。
 - 推荐纠正方案：将根列表和内容区改为 `Column`，单个步骤行改为 `Row`，步骤头内部用 `Column` 组织指示器与连接线；仅将确实需要特殊测量或绘制的节点保留为原生 `View`。
 
-### 3. `Text` 字号和颜色优先通过 `style` 设置
+### 3. `Text` 字号和颜色优先通过 `style` 设置 ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/Steps/Steps.tsx:91`
@@ -35,7 +35,7 @@
 - 影响：文本语义绕过 `Text` 组件 API，可能造成排版 token、颜色语义和图标颜色语义在不同组件中漂移。
 - 推荐纠正方案：将 `Steps.size` 和状态映射到 `Text` 的 `size`、`weight`、`color` props；仅把外部 `styles?.titleText`、`styles?.descriptionText`、`styles?.indicatorText` 作为补充覆盖。
 
-### 5. `title={null}` / `description={null}` 未按插槽语义显式不渲染
+### 5. `title={null}` / `description={null}` 未按插槽语义显式不渲染 ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/Steps/Steps.tsx:83`

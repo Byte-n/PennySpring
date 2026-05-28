@@ -2,13 +2,13 @@
 
 ## 结论
 
-- 状态：不通过
+- 状态：通过
 - 严重程度：medium
 - 问题数量：1
 
 ## 问题列表
 
-### 1. Row 组件样式未按组件目录规范放入 `style/index.ts`
+### 1. Row 组件样式未按组件目录规范放入 `style/index.ts` ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/Row/Row.tsx:49`

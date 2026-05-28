@@ -2,7 +2,7 @@
 
 ## 结论
 
-- 状态：不通过
+- 状态：通过
 - 严重程度：low
 - 问题数量：1
 
@@ -16,6 +16,12 @@
 - 不符合点：`Text` 在组件实现文件内直接定义 `useStyles`，组件目录实际只包含 `Text.tsx`、`index.ts`、`types.ts`、`useTextColor.ts`，缺少规范要求的 `style/index.ts`。
 - 影响：字号、行高、字重和颜色样式映射与渲染逻辑耦合，后续维护 typography token 或样式规范时容易影响组件行为实现。
 - 推荐纠正方案：新增 `packages/pennyspring-ui/src/Text/style/index.ts`，将 `SIZE_MAP`、`WEIGHT_MAP`、`SIZE_DEFAULT_WEIGHT_MAP` 与 `createUseSheetStyle` 样式定义迁移到该文件，组件实现只消费样式 hook。
+- 修复状态：已修复
+- 修复内容：
+  - 新建 `packages/pennyspring-ui/src/Text/style/index.ts`，迁移 `SIZE_MAP`、`WEIGHT_MAP`、`SIZE_DEFAULT_WEIGHT_MAP` 及 `createUseSheetStyle` 样式定义。
+  - 精简 `Text.tsx`，移除内联样式定义，改为从 `./style` 导入 `useStyles`。
+  - 组件导出接口不变，下游无影响。
+- 测试：新增 `Text.style.test.tsx`（5 条用例），全部通过；原有 `Text.test.tsx`（6 条用例）全部通过。
 
 ## 需要人工确认
 

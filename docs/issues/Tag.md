@@ -2,13 +2,14 @@
 
 ## 结论
 
-- 状态：不通过
+- 状态：通过
 - 严重程度：medium
 - 问题数量：4
+- 修复数量：4
 
 ## 问题列表
 
-### 1. 样式实现未放入组件样式文件
+### 1. 样式实现未放入组件样式文件 [已修复]
 
 - 严重程度：low
 - 位置：`packages/pennyspring-ui/src/Tag/Tag.tsx:198`
@@ -17,7 +18,7 @@
 - 影响：样式 token、颜色变体映射与渲染逻辑耦合，后续维护视觉规范时容易扩大修改范围。
 - 推荐纠正方案：新增 `packages/pennyspring-ui/src/Tag/style/index.ts`，将 `SIZE_STYLE_MAP`、颜色/变体样式解析和 `createUseSheetStyle` 样式定义迁移到该文件，组件实现只消费样式 hook。
 
-### 2. 使用 `View` 手写等效布局结构
+### 2. 使用 `View` 手写等效布局结构 [已修复]
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/Tag/Tag.tsx:296`
@@ -26,7 +27,7 @@
 - 影响：标签内容布局无法复用统一布局组件的语义，后续间距、对齐和尺寸语义可能与其它组件漂移。
 - 推荐纠正方案：非交互态根布局改用 `Row` 或现有布局原语；交互态若必须保留 `Pressable`，可在 `Pressable` 内用布局原语承载内容，并将外层只用于事件响应。
 
-### 3. `Text` 字号、颜色和字重优先通过 `style` 设置
+### 3. `Text` 字号、颜色和字重优先通过 `style` 设置 [已修复]
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/Tag/Tag.tsx:243`
@@ -35,7 +36,7 @@
 - 影响：文本排版和颜色语义绕过 `Text` 组件 API，容易与其它组件的文本和图标色彩语义漂移。
 - 推荐纠正方案：将 `Tag.size`、`variant`、`color`、`disabled` 映射到 `Text` 的 `size`、`weight`、`color` props；外部 `styles?.content` 仅作为补充覆盖。
 
-### 4. `TagStyles` 插槽命名未表达可见根节点
+### 4. `TagStyles` 插槽命名未表达可见根节点 [已修复]
 
 - 严重程度：low
 - 位置：`packages/pennyspring-ui/src/Tag/types.ts:23`

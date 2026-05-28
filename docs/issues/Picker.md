@@ -2,13 +2,13 @@
 
 ## 结论
 
-- 状态：不通过
+- 状态：通过
 - 严重程度：medium
 - 问题数量：3
 
 ## 问题列表
 
-### 1. 包级入口未同步导出 Picker 目录内的全部公共类型
+### 1. 包级入口未同步导出 Picker 目录内的全部公共类型 ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/index.ts:207`
@@ -17,7 +17,7 @@
 - 影响：调用方通过 `@pennyspring/ui` 只能拿到部分 Picker 类型，公共 API 表面不一致；尤其 `PickerSelectChangeParams`、`PickerClearChangeParams` 和 `PickerChangeReason` 是 `onChange` 参数语义的一部分，无法从包级入口复用会削弱类型可用性。
 - 推荐纠正方案：将 `packages/pennyspring-ui/src/Picker/index.ts` 中面向外部的类型清单同步到 `packages/pennyspring-ui/src/index.ts`，至少补齐 `PickerChangeReason`、`PickerClearChangeParams`、`PickerPanelStyles`、`PickerSelectChangeParams`；后续新增 Picker 公共类型时同步维护两处入口。
 
-### 2. Picker 的 size 未传递给内部有尺寸语义的组件
+### 2. Picker 的 size 未传递给内部有尺寸语义的组件 ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/Picker/PickerTrigger.tsx:74`
@@ -26,7 +26,7 @@
 - 影响：`<Picker size="small" />` 或 `<Picker size="large" />` 只改变滚轮项高度等局部样式，触发输入框和确认/取消按钮仍使用各自默认尺寸，导致同一个 Picker 内外尺寸语义不一致，视觉和点击区域也可能不匹配。
 - 推荐纠正方案：为 `PickerTriggerProps`、`PickerHeaderProps` 和 `PickerHeaderButtonProps` 补充内部尺寸参数，并由 `Picker` 将外层 `size` 传递或按语义映射给 `DisplayInput` 与 `Button`；如需允许局部覆盖，应通过明确的 Picker 语义 API 或 `displayInputProps` 的非样式配置设计覆盖优先级，并增加 small/normal/large 的行为测试。
 
-### 3. Picker 头部使用 View 手写等效水平布局
+### 3. Picker 头部使用 View 手写等效水平布局 ✅
 
 - 严重程度：low
 - 位置：`packages/pennyspring-ui/src/Picker/PickerHeader.tsx:35`

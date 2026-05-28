@@ -2,13 +2,13 @@
 
 ## 结论
 
-- 状态：不通过
+- 状态：通过
 - 严重程度：high
 - 问题数量：4
 
 ## 问题列表
 
-### 1. 样式实现绕过 createUseSheetStyle 且直接修改运行时样式对象
+### 1. 样式实现绕过 createUseSheetStyle 且直接修改运行时样式对象 ✅
 
 - 严重程度：high
 - 位置：`packages/pennyspring-ui/src/Spacer/Spacer.tsx:7`
@@ -17,7 +17,7 @@
 - 影响：样式路径绕过主题系统，后续难以统一处理主题、token、动态样式和静态检查；运行时 mutation 也违背不可变约束，降低可维护性。
 - 推荐纠正方案：将 Spacer 的内部样式改为 `createUseSheetStyle<TOptions>`，把方向、尺寸语义、flex/min/max 等必要动态选项作为 options 传入；样式对象在工厂内一次性返回，避免在组件渲染过程中修改同一对象。
 
-### 2. Spacer 的 `size` API 使用裸数字，且无方向区分
+### 2. Spacer 的 `size` API 使用裸数字，且无方向区分 ✅
 
 - 严重程度：high
 - 位置：`packages/pennyspring-ui/src/Spacer/types.ts:4`
@@ -26,7 +26,7 @@
 - 影响：Spacer 作为布局组件会把任意硬编码数字扩散到业务调用点，破坏 spacing token 体系；无方向区分会导致布局不符合预期。
 - 推荐纠正方案：将 `size` 调整为 `ComponentSize`（`small`/`normal`/`large`），映射到布局 gap token：`small -> token.paddingXXS`、`normal -> token.paddingXS`、`large -> token.paddingSM`，默认 `normal`；增加 `direction` prop 区分水平/垂直方向，垂直方向尺寸基于同语义水平 token `/ 2`。
 
-### 3. `flex`、`min`、`max` 暴露裸数字并让调用方承担布局正确性
+### 3. `flex`、`min`、`max` 暴露裸数字并让调用方承担布局正确性 ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/Spacer/types.ts:5`
@@ -35,7 +35,7 @@
 - 影响：调用方可以绕过 token 体系生成不可控尺寸；`min`/`max` 同时作用于宽高，也无法表达水平/垂直语义差异，容易造成布局不符合预期。
 - 推荐纠正方案：优先提供语义化布局 props，例如 `direction`、`basisSize`/`minSize`/`maxSize` 的 token 化语义值；确需数值例外时用语义命名常量或受限动态计算，并在类型和文档中明确这是局部例外，避免将裸数字作为主路径。
 
-### 4. 缺少 Spacer 关键布局行为测试
+### 4. 缺少 Spacer 关键布局行为测试 ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/Spacer/Spacer.tsx:6`

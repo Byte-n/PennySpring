@@ -2,13 +2,13 @@
 
 ## 结论
 
-- 状态：不通过
+- 状态：通过
 - 严重程度：medium
-- 问题数量：6
+- 问题数量：6（已修复 6）
 
 ## 问题列表
 
-### 1. 样式实现未放入组件样式文件
+### 1. 样式实现未放入组件样式文件 ✅
 
 - 严重程度：low
 - 位置：`packages/pennyspring-ui/src/SwipeAction/SwipeAction.tsx:77`
@@ -17,7 +17,7 @@
 - 影响：样式 token、尺寸映射与手势/动画逻辑耦合，后续维护视觉规范时容易扩大修改范围。
 - 推荐纠正方案：新增 `packages/pennyspring-ui/src/SwipeAction/style/index.ts`，将 `SIZE_STYLE_MAP`、`SwipeActionStyleOptions` 和 `createUseSheetStyle` 样式定义迁移到该文件，组件实现只消费样式 hook。
 
-### 2. 动作项暴露原始 `backgroundColor` 字符串并直接写入样式
+### 2. 动作项暴露原始 `backgroundColor` 字符串并直接写入样式 ✅
 
 - 严重程度：high
 - 位置：`packages/pennyspring-ui/src/SwipeAction/types.ts:24`
@@ -26,7 +26,7 @@
 - 影响：调用方可以传入任意硬编码颜色，导致深浅色模式、品牌主题和动作语义色无法保持一致。
 - 推荐纠正方案：移除或废弃 `backgroundColor`，只保留 `color?: SwipeActionColor` 这类语义色 API；确需业务语义色时由业务层扩展 token 后通过语义映射进入组件。
 
-### 3. 运行时构造动态样式对象，未通过 `createUseSheetStyle` options 管理
+### 3. 运行时构造动态样式对象，未通过 `createUseSheetStyle` options 管理 ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/SwipeAction/SwipeAction.tsx:276`
@@ -35,7 +35,7 @@
 - 影响：动态视觉状态分散在渲染逻辑中，难以统一审计 token 使用，也削弱主题切换时样式来源的一致性。
 - 推荐纠正方案：将动作颜色作为样式 hook 的 options 或建立 token 样式映射，所有背景色样式均由 `createUseSheetStyle` 产出。
 
-### 4. `Text` 字号和颜色优先通过 `style` 设置
+### 4. `Text` 字号和颜色优先通过 `style` 设置 ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/SwipeAction/SwipeAction.tsx:573`
@@ -44,7 +44,7 @@
 - 影响：文本排版和颜色语义绕过 `Text` 的公开 API，容易与其它组件的文本和图标颜色语义漂移。
 - 推荐纠正方案：将 `SwipeAction.size` 映射到 `Text` 的 `size` prop，将动作颜色/禁用状态映射到 `Text` 的 `color` prop；外部 `styles?.actionText` 仅作为补充覆盖。
 
-### 5. 动作文本与自定义节点插槽语义不符合规范
+### 5. 动作文本与自定义节点插槽语义不符合规范 ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/SwipeAction/types.ts:21`
@@ -53,7 +53,7 @@
 - 影响：调用方无法通过 `content={null}` 明确不渲染该插槽，自定义节点也会被错误地套用文本容器与文本样式，API 语义不稳定。
 - 推荐纠正方案：将动作项 API 调整为语义清晰的 `actionText?: string` 与 `action?: ReactNode | null`（或同等命名），`null` 明确不渲染，`undefined` 才走默认文本回退；自定义节点应直接渲染，不包裹在 `Text` 中。
 
-### 6. 动作按钮缺少 pressed 视觉状态
+### 6. 动作按钮缺少 pressed 视觉状态 ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/SwipeAction/SwipeAction.tsx:560`

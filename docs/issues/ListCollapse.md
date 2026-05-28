@@ -2,13 +2,13 @@
 
 ## 结论
 
-- 状态：不通过
+- 状态：通过
 - 严重程度：medium
 - 问题数量：3
 
 ## 问题列表
 
-### 1. 展开状态 API 未使用统一的 open/onOpenChange/defaultOpen 语义
+### 1. 展开状态 API 未使用统一的 open/onOpenChange/defaultOpen 语义 ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/ListCollapse/types.ts:29`
@@ -17,7 +17,7 @@
 - 影响：ListCollapse 的受控 API 与 Popup、Dialog、Drawer 等公开可见状态组件不一致，调用方需要记忆额外命名；手写受控逻辑也容易和项目统一 hook 的行为分叉，降低 API 一致性和维护性。
 - 推荐纠正方案：将公开状态 API 调整为 `open?: boolean`、`defaultOpen?: boolean`、`onOpenChange?: (open: boolean) => void`，并在实现中复用 `useControllableValue(defaultOpen, open, onOpenChange)`。如需兼容旧 API，应明确迁移策略并在测试中覆盖新旧行为。
 
-### 2. size 只部分影响样式，normal 与 large 的内部间距一致
+### 2. size 只部分影响样式，normal 与 large 的内部间距一致 ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/ListCollapse/ListCollapse.tsx:22`
@@ -26,7 +26,7 @@
 - 影响：调用方选择 `large` 时只有 header 高度变化，内容区 padding 与槽间距仍沿用 normal，外层和内层尺寸语义不一致，容易造成同一组件不同尺寸下的视觉密度不稳定。
 - 推荐纠正方案：为 `small`、`normal`、`large` 分别定义基于 `AliasToken` 的 header 间距、内容区 padding、槽间距和必要的文字尺寸映射；垂直 padding 继续使用同语义水平 token 的 `/ 2` 计算，并通过 `createUseSheetStyle<ListCollapseStyleOptions>` 的 options 传入 `size`。
 
-### 3. summary 可见文本槽未按文本/节点分离规则处理
+### 3. summary 可见文本槽未按文本/节点分离规则处理 ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/ListCollapse/types.ts:25`

@@ -2,13 +2,13 @@
 
 ## 结论
 
-- 状态：不通过
+- 状态：通过
 - 严重程度：low
 - 问题数量：1
 
 ## 问题列表
 
-### 1. PortalProvider 根浮层容器暴露无语义硬编码 id
+### 1. PortalProvider 根浮层容器暴露无语义硬编码 id ✅
 
 - 严重程度：low
 - 位置：`packages/pennyspring-ui/src/Portal/Portal.tsx:86`

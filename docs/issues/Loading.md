@@ -2,13 +2,13 @@
 
 ## 结论
 
-- 状态：不通过
+- 状态：通过
 - 严重程度：medium
 - 问题数量：4
 
 ## 问题列表
 
-### 1. 文案 API 使用 `text?: ReactNode`，未按文本/节点插槽规范拆分
+### 1. 文案 API 使用 `text?: ReactNode`，未按文本/节点插槽规范拆分 ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/Loading/types.ts:13`
@@ -17,7 +17,7 @@
 - 影响：调用方无法从类型上区分“加载文案”和“自定义节点”，公共 API 语义不稳定，也会让后续样式、空值语义和文档说明难以保持一致。
 - 推荐纠正方案：将公开 API 调整为明确语义，例如 `text?: string` 或 `loadingText?: string`；如需支持自定义节点，增加独立节点插槽如 `content?: ReactNode | null`，并按 `undefined` 走默认、`null` 明确不渲染的规则处理。
 
-### 2. 使用 `View` 手写横向/纵向布局，未复用布局组件
+### 2. 使用 `View` 手写横向/纵向布局，未复用布局组件 ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/Loading/Loading.tsx:3`
@@ -26,7 +26,7 @@
 - 影响：Loading 的布局语义与组件库布局原语脱节，横向/纵向间距、尺寸语义和后续布局能力容易与其他组件不一致。
 - 推荐纠正方案：根布局按 `vertical` 映射为 `Column` 或 `Row`，通过布局组件的间距能力承载 indicator 与 text 的排列；仅保留 Loading 自身必要的语义样式和外部 `style` 合并。
 
-### 3. `Text` 颜色优先通过 style 覆盖，而不是使用 `TextProps.color`
+### 3. `Text` 颜色优先通过 style 覆盖，而不是使用 `TextProps.color` ✅
 
 - 严重程度：low
 - 位置：`packages/pennyspring-ui/src/Loading/Loading.tsx:104`
@@ -35,7 +35,7 @@
 - 影响：绕过 `Text` 的颜色语义 API，增加文本和图标语义色漂移风险，也削弱了 `Text` 组件统一管理颜色 token 的能力。
 - 推荐纠正方案：文案渲染时使用 `<Text color="secondary" size={...}>`，保留 `styles?.text` 仅作为调用方样式覆盖；默认颜色不应优先写入 Loading 的 `text` 样式槽。
 
-### 4. 测试未覆盖多个公开且用户可感知的 Loading 状态
+### 4. 测试未覆盖多个公开且用户可感知的 Loading 状态 ✅
 
 - 严重程度：low
 - 位置：`packages/pennyspring-ui/__tests__/Loading.test.tsx:13`

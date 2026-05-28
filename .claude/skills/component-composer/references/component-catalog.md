@@ -43,7 +43,7 @@
 ## 选择器与选择
 
 - `Picker`：滚轮选择器与触发式选择模式。
-- `TimePicker`：时间值选择。
+- `TimePicker`：时间值选择。支持 `precision`（hour/minute/second）、`size`、`readonly`、`placeholder`、`min`/`max` 范围限制、`minuteStep`/`secondStep` 步长、`formatLabel`/`renderLabel` 自定义标签。样式通过 `TimePickerStyles` 覆盖。
 - `DateTimePicker`：日期/时间选择。
 - `Calendar`：日历展示与日期/范围选择。
 - `CascadePicker`：级联选择弹窗。

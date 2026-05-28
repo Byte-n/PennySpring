@@ -2,13 +2,13 @@
 
 ## 结论
 
-- 状态：不通过
+- 状态：通过
 - 严重程度：medium
 - 问题数量：4
 
 ## 问题列表
 
-### 1. 动态样式在渲染处以内联对象拼接
+### 1. 动态样式在渲染处以内联对象拼接 ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/Progress/Progress.tsx:237`
@@ -17,7 +17,7 @@
 - 影响：样式来源分散，绕过主题样式工厂的统一约束；后续若需要把进度、旋转或动效接入 token/options，会更容易出现样式合并顺序和状态表现不一致。
 - 推荐纠正方案：把 `normalizedPercent`、左右半圆旋转值作为 `createUseSheetStyle` options 输入，在样式工厂内生成 `barIndicator` 宽度和半圆 `transform`；外部 `styles?.indicator` 仍按“token 样式、组件运行时样式、外部样式”的顺序合并。
 
-### 2. 进度文字通过 `style` 设置颜色和字号，未优先使用项目 Text 的语义 props
+### 2. 进度文字通过 `style` 设置颜色和字号，未优先使用项目 Text 的语义 props ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/Progress/Progress.tsx:119`
@@ -26,7 +26,7 @@
 - 影响：Progress 自行维护文本字号、行高、字重和颜色映射，容易与 `Text` 组件的语义尺寸、颜色和默认字重漂移；外部覆盖 `styles.info` 时也更难判断哪些是 Text 语义能力，哪些是 Progress 内部样式。
 - 推荐纠正方案：将 Progress 的 `size` 映射到 `Text` 的 `size`（例如 small -> `sm`、normal -> `md`、large -> `lg`），将普通/状态颜色映射到 `Text` 的 `color` 语义或 `AliasColorTokenKey`，必要时只把布局相关或插槽覆盖样式留在 `style`。
 
-### 3. 目录级导出与包级入口导出不同步
+### 3. 目录级导出与包级入口导出不同步 ✅
 
 - 严重程度：medium
 - 位置：`packages/pennyspring-ui/src/Progress/index.ts:1`
@@ -35,7 +35,7 @@
 - 影响：从 `@pennyspring/ui` 消费时无法直接使用目录级已经公开的 `ProgressBar` / `ProgressCircle` 命名导出，公共 API 暴露面在深路径和包级入口之间不一致；`ProgressComponent` 类型也无法从包级入口取得。
 - 推荐纠正方案：明确 Progress 的公共导出面。如果 `ProgressBar` / `ProgressCircle` / `ProgressComponent` 是公开 API，应在 `packages/pennyspring-ui/src/index.ts` 同步导出；如果不是公开 API，应收窄目录级 `index.ts` 导出并避免测试或外部依赖深路径。
 
-### 4. 测试直接验证内部 helper，未以用户可感知行为覆盖边界值和环形进度
+### 4. 测试直接验证内部 helper，未以用户可感知行为覆盖边界值和环形进度 ✅
 
 - 严重程度：low
 - 位置：`packages/pennyspring-ui/__tests__/Progress.test.tsx:5`
