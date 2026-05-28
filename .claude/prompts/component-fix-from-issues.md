@@ -2,9 +2,9 @@
 
 ## 目标
 
-读取 `docs/issues/` 下的巡检报告，逐个组件修复其中列出的不合规问题。每个组件的修复任务串行委派给独立 subagent，主 agent 负责进度汇报与最终收尾。
+读取 `docs/issues2/` 下的巡检报告，逐个组件修复其中列出的不合规问题。每个组件的修复任务串行委派给独立 subagent，主 agent 负责进度汇报与最终收尾。
 
-已处理进度在 `.claude/prompts/ps.md` 中
+已处理进度在 `.claude/prompts/ps2.md` 中
 
 ---
 
@@ -13,7 +13,7 @@
 ### 1. 扫描报告
 
 ```
-读取 docs/issues/*.md，过滤出"状态：不通过"的报告。
+读取 docs/issues2/*.md，过滤出"状态：不通过"的报告。
 按文件名排序，生成待处理组件列表 components[]。
 输出：共发现 n 个组件需要修复。
 ```
@@ -41,7 +41,7 @@ for i, component in enumerate(components):
 [3/15] Avatar — 修复失败 ✗（原因：xxx）
 ```
 
-并同步更新 `.claude/prompts/ps.md`
+并同步更新 `.claude/prompts/ps2.md`
 
 ### 4. 全部完成后
 
