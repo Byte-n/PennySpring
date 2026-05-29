@@ -10,25 +10,12 @@ const IMAGE_THUMBNAIL_SIZE_MULTIPLIER = 2;
 
 export const useStyles = createUseSheetStyle<ImagePickerStyleOptions>(
   (token, { disabled, maxReached, selected }) => ({
-    trigger: {
-      height: token.controlHeight,
-      borderRadius: token.borderRadius,
-      borderWidth: token.lineWidth,
-      borderColor: selected ? token.colorPrimaryBorder : token.colorBorder,
-      backgroundColor: selected ? token.colorPrimaryBg : token.colorBgContainer,
+    triggerField: {
+      backgroundColor: selected ? token.colorPrimaryBg : token.colorFillTertiary,
       opacity: disabled ? token.opacityLoading : undefined,
     },
-    triggerPressed: {
-      backgroundColor: selected
-        ? token.colorPrimaryBgHover
-        : token.colorBgTextHover,
-    },
-    triggerContent: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: token.marginXS,
-      paddingHorizontal: token.paddingSM,
-      flex: 1,
+    triggerUnderline: {
+      backgroundColor: selected ? token.colorPrimaryBorder : token.colorBorder,
     },
     iconContainer: {
       paddingHorizontal: token.paddingXXS,
@@ -38,7 +25,7 @@ export const useStyles = createUseSheetStyle<ImagePickerStyleOptions>(
       justifyContent: 'center',
       backgroundColor: selected ? token.colorPrimary : token.colorFillTertiary,
     },
-    status: {
+    statusText: {
       color: selected ? token.colorPrimaryText : token.colorTextSecondary,
     },
     popup: {

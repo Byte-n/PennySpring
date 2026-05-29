@@ -372,17 +372,10 @@ export function ImagePicker({
         readonly={isReadonly}
         style={style}
         styles={{
-          field: [
-            tokenStyles.trigger,
-            styles?.trigger,
-          ],
-          prefix: [
-            styles?.triggerContent,
-          ],
-          value: [
-            tokenStyles.status,
-            styles?.status,
-          ],
+          field: [tokenStyles.triggerField, styles?.trigger],
+          underline: [tokenStyles.triggerUnderline],
+          prefix: [styles?.triggerContent],
+          value: [tokenStyles.statusText, styles?.status],
         }}
         valueText={statusText}
       />
