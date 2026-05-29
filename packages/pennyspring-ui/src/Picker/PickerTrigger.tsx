@@ -76,7 +76,7 @@ export function PickerTrigger({
     >
       <DisplayInput
         disabled={disabled}
-        display="inline"
+        display="block"
         size={size}
         valueText={valueText}
         placeholder={placeholder}

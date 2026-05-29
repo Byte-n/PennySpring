@@ -9,6 +9,7 @@ export type DisplayInputOverflow = 'hidden' | 'visible';
 export interface DisplayInputStyles {
   label?: StyleProp<TextStyle>;
   field?: StyleProp<ViewStyle>;
+  underline?: StyleProp<ViewStyle>;
   valueContainer?: StyleProp<ViewStyle>;
   value?: StyleProp<TextStyle>;
   placeholder?: StyleProp<TextStyle>;

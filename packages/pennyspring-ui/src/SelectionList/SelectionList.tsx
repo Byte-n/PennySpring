@@ -577,7 +577,7 @@ function SelectionListRoot({
       <DisplayInput
         {...displayInputProps}
         disabled={disabled === true || loading === true}
-        display={displayInputProps?.display ?? 'inline'}
+        display={displayInputProps?.display ?? 'block'}
         error={error}
         errorText={errorText}
         helper={helper}
@@ -597,7 +597,10 @@ function SelectionListRoot({
           field: [
             styles?.displayInput?.field,
             styles?.field,
-            mergedOpen && !isError ? tokenStyles.fieldActive : undefined,
+          ],
+          underline: [
+            styles?.displayInput?.underline,
+            mergedOpen && !isError ? tokenStyles.underlineActive : undefined,
           ],
           value: [styles?.displayInput?.value, styles?.value],
           placeholder: [styles?.displayInput?.placeholder, styles?.placeholder],

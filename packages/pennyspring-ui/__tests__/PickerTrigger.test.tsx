@@ -27,7 +27,7 @@ it('renders readonly display input trigger with placeholder when no children', (
   const triggerInput = testRenderer!.root.findByType(DisplayInput);
 
   expect(triggerInput.props.readonly).toBe(true);
-  expect(triggerInput.props.display).toBe('inline');
+  expect(triggerInput.props.display).toBe('block');
   expect(triggerInput.props.placeholder).toBe('Single column');
 });
 

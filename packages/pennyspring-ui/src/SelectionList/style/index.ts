@@ -77,6 +77,9 @@ export const useSelectionListStyles = createUseSheetStyle(
       fieldActive: {
         borderColor: token.colorPrimary,
       },
+      underlineActive: {
+        backgroundColor: token.colorPrimary,
+      },
       list: {
         gap: token.marginXS / 2,
       },

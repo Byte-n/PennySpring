@@ -160,7 +160,7 @@ export function DisplayInput({
       >
         <View
           pointerEvents="none"
-          style={tokenStyles.underline}
+          style={[tokenStyles.underline, styles?.underline]}
           testID="display-input-underline"
         />
         {hasPrefix ? (
