@@ -1,90 +1,32 @@
 # Coding Style
 
-## Immutability (CRITICAL)
+## 不可变性（CRITICAL）
 
-ALWAYS create new objects, NEVER mutate existing ones:
+始终返回新对象，禁止原地 mutation。理由：避免隐藏副作用，便于调试。
 
-```
-// Pseudocode
-WRONG:  modify(original, field, value) → changes original in-place
-CORRECT: update(original, field, value) → returns new copy with change
-```
+## KISS / DRY / YAGNI
 
-Rationale: Immutable data prevents hidden side effects, makes debugging easier, and enables safe concurrency.
+- 优先最简可行方案，清晰优于聪明，避免过早优化。
+- 重复逻辑抽成共享工具；抽象基于真实重复，不做推测性泛化。
+- 不为尚未到来的需求提前构建。
 
-## Core Principles
+## 文件组织
 
-### KISS (Keep It Simple)
+- 小文件优先，高内聚低耦合；典型 200-400 行，上限 800。
+- 按 feature/domain 组织，从大模块拆出工具。
 
-- Prefer the simplest solution that actually works
-- Avoid premature optimization
-- Optimize for clarity over cleverness
+## 错误处理与输入校验
 
-### DRY (Don't Repeat Yourself)
+- 显式处理错误，UI 层给友好提示，禁止静默吞错。
+- 在系统边界（用户输入、外部 API、文件内容）校验，快速失败。
 
-- Extract repeated logic into shared functions or utilities
-- Avoid copy-paste implementation drift
-- Introduce abstractions when repetition is real, not speculative
+## 命名
 
-### YAGNI (You Aren't Gonna Need It)
+- 变量 / 函数 `camelCase`；布尔用 `is` / `has` / `should` / `can` 前缀。
+- 类型 / 接口 / 组件 `PascalCase`；常量 `UPPER_SNAKE_CASE`；hook 用 `use` 前缀。
 
-- Do not build features or abstractions before they are needed
-- Avoid speculative generality
-- Start simple, then refactor when the pressure is real
+## 代码异味
 
-## File Organization
-
-MANY SMALL FILES > FEW LARGE FILES:
-- High cohesion, low coupling
-- 200-400 lines typical, 800 max
-- Extract utilities from large modules
-- Organize by feature/domain, not by type
-
-## Error Handling
-
-ALWAYS handle errors comprehensively:
-- Handle errors explicitly at every level
-- Provide user-friendly error messages in UI-facing code
-- Log detailed error context on the server side
-- Never silently swallow errors
-
-## Input Validation
-
-ALWAYS validate at system boundaries:
-- Validate all user input before processing
-- Use schema-based validation where available
-- Fail fast with clear error messages
-- Never trust external data (API responses, user input, file content)
-
-## Naming Conventions
-
-- Variables and functions: `camelCase` with descriptive names
-- Booleans: prefer `is`, `has`, `should`, or `can` prefixes
-- Interfaces, types, and components: `PascalCase`
-- Constants: `UPPER_SNAKE_CASE`
-- Custom hooks: `camelCase` with a `use` prefix
-
-## Code Smells to Avoid
-
-### Deep Nesting
-
-Prefer early returns over nested conditionals once the logic starts stacking.
-
-### Magic Numbers
-
-Use named constants for meaningful thresholds, delays, and limits.
-
-### Long Functions
-
-Split large functions into focused pieces with clear responsibilities.
-
-## Code Quality Checklist
-
-Before marking work complete:
-- [ ] Code is readable and well-named
-- [ ] Functions are small (<50 lines)
-- [ ] Files are focused (<800 lines)
-- [ ] No deep nesting (>4 levels)
-- [ ] Proper error handling
-- [ ] No hardcoded values (use constants or config)
-- [ ] No mutation (immutable patterns used)
+- 逻辑堆叠时用 early return 代替深层嵌套（>4 层）。
+- 阈值 / 延迟 / 上限用命名常量，禁止魔法数。
+- 函数保持聚焦（<50 行）。

@@ -2,30 +2,11 @@
 
 ## 项目概览
 
-### Tech Stack
-
-| Layer           | Technology                           | Version           |
-|-----------------|--------------------------------------|-------------------|
-| Language        | TypeScript                           | ^5.8.3            |
-| Framework       | React Native                         | 0.85.2            |
-| React           | React                                | 19.2.3            |
-| Navigation      | React Navigation                     | ^7.x              |
-| Database        | SQLite (`@op-engineering/op-sqlite`) | ^9                |
-| ORM             | Drizzle ORM / drizzle-kit            | ^0.38.4 / ^0.30.5 |
-| Testing         | Jest + React Native preset           | ^29.6.3           |
-| Package Manager | Yarn workspaces                      | -                 |
-| Node            | Node.js                              | >= 22.13.0        |
-
 ### Architecture
 
 Monorepo（Yarn workspaces）：根目录是 React Native App，`packages/*` 是内部共享包。
 
 ```
-App.tsx                 → 应用根：SafeArea、StatusBar、ThemeProvider、AppNavigator
-index.js                → React Native AppRegistry 入口
-src/navigation/         → NavigationContainer、RootStack、HomeTabs、路由常量与类型
-src/screens/            → 业务页面
-src/constants/          → 业务常量、资产分类、类型图标树
 packages/pennyspring-theme/ → 设计系统：token、算法、ThemeProvider、createUseSheetStyle
 packages/pennyspring-ui/    → 共享 React Native UI 组件与 examples
 packages/data/          → Drizzle schema、relations、SQLite runtime、migrations
@@ -57,22 +38,15 @@ scripts/                → 本地工具脚本
   `yarn workspace @pennyspring/data typecheck`，`yarn workspace @pennyspring/share typecheck`
 - DB check / generate：`yarn workspace @pennyspring/data db:check`，`yarn workspace @pennyspring/data db:generate`
 
-## 通用工程约束
-
-### Code Style
-
-- 遵循 KISS、DRY、YAGNI；优先小文件、高内聚、低耦合。
-- 数据更新保持不可变；禁止隐藏式原地 mutation。
-- 导出的函数、共享工具、公共组件 props 必须有明确类型；避免 `any`，外部输入用 `unknown` 后收窄。
-- 组件 props 使用命名 `interface XxxProps`，不要默认使用 `React.FC`。
-- 文件、变量、函数使用 `camelCase`；类型、接口、组件使用 `PascalCase`；常量使用 `UPPER_SNAKE_CASE`。
-- 生产代码不保留 `console.log`。
+## 代码规范
 
 ### Accessibility
 
 - 不需要支持无障碍、可访问性设计或相关属性
 
-## 样式约束（React Native）
+## React Native 实现约束
+
+### 样式
 
 **唯一构建方式**：`createUseSheetStyle`（来自 `@pennyspring/theme`）。
 
@@ -83,115 +57,65 @@ scripts/                → 本地工具脚本
 - 样式值中的颜色字面量（`'#xxx'`、`'rgb/rgba(...)'`、命名色）
 - 样式值中的数字字面量
 
-**唯一例外（数字字面量）**：`0`、`flex: 1`、`'100%'`、`'50%'`、`'transparent'`。
+**数字字面量唯一例外**：`0`、`flex: 1`、`'100%'`、`'50%'`、`'transparent'`。
 
-**无合适 token 时**：允许用语义化命名常量或动态计算值作为局部例外，禁止用无关 token 相乘凑数值。
+- 无合适 token 时：允许用语义化命名常量或动态计算值作为局部例外，禁止用无关 token 相乘凑数值。
+- Token 选择必须参考 `theme-tokens` 技能；阴影必须经 `toShadowStyle(...)`；React Native `lineHeight` 用
+  `token.fontHeight*`（像素），不用 `token.lineHeight*`（倍数）。
+- 动态样式通过 `createUseSheetStyle<TOptions>` 的泛型参数传入，不在调用处拼 `[styles.a, { ... }]`。
+- 主题注入：全局 `<ThemeProvider>` 位于应用根；禁止在组件内判断 light/dark 分支，token 已自适配。
 
-**Token 选择**：必须参考 `theme-tokens` 技能；阴影必须经 `toShadowStyle(...)`；React Native `lineHeight` 用
-`token.fontHeight*`（像素），不用 `token.lineHeight*`（倍数）。
+### 组件
 
-**动态样式**：通过 `createUseSheetStyle<TOptions>` 的泛型参数传入，不在调用处拼 `[styles.a, { ... }]`。
+- 优先使用 `@pennyspring/ui` 中的组件。
+- 共享组件放在 `packages/pennyspring-ui/src/<ComponentName>/`，由目录内 `index.ts` 和包级 `src/index.ts` 导出；
+  公共 props 与导出的样式类型放在组件目录的 `types.ts`。
+- 界面布局优先使用 `@pennyspring/ui` 已有布局组件（如 `Row`、`Column`、`Spacer`、`GeometryReader`、`Grid` 等），禁止用 `View` 手写等效布局结构。
+- 文本展示统一使用 `@pennyspring/ui` 导出的 `Text`，禁止直接使用 `react-native` 的 `Text`；
+  字号、颜色等优先用 `TextProps` 实现，其次才是 `style`。
 
-**主题注入**：全局 `<ThemeProvider>` 位于应用根；禁止在组件内判断 light/dark 分支，token 已自适配。
+### 导航
 
-## 组件约束
-
-- 共享组件放在 `packages/pennyspring-ui/src/<ComponentName>/`，由目录内 `index.ts` 和包级 `src/index.ts` 导出。
-- 公共 props 与导出的样式类型放在组件目录的 `types.ts`。
-- 优先使用 `@pennyspring/ui` 中的组件
-- 界面布局优先使用 `@pennyspring/ui` 中已有的布局组件（如 `Row`、`Column`、`Spacer`、`GeometryReader`、`Grid` 等），禁止用 `View` 手写等效布局结构。
-- 业务与共享组件中的文本展示统一使用 `@pennyspring/ui` 导出的 `Text` 组件；禁止直接使用 `react-native` 的 `Text`
-  做展示文本。
-- `Text` 字号、颜色等优先使用 `TextProps` 实现，其次再是 `style`；禁止优先使用 `style`
-
-## 导航约束
-
-- 需要访问导航对象时，统一使用 `src/navigation` 导出的 `useNavigation` 封装 hook。禁止直接从
+- 需要访问导航对象时，统一使用 `src/navigation` 导出的 `useNavigation` 封装 hook，禁止直接从
   `@react-navigation/native` 导入原始 `useNavigation`。
 
-## 动画约束
+### 动画
 
-- 动画实现仅允许使用 `react-native-reanimated` 实现，禁止使用 React Native 的动画。
-- **禁止** 在组件实现中使用 `react-native` 的 `Animated`、`LayoutAnimation`、`Animated.timing/spring/decay`。
-- 动画时长、缓动曲线、延迟必须优先使用主题 token（`motionDuration*`、`motionEase*`）；禁止硬编码魔法数。
-- 缓动曲线统一使用 `Easing.bezier(...token.motionEase*)`（来自 `react-native-reanimated`），避免不同组件动画手感漂移。
+- 仅允许使用 `react-native-reanimated`，禁止使用 `react-native` 的 `Animated`、`LayoutAnimation`、`Animated.timing/spring/decay`。
+- 时长、缓动曲线、延迟必须优先使用主题 token（`motionDuration*`、`motionEase*`），禁止硬编码魔法数。
+- 缓动曲线统一使用 `Easing.bezier(...token.motionEase*)`（来自 `react-native-reanimated`），避免手感漂移。
 - 进入/退出动画必须成对设计（含 mount/unmount 生命周期），避免只进不出、闪烁或残留占位。
 
-## 手势约束
+### 手势
 
-- 手势相关能力统一使用 `react-native-gesture-handler`。
-- 应用根已挂载 `<GestureHandlerRootView>`，组件内可直接使用手势组件。
+- 统一使用 `react-native-gesture-handler`；应用根已挂载 `<GestureHandlerRootView>`，组件内可直接使用手势组件。
 
-## 设计 / 布局约束
+### 设计 / 布局
 
-- 界面的组成优先使用 `component-composer` 技能来获取布局指导。
+- 界面组成优先使用 `component-composer` 技能获取布局指导。
 - 适配键盘弹出时必须优先使用 `@pennyspring/ui` 的 `KeyboardAware` 系列能力。
 
-## 测试约束
+## 质量保障
 
-### Testing
+### 代码任务收尾检查
 
-- 最低覆盖率目标为 80%；关键用户流需要 E2E 覆盖，规则建议使用 Playwright。
+- 涉及代码修改时，`yarn run lint` 与 `yarn run typecheck` 是强制收尾检查，不得省略、跳过；纯文档修改除外。
+- 必须在声明完成前执行，且仅当两项结果均无 error 时才允许宣称完成或进入交付。
+- 若因环境、依赖、脚本或其他外部因素导致无法执行或未通过，必须明确报告阻塞原因与当前结果；问题消除前不得表述为「已完成」。
 
-### 测试用例编写要求
+## Git / Workspace
 
-- 测试文件使用 `*.test.ts` / `*.test.tsx`，集中在根 `__tests__/` 或各包 `__tests__/`。
-- 按 AAA（Arrange-Act-Assert）组织测试；测试名必须直接描述被验证的行为。
-- 测试默认只编写用户可感知的行为断言。
-- 缺陷修复场景中，新增用例只能覆盖本次缺陷此前未被保护的行为；原有正确用例必须继续按原行为通过，禁止为迁就实现而反向修改正确测试。
+- **代码提交必须立即转给低成本模型 + subagent 操作，按内容分类、分批次提交；在 subagent 完成前不允许执行额外操作。**
+- 提交使用 conventional commit 风格，常见 scope 如 `data`、`theme`、`components`。
+- commit message 使用中文，保留 `feat:`、`fix:`、`docs:`、`chore:` 等前缀。
+- 工作空间 `.worktrees/*`，分支名 `feature/worktrees-*`；分支命令不允许使用 `-f` / `--force`。
+- workspace 分支任务完成后立即 commit，并通过 Ask User 工具询问是否合并到主分支；合并时压缩 commit 为一条记录。
 
-### TDD 测试驱动开发
+## 本地化与格式
 
-**`packages/**` 下的代码修改必须严格遵守 TDD 流程：**
+### 语言
 
-1. **RED**：先按照“测试用例编写要求”为新行为或缺陷编写失败测试。
-2. **GREEN**：以最小改动使目标测试通过，不附带无关重构或范围扩张。
-3. **REFACTOR**：在全部测试通过的前提下清理实现，完成后重跑相关测试。
-4. **验证**：对应 workspace 的测试脚本运行，确保无回归。
-5. **失败归因与纠偏**：测试失败时先定位真因（实现 / 用例 / 环境），再做最小修改。修复**仅针对缺陷本身纠错**，不得借修 bug
-   之名改动原需求逻辑、扩大或收窄原定预期行为，避免出现“修 bug
-   导致需求不符”。
-
-**以下任务豁免 TDD 流程与新增测试**（仍需在完成后运行 `yarn test`，保证存量用例全绿）：
-
-- `packages/pennyspring-ui/examples/` 的任何修改（预览/样例专用，不进入产物行为）。
-- 文档修改。
-- 依赖、项目工程化配置
-- 静态资产新增或替换
-- 删除、移除等「减」任务：需同步移除被删行为关联的测试；若剩余用例仍覆盖保留行为，必须全部通过。
-
-## 代码任务收尾检查
-
-- 仅涉及代码修改时，`yarn run lint` 与 `yarn run typecheck` 是强制收尾检查，不得省略、不得跳过。
-- 代码任务执行完成后、声明完成前，必须先执行 `yarn run lint` 与 `yarn run typecheck`。
-- 纯文档修改不需要执行 `yarn run lint` 与 `yarn run typecheck`。
-- 仅当上述两项检查结果均无 error 时，才允许宣称代码任务完成或进入交付。
-- 若代码任务因环境、依赖、脚本或其他外部因素导致无法执行或未通过，必须明确报告阻塞原因与当前结果；在问题消除前，不得将代码任务表述为“已完成”。
-
-## Git / workspace
-
-**执行代码提交的时候，必须选择低成本的模型 + subagent 进行操作，并且按内容分类，分批次提交。不允许执行额外操作，直到 subagent 完成。**
-
-- 近期提交使用 conventional commit 风格，常见 scope 如 `data`、`theme`、`components`。
-- commit message 使用中文，但保持 `feat:`、`fix:`、`docs:`、`chore:` 等前缀。
-- 工作空间：`.worktrees/*`
-- 分支名称：`feature/worktrees-*`
-- 合并时需要压缩 commit 为一条记录。
-- 分支的命令不允许使用 `-f` / `-force` 参数强行执行操作
-- workspace 分支的任务完成后立即 commit, 并通过 Ask User 工具询问是否合并到主分支
-- **代码提交**：必须立即将任务转给**低成本的模型** + subagent 进行操作，规定必须“分类，分批提交”
-
-
-## 语言
-
-- 界面、组件展示文案用中文
-- 日期、人民币格式用中文
-
-## 日期格式
-
-- YYYY-MM-DD
-- hh:mm:ss
-- YYYY-MM-DD hh:mm:ss
+- 界面、组件展示文案用中文。
 
 ### 日期格式化工具（`src/utils/prototype.ts`）
 

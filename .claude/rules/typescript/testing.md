@@ -7,12 +7,8 @@ paths:
 ---
 # TypeScript/JavaScript Testing
 
-> This file extends [common/testing.md](../common/testing.md) with TypeScript/JavaScript specific content.
+> 扩展 [common/testing.md](../common/testing.md)。
 
-## E2E Testing
-
-Use **Playwright** as the E2E testing framework for critical user flows.
-
-## Agent Support
-
-- **e2e-runner** - Playwright E2E testing specialist
+- 测试框架：Jest + React Native preset。
+- 文件命名 `*.test.ts` / `*.test.tsx`，置于根 `__tests__/` 或各包 `__tests__/`。
+- 断言用户可感知行为；组件渲染用 `react-test-renderer`。
