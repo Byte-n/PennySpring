@@ -1,6 +1,7 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import {
   Button,
+  Card,
   Column,
   ImagePicker,
   KeyboardAwareFormScroll,
@@ -11,7 +12,7 @@ import {
   useToast,
 } from '@pennyspring/ui';
 import { api, RECORD_TYPE_CATEGORY } from '@pennyspring/data';
-import { useTheme } from '@pennyspring/theme';
+import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
 import { AmountDisplay } from '../components/AmountDisplay';
 import { CategoryGrid } from '../../../component/CategoryGrid';
 import { RemarkInput } from '../components/RemarkInput';
@@ -30,6 +31,7 @@ import { useNavigation } from '../../../navigation';
 
 export function ExpenseTabScreen() {
   const { token } = useTheme();
+  const styles = useStyles();
   const toast = useToast();
   const navigation = useNavigation();
   const {
@@ -123,9 +125,10 @@ export function ExpenseTabScreen() {
     <KeyboardAwareFormScroll
       extraBottomInset={token.paddingXL}
       focusedInputBottomOffset={token.paddingXL}
+      styles={{ content: styles.page }}
     >
       <Column gap={token.marginMD}>
-        <AmountDisplay />
+        <AmountDisplay labelText="支出金额" />
         <CategoryGrid
           categories={categories}
           value={typeId}
@@ -136,67 +139,72 @@ export function ExpenseTabScreen() {
             分类加载中
           </Text>
         ) : null}
-        <Row wrap gap={token.marginXXS}>
-          <SelectionList
-            loading={assetsLoading}
-            onChange={value => setAssetId(toNumberValue(value) ?? null)}
-            options={assetOptions}
-            placeholder="付款资产"
-            searchable
-            texts={{
-              headerText: '选择付款资产',
-              searchPlaceholder: '搜索资产',
-              emptyText: '暂无可用资产',
-            }}
-            value={assetId ?? undefined}
-          />
-          <MoneyField
-            placeholder="手续费"
-            value={charge}
-            onChange={setCharge}
-          />
-          <Switch
-            checkedText="报销"
-            uncheckedText="不报销"
-            value={isReimbursable}
-            onChange={setIsReimbursable}
-          />
-          <RecordDateTimeField
-            placeholder="记账时间"
-            value={recordTime}
-            onChange={setRecordTime}
-          />
-          <ImagePicker
-            multiple
-            maxCount={3}
-            onError={(error: unknown) => {
-              toast.show({
-                messageText:
-                  error instanceof Error ? error.message : '选择图片失败',
-              });
-            }}
-            placeholder="图片"
-            value={images}
-            onChange={setImages}
-          />
-          <SelectionList
-            displayMode="tag"
-            loading={tagsLoading}
-            mode="multiple"
-            onChange={value => setTags(toNumberValues(value))}
-            options={tagOptions}
-            placeholder="标签"
-            searchable
-            texts={{
-              headerText: '选择标签',
-              searchPlaceholder: '搜索标签',
-              emptyText: '暂无标签',
-              confirmText: '确定',
-            }}
-            value={tags}
-          />
-        </Row>
-        <RemarkInput />
+        <Card titleText="更多信息">
+          <Row wrap gap={token.marginXXS}>
+            <SelectionList
+              loading={assetsLoading}
+              onChange={value => setAssetId(toNumberValue(value) ?? null)}
+              options={assetOptions}
+              placeholder="付款资产"
+              searchable
+              texts={{
+                headerText: '选择付款资产',
+                searchPlaceholder: '搜索资产',
+                emptyText: '暂无可用资产',
+              }}
+              value={assetId ?? undefined}
+            />
+            <MoneyField
+              labelText='手续费'
+              placeholder="手续费"
+              value={charge}
+              onChange={setCharge}
+            />
+            <Switch
+              checkedText="报销"
+              uncheckedText="不报销"
+              value={isReimbursable}
+              onChange={setIsReimbursable}
+            />
+            <RecordDateTimeField
+              placeholder="记账时间"
+              value={recordTime}
+              onChange={setRecordTime}
+            />
+            <ImagePicker
+              multiple
+              maxCount={3}
+              onError={(error: unknown) => {
+                toast.show({
+                  messageText:
+                    error instanceof Error ? error.message : '选择图片失败',
+                });
+              }}
+              placeholder="图片"
+              value={images}
+              onChange={setImages}
+            />
+            <SelectionList
+              displayMode="tag"
+              loading={tagsLoading}
+              mode="multiple"
+              onChange={value => setTags(toNumberValues(value))}
+              options={tagOptions}
+              placeholder="标签"
+              searchable
+              texts={{
+                headerText: '选择标签',
+                searchPlaceholder: '搜索标签',
+                emptyText: '暂无标签',
+                confirmText: '确定',
+              }}
+              value={tags}
+            />
+          </Row>
+        </Card>
+        <Card titleText="备注">
+          <RemarkInput />
+        </Card>
         <Button block loading={submitting} onPress={handleSave} type="primary">
           保存支出
         </Button>
@@ -204,3 +212,9 @@ export function ExpenseTabScreen() {
     </KeyboardAwareFormScroll>
   );
 }
+
+const useStyles = createUseSheetStyle(token => ({
+  page: {
+    backgroundColor: token.colorBgLayout,
+  },
+}));
