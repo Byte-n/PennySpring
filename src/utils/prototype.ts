@@ -1,7 +1,12 @@
 /* eslint-disable no-extend-native */
 import dayjs from 'dayjs';
 
-const RELATIVE_LABELS: Record<number, string> = { '-1': '（明天）', 0: '（今天）', 1: '（昨天）', 2: '（前天）' };
+const RELATIVE_LABELS: Record<number, string> = {
+  '-1': '（明天）',
+  0: '（今天）',
+  1: '（昨天）',
+  2: '（前天）',
+};
 
 function withRelativeSuffix(ts: number, base: string): string {
   const todayStart = dayjs().startOf('day');
@@ -51,14 +56,26 @@ Date.prototype.formatDateBy = function (format: string) {
   return dayjs(this).format(format);
 };
 
-(dayjs as any).fn.formatDate = function (this: ReturnType<typeof dayjs>, relative = true) {
-  const ts = this.valueOf();
-  const base = this.format('MM-DD');
-  return relative ? withRelativeSuffix(ts, base) : base;
-};
-(dayjs as any).fn.formatDateTime = function (this: ReturnType<typeof dayjs>) {
-  return this.format('YYYY-MM-DD HH:mm');
-};
-(dayjs as any).fn.formatDateBy = function (this: ReturnType<typeof dayjs>, format: string) {
-  return this.format(format);
-};
+dayjs.extend((_, dayjsClass, __) => {
+  dayjsClass.prototype.formatDate = function (
+    this: ReturnType<typeof dayjs>,
+    relative = true,
+  ) {
+    const ts = this.valueOf();
+    const base = this.format('MM-DD');
+    return relative ? withRelativeSuffix(ts, base) : base;
+  };
+
+  dayjsClass.prototype.formatDateTime = function (
+    this: ReturnType<typeof dayjs>,
+  ) {
+    return this.format('YYYY-MM-DD HH:mm');
+  };
+
+  dayjsClass.prototype.formatDateBy = function (
+    this: ReturnType<typeof dayjs>,
+    format: string,
+  ) {
+    return this.format(format);
+  };
+});

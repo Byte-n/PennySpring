@@ -1,7 +1,3 @@
-/**
- * @format
- */
-
 import './src/utils/prototype';
 import { AppRegistry } from 'react-native';
 import App from './App';
