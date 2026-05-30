@@ -68,6 +68,7 @@ export interface TopTabNavigatorStyles {
 
 export interface TopTabNavigatorProps {
   screens: readonly TabScreen[];
+  initialRouteName?: string;
   leftActions?: React.ReactNode;
   rightActions?: React.ReactNode;
   style?: StyleProp<ViewStyle>;

@@ -1,6 +1,7 @@
 import {
   ASSET_CLASSIFICATION,
   ASSET_TYPE,
+  api,
   type AssetRow,
   type CreateRecordInput,
   type RecordRow,
@@ -157,6 +158,19 @@ export function buildCreateRecordInput(
     intoAssetId: draft.intoAssetId!,
     reimbursable: REIMBURSABLE.notReimbursable,
   };
+}
+
+export async function saveAddRecordDraft(
+  tabType: AddRecordTabType,
+  draft: AddRecordDraft,
+  editingRecordId: number | undefined,
+): Promise<void> {
+  const input = buildCreateRecordInput(tabType, draft);
+  if (editingRecordId !== undefined) {
+    await api.record.update({ ...input, id: editingRecordId });
+    return;
+  }
+  await api.record.create(input);
 }
 
 function isVisibleAsset(asset: AssetRow): boolean {

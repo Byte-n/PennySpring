@@ -25,9 +25,9 @@ export function RootStackNavigator() {
       <Stack.Screen
         component={AddRecordScreen}
         name={ROOT_ROUTES.AddRecord}
-        options={{
-          title: '新增记录',
-        }}
+        options={({ route }) => ({
+          title: route.params?.recordId !== undefined ? '编辑记录' : '新增记录',
+        })}
       />
       <Stack.Screen
         component={TestScreen}

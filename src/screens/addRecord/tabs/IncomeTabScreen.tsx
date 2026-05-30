@@ -20,9 +20,9 @@ import { useCategoryItems } from '../useCategoryItems';
 import { useAddRecordContext } from '../AddRecordContext';
 import { RecordDateTimeField } from '../components/RecordDateTimeField';
 import {
-  buildCreateRecordInput,
   getRelatedExpenseCandidates,
   isAbsorptionIncomeType,
+  saveAddRecordDraft,
   validateAddRecordDraft,
 } from '../addRecordDraft';
 import {
@@ -32,6 +32,7 @@ import {
 } from '../recordOptions';
 import { toNumberValue, toNumberValues } from '../selectValues';
 import { useAddRecordResources } from '../useAddRecordResources';
+import { useInitialTypeId } from '../useInitialTypeId';
 import { useNavigation } from '../../../navigation';
 
 export function IncomeTabScreen() {
@@ -41,17 +42,20 @@ export function IncomeTabScreen() {
   const navigation = useNavigation();
   const {
     amount,
+    assetId,
+    editingRecordId,
     images,
+    initialTypeId,
     recordTime,
     remark,
     reset,
+    setAssetId,
     setImages,
     setRecordTime,
     setTags,
     tags,
   } = useAddRecordContext();
   const [typeId, setTypeId] = useState<number>();
-  const [assetId, setAssetId] = useState<number | null>(null);
   const [relatedRecordIds, setRelatedRecordIds] = useState<number[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const { categories, loading: categoriesLoading } = useCategoryItems(
@@ -77,6 +81,7 @@ export function IncomeTabScreen() {
     [categories, typeId],
   );
   const isAbsorption = isAbsorptionIncomeType(selectedType);
+  useInitialTypeId(initialTypeId, categories, setTypeId);
   const expenseTypeLookup = useMemo(
     () => new Map(expenseTypes.map(typeRow => [typeRow.id, typeRow])),
     [expenseTypes],
@@ -123,9 +128,9 @@ export function IncomeTabScreen() {
 
     try {
       setSubmitting(true);
-      await api.record.create(buildCreateRecordInput('income', draft));
+      await saveAddRecordDraft('income', draft, editingRecordId);
       reset();
-      toast.show({ messageText: '已新增收入' });
+      toast.show({ messageText: editingRecordId !== undefined ? '已更新收入' : '已新增收入' });
       navigation.goBack();
     } catch (error: unknown) {
       toast.show({
@@ -138,6 +143,7 @@ export function IncomeTabScreen() {
     amount,
     assetId,
     currentBook,
+    editingRecordId,
     images,
     navigation,
     recordTime,

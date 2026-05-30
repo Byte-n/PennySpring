@@ -53,6 +53,7 @@ interface RecordDetailPanelProps {
   view: DetailRecordView | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onEdit: (view: DetailRecordView) => void;
   onDelete: (view: DetailRecordView) => void;
 }
 
@@ -60,6 +61,7 @@ export function RecordDetailPanel({
   view,
   open,
   onOpenChange,
+  onEdit,
   onDelete,
 }: RecordDetailPanelProps) {
   const styles = useStyles();
@@ -75,8 +77,12 @@ export function RecordDetailPanel({
             {view?.typeName ?? '记录详情'}
           </Text>
           <Row align="center" style={styles.actions}>
-            {/* TODO: AddRecord 暂不支持编辑既有记录，编辑入口先占位置灰 */}
-            <Button size="small" variant="text" icon="edit" disabled>
+            <Button
+              size="small"
+              variant="text"
+              icon="edit"
+              onPress={() => view && onEdit(view)}
+            >
               编辑
             </Button>
             <Button

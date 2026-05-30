@@ -1,10 +1,12 @@
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { ScrollView, RefreshControl } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import { useRequest } from 'ahooks';
 import { Column, Loading, Empty, Dialog, Text } from '@pennyspring/ui';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import { api, type AssetRow, type TypeRow } from '@pennyspring/data';
 import { useBookStore } from '../../../stores/bookStore';
+import { ROOT_ROUTES, useNavigation } from '../../../navigation';
 import { MonthSummaryCard } from './detail/MonthSummaryCard';
 import { DayGroupCard } from './detail/DayGroupCard';
 import { RecordDetailPanel } from './detail/RecordDetailPanel';
@@ -38,6 +40,7 @@ function toMap<T extends { id: number }>(rows: readonly T[]): Map<number, T> {
 
 export function DetailTabScreen() {
   const styles = useStyles();
+  const navigation = useNavigation();
   const currentBook = useBookStore(state => state.currentBook);
   const [activeView, setActiveView] = useState<DetailRecordView | null>(null);
   const [pendingDelete, setPendingDelete] = useState<DetailRecordView | null>(null);
@@ -73,6 +76,17 @@ export function DetailTabScreen() {
   }, [records, types, assets, now]);
 
   const closePanel = () => setActiveView(null);
+
+  useFocusEffect(
+    useCallback(() => {
+      refresh();
+    }, [refresh]),
+  );
+
+  const handleEdit = (view: DetailRecordView) => {
+    closePanel();
+    navigation.navigate(ROOT_ROUTES.AddRecord, { recordId: view.record.id });
+  };
 
   const confirmDelete = async () => {
     const target = pendingDelete;
@@ -115,6 +129,7 @@ export function DetailTabScreen() {
         onOpenChange={open => {
           if (!open) closePanel();
         }}
+        onEdit={handleEdit}
         onDelete={setPendingDelete}
       />
 

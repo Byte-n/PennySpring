@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Button,
   Card,
@@ -10,7 +10,7 @@ import {
   Text,
   useToast,
 } from '@pennyspring/ui';
-import { api, RECORD_TYPE_CATEGORY } from '@pennyspring/data';
+import { RECORD_TYPE_CATEGORY } from '@pennyspring/data';
 import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
 import { AmountDisplay } from '../components/AmountDisplay';
 import { CategoryGrid } from '../../../component/CategoryGrid';
@@ -20,13 +20,14 @@ import { useAddRecordContext } from '../AddRecordContext';
 import { MoneyField } from '../components/MoneyField';
 import { RecordDateTimeField } from '../components/RecordDateTimeField';
 import {
-  buildCreateRecordInput,
   filterTransferAssets,
+  saveAddRecordDraft,
   validateAddRecordDraft,
 } from '../addRecordDraft';
 import { toAssetOptions, toTagOptions } from '../recordOptions';
 import { toNumberValue, toNumberValues } from '../selectValues';
 import { useAddRecordResources } from '../useAddRecordResources';
+import { useInitialTypeId } from '../useInitialTypeId';
 import { useNavigation } from '../../../navigation';
 
 export function TransferTabScreen() {
@@ -36,19 +37,24 @@ export function TransferTabScreen() {
   const navigation = useNavigation();
   const {
     amount,
+    assetId,
+    charge,
+    editingRecordId,
     images,
+    initialIntoAssetId,
+    initialTypeId,
     recordTime,
     remark,
     reset,
+    setAssetId,
+    setCharge,
     setImages,
     setRecordTime,
     setTags,
     tags,
   } = useAddRecordContext();
   const [typeId, setTypeId] = useState<number>();
-  const [assetId, setAssetId] = useState<number | null>(null);
   const [intoAssetId, setIntoAssetId] = useState<number | null>(null);
-  const [charge, setCharge] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const { categories, loading: categoriesLoading } = useCategoryItems(
     RECORD_TYPE_CATEGORY.transfer,
@@ -64,6 +70,7 @@ export function TransferTabScreen() {
     () => categories.find(category => category.id === typeId),
     [categories, typeId],
   );
+  useInitialTypeId(initialTypeId, categories, setTypeId);
   const fromAssets = useMemo(
     () => filterTransferAssets(visibleAssets, selectedType, 'from'),
     [selectedType, visibleAssets],
@@ -89,7 +96,16 @@ export function TransferTabScreen() {
     if (assetId !== null && !fromAssets.some(asset => asset.id === assetId)) {
       setAssetId(null);
     }
-  }, [assetId, fromAssets]);
+  }, [assetId, fromAssets, setAssetId]);
+
+  const intoAssetInitializedRef = useRef(false);
+  useEffect(() => {
+    if (intoAssetInitializedRef.current) return;
+    if (initialIntoAssetId === undefined || initialIntoAssetId === null) return;
+    if (!toAssets.some(asset => asset.id === initialIntoAssetId)) return;
+    intoAssetInitializedRef.current = true;
+    setIntoAssetId(initialIntoAssetId);
+  }, [initialIntoAssetId, toAssets]);
 
   useEffect(() => {
     if (
@@ -123,9 +139,9 @@ export function TransferTabScreen() {
 
     try {
       setSubmitting(true);
-      await api.record.create(buildCreateRecordInput('transfer', draft));
+      await saveAddRecordDraft('transfer', draft, editingRecordId);
       reset();
-      toast.show({ messageText: '已新增转账' });
+      toast.show({ messageText: editingRecordId !== undefined ? '已更新转账' : '已新增转账' });
       navigation.goBack();
     } catch (error: unknown) {
       toast.show({
@@ -139,6 +155,7 @@ export function TransferTabScreen() {
     assetId,
     charge,
     currentBook,
+    editingRecordId,
     images,
     intoAssetId,
     navigation,

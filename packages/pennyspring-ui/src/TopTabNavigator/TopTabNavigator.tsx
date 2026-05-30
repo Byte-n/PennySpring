@@ -28,6 +28,7 @@ function renderHeaderBar(
 }
 
 export function TopTabNavigator({
+  initialRouteName,
   leftActions,
   rightActions,
   screens,
@@ -38,6 +39,7 @@ export function TopTabNavigator({
 
   return (
     <Tab.Navigator
+      initialRouteName={initialRouteName}
       screenOptions={{
         lazy: true,
         sceneStyle: [tokenStyles.sceneContainer, styles?.sceneContainer],
