@@ -4,7 +4,7 @@ module.exports = {
   moduleNameMapper: {
     '\\.svg$': '<rootDir>/__mocks__/svgMock.ts',
   },
-  testPathIgnorePatterns: ['<rootDir>/.worktrees/'],
-  modulePathIgnorePatterns: ['<rootDir>/.worktrees/'],
+  testPathIgnorePatterns: ['<rootDir>/.worktrees/', '<rootDir>/packages/adb-tui/'],
+  modulePathIgnorePatterns: ['<rootDir>/.worktrees/', '<rootDir>/packages/adb-tui/'],
   watchPathIgnorePatterns: ['<rootDir>/.worktrees/'],
 };
