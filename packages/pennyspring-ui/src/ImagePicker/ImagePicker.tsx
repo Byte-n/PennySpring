@@ -33,7 +33,6 @@ const DEFAULT_TITLE_TEXT = '请选择图片';
 const DEFAULT_EMPTY_TEXT = '暂无已选图片';
 const DEFAULT_SINGLE_HINT_TEXT = '最多1张';
 const DEFAULT_SELECTED_TEXT = '已选择';
-const DEFAULT_UNSELECTED_TEXT = '未选择';
 const DEFAULT_MAX_COUNT = 1;
 const DEFAULT_PANEL_HEIGHT = '50%';
 const DEFAULT_SOURCES: ImagePickerSource[] = ['camera', 'photo'];
@@ -51,8 +50,8 @@ function getStatusText(
   value: ImagePickerSelectedValue | undefined,
   multiple: boolean,
   selectedText: string,
-  unselectedText: string,
-): string {
+  unselectedText?: string,
+): string | undefined {
   const count = getSelectedCount(value);
 
   if (count === 0) {
@@ -147,7 +146,7 @@ export function ImagePicker({
   style,
   styles,
   titleText = DEFAULT_TITLE_TEXT,
-  unselectedText = DEFAULT_UNSELECTED_TEXT,
+  unselectedText,
   value,
 }: ImagePickerProps) {
   const [resolvedValue, setResolvedValue] = useControllableValue(
