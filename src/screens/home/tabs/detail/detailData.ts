@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import {
   RECORD_TYPE_CATEGORY,
   type AssetRow,
@@ -115,12 +116,13 @@ export function formatSignedAmount(cents: number, category: CashflowCategory): s
   return formatAmount(cents);
 }
 
-export function formatDayTitle(dayStart: number): string {
-  return new Date(dayStart).toLocaleDateString('zh-CN', {
-    month: 'long',
-    day: 'numeric',
-    weekday: 'short',
-  });
+export function formatDayTitle(dayStart: number, now: Date = new Date()): string {
+  const base = dayjs(dayStart).format('MM-DD');
+  const today = new Date(now);
+  today.setHours(0, 0, 0, 0);
+  const diffDays = Math.round((today.getTime() - dayStart) / 86400000);
+  const suffix = diffDays === 0 ? '（今天）' : diffDays === 1 ? '（昨天）' : diffDays === 2 ? '（前天）' : '';
+  return suffix ? `${base}${suffix}` : base;
 }
 
 export function formatRecordTime(time: number): string {

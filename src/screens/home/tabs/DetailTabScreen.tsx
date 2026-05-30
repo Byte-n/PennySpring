@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { ScrollView } from 'react-native';
+import { ScrollView, RefreshControl } from 'react-native';
 import { useRequest } from 'ahooks';
 import { Column, Loading, Empty, Dialog, Text } from '@pennyspring/ui';
 import { createUseSheetStyle } from '@pennyspring/theme';
@@ -101,7 +101,10 @@ export function DetailTabScreen() {
 
   return (
     <Column style={styles.container}>
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView
+          contentContainerStyle={styles.content}
+          refreshControl={<RefreshControl refreshing={loading} onRefresh={refresh} />}
+        >
         <MonthSummaryCard monthLabel={monthLabel} summary={summary} />
         {renderBody()}
       </ScrollView>
