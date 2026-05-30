@@ -4,6 +4,7 @@ import { SelectList } from '../src/ui/SelectList'
 import { PromptFrame } from '../src/ui/components'
 
 jest.mock('ink', () => {
+  // @ts-ignore
   const ReactRuntime = require('react')
 
   return {
