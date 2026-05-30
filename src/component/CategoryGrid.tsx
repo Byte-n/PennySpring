@@ -27,6 +27,7 @@ interface CategoryGridProps {
   onChange?: (id?: number) => void;
   defaultValue?: number;
   style?: StyleProp<ViewStyle>;
+  accordion?: boolean;
 }
 
 const useStyles = createUseSheetStyle(_token => ({
@@ -35,8 +36,9 @@ const useStyles = createUseSheetStyle(_token => ({
 }));
 
 export function CategoryGrid(props: CategoryGridProps) {
-  const { categories, style } = props;
+  const { categories, style, accordion = true } = props;
   const [value, onChange] = useControllableValue(props.defaultValue, props.value, props.onChange)
+  const [expandedIds, setExpandedIds] = React.useState<Set<number>>(new Set());
   const onSelect = useCallback((v: number) => {
     onChange?.(v)
     if (!isNil(v)) {
@@ -54,7 +56,20 @@ export function CategoryGrid(props: CategoryGridProps) {
     ];
   }, [categories]);
 
-  const findExpandedCategory = (id?: number) => {
+  const handlePrimarySelect = useCallback((catId: number) => {
+    setExpandedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(catId)) {
+        next.delete(catId);
+      } else {
+        if (accordion) next.clear();
+        next.add(catId);
+      }
+      return next;
+    });
+  }, [accordion]);
+
+  const getExpandedCat = (id?: number) => {
     if (isNil(id)) return null;
     const primary = tree.find(cat => cat.id === id);
     if (primary) return primary;
@@ -70,15 +85,22 @@ export function CategoryGrid(props: CategoryGridProps) {
   return (
     <Column style={[{ borderRadius: token.borderRadius, overflow: 'hidden' },style]}>
       {chunk(tree, 5).map(list => {
-        const allIds = list
-          .map(v => (v.children ?? []).map(child => child.id).concat([v.id]))
-          .flat(1);
-        const expandedCat = findExpandedCategory(value);
+        const expandedCatInList = list.find(cat => expandedIds.has(cat.id));
+        const isOpen = expandedCatInList !== undefined;
+        const expandedCat = expandedCatInList ?? getExpandedCat(value);
         return (
           <ListCollapse
             key={list[0].id}
-            open={allIds.includes(value!)}
-            title={<Cells list={list} onSelect={onSelect} value={value} />}
+            open={isOpen}
+            title={
+              <Cells
+                list={list}
+                onSelect={onSelect}
+                value={value}
+                onPrimarySelect={handlePrimarySelect}
+                expandedIds={expandedIds}
+              />
+            }
             styles={{
               header: styles.header,
               content: [styles.subcategoryContainer],
@@ -102,17 +124,19 @@ interface CellsProps extends Pick<CategoryGridProps, 'value'> {
   list: CategoryItem[];
   onSelect: (id: number) => void;
   style?: GridProps['style'];
+  onPrimarySelect?: (id: number) => void;
+  expandedIds?: Set<number>;
 }
 
-function Cells({ list, onSelect, value, style }: CellsProps) {
+function Cells({ list, onSelect, value, style, onPrimarySelect, expandedIds }: CellsProps) {
   return (
     <Grid columns={5} gap="small" style={[{ flex: 1 }, style]}>
       {list.map(item => (
         <Grid.Item key={item.id}>
           <Cell
             item={item}
-            onSelect={onSelect}
-            isSelected={value === item.id}
+            onSelect={onPrimarySelect ? () => onPrimarySelect(item.id) : () => onSelect(item.id)}
+            isSelected={value === item.id || (expandedIds?.has(item.id) ?? false)}
           />
         </Grid.Item>
       ))}

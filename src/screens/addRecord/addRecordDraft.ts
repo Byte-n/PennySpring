@@ -100,7 +100,6 @@ export function validateAddRecordDraft(
   if (!hasRequiredId(draft.assetId)) return '请选择资产';
 
   if (tabType === 'income') {
-    if (draft.amount - draft.charge < 0) return '收入金额不能小于手续费';
     if (
       isAbsorptionIncomeType(draft.selectedType) &&
       compactIds(draft.relatedRecordIds).length === 0

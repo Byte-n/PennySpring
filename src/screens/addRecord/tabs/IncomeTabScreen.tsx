@@ -18,7 +18,6 @@ import { CategoryGrid } from '../../../component/CategoryGrid';
 import { RemarkInput } from '../components/RemarkInput';
 import { useCategoryItems } from '../useCategoryItems';
 import { useAddRecordContext } from '../AddRecordContext';
-import { MoneyField } from '../components/MoneyField';
 import { RecordDateTimeField } from '../components/RecordDateTimeField';
 import {
   buildCreateRecordInput,
@@ -53,7 +52,6 @@ export function IncomeTabScreen() {
   } = useAddRecordContext();
   const [typeId, setTypeId] = useState<number>();
   const [assetId, setAssetId] = useState<number | null>(null);
-  const [charge, setCharge] = useState(0);
   const [relatedRecordIds, setRelatedRecordIds] = useState<number[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const { categories, loading: categoriesLoading } = useCategoryItems(
@@ -107,7 +105,7 @@ export function IncomeTabScreen() {
     const draft = {
       booksId: currentBook?.id,
       amount,
-      charge,
+      charge: 0,
       typeId,
       selectedType,
       assetId,
@@ -139,7 +137,6 @@ export function IncomeTabScreen() {
   }, [
     amount,
     assetId,
-    charge,
     currentBook,
     images,
     navigation,
@@ -185,11 +182,6 @@ export function IncomeTabScreen() {
                 emptyText: '暂无可用资产',
               }}
               value={assetId ?? undefined}
-            />
-            <MoneyField
-              placeholder="手续费"
-              value={charge}
-              onChange={setCharge}
             />
             {isAbsorption ? (
               <SelectionList
