@@ -2,6 +2,8 @@
   "extends": "@react-native/typescript-config",
   "compilerOptions": {
     "types": ["jest"],
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "paths": {
       "@pennyspring/theme": ["./packages/pennyspring-theme/src"],
       "@pennyspring/theme/*": ["./packages/pennyspring-theme/*"],
