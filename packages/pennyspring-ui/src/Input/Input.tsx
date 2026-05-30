@@ -131,6 +131,9 @@ const useStyles = createUseSheetStyle(
         justifyContent: 'flex-end',
         position: 'relative',
       },
+      inputWrapperMultiline: {
+        justifyContent: 'flex-start',
+      } as ViewStyle,
       label: {
         position: 'absolute',
         left: 0,
@@ -159,6 +162,10 @@ const useStyles = createUseSheetStyle(
       inputWithoutLabel: {
         paddingTop: token.paddingXS,
         paddingBottom: 0,
+      } as TextStyle,
+      inputMultiline: {
+        flex: 0,
+        textAlignVertical: 'top',
       } as TextStyle,
       underline: {
         position: 'absolute',
@@ -224,6 +231,7 @@ function InputRoot({
   label,
   labelText,
   loading,
+  multiline = false,
   onBlur,
   onChange,
   onClear,
@@ -376,7 +384,7 @@ function InputRoot({
         {hasPrefix ? (
           <Row style={[tokenStyles.prefix, styles?.prefix]}>{prefix}</Row>
         ) : null}
-        <View style={tokenStyles.inputWrapper}>
+        <View style={[tokenStyles.inputWrapper, multiline ? tokenStyles.inputWrapperMultiline : null]}>
           {hasFloatingLabel ? (
             <AnimatedText
               color={isFocused || isError ? undefined : 'placeholder'}
@@ -395,7 +403,7 @@ function InputRoot({
             {...rest}
             cursorColor={isError ? token.colorError : token.colorPrimary}
             editable={isEditable}
-            multiline={false}
+            multiline={multiline}
             onBlur={handleBlur}
             onChangeText={handleChangeText}
             onFocus={handleFocus}
@@ -405,6 +413,7 @@ function InputRoot({
             style={[
               tokenStyles.input,
               hasFloatingLabel ? tokenStyles.inputWithLabel : tokenStyles.inputWithoutLabel,
+              multiline ? tokenStyles.inputMultiline : null,
               styles?.input,
             ]}
             underlineColorAndroid="transparent"

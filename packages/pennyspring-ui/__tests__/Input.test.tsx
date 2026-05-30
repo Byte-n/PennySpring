@@ -136,6 +136,31 @@ describe('Input', () => {
 
     expect(testRenderer.root.findAllByType(ActivityIndicator)).toHaveLength(1);
   });
+
+  it('renders as a multiline field when multiline is requested', () => {
+    const testRenderer = renderInput({
+      defaultValue: 'Line one\nLine two\nLine three',
+      multiline: true,
+      numberOfLines: 4,
+    });
+
+    expect(findNativeInput(testRenderer).props.multiline).toBe(true);
+  });
+
+  it('aligns multiline text to the top to avoid vertical gaps', () => {
+    const testRenderer = renderInput({
+      defaultValue: 'Line one\nLine two',
+      multiline: true,
+    });
+
+    const inputStyle = StyleSheet.flatten(findNativeInput(testRenderer).props.style);
+
+    expect(inputStyle.textAlignVertical).toBe('top');
+  });
+
+  it('keeps single-line behavior when multiline is not requested', () => {
+    expect(findNativeInput(renderInput()).props.multiline).toBe(false);
+  });
 });
 
 describe('Input.Search', () => {
