@@ -4,9 +4,9 @@ import {
   Button,
   Card,
   Column,
+  Grid,
   ImagePicker,
   KeyboardAwareFormScroll,
-  Row,
   SelectionList,
   Text,
   useToast,
@@ -168,78 +168,89 @@ export function IncomeTabScreen() {
             分类加载中
           </Text>
         ) : null}
-        <Card titleText="更多信息">
-          <Row wrap gap={token.marginXXS}>
-            <SelectionList
-              loading={assetsLoading}
-              onChange={value => setAssetId(toNumberValue(value) ?? null)}
-              options={assetOptions}
-              placeholder="收款资产"
-              searchable
-              texts={{
-                headerText: '选择收款资产',
-                searchPlaceholder: '搜索资产',
-                emptyText: '暂无可用资产',
-              }}
-              value={assetId ?? undefined}
-            />
-            {isAbsorption ? (
+        <Card>
+          <Grid columns={2}>
+            <Grid.Item>
               <SelectionList
-                displayMode="tag"
-                loading={recordsLoading}
-                mode="multiple"
-                onChange={value => setRelatedRecordIds(toNumberValues(value))}
-                options={relatedExpenseOptions}
-                placeholder="关联支出"
+                labelText="收款资产"
+                loading={assetsLoading}
+                onChange={value => setAssetId(toNumberValue(value) ?? null)}
+                options={assetOptions}
                 searchable
                 texts={{
-                  headerText: '选择关联支出',
-                  searchPlaceholder: '搜索支出',
-                  emptyText: '暂无可关联支出',
+                  headerText: '选择收款资产',
+                  searchPlaceholder: '搜索资产',
+                  emptyText: '暂无可用资产',
+                }}
+                value={assetId ?? undefined}
+              />
+            </Grid.Item>
+            <Grid.Item>
+              <RecordDateTimeField
+                value={recordTime}
+                onChange={setRecordTime}
+              />
+            </Grid.Item>
+          </Grid>
+          <Grid columns={isAbsorption ? 2 : 3}>
+            <Grid.Item>
+              <ImagePicker
+                multiple
+                maxCount={3}
+                onError={(error: unknown) => {
+                  toast.show({
+                    messageText:
+                      error instanceof Error ? error.message : '选择图片失败',
+                  });
+                }}
+                labelText="图片"
+                value={images}
+                onChange={setImages}
+              />
+            </Grid.Item>
+            <Grid.Item>
+              <SelectionList
+                displayMode="tag"
+                labelText="标签"
+                loading={tagsLoading}
+                mode="multiple"
+                onChange={value => setTags(toNumberValues(value))}
+                options={tagOptions}
+                searchable
+                texts={{
+                  headerText: '选择标签',
+                  searchPlaceholder: '搜索标签',
+                  emptyText: '暂无标签',
                   confirmText: '确定',
                 }}
-                value={relatedRecordIds}
+                value={tags}
               />
+            </Grid.Item>
+            {isAbsorption ? (
+              <Grid.Item>
+                <SelectionList
+                  displayMode="tag"
+                  labelText="关联支出"
+                  loading={recordsLoading}
+                  mode="multiple"
+                  onChange={value =>
+                    setRelatedRecordIds(toNumberValues(value))
+                  }
+                  options={relatedExpenseOptions}
+                  searchable
+                  texts={{
+                    headerText: '选择关联支出',
+                    searchPlaceholder: '搜索支出',
+                    emptyText: '暂无可关联支出',
+                    confirmText: '确定',
+                  }}
+                  value={relatedRecordIds}
+                />
+              </Grid.Item>
             ) : null}
-            <RecordDateTimeField
-              placeholder="记账时间"
-              value={recordTime}
-              onChange={setRecordTime}
-            />
-            <SelectionList
-              displayMode="tag"
-              loading={tagsLoading}
-              mode="multiple"
-              onChange={value => setTags(toNumberValues(value))}
-              options={tagOptions}
-              placeholder="标签"
-              searchable
-              texts={{
-                headerText: '选择标签',
-                searchPlaceholder: '搜索标签',
-                emptyText: '暂无标签',
-                confirmText: '确定',
-              }}
-              value={tags}
-            />
-            <ImagePicker
-              multiple
-              maxCount={3}
-              onError={(error: unknown) => {
-                toast.show({
-                  messageText:
-                    error instanceof Error ? error.message : '选择图片失败',
-                });
-              }}
-              placeholder="图片"
-              value={images}
-              onChange={setImages}
-            />
-          </Row>
+          </Grid>
         </Card>
-        <Card titleText="备注">
-          <RemarkInput />
-        </Card>
+        <RemarkInput />
         <Button block loading={submitting} onPress={handleSave} type="primary">
           保存收入
         </Button>
@@ -251,5 +262,6 @@ export function IncomeTabScreen() {
 const useStyles = createUseSheetStyle(token => ({
   page: {
     backgroundColor: token.colorBgLayout,
+    paddingTop: token.paddingMD,
   },
 }));

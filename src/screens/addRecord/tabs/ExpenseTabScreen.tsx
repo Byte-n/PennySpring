@@ -146,7 +146,6 @@ export function ExpenseTabScreen() {
                 loading={assetsLoading}
                 onChange={value => setAssetId(toNumberValue(value) ?? null)}
                 options={assetOptions}
-                placeholder="付款资产"
                 searchable
                 texts={{
                   headerText: '选择付款资产',
@@ -158,7 +157,6 @@ export function ExpenseTabScreen() {
             </Grid.Item>
             <Grid.Item>
               <RecordDateTimeField
-                placeholder="记账时间"
                 value={recordTime}
                 onChange={setRecordTime}
               />
@@ -175,12 +173,9 @@ export function ExpenseTabScreen() {
                       error instanceof Error ? error.message : '选择图片失败',
                   });
                 }}
-                placeholder="图片"
+                labelText="图片"
                 value={images}
                 onChange={setImages}
-                displayInputProps={{
-                  labelText: '图片',
-                }}
               />
             </Grid.Item>
             <Grid.Item>
@@ -191,7 +186,6 @@ export function ExpenseTabScreen() {
                 mode="multiple"
                 onChange={value => setTags(toNumberValues(value))}
                 options={tagOptions}
-                placeholder="标签"
                 searchable
                 texts={{
                   headerText: '选择标签',
@@ -223,6 +217,7 @@ export function ExpenseTabScreen() {
 const useStyles = createUseSheetStyle(token => ({
   page: {
     backgroundColor: token.colorBgLayout,
+    paddingTop: token.paddingMD,
   },
   switchCell: {
     flex: 1,
