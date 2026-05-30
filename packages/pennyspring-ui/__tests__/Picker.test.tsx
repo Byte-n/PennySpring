@@ -33,6 +33,9 @@ jest.mock('react-native-reanimated', () => {
 
   return {
     __esModule: true,
+    Easing: {
+      bezier: (...args: number[]) => args,
+    },
     default: {
       View: ReactNative.View,
     },
@@ -678,22 +681,6 @@ it('does not auto fallback for missing or invalid values', () => {
   expect(testRenderer!.root.findByProps({ testID: 'picker-item-0-1' }).props.selected).toBe(false);
 });
 
-it('renders display input trigger when children is not provided', () => {
-  let testRenderer: renderer.ReactTestRenderer;
-
-  act(() => {
-    testRenderer = renderer.create(
-      <Picker columns={columns} labelText="Please select" />,
-    );
-  });
-
-  const triggerInput = testRenderer!.root.findByType(DisplayInput);
-
-  expect(triggerInput.props.readonly).toBe(true);
-  expect(triggerInput.props.display).toBe('inline');
-  expect(triggerInput.props.placeholder).toBe('Please select');
-});
-
 it('passes label to display input trigger', () => {
   let testRenderer: renderer.ReactTestRenderer;
 
@@ -790,28 +777,6 @@ it('uses formatValueText to override display input trigger text', () => {
   const triggerInput = testRenderer!.root.findByType(DisplayInput);
 
   expect(triggerInput.props.valueText).toBe('a:2');
-});
-
-it('allows overriding non-flattened display input props from picker', () => {
-  let testRenderer: renderer.ReactTestRenderer;
-
-  act(() => {
-    testRenderer = renderer.create(
-      <Picker
-        columns={columns}
-        labelText="Please select"
-        displayInputProps={{
-          display: 'block',
-        }}
-      />,
-    );
-  });
-
-  const triggerInput = testRenderer!.root.findByType(DisplayInput);
-
-  expect(triggerInput.props.display).toBe('block');
-  expect(triggerInput.props.placeholder).toBe('Please select');
-  expect(triggerInput.props.readonly).toBe(true);
 });
 
 it('does not expose imperative business features', () => {

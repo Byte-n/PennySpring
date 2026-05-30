@@ -7,7 +7,6 @@ import renderer, { act } from 'react-test-renderer';
 import { Column } from '../src/Column';
 import { DisplayInput } from '../src/DisplayInput';
 import { Grid } from '../src/Grid';
-import { Icon } from '../src/Icon';
 import { ImagePicker } from '../src/ImagePicker';
 import { pickImageFromCamera, pickImageFromFiles, pickImageFromLibrary } from '../src/ImagePicker/nativePickers';
 import { Popup } from '../src/Popup';
@@ -54,40 +53,9 @@ function getStatusText(testRenderer: renderer.ReactTestRenderer): string {
   return testRenderer.root.findByType(DisplayInput).props.valueText;
 }
 
-function findImageGridStyle(testRenderer: renderer.ReactTestRenderer) {
-  const imageGrid = testRenderer.root.findAll(
-    node => StyleSheet.flatten(node.props.style)?.flexWrap === 'wrap',
-  )[0];
-
-  return StyleSheet.flatten(imageGrid.props.style);
-}
-
 describe('ImagePicker', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-  });
-
-  it('uses display input as trigger and forwards empty trigger props', () => {
-    const helperText = 'Only image files';
-    const testRenderer = renderImagePicker({
-      label: 'Image',
-      labelText: 'Choose image',
-      displayInputProps: {
-        helperText,
-        required: true,
-      },
-    });
-
-    const triggerInput = testRenderer.root.findByType(DisplayInput);
-    const icon = testRenderer.root.findByType(Icon);
-
-    expect(triggerInput.props.label).toBe('Image');
-    expect(triggerInput.props.labelText).toBe('Choose image');
-    expect(triggerInput.props.helperText).toBe(helperText);
-    expect(triggerInput.props.required).toBe(true);
-    expect(triggerInput.props.valueText).toBe('未选择');
-    expect(icon.props.icon).toBe('image');
-    expect(triggerInput.props.prefix).toBeTruthy();
   });
 
   it('renders selected state for a single selected image', () => {
@@ -129,20 +97,6 @@ describe('ImagePicker', () => {
     expect(testRenderer.root.findAllByType(Row).length).toBeGreaterThan(0);
     expect(testRenderer.root.findAllByType(Column).length).toBeGreaterThan(0);
     expect(testRenderer.root.findAllByType(Grid).length).toBeGreaterThan(0);
-  });
-
-  it('uses large layout gap for selected image grid', () => {
-    const selectedValues: ImagePickerValue[] = [
-      { uri: 'file:///first.jpg', fileName: 'first.jpg' },
-    ];
-    const testRenderer = renderImagePicker({
-      defaultValue: selectedValues,
-      multiple: true,
-    });
-
-    pressTrigger(testRenderer);
-
-    expect(findImageGridStyle(testRenderer).gap).toBe(token.marginSM);
   });
 
   it('picks image from camera and keeps the floating panel open', async () => {

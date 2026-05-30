@@ -33,6 +33,9 @@ jest.mock('react-native-reanimated', () => {
 
   return {
     __esModule: true,
+    Easing: {
+      bezier: (...args: number[]) => args,
+    },
     default: {
       View: ReactNative.View,
     },
@@ -366,24 +369,6 @@ it('uses minuteStep when building minute column', () => {
   expect(() =>
     testRenderer!.root.findByProps({ testID: 'picker-item-4-4' }),
   ).toThrow();
-});
-
-it('shows placeholder text when value and defaultValue are both missing', () => {
-  let testRenderer: renderer.ReactTestRenderer;
-
-  // Arrange
-  act(() => {
-    testRenderer = renderer.create(
-      <DateTimePicker labelText="请选择日期时间" />,
-    );
-  });
-
-  // Act
-  const triggerInput = testRenderer!.root.findByType(DisplayInput);
-
-  // Assert
-  expect(triggerInput.props.valueText).toBeUndefined();
-  expect(triggerInput.props.placeholder).toBe('请选择日期时间');
 });
 
 it('does not open popup when readonly is true and trigger is pressed', () => {

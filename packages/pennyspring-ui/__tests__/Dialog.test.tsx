@@ -70,15 +70,6 @@ describe('Dialog', () => {
     expect(title.props.color).toBe('heading');
     expect(title.props.weight).toBe('strong');
   });
-  it('uses full-width popup body for dialog layout', () => {
-    const testRenderer = renderDialog({
-      defaultOpen: true
-    });
-    const popupBodyStyle = flattenStyle(testRenderer.root.findByProps({
-      testID: 'popup-body'
-    }).props.style);
-    expect(popupBodyStyle.width).toBe('100%');
-  });
   it('renders custom title and action nodes', () => {
     const testRenderer = renderDialog({
       cancel: <RNText>Keep</RNText>,

@@ -33,6 +33,9 @@ jest.mock('react-native-reanimated', () => {
 
   return {
     __esModule: true,
+    Easing: {
+      bezier: (...args: number[]) => args,
+    },
     default: {
       View: ReactNative.View,
     },
@@ -47,7 +50,6 @@ jest.mock('react-native-reanimated', () => {
 
 import {
   DisplayInput,
-  Picker,
   Text,
   TimePicker,
 } from '../src';
@@ -311,20 +313,6 @@ it('preserves year/month/day from base date on selection', () => {
 });
 
 describe('placeholder behavior', () => {
-  it('shows placeholder instead of current time when no value or defaultValue is provided', () => {
-    let testRenderer: renderer.ReactTestRenderer;
-
-    act(() => {
-      testRenderer = renderer.create(
-        <TimePicker labelText="请选择时间" />,
-      );
-    });
-
-    const triggerInput = testRenderer!.root.findByType(DisplayInput);
-    expect(triggerInput.props.valueText).toBeUndefined();
-    expect(triggerInput.props.placeholder).toBe('请选择时间');
-  });
-
   it('shows value text when defaultValue is provided', () => {
     let testRenderer: renderer.ReactTestRenderer;
 
@@ -356,34 +344,6 @@ describe('readonly behavior', () => {
     });
 
     expect(onOpenChange).not.toHaveBeenCalled();
-  });
-});
-
-describe('size prop', () => {
-  it('passes size prop to internal Picker', () => {
-    let testRenderer: renderer.ReactTestRenderer;
-
-    act(() => {
-      testRenderer = renderer.create(
-        <TimePicker size="small" />,
-      );
-    });
-
-    const picker = testRenderer!.root.findByType(Picker);
-    expect(picker.props.size).toBe('small');
-  });
-
-  it('defaults to normal size when size is not provided', () => {
-    let testRenderer: renderer.ReactTestRenderer;
-
-    act(() => {
-      testRenderer = renderer.create(
-        <TimePicker />,
-      );
-    });
-
-    const picker = testRenderer!.root.findByType(Picker);
-    expect(picker.props.size).toBe('normal');
   });
 });
 

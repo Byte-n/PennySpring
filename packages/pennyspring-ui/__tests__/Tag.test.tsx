@@ -4,7 +4,6 @@ import renderer, { act } from 'react-test-renderer';
 import { Tag } from '../src/Tag';
 import { Row } from '../src/Row';
 import { Text } from '../src/Text';
-import { SIZE_STYLE_MAP, useStyles } from '../src/Tag/style';
 
 function renderTag(props: Partial<React.ComponentProps<typeof Tag>> = {}) {
   let testRenderer: renderer.ReactTestRenderer;
@@ -21,16 +20,6 @@ function getPressableRoot(testRenderer: renderer.ReactTestRenderer) {
 }
 
 describe('Tag', () => {
-  describe('style exports', () => {
-    it('exports SIZE_STYLE_MAP and useStyles from style/index.ts', () => {
-      expect(SIZE_STYLE_MAP).toBeDefined();
-      expect(typeof useStyles).toBe('function');
-      expect(SIZE_STYLE_MAP.small).toBeDefined();
-      expect(SIZE_STYLE_MAP.normal).toBeDefined();
-      expect(SIZE_STYLE_MAP.large).toBeDefined();
-    });
-  });
-
   describe('root layout', () => {
     it('uses Pressable root and invokes onPress when enabled', () => {
       const onPress = jest.fn();

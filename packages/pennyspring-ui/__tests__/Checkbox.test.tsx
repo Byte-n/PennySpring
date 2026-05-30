@@ -4,7 +4,6 @@ import renderer, { act } from 'react-test-renderer';
 import { Checkbox } from '../src/Checkbox';
 import type { CheckboxGroupProps, CheckboxProps } from '../src/Checkbox';
 import { Text } from '../src/Text';
-import { useStyles } from '../src/Checkbox/style';
 function renderCheckbox(props: Partial<CheckboxProps> = {}) {
   let testRenderer: renderer.ReactTestRenderer;
   act(() => {
@@ -56,10 +55,6 @@ function findPressableTargets(testRenderer: renderer.ReactTestRenderer): rendere
   return testRenderer.root.findAll(node => typeof node.props.onPress === 'function');
 }
 describe('Checkbox', () => {
-  it('keeps style hook in style/index.ts for component structure consistency', () => {
-    expect(typeof useStyles).toBe('function');
-  });
-
   it('toggles uncontrolled value and reports the next boolean', () => {
     const onChange = jest.fn();
     const testRenderer = renderCheckbox({

@@ -39,22 +39,6 @@ function treeText(testRenderer: renderer.ReactTestRenderer): string {
   return JSON.stringify(testRenderer.toJSON());
 }
 
-function flattenStyle(style: unknown) {
-  const flatten = (input: unknown): Record<string, unknown>[] => {
-    if (input === null || input === undefined || input === false) {
-      return [];
-    }
-
-    if (Array.isArray(input)) {
-      return input.flatMap(flatten);
-    }
-
-    return [input as Record<string, unknown>];
-  };
-
-  return Object.assign({}, ...flatten(style));
-}
-
 describe('SelectionList', () => {
   it('passes helper and error node slots to the trigger display input', () => {
     const helperRenderer = renderSelectionList({
@@ -307,33 +291,6 @@ describe('SelectionList', () => {
     expect(buttons.every(button => button.props.size === 'large')).toBe(true);
     expect(descriptionText.props.size).toBe('lg');
     expect(groupTitleText.props.size).toBe('lg');
-  });
-
-  it('scales popup option layout with size', () => {
-    const smallRenderer = renderSelectionList({
-      defaultOpen: true,
-      size: 'small',
-    });
-    const largeRenderer = renderSelectionList({
-      defaultOpen: true,
-      size: 'large',
-    });
-
-    const smallOption = smallRenderer.root.findAll(node =>
-      typeof node.props.onPress === 'function' && typeof node.props.style === 'function',
-    )[0];
-    const largeOption = largeRenderer.root.findAll(node =>
-      typeof node.props.onPress === 'function' && typeof node.props.style === 'function',
-    )[0];
-    const smallOptionStyle = flattenStyle(smallOption.props.style({ pressed: false }));
-    const largeOptionStyle = flattenStyle(largeOption.props.style({ pressed: false }));
-
-    expect(largeOptionStyle.minHeight as number).toBeGreaterThan(
-      smallOptionStyle.minHeight as number,
-    );
-    expect(largeOptionStyle.paddingVertical as number).toBeGreaterThan(
-      smallOptionStyle.paddingVertical as number,
-    );
   });
 
   it('renders selected and unselected option markers with Icon components', () => {

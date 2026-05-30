@@ -36,6 +36,9 @@ jest.mock('react-native-reanimated', () => {
 
   return {
     __esModule: true,
+    Easing: {
+      bezier: (...args: number[]) => args,
+    },
     default: {
       View: ReactNative.View,
     },

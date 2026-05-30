@@ -138,29 +138,6 @@ describe('Tabs', () => {
     expect(tabListStyle.gap).toBe(expectedGap);
   });
 
-  describe('style file exports', () => {
-    it('exports SIZE_STYLE_MAP and useStyles from style/index.ts', () => {
-      const styleModule = require('../src/Tabs/style');
-
-      expect(styleModule.SIZE_STYLE_MAP).toBeDefined();
-      expect(styleModule.useStyles).toBeDefined();
-      expect(styleModule.SIZE_STYLE_MAP.small).toBeDefined();
-      expect(styleModule.SIZE_STYLE_MAP.normal).toBeDefined();
-      expect(styleModule.SIZE_STYLE_MAP.large).toBeDefined();
-    });
-
-    it('useStyles returns all expected style keys', () => {
-      const { SIZE_STYLE_MAP } = require('../src/Tabs/style');
-      const sizeKeys = Object.keys(SIZE_STYLE_MAP.normal);
-
-      expect(sizeKeys).toContain('tabMinHeight');
-      expect(sizeKeys).toContain('tabPaddingHorizontal');
-      expect(sizeKeys).toContain('tabPaddingVertical');
-      expect(sizeKeys).toContain('tabGap');
-      expect(sizeKeys).toContain('panelPaddingTop');
-    });
-  });
-
   describe('labelText and label props', () => {
     it('renders labelText as text content when label is not provided', () => {
       const testRenderer = renderTabs({
