@@ -174,7 +174,6 @@ describe('SelectionList', () => {
     const suffix = <RNText>Suffix node</RNText>;
     const testRenderer = renderSelectionList({
       labelText: 'Payment method',
-      placeholder: 'Please select',
       displayInputProps: {
         display: 'block',
         prefix,
@@ -187,7 +186,7 @@ describe('SelectionList', () => {
 
     expect(triggerInput.props.display).toBe('block');
     expect(triggerInput.props.label).toBe('Payment method');
-    expect(triggerInput.props.placeholder).toBe('Please select');
+    expect(triggerInput.props.placeholder).toBe('请选择');
     expect(triggerInput.props.prefix).toBe(prefix);
     expect(triggerInput.props.required).toBe(true);
     expect(triggerInput.props.suffix).toBe(suffix);

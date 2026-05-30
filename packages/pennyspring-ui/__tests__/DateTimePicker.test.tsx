@@ -374,7 +374,7 @@ it('shows placeholder text when value and defaultValue are both missing', () => 
   // Arrange
   act(() => {
     testRenderer = renderer.create(
-      <DateTimePicker placeholder="请选择日期时间" />,
+      <DateTimePicker labelText="请选择日期时间" />,
     );
   });
 

@@ -71,7 +71,7 @@ describe('ImagePicker', () => {
     const helperText = 'Only image files';
     const testRenderer = renderImagePicker({
       label: 'Image',
-      placeholder: 'Choose image',
+      labelText: 'Choose image',
       displayInputProps: {
         helperText,
         required: true,
@@ -82,7 +82,7 @@ describe('ImagePicker', () => {
     const icon = testRenderer.root.findByType(Icon);
 
     expect(triggerInput.props.label).toBe('Image');
-    expect(triggerInput.props.placeholder).toBe('Choose image');
+    expect(triggerInput.props.labelText).toBe('Choose image');
     expect(triggerInput.props.helperText).toBe(helperText);
     expect(triggerInput.props.required).toBe(true);
     expect(triggerInput.props.valueText).toBe('未选择');

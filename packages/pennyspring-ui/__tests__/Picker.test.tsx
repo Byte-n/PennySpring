@@ -683,7 +683,7 @@ it('renders display input trigger when children is not provided', () => {
 
   act(() => {
     testRenderer = renderer.create(
-      <Picker columns={columns} placeholder="Please select" />,
+      <Picker columns={columns} labelText="Please select" />,
     );
   });
 
@@ -799,7 +799,7 @@ it('allows overriding non-flattened display input props from picker', () => {
     testRenderer = renderer.create(
       <Picker
         columns={columns}
-        placeholder="Please select"
+        labelText="Please select"
         displayInputProps={{
           display: 'block',
         }}

@@ -10,13 +10,13 @@ jest.mock('@react-navigation/material-top-tabs', () => ({
   }),
 }));
 
-it('renders readonly display input trigger with placeholder when no children', () => {
+it('renders readonly display input trigger with label when no children', () => {
   let testRenderer: renderer.ReactTestRenderer;
 
   act(() => {
     testRenderer = renderer.create(
       <PickerTrigger
-        placeholder="Single column"
+        label="Single column"
         styles={{
           trigger: null,
         } as unknown as ReturnType<typeof import('../src/Picker/usePickerStyles').usePickerStyles>}
@@ -28,7 +28,7 @@ it('renders readonly display input trigger with placeholder when no children', (
 
   expect(triggerInput.props.readonly).toBe(true);
   expect(triggerInput.props.display).toBe('block');
-  expect(triggerInput.props.placeholder).toBe('Single column');
+  expect(triggerInput.props.label).toBe('Single column');
 });
 
 it('passes size to display input', () => {

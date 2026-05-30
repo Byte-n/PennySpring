@@ -316,7 +316,7 @@ describe('placeholder behavior', () => {
 
     act(() => {
       testRenderer = renderer.create(
-        <TimePicker placeholder="请选择时间" />,
+        <TimePicker labelText="请选择时间" />,
       );
     });
 
@@ -330,7 +330,7 @@ describe('placeholder behavior', () => {
 
     act(() => {
       testRenderer = renderer.create(
-        <TimePicker defaultValue={makeDate(10, 30)} placeholder="请选择时间" />,
+        <TimePicker defaultValue={makeDate(10, 30)} labelText="请选择时间" />,
       );
     });
 

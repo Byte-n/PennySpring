@@ -206,7 +206,7 @@ describe('Cascader', () => {
 
     act(() => {
       testRenderer = renderer.create(
-        <Cascader options={options} onOpenChange={onOpenChange} placeholder="Pick" />,
+        <Cascader options={options} onOpenChange={onOpenChange} labelText="Pick" />,
       );
     });
 
@@ -336,7 +336,7 @@ describe('Cascader', () => {
         <Cascader
           defaultValue={['zhejiang']}
           options={options}
-          placeholder="Pick"
+          labelText="Pick"
         />,
       );
     });
