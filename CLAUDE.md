@@ -180,3 +180,27 @@ scripts/                → 本地工具脚本
 - 分支的命令不允许使用 `-f` / `-force` 参数强行执行操作
 - workspace 分支的任务完成后立即 commit, 并通过 Ask User 工具询问是否合并到主分支
 - **代码提交**：必须立即将任务转给**低成本的模型** + subagent 进行操作，规定必须“分类，分批提交”
+
+
+## 语言
+
+- 界面、组件展示文案用中文
+- 日期、人民币格式用中文
+
+## 日期格式
+
+- YYYY-MM-DD
+- hh:mm:ss
+- YYYY-MM-DD hh:mm:ss
+
+### 日期格式化工具（`src/utils/prototype.ts`）
+
+通过扩展原生类型与 Dayjs 原型，提供统一的格式化方法，支持 `number`（时间戳）、`string`、`Date`、`Dayjs` 四种类型直接调用：
+
+| 方法 | 格式 | 说明 |
+|------|------|------|
+| `.formatDate(relative?)` | `MM-DD` | `relative=true`（默认）时追加今天/昨天/前天/明天后缀 |
+| `.formatDateTime()` | `YYYY-MM-DD HH:mm` | 精确到分钟 |
+| `.formatDateBy(format)` | 自定义 | 透传 dayjs 格式字符串 |
+
+类型声明位于 `src/types/prototype.d.ts`，Dayjs 扩展通过 `declare module 'dayjs'` 声明。
