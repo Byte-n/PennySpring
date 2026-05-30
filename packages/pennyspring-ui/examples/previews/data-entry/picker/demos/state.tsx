@@ -30,7 +30,7 @@ export function PickerStateDemo() {
           disabled
           columns={[ACCOUNT_COLUMN]}
           label="Disabled"
-          placeholder="Not selectable"
+          labelText="Not selectable"
           popupProps={{ titleText: 'Disabled' }}
         />
         <Picker
@@ -38,13 +38,13 @@ export function PickerStateDemo() {
           columns={[ACCOUNT_COLUMN]}
           defaultValue={['salary-card']}
           label="Readonly"
-          placeholder="Cannot open"
+          labelText="Cannot open"
           popupProps={{ titleText: 'Readonly' }}
         />
         <Picker
           columns={[EMPTY_COLUMN]}
           label="Empty"
-          placeholder="No options"
+          labelText="No options"
           popupProps={{ emptyText: 'No accounts', titleText: 'Empty picker' }}
         />
       </Space>

@@ -74,7 +74,7 @@ export function CascadePickerControlledDemo() {
         <CascadePicker
           tabs={EXPENSE_TABS}
           value={controlledValue}
-          placeholder="Select category path"
+          labelText="Select category path"
           titleText="Controlled category"
           onChange={nextValue => setControlledValue(nextValue)}
           onOk={(_nextValue, params) => {

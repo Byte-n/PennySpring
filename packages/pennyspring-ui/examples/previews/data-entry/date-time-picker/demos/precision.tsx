@@ -12,20 +12,20 @@ export function DateTimePickerPrecisionDemo() {
         <DateTimePicker
           precision="day"
           defaultValue={BASE_DATE}
-          placeholder="Select date"
+          labelText="Select date"
           titleText="Date"
         />
         <DateTimePicker
           precision="minute"
           defaultValue={BASE_DATE}
-          placeholder="Select date and time"
+          labelText="Select date and time"
           titleText="Date and time"
         />
         <DateTimePicker
           precision="second"
           secondStep={10}
           defaultValue={BASE_DATE}
-          placeholder="Select second precision"
+          labelText="Select second precision"
           titleText="Second precision"
         />
         <DateTimePicker
@@ -37,7 +37,7 @@ export function DateTimePickerPrecisionDemo() {
               ? `${String(value).padStart(2, '0')}m`
               : String(value)
           }
-          placeholder="Custom format label"
+          labelText="Custom format label"
           titleText="Format label"
         />
         <DateTimePicker
@@ -46,7 +46,7 @@ export function DateTimePickerPrecisionDemo() {
           renderLabel={({ type, value }) =>
             `${type.slice(0, 1).toUpperCase()}${type.slice(1)}:${value}`
           }
-          placeholder="Custom render label"
+          labelText="Custom render label"
           titleText="Render label"
         />
       </Space>

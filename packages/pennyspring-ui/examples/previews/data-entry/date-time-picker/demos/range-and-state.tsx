@@ -18,26 +18,26 @@ export function DateTimePickerRangeAndStateDemo() {
           min={MIN_DATE}
           max={MAX_DATE}
           defaultValue={BASE_DATE}
-          placeholder="Select month"
+          labelText="Select month"
           titleText="Month in 2026"
         />
         <DateTimePicker
           disabled
           defaultValue={BASE_DATE}
-          placeholder="Not selectable"
+          labelText="Not selectable"
           titleText="Disabled"
         />
         <DateTimePicker
           loading
           loadingIndicatorText="Loading available dates"
           emptyText="No available date"
-          placeholder="Loading state"
+          labelText="Loading state"
           titleText="Loading and empty"
         />
         <DateTimePicker
           okDisabled
           defaultValue={BASE_DATE}
-          placeholder="Cannot confirm"
+          labelText="Cannot confirm"
           titleText="Ok disabled"
         />
       </Space>

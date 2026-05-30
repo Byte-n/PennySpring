@@ -88,7 +88,7 @@ export function CascaderTriggerDemo() {
         <Cascader
           options={CASCADER_OPTIONS}
           defaultValue={['daily', 'food', 'breakfast']}
-          placeholder="Select category"
+          labelText="Select category"
         >
           <TriggerContent
             label="Three levels"
@@ -98,17 +98,17 @@ export function CascaderTriggerDemo() {
         <Cascader
           options={CASCADER_OPTIONS}
           defaultValue={['fixed', 'housing', 'rent']}
-          placeholder="Select fixed expense"
+          labelText="Select fixed expense"
         >
           <TriggerContent
             label="Default value"
             value="Fixed / Housing / Rent"
           />
         </Cascader>
-        <Cascader disabled options={CASCADER_OPTIONS} placeholder="Disabled">
+        <Cascader disabled options={CASCADER_OPTIONS} labelText="Disabled">
           <TriggerContent label="Disabled" value="Not selectable" />
         </Cascader>
-        <Cascader readonly options={CASCADER_OPTIONS} placeholder="Readonly">
+        <Cascader readonly options={CASCADER_OPTIONS} labelText="Readonly">
           <TriggerContent label="Readonly" value="Cannot open panel" />
         </Cascader>
       </View>

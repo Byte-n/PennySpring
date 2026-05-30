@@ -55,7 +55,7 @@ export function CascadePickerBasicDemo() {
             daily: ['food', 'breakfast'],
             fixed: ['home', 'rent'],
           }}
-          placeholder="Select category"
+          labelText="Select category"
           titleText="Category"
         />
         <CascadePicker
@@ -64,7 +64,7 @@ export function CascadePickerBasicDemo() {
             daily: ['traffic', 'metro'],
             fixed: ['home', 'utilities'],
           }}
-          placeholder="Select expense"
+          labelText="Select expense"
           titleText="Fixed expense"
         />
       </Space>

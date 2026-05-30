@@ -20,12 +20,12 @@ export function ImagePickerStateDemo() {
 
   return (
     <Column style={styles.stack}>
-      <ImagePicker disabled label="Disabled" placeholder="Cannot select" />
-      <ImagePicker label="Readonly" placeholder="Read only" readonly />
+      <ImagePicker disabled label="Disabled" labelText="Cannot select" />
+      <ImagePicker label="Readonly" labelText="Read only" readonly />
       <ImagePicker
         defaultValue={presetValue}
         label="With Default Value"
-        placeholder="Choose image"
+        labelText="Choose image"
       />
     </Column>
   );

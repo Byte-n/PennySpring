@@ -12,20 +12,20 @@ export function TimePickerPrecisionDemo() {
         <TimePicker
           precision="hour"
           defaultValue={BASE_TIME}
-          placeholder="Select hour"
+          labelText="Select hour"
           titleText="Hour"
         />
         <TimePicker
           precision="minute"
           defaultValue={BASE_TIME}
-          placeholder="Select minute"
+          labelText="Select minute"
           titleText="Minute"
         />
         <TimePicker
           precision="second"
           secondStep={10}
           defaultValue={BASE_TIME}
-          placeholder="Select second"
+          labelText="Select second"
           titleText="Second"
         />
         <TimePicker
@@ -37,14 +37,14 @@ export function TimePickerPrecisionDemo() {
               ? `${String(value).padStart(2, '0')}m`
               : String(value)
           }
-          placeholder="Custom format label"
+          labelText="Custom format label"
           titleText="Format label"
         />
         <TimePicker
           precision="hour"
           defaultValue={BASE_TIME}
           renderLabel={({ type, value }) => `${type}: ${value}`}
-          placeholder="Custom render label"
+          labelText="Custom render label"
           titleText="Render label"
         />
       </Space>

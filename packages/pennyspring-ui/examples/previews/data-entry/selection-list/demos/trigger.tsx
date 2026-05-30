@@ -46,13 +46,11 @@ export function SelectionListTriggerDemo() {
           disabled
           labelText="Disabled"
           options={SELECTION_LIST_OPTIONS}
-          placeholder="Not selectable"
         />
         <SelectionList
           readonly
           labelText="Readonly"
           options={SELECTION_LIST_OPTIONS}
-          placeholder="Readonly trigger"
         />
       </View>
     </>

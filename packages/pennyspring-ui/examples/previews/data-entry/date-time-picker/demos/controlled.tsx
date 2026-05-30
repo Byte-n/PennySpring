@@ -32,7 +32,7 @@ export function DateTimePickerControlledDemo() {
           max={MAX_DATE}
           minuteStep={15}
           onChange={setControlledDate}
-          placeholder="Select date and time"
+          labelText="Select date and time"
           titleText="Controlled date time"
         />
         <Text color="description" size="sm">

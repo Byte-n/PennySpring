@@ -19,26 +19,26 @@ export function TimePickerRangeAndStateDemo() {
           min={MIN_TIME}
           max={MAX_TIME}
           defaultValue={BASE_TIME}
-          placeholder="Business hours"
+          labelText="Business hours"
           titleText="Business hours"
         />
         <TimePicker
           disabled
           defaultValue={BASE_TIME}
-          placeholder="Not selectable"
+          labelText="Not selectable"
           titleText="Disabled"
         />
         <TimePicker
           loading
           loadingIndicatorText="Loading time ranges"
           emptyText="No available time"
-          placeholder="Loading state"
+          labelText="Loading state"
           titleText="Loading and empty"
         />
         <TimePicker
           okDisabled
           defaultValue={BASE_TIME}
-          placeholder="Cannot confirm"
+          labelText="Cannot confirm"
           titleText="Ok disabled"
         />
       </Space>

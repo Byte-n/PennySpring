@@ -15,15 +15,15 @@ export function ImagePickerBasicDemo() {
 
   return (
     <Column style={styles.stack}>
-      <ImagePicker label="Avatar" placeholder="Choose image" />
+      <ImagePicker label="Avatar" labelText="Choose image" />
       <ImagePicker
         label="Photo Only"
-        placeholder="Photo library only"
+        labelText="Photo library only"
         sources={['photo']}
       />
       <ImagePicker
         label="File System Only"
-        placeholder="File system only"
+        labelText="File system only"
         sources={['fileSystem']}
       />
     </Column>

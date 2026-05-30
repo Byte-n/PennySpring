@@ -89,31 +89,31 @@ export function CascadePickerStateDemo() {
         <CascadePicker
           disabled
           tabs={EXPENSE_TABS}
-          placeholder="Not selectable"
+          labelText="Not selectable"
           titleText="Disabled"
         />
         <CascadePicker
           tabs={DISABLED_TABS}
           defaultValue={{ daily: ['food', 'dinner'], fixed: ['home', 'rent'] }}
-          placeholder="Disabled tab and option"
+          labelText="Disabled tab and option"
           titleText="Disabled options"
         />
         <CascadePicker
           emptyText="No category"
           tabs={EMPTY_TABS}
-          placeholder="No category"
+          labelText="No category"
           titleText="Empty"
         />
         <CascadePicker
           tabs={EXPENSE_TABS}
           loading
           loadingIndicatorText="Loading categories"
-          placeholder="Loading state"
+          labelText="Loading state"
           titleText="Loading"
         />
         <CascadePicker
           tabs={EXPENSE_TABS}
-          placeholder="Custom texts and renderLabel"
+          labelText="Custom texts and renderLabel"
           titleText="Custom header"
           cancelText="Dismiss"
           okText="Confirm"

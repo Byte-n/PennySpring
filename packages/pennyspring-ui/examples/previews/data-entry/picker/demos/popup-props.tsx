@@ -61,7 +61,7 @@ export function PickerPopupPropsDemo() {
           allowClear
           columns={[ACCOUNT_COLUMN]}
           label="allowClear / onClear"
-          placeholder="Select and clear"
+          labelText="Select and clear"
           popupProps={{ titleText: 'Clearable picker' }}
           onClear={() => {
             setClearCount(prev => prev + 1);
@@ -73,7 +73,7 @@ export function PickerPopupPropsDemo() {
         <Picker
           columns={[ACCOUNT_COLUMN]}
           label="renderLabel"
-          placeholder="Custom label"
+          labelText="Custom label"
           popupProps={{
             titleText: 'Custom label',
             renderLabel: item =>
@@ -83,7 +83,7 @@ export function PickerPopupPropsDemo() {
         <Picker
           columns={[CATEGORY_COLUMN]}
           label="renderHeader"
-          placeholder="Custom header"
+          labelText="Custom header"
           popupProps={{
             titleText: 'Header',
             okText: 'Apply',
@@ -100,7 +100,7 @@ export function PickerPopupPropsDemo() {
         <Picker
           columns={[EMPTY_COLUMN]}
           label="loading and empty"
-          placeholder="Loading state"
+          labelText="Loading state"
           popupProps={{
             loading: true,
             loadingIndicatorText: 'Loading options',
@@ -111,7 +111,7 @@ export function PickerPopupPropsDemo() {
         <Picker
           columns={[ACCOUNT_COLUMN]}
           label="okDisabled"
-          placeholder="Cannot confirm"
+          labelText="Cannot confirm"
           popupProps={{ okDisabled: true, titleText: 'Confirm disabled' }}
         />
       </Space>

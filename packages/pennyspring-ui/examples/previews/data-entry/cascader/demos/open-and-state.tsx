@@ -94,7 +94,7 @@ export function CascaderOpenAndStateDemo() {
           options={CASCADER_OPTIONS}
           defaultValue={['daily', 'traffic', 'metro']}
           closeOnSelectLeaf={false}
-          placeholder="Select transport"
+          labelText="Select transport"
         >
           <TriggerContent
             label="closeOnSelectLeaf=false"
@@ -104,14 +104,14 @@ export function CascaderOpenAndStateDemo() {
         <Cascader
           options={EMPTY_OPTIONS}
           emptyText="No options"
-          placeholder="Empty options"
+          labelText="Empty options"
         >
           <TriggerContent label="Empty state" value="No options" />
         </Cascader>
         <Cascader
           loading
           options={CASCADER_OPTIONS}
-          placeholder="Loading options"
+          labelText="Loading options"
         >
           <TriggerContent label="Loading state" value="Loading..." />
         </Cascader>
@@ -119,7 +119,7 @@ export function CascaderOpenAndStateDemo() {
           activeLevel={1}
           options={CASCADER_OPTIONS}
           value={searchLikePath}
-          placeholder="Active level = 1"
+          labelText="Active level = 1"
           onChange={nextValue => {
             setSearchLikePath(nextValue);
           }}
@@ -130,7 +130,7 @@ export function CascaderOpenAndStateDemo() {
           displayMode="tag"
           options={CASCADER_OPTIONS}
           defaultValue={['fixed', 'housing', 'utilities']}
-          placeholder="Tag mode"
+          labelText="Tag mode"
         />
       </View>
     </>

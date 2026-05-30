@@ -77,7 +77,7 @@ export function PickerBasicDemo() {
         <Picker
           allowClear
           label="Account"
-          placeholder="Select account"
+          labelText="Select account"
           columns={[ACCOUNT_COLUMN]}
           popupProps={{ titleText: 'Account' }}
           value={account1}
@@ -86,7 +86,7 @@ export function PickerBasicDemo() {
         <Picker
           allowClear
           label="Account"
-          placeholder="Select account"
+          labelText="Select account"
           columns={[ACCOUNT_COLUMN]}
           popupProps={{ titleText: 'Account' }}
           value={account1}
@@ -101,14 +101,14 @@ export function PickerBasicDemo() {
           allowClear
           columns={[MONTH_COLUMN, CATEGORY_COLUMN]}
           defaultValue={['may', 'food']}
-          placeholder="Select month and category"
+          labelText="Select month and category"
           label="Month category"
           popupProps={{ titleText: 'Month and category' }}
         />
         <Picker
           columns={[ACCOUNT_COLUMN]}
           defaultValue={['cash']}
-          placeholder="Custom trigger"
+          labelText="Custom trigger"
           popupProps={{ titleText: 'Custom trigger' }}
         >
           <TriggerContent

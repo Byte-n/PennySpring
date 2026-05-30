@@ -30,7 +30,7 @@ export function TimePickerControlledDemo() {
           max={MAX_TIME}
           value={controlledTime}
           onChange={setControlledTime}
-          placeholder="Select time"
+          labelText="Select time"
           titleText="Controlled time"
         />
         <Text color="description" size="sm">
