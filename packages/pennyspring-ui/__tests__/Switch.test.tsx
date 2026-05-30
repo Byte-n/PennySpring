@@ -67,9 +67,10 @@ describe('Switch', () => {
     const thumb = testRenderer.root.findByProps({
       testID: 'switch-thumb',
     });
+    const flattened = StyleSheet.flatten(thumb.props.style);
 
     expect(onChange).toHaveBeenCalledWith(true);
-    expect(thumb.props.style[2]).toBeNull();
+    expect(flattened.transform).toEqual([{ translateX: 0 }]);
   });
 
   it('does not change when disabled or readonly', () => {
@@ -158,6 +159,21 @@ describe('Switch', () => {
     expect(flattened.fontWeight).toBeUndefined();
   });
 
+  it('slides the thumb to a positive offset when checked', () => {
+    const uncheckedRenderer = renderSwitch({ defaultValue: false });
+    const checkedRenderer = renderSwitch({ defaultValue: true });
+
+    const uncheckedThumb = StyleSheet.flatten(
+      uncheckedRenderer.root.findByProps({ testID: 'switch-thumb' }).props.style,
+    );
+    const checkedThumb = StyleSheet.flatten(
+      checkedRenderer.root.findByProps({ testID: 'switch-thumb' }).props.style,
+    );
+
+    expect(uncheckedThumb.transform).toEqual([{ translateX: 0 }]);
+    expect(checkedThumb.transform[0].translateX).toBeGreaterThan(0);
+  });
+
   it('derives track borderRadius from size instead of hardcoded value', () => {
     const testRenderer = renderSwitch({ defaultValue: true });
     const track = testRenderer.root.findByProps({ testID: 'switch' });
@@ -167,5 +183,14 @@ describe('Switch', () => {
     expect(flattened.borderRadius).not.toBe(999);
     expect(typeof flattened.borderRadius).toBe('number');
     expect(flattened.borderRadius).toBeGreaterThan(0);
+  });
+
+  it('keeps a compact mobile track height below the large control field', () => {
+    const testRenderer = renderSwitch({ defaultValue: false });
+    const track = testRenderer.root.findByProps({ testID: 'switch' });
+    const flattened = StyleSheet.flatten(track.props.style({ pressed: false }));
+
+    expect(flattened.height).toBeLessThan(token.controlHeightLG);
+    expect(flattened.borderRadius).toBe(flattened.height / 2);
   });
 });

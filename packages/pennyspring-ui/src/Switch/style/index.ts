@@ -4,9 +4,7 @@ import type { ComponentSize } from '../../shares/types';
 
 interface SizeStyleConfig {
   thumbSize: (token: AliasToken) => number;
-  inset: (token: AliasToken) => number;
-  trackWidth: (token: AliasToken) => number;
-  textTrackWidth: (token: AliasToken) => number;
+  textPadding: (token: AliasToken) => number;
 }
 
 export interface SwitchStyleOptions {
@@ -19,38 +17,59 @@ export interface SwitchStyleOptions {
 const SIZE_STYLE_MAP: Record<ComponentSize, SizeStyleConfig> = {
   small: {
     thumbSize: token => token.fontSize,
-    inset: token => token.lineWidth,
-    trackWidth: token => token.controlHeight,
-    textTrackWidth: token => token.controlHeightLG,
+    textPadding: token => token.paddingXXS,
   },
   normal: {
     thumbSize: token => token.fontSizeXL,
-    inset: token => token.lineWidth,
-    trackWidth: token => token.controlHeightLG,
-    textTrackWidth: token => token.controlHeightLG + token.controlHeightSM,
+    textPadding: token => token.paddingXS,
   },
   large: {
     thumbSize: token => token.controlHeightSM,
-    inset: token => token.lineWidth,
-    trackWidth: token => token.controlHeightLG + token.controlHeightXS,
-    textTrackWidth: token =>
-      token.controlHeightLG + token.controlHeight + token.controlHeightXS,
+    textPadding: token => token.paddingSM,
   },
 };
 
+interface SwitchGeometry {
+  trackHeight: number;
+  thumbSize: number;
+  inset: number;
+  trackWidth: number;
+}
+
+function getGeometry(
+  token: AliasToken,
+  options: Pick<SwitchStyleOptions, 'hasText' | 'size'>,
+): SwitchGeometry {
+  const sizeConfig = SIZE_STYLE_MAP[options.size];
+  const thumbSize = sizeConfig.thumbSize(token);
+  const inset = token.lineWidth;
+  const trackHeight = thumbSize + inset * 2 + token.lineWidth * 2;
+  const baseWidth = thumbSize * 2 + inset * 2 + token.lineWidth * 2;
+  const trackWidth = options.hasText
+    ? baseWidth + sizeConfig.textPadding(token) * 2
+    : baseWidth;
+
+  return { trackHeight, thumbSize, inset, trackWidth };
+}
+
+export function getCheckedOffset(
+  token: AliasToken,
+  options: Pick<SwitchStyleOptions, 'hasText' | 'size'>,
+): number {
+  const { thumbSize, inset, trackWidth } = getGeometry(token, options);
+
+  return trackWidth - thumbSize - inset - token.lineWidth - inset;
+}
+
 export const useStyles = createUseSheetStyle(
   (token, options: SwitchStyleOptions) => {
-    const sizeConfig = SIZE_STYLE_MAP[options.size];
-    const thumbSize = sizeConfig.thumbSize(token);
-    const trackWidth = options.hasText
-      ? sizeConfig.textTrackWidth(token)
-      : sizeConfig.trackWidth(token);
-    const inset = sizeConfig.inset(token);
+    const { trackHeight, thumbSize, inset, trackWidth } = getGeometry(
+      token,
+      options,
+    );
     const textReservedSpace = thumbSize + inset + token.lineWidth;
-    const checkedOffset =
-      trackWidth - thumbSize - inset - token.lineWidth - inset;
-    const trackHeight = thumbSize + inset * 2 + token.lineWidth * 2;
     const trackBorderRadius = trackHeight / 2;
+    const textEdgeInset = trackBorderRadius;
 
     return {
       track: {
@@ -59,18 +78,15 @@ export const useStyles = createUseSheetStyle(
         borderColor: token.colorBorder,
         borderRadius: trackBorderRadius,
         borderWidth: token.lineWidth,
+        height: trackHeight,
         justifyContent: 'center',
         width: trackWidth,
       },
       text: {
-        left: options.checked
-          ? inset + token.lineWidth
-          : textReservedSpace,
+        left: options.checked ? textEdgeInset : textReservedSpace,
         lineHeight: token.lineHeightSM,
         position: 'absolute',
-        right: options.checked
-          ? textReservedSpace
-          : inset + token.lineWidth,
+        right: options.checked ? textReservedSpace : textEdgeInset,
       },
       trackChecked: {
         backgroundColor: token.colorPrimary,
@@ -92,9 +108,6 @@ export const useStyles = createUseSheetStyle(
         height: thumbSize,
         marginLeft: inset,
         width: thumbSize,
-      },
-      thumbChecked: {
-        transform: [{ translateX: checkedOffset }],
       },
       thumbDisabled: {
         backgroundColor: token.colorTextDisabled,

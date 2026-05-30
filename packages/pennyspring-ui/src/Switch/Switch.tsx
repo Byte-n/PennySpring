@@ -1,8 +1,15 @@
 import React from 'react';
-import { Pressable, View } from 'react-native';
+import { Pressable } from 'react-native';
+import Animated, {
+  Easing,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
+import { useTheme } from '@pennyspring/theme';
 import { useControllableValue } from '../_hooks';
 import { Text } from '../Text';
-import { useStyles } from './style';
+import { getCheckedOffset, useStyles } from './style';
 import type { SwitchStyleOptions } from './style';
 import type { SwitchProps } from './types';
 import type { TextColor } from '../Text/types';
@@ -39,6 +46,20 @@ export function Switch({
     [checked, hasText, isDisabled, size],
   );
   const tokenStyles = useStyles(styleOptions);
+  const { token } = useTheme();
+
+  const checkedOffset = getCheckedOffset(token, { hasText, size });
+  const translateX = useSharedValue(checked ? checkedOffset : 0);
+  const thumbAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: translateX.value }],
+  }));
+
+  React.useEffect(() => {
+    translateX.value = withTiming(checked ? checkedOffset : 0, {
+      duration: token.motionDurationMid,
+      easing: Easing.bezier(...token.motionEaseInOut),
+    });
+  }, [checked, checkedOffset, token, translateX]);
 
   const textColor: TextColor = isDisabled
     ? 'disabled'
@@ -82,13 +103,13 @@ export function Switch({
           {currentText}
         </Text>
       ) : null}
-      <View
+      <Animated.View
         testID="switch-thumb"
         style={[
           tokenStyles.thumb,
           styles?.thumb,
-          checked ? tokenStyles.thumbChecked : null,
           disabled ? tokenStyles.thumbDisabled : null,
+          thumbAnimatedStyle,
         ]}
       />
     </Pressable>
