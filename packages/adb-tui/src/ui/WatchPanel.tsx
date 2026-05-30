@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { Text, useInput } from 'ink'
 import type { AdbClient } from '../adb'
-import { listDevices, createDbSyncThread, DEFAULT_LOCAL_DB } from '../features'
+import { listDevices, DEFAULT_LOCAL_DB } from '../features'
+import type { DbSyncManager } from './useDbSync'
 import { useAsync } from './useAsync'
 import { SelectList } from './SelectList'
 import { StatusView } from './StatusView'
@@ -10,49 +11,29 @@ import { SELECT_HINT, UI_COLORS } from './theme'
 
 interface WatchPanelProps {
   client: AdbClient
-  adbPath: string
+  sync: DbSyncManager
   onBack: () => void
 }
 
-export function WatchPanel({ client, adbPath, onBack }: WatchPanelProps) {
+export function WatchPanel({ client, sync, onBack }: WatchPanelProps) {
   const devicesState = useAsync(() => listDevices(client))
   const [serial, setSerial] = useState<string | undefined>()
-  const [pulls, setPulls] = useState(0)
-  const [lastAt, setLastAt] = useState<string | undefined>()
-  const [error, setError] = useState<unknown>()
 
   useInput((input, key) => {
     if (key.escape || input === 'q') {
       onBack()
+      return
+    }
+    if (input === 's' && serial) {
+      sync.stop(serial)
+      setSerial(undefined)
     }
   })
 
-  useEffect(() => {
-    if (!serial) {
-      return
-    }
-    setPulls(0)
-    setLastAt(undefined)
-    setError(undefined)
-  }, [serial])
-
-  useEffect(() => {
-    if (!serial) {
-      return
-    }
-    const thread = createDbSyncThread(
-      { serial, adbPath },
-      {
-        onPull: () => {
-          setPulls(prev => prev + 1)
-          setLastAt(new Date().toLocaleTimeString('zh-CN'))
-        },
-        onError: setError,
-      },
-    )
-    thread.start()
-    return () => thread.stop()
-  }, [serial, adbPath])
+  const select = (next: string) => {
+    sync.start(next)
+    setSerial(next)
+  }
 
   if (!serial) {
     return (
@@ -62,7 +43,7 @@ export function WatchPanel({ client, adbPath, onBack }: WatchPanelProps) {
           <SelectList
             items={devicesState.data.map(d => ({ label: `${d.serial} [${d.transport}]`, value: d.serial }))}
             emptyText="暂无可同步设备"
-            onSelect={setSerial}
+            onSelect={select}
           />
         ) : null}
       </PromptFrame>
@@ -70,11 +51,11 @@ export function WatchPanel({ client, adbPath, onBack }: WatchPanelProps) {
   }
 
   return (
-    <PromptFrame title="数据库同步" hint="持续监控中 · ESC/q 返回">
+    <PromptFrame title="数据库同步" hint="后台持续同步 · s 停止该设备 · ESC/q 返回">
       <Text>设备：{serial}</Text>
       <Text>输出：{DEFAULT_LOCAL_DB}</Text>
-      <Text color={UI_COLORS.success}>已同步 {pulls} 次{lastAt ? ` · 最近 ${lastAt}` : ''}</Text>
-      <StatusView error={error} />
+      <Text color={UI_COLORS.success}>已在后台同步，返回后仍保持</Text>
+      <StatusView error={sync.errors[serial]} />
     </PromptFrame>
   )
 }

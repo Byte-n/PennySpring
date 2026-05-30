@@ -2,6 +2,7 @@ import { stdout as output } from 'node:process'
 import React, { useEffect, useState } from 'react'
 import { Box, Text, useInput, useStdin } from 'ink'
 import { BRAND_GRADIENT, UI_COLORS } from './theme'
+import { useSyncStatus } from './SyncStatusContext'
 
 interface GradientTextProps {
   children?: React.ReactNode
@@ -13,6 +14,7 @@ export interface PromptFrameProps {
   hint?: string
   error?: string | null
   message?: string
+  syncStatus?: string
   children?: React.ReactNode
 }
 
@@ -57,14 +59,17 @@ function GradientText({ children, bold = false }: GradientTextProps): React.Reac
   )
 }
 
-function BrandHeader(): React.ReactElement {
+function BrandHeader({ syncStatus }: { syncStatus?: string }): React.ReactElement {
   return (
-    <Box gap={1}>
-      <Text color={UI_COLORS.primaryStrong} bold>
-        ⚙
-      </Text>
-      <GradientText bold>ADB-TUI</GradientText>
-      <Text color="gray">· Android 调试工具</Text>
+    <Box flexDirection="column">
+      <Box gap={1}>
+        <Text color={UI_COLORS.primaryStrong} bold>
+          ⚙
+        </Text>
+        <GradientText bold>ADB-TUI</GradientText>
+        <Text color="gray">· Android 调试工具</Text>
+      </Box>
+      {syncStatus ? <Text color={UI_COLORS.success}>{syncStatus}</Text> : null}
     </Box>
   )
 }
@@ -74,8 +79,11 @@ export function PromptFrame({
   hint,
   error,
   message,
+  syncStatus,
   children,
 }: PromptFrameProps): React.ReactElement {
+  const contextStatus = useSyncStatus()
+  const status = syncStatus ?? contextStatus
   return (
     <Box
       flexDirection="column"
@@ -85,7 +93,7 @@ export function PromptFrame({
       paddingY={1}
       width={getPromptFrameWidth()}
     >
-      <BrandHeader />
+      <BrandHeader syncStatus={status} />
       <Box height={1} />
       <Text bold color={UI_COLORS.primaryStrong}>
         {title}
