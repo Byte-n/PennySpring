@@ -1,50 +1,132 @@
-import React from 'react';
-import { ScrollView, View, type TextStyle } from 'react-native';
-import { Text } from '@pennyspring/ui';
+import React, { useMemo, useState } from 'react';
+import { ScrollView } from 'react-native';
+import { useRequest } from 'ahooks';
+import { Column, Loading, Empty, Dialog, Text } from '@pennyspring/ui';
 import { createUseSheetStyle } from '@pennyspring/theme';
+import { api, type AssetRow, type TypeRow } from '@pennyspring/data';
+import { useBookStore } from '../../../stores/bookStore';
+import { MonthSummaryCard } from './detail/MonthSummaryCard';
+import { DayGroupCard } from './detail/DayGroupCard';
+import { RecordDetailPanel } from './detail/RecordDetailPanel';
+import {
+  buildDetailViews,
+  filterByMonth,
+  groupByDay,
+  summarizeCashflow,
+  type DetailRecordView,
+} from './detail/detailData';
 
 const useStyles = createUseSheetStyle(token => ({
   container: {
     flex: 1,
+    backgroundColor: token.colorBgLayout,
   },
   content: {
     flexGrow: 1,
-    padding: token.paddingLG,
+    padding: token.padding,
+    gap: token.margin,
   },
-  card: {
-    backgroundColor: token.colorBgContainer,
-    borderColor: token.colorBorderSecondary,
-    borderRadius: token.borderRadiusLG,
-    borderWidth: token.lineWidth,
-    padding: token.paddingLG,
-  },
-  title: {
-    color: token.colorTextHeading,
-    fontFamily: token.fontFamily,
-    fontSize: token.fontSizeHeading3,
-    fontWeight: String(token.fontWeightSemiBold) as TextStyle['fontWeight'],
-    lineHeight: token.lineHeightHeading3,
-  },
-  description: {
-    color: token.colorTextSecondary,
-    fontFamily: token.fontFamily,
-    fontSize: token.fontSize,
-    lineHeight: token.lineHeight,
-    marginTop: token.marginSM,
+  state: {
+    flexGrow: 1,
+    paddingVertical: token.paddingLG,
   },
 }));
 
+function toMap<T extends { id: number }>(rows: readonly T[]): Map<number, T> {
+  return new Map(rows.map(row => [row.id, row]));
+}
+
 export function DetailTabScreen() {
   const styles = useStyles();
+  const currentBook = useBookStore(state => state.currentBook);
+  const [activeView, setActiveView] = useState<DetailRecordView | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<DetailRecordView | null>(null);
+
+  const bookId = currentBook?.id;
+
+  const { data: records = [], loading, refresh } = useRequest(
+    () => (bookId ? api.record.getByBook(bookId) : Promise.resolve([])),
+    { refreshDeps: [bookId] },
+  );
+  const { data: types = [] } = useRequest<TypeRow[], []>(() => api.type.getAll());
+  const { data: assets = [] } = useRequest<AssetRow[], []>(
+    () => (bookId ? api.asset.getByBook(bookId) : Promise.resolve([])),
+    { refreshDeps: [bookId] },
+  );
+
+  const now = useMemo(() => new Date(), []);
+  const monthLabel = useMemo(
+    () =>
+      now.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long' }),
+    [now],
+  );
+
+  const { groups, summary } = useMemo(() => {
+    const typeMap = toMap(types);
+    const assetMap = toMap(assets);
+    const views = buildDetailViews(records, typeMap, assetMap);
+    const monthViews = filterByMonth(views, now);
+    return {
+      groups: groupByDay(monthViews),
+      summary: summarizeCashflow(monthViews),
+    };
+  }, [records, types, assets, now]);
+
+  const closePanel = () => setActiveView(null);
+
+  const confirmDelete = async () => {
+    const target = pendingDelete;
+    setPendingDelete(null);
+    if (!target) return;
+    await api.record.delete(target.record.id);
+    closePanel();
+    refresh();
+  };
+
+  const renderBody = () => {
+    if (loading) {
+      return <Loading vertical text="加载中" style={styles.state} />;
+    }
+    if (groups.length === 0) {
+      return <Empty messageText="本月暂无记录" style={styles.state} />;
+    }
+    return groups.map(group => (
+      <DayGroupCard
+        key={group.dayStart}
+        group={group}
+        onPressRecord={setActiveView}
+      />
+    ));
+  };
 
   return (
-    <View style={styles.container}>
+    <Column style={styles.container}>
       <ScrollView contentContainerStyle={styles.content}>
-        <View style={styles.card}>
-          <Text style={styles.title}>明细占位</Text>
-          <Text style={styles.description}>这里将展示收支明细列表。</Text>
-        </View>
+        <MonthSummaryCard monthLabel={monthLabel} summary={summary} />
+        {renderBody()}
       </ScrollView>
-    </View>
+
+      <RecordDetailPanel
+        view={activeView}
+        open={activeView !== null}
+        onOpenChange={open => {
+          if (!open) closePanel();
+        }}
+        onDelete={setPendingDelete}
+      />
+
+      <Dialog
+        open={pendingDelete !== null}
+        titleText="删除记录"
+        okText="删除"
+        cancelText="取消"
+        onOk={confirmDelete}
+        onCancel={() => setPendingDelete(null)}
+      >
+        <Text size="md" color="secondary">
+          确定删除这条记录吗？删除后无法恢复。
+        </Text>
+      </Dialog>
+    </Column>
   );
 }

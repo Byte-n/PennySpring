@@ -1,0 +1,142 @@
+import {
+  RECORD_TYPE_CATEGORY,
+  type AssetRow,
+  type RecordRow,
+  type RecordTypeCategoryValue,
+  type TypeRow,
+} from '@pennyspring/data';
+
+export type CashflowCategory = RecordTypeCategoryValue;
+
+const CENTS_PER_YUAN = 100;
+
+export interface CashflowItem {
+  recordTime: number;
+  finalAmount: number;
+  category: CashflowCategory;
+}
+
+export interface CashflowSummary {
+  expense: number;
+  income: number;
+  balance: number;
+}
+
+export interface DayGroup<T extends CashflowItem> {
+  dayStart: number;
+  records: T[];
+  summary: CashflowSummary;
+}
+
+function startOfDay(time: number): number {
+  const date = new Date(time);
+  date.setHours(0, 0, 0, 0);
+  return date.getTime();
+}
+
+export function filterByMonth<T extends CashflowItem>(
+  records: readonly T[],
+  month: Date,
+): T[] {
+  const year = month.getFullYear();
+  const monthIndex = month.getMonth();
+  return records.filter(record => {
+    const date = new Date(record.recordTime);
+    return date.getFullYear() === year && date.getMonth() === monthIndex;
+  });
+}
+
+export function summarizeCashflow(records: readonly CashflowItem[]): CashflowSummary {
+  let expense = 0;
+  let income = 0;
+  for (const record of records) {
+    if (record.category === RECORD_TYPE_CATEGORY.expense) {
+      expense += record.finalAmount;
+    } else if (record.category === RECORD_TYPE_CATEGORY.income) {
+      income += record.finalAmount;
+    }
+  }
+  return { expense, income, balance: income - expense };
+}
+
+export function groupByDay<T extends CashflowItem>(records: readonly T[]): DayGroup<T>[] {
+  const buckets = new Map<number, T[]>();
+  for (const record of records) {
+    const dayStart = startOfDay(record.recordTime);
+    const bucket = buckets.get(dayStart);
+    if (bucket) {
+      bucket.push(record);
+    } else {
+      buckets.set(dayStart, [record]);
+    }
+  }
+
+  return [...buckets.entries()]
+    .sort(([a], [b]) => b - a)
+    .map(([dayStart, dayRecords]) => {
+      const sorted = [...dayRecords].sort((a, b) => b.recordTime - a.recordTime);
+      return { dayStart, records: sorted, summary: summarizeCashflow(sorted) };
+    });
+}
+
+export interface DetailRecordView extends CashflowItem {
+  record: RecordRow;
+  typeName: string;
+  iconValue: TypeRow['icon'] | null;
+  assetName: string;
+}
+
+export function buildDetailViews(
+  records: readonly RecordRow[],
+  typeMap: ReadonlyMap<number, TypeRow>,
+  assetMap: ReadonlyMap<number, AssetRow>,
+): DetailRecordView[] {
+  return records.map(record => {
+    const type = typeMap.get(record.typeId);
+    return {
+      record,
+      recordTime: record.recordTime,
+      finalAmount: record.finalAmount,
+      category: type?.typeCategory ?? RECORD_TYPE_CATEGORY.expense,
+      typeName: type?.name ?? '未分类',
+      iconValue: type?.icon ?? null,
+      assetName: assetMap.get(record.assetId)?.name ?? '',
+    };
+  });
+}
+
+export function formatAmount(cents: number): string {
+  return (Math.abs(cents) / CENTS_PER_YUAN).toFixed(2);
+}
+
+export function formatSignedAmount(cents: number, category: CashflowCategory): string {
+  if (category === RECORD_TYPE_CATEGORY.income) return `+${formatAmount(cents)}`;
+  if (category === RECORD_TYPE_CATEGORY.expense) return `-${formatAmount(cents)}`;
+  return formatAmount(cents);
+}
+
+export function formatDayTitle(dayStart: number): string {
+  return new Date(dayStart).toLocaleDateString('zh-CN', {
+    month: 'long',
+    day: 'numeric',
+    weekday: 'short',
+  });
+}
+
+export function formatRecordTime(time: number): string {
+  return new Date(time).toLocaleString('zh-CN', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+}
+
+export type AmountColor = 'success' | 'error' | 'heading';
+
+export function amountColor(category: CashflowCategory): AmountColor {
+  if (category === RECORD_TYPE_CATEGORY.income) return 'success';
+  if (category === RECORD_TYPE_CATEGORY.expense) return 'error';
+  return 'heading';
+}
