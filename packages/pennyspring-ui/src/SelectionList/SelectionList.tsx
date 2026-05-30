@@ -484,7 +484,6 @@ function SelectionListRoot({
   onOpenChange,
   open,
   options,
-  placeholder,
   popupProps,
   readonly,
   size,
@@ -587,7 +586,7 @@ function SelectionListRoot({
           displayInputProps?.overflow ??
           (displayMode === 'tag' ? 'visible' : 'hidden')
         }
-        placeholder={placeholder ?? DEFAULT_PLACEHOLDER}
+        placeholder={DEFAULT_PLACEHOLDER}
         readonly={readonly}
         size={resolvedSize}
         status={resolvedStatus}

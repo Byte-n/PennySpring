@@ -189,8 +189,8 @@ export interface PickerProps<
     value: Array<PickerItemValue<TItem>>,
     params: PickerOkParams<TItem>,
   ) => string | undefined;
+  labelText?: string;
   label?: DisplayInputProps['label'];
-  placeholder?: string;
   readonly?: boolean;
   displayInputProps?: PickerDisplayInputProps;
   popupProps?: PickerPopupProps<TItem>;

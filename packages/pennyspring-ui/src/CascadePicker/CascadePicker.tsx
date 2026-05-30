@@ -411,6 +411,8 @@ export function CascadePicker<TData = unknown, TTabKey extends CascadePickerTabK
       defaultOpen={props.defaultOpen}
       disabled={props.disabled}
       displayInputProps={props.displayInputProps}
+      label={props.label}
+      labelText={props.labelText}
       onCancel={props.onCancel}
       onChange={(_nextPickerValue, pickerParams) => {
         if (pickerParams.reason !== 'select' || !activeTab || resolvedActiveTabKey === undefined) {
@@ -467,7 +469,6 @@ export function CascadePicker<TData = unknown, TTabKey extends CascadePickerTabK
       }}
       onOpenChange={props.onOpenChange}
       open={props.open}
-      placeholder={props.placeholder}
       readonly={props.readonly}
       popupProps={{
         cancel: props.cancel,

@@ -111,6 +111,7 @@ export function Picker<TItem extends PickerColumnItemData = PickerColumnItemData
   disabled,
   formatValueText,
   label,
+  labelText,
   popupProps,
   onCancel,
   onChange,
@@ -118,7 +119,6 @@ export function Picker<TItem extends PickerColumnItemData = PickerColumnItemData
   onOk,
   onOpenChange,
   open,
-  placeholder,
   readonly,
   size = DEFAULT_SIZE,
   style,
@@ -266,10 +266,9 @@ export function Picker<TItem extends PickerColumnItemData = PickerColumnItemData
         externalInputStyles={externalStyles?.input}
         externalTriggerStyle={externalStyles?.trigger}
         hasValue={hasMainValue}
-        label={label}
+        label={label ?? labelText}
         onClearPress={handleClearPress}
         onPress={handleTriggerPress}
-        placeholder={placeholder}
         size={size}
         styles={tokenStyles}
         valueText={triggerValueText}

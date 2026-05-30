@@ -250,7 +250,8 @@ export function TimePicker(props: TimePickerProps) {
       }}
       onOpenChange={props.onOpenChange}
       open={props.open}
-      placeholder={props.placeholder}
+      label={props.label}
+      labelText={props.labelText}
       popupProps={{
         cancel: props.cancel,
         cancelText: props.cancelText,

@@ -131,11 +131,11 @@ export function ImagePicker({
   emptyText = DEFAULT_EMPTY_TEXT,
   fileSystemText = DEFAULT_FILE_SYSTEM_TEXT,
   label,
+  labelText,
   maxCount = DEFAULT_MAX_COUNT,
   multipleHintText,
   multiple = false,
   photoText = DEFAULT_PHOTO_TEXT,
-  placeholder,
   selectedText = DEFAULT_SELECTED_TEXT,
   onChange,
   onError,
@@ -356,8 +356,8 @@ export function ImagePicker({
         {...displayInputProps}
         disabled={isDisabled}
         label={label}
+        labelText={labelText}
         onPress={handleTriggerPress}
-        placeholder={placeholder}
         prefix={(
           <View style={[tokenStyles.iconContainer, styles?.iconContainer]}>
             <Icon

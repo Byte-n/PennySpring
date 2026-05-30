@@ -82,7 +82,6 @@ export interface CascaderOpenChangeParams {
 export interface CascaderStyles extends CascaderViewStyles {
   trigger?: StyleProp<ViewStyle>;
   valueText?: StyleProp<TextStyle>;
-  placeholder?: StyleProp<TextStyle>;
   floatingPanel?: PopupFloatingPanelStyles;
 }
 
@@ -97,7 +96,8 @@ export interface CascaderProps<TData = unknown>
   afterOpenChange?: (open: boolean) => void;
   onCancel?: () => void;
   closeOnSelectLeaf?: boolean;
-  placeholder?: string;
+  labelText?: string;
+  label?: ReactNode;
   mountPoint?: PortalMountPoint;
   mask?: boolean;
   closeOnMaskClick?: boolean;

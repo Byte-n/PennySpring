@@ -8,7 +8,6 @@ import { TagValueDisplay } from '../_internal/TagValueDisplay';
 import type { TagValueItem } from '../_internal/TagValueDisplay';
 import { useControllableValue } from '../_hooks';
 import {
-  CASCADER_DEFAULT_PLACEHOLDER,
   useCascaderStyles,
 } from './style';
 import { CascaderView } from './CascaderView';
@@ -102,7 +101,8 @@ function CascaderRoot<TData = unknown>({
   open,
   options,
   panelValue,
-  placeholder = CASCADER_DEFAULT_PLACEHOLDER,
+  label,
+  labelText,
   position,
   readonly,
   size,
@@ -187,6 +187,11 @@ function CascaderRoot<TData = unknown>({
 
   return (
     <View style={style} testID="cascader-root">
+      {(label !== undefined || labelText !== undefined) && (
+        <Text color="label" size={textSize} testID="cascader-label">
+          {label ?? labelText}
+        </Text>
+      )}
       <Pressable
         disabled={!isInteractive}
         onPress={handleTriggerPress}
@@ -220,17 +225,7 @@ function CascaderRoot<TData = unknown>({
                 >
                   {selectedLabel}
                 </Text>
-              ) : (
-                <Text
-                  color="placeholder"
-                  numberOfLines={1}
-                  size={textSize}
-                  style={styles?.placeholder}
-                  testID="cascader-trigger-placeholder"
-                >
-                  {placeholder}
-                </Text>
-              )}
+              ) : null}
             </View>
             <Icon
               color="icon"

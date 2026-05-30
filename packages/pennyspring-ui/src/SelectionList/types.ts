@@ -428,12 +428,6 @@ export interface SelectionListProps
   label?: ReactNode;
 
   /**
-   * 未选择时展示的提示文本。
-   * 只能用于选择提示，不得替代 label。
-   */
-  placeholder?: string;
-
-  /**
    * 辅助说明文本。
    * 当 status 为 error 且 errorText 存在时，优先展示 errorText。
    */

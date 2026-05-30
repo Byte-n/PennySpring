@@ -18,7 +18,6 @@ interface PickerTriggerProps {
   label?: PickerProps['label'];
   size?: ComponentSize;
   valueText?: string;
-  placeholder?: string;
   displayInputProps?: PickerProps['displayInputProps'];
   styles: ReturnType<typeof import('./usePickerStyles').usePickerStyles>;
   onPress?: () => void;
@@ -36,7 +35,6 @@ export function PickerTrigger({
   label,
   onPress,
   onClearPress,
-  placeholder,
   size,
   styles,
   valueText,
@@ -79,7 +77,6 @@ export function PickerTrigger({
         display="block"
         size={size}
         valueText={valueText}
-        placeholder={placeholder}
         readonly
         label={label}
         style={externalInputRootStyle}

@@ -353,7 +353,8 @@ export function DateTimePicker(props: DateTimePickerProps) {
       }}
       onOpenChange={props.onOpenChange}
       open={props.open}
-      placeholder={props.placeholder}
+      label={props.label}
+      labelText={props.labelText}
       readonly={props.readonly}
       popupProps={{
         cancel: props.cancel,

@@ -64,7 +64,8 @@ export interface TimePickerProps {
   loadingIndicator?: ReactNode;
   emptyText?: string;
   empty?: ReactNode;
-  placeholder?: string;
+  labelText?: string;
+  label?: ReactNode;
   displayInputProps?: PickerDisplayInputProps;
   disabled?: boolean;
   readonly?: boolean;

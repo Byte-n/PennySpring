@@ -100,7 +100,8 @@ export interface CascadePickerProps<
   loadingIndicator?: ReactNode;
   emptyText?: string;
   empty?: ReactNode;
-  placeholder?: string;
+  labelText?: string;
+  label?: ReactNode;
   displayInputProps?: PickerDisplayInputProps;
   readonly?: boolean;
   disabled?: boolean;

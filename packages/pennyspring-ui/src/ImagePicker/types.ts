@@ -67,7 +67,7 @@ interface ImagePickerBaseProps {
   readonly?: boolean;
   disabled?: boolean;
   label?: DisplayInputProps['label'];
-  placeholder?: string;
+  labelText?: string;
   displayInputProps?: ImagePickerDisplayInputProps;
   cameraText?: string;
   photoText?: string;
