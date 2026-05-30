@@ -1,9 +1,11 @@
 import React from 'react'
-import { Box, Text, useInput } from 'ink'
+import { Text, useInput } from 'ink'
 import type { AdbClient } from '../adb'
 import { listDevices } from '../features'
 import { useAsync } from './useAsync'
 import { StatusView } from './StatusView'
+import { PromptFrame } from './components'
+import { REFRESH_HINT, UI_COLORS } from './theme'
 
 interface DeviceListPanelProps {
   client: AdbClient
@@ -22,8 +24,7 @@ export function DeviceListPanel({ client, onBack }: DeviceListPanelProps) {
   })
 
   return (
-    <Box flexDirection="column">
-      <Text bold>已连接设备</Text>
+    <PromptFrame title="已连接设备" hint={REFRESH_HINT}>
       <StatusView loading={loading} loadingText="正在读取设备…" error={error} />
       {data?.map(device => (
         <Text key={device.serial}>
@@ -31,7 +32,7 @@ export function DeviceListPanel({ client, onBack }: DeviceListPanelProps) {
           {device.model ? ` · ${device.model}` : ''}
         </Text>
       ))}
-      <Text color="gray">r 刷新 · esc/q 返回</Text>
-    </Box>
+      {data?.length === 0 ? <Text color={UI_COLORS.muted}>暂无已连接设备</Text> : null}
+    </PromptFrame>
   )
 }

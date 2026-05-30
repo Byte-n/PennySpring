@@ -19,8 +19,7 @@
     "adb:wireless": "node scripts/adb-wireless.js",
     "adb:tui": "node packages/adb-tui/bin/adb-tui.cjs",
     "init:codex": "node scripts/init-codex.js",
-    "clean": "bash scripts/clean.sh",
-    "watch:db": "bash scripts/watch-db.sh"
+    "clean": "bash scripts/clean.sh"
   },
   "dependencies": {
     "@op-engineering/op-sqlite": "^15.2.14",

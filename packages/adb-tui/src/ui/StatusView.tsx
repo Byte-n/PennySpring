@@ -1,6 +1,7 @@
 import React from 'react'
 import { Box, Text } from 'ink'
 import { AdbError } from '../core'
+import { UI_COLORS } from './theme'
 
 interface StatusViewProps {
   loading?: boolean
@@ -10,13 +11,13 @@ interface StatusViewProps {
 
 export function StatusView({ loading, loadingText, error }: StatusViewProps) {
   if (loading) {
-    return <Text color="yellow">{loadingText ?? '处理中…'}</Text>
+    return <Text color={UI_COLORS.warning}>{loadingText ?? '处理中…'}</Text>
   }
   if (error) {
     return (
       <Box flexDirection="column">
-        <Text color="red">错误：{describe(error)}</Text>
-        {error instanceof AdbError ? <Text color="gray">建议：{error.suggestion}</Text> : null}
+        <Text color={UI_COLORS.error}>错误：{describe(error)}</Text>
+        {error instanceof AdbError ? <Text color={UI_COLORS.muted}>建议：{error.suggestion}</Text> : null}
       </Box>
     )
   }

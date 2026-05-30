@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Box, Text, useApp, useInput } from 'ink'
+import { useApp, useInput } from 'ink'
 import { createAdbClient } from '../index'
 import { SelectList } from './SelectList'
 import { DeviceListPanel } from './DeviceListPanel'
@@ -7,6 +7,8 @@ import { ScanPanel } from './ScanPanel'
 import { PairPanel } from './PairPanel'
 import { ConnectPanel } from './ConnectPanel'
 import { WatchPanel } from './WatchPanel'
+import { PromptFrame } from './components'
+import { SELECT_HINT } from './theme'
 
 type View = 'menu' | 'devices' | 'scan' | 'pair' | 'connect' | 'watch'
 
@@ -34,10 +36,15 @@ export function App() {
 
   if (view === 'menu') {
     return (
-      <Box flexDirection="column">
-        <Text bold color="cyan">adb-tui</Text>
-        <SelectList items={MENU} onSelect={value => (value === 'quit' ? exit() : setView(value))} />
-      </Box>
+      <PromptFrame title="主菜单" hint={SELECT_HINT}>
+        <SelectList
+          items={MENU.map(item => ({
+            ...item,
+            color: item.value === 'quit' ? 'gray' : 'cyan',
+          }))}
+          onSelect={value => (value === 'quit' ? exit() : setView(value))}
+        />
+      </PromptFrame>
     )
   }
 

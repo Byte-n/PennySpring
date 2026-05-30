@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react'
-import { Box, Text, useInput } from 'ink'
+import { Text, useInput } from 'ink'
 import type { AdbClient } from '../adb'
-import { listDevices, createAdbDbWatcher, DEFAULT_INTERVAL_MS, DEFAULT_LOCAL_DB } from '../features'
+import { listDevices, createDbSyncThread, DEFAULT_LOCAL_DB } from '../features'
 import { useAsync } from './useAsync'
 import { SelectList } from './SelectList'
 import { StatusView } from './StatusView'
+import { PromptFrame } from './components'
+import { SELECT_HINT, UI_COLORS } from './theme'
 
 interface WatchPanelProps {
   client: AdbClient
@@ -29,41 +31,50 @@ export function WatchPanel({ client, adbPath, onBack }: WatchPanelProps) {
     if (!serial) {
       return
     }
-    const controller = new AbortController()
-    const watcher = createAdbDbWatcher(client, { serial, adbPath })
-    watcher
-      .watch(DEFAULT_INTERVAL_MS, controller.signal, () => {
-        setPulls(prev => prev + 1)
-        setLastAt(new Date().toLocaleTimeString('zh-CN'))
-      })
-      .catch(setError)
-    return () => controller.abort()
-  }, [serial, client, adbPath])
+    setPulls(0)
+    setLastAt(undefined)
+    setError(undefined)
+  }, [serial])
+
+  useEffect(() => {
+    if (!serial) {
+      return
+    }
+    const thread = createDbSyncThread(
+      { serial, adbPath },
+      {
+        onPull: () => {
+          setPulls(prev => prev + 1)
+          setLastAt(new Date().toLocaleTimeString('zh-CN'))
+        },
+        onError: setError,
+      },
+    )
+    thread.start()
+    return () => thread.stop()
+  }, [serial, adbPath])
 
   if (!serial) {
     return (
-      <Box flexDirection="column">
-        <Text bold>数据库同步 · 选择设备</Text>
+      <PromptFrame title="数据库同步 · 选择设备" hint={SELECT_HINT}>
         <StatusView loading={devicesState.loading} loadingText="读取设备…" error={devicesState.error} />
         {devicesState.data ? (
           <SelectList
             items={devicesState.data.map(d => ({ label: `${d.serial} [${d.transport}]`, value: d.serial }))}
+            emptyText="暂无可同步设备"
             onSelect={setSerial}
           />
         ) : null}
-        <Text color="gray">esc/q 返回</Text>
-      </Box>
+      </PromptFrame>
     )
   }
 
   return (
-    <Box flexDirection="column">
-      <Text bold>数据库同步</Text>
+    <PromptFrame title="数据库同步" hint="持续监控中 · ESC/q 返回">
       <Text>设备：{serial}</Text>
       <Text>输出：{DEFAULT_LOCAL_DB}</Text>
-      <Text color="green">已同步 {pulls} 次{lastAt ? ` · 最近 ${lastAt}` : ''}</Text>
+      <Text color={UI_COLORS.success}>已同步 {pulls} 次{lastAt ? ` · 最近 ${lastAt}` : ''}</Text>
       <StatusView error={error} />
-      <Text color="gray">持续监控中 · esc/q 返回</Text>
-    </Box>
+    </PromptFrame>
   )
 }

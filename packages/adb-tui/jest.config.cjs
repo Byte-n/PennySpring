@@ -7,7 +7,7 @@ module.exports = {
       {
         tsconfig: {
           module: 'CommonJS',
-          moduleResolution: 'Node',
+          moduleResolution: 'Bundler',
           jsx: 'react',
           esModuleInterop: true,
         },
