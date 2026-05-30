@@ -1,0 +1,27 @@
+{
+  "name": "@pennyspring/adb-tui",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "bin": {
+    "adb-tui": "bin/adb-tui.cjs"
+  },
+  "scripts": {
+    "start": "tsx src/cli/main.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "jest --config jest.config.cjs"
+  },
+  "dependencies": {
+    "ink": "^7.0.5",
+    "ink-text-input": "^6.0.0",
+    "react": "19.2.3"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.0",
+    "ink-testing-library": "^3.0.0",
+    "ts-jest": "^29.4.9",
+    "tsx": "^4.19.2"
+  }
+}
