@@ -7,7 +7,6 @@ export function RemarkInput() {
 
   return (
     <Textarea
-      label="备注"
       maxRows={4}
       minRows={2}
       onChangeText={setRemark}
