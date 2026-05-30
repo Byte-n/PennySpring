@@ -11,8 +11,6 @@ packages/pennyspring-theme/ → 设计系统：token、算法、ThemeProvider、
 packages/pennyspring-ui/    → 共享 React Native UI 组件与 examples
 packages/data/          → Drizzle schema、relations、SQLite runtime、migrations
 packages/share/         → 跨包共享工具
-__tests__/              → 根应用测试
-scripts/                → 本地工具脚本
 ```
 
 ### 关键设计约定
@@ -31,11 +29,6 @@ scripts/                → 本地工具脚本
 - Lint：`yarn lint`
 - Init Codex：`yarn init:codex`
 - Clean：`yarn clean`
-
-### 类型与数据
-
-- Type check：`yarn workspace @pennyspring/theme typecheck`，`yarn workspace @pennyspring/ui typecheck`，
-  `yarn workspace @pennyspring/data typecheck`，`yarn workspace @pennyspring/share typecheck`
 - DB check / generate：`yarn workspace @pennyspring/data db:check`，`yarn workspace @pennyspring/data db:generate`
 
 ## 代码规范
