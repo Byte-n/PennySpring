@@ -21,6 +21,13 @@ export type TagRow = InferSelectModel<typeof tags>
 export type TypeRow = InferSelectModel<typeof types>
 export type BookRow = InferSelectModel<typeof books>
 
+export interface RecordDetail {
+  record: RecordRow
+  tagIds: number[]
+  imagePaths: string[]
+  relatedRecordIds: number[]
+}
+
 export interface CreateTagInput {
   name: string
   icon?: IconValue | ''

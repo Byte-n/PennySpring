@@ -2,7 +2,7 @@ import { desc, eq } from 'drizzle-orm'
 
 import { RECORD_TYPE_CATEGORY, REIMBURSABLE } from '../constants'
 import type { Database } from '../runtime'
-import { records, recordWithRecord, types } from '../schema'
+import { imageWithRelated, records, recordWithRecord, tagWithRecord, types } from '../schema'
 import { applyExpense, createExpense, rollbackExpense } from './expense-service'
 import {
   deleteAllJunctions,
@@ -19,6 +19,7 @@ import type {
   CreateCashflowRecordInput,
   CreateRecordInput,
   CreateTransferRecordInput,
+  RecordDetail,
   RecordRow,
   Tx,
   TypeRow,
@@ -100,6 +101,31 @@ export function getRecordsByBook(db: Database, booksId: number): Promise<RecordR
     .where(eq(records.booksId, requiredBooksId))
     .orderBy(desc(records.recordTime))
     .all()
+}
+
+export async function getRecordDetailById(db: Database, recordId: number): Promise<RecordDetail> {
+  const record = await db.select().from(records).where(eq(records.id, recordId)).get()
+  if (!record) throw new Error(`记录不存在: ${recordId}`)
+
+  const tagRows = await db
+    .select({ tagId: tagWithRecord.tagId })
+    .from(tagWithRecord)
+    .where(eq(tagWithRecord.recordId, recordId))
+  const imageRows = await db
+    .select({ imagePath: imageWithRelated.imagePath })
+    .from(imageWithRelated)
+    .where(eq(imageWithRelated.recordId, recordId))
+  const relatedRows = await db
+    .select({ relatedRecordId: recordWithRecord.relatedRecordId })
+    .from(recordWithRecord)
+    .where(eq(recordWithRecord.recordId, recordId))
+
+  return {
+    record,
+    tagIds: tagRows.map((row) => row.tagId),
+    imagePaths: imageRows.map((row) => row.imagePath),
+    relatedRecordIds: relatedRows.map((row) => row.relatedRecordId),
+  }
 }
 
 export function createRecord(db: Database, input: CreateRecordInput): Promise<RecordRow> {

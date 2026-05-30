@@ -55,6 +55,10 @@ export const api = {
       const database = await getDatabase();
       return services.getRecordsByBook(database, booksId);
     },
+    getDetailById: async (recordId: number) => {
+      const database = await getDatabase();
+      return services.getRecordDetailById(database, recordId);
+    },
   },
   tag: {
     getAll: async () => {
