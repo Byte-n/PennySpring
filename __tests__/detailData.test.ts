@@ -1,6 +1,7 @@
 import { RECORD_TYPE_CATEGORY } from '@pennyspring/data';
 import {
   filterByMonth,
+  formatDayTitle,
   groupByDay,
   summarizeCashflow,
   type CashflowCategory,
@@ -25,6 +26,47 @@ function rec(
 ): RecordLike {
   return { recordTime, finalAmount, category };
 }
+
+describe('formatDayTitle', () => {
+  const TZ = '+08:00';
+  function dayTs(iso: string) {
+    return new Date(`${iso}T00:00:00${TZ}`).getTime();
+  }
+
+  test('appends （今天） for today', () => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    expect(formatDayTitle(today.getTime(), new Date())).toContain('（今天）');
+  });
+
+  test('appends （昨天） for yesterday', () => {
+    const d = new Date(dayTs('2026-05-29'));
+    const now = new Date(dayTs('2026-05-30'));
+    expect(formatDayTitle(d.getTime(), now)).toContain('（昨天）');
+  });
+
+  test('appends （前天） for two days ago', () => {
+    const d = new Date(dayTs('2026-05-28'));
+    const now = new Date(dayTs('2026-05-30'));
+    expect(formatDayTitle(d.getTime(), now)).toContain('（前天）');
+  });
+
+  test('formats date as MM-DD', () => {
+    const d = new Date(dayTs('2026-05-07'));
+    const now = new Date(dayTs('2026-05-30'));
+    expect(formatDayTitle(d.getTime(), now)).toMatch(/^05-07/);
+  });
+
+  test('no suffix for other dates', () => {
+    const d = new Date(dayTs('2026-05-27'));
+    const now = new Date(dayTs('2026-05-30'));
+    const result = formatDayTitle(d.getTime(), now);
+    expect(result).not.toContain('（今天）');
+    expect(result).not.toContain('（昨天）');
+    expect(result).not.toContain('（前天）');
+  });
+});
+
 
 describe('filterByMonth', () => {
   test('keeps only records whose recordTime falls in the given month', () => {
