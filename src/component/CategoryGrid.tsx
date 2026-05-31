@@ -30,9 +30,11 @@ interface CategoryGridProps {
   accordion?: boolean;
 }
 
-const useStyles = createUseSheetStyle(_token => ({
+const useStyles = createUseSheetStyle(token => ({
   subcategoryContainer: { paddingHorizontal: 0 },
   header: { paddingHorizontal: 0 },
+  root: { borderRadius: token.borderRadius, overflow: 'hidden' },
+  cells: { flex: 1 },
 }));
 
 export function CategoryGrid(props: CategoryGridProps) {
@@ -81,9 +83,8 @@ export function CategoryGrid(props: CategoryGridProps) {
     return null;
   };
 
-  const { token } = useTheme();
   return (
-    <Column style={[{ borderRadius: token.borderRadius, overflow: 'hidden' },style]}>
+    <Column style={[styles.root, style]}>
       {chunk(tree, 5).map(list => {
         const expandedCatInList = list.find(cat => expandedIds.has(cat.id));
         const isOpen = expandedCatInList !== undefined;
@@ -129,8 +130,9 @@ interface CellsProps extends Pick<CategoryGridProps, 'value'> {
 }
 
 function Cells({ list, onSelect, value, style, onPrimarySelect, expandedIds }: CellsProps) {
+  const styles = useStyles();
   return (
-    <Grid columns={5} gap="small" style={[{ flex: 1 }, style]}>
+    <Grid columns={5} gap="small" style={[styles.cells, style]}>
       {list.map(item => (
         <Grid.Item key={item.id}>
           <Cell

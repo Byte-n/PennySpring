@@ -29,6 +29,9 @@ const useGridStyles = createUseSheetStyle(() => ({
   row: {
     flexDirection: 'row',
   },
+  placeholder: {
+    flex: 1,
+  },
 }));
 
 const useGridItemStyles = createUseSheetStyle(
@@ -140,13 +143,13 @@ export function GridRoot({ children, columns, gap, style }: GridProps) {
     if (current.length > 0) {
       const remaining = resolvedColumns - filled;
       for (let i = 0; i < remaining; i++) {
-        current.push(<View key={`placeholder-${i}`} style={{ flex: 1 }} />);
+        current.push(<View key={`placeholder-${i}`} style={tokenStyles.placeholder} />);
       }
       result.push(current);
     }
 
     return result;
-  }, [children, resolvedColumns]);
+  }, [children, resolvedColumns, tokenStyles.placeholder]);
 
   return (
     <GridContext.Provider value={context}>

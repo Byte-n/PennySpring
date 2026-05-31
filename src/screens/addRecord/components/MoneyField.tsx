@@ -1,8 +1,15 @@
 import React, { useState } from 'react';
 import { Pressable } from 'react-native';
 import { CalculatorInput, Input } from '@pennyspring/ui';
+import { createUseSheetStyle } from '@pennyspring/theme';
 
 import { formatAmount, yuanToCents } from '../addRecordDraft';
+
+const MONEY_FIELD_WIDTH = 100;
+
+const useStyles = createUseSheetStyle(() => ({
+  input: { width: MONEY_FIELD_WIDTH },
+}));
 
 interface MoneyFieldProps {
   labelText?: string;
@@ -19,6 +26,7 @@ export function MoneyField({
 }: MoneyFieldProps) {
   const [popupOpen, setPopupOpen] = useState(false);
   const valueText = value > 0 ? `¥ ${formatAmount(value)}` : '';
+  const styles = useStyles();
 
   return (
     <>
@@ -28,7 +36,7 @@ export function MoneyField({
           placeholder={placeholder}
           readonly
           value={valueText}
-          style={{ width: 100 }}
+          style={styles.input}
         />
       </Pressable>
       <CalculatorInput.Popup

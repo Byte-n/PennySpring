@@ -298,41 +298,6 @@ describe('Ellipsis', () => {
     });
 
     test('calls onOpenChange callback with open state', () => {
-      const onOpenChange = jest.fn();
-      let renderer: ReactTestRenderer;
-      act(() => {
-        renderer = create(
-          <Ellipsis
-            content={LONG_TEXT}
-            expandText="more"
-            collapseText="less"
-            onOpenChange={onOpenChange}
-            data-testid="ellipsis"
-          />,
-        );
-      });
-
-      triggerTextLayout(renderer!, 5);
-      driveSearchToConvergence(renderer!, 1, 50);
-
-      const expandButton = renderer!.root.findByProps({
-        'data-testid': 'ellipsis-expand',
-      });
-      act(() => {
-        expandButton.props.onPress();
-      });
-      expect(onOpenChange).toHaveBeenCalledWith(true);
-
-      const collapseButton = renderer!.root.findByProps({
-        'data-testid': 'ellipsis-collapse',
-      });
-      act(() => {
-        collapseButton.props.onPress();
-      });
-      expect(onOpenChange).toHaveBeenCalledWith(false);
-    });
-
-    test('calls onOpenChange callback with open state', () => {
       // Arrange
       const onOpenChange = jest.fn();
       let renderer: ReactTestRenderer;
@@ -385,25 +350,6 @@ describe('Ellipsis', () => {
         );
       });
 
-      const text = renderer!.root.findByProps({ 'data-testid': 'ellipsis-text' });
-      expect(text.props.children).toBe(LONG_TEXT);
-    });
-
-    test('respects controlled open prop', () => {
-      // Arrange & Act
-      let renderer: ReactTestRenderer;
-      act(() => {
-        renderer = create(
-          <Ellipsis
-            content={LONG_TEXT}
-            open
-            collapseText="less"
-            data-testid="ellipsis"
-          />,
-        );
-      });
-
-      // Assert
       const text = renderer!.root.findByProps({ 'data-testid': 'ellipsis-text' });
       expect(text.props.children).toBe(LONG_TEXT);
     });

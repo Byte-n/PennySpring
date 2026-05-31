@@ -14,6 +14,8 @@ interface PreviewDocProps {
   id: string;
 }
 
+const fullHeightStyle = { height: '100%' } as const;
+
 export function PreviewDocIntro({ id }: PreviewDocProps) {
   const intro = getPreviewDocIntro(id, previewId => {
     const preview = getComponentPreviewById(previewId);
@@ -71,7 +73,7 @@ export function PreviewDocs({ id }: PreviewDocProps) {
       {() => (
         <DeviceFrameset device="iPhone X">
           <ThemeProvider>
-            <App style={{ height: '100%' }}>
+            <App style={fullHeightStyle}>
               <div className="preview-doc-screen">
                 <div className="preview-doc-safe-area">
                   {previews.map(preview => (
