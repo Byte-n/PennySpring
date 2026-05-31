@@ -362,3 +362,52 @@ function backToRoot() {
 - 标签分析。
 - 退款、报销吸收分析。
 - 净资产趋势。该能力需要资产历史快照或严格的历史余额推导规则。
+
+## 已确认决策（2026-05-31）
+
+下列决策在需求评审后确认，作为首期实现依据。本期实现范围为「全部内容」，不再分阶段。
+
+### 实现范围
+
+- 实现完整图表 Tab：总览卡片（支出 / 收入 / 结余）、时间范围标识（固定「本月」）、支出分析区域（占比图 + 排行图 + 一级/二级下钻 + 面包屑返回 + 二级摘要）。
+- 时间范围固定「本月」，切换能力仍属 P1，本期不做。
+- 账本固定为 `useBookStore` 的 `currentBook`。
+
+### 图表技术栈
+
+- 图表库 `@wuba/react-native-echarts@^3.0.1` 与渲染后端 `@shopify/react-native-skia@^2.6.4` **均已安装**，无需新增依赖、无需 pod install / 重建。
+- 渲染后端采用 **Skia 画布**：`import { SkiaChart, SkiaRenderer } from '@wuba/react-native-echarts'`。
+- echarts 按需注册：`echarts.use([SkiaRenderer, PieChart, BarChart, TooltipComponent, GridComponent, LegendComponent])`（从 `echarts/core`、`echarts/charts`、`echarts/components` 引入）。
+- 初始化：`echarts.init(ref, undefined, { renderer: 'skia', width, height })` → `chart.setOption(option)`；卸载时 `chart.dispose()`。
+- 画布尺寸由 `@pennyspring/ui` 的 `GeometryReader` 提供（`children: (geometry: { width; height }) => ...`）。
+
+### 主题接入
+
+- echarts option 为普通 JS 对象，颜色取值通过 `useTheme()`（来自 `@pennyspring/theme`，返回 `{ token }`）读取 token 十六进制值，禁止在 option 中写颜色字面量。
+- 支出语义色用 `token.colorError`；中性文本用 `token.colorText` / `token.colorTextSecondary` / `token.colorTextTertiary`；轴线、分割线用 `token.colorBorder` / `token.colorBorderSecondary`；背景用 `token.colorBgContainer`。
+- 多分类配色取主题预设色阶（如 `blueN` / `redN` / `goldN` 等），保证浅色 / 深色切换随 token 刷新。
+- 容器与卡片样式仍用 `createUseSheetStyle`，不在画布外层写内联样式。
+
+### 数据接入
+
+- 记录：`api.record.getByBook(currentBook.id)`，返回 `RecordRow[]`（含 `finalAmount` 分、`typeId`、`recordTime` 毫秒时间戳）。
+- 分类：`api.type.getAll()`（或 `api.type.getByCategory('expense')`），返回 `TypeRow[]`（含 `id`、`parentId`、`name`、`typeCategory`）。`tb_type` 已有真实分类数据，记录 `type_id` 指向真实分类，图表可真出数据。
+- 复用 `src/screens/home/tabs/detail/detailData.ts` 的 `filterByMonth(records, month)`、`summarizeCashflow(records)`、`formatAmount(cents)`；`CENTS_PER_YUAN = 100`。
+- 仅统计 `typeCategory === 'expense'` 且 `finalAmount > 0` 的记录。
+
+### 占比与摘要口径
+
+- 占比图与排行图的 `percent`、二级摘要「占本月支出 X%」的**分母统一为本月全部支出总额**（含被合并进「其他」及被排行图截断的项），可加总、与各项口径一致。
+- 占比图保留前 5，其余合并「其他」（不可下钻）；排行图最多前 10、不合并；金额相同按笔数、再按名称排序。
+
+### 布局
+
+- 占比图（环形）与排行图（横向条形）在「支出分析」区域**上下堆叠同屏**，置于同一滚动容器，不使用分段切换。
+- 总览卡片在分析区域上方；面包屑「全部支出 ＞ 分类名」与「返回上级」位于支出分析标题行。
+
+### 空态文案（沿用需求正文）
+
+- 当前账本为空：「暂无账本数据」。
+- 本月无支出：「本月暂无支出」。
+- 一级分类下无二级支出：「该分类暂无细分支出」。
+- 加载中用 `@pennyspring/ui` 的 `Loading`，空态用 `Empty`。
