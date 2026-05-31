@@ -12,7 +12,7 @@ function mockDbWithTx(tx: Tx): Database {
 
 describe('tag-service', () => {
   test('creates a tag and returns inserted row', async () => {
-    const get = jest.fn().mockResolvedValue({ id: 1, name: '餐饮', icon: 'dining', invisible: 'visible' })
+    const get = jest.fn().mockResolvedValue({ id: 1, name: '餐饮', icon: 'ForkKnife', invisible: 'visible' })
     const tx = {
       select: jest.fn().mockReturnValue({ from: jest.fn().mockReturnValue({ where: jest.fn().mockReturnValue({ get }) }) }),
       insert: jest.fn().mockReturnValue({ values: jest.fn().mockReturnValue({ returning: jest.fn().mockResolvedValue([{ id: 1 }]) }) }),
@@ -21,16 +21,16 @@ describe('tag-service', () => {
     } as unknown as Tx
     const db = mockDbWithTx(tx)
 
-    const row = await createTag(db, { name: '餐饮', icon: 'dining' })
+    const row = await createTag(db, { name: '餐饮', icon: 'ForkKnife' })
 
-    expect(row).toEqual({ id: 1, name: '餐饮', icon: 'dining', invisible: 'visible' })
+    expect(row).toEqual({ id: 1, name: '餐饮', icon: 'ForkKnife', invisible: 'visible' })
   })
 
   test('updates tag fields', async () => {
     const get = jest
       .fn()
       .mockResolvedValueOnce({ id: 2, name: '旧标签', icon: '', invisible: 'visible' })
-      .mockResolvedValueOnce({ id: 2, name: '新标签', icon: 'shopping', invisible: 'hidden' })
+      .mockResolvedValueOnce({ id: 2, name: '新标签', icon: 'ShoppingCart', invisible: 'hidden' })
 
     const tx = {
       select: jest.fn().mockReturnValue({ from: jest.fn().mockReturnValue({ where: jest.fn().mockReturnValue({ get }) }) }),
@@ -40,9 +40,9 @@ describe('tag-service', () => {
     } as unknown as Tx
     const db = mockDbWithTx(tx)
 
-    const row = await updateTag(db, { id: 2, name: '新标签', icon: 'shopping', invisible: 'hidden' })
+    const row = await updateTag(db, { id: 2, name: '新标签', icon: 'ShoppingCart', invisible: 'hidden' })
 
-    expect(row).toEqual({ id: 2, name: '新标签', icon: 'shopping', invisible: 'hidden' })
+    expect(row).toEqual({ id: 2, name: '新标签', icon: 'ShoppingCart', invisible: 'hidden' })
   })
 
   test('deletes unused tag', async () => {
@@ -74,7 +74,7 @@ describe('tag-service', () => {
 
 describe('type-service', () => {
   test('creates a type with parentId', async () => {
-    const get = jest.fn().mockResolvedValue({ id: 1, parentId: 9, name: '早餐', icon: 'breakfast' })
+    const get = jest.fn().mockResolvedValue({ id: 1, parentId: 9, name: '早餐', icon: 'Sun' })
     const tx = {
       select: jest.fn().mockReturnValue({ from: jest.fn().mockReturnValue({ where: jest.fn().mockReturnValue({ get }) }) }),
       insert: jest.fn().mockReturnValue({ values: jest.fn().mockReturnValue({ returning: jest.fn().mockResolvedValue([{ id: 1 }]) }) }),
@@ -86,18 +86,18 @@ describe('type-service', () => {
     const row = await createType(db, {
       parentId: 9,
       name: '早餐',
-      icon: 'breakfast',
+      icon: 'Sun',
       typeCategory: RECORD_TYPE_CATEGORY.expense,
     })
 
-    expect(row).toEqual({ id: 1, parentId: 9, name: '早餐', icon: 'breakfast' })
+    expect(row).toEqual({ id: 1, parentId: 9, name: '早餐', icon: 'Sun' })
   })
 
   test('updates type fields', async () => {
     const get = jest
       .fn()
-      .mockResolvedValueOnce({ id: 4, parentId: 0, name: '旧类型', icon: 'dining', typeCategory: 'expense' })
-      .mockResolvedValueOnce({ id: 4, parentId: 0, name: '新类型', icon: 'lunch', typeCategory: 'expense' })
+      .mockResolvedValueOnce({ id: 4, parentId: 0, name: '旧类型', icon: 'ForkKnife', typeCategory: 'expense' })
+      .mockResolvedValueOnce({ id: 4, parentId: 0, name: '新类型', icon: 'CookingPot', typeCategory: 'expense' })
 
     const tx = {
       select: jest.fn().mockReturnValue({ from: jest.fn().mockReturnValue({ where: jest.fn().mockReturnValue({ get }) }) }),
@@ -110,11 +110,11 @@ describe('type-service', () => {
     const row = await updateType(db, {
       id: 4,
       name: '新类型',
-      icon: 'lunch',
+      icon: 'CookingPot',
       typeCategory: RECORD_TYPE_CATEGORY.expense,
     })
 
-    expect(row).toEqual({ id: 4, parentId: 0, name: '新类型', icon: 'lunch', typeCategory: 'expense' })
+    expect(row).toEqual({ id: 4, parentId: 0, name: '新类型', icon: 'CookingPot', typeCategory: 'expense' })
   })
 
   test('deletes unused type', async () => {

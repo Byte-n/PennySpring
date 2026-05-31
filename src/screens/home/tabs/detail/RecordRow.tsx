@@ -2,7 +2,7 @@ import React from 'react';
 import { Pressable } from 'react-native';
 import { Row, Column, Text } from '@pennyspring/ui';
 import { useTheme, createUseSheetStyle } from '@pennyspring/theme';
-import { ICON_MAP } from '../../../../constants/typeIconTree';
+import { getPhosphorIconComponent } from '../../../../constants/typeIconTree';
 import {
   amountColor,
   formatSignedAmount,
@@ -37,7 +37,9 @@ interface RecordRowProps {
 export function RecordRow({ view, onPress }: RecordRowProps) {
   const styles = useStyles();
   const { token } = useTheme();
-  const IconComponent = view.iconValue ? ICON_MAP[view.iconValue] : null;
+  const IconComponent = view.iconValue
+    ? getPhosphorIconComponent(view.iconValue)
+    : null;
   const subtitle = view.assetName
     ? `${view.typeName} · ${view.assetName}`
     : view.typeName;

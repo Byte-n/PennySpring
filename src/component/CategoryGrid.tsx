@@ -12,7 +12,7 @@ import {
 import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
 import { chunk, isNil } from 'es-toolkit';
 import { TypeRow } from '@pennyspring/data';
-import { ICON_MAP } from '../constants/typeIconTree.ts';
+import { getPhosphorIconComponent } from '../constants/typeIconTree.ts';
 import { useControllableValue } from '../../packages/pennyspring-ui/src/_hooks';
 
 export interface CategoryItem extends Omit<TypeRow, 'icon'> {
@@ -153,7 +153,7 @@ interface CellProps {
 function Cell({ item, onSelect, isSelected }: CellProps) {
   const { token } = useTheme();
   const iconValue =
-    typeof item.icon === 'string' ? ICON_MAP[item.icon] : item.icon;
+    typeof item.icon === 'string' ? getPhosphorIconComponent(item.icon) : item.icon;
   return (
     <Pressable onPress={() => onSelect(item.id)}>
       <Column align="center" gap={token.marginXXS}>

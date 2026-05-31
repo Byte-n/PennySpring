@@ -6,7 +6,6 @@ import {
   type SystemStatusValue,
   RECORD_TYPE_SPECIAL_BEHAVIOR,
   SYSTEM_STATUS,
-  IconValue,
 } from '../constants';
 import {
   enumColumn,
@@ -22,8 +21,8 @@ export const types = sqliteTable('tb_type', {
   parentId: integerColumn('parent_id').notNull().default(0),
   // 类型名称（如"餐饮"、"工资"）
   name: text('name').notNull(),
-  // 类型图标 key，由应用层硬编码维护
-  icon: enumColumn<IconValue>('icon').notNull(),
+  // 类型图标 pascalName，对应 phosphor-react-native 的 {pascalName}Icon 组件
+  icon: text('icon').notNull(),
   /**
    * 类型分类 key。
    *

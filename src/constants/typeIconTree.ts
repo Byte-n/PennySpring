@@ -1,29 +1,15 @@
 import type { IconComponent } from '@pennyspring/ui';
+import * as PhosphorIcons from 'phosphor-react-native';
+import { DotsThreeCircleIcon } from 'phosphor-react-native';
 
-import { ICON } from '@pennyspring/data';
+import { PHOSPHOR_ICON_INFO_LIST } from './phosphorIconInfoList';
 
-import { incomeTypeIconGroup } from './typeIconGroups/income';
-import { transferTypeIconGroup } from './typeIconGroups/transfer';
-import { moneyManagementTypeIconGroup } from './typeIconGroups/moneyManagement';
-import { diningTypeIconGroup } from './typeIconGroups/dining';
-import { dailyTypeIconGroup } from './typeIconGroups/daily';
-import { shoppingTypeIconGroup } from './typeIconGroups/shopping';
-import { dressTypeIconGroup } from './typeIconGroups/dress';
-import { digitalTypeIconGroup } from './typeIconGroups/digital';
-import { entertainmentTypeIconGroup } from './typeIconGroups/entertainment';
-import { familyTypeIconGroup } from './typeIconGroups/family';
-import { parentingTypeIconGroup } from './typeIconGroups/parenting';
-import { carTypeIconGroup } from './typeIconGroups/car';
-import { interpersonalTypeIconGroup } from './typeIconGroups/interpersonal';
-import { trafficTypeIconGroup } from './typeIconGroups/traffic';
-import { housingTypeIconGroup } from './typeIconGroups/housing';
-import { medicalTypeIconGroup } from './typeIconGroups/medical';
-import { campusTypeIconGroup } from './typeIconGroups/campus';
-import { tenementTypeIconGroup } from './typeIconGroups/tenement';
-import { otherTypeIconGroup } from './typeIconGroups/other';
-import { Icon } from 'phosphor-react-native';
+const FALLBACK_CATEGORY_LABEL = '未分类';
+const PHOSPHOR_ICON_COMPONENT_SUFFIX = 'Icon';
 
-export type IconValue = ReturnType<typeof ICON.values>[number];
+type PhosphorIconInfo = (typeof PHOSPHOR_ICON_INFO_LIST)[number];
+
+export type IconValue = string;
 export type TypeIconComponent = IconComponent;
 
 export interface TypeIconNode {
@@ -38,31 +24,58 @@ export interface TypeIconGroupNode {
   children: readonly TypeIconNode[];
 }
 
-export const TYPE_ICON_TREE = [
-  incomeTypeIconGroup,
-  transferTypeIconGroup,
-  moneyManagementTypeIconGroup,
-  diningTypeIconGroup,
-  dailyTypeIconGroup,
-  shoppingTypeIconGroup,
-  dressTypeIconGroup,
-  digitalTypeIconGroup,
-  entertainmentTypeIconGroup,
-  familyTypeIconGroup,
-  parentingTypeIconGroup,
-  carTypeIconGroup,
-  interpersonalTypeIconGroup,
-  trafficTypeIconGroup,
-  housingTypeIconGroup,
-  medicalTypeIconGroup,
-  campusTypeIconGroup,
-  tenementTypeIconGroup,
-  otherTypeIconGroup,
-] as const satisfies readonly TypeIconGroupNode[];
+export interface PhosphorIconOption extends PhosphorIconInfo {
+  label: string;
+  primaryCategoryLabel: string;
+}
 
-export const ICON_MAP = TYPE_ICON_TREE.map(v => v.children)
-  .flat(1)
-  .reduce((acc: any, cur) => {
-    acc[cur.value as any] = cur.icon;
-    return acc;
-  }, {}) as { [key: string]: Icon };
+function getPrimaryCategoryLabel(info: PhosphorIconInfo): string {
+  return info.categoriesZh[0] ?? info.categories[0] ?? FALLBACK_CATEGORY_LABEL;
+}
+
+function isTypeIconComponent(value: unknown): value is TypeIconComponent {
+  return typeof value === 'function';
+}
+
+export function getPhosphorIconComponent(
+  pascalName: string,
+): TypeIconComponent {
+  const componentName = `${pascalName}${PHOSPHOR_ICON_COMPONENT_SUFFIX}`;
+  const iconModule = PhosphorIcons as Record<string, unknown>;
+  const iconComponent = iconModule[componentName];
+
+  if (isTypeIconComponent(iconComponent)) {
+    return iconComponent;
+  }
+
+  return DotsThreeCircleIcon;
+}
+
+const TYPE_ICON_CATEGORIES = Array.from(
+  new Set(PHOSPHOR_ICON_INFO_LIST.map(getPrimaryCategoryLabel)),
+);
+
+export const PHOSPHOR_ICON_OPTIONS = PHOSPHOR_ICON_INFO_LIST.map(info => ({
+  ...info,
+  label: info.pascalName,
+  primaryCategoryLabel: getPrimaryCategoryLabel(info),
+})) satisfies readonly PhosphorIconOption[];
+
+export const TYPE_ICON_TREE = TYPE_ICON_CATEGORIES.map(category => ({
+  key: category,
+  label: category,
+  children: PHOSPHOR_ICON_OPTIONS
+    .filter(info => info.primaryCategoryLabel === category)
+    .map(info => ({
+      value: info.pascalName,
+      label: info.label,
+      icon: getPhosphorIconComponent(info.pascalName),
+    })),
+})) satisfies readonly TypeIconGroupNode[];
+
+export const ICON_MAP = Object.fromEntries(
+  PHOSPHOR_ICON_INFO_LIST.map(info => [
+    info.pascalName,
+    getPhosphorIconComponent(info.pascalName),
+  ]),
+) as Record<string, TypeIconComponent>;

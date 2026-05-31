@@ -1,6 +1,6 @@
 import { sqliteTable, text } from 'drizzle-orm/sqlite-core'
 
-import { type VisibilityValue, VISIBILITY, IconValue } from '../constants';
+import { type VisibilityValue, VISIBILITY } from '../constants';
 import { enumColumn, primaryKeyColumn, timestampColumns } from '../shared'
 
 export const tags = sqliteTable('tb_tag', {
@@ -14,8 +14,8 @@ export const tags = sqliteTable('tb_tag', {
   invisible: enumColumn<VisibilityValue>('invisible')
     .notNull()
     .default(VISIBILITY.visible),
-  // 标签图标 key，由应用层硬编码维护；空字符串表示未设置
-  icon: enumColumn<IconValue | ''>('icon').notNull().default(''),
+  // 标签图标 pascalName；空字符串表示未设置
+  icon: text('icon').notNull().default(''),
   // 记录创建时间（时间戳，毫秒），INSERT 时自动写入
   // 最后修改时间（时间戳，毫秒），
   ...timestampColumns(),

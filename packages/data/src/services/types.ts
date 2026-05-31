@@ -3,7 +3,6 @@ import type { InferSelectModel } from 'drizzle-orm'
 import type {
   AssetClassificationValue,
   AssetTypeValue,
-  IconValue,
   RecordTypeCategoryValue,
   RecordTypeSpecialBehaviorValue,
   ReimbursableValue,
@@ -30,7 +29,7 @@ export interface RecordDetail {
 
 export interface CreateTagInput {
   name: string
-  icon?: IconValue | ''
+  icon?: string
   invisible?: VisibilityValue
 }
 
@@ -41,7 +40,7 @@ export interface UpdateTagInput extends CreateTagInput {
 export interface CreateTypeInput {
   parentId?: number
   name: string
-  icon: IconValue
+  icon: string
   typeCategory: RecordTypeCategoryValue
   isSystem?: SystemStatusValue
   specialBehavior?: RecordTypeSpecialBehaviorValue

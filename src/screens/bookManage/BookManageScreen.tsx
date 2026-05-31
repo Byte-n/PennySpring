@@ -382,7 +382,6 @@ export function BookManageScreen() {
           <ImagePicker
             label="图片"
             onChange={setBackgroundImage}
-            placeholder="选择图片"
             value={backgroundImage}
           />
         </Column>

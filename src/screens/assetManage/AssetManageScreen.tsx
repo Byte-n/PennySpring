@@ -601,7 +601,6 @@ export function AssetManageScreen() {
           options={cascaderOptions}
           value={assetPath}
           tabPlaceholderText="请选择"
-          placeholder="资产类型和分类"
           onChange={setAssetPath}
         />
         <Input
