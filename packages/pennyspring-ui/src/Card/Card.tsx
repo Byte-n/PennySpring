@@ -1,4 +1,5 @@
 import type { ComponentSize } from '../shares/types';
+import { renderTextNode } from '../shares/node';
 import React from 'react';
 import { Pressable, View } from 'react-native';
 import { createUseSheetStyle, toShadowStyle } from '@pennyspring/theme';
@@ -177,7 +178,11 @@ export function Card({
         <Row align="center" style={[tokenStyles.header, styles?.header]}>
           <Column style={tokenStyles.titleContainer}>{renderTitle()}</Column>
           {hasExtra ? (
-            <Column style={[tokenStyles.extra, styles?.extra]}>{extra}</Column>
+            <Column style={[tokenStyles.extra, styles?.extra]}>
+              {renderTextNode(extra, (text) => (
+                <Text color="secondary">{text}</Text>
+              ))}
+            </Column>
           ) : null}
         </Row>
       ) : null}
@@ -191,7 +196,11 @@ export function Card({
         {bodyContent}
       </Column>
       {shouldRenderFooter ? (
-        <Column style={[tokenStyles.footer, styles?.footer]}>{footer}</Column>
+        <Column style={[tokenStyles.footer, styles?.footer]}>
+          {renderTextNode(footer, (text) => (
+            <Text color="default">{text}</Text>
+          ))}
+        </Column>
       ) : null}
     </Column>
   );

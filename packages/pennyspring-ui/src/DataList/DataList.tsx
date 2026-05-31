@@ -1,4 +1,5 @@
 import type { ComponentSize } from '../shares/types';
+import { renderTextNode } from '../shares/node';
 import React, { useCallback, useMemo, useRef } from 'react';
 import { FlatList } from 'react-native';
 import { Column } from '../Column';
@@ -106,7 +107,15 @@ function DataListInner<ItemT>({
     if (isLoadingMore) {
       return (
         <Column style={[tokenStyles.footer, styles?.footer]}>
-          {loadingMore ?? loadingMoreContent ?? (
+          {renderTextNode(loadingMore ?? loadingMoreContent, (text) => (
+            <Text
+              color="tertiary"
+              size={resolveTextSize(resolvedSize)}
+              style={[tokenStyles.loadingMoreText, styles?.loadingMoreText]}
+            >
+              {text}
+            </Text>
+          )) ?? (
             <Loading
               size={resolvedSize}
               style={styles?.loadingMore}
@@ -123,15 +132,15 @@ function DataListInner<ItemT>({
     if (!hasMore) {
       return (
         <Column style={[tokenStyles.footer, styles?.footer, styles?.complete]}>
-          {complete ?? (
+          {renderTextNode(complete ?? completeText, (text) => (
             <Text
               color="tertiary"
               size={resolveTextSize(resolvedSize)}
               style={[tokenStyles.completeText, styles?.completeText]}
             >
-              {completeText}
+              {text}
             </Text>
-          )}
+          ))}
         </Column>
       );
     }

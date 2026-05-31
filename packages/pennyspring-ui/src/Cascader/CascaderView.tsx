@@ -6,6 +6,7 @@ import { Row } from '../Row';
 import { Tabs } from '../Tabs';
 import { Text } from '../Text';
 import { useControllableValue } from '../_hooks';
+import { renderTextNode } from '../shares/node';
 import {
   CASCADER_DEFAULT_EMPTY_TEXT,
   CASCADER_DEFAULT_TAB_PLACEHOLDER,
@@ -230,7 +231,9 @@ export function CascaderView<TData = unknown>({
         />
       ) : (
         <View style={[tokenStyles.empty, styles?.empty]} testID="cascader-empty">
-          {empty ?? <Text color="description">{emptyText}</Text>}
+          {renderTextNode(empty ?? emptyText, (text) => (
+            <Text color="description">{text}</Text>
+          ))}
         </View>
       )}
     </View>

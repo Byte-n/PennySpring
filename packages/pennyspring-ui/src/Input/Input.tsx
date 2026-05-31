@@ -18,6 +18,7 @@ import { Column } from '../Column';
 import { Icon } from '../Icon';
 import { Row } from '../Row';
 import { Text } from '../Text';
+import { renderTextNode } from '../shares/node';
 import { useControllableValue } from '../_hooks';
 import type { AliasToken } from '@pennyspring/theme';
 import type { ComponentSize } from '../shares/types';
@@ -382,7 +383,11 @@ function InputRoot({
           testID="input-underline"
         />
         {hasPrefix ? (
-          <Row style={[tokenStyles.prefix, styles?.prefix]}>{prefix}</Row>
+          <Row style={[tokenStyles.prefix, styles?.prefix]}>
+            {renderTextNode(prefix, (text) => (
+              <Text>{text}</Text>
+            ))}
+          </Row>
         ) : null}
         <View style={[tokenStyles.inputWrapper, multiline ? tokenStyles.inputWrapperMultiline : null]}>
           {hasFloatingLabel ? (
@@ -443,7 +448,11 @@ function InputRoot({
             style={tokenStyles.loading}
           />
         ) : hasSuffix ? (
-          <Row style={[tokenStyles.suffix, styles?.suffix]}>{suffix}</Row>
+          <Row style={[tokenStyles.suffix, styles?.suffix]}>
+            {renderTextNode(suffix, (text) => (
+              <Text>{text}</Text>
+            ))}
+          </Row>
         ) : null}
       </Row>
       {hasNode(message) ? (

@@ -1,4 +1,5 @@
 import type { ComponentSize } from '../shares/types';
+import { renderTextNode } from '../shares/node';
 import React from 'react';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import { Column } from '../Column';
@@ -63,10 +64,6 @@ const useStyles = createUseSheetStyle((token, { size }: EmptyStyleOptions) => {
   };
 });
 
-function isPrimitiveContent(content: React.ReactNode): content is string | number {
-  return typeof content === 'string' || typeof content === 'number';
-}
-
 function hasRenderableContent(content: React.ReactNode): boolean {
   return content !== null && content !== undefined && content !== false;
 }
@@ -103,17 +100,15 @@ export function Empty({
           {resolvedIcon}
         </Column>
       ) : null}
-      {isPrimitiveContent(resolvedMessage) ? (
+      {renderTextNode(resolvedMessage, (text) => (
         <Text
           size={sizeConfig.messageSize}
           color="secondary"
           style={[tokenStyles.message, styles?.message]}
         >
-          {resolvedMessage}
+          {text}
         </Text>
-      ) : (
-        resolvedMessage
-      )}
+      ))}
     </Column>
   );
 }

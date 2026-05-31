@@ -1,4 +1,5 @@
 import type { ComponentSize } from '../shares/types';
+import { renderTextNode } from '../shares/node';
 import React, { useContext } from 'react';
 import { View } from 'react-native';
 import Animated, {
@@ -209,15 +210,15 @@ function MessageBody({
     >
       <Row style={tokenStyles.body}>
         <View style={tokenStyles.dot} />
-        {message ?? (
+        {renderTextNode(message ?? messageText, (text) => (
           <Text
             color="default"
             size={SIZE_MAP[size].textSize}
             style={[tokenStyles.messageText, styles?.messageText]}
           >
-            {messageText}
+            {text}
           </Text>
-        )}
+        ))}
       </Row>
     </Animated.View>
   );

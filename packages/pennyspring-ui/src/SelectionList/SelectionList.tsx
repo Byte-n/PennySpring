@@ -20,6 +20,7 @@ import type { TagValueItem } from '../_internal/TagValueDisplay';
 import { useControllableValue } from '../_hooks';
 import { useSelectionListStyles } from './style';
 import type { ComponentSize } from '../shares/types';
+import { renderTextNode } from '../shares/node';
 import type {
   SelectionListMode,
   SelectionListOption,
@@ -303,12 +304,14 @@ export function SelectionListPopup({
           />
         </Row>
         {option.prefix !== undefined ? (
-          <Column style={tokenStyles.optionMeta}>{option.prefix}</Column>
+          <Column style={tokenStyles.optionMeta}>
+            {renderTextNode(option.prefix, (text) => (
+              <Text size={resolveTextSize(resolvedSize)}>{text}</Text>
+            ))}
+          </Column>
         ) : null}
         <Column style={tokenStyles.optionContent}>
-          {option.label !== undefined && typeof option.label !== 'string' ? (
-            option.label
-          ) : (
+          {renderTextNode(option.label ?? option.labelText, (text) => (
             <Text
               color={isDisabled ? 'disabled' : 'default'}
               size={resolveTextSize(resolvedSize)}
@@ -316,23 +319,21 @@ export function SelectionListPopup({
                 styles?.optionLabel,
               ]}
             >
-              {option.labelText ?? option.label}
+              {text}
             </Text>
-          )}
-          {option.description !== undefined && typeof option.description !== 'string' ? (
-            option.description
-          ) : option.descriptionText !== undefined ? (
+          ))}
+          {renderTextNode(option.description ?? option.descriptionText, (text) => (
             <Text color="description" size={resolveTextSize(resolvedSize)} style={tokenStyles.optionDescription}>
-              {option.descriptionText}
+              {text}
             </Text>
-          ) : typeof option.description === 'string' ? (
-            <Text color="description" size={resolveTextSize(resolvedSize)} style={tokenStyles.optionDescription}>
-              {option.description}
-            </Text>
-          ) : null}
+          ))}
         </Column>
         {option.suffix !== undefined ? (
-          <Column style={tokenStyles.optionMeta}>{option.suffix}</Column>
+          <Column style={tokenStyles.optionMeta}>
+            {renderTextNode(option.suffix, (text) => (
+              <Text size={resolveTextSize(resolvedSize)}>{text}</Text>
+            ))}
+          </Column>
         ) : null}
       </Pressable>
     );
@@ -421,27 +422,24 @@ export function SelectionListPopup({
           <Column style={tokenStyles.list}>
             {filteredGroups.map(group => (
               <Column key={group.key} style={tokenStyles.group}>
-                {group.title !== undefined ? (
-                  group.title
-                ) : group.titleText !== undefined ? (
+                {renderTextNode(group.title ?? group.titleText, (text) => (
                   <Text
                     color="description"
                     size={resolveTextSize(resolvedSize)}
                     style={[tokenStyles.groupTitle, styles?.groupTitle]}
                   >
-                    {group.titleText}
+                    {text}
                   </Text>
-                ) : null}
+                ))}
                 {renderGroupOptions(group.options)}
               </Column>
             ))}
           </Column>
         ) : (
           <Column align="center" style={tokenStyles.empty}>
-            {empty ??
-              (texts?.emptyText !== undefined ? (
-                <Text color="description">{texts.emptyText}</Text>
-              ) : null)}
+            {renderTextNode(empty ?? texts?.emptyText, (text) => (
+              <Text color="description">{text}</Text>
+            ))}
           </Column>
         )}
         {resolvedMode === 'multiple' && texts?.confirmText !== undefined ? (

@@ -3,16 +3,13 @@ import { View } from 'react-native';
 import { Column } from '../Column';
 import { Icon } from '../Icon';
 import { Text } from '../Text';
+import { renderTextNode } from '../shares/node';
 import type { ResultProps } from './types';
 import {
   SIZE_STYLE_MAP,
   STATUS_CONFIG_MAP,
   useStyles,
 } from './style';
-
-function isPrimitiveContent(content: React.ReactNode): content is string | number {
-  return typeof content === 'string' || typeof content === 'number';
-}
 
 function hasRenderableContent(content: React.ReactNode): boolean {
   return content !== null && content !== undefined && content !== false;
@@ -51,29 +48,25 @@ export function Result({
           {resolvedIcon}
         </View>
       ) : null}
-      {isPrimitiveContent(resolvedTitle) ? (
+      {renderTextNode(resolvedTitle, (text) => (
         <Text
           size={sizeConfig.titleSize}
           weight="semibold"
           color="heading"
           style={[tokenStyles.title, styles?.titleText]}
         >
-          {resolvedTitle}
+          {text}
         </Text>
-      ) : (
-        resolvedTitle
-      )}
-      {isPrimitiveContent(resolvedSubtitle) ? (
+      ))}
+      {renderTextNode(resolvedSubtitle, (text) => (
         <Text
           size={sizeConfig.subtitleSize}
           color="secondary"
           style={[tokenStyles.subtitle, styles?.subtitleText]}
         >
-          {resolvedSubtitle}
+          {text}
         </Text>
-      ) : (
-        resolvedSubtitle
-      )}
+      ))}
       {extra !== undefined && extra !== null ? (
         <View style={[tokenStyles.extra, styles?.extra]}>{extra}</View>
       ) : null}

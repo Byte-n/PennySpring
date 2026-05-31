@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet } from 'react-native';
 import { View } from 'react-native';
 import { Text } from '../Text';
+import { renderTextNode } from '../shares/node';
 import { PickerColumn } from './PickerColumn';
 import { usePickerWheelStyles } from './usePickerWheelStyles';
 import type { ReactNode } from 'react';
@@ -76,7 +77,9 @@ export function PickerView<TItem extends PickerColumnItemData>({
             key={columnIndex}
             style={[styles.column, styles.empty, viewStyles?.column?.root, slotStyles?.empty]}
           >
-            {empty ?? <Text>{emptyText}</Text>}
+            {renderTextNode(empty ?? emptyText, (text) => (
+              <Text>{text}</Text>
+            ))}
           </View>
         ) : (
           <PickerColumn

@@ -1,4 +1,5 @@
 import type { ComponentSize } from '../shares/types';
+import { renderTextNode as renderSlotTextNode } from '../shares/node';
 import React, { createContext, useContext } from 'react';
 import { Pressable } from 'react-native';
 import { Column } from '../Column';
@@ -234,9 +235,9 @@ export function ListItem({
         {isSelected ? (
           <Column style={tokenStyles.selectedMarker} testID="selected-marker" />
         ) : null}
-        {left ? <Column style={[tokenStyles.left, styles?.left]}>{left}</Column> : null}
+        {left ? <Column style={[tokenStyles.left, styles?.left]}>{renderSlotTextNode(left, (text) => <Text>{text}</Text>)}</Column> : null}
         <Column style={[tokenStyles.content, styles?.content]}>{content}</Column>
-        {right ? <Column style={[tokenStyles.right, styles?.right]}>{right}</Column> : null}
+        {right ? <Column style={[tokenStyles.right, styles?.right]}>{renderSlotTextNode(right, (text) => <Text>{text}</Text>)}</Column> : null}
       </Row>
       {resolvedDivider === 'none' ? null : (
         <Column style={[tokenStyles.divider, styles?.divider]} />
@@ -305,21 +306,33 @@ export function ListRoot({
     <ListContext.Provider value={contextValue}>
       <Column style={[tokenStyles.root, style]}>
         {header ? (
-          <Column style={[tokenStyles.header, styles?.header]}>{header}</Column>
+          <Column style={[tokenStyles.header, styles?.header]}>
+            {renderSlotTextNode(header, (text) => (
+              <Text color="secondary">{text}</Text>
+            ))}
+          </Column>
         ) : null}
         {isChildrenEmpty(content) ? null : content}
         {loading ? (
           <Column style={[tokenStyles.loading, styles?.loading]}>
-            {loadingContent ?? (loadingText === undefined ? null : (
-              <Text color="secondary">{loadingText}</Text>
+            {renderSlotTextNode(loadingContent ?? loadingText, (text) => (
+              <Text color="secondary">{text}</Text>
             ))}
           </Column>
         ) : null}
         {shouldRenderEmpty ? (
-          <Column style={[tokenStyles.empty, styles?.empty]}>{empty}</Column>
+          <Column style={[tokenStyles.empty, styles?.empty]}>
+            {renderSlotTextNode(empty, (text) => (
+              <Text color="secondary">{text}</Text>
+            ))}
+          </Column>
         ) : null}
         {footer ? (
-          <Column style={[tokenStyles.footer, styles?.footer]}>{footer}</Column>
+          <Column style={[tokenStyles.footer, styles?.footer]}>
+            {renderSlotTextNode(footer, (text) => (
+              <Text color="secondary">{text}</Text>
+            ))}
+          </Column>
         ) : null}
       </Column>
     </ListContext.Provider>

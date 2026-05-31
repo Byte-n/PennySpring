@@ -1,6 +1,7 @@
 import React from 'react';
 import { Column } from '../Column';
 import { Text } from '../Text';
+import { renderTextNode } from '../shares/node';
 import type { PickerHeaderStyles, PickerPopupProps } from './types';
 
 interface PickerTitleProps {
@@ -26,11 +27,11 @@ export function PickerTitle({
 
   return (
     <Column style={[styles.titleContainer, slotStyles?.titleContainer]}>
-      {title !== undefined ? title : (
+      {renderTextNode(title !== undefined ? title : titleText, (text) => (
         <Text color="heading" style={[styles.titleText, slotStyles?.titleText]}>
-          {titleText}
+          {text}
         </Text>
-      )}
+      ))}
     </Column>
   );
 }

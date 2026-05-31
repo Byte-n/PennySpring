@@ -5,6 +5,7 @@ import { Column } from '../Column';
 import { Row } from '../Row';
 import { Badge } from '../Badge';
 import { Text } from '../Text';
+import { renderTextNode } from '../shares/node';
 import { useControllableValue } from '../_hooks';
 import type { ReactNode } from 'react';
 import type { StyleProp, TextStyle, ViewStyle } from 'react-native';
@@ -155,7 +156,7 @@ export function TabBar({
             >
               <Column align="center">
                 {iconNode === undefined ? null : (
-                  <View testID="icon-container" style={[tokenStyles.iconContainer, styles?.icon]}>{iconNode}</View>
+                  <View testID="icon-container" style={[tokenStyles.iconContainer, styles?.icon]}>{renderTextNode(iconNode, (text) => <Text>{text}</Text>)}</View>
                 )}
                 {renderTitle(
                   titleNode,

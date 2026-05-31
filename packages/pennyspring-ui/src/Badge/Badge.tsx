@@ -1,4 +1,5 @@
 import type { ComponentSize } from '../shares/types';
+import { renderTextNode } from '../shares/node';
 import React from 'react';
 import { View } from 'react-native';
 import { createUseSheetStyle } from '@pennyspring/theme';
@@ -267,30 +268,22 @@ const useStyles = createUseSheetStyle(
   },
 );
 
-function isPrimitiveContent(content: unknown): content is string | number {
-  return typeof content === 'string' || typeof content === 'number';
-}
-
 function renderBadgeContent(
   content: BadgeProps['count'],
   badgeStyles: BadgeProps['styles'],
   tokenContentStyle: ReturnType<typeof useStyles>['content'],
   size: ComponentSize,
 ): React.ReactNode {
-  if (isPrimitiveContent(content)) {
-    return (
-      <Text
-        color="lightSolid"
-        size={BADGE_TEXT_SIZE_MAP[size]}
-        style={[tokenContentStyle, badgeStyles?.content]}
-        weight="strong"
-      >
-        {content}
-      </Text>
-    );
-  }
-
-  return content;
+  return renderTextNode(content, (text) => (
+    <Text
+      color="lightSolid"
+      size={BADGE_TEXT_SIZE_MAP[size]}
+      style={[tokenContentStyle, badgeStyles?.content]}
+      weight="strong"
+    >
+      {text}
+    </Text>
+  ));
 }
 
 export function Badge({

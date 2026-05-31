@@ -1,4 +1,5 @@
 import type { ComponentSize } from '../shares/types';
+import { renderTextNode } from '../shares/node';
 import React from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
@@ -73,7 +74,9 @@ export function Loading({
   return (
     <Layout align="center" gap={gap} style={style}>
       <View style={[tokenStyles.indicator, styles?.indicator]}>
-        {indicator ?? (
+        {renderTextNode(indicator, (value) => (
+          <Text>{value}</Text>
+        )) ?? (
           <ActivityIndicator
             {...rest}
             animating={animating}

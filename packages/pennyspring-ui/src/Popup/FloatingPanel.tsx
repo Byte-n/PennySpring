@@ -28,6 +28,7 @@ import { Button } from '../Button';
 import { Column } from '../Column';
 import { Row } from '../Row';
 import { Text } from '../Text';
+import { renderTextNode } from '../shares/node';
 import type { TextSize } from '../Text';
 import { useControllableValue } from '../_hooks';
 import { Popup as PopupRoot } from './Popup';
@@ -788,7 +789,9 @@ export function FloatingPanel({
         <Column style={[tokenStyles.content, styles?.content]}>
           {headerNode ? (
             <Column style={[tokenStyles.header, styles?.header]} testID="floating-panel-header">
-              {headerNode}
+              {renderTextNode(headerNode, (text) => (
+                <Text color="heading">{text}</Text>
+              ))}
             </Column>
           ) : null}
           <Column style={[tokenStyles.panelBody, styles?.panelBody]} testID="floating-panel-body">
@@ -796,7 +799,9 @@ export function FloatingPanel({
           </Column>
           {footerNode ? (
             <Row style={[tokenStyles.footer, styles?.footer]} testID="floating-panel-footer">
-              {footerNode}
+              {renderTextNode(footerNode, (text) => (
+                <Text>{text}</Text>
+              ))}
             </Row>
           ) : null}
         </Column>

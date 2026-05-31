@@ -2,6 +2,8 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Column } from '../Column';
 import { Picker } from '../Picker';
 import { Tabs } from '../Tabs';
+import { Text } from '../Text';
+import { renderTextNode } from '../shares/node';
 import { useControllableValue } from '../_hooks';
 import type {
   PickerColumn,
@@ -392,7 +394,9 @@ export function CascadePicker<TData = unknown, TTabKey extends CascadePickerTabK
 
     return (
       <Column>
-        {header}
+        {renderTextNode(header, (text) => (
+          <Text>{text}</Text>
+        ))}
         <Tabs
           block
           items={tabItems}

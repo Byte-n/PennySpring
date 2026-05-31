@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { Image, View } from 'react-native';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import { Text } from '../Text';
+import { renderTextNode } from '../shares/node';
 import type {
   ReactNode } from 'react';
 import type { ImageSourcePropType,
@@ -179,7 +180,7 @@ export function AvatarRoot({
         </Text>
       ) : null}
       {displayType === 'icon' ? (
-        <View style={[tokenStyles.icon, styles?.icon]}>{icon}</View>
+        <View style={[tokenStyles.icon, styles?.icon]}>{renderTextNode(icon, (value) => <Text>{value}</Text>)}</View>
       ) : null}
     </View>
   );

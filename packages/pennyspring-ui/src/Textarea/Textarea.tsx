@@ -5,6 +5,7 @@ import { Column } from '../Column';
 import { Row } from '../Row';
 import { Spacer } from '../Spacer';
 import { Text } from '../Text';
+import { renderTextNode } from '../shares/node';
 import { useControllableValue } from '../_hooks';
 import type {
   NativeSyntheticEvent,
@@ -112,21 +113,12 @@ export function Textarea({
 
   const labelColor = disabled ? 'disabled' : 'label';
   const resolvedLabel = label !== undefined ? label : labelText;
-  const renderLabelContent = () => {
-    if (resolvedLabel === null || resolvedLabel === undefined) {
-      return null;
-    }
-
-    if (typeof resolvedLabel === 'string') {
-      return (
-        <Text size="sm" weight="medium" color={labelColor} style={styles?.label}>
-          {resolvedLabel}
-        </Text>
-      );
-    }
-
-    return resolvedLabel;
-  };
+  const renderLabelContent = () =>
+    renderTextNode(resolvedLabel, (text) => (
+      <Text size="sm" weight="medium" color={labelColor} style={styles?.label}>
+        {text}
+      </Text>
+    ));
 
   return (
     <Column style={[tokenStyles.root, style]}>

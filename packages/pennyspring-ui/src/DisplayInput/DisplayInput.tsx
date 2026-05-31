@@ -12,6 +12,7 @@ import { useTheme } from '@pennyspring/theme';
 import { Column } from '../Column';
 import { Row } from '../Row';
 import { Text } from '../Text';
+import { renderTextNode } from '../shares/node';
 import { useStyles } from './style';
 import type { ComponentSize } from '../shares/types';
 import type { InputStatus } from '../Input';
@@ -164,7 +165,11 @@ export function DisplayInput({
           testID="display-input-underline"
         />
         {hasPrefix ? (
-          <Row style={[tokenStyles.prefix, styles?.prefix]}>{prefix}</Row>
+          <Row style={[tokenStyles.prefix, styles?.prefix]}>
+            {renderTextNode(prefix, (text) => (
+              <Text>{text}</Text>
+            ))}
+          </Row>
         ) : null}
         <View style={tokenStyles.valueWrapper}>
           {hasFloatingLabel ? (
@@ -214,7 +219,11 @@ export function DisplayInput({
           )}
         </View>
         {hasSuffix ? (
-          <Row style={[tokenStyles.suffix, styles?.suffix]}>{suffix}</Row>
+          <Row style={[tokenStyles.suffix, styles?.suffix]}>
+            {renderTextNode(suffix, (text) => (
+              <Text>{text}</Text>
+            ))}
+          </Row>
         ) : null}
       </Pressable>
       {message !== undefined && message !== null ? (

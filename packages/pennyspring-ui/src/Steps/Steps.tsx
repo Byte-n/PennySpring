@@ -5,6 +5,7 @@ import { useControllableValue } from '../_hooks';
 import { Column } from '../Column';
 import { Row } from '../Row';
 import { Text } from '../Text';
+import { renderTextNode } from '../shares/node';
 import type { ReactNode } from 'react';
 import type { TextSize, TextWeight } from '../Text/types';
 import type { TextColor } from '../Text/types';
@@ -30,19 +31,11 @@ function renderTitleContent(
   color: TextColor,
   style?: StyleProp<TextStyle>,
 ) {
-  if (node !== undefined) {
-    return node === null ? null : node;
-  }
-
-  if (text === undefined || text === null || text === '') {
-    return null;
-  }
-
-  return (
+  return renderTextNode(node === undefined ? text : node, (value) => (
     <Text size={size} weight={weight} color={color} style={style}>
-      {text}
+      {value}
     </Text>
-  );
+  ));
 }
 
 function renderDescriptionContent(
@@ -53,19 +46,11 @@ function renderDescriptionContent(
   color: TextColor,
   style?: StyleProp<TextStyle>,
 ) {
-  if (node !== undefined) {
-    return node === null ? null : node;
-  }
-
-  if (text === undefined || text === null || text === '') {
-    return null;
-  }
-
-  return (
+  return renderTextNode(node === undefined ? text : node, (value) => (
     <Text size={size} weight={weight} color={color} style={style}>
-      {text}
+      {value}
     </Text>
-  );
+  ));
 }
 
 function resolveItemStatus(

@@ -1,4 +1,5 @@
 import type { ComponentSize } from '../shares/types';
+import { renderTextNode } from '../shares/node';
 import React, { useContext } from 'react';
 import { useWindowDimensions } from 'react-native';
 import Animated, {
@@ -240,25 +241,25 @@ function NotificationBody({
         animatedStyle,
       ]}
     >
-      {title ?? (
+      {renderTextNode(title ?? titleText, (text) => (
         <Text
           color="heading"
           size={SIZE_MAP[size].titleTextSize}
           weight="strong"
           style={[tokenStyles.titleText, styles?.titleText]}
         >
-          {titleText}
+          {text}
         </Text>
-      )}
-      {description ?? (
+      ))}
+      {renderTextNode(description ?? descriptionText, (text) => (
         <Text
           color="secondary"
           size={SIZE_MAP[size].descriptionTextSize}
           style={[tokenStyles.descriptionText, styles?.descriptionText]}
         >
-          {descriptionText}
+          {text}
         </Text>
-      )}
+      ))}
     </Animated.View>
   );
 }

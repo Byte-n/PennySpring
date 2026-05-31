@@ -318,11 +318,7 @@ function renderTextNode(node: ReactNode) {
 }
 
 function renderSlotNode(node: ReactNode, text?: string) {
-  if (node !== undefined) {
-    return node;
-  }
-
-  return text === undefined ? null : <Text>{text}</Text>;
+  return renderTextNode(node === undefined ? text : node);
 }
 
 interface CalendarGridProps {

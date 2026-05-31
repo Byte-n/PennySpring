@@ -1,4 +1,5 @@
 import type { ComponentSize } from '../shares/types';
+import { renderTextNode } from '../shares/node';
 import React, { useContext } from 'react';
 import Animated, {
   Easing,
@@ -131,11 +132,11 @@ function ToastBody({
         animatedStyle,
       ]}
     >
-      {message ?? (
+      {renderTextNode(message ?? messageText, (text) => (
         <Text size={SIZE_TOKEN_MAP[size].textSize} style={[tokenStyles.messageText, styles?.messageText]}>
-          {messageText}
+          {text}
         </Text>
-      )}
+      ))}
     </Animated.View>
   );
 }

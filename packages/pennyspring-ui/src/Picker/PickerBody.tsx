@@ -2,6 +2,7 @@ import React, { useRef } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { GeometryReader } from '../GeometryReader';
 import { Text } from '../Text';
+import { renderTextNode } from '../shares/node';
 import { PickerView } from './PickerView';
 import { WHEEL_VISIBLE_ITEM_COUNT } from './usePickerStyles';
 import type { ReactNode } from 'react';
@@ -59,7 +60,9 @@ export function PickerBody<TItem extends PickerColumnItemData>({
   if (loading) {
     return (
       <View style={[styles.loading, slotStyles?.loading]}>
-        {loadingIndicator ?? <Text>{loadingIndicatorText}</Text>}
+        {renderTextNode(loadingIndicator ?? loadingIndicatorText, (text) => (
+          <Text>{text}</Text>
+        ))}
       </View>
     );
   }
@@ -67,7 +70,9 @@ export function PickerBody<TItem extends PickerColumnItemData>({
   if (isEmpty) {
     return (
       <View style={[styles.empty, slotStyles?.empty]}>
-        {empty ?? <Text>{emptyText}</Text>}
+        {renderTextNode(empty ?? emptyText, (text) => (
+          <Text>{text}</Text>
+        ))}
       </View>
     );
   }
