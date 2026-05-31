@@ -4,14 +4,18 @@ import { useRequest } from 'ahooks';
 import {
   ActionSheet,
   Column,
-  Dialog,
+  Icon,
   Input,
+  Popup,
   Row,
   Tag,
+  Text,
   useToast,
 } from '@pennyspring/ui';
 import { api, VISIBILITY, type TagRow } from '@pennyspring/data';
 import { createUseSheetStyle } from '@pennyspring/theme';
+import { PhosphorIconPickerContent } from '../../component/PhosphorIconPicker';
+import { getPhosphorIconComponent } from '../../constants/typeIconTree';
 
 const useStyles = createUseSheetStyle(token => ({
   container: {
@@ -30,7 +34,12 @@ const useStyles = createUseSheetStyle(token => ({
     opacity: 0.5,
   },
   dialogBody: {
+    flex: 1,
     gap: token.marginSM,
+    paddingHorizontal: token.padding,
+  },
+  tagContent: {
+    gap: token.marginXXS,
   },
 }));
 
@@ -43,6 +52,7 @@ export function TagManageScreen() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingTag, setEditingTag] = useState<TagRow | null>(null);
   const [name, setName] = useState('');
+  const [icon, setIcon] = useState('');
 
   const [actionSheetOpen, setActionSheetOpen] = useState(false);
   const [selectedTag, setSelectedTag] = useState<TagRow | null>(null);
@@ -50,12 +60,14 @@ export function TagManageScreen() {
   const openCreateDialog = useCallback(() => {
     setEditingTag(null);
     setName('');
+    setIcon('');
     setDialogOpen(true);
   }, []);
 
   const openEditDialog = useCallback((tag: TagRow) => {
     setEditingTag(tag);
     setName(tag.name);
+    setIcon(tag.icon);
     setDialogOpen(true);
   }, []);
 
@@ -71,16 +83,16 @@ export function TagManageScreen() {
     }
     try {
       if (editingTag) {
-        await api.tag.update({ id: editingTag.id, name: name.trim() });
+        await api.tag.update({ id: editingTag.id, name: name.trim(), icon });
       } else {
-        await api.tag.create({ name: name.trim() });
+        await api.tag.create({ name: name.trim(), icon });
       }
       setDialogOpen(false);
       refresh();
     } catch (e: unknown) {
       toast.show({ messageText: e instanceof Error ? e.message : '操作失败' });
     }
-  }, [name, editingTag, refresh, toast]);
+  }, [name, icon, editingTag, refresh, toast]);
 
   const handleDelete = useCallback(
     async (id: number) => {
@@ -103,7 +115,12 @@ export function TagManageScreen() {
           tag.invisible === VISIBILITY.hidden
             ? VISIBILITY.visible
             : VISIBILITY.hidden;
-        await api.tag.update({ id: tag.id, name: tag.name, invisible });
+        await api.tag.update({
+          id: tag.id,
+          name: tag.name,
+          icon: tag.icon,
+          invisible,
+        });
         refresh();
       } catch (e: unknown) {
         toast.show({
@@ -152,7 +169,12 @@ export function TagManageScreen() {
               style={[tag.invisible === VISIBILITY.hidden && styles.chipHidden]}
               onLongPress={() => handleLongPress(tag)}
             >
-              {tag.name}
+              <Row align="center" style={styles.tagContent}>
+                {tag.icon ? (
+                  <Icon icon={getPhosphorIconComponent(tag.icon)} size="small" />
+                ) : null}
+                <Text size="sm">{tag.name}</Text>
+              </Row>
             </Tag>
           ))}
         </Row>
@@ -168,19 +190,24 @@ export function TagManageScreen() {
         cancelText="取消"
       />
 
-      <Dialog
+      <Popup.FloatingPanel
+        height="85%"
+        keyboardAvoiding
         open={dialogOpen}
         onOpenChange={open => {
           if (!open) setDialogOpen(false);
         }}
         titleText={editingTag ? '编辑标签' : '新增标签'}
         onOk={handleSave}
+        okText={editingTag ? '保存' : '新增'}
         okDisabled={!name.trim()}
+        styles={{ panelBody: styles.dialogBody }}
       >
-        <Column style={styles.dialogBody}>
+        <Column>
           <Input placeholder="标签名称" value={name} onChange={setName} />
         </Column>
-      </Dialog>
+        <PhosphorIconPickerContent value={icon} onChange={setIcon} />
+      </Popup.FloatingPanel>
     </Column>
   );
 }

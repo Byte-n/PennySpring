@@ -2,21 +2,25 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { useRequest } from 'ahooks';
 import {
   Column,
-  Dialog,
+  Icon,
   Input,
+  Popup,
   Row,
   Segmented,
+  Tag,
+  Text,
   useToast,
 } from '@pennyspring/ui';
 import {
   api,
-  ICON,
   RECORD_TYPE_CATEGORY,
   type TypeRow,
   type RecordTypeCategoryValue,
 } from '@pennyspring/data';
-import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
+import { createUseSheetStyle } from '@pennyspring/theme';
 import { CategoryGrid, CategoryItem } from '../../component/CategoryGrid';
+import { PhosphorIconPickerContent } from '../../component/PhosphorIconPicker';
+import { getPhosphorIconComponent } from '../../constants/typeIconTree';
 import { PlusSquareIcon } from 'phosphor-react-native';
 import { ScrollView } from 'react-native';
 
@@ -30,13 +34,18 @@ const useStyles = createUseSheetStyle(token => ({
   container: { flex: 1, backgroundColor: token.colorBgLayout },
   segmented: { padding: token.padding },
   contentScroll: { flex: 1 },
-  dialogBody: { gap: token.marginSM },
+  categoryGrid: { marginHorizontal: token.marginMD },
+  dialogBody: {
+    flex: 1,
+    gap: token.marginSM,
+    paddingHorizontal: token.padding,
+  },
+  iconTriggerContent: { gap: token.marginXXS },
 }));
 
 export function TypeManageScreen() {
   const styles = useStyles();
   const toast = useToast();
-  const { token } = useTheme()
 
   const [category, setCategory] = useState<RecordTypeCategoryValue>(
     RECORD_TYPE_CATEGORY.expense,
@@ -81,18 +90,21 @@ export function TypeManageScreen() {
       ),
       ...allTypes,
     ];
-  }, [allTypes]);
+  }, [allTypes, category]);
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingType, setEditingType] = useState<TypeRow | null>(null);
   const [isCreatingParent, setIsCreatingParent] = useState(false);
   const [createParentId, setCreateParentId] = useState(0);
   const [name, setName] = useState('');
+  const [icon, setIcon] = useState('DotsThreeCircle');
 
   const openCreateParentDialog = useCallback(() => {
     setEditingType(null);
     setIsCreatingParent(true);
+    setCreateParentId(0);
     setName('');
+    setIcon('DotsThreeCircle');
     setDialogOpen(true);
   }, []);
 
@@ -101,6 +113,7 @@ export function TypeManageScreen() {
     setIsCreatingParent(false);
     setCreateParentId(parentId);
     setName('');
+    setIcon('DotsThreeCircle');
     setDialogOpen(true);
   }, []);
 
@@ -111,14 +124,14 @@ export function TypeManageScreen() {
         await api.type.update({
           id: editingType.id,
           name,
-          icon: editingType.icon,
+          icon,
           typeCategory: category,
           parentId: editingType.parentId,
         });
       } else {
         await api.type.create({
           name,
-          icon: ICON.other,
+          icon,
           typeCategory: category,
           parentId,
         });
@@ -131,6 +144,7 @@ export function TypeManageScreen() {
   }, [
     editingType,
     name,
+    icon,
     category,
     isCreatingParent,
     createParentId,
@@ -142,6 +156,7 @@ export function TypeManageScreen() {
     if (editingType) return '编辑类型';
     return isCreatingParent ? '新增一级类型' : '新增二级类型';
   }, [editingType, isCreatingParent]);
+  const SelectedIconComponent = getPhosphorIconComponent(icon);
 
   return (
     <Column style={styles.container}>
@@ -156,7 +171,7 @@ export function TypeManageScreen() {
 
       <ScrollView style={styles.contentScroll}>
         <CategoryGrid
-          style={{ marginHorizontal: token.marginMD }}
+          style={styles.categoryGrid}
           categories={realTypes}
           onSelect={id => {
             if (id === 0) {
@@ -168,19 +183,30 @@ export function TypeManageScreen() {
         />
       </ScrollView>
 
-      <Dialog
+      <Popup.FloatingPanel
+        height="85%"
+        keyboardAvoiding
         open={dialogOpen}
         onOpenChange={open => {
           if (!open) setDialogOpen(false);
         }}
         titleText={dialogTitle}
         onOk={handleOk}
+        okText={editingType ? '保存' : '新增'}
         okDisabled={!name.trim()}
+        styles={{ panelBody: styles.dialogBody }}
       >
-        <Column style={styles.dialogBody}>
+        <Column>
           <Input placeholder="类型名称" value={name} onChange={setName} />
+          <Tag variant="outlined">
+            <Row align="center" style={styles.iconTriggerContent}>
+              <Icon icon={SelectedIconComponent} size="small" />
+              <Text size="sm">{icon}</Text>
+            </Row>
+          </Tag>
         </Column>
-      </Dialog>
+        <PhosphorIconPickerContent value={icon} onChange={setIcon} />
+      </Popup.FloatingPanel>
     </Column>
   );
 }
