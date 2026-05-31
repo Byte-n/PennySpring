@@ -368,13 +368,13 @@ export function BookManageScreen() {
       >
         <Column style={styles.dialogBody}>
           <Input
-            labelText='账本名称'
-            placeholder='请输入'
+            labelText="账本名称"
+            placeholder="请输入"
             value={name}
             onChange={setName}
           />
           <Input
-            labelText='aa'
+            labelText="aa"
             placeholder="描述(可选)"
             value={description}
             onChange={setDescription}
@@ -382,7 +382,7 @@ export function BookManageScreen() {
           <ImagePicker
             label="图片"
             onChange={setBackgroundImage}
-            placeholder="选择图片"
+            labelText="选择图片"
             value={backgroundImage}
           />
         </Column>
