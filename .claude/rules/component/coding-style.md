@@ -60,6 +60,7 @@ paths:
 - 文本样式只作用于内部文本，例如 `styles.titleText` 仅作用于 `titleText` 渲染出的文本。
 - 如需包裹节点，使用 `titleContainer` 承载 `title ?? titleText`，不要用 `title` 表示容器。
 - `Text` 组件的 `color` 取值必须与 `Icon` 组件的 `color` 取值保持一致，避免文本和图标色彩语义漂移。
+- 渲染 `xxx`、`xxxRender` 返回值等插槽内容时，必须经 `shares/node` 的 `renderTextNode(content, wrap)` 处理：基础类型（`string`/`number`）由 `wrap` 套 `Text` 渲染，其余节点原样返回，避免裸文本直接进入 `View` 触发渲染异常。需要先判断而非包裹时使用同文件的 `isPrimitiveContent` 守卫。
 
 ## 尺寸 API
 
