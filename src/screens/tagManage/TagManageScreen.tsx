@@ -4,6 +4,7 @@ import { useRequest } from 'ahooks';
 import {
   ActionSheet,
   Column,
+  DisplayInput,
   Icon,
   Input,
   Popup,
@@ -14,7 +15,7 @@ import {
 } from '@pennyspring/ui';
 import { api, VISIBILITY, type TagRow } from '@pennyspring/data';
 import { createUseSheetStyle } from '@pennyspring/theme';
-import { PhosphorIconPickerContent } from '../../component/PhosphorIconPicker';
+import { PhosphorIconPicker } from '../../component/PhosphorIconPicker';
 import { getPhosphorIconComponent } from '../../constants/typeIconTree';
 
 const useStyles = createUseSheetStyle(token => ({
@@ -50,6 +51,7 @@ export function TagManageScreen() {
   const { data, refresh } = useRequest(() => api.tag.getAll());
 
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [iconPickerOpen, setIconPickerOpen] = useState(false);
   const [editingTag, setEditingTag] = useState<TagRow | null>(null);
   const [name, setName] = useState('');
   const [icon, setIcon] = useState('');
@@ -205,8 +207,24 @@ export function TagManageScreen() {
       >
         <Column>
           <Input placeholder="标签名称" value={name} onChange={setName} />
+          <DisplayInput
+            labelText="图标"
+            placeholder="未选图标"
+            valueText={icon}
+            prefix={
+              icon ? (
+                <Icon icon={getPhosphorIconComponent(icon)} size="small" />
+              ) : null
+            }
+            onPress={() => setIconPickerOpen(true)}
+          />
         </Column>
-        <PhosphorIconPickerContent value={icon} onChange={setIcon} />
+        <PhosphorIconPicker
+          open={iconPickerOpen}
+          value={icon}
+          onChange={setIcon}
+          onOpenChange={setIconPickerOpen}
+        />
       </Popup.FloatingPanel>
     </Column>
   );

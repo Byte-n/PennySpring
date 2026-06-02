@@ -2,13 +2,12 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { useRequest } from 'ahooks';
 import {
   Column,
+  DisplayInput,
   Icon,
   Input,
   Popup,
   Row,
   Segmented,
-  Tag,
-  Text,
   useToast,
 } from '@pennyspring/ui';
 import {
@@ -19,7 +18,7 @@ import {
 } from '@pennyspring/data';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import { CategoryGrid, CategoryItem } from '../../component/CategoryGrid';
-import { PhosphorIconPickerContent } from '../../component/PhosphorIconPicker';
+import { PhosphorIconPicker } from '../../component/PhosphorIconPicker';
 import { getPhosphorIconComponent } from '../../constants/typeIconTree';
 import { PlusSquareIcon } from 'phosphor-react-native';
 import { ScrollView } from 'react-native';
@@ -40,7 +39,6 @@ const useStyles = createUseSheetStyle(token => ({
     gap: token.marginSM,
     paddingHorizontal: token.padding,
   },
-  iconTriggerContent: { gap: token.marginXXS },
 }));
 
 export function TypeManageScreen() {
@@ -93,6 +91,7 @@ export function TypeManageScreen() {
   }, [allTypes, category]);
 
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [iconPickerOpen, setIconPickerOpen] = useState(false);
   const [editingType, setEditingType] = useState<TypeRow | null>(null);
   const [isCreatingParent, setIsCreatingParent] = useState(false);
   const [createParentId, setCreateParentId] = useState(0);
@@ -198,14 +197,19 @@ export function TypeManageScreen() {
       >
         <Column>
           <Input placeholder="类型名称" value={name} onChange={setName} />
-          <Tag variant="outlined">
-            <Row align="center" style={styles.iconTriggerContent}>
-              <Icon icon={SelectedIconComponent} size="small" />
-              <Text size="sm">{icon}</Text>
-            </Row>
-          </Tag>
+          <DisplayInput
+            labelText="图标"
+            valueText={icon}
+            prefix={<Icon icon={SelectedIconComponent} size="small" />}
+            onPress={() => setIconPickerOpen(true)}
+          />
         </Column>
-        <PhosphorIconPickerContent value={icon} onChange={setIcon} />
+        <PhosphorIconPicker
+          open={iconPickerOpen}
+          value={icon}
+          onChange={setIcon}
+          onOpenChange={setIconPickerOpen}
+        />
       </Popup.FloatingPanel>
     </Column>
   );
