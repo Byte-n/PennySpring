@@ -1,5 +1,5 @@
 import React from 'react';
-import { ActivityIndicator, TextInput } from 'react-native';
+import { ActivityIndicator, TextInput, View } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
 import { Textarea } from '../src/Textarea';
 import { Text } from '../src/Text';
@@ -27,6 +27,20 @@ describe('Textarea', () => {
     expect(JSON.stringify(helperRenderer.toJSON())).not.toContain('Helper text');
     expect(JSON.stringify(hiddenErrorRenderer.toJSON())).not.toContain('Error text');
     expect(JSON.stringify(hiddenErrorRenderer.toJSON())).not.toContain('Helper text');
+  });
+
+  it('renders helper nodes in the footer view instead of a text container', () => {
+    const testRenderer = renderTextarea({
+      helper: <View testID="custom-textarea-helper-node" />,
+      helperText: 'Helper text',
+    });
+
+    const helperNode = testRenderer.root.findByProps({
+      testID: 'custom-textarea-helper-node',
+    });
+
+    expect(helperNode.parent?.type).toBe('View');
+    expect(JSON.stringify(testRenderer.toJSON())).not.toContain('Helper text');
   });
 
   it('uses controlled value for display and count while forwarding text changes', () => {

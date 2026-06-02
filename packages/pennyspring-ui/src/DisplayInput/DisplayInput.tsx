@@ -12,7 +12,7 @@ import { useTheme } from '@pennyspring/theme';
 import { Column } from '../Column';
 import { Row } from '../Row';
 import { Text } from '../Text';
-import { renderTextNode } from '../shares/node';
+import { isPrimitiveContent, renderTextNode } from '../shares/node';
 import { useStyles } from './style';
 import type { ComponentSize } from '../shares/types';
 import type { InputStatus } from '../Input';
@@ -24,6 +24,7 @@ import type {
 
 const REQUIRED_MARK = '*';
 const AnimatedText = createAnimatedComponent(Text);
+const AnimatedView = createAnimatedComponent(View);
 
 function resolveSize(size?: ComponentSize): ComponentSize {
   return size ?? 'normal';
@@ -129,12 +130,15 @@ export function DisplayInput({
     });
   }, [isFloatingLabelActive, progress, token.motionDurationMid, token.motionEaseInOut]);
 
-  const labelAnimatedStyle = useAnimatedStyle(() => ({
+  const labelPositionAnimatedStyle = useAnimatedStyle(() => ({
     top: interpolate(
       progress.value,
       [0, 1],
       [inactiveLabelTop, activeLabelTop],
     ),
+  }));
+
+  const labelTextAnimatedStyle = useAnimatedStyle(() => ({
     fontSize: interpolate(
       progress.value,
       [0, 1],
@@ -146,6 +150,7 @@ export function DisplayInput({
   const labelContent = required === true && typeof labelNode === 'string'
     ? `${labelNode} ${REQUIRED_MARK}`
     : labelNode;
+  const isTextLabel = isPrimitiveContent(labelContent);
 
   return (
     <Column style={[tokenStyles.root, style]}>
@@ -172,19 +177,31 @@ export function DisplayInput({
           </Row>
         ) : null}
         <View style={tokenStyles.valueWrapper}>
-          {hasFloatingLabel ? (
+          {hasFloatingLabel && isTextLabel ? (
             <AnimatedText
               color={isError ? undefined : 'placeholder'}
               numberOfLines={1}
               style={[
+                tokenStyles.floatingLabelContainer,
                 tokenStyles.floatingLabel,
                 styles?.label,
-                labelAnimatedStyle,
+                labelPositionAnimatedStyle,
+                labelTextAnimatedStyle,
               ]}
               testID="display-input-floating-label"
             >
               {labelContent}
             </AnimatedText>
+          ) : hasFloatingLabel ? (
+            <AnimatedView
+              style={[
+                tokenStyles.floatingLabelContainer,
+                labelPositionAnimatedStyle,
+              ]}
+              testID="display-input-floating-label"
+            >
+              {labelContent}
+            </AnimatedView>
           ) : null}
           {hasCustomValue && !isTextLikeValue(children) ? (
             <Column
@@ -226,17 +243,19 @@ export function DisplayInput({
           </Row>
         ) : null}
       </Pressable>
-      {message !== undefined && message !== null ? (
-        <Text
-          color={isError ? 'error' : 'description'}
-          style={[
-            isError ? tokenStyles.error : tokenStyles.helper,
-            isError ? styles?.error : styles?.helper,
-          ]}
-        >
-          {message}
-        </Text>
-      ) : null}
+      {message !== undefined && message !== null
+        ? renderTextNode(message, (text) => (
+          <Text
+            color={isError ? 'error' : 'description'}
+            style={[
+              isError ? tokenStyles.error : tokenStyles.helper,
+              isError ? styles?.error : styles?.helper,
+            ]}
+          >
+            {text}
+          </Text>
+        ))
+        : null}
     </Column>
   );
 }

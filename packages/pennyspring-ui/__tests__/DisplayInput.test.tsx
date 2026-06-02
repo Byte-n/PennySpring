@@ -70,7 +70,9 @@ describe('DisplayInput', () => {
     });
 
     const helperTree = JSON.stringify(helperRenderer.toJSON());
+    const helperNode = helperRenderer.root.findByProps({ testID: 'helper-node' });
 
+    expect(helperNode.parent?.type).toBe('View');
     expect(helperTree).toContain('helper-node');
     expect(helperTree).not.toContain('Helper text');
     expect(JSON.stringify(hiddenErrorRenderer.toJSON())).not.toContain('Error text');
@@ -271,6 +273,22 @@ describe('DisplayInput', () => {
       testRenderer.root.findByProps({ testID: 'custom-label-node' }),
     ).not.toThrow();
     expect(tree).not.toContain('不应显示的标签文本');
+  });
+
+  it('renders custom label nodes in a view floating label container', () => {
+    const testRenderer = renderDisplayInput({
+      label: <View testID="custom-display-label-node" />,
+      valueText: '展示值',
+    });
+
+    const label = testRenderer.root.findByProps({
+      testID: 'display-input-floating-label',
+    });
+
+    expect(label.type).toBe(View);
+    expect(() =>
+      testRenderer.root.findByProps({ testID: 'custom-display-label-node' }),
+    ).not.toThrow();
   });
 
   it('uses hidden overflow by default and allows visible overflow when configured', () => {

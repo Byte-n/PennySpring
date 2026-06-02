@@ -18,7 +18,7 @@ import { Column } from '../Column';
 import { Icon } from '../Icon';
 import { Row } from '../Row';
 import { Text } from '../Text';
-import { renderTextNode } from '../shares/node';
+import { isPrimitiveContent, renderTextNode } from '../shares/node';
 import { useControllableValue } from '../_hooks';
 import type { AliasToken } from '@pennyspring/theme';
 import type { ComponentSize } from '../shares/types';
@@ -135,13 +135,15 @@ const useStyles = createUseSheetStyle(
       inputWrapperMultiline: {
         justifyContent: 'flex-start',
       } as ViewStyle,
-      label: {
+      labelContainer: {
         position: 'absolute',
         left: 0,
         right: 0,
+        zIndex: token.zIndexBase,
+      } as ViewStyle,
+      label: {
         color: isError ? token.colorError : token.colorTextPlaceholder,
         fontFamily: token.fontFamily,
-        zIndex: token.zIndexBase,
       } as TextStyle,
       labelActive: {
         color: activeUnderlineColor,
@@ -303,25 +305,23 @@ function InputRoot({
     });
   }, [isError, isFocused, token.motionDurationFast, token.motionEaseInOut, underlineProgress]);
 
-  const labelAnimatedStyle = useAnimatedStyle(() => {
-    const top = interpolate(
+  const labelPositionAnimatedStyle = useAnimatedStyle(() => ({
+    top: interpolate(
       progress.value,
       [0, 1],
       [inactiveLabelTop, activeLabelTop],
-    );
-    const fontSize = interpolate(
+    ),
+    opacity: interpolate(progress.value, [0, 1], [1, 1]),
+  }));
+
+  const labelTextAnimatedStyle = useAnimatedStyle(() => ({
+    fontSize: interpolate(
       progress.value,
       [0, 1],
       [bodyFontSize, labelFontSize],
-    );
-
-    return {
-      top,
-      fontSize,
-      lineHeight: labelLineHeight,
-      opacity: interpolate(progress.value, [0, 1], [1, 1]),
-    };
-  });
+    ),
+    lineHeight: labelLineHeight,
+  }));
 
   const underlineAnimatedStyle = useAnimatedStyle(() => ({
     transform: [
@@ -369,6 +369,7 @@ function InputRoot({
   const labelContent = required === true && typeof labelNode === 'string'
     ? `${labelNode} *`
     : labelNode;
+  const isTextLabel = isPrimitiveContent(labelContent);
 
   return (
     <Column style={[tokenStyles.root, style]}>
@@ -390,19 +391,31 @@ function InputRoot({
           </Row>
         ) : null}
         <View style={[tokenStyles.inputWrapper, multiline ? tokenStyles.inputWrapperMultiline : null]}>
-          {hasFloatingLabel ? (
+          {hasFloatingLabel && isTextLabel ? (
             <AnimatedText
               color={isFocused || isError ? undefined : 'placeholder'}
               style={[
+                tokenStyles.labelContainer,
                 tokenStyles.label,
                 isFocused ? tokenStyles.labelActive : null,
                 styles?.labelText,
-                labelAnimatedStyle,
+                labelPositionAnimatedStyle,
+                labelTextAnimatedStyle,
               ]}
               testID="input-floating-label"
             >
               {labelContent}
             </AnimatedText>
+          ) : hasFloatingLabel ? (
+            <AnimatedView
+              style={[
+                tokenStyles.labelContainer,
+                labelPositionAnimatedStyle,
+              ]}
+              testID="input-floating-label"
+            >
+              {labelContent}
+            </AnimatedView>
           ) : null}
           <TextInput
             {...rest}
@@ -455,17 +468,19 @@ function InputRoot({
           </Row>
         ) : null}
       </Row>
-      {hasNode(message) ? (
-        <Text
-          color={isError ? 'error' : 'description'}
-          style={[
-            isError ? tokenStyles.error : tokenStyles.helper,
-            isError ? styles?.error : styles?.helper,
-          ]}
-        >
-          {message}
-        </Text>
-      ) : null}
+      {hasNode(message)
+        ? renderTextNode(message, (text) => (
+          <Text
+            color={isError ? 'error' : 'description'}
+            style={[
+              isError ? tokenStyles.error : tokenStyles.helper,
+              isError ? styles?.error : styles?.helper,
+            ]}
+          >
+            {text}
+          </Text>
+        ))
+        : null}
     </Column>
   );
 }

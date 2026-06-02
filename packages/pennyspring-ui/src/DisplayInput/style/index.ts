@@ -106,13 +106,15 @@ export const useStyles = createUseSheetStyle(
         justifyContent: 'flex-end',
         position: 'relative',
       },
-      floatingLabel: {
+      floatingLabelContainer: {
         position: 'absolute',
         left: 0,
         right: 0,
+        zIndex: token.zIndexBase,
+      },
+      floatingLabel: {
         color: isError ? token.colorError : token.colorTextPlaceholder,
         fontFamily: token.fontFamily,
-        zIndex: token.zIndexBase,
       },
       value: {
         flexGrow: display === 'inline' ? 0 : 1,

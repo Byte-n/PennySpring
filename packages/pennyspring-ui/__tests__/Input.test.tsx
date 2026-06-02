@@ -59,6 +59,33 @@ describe('Input', () => {
     expect(JSON.stringify(label.props.style)).toContain('"right":0');
   });
 
+  it('renders custom label nodes in a view floating label container', () => {
+    const testRenderer = renderInput({
+      label: <View testID="custom-input-label-node" />,
+    });
+
+    const label = testRenderer.root.findByProps({ testID: 'input-floating-label' });
+
+    expect(label.type).toBe(View);
+    expect(() =>
+      testRenderer.root.findByProps({ testID: 'custom-input-label-node' }),
+    ).not.toThrow();
+  });
+
+  it('renders helper nodes in the root view instead of a text container', () => {
+    const testRenderer = renderInput({
+      helper: <View testID="custom-input-helper-node" />,
+      helperText: 'Helper text',
+    });
+
+    const helperNode = testRenderer.root.findByProps({
+      testID: 'custom-input-helper-node',
+    });
+
+    expect(helperNode.parent?.type).toBe('View');
+    expect(JSON.stringify(testRenderer.toJSON())).not.toContain('Helper text');
+  });
+
   it('keeps input text closer to the underline than to the floating label', () => {
     const testRenderer = renderInput({
       defaultValue: '现金账户',

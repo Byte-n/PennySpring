@@ -165,20 +165,22 @@ export function Textarea({
       {shouldShowMessage || showCount ? (
         <Row justify="between" align="start" style={[tokenStyles.footer, styles?.footer]}>
           {shouldShowMessage ? (
-            <Text
-              size="sm"
-              color={isError && errorMessage !== undefined ? 'errorText' : 'description'}
-              style={[
-                isError && errorMessage !== undefined
-                  ? tokenStyles.error
-                  : tokenStyles.helper,
-                isError && errorMessage !== undefined
-                  ? styles?.error
-                  : styles?.helper,
-              ]}
-            >
-              {message}
-            </Text>
+            renderTextNode(message, (text) => (
+              <Text
+                size="sm"
+                color={isError && errorMessage !== undefined ? 'errorText' : 'description'}
+                style={[
+                  isError && errorMessage !== undefined
+                    ? tokenStyles.error
+                    : tokenStyles.helper,
+                  isError && errorMessage !== undefined
+                    ? styles?.error
+                    : styles?.helper,
+                ]}
+              >
+                {text}
+              </Text>
+            ))
           ) : (
             <Spacer />
           )}
