@@ -372,3 +372,203 @@ INSERT INTO tb_type (parent_id, name, icon, type_category, is_system, sort) VALU
 
 INSERT INTO tb_books (name, description, background) VALUES
 ('默认账本', '', '');
+
+
+-- Custom SQL migration file, put your code below! --
+-- 测试数据：在 1 号账本（默认账本）seed 资产、标签，并插入 100+ 条记录（支出/收入/转账）。
+-- type_id 一律用子查询按 type_category + name (+ parent_id) 匹配，不依赖自增 ID。
+-- 金额单位：分；时间戳：毫秒整数。
+
+-- ── 资产 seed（books_id = 1）──────────────────────────────────────────────
+INSERT INTO tb_asset (books_id, name, balance, type, classification, open_bank, card_no, remark, sort) VALUES
+(1, '现金钱包', 88000, 'capital_account', 'cash', '', '', '日常现金', 1),
+(1, '招商银行储蓄卡', 1865000, 'capital_account', 'BANK_CARD_ZS', '招商银行', '6225********8888', '工资卡', 2),
+(1, '支付宝', 423000, 'capital_account', 'ALIPAY', '', '', '', 3),
+(1, '微信钱包', 156000, 'capital_account', 'WECHAT', '', '', '', 4);
+--> statement-breakpoint
+INSERT INTO tb_asset (books_id, name, balance, total_amount, billing_date, repayment_date, type, classification, open_bank, card_no, remark, sort) VALUES
+(1, '招行信用卡', 320000, 5000000, 5, 23, 'credit_card', 'credit_card', '招商银行', '5187********1234', '主信用卡', 5),
+(1, '花呗', 128000, 1500000, 1, 10, 'credit_card', 'ANT_CREDIT_PAY', '', '', '', 6);
+--> statement-breakpoint
+-- ── 标签 seed ───────────────────────────────────────────────────────────
+INSERT INTO tb_tag (name, icon) VALUES
+('工作', 'Briefcase'),
+('报销', 'Receipt'),
+('家庭', 'House'),
+('旅行', 'Airplane'),
+('必需', 'CheckCircle'),
+('计划外', 'WarningCircle');
+--> statement-breakpoint
+-- ── 支出记录（expense）─────────────────────────────────────────────────────
+-- 紧凑写法：VALUES 携带 (类型名, 资产名, 金额, 手续费, 备注, 可报销, 天数偏移)，
+-- 通过 JOIN tb_type / tb_asset 解析出真实外键；record_time = 当前往前推 d 天的毫秒时间戳。
+WITH v(tname, aname, amount, charge, remark, reimb, d) AS (VALUES
+  ('三餐', '微信钱包', 3500, 0, '楼下快餐', 'none', 1),
+  ('早餐', '现金钱包', 800, 0, '包子豆浆', 'none', 1),
+  ('打车', '支付宝', 2400, 0, '通勤打车', 'none', 2),
+  ('外卖', '支付宝', 4200, 0, '加班外卖', 'able', 2),
+  ('电影', '招行信用卡', 6800, 0, '周末电影', 'none', 3),
+  ('水果', '微信钱包', 2960, 0, '超市水果', 'none', 3),
+  ('话费', '招商银行储蓄卡', 10000, 0, '月度话费', 'none', 4),
+  ('加油', '招行信用卡', 35000, 0, '加满一箱', 'none', 5),
+  ('药品', '花呗', 8800, 0, '感冒药', 'able', 6),
+  ('房租', '招商银行储蓄卡', 280000, 0, '本月房租', 'none', 6),
+  ('三餐', '微信钱包', 2800, 0, '工作日午餐', 'none', 7),
+  ('外卖', '支付宝', 3600, 0, '晚餐外卖', 'none', 8),
+  ('打车', '支付宝', 1800, 0, '加班打车', 'able', 8),
+  ('水果', '现金钱包', 1500, 0, '路边摊水果', 'none', 9),
+  ('电影', '招行信用卡', 9000, 0, 'IMAX 场', 'none', 10),
+  ('早餐', '现金钱包', 600, 0, '煎饼果子', 'none', 11),
+  ('药品', '招商银行储蓄卡', 4500, 0, '维生素', 'none', 12),
+  ('加油', '招行信用卡', 32000, 0, '高速前加油', 'none', 13),
+  ('三餐', '花呗', 5200, 0, '同事聚餐', 'none', 14),
+  ('打车', '支付宝', 2600, 0, '雨天打车', 'none', 15),
+  ('外卖', '微信钱包', 3900, 0, '周末外卖', 'none', 16),
+  ('话费', '招商银行储蓄卡', 10000, 0, '宽带续费', 'none', 18),
+  ('水果', '微信钱包', 3400, 0, '车厘子', 'none', 20),
+  ('三餐', '现金钱包', 2200, 0, '快餐', 'none', 22),
+  ('电影', '招行信用卡', 7200, 0, '情侣场', 'none', 24),
+  ('房租', '招商银行储蓄卡', 280000, 0, '上月房租', 'none', 33),
+  ('加油', '招行信用卡', 34000, 0, '上月加油', 'none', 35),
+  ('药品', '花呗', 12000, 0, '常备药', 'able', 38),
+  ('三餐', '微信钱包', 4800, 0, '商务午餐', 'able', 40),
+  ('打车', '支付宝', 3000, 0, '机场打车', 'none', 42),
+  ('外卖', '支付宝', 4100, 0, '深夜外卖', 'none', 45),
+  ('水果', '现金钱包', 2700, 0, '应季水果', 'none', 48),
+  ('早餐', '现金钱包', 900, 0, '三明治', 'none', 50),
+  ('三餐', '花呗', 6600, 0, '火锅', 'none', 52),
+  ('电影', '招行信用卡', 8000, 0, '首映场', 'none', 55),
+  ('话费', '招商银行储蓄卡', 10000, 0, '月度话费', 'none', 58)
+)
+INSERT INTO tb_record (type_id, asset_id, books_id, amount, final_amount, charge, remark, reimbursable, record_time)
+SELECT t.id, a.id, 1, v.amount, v.amount + v.charge, v.charge, v.remark, v.reimb,
+       cast((unixepoch('now', '-' || v.d || ' days') * 1000) as integer)
+FROM v
+JOIN tb_type t ON t.type_category='expense' AND t.name=v.tname
+JOIN tb_asset a ON a.books_id=1 AND a.name=v.aname;
+--> statement-breakpoint
+-- ── 收入记录（income）──────────────────────────────────────────────────────
+WITH v(tname, aname, amount, remark, d) AS (VALUES
+  ('薪资', '招商银行储蓄卡', 1500000, '本月工资', 5),
+  ('奖金', '招商银行储蓄卡', 300000, '季度奖金', 5),
+  ('外快', '支付宝', 80000, '私活尾款', 9),
+  ('红包', '微信钱包', 6600, '朋友红包', 11),
+  ('提成', '招商银行储蓄卡', 120000, '销售提成', 15),
+  ('租金', '招商银行储蓄卡', 250000, '房屋出租', 20),
+  ('分红', '招商银行储蓄卡', 45000, '基金分红', 25),
+  ('外快', '支付宝', 50000, '兼职收入', 30),
+  ('薪资', '招商银行储蓄卡', 1500000, '上月工资', 35),
+  ('红包', '微信钱包', 8800, '生日红包', 40),
+  ('奖金', '招商银行储蓄卡', 200000, '项目奖金', 45),
+  ('外快', '支付宝', 35000, '稿费', 50),
+  ('租金', '招商银行储蓄卡', 250000, '上月房租收入', 52),
+  ('提成', '招商银行储蓄卡', 95000, '上月提成', 58)
+)
+INSERT INTO tb_record (type_id, asset_id, books_id, amount, final_amount, charge, remark, reimbursable, record_time)
+SELECT t.id, a.id, 1, v.amount, v.amount, 0, v.remark, 'none',
+       cast((unixepoch('now', '-' || v.d || ' days') * 1000) as integer)
+FROM v
+JOIN tb_type t ON t.type_category='income' AND t.name=v.tname
+JOIN tb_asset a ON a.books_id=1 AND a.name=v.aname;
+--> statement-breakpoint
+-- ── 转账记录（transfer）────────────────────────────────────────────────────
+-- asset_id=转出资产，into_asset_id=转入资产；部分带手续费，final_amount = amount + charge。
+WITH v(tname, aout, ain, amount, charge, remark, d) AS (VALUES
+  ('账户互转', '招商银行储蓄卡', '支付宝', 100000, 0, '转入支付宝', 2),
+  ('账户互转', '招商银行储蓄卡', '微信钱包', 50000, 0, '转入微信', 4),
+  ('存款', '现金钱包', '招商银行储蓄卡', 200000, 0, '现金存银行', 7),
+  ('取款', '招商银行储蓄卡', '现金钱包', 80000, 200, 'ATM 取款', 10),
+  ('还信用卡', '招商银行储蓄卡', '招行信用卡', 320000, 0, '还信用卡账单', 12),
+  ('还信用卡', '支付宝', '花呗', 128000, 0, '还花呗', 14),
+  ('账户互转', '支付宝', '微信钱包', 30000, 0, '转给微信', 18),
+  ('存款', '现金钱包', '招商银行储蓄卡', 150000, 0, '工资外存款', 22),
+  ('取款', '招商银行储蓄卡', '现金钱包', 50000, 200, '周末取现', 28),
+  ('账户互转', '招商银行储蓄卡', '支付宝', 60000, 0, '备用金转出', 33),
+  ('还信用卡', '招商银行储蓄卡', '招行信用卡', 280000, 0, '上月账单', 40),
+  ('账户互转', '微信钱包', '支付宝', 20000, 0, '余额归集', 46),
+  ('存款', '现金钱包', '招商银行储蓄卡', 100000, 0, '红包存款', 50),
+  ('还信用卡', '支付宝', '花呗', 95000, 0, '还花呗', 56)
+)
+INSERT INTO tb_record (type_id, asset_id, into_asset_id, books_id, amount, final_amount, charge, remark, reimbursable, record_time)
+SELECT t.id, a.id, ia.id, 1, v.amount, v.amount + v.charge, v.charge, v.remark, 'none',
+       cast((unixepoch('now', '-' || v.d || ' days') * 1000) as integer)
+FROM v
+JOIN tb_type t ON t.type_category='transfer' AND t.name=v.tname
+JOIN tb_asset a ON a.books_id=1 AND a.name=v.aout
+JOIN tb_asset ia ON ia.books_id=1 AND ia.name=v.ain;
+--> statement-breakpoint
+-- ── 支出记录（expense）第二批，补足 100+ 总量 ──────────────────────────────
+WITH v(tname, aname, amount, remark, reimb, d) AS (VALUES
+  ('三餐', '微信钱包', 3100, '工作餐', 'none', 1),
+  ('早餐', '现金钱包', 700, '豆浆油条', 'none', 2),
+  ('外卖', '支付宝', 4500, '午餐外卖', 'able', 3),
+  ('打车', '支付宝', 2200, '通勤', 'none', 4),
+  ('水果', '微信钱包', 3300, '葡萄', 'none', 5),
+  ('电影', '招行信用卡', 6000, '工作日场', 'none', 6),
+  ('三餐', '现金钱包', 2500, '面馆', 'none', 7),
+  ('药品', '花呗', 5600, '退烧药', 'able', 9),
+  ('外卖', '微信钱包', 3800, '晚餐', 'none', 11),
+  ('加油', '招行信用卡', 33000, '加油', 'none', 13),
+  ('三餐', '微信钱包', 4200, '聚餐', 'none', 16),
+  ('打车', '支付宝', 1900, '夜间打车', 'none', 19),
+  ('水果', '现金钱包', 1800, '苹果', 'none', 21),
+  ('话费', '招商银行储蓄卡', 5000, '流量包', 'none', 24),
+  ('早餐', '现金钱包', 850, '包子', 'none', 27),
+  ('电影', '招行信用卡', 7500, '周末场', 'none', 30),
+  ('外卖', '支付宝', 4000, '加班餐', 'able', 34),
+  ('三餐', '花呗', 5800, '请客', 'none', 37),
+  ('药品', '招商银行储蓄卡', 9200, '体检买药', 'none', 41),
+  ('打车', '支付宝', 2800, '出差打车', 'able', 44),
+  ('水果', '微信钱包', 2400, '橙子', 'none', 47),
+  ('加油', '招行信用卡', 31000, '满油', 'none', 49),
+  ('三餐', '微信钱包', 3600, '午餐', 'none', 51),
+  ('外卖', '支付宝', 4300, '晚餐外卖', 'none', 53),
+  ('电影', '招行信用卡', 8800, '点映', 'none', 54),
+  ('早餐', '现金钱包', 650, '煎饼', 'none', 57),
+  ('水果', '微信钱包', 2900, '芒果', 'none', 59),
+  ('三餐', '现金钱包', 2300, '快餐', 'none', 60),
+  ('话费', '招商银行储蓄卡', 10000, '月度话费', 'none', 60),
+  ('打车', '支付宝', 2100, '回家打车', 'none', 28),
+  ('外卖', '微信钱包', 3700, '夜宵', 'none', 36),
+  ('药品', '花呗', 6800, '常备药', 'able', 43),
+  ('三餐', '微信钱包', 5000, '团建餐', 'none', 48),
+  ('水果', '现金钱包', 2050, '香蕉', 'none', 56),
+  ('加油', '招行信用卡', 30000, '加油', 'none', 59),
+  ('电影', '招行信用卡', 6300, '工作日', 'none', 26),
+  ('三餐', '微信钱包', 3950, '午餐', 'none', 17),
+  ('早餐', '现金钱包', 750, '小笼包', 'none', 23)
+)
+INSERT INTO tb_record (type_id, asset_id, books_id, amount, final_amount, charge, remark, reimbursable, record_time)
+SELECT t.id, a.id, 1, v.amount, v.amount, 0, v.remark, v.reimb,
+       cast((unixepoch('now', '-' || v.d || ' days') * 1000) as integer)
+FROM v
+JOIN tb_type t ON t.type_category='expense' AND t.name=v.tname
+JOIN tb_asset a ON a.books_id=1 AND a.name=v.aname;
+--> statement-breakpoint
+-- ── 标签关联（tb_tag_with_record）─────────────────────────────────────────
+-- 「报销」标签关联所有可报销记录。
+INSERT INTO tb_tag_with_record (record_id, tag_id)
+SELECT r.id, (SELECT id FROM tb_tag WHERE name='报销')
+FROM tb_record r
+WHERE r.books_id=1 AND r.reimbursable='able';
+--> statement-breakpoint
+-- 「工作」标签关联薪资/奖金/提成收入。
+INSERT INTO tb_tag_with_record (record_id, tag_id)
+SELECT r.id, (SELECT id FROM tb_tag WHERE name='工作')
+FROM tb_record r
+JOIN tb_type t ON t.id=r.type_id
+WHERE r.books_id=1 AND t.type_category='income' AND t.name IN ('薪资','奖金','提成');
+--> statement-breakpoint
+-- 「旅行」标签关联出差/机场相关支出。
+INSERT INTO tb_tag_with_record (record_id, tag_id)
+SELECT r.id, (SELECT id FROM tb_tag WHERE name='旅行')
+FROM tb_record r
+WHERE r.books_id=1 AND r.remark IN ('机场打车','出差打车');
+--> statement-breakpoint
+-- 「家庭」标签关联房租支出。
+INSERT INTO tb_tag_with_record (record_id, tag_id)
+SELECT r.id, (SELECT id FROM tb_tag WHERE name='家庭')
+FROM tb_record r
+JOIN tb_type t ON t.id=r.type_id
+WHERE r.books_id=1 AND t.type_category='expense' AND t.name='房租';
+
