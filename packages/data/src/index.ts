@@ -24,16 +24,26 @@ import { createDatabase, runMigrations, type Database } from './runtime';
 import * as services from './services';
 
 let dbInstance: Database | null = null;
+let dbInitializationPromise: Promise<Database> | null = null;
 
 async function getDatabase(): Promise<Database> {
   if (dbInstance) return dbInstance;
+  if (dbInitializationPromise) return dbInitializationPromise;
 
-  const { open } = await import('@op-engineering/op-sqlite');
-  const connection = open({ name: 'pennyspring.db' });
-  dbInstance = createDatabase(connection);
-  await runMigrations(dbInstance);
+  dbInitializationPromise = (async () => {
+    const { open } = await import('@op-engineering/op-sqlite');
+    const connection = open({ name: 'pennyspring.db' });
+    const database = createDatabase(connection);
+    await runMigrations(database);
+    dbInstance = database;
+    return database;
+  })();
 
-  return dbInstance;
+  try {
+    return await dbInitializationPromise;
+  } finally {
+    dbInitializationPromise = null;
+  }
 }
 
 export const api = {
