@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import type { StyleProp, TextStyle, ViewStyle } from 'react-native';
 import type { PortalMountPoint } from '../Portal/types';
-import type { PopupProps } from '../Popup';
+import type { PopupAnimation, PopupProps } from '../Popup';
 
 export type DialogCancelReason = 'cancel' | 'mask' | 'back';
 
@@ -33,6 +33,7 @@ export interface DialogProps {
   afterOpenChange?: PopupProps['afterOpenChange'];
   onCancel?: (params: DialogCancelParams) => void;
   onOk?: () => void;
+  animation?: PopupAnimation;
   titleText?: string;
   title?: ReactNode;
   cancelText?: string;

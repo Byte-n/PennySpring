@@ -93,6 +93,7 @@ function renderAction(
 
 export function Dialog({
   afterOpenChange,
+  animation,
   cancel,
   cancelText = DEFAULT_CANCEL_TEXT,
   children,
@@ -147,6 +148,7 @@ export function Dialog({
   return (
     <Popup
       afterOpenChange={afterOpenChange}
+      animation={animation}
       closeOnMaskClick={closeOnMaskClick}
       defaultOpen={defaultOpen}
       mask={mask}
