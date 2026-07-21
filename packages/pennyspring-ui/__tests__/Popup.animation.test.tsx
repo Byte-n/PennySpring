@@ -1,11 +1,11 @@
 import React from 'react';
 import { Text } from 'react-native';
-import renderer, { act } from 'react-test-renderer';
+import renderer, { act, ReactTestRenderer } from 'react-test-renderer';
 import { Popup } from '../src/Popup';
 
 describe('Popup animation', () => {
   it('renders with fade animation', () => {
-    let tree;
+    let tree: ReactTestRenderer | undefined;
     act(() => {
       tree = renderer.create(
         <Popup open animation="fade">
@@ -13,11 +13,11 @@ describe('Popup animation', () => {
         </Popup>,
       );
     });
-    expect(tree.toJSON()).toMatchSnapshot();
+    expect(tree?.toJSON()).toMatchSnapshot();
   });
 
   it('renders with opacity animation', () => {
-    let tree;
+    let tree: ReactTestRenderer | undefined;
     act(() => {
       tree = renderer.create(
         <Popup open animation="opacity">
@@ -25,11 +25,11 @@ describe('Popup animation', () => {
         </Popup>,
       );
     });
-    expect(tree.toJSON()).toMatchSnapshot();
+    expect(tree?.toJSON()).toMatchSnapshot();
   });
 
   it('renders without animation when animation prop is not provided', () => {
-    let tree;
+    let tree: ReactTestRenderer | undefined;
     act(() => {
       tree = renderer.create(
         <Popup open>
@@ -37,6 +37,6 @@ describe('Popup animation', () => {
         </Popup>,
       );
     });
-    expect(tree.toJSON()).toMatchSnapshot();
+    expect(tree?.toJSON()).toMatchSnapshot();
   });
 });
