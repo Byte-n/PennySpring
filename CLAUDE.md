@@ -86,6 +86,12 @@ scripts/                → 本地工具脚本
 - 缓动曲线统一使用 `Easing.bezier(...token.motionEase*)`（来自 `react-native-reanimated`），避免手感漂移。
 - 进入/退出动画必须成对设计（含 mount/unmount 生命周期），避免只进不出、闪烁或残留占位。
 
+Reanimated 极简核心总结：
+* 核心冲突：动画运行在 UI 线程，React 运行在 JS 线程。跨线程传递的对象会被底层深度冻结。
+* 拍平对象：严禁在 useAnimatedStyle 内部读取外部复杂对象，必须在外部解构成基础类型（数字/字符串）传入，否则报错或值不更新。
+* 禁用 Ref：内部严禁修改 React useRef，记录状态必须改用 useSharedValue。
+* 干净返回：不要去覆写或删除样式的深层属性，条件改变时直接 return 一个全新的样式对象。
+
 ### 手势
 
 - 统一使用 `react-native-gesture-handler`；应用根已挂载 `<GestureHandlerRootView>`，组件内可直接使用手势组件。
