@@ -20,7 +20,12 @@ export function useAddRecordResources() {
   const {
     data: tags = [],
     loading: tagsLoading,
-  } = useRequest(() => api.tag.getAll());
+  } = useRequest(
+    () => currentBook
+      ? api.tag.getAll(currentBook.id)
+      : Promise.resolve([]),
+    { refreshDeps: [currentBook?.id] },
+  );
 
   const visibleAssets = useMemo(
     () => assets.filter(asset => asset.invisible !== VISIBILITY.hidden),

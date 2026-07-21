@@ -221,7 +221,10 @@ export function AssetManageScreen() {
   const toast = useToast();
   const currentBook = useBookStore(state => state.currentBook);
 
-  const { data, loading, refresh } = useRequest(() => api.asset.getAll());
+  const { data, loading, refresh } = useRequest(() => {
+    if (!currentBook) return Promise.resolve([]);
+    return api.asset.getAll(currentBook.id);
+  });
 
   const cascaderOptions = useMemo(
     () => toCascaderOptions(ASSET_CLASSIFICATION_TREE),
@@ -387,8 +390,12 @@ export function AssetManageScreen() {
 
   const handleDelete = useCallback(
     async (id: number) => {
+      if (!currentBook) {
+        toast.show({ messageText: '未找到当前账本' });
+        return;
+      }
       try {
-        await api.asset.delete(id);
+        await api.asset.delete(id, currentBook.id);
         refresh();
       } catch (e: unknown) {
         toast.show({
@@ -396,7 +403,7 @@ export function AssetManageScreen() {
         });
       }
     },
-    [refresh, toast],
+    [currentBook, refresh, toast],
   );
 
   const assetTypes = ASSET_TYPE.options();

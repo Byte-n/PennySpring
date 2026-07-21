@@ -17,6 +17,7 @@ import { api, VISIBILITY, type TagRow } from '@pennyspring/api';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import { PhosphorIconPicker } from '../../component/PhosphorIconPicker';
 import { getPhosphorIconComponent } from '../../constants/typeIconTree';
+import { useBookStore } from '../../stores/bookStore';
 
 const useStyles = createUseSheetStyle(token => ({
   container: {
@@ -47,8 +48,12 @@ const useStyles = createUseSheetStyle(token => ({
 export function TagManageScreen() {
   const styles = useStyles();
   const toast = useToast();
+  const currentBook = useBookStore(state => state.currentBook);
 
-  const { data, refresh } = useRequest(() => api.tag.getAll());
+  const { data, refresh } = useRequest(() => {
+    if (!currentBook) return Promise.resolve([]);
+    return api.tag.getAll(currentBook.id);
+  });
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [iconPickerOpen, setIconPickerOpen] = useState(false);
@@ -83,23 +88,31 @@ export function TagManageScreen() {
       toast.show({ messageText: '请输入标签名称' });
       return;
     }
+    if (!currentBook) {
+      toast.show({ messageText: '未找到当前账本' });
+      return;
+    }
     try {
       if (editingTag) {
-        await api.tag.update({ id: editingTag.id, name: name.trim(), icon });
+        await api.tag.update({ id: editingTag.id, booksId: currentBook.id, name: name.trim(), icon });
       } else {
-        await api.tag.create({ name: name.trim(), icon });
+        await api.tag.create({ booksId: currentBook.id, name: name.trim(), icon });
       }
       setDialogOpen(false);
       refresh();
     } catch (e: unknown) {
       toast.show({ messageText: e instanceof Error ? e.message : '操作失败' });
     }
-  }, [name, icon, editingTag, refresh, toast]);
+  }, [name, icon, currentBook, editingTag, refresh, toast]);
 
   const handleDelete = useCallback(
     async (id: number) => {
+      if (!currentBook) {
+        toast.show({ messageText: '未找到当前账本' });
+        return;
+      }
       try {
-        await api.tag.delete(id);
+        await api.tag.delete(id, currentBook.id);
         refresh();
       } catch (e: unknown) {
         toast.show({
@@ -107,11 +120,15 @@ export function TagManageScreen() {
         });
       }
     },
-    [refresh, toast],
+    [currentBook, refresh, toast],
   );
 
   const handleToggleVisibility = useCallback(
     async (tag: TagRow) => {
+      if (!currentBook) {
+        toast.show({ messageText: '未找到当前账本' });
+        return;
+      }
       try {
         const invisible =
           tag.invisible === VISIBILITY.hidden
@@ -119,6 +136,7 @@ export function TagManageScreen() {
             : VISIBILITY.hidden;
         await api.tag.update({
           id: tag.id,
+          booksId: currentBook.id,
           name: tag.name,
           icon: tag.icon,
           invisible,
@@ -130,7 +148,7 @@ export function TagManageScreen() {
         });
       }
     },
-    [refresh, toast],
+    [currentBook, refresh, toast],
   );
 
   const handleActionSheetAction = useCallback(

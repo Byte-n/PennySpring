@@ -22,6 +22,7 @@ import { PhosphorIconPicker } from '../../component/PhosphorIconPicker';
 import { getPhosphorIconComponent } from '../../constants/typeIconTree';
 import { PlusSquareIcon } from 'phosphor-react-native';
 import { ScrollView } from 'react-native';
+import { useBookStore } from '../../stores/bookStore';
 
 const CATEGORY_OPTIONS = [
   { value: RECORD_TYPE_CATEGORY.expense, label: '支出' },
@@ -44,21 +45,27 @@ const useStyles = createUseSheetStyle(token => ({
 export function TypeManageScreen() {
   const styles = useStyles();
   const toast = useToast();
+  const currentBook = useBookStore(state => state.currentBook);
 
   const [category, setCategory] = useState<RecordTypeCategoryValue>(
     RECORD_TYPE_CATEGORY.expense,
   );
 
   const { data: allTypes = [], refresh } = useRequest(
-    () => api.type.getByCategory(category),
-    { refreshDeps: [category] },
+    () => {
+      if (!currentBook) return Promise.resolve([]);
+      return api.type.getByCategory(category, currentBook.id);
+    },
+    { refreshDeps: [category, currentBook] },
   );
 
   const realTypes = useMemo(() => {
     const parentTypes = allTypes.filter(v => v.parentId === 0);
+    const dummyBooksId = currentBook?.id ?? 0;
     return [
       {
         id: 0,
+        booksId: dummyBooksId,
         name: '新增',
         parentId: 0,
         icon: PlusSquareIcon,
@@ -74,6 +81,7 @@ export function TypeManageScreen() {
         v =>
           ({
             id: -v.id,
+            booksId: dummyBooksId,
             name: '新增',
             parentId: v.id,
             icon: PlusSquareIcon,
@@ -88,7 +96,7 @@ export function TypeManageScreen() {
       ),
       ...allTypes,
     ];
-  }, [allTypes, category]);
+  }, [allTypes, category, currentBook]);
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [iconPickerOpen, setIconPickerOpen] = useState(false);
@@ -117,11 +125,16 @@ export function TypeManageScreen() {
   }, []);
 
   const handleOk = useCallback(async () => {
+    if (!currentBook) {
+      toast.show({ messageText: '未找到当前账本' });
+      return;
+    }
     try {
       const parentId = isCreatingParent ? 0 : createParentId;
       if (editingType) {
         await api.type.update({
           id: editingType.id,
+          booksId: currentBook.id,
           name,
           icon,
           typeCategory: category,
@@ -129,6 +142,7 @@ export function TypeManageScreen() {
         });
       } else {
         await api.type.create({
+          booksId: currentBook.id,
           name,
           icon,
           typeCategory: category,
@@ -141,6 +155,7 @@ export function TypeManageScreen() {
       toast.show({ messageText: e instanceof Error ? e.message : '操作失败' });
     }
   }, [
+    currentBook,
     editingType,
     name,
     icon,

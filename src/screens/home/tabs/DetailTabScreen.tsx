@@ -51,7 +51,10 @@ export function DetailTabScreen() {
     () => (bookId ? api.record.getByBook(bookId) : Promise.resolve([])),
     { refreshDeps: [bookId] },
   );
-  const { data: types = [] } = useRequest<TypeRow[], []>(() => api.type.getAll());
+  const { data: types = [] } = useRequest<TypeRow[], []>(
+    () => (bookId ? api.type.getAll(bookId) : Promise.resolve([])),
+    { refreshDeps: [bookId] },
+  );
   const { data: assets = [] } = useRequest<AssetRow[], []>(
     () => (bookId ? api.asset.getByBook(bookId) : Promise.resolve([])),
     { refreshDeps: [bookId] },
@@ -92,7 +95,8 @@ export function DetailTabScreen() {
     const target = pendingDelete;
     setPendingDelete(null);
     if (!target) return;
-    await api.record.delete(target.record.id);
+    if (!currentBook) return;
+    await api.record.delete(target.record.id, currentBook.id);
     closePanel();
     refresh();
   };

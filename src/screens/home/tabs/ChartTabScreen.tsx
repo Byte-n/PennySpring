@@ -48,7 +48,10 @@ export function ChartTabScreen() {
     () => (bookId ? api.record.getByBook(bookId) : Promise.resolve([])),
     { refreshDeps: [bookId] },
   );
-  const { data: types = [] } = useRequest<TypeRow[], []>(() => api.type.getAll());
+  const { data: types = [] } = useRequest<TypeRow[], []>(
+    () => (bookId ? api.type.getAll(bookId) : Promise.resolve([])),
+    { refreshDeps: [bookId] },
+  );
 
   const now = useMemo(() => new Date(), []);
   const monthLabel = useMemo(

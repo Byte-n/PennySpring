@@ -17,6 +17,7 @@ import { ExpenseTabScreen } from './tabs/ExpenseTabScreen.tsx';
 import { IncomeTabScreen } from './tabs/IncomeTabScreen.tsx';
 import { TransferTabScreen } from './tabs/TransferTabScreen.tsx';
 import { ROOT_ROUTES, type RootStackParamList } from '../../navigation';
+import { useBookStore } from '../../stores/bookStore';
 
 type AddRecordRoute = RouteProp<RootStackParamList, typeof ROOT_ROUTES.AddRecord>;
 
@@ -43,15 +44,16 @@ interface AddRecordContentProps {
 function AddRecordContent({ recordId }: AddRecordContentProps) {
   const styles = useStyles();
   const { init } = useAddRecordContext();
+  const currentBook = useBookStore(state => state.currentBook);
   const [initialRouteName, setInitialRouteName] = useState<string>();
   const [loading, setLoading] = useState(recordId !== undefined);
 
   useEffect(() => {
-    if (recordId === undefined) return;
+    if (recordId === undefined || !currentBook) return;
     let active = true;
     (async () => {
-      const detail = await api.record.getDetailById(recordId);
-      const types = await api.type.getAll();
+      const detail = await api.record.getDetailById(recordId, currentBook.id);
+      const types = await api.type.getAll(currentBook.id);
       const typeRow = types.find(type => type.id === detail.record.typeId);
       if (!active) return;
       init({
@@ -74,7 +76,7 @@ function AddRecordContent({ recordId }: AddRecordContentProps) {
     return () => {
       active = false;
     };
-  }, [init, recordId]);
+  }, [init, recordId, currentBook]);
 
   if (loading) {
     return <Loading vertical text="加载中" />;

@@ -4,6 +4,7 @@ import {
   type RecordTypeCategoryValue,
   TypeRow,
 } from '@pennyspring/api';
+import { useBookStore } from '../../stores/bookStore';
 
 interface UseCategoryItemsResult {
   categories: TypeRow[];
@@ -11,9 +12,13 @@ interface UseCategoryItemsResult {
 }
 
 export function useCategoryItems(typeCategory: RecordTypeCategoryValue): UseCategoryItemsResult {
+  const currentBook = useBookStore(state => state.currentBook);
+
   const { data = [], loading } = useRequest(
-    () => api.type.getByCategory(typeCategory),
-    { refreshDeps: [typeCategory] },
+    () => currentBook
+      ? api.type.getByCategory(typeCategory, currentBook.id)
+      : Promise.resolve([]),
+    { refreshDeps: [typeCategory, currentBook?.id] },
   )
 
   return { categories: data, loading }
