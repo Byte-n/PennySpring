@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "bad0c5e4-60b4-42b8-96fc-85cd09ae7a59",
+  "id": "bc6864bf-64a1-4831-96f9-d1c65a682ab4",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "tb_asset": {
@@ -480,6 +480,13 @@
           "notNull": true,
           "autoincrement": true
         },
+        "books_id": {
+          "name": "books_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
         "name": {
           "name": "name",
           "type": "text",
@@ -535,6 +542,13 @@
           "primaryKey": true,
           "notNull": true,
           "autoincrement": true
+        },
+        "books_id": {
+          "name": "books_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
         },
         "parent_id": {
           "name": "parent_id",
