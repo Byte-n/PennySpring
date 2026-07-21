@@ -25,6 +25,7 @@ const NOW = new Date('2026-05-24T12:00:00+08:00').getTime();
 function typeRow(overrides: Partial<TypeRow>): TypeRow {
   return {
     id: 1,
+    booksId: 1,
     parentId: 0,
     name: '类型',
     icon: '' as IconValue,
