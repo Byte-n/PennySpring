@@ -36,7 +36,7 @@ export function FloatingActionGroupPreviewCanvasDemo() {
   const [placement, _setPlacement] =
     React.useState<FloatingPlacement>('bottomRight');
   const [mountPoint, _setMountPoint] = React.useState<PortalMountPoint>('auto');
-  const [_lastEvent, setLastEvent] = React.useState('No action yet');
+  const [lastEvent, setLastEvent] = React.useState('No action yet');
   const actions = React.useMemo(
     () => [
       {
@@ -78,6 +78,11 @@ export function FloatingActionGroupPreviewCanvasDemo() {
   return (
     <>
       <View style={styles.canvas}>
+        <View style={styles.statusLine}>
+          <Text color="description" size="sm">
+            {lastEvent}
+          </Text>
+        </View>
         <View style={styles.helper}>
           <Text color="secondary" size="sm">
             Trigger “更多” to expand hidden actions. Tap outside to collapse.

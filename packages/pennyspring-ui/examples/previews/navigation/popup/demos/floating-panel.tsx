@@ -12,53 +12,58 @@ export function PopupFloatingPanelDemo() {
   const [floatingPosition, setFloatingPosition] = React.useState<
     'top' | 'bottom'
   >('bottom');
-  const [_lastEvent, setLastEvent] = React.useState('No popup action yet');
+  const [lastEvent, setLastEvent] = React.useState('No popup action yet');
 
   return (
     <>
-      <Space align="center" size="large" wrap>
-        <Button
-          type={floatingOpen ? 'primary' : 'default'}
-          onPress={() => {
-            setLastEvent('Opened floating panel');
-            setFloatingOpen(true);
-          }}
-        >
-          Open panel
-        </Button>
-        {(['small', 'normal', 'large'] as const).map(item => (
+      <Space direction="vertical" size="small">
+        <Text color="description" size="sm">
+          {lastEvent}
+        </Text>
+        <Space align="center" size="large" wrap>
           <Button
-            key={item}
-            type={floatingSize === item ? 'primary' : 'default'}
+            type={floatingOpen ? 'primary' : 'default'}
             onPress={() => {
-              setFloatingSize(item);
-              setLastEvent(`Floating panel size set to ${item}`);
+              setLastEvent('Opened floating panel');
+              setFloatingOpen(true);
             }}
           >
-            {item}
+            Open panel
           </Button>
-        ))}
-        {(['bottom', 'top'] as const).map(item => (
+          {(['small', 'normal', 'large'] as const).map(item => (
+            <Button
+              key={item}
+              type={floatingSize === item ? 'primary' : 'default'}
+              onPress={() => {
+                setFloatingSize(item);
+                setLastEvent(`Floating panel size set to ${item}`);
+              }}
+            >
+              {item}
+            </Button>
+          ))}
+          {(['bottom', 'top'] as const).map(item => (
+            <Button
+              key={item}
+              type={floatingPosition === item ? 'primary' : 'default'}
+              onPress={() => {
+                setFloatingPosition(item);
+                setLastEvent(`Floating panel position set to ${item}`);
+              }}
+            >
+              {item}
+            </Button>
+          ))}
           <Button
-            key={item}
-            type={floatingPosition === item ? 'primary' : 'default'}
+            type={customOpen ? 'primary' : 'default'}
             onPress={() => {
-              setFloatingPosition(item);
-              setLastEvent(`Floating panel position set to ${item}`);
+              setLastEvent('Opened custom floating panel');
+              setCustomOpen(true);
             }}
           >
-            {item}
+            Custom header/footer
           </Button>
-        ))}
-        <Button
-          type={customOpen ? 'primary' : 'default'}
-          onPress={() => {
-            setLastEvent('Opened custom floating panel');
-            setCustomOpen(true);
-          }}
-        >
-          Custom header/footer
-        </Button>
+        </Space>
       </Space>
       <Popup.FloatingPanel
         closeOnMaskClick
