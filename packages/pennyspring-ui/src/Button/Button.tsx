@@ -6,7 +6,6 @@ import { Icon } from '../Icon';
 import { Row } from '../Row';
 import { Text } from '../Text';
 import type { AliasToken } from '@pennyspring/theme';
-import type { IconColor } from '../Icon';
 import type { TextColor, TextProps, TextSize, TextWeight } from '../Text';
 import type {
   GestureResponderEvent,
@@ -282,13 +281,15 @@ function resolveVariantStyle(
     const linkTextColor: TextColor = isLinkPrimary
       ? 'link'
       : colorConfig.textColor;
+    const pressedBackgroundColor =
+      resolvedVariant === 'link' ? TRANSPARENT : token.colorBgTextActive;
 
     return {
       backgroundColor: TRANSPARENT,
       borderColor: TRANSPARENT,
       color: linkColor,
       textColor: linkTextColor,
-      pressedBackgroundColor: token.colorBgTextActive,
+      pressedBackgroundColor,
       pressedBorderColor: TRANSPARENT,
     };
   }
@@ -473,18 +474,19 @@ export function Button({
     resolvedVariant,
     ghost,
   );
-  const resolvedIconColor = disabled
+  const iconColor = resolveTextColor(disabled, variantStyle.textColor);
+  const loadingIndicatorColor = disabled
     ? token.colorTextDisabled
     : variantStyle.color;
   const contentTextProps: ButtonContentTextProps = {
-    color: resolveTextColor(disabled, variantStyle.textColor),
+    color: iconColor,
     size: resolveTextSize(size),
     weight: 'medium',
   };
   const loadingIcon =
     loadingConfig?.icon ?? (
       <ActivityIndicator
-        color={resolvedIconColor}
+        color={loadingIndicatorColor}
         size={resolveIconSize(size, token)}
       />
     );
@@ -494,7 +496,7 @@ export function Button({
         loadingIcon
       ) : (
         <Icon
-          color={resolvedIconColor as IconColor}
+          color={iconColor}
           size={size}
           {...iconProps}
           icon={icon!}

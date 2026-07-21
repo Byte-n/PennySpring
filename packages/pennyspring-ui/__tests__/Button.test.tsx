@@ -183,7 +183,7 @@ describe('Button', () => {
     const disabledIndicator = disabledRenderer.root.findByType(ActivityIndicator);
     const baselineIcon = baselineRenderer.root.findByType(Icon);
 
-    expect(enabledIndicator.props.color).toBe(baselineIcon.props.color);
+    expect(enabledIndicator.props.color).toBe(token.colorText);
     expect(baselineIcon.props.size).toBe('large');
     expect(disabledIndicator.props.color).not.toBe(enabledIndicator.props.color);
     expect(typeof enabledIndicator.props.size).toBe('number');
@@ -256,5 +256,53 @@ describe('Button', () => {
 
     expect(getRootStyle(testRenderer).backgroundColor).toBe(token.colorError);
     expect(testRenderer.root.findByType(Text).props.color).toBe('lightSolid');
+  });
+  it('renders icon color matching the button text color', () => {
+    const cases: Array<{
+      props: Partial<React.ComponentProps<typeof Button>>;
+      expected: string;
+    }> = [
+      { props: { type: 'primary' }, expected: 'lightSolid' },
+      { props: { color: 'primary', variant: 'outlined' }, expected: 'primaryText' },
+      { props: { type: 'danger' }, expected: 'lightSolid' },
+      { props: { color: 'red', variant: 'text' }, expected: 'red6' },
+    ];
+
+    for (const { props, expected } of cases) {
+      const testRenderer = renderButton({
+        icon: 'check',
+        children: 'Label',
+        ...props,
+      });
+      const iconNode = testRenderer.root.findByType(Icon);
+      const textNode = testRenderer.root.findByType(Text);
+
+      expect(iconNode.props.color).toBe(expected);
+      expect(iconNode.props.color).toBe(textNode.props.color);
+    }
+  });
+  it('renders disabled icon color matching disabled text color', () => {
+    const testRenderer = renderButton({
+      type: 'primary',
+      icon: 'check',
+      disabled: true,
+      children: 'Save',
+    });
+    const iconNode = testRenderer.root.findByType(Icon);
+    const textNode = testRenderer.root.findByType(Text);
+
+    expect(iconNode.props.color).toBe('disabled');
+    expect(textNode.props.color).toBe('disabled');
+  });
+  it('allows iconProps.color to override the default icon color', () => {
+    const testRenderer = renderButton({
+      type: 'primary',
+      icon: 'check',
+      iconProps: { color: 'secondary' },
+      children: 'Save',
+    });
+    const iconNode = testRenderer.root.findByType(Icon);
+
+    expect(iconNode.props.color).toBe('secondary');
   });
 });
