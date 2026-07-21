@@ -1,4 +1,8 @@
 import {
+  popupAnimationDemoTitle,
+  PopupAnimationDemo,
+} from './animation';
+import {
   popupEventFeedbackDemoTitle,
   PopupEventFeedbackDemo,
 } from './event-feedback';
@@ -13,6 +17,11 @@ import {
 import { popupPositionDemoTitle, PopupPositionDemo } from './position';
 
 export const popupDemos = [
+  {
+    id: 'animation',
+    title: popupAnimationDemoTitle,
+    Component: PopupAnimationDemo,
+  },
   {
     id: 'event-feedback',
     title: popupEventFeedbackDemoTitle,

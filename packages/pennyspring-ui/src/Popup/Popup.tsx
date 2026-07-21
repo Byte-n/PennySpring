@@ -1,11 +1,18 @@
-import React, { useContext, useEffect, useRef } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import {
   BackHandler,
   Pressable,
   View,
 } from 'react-native';
-import { createAnimatedComponent } from 'react-native-reanimated';
-import { createUseSheetStyle, toShadowStyle } from '@pennyspring/theme';
+import {
+  createAnimatedComponent,
+  runOnJS,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+  Easing,
+} from 'react-native-reanimated';
+import { createUseSheetStyle, toShadowStyle, useTheme } from '@pennyspring/theme';
 import type { ViewStyle } from 'react-native';
 import { PortalContext } from '../Portal/Portal';
 import { resolvePortalMount } from '../Portal/resolvePortalMount';
@@ -19,9 +26,8 @@ import type {
 const DEFAULT_POSITION: PopupPosition = 'bottom';
 const POPUP_SIDE_WIDTH = '70%';
 
-// 布局保留为 ReanimatedView，仅为承载 FloatingPanel 等组合组件传入的动画样式（如键盘避让 bottom 偏移）。
-// Popup 自身不再提供开合动画。
 const ReanimatedView = createAnimatedComponent(View);
+const ReanimatedPressable = createAnimatedComponent(Pressable);
 
 interface PopupStyleOptions {
   position: PopupPosition;
@@ -117,6 +123,7 @@ const usePopupStyles = createUseSheetStyle(
 
 export function Popup({
   afterOpenChange,
+  animation,
   children,
   closeOnMaskClick = true,
   defaultOpen,
@@ -131,6 +138,7 @@ export function Popup({
 }: PopupProps) {
   const portalContext = useContext(PortalContext);
   const tokenStyles = usePopupStyles({ position });
+  const theme = useTheme();
   const [resolvedOpen, setResolvedOpen] = useControllableValue(
     defaultOpen === true,
     open,
@@ -138,6 +146,71 @@ export function Popup({
   );
   const isOpen = resolvedOpen === true;
   const previousOpenRef = useRef(isOpen);
+
+  const [mounted, setMounted] = useState(isOpen);
+  const animProgress = useSharedValue(isOpen ? 1 : 0);
+
+  const durationEnter = theme.token.motionDurationMid;
+  const durationExit = theme.token.motionDurationMid;
+  const easeEnterArray: [number, number, number, number] = [...theme.token.motionEaseOut];
+  const easeExitArray: [number, number, number, number] = [...theme.token.motionEaseOut];
+
+  useEffect(() => {
+    if (isOpen) {
+      setMounted(true);
+      animProgress.value = withTiming(
+        1,
+        {
+          duration: durationEnter,
+          easing: Easing.bezier(...easeEnterArray),
+        },
+      );
+    } else if (mounted) {
+      animProgress.value = withTiming(
+        0,
+        {
+          duration: durationExit,
+          easing: Easing.bezier(...easeExitArray),
+        },
+        finished => {
+          if (finished) {
+            runOnJS(setMounted)(false);
+          }
+        },
+      );
+    }
+  }, [isOpen, mounted, animProgress, durationEnter, durationExit, easeEnterArray, easeExitArray]);
+
+  const maskAnimatedStyle = useAnimatedStyle(() => {
+    if (!animation) {
+      return {};
+    }
+    return {
+      opacity: animProgress.value,
+    };
+  });
+
+  const bodyAnimatedStyle = useAnimatedStyle(() => {
+    if (!animation) {
+      return {};
+    }
+
+    if (animation === 'opacity') {
+      return {
+        opacity: animProgress.value,
+      };
+    }
+
+    if (animation === 'fade') {
+      const translateY = (1 - animProgress.value) * 100;
+      return {
+        opacity: animProgress.value,
+        transform: [{ translateY }],
+      };
+    }
+
+    return {};
+  });
 
   useEffect(() => {
     if (previousOpenRef.current === isOpen) {
@@ -182,25 +255,25 @@ export function Popup({
     close('mask');
   };
 
-  if (!isOpen) {
+  if (!mounted) {
     return null;
   }
 
   const content = (
     <ReanimatedView style={[tokenStyles.layout, style]} testID="popup-layout">
       {mask ? (
-        <Pressable
+        <ReanimatedPressable
           onPress={handleMaskPress}
-          style={[tokenStyles.mask, slotStyles?.mask]}
+          style={[tokenStyles.mask, slotStyles?.mask, maskAnimatedStyle]}
           testID="popup-mask"
         />
       ) : null}
-      <View
-        style={[tokenStyles.body, slotStyles?.body]}
+      <ReanimatedView
+        style={[tokenStyles.body, slotStyles?.body, bodyAnimatedStyle]}
         testID="popup-body"
       >
         {children}
-      </View>
+      </ReanimatedView>
     </ReanimatedView>
   );
 

@@ -6,6 +6,7 @@ export const Popup = Object.assign(PopupRoot, {
 });
 
 export type {
+  PopupAnimation,
   PopupFloatingPanelPosition,
   PopupFloatingPanelProps,
   PopupFloatingPanelStyles,

@@ -1,0 +1,296 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Popup animation renders with fade animation 1`] = `
+<View
+  style={
+    [
+      {
+        "bottom": 0,
+        "justifyContent": "flex-end",
+        "left": 0,
+        "position": "absolute",
+        "right": 0,
+        "top": 0,
+        "zIndex": 1100,
+      },
+      undefined,
+    ]
+  }
+  testID="popup-layout"
+>
+  <View
+    accessibilityState={
+      {
+        "busy": undefined,
+        "checked": undefined,
+        "disabled": undefined,
+        "expanded": undefined,
+        "selected": undefined,
+      }
+    }
+    accessibilityValue={
+      {
+        "max": undefined,
+        "min": undefined,
+        "now": undefined,
+        "text": undefined,
+      }
+    }
+    accessible={true}
+    collapsable={false}
+    focusable={true}
+    onBlur={[Function]}
+    onClick={[Function]}
+    onFocus={[Function]}
+    onResponderGrant={[Function]}
+    onResponderMove={[Function]}
+    onResponderRelease={[Function]}
+    onResponderTerminate={[Function]}
+    onResponderTerminationRequest={[Function]}
+    onStartShouldSetResponder={[Function]}
+    style={
+      [
+        {
+          "backgroundColor": "rgba(0, 0, 0, 0.45)",
+          "bottom": 0,
+          "left": 0,
+          "position": "absolute",
+          "right": 0,
+          "top": 0,
+        },
+        undefined,
+        {
+          "opacity": 1,
+        },
+      ]
+    }
+    testID="popup-mask"
+  />
+  <View
+    style={
+      [
+        {
+          "backgroundColor": "#ffffff",
+          "borderTopLeftRadius": 32,
+          "borderTopRightRadius": 32,
+          "elevation": 4,
+          "padding": 20,
+          "shadowColor": "#000",
+          "shadowOffset": {
+            "height": 4,
+            "width": 0,
+          },
+          "shadowOpacity": 0.06,
+          "shadowRadius": 12,
+        },
+        undefined,
+        {
+          "opacity": 1,
+          "transform": [
+            {
+              "translateY": 0,
+            },
+          ],
+        },
+      ]
+    }
+    testID="popup-body"
+  >
+    <Text>
+      Content
+    </Text>
+  </View>
+</View>
+`;
+
+exports[`Popup animation renders with opacity animation 1`] = `
+<View
+  style={
+    [
+      {
+        "bottom": 0,
+        "justifyContent": "flex-end",
+        "left": 0,
+        "position": "absolute",
+        "right": 0,
+        "top": 0,
+        "zIndex": 1100,
+      },
+      undefined,
+    ]
+  }
+  testID="popup-layout"
+>
+  <View
+    accessibilityState={
+      {
+        "busy": undefined,
+        "checked": undefined,
+        "disabled": undefined,
+        "expanded": undefined,
+        "selected": undefined,
+      }
+    }
+    accessibilityValue={
+      {
+        "max": undefined,
+        "min": undefined,
+        "now": undefined,
+        "text": undefined,
+      }
+    }
+    accessible={true}
+    collapsable={false}
+    focusable={true}
+    onBlur={[Function]}
+    onClick={[Function]}
+    onFocus={[Function]}
+    onResponderGrant={[Function]}
+    onResponderMove={[Function]}
+    onResponderRelease={[Function]}
+    onResponderTerminate={[Function]}
+    onResponderTerminationRequest={[Function]}
+    onStartShouldSetResponder={[Function]}
+    style={
+      [
+        {
+          "backgroundColor": "rgba(0, 0, 0, 0.45)",
+          "bottom": 0,
+          "left": 0,
+          "position": "absolute",
+          "right": 0,
+          "top": 0,
+        },
+        undefined,
+        {
+          "opacity": 1,
+        },
+      ]
+    }
+    testID="popup-mask"
+  />
+  <View
+    style={
+      [
+        {
+          "backgroundColor": "#ffffff",
+          "borderTopLeftRadius": 32,
+          "borderTopRightRadius": 32,
+          "elevation": 4,
+          "padding": 20,
+          "shadowColor": "#000",
+          "shadowOffset": {
+            "height": 4,
+            "width": 0,
+          },
+          "shadowOpacity": 0.06,
+          "shadowRadius": 12,
+        },
+        undefined,
+        {
+          "opacity": 1,
+        },
+      ]
+    }
+    testID="popup-body"
+  >
+    <Text>
+      Content
+    </Text>
+  </View>
+</View>
+`;
+
+exports[`Popup animation renders without animation when animation prop is not provided 1`] = `
+<View
+  style={
+    [
+      {
+        "bottom": 0,
+        "justifyContent": "flex-end",
+        "left": 0,
+        "position": "absolute",
+        "right": 0,
+        "top": 0,
+        "zIndex": 1100,
+      },
+      undefined,
+    ]
+  }
+  testID="popup-layout"
+>
+  <View
+    accessibilityState={
+      {
+        "busy": undefined,
+        "checked": undefined,
+        "disabled": undefined,
+        "expanded": undefined,
+        "selected": undefined,
+      }
+    }
+    accessibilityValue={
+      {
+        "max": undefined,
+        "min": undefined,
+        "now": undefined,
+        "text": undefined,
+      }
+    }
+    accessible={true}
+    collapsable={false}
+    focusable={true}
+    onBlur={[Function]}
+    onClick={[Function]}
+    onFocus={[Function]}
+    onResponderGrant={[Function]}
+    onResponderMove={[Function]}
+    onResponderRelease={[Function]}
+    onResponderTerminate={[Function]}
+    onResponderTerminationRequest={[Function]}
+    onStartShouldSetResponder={[Function]}
+    style={
+      [
+        {
+          "backgroundColor": "rgba(0, 0, 0, 0.45)",
+          "bottom": 0,
+          "left": 0,
+          "position": "absolute",
+          "right": 0,
+          "top": 0,
+        },
+        undefined,
+        {},
+      ]
+    }
+    testID="popup-mask"
+  />
+  <View
+    style={
+      [
+        {
+          "backgroundColor": "#ffffff",
+          "borderTopLeftRadius": 32,
+          "borderTopRightRadius": 32,
+          "elevation": 4,
+          "padding": 20,
+          "shadowColor": "#000",
+          "shadowOffset": {
+            "height": 4,
+            "width": 0,
+          },
+          "shadowOpacity": 0.06,
+          "shadowRadius": 12,
+        },
+        undefined,
+        {},
+      ]
+    }
+    testID="popup-body"
+  >
+    <Text>
+      Content
+    </Text>
+  </View>
+</View>
+`;

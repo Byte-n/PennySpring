@@ -5,6 +5,8 @@ import type { PortalMountPoint } from '../Portal/types';
 
 export type PopupPosition = 'top' | 'bottom' | 'left' | 'right' | 'center';
 
+export type PopupAnimation = 'fade' | 'opacity';
+
 export type PopupCancelReason = 'mask' | 'back';
 
 export type PopupOpenChangeReason = PopupCancelReason;
@@ -25,6 +27,7 @@ export interface PopupStyles {
 export interface PopupProps {
   mountPoint?: PortalMountPoint;
   position?: PopupPosition;
+  animation?: PopupAnimation;
   open?: boolean;
   defaultOpen?: boolean;
   onOpenChange?: (open: boolean, params: PopupOpenChangeParams) => void;
