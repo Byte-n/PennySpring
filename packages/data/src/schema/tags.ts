@@ -1,11 +1,14 @@
 import { sqliteTable, text } from 'drizzle-orm/sqlite-core'
 
 import { type VisibilityValue, VISIBILITY } from '../constants';
-import { enumColumn, primaryKeyColumn, timestampColumns } from '../shared'
+import { enumColumn, integerColumn, primaryKeyColumn, timestampColumns } from '../shared'
 
 export const tags = sqliteTable('tb_tag', {
   // 标签主键，自增长
   id: primaryKeyColumn(),
+  // 所属账本主键，关联 tb_books.id
+  booksId: integerColumn('books_id')
+    .notNull(),
   // 标签名称
   name: text('name').notNull(),
   /**
