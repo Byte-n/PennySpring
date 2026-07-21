@@ -82,6 +82,7 @@ function getBodyShapeStyle(position: PopupPosition, radius: number): ViewStyle {
   if (position === 'center') {
     return {
       borderRadius: radius,
+      width: '85%',
     };
   }
 
@@ -123,7 +124,7 @@ const usePopupStyles = createUseSheetStyle(
 
 export function Popup({
   afterOpenChange,
-  animation,
+  animation = 'fade',
   children,
   closeOnMaskClick = true,
   defaultOpen,
@@ -152,19 +153,20 @@ export function Popup({
 
   const durationEnter = theme.token.motionDurationMid;
   const durationExit = theme.token.motionDurationMid;
-  const easeEnterArray: [number, number, number, number] = [...theme.token.motionEaseOut];
-  const easeExitArray: [number, number, number, number] = [...theme.token.motionEaseOut];
+  const easeEnterArray: [number, number, number, number] = [
+    ...theme.token.motionEaseOut,
+  ];
+  const easeExitArray: [number, number, number, number] = [
+    ...theme.token.motionEaseOut,
+  ];
 
   useEffect(() => {
     if (isOpen) {
       setMounted(true);
-      animProgress.value = withTiming(
-        1,
-        {
-          duration: durationEnter,
-          easing: Easing.bezier(...easeEnterArray),
-        },
-      );
+      animProgress.value = withTiming(1, {
+        duration: durationEnter,
+        easing: Easing.bezier(...easeEnterArray),
+      });
     } else if (mounted) {
       animProgress.value = withTiming(
         0,
@@ -179,7 +181,15 @@ export function Popup({
         },
       );
     }
-  }, [isOpen, mounted, animProgress, durationEnter, durationExit, easeEnterArray, easeExitArray]);
+  }, [
+    isOpen,
+    mounted,
+    animProgress,
+    durationEnter,
+    durationExit,
+    easeEnterArray,
+    easeExitArray,
+  ]);
 
   const maskAnimatedStyle = useAnimatedStyle(() => {
     if (!animation) {
