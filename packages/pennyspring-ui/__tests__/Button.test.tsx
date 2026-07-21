@@ -305,4 +305,100 @@ describe('Button', () => {
 
     expect(iconNode.props.color).toBe('secondary');
   });
+  it('darkens text color to the active token when pressed for outlined/dashed/text/link', () => {
+    const cases: Array<{
+      props: Partial<React.ComponentProps<typeof Button>>;
+      idle: string;
+      pressedColor: string;
+    }> = [
+      {
+        props: { color: 'primary', variant: 'outlined' },
+        idle: 'primaryText',
+        pressedColor: 'primaryTextActive',
+      },
+      {
+        props: { color: 'primary', variant: 'dashed' },
+        idle: 'primaryText',
+        pressedColor: 'primaryTextActive',
+      },
+      {
+        props: { color: 'primary', variant: 'text' },
+        idle: 'primaryText',
+        pressedColor: 'primaryTextActive',
+      },
+      {
+        props: { color: 'primary', variant: 'link' },
+        idle: 'link',
+        pressedColor: 'linkActive',
+      },
+      {
+        props: { type: 'danger', variant: 'text' },
+        idle: 'errorText',
+        pressedColor: 'errorTextActive',
+      },
+      {
+        props: { color: 'red', variant: 'text' },
+        idle: 'red6',
+        pressedColor: 'red7',
+      },
+    ];
+
+    for (const { props, idle, pressedColor } of cases) {
+      const idleRenderer = renderButton({ children: 'Save', ...props });
+      const pressedRenderer = renderButton({
+        children: 'Save',
+        testOnly_pressed: true,
+        ...props,
+      });
+
+      expect(idleRenderer.root.findByType(Text).props.color).toBe(idle);
+      expect(pressedRenderer.root.findByType(Text).props.color).toBe(
+        pressedColor,
+      );
+    }
+  });
+  it('keeps solid and default-color text unchanged when pressed', () => {
+    const cases: Array<{
+      props: Partial<React.ComponentProps<typeof Button>>;
+      color: string;
+    }> = [
+      { props: { type: 'primary' }, color: 'lightSolid' },
+      { props: { variant: 'text' }, color: 'default' },
+    ];
+
+    for (const { props, color } of cases) {
+      const pressedRenderer = renderButton({
+        children: 'Save',
+        testOnly_pressed: true,
+        ...props,
+      });
+
+      expect(pressedRenderer.root.findByType(Text).props.color).toBe(color);
+    }
+  });
+  it('darkens icon color together with text color when pressed', () => {
+    const pressedRenderer = renderButton({
+      color: 'primary',
+      variant: 'text',
+      icon: 'check',
+      testOnly_pressed: true,
+      children: 'Save',
+    });
+    const iconNode = pressedRenderer.root.findByType(Icon);
+    const textNode = pressedRenderer.root.findByType(Text);
+
+    expect(iconNode.props.color).toBe('primaryTextActive');
+    expect(iconNode.props.color).toBe(textNode.props.color);
+  });
+  it('does not darken text color when disabled even while pressed', () => {
+    const pressedRenderer = renderButton({
+      color: 'primary',
+      variant: 'text',
+      disabled: true,
+      testOnly_pressed: true,
+      children: 'Save',
+    });
+
+    expect(pressedRenderer.root.findByType(Text).props.color).toBe('disabled');
+  });
 });

@@ -47,6 +47,7 @@ interface ColorStyleConfig {
   border: string;
   text: string;
   textColor: TextColor;
+  textActiveColor: TextColor;
 }
 
 interface VariantStyleConfig {
@@ -57,6 +58,7 @@ interface VariantStyleConfig {
   textColor: TextColor;
   pressedBackgroundColor: string;
   pressedBorderColor: string;
+  pressedTextColor: TextColor;
 }
 
 interface ButtonContentTextProps {
@@ -209,6 +211,7 @@ function resolveColorConfig(
       border: token.colorPrimaryBorder,
       text: token.colorPrimaryText,
       textColor: 'primaryText',
+      textActiveColor: 'primaryTextActive',
     };
   }
 
@@ -220,6 +223,7 @@ function resolveColorConfig(
       border: token.colorErrorBorder,
       text: token.colorErrorText,
       textColor: 'errorText',
+      textActiveColor: 'errorTextActive',
     };
   }
 
@@ -231,6 +235,7 @@ function resolveColorConfig(
       border: token[`${color}3`],
       text: token[`${color}6`],
       textColor: `${color}6`,
+      textActiveColor: `${color}7`,
     };
   }
 
@@ -241,6 +246,7 @@ function resolveColorConfig(
     border: token.colorBorder,
     text: token.colorText,
     textColor: 'default',
+    textActiveColor: 'default',
   };
 }
 
@@ -261,6 +267,7 @@ function resolveVariantStyle(
       textColor: 'lightSolid',
       pressedBackgroundColor: colorConfig.active,
       pressedBorderColor: colorConfig.active,
+      pressedTextColor: 'lightSolid',
     };
   }
 
@@ -272,6 +279,7 @@ function resolveVariantStyle(
       textColor: colorConfig.textColor,
       pressedBackgroundColor: colorConfig.border,
       pressedBorderColor: TRANSPARENT,
+      pressedTextColor: colorConfig.textColor,
     };
   }
 
@@ -281,6 +289,9 @@ function resolveVariantStyle(
     const linkTextColor: TextColor = isLinkPrimary
       ? 'link'
       : colorConfig.textColor;
+    const pressedLinkTextColor: TextColor = isLinkPrimary
+      ? 'linkActive'
+      : colorConfig.textActiveColor;
     const pressedBackgroundColor =
       resolvedVariant === 'link' ? TRANSPARENT : token.colorBgTextActive;
 
@@ -291,6 +302,7 @@ function resolveVariantStyle(
       textColor: linkTextColor,
       pressedBackgroundColor,
       pressedBorderColor: TRANSPARENT,
+      pressedTextColor: pressedLinkTextColor,
     };
   }
 
@@ -302,6 +314,7 @@ function resolveVariantStyle(
     textColor: colorConfig.textColor,
     pressedBackgroundColor: colorConfig.background,
     pressedBorderColor: colorConfig.base,
+    pressedTextColor: colorConfig.textActiveColor,
   };
 }
 
@@ -474,15 +487,10 @@ export function Button({
     resolvedVariant,
     ghost,
   );
-  const iconColor = resolveTextColor(disabled, variantStyle.textColor);
   const loadingIndicatorColor = disabled
     ? token.colorTextDisabled
     : variantStyle.color;
-  const contentTextProps: ButtonContentTextProps = {
-    color: iconColor,
-    size: resolveTextSize(size),
-    weight: 'medium',
-  };
+  const textSize = resolveTextSize(size);
   const loadingIcon =
     loadingConfig?.icon ?? (
       <ActivityIndicator
@@ -490,28 +498,6 @@ export function Button({
         size={resolveIconSize(size, token)}
       />
     );
-  const iconNode = shouldRenderIcon ? (
-    <Row align="center" justify="center" style={[tokenStyles.icon, styles?.icon]}>
-      {isLoading ? (
-        loadingIcon
-      ) : (
-        <Icon
-          color={iconColor}
-          size={size}
-          {...iconProps}
-          icon={icon!}
-        />
-      )}
-    </Row>
-  ) : null;
-  const contentNode = hasContent
-    ? renderContent(
-        children,
-        contentTextProps,
-        [tokenStyles.content, styles?.content],
-        disabled ? tokenStyles.contentDisabled : null,
-      )
-    : null;
 
   useEffect(() => {
     if (!hasLoadingRequest) {
@@ -542,8 +528,48 @@ export function Button({
     onPress?.(event);
   }
 
-  const orderedChildren =
-    iconPlacement === 'end' ? [contentNode, iconNode] : [iconNode, contentNode];
+  function renderChildren(pressed: boolean) {
+    const isPressed = pressed && isInteractive;
+    const activeIconColor = resolveTextColor(
+      disabled,
+      isPressed ? variantStyle.pressedTextColor : variantStyle.textColor,
+    );
+    const activeTextProps: ButtonContentTextProps = {
+      color: activeIconColor,
+      size: textSize,
+      weight: 'medium',
+    };
+    const activeIconNode = shouldRenderIcon ? (
+      <Row align="center" justify="center" style={[tokenStyles.icon, styles?.icon]}>
+        {isLoading ? (
+          loadingIcon
+        ) : (
+          <Icon
+            color={activeIconColor}
+            size={size}
+            {...iconProps}
+            icon={icon!}
+          />
+        )}
+      </Row>
+    ) : null;
+    const activeContentNode = hasContent
+      ? renderContent(
+          children,
+          activeTextProps,
+          [tokenStyles.content, styles?.content],
+          disabled ? tokenStyles.contentDisabled : null,
+        )
+      : null;
+    const orderedChildren =
+      iconPlacement === 'end'
+        ? [activeContentNode, activeIconNode]
+        : [activeIconNode, activeContentNode];
+
+    return orderedChildren.map((node, index) => (
+      <React.Fragment key={index}>{node}</React.Fragment>
+    ));
+  }
 
   return (
     <Pressable
@@ -558,9 +584,7 @@ export function Button({
         style,
       ]}
     >
-      {orderedChildren.map((node, index) => (
-        <React.Fragment key={index}>{node}</React.Fragment>
-      ))}
+      {({ pressed }) => renderChildren(pressed)}
     </Pressable>
   );
 }
