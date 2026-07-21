@@ -3,7 +3,7 @@ import {
   api,
   type RecordTypeCategoryValue,
   TypeRow,
-} from '@pennyspring/data';
+} from '@pennyspring/api';
 
 interface UseCategoryItemsResult {
   categories: TypeRow[];

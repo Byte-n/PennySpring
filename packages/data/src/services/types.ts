@@ -10,9 +10,8 @@ import type {
   VisibilityValue,
 } from '../constants'
 import type { assets, books, records, tags, types } from '../schema'
-import type { Database } from '../runtime'
 
-export type Tx = Parameters<Parameters<Database['transaction']>[0]>[0]
+export type { Tx } from '../types'
 
 export type RecordRow = InferSelectModel<typeof records>
 export type AssetRow = InferSelectModel<typeof assets>

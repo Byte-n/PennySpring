@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { api, type BookRow } from '@pennyspring/data'
+import { api, type BookRow } from '@pennyspring/api'
 import { createJSONStorage, persist } from 'zustand/middleware'
 import { bookStorage } from './bookStorage'
 

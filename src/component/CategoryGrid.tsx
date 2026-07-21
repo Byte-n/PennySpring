@@ -11,7 +11,7 @@ import {
 } from '@pennyspring/ui';
 import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
 import { chunk, isNil } from 'es-toolkit';
-import { TypeRow } from '@pennyspring/data';
+import { TypeRow } from '@pennyspring/api';
 import { getPhosphorIconComponent } from '../constants/typeIconTree.ts';
 import { useControllableValue } from '../../packages/pennyspring-ui/src/_hooks';
 

@@ -15,7 +15,7 @@ import {
   RECORD_TYPE_CATEGORY,
   type TypeRow,
   type RecordTypeCategoryValue,
-} from '@pennyspring/data';
+} from '@pennyspring/api';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import { CategoryGrid, CategoryItem } from '../../component/CategoryGrid';
 import { PhosphorIconPicker } from '../../component/PhosphorIconPicker';

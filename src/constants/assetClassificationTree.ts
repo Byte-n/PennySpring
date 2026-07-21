@@ -1,7 +1,7 @@
 import type { ComponentType } from 'react';
 import type { SvgProps } from 'react-native-svg';
 
-import { ASSET_CLASSIFICATION, ASSET_TYPE } from '@pennyspring/data';
+import { ASSET_CLASSIFICATION, ASSET_TYPE } from '@pennyspring/api';
 
 import BankBjIcon from '../assets/asset-icons/bank/bank_bj.svg';
 import BankGdIcon from '../assets/asset-icons/bank/bank_gd.svg';

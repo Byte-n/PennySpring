@@ -1,4 +1,4 @@
-import { RECORD_TYPE_CATEGORY, type RecordRow, type TypeRow } from '@pennyspring/data';
+import { RECORD_TYPE_CATEGORY, type RecordRow, type TypeRow } from '@pennyspring/api';
 import {
   aggregateExpenseStats,
   toBarStats,

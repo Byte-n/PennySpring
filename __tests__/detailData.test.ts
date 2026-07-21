@@ -1,4 +1,4 @@
-import { RECORD_TYPE_CATEGORY } from '@pennyspring/data';
+import { RECORD_TYPE_CATEGORY } from '@pennyspring/api';
 import {
   filterByMonth,
   formatDayTitle,

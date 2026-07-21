@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useRequest } from 'ahooks';
-import { api, VISIBILITY } from '@pennyspring/data';
+import { api, VISIBILITY } from '@pennyspring/api';
 
 import { useBookStore } from '../../stores/bookStore';
 

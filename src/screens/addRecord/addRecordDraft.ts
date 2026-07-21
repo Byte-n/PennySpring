@@ -11,7 +11,7 @@ import {
   REIMBURSABLE,
   type TypeRow,
   VISIBILITY,
-} from '@pennyspring/data';
+} from '@pennyspring/api';
 
 export type AddRecordTabType = 'expense' | 'income' | 'transfer';
 export type TransferAssetRole = 'from' | 'to';

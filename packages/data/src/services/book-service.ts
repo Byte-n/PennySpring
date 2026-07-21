@@ -1,7 +1,7 @@
 import { count, eq } from 'drizzle-orm'
 
 import { assets, books } from '../schema'
-import type { Database } from '../runtime'
+import type { Database } from '../types'
 import type { BookRow, CreateBookInput, Tx, UpdateBookInput } from './types'
 
 function validateBookInput(input: CreateBookInput | UpdateBookInput): void {

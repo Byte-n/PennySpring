@@ -12,7 +12,7 @@ import {
   Text,
   useToast,
 } from '@pennyspring/ui';
-import { RECORD_TYPE_CATEGORY } from '@pennyspring/data';
+import { RECORD_TYPE_CATEGORY } from '@pennyspring/api';
 import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
 import { AmountDisplay } from '../components/AmountDisplay';
 import { CategoryGrid } from '../../../component/CategoryGrid';

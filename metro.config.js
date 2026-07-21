@@ -15,6 +15,14 @@ const config = {
     blockList: [/\.worktrees\/.*/],
     assetExts: assetExts.filter(ext => ext !== 'svg'),
     sourceExts: [...sourceExts, 'svg'],
+    // DATA_MODE=remote 时把 @pennyspring/api 重定向到 ./remote（HTTP 客户端，不含 op-sqlite）；
+    // 默认（local）走包入口 index.ts → ./local（api1）。SERVER_URL 运行期内联为 follow-up。
+    resolveRequest: (context, moduleName, platform) => {
+      if (process.env.DATA_MODE === 'remote' && moduleName === '@pennyspring/api') {
+        return context.resolveRequest(context, '@pennyspring/api/remote', platform);
+      }
+      return context.resolveRequest(context, moduleName, platform);
+    },
   },
   transformer: {
     babelTransformerPath: require.resolve('react-native-svg-transformer'),

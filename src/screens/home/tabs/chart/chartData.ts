@@ -2,7 +2,7 @@ import {
   RECORD_TYPE_CATEGORY,
   type RecordRow,
   type TypeRow,
-} from '@pennyspring/data';
+} from '@pennyspring/api';
 
 export interface ExpenseCategoryStat {
   key: string;

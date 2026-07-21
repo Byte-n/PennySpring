@@ -1,7 +1,7 @@
 import { desc, eq } from 'drizzle-orm'
 
 import { RECORD_TYPE_CATEGORY, REIMBURSABLE } from '../constants'
-import type { Database } from '../runtime'
+import type { Database } from '../types'
 import { imageWithRelated, records, recordWithRecord, tagWithRecord, types } from '../schema'
 import { applyExpense, createExpense, rollbackExpense } from './expense-service'
 import {

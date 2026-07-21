@@ -13,7 +13,7 @@ import {
   Text,
   useToast,
 } from '@pennyspring/ui';
-import { api, VISIBILITY, type TagRow } from '@pennyspring/data';
+import { api, VISIBILITY, type TagRow } from '@pennyspring/api';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import { PhosphorIconPicker } from '../../component/PhosphorIconPicker';
 import { getPhosphorIconComponent } from '../../constants/typeIconTree';

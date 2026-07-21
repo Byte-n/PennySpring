@@ -8,7 +8,7 @@ import {
   api,
   RECORD_TYPE_CATEGORY,
   type TypeRow,
-} from '@pennyspring/data';
+} from '@pennyspring/api';
 import { useBookStore } from '../../../stores/bookStore';
 import { MonthSummaryCard } from './detail/MonthSummaryCard';
 import {

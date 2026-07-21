@@ -10,7 +10,7 @@ import {
   type AssetRow,
   type RecordRow,
   type TypeRow,
-} from '@pennyspring/data';
+} from '@pennyspring/api';
 
 import {
   buildCreateRecordInput,

@@ -5,7 +5,7 @@ import {
   type RecordRow,
   type TagRow,
   type TypeRow,
-} from '@pennyspring/data';
+} from '@pennyspring/api';
 import type { SelectionListOption } from '@pennyspring/ui';
 
 import { formatAmount } from './addRecordDraft';

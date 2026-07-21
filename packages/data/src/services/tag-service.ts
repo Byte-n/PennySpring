@@ -1,7 +1,7 @@
 import { count, eq } from 'drizzle-orm'
 
 import { VISIBILITY } from '../constants'
-import type { Database } from '../runtime'
+import type { Database } from '../types'
 import { tagWithRecord, tags } from '../schema'
 import type { CreateTagInput, TagRow, Tx, UpdateTagInput } from './types'
 

@@ -18,7 +18,7 @@ import {
   useToast,
 } from '@pennyspring/ui';
 import type { ImagePickerValue } from '@pennyspring/ui';
-import { api, type BookRow } from '@pennyspring/data';
+import { api, type BookRow } from '@pennyspring/api';
 import { createUseSheetStyle, toShadowStyle } from '@pennyspring/theme';
 import { useBookStore } from '../../stores/bookStore';
 

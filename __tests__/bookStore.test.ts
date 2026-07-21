@@ -1,4 +1,4 @@
-import type { BookRow } from '@pennyspring/data';
+import type { BookRow } from '@pennyspring/api';
 
 const mockStorageState = new Map<string, string>();
 
@@ -16,7 +16,7 @@ jest.mock('../src/stores/bookStorage', () => ({
   },
 }));
 
-jest.mock('@pennyspring/data', () => ({
+jest.mock('@pennyspring/api', () => ({
   api: {
     book: {
       getById: jest.fn(),
@@ -25,7 +25,7 @@ jest.mock('@pennyspring/data', () => ({
   },
 }));
 
-import { api } from '@pennyspring/data';
+import { api } from '@pennyspring/api';
 import { useBookStore } from '../src/stores/bookStore';
 
 const STORE_KEY = 'pennyspring-book-store';

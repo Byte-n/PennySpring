@@ -4,6 +4,11 @@
   "private": true,
   "main": "src/index.ts",
   "types": "src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./drizzle/migrations": "./drizzle/migrations.js",
+    "./package.json": "./package.json"
+  },
   "scripts": {
     "db:check": "drizzle-kit check --config drizzle.config.ts",
     "db:generate": "drizzle-kit generate --config drizzle.config.ts",
@@ -14,11 +19,6 @@
     "drizzle-orm": "^0.45.2"
   },
   "devDependencies": {
-    "drizzle-kit": "^0.31.10",
-    "ts-jest": "^29.4.9"
-  },
-  "peerDependencies": {
-    "@op-engineering/op-sqlite": "^11.4.2",
-    "react-native": "*"
+    "drizzle-kit": "^0.31.10"
   }
 }

@@ -4,7 +4,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useRequest } from 'ahooks';
 import { Column, Loading, Empty, Dialog, Text } from '@pennyspring/ui';
 import { createUseSheetStyle } from '@pennyspring/theme';
-import { api, type AssetRow, type TypeRow } from '@pennyspring/data';
+import { api, type AssetRow, type TypeRow } from '@pennyspring/api';
 import { useBookStore } from '../../../stores/bookStore';
 import { ROOT_ROUTES, useNavigation } from '../../../navigation';
 import { MonthSummaryCard } from './detail/MonthSummaryCard';

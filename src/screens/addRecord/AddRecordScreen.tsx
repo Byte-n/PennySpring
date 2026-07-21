@@ -12,7 +12,7 @@ import {
   api,
   RECORD_TYPE_CATEGORY,
   type RecordTypeCategoryValue,
-} from '@pennyspring/data';
+} from '@pennyspring/api';
 import { ExpenseTabScreen } from './tabs/ExpenseTabScreen.tsx';
 import { IncomeTabScreen } from './tabs/IncomeTabScreen.tsx';
 import { TransferTabScreen } from './tabs/TransferTabScreen.tsx';

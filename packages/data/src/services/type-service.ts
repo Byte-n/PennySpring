@@ -2,7 +2,7 @@ import { asc, count, eq } from 'drizzle-orm'
 
 import type { RecordTypeCategoryValue } from '../constants'
 import { RECORD_TYPE_SPECIAL_BEHAVIOR, SYSTEM_STATUS } from '../constants'
-import type { Database } from '../runtime'
+import type { Database } from '../types'
 import { records, types } from '../schema'
 import type { CreateTypeInput, Tx, TypeRow, UpdateTypeInput } from './types'
 

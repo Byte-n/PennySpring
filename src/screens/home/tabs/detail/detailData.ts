@@ -5,7 +5,7 @@ import {
   type RecordRow,
   type RecordTypeCategoryValue,
   type TypeRow,
-} from '@pennyspring/data';
+} from '@pennyspring/api';
 
 export type CashflowCategory = RecordTypeCategoryValue;
 

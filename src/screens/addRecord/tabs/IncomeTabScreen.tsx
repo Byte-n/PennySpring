@@ -11,7 +11,7 @@ import {
   Text,
   useToast,
 } from '@pennyspring/ui';
-import { api, RECORD_TYPE_CATEGORY } from '@pennyspring/data';
+import { api, RECORD_TYPE_CATEGORY } from '@pennyspring/api';
 import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
 import { AmountDisplay } from '../components/AmountDisplay';
 import { CategoryGrid } from '../../../component/CategoryGrid';

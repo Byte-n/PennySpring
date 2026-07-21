@@ -30,7 +30,7 @@ import {
   type AssetRow,
   type AssetTypeValue,
   VISIBILITY,
-} from '@pennyspring/data';
+} from '@pennyspring/api';
 import { createUseSheetStyle } from '@pennyspring/theme';
 
 import {
