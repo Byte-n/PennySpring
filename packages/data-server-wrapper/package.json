@@ -10,7 +10,7 @@
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "build": "tsc",
+    "build": "esbuild src/bin.ts --bundle --platform=node --format=esm --target=es2022 --sourcemap --outfile=dist/bin.js --external:hono --external:@hono/node-server --external:better-sqlite3 --external:drizzle-orm --external:drizzle-orm/*",
     "start": "node dist/bin.js"
   },
   "dependencies": {
@@ -21,6 +21,7 @@
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
+    "esbuild": "^0.28.1",
     "typescript": "^5.8.3"
   }
 }
