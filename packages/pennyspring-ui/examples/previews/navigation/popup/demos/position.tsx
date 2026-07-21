@@ -34,7 +34,6 @@ export function PopupPositionDemo() {
         </Space>
       </Space>
       <Popup
-        animation="slide"
         onCancel={() => {
           setLastEvent(`${position} popup cancelled`);
           setOpen(false);
@@ -48,7 +47,7 @@ export function PopupPositionDemo() {
             位置：{position}
           </Text>
           <Text color="secondary">
-            bottom/top 从屏幕边缘滑入并铺满宽度，left/right 占 70% 宽度贴边弹出，center 居中显示并淡入淡出。
+            bottom/top 从屏幕边缘滑入并铺满宽度，left/right 占 70% 宽度贴边弹出，center 居中显示。
           </Text>
           <Space justify="end" size="small">
             <Button type="primary" onPress={() => setOpen(false)}>
