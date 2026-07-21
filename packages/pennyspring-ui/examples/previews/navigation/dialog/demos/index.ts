@@ -1,3 +1,4 @@
+import { dialogAnimationDemoTitle, DialogAnimationDemo } from './animation';
 import { dialogControlledDemoTitle, DialogControlledDemo } from './controlled';
 import {
   dialogEventFeedbackDemoTitle,
@@ -9,6 +10,11 @@ import {
 } from './state-and-slots';
 
 export const dialogDemos = [
+  {
+    id: 'animation',
+    title: dialogAnimationDemoTitle,
+    Component: DialogAnimationDemo,
+  },
   {
     id: 'controlled',
     title: dialogControlledDemoTitle,
