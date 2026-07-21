@@ -47,6 +47,7 @@ interface ColorStyleConfig {
   background: string;
   border: string;
   text: string;
+  textColor: TextColor;
 }
 
 interface VariantStyleConfig {
@@ -54,6 +55,7 @@ interface VariantStyleConfig {
   borderColor: string;
   borderStyle?: ViewStyle['borderStyle'];
   color: string;
+  textColor: TextColor;
   pressedBackgroundColor: string;
   pressedBorderColor: string;
 }
@@ -114,6 +116,10 @@ const TYPE_DEFAULTS: Record<ButtonType, TypeDefaults> = {
     color: 'primary',
     variant: 'link',
   },
+  danger: {
+    color: 'danger',
+    variant: 'solid',
+  },
 };
 
 const PRESET_COLORS = [
@@ -143,18 +149,9 @@ function isPresetColor(
 
 function resolveButtonColor(
   color: ButtonColor | undefined,
-  danger: boolean | undefined,
   typeDefault: TypeDefaults,
 ): ButtonColor {
-  if (color !== undefined) {
-    return color;
-  }
-
-  if (danger === true) {
-    return 'danger';
-  }
-
-  return typeDefault.color;
+  return color ?? typeDefault.color;
 }
 
 function resolveButtonVariant(
@@ -196,18 +193,9 @@ function resolveTextSize(size: ComponentSize): TextSize {
 
 function resolveTextColor(
   disabled: boolean,
-  variantColor: string,
-  token: AliasToken,
+  variantTextColor: TextColor,
 ): TextColor {
-  if (disabled) {
-    return 'disabled';
-  }
-
-  if (variantColor === token.colorTextLightSolid) {
-    return 'lightSolid';
-  }
-
-  return 'default';
+  return disabled ? 'disabled' : variantTextColor;
 }
 
 function resolveColorConfig(
@@ -221,6 +209,7 @@ function resolveColorConfig(
       background: token.colorPrimaryBg,
       border: token.colorPrimaryBorder,
       text: token.colorPrimaryText,
+      textColor: 'primaryText',
     };
   }
 
@@ -231,6 +220,7 @@ function resolveColorConfig(
       background: token.colorErrorBg,
       border: token.colorErrorBorder,
       text: token.colorErrorText,
+      textColor: 'errorText',
     };
   }
 
@@ -241,6 +231,7 @@ function resolveColorConfig(
       background: token[`${color}1`],
       border: token[`${color}3`],
       text: token[`${color}6`],
+      textColor: `${color}6`,
     };
   }
 
@@ -250,6 +241,7 @@ function resolveColorConfig(
     background: token.colorFillQuaternary,
     border: token.colorBorder,
     text: token.colorText,
+    textColor: 'default',
   };
 }
 
@@ -267,6 +259,7 @@ function resolveVariantStyle(
       backgroundColor: colorConfig.base,
       borderColor: colorConfig.base,
       color: token.colorTextLightSolid,
+      textColor: 'lightSolid',
       pressedBackgroundColor: colorConfig.active,
       pressedBorderColor: colorConfig.active,
     };
@@ -277,21 +270,24 @@ function resolveVariantStyle(
       backgroundColor: ghost ? TRANSPARENT : colorConfig.background,
       borderColor: TRANSPARENT,
       color: colorConfig.text,
+      textColor: colorConfig.textColor,
       pressedBackgroundColor: colorConfig.border,
       pressedBorderColor: TRANSPARENT,
     };
   }
 
   if (resolvedVariant === 'text' || resolvedVariant === 'link') {
-    const linkColor =
-      resolvedVariant === 'link' && color === 'primary'
-        ? token.colorLink
-        : colorConfig.text;
+    const isLinkPrimary = resolvedVariant === 'link' && color === 'primary';
+    const linkColor = isLinkPrimary ? token.colorLink : colorConfig.text;
+    const linkTextColor: TextColor = isLinkPrimary
+      ? 'link'
+      : colorConfig.textColor;
 
     return {
       backgroundColor: TRANSPARENT,
       borderColor: TRANSPARENT,
       color: linkColor,
+      textColor: linkTextColor,
       pressedBackgroundColor: token.colorBgTextActive,
       pressedBorderColor: TRANSPARENT,
     };
@@ -302,6 +298,7 @@ function resolveVariantStyle(
     borderColor: colorConfig.border,
     borderStyle: resolvedVariant === 'dashed' ? 'dashed' : 'solid',
     color: colorConfig.text,
+    textColor: colorConfig.textColor,
     pressedBackgroundColor: colorConfig.background,
     pressedBorderColor: colorConfig.base,
   };
@@ -433,7 +430,6 @@ export function Button({
   block = false,
   children,
   color,
-  danger,
   disabled = false,
   ghost = false,
   icon,
@@ -451,7 +447,7 @@ export function Button({
 }: ButtonProps) {
   const { token } = useTheme();
   const typeDefault = TYPE_DEFAULTS[type];
-  const resolvedColor = resolveButtonColor(color, danger, typeDefault);
+  const resolvedColor = resolveButtonColor(color, typeDefault);
   const resolvedVariant = resolveButtonVariant(variant, typeDefault);
   const loadingConfig = useMemo(() => resolveLoadingConfig(loading), [loading]);
   const hasLoadingRequest = loadingConfig !== undefined;
@@ -481,7 +477,7 @@ export function Button({
     ? token.colorTextDisabled
     : variantStyle.color;
   const contentTextProps: ButtonContentTextProps = {
-    color: resolveTextColor(disabled, variantStyle.color, token),
+    color: resolveTextColor(disabled, variantStyle.textColor),
     size: resolveTextSize(size),
     weight: 'medium',
   };

@@ -5,6 +5,12 @@ import { Button } from '../src/Button';
 import { Icon } from '../src/Icon';
 import { Row } from '../src/Row';
 import { Text } from '../src/Text';
+import { defaultSeedToken } from '@pennyspring/theme';
+import { derivative } from '@pennyspring/theme/src/algorithms/derivative';
+import { formatToken } from '@pennyspring/theme/src/algorithms/formatToken';
+
+const token = formatToken(derivative(defaultSeedToken, false));
+
 function renderButton(props: Partial<React.ComponentProps<typeof Button>> = {}) {
   let testRenderer: renderer.ReactTestRenderer;
   act(() => {
@@ -214,5 +220,41 @@ describe('Button', () => {
 
     // Assert
     expect(rowNodes).toHaveLength(1);
+  });
+  it('renders preset color text when color and text variant are combined', () => {
+    const testRenderer = renderButton({
+      color: 'red',
+      variant: 'text',
+      children: 'Danger',
+    });
+    const textNode = testRenderer.root.findByType(Text);
+
+    expect(textNode.props.color).toBe('red6');
+  });
+  it('renders primary text color when color is primary and variant is outlined', () => {
+    const testRenderer = renderButton({
+      color: 'primary',
+      variant: 'outlined',
+      children: 'Save',
+    });
+    const textNode = testRenderer.root.findByType(Text);
+
+    expect(textNode.props.color).toBe('primaryText');
+  });
+  it('renders danger text color when type is danger and variant is text', () => {
+    const testRenderer = renderButton({
+      type: 'danger',
+      variant: 'text',
+      children: 'Delete',
+    });
+    const textNode = testRenderer.root.findByType(Text);
+
+    expect(textNode.props.color).toBe('errorText');
+  });
+  it('renders as solid danger button when type is danger', () => {
+    const testRenderer = renderButton({ type: 'danger', children: 'Delete' });
+
+    expect(getRootStyle(testRenderer).backgroundColor).toBe(token.colorError);
+    expect(testRenderer.root.findByType(Text).props.color).toBe('lightSolid');
   });
 });

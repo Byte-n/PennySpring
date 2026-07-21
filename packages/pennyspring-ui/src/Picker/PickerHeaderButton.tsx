@@ -15,7 +15,6 @@ interface PickerHeaderButtonProps {
   size?: ComponentSize;
   style?: StyleProp<ViewStyle>;
   textStyle?: StyleProp<TextStyle>;
-  danger?: boolean;
 }
 
 export function PickerHeaderButton({
@@ -28,7 +27,6 @@ export function PickerHeaderButton({
   testID,
   text,
   textStyle,
-  danger,
 }: PickerHeaderButtonProps) {
   if (content === null) {
     return null;
@@ -48,7 +46,6 @@ export function PickerHeaderButton({
       styles={{ content: textStyle }}
       testID={testID}
       type="text"
-      danger={danger}
     >
       {content !== undefined ? content : text}
     </Button>

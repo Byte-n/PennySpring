@@ -50,7 +50,7 @@ export function PickerHeader({
         testID="picker-header-actions"
       >
         <PickerHeaderButton
-          danger
+          color="danger"
           content={cancel}
           onPress={onCancelPress}
           size={size}

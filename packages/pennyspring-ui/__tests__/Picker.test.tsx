@@ -903,6 +903,6 @@ it('defaults cancel button to danger and ok button to primary color', () => {
   const cancelButton = testRenderer!.root.findByProps({ testID: 'picker-cancel-button' });
   const okButton = testRenderer!.root.findByProps({ testID: 'picker-ok-button' });
 
-  expect(cancelButton.props.danger).toBe(true);
+  expect(cancelButton.props.color).toBe('danger');
   expect(okButton.props.color).toBe('primary');
 });

@@ -10,7 +10,7 @@ import type { ComponentSize } from '../shares/types';
 import type { IconComponent, IconName, IconProps } from '../Icon';
 import type { SemanticPresetColor } from '../shares/color';
 
-export type ButtonType = 'default' | 'primary' | 'dashed' | 'text' | 'link';
+export type ButtonType = 'default' | 'primary' | 'dashed' | 'text' | 'link' | 'danger';
 
 export type ButtonSemanticColor = 'default' | 'primary' | 'danger';
 export type ButtonColor = SemanticPresetColor<ButtonSemanticColor>;
@@ -43,7 +43,6 @@ export interface ButtonProps
   type?: ButtonType;
   color?: ButtonColor;
   variant?: ButtonVariant;
-  danger?: boolean;
   ghost?: boolean;
   shape?: ButtonShape;
   size?: ComponentSize;

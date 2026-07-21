@@ -10,7 +10,7 @@ export function ButtonIconAndStateDemo() {
         <Button icon="check" type="primary">
           Confirm
         </Button>
-        <Button icon="trash" iconPlacement="end" danger>
+        <Button icon="trash" iconPlacement="end" type="danger">
           Remove
         </Button>
         <Button loading>Loading</Button>
