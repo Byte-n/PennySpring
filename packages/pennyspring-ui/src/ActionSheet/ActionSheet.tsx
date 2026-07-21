@@ -164,6 +164,7 @@ export function ActionSheet({
   styles: slotStyles,
   title,
   titleText,
+  animation,
 }: ActionSheetProps) {
   const tokenStyles = useStyles();
   const [resolvedOpen, setResolvedOpen] = useControllableValue(
@@ -193,13 +194,17 @@ export function ActionSheet({
     cancelInternal('cancel');
   };
 
-  const handleActionPress = (action: ActionSheetAction, index: number): void => {
+  const handleActionPress = (
+    action: ActionSheetAction,
+    index: number,
+  ): void => {
     onAction?.(action, index);
     closeInternal('action');
   };
 
   return (
     <Popup
+      animation={animation}
       afterOpenChange={afterOpenChange}
       closeOnMaskClick={closeOnMaskClick}
       defaultOpen={defaultOpen}
@@ -216,11 +221,17 @@ export function ActionSheet({
     >
       <Column style={style} testID="action-sheet-panel">
         {titleNode ? (
-          <Column style={tokenStyles.titleContainer} testID="action-sheet-title-container">
+          <Column
+            style={tokenStyles.titleContainer}
+            testID="action-sheet-title-container"
+          >
             {titleNode}
           </Column>
         ) : null}
-        <Column style={tokenStyles.actionsContainer} testID="action-sheet-actions-container">
+        <Column
+          style={tokenStyles.actionsContainer}
+          testID="action-sheet-actions-container"
+        >
           {actions.map((action, index) =>
             renderAction(
               action,
@@ -236,12 +247,20 @@ export function ActionSheet({
           )}
         </Column>
         {shouldRenderCancelSection ? (
-          <Column style={tokenStyles.cancelButtonContainer} testID="action-sheet-cancel-container">
+          <Column
+            style={tokenStyles.cancelButtonContainer}
+            testID="action-sheet-cancel-container"
+          >
             <Column style={tokenStyles.separator} />
             <Button
               onPress={handleCancelPress}
               style={tokenStyles.cancelButton}
-              styles={{ content: [tokenStyles.cancelButtonText, slotStyles?.cancelButtonText] }}
+              styles={{
+                content: [
+                  tokenStyles.cancelButtonText,
+                  slotStyles?.cancelButtonText,
+                ],
+              }}
               testID="action-sheet-cancel-button"
               type="text"
             >
@@ -249,7 +268,10 @@ export function ActionSheet({
                 cancel
               ) : (
                 <Text
-                  style={[tokenStyles.cancelButtonText, slotStyles?.cancelButtonText]}
+                  style={[
+                    tokenStyles.cancelButtonText,
+                    slotStyles?.cancelButtonText,
+                  ]}
                   testID="action-sheet-cancel-text"
                 >
                   {cancelText}

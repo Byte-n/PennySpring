@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import type { StyleProp, TextStyle, ViewStyle } from 'react-native';
 import type { PortalMountPoint } from '../Portal/types';
-import type { PopupProps } from '../Popup';
+import type { PopupAnimation, PopupProps } from '../Popup';
 
 export interface ActionSheetAction {
   text: string;
@@ -48,4 +48,5 @@ export interface ActionSheetProps {
   closeOnMaskClick?: boolean;
   style?: StyleProp<ViewStyle>;
   styles?: ActionSheetStyles;
+  animation?: PopupAnimation;
 }
