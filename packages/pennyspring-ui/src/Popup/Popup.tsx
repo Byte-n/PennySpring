@@ -137,7 +137,7 @@ const usePopupStyles = createUseSheetStyle(
         backgroundColor: token.colorBgMask,
       },
       body: {
-        ...getBodyShapeStyle(position, token.borderRadius),
+        ...getBodyShapeStyle(position, token.borderRadiusLG * 2),
         padding: token.paddingMD,
         backgroundColor: token.colorBgElevated,
         ...toShadowStyle(token.boxShadow),
