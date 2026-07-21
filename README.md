@@ -101,3 +101,5 @@ To learn more about React Native, take a look at the following resources:
 [ ] 分析 4a1d3e52b37d8447bcefca8f2622090d68076090 改动部分的插槽。React Native 中 Text > View > Text 问题，Text 下不可再嵌套 View，需要修复此问题。有部分组件使用了 AnimatedText  
   是否存在上述的问题，改成 'react-native-reanimated' 的 Animated.View ?                                                                                                         
   。仅做修复，不允许修改原本的组件逻辑，执行任意代码变更之前，先做问题的归因，再做做小修改（优化代码可读性，可以适当移除非必要的中间变量、局部函数、临时函数）。  
+
+[ ] 所有的数据表的数据都需要按账本隔离（避免网络账本使用到本地账本的数据）
