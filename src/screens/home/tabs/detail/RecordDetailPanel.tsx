@@ -88,7 +88,7 @@ export function RecordDetailPanel({
             <Button
               size="small"
               variant="text"
-              danger
+              color="danger"
               icon="trash"
               onPress={() => view && onDelete(view)}
             >
