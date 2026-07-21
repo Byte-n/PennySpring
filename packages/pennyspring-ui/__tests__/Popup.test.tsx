@@ -225,19 +225,6 @@ describe('Popup', () => {
       });
     }).toThrow('PortalProvider');
   });
-  it('keeps the slide-animated body in place when open', () => {
-    const testRenderer = renderPopup({
-      open: true,
-      animation: 'slide',
-    });
-    const body = testRenderer.root.findByProps({
-      testID: 'popup-body',
-    });
-    const flattened = StyleSheet.flatten(body.props.style);
-    const transform = (flattened.transform ?? []) as Array<Record<string, number>>;
-    const translateY = transform.find(entry => 'translateY' in entry)?.translateY;
-    expect(translateY).toBe(0);
-  });
   it('uses zIndexPopupBase + 100 without stacking zIndexBase', () => {
     let testRenderer: renderer.ReactTestRenderer;
     act(() => {

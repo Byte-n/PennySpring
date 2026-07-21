@@ -80,8 +80,6 @@ function buildTagRemoveChangeParams<TData>(
 
 function CascaderRoot<TData = unknown>({
   afterOpenChange,
-  animation,
-  animationDuration,
   children,
   closeOnMaskClick,
   closeOnSelectLeaf = true,
@@ -237,8 +235,6 @@ function CascaderRoot<TData = unknown>({
       </Pressable>
       <Popup.FloatingPanel
         afterOpenChange={afterOpenChange}
-        animation={animation}
-        animationDuration={animationDuration}
         closeOnMaskClick={closeOnMaskClick}
         defaultOpen={defaultOpen}
         defaultValue={defaultPanelValue}

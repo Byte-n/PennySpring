@@ -9,7 +9,6 @@ export type {
   PopupFloatingPanelPosition,
   PopupFloatingPanelProps,
   PopupFloatingPanelStyles,
-  PopupAnimation,
   PopupCancelParams,
   PopupCancelReason,
   PopupOpenChangeParams,

@@ -5,8 +5,6 @@ import type { PortalMountPoint } from '../Portal/types';
 
 export type PopupPosition = 'top' | 'bottom' | 'left' | 'right' | 'center';
 
-export type PopupAnimation = 'none' | 'slide' | 'fade';
-
 export type PopupCancelReason = 'mask' | 'back';
 
 export type PopupOpenChangeReason = PopupCancelReason;
@@ -27,8 +25,6 @@ export interface PopupStyles {
 export interface PopupProps {
   mountPoint?: PortalMountPoint;
   position?: PopupPosition;
-  animation?: PopupAnimation;
-  animationDuration?: number;
   open?: boolean;
   defaultOpen?: boolean;
   onOpenChange?: (open: boolean, params: PopupOpenChangeParams) => void;
@@ -87,8 +83,6 @@ export interface PopupFloatingPanelProps {
   closeOnMaskClick?: boolean;
   closeOnCancel?: boolean;
   closeOnOk?: boolean;
-  animation?: PopupAnimation;
-  animationDuration?: number;
   position?: PopupFloatingPanelPosition;
   keyboardAvoiding?: boolean;
   size?: ComponentSize;

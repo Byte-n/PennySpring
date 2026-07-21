@@ -2,7 +2,6 @@ import type { ReactNode } from 'react';
 import type { StyleProp, TextStyle, ViewStyle } from 'react-native';
 import type { PortalMountPoint } from '../Portal';
 import type {
-  PopupAnimation,
   PopupFloatingPanelPosition,
   PopupFloatingPanelStyles,
 } from '../Popup';
@@ -101,8 +100,6 @@ export interface CascaderProps<TData = unknown>
   mountPoint?: PortalMountPoint;
   mask?: boolean;
   closeOnMaskClick?: boolean;
-  animation?: PopupAnimation;
-  animationDuration?: number;
   position?: PopupFloatingPanelPosition;
   panelValue?: number;
   defaultPanelValue?: number;

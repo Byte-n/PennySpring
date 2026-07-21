@@ -283,7 +283,6 @@ export type {
   PopupOpenChangeParams,
   PopupOpenChangeReason,
   PopupPosition,
-  PopupAnimation,
   PopupProps,
   PopupStyles,
 } from './Popup';

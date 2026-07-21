@@ -1,58 +1,27 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef } from 'react';
 import {
   BackHandler,
   Pressable,
   View,
 } from 'react-native';
-import {
-  cancelAnimation,
-  createAnimatedComponent,
-  Easing,
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
-} from 'react-native-reanimated';
-import { createUseSheetStyle, toShadowStyle, useTheme } from '@pennyspring/theme';
-import type { StyleProp, ViewStyle } from 'react-native';
+import { createAnimatedComponent } from 'react-native-reanimated';
+import { createUseSheetStyle, toShadowStyle } from '@pennyspring/theme';
+import type { ViewStyle } from 'react-native';
 import { PortalContext } from '../Portal/Portal';
 import { resolvePortalMount } from '../Portal/resolvePortalMount';
 import { useControllableValue } from '../_hooks';
 import type {
-  PopupAnimation,
   PopupCancelReason,
   PopupPosition,
   PopupProps,
 } from './types';
 
 const DEFAULT_POSITION: PopupPosition = 'bottom';
-const DEFAULT_ANIMATION: PopupAnimation = 'none';
 const POPUP_SIDE_WIDTH = '70%';
 
+// 布局保留为 ReanimatedView，仅为承载 FloatingPanel 等组合组件传入的动画样式（如键盘避让 bottom 偏移）。
+// Popup 自身不再提供开合动画。
 const ReanimatedView = createAnimatedComponent(View);
-
-function getSlideTransform(
-  position: PopupPosition,
-  slideOffset: number,
-): { prop: 'translateX' | 'translateY'; from: number } | null {
-  if (position === 'bottom') {
-    return { prop: 'translateY', from: slideOffset };
-  }
-
-  if (position === 'top') {
-    return { prop: 'translateY', from: -slideOffset };
-  }
-
-  if (position === 'left') {
-    return { prop: 'translateX', from: -slideOffset };
-  }
-
-  if (position === 'right') {
-    return { prop: 'translateX', from: slideOffset };
-  }
-
-  // center slides don't make sense — fall back to fade only
-  return null;
-}
 
 interface PopupStyleOptions {
   position: PopupPosition;
@@ -148,8 +117,6 @@ const usePopupStyles = createUseSheetStyle(
 
 export function Popup({
   afterOpenChange,
-  animation = DEFAULT_ANIMATION,
-  animationDuration,
   children,
   closeOnMaskClick = true,
   defaultOpen,
@@ -164,7 +131,6 @@ export function Popup({
 }: PopupProps) {
   const portalContext = useContext(PortalContext);
   const tokenStyles = usePopupStyles({ position });
-  const { token } = useTheme();
   const [resolvedOpen, setResolvedOpen] = useControllableValue(
     defaultOpen === true,
     open,
@@ -173,66 +139,14 @@ export function Popup({
   const isOpen = resolvedOpen === true;
   const previousOpenRef = useRef(isOpen);
 
-  const animated = animation !== 'none';
-  const duration = animationDuration ?? token.motionDurationMid;
-  const slideOffset = token.zIndexPopupBase;
-  const progress = useSharedValue(isOpen ? 1 : 0);
-  const [mounted, setMounted] = useState(isOpen);
-  const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const openTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
   useEffect(() => {
     if (previousOpenRef.current === isOpen) {
       return;
     }
 
     previousOpenRef.current = isOpen;
-
-    if (!animated) {
-      afterOpenChange?.(isOpen);
-      return;
-    }
-
-    if (closeTimerRef.current !== null) {
-      clearTimeout(closeTimerRef.current);
-      closeTimerRef.current = null;
-    }
-    if (openTimerRef.current !== null) {
-      clearTimeout(openTimerRef.current);
-      openTimerRef.current = null;
-    }
-
-    const easing = Easing.bezier(...token.motionEaseOut);
-
-    if (isOpen) {
-      setMounted(true);
-      cancelAnimation(progress);
-      progress.value = withTiming(1, { duration, easing });
-      openTimerRef.current = setTimeout(() => {
-        openTimerRef.current = null;
-        afterOpenChange?.(true);
-      }, duration);
-    } else {
-      cancelAnimation(progress);
-      progress.value = withTiming(0, { duration, easing });
-      closeTimerRef.current = setTimeout(() => {
-        closeTimerRef.current = null;
-        setMounted(false);
-        afterOpenChange?.(false);
-      }, duration);
-    }
-  }, [afterOpenChange, animated, duration, isOpen, progress, token.motionEaseOut]);
-
-  useEffect(() => {
-    return () => {
-      if (closeTimerRef.current !== null) {
-        clearTimeout(closeTimerRef.current);
-      }
-      if (openTimerRef.current !== null) {
-        clearTimeout(openTimerRef.current);
-      }
-    };
-  }, []);
+    afterOpenChange?.(isOpen);
+  }, [afterOpenChange, isOpen]);
 
   const close = (reason: PopupCancelReason): void => {
     onCancel?.({ reason });
@@ -268,35 +182,7 @@ export function Popup({
     close('mask');
   };
 
-  const slideConfig =
-    animated && animation === 'slide'
-      ? getSlideTransform(position, slideOffset)
-      : null;
-
-  const maskAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: animated ? progress.value : 1,
-  }));
-
-  const bodyAnimatedStyle = useAnimatedStyle(() => {
-    if (!animated) {
-      return { opacity: 1 };
-    }
-
-    const base: ViewStyle = { opacity: progress.value };
-
-    if (slideConfig) {
-      const translate = progress.value * slideConfig.from;
-      if (slideConfig.prop === 'translateY') {
-        base.transform = [{ translateY: translate }];
-      } else {
-        base.transform = [{ translateX: translate }];
-      }
-    }
-
-    return base;
-  });
-
-  if (!isOpen && !(animated && mounted)) {
+  if (!isOpen) {
     return null;
   }
 
@@ -305,16 +191,16 @@ export function Popup({
       {mask ? (
         <Pressable
           onPress={handleMaskPress}
-          style={[tokenStyles.mask, slotStyles?.mask, maskAnimatedStyle as unknown as StyleProp<ViewStyle>]}
+          style={[tokenStyles.mask, slotStyles?.mask]}
           testID="popup-mask"
         />
       ) : null}
-      <ReanimatedView
-        style={[tokenStyles.body, slotStyles?.body, bodyAnimatedStyle as unknown as StyleProp<ViewStyle>]}
+      <View
+        style={[tokenStyles.body, slotStyles?.body]}
         testID="popup-body"
       >
         {children}
-      </ReanimatedView>
+      </View>
     </ReanimatedView>
   );
 

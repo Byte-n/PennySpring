@@ -502,8 +502,6 @@ function renderPanelFooter(
 
 export function FloatingPanel({
   afterOpenChange,
-  animation,
-  animationDuration,
   cancel,
   cancelText,
   children,
@@ -767,8 +765,6 @@ export function FloatingPanel({
   return (
     <PopupRoot
       afterOpenChange={afterOpenChange}
-      animation={animation}
-      animationDuration={animationDuration}
       closeOnMaskClick={closeOnMaskClick}
       mask={mask}
       mountPoint={mountPoint}
