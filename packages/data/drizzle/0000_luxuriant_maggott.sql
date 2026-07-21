@@ -93,8 +93,9 @@ CREATE TABLE `tb_type` (
 	`updated_time` integer DEFAULT (cast(unixepoch('subsec') * 1000 as integer)) NOT NULL
 );
 
-
-
+-- 先创建默认账本，以便后续插入类型数据时可以引用
+INSERT INTO tb_books (name, description, background) VALUES
+('默认账本', '', '');
 
 
 -- 初始化系统类型数据
@@ -360,7 +361,4 @@ INSERT INTO tb_type (books_id, parent_id, name, icon, type_category, is_system, 
 (1, 19, '债券', 'Certificate', 'transfer', 'system', 5),
 (1, 19, '外汇', 'CurrencyCircleDollar', 'transfer', 'system', 6),
 (1, 19, '手续费', 'Receipt', 'transfer', 'system', 7);
-
-INSERT INTO tb_books (name, description, background) VALUES
-('默认账本', '', '');
 
