@@ -1,4 +1,4 @@
-import { asc, count, eq } from 'drizzle-orm'
+import { and, asc, count, eq } from 'drizzle-orm'
 
 import type { RecordTypeCategoryValue } from '../constants'
 import { RECORD_TYPE_SPECIAL_BEHAVIOR, SYSTEM_STATUS } from '../constants'
@@ -13,8 +13,8 @@ export interface CategoryItem {
   children?: CategoryItem[]
 }
 
-export async function getTypesByCategory(db: Database, typeCategory: RecordTypeCategoryValue): Promise<TypeRow[]> {
-  return db.select().from(types).where(eq(types.typeCategory, typeCategory)).orderBy(asc(types.sort)).all()
+export async function getTypesByCategory(db: Database, typeCategory: RecordTypeCategoryValue, booksId: number): Promise<TypeRow[]> {
+  return db.select().from(types).where(and(eq(types.typeCategory, typeCategory), eq(types.booksId, booksId))).orderBy(asc(types.sort)).all()
 }
 
 export function buildCategoryTree(rows: TypeRow[]): CategoryItem[] {
@@ -29,8 +29,8 @@ export function buildCategoryTree(rows: TypeRow[]): CategoryItem[] {
   }))
 }
 
-export async function getAllTypes(db: Database): Promise<TypeRow[]> {
-  return db.select().from(types).orderBy(asc(types.sort)).all()
+export async function getAllTypes(db: Database, booksId: number): Promise<TypeRow[]> {
+  return db.select().from(types).where(eq(types.booksId, booksId)).orderBy(asc(types.sort)).all()
 }
 
 function validateTypeInput(input: CreateTypeInput | UpdateTypeInput): void {
@@ -39,10 +39,13 @@ function validateTypeInput(input: CreateTypeInput | UpdateTypeInput): void {
   }
 }
 
-async function getTypeRow(tx: Tx, id: number): Promise<TypeRow> {
+async function getTypeRow(tx: Tx, id: number, booksId: number): Promise<TypeRow> {
   const row = await tx.select().from(types).where(eq(types.id, id)).get()
   if (!row) {
     throw new Error(`Type not found: ${id}`)
+  }
+  if (row.booksId !== booksId) {
+    throw new Error(`Type ${id} does not belong to book ${booksId}`)
   }
   return row
 }
@@ -53,6 +56,7 @@ export function createType(db: Database, input: CreateTypeInput): Promise<TypeRo
   return db.transaction(async (tx) => {
     const inserted = await tx.insert(types)
       .values({
+        booksId: input.booksId,
         parentId: input.parentId ?? 0,
         name: input.name,
         icon: input.icon,
@@ -68,7 +72,7 @@ export function createType(db: Database, input: CreateTypeInput): Promise<TypeRo
       throw new Error('Failed to create type')
     }
 
-    return getTypeRow(tx, id)
+    return getTypeRow(tx, id, input.booksId)
   })
 }
 
@@ -76,7 +80,7 @@ export function updateType(db: Database, input: UpdateTypeInput): Promise<TypeRo
   validateTypeInput(input)
 
   return db.transaction(async (tx) => {
-    await getTypeRow(tx, input.id)
+    await getTypeRow(tx, input.id, input.booksId)
 
     await tx.update(types)
       .set({
@@ -90,12 +94,14 @@ export function updateType(db: Database, input: UpdateTypeInput): Promise<TypeRo
       })
       .where(eq(types.id, input.id))
 
-    return getTypeRow(tx, input.id)
+    return getTypeRow(tx, input.id, input.booksId)
   })
 }
 
-export function deleteType(db: Database, id: number): Promise<void> {
+export function deleteType(db: Database, id: number, booksId: number): Promise<void> {
   return db.transaction(async (tx) => {
+    await getTypeRow(tx, id, booksId)
+
     const referencedCountRow = await tx.select({ count: count() })
       .from(records)
       .where(eq(records.typeId, id))

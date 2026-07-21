@@ -14,6 +14,8 @@ import {
 export const booksRelations = relations(books, ({ many }) => ({
   assets: many(assets),
   records: many(records),
+  tags: many(tags),
+  types: many(types),
 }))
 
 export const assetsRelations = relations(assets, ({ many, one }) => ({
@@ -25,7 +27,11 @@ export const assetsRelations = relations(assets, ({ many, one }) => ({
   incomingTransferRecords: many(records, { relationName: 'record_into_asset' }),
 }))
 
-export const typesRelations = relations(types, ({ many }) => ({
+export const typesRelations = relations(types, ({ many, one }) => ({
+  books: one(books, {
+    fields: [types.booksId],
+    references: [books.id],
+  }),
   records: many(records),
 }))
 
@@ -67,7 +73,11 @@ export const recordWithRecordRelations = relations(recordWithRecord, ({ one }) =
   }),
 }))
 
-export const tagsRelations = relations(tags, ({ many }) => ({
+export const tagsRelations = relations(tags, ({ many, one }) => ({
+  books: one(books, {
+    fields: [tags.booksId],
+    references: [books.id],
+  }),
   recordRelations: many(tagWithRecord),
 }))
 

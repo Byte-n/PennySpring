@@ -28,16 +28,22 @@ import type {
   UpdateTransferRecordInput,
 } from './types'
 
-async function getTypeRow(tx: Tx, typeId: number): Promise<TypeRow> {
+async function getTypeRow(tx: Tx, typeId: number, booksId: number): Promise<TypeRow> {
   const requiredTypeId = getRequiredForeignKey({ typeId }, 'typeId')
   const row = await tx.select().from(types).where(eq(types.id, requiredTypeId)).get()
   if (!row) throw new Error(`Type not found: ${requiredTypeId}`)
+  if (row.booksId !== booksId) {
+    throw new Error(`Type ${requiredTypeId} does not belong to book ${booksId}`)
+  }
   return row
 }
 
-async function getRecordRow(tx: Tx, recordId: number): Promise<RecordRow> {
+async function getRecordRow(tx: Tx, recordId: number, booksId?: number): Promise<RecordRow> {
   const row = await tx.select().from(records).where(eq(records.id, recordId)).get()
   if (!row) throw new Error(`Record not found: ${recordId}`)
+  if (booksId !== undefined && row.booksId !== booksId) {
+    throw new Error(`Record ${recordId} does not belong to book ${booksId}`)
+  }
   return row
 }
 
@@ -103,9 +109,12 @@ export function getRecordsByBook(db: Database, booksId: number): Promise<RecordR
     .all()
 }
 
-export async function getRecordDetailById(db: Database, recordId: number): Promise<RecordDetail> {
+export async function getRecordDetailById(db: Database, recordId: number, booksId: number): Promise<RecordDetail> {
   const record = await db.select().from(records).where(eq(records.id, recordId)).get()
   if (!record) throw new Error(`记录不存在: ${recordId}`)
+  if (record.booksId !== booksId) {
+    throw new Error(`记录 ${recordId} 不属于账本 ${booksId}`)
+  }
 
   const tagRows = await db
     .select({ tagId: tagWithRecord.tagId })
@@ -132,7 +141,7 @@ export function createRecord(db: Database, input: CreateRecordInput): Promise<Re
   validateInput(input)
 
   return db.transaction(async (tx) => {
-    const typeRow = await getTypeRow(tx, input.typeId)
+    const typeRow = await getTypeRow(tx, input.typeId, input.booksId)
     await validateBookExists(tx, input, 'booksId')
 
     switch (typeRow.typeCategory) {
@@ -154,9 +163,9 @@ export function updateRecord(db: Database, input: UpdateRecordInput): Promise<Re
   validateInput(input)
 
   return db.transaction(async (tx) => {
-    const oldRecord = await getRecordRow(tx, input.id)
-    const oldTypeRow = await getTypeRow(tx, oldRecord.typeId)
-    const newTypeRow = await getTypeRow(tx, input.typeId)
+    const oldRecord = await getRecordRow(tx, input.id, input.booksId)
+    const oldTypeRow = await getTypeRow(tx, oldRecord.typeId, input.booksId)
+    const newTypeRow = await getTypeRow(tx, input.typeId, input.booksId)
     await validateBookExists(tx, input, 'booksId')
     const intoAssetId = await validateUpdateRecordReferences(tx, input, newTypeRow)
     const charge = input.charge ?? 0
@@ -235,10 +244,10 @@ async function handleExpenseAbsorptionOnModify(tx: Tx, recordId: number) {
   }
 }
 
-export function deleteRecord(db: Database, recordId: number): Promise<void> {
+export function deleteRecord(db: Database, recordId: number, booksId: number): Promise<void> {
   return db.transaction(async (tx) => {
-    const record = await getRecordRow(tx, recordId)
-    const typeRow = await getTypeRow(tx, record.typeId)
+    const record = await getRecordRow(tx, recordId, booksId)
+    const typeRow = await getTypeRow(tx, record.typeId, booksId)
 
     const absorbedByLinks = await tx
       .select({ recordId: recordWithRecord.recordId })

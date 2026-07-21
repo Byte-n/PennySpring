@@ -24,23 +24,23 @@ export function createApi(getDatabase: () => Promise<Database>) {
     record: {
       create: async (input: CreateRecordInput) => services.createRecord(await getDatabase(), input),
       update: async (input: UpdateRecordInput) => services.updateRecord(await getDatabase(), input),
-      delete: async (recordId: number) => services.deleteRecord(await getDatabase(), recordId),
+      delete: async (recordId: number, booksId: number) => services.deleteRecord(await getDatabase(), recordId, booksId),
       getByBook: async (booksId: number) => services.getRecordsByBook(await getDatabase(), booksId),
-      getDetailById: async (recordId: number) => services.getRecordDetailById(await getDatabase(), recordId),
+      getDetailById: async (recordId: number, booksId: number) => services.getRecordDetailById(await getDatabase(), recordId, booksId),
     },
     tag: {
-      getAll: async () => services.getAllTags(await getDatabase()),
+      getAll: async (booksId: number) => services.getAllTags(await getDatabase(), booksId),
       create: async (input: CreateTagInput) => services.createTag(await getDatabase(), input),
       update: async (input: UpdateTagInput) => services.updateTag(await getDatabase(), input),
-      delete: async (tagId: number) => services.deleteTag(await getDatabase(), tagId),
+      delete: async (tagId: number, booksId: number) => services.deleteTag(await getDatabase(), tagId, booksId),
     },
     type: {
-      getAll: async () => services.getAllTypes(await getDatabase()),
+      getAll: async (booksId: number) => services.getAllTypes(await getDatabase(), booksId),
       create: async (input: CreateTypeInput) => services.createType(await getDatabase(), input),
       update: async (input: UpdateTypeInput) => services.updateType(await getDatabase(), input),
-      delete: async (typeId: number) => services.deleteType(await getDatabase(), typeId),
-      getByCategory: async (typeCategory: RecordTypeCategoryValue) =>
-        services.getTypesByCategory(await getDatabase(), typeCategory),
+      delete: async (typeId: number, booksId: number) => services.deleteType(await getDatabase(), typeId, booksId),
+      getByCategory: async (typeCategory: RecordTypeCategoryValue, booksId: number) =>
+        services.getTypesByCategory(await getDatabase(), typeCategory, booksId),
     },
     book: {
       getAll: async () => services.getAllBooks(await getDatabase()),
@@ -51,11 +51,11 @@ export function createApi(getDatabase: () => Promise<Database>) {
       delete: async (bookId: number) => services.deleteBook(await getDatabase(), bookId),
     },
     asset: {
-      getAll: async () => services.getAllAssets(await getDatabase()),
+      getAll: async (booksId: number) => services.getAllAssets(await getDatabase(), booksId),
       getByBook: async (booksId: number) => services.getAssetsByBook(await getDatabase(), booksId),
       create: async (input: CreateAssetInput) => services.createAsset(await getDatabase(), input),
       update: async (input: UpdateAssetInput) => services.updateAsset(await getDatabase(), input),
-      delete: async (assetId: number) => services.deleteAsset(await getDatabase(), assetId),
+      delete: async (assetId: number, booksId: number) => services.deleteAsset(await getDatabase(), assetId, booksId),
     },
   }
 }

@@ -27,6 +27,7 @@ export interface RecordDetail {
 }
 
 export interface CreateTagInput {
+  booksId: number
   name: string
   icon?: string
   invisible?: VisibilityValue
@@ -37,6 +38,7 @@ export interface UpdateTagInput extends CreateTagInput {
 }
 
 export interface CreateTypeInput {
+  booksId: number
   parentId?: number
   name: string
   icon: string

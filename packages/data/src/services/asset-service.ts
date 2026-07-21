@@ -11,16 +11,19 @@ function validateAssetInput(input: CreateAssetInput | UpdateAssetInput): void {
   }
 }
 
-async function getAssetRow(tx: Tx, id: number): Promise<AssetRow> {
+async function getAssetRow(tx: Tx, id: number, booksId: number): Promise<AssetRow> {
   const row = await tx.select().from(assets).where(eq(assets.id, id)).get()
   if (!row) {
     throw new Error(`资产不存在: ${id}`)
   }
+  if (row.booksId !== booksId) {
+    throw new Error(`资产 ${id} 不属于账本 ${booksId}`)
+  }
   return row
 }
 
-export async function getAllAssets(db: Database): Promise<AssetRow[]> {
-  return db.select().from(assets).all()
+export async function getAllAssets(db: Database, booksId: number): Promise<AssetRow[]> {
+  return db.select().from(assets).where(eq(assets.booksId, booksId)).all()
 }
 
 export async function getAssetsByBook(db: Database, booksId: number): Promise<AssetRow[]> {
@@ -46,14 +49,14 @@ export function createAsset(db: Database, input: CreateAssetInput): Promise<Asse
     }).returning({ id: assets.id })
     const id = inserted[0]?.id
     if (!id) throw new Error('创建资产失败')
-    return getAssetRow(tx, id)
+    return getAssetRow(tx, id, input.booksId)
   })
 }
 
 export function updateAsset(db: Database, input: UpdateAssetInput): Promise<AssetRow> {
   validateAssetInput(input)
   return db.transaction(async (tx) => {
-    await getAssetRow(tx, input.id)
+    await getAssetRow(tx, input.id, input.booksId)
     await tx.update(assets).set({
       booksId: input.booksId,
       name: input.name,
@@ -68,12 +71,13 @@ export function updateAsset(db: Database, input: UpdateAssetInput): Promise<Asse
       cardNo: input.cardNo ?? '',
       remark: input.remark ?? '',
     }).where(eq(assets.id, input.id))
-    return getAssetRow(tx, input.id)
+    return getAssetRow(tx, input.id, input.booksId)
   })
 }
 
-export function deleteAsset(db: Database, id: number): Promise<void> {
+export function deleteAsset(db: Database, id: number, booksId: number): Promise<void> {
   return db.transaction(async (tx) => {
+    await getAssetRow(tx, id, booksId)
     const usedCount = await tx.select({ count: count() })
       .from(records).where(eq(records.assetId, id)).get()
     if ((usedCount?.count ?? 0) > 0) {
