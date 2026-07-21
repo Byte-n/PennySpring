@@ -839,3 +839,70 @@ it('uses Row for header horizontal layout instead of View with flexDirection', (
 
   expect(headerSource).toContain('Row');
 });
+
+it('places title on the left and groups action buttons in a right-side container', () => {
+  let testRenderer: renderer.ReactTestRenderer;
+
+  act(() => {
+    testRenderer = renderer.create(
+      <Picker
+        columns={columns}
+        defaultOpen
+        popupProps={{ titleText: '选择项目', cancelText: '取消', okText: '确定' }}
+      />,
+    );
+  });
+
+  const root = testRenderer!.root;
+
+  // 右侧按钮容器存在，两个按钮都在其中，且取消在确定之前
+  const actions = root.findByProps({ testID: 'picker-header-actions' });
+  expect(
+    actions.findAllByType(Button).map(button => button.props.testID),
+  ).toEqual(['picker-cancel-button', 'picker-ok-button']);
+
+  // 标题文本在 DFS 顺序上早于按钮容器，体现“标题在左、按钮容器在右”
+  const dfs = root.findAll(() => true);
+  const titleTextIndex = dfs.findIndex(
+    node => node.type === Text && node.props.children === '选择项目',
+  );
+  const actionsIndex = dfs.findIndex(
+    node => node.props?.testID === 'picker-header-actions',
+  );
+  expect(titleTextIndex).toBeGreaterThanOrEqual(0);
+  expect(actionsIndex).toBeGreaterThan(titleTextIndex);
+});
+
+it('renders title text with xl size and strong weight matching ImagePicker', () => {
+  let testRenderer: renderer.ReactTestRenderer;
+
+  act(() => {
+    testRenderer = renderer.create(
+      <Picker columns={columns} defaultOpen popupProps={{ titleText: '选择项目' }} />,
+    );
+  });
+
+  const titleText = testRenderer!.root.findAllByType(Text).find(
+    node => node.props.children === '选择项目',
+  );
+
+  expect(titleText).toBeDefined();
+  expect(titleText!.props.size).toBe('xl');
+  expect(titleText!.props.weight).toBe('strong');
+});
+
+it('defaults cancel button to danger and ok button to primary color', () => {
+  let testRenderer: renderer.ReactTestRenderer;
+
+  act(() => {
+    testRenderer = renderer.create(
+      <Picker columns={columns} defaultOpen popupProps={{ cancelText: '取消', okText: '确定' }} />,
+    );
+  });
+
+  const cancelButton = testRenderer!.root.findByProps({ testID: 'picker-cancel-button' });
+  const okButton = testRenderer!.root.findByProps({ testID: 'picker-ok-button' });
+
+  expect(cancelButton.props.danger).toBe(true);
+  expect(okButton.props.color).toBe('primary');
+});

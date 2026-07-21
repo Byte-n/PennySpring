@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from '../Button';
-import { Text } from '../Text';
+import type { ButtonColor } from '../Button';
 import type { ReactNode } from 'react';
 import type { StyleProp, TextStyle, ViewStyle } from 'react-native';
 import type { ComponentSize } from '../shares/types';
@@ -9,15 +9,18 @@ interface PickerHeaderButtonProps {
   content?: ReactNode;
   text?: string;
   testID: string;
+  color?: ButtonColor;
   disabled?: boolean;
   onPress?: () => void;
   size?: ComponentSize;
   style?: StyleProp<ViewStyle>;
   textStyle?: StyleProp<TextStyle>;
+  danger?: boolean;
 }
 
 export function PickerHeaderButton({
   content,
+  color,
   disabled,
   onPress,
   size,
@@ -25,6 +28,7 @@ export function PickerHeaderButton({
   testID,
   text,
   textStyle,
+  danger,
 }: PickerHeaderButtonProps) {
   if (content === null) {
     return null;
@@ -36,6 +40,7 @@ export function PickerHeaderButton({
 
   return (
     <Button
+      color={color}
       disabled={disabled}
       onPress={onPress}
       size={size}
@@ -43,8 +48,9 @@ export function PickerHeaderButton({
       styles={{ content: textStyle }}
       testID={testID}
       type="text"
+      danger={danger}
     >
-      {content !== undefined ? content : <Text color="primaryText" style={textStyle}>{text}</Text>}
+      {content !== undefined ? content : text}
     </Button>
   );
 }

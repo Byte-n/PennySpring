@@ -1,8 +1,8 @@
 import React from 'react';
-import { View } from 'react-native';
 import { PickerHeaderButton } from './PickerHeaderButton';
 import { PickerTitle } from './PickerTitle';
 import { Row } from '../Row';
+import { Spacer } from '../Spacer';
 import type { ComponentSize } from '../shares/types';
 import type { PickerHeaderStyles, PickerPopupProps } from './types';
 
@@ -37,27 +37,30 @@ export function PickerHeader({
 }: PickerHeaderProps) {
   return (
     <Row align="center" style={styles.header} testID="picker-header">
-      <View style={styles.headerSide} testID="picker-header-cancel-side">
+      <PickerTitle
+        slotStyles={slotStyles}
+        styles={styles}
+        title={title}
+        titleText={titleText}
+      />
+      <Spacer />
+      <Row
+        align="center"
+        style={styles.headerActions}
+        testID="picker-header-actions"
+      >
         <PickerHeaderButton
+          danger
           content={cancel}
           onPress={onCancelPress}
           size={size}
           style={[styles.headerButton, slotStyles?.cancelButton]}
           testID="picker-cancel-button"
           text={cancelText}
-          textStyle={[styles.headerButtonText, slotStyles?.cancelText]}
+          textStyle={slotStyles?.cancelText}
         />
-      </View>
-      <View style={styles.headerCenter} testID="picker-header-title-center">
-        <PickerTitle
-          slotStyles={slotStyles}
-          styles={styles}
-          title={title}
-          titleText={titleText}
-        />
-      </View>
-      <View style={[styles.headerSide, styles.headerSideEnd]} testID="picker-header-ok-side">
         <PickerHeaderButton
+          color="primary"
           content={ok}
           disabled={okDisabled}
           onPress={onOkPress}
@@ -65,9 +68,9 @@ export function PickerHeader({
           style={[styles.headerButton, slotStyles?.okButton]}
           testID="picker-ok-button"
           text={okText}
-          textStyle={[styles.headerButtonText, slotStyles?.okText]}
+          textStyle={slotStyles?.okText}
         />
-      </View>
+      </Row>
     </Row>
   );
 }

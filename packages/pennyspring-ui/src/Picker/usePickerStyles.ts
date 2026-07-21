@@ -64,37 +64,22 @@ export const usePickerStyles = createUseSheetStyle(
         borderBottomWidth: token.lineWidth,
         borderBottomColor: token.colorSplit,
       },
-      headerSide: {
-        flex: 1,
-        flexDirection: 'row',
-        justifyContent: 'flex-start',
-      },
-      headerSideEnd: {
-        justifyContent: 'flex-end',
-      },
-      headerCenter: {
-        // 标题占最宽
-        flex: 3,
-        alignItems: 'center',
+      headerActions: {
+        flexShrink: 0,
+        gap: token.marginXS,
       },
       headerButton: {
         minHeight: token.controlHeightSM,
         justifyContent: 'center',
-        paddingHorizontal: token.paddingSM,
         borderRadius: token.borderRadiusSM,
       },
-      headerButtonText: {
-        color: token.colorPrimaryText,
-      },
       titleContainer: {
-        flex: 1,
-        alignItems: 'center',
+        alignItems: 'flex-start',
         justifyContent: 'center',
         paddingHorizontal: token.paddingSM,
       },
       titleText: {
         color: token.colorTextHeading,
-        fontWeight: String(token.fontWeightStrong) as TextStyle['fontWeight'],
       },
       body: {
         flex: 1,
