@@ -15,10 +15,9 @@ __tests__/              → 根应用测试
 scripts/                → 本地工具脚本
 ```
 
-### 关键设计约定
-
 - 数据层路径：`packages/data/src/schema` 定义表，`relations` 定义关联，`runtime/client/createDatabase()` 通过
   op-sqlite connection 创建 Drizzle DB，`runtime/migrations/runMigrations()` 执行打包迁移。
+- 数据库表结构的修改不需要走迁移脚本，因为目前此项目应用并为投入正式使用，直接破坏性修改即可。
 
 ## 开发命令
 
