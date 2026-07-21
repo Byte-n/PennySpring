@@ -25,8 +25,8 @@ export const defaultSeedToken: SeedToken = {
   fontSize: 16,
   fontWeight: 400,
   lineWidth: 1,
-  // 现代移动端 UI 基准圆角
-  borderRadius: 8,
+  // 现代移动端 UI 基准圆角：内容卡片 12，浮层经 genRadius 派生至 16
+  borderRadius: 12,
   sizeUnit: 4,
   sizeStep: 4,
   sizePopupArrow: 16,

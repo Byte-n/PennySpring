@@ -122,7 +122,7 @@ describe('seed token merging logic', () => {
     const { defaultSeedToken } = require('../src/defaults');
     expect(defaultSeedToken.colorPrimary).toBe('#1677ff');
     // 移动端调整后的默认值
-    expect(defaultSeedToken.borderRadius).toBe(8);
+    expect(defaultSeedToken.borderRadius).toBe(12);
   });
 
   it('partial seed overrides defaults', () => {

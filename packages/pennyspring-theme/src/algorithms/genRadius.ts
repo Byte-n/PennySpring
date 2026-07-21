@@ -4,36 +4,12 @@ export function genRadius(baseRadius: number): {
   borderRadiusXS: number;
   borderRadiusOuter: number;
 } {
-  let borderRadiusLG = baseRadius + 1;
-  if (baseRadius >= 6 && baseRadius < 16) {
-    borderRadiusLG = baseRadius + 2;
-  } else if (baseRadius >= 16) {
-    borderRadiusLG = 16;
-  }
-
-  let borderRadiusSM: number;
-  if (baseRadius < 7) {
-    borderRadiusSM = 4;
-  } else if (baseRadius < 8) {
-    borderRadiusSM = 5;
-  } else if (baseRadius < 14) {
-    borderRadiusSM = 6;
-  } else if (baseRadius < 16) {
-    borderRadiusSM = 7;
-  } else {
-    borderRadiusSM = 8;
-  }
-
-  const borderRadiusXS = baseRadius < 6 ? 1 : 2;
-
-  let borderRadiusOuter: number;
-  if (baseRadius > 4 && baseRadius < 8) {
-    borderRadiusOuter = 4;
-  } else if (baseRadius >= 8) {
-    borderRadiusOuter = 6;
-  } else {
-    borderRadiusOuter = baseRadius;
-  }
-
+  // 移动端圆角刻度：以 base 为锚按比例派生，整体大于 antd v5 的 PC 基准，
+  // 让浮层与内容卡片拉开差距以突出视觉层次。
+  // 层级：XS(chip/badge) < SM(控件/单元) < base(内容卡片) < LG(浮层)
+  const borderRadiusXS = Math.max(2, Math.floor(baseRadius / 3));
+  const borderRadiusSM = Math.max(4, Math.floor((baseRadius * 2) / 3));
+  const borderRadiusLG = baseRadius + 4;
+  const borderRadiusOuter = baseRadius;
   return { borderRadiusLG, borderRadiusSM, borderRadiusXS, borderRadiusOuter };
 }

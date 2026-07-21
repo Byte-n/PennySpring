@@ -44,22 +44,32 @@ describe('genRadius', () => {
     genRadius = require('../src/algorithms/genRadius').genRadius;
   });
 
-  it('generates radius variants from base 6', () => {
-    const radii = genRadius(6);
-    expect(radii.borderRadiusLG).toBe(8);
-    expect(radii.borderRadiusSM).toBe(4);
-    expect(radii.borderRadiusXS).toBe(2);
+  // 移动端圆角刻度：以 base 为锚按比例派生，整体大于 antd v5 的 PC 基准。
+  // 层级：XS(chip/badge) < SM(控件/单元) < base(内容卡片) < LG(浮层)
+  it('base 12 派生移动端刻度 XS=4 / SM=8 / LG=16 / Outer=12', () => {
+    const radii = genRadius(12);
+    expect(radii.borderRadiusXS).toBe(4);
+    expect(radii.borderRadiusSM).toBe(8);
+    expect(radii.borderRadiusLG).toBe(16);
+    expect(radii.borderRadiusOuter).toBe(12);
   });
 
-  it('generates radius variants from base 4', () => {
+  it('保持层级 XS < SM < base < LG', () => {
+    const radii = genRadius(12);
+    expect(radii.borderRadiusXS).toBeLessThan(radii.borderRadiusSM);
+    expect(radii.borderRadiusSM).toBeLessThan(12);
+    expect(radii.borderRadiusLG).toBeGreaterThan(12);
+  });
+
+  it('LG 随 base 线性增长（base + 4）', () => {
+    expect(genRadius(8).borderRadiusLG).toBe(12);
+    expect(genRadius(16).borderRadiusLG).toBe(20);
+  });
+
+  it('XS/SM 设下限，极小 base 不塌缩', () => {
     const radii = genRadius(4);
-    expect(radii.borderRadiusLG).toBeGreaterThanOrEqual(5);
-  });
-
-  it('borderRadiusOuter is 4 or 6 based on base', () => {
-    const radii = genRadius(6);
-    expect(typeof radii.borderRadiusOuter).toBe('number');
-    expect(radii.borderRadiusOuter).toBeGreaterThan(0);
+    expect(radii.borderRadiusXS).toBeGreaterThanOrEqual(2);
+    expect(radii.borderRadiusSM).toBeGreaterThanOrEqual(4);
   });
 });
 
