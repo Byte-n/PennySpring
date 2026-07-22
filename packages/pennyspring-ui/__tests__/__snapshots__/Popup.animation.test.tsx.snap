@@ -260,7 +260,9 @@ exports[`Popup animation renders without animation when animation prop is not pr
           "top": 0,
         },
         undefined,
-        {},
+        {
+          "opacity": 1,
+        },
       ]
     }
     testID="popup-mask"
@@ -283,7 +285,14 @@ exports[`Popup animation renders without animation when animation prop is not pr
           "shadowRadius": 12,
         },
         undefined,
-        {},
+        {
+          "opacity": 1,
+          "transform": [
+            {
+              "translateY": 0,
+            },
+          ],
+        },
       ]
     }
     testID="popup-body"
