@@ -30,10 +30,19 @@ jest.mock('react-native-reanimated', () => {
     },
     createAnimatedComponent: (Component: React.ComponentType<Record<string, unknown>>) =>
       (props: Record<string, unknown>) => ReactModule.createElement(Component, props),
+    Easing: {
+      bezier: jest.fn(() => (value: number) => value),
+    },
     interpolate: (value: number) => value,
+    runOnJS: jest.fn(fn => fn),
     useAnimatedStyle: (updater: () => Record<string, unknown>) => updater(),
     useSharedValue: (value: number) => ({ value }),
-    withTiming: (value: number) => value,
+    withTiming: jest.fn((value: number, _config: unknown, callback?: (finished: boolean) => void) => {
+      if (typeof callback === 'function') {
+        callback(true);
+      }
+      return value;
+    }),
   };
 });
 
