@@ -1,9 +1,29 @@
 import { create } from 'zustand'
-import { localApi, type BookRow } from '@pennyspring/api'
+import {
+  BOOK_TYPE,
+  createRemoteApi,
+  localApi,
+  type Api,
+  type BookRow,
+} from '@pennyspring/api'
 import { createJSONStorage, persist } from 'zustand/middleware'
 import { bookStorage } from './bookStorage'
 
 const BOOK_STORE_KEY = 'pennyspring-book-store'
+
+const remoteApiCache = new Map<string, Api>()
+
+function createApiForBook(book: BookRow | null): Api {
+  if (book && book.type === BOOK_TYPE.remote && book.remoteUrl) {
+    let api = remoteApiCache.get(book.remoteUrl)
+    if (!api) {
+      api = createRemoteApi(book.remoteUrl)
+      remoteApiCache.set(book.remoteUrl, api)
+    }
+    return api
+  }
+  return localApi
+}
 
 interface BookStore {
   currentBook: BookRow | null
@@ -20,7 +40,8 @@ let rehydrateBookStore = async (): Promise<void> => undefined
 async function getInitialBook(storedBook: BookRow | null): Promise<BookRow> {
   if (storedBook) {
     try {
-      return await localApi.book.getById(storedBook.id)
+      const api = createApiForBook(storedBook)
+      return await api.book.getById(storedBook.id)
     } catch {
       return localApi.book.getDefault()
     }
@@ -57,4 +78,13 @@ export const useBookStore = create<BookStore>()(
 
 rehydrateBookStore = async (): Promise<void> => {
   await useBookStore.persist.rehydrate()
+}
+
+export function useGlobalApi(): Api {
+  const currentBook = useBookStore(state => state.currentBook)
+  return createApiForBook(currentBook)
+}
+
+export function getGlobalApi(): Api {
+  return createApiForBook(useBookStore.getState().currentBook)
 }
