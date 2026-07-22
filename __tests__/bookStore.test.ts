@@ -17,7 +17,7 @@ jest.mock('../src/stores/bookStorage', () => ({
 }));
 
 jest.mock('@pennyspring/api', () => ({
-  api: {
+  localApi: {
     book: {
       getById: jest.fn(),
       getDefault: jest.fn(),
