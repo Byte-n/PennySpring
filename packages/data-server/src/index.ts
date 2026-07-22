@@ -2,7 +2,7 @@ import { createApi, type Api } from '@pennyspring/data'
 
 import { getDatabase } from './adapter-better-sqlite/getDatabase'
 
-export function createApi2({ dbPath }: { dbPath: string }): Api {
+export function createRemoteApi({ dbPath }: { dbPath: string }): Api {
   return createApi(() => getDatabase(dbPath))
 }
 

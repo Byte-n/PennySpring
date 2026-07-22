@@ -1,6 +1,6 @@
 import { useRequest } from 'ahooks'
 import {
-  api,
+  localApi,
   type RecordTypeCategoryValue,
   TypeRow,
 } from '@pennyspring/api';
@@ -16,7 +16,7 @@ export function useCategoryItems(typeCategory: RecordTypeCategoryValue): UseCate
 
   const { data = [], loading } = useRequest(
     () => currentBook
-      ? api.type.getByCategory(typeCategory, currentBook.id)
+      ? localApi.type.getByCategory(typeCategory, currentBook.id)
       : Promise.resolve([]),
     { refreshDeps: [typeCategory, currentBook?.id] },
   )

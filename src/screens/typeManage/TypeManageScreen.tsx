@@ -11,7 +11,7 @@ import {
   useToast,
 } from '@pennyspring/ui';
 import {
-  api,
+  localApi,
   RECORD_TYPE_CATEGORY,
   type TypeRow,
   type RecordTypeCategoryValue,
@@ -54,7 +54,7 @@ export function TypeManageScreen() {
   const { data: allTypes = [], refresh } = useRequest(
     () => {
       if (!currentBook) return Promise.resolve([]);
-      return api.type.getByCategory(category, currentBook.id);
+      return localApi.type.getByCategory(category, currentBook.id);
     },
     { refreshDeps: [category, currentBook] },
   );
@@ -132,7 +132,7 @@ export function TypeManageScreen() {
     try {
       const parentId = isCreatingParent ? 0 : createParentId;
       if (editingType) {
-        await api.type.update({
+        await localApi.type.update({
           id: editingType.id,
           booksId: currentBook.id,
           name,
@@ -141,7 +141,7 @@ export function TypeManageScreen() {
           parentId: editingType.parentId,
         });
       } else {
-        await api.type.create({
+        await localApi.type.create({
           booksId: currentBook.id,
           name,
           icon,

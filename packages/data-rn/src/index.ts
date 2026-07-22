@@ -1,2 +1,2 @@
-export { api1, createApi1 } from './adapter-op-sqlite'
+export { api1, createLocalApi } from './adapter-op-sqlite'
 export { createDatabase, getDatabase, runMigrations } from './adapter-op-sqlite'

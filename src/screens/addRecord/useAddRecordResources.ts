@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useRequest } from 'ahooks';
-import { api, VISIBILITY } from '@pennyspring/api';
+import { localApi, VISIBILITY } from '@pennyspring/api';
 
 import { useBookStore } from '../../stores/bookStore';
 
@@ -13,7 +13,7 @@ export function useAddRecordResources() {
     refresh: refreshAssets,
   } = useRequest(
     () => currentBook
-      ? api.asset.getByBook(currentBook.id)
+      ? localApi.asset.getByBook(currentBook.id)
       : Promise.resolve([]),
     { refreshDeps: [currentBook?.id] },
   );
@@ -22,7 +22,7 @@ export function useAddRecordResources() {
     loading: tagsLoading,
   } = useRequest(
     () => currentBook
-      ? api.tag.getAll(currentBook.id)
+      ? localApi.tag.getAll(currentBook.id)
       : Promise.resolve([]),
     { refreshDeps: [currentBook?.id] },
   );

@@ -1,2 +1,3 @@
 export * from '@pennyspring/data'
-export { api } from './local'
+export { api as localApi } from './local.ts';
+export { api as remoteApi } from './remote';

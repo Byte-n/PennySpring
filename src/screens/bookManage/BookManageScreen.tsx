@@ -18,7 +18,7 @@ import {
   useToast,
 } from '@pennyspring/ui';
 import type { ImagePickerValue } from '@pennyspring/ui';
-import { api, type BookRow } from '@pennyspring/api';
+import { localApi, type BookRow } from '@pennyspring/api';
 import { createUseSheetStyle, toShadowStyle } from '@pennyspring/theme';
 import { useBookStore } from '../../stores/bookStore';
 
@@ -148,7 +148,7 @@ export function BookManageScreen() {
   const styles = useStyles();
   const cardCoverImageStyle = styles.cardCoverImage as StyleProp<ImageStyle>;
   const toast = useToast();
-  const { data: books = [], refresh } = useRequest(() => api.book.getAll());
+  const { data: books = [], refresh } = useRequest(() => localApi.book.getAll());
   const currentBook = useBookStore(state => state.currentBook);
   const initializeBook = useBookStore(state => state.initializeBook);
   const setCurrentBook = useBookStore(state => state.setCurrentBook);
@@ -182,7 +182,7 @@ export function BookManageScreen() {
 
     try {
       if (editingBook) {
-        const updatedBook = await api.book.update({
+        const updatedBook = await localApi.book.update({
           id: editingBook.id,
           name,
           description,
@@ -192,7 +192,7 @@ export function BookManageScreen() {
           setCurrentBook(updatedBook);
         }
       } else {
-        await api.book.create({ name, description, background });
+        await localApi.book.create({ name, description, background });
       }
       setDialogOpen(false);
       refresh();
@@ -213,7 +213,7 @@ export function BookManageScreen() {
   const handleDelete = useCallback(
     async (id: number) => {
       try {
-        await api.book.delete(id);
+        await localApi.book.delete(id);
         if (currentBook?.id === id) {
           await initializeBook();
         }

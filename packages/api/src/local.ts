@@ -1,1 +1,3 @@
-export { api1 as api } from '@pennyspring/data-rn'
+import { createLocalApi } from '@pennyspring/data-rn';
+
+export const api = createLocalApi();

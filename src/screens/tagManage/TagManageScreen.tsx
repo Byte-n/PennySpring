@@ -13,7 +13,7 @@ import {
   Text,
   useToast,
 } from '@pennyspring/ui';
-import { api, VISIBILITY, type TagRow } from '@pennyspring/api';
+import { localApi, VISIBILITY, type TagRow } from '@pennyspring/api';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import { PhosphorIconPicker } from '../../component/PhosphorIconPicker';
 import { getPhosphorIconComponent } from '../../constants/typeIconTree';
@@ -52,7 +52,7 @@ export function TagManageScreen() {
 
   const { data, refresh } = useRequest(() => {
     if (!currentBook) return Promise.resolve([]);
-    return api.tag.getAll(currentBook.id);
+    return localApi.tag.getAll(currentBook.id);
   });
 
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -94,9 +94,9 @@ export function TagManageScreen() {
     }
     try {
       if (editingTag) {
-        await api.tag.update({ id: editingTag.id, booksId: currentBook.id, name: name.trim(), icon });
+        await localApi.tag.update({ id: editingTag.id, booksId: currentBook.id, name: name.trim(), icon });
       } else {
-        await api.tag.create({ booksId: currentBook.id, name: name.trim(), icon });
+        await localApi.tag.create({ booksId: currentBook.id, name: name.trim(), icon });
       }
       setDialogOpen(false);
       refresh();
@@ -112,7 +112,7 @@ export function TagManageScreen() {
         return;
       }
       try {
-        await api.tag.delete(id, currentBook.id);
+        await localApi.tag.delete(id, currentBook.id);
         refresh();
       } catch (e: unknown) {
         toast.show({
@@ -134,7 +134,7 @@ export function TagManageScreen() {
           tag.invisible === VISIBILITY.hidden
             ? VISIBILITY.visible
             : VISIBILITY.hidden;
-        await api.tag.update({
+        await localApi.tag.update({
           id: tag.id,
           booksId: currentBook.id,
           name: tag.name,

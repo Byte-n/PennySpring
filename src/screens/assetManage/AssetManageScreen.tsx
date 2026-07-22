@@ -23,7 +23,7 @@ import {
   useToast,
 } from '@pennyspring/ui';
 import {
-  api,
+  localApi,
   ASSET_CLASSIFICATION,
   ASSET_TYPE,
   type AssetClassificationValue,
@@ -223,7 +223,7 @@ export function AssetManageScreen() {
 
   const { data, loading, refresh } = useRequest(() => {
     if (!currentBook) return Promise.resolve([]);
-    return api.asset.getAll(currentBook.id);
+    return localApi.asset.getAll(currentBook.id);
   });
 
   const cascaderOptions = useMemo(
@@ -363,9 +363,9 @@ export function AssetManageScreen() {
         remark,
       };
       if (editingAsset) {
-        await api.asset.update({ ...input, id: editingAsset.id });
+        await localApi.asset.update({ ...input, id: editingAsset.id });
       } else {
-        await api.asset.create(input);
+        await localApi.asset.create(input);
       }
       setPanelOpen(false);
       refresh();
@@ -395,7 +395,7 @@ export function AssetManageScreen() {
         return;
       }
       try {
-        await api.asset.delete(id, currentBook.id);
+        await localApi.asset.delete(id, currentBook.id);
         refresh();
       } catch (e: unknown) {
         toast.show({

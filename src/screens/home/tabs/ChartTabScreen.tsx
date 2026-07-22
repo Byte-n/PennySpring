@@ -5,7 +5,7 @@ import { useRequest } from 'ahooks';
 import { Column, Loading, Empty, Text } from '@pennyspring/ui';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import {
-  api,
+  localApi,
   RECORD_TYPE_CATEGORY,
   type TypeRow,
 } from '@pennyspring/api';
@@ -45,11 +45,11 @@ export function ChartTabScreen() {
   const bookId = currentBook?.id;
 
   const { data: records = [], loading, refresh } = useRequest(
-    () => (bookId ? api.record.getByBook(bookId) : Promise.resolve([])),
+    () => (bookId ? localApi.record.getByBook(bookId) : Promise.resolve([])),
     { refreshDeps: [bookId] },
   );
   const { data: types = [] } = useRequest<TypeRow[], []>(
-    () => (bookId ? api.type.getAll(bookId) : Promise.resolve([])),
+    () => (bookId ? localApi.type.getAll(bookId) : Promise.resolve([])),
     { refreshDeps: [bookId] },
   );
 

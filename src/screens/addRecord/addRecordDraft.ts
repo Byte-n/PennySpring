@@ -1,7 +1,7 @@
 import {
   ASSET_CLASSIFICATION,
   ASSET_TYPE,
-  api,
+  localApi,
   type AssetRow,
   type CreateRecordInput,
   type RecordRow,
@@ -167,10 +167,10 @@ export async function saveAddRecordDraft(
 ): Promise<void> {
   const input = buildCreateRecordInput(tabType, draft);
   if (editingRecordId !== undefined) {
-    await api.record.update({ ...input, id: editingRecordId });
+    await localApi.record.update({ ...input, id: editingRecordId });
     return;
   }
-  await api.record.create(input);
+  await localApi.record.create(input);
 }
 
 function isVisibleAsset(asset: AssetRow): boolean {

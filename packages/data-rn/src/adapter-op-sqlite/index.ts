@@ -1,12 +1,10 @@
-import { createApi, type Api } from '@pennyspring/data'
+import { type Api, createApi } from '@pennyspring/data';
 
-import { getDatabase } from './getDatabase'
+import { getDatabase } from './getDatabase';
 
-export function createApi1(): Api {
-  return createApi(getDatabase)
+export function createLocalApi(): Api {
+  return createApi(getDatabase);
 }
-
-export const api1 = createApi1()
 
 export { createDatabase } from './database'
 export { runMigrations } from './migrate'

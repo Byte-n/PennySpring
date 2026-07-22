@@ -65,4 +65,4 @@ function createRemoteApi(): Api {
   }) as Api
 }
 
-export const api = createRemoteApi()
+export const api = createRemoteApi();

@@ -4,7 +4,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useRequest } from 'ahooks';
 import { Column, Loading, Empty, Dialog, Text } from '@pennyspring/ui';
 import { createUseSheetStyle } from '@pennyspring/theme';
-import { api, type AssetRow, type TypeRow } from '@pennyspring/api';
+import { localApi, type AssetRow, type TypeRow } from '@pennyspring/api';
 import { useBookStore } from '../../../stores/bookStore';
 import { ROOT_ROUTES, useNavigation } from '../../../navigation';
 import { MonthSummaryCard } from './detail/MonthSummaryCard';
@@ -48,15 +48,15 @@ export function DetailTabScreen() {
   const bookId = currentBook?.id;
 
   const { data: records = [], loading, refresh } = useRequest(
-    () => (bookId ? api.record.getByBook(bookId) : Promise.resolve([])),
+    () => (bookId ? localApi.record.getByBook(bookId) : Promise.resolve([])),
     { refreshDeps: [bookId] },
   );
   const { data: types = [] } = useRequest<TypeRow[], []>(
-    () => (bookId ? api.type.getAll(bookId) : Promise.resolve([])),
+    () => (bookId ? localApi.type.getAll(bookId) : Promise.resolve([])),
     { refreshDeps: [bookId] },
   );
   const { data: assets = [] } = useRequest<AssetRow[], []>(
-    () => (bookId ? api.asset.getByBook(bookId) : Promise.resolve([])),
+    () => (bookId ? localApi.asset.getByBook(bookId) : Promise.resolve([])),
     { refreshDeps: [bookId] },
   );
 
@@ -96,7 +96,7 @@ export function DetailTabScreen() {
     setPendingDelete(null);
     if (!target) return;
     if (!currentBook) return;
-    await api.record.delete(target.record.id, currentBook.id);
+    await localApi.record.delete(target.record.id, currentBook.id);
     closePanel();
     refresh();
   };

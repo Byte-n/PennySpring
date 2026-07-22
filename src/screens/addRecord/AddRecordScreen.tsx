@@ -9,7 +9,7 @@ import {
 } from '@pennyspring/ui';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import {
-  api,
+  localApi,
   RECORD_TYPE_CATEGORY,
   type RecordTypeCategoryValue,
 } from '@pennyspring/api';
@@ -52,8 +52,8 @@ function AddRecordContent({ recordId }: AddRecordContentProps) {
     if (recordId === undefined || !currentBook) return;
     let active = true;
     (async () => {
-      const detail = await api.record.getDetailById(recordId, currentBook.id);
-      const types = await api.type.getAll(currentBook.id);
+      const detail = await localApi.record.getDetailById(recordId, currentBook.id);
+      const types = await localApi.type.getAll(currentBook.id);
       const typeRow = types.find(type => type.id === detail.record.typeId);
       if (!active) return;
       init({
