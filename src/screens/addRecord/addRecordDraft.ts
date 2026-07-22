@@ -1,7 +1,6 @@
 import {
   ASSET_CLASSIFICATION,
   ASSET_TYPE,
-  localApi,
   type AssetRow,
   type CreateRecordInput,
   type RecordRow,
@@ -12,6 +11,7 @@ import {
   type TypeRow,
   VISIBILITY,
 } from '@pennyspring/api';
+import { getGlobalApi } from '../../stores/bookStore';
 
 export type AddRecordTabType = 'expense' | 'income' | 'transfer';
 export type TransferAssetRole = 'from' | 'to';
@@ -166,11 +166,12 @@ export async function saveAddRecordDraft(
   editingRecordId: number | undefined,
 ): Promise<void> {
   const input = buildCreateRecordInput(tabType, draft);
+  const api = getGlobalApi();
   if (editingRecordId !== undefined) {
-    await localApi.record.update({ ...input, id: editingRecordId });
+    await api.record.update({ ...input, id: editingRecordId });
     return;
   }
-  await localApi.record.create(input);
+  await api.record.create(input);
 }
 
 function isVisibleAsset(asset: AssetRow): boolean {

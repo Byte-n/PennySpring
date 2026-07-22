@@ -13,11 +13,11 @@ import {
   Text,
   useToast,
 } from '@pennyspring/ui';
-import { localApi, VISIBILITY, type TagRow } from '@pennyspring/api';
+import { VISIBILITY, type TagRow } from '@pennyspring/api';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import { PhosphorIconPicker } from '../../component/PhosphorIconPicker';
 import { getPhosphorIconComponent } from '../../constants/typeIconTree';
-import { useBookStore } from '../../stores/bookStore';
+import { useBookStore, useGlobalApi } from '../../stores/bookStore';
 
 const useStyles = createUseSheetStyle(token => ({
   container: {
@@ -49,10 +49,11 @@ export function TagManageScreen() {
   const styles = useStyles();
   const toast = useToast();
   const currentBook = useBookStore(state => state.currentBook);
+  const globalApi = useGlobalApi();
 
   const { data, refresh } = useRequest(() => {
     if (!currentBook) return Promise.resolve([]);
-    return localApi.tag.getAll(currentBook.id);
+    return globalApi.tag.getAll(currentBook.id);
   });
 
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -94,9 +95,9 @@ export function TagManageScreen() {
     }
     try {
       if (editingTag) {
-        await localApi.tag.update({ id: editingTag.id, booksId: currentBook.id, name: name.trim(), icon });
+        await globalApi.tag.update({ id: editingTag.id, booksId: currentBook.id, name: name.trim(), icon });
       } else {
-        await localApi.tag.create({ booksId: currentBook.id, name: name.trim(), icon });
+        await globalApi.tag.create({ booksId: currentBook.id, name: name.trim(), icon });
       }
       setDialogOpen(false);
       refresh();
@@ -112,7 +113,7 @@ export function TagManageScreen() {
         return;
       }
       try {
-        await localApi.tag.delete(id, currentBook.id);
+        await globalApi.tag.delete(id, currentBook.id);
         refresh();
       } catch (e: unknown) {
         toast.show({
@@ -134,7 +135,7 @@ export function TagManageScreen() {
           tag.invisible === VISIBILITY.hidden
             ? VISIBILITY.visible
             : VISIBILITY.hidden;
-        await localApi.tag.update({
+        await globalApi.tag.update({
           id: tag.id,
           booksId: currentBook.id,
           name: tag.name,

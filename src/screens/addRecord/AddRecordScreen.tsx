@@ -9,7 +9,6 @@ import {
 } from '@pennyspring/ui';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import {
-  localApi,
   RECORD_TYPE_CATEGORY,
   type RecordTypeCategoryValue,
 } from '@pennyspring/api';
@@ -17,7 +16,7 @@ import { ExpenseTabScreen } from './tabs/ExpenseTabScreen.tsx';
 import { IncomeTabScreen } from './tabs/IncomeTabScreen.tsx';
 import { TransferTabScreen } from './tabs/TransferTabScreen.tsx';
 import { ROOT_ROUTES, type RootStackParamList } from '../../navigation';
-import { useBookStore } from '../../stores/bookStore';
+import { useBookStore, useGlobalApi } from '../../stores/bookStore';
 
 type AddRecordRoute = RouteProp<RootStackParamList, typeof ROOT_ROUTES.AddRecord>;
 
@@ -45,6 +44,7 @@ function AddRecordContent({ recordId }: AddRecordContentProps) {
   const styles = useStyles();
   const { init } = useAddRecordContext();
   const currentBook = useBookStore(state => state.currentBook);
+  const globalApi = useGlobalApi();
   const [initialRouteName, setInitialRouteName] = useState<string>();
   const [loading, setLoading] = useState(recordId !== undefined);
 
@@ -52,8 +52,8 @@ function AddRecordContent({ recordId }: AddRecordContentProps) {
     if (recordId === undefined || !currentBook) return;
     let active = true;
     (async () => {
-      const detail = await localApi.record.getDetailById(recordId, currentBook.id);
-      const types = await localApi.type.getAll(currentBook.id);
+      const detail = await globalApi.record.getDetailById(recordId, currentBook.id);
+      const types = await globalApi.type.getAll(currentBook.id);
       const typeRow = types.find(type => type.id === detail.record.typeId);
       if (!active) return;
       init({

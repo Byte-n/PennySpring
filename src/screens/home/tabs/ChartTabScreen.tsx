@@ -5,11 +5,10 @@ import { useRequest } from 'ahooks';
 import { Column, Loading, Empty, Text } from '@pennyspring/ui';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import {
-  localApi,
   RECORD_TYPE_CATEGORY,
   type TypeRow,
 } from '@pennyspring/api';
-import { useBookStore } from '../../../stores/bookStore';
+import { useBookStore, useGlobalApi } from '../../../stores/bookStore';
 import { MonthSummaryCard } from './detail/MonthSummaryCard';
 import {
   filterByMonth,
@@ -38,6 +37,7 @@ const useStyles = createUseSheetStyle(token => ({
 export function ChartTabScreen() {
   const styles = useStyles();
   const currentBook = useBookStore(state => state.currentBook);
+  const globalApi = useGlobalApi();
   const [selectedParentTypeId, setSelectedParentTypeId] = useState<number | null>(
     null,
   );
@@ -45,11 +45,11 @@ export function ChartTabScreen() {
   const bookId = currentBook?.id;
 
   const { data: records = [], loading, refresh } = useRequest(
-    () => (bookId ? localApi.record.getByBook(bookId) : Promise.resolve([])),
+    () => (bookId ? globalApi.record.getByBook(bookId) : Promise.resolve([])),
     { refreshDeps: [bookId] },
   );
   const { data: types = [] } = useRequest<TypeRow[], []>(
-    () => (bookId ? localApi.type.getAll(bookId) : Promise.resolve([])),
+    () => (bookId ? globalApi.type.getAll(bookId) : Promise.resolve([])),
     { refreshDeps: [bookId] },
   );
 

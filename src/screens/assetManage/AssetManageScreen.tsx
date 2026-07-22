@@ -23,7 +23,6 @@ import {
   useToast,
 } from '@pennyspring/ui';
 import {
-  localApi,
   ASSET_CLASSIFICATION,
   ASSET_TYPE,
   type AssetClassificationValue,
@@ -37,7 +36,7 @@ import {
   ASSET_CLASSIFICATION_TREE,
   type AssetClassificationTreeNode,
 } from '../../constants/assetClassificationTree';
-import { useBookStore } from '../../stores/bookStore';
+import { useBookStore, useGlobalApi } from '../../stores/bookStore';
 
 const PICKER_BASE_YEAR = 2026;
 const PICKER_BASE_MONTH = 0;
@@ -220,10 +219,11 @@ export function AssetManageScreen() {
 
   const toast = useToast();
   const currentBook = useBookStore(state => state.currentBook);
+  const globalApi = useGlobalApi();
 
   const { data, loading, refresh } = useRequest(() => {
     if (!currentBook) return Promise.resolve([]);
-    return localApi.asset.getAll(currentBook.id);
+    return globalApi.asset.getAll(currentBook.id);
   });
 
   const cascaderOptions = useMemo(
@@ -363,9 +363,9 @@ export function AssetManageScreen() {
         remark,
       };
       if (editingAsset) {
-        await localApi.asset.update({ ...input, id: editingAsset.id });
+        await globalApi.asset.update({ ...input, id: editingAsset.id });
       } else {
-        await localApi.asset.create(input);
+        await globalApi.asset.create(input);
       }
       setPanelOpen(false);
       refresh();
@@ -395,7 +395,7 @@ export function AssetManageScreen() {
         return;
       }
       try {
-        await localApi.asset.delete(id, currentBook.id);
+        await globalApi.asset.delete(id, currentBook.id);
         refresh();
       } catch (e: unknown) {
         toast.show({

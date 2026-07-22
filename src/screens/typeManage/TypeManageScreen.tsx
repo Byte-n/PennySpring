@@ -11,7 +11,6 @@ import {
   useToast,
 } from '@pennyspring/ui';
 import {
-  localApi,
   RECORD_TYPE_CATEGORY,
   type TypeRow,
   type RecordTypeCategoryValue,
@@ -22,7 +21,7 @@ import { PhosphorIconPicker } from '../../component/PhosphorIconPicker';
 import { getPhosphorIconComponent } from '../../constants/typeIconTree';
 import { PlusSquareIcon } from 'phosphor-react-native';
 import { ScrollView } from 'react-native';
-import { useBookStore } from '../../stores/bookStore';
+import { useBookStore, useGlobalApi } from '../../stores/bookStore';
 
 const CATEGORY_OPTIONS = [
   { value: RECORD_TYPE_CATEGORY.expense, label: '支出' },
@@ -46,6 +45,7 @@ export function TypeManageScreen() {
   const styles = useStyles();
   const toast = useToast();
   const currentBook = useBookStore(state => state.currentBook);
+  const globalApi = useGlobalApi();
 
   const [category, setCategory] = useState<RecordTypeCategoryValue>(
     RECORD_TYPE_CATEGORY.expense,
@@ -54,7 +54,7 @@ export function TypeManageScreen() {
   const { data: allTypes = [], refresh } = useRequest(
     () => {
       if (!currentBook) return Promise.resolve([]);
-      return localApi.type.getByCategory(category, currentBook.id);
+      return globalApi.type.getByCategory(category, currentBook.id);
     },
     { refreshDeps: [category, currentBook] },
   );
@@ -132,7 +132,7 @@ export function TypeManageScreen() {
     try {
       const parentId = isCreatingParent ? 0 : createParentId;
       if (editingType) {
-        await localApi.type.update({
+        await globalApi.type.update({
           id: editingType.id,
           booksId: currentBook.id,
           name,
@@ -141,7 +141,7 @@ export function TypeManageScreen() {
           parentId: editingType.parentId,
         });
       } else {
-        await localApi.type.create({
+        await globalApi.type.create({
           booksId: currentBook.id,
           name,
           icon,

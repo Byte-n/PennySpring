@@ -11,7 +11,7 @@ import {
   Text,
   useToast,
 } from '@pennyspring/ui';
-import { localApi, RECORD_TYPE_CATEGORY } from '@pennyspring/api';
+import { RECORD_TYPE_CATEGORY } from '@pennyspring/api';
 import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
 import { AmountDisplay } from '../components/AmountDisplay';
 import { CategoryGrid } from '../../../component/CategoryGrid';
@@ -34,12 +34,14 @@ import { toNumberValue, toNumberValues } from '../selectValues';
 import { useAddRecordResources } from '../useAddRecordResources';
 import { useInitialTypeId } from '../useInitialTypeId';
 import { useNavigation } from '../../../navigation';
+import { useGlobalApi } from '../../../stores/bookStore';
 
 export function IncomeTabScreen() {
   const { token } = useTheme();
   const styles = useStyles();
   const toast = useToast();
   const navigation = useNavigation();
+  const globalApi = useGlobalApi();
   const {
     amount,
     assetId,
@@ -73,7 +75,7 @@ export function IncomeTabScreen() {
   } = useAddRecordResources();
   const { data: records = [], loading: recordsLoading } = useRequest(
     () =>
-      currentBook ? localApi.record.getByBook(currentBook.id) : Promise.resolve([]),
+      currentBook ? globalApi.record.getByBook(currentBook.id) : Promise.resolve([]),
     { refreshDeps: [currentBook?.id] },
   );
   const selectedType = useMemo(

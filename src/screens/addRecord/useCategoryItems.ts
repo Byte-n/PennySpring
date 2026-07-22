@@ -1,10 +1,9 @@
 import { useRequest } from 'ahooks'
 import {
-  localApi,
   type RecordTypeCategoryValue,
   TypeRow,
 } from '@pennyspring/api';
-import { useBookStore } from '../../stores/bookStore';
+import { useBookStore, useGlobalApi } from '../../stores/bookStore';
 
 interface UseCategoryItemsResult {
   categories: TypeRow[];
@@ -13,10 +12,11 @@ interface UseCategoryItemsResult {
 
 export function useCategoryItems(typeCategory: RecordTypeCategoryValue): UseCategoryItemsResult {
   const currentBook = useBookStore(state => state.currentBook);
+  const globalApi = useGlobalApi();
 
   const { data = [], loading } = useRequest(
     () => currentBook
-      ? localApi.type.getByCategory(typeCategory, currentBook.id)
+      ? globalApi.type.getByCategory(typeCategory, currentBook.id)
       : Promise.resolve([]),
     { refreshDeps: [typeCategory, currentBook?.id] },
   )

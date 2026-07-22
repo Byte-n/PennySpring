@@ -4,8 +4,8 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useRequest } from 'ahooks';
 import { Column, Loading, Empty, Dialog, Text } from '@pennyspring/ui';
 import { createUseSheetStyle } from '@pennyspring/theme';
-import { localApi, type AssetRow, type TypeRow } from '@pennyspring/api';
-import { useBookStore } from '../../../stores/bookStore';
+import { type AssetRow, type TypeRow } from '@pennyspring/api';
+import { useBookStore, useGlobalApi } from '../../../stores/bookStore';
 import { ROOT_ROUTES, useNavigation } from '../../../navigation';
 import { MonthSummaryCard } from './detail/MonthSummaryCard';
 import { DayGroupCard } from './detail/DayGroupCard';
@@ -42,21 +42,22 @@ export function DetailTabScreen() {
   const styles = useStyles();
   const navigation = useNavigation();
   const currentBook = useBookStore(state => state.currentBook);
+  const globalApi = useGlobalApi();
   const [activeView, setActiveView] = useState<DetailRecordView | null>(null);
   const [pendingDelete, setPendingDelete] = useState<DetailRecordView | null>(null);
 
   const bookId = currentBook?.id;
 
   const { data: records = [], loading, refresh } = useRequest(
-    () => (bookId ? localApi.record.getByBook(bookId) : Promise.resolve([])),
+    () => (bookId ? globalApi.record.getByBook(bookId) : Promise.resolve([])),
     { refreshDeps: [bookId] },
   );
   const { data: types = [] } = useRequest<TypeRow[], []>(
-    () => (bookId ? localApi.type.getAll(bookId) : Promise.resolve([])),
+    () => (bookId ? globalApi.type.getAll(bookId) : Promise.resolve([])),
     { refreshDeps: [bookId] },
   );
   const { data: assets = [] } = useRequest<AssetRow[], []>(
-    () => (bookId ? localApi.asset.getByBook(bookId) : Promise.resolve([])),
+    () => (bookId ? globalApi.asset.getByBook(bookId) : Promise.resolve([])),
     { refreshDeps: [bookId] },
   );
 
@@ -96,7 +97,7 @@ export function DetailTabScreen() {
     setPendingDelete(null);
     if (!target) return;
     if (!currentBook) return;
-    await localApi.record.delete(target.record.id, currentBook.id);
+    await globalApi.record.delete(target.record.id, currentBook.id);
     closePanel();
     refresh();
   };
