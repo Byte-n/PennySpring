@@ -12,15 +12,16 @@ import {
   ImagePicker,
   Input,
   Row,
+  Segmented,
   SwipeAction,
   Tag,
   Text,
   useToast,
 } from '@pennyspring/ui';
 import type { ImagePickerValue } from '@pennyspring/ui';
-import { localApi, type BookRow } from '@pennyspring/api';
+import { BOOK_TYPE, type BookRow, type BookTypeValue } from '@pennyspring/api';
 import { createUseSheetStyle, toShadowStyle } from '@pennyspring/theme';
-import { useBookStore } from '../../stores/bookStore';
+import { useBookStore, useGlobalApi } from '../../stores/bookStore';
 
 const useStyles = createUseSheetStyle(token => ({
   container: {
@@ -120,6 +121,11 @@ const useStyles = createUseSheetStyle(token => ({
   },
 }));
 
+const BOOK_TYPE_OPTIONS: { value: BookTypeValue; labelText: string }[] = [
+  { value: BOOK_TYPE.local, labelText: '本地账本' },
+  { value: BOOK_TYPE.remote, labelText: '远程账本' },
+];
+
 const DATE_TIME_FORMAT_OPTIONS: Intl.DateTimeFormatOptions = {
   year: 'numeric',
   month: '2-digit',
@@ -148,7 +154,8 @@ export function BookManageScreen() {
   const styles = useStyles();
   const cardCoverImageStyle = styles.cardCoverImage as StyleProp<ImageStyle>;
   const toast = useToast();
-  const { data: books = [], refresh } = useRequest(() => localApi.book.getAll());
+  const globalApi = useGlobalApi();
+  const { data: books = [], refresh } = useRequest(() => globalApi.book.getAll());
   const currentBook = useBookStore(state => state.currentBook);
   const initializeBook = useBookStore(state => state.initializeBook);
   const setCurrentBook = useBookStore(state => state.setCurrentBook);
@@ -160,12 +167,16 @@ export function BookManageScreen() {
   const [backgroundImage, setBackgroundImage] = useState<
     ImagePickerValue | undefined
   >();
+  const [bookType, setBookType] = useState<BookTypeValue>(BOOK_TYPE.local);
+  const [remoteUrl, setRemoteUrl] = useState('');
 
   const openCreateDialog = useCallback(() => {
     setEditingBook(null);
     setName('');
     setDescription('');
     setBackgroundImage(undefined);
+    setBookType(BOOK_TYPE.local);
+    setRemoteUrl('');
     setDialogOpen(true);
   }, []);
 
@@ -174,6 +185,8 @@ export function BookManageScreen() {
     setName(book.name);
     setDescription(book.description);
     setBackgroundImage(getImageValue(book.background));
+    setBookType(book.type);
+    setRemoteUrl(book.remoteUrl);
     setDialogOpen(true);
   }, []);
 
@@ -182,17 +195,19 @@ export function BookManageScreen() {
 
     try {
       if (editingBook) {
-        const updatedBook = await localApi.book.update({
+        const updatedBook = await globalApi.book.update({
           id: editingBook.id,
           name,
           description,
           background,
+          type: bookType,
+          remoteUrl,
         });
         if (currentBook?.id === updatedBook.id) {
           setCurrentBook(updatedBook);
         }
       } else {
-        await localApi.book.create({ name, description, background });
+        await globalApi.book.create({ name, description, background, type: bookType, remoteUrl });
       }
       setDialogOpen(false);
       refresh();
@@ -201,11 +216,13 @@ export function BookManageScreen() {
     }
   }, [
     backgroundImage,
+    bookType,
     currentBook,
     editingBook,
     name,
     description,
     refresh,
+    remoteUrl,
     setCurrentBook,
     toast,
   ]);
@@ -213,7 +230,7 @@ export function BookManageScreen() {
   const handleDelete = useCallback(
     async (id: number) => {
       try {
-        await localApi.book.delete(id);
+        await globalApi.book.delete(id);
         if (currentBook?.id === id) {
           await initializeBook();
         }
@@ -364,7 +381,7 @@ export function BookManageScreen() {
         }}
         titleText={editingBook ? '编辑账本' : '新增账本'}
         onOk={handleOk}
-        okDisabled={!name.trim()}
+        okDisabled={!name.trim() || (bookType === BOOK_TYPE.remote && !remoteUrl.trim())}
       >
         <Column style={styles.dialogBody}>
           <Input
@@ -374,11 +391,25 @@ export function BookManageScreen() {
             onChange={setName}
           />
           <Input
-            labelText="aa"
+            labelText="描述"
             placeholder="描述(可选)"
             value={description}
             onChange={setDescription}
           />
+          <Segmented
+            block
+            options={BOOK_TYPE_OPTIONS}
+            value={bookType}
+            onChange={value => setBookType(value as BookTypeValue)}
+          />
+          {bookType === BOOK_TYPE.remote ? (
+            <Input
+              labelText="服务器地址"
+              placeholder="请输入服务器地址"
+              value={remoteUrl}
+              onChange={setRemoteUrl}
+            />
+          ) : null}
           <ImagePicker
             label="图片"
             onChange={setBackgroundImage}
