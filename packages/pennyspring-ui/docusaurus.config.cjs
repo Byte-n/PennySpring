@@ -178,11 +178,21 @@ const config = {
               ],
             },
             plugins: [
+              // react-native-reanimated web support: define process.env.JEST_WORKER_ID
+              // so the module can evaluate in the browser (see Reanimated web docs)
+              new webpack.EnvironmentPlugin({
+                JEST_WORKER_ID: null,
+              }),
               new webpack.DefinePlugin({
                 __DEV__: JSON.stringify(false),
                 __PENNYSPRING_UI_PREVIEW_SOURCES__: JSON.stringify(
                   collectPreviewSources(previewRoot),
                 ),
+                // react-native-reanimated
+                // Fallback: replace any remaining process.env references with
+                // an empty object so they resolve to undefined instead of
+                // throwing ReferenceError in the browser
+                'process.env': '{}',
               }),
             ],
           };
