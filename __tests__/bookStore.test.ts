@@ -23,6 +23,11 @@ jest.mock('@pennyspring/api', () => ({
       getDefault: jest.fn(),
     },
   },
+  createRemoteApi: jest.fn(),
+  BOOK_TYPE: {
+    local: 'local',
+    remote: 'remote',
+  },
 }));
 
 import { localApi } from '@pennyspring/api';
@@ -35,6 +40,8 @@ const defaultBook: BookRow = {
   name: '默认账本',
   description: '',
   background: '',
+  type: 'local',
+  remoteUrl: '',
   createdTime: 1,
   updatedTime: 1,
 };
@@ -44,6 +51,8 @@ const travelBook: BookRow = {
   name: '旅行账本',
   description: '旅行消费',
   background: '',
+  type: 'local',
+  remoteUrl: '',
   createdTime: 2,
   updatedTime: 2,
 };

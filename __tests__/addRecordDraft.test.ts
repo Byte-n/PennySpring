@@ -12,6 +12,11 @@ import {
   type TypeRow,
 } from '@pennyspring/api';
 
+jest.mock('../src/stores/bookStore', () => ({
+  getGlobalApi: jest.fn(),
+  useGlobalApi: jest.fn(),
+}));
+
 import {
   buildCreateRecordInput,
   filterTransferAssets,
