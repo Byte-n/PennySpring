@@ -22,6 +22,8 @@ CREATE TABLE `tb_books` (
 	`name` text NOT NULL,
 	`description` text DEFAULT '' NOT NULL,
 	`background` text DEFAULT '' NOT NULL,
+	`type` text DEFAULT 'local' NOT NULL,
+	`remote_url` text DEFAULT '' NOT NULL,
 	`created_time` integer DEFAULT (cast(unixepoch('subsec') * 1000 as integer)) NOT NULL,
 	`updated_time` integer DEFAULT (cast(unixepoch('subsec') * 1000 as integer)) NOT NULL
 );
@@ -92,6 +94,7 @@ CREATE TABLE `tb_type` (
 	`created_time` integer DEFAULT (cast(unixepoch('subsec') * 1000 as integer)) NOT NULL,
 	`updated_time` integer DEFAULT (cast(unixepoch('subsec') * 1000 as integer)) NOT NULL
 );
+
 
 -- 先创建默认账本，以便后续插入类型数据时可以引用
 INSERT INTO tb_books (name, description, background) VALUES

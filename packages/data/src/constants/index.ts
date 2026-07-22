@@ -341,6 +341,19 @@ export const REIMBURSABLE = enumOf({
   },
 });
 
+export const BOOK_TYPE = enumOf({
+  local: {
+    value: 'local',
+    label: '本地账本',
+    description: '数据存储在本地设备',
+  },
+  remote: {
+    value: 'remote',
+    label: '远程账本',
+    description: '数据存储在远程服务器',
+  },
+});
+
 export type AssetTypeValue = EnumOf<typeof ASSET_TYPE>;
 export type AssetClassificationValue = EnumOf<typeof ASSET_CLASSIFICATION>;
 export type IconValue = string;
@@ -349,3 +362,4 @@ export type SystemStatusValue = EnumOf<typeof SYSTEM_STATUS>;
 export type RecordTypeCategoryValue = EnumOf<typeof RECORD_TYPE_CATEGORY>;
 export type RecordTypeSpecialBehaviorValue = EnumOf<typeof RECORD_TYPE_SPECIAL_BEHAVIOR>;
 export type ReimbursableValue = EnumOf<typeof REIMBURSABLE>;
+export type BookTypeValue = EnumOf<typeof BOOK_TYPE>;

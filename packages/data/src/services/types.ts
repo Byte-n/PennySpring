@@ -3,6 +3,7 @@ import type { InferSelectModel } from 'drizzle-orm'
 import type {
   AssetClassificationValue,
   AssetTypeValue,
+  BookTypeValue,
   RecordTypeCategoryValue,
   RecordTypeSpecialBehaviorValue,
   ReimbursableValue,
@@ -99,6 +100,8 @@ export interface CreateBookInput {
   name: string
   description?: string
   background?: string
+  type?: BookTypeValue
+  remoteUrl?: string
 }
 
 export interface UpdateBookInput extends CreateBookInput {
