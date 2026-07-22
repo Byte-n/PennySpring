@@ -1,3 +1,6 @@
 export * from '@pennyspring/data'
-export { api as localApi } from './local.ts';
-export { api as remoteApi } from './remote';
+import { createLocalApi } from '@pennyspring/data-rn';
+
+export const localApi = createLocalApi();
+
+export { createRemoteApi } from './remote';

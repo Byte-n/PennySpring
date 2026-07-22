@@ -25,7 +25,7 @@ jest.mock('@pennyspring/api', () => ({
   },
 }));
 
-import { api } from '@pennyspring/api';
+import { localApi } from '@pennyspring/api';
 import { useBookStore } from '../src/stores/bookStore';
 
 const STORE_KEY = 'pennyspring-book-store';
@@ -74,12 +74,12 @@ describe('bookStore', () => {
       STORE_KEY,
       JSON.stringify({ state: { currentBook: travelBook }, version: 1 }),
     );
-    jest.mocked(api.book.getById).mockResolvedValue(travelBook);
+    jest.mocked(localApi.book.getById).mockResolvedValue(travelBook);
 
     await useBookStore.getState().initializeBook();
 
-    expect(api.book.getById).toHaveBeenCalledWith(travelBook.id);
-    expect(api.book.getDefault).not.toHaveBeenCalled();
+    expect(localApi.book.getById).toHaveBeenCalledWith(travelBook.id);
+    expect(localApi.book.getDefault).not.toHaveBeenCalled();
     expect(useBookStore.getState().currentBook).toEqual(travelBook);
   });
 
@@ -88,12 +88,12 @@ describe('bookStore', () => {
       STORE_KEY,
       JSON.stringify({ state: { currentBook: travelBook }, version: 1 }),
     );
-    jest.mocked(api.book.getById).mockRejectedValue(new Error('账本不存在'));
-    jest.mocked(api.book.getDefault).mockResolvedValue(defaultBook);
+    jest.mocked(localApi.book.getById).mockRejectedValue(new Error('账本不存在'));
+    jest.mocked(localApi.book.getDefault).mockResolvedValue(defaultBook);
 
     await useBookStore.getState().initializeBook();
 
-    expect(api.book.getDefault).toHaveBeenCalled();
+    expect(localApi.book.getDefault).toHaveBeenCalled();
     expect(useBookStore.getState().currentBook).toEqual(defaultBook);
   });
 });

@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { api, type BookRow } from '@pennyspring/api'
+import { localApi, type BookRow } from '@pennyspring/api'
 import { createJSONStorage, persist } from 'zustand/middleware'
 import { bookStorage } from './bookStorage'
 
@@ -20,13 +20,13 @@ let rehydrateBookStore = async (): Promise<void> => undefined
 async function getInitialBook(storedBook: BookRow | null): Promise<BookRow> {
   if (storedBook) {
     try {
-      return await api.book.getById(storedBook.id)
+      return await localApi.book.getById(storedBook.id)
     } catch {
-      return api.book.getDefault()
+      return localApi.book.getDefault()
     }
   }
 
-  return api.book.getDefault()
+  return localApi.book.getDefault()
 }
 
 export const useBookStore = create<BookStore>()(

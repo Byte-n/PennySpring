@@ -2,22 +2,21 @@ import type { Api } from '@pennyspring/data';
 
 import { buildPath } from './contract';
 
-const SERVER_URL = process.env.SERVER_URL
 
 /**
  * 通用 POST：请求体=参数数组（按位置），响应={result}|{error}。
  * 与 data-server-wrapper 约定一致；T 由调用点的 Api 形状从返回类型推断。
  */
-async function call<T>(group: string, method: string, args: unknown[]): Promise<T> {
-  if (!SERVER_URL) {
+async function call<T>(serverUrl: string, group: string, method: string, args: unknown[]): Promise<T> {
+  if (!serverUrl) {
     throw new Error('SERVER_URL 未设置（remote 模式需构建期注入）');
   }
 
-  const res = await fetch(`${SERVER_URL}${buildPath(group, method)}`, {
+  const res = await fetch(`${serverUrl}${buildPath(group, method)}`, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify(args),
-  })
+  });
   const data = (await res.json()) as { result?: unknown; error?: string }
   if (!res.ok) {
     throw new Error(data.error ?? `HTTP ${res.status}`)
@@ -36,7 +35,7 @@ async function call<T>(group: string, method: string, args: unknown[]): Promise<
  * 注意：group 是拦截代理，勿 `await api.group`（不按方法调用而是直接 await
  * 会触发其 thenable 行为，发起一次无意义的 fetch）。
  */
-function createRemoteApi(): Api {
+export function createRemoteApi(serverUrl: string): Api {
   const groupCache = new Map<string, unknown>()
 
   const getGroup = (group: string) => {
@@ -47,7 +46,7 @@ function createRemoteApi(): Api {
       {
         get: (_target, method) => {
           if (typeof method === 'symbol') return undefined
-          return (...args: unknown[]) => call(group, method, args)
+          return (...args: unknown[]) => call(serverUrl, group, method, args);
         },
       },
     )
@@ -65,5 +64,3 @@ function createRemoteApi(): Api {
     },
   }) as Api
 }
-
-export const api = createRemoteApi();
