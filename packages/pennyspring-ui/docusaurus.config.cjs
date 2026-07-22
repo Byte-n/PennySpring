@@ -157,12 +157,27 @@ const config = {
                     path.resolve(__dirname, 'docs-site'),
                     path.resolve(repoRoot, 'packages/pennyspring-theme/src'),
                     path.resolve(repoRoot, 'src/constants'),
+                    // Process reanimated & worklets library code with the
+                    // Worklets Babel plugin so 'worklet' directives and hook
+                    // dependency arrays are transformed for web usage.
+                    path.resolve(
+                      repoRoot,
+                      'node_modules/react-native-reanimated/lib/module',
+                    ),
+                    path.resolve(
+                      repoRoot,
+                      'node_modules/react-native-worklets/lib/module',
+                    ),
                   ],
                   use: [
                     getJSLoader({
                       isServer,
                       babelOptions: {
-                        plugins: ['react-native-web'],
+                        // react-native-worklets/plugin MUST be last
+                        plugins: [
+                          'react-native-web',
+                          'react-native-worklets/plugin',
+                        ],
                         presets: [
                           [
                             'module:@react-native/babel-preset',
@@ -188,11 +203,6 @@ const config = {
                 __PENNYSPRING_UI_PREVIEW_SOURCES__: JSON.stringify(
                   collectPreviewSources(previewRoot),
                 ),
-                // react-native-reanimated
-                // Fallback: replace any remaining process.env references with
-                // an empty object so they resolve to undefined instead of
-                // throwing ReferenceError in the browser
-                'process.env': '{}',
               }),
             ],
           };
