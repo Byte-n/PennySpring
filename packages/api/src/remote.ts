@@ -1,17 +1,18 @@
-import type { Api } from '@pennyspring/data'
+import type { Api } from '@pennyspring/data';
 
-import { buildPath } from './contract'
+import { buildPath } from './contract';
 
 const SERVER_URL = process.env.SERVER_URL
-if (!SERVER_URL) {
-  throw new Error('SERVER_URL 未设置（remote 模式需构建期注入）')
-}
 
 /**
  * 通用 POST：请求体=参数数组（按位置），响应={result}|{error}。
  * 与 data-server-wrapper 约定一致；T 由调用点的 Api 形状从返回类型推断。
  */
 async function call<T>(group: string, method: string, args: unknown[]): Promise<T> {
+  if (!SERVER_URL) {
+    throw new Error('SERVER_URL 未设置（remote 模式需构建期注入）');
+  }
+
   const res = await fetch(`${SERVER_URL}${buildPath(group, method)}`, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
