@@ -1,0 +1,117 @@
+# 系统默认的类型
+
+## 支出
+
+- 餐饮
+  - 三餐
+  - 夜宵
+  - 柴米油盐
+  - 食材
+- 烟酒零食
+  - 水果
+  - 甜点
+  - 零食
+  - 饮料
+  - 烟酒
+  - 小吃
+- 购物
+  - 数码
+  - 日用
+  - 电器
+  - 美妆
+  - 鞋服
+  - 首饰
+- 文教
+  - 学费
+  - 文具
+  - 考试
+  - 培训
+  - 书籍
+- 人际关系
+  - 礼金
+  - 礼品
+  - 请客
+- 交通
+  - 公交
+  - 地铁
+  - 打车
+  - 火车
+  - 飞机
+  - 共享车
+- 娱乐
+  - 游戏
+  - 聚会
+  - 宠物
+  - K 歌
+  - 电影
+  - 演出
+  - 会员
+- 生活
+  - 水费
+  - 电费
+  - 燃气费
+  - 垃圾费
+  - 物业费
+  - 取暖费
+- 汽车
+  - 停车
+  - 加油
+  - 充电
+  - 通行费
+  - 保养
+  - 洗车
+  - 维修
+  - 违章
+  - 车险
+  - 车检
+  - 车贷
+- 医疗
+  - 挂号
+  - 看诊
+  - 药品
+  - 住院
+  - 保健
+- 通讯
+  - 话费
+  - 网费
+- 育儿
+  - 奶粉
+  - 辅食
+  - 洗护
+  - 玩具
+  - 童装
+- 旅行
+  - 团费
+  - 门票
+  - 纪念品
+  - 酒店
+- 住房
+  - 房租
+  - 房贷
+- 赡养
+- 其他
+
+
+## 收入
+
+- 收红包
+- 薪资
+- 奖金
+- 退还（specialBehavior: RECORD_TYPE_SPECIAL_BEHAVIOR.refundAbsorption）
+- 报销（specialBehavior: RECORD_TYPE_SPECIAL_BEHAVIOR.reimbursementAbsorption）
+- 投资
+- 外快
+- 其他
+
+
+## 转账
+
+- 帐户互转
+- 还信用卡(specialBehavior: RECORD_TYPE_SPECIAL_BEHAVIOR.creditCardPayment)
+- 取款
+- 存款
+- 借入(specialBehavior: RECORD_TYPE_SPECIAL_BEHAVIOR.debtBorrow)
+- 借出(specialBehavior: RECORD_TYPE_SPECIAL_BEHAVIOR.debtLend)
+- 还款(specialBehavior: RECORD_TYPE_SPECIAL_BEHAVIOR.debtRepayment)
+- 收款(specialBehavior: RECORD_TYPE_SPECIAL_BEHAVIOR.debtProceeds)
+- 其他
