@@ -1,4 +1,4 @@
-import type { Database } from '@pennyspring/data'
+import { ensureDefaultBook, type Database } from '@pennyspring/data'
 
 import { createDatabase } from './database'
 import { runMigrations } from './migrate'
@@ -19,6 +19,7 @@ export async function getDatabase(): Promise<Database> {
     const connection = open({ name: 'pennyspring.db' })
     const database = createDatabase(connection)
     await runMigrations(database)
+    await ensureDefaultBook(database)
     dbInstance = database
     return database
   })()
