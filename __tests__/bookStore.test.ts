@@ -30,7 +30,7 @@ jest.mock('@pennyspring/api', () => ({
   },
 }));
 
-import { localApi } from '@pennyspring/api';
+import { createRemoteApi, localApi } from '@pennyspring/api';
 import { useBookStore } from '../src/stores/bookStore';
 
 const STORE_KEY = 'pennyspring-book-store';
@@ -40,8 +40,6 @@ const defaultBook: BookRow = {
   name: '默认账本',
   description: '',
   background: '',
-  type: 'local',
-  remoteUrl: '',
   createdTime: 1,
   updatedTime: 1,
 };
@@ -51,37 +49,54 @@ const travelBook: BookRow = {
   name: '旅行账本',
   description: '旅行消费',
   background: '',
-  type: 'local',
-  remoteUrl: '',
   createdTime: 2,
   updatedTime: 2,
 };
 
-function getPersistedCurrentBook(): BookRow | null {
-  const rawValue = mockStorageState.get(STORE_KEY);
-  if (!rawValue) return null;
+const remoteBook: BookRow = {
+  id: 5,
+  name: '网络账本',
+  description: '远程协作',
+  background: '',
+  createdTime: 5,
+  updatedTime: 5,
+};
 
-  return JSON.parse(rawValue).state.currentBook;
+type PersistedShape = { state: { currentBookRef: unknown }; version: number };
+
+function getPersistedCurrentBookRef(): unknown {
+  const rawValue = mockStorageState.get(STORE_KEY);
+  if (!rawValue) {
+    return null;
+  }
+
+  return (JSON.parse(rawValue) as PersistedShape).state.currentBookRef;
 }
 
 describe('bookStore', () => {
   beforeEach(() => {
     mockStorageState.clear();
     jest.clearAllMocks();
-    useBookStore.setState({ currentBook: null });
+    useBookStore.setState({ currentBook: null, currentBookRef: null });
   });
 
-  test('persists the selected current book', async () => {
-    useBookStore.getState().setCurrentBook(travelBook);
+  test('persists the selected current book ref', async () => {
+    useBookStore.getState().setCurrentBook(
+      { kind: 'local', id: travelBook.id },
+      { kind: 'local', ...travelBook },
+    );
     await Promise.resolve();
 
-    expect(getPersistedCurrentBook()).toEqual(travelBook);
+    expect(getPersistedCurrentBookRef()).toEqual({ kind: 'local', id: 2 });
   });
 
-  test('initializes from the persisted current book when it still exists', async () => {
+  test('initializes from the persisted local ref when it still exists', async () => {
     mockStorageState.set(
       STORE_KEY,
-      JSON.stringify({ state: { currentBook: travelBook }, version: 1 }),
+      JSON.stringify({
+        state: { currentBookRef: { kind: 'local', id: travelBook.id } },
+        version: 2,
+      }),
     );
     jest.mocked(localApi.book.getById).mockResolvedValue(travelBook);
 
@@ -89,13 +104,23 @@ describe('bookStore', () => {
 
     expect(localApi.book.getById).toHaveBeenCalledWith(travelBook.id);
     expect(localApi.book.getDefault).not.toHaveBeenCalled();
-    expect(useBookStore.getState().currentBook).toEqual(travelBook);
+    expect(useBookStore.getState().currentBook).toEqual({
+      kind: 'local',
+      ...travelBook,
+    });
+    expect(useBookStore.getState().currentBookRef).toEqual({
+      kind: 'local',
+      id: travelBook.id,
+    });
   });
 
-  test('falls back to the default book when the persisted current book no longer exists', async () => {
+  test('falls back to the default book when the persisted local ref no longer exists', async () => {
     mockStorageState.set(
       STORE_KEY,
-      JSON.stringify({ state: { currentBook: travelBook }, version: 1 }),
+      JSON.stringify({
+        state: { currentBookRef: { kind: 'local', id: travelBook.id } },
+        version: 2,
+      }),
     );
     jest.mocked(localApi.book.getById).mockRejectedValue(new Error('账本不存在'));
     jest.mocked(localApi.book.getDefault).mockResolvedValue(defaultBook);
@@ -103,6 +128,65 @@ describe('bookStore', () => {
     await useBookStore.getState().initializeBook();
 
     expect(localApi.book.getDefault).toHaveBeenCalled();
-    expect(useBookStore.getState().currentBook).toEqual(defaultBook);
+    expect(useBookStore.getState().currentBook).toEqual({
+      kind: 'local',
+      ...defaultBook,
+    });
+    expect(useBookStore.getState().currentBookRef).toEqual({
+      kind: 'local',
+      id: defaultBook.id,
+    });
+  });
+
+  test('initializes from a persisted network ref by fetching from the server', async () => {
+    const networkRef = {
+      kind: 'remote' as const,
+      serverUrl: 'http://example.com',
+      bookId: remoteBook.id,
+    };
+    mockStorageState.set(
+      STORE_KEY,
+      JSON.stringify({ state: { currentBookRef: networkRef }, version: 2 }),
+    );
+    const remoteApi = {
+      book: { getById: jest.fn().mockResolvedValue(remoteBook) },
+    };
+    jest.mocked(createRemoteApi).mockReturnValue(remoteApi as never);
+
+    await useBookStore.getState().initializeBook();
+
+    expect(createRemoteApi).toHaveBeenCalledWith('http://example.com');
+    expect(remoteApi.book.getById).toHaveBeenCalledWith(remoteBook.id);
+    expect(localApi.book.getDefault).not.toHaveBeenCalled();
+    expect(useBookStore.getState().currentBook).toEqual({
+      kind: 'remote',
+      ...remoteBook,
+    });
+    expect(useBookStore.getState().currentBookRef).toEqual(networkRef);
+  });
+
+  test('falls back to the local default when a persisted network ref cannot be fetched', async () => {
+    const networkRef = {
+      kind: 'remote' as const,
+      serverUrl: 'http://unreachable.example.com',
+      bookId: remoteBook.id,
+    };
+    mockStorageState.set(
+      STORE_KEY,
+      JSON.stringify({ state: { currentBookRef: networkRef }, version: 2 }),
+    );
+    const remoteApi = {
+      book: { getById: jest.fn().mockRejectedValue(new Error('网络不可达')) },
+    };
+    jest.mocked(createRemoteApi).mockReturnValue(remoteApi as never);
+    jest.mocked(localApi.book.getDefault).mockResolvedValue(defaultBook);
+
+    await useBookStore.getState().initializeBook();
+
+    expect(localApi.book.getDefault).toHaveBeenCalled();
+    expect(useBookStore.getState().currentBook).toEqual({
+      kind: 'local',
+      ...defaultBook,
+    });
   });
 });

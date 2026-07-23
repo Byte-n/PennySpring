@@ -349,8 +349,8 @@ export const BOOK_TYPE = enumOf({
   },
   remote: {
     value: 'remote',
-    label: '远程账本',
-    description: '数据存储在远程服务器',
+    label: '网络账本',
+    description: '数据存储在远程服务器，缓存在本地',
   },
 });
 

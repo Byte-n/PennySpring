@@ -1,6 +1,5 @@
 import { count, eq } from 'drizzle-orm'
 
-import { BOOK_TYPE } from '../constants'
 import { assets, books } from '../schema'
 import type { Database } from '../types'
 import type { BookRow, CreateBookInput, Tx, UpdateBookInput } from './types'
@@ -8,9 +7,6 @@ import type { BookRow, CreateBookInput, Tx, UpdateBookInput } from './types'
 function validateBookInput(input: CreateBookInput | UpdateBookInput): void {
   if (!input.name.trim()) {
     throw new Error('账本名称不能为空')
-  }
-  if (input.type === BOOK_TYPE.remote && (!input.remoteUrl || !input.remoteUrl.trim())) {
-    throw new Error('远程账本必须填写地址')
   }
 }
 
@@ -49,8 +45,6 @@ export function createBook(db: Database, input: CreateBookInput): Promise<BookRo
       name: input.name,
       description: input.description ?? '',
       background: input.background ?? '',
-      type: input.type ?? BOOK_TYPE.local,
-      remoteUrl: input.remoteUrl ?? '',
     }).returning({ id: books.id })
     const id = inserted[0]?.id
     if (!id) throw new Error('创建账本失败')
@@ -66,8 +60,6 @@ export function updateBook(db: Database, input: UpdateBookInput): Promise<BookRo
       name: input.name,
       description: input.description ?? '',
       background: input.background ?? '',
-      type: input.type ?? BOOK_TYPE.local,
-      remoteUrl: input.remoteUrl ?? '',
     }).where(eq(books.id, input.id))
     return getBookRow(tx, input.id)
   })

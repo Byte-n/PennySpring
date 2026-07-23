@@ -22,8 +22,6 @@ CREATE TABLE `tb_books` (
 	`name` text NOT NULL,
 	`description` text DEFAULT '' NOT NULL,
 	`background` text DEFAULT '' NOT NULL,
-	`type` text DEFAULT 'local' NOT NULL,
-	`remote_url` text DEFAULT '' NOT NULL,
 	`created_time` integer DEFAULT (cast(unixepoch('subsec') * 1000 as integer)) NOT NULL,
 	`updated_time` integer DEFAULT (cast(unixepoch('subsec') * 1000 as integer)) NOT NULL
 );
@@ -364,4 +362,3 @@ INSERT INTO tb_type (books_id, parent_id, name, icon, type_category, is_system, 
 (1, 19, '债券', 'Certificate', 'transfer', 'system', 5),
 (1, 19, '外汇', 'CurrencyCircleDollar', 'transfer', 'system', 6),
 (1, 19, '手续费', 'Receipt', 'transfer', 'system', 7);
-

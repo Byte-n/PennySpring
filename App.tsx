@@ -6,6 +6,7 @@ import { App as PSApp } from '@pennyspring/ui';
 import { rootNavigationRef, RootStackNavigator } from './src/navigation';
 import { NavigationContainer } from '@react-navigation/native';
 import { useBookStore } from './src/stores/bookStore';
+import { rehydrateNetworkBooks } from './src/stores/networkBookStore';
 
 
 function App() {
@@ -13,6 +14,7 @@ function App() {
   const initializeBook = useBookStore((state) => state.initializeBook);
 
   useEffect(() => {
+    rehydrateNetworkBooks();
     initializeBook().catch((error) => {
       console.error('Book initialization failed:', error);
     });
