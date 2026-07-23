@@ -3,6 +3,7 @@ export { createAsset, deleteAsset, getAllAssets, getAssetsByBook, updateAsset } 
 export { createRecord, deleteRecord, getRecordDetailById, getRecordsByBook, updateRecord } from './record-service'
 export { createTag, deleteTag, getAllTags, updateTag } from './tag-service'
 export { buildCategoryTree, createType, deleteType, getAllTypes, getTypesByCategory, updateType } from './type-service'
+export { ensureDefaultBook, seedSystemTypesForBook } from './seed-service'
 export type { CategoryItem } from './type-service'
 export type {
   AssetRow,

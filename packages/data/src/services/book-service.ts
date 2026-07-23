@@ -2,6 +2,7 @@ import { count, eq } from 'drizzle-orm'
 
 import { assets, books } from '../schema'
 import type { Database } from '../types'
+import { seedSystemTypesForBook } from './seed-service'
 import type { BookRow, CreateBookInput, Tx, UpdateBookInput } from './types'
 
 function validateBookInput(input: CreateBookInput | UpdateBookInput): void {
@@ -48,6 +49,10 @@ export function createBook(db: Database, input: CreateBookInput): Promise<BookRo
     }).returning({ id: books.id })
     const id = inserted[0]?.id
     if (!id) throw new Error('创建账本失败')
+
+    // 为新账本写入系统默认类型数据
+    await seedSystemTypesForBook(tx, id)
+
     return getBookRow(tx, id)
   })
 }
