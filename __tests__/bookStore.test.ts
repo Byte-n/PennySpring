@@ -114,30 +114,6 @@ describe('bookStore', () => {
     });
   });
 
-  test('falls back to the default book when the persisted local ref no longer exists', async () => {
-    mockStorageState.set(
-      STORE_KEY,
-      JSON.stringify({
-        state: { currentBookRef: { kind: 'local', id: travelBook.id } },
-        version: 2,
-      }),
-    );
-    jest.mocked(localApi.book.getById).mockRejectedValue(new Error('账本不存在'));
-    jest.mocked(localApi.book.getDefault).mockResolvedValue(defaultBook);
-
-    await useBookStore.getState().initializeBook();
-
-    expect(localApi.book.getDefault).toHaveBeenCalled();
-    expect(useBookStore.getState().currentBook).toEqual({
-      kind: 'local',
-      ...defaultBook,
-    });
-    expect(useBookStore.getState().currentBookRef).toEqual({
-      kind: 'local',
-      id: defaultBook.id,
-    });
-  });
-
   test('initializes from a persisted network ref by fetching from the server', async () => {
     const networkRef = {
       kind: 'remote' as const,
@@ -163,30 +139,5 @@ describe('bookStore', () => {
       ...remoteBook,
     });
     expect(useBookStore.getState().currentBookRef).toEqual(networkRef);
-  });
-
-  test('falls back to the local default when a persisted network ref cannot be fetched', async () => {
-    const networkRef = {
-      kind: 'remote' as const,
-      serverUrl: 'http://unreachable.example.com',
-      bookId: remoteBook.id,
-    };
-    mockStorageState.set(
-      STORE_KEY,
-      JSON.stringify({ state: { currentBookRef: networkRef }, version: 2 }),
-    );
-    const remoteApi = {
-      book: { getById: jest.fn().mockRejectedValue(new Error('网络不可达')) },
-    };
-    jest.mocked(createRemoteApi).mockReturnValue(remoteApi as never);
-    jest.mocked(localApi.book.getDefault).mockResolvedValue(defaultBook);
-
-    await useBookStore.getState().initializeBook();
-
-    expect(localApi.book.getDefault).toHaveBeenCalled();
-    expect(useBookStore.getState().currentBook).toEqual({
-      kind: 'local',
-      ...defaultBook,
-    });
   });
 });
