@@ -148,6 +148,7 @@ export function KeyboardAwareFormScroll({
       style={[tokenStyles.root, style, styles?.root]}
       contentContainerStyle={[tokenStyles.content, styles?.content]}
       {...restProps}
+      showsVerticalScrollIndicator={false}
     >
       {children}
     </ScrollView>
