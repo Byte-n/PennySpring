@@ -110,7 +110,6 @@ Reanimated 极简核心总结：
 
 ## Git / Workspace
 
-- **代码提交必须立即转给低成本模型 + subagent 操作，按内容分类、分批次提交；在 subagent 完成前不允许执行额外操作。**
 - 提交使用 conventional commit 风格，常见 scope 如 `data`、`theme`、`components`。
 - commit message 使用中文，保留 `feat:`、`fix:`、`docs:`、`chore:` 等前缀。
 - 工作空间 `.worktrees/*`，分支名 `feature/worktrees-*`；分支命令不允许使用 `-f` / `--force`。
