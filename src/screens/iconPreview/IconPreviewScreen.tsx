@@ -169,7 +169,7 @@ const CATEGORY_OPTIONS: SelectionListOption[] = [
   })),
   ...ASSET_CLASSIFICATION_TREE.map(node => ({
     value: node.value,
-    labelText: node.label,
+    labelText: node.label + node.value,
   })),
 ];
 
