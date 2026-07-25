@@ -1,10 +1,12 @@
 import React from 'react';
-import { View } from 'react-native';
+import { TouchableOpacity, View } from 'react-native';
 import {
-  Button,
+  Column,
+  Divider,
   Drawer,
   FloatingActionGroup,
   Text,
+  Button,
 } from '@pennyspring/ui';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import { useIsFocused } from '@react-navigation/native';
@@ -16,13 +18,29 @@ import {
   useNavigation,
 } from '../../navigation';
 
+const APP_NAME = 'PennySpring';
+const APP_VERSION = '0.0.1';
+
 const useStyles = createUseSheetStyle(token => ({
   drawerContent: {
     flex: 1,
-    gap: token.paddingSM,
   },
-  optionButton: {
-    justifyContent: 'flex-start',
+  appInfoSection: {
+    paddingHorizontal: token.paddingLG,
+    paddingTop: token.paddingLG,
+    paddingBottom: token.paddingMD,
+  },
+  appName: {
+    marginBottom: token.marginXXS,
+  },
+  navigationSection: {
+    flex: 1,
+  },
+  navItem: {
+    paddingHorizontal: token.paddingLG,
+    paddingVertical: token.padding,
+    borderBottomWidth: token.lineWidth,
+    borderBottomColor: token.colorBorder,
   },
   menuButton: {
     width: token.controlHeight,
@@ -48,98 +66,54 @@ function MenuButton({ onPress }: MenuButtonProps) {
   );
 }
 
-function DrawerOptionList({
-  onOpenAssetManage,
-  onOpenBookManage,
-  onOpenBusinessPreview,
-  onOpenComponentPreview,
-  onOpenTagManage,
-  onOpenTestScreen,
-  onOpenTypeManage,
-}: {
-  onOpenAssetManage: () => void;
-  onOpenBookManage: () => void;
-  onOpenBusinessPreview: () => void;
-  onOpenComponentPreview: () => void;
-  onOpenTagManage: () => void;
-  onOpenTestScreen: () => void;
-  onOpenTypeManage: () => void;
-}) {
+interface NavigationItem {
+  label: string;
+  route: string;
+}
+
+function DrawerContent() {
   const styles = useStyles();
+  const navigation = useNavigation();
+
+  const navigationItems: NavigationItem[] = [
+    { label: '账本管理', route: ROOT_ROUTES.BookManage },
+    { label: '资产管理', route: ROOT_ROUTES.AssetManage },
+    { label: '类型管理', route: ROOT_ROUTES.TypeManage },
+    { label: '标签管理', route: ROOT_ROUTES.TagManage },
+    { label: '图标预览', route: ROOT_ROUTES.IconPreview },
+    { label: '主题预览', route: ROOT_ROUTES.ThemePreview },
+    { label: 'Test Screen', route: ROOT_ROUTES.Test },
+  ];
+
+  const handleNavigate = (route: string) => {
+    navigation.navigate(route as any);
+  };
 
   return (
-    <View style={styles.drawerContent}>
-      <Button
-        block
-        onPress={onOpenBookManage}
-        style={styles.optionButton}
-        type="default"
-      >
-        <Text size="md" weight="strong">
-          账本管理
+    <Column style={styles.drawerContent}>
+      <View style={styles.appInfoSection}>
+        <Text size="h3" weight="strong" style={styles.appName}>
+          {APP_NAME}
         </Text>
-      </Button>
-      <Button
-        block
-        onPress={onOpenAssetManage}
-        style={styles.optionButton}
-        type="default"
-      >
-        <Text size="md" weight="strong">
-          资产管理
+        <Text size="sm" color="secondary">
+          版本 {APP_VERSION}
         </Text>
-      </Button>
-      <Button
-        block
-        onPress={onOpenTypeManage}
-        style={styles.optionButton}
-        type="default"
-      >
-        <Text size="md" weight="strong">
-          类型管理
-        </Text>
-      </Button>
-      <Button
-        block
-        onPress={onOpenTagManage}
-        style={styles.optionButton}
-        type="default"
-      >
-        <Text size="md" weight="strong">
-          标签管理
-        </Text>
-      </Button>
-      <Button
-        block
-        onPress={onOpenTestScreen}
-        style={styles.optionButton}
-        type="default"
-      >
-        <Text size="md" weight="strong">
-          Test Screen
-        </Text>
-      </Button>
-      <Button
-        block
-        onPress={onOpenBusinessPreview}
-        style={styles.optionButton}
-        type="default"
-      >
-        <Text size="md" weight="strong">
-          业务预览
-        </Text>
-      </Button>
-      <Button
-        block
-        onPress={onOpenComponentPreview}
-        style={styles.optionButton}
-        type="default"
-      >
-        <Text size="md" weight="strong">
-          Component Preview
-        </Text>
-      </Button>
-    </View>
+      </View>
+
+      <Divider />
+
+      <Column style={styles.navigationSection}>
+        {navigationItems.map(item => (
+          <TouchableOpacity
+            key={item.route}
+            onPress={() => handleNavigate(item.route)}
+            style={styles.navItem}
+          >
+            <Text size="md">{item.label}</Text>
+          </TouchableOpacity>
+        ))}
+      </Column>
+    </Column>
   );
 }
 
@@ -156,58 +130,13 @@ export function HomeScreen() {
     setIsDrawerOpen(false);
   }, []);
 
-  const openTestScreen = React.useCallback(() => {
-    setIsDrawerOpen(false);
-    navigation.navigate(ROOT_ROUTES.Test);
-  }, [navigation]);
-
-  const openComponentPreview = React.useCallback(() => {
-    setIsDrawerOpen(false);
-    navigation.navigate(ROOT_ROUTES.ComponentPreview);
-  }, [navigation]);
-
-  const openBusinessPreview = React.useCallback(() => {
-    setIsDrawerOpen(false);
-    navigation.navigate(ROOT_ROUTES.BusinessPreview);
-  }, [navigation]);
-
-  const openBookManage = React.useCallback(() => {
-    setIsDrawerOpen(false);
-    navigation.navigate(ROOT_ROUTES.BookManage);
-  }, [navigation]);
-
-  const openAssetManage = React.useCallback(() => {
-    setIsDrawerOpen(false);
-    navigation.navigate(ROOT_ROUTES.AssetManage);
-  }, [navigation]);
-
-  const openTypeManage = React.useCallback(() => {
-    setIsDrawerOpen(false);
-    navigation.navigate(ROOT_ROUTES.TypeManage);
-  }, [navigation]);
-
-  const openTagManage = React.useCallback(() => {
-    setIsDrawerOpen(false);
-    navigation.navigate(ROOT_ROUTES.TagManage);
-  }, [navigation]);
-
   return (
     <>
       <Drawer.Layout
         onCancel={closeDrawer}
         onOpenChange={setIsDrawerOpen}
         open={isDrawerOpen}
-        renderDrawerContent={() => (
-          <DrawerOptionList
-            onOpenAssetManage={openAssetManage}
-            onOpenBookManage={openBookManage}
-            onOpenBusinessPreview={openBusinessPreview}
-            onOpenComponentPreview={openComponentPreview}
-            onOpenTagManage={openTagManage}
-            onOpenTestScreen={openTestScreen}
-            onOpenTypeManage={openTypeManage}
-          />
-        )}
+        renderDrawerContent={() => <DrawerContent />}
       >
         <HomeTabsNavigator leftActions={<MenuButton onPress={openDrawer} />} />
       </Drawer.Layout>

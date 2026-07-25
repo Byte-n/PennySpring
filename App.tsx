@@ -7,11 +7,11 @@ import { rootNavigationRef, RootStackNavigator } from './src/navigation';
 import { NavigationContainer } from '@react-navigation/native';
 import { useBookStore } from './src/stores/bookStore';
 import { rehydrateNetworkBooks } from './src/stores/networkBookStore';
+import { ThemeModeProvider, useThemeMode } from './src/contexts/ThemeModeContext';
 
-
-function App() {
-  const isDarkMode = useColorScheme() !== 'dark';
+function AppContent() {
   const initializeBook = useBookStore((state) => state.initializeBook);
+  const { themeMode } = useThemeMode();
 
   useEffect(() => {
     rehydrateNetworkBooks();
@@ -20,10 +20,12 @@ function App() {
     });
   }, [initializeBook]);
 
+  const isDark = themeMode === 'dark';
+
   return (
     <SafeAreaProvider>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <ThemeProvider config={{ algorithm: isDarkMode ? 'dark' : 'default' }}>
+      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
+      <ThemeProvider config={{ algorithm: themeMode }}>
         <NavigationContainer ref={rootNavigationRef}>
           <PSApp>
             <RootStackNavigator />
@@ -31,6 +33,17 @@ function App() {
         </NavigationContainer>
       </ThemeProvider>
     </SafeAreaProvider>
+  );
+}
+
+function App() {
+  const systemColorScheme = useColorScheme();
+  const initialMode = systemColorScheme === 'dark' ? 'dark' : 'default';
+
+  return (
+    <ThemeModeProvider initialMode={initialMode}>
+      <AppContent />
+    </ThemeModeProvider>
   );
 }
 
