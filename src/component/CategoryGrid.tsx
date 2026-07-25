@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react'
 import { Pressable, StyleProp, ViewStyle } from 'react-native';
 import {
   Grid,
@@ -59,6 +59,12 @@ export function CategoryGrid(props: CategoryGridProps) {
   }, [categories]);
 
   const handlePrimarySelect = useCallback((catId: number) => {
+    const category = tree.find(cat => cat.id === catId);
+    if (!category?.children?.length) {
+      onSelect(catId);
+      return;
+    }
+
     setExpandedIds(prev => {
       const next = new Set(prev);
       if (next.has(catId)) {
@@ -69,7 +75,7 @@ export function CategoryGrid(props: CategoryGridProps) {
       }
       return next;
     });
-  }, [accordion]);
+  }, [accordion, tree, onSelect]);
 
   const getExpandedCat = (id?: number) => {
     if (isNil(id)) return null;
