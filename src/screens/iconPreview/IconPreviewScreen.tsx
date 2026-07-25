@@ -250,6 +250,7 @@ export function IconPreviewScreen() {
               headerText: '选择分类',
               closeText: '关闭',
             }}
+            labelText='分类'
           />
           <Input
             style={styles.searchInput}
