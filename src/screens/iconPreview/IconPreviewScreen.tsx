@@ -169,7 +169,7 @@ const CATEGORY_OPTIONS: SelectionListOption[] = [
   })),
   ...ASSET_CLASSIFICATION_TREE.map(node => ({
     value: node.value,
-    labelText: (
+    label: (
       <Row gap={6}>
         <Text>{node.label}</Text>
         <Text color="tertiary">{node.value}</Text>
