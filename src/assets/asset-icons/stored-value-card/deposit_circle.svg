@@ -13,7 +13,7 @@
      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
      See the License for the specific language governing permissions and
      limitations under the License.
---><svg height="1024" width="1024" xmlns="http://www.w3.org/2000/svg">
+--><svg height="1024" width="1024" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
     <path d="M516.1,529.07m-490.84,0a490.84,490.84 0,1 0,981.67 0,490.84 490.84,0 1,0 -981.67,0Z" fill="#43D5A7"/>
     <path d="M742.74,759.13H289.45c-37.55,0 -68.27,-30.72 -68.27,-68.27V367.27c0,-37.55 30.72,-68.27 68.27,-68.27h453.29c37.55,0 68.27,30.72 68.27,68.27v323.58c0,37.55 -30.72,68.27 -68.27,68.27z" fill="#FFFFFF" fill-opacity="0.5" stroke-opacity="0.5"/>
     <path d="M707.93,719.53H324.27c-28.67,0 -52.57,-23.89 -52.57,-52.57V390.49c0,-28.67 23.89,-52.57 52.57,-52.57h384.34c28.67,0 52.57,23.89 52.57,52.57v276.48c-0.68,29.35 -23.89,52.57 -53.25,52.57z" fill="#FFFFFF"/>
