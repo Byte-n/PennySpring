@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   Pressable,
+  ScrollView,
 } from 'react-native';
 import { CircleIcon } from 'phosphor-react-native';
 import { useTheme } from '@pennyspring/theme';
@@ -419,7 +420,7 @@ export function SelectionListPopup({
             )}
           </Column>
         ) : filteredGroups.length > 0 ? (
-          <Column style={tokenStyles.list}>
+          <ScrollView style={tokenStyles.list} showsVerticalScrollIndicator={false}>
             {filteredGroups.map(group => (
               <Column key={group.key} style={tokenStyles.group}>
                 {renderTextNode(group.title ?? group.titleText, (text) => (
@@ -434,7 +435,7 @@ export function SelectionListPopup({
                 {renderGroupOptions(group.options)}
               </Column>
             ))}
-          </Column>
+          </ScrollView>
         ) : (
           <Column align="center" style={tokenStyles.empty}>
             {renderTextNode(empty ?? texts?.emptyText, (text) => (
