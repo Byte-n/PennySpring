@@ -2,12 +2,12 @@ export const ROOT_ROUTES = {
   Home: 'Home',
   AddRecord: 'AddRecord',
   Test: 'Test',
-  ComponentPreview: 'ComponentPreview',
-  BusinessPreview: 'BusinessPreview',
+  ThemePreview: 'ThemePreview',
   BookManage: 'BookManage',
   TagManage: 'TagManage',
   TypeManage: 'TypeManage',
   AssetManage: 'AssetManage',
+  IconPreview: 'IconPreview',
 } as const;
 
 export const HOME_TAB_ROUTES = {
