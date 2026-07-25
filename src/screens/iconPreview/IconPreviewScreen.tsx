@@ -162,14 +162,19 @@ const CATEGORY_OPTIONS: SelectionListOption[] = [
     label: (
       <Row gap={6}>
         <Text>{category.zh}</Text>
-         <Text color="tertiary">{category.en}</Text>
+        <Text color="tertiary">{category.en}</Text>
       </Row>
     ),
     labelText: category.zh,
   })),
   ...ASSET_CLASSIFICATION_TREE.map(node => ({
     value: node.value,
-    labelText: node.label + node.value,
+    labelText: (
+      <Row gap={6}>
+        <Text>{node.label}</Text>
+        <Text color="tertiary">{node.value}</Text>
+      </Row>
+    ),
   })),
 ];
 
