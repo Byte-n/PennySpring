@@ -3,7 +3,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'Acorn',
     categories: ['finances', 'nature'],
     tags: [
-      'new',
       'savings',
       'nut',
       'vegetable',
@@ -13,7 +12,7 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       'market',
     ],
     categoriesZh: ['财务', '自然'],
-    tagsZh: ['新', '储蓄', '坚果', '蔬菜', '蔬菜', '食物', '杂货', '市场'],
+    tagsZh: ['储蓄', '坚果', '蔬菜', '蔬菜', '食物', '杂货', '市场'],
   },
   {
     pascalName: 'AddressBook',
@@ -25,9 +24,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'AddressBookTabs',
     categories: ['communications'],
-    tags: ['new', 'contacts', 'directory', 'roledex'],
+    tags: ['contacts', 'directory', 'roledex'],
     categoriesZh: ['通讯'],
-    tagsZh: ['新', '联系人', '目录', '劳力士'],
+    tagsZh: ['联系人', '目录', '劳力士'],
   },
   {
     pascalName: 'AirTrafficControl',
@@ -137,7 +136,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'AirplaneTaxiing',
     categories: ['maps & travel', 'objects'],
     tags: [
-      'new',
       'vehicles',
       'airports',
       'flights',
@@ -150,7 +148,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     ],
     categoriesZh: ['地图和旅行', '物体'],
     tagsZh: [
-      '新',
       '车辆',
       '机场',
       '航班',
@@ -305,7 +302,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'Ambulance',
     categories: ['health & wellness', 'maps & travel', 'objects'],
     tags: [
-      'new',
       'first-aid',
       'emt',
       'medical',
@@ -318,7 +314,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     ],
     categoriesZh: ['健康与保健', '地图和旅行', '物体'],
     tagsZh: [
-      '新',
       '急救',
       '紧急医疗队',
       '医疗',
@@ -355,7 +350,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'Angle',
     categories: ['design', 'objects'],
     tags: [
-      'new',
       'geometry',
       'trigonometry',
       'degrees',
@@ -367,7 +361,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     ],
     categoriesZh: ['设计', '物体'],
     tagsZh: [
-      '新',
       '几何学',
       '三角学',
       '度',
@@ -424,7 +417,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'ApproximateEquals',
     categories: ['finances', 'technology & development'],
     tags: [
-      'new',
       '≈',
       'is approximately equal to',
       'congruent',
@@ -438,7 +430,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     ],
     categoriesZh: ['财务', '技术与发展'],
     tagsZh: [
-      '新',
       '≈',
       '约等于',
       '一致的',
@@ -617,7 +608,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'ArrowClockwise',
     categories: ['arrows'],
     tags: [
-      'updated',
       'directional',
       'pointer',
       'pointing',
@@ -630,7 +620,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     ],
     categoriesZh: ['箭头'],
     tagsZh: [
-      '更新',
       '定向的',
       '指针',
       '指点',
@@ -646,7 +635,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'ArrowCounterClockwise',
     categories: ['arrows'],
     tags: [
-      'updated',
       'directional',
       'pointer',
       'pointing',
@@ -659,7 +647,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     ],
     categoriesZh: ['箭头'],
     tagsZh: [
-      '更新',
       '定向的',
       '指针',
       '指点',
@@ -1148,7 +1135,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'ArrowsClockwise',
     categories: ['arrows'],
     tags: [
-      'updated',
       'directional',
       'pointer',
       'pointing',
@@ -1163,7 +1149,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     ],
     categoriesZh: ['箭头'],
     tagsZh: [
-      '更新',
       '定向的',
       '指针',
       '指点',
@@ -1181,7 +1166,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'ArrowsCounterClockwise',
     categories: ['arrows'],
     tags: [
-      'updated',
       'directional',
       'pointer',
       'pointing',
@@ -1194,7 +1178,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     ],
     categoriesZh: ['箭头'],
     tagsZh: [
-      '更新',
       '定向的',
       '指针',
       '指点',
@@ -1209,15 +1192,14 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'ArrowsDownUp',
     categories: ['arrows'],
-    tags: ['updated', 'directional', 'pointer', 'pointing', 'arrowhead'],
+    tags: ['directional', 'pointer', 'pointing', 'arrowhead'],
     categoriesZh: ['箭头'],
-    tagsZh: ['更新', '定向的', '指针', '指点', '箭头'],
+    tagsZh: ['定向的', '指针', '指点', '箭头'],
   },
   {
     pascalName: 'ArrowsHorizontal',
     categories: ['arrows'],
     tags: [
-      'updated',
       'directional',
       'pointer',
       'cursor',
@@ -1227,22 +1209,12 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       'right',
     ],
     categoriesZh: ['箭头'],
-    tagsZh: [
-      '更新',
-      '定向的',
-      '指针',
-      '光标',
-      '调整大小',
-      '展开',
-      '左',
-      '对',
-    ],
+    tagsZh: ['定向的', '指针', '光标', '调整大小', '展开', '左', '对'],
   },
   {
     pascalName: 'ArrowsIn',
     categories: ['arrows'],
     tags: [
-      'updated',
       'directional',
       'pointer',
       'pointing',
@@ -1254,7 +1226,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     ],
     categoriesZh: ['箭头'],
     tagsZh: [
-      '更新',
       '定向的',
       '指针',
       '指点',
@@ -1269,7 +1240,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'ArrowsInCardinal',
     categories: ['arrows'],
     tags: [
-      'updated',
       'directional',
       'pointer',
       'pointing',
@@ -1281,7 +1251,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     ],
     categoriesZh: ['箭头'],
     tagsZh: [
-      '更新',
       '定向的',
       '指针',
       '指点',
@@ -1296,7 +1265,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'ArrowsInLineHorizontal',
     categories: ['arrows', 'design', 'editor'],
     tags: [
-      'updated',
       'directional',
       'pointer',
       'pointing',
@@ -1306,22 +1274,12 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       'align',
     ],
     categoriesZh: ['箭头', '设计', '编辑'],
-    tagsZh: [
-      '更新',
-      '定向的',
-      '指针',
-      '指点',
-      '箭头',
-      '关闭',
-      '中心',
-      '对齐',
-    ],
+    tagsZh: ['定向的', '指针', '指点', '箭头', '关闭', '中心', '对齐'],
   },
   {
     pascalName: 'ArrowsInLineVertical',
     categories: ['arrows', 'design', 'editor'],
     tags: [
-      'updated',
       'directional',
       'pointer',
       'pointing',
@@ -1331,22 +1289,12 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       'align',
     ],
     categoriesZh: ['箭头', '设计', '编辑'],
-    tagsZh: [
-      '更新',
-      '定向的',
-      '指针',
-      '指点',
-      '箭头',
-      '关闭',
-      '中心',
-      '对齐',
-    ],
+    tagsZh: ['定向的', '指针', '指点', '箭头', '关闭', '中心', '对齐'],
   },
   {
     pascalName: 'ArrowsInSimple',
     categories: ['arrows'],
     tags: [
-      'updated',
       'directional',
       'pointer',
       'pointing',
@@ -1356,36 +1304,26 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       'resize',
     ],
     categoriesZh: ['箭头'],
-    tagsZh: [
-      '更新',
-      '定向的',
-      '指针',
-      '指点',
-      '箭头',
-      '崩溃',
-      '最小化',
-      '调整大小',
-    ],
+    tagsZh: ['定向的', '指针', '指点', '箭头', '崩溃', '最小化', '调整大小'],
   },
   {
     pascalName: 'ArrowsLeftRight',
     categories: ['arrows'],
-    tags: ['updated', 'directional', 'pointer', 'pointing', 'arrowhead'],
+    tags: ['directional', 'pointer', 'pointing', 'arrowhead'],
     categoriesZh: ['箭头'],
-    tagsZh: ['更新', '定向的', '指针', '指点', '箭头'],
+    tagsZh: ['定向的', '指针', '指点', '箭头'],
   },
   {
     pascalName: 'ArrowsMerge',
     categories: ['arrows'],
-    tags: ['updated', 'arrowheads', 'join', 'combine'],
+    tags: ['arrowheads', 'join', 'combine'],
     categoriesZh: ['箭头'],
-    tagsZh: ['更新', '箭头', '加入', '联合起来'],
+    tagsZh: ['箭头', '加入', '联合起来'],
   },
   {
     pascalName: 'ArrowsOut',
     categories: ['arrows'],
     tags: [
-      'updated',
       'directional',
       'pointer',
       'pointing',
@@ -1397,7 +1335,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     ],
     categoriesZh: ['箭头'],
     tagsZh: [
-      '更新',
       '定向的',
       '指针',
       '指点',
@@ -1412,7 +1349,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'ArrowsOutCardinal',
     categories: ['arrows'],
     tags: [
-      'updated',
       'directional',
       'pointer',
       'pointing',
@@ -1426,7 +1362,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     ],
     categoriesZh: ['箭头'],
     tagsZh: [
-      '更新',
       '定向的',
       '指针',
       '指点',
@@ -1442,38 +1377,21 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'ArrowsOutLineHorizontal',
     categories: ['arrows', 'design', 'editor'],
-    tags: [
-      'updated',
-      'directional',
-      'pointer',
-      'pointing',
-      'arrowhead',
-      'open',
-      'split',
-    ],
+    tags: ['directional', 'pointer', 'pointing', 'arrowhead', 'open', 'split'],
     categoriesZh: ['箭头', '设计', '编辑'],
-    tagsZh: ['更新', '定向的', '指针', '指点', '箭头', '打开', '分裂'],
+    tagsZh: ['定向的', '指针', '指点', '箭头', '打开', '分裂'],
   },
   {
     pascalName: 'ArrowsOutLineVertical',
     categories: ['arrows', 'design', 'editor'],
-    tags: [
-      'updated',
-      'directional',
-      'pointer',
-      'pointing',
-      'arrowhead',
-      'open',
-      'split',
-    ],
+    tags: ['directional', 'pointer', 'pointing', 'arrowhead', 'open', 'split'],
     categoriesZh: ['箭头', '设计', '编辑'],
-    tagsZh: ['更新', '定向的', '指针', '指点', '箭头', '打开', '分裂'],
+    tagsZh: ['定向的', '指针', '指点', '箭头', '打开', '分裂'],
   },
   {
     pascalName: 'ArrowsOutSimple',
     categories: ['arrows'],
     tags: [
-      'updated',
       'directional',
       'pointer',
       'pointing',
@@ -1483,29 +1401,19 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       'resize',
     ],
     categoriesZh: ['箭头'],
-    tagsZh: [
-      '更新',
-      '定向的',
-      '指针',
-      '指点',
-      '箭头',
-      '展开',
-      '全屏',
-      '调整大小',
-    ],
+    tagsZh: ['定向的', '指针', '指点', '箭头', '展开', '全屏', '调整大小'],
   },
   {
     pascalName: 'ArrowsSplit',
     categories: ['arrows'],
-    tags: ['updated', 'arrowheads', 'fork'],
+    tags: ['arrowheads', 'fork'],
     categoriesZh: ['箭头'],
-    tagsZh: ['更新', '箭头', '叉子'],
+    tagsZh: ['箭头', '叉子'],
   },
   {
     pascalName: 'ArrowsVertical',
     categories: ['arrows'],
     tags: [
-      'updated',
       'directional',
       'pointer',
       'cursor',
@@ -1515,16 +1423,7 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       'down',
     ],
     categoriesZh: ['箭头'],
-    tagsZh: [
-      '更新',
-      '定向的',
-      '指针',
-      '光标',
-      '调整大小',
-      '展开',
-      '向上',
-      '向下',
-    ],
+    tagsZh: ['定向的', '指针', '光标', '调整大小', '展开', '向上', '向下'],
   },
   {
     pascalName: 'Article',
@@ -1544,7 +1443,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'ArticleMedium',
     categories: ['media', 'objects'],
     tags: [
-      'updated',
       'reading',
       'writing',
       'journals',
@@ -1553,13 +1451,12 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       'newspaper',
     ],
     categoriesZh: ['媒体', '物体'],
-    tagsZh: ['更新', '阅读', '写作', '期刊', '期刊', '文字', '报纸'],
+    tagsZh: ['阅读', '写作', '期刊', '期刊', '文字', '报纸'],
   },
   {
     pascalName: 'ArticleNyTimes',
     categories: ['media', 'objects'],
     tags: [
-      'updated',
       'reading',
       'writing',
       'journals',
@@ -1572,7 +1469,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     ],
     categoriesZh: ['媒体', '物体'],
     tagsZh: [
-      '更新',
       '阅读',
       '写作',
       '期刊',
@@ -1588,7 +1484,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'Asclepius',
     categories: ['health & wellness'],
     tags: [
-      'new',
       'caduceus',
       'staff',
       'mythology',
@@ -1606,7 +1501,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     ],
     categoriesZh: ['健康与保健'],
     tagsZh: [
-      '新',
       '杖',
       '工作人员',
       '神话',
@@ -1633,9 +1527,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'AsteriskSimple',
     categories: ['communications'],
-    tags: ['updated', 'star', 'wildcard', 'bullet point', '5', 'emergency'],
+    tags: ['star', 'wildcard', 'bullet point', '5', 'emergency'],
     categoriesZh: ['通讯'],
-    tagsZh: ['更新', '明星', '通配符', '要点', '5', '紧急情况'],
+    tagsZh: ['明星', '通配符', '要点', '5', '紧急情况'],
   },
   {
     pascalName: 'At',
@@ -1674,24 +1568,16 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'Avocado',
     categories: ['commerce', 'nature'],
-    tags: [
-      'new',
-      'food',
-      'vegetable',
-      'veggie',
-      'fruit',
-      'groceries',
-      'market',
-    ],
+    tags: ['food', 'vegetable', 'veggie', 'fruit', 'groceries', 'market'],
     categoriesZh: ['商业', '自然'],
-    tagsZh: ['新', '食物', '蔬菜', '素食者', '水果', '杂货', '市场'],
+    tagsZh: ['食物', '蔬菜', '素食者', '水果', '杂货', '市场'],
   },
   {
     pascalName: 'Axe',
     categories: ['commerce', 'objects'],
-    tags: ['new', 'tools', 'carpentry', 'forestry', 'construction'],
+    tags: ['tools', 'carpentry', 'forestry', 'construction'],
     categoriesZh: ['商业', '物体'],
-    tagsZh: ['新', '工具', '木工', '林业', '建筑'],
+    tagsZh: ['工具', '木工', '林业', '建筑'],
   },
   {
     pascalName: 'Baby',
@@ -1703,17 +1589,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'BabyCarriage',
     categories: ['commerce', 'people'],
-    tags: [
-      'new',
-      'pram',
-      'stroller',
-      'infant',
-      'child',
-      'children',
-      'toddler',
-    ],
+    tags: ['pram', 'stroller', 'infant', 'child', 'children', 'toddler'],
     categoriesZh: ['商业', '人'],
-    tagsZh: ['新', '婴儿车', '婴儿车', '婴儿', '孩子', '儿童', '幼儿'],
+    tagsZh: ['婴儿车', '婴儿车', '婴儿', '孩子', '儿童', '幼儿'],
   },
   {
     pascalName: 'Backpack',
@@ -1798,16 +1676,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'Barn',
     categories: ['commerce', 'maps & travel'],
-    tags: [
-      'new',
-      'animals',
-      'livestock',
-      'buildings',
-      'farming',
-      'agriculture',
-    ],
+    tags: ['animals', 'livestock', 'buildings', 'farming', 'agriculture'],
     categoriesZh: ['商业', '地图和旅行'],
-    tagsZh: ['新', '动物', '牲畜', '建筑物', '农业', '农业'],
+    tagsZh: ['动物', '牲畜', '建筑物', '农业', '农业'],
   },
   {
     pascalName: 'Barricade',
@@ -1833,9 +1704,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'BaseballHelmet',
     categories: ['games', 'health & wellness', 'objects'],
-    tags: ['new', 'sports', 'mlb'],
+    tags: ['sports', 'mlb'],
     categoriesZh: ['游戏', '健康与保健', '物体'],
-    tagsZh: ['新', '体育', '美国职棒大联盟'],
+    tagsZh: ['体育', '美国职棒大联盟'],
   },
   {
     pascalName: 'Basket',
@@ -1993,16 +1864,16 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'BeachBall',
     categories: ['games', 'health & wellness', 'objects'],
-    tags: ['new', 'sports', 'ocean', 'party'],
+    tags: ['sports', 'ocean', 'party'],
     categoriesZh: ['游戏', '健康与保健', '物体'],
-    tagsZh: ['新', '体育', '海洋', '聚会'],
+    tagsZh: ['体育', '海洋', '聚会'],
   },
   {
     pascalName: 'Beanie',
     categories: ['commerce', 'objects'],
-    tags: ['new', 'clothes', 'clothing', 'sports', 'hat', 'winter'],
+    tags: ['clothes', 'clothing', 'sports', 'hat', 'winter'],
     categoriesZh: ['商业', '物体'],
-    tagsZh: ['新', '衣服', '服装', '体育', '帽子', '冬天'],
+    tagsZh: ['衣服', '服装', '体育', '帽子', '冬天'],
   },
   {
     pascalName: 'Bed',
@@ -2287,9 +2158,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'Belt',
     categories: ['commerce', 'objects'],
-    tags: ['new', 'clothes', 'clothing'],
+    tags: ['clothes', 'clothing'],
     categoriesZh: ['商业', '物体'],
-    tagsZh: ['新', '衣服', '服装'],
+    tagsZh: ['衣服', '服装'],
   },
   {
     pascalName: 'BezierCurve',
@@ -2326,9 +2197,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'Binary',
     categories: ['technology & development', 'system'],
-    tags: ['new', 'digital', '0', '1', 'programming', 'coding', 'executable'],
+    tags: ['digital', '0', '1', 'programming', 'coding', 'executable'],
     categoriesZh: ['技术与发展', '系统'],
-    tagsZh: ['新', '数字化', '0', '1', '编程', '编码', '可执行文件'],
+    tagsZh: ['数字化', '0', '1', '编程', '编码', '可执行文件'],
   },
   {
     pascalName: 'Binoculars',
@@ -2341,7 +2212,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'Biohazard',
     categories: ['health & wellness'],
     tags: [
-      'new',
       'contamination',
       'quarantine',
       'toxic',
@@ -2350,28 +2220,21 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       'caution',
     ],
     categoriesZh: ['健康与保健'],
-    tagsZh: ['新', '污染', '检疫', '有毒的', '毒药', '危险', '小心'],
+    tagsZh: ['污染', '检疫', '有毒的', '毒药', '危险', '小心'],
   },
   {
     pascalName: 'Bird',
     categories: ['nature'],
-    tags: ['updated', 'animals', 'pets'],
+    tags: ['animals', 'pets'],
     categoriesZh: ['自然'],
-    tagsZh: ['更新', '动物', '宠物'],
+    tagsZh: ['动物', '宠物'],
   },
   {
     pascalName: 'Blueprint',
     categories: ['commerce', 'design'],
-    tags: [
-      'new',
-      'architecture',
-      'layout',
-      'floorplan',
-      'building',
-      'construction',
-    ],
+    tags: ['architecture', 'layout', 'floorplan', 'building', 'construction'],
     categoriesZh: ['商业', '设计'],
-    tagsZh: ['新', '建筑学', '布局', '平面图', '建筑物', '建筑'],
+    tagsZh: ['建筑学', '布局', '平面图', '建筑物', '建筑'],
   },
   {
     pascalName: 'Bluetooth',
@@ -2441,9 +2304,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'Bomb',
     categories: ['games', 'objects'],
-    tags: ['new', 'gaming', 'grenade', 'explosive', 'war', 'weapon', 'fuse'],
+    tags: ['gaming', 'grenade', 'explosive', 'war', 'weapon', 'fuse'],
     categoriesZh: ['游戏', '物体'],
-    tagsZh: ['新', '游戏', '手榴弹', '爆炸物', '战争', '武器', '保险丝'],
+    tagsZh: ['游戏', '手榴弹', '爆炸物', '战争', '武器', '保险丝'],
   },
   {
     pascalName: 'Bone',
@@ -2477,31 +2340,23 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'BookOpen',
     categories: ['office', 'media', 'objects'],
-    tags: ['updated', 'reading', 'reader', 'novel', 'story', 'library'],
+    tags: ['reading', 'reader', 'novel', 'story', 'library'],
     categoriesZh: ['办公室', '媒体', '物体'],
-    tagsZh: ['更新', '阅读', '读者', '小说', '故事', '图书馆'],
+    tagsZh: ['阅读', '读者', '小说', '故事', '图书馆'],
   },
   {
     pascalName: 'BookOpenText',
     categories: ['office', 'media', 'objects', 'maps & travel'],
-    tags: ['updated', 'reading', 'reader', 'novel', 'story', 'library'],
+    tags: ['reading', 'reader', 'novel', 'story', 'library'],
     categoriesZh: ['办公室', '媒体', '物体', '地图和旅行'],
-    tagsZh: ['更新', '阅读', '读者', '小说', '故事', '图书馆'],
+    tagsZh: ['阅读', '读者', '小说', '故事', '图书馆'],
   },
   {
     pascalName: 'BookOpenUser',
     categories: ['office', 'media', 'objects'],
-    tags: [
-      'new',
-      'reading',
-      'reader',
-      'easy read',
-      'library',
-      'places',
-      'locations',
-    ],
+    tags: ['reading', 'reader', 'easy read', 'library', 'places', 'locations'],
     categoriesZh: ['办公室', '媒体', '物体'],
-    tagsZh: ['新', '阅读', '读者', '易于阅读', '图书馆', '地方', '地点'],
+    tagsZh: ['阅读', '读者', '易于阅读', '图书馆', '地方', '地点'],
   },
   {
     pascalName: 'Bookmark',
@@ -2621,7 +2476,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'Boules',
     categories: ['games', 'health & wellness', 'objects'],
     tags: [
-      'new',
       'balls',
       'sports',
       'pétanque',
@@ -2631,16 +2485,7 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       'lawn bowls',
     ],
     categoriesZh: ['游戏', '健康与保健', '物体'],
-    tagsZh: [
-      '新',
-      '球',
-      '体育',
-      '滚球',
-      '拉法',
-      '地滚球',
-      '里昂球赛',
-      '草坪滚球',
-    ],
+    tagsZh: ['球', '体育', '滚球', '拉法', '地滚球', '里昂球赛', '草坪滚球'],
   },
   {
     pascalName: 'BoundingBox',
@@ -2667,24 +2512,16 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'BowlSteam',
     categories: ['commerce', 'objects', 'maps & travel'],
-    tags: [
-      'new',
-      'food',
-      'meal',
-      'eating',
-      'restaurants',
-      'dining',
-      'locations',
-    ],
+    tags: ['food', 'meal', 'eating', 'restaurants', 'dining', 'locations'],
     categoriesZh: ['商业', '物体', '地图和旅行'],
-    tagsZh: ['新', '食物', '餐', '吃', '餐馆', '餐饮', '地点'],
+    tagsZh: ['食物', '餐', '吃', '餐馆', '餐饮', '地点'],
   },
   {
     pascalName: 'BowlingBall',
     categories: ['games', 'health & wellness', 'objects'],
-    tags: ['new', 'sports', 'alley'],
+    tags: ['sports', 'alley'],
     categoriesZh: ['游戏', '健康与保健', '物体'],
-    tagsZh: ['新', '体育', '胡同'],
+    tagsZh: ['体育', '胡同'],
   },
   {
     pascalName: 'BoxArrowDown',
@@ -2704,16 +2541,16 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'BoxArrowUp',
     categories: ['office', 'system'],
-    tags: ['new', 'unarchive', 'archival', 'upload'],
+    tags: ['unarchive', 'archival', 'upload'],
     categoriesZh: ['办公室', '系统'],
-    tagsZh: ['新', '取消归档', '档案的', '上传'],
+    tagsZh: ['取消归档', '档案的', '上传'],
   },
   {
     pascalName: 'BoxingGlove',
     categories: ['games', 'health & wellness', 'objects'],
-    tags: ['new', 'sports', 'combat', 'martial arts', 'fight', 'gym'],
+    tags: ['sports', 'combat', 'martial arts', 'fight', 'gym'],
     categoriesZh: ['游戏', '健康与保健', '物体'],
-    tagsZh: ['新', '体育', '战斗', '武术', '战斗', '健身房'],
+    tagsZh: ['体育', '战斗', '武术', '战斗', '健身房'],
   },
   {
     pascalName: 'BracketsAngle',
@@ -2783,7 +2620,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'Bread',
     categories: ['commerce', 'maps & travel'],
     tags: [
-      'new',
       'food',
       'meal',
       'bakery',
@@ -2794,17 +2630,7 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       'slice',
     ],
     categoriesZh: ['商业', '地图和旅行'],
-    tagsZh: [
-      '新',
-      '食物',
-      '餐',
-      '面包店',
-      '三明治',
-      '麸质',
-      '面包',
-      '吐司',
-      '切片',
-    ],
+    tagsZh: ['食物', '餐', '面包店', '三明治', '麸质', '面包', '吐司', '切片'],
   },
   {
     pascalName: 'Bridge',
@@ -2915,23 +2741,23 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'Building',
     categories: ['commerce', 'maps & travel'],
-    tags: ['new', 'places', 'locations', 'company', 'business', 'buildings'],
+    tags: ['places', 'locations', 'company', 'business', 'buildings'],
     categoriesZh: ['商业', '地图和旅行'],
-    tagsZh: ['新', '地方', '地点', '公司', '商业', '建筑物'],
+    tagsZh: ['地方', '地点', '公司', '商业', '建筑物'],
   },
   {
     pascalName: 'BuildingApartment',
     categories: ['commerce', 'maps & travel'],
-    tags: ['new', 'places', 'locations', 'buildings'],
+    tags: ['places', 'locations', 'buildings'],
     categoriesZh: ['商业', '地图和旅行'],
-    tagsZh: ['新', '地方', '地点', '建筑物'],
+    tagsZh: ['地方', '地点', '建筑物'],
   },
   {
     pascalName: 'BuildingOffice',
     categories: ['commerce', 'maps & travel'],
-    tags: ['new', 'places', 'locations', 'company', 'business', 'buildings'],
+    tags: ['places', 'locations', 'company', 'business', 'buildings'],
     categoriesZh: ['商业', '地图和旅行'],
-    tagsZh: ['新', '地方', '地点', '公司', '商业', '建筑物'],
+    tagsZh: ['地方', '地点', '公司', '商业', '建筑物'],
   },
   {
     pascalName: 'Buildings',
@@ -2943,9 +2769,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'Bulldozer',
     categories: ['commerce', 'objects'],
-    tags: ['new', 'vehicles', 'construction', 'earth mover', 'dig', 'digger'],
+    tags: ['vehicles', 'construction', 'earth mover', 'dig', 'digger'],
     categoriesZh: ['商业', '物体'],
-    tagsZh: ['新', '车辆', '建筑', '推土机', '挖', '挖掘机'],
+    tagsZh: ['车辆', '建筑', '推土机', '挖', '挖掘机'],
   },
   {
     pascalName: 'Bus',
@@ -2983,7 +2809,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'CableCar',
     categories: ['maps & travel', 'objects'],
     tags: [
-      'new',
       'vehicles',
       'gondola',
       'skiing',
@@ -2997,7 +2822,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     ],
     categoriesZh: ['地图和旅行', '物体'],
     tagsZh: [
-      '新',
       '车辆',
       '贡多拉',
       '滑雪',
@@ -3013,9 +2837,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'Cactus',
     categories: ['nature'],
-    tags: ['updated', 'plants', 'cacti', 'desert', 'western'],
+    tags: ['plants', 'cacti', 'desert', 'western'],
     categoriesZh: ['自然'],
-    tagsZh: ['更新', '植物', '仙人掌', '沙漠', '西方的'],
+    tagsZh: ['植物', '仙人掌', '沙漠', '西方的'],
   },
   {
     pascalName: 'Cake',
@@ -3101,30 +2925,30 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'CalendarDot',
     categories: ['office', 'system'],
-    tags: ['new', 'dates', 'times', 'events', 'schedule', 'today'],
+    tags: ['dates', 'times', 'events', 'schedule', 'today'],
     categoriesZh: ['办公室', '系统'],
-    tagsZh: ['新', '日期', '次', '事件', '时间表', '今天'],
+    tagsZh: ['日期', '次', '事件', '时间表', '今天'],
   },
   {
     pascalName: 'CalendarDots',
     categories: ['office', 'system'],
-    tags: ['new', 'dates', 'times', 'events', 'schedule'],
+    tags: ['dates', 'times', 'events', 'schedule'],
     categoriesZh: ['办公室', '系统'],
-    tagsZh: ['新', '日期', '次', '事件', '时间表'],
+    tagsZh: ['日期', '次', '事件', '时间表'],
   },
   {
     pascalName: 'CalendarHeart',
     categories: ['office', 'system'],
-    tags: ['new', 'dates', 'times', 'events', 'schedule', 'favorite', 'star'],
+    tags: ['dates', 'times', 'events', 'schedule', 'favorite', 'star'],
     categoriesZh: ['办公室', '系统'],
-    tagsZh: ['新', '日期', '次', '事件', '时间表', '最喜欢的', '明星'],
+    tagsZh: ['日期', '次', '事件', '时间表', '最喜欢的', '明星'],
   },
   {
     pascalName: 'CalendarMinus',
     categories: ['office', 'system'],
-    tags: ['new', 'dates', 'times', 'events', 'schedule', 'remove', 'delete'],
+    tags: ['dates', 'times', 'events', 'schedule', 'remove', 'delete'],
     categoriesZh: ['办公室', '系统'],
-    tagsZh: ['新', '日期', '次', '事件', '时间表', '删除', '删除'],
+    tagsZh: ['日期', '次', '事件', '时间表', '删除', '删除'],
   },
   {
     pascalName: 'CalendarPlus',
@@ -3137,7 +2961,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'CalendarSlash',
     categories: ['office', 'system'],
     tags: [
-      'new',
       'dates',
       'times',
       'events',
@@ -3147,23 +2970,14 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       'cancel. unavailable',
     ],
     categoriesZh: ['办公室', '系统'],
-    tagsZh: [
-      '新',
-      '日期',
-      '次',
-      '事件',
-      '时间表',
-      '删除',
-      '删除',
-      '取消。不可用',
-    ],
+    tagsZh: ['日期', '次', '事件', '时间表', '删除', '删除', '取消。不可用'],
   },
   {
     pascalName: 'CalendarStar',
     categories: ['office', 'system'],
-    tags: ['new', 'dates', 'times', 'events', 'schedule', 'favorite', 'star'],
+    tags: ['dates', 'times', 'events', 'schedule', 'favorite', 'star'],
     categoriesZh: ['办公室', '系统'],
-    tagsZh: ['新', '日期', '次', '事件', '时间表', '最喜欢的', '明星'],
+    tagsZh: ['日期', '次', '事件', '时间表', '最喜欢的', '明星'],
   },
   {
     pascalName: 'CalendarX',
@@ -3226,7 +3040,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'Car',
     categories: ['maps & travel', 'objects'],
     tags: [
-      'updated',
       'cars',
       'vehicles',
       'automobile',
@@ -3235,22 +3048,14 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       'traveling',
     ],
     categoriesZh: ['地图和旅行', '物体'],
-    tagsZh: ['更新', '汽车', '车辆', '汽车', '过境', '交通', '旅行'],
+    tagsZh: ['汽车', '车辆', '汽车', '过境', '交通', '旅行'],
   },
   {
     pascalName: 'CarBattery',
     categories: ['commerce', 'objects'],
-    tags: [
-      'new',
-      'charged',
-      'charger',
-      'charging',
-      'power',
-      'voltage',
-      'electricity',
-    ],
+    tags: ['charged', 'charger', 'charging', 'power', 'voltage', 'electricity'],
     categoriesZh: ['商业', '物体'],
-    tagsZh: ['新', '收费的', '充电器', '充电', '电源', '电压', '电力'],
+    tagsZh: ['收费的', '充电器', '充电', '电源', '电压', '电力'],
   },
   {
     pascalName: 'CarProfile',
@@ -3306,7 +3111,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'CardsThree',
     categories: ['design', 'system'],
     tags: [
-      'new',
       'card',
       'slides',
       'slideshow',
@@ -3317,17 +3121,7 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       'stack',
     ],
     categoriesZh: ['设计', '系统'],
-    tagsZh: [
-      '新',
-      '卡',
-      '幻灯片',
-      '幻灯片',
-      '窗户',
-      '网站',
-      '网页',
-      '层数',
-      '堆栈',
-    ],
+    tagsZh: ['卡', '幻灯片', '幻灯片', '窗户', '网站', '网页', '层数', '堆栈'],
   },
   {
     pascalName: 'CaretCircleDoubleDown',
@@ -3543,7 +3337,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'CaretLineDown',
     categories: ['arrows'],
     tags: [
-      'new',
       'chevron',
       'directional',
       'pointer',
@@ -3552,13 +3345,12 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       'triangle',
     ],
     categoriesZh: ['箭头'],
-    tagsZh: ['新', '雪佛龙', '定向的', '指针', '指点', '箭头', '三角形'],
+    tagsZh: ['雪佛龙', '定向的', '指针', '指点', '箭头', '三角形'],
   },
   {
     pascalName: 'CaretLineLeft',
     categories: ['arrows'],
     tags: [
-      'new',
       'chevron',
       'directional',
       'pointer',
@@ -3567,13 +3359,12 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       'triangle',
     ],
     categoriesZh: ['箭头'],
-    tagsZh: ['新', '雪佛龙', '定向的', '指针', '指点', '箭头', '三角形'],
+    tagsZh: ['雪佛龙', '定向的', '指针', '指点', '箭头', '三角形'],
   },
   {
     pascalName: 'CaretLineRight',
     categories: ['arrows'],
     tags: [
-      'new',
       'chevron',
       'directional',
       'pointer',
@@ -3582,13 +3373,12 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       'triangle',
     ],
     categoriesZh: ['箭头'],
-    tagsZh: ['新', '雪佛龙', '定向的', '指针', '指点', '箭头', '三角形'],
+    tagsZh: ['雪佛龙', '定向的', '指针', '指点', '箭头', '三角形'],
   },
   {
     pascalName: 'CaretLineUp',
     categories: ['arrows'],
     tags: [
-      'new',
       'chevron',
       'directional',
       'pointer',
@@ -3597,7 +3387,7 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       'triangle',
     ],
     categoriesZh: ['箭头'],
-    tagsZh: ['新', '雪佛龙', '定向的', '指针', '指点', '箭头', '三角形'],
+    tagsZh: ['雪佛龙', '定向的', '指针', '指点', '箭头', '三角形'],
   },
   {
     pascalName: 'CaretRight',
@@ -3651,17 +3441,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'CashRegister',
     categories: ['commerce', 'objects'],
-    tags: [
-      'new',
-      'retail',
-      'point-of-sale',
-      'pos',
-      'transaction',
-      'sales',
-      'till',
-    ],
+    tags: ['retail', 'point-of-sale', 'pos', 'transaction', 'sales', 'till'],
     categoriesZh: ['商业', '物体'],
-    tagsZh: ['新', '零售', '销售点', '位置', '交易', '销售', '直到'],
+    tagsZh: ['零售', '销售点', '位置', '交易', '销售', '直到'],
   },
   {
     pascalName: 'CassetteTape',
@@ -3673,9 +3455,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'CastleTurret',
     categories: ['maps & travel', 'objects', 'games'],
-    tags: ['updated', 'chess', 'rook'],
+    tags: ['chess', 'rook'],
     categoriesZh: ['地图和旅行', '物体', '游戏'],
-    tagsZh: ['更新', '国际象棋', '车'],
+    tagsZh: ['国际象棋', '车'],
   },
   {
     pascalName: 'Cat',
@@ -3885,7 +3667,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'CellTower',
     categories: ['system'],
     tags: [
-      'new',
       'wireless',
       'cellular',
       'broadcast',
@@ -3897,7 +3678,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     ],
     categoriesZh: ['系统'],
     tagsZh: [
-      '新',
       '无线',
       '细胞的',
       '广播',
@@ -3911,9 +3691,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'Certificate',
     categories: ['objects'],
-    tags: ['updated', 'awards', 'certification', 'degree', 'diploma'],
+    tags: ['awards', 'certification', 'degree', 'diploma'],
     categoriesZh: ['物体'],
-    tagsZh: ['更新', '奖项', '认证', '学位', '文凭'],
+    tagsZh: ['奖项', '认证', '学位', '文凭'],
   },
   {
     pascalName: 'Chair',
@@ -3942,7 +3722,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'ChalkboardSimple',
     categories: ['maps & travel', 'objects'],
     tags: [
-      'updated',
       'blackboard',
       'whiteboard',
       'classroom',
@@ -3953,17 +3732,7 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       'university',
     ],
     categoriesZh: ['地图和旅行', '物体'],
-    tagsZh: [
-      '更新',
-      '黑板',
-      '白板',
-      '课堂',
-      '老师',
-      '教育',
-      '学校',
-      '学院',
-      '大学',
-    ],
+    tagsZh: ['黑板', '白板', '课堂', '老师', '教育', '学校', '学院', '大学'],
   },
   {
     pascalName: 'ChalkboardTeacher',
@@ -4080,7 +3849,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'ChartLineDown',
     categories: ['finances', 'office'],
     tags: [
-      'updated',
       'graphs',
       'graphing',
       'charts',
@@ -4090,13 +3858,12 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       'stocks',
     ],
     categoriesZh: ['财务', '办公室'],
-    tagsZh: ['更新', '图表', '绘图', '图表', '统计', '分析', '分析', '股票'],
+    tagsZh: ['图表', '绘图', '图表', '统计', '分析', '分析', '股票'],
   },
   {
     pascalName: 'ChartLineUp',
     categories: ['finances', 'office'],
     tags: [
-      'updated',
       'graphs',
       'graphing',
       'charts',
@@ -4106,7 +3873,7 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       'stocks',
     ],
     categoriesZh: ['财务', '办公室'],
-    tagsZh: ['更新', '图表', '绘图', '图表', '统计', '分析', '分析', '股票'],
+    tagsZh: ['图表', '绘图', '图表', '统计', '分析', '分析', '股票'],
   },
   {
     pascalName: 'ChartPie',
@@ -4127,7 +3894,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'ChartPieSlice',
     categories: ['finances', 'office'],
     tags: [
-      'updated',
       'graphs',
       'graphing',
       'charts',
@@ -4137,7 +3903,7 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       'analysis',
     ],
     categoriesZh: ['财务', '办公室'],
-    tagsZh: ['更新', '图表', '绘图', '图表', '统计', '圆圈', '分析', '分析'],
+    tagsZh: ['图表', '绘图', '图表', '统计', '圆圈', '分析', '分析'],
   },
   {
     pascalName: 'ChartPolar',
@@ -4246,7 +4012,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'ChatCenteredSlash',
     categories: ['communications'],
     tags: [
-      'new',
       'messages',
       'messaging',
       'sms',
@@ -4256,16 +4021,7 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       'bubble',
     ],
     categoriesZh: ['通讯'],
-    tagsZh: [
-      '新',
-      '消息',
-      '消息传递',
-      '短信',
-      '发短信',
-      '评论',
-      '正方形',
-      '泡沫',
-    ],
+    tagsZh: ['消息', '消息传递', '短信', '发短信', '评论', '正方形', '泡沫'],
   },
   {
     pascalName: 'ChatCenteredText',
@@ -4352,7 +4108,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'ChatCircleSlash',
     categories: ['communications'],
     tags: [
-      'new',
       'messages',
       'messaging',
       'sms',
@@ -4362,16 +4117,7 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       'bubble',
     ],
     categoriesZh: ['通讯'],
-    tagsZh: [
-      '新',
-      '消息',
-      '消息传递',
-      '短信',
-      '发短信',
-      '评论',
-      '圆形',
-      '泡沫',
-    ],
+    tagsZh: ['消息', '消息传递', '短信', '发短信', '评论', '圆形', '泡沫'],
   },
   {
     pascalName: 'ChatCircleText',
@@ -4431,7 +4177,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'ChatSlash',
     categories: ['communications'],
     tags: [
-      'new',
       'messages',
       'messaging',
       'sms',
@@ -4441,16 +4186,7 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       'bubble',
     ],
     categoriesZh: ['通讯'],
-    tagsZh: [
-      '新',
-      '消息',
-      '消息传递',
-      '短信',
-      '发短信',
-      '评论',
-      '正方形',
-      '泡沫',
-    ],
+    tagsZh: ['消息', '消息传递', '短信', '发短信', '评论', '正方形', '泡沫'],
   },
   {
     pascalName: 'ChatTeardrop',
@@ -4505,17 +4241,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'ChatTeardropSlash',
     categories: ['communications'],
-    tags: [
-      'new',
-      'messages',
-      'messaging',
-      'sms',
-      'texting',
-      'comment',
-      'bubble',
-    ],
+    tags: ['messages', 'messaging', 'sms', 'texting', 'comment', 'bubble'],
     categoriesZh: ['通讯'],
-    tagsZh: ['新', '消息', '消息传递', '短信', '发短信', '评论', '泡沫'],
+    tagsZh: ['消息', '消息传递', '短信', '发短信', '评论', '泡沫'],
   },
   {
     pascalName: 'ChatTeardropText',
@@ -4707,7 +4435,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'CheckSquareOffset',
     categories: ['system'],
     tags: [
-      'updated',
       'todo',
       'to-do',
       'task',
@@ -4719,7 +4446,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     ],
     categoriesZh: ['系统'],
     tagsZh: [
-      '更新',
       '待办事项',
       '待办事项',
       '任务',
@@ -4733,40 +4459,21 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'Checkerboard',
     categories: ['games'],
-    tags: ['new', 'crossword'],
+    tags: ['crossword'],
     categoriesZh: ['游戏'],
-    tagsZh: ['新', '填字游戏'],
+    tagsZh: ['填字游戏'],
   },
   {
     pascalName: 'Checks',
     categories: ['system'],
-    tags: [
-      'updated',
-      'todo',
-      'task',
-      'to-do',
-      'list',
-      'checkbox',
-      'ok',
-      'done',
-    ],
+    tags: ['todo', 'task', 'to-do', 'list', 'checkbox', 'ok', 'done'],
     categoriesZh: ['系统'],
-    tagsZh: [
-      '更新',
-      '待办事项',
-      '任务',
-      '待办事项',
-      '清单',
-      '复选框',
-      '好的',
-      '完成',
-    ],
+    tagsZh: ['待办事项', '任务', '待办事项', '清单', '复选框', '好的', '完成'],
   },
   {
     pascalName: 'Cheers',
     categories: ['commerce', 'maps & travel'],
     tags: [
-      'new',
       'glass',
       'drinks',
       'beverages',
@@ -4781,7 +4488,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     ],
     categoriesZh: ['商业', '地图和旅行'],
     tagsZh: [
-      '新',
       '玻璃',
       '饮料',
       '饮料',
@@ -4798,23 +4504,23 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'Cheese',
     categories: ['commerce'],
-    tags: ['new', 'dairy', 'wedge', 'food', 'dining'],
+    tags: ['dairy', 'wedge', 'food', 'dining'],
     categoriesZh: ['商业'],
-    tagsZh: ['新', '乳制品', '楔子', '食物', '餐饮'],
+    tagsZh: ['乳制品', '楔子', '食物', '餐饮'],
   },
   {
     pascalName: 'ChefHat',
     categories: ['commerce', 'objects'],
-    tags: ['new', 'cooking', 'cuisine', 'kitchen', 'clothes', 'clothing'],
+    tags: ['cooking', 'cuisine', 'kitchen', 'clothes', 'clothing'],
     categoriesZh: ['商业', '物体'],
-    tagsZh: ['新', '烹饪', '美食', '厨房', '衣服', '服装'],
+    tagsZh: ['烹饪', '美食', '厨房', '衣服', '服装'],
   },
   {
     pascalName: 'Cherries',
     categories: ['nature', 'commerce'],
-    tags: ['new', 'food', 'fruit', 'cherry', 'groceries', 'market'],
+    tags: ['food', 'fruit', 'cherry', 'groceries', 'market'],
     categoriesZh: ['自然', '商业'],
-    tagsZh: ['新', '食物', '水果', '樱桃', '杂货', '市场'],
+    tagsZh: ['食物', '水果', '樱桃', '杂货', '市场'],
   },
   {
     pascalName: 'Church',
@@ -4826,16 +4532,16 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'Cigarette',
     categories: ['commerce', 'health & wellness'],
-    tags: ['new', 'smoking', 'tobacco'],
+    tags: ['smoking', 'tobacco'],
     categoriesZh: ['商业', '健康与保健'],
-    tagsZh: ['新', '吸烟', '烟草'],
+    tagsZh: ['吸烟', '烟草'],
   },
   {
     pascalName: 'CigaretteSlash',
     categories: ['commerce', 'health & wellness'],
-    tags: ['new', 'non-smoking', 'tobacco'],
+    tags: ['non-smoking', 'tobacco'],
     categoriesZh: ['商业', '健康与保健'],
-    tagsZh: ['新', '禁烟', '烟草'],
+    tagsZh: ['禁烟', '烟草'],
   },
   {
     pascalName: 'Circle',
@@ -4918,16 +4624,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'City',
     categories: ['maps & travel', 'commerce'],
-    tags: [
-      'new',
-      'skyline',
-      'skyscrapers',
-      'places',
-      'locations',
-      'buildings',
-    ],
+    tags: ['skyline', 'skyscrapers', 'places', 'locations', 'buildings'],
     categoriesZh: ['地图和旅行', '商业'],
-    tagsZh: ['新', '天际线', '摩天大楼', '地方', '地点', '建筑物'],
+    tagsZh: ['天际线', '摩天大楼', '地方', '地点', '建筑物'],
   },
   {
     pascalName: 'Clipboard',
@@ -4999,9 +4698,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'ClockUser',
     categories: ['system'],
-    tags: ['new', 'times', 'timer', 'shift', 'schedule', 'events', 'watch'],
+    tags: ['times', 'timer', 'shift', 'schedule', 'events', 'watch'],
     categoriesZh: ['系统'],
-    tagsZh: ['新', '次', '计时器', '转变', '时间表', '事件', '手表'],
+    tagsZh: ['次', '计时器', '转变', '时间表', '事件', '手表'],
   },
   {
     pascalName: 'ClosedCaptioning',
@@ -5119,9 +4818,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'Clover',
     categories: ['nature'],
-    tags: ['new', 'four leaf clover', 'plants', 'luck', 'lucky', 'irish'],
+    tags: ['four leaf clover', 'plants', 'luck', 'lucky', 'irish'],
     categoriesZh: ['自然'],
-    tagsZh: ['新', '四叶草', '植物', '运气', '幸运的', '爱尔兰语的'],
+    tagsZh: ['四叶草', '植物', '运气', '幸运的', '爱尔兰语的'],
   },
   {
     pascalName: 'Club',
@@ -5230,7 +4929,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'CoffeeBean',
     categories: ['commerce', 'maps & travel', 'nature'],
     tags: [
-      'new',
       'tea',
       'java',
       'beverages',
@@ -5250,7 +4948,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     ],
     categoriesZh: ['商业', '地图和旅行', '自然'],
     tagsZh: [
-      '新',
       '茶',
       '爪哇',
       '饮料',
@@ -5363,7 +5060,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'ColumnsPlusLeft',
     categories: ['design'],
     tags: [
-      'new',
       '2',
       'shapes',
       'polygons',
@@ -5377,7 +5073,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     ],
     categoriesZh: ['设计'],
     tagsZh: [
-      '新',
       '2',
       '形状',
       '多边形',
@@ -5394,7 +5089,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'ColumnsPlusRight',
     categories: ['design'],
     tags: [
-      'new',
       '2',
       'shapes',
       'polygons',
@@ -5408,7 +5102,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     ],
     categoriesZh: ['设计'],
     tagsZh: [
-      '新',
       '2',
       '形状',
       '多边形',
@@ -5454,16 +5147,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'CompassRose',
     categories: ['maps & travel', 'objects'],
-    tags: [
-      'new',
-      'navigation',
-      'directions',
-      'maps',
-      'cardinal',
-      'cartography',
-    ],
+    tags: ['navigation', 'directions', 'maps', 'cardinal', 'cartography'],
     categoriesZh: ['地图和旅行', '物体'],
-    tagsZh: ['新', '导航', '方向', '地图', '红衣主教', '制图学'],
+    tagsZh: ['导航', '方向', '地图', '红衣主教', '制图学'],
   },
   {
     pascalName: 'CompassTool',
@@ -5565,16 +5251,16 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'CornersIn',
     categories: ['system'],
-    tags: ['updated', 'collapse', 'windowed', 'minimized'],
+    tags: ['collapse', 'windowed', 'minimized'],
     categoriesZh: ['系统'],
-    tagsZh: ['更新', '崩溃', '开窗的', '最小化'],
+    tagsZh: ['崩溃', '开窗的', '最小化'],
   },
   {
     pascalName: 'CornersOut',
     categories: ['system'],
-    tags: ['updated', 'expand', 'fullscreen', 'maximized'],
+    tags: ['expand', 'fullscreen', 'maximized'],
     categoriesZh: ['系统'],
-    tagsZh: ['更新', '展开', '全屏', '最大化'],
+    tagsZh: ['展开', '全屏', '最大化'],
   },
   {
     pascalName: 'Couch',
@@ -5586,23 +5272,23 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'CourtBasketball',
     categories: ['games', 'health & wellness', 'maps & travel'],
-    tags: ['new', 'sports', 'nba'],
+    tags: ['sports', 'nba'],
     categoriesZh: ['游戏', '健康与保健', '地图和旅行'],
-    tagsZh: ['新', '体育', 'NBA'],
+    tagsZh: ['体育', 'NBA'],
   },
   {
     pascalName: 'Cow',
     categories: ['commerce', 'nature'],
-    tags: ['new', 'animals', 'livestock', 'beef', 'bull', 'milk', 'dairy'],
+    tags: ['animals', 'livestock', 'beef', 'bull', 'milk', 'dairy'],
     categoriesZh: ['商业', '自然'],
-    tagsZh: ['新', '动物', '牲畜', '牛肉', '公牛', '牛奶', '乳制品'],
+    tagsZh: ['动物', '牲畜', '牛肉', '公牛', '牛奶', '乳制品'],
   },
   {
     pascalName: 'CowboyHat',
     categories: ['commerce', 'objects'],
-    tags: ['new', 'clothes', 'clothing', 'stetson'],
+    tags: ['clothes', 'clothing', 'stetson'],
     categoriesZh: ['商业', '物体'],
-    tagsZh: ['新', '衣服', '服装', '斯泰森'],
+    tagsZh: ['衣服', '服装', '斯泰森'],
   },
   {
     pascalName: 'Cpu',
@@ -5614,16 +5300,16 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'Crane',
     categories: ['commerce', 'technology & development'],
-    tags: ['new', 'construction', 'industry'],
+    tags: ['construction', 'industry'],
     categoriesZh: ['商业', '技术与发展'],
-    tagsZh: ['新', '建筑', '工业'],
+    tagsZh: ['建筑', '工业'],
   },
   {
     pascalName: 'CraneTower',
     categories: ['commerce', 'technology & development'],
-    tags: ['new', 'construction', 'industry'],
+    tags: ['construction', 'industry'],
     categoriesZh: ['商业', '技术与发展'],
-    tagsZh: ['新', '建筑', '工业'],
+    tagsZh: ['建筑', '工业'],
   },
   {
     pascalName: 'CreditCard',
@@ -5644,9 +5330,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'Cricket',
     categories: ['games', 'health & wellness'],
-    tags: ['new', 'sports', 'ball', 'bat'],
+    tags: ['sports', 'ball', 'bat'],
     categoriesZh: ['游戏', '健康与保健'],
-    tagsZh: ['新', '体育', '球', '蝙蝠'],
+    tagsZh: ['体育', '球', '蝙蝠'],
   },
   {
     pascalName: 'Crop',
@@ -5687,77 +5373,23 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'Crown',
     categories: ['games', 'objects'],
-    tags: [
-      'updated',
-      'king',
-      'queen',
-      'royalty',
-      'monarch',
-      'ruler',
-      'leader',
-      'chess',
-    ],
+    tags: ['king', 'queen', 'royalty', 'monarch', 'ruler', 'leader', 'chess'],
     categoriesZh: ['游戏', '物体'],
-    tagsZh: [
-      '更新',
-      '国王',
-      '女王',
-      '版税',
-      '君主',
-      '尺子',
-      '领导者',
-      '国际象棋',
-    ],
+    tagsZh: ['国王', '女王', '版税', '君主', '尺子', '领导者', '国际象棋'],
   },
   {
     pascalName: 'CrownCross',
     categories: ['games', 'objects'],
-    tags: [
-      'new',
-      'king',
-      'queen',
-      'royalty',
-      'monarch',
-      'ruler',
-      'leader',
-      'chess',
-    ],
+    tags: ['king', 'queen', 'royalty', 'monarch', 'ruler', 'leader', 'chess'],
     categoriesZh: ['游戏', '物体'],
-    tagsZh: [
-      '新',
-      '国王',
-      '女王',
-      '版税',
-      '君主',
-      '尺子',
-      '领导者',
-      '国际象棋',
-    ],
+    tagsZh: ['国王', '女王', '版税', '君主', '尺子', '领导者', '国际象棋'],
   },
   {
     pascalName: 'CrownSimple',
     categories: ['games', 'objects'],
-    tags: [
-      'updated',
-      'king',
-      'queen',
-      'royalty',
-      'monarch',
-      'ruler',
-      'leader',
-      'chess',
-    ],
+    tags: ['king', 'queen', 'royalty', 'monarch', 'ruler', 'leader', 'chess'],
     categoriesZh: ['游戏', '物体'],
-    tagsZh: [
-      '更新',
-      '国王',
-      '女王',
-      '版税',
-      '君主',
-      '尺子',
-      '领导者',
-      '国际象棋',
-    ],
+    tagsZh: ['国王', '女王', '版税', '君主', '尺子', '领导者', '国际象棋'],
   },
   {
     pascalName: 'Cube',
@@ -5964,9 +5596,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'Desk',
     categories: ['commerce', 'objects', 'office'],
-    tags: ['new', 'furniture', 'workspace', 'table'],
+    tags: ['furniture', 'workspace', 'table'],
     categoriesZh: ['商业', '物体', '办公室'],
-    tagsZh: ['新', '家具', '工作区', '表'],
+    tagsZh: ['家具', '工作区', '表'],
   },
   {
     pascalName: 'Desktop',
@@ -5978,9 +5610,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'DesktopTower',
     categories: ['technology & development', 'objects'],
-    tags: ['updated', 'computer', 'pc', 'imac'],
+    tags: ['computer', 'pc', 'imac'],
     categoriesZh: ['技术与发展', '物体'],
-    tagsZh: ['更新', '电脑', '电脑', '伊玛克'],
+    tagsZh: ['电脑', '电脑', '伊玛克'],
   },
   {
     pascalName: 'Detective',
@@ -6013,9 +5645,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'DeviceMobileSlash',
     categories: ['objects', 'system'],
-    tags: ['new', 'cellphone', 'cellular'],
+    tags: ['cellphone', 'cellular'],
     categoriesZh: ['物体', '系统'],
-    tagsZh: ['新', '手机', '细胞的'],
+    tagsZh: ['手机', '细胞的'],
   },
   {
     pascalName: 'DeviceMobileSpeaker',
@@ -6027,9 +5659,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'DeviceRotate',
     categories: ['objects', 'system'],
-    tags: ['new', 'orientation', 'landscape', 'portrait', 'spin', 'flip'],
+    tags: ['orientation', 'landscape', 'portrait', 'spin', 'flip'],
     categoriesZh: ['物体', '系统'],
-    tagsZh: ['新', '方向', '风景', '肖像', '旋转', '翻转'],
+    tagsZh: ['方向', '风景', '肖像', '旋转', '翻转'],
   },
   {
     pascalName: 'DeviceTablet',
@@ -6145,9 +5777,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'DiscoBall',
     categories: ['games', 'maps & travel', 'objects'],
-    tags: ['new', 'danging', 'club', '70s'],
+    tags: ['danging', 'club', '70s'],
     categoriesZh: ['游戏', '地图和旅行', '物体'],
-    tagsZh: ['新', '晃动', '俱乐部', '70年代'],
+    tagsZh: ['晃动', '俱乐部', '70年代'],
   },
   {
     pascalName: 'DiscordLogo',
@@ -6223,32 +5855,16 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'DotsSix',
     categories: ['system'],
-    tags: [
-      'updated',
-      'drag handle',
-      'knurling',
-      'circles',
-      'shapes',
-      'polygons',
-      '6',
-    ],
+    tags: ['drag handle', 'knurling', 'circles', 'shapes', 'polygons', '6'],
     categoriesZh: ['系统'],
-    tagsZh: ['更新', '拖动手柄', '滚花', '圈子', '形状', '多边形', '6'],
+    tagsZh: ['拖动手柄', '滚花', '圈子', '形状', '多边形', '6'],
   },
   {
     pascalName: 'DotsSixVertical',
     categories: ['system'],
-    tags: [
-      'updated',
-      'drag handle',
-      'knurling',
-      'circles',
-      'shapes',
-      'polygons',
-      '6',
-    ],
+    tags: ['drag handle', 'knurling', 'circles', 'shapes', 'polygons', '6'],
     categoriesZh: ['系统'],
-    tagsZh: ['更新', '拖动手柄', '滚花', '圈子', '形状', '多边形', '6'],
+    tagsZh: ['拖动手柄', '滚花', '圈子', '形状', '多边形', '6'],
   },
   {
     pascalName: 'DotsThree',
@@ -6443,7 +6059,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'DownloadSimple',
     categories: ['system'],
     tags: [
-      'updated',
       'saved',
       'saving',
       'archived',
@@ -6457,7 +6072,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     ],
     categoriesZh: ['系统'],
     tagsZh: [
-      '更新',
       '已保存',
       '储蓄',
       '已归档',
@@ -6480,9 +6094,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'Dresser',
     categories: ['commerce', 'objects'],
-    tags: ['new', 'furniture', 'bedroom', 'storage', 'drawers', 'wardrobe'],
+    tags: ['furniture', 'bedroom', 'storage', 'drawers', 'wardrobe'],
     categoriesZh: ['商业', '物体'],
-    tagsZh: ['新', '家具', '卧室', '存储', '抽屉', '衣柜'],
+    tagsZh: ['家具', '卧室', '存储', '抽屉', '衣柜'],
   },
   {
     pascalName: 'DribbbleLogo',
@@ -6494,9 +6108,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'Drone',
     categories: ['games', 'objects', 'technology & development'],
-    tags: ['new', 'aerial', 'uav', 'photography', 'remote'],
+    tags: ['aerial', 'uav', 'photography', 'remote'],
     categoriesZh: ['游戏', '物体', '技术与发展'],
-    tagsZh: ['新', '天线', '无人机', '摄影', '远程'],
+    tagsZh: ['天线', '无人机', '摄影', '远程'],
   },
   {
     pascalName: 'Drop',
@@ -6547,7 +6161,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'DropSimple',
     categories: ['design', 'editor', 'nature', 'weather'],
     tags: [
-      'new',
       'droplet',
       'teardrop',
       'raindrop',
@@ -6558,23 +6171,12 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       'blur',
     ],
     categoriesZh: ['设计', '编辑', '自然', '天气'],
-    tagsZh: [
-      '新',
-      '水滴',
-      '泪珠',
-      '雨滴',
-      '下雨',
-      '湿度',
-      '气象学',
-      '水',
-      '模糊',
-    ],
+    tagsZh: ['水滴', '泪珠', '雨滴', '下雨', '湿度', '气象学', '水', '模糊'],
   },
   {
     pascalName: 'DropSlash',
     categories: ['design', 'editor', 'nature', 'weather'],
     tags: [
-      'new',
       'droplet',
       'teardrop',
       'raindrop',
@@ -6587,7 +6189,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     ],
     categoriesZh: ['设计', '编辑', '自然', '天气'],
     tagsZh: [
-      '新',
       '水滴',
       '泪珠',
       '雨滴',
@@ -6659,7 +6260,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'Empty',
     categories: ['finances', 'technology & development'],
     tags: [
-      'new',
       '∅',
       'empty set',
       'member',
@@ -6669,14 +6269,14 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       'null',
     ],
     categoriesZh: ['财务', '技术与发展'],
-    tagsZh: ['新', '∅', '空集', '会员', '数学', '算术', '计算器', '空'],
+    tagsZh: ['∅', '空集', '会员', '数学', '算术', '计算器', '空'],
   },
   {
     pascalName: 'Engine',
     categories: ['maps & travel', 'objects'],
-    tags: ['updated', 'motor', 'repair', 'vehicles', 'automobile'],
+    tags: ['motor', 'repair', 'vehicles', 'automobile'],
     categoriesZh: ['地图和旅行', '物体'],
-    tagsZh: ['更新', '电机', '修理', '车辆', '汽车'],
+    tagsZh: ['电机', '修理', '车辆', '汽车'],
   },
   {
     pascalName: 'Envelope',
@@ -6778,7 +6378,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'ExclamationMark',
     categories: ['system'],
     tags: [
-      'new',
       '!',
       'alert',
       'warning',
@@ -6788,16 +6387,7 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       'symbol',
     ],
     categoriesZh: ['系统'],
-    tagsZh: [
-      '新',
-      '！',
-      '警报',
-      '警告',
-      '小心',
-      '感叹词',
-      '标点符号',
-      '符号',
-    ],
+    tagsZh: ['！', '警报', '警告', '小心', '感叹词', '标点符号', '符号'],
   },
   {
     pascalName: 'Exclude',
@@ -6905,9 +6495,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'Eyes',
     categories: ['people'],
-    tags: ['new', 'look', 'glance'],
+    tags: ['look', 'glance'],
     categoriesZh: ['人'],
-    tagsZh: ['新', '看看', '一眼'],
+    tagsZh: ['看看', '一眼'],
   },
   {
     pascalName: 'FaceMask',
@@ -6984,7 +6574,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'FalloutShelter',
     categories: ['health & wellness'],
     tags: [
-      'new',
       'radiation',
       'radioactive',
       'nuclear',
@@ -6997,7 +6586,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     ],
     categoriesZh: ['健康与保健'],
     tagsZh: [
-      '新',
       '辐射',
       '放射性的',
       '核',
@@ -7019,9 +6607,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'Farm',
     categories: ['commerce', 'nature', 'maps & travel'],
-    tags: ['new', 'farmer', 'field', 'farming', 'agriculture'],
+    tags: ['farmer', 'field', 'farming', 'agriculture'],
     categoriesZh: ['商业', '自然', '地图和旅行'],
-    tagsZh: ['新', '农民', '领域', '农业', '农业'],
+    tagsZh: ['农民', '领域', '农业', '农业'],
   },
   {
     pascalName: 'FastForward',
@@ -7047,15 +6635,14 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'FediverseLogo',
     categories: ['brands', 'communications'],
-    tags: ['new', 'social media', 'decentralized'],
+    tags: ['social media', 'decentralized'],
     categoriesZh: ['品牌', '通讯'],
-    tagsZh: ['新', '社交媒体', '去中心化'],
+    tagsZh: ['社交媒体', '去中心化'],
   },
   {
     pascalName: 'FigmaLogo',
     categories: ['brands', 'design'],
     tags: [
-      'updated',
       'logos',
       'drawing',
       'art',
@@ -7067,7 +6654,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     ],
     categoriesZh: ['品牌', '设计'],
     tagsZh: [
-      '更新',
       '标志',
       '绘图',
       '艺术',
@@ -7156,16 +6742,16 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'FileC',
     categories: ['office', 'editor', 'technology & development'],
-    tags: ['new', 'documents', 'code'],
+    tags: ['documents', 'code'],
     categoriesZh: ['办公室', '编辑', '技术与发展'],
-    tagsZh: ['新', '文件', '代码'],
+    tagsZh: ['文件', '代码'],
   },
   {
     pascalName: 'FileCSharp',
     categories: ['office', 'editor', 'technology & development'],
-    tags: ['new', 'documents', 'code', 'c#'],
+    tags: ['documents', 'code', 'c#'],
     categoriesZh: ['办公室', '编辑', '技术与发展'],
-    tagsZh: ['新', '文件', '代码', '时间：2019-03-17 标签：c#'],
+    tagsZh: ['文件', '代码', '时间：2019-03-17 标签：c#'],
   },
   {
     pascalName: 'FileCloud',
@@ -7184,9 +6770,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'FileCpp',
     categories: ['office', 'editor', 'technology & development'],
-    tags: ['new', 'documents', 'code', 'c++'],
+    tags: ['documents', 'code', 'c++'],
     categoriesZh: ['办公室', '编辑', '技术与发展'],
-    tagsZh: ['新', '文件', '代码', '由 小码哥发布于'],
+    tagsZh: ['文件', '代码', '由 小码哥发布于'],
   },
   {
     pascalName: 'FileCss',
@@ -7219,9 +6805,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'FileHtml',
     categories: ['office', 'editor', 'technology & development'],
-    tags: ['updated', 'documents', 'code'],
+    tags: ['documents', 'code'],
     categoriesZh: ['办公室', '编辑', '技术与发展'],
-    tagsZh: ['更新', '文件', '代码'],
+    tagsZh: ['文件', '代码'],
   },
   {
     pascalName: 'FileImage',
@@ -7233,9 +6819,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'FileIni',
     categories: ['office', 'editor', 'technology & development'],
-    tags: ['new', 'documents'],
+    tags: ['documents'],
     categoriesZh: ['办公室', '编辑', '技术与发展'],
-    tagsZh: ['新', '文件'],
+    tagsZh: ['文件'],
   },
   {
     pascalName: 'FileJpg',
@@ -7283,9 +6869,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'FileMd',
     categories: ['office', 'editor', 'technology & development'],
-    tags: ['new', 'documents', 'notes', 'markdown'],
+    tags: ['documents', 'notes', 'markdown'],
     categoriesZh: ['办公室', '编辑', '技术与发展'],
-    tagsZh: ['新', '文件', '笔记', '降价'],
+    tagsZh: ['文件', '笔记', '降价'],
   },
   {
     pascalName: 'FileMinus',
@@ -7325,9 +6911,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'FilePy',
     categories: ['office', 'editor', 'technology & development'],
-    tags: ['new', 'documents', 'code', 'python'],
+    tags: ['documents', 'code', 'python'],
     categoriesZh: ['办公室', '编辑', '技术与发展'],
-    tagsZh: ['新', '文件', '代码', '蟒蛇'],
+    tagsZh: ['文件', '代码', '蟒蛇'],
   },
   {
     pascalName: 'FileRs',
@@ -7374,9 +6960,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'FileTxt',
     categories: ['office', 'editor', 'technology & development'],
-    tags: ['new', 'documents'],
+    tags: ['documents'],
     categoriesZh: ['办公室', '编辑', '技术与发展'],
-    tagsZh: ['新', '文件'],
+    tagsZh: ['文件'],
   },
   {
     pascalName: 'FileVideo',
@@ -7437,9 +7023,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'FilmSlate',
     categories: ['media', 'objects'],
-    tags: ['updated', 'clapper', 'movie'],
+    tags: ['clapper', 'movie'],
     categoriesZh: ['媒体', '物体'],
-    tagsZh: ['更新', '拍板', '电影'],
+    tagsZh: ['拍板', '电影'],
   },
   {
     pascalName: 'FilmStrip',
@@ -7534,7 +7120,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'FireTruck',
     categories: ['health & wellness'],
     tags: [
-      'new',
       'first-aid',
       'emt',
       'medical',
@@ -7546,7 +7131,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     ],
     categoriesZh: ['健康与保健'],
     tagsZh: [
-      '新',
       '急救',
       '紧急医疗队',
       '医疗',
@@ -7637,7 +7221,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'FlagBannerFold',
     categories: ['objects', 'maps & travel', 'system'],
     tags: [
-      'new',
       'ribbon',
       'country',
       'countries',
@@ -7647,7 +7230,7 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       'swallowtail',
     ],
     categoriesZh: ['物体', '地图和旅行', '系统'],
-    tagsZh: ['新', '丝带', '国家', '国家', '完成', '已完成', '旗帜', '燕尾'],
+    tagsZh: ['丝带', '国家', '国家', '完成', '已完成', '旗帜', '燕尾'],
   },
   {
     pascalName: 'FlagCheckered',
@@ -7687,16 +7270,16 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'FlipHorizontal',
     categories: ['design', 'editor'],
-    tags: ['new', 'mirror', 'rotate', 'invert'],
+    tags: ['mirror', 'rotate', 'invert'],
     categoriesZh: ['设计', '编辑'],
-    tagsZh: ['新', '镜子', '旋转', '反转'],
+    tagsZh: ['镜子', '旋转', '反转'],
   },
   {
     pascalName: 'FlipVertical',
     categories: ['design', 'editor'],
-    tags: ['new', 'mirror', 'rotate', 'invert'],
+    tags: ['mirror', 'rotate', 'invert'],
     categoriesZh: ['设计', '编辑'],
-    tagsZh: ['新', '镜子', '旋转', '反转'],
+    tagsZh: ['镜子', '旋转', '反转'],
   },
   {
     pascalName: 'FloppyDisk',
@@ -7718,7 +7301,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'FloppyDiskBack',
     categories: ['office', 'editor', 'system'],
     tags: [
-      'updated',
       'diskette',
       'directory',
       'directories',
@@ -7729,24 +7311,14 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       'write',
     ],
     categoriesZh: ['办公室', '编辑', '系统'],
-    tagsZh: [
-      '更新',
-      '软盘',
-      '目录',
-      '目录',
-      '文件夹',
-      '文件',
-      '文件',
-      '保存',
-      '写',
-    ],
+    tagsZh: ['软盘', '目录', '目录', '文件夹', '文件', '文件', '保存', '写'],
   },
   {
     pascalName: 'FlowArrow',
     categories: ['arrows', 'design', 'office'],
-    tags: ['updated', 'flowchart', 'arrowhead'],
+    tags: ['flowchart', 'arrowhead'],
     categoriesZh: ['箭头', '设计', '办公室'],
-    tagsZh: ['更新', '流程图', '箭头'],
+    tagsZh: ['流程图', '箭头'],
   },
   {
     pascalName: 'Flower',
@@ -7972,9 +7544,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'FootballHelmet',
     categories: ['games', 'health & wellness', 'objects'],
-    tags: ['new', 'sports', 'american football', 'nfl'],
+    tags: ['sports', 'american football', 'nfl'],
     categoriesZh: ['游戏', '健康与保健', '物体'],
-    tagsZh: ['新', '体育', '美式足球', '国家橄榄球联盟'],
+    tagsZh: ['体育', '美式足球', '国家橄榄球联盟'],
   },
   {
     pascalName: 'Footprints',
@@ -7993,9 +7565,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'FourK',
     categories: ['media'],
-    tags: ['new', 'uhd', 'resolution', 'video'],
+    tags: ['uhd', 'resolution', 'video'],
     categoriesZh: ['媒体'],
-    tagsZh: ['新', '超高清', '分辨率', '视频'],
+    tagsZh: ['超高清', '分辨率', '视频'],
   },
   {
     pascalName: 'FrameCorners',
@@ -8042,16 +7614,16 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'FunnelSimpleX',
     categories: ['editor', 'objects'],
-    tags: ['new', 'filters', 'refine', 'sorting'],
+    tags: ['filters', 'refine', 'sorting'],
     categoriesZh: ['编辑', '物体'],
-    tagsZh: ['新', '过滤器', '精炼', '排序'],
+    tagsZh: ['过滤器', '精炼', '排序'],
   },
   {
     pascalName: 'FunnelX',
     categories: ['editor', 'objects'],
-    tags: ['new', 'filters', 'refine', 'sorting'],
+    tags: ['filters', 'refine', 'sorting'],
     categoriesZh: ['编辑', '物体'],
-    tagsZh: ['新', '过滤器', '精炼', '排序'],
+    tagsZh: ['过滤器', '精炼', '排序'],
   },
   {
     pascalName: 'GameController',
@@ -8214,7 +7786,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'GitBranch',
     categories: ['technology & development'],
     tags: [
-      'updated',
       'github',
       'vcs',
       'source control',
@@ -8223,15 +7794,7 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       'branches',
     ],
     categoriesZh: ['技术与发展'],
-    tagsZh: [
-      '更新',
-      'github',
-      'VCS',
-      '源代码控制',
-      '版本控制',
-      '版本控制',
-      '分支机构',
-    ],
+    tagsZh: ['github', 'VCS', '源代码控制', '版本控制', '版本控制', '分支机构'],
   },
   {
     pascalName: 'GitCommit',
@@ -8251,7 +7814,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'GitDiff',
     categories: ['technology & development'],
     tags: [
-      'updated',
       'github',
       'vcs',
       'source control',
@@ -8262,7 +7824,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     ],
     categoriesZh: ['技术与发展'],
     tagsZh: [
-      '更新',
       'github',
       'VCS',
       '源代码控制',
@@ -8276,7 +7837,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'GitFork',
     categories: ['technology & development'],
     tags: [
-      'updated',
       'github',
       'vcs',
       'source control',
@@ -8285,21 +7845,12 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       'split',
     ],
     categoriesZh: ['技术与发展'],
-    tagsZh: [
-      '更新',
-      'github',
-      'VCS',
-      '源代码控制',
-      '版本控制',
-      '版本控制',
-      '分裂',
-    ],
+    tagsZh: ['github', 'VCS', '源代码控制', '版本控制', '版本控制', '分裂'],
   },
   {
     pascalName: 'GitMerge',
     categories: ['technology & development'],
     tags: [
-      'updated',
       'github',
       'vcs',
       'source control',
@@ -8308,21 +7859,12 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       'split',
     ],
     categoriesZh: ['技术与发展'],
-    tagsZh: [
-      '更新',
-      'github',
-      'VCS',
-      '源代码控制',
-      '版本控制',
-      '版本控制',
-      '分裂',
-    ],
+    tagsZh: ['github', 'VCS', '源代码控制', '版本控制', '版本控制', '分裂'],
   },
   {
     pascalName: 'GitPullRequest',
     categories: ['technology & development'],
     tags: [
-      'updated',
       'github',
       'vcs',
       'source control',
@@ -8331,15 +7873,7 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       'merge request',
     ],
     categoriesZh: ['技术与发展'],
-    tagsZh: [
-      '更新',
-      'github',
-      'VCS',
-      '源代码控制',
-      '版本控制',
-      '版本控制',
-      '合并请求',
-    ],
+    tagsZh: ['github', 'VCS', '源代码控制', '版本控制', '版本控制', '合并请求'],
   },
   {
     pascalName: 'GithubLogo',
@@ -8531,7 +8065,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'GlobeSimpleX',
     categories: ['maps & travel'],
     tags: [
-      'new',
       'world',
       'earth',
       'global',
@@ -8548,7 +8081,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     ],
     categoriesZh: ['地图和旅行'],
     tagsZh: [
-      '新',
       '世界',
       '地球',
       '全球',
@@ -8599,7 +8131,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'GlobeX',
     categories: ['maps & travel'],
     tags: [
-      'new',
       'world',
       'earth',
       'global',
@@ -8616,7 +8147,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     ],
     categoriesZh: ['地图和旅行'],
     tagsZh: [
-      '新',
       '世界',
       '地球',
       '全球',
@@ -8642,16 +8172,16 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'Golf',
     categories: ['games', 'health & wellness', 'objects'],
-    tags: ['new', 'sports', 'pga', 'tee', 'ball'],
+    tags: ['sports', 'pga', 'tee', 'ball'],
     categoriesZh: ['游戏', '健康与保健', '物体'],
-    tagsZh: ['新', '体育', '职业高尔夫球协会', '三通', '球'],
+    tagsZh: ['体育', '职业高尔夫球协会', '三通', '球'],
   },
   {
     pascalName: 'GoodreadsLogo',
     categories: ['brands'],
-    tags: ['updated', 'reading', 'books', 'social media', 'logos'],
+    tags: ['reading', 'books', 'social media', 'logos'],
     categoriesZh: ['品牌'],
-    tagsZh: ['更新', '阅读', '书籍', '社交媒体', '标志'],
+    tagsZh: ['阅读', '书籍', '社交媒体', '标志'],
   },
   {
     pascalName: 'GoogleCardboardLogo',
@@ -8725,23 +8255,23 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'Gps',
     categories: ['maps & travel', 'system'],
-    tags: ['new', 'geolocation', 'location', 'navigation'],
+    tags: ['geolocation', 'location', 'navigation'],
     categoriesZh: ['地图和旅行', '系统'],
-    tagsZh: ['新', '地理定位', '地点', '导航'],
+    tagsZh: ['地理定位', '地点', '导航'],
   },
   {
     pascalName: 'GpsFix',
     categories: ['maps & travel', 'system'],
-    tags: ['new', 'geolocation', 'location', 'navigation'],
+    tags: ['geolocation', 'location', 'navigation'],
     categoriesZh: ['地图和旅行', '系统'],
-    tagsZh: ['新', '地理定位', '地点', '导航'],
+    tagsZh: ['地理定位', '地点', '导航'],
   },
   {
     pascalName: 'GpsSlash',
     categories: ['maps & travel', 'system'],
-    tags: ['new', 'geolocation', 'location', 'navigation', 'disabled'],
+    tags: ['geolocation', 'location', 'navigation', 'disabled'],
     categoriesZh: ['地图和旅行', '系统'],
-    tagsZh: ['新', '地理定位', '地点', '导航', '残疾人'],
+    tagsZh: ['地理定位', '地点', '导航', '残疾人'],
   },
   {
     pascalName: 'Gradient',
@@ -8801,15 +8331,14 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'GraphicsCard',
     categories: ['technology & development'],
-    tags: ['new', 'graphics card', 'microchip', 'computer', 'circuit'],
+    tags: ['graphics card', 'microchip', 'computer', 'circuit'],
     categoriesZh: ['技术与发展'],
-    tagsZh: ['新', '显卡', '微芯片', '电脑', '电路'],
+    tagsZh: ['显卡', '微芯片', '电脑', '电路'],
   },
   {
     pascalName: 'GreaterThan',
     categories: ['finances', 'technology & development'],
     tags: [
-      'new',
       '>',
       'greater than',
       'gt',
@@ -8819,13 +8348,12 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       'calculator',
     ],
     categoriesZh: ['财务', '技术与发展'],
-    tagsZh: ['新', '>', '大于', 'GT', '比较', '数学', '算术', '计算器'],
+    tagsZh: ['>', '大于', 'GT', '比较', '数学', '算术', '计算器'],
   },
   {
     pascalName: 'GreaterThanOrEqual',
     categories: ['finances', 'technology & development'],
     tags: [
-      'new',
       '≥',
       'greater than or equal',
       'gte',
@@ -8835,16 +8363,7 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       'calculator',
     ],
     categoriesZh: ['财务', '技术与发展'],
-    tagsZh: [
-      '新',
-      '≥',
-      '大于或等于',
-      '通用电气',
-      '比较',
-      '数学',
-      '算术',
-      '计算器',
-    ],
+    tagsZh: ['≥', '大于或等于', '通用电气', '比较', '数学', '算术', '计算器'],
   },
   {
     pascalName: 'GridFour',
@@ -8914,9 +8433,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'HairDryer',
     categories: ['commerce', 'objects'],
-    tags: ['new', 'blow dryer', 'beauty', 'grooming', 'salon'],
+    tags: ['blow dryer', 'beauty', 'grooming', 'salon'],
     categoriesZh: ['商业', '物体'],
-    tagsZh: ['新', '吹风机', '美丽', '修饰', '沙龙'],
+    tagsZh: ['吹风机', '美丽', '修饰', '沙龙'],
   },
   {
     pascalName: 'Hamburger',
@@ -8950,16 +8469,16 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'HandArrowDown',
     categories: ['people', 'commerce', 'finances'],
-    tags: ['new', 'take', 'receive', 'remove', 'withdraw', 'emoji'],
+    tags: ['take', 'receive', 'remove', 'withdraw', 'emoji'],
     categoriesZh: ['人', '商业', '财务'],
-    tagsZh: ['新', '采取', '收到', '删除', '撤回', '表情符号'],
+    tagsZh: ['采取', '收到', '删除', '撤回', '表情符号'],
   },
   {
     pascalName: 'HandArrowUp',
     categories: ['people', 'commerce', 'finances'],
-    tags: ['new', 'give', 'insert', 'deposit', 'donation', 'emoji'],
+    tags: ['give', 'insert', 'deposit', 'donation', 'emoji'],
     categoriesZh: ['人', '商业', '财务'],
-    tagsZh: ['新', '给予', '插入', '押金', '捐赠', '表情符号'],
+    tagsZh: ['给予', '插入', '押金', '捐赠', '表情符号'],
   },
   {
     pascalName: 'HandCoins',
@@ -8971,16 +8490,16 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'HandDeposit',
     categories: ['people', 'commerce', 'finances'],
-    tags: ['new', 'give', 'insert', 'donation', 'atm', 'emoji'],
+    tags: ['give', 'insert', 'donation', 'atm', 'emoji'],
     categoriesZh: ['人', '商业', '财务'],
-    tagsZh: ['新', '给予', '插入', '捐赠', '自动取款机', '表情符号'],
+    tagsZh: ['给予', '插入', '捐赠', '自动取款机', '表情符号'],
   },
   {
     pascalName: 'HandEye',
     categories: ['people'],
-    tags: ['updated', 'emoji', 'hamsa', 'evil eye'],
+    tags: ['emoji', 'hamsa', 'evil eye'],
     categoriesZh: ['人'],
-    tagsZh: ['更新', '表情符号', '哈姆萨', '邪恶之眼'],
+    tagsZh: ['表情符号', '哈姆萨', '邪恶之眼'],
   },
   {
     pascalName: 'HandFist',
@@ -9022,9 +8541,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'HandPeace',
     categories: ['people', 'communications'],
-    tags: ['new', 'emoji', 'victory'],
+    tags: ['emoji', 'victory'],
     categoriesZh: ['人', '通讯'],
-    tagsZh: ['新', '表情符号', '胜利'],
+    tagsZh: ['表情符号', '胜利'],
   },
   {
     pascalName: 'HandPointing',
@@ -9078,9 +8597,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'HandWithdraw',
     categories: ['people', 'commerce', 'finances'],
-    tags: ['new', 'take', 'remove', 'withdrawal', 'atm', 'emoji'],
+    tags: ['take', 'remove', 'withdrawal', 'atm', 'emoji'],
     categoriesZh: ['人', '商业', '财务'],
-    tagsZh: ['新', '采取', '删除', '提款', '自动取款机', '表情符号'],
+    tagsZh: ['采取', '删除', '提款', '自动取款机', '表情符号'],
   },
   {
     pascalName: 'Handbag',
@@ -9178,9 +8697,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'HardHat',
     categories: ['commerce', 'objects', 'technology & development'],
-    tags: ['new', 'safety', 'construction', 'industry', 'helmet', 'ppe'],
+    tags: ['safety', 'construction', 'industry', 'helmet', 'ppe'],
     categoriesZh: ['商业', '物体', '技术与发展'],
-    tagsZh: ['新', '安全', '建筑', '工业', '头盔', '个人防护装备'],
+    tagsZh: ['安全', '建筑', '工业', '头盔', '个人防护装备'],
   },
   {
     pascalName: 'Hash',
@@ -9227,9 +8746,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'HeadCircuit',
     categories: ['technology & development'],
-    tags: ['new', 'automaton', 'artificial intelligence', 'ai'],
+    tags: ['automaton', 'artificial intelligence', 'ai'],
     categoriesZh: ['技术与发展'],
-    tagsZh: ['新', '自动机', '人工智能', '艾'],
+    tagsZh: ['自动机', '人工智能', '艾'],
   },
   {
     pascalName: 'Headlights',
@@ -9378,23 +8897,23 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'HighDefinition',
     categories: ['media'],
-    tags: ['new', 'hd', 'resolution', 'video'],
+    tags: ['hd', 'resolution', 'video'],
     categoriesZh: ['媒体'],
-    tagsZh: ['新', '高清', '分辨率', '视频'],
+    tagsZh: ['高清', '分辨率', '视频'],
   },
   {
     pascalName: 'HighHeel',
     categories: ['commerce', 'objects'],
-    tags: ['updated', 'pumps', 'clothes', 'clothing', 'shoes'],
+    tags: ['pumps', 'clothes', 'clothing', 'shoes'],
     categoriesZh: ['商业', '物体'],
-    tagsZh: ['更新', '泵', '衣服', '服装', '鞋子'],
+    tagsZh: ['泵', '衣服', '服装', '鞋子'],
   },
   {
     pascalName: 'Highlighter',
     categories: ['design', 'editor', 'office'],
-    tags: ['new', 'marker', 'write', 'writing', 'editing'],
+    tags: ['marker', 'write', 'writing', 'editing'],
     categoriesZh: ['设计', '编辑', '办公室'],
-    tagsZh: ['新', '标记', '写', '写作', '编辑'],
+    tagsZh: ['标记', '写', '写作', '编辑'],
   },
   {
     pascalName: 'HighlighterCircle',
@@ -9406,9 +8925,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'Hockey',
     categories: ['games', 'health & wellness', 'objects'],
-    tags: ['new', 'sports', 'nhl', 'stick', 'puck'],
+    tags: ['sports', 'nhl', 'stick', 'puck'],
     categoriesZh: ['游戏', '健康与保健', '物体'],
-    tagsZh: ['新', '体育', '国家冰球联盟', '棍子', '冰球'],
+    tagsZh: ['体育', '国家冰球联盟', '棍子', '冰球'],
   },
   {
     pascalName: 'Hoodie',
@@ -9428,7 +8947,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'Hospital',
     categories: ['maps & travel', 'health & wellness'],
     tags: [
-      'new',
       'places',
       'locations',
       'medical',
@@ -9438,16 +8956,7 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       'buildings',
     ],
     categoriesZh: ['地图和旅行', '健康与保健'],
-    tagsZh: [
-      '新',
-      '地方',
-      '地点',
-      '医疗',
-      '医学',
-      '紧急情况',
-      '医生',
-      '建筑物',
-    ],
+    tagsZh: ['地方', '地点', '医疗', '医学', '紧急情况', '医生', '建筑物'],
   },
   {
     pascalName: 'Hourglass',
@@ -9587,9 +9096,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'HouseLine',
     categories: ['maps & travel', 'system'],
-    tags: ['updated', 'homes', 'buildings', 'places', 'locations'],
+    tags: ['homes', 'buildings', 'places', 'locations'],
     categoriesZh: ['地图和旅行', '系统'],
-    tagsZh: ['更新', '家园', '建筑物', '地方', '地点'],
+    tagsZh: ['家园', '建筑物', '地方', '地点'],
   },
   {
     pascalName: 'HouseSimple',
@@ -9601,9 +9110,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'Hurricane',
     categories: ['weather'],
-    tags: ['new', 'meteorology', 'cyclone', 'storm', 'disaster', 'wind'],
+    tags: ['meteorology', 'cyclone', 'storm', 'disaster', 'wind'],
     categoriesZh: ['天气'],
-    tagsZh: ['新', '气象学', '旋风分离器', '风暴', '灾难', '风'],
+    tagsZh: ['气象学', '旋风分离器', '风暴', '灾难', '风'],
   },
   {
     pascalName: 'IceCream',
@@ -9637,7 +9146,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'Image',
     categories: ['media', 'system'],
     tags: [
-      'updated',
       'pictures',
       'photographs',
       'photography',
@@ -9646,13 +9154,12 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       'landscape',
     ],
     categoriesZh: ['媒体', '系统'],
-    tagsZh: ['更新', '图片', '照片', '摄影', '壁纸', '画廊', '风景'],
+    tagsZh: ['图片', '照片', '摄影', '壁纸', '画廊', '风景'],
   },
   {
     pascalName: 'ImageBroken',
     categories: ['media', 'system'],
     tags: [
-      'new',
       'pictures',
       'photographs',
       'photography',
@@ -9665,7 +9172,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     ],
     categoriesZh: ['媒体', '系统'],
     tagsZh: [
-      '新',
       '图片',
       '照片',
       '摄影',
@@ -9695,7 +9201,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'Images',
     categories: ['media', 'system'],
     tags: [
-      'updated',
       'pictures',
       'photographs',
       'photography',
@@ -9705,7 +9210,7 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       'album',
     ],
     categoriesZh: ['媒体', '系统'],
-    tagsZh: ['更新', '图片', '照片', '摄影', '壁纸', '画廊', '风景', '专辑'],
+    tagsZh: ['图片', '照片', '摄影', '壁纸', '画廊', '风景', '专辑'],
   },
   {
     pascalName: 'ImagesSquare',
@@ -9784,7 +9289,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'Intersection',
     categories: ['finances', 'technology & development'],
     tags: [
-      'new',
       '∩',
       'intersection',
       'set',
@@ -9794,20 +9298,19 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       'calculator',
     ],
     categoriesZh: ['财务', '技术与发展'],
-    tagsZh: ['新', '∩', '交叉点', '设置', '会员', '数学', '算术', '计算器'],
+    tagsZh: ['∩', '交叉点', '设置', '会员', '数学', '算术', '计算器'],
   },
   {
     pascalName: 'Invoice',
     categories: ['commerce', 'finances', 'office'],
-    tags: ['new', 'receipt', 'expense', 'bill'],
+    tags: ['receipt', 'expense', 'bill'],
     categoriesZh: ['商业', '财务', '办公室'],
-    tagsZh: ['新', '收据', '费用', '账单'],
+    tagsZh: ['收据', '费用', '账单'],
   },
   {
     pascalName: 'Island',
     categories: ['maps & travel', 'nature'],
     tags: [
-      'new',
       'geography',
       'beach',
       'ocean',
@@ -9820,7 +9323,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     ],
     categoriesZh: ['地图和旅行', '自然'],
     tagsZh: [
-      '新',
       '地理',
       '海滩',
       '海洋',
@@ -9836,7 +9338,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'Jar',
     categories: ['commerce', 'objects'],
     tags: [
-      'new',
       'mason jar',
       'kitchen',
       'pantry',
@@ -9847,7 +9348,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     ],
     categoriesZh: ['商业', '物体'],
     tagsZh: [
-      '新',
       '梅森罐子',
       '厨房',
       '食品储藏室',
@@ -9861,7 +9361,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'JarLabel',
     categories: ['commerce', 'objects'],
     tags: [
-      'new',
       'mason jar',
       'kitchen',
       'pantry',
@@ -9872,7 +9371,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     ],
     categoriesZh: ['商业', '物体'],
     tagsZh: [
-      '新',
       '梅森罐子',
       '厨房',
       '食品储藏室',
@@ -9886,7 +9384,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'Jeep',
     categories: ['maps & travel', 'objects'],
     tags: [
-      'updated',
       'vehicles',
       'automobile',
       'suv',
@@ -9900,7 +9397,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     ],
     categoriesZh: ['地图和旅行', '物体'],
     tagsZh: [
-      '更新',
       '车辆',
       '汽车',
       '越野车',
@@ -9916,16 +9412,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'Joystick',
     categories: ['games', 'media', 'objects'],
-    tags: [
-      'new',
-      'gaming',
-      'game controller',
-      'video games',
-      'arcade game',
-      'atari',
-    ],
+    tags: ['gaming', 'game controller', 'video games', 'arcade game', 'atari'],
     categoriesZh: ['游戏', '媒体', '物体'],
-    tagsZh: ['新', '游戏', '游戏控制器', '视频游戏', '街机游戏', '雅达利'],
+    tagsZh: ['游戏', '游戏控制器', '视频游戏', '街机游戏', '雅达利'],
   },
   {
     pascalName: 'Kanban',
@@ -10052,9 +9541,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'LampPendant',
     categories: ['commerce', 'objects'],
-    tags: ['new', 'light', 'furniture', 'appliances'],
+    tags: ['light', 'furniture', 'appliances'],
     categoriesZh: ['商业', '物体'],
-    tagsZh: ['新', '光', '家具', '电器'],
+    tagsZh: ['光', '家具', '电器'],
   },
   {
     pascalName: 'Laptop',
@@ -10066,16 +9555,16 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'Lasso',
     categories: ['design', 'objects'],
-    tags: ['new', 'select', 'selection', 'loop', 'rope', 'cowboy'],
+    tags: ['select', 'selection', 'loop', 'rope', 'cowboy'],
     categoriesZh: ['设计', '物体'],
-    tagsZh: ['新', '选择', '选择', '循环', '绳子', '牛仔'],
+    tagsZh: ['选择', '选择', '循环', '绳子', '牛仔'],
   },
   {
     pascalName: 'LastfmLogo',
     categories: ['brands', 'media'],
-    tags: ['new', 'scrobble', 'music', 'social media'],
+    tags: ['scrobble', 'music', 'social media'],
     categoriesZh: ['品牌', '媒体'],
-    tagsZh: ['新', '乱写乱画', '音乐', '社交媒体'],
+    tagsZh: ['乱写乱画', '音乐', '社交媒体'],
   },
   {
     pascalName: 'Layout',
@@ -10103,7 +9592,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'Lectern',
     categories: ['objects', 'finances', 'office'],
     tags: [
-      'new',
       'lecture',
       'podium',
       'pulpit',
@@ -10113,27 +9601,26 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       'keynote',
     ],
     categoriesZh: ['物体', '财务', '办公室'],
-    tagsZh: ['新', '讲座', '讲台', '讲坛', '站', '演讲', '演示', '主题演讲'],
+    tagsZh: ['讲座', '讲台', '讲坛', '站', '演讲', '演示', '主题演讲'],
   },
   {
     pascalName: 'Lego',
     categories: ['games'],
-    tags: ['new', 'toys', 'blocks', 'bricks'],
+    tags: ['toys', 'blocks', 'bricks'],
     categoriesZh: ['游戏'],
-    tagsZh: ['新', '玩具', '块', '砖头'],
+    tagsZh: ['玩具', '块', '砖头'],
   },
   {
     pascalName: 'LegoSmiley',
     categories: ['games', 'communications', 'people'],
-    tags: ['new', 'face', 'emoji', 'toys', 'blocks', 'bricks'],
+    tags: ['face', 'emoji', 'toys', 'blocks', 'bricks'],
     categoriesZh: ['游戏', '通讯', '人'],
-    tagsZh: ['新', '脸', '表情符号', '玩具', '块', '砖头'],
+    tagsZh: ['脸', '表情符号', '玩具', '块', '砖头'],
   },
   {
     pascalName: 'LessThan',
     categories: ['finances', 'technology & development'],
     tags: [
-      'new',
       '<',
       'less than',
       'lt',
@@ -10143,13 +9630,12 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       'calculator',
     ],
     categoriesZh: ['财务', '技术与发展'],
-    tagsZh: ['新', '<', '小于', '其', '比较', '数学', '算术', '计算器'],
+    tagsZh: ['<', '小于', '其', '比较', '数学', '算术', '计算器'],
   },
   {
     pascalName: 'LessThanOrEqual',
     categories: ['finances', 'technology & development'],
     tags: [
-      'new',
       '≤',
       'less than or equal',
       'lte',
@@ -10159,45 +9645,28 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       'calculator',
     ],
     categoriesZh: ['财务', '技术与发展'],
-    tagsZh: [
-      '新',
-      '≤',
-      '小于或等于',
-      'LTE',
-      '比较',
-      '数学',
-      '算术',
-      '计算器',
-    ],
+    tagsZh: ['≤', '小于或等于', 'LTE', '比较', '数学', '算术', '计算器'],
   },
   {
     pascalName: 'LetterCircleH',
     categories: ['editor', 'maps & travel', 'design'],
-    tags: ['new', 'hospital', 'letter', 'glyph', 'character'],
+    tags: ['hospital', 'letter', 'glyph', 'character'],
     categoriesZh: ['编辑', '地图和旅行', '设计'],
-    tagsZh: ['新', '医院', '信', '字形', '性格'],
+    tagsZh: ['医院', '信', '字形', '性格'],
   },
   {
     pascalName: 'LetterCircleP',
     categories: ['editor', 'maps & travel', 'design'],
-    tags: [
-      'new',
-      'parking lot',
-      'valet',
-      'vehicles',
-      'letter',
-      'glyph',
-      'character',
-    ],
+    tags: ['parking lot', 'valet', 'vehicles', 'letter', 'glyph', 'character'],
     categoriesZh: ['编辑', '地图和旅行', '设计'],
-    tagsZh: ['新', '停车场', '代客泊车', '车辆', '信', '字形', '性格'],
+    tagsZh: ['停车场', '代客泊车', '车辆', '信', '字形', '性格'],
   },
   {
     pascalName: 'LetterCircleV',
     categories: ['editor', 'design', 'commerce'],
-    tags: ['new', 'vegan', 'letter', 'glyph', 'character'],
+    tags: ['vegan', 'letter', 'glyph', 'character'],
     categoriesZh: ['编辑', '设计', '商业'],
-    tagsZh: ['新', '素食主义者', '信', '字形', '性格'],
+    tagsZh: ['素食主义者', '信', '字形', '性格'],
   },
   {
     pascalName: 'Lifebuoy',
@@ -10323,23 +9792,16 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'LineVertical',
     categories: ['design', 'technology & development'],
-    tags: ['new', 'bar', 'pipe', '|', 'divider. symbol'],
+    tags: ['bar', 'pipe', '|', 'divider. symbol'],
     categoriesZh: ['设计', '技术与发展'],
-    tagsZh: ['新', '酒吧', '管子', '|', '分频器。符号'],
+    tagsZh: ['酒吧', '管子', '|', '分频器。符号'],
   },
   {
     pascalName: 'Link',
     categories: ['communications', 'objects'],
-    tags: [
-      'updated',
-      'anchor',
-      'hyperlink',
-      'hypertext',
-      'chains',
-      'chained',
-    ],
+    tags: ['anchor', 'hyperlink', 'hypertext', 'chains', 'chained'],
     categoriesZh: ['通讯', '物体'],
-    tagsZh: ['更新', '锚', '超链接', '超文本', '链条', '被锁住的'],
+    tagsZh: ['锚', '超链接', '超文本', '链条', '被锁住的'],
   },
   {
     pascalName: 'LinkBreak',
@@ -10410,9 +9872,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'LinktreeLogo',
     categories: ['brands', 'communications'],
-    tags: ['new', 'social media', 'links'],
+    tags: ['social media', 'links'],
     categoriesZh: ['品牌', '通讯'],
-    tagsZh: ['新', '社交媒体', '链接'],
+    tagsZh: ['社交媒体', '链接'],
   },
   {
     pascalName: 'LinuxLogo',
@@ -10425,7 +9887,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'List',
     categories: ['system', 'editor'],
     tags: [
-      'updated',
       'hamburger menu',
       'overflow menu',
       'sidebar',
@@ -10439,7 +9900,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     ],
     categoriesZh: ['系统', '编辑'],
     tagsZh: [
-      '更新',
       '汉堡菜单',
       '溢出菜单',
       '侧边栏',
@@ -10455,30 +9915,30 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'ListBullets',
     categories: ['editor'],
-    tags: ['updated', 'ul', 'unordered list', 'bulleted list', 'checklist'],
+    tags: ['ul', 'unordered list', 'bulleted list', 'checklist'],
     categoriesZh: ['编辑'],
-    tagsZh: ['更新', '乌尔', '无序列表', '项目符号列表', '清单'],
+    tagsZh: ['乌尔', '无序列表', '项目符号列表', '清单'],
   },
   {
     pascalName: 'ListChecks',
     categories: ['office', 'editor'],
-    tags: ['updated', 'checklist', 'todo'],
+    tags: ['checklist', 'todo'],
     categoriesZh: ['办公室', '编辑'],
-    tagsZh: ['更新', '清单', '待办事项'],
+    tagsZh: ['清单', '待办事项'],
   },
   {
     pascalName: 'ListDashes',
     categories: ['editor'],
-    tags: ['updated', 'ul', 'unordered list', 'dashed list', 'checklist'],
+    tags: ['ul', 'unordered list', 'dashed list', 'checklist'],
     categoriesZh: ['编辑'],
-    tagsZh: ['更新', '乌尔', '无序列表', '虚线列表', '清单'],
+    tagsZh: ['乌尔', '无序列表', '虚线列表', '清单'],
   },
   {
     pascalName: 'ListHeart',
     categories: ['editor', 'system'],
-    tags: ['new', 'favorites', 'wishlist', 'liked'],
+    tags: ['favorites', 'wishlist', 'liked'],
     categoriesZh: ['编辑', '系统'],
-    tagsZh: ['新', '收藏夹', '愿望清单', '喜欢'],
+    tagsZh: ['收藏夹', '愿望清单', '喜欢'],
   },
   {
     pascalName: 'ListMagnifyingGlass',
@@ -10490,15 +9950,14 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'ListNumbers',
     categories: ['editor'],
-    tags: ['updated', 'ol', 'ordered list', 'numbered list', 'checklist'],
+    tags: ['ol', 'ordered list', 'numbered list', 'checklist'],
     categoriesZh: ['编辑'],
-    tagsZh: ['更新', '奥尔', '有序列表', '编号列表', '清单'],
+    tagsZh: ['奥尔', '有序列表', '编号列表', '清单'],
   },
   {
     pascalName: 'ListPlus',
     categories: ['editor'],
     tags: [
-      'updated',
       'ul',
       'ol',
       'unordered list',
@@ -10508,23 +9967,14 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       '+',
     ],
     categoriesZh: ['编辑'],
-    tagsZh: [
-      '更新',
-      '乌尔',
-      '奥尔',
-      '无序列表',
-      '有序列表',
-      '清单',
-      '添加',
-      '+',
-    ],
+    tagsZh: ['乌尔', '奥尔', '无序列表', '有序列表', '清单', '添加', '+'],
   },
   {
     pascalName: 'ListStar',
     categories: ['editor', 'system'],
-    tags: ['new', 'favorites', 'wishlist', 'liked'],
+    tags: ['favorites', 'wishlist', 'liked'],
     categoriesZh: ['编辑', '系统'],
-    tagsZh: ['新', '收藏夹', '愿望清单', '喜欢'],
+    tagsZh: ['收藏夹', '愿望清单', '喜欢'],
   },
   {
     pascalName: 'Lock',
@@ -10780,9 +10230,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'Log',
     categories: ['nature'],
-    tags: ['new', 'tree', 'stump', 'stick', 'branch'],
+    tags: ['tree', 'stump', 'stick', 'branch'],
     categoriesZh: ['自然'],
-    tagsZh: ['新', '树', '树桩', '棍子', '分行'],
+    tagsZh: ['树', '树桩', '棍子', '分行'],
   },
   {
     pascalName: 'MagicWand',
@@ -10829,9 +10279,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'Mailbox',
     categories: ['communications', 'objects', 'maps & travel'],
-    tags: ['new', 'email', 'letters', 'messaging', 'post'],
+    tags: ['email', 'letters', 'messaging', 'post'],
     categoriesZh: ['通讯', '物体', '地图和旅行'],
-    tagsZh: ['新', '电子邮件', '字母', '消息传递', '帖子'],
+    tagsZh: ['电子邮件', '字母', '消息传递', '帖子'],
   },
   {
     pascalName: 'MapPin',
@@ -10852,7 +10302,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'MapPinArea',
     categories: ['maps & travel'],
     tags: [
-      'new',
       'maps',
       'places',
       'markers',
@@ -10862,7 +10311,7 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       'point of interest',
     ],
     categoriesZh: ['地图和旅行'],
-    tagsZh: ['新', '地图', '地方', '标记', '针脚', '地点', '波伊', '兴趣点'],
+    tagsZh: ['地图', '地方', '标记', '针脚', '地点', '波伊', '兴趣点'],
   },
   {
     pascalName: 'MapPinLine',
@@ -10883,7 +10332,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'MapPinPlus',
     categories: ['maps & travel'],
     tags: [
-      'new',
       'maps',
       'places',
       'markers',
@@ -10893,13 +10341,12 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       'point of interest',
     ],
     categoriesZh: ['地图和旅行'],
-    tagsZh: ['新', '地图', '地方', '标记', '针脚', '地点', '添加', '兴趣点'],
+    tagsZh: ['地图', '地方', '标记', '针脚', '地点', '添加', '兴趣点'],
   },
   {
     pascalName: 'MapPinSimple',
     categories: ['maps & travel'],
     tags: [
-      'new',
       'maps',
       'places',
       'markers',
@@ -10909,13 +10356,12 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       'point of interest',
     ],
     categoriesZh: ['地图和旅行'],
-    tagsZh: ['新', '地图', '地方', '标记', '针脚', '地点', '波伊', '兴趣点'],
+    tagsZh: ['地图', '地方', '标记', '针脚', '地点', '波伊', '兴趣点'],
   },
   {
     pascalName: 'MapPinSimpleArea',
     categories: ['maps & travel'],
     tags: [
-      'new',
       'maps',
       'places',
       'markers',
@@ -10925,13 +10371,12 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       'point of interest',
     ],
     categoriesZh: ['地图和旅行'],
-    tagsZh: ['新', '地图', '地方', '标记', '针脚', '地点', '波伊', '兴趣点'],
+    tagsZh: ['地图', '地方', '标记', '针脚', '地点', '波伊', '兴趣点'],
   },
   {
     pascalName: 'MapPinSimpleLine',
     categories: ['maps & travel'],
     tags: [
-      'new',
       'maps',
       'places',
       'markers',
@@ -10941,7 +10386,7 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       'point of interest',
     ],
     categoriesZh: ['地图和旅行'],
-    tagsZh: ['新', '地图', '地方', '标记', '针脚', '地点', '波伊', '兴趣点'],
+    tagsZh: ['地图', '地方', '标记', '针脚', '地点', '波伊', '兴趣点'],
   },
   {
     pascalName: 'MapTrifold',
@@ -10953,9 +10398,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'MarkdownLogo',
     categories: ['technology & development', 'office', 'media', 'brands'],
-    tags: ['new', 'markup', 'editor', '.md'],
+    tags: ['markup', 'editor', '.md'],
     categoriesZh: ['技术与发展', '办公室', '媒体', '品牌'],
-    tagsZh: ['新', '标记', '编辑', '.md'],
+    tagsZh: ['标记', '编辑', '.md'],
   },
   {
     pascalName: 'MarkerCircle',
@@ -11010,9 +10455,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'MastodonLogo',
     categories: ['brands', 'communications'],
-    tags: ['new', 'fediverse', 'social media', 'decentralized'],
+    tags: ['fediverse', 'social media', 'decentralized'],
     categoriesZh: ['品牌', '通讯'],
-    tagsZh: ['新', '联邦宇宙', '社交媒体', '去中心化'],
+    tagsZh: ['联邦宇宙', '社交媒体', '去中心化'],
   },
   {
     pascalName: 'MathOperations',
@@ -11072,9 +10517,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'MatrixLogo',
     categories: ['brands', 'communications'],
-    tags: ['new', 'matrix protocol', 'brands', 'logos'],
+    tags: ['matrix protocol', 'brands', 'logos'],
     categoriesZh: ['品牌', '通讯'],
-    tagsZh: ['新', '矩阵协议', '品牌', '标志'],
+    tagsZh: ['矩阵协议', '品牌', '标志'],
   },
   {
     pascalName: 'Medal',
@@ -11115,7 +10560,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'MemberOf',
     categories: ['finances', 'technology & development'],
     tags: [
-      'new',
       '∈',
       'is element of',
       'set',
@@ -11125,23 +10569,14 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       'calculator',
     ],
     categoriesZh: ['财务', '技术与发展'],
-    tagsZh: [
-      '新',
-      'ε',
-      '是 的元素',
-      '设置',
-      '会员',
-      '数学',
-      '算术',
-      '计算器',
-    ],
+    tagsZh: ['ε', '是 的元素', '设置', '会员', '数学', '算术', '计算器'],
   },
   {
     pascalName: 'Memory',
     categories: ['technology & development'],
-    tags: ['new', 'ram', 'microchip', 'computer', 'circuit', 'electronics'],
+    tags: ['ram', 'microchip', 'computer', 'circuit', 'electronics'],
     categoriesZh: ['技术与发展'],
-    tagsZh: ['新', '公羊', '微芯片', '电脑', '电路', '电子产品'],
+    tagsZh: ['公羊', '微芯片', '电脑', '电路', '电子产品'],
   },
   {
     pascalName: 'MessengerLogo',
@@ -11153,16 +10588,16 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'MetaLogo',
     categories: ['brands'],
-    tags: ['updated', 'facebook', 'logos', 'social media', 'logos'],
+    tags: ['facebook', 'logos', 'social media', 'logos'],
     categoriesZh: ['品牌'],
-    tagsZh: ['更新', '脸书', '标志', '社交媒体', '标志'],
+    tagsZh: ['脸书', '标志', '社交媒体', '标志'],
   },
   {
     pascalName: 'Meteor',
     categories: ['weather', 'nature'],
-    tags: ['new', 'astronomy', 'asteroid', 'fireball'],
+    tags: ['astronomy', 'asteroid', 'fireball'],
     categoriesZh: ['天气', '自然'],
-    tagsZh: ['新', '天文学', '小行星', '火球'],
+    tagsZh: ['天文学', '小行星', '火球'],
   },
   {
     pascalName: 'Metronome',
@@ -11218,9 +10653,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       'objects',
       'health & wellness',
     ],
-    tags: ['new', 'science', 'biology', 'experiment', 'magnify'],
+    tags: ['science', 'biology', 'experiment', 'magnify'],
     categoriesZh: ['自然', '技术与发展', '物体', '健康与保健'],
-    tagsZh: ['新', '科学', '生物学', '实验', '放大'],
+    tagsZh: ['科学', '生物学', '实验', '放大'],
   },
   {
     pascalName: 'MicrosoftExcelLogo',
@@ -11323,17 +10758,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'MoneyWavy',
     categories: ['finances', 'commerce'],
-    tags: [
-      'new',
-      'cash',
-      'dollars',
-      'paper bills',
-      'payment',
-      'paying',
-      'purchase',
-    ],
+    tags: ['cash', 'dollars', 'paper bills', 'payment', 'paying', 'purchase'],
     categoriesZh: ['财务', '商业'],
-    tagsZh: ['新', '现金', '美元', '纸质账单', '付款', '支付', '购买'],
+    tagsZh: ['现金', '美元', '纸质账单', '付款', '支付', '购买'],
   },
   {
     pascalName: 'Monitor',
@@ -11345,17 +10772,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'MonitorArrowUp',
     categories: ['system', 'media'],
-    tags: [
-      'new',
-      'screen',
-      'screencast',
-      'screenshare',
-      'upload',
-      'video',
-      'movie',
-    ],
+    tags: ['screen', 'screencast', 'screenshare', 'upload', 'video', 'movie'],
     categoriesZh: ['系统', '媒体'],
-    tagsZh: ['新', '屏幕', '截屏视频', '屏幕共享', '上传', '视频', '电影'],
+    tagsZh: ['屏幕', '截屏视频', '屏幕共享', '上传', '视频', '电影'],
   },
   {
     pascalName: 'MonitorPlay',
@@ -11459,44 +10878,44 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'Mountains',
     categories: ['nature', 'maps & travel'],
-    tags: ['updated', 'hills', 'outdoors', 'terrain', 'geology', 'adventure'],
+    tags: ['hills', 'outdoors', 'terrain', 'geology', 'adventure'],
     categoriesZh: ['自然', '地图和旅行'],
-    tagsZh: ['更新', '丘陵', '户外', '地形', '地质学', '冒险'],
+    tagsZh: ['丘陵', '户外', '地形', '地质学', '冒险'],
   },
   {
     pascalName: 'Mouse',
     categories: ['system'],
-    tags: ['updated', 'clicks', 'input'],
+    tags: ['clicks', 'input'],
     categoriesZh: ['系统'],
-    tagsZh: ['更新', '点击次数', '输入'],
+    tagsZh: ['点击次数', '输入'],
   },
   {
     pascalName: 'MouseLeftClick',
     categories: ['system'],
-    tags: ['new', 'clicks', 'input'],
+    tags: ['clicks', 'input'],
     categoriesZh: ['系统'],
-    tagsZh: ['新', '点击次数', '输入'],
+    tagsZh: ['点击次数', '输入'],
   },
   {
     pascalName: 'MouseMiddleClick',
     categories: ['system'],
-    tags: ['new', 'clicks', 'input'],
+    tags: ['clicks', 'input'],
     categoriesZh: ['系统'],
-    tagsZh: ['新', '点击次数', '输入'],
+    tagsZh: ['点击次数', '输入'],
   },
   {
     pascalName: 'MouseRightClick',
     categories: ['system'],
-    tags: ['new', 'clicks', 'input'],
+    tags: ['clicks', 'input'],
     categoriesZh: ['系统'],
-    tagsZh: ['新', '点击次数', '输入'],
+    tagsZh: ['点击次数', '输入'],
   },
   {
     pascalName: 'MouseScroll',
     categories: ['system'],
-    tags: ['new', 'clicks', 'input'],
+    tags: ['clicks', 'input'],
     categoriesZh: ['系统'],
-    tagsZh: ['新', '点击次数', '输入'],
+    tagsZh: ['点击次数', '输入'],
   },
   {
     pascalName: 'MouseSimple',
@@ -11529,17 +10948,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'MusicNotesMinus',
     categories: ['media'],
-    tags: [
-      'new',
-      'songs',
-      'audio',
-      'playlist',
-      'albums',
-      'remove',
-      'subtract',
-    ],
+    tags: ['songs', 'audio', 'playlist', 'albums', 'remove', 'subtract'],
     categoriesZh: ['媒体'],
-    tagsZh: ['新', '歌曲', '音频', '播放列表', '专辑', '删除', '减去'],
+    tagsZh: ['歌曲', '音频', '播放列表', '专辑', '删除', '减去'],
   },
   {
     pascalName: 'MusicNotesPlus',
@@ -11572,23 +10983,23 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'Network',
     categories: ['system'],
-    tags: ['new', 'internet', 'ethernet', 'lan'],
+    tags: ['internet', 'ethernet', 'lan'],
     categoriesZh: ['系统'],
-    tagsZh: ['新', '互联网', '以太网', '局域网'],
+    tagsZh: ['互联网', '以太网', '局域网'],
   },
   {
     pascalName: 'NetworkSlash',
     categories: ['system'],
-    tags: ['new', 'internet', 'ethernet', 'lan', 'error'],
+    tags: ['internet', 'ethernet', 'lan', 'error'],
     categoriesZh: ['系统'],
-    tagsZh: ['新', '互联网', '以太网', '局域网', '错误'],
+    tagsZh: ['互联网', '以太网', '局域网', '错误'],
   },
   {
     pascalName: 'NetworkX',
     categories: ['system'],
-    tags: ['new', 'internet', 'ethernet', 'lan', 'disabled'],
+    tags: ['internet', 'ethernet', 'lan', 'disabled'],
     categoriesZh: ['系统'],
-    tagsZh: ['新', '互联网', '以太网', '局域网', '残疾人'],
+    tagsZh: ['互联网', '以太网', '局域网', '残疾人'],
   },
   {
     pascalName: 'Newspaper',
@@ -11600,15 +11011,14 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'NewspaperClipping',
     categories: ['media', 'objects'],
-    tags: ['updated', 'reading', 'writing', 'journals', 'periodicals'],
+    tags: ['reading', 'writing', 'journals', 'periodicals'],
     categoriesZh: ['媒体', '物体'],
-    tagsZh: ['更新', '阅读', '写作', '期刊', '期刊'],
+    tagsZh: ['阅读', '写作', '期刊', '期刊'],
   },
   {
     pascalName: 'NotEquals',
     categories: ['finances', 'technology & development'],
     tags: [
-      'new',
       '≠',
       'equality',
       'equivalent',
@@ -11618,13 +11028,12 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       'calculator',
     ],
     categoriesZh: ['财务', '技术与发展'],
-    tagsZh: ['新', '≠', '平等', '同等', '等价性', '数学', '算术', '计算器'],
+    tagsZh: ['≠', '平等', '同等', '等价性', '数学', '算术', '计算器'],
   },
   {
     pascalName: 'NotMemberOf',
     categories: ['finances', 'technology & development'],
     tags: [
-      'new',
       '∉',
       'is not element of',
       'set',
@@ -11634,22 +11043,12 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       'calculator',
     ],
     categoriesZh: ['财务', '技术与发展'],
-    tagsZh: [
-      '新',
-      '∉',
-      '不是 的元素',
-      '设置',
-      '会员',
-      '数学',
-      '算术',
-      '计算器',
-    ],
+    tagsZh: ['∉', '不是 的元素', '设置', '会员', '数学', '算术', '计算器'],
   },
   {
     pascalName: 'NotSubsetOf',
     categories: ['finances', 'technology & development'],
     tags: [
-      'new',
       '⊄',
       'not subset of',
       'set',
@@ -11659,13 +11058,12 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       'calculator',
     ],
     categoriesZh: ['财务', '技术与发展'],
-    tagsZh: ['新', '⊄', '不是子集', '设置', '会员', '数学', '算术', '计算器'],
+    tagsZh: ['⊄', '不是子集', '设置', '会员', '数学', '算术', '计算器'],
   },
   {
     pascalName: 'NotSupersetOf',
     categories: ['finances', 'technology & development'],
     tags: [
-      'new',
       '⊉',
       'not superset of',
       'set',
@@ -11675,16 +11073,7 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       'calculator',
     ],
     categoriesZh: ['财务', '技术与发展'],
-    tagsZh: [
-      '新',
-      '⊉',
-      '不是的超集',
-      '设置',
-      '会员',
-      '数学',
-      '算术',
-      '计算器',
-    ],
+    tagsZh: ['⊉', '不是的超集', '设置', '会员', '数学', '算术', '计算器'],
   },
   {
     pascalName: 'Notches',
@@ -11733,7 +11122,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'Notepad',
     categories: ['office', 'editor'],
     tags: [
-      'updated',
       'logs',
       'logbook',
       'notes',
@@ -11743,16 +11131,7 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       'diary',
     ],
     categoriesZh: ['办公室', '编辑'],
-    tagsZh: [
-      '更新',
-      '日志',
-      '航海日志',
-      '笔记',
-      '做笔记',
-      '备忘录',
-      '日记',
-      '日记',
-    ],
+    tagsZh: ['日志', '航海日志', '笔记', '做笔记', '备忘录', '日记', '日记'],
   },
   {
     pascalName: 'Notification',
@@ -11771,9 +11150,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'NuclearPlant',
     categories: ['commerce', 'objects'],
-    tags: ['new', 'renewable', 'energy', 'power', 'electricity'],
+    tags: ['renewable', 'energy', 'power', 'electricity'],
     categoriesZh: ['商业', '物体'],
-    tagsZh: ['新', '可再生', '能源', '电源', '电力'],
+    tagsZh: ['可再生', '能源', '电源', '电力'],
   },
   {
     pascalName: 'NumberCircleEight',
@@ -11811,7 +11190,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'NumberCircleFour',
     categories: ['finances'],
     tags: [
-      'updated',
       '4',
       'round',
       'numbers',
@@ -11822,17 +11200,7 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       'calculator',
     ],
     categoriesZh: ['财务'],
-    tagsZh: [
-      '更新',
-      '4',
-      '圆形',
-      '数字',
-      '数字',
-      '数字',
-      '数学',
-      '算术',
-      '计算器',
-    ],
+    tagsZh: ['4', '圆形', '数字', '数字', '数字', '数学', '算术', '计算器'],
   },
   {
     pascalName: 'NumberCircleNine',
@@ -11980,7 +11348,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'NumberFour',
     categories: ['finances'],
     tags: [
-      'updated',
       '4',
       'numbers',
       'numerals',
@@ -11990,7 +11357,7 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       'calculator',
     ],
     categoriesZh: ['财务'],
-    tagsZh: ['更新', '4', '数字', '数字', '数字', '数学', '算术', '计算器'],
+    tagsZh: ['4', '数字', '数字', '数字', '数学', '算术', '计算器'],
   },
   {
     pascalName: 'NumberNine',
@@ -12086,7 +11453,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'NumberSquareFour',
     categories: ['finances'],
     tags: [
-      'updated',
       '4',
       'numbers',
       'numerals',
@@ -12096,7 +11462,7 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       'calculator',
     ],
     categoriesZh: ['财务'],
-    tagsZh: ['更新', '4', '数字', '数字', '数字', '数学', '算术', '计算器'],
+    tagsZh: ['4', '数字', '数字', '数字', '数学', '算术', '计算器'],
   },
   {
     pascalName: 'NumberSquareNine',
@@ -12252,7 +11618,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'Numpad',
     categories: ['communications', 'system'],
     tags: [
-      'new',
       'dialer',
       'dialpad',
       'call-center',
@@ -12263,7 +11628,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     ],
     categoriesZh: ['通讯', '系统'],
     tagsZh: [
-      '新',
       '拨号器',
       '拨号盘',
       '呼叫中心',
@@ -12312,16 +11676,16 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'Onigiri',
     categories: ['commerce', 'maps & travel'],
-    tags: ['new', 'rice ball', 'japanese', 'food', 'restaurant'],
+    tags: ['rice ball', 'japanese', 'food', 'restaurant'],
     categoriesZh: ['商业', '地图和旅行'],
-    tagsZh: ['新', '饭团', '日语', '食物', '餐厅'],
+    tagsZh: ['饭团', '日语', '食物', '餐厅'],
   },
   {
     pascalName: 'OpenAiLogo',
     categories: ['technology & development', 'brands'],
-    tags: ['new', 'artificial intelligence', 'ai', 'chatgpt', 'llm', 'logos'],
+    tags: ['artificial intelligence', 'ai', 'chatgpt', 'llm', 'logos'],
     categoriesZh: ['技术与发展', '品牌'],
-    tagsZh: ['新', '人工智能', '艾', '聊天室', '勒姆', '标志'],
+    tagsZh: ['人工智能', '艾', '聊天室', '勒姆', '标志'],
   },
   {
     pascalName: 'Option',
@@ -12333,9 +11697,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'Orange',
     categories: ['commerce', 'nature'],
-    tags: ['new', 'food', 'fruit', 'juice', 'citrus', 'groceries', 'market'],
+    tags: ['food', 'fruit', 'juice', 'citrus', 'groceries', 'market'],
     categoriesZh: ['商业', '自然'],
-    tagsZh: ['新', '食物', '水果', '果汁', '柑橘', '杂货', '市场'],
+    tagsZh: ['食物', '水果', '果汁', '柑橘', '杂货', '市场'],
   },
   {
     pascalName: 'OrangeSlice',
@@ -12347,17 +11711,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'Oven',
     categories: ['commerce', 'objects'],
-    tags: [
-      'new',
-      'stove',
-      'stovetop',
-      'food',
-      'cooking',
-      'cuisine',
-      'kitchen',
-    ],
+    tags: ['stove', 'stovetop', 'food', 'cooking', 'cuisine', 'kitchen'],
     categoriesZh: ['商业', '物体'],
-    tagsZh: ['新', '炉灶', '炉灶', '食物', '烹饪', '美食', '厨房'],
+    tagsZh: ['炉灶', '炉灶', '食物', '烹饪', '美食', '厨房'],
   },
   {
     pascalName: 'Package',
@@ -12410,16 +11766,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'PaintBucket',
     categories: ['design', 'editor', 'objects'],
-    tags: [
-      'updated',
-      'paintbucket',
-      'colors',
-      'color picker',
-      'fill',
-      'arts',
-    ],
+    tags: ['paintbucket', 'colors', 'color picker', 'fill', 'arts'],
     categoriesZh: ['设计', '编辑', '物体'],
-    tagsZh: ['更新', '油漆桶', '颜色', '颜色选择器', '填充', '艺术'],
+    tagsZh: ['油漆桶', '颜色', '颜色选择器', '填充', '艺术'],
   },
   {
     pascalName: 'PaintRoller',
@@ -12438,9 +11787,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'Panorama',
     categories: ['media'],
-    tags: ['new', 'image', 'picture', 'photography', 'landscape', '360'],
+    tags: ['image', 'picture', 'photography', 'landscape', '360'],
     categoriesZh: ['媒体'],
-    tagsZh: ['新', '图像', '图片', '摄影', '风景', '360'],
+    tagsZh: ['图像', '图片', '摄影', '风景', '360'],
   },
   {
     pascalName: 'Pants',
@@ -12619,9 +11968,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'PatreonLogo',
     categories: ['brands'],
-    tags: ['updated', 'crowdfunding', 'logos'],
+    tags: ['crowdfunding', 'logos'],
     categoriesZh: ['品牌'],
-    tagsZh: ['更新', '众筹', '标志'],
+    tagsZh: ['众筹', '标志'],
   },
   {
     pascalName: 'Pause',
@@ -12729,9 +12078,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'PencilRuler',
     categories: ['design', 'editor', 'office'],
-    tags: ['new', 'drawing', 'drafting', 'construction', 'tools'],
+    tags: ['drawing', 'drafting', 'construction', 'tools'],
     categoriesZh: ['设计', '编辑', '办公室'],
-    tagsZh: ['新', '绘图', '起草', '建筑', '工具'],
+    tagsZh: ['绘图', '起草', '建筑', '工具'],
   },
   {
     pascalName: 'PencilSimple',
@@ -12764,9 +12113,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'Pentagon',
     categories: ['design'],
-    tags: ['new', 'shapes', 'polygons', '5'],
+    tags: ['shapes', 'polygons', '5'],
     categoriesZh: ['设计'],
-    tagsZh: ['新', '形状', '多边形', '5'],
+    tagsZh: ['形状', '多边形', '5'],
   },
   {
     pascalName: 'Pentagram',
@@ -12924,16 +12273,16 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'PersonSimpleCircle',
     categories: ['people'],
-    tags: ['new', 'human', 'accessibility', 'a11y', 'vitruvius', 'vitruvian'],
+    tags: ['human', 'accessibility', 'a11y', 'vitruvius', 'vitruvian'],
     categoriesZh: ['人'],
-    tagsZh: ['新', '人类的', '可达性', 'a11y', '维特鲁威', '维特鲁威人'],
+    tagsZh: ['人类的', '可达性', 'a11y', '维特鲁威', '维特鲁威人'],
   },
   {
     pascalName: 'PersonSimpleHike',
     categories: ['nature', 'health & wellness', 'maps & travel', 'people'],
-    tags: ['new', 'pedestrian', 'climbing', 'mountaineering', 'bouldering'],
+    tags: ['pedestrian', 'climbing', 'mountaineering', 'bouldering'],
     categoriesZh: ['自然', '健康与保健', '地图和旅行', '人'],
-    tagsZh: ['新', '行人', '攀爬', '登山', '抱石'],
+    tagsZh: ['行人', '攀爬', '登山', '抱石'],
   },
   {
     pascalName: 'PersonSimpleRun',
@@ -12971,22 +12320,21 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'PersonSimpleSki',
     categories: ['games', 'health & wellness'],
-    tags: ['new', 'sports', 'skiing', 'winter', 'mountain'],
+    tags: ['sports', 'skiing', 'winter', 'mountain'],
     categoriesZh: ['游戏', '健康与保健'],
-    tagsZh: ['新', '体育', '滑雪', '冬天', '山'],
+    tagsZh: ['体育', '滑雪', '冬天', '山'],
   },
   {
     pascalName: 'PersonSimpleSnowboard',
     categories: ['games', 'health & wellness'],
-    tags: ['new', 'sports', 'snowboarding', 'winter', 'mountain'],
+    tags: ['sports', 'snowboarding', 'winter', 'mountain'],
     categoriesZh: ['游戏', '健康与保健'],
-    tagsZh: ['新', '体育', '单板滑雪', '冬天', '山'],
+    tagsZh: ['体育', '单板滑雪', '冬天', '山'],
   },
   {
     pascalName: 'PersonSimpleSwim',
     categories: ['maps & travel', 'people', 'health & wellness'],
     tags: [
-      'new',
       'pedestrian',
       'swimming',
       'human',
@@ -12997,23 +12345,12 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       'exercise',
     ],
     categoriesZh: ['地图和旅行', '人', '健康与保健'],
-    tagsZh: [
-      '新',
-      '行人',
-      '游泳',
-      '人类的',
-      '女人',
-      '男人',
-      '身体',
-      '体育',
-      '锻炼',
-    ],
+    tagsZh: ['行人', '游泳', '人类的', '女人', '男人', '身体', '体育', '锻炼'],
   },
   {
     pascalName: 'PersonSimpleTaiChi',
     categories: ['health & wellness', 'maps & travel', 'people'],
     tags: [
-      'new',
       'mindfulness',
       'martial arts',
       'meditation',
@@ -13022,7 +12359,7 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       'yoga',
     ],
     categoriesZh: ['健康与保健', '地图和旅行', '人'],
-    tagsZh: ['新', '正念', '武术', '冥想', '体育', '锻炼', '瑜伽'],
+    tagsZh: ['正念', '武术', '冥想', '体育', '锻炼', '瑜伽'],
   },
   {
     pascalName: 'PersonSimpleThrow',
@@ -13111,9 +12448,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'PhoneList',
     categories: ['communications', 'system'],
-    tags: ['new', 'calls', 'call-center', 'telephone', 'landline', 'talk'],
+    tags: ['calls', 'call-center', 'telephone', 'landline', 'talk'],
     categoriesZh: ['通讯', '系统'],
-    tagsZh: ['新', '来电', '呼叫中心', '电话', '固定电话', '谈话'],
+    tagsZh: ['来电', '呼叫中心', '电话', '固定电话', '谈话'],
   },
   {
     pascalName: 'PhoneOutgoing',
@@ -13125,17 +12462,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'PhonePause',
     categories: ['communications', 'system'],
-    tags: [
-      'new',
-      'calls',
-      'hold',
-      'call-center',
-      'telephone',
-      'landline',
-      'talk',
-    ],
+    tags: ['calls', 'hold', 'call-center', 'telephone', 'landline', 'talk'],
     categoriesZh: ['通讯', '系统'],
-    tagsZh: ['新', '来电', '保持', '呼叫中心', '电话', '固定电话', '谈话'],
+    tagsZh: ['来电', '保持', '呼叫中心', '电话', '固定电话', '谈话'],
   },
   {
     pascalName: 'PhonePlus',
@@ -13161,9 +12490,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'PhoneTransfer',
     categories: ['communications', 'system'],
-    tags: ['new', 'calls', 'call-center', 'telephone', 'landline', 'talk'],
+    tags: ['calls', 'call-center', 'telephone', 'landline', 'talk'],
     categoriesZh: ['通讯', '系统'],
-    tagsZh: ['新', '来电', '呼叫中心', '电话', '固定电话', '谈话'],
+    tagsZh: ['来电', '呼叫中心', '电话', '固定电话', '谈话'],
   },
   {
     pascalName: 'PhoneX',
@@ -13196,9 +12525,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'PicnicTable',
     categories: ['maps & travel', 'nature'],
-    tags: ['new', 'bench', 'park', 'outdoors'],
+    tags: ['bench', 'park', 'outdoors'],
     categoriesZh: ['地图和旅行', '自然'],
-    tagsZh: ['新', '长凳', '公园', '户外'],
+    tagsZh: ['长凳', '公园', '户外'],
   },
   {
     pascalName: 'PictureInPicture',
@@ -13233,24 +12562,16 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'PingPong',
     categories: ['games', 'health & wellness', 'objects'],
-    tags: ['new', 'sports', 'paddle'],
+    tags: ['sports', 'paddle'],
     categoriesZh: ['游戏', '健康与保健', '物体'],
-    tagsZh: ['新', '体育', '桨'],
+    tagsZh: ['体育', '桨'],
   },
   {
     pascalName: 'PintGlass',
     categories: ['commerce', 'health & wellness', 'objects'],
-    tags: [
-      'new',
-      'water',
-      'beverage',
-      'drinks',
-      'beverages',
-      'food',
-      'dining',
-    ],
+    tags: ['water', 'beverage', 'drinks', 'beverages', 'food', 'dining'],
     categoriesZh: ['商业', '健康与保健', '物体'],
-    tagsZh: ['新', '水', '饮料', '饮料', '饮料', '食物', '餐饮'],
+    tagsZh: ['水', '饮料', '饮料', '饮料', '食物', '餐饮'],
   },
   {
     pascalName: 'PinterestLogo',
@@ -13269,23 +12590,23 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'Pipe',
     categories: ['commerce', 'objects'],
-    tags: ['new', 'tube', 'plumber', 'plumbing', 'construction'],
+    tags: ['tube', 'plumber', 'plumbing', 'construction'],
     categoriesZh: ['商业', '物体'],
-    tagsZh: ['新', '管', '水管工', '管道', '建筑'],
+    tagsZh: ['管', '水管工', '管道', '建筑'],
   },
   {
     pascalName: 'PipeWrench',
     categories: ['commerce', 'objects'],
-    tags: ['new', 'plumber', 'plumbing', 'tools', 'construction'],
+    tags: ['plumber', 'plumbing', 'tools', 'construction'],
     categoriesZh: ['商业', '物体'],
-    tagsZh: ['新', '水管工', '管道', '工具', '建筑'],
+    tagsZh: ['水管工', '管道', '工具', '建筑'],
   },
   {
     pascalName: 'PixLogo',
     categories: ['commerce', 'finances'],
-    tags: ['new', 'payments', 'paying', 'purchase', 'logos'],
+    tags: ['payments', 'paying', 'purchase', 'logos'],
     categoriesZh: ['商业', '财务'],
-    tagsZh: ['新', '付款', '支付', '购买', '标志'],
+    tagsZh: ['付款', '支付', '购买', '标志'],
   },
   {
     pascalName: 'Pizza',
@@ -13347,9 +12668,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'Playlist',
     categories: ['media', 'system'],
-    tags: ['updated', 'music', 'audio', 'queue'],
+    tags: ['music', 'audio', 'queue'],
     categoriesZh: ['媒体', '系统'],
-    tagsZh: ['更新', '音乐', '音频', '队列'],
+    tagsZh: ['音乐', '音频', '队列'],
   },
   {
     pascalName: 'Plug',
@@ -13375,9 +12696,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'PlugsConnected',
     categories: ['system', 'objects'],
-    tags: ['updated', 'outlet', 'socket', 'plugin', 'integration'],
+    tags: ['outlet', 'socket', 'plugin', 'integration'],
     categoriesZh: ['系统', '物体'],
-    tagsZh: ['更新', '插座', '插座', '插件', '整合'],
+    tagsZh: ['插座', '插座', '插件', '整合'],
   },
   {
     pascalName: 'Plus',
@@ -13453,9 +12774,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'PoliceCar',
     categories: ['maps & travel', 'objects'],
-    tags: ['updated', 'vehicles', 'cars', 'automobiles', 'law enforcement'],
+    tags: ['vehicles', 'cars', 'automobiles', 'law enforcement'],
     categoriesZh: ['地图和旅行', '物体'],
-    tagsZh: ['更新', '车辆', '汽车', '汽车', '执法'],
+    tagsZh: ['车辆', '汽车', '汽车', '执法'],
   },
   {
     pascalName: 'Polygon',
@@ -13474,9 +12795,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'Popsicle',
     categories: ['commerce', 'maps & travel'],
-    tags: ['new', 'ice cream', 'dessert', 'summer', 'food'],
+    tags: ['ice cream', 'dessert', 'summer', 'food'],
     categoriesZh: ['商业', '地图和旅行'],
-    tagsZh: ['新', '冰淇淋', '甜点', '夏天', '食物'],
+    tagsZh: ['冰淇淋', '甜点', '夏天', '食物'],
   },
   {
     pascalName: 'PottedPlant',
@@ -13723,7 +13044,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'QuestionMark',
     categories: ['system'],
     tags: [
-      'new',
       '?',
       'information',
       'help',
@@ -13733,14 +13053,14 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       'symbol',
     ],
     categoriesZh: ['系统'],
-    tagsZh: ['新', '？', '信息', '帮助', '支持', '问题', '标点符号', '符号'],
+    tagsZh: ['？', '信息', '帮助', '支持', '问题', '标点符号', '符号'],
   },
   {
     pascalName: 'Queue',
     categories: ['media', 'system'],
-    tags: ['updated', 'music', 'audio', 'playlist'],
+    tags: ['music', 'audio', 'playlist'],
     categoriesZh: ['媒体', '系统'],
-    tagsZh: ['更新', '音乐', '音频', '播放列表'],
+    tagsZh: ['音乐', '音频', '播放列表'],
   },
   {
     pascalName: 'Quotes',
@@ -13752,16 +13072,16 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'Rabbit',
     categories: ['nature'],
-    tags: ['new', 'hare', 'fast', 'animal'],
+    tags: ['hare', 'fast', 'animal'],
     categoriesZh: ['自然'],
-    tagsZh: ['新', '野兔', '快', '动物'],
+    tagsZh: ['野兔', '快', '动物'],
   },
   {
     pascalName: 'Racquet',
     categories: ['games', 'health & wellness', 'objects'],
-    tags: ['new', 'sports', 'tennis', 'squash', 'pickleball'],
+    tags: ['sports', 'tennis', 'squash', 'pickleball'],
     categoriesZh: ['游戏', '健康与保健', '物体'],
-    tagsZh: ['新', '体育', '网球', '壁球', '匹克球'],
+    tagsZh: ['体育', '网球', '壁球', '匹克球'],
   },
   {
     pascalName: 'Radical',
@@ -13844,9 +13164,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'Ranking',
     categories: ['games', 'objects'],
-    tags: ['new', 'medal', 'rank', 'leaderboard', 'winner', 'sports'],
+    tags: ['medal', 'rank', 'leaderboard', 'winner', 'sports'],
     categoriesZh: ['游戏', '物体'],
-    tagsZh: ['新', '奖章', '等级', '排行榜', '获胜者', '体育'],
+    tagsZh: ['奖章', '等级', '排行榜', '获胜者', '体育'],
   },
   {
     pascalName: 'ReadCvLogo',
@@ -13886,9 +13206,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'RectangleDashed',
     categories: ['design'],
-    tags: ['new', '4', 'shapes', 'polygons', 'box', 'missing'],
+    tags: ['4', 'shapes', 'polygons', 'box', 'missing'],
     categoriesZh: ['设计'],
-    tagsZh: ['新', '4', '形状', '多边形', '盒子', '失踪'],
+    tagsZh: ['4', '形状', '多边形', '盒子', '失踪'],
   },
   {
     pascalName: 'Recycle',
@@ -13921,16 +13241,16 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'ReplitLogo',
     categories: ['brands', 'technology & development'],
-    tags: ['new', 'logos', 'ide', 'editor', 'coding'],
+    tags: ['logos', 'ide', 'editor', 'coding'],
     categoriesZh: ['品牌', '技术与发展'],
-    tagsZh: ['新', '标志', 'IDE', '编辑', '编码'],
+    tagsZh: ['标志', 'IDE', '编辑', '编码'],
   },
   {
     pascalName: 'Resize',
     categories: ['design', 'editor'],
-    tags: ['new', 'maximize', 'expand', 'grow'],
+    tags: ['maximize', 'expand', 'grow'],
     categoriesZh: ['设计', '编辑'],
-    tagsZh: ['新', '最大化', '展开', '成长'],
+    tagsZh: ['最大化', '展开', '成长'],
   },
   {
     pascalName: 'Rewind',
@@ -14010,16 +13330,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'RocketLaunch',
     categories: ['technology & development', 'maps & travel', 'objects'],
-    tags: [
-      'updated',
-      'spaceship',
-      'flying',
-      'blastoff',
-      'deployment',
-      'rocketship',
-    ],
+    tags: ['spaceship', 'flying', 'blastoff', 'deployment', 'rocketship'],
     categoriesZh: ['技术与发展', '地图和旅行', '物体'],
-    tagsZh: ['更新', '宇宙飞船', '飞行', '发射', '部署', '火箭飞船'],
+    tagsZh: ['宇宙飞船', '飞行', '发射', '部署', '火箭飞船'],
   },
   {
     pascalName: 'Rows',
@@ -14032,7 +13345,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'RowsPlusBottom',
     categories: ['design'],
     tags: [
-      'new',
       '2',
       'shapes',
       'polygons',
@@ -14046,7 +13358,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     ],
     categoriesZh: ['设计'],
     tagsZh: [
-      '新',
       '2',
       '形状',
       '多边形',
@@ -14063,7 +13374,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'RowsPlusTop',
     categories: ['design'],
     tags: [
-      'new',
       '2',
       'shapes',
       'polygons',
@@ -14077,7 +13387,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     ],
     categoriesZh: ['设计'],
     tagsZh: [
-      '新',
       '2',
       '形状',
       '多边形',
@@ -14107,9 +13416,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'Rug',
     categories: ['objects'],
-    tags: ['updated', 'tapestry', 'carpet'],
+    tags: ['tapestry', 'carpet'],
     categoriesZh: ['物体'],
-    tagsZh: ['更新', '挂毯', '地毯'],
+    tagsZh: ['挂毯', '地毯'],
   },
   {
     pascalName: 'Ruler',
@@ -14122,7 +13431,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'Sailboat',
     categories: ['maps & travel', 'objects'],
     tags: [
-      'new',
       'sailing',
       'ship',
       'vehicles',
@@ -14132,7 +13440,7 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       'locations',
     ],
     categoriesZh: ['地图和旅行', '物体'],
-    tagsZh: ['新', '航行', '船', '车辆', '交通', '体育', '地方', '地点'],
+    tagsZh: ['航行', '船', '车辆', '交通', '体育', '地方', '地点'],
   },
   {
     pascalName: 'Scales',
@@ -14151,16 +13459,16 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'ScanSmiley',
     categories: ['system', 'people'],
-    tags: ['new', 'facial recognition', 'face unlock', 'scanner'],
+    tags: ['facial recognition', 'face unlock', 'scanner'],
     categoriesZh: ['系统', '人'],
-    tagsZh: ['新', '面部识别', '人脸解锁', '扫描仪'],
+    tagsZh: ['面部识别', '人脸解锁', '扫描仪'],
   },
   {
     pascalName: 'Scissors',
     categories: ['design', 'editor', 'office', 'system'],
-    tags: ['updated', 'cut', 'snip', 'clipboard'],
+    tags: ['cut', 'snip', 'clipboard'],
     categoriesZh: ['设计', '编辑', '办公室', '系统'],
-    tagsZh: ['更新', '切', '剪断', '剪贴板'],
+    tagsZh: ['切', '剪断', '剪贴板'],
   },
   {
     pascalName: 'Scooter',
@@ -14186,16 +13494,16 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'Screwdriver',
     categories: ['commerce', 'objects'],
-    tags: ['new', 'tools', 'construction', 'flathead', 'drill'],
+    tags: ['tools', 'construction', 'flathead', 'drill'],
     categoriesZh: ['商业', '物体'],
-    tagsZh: ['新', '工具', '建筑', '平头', '钻'],
+    tagsZh: ['工具', '建筑', '平头', '钻'],
   },
   {
     pascalName: 'Scribble',
     categories: ['design'],
-    tags: ['new', 'doodles', 'squiggle', 'drawing', 'sign', 'signature'],
+    tags: ['doodles', 'squiggle', 'drawing', 'sign', 'signature'],
     categoriesZh: ['设计'],
-    tagsZh: ['新', '涂鸦', '花体', '绘图', '标志', '签名'],
+    tagsZh: ['涂鸦', '花体', '绘图', '标志', '签名'],
   },
   {
     pascalName: 'ScribbleLoop',
@@ -14207,9 +13515,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'Scroll',
     categories: ['games', 'objects'],
-    tags: ['updated', 'parchment', 'paper', 'script', 'spell', 'fantasy'],
+    tags: ['parchment', 'paper', 'script', 'spell', 'fantasy'],
     categoriesZh: ['游戏', '物体'],
-    tagsZh: ['更新', '羊皮纸', '纸', '脚本', '咒语', '幻想'],
+    tagsZh: ['羊皮纸', '纸', '脚本', '咒语', '幻想'],
   },
   {
     pascalName: 'Seal',
@@ -14242,17 +13550,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'SealPercent',
     categories: ['design'],
-    tags: [
-      'new',
-      'badge',
-      'discount',
-      'sale',
-      'shapes',
-      'polygons',
-      'circle-wavy',
-    ],
+    tags: ['badge', 'discount', 'sale', 'shapes', 'polygons', 'circle-wavy'],
     categoriesZh: ['设计'],
-    tagsZh: ['新', '徽章', '折扣', '销售', '形状', '多边形', '圆波状'],
+    tagsZh: ['徽章', '折扣', '销售', '形状', '多边形', '圆波状'],
   },
   {
     pascalName: 'SealQuestion',
@@ -14287,7 +13587,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'Seat',
     categories: ['maps & travel', 'objects'],
     tags: [
-      'new',
       'chair',
       'car seat',
       'airplane seat',
@@ -14296,20 +13595,19 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       'traveling',
     ],
     categoriesZh: ['地图和旅行', '物体'],
-    tagsZh: ['新', '椅子', '汽车座椅', '飞机座位', '过境', '交通', '旅行'],
+    tagsZh: ['椅子', '汽车座椅', '飞机座位', '过境', '交通', '旅行'],
   },
   {
     pascalName: 'Seatbelt',
     categories: ['commerce', 'objects'],
-    tags: ['new', 'vehicles', 'safety'],
+    tags: ['vehicles', 'safety'],
     categoriesZh: ['商业', '物体'],
-    tagsZh: ['新', '车辆', '安全'],
+    tagsZh: ['车辆', '安全'],
   },
   {
     pascalName: 'SecurityCamera',
     categories: ['objects', 'system'],
     tags: [
-      'new',
       'cctv',
       'surveillance',
       'video',
@@ -14318,15 +13616,7 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       'safety',
     ],
     categoriesZh: ['物体', '系统'],
-    tagsZh: [
-      '新',
-      '中央电视台',
-      '监视',
-      '视频',
-      '监视器',
-      '运动探测器',
-      '安全',
-    ],
+    tagsZh: ['中央电视台', '监视', '视频', '监视器', '运动探测器', '安全'],
   },
   {
     pascalName: 'Selection',
@@ -14640,9 +13930,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'ShippingContainer',
     categories: ['maps & travel', 'objects', 'commerce'],
-    tags: ['new', 'shipping', 'transportation', 'places', 'locations'],
+    tags: ['shipping', 'transportation', 'places', 'locations'],
     categoriesZh: ['地图和旅行', '物体', '商业'],
-    tagsZh: ['新', '运输', '交通', '地方', '地点'],
+    tagsZh: ['运输', '交通', '地方', '地点'],
   },
   {
     pascalName: 'ShirtFolded',
@@ -14761,9 +14051,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'Shovel',
     categories: ['commerce', 'objects'],
-    tags: ['new', 'tools', 'digging', 'construction'],
+    tags: ['tools', 'digging', 'construction'],
     categoriesZh: ['商业', '物体'],
-    tagsZh: ['新', '工具', '挖掘', '建筑'],
+    tagsZh: ['工具', '挖掘', '建筑'],
   },
   {
     pascalName: 'Shower',
@@ -14824,23 +14114,23 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'SignIn',
     categories: ['system'],
-    tags: ['updated', 'signin', 'login', 'log in', 'enter'],
+    tags: ['signin', 'login', 'log in', 'enter'],
     categoriesZh: ['系统'],
-    tagsZh: ['更新', '登录', '登录', '登录', '输入'],
+    tagsZh: ['登录', '登录', '登录', '输入'],
   },
   {
     pascalName: 'SignOut',
     categories: ['system'],
-    tags: ['updated', 'signout', 'logout', 'log out', 'exit'],
+    tags: ['signout', 'logout', 'log out', 'exit'],
     categoriesZh: ['系统'],
-    tagsZh: ['更新', '退出', '注销', '注销', '退出'],
+    tagsZh: ['退出', '注销', '注销', '退出'],
   },
   {
     pascalName: 'Signature',
     categories: ['communications', 'office'],
-    tags: ['updated', 'sign', 'autograph', 'verify'],
+    tags: ['sign', 'autograph', 'verify'],
     categoriesZh: ['通讯', '办公室'],
-    tagsZh: ['更新', '标志', '亲笔签名', '验证'],
+    tagsZh: ['标志', '亲笔签名', '验证'],
   },
   {
     pascalName: 'Signpost',
@@ -14852,9 +14142,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'SimCard',
     categories: ['communications', 'system'],
-    tags: ['updated', 'cellular', 'cellphone', 'mobile'],
+    tags: ['cellular', 'cellphone', 'mobile'],
     categoriesZh: ['通讯', '系统'],
-    tagsZh: ['更新', '细胞的', '手机', '移动'],
+    tagsZh: ['细胞的', '手机', '移动'],
   },
   {
     pascalName: 'Siren',
@@ -14968,9 +14258,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'SkypeLogo',
     categories: ['brands', 'communications'],
-    tags: ['new', 'chat', 'video conference'],
+    tags: ['chat', 'video conference'],
     categoriesZh: ['品牌', '通讯'],
-    tagsZh: ['新', '聊天', '视频会议'],
+    tagsZh: ['聊天', '视频会议'],
   },
   {
     pascalName: 'SlackLogo',
@@ -15067,24 +14357,14 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'SmileyMelting',
     categories: ['communications', 'people'],
-    tags: [
-      'new',
-      'face',
-      'emoji',
-      'embarrassment',
-      'sarcasm',
-      'shame',
-      'hot',
-      'heat',
-    ],
+    tags: ['face', 'emoji', 'embarrassment', 'sarcasm', 'shame', 'hot', 'heat'],
     categoriesZh: ['通讯', '人'],
-    tagsZh: ['新', '脸', '表情符号', '尴尬', '讽刺', '耻辱', '热', '热'],
+    tagsZh: ['脸', '表情符号', '尴尬', '讽刺', '耻辱', '热', '热'],
   },
   {
     pascalName: 'SmileyNervous',
     categories: ['communications', 'people'],
     tags: [
-      'updated',
       'face',
       'emoji',
       'anxious',
@@ -15096,7 +14376,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     ],
     categoriesZh: ['通讯', '人'],
     tagsZh: [
-      '更新',
       '脸',
       '表情符号',
       '着急的',
@@ -15152,9 +14431,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'SneakerMove',
     categories: ['commerce', 'objects', 'health & wellness'],
-    tags: ['updated', 'clothes', 'clothing', 'shoes', 'trainers', 'sports'],
+    tags: ['clothes', 'clothing', 'shoes', 'trainers', 'sports'],
     categoriesZh: ['商业', '物体', '健康与保健'],
-    tagsZh: ['更新', '衣服', '服装', '鞋子', '培训师', '体育'],
+    tagsZh: ['衣服', '服装', '鞋子', '培训师', '体育'],
   },
   {
     pascalName: 'Snowflake',
@@ -15166,60 +14445,44 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'SoccerBall',
     categories: ['games', 'health & wellness', 'objects'],
-    tags: ['updated', 'sports', 'football', 'mls'],
+    tags: ['sports', 'football', 'mls'],
     categoriesZh: ['游戏', '健康与保健', '物体'],
-    tagsZh: ['更新', '体育', '足球', '毫升'],
+    tagsZh: ['体育', '足球', '毫升'],
   },
   {
     pascalName: 'Sock',
     categories: ['commerce', 'objects'],
-    tags: ['new', 'clothes', 'clothing'],
+    tags: ['clothes', 'clothing'],
     categoriesZh: ['商业', '物体'],
-    tagsZh: ['新', '衣服', '服装'],
+    tagsZh: ['衣服', '服装'],
   },
   {
     pascalName: 'SolarPanel',
     categories: ['commerce', 'objects'],
-    tags: ['new', 'renewable', 'energy', 'power', 'electricity'],
+    tags: ['renewable', 'energy', 'power', 'electricity'],
     categoriesZh: ['商业', '物体'],
-    tagsZh: ['新', '可再生', '能源', '电源', '电力'],
+    tagsZh: ['可再生', '能源', '电源', '电力'],
   },
   {
     pascalName: 'SolarRoof',
     categories: ['commerce', 'objects'],
-    tags: ['new', 'renewable', 'energy', 'power', 'electricity'],
+    tags: ['renewable', 'energy', 'power', 'electricity'],
     categoriesZh: ['商业', '物体'],
-    tagsZh: ['新', '可再生', '能源', '电源', '电力'],
+    tagsZh: ['可再生', '能源', '电源', '电力'],
   },
   {
     pascalName: 'SortAscending',
     categories: ['editor'],
-    tags: [
-      'updated',
-      'sorted',
-      'sorting',
-      'increasing',
-      'a to z',
-      'arrows',
-      'list',
-    ],
+    tags: ['sorted', 'sorting', 'increasing', 'a to z', 'arrows', 'list'],
     categoriesZh: ['编辑'],
-    tagsZh: ['更新', '已排序', '排序', '增加', '从a到z', '箭头', '清单'],
+    tagsZh: ['已排序', '排序', '增加', '从a到z', '箭头', '清单'],
   },
   {
     pascalName: 'SortDescending',
     categories: ['editor'],
-    tags: [
-      'updated',
-      'sorted',
-      'sorting',
-      'decreasing',
-      'z to a',
-      'arrows',
-      'list',
-    ],
+    tags: ['sorted', 'sorting', 'decreasing', 'z to a', 'arrows', 'list'],
     categoriesZh: ['编辑'],
-    tagsZh: ['更新', '已排序', '排序', '减少', 'z 到 a', '箭头', '清单'],
+    tagsZh: ['已排序', '排序', '减少', 'z 到 a', '箭头', '清单'],
   },
   {
     pascalName: 'SoundcloudLogo',
@@ -15252,23 +14515,23 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'SpeakerHigh',
     categories: ['media', 'system'],
-    tags: ['updated', 'music', 'audio', 'volume', 'sound'],
+    tags: ['music', 'audio', 'volume', 'sound'],
     categoriesZh: ['媒体', '系统'],
-    tagsZh: ['更新', '音乐', '音频', '体积', '声音'],
+    tagsZh: ['音乐', '音频', '体积', '声音'],
   },
   {
     pascalName: 'SpeakerLow',
     categories: ['media', 'system'],
-    tags: ['updated', 'music', 'audio', 'volume', 'sound'],
+    tags: ['music', 'audio', 'volume', 'sound'],
     categoriesZh: ['媒体', '系统'],
-    tagsZh: ['更新', '音乐', '音频', '体积', '声音'],
+    tagsZh: ['音乐', '音频', '体积', '声音'],
   },
   {
     pascalName: 'SpeakerNone',
     categories: ['media', 'system'],
-    tags: ['updated', 'music', 'audio', 'muted', 'volume', 'sound'],
+    tags: ['music', 'audio', 'muted', 'volume', 'sound'],
     categoriesZh: ['媒体', '系统'],
-    tagsZh: ['更新', '音乐', '音频', '静音', '体积', '声音'],
+    tagsZh: ['音乐', '音频', '静音', '体积', '声音'],
   },
   {
     pascalName: 'SpeakerSimpleHigh',
@@ -15308,64 +14571,30 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'SpeakerSlash',
     categories: ['media', 'system'],
-    tags: [
-      'updated',
-      'music',
-      'audio',
-      'muted',
-      'volume',
-      'sound',
-      'disabled',
-    ],
+    tags: ['music', 'audio', 'muted', 'volume', 'sound', 'disabled'],
     categoriesZh: ['媒体', '系统'],
-    tagsZh: ['更新', '音乐', '音频', '静音', '体积', '声音', '残疾人'],
+    tagsZh: ['音乐', '音频', '静音', '体积', '声音', '残疾人'],
   },
   {
     pascalName: 'SpeakerX',
     categories: ['media', 'system'],
-    tags: [
-      'updated',
-      'music',
-      'audio',
-      'muted',
-      'volume',
-      'sound',
-      'disabled',
-      'errors',
-    ],
+    tags: ['music', 'audio', 'muted', 'volume', 'sound', 'disabled', 'errors'],
     categoriesZh: ['媒体', '系统'],
-    tagsZh: [
-      '更新',
-      '音乐',
-      '音频',
-      '静音',
-      '体积',
-      '声音',
-      '残疾人',
-      '错误',
-    ],
+    tagsZh: ['音乐', '音频', '静音', '体积', '声音', '残疾人', '错误'],
   },
   {
     pascalName: 'Speedometer',
     categories: ['technology & development', 'objects', 'system'],
-    tags: [
-      'new',
-      'gauge',
-      'dashboard',
-      'meter',
-      'speed',
-      'odometer',
-      'performance',
-    ],
+    tags: ['gauge', 'dashboard', 'meter', 'speed', 'odometer', 'performance'],
     categoriesZh: ['技术与发展', '物体', '系统'],
-    tagsZh: ['新', '仪表', '仪表板', '米', '速度', '里程表', '表现'],
+    tagsZh: ['仪表', '仪表板', '米', '速度', '里程表', '表现'],
   },
   {
     pascalName: 'Sphere',
     categories: ['design'],
-    tags: ['new', 'circle', 'ball', '3d', 'mesh', 'cad', 'model'],
+    tags: ['circle', 'ball', '3d', 'mesh', 'cad', 'model'],
     categoriesZh: ['设计'],
-    tagsZh: ['新', '圆圈', '球', '3d', '网格', '计算机辅助设计', '型号'],
+    tagsZh: ['圆圈', '球', '3d', '网格', '计算机辅助设计', '型号'],
   },
   {
     pascalName: 'Spinner',
@@ -15377,9 +14606,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'SpinnerBall',
     categories: ['system'],
-    tags: ['new', 'loading', 'loader', 'waiting', 'progress'],
+    tags: ['loading', 'loader', 'waiting', 'progress'],
     categoriesZh: ['系统'],
-    tagsZh: ['新', '加载中', '装载机', '等待', '进展'],
+    tagsZh: ['加载中', '装载机', '等待', '进展'],
   },
   {
     pascalName: 'SpinnerGap',
@@ -15391,9 +14620,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'Spiral',
     categories: ['communications', 'design'],
-    tags: ['updated', 'spin', 'rotate', 'dizzy'],
+    tags: ['spin', 'rotate', 'dizzy'],
     categoriesZh: ['通讯', '设计'],
-    tagsZh: ['更新', '旋转', '旋转', '头晕'],
+    tagsZh: ['旋转', '旋转', '头晕'],
   },
   {
     pascalName: 'SplitHorizontal',
@@ -15419,9 +14648,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'SprayBottle',
     categories: ['objects', 'health & wellness'],
-    tags: ['new', 'cleaner', 'cleaning'],
+    tags: ['cleaner', 'cleaning'],
     categoriesZh: ['物体', '健康与保健'],
-    tagsZh: ['新', '清洁工', '清洁'],
+    tagsZh: ['清洁工', '清洁'],
   },
   {
     pascalName: 'Square',
@@ -15518,9 +14747,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'StackMinus',
     categories: ['design', 'office', 'editor'],
-    tags: ['new', 'cards', 'layers', 'remove', 'delete'],
+    tags: ['cards', 'layers', 'remove', 'delete'],
     categoriesZh: ['设计', '办公室', '编辑'],
-    tagsZh: ['新', '卡片', '层数', '删除', '删除'],
+    tagsZh: ['卡片', '层数', '删除', '删除'],
   },
   {
     pascalName: 'StackOverflowLogo',
@@ -15532,9 +14761,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'StackPlus',
     categories: ['design', 'office', 'editor'],
-    tags: ['new', 'cards', 'layers', 'add'],
+    tags: ['cards', 'layers', 'add'],
     categoriesZh: ['设计', '办公室', '编辑'],
-    tagsZh: ['新', '卡片', '层数', '添加'],
+    tagsZh: ['卡片', '层数', '添加'],
   },
   {
     pascalName: 'StackSimple',
@@ -15560,9 +14789,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'StandardDefinition',
     categories: ['media'],
-    tags: ['new', 'sd', 'resolution', 'video'],
+    tags: ['sd', 'resolution', 'video'],
     categoriesZh: ['媒体'],
-    tagsZh: ['新', '标准差', '分辨率', '视频'],
+    tagsZh: ['标准差', '分辨率', '视频'],
   },
   {
     pascalName: 'Star',
@@ -15602,9 +14831,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'SteamLogo',
     categories: ['brands', 'games'],
-    tags: ['new', 'gaming', 'games'],
+    tags: ['gaming', 'games'],
     categoriesZh: ['品牌', '游戏'],
-    tagsZh: ['新', '游戏', '游戏'],
+    tagsZh: ['游戏', '游戏'],
   },
   {
     pascalName: 'SteeringWheel',
@@ -15713,7 +14942,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'SubsetOf',
     categories: ['finances', 'technology & development'],
     tags: [
-      'new',
       '⊆',
       'subset of',
       'set',
@@ -15723,13 +14951,12 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       'calculator',
     ],
     categoriesZh: ['财务', '技术与发展'],
-    tagsZh: ['新', '⊆', '的子集', '设置', '会员', '数学', '算术', '计算器'],
+    tagsZh: ['⊆', '的子集', '设置', '会员', '数学', '算术', '计算器'],
   },
   {
     pascalName: 'SubsetProperOf',
     categories: ['finances', 'technology & development'],
     tags: [
-      'new',
       '⊂',
       'proper subset of',
       'set',
@@ -15739,7 +14966,7 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       'calculator',
     ],
     categoriesZh: ['财务', '技术与发展'],
-    tagsZh: ['新', '⊂', '的真子集', '设置', '会员', '数学', '算术', '计算器'],
+    tagsZh: ['⊂', '的真子集', '设置', '会员', '数学', '算术', '计算器'],
   },
   {
     pascalName: 'Subtitles',
@@ -15760,7 +14987,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'SubtitlesSlash',
     categories: ['media'],
     tags: [
-      'new',
       'subtitles',
       'television',
       'tv',
@@ -15772,7 +14998,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     ],
     categoriesZh: ['媒体'],
     tagsZh: [
-      '新',
       '字幕',
       '电视',
       '电视',
@@ -15801,7 +15026,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'Subway',
     categories: ['maps & travel', 'objects'],
     tags: [
-      'new',
       'vehicles',
       'underground',
       'train',
@@ -15817,7 +15041,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     ],
     categoriesZh: ['地图和旅行', '物体'],
     tagsZh: [
-      '新',
       '车辆',
       '地下',
       '火车',
@@ -15936,7 +15159,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'SupersetOf',
     categories: ['finances', 'technology & development'],
     tags: [
-      'new',
       '⊇',
       'superset of',
       'set',
@@ -15946,13 +15168,12 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       'calculator',
     ],
     categoriesZh: ['财务', '技术与发展'],
-    tagsZh: ['新', '时', '的超集', '设置', '会员', '数学', '算术', '计算器'],
+    tagsZh: ['时', '的超集', '设置', '会员', '数学', '算术', '计算器'],
   },
   {
     pascalName: 'SupersetProperOf',
     categories: ['finances', 'technology & development'],
     tags: [
-      'new',
       '⊃',
       'proper superset of',
       'set',
@@ -15962,7 +15183,7 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       'calculator',
     ],
     categoriesZh: ['财务', '技术与发展'],
-    tagsZh: ['新', '⊃', '的真超集', '设置', '会员', '数学', '算术', '计算器'],
+    tagsZh: ['⊃', '的真超集', '设置', '会员', '数学', '算术', '计算器'],
   },
   {
     pascalName: 'Swap',
@@ -16049,9 +15270,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'Tabs',
     categories: ['system'],
-    tags: ['updated', 'browser', 'window', 'folders', 'files'],
+    tags: ['browser', 'window', 'folders', 'files'],
     categoriesZh: ['系统'],
-    tagsZh: ['更新', '浏览器', '窗户', '文件夹', '文件'],
+    tagsZh: ['浏览器', '窗户', '文件夹', '文件'],
   },
   {
     pascalName: 'Tag',
@@ -16084,23 +15305,14 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'Taxi',
     categories: ['maps & travel', 'objects'],
-    tags: [
-      'updated',
-      'vehicles',
-      'cars',
-      'automobiles',
-      'livery',
-      'limousine',
-      'uber',
-    ],
+    tags: ['vehicles', 'cars', 'automobiles', 'livery', 'limousine', 'uber'],
     categoriesZh: ['地图和旅行', '物体'],
-    tagsZh: ['更新', '车辆', '汽车', '汽车', '制服', '豪华轿车', '优步'],
+    tagsZh: ['车辆', '汽车', '汽车', '制服', '豪华轿车', '优步'],
   },
   {
     pascalName: 'TeaBag',
     categories: ['commerce', 'maps & travel', 'objects'],
     tags: [
-      'new',
       'drinks',
       'beverages',
       'sachet',
@@ -16114,7 +15326,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     ],
     categoriesZh: ['商业', '地图和旅行', '物体'],
     tagsZh: [
-      '新',
       '饮料',
       '饮料',
       '香囊',
@@ -16144,9 +15355,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'TelevisionSimple',
     categories: ['system', 'objects'],
-    tags: ['updated', 'screen', 'tv', 'displays'],
+    tags: ['screen', 'tv', 'displays'],
     categoriesZh: ['系统', '物体'],
-    tagsZh: ['更新', '屏幕', '电视', '显示'],
+    tagsZh: ['屏幕', '电视', '显示'],
   },
   {
     pascalName: 'TennisBall',
@@ -16205,51 +15416,30 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'TextAlignCenter',
     categories: ['design', 'editor'],
-    tags: ['updated', 'typography', 'print', 'font', 'alignment', 'centered'],
+    tags: ['typography', 'print', 'font', 'alignment', 'centered'],
     categoriesZh: ['设计', '编辑'],
-    tagsZh: ['更新', '版式', '打印', '字体', '对准', '居中'],
+    tagsZh: ['版式', '打印', '字体', '对准', '居中'],
   },
   {
     pascalName: 'TextAlignJustify',
     categories: ['design', 'editor'],
-    tags: [
-      'updated',
-      'typography',
-      'print',
-      'font',
-      'alignment',
-      'justified',
-    ],
+    tags: ['typography', 'print', 'font', 'alignment', 'justified'],
     categoriesZh: ['设计', '编辑'],
-    tagsZh: ['更新', '版式', '打印', '字体', '对准', '有道理的'],
+    tagsZh: ['版式', '打印', '字体', '对准', '有道理的'],
   },
   {
     pascalName: 'TextAlignLeft',
     categories: ['design', 'editor'],
-    tags: [
-      'updated',
-      'typography',
-      'print',
-      'font',
-      'alignment',
-      'flush left',
-    ],
+    tags: ['typography', 'print', 'font', 'alignment', 'flush left'],
     categoriesZh: ['设计', '编辑'],
-    tagsZh: ['更新', '版式', '打印', '字体', '对准', '左齐平'],
+    tagsZh: ['版式', '打印', '字体', '对准', '左齐平'],
   },
   {
     pascalName: 'TextAlignRight',
     categories: ['design', 'editor'],
-    tags: [
-      'updated',
-      'typography',
-      'print',
-      'font',
-      'alignment',
-      'flush right',
-    ],
+    tags: ['typography', 'print', 'font', 'alignment', 'flush right'],
     categoriesZh: ['设计', '编辑'],
-    tagsZh: ['更新', '版式', '打印', '字体', '对准', '右齐平'],
+    tagsZh: ['版式', '打印', '字体', '对准', '右齐平'],
   },
   {
     pascalName: 'TextB',
@@ -16269,9 +15459,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'TextColumns',
     categories: ['design', 'editor'],
-    tags: ['updated', 'typography', 'print', 'font', 'alignment', 'article'],
+    tags: ['typography', 'print', 'font', 'alignment', 'article'],
     categoriesZh: ['设计', '编辑'],
-    tagsZh: ['更新', '版式', '打印', '字体', '对准', '文章'],
+    tagsZh: ['版式', '打印', '字体', '对准', '文章'],
   },
   {
     pascalName: 'TextH',
@@ -16290,9 +15480,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'TextHFour',
     categories: ['design', 'editor'],
-    tags: ['updated', 'heading', 'h4', 'typography', 'print'],
+    tags: ['heading', 'h4', 'typography', 'print'],
     categoriesZh: ['设计', '编辑'],
-    tagsZh: ['更新', '标题', '小时4', '版式', '打印'],
+    tagsZh: ['标题', '小时4', '版式', '打印'],
   },
   {
     pascalName: 'TextHOne',
@@ -16325,9 +15515,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'TextIndent',
     categories: ['design', 'editor'],
-    tags: ['updated', 'alignment', 'tab', 'menu'],
+    tags: ['alignment', 'tab', 'menu'],
     categoriesZh: ['设计', '编辑'],
-    tagsZh: ['更新', '对准', '选项卡', '菜单'],
+    tagsZh: ['对准', '选项卡', '菜单'],
   },
   {
     pascalName: 'TextItalic',
@@ -16359,9 +15549,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'TextOutdent',
     categories: ['design', 'editor'],
-    tags: ['updated', 'alignment', 'tab', 'unindent', 'dedent', 'menu'],
+    tags: ['alignment', 'tab', 'unindent', 'dedent', 'menu'],
     categoriesZh: ['设计', '编辑'],
-    tagsZh: ['更新', '对准', '选项卡', '不缩进', '内凹', '菜单'],
+    tagsZh: ['对准', '选项卡', '不缩进', '内凹', '菜单'],
   },
   {
     pascalName: 'TextStrikethrough',
@@ -16383,7 +15573,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'TextSubscript',
     categories: ['design', 'editor', 'finances'],
     tags: [
-      'new',
       'typography',
       'font',
       'formatting',
@@ -16393,30 +15582,14 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       'calculator',
     ],
     categoriesZh: ['设计', '编辑', '财务'],
-    tagsZh: [
-      '新',
-      '版式',
-      '字体',
-      '格式化',
-      '数学',
-      '电源',
-      '指数',
-      '计算器',
-    ],
+    tagsZh: ['版式', '字体', '格式化', '数学', '电源', '指数', '计算器'],
   },
   {
     pascalName: 'TextSuperscript',
     categories: ['design', 'editor', 'finances'],
-    tags: [
-      'new',
-      'typography',
-      'font',
-      'formatting',
-      'mathematics',
-      'calculator',
-    ],
+    tags: ['typography', 'font', 'formatting', 'mathematics', 'calculator'],
     categoriesZh: ['设计', '编辑', '财务'],
-    tagsZh: ['新', '版式', '字体', '格式化', '数学', '计算器'],
+    tagsZh: ['版式', '字体', '格式化', '数学', '计算器'],
   },
   {
     pascalName: 'TextT',
@@ -16428,17 +15601,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'TextTSlash',
     categories: ['design', 'editor'],
-    tags: [
-      'new',
-      'typography',
-      'typeface',
-      'print',
-      'font',
-      'formatting',
-      'clear',
-    ],
+    tags: ['typography', 'typeface', 'print', 'font', 'formatting', 'clear'],
     categoriesZh: ['设计', '编辑'],
-    tagsZh: ['新', '版式', '字体', '打印', '字体', '格式化', '清晰'],
+    tagsZh: ['版式', '字体', '打印', '字体', '格式化', '清晰'],
   },
   {
     pascalName: 'TextUnderline',
@@ -16571,16 +15736,16 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'ThreadsLogo',
     categories: ['brands', 'communications'],
-    tags: ['new', 'meta', 'instagram', 'social media'],
+    tags: ['meta', 'instagram', 'social media'],
     categoriesZh: ['品牌', '通讯'],
-    tagsZh: ['新', '元', 'Instagram', '社交媒体'],
+    tagsZh: ['元', 'Instagram', '社交媒体'],
   },
   {
     pascalName: 'ThreeD',
     categories: ['media', 'technology & development'],
-    tags: ['new', '3d', 'cad', 'model'],
+    tags: ['3d', 'cad', 'model'],
     categoriesZh: ['媒体', '技术与发展'],
-    tagsZh: ['新', '3d', '计算机辅助设计', '型号'],
+    tagsZh: ['3d', '计算机辅助设计', '型号'],
   },
   {
     pascalName: 'ThumbsDown',
@@ -16621,7 +15786,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'Tilde',
     categories: ['finances', 'technology & development'],
     tags: [
-      'new',
       '~',
       '∼',
       'proportional',
@@ -16631,7 +15795,7 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       'calculator',
     ],
     categoriesZh: ['财务', '技术与发展'],
-    tagsZh: ['新', '～', '～', '比例', '比较', '数学', '算术', '计算器'],
+    tagsZh: ['～', '～', '比例', '比较', '数学', '算术', '计算器'],
   },
   {
     pascalName: 'Timer',
@@ -16643,9 +15807,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'TipJar',
     categories: ['commerce', 'finances', 'objects'],
-    tags: ['new', 'give', 'deposit', 'donation', 'savings', 'money'],
+    tags: ['give', 'deposit', 'donation', 'savings', 'money'],
     categoriesZh: ['商业', '财务', '物体'],
-    tagsZh: ['新', '给予', '押金', '捐赠', '储蓄', '钱'],
+    tagsZh: ['给予', '押金', '捐赠', '储蓄', '钱'],
   },
   {
     pascalName: 'Tipi',
@@ -16657,9 +15821,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'Tire',
     categories: ['commerce', 'objects'],
-    tags: ['new', 'wheel', 'vehicles', 'transportation'],
+    tags: ['wheel', 'vehicles', 'transportation'],
     categoriesZh: ['商业', '物体'],
-    tagsZh: ['新', '轮子', '车辆', '交通'],
+    tagsZh: ['轮子', '车辆', '交通'],
   },
   {
     pascalName: 'ToggleLeft',
@@ -16706,9 +15870,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'Tornado',
     categories: ['weather'],
-    tags: ['new', 'meteorology', 'twister', 'storm', 'wind', 'disaster'],
+    tags: ['meteorology', 'twister', 'storm', 'wind', 'disaster'],
     categoriesZh: ['天气'],
-    tagsZh: ['新', '气象学', '龙卷风', '风暴', '风', '灾难'],
+    tagsZh: ['气象学', '龙卷风', '风暴', '风', '灾难'],
   },
   {
     pascalName: 'Tote',
@@ -16728,7 +15892,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'Towel',
     categories: ['commerce', 'objects'],
     tags: [
-      'new',
       'clothing',
       'linen',
       'hotel',
@@ -16739,24 +15902,14 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       'bath',
     ],
     categoriesZh: ['商业', '物体'],
-    tagsZh: [
-      '新',
-      '服装',
-      '亚麻布',
-      '酒店',
-      '海滩',
-      '泳池',
-      '游泳',
-      '淋浴',
-      '洗澡',
-    ],
+    tagsZh: ['服装', '亚麻布', '酒店', '海滩', '泳池', '游泳', '淋浴', '洗澡'],
   },
   {
     pascalName: 'Tractor',
     categories: ['commerce', 'objects'],
-    tags: ['new', 'vehicles', 'farmer', 'field', 'farming', 'agriculture'],
+    tags: ['vehicles', 'farmer', 'field', 'farming', 'agriculture'],
     categoriesZh: ['商业', '物体'],
-    tagsZh: ['新', '车辆', '农民', '领域', '农业', '农业'],
+    tagsZh: ['车辆', '农民', '领域', '农业', '农业'],
   },
   {
     pascalName: 'Trademark',
@@ -16971,24 +16124,16 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'TrayArrowUp',
     categories: ['office', 'system'],
-    tags: ['new', 'outbox', 'archival', 'unarchive', 'uploaded', 'uploading'],
+    tags: ['outbox', 'archival', 'unarchive', 'uploaded', 'uploading'],
     categoriesZh: ['办公室', '系统'],
-    tagsZh: ['新', '发件箱', '档案的', '取消归档', '已上传', '上传中'],
+    tagsZh: ['发件箱', '档案的', '取消归档', '已上传', '上传中'],
   },
   {
     pascalName: 'TreasureChest',
     categories: ['games', 'objects'],
-    tags: [
-      'new',
-      'loot',
-      'lootbox',
-      'inventory',
-      'rewards',
-      'gaming',
-      'pirate',
-    ],
+    tags: ['loot', 'lootbox', 'inventory', 'rewards', 'gaming', 'pirate'],
     categoriesZh: ['游戏', '物体'],
-    tagsZh: ['新', '掠夺', '战利品箱', '库存', '奖励', '游戏', '海盗'],
+    tagsZh: ['掠夺', '战利品箱', '库存', '奖励', '游戏', '海盗'],
   },
   {
     pascalName: 'Tree',
@@ -17053,9 +16198,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'TreeView',
     categories: ['system'],
-    tags: ['new', 'hierarchy'],
+    tags: ['hierarchy'],
     categoriesZh: ['系统'],
-    tagsZh: ['新', '等级制度'],
+    tagsZh: ['等级制度'],
   },
   {
     pascalName: 'TrendDown',
@@ -17099,23 +16244,23 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'TriangleDashed',
     categories: ['design'],
-    tags: ['new', '3', 'shapes', 'polygons', 'missing'],
+    tags: ['3', 'shapes', 'polygons', 'missing'],
     categoriesZh: ['设计'],
-    tagsZh: ['新', '3', '形状', '多边形', '失踪'],
+    tagsZh: ['3', '形状', '多边形', '失踪'],
   },
   {
     pascalName: 'Trolley',
     categories: ['office', 'objects'],
-    tags: ['new', 'airport', 'briefcase', 'valise', 'baggage'],
+    tags: ['airport', 'briefcase', 'valise', 'baggage'],
     categoriesZh: ['办公室', '物体'],
-    tagsZh: ['新', '机场', '公文包', '手提箱', '行李'],
+    tagsZh: ['机场', '公文包', '手提箱', '行李'],
   },
   {
     pascalName: 'TrolleySuitcase',
     categories: ['office', 'objects'],
-    tags: ['new', 'airport', 'briefcase', 'valise', 'baggage'],
+    tags: ['airport', 'briefcase', 'valise', 'baggage'],
     categoriesZh: ['办公室', '物体'],
-    tagsZh: ['新', '机场', '公文包', '手提箱', '行李'],
+    tagsZh: ['机场', '公文包', '手提箱', '行李'],
   },
   {
     pascalName: 'Trophy',
@@ -17134,16 +16279,16 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'TruckTrailer',
     categories: ['commerce', 'maps & travel', 'objects'],
-    tags: ['new', 'vehicles', 'automobile', 'shipping', 'tractor', 'semi'],
+    tags: ['vehicles', 'automobile', 'shipping', 'tractor', 'semi'],
     categoriesZh: ['商业', '地图和旅行', '物体'],
-    tagsZh: ['新', '车辆', '汽车', '运输', '拖拉机', '半'],
+    tagsZh: ['车辆', '汽车', '运输', '拖拉机', '半'],
   },
   {
     pascalName: 'TumblrLogo',
     categories: ['brands', 'communications'],
-    tags: ['new', 'social media', 'logos'],
+    tags: ['social media', 'logos'],
     categoriesZh: ['品牌', '通讯'],
-    tagsZh: ['新', '社交媒体', '标志'],
+    tagsZh: ['社交媒体', '标志'],
   },
   {
     pascalName: 'TwitchLogo',
@@ -17184,7 +16329,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'Union',
     categories: ['finances', 'technology & development'],
     tags: [
-      'new',
       '∪',
       'union',
       'set',
@@ -17194,13 +16338,12 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       'calculator',
     ],
     categoriesZh: ['财务', '技术与发展'],
-    tagsZh: ['新', '∪', '联盟', '设置', '会员', '数学', '算术', '计算器'],
+    tagsZh: ['∪', '联盟', '设置', '会员', '数学', '算术', '计算器'],
   },
   {
     pascalName: 'Unite',
     categories: ['design', 'editor'],
     tags: [
-      'updated',
       'round',
       'join',
       'union',
@@ -17210,16 +16353,7 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       'intersection',
     ],
     categoriesZh: ['设计', '编辑'],
-    tagsZh: [
-      '更新',
-      '圆形',
-      '加入',
-      '联盟',
-      '合并',
-      '联合起来',
-      '相交',
-      '交叉点',
-    ],
+    tagsZh: ['圆形', '加入', '联盟', '合并', '联合起来', '相交', '交叉点'],
   },
   {
     pascalName: 'UniteSquare',
@@ -17259,7 +16393,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'UploadSimple',
     categories: ['system'],
     tags: [
-      'updated',
       'saved',
       'saving',
       'archived',
@@ -17272,7 +16405,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     ],
     categoriesZh: ['系统'],
     tagsZh: [
-      '更新',
       '已保存',
       '储蓄',
       '已归档',
@@ -17302,7 +16434,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'UserCheck',
     categories: ['people'],
     tags: [
-      'new',
       'person',
       'users',
       'profile',
@@ -17312,16 +16443,7 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       'verified',
     ],
     categoriesZh: ['人'],
-    tagsZh: [
-      '新',
-      '人',
-      '用户',
-      '简介',
-      '帐户',
-      '联系方式',
-      '登录',
-      '已验证',
-    ],
+    tagsZh: ['人', '用户', '简介', '帐户', '联系方式', '登录', '已验证'],
   },
   {
     pascalName: 'UserCircle',
@@ -17334,7 +16456,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'UserCircleCheck',
     categories: ['people'],
     tags: [
-      'new',
       'person',
       'users',
       'profile',
@@ -17344,22 +16465,12 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       'verified',
     ],
     categoriesZh: ['人'],
-    tagsZh: [
-      '新',
-      '人',
-      '用户',
-      '简介',
-      '帐户',
-      '联系方式',
-      '登录',
-      '已验证',
-    ],
+    tagsZh: ['人', '用户', '简介', '帐户', '联系方式', '登录', '已验证'],
   },
   {
     pascalName: 'UserCircleDashed',
     categories: ['people'],
     tags: [
-      'new',
       'person',
       'users',
       'profile',
@@ -17372,7 +16483,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     ],
     categoriesZh: ['人'],
     tagsZh: [
-      '新',
       '人',
       '用户',
       '简介',
@@ -17525,17 +16635,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'UserSound',
     categories: ['people'],
-    tags: [
-      'new',
-      'person',
-      'users',
-      'profile',
-      'speech',
-      'speaking',
-      'voice',
-    ],
+    tags: ['person', 'users', 'profile', 'speech', 'speaking', 'voice'],
     categoriesZh: ['人'],
-    tagsZh: ['新', '人', '用户', '简介', '演讲', '说话', '声音'],
+    tagsZh: ['人', '用户', '简介', '演讲', '说话', '声音'],
   },
   {
     pascalName: 'UserSquare',
@@ -17689,7 +16791,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'VectorThree',
     categories: ['arrows', 'technology & development', 'design'],
     tags: [
-      'new',
       '3d',
       'xyz',
       'cartesian',
@@ -17700,23 +16801,12 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       'mathematics',
     ],
     categoriesZh: ['箭头', '技术与发展', '设计'],
-    tagsZh: [
-      '新',
-      '3d',
-      'XYZ',
-      '笛卡尔',
-      '坐标',
-      '飞机',
-      '体积',
-      '尺寸',
-      '数学',
-    ],
+    tagsZh: ['3d', 'XYZ', '笛卡尔', '坐标', '飞机', '体积', '尺寸', '数学'],
   },
   {
     pascalName: 'VectorTwo',
     categories: ['arrows', 'technology & development', 'design'],
     tags: [
-      'new',
       '2d',
       'xy',
       'cartesian',
@@ -17726,7 +16816,7 @@ export const PHOSPHOR_ICON_INFO_LIST = [
       'mathematics',
     ],
     categoriesZh: ['箭头', '技术与发展', '设计'],
-    tagsZh: ['新', '2d', 'XY', '笛卡尔', '坐标', '飞机', '尺寸', '数学'],
+    tagsZh: ['2d', 'XY', '笛卡尔', '坐标', '飞机', '尺寸', '数学'],
   },
   {
     pascalName: 'Vibrate',
@@ -17767,17 +16857,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'VideoConference',
     categories: ['media', 'system', 'communications'],
-    tags: [
-      'new',
-      'video call',
-      'zoom',
-      'skype',
-      'discord',
-      'facetime',
-      'meeting',
-    ],
+    tags: ['video call', 'zoom', 'skype', 'discord', 'facetime', 'meeting'],
     categoriesZh: ['媒体', '系统', '通讯'],
-    tagsZh: ['新', '视频通话', '变焦', 'Skype', '不和谐', '视频通话', '会议'],
+    tagsZh: ['视频通话', '变焦', 'Skype', '不和谐', '视频通话', '会议'],
   },
   {
     pascalName: 'Vignette',
@@ -17810,9 +16892,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'Visor',
     categories: ['technology & development', 'media', 'objects'],
-    tags: ['new', 'goggles', 'vision'],
+    tags: ['goggles', 'vision'],
     categoriesZh: ['技术与发展', '媒体', '物体'],
-    tagsZh: ['新', '护目镜', '愿景'],
+    tagsZh: ['护目镜', '愿景'],
   },
   {
     pascalName: 'Voicemail',
@@ -17887,9 +16969,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'WashingMachine',
     categories: ['commerce', 'maps & travel', 'objects'],
-    tags: ['new', 'clothing', 'laundry', 'cleaning'],
+    tags: ['clothing', 'laundry', 'cleaning'],
     categoriesZh: ['商业', '地图和旅行', '物体'],
-    tagsZh: ['新', '服装', '洗衣', '清洁'],
+    tagsZh: ['服装', '洗衣', '清洁'],
   },
   {
     pascalName: 'Watch',
@@ -17947,16 +17029,16 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'Waveform',
     categories: ['media'],
-    tags: ['updated', 'audio', 'sound', 'spectrum', 'spectrograph', 'music'],
+    tags: ['audio', 'sound', 'spectrum', 'spectrograph', 'music'],
     categoriesZh: ['媒体'],
-    tagsZh: ['更新', '音频', '声音', '光谱', '光谱仪', '音乐'],
+    tagsZh: ['音频', '声音', '光谱', '光谱仪', '音乐'],
   },
   {
     pascalName: 'WaveformSlash',
     categories: ['media'],
-    tags: ['new', 'audio', 'sound', 'spectrum', 'spectrograph', 'music'],
+    tags: ['audio', 'sound', 'spectrum', 'spectrograph', 'music'],
     categoriesZh: ['媒体'],
-    tagsZh: ['新', '音频', '声音', '光谱', '光谱仪', '音乐'],
+    tagsZh: ['音频', '声音', '光谱', '光谱仪', '音乐'],
   },
   {
     pascalName: 'Waves',
@@ -18115,7 +17197,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     pascalName: 'Windmill',
     categories: ['commerce'],
     tags: [
-      'new',
       'turbine',
       'energy',
       'renewable',
@@ -18128,7 +17209,6 @@ export const PHOSPHOR_ICON_INFO_LIST = [
     ],
     categoriesZh: ['商业'],
     tagsZh: [
-      '新',
       '涡轮机',
       '能源',
       '可再生',
@@ -18230,9 +17310,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'XLogo',
     categories: ['brands', 'communications'],
-    tags: ['new', 'twitter', 'logos', 'social media', 'tweets'],
+    tags: ['twitter', 'logos', 'social media', 'tweets'],
     categoriesZh: ['品牌', '通讯'],
-    tagsZh: ['新', '推特', '标志', '社交媒体', '推文'],
+    tagsZh: ['推特', '标志', '社交媒体', '推文'],
   },
   {
     pascalName: 'XSquare',
@@ -18244,9 +17324,9 @@ export const PHOSPHOR_ICON_INFO_LIST = [
   {
     pascalName: 'Yarn',
     categories: ['games', 'commerce'],
-    tags: ['new', 'knitting', 'sewing'],
+    tags: ['knitting', 'sewing'],
     categoriesZh: ['游戏', '商业'],
-    tagsZh: ['新', '针织', '缝纫'],
+    tagsZh: ['针织', '缝纫'],
   },
   {
     pascalName: 'YinYang',
