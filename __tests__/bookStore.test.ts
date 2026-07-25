@@ -35,15 +35,6 @@ import { useBookStore } from '../src/stores/bookStore';
 
 const STORE_KEY = 'pennyspring-book-store';
 
-const defaultBook: BookRow = {
-  id: 1,
-  name: '默认账本',
-  description: '',
-  background: '',
-  createdTime: 1,
-  updatedTime: 1,
-};
-
 const travelBook: BookRow = {
   id: 2,
   name: '旅行账本',

@@ -7,6 +7,7 @@ import { applyExpense, createExpense, rollbackExpense } from './expense-service'
 import {
   deleteAllJunctions,
   getAssetForBooks,
+  getOptionalAssetForBooks,
   getRequiredForeignKey,
   recalculateAbsorption,
   syncImages,
@@ -82,7 +83,7 @@ async function validateUpdateRecordReferences(
   typeRow: TypeRow
 ): Promise<number> {
   if (typeRow.typeCategory !== RECORD_TYPE_CATEGORY.transfer) {
-    await getAssetForBooks(tx, input as UpdateCashflowRecordInput, 'assetId', 'booksId')
+    await getOptionalAssetForBooks(tx, input as UpdateCashflowRecordInput, 'assetId', 'booksId')
     return 0
   }
 

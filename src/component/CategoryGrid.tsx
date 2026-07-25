@@ -65,6 +65,8 @@ export function CategoryGrid(props: CategoryGridProps) {
       return;
     }
 
+    onSelect(catId);
+
     setExpandedIds(prev => {
       const next = new Set(prev);
       if (next.has(catId)) {
@@ -118,6 +120,7 @@ export function CategoryGrid(props: CategoryGridProps) {
                 list={expandedCat?.children}
                 onSelect={onSelect}
                 value={value}
+                parentId={expandedCat.id}
               />
             )}
           </ListCollapse>
@@ -133,17 +136,27 @@ interface CellsProps extends Pick<CategoryGridProps, 'value'> {
   style?: GridProps['style'];
   onPrimarySelect?: (id: number) => void;
   expandedIds?: Set<number>;
+  parentId?: number;
 }
 
-function Cells({ list, onSelect, value, style, onPrimarySelect, expandedIds }: CellsProps) {
+function Cells({ list, onSelect, value, style, onPrimarySelect, expandedIds, parentId }: CellsProps) {
   const styles = useStyles();
+
+  const handleSecondarySelect = useCallback((childId: number) => {
+    if (value === childId) {
+      onSelect(parentId!);
+    } else {
+      onSelect(childId);
+    }
+  }, [value, onSelect, parentId]);
+
   return (
     <Grid columns={5} gap="small" style={[styles.cells, style]}>
       {list.map(item => (
         <Grid.Item key={item.id}>
           <Cell
             item={item}
-            onSelect={onPrimarySelect ? () => onPrimarySelect(item.id) : () => onSelect(item.id)}
+            onSelect={onPrimarySelect ? () => onPrimarySelect(item.id) : () => handleSecondarySelect(item.id)}
             isSelected={value === item.id || (expandedIds?.has(item.id) ?? false)}
           />
         </Grid.Item>
