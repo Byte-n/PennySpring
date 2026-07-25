@@ -6,7 +6,6 @@ import {
   applyBalanceChange,
   compactForeignKeys,
   computeBalanceChange,
-  getAssetForBooks,
   getOptionalAssetForBooks,
   recalculateAbsorption,
   syncImages,
@@ -40,7 +39,7 @@ async function validateAbsorptionTargets(tx: Tx, typeRow: TypeRow, relatedRecord
 }
 
 export async function createIncome(tx: Tx, input: CreateCashflowRecordInput, typeRow: TypeRow): Promise<RecordRow> {
-  const asset = await getAssetForBooks(tx, input, 'assetId', 'booksId')
+  const asset = await getOptionalAssetForBooks(tx, input, 'assetId', 'booksId')
   const charge = input.charge ?? 0
   const isAbsorption = isAbsorptionBehavior(typeRow.specialBehavior)
   const relatedRecordIds = compactForeignKeys(input.relatedRecordIds)
@@ -64,8 +63,10 @@ export async function createIncome(tx: Tx, input: CreateCashflowRecordInput, typ
     })
     .returning()
 
-  const balanceChange = computeBalanceChange(asset, 'income', input.amount, charge)
-  await applyBalanceChange(tx, asset.id, balanceChange)
+  if (asset) {
+    const balanceChange = computeBalanceChange(asset, 'income', input.amount, charge)
+    await applyBalanceChange(tx, asset.id, balanceChange)
+  }
 
   if (isAbsorption) {
     await validateAbsorptionTargets(tx, typeRow, relatedRecordIds, input.booksId)
