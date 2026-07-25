@@ -148,7 +148,7 @@ export function ExpenseTabScreen() {
           <Grid columns={2}>
             <Grid.Item>
               <SelectionList
-                labelText="付款资产"
+                labelText="付款资产（可选）"
                 loading={assetsLoading}
                 onChange={value => setAssetId(toNumberValue(value) ?? null)}
                 options={assetOptions}

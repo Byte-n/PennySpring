@@ -98,8 +98,6 @@ export function validateAddRecordDraft(
     return undefined;
   }
 
-  if (!hasRequiredId(draft.assetId)) return '请选择资产';
-
   if (tabType === 'income') {
     if (
       isAbsorptionIncomeType(draft.selectedType) &&
@@ -135,7 +133,7 @@ export function buildCreateRecordInput(
   if (tabType === 'expense') {
     return {
       ...baseInput,
-      assetId: draft.assetId!,
+      assetId: draft.assetId ?? 0,
       reimbursable: draft.reimbursable === true
         ? REIMBURSABLE.reimbursable
         : REIMBURSABLE.notReimbursable,
@@ -146,7 +144,7 @@ export function buildCreateRecordInput(
     const relatedRecordIds = compactIds(draft.relatedRecordIds);
     return {
       ...baseInput,
-      assetId: draft.assetId!,
+      assetId: draft.assetId ?? 0,
       reimbursable: REIMBURSABLE.notReimbursable,
       relatedRecordIds,
     };

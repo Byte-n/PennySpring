@@ -180,7 +180,7 @@ export function IncomeTabScreen() {
           <Grid columns={2}>
             <Grid.Item>
               <SelectionList
-                labelText="收款资产"
+                labelText="收款资产（可选）"
                 loading={assetsLoading}
                 onChange={value => setAssetId(toNumberValue(value) ?? null)}
                 options={assetOptions}
