@@ -54,6 +54,14 @@ const useStyles = createUseSheetStyle(token => ({
   networkListFooter: {
     paddingTop: token.paddingXS,
   },
+  serverUrlList: {
+    gap: token.marginXS,
+  },
+  serverUrlHint: {
+    fontSize: token.fontSizeSM,
+    color: token.colorTextTertiary,
+    marginBottom: token.marginXXS,
+  },
 }));
 
 function getImageValue(background: string): ImagePickerValue | undefined {
@@ -158,6 +166,11 @@ export function BookManageScreen() {
     setServerBookList([]);
     setDialogStep('networkServer');
   }, []);
+
+  const existingServerUrls = React.useMemo(() => {
+    const urls = networkRefs.map(ref => ref.serverUrl);
+    return Array.from(new Set(urls));
+  }, [networkRefs]);
 
   const handleConnect = useCallback(async () => {
     const url = networkServerUrl.trim();
@@ -440,6 +453,22 @@ export function BookManageScreen() {
               value={networkServerUrl}
               onChange={setNetworkServerUrl}
             />
+            {existingServerUrls.length > 0 ? (
+              <Column style={styles.serverUrlList}>
+                <Text style={styles.serverUrlHint}>快速选择已有地址：</Text>
+                {existingServerUrls.map(url => (
+                  <Button
+                    key={url}
+                    block
+                    variant="outlined"
+                    size="small"
+                    onPress={() => setNetworkServerUrl(url)}
+                  >
+                    {url}
+                  </Button>
+                ))}
+              </Column>
+            ) : null}
             {networkLoading ? <Loading text="连接中..." /> : null}
           </Column>
         ) : null}
