@@ -5,11 +5,11 @@
   "main": "src/index.ts",
   "types": "src/index.ts",
   "scripts": {
-    "dev": "docusaurus start",
+    "docs:dev": "docusaurus start",
     "docs:build": "docusaurus build --out-dir docs-dist",
     "docs:preview": "docusaurus serve docs-dist",
-    "start": "yarn dev",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "echo 'No tests yet' && exit 0"
   },
   "peerDependencies": {
     "react": "*",

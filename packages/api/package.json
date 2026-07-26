@@ -11,7 +11,8 @@
     "./contract": "./src/contract.ts"
   },
   "scripts": {
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "echo 'No tests yet' && exit 0"
   },
   "dependencies": {
     "@pennyspring/data": "*",

@@ -12,7 +12,8 @@
     "typecheck": "tsc --noEmit",
     "build": "esbuild src/bin.ts --bundle --platform=node --format=esm --target=es2022 --sourcemap --outfile=dist/bin.js --external:hono --external:@hono/node-server --external:better-sqlite3 --external:drizzle-orm --external:drizzle-orm/*",
     "dev": "DB_PATH=server.db tsx src/bin.ts",
-    "start": "export DB_PATH=\"server.db\" && node dist/bin.js"
+    "start": "export DB_PATH=\"server.db\" && node dist/bin.js",
+    "test": "echo 'No tests yet' && exit 0"
   },
   "dependencies": {
     "@hono/node-server": "^1.0.0",

@@ -9,7 +9,7 @@
     "adb-tui": "bin/adb-tui.cjs"
   },
   "scripts": {
-    "start": "tsx src/cli/main.ts",
+    "dev": "tsx src/cli/main.ts",
     "typecheck": "tsc --noEmit",
     "test": "jest --config jest.config.cjs"
   },
