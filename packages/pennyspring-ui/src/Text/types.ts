@@ -3,6 +3,7 @@ import type { GestureResponderEvent, StyleProp, TextStyle } from 'react-native';
 import type { SemanticAliasColor } from '../shares/color';
 
 export type TextSize =
+  | 'xs'
   | 'sm'
   | 'md'
   | 'lg'

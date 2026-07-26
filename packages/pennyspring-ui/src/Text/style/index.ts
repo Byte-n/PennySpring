@@ -17,6 +17,10 @@ interface TextStyleOptions {
 type FontWeightSelector = (token: AliasToken) => TextStyle['fontWeight'];
 
 export const SIZE_MAP: Record<TextSize, SizeConfig> = {
+  xs: {
+    fontSize: t => t.fontSizeXS,
+    lineHeight: t => t.lineHeightXS,
+  },
   sm: {
     fontSize: t => t.fontSizeSM,
     lineHeight: t => t.lineHeightSM,
@@ -65,6 +69,7 @@ export const WEIGHT_MAP: Record<TextWeight, FontWeightSelector> = {
 };
 
 export const SIZE_DEFAULT_WEIGHT_MAP: Record<TextSize, TextWeight> = {
+  xs: 'regular',
   sm: 'regular',
   md: 'regular',
   lg: 'regular',

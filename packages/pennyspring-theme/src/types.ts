@@ -324,6 +324,8 @@ export interface HeightMapToken {
 
 /** 字体映射 token — 字号、行高、字高 */
 export interface FontMapToken {
+  /** 超小号字号 */
+  fontSizeXS: number;
   /** 小号字号 */
   fontSizeSM: number;
   /** 基准字号 */
@@ -342,12 +344,14 @@ export interface FontMapToken {
   fontSizeHeading4: number;
   /** H5 标题字号 */
   fontSizeHeading5: number;
+  /** 超小号行高（像素） */
+  lineHeightXS: number;
+  /** 小号行高（像素） */
+  lineHeightSM: number;
   /** 基准行高（像素） */
   lineHeight: number;
   /** 大号行高（像素） */
   lineHeightLG: number;
-  /** 小号行高（像素） */
-  lineHeightSM: number;
   /** 超大号行高（像素） */
   lineHeightXL: number;
   /** H1 行高（像素） */

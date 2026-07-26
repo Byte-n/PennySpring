@@ -1,12 +1,19 @@
 import React from 'react';
 import { View } from 'react-native';
 import { Text } from '@pennyspring/ui';
-import { useTheme } from '@pennyspring/theme';
+import { createUseSheetStyle } from '@pennyspring/theme';
+
+const useStyles = createUseSheetStyle(token => ({
+  container: {
+    backgroundColor: token.colorBgLayout,
+    flex: 1,
+  },
+}));
 
 export function TestScreen() {
-  const { token } = useTheme();
+  const styles = useStyles();
   return (
-    <View style={{ backgroundColor: token.colorBgLayout, flex: 1 }}>
+    <View style={styles.container}>
       <Text>Test</Text>
       <Text>Test</Text>
       <Text>Test</Text>

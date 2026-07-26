@@ -18,23 +18,23 @@ interface SizeConfig {
   lineHeight: (token: AliasToken) => number;
 }
 
-const SIZE_MAP: Record<ComponentSize, SizeConfig> = {
+export const SIZE_MAP: Record<ComponentSize, SizeConfig> = {
   small: {
-    minHeight: token => token.controlHeight,
+    minHeight: token => token.controlHeightSM,
     paddingHorizontal: token => token.paddingXS,
     gap: token => token.sizeXXS,
     fontSize: token => token.fontSizeSM,
     lineHeight: token => token.lineHeightSM,
   },
   normal: {
-    minHeight: token => token.controlHeightLG,
+    minHeight: token => token.controlHeight,
     paddingHorizontal: token => token.controlPaddingHorizontalSM,
     gap: token => token.sizeXS,
     fontSize: token => token.fontSize,
     lineHeight: token => token.lineHeight,
   },
   large: {
-    minHeight: token => token.controlHeightLG + token.paddingSM,
+    minHeight: token => token.controlHeightLG,
     paddingHorizontal: token => token.padding,
     gap: token => token.sizeSM,
     fontSize: token => token.fontSizeLG,
@@ -127,11 +127,9 @@ export const useStyles = createUseSheetStyle(
         fontFamily: token.fontFamily,
       },
       valueWithLabel: {
-        paddingTop: token.padding + token.paddingXS,
         paddingBottom: 0,
       },
       valueWithoutLabel: {
-        paddingTop: token.paddingXS,
         paddingBottom: 0,
       },
       valueContainer: {

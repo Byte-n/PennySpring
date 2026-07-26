@@ -11,9 +11,9 @@ import {
 import { useTheme } from '@pennyspring/theme';
 import { Column } from '../Column';
 import { Row } from '../Row';
-import { Text } from '../Text';
+import { Text, TextSize } from '../Text';
 import { isPrimitiveContent, renderTextNode } from '../shares/node';
-import { useStyles } from './style';
+import { SIZE_MAP, useStyles } from './style';
 import type { ComponentSize } from '../shares/types';
 import type { InputStatus } from '../Input';
 import type {
@@ -21,10 +21,18 @@ import type {
   DisplayInputOverflow,
   DisplayInputProps,
 } from './types';
-
+import { SIZE_MAP as TEXT_SIZE_MAP } from '../Text/style';
 const REQUIRED_MARK = '*';
 const AnimatedText = createAnimatedComponent(Text);
 const AnimatedView = createAnimatedComponent(View);
+
+function size2BodyTextSize(size: ComponentSize): TextSize {
+  return size === 'small' ? 'sm' : size === 'large' ? 'lg' : 'md';
+}
+
+function size2LabelActiveTextSize(size: ComponentSize): TextSize {
+  return size === 'small' ? 'xs' : size === 'large' ? 'md' : 'sm';
+}
 
 function resolveSize(size?: ComponentSize): ComponentSize {
   return size ?? 'normal';
@@ -38,7 +46,9 @@ function resolveDisplay(display?: DisplayInputDisplay): DisplayInputDisplay {
   return display ?? 'block';
 }
 
-function resolveOverflow(overflow?: DisplayInputOverflow): DisplayInputOverflow {
+function resolveOverflow(
+  overflow?: DisplayInputOverflow,
+): DisplayInputOverflow {
   return overflow ?? 'hidden';
 }
 
@@ -85,16 +95,16 @@ export function DisplayInput({
       ? String(children)
       : undefined
     : hasTextValue
-      ? valueText
-      : undefined;
+    ? valueText
+    : undefined;
   const hasDisplayValue = hasCustomValue || hasTextValue;
   const errorMessage = error !== undefined ? error : errorText;
   const helperMessage = helper !== undefined ? helper : helperText;
-  const isError = resolvedStatus === 'error' ||
+  const isError =
+    resolvedStatus === 'error' ||
     (errorMessage !== undefined && errorMessage !== null);
-  const message = isError && errorMessage !== undefined
-    ? errorMessage
-    : helperMessage;
+  const message =
+    isError && errorMessage !== undefined ? errorMessage : helperMessage;
   const tokenStyles = useStyles({
     disabled: isDisabled,
     display: resolvedDisplay,
@@ -105,27 +115,27 @@ export function DisplayInput({
   const hasFloatingLabel = labelNode !== null && labelNode !== undefined;
   const isFloatingLabelActive = hasFloatingLabel && hasDisplayValue;
   const progress = useSharedValue(isFloatingLabelActive ? 1 : 0);
-  const bodyFontSize = resolvedSize === 'small'
-    ? token.fontSizeSM
-    : resolvedSize === 'large'
-      ? token.fontSizeLG
-      : token.fontSize;
-  const labelFontSize = token.fontSizeSM;
-  const labelLineHeight = token.lineHeightSM;
-  const controlHeight = resolvedSize === 'small'
-    ? token.controlHeight
-    : resolvedSize === 'large'
-      ? token.controlHeightLG + token.paddingSM
-      : token.controlHeightLG;
+  const bodyTextMapFun = TEXT_SIZE_MAP[size2BodyTextSize(resolvedSize)];
+  const bodyFontSize = bodyTextMapFun.fontSize(token);
+  const labelTextMapFun = TEXT_SIZE_MAP[size2LabelActiveTextSize(resolvedSize)];
+  const labelFontSize = labelTextMapFun.fontSize(token);
+  const labelLineHeight = labelTextMapFun.lineHeight(token);
+
+  const controlHeight = SIZE_MAP[resolvedSize].minHeight(token);
   const inactiveLabelTop = controlHeight / 2 - labelLineHeight / 2;
-  const activeLabelTop = token.paddingXXS;
+  const activeLabelTop = 0;
 
   useEffect(() => {
     progress.value = withTiming(isFloatingLabelActive ? 1 : 0, {
       duration: token.motionDurationMid,
       easing: Easing.bezier(...token.motionEaseInOut),
     });
-  }, [isFloatingLabelActive, progress, token.motionDurationMid, token.motionEaseInOut]);
+  }, [
+    isFloatingLabelActive,
+    progress,
+    token.motionDurationMid,
+    token.motionEaseInOut,
+  ]);
 
   const labelPositionAnimatedStyle = useAnimatedStyle(() => ({
     top: interpolate(
@@ -144,9 +154,10 @@ export function DisplayInput({
     lineHeight: labelLineHeight,
   }));
 
-  const labelContent = required === true && typeof labelNode === 'string'
-    ? `${labelNode} ${REQUIRED_MARK}`
-    : labelNode;
+  const labelContent =
+    required === true && typeof labelNode === 'string'
+      ? `${labelNode} ${REQUIRED_MARK}`
+      : labelNode;
   const isTextLabel = isPrimitiveContent(labelContent);
 
   return (
@@ -168,7 +179,7 @@ export function DisplayInput({
         />
         {hasPrefix ? (
           <Row style={[tokenStyles.prefix, styles?.prefix]}>
-            {renderTextNode(prefix, (text) => (
+            {renderTextNode(prefix, text => (
               <Text>{text}</Text>
             ))}
           </Row>
@@ -202,11 +213,7 @@ export function DisplayInput({
             </>
           ) : hasFloatingLabel ? (
             <>
-              <View
-                style={[
-                  tokenStyles.labelWidthPlaceholder,
-                ]}
-              >
+              <View style={[tokenStyles.labelWidthPlaceholder]}>
                 {labelContent}
               </View>
               <AnimatedView
@@ -224,7 +231,9 @@ export function DisplayInput({
             <Column
               style={[
                 tokenStyles.valueContainer,
-                hasFloatingLabel ? tokenStyles.valueWithLabel : tokenStyles.valueWithoutLabel,
+                hasFloatingLabel
+                  ? tokenStyles.valueWithLabel
+                  : tokenStyles.valueWithoutLabel,
                 resolvedOverflow === 'hidden'
                   ? tokenStyles.valueContainerHidden
                   : tokenStyles.valueContainerVisible,
@@ -236,12 +245,14 @@ export function DisplayInput({
           ) : textValue !== undefined ? (
             <Text
               color={isDisabled ? 'disabled' : 'default'}
-              size={resolvedSize === 'small' ? 'sm' : resolvedSize === 'large' ? 'lg' : 'md'}
+              size={size2BodyTextSize(resolvedSize)}
               ellipsizeMode={resolvedOverflow === 'hidden' ? 'tail' : undefined}
               numberOfLines={resolvedOverflow === 'hidden' ? 1 : undefined}
               style={[
                 tokenStyles.value,
-                hasFloatingLabel ? tokenStyles.valueWithLabel : tokenStyles.valueWithoutLabel,
+                hasFloatingLabel
+                  ? tokenStyles.valueWithLabel
+                  : tokenStyles.valueWithoutLabel,
                 styles?.value,
                 isDisabled ? tokenStyles.valueDisabled : null,
               ]}
@@ -252,24 +263,24 @@ export function DisplayInput({
         </View>
         {hasSuffix ? (
           <Row style={[tokenStyles.suffix, styles?.suffix]}>
-            {renderTextNode(suffix, (text) => (
+            {renderTextNode(suffix, text => (
               <Text>{text}</Text>
             ))}
           </Row>
         ) : null}
       </Pressable>
       {message !== undefined && message !== null
-        ? renderTextNode(message, (text) => (
-          <Text
-            color={isError ? 'error' : 'description'}
-            style={[
-              isError ? tokenStyles.error : tokenStyles.helper,
-              isError ? styles?.error : styles?.helper,
-            ]}
-          >
-            {text}
-          </Text>
-        ))
+        ? renderTextNode(message, text => (
+            <Text
+              color={isError ? 'error' : 'description'}
+              style={[
+                isError ? tokenStyles.error : tokenStyles.helper,
+                isError ? styles?.error : styles?.helper,
+              ]}
+            >
+              {text}
+            </Text>
+          ))
         : null}
     </Column>
   );
