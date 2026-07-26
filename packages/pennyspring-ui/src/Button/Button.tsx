@@ -140,7 +140,6 @@ const PRESET_COLORS = [
 ] as const;
 
 const TRANSPARENT = 'transparent';
-const HALF_RATIO = 2;
 
 function isPresetColor(
   color: ButtonColor,
