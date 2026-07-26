@@ -1,13 +1,20 @@
 module.exports = {
   presets: ['module:@react-native/babel-preset'],
   plugins: [
+    'react-native-reanimated/plugin',
     [
       'inline-import',
       {
         extensions: ['.sql'],
       },
     ],
-    // ... 其他插件
-    'react-native-reanimated/plugin', // 必须放在最后！
+    [
+      'module-resolver',
+      {
+        alias: {
+          tslib: './node_modules/tslib/tslib.es6.js',
+        },
+      },
+    ],
   ],
 };

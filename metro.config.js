@@ -14,7 +14,7 @@ const config = {
     // Exclude sibling git worktrees to avoid duplicate Haste package names.
     blockList: [/\.worktrees\/.*/],
     assetExts: assetExts.filter(ext => ext !== 'svg'),
-    sourceExts: [...sourceExts, 'svg'],
+    sourceExts: [...sourceExts, 'svg', 'cjs', 'mjs'],
     // DATA_MODE=remote 时把 @pennyspring/api 重定向到 ./remote（HTTP 客户端，不含 op-sqlite）；
     // 默认（local）走包入口 index.ts → ./local（api1）。SERVER_URL 运行期内联为 follow-up。
     resolveRequest: (context, moduleName, platform) => {
@@ -26,6 +26,12 @@ const config = {
   },
   transformer: {
     babelTransformerPath: require.resolve('react-native-svg-transformer'),
+    getTransformOptions: async () => ({
+      transform: {
+        experimentalImportSupport: false,
+        inlineRequires: true,
+      },
+    }),
   },
 };
 
