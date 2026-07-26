@@ -112,10 +112,15 @@ export const useBookStore = create<BookStore>()(
       initializeBook: async () => {
         set({ initStatus: 'loading', initError: null });
         try {
+          console.log('[BookStore] before rehydrate - currentBookRef:', get().currentBookRef);
           await rehydrateBookStore();
-          const { ref, book } = await getInitialBook(get().currentBookRef);
+          const persistedRef = get().currentBookRef;
+          console.log('[BookStore] after rehydrate - persistedRef:', persistedRef);
+          const { ref, book } = await getInitialBook(persistedRef);
+          console.log('[BookStore] initializeBook - success:', { ref, bookName: book.name });
           set({ currentBook: book, currentBookRef: ref, initStatus: 'success' });
         } catch (error) {
+          console.log('[BookStore] initializeBook - error:', error);
           set({ initStatus: 'error', initError: error as Error });
           throw error;
         }
@@ -132,9 +137,21 @@ export const useBookStore = create<BookStore>()(
         currentBookRef: state.currentBookRef,
       }),
       // shape 由 { currentBook: BookRow } 变为 { currentBookRef }，旧版本数据直接丢弃
-      migrate: (): PersistedBookStore => ({ currentBookRef: null }),
+      migrate: (persistedState: unknown, version: number): PersistedBookStore => {
+        console.log('[BookStore] migrate called - version:', version, 'persistedState:', persistedState);
+        // 版本 < 2 时，旧数据结构不兼容，清空
+        if (version < 2) {
+          return { currentBookRef: null };
+        }
+        // 版本 >= 2，保持原数据
+        return persistedState as PersistedBookStore;
+      },
       skipHydration: true,
       version: 2,
+      // 只在 rehydrate 之后才持久化，避免初始状态覆盖存储
+      onRehydrateStorage: () => (state) => {
+        console.log('[BookStore] onRehydrateStorage - state:', state?.currentBookRef);
+      },
     },
   ),
 );

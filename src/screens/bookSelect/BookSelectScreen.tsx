@@ -1,5 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import { useRequest } from 'ahooks';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useFocusEffect } from '@react-navigation/native';
 import {
   Button,
   Column,
@@ -49,6 +51,7 @@ const useStyles = createUseSheetStyle(token => ({
 export function BookSelectScreen() {
   const styles = useStyles();
   const toast = useToast();
+  const insets = useSafeAreaInsets();
   const currentBook = useBookStore(state => state.currentBook);
   const setCurrentBook = useBookStore(state => state.setCurrentBook);
   const initializeBook = useBookStore(state => state.initializeBook);
@@ -58,11 +61,11 @@ export function BookSelectScreen() {
 
   const [selecting, setSelecting] = useState(false);
 
-  const { data: localBooks = [], loading: localLoading } = useRequest(
+  const { data: localBooks = [], loading: localLoading, refresh: refreshLocal } = useRequest(
     () => localApi.book.getAll(),
   );
 
-  const { data: networkBooks = [], loading: networkLoading } = useRequest(
+  const { data: networkBooks = [], loading: networkLoading, refresh: refreshNetwork } = useRequest(
     async () => {
       const settled = await Promise.allSettled(
         networkRefs.map(async ref => {
@@ -82,6 +85,13 @@ export function BookSelectScreen() {
         );
     },
     { refreshDeps: [JSON.stringify(networkRefs)] },
+  );
+
+  useFocusEffect(
+    useCallback(() => {
+      refreshLocal();
+      refreshNetwork();
+    }, [refreshLocal, refreshNetwork]),
   );
 
   const items: BookListItem[] = [
@@ -139,7 +149,12 @@ export function BookSelectScreen() {
   return (
     <Column style={styles.container}>
       {initError ? (
-        <Column style={styles.errorBanner}>
+        <Column
+          style={[
+            styles.errorBanner,
+            { paddingTop: insets.top + styles.errorBanner.padding },
+          ]}
+        >
           <Text style={styles.errorText}>
             {`账本加载失败：${initError.message}`}
           </Text>
