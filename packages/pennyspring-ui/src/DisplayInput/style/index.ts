@@ -50,6 +50,8 @@ export const useStyles = createUseSheetStyle(
     return {
       root: {
         alignSelf: display === 'inline' ? 'flex-start' : 'stretch',
+        flexBasis: display === 'inline' ? 'auto' : '100%',
+        flexGrow: display === 'inline' ? 0 : 1,
         flexShrink: display === 'inline' ? 1 : 0,
         maxWidth: '100%',
         overflow: 'hidden',

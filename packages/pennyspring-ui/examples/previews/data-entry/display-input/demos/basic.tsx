@@ -16,14 +16,22 @@ export function DisplayInputBasicDemo() {
   return (
     <>
       <Column style={styles.stack}>
-        <DisplayInput labelText="Block (default)" valueText="现金账户" />
+        <DisplayInput
+          display="block"
+          labelText="Block (default)"
+          valueText="现金账户"
+        />
         <DisplayInput display="inline" labelText="Inline" valueText="短值" />
-        <DisplayInput labelText="Empty value" />
+        <DisplayInput display="inline" labelText="Empty value" />
       </Column>
       <Row wrap style={styles.stack}>
-        <DisplayInput labelText="Block (default)" valueText="现金账户" />
-        <DisplayInput display="inline" labelText="Inline" valueText="短值" />
-        <DisplayInput labelText="Empty value" />
+        <DisplayInput
+          display="block"
+          labelText="Inline 1"
+          valueText="现金账户"
+        />
+        <DisplayInput display="inline" labelText="Inline 2" valueText="短值" />
+        <DisplayInput display="inline" labelText="Empty value" />
       </Row>
     </>
   );
