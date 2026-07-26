@@ -24,9 +24,29 @@ const useStyles = createUseSheetStyle(
         width: '85%',
       },
       panel: {
-        padding: token.paddingMD,
         borderRadius: token.borderRadius,
         backgroundColor: token.colorBgElevated,
+      },
+      header: {
+        paddingHorizontal: token.paddingLG,
+        paddingTop: token.paddingLG / 2,
+        paddingBottom: token.paddingLG / 2,
+        marginBottom: token.marginLG / 2,
+        borderBottomWidth: token.lineWidth,
+        borderBottomColor: token.colorBorderSecondary,
+      },
+      body: {
+        paddingHorizontal: token.paddingLG,
+        paddingVertical: token.paddingLG / 2,
+      },
+      footer: {
+        paddingHorizontal: token.paddingLG,
+        marginTop: token.marginLG / 2,
+        paddingTop: token.paddingLG / 2,
+        paddingBottom: token.paddingLG / 2,
+        borderTopWidth: token.lineWidth,
+        borderTopColor: token.colorBorderSecondary,
+        gap: token.marginSM,
       },
     };
   },
@@ -161,16 +181,16 @@ export function Dialog({
         body: tokenStyles.popupBody,
       }}
     >
-      <Column gap="normal" style={[tokenStyles.panel, style]}>
+      <Column style={[tokenStyles.panel, style]}>
         {titleNode ? (
-          <Column gap="small" style={slotStyles?.header}>
+          <Column style={[tokenStyles.header, slotStyles?.header]}>
             {titleNode}
           </Column>
         ) : null}
-        <Column gap="small" style={slotStyles?.body}>
+        <Column style={[tokenStyles.body, slotStyles?.body]}>
           {children}
         </Column>
-        <Row gap="small" justify="end" style={slotStyles?.footer}>
+        <Row gap="small" justify="end" style={[tokenStyles.footer, slotStyles?.footer]}>
           {renderAction(
             cancel,
             cancelText,

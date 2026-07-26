@@ -339,14 +339,10 @@ const useStyles = createUseSheetStyle(
     const borderRadius = shape === 'default' ? token.borderRadius : height / 2;
     const horizontalPadding =
       isCircle && !hasContent ? 0 : sizeConfig.paddingHorizontal(token);
-    const verticalPadding = Math.max(
-      0,
-      (height - sizeConfig.lineHeight(token)) / HALF_RATIO,
-    );
+    const verticalPadding = horizontalPadding / 2;
 
     return {
       root: {
-        minWidth: height,
         width: block ? '100%' : isCircle && !hasContent ? height : undefined,
         paddingHorizontal: horizontalPadding,
         paddingVertical: verticalPadding,
