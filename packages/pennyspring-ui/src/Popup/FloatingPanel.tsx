@@ -204,6 +204,15 @@ const useStyles = createUseSheetStyle(
       root: {
         width: '100%',
         height: '100%',
+        borderTopLeftRadius:
+          position === 'top' ? 0 : token.borderRadiusLG * 2,
+        borderTopRightRadius:
+          position === 'top' ? 0 : token.borderRadiusLG * 2,
+        borderBottomLeftRadius:
+          position === 'top' ? token.borderRadiusLG * 2 : 0,
+        borderBottomRightRadius:
+          position === 'top' ? token.borderRadiusLG * 2 : 0,
+        overflow: 'hidden',
       },
       content: {
         flex: 1,
