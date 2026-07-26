@@ -1,5 +1,5 @@
 import React from 'react';
-import { Row, Text, List, Button, Popup } from '@pennyspring/ui';
+import { Row, Text, List, Button, Popup, Icon } from '@pennyspring/ui';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import type { ListItemProps } from '@pennyspring/ui';
 import {
@@ -8,6 +8,10 @@ import {
   formatSignedAmount,
   type DetailRecordView,
 } from './detailData';
+import { RECORD_TYPE_CATEGORY } from '@pennyspring/api';
+import { useGlobalApi } from '../../../../stores/bookStore';
+import * as Icons from 'phosphor-react-native';
+import type { IconProps as PhosphorIconProps } from 'phosphor-react-native';
 
 const useStyles = createUseSheetStyle(token => ({
   header: {
@@ -17,17 +21,52 @@ const useStyles = createUseSheetStyle(token => ({
   actions: {
     gap: token.marginXS,
   },
+  tagContainer: {
+    flexWrap: 'wrap',
+  },
 }));
 
-function buildItems(view: DetailRecordView): ListItemProps[] {
+function buildItems(view: DetailRecordView, onImagePress: () => void, styles: ReturnType<typeof useStyles>): ListItemProps[] {
   const valueText = (text: string): ListItemProps['right'] => (
     <Text size="md" color="secondary">
       {text}
     </Text>
   );
 
+  const typeDisplay = view.parentTypeName
+    ? `${view.parentTypeName} > ${view.typeName}`
+    : view.typeName;
+
+  const IconComponent = view.iconValue
+    ? (Icons[`${view.iconValue}Icon` as keyof typeof Icons] as React.ComponentType<PhosphorIconProps>)
+    : null;
+
+  const ParentIconComponent = view.parentIconValue
+    ? (Icons[`${view.parentIconValue}Icon` as keyof typeof Icons] as React.ComponentType<PhosphorIconProps>)
+    : null;
+
+  const typeContent = (
+    <Row align="center" gap={8}>
+      {view.parentTypeName && ParentIconComponent && (
+        <>
+          <Icon icon={ParentIconComponent} size="small" color="secondary" />
+          <Text size="md" color="secondary">
+            {view.parentTypeName}
+          </Text>
+          <Text size="md" color="secondary">
+            {'>'}
+          </Text>
+        </>
+      )}
+      {IconComponent && <Icon icon={IconComponent} size="small" color="secondary" />}
+      <Text size="md" color="secondary">
+        {view.parentTypeName ? view.typeName : typeDisplay}
+      </Text>
+    </Row>
+  );
+
   const items: ListItemProps[] = [
-    { titleText: '类目', right: valueText(view.typeName) },
+    { titleText: '类型', right: typeContent },
     {
       titleText: '金额',
       right: (
@@ -39,11 +78,60 @@ function buildItems(view: DetailRecordView): ListItemProps[] {
     { titleText: '时间', right: valueText(formatRecordTime(view.recordTime)) },
   ];
 
-  if (view.assetName) {
-    items.splice(1, 0, { titleText: '账户', right: valueText(view.assetName) });
+  if (view.category === RECORD_TYPE_CATEGORY.transfer) {
+    if (view.assetName && view.intoAssetName) {
+      items.splice(2, 0, {
+        titleText: '资产',
+        right: valueText(`${view.assetName} → ${view.intoAssetName}`),
+      });
+    }
+  } else {
+    if (view.assetName) {
+      items.splice(2, 0, { titleText: '资产', right: valueText(view.assetName) });
+    }
   }
+
   if (view.record.remark) {
     items.push({ titleText: '备注', right: valueText(view.record.remark) });
+  }
+
+  if (view.tags.length > 0) {
+    items.push({
+      titleText: '标签',
+      right: (
+        <Row align="center" gap={8} style={styles.tagContainer}>
+          {view.tags.map(tag => {
+            const TagIconComponent = tag.icon
+              ? (Icons[`${tag.icon}Icon` as keyof typeof Icons] as React.ComponentType<PhosphorIconProps>)
+              : null;
+            return (
+              <Row key={tag.id} align="center" gap={4}>
+                {TagIconComponent && <Icon icon={TagIconComponent} size="small" color="secondary" />}
+                <Text size="md" color="secondary">
+                  {tag.name}
+                </Text>
+              </Row>
+            );
+          })}
+        </Row>
+      ),
+    });
+  }
+
+  if (view.imageCount > 0) {
+    items.push({
+      titleText: '图片',
+      right: (
+        <Button
+          size="small"
+          variant="text"
+          icon="image"
+          onPress={onImagePress}
+        >
+          {view.imageCount} 张
+        </Button>
+      ),
+    });
   }
 
   return items;
@@ -65,6 +153,12 @@ export function RecordDetailPanel({
   onDelete,
 }: RecordDetailPanelProps) {
   const styles = useStyles();
+  const globalApi = useGlobalApi();
+  const handleImagePress = async () => {
+    if (!view) return;
+    await globalApi.record.getDetailById(view.record.id, view.record.booksId);
+    // TODO: 实现图片预览功能
+  };
 
   return (
     <Popup.FloatingPanel
@@ -74,7 +168,7 @@ export function RecordDetailPanel({
       renderHeader={() => (
         <Row align="center" justify="between" style={styles.header}>
           <Text size="lg" weight="semibold" color="heading">
-            {view?.typeName ?? '记录详情'}
+            记录详情
           </Text>
           <Row align="center" style={styles.actions}>
             <Button
@@ -98,7 +192,7 @@ export function RecordDetailPanel({
         </Row>
       )}
     >
-      {view ? <List items={buildItems(view)} /> : null}
+      {view ? <List items={buildItems(view, handleImagePress, styles)} /> : null}
     </Popup.FloatingPanel>
   );
 }
