@@ -29,16 +29,12 @@ const useGridStyles = createUseSheetStyle(() => ({
   row: {
     flexDirection: 'row',
   },
-  placeholder: {
-    flex: 1,
-  },
 }));
 
 const useGridItemStyles = createUseSheetStyle(
-  (_, { gap, span }: { gap: ResolvedGap; span: number }) => ({
+  (_, { gap, span, columns }: { gap: ResolvedGap; span: number; columns: number }) => ({
     item: {
-      flex: span,
-      flexShrink: 0,
+      width: `${(span / columns) * 100}%`,
       paddingHorizontal: gap.horizontal / GAP_DIVISOR,
       paddingVertical: gap.vertical / GAP_DIVISOR,
     },
@@ -82,7 +78,7 @@ export function GridItem({ children, onPress, span, style }: GridItemProps) {
   const columns = context?.columns ?? MIN_COLUMNS;
   const gap = context?.gap ?? { horizontal: 0, vertical: 0 };
   const resolvedSpan = resolveSpan(span, columns);
-  const tokenStyles = useGridItemStyles({ gap, span: resolvedSpan });
+  const tokenStyles = useGridItemStyles({ gap, span: resolvedSpan, columns });
   const itemStyle = [tokenStyles.item, style];
 
   return (
@@ -133,15 +129,11 @@ export function GridRoot({ children, columns, gap, style }: GridProps) {
     }
 
     if (current.length > 0) {
-      const remaining = resolvedColumns - filled;
-      for (let i = 0; i < remaining; i++) {
-        current.push(<View key={`placeholder-${i}`} style={tokenStyles.placeholder} />);
-      }
       result.push(current);
     }
 
     return result;
-  }, [children, resolvedColumns, tokenStyles.placeholder]);
+  }, [children, resolvedColumns]);
 
   return (
     <GridContext.Provider value={context}>
