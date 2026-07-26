@@ -43,24 +43,24 @@ const useStyles = createUseSheetStyle(token => ({
     backgroundColor: token.colorBgLayout,
   },
   dialogBody: {
-    gap: token.marginSM,
+    gap: token.margin,
   },
   typeSelectBody: {
-    gap: token.marginSM,
+    gap: token.margin,
   },
   networkListScroll: {
     maxHeight: token.controlHeightLG * 10,
   },
   networkListFooter: {
-    paddingTop: token.paddingXS,
+    paddingTop: token.paddingSM,
   },
   serverUrlList: {
-    gap: token.marginXS,
+    gap: token.marginSM,
   },
   serverUrlHint: {
     fontSize: token.fontSizeSM,
     color: token.colorTextTertiary,
-    marginBottom: token.marginXXS,
+    marginBottom: token.marginXS,
   },
 }));
 
