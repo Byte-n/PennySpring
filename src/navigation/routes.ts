@@ -14,3 +14,7 @@ export const HOME_TAB_ROUTES = {
   DetailTab: 'DetailTab',
   ChartTab: 'ChartTab',
 } as const;
+
+export const BOOK_SELECT_ROUTES = {
+  BookSelect: 'BookSelect',
+} as const;

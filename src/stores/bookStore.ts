@@ -79,11 +79,16 @@ async function getInitialBook(
   return getLocalDefault();
 }
 
+type InitStatus = 'idle' | 'loading' | 'success' | 'error';
+
 interface BookStore {
   currentBook: BookEntry | null;
   currentBookRef: CurrentBookRef | null;
+  initStatus: InitStatus;
+  initError: Error | null;
   setCurrentBook: (ref: CurrentBookRef, book: BookEntry) => void;
   initializeBook: () => Promise<void>;
+  resetInitStatus: () => void;
 }
 
 interface PersistedBookStore {
@@ -97,14 +102,27 @@ export const useBookStore = create<BookStore>()(
     (set, get) => ({
       currentBook: null,
       currentBookRef: null,
+      initStatus: 'idle',
+      initError: null,
+
       setCurrentBook: (ref, book) => {
         set({ currentBook: book, currentBookRef: ref });
       },
 
       initializeBook: async () => {
-        await rehydrateBookStore();
-        const { ref, book } = await getInitialBook(get().currentBookRef);
-        set({ currentBook: book, currentBookRef: ref });
+        set({ initStatus: 'loading', initError: null });
+        try {
+          await rehydrateBookStore();
+          const { ref, book } = await getInitialBook(get().currentBookRef);
+          set({ currentBook: book, currentBookRef: ref, initStatus: 'success' });
+        } catch (error) {
+          set({ initStatus: 'error', initError: error as Error });
+          throw error;
+        }
+      },
+
+      resetInitStatus: () => {
+        set({ initStatus: 'idle', initError: null });
       },
     }),
     {

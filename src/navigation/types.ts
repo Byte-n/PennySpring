@@ -1,4 +1,4 @@
-import type { ROOT_ROUTES } from './routes';
+import type { BOOK_SELECT_ROUTES, ROOT_ROUTES } from './routes';
 
 export type RootStackParamList = {
   [ROOT_ROUTES.Home]: undefined;
@@ -10,4 +10,8 @@ export type RootStackParamList = {
   [ROOT_ROUTES.TypeManage]: undefined;
   [ROOT_ROUTES.AssetManage]: undefined;
   [ROOT_ROUTES.IconPreview]: undefined;
+};
+
+export type BookSelectStackParamList = {
+  [BOOK_SELECT_ROUTES.BookSelect]: undefined;
 };
