@@ -66,10 +66,8 @@ describe('SelectionList', () => {
     });
 
     act(() => {
-      const root = testRenderer.root.findByProps({ testID: 'selection-list-root' });
-      root.findAll(node =>
-        typeof node.props.onPress === 'function' && typeof node.props.style === 'function'
-      )[0].props.onPress();
+      const displayInput = testRenderer.root.findByType(DisplayInput);
+      displayInput.props.onPress();
     });
 
     expect(onOpenChange).toHaveBeenCalledWith(true);
@@ -186,7 +184,7 @@ describe('SelectionList', () => {
       },
     });
 
-    const root = testRenderer.root.findByProps({ testID: 'selection-list-root' });
+    const root = testRenderer.root.findByType(DisplayInput);
     const floatingPanel = testRenderer.root.findByType(Popup.FloatingPanel);
 
     expect(root.props.style).toBe(rootStyle);

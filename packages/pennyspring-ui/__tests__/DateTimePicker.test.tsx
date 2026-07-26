@@ -1,5 +1,6 @@
 import React from 'react';
 import renderer, { act } from 'react-test-renderer';
+import { DisplayInput } from '../src/DisplayInput';
 
 jest.mock('@react-navigation/material-top-tabs', () => ({
   createMaterialTopTabNavigator: () => ({
@@ -51,7 +52,6 @@ jest.mock('react-native-reanimated', () => {
 import {
   DateTimePicker,
   type DateTimePickerStyles,
-  DisplayInput,
   Text,
 } from '../src';
 
@@ -390,7 +390,8 @@ it('does not open popup when readonly is true and trigger is pressed', () => {
 
   // Act
   act(() => {
-    testRenderer!.root.findByProps({ testID: 'picker-trigger' }).props.onPress();
+    const displayInput = testRenderer!.root.findByType(DisplayInput);
+    displayInput.props.onPress();
   });
 
   // Assert

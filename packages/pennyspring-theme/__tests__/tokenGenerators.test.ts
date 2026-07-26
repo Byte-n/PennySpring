@@ -117,9 +117,9 @@ describe('genControlHeight', () => {
     genControlHeight = require('../src/algorithms/genControlHeight').genControlHeight;
   });
 
-  it('controlHeightSM = 0.75x base', () => {
+  it('controlHeightSM = 0.85x base', () => {
     const heights = genControlHeight(32);
-    expect(heights.controlHeightSM).toBe(24);
+    expect(heights.controlHeightSM).toBe(27.2);
   });
 
   it('controlHeightXS = 0.5x base', () => {
@@ -127,9 +127,9 @@ describe('genControlHeight', () => {
     expect(heights.controlHeightXS).toBe(16);
   });
 
-  it('controlHeightLG = 1.25x base', () => {
+  it('controlHeightLG = 1.15x base', () => {
     const heights = genControlHeight(32);
-    expect(heights.controlHeightLG).toBe(40);
+    expect(heights.controlHeightLG).toBe(36.8);
   });
 });
 

@@ -1,5 +1,6 @@
 import React from 'react';
 import renderer, { act } from 'react-test-renderer';
+import { DisplayInput } from '../src/DisplayInput';
 
 jest.mock('react-native-gesture-handler', () => {
   const ReactModule = require('react');
@@ -385,7 +386,8 @@ it('prevents opening when readonly is true', () => {
   });
 
   act(() => {
-    testRenderer!.root.findByProps({ testID: 'picker-trigger' }).props.onPress();
+    const displayInput = testRenderer!.root.findByType(DisplayInput);
+    displayInput.props.onPress();
   });
 
   expect(onOpenChange).not.toHaveBeenCalledWith(true, { reason: 'trigger' });

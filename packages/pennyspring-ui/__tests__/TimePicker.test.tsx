@@ -1,5 +1,6 @@
 import React from 'react';
 import renderer, { act } from 'react-test-renderer';
+import { DisplayInput } from '../src/DisplayInput';
 
 jest.mock('@react-navigation/material-top-tabs', () => ({
   createMaterialTopTabNavigator: () => ({
@@ -49,7 +50,6 @@ jest.mock('react-native-reanimated', () => {
 });
 
 import {
-  DisplayInput,
   Text,
   TimePicker,
 } from '../src';
@@ -338,7 +338,7 @@ describe('readonly behavior', () => {
       );
     });
 
-    const trigger = testRenderer!.root.findByProps({ testID: 'picker-trigger' });
+    const trigger = testRenderer!.root.findByType(DisplayInput);
     act(() => {
       trigger.props.onPress();
     });

@@ -188,7 +188,8 @@ it('does not open when readonly', () => {
   });
 
   act(() => {
-    testRenderer!.root.findByProps({ testID: 'picker-trigger' }).props.onPress();
+    const displayInput = testRenderer!.root.findByType(DisplayInput);
+    displayInput.props.onPress();
   });
 
   expect(onOpenChange).not.toHaveBeenCalled();
@@ -267,7 +268,8 @@ it('opens from trigger in uncontrolled mode', () => {
   });
 
   act(() => {
-    testRenderer!.root.findByProps({ testID: 'picker-trigger' }).props.onPress();
+    const displayInput = testRenderer!.root.findByType(DisplayInput);
+    displayInput.props.onPress();
   });
 
   expect(onOpenChange).toHaveBeenCalledWith(true, { reason: 'trigger' });
@@ -287,7 +289,8 @@ it('requests open in controlled mode', () => {
   });
 
   act(() => {
-    testRenderer!.root.findByProps({ testID: 'picker-trigger' }).props.onPress();
+    const displayInput = testRenderer!.root.findByType(DisplayInput);
+    displayInput.props.onPress();
   });
 
   expect(onOpenChange).toHaveBeenCalledWith(true, { reason: 'trigger' });
@@ -514,7 +517,8 @@ it('commits uncontrolled main value on ok', () => {
   act(() => {
     testRenderer!.root.findByProps({ testID: 'picker-item-0-1' }).props.onPress();
     testRenderer!.root.findByProps({ testID: 'picker-ok-button' }).props.onPress();
-    testRenderer!.root.findByProps({ testID: 'picker-trigger' }).props.onPress();
+    const displayInput = testRenderer!.root.findByType(DisplayInput);
+    displayInput.props.onPress();
   });
 
   expect(onOk).toHaveBeenCalledWith(['b'], expect.objectContaining({
@@ -600,7 +604,8 @@ it('disabled picker blocks trigger and ok', () => {
     );
   });
   act(() => {
-    testRenderer!.root.findByProps({ testID: 'picker-trigger' }).props.onPress();
+    const displayInput = testRenderer!.root.findByType(DisplayInput);
+    displayInput.props.onPress();
     testRenderer!.root.findByProps({ testID: 'picker-ok-button' }).props.onPress();
   });
 

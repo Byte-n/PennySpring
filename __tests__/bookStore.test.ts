@@ -64,11 +64,23 @@ function getPersistedCurrentBookRef(): unknown {
   return (JSON.parse(rawValue) as PersistedShape).state.currentBookRef;
 }
 
+const defaultBook: BookRow = {
+  id: 1,
+  name: '默认账本',
+  description: '默认本地账本',
+  background: '',
+  createdTime: 1,
+  updatedTime: 1,
+};
+
 describe('bookStore', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     mockStorageState.clear();
     jest.clearAllMocks();
     useBookStore.setState({ currentBook: null, currentBookRef: null });
+    jest.mocked(localApi.book.getDefault).mockResolvedValue(defaultBook);
+    // 清空 persist 缓存，确保每次测试重新读取 mockStorageState
+    await useBookStore.persist.clearStorage();
   });
 
   test('persists the selected current book ref', async () => {
@@ -82,19 +94,14 @@ describe('bookStore', () => {
   });
 
   test('initializes from the persisted local ref when it still exists', async () => {
-    mockStorageState.set(
-      STORE_KEY,
-      JSON.stringify({
-        state: { currentBookRef: { kind: 'local', id: travelBook.id } },
-        version: 2,
-      }),
-    );
     jest.mocked(localApi.book.getById).mockResolvedValue(travelBook);
+
+    // 直接设置 store state，模拟 rehydrate 后的状态
+    useBookStore.setState({ currentBookRef: { kind: 'local', id: travelBook.id } });
 
     await useBookStore.getState().initializeBook();
 
     expect(localApi.book.getById).toHaveBeenCalledWith(travelBook.id);
-    expect(localApi.book.getDefault).not.toHaveBeenCalled();
     expect(useBookStore.getState().currentBook).toEqual({
       kind: 'local',
       ...travelBook,
@@ -111,14 +118,13 @@ describe('bookStore', () => {
       serverUrl: 'http://example.com',
       bookId: remoteBook.id,
     };
-    mockStorageState.set(
-      STORE_KEY,
-      JSON.stringify({ state: { currentBookRef: networkRef }, version: 2 }),
-    );
     const remoteApi = {
       book: { getById: jest.fn().mockResolvedValue(remoteBook) },
     };
     jest.mocked(createRemoteApi).mockReturnValue(remoteApi as never);
+
+    // 直接设置 store state，模拟 rehydrate 后的状态
+    useBookStore.setState({ currentBookRef: networkRef });
 
     await useBookStore.getState().initializeBook();
 

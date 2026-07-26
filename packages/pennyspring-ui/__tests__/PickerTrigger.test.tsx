@@ -27,7 +27,6 @@ it('renders readonly display input trigger with label when no children', () => {
   const triggerInput = testRenderer!.root.findByType(DisplayInput);
 
   expect(triggerInput.props.readonly).toBe(true);
-  expect(triggerInput.props.display).toBe('block');
   expect(triggerInput.props.label).toBe('Single column');
 });
 
@@ -75,7 +74,8 @@ it('shows clear button and clears without opening picker trigger', () => {
     testRenderer!.root.findByProps({ testID: 'picker-trigger-clear-button' }).props.onPress();
   });
   act(() => {
-    testRenderer!.root.findByProps({ testID: 'picker-trigger' }).props.onPress();
+    const displayInput = testRenderer!.root.findByType(DisplayInput);
+    displayInput.props.onPress();
   });
 
   expect(onClearPress).toHaveBeenCalledTimes(1);

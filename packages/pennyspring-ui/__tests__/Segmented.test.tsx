@@ -171,7 +171,7 @@ describe('Segmented - Text semantic props', () => {
     });
     const selectedText = testRenderer.root.findByProps({ children: 'day' });
     const unselectedText = testRenderer.root.findByProps({ children: 'month' });
-    expect(selectedText.props.color).toBe('heading');
+    expect(selectedText.props.color).toBe('primary');
     expect(unselectedText.props.color).toBe('secondary');
   });
   it('applies disabled color to disabled label', () => {

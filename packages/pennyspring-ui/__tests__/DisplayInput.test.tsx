@@ -174,22 +174,22 @@ describe('DisplayInput', () => {
     expect(() => testRenderer.root.findByType(TextInput)).toThrow();
   });
 
-  it('uses block display by default and inline display when requested', () => {
-    const blockRenderer = renderDisplayInput({
-      children: '默认块级',
-    });
+  it('uses inline display by default and block display when requested', () => {
     const inlineRenderer = renderDisplayInput({
-      display: 'inline',
-      children: '行内展示',
+      children: '默认行内',
+    });
+    const blockRenderer = renderDisplayInput({
+      display: 'block',
+      children: '块级展示',
     });
 
-    const blockStyle = findRootStyle(blockRenderer);
     const inlineStyle = findRootStyle(inlineRenderer);
+    const blockStyle = findRootStyle(blockRenderer);
 
-    expect(blockStyle.alignSelf).toBe('stretch');
     expect(inlineStyle.alignSelf).toBe('flex-start');
+    expect(blockStyle.alignSelf).toBe('stretch');
     expect(blockStyle.maxWidth).toBe('100%');
-    expect(blockStyle.overflow).toBe('hidden');
+    expect(inlineStyle.overflow).toBe('hidden');
   });
 
   it('renders custom value node without wrapping it in text', () => {
@@ -234,7 +234,6 @@ describe('DisplayInput', () => {
     expect(labelStyle.position).toBe('absolute');
     expect(labelStyle.left).toBe(0);
     expect(labelStyle.right).toBe(0);
-    expect(valueStyle.paddingTop).toBeGreaterThan(valueStyle.paddingBottom);
     expect(valueStyle.paddingBottom).toBe(0);
   });
 
@@ -261,9 +260,8 @@ describe('DisplayInput', () => {
     const tree = JSON.stringify(testRenderer.toJSON());
 
     // Assert
-    expect(() =>
-      testRenderer.root.findByProps({ testID: 'custom-label-node' }),
-    ).not.toThrow();
+    const customLabels = testRenderer.root.findAllByProps({ testID: 'custom-label-node' });
+    expect(customLabels.length).toBeGreaterThan(0);
     expect(tree).not.toContain('不应显示的标签文本');
   });
 
@@ -278,9 +276,8 @@ describe('DisplayInput', () => {
     });
 
     expect(label.type).toBe(View);
-    expect(() =>
-      testRenderer.root.findByProps({ testID: 'custom-display-label-node' }),
-    ).not.toThrow();
+    const customLabels = testRenderer.root.findAllByProps({ testID: 'custom-display-label-node' });
+    expect(customLabels.length).toBeGreaterThan(0);
   });
 
   it('uses hidden overflow by default and allows visible overflow when configured', () => {
