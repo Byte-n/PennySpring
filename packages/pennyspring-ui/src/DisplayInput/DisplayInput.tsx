@@ -43,7 +43,7 @@ function resolveStatus(status?: InputStatus): InputStatus {
 }
 
 function resolveDisplay(display?: DisplayInputDisplay): DisplayInputDisplay {
-  return display ?? 'block';
+  return display ?? 'inline';
 }
 
 function resolveOverflow(
