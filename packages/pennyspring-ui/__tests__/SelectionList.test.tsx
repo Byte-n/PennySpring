@@ -170,7 +170,6 @@ describe('SelectionList', () => {
 
     expect(triggerInput.props.display).toBe('block');
     expect(triggerInput.props.label).toBe('Payment method');
-    expect(triggerInput.props.placeholder).toBe('请选择');
     expect(triggerInput.props.prefix).toBe(prefix);
     expect(triggerInput.props.required).toBe(true);
     expect(triggerInput.props.suffix).toBe(suffix);

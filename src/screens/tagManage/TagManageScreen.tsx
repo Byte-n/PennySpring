@@ -228,8 +228,7 @@ export function TagManageScreen() {
           <Input placeholder="标签名称" value={name} onChange={setName} />
           <DisplayInput
             labelText="图标"
-            placeholder="未选图标"
-            valueText={icon}
+            valueText={icon || '未选图标'}
             prefix={
               icon ? (
                 <Icon icon={getPhosphorIconComponent(icon)} size="small" />

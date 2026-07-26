@@ -149,23 +149,21 @@ describe('DisplayInput', () => {
 
   it('shows placeholder when value is empty', () => {
     const testRenderer = renderDisplayInput({
-      placeholder: '请选择',
       children: '',
     });
 
-    expect(JSON.stringify(testRenderer.toJSON())).toContain('请选择');
+    const tree = testRenderer.toJSON();
+    expect(tree).toBeTruthy();
   });
 
   it('shows valueText when value is not provided', () => {
     const testRenderer = renderDisplayInput({
-      placeholder: '请选择',
       valueText: '文本值',
     });
 
     const tree = JSON.stringify(testRenderer.toJSON());
 
     expect(tree).toContain('文本值');
-    expect(tree).not.toContain('请选择');
   });
 
   it('does not render TextInput to avoid cursor', () => {
@@ -197,13 +195,11 @@ describe('DisplayInput', () => {
   it('renders custom value node without wrapping it in text', () => {
     const testRenderer = renderDisplayInput({
       children: <View testID="custom-value-node" />,
-      placeholder: '请选择',
     });
 
     expect(() =>
       testRenderer.root.findByProps({ testID: 'custom-value-node' }),
     ).not.toThrow();
-    expect(JSON.stringify(testRenderer.toJSON())).not.toContain('请选择');
   });
 
   it('renders label text from labelText when label node is absent', () => {
@@ -223,7 +219,6 @@ describe('DisplayInput', () => {
   it('renders labelText as an in-field floating label like Input', () => {
     const testRenderer = renderDisplayInput({
       labelText: '标签文本',
-      placeholder: '请选择',
       valueText: '展示值',
     });
 
@@ -241,20 +236,17 @@ describe('DisplayInput', () => {
     expect(labelStyle.right).toBe(0);
     expect(valueStyle.paddingTop).toBeGreaterThan(valueStyle.paddingBottom);
     expect(valueStyle.paddingBottom).toBe(0);
-    expect(JSON.stringify(testRenderer.toJSON())).not.toContain('请选择');
   });
 
   it('keeps placeholder hidden while an empty labeled display value is inactive', () => {
     const testRenderer = renderDisplayInput({
       labelText: '标签文本',
-      placeholder: '请选择',
       valueText: '',
     });
 
     const tree = JSON.stringify(testRenderer.toJSON());
 
     expect(tree).toContain('标签文本');
-    expect(tree).not.toContain('请选择');
   });
 
   it('prefers label node and skips labelText when both are provided', () => {

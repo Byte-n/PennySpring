@@ -6,36 +6,34 @@ const useStyles = createUseSheetStyle(token => ({
   stack: {
     gap: token.marginSM,
   },
-  overflowVisible: {
-    overflow: 'visible',
-  },
-  customValue: {
-    color: token.colorSuccessText,
-  },
 }));
 
 export const displayInputValueTextDemoTitle = 'Value text';
 
 export function DisplayInputValueTextDemo() {
   const styles = useStyles();
-  const [_pressedValue, setPressedValue] = React.useState('未点击');
 
   return (
-    <>
-      <Column style={styles.stack}>
-        <DisplayInput
-          labelText="valueText"
-          onPress={() => setPressedValue('点击了 valueText')}
-          placeholder="请选择"
-          valueText="通过 valueText 展示文本值"
-        />
-        <DisplayInput
-          labelText="placeholder fallback"
-          onPress={() => setPressedValue('点击了 placeholder fallback')}
-          placeholder="当未提供 value/valueText 时显示我"
-        />
-      </Column>
-    </>
+    <Column style={styles.stack}>
+      <DisplayInput
+        labelText="With valueText"
+        valueText="通过 valueText 展示文本值"
+      />
+      <DisplayInput
+        labelText="Empty valueText"
+        valueText=""
+      />
+      <DisplayInput
+        labelText="Number as child"
+      >
+        {12345}
+      </DisplayInput>
+      <DisplayInput
+        labelText="String as child"
+      >
+        字符串作为 children
+      </DisplayInput>
+    </Column>
   );
 }
 

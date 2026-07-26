@@ -4,7 +4,6 @@ import {
   Card,
   Checkbox,
   Column,
-  Grid,
   ImagePicker,
   KeyboardAwareFormScroll,
   Row,
@@ -20,10 +19,7 @@ import { RemarkInput } from '../components/RemarkInput';
 import { useCategoryItems } from '../useCategoryItems';
 import { useAddRecordContext } from '../AddRecordContext';
 import { RecordDateTimeField } from '../components/RecordDateTimeField';
-import {
-  saveAddRecordDraft,
-  validateAddRecordDraft,
-} from '../addRecordDraft';
+import { saveAddRecordDraft, validateAddRecordDraft } from '../addRecordDraft';
 import { toAssetOptions, toTagOptions } from '../recordOptions';
 import { toNumberValue, toNumberValues } from '../selectValues';
 import { useAddRecordResources } from '../useAddRecordResources';
@@ -99,7 +95,10 @@ export function ExpenseTabScreen() {
       setSubmitting(true);
       await saveAddRecordDraft('expense', draft, editingRecordId);
       reset();
-      toast.show({ messageText: editingRecordId !== undefined ? '已更新支出' : '已新增支出' });
+      toast.show({
+        messageText:
+          editingRecordId !== undefined ? '已更新支出' : '已新增支出',
+      });
       navigation.goBack();
     } catch (error: unknown) {
       toast.show({
@@ -144,72 +143,59 @@ export function ExpenseTabScreen() {
           </Text>
         ) : null}
         <Card>
-          {/*更多*/}
-          <Grid columns={2}>
-            <Grid.Item>
-              <SelectionList
-                labelText="付款资产（可选）"
-                loading={assetsLoading}
-                onChange={value => setAssetId(toNumberValue(value) ?? null)}
-                options={assetOptions}
-                searchable
-                texts={{
-                  headerText: '选择付款资产',
-                  searchPlaceholder: '搜索资产',
-                  emptyText: '暂无可用资产',
-                }}
-                value={assetId ?? undefined}
-              />
-            </Grid.Item>
-            <Grid.Item>
-              <RecordDateTimeField
-                value={recordTime}
-                onChange={setRecordTime}
-              />
-            </Grid.Item>
-          </Grid>
-          <Grid columns={3}>
-            <Grid.Item>
-              <ImagePicker
-                multiple
-                maxCount={3}
-                onError={(error: unknown) => {
-                  toast.show({
-                    messageText:
-                      error instanceof Error ? error.message : '选择图片失败',
-                  });
-                }}
-                labelText="图片"
-                value={images}
-                onChange={setImages}
-              />
-            </Grid.Item>
-            <Grid.Item>
-              <SelectionList
-                displayMode="tag"
-                labelText="标签"
-                loading={tagsLoading}
-                mode="multiple"
-                onChange={value => setTags(toNumberValues(value))}
-                options={tagOptions}
-                searchable
-                texts={{
-                  headerText: '选择标签',
-                  searchPlaceholder: '搜索标签',
-                  emptyText: '暂无标签',
-                  confirmText: '确定',
-                }}
-                value={tags}
-              />
-            </Grid.Item>
-            <Grid.Item>
-              <Row justify="center" align="center" style={styles.switchCell}>
-                <Checkbox value={isReimbursable} onChange={setIsReimbursable}>
-                  <Text>报销</Text>
-                </Checkbox>
-              </Row>
-            </Grid.Item>
-          </Grid>
+          <Row wrap gap={10}>
+            <SelectionList
+              labelText="付款资产（可选）"
+              loading={assetsLoading}
+              onChange={value => setAssetId(toNumberValue(value) ?? null)}
+              options={assetOptions}
+              searchable
+              texts={{
+                headerText: '选择付款资产',
+                searchPlaceholder: '搜索资产',
+                emptyText: '暂无可用资产',
+              }}
+              value={assetId ?? undefined}
+            />
+            <RecordDateTimeField
+              value={recordTime}
+              onChange={setRecordTime}
+            />
+            <ImagePicker
+              multiple
+              maxCount={3}
+              onError={(error: unknown) => {
+                toast.show({
+                  messageText:
+                    error instanceof Error ? error.message : '选择图片失败',
+                });
+              }}
+              labelText="图片"
+              value={images}
+              onChange={setImages}
+            />
+            <SelectionList
+              displayMode="tag"
+              labelText="标签"
+              loading={tagsLoading}
+              mode="multiple"
+              onChange={value => setTags(toNumberValues(value))}
+              options={tagOptions}
+              searchable
+              texts={{
+                headerText: '选择标签',
+                searchPlaceholder: '搜索标签',
+                emptyText: '暂无标签',
+                confirmText: '确定',
+              }}
+              value={tags}
+            />
+            <Row justify="center" align="center" style={styles.switchCell}>
+              <Checkbox value={isReimbursable} onChange={setIsReimbursable}>
+                <Text>报销</Text>
+              </Checkbox>
+            </Row>
+          </Row>
         </Card>
         <RemarkInput />
         <Button block loading={submitting} onPress={handleSave} type="primary">

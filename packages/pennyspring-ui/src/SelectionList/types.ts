@@ -381,7 +381,6 @@ type DisplayInputConfig = Omit<
   | 'disabled'
   | 'label'
   | 'onPress'
-  | 'placeholder'
   | 'readonly'
   | 'size'
   | 'status'
@@ -426,6 +425,12 @@ export interface SelectionListProps
    * 传入后由外部完全控制节点渲染。
    */
   label?: ReactNode;
+
+  /**
+   * 未选中时的占位文本。
+   * 默认为"请选择"。
+   */
+  placeholder?: string;
 
   /**
    * 辅助说明文本。

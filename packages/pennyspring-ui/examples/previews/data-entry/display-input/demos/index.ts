@@ -4,17 +4,21 @@ import {
   DisplayInputCustomValueNodeDemo,
 } from './custom-value-node';
 import {
-  displayInputInputComparisonDemoTitle,
-  DisplayInputInputComparisonDemo,
-} from './input-comparison';
+  displayInputDisplayDemoTitle,
+  DisplayInputDisplayDemo,
+} from './display';
+import {
+  displayInputOverflowDemoTitle,
+  DisplayInputOverflowDemo,
+} from './overflow';
 import {
   displayInputOverflowVisibleDemoTitle,
   DisplayInputOverflowVisibleDemo,
 } from './overflow-visible';
 import {
-  displayInputOverflowDemoTitle,
-  DisplayInputOverflowDemo,
-} from './overflow';
+  displayInputSizeDemoTitle,
+  DisplayInputSizeDemo,
+} from './size';
 import { displayInputStateDemoTitle, DisplayInputStateDemo } from './state';
 import {
   displayInputValueTextDemoTitle,
@@ -28,24 +32,14 @@ export const displayInputDemos = [
     Component: DisplayInputBasicDemo,
   },
   {
-    id: 'custom-value-node',
-    title: displayInputCustomValueNodeDemoTitle,
-    Component: DisplayInputCustomValueNodeDemo,
+    id: 'size',
+    title: displayInputSizeDemoTitle,
+    Component: DisplayInputSizeDemo,
   },
   {
-    id: 'input-comparison',
-    title: displayInputInputComparisonDemoTitle,
-    Component: DisplayInputInputComparisonDemo,
-  },
-  {
-    id: 'overflow-visible',
-    title: displayInputOverflowVisibleDemoTitle,
-    Component: DisplayInputOverflowVisibleDemo,
-  },
-  {
-    id: 'overflow',
-    title: displayInputOverflowDemoTitle,
-    Component: DisplayInputOverflowDemo,
+    id: 'display',
+    title: displayInputDisplayDemoTitle,
+    Component: DisplayInputDisplayDemo,
   },
   {
     id: 'state',
@@ -56,5 +50,20 @@ export const displayInputDemos = [
     id: 'value-text',
     title: displayInputValueTextDemoTitle,
     Component: DisplayInputValueTextDemo,
+  },
+  {
+    id: 'custom-value-node',
+    title: displayInputCustomValueNodeDemoTitle,
+    Component: DisplayInputCustomValueNodeDemo,
+  },
+  {
+    id: 'overflow',
+    title: displayInputOverflowDemoTitle,
+    Component: DisplayInputOverflowDemo,
+  },
+  {
+    id: 'overflow-visible',
+    title: displayInputOverflowVisibleDemoTitle,
+    Component: DisplayInputOverflowVisibleDemo,
   },
 ];

@@ -3,9 +3,9 @@ import {
   Button,
   Card,
   Column,
-  Grid,
   ImagePicker,
   KeyboardAwareFormScroll,
+  Row,
   SelectionList,
   Text,
   useToast,
@@ -187,90 +187,78 @@ export function TransferTabScreen() {
           </Text>
         ) : null}
         <Card>
-          <Grid columns={2}>
-            <Grid.Item>
-              <SelectionList
-                labelText="转出资产"
-                loading={assetsLoading}
-                onChange={value => setAssetId(toNumberValue(value) ?? null)}
-                options={fromAssetOptions}
-                searchable
-                texts={{
-                  headerText: '选择转出资产',
-                  searchPlaceholder: '搜索资产',
-                  emptyText: '暂无可用转出资产',
-                }}
-                value={assetId ?? undefined}
-              />
-            </Grid.Item>
-            <Grid.Item>
-              <SelectionList
-                labelText="转入资产"
-                loading={assetsLoading}
-                onChange={value =>
-                  setIntoAssetId(toNumberValue(value) ?? null)
-                }
-                options={intoAssetOptions}
-                searchable
-                texts={{
-                  headerText: '选择转入资产',
-                  searchPlaceholder: '搜索资产',
-                  emptyText: '暂无可用转入资产',
-                }}
-                value={intoAssetId ?? undefined}
-              />
-            </Grid.Item>
-          </Grid>
-          <Grid columns={2}>
-            <Grid.Item>
-              <MoneyField
-                labelText="手续费"
-                value={charge}
-                onChange={setCharge}
-              />
-            </Grid.Item>
-            <Grid.Item>
-              <RecordDateTimeField
-                value={recordTime}
-                onChange={setRecordTime}
-              />
-            </Grid.Item>
-          </Grid>
-          <Grid columns={2}>
-            <Grid.Item>
-              <ImagePicker
-                multiple
-                maxCount={3}
-                onError={(error: unknown) => {
-                  toast.show({
-                    messageText:
-                      error instanceof Error ? error.message : '选择图片失败',
-                  });
-                }}
-                labelText="图片"
-                value={images}
-                onChange={setImages}
-              />
-            </Grid.Item>
-            <Grid.Item>
-              <SelectionList
-                displayMode="tag"
-                labelText="标签"
-                loading={tagsLoading}
-                mode="multiple"
-                onChange={value => setTags(toNumberValues(value))}
-                options={tagOptions}
-                searchable
-                texts={{
-                  headerText: '选择标签',
-                  searchPlaceholder: '搜索标签',
-                  emptyText: '暂无标签',
-                  confirmText: '确定',
-                }}
-                value={tags}
-              />
-            </Grid.Item>
-          </Grid>
+          <Row wrap gap={10}>
+            <SelectionList
+              labelText="转出资产"
+              loading={assetsLoading}
+              onChange={value => setAssetId(toNumberValue(value) ?? null)}
+              options={fromAssetOptions}
+              searchable
+              styles={{ root: styles.formField }}
+              texts={{
+                headerText: '选择转出资产',
+                searchPlaceholder: '搜索资产',
+                emptyText: '暂无可用转出资产',
+              }}
+              value={assetId ?? undefined}
+            />
+            <SelectionList
+              labelText="转入资产"
+              loading={assetsLoading}
+              onChange={value =>
+                setIntoAssetId(toNumberValue(value) ?? null)
+              }
+              options={intoAssetOptions}
+              searchable
+              styles={{ root: styles.formField }}
+              texts={{
+                headerText: '选择转入资产',
+                searchPlaceholder: '搜索资产',
+                emptyText: '暂无可用转入资产',
+              }}
+              value={intoAssetId ?? undefined}
+            />
+            <MoneyField
+              labelText="手续费"
+              value={charge}
+              onChange={setCharge}
+            />
+            <RecordDateTimeField
+              value={recordTime}
+              onChange={setRecordTime}
+            />
+            <ImagePicker
+              multiple
+              maxCount={3}
+              onError={(error: unknown) => {
+                toast.show({
+                  messageText:
+                    error instanceof Error ? error.message : '选择图片失败',
+                });
+              }}
+              labelText="图片"
+              value={images}
+              onChange={setImages}
+              style={styles.formField}
+            />
+            <SelectionList
+              displayMode="tag"
+              labelText="标签"
+              loading={tagsLoading}
+              mode="multiple"
+              onChange={value => setTags(toNumberValues(value))}
+              options={tagOptions}
+              searchable
+              styles={{ root: styles.formField }}
+              texts={{
+                headerText: '选择标签',
+                searchPlaceholder: '搜索标签',
+                emptyText: '暂无标签',
+                confirmText: '确定',
+              }}
+              value={tags}
+            />
+          </Row>
         </Card>
         <RemarkInput />
         <Button block loading={submitting} onPress={handleSave} type="primary">
@@ -285,5 +273,9 @@ const useStyles = createUseSheetStyle(token => ({
   page: {
     backgroundColor: token.colorBgLayout,
     paddingTop: token.paddingMD,
+  },
+  formField: {
+    minWidth: token.controlHeight * 3,
+    flex: 1,
   },
 }));

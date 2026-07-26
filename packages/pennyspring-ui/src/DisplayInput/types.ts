@@ -12,7 +12,6 @@ export interface DisplayInputStyles {
   underline?: StyleProp<ViewStyle>;
   valueContainer?: StyleProp<ViewStyle>;
   value?: StyleProp<TextStyle>;
-  placeholder?: StyleProp<TextStyle>;
   prefix?: StyleProp<ViewStyle>;
   suffix?: StyleProp<ViewStyle>;
   helper?: StyleProp<TextStyle>;
@@ -26,7 +25,6 @@ export interface DisplayInputProps {
   status?: InputStatus;
   labelText?: string;
   label?: ReactNode | null;
-  placeholder?: string;
   helperText?: string;
   helper?: ReactNode | null;
   errorText?: string;

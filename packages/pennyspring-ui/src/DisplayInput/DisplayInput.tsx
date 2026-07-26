@@ -56,7 +56,6 @@ export function DisplayInput({
   label,
   labelText,
   onPress,
-  placeholder,
   prefix,
   readonly,
   required,
@@ -88,8 +87,7 @@ export function DisplayInput({
     : hasTextValue
       ? valueText
       : undefined;
-  const hasDisplayText = textValue !== undefined && textValue !== '';
-  const hasDisplayValue = hasDisplayText || (hasCustomValue && !isTextLikeValue(children));
+  const hasDisplayValue = hasCustomValue || hasTextValue;
   const errorMessage = error !== undefined ? error : errorText;
   const helperMessage = helper !== undefined ? helper : helperText;
   const isError = resolvedStatus === 'error' ||
@@ -106,7 +104,6 @@ export function DisplayInput({
   const labelNode = label === null ? null : label ?? labelText ?? null;
   const hasFloatingLabel = labelNode !== null && labelNode !== undefined;
   const isFloatingLabelActive = hasFloatingLabel && hasDisplayValue;
-  const shouldShowPlaceholder = !hasFloatingLabel && !hasDisplayText;
   const progress = useSharedValue(isFloatingLabelActive ? 1 : 0);
   const bodyFontSize = resolvedSize === 'small'
     ? token.fontSizeSM
@@ -178,30 +175,50 @@ export function DisplayInput({
         ) : null}
         <View style={tokenStyles.valueWrapper}>
           {hasFloatingLabel && isTextLabel ? (
-            <AnimatedText
-              color={isError ? undefined : 'placeholder'}
-              numberOfLines={1}
-              style={[
-                tokenStyles.floatingLabelContainer,
-                tokenStyles.floatingLabel,
-                styles?.label,
-                labelPositionAnimatedStyle,
-                labelTextAnimatedStyle,
-              ]}
-              testID="display-input-floating-label"
-            >
-              {labelContent}
-            </AnimatedText>
+            <>
+              <Text
+                numberOfLines={1}
+                style={[
+                  tokenStyles.labelWidthPlaceholder,
+                  { fontSize: bodyFontSize, lineHeight: labelLineHeight },
+                ]}
+              >
+                {labelContent}
+              </Text>
+              <AnimatedText
+                color={isError ? undefined : 'placeholder'}
+                numberOfLines={1}
+                style={[
+                  tokenStyles.floatingLabelContainer,
+                  tokenStyles.floatingLabel,
+                  styles?.label,
+                  labelPositionAnimatedStyle,
+                  labelTextAnimatedStyle,
+                ]}
+                testID="display-input-floating-label"
+              >
+                {labelContent}
+              </AnimatedText>
+            </>
           ) : hasFloatingLabel ? (
-            <AnimatedView
-              style={[
-                tokenStyles.floatingLabelContainer,
-                labelPositionAnimatedStyle,
-              ]}
-              testID="display-input-floating-label"
-            >
-              {labelContent}
-            </AnimatedView>
+            <>
+              <View
+                style={[
+                  tokenStyles.labelWidthPlaceholder,
+                ]}
+              >
+                {labelContent}
+              </View>
+              <AnimatedView
+                style={[
+                  tokenStyles.floatingLabelContainer,
+                  labelPositionAnimatedStyle,
+                ]}
+                testID="display-input-floating-label"
+              >
+                {labelContent}
+              </AnimatedView>
+            </>
           ) : null}
           {hasCustomValue && !isTextLikeValue(children) ? (
             <Column
@@ -216,24 +233,22 @@ export function DisplayInput({
             >
               {children}
             </Column>
-          ) : (
+          ) : textValue !== undefined ? (
             <Text
-              color={isDisabled ? 'disabled' : !hasDisplayText ? 'placeholder' : 'default'}
+              color={isDisabled ? 'disabled' : 'default'}
               size={resolvedSize === 'small' ? 'sm' : resolvedSize === 'large' ? 'lg' : 'md'}
               ellipsizeMode={resolvedOverflow === 'hidden' ? 'tail' : undefined}
-              numberOfLines={resolvedOverflow === 'hidden' || !hasDisplayText ? 1 : undefined}
+              numberOfLines={resolvedOverflow === 'hidden' ? 1 : undefined}
               style={[
                 tokenStyles.value,
                 hasFloatingLabel ? tokenStyles.valueWithLabel : tokenStyles.valueWithoutLabel,
                 styles?.value,
-                !hasDisplayText ? tokenStyles.placeholder : null,
-                !hasDisplayText ? styles?.placeholder : null,
                 isDisabled ? tokenStyles.valueDisabled : null,
               ]}
             >
-              {hasDisplayText ? textValue : shouldShowPlaceholder ? placeholder : ''}
+              {textValue}
             </Text>
-          )}
+          ) : null}
         </View>
         {hasSuffix ? (
           <Row style={[tokenStyles.suffix, styles?.suffix]}>

@@ -53,7 +53,7 @@ export type ImagePickerSelectedValue = ImagePickerValue | ImagePickerValue[];
 
 export type ImagePickerDisplayInputProps = Omit<
   DisplayInputProps,
-  'label' | 'placeholder' | 'disabled' | 'readonly' | 'valueText' | 'style' | 'styles'
+  'label' | 'disabled' | 'readonly' | 'valueText' | 'style' | 'styles'
 >;
 
 interface ImagePickerBaseProps {

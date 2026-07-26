@@ -163,7 +163,7 @@ export interface PickerPopupProps<
 
 export type PickerDisplayInputProps = Omit<
   DisplayInputProps,
-  'label' | 'placeholder' | 'disabled' | 'readonly' | 'valueText' | 'style' | 'styles'
+  'label' | 'disabled' | 'readonly' | 'valueText' | 'style' | 'styles'
 >;
 
 export interface PickerProps<

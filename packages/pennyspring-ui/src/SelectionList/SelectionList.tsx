@@ -483,6 +483,7 @@ function SelectionListRoot({
   onOpenChange,
   open,
   options,
+  placeholder = DEFAULT_PLACEHOLDER,
   popupProps,
   readonly,
   size,
@@ -585,7 +586,6 @@ function SelectionListRoot({
           displayInputProps?.overflow ??
           (displayMode === 'tag' ? 'visible' : 'hidden')
         }
-        placeholder={DEFAULT_PLACEHOLDER}
         readonly={readonly}
         size={resolvedSize}
         status={resolvedStatus}
@@ -601,7 +601,6 @@ function SelectionListRoot({
             mergedOpen && !isError ? tokenStyles.underlineActive : undefined,
           ],
           value: [styles?.displayInput?.value, styles?.value],
-          placeholder: [styles?.displayInput?.placeholder, styles?.placeholder],
           label: [styles?.displayInput?.label, styles?.label],
           suffix: [styles?.displayInput?.suffix, styles?.suffix],
           helper: [styles?.displayInput?.helper, styles?.helper],
@@ -631,6 +630,10 @@ function SelectionListRoot({
             disabled={!isInteractive}
             onRemove={handleTagRemove}
           />
+        ) : displayMode !== 'tag' && selectedLabel.length === 0 && placeholder ? (
+          <Text color="placeholder" size={resolveTextSize(resolvedSize)}>
+            {placeholder}
+          </Text>
         ) : undefined}
       </DisplayInput>
       <SelectionListPopup

@@ -50,6 +50,7 @@ export const useStyles = createUseSheetStyle(
     return {
       root: {
         alignSelf: display === 'inline' ? 'flex-start' : 'stretch',
+        flexShrink: display === 'inline' ? 1 : 0,
         maxWidth: '100%',
         overflow: 'hidden',
         gap: token.marginXXS,
@@ -70,7 +71,6 @@ export const useStyles = createUseSheetStyle(
         flexDirection: 'row',
         alignItems: 'center',
         gap: sizeConfig.gap(token),
-        justifyContent: 'center',
         overflow: 'hidden',
         position: 'relative',
       },
@@ -99,8 +99,8 @@ export const useStyles = createUseSheetStyle(
         flexShrink: 0,
       },
       valueWrapper: {
-        flexGrow: display === 'inline' ? 0 : 1,
-        flexShrink: 1,
+        flex: display === 'inline' ? 0 : 1,
+        flexShrink: display === 'inline' ? 1 : 0,
         minWidth: 0,
         minHeight: sizeConfig.minHeight(token),
         justifyContent: 'flex-end',
@@ -116,10 +116,12 @@ export const useStyles = createUseSheetStyle(
         color: isError ? token.colorError : token.colorTextPlaceholder,
         fontFamily: token.fontFamily,
       },
+      labelWidthPlaceholder: {
+        height: 0,
+        overflow: 'visible',
+        opacity: 0,
+      },
       value: {
-        flexGrow: display === 'inline' ? 0 : 1,
-        flexShrink: 1,
-        minWidth: 0,
         fontFamily: token.fontFamily,
       },
       valueWithLabel: {
@@ -131,9 +133,6 @@ export const useStyles = createUseSheetStyle(
         paddingBottom: 0,
       },
       valueContainer: {
-        flexGrow: display === 'inline' ? 0 : 1,
-        flexShrink: 1,
-        minWidth: 0,
       },
       valueContainerHidden: {
         overflow: 'hidden',
@@ -142,8 +141,6 @@ export const useStyles = createUseSheetStyle(
         overflow: 'visible',
       },
       valueDisabled: {
-      },
-      placeholder: {
       },
       helper: {
       },
