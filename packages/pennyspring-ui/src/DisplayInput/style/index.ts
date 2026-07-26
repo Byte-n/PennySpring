@@ -101,7 +101,7 @@ export const useStyles = createUseSheetStyle(
         flexShrink: 0,
       },
       valueWrapper: {
-        flex: display === 'inline' ? 0 : 1,
+        flex: 1,
         flexShrink: display === 'inline' ? 1 : 0,
         minWidth: 0,
         minHeight: sizeConfig.minHeight(token),
