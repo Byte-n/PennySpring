@@ -4,7 +4,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useRequest } from 'ahooks';
 import { Column, Loading, Empty, Dialog, Text } from '@pennyspring/ui';
 import { createUseSheetStyle } from '@pennyspring/theme';
-import { type AssetRow, type TypeRow } from '@pennyspring/api';
+import { type AssetRow, type TypeRow, type TagRow } from '@pennyspring/api';
 import { useBookStore, useGlobalApi } from '../../../stores/bookStore';
 import { ROOT_ROUTES, useNavigation } from '../../../navigation';
 import { MonthSummaryCard } from './detail/MonthSummaryCard';
@@ -60,6 +60,32 @@ export function DetailTabScreen() {
     () => (bookId ? globalApi.asset.getByBook(bookId) : Promise.resolve([])),
     { refreshDeps: [bookId] },
   );
+  const { data: tags = [] } = useRequest<TagRow[], []>(
+    () => (bookId ? globalApi.tag.getAll(bookId) : Promise.resolve([])),
+    { refreshDeps: [bookId] },
+  );
+  const { data: imageCountMap = new Map<number, number>() } = useRequest(
+    async () => {
+      if (!bookId) return new Map();
+      const counts = await globalApi.record.getImageCounts(bookId);
+      return new Map(counts.map((item: { recordId: number; count: number }) => [item.recordId, item.count]));
+    },
+    { refreshDeps: [bookId] },
+  );
+  const { data: recordTagsMap = new Map<number, number[]>() } = useRequest(
+    async () => {
+      if (!bookId) return new Map();
+      const recordTags = await globalApi.record.getRecordTags(bookId);
+      const map = new Map<number, number[]>();
+      for (const { recordId, tagId } of recordTags) {
+        const tagIds = map.get(recordId) ?? [];
+        tagIds.push(tagId);
+        map.set(recordId, tagIds);
+      }
+      return map;
+    },
+    { refreshDeps: [bookId] },
+  );
 
   const now = useMemo(() => new Date(), []);
   const monthLabel = useMemo(
@@ -71,13 +97,14 @@ export function DetailTabScreen() {
   const { groups, summary } = useMemo(() => {
     const typeMap = toMap(types);
     const assetMap = toMap(assets);
-    const views = buildDetailViews(records, typeMap, assetMap);
+    const tagMap = toMap(tags);
+    const views = buildDetailViews(records, typeMap, assetMap, imageCountMap, tagMap, recordTagsMap);
     const monthViews = filterByMonth(views, now);
     return {
       groups: groupByDay(monthViews),
       summary: summarizeCashflow(monthViews),
     };
-  }, [records, types, assets, now]);
+  }, [records, types, assets, tags, imageCountMap, recordTagsMap, now]);
 
   const closePanel = () => setActiveView(null);
 

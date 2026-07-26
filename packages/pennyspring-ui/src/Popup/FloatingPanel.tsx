@@ -4,6 +4,7 @@ import {
   Keyboard,
   Platform,
   Pressable,
+  ScrollView,
   View,
   useWindowDimensions,
 } from 'react-native';
@@ -230,6 +231,8 @@ const useStyles = createUseSheetStyle(
       },
       panelBody: {
         flex: 1,
+      },
+      panelBodyScrollView: {
         paddingHorizontal: contentPadding,
         paddingTop: hasHeader ? 0 : contentPadding,
         paddingBottom: hasFooter ? 0 : contentPadding,
@@ -799,9 +802,9 @@ export function FloatingPanel({
               ))}
             </Column>
           ) : null}
-          <Column style={[tokenStyles.panelBody, styles?.panelBody]} testID="floating-panel-body">
+          <ScrollView style={tokenStyles.panelBody} contentContainerStyle={[tokenStyles.panelBodyScrollView, styles?.panelBody]} testID="floating-panel-body">
             {children}
-          </Column>
+          </ScrollView>
           {footerNode ? (
             <Row style={[tokenStyles.footer, styles?.footer]} testID="floating-panel-footer">
               {renderTextNode(footerNode, (text) => (

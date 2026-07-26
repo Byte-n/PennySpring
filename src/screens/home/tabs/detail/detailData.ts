@@ -4,6 +4,7 @@ import {
   type AssetRow,
   type RecordRow,
   type RecordTypeCategoryValue,
+  type TagRow,
   type TypeRow,
 } from '@pennyspring/api';
 
@@ -85,15 +86,30 @@ export interface DetailRecordView extends CashflowItem {
   typeName: string;
   iconValue: TypeRow['icon'] | null;
   assetName: string;
+  parentTypeName: string;
+  parentIconValue: TypeRow['icon'] | null;
+  intoAssetName: string;
+  imageCount: number;
+  tags: Array<{ id: number; name: string; icon: string }>;
 }
 
 export function buildDetailViews(
   records: readonly RecordRow[],
   typeMap: ReadonlyMap<number, TypeRow>,
   assetMap: ReadonlyMap<number, AssetRow>,
+  imageCountMap: ReadonlyMap<number, number>,
+  tagMap: ReadonlyMap<number, TagRow>,
+  recordTagsMap: ReadonlyMap<number, number[]>,
 ): DetailRecordView[] {
   return records.map(record => {
     const type = typeMap.get(record.typeId);
+    const parentType = type?.parentId ? typeMap.get(type.parentId) : null;
+    const tagIds = recordTagsMap.get(record.id) ?? [];
+    const recordTags = tagIds
+      .map(tagId => tagMap.get(tagId))
+      .filter((tag): tag is TagRow => tag !== undefined)
+      .map(tag => ({ id: tag.id, name: tag.name, icon: tag.icon }));
+
     return {
       record,
       recordTime: record.recordTime,
@@ -102,6 +118,11 @@ export function buildDetailViews(
       typeName: type?.name ?? '未分类',
       iconValue: type?.icon ?? null,
       assetName: assetMap.get(record.assetId)?.name ?? '',
+      parentTypeName: parentType?.name ?? '',
+      parentIconValue: parentType?.icon ?? null,
+      intoAssetName: assetMap.get(record.intoAssetId)?.name ?? '',
+      imageCount: imageCountMap.get(record.id) ?? 0,
+      tags: recordTags,
     };
   });
 }

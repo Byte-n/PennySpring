@@ -1,4 +1,4 @@
-import { desc, eq } from 'drizzle-orm'
+import { desc, eq, count } from 'drizzle-orm'
 
 import { RECORD_TYPE_CATEGORY, REIMBURSABLE } from '../constants'
 import type { Database } from '../types'
@@ -136,6 +136,48 @@ export async function getRecordDetailById(db: Database, recordId: number, booksI
     imagePaths: imageRows.map((row) => row.imagePath),
     relatedRecordIds: relatedRows.map((row) => row.relatedRecordId),
   }
+}
+
+export async function getImageCountsByBook(
+  db: Database,
+  booksId: number,
+): Promise<Array<{ recordId: number; count: number }>> {
+  const requiredBooksId = getRequiredForeignKey({ booksId }, 'booksId')
+
+  const result = await db
+    .select({
+      recordId: imageWithRelated.recordId,
+      count: count(imageWithRelated.id),
+    })
+    .from(imageWithRelated)
+    .innerJoin(records, eq(imageWithRelated.recordId, records.id))
+    .where(eq(records.booksId, requiredBooksId))
+    .groupBy(imageWithRelated.recordId)
+    .all()
+
+  return result.map(row => ({
+    recordId: row.recordId,
+    count: Number(row.count),
+  }))
+}
+
+export async function getRecordTagsByBook(
+  db: Database,
+  booksId: number,
+): Promise<Array<{ recordId: number; tagId: number }>> {
+  const requiredBooksId = getRequiredForeignKey({ booksId }, 'booksId')
+
+  const result = await db
+    .select({
+      recordId: tagWithRecord.recordId,
+      tagId: tagWithRecord.tagId,
+    })
+    .from(tagWithRecord)
+    .innerJoin(records, eq(tagWithRecord.recordId, records.id))
+    .where(eq(records.booksId, requiredBooksId))
+    .all()
+
+  return result
 }
 
 export function createRecord(db: Database, input: CreateRecordInput): Promise<RecordRow> {

@@ -90,7 +90,7 @@ const DEFAULT_ICON_MAP: Record<IconName, IconComponent> = {
   warning: WarningCircleIcon,
 };
 
-function resolveIcon(icon: IconName | IconComponent): IconComponent {
+function resolveIcon(icon: IconName | IconComponent): IconComponent | undefined {
   if (typeof icon === 'string') {
     return DEFAULT_ICON_MAP[icon];
   }
@@ -118,6 +118,10 @@ export function Icon({
   const IconComponent = resolveIcon(icon);
   const resolvedColor = useIconColor(color);
   const resolvedDuotoneColor = useIconColor(duotoneColor);
+
+  if (!IconComponent) {
+    return null;
+  }
 
   return (
     <IconComponent

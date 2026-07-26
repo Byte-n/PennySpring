@@ -27,6 +27,8 @@ export function createApi(getDatabase: () => Promise<Database>) {
       delete: async (recordId: number, booksId: number) => services.deleteRecord(await getDatabase(), recordId, booksId),
       getByBook: async (booksId: number) => services.getRecordsByBook(await getDatabase(), booksId),
       getDetailById: async (recordId: number, booksId: number) => services.getRecordDetailById(await getDatabase(), recordId, booksId),
+      getImageCounts: async (booksId: number) => services.getImageCountsByBook(await getDatabase(), booksId),
+      getRecordTags: async (booksId: number) => services.getRecordTagsByBook(await getDatabase(), booksId),
     },
     tag: {
       getAll: async (booksId: number) => services.getAllTags(await getDatabase(), booksId),
