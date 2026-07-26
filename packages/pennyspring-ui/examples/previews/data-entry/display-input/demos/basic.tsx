@@ -1,5 +1,5 @@
 import React from 'react';
-import { Column, DisplayInput } from '@pennyspring/ui';
+import { Column, DisplayInput, Row } from '@pennyspring/ui';
 import { createUseSheetStyle } from '@pennyspring/theme';
 
 const useStyles = createUseSheetStyle(token => ({
@@ -14,11 +14,18 @@ export function DisplayInputBasicDemo() {
   const styles = useStyles();
 
   return (
-    <Column style={styles.stack}>
-      <DisplayInput labelText="Block (default)" valueText="现金账户" />
-      <DisplayInput display="inline" labelText="Inline" valueText="短值" />
-      <DisplayInput labelText="Empty value" />
-    </Column>
+    <>
+      <Column style={styles.stack}>
+        <DisplayInput labelText="Block (default)" valueText="现金账户" />
+        <DisplayInput display="inline" labelText="Inline" valueText="短值" />
+        <DisplayInput labelText="Empty value" />
+      </Column>
+      <Row wrap style={styles.stack}>
+        <DisplayInput labelText="Block (default)" valueText="现金账户" />
+        <DisplayInput display="inline" labelText="Inline" valueText="短值" />
+        <DisplayInput labelText="Empty value" />
+      </Row>
+    </>
   );
 }
 
