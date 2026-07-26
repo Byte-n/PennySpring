@@ -1,9 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import {
-  ActivityIndicator,
-  Pressable,
-  ScrollView,
-} from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView } from 'react-native';
 import { CircleIcon } from 'phosphor-react-native';
 import { useTheme } from '@pennyspring/theme';
 import { Button } from '../Button';
@@ -40,8 +36,6 @@ interface RenderGroup {
   options: SelectionListOption[];
 }
 
-const DEFAULT_PLACEHOLDER = '请选择';
-
 function resolveSize(size?: ComponentSize): ComponentSize {
   return size ?? 'normal';
 }
@@ -54,7 +48,9 @@ function resolveStatus(status?: SelectionListStatus): SelectionListStatus {
   return status ?? 'default';
 }
 
-function resolveTextSize(size: ComponentSize): React.ComponentProps<typeof Text>['size'] {
+function resolveTextSize(
+  size: ComponentSize,
+): React.ComponentProps<typeof Text>['size'] {
   if (size === 'small') {
     return 'sm';
   }
@@ -122,7 +118,10 @@ function buildRenderGroups(
   ];
 }
 
-function optionMatchesSearch(option: SelectionListOption, query: string): boolean {
+function optionMatchesSearch(
+  option: SelectionListOption,
+  query: string,
+): boolean {
   if (query.length === 0) {
     return true;
   }
@@ -298,40 +297,55 @@ export function SelectionListPopup({
       >
         <Row align="center" justify="center" style={tokenStyles.marker}>
           <Icon
-            color={isDisabled ? 'textDisabled' : isSelected ? 'primaryText' : 'textQuaternary'}
+            color={
+              isDisabled
+                ? 'textDisabled'
+                : isSelected
+                ? 'primaryText'
+                : 'textQuaternary'
+            }
             icon={isSelected ? 'check' : CircleIcon}
             size={resolvedSize}
-            testID={isSelected ? 'selection-list-option-marker-selected' : 'selection-list-option-marker-unselected'}
+            testID={
+              isSelected
+                ? 'selection-list-option-marker-selected'
+                : 'selection-list-option-marker-unselected'
+            }
           />
         </Row>
         {option.prefix !== undefined ? (
           <Column style={tokenStyles.optionMeta}>
-            {renderTextNode(option.prefix, (text) => (
+            {renderTextNode(option.prefix, text => (
               <Text size={resolveTextSize(resolvedSize)}>{text}</Text>
             ))}
           </Column>
         ) : null}
         <Column style={tokenStyles.optionContent}>
-          {renderTextNode(option.label ?? option.labelText, (text) => (
+          {renderTextNode(option.label ?? option.labelText, text => (
             <Text
               color={isDisabled ? 'disabled' : 'default'}
               size={resolveTextSize(resolvedSize)}
-              style={[
-                styles?.optionLabel,
-              ]}
+              style={[styles?.optionLabel]}
             >
               {text}
             </Text>
           ))}
-          {renderTextNode(option.description ?? option.descriptionText, (text) => (
-            <Text color="description" size={resolveTextSize(resolvedSize)} style={tokenStyles.optionDescription}>
-              {text}
-            </Text>
-          ))}
+          {renderTextNode(
+            option.description ?? option.descriptionText,
+            text => (
+              <Text
+                color="description"
+                size={resolveTextSize(resolvedSize)}
+                style={tokenStyles.optionDescription}
+              >
+                {text}
+              </Text>
+            ),
+          )}
         </Column>
         {option.suffix !== undefined ? (
           <Column style={tokenStyles.optionMeta}>
-            {renderTextNode(option.suffix, (text) => (
+            {renderTextNode(option.suffix, text => (
               <Text size={resolveTextSize(resolvedSize)}>{text}</Text>
             ))}
           </Column>
@@ -347,11 +361,7 @@ export function SelectionListPopup({
       return (
         <React.Fragment key={String(option.value)}>
           {renderOption(option)}
-          {!isLastOption ? (
-            <Divider
-              style={tokenStyles.optionDivider}
-            />
-          ) : null}
+          {!isLastOption ? <Divider style={tokenStyles.optionDivider} /> : null}
         </React.Fragment>
       );
     });
@@ -373,91 +383,94 @@ export function SelectionListPopup({
     >
       <Column testID="selection-list-popup">
         <Column style={tokenStyles.popupContent}>
-        {texts?.headerText !== undefined || texts?.closeText !== undefined ? (
-          <Row style={tokenStyles.header}>
-            {texts.headerText !== undefined ? (
-              <Text
-                color="heading"
-                size={resolveTextSize(resolvedSize)}
-                weight="strong"
-                style={tokenStyles.headerText}
-              >
-                {texts.headerText}
-              </Text>
-            ) : (
-              <Spacer />
-            )}
-            {texts.closeText !== undefined ? (
+          {texts?.headerText !== undefined || texts?.closeText !== undefined ? (
+            <Row style={tokenStyles.header}>
+              {texts.headerText !== undefined ? (
+                <Text
+                  color="heading"
+                  size={resolveTextSize(resolvedSize)}
+                  weight="strong"
+                  style={tokenStyles.headerText}
+                >
+                  {texts.headerText}
+                </Text>
+              ) : (
+                <Spacer />
+              )}
+              {texts.closeText !== undefined ? (
+                <Button
+                  onPress={closeSelectionList}
+                  size={resolvedSize}
+                  style={tokenStyles.footerButton}
+                  type="text"
+                >
+                  {texts.closeText}
+                </Button>
+              ) : null}
+            </Row>
+          ) : null}
+          {searchable === true ? (
+            <Input
+              {...searchInputProps}
+              disabled={disabled}
+              loading={loading}
+              onChange={handleSearchChange}
+              placeholder={texts?.searchPlaceholder}
+              readonly={readonly}
+              size={resolvedSize}
+              value={mergedSearchValue}
+            />
+          ) : null}
+          {loading === true ? (
+            <Column align="center" style={tokenStyles.loading}>
+              {texts?.loadingText !== undefined ? (
+                <Text color="description">{texts.loadingText}</Text>
+              ) : (
+                <ActivityIndicator color={token.colorTextTertiary} />
+              )}
+            </Column>
+          ) : filteredGroups.length > 0 ? (
+            <ScrollView
+              style={tokenStyles.list}
+              showsVerticalScrollIndicator={false}
+            >
+              {filteredGroups.map(group => (
+                <Column key={group.key} style={tokenStyles.group}>
+                  {renderTextNode(group.title ?? group.titleText, text => (
+                    <Text
+                      color="description"
+                      size={resolveTextSize(resolvedSize)}
+                      style={[tokenStyles.groupTitle, styles?.groupTitle]}
+                    >
+                      {text}
+                    </Text>
+                  ))}
+                  {renderGroupOptions(group.options)}
+                </Column>
+              ))}
+            </ScrollView>
+          ) : (
+            <Column align="center" style={tokenStyles.empty}>
+              {renderTextNode(empty ?? texts?.emptyText, text => (
+                <Text color="description">{text}</Text>
+              ))}
+            </Column>
+          )}
+          {resolvedMode === 'multiple' && texts?.confirmText !== undefined ? (
+            <Row justify="end" style={tokenStyles.footer}>
               <Button
                 onPress={closeSelectionList}
                 size={resolvedSize}
-                style={tokenStyles.footerButton}
-                type="text"
+                style={[
+                  tokenStyles.footerButton,
+                  tokenStyles.footerPrimaryButton,
+                ]}
+                type="primary"
               >
-                {texts.closeText}
+                {texts.confirmText}
               </Button>
-            ) : null}
-          </Row>
-        ) : null}
-        {searchable === true ? (
-          <Input
-            {...searchInputProps}
-            disabled={disabled}
-            loading={loading}
-            onChange={handleSearchChange}
-            placeholder={texts?.searchPlaceholder}
-            readonly={readonly}
-            size={resolvedSize}
-            value={mergedSearchValue}
-          />
-        ) : null}
-        {loading === true ? (
-          <Column align="center" style={tokenStyles.loading}>
-            {texts?.loadingText !== undefined ? (
-              <Text color="description">{texts.loadingText}</Text>
-            ) : (
-              <ActivityIndicator color={token.colorTextTertiary} />
-            )}
-          </Column>
-        ) : filteredGroups.length > 0 ? (
-          <ScrollView style={tokenStyles.list} showsVerticalScrollIndicator={false}>
-            {filteredGroups.map(group => (
-              <Column key={group.key} style={tokenStyles.group}>
-                {renderTextNode(group.title ?? group.titleText, (text) => (
-                  <Text
-                    color="description"
-                    size={resolveTextSize(resolvedSize)}
-                    style={[tokenStyles.groupTitle, styles?.groupTitle]}
-                  >
-                    {text}
-                  </Text>
-                ))}
-                {renderGroupOptions(group.options)}
-              </Column>
-            ))}
-          </ScrollView>
-        ) : (
-          <Column align="center" style={tokenStyles.empty}>
-            {renderTextNode(empty ?? texts?.emptyText, (text) => (
-              <Text color="description">{text}</Text>
-            ))}
-          </Column>
-        )}
-        {resolvedMode === 'multiple' && texts?.confirmText !== undefined ? (
-          <Row justify="end" style={tokenStyles.footer}>
-            <Button
-              onPress={closeSelectionList}
-              size={resolvedSize}
-              style={[
-                tokenStyles.footerButton,
-                tokenStyles.footerPrimaryButton,
-              ]}
-              type="primary"
-            >
-              {texts.confirmText}
-            </Button>
-          </Row>
-        ) : null}
+            </Row>
+          ) : null}
         </Column>
       </Column>
     </Popup.FloatingPanel>
@@ -483,7 +496,6 @@ function SelectionListRoot({
   onOpenChange,
   open,
   options,
-  placeholder = DEFAULT_PLACEHOLDER,
   popupProps,
   readonly,
   size,
@@ -520,9 +532,10 @@ function SelectionListRoot({
   );
   const selectedValues = toValueArray(mergedValue);
   const selectedLabel = getSelectedLabel(flatOptions, selectedValues);
-  const tagItems = displayMode === 'tag'
-    ? getSelectedTagItems(flatOptions, selectedValues)
-    : [];
+  const tagItems =
+    displayMode === 'tag'
+      ? getSelectedTagItems(flatOptions, selectedValues)
+      : [];
   const tokenStyles = useSelectionListStyles({
     size: resolvedSize,
   });
@@ -532,15 +545,13 @@ function SelectionListRoot({
     styles: popupStyles,
     ...nestedPopupProps
   } = popupProps ?? {};
-  const mergedPopupStyles = popupStyles === undefined
-    ? styles
-    : {
-        ...styles,
-        ...popupStyles,
-      };
-  const rootStyle = styles?.root === undefined
-    ? style
-    : [styles.root, style];
+  const mergedPopupStyles =
+    popupStyles === undefined
+      ? styles
+      : {
+          ...styles,
+          ...popupStyles,
+        };
 
   function setOpen(nextOpen: boolean): void {
     if (!isInteractive) {
@@ -565,18 +576,16 @@ function SelectionListRoot({
     }
   }
 
-  function handlePopupChange(
-    nextValue: SelectionListSelectedValue,
-  ): void {
+  function handlePopupChange(nextValue: SelectionListSelectedValue): void {
     commitValue(nextValue);
   }
 
   return (
-    <Column testID="selection-list-root" style={rootStyle}>
+    <>
       <DisplayInput
         {...displayInputProps}
         disabled={disabled === true || loading === true}
-        display={displayInputProps?.display ?? 'block'}
+        display={displayInputProps?.display}
         error={error}
         errorText={errorText}
         helper={helper}
@@ -589,22 +598,13 @@ function SelectionListRoot({
         readonly={readonly}
         size={resolvedSize}
         status={resolvedStatus}
-        style={styles?.displayInput?.root}
+        style={style}
         styles={{
-          ...styles?.displayInput,
-          field: [
-            styles?.displayInput?.field,
-            styles?.field,
-          ],
+          ...styles,
           underline: [
-            styles?.displayInput?.underline,
+            styles?.underline,
             mergedOpen && !isError ? tokenStyles.underlineActive : undefined,
           ],
-          value: [styles?.displayInput?.value, styles?.value],
-          label: [styles?.displayInput?.label, styles?.label],
-          suffix: [styles?.displayInput?.suffix, styles?.suffix],
-          helper: [styles?.displayInput?.helper, styles?.helper],
-          error: [styles?.displayInput?.error, styles?.error],
         }}
         suffix={
           displayInputSuffix !== undefined ? (
@@ -630,10 +630,6 @@ function SelectionListRoot({
             disabled={!isInteractive}
             onRemove={handleTagRemove}
           />
-        ) : displayMode !== 'tag' && selectedLabel.length === 0 && placeholder ? (
-          <Text color="placeholder" size={resolveTextSize(resolvedSize)}>
-            {placeholder}
-          </Text>
         ) : undefined}
       </DisplayInput>
       <SelectionListPopup
@@ -657,7 +653,7 @@ function SelectionListRoot({
         styles={mergedPopupStyles}
         value={mergedValue}
       />
-    </Column>
+    </>
   );
 }
 

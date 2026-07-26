@@ -119,37 +119,9 @@ export interface SelectionListPopupStyles {
   optionLabel?: StyleProp<TextStyle>;
 }
 
-export interface SelectionListStyles extends SelectionListPopupStyles {
-  /** SelectionList 根节点样式。 */
-  root?: StyleProp<ViewStyle>;
-
-  /** DisplayInput 触发器插槽样式。 */
-  displayInput?: DisplayInputStyles & {
-    /** DisplayInput 根节点样式。 */
-    root?: StyleProp<ViewStyle>;
-  };
-
-  /** Label 文本样式。 */
-  label?: StyleProp<TextStyle>;
-
-  /** 触发器 field 样式。 */
-  field?: StyleProp<ViewStyle>;
-
-  /** 选中值文本样式。 */
-  value?: StyleProp<TextStyle>;
-
-  /** placeholder 文本样式。 */
-  placeholder?: StyleProp<TextStyle>;
-
-  /** suffix 区域样式。 */
-  suffix?: StyleProp<ViewStyle>;
-
-  /** 辅助说明文本样式。 */
-  helper?: StyleProp<TextStyle>;
-
-  /** 错误说明文本样式。 */
-  error?: StyleProp<TextStyle>;
-}
+export interface SelectionListStyles
+  extends SelectionListPopupStyles,
+    DisplayInputStyles {}
 
 export interface SelectionListTexts {
   /**
@@ -427,12 +399,6 @@ export interface SelectionListProps
   label?: ReactNode;
 
   /**
-   * 未选中时的占位文本。
-   * 默认为"请选择"。
-   */
-  placeholder?: string;
-
-  /**
    * 辅助说明文本。
    * 当 status 为 error 且 errorText 存在时，优先展示 errorText。
    */
@@ -460,7 +426,7 @@ export interface SelectionListProps
 
   /**
    * DisplayInput 触发器的非样式配置。
-   * 样式能力统一通过 styles.displayInput 提供。
+   * 样式能力统一通过 styles 提供。
    */
   displayInputProps?: DisplayInputConfig;
 
@@ -473,12 +439,12 @@ export interface SelectionListProps
   tagProps?: TagDisplayProps;
 
   /**
+   * DisplayInput 根节点样式。
+   */
+  style?: StyleProp<ViewStyle>;
+
+  /**
    * 内部插槽样式覆盖。
    */
   styles?: SelectionListStyles;
-
-  /**
-   * SelectionList 根节点样式。
-   */
-  style?: StyleProp<ViewStyle>;
 }
