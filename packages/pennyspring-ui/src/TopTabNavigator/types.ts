@@ -73,4 +73,5 @@ export interface TopTabNavigatorProps {
   rightActions?: React.ReactNode;
   style?: StyleProp<ViewStyle>;
   styles?: TopTabNavigatorStyles;
+  onIndexChange?: (index: number) => void;
 }

@@ -32,7 +32,7 @@ interface CategoryGridProps {
 
 const useStyles = createUseSheetStyle(token => ({
   subcategoryContainer: { paddingHorizontal: 0 },
-  header: { paddingHorizontal: 0 },
+  header: { paddingHorizontal: 0, paddingVertical: token.paddingSM },
   root: { borderRadius: token.borderRadius, overflow: 'hidden' },
   cells: { flex: 1 },
 }));
@@ -151,7 +151,7 @@ function Cells({ list, onSelect, value, style, onPrimarySelect, expandedIds, par
   }, [value, onSelect, parentId]);
 
   return (
-    <Grid columns={5} gap="small" style={[styles.cells, style]}>
+    <Grid columns={5} style={[styles.cells, style]}>
       {list.map(item => (
         <Grid.Item key={item.id}>
           <Cell

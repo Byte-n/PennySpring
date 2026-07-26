@@ -85,14 +85,6 @@ export function GridItem({ children, onPress, span, style }: GridItemProps) {
   const tokenStyles = useGridItemStyles({ gap, span: resolvedSpan });
   const itemStyle = [tokenStyles.item, style];
 
-  if (onPress === undefined) {
-    return (
-      <View testID="grid-item" style={itemStyle}>
-        {children}
-      </View>
-    );
-  }
-
   return (
     <Pressable testID="grid-item" style={itemStyle} onPress={onPress}>
       {children}

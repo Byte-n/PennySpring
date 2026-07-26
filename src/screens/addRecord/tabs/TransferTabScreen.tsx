@@ -11,7 +11,7 @@ import {
   useToast,
 } from '@pennyspring/ui';
 import { RECORD_TYPE_CATEGORY } from '@pennyspring/api';
-import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
+import { createUseSheetStyle, ThemeProvider, useTheme } from '@pennyspring/theme';
 import { AmountDisplay } from '../components/AmountDisplay';
 import { CategoryGrid } from '../../../component/CategoryGrid';
 import { RemarkInput } from '../components/RemarkInput';
@@ -169,103 +169,105 @@ export function TransferTabScreen() {
   ]);
 
   return (
-    <KeyboardAwareFormScroll
-      extraBottomInset={token.paddingXL}
-      focusedInputBottomOffset={token.paddingXL}
-      styles={{ content: styles.page }}
-    >
-      <Column gap={token.marginMD}>
-        <AmountDisplay labelText="转账金额" />
-        <CategoryGrid
-          categories={categories}
-          value={typeId}
-          onChange={setTypeId}
-        />
-        {categoriesLoading ? (
-          <Text color="description" size="sm">
-            分类加载中
-          </Text>
-        ) : null}
-        <Card>
-          <Row wrap gap={10}>
-            <SelectionList
-              labelText="转出资产"
-              loading={assetsLoading}
-              onChange={value => setAssetId(toNumberValue(value) ?? null)}
-              options={fromAssetOptions}
-              searchable
-              style={styles.formField}
-              texts={{
-                headerText: '选择转出资产',
-                searchPlaceholder: '搜索资产',
-                emptyText: '暂无可用转出资产',
-              }}
-              value={assetId ?? undefined}
-            />
-            <SelectionList
-              labelText="转入资产"
-              loading={assetsLoading}
-              onChange={value =>
-                setIntoAssetId(toNumberValue(value) ?? null)
-              }
-              options={intoAssetOptions}
-              searchable
-              style={styles.formField}
-              texts={{
-                headerText: '选择转入资产',
-                searchPlaceholder: '搜索资产',
-                emptyText: '暂无可用转入资产',
-              }}
-              value={intoAssetId ?? undefined}
-            />
-            <MoneyField
-              labelText="手续费"
-              value={charge}
-              onChange={setCharge}
-            />
-            <RecordDateTimeField
-              value={recordTime}
-              onChange={setRecordTime}
-            />
-            <ImagePicker
-              multiple
-              maxCount={3}
-              onError={(error: unknown) => {
-                toast.show({
-                  messageText:
-                    error instanceof Error ? error.message : '选择图片失败',
-                });
-              }}
-              labelText="图片"
-              value={images}
-              onChange={setImages}
-              style={styles.formField}
-            />
-            <SelectionList
-              displayMode="tag"
-              labelText="标签"
-              loading={tagsLoading}
-              mode="multiple"
-              onChange={value => setTags(toNumberValues(value))}
-              options={tagOptions}
-              searchable
-              style={styles.formField}
-              texts={{
-                headerText: '选择标签',
-                searchPlaceholder: '搜索标签',
-                emptyText: '暂无标签',
-                confirmText: '确定',
-              }}
-              value={tags}
-            />
-          </Row>
-        </Card>
-        <RemarkInput />
-        <Button block loading={submitting} onPress={handleSave} type="primary">
-          保存转账
-        </Button>
-      </Column>
-    </KeyboardAwareFormScroll>
+    <ThemeProvider config={{ token: { colorPrimary: token.blue10 } }}>
+      <KeyboardAwareFormScroll
+        extraBottomInset={token.paddingXL}
+        focusedInputBottomOffset={token.paddingXL}
+        styles={{ content: styles.page }}
+      >
+        <Column gap={token.marginMD}>
+          <AmountDisplay labelText="转账金额" />
+          <CategoryGrid
+            categories={categories}
+            value={typeId}
+            onChange={setTypeId}
+          />
+          {categoriesLoading ? (
+            <Text color="description" size="sm">
+              分类加载中
+            </Text>
+          ) : null}
+          <Card>
+            <Row wrap gap={10}>
+              <SelectionList
+                labelText="转出资产"
+                loading={assetsLoading}
+                onChange={value => setAssetId(toNumberValue(value) ?? null)}
+                options={fromAssetOptions}
+                searchable
+                style={styles.formField}
+                texts={{
+                  headerText: '选择转出资产',
+                  searchPlaceholder: '搜索资产',
+                  emptyText: '暂无可用转出资产',
+                }}
+                value={assetId ?? undefined}
+              />
+              <SelectionList
+                labelText="转入资产"
+                loading={assetsLoading}
+                onChange={value =>
+                  setIntoAssetId(toNumberValue(value) ?? null)
+                }
+                options={intoAssetOptions}
+                searchable
+                style={styles.formField}
+                texts={{
+                  headerText: '选择转入资产',
+                  searchPlaceholder: '搜索资产',
+                  emptyText: '暂无可用转入资产',
+                }}
+                value={intoAssetId ?? undefined}
+              />
+              <MoneyField
+                labelText="手续费"
+                value={charge}
+                onChange={setCharge}
+              />
+              <RecordDateTimeField
+                value={recordTime}
+                onChange={setRecordTime}
+              />
+              <ImagePicker
+                multiple
+                maxCount={3}
+                onError={(error: unknown) => {
+                  toast.show({
+                    messageText:
+                      error instanceof Error ? error.message : '选择图片失败',
+                  });
+                }}
+                labelText="图片"
+                value={images}
+                onChange={setImages}
+                style={styles.formField}
+              />
+              <SelectionList
+                displayMode="tag"
+                labelText="标签"
+                loading={tagsLoading}
+                mode="multiple"
+                onChange={value => setTags(toNumberValues(value))}
+                options={tagOptions}
+                searchable
+                style={styles.formField}
+                texts={{
+                  headerText: '选择标签',
+                  searchPlaceholder: '搜索标签',
+                  emptyText: '暂无标签',
+                  confirmText: '确定',
+                }}
+                value={tags}
+              />
+            </Row>
+          </Card>
+          <RemarkInput />
+          <Button block loading={submitting} onPress={handleSave} type="primary">
+            保存转账
+          </Button>
+        </Column>
+      </KeyboardAwareFormScroll>
+    </ThemeProvider>
   );
 }
 

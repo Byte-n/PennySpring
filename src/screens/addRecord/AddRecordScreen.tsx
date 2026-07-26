@@ -7,7 +7,7 @@ import {
   type TabScreen,
   TopTabNavigator,
 } from '@pennyspring/ui';
-import { createUseSheetStyle } from '@pennyspring/theme';
+import { createUseSheetStyle, ThemeProvider, useTheme } from '@pennyspring/theme';
 import {
   RECORD_TYPE_CATEGORY,
   type RecordTypeCategoryValue,
@@ -26,6 +26,8 @@ const TAB_NAME_BY_CATEGORY: Record<RecordTypeCategoryValue, string> = {
   [RECORD_TYPE_CATEGORY.transfer]: 'TransferTab',
 };
 
+const TAB_COLORS = ['red10', 'green10', 'blue10'] as const;
+
 export function AddRecordScreen() {
   const route = useRoute<AddRecordRoute>();
   const recordId = route.params?.recordId;
@@ -41,12 +43,14 @@ interface AddRecordContentProps {
 }
 
 function AddRecordContent({ recordId }: AddRecordContentProps) {
+  const { token } = useTheme();
   const styles = useStyles();
   const { init } = useAddRecordContext();
   const currentBook = useBookStore(state => state.currentBook);
   const globalApi = useGlobalApi();
   const [initialRouteName, setInitialRouteName] = useState<string>();
   const [loading, setLoading] = useState(recordId !== undefined);
+  const [currentTabIndex, setCurrentTabIndex] = useState(0);
 
   useEffect(() => {
     if (recordId === undefined || !currentBook) return;
@@ -82,16 +86,21 @@ function AddRecordContent({ recordId }: AddRecordContentProps) {
     return <Loading vertical text="加载中" />;
   }
 
+  const tabColor = token[TAB_COLORS[currentTabIndex]];
+
   return (
-    <KeyboardAwareScreen>
-      <TopTabNavigator
-        initialRouteName={initialRouteName}
-        screens={ADD_RECORD_TAB_SCREENS}
-        styles={{
-          sceneContainer: styles.sceneContainer,
-        }}
-      />
-    </KeyboardAwareScreen>
+    <ThemeProvider config={{ token: { colorPrimary: tabColor } }}>
+      <KeyboardAwareScreen>
+        <TopTabNavigator
+          initialRouteName={initialRouteName}
+          screens={ADD_RECORD_TAB_SCREENS}
+          styles={{
+            sceneContainer: styles.sceneContainer,
+          }}
+          onIndexChange={setCurrentTabIndex}
+        />
+      </KeyboardAwareScreen>
+    </ThemeProvider>
   );
 }
 

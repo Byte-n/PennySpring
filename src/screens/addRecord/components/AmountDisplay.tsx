@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Pressable } from 'react-native';
 import { Text, CalculatorInput, Column } from '@pennyspring/ui';
-import { createUseSheetStyle, toShadowStyle } from '@pennyspring/theme';
+import { createUseSheetStyle } from '@pennyspring/theme';
 import { useAddRecordContext } from '../AddRecordContext';
 import { yuanToCents } from '../addRecordDraft';
 
@@ -9,11 +9,10 @@ const VERTICAL_DIVISOR = 2;
 
 const useStyles = createUseSheetStyle(token => ({
   card: {
-    backgroundColor: token.colorPrimary,
+    backgroundColor: token.colorBgLayout,
     borderRadius: token.borderRadiusLG,
     paddingHorizontal: token.paddingLG,
     paddingVertical: token.paddingLG / VERTICAL_DIVISOR,
-    ...toShadowStyle(token.boxShadowTertiary),
   },
 }));
 
@@ -36,10 +35,10 @@ export function AmountDisplay({ labelText }: AmountDisplayProps) {
         onPress={() => setPopupOpen(true)}
       >
         <Column align="center">
-          <Text color="lightSolid" size="sm">
+          <Text color="primary" size="sm">
             {labelText}
           </Text>
-          <Text testID="amount-text" color="lightSolid" size="h1">
+          <Text testID="amount-text" color="primary" size="h1">
             {displayText}
           </Text>
         </Column>

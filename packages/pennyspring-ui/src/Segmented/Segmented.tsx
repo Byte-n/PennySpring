@@ -138,7 +138,7 @@ export function Segmented({
           const labelColor: TextColor = isDisabled
             ? 'disabled'
             : isSelected
-              ? 'heading'
+              ? 'primary'
               : 'secondary';
 
           return (

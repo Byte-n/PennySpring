@@ -12,7 +12,7 @@ import {
   useToast,
 } from '@pennyspring/ui';
 import { RECORD_TYPE_CATEGORY } from '@pennyspring/api';
-import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
+import { createUseSheetStyle, ThemeProvider, useTheme } from '@pennyspring/theme';
 import { AmountDisplay } from '../components/AmountDisplay';
 import { CategoryGrid } from '../../../component/CategoryGrid';
 import { RemarkInput } from '../components/RemarkInput';
@@ -159,103 +159,105 @@ export function IncomeTabScreen() {
   ]);
 
   return (
-    <KeyboardAwareFormScroll
-      extraBottomInset={token.paddingXL}
-      focusedInputBottomOffset={token.paddingXL}
-      styles={{ content: styles.page }}
-    >
-      <Column gap={token.marginMD}>
-        <AmountDisplay labelText="收入金额" />
-        <CategoryGrid
-          categories={categories}
-          value={typeId}
-          onChange={setTypeId}
-        />
-        {categoriesLoading ? (
-          <Text color="description" size="sm">
-            分类加载中
-          </Text>
-        ) : null}
-        <Card>
-          <Row wrap gap={10}>
-            <SelectionList
-              labelText="收款资产（可选）"
-              loading={assetsLoading}
-              onChange={value => setAssetId(toNumberValue(value) ?? null)}
-              options={assetOptions}
-              searchable
-              style={styles.formField}
-              texts={{
-                headerText: '选择收款资产',
-                searchPlaceholder: '搜索资产',
-                emptyText: '暂无可用资产',
-              }}
-              value={assetId ?? undefined}
-            />
-            <RecordDateTimeField
-              value={recordTime}
-              onChange={setRecordTime}
-            />
-            <ImagePicker
-              multiple
-              maxCount={3}
-              onError={(error: unknown) => {
-                toast.show({
-                  messageText:
-                    error instanceof Error ? error.message : '选择图片失败',
-                });
-              }}
-              labelText="图片"
-              value={images}
-              onChange={setImages}
-              style={styles.formField}
-            />
-            <SelectionList
-              displayMode="tag"
-              labelText="标签"
-              loading={tagsLoading}
-              mode="multiple"
-              onChange={value => setTags(toNumberValues(value))}
-              options={tagOptions}
-              searchable
-              style={styles.formField}
-              texts={{
-                headerText: '选择标签',
-                searchPlaceholder: '搜索标签',
-                emptyText: '暂无标签',
-                confirmText: '确定',
-              }}
-              value={tags}
-            />
-            {isAbsorption ? (
+    <ThemeProvider config={{ token: { colorPrimary: token.green10 } }}>
+      <KeyboardAwareFormScroll
+        extraBottomInset={token.paddingXL}
+        focusedInputBottomOffset={token.paddingXL}
+        styles={{ content: styles.page }}
+      >
+        <Column gap={token.marginMD}>
+          <AmountDisplay labelText="收入金额" />
+          <CategoryGrid
+            categories={categories}
+            value={typeId}
+            onChange={setTypeId}
+          />
+          {categoriesLoading ? (
+            <Text color="description" size="sm">
+              分类加载中
+            </Text>
+          ) : null}
+          <Card>
+            <Row wrap gap={10}>
               <SelectionList
-                displayMode="tag"
-                labelText="关联支出"
-                loading={recordsLoading}
-                mode="multiple"
-                onChange={value =>
-                  setRelatedRecordIds(toNumberValues(value))
-                }
-                options={relatedExpenseOptions}
+                labelText="收款资产（可选）"
+                loading={assetsLoading}
+                onChange={value => setAssetId(toNumberValue(value) ?? null)}
+                options={assetOptions}
                 searchable
                 style={styles.formField}
                 texts={{
-                  headerText: '选择关联支出',
-                  searchPlaceholder: '搜索支出',
-                  emptyText: '暂无可关联支出',
+                  headerText: '选择收款资产',
+                  searchPlaceholder: '搜索资产',
+                  emptyText: '暂无可用资产',
+                }}
+                value={assetId ?? undefined}
+              />
+              <RecordDateTimeField
+                value={recordTime}
+                onChange={setRecordTime}
+              />
+              <ImagePicker
+                multiple
+                maxCount={3}
+                onError={(error: unknown) => {
+                  toast.show({
+                    messageText:
+                      error instanceof Error ? error.message : '选择图片失败',
+                  });
+                }}
+                labelText="图片"
+                value={images}
+                onChange={setImages}
+                style={styles.formField}
+              />
+              <SelectionList
+                displayMode="tag"
+                labelText="标签"
+                loading={tagsLoading}
+                mode="multiple"
+                onChange={value => setTags(toNumberValues(value))}
+                options={tagOptions}
+                searchable
+                style={styles.formField}
+                texts={{
+                  headerText: '选择标签',
+                  searchPlaceholder: '搜索标签',
+                  emptyText: '暂无标签',
                   confirmText: '确定',
                 }}
-                value={relatedRecordIds}
+                value={tags}
               />
-            ) : null}
-          </Row>
-        </Card>
-        <RemarkInput />
-        <Button block loading={submitting} onPress={handleSave} type="primary">
-          保存收入
-        </Button>
-      </Column>
-    </KeyboardAwareFormScroll>
+              {isAbsorption ? (
+                <SelectionList
+                  displayMode="tag"
+                  labelText="关联支出"
+                  loading={recordsLoading}
+                  mode="multiple"
+                  onChange={value =>
+                    setRelatedRecordIds(toNumberValues(value))
+                  }
+                  options={relatedExpenseOptions}
+                  searchable
+                  style={styles.formField}
+                  texts={{
+                    headerText: '选择关联支出',
+                    searchPlaceholder: '搜索支出',
+                    emptyText: '暂无可关联支出',
+                    confirmText: '确定',
+                  }}
+                  value={relatedRecordIds}
+                />
+              ) : null}
+            </Row>
+          </Card>
+          <RemarkInput />
+          <Button block loading={submitting} onPress={handleSave} type="primary">
+            保存收入
+          </Button>
+        </Column>
+      </KeyboardAwareFormScroll>
+    </ThemeProvider>
   );
 }
 

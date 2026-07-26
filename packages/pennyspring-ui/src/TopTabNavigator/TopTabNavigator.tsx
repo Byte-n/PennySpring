@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import {
   createMaterialTopTabNavigator,
   type MaterialTopTabBarProps,
@@ -34,8 +34,26 @@ export function TopTabNavigator({
   screens,
   style,
   styles,
+  onIndexChange,
 }: TopTabNavigatorProps) {
   const tokenStyles = useTopTabNavigatorStyles();
+  const prevIndexRef = useRef<number>(-1);
+
+  const handleTabBarProps = (props: MaterialTopTabBarProps) => {
+    const currentIndex = props.state.index;
+
+    if (prevIndexRef.current !== currentIndex) {
+      prevIndexRef.current = currentIndex;
+      onIndexChange?.(currentIndex);
+    }
+
+    return renderHeaderBar(props, {
+      leftActions,
+      rightActions,
+      style,
+      styles,
+    });
+  };
 
   return (
     <Tab.Navigator
@@ -45,14 +63,7 @@ export function TopTabNavigator({
         sceneStyle: [tokenStyles.sceneContainer, styles?.sceneContainer],
         swipeEnabled: true,
       }}
-      tabBar={(props) =>
-        renderHeaderBar(props, {
-          leftActions,
-          rightActions,
-          style,
-          styles,
-        })
-      }
+      tabBar={handleTabBarProps}
     >
       {screens.map((screen) => (
         <Tab.Screen
