@@ -66,38 +66,31 @@ export function PickerTrigger({
   }
 
   return (
-    <Pressable
+    <DisplayInput
       disabled={disabled}
+      size={size}
+      valueText={valueText}
+      readonly
+      label={label}
       onPress={handleTriggerPress}
-      style={[styles.trigger, externalTriggerStyle]}
-      testID="picker-trigger"
+      style={[externalInputRootStyle, externalTriggerStyle]}
+      styles={externalInputSlotStyles}
+      suffix={shouldShowClearButton ? (
+        <Pressable
+          hitSlop={token.paddingXS}
+          onPress={handleClearPress}
+          style={({ pressed }) => [
+            styles.triggerClearButton,
+            pressed ? styles.triggerClearButtonPressed : null,
+          ]}
+          testID="picker-trigger-clear-button"
+        >
+          <Icon color="icon" icon="close" size="small" />
+        </Pressable>
+      ) : undefined}
+      {...displayInputProps}
     >
-      <DisplayInput
-        disabled={disabled}
-        display="block"
-        size={size}
-        valueText={valueText}
-        readonly
-        label={label}
-        style={externalInputRootStyle}
-        styles={externalInputSlotStyles}
-        suffix={shouldShowClearButton ? (
-          <Pressable
-            hitSlop={token.paddingXS}
-            onPress={handleClearPress}
-            style={({ pressed }) => [
-              styles.triggerClearButton,
-              pressed ? styles.triggerClearButtonPressed : null,
-            ]}
-            testID="picker-trigger-clear-button"
-          >
-            <Icon color="icon" icon="close" size="small" />
-          </Pressable>
-        ) : undefined}
-        {...displayInputProps}
-      >
-        {children}
-      </DisplayInput>
-    </Pressable>
+      {children}
+    </DisplayInput>
   );
 }

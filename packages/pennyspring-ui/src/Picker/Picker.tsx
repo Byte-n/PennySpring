@@ -1,6 +1,5 @@
 import type { ComponentSize } from '../shares/types';
 import React, { useEffect, useRef, useState } from 'react';
-import { View } from 'react-native';
 import { PickerPopup } from './PickerPopup';
 import { PickerTrigger } from './PickerTrigger';
 import { usePickerStyles } from './usePickerStyles';
@@ -258,13 +257,13 @@ export function Picker<TItem extends PickerColumnItemData = PickerColumnItemData
   };
 
   return (
-    <View style={style}>
+    <>
       <PickerTrigger
         allowClear={allowClear}
         displayInputProps={displayInputProps}
         disabled={disabled}
         externalInputStyles={externalStyles?.input}
-        externalTriggerStyle={externalStyles?.trigger}
+        externalTriggerStyle={[externalStyles?.trigger, style]}
         hasValue={hasMainValue}
         label={label ?? labelText}
         onClearPress={handleClearPress}
@@ -297,6 +296,6 @@ export function Picker<TItem extends PickerColumnItemData = PickerColumnItemData
         size={size}
         styles={tokenStyles}
       />
-    </View>
+    </>
   );
 }

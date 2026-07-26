@@ -29,9 +29,6 @@ export const usePickerStyles = createUseSheetStyle(
     const wheelInset = itemHeight * WHEEL_SIDE_ITEM_COUNT;
 
     return {
-      trigger: {
-        alignSelf: 'stretch',
-      },
       triggerClearButton: {
         justifyContent: 'center',
         alignItems: 'center',

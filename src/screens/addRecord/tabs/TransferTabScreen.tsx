@@ -194,7 +194,7 @@ export function TransferTabScreen() {
               onChange={value => setAssetId(toNumberValue(value) ?? null)}
               options={fromAssetOptions}
               searchable
-              styles={{ root: styles.formField }}
+              style={styles.formField}
               texts={{
                 headerText: '选择转出资产',
                 searchPlaceholder: '搜索资产',
@@ -210,7 +210,7 @@ export function TransferTabScreen() {
               }
               options={intoAssetOptions}
               searchable
-              styles={{ root: styles.formField }}
+              style={styles.formField}
               texts={{
                 headerText: '选择转入资产',
                 searchPlaceholder: '搜索资产',
@@ -249,7 +249,7 @@ export function TransferTabScreen() {
               onChange={value => setTags(toNumberValues(value))}
               options={tagOptions}
               searchable
-              styles={{ root: styles.formField }}
+              style={styles.formField}
               texts={{
                 headerText: '选择标签',
                 searchPlaceholder: '搜索标签',

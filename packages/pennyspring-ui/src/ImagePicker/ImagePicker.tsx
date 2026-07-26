@@ -355,6 +355,7 @@ export function ImagePicker({
       <DisplayInput
         {...displayInputProps}
         disabled={isDisabled}
+        display={displayInputProps?.display}
         label={label}
         labelText={labelText}
         onPress={handleTriggerPress}

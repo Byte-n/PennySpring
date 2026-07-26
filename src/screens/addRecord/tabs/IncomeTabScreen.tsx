@@ -184,7 +184,7 @@ export function IncomeTabScreen() {
               onChange={value => setAssetId(toNumberValue(value) ?? null)}
               options={assetOptions}
               searchable
-              styles={{ root: styles.formField }}
+              style={styles.formField}
               texts={{
                 headerText: '选择收款资产',
                 searchPlaceholder: '搜索资产',
@@ -218,7 +218,7 @@ export function IncomeTabScreen() {
               onChange={value => setTags(toNumberValues(value))}
               options={tagOptions}
               searchable
-              styles={{ root: styles.formField }}
+              style={styles.formField}
               texts={{
                 headerText: '选择标签',
                 searchPlaceholder: '搜索标签',
@@ -238,7 +238,7 @@ export function IncomeTabScreen() {
                 }
                 options={relatedExpenseOptions}
                 searchable
-                styles={{ root: styles.formField }}
+                style={styles.formField}
                 texts={{
                   headerText: '选择关联支出',
                   searchPlaceholder: '搜索支出',
