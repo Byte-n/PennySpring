@@ -10,9 +10,11 @@ const VERTICAL_DIVISOR = 2;
 const useStyles = createUseSheetStyle(token => ({
   card: {
     backgroundColor: token.colorBgLayout,
-    borderRadius: token.borderRadiusLG,
     paddingHorizontal: token.paddingLG,
-    paddingVertical: token.paddingLG / VERTICAL_DIVISOR,
+    marginVertical: token.paddingLG / VERTICAL_DIVISOR,
+    borderBottomColor: token.colorPrimary,
+    borderBottomWidth: 2,
+    borderStyle: 'solid',
   },
 }));
 
