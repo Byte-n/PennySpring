@@ -9,6 +9,7 @@ import { AssetManageScreen } from '../screens/assetManage/AssetManageScreen';
 import { BookManageScreen } from '../screens/bookManage/BookManageScreen';
 import { HomeScreen } from '../screens/home/HomeScreen';
 import { IconPreviewScreen } from '../screens/iconPreview';
+import { QuickTemplateManageScreen } from '../screens/quickTemplate/QuickTemplateManageScreen';
 import { TestScreen } from '../screens/test';
 import { TagManageScreen } from '../screens/tagManage/TagManageScreen';
 import { TypeManageScreen } from '../screens/typeManage/TypeManageScreen';
@@ -99,6 +100,11 @@ export function RootStackNavigator() {
         component={AssetManageScreen}
         name={ROOT_ROUTES.AssetManage}
         options={{ title: '资产管理' }}
+      />
+      <Stack.Screen
+        component={QuickTemplateManageScreen}
+        name={ROOT_ROUTES.QuickTemplateManage}
+        options={{ title: '快捷模板管理' }}
       />
       <Stack.Screen
         component={IconPreviewScreen}

@@ -87,3 +87,14 @@ jest.mock('react-native-image-picker', () => ({
   __esModule: true,
   launchImageLibrary: jest.fn(),
 }));
+
+// op-sqlite 是原生模块，单元测试中统一 mock，避免 bookStorage 初始化时加载其 ESM 产物报错。
+jest.mock('@op-engineering/op-sqlite', () => ({
+  __esModule: true,
+  open: jest.fn(),
+  Storage: jest.fn().mockImplementation(() => ({
+    getItem: jest.fn().mockResolvedValue(null),
+    setItem: jest.fn().mockResolvedValue(undefined),
+    removeItem: jest.fn().mockResolvedValue(undefined),
+  })),
+}));

@@ -10,6 +10,7 @@ import { ROOT_ROUTES, useNavigation } from '../../../navigation';
 import { MonthSummaryCard } from './detail/MonthSummaryCard';
 import { DayGroupCard } from './detail/DayGroupCard';
 import { RecordDetailPanel } from './detail/RecordDetailPanel';
+import { QuickEntryBar } from '../../quickTemplate/QuickEntryBar';
 import {
   buildDetailViews,
   filterByMonth,
@@ -151,6 +152,7 @@ export function DetailTabScreen() {
           contentContainerStyle={styles.content}
           refreshControl={<RefreshControl refreshing={loading} onRefresh={refresh} />}
         >
+        <QuickEntryBar onCreated={refresh} />
         <MonthSummaryCard monthLabel={monthLabel} summary={summary} />
         {renderBody()}
       </ScrollView>

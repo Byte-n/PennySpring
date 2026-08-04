@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useRoute, type RouteProp } from '@react-navigation/native';
-import { AddRecordProvider, useAddRecordContext } from './AddRecordContext';
+import { AddRecordProvider, useAddRecordContext, type AddRecordPresetPayload } from './AddRecordContext';
 import {
   KeyboardAwareScreen,
   Loading,
@@ -31,25 +31,29 @@ const TAB_COLORS = ['red10', 'green10', 'blue10'] as const;
 export function AddRecordScreen() {
   const route = useRoute<AddRecordRoute>();
   const recordId = route.params?.recordId;
+  const preset = route.params?.preset;
   return (
     <AddRecordProvider>
-      <AddRecordContent recordId={recordId} />
+      <AddRecordContent recordId={recordId} preset={preset} />
     </AddRecordProvider>
   );
 }
 
 interface AddRecordContentProps {
   recordId?: number;
+  preset?: AddRecordPresetPayload;
 }
 
-function AddRecordContent({ recordId }: AddRecordContentProps) {
+function AddRecordContent({ recordId, preset }: AddRecordContentProps) {
   const { token } = useTheme();
   const styles = useStyles();
-  const { init } = useAddRecordContext();
+  const { init, initFromPreset } = useAddRecordContext();
   const currentBook = useBookStore(state => state.currentBook);
   const globalApi = useGlobalApi();
   const [initialRouteName, setInitialRouteName] = useState<string>();
-  const [loading, setLoading] = useState(recordId !== undefined);
+  const [loading, setLoading] = useState(
+    recordId !== undefined || preset !== undefined,
+  );
   const [currentTabIndex, setCurrentTabIndex] = useState(0);
 
   useEffect(() => {
@@ -81,6 +85,25 @@ function AddRecordContent({ recordId }: AddRecordContentProps) {
       active = false;
     };
   }, [init, recordId, currentBook]);
+
+  // 快捷模板预填：以模板进入「编辑后新建」，mode 始终为 create，recordTime 取当前时刻。
+  useEffect(() => {
+    if (recordId !== undefined || preset === undefined || !currentBook) return;
+    let active = true;
+    (async () => {
+      const types = await globalApi.type.getAll(currentBook.id);
+      if (!active) return;
+      initFromPreset(preset);
+      const typeRow = types.find(type => type.id === preset.typeId);
+      if (typeRow) {
+        setInitialRouteName(TAB_NAME_BY_CATEGORY[typeRow.typeCategory]);
+      }
+      setLoading(false);
+    })();
+    return () => {
+      active = false;
+    };
+  }, [initFromPreset, preset, recordId, currentBook, globalApi]);
 
   if (loading) {
     return <Loading vertical text="加载中" />;

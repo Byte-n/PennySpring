@@ -16,6 +16,20 @@ export interface AddRecordInitPayload {
   charge: number;
 }
 
+/**
+ * 快捷模板预填载荷。用于「以模板进入编辑新建」：mode 始终为 create，
+ * 不带 editingRecordId，recordTime 由 initFromPreset 取当前时刻。
+ */
+export interface AddRecordPresetPayload {
+  typeId: number;
+  amount: number;
+  remark: string;
+  assetId: number | null;
+  intoAssetId: number | null;
+  charge: number;
+  tagIds: number[];
+}
+
 export interface AddRecordContextValue {
   mode: AddRecordMode;
   editingRecordId?: number;
@@ -36,6 +50,7 @@ export interface AddRecordContextValue {
   charge: number;
   setCharge: (v: number) => void;
   init: (payload: AddRecordInitPayload) => void;
+  initFromPreset: (payload: AddRecordPresetPayload) => void;
   reset: () => void;
 }
 
@@ -86,6 +101,20 @@ export function AddRecordProvider({ children }: AddRecordProviderProps) {
     setCharge(payload.charge);
   }, []);
 
+  const initFromPreset = useCallback((payload: AddRecordPresetPayload) => {
+    setMode('create');
+    setEditingRecordId(undefined);
+    setInitialTypeId(payload.typeId);
+    setInitialIntoAssetId(payload.intoAssetId);
+    setAmount(payload.amount);
+    setRemark(payload.remark);
+    setRecordTime(Date.now());
+    setTags(payload.tagIds);
+    setImages([]);
+    setAssetId(payload.assetId);
+    setCharge(payload.charge);
+  }, []);
+
   const value = useMemo<AddRecordContextValue>(
     () => ({
       mode,
@@ -107,9 +136,10 @@ export function AddRecordProvider({ children }: AddRecordProviderProps) {
       charge,
       setCharge,
       init,
+      initFromPreset,
       reset,
     }),
-    [amount, assetId, charge, editingRecordId, images, init, initialIntoAssetId, initialTypeId, mode, recordTime, remark, reset, tags]
+    [amount, assetId, charge, editingRecordId, images, init, initFromPreset, initialIntoAssetId, initialTypeId, mode, recordTime, remark, reset, tags]
   );
 
   return <AddRecordContext.Provider value={value}>{children}</AddRecordContext.Provider>;

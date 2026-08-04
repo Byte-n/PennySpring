@@ -78,6 +78,7 @@ function DrawerContent() {
   const navigationItems: NavigationItem[] = [
     { label: '账本管理', route: ROOT_ROUTES.BookManage },
     { label: '资产管理', route: ROOT_ROUTES.AssetManage },
+    { label: '快捷模板管理', route: ROOT_ROUTES.QuickTemplateManage },
     { label: '类型管理', route: ROOT_ROUTES.TypeManage },
     { label: '标签管理', route: ROOT_ROUTES.TagManage },
     { label: '图标预览', route: ROOT_ROUTES.IconPreview },
