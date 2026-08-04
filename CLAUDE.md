@@ -6,30 +6,11 @@
 
 Monorepo（Yarn workspaces）：根目录是 React Native App，`packages/*` 是内部共享包。
 
-```
-packages/pennyspring-theme/ → 设计系统：token、算法、ThemeProvider、createUseSheetStyle
-packages/pennyspring-ui/    → 共享 React Native UI 组件与 examples
-packages/data/          → Drizzle schema、relations、SQLite runtime、migrations
-packages/share/         → 跨包共享工具
-__tests__/              → 根应用测试
-scripts/                → 本地工具脚本
-```
-
 - 数据层路径：`packages/data/src/schema` 定义表，`relations` 定义关联，`runtime/client/createDatabase()` 通过
   op-sqlite connection 创建 Drizzle DB，`runtime/migrations/runMigrations()` 执行打包迁移。
 - 数据库表结构的修改不需要走迁移脚本，因为目前此项目应用并为投入正式使用，直接破坏性修改即可。
 
 ## 开发命令
-
-### 常用命令
-
-- Metro：`yarn start`
-- iOS：`yarn ios`
-- Android：`yarn android`
-- Tests：`yarn test`
-- Lint：`yarn lint`
-- Init Codex：`yarn init:codex`
-- Clean：`yarn clean`
 
 ### 类型与数据
 
@@ -106,21 +87,6 @@ Reanimated 极简核心总结：
 - 界面组成优先使用 `component-composer` 技能获取布局指导。
 - 适配键盘弹出时必须优先使用 `@pennyspring/ui` 的 `KeyboardAware` 系列能力。
 
-## 质量保障
-
-### 代码任务收尾检查
-
-- 涉及代码修改时，`yarn run lint` 与 `yarn run typecheck` 是强制收尾检查，不得省略、跳过；纯文档修改除外。
-- 必须在声明完成前执行，且仅当两项结果均无 error 时才允许宣称完成或进入交付。
-- 若因环境、依赖、脚本或其他外部因素导致无法执行或未通过，必须明确报告阻塞原因与当前结果；问题消除前不得表述为「已完成」。
-
-## Git / Workspace
-
-- 提交使用 conventional commit 风格，常见 scope 如 `data`、`theme`、`components`。
-- commit message 使用中文，保留 `feat:`、`fix:`、`docs:`、`chore:` 等前缀。
-- 工作空间 `.worktrees/*`，分支名 `feature/worktrees-*`；分支命令不允许使用 `-f` / `--force`。
-- workspace 分支任务完成后立即 commit，并通过 Ask User 工具询问是否合并到主分支；合并时压缩 commit 为一条记录。
-
 ## 本地化与格式
 
 ### 语言
@@ -138,3 +104,54 @@ Reanimated 极简核心总结：
 | `.formatDateBy(format)` | 自定义 | 透传 dayjs 格式字符串 |
 
 类型声明位于 `src/types/prototype.d.ts`，Dayjs 扩展通过 `declare module 'dayjs'` 声明。
+
+## 质量保障
+
+### 代码任务收尾检查
+
+- 涉及代码修改时，`yarn run lint` 与 `yarn run typecheck` 是强制收尾检查，不得省略、跳过；纯文档修改除外。
+- 必须在声明完成前执行，且仅当两项结果均无 error 时才允许宣称完成或进入交付。
+- 若因环境、依赖、脚本或其他外部因素导致无法执行或未通过，必须明确报告阻塞原因与当前结果；问题消除前不得表述为「已完成」。
+
+### 测试用例编写要求
+
+- 最低覆盖率目标为 80%；
+- 测试文件使用 `*.test.ts` / `*.test.tsx`，集中在根 `__tests__/` 或各包 `__tests__/`。
+- 按 AAA（Arrange-Act-Assert）组织测试；测试名必须直接描述被验证的行为。
+- 禁止为 Typescript 类型、源代码包含特定字符、模块导出导入、theme token、style value、常量值、样式等添加测试用例。
+- 缺陷修复场景中，新增用例只能覆盖此前未被保护的行为；原有正确用例必须继续按原行为通过，禁止为迁就实现而反向修改正确测试。
+
+### TDD 测试驱动开发
+
+**`packages/**` 下的代码修改必须严格遵守 TDD 流程：**
+
+1. **RED**：先按照“测试用例编写要求”为新行为或缺陷编写失败测试。
+2. **GREEN**：以最小改动使目标测试通过，不附带无关重构或范围扩张。
+3. **REFACTOR**：在全部测试通过的前提下清理实现，完成后重跑相关测试。
+4. **验证**：对应 workspace 的测试脚本运行，确保无回归。
+5. **失败归因与纠偏**：测试失败时先定位真因（实现 / 用例 / 环境），再做最小修改。修复**仅针对缺陷本身纠错**，不得借修 bug
+   之名改动原需求逻辑、扩大或收窄原定预期行为，避免出现“修 bug
+   导致需求不符”。
+
+**以下任务豁免 TDD 流程与新增测试**（仍需在完成后运行 `yarn test`，保证存量用例全绿）：
+
+- `packages/pennyspring-ui/examples/` 的任何修改（预览/样例专用，不进入产物行为）。
+- 文档修改。
+- 依赖、项目工程化配置
+- 静态资产新增或替换
+- 删除、移除等「减」任务：需同步移除被删行为关联的测试；若剩余用例仍覆盖保留行为，必须全部通过。
+
+### Git
+
+- commit 使用 conventional commit 风格，常见 scope 如 `data`、`theme`、`components`。
+- commit message 使用中文，但保持 `feat:`、`fix:`、`docs:`、`chore:` 等前缀。
+- commit 时需要将内容适当分组提交，禁止过度拆分。
+- 命令不允许使用 `-f` / `--force`，否则会造成不可逆的数据丢失！
+
+### workspace
+
+复杂的任务优先在独立的 worktree 中进行。
+
+- 工作空间：`.worktrees/*`
+- 分支名称：`worktrees/{feature}`
+- workspace 分支的任务完成后立即 commit, 并通过 Ask User 工具询问是否合并到主分支，合并时需要压缩 commit 为一条记录。
