@@ -5,7 +5,6 @@ import {
   Pressable,
   StyleSheet,
   Text as RNText,
-  View,
 } from 'react-native';
 import { ThemeProvider } from '@pennyspring/theme';
 import { withTiming } from 'react-native-reanimated';
@@ -478,13 +477,13 @@ describe('Popup.FloatingPanel', () => {
     const footer = testRenderer!.root.findByProps({
       testID: 'floating-panel-footer',
     });
-    const panelBody = testRenderer!.root.findAllByType(View).find(node => {
-      const style = StyleSheet.flatten(node.props.style);
-
-      return style?.flex === 1 && style?.paddingHorizontal !== undefined;
+    const panelBody = testRenderer!.root.findByProps({
+      testID: 'floating-panel-body',
     });
     const headerStyle = StyleSheet.flatten(header.props.style);
-    const panelBodyStyle = StyleSheet.flatten(panelBody?.props.style);
+    const panelBodyStyle = StyleSheet.flatten(
+      panelBody.props.contentContainerStyle,
+    );
     const footerStyle = StyleSheet.flatten(footer.props.style);
 
     expect(headerStyle.paddingHorizontal).toBe(expectedPadding);
