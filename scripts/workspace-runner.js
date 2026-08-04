@@ -57,7 +57,9 @@ async function main() {
   }
 
   // 构建选择列表
+  // inquirer-search-list 选中后会把 value 直接回显，因此 value 用字符串，命令信息存到 map 反查
   const choices = [];
+  const commandMap = new Map();
 
   // 添加根目录 scripts（排除 ws 命令本身）
   const rootPackageJsonPath = path.join(__dirname, '..', 'package.json');
@@ -66,11 +68,9 @@ async function main() {
     if (rootPackageJson.scripts) {
       Object.keys(rootPackageJson.scripts).forEach((script) => {
         if (script !== 'ws') {
-          choices.push({
-            name: `根目录 → ${script}`,
-            value: { workspace: null, script },
-            short: `root:${script}`,
-          });
+          const value = `root:${script}`;
+          commandMap.set(value, { workspace: null, script });
+          choices.push({ name: `根目录 → ${script}`, value });
         }
       });
     }
@@ -80,11 +80,9 @@ async function main() {
   workspaces.forEach((ws) => {
     const scriptNames = Object.keys(ws.scripts);
     scriptNames.forEach((script) => {
-      choices.push({
-        name: `${ws.name} → ${script}`,
-        value: { workspace: ws.name, script },
-        short: `${ws.name}:${script}`,
-      });
+      const value = `${ws.name}:${script}`;
+      commandMap.set(value, { workspace: ws.name, script });
+      choices.push({ name: `${ws.name} → ${script}`, value });
     });
   });
 
@@ -98,7 +96,7 @@ async function main() {
     },
   ]);
 
-  const { workspace, script } = selection;
+  const { workspace, script } = commandMap.get(selection);
   const command = workspace
     ? `yarn workspace ${workspace} ${script}`
     : `yarn ${script}`;
