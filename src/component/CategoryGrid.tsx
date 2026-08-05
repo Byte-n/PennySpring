@@ -13,7 +13,7 @@ import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
 import { chunk, isNil } from 'es-toolkit';
 import { TypeRow } from '@pennyspring/api';
 import { getPhosphorIconComponent } from '../constants/typeIconTree.ts';
-import { useControllableValue } from '../../packages/pennyspring-ui/src/_hooks';
+import { useControllableValue } from '@pennyspring/ui/src/_hooks';
 
 export interface CategoryItem extends Omit<TypeRow, 'icon'> {
   icon: TypeRow['icon'] | IconComponent;

@@ -4,11 +4,11 @@
   "private": true,
   "main": "app.js",
   "scripts": {
-    "android": "react-native run-android",
+    "android": "react-native run-android --port 8081",
     "clean": "bash ../../../scripts/clean.sh --app .",
-    "ios": "react-native run-ios",
+    "ios": "react-native run-ios --port 8081",
     "lint": "eslint .",
-    "start": "react-native start",
+    "start": "react-native start --port 8081",
     "typecheck": "tsc --noEmit",
     "test": "echo 'No tests yet' && exit 0"
   },
