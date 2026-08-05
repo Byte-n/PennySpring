@@ -12,7 +12,6 @@
     "test": "echo 'No tests yet' && exit 0"
   },
   "peerDependencies": {
-    "@react-navigation/material-top-tabs": "*",
     "react": "*",
     "react-native": "*",
     "react-native-gesture-handler": "*",

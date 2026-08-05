@@ -9,7 +9,6 @@ import { AssetManageScreen } from '../screens/assetManage/AssetManageScreen';
 import { BookManageScreen } from '../screens/bookManage/BookManageScreen';
 import { HomeScreen } from '../screens/home/HomeScreen';
 import { IconPreviewScreen } from '../screens/iconPreview';
-import { QuickTemplateManageScreen } from '../screens/quickTemplate/QuickTemplateManageScreen';
 import { TestScreen } from '../screens/test';
 import { TagManageScreen } from '../screens/tagManage/TagManageScreen';
 import { TypeManageScreen } from '../screens/typeManage/TypeManageScreen';
@@ -68,7 +67,13 @@ export function RootStackNavigator() {
         component={AddRecordScreen}
         name={ROOT_ROUTES.AddRecord}
         options={({ route }) => ({
-          title: route.params?.recordId !== undefined ? '编辑记录' : '新增记录',
+          title: route.params?.template
+            ? route.params?.templatePayload
+              ? '编辑模板'
+              : '新增模板'
+            : route.params?.recordId !== undefined
+              ? '编辑记录'
+              : '新增记录',
         })}
       />
       <Stack.Screen
@@ -100,11 +105,6 @@ export function RootStackNavigator() {
         component={AssetManageScreen}
         name={ROOT_ROUTES.AssetManage}
         options={{ title: '资产管理' }}
-      />
-      <Stack.Screen
-        component={QuickTemplateManageScreen}
-        name={ROOT_ROUTES.QuickTemplateManage}
-        options={{ title: '快捷模板管理' }}
       />
       <Stack.Screen
         component={IconPreviewScreen}

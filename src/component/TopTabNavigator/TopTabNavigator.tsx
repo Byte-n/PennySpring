@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useEffect } from 'react';
 import {
   createMaterialTopTabNavigator,
   type MaterialTopTabBarProps,
@@ -6,6 +6,7 @@ import {
 import { HeaderBar } from './HeaderBar';
 import { useTopTabNavigatorStyles } from './style';
 import type { TopTabNavigatorProps } from './types';
+import { useNavigationState } from '@react-navigation/native';
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -27,6 +28,9 @@ function renderHeaderBar(
   );
 }
 
+/**
+ * 自定义的 Tab.Navigator 组件，依旧需要在全局的 NavigationContainer 下使用
+ */
 export function TopTabNavigator({
   initialRouteName,
   leftActions,
@@ -37,16 +41,13 @@ export function TopTabNavigator({
   onIndexChange,
 }: TopTabNavigatorProps) {
   const tokenStyles = useTopTabNavigatorStyles();
-  const prevIndexRef = useRef<number>(-1);
+  const currentIndex = useNavigationState(state => state.index);
+
+  useEffect(() => {
+    onIndexChange?.(currentIndex);
+  }, [currentIndex]);
 
   const handleTabBarProps = (props: MaterialTopTabBarProps) => {
-    const currentIndex = props.state.index;
-
-    if (prevIndexRef.current !== currentIndex) {
-      prevIndexRef.current = currentIndex;
-      onIndexChange?.(currentIndex);
-    }
-
     return renderHeaderBar(props, {
       leftActions,
       rightActions,

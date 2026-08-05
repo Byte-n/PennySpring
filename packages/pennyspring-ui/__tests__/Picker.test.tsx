@@ -1,13 +1,6 @@
 import React from 'react';
 import renderer, { act } from 'react-test-renderer';
 
-jest.mock('@react-navigation/material-top-tabs', () => ({
-  createMaterialTopTabNavigator: () => ({
-    Navigator: 'Navigator',
-    Screen: 'Screen',
-  }),
-}));
-
 jest.mock('react-native-gesture-handler', () => {
   const ReactModule = require('react');
   const ReactNative = require('react-native');

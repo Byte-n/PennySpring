@@ -7,10 +7,10 @@ import { createUseSheetStyle } from '@pennyspring/theme';
 import { type AssetRow, type TypeRow, type TagRow } from '@pennyspring/api';
 import { useBookStore, useGlobalApi } from '../../../stores/bookStore';
 import { ROOT_ROUTES, useNavigation } from '../../../navigation';
+import { useRecordSync } from '../recordSync';
 import { MonthSummaryCard } from './detail/MonthSummaryCard';
 import { DayGroupCard } from './detail/DayGroupCard';
 import { RecordDetailPanel } from './detail/RecordDetailPanel';
-import { QuickEntryBar } from '../../quickTemplate/QuickEntryBar';
 import {
   buildDetailViews,
   filterByMonth,
@@ -44,6 +44,7 @@ export function DetailTabScreen() {
   const navigation = useNavigation();
   const currentBook = useBookStore(state => state.currentBook);
   const globalApi = useGlobalApi();
+  const { version } = useRecordSync();
   const [activeView, setActiveView] = useState<DetailRecordView | null>(null);
   const [pendingDelete, setPendingDelete] = useState<DetailRecordView | null>(null);
 
@@ -51,7 +52,7 @@ export function DetailTabScreen() {
 
   const { data: records = [], loading, refresh } = useRequest(
     () => (bookId ? globalApi.record.getByBook(bookId) : Promise.resolve([])),
-    { refreshDeps: [bookId] },
+    { refreshDeps: [bookId, version] },
   );
   const { data: types = [] } = useRequest<TypeRow[], []>(
     () => (bookId ? globalApi.type.getAll(bookId) : Promise.resolve([])),
@@ -152,7 +153,6 @@ export function DetailTabScreen() {
           contentContainerStyle={styles.content}
           refreshControl={<RefreshControl refreshing={loading} onRefresh={refresh} />}
         >
-        <QuickEntryBar onCreated={refresh} />
         <MonthSummaryCard monthLabel={monthLabel} summary={summary} />
         {renderBody()}
       </ScrollView>

@@ -1,5 +1,6 @@
 import React, { createContext, useCallback, useContext, useMemo, useState } from 'react';
 import type { ImagePickerValue } from '@pennyspring/ui';
+import type { RecordTypeCategoryValue } from '@pennyspring/api';
 
 export type AddRecordMode = 'create' | 'edit';
 
@@ -14,6 +15,7 @@ export interface AddRecordInitPayload {
   assetId: number | null;
   intoAssetId: number | null;
   charge: number;
+  reimbursable: boolean;
 }
 
 /**
@@ -27,12 +29,40 @@ export interface AddRecordPresetPayload {
   assetId: number | null;
   intoAssetId: number | null;
   charge: number;
+  reimbursable: boolean;
+  tagIds: number[];
+}
+
+/**
+ * 模板编辑载荷。用于「以 AddRecord 复用编辑/新增模板」：
+ * 携带 id 表示编辑现有模板；新增模板时不传此载荷。
+ * typeCategory 供 AddRecordScreen 决定初始 tab。
+ */
+export interface AddRecordTemplatePayload {
+  id: string;
+  name: string;
+  typeCategory: RecordTypeCategoryValue;
+  typeId: number;
+  amount: number;
+  charge: number;
+  remark: string;
+  assetId: number | null;
+  intoAssetId: number | null;
+  reimbursable: boolean;
   tagIds: number[];
 }
 
 export interface AddRecordContextValue {
   mode: AddRecordMode;
   editingRecordId?: number;
+  /** 是否处于模板编辑流程（新增/编辑模板） */
+  template: boolean;
+  /** 编辑模板时携带的模板 id；undefined 表示新增模板 */
+  editingTemplateId?: string;
+  templateName: string;
+  setTemplateName: (v: string) => void;
+  reimbursable: boolean;
+  setReimbursable: (v: boolean) => void;
   initialTypeId?: number;
   initialIntoAssetId?: number | null;
   amount: number;
@@ -51,6 +81,8 @@ export interface AddRecordContextValue {
   setCharge: (v: number) => void;
   init: (payload: AddRecordInitPayload) => void;
   initFromPreset: (payload: AddRecordPresetPayload) => void;
+  initFromTemplate: (payload: AddRecordTemplatePayload) => void;
+  initBlankTemplate: () => void;
   reset: () => void;
 }
 
@@ -63,6 +95,10 @@ interface AddRecordProviderProps {
 export function AddRecordProvider({ children }: AddRecordProviderProps) {
   const [mode, setMode] = useState<AddRecordMode>('create');
   const [editingRecordId, setEditingRecordId] = useState<number>();
+  const [template, setTemplate] = useState(false);
+  const [editingTemplateId, setEditingTemplateId] = useState<string>();
+  const [templateName, setTemplateName] = useState('');
+  const [reimbursable, setReimbursable] = useState(false);
   const [initialTypeId, setInitialTypeId] = useState<number>();
   const [initialIntoAssetId, setInitialIntoAssetId] = useState<number | null>();
   const [amount, setAmount] = useState(0);
@@ -76,6 +112,10 @@ export function AddRecordProvider({ children }: AddRecordProviderProps) {
   const reset = useCallback(() => {
     setMode('create');
     setEditingRecordId(undefined);
+    setTemplate(false);
+    setEditingTemplateId(undefined);
+    setTemplateName('');
+    setReimbursable(false);
     setInitialTypeId(undefined);
     setInitialIntoAssetId(undefined);
     setAmount(0);
@@ -99,6 +139,7 @@ export function AddRecordProvider({ children }: AddRecordProviderProps) {
     setImages(payload.images);
     setAssetId(payload.assetId);
     setCharge(payload.charge);
+    setReimbursable(payload.reimbursable);
   }, []);
 
   const initFromPreset = useCallback((payload: AddRecordPresetPayload) => {
@@ -113,12 +154,55 @@ export function AddRecordProvider({ children }: AddRecordProviderProps) {
     setImages([]);
     setAssetId(payload.assetId);
     setCharge(payload.charge);
+    setReimbursable(payload.reimbursable);
+  }, []);
+
+  const initFromTemplate = useCallback((payload: AddRecordTemplatePayload) => {
+    setMode('create');
+    setEditingRecordId(undefined);
+    setTemplate(true);
+    setEditingTemplateId(payload.id);
+    setTemplateName(payload.name);
+    setReimbursable(payload.reimbursable);
+    setInitialTypeId(payload.typeId);
+    setInitialIntoAssetId(payload.intoAssetId);
+    setAmount(payload.amount);
+    setRemark(payload.remark);
+    setTags(payload.tagIds);
+    setImages([]);
+    setAssetId(payload.assetId);
+    setCharge(payload.charge);
+    setRecordTime(Date.now());
+  }, []);
+
+  const initBlankTemplate = useCallback(() => {
+    setMode('create');
+    setEditingRecordId(undefined);
+    setTemplate(true);
+    setEditingTemplateId(undefined);
+    setTemplateName('');
+    setReimbursable(false);
+    setInitialTypeId(undefined);
+    setInitialIntoAssetId(undefined);
+    setAmount(0);
+    setRemark('');
+    setTags([]);
+    setImages([]);
+    setAssetId(null);
+    setCharge(0);
+    setRecordTime(Date.now());
   }, []);
 
   const value = useMemo<AddRecordContextValue>(
     () => ({
       mode,
       editingRecordId,
+      template,
+      editingTemplateId,
+      templateName,
+      setTemplateName,
+      reimbursable,
+      setReimbursable,
       initialTypeId,
       initialIntoAssetId,
       amount,
@@ -137,9 +221,32 @@ export function AddRecordProvider({ children }: AddRecordProviderProps) {
       setCharge,
       init,
       initFromPreset,
+      initFromTemplate,
+      initBlankTemplate,
       reset,
     }),
-    [amount, assetId, charge, editingRecordId, images, init, initFromPreset, initialIntoAssetId, initialTypeId, mode, recordTime, remark, reset, tags]
+    [
+      amount,
+      assetId,
+      charge,
+      editingRecordId,
+      editingTemplateId,
+      images,
+      init,
+      initBlankTemplate,
+      initFromPreset,
+      initFromTemplate,
+      initialIntoAssetId,
+      initialTypeId,
+      mode,
+      recordTime,
+      remark,
+      reset,
+      reimbursable,
+      tags,
+      template,
+      templateName,
+    ],
   );
 
   return <AddRecordContext.Provider value={value}>{children}</AddRecordContext.Provider>;

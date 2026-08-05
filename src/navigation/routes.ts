@@ -7,7 +7,6 @@ export const ROOT_ROUTES = {
   TagManage: 'TagManage',
   TypeManage: 'TypeManage',
   AssetManage: 'AssetManage',
-  QuickTemplateManage: 'QuickTemplateManage',
   IconPreview: 'IconPreview',
 } as const;
 

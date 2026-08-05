@@ -287,16 +287,6 @@ export type {
   PopupProps,
   PopupStyles,
 } from './Popup';
-export {
-  TopTabNavigator,
-} from './TopTabNavigator';
-export type {
-  HeaderBarStyles,
-  SegmentedControlStyles,
-  TabScreen,
-  TopTabNavigatorProps,
-  TopTabNavigatorStyles,
-} from './TopTabNavigator';
 export { Progress, ProgressBar, ProgressCircle } from './Progress';
 export type {
   ProgressBarProps,

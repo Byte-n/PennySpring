@@ -17,6 +17,8 @@ import {
   ROOT_ROUTES,
   useNavigation,
 } from '../../navigation';
+import { RecordSyncProvider } from './recordSync';
+import { QuickTemplatePanel } from '../quickTemplate/QuickTemplatePanel';
 
 const APP_NAME = 'PennySpring';
 const APP_VERSION = '0.0.1';
@@ -78,7 +80,6 @@ function DrawerContent() {
   const navigationItems: NavigationItem[] = [
     { label: '账本管理', route: ROOT_ROUTES.BookManage },
     { label: '资产管理', route: ROOT_ROUTES.AssetManage },
-    { label: '快捷模板管理', route: ROOT_ROUTES.QuickTemplateManage },
     { label: '类型管理', route: ROOT_ROUTES.TypeManage },
     { label: '标签管理', route: ROOT_ROUTES.TagManage },
     { label: '图标预览', route: ROOT_ROUTES.IconPreview },
@@ -122,6 +123,7 @@ export function HomeScreen() {
   const navigation = useNavigation();
   const isFocused = useIsFocused();
   const [isDrawerOpen, setIsDrawerOpen] = React.useState(false);
+  const [isTemplatePanelOpen, setIsTemplatePanelOpen] = React.useState(false);
 
   const openDrawer = React.useCallback(() => {
     setIsDrawerOpen(true);
@@ -132,7 +134,7 @@ export function HomeScreen() {
   }, []);
 
   return (
-    <>
+    <RecordSyncProvider>
       <Drawer.Layout
         onCancel={closeDrawer}
         onOpenChange={setIsDrawerOpen}
@@ -143,7 +145,14 @@ export function HomeScreen() {
       </Drawer.Layout>
       {isFocused && (
         <FloatingActionGroup
+          defaultVisibleCount={2}
           actions={[
+            {
+              key: 'quick-template',
+              icon: 'list',
+              onPress: () => setIsTemplatePanelOpen(true),
+              buttonProps: { type: 'default' },
+            },
             {
               key: 'add-record',
               icon: 'plus',
@@ -152,6 +161,10 @@ export function HomeScreen() {
           ]}
         />
       )}
-    </>
+      <QuickTemplatePanel
+        open={isTemplatePanelOpen}
+        onOpenChange={setIsTemplatePanelOpen}
+      />
+    </RecordSyncProvider>
   );
 }

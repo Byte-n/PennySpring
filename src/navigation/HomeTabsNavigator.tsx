@@ -1,9 +1,9 @@
 import React from 'react';
-import { TopTabNavigator, type TabScreen } from '@pennyspring/ui';
 
 import { ChartTabScreen } from '../screens/home/tabs/ChartTabScreen';
 import { DetailTabScreen } from '../screens/home/tabs/DetailTabScreen';
 import { HOME_TAB_ROUTES } from './routes';
+import { TabScreen, TopTabNavigator } from '../component/TopTabNavigator';
 
 interface HomeTabsNavigatorProps {
   leftActions?: React.ReactNode;

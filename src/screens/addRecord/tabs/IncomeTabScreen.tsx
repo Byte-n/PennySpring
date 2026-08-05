@@ -25,6 +25,7 @@ import {
   saveAddRecordDraft,
   validateAddRecordDraft,
 } from '../addRecordDraft';
+import { buildNewQuickTemplate, validateTemplateDraft } from '../templateDraft';
 import {
   toAssetOptions,
   toRelatedRecordOptions,
@@ -35,6 +36,7 @@ import { useAddRecordResources } from '../useAddRecordResources';
 import { useInitialTypeId } from '../useInitialTypeId';
 import { useNavigation } from '../../../navigation';
 import { useGlobalApi } from '../../../stores/bookStore';
+import { useQuickTemplateStore } from '../../quickTemplate/quickTemplateStore';
 
 export function IncomeTabScreen() {
   const { token } = useTheme();
@@ -46,6 +48,7 @@ export function IncomeTabScreen() {
     amount,
     assetId,
     editingRecordId,
+    editingTemplateId,
     images,
     initialTypeId,
     recordTime,
@@ -56,10 +59,14 @@ export function IncomeTabScreen() {
     setRecordTime,
     setTags,
     tags,
+    template,
+    templateName,
   } = useAddRecordContext();
   const [typeId, setTypeId] = useState<number>();
   const [relatedRecordIds, setRelatedRecordIds] = useState<number[]>([]);
   const [submitting, setSubmitting] = useState(false);
+  const addTemplate = useQuickTemplateStore(state => state.addTemplate);
+  const updateTemplate = useQuickTemplateStore(state => state.updateTemplate);
   const { categories, loading: categoriesLoading } = useCategoryItems(
     RECORD_TYPE_CATEGORY.income,
   );
@@ -122,6 +129,43 @@ export function IncomeTabScreen() {
       imagePaths: images.map(image => image.uri),
       relatedRecordIds,
     };
+
+    if (template) {
+      const validationMessage = validateTemplateDraft(templateName, 'income', draft);
+      if (validationMessage !== undefined) {
+        toast.show({ messageText: validationMessage });
+        return;
+      }
+      if (!currentBook) {
+        toast.show({ messageText: '未找到当前账本' });
+        return;
+      }
+      try {
+        setSubmitting(true);
+        const payload = buildNewQuickTemplate('income', draft, {
+          booksId: currentBook.id,
+          name: templateName,
+        });
+        if (editingTemplateId !== undefined) {
+          updateTemplate(currentBook.id, editingTemplateId, payload);
+        } else {
+          addTemplate(currentBook.id, payload);
+        }
+        reset();
+        toast.show({
+          messageText: editingTemplateId !== undefined ? '已更新模板' : '已新增模板',
+        });
+        navigation.goBack();
+      } catch (error: unknown) {
+        toast.show({
+          messageText: error instanceof Error ? error.message : '保存失败',
+        });
+      } finally {
+        setSubmitting(false);
+      }
+      return;
+    }
+
     const validationMessage = validateAddRecordDraft('income', draft);
     if (validationMessage !== undefined) {
       toast.show({ messageText: validationMessage });
@@ -142,10 +186,12 @@ export function IncomeTabScreen() {
       setSubmitting(false);
     }
   }, [
+    addTemplate,
     amount,
     assetId,
     currentBook,
     editingRecordId,
+    editingTemplateId,
     images,
     navigation,
     recordTime,
@@ -154,8 +200,11 @@ export function IncomeTabScreen() {
     reset,
     selectedType,
     tags,
+    template,
+    templateName,
     toast,
     typeId,
+    updateTemplate,
   ]);
 
   return (
@@ -193,24 +242,28 @@ export function IncomeTabScreen() {
                 }}
                 value={assetId ?? undefined}
               />
-              <RecordDateTimeField
-                value={recordTime}
-                onChange={setRecordTime}
-              />
-              <ImagePicker
-                multiple
-                maxCount={3}
-                onError={(error: unknown) => {
-                  toast.show({
-                    messageText:
-                      error instanceof Error ? error.message : '选择图片失败',
-                  });
-                }}
-                labelText="图片"
-                value={images}
-                onChange={setImages}
-                style={styles.formField}
-              />
+              {!template && (
+                <RecordDateTimeField
+                  value={recordTime}
+                  onChange={setRecordTime}
+                />
+              )}
+              {!template && (
+                <ImagePicker
+                  multiple
+                  maxCount={3}
+                  onError={(error: unknown) => {
+                    toast.show({
+                      messageText:
+                        error instanceof Error ? error.message : '选择图片失败',
+                    });
+                  }}
+                  labelText="图片"
+                  value={images}
+                  onChange={setImages}
+                  style={styles.formField}
+                />
+              )}
               <SelectionList
                 displayMode="tag"
                 labelText="标签"
@@ -228,7 +281,7 @@ export function IncomeTabScreen() {
                 }}
                 value={tags}
               />
-              {isAbsorption ? (
+              {!template && isAbsorption ? (
                 <SelectionList
                   displayMode="tag"
                   labelText="关联支出"
@@ -253,7 +306,7 @@ export function IncomeTabScreen() {
           </Card>
           <RemarkInput />
           <Button block loading={submitting} onPress={handleSave} type="primary">
-            保存收入
+            {template ? '保存模板' : '保存收入'}
           </Button>
         </Column>
       </KeyboardAwareFormScroll>

@@ -3,12 +3,6 @@ import renderer, { act } from 'react-test-renderer';
 import { DisplayInput } from '../src/DisplayInput';
 import { PickerTrigger } from '../src/Picker/PickerTrigger';
 
-jest.mock('@react-navigation/material-top-tabs', () => ({
-  createMaterialTopTabNavigator: () => ({
-    Navigator: 'Navigator',
-    Screen: 'Screen',
-  }),
-}));
 
 it('renders readonly display input trigger with label when no children', () => {
   let testRenderer: renderer.ReactTestRenderer;

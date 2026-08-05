@@ -98,7 +98,6 @@ const sidebars = {
             'components/navigation/side-bar',
             'components/navigation/tab-bar',
             'components/navigation/steps',
-            'components/navigation/top-tab-navigator',
           ],
         },
       ],

@@ -1,6 +1,6 @@
 import React from 'react';
-import { Segmented } from '../Segmented';
-import type { SegmentedOption } from '../Segmented';
+import { Segmented } from '@pennyspring/ui';
+import type { SegmentedOption } from '@pennyspring/ui';
 import type {
   DescriptorLike,
   RouteLike,

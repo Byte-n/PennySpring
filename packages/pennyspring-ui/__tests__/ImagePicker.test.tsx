@@ -19,12 +19,6 @@ jest.mock('../src/ImagePicker/nativePickers', () => ({
   pickImageFromLibrary: jest.fn(),
 }));
 
-jest.mock('@react-navigation/material-top-tabs', () => ({
-  createMaterialTopTabNavigator: () => ({
-    Navigator: 'Navigator',
-    Screen: 'Screen',
-  }),
-}));
 
 const mockPickImageFromFiles = jest.mocked(pickImageFromFiles);
 const mockPickImageFromLibrary = jest.mocked(pickImageFromLibrary);

@@ -53,7 +53,6 @@ import { portalDemos } from './navigation/portal/demos';
 import { sideBarDemos } from './navigation/side-bar/demos';
 import { stepsDemos } from './navigation/steps/demos';
 import { tabBarDemos } from './navigation/tab-bar/demos';
-import { topTabNavigatorDemos } from './navigation/top-tab-navigator/demos';
 import { CalendarPreview } from './data-entry/calendar';
 import { CalculatorInputPreview } from './data-entry/calculator-input';
 import { CascaderPreview } from './data-entry/cascader';
@@ -108,7 +107,6 @@ import { PortalPreview } from './navigation/portal';
 import { SideBarPreview } from './navigation/side-bar';
 import { TabBarPreview } from './navigation/tab-bar';
 import { StepsPreview } from './navigation/steps';
-import { TopTabNavigatorPreview } from './navigation/top-tab-navigator';
 import { PreviewScaffold, PreviewSection } from './PreviewScaffold';
 import type { ComponentType } from 'react';
 import type { ComponentPreviewItem, ComponentPreviewSection } from './types';
@@ -225,11 +223,6 @@ const DEMO_PREVIEW_ITEMS = [
   ...createDemoPreviewItems('side-bar', 'SideBar', sideBarDemos),
   ...createDemoPreviewItems('steps', 'Steps', stepsDemos),
   ...createDemoPreviewItems('tab-bar', 'TabBar', tabBarDemos),
-  ...createDemoPreviewItems(
-    'top-tab-navigator',
-    'TopTabNavigator',
-    topTabNavigatorDemos,
-  ),
 ] satisfies ComponentPreviewItem[];
 
 export const COMPONENT_PREVIEW_SECTIONS = [
@@ -573,12 +566,6 @@ export const COMPONENT_PREVIEW_SECTIONS = [
         title: 'IndexBar',
         description: '索引导航侧栏与分组面板。',
         component: IndexBarPreview,
-      },
-      {
-        id: 'top-tab-navigator',
-        title: 'TopTabNavigator',
-        description: '顶部标签页和分段控制。',
-        component: TopTabNavigatorPreview,
       },
       {
         id: 'portal',

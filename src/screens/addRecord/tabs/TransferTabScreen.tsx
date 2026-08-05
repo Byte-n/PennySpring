@@ -24,11 +24,13 @@ import {
   saveAddRecordDraft,
   validateAddRecordDraft,
 } from '../addRecordDraft';
+import { buildNewQuickTemplate, validateTemplateDraft } from '../templateDraft';
 import { toAssetOptions, toTagOptions } from '../recordOptions';
 import { toNumberValue, toNumberValues } from '../selectValues';
 import { useAddRecordResources } from '../useAddRecordResources';
 import { useInitialTypeId } from '../useInitialTypeId';
 import { useNavigation } from '../../../navigation';
+import { useQuickTemplateStore } from '../../quickTemplate/quickTemplateStore';
 
 export function TransferTabScreen() {
   const { token } = useTheme();
@@ -40,6 +42,7 @@ export function TransferTabScreen() {
     assetId,
     charge,
     editingRecordId,
+    editingTemplateId,
     images,
     initialIntoAssetId,
     initialTypeId,
@@ -52,10 +55,14 @@ export function TransferTabScreen() {
     setRecordTime,
     setTags,
     tags,
+    template,
+    templateName,
   } = useAddRecordContext();
   const [typeId, setTypeId] = useState<number>();
   const [intoAssetId, setIntoAssetId] = useState<number | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const addTemplate = useQuickTemplateStore(state => state.addTemplate);
+  const updateTemplate = useQuickTemplateStore(state => state.updateTemplate);
   const { categories, loading: categoriesLoading } = useCategoryItems(
     RECORD_TYPE_CATEGORY.transfer,
   );
@@ -131,6 +138,43 @@ export function TransferTabScreen() {
       imagePaths: images.map(image => image.uri),
       relatedRecordIds: [],
     };
+
+    if (template) {
+      const validationMessage = validateTemplateDraft(templateName, 'transfer', draft);
+      if (validationMessage !== undefined) {
+        toast.show({ messageText: validationMessage });
+        return;
+      }
+      if (!currentBook) {
+        toast.show({ messageText: '未找到当前账本' });
+        return;
+      }
+      try {
+        setSubmitting(true);
+        const payload = buildNewQuickTemplate('transfer', draft, {
+          booksId: currentBook.id,
+          name: templateName,
+        });
+        if (editingTemplateId !== undefined) {
+          updateTemplate(currentBook.id, editingTemplateId, payload);
+        } else {
+          addTemplate(currentBook.id, payload);
+        }
+        reset();
+        toast.show({
+          messageText: editingTemplateId !== undefined ? '已更新模板' : '已新增模板',
+        });
+        navigation.goBack();
+      } catch (error: unknown) {
+        toast.show({
+          messageText: error instanceof Error ? error.message : '保存失败',
+        });
+      } finally {
+        setSubmitting(false);
+      }
+      return;
+    }
+
     const validationMessage = validateAddRecordDraft('transfer', draft);
     if (validationMessage !== undefined) {
       toast.show({ messageText: validationMessage });
@@ -151,11 +195,13 @@ export function TransferTabScreen() {
       setSubmitting(false);
     }
   }, [
+    addTemplate,
     amount,
     assetId,
     charge,
     currentBook,
     editingRecordId,
+    editingTemplateId,
     images,
     intoAssetId,
     navigation,
@@ -164,8 +210,11 @@ export function TransferTabScreen() {
     reset,
     selectedType,
     tags,
+    template,
+    templateName,
     toast,
     typeId,
+    updateTemplate,
   ]);
 
   return (
@@ -224,24 +273,28 @@ export function TransferTabScreen() {
                 value={charge}
                 onChange={setCharge}
               />
-              <RecordDateTimeField
-                value={recordTime}
-                onChange={setRecordTime}
-              />
-              <ImagePicker
-                multiple
-                maxCount={3}
-                onError={(error: unknown) => {
-                  toast.show({
-                    messageText:
-                      error instanceof Error ? error.message : '选择图片失败',
-                  });
-                }}
-                labelText="图片"
-                value={images}
-                onChange={setImages}
-                style={styles.formField}
-              />
+              {!template && (
+                <RecordDateTimeField
+                  value={recordTime}
+                  onChange={setRecordTime}
+                />
+              )}
+              {!template && (
+                <ImagePicker
+                  multiple
+                  maxCount={3}
+                  onError={(error: unknown) => {
+                    toast.show({
+                      messageText:
+                        error instanceof Error ? error.message : '选择图片失败',
+                    });
+                  }}
+                  labelText="图片"
+                  value={images}
+                  onChange={setImages}
+                  style={styles.formField}
+                />
+              )}
               <SelectionList
                 displayMode="tag"
                 labelText="标签"
@@ -263,7 +316,7 @@ export function TransferTabScreen() {
           </Card>
           <RemarkInput />
           <Button block loading={submitting} onPress={handleSave} type="primary">
-            保存转账
+            {template ? '保存模板' : '保存转账'}
           </Button>
         </Column>
       </KeyboardAwareFormScroll>
