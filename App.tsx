@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { StatusBar, useColorScheme } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import BootSplash from 'react-native-bootsplash';
 import { ThemeProvider } from '@pennyspring/theme';
 import { App as PSApp } from '@pennyspring/ui';
 import { rootNavigationRef, RootStackNavigator } from './src/navigation';
@@ -57,7 +58,14 @@ function AppContent() {
     <SafeAreaProvider>
       <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
       <ThemeProvider config={{ algorithm: themeMode }}>
-        <NavigationContainer ref={rootNavigationRef}>
+        <NavigationContainer
+          ref={rootNavigationRef}
+          onReady={() => {
+            BootSplash.hide({ fade: true }).catch(error => {
+              console.error('Boot splash dismissal failed:', error);
+            });
+          }}
+        >
           <PSApp>
             <RootStackNavigator />
           </PSApp>
