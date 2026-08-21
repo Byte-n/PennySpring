@@ -8,6 +8,7 @@
   ],
   "scripts": {
     "android": "react-native run-android --port 8080",
+    "release:android": "node scripts/release-android.js",
     "ios": "react-native run-ios --port 8080",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
