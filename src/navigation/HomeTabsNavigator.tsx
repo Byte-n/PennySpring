@@ -20,13 +20,13 @@ interface HomeTabsNavigatorProps {
 const HOME_TAB_SCREENS: readonly TabScreen[] = [
   {
     name: HOME_TAB_ROUTES.DetailTab,
-    label: <Icon icon={ListBulletsIcon} size="small" />,
+    label: <Icon icon={ListBulletsIcon} size="large" weight="bold" />,
     labelText: '明细',
     component: DetailTabScreen,
   },
   {
     name: HOME_TAB_ROUTES.ChartTab,
-    label: <Icon icon={ChartBarIcon} size="small" />,
+    label: <Icon icon={ChartBarIcon} size="large" weight="bold" />,
     labelText: '图表',
     component: ChartTabScreen,
   },
