@@ -1,5 +1,7 @@
 import React from 'react';
+import { Icon } from '@pennyspring/ui';
 import { createUseSheetStyle } from '@pennyspring/theme';
+import { ChartBarIcon, ListBulletsIcon } from 'phosphor-react-native';
 
 import { ChartTabScreen } from '../screens/home/tabs/ChartTabScreen';
 import { DetailTabScreen } from '../screens/home/tabs/DetailTabScreen';
@@ -18,12 +20,14 @@ interface HomeTabsNavigatorProps {
 const HOME_TAB_SCREENS: readonly TabScreen[] = [
   {
     name: HOME_TAB_ROUTES.DetailTab,
-    label: '明细',
+    label: <Icon icon={ListBulletsIcon} size="small" />,
+    labelText: '明细',
     component: DetailTabScreen,
   },
   {
     name: HOME_TAB_ROUTES.ChartTab,
-    label: '图表',
+    label: <Icon icon={ChartBarIcon} size="small" />,
+    labelText: '图表',
     component: ChartTabScreen,
   },
 ];

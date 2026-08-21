@@ -16,14 +16,11 @@ function renderHeaderBar(
 ) {
   return (
     <HeaderBar
-      descriptors={props.descriptors}
       leftActions={options.leftActions}
-      navigation={props.navigation}
       rightActions={options.rightActions}
-      state={props.state}
       style={options.style}
-      segmentedControlStyles={options.styles?.segmentedControl}
       styles={options.styles?.headerBar}
+      tabBarProps={props}
     />
   );
 }
@@ -63,6 +60,7 @@ export function TopTabNavigator({
         lazy: true,
         sceneStyle: [tokenStyles.sceneContainer, styles?.sceneContainer],
         swipeEnabled: true,
+        tabBarStyle: tokenStyles.tabBar,
       }}
       tabBar={handleTabBarProps}
     >
@@ -71,7 +69,11 @@ export function TopTabNavigator({
           component={screen.component}
           key={screen.name}
           name={screen.name}
-          options={{ title: screen.label }}
+          options={{
+            title: screen.labelText,
+            tabBarLabel:
+              screen.label === undefined ? screen.labelText : () => screen.label,
+          }}
         />
       ))}
     </Tab.Navigator>

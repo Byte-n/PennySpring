@@ -1,19 +1,16 @@
 import React from 'react';
 import { View } from 'react-native';
-import { SegmentedControl } from './SegmentedControl';
+import { MaterialTopTabBar } from '@react-navigation/material-top-tabs';
 import { useHeaderBarStyles } from './style';
 import type { HeaderBarProps } from './types';
 import { Row } from '@pennyspring/ui';
 
 export function HeaderBar({
-  descriptors,
   leftActions,
-  navigation,
   rightActions,
-  state,
   style,
   styles,
-  segmentedControlStyles,
+  tabBarProps,
 }: HeaderBarProps) {
   const tokenStyles = useHeaderBarStyles();
 
@@ -25,12 +22,7 @@ export function HeaderBar({
         </View>
       )}
       <View style={[tokenStyles.center, styles?.center]}>
-        <SegmentedControl
-          descriptors={descriptors}
-          navigation={navigation}
-          state={state}
-          styles={segmentedControlStyles}
-        />
+        <MaterialTopTabBar {...tabBarProps}/>
       </View>
       {rightActions && (
         <View style={[tokenStyles.rightActions, styles?.rightActions]}>

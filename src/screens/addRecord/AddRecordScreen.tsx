@@ -181,17 +181,17 @@ function AddRecordContent({
 const ADD_RECORD_TAB_SCREENS: readonly TabScreen[] = [
   {
     name: 'ExpenseTab',
-    label: '支出',
+    labelText: '支出',
     component: ExpenseTabScreen,
   },
   {
     name: 'IncomeTab',
-    label: '收入',
+    labelText: '收入',
     component: IncomeTabScreen,
   },
   {
     name: 'TransferTab',
-    label: '转账',
+    labelText: '转账',
     component: TransferTabScreen,
   },
 ];

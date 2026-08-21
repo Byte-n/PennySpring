@@ -61,7 +61,7 @@ function HomeHeaderLeft({ onMenuPress }: HomeHeaderLeftProps) {
   return (
     <Row align="center" gap="normal">
       <Pressable onPress={onMenuPress}>
-        <ListIcon size={32} color={token.colorText}/>
+        <ListIcon size={28} color={token.colorText}/>
       </Pressable>
       <Text numberOfLines={1} size="lg" weight="strong">
         {APP_NAME}
@@ -82,7 +82,7 @@ function ThemeSwitchButton() {
   const IconComp = isDark ? SunIcon : MoonIcon;
   return (
     <Pressable onPress={handleToggle}>
-      <IconComp size={28} color={token.colorText} />
+      <IconComp size={24} color={token.colorText} />
     </Pressable>
   );
 }
