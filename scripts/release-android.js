@@ -9,15 +9,32 @@ const inquirer = require('inquirer')
 const PROJECT_ROOT = path.resolve(__dirname, '..')
 const ANDROID_DIR = path.join(PROJECT_ROOT, 'android')
 const VERSION_FILE = path.join(ANDROID_DIR, 'version.json')
-const OUTPUT_FILE = path.join(
-  ANDROID_DIR,
-  'app',
-  'build',
-  'outputs',
-  'bundle',
-  'release',
-  'app-release.aab'
-)
+const BUILD_TARGETS = {
+  aab: {
+    gradleTask: 'bundleRelease',
+    outputFile: path.join(
+      ANDROID_DIR,
+      'app',
+      'build',
+      'outputs',
+      'bundle',
+      'release',
+      'app-release.aab'
+    )
+  },
+  apk: {
+    gradleTask: 'assembleRelease',
+    outputFile: path.join(
+      ANDROID_DIR,
+      'app',
+      'build',
+      'outputs',
+      'apk',
+      'release',
+      'app-release.apk'
+    )
+  }
+}
 
 /**
  * @param {unknown} error
@@ -64,11 +81,12 @@ function getNextVersion(currentVersion, releaseType) {
 }
 
 /**
+ * @param {{ gradleTask: string, outputFile: string }} buildTarget
  * @returns {Promise<void>}
  */
-function buildReleaseBundle() {
+function buildRelease(buildTarget) {
   return new Promise((resolve, reject) => {
-    const gradle = spawn(path.join(ANDROID_DIR, 'gradlew'), ['bundleRelease'], {
+    const gradle = spawn(path.join(ANDROID_DIR, 'gradlew'), [buildTarget.gradleTask], {
       cwd: ANDROID_DIR,
       stdio: 'inherit'
     })
@@ -115,11 +133,21 @@ async function main() {
   }
 
   const nextVersion = getNextVersion(currentVersion, releaseType)
-  const { shouldRelease } = await inquirer.prompt([
+  const { artifactType, shouldRelease } = await inquirer.prompt([
+    {
+      type: 'list',
+      name: 'artifactType',
+      message: '请选择构建产物',
+      choices: [
+        { name: 'APK  直接安装或分发', value: 'apk' },
+        { name: 'AAB  应用商店发布', value: 'aab' }
+      ]
+    },
     {
       type: 'confirm',
       name: 'shouldRelease',
-      message: `确认发布 ${nextVersion.versionName} (${nextVersion.versionCode})？`,
+      message: (answers) =>
+        `确认发布 ${nextVersion.versionName} (${nextVersion.versionCode}) ${answers.artifactType.toUpperCase()}？`,
       default: true
     }
   ])
@@ -145,9 +173,10 @@ async function main() {
       return
     }
 
-    process.stdout.write('开始构建 Android Release AAB...\n')
-    await buildReleaseBundle()
-    process.stdout.write(`构建完成: ${OUTPUT_FILE}\n`)
+    const buildTarget = BUILD_TARGETS[artifactType]
+    process.stdout.write(`开始构建 Android Release ${artifactType.toUpperCase()}...\n`)
+    await buildRelease(buildTarget)
+    process.stdout.write(`构建完成: ${buildTarget.outputFile}\n`)
   } catch (error) {
     await writeFile(VERSION_FILE, originalContent, 'utf8')
     throw error
