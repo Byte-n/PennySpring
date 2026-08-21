@@ -7,6 +7,11 @@ import { HeaderBar } from '../src/component/TopTabNavigator/HeaderBar';
 
 let mockMaterialTopTabBarProps: MaterialTopTabBarProps | undefined;
 
+const mockThemeToken = {
+  colorPrimary: 'theme-primary',
+  colorTextTertiary: 'theme-text-tertiary',
+};
+
 jest.mock('@react-navigation/material-top-tabs', () => ({
   MaterialTopTabBar: (props: MaterialTopTabBarProps) => {
     mockMaterialTopTabBarProps = props;
@@ -20,7 +25,12 @@ jest.mock('@pennyspring/theme', () => ({
     container: {},
     leftActions: {},
     rightActions: {},
+    tabBar: { backgroundColor: 'theme-background' },
+    tabBarIndicator: { backgroundColor: 'theme-indicator' },
+    tabBarItem: { minHeight: 'theme-item-height' },
+    tabBarLabel: { fontFamily: 'theme-font' },
   }),
+  useTheme: () => ({ token: mockThemeToken }),
 }));
 
 jest.mock('@pennyspring/ui', () => ({
@@ -28,9 +38,16 @@ jest.mock('@pennyspring/ui', () => ({
 }));
 
 describe('HeaderBar', () => {
-  it('renders the material tab bar between the side actions', () => {
+  it('renders side actions and applies the current theme to the material tab bar', () => {
     const tabBarProps = {
-      descriptors: {},
+      descriptors: {
+        detail: {
+          navigation: {},
+          options: { title: '明细' },
+          render: jest.fn(),
+          route: { key: 'detail', name: 'DetailTab' },
+        },
+      },
       navigation: {},
       position: {},
       state: {
@@ -56,6 +73,21 @@ describe('HeaderBar', () => {
 
     expect(renderer!.root.findByProps({ testID: 'left-actions' })).toBeDefined();
     expect(renderer!.root.findByProps({ testID: 'right-actions' })).toBeDefined();
-    expect(mockMaterialTopTabBarProps).toStrictEqual(tabBarProps);
+    expect(mockMaterialTopTabBarProps).toMatchObject({
+      ...tabBarProps,
+      descriptors: {
+        detail: {
+          options: {
+            tabBarActiveTintColor: mockThemeToken.colorPrimary,
+            tabBarInactiveTintColor: mockThemeToken.colorTextTertiary,
+            tabBarIndicatorStyle: { backgroundColor: 'theme-indicator' },
+            tabBarItemStyle: { minHeight: 'theme-item-height' },
+            tabBarLabelStyle: { fontFamily: 'theme-font' },
+            tabBarStyle: { backgroundColor: 'theme-background' },
+            title: '明细',
+          },
+        },
+      },
+    });
   });
 });

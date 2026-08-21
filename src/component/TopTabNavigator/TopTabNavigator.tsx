@@ -60,7 +60,6 @@ export function TopTabNavigator({
         lazy: true,
         sceneStyle: [tokenStyles.sceneContainer, styles?.sceneContainer],
         swipeEnabled: true,
-        tabBarStyle: tokenStyles.tabBar,
       }}
       tabBar={handleTabBarProps}
     >

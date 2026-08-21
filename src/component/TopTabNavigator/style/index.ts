@@ -9,7 +9,7 @@ export const useHeaderBarStyles = createUseSheetStyle((token) => ({
     flexDirection: 'row',
     minHeight: token.controlHeightLG,
     paddingHorizontal: token.paddingMD / 4,
-    gap: token.paddingContentHorizontal
+    gap: token.paddingContentHorizontal,
   },
   leftActions: {
     alignItems: 'center',
@@ -28,17 +28,31 @@ export const useHeaderBarStyles = createUseSheetStyle((token) => ({
     flexDirection: 'row',
     justifyContent: 'flex-end',
   },
-}));
-
-export const useTopTabNavigatorStyles = createUseSheetStyle((token) => ({
-  sceneContainer: {
-    backgroundColor: token.colorBgLayout,
-  },
   tabBar: {
+    backgroundColor: token.colorBgContainer,
     borderWidth: 0,
     boxShadow: 'none',
     elevation: 0,
     shadowColor: 'transparent',
     shadowOpacity: 0,
+  },
+  tabBarIndicator: {
+    backgroundColor: token.colorPrimary,
+    borderRadius: token.borderRadiusSM,
+    height: token.lineWidthBold,
+  },
+  tabBarItem: {
+    minHeight: token.controlHeightLG,
+  },
+  tabBarLabel: {
+    fontFamily: token.fontFamily,
+    fontSize: token.fontSizeSM,
+    lineHeight: token.lineHeightSM,
+  },
+}));
+
+export const useTopTabNavigatorStyles = createUseSheetStyle((token) => ({
+  sceneContainer: {
+    backgroundColor: token.colorBgLayout,
   },
 }));
