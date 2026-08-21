@@ -52,8 +52,9 @@ export const useHeaderBarStyles = createUseSheetStyle((token) => ({
     borderBottomWidth: token.lineWidth,
     flexDirection: 'row',
     minHeight: token.controlHeightLG,
-    paddingHorizontal: token.paddingMD,
+    paddingHorizontal: token.paddingMD / 4,
     paddingVertical: token.paddingMD / 2,
+    gap: token.paddingContentHorizontal
   },
   leftActions: {
     alignItems: 'center',

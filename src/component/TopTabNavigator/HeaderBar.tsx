@@ -3,6 +3,7 @@ import { View } from 'react-native';
 import { SegmentedControl } from './SegmentedControl';
 import { useHeaderBarStyles } from './style';
 import type { HeaderBarProps } from './types';
+import { Row } from '@pennyspring/ui';
 
 export function HeaderBar({
   descriptors,
@@ -17,7 +18,7 @@ export function HeaderBar({
   const tokenStyles = useHeaderBarStyles();
 
   return (
-    <View style={[tokenStyles.container, style]}>
+    <Row wrap={false} style={[tokenStyles.container, style]}>
       {leftActions && (
         <View style={[tokenStyles.leftActions, styles?.leftActions]}>
           {leftActions}
@@ -36,6 +37,6 @@ export function HeaderBar({
           {rightActions}
         </View>
       )}
-    </View>
+    </Row>
   );
 }

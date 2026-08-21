@@ -1,8 +1,10 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { useTheme } from '@pennyspring/theme';
-import { Button } from '@pennyspring/ui';
-import { Moon, Sun } from 'phosphor-react-native';
+import {
+  createUseSheetStyle,
+  ThemePreview,
+  useTheme,
+} from '@pennyspring/theme';
 
 import { AddRecordScreen } from '../screens/addRecord/AddRecordScreen';
 import { AssetManageScreen } from '../screens/assetManage/AssetManageScreen';
@@ -14,54 +16,35 @@ import { TagManageScreen } from '../screens/tagManage/TagManageScreen';
 import { TypeManageScreen } from '../screens/typeManage/TypeManageScreen';
 import { ROOT_ROUTES } from './routes';
 import type { RootStackParamList } from './types';
-import { ThemePreview } from '@pennyspring/theme';
-import { useThemeMode } from '../contexts/ThemeModeContext';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
-function ThemeSwitchButton() {
-  const { themeMode, setThemeMode } = useThemeMode();
-  const { token } = useTheme();
-  const isDark = themeMode === 'dark';
-
-  const handleToggle = React.useCallback(() => {
-    setThemeMode(isDark ? 'default' : 'dark');
-  }, [isDark, setThemeMode]);
-
-  return (
-    <Button
-      icon={isDark ? Sun : Moon}
-      iconProps={{ weight: 'bold' }}
-      onPress={handleToggle}
-      shape="circle"
-      type="text"
-      style={{ width: token.controlHeight, marginRight: token.marginXS }}
-    />
-  );
-}
+const useStyles = createUseSheetStyle(token => ({
+  header: {
+    backgroundColor: token.colorBgContainer,
+  },
+  headerTitle: {
+    fontSize: token.fontSizeLG,
+  },
+}));
 
 export function RootStackNavigator() {
+  const styles = useStyles();
   const { token } = useTheme();
-
-  const headerRight = React.useCallback(() => <ThemeSwitchButton />, []);
 
   return (
     <Stack.Navigator
       screenOptions={{
-        headerStyle: {
-          backgroundColor: token.colorBgContainer,
-        },
+        headerStyle: styles.header,
         headerTintColor: token.colorText,
-        headerTitleStyle: {
-          fontSize: token.fontSizeLG,
-        },
+        headerTitleStyle: styles.headerTitle,
         headerShadowVisible: false,
       }}
     >
       <Stack.Screen
         component={HomeScreen}
         name={ROOT_ROUTES.Home}
-        options={{ title: 'PennySpring', headerRight }}
+        options={{ headerShown: false }}
       />
       <Stack.Screen
         component={AddRecordScreen}
@@ -114,4 +97,3 @@ export function RootStackNavigator() {
     </Stack.Navigator>
   );
 }
-

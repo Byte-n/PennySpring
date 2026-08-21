@@ -60,9 +60,8 @@ export const useStyles = createUseSheetStyle(
       },
       item: {
         flex: block ? 1 : undefined,
-        minHeight: sizeConfig.minHeight(token) - token.paddingXXS * 2,
         paddingHorizontal: sizeConfig.itemPaddingHorizontal(token),
-        paddingVertical: sizeConfig.itemPaddingVertical(token),
+        paddingVertical: sizeConfig.itemPaddingVertical(token) / 2,
         borderRadius: token.borderRadiusSM,
         alignItems: 'center',
         justifyContent: 'center',

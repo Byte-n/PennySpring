@@ -1,16 +1,17 @@
 import React from 'react';
-import { TouchableOpacity, View } from 'react-native';
+import { Pressable, TouchableOpacity, View } from 'react-native';
 import {
   Column,
   Divider,
   Drawer,
   FloatingActionGroup,
+  Row,
   Text,
-  Button,
 } from '@pennyspring/ui';
-import { createUseSheetStyle } from '@pennyspring/theme';
+import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
 import { useIsFocused } from '@react-navigation/native';
-import { ListIcon } from 'phosphor-react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { ListIcon, Moon, Sun } from 'phosphor-react-native';
 
 import {
   HomeTabsNavigator,
@@ -19,11 +20,16 @@ import {
 } from '../../navigation';
 import { RecordSyncProvider } from './recordSync';
 import { QuickTemplatePanel } from '../quickTemplate/QuickTemplatePanel';
+import { useThemeMode } from '../../contexts/ThemeModeContext';
 
 const APP_NAME = 'PennySpring';
 const APP_VERSION = '0.0.1';
 
 const useStyles = createUseSheetStyle(token => ({
+  screen: {
+    backgroundColor: token.colorBgContainer,
+    flex: 1,
+  },
   drawerContent: {
     flex: 1,
   },
@@ -44,27 +50,39 @@ const useStyles = createUseSheetStyle(token => ({
     borderBottomWidth: token.lineWidth,
     borderBottomColor: token.colorBorder,
   },
-  menuButton: {
-    width: token.controlHeight,
-  },
 }));
 
-interface MenuButtonProps {
-  onPress: () => void;
+interface HomeHeaderLeftProps {
+  onMenuPress: () => void;
 }
 
-function MenuButton({ onPress }: MenuButtonProps) {
-  const styles = useStyles();
-
+function HomeHeaderLeft({ onMenuPress }: HomeHeaderLeftProps) {
   return (
-    <Button
-      icon={ListIcon}
-      iconProps={{ weight: 'bold' }}
-      onPress={onPress}
-      shape="circle"
-      style={styles.menuButton}
-      type="text"
-    />
+    <Row align="center" gap="normal">
+      <Pressable onPress={onMenuPress}>
+        <ListIcon size={32} />
+      </Pressable>
+      <Text numberOfLines={1} size="lg" weight="strong">
+        {APP_NAME}
+      </Text>
+    </Row>
+  );
+}
+
+function ThemeSwitchButton() {
+  const { themeMode, setThemeMode } = useThemeMode();
+  const isDark = themeMode === 'dark';
+  const { token } = useTheme()
+
+  const handleToggle = React.useCallback(() => {
+    setThemeMode(isDark ? 'default' : 'dark');
+  }, [isDark, setThemeMode]);
+
+  const IconComp = isDark ? Sun : Moon;
+  return (
+    <Pressable onPress={handleToggle}>
+      <IconComp size={28} color={token.colorText} />
+    </Pressable>
   );
 }
 
@@ -120,6 +138,7 @@ function DrawerContent() {
 }
 
 export function HomeScreen() {
+  const styles = useStyles();
   const navigation = useNavigation();
   const isFocused = useIsFocused();
   const [isDrawerOpen, setIsDrawerOpen] = React.useState(false);
@@ -135,36 +154,41 @@ export function HomeScreen() {
 
   return (
     <RecordSyncProvider>
-      <Drawer.Layout
-        onCancel={closeDrawer}
-        onOpenChange={setIsDrawerOpen}
-        open={isDrawerOpen}
-        renderDrawerContent={() => <DrawerContent />}
-      >
-        <HomeTabsNavigator leftActions={<MenuButton onPress={openDrawer} />} />
-      </Drawer.Layout>
-      {isFocused && (
-        <FloatingActionGroup
-          defaultVisibleCount={2}
-          actions={[
-            {
-              key: 'quick-template',
-              icon: 'list',
-              onPress: () => setIsTemplatePanelOpen(true),
-              buttonProps: { type: 'default' },
-            },
-            {
-              key: 'add-record',
-              icon: 'plus',
-              onPress: () => navigation.navigate('AddRecord'),
-            },
-          ]}
+      <SafeAreaView edges={['top']} style={styles.screen}>
+        <Drawer.Layout
+          onCancel={closeDrawer}
+          onOpenChange={setIsDrawerOpen}
+          open={isDrawerOpen}
+          renderDrawerContent={() => <DrawerContent />}
+        >
+          <HomeTabsNavigator
+            leftActions={<HomeHeaderLeft onMenuPress={openDrawer} />}
+            rightActions={<ThemeSwitchButton />}
+          />
+        </Drawer.Layout>
+        {isFocused && (
+          <FloatingActionGroup
+            defaultVisibleCount={2}
+            actions={[
+              {
+                key: 'quick-template',
+                icon: 'list',
+                onPress: () => setIsTemplatePanelOpen(true),
+                buttonProps: { type: 'default' },
+              },
+              {
+                key: 'add-record',
+                icon: 'plus',
+                onPress: () => navigation.navigate('AddRecord'),
+              },
+            ]}
+          />
+        )}
+        <QuickTemplatePanel
+          open={isTemplatePanelOpen}
+          onOpenChange={setIsTemplatePanelOpen}
         />
-      )}
-      <QuickTemplatePanel
-        open={isTemplatePanelOpen}
-        onOpenChange={setIsTemplatePanelOpen}
-      />
+      </SafeAreaView>
     </RecordSyncProvider>
   );
 }

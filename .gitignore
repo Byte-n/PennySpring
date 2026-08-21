@@ -109,3 +109,10 @@ superpowers
 
 # Local SQLite snapshots (watch:db output)
 /pennyspring.db
+
+# tmp
+
+temp*
+tmp*
+temp/**
+tmp/*

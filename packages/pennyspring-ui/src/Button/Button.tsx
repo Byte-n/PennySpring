@@ -336,13 +336,13 @@ const useStyles = createUseSheetStyle(
     const isCircle = shape === 'circle';
     const variantStyle = resolveVariantStyle(token, color, variant, ghost);
     const borderRadius = shape === 'default' ? token.borderRadius : height / 2;
-    const horizontalPadding =
-      isCircle && !hasContent ? 0 : sizeConfig.paddingHorizontal(token);
-    const verticalPadding = horizontalPadding / 2;
+    const horizontalPadding = sizeConfig.paddingHorizontal(token);
+    const verticalPadding =
+      isCircle && !hasContent ? horizontalPadding : horizontalPadding / 2;
 
     return {
       root: {
-        width: block ? '100%' : isCircle && !hasContent ? height : undefined,
+        width: block ? '100%' : undefined,
         paddingHorizontal: horizontalPadding,
         paddingVertical: verticalPadding,
         borderRadius,
@@ -354,7 +354,7 @@ const useStyles = createUseSheetStyle(
         justifyContent: 'center',
         flexDirection: 'row',
         gap: sizeConfig.gap(token),
-      } as ViewStyle,
+      },
       rootPressed: {
         backgroundColor: variantStyle.pressedBackgroundColor,
         borderColor: variantStyle.pressedBorderColor,
@@ -486,13 +486,12 @@ export function Button({
     ? token.colorTextDisabled
     : variantStyle.color;
   const textSize = resolveTextSize(size);
-  const loadingIcon =
-    loadingConfig?.icon ?? (
-      <ActivityIndicator
-        color={loadingIndicatorColor}
-        size={resolveIconSize(size, token)}
-      />
-    );
+  const loadingIcon = loadingConfig?.icon ?? (
+    <ActivityIndicator
+      color={loadingIndicatorColor}
+      size={resolveIconSize(size, token)}
+    />
+  );
 
   useEffect(() => {
     if (!hasLoadingRequest) {
@@ -535,7 +534,11 @@ export function Button({
       weight: 'medium',
     };
     const activeIconNode = shouldRenderIcon ? (
-      <Row align="center" justify="center" style={[tokenStyles.icon, styles?.icon]}>
+      <Row
+        align="center"
+        justify="center"
+        style={[tokenStyles.icon, styles?.icon]}
+      >
         {isLoading ? (
           loadingIcon
         ) : (
