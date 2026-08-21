@@ -470,6 +470,7 @@ function renderPanelFooter(
 
 export function FloatingPanel({
   afterOpenChange,
+  bodyScrollable = true,
   cancel,
   cancelText,
   children,
@@ -759,14 +760,27 @@ export function FloatingPanel({
               ))}
             </Column>
           ) : null}
-          <ScrollView
-            contentContainerStyle={[tokenStyles.panelBodyScrollView, styles?.panelBody]}
-            scrollEnabled={scrollEnabled}
-            style={tokenStyles.panelBody}
-            testID="floating-panel-body"
-          >
-            {children}
-          </ScrollView>
+          {bodyScrollable ? (
+            <ScrollView
+              contentContainerStyle={[tokenStyles.panelBodyScrollView, styles?.panelBody]}
+              scrollEnabled={scrollEnabled}
+              style={tokenStyles.panelBody}
+              testID="floating-panel-body"
+            >
+              {children}
+            </ScrollView>
+          ) : (
+            <View
+              style={[
+                tokenStyles.panelBody,
+                tokenStyles.panelBodyScrollView,
+                styles?.panelBody,
+              ]}
+              testID="floating-panel-body"
+            >
+              {children}
+            </View>
+          )}
           {footerNode ? (
             <Row style={[tokenStyles.footer, styles?.footer]} testID="floating-panel-footer">
               {renderTextNode(footerNode, (text) => (

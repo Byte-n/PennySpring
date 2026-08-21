@@ -95,6 +95,7 @@ export interface PopupFloatingPanelProps {
   minHeight?: PopupFloatingPanelHeight;
   maxHeight?: PopupFloatingPanelHeight;
   onChange?: (value: number) => void;
+  bodyScrollable?: boolean;
   scrollEnabled?: boolean;
   titleText?: string;
   title?: ReactNode;

@@ -7,6 +7,7 @@ import { PickerPanel } from './PickerPanel';
 import {
   getPickerItemHeight,
   MIN_WHEEL_VISIBLE_ITEM_COUNT,
+  WHEEL_VISIBLE_ITEM_COUNT,
 } from './usePickerStyles';
 import type { AliasToken } from '@pennyspring/theme';
 import type { ComponentSize } from '../shares/types';
@@ -36,10 +37,11 @@ interface PickerPopupContainerProps<TItem extends PickerColumnItemData> {
   onWheelScrollStateChange?: (isScrolling: boolean) => void;
 }
 
-function getPickerPanelMinHeight(
+function getPickerPanelHeight(
   hasHeader: boolean,
   size: ComponentSize,
   token: AliasToken,
+  visibleItemCount: number,
 ): number {
   const floatingPanelSize = getFloatingPanelSizeConfig(size);
   const itemHeight = getPickerItemHeight(size, token);
@@ -50,12 +52,12 @@ function getPickerPanelMinHeight(
       + floatingPanelSize.sectionMargin(token)
     : 0;
   const pickerBodyInset = token.paddingMD + token.paddingSM;
-  const minimumWheelHeight = itemHeight * MIN_WHEEL_VISIBLE_ITEM_COUNT;
+  const wheelHeight = itemHeight * visibleItemCount;
 
   return floatingPanelSize.handleHeight(token)
     + headerSectionHeight
     + pickerBodyInset
-    + minimumWheelHeight;
+    + wheelHeight;
 }
 
 export function PickerPopup<TItem extends PickerColumnItemData>({
@@ -107,20 +109,28 @@ export function PickerPopup<TItem extends PickerColumnItemData>({
       })
       : defaultHeader;
   const resolvedSize = size ?? 'normal';
-  const minHeight = getPickerPanelMinHeight(
+  const height = getPickerPanelHeight(
     header !== null,
     resolvedSize,
     token,
+    WHEEL_VISIBLE_ITEM_COUNT,
+  );
+  const minHeight = getPickerPanelHeight(
+    header !== null,
+    resolvedSize,
+    token,
+    MIN_WHEEL_VISIBLE_ITEM_COUNT,
   );
 
   return (
     <Popup.FloatingPanel
+      bodyScrollable={false}
       footer={null}
       header={header}
+      height={height}
       minHeight={minHeight}
       open={open}
       position="bottom"
-      scrollEnabled={false}
       size={resolvedSize}
       onCancel={() => onMaskPress?.()}
       style={externalStyles?.popup?.root}

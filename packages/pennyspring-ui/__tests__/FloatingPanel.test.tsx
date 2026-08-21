@@ -3,8 +3,10 @@ import {
   type EmitterSubscription,
   Keyboard,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text as RNText,
+  View,
 } from 'react-native';
 import { ThemeProvider } from '@pennyspring/theme';
 import { withTiming } from 'react-native-reanimated';
@@ -63,6 +65,25 @@ describe('Popup.FloatingPanel', () => {
     expect(tree.indexOf('floating-panel-handle')).toBeGreaterThan(
       tree.indexOf('content'),
     );
+  });
+
+  it('uses a plain view for the body when bodyScrollable is false', () => {
+    let testRenderer: renderer.ReactTestRenderer;
+
+    act(() => {
+      testRenderer = renderer.create(
+        <Popup.FloatingPanel bodyScrollable={false} defaultOpen>
+          <RNText>content</RNText>
+        </Popup.FloatingPanel>,
+      );
+    });
+
+    const panelBody = testRenderer!.root.findByProps({
+      testID: 'floating-panel-body',
+    });
+
+    expect(panelBody.type).toBe(View);
+    expect(testRenderer!.root.findAllByType(ScrollView)).toHaveLength(0);
   });
 
   it('uses the height prop as the panel height', () => {
