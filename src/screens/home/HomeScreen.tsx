@@ -11,7 +11,7 @@ import {
 import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
 import { useIsFocused } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ListIcon, Moon, Sun } from 'phosphor-react-native';
+import { ListIcon, MoonIcon, SunIcon } from 'phosphor-react-native';
 
 import {
   HomeTabsNavigator,
@@ -57,10 +57,11 @@ interface HomeHeaderLeftProps {
 }
 
 function HomeHeaderLeft({ onMenuPress }: HomeHeaderLeftProps) {
+  const { token } = useTheme();
   return (
     <Row align="center" gap="normal">
       <Pressable onPress={onMenuPress}>
-        <ListIcon size={32} />
+        <ListIcon size={32} color={token.colorText}/>
       </Pressable>
       <Text numberOfLines={1} size="lg" weight="strong">
         {APP_NAME}
@@ -78,7 +79,7 @@ function ThemeSwitchButton() {
     setThemeMode(isDark ? 'default' : 'dark');
   }, [isDark, setThemeMode]);
 
-  const IconComp = isDark ? Sun : Moon;
+  const IconComp = isDark ? SunIcon : MoonIcon;
   return (
     <Pressable onPress={handleToggle}>
       <IconComp size={28} color={token.colorText} />
