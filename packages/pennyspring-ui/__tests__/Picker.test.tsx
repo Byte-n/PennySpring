@@ -185,6 +185,12 @@ it('does not open when readonly', () => {
     displayInput.props.onPress();
   });
 
+  const displayInput = testRenderer!.root.findByType(DisplayInput);
+  const trigger = displayInput.find(
+    node => node.props.onPress !== undefined && node.props.disabled !== undefined,
+  );
+
+  expect(trigger.props.disabled).toBe(true);
   expect(onOpenChange).not.toHaveBeenCalled();
 });
 
@@ -266,6 +272,26 @@ it('opens from trigger in uncontrolled mode', () => {
   });
 
   expect(onOpenChange).toHaveBeenCalledWith(true, { reason: 'trigger' });
+  expect(JSON.stringify(testRenderer!.toJSON())).toContain('Alpha');
+});
+
+it('opens from the interactive picker trigger', () => {
+  let testRenderer: renderer.ReactTestRenderer;
+
+  act(() => {
+    testRenderer = renderer.create(<Picker columns={columns} />);
+  });
+
+  const displayInput = testRenderer!.root.findByType(DisplayInput);
+  const trigger = displayInput.find(
+    node => node.props.onPress !== undefined && node.props.disabled !== undefined,
+  );
+
+  act(() => {
+    trigger.props.onPress();
+  });
+
+  expect(trigger.props.disabled).toBe(false);
   expect(JSON.stringify(testRenderer!.toJSON())).toContain('Alpha');
 });
 

@@ -268,6 +268,7 @@ export function Picker<TItem extends PickerColumnItemData = PickerColumnItemData
         label={label ?? labelText}
         onClearPress={handleClearPress}
         onPress={handleTriggerPress}
+        readonly={readonly}
         size={size}
         styles={tokenStyles}
         valueText={triggerValueText}

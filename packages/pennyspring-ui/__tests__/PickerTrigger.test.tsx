@@ -4,7 +4,7 @@ import { DisplayInput } from '../src/DisplayInput';
 import { PickerTrigger } from '../src/Picker/PickerTrigger';
 
 
-it('renders readonly display input trigger with label when no children', () => {
+it('renders interactive display input trigger with label when no children', () => {
   let testRenderer: renderer.ReactTestRenderer;
 
   act(() => {
@@ -20,7 +20,7 @@ it('renders readonly display input trigger with label when no children', () => {
 
   const triggerInput = testRenderer!.root.findByType(DisplayInput);
 
-  expect(triggerInput.props.readonly).toBe(true);
+  expect(triggerInput.props.readonly).toBeUndefined();
   expect(triggerInput.props.label).toBe('Single column');
 });
 

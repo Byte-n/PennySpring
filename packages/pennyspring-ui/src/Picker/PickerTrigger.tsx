@@ -16,6 +16,7 @@ interface PickerTriggerProps {
   externalTriggerStyle?: StyleProp<ViewStyle>;
   hasValue?: boolean;
   label?: PickerProps['label'];
+  readonly?: boolean;
   size?: ComponentSize;
   valueText?: string;
   displayInputProps?: PickerProps['displayInputProps'];
@@ -35,6 +36,7 @@ export function PickerTrigger({
   label,
   onPress,
   onClearPress,
+  readonly,
   size,
   styles,
   valueText,
@@ -68,9 +70,9 @@ export function PickerTrigger({
   return (
     <DisplayInput
       disabled={disabled}
+      readonly={readonly}
       size={size}
       valueText={valueText}
-      readonly
       label={label}
       onPress={handleTriggerPress}
       style={[externalInputRootStyle, externalTriggerStyle]}
