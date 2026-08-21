@@ -1,5 +1,6 @@
 import React from 'react';
 import { Popup } from '../Popup';
+import { PickerHeader } from './PickerHeader';
 import { PickerPanel } from './PickerPanel';
 import type { ComponentSize } from '../shares/types';
 import type {
@@ -45,10 +46,41 @@ export function PickerPopup<TItem extends PickerColumnItemData>({
   size,
   styles,
 }: PickerPopupContainerProps<TItem>) {
+  const defaultHeader = props.renderHeader === null ? null : (
+    <PickerHeader
+      cancel={props.cancel}
+      cancelText={props.cancelText}
+      ok={props.ok}
+      okDisabled={props.okDisabled}
+      okText={props.okText}
+      onCancelPress={onCancelPress}
+      onOkPress={onOkPress}
+      size={size}
+      slotStyles={externalStyles?.panel?.header}
+      styles={styles}
+      title={props.title}
+      titleText={props.titleText}
+    />
+  );
+  const header = props.renderHeader === null
+    ? null
+    : props.renderHeader !== undefined
+      ? props.renderHeader({
+        header: defaultHeader,
+        draftValue,
+        columns,
+        hasDisabledFocusedItem,
+        isWheelScrolling,
+        okDisabled: props.okDisabled,
+        onCancel: onCancelPress ?? (() => {}),
+        onOk: onOkPress ?? (() => {}),
+      })
+      : defaultHeader;
+
   return (
     <Popup.FloatingPanel
       footer={null}
-      header={null}
+      header={header}
       open={open}
       position="bottom"
       onCancel={() => onMaskPress?.()}
@@ -67,13 +99,10 @@ export function PickerPopup<TItem extends PickerColumnItemData>({
         externalPanelStyles={externalStyles?.panel}
         hasDisabledFocusedItem={hasDisabledFocusedItem}
         isWheelScrolling={isWheelScrolling}
-        onCancelPress={onCancelPress}
         onFocusIndexChange={onFocusIndexChange}
         onItemPress={onItemPress}
-        onOkPress={onOkPress}
         onWheelScrollStateChange={onWheelScrollStateChange}
         props={props}
-        size={size}
         styles={styles}
       />
     </Popup.FloatingPanel>

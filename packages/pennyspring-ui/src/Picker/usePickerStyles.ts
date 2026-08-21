@@ -58,8 +58,6 @@ export const usePickerStyles = createUseSheetStyle(
       },
       header: {
         minHeight: token.controlHeight,
-        borderBottomWidth: token.lineWidth,
-        borderBottomColor: token.colorSplit,
       },
       headerActions: {
         flexShrink: 0,

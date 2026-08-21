@@ -132,6 +132,28 @@ it('renders custom header via renderHeader', () => {
   expect(customHeader).toBeDefined();
 });
 
+it('renders the picker header through Popup.FloatingPanel header slot', () => {
+  let testRenderer: renderer.ReactTestRenderer;
+
+  act(() => {
+    testRenderer = renderer.create(
+      <Picker
+        columns={columns}
+        defaultOpen
+        popupProps={{ titleText: '选择项目' }}
+      />,
+    );
+  });
+
+  const floatingPanelHeader = testRenderer!.root.findByProps({
+    testID: 'floating-panel-header',
+  });
+
+  expect(floatingPanelHeader.findByProps({
+    testID: 'picker-header',
+  })).toBeTruthy();
+});
+
 it('does not render picker header when renderHeader is null', () => {
   let testRenderer: renderer.ReactTestRenderer;
 
