@@ -1,7 +1,14 @@
 import React from 'react';
+import { useTheme } from '@pennyspring/theme';
 import { Popup } from '../Popup';
+import { getFloatingPanelSizeConfig } from '../Popup/floatingPanelSize';
 import { PickerHeader } from './PickerHeader';
 import { PickerPanel } from './PickerPanel';
+import {
+  getPickerItemHeight,
+  MIN_WHEEL_VISIBLE_ITEM_COUNT,
+} from './usePickerStyles';
+import type { AliasToken } from '@pennyspring/theme';
 import type { ComponentSize } from '../shares/types';
 import type {
   PickerColumn,
@@ -29,6 +36,28 @@ interface PickerPopupContainerProps<TItem extends PickerColumnItemData> {
   onWheelScrollStateChange?: (isScrolling: boolean) => void;
 }
 
+function getPickerPanelMinHeight(
+  hasHeader: boolean,
+  size: ComponentSize,
+  token: AliasToken,
+): number {
+  const floatingPanelSize = getFloatingPanelSizeConfig(size);
+  const itemHeight = getPickerItemHeight(size, token);
+  const headerSectionHeight = hasHeader
+    ? Math.max(token.controlHeight, itemHeight)
+      + floatingPanelSize.contentPadding(token)
+      + floatingPanelSize.sectionPadding(token)
+      + floatingPanelSize.sectionMargin(token)
+    : 0;
+  const pickerBodyInset = token.paddingMD + token.paddingSM;
+  const minimumWheelHeight = itemHeight * MIN_WHEEL_VISIBLE_ITEM_COUNT;
+
+  return floatingPanelSize.handleHeight(token)
+    + headerSectionHeight
+    + pickerBodyInset
+    + minimumWheelHeight;
+}
+
 export function PickerPopup<TItem extends PickerColumnItemData>({
   columns,
   draftValue,
@@ -46,6 +75,7 @@ export function PickerPopup<TItem extends PickerColumnItemData>({
   size,
   styles,
 }: PickerPopupContainerProps<TItem>) {
+  const { token } = useTheme();
   const defaultHeader = props.renderHeader === null ? null : (
     <PickerHeader
       cancel={props.cancel}
@@ -76,19 +106,29 @@ export function PickerPopup<TItem extends PickerColumnItemData>({
         onOk: onOkPress ?? (() => {}),
       })
       : defaultHeader;
+  const resolvedSize = size ?? 'normal';
+  const minHeight = getPickerPanelMinHeight(
+    header !== null,
+    resolvedSize,
+    token,
+  );
 
   return (
     <Popup.FloatingPanel
       footer={null}
       header={header}
+      minHeight={minHeight}
       open={open}
       position="bottom"
+      scrollEnabled={false}
+      size={resolvedSize}
       onCancel={() => onMaskPress?.()}
       style={externalStyles?.popup?.root}
       styles={{
         mask: [styles.mask, externalStyles?.popup?.mask],
         body: [styles.popup, externalStyles?.popup?.container],
         content: [styles.popupContent, externalStyles?.popup?.content],
+        panelBody: styles.popupPanelBody,
         handle: externalStyles?.popup?.handle,
         handleIndicator: externalStyles?.popup?.handleIndicator,
       }}

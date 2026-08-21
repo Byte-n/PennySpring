@@ -42,6 +42,7 @@ jest.mock('react-native-reanimated', () => {
 });
 
 import { Button, DisplayInput, Picker, Text, PickerColumn, PickerColumnItemData, PickerProps, PickerValue } from '../src';
+import { PickerView } from '../src/Picker/PickerView';
 
 const columns: PickerColumn[] = [
   [
@@ -712,6 +713,44 @@ it('renders loading content without combining disabled state', () => {
 
   expect(JSON.stringify(testRenderer!.toJSON())).toContain('Loading');
   expect(onOk).toHaveBeenCalled();
+});
+
+it('updates the wheel viewport when the floating panel is resized without scrolling its body', () => {
+  let testRenderer: renderer.ReactTestRenderer;
+
+  act(() => {
+    testRenderer = renderer.create(
+      <Picker columns={columns} defaultOpen />,
+    );
+  });
+
+  const panelBody = testRenderer!.root.findByProps({
+    testID: 'floating-panel-body',
+  });
+  const geometryReader = testRenderer!.root.findByProps({
+    testID: 'geometry-reader',
+  });
+
+  act(() => {
+    geometryReader.props.onLayout({
+      nativeEvent: {
+        layout: { height: 280, width: 320 },
+      },
+    });
+  });
+
+  expect(testRenderer!.root.findByType(PickerView).props.wheelHeight).toBe(280);
+
+  act(() => {
+    geometryReader.props.onLayout({
+      nativeEvent: {
+        layout: { height: 132, width: 320 },
+      },
+    });
+  });
+
+  expect(testRenderer!.root.findByType(PickerView).props.wheelHeight).toBe(132);
+  expect(panelBody.props.scrollEnabled).toBe(false);
 });
 
 it('does not auto fallback for missing or invalid values', () => {

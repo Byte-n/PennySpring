@@ -8,10 +8,14 @@ interface PickerStyleOptions {
 }
 
 export const WHEEL_VISIBLE_ITEM_COUNT = 5;
+export const MIN_WHEEL_VISIBLE_ITEM_COUNT = 3;
 const WHEEL_SIDE_ITEM_COUNT = 2;
 const INDICATOR_Z_INDEX_OFFSET = 1;
 
-function getItemHeight(size: ComponentSize, token: AliasToken): number {
+export function getPickerItemHeight(
+  size: ComponentSize,
+  token: AliasToken,
+): number {
   if (size === 'small') {
     return token.controlHeightSM;
   }
@@ -25,7 +29,7 @@ function getItemHeight(size: ComponentSize, token: AliasToken): number {
 
 export const usePickerStyles = createUseSheetStyle(
   (token, { size }: PickerStyleOptions) => {
-    const itemHeight = getItemHeight(size, token);
+    const itemHeight = getPickerItemHeight(size, token);
     const wheelInset = itemHeight * WHEEL_SIDE_ITEM_COUNT;
 
     return {
@@ -45,6 +49,10 @@ export const usePickerStyles = createUseSheetStyle(
         zIndex: token.zIndexPopupBase,
       },
       popupContent: {
+        padding: 0,
+      },
+      popupPanelBody: {
+        flexGrow: 1,
         padding: 0,
       },
       mask: {

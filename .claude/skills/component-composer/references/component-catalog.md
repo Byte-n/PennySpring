@@ -80,7 +80,7 @@
 
 - `Dialog`：阻塞式确认或提示。
 - `Drawer`：左右侧滑出的抽屉面板；适合导航、筛选、设置等侧边内容，支持独立浮层和 `Drawer.Layout` 嵌入布局。
-- `Popup`：锚定、底部或居中的浮层容器；`Popup.FloatingPanel` 适合可拖拽底部/顶部面板，支持 `titleText`、确认/取消按钮和自定义 header/footer。
+- `Popup`：锚定、底部或居中的浮层容器；`Popup.FloatingPanel` 适合可拖拽底部/顶部面板，支持 `titleText`、确认/取消按钮、自定义 header/footer，以及通过 `scrollEnabled` 控制 body 滚动。
 - `Portal`、`PortalProvider`：在常规树外渲染浮层内容。
 - `Toast`、`useToast`：短暂轻量提示。
 - `Message`、`useMessage`：行内或全局反馈消息。

@@ -16,7 +16,6 @@ import type {
   ViewStyle,
 } from 'react-native';
 import { createUseSheetStyle } from '@pennyspring/theme';
-import type { AliasToken } from '@pennyspring/theme';
 import { useTheme } from '@pennyspring/theme';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import {
@@ -29,9 +28,10 @@ import { Button } from '../Button';
 import { Column } from '../Column';
 import { Row } from '../Row';
 import { Text } from '../Text';
-import { renderTextNode } from '../shares/node';
 import type { TextSize } from '../Text';
+import { renderTextNode } from '../shares/node';
 import { useControllableValue } from '../_hooks';
+import { getFloatingPanelSizeConfig } from './floatingPanelSize';
 import { Popup as PopupRoot } from './Popup';
 import type {
   PopupFloatingPanelHeight,
@@ -49,56 +49,12 @@ interface FloatingPanelStyleOptions {
   size: ComponentSize;
 }
 
-interface FloatingPanelSizeConfig {
-  actionGap: (token: AliasToken) => number;
-  contentPadding: (token: AliasToken) => number;
-  handleHeight: (token: AliasToken) => number;
-  handleWidth: (token: AliasToken) => number;
-  indicatorHeight: (token: AliasToken) => number;
-  sectionMargin: (token: AliasToken) => number;
-  sectionPadding: (token: AliasToken) => number;
-  titleTextSize: TextSize;
-}
-
 const DEFAULT_MIN_HEIGHT_RATIO = 0.35;
 const DEFAULT_MAX_HEIGHT_RATIO = 0.8;
 const DEFAULT_CANCEL_TEXT = '取消';
 const DEFAULT_OK_TEXT = '确定';
 const PERCENT_HEIGHT_UNIT = '%';
 const PERCENT_HEIGHT_RATIO = 100;
-
-const SIZE_MAP: Record<ComponentSize, FloatingPanelSizeConfig> = {
-  small: {
-    actionGap: token => token.marginXXS,
-    contentPadding: token => token.paddingSM,
-    handleHeight: token => token.controlHeightXS,
-    handleWidth: token => token.controlHeightSM,
-    indicatorHeight: token => token.lineWidthBold,
-    sectionMargin: token => token.marginSM,
-    sectionPadding: token => token.paddingSM,
-    titleTextSize: 'md',
-  },
-  normal: {
-    actionGap: token => token.marginXS,
-    contentPadding: token => token.padding,
-    handleHeight: token => token.controlHeightSM,
-    handleWidth: token => token.controlHeight,
-    indicatorHeight: token => token.sizeXXS,
-    sectionMargin: token => token.margin,
-    sectionPadding: token => token.padding,
-    titleTextSize: 'lg',
-  },
-  large: {
-    actionGap: token => token.marginSM,
-    contentPadding: token => token.paddingMD,
-    handleHeight: token => token.controlHeight,
-    handleWidth: token => token.controlHeightLG,
-    indicatorHeight: token => token.sizeXS,
-    sectionMargin: token => token.marginMD,
-    sectionPadding: token => token.paddingMD,
-    titleTextSize: 'xl',
-  },
-};
 
 function clamp(value: number, min: number, max: number): number {
   if (value < min) {
@@ -191,7 +147,7 @@ const useStyles = createUseSheetStyle(
       size,
     }: FloatingPanelStyleOptions,
   ) => {
-    const sizeConfig = SIZE_MAP[size];
+    const sizeConfig = getFloatingPanelSizeConfig(size);
     const actionGap = sizeConfig.actionGap(token);
     const contentPadding = sizeConfig.contentPadding(token);
     const handleBorderRadius = sizeConfig.indicatorHeight(token);
@@ -542,6 +498,7 @@ export function FloatingPanel({
   position,
   renderFooter,
   renderHeader,
+  scrollEnabled = true,
   size,
   style,
   styles,
@@ -735,7 +692,7 @@ export function FloatingPanel({
   );
 
   const handleAtTop = resolvedPosition === 'bottom';
-  const floatingPanelSizeConfig = SIZE_MAP[resolvedSize];
+  const floatingPanelSizeConfig = getFloatingPanelSizeConfig(resolvedSize);
   const headerNode = renderPanelHeader(
     {
       header,
@@ -802,7 +759,12 @@ export function FloatingPanel({
               ))}
             </Column>
           ) : null}
-          <ScrollView style={tokenStyles.panelBody} contentContainerStyle={[tokenStyles.panelBodyScrollView, styles?.panelBody]} testID="floating-panel-body">
+          <ScrollView
+            contentContainerStyle={[tokenStyles.panelBodyScrollView, styles?.panelBody]}
+            scrollEnabled={scrollEnabled}
+            style={tokenStyles.panelBody}
+            testID="floating-panel-body"
+          >
             {children}
           </ScrollView>
           {footerNode ? (

@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { GeometryReader } from '../GeometryReader';
 import { Text } from '../Text';
@@ -49,7 +49,6 @@ export function PickerBody<TItem extends PickerColumnItemData>({
   slotStyles,
   styles,
 }: PickerBodyProps<TItem>) {
-  const lockedHeightRef = useRef(0);
   const isEmpty = columns.length === 0 || columns.every(column => column.length === 0);
   const itemStyle = StyleSheet.flatten(styles.item);
   const itemHeight = typeof itemStyle?.minHeight === 'number'
@@ -80,31 +79,23 @@ export function PickerBody<TItem extends PickerColumnItemData>({
   return (
     <View style={[styles.body, slotStyles?.root]}>
       <GeometryReader defaultGeometry={{ width: 0, height: defaultWheelHeight }}>
-        {({ height }) => {
-          if (lockedHeightRef.current === 0 && height > 0) {
-            lockedHeightRef.current = height;
-          }
-
-          const wheelHeight = lockedHeightRef.current || height;
-
-          return (
-            <PickerView
-              columns={columns}
-              empty={empty}
-              emptyText={emptyText}
-              hasDisabledFocusedItem={hasDisabledFocusedItem}
-              isWheelScrolling={isWheelScrolling}
-              onFocusIndexChange={onFocusIndexChange}
-              onItemPress={onItemPress}
-              onWheelScrollStateChange={onWheelScrollStateChange}
-              renderLabel={renderLabel}
-              selectedValue={selectedValue}
-              slotStyles={slotStyles}
-              styles={styles}
-              wheelHeight={wheelHeight}
-            />
-          );
-        }}
+        {({ height }) => (
+          <PickerView
+            columns={columns}
+            empty={empty}
+            emptyText={emptyText}
+            hasDisabledFocusedItem={hasDisabledFocusedItem}
+            isWheelScrolling={isWheelScrolling}
+            onFocusIndexChange={onFocusIndexChange}
+            onItemPress={onItemPress}
+            onWheelScrollStateChange={onWheelScrollStateChange}
+            renderLabel={renderLabel}
+            selectedValue={selectedValue}
+            slotStyles={slotStyles}
+            styles={styles}
+            wheelHeight={height}
+          />
+        )}
       </GeometryReader>
     </View>
   );
