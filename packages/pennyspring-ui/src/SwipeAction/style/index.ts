@@ -65,6 +65,9 @@ export const useStyles = createUseSheetStyle(
       track: {
         flexDirection: 'row',
         alignItems: 'stretch',
+        overflow: 'hidden',
+        borderRadius: token.borderRadius,
+        backgroundColor: token.colorBgContainer,
       },
       content: {
         flex: 1,

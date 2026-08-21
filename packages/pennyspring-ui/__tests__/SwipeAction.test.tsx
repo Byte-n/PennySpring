@@ -1,5 +1,5 @@
 import React from 'react';
-import { View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
 import { SwipeAction } from '../src/SwipeAction';
 import type { SwipeActionAction } from '../src/SwipeAction';
@@ -179,6 +179,21 @@ describe('SwipeAction', () => {
     const testRenderer = renderSwipeAction();
     setupActionWidth(testRenderer);
     expect(getTrackTranslateX(testRenderer)).toBe(0);
+  });
+  it('clips the moving track to prevent action backgrounds from bleeding through rounded content corners', () => {
+    const testRenderer = renderSwipeAction();
+    const root = testRenderer.root.findByProps({
+      testID: 'swipe-action-root'
+    });
+    const track = testRenderer.root.findByProps({
+      testID: 'swipe-action-track'
+    });
+    const rootStyle = StyleSheet.flatten(root.props.style);
+    const trackStyle = StyleSheet.flatten(track.props.style);
+
+    expect(trackStyle.overflow).toBe('hidden');
+    expect(trackStyle.borderRadius).toBe(rootStyle.borderRadius);
+    expect(trackStyle.backgroundColor).toBe(rootStyle.backgroundColor);
   });
   it('reveals right actions when swiping left in uncontrolled mode', () => {
     const onActionsReveal = jest.fn();
