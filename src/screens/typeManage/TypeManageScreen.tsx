@@ -1,14 +1,18 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { useRequest } from 'ahooks';
 import {
+  ActionSheet,
   Column,
+  Dialog,
   DisplayInput,
   Icon,
   Input,
   Popup,
   Row,
   Segmented,
+  Text,
   useToast,
+  type ActionSheetAction,
 } from '@pennyspring/ui';
 import {
   RECORD_TYPE_CATEGORY,
@@ -29,9 +33,26 @@ const CATEGORY_OPTIONS = [
   { value: RECORD_TYPE_CATEGORY.transfer, label: '转账' },
 ];
 
+const TYPE_ACTIONS: ActionSheetAction[] = [{ text: '编辑' }, { text: '删除', danger: true }];
+
+const TYPE_DELETE_ERROR_HINTS = [
+  { keyword: 'Type is in use', message: '该类型已被记录使用，无法删除' },
+  { keyword: 'Type has children', message: '请先删除该类型下的二级类型' },
+];
+
+function getTypeDeleteErrorMessage(error: unknown): string {
+  const message = error instanceof Error ? error.message : '';
+  const hint = TYPE_DELETE_ERROR_HINTS.find(v => message.includes(v.keyword));
+  return hint?.message ?? (message || '删除失败');
+}
+
 const useStyles = createUseSheetStyle(token => ({
   container: { flex: 1, backgroundColor: token.colorBgLayout },
   segmented: { padding: token.padding },
+  hint: {
+    paddingHorizontal: token.padding,
+    paddingBottom: token.paddingSM,
+  },
   contentScroll: { flex: 1 },
   categoryGrid: { marginHorizontal: token.marginMD },
   dialogBody: {
@@ -106,6 +127,10 @@ export function TypeManageScreen() {
   const [name, setName] = useState('');
   const [icon, setIcon] = useState('DotsThreeCircle');
 
+  const [actionSheetOpen, setActionSheetOpen] = useState(false);
+  const [selectedType, setSelectedType] = useState<TypeRow | null>(null);
+  const [pendingDeleteType, setPendingDeleteType] = useState<TypeRow | null>(null);
+
   const openCreateParentDialog = useCallback(() => {
     setEditingType(null);
     setIsCreatingParent(true);
@@ -123,6 +148,25 @@ export function TypeManageScreen() {
     setIcon('DotsThreeCircle');
     setDialogOpen(true);
   }, []);
+
+  const openEditDialog = useCallback((type: TypeRow) => {
+    setEditingType(type);
+    setIsCreatingParent(type.parentId === 0);
+    setCreateParentId(type.parentId);
+    setName(type.name);
+    setIcon(type.icon);
+    setDialogOpen(true);
+  }, []);
+
+  const handleItemLongPress = useCallback(
+    (id: number) => {
+      const type = allTypes.find(v => v.id === id);
+      if (!type) return;
+      setSelectedType(type);
+      setActionSheetOpen(true);
+    },
+    [allTypes],
+  );
 
   const handleOk = useCallback(async () => {
     if (!currentBook) {
@@ -166,6 +210,31 @@ export function TypeManageScreen() {
     toast,
   ]);
 
+  const confirmDelete = useCallback(async () => {
+    const target = pendingDeleteType;
+    setPendingDeleteType(null);
+    if (!target || !currentBook) return;
+    try {
+      await globalApi.type.delete(target.id, currentBook.id);
+      refresh();
+    } catch (e: unknown) {
+      toast.show({ messageText: getTypeDeleteErrorMessage(e) });
+    }
+  }, [pendingDeleteType, currentBook, refresh, toast]);
+
+  const handleActionSheetAction = useCallback(
+    (_action: ActionSheetAction, index: number) => {
+      if (!selectedType) return;
+      setActionSheetOpen(false);
+      if (index === 0) {
+        openEditDialog(selectedType);
+      } else if (index === 1) {
+        setPendingDeleteType(selectedType);
+      }
+    },
+    [selectedType, openEditDialog],
+  );
+
   const dialogTitle = useMemo(() => {
     if (editingType) return '编辑类型';
     return isCreatingParent ? '新增一级类型' : '新增二级类型';
@@ -182,6 +251,11 @@ export function TypeManageScreen() {
           onChange={v => setCategory(v as RecordTypeCategoryValue)}
         />
       </Row>
+      <Row style={styles.hint}>
+        <Text size="xs" color="tertiary">
+          长按类型可编辑或删除
+        </Text>
+      </Row>
 
       <ScrollView style={styles.contentScroll}>
         <CategoryGrid
@@ -194,11 +268,35 @@ export function TypeManageScreen() {
               openCreateChildDialog(-id);
             }
           }}
+          onItemLongPress={handleItemLongPress}
         />
       </ScrollView>
 
+      <ActionSheet
+        open={actionSheetOpen}
+        onOpenChange={open => {
+          if (!open) setActionSheetOpen(false);
+        }}
+        titleText={selectedType?.name}
+        actions={TYPE_ACTIONS}
+        onAction={handleActionSheetAction}
+        cancelText="取消"
+      />
+
+      <Dialog
+        open={pendingDeleteType !== null}
+        titleText="删除类型"
+        okText="删除"
+        cancelText="取消"
+        onOk={confirmDelete}
+        onCancel={() => setPendingDeleteType(null)}
+      >
+        <Text size="md" color="secondary">
+          确定删除「{pendingDeleteType?.name}」吗？删除后无法恢复。
+        </Text>
+      </Dialog>
+
       <Popup.FloatingPanel
-        height="85%"
         keyboardAvoiding
         open={dialogOpen}
         onOpenChange={open => {
@@ -211,7 +309,12 @@ export function TypeManageScreen() {
         styles={{ panelBody: styles.dialogBody }}
       >
         <Column>
-          <Input placeholder="类型名称" value={name} onChange={setName} />
+          <Input
+            labelText="类型"
+            placeholder="类型名称"
+            value={name}
+            onChange={setName}
+          />
           <DisplayInput
             labelText="图标"
             valueText={icon}

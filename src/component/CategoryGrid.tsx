@@ -23,6 +23,7 @@ export interface CategoryItem extends Omit<TypeRow, 'icon'> {
 interface CategoryGridProps {
   categories: CategoryItem[];
   onSelect?: (id: number) => void;
+  onItemLongPress?: (id: number) => void;
   value?: number;
   onChange?: (id?: number) => void;
   defaultValue?: number;
@@ -38,7 +39,7 @@ const useStyles = createUseSheetStyle(token => ({
 }));
 
 export function CategoryGrid(props: CategoryGridProps) {
-  const { categories, style, accordion = true } = props;
+  const { categories, style, accordion = true, onItemLongPress } = props;
   const [value, onChange] = useControllableValue(props.defaultValue, props.value, props.onChange)
   const [expandedIds, setExpandedIds] = React.useState<Set<number>>(new Set());
   const onSelect = useCallback((v: number) => {
@@ -108,6 +109,7 @@ export function CategoryGrid(props: CategoryGridProps) {
                 value={value}
                 onPrimarySelect={handlePrimarySelect}
                 expandedIds={expandedIds}
+                onItemLongPress={onItemLongPress}
               />
             }
             styles={{
@@ -121,6 +123,7 @@ export function CategoryGrid(props: CategoryGridProps) {
                 onSelect={onSelect}
                 value={value}
                 parentId={expandedCat.id}
+                onItemLongPress={onItemLongPress}
               />
             )}
           </ListCollapse>
@@ -137,9 +140,19 @@ interface CellsProps extends Pick<CategoryGridProps, 'value'> {
   onPrimarySelect?: (id: number) => void;
   expandedIds?: Set<number>;
   parentId?: number;
+  onItemLongPress?: (id: number) => void;
 }
 
-function Cells({ list, onSelect, value, style, onPrimarySelect, expandedIds, parentId }: CellsProps) {
+function Cells({
+  list,
+  onSelect,
+  value,
+  style,
+  onPrimarySelect,
+  expandedIds,
+  parentId,
+  onItemLongPress,
+}: CellsProps) {
   const styles = useStyles();
 
   const handleSecondarySelect = useCallback((childId: number) => {
@@ -157,6 +170,7 @@ function Cells({ list, onSelect, value, style, onPrimarySelect, expandedIds, par
           <Cell
             item={item}
             onSelect={onPrimarySelect ? () => onPrimarySelect(item.id) : () => handleSecondarySelect(item.id)}
+            onLongPress={onItemLongPress ? () => onItemLongPress(item.id) : undefined}
             isSelected={value === item.id || (expandedIds?.has(item.id) ?? false)}
           />
         </Grid.Item>
@@ -168,15 +182,16 @@ function Cells({ list, onSelect, value, style, onPrimarySelect, expandedIds, par
 interface CellProps {
   item: CategoryItem;
   onSelect: (id: number) => void;
+  onLongPress?: () => void;
   isSelected: boolean;
 }
 
-function Cell({ item, onSelect, isSelected }: CellProps) {
+function Cell({ item, onSelect, onLongPress, isSelected }: CellProps) {
   const { token } = useTheme();
   const iconValue =
     typeof item.icon === 'string' ? getPhosphorIconComponent(item.icon) : item.icon;
   return (
-    <Pressable onPress={() => onSelect(item.id)}>
+    <Pressable onPress={() => onSelect(item.id)} onLongPress={onLongPress}>
       <Column align="center" gap={token.marginXXS}>
         <Icon
           icon={iconValue}
