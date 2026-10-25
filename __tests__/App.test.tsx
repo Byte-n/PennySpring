@@ -18,6 +18,16 @@ jest.mock('react-native-safe-area-context', () => ({
 
 jest.mock('@pennyspring/theme', () => ({
   ThemeProvider: ({ children }: { children: React.ReactNode }) => children,
+  useTheme: () => ({
+    token: {
+      colorPrimary: '#1677ff',
+      colorBgLayout: '#f5f5f5',
+      colorBgContainer: '#ffffff',
+      colorText: 'rgba(0, 0, 0, 0.88)',
+      colorBorderSecondary: '#f0f0f0',
+      colorError: '#ff4d4f',
+    },
+  }),
 }));
 
 jest.mock('@pennyspring/ui', () => ({
@@ -25,6 +35,18 @@ jest.mock('@pennyspring/ui', () => ({
 }));
 
 jest.mock('@react-navigation/native', () => ({
+  DefaultTheme: {
+    dark: false,
+    colors: {
+      primary: '#1677ff',
+      background: '#f5f5f5',
+      card: '#ffffff',
+      text: '#000000',
+      border: '#f0f0f0',
+      notification: '#ff4d4f',
+    },
+    fonts: {},
+  },
   NavigationContainer: ({
     children,
     onReady,
