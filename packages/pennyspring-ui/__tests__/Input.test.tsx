@@ -1,8 +1,13 @@
 import React from 'react';
 import { ActivityIndicator, StyleSheet, TextInput, View } from 'react-native';
+import { defaultSeedToken } from '@pennyspring/theme';
+import { derivative } from '@pennyspring/theme/src/algorithms/derivative';
+import { formatToken } from '@pennyspring/theme/src/algorithms/formatToken';
 import renderer, { act } from 'react-test-renderer';
 import { Input } from '../src/Input';
 import { Icon } from '../src/Icon';
+
+const token = formatToken(derivative(defaultSeedToken, false));
 
 function renderInput(props: Partial<React.ComponentProps<typeof Input>> = {}) {
   let testRenderer: renderer.ReactTestRenderer;
@@ -28,6 +33,16 @@ function renderSearchInput(
 
 function findNativeInput(testRenderer: renderer.ReactTestRenderer) {
   return testRenderer.root.findByType(TextInput);
+}
+
+function findFieldStyle(testRenderer: renderer.ReactTestRenderer) {
+  const field = testRenderer.root.find(
+    node =>
+      StyleSheet.flatten(node.props.style)?.backgroundColor !== undefined &&
+      StyleSheet.flatten(node.props.style)?.minHeight !== undefined,
+  );
+
+  return StyleSheet.flatten(field.props.style);
 }
 
 describe('Input', () => {
@@ -187,6 +202,37 @@ describe('Input', () => {
 
   it('keeps single-line behavior when multiline is not requested', () => {
     expect(findNativeInput(renderInput()).props.multiline).toBe(false);
+  });
+
+  it('uses the same size ladder as DisplayInput for field height', () => {
+    // Arrange & Act
+    const smallFieldStyle = findFieldStyle(renderInput({ size: 'small' }));
+    const normalFieldStyle = findFieldStyle(renderInput({ size: 'normal' }));
+    const largeFieldStyle = findFieldStyle(renderInput({ size: 'large' }));
+
+    // Assert
+    expect(smallFieldStyle.minHeight).toBe(token.controlHeightSM);
+    expect(normalFieldStyle.minHeight).toBe(token.controlHeight);
+    expect(largeFieldStyle.minHeight).toBe(token.controlHeightLG);
+  });
+
+  it('keeps input text bottom-aligned inside the field for every size', () => {
+    // Arrange & Act
+    const smallInputStyle = StyleSheet.flatten(
+      findNativeInput(renderInput({ defaultValue: '值', size: 'small' })).props.style,
+    );
+    const normalInputStyle = StyleSheet.flatten(
+      findNativeInput(renderInput({ defaultValue: '值', size: 'normal' })).props.style,
+    );
+    const largeInputStyle = StyleSheet.flatten(
+      findNativeInput(renderInput({ defaultValue: '值', size: 'large' })).props.style,
+    );
+
+    // Assert
+    expect(smallInputStyle.paddingTop).toBe(token.controlHeightSM - token.lineHeightSM);
+    expect(normalInputStyle.paddingTop).toBe(token.controlHeight - token.lineHeight);
+    expect(largeInputStyle.paddingTop).toBe(token.controlHeightLG - token.lineHeightLG);
+    expect(normalInputStyle.paddingBottom).toBe(0);
   });
 });
 

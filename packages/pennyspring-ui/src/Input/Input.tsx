@@ -53,29 +53,40 @@ interface SizeConfig {
   gap: (token: AliasToken) => number;
   fontSize: (token: AliasToken) => number;
   lineHeight: (token: AliasToken) => number;
+  labelFontSize: (token: AliasToken) => number;
+  labelLineHeight: (token: AliasToken) => number;
 }
 
+// 尺寸语义与 DisplayInput 保持一致：small/normal/large 依次对应
+// controlHeightSM/controlHeight/controlHeightLG，避免同屏高度错位。
+// 标签字号同步随尺寸缩放，与 DisplayInput 的 xs/sm/md 策略一致。
 const SIZE_MAP: Record<ComponentSize, SizeConfig> = {
   small: {
-    minHeight: token => token.controlHeight,
+    minHeight: token => token.controlHeightSM,
     paddingHorizontal: token => token.paddingXS,
     gap: token => token.sizeXXS,
     fontSize: token => token.fontSizeSM,
     lineHeight: token => token.lineHeightSM,
+    labelFontSize: token => token.fontSizeXS,
+    labelLineHeight: token => token.lineHeightXS,
   },
   normal: {
-    minHeight: token => token.controlHeightLG,
+    minHeight: token => token.controlHeight,
     paddingHorizontal: token => token.controlPaddingHorizontalSM,
     gap: token => token.sizeXS,
     fontSize: token => token.fontSize,
     lineHeight: token => token.lineHeight,
+    labelFontSize: token => token.fontSizeSM,
+    labelLineHeight: token => token.lineHeightSM,
   },
   large: {
-    minHeight: token => token.controlHeightLG + token.paddingSM,
+    minHeight: token => token.controlHeightLG,
     paddingHorizontal: token => token.padding,
     gap: token => token.sizeSM,
     fontSize: token => token.fontSizeLG,
     lineHeight: token => token.lineHeightLG,
+    labelFontSize: token => token.fontSize,
+    labelLineHeight: token => token.lineHeight,
   },
 };
 
@@ -158,12 +169,10 @@ const useStyles = createUseSheetStyle(
         lineHeight: sizeConfig.lineHeight(token),
         color: disabled ? token.colorTextDisabled : token.colorText,
       } as TextStyle,
-      inputWithLabel: {
-        paddingTop: token.padding + token.paddingXS,
-        paddingBottom: 0,
-      } as TextStyle,
-      inputWithoutLabel: {
-        paddingTop: token.paddingXS,
+      // 与 DisplayInput 一致：文本贴下划线对齐，顶部留白 = 控件高度 - 文本行高，
+      // 浮动标签以浮层方式叠加，不再额外占用控件高度。
+      inputPadding: {
+        paddingTop: sizeConfig.minHeight(token) - sizeConfig.lineHeight(token),
         paddingBottom: 0,
       } as TextStyle,
       inputMultiline: {
@@ -280,11 +289,12 @@ function InputRoot({
   const underlineProgress = useSharedValue(isFocused || isError ? 1 : 0);
   const sizeConfig = SIZE_MAP[resolvedSize];
   const bodyFontSize = sizeConfig.fontSize(token);
-  const labelFontSize = token.fontSizeSM;
-  const labelLineHeight = token.lineHeightSM;
+  const labelFontSize = sizeConfig.labelFontSize(token);
+  const labelLineHeight = sizeConfig.labelLineHeight(token);
   const controlHeight = sizeConfig.minHeight(token);
   const inactiveLabelTop = controlHeight / 2 - labelLineHeight / 2;
-  const activeLabelTop = token.paddingXXS;
+  // 与 DisplayInput 一致：激活态标签浮层紧贴控件顶部
+  const activeLabelTop = 0;
   const underlineInactiveScale = token.lineWidth / token.lineWidthBold;
   const underlineActiveScale = token.lineWidthBold / token.lineWidth;
   const placeholderTextColor = hasFloatingLabel && !isFocused
@@ -430,7 +440,7 @@ function InputRoot({
             selectionColor={isError ? token.colorError : token.colorPrimary}
             style={[
               tokenStyles.input,
-              hasFloatingLabel ? tokenStyles.inputWithLabel : tokenStyles.inputWithoutLabel,
+              tokenStyles.inputPadding,
               multiline ? tokenStyles.inputMultiline : null,
               styles?.input,
             ]}
