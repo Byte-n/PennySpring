@@ -2,7 +2,7 @@ import React from 'react';
 import { FlatList, View } from 'react-native';
 import { Column, Input, Row, SelectionList, Text } from '@pennyspring/ui';
 import type { SelectionListOption, SelectionListSelectedValue } from '@pennyspring/ui';
-import { createUseSheetStyle } from '@pennyspring/theme';
+import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
 import * as PhosphorIcons from 'phosphor-react-native';
 import type { Icon } from 'phosphor-react-native';
 
@@ -75,12 +75,15 @@ interface AssetIconInfo {
 
 type IconInfo = PhosphorIconInfo | AssetIconInfo;
 
+const ICON_PREVIEW_SIZE = 32;
+
 interface IconItemProps {
   item: IconInfo;
 }
 
 function IconItem({ item }: IconItemProps) {
   const styles = useStyles();
+  const { token } = useTheme();
 
   if (item.type === 'phosphor') {
     const IconComponent = (PhosphorIcons as any)[item.pascalName] as Icon;
@@ -90,7 +93,7 @@ function IconItem({ item }: IconItemProps) {
 
     return (
       <Column style={styles.iconItem}>
-        <IconComponent size={32} />
+        <IconComponent size={ICON_PREVIEW_SIZE} color={token.colorText} />
         <Text size="sm" color="secondary" style={styles.iconName} numberOfLines={1}>
           {item.pascalName}
         </Text>
@@ -101,7 +104,7 @@ function IconItem({ item }: IconItemProps) {
   const AssetIcon = item.icon;
   return (
     <Column style={styles.iconItem}>
-      <AssetIcon width={32} height={32} />
+      <AssetIcon width={ICON_PREVIEW_SIZE} height={ICON_PREVIEW_SIZE} />
       <Text size="sm" color="secondary" style={styles.iconName} numberOfLines={1}>
         {item.label}
       </Text>
