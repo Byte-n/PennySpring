@@ -61,7 +61,22 @@ describe('Row and Column', () => {
     });
     const style = StyleSheet.flatten(column.props.style);
 
-    expect(style.gap).toBe(expectedGap / 2);
+    expect(style.gap).toBe(expectedGap);
+  });
+
+  it('uses normal gap token by default for Column', () => {
+    const testRenderer = renderWithTheme(
+      <Column>
+        <Text>Income</Text>
+        <Text>Expense</Text>
+      </Column>,
+    );
+    const column = testRenderer.root.findByProps({
+      testID: 'column',
+    });
+    const style = StyleSheet.flatten(column.props.style);
+
+    expect(style.gap).toBe(5);
   });
 
   it('keeps numeric gap values for explicit layout overrides', () => {
@@ -74,6 +89,20 @@ describe('Row and Column', () => {
       testID: 'row',
     });
     const style = StyleSheet.flatten(row.props.style);
+
+    expect(style.gap).toBe(9);
+  });
+
+  it('keeps numeric gap values for Column layout overrides', () => {
+    const testRenderer = renderWithTheme(
+      <Column gap={9}>
+        <View />
+      </Column>,
+    );
+    const column = testRenderer.root.findByProps({
+      testID: 'column',
+    });
+    const style = StyleSheet.flatten(column.props.style);
 
     expect(style.gap).toBe(9);
   });

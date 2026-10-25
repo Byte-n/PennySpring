@@ -27,8 +27,9 @@ const useStyles = createUseSheetStyle(token => {
     },
     titleText: {
       color: token.colorTextHeading,
-      fontSize: token.fontSizeSM,
-      lineHeight: token.lineHeightSM,
+      fontSize: token.fontSizeLG,
+      lineHeight: token.lineHeightLG,
+      fontWeight: String(token.fontWeightStrong) as TextStyle['fontWeight'],
     },
     actionsContainer: {
       padding: token.paddingSM,
