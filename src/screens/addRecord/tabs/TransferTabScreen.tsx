@@ -247,6 +247,7 @@ export function TransferTabScreen() {
                 style={styles.formField}
                 texts={{
                   headerText: '选择转出资产',
+                  searchLabelText: '转出资产',
                   searchPlaceholder: '搜索资产',
                   emptyText: '暂无可用转出资产',
                 }}
@@ -263,6 +264,7 @@ export function TransferTabScreen() {
                 style={styles.formField}
                 texts={{
                   headerText: '选择转入资产',
+                  searchLabelText: '转入资产',
                   searchPlaceholder: '搜索资产',
                   emptyText: '暂无可用转入资产',
                 }}
@@ -306,6 +308,7 @@ export function TransferTabScreen() {
                 style={styles.formField}
                 texts={{
                   headerText: '选择标签',
+                  searchLabelText: '标签',
                   searchPlaceholder: '搜索标签',
                   emptyText: '暂无标签',
                   confirmText: '确定',

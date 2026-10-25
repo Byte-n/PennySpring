@@ -253,6 +253,23 @@ describe('SelectionList', () => {
     expect(searchInput.props.returnKeyType).toBe('search');
   });
 
+  it('renders search input label text from texts', () => {
+    const testRenderer = renderSelectionList({
+      defaultOpen: true,
+      searchable: true,
+      texts: {
+        searchLabelText: 'Search options',
+        searchPlaceholder: 'Keyword',
+      },
+    });
+
+    const input = testRenderer.root.findByType(Input);
+
+    expect(input.props.labelText).toBe('Search options');
+    expect(input.props.placeholder).toBe('Keyword');
+    expect(treeText(testRenderer)).toContain('Search options');
+  });
+
   it('propagates size to popup controls and option typography', () => {
     const testRenderer = renderSelectionList({
       defaultOpen: true,

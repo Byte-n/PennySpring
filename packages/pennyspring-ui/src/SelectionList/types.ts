@@ -140,7 +140,14 @@ export interface SelectionListTexts {
   confirmText?: string;
 
   /**
+   * 搜索输入框标签文本。
+   * 搜索输入框必须通过标签表达字段语义，不得只依赖 placeholder。
+   */
+  searchLabelText?: string;
+
+  /**
    * 搜索输入框 placeholder。
+   * 与 searchLabelText 同时传入时，文案不得重复。
    */
   searchPlaceholder?: string;
 

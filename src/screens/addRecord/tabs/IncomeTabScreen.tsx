@@ -237,6 +237,7 @@ export function IncomeTabScreen() {
                 style={styles.formField}
                 texts={{
                   headerText: '选择收款资产',
+                  searchLabelText: '收款资产',
                   searchPlaceholder: '搜索资产',
                   emptyText: '暂无可用资产',
                 }}
@@ -275,6 +276,7 @@ export function IncomeTabScreen() {
                 style={styles.formField}
                 texts={{
                   headerText: '选择标签',
+                  searchLabelText: '标签',
                   searchPlaceholder: '搜索标签',
                   emptyText: '暂无标签',
                   confirmText: '确定',
@@ -295,6 +297,7 @@ export function IncomeTabScreen() {
                   style={styles.formField}
                   texts={{
                     headerText: '选择关联支出',
+                    searchLabelText: '关联支出',
                     searchPlaceholder: '搜索支出',
                     emptyText: '暂无可关联支出',
                     confirmText: '确定',

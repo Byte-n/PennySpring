@@ -413,6 +413,7 @@ export function SelectionListPopup({
             <Input
               {...searchInputProps}
               disabled={disabled}
+              labelText={texts?.searchLabelText}
               loading={loading}
               onChange={handleSearchChange}
               placeholder={texts?.searchPlaceholder}

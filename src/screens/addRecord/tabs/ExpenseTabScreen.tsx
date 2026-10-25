@@ -203,6 +203,7 @@ export function ExpenseTabScreen() {
                 searchable
                 texts={{
                   headerText: '选择付款资产',
+                  searchLabelText: '付款资产',
                   searchPlaceholder: '搜索资产',
                   emptyText: '暂无可用资产',
                 }}
@@ -239,6 +240,7 @@ export function ExpenseTabScreen() {
                 searchable
                 texts={{
                   headerText: '选择标签',
+                  searchLabelText: '标签',
                   searchPlaceholder: '搜索标签',
                   emptyText: '暂无标签',
                   confirmText: '确定',
