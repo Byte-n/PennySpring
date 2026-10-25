@@ -212,7 +212,6 @@ export function TagManageScreen() {
       />
 
       <Popup.FloatingPanel
-        height="85%"
         keyboardAvoiding
         open={dialogOpen}
         onOpenChange={open => {
@@ -225,7 +224,12 @@ export function TagManageScreen() {
         styles={{ panelBody: styles.dialogBody }}
       >
         <Column>
-          <Input placeholder="标签名称" value={name} onChange={setName} />
+          <Input
+            labelText="标签名称"
+            placeholder="请输入"
+            value={name}
+            onChange={setName}
+          />
           <DisplayInput
             labelText="图标"
             valueText={icon || '未选图标'}

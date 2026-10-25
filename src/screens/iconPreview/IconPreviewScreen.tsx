@@ -253,8 +253,9 @@ export function IconPreviewScreen() {
             labelText='分类'
           />
           <Input
+            labelText="搜索"
             style={styles.searchInput}
-            placeholder="搜索图标名称、分类或标签"
+            placeholder="图标名称、分类或标签"
             value={searchText}
             onChange={setSearchText}
             clearable

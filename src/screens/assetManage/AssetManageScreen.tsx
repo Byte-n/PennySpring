@@ -603,7 +603,12 @@ export function AssetManageScreen() {
         onOk={handleSave}
         styles={{ panelBody: styles.panelContent }}
       >
-        <Input placeholder="资产名称" value={name} onChange={setName} />
+        <Input
+          labelText="资产名称"
+          placeholder="请输入"
+          value={name}
+          onChange={setName}
+        />
         <Cascader
           options={cascaderOptions}
           value={assetPath}
@@ -612,7 +617,8 @@ export function AssetManageScreen() {
           onChange={setAssetPath}
         />
         <Input
-          placeholder="余额(元)"
+          labelText="余额(元)"
+          placeholder="请输入金额"
           value={balance}
           onChange={setBalance}
           keyboardType="numeric"
@@ -620,7 +626,8 @@ export function AssetManageScreen() {
         {isCreditCard && (
           <>
             <Input
-              placeholder="总额度(元)"
+              labelText="总额度(元)"
+              placeholder="请输入金额"
               value={totalAmount}
               onChange={setTotalAmount}
               keyboardType="numeric"
@@ -632,7 +639,8 @@ export function AssetManageScreen() {
               onOk={(_v, params) => setBillingDate(params.day)}
             >
               <Input
-                placeholder="账单日"
+                labelText="账单日"
+                placeholder="请选择"
                 value={formatDayText(billingDate)}
                 readonly
               />
@@ -644,7 +652,8 @@ export function AssetManageScreen() {
               onOk={(_v, params) => setRepaymentDate(params.day)}
             >
               <Input
-                placeholder="还款日"
+                labelText="还款日"
+                placeholder="请选择"
                 value={formatDayText(repaymentDate)}
                 readonly
               />
