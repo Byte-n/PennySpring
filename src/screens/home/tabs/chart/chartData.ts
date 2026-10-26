@@ -23,7 +23,6 @@ export interface ExpenseAnalysis {
   selectedAmount: number;
 }
 
-const PIE_VISIBLE_LIMIT = 6;
 const PIE_KEEP_COUNT = 5;
 const BAR_LIMIT = 10;
 const UNCATEGORIZED_NAME = '未分类';
@@ -46,12 +45,8 @@ function toTypeMap(types: readonly TypeRow[]): Map<number, TypeRow> {
   return new Map(types.map(type => [type.id, type]));
 }
 
-function isInMonth(recordTime: number, month: Date): boolean {
-  const date = new Date(recordTime);
-  return (
-    date.getFullYear() === month.getFullYear() &&
-    date.getMonth() === month.getMonth()
-  );
+function isInRange(recordTime: number, start: number, end: number): boolean {
+  return recordTime >= start && recordTime < end;
 }
 
 function isExpenseRecord(
@@ -164,16 +159,17 @@ function aggregateLevel2(
   return buckets;
 }
 
-export function aggregateExpenseStats(
+export function aggregateExpenseStatsForRange(
   records: readonly RecordRow[],
   types: readonly TypeRow[],
   selectedParentTypeId: number | null,
-  now: Date,
+  start: number,
+  end: number,
 ): ExpenseAnalysis {
   const typeMap = toTypeMap(types);
   const expenseRecords = records.filter(
     record =>
-      isInMonth(record.recordTime, now) &&
+      isInRange(record.recordTime, start, end) &&
       isExpenseRecord(record, typeMap.get(record.typeId)),
   );
   const totalExpense = expenseRecords.reduce(
@@ -208,12 +204,30 @@ export function aggregateExpenseStats(
   };
 }
 
+export function aggregateExpenseStats(
+  records: readonly RecordRow[],
+  types: readonly TypeRow[],
+  selectedParentTypeId: number | null,
+  now: Date,
+): ExpenseAnalysis {
+  const start = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+  const end = new Date(now.getFullYear(), now.getMonth() + 1, 1).getTime();
+  return aggregateExpenseStatsForRange(
+    records,
+    types,
+    selectedParentTypeId,
+    start,
+    end,
+  );
+}
+
 export function toPieStats(
   stats: readonly ExpenseCategoryStat[],
+  keepCount: number = PIE_KEEP_COUNT,
 ): ExpenseCategoryStat[] {
-  if (stats.length <= PIE_VISIBLE_LIMIT) return [...stats];
-  const kept = stats.slice(0, PIE_KEEP_COUNT);
-  const rest = stats.slice(PIE_KEEP_COUNT);
+  if (stats.length <= keepCount + 1) return [...stats];
+  const kept = stats.slice(0, keepCount);
+  const rest = stats.slice(keepCount);
   const other = rest.reduce(
     (acc, stat) => ({
       ...acc,

@@ -110,6 +110,19 @@ export function getRecordsByBook(db: Database, booksId: number): Promise<RecordR
     .all()
 }
 
+export async function getRecordRelationsByBook(
+  db: Database,
+  booksId: number,
+): Promise<Array<{ recordId: number; relatedRecordId: number }>> {
+  const requiredBooksId = getRequiredForeignKey({ booksId }, 'booksId')
+  return db
+    .select({ recordId: recordWithRecord.recordId, relatedRecordId: recordWithRecord.relatedRecordId })
+    .from(recordWithRecord)
+    .innerJoin(records, eq(recordWithRecord.recordId, records.id))
+    .where(eq(records.booksId, requiredBooksId))
+    .all()
+}
+
 export async function getRecordDetailById(db: Database, recordId: number, booksId: number): Promise<RecordDetail> {
   const record = await db.select().from(records).where(eq(records.id, recordId)).get()
   if (!record) throw new Error(`记录不存在: ${recordId}`)

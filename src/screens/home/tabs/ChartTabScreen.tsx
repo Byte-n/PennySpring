@@ -1,118 +1,369 @@
-import React, { useCallback, useMemo, useState } from 'react';
-import { ScrollView, RefreshControl } from 'react-native';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
+import { RefreshControl, ScrollView } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { useRequest } from 'ahooks';
-import { Column, Loading, Empty, Text } from '@pennyspring/ui';
+import {
+  Card,
+  Column,
+  Empty,
+  Loading,
+  Segmented,
+  Text,
+} from '@pennyspring/ui';
+import type { SegmentedValue } from '@pennyspring/ui';
 import { createUseSheetStyle } from '@pennyspring/theme';
-import {
-  RECORD_TYPE_CATEGORY,
-  type TypeRow,
-} from '@pennyspring/api';
+import type { AssetRow, RecordRelationRow, RecordRow, TagRow, TypeRow } from '@pennyspring/api';
+
+import { ROOT_ROUTES, useNavigation } from '../../../navigation';
 import { useBookStore, useGlobalApi } from '../../../stores/bookStore';
-import { MonthSummaryCard } from './detail/MonthSummaryCard';
 import {
-  filterByMonth,
-  summarizeCashflow,
-  type CashflowItem,
-} from './detail/detailData';
-import { aggregateExpenseStats } from './chart/chartData';
-import { ExpenseAnalysisSection } from './chart/ExpenseAnalysisSection';
+  createMonthPeriod,
+  shiftMonth,
+  summarizeMonth,
+} from './chart/analysisData';
+import { PeriodBar } from './chart/PeriodBar';
+import { AssetsView } from './chart/AssetsView';
+import { ExpenseView } from './chart/ExpenseView';
+import { IncomeView } from './chart/IncomeView';
+import { OverviewView } from './chart/OverviewView';
+
+type ChartViewKey = 'overview' | 'expense' | 'income' | 'assets';
+
+const VIEW_OPTIONS = [
+  { value: 'overview', labelText: '概览' },
+  { value: 'expense', labelText: '支出' },
+  { value: 'income', labelText: '收入' },
+  { value: 'assets', labelText: '资产' },
+];
+
+type RecordRelation = Pick<RecordRelationRow, 'recordId' | 'relatedRecordId'>;
+const EMPTY_RELATIONS: readonly RecordRelation[] = [];
+const EMPTY_RECORD_TAGS: ReadonlyMap<number, readonly number[]> = new Map();
+const NOW_REFRESH_INTERVAL_MS = 60 * 1000;
+
+function isChartView(value: SegmentedValue): value is ChartViewKey {
+  return (
+    value === 'overview' ||
+    value === 'expense' ||
+    value === 'income' ||
+    value === 'assets'
+  );
+}
 
 const useStyles = createUseSheetStyle(token => ({
   container: {
     flex: 1,
     backgroundColor: token.colorBgLayout,
   },
+  controls: {
+    gap: token.marginXS,
+    paddingHorizontal: token.padding,
+    paddingVertical: token.paddingXS,
+  },
   content: {
     flexGrow: 1,
-    padding: token.padding,
-    gap: token.margin,
+    paddingHorizontal: token.padding,
+    paddingTop: token.paddingXS,
+    paddingBottom: token.paddingLG,
   },
   state: {
-    flexGrow: 1,
     paddingVertical: token.paddingLG,
+  },
+  emptyCard: {
+    alignItems: 'center',
+    gap: token.marginSM,
   },
 }));
 
 export function ChartTabScreen() {
   const styles = useStyles();
+  const navigation = useNavigation();
   const currentBook = useBookStore(state => state.currentBook);
   const globalApi = useGlobalApi();
-  const [selectedParentTypeId, setSelectedParentTypeId] = useState<number | null>(
-    null,
+  const scrollRef = useRef<ScrollView>(null);
+  const [now, setNow] = useState(() => new Date());
+  const [anchor, setAnchor] = useState(
+    () => new Date(now.getFullYear(), now.getMonth(), 1),
   );
+  const [view, setView] = useState<ChartViewKey>('overview');
+  const [compareEnabled, setCompareEnabled] = useState(true);
+  const [selectedParentTypeId, setSelectedParentTypeId] = useState<
+    number | null
+  >(null);
 
   const bookId = currentBook?.id;
 
-  const { data: records = [], loading, refresh } = useRequest(
+  const {
+    data: records = [],
+    loading: recordsLoading,
+    refresh: refreshRecords,
+  } = useRequest<RecordRow[], []>(
     () => (bookId ? globalApi.record.getByBook(bookId) : Promise.resolve([])),
     { refreshDeps: [bookId] },
   );
-  const { data: types = [] } = useRequest<TypeRow[], []>(
+  const {
+    data: types = [],
+    loading: typesLoading,
+    refresh: refreshTypes,
+  } = useRequest<TypeRow[], []>(
     () => (bookId ? globalApi.type.getAll(bookId) : Promise.resolve([])),
     { refreshDeps: [bookId] },
   );
+  const {
+    data: assets = [],
+    loading: assetsLoading,
+    refresh: refreshAssets,
+  } = useRequest<AssetRow[], []>(
+    () => (bookId ? globalApi.asset.getByBook(bookId) : Promise.resolve([])),
+    { refreshDeps: [bookId] },
+  );
+  const {
+    data: tags = [],
+    loading: tagsLoading,
+    refresh: refreshTags,
+  } = useRequest<TagRow[], []>(
+    () => (bookId ? globalApi.tag.getAll(bookId) : Promise.resolve([])),
+    { refreshDeps: [bookId] },
+  );
+  const { data: recordRelations = EMPTY_RELATIONS, loading: recordRelationsLoading = false, refresh: refreshRecordRelations } = useRequest<RecordRelation[], []>(
+    () => (bookId ? globalApi.record.getRelationsByBook(bookId) : Promise.resolve([])),
+    { refreshDeps: [bookId] },
+  );
+  const {
+    data: recordTags = EMPTY_RECORD_TAGS,
+    loading: recordTagsLoading,
+    refresh: refreshRecordTags,
+  } = useRequest<ReadonlyMap<number, readonly number[]>, []>(
+    async () => {
+      if (!bookId) return EMPTY_RECORD_TAGS;
+      const rows = await globalApi.record.getRecordTags(bookId);
+      const map = new Map<number, number[]>();
+      for (const row of rows) {
+        const tagIds = map.get(row.recordId) ?? [];
+        tagIds.push(row.tagId);
+        map.set(row.recordId, tagIds);
+      }
+      return map;
+    },
+    { refreshDeps: [bookId] },
+  );
 
-  const now = useMemo(() => new Date(), []);
-  const monthLabel = useMemo(
-    () => now.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long' }),
+  const isLoading =
+    recordsLoading ||
+    typesLoading ||
+    assetsLoading ||
+    tagsLoading ||
+    recordTagsLoading ||
+    recordRelationsLoading;
+  const period = useMemo(() => createMonthPeriod(anchor, now), [anchor, now]);
+
+  const currentMonthStart = useMemo(
+    () => new Date(now.getFullYear(), now.getMonth(), 1).getTime(),
     [now],
+  );
+  const canGoNext = shiftMonth(anchor, 1).getTime() <= currentMonthStart;
+  const periodSummary = useMemo(
+    () => summarizeMonth(records, types, period),
+    [records, types, period],
+  );
+  const hasCashflow = periodSummary.expense > 0 || periodSummary.income > 0;
+
+  const refreshAll = useCallback(() => {
+    refreshRecords();
+    refreshTypes();
+    refreshAssets();
+    refreshTags();
+    refreshRecordTags();
+    refreshRecordRelations();
+  }, [
+    refreshRecords,
+    refreshTypes,
+    refreshAssets,
+    refreshTags,
+    refreshRecordTags,
+    refreshRecordRelations,
+  ]);
+
+  const refreshAllRef = useRef(refreshAll);
+  refreshAllRef.current = refreshAll;
+
+  const scrollToTop = useCallback(() => {
+    scrollRef.current?.scrollTo({ y: 0, animated: true });
+  }, []);
+
+  const updatePeriod = useCallback(
+    (nextAnchor: Date) => {
+      setAnchor(nextAnchor);
+      setSelectedParentTypeId(null);
+      scrollToTop();
+    },
+    [scrollToTop],
   );
 
   useFocusEffect(
     useCallback(() => {
-      refresh();
-    }, [refresh]),
+      setNow(previous =>
+        Date.now() - previous.getTime() > NOW_REFRESH_INTERVAL_MS
+          ? new Date()
+          : previous,
+      );
+      refreshAllRef.current();
+    }, []),
   );
 
-  const summary = useMemo(() => {
-    const typeMap = new Map(types.map(type => [type.id, type]));
-    const items: CashflowItem[] = records.map(record => ({
-      recordTime: record.recordTime,
-      finalAmount: record.finalAmount,
-      category:
-        typeMap.get(record.typeId)?.typeCategory ?? RECORD_TYPE_CATEGORY.expense,
-    }));
-    return summarizeCashflow(filterByMonth(items, now));
-  }, [records, types, now]);
+  const handlePrevious = useCallback(() => {
+    updatePeriod(shiftMonth(anchor, -1));
+  }, [anchor, updatePeriod]);
 
-  const analysis = useMemo(
-    () => aggregateExpenseStats(records, types, selectedParentTypeId, now),
-    [records, types, selectedParentTypeId, now],
+  const handleNext = useCallback(() => {
+    if (!canGoNext) return;
+    updatePeriod(shiftMonth(anchor, 1));
+  }, [canGoNext, anchor, updatePeriod]);
+
+  const handleViewChange = useCallback(
+    (value: SegmentedValue) => {
+      if (!isChartView(value)) return;
+      setView(value);
+      setSelectedParentTypeId(null);
+      scrollToTop();
+    },
+    [scrollToTop],
   );
 
-  if (loading) {
-    return (
-      <Column style={styles.container}>
-        <Loading vertical text="加载中" style={styles.state} />
-      </Column>
-    );
-  }
+  const handleOpenExpense = useCallback(() => {
+    setView('expense');
+    setSelectedParentTypeId(null);
+    scrollToTop();
+  }, [scrollToTop]);
 
-  if (!currentBook) {
+  const handleOpenAssets = useCallback(() => {
+    navigation.navigate(ROOT_ROUTES.AssetManage);
+  }, [navigation]);
+
+  const handleEnterParent = useCallback(
+    (typeId: number) => {
+      setSelectedParentTypeId(typeId);
+      scrollToTop();
+    },
+    [scrollToTop],
+  );
+
+  const handleBackParent = useCallback(() => {
+    setSelectedParentTypeId(null);
+  }, []);
+
+  const handleToggleCompare = useCallback(() => {
+    setCompareEnabled(previous => !previous);
+  }, []);
+
+  const renderContent = () => {
+    if (!currentBook) {
+      return (
+        <Column style={styles.state}>
+          <Empty messageText="暂无账本数据" />
+        </Column>
+      );
+    }
+    if (isLoading && records.length === 0) {
+      return <Loading vertical text="加载中" style={styles.state} />;
+    }
+    if (view !== 'assets' && !hasCashflow) {
+      return (
+        <Card>
+          <Column style={styles.emptyCard}>
+            <Empty messageText="本月暂无记录" />
+            <Text size="sm" color="tertiary">
+              点击右下角 + 记一笔
+            </Text>
+          </Column>
+        </Card>
+      );
+    }
+    if (view === 'expense') {
+      return (
+        <ExpenseView
+          key={`expense-${period.start}`}
+          records={records}
+          types={types}
+          assets={assets}
+          tags={tags}
+          recordTags={recordTags}
+          recordRelations={recordRelations}
+          period={period}
+          compareEnabled={compareEnabled}
+          selectedParentTypeId={selectedParentTypeId}
+          onEnterParent={handleEnterParent}
+          onBackParent={handleBackParent}
+        />
+      );
+    }
+    if (view === 'income') {
+      return (
+        <IncomeView
+          records={records}
+          types={types}
+          period={period}
+          compareEnabled={compareEnabled}
+          now={now}
+        />
+      );
+    }
+    if (view === 'assets') {
+      return (
+        <AssetsView
+          assets={assets}
+          records={records}
+          types={types}
+          compareEnabled={compareEnabled}
+          now={now}
+          onOpenAssets={handleOpenAssets}
+        />
+      );
+    }
     return (
-      <Column style={styles.container}>
-        <Empty messageText="暂无账本数据" style={styles.state} />
-      </Column>
+      <OverviewView
+        key={`overview-${period.start}-${period.elapsedDays}`}
+        records={records}
+        types={types}
+        period={period}
+        compareEnabled={compareEnabled}
+        now={now}
+        onOpenExpense={handleOpenExpense}
+      />
     );
-  }
+  };
 
   return (
     <Column style={styles.container}>
-      <ScrollView
-        contentContainerStyle={styles.content}
-        refreshControl={<RefreshControl refreshing={loading} onRefresh={refresh} />}
-      >
-        <Text size="sm" color="secondary">
-          时间范围：本月
-        </Text>
-        <MonthSummaryCard monthLabel={monthLabel} summary={summary} />
-        <ExpenseAnalysisSection
-          analysis={analysis}
-          selectedParentTypeId={selectedParentTypeId}
-          onEnter={setSelectedParentTypeId}
-          onBack={() => setSelectedParentTypeId(null)}
+      <Column style={styles.controls}>
+        {view !== 'assets' ? (
+          <PeriodBar
+            label={period.label}
+            compareLabel={period.compareLabel}
+            compareEnabled={compareEnabled}
+            canGoPrevious
+            canGoNext={canGoNext}
+            onPrevious={handlePrevious}
+            onNext={handleNext}
+            onToggleCompare={handleToggleCompare}
+          />
+        ) : null}
+        <Segmented
+          block
+          size="small"
+          options={VIEW_OPTIONS}
+          value={view}
+          onChange={handleViewChange}
         />
+      </Column>
+      <ScrollView
+        ref={scrollRef}
+        contentContainerStyle={styles.content}
+        refreshControl={
+          <RefreshControl refreshing={isLoading} onRefresh={refreshAll} />
+        }
+      >
+        {renderContent()}
       </ScrollView>
     </Column>
   );

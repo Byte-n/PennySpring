@@ -29,6 +29,7 @@ export function createApi(getDatabase: () => Promise<Database>) {
       getDetailById: async (recordId: number, booksId: number) => services.getRecordDetailById(await getDatabase(), recordId, booksId),
       getImageCounts: async (booksId: number) => services.getImageCountsByBook(await getDatabase(), booksId),
       getRecordTags: async (booksId: number) => services.getRecordTagsByBook(await getDatabase(), booksId),
+      getRelationsByBook: async (booksId: number) => services.getRecordRelationsByBook(await getDatabase(), booksId),
     },
     tag: {
       getAll: async (booksId: number) => services.getAllTags(await getDatabase(), booksId),

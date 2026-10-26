@@ -9,11 +9,12 @@ import type {
   SystemStatusValue,
   VisibilityValue,
 } from '../constants'
-import type { assets, books, records, tags, types } from '../schema'
+import type { assets, books, records, recordWithRecord, tags, types } from '../schema'
 
 export type { Tx } from '../types'
 
 export type RecordRow = InferSelectModel<typeof records>
+export type RecordRelationRow = InferSelectModel<typeof recordWithRecord>
 export type AssetRow = InferSelectModel<typeof assets>
 export type TagRow = InferSelectModel<typeof tags>
 export type TypeRow = InferSelectModel<typeof types>
