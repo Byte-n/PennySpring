@@ -1,7 +1,7 @@
 import React from 'react';
 import { Row, Text, List, Button, Popup, Icon } from '@pennyspring/ui';
 import { createUseSheetStyle } from '@pennyspring/theme';
-import type { ListItemProps } from '@pennyspring/ui';
+import type { ListItemData } from '@pennyspring/ui';
 import {
   amountColor,
   formatRecordTime,
@@ -26,8 +26,8 @@ const useStyles = createUseSheetStyle(token => ({
   },
 }));
 
-function buildItems(view: DetailRecordView, onImagePress: () => void, styles: ReturnType<typeof useStyles>): ListItemProps[] {
-  const valueText = (text: string): ListItemProps['right'] => (
+function buildItems(view: DetailRecordView, onImagePress: () => void, styles: ReturnType<typeof useStyles>): ListItemData[] {
+  const valueText = (text: string): ListItemData['right'] => (
     <Text size="md" color="secondary">
       {text}
     </Text>
@@ -65,7 +65,7 @@ function buildItems(view: DetailRecordView, onImagePress: () => void, styles: Re
     </Row>
   );
 
-  const items: ListItemProps[] = [
+  const items: ListItemData[] = [
     { titleText: '类型', right: typeContent },
     {
       titleText: '金额',
@@ -192,7 +192,7 @@ export function RecordDetailPanel({
         </Row>
       )}
     >
-      {view ? <List items={buildItems(view, handleImagePress, styles)} /> : null}
+      {view ? <List data={buildItems(view, handleImagePress, styles)} /> : null}
     </Popup.FloatingPanel>
   );
 }

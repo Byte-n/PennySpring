@@ -7,7 +7,7 @@ import {
   ImagePicker,
   KeyboardAwareFormScroll,
   Row,
-  SelectionList,
+  ListPicker,
   Text,
   useToast,
 } from '@pennyspring/ui';
@@ -228,7 +228,7 @@ export function IncomeTabScreen() {
           ) : null}
           <Card>
             <Row wrap gap={10}>
-              <SelectionList
+              <ListPicker
                 labelText="付款资产（可选）"
                 loading={assetsLoading}
                 onChange={value => setAssetId(toNumberValue(value) ?? null)}
@@ -263,7 +263,7 @@ export function IncomeTabScreen() {
                   onChange={setImages}
                 />
               )}
-              <SelectionList
+              <ListPicker
                 displayMode="tag"
                 labelText="标签"
                 loading={tagsLoading}
@@ -281,7 +281,7 @@ export function IncomeTabScreen() {
                 value={tags}
               />
               {!template && isAbsorption ? (
-                <SelectionList
+                <ListPicker
                   displayMode="tag"
                   labelText="关联支出"
                   loading={recordsLoading}

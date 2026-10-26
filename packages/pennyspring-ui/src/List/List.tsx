@@ -1,346 +1,105 @@
-import type { ComponentSize } from '../shares/types';
-import { renderTextNode as renderSlotTextNode } from '../shares/node';
-import React, { createContext, useContext } from 'react';
-import { Pressable } from 'react-native';
+import React, { useRef } from 'react';
+import { FlatList, Pressable } from 'react-native';
+import type { FlatListProps, ListRenderItemInfo, StyleProp, ViewStyle } from 'react-native';
+import { createUseSheetStyle } from '@pennyspring/theme';
 import { Column } from '../Column';
-import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
 import { Row } from '../Row';
 import { Text } from '../Text';
-import type {
-  AliasToken } from '@pennyspring/theme';
-import type { ReactNode } from 'react';
-import type { GestureResponderEvent,
-  StyleProp,
-  TextStyle } from 'react-native';
-import type { ListDivider,
-  ListItemProps,
-  ListProps,
-} from './types';
+import { useControllableValue } from '../_hooks';
+import { renderTextNode } from '../shares/node';
+import type { ListItemData, ListProps } from './types';
 
-const DEFAULT_SIZE: ComponentSize = 'normal';
-const DEFAULT_DIVIDER: ListDivider = 'inset';
-
-interface ListContextValue {
-  size: ComponentSize;
-  divider: ListDivider;
-}
-
-const ListContext = createContext<ListContextValue>({
-  divider: DEFAULT_DIVIDER,
-  size: DEFAULT_SIZE,
-});
-
-const useListStyles = createUseSheetStyle(token => ({
-  root: {
-    backgroundColor: token.colorBgContainer,
-  },
-  header: {
-    paddingHorizontal: token.paddingMD,
-    paddingVertical: token.paddingMD / 2,
-  },
-  footer: {
-    paddingHorizontal: token.paddingMD,
-    paddingVertical: token.paddingMD / 2,
-  },
-  empty: {
-    paddingHorizontal: token.paddingMD,
-    paddingVertical: token.paddingMD / 2,
-  },
-  loading: {
-    paddingHorizontal: token.paddingMD,
-    paddingVertical: token.paddingMD / 2,
-  },
+const useStyles = createUseSheetStyle(token => ({
+  root: { backgroundColor: token.colorBgContainer },
+  header: { paddingHorizontal: token.padding, paddingVertical: token.padding / 2, borderBottomWidth: token.lineWidth, borderColor: token.colorSplit },
+  footer: { paddingHorizontal: token.padding, paddingVertical: token.padding / 2, borderTopWidth: token.lineWidth, borderColor: token.colorSplit },
+  empty: { alignItems: 'center', padding: token.paddingLG },
+  loading: { alignItems: 'center', padding: token.paddingSM },
+  groupHeader: { minHeight: token.controlHeight, justifyContent: 'center', paddingHorizontal: token.paddingMD, backgroundColor: token.colorFillAlter },
+  item: { minHeight: token.controlHeight, flexDirection: 'row', alignItems: 'center', gap: token.marginSM, paddingHorizontal: token.paddingMD, paddingVertical: token.paddingMD / 2, borderBottomWidth: token.lineWidth, borderColor: token.colorSplit },
+  itemPressed: { backgroundColor: token.colorBgTextHover },
+  itemDisabled: { opacity: token.opacityLoading },
+  content: { flex: 1 },
+  description: { marginTop: token.marginXXS },
 }));
 
-interface ListItemStyleOptions {
-  divider: ListDivider;
-  size: ComponentSize;
-}
-
-function getItemMinHeight(size: ComponentSize, token: AliasToken) {
-  if (size === 'small') {
-    return token.controlHeightSM;
+function renderRow(item: ListItemData, styles: ReturnType<typeof useStyles>) {
+  const content = item.children ?? <Column style={styles.content}>
+    {renderTextNode(item.title ?? item.titleText, text => <Text color={item.disabled ? 'disabled' : 'heading'}>{text}</Text>)}
+    {renderTextNode(item.description ?? item.descriptionText, text => <Text color="description" size="sm" style={styles.description}>{text}</Text>)}
+  </Column>;
+  const row = <Row align="center" style={styles.item}>
+    {item.left ? renderTextNode(item.left, text => <Text>{text}</Text>) : null}
+    {content}
+    {item.right ? renderTextNode(item.right, text => <Text>{text}</Text>) : null}
+  </Row>;
+  if (item.onPress && !item.disabled) {
+    return <Pressable onPress={item.onPress} style={({ pressed }) => [pressed ? styles.itemPressed : null, item.style]}>{row}</Pressable>;
   }
-
-  if (size === 'large') {
-    return token.controlHeightLG;
-  }
-
-  return token.controlHeight;
+  return <Column style={[item.disabled ? styles.itemDisabled : null, item.style]}>{row}</Column>;
 }
 
-function getItemHorizontalPadding(
-  size: ComponentSize,
-  token: AliasToken,
-) {
-  if (size === 'small') {
-    return token.paddingSM;
-  }
-
-  if (size === 'large') {
-    return token.paddingLG;
-  }
-
-  return token.paddingMD;
+function isPromiseLike(value: unknown): value is PromiseLike<unknown> {
+  return typeof value === 'object' && value !== null && 'then' in value && typeof value.then === 'function';
 }
 
-function getSlotGap(size: ComponentSize, token: AliasToken) {
-  return size === 'small' ? token.marginXS : token.marginSM;
-}
-
-const useListItemStyles = createUseSheetStyle(
-  (token, { divider, size }: ListItemStyleOptions) => {
-    const horizontalPadding = getItemHorizontalPadding(size, token);
-    const verticalPadding = horizontalPadding / 2;
-    const slotGap = getSlotGap(size, token);
-
-    return {
-      item: {
-        minHeight: getItemMinHeight(size, token),
-        paddingHorizontal: horizontalPadding,
-        paddingVertical: verticalPadding,
-        backgroundColor: token.colorBgContainer,
-      },
-      itemPressed: {
-        backgroundColor: token.colorBgTextHover,
-      },
-      itemSelected: {
-        backgroundColor: token.controlItemBgActive,
-      },
-      itemDisabled: {
-        opacity: token.opacityLoading,
-        backgroundColor: token.colorBgContainerDisabled,
-      },
-      selectedMarker: {
-        width: token.lineWidthBold,
-        alignSelf: 'stretch',
-        backgroundColor: token.colorPrimary,
-        borderRadius: token.borderRadiusXS,
-      },
-      left: {},
-      content: {
-        flex: 1,
-      },
-      title: {
-      },
-      titleDisabled: {
-      },
-      description: {
-        marginTop: token.marginXXS,
-      },
-      descriptionDisabled: {
-      },
-      right: {},
-      divider: {
-        position: 'absolute',
-        right: 0,
-        bottom: 0,
-        left: divider === 'full' ? 0 : horizontalPadding + slotGap,
-        height: token.lineWidth,
-        backgroundColor: token.colorSplit,
-      },
-    };
-  },
-);
-
-export function isChildrenEmpty(children: ReactNode): boolean {
-  return React.Children.toArray(children).length === 0;
-}
-
-function resolveSize(size?: ComponentSize): ComponentSize {
-  return size ?? DEFAULT_SIZE;
-}
-
-function resolveDivider(divider?: ListDivider): ListDivider {
-  return divider ?? DEFAULT_DIVIDER;
-}
-
-function renderTextNode(
-  node: ReactNode,
-  style: StyleProp<TextStyle>,
-  isDisabled: boolean,
-  variant: 'title' | 'description',
-) {
-  if (node === undefined || node === null || node === false) {
-    return null;
-  }
-
-  if (typeof node === 'string' || typeof node === 'number') {
-    return (
-      <Text
-        color={isDisabled ? 'disabled' : variant === 'title' ? 'heading' : 'description'}
-        size={variant === 'title' ? 'md' : 'sm'}
-        style={style}
-      >
-        {node}
-      </Text>
-    );
-  }
-
-  return node;
-}
-
-export function ListItem({
-  children,
-  description,
-  descriptionText,
-  disabled,
-  divider,
-  left,
-  onPress,
-  right,
-  selected,
-  size,
-  style,
-  styles,
-  title,
-  titleText,
-}: ListItemProps) {
-  const listContext = useListContext();
-  const resolvedSize = size ?? listContext.size;
-  const resolvedDivider = divider ?? listContext.divider;
-  const { token } = useTheme();
-  const tokenStyles = useListItemStyles({
-    divider: resolvedDivider,
-    size: resolvedSize,
-  });
-  const slotGap = getSlotGap(resolvedSize, token);
-  const isDisabled = Boolean(disabled);
-  const isSelected = Boolean(selected);
-  const isInteractive = Boolean(onPress) && !isDisabled;
-  const handlePress = (event: GestureResponderEvent): void => {
-    if (isDisabled) {
-      return;
+function ListInner<ItemT>({
+  children, data, renderItem, header, footer, empty, loading, loadingText = '加载中…', loadingContent,
+  hasMore = true, isLoadingMore = false, onLoadMore, loadMoreThreshold = 0.1, completeText = '没有更多了',
+  collapsible, title, titleText, open, defaultOpen, onOpenChange, onEndReached, onEndReachedThreshold,
+  keyExtractor, style, styles: styleOverrides, contentContainerStyle, ...flatListProps
+}: ListProps<ItemT>) {
+  const styles = useStyles();
+  const [isOpen, setOpen] = useControllableValue(defaultOpen ?? false, open, onOpenChange);
+  const loadingMoreRef = useRef(false);
+  const listData = collapsible && !isOpen ? [] : data ?? (children == null ? [] : [children as ItemT]);
+  const mergedRenderItem = (info: ListRenderItemInfo<ItemT>) => {
+    if (info.item === children && data === undefined) return <>{children}</>;
+    if (renderItem !== undefined) return <>{renderItem(info)}</>;
+    return <>{renderRow(info.item as unknown as ListItemData, styles)}</>;
+  };
+  const headerNode = <>
+    {header !== undefined ? <Column style={[styles.header, styleOverrides?.header]}>{renderTextNode(header, text => <Text color="secondary">{text}</Text>)}</Column> : null}
+    {collapsible ? <Pressable onPress={() => setOpen(!isOpen)} style={[styles.groupHeader, styleOverrides?.groupHeader]}>
+      <Row align="center" justify="between"><Column>{renderTextNode(title ?? titleText, text => <Text weight="strong">{text}</Text>)}</Column><Text color="tertiary">{isOpen ? '⌄' : '›'}</Text></Row>
+    </Pressable> : null}
+  </>;
+  const footerNode = <>
+    {loading || isLoadingMore ? <Column style={[styles.loading, styleOverrides?.loading]}>{renderTextNode(loadingContent ?? loadingText, text => <Text color="secondary">{text}</Text>)}</Column> : null}
+    {!hasMore && !loading && !isLoadingMore ? <Column style={[styles.footer, styleOverrides?.footer]}><Text color="tertiary">{completeText}</Text></Column> : null}
+    {footer !== undefined ? <Column style={[styles.footer, styleOverrides?.footer]}>{renderTextNode(footer, text => <Text color="secondary">{text}</Text>)}</Column> : null}
+  </>;
+  const emptyNode = empty === undefined ? null : <Column style={[styles.empty, styleOverrides?.empty]}>{renderTextNode(empty, text => <Text color="description">{text}</Text>)}</Column>;
+  const handleEndReached: NonNullable<FlatListProps<ItemT>['onEndReached']> = info => {
+    onEndReached?.(info);
+    if (!hasMore || isLoadingMore || loadingMoreRef.current || onLoadMore === undefined) return;
+    loadingMoreRef.current = true;
+    try {
+      const result = onLoadMore();
+      if (isPromiseLike(result)) {
+        Promise.resolve(result)
+          .finally(() => { loadingMoreRef.current = false; })
+          .catch(() => undefined);
+      }
+      else loadingMoreRef.current = false;
+    } catch (error) {
+      loadingMoreRef.current = false;
+      throw error;
     }
-
-    onPress?.(event);
   };
-  const content = isChildrenEmpty(children) ? (
-    <>
-      {renderTextNode(title ?? titleText, [
-          tokenStyles.title,
-          styles?.titleText,
-          isDisabled ? tokenStyles.titleDisabled : null,
-        ], isDisabled, 'title')}
-      {renderTextNode(description ?? descriptionText, [
-          tokenStyles.description,
-          styles?.descriptionText,
-          isDisabled ? tokenStyles.descriptionDisabled : null,
-        ], isDisabled, 'description')}
-    </>
-  ) : children;
-  const itemContent = (
-    <>
-      <Row align="center" gap={slotGap}>
-        {isSelected ? (
-          <Column style={tokenStyles.selectedMarker} testID="selected-marker" />
-        ) : null}
-        {left ? <Column style={[tokenStyles.left, styles?.left]}>{renderSlotTextNode(left, (text) => <Text>{text}</Text>)}</Column> : null}
-        <Column style={[tokenStyles.content, styles?.content]}>{content}</Column>
-        {right ? <Column style={[tokenStyles.right, styles?.right]}>{renderSlotTextNode(right, (text) => <Text>{text}</Text>)}</Column> : null}
-      </Row>
-      {resolvedDivider === 'none' ? null : (
-        <Column style={[tokenStyles.divider, styles?.divider]} />
-      )}
-    </>
-  );
-  const itemStyle = [
-    tokenStyles.item,
-    isSelected ? tokenStyles.itemSelected : null,
-    isDisabled ? tokenStyles.itemDisabled : null,
-    style,
-  ];
-
-  if (isInteractive) {
-    return (
-      <Pressable
-        onPress={handlePress}
-        style={({ pressed }) => [
-          tokenStyles.item,
-          pressed ? tokenStyles.itemPressed : null,
-          isSelected ? tokenStyles.itemSelected : null,
-          style,
-        ]}
-      >
-        {itemContent}
-      </Pressable>
-    );
-  }
-
-  return (
-    <Column style={itemStyle}>
-      {itemContent}
-    </Column>
-  );
+  return <FlatList<ItemT>
+    {...flatListProps}
+    data={[...listData]}
+    renderItem={mergedRenderItem}
+    keyExtractor={keyExtractor ?? ((_, index) => String(index))}
+    ListHeaderComponent={headerNode}
+    ListFooterComponent={footerNode}
+    ListEmptyComponent={emptyNode}
+    onEndReached={handleEndReached}
+    onEndReachedThreshold={onEndReachedThreshold ?? loadMoreThreshold}
+    style={[styles.root, style] as StyleProp<ViewStyle>}
+    contentContainerStyle={[contentContainerStyle, styleOverrides?.content]}
+  />;
 }
 
-export function ListRoot({
-  children,
-  divider,
-  empty,
-  footer,
-  header,
-  items,
-  loading,
-  loadingContent,
-  loadingText,
-  renderItem,
-  size,
-  style,
-  styles,
-}: ListProps) {
-  const tokenStyles = useListStyles();
-  const itemNodes = items?.map((item, index) => (
-    <React.Fragment key={index}>
-      {renderItem?.(item, index) ?? <ListItem {...item} />}
-    </React.Fragment>
-  ));
-  const content = itemNodes === undefined ? children : itemNodes;
-  const shouldRenderEmpty = isChildrenEmpty(content) && Boolean(empty);
-  const contextValue = {
-    divider: resolveDivider(divider),
-    size: resolveSize(size),
-  };
-
-  return (
-    <ListContext.Provider value={contextValue}>
-      <Column style={[tokenStyles.root, style]}>
-        {header ? (
-          <Column style={[tokenStyles.header, styles?.header]}>
-            {renderSlotTextNode(header, (text) => (
-              <Text color="secondary">{text}</Text>
-            ))}
-          </Column>
-        ) : null}
-        {isChildrenEmpty(content) ? null : content}
-        {loading ? (
-          <Column style={[tokenStyles.loading, styles?.loading]}>
-            {renderSlotTextNode(loadingContent ?? loadingText, (text) => (
-              <Text color="secondary">{text}</Text>
-            ))}
-          </Column>
-        ) : null}
-        {shouldRenderEmpty ? (
-          <Column style={[tokenStyles.empty, styles?.empty]}>
-            {renderSlotTextNode(empty, (text) => (
-              <Text color="secondary">{text}</Text>
-            ))}
-          </Column>
-        ) : null}
-        {footer ? (
-          <Column style={[tokenStyles.footer, styles?.footer]}>
-            {renderSlotTextNode(footer, (text) => (
-              <Text color="secondary">{text}</Text>
-            ))}
-          </Column>
-        ) : null}
-      </Column>
-    </ListContext.Provider>
-  );
-}
-
-export function useListContext(): ListContextValue {
-  return useContext(ListContext);
-}
-
-export const List = ListRoot;
+export const List = ListInner as <ItemT = ListItemData>(props: ListProps<ItemT>) => React.ReactElement;

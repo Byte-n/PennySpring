@@ -112,8 +112,7 @@ export function ComponentPreviewListScreen({ navigation }: Props) {
             {section.title}
           </Text>
           <List
-            divider="full"
-            items={section.items.map(item => ({
+            data={section.items.map(item => ({
               titleText: item.title,
               descriptionText: item.description,
               right: (

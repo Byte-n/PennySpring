@@ -6,7 +6,7 @@ import {
   ImagePicker,
   KeyboardAwareFormScroll,
   Row,
-  SelectionList,
+  ListPicker,
   Text,
   useToast,
 } from '@pennyspring/ui';
@@ -238,7 +238,7 @@ export function TransferTabScreen() {
           ) : null}
           <Card>
             <Row wrap gap={10}>
-              <SelectionList
+              <ListPicker
                 labelText="转出资产"
                 loading={assetsLoading}
                 onChange={value => setAssetId(toNumberValue(value) ?? null)}
@@ -253,7 +253,7 @@ export function TransferTabScreen() {
                 }}
                 value={assetId ?? undefined}
               />
-              <SelectionList
+              <ListPicker
                 labelText="转入资产"
                 loading={assetsLoading}
                 onChange={value =>
@@ -297,7 +297,7 @@ export function TransferTabScreen() {
                   style={styles.formField}
                 />
               )}
-              <SelectionList
+              <ListPicker
                 displayMode="tag"
                 labelText="标签"
                 loading={tagsLoading}

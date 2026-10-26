@@ -20,8 +20,8 @@ import {
 } from './analysisData';
 import type { ChartPeriod } from './analysisData';
 import { categoryColorAt } from './chartPalette';
-import { ChartCard } from './components/ChartCard';
-import { DonutChart } from './components/DonutChart';
+import { ChartCard } from './components/chart/ChartCard';
+import { DonutChart } from './components/chart/DonutChart';
 import { MoverList } from './components/MoverList';
 import { RankList } from './components/RankList';
 import type { RankItem } from './components/RankList';

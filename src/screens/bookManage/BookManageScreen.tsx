@@ -13,7 +13,7 @@ import {
   Text,
   useToast,
 } from '@pennyspring/ui';
-import type { ImagePickerValue, ListItemProps } from '@pennyspring/ui';
+import type { ImagePickerValue, ListItemData } from '@pennyspring/ui';
 import { BOOK_TYPE, localApi, type BookRow } from '@pennyspring/api';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import {
@@ -372,7 +372,7 @@ export function BookManageScreen() {
     [closeDialog],
   );
 
-  const serverBookItems: ListItemProps[] = serverBookList.map(book => ({
+  const serverBookItems: ListItemData[] = serverBookList.map(book => ({
     key: `server-${book.id}`,
     titleText: book.name,
     descriptionText: book.description || '暂无描述',
@@ -484,7 +484,7 @@ export function BookManageScreen() {
               {serverBookItems.length === 0 ? (
                 <Text color="tertiary">该服务器暂无可用账本</Text>
               ) : (
-                <List items={serverBookItems} />
+                <List data={serverBookItems} />
               )}
             </ScrollView>
             <Column style={styles.networkListFooter}>

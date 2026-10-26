@@ -2,7 +2,7 @@ import { createUseSheetStyle } from '@pennyspring/theme';
 import type { AliasToken } from '@pennyspring/theme';
 import type { ComponentSize } from '../../shares/types';
 
-interface SelectionListStyleOptions {
+interface ListPickerStyleOptions {
   size: ComponentSize;
 }
 
@@ -44,8 +44,8 @@ const SIZE_MAP: Record<ComponentSize, SizeConfig> = {
 
 const POPUP_MAX_HEIGHT = '100%';
 
-export const useSelectionListStyles = createUseSheetStyle(
-  (token, { size }: SelectionListStyleOptions) => {
+export const useListPickerStyles = createUseSheetStyle(
+  (token, { size }: ListPickerStyleOptions) => {
     const sizeConfig = SIZE_MAP[size];
 
     return {
@@ -60,17 +60,32 @@ export const useSelectionListStyles = createUseSheetStyle(
         fontSize: sizeConfig.fontSize(token),
       },
       popup: {
-        padding: token.paddingSM,
+        padding: 0,
         maxHeight: POPUP_MAX_HEIGHT,
       },
       popupContent: {
+        flex: 1,
+        minHeight: 0,
         gap: token.marginSM / 2,
+      },
+      popupRoot: {
+        flex: 1,
+        minHeight: 0,
+      },
+      floatingPanelContent: {
+        flex: 1,
+        minHeight: 0,
+        paddingInline: token.paddingSM,
       },
       header: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
         gap: token.marginSM,
+      },
+      headerActions: {
+        alignItems: 'center',
+        gap: token.marginXS,
       },
       headerText: {
       },
@@ -81,7 +96,16 @@ export const useSelectionListStyles = createUseSheetStyle(
         backgroundColor: token.colorPrimary,
       },
       list: {
+        flex: 1,
+        minHeight: 0,
         gap: token.marginXS / 2,
+      },
+      panelBody: {
+        flex: 1,
+        minHeight: 0,
+        paddingHorizontal: 0,
+        paddingTop: 0,
+        paddingBottom: 0,
       },
       group: {
         gap: token.marginXXS / 2,

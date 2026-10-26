@@ -1,7 +1,7 @@
 import React from 'react';
 import { FlatList, View } from 'react-native';
-import { Column, Input, Row, SelectionList, Text } from '@pennyspring/ui';
-import type { SelectionListOption, SelectionListSelectedValue } from '@pennyspring/ui';
+import { Column, Input, Row, ListPicker, Text } from '@pennyspring/ui';
+import type { ListPickerOption, ListPickerSelectedValue } from '@pennyspring/ui';
 import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
 import * as PhosphorIcons from 'phosphor-react-native';
 import type { Icon } from 'phosphor-react-native';
@@ -159,7 +159,7 @@ function getAllPhosphorCategories(): Array<{ en: string; zh: string }> {
 
 const PHOSPHOR_CATEGORIES = getAllPhosphorCategories();
 
-const CATEGORY_OPTIONS: SelectionListOption[] = [
+const CATEGORY_OPTIONS: ListPickerOption[] = [
   ...PHOSPHOR_CATEGORIES.map(category => ({
     value: `phosphor:${category.en}`,
     label: (
@@ -186,7 +186,7 @@ export function IconPreviewScreen() {
   const [searchText, setSearchText] = React.useState('');
   const [category, setCategory] = React.useState<string | number>(CATEGORY_OPTIONS[0]?.value ?? '');
 
-  const handleCategoryChange = React.useCallback((value: SelectionListSelectedValue) => {
+  const handleCategoryChange = React.useCallback((value: ListPickerSelectedValue) => {
     if (Array.isArray(value)) {
       setCategory(value[0] ?? CATEGORY_OPTIONS[0]?.value ?? '');
     } else {
@@ -244,7 +244,7 @@ export function IconPreviewScreen() {
     <View style={styles.container}>
       <View style={styles.searchContainer}>
         <Row style={styles.filterRow}>
-          <SelectionList
+          <ListPicker
             style={styles.categorySelection}
             options={CATEGORY_OPTIONS}
             value={category}

@@ -27,7 +27,7 @@ function PanelList({ prefix }: { prefix: string }) {
 
   return (
     <List
-      items={[
+      data={[
         { titleText: `${prefix}lpha`, descriptionText: 'Item' },
         { titleText: `${prefix}eta`, descriptionText: 'Item' },
         { titleText: `${prefix}amma`, descriptionText: 'Item' },

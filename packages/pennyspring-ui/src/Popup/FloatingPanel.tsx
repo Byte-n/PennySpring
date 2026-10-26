@@ -180,7 +180,6 @@ const useStyles = createUseSheetStyle(
         paddingHorizontal: contentPadding,
         paddingTop: contentPadding,
         paddingBottom: sectionPadding,
-        marginBottom: sectionMargin,
       },
       titleText: {
         fontWeight: String(token.fontWeightStrong) as TextStyle['fontWeight'],

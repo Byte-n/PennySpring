@@ -6,7 +6,7 @@ import {
   type TagRow,
   type TypeRow,
 } from '@pennyspring/api';
-import type { SelectionListOption } from '@pennyspring/ui';
+import type { ListPickerOption } from '@pennyspring/ui';
 
 import { formatAmount } from './addRecordDraft';
 
@@ -27,7 +27,7 @@ function formatRecordTime(time: number): string {
 export function toAssetOptions(
   assets: AssetRow[],
   disabledAssetId?: number | null,
-): SelectionListOption[] {
+): ListPickerOption[] {
   return assets.map(asset => ({
     value: asset.id,
     labelText: asset.name,
@@ -42,7 +42,7 @@ export function toAssetOptions(
   }));
 }
 
-export function toTagOptions(tags: TagRow[]): SelectionListOption[] {
+export function toTagOptions(tags: TagRow[]): ListPickerOption[] {
   return tags.map(tag => ({
     value: tag.id,
     labelText: tag.name,
@@ -52,7 +52,7 @@ export function toTagOptions(tags: TagRow[]): SelectionListOption[] {
 export function toRelatedRecordOptions(
   records: RecordRow[],
   typeLookup: Map<number, TypeRow>,
-): SelectionListOption[] {
+): ListPickerOption[] {
   return records.map(record => ({
     value: record.id,
     labelText: `${typeLookup.get(record.typeId)?.name ?? '支出'} ${formatCurrency(record.amount)}`,

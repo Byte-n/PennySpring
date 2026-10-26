@@ -48,15 +48,13 @@
 - `CalendarPicker`：日历输入型选择器，值使用 `Date`。`CalendarPicker.View` 为纯日历面板（`mode` 支持 date/month/year，`CalendarPicker.View.Range` 为范围面板）；`CalendarPicker` 为触发器 + 浮层，`CalendarPicker.Range` 为输入型范围选择。面板支持标记、禁用日期、最小/最大日期与自定义文案。
 - `CascadePicker`：级联选择弹窗。
 - `Cascader`：级联选择视图或弹窗。
-- `SelectionList`：分组或扁平选项选择，可通过 `displayInputProps` 定制触发器、通过 `popupProps` 定制弹层。
+- `ListPicker`：基于 `FlatList` 的单选/多选触发器与选择面板，支持分组、搜索和受控值。
 - `Segmented`：紧凑分段选择。
 - `SegmentedControl`：顶部标签式分段控件。
 
 ## 列表与数据展示
 
-- `List`、`ListItem`：设置行、菜单和结构化条目列表。
-- `DataList`：分区、可刷新或带加载态的数据列表。
-- `ListCollapse`：可展开的分组列表内容。
+- `List`：基于 `FlatList` 的数据列表容器，支持头尾、空/加载状态、刷新、分页与可折叠分组。
 - `Tag`：紧凑标签。
 - `Badge`：计数或状态标记。
 - `Avatar`：用户/实体图片或首字母，也支持头像组。
@@ -89,12 +87,12 @@
 
 ## 常见组合
 
-- 表单字段行：`Column` + `Text` 标签 + `Input`/`DisplayInput`/`SelectionList` 触发器。
-- 设置项：`ListItem` + 尾部 `Switch`、`Text`、`Badge`、`Tag` 或 `Icon`。
-- 从列表选择流程：`DisplayInput` + `Popup` + `SelectionList`；若数据形态匹配，也可用 `Picker`/`Cascader`。
+- 表单字段行：`Column` + `Text` 标签 + `Input`/`DisplayInput`/`ListPicker` 触发器。
+- 设置项：`List` 的数据行 + 尾部 `Switch`、`Text`、`Badge`、`Tag` 或 `Icon`。
+- 从列表选择流程：`ListPicker`；若数据形态匹配，也可用 `Picker`/`Cascader`。
 - 筛选栏：`Row`/`Space` + `Segmented` + `Button`/`Icon` 操作。
-- 数据页面：`Column` + `HeaderBar`/页面标题 + `DataList` + `Empty`/`Skeleton`/`Loading` 状态。
-- 卡片列表：使用 `DataList` 或 `List`；仅当每个重复项都需要框定承载面时搭配 `Card`。
+- 数据页面：`Column` + `HeaderBar`/页面标题 + `List` + `Empty`/`Skeleton`/`Loading` 状态。
+- 卡片列表：使用 `List`；仅当每个重复项都需要框定承载面时搭配 `Card`。
 - 进度状态：多阶段流程用 `Steps`，标量完成度用 `Progress`，最终成功/失败用 `Result`。
 - 破坏性操作：行操作用 `SwipeAction`，操作选项用 `ActionSheet`，确认用 `Dialog`。
 - 浮层表单：优先用 `Popup.FloatingPanel` 的 header/body/footer 与 `okText`/`onOk`/`onCancel`；更底层布局再用 `Popup` + `Column` + 输入控件 + `Button` 操作。

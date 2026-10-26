@@ -5,7 +5,7 @@ import {
   Column,
   Text,
   Icon,
-  ListCollapse,
+  List,
   type GridProps,
   type IconComponent,
 } from '@pennyspring/ui';
@@ -99,8 +99,9 @@ export function CategoryGrid(props: CategoryGridProps) {
         const isOpen = expandedCatInList !== undefined;
         const expandedCat = expandedCatInList ?? getExpandedCat(value);
         return (
-          <ListCollapse
+          <List
             key={list[0].id}
+            collapsible
             open={isOpen}
             title={
               <Cells
@@ -113,7 +114,7 @@ export function CategoryGrid(props: CategoryGridProps) {
               />
             }
             styles={{
-              header: styles.header,
+              groupHeader: styles.header,
               content: [styles.subcategoryContainer],
             }}
           >
@@ -126,7 +127,7 @@ export function CategoryGrid(props: CategoryGridProps) {
                 onItemLongPress={onItemLongPress}
               />
             )}
-          </ListCollapse>
+          </List>
         );
       })}
     </Column>

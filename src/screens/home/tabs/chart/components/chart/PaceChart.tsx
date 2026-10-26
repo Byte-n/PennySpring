@@ -15,10 +15,10 @@ import {
   buildAreaPath,
   buildAxis,
   buildLinePath,
-} from '../chartGeometry';
-import { formatAxisMoney } from '../analysisData';
-import type { DailyExpensePoint } from '../analysisData';
-import { useMeasuredWidth } from './useMeasuredWidth';
+} from '../../chartGeometry';
+import { formatAxisMoney } from '../../analysisData';
+import type { DailyExpensePoint } from '../../analysisData';
+import { useMeasuredWidth } from '../useMeasuredWidth';
 
 const VIEW_WIDTH = 311;
 const VIEW_HEIGHT = 152;

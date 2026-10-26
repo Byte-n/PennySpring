@@ -27,11 +27,11 @@ import {
 import type { ChartPeriod } from './analysisData';
 import { categoryColorAt } from './chartPalette';
 import { CalendarHeatmap } from './components/CalendarHeatmap';
-import { ChartCard } from './components/ChartCard';
+import { ChartCard } from './components/chart/ChartCard';
 import { ColorDot } from './components/ColorDot';
 import { GrowthText } from './components/GrowthText';
 import { InsightList } from './components/InsightList';
-import { PaceChart } from './components/PaceChart';
+import { PaceChart } from './components/chart/PaceChart';
 import { StackBar } from './components/StackBar';
 
 const RECENT_AVERAGE_DAYS = 7;

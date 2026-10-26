@@ -4,7 +4,6 @@ import { CircleIcon } from 'phosphor-react-native';
 import { useTheme } from '@pennyspring/theme';
 import { Button } from '../Button';
 import { Column } from '../Column';
-import { Divider } from '../Divider';
 import { DisplayInput } from '../DisplayInput';
 import { Icon } from '../Icon';
 import { Input } from '../Input';
@@ -245,6 +244,47 @@ export function ListPickerPopup({
     floatingPanelKeyboardAvoiding ??
     popupFloatingPanelProps.keyboardAvoiding ??
     true;
+  const headerNode =
+    texts?.headerText !== undefined ||
+    texts?.closeText !== undefined ||
+    (resolvedMode === 'multiple' && texts?.confirmText !== undefined) ? (
+      <Row style={tokenStyles.header} testID="list-picker-header">
+        {texts?.headerText !== undefined ? (
+          <Text
+            color="heading"
+            size={resolveTextSize(resolvedSize)}
+            weight="strong"
+            style={tokenStyles.headerText}
+          >
+            {texts.headerText}
+          </Text>
+        ) : (
+          <Spacer />
+        )}
+        <Row align="center" style={tokenStyles.headerActions}>
+          {texts?.closeText !== undefined ? (
+            <Button
+              onPress={closeListPicker}
+              size={resolvedSize}
+              style={tokenStyles.footerButton}
+              type="text"
+            >
+              {texts.closeText}
+            </Button>
+          ) : null}
+          {resolvedMode === 'multiple' && texts?.confirmText !== undefined ? (
+            <Button
+              onPress={closeListPicker}
+              size={resolvedSize}
+              style={tokenStyles.footerPrimaryButton}
+              type="primary"
+            >
+              {texts.confirmText}
+            </Button>
+          ) : null}
+        </Row>
+      </Row>
+    ) : undefined;
 
   function closeListPicker(): void {
     setMergedOpen(false);
@@ -354,61 +394,30 @@ export function ListPickerPopup({
     );
   }
 
-  function renderGroupOptions(groupOptions: ListPickerOption[]) {
-    return groupOptions.map((option, optionIndex) => {
-      const isLastOption = optionIndex === groupOptions.length - 1;
-
-      return (
-        <React.Fragment key={String(option.value)}>
-          {renderOption(option)}
-          {!isLastOption ? <Divider style={tokenStyles.optionDivider} /> : null}
-        </React.Fragment>
-      );
-    });
-  }
-
   return (
     <Popup.FloatingPanel
       {...popupFloatingPanelProps}
       {...floatingPanelRestProps}
       footer={null}
-      header={null}
+      header={headerNode}
+      bodyScrollable={false}
       open={mergedOpen}
       position={resolvedFloatingPanelPosition}
       size={resolvedSize}
       onCancel={closeListPicker}
       style={[tokenStyles.popup, floatingPanelStyle, style, styles?.popup]}
-      styles={floatingPanelStyles}
+      styles={{
+        ...floatingPanelStyles,
+        content: [
+          tokenStyles.floatingPanelContent,
+          floatingPanelStyles?.content,
+        ],
+        panelBody: [tokenStyles.panelBody, floatingPanelStyles?.panelBody],
+      }}
       keyboardAvoiding={resolvedKeyboardAvoiding}
     >
-      <Column testID="list-picker-popup">
+      <Column testID="list-picker-popup" style={tokenStyles.popupRoot}>
         <Column style={tokenStyles.popupContent}>
-          {texts?.headerText !== undefined || texts?.closeText !== undefined ? (
-            <Row style={tokenStyles.header}>
-              {texts.headerText !== undefined ? (
-                <Text
-                  color="heading"
-                  size={resolveTextSize(resolvedSize)}
-                  weight="strong"
-                  style={tokenStyles.headerText}
-                >
-                  {texts.headerText}
-                </Text>
-              ) : (
-                <Spacer />
-              )}
-              {texts.closeText !== undefined ? (
-                <Button
-                  onPress={closeListPicker}
-                  size={resolvedSize}
-                  style={tokenStyles.footerButton}
-                  type="text"
-                >
-                  {texts.closeText}
-                </Button>
-              ) : null}
-            </Row>
-          ) : null}
           {searchable === true ? (
             <Input
               {...searchInputProps}
@@ -458,21 +467,6 @@ export function ListPickerPopup({
               ))}
             </Column>
           )}
-          {resolvedMode === 'multiple' && texts?.confirmText !== undefined ? (
-            <Row justify="end" style={tokenStyles.footer}>
-              <Button
-                onPress={closeListPicker}
-                size={resolvedSize}
-                style={[
-                  tokenStyles.footerButton,
-                  tokenStyles.footerPrimaryButton,
-                ]}
-                type="primary"
-              >
-                {texts.confirmText}
-              </Button>
-            </Row>
-          ) : null}
         </Column>
       </Column>
     </Popup.FloatingPanel>
@@ -659,6 +653,4 @@ function ListPickerRoot({
   );
 }
 
-export const ListPicker = Object.assign(ListPickerRoot, {
-  Popup: ListPickerPopup,
-});
+export const ListPicker = ListPickerRoot;

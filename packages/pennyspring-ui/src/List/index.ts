@@ -1,8 +1,2 @@
-export { List, ListItem, ListRoot } from './List';
-export type {
-  ListDivider,
-  ListItemProps,
-  ListItemStyles,
-  ListProps,
-  ListStyles,
-} from './types';
+export { List } from './List';
+export type { ListItemData, ListProps, ListStyles } from './types';

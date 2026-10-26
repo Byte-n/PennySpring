@@ -14,11 +14,11 @@ import {
 } from './analysisData';
 import type { ChartPeriod } from './analysisData';
 import { categoryColorAt } from './chartPalette';
-import { ChartCard } from './components/ChartCard';
+import { ChartCard } from './components/chart/ChartCard';
 import { ColorDot } from './components/ColorDot';
-import { DonutChart } from './components/DonutChart';
+import { DonutChart } from './components/chart/DonutChart';
 import { GrowthText } from './components/GrowthText';
-import { IncomeTrendChart } from './components/IncomeTrendChart';
+import { IncomeTrendChart } from './components/chart/IncomeTrendChart';
 import { RankList } from './components/RankList';
 import type { RankItem } from './components/RankList';
 

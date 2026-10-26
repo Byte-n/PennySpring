@@ -1,48 +1,17 @@
 import type { ReactNode } from 'react';
-import type {
-  GestureResponderEvent,
-  StyleProp,
-  TextStyle,
-  ViewStyle,
-} from 'react-native';
+import type { FlatListProps, GestureResponderEvent, StyleProp, ViewStyle } from 'react-native';
 import type { ComponentSize } from '../shares/types';
-
-export type ListDivider = 'none' | 'inset' | 'full';
 
 export interface ListStyles {
   header?: StyleProp<ViewStyle>;
   footer?: StyleProp<ViewStyle>;
   empty?: StyleProp<ViewStyle>;
   loading?: StyleProp<ViewStyle>;
-}
-
-export interface ListItemStyles {
-  left?: StyleProp<ViewStyle>;
   content?: StyleProp<ViewStyle>;
-  right?: StyleProp<ViewStyle>;
-  titleText?: StyleProp<TextStyle>;
-  descriptionText?: StyleProp<TextStyle>;
-  divider?: StyleProp<ViewStyle>;
+  groupHeader?: StyleProp<ViewStyle>;
 }
 
-export interface ListProps {
-  size?: ComponentSize;
-  header?: ReactNode;
-  footer?: ReactNode;
-  divider?: ListDivider;
-  empty?: ReactNode;
-  loading?: boolean;
-  loadingText?: string;
-  loadingContent?: ReactNode;
-  items?: readonly ListItemProps[];
-  renderItem?: (item: ListItemProps, index: number) => ReactNode;
-  children?: ReactNode;
-  style?: StyleProp<ViewStyle>;
-  styles?: ListStyles;
-}
-
-export interface ListItemProps {
-  size?: ComponentSize;
+export interface ListItemData {
   left?: ReactNode;
   titleText?: string;
   title?: ReactNode;
@@ -53,7 +22,30 @@ export interface ListItemProps {
   onPress?: (event: GestureResponderEvent) => void;
   selected?: boolean;
   disabled?: boolean;
-  divider?: ListDivider;
   style?: StyleProp<ViewStyle>;
-  styles?: ListItemStyles;
+}
+
+export interface ListProps<ItemT = ListItemData>
+  extends Omit<FlatListProps<ItemT>, 'data' | 'renderItem' | 'ListHeaderComponent' | 'ListFooterComponent' | 'ListEmptyComponent'> {
+  size?: ComponentSize;
+  data?: readonly ItemT[] | null;
+  renderItem?: NonNullable<FlatListProps<ItemT>['renderItem']>;
+  header?: ReactNode;
+  footer?: ReactNode;
+  empty?: ReactNode;
+  loading?: boolean;
+  loadingText?: string;
+  loadingContent?: ReactNode;
+  hasMore?: boolean;
+  isLoadingMore?: boolean;
+  onLoadMore?: () => void | Promise<void>;
+  loadMoreThreshold?: number;
+  completeText?: string;
+  collapsible?: boolean;
+  title?: ReactNode;
+  titleText?: string;
+  open?: boolean;
+  defaultOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  styles?: ListStyles;
 }

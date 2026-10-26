@@ -2,7 +2,7 @@ import React from 'react';
 import { Text as RNText } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
 import { IndexBar } from '../src/IndexBar';
-import { List, ListItem } from '../src/List';
+import { List } from '../src/List';
 import { Row } from '../src/Row';
 import { Column } from '../src/Column';
 import { Text } from '../src/Text';
@@ -22,10 +22,21 @@ jest.mock('react-native', () => {
     return ReactModule.createElement(ReactNative.ScrollView, props);
   });
 
+  const MockFlatList = (props: { data?: unknown[]; renderItem?: (info: { item: unknown; index: number }) => React.ReactNode }) =>
+    ReactModule.createElement(
+      ReactNative.View,
+      null,
+      ...(props.data ?? []).map((item, index) => props.renderItem?.({ item, index }) ?? null),
+    );
+
   return new Proxy(ReactNative, {
     get(target: typeof ReactNative, prop: keyof typeof ReactNative) {
       if (prop === 'ScrollView') {
         return MockScrollView;
+      }
+
+      if (prop === 'FlatList') {
+        return MockFlatList;
       }
 
       return target[prop];
@@ -62,11 +73,10 @@ const PANEL_LAYOUT_Y: Record<string, number> = {
 
 function renderPanel(item: IndexBarItem) {
   return (
-    <List>
-      {PANEL_ITEMS[String(item.index)].map(label => (
-        <ListItem key={label}>{label}</ListItem>
-      ))}
-    </List>
+    <List
+      data={PANEL_ITEMS[String(item.index)]}
+      renderItem={({ item: label }) => <Text>{label}</Text>}
+    />
   );
 }
 

@@ -1,87 +1,53 @@
-import React from 'react';
-import { View } from 'react-native';
-import { Avatar, List, Text } from '@pennyspring/ui';
-import { createUseSheetStyle } from '@pennyspring/theme';
+import React, { useState } from 'react';
+import { List, Space } from '@pennyspring/ui';
+import type { ListItemData } from '@pennyspring/ui';
 
-const useStyles = createUseSheetStyle(token => ({
-  stack: {
-    gap: token.marginSM,
-  },
-  listBorder: {
-    borderTopWidth: token.lineWidth,
-    borderBottomWidth: token.lineWidth,
-    borderColor: token.colorSplit,
-  },
-  rowText: {
-    alignItems: 'flex-end',
-  },
-}));
+const LOAD_DELAY_MS = 600;
 
-export const listStatesDemoTitle = 'States';
+export const listStatesDemoTitle = 'Empty, loading and load more';
 
 export function ListStatesDemo() {
-  const styles = useStyles();
-  const items = [
-    {
-      left: <Avatar size="small" text="FD" />,
-      titleText: 'Food',
-      descriptionText: 'Today 12:30',
-      right: (
-        <View style={styles.rowText}>
-          <Text weight="strong">-24.00</Text>
-          <Text color="description" size="sm">
-            Done
-          </Text>
-        </View>
-      ),
-      selected: true,
-    },
-    {
-      left: <Avatar size="small" text="TR" />,
-      titleText: 'Transport',
-      descriptionText: 'Today 08:10',
-      right: <Text weight="strong">-6.00</Text>,
-    },
-    {
-      disabled: true,
-      titleText: 'Disabled item',
-      descriptionText: 'Unavailable action',
-    },
-  ];
+  const [loading, setLoading] = useState(false);
+  const [loadedCount, setLoadedCount] = useState(0);
+
+  function loadMore(): void {
+    setLoading(true);
+    setTimeout(() => {
+      setLoadedCount(value => value + 1);
+      setLoading(false);
+    }, LOAD_DELAY_MS);
+  }
+
+  const loadedRows: ListItemData[] = Array.from(
+    { length: loadedCount },
+    (_, index) => ({
+      titleText: `新增记录 ${index + 1}`,
+      descriptionText: '刚刚加载的列表项',
+      right: '¥ 120.00',
+    }),
+  );
 
   return (
-    <>
-      <View style={styles.stack}>
-        <List
-          empty={<Text color="description">No records</Text>}
-          style={styles.listBorder}
-        />
-        <List loading loadingText="Loading records" style={styles.listBorder} />
-        <List
-          loading
-          loadingContent={
-            <Text color="secondary">Loading content by custom node</Text>
-          }
-          style={styles.listBorder}
-        />
-        <List
-          header={<Text weight="strong">Render item</Text>}
-          footer={<Text color="description">Custom footer</Text>}
-          items={items}
-          renderItem={(item, index) => (
-            <View style={styles.rowText}>
-              <Text weight="strong">
-                {item.titleText ?? `Item ${index + 1}`}
-              </Text>
-              <Text color="description" size="sm">
-                custom row #{index + 1}
-              </Text>
-            </View>
-          )}
-          style={styles.listBorder}
-        />
-      </View>
-    </>
+    <Space direction="vertical" size="large">
+      <List<ListItemData> data={[]} empty="还没有交易记录" header="空状态" />
+      <List<ListItemData>
+        data={[]}
+        loading
+        loadingText="正在同步交易记录…"
+        header="加载状态"
+      />
+      <List<ListItemData>
+        data={loadedRows}
+        hasMore={loadedCount < 2}
+        isLoadingMore={loading}
+        onLoadMore={loadMore}
+        loadingText="正在加载更多…"
+        completeText="已加载全部记录"
+        empty="向上滑动加载记录"
+        header="加载更多"
+        keyExtractor={item => item.titleText ?? ''}
+      />
+    </Space>
   );
 }
 

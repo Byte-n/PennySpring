@@ -10,7 +10,7 @@ jest.mock('@pennyspring/theme', () => ({
 
 jest.mock('@pennyspring/ui', () => {
   const ReactLib = require('react');
-  const { Text, View } = require('react-native');
+  const { FlatList, Text, View } = require('react-native');
 
   const passthrough =
     (Component: React.ComponentType) =>
@@ -19,9 +19,10 @@ jest.mock('@pennyspring/ui', () => {
 
   return {
     Column: passthrough(View),
+    FlatList: passthrough(FlatList),
     Input: () => null,
     Row: passthrough(View),
-    SelectionList: () => null,
+    ListPicker: () => null,
     Text: passthrough(Text),
   };
 });

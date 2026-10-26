@@ -123,39 +123,14 @@ export type {
 } from './CalculatorInput';
 export { Slider } from './Slider';
 export type { SliderProps, SliderStyles } from './Slider';
-export { List, ListItem } from './List';
+export { List } from './List';
+export type { ListItemData, ListProps, ListStyles } from './List';
+export { ListPicker } from './ListPicker';
 export type {
-  ListDivider,
-  ListItemProps,
-  ListItemStyles,
-  ListProps,
-  ListStyles,
-} from './List';
-export { DataList } from './DataList';
-export type {
-  DataListLoadMoreProps,
-  DataListProps,
-  DataListRefreshProps,
-  DataListSection,
-  DataListSectionProps,
-  DataListStyles,
-} from './DataList';
-export { ListCollapse } from './ListCollapse';
-export type { ListCollapseProps, ListCollapseStyles } from './ListCollapse';
-export { SelectionList } from './SelectionList';
-export type {
-  SelectionListDisplayMode,
-  SelectionListMode,
-  SelectionListOption,
-  SelectionListOptionGroup,
-  SelectionListPopupProps,
-  SelectionListPopupStyles,
-  SelectionListProps,
-  SelectionListSelectedValue,
-  SelectionListStatus,
-  SelectionListStyles,
-  SelectionListValue,
-} from './SelectionList';
+  ListPickerDisplayMode, ListPickerMode, ListPickerOption, ListPickerOptionGroup,
+  ListPickerPopupProps, ListPickerPopupStyles, ListPickerProps, ListPickerSelectedValue,
+  ListPickerStatus, ListPickerStyles, ListPickerValue,
+} from './ListPicker';
 export { Segmented } from './Segmented';
 export type {
   SegmentedLabeledOption,

@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { Pressable } from 'react-native';
 import {
   Column,
-  DataList,
+  List,
   Icon,
   Input,
   Popup,
@@ -207,7 +207,7 @@ export function PhosphorIconPickerContent({
         value={searchText}
         onChange={setSearchText}
       />
-      <DataList
+      <List
         data={CATEGORY_OPTIONS}
         horizontal
         keyExtractor={item => item.value}
@@ -215,7 +215,7 @@ export function PhosphorIconPickerContent({
         showsHorizontalScrollIndicator={false}
         style={styles.categoryList}
       />
-      <DataList
+      <List
         columnWrapperStyle={styles.gridRow}
         contentContainerStyle={styles.gridContent}
         data={filteredIcons}
@@ -226,7 +226,7 @@ export function PhosphorIconPickerContent({
         renderItem={renderIcon}
         style={styles.grid}
         windowSize={ICON_LIST_WINDOW_SIZE}
-        ListEmptyComponent={(
+        empty={(
           <Row style={styles.empty}>
             <Text color="tertiary">暂无匹配图标</Text>
           </Row>

@@ -22,7 +22,7 @@ import {
   formatSignedPercent,
 } from './analysisData';
 import type { AssetGroupStat, DueReminder } from './analysisData';
-import { ChartCard } from './components/ChartCard';
+import { ChartCard } from './components/chart/ChartCard';
 import { ColorDot } from './components/ColorDot';
 import { NetWorthSparkline } from './components/NetWorthSparkline';
 import { StackBar } from './components/StackBar';

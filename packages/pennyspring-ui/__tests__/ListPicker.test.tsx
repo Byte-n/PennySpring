@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text as RNText, TextInput } from 'react-native';
+import { FlatList, Text as RNText, TextInput } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
 import { DisplayInput } from '../src/DisplayInput';
 import { Button } from '../src/Button';
@@ -108,6 +108,30 @@ describe('ListPicker', () => {
 
     expect(floatingPanel.props.open).toBe(true);
     expect(testRenderer.root.findByProps({ testID: 'floating-panel-root' })).toBeDefined();
+  });
+
+  it('keeps picker actions outside the scrolling list body', () => {
+    const testRenderer = renderListPicker({
+      defaultOpen: true,
+      mode: 'multiple',
+      searchable: true,
+      texts: {
+        confirmText: '完成',
+        headerText: '选择类别',
+      },
+    });
+
+    const floatingPanel = testRenderer.root.findByType(Popup.FloatingPanel);
+    const list = testRenderer.root.findByType(FlatList);
+
+    expect(floatingPanel.props.bodyScrollable).toBe(false);
+    expect(floatingPanel.props.footer).toBe(null);
+    expect(floatingPanel.props.header).toBeDefined();
+    expect(floatingPanel.props.header.props.testID).toBe('list-picker-header');
+    const popup = testRenderer.root.findByProps({ testID: 'list-picker-popup' });
+
+    expect(popup.props.style).toEqual(expect.objectContaining({ flex: 1 }));
+    expect(list.props.style).toEqual(expect.objectContaining({ flex: 1 }));
   });
 
   it('filters searchable options by text props and custom node text', () => {

@@ -3,10 +3,10 @@ import { View } from 'react-native';
 import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
 import Svg, { Line, Rect, Text as SvgText } from 'react-native-svg';
 
-import { buildAxis } from '../chartGeometry';
-import { formatAxisMoney } from '../analysisData';
-import type { MonthlyCashflow } from '../analysisData';
-import { useMeasuredWidth } from './useMeasuredWidth';
+import { buildAxis } from '../../chartGeometry';
+import { formatAxisMoney } from '../../analysisData';
+import type { MonthlyCashflow } from '../../analysisData';
+import { useMeasuredWidth } from '../useMeasuredWidth';
 
 const VIEW_WIDTH = 311;
 const VIEW_HEIGHT = 152;
