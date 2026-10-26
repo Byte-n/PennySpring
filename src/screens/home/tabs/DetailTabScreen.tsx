@@ -2,7 +2,7 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { ScrollView, RefreshControl } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { useRequest } from 'ahooks';
-import { Column, Loading, Empty, Dialog, Text } from '@pennyspring/ui';
+import { Button, Column, Dialog, Empty, Loading, Row, Segmented, Text } from '@pennyspring/ui';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import { type AssetRow, type TypeRow, type TagRow } from '@pennyspring/api';
 import { useBookStore, useGlobalApi } from '../../../stores/bookStore';
@@ -13,11 +13,14 @@ import { DayGroupCard } from './detail/DayGroupCard';
 import { RecordDetailPanel } from './detail/RecordDetailPanel';
 import {
   buildDetailViews,
+  buildDailyExpenseBars,
   filterByMonth,
   groupByDay,
   summarizeCashflow,
   type DetailRecordView,
 } from './detail/detailData';
+
+type DetailFilter = 'all' | 'expense' | 'income' | 'transfer';
 
 const useStyles = createUseSheetStyle(token => ({
   container: {
@@ -26,13 +29,25 @@ const useStyles = createUseSheetStyle(token => ({
   },
   content: {
     flexGrow: 1,
-    padding: token.padding,
-    gap: token.margin,
+    paddingBottom: token.paddingLG,
+    gap: token.paddingSM,
   },
+  monthBar: {
+    paddingHorizontal: token.paddingSM,
+    paddingTop: token.paddingXS,
+  },
+  monthLabel: { minWidth: token.controlHeightLG, alignItems: 'center' },
+  filterResult: { marginHorizontal: token.padding, padding: token.paddingXS, backgroundColor: token.colorFillQuaternary, borderRadius: token.borderRadiusSM },
   state: {
     flexGrow: 1,
     paddingVertical: token.paddingLG,
   },
+  todayTag: {
+    borderRadius: token.borderRadiusLG,
+    paddingHorizontal: token.paddingSM,
+    minHeight: token.controlHeightXS,
+  },
+  filterRow: { paddingHorizontal: token.padding, paddingTop: token.paddingSM },
 }));
 
 function toMap<T extends { id: number }>(rows: readonly T[]): Map<number, T> {
@@ -47,6 +62,9 @@ export function DetailTabScreen() {
   const { version } = useRecordSync();
   const [activeView, setActiveView] = useState<DetailRecordView | null>(null);
   const [pendingDelete, setPendingDelete] = useState<DetailRecordView | null>(null);
+  const [selectedMonth, setSelectedMonth] = useState(() => new Date());
+  const [activeFilter, setActiveFilter] = useState<DetailFilter>('all');
+  const [isAmountHidden, setIsAmountHidden] = useState(false);
 
   const bookId = currentBook?.id;
 
@@ -89,24 +107,34 @@ export function DetailTabScreen() {
     { refreshDeps: [bookId] },
   );
 
-  const now = useMemo(() => new Date(), []);
-  const monthLabel = useMemo(
-    () =>
-      now.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long' }),
-    [now],
-  );
-
-  const { groups, summary } = useMemo(() => {
+  const { groups, summary, dailyExpenses, counts, monthViews, allViews } = useMemo(() => {
     const typeMap = toMap(types);
     const assetMap = toMap(assets);
     const tagMap = toMap(tags);
     const views = buildDetailViews(records, typeMap, assetMap, imageCountMap, tagMap, recordTagsMap);
-    const monthViews = filterByMonth(views, now);
+    const selectedMonthViews = filterByMonth(views, selectedMonth);
+    const categories: DetailFilter[] = ['expense', 'income', 'transfer'];
+    const categoryCounts = categories.reduce<Record<string, number>>((result, category) => {
+      result[category] = selectedMonthViews.filter(view => view.category === category).length;
+      return result;
+    }, {});
+    const filteredViews = activeFilter === 'all'
+      ? selectedMonthViews
+      : selectedMonthViews.filter(view => view.category === activeFilter);
     return {
-      groups: groupByDay(monthViews),
-      summary: summarizeCashflow(monthViews),
+      groups: groupByDay(filteredViews),
+      summary: summarizeCashflow(selectedMonthViews),
+      dailyExpenses: buildDailyExpenseBars(selectedMonthViews, selectedMonth),
+      counts: categoryCounts,
+      monthViews: selectedMonthViews,
+      allViews: views,
     };
-  }, [records, types, assets, tags, imageCountMap, recordTagsMap, now]);
+  }, [records, types, assets, tags, imageCountMap, recordTagsMap, selectedMonth, activeFilter]);
+
+  const moveMonth = (offset: number) => {
+    setSelectedMonth(current => new Date(current.getFullYear(), current.getMonth() + offset, 1));
+    setActiveFilter('all');
+  };
 
   const closePanel = () => setActiveView(null);
 
@@ -149,11 +177,45 @@ export function DetailTabScreen() {
 
   return (
     <Column style={styles.container}>
+      <Row align="center" style={styles.monthBar}>
+        <Button type="text" size="small" icon="caret-left" onPress={() => moveMonth(-1)} />
+        <Button
+          type="text"
+          size="small"
+          icon="caret-down"
+          style={styles.monthLabel}
+          onPress={() => setSelectedMonth(new Date())}
+        >
+          {selectedMonth.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long' })}
+        </Button>
+        <Button type="text" size="small" icon="caret-right" onPress={() => moveMonth(1)} />
+        <Button type="text" size="small" style={styles.todayTag} onPress={() => { setSelectedMonth(new Date()); setActiveFilter('all'); }}>今天</Button>
+      </Row>
       <ScrollView
           contentContainerStyle={styles.content}
+          stickyHeaderIndices={groups.flatMap((_, index) => [2 + (activeFilter === 'all' ? 0 : 1) + index * 2])}
           refreshControl={<RefreshControl refreshing={loading} onRefresh={refresh} />}
         >
-        <MonthSummaryCard monthLabel={monthLabel} summary={summary} />
+        <MonthSummaryCard month={selectedMonth} summary={summary} dailyExpenses={dailyExpenses} recordCount={monthViews.length} hidden={isAmountHidden} onToggleHidden={() => setIsAmountHidden(value => !value)} records={allViews} />
+        <Segmented
+          block
+          size="small"
+          style={styles.filterRow}
+          value={activeFilter}
+          onChange={value => setActiveFilter(value as DetailFilter)}
+          options={[
+            { value: 'all', labelText: `全部 ${monthViews.length}` },
+            { value: 'expense', labelText: `支出 ${counts.expense}` },
+            { value: 'income', labelText: `收入 ${counts.income}` },
+            { value: 'transfer', labelText: `转账 ${counts.transfer}` },
+          ]}
+        />
+        {activeFilter !== 'all' ? (
+          <Row style={styles.filterResult}>
+            <Text size="sm" color="tertiary">当前筛选</Text>
+            <Text size="sm" color="heading">{activeFilter === 'expense' ? '支出' : activeFilter === 'income' ? '收入' : '转账'} · {groups.reduce((sum, group) => sum + group.records.length, 0)} 笔</Text>
+          </Row>
+        ) : null}
         {renderBody()}
       </ScrollView>
 
@@ -167,17 +229,8 @@ export function DetailTabScreen() {
         onDelete={setPendingDelete}
       />
 
-      <Dialog
-        open={pendingDelete !== null}
-        titleText="删除记录"
-        okText="删除"
-        cancelText="取消"
-        onOk={confirmDelete}
-        onCancel={() => setPendingDelete(null)}
-      >
-        <Text size="md" color="secondary">
-          确定删除这条记录吗？删除后无法恢复。
-        </Text>
+      <Dialog open={pendingDelete !== null} titleText="删除记录" okText="删除" cancelText="取消" onOk={confirmDelete} onCancel={() => setPendingDelete(null)}>
+        <Text size="md" color="secondary">确定删除这条记录吗？删除后无法恢复。</Text>
       </Dialog>
     </Column>
   );

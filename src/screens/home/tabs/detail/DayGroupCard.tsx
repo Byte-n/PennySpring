@@ -1,42 +1,56 @@
 import React from 'react';
-import { Row, Text, Card, Divider } from '@pennyspring/ui';
+import { Column, Row, Text, Card, Divider } from '@pennyspring/ui';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import { RecordRow } from './RecordRow';
 import {
   formatAmount,
-  formatDayTitle,
+  formatWeekday,
+  isSameDay,
   type DayGroup,
   type DetailRecordView,
 } from './detailData';
 
 const useStyles = createUseSheetStyle(token => ({
-  extra: {
-    gap: token.marginXS,
-  },
+  dayHeader: { paddingHorizontal: token.paddingSM, paddingTop: token.paddingSM, paddingBottom: token.paddingXS, backgroundColor: token.colorBgLayout },
+  card: { marginHorizontal: token.padding, padding: 0, overflow: 'hidden' },
+  cardBody: { gap: 0 },
+  divider: { marginVertical: 0 },
+  spacer: { flex: 1 },
 }));
 
 interface DayGroupCardProps {
   group: DayGroup<DetailRecordView>;
   onPressRecord: (view: DetailRecordView) => void;
+  hidden?: boolean;
 }
 
-export function DayGroupCard({ group, onPressRecord }: DayGroupCardProps) {
+export function DayGroupCard({ group, onPressRecord, hidden = false }: DayGroupCardProps) {
   const styles = useStyles();
-  const extra = (
-    <Row align="center" gap="small" style={styles.extra}>
-      <Text size="sm" color="tertiary">{`支 ${formatAmount(group.summary.expense)}`}</Text>
-      <Text size="sm" color="tertiary">{`收 ${formatAmount(group.summary.income)}`}</Text>
+  const today = isSameDay(new Date(group.dayStart), new Date());
+  const title = (
+    <Row align="center" gap="small" style={styles.dayHeader}>
+      <Text size="md" weight="semibold" color="heading">
+        {new Date(group.dayStart).toLocaleDateString('zh-CN', { month: 'long', day: 'numeric' })}
+      </Text>
+      <Text size="sm" color="tertiary">{formatWeekday(group.dayStart)}</Text>
+      {today ? <Text size="xs" color="primary">今天</Text> : null}
+      <Column style={styles.spacer} />
+      {group.summary.expense > 0 ? <Text size="xs" color="tertiary">支 <Text size="xs" color="error">{hidden ? '••••' : formatAmount(group.summary.expense)}</Text></Text> : null}
+      {group.summary.income > 0 ? <Text size="xs" color="tertiary">收 <Text size="xs" color="success">{hidden ? '••••' : formatAmount(group.summary.income)}</Text></Text> : null}
     </Row>
   );
 
   return (
-    <Card titleText={formatDayTitle(group.dayStart)} extra={extra}>
+    <>
+      {title}
+      <Card style={styles.card} styles={{ body: styles.cardBody }}>
       {group.records.map((view, index) => (
         <React.Fragment key={view.record.id}>
-          {index > 0 ? <Divider /> : null}
-          <RecordRow view={view} onPress={onPressRecord} />
+          {index > 0 ? <Divider style={styles.divider} /> : null}
+          <RecordRow view={view} onPress={onPressRecord} hidden={hidden} />
         </React.Fragment>
       ))}
-    </Card>
+      </Card>
+    </>
   );
 }

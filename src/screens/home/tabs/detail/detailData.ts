@@ -30,6 +30,12 @@ export interface DayGroup<T extends CashflowItem> {
   summary: CashflowSummary;
 }
 
+export interface DailyExpenseBar {
+  dayStart: number;
+  expense: number;
+  isPlaceholder: boolean;
+}
+
 function startOfDay(time: number): number {
   const date = new Date(time);
   date.setHours(0, 0, 0, 0);
@@ -131,6 +137,11 @@ export function formatAmount(cents: number): string {
   return (Math.abs(cents) / CENTS_PER_YUAN).toFixed(2);
 }
 
+export function formatAmountParts(cents: number): { integer: string; decimal: string } {
+  const [integer, decimal] = formatAmount(cents).split('.');
+  return { integer: Number(integer).toLocaleString('zh-CN'), decimal: decimal ?? '00' };
+}
+
 export function formatSignedAmount(cents: number, category: CashflowCategory): string {
   if (category === RECORD_TYPE_CATEGORY.income) return `+${formatAmount(cents)}`;
   if (category === RECORD_TYPE_CATEGORY.expense) return `-${formatAmount(cents)}`;
@@ -144,6 +155,53 @@ export function formatDayTitle(dayStart: number, now: Date = new Date()): string
   const diffDays = Math.round((today.getTime() - dayStart) / 86400000);
   const suffix = diffDays === 0 ? '（今天）' : diffDays === 1 ? '（昨天）' : diffDays === 2 ? '（前天）' : '';
   return suffix ? `${base}${suffix}` : base;
+}
+
+export function formatWeekday(dayStart: number): string {
+  return new Date(dayStart).toLocaleDateString('zh-CN', { weekday: 'short' });
+}
+
+export function isSameDay(first: Date, second: Date): boolean {
+  return first.toDateString() === second.toDateString();
+}
+
+export function getMonthDayCount(month: Date): number {
+  return new Date(month.getFullYear(), month.getMonth() + 1, 0).getDate();
+}
+
+export function getElapsedMonthDayCount(month: Date, now: Date = new Date()): number {
+  if (month.getFullYear() === now.getFullYear() && month.getMonth() === now.getMonth()) {
+    return Math.max(1, now.getDate());
+  }
+  return getMonthDayCount(month);
+}
+
+export function buildDailyExpenseBars(
+  records: readonly CashflowItem[],
+  month: Date,
+  minimumBars = 7,
+  now: Date = new Date(),
+): DailyExpenseBar[] {
+  const monthStart = new Date(month.getFullYear(), month.getMonth(), 1);
+  const isCurrentMonth = month.getFullYear() === now.getFullYear() && month.getMonth() === now.getMonth();
+  const isFutureMonth = monthStart.getTime() > new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+  const visibleDayCount = isFutureMonth
+    ? minimumBars
+    : isCurrentMonth
+      ? getElapsedMonthDayCount(month, now)
+      : getMonthDayCount(month);
+  const expenseByDay = new Map<number, number>();
+  for (const record of records) {
+    if (record.category !== RECORD_TYPE_CATEGORY.expense) continue;
+    const dayStart = startOfDay(record.recordTime);
+    expenseByDay.set(dayStart, (expenseByDay.get(dayStart) ?? 0) + record.finalAmount);
+  }
+
+  return Array.from({ length: visibleDayCount }, (_, index) => {
+    const dayStart = new Date(monthStart.getFullYear(), monthStart.getMonth(), index + 1).getTime();
+    const expense = expenseByDay.get(dayStart) ?? 0;
+    return { dayStart, expense, isPlaceholder: expense <= 0 };
+  });
 }
 
 export function formatRecordTime(time: number): string {
