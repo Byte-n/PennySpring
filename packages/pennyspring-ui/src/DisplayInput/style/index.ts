@@ -1,51 +1,29 @@
 import { createUseSheetStyle } from '@pennyspring/theme';
-import type { AliasToken } from '@pennyspring/theme';
+import { FIELD_SIZE_MAP } from '../../shares/fieldMetrics';
 import type { ComponentSize } from '../../shares/types';
 import type { DisplayInputDisplay } from '../types';
 
 interface DisplayInputStyleOptions {
   disabled: boolean;
   display: DisplayInputDisplay;
+  hasLabel: boolean;
   isError: boolean;
   size: ComponentSize;
 }
 
-interface SizeConfig {
-  minHeight: (token: AliasToken) => number;
-  paddingHorizontal: (token: AliasToken) => number;
-  gap: (token: AliasToken) => number;
-  fontSize: (token: AliasToken) => number;
-  lineHeight: (token: AliasToken) => number;
-}
-
-export const SIZE_MAP: Record<ComponentSize, SizeConfig> = {
-  small: {
-    minHeight: token => token.controlHeightSM,
-    paddingHorizontal: token => token.paddingXS,
-    gap: token => token.sizeXXS,
-    fontSize: token => token.fontSizeSM,
-    lineHeight: token => token.lineHeightSM,
-  },
-  normal: {
-    minHeight: token => token.controlHeight,
-    paddingHorizontal: token => token.controlPaddingHorizontalSM,
-    gap: token => token.sizeXS,
-    fontSize: token => token.fontSize,
-    lineHeight: token => token.lineHeight,
-  },
-  large: {
-    minHeight: token => token.controlHeightLG,
-    paddingHorizontal: token => token.padding,
-    gap: token => token.sizeSM,
-    fontSize: token => token.fontSizeLG,
-    lineHeight: token => token.lineHeightLG,
-  },
-};
-
 export const useStyles = createUseSheetStyle(
-  (token, { disabled, display, isError, size }: DisplayInputStyleOptions) => {
-    const sizeConfig = SIZE_MAP[size];
+  (token, { disabled, display, hasLabel, isError, size }: DisplayInputStyleOptions) => {
+    const metrics = FIELD_SIZE_MAP[size];
+    const height = metrics.height(token);
+    const valueFontSize = metrics.valueFontSize(token);
+    const valueLineHeight = metrics.valueLineHeight(token);
+    const valuePaddingBottom = metrics.valuePaddingBottom;
     const underlineColor = isError ? token.colorError : token.colorBorder;
+    const labelColor = disabled
+      ? token.colorTextDisabled
+      : isError
+      ? token.colorError
+      : token.colorTextPlaceholder;
 
     return {
       root: {
@@ -57,41 +35,25 @@ export const useStyles = createUseSheetStyle(
         overflow: 'hidden',
         gap: token.marginXXS,
       },
-      labelRow: {
-        gap: token.marginXXS,
-      },
-      label: {
-      },
-      requiredMark: {
-      },
+      // 与 Input 一致：下划线字段不提供填充背景
       field: {
-        minHeight: sizeConfig.minHeight(token),
-        paddingHorizontal: sizeConfig.paddingHorizontal(token),
-        backgroundColor: disabled ? token.colorBgContainerDisabled : token.colorFillTertiary,
-        borderTopLeftRadius: token.borderRadiusSM,
-        borderTopRightRadius: token.borderRadiusSM,
+        minHeight: height,
+        paddingHorizontal: metrics.paddingHorizontal(token),
         flexDirection: 'row',
         alignItems: 'center',
-        gap: sizeConfig.gap(token),
-        overflow: 'hidden',
+        gap: metrics.gap(token),
         position: 'relative',
       },
-      fieldContent: {
-        alignItems: 'center',
-        gap: sizeConfig.gap(token),
-      },
       fieldPressed: {
-        backgroundColor: token.colorBgTextActive,
+        backgroundColor: token.colorFillQuaternary,
       },
-      fieldDisabled: {
-        backgroundColor: token.colorBgContainerDisabled,
-      },
+      // 与 Input 一致：下划线始终 1px，状态只通过颜色表达
       underline: {
         position: 'absolute',
         left: 0,
         right: 0,
         bottom: 0,
-        height: token.lineWidthBold,
+        height: token.lineWidth,
         backgroundColor: disabled ? token.colorBorderDisabled : underlineColor,
       },
       prefix: {
@@ -104,8 +66,9 @@ export const useStyles = createUseSheetStyle(
         flex: display === 'inline' ? undefined : 1,
         flexShrink: 1,
         minWidth: 0,
-        minHeight: sizeConfig.minHeight(token),
-        justifyContent: 'flex-end',
+        minHeight: height,
+        // 有标签时值贴底，无标签时值在控件内垂直居中
+        justifyContent: hasLabel ? 'flex-end' : 'center',
         position: 'relative',
       },
       floatingLabelContainer: {
@@ -115,36 +78,39 @@ export const useStyles = createUseSheetStyle(
         zIndex: token.zIndexBase,
       },
       floatingLabel: {
-        color: isError ? token.colorError : token.colorTextPlaceholder,
+        color: labelColor,
         fontFamily: token.fontFamily,
       },
+      // 标签浮起后承担“字段名”职责，用 tertiary 保证小字号可读性
+      floatingLabelActive: {
+        color: disabled
+          ? token.colorTextDisabled
+          : isError
+          ? token.colorError
+          : token.colorTextTertiary,
+      },
+      // 隐藏占位文本：只为行内模式预留标签宽度，不参与视觉
       labelWidthPlaceholder: {
         height: 0,
         overflow: 'visible',
         opacity: 0,
+        fontSize: valueFontSize,
+        lineHeight: valueLineHeight,
       },
       value: {
         fontFamily: token.fontFamily,
-      },
-      valueWithLabel: {
-        paddingBottom: 0,
-      },
-      valueWithoutLabel: {
-        paddingBottom: 0,
+        fontSize: valueFontSize,
+        lineHeight: valueLineHeight,
+        paddingBottom: hasLabel ? valuePaddingBottom : 0,
       },
       valueContainer: {
+        paddingBottom: hasLabel ? valuePaddingBottom : 0,
       },
       valueContainerHidden: {
         overflow: 'hidden',
       },
       valueContainerVisible: {
         overflow: 'visible',
-      },
-      valueDisabled: {
-      },
-      helper: {
-      },
-      error: {
       },
     };
   },

@@ -36,11 +36,7 @@ function findNativeInput(testRenderer: renderer.ReactTestRenderer) {
 }
 
 function findFieldStyle(testRenderer: renderer.ReactTestRenderer) {
-  const field = testRenderer.root.find(
-    node =>
-      StyleSheet.flatten(node.props.style)?.backgroundColor !== undefined &&
-      StyleSheet.flatten(node.props.style)?.minHeight !== undefined,
-  );
+  const field = testRenderer.root.findByProps({ testID: 'input-field' });
 
   return StyleSheet.flatten(field.props.style);
 }
@@ -101,7 +97,7 @@ describe('Input', () => {
     expect(JSON.stringify(testRenderer.toJSON())).not.toContain('Helper text');
   });
 
-  it('keeps input text closer to the underline than to the floating label', () => {
+  it('reserves bottom clearance between the input text and the underline', () => {
     const testRenderer = renderInput({
       defaultValue: '现金账户',
       labelText: '账户名称',
@@ -109,8 +105,8 @@ describe('Input', () => {
 
     const inputStyle = StyleSheet.flatten(findNativeInput(testRenderer).props.style);
 
+    expect(inputStyle.paddingBottom).toBeGreaterThan(0);
     expect(inputStyle.paddingTop).toBeGreaterThan(inputStyle.paddingBottom);
-    expect(inputStyle.paddingBottom).toBe(0);
   });
 
   it('uses an independent underline layer for flat active and error states', () => {
@@ -120,8 +116,10 @@ describe('Input', () => {
     });
 
     const underline = testRenderer.root.findByProps({ testID: 'input-underline' });
+    const underlineStyle = StyleSheet.flatten(underline.props.style);
     expect(underline.type).toBe(View);
-    expect(JSON.stringify(underline.props.style)).toContain('scaleY');
+    expect(underlineStyle.height).toBe(token.lineWidth);
+    expect(underlineStyle.backgroundColor).toBe(token.colorError);
     expect(JSON.stringify(testRenderer.toJSON())).toContain('Required');
   });
 
@@ -216,23 +214,24 @@ describe('Input', () => {
     expect(largeFieldStyle.minHeight).toBe(token.controlHeightLG);
   });
 
-  it('keeps input text bottom-aligned inside the field for every size', () => {
-    // Arrange & Act
-    const smallInputStyle = StyleSheet.flatten(
-      findNativeInput(renderInput({ defaultValue: '值', size: 'small' })).props.style,
-    );
-    const normalInputStyle = StyleSheet.flatten(
-      findNativeInput(renderInput({ defaultValue: '值', size: 'normal' })).props.style,
-    );
-    const largeInputStyle = StyleSheet.flatten(
-      findNativeInput(renderInput({ defaultValue: '值', size: 'large' })).props.style,
-    );
+  it('keeps text and padding filling the field height for every size', () => {
+    // Arrange
+    const sizes = [
+      { height: token.controlHeightSM, size: 'small' },
+      { height: token.controlHeight, size: 'normal' },
+      { height: token.controlHeightLG, size: 'large' },
+    ] as const;
 
-    // Assert
-    expect(smallInputStyle.paddingTop).toBe(token.controlHeightSM - token.lineHeightSM);
-    expect(normalInputStyle.paddingTop).toBe(token.controlHeight - token.lineHeight);
-    expect(largeInputStyle.paddingTop).toBe(token.controlHeightLG - token.lineHeightLG);
-    expect(normalInputStyle.paddingBottom).toBe(0);
+    // Act & Assert
+    sizes.forEach(({ height, size }) => {
+      const inputStyle = StyleSheet.flatten(
+        findNativeInput(renderInput({ defaultValue: '值', size })).props.style,
+      );
+
+      expect(
+        inputStyle.paddingTop + inputStyle.paddingBottom + inputStyle.lineHeight,
+      ).toBeCloseTo(height);
+    });
   });
 });
 

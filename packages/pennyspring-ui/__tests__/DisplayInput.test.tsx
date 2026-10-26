@@ -37,11 +37,12 @@ function findRootStyle(
 
 function findFieldStyle(testRenderer: renderer.ReactTestRenderer) {
   const field = testRenderer.root.findAll(
-    node => StyleSheet.flatten(node.props.style)?.backgroundColor !== undefined &&
-      StyleSheet.flatten(node.props.style)?.minHeight !== undefined,
+    node =>
+      node.props.testID === 'display-input-field' &&
+      typeof node.props.style === 'function',
   )[0];
 
-  return StyleSheet.flatten(field.props.style);
+  return StyleSheet.flatten(field.props.style({ pressed: false }));
 }
 
 function findUnderlineStyle(testRenderer: renderer.ReactTestRenderer) {
@@ -234,7 +235,7 @@ describe('DisplayInput', () => {
     expect(labelStyle.position).toBe('absolute');
     expect(labelStyle.left).toBe(0);
     expect(labelStyle.right).toBe(0);
-    expect(valueStyle.paddingBottom).toBe(0);
+    expect(valueStyle.paddingBottom).toBeGreaterThan(0);
   });
 
   it('keeps placeholder hidden while an empty labeled display value is inactive', () => {
@@ -321,7 +322,7 @@ describe('DisplayInput', () => {
     ).toBe(token.padding);
   });
 
-  it('matches Input flat field styling with an independent underline', () => {
+  it('renders a borderless underline field without a fill background', () => {
     const testRenderer = renderDisplayInput({
       valueText: '展示值',
     });
@@ -331,10 +332,10 @@ describe('DisplayInput', () => {
 
     expect(fieldStyle.borderWidth).toBeUndefined();
     expect(fieldStyle.borderRadius).toBeUndefined();
-    expect(fieldStyle.backgroundColor).toBe(token.colorFillTertiary);
-    expect(fieldStyle.borderTopLeftRadius).toBe(token.borderRadiusSM);
-    expect(fieldStyle.borderTopRightRadius).toBe(token.borderRadiusSM);
-    expect(underlineStyle.height).toBe(token.lineWidthBold);
+    expect(fieldStyle.backgroundColor).toBeUndefined();
+    expect(fieldStyle.borderTopLeftRadius).toBeUndefined();
+    expect(fieldStyle.borderTopRightRadius).toBeUndefined();
+    expect(underlineStyle.height).toBe(token.lineWidth);
     expect(underlineStyle.backgroundColor).toBe(token.colorBorder);
   });
 

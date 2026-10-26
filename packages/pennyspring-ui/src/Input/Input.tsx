@@ -18,9 +18,9 @@ import { Column } from '../Column';
 import { Icon } from '../Icon';
 import { Row } from '../Row';
 import { Text } from '../Text';
+import { FIELD_SIZE_MAP, resolveFieldSize } from '../shares/fieldMetrics';
 import { isPrimitiveContent, renderTextNode } from '../shares/node';
 import { useControllableValue } from '../_hooks';
-import type { AliasToken } from '@pennyspring/theme';
 import type { ComponentSize } from '../shares/types';
 import type {
   NativeSyntheticEvent,
@@ -41,57 +41,11 @@ interface InputStyleOptions {
   size: ComponentSize;
   disabled: boolean;
   isError: boolean;
+  hasLabel: boolean;
 }
 
 interface SearchInputStyleOptions {
   size: ComponentSize;
-}
-
-interface SizeConfig {
-  minHeight: (token: AliasToken) => number;
-  paddingHorizontal: (token: AliasToken) => number;
-  gap: (token: AliasToken) => number;
-  fontSize: (token: AliasToken) => number;
-  lineHeight: (token: AliasToken) => number;
-  labelFontSize: (token: AliasToken) => number;
-  labelLineHeight: (token: AliasToken) => number;
-}
-
-// 尺寸语义与 DisplayInput 保持一致：small/normal/large 依次对应
-// controlHeightSM/controlHeight/controlHeightLG，避免同屏高度错位。
-// 标签字号同步随尺寸缩放，与 DisplayInput 的 xs/sm/md 策略一致。
-const SIZE_MAP: Record<ComponentSize, SizeConfig> = {
-  small: {
-    minHeight: token => token.controlHeightSM,
-    paddingHorizontal: token => token.paddingXS,
-    gap: token => token.sizeXXS,
-    fontSize: token => token.fontSizeSM,
-    lineHeight: token => token.lineHeightSM,
-    labelFontSize: token => token.fontSizeXS,
-    labelLineHeight: token => token.lineHeightXS,
-  },
-  normal: {
-    minHeight: token => token.controlHeight,
-    paddingHorizontal: token => token.controlPaddingHorizontalSM,
-    gap: token => token.sizeXS,
-    fontSize: token => token.fontSize,
-    lineHeight: token => token.lineHeight,
-    labelFontSize: token => token.fontSizeSM,
-    labelLineHeight: token => token.lineHeightSM,
-  },
-  large: {
-    minHeight: token => token.controlHeightLG,
-    paddingHorizontal: token => token.padding,
-    gap: token => token.sizeSM,
-    fontSize: token => token.fontSizeLG,
-    lineHeight: token => token.lineHeightLG,
-    labelFontSize: token => token.fontSize,
-    labelLineHeight: token => token.lineHeight,
-  },
-};
-
-function resolveSize(size?: ComponentSize): ComponentSize {
-  return size ?? 'normal';
 }
 
 function hasNode(node: React.ReactNode | null | undefined): boolean {
@@ -110,24 +64,30 @@ function resolveLabel({
 }
 
 const useStyles = createUseSheetStyle(
-  (token, { disabled, isError, size }: InputStyleOptions) => {
-    const sizeConfig = SIZE_MAP[size];
+  (token, { disabled, hasLabel, isError, size }: InputStyleOptions) => {
+    const metrics = FIELD_SIZE_MAP[size];
+    const height = metrics.height(token);
+    const valueFontSize = metrics.valueFontSize(token);
+    const valueLineHeight = metrics.valueLineHeight(token);
+    const valuePaddingBottom = metrics.valuePaddingBottom;
     const activeUnderlineColor = isError ? token.colorError : token.colorPrimary;
+    const labelColor = disabled
+      ? token.colorTextDisabled
+      : isError
+      ? token.colorError
+      : token.colorTextPlaceholder;
 
     return {
       root: {
         gap: token.sizeXXS,
       },
+      // 下划线字段不提供填充背景，控件边界只由底部框线表达
       field: {
-        minHeight: sizeConfig.minHeight(token),
-        paddingHorizontal: sizeConfig.paddingHorizontal(token),
-        backgroundColor: disabled ? token.colorBgContainerDisabled : token.colorFillTertiary,
-        borderTopLeftRadius: token.borderRadiusSM,
-        borderTopRightRadius: token.borderRadiusSM,
+        minHeight: height,
+        paddingHorizontal: metrics.paddingHorizontal(token),
         flexDirection: 'row',
         alignItems: 'center',
-        gap: sizeConfig.gap(token),
-        overflow: 'hidden',
+        gap: metrics.gap(token),
         position: 'relative',
       },
       prefix: {
@@ -139,7 +99,7 @@ const useStyles = createUseSheetStyle(
       inputWrapper: {
         flex: 1,
         minWidth: 0,
-        minHeight: sizeConfig.minHeight(token),
+        minHeight: height,
         justifyContent: 'flex-end',
         position: 'relative',
       },
@@ -153,9 +113,17 @@ const useStyles = createUseSheetStyle(
         zIndex: token.zIndexBase,
       } as ViewStyle,
       label: {
-        color: isError ? token.colorError : token.colorTextPlaceholder,
+        color: labelColor,
         fontFamily: token.fontFamily,
       } as TextStyle,
+      // 标签浮起后承担“字段名”职责，用 tertiary 保证小字号可读性
+      labelFilled: {
+        color: disabled
+          ? token.colorTextDisabled
+          : isError
+          ? token.colorError
+          : token.colorTextTertiary,
+      },
       labelActive: {
         color: activeUnderlineColor,
       },
@@ -165,26 +133,44 @@ const useStyles = createUseSheetStyle(
         padding: 0,
         margin: 0,
         fontFamily: token.fontFamily,
-        fontSize: sizeConfig.fontSize(token),
-        lineHeight: sizeConfig.lineHeight(token),
+        fontSize: valueFontSize,
+        lineHeight: valueLineHeight,
         color: disabled ? token.colorTextDisabled : token.colorText,
       } as TextStyle,
-      // 与 DisplayInput 一致：文本贴下划线对齐，顶部留白 = 控件高度 - 文本行高，
-      // 浮动标签以浮层方式叠加，不再额外占用控件高度。
-      inputPadding: {
-        paddingTop: sizeConfig.minHeight(token) - sizeConfig.lineHeight(token),
-        paddingBottom: 0,
-      } as TextStyle,
+      // 有标签时文本贴底并对下划线留白；无标签时文本在控件内垂直居中
+      inputPadding: (hasLabel
+        ? {
+            paddingTop: height - valueLineHeight - valuePaddingBottom,
+            paddingBottom: valuePaddingBottom,
+          }
+        : {
+            paddingTop: (height - valueLineHeight) / 2,
+            paddingBottom: (height - valueLineHeight) / 2,
+          }) as TextStyle,
+      // 多行文本从标签下方开始排版，控件随行数向下生长
+      inputPaddingMultiline: (hasLabel
+        ? {
+            paddingTop:
+              metrics.labelTop +
+              metrics.labelLineHeight(token) +
+              valuePaddingBottom,
+            paddingBottom: valuePaddingBottom,
+          }
+        : {
+            paddingTop: valuePaddingBottom,
+            paddingBottom: valuePaddingBottom,
+          }) as TextStyle,
       inputMultiline: {
         flex: 0,
         textAlignVertical: 'top',
       } as TextStyle,
+      // 下划线始终 1px，激活态只换颜色，避免边框在聚焦时变粗
       underline: {
         position: 'absolute',
         left: 0,
         right: 0,
         bottom: 0,
-        height: token.lineWidthBold,
+        height: token.lineWidth,
         backgroundColor: disabled ? token.colorBorderDisabled : token.colorBorder,
       } as ViewStyle,
       underlineActive: {
@@ -211,7 +197,7 @@ const useStyles = createUseSheetStyle(
 
 const useSearchStyles = createUseSheetStyle(
   (token, { size }: SearchInputStyleOptions) => {
-    const sizeConfig = SIZE_MAP[size];
+    const metrics = FIELD_SIZE_MAP[size];
 
     return {
       searchButton: {
@@ -226,7 +212,7 @@ const useSearchStyles = createUseSheetStyle(
       },
       searchIcon: {
         color: token.colorTextTertiary,
-        fontSize: sizeConfig.fontSize(token),
+        fontSize: metrics.valueFontSize(token),
       },
     };
   },
@@ -260,7 +246,7 @@ function InputRoot({
   value,
   ...rest
 }: InputProps) {
-  const resolvedSize = resolveSize(size);
+  const resolvedSize = resolveFieldSize(size);
   const { token } = useTheme();
   const [isFocused, setIsFocused] = useState(false);
   const [mergedValue = '', setMergedValue] = useControllableValue(
@@ -272,31 +258,31 @@ function InputRoot({
   const helperMessage = helper !== undefined ? helper : helperText;
   const isError = status === 'error' || hasNode(errorMessage);
   const message = hasNode(errorMessage) ? errorMessage : helperMessage;
+  const labelNode = resolveLabel({ label, labelText });
+  const hasFloatingLabel = hasNode(labelNode);
   const tokenStyles = useStyles({
     disabled,
+    hasLabel: hasFloatingLabel,
     isError,
     size: resolvedSize,
   });
   const isEditable = !disabled && !readonly;
-  const labelNode = resolveLabel({ label, labelText });
-  const hasFloatingLabel = hasNode(labelNode);
   const hasPrefix = hasNode(prefix);
   const hasSuffix = hasNode(suffix);
   const isActive = isFocused || Boolean(mergedValue);
   const shouldShowClearButton =
     clearable === true && Boolean(mergedValue) && isEditable && loading !== true;
   const progress = useSharedValue(isActive ? 1 : 0);
-  const underlineProgress = useSharedValue(isFocused || isError ? 1 : 0);
-  const sizeConfig = SIZE_MAP[resolvedSize];
-  const bodyFontSize = sizeConfig.fontSize(token);
-  const labelFontSize = sizeConfig.labelFontSize(token);
-  const labelLineHeight = sizeConfig.labelLineHeight(token);
-  const controlHeight = sizeConfig.minHeight(token);
-  const inactiveLabelTop = controlHeight / 2 - labelLineHeight / 2;
-  // 与 DisplayInput 一致：激活态标签浮层紧贴控件顶部
-  const activeLabelTop = 0;
-  const underlineInactiveScale = token.lineWidth / token.lineWidthBold;
-  const underlineActiveScale = token.lineWidthBold / token.lineWidth;
+  const metrics = FIELD_SIZE_MAP[resolvedSize];
+  const bodyFontSize = metrics.valueFontSize(token);
+  const bodyLineHeight = metrics.valueLineHeight(token);
+  const labelFontSize = metrics.labelFontSize(token);
+  const labelLineHeight = metrics.labelLineHeight(token);
+  const controlHeight = metrics.height(token);
+  const inactiveLabelTop = controlHeight / 2 - bodyLineHeight / 2;
+  const labelOffsetX = metrics.labelOffsetX(token);
+  // 激活态标签收起字号并向控件左上角收拢，为输入文本让出视觉空间
+  const activeLabelTop = metrics.labelTop;
   const placeholderTextColor = hasFloatingLabel && !isFocused
     ? 'transparent'
     : token.colorTextPlaceholder;
@@ -308,20 +294,17 @@ function InputRoot({
     });
   }, [isActive, progress, token.motionDurationMid, token.motionEaseInOut]);
 
-  useEffect(() => {
-    underlineProgress.value = withTiming(isFocused || isError ? 1 : 0, {
-      duration: token.motionDurationFast,
-      easing: Easing.bezier(...token.motionEaseInOut),
-    });
-  }, [isError, isFocused, token.motionDurationFast, token.motionEaseInOut, underlineProgress]);
-
   const labelPositionAnimatedStyle = useAnimatedStyle(() => ({
     top: interpolate(
       progress.value,
       [0, 1],
       [inactiveLabelTop, activeLabelTop],
     ),
-    opacity: interpolate(progress.value, [0, 1], [1, 1]),
+    transform: [
+      {
+        translateX: interpolate(progress.value, [0, 1], [0, -labelOffsetX]),
+      },
+    ],
   }));
 
   const labelTextAnimatedStyle = useAnimatedStyle(() => ({
@@ -330,19 +313,11 @@ function InputRoot({
       [0, 1],
       [bodyFontSize, labelFontSize],
     ),
-    lineHeight: labelLineHeight,
-  }));
-
-  const underlineAnimatedStyle = useAnimatedStyle(() => ({
-    transform: [
-      {
-        scaleY: interpolate(
-          underlineProgress.value,
-          [0, 1],
-          [underlineInactiveScale, underlineActiveScale],
-        ),
-      },
-    ],
+    lineHeight: interpolate(
+      progress.value,
+      [0, 1],
+      [bodyLineHeight, labelLineHeight],
+    ),
   }));
 
   function handleClear(): void {
@@ -383,13 +358,12 @@ function InputRoot({
 
   return (
     <Column style={[tokenStyles.root, style]}>
-      <Row style={[tokenStyles.field, styles?.field]}>
-        <AnimatedView
+      <Row style={[tokenStyles.field, styles?.field]} testID="input-field">
+        <View
           pointerEvents="none"
           style={[
             tokenStyles.underline,
             isFocused || isError ? tokenStyles.underlineActive : null,
-            underlineAnimatedStyle,
           ]}
           testID="input-underline"
         />
@@ -403,11 +377,14 @@ function InputRoot({
         <View style={[tokenStyles.inputWrapper, multiline ? tokenStyles.inputWrapperMultiline : null]}>
           {hasFloatingLabel && isTextLabel ? (
             <AnimatedText
-              color={isFocused || isError ? undefined : 'placeholder'}
               style={[
                 tokenStyles.labelContainer,
                 tokenStyles.label,
-                isFocused ? tokenStyles.labelActive : null,
+                isFocused
+                  ? tokenStyles.labelActive
+                  : isActive
+                  ? tokenStyles.labelFilled
+                  : null,
                 styles?.labelText,
                 labelPositionAnimatedStyle,
                 labelTextAnimatedStyle,
@@ -440,7 +417,7 @@ function InputRoot({
             selectionColor={isError ? token.colorError : token.colorPrimary}
             style={[
               tokenStyles.input,
-              tokenStyles.inputPadding,
+              multiline ? tokenStyles.inputPaddingMultiline : tokenStyles.inputPadding,
               multiline ? tokenStyles.inputMultiline : null,
               styles?.input,
             ]}
@@ -509,7 +486,7 @@ function SearchInput({
   value,
   ...rest
 }: InputSearchProps) {
-  const resolvedSize = resolveSize(size);
+  const resolvedSize = resolveFieldSize(size);
   const tokenStyles = useSearchStyles({ size: resolvedSize });
   const { token } = useTheme();
   const [mergedValue = '', setMergedValue] = useControllableValue(
