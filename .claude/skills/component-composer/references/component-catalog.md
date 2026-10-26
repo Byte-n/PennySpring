@@ -42,10 +42,10 @@
 
 ## 选择器与选择
 
+- `WheelGroup`：滚轮组内核。支持多列、显式行高、`fit="container"` 按容器高度量化可见行（3/5/7）、实时 activeIndex、拖拽无惯性也提交。样式通过 `WheelGroupStyles` 覆盖。
 - `Picker`：滚轮选择器与触发式选择模式。
-- `TimePicker`：时间值选择。支持 `precision`（hour/minute/second）、`size`、`readonly`、`placeholder`、`min`/`max` 范围限制、`minuteStep`/`secondStep` 步长、`formatLabel`/`renderLabel` 自定义标签。样式通过 `TimePickerStyles` 覆盖。
-- `DateTimePicker`：日期/时间选择。
-- `Calendar`：日历展示与日期/范围选择。
+- `DateTimePicker`：日期时间选择。支持 `precision`（year/month/day/hour/minute/second）与 `layout`（`wheel` 默认 / `calendar` 日历浮层）；`DateTimePicker.Date` 仅日期、`DateTimePicker.Time` 仅时间（强制滚轮）。含时间精度且使用日历布局时，可点底部入口在日历与时间滚轮之间翻页。
+- `CalendarPicker`：日历输入型选择器，值使用 `Date`。`CalendarPicker.View` 为纯日历面板（`mode` 支持 date/month/year，`CalendarPicker.View.Range` 为范围面板）；`CalendarPicker` 为触发器 + 浮层，`CalendarPicker.Range` 为输入型范围选择。面板支持标记、禁用日期、最小/最大日期与自定义文案。
 - `CascadePicker`：级联选择弹窗。
 - `Cascader`：级联选择视图或弹窗。
 - `SelectionList`：分组或扁平选项选择，可通过 `displayInputProps` 定制触发器、通过 `popupProps` 定制弹层。
