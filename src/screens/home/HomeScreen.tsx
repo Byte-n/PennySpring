@@ -169,7 +169,7 @@ export function HomeScreen() {
         </Drawer.Layout>
         {isFocused && (
           <FloatingActionGroup
-            defaultVisibleCount={1}
+            defaultVisibleCount={2}
             actions={[
               {
                 key: 'quick-template',
