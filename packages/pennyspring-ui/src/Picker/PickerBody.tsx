@@ -6,6 +6,7 @@ import { renderTextNode } from '../shares/node';
 import { PickerView } from './PickerView';
 import { WHEEL_VISIBLE_ITEM_COUNT } from './usePickerStyles';
 import type { ReactNode } from 'react';
+import type { ComponentSize } from '../shares/types';
 import type {
   PickerBodyStyles,
   PickerColumn,
@@ -25,6 +26,7 @@ interface PickerBodyProps<TItem extends PickerColumnItemData> {
   isWheelScrolling?: boolean;
   renderLabel?: PickerPopupProps<TItem>['renderLabel'];
   selectedValue: Array<PickerItemValue<TItem>>;
+  size?: ComponentSize;
   styles: ReturnType<typeof import('./usePickerStyles').usePickerStyles>;
   slotStyles?: PickerBodyStyles;
   onFocusIndexChange?: (columnIndex: number, itemIndex: number) => void;
@@ -46,6 +48,7 @@ export function PickerBody<TItem extends PickerColumnItemData>({
   onWheelScrollStateChange,
   renderLabel,
   selectedValue,
+  size,
   slotStyles,
   styles,
 }: PickerBodyProps<TItem>) {
@@ -91,6 +94,7 @@ export function PickerBody<TItem extends PickerColumnItemData>({
             onWheelScrollStateChange={onWheelScrollStateChange}
             renderLabel={renderLabel}
             selectedValue={selectedValue}
+            size={size}
             slotStyles={slotStyles}
             styles={styles}
             wheelHeight={height}

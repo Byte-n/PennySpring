@@ -1,25 +1,24 @@
 import React from 'react';
-import { StyleSheet } from 'react-native';
-import { View } from 'react-native';
-import { Text } from '../Text';
-import { renderTextNode } from '../shares/node';
-import { PickerColumn } from './PickerColumn';
-import { usePickerWheelStyles } from './usePickerWheelStyles';
-import type { ReactNode } from 'react';
+import { useTheme } from '@pennyspring/theme';
+import { WheelGroup } from '../WheelGroup';
+import { getPickerItemHeight } from './usePickerStyles';
+import type { WheelGroupStyles } from '../WheelGroup';
+import type { ComponentSize } from '../shares/types';
 import type {
   PickerBodyStyles,
-  PickerColumn as PickerColumnData,
+  PickerColumn,
   PickerColumnItemData,
   PickerItemValue,
   PickerPopupProps,
 } from './types';
 
 interface PickerViewProps<TItem extends PickerColumnItemData> {
-  columns: Array<PickerColumnData<TItem>>;
-  empty?: ReactNode;
+  columns: Array<PickerColumn<TItem>>;
+  empty?: React.ReactNode;
   emptyText?: string;
   renderLabel?: PickerPopupProps<TItem>['renderLabel'];
   selectedValue: Array<PickerItemValue<TItem>>;
+  size?: ComponentSize;
   styles: ReturnType<typeof import('./usePickerStyles').usePickerStyles>;
   slotStyles?: PickerBodyStyles;
   hasDisabledFocusedItem?: boolean;
@@ -41,62 +40,46 @@ export function PickerView<TItem extends PickerColumnItemData>({
   onWheelScrollStateChange,
   renderLabel,
   selectedValue,
+  size = 'normal',
   slotStyles,
   styles,
   wheelHeight,
 }: PickerViewProps<TItem>) {
-  const viewStyles = slotStyles?.view;
-  const itemStyle = StyleSheet.flatten(styles.item);
-  const itemHeight = typeof itemStyle?.minHeight === 'number'
-    ? itemStyle.minHeight
-    : 0;
-  const wheelStyles = usePickerWheelStyles({
-    itemHeight,
-    wheelHeight,
-  });
-  const hasUnselectedValue = columns.length > 0 && columns.every((column, columnIndex) =>
-    column.findIndex(item => item.value === selectedValue[columnIndex]) < 0,
+  const { token } = useTheme();
+  const itemHeight = getPickerItemHeight(size, token);
+  const showErrorBand = hasDisabledFocusedItem === true && isWheelScrolling !== true;
+  const bandErrorStyle = styles.indicatorError;
+  const wheelStyles = React.useMemo<WheelGroupStyles>(
+    () => ({
+      band: [
+        showErrorBand ? bandErrorStyle : undefined,
+        slotStyles?.view?.indicator,
+      ],
+      column: slotStyles?.view?.column?.root,
+      item: slotStyles?.view?.column?.item,
+      itemText: slotStyles?.view?.column?.itemText,
+      empty: slotStyles?.empty,
+    }),
+    [bandErrorStyle, showErrorBand, slotStyles],
   );
 
   return (
-    <View style={styles.view}>
-      <View
-        pointerEvents="none"
-        style={[
-          styles.indicator,
-          wheelHeight > 0 ? wheelStyles.indicator : undefined,
-          hasUnselectedValue ? wheelStyles.indicatorUnselected : undefined,
-          hasDisabledFocusedItem && !isWheelScrolling ? styles.indicatorError : undefined,
-          viewStyles?.indicator,
-        ]}
-        testID="picker-indicator"
-      />
-      {columns.map((column, columnIndex) => (
-        column.length === 0 ? (
-          <View
-            key={columnIndex}
-            style={[styles.column, styles.empty, viewStyles?.column?.root, slotStyles?.empty]}
-          >
-            {renderTextNode(empty ?? emptyText, (text) => (
-              <Text>{text}</Text>
-            ))}
-          </View>
-        ) : (
-          <PickerColumn
-            column={column}
-            columnIndex={columnIndex}
-            key={columnIndex}
-            onFocusIndexChange={onFocusIndexChange}
-            onItemPress={onItemPress}
-            onWheelScrollStateChange={onWheelScrollStateChange}
-            renderLabel={renderLabel}
-            selectedValue={selectedValue[columnIndex]}
-            slotStyles={slotStyles?.view?.column}
-            styles={styles}
-            wheelHeight={wheelHeight}
-          />
-        )
-      ))}
-    </View>
+    <WheelGroup
+      columns={columns}
+      empty={empty}
+      emptyText={emptyText}
+      fit="container"
+      height={wheelHeight}
+      itemHeight={itemHeight}
+      onActiveIndexChange={onFocusIndexChange}
+      onChange={(nextValue, params) => {
+        onItemPress?.(params.columnIndex, params.itemIndex);
+      }}
+      onScrollStateChange={onWheelScrollStateChange}
+      renderLabel={renderLabel}
+      styles={wheelStyles}
+      testID="picker"
+      value={selectedValue}
+    />
   );
 }

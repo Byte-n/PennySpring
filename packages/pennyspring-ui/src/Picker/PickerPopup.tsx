@@ -153,6 +153,7 @@ export function PickerPopup<TItem extends PickerColumnItemData>({
         onItemPress={onItemPress}
         onWheelScrollStateChange={onWheelScrollStateChange}
         props={props}
+        size={resolvedSize}
         styles={styles}
       />
     </Popup.FloatingPanel>

@@ -124,7 +124,8 @@ export function Picker<TItem extends PickerColumnItemData = PickerColumnItemData
   styles: externalStyles,
   value,
 }: PickerProps<TItem>) {
-  const tokenStyles = usePickerStyles({ size });
+  const pickerStyleOptions = React.useMemo(() => ({ size }), [size]);
+  const tokenStyles = usePickerStyles(pickerStyleOptions);
   const [resolvedOpen, setResolvedOpen] = useControllableValue(
     defaultOpen === true,
     open,

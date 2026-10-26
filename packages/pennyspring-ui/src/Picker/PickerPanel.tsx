@@ -2,6 +2,7 @@ import React from 'react';
 import { View } from 'react-native';
 import { PickerBody } from './PickerBody';
 import { PickerSafeArea } from './PickerSafeArea';
+import type { ComponentSize } from '../shares/types';
 import type {
   PickerColumn,
   PickerColumnItemData,
@@ -17,6 +18,7 @@ interface PickerPanelProps<TItem extends PickerColumnItemData> {
   hasDisabledFocusedItem?: boolean;
   isWheelScrolling?: boolean;
   props: PickerPopupProps<TItem>;
+  size?: ComponentSize;
   styles: ReturnType<typeof import('./usePickerStyles').usePickerStyles>;
   onFocusIndexChange?: (columnIndex: number, itemIndex: number) => void;
   onItemPress?: (columnIndex: number, itemIndex: number) => void;
@@ -33,6 +35,7 @@ export function PickerPanel<TItem extends PickerColumnItemData>({
   onItemPress,
   onWheelScrollStateChange,
   props,
+  size,
   styles,
 }: PickerPanelProps<TItem>) {
   return (
@@ -52,6 +55,7 @@ export function PickerPanel<TItem extends PickerColumnItemData>({
           onWheelScrollStateChange={onWheelScrollStateChange}
           renderLabel={props.renderLabel}
           selectedValue={draftValue}
+          size={size}
           slotStyles={externalPanelStyles?.body}
           styles={styles}
         />
