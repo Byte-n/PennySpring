@@ -17,9 +17,9 @@ import {
   REIMBURSABLE,
   type RecordTypeCategoryValue,
 } from '@pennyspring/api';
-import { ExpenseTabScreen } from './tabs/ExpenseTabScreen.tsx';
-import { IncomeTabScreen } from './tabs/IncomeTabScreen.tsx';
-import { TransferTabScreen } from './tabs/TransferTabScreen.tsx';
+import { ExpenseTabScreen } from './tabs/ExpenseTabScreen';
+import { IncomeTabScreen } from './tabs/IncomeTabScreen';
+import { TransferTabScreen } from './tabs/TransferTabScreen';
 import { ROOT_ROUTES, type RootStackParamList } from '../../navigation';
 import { useBookStore, useGlobalApi } from '../../stores/bookStore';
 import { TabScreen, TopTabNavigator } from '../../component/TopTabNavigator';
