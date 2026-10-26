@@ -229,12 +229,11 @@ export function IncomeTabScreen() {
           <Card>
             <Row wrap gap={10}>
               <SelectionList
-                labelText="收款资产（可选）"
+                labelText="付款资产（可选）"
                 loading={assetsLoading}
                 onChange={value => setAssetId(toNumberValue(value) ?? null)}
                 options={assetOptions}
                 searchable
-                style={styles.formField}
                 texts={{
                   headerText: '选择收款资产',
                   searchLabelText: '收款资产',
@@ -262,7 +261,6 @@ export function IncomeTabScreen() {
                   labelText="图片"
                   value={images}
                   onChange={setImages}
-                  style={styles.formField}
                 />
               )}
               <SelectionList
@@ -273,7 +271,6 @@ export function IncomeTabScreen() {
                 onChange={value => setTags(toNumberValues(value))}
                 options={tagOptions}
                 searchable
-                style={styles.formField}
                 texts={{
                   headerText: '选择标签',
                   searchLabelText: '标签',
@@ -289,12 +286,9 @@ export function IncomeTabScreen() {
                   labelText="关联支出"
                   loading={recordsLoading}
                   mode="multiple"
-                  onChange={value =>
-                    setRelatedRecordIds(toNumberValues(value))
-                  }
+                  onChange={value => setRelatedRecordIds(toNumberValues(value))}
                   options={relatedExpenseOptions}
                   searchable
-                  style={styles.formField}
                   texts={{
                     headerText: '选择关联支出',
                     searchLabelText: '关联支出',
@@ -308,7 +302,12 @@ export function IncomeTabScreen() {
             </Row>
           </Card>
           <RemarkInput />
-          <Button block loading={submitting} onPress={handleSave} type="primary">
+          <Button
+            block
+            loading={submitting}
+            onPress={handleSave}
+            type="primary"
+          >
             {template ? '保存模板' : '保存收入'}
           </Button>
         </Column>
@@ -321,9 +320,5 @@ const useStyles = createUseSheetStyle(token => ({
   page: {
     backgroundColor: token.colorBgLayout,
     paddingTop: token.paddingMD,
-  },
-  formField: {
-    minWidth: token.controlHeight * 3,
-    flex: 1,
   },
 }));
