@@ -14,6 +14,7 @@ import {
 import { BOOK_TYPE, type BookRow } from '@pennyspring/api';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import { NetworkIcon } from 'phosphor-react-native';
+import '../../utils/prototype';
 import type { BookEntry, CurrentBookRef } from '../../stores/bookStore';
 import type { NetworkBookRef } from '../../stores/networkBookStore';
 
@@ -127,20 +128,12 @@ const useStyles = createUseSheetStyle(token => ({
   },
 }));
 
-const DATE_TIME_FORMAT_OPTIONS: Intl.DateTimeFormatOptions = {
-  year: 'numeric',
-  month: '2-digit',
-  day: '2-digit',
-  hour: '2-digit',
-  minute: '2-digit',
-};
-
 function formatBookTime(time: number): string {
   if (!Number.isFinite(time) || time <= 0) {
     return '未知';
   }
 
-  return new Date(time).toLocaleString('zh-CN', DATE_TIME_FORMAT_OPTIONS);
+  return time.formatDateTime();
 }
 
 function getItemKey(item: BookListItem): string {

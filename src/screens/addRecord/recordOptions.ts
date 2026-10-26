@@ -8,6 +8,7 @@ import {
 } from '@pennyspring/api';
 import type { ListPickerOption } from '@pennyspring/ui';
 
+import '../../utils/prototype';
 import { formatAmount } from './addRecordDraft';
 
 function formatCurrency(cents: number): string {
@@ -16,12 +17,7 @@ function formatCurrency(cents: number): string {
 }
 
 function formatRecordTime(time: number): string {
-  return new Date(time).toLocaleString('zh-CN', {
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+  return time.formatDateBy('MM-DD HH:mm');
 }
 
 export function toAssetOptions(

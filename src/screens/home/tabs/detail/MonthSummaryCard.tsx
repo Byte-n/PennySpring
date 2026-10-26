@@ -44,7 +44,7 @@ export function MonthSummaryCard({ month, summary, dailyExpenses, recordCount, h
   const styles = useStyles();
   const maxExpense = Math.max(...dailyExpenses.map(bar => bar.expense), 1);
   const average = summary.expense / getElapsedMonthDayCount(month) || 0;
-  const monthLabel = month.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long' });
+  const monthLabel = month.formatDateBy('YYYY年M月');
   const bars = useMemo(() => dailyExpenses.slice(0, 26), [dailyExpenses]);
   const expense = formatAmountParts(summary.expense);
   const income = formatAmountParts(summary.income);

@@ -1,5 +1,8 @@
 /* eslint-disable no-extend-native */
 import dayjs from 'dayjs';
+import 'dayjs/locale/zh-cn';
+
+dayjs.locale('zh-cn');
 
 const RELATIVE_LABELS: Record<number, string> = {
   '-1': '（明天）',

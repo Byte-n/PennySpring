@@ -186,7 +186,7 @@ export function DetailTabScreen() {
           style={styles.monthLabel}
           onPress={() => setSelectedMonth(new Date())}
         >
-          {selectedMonth.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long' })}
+          {selectedMonth.formatDateBy('YYYY年M月')}
         </Button>
         <Button type="text" size="small" icon="caret-right" onPress={() => moveMonth(1)} />
         <Button type="text" size="small" style={styles.todayTag} onPress={() => { setSelectedMonth(new Date()); setActiveFilter('all'); }}>今天</Button>

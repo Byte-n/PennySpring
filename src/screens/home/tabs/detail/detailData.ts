@@ -1,4 +1,3 @@
-import dayjs from 'dayjs';
 import {
   RECORD_TYPE_CATEGORY,
   type AssetRow,
@@ -7,6 +6,7 @@ import {
   type TagRow,
   type TypeRow,
 } from '@pennyspring/api';
+import '../../../../utils/prototype';
 
 export type CashflowCategory = RecordTypeCategoryValue;
 
@@ -149,7 +149,7 @@ export function formatSignedAmount(cents: number, category: CashflowCategory): s
 }
 
 export function formatDayTitle(dayStart: number, now: Date = new Date()): string {
-  const base = dayjs(dayStart).format('MM-DD');
+  const base = dayStart.formatDate(false);
   const today = new Date(now);
   today.setHours(0, 0, 0, 0);
   const diffDays = Math.round((today.getTime() - dayStart) / 86400000);
@@ -158,7 +158,7 @@ export function formatDayTitle(dayStart: number, now: Date = new Date()): string
 }
 
 export function formatWeekday(dayStart: number): string {
-  return new Date(dayStart).toLocaleDateString('zh-CN', { weekday: 'short' });
+  return dayStart.formatDateBy('ddd');
 }
 
 export function isSameDay(first: Date, second: Date): boolean {
@@ -205,13 +205,7 @@ export function buildDailyExpenseBars(
 }
 
 export function formatRecordTime(time: number): string {
-  return new Date(time).toLocaleString('zh-CN', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+  return time.formatDateTime();
 }
 
 export type AmountColor = 'success' | 'error' | 'heading';

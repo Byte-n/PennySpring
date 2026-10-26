@@ -30,7 +30,7 @@ export function DayGroupCard({ group, onPressRecord, hidden = false }: DayGroupC
   const title = (
     <Row align="center" gap="small" style={styles.dayHeader}>
       <Text size="md" weight="semibold" color="heading">
-        {new Date(group.dayStart).toLocaleDateString('zh-CN', { month: 'long', day: 'numeric' })}
+        {group.dayStart.formatDateBy('M月D日')}
       </Text>
       <Text size="sm" color="tertiary">{formatWeekday(group.dayStart)}</Text>
       {today ? <Text size="xs" color="primary">今天</Text> : null}
