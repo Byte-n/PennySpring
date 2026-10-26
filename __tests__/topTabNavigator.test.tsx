@@ -4,20 +4,39 @@ import TestRenderer, { act } from 'react-test-renderer';
 import type { MaterialTopTabBarProps } from '@react-navigation/material-top-tabs';
 
 import { HeaderBar } from '../src/component/TopTabNavigator/HeaderBar';
+import { TopTabNavigator } from '../src/component/TopTabNavigator/TopTabNavigator';
 
 let mockMaterialTopTabBarProps: MaterialTopTabBarProps | undefined;
+let mockNavigatorProps: Record<string, unknown> | undefined;
 
 const mockThemeToken = {
   colorPrimary: 'theme-primary',
   colorTextTertiary: 'theme-text-tertiary',
 };
 
-jest.mock('@react-navigation/material-top-tabs', () => ({
-  MaterialTopTabBar: (props: MaterialTopTabBarProps) => {
-    mockMaterialTopTabBarProps = props;
-    return null;
-  },
+jest.mock('@react-navigation/native', () => ({
+  useNavigationState: (selector: (state: { index: number }) => unknown) =>
+    selector({ index: 0 }),
 }));
+
+jest.mock('@react-navigation/material-top-tabs', () => {
+  const ReactModule = require('react');
+
+  return {
+    MaterialTopTabBar: (props: MaterialTopTabBarProps) => {
+      mockMaterialTopTabBarProps = props;
+      return null;
+    },
+    createMaterialTopTabNavigator: () => ({
+      Navigator: (props: { children?: unknown }) => {
+        const { children, ...rest } = props;
+        mockNavigatorProps = rest;
+        return ReactModule.createElement(ReactModule.Fragment, null, children);
+      },
+      Screen: () => null,
+    }),
+  };
+});
 
 jest.mock('@pennyspring/theme', () => ({
   createUseSheetStyle: () => () => ({
@@ -89,5 +108,32 @@ describe('HeaderBar', () => {
         },
       },
     });
+  });
+});
+
+describe('TopTabNavigator', () => {
+  const screens = [
+    { component: () => null, labelText: '支出', name: 'ExpenseTab' },
+    { component: () => null, labelText: '收入', name: 'IncomeTab' },
+  ];
+
+  beforeEach(() => {
+    mockNavigatorProps = undefined;
+  });
+
+  it('passes backBehavior through when a screen overrides the default', () => {
+    act(() => {
+      TestRenderer.create(<TopTabNavigator backBehavior="history" screens={screens} />);
+    });
+
+    expect(mockNavigatorProps?.backBehavior).toBe('history');
+  });
+
+  it('defaults backBehavior to none so the back action bubbles to the parent navigator', () => {
+    act(() => {
+      TestRenderer.create(<TopTabNavigator screens={screens} />);
+    });
+
+    expect(mockNavigatorProps?.backBehavior).toBe('none');
   });
 });

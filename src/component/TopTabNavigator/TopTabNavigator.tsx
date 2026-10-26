@@ -29,6 +29,7 @@ function renderHeaderBar(
  * 自定义的 Tab.Navigator 组件，依旧需要在全局的 NavigationContainer 下使用
  */
 export function TopTabNavigator({
+  backBehavior = 'none',
   initialRouteName,
   leftActions,
   rightActions,
@@ -55,6 +56,7 @@ export function TopTabNavigator({
 
   return (
     <Tab.Navigator
+      backBehavior={backBehavior}
       initialRouteName={initialRouteName}
       screenOptions={{
         lazy: true,
