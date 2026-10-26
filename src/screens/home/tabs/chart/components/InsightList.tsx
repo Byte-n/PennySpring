@@ -1,5 +1,5 @@
 import React from 'react';
-import { Column, Row, Text } from '@pennyspring/ui';
+import { Column, List, Row, Text } from '@pennyspring/ui';
 import { createUseSheetStyle } from '@pennyspring/theme';
 
 import { formatMoney, formatSignedPercent } from '../analysisData';
@@ -123,14 +123,17 @@ export function InsightList({ insights, period }: InsightListProps) {
   const month = new Date(period.start).getMonth() + 1;
 
   return (
-    <Column style={styles.list}>
-      {insights.map((insight, index) => (
+    <List
+      data={insights}
+      keyExtractor={(insight, index) => `${insight.kind}-${index}`}
+      scrollEnabled={false}
+      contentContainerStyle={styles.list}
+      renderItem={({ item: insight }) => (
         <InsightRow
-          key={`${insight.kind}-${index}`}
           insight={insight}
           month={month}
         />
-      ))}
-    </Column>
+      )}
+    />
   );
 }

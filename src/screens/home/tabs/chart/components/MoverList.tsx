@@ -1,5 +1,5 @@
 import React from 'react';
-import { Column, Row, Text } from '@pennyspring/ui';
+import { Column, List, Row, Text } from '@pennyspring/ui';
 import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
 
 import { formatPercent, formatSignedMoney } from '../analysisData';
@@ -74,14 +74,18 @@ export function MoverList({ movers }: MoverListProps) {
   );
 
   return (
-    <Column style={styles.list}>
-      {movers.map(mover => {
+    <List
+      data={movers}
+      keyExtractor={mover => mover.key}
+      scrollEnabled={false}
+      contentContainerStyle={styles.list}
+      renderItem={({ item: mover }) => {
         const isUp = mover.delta > 0;
         const ratio = Math.abs(mover.delta) / maxAbs;
         const percentText =
           mover.percent === null ? '新增' : formatPercent(mover.percent);
         return (
-          <Column key={mover.key} style={styles.row}>
+          <Column style={styles.row}>
             <Row align="center" justify="between">
               <Row align="center" gap="small">
                 <Text size="sm">{mover.name}</Text>
@@ -114,7 +118,7 @@ export function MoverList({ movers }: MoverListProps) {
             </Row>
           </Column>
         );
-      })}
-    </Column>
+      }}
+    />
   );
 }

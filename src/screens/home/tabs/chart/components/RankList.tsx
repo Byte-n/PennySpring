@@ -1,6 +1,6 @@
 import React from 'react';
 import { Pressable } from 'react-native';
-import { Column, Icon, Row, Text } from '@pennyspring/ui';
+import { Column, Icon, List, Row, Text } from '@pennyspring/ui';
 import { createUseSheetStyle } from '@pennyspring/theme';
 
 import {
@@ -39,6 +39,11 @@ const useStyles = createUseSheetStyle(token => ({
     borderTopWidth: token.lineWidth,
     borderTopColor: token.colorSplit,
     paddingHorizontal: token.paddingXXS,
+  },
+  listHeader: {
+    paddingHorizontal: 0,
+    paddingVertical: 0,
+    borderBottomWidth: 0,
   },
   rowFirst: {
     borderTopWidth: 0,
@@ -98,8 +103,11 @@ export function RankList({
   const styles = useStyles();
 
   return (
-    <Column>
-      {showHeader ? (
+    <List
+      data={items}
+      keyExtractor={item => item.key}
+      scrollEnabled={false}
+      header={showHeader ? (
         <Row style={styles.header}>
           <Column style={styles.headerDot} />
           <Column style={styles.headerName}>
@@ -126,8 +134,9 @@ export function RankList({
           </Column>
           <Column style={styles.chevron} />
         </Row>
-      ) : null}
-      {items.map((item, index) => {
+      ) : undefined}
+      styles={{ header: styles.listHeader }}
+      renderItem={({ item, index }) => {
         const deltaColor =
           item.delta === null
             ? 'tertiary'
@@ -186,7 +195,7 @@ export function RankList({
             </Column>
           </Pressable>
         );
-      })}
-    </Column>
+      }}
+    />
   );
 }

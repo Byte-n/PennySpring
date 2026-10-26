@@ -1,5 +1,5 @@
 import React from 'react';
-import { Column, Row, Text } from '@pennyspring/ui';
+import { Column, List, Row, Text } from '@pennyspring/ui';
 import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
 
 import { getPhosphorIconComponent } from '../../../../../constants/typeIconTree';
@@ -23,8 +23,8 @@ const useStyles = createUseSheetStyle(token => ({
     alignItems: 'center',
   },
   date: {
-    width: token.sizeXL,
-    alignItems: 'center',
+    width: token.sizeXXL,
+    alignItems: 'flex-start',
   },
   iconBox: {
     width: ICON_BOX_SIZE,
@@ -48,16 +48,20 @@ export function TopExpenseList({ items }: TopExpenseListProps) {
   const { token } = useTheme();
 
   return (
-    <Column style={styles.list}>
-      {items.map(item => {
+    <List
+      data={items}
+      keyExtractor={item => String(item.record.id)}
+      scrollEnabled={false}
+      contentContainerStyle={styles.list}
+      renderItem={({ item }) => {
         const date = new Date(item.record.recordTime);
         const IconComponent = item.typeIcon
           ? getPhosphorIconComponent(item.typeIcon)
           : null;
         return (
-          <Row key={item.record.id} style={styles.row}>
+          <Row style={styles.row}>
             <Column style={styles.date}>
-              <Text size="xs" weight="medium" color="secondary">
+              <Text size="xs" weight="medium" color="secondary" numberOfLines={1}>
                 {`${date.getMonth() + 1}/${date.getDate()}`}
               </Text>
               <Text size="xs" color="tertiary">
@@ -86,7 +90,7 @@ export function TopExpenseList({ items }: TopExpenseListProps) {
             </Column>
           </Row>
         );
-      })}
-    </Column>
+      }}
+    />
   );
 }
