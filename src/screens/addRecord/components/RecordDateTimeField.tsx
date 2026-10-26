@@ -14,6 +14,7 @@ export function RecordDateTimeField({
     <DateTimePicker
       labelText="记账时间"
       precision="minute"
+      layout="calendar"
       titleText="选择记账时间"
       value={new Date(value)}
       onOk={date => onChange(date.getTime())}

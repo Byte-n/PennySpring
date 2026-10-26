@@ -634,6 +634,7 @@ export function AssetManageScreen() {
             />
             <DateTimePicker
               precision="day"
+              layout="calendar"
               value={dayToPickerDate(billingDate)}
               titleText="选择账单日"
               onOk={(_v, params) => setBillingDate(params.day)}
@@ -647,6 +648,7 @@ export function AssetManageScreen() {
             </DateTimePicker>
             <DateTimePicker
               precision="day"
+              layout="calendar"
               value={dayToPickerDate(repaymentDate)}
               titleText="选择还款日"
               onOk={(_v, params) => setRepaymentDate(params.day)}
