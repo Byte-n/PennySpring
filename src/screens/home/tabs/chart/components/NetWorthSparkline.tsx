@@ -4,7 +4,7 @@ import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
 
 import type { NetWorthPoint } from '../analysisData';
 import { useMeasuredWidth } from './useMeasuredWidth';
-import { EChartView } from './EChartView';
+import { EChartView } from '../../../../../component/EChartView';
 
 const VIEW_WIDTH = 311;
 const VIEW_HEIGHT = 64;

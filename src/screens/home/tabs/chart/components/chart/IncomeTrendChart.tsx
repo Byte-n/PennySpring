@@ -2,7 +2,7 @@ import React from 'react';
 import { View } from 'react-native';
 import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
 import type { EChartsOption } from 'echarts';
-import { EChartView } from '../EChartView';
+import { EChartView } from '../../../../../../component/EChartView';
 
 import { formatAxisMoney } from '../../analysisData';
 import type { MonthlyCashflow } from '../../analysisData';

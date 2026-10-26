@@ -4,7 +4,7 @@ import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
 import type { EChartsOption } from 'echarts';
 
 import { formatAxisMoney, formatMoney } from '../../analysisData';
-import { EChartView } from '../EChartView';
+import { EChartView } from '../../../../../../component/EChartView';
 import { useMeasuredWidth } from '../useMeasuredWidth';
 
 const CHART_HEIGHT = 168;
