@@ -46,6 +46,7 @@ import { dialogDemos } from './navigation/dialog/demos';
 import { drawerDemos } from './navigation/drawer/demos';
 import { floatingActionGroupDemos } from './navigation/floating-action-group/demos';
 import { indexBarDemos } from './navigation/index-bar/demos';
+import { popoverDemos } from './navigation/popover/demos';
 import { popupDemos } from './navigation/popup/demos';
 import { portalDemos } from './navigation/portal/demos';
 import { sideBarDemos } from './navigation/side-bar/demos';
@@ -98,6 +99,7 @@ import { DialogPreview } from './navigation/dialog';
 import { DrawerPreview } from './navigation/drawer';
 import { FloatingActionGroupPreview } from './navigation/floating-action-group';
 import { IndexBarPreview } from './navigation/index-bar';
+import { PopoverPreview } from './navigation/popover';
 import { PopupPreview } from './navigation/popup';
 import { PortalPreview } from './navigation/portal';
 import { SideBarPreview } from './navigation/side-bar';
@@ -212,6 +214,7 @@ const DEMO_PREVIEW_ITEMS = [
     floatingActionGroupDemos,
   ),
   ...createDemoPreviewItems('index-bar', 'IndexBar', indexBarDemos),
+  ...createDemoPreviewItems('popover', 'Popover', popoverDemos),
   ...createDemoPreviewItems('popup', 'Popup', popupDemos),
   ...createDemoPreviewItems('portal', 'Portal', portalDemos),
   ...createDemoPreviewItems('side-bar', 'SideBar', sideBarDemos),
@@ -561,6 +564,12 @@ export const COMPONENT_PREVIEW_SECTIONS = [
         description:
           '悬浮按钮组：任意定位、更多展开、三种展开方向与 mountPoint。',
         component: FloatingActionGroupPreview,
+      },
+      {
+        id: 'popover',
+        title: 'Popover',
+        description: '锚定触发元素的轻量浮层、触发方式与自动翻转。',
+        component: PopoverPreview,
       },
       {
         id: 'popup',

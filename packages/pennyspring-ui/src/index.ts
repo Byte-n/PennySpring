@@ -281,6 +281,17 @@ export type {
   PopupProps,
   PopupStyles,
 } from './Popup';
+export { Popover } from './Popover';
+export type {
+  PopoverAlign,
+  PopoverCancelParams,
+  PopoverOpenChangeParams,
+  PopoverOpenChangeReason,
+  PopoverPlacement,
+  PopoverProps,
+  PopoverStyles,
+  PopoverTrigger,
+} from './Popover';
 export { Progress, ProgressBar, ProgressCircle } from './Progress';
 export type {
   ProgressBarProps,

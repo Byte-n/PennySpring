@@ -91,6 +91,7 @@ const sidebars = {
             'components/navigation/drawer',
             'components/navigation/floating-action-group',
             'components/navigation/index-bar',
+            'components/navigation/popover',
             'components/navigation/popup',
             'components/navigation/portal',
             'components/navigation/side-bar',
