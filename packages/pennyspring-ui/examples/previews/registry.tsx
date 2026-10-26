@@ -1,6 +1,6 @@
 import { ThemePreview } from '@pennyspring/theme';
 import { calculatorInputDemos } from './data-entry/calculator-input/demos';
-import { calendarDemos } from './data-entry/calendar/demos';
+import { calendarPickerDemos } from './data-entry/calendar-picker/demos';
 import { cascadePickerDemos } from './data-entry/cascade-picker/demos';
 import { cascaderDemos } from './data-entry/cascader/demos';
 import { checkboxDemos } from './data-entry/checkbox/demos';
@@ -16,7 +16,7 @@ import { sliderDemos } from './data-entry/slider/demos';
 import { stepperDemos } from './data-entry/stepper/demos';
 import { switchDemos } from './data-entry/switch/demos';
 import { textareaDemos } from './data-entry/textarea/demos';
-import { timePickerDemos } from './data-entry/time-picker/demos';
+import { wheelGroupDemos } from './data-entry/wheel-group/demos';
 import { cardDemos } from './display/card/demos';
 import { carouselDemos } from './display/carousel/demos';
 import { dataListDemos } from './display/data-list/demos';
@@ -53,7 +53,7 @@ import { portalDemos } from './navigation/portal/demos';
 import { sideBarDemos } from './navigation/side-bar/demos';
 import { stepsDemos } from './navigation/steps/demos';
 import { tabBarDemos } from './navigation/tab-bar/demos';
-import { CalendarPreview } from './data-entry/calendar';
+import { CalendarPickerPreview } from './data-entry/calendar-picker';
 import { CalculatorInputPreview } from './data-entry/calculator-input';
 import { CascaderPreview } from './data-entry/cascader';
 import { CascadePickerPreview } from './data-entry/cascade-picker';
@@ -70,7 +70,7 @@ import { SliderPreview } from './data-entry/slider';
 import { StepperPreview } from './data-entry/stepper';
 import { SwitchPreview } from './data-entry/switch';
 import { TextareaPreview } from './data-entry/textarea';
-import { TimePickerPreview } from './data-entry/time-picker';
+import { WheelGroupPreview } from './data-entry/wheel-group';
 import { CardPreview } from './display/card';
 import { CarouselPreview } from './display/carousel';
 import { DataListPreview } from './display/data-list';
@@ -154,7 +154,11 @@ const DEMO_PREVIEW_ITEMS = [
     'CalculatorInput',
     calculatorInputDemos,
   ),
-  ...createDemoPreviewItems('calendar', 'Calendar', calendarDemos),
+  ...createDemoPreviewItems(
+    'calendar-picker',
+    'CalendarPicker',
+    calendarPickerDemos,
+  ),
   ...createDemoPreviewItems(
     'cascade-picker',
     'CascadePicker',
@@ -182,7 +186,7 @@ const DEMO_PREVIEW_ITEMS = [
   ...createDemoPreviewItems('stepper', 'Stepper', stepperDemos),
   ...createDemoPreviewItems('switch', 'Switch', switchDemos),
   ...createDemoPreviewItems('textarea', 'Textarea', textareaDemos),
-  ...createDemoPreviewItems('time-picker', 'TimePicker', timePickerDemos),
+  ...createDemoPreviewItems('wheel-group', 'WheelGroup', wheelGroupDemos),
   ...createDemoPreviewItems('card', 'Card', cardDemos),
   ...createDemoPreviewItems('carousel', 'Carousel', carouselDemos),
   ...createDemoPreviewItems('data-list', 'DataList', dataListDemos),
@@ -388,10 +392,10 @@ export const COMPONENT_PREVIEW_SECTIONS = [
         component: SelectionListPreview,
       },
       {
-        id: 'calendar',
-        title: 'Calendar',
-        description: '日期、月份、年份和范围选择。',
-        component: CalendarPreview,
+        id: 'calendar-picker',
+        title: 'CalendarPicker',
+        description: '日历面板、输入型选择与范围选择。',
+        component: CalendarPickerPreview,
       },
       {
         id: 'picker',
@@ -414,14 +418,14 @@ export const COMPONENT_PREVIEW_SECTIONS = [
       {
         id: 'date-time-picker',
         title: 'DateTimePicker',
-        description: '日期时间精度、范围和默认打开。',
+        description: '日期时间、仅日期与仅时间预设、滚轮与日历布局。',
         component: DateTimePickerPreview,
       },
       {
-        id: 'time-picker',
-        title: 'TimePicker',
-        description: '时间精度、步长、范围和默认打开。',
-        component: TimePickerPreview,
+        id: 'wheel-group',
+        title: 'WheelGroup',
+        description: '滚轮组内核、容器高度自适应与禁用态。',
+        component: WheelGroupPreview,
       },
     ],
   },

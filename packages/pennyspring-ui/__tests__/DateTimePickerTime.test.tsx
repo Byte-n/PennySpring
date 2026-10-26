@@ -43,10 +43,9 @@ jest.mock('react-native-reanimated', () => {
 });
 
 import {
+  DateTimePicker,
   Text,
-  TimePicker,
 } from '../src';
-import type { TimePickerStyles } from '../src';
 
 function makeDate(hours: number, minutes: number, seconds = 0): Date {
   return new Date(2026, 4, 9, hours, minutes, seconds, 0);
@@ -57,19 +56,19 @@ it('builds hour and minute columns by default precision', () => {
 
   act(() => {
     testRenderer = renderer.create(
-      <TimePicker defaultOpen value={makeDate(10, 30)} />,
+      <DateTimePicker.Time defaultOpen value={makeDate(10, 30)} />,
     );
   });
 
-  // Hour column: 0..23 → 24 items
+  // 小时列：0..23 → 24 项
   expect(testRenderer!.root.findByProps({ testID: 'picker-item-0-0' }).props)
     .toBeTruthy();
   expect(testRenderer!.root.findByProps({ testID: 'picker-item-0-23' }).props)
     .toBeTruthy();
-  // Minute column: 0..59 → 60 items
+  // 分钟列：0..59 → 60 项
   expect(testRenderer!.root.findByProps({ testID: 'picker-item-1-59' }).props)
     .toBeTruthy();
-  // No second column at default precision
+  // 默认精度下没有秒列
   expect(testRenderer!.root.findAllByProps({ testID: 'picker-item-2-0' }))
     .toHaveLength(0);
 });
@@ -79,7 +78,7 @@ it('includes second column when precision is second', () => {
 
   act(() => {
     testRenderer = renderer.create(
-      <TimePicker defaultOpen precision="second" value={makeDate(9, 15, 20)} />,
+      <DateTimePicker.Time defaultOpen precision="second" value={makeDate(9, 15, 20)} />,
     );
   });
 
@@ -92,7 +91,7 @@ it('renders only hour column when precision is hour', () => {
 
   act(() => {
     testRenderer = renderer.create(
-      <TimePicker defaultOpen precision="hour" value={makeDate(9, 15)} />,
+      <DateTimePicker.Time defaultOpen precision="hour" value={makeDate(9, 15)} />,
     );
   });
 
@@ -107,7 +106,7 @@ it('selects hour 10 and minute 30 from value prop', () => {
 
   act(() => {
     testRenderer = renderer.create(
-      <TimePicker defaultOpen value={makeDate(10, 30)} />,
+      <DateTimePicker.Time defaultOpen value={makeDate(10, 30)} />,
     );
   });
 
@@ -124,7 +123,7 @@ it('shows selected time in display input trigger', () => {
 
   act(() => {
     testRenderer = renderer.create(
-      <TimePicker value={makeDate(10, 30)} />,
+      <DateTimePicker.Time value={makeDate(10, 30)} />,
     );
   });
 
@@ -138,7 +137,7 @@ it('uses formatLabel to override column label text', () => {
 
   act(() => {
     testRenderer = renderer.create(
-      <TimePicker
+      <DateTimePicker.Time
         defaultOpen
         value={makeDate(10, 30)}
         formatLabel={(value, params) => {
@@ -161,7 +160,7 @@ it('uses renderLabel to render custom nodes', () => {
 
   act(() => {
     testRenderer = renderer.create(
-      <TimePicker
+      <DateTimePicker.Time
         defaultOpen
         value={makeDate(10, 30)}
         renderLabel={params => <Text>{`custom-${params.type}-${params.value}`}</Text>}
@@ -180,7 +179,7 @@ it('translates picker change into Date in onChange', () => {
 
   act(() => {
     testRenderer = renderer.create(
-      <TimePicker
+      <DateTimePicker.Time
         defaultOpen
         value={makeDate(10, 30)}
         onChange={onChange}
@@ -208,7 +207,7 @@ it('translates picker ok into Date in onOk', () => {
 
   act(() => {
     testRenderer = renderer.create(
-      <TimePicker
+      <DateTimePicker.Time
         defaultOpen
         defaultValue={makeDate(10, 30)}
         onOk={onOk}
@@ -237,7 +236,7 @@ it('passes through onCancel and onOpenChange', () => {
 
   act(() => {
     testRenderer = renderer.create(
-      <TimePicker
+      <DateTimePicker.Time
         defaultOpen
         value={makeDate(10, 30)}
         onCancel={onCancel}
@@ -259,7 +258,7 @@ it('disables options outside of min/max range', () => {
 
   act(() => {
     testRenderer = renderer.create(
-      <TimePicker
+      <DateTimePicker.Time
         defaultOpen
         precision="hour"
         value={makeDate(12, 0)}
@@ -287,7 +286,7 @@ it('preserves year/month/day from base date on selection', () => {
 
   act(() => {
     testRenderer = renderer.create(
-      <TimePicker defaultOpen defaultValue={base} onOk={onOk} />,
+      <DateTimePicker.Time defaultOpen defaultValue={base} onOk={onOk} />,
     );
   });
 
@@ -311,7 +310,7 @@ describe('placeholder behavior', () => {
 
     act(() => {
       testRenderer = renderer.create(
-        <TimePicker defaultValue={makeDate(10, 30)} labelText="请选择时间" />,
+        <DateTimePicker.Time defaultValue={makeDate(10, 30)} labelText="请选择时间" />,
       );
     });
 
@@ -327,7 +326,7 @@ describe('readonly behavior', () => {
 
     act(() => {
       testRenderer = renderer.create(
-        <TimePicker readonly onOpenChange={onOpenChange} />,
+        <DateTimePicker.Time readonly onOpenChange={onOpenChange} />,
       );
     });
 
@@ -337,14 +336,5 @@ describe('readonly behavior', () => {
     });
 
     expect(onOpenChange).not.toHaveBeenCalled();
-  });
-});
-
-describe('TimePickerStyles type', () => {
-  it('TimePickerStyles type is importable', () => {
-    const styles: TimePickerStyles = {
-      trigger: {},
-    };
-    expect(styles).toBeDefined();
   });
 });

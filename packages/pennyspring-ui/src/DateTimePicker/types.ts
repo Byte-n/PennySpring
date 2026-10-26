@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
-import type { StyleProp, ViewStyle } from 'react-native';
+import type { StyleProp, TextStyle, ViewStyle } from 'react-native';
+import type { CalendarPickerViewStyles } from '../CalendarPicker/types';
 import type {
   PickerCancelParams,
   PickerDisplayInputProps,
@@ -10,6 +11,11 @@ import type {
 } from '../Picker';
 import type { ComponentSize } from '../shares/types';
 
+export type DateTimePickerLayout = 'wheel' | 'calendar';
+
+/** 选择器处理的时间段：日期时间、仅日期、仅时间。 */
+export type DateTimePickerParts = 'datetime' | 'date' | 'time';
+
 export type DateTimePickerPrecision =
   | 'year'
   | 'month'
@@ -17,6 +23,10 @@ export type DateTimePickerPrecision =
   | 'hour'
   | 'minute'
   | 'second';
+
+export type DateTimePickerDatePrecision = 'year' | 'month' | 'day';
+
+export type DateTimePickerTimePrecision = 'hour' | 'minute' | 'second';
 
 export type DateTimePickerColumnType =
   | 'year'
@@ -42,8 +52,14 @@ export interface DateTimePickerValueParams {
   seconds: number;
 }
 
+export interface DateTimePickerMark {
+  date: Date;
+  content?: ReactNode;
+}
+
 export interface DateTimePickerProps {
   size?: ComponentSize;
+  layout?: DateTimePickerLayout;
   open?: boolean;
   defaultOpen?: boolean;
   onOpenChange?: (open: boolean, params: PickerOpenChangeParams) => void;
@@ -57,6 +73,8 @@ export interface DateTimePickerProps {
   precision?: DateTimePickerPrecision;
   min?: Date;
   max?: Date;
+  disabledDate?: (date: Date) => boolean;
+  marks?: DateTimePickerMark[];
   minuteStep?: number;
   secondStep?: number;
   formatLabel?: (value: number, params: DateTimePickerLabelParams) => string;
@@ -84,9 +102,35 @@ export interface DateTimePickerProps {
   styles?: DateTimePickerStyles;
 }
 
+/** 仅日期预设：屏蔽时间步长等时间专属配置。 */
+export interface DateTimePickerDateProps
+  extends Omit<
+    DateTimePickerProps,
+    'precision' | 'minuteStep' | 'secondStep'
+  > {
+  precision?: DateTimePickerDatePrecision;
+}
+
+/** 仅时间预设：强制滚轮布局，故屏蔽布局、日期标记与日期禁用谓词。 */
+export interface DateTimePickerTimeProps
+  extends Omit<
+    DateTimePickerProps,
+    'precision' | 'layout' | 'marks' | 'disabledDate'
+  > {
+  precision?: DateTimePickerTimePrecision;
+}
+
+export interface DateTimePickerEntryStyles {
+  row?: StyleProp<ViewStyle>;
+  label?: StyleProp<TextStyle>;
+  value?: StyleProp<TextStyle>;
+}
+
 export interface DateTimePickerStyles {
   trigger?: StyleProp<ViewStyle>;
   input?: PickerInputStyles;
   popup?: PickerPopupStyles;
   panel?: PickerPanelStyles;
+  calendar?: CalendarPickerViewStyles;
+  entry?: DateTimePickerEntryStyles;
 }

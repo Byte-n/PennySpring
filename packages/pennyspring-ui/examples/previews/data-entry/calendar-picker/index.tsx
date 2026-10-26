@@ -1,11 +1,11 @@
 import React from 'react';
 import { PreviewScaffold, PreviewSection } from '../../PreviewScaffold';
-import { timePickerDemos } from './demos';
+import { calendarPickerDemos } from './demos';
 
-export function TimePickerPreview() {
+export function CalendarPickerPreview() {
   return (
     <PreviewScaffold>
-      {timePickerDemos.map(({ title, Component }) => (
+      {calendarPickerDemos.map(({ title, Component }) => (
         <PreviewSection key={title} title={title}>
           <Component />
         </PreviewSection>
@@ -14,4 +14,4 @@ export function TimePickerPreview() {
   );
 }
 
-export default TimePickerPreview;
+export default CalendarPickerPreview;

@@ -1,23 +1,25 @@
 import React from 'react';
 import renderer, { act } from 'react-test-renderer';
-import { Calendar } from '../src/Calendar';
+import { CalendarPickerView } from '../src';
 import { Text } from '../src/Text';
 
-function renderCalendar(props: React.ComponentProps<typeof Calendar>) {
+function renderCalendarPickerView(props: React.ComponentProps<typeof CalendarPickerView>) {
   let testRenderer: renderer.ReactTestRenderer;
 
   act(() => {
-    testRenderer = renderer.create(<><Calendar {...props} /></>);
+    testRenderer = renderer.create(<><CalendarPickerView {...props} /></>);
   });
 
   return testRenderer!;
 }
 
-function renderCalendarRange(props: React.ComponentProps<typeof Calendar.Range>) {
+function renderCalendarPickerViewRange(
+  props: React.ComponentProps<typeof CalendarPickerView.Range>,
+) {
   let testRenderer: renderer.ReactTestRenderer;
 
   act(() => {
-    testRenderer = renderer.create(<><Calendar.Range {...props} /></>);
+    testRenderer = renderer.create(<><CalendarPickerView.Range {...props} /></>);
   });
 
   return testRenderer!;
@@ -35,11 +37,11 @@ function pressByTestID(testRenderer: renderer.ReactTestRenderer, testID: string)
   });
 }
 
-describe('Calendar', () => {
+describe('CalendarPickerView', () => {
   it('selects uncontrolled date values and renders marks', () => {
     // Arrange
     const onChange = jest.fn();
-    const testRenderer = renderCalendar({
+    const testRenderer = renderCalendarPickerView({
       defaultValue: '2026-05-01',
       marks: [{
         date: '2026-05-07',
@@ -60,7 +62,7 @@ describe('Calendar', () => {
   it('keeps controlled month display while reporting changes', () => {
     // Arrange
     const onChange = jest.fn();
-    const testRenderer = renderCalendar({
+    const testRenderer = renderCalendarPickerView({
       mode: 'month',
       onChange,
       value: '2026-05'
@@ -77,7 +79,7 @@ describe('Calendar', () => {
   it('blocks disabled dates', () => {
     // Arrange
     const onChange = jest.fn();
-    const testRenderer = renderCalendar({
+    const testRenderer = renderCalendarPickerView({
       defaultValue: '2026-05-01',
       disabledDate: value => value === '2026-05-07',
       onChange
@@ -98,7 +100,7 @@ describe('Calendar', () => {
     // Arrange
     const onChange = jest.fn();
     const onOk = jest.fn();
-    const testRenderer = renderCalendar({
+    const testRenderer = renderCalendarPickerView({
       defaultValue: '2026-05-01',
       onChange,
       onOk,
@@ -117,7 +119,7 @@ describe('Calendar', () => {
   it('normalizes range values after complete selection', () => {
     // Arrange
     const onChange = jest.fn();
-    const testRenderer = renderCalendarRange({
+    const testRenderer = renderCalendarPickerViewRange({
       mode: 'month',
       onChange,
       value: ['2026-05', '2026-05']
@@ -133,7 +135,7 @@ describe('Calendar', () => {
 
   it('exposes cell as pressable and navigation buttons', () => {
     // Arrange
-    const testRenderer = renderCalendar({
+    const testRenderer = renderCalendarPickerView({
       value: '2026-05-07'
     });
 
@@ -150,7 +152,7 @@ describe('Calendar', () => {
     // Arrange
     jest.useFakeTimers().setSystemTime(new Date('2026-05-15T00:00:00.000Z'));
     const onChange = jest.fn();
-    const testRenderer = renderCalendarRange({
+    const testRenderer = renderCalendarPickerViewRange({
       onChange,
       showToday: true,
       disabledDate: value => value === '2026-05-15'
@@ -172,7 +174,7 @@ describe('Calendar', () => {
     // Arrange
     const onCancel = jest.fn();
     const onOk = jest.fn();
-    const testRenderer = renderCalendar({
+    const testRenderer = renderCalendarPickerView({
       defaultValue: '2026-05-01',
       disabled: true,
       showToday: true,
@@ -197,7 +199,7 @@ describe('Calendar', () => {
 
   it('uses text color props for title week and date labels', () => {
     // Arrange
-    const testRenderer = renderCalendar({ defaultValue: '2026-05-07' });
+    const testRenderer = renderCalendarPickerView({ defaultValue: '2026-05-07' });
 
     // Act
     const textNodes = testRenderer.root.findAllByType(Text);
@@ -210,7 +212,7 @@ describe('Calendar', () => {
 
   it('uses token-driven hitSlop instead of hardcoded value for footer actions', () => {
     // Arrange
-    const testRenderer = renderCalendar({
+    const testRenderer = renderCalendarPickerView({
       defaultValue: '2026-05-07',
       showToday: true,
       showConfirm: true,
@@ -226,9 +228,9 @@ describe('Calendar', () => {
 
   it('uses semantic flex basis values for calendar cells', () => {
     // Arrange
-    const dateRenderer = renderCalendar({ defaultValue: '2026-05-07' });
-    const monthRenderer = renderCalendar({ mode: 'month', defaultValue: '2026-05' });
-    const yearRenderer = renderCalendar({ mode: 'year', defaultValue: '2026' });
+    const dateRenderer = renderCalendarPickerView({ defaultValue: '2026-05-07' });
+    const monthRenderer = renderCalendarPickerView({ mode: 'month', defaultValue: '2026-05' });
+    const yearRenderer = renderCalendarPickerView({ mode: 'year', defaultValue: '2026' });
 
     // Act
     const dateCell = dateRenderer.root.findByProps({ testID: 'calendar-cell-2026-05-07' });
@@ -241,5 +243,39 @@ describe('Calendar', () => {
     expect(JSON.stringify(yearCell.props.style)).toContain('flexBasis');
     expect(JSON.stringify(dateCell.props.style)).not.toContain('14.2857%');
     expect(JSON.stringify(monthCell.props.style)).not.toContain('33.3333%');
+  });
+
+  it('renders a readable month title', () => {
+    // Arrange
+    const testRenderer = renderCalendarPickerView({ defaultValue: '2026-05-07' });
+
+    // Assert
+    expect(textOf(testRenderer)).toContain('2026 年 5 月');
+  });
+
+  it('hides the selected value text when showValue is false', () => {
+    // Arrange
+    const testRenderer = renderCalendarPickerView({
+      defaultValue: '2026-05-07',
+      showValue: false,
+    });
+
+    // Assert
+    expect(
+      testRenderer.root.findAllByProps({ testID: 'calendar-value-text' }),
+    ).toHaveLength(0);
+  });
+
+  it('renders a default mark dot when mark content is omitted', () => {
+    // Arrange
+    const testRenderer = renderCalendarPickerView({
+      defaultValue: '2026-05-01',
+      marks: [{ date: '2026-05-12' }],
+    });
+
+    // Assert
+    expect(
+      testRenderer.root.findByProps({ testID: 'calendar-mark-2026-05-12' }),
+    ).toBeTruthy();
   });
 });

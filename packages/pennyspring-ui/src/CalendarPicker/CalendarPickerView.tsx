@@ -2,23 +2,26 @@ import React, { useState } from 'react';
 import { Pressable, View } from 'react-native';
 import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
 import { Icon } from '../Icon';
+import { Column } from '../Column';
+import { Row } from '../Row';
 import { Text } from '../Text';
 import { useControllableValue } from '../_hooks';
 import type { ReactNode } from 'react';
 import type { AliasToken } from '@pennyspring/theme';
 import type {
-  CalendarFormat,
-  CalendarMode,
-  CalendarProps,
-  CalendarRangeProps,
-  CalendarRangeValue,
-  CalendarSize,
-  CalendarValue,
+  CalendarPickerViewFormat,
+  CalendarPickerViewMode,
+  CalendarPickerViewProps,
+  CalendarPickerViewRangeProps,
+  CalendarPickerViewRangeValue,
+  CalendarPickerViewSize,
+  CalendarPickerViewStyles,
+  CalendarPickerViewValue,
 } from './types';
-import type { ComponentSize } from '../shares/types.ts';
+import type { ComponentSize } from '../shares/types';
 
-const DEFAULT_SIZE: CalendarSize = 'normal';
-const DEFAULT_MODE: CalendarMode = 'date';
+const DEFAULT_SIZE: CalendarPickerViewSize = 'normal';
+const DEFAULT_MODE: CalendarPickerViewMode = 'date';
 const DEFAULT_TODAY_TEXT = '今天';
 const DEFAULT_CANCEL_TEXT = '取消';
 const DEFAULT_OK_TEXT = '确定';
@@ -30,7 +33,7 @@ const MONTH_COLUMN_COUNT = 3;
 const YEAR_COLUMN_COUNT = 4;
 
 interface CalendarStyleOptions {
-  size: CalendarSize;
+  size: CalendarPickerViewSize;
 }
 
 interface PanelDate {
@@ -38,7 +41,7 @@ interface PanelDate {
   month: number;
 }
 
-function getCellHeight(size: CalendarSize, token: AliasToken) {
+function getCellHeight(size: CalendarPickerViewSize, token: AliasToken) {
   if (size === 'small') {
     return token.controlHeightSM;
   }
@@ -50,7 +53,7 @@ function getCellHeight(size: CalendarSize, token: AliasToken) {
   return token.controlHeight;
 }
 
-function resolveColumnCount(mode: CalendarMode): number {
+function resolveColumnCount(mode: CalendarPickerViewMode): number {
   if (mode === 'month') {
     return MONTH_COLUMN_COUNT;
   }
@@ -62,7 +65,7 @@ function resolveColumnCount(mode: CalendarMode): number {
   return DATE_COLUMN_COUNT;
 }
 
-function resolveCellFlexBasis(mode: CalendarMode): `${number}%` {
+function resolveCellFlexBasis(mode: CalendarPickerViewMode): `${number}%` {
   return `${100 / resolveColumnCount(mode)}%`;
 }
 
@@ -72,23 +75,29 @@ const useCalendarStyles = createUseSheetStyle(
       backgroundColor: token.colorBgContainer,
     },
     header: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
       marginBottom: token.marginSM,
     },
     title: {
-      color: token.colorTextHeading,
+    },
+    titleColumn: {
+      flexShrink: 1,
+    },
+    valueText: {
+      marginTop: token.marginXXS,
+    },
+    navGroup: {
+      flexShrink: 0,
     },
     navButton: {
-      paddingHorizontal: token.paddingSM,
-      paddingVertical: token.paddingSM / 2,
+      alignItems: 'center',
+      justifyContent: 'center',
+      minWidth: token.controlHeightSM,
+      minHeight: token.controlHeightSM,
       borderRadius: token.borderRadiusSM,
-      backgroundColor: token.colorFillQuaternary,
+      backgroundColor: token.colorFillTertiary,
     },
-    navIcon: {
-      color: token.colorIcon,
-      fontSize: token.fontSize,
+    navButtonText: {
+      paddingHorizontal: token.paddingSM,
     },
     weekHeader: {
       flexDirection: 'row',
@@ -116,11 +125,10 @@ const useCalendarStyles = createUseSheetStyle(
       flexBasis: resolveCellFlexBasis('year'),
     },
     cellSelected: {
-      backgroundColor: token.controlItemBgActive,
+      backgroundColor: token.colorPrimary,
     },
     cellDisabled: {
       opacity: token.opacityLoading,
-      backgroundColor: token.colorBgContainerDisabled,
     },
     cellToday: {
       borderWidth: token.lineWidth,
@@ -130,15 +138,24 @@ const useCalendarStyles = createUseSheetStyle(
       backgroundColor: token.colorPrimaryBg,
     },
     mark: {
+      alignItems: 'center',
       marginTop: token.marginXXS,
+    },
+    markDot: {
+      width: token.sizeXXS,
+      height: token.sizeXXS,
+      borderRadius: token.borderRadiusSM,
+      backgroundColor: token.colorPrimary,
+    },
+    markDotSelected: {
+      backgroundColor: token.colorTextLightSolid,
     },
     footer: {
       flexDirection: 'row',
+      alignItems: 'center',
       justifyContent: 'flex-end',
+      gap: token.marginSM,
       marginTop: token.marginSM,
-    },
-    footerAction: {
-      marginLeft: token.marginSM,
     },
   }),
 );
@@ -147,7 +164,7 @@ function resolveSize(size?: ComponentSize): ComponentSize {
   return size ?? DEFAULT_SIZE;
 }
 
-function resolveMode(mode?: CalendarMode): CalendarMode {
+function resolveMode(mode?: CalendarPickerViewMode): CalendarPickerViewMode {
   return mode ?? DEFAULT_MODE;
 }
 
@@ -155,7 +172,7 @@ function pad(value: number): string {
   return String(value).padStart(2, '0');
 }
 
-function parsePanel(value: CalendarValue | undefined): PanelDate {
+function parsePanel(value: CalendarPickerViewValue | undefined): PanelDate {
   const now = new Date();
   const [year, month] = String(value ?? '').split('-');
 
@@ -165,7 +182,7 @@ function parsePanel(value: CalendarValue | undefined): PanelDate {
   };
 }
 
-function normalizeValue(value: CalendarValue | undefined, mode: CalendarMode): CalendarValue {
+function normalizeValue(value: CalendarPickerViewValue | undefined, mode: CalendarPickerViewMode): CalendarPickerViewValue {
   const panel = parsePanel(value);
   const day = Number(String(value ?? '').split('-')[2]) || 1;
 
@@ -180,7 +197,7 @@ function normalizeValue(value: CalendarValue | undefined, mode: CalendarMode): C
   return `${panel.year}-${pad(panel.month)}-${pad(day)}`;
 }
 
-function todayValue(mode: CalendarMode): CalendarValue {
+function todayValue(mode: CalendarPickerViewMode): CalendarPickerViewValue {
   const now = new Date();
   const year = now.getFullYear();
   const month = now.getMonth() + 1;
@@ -197,15 +214,15 @@ function todayValue(mode: CalendarMode): CalendarValue {
   return `${year}-${pad(month)}-${pad(day)}`;
 }
 
-function compareValue(first: CalendarValue, second: CalendarValue): number {
+function compareValue(first: CalendarPickerViewValue, second: CalendarPickerViewValue): number {
   return first.localeCompare(second);
 }
 
-function sortRange(range: CalendarRangeValue): CalendarRangeValue {
+function sortRange(range: CalendarPickerViewRangeValue): CalendarPickerViewRangeValue {
   return compareValue(range[0], range[1]) <= 0 ? range : [range[1], range[0]];
 }
 
-function formatCalendarValue(value: CalendarValue, mode: CalendarMode, format?: CalendarFormat): string {
+function formatCalendarPickerViewValue(value: CalendarPickerViewValue, mode: CalendarPickerViewMode, format?: CalendarPickerViewFormat): string {
   if (typeof format === 'function') {
     return format(value);
   }
@@ -231,7 +248,7 @@ function formatCalendarValue(value: CalendarValue, mode: CalendarMode, format?: 
   return normalizeValue(value, mode);
 }
 
-function addPanel(panel: PanelDate, mode: CalendarMode, offset: number): PanelDate {
+function addPanel(panel: PanelDate, mode: CalendarPickerViewMode, offset: number): PanelDate {
   if (mode === 'year') {
     return { ...panel, year: panel.year + offset * YEAR_WINDOW };
   }
@@ -253,7 +270,7 @@ function daysInMonth(year: number, month: number): number {
   return new Date(year, month, 0).getDate();
 }
 
-function buildValues(panel: PanelDate, mode: CalendarMode): CalendarValue[] {
+function buildValues(panel: PanelDate, mode: CalendarPickerViewMode): CalendarPickerViewValue[] {
   if (mode === 'year') {
     const startYear = panel.year - (panel.year % YEAR_WINDOW);
 
@@ -270,23 +287,23 @@ function buildValues(panel: PanelDate, mode: CalendarMode): CalendarValue[] {
   );
 }
 
-function panelTitle(panel: PanelDate, mode: CalendarMode): string {
+function panelTitle(panel: PanelDate, mode: CalendarPickerViewMode): string {
   if (mode === 'year') {
     const startYear = panel.year - (panel.year % YEAR_WINDOW);
-    return `${startYear}-${startYear + YEAR_WINDOW - 1}`;
+    return `${startYear} - ${startYear + YEAR_WINDOW - 1}`;
   }
 
   if (mode === 'month') {
-    return String(panel.year);
+    return `${panel.year} 年`;
   }
 
-  return `${panel.year}-${pad(panel.month)}`;
+  return `${panel.year} 年 ${panel.month} 月`;
 }
 
 function isValueDisabled(
-  value: CalendarValue,
-  props: Pick<CalendarProps, 'disabled' | 'disabledDate' | 'maxDate' | 'minDate'>,
-  mode: CalendarMode,
+  value: CalendarPickerViewValue,
+  props: Pick<CalendarPickerViewProps, 'disabled' | 'disabledDate' | 'maxDate' | 'minDate'>,
+  mode: CalendarPickerViewMode,
 ): boolean {
   if (props.disabled) {
     return true;
@@ -317,21 +334,17 @@ function renderTextNode(node: ReactNode) {
   return node;
 }
 
-function renderSlotNode(node: ReactNode, text?: string) {
-  return renderTextNode(node === undefined ? text : node);
-}
-
 interface CalendarGridProps {
-  disabledProps: Pick<CalendarProps, 'disabled' | 'disabledDate' | 'maxDate' | 'minDate'>;
-  draftRange?: CalendarValue[];
-  marks?: CalendarProps['marks'];
-  mode: CalendarMode;
+  disabledProps: Pick<CalendarPickerViewProps, 'disabled' | 'disabledDate' | 'maxDate' | 'minDate'>;
+  draftRange?: CalendarPickerViewValue[];
+  marks?: CalendarPickerViewProps['marks'];
+  mode: CalendarPickerViewMode;
   panel: PanelDate;
-  rangeValue?: CalendarRangeValue;
-  selectedValue?: CalendarValue;
+  rangeValue?: CalendarPickerViewRangeValue;
+  selectedValue?: CalendarPickerViewValue;
   styles: ReturnType<typeof useCalendarStyles>;
-  slotStyles: CalendarProps['styles'];
-  onSelect: (value: CalendarValue) => void;
+  slotStyles: CalendarPickerViewProps['styles'];
+  onSelect: (value: CalendarPickerViewValue) => void;
 }
 
 function CalendarGrid({
@@ -390,10 +403,30 @@ function CalendarGrid({
             ]}
             testID={`calendar-cell-${normalized}`}
           >
-            <Text color="default" style={slotStyles?.dateText}>
+            <Text
+              color={selected ? 'lightSolid' : isToday ? 'primaryText' : 'default'}
+              numberOfLines={1}
+              style={slotStyles?.dateText}
+            >
               {mode === 'year' ? normalized : normalized.split('-').at(-1)}
             </Text>
-            {mark ? <View style={[styles.mark, slotStyles?.mark]}>{renderTextNode(mark.content)}</View> : null}
+            {mark ? (
+              <View
+                style={[styles.mark, slotStyles?.mark]}
+                testID={`calendar-mark-${normalized}`}
+              >
+                {mark.content === undefined ? (
+                  <View
+                    style={[
+                      styles.markDot,
+                      selected ? styles.markDotSelected : undefined,
+                    ]}
+                  />
+                ) : (
+                  renderTextNode(mark.content)
+                )}
+              </View>
+            ) : null}
           </Pressable>
         );
       })}
@@ -401,7 +434,189 @@ function CalendarGrid({
   );
 }
 
-function CalendarRoot({
+interface CalendarHeaderProps {
+  disabled?: boolean;
+  mode: CalendarPickerViewMode;
+  next?: ReactNode;
+  nextText?: string;
+  onNext: () => void;
+  onPrevious: () => void;
+  panel: PanelDate;
+  previous?: ReactNode;
+  previousText?: string;
+  showValue: boolean;
+  size: CalendarPickerViewSize;
+  slotStyles?: CalendarPickerViewStyles;
+  styles: ReturnType<typeof useCalendarStyles>;
+  valueText: string | null;
+}
+
+function CalendarHeader({
+  disabled,
+  mode,
+  next,
+  nextText,
+  onNext,
+  onPrevious,
+  panel,
+  previous,
+  previousText,
+  showValue,
+  size,
+  slotStyles,
+  styles,
+  valueText,
+}: CalendarHeaderProps) {
+  const hasPreviousContent = previous !== undefined || previousText !== undefined;
+  const hasNextContent = next !== undefined || nextText !== undefined;
+
+  return (
+    <Row
+      align="center"
+      justify="between"
+      style={[styles.header, slotStyles?.header]}
+    >
+      <Column style={styles.titleColumn}>
+        <Text
+          color="heading"
+          numberOfLines={1}
+          size="lg"
+          style={[styles.title, slotStyles?.title]}
+          weight="strong"
+        >
+          {panelTitle(panel, mode)}
+        </Text>
+        {showValue && valueText ? (
+          <Text
+            color="description"
+            size="sm"
+            style={[styles.valueText, slotStyles?.valueText]}
+            testID="calendar-value-text"
+          >
+            {valueText}
+          </Text>
+        ) : null}
+      </Column>
+      <Row gap="small" style={styles.navGroup}>
+        <Pressable
+          disabled={disabled}
+          onPress={onPrevious}
+          style={[
+            styles.navButton,
+            hasPreviousContent ? styles.navButtonText : undefined,
+          ]}
+          testID="calendar-nav-prev"
+        >
+          {previous !== undefined ? (
+            previous
+          ) : previousText !== undefined ? (
+            <Text numberOfLines={1} size="sm">{previousText}</Text>
+          ) : (
+            <Icon color="icon" icon="caret-left" size={size} />
+          )}
+        </Pressable>
+        <Pressable
+          disabled={disabled}
+          onPress={onNext}
+          style={[
+            styles.navButton,
+            hasNextContent ? styles.navButtonText : undefined,
+          ]}
+          testID="calendar-nav-next"
+        >
+          {next !== undefined ? (
+            next
+          ) : nextText !== undefined ? (
+            <Text numberOfLines={1} size="sm">{nextText}</Text>
+          ) : (
+            <Icon color="icon" icon="caret-right" size={size} />
+          )}
+        </Pressable>
+      </Row>
+    </Row>
+  );
+}
+
+interface CalendarFooterProps {
+  actionHitSlop: number;
+  cancel?: ReactNode;
+  cancelText: string;
+  disabled?: boolean;
+  ok?: ReactNode;
+  okText: string;
+  onCancel: () => void;
+  onConfirm: () => void;
+  onToday: () => void;
+  showConfirm?: boolean;
+  showToday?: boolean;
+  slotStyles?: CalendarPickerViewStyles;
+  styles: ReturnType<typeof useCalendarStyles>;
+  today?: ReactNode;
+  todayText: string;
+}
+
+function CalendarFooter({
+  actionHitSlop,
+  cancel,
+  cancelText,
+  disabled,
+  ok,
+  okText,
+  onCancel,
+  onConfirm,
+  onToday,
+  showConfirm,
+  showToday,
+  slotStyles,
+  styles,
+  today,
+  todayText,
+}: CalendarFooterProps) {
+  return (
+    <View style={[styles.footer, slotStyles?.footer]}>
+      {showToday ? (
+        <Pressable disabled={disabled} hitSlop={actionHitSlop} onPress={onToday}>
+          {today !== undefined ? (
+            today
+          ) : (
+            <Text color="primaryText" size="sm" weight="medium">
+              {todayText}
+            </Text>
+          )}
+        </Pressable>
+      ) : null}
+      {showConfirm ? (
+        <>
+          <Pressable disabled={disabled} hitSlop={actionHitSlop} onPress={onCancel}>
+            {cancel !== undefined ? (
+              cancel
+            ) : (
+              <Text color="secondary" size="sm">
+                {cancelText}
+              </Text>
+            )}
+          </Pressable>
+          <Pressable
+            disabled={disabled}
+            hitSlop={actionHitSlop}
+            onPress={onConfirm}
+            testID="calendar-confirm"
+          >
+            {ok !== undefined ? (
+              ok
+            ) : (
+              <Text color="primaryText" size="sm" weight="strong">
+                {okText}
+              </Text>
+            )}
+          </Pressable>
+        </>
+      ) : null}
+    </View>
+  );
+}
+
+function CalendarPickerViewRoot({
   cancel,
   cancelText = DEFAULT_CANCEL_TEXT,
   defaultValue,
@@ -424,13 +639,14 @@ function CalendarRoot({
   readonly,
   showConfirm,
   showToday,
+  showValue = true,
   size,
   style,
   styles,
   today,
   todayText = DEFAULT_TODAY_TEXT,
   value,
-}: CalendarProps) {
+}: CalendarPickerViewProps) {
   const { token } = useTheme();
   const resolvedMode = resolveMode(mode);
   const resolvedSize = resolveSize(size);
@@ -443,15 +659,15 @@ function CalendarRoot({
     normalizedControlledValue,
     onChange,
   );
-  const [draftValue, setDraftValue] = useState<CalendarValue | undefined>(undefined);
+  const [draftValue, setDraftValue] = useState<CalendarPickerViewValue | undefined>(undefined);
   const visibleValue = draftValue ?? committedValue;
   const [panel, setPanel] = useState(parsePanel(visibleValue));
   const isInteractive = !disabled && !readonly;
 
-  const commitValue = (nextValue: CalendarValue): void => {
+  const commitValue = (nextValue: CalendarPickerViewValue): void => {
     setCommittedValue(nextValue);
   };
-  const handleSelect = (nextValue: CalendarValue): void => {
+  const handleSelect = (nextValue: CalendarPickerViewValue): void => {
     if (!isInteractive) {
       return;
     }
@@ -482,50 +698,36 @@ function CalendarRoot({
     }
   };
 
+  const valueText = visibleValue
+    ? formatCalendarPickerViewValue(visibleValue, resolvedMode, format)
+    : null;
+
   return (
-    <View style={[tokenStyles.root, style]}>
-      {visibleValue ? (
-        <Text>{formatCalendarValue(visibleValue, resolvedMode, format)}</Text>
-      ) : null}
-      <View style={[tokenStyles.header, styles?.header]}>
-        <Pressable
-          disabled={disabled}
-          onPress={() => {
-            if (!disabled) {
-              setPanel(addPanel(panel, resolvedMode, -1));
-            }
-          }}
-          style={tokenStyles.navButton}
-          testID="calendar-nav-prev"
-        >
-          {renderSlotNode(previous, previousText) ?? (
-            <Icon
-              color="icon"
-              icon="caret-left"
-              size={resolvedSize}
-            />
-          )}
-        </Pressable>
-        <Text color="heading" style={[tokenStyles.title, styles?.title]}>{panelTitle(panel, resolvedMode)}</Text>
-        <Pressable
-          disabled={disabled}
-          onPress={() => {
-            if (!disabled) {
-              setPanel(addPanel(panel, resolvedMode, 1));
-            }
-          }}
-          style={tokenStyles.navButton}
-          testID="calendar-nav-next"
-        >
-          {renderSlotNode(next, nextText) ?? (
-            <Icon
-              color="icon"
-              icon="caret-right"
-              size={resolvedSize}
-            />
-          )}
-        </Pressable>
-      </View>
+    <View style={[tokenStyles.root, styles?.root, style]}>
+      <CalendarHeader
+        disabled={disabled}
+        mode={resolvedMode}
+        next={next}
+        nextText={nextText}
+        onNext={() => {
+          if (!disabled) {
+            setPanel(addPanel(panel, resolvedMode, 1));
+          }
+        }}
+        onPrevious={() => {
+          if (!disabled) {
+            setPanel(addPanel(panel, resolvedMode, -1));
+          }
+        }}
+        panel={panel}
+        previous={previous}
+        previousText={previousText}
+        showValue={showValue}
+        size={resolvedSize}
+        slotStyles={styles}
+        styles={tokenStyles}
+        valueText={valueText}
+      />
       {resolvedMode === 'date' ? (
         <View style={[tokenStyles.weekHeader, styles?.weekHeader]}>
           {WEEK_DAYS.map(day => (
@@ -546,47 +748,32 @@ function CalendarRoot({
         styles={tokenStyles}
       />
       {showToday || showConfirm ? (
-        <View style={[tokenStyles.footer, styles?.footer]}>
-          {showToday ? (
-            <Pressable
-              disabled={disabled}
-              hitSlop={actionHitSlop}
-              onPress={handleToday}
-            >
-              {renderSlotNode(today, todayText)}
-            </Pressable>
-          ) : null}
-          {showConfirm ? (
-            <>
-              <Pressable
-                disabled={disabled}
-                hitSlop={actionHitSlop}
-                onPress={() => {
-                  setDraftValue(undefined);
-                  onCancel?.();
-                }}
-                style={tokenStyles.footerAction}
-              >
-                {renderSlotNode(cancel, cancelText)}
-              </Pressable>
-              <Pressable
-                disabled={disabled}
-                hitSlop={actionHitSlop}
-                onPress={handleConfirm}
-                style={tokenStyles.footerAction}
-                testID="calendar-confirm"
-              >
-                {renderSlotNode(ok, okText)}
-              </Pressable>
-            </>
-          ) : null}
-        </View>
+        <CalendarFooter
+          cancel={cancel}
+          cancelText={cancelText}
+          disabled={disabled}
+          actionHitSlop={actionHitSlop}
+          ok={ok}
+          okText={okText}
+          onCancel={() => {
+            setDraftValue(undefined);
+            onCancel?.();
+          }}
+          onConfirm={handleConfirm}
+          onToday={handleToday}
+          showConfirm={showConfirm}
+          showToday={showToday}
+          slotStyles={styles}
+          styles={tokenStyles}
+          today={today}
+          todayText={todayText}
+        />
       ) : null}
     </View>
   );
 }
 
-function CalendarRange({
+function CalendarPickerViewRange({
   cancel,
   cancelText = DEFAULT_CANCEL_TEXT,
   defaultValue,
@@ -609,13 +796,14 @@ function CalendarRange({
   readonly,
   showConfirm,
   showToday,
+  showValue = true,
   size,
   style,
   styles,
   today,
   todayText = DEFAULT_TODAY_TEXT,
   value,
-}: CalendarRangeProps) {
+}: CalendarPickerViewRangeProps) {
   const { token } = useTheme();
   const resolvedMode = resolveMode(mode);
   const resolvedSize = resolveSize(size);
@@ -624,23 +812,23 @@ function CalendarRange({
   const normalizedControlledValue =
     value === undefined
       ? undefined
-      : [normalizeValue(value[0], resolvedMode), normalizeValue(value[1], resolvedMode)] as CalendarRangeValue;
-  const [committedValue, setCommittedValue] = useControllableValue<CalendarRangeValue>(
+      : [normalizeValue(value[0], resolvedMode), normalizeValue(value[1], resolvedMode)] as CalendarPickerViewRangeValue;
+  const [committedValue, setCommittedValue] = useControllableValue<CalendarPickerViewRangeValue>(
     defaultValue
       ? [normalizeValue(defaultValue[0], resolvedMode), normalizeValue(defaultValue[1], resolvedMode)]
       : undefined,
     normalizedControlledValue,
     onChange,
   );
-  const [draftRange, setDraftRange] = useState<CalendarValue[]>([]);
+  const [draftRange, setDraftRange] = useState<CalendarPickerViewValue[]>([]);
   const [panel, setPanel] = useState(parsePanel(committedValue?.[0]));
   const isInteractive = !disabled && !readonly;
 
-  const commitRange = (nextRange: CalendarRangeValue): void => {
+  const commitRange = (nextRange: CalendarPickerViewRangeValue): void => {
     const sorted = sortRange(nextRange);
     setCommittedValue(sorted);
   };
-  const handleSelect = (nextValue: CalendarValue): void => {
+  const handleSelect = (nextValue: CalendarPickerViewValue): void => {
     if (!isInteractive) {
       return;
     }
@@ -673,51 +861,35 @@ function CalendarRange({
     setDraftRange([]);
   };
   const displayValue = committedValue
-    ? `${formatCalendarValue(committedValue[0], resolvedMode, format)} - ${formatCalendarValue(committedValue[1], resolvedMode, format)}`
+    ? `${formatCalendarPickerViewValue(committedValue[0], resolvedMode, format)} - ${formatCalendarPickerViewValue(committedValue[1], resolvedMode, format)}`
     : null;
 
   return (
-    <View style={[tokenStyles.root, style]}>
-      {displayValue ? <Text>{displayValue}</Text> : null}
-      <View style={[tokenStyles.header, styles?.header]}>
-        <Pressable
-          disabled={disabled}
-          onPress={() => {
-            if (!disabled) {
-              setPanel(addPanel(panel, resolvedMode, -1));
-            }
-          }}
-          style={tokenStyles.navButton}
-          testID="calendar-nav-prev"
-        >
-          {renderSlotNode(previous, previousText) ?? (
-            <Icon
-              color="icon"
-              icon="caret-left"
-              size={resolvedSize}
-            />
-          )}
-        </Pressable>
-        <Text color="heading" style={[tokenStyles.title, styles?.title]}>{panelTitle(panel, resolvedMode)}</Text>
-        <Pressable
-          disabled={disabled}
-          onPress={() => {
-            if (!disabled) {
-              setPanel(addPanel(panel, resolvedMode, 1));
-            }
-          }}
-          style={tokenStyles.navButton}
-          testID="calendar-nav-next"
-        >
-          {renderSlotNode(next, nextText) ?? (
-            <Icon
-              color="icon"
-              icon="caret-right"
-              size={resolvedSize}
-            />
-          )}
-        </Pressable>
-      </View>
+    <View style={[tokenStyles.root, styles?.root, style]}>
+      <CalendarHeader
+        disabled={disabled}
+        mode={resolvedMode}
+        next={next}
+        nextText={nextText}
+        onNext={() => {
+          if (!disabled) {
+            setPanel(addPanel(panel, resolvedMode, 1));
+          }
+        }}
+        onPrevious={() => {
+          if (!disabled) {
+            setPanel(addPanel(panel, resolvedMode, -1));
+          }
+        }}
+        panel={panel}
+        previous={previous}
+        previousText={previousText}
+        showValue={showValue}
+        size={resolvedSize}
+        slotStyles={styles}
+        styles={tokenStyles}
+        valueText={displayValue}
+      />
       <CalendarGrid
         disabledProps={{ disabled, disabledDate, maxDate, minDate }}
         draftRange={draftRange}
@@ -730,53 +902,38 @@ function CalendarRange({
         styles={tokenStyles}
       />
       {showToday || showConfirm ? (
-        <View style={[tokenStyles.footer, styles?.footer]}>
-          {showToday ? (
-            <Pressable
-              disabled={disabled}
-              hitSlop={actionHitSlop}
-              onPress={() => {
-                const nextToday = todayValue(resolvedMode);
-                setPanel(parsePanel(nextToday));
+        <CalendarFooter
+          cancel={cancel}
+          cancelText={cancelText}
+          disabled={disabled}
+          actionHitSlop={actionHitSlop}
+          ok={ok}
+          okText={okText}
+          onCancel={() => {
+            setDraftRange([]);
+            onCancel?.();
+          }}
+          onConfirm={handleConfirm}
+          onToday={() => {
+            const nextToday = todayValue(resolvedMode);
+            setPanel(parsePanel(nextToday));
 
-                if (!isValueDisabled(nextToday, { disabled, disabledDate, maxDate, minDate }, resolvedMode)) {
-                  handleSelect(nextToday);
-                }
-              }}
-            >
-              {renderSlotNode(today, todayText)}
-            </Pressable>
-          ) : null}
-          {showConfirm ? (
-            <>
-              <Pressable
-                disabled={disabled}
-                hitSlop={actionHitSlop}
-                onPress={() => {
-                  setDraftRange([]);
-                  onCancel?.();
-                }}
-                style={tokenStyles.footerAction}
-              >
-                {renderSlotNode(cancel, cancelText)}
-              </Pressable>
-              <Pressable
-                disabled={disabled}
-                hitSlop={actionHitSlop}
-                onPress={handleConfirm}
-                style={tokenStyles.footerAction}
-                testID="calendar-confirm"
-              >
-                {renderSlotNode(ok, okText)}
-              </Pressable>
-            </>
-          ) : null}
-        </View>
+            if (!isValueDisabled(nextToday, { disabled, disabledDate, maxDate, minDate }, resolvedMode)) {
+              handleSelect(nextToday);
+            }
+          }}
+          showConfirm={showConfirm}
+          showToday={showToday}
+          slotStyles={styles}
+          styles={tokenStyles}
+          today={today}
+          todayText={todayText}
+        />
       ) : null}
     </View>
   );
 }
 
-export const Calendar = Object.assign(CalendarRoot, {
-  Range: CalendarRange,
+export const CalendarPickerView = Object.assign(CalendarPickerViewRoot, {
+  Range: CalendarPickerViewRange,
 });

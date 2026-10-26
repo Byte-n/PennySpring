@@ -43,10 +43,12 @@ jest.mock('react-native-reanimated', () => {
 });
 
 import {
+  CalendarPickerView,
   DateTimePicker,
   type DateTimePickerStyles,
   Text,
 } from '../src';
+import { DateTimePickerCore } from '../src/DateTimePicker/DateTimePickerCore';
 
 function makeDate(year: number, month: number, day: number, hours = 0, minutes = 0, seconds = 0): Date {
   // month is 1-based here
@@ -436,4 +438,164 @@ it('accepts DateTimePicker semantic styles object type', () => {
 
   // Assert
   expect(node).toBeTruthy();
+});
+
+it('builds only date columns for the date preset by default', () => {
+  let testRenderer: renderer.ReactTestRenderer;
+
+  act(() => {
+    testRenderer = renderer.create(
+      <DateTimePicker.Date
+        defaultOpen
+        value={makeDate(2026, 5, 9, 10, 30)}
+        min={makeDate(2024, 1, 1)}
+        max={makeDate(2028, 12, 31)}
+      />,
+    );
+  });
+
+  // year, month, day → 3 列
+  expect(testRenderer!.root.findByProps({ testID: 'picker-item-0-0' })).toBeTruthy();
+  expect(testRenderer!.root.findByProps({ testID: 'picker-item-1-0' })).toBeTruthy();
+  expect(testRenderer!.root.findByProps({ testID: 'picker-item-2-0' })).toBeTruthy();
+  expect(() =>
+    testRenderer!.root.findByProps({ testID: 'picker-item-3-0' }),
+  ).toThrow();
+});
+
+it('limits the date preset to a single year column', () => {
+  let testRenderer: renderer.ReactTestRenderer;
+
+  act(() => {
+    testRenderer = renderer.create(
+      <DateTimePicker.Date
+        defaultOpen
+        precision="year"
+        value={makeDate(2026, 5, 9)}
+        min={makeDate(2024, 1, 1)}
+        max={makeDate(2028, 12, 31)}
+      />,
+    );
+  });
+
+  expect(testRenderer!.root.findByProps({ testID: 'picker-item-0-0' })).toBeTruthy();
+  expect(() =>
+    testRenderer!.root.findByProps({ testID: 'picker-item-1-0' }),
+  ).toThrow();
+});
+
+it('renders the calendar view without a time entry for the date preset in calendar layout', () => {
+  let testRenderer: renderer.ReactTestRenderer;
+
+  act(() => {
+    testRenderer = renderer.create(
+      <DateTimePicker.Date
+        defaultOpen
+        layout="calendar"
+        precision="day"
+        value={makeDate(2026, 10, 25)}
+      />,
+    );
+  });
+
+  expect(testRenderer!.root.findByType(CalendarPickerView)).toBeTruthy();
+  expect(
+    testRenderer!.root.findAllByProps({ testID: 'date-time-calendar-entry' }),
+  ).toHaveLength(0);
+});
+
+it('starts the time preset with an hour column and no date columns', () => {
+  let testRenderer: renderer.ReactTestRenderer;
+
+  act(() => {
+    testRenderer = renderer.create(
+      <DateTimePicker.Time defaultOpen value={makeDate(2026, 5, 9, 10, 30)} />,
+    );
+  });
+
+  // 首列小时 0..23；第二列分钟 0..59
+  expect(testRenderer!.root.findByProps({ testID: 'picker-item-0-23' })).toBeTruthy();
+  expect(testRenderer!.root.findByProps({ testID: 'picker-item-1-59' })).toBeTruthy();
+  expect(
+    testRenderer!.root.findAllByProps({ testID: 'picker-item-2-0' }),
+  ).toHaveLength(0);
+});
+
+it('zeros the time part for the date preset in wheel layout', () => {
+  const onOk = jest.fn();
+  let testRenderer: renderer.ReactTestRenderer;
+
+  act(() => {
+    testRenderer = renderer.create(
+      <DateTimePicker.Date
+        defaultOpen
+        value={makeDate(2026, 5, 9, 10, 30, 15)}
+        min={makeDate(2024, 1, 1)}
+        max={makeDate(2028, 12, 31)}
+        onOk={onOk}
+      />,
+    );
+  });
+
+  act(() => {
+    testRenderer!.root.findByProps({ testID: 'picker-item-2-19' }).props.onPress();
+  });
+  act(() => {
+    testRenderer!.root.findByProps({ testID: 'picker-ok-button' }).props.onPress();
+  });
+
+  const [nextDate] = onOk.mock.calls[0];
+  expect(nextDate.getDate()).toBe(20);
+  expect(nextDate.getHours()).toBe(0);
+  expect(nextDate.getMinutes()).toBe(0);
+  expect(nextDate.getSeconds()).toBe(0);
+});
+
+it('zeros the time part for the date preset in calendar layout', () => {
+  const onOk = jest.fn();
+  let testRenderer: renderer.ReactTestRenderer;
+
+  act(() => {
+    testRenderer = renderer.create(
+      <DateTimePicker.Date
+        defaultOpen
+        layout="calendar"
+        value={makeDate(2026, 10, 25, 14, 30, 15)}
+        onOk={onOk}
+      />,
+    );
+  });
+
+  act(() => {
+    testRenderer!.root
+      .findByProps({ testID: 'calendar-cell-2026-10-20' })
+      .props.onPress();
+  });
+  act(() => {
+    testRenderer!.root.findByProps({ testID: 'picker-ok-button' }).props.onPress();
+  });
+
+  const [nextDate] = onOk.mock.calls[0];
+  expect(nextDate.getDate()).toBe(20);
+  expect(nextDate.getHours()).toBe(0);
+  expect(nextDate.getMinutes()).toBe(0);
+  expect(nextDate.getSeconds()).toBe(0);
+});
+
+it('forces the wheel layout for the time parts', () => {
+  let testRenderer: renderer.ReactTestRenderer;
+
+  act(() => {
+    testRenderer = renderer.create(
+      <DateTimePickerCore
+        defaultOpen
+        layout="calendar"
+        parts="time"
+        value={makeDate(2026, 5, 9, 10, 30)}
+      />,
+    );
+  });
+
+  expect(testRenderer!.root.findByProps({ testID: 'picker-item-0-23' })).toBeTruthy();
+  expect(testRenderer!.root.findAllByType(CalendarPickerView)).toHaveLength(0);
 });
