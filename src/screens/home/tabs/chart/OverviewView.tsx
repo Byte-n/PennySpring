@@ -370,7 +370,6 @@ export function OverviewView({
               previous={compareEnabled ? previousDaily : []}
               totalDays={period.totalDays}
               todayDay={period.isCurrent ? period.elapsedDays : null}
-              projection={projection}
             />
             {projection !== null ? (
               <Column style={styles.projection}>

@@ -105,6 +105,7 @@ export function IncomeView({
   const donutStats = foldForDonut(analysis.stats, DONUT_LIMIT);
   const donutSlices = donutStats.map((item, index) => ({
     key: item.key,
+    name: item.name,
     value: item.amount,
     color: categoryColorAt(index, token),
   }));
@@ -195,9 +196,6 @@ export function IncomeView({
           <>
             <DonutChart
               slices={donutSlices}
-              centerLabel="本月收入"
-              centerValue={formatMoney(analysis.total)}
-              centerSub={`${analysis.stats.length} 个来源`}
             />
             <RankList
               items={rankItems}

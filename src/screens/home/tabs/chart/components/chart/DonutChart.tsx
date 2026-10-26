@@ -1,124 +1,96 @@
 import React from 'react';
-import { Column, Text } from '@pennyspring/ui';
+import { View } from 'react-native';
 import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
-import Svg, { Circle } from 'react-native-svg';
+import type { EChartsOption } from 'echarts';
 
-const DONUT_SIZE = 140;
-const DONUT_CENTER = 70;
-const DONUT_RADIUS = 54;
-const DONUT_STROKE = 18;
-const DONUT_GAP = 2.4;
-const DONUT_MIN_SLICE = 0.6;
-const DONUT_START_ANGLE = -90;
-const CIRCUMFERENCE = 2 * Math.PI * DONUT_RADIUS;
+import { formatAxisMoney, formatMoney } from '../../analysisData';
+import { EChartView } from '../EChartView';
+import { useMeasuredWidth } from '../useMeasuredWidth';
+
+const CHART_HEIGHT = 168;
 
 export interface DonutSlice {
   key: string;
+  name: string;
   value: number;
   color: string;
 }
 
 interface DonutChartProps {
   slices: readonly DonutSlice[];
-  centerLabel: string;
-  centerValue: string;
-  centerSub?: string;
 }
 
 const useStyles = createUseSheetStyle(token => ({
   wrap: {
-    width: DONUT_SIZE,
-    height: DONUT_SIZE,
-    alignSelf: 'center',
-  },
-  center: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: token.paddingSM,
-  },
-  value: {
-    marginTop: token.marginXXS,
-  },
-  sub: {
-    marginTop: token.marginXXS,
+    width: '100%',
+    minHeight: token.sizeXXL,
   },
 }));
 
-export function DonutChart({
-  slices,
-  centerLabel,
-  centerValue,
-  centerSub,
-}: DonutChartProps) {
+export function DonutChart({ slices }: DonutChartProps) {
   const styles = useStyles();
   const { token } = useTheme();
-  const total = slices.reduce((sum, slice) => sum + slice.value, 0);
+  const { width, onLayout } = useMeasuredWidth();
+  const option: EChartsOption = {
+    animation: false,
+    grid: { left: 8, right: 56, top: 8, bottom: 28, containLabel: true },
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: { type: 'shadow' },
+      confine: true,
+      valueFormatter: value => formatMoney(Number(value ?? 0)),
+    },
+    xAxis: {
+      type: 'value',
+      axisLine: { lineStyle: { color: token.colorBorderSecondary } },
+      axisTick: { show: true, lineStyle: { color: token.colorBorderSecondary } },
+      axisLabel: {
+        show: true,
+        color: token.colorTextTertiary,
+        fontFamily: token.fontFamily,
+        fontSize: token.fontSizeXS,
+        formatter: formatAxisMoney,
+      },
+      splitLine: { show: true, lineStyle: { color: token.colorSplit, width: token.lineWidth } },
+    },
+    yAxis: {
+      type: 'category',
+      inverse: true,
+      data: slices.map(slice => slice.name),
+      axisLine: { show: true, lineStyle: { color: token.colorBorderSecondary } },
+      axisTick: { show: true, lineStyle: { color: token.colorBorderSecondary } },
+      axisLabel: {
+        color: token.colorTextSecondary,
+        fontFamily: token.fontFamily,
+        fontSize: token.fontSizeSM,
+        width: 88,
+        overflow: 'truncate',
+      },
+      splitLine: { show: false },
+    },
+    series: [
+      {
+        type: 'bar',
+        barMaxWidth: 16,
+        data: slices.map(slice => ({
+          value: slice.value,
+          itemStyle: { color: slice.color, borderRadius: [0, 4, 4, 0] },
+        })),
+        label: {
+          show: true,
+          position: 'right',
+          color: token.colorTextSecondary,
+          fontFamily: token.fontFamily,
+          fontSize: token.fontSizeXS,
+          formatter: params => formatMoney(Number(params.value ?? 0)),
+        },
+      },
+    ],
+  };
 
   return (
-    <Column style={styles.wrap}>
-      <Svg width={DONUT_SIZE} height={DONUT_SIZE} viewBox="0 0 140 140">
-        <Circle
-          cx={DONUT_CENTER}
-          cy={DONUT_CENTER}
-          r={DONUT_RADIUS}
-          fill="none"
-          stroke={token.colorFillSecondary}
-          strokeWidth={DONUT_STROKE}
-        />
-        {total > 0
-          ? slices.map((slice, index) => {
-              const length = (slice.value / total) * CIRCUMFERENCE;
-              const before = slices
-                .slice(0, index)
-                .reduce((sum, item) => sum + (item.value / total) * CIRCUMFERENCE, 0);
-              const dash = Math.max(length - DONUT_GAP, DONUT_MIN_SLICE);
-              return (
-                <Circle
-                  key={slice.key}
-                  cx={DONUT_CENTER}
-                  cy={DONUT_CENTER}
-                  r={DONUT_RADIUS}
-                  fill="none"
-                  stroke={slice.color}
-                  strokeWidth={DONUT_STROKE}
-                  strokeDasharray={[dash, CIRCUMFERENCE - dash]}
-                  strokeDashoffset={-before}
-                  rotation={DONUT_START_ANGLE}
-                  originX={DONUT_CENTER}
-                  originY={DONUT_CENTER}
-                />
-              );
-            })
-          : null}
-      </Svg>
-      <Column style={styles.center}>
-        <Text size="xs" color="tertiary">
-          {centerLabel}
-        </Text>
-        <Text
-          size="lg"
-          weight="semibold"
-          numberOfLines={1}
-          style={styles.value}
-        >
-          {centerValue}
-        </Text>
-        {centerSub ? (
-          <Text
-            size="xs"
-            color="tertiary"
-            numberOfLines={1}
-            style={styles.sub}
-          >
-            {centerSub}
-          </Text>
-        ) : null}
-      </Column>
-    </Column>
+    <View style={styles.wrap} onLayout={onLayout}>
+      {width > 0 ? <EChartView option={option} width={width} height={CHART_HEIGHT} /> : null}
+    </View>
   );
 }

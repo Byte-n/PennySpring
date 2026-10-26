@@ -12,7 +12,6 @@ import {
   buildTagStats,
   buildTopExpenses,
   foldForDonut,
-  formatMoney,
   formatPercent,
   formatSignedMoney,
   getPeriodCutoff,
@@ -205,6 +204,7 @@ export function ExpenseView({
   const donutStats = foldForDonut(displayStats, DONUT_LIMIT);
   const donutSlices = donutStats.map((item, index) => ({
     key: item.key,
+    name: item.name,
     value: item.amount,
     color: VIRTUAL_KEYS.has(item.key)
       ? token.colorTextTertiary
@@ -245,16 +245,6 @@ export function ExpenseView({
         }));
   const showDelta = dimension === 'category' && selectedParentTypeId === null;
   const isDrilled = selectedParentTypeId !== null;
-  const centerLabel = isDrilled
-    ? analysis.selectedName ?? '支出'
-    : '本月支出';
-  const statUnit =
-    dimension === 'tag' ? '个标签' : dimension === 'asset' ? '个账户' : '个分类';
-  const centerSub = isDrilled
-    ? `${count} 笔 · 占本月 ${formatPercent(
-        analysis.totalExpense === 0 ? 0 : total / analysis.totalExpense,
-      )}`
-    : `${count} 笔 · ${displayStats.length} ${statUnit}`;
   const subtitle = isDrilled
     ? `占本月支出 ${formatPercent(
         analysis.totalExpense === 0 ? 0 : total / analysis.totalExpense,
@@ -322,9 +312,6 @@ export function ExpenseView({
         ) : null}
         <DonutChart
           slices={donutSlices}
-          centerLabel={centerLabel}
-          centerValue={formatMoney(total)}
-          centerSub={centerSub}
         />
         <RankList
           items={rankItems}
