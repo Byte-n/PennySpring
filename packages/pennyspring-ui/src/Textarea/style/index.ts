@@ -150,6 +150,8 @@ export const useStyles = createUseSheetStyle(
         backgroundColor: token.colorFillQuaternary,
       },
       input: {
+        // 撑满 field 内容区，避免空值时空白区域点击无法聚焦
+        flex: 1,
         minHeight: lineHeight,
         color: options.isDisabled ? token.colorTextDisabled : token.colorText,
         fontFamily: token.fontFamily,

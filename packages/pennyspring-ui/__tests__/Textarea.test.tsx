@@ -1,5 +1,5 @@
 import React from 'react';
-import { ActivityIndicator, TextInput, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, TextInput, View } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
 import { Textarea } from '../src/Textarea';
 import { Text } from '../src/Text';
@@ -166,6 +166,13 @@ describe('Textarea', () => {
     expect(treeString).not.toContain('Text Label');
     const overrideLabel = testRenderer.root.findByProps({ testID: 'override-label' });
     expect(overrideLabel.props.children).toBe('Node Label');
+  });
+
+  it('stretches the text input to fill the field so the whole field can be tapped to focus', () => {
+    const testRenderer = renderTextarea({});
+    const input = testRenderer.root.findByType(TextInput);
+
+    expect(StyleSheet.flatten(input.props.style)).toMatchObject({ flex: 1 });
   });
 
   it('keeps field border width constant between focused and unfocused states', () => {
