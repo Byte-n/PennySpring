@@ -1,16 +1,15 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import type { ReactNode } from 'react';
-import { Pressable } from 'react-native';
-import { Column, Row, Text } from '@pennyspring/ui';
+import { CalendarPicker as Calendar, Column, Row, Text } from '@pennyspring/ui';
 import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
+import type { CalendarPickerViewCellState } from '@pennyspring/ui';
+import type { AliasToken } from '@pennyspring/theme';
+import type { ViewStyle, TextStyle } from 'react-native';
 
 import type { CalendarDay } from '../analysisData';
 import { ColorDot } from './ColorDot';
 
-const WEEK_LENGTH = 7;
 const MAX_LEVEL = 4;
-const WEEKDAY_LABELS = ['一', '二', '三', '四', '五', '六', '日'];
-const MONDAY_OFFSET = 6;
 
 interface CalendarHeatmapProps {
   start: number;
@@ -20,46 +19,58 @@ interface CalendarHeatmapProps {
   detail?: ReactNode;
 }
 
-const useStyles = createUseSheetStyle(token => ({
-  container: {
-    gap: token.marginXS,
-  },
-  weekday: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  week: {
-    gap: token.marginXXS,
-  },
-  blank: {
-    flex: 1,
-    height: token.controlHeightSM,
-  },
-  legend: {
-    alignItems: 'center',
-  },
-  legendDot: {
-    marginHorizontal: token.marginXXS,
-  },
-}));
+interface HeatmapStyleOptions {
+  days: readonly CalendarDay[];
+  maxAmount: number;
+  start: number;
+}
 
-const useCellStyles = createUseSheetStyle(
-  (
-    token,
-    {
-      level,
-      isSelected,
-      isToday,
-      isFuture,
-    }: {
-      level: number;
-      isSelected: boolean;
-      isToday: boolean;
-      isFuture: boolean;
+interface HeatmapStyles {
+  root: ViewStyle;
+  header: ViewStyle;
+  grid: ViewStyle;
+  weekHeader: ViewStyle;
+  weekText: TextStyle;
+  cell: (value: string, state: CalendarPickerViewCellState) => ViewStyle;
+  dateText: (value: string, state: CalendarPickerViewCellState) => TextStyle;
+  legend: ViewStyle;
+  legendDot: ViewStyle;
+}
+
+function levelOf(amount: number, maxAmount: number): number {
+  if (amount <= 0) return 0;
+  return Math.min(MAX_LEVEL, Math.max(1, Math.ceil((amount / maxAmount) * MAX_LEVEL)));
+}
+
+function dateValue(start: number, day: number): string {
+  const date = new Date(start);
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const dateText = String(day).padStart(2, '0');
+
+  return `${date.getFullYear()}-${month}-${dateText}`;
+}
+
+function createHeatmapStyles(token: AliasToken, { days, maxAmount, start }: HeatmapStyleOptions): HeatmapStyles {
+  const dayByDate = new Map(days.map(day => [dateValue(start, day.day), day]));
+
+  return {
+    root: {
+      gap: token.marginSM,
     },
-  ) => {
-    const background =
-      level === 4
+    header: {
+      display: 'none',
+    },
+    grid: {},
+    weekHeader: {
+      marginBottom: token.marginXXS,
+    },
+    weekText: {
+      fontSize: token.fontSizeSM,
+    },
+    cell: (value: string, state: CalendarPickerViewCellState): ViewStyle => {
+      const day = dayByDate.get(value);
+      const level = day ? levelOf(day.amount, maxAmount) : 0;
+      const background = level === 4
         ? token.colorPrimary
         : level === 3
           ? token.colorPrimaryBorder
@@ -68,83 +79,48 @@ const useCellStyles = createUseSheetStyle(
             : level === 1
               ? token.colorPrimaryBg
               : token.colorFillQuaternary;
-    const levelColor =
-      level >= 3 ? token.colorTextLightSolid : token.colorTextSecondary;
-    return {
-      cell: {
-        flex: 1,
-        height: token.controlHeightSM,
-        borderRadius: token.borderRadiusXS,
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderWidth: token.lineWidth,
-        borderColor: 'transparent',
-        backgroundColor: isFuture ? token.colorFillQuaternary : background,
-        ...(isFuture
-          ? {
-              borderStyle: 'dashed' as const,
-              borderColor: token.colorBorderSecondary,
-              opacity: token.opacityLoading,
-            }
+
+      return {
+        backgroundColor: state.isDisabled ? token.colorFillQuaternary : background,
+        borderWidth: state.isSelected ? token.lineWidthBold : token.lineWidth,
+        borderColor: state.isSelected
+          ? token.colorText
+          : state.isToday
+            ? token.colorPrimary
+            : state.isDisabled
+              ? token.colorBorderSecondary
+              : 'transparent',
+        ...(state.isDisabled
+          ? { borderStyle: 'dashed' as const, opacity: token.opacityLoading }
           : null),
-        ...(isToday ? { borderColor: token.colorPrimary } : null),
-        ...(isSelected
-          ? {
-              borderWidth: token.lineWidthBold,
-              borderColor: token.colorText,
-            }
-          : null),
-      },
-      label: {
-        color: isFuture ? token.colorTextQuaternary : levelColor,
-      },
-    };
-  },
+      };
+    },
+    dateText: (value: string, _state: CalendarPickerViewCellState): TextStyle => {
+      const day = dayByDate.get(value);
+      const level = day ? levelOf(day.amount, maxAmount) : 0;
+
+      return {
+        fontSize: token.fontSizeXS,
+        lineHeight: token.lineHeightSM,
+        color: day?.isFuture
+          ? token.colorTextQuaternary
+          : level >= 3
+            ? token.colorTextLightSolid
+            : token.colorTextSecondary,
+      };
+    },
+    legend: {
+      alignItems: 'center',
+    },
+    legendDot: {
+      marginHorizontal: token.marginXXS,
+    },
+  };
+}
+
+const useStyles = createUseSheetStyle(
+  (token, options: HeatmapStyleOptions) => createHeatmapStyles(token, options) as unknown as Record<string, ViewStyle | TextStyle>,
 );
-
-function levelOf(amount: number, maxAmount: number): number {
-  if (amount <= 0) return 0;
-  return Math.min(
-    MAX_LEVEL,
-    Math.max(1, Math.ceil((amount / maxAmount) * MAX_LEVEL)),
-  );
-}
-
-interface CalendarCellProps {
-  day: CalendarDay;
-  maxAmount: number;
-  isSelected: boolean;
-  hitSlop: number;
-  onSelect: (day: number) => void;
-}
-
-function CalendarCell({
-  day,
-  maxAmount,
-  isSelected,
-  hitSlop,
-  onSelect,
-}: CalendarCellProps) {
-  const styles = useCellStyles({
-    level: levelOf(day.amount, maxAmount),
-    isSelected,
-    isToday: day.isToday,
-    isFuture: day.isFuture,
-  });
-
-  return (
-    <Pressable
-      disabled={day.isFuture}
-      hitSlop={hitSlop}
-      onPress={() => onSelect(day.day)}
-      style={styles.cell}
-    >
-      <Text size="xs" style={styles.label}>
-        {day.day}
-      </Text>
-    </Pressable>
-  );
-}
 
 export function CalendarHeatmap({
   start,
@@ -153,74 +129,39 @@ export function CalendarHeatmap({
   onSelectDay,
   detail,
 }: CalendarHeatmapProps) {
-  const styles = useStyles();
   const { token } = useTheme();
-  const leading = (new Date(start).getDay() + MONDAY_OFFSET) % WEEK_LENGTH;
-  const totalCells =
-    Math.ceil((leading + days.length) / WEEK_LENGTH) * WEEK_LENGTH;
-  const cells = Array.from({ length: totalCells }, (_, index) => {
-    const dayIndex = index - leading;
-    return dayIndex >= 0 && dayIndex < days.length ? days[dayIndex] : null;
-  });
-  const weeks = Array.from(
-    { length: totalCells / WEEK_LENGTH },
-    (_, index) => cells.slice(index * WEEK_LENGTH, (index + 1) * WEEK_LENGTH),
-  );
   const maxAmount = Math.max(...days.map(day => day.amount), 1);
+  const selectedValue = selectedDay === null ? undefined : dateValue(start, selectedDay);
+  const dayByDate = useMemo(
+    () => new Map(days.map(day => [dateValue(start, day.day), day])),
+    [days, start],
+  );
+  const styles = useStyles({ days, maxAmount, start });
 
   return (
-    <Column style={styles.container}>
-      <Row style={styles.week}>
-        {WEEKDAY_LABELS.map(label => (
-          <Column key={label} style={styles.weekday}>
-            <Text size="xs" color="tertiary">
-              {label}
-            </Text>
-          </Column>
-        ))}
-      </Row>
-      {weeks.map((week, weekIndex) => (
-        <Row key={`week-${weekIndex}`} style={styles.week}>
-          {week.map((day, dayIndex) =>
-            day === null ? (
-              <Column key={`blank-${weekIndex}-${dayIndex}`} style={styles.blank} />
-            ) : (
-              <CalendarCell
-                key={day.day}
-                day={day}
-                maxAmount={maxAmount}
-                isSelected={selectedDay === day.day}
-                hitSlop={token.sizeXXS}
-                onSelect={onSelectDay}
-              />
-            ),
-          )}
-        </Row>
-      ))}
+    <Column style={styles.root}>
+      <Calendar.View
+        key={`${new Date(start).getFullYear()}-${new Date(start).getMonth()}`}
+        size="small"
+        value={selectedValue}
+        onChange={value => onSelectDay(Number(value.slice(-2)))}
+        weekStartsOn="monday"
+        showValue={false}
+        showHeader={false}
+        showToday={false}
+        disabledDate={value => dayByDate.get(value)?.isFuture ?? true}
+        styles={styles}
+      />
       <Row align="center" justify="between">
         <Row align="center" style={styles.legend}>
-          <Text size="xs" color="tertiary">
-            少
-          </Text>
-          <Column style={styles.legendDot}>
-            <ColorDot color={token.colorPrimaryBg} />
-          </Column>
-          <Column style={styles.legendDot}>
-            <ColorDot color={token.colorPrimaryBgHover} />
-          </Column>
-          <Column style={styles.legendDot}>
-            <ColorDot color={token.colorPrimaryBorder} />
-          </Column>
-          <Column style={styles.legendDot}>
-            <ColorDot color={token.colorPrimary} />
-          </Column>
-          <Text size="xs" color="tertiary">
-            多
-          </Text>
+          <Text size="xs" color="tertiary">少</Text>
+          <Column style={styles.legendDot}><ColorDot color={token.colorPrimaryBg} /></Column>
+          <Column style={styles.legendDot}><ColorDot color={token.colorPrimaryBgHover} /></Column>
+          <Column style={styles.legendDot}><ColorDot color={token.colorPrimaryBorder} /></Column>
+          <Column style={styles.legendDot}><ColorDot color={token.colorPrimary} /></Column>
+          <Text size="xs" color="tertiary">多</Text>
         </Row>
-        <Text size="xs" color="tertiary">
-          深色 = 当日支出高
-        </Text>
+        <Text size="xs" color="tertiary">深色 = 当日支出高</Text>
       </Row>
       {detail}
     </Column>

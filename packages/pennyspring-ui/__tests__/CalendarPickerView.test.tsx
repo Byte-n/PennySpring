@@ -241,7 +241,7 @@ describe('CalendarPickerView', () => {
     expect(JSON.stringify(dateCell.props.style)).toContain('flexBasis');
     expect(JSON.stringify(monthCell.props.style)).toContain('flexBasis');
     expect(JSON.stringify(yearCell.props.style)).toContain('flexBasis');
-    expect(JSON.stringify(dateCell.props.style)).not.toContain('14.2857%');
+    expect(JSON.stringify(dateCell.props.style)).toContain('14.285714285714286%');
     expect(JSON.stringify(monthCell.props.style)).not.toContain('33.3333%');
   });
 
@@ -266,6 +266,18 @@ describe('CalendarPickerView', () => {
     ).toHaveLength(0);
   });
 
+  it('hides the calendar header when showHeader is false', () => {
+    // Arrange
+    const testRenderer = renderCalendarPickerView({
+      defaultValue: '2026-05-07',
+      showHeader: false,
+    });
+
+    // Assert
+    expect(testRenderer.root.findAllByProps({ testID: 'calendar-nav-prev' })).toHaveLength(0);
+    expect(textOf(testRenderer)).not.toContain('2026 年 5 月');
+  });
+
   it('renders a default mark dot when mark content is omitted', () => {
     // Arrange
     const testRenderer = renderCalendarPickerView({
@@ -277,5 +289,43 @@ describe('CalendarPickerView', () => {
     expect(
       testRenderer.root.findByProps({ testID: 'calendar-mark-2026-05-12' }),
     ).toBeTruthy();
+  });
+
+  it('aligns dates to a Monday-first week and exposes dynamic cell state', () => {
+    // Arrange
+    const cellStates: Array<{ value: string; isSelected: boolean; isDisabled: boolean }> = [];
+    const testRenderer = renderCalendarPickerView({
+      value: '2026-02-02',
+      weekStartsOn: 'monday',
+      disabledDate: value => value === '2026-02-03',
+      styles: {
+        cell: (value, state) => {
+          cellStates.push({
+            value,
+            isSelected: state.isSelected,
+            isDisabled: state.isDisabled,
+          });
+          return undefined;
+        },
+      },
+    });
+
+    // Act
+    const selectedCellState = cellStates.find(item => item.value === '2026-02-02');
+    const disabledCellState = cellStates.find(item => item.value === '2026-02-03');
+
+    // Assert
+    const dateCells = testRenderer.root.findAll(node =>
+      typeof node.props.testID === 'string' && node.props.testID.startsWith('calendar-cell-2026-02-'),
+    );
+    const firstDateIndex = testRenderer.root.findAllByProps({ testID: 'calendar-empty-cell' }).length;
+    expect(dateCells[0].props.testID).toBe('calendar-cell-2026-02-01');
+    expect(firstDateIndex).toBeGreaterThanOrEqual(5);
+    expect(selectedCellState).toEqual({
+      value: '2026-02-02',
+      isSelected: true,
+      isDisabled: false,
+    });
+    expect(disabledCellState?.isDisabled).toBe(true);
   });
 });

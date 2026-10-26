@@ -13,6 +13,8 @@ export interface GridProps {
 
 export interface GridItemProps {
   span?: number;
+  disabled?: boolean;
+  testID?: string;
   onPress?: (event: GestureResponderEvent) => void;
   children?: React.ReactNode;
   style?: StyleProp<ViewStyle>;

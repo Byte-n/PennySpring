@@ -46,7 +46,32 @@ export interface CalendarPickerViewMark {
   content?: ReactNode;
 }
 
-export interface CalendarPickerViewStyles {
+export interface CalendarPickerViewCellState {
+  isSelected: boolean;
+  isToday: boolean;
+  isDisabled: boolean;
+  isInRange: boolean;
+}
+
+export type CalendarPickerViewCellStyle = (
+  value: CalendarPickerViewValue,
+  state: CalendarPickerViewCellState,
+) => ViewStyle | undefined;
+
+export type CalendarPickerViewDateTextStyle = (
+  value: CalendarPickerViewValue,
+  state: CalendarPickerViewCellState,
+) => TextStyle | undefined;
+
+export type CalendarPickerViewStyles = Omit<
+  CalendarPickerViewStaticStyles,
+  'cell' | 'dateText'
+> & {
+  cell?: StyleProp<ViewStyle> | CalendarPickerViewCellStyle;
+  dateText?: StyleProp<TextStyle> | CalendarPickerViewDateTextStyle;
+};
+
+interface CalendarPickerViewStaticStyles {
   root?: StyleProp<ViewStyle>;
   header?: StyleProp<ViewStyle>;
   title?: StyleProp<TextStyle>;
@@ -63,6 +88,7 @@ export interface CalendarPickerViewStyles {
 export interface CalendarPickerViewProps {
   size?: CalendarPickerViewSize;
   mode?: CalendarPickerViewMode;
+  weekStartsOn?: 'sunday' | 'monday';
   value?: CalendarPickerViewValue;
   defaultValue?: CalendarPickerViewValue;
   onChange?: (value: CalendarPickerViewValue) => void;
@@ -72,6 +98,7 @@ export interface CalendarPickerViewProps {
   disabledDate?: (value: CalendarPickerViewValue) => boolean;
   marks?: CalendarPickerViewMark[];
   showToday?: boolean;
+  showHeader?: boolean;
   showConfirm?: boolean;
   showValue?: boolean;
   onOk?: (value: CalendarPickerViewValue) => void;

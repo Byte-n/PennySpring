@@ -73,7 +73,7 @@ function resolveSpan(span: number | undefined, columns: number): number {
   return Math.min(columns, Math.max(MIN_SPAN, Math.floor(span ?? DEFAULT_SPAN)));
 }
 
-export function GridItem({ children, onPress, span, style }: GridItemProps) {
+export function GridItem({ children, disabled, onPress, span, style, testID }: GridItemProps) {
   const context = React.useContext(GridContext);
   const columns = context?.columns ?? MIN_COLUMNS;
   const gap = context?.gap ?? { horizontal: 0, vertical: 0 };
@@ -82,7 +82,7 @@ export function GridItem({ children, onPress, span, style }: GridItemProps) {
   const itemStyle = [tokenStyles.item, style];
 
   return (
-    <Pressable testID="grid-item" style={itemStyle} onPress={onPress}>
+    <Pressable disabled={disabled} testID={testID ?? 'grid-item'} style={itemStyle} onPress={onPress}>
       {children}
     </Pressable>
   );

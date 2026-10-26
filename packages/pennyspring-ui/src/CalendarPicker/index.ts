@@ -1,6 +1,9 @@
 export { CalendarPicker } from './CalendarPicker';
 export { CalendarPickerView } from './CalendarPickerView';
 export type {
+  CalendarPickerViewCellState,
+  CalendarPickerViewCellStyle,
+  CalendarPickerViewDateTextStyle,
   CalendarPickerMark,
   CalendarPickerPrecision,
   CalendarPickerProps,

@@ -5,11 +5,15 @@ import { Icon } from '../Icon';
 import { Column } from '../Column';
 import { Row } from '../Row';
 import { Text } from '../Text';
+import { Grid } from '../Grid';
 import { useControllableValue } from '../_hooks';
 import type { ReactNode } from 'react';
 import type { AliasToken } from '@pennyspring/theme';
 import type {
   CalendarPickerViewFormat,
+  CalendarPickerViewCellState,
+  CalendarPickerViewCellStyle,
+  CalendarPickerViewDateTextStyle,
   CalendarPickerViewMode,
   CalendarPickerViewProps,
   CalendarPickerViewRangeProps,
@@ -105,14 +109,14 @@ const useCalendarStyles = createUseSheetStyle(
     },
     weekCell: {
       flexBasis: resolveCellFlexBasis('date'),
+      flexShrink: 1,
       alignItems: 'center',
     },
-    grid: {
-      flexDirection: 'row',
-      flexWrap: 'wrap',
-    },
+    grid: {},
     cell: {
       flexBasis: resolveCellFlexBasis('date'),
+      flexShrink: 1,
+      flexGrow: 1,
       minHeight: getCellHeight(size, token),
       justifyContent: 'center',
       alignItems: 'center',
@@ -159,6 +163,15 @@ const useCalendarStyles = createUseSheetStyle(
     },
   }),
 );
+
+const createEmptyCellStyles = (token: AliasToken, { size }: CalendarStyleOptions) => ({
+  cell: {
+    flexBasis: resolveCellFlexBasis('date'),
+    flexShrink: 1,
+    minHeight: getCellHeight(size, token),
+  },
+});
+const useEmptyCellStyles = createUseSheetStyle(createEmptyCellStyles);
 
 function resolveSize(size?: ComponentSize): ComponentSize {
   return size ?? DEFAULT_SIZE;
@@ -287,6 +300,20 @@ function buildValues(panel: PanelDate, mode: CalendarPickerViewMode): CalendarPi
   );
 }
 
+function buildDateValues(
+  panel: PanelDate,
+  weekStartsOn: CalendarPickerViewProps['weekStartsOn'],
+): Array<CalendarPickerViewValue | null> {
+  const values = buildValues(panel, 'date');
+  const firstDay = new Date(panel.year, panel.month - 1, 1).getDay();
+  const leading = weekStartsOn === 'monday' ? (firstDay + 6) % 7 : firstDay;
+  const total = Math.ceil((leading + values.length) / DATE_COLUMN_COUNT) * DATE_COLUMN_COUNT;
+
+  return Array.from({ length: total }, (_, index) =>
+    index < leading || index - leading >= values.length ? null : values[index - leading],
+  );
+}
+
 function panelTitle(panel: PanelDate, mode: CalendarPickerViewMode): string {
   if (mode === 'year') {
     const startYear = panel.year - (panel.year % YEAR_WINDOW);
@@ -344,6 +371,8 @@ interface CalendarGridProps {
   selectedValue?: CalendarPickerViewValue;
   styles: ReturnType<typeof useCalendarStyles>;
   slotStyles: CalendarPickerViewProps['styles'];
+  weekStartsOn: CalendarPickerViewProps['weekStartsOn'];
+  size: CalendarPickerViewSize;
   onSelect: (value: CalendarPickerViewValue) => void;
 }
 
@@ -358,16 +387,24 @@ function CalendarGrid({
   selectedValue,
   slotStyles,
   styles,
+  weekStartsOn,
+  size,
 }: CalendarGridProps) {
-  const values = buildValues(panel, mode);
+  const emptyCellStyles = useEmptyCellStyles({ size });
+  const values = mode === 'date' ? buildDateValues(panel, weekStartsOn) : buildValues(panel, mode);
+  const columnCount = resolveColumnCount(mode);
   const today = todayValue(mode);
   const activeRange = draftRange?.length === 2
     ? sortRange([draftRange[0], draftRange[1]])
     : rangeValue;
 
   return (
-    <View style={[styles.grid, slotStyles?.grid]}>
-      {values.map((value) => {
+    <Grid columns={columnCount} gap="small" style={[styles.grid, slotStyles?.grid]}>
+      {values.map((value, index) => {
+        if (value === null) {
+          return <Grid.Item key={`empty-${index}`} style={emptyCellStyles.cell} testID="calendar-empty-cell" />;
+        }
+
         const normalized = normalizeValue(value, mode);
         const disabled = isValueDisabled(normalized, disabledProps, mode);
         const selected = selectedValue === normalized ||
@@ -381,11 +418,27 @@ function CalendarGrid({
         const mark = mode === 'date'
           ? marks?.find(item => item.date === normalized)
           : undefined;
+        const cellState: CalendarPickerViewCellState = {
+          isSelected: selected,
+          isToday,
+          isDisabled: disabled,
+          isInRange: inRange,
+        };
+        const customCellStyle = slotStyles?.cell;
+        const customDateTextStyle = slotStyles?.dateText;
+        const isDynamicCellStyle = typeof customCellStyle === 'function';
+        const cellStyle = isDynamicCellStyle
+          ? (customCellStyle as CalendarPickerViewCellStyle)(normalized, cellState)
+          : customCellStyle;
+        const dateTextStyle = typeof customDateTextStyle === 'function'
+          ? (customDateTextStyle as CalendarPickerViewDateTextStyle)(normalized, cellState)
+          : customDateTextStyle;
 
         return (
-          <Pressable
+          <Grid.Item
             disabled={disabled}
             key={normalized}
+            testID={`calendar-cell-${normalized}`}
             onPress={() => {
               if (!disabled) {
                 onSelect(normalized);
@@ -395,18 +448,18 @@ function CalendarGrid({
               styles.cell,
               mode === 'month' ? styles.monthCell : null,
               mode === 'year' ? styles.yearCell : null,
-              slotStyles?.cell,
+              isDynamicCellStyle ? undefined : cellStyle,
               inRange ? styles.cellInRange : null,
               selected ? styles.cellSelected : null,
               isToday ? styles.cellToday : null,
               disabled ? styles.cellDisabled : null,
+              isDynamicCellStyle ? cellStyle : undefined,
             ]}
-            testID={`calendar-cell-${normalized}`}
           >
             <Text
               color={selected ? 'lightSolid' : isToday ? 'primaryText' : 'default'}
               numberOfLines={1}
-              style={slotStyles?.dateText}
+              style={dateTextStyle}
             >
               {mode === 'year' ? normalized : normalized.split('-').at(-1)}
             </Text>
@@ -427,10 +480,10 @@ function CalendarGrid({
                 )}
               </View>
             ) : null}
-          </Pressable>
+          </Grid.Item>
         );
       })}
-    </View>
+    </Grid>
   );
 }
 
@@ -638,6 +691,7 @@ function CalendarPickerViewRoot({
   previousText,
   readonly,
   showConfirm,
+  showHeader = true,
   showToday,
   showValue = true,
   size,
@@ -646,6 +700,7 @@ function CalendarPickerViewRoot({
   today,
   todayText = DEFAULT_TODAY_TEXT,
   value,
+  weekStartsOn = 'sunday',
 }: CalendarPickerViewProps) {
   const { token } = useTheme();
   const resolvedMode = resolveMode(mode);
@@ -704,7 +759,7 @@ function CalendarPickerViewRoot({
 
   return (
     <View style={[tokenStyles.root, styles?.root, style]}>
-      <CalendarHeader
+      {showHeader ? <CalendarHeader
         disabled={disabled}
         mode={resolvedMode}
         next={next}
@@ -727,14 +782,20 @@ function CalendarPickerViewRoot({
         slotStyles={styles}
         styles={tokenStyles}
         valueText={valueText}
-      />
+      /> : null}
       {resolvedMode === 'date' ? (
         <View style={[tokenStyles.weekHeader, styles?.weekHeader]}>
-          {WEEK_DAYS.map(day => (
+          {weekStartsOn === 'monday'
+            ? [...WEEK_DAYS.slice(1), WEEK_DAYS[0]].map(day => (
+                <View key={day} style={tokenStyles.weekCell}>
+                  <Text color="tertiary" style={styles?.weekText}>{day}</Text>
+                </View>
+              ))
+            : WEEK_DAYS.map(day => (
             <View key={day} style={tokenStyles.weekCell}>
               <Text color="tertiary" style={styles?.weekText}>{day}</Text>
             </View>
-          ))}
+              ))}
         </View>
       ) : null}
       <CalendarGrid
@@ -746,6 +807,8 @@ function CalendarPickerViewRoot({
         selectedValue={visibleValue}
         slotStyles={styles}
         styles={tokenStyles}
+        weekStartsOn={weekStartsOn}
+        size={resolvedSize}
       />
       {showToday || showConfirm ? (
         <CalendarFooter
@@ -900,6 +963,8 @@ function CalendarPickerViewRange({
         rangeValue={committedValue}
         slotStyles={styles}
         styles={tokenStyles}
+        weekStartsOn="sunday"
+        size={resolvedSize}
       />
       {showToday || showConfirm ? (
         <CalendarFooter

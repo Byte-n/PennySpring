@@ -72,6 +72,9 @@ export { Badge } from './Badge';
 export type { BadgeColor, BadgeProps, BadgeStyles } from './Badge';
 export { CalendarPicker, CalendarPickerView } from './CalendarPicker';
 export type {
+  CalendarPickerViewCellState,
+  CalendarPickerViewCellStyle,
+  CalendarPickerViewDateTextStyle,
   CalendarPickerMark,
   CalendarPickerPrecision,
   CalendarPickerProps,
