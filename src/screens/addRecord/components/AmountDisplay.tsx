@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Pressable } from 'react-native';
 import { Text, CalculatorInput, Column } from '@pennyspring/ui';
 import { createUseSheetStyle, toShadowStyle } from '@pennyspring/theme';
 import { useAddRecordContext } from '../AddRecordContext';
-import { yuanToCents } from '../addRecordDraft';
+import { formatCentsAsExpression, yuanToCents } from '../addRecordDraft';
 
 const useStyles = createUseSheetStyle(token => ({
   card: {
@@ -20,7 +20,19 @@ const useStyles = createUseSheetStyle(token => ({
 
 export function AmountDisplay() {
   const { amount, setAmount } = useAddRecordContext();
-  const [popupOpen, setPopupOpen] = useState(false);
+  const {
+    isOpen,
+    value,
+    open,
+    setOpen,
+    setValue,
+    handleOk,
+  } = CalculatorInput.useCalculatorValueState({
+    initialValue: formatCentsAsExpression(amount),
+    onOk: params => {
+      setAmount(yuanToCents(params.result));
+    },
+  });
   const styles = useStyles();
 
   const displayText = `¥ ${(amount / 100).toFixed(2)}`;
@@ -30,7 +42,7 @@ export function AmountDisplay() {
       <Pressable
         testID="amount-pressable"
         style={styles.card}
-        onPress={() => setPopupOpen(true)}
+        onPress={open}
       >
         <Column align="center">
           <Text testID="amount-text" color="primary" size="h1">
@@ -39,12 +51,11 @@ export function AmountDisplay() {
         </Column>
       </Pressable>
       <CalculatorInput.Popup
-        open={popupOpen}
-        onOpenChange={setPopupOpen}
-        onOk={params => {
-          setAmount(yuanToCents(params.result));
-          setPopupOpen(false);
-        }}
+        open={isOpen}
+        onOpenChange={setOpen}
+        onChange={setValue}
+        onOk={handleOk}
+        value={value}
       />
     </>
   );

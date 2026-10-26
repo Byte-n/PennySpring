@@ -20,6 +20,7 @@ jest.mock('../src/stores/bookStore', () => ({
 import {
   buildCreateRecordInput,
   filterTransferAssets,
+  formatCentsAsExpression,
   getRelatedExpenseCandidates,
   normalizeMoneyTextToCents,
   validateAddRecordDraft,
@@ -90,6 +91,14 @@ describe('addRecordDraft', () => {
     expect(normalizeMoneyTextToCents('12.34')).toBe(1234);
     expect(normalizeMoneyTextToCents('')).toBe(0);
     expect(normalizeMoneyTextToCents('abc')).toBe(0);
+  });
+
+  test('formats cents as calculator expression without trailing zeros', () => {
+    expect(formatCentsAsExpression(1234)).toBe('12.34');
+    expect(formatCentsAsExpression(1230)).toBe('12.3');
+    expect(formatCentsAsExpression(1200)).toBe('12');
+    expect(formatCentsAsExpression(0)).toBe('');
+    expect(formatCentsAsExpression(-1)).toBe('');
   });
 
   test('builds expense create input with reimbursable and attachments', () => {

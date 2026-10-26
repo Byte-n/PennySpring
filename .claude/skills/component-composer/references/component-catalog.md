@@ -33,7 +33,7 @@
 - `Textarea`：多行文本输入。
 - `DisplayInput`：只读或触发式输入展示。
 - `ImagePicker`：以 `DisplayInput` 作为触发器，从相册或文件管理选择单张图片。
-- `CalculatorInput`：带计算器弹窗的数字输入。
+- `CalculatorInput`：带计算器弹窗的数字输入。`CalculatorInput.useCalculatorValueState` 封装弹层开关与表达式状态，打开时回填初始值，确认后再收起。
 - `Stepper`：递增/递减数值调节。
 - `Slider`：范围或数值调节。
 - `Switch`：布尔开关。

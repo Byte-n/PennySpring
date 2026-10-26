@@ -1,8 +1,10 @@
 import { CalculatorInput as CalculatorInputRoot } from './CalculatorInput';
 import { CalculatorInputPopup } from './CalculatorInputPopup';
+import { useCalculatorValueState } from './useCalculatorValueState';
 
 export const CalculatorInput = Object.assign(CalculatorInputRoot, {
   Popup: CalculatorInputPopup,
+  useCalculatorValueState,
 });
 
 export type {
@@ -11,3 +13,7 @@ export type {
   CalculatorInputProps,
   CalculatorInputStyles,
 } from './types';
+export type {
+  CalculatorValueState,
+  UseCalculatorValueStateOptions,
+} from './useCalculatorValueState';

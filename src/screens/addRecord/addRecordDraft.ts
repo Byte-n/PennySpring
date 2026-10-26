@@ -51,6 +51,25 @@ export function formatAmount(cents: number | undefined): string {
   return ((cents ?? 0) / CENTS_PER_YUAN).toFixed(2);
 }
 
+const TRAILING_ZEROS_PATTERN = /0+$/;
+const DECIMAL_POINT = '.';
+
+/**
+ * 把分格式化为计算器表达式文本，去掉无意义的尾随零。
+ * 0 或非法值返回空串，让 CalculatorInput 显示占位符。
+ */
+export function formatCentsAsExpression(cents: number): string {
+  if (!Number.isFinite(cents) || cents <= 0) {
+    return '';
+  }
+
+  const amountText = formatAmount(cents).replace(TRAILING_ZEROS_PATTERN, '');
+
+  return amountText.endsWith(DECIMAL_POINT)
+    ? amountText.slice(0, -1)
+    : amountText;
+}
+
 export function isAbsorptionIncomeType(
   typeRow: TypeRow | undefined,
 ): typeRow is TypeRow {

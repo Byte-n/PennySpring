@@ -123,6 +123,8 @@ export type {
   CalculatorInputPopupProps,
   CalculatorInputProps,
   CalculatorInputStyles,
+  CalculatorValueState,
+  UseCalculatorValueStateOptions,
 } from './CalculatorInput';
 export { Slider } from './Slider';
 export type { SliderProps, SliderStyles } from './Slider';

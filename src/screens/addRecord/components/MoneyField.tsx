@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Pressable } from 'react-native';
 import { CalculatorInput, Input } from '@pennyspring/ui';
 import { createUseSheetStyle } from '@pennyspring/theme';
 
-import { formatAmount, yuanToCents } from '../addRecordDraft';
+import { formatAmount, formatCentsAsExpression, yuanToCents } from '../addRecordDraft';
 
 const MONEY_FIELD_WIDTH = 100;
 
@@ -24,13 +24,25 @@ export function MoneyField({
   placeholder = '请选择金额',
   value,
 }: MoneyFieldProps) {
-  const [popupOpen, setPopupOpen] = useState(false);
+  const {
+    isOpen,
+    value: expressionValue,
+    open,
+    setOpen,
+    setValue,
+    handleOk,
+  } = CalculatorInput.useCalculatorValueState({
+    initialValue: formatCentsAsExpression(value),
+    onOk: params => {
+      onChange(yuanToCents(params.result));
+    },
+  });
   const valueText = value > 0 ? `¥ ${formatAmount(value)}` : '';
   const styles = useStyles();
 
   return (
     <>
-      <Pressable onPress={() => setPopupOpen(true)}>
+      <Pressable onPress={open}>
         <Input
           labelText={labelText}
           placeholder={placeholder}
@@ -40,12 +52,11 @@ export function MoneyField({
         />
       </Pressable>
       <CalculatorInput.Popup
-        open={popupOpen}
-        onOpenChange={setPopupOpen}
-        onOk={params => {
-          onChange(yuanToCents(params.result));
-          setPopupOpen(false);
-        }}
+        open={isOpen}
+        onOpenChange={setOpen}
+        onChange={setValue}
+        onOk={handleOk}
+        value={expressionValue}
       />
     </>
   );
