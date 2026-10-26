@@ -1,6 +1,7 @@
 # 组件视觉与布局规范
 
 > 本文件只规定组件形态、布局、交互。颜色、字号、间距、圆角、边框、阴影、动效数值遵循 `theme-tokens`，不在此重复。
+> HTML 设计稿、视觉规范与设计提示词见 [design/ui-design-spec.md](../design/ui-design-spec.md)。
 
 ## 设计定位
 

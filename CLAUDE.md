@@ -85,6 +85,7 @@ Reanimated 极简核心总结：
 ### 设计 / 布局
 
 - 界面组成优先使用 `component-composer` 技能获取布局指导。
+- 视觉设计稿、视觉规范、设计提示词：遵循 `.claude/rules/design/ui-design-spec.md`。
 - 适配键盘弹出时必须优先使用 `@pennyspring/ui` 的 `KeyboardAware` 系列能力。
 
 ## 本地化与格式
