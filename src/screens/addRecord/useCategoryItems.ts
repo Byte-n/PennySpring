@@ -7,19 +7,21 @@ import { useBookStore, useGlobalApi } from '../../stores/bookStore';
 
 interface UseCategoryItemsResult {
   categories: TypeRow[];
+  error?: Error;
   loading: boolean;
+  refresh: () => void;
 }
 
 export function useCategoryItems(typeCategory: RecordTypeCategoryValue): UseCategoryItemsResult {
   const currentBook = useBookStore(state => state.currentBook);
   const globalApi = useGlobalApi();
 
-  const { data = [], loading } = useRequest(
+  const { data = [], error, loading, refresh } = useRequest(
     () => currentBook
       ? globalApi.type.getByCategory(typeCategory, currentBook.id)
       : Promise.resolve([]),
     { refreshDeps: [typeCategory, currentBook?.id] },
   )
 
-  return { categories: data, loading }
+  return { categories: data, error, loading, refresh };
 }

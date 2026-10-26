@@ -156,7 +156,7 @@ function AddRecordContent({
 
   return (
     <ThemeProvider config={{ token: { colorPrimary: tabColor } }}>
-      <KeyboardAwareScreen>
+      <KeyboardAwareScreen style={styles.screen}>
         {isTemplateMode && (
           <Input
             labelText="模板名称"
@@ -201,8 +201,12 @@ const useStyles = createUseSheetStyle(token => ({
   sceneContainer: {
     paddingHorizontal: token.paddingContentHorizontal,
   },
+  screen: {
+    backgroundColor: token.colorBgLayout,
+  },
   nameField: {
     paddingHorizontal: token.paddingContentHorizontal,
-    paddingVertical: token.paddingContentVertical,
+    paddingTop: token.paddingMD,
+    paddingBottom: token.paddingXS,
   },
 }));

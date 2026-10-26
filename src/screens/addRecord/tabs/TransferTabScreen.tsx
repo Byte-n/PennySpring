@@ -7,13 +7,12 @@ import {
   KeyboardAwareFormScroll,
   Row,
   ListPicker,
-  Text,
   useToast,
 } from '@pennyspring/ui';
 import { RECORD_TYPE_CATEGORY } from '@pennyspring/api';
 import { createUseSheetStyle, ThemeProvider, useTheme } from '@pennyspring/theme';
 import { AmountDisplay } from '../components/AmountDisplay';
-import { CategoryGrid } from '../../../component/CategoryGrid';
+import { CategoryField } from '../components/CategoryField';
 import { RemarkInput } from '../components/RemarkInput';
 import { useCategoryItems } from '../useCategoryItems';
 import { useAddRecordContext } from '../AddRecordContext';
@@ -63,7 +62,12 @@ export function TransferTabScreen() {
   const [submitting, setSubmitting] = useState(false);
   const addTemplate = useQuickTemplateStore(state => state.addTemplate);
   const updateTemplate = useQuickTemplateStore(state => state.updateTemplate);
-  const { categories, loading: categoriesLoading } = useCategoryItems(
+  const {
+    categories,
+    error: categoriesError,
+    loading: categoriesLoading,
+    refresh: refreshCategories,
+  } = useCategoryItems(
     RECORD_TYPE_CATEGORY.transfer,
   );
   const {
@@ -225,19 +229,19 @@ export function TransferTabScreen() {
         styles={{ content: styles.page }}
       >
         <Column gap={token.marginMD}>
-          <AmountDisplay labelText="转账金额" />
-          <CategoryGrid
-            categories={categories}
-            value={typeId}
-            onChange={setTypeId}
-          />
-          {categoriesLoading ? (
-            <Text color="description" size="sm">
-              分类加载中
-            </Text>
-          ) : null}
-          <Card>
-            <Row wrap gap={10}>
+          <AmountDisplay />
+          <Card variant="elevated">
+            <CategoryField
+              categories={categories}
+              error={categoriesError}
+              loading={categoriesLoading}
+              onRetry={refreshCategories}
+              value={typeId}
+              onChange={setTypeId}
+            />
+          </Card>
+          <Card variant="elevated">
+            <Row wrap gap={token.marginSM}>
               <ListPicker
                 labelText="转出资产"
                 loading={assetsLoading}
@@ -317,7 +321,9 @@ export function TransferTabScreen() {
               />
             </Row>
           </Card>
-          <RemarkInput />
+          <Card variant="elevated">
+            <RemarkInput />
+          </Card>
           <Button block loading={submitting} onPress={handleSave} type="primary">
             {template ? '保存模板' : '保存转账'}
           </Button>

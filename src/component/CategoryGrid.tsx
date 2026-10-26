@@ -3,9 +3,9 @@ import { Pressable, StyleProp, ViewStyle } from 'react-native';
 import {
   Grid,
   Column,
+  Empty,
   Text,
   Icon,
-  List,
   type GridProps,
   type IconComponent,
 } from '@pennyspring/ui';
@@ -32,9 +32,14 @@ interface CategoryGridProps {
 }
 
 const useStyles = createUseSheetStyle(token => ({
-  subcategoryContainer: { paddingHorizontal: 0 },
-  header: { paddingHorizontal: 0, paddingVertical: token.paddingSM },
   root: { borderRadius: token.borderRadius, overflow: 'hidden' },
+  groupHeader: {
+    minHeight: token.controlHeight,
+    justifyContent: 'center',
+    paddingHorizontal: 0,
+    paddingVertical: token.paddingSM,
+    backgroundColor: token.colorFillAlter,
+  },
   cells: { flex: 1 },
 }));
 
@@ -60,12 +65,6 @@ export function CategoryGrid(props: CategoryGridProps) {
   }, [categories]);
 
   const handlePrimarySelect = useCallback((catId: number) => {
-    const category = tree.find(cat => cat.id === catId);
-    if (!category?.children?.length) {
-      onSelect(catId);
-      return;
-    }
-
     onSelect(catId);
 
     setExpandedIds(prev => {
@@ -99,11 +98,8 @@ export function CategoryGrid(props: CategoryGridProps) {
         const isOpen = expandedCatInList !== undefined;
         const expandedCat = expandedCatInList ?? getExpandedCat(value);
         return (
-          <List
-            key={list[0].id}
-            collapsible
-            open={isOpen}
-            title={
+          <Column key={list[0].id}>
+            <Column style={styles.groupHeader}>
               <Cells
                 list={list}
                 onSelect={onSelect}
@@ -112,22 +108,21 @@ export function CategoryGrid(props: CategoryGridProps) {
                 expandedIds={expandedIds}
                 onItemLongPress={onItemLongPress}
               />
-            }
-            styles={{
-              groupHeader: styles.header,
-              content: [styles.subcategoryContainer],
-            }}
-          >
-            {expandedCat?.expand !== false && expandedCat?.children && (
-              <Cells
-                list={expandedCat?.children}
-                onSelect={onSelect}
-                value={value}
-                parentId={expandedCat.id}
-                onItemLongPress={onItemLongPress}
-              />
-            )}
-          </List>
+            </Column>
+            {isOpen && expandedCat?.expand !== false && expandedCat?.children
+              ? expandedCat.children.length > 0
+                ? (
+                  <Cells
+                    list={expandedCat.children}
+                    onSelect={onSelect}
+                    value={value}
+                    parentId={expandedCat.id}
+                    onItemLongPress={onItemLongPress}
+                  />
+                )
+                : <Empty size="small" messageText="暂无二级类型" />
+              : null}
+          </Column>
         );
       })}
     </Column>
