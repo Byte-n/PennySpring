@@ -23,77 +23,81 @@ export const useStyles = createUseSheetStyle(
   (token, { disabled }: CalculatorInputStyleOptions) => ({
     display: {
       minHeight: token.controlHeightLG + token.controlHeightSM,
-      paddingHorizontal: token.controlPaddingHorizontal,
-      paddingVertical: token.controlPaddingHorizontal / 2,
-      borderWidth: token.lineWidth,
-      borderRadius: token.borderRadius,
-      borderColor: disabled ? token.colorBorderDisabled : token.colorBorder,
+      paddingHorizontal: token.padding,
+      paddingTop: token.paddingXS,
+      paddingBottom: token.paddingXS,
+      borderRadius: token.borderRadiusLG,
       backgroundColor: disabled
         ? token.colorBgContainerDisabled
-        : token.colorBgContainer,
-      justifyContent: 'center',
+        : token.colorFillQuaternary,
+      justifyContent: 'flex-end',
     },
     input: {
       padding: 0,
       margin: 0,
-      fontFamily: token.fontFamilyCode,
-      fontSize: token.fontSizeXL,
-      lineHeight: token.lineHeightXL,
-      color: disabled ? token.colorTextDisabled : token.colorTextHeading,
+      fontFamily: token.fontFamily,
+      fontSize: token.fontSizeLG,
+      lineHeight: token.lineHeightLG,
+      color: disabled ? token.colorTextDisabled : token.colorTextSecondary,
       textAlign: 'right',
+      fontVariant: ['tabular-nums'],
     } as TextStyle,
-    result: {
-      minHeight: token.lineHeight,
-      fontFamily: token.fontFamilyCode,
-      textAlign: 'right',
+    resultRow: {
+      minHeight: token.lineHeightHeading3,
+    },
+    resultText: {
+      lineHeight: token.lineHeightHeading3,
+      fontVariant: ['tabular-nums'],
     } as TextStyle,
     key: {
       flex: 1,
       minHeight: SIZE_CONFIG.keyHeight(token),
-      borderRadius: token.borderRadius,
-      borderWidth: token.lineWidth,
-      borderColor: disabled ? token.colorBorderDisabled : token.colorBorder,
+      borderRadius: token.borderRadiusLG,
       backgroundColor: disabled
         ? token.colorBgContainerDisabled
-        : token.colorBgContainer,
+        : token.colorFillTertiary,
       alignItems: 'center',
       justifyContent: 'center',
     },
-    keyPressed: {
-      backgroundColor: token.colorBgTextActive,
-      borderColor: token.colorPrimaryBorder,
-    },
-    operatorKey: {
+    functionKey: {
       backgroundColor: disabled
         ? token.colorBgContainerDisabled
         : token.colorFillQuaternary,
     },
+    operatorKey: {
+      backgroundColor: disabled
+        ? token.colorBgContainerDisabled
+        : token.colorPrimaryBg,
+    },
+    keyPressed: {
+      backgroundColor: token.colorFillSecondary,
+    },
+    functionKeyPressed: {
+      backgroundColor: token.colorFillTertiary,
+    },
+    operatorKeyPressed: {
+      backgroundColor: token.colorPrimaryBgHover,
+    },
     keyText: {
       fontFamily: token.fontFamily,
-    },
-    mutedKeyText: {
-      color: disabled ? token.colorTextDisabled : token.colorTextSecondary,
     },
     okKey: {
       minHeight: SIZE_CONFIG.okKeyHeight(token),
       backgroundColor: disabled
         ? token.colorBgContainerDisabled
         : token.colorPrimary,
-      borderColor: disabled ? token.colorBorderDisabled : token.colorPrimary,
     },
     okKeyPressed: {
       backgroundColor: token.colorPrimaryActive,
-      borderColor: token.colorPrimaryActive,
     },
     okKeyUnavailable: {
       backgroundColor: token.colorBgContainerDisabled,
-      borderColor: token.colorBorderDisabled,
     },
     okKeyText: {
       fontFamily: token.fontFamily,
     },
-    okKeyTextUnavailable: {
-      color: token.colorTextDisabled,
+    readonlyKeypad: {
+      opacity: token.opacityLoading,
     },
     leftPad: {
       flex: LEFT_KEYPAD_FLEX_RATIO,

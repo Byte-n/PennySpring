@@ -9,7 +9,7 @@ import { Text } from '../Text';
 import { useControllableValue } from '../_hooks';
 import { useStyles } from './style';
 import type { CalculatorInputProps, CalculatorInputStyles } from './types';
-import type { TextColor } from '../Text/types';
+import type { TextColor, TextSize, TextWeight } from '../Text/types';
 
 type Operator = '+' | '-' | '×' | '/';
 type EvaluationOperator = '+' | '-' | '*' | '/';
@@ -34,11 +34,14 @@ interface NumberParseResult {
 
 const EXPRESSION_PLACEHOLDER = '0';
 const EMPTY_TEXT = '';
+const EMPTY_RESULT_TEXT = '—';
 const ZERO_TEXT = '0';
 const DECIMAL_POINT = '.';
 const OK_KEY_LABEL = '=';
+const RESULT_SIGN_TEXT = '=';
 const KEYPAD_TOP_ROW_COUNT = 3;
 const MAX_FRACTION_DIGITS = 10;
+const MAX_RESULT_DISPLAY_LENGTH = 9;
 const DIVIDE_BY_ZERO = 0;
 
 const KEY_ROWS: readonly (readonly CalculatorKeyConfig[])[] = [
@@ -453,8 +456,8 @@ function evaluateExpression(expression: string): CalculatorInputResult {
   };
 }
 
-function isMutedKey(key: CalculatorKeyConfig): boolean {
-  return key.role === 'operator' || key.role === 'clear' || key.role === 'backspace' || key.role === 'paren';
+function isFunctionKey(key: CalculatorKeyConfig): boolean {
+  return key.role === 'clear' || key.role === 'backspace' || key.role === 'paren';
 }
 
 function getKeyTextColor(key: CalculatorKeyConfig, disabled: boolean): TextColor {
@@ -462,11 +465,19 @@ function getKeyTextColor(key: CalculatorKeyConfig, disabled: boolean): TextColor
     return 'disabled';
   }
 
-  if (isMutedKey(key)) {
+  if (isFunctionKey(key)) {
     return 'secondary';
   }
 
   return 'default';
+}
+
+function getKeyTextSize(key: CalculatorKeyConfig): TextSize {
+  return isFunctionKey(key) ? 'lg' : 'xl';
+}
+
+function getKeyTextWeight(key: CalculatorKeyConfig): TextWeight {
+  return key.role === 'operator' ? 'semibold' : 'medium';
 }
 
 function renderKeyContent(
@@ -488,13 +499,9 @@ function renderKeyContent(
   return (
     <Text
       color={getKeyTextColor(key, disabled)}
-      size="lg"
-      weight="medium"
-      style={[
-        tokenStyles.keyText,
-        isMutedKey(key) && !disabled ? tokenStyles.mutedKeyText : null,
-        keyTextStyle,
-      ]}
+      size={getKeyTextSize(key)}
+      weight={getKeyTextWeight(key)}
+      style={[tokenStyles.keyText, keyTextStyle]}
     >
       {key.label}
     </Text>
@@ -530,7 +537,16 @@ export function CalculatorInput({
   );
   const isReadOnly = disabled || readonly;
   const result = useMemo(() => evaluateExpression(expression), [expression]);
-  const canConfirm = !isReadOnly && result.value !== null;
+  const hasResult = result.value !== null;
+  const resultText = hasResult ? result.display : EMPTY_RESULT_TEXT;
+  const isLongResult = hasResult && result.display.length > MAX_RESULT_DISPLAY_LENGTH;
+  const resultColor: TextColor = disabled
+    ? 'disabled'
+    : hasResult
+      ? 'default'
+      : 'tertiary';
+  const resultSignColor: TextColor = disabled ? 'disabled' : 'tertiary';
+  const canConfirm = !isReadOnly && hasResult;
   const keyHitSlop = useMemo(() => createKeypadHitSlop(token), [token]);
 
   function updateExpression(nextExpression: string): void {
@@ -587,6 +603,12 @@ export function CalculatorInput({
 
   function renderKey(key: CalculatorKeyConfig) {
     const isOperatorKey = key.role === 'operator';
+    const isFunction = isFunctionKey(key);
+    const pressedStyle = isOperatorKey
+      ? tokenStyles.operatorKeyPressed
+      : isFunction
+        ? tokenStyles.functionKeyPressed
+        : tokenStyles.keyPressed;
 
     return (
       <Pressable
@@ -598,8 +620,9 @@ export function CalculatorInput({
         }}
         style={({ pressed }) => [
           tokenStyles.key,
+          isFunction ? tokenStyles.functionKey : null,
           isOperatorKey ? tokenStyles.operatorKey : null,
-          pressed && !isReadOnly ? tokenStyles.keyPressed : null,
+          pressed && !isReadOnly ? pressedStyle : null,
           styles?.key,
         ]}
         testID={`calc-key-${key.label || key.role}`}
@@ -610,7 +633,7 @@ export function CalculatorInput({
   }
 
   return (
-    <Column gap={token.sizeSM} style={style}>
+    <Column gap={token.size} style={style}>
       <Column gap={token.sizeXXS} style={[tokenStyles.display, styles?.display]}>
         <TextInput
           editable={false}
@@ -619,15 +642,33 @@ export function CalculatorInput({
           style={[tokenStyles.input, styles?.input]}
           value={expression}
         />
-        <Text
-          color={disabled ? 'disabled' : 'secondary'}
-          size="md"
-          style={[tokenStyles.result, styles?.result]}
+        <Row
+          align="baseline"
+          gap={token.sizeXXS}
+          justify="end"
+          style={tokenStyles.resultRow}
         >
-          {result.display}
-        </Text>
+          <Text color={resultSignColor} size="sm" weight="medium">
+            {RESULT_SIGN_TEXT}
+          </Text>
+          <Text
+            color={resultColor}
+            size={isLongResult ? 'h3' : 'h2'}
+            style={[tokenStyles.resultText, styles?.result]}
+            testID="calc-result"
+            weight={hasResult ? 'strong' : 'medium'}
+          >
+            {resultText}
+          </Text>
+        </Row>
       </Column>
-      <Column gap={token.sizeXS} style={styles?.keypad}>
+      <Column
+        gap={token.sizeXS}
+        style={[
+          readonly && !disabled ? tokenStyles.readonlyKeypad : null,
+          styles?.keypad,
+        ]}
+      >
         {KEY_ROWS.slice(0, KEYPAD_TOP_ROW_COUNT).map(row => (
           <Row
             key={row.map(key => key.label || key.role).join('-')}
@@ -662,11 +703,10 @@ export function CalculatorInput({
           >
             <Text
               color={!canConfirm ? 'disabled' : 'lightSolid'}
-              size="lg"
-              weight="medium"
+              size="h4"
+              weight="semibold"
               style={[
                 tokenStyles.okKeyText,
-                !canConfirm ? tokenStyles.okKeyTextUnavailable : null,
                 styles?.keyText,
                 styles?.okKeyText,
               ]}

@@ -51,7 +51,7 @@ function findButton(testRenderer: renderer.ReactTestRenderer, label: string) {
 }
 
 function findResultText(testRenderer: renderer.ReactTestRenderer) {
-  return testRenderer.root.findAllByType(Text)[0];
+  return testRenderer.root.findByProps({ testID: 'calc-result' });
 }
 
 function press(testRenderer: renderer.ReactTestRenderer, label: string) {
@@ -76,14 +76,20 @@ describe('CalculatorInput', () => {
     expect(onChange).toHaveBeenLastCalledWith('1+2×3');
   });
 
-  it('shows an empty result when the current expression cannot be evaluated', () => {
+  it('shows a dash before any expression is entered', () => {
+    const testRenderer = renderCalculatorInput();
+
+    expect(findResultText(testRenderer).props.children).toBe('—');
+  });
+
+  it('shows a dash when the current expression cannot be evaluated', () => {
     const testRenderer = renderCalculatorInput();
 
     press(testRenderer, '数字 1');
     press(testRenderer, '加');
 
     expect(findDisplay(testRenderer).props.value).toBe('1+');
-    expect(findResultText(testRenderer).props.children).toBe('');
+    expect(findResultText(testRenderer).props.children).toBe('—');
   });
 
   it('clears and deletes expression input', () => {
@@ -299,19 +305,22 @@ describe('CalculatorInput styling compliance', () => {
     });
     const text = sevenKey.findByType(Text);
 
-    expect(text.props.size).toBe('lg');
+    expect(text.props.size).toBe('xl');
     expect(text.props.weight).toBe('medium');
     expect(text.props.color).toBe('default');
   });
 
-  it('uses TextProps for muted key text color', () => {
+  it('uses TextProps for function and operator key text colors', () => {
     const testRenderer = renderCalculatorInput();
-    const plusKey = testRenderer.root.findByProps({
-      testID: 'calc-key-+',
-    });
-    const text = plusKey.findByType(Text);
+    const clearText = testRenderer.root
+      .findByProps({ testID: 'calc-key-C' })
+      .findByType(Text);
+    const plusText = testRenderer.root
+      .findByProps({ testID: 'calc-key-+' })
+      .findByType(Text);
 
-    expect(text.props.color).toBe('secondary');
+    expect(clearText.props.color).toBe('secondary');
+    expect(plusText.props.color).toBe('default');
   });
 
   it('uses TextProps for ok key text size, weight, and color', () => {
@@ -319,8 +328,8 @@ describe('CalculatorInput styling compliance', () => {
     const okKey = testRenderer.root.findByProps({ testID: 'calc-key-ok' });
     const text = okKey.findByType(Text);
 
-    expect(text.props.size).toBe('lg');
-    expect(text.props.weight).toBe('medium');
+    expect(text.props.size).toBe('h4');
+    expect(text.props.weight).toBe('semibold');
     expect(text.props.color).toBe('lightSolid');
   });
 
@@ -328,8 +337,8 @@ describe('CalculatorInput styling compliance', () => {
     const testRenderer = renderCalculatorInput({ defaultValue: '1+2' });
     const resultText = findResultText(testRenderer);
 
-    expect(resultText.props.size).toBe('md');
-    expect(resultText.props.color).toBe('secondary');
+    expect(resultText.props.size).toBe('h2');
+    expect(resultText.props.color).toBe('default');
   });
 
   it('uses flex layout for left keypad area instead of hardcoded percentage width', () => {
