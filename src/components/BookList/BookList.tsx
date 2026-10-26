@@ -13,6 +13,7 @@ import {
 } from '@pennyspring/ui';
 import { BOOK_TYPE, type BookRow } from '@pennyspring/api';
 import { createUseSheetStyle } from '@pennyspring/theme';
+import { NetworkIcon } from 'phosphor-react-native';
 import type { BookEntry, CurrentBookRef } from '../../stores/bookStore';
 import type { NetworkBookRef } from '../../stores/networkBookStore';
 
@@ -116,6 +117,7 @@ const useStyles = createUseSheetStyle(token => ({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    gap: token.marginXXS,
     padding: token.paddingXS,
   },
   cardCoverPlaceholderText: {
@@ -293,7 +295,16 @@ export function BookList({
                   </Column>
                 </Column>
                 <Column style={styles.cardCover}>
-                  {entry.background ? (
+                  {isRemote ? (
+                    <Column style={styles.cardCoverPlaceholder}>
+                      <Icon
+                        color="tertiary"
+                        icon={NetworkIcon}
+                        size="large"
+                      />
+                      <Text style={styles.cardCoverPlaceholderText}>网络</Text>
+                    </Column>
+                  ) : entry.background ? (
                     <Image
                       resizeMode="cover"
                       source={{ uri: entry.background }}

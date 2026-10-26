@@ -203,7 +203,6 @@ export function BookManageScreen() {
   const goToNetworkCreate = useCallback(() => {
     setName('');
     setDescription('');
-    setBackgroundImage(undefined);
     setDialogStep('networkCreate');
   }, []);
 
@@ -253,13 +252,13 @@ export function BookManageScreen() {
     if (!name.trim() || !url) {
       return;
     }
-    const background = getImageUri(backgroundImage);
     setSubmitting(true);
     try {
+      // 网络账本暂不支持上传图片，封面统一由客户端渲染为网络图标
       const created = await getRemoteApi(url).book.create({
         name,
         description,
-        background,
+        background: '',
       });
       addRef({ serverUrl: url, bookId: created.id });
       toast.show({ messageText: `已创建网络账本「${created.name}」` });
@@ -269,7 +268,7 @@ export function BookManageScreen() {
     } finally {
       setSubmitting(false);
     }
-  }, [addRef, backgroundImage, description, name, networkServerUrl, toast]);
+  }, [addRef, description, name, networkServerUrl, toast]);
 
   const handleSelectBook = useCallback(
     (ref: CurrentBookRef, entry: BookEntry) => {
@@ -436,12 +435,18 @@ export function BookManageScreen() {
               value={description}
               onChange={setDescription}
             />
-            <ImagePicker
-              label="图片"
-              onChange={setBackgroundImage}
-              labelText="选择图片"
-              value={backgroundImage}
-            />
+            {dialogStep === 'localForm' ? (
+              <ImagePicker
+                label="图片"
+                onChange={setBackgroundImage}
+                labelText="选择图片"
+                value={backgroundImage}
+              />
+            ) : (
+              <Text color="tertiary" size="sm">
+                网络账本暂不支持上传图片，封面统一使用网络图标
+              </Text>
+            )}
           </Column>
         ) : null}
 
