@@ -59,7 +59,7 @@ function NavigationShell({ children, isDark, onReady }: NavigationShellProps) {
 function AppContent() {
   const initializeBook = useBookStore((state) => state.initializeBook);
   const initStatus = useBookStore((state) => state.initStatus);
-  const { themeMode } = useThemeMode();
+  const { themeMode, themeToken } = useThemeMode();
 
   useEffect(() => {
     rehydrateNetworkBooks();
@@ -74,7 +74,7 @@ function AppContent() {
     return (
       <SafeAreaProvider>
         <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
-        <ThemeProvider config={{ algorithm: themeMode }}>
+        <ThemeProvider config={{ algorithm: themeMode, token: themeToken }}>
           <PSApp>
             <BookLoadingScreen />
           </PSApp>
@@ -87,7 +87,7 @@ function AppContent() {
     return (
       <SafeAreaProvider>
         <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
-        <ThemeProvider config={{ algorithm: themeMode }}>
+        <ThemeProvider config={{ algorithm: themeMode, token: themeToken }}>
           <NavigationShell isDark={isDark}>
             <PSApp>
               <BookSelectNavigator />
@@ -101,7 +101,7 @@ function AppContent() {
   return (
     <SafeAreaProvider>
       <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
-      <ThemeProvider config={{ algorithm: themeMode }}>
+      <ThemeProvider config={{ algorithm: themeMode, token: themeToken }}>
         <NavigationShell
           isDark={isDark}
           onReady={() => {
