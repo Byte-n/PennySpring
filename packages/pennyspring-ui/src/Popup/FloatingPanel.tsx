@@ -151,7 +151,6 @@ const useStyles = createUseSheetStyle(
     const actionGap = sizeConfig.actionGap(token);
     const contentPadding = sizeConfig.contentPadding(token);
     const handleBorderRadius = sizeConfig.indicatorHeight(token);
-    const sectionMargin = sizeConfig.sectionMargin(token);
     const sectionPadding = sizeConfig.sectionPadding(token);
     return {
       popupBody: {
@@ -201,7 +200,6 @@ const useStyles = createUseSheetStyle(
         paddingHorizontal: contentPadding,
         paddingTop: sectionPadding,
         paddingBottom: contentPadding,
-        marginTop: sectionMargin,
       },
       footerButton: {
         flex: 1,

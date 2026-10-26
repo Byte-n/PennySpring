@@ -49,7 +49,6 @@ function getPickerPanelHeight(
     ? Math.max(token.controlHeight, itemHeight)
       + floatingPanelSize.contentPadding(token)
       + floatingPanelSize.sectionPadding(token)
-      + floatingPanelSize.sectionMargin(token)
     : 0;
   const pickerBodyInset = token.paddingMD + token.paddingSM;
   const wheelHeight = itemHeight * visibleItemCount;

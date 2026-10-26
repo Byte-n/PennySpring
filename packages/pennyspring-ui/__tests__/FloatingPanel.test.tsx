@@ -457,10 +457,10 @@ describe('Popup.FloatingPanel', () => {
   });
 
   it.each([
-    ['small', 11, 3, 7],
-    ['normal', 13, 5, 29],
-    ['large', 17, 7, 31],
-  ] as const)('maps %s size to floating panel spacing tokens', (size, expectedPadding, expectedActionGap, expectedSectionMargin) => {
+    ['small', 11, 3],
+    ['normal', 13, 5],
+    ['large', 17, 7],
+  ] as const)('maps %s size to floating panel spacing tokens', (size, expectedPadding, expectedActionGap) => {
     let testRenderer: renderer.ReactTestRenderer;
 
     act(() => {
@@ -511,8 +511,6 @@ describe('Popup.FloatingPanel', () => {
     expect(panelBodyStyle.paddingHorizontal).toBe(expectedPadding);
     expect(footerStyle.paddingHorizontal).toBe(expectedPadding);
     expect(footerStyle.gap).toBe(expectedActionGap);
-    expect(headerStyle.marginBottom).toBe(expectedSectionMargin);
-    expect(footerStyle.marginTop).toBe(expectedSectionMargin);
   });
 
   it('keeps panel open when closeOnCancel is false and cancel button is pressed', () => {

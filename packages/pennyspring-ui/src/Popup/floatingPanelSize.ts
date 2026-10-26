@@ -8,7 +8,6 @@ export interface FloatingPanelSizeConfig {
   handleHeight: (token: AliasToken) => number;
   handleWidth: (token: AliasToken) => number;
   indicatorHeight: (token: AliasToken) => number;
-  sectionMargin: (token: AliasToken) => number;
   sectionPadding: (token: AliasToken) => number;
   titleTextSize: TextSize;
 }
@@ -20,7 +19,6 @@ const SIZE_MAP: Record<ComponentSize, FloatingPanelSizeConfig> = {
     handleHeight: token => token.controlHeightXS,
     handleWidth: token => token.controlHeightSM,
     indicatorHeight: token => token.lineWidthBold,
-    sectionMargin: token => token.marginSM,
     sectionPadding: token => token.paddingSM,
     titleTextSize: 'md',
   },
@@ -30,7 +28,6 @@ const SIZE_MAP: Record<ComponentSize, FloatingPanelSizeConfig> = {
     handleHeight: token => token.controlHeightSM,
     handleWidth: token => token.controlHeight,
     indicatorHeight: token => token.sizeXXS,
-    sectionMargin: token => token.margin,
     sectionPadding: token => token.padding,
     titleTextSize: 'lg',
   },
@@ -40,7 +37,6 @@ const SIZE_MAP: Record<ComponentSize, FloatingPanelSizeConfig> = {
     handleHeight: token => token.controlHeight,
     handleWidth: token => token.controlHeightLG,
     indicatorHeight: token => token.sizeXS,
-    sectionMargin: token => token.marginMD,
     sectionPadding: token => token.paddingMD,
     titleTextSize: 'xl',
   },
