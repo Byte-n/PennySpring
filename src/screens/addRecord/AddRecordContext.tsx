@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext, useMemo, useState } from 'react';
+import React, { createContext, useCallback, useContext, useMemo, useRef, useState } from 'react';
 import type { ImagePickerValue } from '@pennyspring/ui';
 import type { RecordTypeCategoryValue } from '@pennyspring/api';
 
@@ -84,15 +84,24 @@ export interface AddRecordContextValue {
   initFromTemplate: (payload: AddRecordTemplatePayload) => void;
   initBlankTemplate: () => void;
   reset: () => void;
+  /**
+   * 一次性消费「进入新增记录后自动打开金额弹窗」的机会。
+   * 只有第一个挂载的金额组件会得到 true。
+   */
+  consumeAutoOpenAmount: () => boolean;
 }
 
 const AddRecordContext = createContext<AddRecordContextValue | null>(null);
 
 interface AddRecordProviderProps {
+  autoOpenAmount?: boolean;
   children: React.ReactNode;
 }
 
-export function AddRecordProvider({ children }: AddRecordProviderProps) {
+export function AddRecordProvider({
+  autoOpenAmount = false,
+  children,
+}: AddRecordProviderProps) {
   const [mode, setMode] = useState<AddRecordMode>('create');
   const [editingRecordId, setEditingRecordId] = useState<number>();
   const [template, setTemplate] = useState(false);
@@ -108,6 +117,16 @@ export function AddRecordProvider({ children }: AddRecordProviderProps) {
   const [images, setImages] = useState<ImagePickerValue[]>([]);
   const [assetId, setAssetId] = useState<number | null>(null);
   const [charge, setCharge] = useState(0);
+  const autoOpenAmountConsumedRef = useRef(false);
+
+  const consumeAutoOpenAmount = useCallback(() => {
+    if (autoOpenAmountConsumedRef.current) {
+      return false;
+    }
+
+    autoOpenAmountConsumedRef.current = true;
+    return autoOpenAmount;
+  }, [autoOpenAmount]);
 
   const reset = useCallback(() => {
     setMode('create');
@@ -224,11 +243,13 @@ export function AddRecordProvider({ children }: AddRecordProviderProps) {
       initFromTemplate,
       initBlankTemplate,
       reset,
+      consumeAutoOpenAmount,
     }),
     [
       amount,
       assetId,
       charge,
+      consumeAutoOpenAmount,
       editingRecordId,
       editingTemplateId,
       images,

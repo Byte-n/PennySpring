@@ -40,8 +40,10 @@ export function AddRecordScreen() {
   const preset = route.params?.preset;
   const template = route.params?.template;
   const templatePayload = route.params?.templatePayload;
+  const shouldAutoOpenAmount = recordId === undefined && template !== true;
+
   return (
-    <AddRecordProvider>
+    <AddRecordProvider autoOpenAmount={shouldAutoOpenAmount}>
       <AddRecordContent
         recordId={recordId}
         preset={preset}

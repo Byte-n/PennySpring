@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Pressable } from 'react-native';
 import { Text, CalculatorInput, Column } from '@pennyspring/ui';
 import { createUseSheetStyle, toShadowStyle } from '@pennyspring/theme';
@@ -19,7 +19,7 @@ const useStyles = createUseSheetStyle(token => ({
 }));
 
 export function AmountDisplay() {
-  const { amount, setAmount } = useAddRecordContext();
+  const { amount, consumeAutoOpenAmount, setAmount } = useAddRecordContext();
   const {
     isOpen,
     value,
@@ -34,6 +34,18 @@ export function AmountDisplay() {
     },
   });
   const styles = useStyles();
+  const autoOpenHandledRef = useRef(false);
+
+  useEffect(() => {
+    if (autoOpenHandledRef.current) {
+      return;
+    }
+
+    autoOpenHandledRef.current = true;
+    if (consumeAutoOpenAmount()) {
+      open();
+    }
+  }, [consumeAutoOpenAmount, open]);
 
   const displayText = `¥ ${(amount / 100).toFixed(2)}`;
 
