@@ -16,6 +16,7 @@ const useStyles = createUseSheetStyle(token => ({
   empty: { alignItems: 'center', padding: token.paddingLG },
   loading: { alignItems: 'center', padding: token.paddingSM },
   groupHeader: { minHeight: token.controlHeight, justifyContent: 'center', paddingHorizontal: token.paddingMD, backgroundColor: token.colorFillAlter },
+  groupHeaderTitle: { flex: 1 },
   item: { minHeight: token.controlHeight, flexDirection: 'row', alignItems: 'center', gap: token.marginSM, paddingHorizontal: token.paddingMD, paddingVertical: token.paddingMD / 2, borderBottomWidth: token.lineWidth, borderColor: token.colorSplit },
   itemPressed: { backgroundColor: token.colorBgTextHover },
   itemDisabled: { opacity: token.opacityLoading },
@@ -61,7 +62,7 @@ function ListInner<ItemT>({
   const headerNode = <>
     {header !== undefined ? <Column style={[styles.header, styleOverrides?.header]}>{renderTextNode(header, text => <Text color="secondary">{text}</Text>)}</Column> : null}
     {collapsible ? <Pressable onPress={() => setOpen(!isOpen)} style={[styles.groupHeader, styleOverrides?.groupHeader]}>
-      <Row align="center" justify="between"><Column>{renderTextNode(title ?? titleText, text => <Text weight="strong">{text}</Text>)}</Column><Text color="tertiary">{isOpen ? '⌄' : '›'}</Text></Row>
+      <Row align="center" justify="between"><Column style={styles.groupHeaderTitle}>{renderTextNode(title ?? titleText, text => <Text weight="strong">{text}</Text>)}</Column><Text color="tertiary">{isOpen ? '⌄' : '›'}</Text></Row>
     </Pressable> : null}
   </>;
   const footerNode = <>
