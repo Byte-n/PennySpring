@@ -5,7 +5,17 @@ import type {
   ViewStyle,
 } from 'react-native';
 import type { ComponentSize } from '../shares/types';
-import type { DisplayInputProps, DisplayInputStyles } from '../DisplayInput';
+import type { InputStatus } from '../Input';
+import type { DisplayInputProps } from '../DisplayInput';
+import type {
+  PickerDisplayInputProps,
+  PickerInputStyles,
+} from '../_internal/PickerTrigger';
+
+export type {
+  PickerDisplayInputProps,
+  PickerInputStyles,
+} from '../_internal/PickerTrigger';
 
 export type PickerValue = string | number;
 export type PickerOpenChangeReason = 'trigger' | 'cancel' | 'mask' | 'ok';
@@ -75,10 +85,6 @@ export interface PickerStyles {
   input?: PickerInputStyles;
   popup?: PickerPopupStyles;
   panel?: PickerPanelStyles;
-}
-
-export interface PickerInputStyles extends DisplayInputStyles {
-  root?: StyleProp<ViewStyle>;
 }
 
 export interface PickerPopupStyles {
@@ -161,11 +167,6 @@ export interface PickerPopupProps<
   renderHeader?: ((params: PickerRenderHeaderParams<TItem>) => ReactNode) | null;
 }
 
-export type PickerDisplayInputProps = Omit<
-  DisplayInputProps,
-  'label' | 'disabled' | 'readonly' | 'valueText' | 'style' | 'styles'
->;
-
 export interface PickerProps<
   TItem extends PickerColumnItemData = PickerColumnItemData,
 > {
@@ -191,6 +192,11 @@ export interface PickerProps<
   ) => string | undefined;
   labelText?: string;
   label?: DisplayInputProps['label'];
+  status?: InputStatus;
+  helperText?: string;
+  helper?: ReactNode | null;
+  errorText?: string;
+  error?: ReactNode | null;
   readonly?: boolean;
   displayInputProps?: PickerDisplayInputProps;
   popupProps?: PickerPopupProps<TItem>;

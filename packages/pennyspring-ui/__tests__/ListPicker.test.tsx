@@ -375,4 +375,46 @@ describe('ListPicker', () => {
     expect(optionLabel.props.size).toBe('lg');
     expect(optionLabel.props.color).toBe('disabled');
   });
+
+  it('clears the selected value when allowClear is pressed', () => {
+    const onChange = jest.fn();
+    const onClear = jest.fn();
+    const testRenderer = renderListPicker({
+      allowClear: true,
+      onChange,
+      onClear,
+      value: 'cash',
+    });
+
+    act(() => {
+      testRenderer.root
+        .findByProps({ testID: 'picker-trigger-clear-button' })
+        .props.onPress();
+    });
+
+    expect(onClear).toHaveBeenCalledTimes(1);
+    expect(onChange).toHaveBeenCalledWith(undefined);
+  });
+
+  it('hides the clear button when readonly', () => {
+    const testRenderer = renderListPicker({
+      allowClear: true,
+      readonly: true,
+      value: 'cash',
+    });
+
+    expect(
+      testRenderer.root.findAllByProps({ testID: 'picker-trigger-clear-button' }),
+    ).toHaveLength(0);
+  });
+
+  it('applies trigger styles through the input namespace', () => {
+    const fieldStyle = { opacity: 0.5 };
+    const testRenderer = renderListPicker({
+      styles: { input: { field: fieldStyle } },
+    });
+    const triggerInput = testRenderer.root.findByType(DisplayInput);
+
+    expect(triggerInput.props.styles?.field).toBe(fieldStyle);
+  });
 });

@@ -353,16 +353,27 @@ export function DateTimeWheelPicker(props: DateTimePickerCoreProps) {
 
   return (
     <Picker
+      allowClear={props.allowClear}
       columns={columns}
       defaultOpen={props.defaultOpen}
       defaultValue={defaultPickerValue}
-      disabled={props.disabled}
+      disabled={props.disabled || props.loading === true}
       displayInputProps={props.displayInputProps}
+      error={props.error}
+      errorText={props.errorText}
       formatValueText={formatValueText}
+      helper={props.helper}
+      helperText={props.helperText}
       label={props.label}
       labelText={props.labelText}
       onCancel={props.onCancel}
-      onChange={nextPickerValue => {
+      onClear={props.onClear}
+      onChange={(nextPickerValue, params) => {
+        // 清除事件没有可映射的日期，由 onClear 单独通知外部。
+        if (params.reason === 'clear') {
+          return;
+        }
+
         const nextDate = pickerValueToDate(
           nextPickerValue,
           columnTypes,
@@ -397,6 +408,7 @@ export function DateTimeWheelPicker(props: DateTimePickerCoreProps) {
       }}
       readonly={props.readonly}
       size={props.size}
+      status={props.status}
       style={props.style}
       styles={props.styles ? {
         trigger: props.styles.trigger,

@@ -166,6 +166,7 @@ export function DisplayInput({
         style={({ pressed }) => [
           tokenStyles.field,
           styles?.field,
+          isDisabled ? tokenStyles.fieldDisabled : null,
           isClickable && pressed ? tokenStyles.fieldPressed : null,
         ]}
         testID="display-input-field"

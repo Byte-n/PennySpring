@@ -61,6 +61,37 @@ describe('CalendarPicker', () => {
     expect(triggerValueText(testRenderer)).toBeUndefined();
   });
 
+  it('clears the selected date when allowClear is pressed', () => {
+    // Arrange
+    const onClear = jest.fn();
+    const testRenderer = renderCalendarPicker({
+      allowClear: true,
+      defaultValue: BASE_DATE,
+      onClear,
+    });
+
+    // Act
+    pressByTestID(testRenderer, 'picker-trigger-clear-button');
+
+    // Assert
+    expect(onClear).toHaveBeenCalledTimes(1);
+    expect(triggerValueText(testRenderer)).toBeUndefined();
+  });
+
+  it('hides the clear button when readonly', () => {
+    // Arrange & Act
+    const testRenderer = renderCalendarPicker({
+      allowClear: true,
+      readonly: true,
+      value: BASE_DATE,
+    });
+
+    // Assert
+    expect(
+      testRenderer.root.findAllByProps({ testID: 'picker-trigger-clear-button' }),
+    ).toHaveLength(0);
+  });
+
   it('shows the confirmed date on the trigger for uncontrolled usage', () => {
     // Arrange
     jest.useFakeTimers().setSystemTime(new Date(2026, 9, 25, 12));

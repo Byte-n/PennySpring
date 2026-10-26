@@ -8,8 +8,7 @@ import {
   startOfDay,
   toCalendarViewValue,
 } from './dateValue';
-import { PickerTrigger } from '../Picker/PickerTrigger';
-import { usePickerStyles } from '../Picker/usePickerStyles';
+import { PickerTrigger } from '../_internal/PickerTrigger';
 import { useControllableValue } from '../_hooks';
 import type { CalendarPickerViewRangeValue } from './types';
 import type { ComponentSize } from '../shares/types';
@@ -51,7 +50,6 @@ export function CalendarPickerRange(props: CalendarPickerRangeProps) {
   const size = props.size ?? DEFAULT_SIZE;
   const precision = props.precision ?? DEFAULT_PRECISION;
   const mode = getCalendarViewMode(precision);
-  const pickerStyles = usePickerStyles(useMemo(() => ({ size }), [size]));
 
   const [resolvedOpen, setResolvedOpen] = useControllableValue(
     props.defaultOpen === true,
@@ -152,6 +150,16 @@ export function CalendarPickerRange(props: CalendarPickerRangeProps) {
     discardDraft();
   }
 
+  function handleClearPress() {
+    if (props.disabled || props.readonly) {
+      return;
+    }
+
+    setCommittedValue(undefined);
+    setDraftRange(undefined);
+    props.onClear?.();
+  }
+
   function handleOkPress() {
     if (props.disabled || props.okDisabled === true || !draftRange) {
       return;
@@ -165,16 +173,23 @@ export function CalendarPickerRange(props: CalendarPickerRangeProps) {
   return (
     <>
       <PickerTrigger
+        active={isOpen && props.status !== 'error'}
+        allowClear={props.allowClear}
         disabled={props.disabled}
         displayInputProps={props.displayInputProps}
+        error={props.error}
+        errorText={props.errorText}
         externalInputStyles={props.styles?.input}
         externalTriggerStyle={[props.styles?.trigger, props.style]}
         hasValue={committedValue !== undefined}
+        helper={props.helper}
+        helperText={props.helperText}
         label={props.label ?? props.labelText}
+        onClearPress={handleClearPress}
         onPress={handleTriggerPress}
         readonly={props.readonly}
         size={size}
-        styles={pickerStyles}
+        status={props.status}
         valueText={formatRangeText(committedValue, precision)}
       >
         {props.children}

@@ -9,6 +9,7 @@ import type {
   PickerPopupStyles,
 } from '../Picker';
 import type { ComponentSize } from '../shares/types';
+import type { InputStatus } from '../Input';
 
 /** 日历面板模式：按精度切换日期、月份、年份网格。 */
 export type CalendarPickerViewMode = 'date' | 'month' | 'year';
@@ -176,7 +177,14 @@ export interface CalendarPickerProps {
   ok?: ReactNode;
   labelText?: string;
   label?: ReactNode;
+  status?: InputStatus;
+  helperText?: string;
+  helper?: ReactNode | null;
+  errorText?: string;
+  error?: ReactNode | null;
   displayInputProps?: PickerDisplayInputProps;
+  allowClear?: boolean;
+  onClear?: () => void;
   disabled?: boolean;
   readonly?: boolean;
   okDisabled?: boolean;

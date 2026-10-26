@@ -4,7 +4,6 @@ import { CircleIcon } from 'phosphor-react-native';
 import { useTheme } from '@pennyspring/theme';
 import { Button } from '../Button';
 import { Column } from '../Column';
-import { DisplayInput } from '../DisplayInput';
 import { Icon } from '../Icon';
 import { Input } from '../Input';
 import { Popup } from '../Popup';
@@ -13,6 +12,7 @@ import { Spacer } from '../Spacer';
 import { Text } from '../Text';
 import { TagValueDisplay } from '../_internal/TagValueDisplay';
 import type { TagValueItem } from '../_internal/TagValueDisplay';
+import { PickerTrigger } from '../_internal/PickerTrigger';
 import { useControllableValue } from '../_hooks';
 import { useListPickerStyles } from './style';
 import type { ComponentSize } from '../shares/types';
@@ -474,6 +474,7 @@ export function ListPickerPopup({
 }
 
 function ListPickerRoot({
+  allowClear,
   defaultOpen,
   defaultValue,
   disabled,
@@ -489,6 +490,7 @@ function ListPickerRoot({
   loading,
   mode,
   onChange,
+  onClear,
   onOpenChange,
   open,
   options,
@@ -511,10 +513,14 @@ function ListPickerRoot({
     open,
     onOpenChange,
   );
-  const [mergedValue, setMergedValue] = useControllableValue(
+  const [mergedValue, setMergedValue] = useControllableValue<
+    ListPickerSelectedValue | undefined
+  >(
     normalizeValue(resolvedMode, defaultValue),
     value,
-    onChange,
+    onChange as
+      | ((nextValue: ListPickerSelectedValue | undefined) => void)
+      | undefined,
   );
   const isInteractive = !disabled && !readonly && !loading;
   const isError = resolvedStatus === 'error';
@@ -532,20 +538,17 @@ function ListPickerRoot({
     displayMode === 'tag'
       ? getSelectedTagItems(flatOptions, selectedValues)
       : [];
-  const tokenStyles = useListPickerStyles({
-    size: resolvedSize,
-  });
-  const displayInputSuffix = displayInputProps?.suffix;
   const {
     style: popupStyle,
     styles: popupStyles,
     ...nestedPopupProps
   } = popupProps ?? {};
+  const { input: inputStyles, ...popupSlotStyles } = styles ?? {};
   const mergedPopupStyles =
     popupStyles === undefined
-      ? styles
+      ? popupSlotStyles
       : {
-          ...styles,
+          ...popupSlotStyles,
           ...popupStyles,
         };
 
@@ -561,8 +564,17 @@ function ListPickerRoot({
     setMergedOpen(false);
   }
 
-  function commitValue(nextValue: ListPickerSelectedValue): void {
+  function commitValue(nextValue: ListPickerSelectedValue | undefined): void {
     setMergedValue(nextValue);
+  }
+
+  function handleClearPress(): void {
+    if (!isInteractive) {
+      return;
+    }
+
+    commitValue(resolvedMode === 'multiple' ? [] : undefined);
+    onClear?.();
   }
 
   function handleTagRemove(removedValue: ListPickerValue): void {
@@ -578,15 +590,20 @@ function ListPickerRoot({
 
   return (
     <>
-      <DisplayInput
-        {...displayInputProps}
+      <PickerTrigger
+        active={mergedOpen && !isError}
+        allowClear={allowClear}
         disabled={disabled === true || loading === true}
-        display={displayInputProps?.display}
+        displayInputProps={displayInputProps}
         error={error}
         errorText={errorText}
+        externalInputStyles={inputStyles}
+        externalTriggerStyle={style}
+        hasValue={selectedValues.length > 0}
         helper={helper}
         helperText={helperText}
         label={label ?? labelText}
+        onClearPress={handleClearPress}
         overflow={
           displayInputProps?.overflow ??
           (displayMode === 'tag' ? 'visible' : 'hidden')
@@ -594,18 +611,8 @@ function ListPickerRoot({
         readonly={readonly}
         size={resolvedSize}
         status={resolvedStatus}
-        style={style}
-        styles={{
-          ...styles,
-          underline: [
-            styles?.underline,
-            mergedOpen && !isError ? tokenStyles.underlineActive : undefined,
-          ],
-        }}
         suffix={
-          displayInputSuffix !== undefined ? (
-            displayInputSuffix
-          ) : loading === true ? (
+          loading === true ? (
             <ActivityIndicator color={token.colorTextTertiary} />
           ) : (
             <Icon color="icon" icon="caret-down" />
@@ -627,7 +634,7 @@ function ListPickerRoot({
             onRemove={handleTagRemove}
           />
         ) : undefined}
-      </DisplayInput>
+      </PickerTrigger>
       <ListPickerPopup
         {...directPopupProps}
         {...nestedPopupProps}

@@ -47,6 +47,10 @@ export const useStyles = createUseSheetStyle(
       fieldPressed: {
         backgroundColor: token.colorFillQuaternary,
       },
+      // 禁用态由组件自身表达，调用方不得再叠加透明度
+      fieldDisabled: {
+        opacity: token.opacityLoading,
+      },
       // 与 Input 一致：下划线始终 1px，状态只通过颜色表达
       underline: {
         position: 'absolute',

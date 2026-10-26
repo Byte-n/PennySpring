@@ -1,7 +1,7 @@
 import type { ComponentSize } from '../shares/types';
 import React, { useEffect, useRef, useState } from 'react';
 import { PickerPopup } from './PickerPopup';
-import { PickerTrigger } from './PickerTrigger';
+import { PickerTrigger } from '../_internal/PickerTrigger';
 import { usePickerStyles } from './usePickerStyles';
 import { useControllableValue } from '../_hooks';
 import type {
@@ -108,7 +108,11 @@ export function Picker<TItem extends PickerColumnItemData = PickerColumnItemData
   defaultValue,
   displayInputProps,
   disabled,
+  error,
+  errorText,
   formatValueText,
+  helper,
+  helperText,
   label,
   labelText,
   popupProps,
@@ -120,6 +124,7 @@ export function Picker<TItem extends PickerColumnItemData = PickerColumnItemData
   open,
   readonly,
   size = DEFAULT_SIZE,
+  status,
   style,
   styles: externalStyles,
   value,
@@ -260,18 +265,23 @@ export function Picker<TItem extends PickerColumnItemData = PickerColumnItemData
   return (
     <>
       <PickerTrigger
+        active={isOpen && status !== 'error'}
         allowClear={allowClear}
         displayInputProps={displayInputProps}
         disabled={disabled}
+        error={error}
+        errorText={errorText}
         externalInputStyles={externalStyles?.input}
         externalTriggerStyle={[externalStyles?.trigger, style]}
         hasValue={hasMainValue}
+        helper={helper}
+        helperText={helperText}
         label={label ?? labelText}
         onClearPress={handleClearPress}
         onPress={handleTriggerPress}
         readonly={readonly}
         size={size}
-        styles={tokenStyles}
+        status={status}
         valueText={triggerValueText}
       >
         {children}

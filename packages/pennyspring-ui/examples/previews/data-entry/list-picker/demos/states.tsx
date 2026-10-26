@@ -28,6 +28,13 @@ export function ListPickerStatesDemo() {
         errorText="请选择一个消费类别"
         texts={{ headerText: '选择消费类别' }}
       />
+      <ListPicker
+        allowClear
+        defaultValue="food"
+        labelText="可清除状态"
+        options={CATEGORY_OPTIONS}
+        texts={{ headerText: '选择消费类别' }}
+      />
     </Space>
   );
 }

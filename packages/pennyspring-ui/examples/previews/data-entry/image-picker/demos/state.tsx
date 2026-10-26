@@ -27,6 +27,20 @@ export function ImagePickerStateDemo() {
         label="With Default Value"
         labelText="Choose image"
       />
+      <ImagePicker
+        allowClear
+        defaultValue={presetValue}
+        helperText="Clear keeps the field empty until a new image is picked"
+        label="Clearable"
+        labelText="Choose image"
+        size="small"
+      />
+      <ImagePicker
+        errorText="An image is required"
+        label="Error"
+        labelText="Choose image"
+        status="error"
+      />
     </Column>
   );
 }

@@ -265,4 +265,67 @@ describe('ImagePicker', () => {
     expect(testRenderer.root.findByType(DisplayInput).props.readonly).toBe(true);
     expect(testRenderer.root.findByType(Popup.FloatingPanel).props.open).toBe(false);
   });
+
+  it('clears the selected image when allowClear is pressed', () => {
+    const onChange = jest.fn();
+    const onClear = jest.fn();
+    const testRenderer = renderImagePicker({
+      allowClear: true,
+      defaultValue: { uri: 'file:///first.jpg' },
+      onChange,
+      onClear,
+    });
+
+    act(() => {
+      testRenderer.root
+        .findByProps({ testID: 'picker-trigger-clear-button' })
+        .props.onPress();
+    });
+
+    expect(onClear).toHaveBeenCalledTimes(1);
+    expect(onChange).toHaveBeenCalledWith(undefined);
+    expect(getStatusText(testRenderer)).toBeUndefined();
+  });
+
+  it('hides the clear button when readonly', () => {
+    const testRenderer = renderImagePicker({
+      allowClear: true,
+      defaultValue: { uri: 'file:///first.jpg' },
+      readonly: true,
+    });
+
+    expect(
+      testRenderer.root.findAllByProps({ testID: 'picker-trigger-clear-button' }),
+    ).toHaveLength(0);
+  });
+
+  it('does not render remove buttons in readonly mode even when open', () => {
+    const testRenderer = renderImagePicker({
+      defaultValue: [{ uri: 'file:///first.jpg' }],
+      multiple: true,
+      open: true,
+      readonly: true,
+    });
+
+    expect(
+      testRenderer.root.findAllByProps({ testID: 'image-picker-remove-image' }),
+    ).toHaveLength(0);
+  });
+
+  it('passes size to the display input trigger', () => {
+    const testRenderer = renderImagePicker({ size: 'small' });
+
+    expect(testRenderer.root.findByType(DisplayInput).props.size).toBe('small');
+  });
+
+  it('does not inject field styles or disabled visuals into the trigger', () => {
+    const testRenderer = renderImagePicker({
+      defaultValue: { uri: 'file:///first.jpg' },
+      disabled: true,
+    });
+    const triggerInput = testRenderer.root.findByType(DisplayInput);
+
+    expect(triggerInput.props.styles?.field).toBeUndefined();
+    expect(triggerInput.props.styles?.value).toBeUndefined();
+  });
 });

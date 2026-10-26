@@ -1,10 +1,13 @@
 import type { ReactNode } from 'react';
 import type { StyleProp, TextStyle, ViewStyle } from 'react-native';
-import type { DisplayInputProps, DisplayInputStyles } from '../DisplayInput';
 import type { InputProps } from '../Input';
 import type { PopupFloatingPanelProps } from '../Popup';
 import type { ComponentSize } from '../shares/types';
 import type { TagDisplayProps } from '../_internal/TagValueDisplay';
+import type {
+  PickerDisplayInputProps,
+  PickerInputStyles,
+} from '../_internal/PickerTrigger';
 
 /**
  * ListPicker 的选择模式。
@@ -119,9 +122,10 @@ export interface ListPickerPopupStyles {
   optionLabel?: StyleProp<TextStyle>;
 }
 
-export interface ListPickerStyles
-  extends ListPickerPopupStyles,
-    DisplayInputStyles {}
+export interface ListPickerStyles extends ListPickerPopupStyles {
+  /** 触发器槽位样式，root 对应 DisplayInput 根节点。 */
+  input?: PickerInputStyles;
+}
 
 export interface ListPickerTexts {
   /**
@@ -354,20 +358,6 @@ export interface ListPickerPopupProps extends PopupPanelConfig {
   styles?: ListPickerPopupStyles;
 }
 
-type DisplayInputConfig = Omit<
-  DisplayInputProps,
-  | 'children'
-  | 'disabled'
-  | 'label'
-  | 'onPress'
-  | 'readonly'
-  | 'size'
-  | 'status'
-  | 'style'
-  | 'styles'
-  | 'valueText'
->;
-
 type RootControlledPopupKey =
   | 'defaultOpen'
   | 'defaultValue'
@@ -392,6 +382,17 @@ export interface ListPickerProps
    * error 状态会优先展示 errorText。
    */
   status?: ListPickerStatus;
+
+  /**
+   * 是否展示清除按钮。
+   * 清除后多选回传空数组，单选回传 undefined。
+   */
+  allowClear?: boolean;
+
+  /**
+   * 清除选中值后触发。
+   */
+  onClear?: () => void;
 
   /**
    * 字段标签文本。
@@ -433,9 +434,9 @@ export interface ListPickerProps
 
   /**
    * DisplayInput 触发器的非样式配置。
-   * 样式能力统一通过 styles 提供。
+   * 样式能力统一通过 styles.input 提供。
    */
-  displayInputProps?: DisplayInputConfig;
+  displayInputProps?: PickerDisplayInputProps;
 
   /**
    * 弹层专属配置。

@@ -4,12 +4,12 @@ import type { ImageStyle } from 'react-native';
 import { useTheme } from '@pennyspring/theme';
 import { Button } from '../Button';
 import { Column } from '../Column';
-import { DisplayInput } from '../DisplayInput';
 import { Grid } from '../Grid';
 import { Icon } from '../Icon';
 import { Popup } from '../Popup';
 import { Row } from '../Row';
 import { Text } from '../Text';
+import { PickerTrigger } from '../_internal/PickerTrigger';
 import { useControllableValue } from '../_hooks';
 import {
   pickImageFromCamera,
@@ -122,6 +122,7 @@ function getSelectionHintText(
 }
 
 export function ImagePicker({
+  allowClear,
   cameraText = DEFAULT_CAMERA_TEXT,
   defaultOpen,
   defaultValue,
@@ -129,14 +130,21 @@ export function ImagePicker({
   displayInputProps,
   doneText = DEFAULT_DONE_TEXT,
   emptyText = DEFAULT_EMPTY_TEXT,
+  error,
+  errorText,
   fileSystemText = DEFAULT_FILE_SYSTEM_TEXT,
+  helper,
+  helperText,
   label,
   labelText,
   maxCount = DEFAULT_MAX_COUNT,
   multipleHintText,
   multiple = false,
+  onClear,
   photoText = DEFAULT_PHOTO_TEXT,
   selectedText = DEFAULT_SELECTED_TEXT,
+  size,
+  status,
   onChange,
   onError,
   onOpenChange,
@@ -149,10 +157,14 @@ export function ImagePicker({
   unselectedText,
   value,
 }: ImagePickerProps) {
-  const [resolvedValue, setResolvedValue] = useControllableValue(
+  const [resolvedValue, setResolvedValue] = useControllableValue<
+    ImagePickerSelectedValue | undefined
+  >(
     defaultValue as ImagePickerSelectedValue | undefined,
     value as ImagePickerSelectedValue | undefined,
-    onChange as ((nextValue: ImagePickerSelectedValue) => void) | undefined,
+    onChange as
+      | ((nextValue: ImagePickerSelectedValue | undefined) => void)
+      | undefined,
   );
   const [resolvedOpen, setResolvedOpen] = useControllableValue(
     defaultOpen === true,
@@ -163,6 +175,7 @@ export function ImagePicker({
   const isOpen = resolvedOpen === true;
   const isDisabled = disabled === true;
   const isReadonly = readonly === true;
+  const isInteractive = !isDisabled && !isReadonly;
   const selectedCount = getSelectedCount(resolvedValue);
   const hasSelectedValue = selectedCount > 0;
   const selectedValues = getSelectedValues(resolvedValue);
@@ -173,11 +186,7 @@ export function ImagePicker({
     selectedText,
     unselectedText,
   );
-  const tokenStyles = useStyles({
-    disabled: isDisabled,
-    maxReached: isMaxReached,
-    selected: hasSelectedValue,
-  });
+  const tokenStyles = useStyles();
   const removeButtonHitSlop = React.useMemo(() => {
     const hitSlop = (token.controlHeightSM - token.controlHeightXS) / 2;
 
@@ -218,10 +227,23 @@ export function ImagePicker({
   }
 
   function removeSelectedValue(index: number): void {
+    if (!isInteractive) {
+      return;
+    }
+
     const nextValues = selectedValues.filter((_, itemIndex) => itemIndex !== index);
     const nextValue = createSelectedValue(nextValues, multiple);
 
-    setResolvedValue(nextValue as ImagePickerSelectedValue);
+    setResolvedValue(nextValue);
+  }
+
+  function handleClearPress(): void {
+    if (!isInteractive) {
+      return;
+    }
+
+    setResolvedValue(undefined);
+    onClear?.();
   }
 
   async function handleSourcePress(source: ImagePickerSource): Promise<void> {
@@ -254,8 +276,8 @@ export function ImagePicker({
 
         updateSelectedValue(mergedValues);
       }
-    } catch (error: unknown) {
-      onError?.(error);
+    } catch (pickError: unknown) {
+      onError?.(pickError);
     }
   }
 
@@ -288,7 +310,6 @@ export function ImagePicker({
               onPress={() => {
                 handleSourcePress(source);
               }}
-              style={tokenStyles.actionButton}
               testID={getActionTestID(source)}
               type="link"
             >
@@ -333,7 +354,7 @@ export function ImagePicker({
                 source={{ uri: image.uri }}
                 style={[tokenStyles.image as ImageStyle, styles?.image]}
               />
-              {multiple ? (
+              {multiple && isInteractive ? (
                 <Pressable
                   hitSlop={removeButtonHitSlop}
                   onPress={() => removeSelectedValue(index)}
@@ -352,31 +373,32 @@ export function ImagePicker({
 
   return (
     <>
-      <DisplayInput
-        {...displayInputProps}
+      <PickerTrigger
+        active={isOpen && status !== 'error'}
+        allowClear={allowClear}
         disabled={isDisabled}
-        display={displayInputProps?.display}
-        label={label}
-        labelText={labelText}
+        displayInputProps={displayInputProps}
+        error={error}
+        errorText={errorText}
+        externalInputStyles={styles?.input}
+        externalTriggerStyle={style}
+        hasValue={hasSelectedValue}
+        helper={helper}
+        helperText={helperText}
+        label={label ?? labelText}
+        onClearPress={handleClearPress}
         onPress={handleTriggerPress}
         prefix={(
-          <View style={[tokenStyles.iconContainer, styles?.iconContainer]}>
-            <Icon
-              color={hasSelectedValue ? 'textLightSolid' : 'default'}
-              icon="image"
-              size="large"
-              weight={hasSelectedValue ? 'fill' : undefined}
-            />
-          </View>
+          <Icon
+            color={hasSelectedValue ? 'primary' : 'tertiary'}
+            icon="image"
+            size="large"
+            weight={hasSelectedValue ? 'fill' : undefined}
+          />
         )}
         readonly={isReadonly}
-        style={style}
-        styles={{
-          field: [tokenStyles.triggerField, styles?.trigger],
-          underline: [tokenStyles.triggerUnderline],
-          prefix: [styles?.triggerContent],
-          value: [tokenStyles.statusText, styles?.status],
-        }}
+        size={size}
+        status={status}
         valueText={statusText}
       />
       <Popup.FloatingPanel

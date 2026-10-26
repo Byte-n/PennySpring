@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Pressable, View } from 'react-native';
+import { ActivityIndicator, Pressable, View } from 'react-native';
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -14,8 +14,8 @@ import {
   parseDateValue,
   startOfDay,
 } from '../CalendarPicker/dateValue';
-import { PickerTrigger } from '../Picker/PickerTrigger';
-import { getPickerItemHeight, usePickerStyles } from '../Picker/usePickerStyles';
+import { PickerTrigger } from '../_internal/PickerTrigger';
+import { getPickerItemHeight } from '../Picker/usePickerStyles';
 import { Text } from '../Text';
 import { WheelGroup } from '../WheelGroup';
 import { useControllableValue } from '../_hooks';
@@ -83,6 +83,13 @@ const useStyles = createUseSheetStyle(token => ({
   entryArrow: {
     flexShrink: 0,
   },
+  loading: {
+    minHeight: token.controlHeight,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: token.marginXS,
+    padding: token.paddingMD,
+  },
 }));
 
 function formatShortDate(date: Date): string {
@@ -128,8 +135,6 @@ export function DateTimeCalendarPicker(props: DateTimePickerCoreProps) {
   const precision = normalizePrecision(props.parts, props.precision);
   const size = props.size ?? DEFAULT_SIZE;
   const { token } = useTheme();
-  const styleOptions = useMemo(() => ({ size }), [size]);
-  const pickerStyles = usePickerStyles(styleOptions);
   const styles = useStyles();
 
   const showTime = hasTimePart(props.parts, precision);
@@ -143,6 +148,7 @@ export function DateTimeCalendarPicker(props: DateTimePickerCoreProps) {
     undefined,
   );
   const isOpen = resolvedOpen === true;
+  const isLoading = props.loading === true;
 
   const [mainTime, setMainTime] = useControllableValue<number | undefined>(
     props.defaultValue?.getTime(),
@@ -151,7 +157,13 @@ export function DateTimeCalendarPicker(props: DateTimePickerCoreProps) {
   );
   // 未提交过任何值时触发器保持空白，避免把「今天」误当成选中值。
   const hasValue = mainTime !== undefined;
-  const mainTimestamp = mainTime ?? (props.min ?? new Date()).getTime();
+  // 缺省日期必须稳定，否则每次渲染都会生成新时间戳并触发草稿同步。
+  const minTimestamp = props.min?.getTime();
+  const fallbackTimestamp = useMemo(
+    () => minTimestamp ?? new Date().getTime(),
+    [minTimestamp],
+  );
+  const mainTimestamp = mainTime ?? fallbackTimestamp;
   const committedDate = useMemo(() => new Date(mainTimestamp), [mainTimestamp]);
   const [draft, setDraft] = useState<Date>(
     () => normalizeDateOnly(new Date(mainTimestamp), dateOnly),
@@ -292,7 +304,7 @@ export function DateTimeCalendarPicker(props: DateTimePickerCoreProps) {
 
     return column.find(item => item.value === itemValue)?.disabled === true;
   });
-  const resolvedOkDisabled = props.okDisabled === true || timeInvalid;
+  const resolvedOkDisabled = props.okDisabled === true || timeInvalid || isLoading;
 
   function applyDraft(next: Date) {
     setDraft(next);
@@ -334,6 +346,16 @@ export function DateTimeCalendarPicker(props: DateTimePickerCoreProps) {
     props.onCancel?.({ reason: 'mask' });
   }
 
+  function handleClearPress() {
+    if (props.disabled || props.readonly) {
+      return;
+    }
+
+    setMainTime(undefined);
+    setDraft(normalizeDateOnly(new Date(), dateOnly));
+    props.onClear?.();
+  }
+
   function handleOkPress() {
     if (props.disabled || resolvedOkDisabled) {
       return;
@@ -347,16 +369,23 @@ export function DateTimeCalendarPicker(props: DateTimePickerCoreProps) {
   return (
     <>
       <PickerTrigger
-        disabled={props.disabled}
+        active={isOpen && props.status !== 'error'}
+        allowClear={props.allowClear}
+        disabled={props.disabled || isLoading}
         displayInputProps={props.displayInputProps}
+        error={props.error}
+        errorText={props.errorText}
         externalInputStyles={props.styles?.input}
         externalTriggerStyle={[props.styles?.trigger, props.style]}
         hasValue={hasValue}
+        helper={props.helper}
+        helperText={props.helperText}
         label={props.label ?? props.labelText}
+        onClearPress={handleClearPress}
         onPress={handleTriggerPress}
         readonly={props.readonly}
         size={size}
-        styles={pickerStyles}
+        status={props.status}
         valueText={hasValue
           ? formatValueText(props.parts, precision, committedDate)
           : undefined}
@@ -385,26 +414,37 @@ export function DateTimeCalendarPicker(props: DateTimePickerCoreProps) {
         titleText={props.titleText}
       >
         <View style={styles.content}>
-          <Animated.View
-            pointerEvents={view === 'calendar' ? 'auto' : 'none'}
-            style={calendarAnimatedStyle}
-          >
-            <CalendarPickerView
-              disabled={props.disabled}
-              disabledDate={panelDisabledDate}
-              marks={marks}
-              maxDate={maxDate}
-              minDate={minDate}
-              mode={calendarMode}
-              onChange={handleCalendarChange}
-              readonly={props.readonly}
-              showValue={false}
-              size={size}
-              styles={calendarStyles}
-              value={calendarValue}
-            />
-          </Animated.View>
-          {showTime ? (
+          {isLoading ? (
+            <View style={styles.loading} testID="date-time-calendar-loading">
+              {props.loadingIndicator ?? (
+                <ActivityIndicator color={token.colorTextTertiary} />
+              )}
+              {props.loadingIndicatorText !== undefined ? (
+                <Text color="description">{props.loadingIndicatorText}</Text>
+              ) : null}
+            </View>
+          ) : (
+            <Animated.View
+              pointerEvents={view === 'calendar' ? 'auto' : 'none'}
+              style={calendarAnimatedStyle}
+            >
+              <CalendarPickerView
+                disabled={props.disabled}
+                disabledDate={panelDisabledDate}
+                marks={marks}
+                maxDate={maxDate}
+                minDate={minDate}
+                mode={calendarMode}
+                onChange={handleCalendarChange}
+                readonly={props.readonly}
+                showValue={false}
+                size={size}
+                styles={calendarStyles}
+                value={calendarValue}
+              />
+            </Animated.View>
+          )}
+          {showTime && !isLoading ? (
             <Animated.View
               pointerEvents={view === 'time' ? 'auto' : 'none'}
               style={[styles.timePane, timeAnimatedStyle]}
@@ -422,7 +462,7 @@ export function DateTimeCalendarPicker(props: DateTimePickerCoreProps) {
             </Animated.View>
           ) : null}
         </View>
-        {showTime ? (
+        {showTime && !isLoading ? (
           <Pressable
             onPress={() =>
               setView(current => (current === 'calendar' ? 'time' : 'calendar'))

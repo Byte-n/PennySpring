@@ -10,6 +10,7 @@ import type {
   PickerPopupStyles,
 } from '../Picker';
 import type { ComponentSize } from '../shares/types';
+import type { InputStatus } from '../Input';
 
 export type DateTimePickerLayout = 'wheel' | 'calendar';
 
@@ -86,14 +87,26 @@ export interface DateTimePickerProps {
   cancel?: ReactNode;
   okText?: string;
   ok?: ReactNode;
+  /** 加载态：两种布局都会禁用触发器；仅日历布局会以加载面板替代日历内容。 */
   loading?: boolean;
+  /** 加载文案，仅日历布局使用。 */
   loadingIndicatorText?: string;
+  /** 加载指示器，仅日历布局使用。 */
   loadingIndicator?: ReactNode;
+  /** 空状态文案，仅滚轮布局使用。 */
   emptyText?: string;
+  /** 空状态节点，仅滚轮布局使用。 */
   empty?: ReactNode;
   labelText?: string;
   label?: ReactNode;
+  status?: InputStatus;
+  helperText?: string;
+  helper?: ReactNode | null;
+  errorText?: string;
+  error?: ReactNode | null;
   displayInputProps?: PickerDisplayInputProps;
+  allowClear?: boolean;
+  onClear?: () => void;
   readonly?: boolean;
   disabled?: boolean;
   okDisabled?: boolean;
@@ -131,6 +144,8 @@ export interface DateTimePickerStyles {
   input?: PickerInputStyles;
   popup?: PickerPopupStyles;
   panel?: PickerPanelStyles;
+  /** 仅日历布局生效。 */
   calendar?: CalendarPickerViewStyles;
+  /** 仅日历布局生效。 */
   entry?: DateTimePickerEntryStyles;
 }

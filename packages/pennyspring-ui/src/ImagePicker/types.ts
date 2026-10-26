@@ -1,11 +1,11 @@
 import type { ReactNode } from 'react';
+import type { ImageStyle, StyleProp, TextStyle, ViewStyle } from 'react-native';
+import type { InputStatus } from '../Input';
+import type { ComponentSize } from '../shares/types';
 import type {
-  ImageStyle,
-  StyleProp,
-  TextStyle,
-  ViewStyle,
-} from 'react-native';
-import type { DisplayInputProps } from '../DisplayInput';
+  PickerDisplayInputProps,
+  PickerInputStyles,
+} from '../_internal/PickerTrigger';
 
 export type ImagePickerSource = 'camera' | 'photo' | 'fileSystem';
 
@@ -30,10 +30,8 @@ export interface ImagePickerPickOptions {
 }
 
 export interface ImagePickerStyles {
-  trigger?: StyleProp<ViewStyle>;
-  triggerContent?: StyleProp<ViewStyle>;
-  iconContainer?: StyleProp<ViewStyle>;
-  status?: StyleProp<TextStyle>;
+  /** 触发器槽位样式，root 对应 DisplayInput 根节点。 */
+  input?: PickerInputStyles;
   popup?: StyleProp<ViewStyle>;
   popupHeader?: StyleProp<ViewStyle>;
   popupTitleArea?: StyleProp<ViewStyle>;
@@ -51,10 +49,7 @@ export interface ImagePickerStyles {
 
 export type ImagePickerSelectedValue = ImagePickerValue | ImagePickerValue[];
 
-export type ImagePickerDisplayInputProps = Omit<
-  DisplayInputProps,
-  'label' | 'disabled' | 'readonly' | 'valueText' | 'style' | 'styles'
->;
+export type ImagePickerDisplayInputProps = PickerDisplayInputProps;
 
 interface ImagePickerBaseProps {
   open?: boolean;
@@ -66,8 +61,16 @@ interface ImagePickerBaseProps {
   onError?: (error: unknown) => void;
   readonly?: boolean;
   disabled?: boolean;
-  label?: DisplayInputProps['label'];
+  size?: ComponentSize;
+  status?: InputStatus;
+  allowClear?: boolean;
+  onClear?: () => void;
+  label?: ReactNode | null;
   labelText?: string;
+  helperText?: string;
+  helper?: ReactNode | null;
+  errorText?: string;
+  error?: ReactNode | null;
   displayInputProps?: ImagePickerDisplayInputProps;
   cameraText?: string;
   photoText?: string;

@@ -89,12 +89,6 @@ export const useListPickerStyles = createUseSheetStyle(
       },
       headerText: {
       },
-      fieldActive: {
-        borderColor: token.colorPrimary,
-      },
-      underlineActive: {
-        backgroundColor: token.colorPrimary,
-      },
       list: {
         flex: 1,
         minHeight: 0,

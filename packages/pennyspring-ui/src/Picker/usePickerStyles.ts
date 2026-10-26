@@ -33,15 +33,6 @@ export const usePickerStyles = createUseSheetStyle(
     const wheelInset = itemHeight * WHEEL_SIDE_ITEM_COUNT;
 
     return {
-      triggerClearButton: {
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: token.paddingXXS,
-        borderRadius: token.borderRadiusSM,
-      },
-      triggerClearButtonPressed: {
-        backgroundColor: token.colorFillTertiary,
-      },
       popup: {
         bottom: 0,
         left: 0,

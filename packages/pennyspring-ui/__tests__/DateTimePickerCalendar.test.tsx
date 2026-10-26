@@ -71,6 +71,27 @@ it('renders a calendar sheet when layout is calendar', () => {
   expect(testRenderer!.root.findByType(CalendarPickerView)).toBeTruthy();
 });
 
+it('replaces the calendar body with a loading state', () => {
+  let testRenderer: renderer.ReactTestRenderer;
+
+  act(() => {
+    testRenderer = renderer.create(
+      <DateTimePicker
+        defaultOpen
+        layout="calendar"
+        loading
+        loadingIndicatorText="加载中"
+        precision="day"
+      />,
+    );
+  });
+
+  expect(
+    testRenderer!.root.findAllByProps({ testID: 'date-time-calendar-loading' }).length,
+  ).toBeGreaterThan(0);
+  expect(testRenderer!.root.findAllByType(CalendarPickerView)).toHaveLength(0);
+});
+
 it('renders the time entry only when precision includes time', () => {
   let dateRenderer: renderer.ReactTestRenderer;
   let dateTimeRenderer: renderer.ReactTestRenderer;
