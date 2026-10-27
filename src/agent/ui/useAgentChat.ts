@@ -1,0 +1,320 @@
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import dayjs from 'dayjs';
+
+import type { BookRow } from '@pennyspring/api';
+
+import { getAgentConfig } from '../adapters/configStore';
+import { loadApiKey } from '../adapters/secureKey';
+import { createXhrStreamTransport } from '../adapters/streamTransport';
+import { DEFAULT_MAX_STEPS, runAgent } from '../core/loop/runAgent';
+import { isAgentError } from '../core/protocol/errors';
+import type { ChatMessage, TokenUsage } from '../core/types';
+import { isValidBaseUrl } from '../core/url';
+import { buildSystemPrompt } from '../projection/context';
+import {
+  createQueryRecordsTool,
+  QUERY_RECORDS_TOOL,
+} from '../tools/queryRecords';
+import { useGlobalApi } from '../../stores/bookStore';
+import { sumUsage, toChatMessages, toPersistedInputs } from './chatModel';
+
+export const AGENT_NOT_CONFIGURED_MESSAGE =
+  '尚未配置助手，请先打开设置填写 Base URL、模型名称和 API Key。';
+
+const EMPTY_REPLY_MESSAGE = '助手没有返回内容，请换个问法再试。';
+const PARTIAL_SAVE_FAILED_MESSAGE = '回答已生成，但保存到本地失败。';
+const TITLE_MAX_LENGTH = 30;
+
+interface UseAgentChatOptions {
+  book: BookRow | null;
+  enabled: boolean;
+}
+
+export interface AgentChatState {
+  loading: boolean;
+  sending: boolean;
+  messages: ChatMessage[];
+  streamingText: string;
+  activeTool: string | null;
+  errorText: string;
+  usage: TokenUsage;
+  send: (text: string) => Promise<void>;
+  stop: () => void;
+  clear: () => Promise<void>;
+}
+
+function getErrorMessage(error: unknown): string {
+  if (isAgentError(error)) {
+    return error.message;
+  }
+  if (error instanceof Error && error.message.trim()) {
+    return error.message;
+  }
+  return '回答失败，请稍后再试。';
+}
+
+function isAbortedError(error: unknown): boolean {
+  return isAgentError(error) && error.code === 'aborted';
+}
+
+function toolStatusText(name: string): string {
+  return name === 'queryRecords' ? '正在查询账本数据…' : '正在调用工具…';
+}
+
+export function useAgentChat({
+  book,
+  enabled,
+}: UseAgentChatOptions): AgentChatState {
+  const api = useGlobalApi();
+  const bookId = book?.id;
+
+  const [messages, setMessagesState] = useState<ChatMessage[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [streamingText, setStreamingText] = useState('');
+  const [activeTool, setActiveTool] = useState<string | null>(null);
+  const [errorText, setErrorText] = useState('');
+
+  const messagesRef = useRef<ChatMessage[]>([]);
+  const threadIdRef = useRef<number | null>(null);
+  const titleRef = useRef('');
+  const sendingRef = useRef(false);
+  const controllerRef = useRef<AbortController | null>(null);
+  const streamTextRef = useRef('');
+
+  const setMessages = useCallback((next: ChatMessage[]): void => {
+    messagesRef.current = next;
+    setMessagesState(next);
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    threadIdRef.current = null;
+    titleRef.current = '';
+    setMessages([]);
+    setStreamingText('');
+    setActiveTool(null);
+    setErrorText('');
+    streamTextRef.current = '';
+
+    if (!enabled || bookId === undefined) {
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+    api.agent
+      .getThreadWithMessages(bookId)
+      .then(detail => {
+        if (cancelled) {
+          return;
+        }
+        threadIdRef.current = detail.thread.id;
+        titleRef.current = detail.thread.title;
+        setMessages(toChatMessages(detail.messages));
+      })
+      .catch(error => {
+        if (!cancelled) {
+          setErrorText(getErrorMessage(error));
+        }
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+      controllerRef.current?.abort();
+    };
+  }, [api, bookId, enabled, setMessages]);
+
+  useEffect(
+    () => () => {
+      controllerRef.current?.abort();
+    },
+    [],
+  );
+
+  const send = useCallback(
+    async (rawText: string): Promise<void> => {
+      const text = rawText.trim();
+      if (!text || sendingRef.current || !book || !enabled) {
+        return;
+      }
+
+      const config = getAgentConfig();
+      if (!config.baseUrl || !config.model) {
+        setErrorText(AGENT_NOT_CONFIGURED_MESSAGE);
+        return;
+      }
+      if (!isValidBaseUrl(config.baseUrl)) {
+        setErrorText('Base URL 格式不正确，应形如 https://host/v1。');
+        return;
+      }
+
+      let apiKey: string | null;
+      try {
+        apiKey = await loadApiKey();
+      } catch (error) {
+        setErrorText(getErrorMessage(error));
+        return;
+      }
+      if (!apiKey) {
+        setErrorText(AGENT_NOT_CONFIGURED_MESSAGE);
+        return;
+      }
+      if (sendingRef.current) {
+        return;
+      }
+
+      sendingRef.current = true;
+      setSending(true);
+      setErrorText('');
+      setActiveTool(null);
+      setStreamingText('');
+      streamTextRef.current = '';
+
+      const userMessage: ChatMessage = { role: 'user', content: text };
+      const history = [...messagesRef.current, userMessage];
+      setMessages(history);
+
+      const controller = new AbortController();
+      controllerRef.current = controller;
+      let threadId = threadIdRef.current;
+
+      try {
+        if (threadId === null) {
+          const thread = await api.agent.getOrCreateThread(book.id);
+          threadId = thread.id;
+          threadIdRef.current = thread.id;
+        }
+
+        await api.agent.appendMessages(
+          threadId,
+          toPersistedInputs([userMessage]),
+        );
+
+        if (!titleRef.current) {
+          const title = text.slice(0, TITLE_MAX_LENGTH);
+          await api.agent.updateThreadTitle(threadId, title);
+          titleRef.current = title;
+        }
+
+        const types = await api.type.getAll(book.id);
+        const systemMessage: ChatMessage = {
+          role: 'system',
+          content: buildSystemPrompt({
+            bookName: book.name,
+            today: dayjs().format('YYYY-MM-DD'),
+            types,
+          }),
+        };
+
+        const result = await runAgent({
+          transport: createXhrStreamTransport({
+            baseUrl: config.baseUrl,
+            apiKey,
+            model: config.model,
+          }),
+          executeTool: createQueryRecordsTool({
+            api,
+            booksId: book.id,
+            bookName: book.name,
+          }),
+          messages: [systemMessage, ...history],
+          tools: [QUERY_RECORDS_TOOL],
+          maxSteps: DEFAULT_MAX_STEPS,
+          signal: controller.signal,
+          onText: delta => {
+            streamTextRef.current += delta;
+            setStreamingText(streamTextRef.current);
+          },
+          onToolCall: call => {
+            setActiveTool(toolStatusText(call.name));
+          },
+        });
+
+        const finalMessages = [...history, ...result.messages];
+        setMessages(finalMessages);
+        setStreamingText('');
+        streamTextRef.current = '';
+
+        if (result.messages.length === 0) {
+          setErrorText(EMPTY_REPLY_MESSAGE);
+          return;
+        }
+
+        try {
+          await api.agent.appendMessages(
+            threadId,
+            toPersistedInputs(result.messages),
+          );
+        } catch {
+          setErrorText(PARTIAL_SAVE_FAILED_MESSAGE);
+        }
+      } catch (error) {
+        const partial = streamTextRef.current;
+        setStreamingText('');
+        streamTextRef.current = '';
+
+        if (partial) {
+          const partialMessage: ChatMessage = {
+            role: 'assistant',
+            content: partial,
+          };
+          setMessages([...messagesRef.current, partialMessage]);
+          if (threadId !== null) {
+            await api.agent
+              .appendMessages(threadId, toPersistedInputs([partialMessage]))
+              .catch(() => undefined);
+          }
+        }
+
+        if (!isAbortedError(error)) {
+          setErrorText(getErrorMessage(error));
+        }
+      } finally {
+        sendingRef.current = false;
+        setSending(false);
+        setActiveTool(null);
+        controllerRef.current = null;
+      }
+    },
+    [api, book, enabled, setMessages],
+  );
+
+  const stop = useCallback((): void => {
+    controllerRef.current?.abort();
+  }, []);
+
+  const clear = useCallback(async (): Promise<void> => {
+    const threadId = threadIdRef.current;
+    if (threadId !== null) {
+      await api.agent.clearThreadMessages(threadId);
+    }
+    titleRef.current = '';
+    setMessages([]);
+    setStreamingText('');
+    setActiveTool(null);
+    setErrorText('');
+    streamTextRef.current = '';
+  }, [api, setMessages]);
+
+  const usage = useMemo(() => sumUsage(messages), [messages]);
+
+  return {
+    loading,
+    sending,
+    messages,
+    streamingText,
+    activeTool,
+    errorText,
+    usage,
+    send,
+    stop,
+    clear,
+  };
+}

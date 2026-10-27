@@ -5,6 +5,7 @@ import BootSplash from 'react-native-bootsplash';
 import { ThemeProvider, useTheme } from '@pennyspring/theme';
 import { App as PSApp } from '@pennyspring/ui';
 import { rootNavigationRef, RootStackNavigator } from './src/navigation';
+import { AgentRoot } from './src/agent/ui/AgentRoot';
 import { BookSelectNavigator } from './src/navigation/BookSelectNavigator';
 import {
   DefaultTheme,
@@ -112,6 +113,7 @@ function AppContent() {
         >
           <PSApp>
             <RootStackNavigator />
+            <AgentRoot />
           </PSApp>
         </NavigationShell>
       </ThemeProvider>

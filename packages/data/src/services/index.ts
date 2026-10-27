@@ -1,3 +1,4 @@
+export { appendMessages, clearThreadMessages, getOrCreateThread, getThreadWithMessages, updateThreadTitle } from './agent-service'
 export { createBook, deleteBook, getAllBooks, getBookById, getDefaultBook, updateBook } from './book-service'
 export { createAsset, deleteAsset, getAllAssets, getAssetsByBook, updateAsset } from './asset-service'
 export { createRecord, deleteRecord, getImageCountsByBook, getRecordDetailById, getRecordRelationsByBook, getRecordsByBook, getRecordTagsByBook, updateRecord } from './record-service'
@@ -6,8 +7,12 @@ export { buildCategoryTree, createType, deleteType, getAllTypes, getTypesByCateg
 export { ensureDefaultBook, seedSystemTypesForBook } from './seed-service'
 export type { CategoryItem } from './type-service'
 export type {
+  AgentMessageRow,
+  AgentThreadDetail,
+  AgentThreadRow,
   AssetRow,
   BookRow,
+  CreateAgentMessageInput,
   CreateAssetInput,
   CreateBookInput,
   CreateRecordInput,

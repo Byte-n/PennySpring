@@ -1,0 +1,244 @@
+import React from 'react';
+import TestRenderer, { act } from 'react-test-renderer';
+
+import { AgentDrawer } from '../../src/agent/ui/AgentDrawer';
+import type { AgentChatState } from '../../src/agent/ui/useAgentChat';
+
+jest.mock('@pennyspring/theme', () => ({
+  createUseSheetStyle: () => () => ({}),
+  useTheme: () => ({ token: {} }),
+}));
+
+jest.mock('@pennyspring/ui', () => {
+  const ReactLib = require('react');
+  const { Pressable, Text, TextInput, View } = require('react-native');
+
+  const passthrough =
+    (Component: React.ComponentType) =>
+    ({ children, ...props }: { children?: React.ReactNode }) =>
+      ReactLib.createElement(Component, props, children);
+
+  const MockButton = ({
+    children,
+    disabled,
+    onPress,
+    testID,
+  }: {
+    children?: React.ReactNode;
+    disabled?: boolean;
+    onPress?: () => void;
+    testID?: string;
+  }) =>
+    ReactLib.createElement(
+      Pressable,
+      { disabled, onPress: disabled ? undefined : onPress, testID },
+      typeof children === 'string'
+        ? ReactLib.createElement(Text, null, children)
+        : children,
+    );
+
+  const MockInput = (props: Record<string, any>) =>
+    ReactLib.createElement(TextInput, {
+      onChangeText: props.onChange,
+      onSubmitEditing: props.onSubmitEditing,
+      placeholder: props.placeholder,
+      testID: props.testID,
+      value: props.value,
+    });
+
+  const MockEmpty = ({ messageText }: { messageText?: string }) =>
+    ReactLib.createElement(Text, { testID: 'agent-empty' }, messageText);
+
+  const MockLoading = ({ text }: { text?: string }) =>
+    ReactLib.createElement(Text, { testID: 'agent-loading' }, text ?? 'loading');
+
+  const MockFloatingPanel = ({
+    children,
+    open,
+    renderHeaderRight,
+  }: {
+    children?: React.ReactNode;
+    open?: boolean;
+    renderHeaderRight?: (params: unknown) => React.ReactNode;
+  }) =>
+    open
+      ? ReactLib.createElement(
+          View,
+          null,
+          renderHeaderRight
+            ? renderHeaderRight({ cancel: () => undefined, confirm: async () => undefined })
+            : null,
+          children,
+        )
+      : null;
+
+  return {
+    Button: MockButton,
+    Column: passthrough(View),
+    Empty: MockEmpty,
+    Input: MockInput,
+    Loading: MockLoading,
+    Popup: { FloatingPanel: MockFloatingPanel },
+    Row: passthrough(View),
+    Text: passthrough(Text),
+  };
+});
+
+jest.mock('phosphor-react-native', () => {
+  const ReactLib = require('react');
+  const MockIcon = (props: Record<string, unknown>) =>
+    ReactLib.createElement('MockPhosphorIcon', props);
+  return new Proxy({ __esModule: true }, { get: () => MockIcon });
+});
+
+const EMPTY_USAGE = {
+  promptTokens: 0,
+  completionTokens: 0,
+  totalTokens: 0,
+};
+
+function createChat(overrides: Partial<AgentChatState> = {}): AgentChatState {
+  return {
+    loading: false,
+    sending: false,
+    messages: [],
+    streamingText: '',
+    activeTool: null,
+    errorText: '',
+    usage: EMPTY_USAGE,
+    send: jest.fn(() => Promise.resolve()),
+    stop: jest.fn(),
+    clear: jest.fn(() => Promise.resolve()),
+    ...overrides,
+  };
+}
+
+function renderDrawer(
+  chat: AgentChatState,
+  options: { configured?: boolean; onOpenSettings?: () => void } = {},
+) {
+  const onOpenSettings = options.onOpenSettings ?? jest.fn();
+  let renderer: TestRenderer.ReactTestRenderer;
+  act(() => {
+    renderer = TestRenderer.create(
+      <AgentDrawer
+        chat={chat}
+        configured={options.configured ?? true}
+        onOpenChange={jest.fn()}
+        onOpenSettings={onOpenSettings}
+        open
+      />,
+    );
+  });
+  return { renderer: renderer!, onOpenSettings };
+}
+
+describe('AgentDrawer', () => {
+  it('shows the setup notice and suggestions when the agent is not configured', () => {
+    const { renderer, onOpenSettings } = renderDrawer(createChat(), {
+      configured: false,
+    });
+
+    expect(renderer.root.findByProps({ testID: 'agent-empty' }).props.children).toBe(
+      '记账遇到问题，可以直接问我。',
+    );
+
+    act(() => {
+      renderer.root
+        .findByProps({ testID: 'agent-notice-settings-button' })
+        .props.onPress();
+    });
+    expect(onOpenSettings).toHaveBeenCalledTimes(1);
+
+    act(() => {
+      renderer.root
+        .findByProps({ testID: 'agent-suggestion-0' })
+        .props.onPress();
+    });
+    expect(onOpenSettings).toHaveBeenCalledTimes(2);
+  });
+
+  it('sends the trimmed draft when the send button is pressed', () => {
+    const chat = createChat();
+    const { renderer } = renderDrawer(chat);
+
+    act(() => {
+      renderer.root
+        .findByProps({ testID: 'agent-input' })
+        .props.onChange('  上个月吃饭花了多少？  ');
+    });
+
+    const sendButton = renderer.root.findByProps({ testID: 'agent-send-button' });
+    expect(sendButton.props.disabled).toBe(false);
+
+    act(() => {
+      sendButton.props.onPress();
+    });
+
+    expect(chat.send).toHaveBeenCalledWith('上个月吃饭花了多少？');
+  });
+
+  it('keeps the send button disabled for a blank draft', () => {
+    const { renderer } = renderDrawer(createChat());
+
+    expect(
+      renderer.root.findByProps({ testID: 'agent-send-button' }).props.disabled,
+    ).toBe(true);
+  });
+
+  it('shows streamed text and replaces send with stop while responding', () => {
+    const chat = createChat({ sending: true, streamingText: '正在统计支出…' });
+    const { renderer } = renderDrawer(chat);
+
+    const texts = renderer.root
+      .findAllByType(require('react-native').Text)
+      .map(node => node.props.children);
+    expect(texts).toContain('正在统计支出…');
+
+    act(() => {
+      renderer.root.findByProps({ testID: 'agent-stop-button' }).props.onPress();
+    });
+    expect(chat.stop).toHaveBeenCalledTimes(1);
+  });
+
+  it('renders user and assistant messages but skips tool payloads', () => {
+    const chat = createChat({
+      messages: [
+        { role: 'user', content: '上个月吃饭花了多少？' },
+        {
+          role: 'assistant',
+          content: '',
+          toolCalls: [{ id: 'call_1', name: 'queryRecords', arguments: '{}' }],
+        },
+        {
+          role: 'tool',
+          content: '{"count":3,"totals":{"expense":120}}',
+          toolCallId: 'call_1',
+          toolName: 'queryRecords',
+        },
+        { role: 'assistant', content: '上个月吃饭共 120.00 元。' },
+      ],
+    });
+    const { renderer } = renderDrawer(chat);
+
+    const texts = renderer.root
+      .findAllByType(require('react-native').Text)
+      .map(node => node.props.children);
+
+    expect(texts).toContain('上个月吃饭花了多少？');
+    expect(texts).toContain('上个月吃饭共 120.00 元。');
+    expect(texts).toContain('已查询账本数据');
+    expect(texts).not.toContain('{"count":3,"totals":{"expense":120}}');
+  });
+
+  it('shows the current tool status while a tool runs', () => {
+    const chat = createChat({ sending: true, activeTool: '正在查询账本数据…' });
+    const { renderer } = renderDrawer(chat);
+
+    const texts = renderer.root
+      .findAllByType(require('react-native').Text)
+      .map(node => node.props.children);
+
+    expect(texts).toContain('正在查询账本数据…');
+  });
+});

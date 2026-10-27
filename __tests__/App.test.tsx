@@ -69,6 +69,10 @@ jest.mock('../src/navigation', () => ({
   RootStackNavigator: () => null,
 }));
 
+jest.mock('../src/agent/ui/AgentRoot', () => ({
+  AgentRoot: () => null,
+}));
+
 jest.mock('../src/navigation/BookSelectNavigator', () => ({
   BookSelectNavigator: () => null,
 }));

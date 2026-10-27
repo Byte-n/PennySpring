@@ -354,6 +354,24 @@ export const BOOK_TYPE = enumOf({
   },
 });
 
+export const AGENT_MESSAGE_ROLE = enumOf({
+  user: {
+    value: 'user',
+    label: '用户',
+    description: '用户输入的消息',
+  },
+  assistant: {
+    value: 'assistant',
+    label: '助手',
+    description: '模型回复，可能仅携带工具调用',
+  },
+  tool: {
+    value: 'tool',
+    label: '工具',
+    description: '工具执行结果，回灌给模型',
+  },
+});
+
 export type AssetTypeValue = EnumOf<typeof ASSET_TYPE>;
 export type AssetClassificationValue = EnumOf<typeof ASSET_CLASSIFICATION>;
 export type IconValue = string;
@@ -362,4 +380,6 @@ export type SystemStatusValue = EnumOf<typeof SYSTEM_STATUS>;
 export type RecordTypeCategoryValue = EnumOf<typeof RECORD_TYPE_CATEGORY>;
 export type RecordTypeSpecialBehaviorValue = EnumOf<typeof RECORD_TYPE_SPECIAL_BEHAVIOR>;
 export type ReimbursableValue = EnumOf<typeof REIMBURSABLE>;
+
 export type BookTypeValue = EnumOf<typeof BOOK_TYPE>;
+export type AgentMessageRoleValue = EnumOf<typeof AGENT_MESSAGE_ROLE>;

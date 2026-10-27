@@ -1,6 +1,7 @@
 import type { InferSelectModel } from 'drizzle-orm'
 
 import type {
+  AgentMessageRoleValue,
   AssetClassificationValue,
   AssetTypeValue,
   RecordTypeCategoryValue,
@@ -9,7 +10,7 @@ import type {
   SystemStatusValue,
   VisibilityValue,
 } from '../constants'
-import type { assets, books, records, recordWithRecord, tags, types } from '../schema'
+import type { agentMessages, agentThreads, assets, books, records, recordWithRecord, tags, types } from '../schema'
 
 export type { Tx } from '../types'
 
@@ -19,6 +20,8 @@ export type AssetRow = InferSelectModel<typeof assets>
 export type TagRow = InferSelectModel<typeof tags>
 export type TypeRow = InferSelectModel<typeof types>
 export type BookRow = InferSelectModel<typeof books>
+export type AgentThreadRow = InferSelectModel<typeof agentThreads>
+export type AgentMessageRow = InferSelectModel<typeof agentMessages>
 
 export interface RecordDetail {
   record: RecordRow
@@ -123,4 +126,18 @@ export interface CreateAssetInput {
 
 export interface UpdateAssetInput extends CreateAssetInput {
   id: number
+}
+
+export interface CreateAgentMessageInput {
+  role: AgentMessageRoleValue
+  content?: string
+  toolCalls?: string
+  toolCallId?: string
+  toolName?: string
+  usage?: string
+}
+
+export interface AgentThreadDetail {
+  thread: AgentThreadRow
+  messages: AgentMessageRow[]
 }

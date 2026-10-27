@@ -46,6 +46,8 @@ yarn-error.log*
 .env
 .env.*
 !env.example
+# 允许提交示例文件（如 .env.agent.example），真实凭据仍由 .env.* 忽略
+!.env.*.example
 
 # IDE
 .vscode/

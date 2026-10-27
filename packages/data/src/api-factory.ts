@@ -1,6 +1,7 @@
 import type { RecordTypeCategoryValue } from './constants'
 import * as services from './services'
 import type {
+  CreateAgentMessageInput,
   CreateAssetInput,
   CreateBookInput,
   CreateRecordInput,
@@ -59,6 +60,18 @@ export function createApi(getDatabase: () => Promise<Database>) {
       create: async (input: CreateAssetInput) => services.createAsset(await getDatabase(), input),
       update: async (input: UpdateAssetInput) => services.updateAsset(await getDatabase(), input),
       delete: async (assetId: number, booksId: number) => services.deleteAsset(await getDatabase(), assetId, booksId),
+    },
+    agent: {
+      getOrCreateThread: async (booksId: number) =>
+        services.getOrCreateThread(await getDatabase(), booksId),
+      getThreadWithMessages: async (booksId: number) =>
+        services.getThreadWithMessages(await getDatabase(), booksId),
+      appendMessages: async (threadId: number, inputs: CreateAgentMessageInput[]) =>
+        services.appendMessages(await getDatabase(), threadId, inputs),
+      updateThreadTitle: async (threadId: number, title: string) =>
+        services.updateThreadTitle(await getDatabase(), threadId, title),
+      clearThreadMessages: async (threadId: number) =>
+        services.clearThreadMessages(await getDatabase(), threadId),
     },
   }
 }
