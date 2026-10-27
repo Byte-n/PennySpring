@@ -5,22 +5,18 @@ import { Column } from '../Column';
 import { Row } from '../Row';
 import { Text } from '../Text';
 import { useControllableValue } from '../_hooks';
-import { useStyles } from './style';
+import { getTabHitSlop, useStyles } from './style';
 import type { ReactNode } from 'react';
 import type { StyleProp, TextStyle } from 'react-native';
 import type { TextColor, TextSize } from '../Text';
 import type { TabsItem, TabsProps, TabsValue } from './types';
 
 function toTextSize(size: ComponentSize): TextSize {
-  if (size === 'small') {
-    return 'sm';
-  }
-
   if (size === 'large') {
-    return 'lg';
+    return 'md';
   }
 
-  return 'md';
+  return 'sm';
 }
 
 function getLabel(item: TabsItem): ReactNode {
@@ -69,7 +65,7 @@ function renderItem(
   item: TabsItem,
   itemDisabled: boolean,
   isSelected: boolean,
-  size: TextSize,
+  size: ComponentSize,
   block: boolean,
   rest: Omit<TabsProps, 'items' | 'value' | 'defaultValue' | 'onChange' | 'disabled' | 'size' | 'layout' | 'block' | 'style' | 'styles' | 'onPress' | 'renderContent'>,
   tokenStyles: ReturnType<typeof useStyles>,
@@ -78,10 +74,10 @@ function renderItem(
   setSelectedValue: (value: TabsValue) => void,
 ) {
   const labelColor: TextColor = itemDisabled
-    ? 'disabled'
+    ? 'quaternary'
     : isSelected
-      ? 'heading'
-      : 'secondary';
+      ? 'primary'
+      : 'tertiary';
   const labelWeight = isSelected ? 'strong' : 'regular';
 
   return (
@@ -90,6 +86,7 @@ function renderItem(
       key={String(item.value)}
       testID={`tabs-item-${String(item.value)}`}
       disabled={itemDisabled}
+      hitSlop={getTabHitSlop(size)}
       onPress={event => {
         if (itemDisabled || isSelected) {
           return;
@@ -102,19 +99,23 @@ function renderItem(
         tokenStyles.tab,
         block ? tokenStyles.tabBlock : null,
         styles?.tab,
-        isSelected ? tokenStyles.tabActive : null,
         isSelected ? styles?.tabActive : null,
-        pressed && !itemDisabled ? tokenStyles.tabPressed : null,
-        pressed && !itemDisabled ? styles?.tabPressed : null,
-        itemDisabled ? tokenStyles.tabDisabled : null,
+        pressed && !itemDisabled && !isSelected ? tokenStyles.tabPressed : null,
+        pressed && !itemDisabled && !isSelected ? styles?.tabPressed : null,
         itemDisabled ? styles?.tabDisabled : null,
       ]}
     >
-      {renderLabel(getLabel(item), size, labelWeight, labelColor, [
+      {renderLabel(getLabel(item), toTextSize(size), labelWeight, labelColor, [
         styles?.label,
         isSelected ? styles?.labelActive : null,
         itemDisabled ? styles?.labelDisabled : null,
       ])}
+      {isSelected && !itemDisabled ? (
+        <View
+          testID={`tabs-underline-${String(item.value)}`}
+          style={tokenStyles.underline}
+        />
+      ) : null}
     </Pressable>
   );
 }
@@ -135,7 +136,6 @@ export function Tabs({
   ...rest
 }: TabsProps) {
   const tokenStyles = useStyles({ block, disabled, size });
-  const textSize = toTextSize(size);
   const normalizedItems = useMemo(() => [...items], [items]);
   const [selectedValue, setSelectedValue] = useControllableValue(
     getInitialValue(normalizedItems, defaultValue),
@@ -155,7 +155,7 @@ export function Tabs({
         item,
         itemDisabled,
         isSelected,
-        textSize,
+        size,
         block,
         rest,
         tokenStyles,

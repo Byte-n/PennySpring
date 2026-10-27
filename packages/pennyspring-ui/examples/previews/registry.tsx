@@ -283,7 +283,7 @@ export const COMPONENT_PREVIEW_SECTIONS = [
       {
         id: 'tabs',
         title: 'Tabs',
-        description: '标签切换、内容面板、尺寸和受控切换。',
+        description: '标签切换、内容面板、wrap/scroll/block 排布与禁用状态。',
         component: TabsPreview,
       },
       {

@@ -1,23 +1,11 @@
-import { tabsBasicDemoTitle, TabsBasicDemo } from './basic';
-import {
-  tabsControlledBlockDemoTitle,
-  TabsControlledBlockDemo,
-} from './controlled-block';
-import {
-  tabsSizeAndDisabledDemoTitle,
-  TabsSizeAndDisabledDemo,
-} from './size-and-disabled';
+import { tabsDarkDemoTitle, TabsDarkDemo } from './dark';
+import { tabsLayoutsDemoTitle, TabsLayoutsDemo } from './layouts';
+import { tabsSizeDemoTitle, TabsSizeDemo } from './size';
+import { tabsStatesDemoTitle, TabsStatesDemo } from './states';
 
 export const tabsDemos = [
-  { id: 'basic', title: tabsBasicDemoTitle, Component: TabsBasicDemo },
-  {
-    id: 'controlled-block',
-    title: tabsControlledBlockDemoTitle,
-    Component: TabsControlledBlockDemo,
-  },
-  {
-    id: 'size-and-disabled',
-    title: tabsSizeAndDisabledDemoTitle,
-    Component: TabsSizeAndDisabledDemo,
-  },
+  { id: 'size', title: tabsSizeDemoTitle, Component: TabsSizeDemo },
+  { id: 'states', title: tabsStatesDemoTitle, Component: TabsStatesDemo },
+  { id: 'layouts', title: tabsLayoutsDemoTitle, Component: TabsLayoutsDemo },
+  { id: 'dark', title: tabsDarkDemoTitle, Component: TabsDarkDemo },
 ];

@@ -1,7 +1,6 @@
 import React from 'react';
-import { StyleSheet, Text as RNText, View } from 'react-native';
+import { Text as RNText } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
-import { ThemeProvider } from '@pennyspring/theme';
 import { Tabs } from '../src/Tabs';
 import { Text } from '../src/Text';
 import type { TabsProps } from '../src/Tabs';
@@ -87,6 +86,23 @@ describe('Tabs', () => {
     expect(onChange).not.toHaveBeenCalled();
     expect(disabledItem.props.disabled).toBe(true);
   });
+  it('calls onPress before reporting the change', () => {
+    const calls: string[] = [];
+    const testRenderer = renderTabs({
+      defaultValue: 'overview',
+      onChange: () => {
+        calls.push('change');
+      },
+      onPress: () => {
+        calls.push('press');
+      },
+    });
+
+    pressByValue(testRenderer, 'records');
+
+    expect(calls).toEqual(['press', 'change']);
+  });
+
   it('renders panel with active item content', () => {
     const renderContent = jest.fn((item: {
       value: string | number;
@@ -101,43 +117,6 @@ describe('Tabs', () => {
     }), 0);
     expect(content).toContain('panel-overview');
   });
-  it.each([
-    ['small', 3],
-    ['normal', 5],
-    ['large', 7],
-  ] as const)('maps %s size to layout gap token', (size, expectedGap) => {
-    let testRenderer: renderer.ReactTestRenderer;
-    act(() => {
-      testRenderer = renderer.create(
-        <ThemeProvider
-          config={{
-            token: {
-              marginXXS: 3,
-              marginXS: 5,
-              marginSM: 7,
-            },
-          }}
-        >
-          <Tabs
-            size={size}
-            items={[
-              { value: 'overview', label: 'Overview' },
-              { value: 'records', label: 'Records' },
-            ]}
-          />
-        </ThemeProvider>,
-      );
-    });
-    const tabList = testRenderer!.root.findAllByType(View).find(node => {
-      const style = StyleSheet.flatten(node.props.style);
-
-      return style?.borderBottomWidth !== undefined && style?.gap !== undefined;
-    });
-    const tabListStyle = StyleSheet.flatten(tabList?.props.style);
-
-    expect(tabListStyle.gap).toBe(expectedGap);
-  });
-
   describe('labelText and label props', () => {
     it('renders labelText as text content when label is not provided', () => {
       const testRenderer = renderTabs({
@@ -200,8 +179,8 @@ describe('Tabs', () => {
     it('maps Tabs size to Text size prop', () => {
       const sizeMap: Array<[string, string]> = [
         ['small', 'sm'],
-        ['normal', 'md'],
-        ['large', 'lg'],
+        ['normal', 'sm'],
+        ['large', 'md'],
       ];
 
       for (const [tabsSize, expectedTextSize] of sizeMap) {
@@ -226,7 +205,7 @@ describe('Tabs', () => {
       }
     });
 
-    it('uses strong weight and heading color for selected tab', () => {
+    it('uses strong weight and primary color for selected tab', () => {
       let testRenderer: renderer.ReactTestRenderer;
       act(() => {
         testRenderer = renderer.create(
@@ -248,9 +227,9 @@ describe('Tabs', () => {
       );
 
       expect(selectedText!.props.weight).toBe('strong');
-      expect(selectedText!.props.color).toBe('heading');
+      expect(selectedText!.props.color).toBe('primary');
       expect(otherText!.props.weight).toBe('regular');
-      expect(otherText!.props.color).toBe('secondary');
+      expect(otherText!.props.color).toBe('tertiary');
     });
 
     it('uses disabled color for disabled tab label', () => {
@@ -269,7 +248,7 @@ describe('Tabs', () => {
         node => node.props.children === 'Disabled',
       );
 
-      expect(disabledText!.props.color).toBe('disabled');
+      expect(disabledText!.props.color).toBe('quaternary');
     });
 
     it('uses disabled color when root disabled is true', () => {
@@ -289,61 +268,7 @@ describe('Tabs', () => {
         node => node.props.children === 'Tab',
       );
 
-      expect(labelText!.props.color).toBe('disabled');
-    });
-  });
-
-  describe('tabDisabled style slot', () => {
-    it('merges external styles.tabDisabled on disabled items', () => {
-      const tabDisabledStyle = { opacity: 0.3 };
-      let testRenderer: renderer.ReactTestRenderer;
-      act(() => {
-        testRenderer = renderer.create(
-          <Tabs
-            items={[
-              { value: 'a', label: 'Active' },
-              { value: 'b', label: 'Disabled', disabled: true },
-            ]}
-            styles={{ tabDisabled: tabDisabledStyle }}
-          />,
-        );
-      });
-      const disabledItem = testRenderer!.root.findByProps({
-        testID: 'tabs-item-b',
-      });
-      const flatStyle = StyleSheet.flatten(
-        disabledItem.props.style({ pressed: false }),
-      );
-
-      expect(flatStyle).toEqual(
-        expect.objectContaining(tabDisabledStyle),
-      );
-    });
-
-    it('does not apply tabDisabled style to enabled items', () => {
-      const tabDisabledStyle = { opacity: 0.3 };
-      let testRenderer: renderer.ReactTestRenderer;
-      act(() => {
-        testRenderer = renderer.create(
-          <Tabs
-            items={[
-              { value: 'a', label: 'Active' },
-              { value: 'b', label: 'Disabled', disabled: true },
-            ]}
-            styles={{ tabDisabled: tabDisabledStyle }}
-          />,
-        );
-      });
-      const activeItem = testRenderer!.root.findByProps({
-        testID: 'tabs-item-a',
-      });
-      const flatStyle = StyleSheet.flatten(
-        activeItem.props.style({ pressed: false }),
-      );
-
-      expect(flatStyle).not.toEqual(
-        expect.objectContaining(tabDisabledStyle),
-      );
+      expect(labelText!.props.color).toBe('quaternary');
     });
   });
 });

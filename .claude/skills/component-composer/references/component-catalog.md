@@ -66,7 +66,7 @@
 ## 导航
 
 - `TabBar`：底部或标签栏样式导航。
-- `Tabs`：标签页内容。
+- `Tabs`：标签页内容。行高 32 / 40 / 48，项内边距承担间距，选中为主色 600 + 2px 下划线（宽度等于文字）；列表线 `colorSplit`，按压为 8 圆角 `colorFillTertiary`，禁用文字四级；支持 `layout="wrap" | "scroll"`、`block`、`size`、`renderContent`（唯一函数插槽）。
 - `TopTabNavigator`：顶部标签页屏幕导航器。
 - `SideBar`：侧边分类导航。
 - `IndexBar`：索引列表导航。
