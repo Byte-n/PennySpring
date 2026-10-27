@@ -30,7 +30,7 @@
 ## 输入与控件
 
 - `Input`：Material flat 风格的单行文本与搜索输入，支持浮动 label、独立底线、错误态、清除按钮、前后缀和加载态。
-- `Textarea`：多行文本输入。
+- `Textarea`：多行文本输入；下划线字段（1px 底边 + 2px 状态指示条，无底色无圆角），尺寸 14/24・16/26・18/28，错误不铺浅红底。
 - `DisplayInput`：只读或触发式输入展示。自身持有 pressed、disabled、readonly 与错误态视觉，不接受调用方叠加状态样式。
 - `ImagePicker`：以 `DisplayInput` 作为触发器，从相册或文件管理选择单张或多张图片。支持 `size`、`allowClear`、`status`、`helper`/`error`，触发器样式统一通过 `styles.input` 覆盖。
 - `CalculatorInput`：带计算器弹窗的数字输入。`CalculatorInput.useCalculatorValueState` 封装弹层开关与表达式状态，打开时回填初始值，确认后再收起。
@@ -52,7 +52,7 @@
 
 ## 列表与数据展示
 
-- `List`：基于 `FlatList` 的数据列表容器，支持头尾、空/加载状态、刷新、分页与可折叠分组。
+- `List`：基于 `FlatList` 的数据列表容器，支持头尾、空/加载状态、刷新、分页与可折叠分组；行规格为 56 / 64 高、38 圆角图标底板、66 内缩分隔线，`amountText` 自动拆整数小数并按支出/收入/中性上色。
 - `Tag`：紧凑标签。
 - `Badge`：计数或状态标记。
 - `Avatar`：用户/实体图片或首字母，也支持头像组。

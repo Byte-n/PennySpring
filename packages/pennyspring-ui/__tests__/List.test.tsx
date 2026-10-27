@@ -1,10 +1,13 @@
 import React from 'react';
 import renderer, { act } from 'react-test-renderer';
 import { FlatList, Pressable, StyleSheet, Text as NativeText, View } from 'react-native';
+import { ThemeProvider } from '@pennyspring/theme';
 import type { ReactTestInstance } from 'react-test-renderer';
 import { List } from '../src/List';
+import { Icon } from '../src/Icon';
 import { Text } from '../src/Text';
 import { Grid } from '../src/Grid';
+import type { ListItemData } from '../src/List';
 
 const LAYOUT_WIDTH = 360;
 
@@ -161,5 +164,191 @@ describe('List', () => {
     const width = measureElementWidth(header, 'single-grid-cell');
 
     expect(width).toBeGreaterThan(LAYOUT_WIDTH / 10);
+  });
+});
+
+const ROW_TOKENS = {
+  colorFillQuaternary: 'fillQuaternaryToken',
+  colorFillTertiary: 'fillTertiaryToken',
+  colorPrimary: 'primaryToken',
+  colorPrimaryBg: 'primaryBgToken',
+  colorSplit: 'splitToken',
+  lineWidth: 1,
+  marginSM: 12,
+  marginXS: 8,
+  marginXXS: 4,
+  padding: 16,
+} as const;
+
+function renderRow(data: ListItemData[], index = 0) {
+  let listRenderer: renderer.ReactTestRenderer;
+
+  act(() => {
+    listRenderer = renderer.create(
+      <ThemeProvider config={{ token: ROW_TOKENS }}>
+        <List data={data} />
+      </ThemeProvider>,
+    );
+  });
+
+  const element = listRenderer!.root.findByType(FlatList).props.renderItem({
+    index,
+    item: data[index],
+    separators: {},
+  });
+
+  let rowRenderer: renderer.ReactTestRenderer;
+
+  act(() => {
+    rowRenderer = renderer.create(element);
+  });
+
+  act(() => listRenderer!.unmount());
+
+  return rowRenderer!;
+}
+
+function getRowStyle(testRenderer: renderer.ReactTestRenderer) {
+  const row = testRenderer.root.findAllByProps({ testID: 'row' })[0];
+
+  return StyleSheet.flatten(row.props.style);
+}
+
+describe('List row spec', () => {
+  it('gives a single-line row 56 height and 16 / 8 padding', () => {
+    const rowStyle = getRowStyle(renderRow([{ titleText: '餐饮 · 外卖' }]));
+
+    expect(rowStyle.minHeight).toBe(56);
+    expect(rowStyle.paddingHorizontal).toBe(ROW_TOKENS.padding);
+    expect(rowStyle.paddingVertical).toBe(ROW_TOKENS.marginXS);
+    expect(rowStyle.gap).toBe(ROW_TOKENS.marginSM);
+  });
+
+  it('raises a two-line row to 64', () => {
+    const rowStyle = getRowStyle(
+      renderRow([{ descriptionText: '工作日午餐', titleText: '餐饮 · 外卖' }]),
+    );
+
+    expect(rowStyle.minHeight).toBe(64);
+  });
+
+  it('wraps the icon in a 38 plate and keeps the title at 14 medium', () => {
+    const testRenderer = renderRow([{ icon: 'list', titleText: '餐饮 · 外卖' }]);
+    const plate = testRenderer.root.findAllByType(View).find(node => {
+      const style = StyleSheet.flatten(node.props.style);
+
+      return style?.width === 38 && style?.height === 38;
+    });
+    const plateStyle = StyleSheet.flatten(plate?.props.style);
+    const icon = testRenderer.root.findByType(Icon);
+    const titleNode = testRenderer.root
+      .findAllByType(Text)
+      .find(node => node.props.children === '餐饮 · 外卖');
+
+    expect(plateStyle?.borderRadius).toBe(12);
+    expect(plateStyle?.backgroundColor).toBe(ROW_TOKENS.colorFillTertiary);
+    expect(icon.props.size).toBe(20);
+    expect(icon.props.color).toBe('textSecondary');
+    expect(titleNode?.props.size).toBe('sm');
+    expect(titleNode?.props.weight).toBe('medium');
+    expect(titleNode?.props.color).toBe('default');
+  });
+
+  it('splits the amount into integer and decimal with a semantic tone', () => {
+    const testRenderer = renderRow([
+      { amountText: { tone: 'expense', value: 128 }, titleText: '餐饮 · 外卖' },
+    ]);
+    const textNodes = testRenderer.root.findAllByType(Text);
+    const integer = textNodes.find(node => node.props.children === '128');
+    const decimal = textNodes.find(node => node.props.children === '.00');
+
+    expect(integer?.props.weight).toBe('semibold');
+    expect(integer?.props.color).toBe('errorText');
+    expect(decimal?.props.color).toBe('errorText');
+  });
+
+  it('prefixes income amounts with a plus sign', () => {
+    const testRenderer = renderRow([
+      { amountText: { tone: 'income', value: '12,800.00' }, titleText: '工资入账' },
+    ]);
+    const signNode = testRenderer.root
+      .findAllByType(Text)
+      .find(node => node.props.children === '+¥');
+
+    expect(signNode).toBeTruthy();
+  });
+
+  it('replaces the trailing content with a check icon when selected', () => {
+    const testRenderer = renderRow([
+      { amountText: { value: 28 }, selected: true, titleText: '已选中' },
+    ]);
+    const icon = testRenderer.root.findByType(Icon);
+    const rowStyle = getRowStyle(testRenderer);
+
+    expect(icon.props.icon).toBe('check');
+    expect(icon.props.size).toBe(18);
+    expect(rowStyle.backgroundColor).toBe(ROW_TOKENS.colorPrimaryBg);
+    expect(testRenderer.root.findAllByType(Text).some(node => node.props.children === '28')).toBe(false);
+  });
+
+  it('insets the divider to 66 for plated rows and 16 for text-only rows', () => {
+    const platedRows: ListItemData[] = [
+      { icon: 'list', titleText: '餐饮' },
+      { icon: 'list', titleText: '交通' },
+    ];
+    const textOnlyRows: ListItemData[] = [
+      { titleText: '餐饮' },
+      { titleText: '交通' },
+    ];
+    const findDivider = (testRenderer: renderer.ReactTestRenderer) =>
+      testRenderer.root.findAllByType(View).find(node => {
+        const style = StyleSheet.flatten(node.props.style);
+
+        return style?.position === 'absolute' && style?.height === 1;
+      });
+
+    const platedDivider = StyleSheet.flatten(findDivider(renderRow(platedRows, 0))?.props.style);
+    const textOnlyDivider = StyleSheet.flatten(findDivider(renderRow(textOnlyRows, 0))?.props.style);
+    const lastRowDivider = findDivider(renderRow(platedRows, 1));
+
+    expect(platedDivider.left).toBe(66);
+    expect(textOnlyDivider.left).toBe(16);
+    expect(lastRowDivider).toBeUndefined();
+  });
+
+  it('greys a disabled row without fading the whole row', () => {
+    const testRenderer = renderRow([{ disabled: true, icon: 'list', titleText: '已归档账本' }]);
+    const rowStyle = getRowStyle(testRenderer);
+    const plate = testRenderer.root.findAllByType(View).find(node => {
+      const style = StyleSheet.flatten(node.props.style);
+
+      return style?.width === 38 && style?.height === 38;
+    });
+    const titleNode = testRenderer.root
+      .findAllByType(Text)
+      .find(node => node.props.children === '已归档账本');
+
+    expect(rowStyle.opacity).toBeUndefined();
+    expect(StyleSheet.flatten(plate?.props.style).backgroundColor).toBe(ROW_TOKENS.colorFillQuaternary);
+    expect(titleNode?.props.color).toBe('tertiary');
+  });
+
+  it('renders the collapsible group header at 32 height', () => {
+    let testRenderer: renderer.ReactTestRenderer;
+
+    act(() => {
+      testRenderer = renderer.create(
+        <ThemeProvider config={{ token: ROW_TOKENS }}>
+          <List collapsible titleText="支出分类 · 8" />
+        </ThemeProvider>,
+      );
+    });
+
+    const header = testRenderer!.root
+      .findAllByType(View)
+      .find(node => StyleSheet.flatten(node.props.style)?.minHeight === 32);
+
+    expect(header).toBeTruthy();
+    expect(StyleSheet.flatten(header?.props.style).backgroundColor).toBeUndefined();
   });
 });

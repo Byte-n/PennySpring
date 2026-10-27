@@ -1,9 +1,11 @@
-import { listBasicDemoTitle, ListBasicDemo } from './basic';
+import { listAmountDemoTitle, ListAmountDemo } from './amount';
 import { listCollapsibleDemoTitle, ListCollapsibleDemo } from './collapsible';
+import { listRowsDemoTitle, ListRowsDemo } from './rows';
 import { listStatesDemoTitle, ListStatesDemo } from './states';
 
 export const listDemos = [
-  { id: 'basic', title: listBasicDemoTitle, Component: ListBasicDemo },
+  { id: 'rows', title: listRowsDemoTitle, Component: ListRowsDemo },
+  { id: 'amount', title: listAmountDemoTitle, Component: ListAmountDemo },
   {
     id: 'collapsible',
     title: listCollapsibleDemoTitle,
