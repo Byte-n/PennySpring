@@ -143,12 +143,12 @@ export function QuickTemplatePanel({
   return (
     <Popup.FloatingPanel
       closeOnMaskClick
+      footer={null}
       height="50%"
       keyboardAvoiding
       onOpenChange={onOpenChange}
       open={open}
       position="bottom"
-      renderFooter={() => null}
       renderHeader={() => (
         <Row align="center" justify="between" style={styles.header}>
           <Text size="md" weight="semibold">

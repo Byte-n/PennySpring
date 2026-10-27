@@ -1,130 +1,307 @@
-import React, { useCallback, useState } from 'react';
-import { ScrollView } from 'react-native';
+import React, {
+  useCallback,
+  useLayoutEffect,
+  useMemo,
+  useState,
+} from 'react';
+import { Pressable, ScrollView } from 'react-native';
 import { useRequest } from 'ahooks';
 import {
   ActionSheet,
+  Button,
   Column,
-  DisplayInput,
   Icon,
   Input,
-  Popup,
   Row,
-  Tag,
+  Switch,
   Text,
   useToast,
 } from '@pennyspring/ui';
 import { VISIBILITY, type TagRow } from '@pennyspring/api';
-import { createUseSheetStyle } from '@pennyspring/theme';
+import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
+
+import { FormIconGrid, TAG_FORM_ICONS } from '../../component/FormIconGrid';
 import { PhosphorIconPicker } from '../../component/PhosphorIconPicker';
+import { createHeaderAddButton } from '../../components/HeaderAddButton';
+import { ManageConfirmDialog } from '../../components/ManageConfirmDialog';
+import { FormFloatingPanel } from '../../components/FormFloatingPanel';
+import { ManageSkeleton } from '../../components/ManageSkeleton';
 import { getPhosphorIconComponent } from '../../constants/typeIconTree';
+import { DEFAULT_TAG_ICON } from '../../constants/tagIcon';
+import { useNavigation } from '../../navigation';
 import { useBookStore, useGlobalApi } from '../../stores/bookStore';
+
+type TagChipVariant = 'default' | 'add' | 'hidden';
+
+interface TagChipProps {
+  label: string;
+  iconName?: string;
+  variant?: TagChipVariant;
+  placeholder?: boolean;
+  onPress?: () => void;
+  onLongPress?: () => void;
+}
 
 const useStyles = createUseSheetStyle(token => ({
   container: {
-    flex: 1,
     backgroundColor: token.colorBgLayout,
+    flex: 1,
   },
   content: {
-    flex: 1,
+    gap: token.marginSM,
     padding: token.padding,
+    paddingBottom: token.paddingXL,
   },
-  grid: {
+  metaLine: {
+    alignItems: 'center',
+    gap: token.marginXXS,
+    paddingHorizontal: token.paddingXXS,
+  },
+  section: {
+    gap: token.marginXS,
+  },
+  sectionHeader: {
+    alignItems: 'baseline',
+    gap: token.marginXS,
+    paddingHorizontal: token.paddingXXS,
+  },
+  sectionTitle: {
+    color: token.colorTextSecondary,
+  },
+  sectionCount: {
+    color: token.colorTextTertiary,
+  },
+  chips: {
+    flexDirection: 'row',
     flexWrap: 'wrap',
     gap: token.marginSM,
   },
+  chip: {
+    alignItems: 'center',
+    backgroundColor: token.colorFillQuaternary,
+    borderRadius: token.controlHeightSM,
+    flexDirection: 'row',
+    gap: token.marginXS,
+    height: token.controlHeightSM,
+    maxWidth: '100%',
+    paddingHorizontal: token.paddingSM,
+  },
+  chipPressed: {
+    backgroundColor: token.colorFill,
+  },
+  chipAdd: {
+    backgroundColor: 'transparent',
+    borderColor: token.colorBorder,
+    borderStyle: 'dashed',
+    borderWidth: token.lineWidth,
+  },
   chipHidden: {
-    opacity: 0.5,
+    backgroundColor: 'transparent',
+    borderColor: token.colorBorder,
+    borderStyle: 'dashed',
+    borderWidth: token.lineWidth,
   },
-  dialogBody: {
+  chipText: {
+    flexShrink: 1,
+  },
+  listEnd: {
+    color: token.colorTextTertiary,
+    lineHeight: token.lineHeight,
+    textAlign: 'center',
+  },
+  formBody: {
+    gap: token.marginMD,
+  },
+  preview: {
+    alignItems: 'center',
+    paddingVertical: token.paddingXS,
+  },
+  switchRow: {
+    alignItems: 'center',
+  },
+  switchText: {
     flex: 1,
-    gap: token.marginSM,
-    paddingHorizontal: token.padding,
   },
-  tagContent: {
-    gap: token.marginXXS,
+  switchNote: {
+    color: token.colorTextTertiary,
+  },
+  iconMore: {
+    alignItems: 'flex-start',
   },
 }));
+
+function TagChip({
+  label,
+  iconName,
+  variant = 'default',
+  placeholder = false,
+  onPress,
+  onLongPress,
+}: TagChipProps) {
+  const styles = useStyles();
+  const { token } = useTheme();
+  const IconComponent = iconName ? getPhosphorIconComponent(iconName) : null;
+  const isAdd = variant === 'add';
+  const isHidden = variant === 'hidden';
+  const textColor = isAdd
+    ? 'primary'
+    : isHidden
+      ? 'tertiary'
+      : placeholder
+        ? 'tertiary'
+        : 'default';
+  const iconColor = isAdd
+    ? token.colorPrimary
+    : isHidden
+      ? token.colorTextTertiary
+      : token.colorTextSecondary;
+
+  return (
+    <Pressable
+      disabled={!onPress}
+      onLongPress={onLongPress}
+      onPress={onPress}
+      style={({ pressed }) => [
+        styles.chip,
+        isAdd && styles.chipAdd,
+        isHidden && styles.chipHidden,
+        pressed && styles.chipPressed,
+      ]}
+    >
+      {isAdd ? (
+        <Icon color="primary" icon="plus" size="small" />
+      ) : IconComponent ? (
+        <IconComponent color={iconColor} size={token.fontSizeSM} />
+      ) : null}
+      <Text
+        color={textColor}
+        numberOfLines={1}
+        size="sm"
+        style={styles.chipText}
+      >
+        {label}
+      </Text>
+    </Pressable>
+  );
+}
+
+function getTagDeleteErrorMessage(error: unknown): string {
+  const message = error instanceof Error ? error.message : '';
+  if (message.includes('Tag is in use')) {
+    return '该标签已被记录使用，先解除关联后再删除。';
+  }
+  return message || '删除失败';
+}
 
 export function TagManageScreen() {
   const styles = useStyles();
   const toast = useToast();
+  const navigation = useNavigation();
   const currentBook = useBookStore(state => state.currentBook);
   const globalApi = useGlobalApi();
 
-  const { data, refresh } = useRequest(() => {
-    if (!currentBook) return Promise.resolve([]);
+  const { data, loading, refresh } = useRequest(() => {
+    if (!currentBook) return Promise.resolve<TagRow[]>([]);
     return globalApi.tag.getAll(currentBook.id);
   });
+  const tags = data ?? [];
 
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [iconPickerOpen, setIconPickerOpen] = useState(false);
+  const visibleTags = useMemo(
+    () => tags.filter(tag => tag.invisible !== VISIBILITY.hidden),
+    [tags],
+  );
+  const hiddenTags = useMemo(
+    () => tags.filter(tag => tag.invisible === VISIBILITY.hidden),
+    [tags],
+  );
+
+  const [formOpen, setFormOpen] = useState(false);
   const [editingTag, setEditingTag] = useState<TagRow | null>(null);
   const [name, setName] = useState('');
-  const [icon, setIcon] = useState('');
+  const [icon, setIcon] = useState(DEFAULT_TAG_ICON);
+  const [hidden, setHidden] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [iconPickerOpen, setIconPickerOpen] = useState(false);
 
-  const [actionSheetOpen, setActionSheetOpen] = useState(false);
-  const [selectedTag, setSelectedTag] = useState<TagRow | null>(null);
+  const [menuTag, setMenuTag] = useState<TagRow | null>(null);
+  const [pendingDeleteTag, setPendingDeleteTag] = useState<TagRow | null>(null);
 
-  const openCreateDialog = useCallback(() => {
+  const formIconValues = useMemo(() => {
+    if (
+      icon &&
+      !(TAG_FORM_ICONS as readonly string[]).includes(icon)
+    ) {
+      return [icon, ...TAG_FORM_ICONS];
+    }
+    return TAG_FORM_ICONS;
+  }, [icon]);
+
+  const openCreate = useCallback(() => {
     setEditingTag(null);
     setName('');
-    setIcon('');
-    setDialogOpen(true);
+    setIcon(DEFAULT_TAG_ICON);
+    setHidden(false);
+    setFormOpen(true);
   }, []);
 
-  const openEditDialog = useCallback((tag: TagRow) => {
+  const openEdit = useCallback((tag: TagRow) => {
     setEditingTag(tag);
     setName(tag.name);
-    setIcon(tag.icon);
-    setDialogOpen(true);
+    setIcon(tag.icon || DEFAULT_TAG_ICON);
+    setHidden(tag.invisible === VISIBILITY.hidden);
+    setFormOpen(true);
   }, []);
 
-  const handleLongPress = useCallback((tag: TagRow) => {
-    setSelectedTag(tag);
-    setActionSheetOpen(true);
-  }, []);
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: createHeaderAddButton(openCreate),
+    });
+  }, [navigation, openCreate]);
 
-  const handleSave = useCallback(async () => {
+  const handleSave = useCallback(async (): Promise<boolean> => {
     if (!name.trim()) {
       toast.show({ messageText: '请输入标签名称' });
-      return;
+      return false;
     }
     if (!currentBook) {
       toast.show({ messageText: '未找到当前账本' });
-      return;
+      return false;
     }
+    setSubmitting(true);
     try {
+      const invisible = hidden ? VISIBILITY.hidden : VISIBILITY.visible;
       if (editingTag) {
-        await globalApi.tag.update({ id: editingTag.id, booksId: currentBook.id, name: name.trim(), icon });
+        await globalApi.tag.update({
+          booksId: currentBook.id,
+          icon,
+          id: editingTag.id,
+          invisible,
+          name: name.trim(),
+        });
       } else {
-        await globalApi.tag.create({ booksId: currentBook.id, name: name.trim(), icon });
-      }
-      setDialogOpen(false);
-      refresh();
-    } catch (e: unknown) {
-      toast.show({ messageText: e instanceof Error ? e.message : '操作失败' });
-    }
-  }, [name, icon, currentBook, editingTag, refresh, toast]);
-
-  const handleDelete = useCallback(
-    async (id: number) => {
-      if (!currentBook) {
-        toast.show({ messageText: '未找到当前账本' });
-        return;
-      }
-      try {
-        await globalApi.tag.delete(id, currentBook.id);
-        refresh();
-      } catch (e: unknown) {
-        toast.show({
-          messageText: e instanceof Error ? e.message : '删除失败',
+        await globalApi.tag.create({
+          booksId: currentBook.id,
+          icon,
+          invisible,
+          name: name.trim(),
         });
       }
-    },
-    [currentBook, refresh, toast],
-  );
+      refresh();
+      return true;
+    } catch (error: unknown) {
+      toast.show({
+        messageText:
+          error instanceof Error && error.message
+            ? error.message
+            : '保存失败',
+      });
+      return false;
+    } finally {
+      setSubmitting(false);
+    }
+  }, [currentBook, editingTag, globalApi.tag, hidden, icon, name, refresh, toast]);
 
-  const handleToggleVisibility = useCallback(
+  const toggleVisibility = useCallback(
     async (tag: TagRow) => {
       if (!currentBook) {
         toast.show({ messageText: '未找到当前账本' });
@@ -136,118 +313,257 @@ export function TagManageScreen() {
             ? VISIBILITY.visible
             : VISIBILITY.hidden;
         await globalApi.tag.update({
-          id: tag.id,
           booksId: currentBook.id,
-          name: tag.name,
           icon: tag.icon,
+          id: tag.id,
           invisible,
+          name: tag.name,
         });
         refresh();
-      } catch (e: unknown) {
         toast.show({
-          messageText: e instanceof Error ? e.message : '操作失败',
+          messageText:
+            invisible === VISIBILITY.hidden
+              ? `「${tag.name}」已隐藏`
+              : `「${tag.name}」已恢复显示`,
+        });
+      } catch (error: unknown) {
+        toast.show({
+          messageText:
+            error instanceof Error && error.message
+              ? error.message
+              : '操作失败',
         });
       }
     },
-    [currentBook, refresh, toast],
+    [currentBook, globalApi.tag, refresh, toast],
   );
 
-  const handleActionSheetAction = useCallback(
+  const handleDelete = useCallback(async () => {
+    const target = pendingDeleteTag;
+    if (!target || !currentBook) {
+      return;
+    }
+    try {
+      await globalApi.tag.delete(target.id, currentBook.id);
+    } catch (error: unknown) {
+      throw new Error(getTagDeleteErrorMessage(error));
+    }
+    if (editingTag?.id === target.id) {
+      setFormOpen(false);
+    }
+    setPendingDeleteTag(null);
+    refresh();
+  }, [currentBook, editingTag?.id, globalApi.tag, pendingDeleteTag, refresh]);
+
+  const menuActions = useMemo(() => {
+    const tag = menuTag;
+    return [
+      { text: '编辑标签', icon: 'edit' as const },
+      {
+        text:
+          tag?.invisible === VISIBILITY.hidden ? '显示标签' : '隐藏标签',
+        icon:
+          tag?.invisible === VISIBILITY.hidden
+            ? ('eye' as const)
+            : ('eye-slash' as const),
+      },
+      { text: '删除标签', icon: 'trash' as const, danger: true },
+    ];
+  }, [menuTag]);
+
+  const handleMenuAction = useCallback(
     (_action: { text: string }, index: number) => {
-      if (!selectedTag) return;
-      setActionSheetOpen(false);
+      const tag = menuTag;
+      setMenuTag(null);
+      if (!tag) {
+        return;
+      }
       if (index === 0) {
-        openEditDialog(selectedTag);
+        openEdit(tag);
       } else if (index === 1) {
-        handleToggleVisibility(selectedTag);
-      } else if (index === 2) {
-        handleDelete(selectedTag.id);
+        toggleVisibility(tag);
+      } else {
+        setPendingDeleteTag(tag);
       }
     },
-    [selectedTag, openEditDialog, handleToggleVisibility, handleDelete],
+    [menuTag, openEdit, toggleVisibility],
   );
 
-  const tags = data ?? [];
-  const actionSheetActions = selectedTag
-    ? [
-        { text: '编辑' },
-        { text: selectedTag.invisible === VISIBILITY.hidden ? '显示' : '隐藏' },
-        { text: '删除', danger: true },
-      ]
-    : [];
+  const okDisabled = submitting || !name.trim();
+  const previewLabel = name.trim() || '标签名称';
+  const submitText = editingTag ? '保存' : '新增';
+
+  if (loading && tags.length === 0) {
+    return (
+      <Column style={styles.container}>
+        <ScrollView contentContainerStyle={styles.content}>
+          <ManageSkeleton rows={3} />
+        </ScrollView>
+      </Column>
+    );
+  }
 
   return (
     <Column style={styles.container}>
       <ScrollView contentContainerStyle={styles.content}>
-        <Row style={styles.grid}>
-          <Tag variant="outlined" onPress={openCreateDialog}>
-            + 新增标签
-          </Tag>
-          {tags.map(tag => (
-            <Tag
-              key={tag.id}
-              variant="outlined"
-              style={[tag.invisible === VISIBILITY.hidden && styles.chipHidden]}
-              onLongPress={() => handleLongPress(tag)}
-            >
-              <Row align="center" style={styles.tagContent}>
-                {tag.icon ? (
-                  <Icon icon={getPhosphorIconComponent(tag.icon)} size="small" />
-                ) : null}
-                <Text size="sm">{tag.name}</Text>
-              </Row>
-            </Tag>
-          ))}
+        <Row style={styles.metaLine}>
+          <Text color="secondary" size="xs" weight="semibold">
+            {tags.length}
+          </Text>
+          <Text color="tertiary" size="xs">
+            个标签 ·
+          </Text>
+          <Text color="secondary" size="xs" weight="semibold">
+            {hiddenTags.length}
+          </Text>
+          <Text color="tertiary" size="xs">
+            个已隐藏
+          </Text>
         </Row>
+
+        <Column style={styles.section}>
+          <Row style={styles.sectionHeader}>
+            <Text size="xs" style={styles.sectionTitle} weight="semibold">
+              标签
+            </Text>
+            <Text size="xs" style={styles.sectionCount}>
+              {visibleTags.length}
+            </Text>
+          </Row>
+          <Row style={styles.chips}>
+            <TagChip label="新建标签" onPress={openCreate} variant="add" />
+            {visibleTags.map(tag => (
+              <TagChip
+                iconName={tag.icon || DEFAULT_TAG_ICON}
+                key={tag.id}
+                label={tag.name}
+                onLongPress={() => setMenuTag(tag)}
+                onPress={() => setMenuTag(tag)}
+              />
+            ))}
+          </Row>
+        </Column>
+
+        {hiddenTags.length > 0 ? (
+          <Column style={styles.section}>
+            <Row style={styles.sectionHeader}>
+              <Text size="xs" style={styles.sectionTitle} weight="semibold">
+                已隐藏
+              </Text>
+              <Text size="xs" style={styles.sectionCount}>
+                {hiddenTags.length}
+              </Text>
+            </Row>
+            <Row style={styles.chips}>
+              {hiddenTags.map(tag => (
+                <TagChip
+                  iconName={tag.icon || DEFAULT_TAG_ICON}
+                  key={tag.id}
+                  label={tag.name}
+                  onLongPress={() => setMenuTag(tag)}
+                  onPress={() => setMenuTag(tag)}
+                  variant="hidden"
+                />
+              ))}
+            </Row>
+          </Column>
+        ) : null}
+
+        <Text size="xs" style={styles.listEnd}>
+          轻点标签可编辑、隐藏或删除{'\n'}
+          删除只解除关联，不影响记录金额
+        </Text>
       </ScrollView>
 
-      <ActionSheet
-        open={actionSheetOpen}
-        onOpenChange={open => {
-          if (!open) setActionSheetOpen(false);
-        }}
-        actions={actionSheetActions}
-        onAction={handleActionSheetAction}
-        cancelText="取消"
-      />
-
-      <Popup.FloatingPanel
-        keyboardAvoiding
-        open={dialogOpen}
-        onOpenChange={open => {
-          if (!open) setDialogOpen(false);
-        }}
-        titleText={editingTag ? '编辑标签' : '新增标签'}
+      <FormFloatingPanel
         onOk={handleSave}
-        okText={editingTag ? '保存' : '新增'}
-        okDisabled={!name.trim()}
-        styles={{ panelBody: styles.dialogBody }}
+        onOpenChange={open => {
+          if (!open) {
+            setFormOpen(false);
+          }
+        }}
+        open={formOpen}
+        panelBodyStyle={styles.formBody}
+        submitDisabled={okDisabled}
+        submitLoading={submitting}
+        submitText={submitText}
+        titleText={editingTag ? '编辑标签' : '新增标签'}
       >
-        <Column>
-          <Input
-            labelText="标签名称"
-            placeholder="请输入"
-            value={name}
-            onChange={setName}
-          />
-          <DisplayInput
-            labelText="图标"
-            valueText={icon || '未选图标'}
-            prefix={
-              icon ? (
-                <Icon icon={getPhosphorIconComponent(icon)} size="small" />
-              ) : null
-            }
-            onPress={() => setIconPickerOpen(true)}
+        <Column style={styles.preview}>
+          <TagChip
+            iconName={icon}
+            label={previewLabel}
+            placeholder={!name.trim()}
+            variant={hidden ? 'hidden' : 'default'}
           />
         </Column>
-        <PhosphorIconPicker
-          open={iconPickerOpen}
-          value={icon}
-          onChange={setIcon}
-          onOpenChange={setIconPickerOpen}
+        <Input
+          labelText="标签名称"
+          onChange={setName}
+          placeholder="例如：报销"
+          value={name}
         />
-      </Popup.FloatingPanel>
+        <Column>
+          <Text color="tertiary" size="xs">
+            图标
+          </Text>
+          <FormIconGrid
+            onChange={setIcon}
+            value={icon}
+            values={formIconValues}
+          />
+          <Column style={styles.iconMore}>
+            <Button
+              onPress={() => setIconPickerOpen(true)}
+              size="small"
+              type="link"
+            >
+              更多图标
+            </Button>
+          </Column>
+        </Column>
+        <Row style={styles.switchRow}>
+          <Column style={styles.switchText}>
+            <Text size="md">隐藏该标签</Text>
+            <Text size="xs" style={styles.switchNote}>
+              隐藏后不出现在新增记录与统计里，历史记录保留
+            </Text>
+          </Column>
+          <Switch onChange={setHidden} value={hidden} />
+        </Row>
+      </FormFloatingPanel>
+
+      <PhosphorIconPicker
+        onChange={setIcon}
+        onOpenChange={setIconPickerOpen}
+        open={iconPickerOpen}
+        value={icon}
+      />
+
+      <ActionSheet
+        actions={menuActions}
+        cancelText="取消"
+        onAction={handleMenuAction}
+        onOpenChange={open => {
+          if (!open) {
+            setMenuTag(null);
+          }
+        }}
+        open={menuTag !== null}
+        titleText={menuTag?.name}
+      />
+
+      <ManageConfirmDialog
+        messageText="删除只解除记录上的关联，不影响记录金额；历史记录会保留。"
+        onCancel={() => setPendingDeleteTag(null)}
+        onConfirm={handleDelete}
+        open={pendingDeleteTag !== null}
+        titleText={
+          pendingDeleteTag
+            ? `删除「${pendingDeleteTag.name}」？`
+            : '删除标签'
+        }
+      />
     </Column>
   );
 }

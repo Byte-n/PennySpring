@@ -252,12 +252,12 @@ export function PhosphorIconPicker({
 
   return (
     <Popup.FloatingPanel
+      footer={null}
       height="80%"
       keyboardAvoiding
       onOpenChange={onOpenChange}
       open={open}
       position="bottom"
-      renderFooter={null}
       titleText={titleText}
       styles={{ panelBody: styles.panelBody }}
     >

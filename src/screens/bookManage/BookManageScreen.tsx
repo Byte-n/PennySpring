@@ -1,19 +1,20 @@
-import React, { useCallback, useState } from 'react';
-import { ScrollView } from 'react-native';
+import React, { useCallback, useLayoutEffect, useMemo, useState } from 'react';
 import { useRequest } from 'ahooks';
 import {
+  ActionSheet,
   Button,
   Column,
-  Dialog,
-  FloatingActionGroup,
+  Icon,
   ImagePicker,
   Input,
-  List,
   Loading,
+  Row,
+  Segmented,
+  Tag,
   Text,
   useToast,
+  type ImagePickerValue,
 } from '@pennyspring/ui';
-import type { ImagePickerValue, ListItemData } from '@pennyspring/ui';
 import { BOOK_TYPE, localApi, type BookRow } from '@pennyspring/api';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import {
@@ -28,39 +29,41 @@ import {
   useNetworkBookStore,
 } from '../../stores/networkBookStore';
 import { BookList, type BookListItem } from '../../components/BookList';
+import { FormFloatingPanel } from '../../components/FormFloatingPanel';
+import { createHeaderAddButton } from '../../components/HeaderAddButton';
+import { ManageConfirmDialog } from '../../components/ManageConfirmDialog';
+import { ManageCard, ManageRow } from '../../components/ManageRow';
+import { useNavigation } from '../../navigation';
 
-type DialogStep =
-  | 'none'
-  | 'typeSelect'
-  | 'localForm'
-  | 'networkServer'
-  | 'networkList'
-  | 'networkCreate';
+type BookFormKind = 'local' | 'remote';
+
+interface ConfirmState {
+  kind: 'delete' | 'remove';
+  item: BookListItem;
+}
 
 const useStyles = createUseSheetStyle(token => ({
   container: {
-    flex: 1,
     backgroundColor: token.colorBgLayout,
+    flex: 1,
   },
-  dialogBody: {
-    gap: token.margin,
+  formBody: {
+    gap: token.marginMD,
   },
-  typeSelectBody: {
-    gap: token.margin,
+  addressList: {
+    gap: token.marginXS,
   },
-  networkListScroll: {
-    maxHeight: token.controlHeightLG * 10,
-  },
-  networkListFooter: {
-    paddingTop: token.paddingSM,
-  },
-  serverUrlList: {
-    gap: token.marginSM,
-  },
-  serverUrlHint: {
-    fontSize: token.fontSizeSM,
+  addressLabel: {
     color: token.colorTextTertiary,
-    marginBottom: token.marginXS,
+  },
+  remoteList: {
+    gap: token.marginXS,
+  },
+  hint: {
+    color: token.colorTextTertiary,
+  },
+  remoteLoading: {
+    paddingVertical: token.paddingSM,
   },
 }));
 
@@ -72,9 +75,16 @@ function getImageUri(imageValue: ImagePickerValue | undefined): string {
   return imageValue?.uri ?? '';
 }
 
+function getErrorMessage(error: unknown, fallback: string): string {
+  return error instanceof Error && error.message.trim()
+    ? error.message
+    : fallback;
+}
+
 export function BookManageScreen() {
   const styles = useStyles();
   const toast = useToast();
+  const navigation = useNavigation();
   const currentBook = useBookStore(state => state.currentBook);
   const initializeBook = useBookStore(state => state.initializeBook);
   const setCurrentBook = useBookStore(state => state.setCurrentBook);
@@ -82,10 +92,14 @@ export function BookManageScreen() {
   const addRef = useNetworkBookStore(state => state.addRef);
   const removeRef = useNetworkBookStore(state => state.removeRef);
 
-  const { data: localBooks = [], refresh: refreshLocal } = useRequest(
+  const { data: localBooks = [], loading: localLoading, refresh: refreshLocal } = useRequest(
     () => localApi.book.getAll(),
   );
-  const { data: networkBooks = [], refresh: refreshNetwork } = useRequest(
+  const {
+    data: networkEntries = [],
+    loading: networkDataLoading,
+    refresh: refreshNetwork,
+  } = useRequest(
     async () => {
       const settled = await Promise.allSettled(
         networkRefs.map(async ref => {
@@ -95,14 +109,19 @@ export function BookManageScreen() {
           return { ref, book };
         }),
       );
-      return networkRefs
-        .map((ref, index) => {
-          const result = settled[index];
-          return result && result.status === 'fulfilled' ? result.value : null;
-        })
-        .filter(
-          (x): x is { ref: NetworkBookRef; book: BookRow } => x !== null,
-        );
+      return networkRefs.map((ref, index) => {
+        const result = settled[index];
+        if (result && result.status === 'fulfilled') {
+          return { ref, book: result.value.book };
+        }
+        return {
+          ref,
+          error:
+            result && result.status === 'rejected'
+              ? getErrorMessage(result.reason, '连接失败')
+              : '连接失败',
+        };
+      });
     },
     { refreshDeps: [JSON.stringify(networkRefs)] },
   );
@@ -112,65 +131,105 @@ export function BookManageScreen() {
     refreshNetwork();
   }, [refreshLocal, refreshNetwork]);
 
-  const items: BookListItem[] = [
-    ...localBooks.map(row => ({
-      entry: { kind: BOOK_TYPE.local, ...row } as BookEntry,
-      ref: { kind: 'local' as const, id: row.id },
-    })),
-    ...networkBooks.map(({ ref, book }) => ({
-      entry: { kind: BOOK_TYPE.remote, ...book } as BookEntry,
-      ref: {
-        kind: 'remote' as const,
-        serverUrl: ref.serverUrl,
-        bookId: ref.bookId,
-      },
-      networkRef: ref,
-    })),
-  ];
+  const items: BookListItem[] = useMemo(
+    () => [
+      ...localBooks.map(row => ({
+        entry: { kind: BOOK_TYPE.local, ...row } as BookEntry,
+        ref: { kind: 'local' as const, id: row.id },
+      })),
+      ...networkEntries.map(({ ref, book, error }) => {
+        const entry: BookEntry = book
+          ? { kind: BOOK_TYPE.remote, ...book }
+          : {
+              background: '',
+              createdTime: 0,
+              description: '',
+              id: ref.bookId,
+              kind: BOOK_TYPE.remote,
+              name: '网络账本',
+              updatedTime: 0,
+            };
+        return {
+          entry,
+          error,
+          networkRef: ref,
+          ref: {
+            kind: 'remote' as const,
+            serverUrl: ref.serverUrl,
+            bookId: ref.bookId,
+          },
+        };
+      }),
+    ],
+    [localBooks, networkEntries],
+  );
 
-  const [dialogStep, setDialogStep] = useState<DialogStep>('none');
+  const [menuItem, setMenuItem] = useState<BookListItem | null>(null);
+  const [confirmState, setConfirmState] = useState<ConfirmState | null>(null);
+
+  const [formOpen, setFormOpen] = useState(false);
   const [editingBook, setEditingBook] = useState<BookRow | null>(null);
+  const [formKind, setFormKind] = useState<BookFormKind>('local');
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [backgroundImage, setBackgroundImage] = useState<
     ImagePickerValue | undefined
   >();
   const [networkServerUrl, setNetworkServerUrl] = useState('');
+  const [networkError, setNetworkError] = useState('');
   const [serverBookList, setServerBookList] = useState<BookRow[]>([]);
+  const [networkConnected, setNetworkConnected] = useState(false);
   const [networkLoading, setNetworkLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
-  const closeDialog = useCallback(() => {
-    setDialogStep('none');
+  const resetForm = useCallback(() => {
     setEditingBook(null);
+    setFormKind('local');
+    setName('');
+    setDescription('');
+    setBackgroundImage(undefined);
+    setNetworkServerUrl('');
+    setNetworkError('');
+    setServerBookList([]);
+    setNetworkConnected(false);
+    setNetworkLoading(false);
   }, []);
 
   const openCreate = useCallback(() => {
-    setEditingBook(null);
-    setName('');
-    setDescription('');
-    setBackgroundImage(undefined);
-    setDialogStep('typeSelect');
-  }, []);
+    resetForm();
+    setFormOpen(true);
+  }, [resetForm]);
 
-  const chooseLocal = useCallback(() => {
-    setEditingBook(null);
-    setName('');
-    setDescription('');
-    setBackgroundImage(undefined);
-    setDialogStep('localForm');
-  }, []);
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: createHeaderAddButton(openCreate),
+    });
+  }, [navigation, openCreate]);
 
-  const chooseNetwork = useCallback(() => {
+  const openEdit = useCallback((item: BookListItem) => {
+    setEditingBook(item.entry);
+    setFormKind('local');
+    setName(item.entry.name);
+    setDescription(item.entry.description);
+    setBackgroundImage(getImageValue(item.entry.background));
     setNetworkServerUrl('');
+    setNetworkError('');
     setServerBookList([]);
-    setDialogStep('networkServer');
+    setNetworkConnected(false);
+    setFormOpen(true);
   }, []);
 
-  const existingServerUrls = React.useMemo(() => {
+  const existingServerUrls = useMemo(() => {
     const urls = networkRefs.map(ref => ref.serverUrl);
     return Array.from(new Set(urls));
   }, [networkRefs]);
+
+  const handleServerUrlChange = useCallback((value: string) => {
+    setNetworkServerUrl(value);
+    setNetworkError('');
+    setServerBookList([]);
+    setNetworkConnected(false);
+  }, []);
 
   const handleConnect = useCallback(async () => {
     const url = networkServerUrl.trim();
@@ -178,44 +237,44 @@ export function BookManageScreen() {
       return;
     }
     setNetworkLoading(true);
+    setNetworkError('');
     try {
       const books = await getRemoteApi(url).book.getAll();
       setServerBookList(books);
-      setDialogStep('networkList');
-    } catch (e: unknown) {
-      toast.show({
-        messageText: e instanceof Error ? e.message : '连接服务器失败',
-      });
+      setNetworkConnected(true);
+    } catch (error: unknown) {
+      const message = getErrorMessage(error, '连接服务器失败');
+      setServerBookList([]);
+      setNetworkConnected(false);
+      setNetworkError(message);
+      toast.show({ messageText: message });
     } finally {
       setNetworkLoading(false);
     }
   }, [networkServerUrl, toast]);
 
-  const selectNetworkBook = useCallback(
+  const addExistingRemoteBook = useCallback(
     (book: BookRow) => {
-      addRef({ serverUrl: networkServerUrl, bookId: book.id });
+      addRef({ serverUrl: networkServerUrl.trim(), bookId: book.id });
       toast.show({ messageText: `已添加网络账本「${book.name}」` });
-      setDialogStep('none');
+      setFormOpen(false);
     },
     [addRef, networkServerUrl, toast],
   );
 
-  const goToNetworkCreate = useCallback(() => {
-    setName('');
-    setDescription('');
-    setDialogStep('networkCreate');
-  }, []);
-
-  const handleLocalSubmit = useCallback(async () => {
-    const background = getImageUri(backgroundImage);
+  const handleLocalSubmit = useCallback(async (): Promise<boolean> => {
+    if (!name.trim()) {
+      toast.show({ messageText: '请输入账本名称' });
+      return false;
+    }
     setSubmitting(true);
     try {
       if (editingBook) {
         const updated = await localApi.book.update({
           id: editingBook.id,
-          name,
+          name: name.trim(),
           description,
-          background,
+          background: getImageUri(backgroundImage),
         });
         if (
           currentBook?.kind === BOOK_TYPE.local &&
@@ -227,48 +286,62 @@ export function BookManageScreen() {
           );
         }
       } else {
-        await localApi.book.create({ name, description, background });
+        await localApi.book.create({
+          name: name.trim(),
+          description,
+          background: getImageUri(backgroundImage),
+        });
       }
-      setDialogStep('none');
       refreshAll();
-    } catch (e: unknown) {
-      toast.show({ messageText: e instanceof Error ? e.message : '操作失败' });
+      return true;
+    } catch (error: unknown) {
+      toast.show({ messageText: getErrorMessage(error, '操作失败') });
+      return false;
     } finally {
       setSubmitting(false);
     }
   }, [
     backgroundImage,
     currentBook,
+    description,
     editingBook,
     name,
-    description,
     refreshAll,
     setCurrentBook,
     toast,
   ]);
 
-  const handleNetworkCreate = useCallback(async () => {
+  const handleRemoteSubmit = useCallback(async (): Promise<boolean> => {
     const url = networkServerUrl.trim();
     if (!name.trim() || !url) {
-      return;
+      toast.show({ messageText: '请填写名称与服务器地址' });
+      return false;
     }
     setSubmitting(true);
     try {
       // 网络账本暂不支持上传图片，封面统一由客户端渲染为网络图标
       const created = await getRemoteApi(url).book.create({
-        name,
+        name: name.trim(),
         description,
         background: '',
       });
       addRef({ serverUrl: url, bookId: created.id });
       toast.show({ messageText: `已创建网络账本「${created.name}」` });
-      setDialogStep('none');
-    } catch (e: unknown) {
-      toast.show({ messageText: e instanceof Error ? e.message : '创建失败' });
+      return true;
+    } catch (error: unknown) {
+      toast.show({ messageText: getErrorMessage(error, '创建失败') });
+      return false;
     } finally {
       setSubmitting(false);
     }
   }, [addRef, description, name, networkServerUrl, toast]);
+
+  const handleFormOk = useCallback(async () => {
+    if (formKind === 'local') {
+      return handleLocalSubmit();
+    }
+    return handleRemoteSubmit();
+  }, [formKind, handleLocalSubmit, handleRemoteSubmit]);
 
   const handleSelectBook = useCallback(
     (ref: CurrentBookRef, entry: BookEntry) => {
@@ -278,228 +351,323 @@ export function BookManageScreen() {
     [setCurrentBook, toast],
   );
 
-  const handleEditBook = useCallback((book: BookRow) => {
-    setEditingBook(book);
-    setName(book.name);
-    setDescription(book.description);
-    setBackgroundImage(getImageValue(book.background));
-    setDialogStep('localForm');
-  }, []);
+  const handleNetworkRetry = useCallback(() => {
+    refreshNetwork();
+    toast.show({ messageText: '正在重新连接网络账本' });
+  }, [refreshNetwork, toast]);
 
-  const handleDeleteBook = useCallback(
-    async (id: number) => {
-      try {
-        await localApi.book.delete(id);
-        if (currentBook?.kind === BOOK_TYPE.local && currentBook.id === id) {
+  const handleSwipeEdit = useCallback(
+    (book: BookRow) => {
+      const item = items.find(
+        entry =>
+          entry.entry.kind === BOOK_TYPE.local && entry.entry.id === book.id,
+      );
+      if (item) {
+        openEdit(item);
+      }
+    },
+    [items, openEdit],
+  );
+
+  const handleSwipeDelete = useCallback(
+    (id: number) => {
+      const item = items.find(
+        entry => entry.entry.kind === BOOK_TYPE.local && entry.entry.id === id,
+      );
+      if (item) {
+        setConfirmState({ item, kind: 'delete' });
+      }
+    },
+    [items],
+  );
+
+  const handleSwipeRemove = useCallback(
+    (networkRef: NetworkBookRef) => {
+      const item = items.find(
+        entry =>
+          entry.networkRef?.serverUrl === networkRef.serverUrl &&
+          entry.networkRef.bookId === networkRef.bookId,
+      );
+      if (item) {
+        setConfirmState({ item, kind: 'remove' });
+      }
+    },
+    [items],
+  );
+
+  const menuActions = useMemo(() => {
+    if (!menuItem) {
+      return [];
+    }
+    if (menuItem.entry.kind === BOOK_TYPE.remote) {
+      return [{ text: '移除缓存', icon: 'trash' as const, danger: true }];
+    }
+    return [
+      { text: '编辑账本', icon: 'edit' as const },
+      { text: '删除账本', icon: 'trash' as const, danger: true },
+    ];
+  }, [menuItem]);
+
+  const handleMenuAction = useCallback(
+    (_action: { text: string }, index: number) => {
+      const item = menuItem;
+      setMenuItem(null);
+      if (!item) {
+        return;
+      }
+      if (item.entry.kind === BOOK_TYPE.remote) {
+        setConfirmState({ kind: 'remove', item });
+        return;
+      }
+      if (index === 0) {
+        openEdit(item);
+      } else {
+        setConfirmState({ kind: 'delete', item });
+      }
+    },
+    [menuItem, openEdit],
+  );
+
+  const handleConfirm = useCallback(async () => {
+    const state = confirmState;
+    if (!state) {
+      return;
+    }
+    if (state.kind === 'remove') {
+      const networkRef = state.item.networkRef;
+      if (networkRef) {
+        removeRef(networkRef.serverUrl, networkRef.bookId);
+        if (
+          currentBook?.kind === BOOK_TYPE.remote &&
+          currentBook.id === networkRef.bookId
+        ) {
           await initializeBook();
         }
-        refreshAll();
-      } catch (e: unknown) {
-        toast.show({
-          messageText: e instanceof Error ? e.message : '删除失败',
-        });
       }
-    },
-    [currentBook, initializeBook, refreshAll, toast],
-  );
-
-  const handleRemoveNetwork = useCallback(
-    (networkRef: NetworkBookRef) => {
-      removeRef(networkRef.serverUrl, networkRef.bookId);
-      if (
-        currentBook?.kind === BOOK_TYPE.remote &&
-        currentBook.id === networkRef.bookId
-      ) {
-        initializeBook();
-      }
+      setConfirmState(null);
       toast.show({ messageText: '已移除网络账本缓存' });
-    },
-    [currentBook, initializeBook, removeRef, toast],
-  );
-
-  const dialogTitle =
-    dialogStep === 'typeSelect'
-      ? '选择账本类型'
-      : dialogStep === 'localForm'
-        ? editingBook
-          ? '编辑账本'
-          : '新增本地账本'
-        : dialogStep === 'networkServer'
-          ? '连接服务器'
-          : dialogStep === 'networkList'
-            ? '选择网络账本'
-            : dialogStep === 'networkCreate'
-              ? '新建网络账本'
-              : '';
-
-  const dialogOkText =
-    dialogStep === 'localForm'
-      ? editingBook
-        ? '保存'
-        : '创建'
-      : dialogStep === 'networkServer'
-        ? '连接'
-        : dialogStep === 'networkCreate'
-          ? '创建'
-          : '确定';
-
-  const dialogOkDisabled =
-    dialogStep === 'typeSelect' ||
-    dialogStep === 'networkList' ||
-    dialogStep === 'none' ||
-    (dialogStep === 'localForm' && (!name.trim() || submitting)) ||
-    (dialogStep === 'networkServer' &&
-      (!networkServerUrl.trim() || networkLoading)) ||
-    (dialogStep === 'networkCreate' && (!name.trim() || submitting));
-
-  const handleDialogOk = useCallback(() => {
-    if (dialogStep === 'localForm') {
-      handleLocalSubmit();
-    } else if (dialogStep === 'networkServer') {
-      handleConnect();
-    } else if (dialogStep === 'networkCreate') {
-      handleNetworkCreate();
+      return;
     }
-  }, [dialogStep, handleConnect, handleLocalSubmit, handleNetworkCreate]);
 
-  const handleOpenChange = useCallback(
-    (open: boolean, params: { reason: string }) => {
-      // OK 原因由各步骤的 onOk 异步处理决定跳转或关闭，此处不主动关闭
-      if (!open && params.reason !== 'ok') {
-        closeDialog();
-      }
-    },
-    [closeDialog],
-  );
+    await localApi.book.delete(state.item.entry.id);
+    if (
+      currentBook?.kind === BOOK_TYPE.local &&
+      currentBook.id === state.item.entry.id
+    ) {
+      await initializeBook();
+    }
+    setConfirmState(null);
+    refreshAll();
+  }, [
+    confirmState,
+    currentBook,
+    initializeBook,
+    refreshAll,
+    removeRef,
+    toast,
+  ]);
 
-  const serverBookItems: ListItemData[] = serverBookList.map(book => ({
-    key: `server-${book.id}`,
-    titleText: book.name,
-    descriptionText: book.description || '暂无描述',
-    onPress: () => selectNetworkBook(book),
-  }));
+  const confirmIsCurrent =
+    confirmState !== null &&
+    currentBook?.kind === confirmState.item.entry.kind &&
+    currentBook?.id === confirmState.item.entry.id;
+
+  const formTitle = editingBook
+    ? '编辑账本'
+    : formKind === 'local'
+      ? '新增本地账本'
+      : '新增网络账本';
+  const okText = editingBook ? '保存' : '创建账本';
+  const okDisabled =
+    submitting ||
+    !name.trim() ||
+    (formKind === 'remote' && !networkServerUrl.trim());
+
+  const serverBookRows = serverBookList.map((book, index) => (
+    <ManageRow
+      hasDivider={index > 0}
+      key={book.id}
+      icon={<Icon color="secondary" icon="list" size="large" />}
+      onPress={() => addExistingRemoteBook(book)}
+      subtitle={book.description || '服务器上的账本'}
+      title={book.name}
+    />
+  ));
 
   return (
     <Column style={styles.container}>
       <BookList
-        mode="manage"
-        items={items}
         currentBook={currentBook}
+        items={items}
+        loading={localLoading || networkDataLoading}
+        mode="manage"
+        onBookMenu={setMenuItem}
         onBookSelect={handleSelectBook}
-        onBookEdit={handleEditBook}
-        onBookDelete={handleDeleteBook}
-        onNetworkRemove={handleRemoveNetwork}
+        onBookDelete={handleSwipeDelete}
+        onBookEdit={handleSwipeEdit}
+        onNetworkRemove={handleSwipeRemove}
+        onNetworkRetry={handleNetworkRetry}
       />
 
-      <FloatingActionGroup
-        actions={[
-          {
-            key: 'create-book',
-            icon: 'add',
-            onPress: openCreate,
-            buttonProps: { color: 'orange' },
-          },
-        ]}
-      />
-
-      <Dialog
-        open={dialogStep !== 'none'}
-        onOpenChange={handleOpenChange}
-        titleText={dialogTitle}
-        onOk={handleDialogOk}
-        okText={dialogOkText}
-        okDisabled={dialogOkDisabled}
+      <FormFloatingPanel
+        onOk={handleFormOk}
+        onOpenChange={open => {
+          if (!open) {
+            setFormOpen(false);
+          }
+        }}
+        open={formOpen}
+        panelBodyStyle={styles.formBody}
+        submitDisabled={okDisabled}
+        submitLoading={submitting}
+        submitText={okText}
+        titleText={formTitle}
       >
-        {dialogStep === 'typeSelect' ? (
-          <Column style={styles.typeSelectBody}>
-            <Button block variant="outlined" onPress={chooseLocal}>
-              本地账本
-            </Button>
-            <Button block variant="outlined" onPress={chooseNetwork}>
-              网络账本
-            </Button>
+        <Column style={styles.formBody}>
+          <Column>
+            <Segmented
+              block
+              onChange={value => setFormKind(value as BookFormKind)}
+              options={[
+                { label: '本地账本', value: 'local' },
+                {
+                  disabled: editingBook !== null,
+                  label: '网络账本',
+                  value: 'remote',
+                },
+              ]}
+              value={formKind}
+            />
           </Column>
-        ) : null}
 
-        {dialogStep === 'localForm' || dialogStep === 'networkCreate' ? (
-          <Column style={styles.dialogBody}>
-            <Input
-              labelText="账本名称"
-              placeholder="请输入"
-              value={name}
-              onChange={setName}
+          <Input
+            labelText="名称"
+            onChange={setName}
+            placeholder="例如：家庭账本"
+            value={name}
+          />
+          <Input
+            labelText="描述（可选）"
+            onChange={setDescription}
+            placeholder="一句话说明这本账用在哪儿"
+            value={description}
+          />
+
+          {formKind === 'local' ? (
+            <ImagePicker
+              label="封面"
+              labelText="选择图片"
+              onChange={setBackgroundImage}
+              value={backgroundImage}
             />
-            <Input
-              labelText="描述"
-              placeholder="描述(可选)"
-              value={description}
-              onChange={setDescription}
-            />
-            {dialogStep === 'localForm' ? (
-              <ImagePicker
-                label="图片"
-                onChange={setBackgroundImage}
-                labelText="选择图片"
-                value={backgroundImage}
+          ) : (
+            <>
+              <Input
+                labelText="服务器地址"
+                onChange={handleServerUrlChange}
+                placeholder="http://192.168.1.12:8787"
+                value={networkServerUrl}
               />
-            ) : (
-              <Text color="tertiary" size="sm">
-                网络账本暂不支持上传图片，封面统一使用网络图标
-              </Text>
-            )}
-          </Column>
-        ) : null}
-
-        {dialogStep === 'networkServer' ? (
-          <Column style={styles.dialogBody}>
-            <Input
-              labelText="服务器地址"
-              placeholder="请输入服务器地址"
-              value={networkServerUrl}
-              onChange={setNetworkServerUrl}
-            />
-            {existingServerUrls.length > 0 ? (
-              <Column style={styles.serverUrlList}>
-                <Text style={styles.serverUrlHint}>快速选择已有地址：</Text>
-                {existingServerUrls.map(url => (
-                  <Button
-                    key={url}
-                    block
-                    variant="outlined"
-                    size="small"
-                    onPress={() => setNetworkServerUrl(url)}
-                  >
-                    {url}
-                  </Button>
-                ))}
-              </Column>
-            ) : null}
-            {networkLoading ? <Loading text="连接中..." /> : null}
-          </Column>
-        ) : null}
-
-        {dialogStep === 'networkList' ? (
-          <Column style={styles.dialogBody}>
-            <ScrollView style={styles.networkListScroll}>
-              {serverBookItems.length === 0 ? (
-                <Text color="tertiary">该服务器暂无可用账本</Text>
-              ) : (
-                <List data={serverBookItems} />
-              )}
-            </ScrollView>
-            <Column style={styles.networkListFooter}>
+              {networkError ? (
+                <Text color="errorText" size="xs">
+                  {networkError}
+                </Text>
+              ) : null}
+              {existingServerUrls.length > 0 ? (
+                <Column style={styles.addressList}>
+                  <Text size="xs" style={styles.addressLabel}>
+                    最近使用
+                  </Text>
+                  <Row gap="small" wrap>
+                    {existingServerUrls.map(url => (
+                      <Tag
+                        key={url}
+                        color="default"
+                        onPress={() => handleServerUrlChange(url)}
+                        size="small"
+                        variant="filled"
+                      >
+                        {url}
+                      </Tag>
+                    ))}
+                  </Row>
+                </Column>
+              ) : null}
               <Button
                 block
-                variant="dashed"
-                icon="add"
-                onPress={goToNetworkCreate}
+                disabled={!networkServerUrl.trim() || networkLoading}
+                onPress={handleConnect}
+                size="small"
+                type="dashed"
               >
-                新建账本
+                {networkLoading
+                  ? '连接中…'
+                  : networkConnected
+                    ? '重新读取服务器账本'
+                    : '连接并读取服务器账本'}
               </Button>
-            </Column>
-          </Column>
-        ) : null}
-      </Dialog>
+              {networkLoading ? (
+                <Column style={styles.remoteLoading}>
+                  <Loading size="small" text="连接中..." />
+                </Column>
+              ) : null}
+              {networkConnected ? (
+                serverBookList.length > 0 ? (
+                  <Column style={styles.remoteList}>
+                    <Text size="xs" style={styles.addressLabel}>
+                      服务器上的账本 · 轻点添加到本机
+                    </Text>
+                    <ManageCard>{serverBookRows}</ManageCard>
+                  </Column>
+                ) : (
+                  <Text size="xs" style={styles.hint}>
+                    该服务器暂无账本，可直接创建。
+                  </Text>
+                )
+              ) : null}
+              <Text size="xs" style={styles.hint}>
+                网络账本的封面统一使用网络图标，由服务器返回的账本信息决定
+              </Text>
+            </>
+          )}
+        </Column>
+      </FormFloatingPanel>
+
+      <ActionSheet
+        actions={menuActions}
+        cancelText="取消"
+        onAction={handleMenuAction}
+        onOpenChange={open => {
+          if (!open) {
+            setMenuItem(null);
+          }
+        }}
+        open={menuItem !== null}
+        titleText={menuItem?.entry.name}
+      />
+
+      <ManageConfirmDialog
+        messageText={
+          confirmState?.kind === 'remove'
+            ? '只会从本机列表移除，不会删除服务器上的账本。'
+            : '删除后账本内的记录与配置将一并移除，且无法恢复。'
+        }
+        onCancel={() => setConfirmState(null)}
+        onConfirm={handleConfirm}
+        open={confirmState !== null}
+        titleText={
+          confirmState?.kind === 'remove'
+            ? `移除「${confirmState.item.entry.name}」缓存？`
+            : confirmState
+              ? `删除「${confirmState.item.entry.name}」？`
+              : '删除账本'
+        }
+        warningText={
+          confirmIsCurrent
+            ? '这是当前账本，操作完成后会重新初始化账本。'
+            : undefined
+        }
+      />
     </Column>
   );
 }

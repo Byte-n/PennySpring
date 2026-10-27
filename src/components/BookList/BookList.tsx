@@ -1,14 +1,12 @@
 import React from 'react';
-import { Image, ScrollView } from 'react-native';
+import { Image, ScrollView, View } from 'react-native';
 import type { ImageStyle, StyleProp, TextStyle } from 'react-native';
 import {
-  Card,
   Column,
   Empty,
   Icon,
   Row,
   SwipeAction,
-  Tag,
   Text,
 } from '@pennyspring/ui';
 import { BOOK_TYPE, type BookRow } from '@pennyspring/api';
@@ -17,124 +15,114 @@ import { NetworkIcon } from 'phosphor-react-native';
 import '../../utils/prototype';
 import type { BookEntry, CurrentBookRef } from '../../stores/bookStore';
 import type { NetworkBookRef } from '../../stores/networkBookStore';
+import { ManageCard, ManageRow } from '../ManageRow';
+import { ManageSkeleton } from '../ManageSkeleton';
 
 export interface BookListItem {
   entry: BookEntry;
   ref: CurrentBookRef;
   networkRef?: NetworkBookRef;
+  error?: string;
 }
 
 export interface BookListProps {
   mode: 'select' | 'manage';
   items: BookListItem[];
+  loading?: boolean;
   currentBook: BookEntry | null;
   onBookSelect?: (ref: CurrentBookRef, entry: BookEntry) => void;
   onBookEdit?: (book: BookRow) => void;
   onBookDelete?: (id: number) => void;
   onNetworkRemove?: (ref: NetworkBookRef) => void;
+  onNetworkRetry?: (ref: NetworkBookRef) => void;
+  onBookMenu?: (item: BookListItem) => void;
 }
 
 const useStyles = createUseSheetStyle(token => ({
   content: {
     flex: 1,
+    gap: token.marginSM,
     padding: token.padding,
-    gap: token.marginSM,
+    paddingBottom: token.paddingXL,
   },
-  card: {
-    borderWidth: token.lineWidth,
-    padding: token.padding,
-    borderRadius: token.borderRadiusLG,
-    gap: token.marginSM,
-  },
-  cardSelected: {
-    borderColor: token.colorPrimaryBorder,
-    backgroundColor: token.colorPrimaryBg,
-  },
-  cardMain: {
-    gap: token.marginSM,
-  },
-  cardInfo: {
-    flex: 1,
-    gap: token.marginXS,
-  },
-  cardTitle: {
-    alignItems: 'center',
-    gap: token.marginXS,
-  },
-  cardName: {
-    flex: 1,
-    fontSize: token.fontSizeLG,
-    lineHeight: token.lineHeightLG,
-    fontWeight: token.fontWeightStrong as TextStyle['fontWeight'],
-    color: token.colorTextHeading,
-  },
-  kindTagText: {
-    fontSize: token.fontSizeSM,
-    lineHeight: token.lineHeightSM,
-  },
-  cardIdTagText: {
-    fontSize: token.fontSizeSM,
-    lineHeight: token.lineHeightSM,
-  },
-  currentTagContent: {
-    flexDirection: 'row',
+  metaLine: {
     alignItems: 'center',
     gap: token.marginXXS,
+    paddingHorizontal: token.paddingXXS,
+  },
+  section: {
+    gap: token.marginXXS,
+  },
+  sectionHeader: {
+    alignItems: 'baseline',
+    gap: token.marginXS,
+    paddingHorizontal: token.paddingXXS,
+    paddingVertical: token.paddingXS,
+  },
+  sectionTitle: {
+    color: token.colorTextSecondary,
+  },
+  sectionCount: {
+    color: token.colorTextTertiary,
+  },
+  spine: {
+    alignItems: 'center',
+    backgroundColor: token.colorPrimaryBg,
+    borderRadius: token.borderRadiusSM,
+    height: token.controlHeightLG,
+    justifyContent: 'center',
+    overflow: 'hidden',
+    width: token.controlHeightSM,
+  },
+  spineImage: {
+    height: '100%',
+    width: '100%',
+  },
+  spineInitial: {
+    color: token.colorPrimaryText,
+    fontSize: token.fontSizeLG,
+    fontWeight: String(token.fontWeightSemiBold) as TextStyle['fontWeight'],
+    lineHeight: token.lineHeightLG,
+  },
+  spineNetwork: {
+    alignItems: 'center',
+    backgroundColor: token.colorFillTertiary,
+    gap: token.marginXXS / 2,
+    height: '100%',
+    justifyContent: 'center',
+    width: '100%',
+  },
+  spineNetworkText: {
+    color: token.colorTextTertiary,
+    fontSize: token.fontSizeXS,
+    lineHeight: token.lineHeightXS,
+  },
+  currentTag: {
+    alignItems: 'center',
+    backgroundColor: token.colorPrimaryBg,
+    borderRadius: token.controlHeightXS,
+    flexDirection: 'row',
+    gap: token.marginXXS,
+    height: token.controlHeightXS,
+    paddingHorizontal: token.paddingXS,
   },
   currentTagText: {
-    fontSize: token.fontSizeSM,
-    lineHeight: token.lineHeightSM,
     color: token.colorPrimaryText,
+    fontSize: token.fontSizeXS,
+    fontWeight: String(token.fontWeightSemiBold) as TextStyle['fontWeight'],
+    lineHeight: token.lineHeightXS,
   },
-  cardDesc: {
-    fontSize: token.fontSizeSM,
-    lineHeight: token.lineHeightSM,
-  },
-  cardDescEmpty: {
-    color: token.colorTextTertiary,
-  },
-  cardServerUrl: {
-    fontSize: token.fontSizeSM,
-    lineHeight: token.lineHeightSM,
-    color: token.colorTextQuaternary,
-  },
-  cardTimeSummary: {
-    paddingTop: token.paddingXXS,
-    borderTopWidth: token.lineWidth,
-    borderTopColor: token.colorBorderSecondary,
-  },
-  cardCover: {
-    width: token.controlHeightLG * 2,
-    height: token.controlHeightLG * 2,
-    borderRadius: token.borderRadiusLG,
-    backgroundColor: token.colorFillTertiary,
-    overflow: 'hidden',
-  },
-  cardCoverImage: {
-    width: '100%',
-    height: '100%',
-  },
-  cardCoverPlaceholder: {
-    flex: 1,
+  listEnd: {
     alignItems: 'center',
-    justifyContent: 'center',
-    gap: token.marginXXS,
-    padding: token.paddingXS,
+    paddingTop: token.paddingSM,
   },
-  cardCoverPlaceholderText: {
-    fontSize: token.fontSizeSM,
+  listEndText: {
     color: token.colorTextTertiary,
+    fontSize: token.fontSizeXS,
+    lineHeight: token.lineHeightXS,
     textAlign: 'center',
   },
 }));
-
-function formatBookTime(time: number): string {
-  if (!Number.isFinite(time) || time <= 0) {
-    return '未知';
-  }
-
-  return time.formatDateTime();
-}
 
 function getItemKey(item: BookListItem): string {
   return item.entry.kind === BOOK_TYPE.remote
@@ -142,180 +130,237 @@ function getItemKey(item: BookListItem): string {
     : `local-${item.entry.id}`;
 }
 
+function getFirstCharacter(name: string): string {
+  return Array.from(name)[0] ?? '账';
+}
+
+function formatCreatedAt(time: number): string {
+  if (!Number.isFinite(time) || time <= 0) {
+    return '创建时间未知';
+  }
+
+  return `创建于 ${time.formatDateBy('YYYY-MM-DD')}`;
+}
+
+function BookSpine({ item }: { item: BookListItem }) {
+  const styles = useStyles();
+  const { entry } = item;
+  const isRemote = entry.kind === BOOK_TYPE.remote;
+
+  if (isRemote) {
+    return (
+      <View style={styles.spine}>
+        <View style={styles.spineNetwork}>
+          <Icon color="secondary" icon={NetworkIcon} size="normal" />
+          <Text style={styles.spineNetworkText}>网络</Text>
+        </View>
+      </View>
+    );
+  }
+
+  if (entry.background) {
+    return (
+      <View style={styles.spine}>
+        <Image
+          resizeMode="cover"
+          source={{ uri: entry.background }}
+          style={styles.spineImage as StyleProp<ImageStyle>}
+        />
+      </View>
+    );
+  }
+
+  return (
+    <View style={styles.spine}>
+      <Text style={styles.spineInitial}>{getFirstCharacter(entry.name)}</Text>
+    </View>
+  );
+}
+
 export function BookList({
   mode,
   items,
+  loading = false,
   currentBook,
   onBookSelect,
   onBookEdit,
   onBookDelete,
   onNetworkRemove,
+  onNetworkRetry,
+  onBookMenu,
 }: BookListProps) {
   const styles = useStyles();
-  const cardCoverImageStyle = styles.cardCoverImage as StyleProp<ImageStyle>;
+
+  if (loading && items.length === 0) {
+    return (
+      <ScrollView contentContainerStyle={styles.content}>
+        <ManageSkeleton rows={4} />
+      </ScrollView>
+    );
+  }
 
   if (items.length === 0) {
     return <Empty />;
   }
 
+  const localItems = items.filter(item => item.entry.kind === BOOK_TYPE.local);
+  const networkItems = items.filter(
+    item => item.entry.kind === BOOK_TYPE.remote,
+  );
+
+  const renderRow = (item: BookListItem, index: number) => {
+    const { entry } = item;
+    const isCurrentBook =
+      currentBook?.kind === entry.kind && currentBook?.id === entry.id;
+    const isRemote = entry.kind === BOOK_TYPE.remote;
+
+    const handleSelect = () => {
+      if (item.error) {
+        item.networkRef && onNetworkRetry?.(item.networkRef);
+        return;
+      }
+      if (isCurrentBook) {
+        return;
+      }
+      onBookSelect?.(item.ref, item.entry);
+    };
+
+    const rightActions =
+      mode === 'manage'
+        ? isRemote
+          ? [
+              {
+                key: 'remove',
+                actionText: '移除',
+                color: 'danger' as const,
+                onPress: () =>
+                  item.networkRef && onNetworkRemove?.(item.networkRef),
+              },
+            ]
+          : [
+              {
+                key: 'edit',
+                actionText: '编辑',
+                color: 'primary' as const,
+                onPress: () => onBookEdit?.(entry),
+              },
+              {
+                key: 'delete',
+                actionText: '删除',
+                color: 'danger' as const,
+                onPress: () => onBookDelete?.(entry.id),
+              },
+            ]
+        : [];
+
+    const row = (
+      <ManageRow
+        hasDivider={index > 0}
+        isCurrent={isCurrentBook}
+        leading={<BookSpine item={item} />}
+        onLongPress={
+          mode === 'manage' && onBookMenu
+            ? () => onBookMenu(item)
+            : item.error
+              ? undefined
+              : isCurrentBook
+                ? undefined
+                : handleSelect
+        }
+        onMenuPress={
+          mode === 'manage' && onBookMenu ? () => onBookMenu(item) : undefined
+        }
+        onPress={
+          item.error ? handleSelect : isCurrentBook ? undefined : handleSelect
+        }
+        subtitle={
+          item.error
+            ? '连接失败 · 重试'
+            : isRemote
+              ? item.networkRef?.serverUrl || '网络账本'
+              : formatCreatedAt(entry.createdTime)
+        }
+        title={entry.name}
+        trailing={
+          item.error ? (
+            <Icon color="warningText" icon="warning" size="normal" />
+          ) : isCurrentBook ? (
+            <View style={styles.currentTag}>
+              <Icon color="primaryText" icon="check" size="small" />
+              <Text style={styles.currentTagText}>当前</Text>
+            </View>
+          ) : (
+            <Icon color="tertiary" icon="caret-right" size="normal" />
+          )
+        }
+      />
+    );
+
+    return (
+      <SwipeAction key={getItemKey(item)} rightActions={rightActions}>
+        {row}
+      </SwipeAction>
+    );
+  };
+
   return (
     <ScrollView contentContainerStyle={styles.content}>
-      {items.map(item => {
-        const { entry } = item;
-        const isCurrentBook =
-          currentBook?.kind === entry.kind && currentBook?.id === entry.id;
-        const isRemote = entry.kind === BOOK_TYPE.remote;
+      <Row style={styles.metaLine}>
+        <Text color="tertiary" size="xs">
+          共
+        </Text>
+        <Text color="secondary" size="xs" weight="semibold">
+          {items.length}
+        </Text>
+        <Text color="tertiary" size="xs">
+          本 · 本地
+        </Text>
+        <Text color="secondary" size="xs" weight="semibold">
+          {localItems.length}
+        </Text>
+        <Text color="tertiary" size="xs">
+          · 网络
+        </Text>
+        <Text color="secondary" size="xs" weight="semibold">
+          {networkItems.length}
+        </Text>
+      </Row>
 
-        const leftActions =
-          mode === 'select'
-            ? [
-                {
-                  key: 'select',
-                  actionText: isCurrentBook ? '当前' : '选择',
-                  color: isCurrentBook ? ('weak' as const) : ('success' as const),
-                  disabled: isCurrentBook,
-                  onPress: () => onBookSelect?.(item.ref, item.entry),
-                },
-              ]
-            : [
-                {
-                  key: 'select',
-                  actionText: isCurrentBook ? '当前' : '选择',
-                  color: isCurrentBook ? ('weak' as const) : ('success' as const),
-                  disabled: isCurrentBook,
-                  onPress: () => onBookSelect?.(item.ref, item.entry),
-                },
-              ];
+      {localItems.length > 0 ? (
+        <Column style={styles.section}>
+          <Row style={styles.sectionHeader}>
+            <Text size="xs" style={styles.sectionTitle} weight="semibold">
+              本地账本
+            </Text>
+            <Text size="xs" style={styles.sectionCount}>
+              {localItems.length}
+            </Text>
+          </Row>
+          <ManageCard>{localItems.map(renderRow)}</ManageCard>
+        </Column>
+      ) : null}
 
-        const rightActions =
-          mode === 'manage'
-            ? isRemote
-              ? [
-                  {
-                    key: 'remove',
-                    actionText: '移除',
-                    color: 'danger' as const,
-                    onPress: () =>
-                      item.networkRef && onNetworkRemove?.(item.networkRef),
-                  },
-                ]
-              : [
-                  {
-                    key: 'edit',
-                    actionText: '编辑',
-                    color: 'primary' as const,
-                    onPress: () => onBookEdit?.(entry),
-                  },
-                  {
-                    key: 'delete',
-                    actionText: '删除',
-                    color: 'danger' as const,
-                    onPress: () => onBookDelete?.(entry.id),
-                  },
-                ]
-            : [];
+      {networkItems.length > 0 ? (
+        <Column style={styles.section}>
+          <Row style={styles.sectionHeader}>
+            <Text size="xs" style={styles.sectionTitle} weight="semibold">
+              网络账本
+            </Text>
+            <Text size="xs" style={styles.sectionCount}>
+              {networkItems.length}
+            </Text>
+          </Row>
+          <ManageCard>{networkItems.map(renderRow)}</ManageCard>
+        </Column>
+      ) : null}
 
-        const handleCardPress =
-          mode === 'select' && !isCurrentBook
-            ? () => onBookSelect?.(item.ref, item.entry)
-            : undefined;
-
-        return (
-          <SwipeAction
-            key={getItemKey(item)}
-            leftActions={leftActions}
-            rightActions={rightActions}
-          >
-            <Card
-              style={[styles.card, isCurrentBook && styles.cardSelected]}
-              onPress={handleCardPress}
-            >
-              <Row align="center" style={styles.cardMain}>
-                <Column style={styles.cardInfo}>
-                  <Row style={styles.cardTitle}>
-                    <Text numberOfLines={1} style={styles.cardName}>
-                      {entry.name}
-                    </Text>
-                    {isCurrentBook ? (
-                      <Tag
-                        color="primary"
-                        size="small"
-                        styles={{ content: styles.currentTagText }}
-                        variant="filled"
-                      >
-                        <Row style={styles.currentTagContent}>
-                          <Icon color="primaryText" icon="check" size="small" />
-                          <Text style={styles.currentTagText}>当前</Text>
-                        </Row>
-                      </Tag>
-                    ) : null}
-                    <Tag
-                      size="small"
-                      variant="outlined"
-                      styles={{ content: styles.kindTagText }}
-                    >
-                      {isRemote ? '网络' : '本地'}
-                    </Tag>
-                    <Tag
-                      size="small"
-                      variant="outlined"
-                      styles={{ content: styles.cardIdTagText }}
-                    >
-                      {`#${entry.id}`}
-                    </Tag>
-                  </Row>
-                  {isRemote && item.networkRef ? (
-                    <Text style={styles.cardServerUrl} numberOfLines={1}>
-                      {item.networkRef.serverUrl}
-                    </Text>
-                  ) : null}
-                  <Text
-                    style={[
-                      styles.cardDesc,
-                      !entry.description && styles.cardDescEmpty,
-                    ]}
-                    color="tertiary"
-                  >
-                    {entry.description || '暂无描述'}
-                  </Text>
-                  <Column style={styles.cardTimeSummary}>
-                    <Text color="quaternary" size="sm">
-                      {`创建：${formatBookTime(entry.createdTime)}`}
-                    </Text>
-                    <Text color="quaternary" size="sm">
-                      {`更新：${formatBookTime(entry.updatedTime)}`}
-                    </Text>
-                  </Column>
-                </Column>
-                <Column style={styles.cardCover}>
-                  {isRemote ? (
-                    <Column style={styles.cardCoverPlaceholder}>
-                      <Icon
-                        color="tertiary"
-                        icon={NetworkIcon}
-                        size="large"
-                      />
-                      <Text style={styles.cardCoverPlaceholderText}>网络</Text>
-                    </Column>
-                  ) : entry.background ? (
-                    <Image
-                      resizeMode="cover"
-                      source={{ uri: entry.background }}
-                      style={cardCoverImageStyle}
-                    />
-                  ) : (
-                    <Column style={styles.cardCoverPlaceholder}>
-                      <Text style={styles.cardCoverPlaceholderText}>
-                        暂无图片
-                      </Text>
-                    </Column>
-                  )}
-                </Column>
-              </Row>
-            </Card>
-          </SwipeAction>
-        );
-      })}
+      <Column style={styles.listEnd}>
+        <Text style={styles.listEndText}>
+          {mode === 'manage'
+            ? '轻点整行切换账本 · 行尾「⋯」可编辑或删除'
+            : '轻点整行切换账本'}
+        </Text>
+      </Column>
     </ScrollView>
   );
 }

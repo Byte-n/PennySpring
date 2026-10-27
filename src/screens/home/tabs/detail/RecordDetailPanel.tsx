@@ -9,9 +9,9 @@ import {
   type DetailRecordView,
 } from './detailData';
 import { RECORD_TYPE_CATEGORY } from '@pennyspring/api';
+import { getPhosphorIconComponent } from '../../../../constants/typeIconTree';
+import { DEFAULT_TAG_ICON } from '../../../../constants/tagIcon';
 import { useGlobalApi } from '../../../../stores/bookStore';
-import * as Icons from 'phosphor-react-native';
-import type { IconProps as PhosphorIconProps } from 'phosphor-react-native';
 
 const useStyles = createUseSheetStyle(token => ({
   header: {
@@ -38,11 +38,11 @@ function buildItems(view: DetailRecordView, onImagePress: () => void, styles: Re
     : view.typeName;
 
   const IconComponent = view.iconValue
-    ? (Icons[`${view.iconValue}Icon` as keyof typeof Icons] as React.ComponentType<PhosphorIconProps>)
+    ? getPhosphorIconComponent(view.iconValue)
     : null;
 
   const ParentIconComponent = view.parentIconValue
-    ? (Icons[`${view.parentIconValue}Icon` as keyof typeof Icons] as React.ComponentType<PhosphorIconProps>)
+    ? getPhosphorIconComponent(view.parentIconValue)
     : null;
 
   const typeContent = (
@@ -101,12 +101,12 @@ function buildItems(view: DetailRecordView, onImagePress: () => void, styles: Re
       right: (
         <Row align="center" gap={8} style={styles.tagContainer}>
           {view.tags.map(tag => {
-            const TagIconComponent = tag.icon
-              ? (Icons[`${tag.icon}Icon` as keyof typeof Icons] as React.ComponentType<PhosphorIconProps>)
-              : null;
+            const TagIconComponent = getPhosphorIconComponent(
+              tag.icon || DEFAULT_TAG_ICON,
+            );
             return (
               <Row key={tag.id} align="center" gap={4}>
-                {TagIconComponent && <Icon icon={TagIconComponent} size="small" color="secondary" />}
+                <Icon icon={TagIconComponent} size="small" color="secondary" />
                 <Text size="md" color="secondary">
                   {tag.name}
                 </Text>
@@ -162,6 +162,7 @@ export function RecordDetailPanel({
 
   return (
     <Popup.FloatingPanel
+      footer={null}
       open={open}
       onOpenChange={onOpenChange}
       position="bottom"

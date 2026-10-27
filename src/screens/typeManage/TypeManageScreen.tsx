@@ -1,31 +1,42 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useLayoutEffect,
+  useMemo,
+  useState,
+} from 'react';
+import { ScrollView } from 'react-native';
 import { useRequest } from 'ahooks';
 import {
   ActionSheet,
+  Button,
   Column,
-  Dialog,
-  DisplayInput,
-  Icon,
+  Empty,
   Input,
-  Popup,
+  ListPicker,
   Row,
   Segmented,
   Text,
   useToast,
-  type ActionSheetAction,
 } from '@pennyspring/ui';
 import {
   RECORD_TYPE_CATEGORY,
-  type TypeRow,
+  RECORD_TYPE_SPECIAL_BEHAVIOR,
+  SYSTEM_STATUS,
   type RecordTypeCategoryValue,
+  type TypeRow,
 } from '@pennyspring/api';
 import { createUseSheetStyle } from '@pennyspring/theme';
-import { CategoryGrid, CategoryItem } from '../../component/CategoryGrid';
+import { CategoryGrid } from '../../component/CategoryGrid';
+import { FormIconGrid, TYPE_FORM_ICONS } from '../../component/FormIconGrid';
 import { PhosphorIconPicker } from '../../component/PhosphorIconPicker';
-import { getPhosphorIconComponent } from '../../constants/typeIconTree';
-import { PlusSquareIcon } from 'phosphor-react-native';
-import { ScrollView } from 'react-native';
+import { createHeaderAddButton } from '../../components/HeaderAddButton';
+import { ManageConfirmDialog } from '../../components/ManageConfirmDialog';
+import { FormFloatingPanel } from '../../components/FormFloatingPanel';
+import { ManageSkeleton } from '../../components/ManageSkeleton';
+import { useNavigation } from '../../navigation';
 import { useBookStore, useGlobalApi } from '../../stores/bookStore';
+
+type TypeLevel = 'parent' | 'child';
 
 const CATEGORY_OPTIONS = [
   { value: RECORD_TYPE_CATEGORY.expense, label: '支出' },
@@ -33,11 +44,14 @@ const CATEGORY_OPTIONS = [
   { value: RECORD_TYPE_CATEGORY.transfer, label: '转账' },
 ];
 
-const TYPE_ACTIONS: ActionSheetAction[] = [{ text: '编辑' }, { text: '删除', danger: true }];
+const DEFAULT_ICON = 'DotsThreeCircle';
 
 const TYPE_DELETE_ERROR_HINTS = [
-  { keyword: 'Type is in use', message: '该类型已被记录使用，无法删除' },
-  { keyword: 'Type has children', message: '请先删除该类型下的二级类型' },
+  { keyword: 'Type is in use', message: '该类型已被记录使用，先调整这些记录再删除。' },
+  {
+    keyword: 'Type has children',
+    message: '该类型下还有二级类型，先处理后再删除。',
+  },
 ];
 
 function getTypeDeleteErrorMessage(error: unknown): string {
@@ -47,288 +61,561 @@ function getTypeDeleteErrorMessage(error: unknown): string {
 }
 
 const useStyles = createUseSheetStyle(token => ({
-  container: { flex: 1, backgroundColor: token.colorBgLayout },
-  segmented: { padding: token.padding },
-  hint: {
-    paddingHorizontal: token.padding,
-    paddingBottom: token.paddingSM,
-  },
-  contentScroll: { flex: 1 },
-  categoryGrid: { marginHorizontal: token.marginMD },
-  dialogBody: {
+  container: {
+    backgroundColor: token.colorBgLayout,
     flex: 1,
-    gap: token.marginSM,
+  },
+  segmented: {
     paddingHorizontal: token.padding,
+    paddingTop: token.padding,
+  },
+  contentScroll: {
+    flex: 1,
+  },
+  content: {
+    gap: token.marginSM,
+    padding: token.padding,
+    paddingBottom: token.paddingXL,
+  },
+  metaLine: {
+    alignItems: 'center',
+    gap: token.marginXXS,
+    paddingHorizontal: token.paddingXXS,
+  },
+  listEnd: {
+    color: token.colorTextTertiary,
+    lineHeight: token.lineHeight,
+    textAlign: 'center',
+  },
+  formBody: {
+    gap: token.marginMD,
+  },
+  levelWarn: {
+    backgroundColor: token.colorWarningBg,
+    borderRadius: token.borderRadiusSM,
+    marginTop: token.marginXS,
+    paddingHorizontal: token.paddingSM,
+    paddingVertical: token.paddingXS,
+  },
+  iconMore: {
+    alignItems: 'flex-start',
+  },
+  dangerZone: {
+    borderTopColor: token.colorSplit,
+    borderTopWidth: token.lineWidth,
+    paddingTop: token.paddingSM,
   },
 }));
 
 export function TypeManageScreen() {
   const styles = useStyles();
   const toast = useToast();
+  const navigation = useNavigation();
   const currentBook = useBookStore(state => state.currentBook);
   const globalApi = useGlobalApi();
 
   const [category, setCategory] = useState<RecordTypeCategoryValue>(
     RECORD_TYPE_CATEGORY.expense,
   );
+  const [expandedByCategory, setExpandedByCategory] = useState<
+    Record<string, number | undefined>
+  >({});
 
-  const { data: allTypes = [], refresh } = useRequest(
+  const { data: allTypes = [], loading, refresh } = useRequest(
     () => {
-      if (!currentBook) return Promise.resolve([]);
+      if (!currentBook) return Promise.resolve<TypeRow[]>([]);
       return globalApi.type.getByCategory(category, currentBook.id);
     },
     { refreshDeps: [category, currentBook] },
   );
 
-  const realTypes = useMemo(() => {
-    const parentTypes = allTypes.filter(v => v.parentId === 0);
-    const dummyBooksId = currentBook?.id ?? 0;
-    return [
-      {
-        id: 0,
-        booksId: dummyBooksId,
-        name: '新增',
-        parentId: 0,
-        icon: PlusSquareIcon,
-        updatedTime: Date.now(),
-        createdTime: Date.now(),
-        typeCategory: category,
-        isSystem: 'system',
-        specialBehavior: '',
-        sort: 0,
-        expand: false,
-      } satisfies CategoryItem,
-      ...parentTypes.map(
-        v =>
-          ({
-            id: -v.id,
-            booksId: dummyBooksId,
-            name: '新增',
-            parentId: v.id,
-            icon: PlusSquareIcon,
-            updatedTime: Date.now(),
-            createdTime: Date.now(),
-            typeCategory: category,
-            isSystem: 'system',
-            specialBehavior: '',
-            sort: 0,
-            expand: false,
-          } satisfies CategoryItem),
-      ),
-      ...allTypes,
-    ];
-  }, [allTypes, category, currentBook]);
-
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [iconPickerOpen, setIconPickerOpen] = useState(false);
-  const [editingType, setEditingType] = useState<TypeRow | null>(null);
-  const [isCreatingParent, setIsCreatingParent] = useState(false);
-  const [createParentId, setCreateParentId] = useState(0);
-  const [name, setName] = useState('');
-  const [icon, setIcon] = useState('DotsThreeCircle');
-
-  const [actionSheetOpen, setActionSheetOpen] = useState(false);
-  const [selectedType, setSelectedType] = useState<TypeRow | null>(null);
-  const [pendingDeleteType, setPendingDeleteType] = useState<TypeRow | null>(null);
-
-  const openCreateParentDialog = useCallback(() => {
-    setEditingType(null);
-    setIsCreatingParent(true);
-    setCreateParentId(0);
-    setName('');
-    setIcon('DotsThreeCircle');
-    setDialogOpen(true);
-  }, []);
-
-  const openCreateChildDialog = useCallback((parentId: number) => {
-    setEditingType(null);
-    setIsCreatingParent(false);
-    setCreateParentId(parentId);
-    setName('');
-    setIcon('DotsThreeCircle');
-    setDialogOpen(true);
-  }, []);
-
-  const openEditDialog = useCallback((type: TypeRow) => {
-    setEditingType(type);
-    setIsCreatingParent(type.parentId === 0);
-    setCreateParentId(type.parentId);
-    setName(type.name);
-    setIcon(type.icon);
-    setDialogOpen(true);
-  }, []);
-
-  const handleItemLongPress = useCallback(
-    (id: number) => {
-      const type = allTypes.find(v => v.id === id);
-      if (!type) return;
-      setSelectedType(type);
-      setActionSheetOpen(true);
-    },
+  const parents = useMemo(
+    () => allTypes.filter(type => type.parentId === 0),
     [allTypes],
   );
+  const children = useMemo(
+    () => allTypes.filter(type => type.parentId !== 0),
+    [allTypes],
+  );
+  const expandedId = expandedByCategory[category];
 
-  const handleOk = useCallback(async () => {
+  const setExpandedId = useCallback(
+    (id?: number) => {
+      setExpandedByCategory(prev => ({ ...prev, [category]: id }));
+    },
+    [category],
+  );
+
+  const [formOpen, setFormOpen] = useState(false);
+  const [editingType, setEditingType] = useState<TypeRow | null>(null);
+  const [level, setLevel] = useState<TypeLevel>('parent');
+  const [parentId, setParentId] = useState<number | undefined>();
+  const [name, setName] = useState('');
+  const [icon, setIcon] = useState(DEFAULT_ICON);
+  const [iconPickerOpen, setIconPickerOpen] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+
+  const [parentMenu, setParentMenu] = useState<TypeRow | null>(null);
+  const [pendingDeleteType, setPendingDeleteType] = useState<TypeRow | null>(
+    null,
+  );
+
+  const availableParents = useMemo(
+    () => parents.filter(parent => parent.id !== editingType?.id),
+    [editingType?.id, parents],
+  );
+  const editingChildrenCount = useMemo(() => {
+    if (!editingType) {
+      return 0;
+    }
+    return allTypes.filter(type => type.parentId === editingType.id).length;
+  }, [allTypes, editingType]);
+  const childLevelDisabled =
+    editingChildrenCount > 0 || availableParents.length === 0;
+  const childLevelReason =
+    editingChildrenCount > 0
+      ? `「${editingType?.name}」下还有 ${editingChildrenCount} 个二级类型，先移走或删除后才能转为二级。`
+      : availableParents.length === 0
+        ? '还没有其它一级类型可以作为上级。'
+        : '';
+
+  const formIconValues = useMemo(() => {
+    if (
+      icon &&
+      !(TYPE_FORM_ICONS as readonly string[]).includes(icon)
+    ) {
+      return [icon, ...TYPE_FORM_ICONS];
+    }
+    return TYPE_FORM_ICONS;
+  }, [icon]);
+
+  const openCreateParent = useCallback(() => {
+    setEditingType(null);
+    setLevel('parent');
+    setParentId(undefined);
+    setName('');
+    setIcon(DEFAULT_ICON);
+    setFormOpen(true);
+  }, []);
+
+  const openCreateChild = useCallback((parent: TypeRow) => {
+    setEditingType(null);
+    setLevel('child');
+    setParentId(parent.id);
+    setName('');
+    setIcon(DEFAULT_ICON);
+    setFormOpen(true);
+  }, []);
+
+  const openEditType = useCallback((type: TypeRow) => {
+    setEditingType(type);
+    setLevel(type.parentId === 0 ? 'parent' : 'child');
+    setParentId(type.parentId > 0 ? type.parentId : undefined);
+    setName(type.name);
+    setIcon(type.icon || DEFAULT_ICON);
+    setFormOpen(true);
+  }, []);
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: createHeaderAddButton(openCreateParent),
+    });
+  }, [navigation, openCreateParent]);
+
+  const handleLevelChange = useCallback(
+    (next: string | number) => {
+      if (next === 'child' && childLevelDisabled) {
+        return;
+      }
+      const nextLevel = next as TypeLevel;
+      setLevel(nextLevel);
+      if (
+        nextLevel === 'child' &&
+        !availableParents.some(parent => parent.id === parentId)
+      ) {
+        setParentId(availableParents[0]?.id);
+      }
+    },
+    [availableParents, childLevelDisabled, parentId],
+  );
+
+  const handleSave = useCallback(async (): Promise<boolean> => {
     if (!currentBook) {
       toast.show({ messageText: '未找到当前账本' });
-      return;
+      return false;
     }
+    if (!name.trim()) {
+      toast.show({ messageText: '请输入类型名称' });
+      return false;
+    }
+    const resolvedParentId = level === 'child' ? parentId : 0;
+    if (level === 'child' && !resolvedParentId) {
+      toast.show({ messageText: '请选择上级类型' });
+      return false;
+    }
+    setSubmitting(true);
     try {
-      const parentId = isCreatingParent ? 0 : createParentId;
+      const convertingChildToParent =
+        editingType !== null &&
+        editingType.parentId !== 0 &&
+        level === 'parent';
+      const nextSort = convertingChildToParent
+        ? Math.max(0, ...parents.map(parent => parent.sort)) + 1
+        : editingType?.sort ?? 1;
+      const payload = {
+        booksId: currentBook.id,
+        icon,
+        isSystem: editingType?.isSystem ?? SYSTEM_STATUS.custom,
+        name: name.trim(),
+        parentId: resolvedParentId,
+        sort: nextSort,
+        specialBehavior:
+          editingType?.specialBehavior ?? RECORD_TYPE_SPECIAL_BEHAVIOR.none,
+        typeCategory: category,
+      };
       if (editingType) {
-        await globalApi.type.update({
-          id: editingType.id,
-          booksId: currentBook.id,
-          name,
-          icon,
-          typeCategory: category,
-          parentId: editingType.parentId,
-        });
+        await globalApi.type.update({ ...payload, id: editingType.id });
+        if (
+          editingType.parentId === 0 &&
+          level === 'child' &&
+          expandedId === editingType.id
+        ) {
+          setExpandedId(undefined);
+        }
       } else {
-        await globalApi.type.create({
-          booksId: currentBook.id,
-          name,
-          icon,
-          typeCategory: category,
-          parentId,
-        });
+        await globalApi.type.create(payload);
       }
-      setDialogOpen(false);
       refresh();
-    } catch (e: unknown) {
-      toast.show({ messageText: e instanceof Error ? e.message : '操作失败' });
+      return true;
+    } catch (error: unknown) {
+      toast.show({
+        messageText:
+          error instanceof Error && error.message
+            ? error.message
+            : '保存失败',
+      });
+      return false;
+    } finally {
+      setSubmitting(false);
     }
   }, [
+    category,
     currentBook,
     editingType,
-    name,
+    expandedId,
+    globalApi.type,
     icon,
-    category,
-    isCreatingParent,
-    createParentId,
+    level,
+    name,
+    parentId,
+    parents,
     refresh,
+    setExpandedId,
     toast,
   ]);
 
-  const confirmDelete = useCallback(async () => {
+  const handleDelete = useCallback(async () => {
     const target = pendingDeleteType;
-    setPendingDeleteType(null);
-    if (!target || !currentBook) return;
+    if (!target || !currentBook) {
+      return;
+    }
     try {
       await globalApi.type.delete(target.id, currentBook.id);
-      refresh();
-    } catch (e: unknown) {
-      toast.show({ messageText: getTypeDeleteErrorMessage(e) });
+    } catch (error: unknown) {
+      throw new Error(getTypeDeleteErrorMessage(error));
     }
-  }, [pendingDeleteType, currentBook, refresh, toast]);
+    if (expandedId === target.id) {
+      setExpandedId(undefined);
+    }
+    if (editingType?.id === target.id) {
+      setFormOpen(false);
+    }
+    if (parentMenu?.id === target.id) {
+      setParentMenu(null);
+    }
+    setPendingDeleteType(null);
+    refresh();
+  }, [
+    currentBook,
+    editingType?.id,
+    expandedId,
+    globalApi.type,
+    parentMenu?.id,
+    pendingDeleteType,
+    refresh,
+    setExpandedId,
+  ]);
 
-  const handleActionSheetAction = useCallback(
-    (_action: ActionSheetAction, index: number) => {
-      if (!selectedType) return;
-      setActionSheetOpen(false);
-      if (index === 0) {
-        openEditDialog(selectedType);
-      } else if (index === 1) {
-        setPendingDeleteType(selectedType);
-      }
-    },
-    [selectedType, openEditDialog],
+  const menuActions = useMemo(
+    () => [
+      { text: '编辑类型', icon: 'edit' as const },
+      { text: '新增二级类型', icon: 'add' as const },
+      { text: '删除类型', icon: 'trash' as const, danger: true },
+    ],
+    [],
   );
 
-  const dialogTitle = useMemo(() => {
-    if (editingType) return '编辑类型';
-    return isCreatingParent ? '新增一级类型' : '新增二级类型';
-  }, [editingType, isCreatingParent]);
-  const SelectedIconComponent = getPhosphorIconComponent(icon);
+  const handleMenuAction = useCallback(
+    (_action: { text: string }, index: number) => {
+      const parent = parentMenu;
+      setParentMenu(null);
+      if (!parent) {
+        return;
+      }
+      if (index === 0) {
+        openEditType(parent);
+      } else if (index === 1) {
+        openCreateChild(parent);
+      } else {
+        setPendingDeleteType(parent);
+      }
+    },
+    [openCreateChild, openEditType, parentMenu],
+  );
+
+  const handleGridAddChild = useCallback(
+    (targetParentId: number) => {
+      const parent = parents.find(item => item.id === targetParentId);
+      if (parent) {
+        openCreateChild(parent);
+      }
+    },
+    [openCreateChild, parents],
+  );
+
+  const handleChildPress = useCallback(
+    (childId: number) => {
+      const child = allTypes.find(type => type.id === childId);
+      if (child) {
+        openEditType(child);
+      }
+    },
+    [allTypes, openEditType],
+  );
+
+  const formTitle = editingType
+    ? '编辑类型'
+    : level === 'child'
+      ? '新增二级类型'
+      : '新增一级类型';
+  const nameLabel =
+    level === 'child'
+      ? `二级类型名称${parentId ? ` · ${parents.find(parent => parent.id === parentId)?.name ?? ''}` : ''}`
+      : '类型名称';
+  const okText = editingType ? '保存' : '新增';
+  const okDisabled =
+    submitting ||
+    !name.trim() ||
+    (level === 'child' && (!parentId || childLevelDisabled));
+  const deleteChildCount = pendingDeleteType
+    ? allTypes.filter(type => type.parentId === pendingDeleteType.id).length
+    : 0;
+  const deleteBlocked = deleteChildCount > 0;
+  const canDeleteFromForm =
+    editingType !== null && editingType.parentId !== 0;
 
   return (
     <Column style={styles.container}>
       <Row style={styles.segmented}>
         <Segmented
           block
+          onChange={value => setCategory(value as RecordTypeCategoryValue)}
           options={CATEGORY_OPTIONS}
           value={category}
-          onChange={v => setCategory(v as RecordTypeCategoryValue)}
         />
-      </Row>
-      <Row style={styles.hint}>
-        <Text size="xs" color="tertiary">
-          长按类型可编辑或删除
-        </Text>
       </Row>
 
       <ScrollView style={styles.contentScroll}>
-        <CategoryGrid
-          style={styles.categoryGrid}
-          categories={realTypes}
-          onSelect={id => {
-            if (id === 0) {
-              openCreateParentDialog();
-            } else if (id < 0) {
-              openCreateChildDialog(-id);
-            }
-          }}
-          onItemLongPress={handleItemLongPress}
-        />
+        <Column style={styles.content}>
+          <Row style={styles.metaLine}>
+            <Text color="secondary" size="xs" weight="semibold">
+              {parents.length}
+            </Text>
+            <Text color="tertiary" size="xs">
+              个一级类型 ·
+            </Text>
+            <Text color="secondary" size="xs" weight="semibold">
+              {children.length}
+            </Text>
+            <Text color="tertiary" size="xs">
+              个二级类型
+            </Text>
+          </Row>
+
+          {loading && allTypes.length === 0 ? (
+            <ManageSkeleton rows={3} />
+          ) : parents.length === 0 ? (
+            <Empty messageText="暂无类型" />
+          ) : (
+            <CategoryGrid
+              categories={allTypes}
+              expandedId={expandedId}
+              manage
+              onAddChild={handleGridAddChild}
+              onChildPress={handleChildPress}
+              onExpandedChange={setExpandedId}
+              onItemLongPress={typeId => {
+                const parent = parents.find(item => item.id === typeId);
+                if (parent) {
+                  setParentMenu(parent);
+                }
+              }}
+              onMorePress={parentIdValue => {
+                const parent = parents.find(
+                  item => item.id === parentIdValue,
+                );
+                setParentMenu(parent ?? null);
+              }}
+            />
+          )}
+
+          <Text size="xs" style={styles.listEnd}>
+            轻点一级类型展开二级 · 展开区「⋯」编辑或删除{'\n'}
+            轻点二级类型编辑，删除在浮层底部
+          </Text>
+        </Column>
       </ScrollView>
 
-      <ActionSheet
-        open={actionSheetOpen}
+      <FormFloatingPanel
+        onOk={handleSave}
         onOpenChange={open => {
-          if (!open) setActionSheetOpen(false);
+          if (!open) {
+            setFormOpen(false);
+          }
         }}
-        titleText={selectedType?.name}
-        actions={TYPE_ACTIONS}
-        onAction={handleActionSheetAction}
-        cancelText="取消"
+        open={formOpen}
+        panelBodyStyle={styles.formBody}
+        submitDisabled={okDisabled}
+        submitLoading={submitting}
+        submitText={okText}
+        titleText={formTitle}
+      >
+        <Input
+          labelText={nameLabel}
+          onChange={setName}
+          placeholder="例如：餐饮"
+          value={name}
+        />
+
+        <Column>
+          <Text color="tertiary" size="xs">
+            层级
+          </Text>
+          <Segmented
+            block
+            onChange={handleLevelChange}
+            options={[
+              { label: '一级类型', value: 'parent' },
+              {
+                disabled: childLevelDisabled,
+                label: '二级类型',
+                value: 'child',
+              },
+            ]}
+            value={level}
+          />
+          {childLevelReason ? (
+            <Column style={styles.levelWarn}>
+              <Text color="warningText" size="xs">
+                {childLevelReason}
+              </Text>
+            </Column>
+          ) : null}
+        </Column>
+
+        {level === 'child' ? (
+          <ListPicker
+            labelText="上级类型"
+            onChange={value =>
+              setParentId(typeof value === 'number' ? value : undefined)
+            }
+            options={availableParents.map(parent => ({
+              labelText: parent.name,
+              value: parent.id,
+            }))}
+            value={parentId}
+          />
+        ) : null}
+
+        <Column>
+          <Text color="tertiary" size="xs">
+            图标
+          </Text>
+          <FormIconGrid
+            onChange={setIcon}
+            value={icon}
+            values={formIconValues}
+          />
+          <Column style={styles.iconMore}>
+            <Button
+              onPress={() => setIconPickerOpen(true)}
+              size="small"
+              type="link"
+            >
+              更多图标
+            </Button>
+          </Column>
+        </Column>
+
+        <Text color="tertiary" size="xs">
+          类型可在两级之间转换；带二级类型的一级类型需先处理子类型
+        </Text>
+
+        {canDeleteFromForm ? (
+          <Column style={styles.dangerZone}>
+            <Button
+              block
+              onPress={() => setPendingDeleteType(editingType)}
+              type="danger"
+              variant="filled"
+            >
+              删除这个类型
+            </Button>
+          </Column>
+        ) : null}
+      </FormFloatingPanel>
+
+      <PhosphorIconPicker
+        onChange={setIcon}
+        onOpenChange={setIconPickerOpen}
+        open={iconPickerOpen}
+        value={icon}
       />
 
-      <Dialog
-        open={pendingDeleteType !== null}
-        titleText="删除类型"
-        okText="删除"
+      <ActionSheet
+        actions={menuActions}
         cancelText="取消"
-        onOk={confirmDelete}
-        onCancel={() => setPendingDeleteType(null)}
-      >
-        <Text size="md" color="secondary">
-          确定删除「{pendingDeleteType?.name}」吗？删除后无法恢复。
-        </Text>
-      </Dialog>
-
-      <Popup.FloatingPanel
-        keyboardAvoiding
-        open={dialogOpen}
+        onAction={handleMenuAction}
         onOpenChange={open => {
-          if (!open) setDialogOpen(false);
+          if (!open) {
+            setParentMenu(null);
+          }
         }}
-        titleText={dialogTitle}
-        onOk={handleOk}
-        okText={editingType ? '保存' : '新增'}
-        okDisabled={!name.trim()}
-        styles={{ panelBody: styles.dialogBody }}
-      >
-        <Column>
-          <Input
-            labelText="类型"
-            placeholder="类型名称"
-            value={name}
-            onChange={setName}
-          />
-          <DisplayInput
-            labelText="图标"
-            valueText={icon}
-            prefix={<Icon icon={SelectedIconComponent} size="small" />}
-            onPress={() => setIconPickerOpen(true)}
-          />
-        </Column>
-        <PhosphorIconPicker
-          open={iconPickerOpen}
-          value={icon}
-          onChange={setIcon}
-          onOpenChange={setIconPickerOpen}
-        />
-      </Popup.FloatingPanel>
+        open={parentMenu !== null}
+        titleText={parentMenu?.name}
+      />
+
+      <ManageConfirmDialog
+        messageText={
+          deleteBlocked
+            ? `「${pendingDeleteType?.name ?? ''}」下还有 ${deleteChildCount} 个二级类型，暂不能删除。`
+            : `删除后无法恢复；历史记录会保留，但失去「${pendingDeleteType?.name ?? ''}」分类。`
+        }
+        okDisabled={deleteBlocked}
+        onCancel={() => setPendingDeleteType(null)}
+        onConfirm={handleDelete}
+        open={pendingDeleteType !== null}
+        titleText={
+          pendingDeleteType
+            ? `删除「${pendingDeleteType.name}」？`
+            : '删除类型'
+        }
+        warningText={
+          deleteBlocked
+            ? '请先删除或移走这些二级类型，再删除这个一级类型。'
+            : undefined
+        }
+      />
     </Column>
   );
 }

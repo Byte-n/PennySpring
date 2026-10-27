@@ -28,7 +28,7 @@ function startOfDay(time: number): number {
   return date.getTime();
 }
 
-function isLiabilityAsset(asset: AssetRow): boolean {
+export function isLiabilityAsset(asset: AssetRow): boolean {
   return (
     asset.type === ASSET_TYPE.creditCard ||
     (asset.type === ASSET_TYPE.debt &&
