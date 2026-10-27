@@ -1,21 +1,18 @@
 import {
-  tabBarControlledAndOnPressDemoTitle,
-  TabBarControlledAndOnPressDemo,
-} from './controlled-and-on-press';
-import {
-  tabBarSizeDisabledAndSafeAreaInsetBottomDemoTitle,
-  TabBarSizeDisabledAndSafeAreaInsetBottomDemo,
-} from './size-disabled-and-safe-area-inset-bottom';
+  tabBarCompositionDemoTitle,
+  TabBarCompositionDemo,
+} from './composition';
+import { tabBarDarkDemoTitle, TabBarDarkDemo } from './dark';
+import { tabBarSizeDemoTitle, TabBarSizeDemo } from './size';
+import { tabBarStatesDemoTitle, TabBarStatesDemo } from './states';
 
 export const tabBarDemos = [
+  { id: 'size', title: tabBarSizeDemoTitle, Component: TabBarSizeDemo },
+  { id: 'states', title: tabBarStatesDemoTitle, Component: TabBarStatesDemo },
   {
-    id: 'controlled-and-on-press',
-    title: tabBarControlledAndOnPressDemoTitle,
-    Component: TabBarControlledAndOnPressDemo,
+    id: 'composition',
+    title: tabBarCompositionDemoTitle,
+    Component: TabBarCompositionDemo,
   },
-  {
-    id: 'size-disabled-and-safe-area-inset-bottom',
-    title: tabBarSizeDisabledAndSafeAreaInsetBottomDemoTitle,
-    Component: TabBarSizeDisabledAndSafeAreaInsetBottomDemo,
-  },
+  { id: 'dark', title: tabBarDarkDemoTitle, Component: TabBarDarkDemo },
 ];

@@ -525,7 +525,7 @@ export const COMPONENT_PREVIEW_SECTIONS = [
       {
         id: 'tab-bar',
         title: 'TabBar',
-        description: '底部标签栏图标、角标、尺寸和禁用状态。',
+        description: '底部标签栏、图标/文字/角标组合、尺寸与禁用状态。',
         component: TabBarPreview,
       },
       {

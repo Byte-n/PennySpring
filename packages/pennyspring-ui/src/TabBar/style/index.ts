@@ -1,5 +1,4 @@
 import { createUseSheetStyle } from '@pennyspring/theme';
-import type { AliasToken } from '@pennyspring/theme';
 import type { ComponentSize } from '../../shares/types';
 
 export interface TabBarStyleOptions {
@@ -9,98 +8,79 @@ export interface TabBarStyleOptions {
 }
 
 interface SizeStyleConfig {
-  minHeight: (token: AliasToken) => number;
-  iconBottomGap: (token: AliasToken) => number;
-  titleFontSize: (token: AliasToken) => number;
-  titleLineHeight: (token: AliasToken) => number;
-  badgeHeight: (token: AliasToken) => number;
-  badgeMinWidth: (token: AliasToken) => number;
-  badgePaddingHorizontal: (token: AliasToken) => number;
+  tabHeight: number;
+  iconSize: number;
 }
 
-export const SIZE_STYLE_MAP: Record<ComponentSize, SizeStyleConfig> = {
-  small: {
-    minHeight: token => token.controlHeightSM + token.paddingSM,
-    iconBottomGap: token => token.marginXXS,
-    titleFontSize: token => token.fontSizeSM,
-    titleLineHeight: token => token.lineHeightSM,
-    badgeHeight: token => token.controlHeightXS,
-    badgeMinWidth: token => token.controlHeightXS,
-    badgePaddingHorizontal: token => token.paddingXXS,
-  },
-  normal: {
-    minHeight: token => token.controlHeight + token.paddingSM,
-    iconBottomGap: token => token.marginXS,
-    titleFontSize: token => token.fontSizeSM,
-    titleLineHeight: token => token.lineHeightSM,
-    badgeHeight: token => token.controlHeightXS,
-    badgeMinWidth: token => token.controlHeightXS,
-    badgePaddingHorizontal: token => token.paddingXXS,
-  },
-  large: {
-    minHeight: token => token.controlHeightLG + token.paddingSM,
-    iconBottomGap: token => token.marginSM,
-    titleFontSize: token => token.fontSize,
-    titleLineHeight: token => token.lineHeight,
-    badgeHeight: token => token.controlHeightSM,
-    badgeMinWidth: token => token.controlHeightSM,
-    badgePaddingHorizontal: token => token.paddingXS,
-  },
+const SIZE_STYLE_MAP: Record<ComponentSize, SizeStyleConfig> = {
+  small: { tabHeight: 48, iconSize: 20 },
+  normal: { tabHeight: 56, iconSize: 24 },
+  large: { tabHeight: 64, iconSize: 26 },
 };
 
+/** 角标 18 高 / 最小 18、红点 8，以及相对图标中心的偏移量。 */
+const BADGE_HEIGHT = 18;
+const BADGE_MIN_WIDTH = 18;
+const BADGE_TOP = 2;
+const BADGE_OFFSET = 14;
+const DOT_SIZE = 8;
+const DOT_TOP = 8;
+const DOT_OFFSET = 10;
+const BADGE_RADIUS = 999;
+
 export const useStyles = createUseSheetStyle(
-  (token, { disabled, safeAreaInsetBottom, size }: TabBarStyleOptions) => {
-    const sizeConfig = SIZE_STYLE_MAP[size];
+  (token, { safeAreaInsetBottom, size }: TabBarStyleOptions) => {
+    const { tabHeight, iconSize } = SIZE_STYLE_MAP[size];
 
     return {
       root: {
         backgroundColor: token.colorBgContainer,
+        borderTopColor: token.colorSplit,
         borderTopWidth: token.lineWidth,
-        borderTopColor: disabled
-          ? token.colorBorderDisabled
-          : token.colorBorderSecondary,
-        paddingTop: token.paddingXXS / 2,
-        paddingBottom: safeAreaInsetBottom ? token.paddingSM / 2 : token.paddingXXS / 2,
+        paddingBottom: safeAreaInsetBottom ? token.sizeXS : token.sizeXXS,
+        paddingTop: token.sizeXXS,
       },
       tab: {
         flex: 1,
-        minHeight: sizeConfig.minHeight(token),
+        height: tabHeight,
+        padding: token.sizeXXS,
+      },
+      pressSurface: {
         alignItems: 'center',
+        borderRadius: token.borderRadiusLG,
+        flex: 1,
+        gap: token.sizeXXS,
         justifyContent: 'center',
-        paddingHorizontal: token.paddingXXS,
-        paddingVertical: token.paddingXXS / 2,
       },
       tabPressed: {
-        backgroundColor: token.colorBgTextHover,
+        backgroundColor: token.colorFillTertiary,
       },
-      tabActive: {
-        backgroundColor: token.controlItemBgActive,
-      },
-      tabDisabled: {
-        opacity: token.opacityLoading,
-      },
-      iconContainer: {
+      iconBox: {
         alignItems: 'center',
+        height: iconSize,
         justifyContent: 'center',
-        marginBottom: sizeConfig.iconBottomGap(token),
-      },
-      hitSlop: {
-        top: token.marginXXS,
-        right: token.marginXXS,
-        bottom: token.marginXXS,
-        left: token.marginXXS,
+        width: iconSize,
       },
       badge: {
-        position: 'absolute',
-        top: token.paddingXXS,
-        right: token.paddingSM,
-        minWidth: sizeConfig.badgeMinWidth(token),
-        height: sizeConfig.badgeHeight(token),
-        borderRadius: token.borderRadiusLG,
-        backgroundColor: token.colorError,
         alignItems: 'center',
+        backgroundColor: token.colorError,
+        borderRadius: BADGE_RADIUS,
+        height: BADGE_HEIGHT,
         justifyContent: 'center',
-        paddingHorizontal: sizeConfig.badgePaddingHorizontal(token),
+        marginRight: -(iconSize / 2 + BADGE_OFFSET),
+        minWidth: BADGE_MIN_WIDTH,
+        paddingHorizontal: token.paddingXXS,
+        position: 'absolute',
+        right: '50%',
+        top: BADGE_TOP,
+      },
+      badgeDot: {
+        height: DOT_SIZE,
+        marginRight: -(iconSize / 2 + DOT_OFFSET),
+        minWidth: DOT_SIZE,
+        paddingHorizontal: 0,
+        top: DOT_TOP,
+        width: DOT_SIZE,
       },
     };
   },
