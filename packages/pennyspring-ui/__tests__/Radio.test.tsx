@@ -1,212 +1,236 @@
 import React from 'react';
+import { Text as RNText } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
 import { Radio } from '../src/Radio';
-import { Text } from '../src/Text';
 import type { RadioGroupProps, RadioProps } from '../src/Radio';
+import { Text } from '../src/Text';
+
+const GROUP_OPTIONS = [
+  { value: 'category', label: '按分类统计' },
+  { value: 'tag', label: '按标签统计' },
+  { value: 2026, label: <RNText>按年份统计</RNText> },
+] as const;
+
 function renderRadio(props: Partial<RadioProps> = {}) {
   let testRenderer: renderer.ReactTestRenderer;
   act(() => {
-    testRenderer = renderer.create(<><Radio {...props}>Remember me</Radio></>);
+    testRenderer = renderer.create(<Radio {...props}>按分类统计</Radio>);
   });
   return testRenderer!;
 }
+
 function renderRadioGroup(props: Partial<RadioGroupProps> = {}) {
   let testRenderer: renderer.ReactTestRenderer;
   act(() => {
-    testRenderer = renderer.create(<><Radio.Group options={[{
-        value: 'daily',
-        label: 'Daily'
-      }, {
-        value: 'weekly',
-        label: 'Weekly'
-      }, {
-        value: 30,
-        label: 'Monthly'
-      }]} {...props} /></>);
+    testRenderer = renderer.create(<Radio.Group options={[...GROUP_OPTIONS]} {...props} />);
   });
   return testRenderer!;
 }
-function pressRadio(testRenderer: renderer.ReactTestRenderer) {
-  const target = testRenderer.root.findByProps({
-    testID: 'radio'
-  });
+
+function pressOption(
+  testRenderer: renderer.ReactTestRenderer,
+  testID: string,
+) {
+  const [control] = testRenderer.root.findAll(
+    node => typeof node.props.onPress === 'function' && node.props.testID === testID,
+  );
   act(() => {
-    target.props.onPress();
+    control.props.onPress();
   });
-  return target;
+  return control;
 }
-function pressGroupOption(testRenderer: renderer.ReactTestRenderer, value: string | number) {
-  const target = testRenderer.root.findByProps({
-    testID: `radio-group-option-${String(value)}`
-  });
-  act(() => {
-    target.props.onPress();
-  });
-  return target;
+
+function hasTestID(
+  testRenderer: renderer.ReactTestRenderer,
+  testID: string,
+) {
+  return testRenderer.root.findAllByProps({ testID }).length > 0;
 }
+
+function readLabelProps(
+  testRenderer: renderer.ReactTestRenderer,
+  testID: string,
+) {
+  return testRenderer.root.findByProps({ testID }).findByType(Text).props;
+}
+
 describe('Radio', () => {
-  it('sets uncontrolled value to true and reports the change on press', () => {
+  it('reports true when pressing an unselected radio', () => {
     const onChange = jest.fn();
-    const testRenderer = renderRadio({
-      onChange
-    });
-    pressRadio(testRenderer);
+    const testRenderer = renderRadio({ defaultValue: false, onChange });
+
+    pressOption(testRenderer, 'radio');
+
     expect(onChange).toHaveBeenCalledWith(true);
   });
-  it('does not report duplicate changes when already selected', () => {
+
+  it('stays selected after pressing again instead of being cleared', () => {
     const onChange = jest.fn();
-    const testRenderer = renderRadio({
-      defaultValue: true,
-      onChange
-    });
-    pressRadio(testRenderer);
-    expect(onChange).not.toHaveBeenCalled();
+    const testRenderer = renderRadio({ onChange });
+
+    pressOption(testRenderer, 'radio');
+    pressOption(testRenderer, 'radio');
+
+    expect(onChange).toHaveBeenCalledTimes(1);
+    expect(onChange).toHaveBeenCalledWith(true);
   });
-  it('does not change when disabled or readonly', () => {
+
+  it('keeps a controlled radio derived from props while reporting each press', () => {
     const onChange = jest.fn();
-    const disabledRadio = renderRadio({
-      disabled: true,
-      onChange
-    });
-    const readonlyRadio = renderRadio({
-      readonly: true,
-      onChange
-    });
-    pressRadio(disabledRadio);
-    pressRadio(readonlyRadio);
+    const testRenderer = renderRadio({ value: false, onChange });
+
+    pressOption(testRenderer, 'radio');
+    pressOption(testRenderer, 'radio');
+
+    expect(onChange).toHaveBeenNthCalledWith(1, true);
+    expect(onChange).toHaveBeenNthCalledWith(2, true);
+  });
+
+  it('does not select when disabled or readonly', () => {
+    const onChange = jest.fn();
+    const disabledRenderer = renderRadio({ disabled: true, onChange });
+    const readonlyRenderer = renderRadio({ readonly: true, onChange });
+
+    const disabledControl = pressOption(disabledRenderer, 'radio');
+    pressOption(readonlyRenderer, 'radio');
+
     expect(onChange).not.toHaveBeenCalled();
+    expect(disabledControl.props.disabled).toBe(true);
+  });
+
+  it('maps chip foreground color and weight to the selection state', () => {
+    const selectedRenderer = renderRadio({ defaultValue: true, displayType: 'button' });
+    const unselectedRenderer = renderRadio({ defaultValue: false, displayType: 'button' });
+    const disabledRenderer = renderRadio({ defaultValue: true, disabled: true, displayType: 'button' });
+
+    expect(readLabelProps(selectedRenderer, 'radio-label')).toMatchObject({
+      color: 'primary',
+      weight: 'semibold',
+    });
+    expect(readLabelProps(unselectedRenderer, 'radio-label')).toMatchObject({
+      color: 'secondary',
+      weight: 'regular',
+    });
+    expect(readLabelProps(disabledRenderer, 'radio-label')).toMatchObject({
+      color: 'quaternary',
+    });
+  });
+
+  it('dims the label of a disabled or readonly row', () => {
+    const disabledRenderer = renderRadio({ disabled: true, defaultValue: true });
+    const readonlyRenderer = renderRadio({ readonly: true, defaultValue: true });
+
+    expect(readLabelProps(disabledRenderer, 'radio-label')).toMatchObject({
+      color: 'tertiary',
+    });
+    expect(readLabelProps(readonlyRenderer, 'radio-label')).toMatchObject({
+      color: 'secondary',
+    });
+  });
+
+  it('renders the outer ring only for the default display type', () => {
+    const defaultRenderer = renderRadio({ defaultValue: true });
+    const chipRenderer = renderRadio({ defaultValue: true, displayType: 'button' });
+
+    expect(hasTestID(defaultRenderer, 'radio-control')).toBe(true);
+    expect(hasTestID(chipRenderer, 'radio-control')).toBe(false);
   });
 });
+
 describe('Radio.Group', () => {
-  it('selects an option and reports the changed value', () => {
+  it('prefers option label over labelText and value', () => {
+    const testRenderer = renderRadioGroup({
+      options: [
+        { value: 'label-first', label: '按分类统计', labelText: 'labelText 落后' },
+        { value: 'text-second', labelText: '按标签统计' },
+        { value: 'value-last' },
+      ],
+    });
+
+    const content = JSON.stringify(testRenderer.toJSON());
+
+    expect(content).toContain('按分类统计');
+    expect(content).not.toContain('labelText 落后');
+    expect(content).toContain('按标签统计');
+    expect(content).toContain('value-last');
+  });
+
+  it('keeps only one option selected at a time', () => {
     const onChange = jest.fn();
     const testRenderer = renderRadioGroup({
-      defaultValue: 'daily',
-      onChange
-    });
-    pressGroupOption(testRenderer, 'weekly');
-    expect(onChange).toHaveBeenCalledWith('weekly');
-  });
-  it('does not report duplicate changes for the selected option', () => {
-    const onChange = jest.fn();
-    const testRenderer = renderRadioGroup({
-      defaultValue: 'daily',
-      onChange
-    });
-    pressGroupOption(testRenderer, 'daily');
-    expect(onChange).not.toHaveBeenCalled();
-  });
-  it('blocks selection when disabled, readonly, or option disabled', () => {
-    const onChange = jest.fn();
-    const disabledGroup = renderRadioGroup({
-      disabled: true,
-      onChange
-    });
-    const readonlyGroup = renderRadioGroup({
-      readonly: true,
-      onChange
-    });
-    const disabledOptionGroup = renderRadioGroup({
-      defaultValue: 'daily',
+      defaultValue: 'category',
       onChange,
-      options: [{
-        value: 'daily',
-        label: 'Daily'
-      }, {
-        value: 'weekly',
-        label: 'Weekly',
-        disabled: true
-      }]
     });
-    pressGroupOption(disabledGroup, 'weekly');
-    pressGroupOption(readonlyGroup, 'weekly');
-    const option = pressGroupOption(disabledOptionGroup, 'weekly');
-    expect(onChange).not.toHaveBeenCalled();
-    expect(option.props.disabled).toBe(true);
+
+    pressOption(testRenderer, 'radio-group-option-tag');
+    pressOption(testRenderer, 'radio-group-option-category');
+    pressOption(testRenderer, 'radio-group-option-2026');
+
+    expect(onChange).toHaveBeenNthCalledWith(1, 'tag');
+    expect(onChange).toHaveBeenNthCalledWith(2, 'category');
+    expect(onChange).toHaveBeenNthCalledWith(3, 2026);
   });
-  it('keeps button display behavior consistent with default display', () => {
+
+  it('does not report when pressing the already selected option', () => {
     const onChange = jest.fn();
     const testRenderer = renderRadioGroup({
+      defaultValue: 'category',
+      onChange,
+    });
+
+    pressOption(testRenderer, 'radio-group-option-category');
+
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
+  it('keeps a controlled group value derived from props while reporting each press', () => {
+    const onChange = jest.fn();
+    const testRenderer = renderRadioGroup({ value: 'category', onChange });
+
+    pressOption(testRenderer, 'radio-group-option-tag');
+    pressOption(testRenderer, 'radio-group-option-tag');
+
+    expect(onChange).toHaveBeenNthCalledWith(1, 'tag');
+    expect(onChange).toHaveBeenNthCalledWith(2, 'tag');
+  });
+
+  it('does not select when the group or an option is disabled or readonly', () => {
+    const onChange = jest.fn();
+    const disabledGroup = renderRadioGroup({ disabled: true, onChange });
+    const readonlyGroup = renderRadioGroup({ readonly: true, onChange });
+    const disabledOption = renderRadioGroup({
+      options: [
+        { value: 'category', label: '按分类统计' },
+        { value: 'tag', label: '按标签统计', disabled: true },
+      ],
+      onChange,
+    });
+
+    const disabledControl = pressOption(
+      disabledGroup,
+      'radio-group-option-category',
+    );
+    pressOption(readonlyGroup, 'radio-group-option-category');
+    pressOption(disabledOption, 'radio-group-option-tag');
+
+    expect(onChange).not.toHaveBeenCalled();
+    expect(disabledControl.props.disabled).toBe(true);
+  });
+
+  it('renders chip options without the outer ring and highlights the selected chip', () => {
+    const testRenderer = renderRadioGroup({
+      defaultValue: 'category',
       displayType: 'button',
-      onChange
     });
-    pressGroupOption(testRenderer, 30);
-    expect(onChange).toHaveBeenCalledWith(30);
-  });
-  it('renders labelText as plain text and label as custom node', () => {
-    let testRenderer: renderer.ReactTestRenderer;
-    act(() => {
-      testRenderer = renderer.create(
-        <Radio.Group
-          defaultValue="a"
-          options={[
-            { value: 'a', labelText: 'Plain text' },
-            { value: 'b', label: <Text>Custom node</Text> },
-          ]}
-        />,
-      );
+
+    expect(hasTestID(testRenderer, 'radio-group-option-category-control')).toBe(false);
+    expect(readLabelProps(testRenderer, 'radio-group-option-category-label')).toMatchObject({
+      color: 'primary',
+      weight: 'semibold',
     });
-    const texts = testRenderer!.root.findAllByType(Text);
-    const plainTexts = texts.filter(
-      t => typeof t.props.children === 'string' && t.props.children === 'Plain text',
-    );
-    const customTexts = texts.filter(
-      t => typeof t.props.children === 'string' && t.props.children === 'Custom node',
-    );
-    expect(plainTexts.length).toBeGreaterThanOrEqual(1);
-    expect(customTexts.length).toBeGreaterThanOrEqual(1);
-  });
-  it('renders labelText with correct Text props based on size', () => {
-    let testRenderer: renderer.ReactTestRenderer;
-    act(() => {
-      testRenderer = renderer.create(
-        <Radio.Group
-          defaultValue="a"
-          size="small"
-          options={[{ value: 'a', labelText: 'Small option' }]}
-        />,
-      );
+    expect(readLabelProps(testRenderer, 'radio-group-option-tag-label')).toMatchObject({
+      color: 'secondary',
+      weight: 'regular',
     });
-    const texts = testRenderer!.root.findAllByType(Text);
-    const target = texts.find(t => t.props.children === 'Small option');
-    expect(target).toBeDefined();
-    expect(target!.props.size).toBe('sm');
-    expect(target!.props.color).toBe('default');
-  });
-  it('renders disabled label text with disabled color prop', () => {
-    let testRenderer: renderer.ReactTestRenderer;
-    act(() => {
-      testRenderer = renderer.create(
-        <Radio.Group
-          defaultValue="a"
-          options={[
-            { value: 'a', labelText: 'Active' },
-            { value: 'b', labelText: 'Disabled', disabled: true },
-          ]}
-        />,
-      );
-    });
-    const texts = testRenderer!.root.findAllByType(Text);
-    const disabledText = texts.find(t => t.props.children === 'Disabled');
-    expect(disabledText).toBeDefined();
-    expect(disabledText!.props.color).toBe('disabled');
-  });
-  it('allows external styles.label to override state styles', () => {
-    const customLabelStyle = { color: '#ff0000' };
-    let testRenderer: renderer.ReactTestRenderer;
-    act(() => {
-      testRenderer = renderer.create(
-        <Radio defaultValue styles={{ label: customLabelStyle }}>
-          Label
-        </Radio>,
-      );
-    });
-    const texts = testRenderer!.root.findAllByType(Text);
-    const label = texts.find(t => t.props.children === 'Label');
-    expect(label).toBeDefined();
-    const flatStyle = Array.isArray(label!.props.style)
-      ? Object.assign({}, ...label!.props.style.filter(Boolean))
-      : label!.props.style;
-    expect(flatStyle.color).toBe('#ff0000');
   });
 });

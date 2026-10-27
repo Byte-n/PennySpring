@@ -344,7 +344,7 @@ export const COMPONENT_PREVIEW_SECTIONS = [
       {
         id: 'radio',
         title: 'Radio',
-        description: '单选、单选组、按钮形态和禁用状态。',
+        description: '单选、单选组、chip 形态与只读禁用状态。',
         component: RadioPreview,
       },
       {

@@ -1,41 +1,37 @@
-import type { ComponentSize } from '../shares/types';
-import React from 'react';
+import type { ReactNode } from 'react';
+import type { StyleProp, TextStyle, ViewStyle } from 'react-native';
+import type { TextColor, TextSize, TextWeight } from '../Text/types';
+import React, { useEffect } from 'react';
 import { Pressable, View } from 'react-native';
+import Animated, {
+  Easing,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
+import { useTheme } from '@pennyspring/theme';
 import { Column } from '../Column';
 import { Row } from '../Row';
 import { Text } from '../Text';
 import { useControllableValue } from '../_hooks';
-import { useStyles } from './style';
-import type { ReactNode } from 'react';
-import type { StyleProp, TextStyle, ViewStyle } from 'react-native';
-import type { TextColor, TextSize, TextWeight } from '../Text';
+import { renderTextNode } from '../shares/node';
+import {
+  RADIO_TRANSITION_DURATION,
+  SIZE_CONFIG,
+  useGroupStyles,
+  useStyles,
+} from './style';
 import type {
   RadioDisplayType,
   RadioGroupOption,
   RadioGroupProps,
-  RadioGroupValue,
+  RadioGroupStyles,
   RadioProps,
+  RadioStyles,
 } from './types';
 
-interface RadioOptionState {
-  block: boolean;
-  disabled: boolean;
-  displayType: RadioDisplayType;
-  pressed: boolean;
-  readonly: boolean;
-  selected: boolean;
-}
-
-function toTextSize(size: ComponentSize): TextSize {
-  if (size === 'small') {
-    return 'sm';
-  }
-
-  if (size === 'large') {
-    return 'lg';
-  }
-
-  return 'md';
+function toSlotTestID(base: string, slot: string): string {
+  return base === 'radio' ? `radio-${slot}` : `${base}-${slot}`;
 }
 
 function getOptionLabel(option: RadioGroupOption): ReactNode {
@@ -50,81 +46,145 @@ function getOptionLabel(option: RadioGroupOption): ReactNode {
   return option.value;
 }
 
-function renderLabel(
-  label: ReactNode,
-  style: StyleProp<TextStyle>,
-  size: ComponentSize,
-  weight: TextWeight,
-  color: TextColor,
-) {
-  if (label === undefined || label === null || label === false) {
-    return null;
-  }
-
-  if (typeof label === 'string' || typeof label === 'number') {
-    return (
-      <Text color={color} size={toTextSize(size)} style={style} weight={weight}>
-        {label}
-      </Text>
-    );
-  }
-
-  return label;
+interface LabelColorOptions {
+  disabled: boolean;
+  displayType: RadioDisplayType;
+  readonly: boolean;
+  selected: boolean;
 }
 
-function getOptionStyle(
-  tokenStyles: ReturnType<typeof useStyles>,
-  state: RadioOptionState,
-  style?: StyleProp<ViewStyle>,
-) {
-  return [
-    tokenStyles.option,
-    state.displayType === 'button' ? tokenStyles.optionButton : null,
-    state.block && state.displayType === 'button'
-      ? tokenStyles.optionButtonBlock
-      : null,
-    state.selected && state.displayType === 'button'
-      ? tokenStyles.optionButtonSelected
-      : null,
-    state.pressed && !state.disabled && !state.readonly
-      ? tokenStyles.optionPressed
-      : null,
-    state.disabled ? tokenStyles.optionDisabled : null,
-    style,
+function getLabelColor({
+  disabled,
+  displayType,
+  readonly,
+  selected,
+}: LabelColorOptions): TextColor {
+  if (displayType === 'button') {
+    if (disabled) {
+      return 'quaternary';
+    }
+
+    return selected ? 'primary' : 'secondary';
+  }
+
+  if (disabled) {
+    return 'tertiary';
+  }
+
+  return readonly ? 'secondary' : 'default';
+}
+
+interface RadioControlProps extends Omit<RadioProps, 'style' | 'styles'> {
+  block: boolean;
+  controlStyle?: RadioGroupStyles['option'];
+  rootStyle?: RadioProps['style'];
+  selected: boolean;
+  slotStyles?: RadioStyles;
+  testID: string;
+  onSelect: () => void;
+}
+
+function RadioControl({
+  block,
+  children,
+  controlStyle,
+  disabled = false,
+  displayType = 'default',
+  readonly = false,
+  rootStyle,
+  selected,
+  size = 'normal',
+  slotStyles,
+  testID,
+  onSelect,
+  ...rest
+}: RadioControlProps) {
+  const { token } = useTheme();
+  const tokenStyles = useStyles({ block, displayType, size });
+  const sizeConfig = SIZE_CONFIG[size];
+  const isButton = displayType === 'button';
+  const isDisabled = disabled || readonly;
+  const progress = useSharedValue(selected ? 1 : 0);
+  const indicatorAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: progress.value,
+  }));
+
+  useEffect(() => {
+    progress.value = withTiming(selected ? 1 : 0, {
+      duration: RADIO_TRANSITION_DURATION,
+      easing: Easing.bezier(...token.motionEaseInOut),
+    });
+  }, [progress, selected, token.motionEaseInOut]);
+
+  const labelColor = getLabelColor({ disabled, displayType, readonly, selected });
+  const labelWeight: TextWeight = isButton && selected ? 'semibold' : 'regular';
+  const labelSize: TextSize = isButton ? 'sm' : sizeConfig.labelSize;
+  const labelStyle: StyleProp<TextStyle> = [tokenStyles.label, slotStyles?.label];
+  const label = renderTextNode(children, text => (
+    <Text
+      color={labelColor}
+      size={labelSize}
+      style={labelStyle}
+      testID={toSlotTestID(testID, 'label')}
+      weight={labelWeight}
+    >
+      {text}
+    </Text>
+  ));
+
+  function handlePress(): void {
+    if (isDisabled || selected) {
+      return;
+    }
+
+    onSelect();
+  }
+
+  const ringStyle: StyleProp<ViewStyle> = [
+    tokenStyles.control,
+    selected ? tokenStyles.controlSelected : null,
+    disabled ? tokenStyles.controlDisabled : null,
+    slotStyles?.control,
   ];
-}
 
-function renderControl(
-  tokenStyles: ReturnType<typeof useStyles>,
-  selected: boolean,
-  disabled: boolean,
-  styles?: Pick<NonNullable<RadioProps['styles']>, 'control' | 'indicator'>,
-) {
   return (
-    <View
-      style={[
-        tokenStyles.control,
-        selected ? tokenStyles.controlSelected : null,
-        disabled ? tokenStyles.controlDisabled : null,
-        styles?.control,
+    <Pressable
+      {...rest}
+      disabled={isDisabled}
+      testID={testID}
+      onPress={handlePress}
+      style={({ pressed }) => [
+        tokenStyles.option,
+        pressed && !isDisabled ? tokenStyles.optionPressed : null,
+        selected ? tokenStyles.optionSelected : null,
+        isDisabled ? tokenStyles.optionDisabled : null,
+        controlStyle,
+        rootStyle,
       ]}
     >
-      {selected ? (
-        <View
-          style={[
-            tokenStyles.indicator,
-            disabled ? tokenStyles.indicatorDisabled : null,
-            styles?.indicator,
-          ]}
-        />
-      ) : null}
-    </View>
+      <Row style={[tokenStyles.content, slotStyles?.content]}>
+        {isButton ? null : (
+          <View style={ringStyle} testID={toSlotTestID(testID, 'control')}>
+            <Animated.View
+              style={[
+                tokenStyles.indicator,
+                disabled ? tokenStyles.indicatorDisabled : null,
+                slotStyles?.indicator,
+                indicatorAnimatedStyle,
+              ]}
+              testID={toSlotTestID(testID, 'indicator')}
+            />
+          </View>
+        )}
+        {label}
+      </Row>
+    </Pressable>
   );
 }
 
-function RadioComponent({
+function BaseRadio({
   value,
-  defaultValue,
+  defaultValue = false,
   onChange,
   disabled = false,
   readonly = false,
@@ -135,65 +195,32 @@ function RadioComponent({
   styles,
   ...rest
 }: RadioProps) {
-  const tokenStyles = useStyles({
-    block: false,
-    displayType,
-    size,
-  });
   const [selectedValue, setSelectedValue] = useControllableValue(
     defaultValue,
     value,
     onChange,
   );
-  const selected = selectedValue === true;
-  const isDisabled = disabled || readonly;
-  const labelColor: TextColor = isDisabled ? 'disabled' : selected ? 'default' : 'default';
 
-  function handlePress() {
-    if (disabled || readonly || selected) {
-      return;
-    }
-
+  function handleSelect(): void {
     setSelectedValue(true);
   }
 
   return (
-    <Pressable
+    <RadioControl
       {...rest}
-      testID="radio"
+      block={false}
       disabled={disabled}
-      onPress={handlePress}
-      style={({ pressed }) =>
-        getOptionStyle(
-          tokenStyles,
-          {
-            block: false,
-            disabled,
-            displayType,
-            pressed,
-            readonly,
-            selected,
-          },
-          style,
-        )
-      }
+      displayType={displayType}
+      readonly={readonly}
+      rootStyle={style}
+      selected={Boolean(selectedValue)}
+      size={size}
+      slotStyles={styles}
+      testID="radio"
+      onSelect={handleSelect}
     >
-      {displayType === 'default'
-        ? renderControl(tokenStyles, selected, disabled, styles)
-        : null}
-      <Row style={[tokenStyles.content, styles?.content]}>
-        {renderLabel(
-          children,
-          [
-            tokenStyles.label,
-            styles?.label,
-          ],
-          size,
-          'regular',
-          labelColor,
-        )}
-      </Row>
-    </Pressable>
+      {children ?? null}
+    </RadioControl>
   );
 }
 
@@ -212,83 +239,70 @@ export function RadioGroup({
   styles,
   ...rest
 }: RadioGroupProps) {
-  const tokenStyles = useStyles({ block, displayType, size });
   const [selectedValue, setSelectedValue] = useControllableValue(
     defaultValue,
     value,
     onChange,
   );
-  const Layout = direction === 'horizontal' ? Row : Column;
+  const isHorizontal = direction === 'horizontal';
+  const isBlockGrid = block && isHorizontal && displayType === 'button';
+  const groupStyles = useGroupStyles({ block, direction, isBlockGrid });
+  const optionSlotStyles = React.useMemo<RadioStyles>(
+    () => ({
+      content: styles?.content,
+      control: styles?.control,
+      indicator: styles?.indicator,
+      label: styles?.label,
+    }),
+    [styles],
+  );
 
-  function handlePress(optionValue: RadioGroupValue, isDisabled: boolean) {
-    if (isDisabled || readonly || optionValue === selectedValue) {
-      return;
-    }
+  const items = options.map(option => {
+    const optionTestID = `radio-group-option-${String(option.value)}`;
+    const control = (
+      <RadioControl
+        {...rest}
+        key={optionTestID}
+        block={block}
+        controlStyle={styles?.option}
+        disabled={disabled || option.disabled === true}
+        displayType={displayType}
+        readonly={readonly}
+        selected={option.value === selectedValue}
+        size={size}
+        slotStyles={optionSlotStyles}
+        testID={optionTestID}
+        onSelect={() => {
+          setSelectedValue(option.value);
+        }}
+      >
+        {getOptionLabel(option)}
+      </RadioControl>
+    );
 
-    setSelectedValue(optionValue);
-  }
+    return isBlockGrid ? (
+      <View key={optionTestID} style={groupStyles.blockCell}>
+        {control}
+      </View>
+    ) : (
+      control
+    );
+  });
 
-  return (
-    <Layout
-      testID="radio-group"
-      align={direction === 'horizontal' ? 'center' : undefined}
-      gap="small"
-      style={[tokenStyles.groupRoot, style]}
-    >
-      {options.map(option => {
-        const selected = option.value === selectedValue;
-        const optionDisabled = disabled || option.disabled === true;
-        const isOptionDisabled = optionDisabled || readonly;
-        const labelColor: TextColor = isOptionDisabled
-          ? 'disabled'
-          : 'default';
-
-        return (
-          <Pressable
-            {...rest}
-            key={String(option.value)}
-            testID={`radio-group-option-${String(option.value)}`}
-            disabled={optionDisabled}
-            onPress={() => {
-              handlePress(option.value, optionDisabled);
-            }}
-            style={({ pressed }) =>
-              getOptionStyle(
-                tokenStyles,
-                {
-                  block,
-                  disabled: optionDisabled,
-                  displayType,
-                  pressed,
-                  readonly,
-                  selected,
-                },
-                styles?.option,
-              )
-            }
-          >
-            {displayType === 'default'
-              ? renderControl(tokenStyles, selected, optionDisabled, styles)
-              : null}
-            <Row style={[tokenStyles.content, styles?.content]}>
-              {renderLabel(
-                getOptionLabel(option),
-                [
-                  tokenStyles.label,
-                  styles?.label,
-                ],
-                size,
-                'regular',
-                labelColor,
-              )}
-            </Row>
-          </Pressable>
-        );
-      })}
-    </Layout>
+  return isHorizontal ? (
+    <Row testID="radio-group-root" wrap style={[groupStyles.root, style]}>
+      {items}
+    </Row>
+  ) : (
+    <Column testID="radio-group-root" style={[groupStyles.root, style]}>
+      {items}
+    </Column>
   );
 }
 
-export const Radio = Object.assign(RadioComponent, {
-  Group: RadioGroup,
-});
+type RadioComponent = typeof BaseRadio & {
+  Group: typeof RadioGroup;
+};
+
+export const Radio = BaseRadio as RadioComponent;
+Radio.Group = RadioGroup;

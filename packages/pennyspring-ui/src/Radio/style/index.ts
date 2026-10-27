@@ -1,138 +1,166 @@
 import { createUseSheetStyle } from '@pennyspring/theme';
 import type { AliasToken } from '@pennyspring/theme';
 import type { ComponentSize } from '../../shares/types';
-import type { RadioDisplayType } from '../types';
+import type { TextSize } from '../../Text/types';
+import type { RadioDisplayType, RadioGroupDirection } from '../types';
 
 const TRANSPARENT = 'transparent';
 
-interface RadioStyleOptions {
+/** 外圈 16 / 20 / 24 在 AliasToken 中没有对应档位，按设计稿落为语义常量。 */
+const CONTROL_SIZE_SMALL = 16;
+const CONTROL_SIZE_NORMAL = 20;
+const CONTROL_SIZE_LARGE = 24;
+
+/** 圆点 10 无对应 token（8 = sizeXS，12 = paddingSM）。 */
+const DOT_SIZE_NORMAL = 10;
+
+/** 外圈、圆点与 chip 共用药丸圆角，token 无对应档位。 */
+const PILL_RADIUS = 999;
+
+/** block 组每行铺满的 chip 列数。 */
+const BLOCK_CHIP_COLUMNS = 2;
+
+/**
+ * 描边与圆点过渡：设计稿要求 120ms 并标注为「局部常量」，
+ * 主题 motionDuration* 最小档为 100ms 且语义不符。
+ */
+export const RADIO_TRANSITION_DURATION = 120;
+
+export interface RadioSizeConfig {
+  controlSize: number;
+  dotSize: (token: AliasToken) => number;
+  rowMinHeight: (token: AliasToken) => number;
+  chipHeight: (token: AliasToken) => number;
+  chipPaddingHorizontal: (token: AliasToken) => number;
+  labelSize: TextSize;
+}
+
+export const SIZE_CONFIG: Record<ComponentSize, RadioSizeConfig> = {
+  small: {
+    controlSize: CONTROL_SIZE_SMALL,
+    dotSize: token => token.sizeXS,
+    rowMinHeight: token => token.controlHeightSM,
+    chipHeight: token => token.controlHeightSM,
+    chipPaddingHorizontal: token => token.paddingSM,
+    labelSize: 'sm',
+  },
+  normal: {
+    controlSize: CONTROL_SIZE_NORMAL,
+    dotSize: () => DOT_SIZE_NORMAL,
+    rowMinHeight: token => token.controlHeight,
+    chipHeight: token => token.controlHeight,
+    chipPaddingHorizontal: token => token.paddingSM,
+    labelSize: 'sm',
+  },
+  large: {
+    controlSize: CONTROL_SIZE_LARGE,
+    dotSize: token => token.paddingSM,
+    rowMinHeight: token => token.controlHeightLG,
+    chipHeight: token => token.controlHeightLG,
+    chipPaddingHorizontal: token => token.padding,
+    labelSize: 'md',
+  },
+};
+
+export interface RadioStyleOptions {
   block: boolean;
   displayType: RadioDisplayType;
   size: ComponentSize;
 }
 
-interface SizeStyleConfig {
-  minHeight: (token: AliasToken) => number;
-  controlSize: (token: AliasToken) => number;
-  indicatorSize: (token: AliasToken) => number;
-  paddingHorizontal: (token: AliasToken) => number;
-  paddingVertical: (token: AliasToken) => number;
-  gap: (token: AliasToken) => number;
-}
-
-const SIZE_STYLE_MAP: Record<ComponentSize, SizeStyleConfig> = {
-  small: {
-    minHeight: token => token.controlHeightSM,
-    controlSize: token => token.fontSize,
-    indicatorSize: token => token.sizeXXS,
-    paddingHorizontal: token => token.controlPaddingHorizontalSM,
-    paddingVertical: token => token.controlPaddingHorizontalSM / 2,
-    gap: token => token.sizeXXS,
-  },
-  normal: {
-    minHeight: token => token.controlHeight,
-    controlSize: token => token.fontSizeLG,
-    indicatorSize: token => token.sizeXS,
-    paddingHorizontal: token => token.controlPaddingHorizontal,
-    paddingVertical: token => token.controlPaddingHorizontal / 2,
-    gap: token => token.sizeXS,
-  },
-  large: {
-    minHeight: token => token.controlHeightLG,
-    controlSize: token => token.fontSizeXL,
-    indicatorSize: token => token.sizeSM,
-    paddingHorizontal: token => token.paddingMD,
-    paddingVertical: token => token.paddingMD / 2,
-    gap: token => token.sizeXS,
-  },
-};
-
 export const useStyles = createUseSheetStyle(
   (token, { block, displayType, size }: RadioStyleOptions) => {
-    const sizeConfig = SIZE_STYLE_MAP[size];
-    const controlSize = sizeConfig.controlSize(token);
+    const sizeConfig = SIZE_CONFIG[size];
+    const isButton = displayType === 'button';
+    const dotSize = sizeConfig.dotSize(token);
 
     return {
-      groupRoot: {
-        alignSelf: block ? 'stretch' : 'flex-start',
-        width: block ? '100%' : undefined,
-      },
       option: {
-        minHeight: sizeConfig.minHeight(token),
-        flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'flex-start',
-        gap: sizeConfig.gap(token),
-      },
-      optionButton: {
-        justifyContent: 'center',
-        paddingHorizontal: sizeConfig.paddingHorizontal(token),
-        paddingVertical: sizeConfig.paddingVertical(token),
-        borderWidth: token.lineWidth,
-        borderColor: token.colorBorder,
-        borderRadius: token.borderRadius,
-        backgroundColor: token.colorBgContainer,
-      },
-      optionButtonBlock: {
-        flex: 1,
-      },
-      optionButtonSelected: {
-        borderColor: token.colorPrimary,
-        backgroundColor: token.colorPrimaryBg,
+        alignSelf: block ? 'stretch' : 'flex-start',
+        backgroundColor: isButton ? token.colorFillTertiary : TRANSPARENT,
+        borderRadius: isButton ? PILL_RADIUS : token.borderRadiusSM,
+        flexDirection: 'row',
+        justifyContent: isButton ? 'center' : 'flex-start',
+        minHeight: isButton
+          ? sizeConfig.chipHeight(token)
+          : sizeConfig.rowMinHeight(token),
+        paddingHorizontal: isButton
+          ? sizeConfig.chipPaddingHorizontal(token)
+          : token.sizeXXS,
       },
       optionPressed: {
-        backgroundColor:
-          displayType === 'button'
-            ? token.controlItemBgActive
-            : token.colorBgTextActive,
+        backgroundColor: isButton
+          ? token.colorFillQuaternary
+          : token.colorFillTertiary,
+      },
+      optionSelected: {
+        backgroundColor: isButton ? token.colorPrimaryBg : undefined,
       },
       optionDisabled: {
-        backgroundColor:
-          displayType === 'button'
-            ? token.colorBgContainerDisabled
-            : TRANSPARENT,
-        borderColor:
-          displayType === 'button' ? token.colorBorderDisabled : undefined,
+        backgroundColor: isButton ? token.colorFillQuaternary : undefined,
+      },
+      content: {
+        alignItems: 'center',
+        flexDirection: 'row',
+        gap: token.marginXS,
+        justifyContent: isButton ? 'center' : 'flex-start',
       },
       control: {
-        width: controlSize,
-        height: controlSize,
-        borderRadius: controlSize,
-        borderWidth: token.lineWidth,
-        borderColor: token.colorBorder,
         alignItems: 'center',
-        justifyContent: 'center',
         backgroundColor: token.colorBgContainer,
+        borderColor: token.colorBorder,
+        borderRadius: PILL_RADIUS,
+        borderWidth: token.lineWidthBold,
+        height: sizeConfig.controlSize,
+        justifyContent: 'center',
+        width: sizeConfig.controlSize,
       },
       controlSelected: {
         borderColor: token.colorPrimary,
       },
       controlDisabled: {
-        borderColor: token.colorBorderDisabled,
-        backgroundColor: token.colorBgContainerDisabled,
+        backgroundColor: token.colorFillQuaternary,
+        borderColor: token.colorSplit,
       },
       indicator: {
-        width: sizeConfig.indicatorSize(token),
-        height: sizeConfig.indicatorSize(token),
-        borderRadius: sizeConfig.indicatorSize(token),
         backgroundColor: token.colorPrimary,
+        borderRadius: PILL_RADIUS,
+        height: dotSize,
+        width: dotSize,
       },
       indicatorDisabled: {
-        backgroundColor: token.colorTextDisabled,
-      },
-      content: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: displayType === 'button' ? 'center' : 'flex-start',
+        backgroundColor: token.colorTextQuaternary,
       },
       label: {
-        fontFamily: token.fontFamily,
+        flexShrink: 1,
       },
-      labelSelected: {
-        color: token.colorPrimaryText,
+    };
+  },
+);
+
+export interface RadioGroupStyleOptions {
+  block: boolean;
+  direction: RadioGroupDirection;
+  isBlockGrid: boolean;
+}
+
+export const useGroupStyles = createUseSheetStyle(
+  (token, { block, direction, isBlockGrid }: RadioGroupStyleOptions) => {
+    const isHorizontal = direction === 'horizontal';
+
+    return {
+      root: {
+        alignSelf: block ? 'stretch' : 'flex-start',
+        flexDirection: isHorizontal ? 'row' : 'column',
+        flexWrap: isHorizontal ? 'wrap' : undefined,
+        /** 设计稿纵向组间距 2px 无对应 token，按 Token 标注退到 sizeXXS；横向 gap 8 = sizeXS。 */
+        gap: isBlockGrid ? 0 : isHorizontal ? token.sizeXS : token.sizeXXS,
+        width: block ? '100%' : undefined,
       },
-      labelDisabled: {
-        color: token.colorTextDisabled,
+      blockCell: {
+        padding: token.sizeXXS,
+        width: `${100 / BLOCK_CHIP_COLUMNS}%`,
       },
     };
   },
