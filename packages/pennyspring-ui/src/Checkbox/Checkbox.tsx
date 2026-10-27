@@ -1,54 +1,40 @@
-import type { ComponentSize } from '../shares/types';
-import React, { useMemo } from 'react';
+import type { ReactNode } from 'react';
+import type { StyleProp, TextStyle, ViewStyle } from 'react-native';
+import type { TextColor, TextWeight } from '../Text/types';
+import React, { useEffect } from 'react';
 import { Pressable, View } from 'react-native';
+import Animated, {
+  Easing,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
+import { useTheme } from '@pennyspring/theme';
 import { Column } from '../Column';
+import { Icon } from '../Icon';
 import { Row } from '../Row';
 import { Text } from '../Text';
 import { useControllableValue } from '../_hooks';
-import type { ReactNode } from 'react';
-import type { StyleProp, TextStyle } from 'react-native';
-import type { TextColor, TextSize, TextWeight } from '../Text';
-import { useStyles } from './style';
+import { renderTextNode } from '../shares/node';
+import { MARK_TRANSITION_DURATION, SIZE_CONFIG, useGroupStyles, useStyles } from './style';
 import type {
+  CheckboxDisplayType,
   CheckboxGroupOption,
   CheckboxGroupProps,
   CheckboxGroupStyles,
   CheckboxProps,
+  CheckboxStyles,
   CheckboxValue,
 } from './types';
 
-function toTextSize(size: ComponentSize): TextSize {
-  if (size === 'small') {
-    return 'sm';
-  }
+/**
+ * 设计稿勾/半选笔画为 2.4px；Phosphor 图标按权重出笔画（bold 在 14 档约 1.3px），
+ * 无法逐像素指定线宽，取 bold 为最接近档位。
+ */
+const MARK_ICON_WEIGHT = 'bold';
 
-  if (size === 'large') {
-    return 'lg';
-  }
-
-  return 'md';
-}
-
-function renderLabel(
-  label: ReactNode,
-  style: StyleProp<TextStyle>,
-  size: ComponentSize,
-  weight: TextWeight,
-  color: TextColor,
-) {
-  if (label === undefined || label === null || label === false) {
-    return null;
-  }
-
-  if (typeof label === 'string' || typeof label === 'number') {
-    return (
-      <Text color={color} size={toTextSize(size)} style={style} weight={weight}>
-        {label}
-      </Text>
-    );
-  }
-
-  return label;
+function toSlotTestID(base: string, slot: string): string {
+  return base === 'checkbox-control' ? `checkbox-${slot}` : `${base}-${slot}`;
 }
 
 function includesValue(
@@ -70,55 +56,125 @@ function getOptionLabel(option: CheckboxGroupOption): ReactNode {
   return option.value;
 }
 
-interface CheckboxControlProps
-  extends Omit<CheckboxProps, 'style' | 'styles'> {
-  block?: boolean;
+interface LabelColorOptions {
+  checked: boolean;
+  disabled: boolean;
+  displayType: CheckboxDisplayType;
+  readonly: boolean;
+}
+
+function getLabelColor({
+  checked,
+  disabled,
+  displayType,
+  readonly,
+}: LabelColorOptions): TextColor {
+  if (displayType === 'button') {
+    if (disabled) {
+      return 'quaternary';
+    }
+
+    return checked ? 'primary' : 'secondary';
+  }
+
+  if (disabled) {
+    return 'tertiary';
+  }
+
+  return readonly ? 'secondary' : 'default';
+}
+
+interface CheckboxControlProps extends Omit<CheckboxProps, 'style' | 'styles'> {
+  block: boolean;
   checked: boolean;
   controlStyle?: CheckboxGroupStyles['option'];
-  optionStyle?: CheckboxGroupProps['styles'];
   rootStyle?: CheckboxProps['style'];
+  slotStyles?: CheckboxStyles;
   testID: string;
   onToggle: () => void;
 }
 
 function CheckboxControl({
-  block = false,
+  block,
   checked,
   children,
   controlStyle,
   disabled = false,
   displayType = 'default',
   indeterminate = false,
-  optionStyle,
   readonly = false,
   rootStyle,
   size = 'normal',
+  slotStyles,
   testID,
   onToggle,
   ...rest
 }: CheckboxControlProps) {
-  const tokenStyles = useStyles({
-    block,
-    direction: 'horizontal',
-    displayType,
-    size,
-  });
+  const { token } = useTheme();
+  const tokenStyles = useStyles({ block, displayType, size });
+  const sizeConfig = SIZE_CONFIG[size];
+  const isButton = displayType === 'button';
   const isDisabled = disabled || readonly;
-  const isVisuallyChecked = checked || indeterminate;
-  const shouldRenderIndicator = displayType !== 'button';
-  const labelColor: TextColor = isDisabled ? 'disabled' : 'default';
-  const label = renderLabel(
-    children,
-    [
-      tokenStyles.label,
-      checked ? tokenStyles.labelChecked : null,
-      isDisabled ? tokenStyles.labelDisabled : null,
-      optionStyle?.label,
-    ],
-    size,
-    'regular',
-    labelColor,
+  const isVisualChecked = checked || indeterminate;
+  const progress = useSharedValue(isVisualChecked ? 1 : 0);
+  const markAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: progress.value,
+  }));
+
+  useEffect(() => {
+    progress.value = withTiming(isVisualChecked ? 1 : 0, {
+      duration: MARK_TRANSITION_DURATION,
+      easing: Easing.bezier(...token.motionEaseInOut),
+    });
+  }, [isVisualChecked, progress, token.motionEaseInOut]);
+
+  const labelColor = getLabelColor({ checked, disabled, displayType, readonly });
+  const labelWeight: TextWeight = isButton && checked ? 'semibold' : 'regular';
+  const labelStyle: StyleProp<TextStyle> = [tokenStyles.label, slotStyles?.label];
+  const markColor: TextColor = isButton
+    ? disabled
+      ? 'quaternary'
+      : 'primary'
+    : disabled
+      ? 'tertiary'
+      : 'lightSolid';
+  const label = renderTextNode(children, text => (
+    <Text
+      color={labelColor}
+      size={isButton ? 'sm' : sizeConfig.labelSize}
+      style={labelStyle}
+      testID={toSlotTestID(testID, 'label')}
+      weight={labelWeight}
+    >
+      {text}
+    </Text>
+  ));
+  const markNode = (
+    <Animated.View
+      style={[tokenStyles.mark, slotStyles?.mark, markAnimatedStyle]}
+      testID={toSlotTestID(testID, 'mark')}
+    >
+      {isVisualChecked ? (
+        <Icon
+          color={markColor}
+          icon={indeterminate ? 'minus' : 'check'}
+          size={sizeConfig.markSize}
+          testID={toSlotTestID(testID, indeterminate ? 'mark-minus' : 'mark-check')}
+          weight={MARK_ICON_WEIGHT}
+        />
+      ) : null}
+    </Animated.View>
   );
+  const indicatorStyle: StyleProp<ViewStyle> = [
+    tokenStyles.indicator,
+    isVisualChecked ? tokenStyles.indicatorChecked : null,
+    disabled
+      ? checked
+        ? tokenStyles.indicatorDisabledChecked
+        : tokenStyles.indicatorDisabled
+      : null,
+    slotStyles?.indicator,
+  ];
 
   function handlePress(): void {
     if (isDisabled) {
@@ -136,45 +192,20 @@ function CheckboxControl({
       onPress={handlePress}
       style={({ pressed }) => [
         tokenStyles.control,
-        checked ? tokenStyles.controlChecked : null,
         pressed && !isDisabled ? tokenStyles.controlPressed : null,
+        checked ? tokenStyles.controlChecked : null,
         isDisabled ? tokenStyles.controlDisabled : null,
         controlStyle,
         rootStyle,
       ]}
     >
-      <Row style={[tokenStyles.content, optionStyle?.content]}>
-        {shouldRenderIndicator ? (
-          <View
-            testID={
-              testID === 'checkbox-control'
-                ? 'checkbox-indicator'
-                : `${testID}-indicator`
-            }
-            style={[
-              tokenStyles.indicator,
-              isVisuallyChecked ? tokenStyles.indicatorChecked : null,
-              readonly ? tokenStyles.indicatorReadonly : null,
-              disabled ? tokenStyles.indicatorDisabled : null,
-              optionStyle?.indicator,
-            ]}
-          >
-            {isVisuallyChecked ? (
-              <View
-                testID={
-                  testID === 'checkbox-control'
-                    ? 'checkbox-mark'
-                    : `${testID}-mark`
-                }
-                style={[
-                  tokenStyles.mark,
-                  indeterminate ? tokenStyles.markIndeterminate : null,
-                  optionStyle?.mark,
-                ]}
-              />
-            ) : null}
+      <Row style={[tokenStyles.content, slotStyles?.content]}>
+        {isButton ? null : (
+          <View style={indicatorStyle} testID={toSlotTestID(testID, 'indicator')}>
+            {markNode}
           </View>
-        ) : null}
+        )}
+        {isButton && checked ? markNode : null}
         {label}
       </Row>
     </Pressable>
@@ -208,14 +239,15 @@ function BaseCheckbox({
   return (
     <CheckboxControl
       {...rest}
+      block={false}
       checked={Boolean(checked)}
       disabled={disabled}
       displayType={displayType}
       indeterminate={indeterminate}
-      optionStyle={styles}
       readonly={readonly}
       rootStyle={style}
       size={size}
+      slotStyles={styles}
       testID="checkbox-control"
       onToggle={handleToggle}
     >
@@ -239,20 +271,26 @@ function CheckboxGroup({
   styles,
   ...rest
 }: CheckboxGroupProps) {
-  const tokenStyles = useStyles({
-    block,
-    direction,
-    displayType,
-    size,
-  });
   const [selectedValues, setSelectedValues] = useControllableValue(
     defaultValue,
     value,
     onChange,
   );
-  const safeSelectedValues = useMemo(
+  const isHorizontal = direction === 'horizontal';
+  const isBlockGrid = block && isHorizontal && displayType === 'button';
+  const groupStyles = useGroupStyles({ block, direction, isBlockGrid });
+  const safeSelectedValues = React.useMemo(
     () => selectedValues ?? [],
     [selectedValues],
+  );
+  const optionSlotStyles = React.useMemo<CheckboxStyles>(
+    () => ({
+      content: styles?.content,
+      indicator: styles?.indicator,
+      label: styles?.label,
+      mark: styles?.mark,
+    }),
+    [styles],
   );
 
   function toggleOption(option: CheckboxGroupOption): void {
@@ -268,62 +306,47 @@ function CheckboxGroup({
     setSelectedValues(nextValue);
   }
 
-  return (
-    direction === 'horizontal' ? (
-      <Row testID="checkbox-group-root" wrap style={[tokenStyles.groupRoot, style]}>
-        {options.map(option => {
-          const isSelected = includesValue(safeSelectedValues, option.value);
+  const items = options.map(option => {
+    const isSelected = includesValue(safeSelectedValues, option.value);
+    const optionTestID = `checkbox-group-option-${String(option.value)}`;
+    const control = (
+      <CheckboxControl
+        {...rest}
+        key={optionTestID}
+        block={block}
+        checked={isSelected}
+        controlStyle={styles?.option}
+        disabled={disabled || option.disabled === true}
+        displayType={displayType}
+        readonly={readonly}
+        size={size}
+        slotStyles={optionSlotStyles}
+        testID={optionTestID}
+        onToggle={() => {
+          toggleOption(option);
+        }}
+      >
+        {getOptionLabel(option)}
+      </CheckboxControl>
+    );
 
-          return (
-            <CheckboxControl
-              {...rest}
-              key={String(option.value)}
-              block={block}
-              checked={isSelected}
-              controlStyle={styles?.option}
-              disabled={disabled || option.disabled === true}
-              displayType={displayType}
-              optionStyle={styles}
-              readonly={readonly}
-              size={size}
-              testID={`checkbox-group-option-${String(option.value)}`}
-              onToggle={() => {
-                toggleOption(option);
-              }}
-            >
-              {getOptionLabel(option)}
-            </CheckboxControl>
-          );
-        })}
-      </Row>
+    return isBlockGrid ? (
+      <View key={optionTestID} style={groupStyles.blockCell}>
+        {control}
+      </View>
     ) : (
-      <Column testID="checkbox-group-root" style={[tokenStyles.groupRoot, style]}>
-        {options.map(option => {
-          const isSelected = includesValue(safeSelectedValues, option.value);
+      control
+    );
+  });
 
-          return (
-            <CheckboxControl
-              {...rest}
-              key={String(option.value)}
-              block={block}
-              checked={isSelected}
-              controlStyle={styles?.option}
-              disabled={disabled || option.disabled === true}
-              displayType={displayType}
-              optionStyle={styles}
-              readonly={readonly}
-              size={size}
-              testID={`checkbox-group-option-${String(option.value)}`}
-              onToggle={() => {
-                toggleOption(option);
-              }}
-            >
-              {getOptionLabel(option)}
-            </CheckboxControl>
-          );
-        })}
-      </Column>
-    )
+  return isHorizontal ? (
+    <Row testID="checkbox-group-root" wrap style={[groupStyles.root, style]}>
+      {items}
+    </Row>
+  ) : (
+    <Column testID="checkbox-group-root" style={[groupStyles.root, style]}>
+      {items}
+    </Column>
   );
 }
 

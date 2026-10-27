@@ -338,7 +338,7 @@ export const COMPONENT_PREVIEW_SECTIONS = [
       {
         id: 'checkbox',
         title: 'Checkbox',
-        description: '复选、复选组、按钮形态和禁用状态。',
+        description: '复选、复选组、chip 形态和禁用状态。',
         component: CheckboxPreview,
       },
       {

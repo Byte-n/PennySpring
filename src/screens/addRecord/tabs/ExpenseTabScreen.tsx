@@ -8,7 +8,6 @@ import {
   KeyboardAwareFormScroll,
   Row,
   ListPicker,
-  Text,
   useToast,
 } from '@pennyspring/ui';
 import { RECORD_TYPE_CATEGORY } from '@pennyspring/api';
@@ -243,7 +242,7 @@ export function ExpenseTabScreen() {
               />
               <Row justify="center" align="center" style={styles.switchCell}>
                 <Checkbox value={reimbursable} onChange={setReimbursable}>
-                  <Text>报销</Text>
+                  报销
                 </Checkbox>
               </Row>
             </Row>

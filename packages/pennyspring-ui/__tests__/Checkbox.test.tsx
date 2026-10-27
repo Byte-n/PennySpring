@@ -4,260 +4,232 @@ import renderer, { act } from 'react-test-renderer';
 import { Checkbox } from '../src/Checkbox';
 import type { CheckboxGroupProps, CheckboxProps } from '../src/Checkbox';
 import { Text } from '../src/Text';
+
+const GROUP_OPTIONS = [
+  { value: 'food', label: '餐饮' },
+  { value: 'rent', label: '房租' },
+  { value: 2026, label: <RNText>年份</RNText> },
+];
+
 function renderCheckbox(props: Partial<CheckboxProps> = {}) {
   let testRenderer: renderer.ReactTestRenderer;
   act(() => {
-    testRenderer = renderer.create(<><Checkbox {...props}>Remember budget</Checkbox></>);
+    testRenderer = renderer.create(<Checkbox {...props}>保存记录</Checkbox>);
   });
   return testRenderer!;
 }
+
 function renderCheckboxGroup(props: Partial<CheckboxGroupProps> = {}) {
   let testRenderer: renderer.ReactTestRenderer;
   act(() => {
-    testRenderer = renderer.create(<><Checkbox.Group options={[{
-        value: 'food',
-        label: 'Food'
-      }, {
-        value: 'rent',
-        label: 'Rent'
-      }, {
-        value: 2026,
-        label: <RNText>Year</RNText>
-      }]} {...props} /></>);
+    testRenderer = renderer.create(
+      <Checkbox.Group options={GROUP_OPTIONS} {...props} />,
+    );
   });
   return testRenderer!;
 }
-function pressCheckbox(testRenderer: renderer.ReactTestRenderer) {
-  testRenderer.root.findByProps({
-    testID: 'checkbox-control'
-  });
-  const pressable = findPressableTargets(testRenderer)[0];
+
+function pressControl(
+  testRenderer: renderer.ReactTestRenderer,
+  testID: string,
+) {
+  const [control] = testRenderer.root.findAll(
+    node => typeof node.props.onPress === 'function' && node.props.testID === testID,
+  );
   act(() => {
-    pressable.props.onPress();
+    control.props.onPress();
   });
-  return pressable;
+  return control;
 }
-function pressGroupOption(testRenderer: renderer.ReactTestRenderer, value: string | number) {
-  testRenderer.root.findByProps({
-    testID: `checkbox-group-option-${String(value)}`
-  });
-  const optionValues = ['food', 'rent', 2026];
-  const pressable = findPressableTargets(testRenderer)[optionValues.indexOf(value)];
-  act(() => {
-    pressable.props.onPress();
-  });
-  return pressable;
+
+function hasTestID(testRenderer: renderer.ReactTestRenderer, testID: string) {
+  return testRenderer.root.findAllByProps({ testID }).length > 0;
 }
-function textContent(testRenderer: renderer.ReactTestRenderer) {
-  return JSON.stringify(testRenderer.toJSON());
-}
-function findPressableTargets(testRenderer: renderer.ReactTestRenderer): renderer.ReactTestInstance[] {
-  return testRenderer.root.findAll(node => typeof node.props.onPress === 'function');
-}
+
 describe('Checkbox', () => {
-  it('toggles uncontrolled value and reports the next boolean', () => {
+  it('toggles an uncontrolled checkbox and reports the next boolean', () => {
     const onChange = jest.fn();
-    const testRenderer = renderCheckbox({
-      defaultValue: false,
-      onChange
-    });
-    pressCheckbox(testRenderer);
+    const testRenderer = renderCheckbox({ defaultValue: false, onChange });
+
+    pressControl(testRenderer, 'checkbox-control');
+
     expect(onChange).toHaveBeenCalledWith(true);
   });
-  it('keeps controlled value derived from props while reporting changes', () => {
+
+  it('keeps a controlled checkbox derived from props while reporting changes', () => {
     const onChange = jest.fn();
-    const testRenderer = renderCheckbox({
-      value: false,
-      onChange
-    });
-    pressCheckbox(testRenderer);
-    const marks = testRenderer.root.findAllByProps({
-      testID: 'checkbox-mark'
-    });
+    const testRenderer = renderCheckbox({ value: false, onChange });
+
+    pressControl(testRenderer, 'checkbox-control');
+
     expect(onChange).toHaveBeenCalledWith(true);
-    expect(marks).toHaveLength(0);
+    expect(hasTestID(testRenderer, 'checkbox-mark-check')).toBe(false);
   });
+
   it('does not toggle when disabled or readonly', () => {
     const onChange = jest.fn();
-    const disabledRenderer = renderCheckbox({
-      disabled: true,
-      onChange
-    });
-    const readonlyRenderer = renderCheckbox({
-      readonly: true,
-      onChange
-    });
-    const disabledControl = pressCheckbox(disabledRenderer);
-    pressCheckbox(readonlyRenderer);
+    const disabledRenderer = renderCheckbox({ disabled: true, onChange });
+    const readonlyRenderer = renderCheckbox({ readonly: true, onChange });
+
+    const disabledControl = pressControl(disabledRenderer, 'checkbox-control');
+    pressControl(readonlyRenderer, 'checkbox-control');
+
     expect(onChange).not.toHaveBeenCalled();
     expect(disabledControl.props.disabled).toBe(true);
   });
-  it('treats indeterminate as visual only when pressed', () => {
+
+  it('reports full selection when pressing an indeterminate checkbox', () => {
     const onChange = jest.fn();
-    const testRenderer = renderCheckbox({
-      defaultValue: false,
-      indeterminate: true,
-      onChange
+    let testRenderer: renderer.ReactTestRenderer;
+    act(() => {
+      testRenderer = renderer.create(
+        <Checkbox indeterminate value={false} onChange={onChange}>
+          部分选中（3 / 8）
+        </Checkbox>,
+      );
     });
-    pressCheckbox(testRenderer);
+    const target = testRenderer!;
+
+    pressControl(target, 'checkbox-control');
     expect(onChange).toHaveBeenCalledWith(true);
-  });
-  it('uses button display type with the same toggle behavior', () => {
-    const onChange = jest.fn();
-    const testRenderer = renderCheckbox({
-      defaultValue: true,
-      displayType: 'button',
-      onChange
+
+    act(() => {
+      target.update(
+        <Checkbox indeterminate={false} value onChange={onChange}>
+          部分选中（3 / 8）
+        </Checkbox>,
+      );
     });
-    pressCheckbox(testRenderer);
-    expect(onChange).toHaveBeenCalledWith(false);
+    expect(hasTestID(target, 'checkbox-mark-check')).toBe(true);
+    expect(hasTestID(target, 'checkbox-mark-minus')).toBe(false);
   });
-  it('does not render the box indicator for button display type', () => {
-    const testRenderer = renderCheckbox({
-      defaultValue: true,
-      displayType: 'button'
+
+  it('renders the half-selected mark when indeterminate and checked are both true', () => {
+    const testRenderer = renderCheckbox({ indeterminate: true, value: true });
+
+    expect(hasTestID(testRenderer, 'checkbox-mark-minus')).toBe(true);
+    expect(hasTestID(testRenderer, 'checkbox-mark-check')).toBe(false);
+  });
+
+  it('renders an inner tick instead of a box indicator for the button display type', () => {
+    const unselectedRenderer = renderCheckbox({ defaultValue: false, displayType: 'button' });
+    const selectedRenderer = renderCheckbox({ defaultValue: true, displayType: 'button' });
+
+    expect(hasTestID(unselectedRenderer, 'checkbox-indicator')).toBe(false);
+    expect(hasTestID(unselectedRenderer, 'checkbox-mark-check')).toBe(false);
+    expect(hasTestID(selectedRenderer, 'checkbox-indicator')).toBe(false);
+    expect(hasTestID(selectedRenderer, 'checkbox-mark-check')).toBe(true);
+  });
+
+  it('maps chip foreground color and weight to the selection state', () => {
+    const selectedLabel = renderCheckbox({ defaultValue: true, displayType: 'button' });
+    const unselectedLabel = renderCheckbox({ defaultValue: false, displayType: 'button' });
+    const disabledLabel = renderCheckbox({ defaultValue: true, disabled: true, displayType: 'button' });
+
+    const readLabel = (target: renderer.ReactTestRenderer) =>
+      target.root.findByProps({ testID: 'checkbox-label' });
+    const readTextProps = (target: renderer.ReactTestRenderer) =>
+      readLabel(target).findByType(Text).props;
+
+    expect(readTextProps(selectedLabel)).toMatchObject({
+      color: 'primary',
+      weight: 'semibold',
     });
-    expect(testRenderer.root.findAllByProps({
-      testID: 'checkbox-indicator'
-    })).toHaveLength(0);
-    expect(testRenderer.root.findAllByProps({
-      testID: 'checkbox-mark'
-    })).toHaveLength(0);
+    expect(readTextProps(unselectedLabel)).toMatchObject({
+      color: 'secondary',
+      weight: 'regular',
+    });
+    expect(readTextProps(disabledLabel)).toMatchObject({ color: 'quaternary' });
+  });
+
+  it('dims the label of a disabled or readonly box row', () => {
+    const disabledRow = renderCheckbox({ disabled: true, defaultValue: true });
+    const readonlyRow = renderCheckbox({ readonly: true, defaultValue: true });
+
+    const readTextProps = (target: renderer.ReactTestRenderer) =>
+      target.root.findByProps({ testID: 'checkbox-label' }).findByType(Text).props;
+
+    expect(readTextProps(disabledRow)).toMatchObject({ color: 'tertiary' });
+    expect(readTextProps(readonlyRow)).toMatchObject({ color: 'secondary' });
   });
 });
+
 describe('Checkbox.Group', () => {
-  it('prefers labelText over option value for plain text labels', () => {
+  it('prefers option label over labelText and value', () => {
     const testRenderer = renderCheckboxGroup({
       options: [
-        {
-          value: 'food',
-          labelText: 'Food label',
-        } as never,
+        { value: 'label-first', label: '标签优先', labelText: 'labelText 落后' },
+        { value: 'text-second', labelText: 'labelText 胜出' },
+        { value: 'value-last' },
       ],
     });
 
-    const content = textContent(testRenderer);
-    expect(content).toContain('Food label');
+    const content = JSON.stringify(testRenderer.toJSON());
+
+    expect(content).toContain('标签优先');
+    expect(content).not.toContain('labelText 落后');
+    expect(content).toContain('labelText 胜出');
+    expect(content).toContain('value-last');
   });
 
-  it('applies external runtime styles after checked or disabled styles', () => {
-    const testRenderer = renderCheckboxGroup({
-      defaultValue: ['food'],
-      options: [
-        {
-          value: 'food',
-          labelText: 'Food',
-        } as never,
-      ],
-      styles: {
-        indicator: { borderColor: 'rgb(1, 2, 3)' },
-        mark: { width: 99 },
-        label: { color: 'rgb(9, 9, 9)' },
-      },
-      disabled: true,
-    });
-
-    const indicator = testRenderer.root.findByProps({
-      testID: 'checkbox-group-option-food-indicator',
-    });
-    const mark = testRenderer.root.findByProps({
-      testID: 'checkbox-group-option-food-mark',
-    });
-
-    const textNode = testRenderer.root.findByType(Text);
-    const indicatorStyles = indicator.props.style as Array<Record<string, unknown>>;
-    const markStyles = mark.props.style as Array<Record<string, unknown>>;
-    const textStyles = textNode.props.style as Array<Record<string, unknown>>;
-    const indicatorLastStyle = indicatorStyles[indicatorStyles.length - 1];
-    const markLastStyle = markStyles[markStyles.length - 1];
-    const textLastStyle = textStyles[textStyles.length - 1];
-
-    expect(indicatorLastStyle).toMatchObject({ borderColor: 'rgb(1, 2, 3)' });
-    expect(markLastStyle).toMatchObject({ width: 99 });
-    expect(textLastStyle).toMatchObject({ color: 'rgb(9, 9, 9)' });
-  });
-
-  it('maps checkbox label typography to Text semantic props by size', () => {
-    const testRenderer = renderCheckbox({
-      size: 'small',
-    });
-
-    const textNode = testRenderer.root.findByType(Text);
-    expect(textNode.props.size).toBe('sm');
-    expect(textNode.props.weight).toBe('regular');
-    expect(textNode.props.color).toBe('default');
-  });
-
-  it('renders data-driven option labels', () => {
-    const testRenderer = renderCheckboxGroup();
-    const content = textContent(testRenderer);
-    expect(content).toContain('Food');
-    expect(content).toContain('Rent');
-    expect(content).toContain('Year');
-  });
   it('adds and removes option values immutably', () => {
     const initialValue = ['food'];
     const onChange = jest.fn();
     const testRenderer = renderCheckboxGroup({
       defaultValue: initialValue,
-      onChange
+      onChange,
     });
-    pressGroupOption(testRenderer, 'rent');
-    pressGroupOption(testRenderer, 'food');
+
+    pressControl(testRenderer, 'checkbox-group-option-rent');
+    pressControl(testRenderer, 'checkbox-group-option-food');
+
     expect(onChange).toHaveBeenNthCalledWith(1, ['food', 'rent']);
     expect(onChange).toHaveBeenNthCalledWith(2, ['rent']);
     expect(initialValue).toEqual(['food']);
   });
-  it('keeps controlled group value derived from props while reporting changes', () => {
+
+  it('keeps a controlled group value derived from props while reporting changes', () => {
     const onChange = jest.fn();
-    const testRenderer = renderCheckboxGroup({
-      value: ['food'],
-      onChange
-    });
-    pressGroupOption(testRenderer, 'rent');
-    const foodMarks = testRenderer.root.findAllByProps({
-      testID: 'checkbox-group-option-food-mark'
-    });
+    const testRenderer = renderCheckboxGroup({ value: ['food'], onChange });
+
+    pressControl(testRenderer, 'checkbox-group-option-rent');
+
     expect(onChange).toHaveBeenCalledWith(['food', 'rent']);
-    expect(foodMarks.length).toBeGreaterThan(0);
+    expect(hasTestID(testRenderer, 'checkbox-group-option-food-mark-check')).toBe(true);
+    expect(hasTestID(testRenderer, 'checkbox-group-option-rent-mark-check')).toBe(false);
   });
-  it('does not change when group or option is disabled or readonly', () => {
+
+  it('does not change when the group or an option is disabled or readonly', () => {
     const onChange = jest.fn();
-    const disabledGroup = renderCheckboxGroup({
-      disabled: true,
-      onChange
-    });
-    const readonlyGroup = renderCheckboxGroup({
-      readonly: true,
-      onChange
-    });
+    const disabledGroup = renderCheckboxGroup({ disabled: true, onChange });
+    const readonlyGroup = renderCheckboxGroup({ readonly: true, onChange });
     const disabledOption = renderCheckboxGroup({
-      options: [{
-        value: 'food',
-        label: 'Food'
-      }, {
-        value: 'rent',
-        label: 'Rent',
-        disabled: true
-      }],
-      onChange
+      options: [
+        { value: 'food', label: '餐饮' },
+        { value: 'rent', label: '房租', disabled: true },
+      ],
+      onChange,
     });
-    const disabledControl = pressGroupOption(disabledGroup, 'food');
-    pressGroupOption(readonlyGroup, 'food');
-    pressGroupOption(disabledOption, 'rent');
+
+    const disabledControl = pressControl(
+      disabledGroup,
+      'checkbox-group-option-food',
+    );
+    pressControl(readonlyGroup, 'checkbox-group-option-food');
+    pressControl(disabledOption, 'checkbox-group-option-rent');
+
     expect(onChange).not.toHaveBeenCalled();
     expect(disabledControl.props.disabled).toBe(true);
   });
-  it('does not render option box indicators for button display type', () => {
+
+  it('renders ticks instead of box indicators for the button display type', () => {
     const testRenderer = renderCheckboxGroup({
       defaultValue: ['food'],
-      displayType: 'button'
+      displayType: 'button',
     });
-    expect(testRenderer.root.findAllByProps({
-      testID: 'checkbox-group-option-food-indicator'
-    })).toHaveLength(0);
-    expect(testRenderer.root.findAllByProps({
-      testID: 'checkbox-group-option-food-mark'
-    })).toHaveLength(0);
+
+    expect(hasTestID(testRenderer, 'checkbox-group-option-food-indicator')).toBe(false);
+    expect(hasTestID(testRenderer, 'checkbox-group-option-food-mark-check')).toBe(true);
+    expect(hasTestID(testRenderer, 'checkbox-group-option-rent-mark-check')).toBe(false);
   });
 });

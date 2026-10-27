@@ -1,146 +1,176 @@
 import { createUseSheetStyle } from '@pennyspring/theme';
 import type { AliasToken } from '@pennyspring/theme';
 import type { ComponentSize } from '../../shares/types';
+import type { TextSize } from '../../Text/types';
 import type { CheckboxDisplayType } from '../types';
 
 const TRANSPARENT = 'transparent';
 
-interface CheckboxStyleOptions {
+/** 勾选框边长 16 / 20 / 24 在 AliasToken 中没有对应档位，按设计稿落为语义常量。 */
+const BOX_SIZE_SMALL = 16;
+const BOX_SIZE_NORMAL = 20;
+const BOX_SIZE_LARGE = 24;
+
+/** 20 框的 6 圆角无对应 token（4 = borderRadiusXS，8 = borderRadiusSM）。 */
+const BOX_RADIUS_NORMAL = 6;
+
+/** 勾图标 12 / 14 / 16 与框同步，token 无对应档位。 */
+const MARK_SIZE_SMALL = 12;
+const MARK_SIZE_NORMAL = 14;
+const MARK_SIZE_LARGE = 16;
+
+/** chip 药丸圆角无对应 token。 */
+const CHIP_RADIUS = 999;
+
+/** chip 内勾与文字间距 6 无对应 token。 */
+const CHIP_GAP = 6;
+
+/** block 组每行铺满的 chip 列数。 */
+const BLOCK_CHIP_COLUMNS = 2;
+
+/**
+ * 勾选过渡时长：设计稿要求 120ms，主题 motionDuration* 最小档为 100ms 且语义不符，
+ * 按设计稿落为语义常量。
+ */
+export const MARK_TRANSITION_DURATION = 120;
+
+export interface CheckboxSizeConfig {
+  boxSize: number;
+  boxRadius: (token: AliasToken) => number;
+  markSize: number;
+  rowMinHeight: (token: AliasToken) => number;
+  chipHeight: (token: AliasToken) => number;
+  chipPaddingHorizontal: (token: AliasToken) => number;
+  labelSize: TextSize;
+}
+
+export const SIZE_CONFIG: Record<ComponentSize, CheckboxSizeConfig> = {
+  small: {
+    boxSize: BOX_SIZE_SMALL,
+    boxRadius: token => token.borderRadiusXS,
+    markSize: MARK_SIZE_SMALL,
+    rowMinHeight: token => token.controlHeightSM,
+    chipHeight: token => token.controlHeightSM,
+    chipPaddingHorizontal: token => token.paddingSM,
+    labelSize: 'sm',
+  },
+  normal: {
+    boxSize: BOX_SIZE_NORMAL,
+    boxRadius: () => BOX_RADIUS_NORMAL,
+    markSize: MARK_SIZE_NORMAL,
+    rowMinHeight: token => token.controlHeight,
+    chipHeight: token => token.controlHeight,
+    chipPaddingHorizontal: token => token.paddingSM,
+    labelSize: 'sm',
+  },
+  large: {
+    boxSize: BOX_SIZE_LARGE,
+    boxRadius: token => token.borderRadiusSM,
+    markSize: MARK_SIZE_LARGE,
+    rowMinHeight: token => token.controlHeightLG,
+    chipHeight: token => token.controlHeightLG,
+    chipPaddingHorizontal: token => token.padding,
+    labelSize: 'md',
+  },
+};
+
+export interface CheckboxStyleOptions {
   block: boolean;
-  direction: 'horizontal' | 'vertical';
   displayType: CheckboxDisplayType;
   size: ComponentSize;
 }
 
-interface SizeStyleConfig {
-  minHeight: (token: AliasToken) => number;
-  indicatorSize: (token: AliasToken) => number;
-  markSize: (token: AliasToken) => number;
-  paddingHorizontal: (token: AliasToken) => number;
-  paddingVertical: (token: AliasToken) => number;
-  gap: (token: AliasToken) => number;
-}
-
-const SIZE_STYLE_MAP: Record<ComponentSize, SizeStyleConfig> = {
-  small: {
-    minHeight: token => token.controlHeightSM,
-    indicatorSize: token => token.fontSizeSM,
-    markSize: token => token.sizeXXS,
-    paddingHorizontal: token => token.controlPaddingHorizontalSM,
-    paddingVertical: token => token.controlPaddingHorizontalSM / 2,
-    gap: token => token.sizeXXS,
-  },
-  normal: {
-    minHeight: token => token.controlHeight,
-    indicatorSize: token => token.fontSize,
-    markSize: token => token.sizeXS,
-    paddingHorizontal: token => token.controlPaddingHorizontal,
-    paddingVertical: token => token.controlPaddingHorizontal / 2,
-    gap: token => token.sizeXS,
-  },
-  large: {
-    minHeight: token => token.controlHeightLG,
-    indicatorSize: token => token.fontSizeXL,
-    markSize: token => token.sizeSM,
-    paddingHorizontal: token => token.paddingMD,
-    paddingVertical: token => token.paddingMD / 2,
-    gap: token => token.sizeXS,
-  },
-};
-
 export const useStyles = createUseSheetStyle(
-  (
-    token,
-    { block, direction, displayType, size }: CheckboxStyleOptions,
-  ) => {
-    const sizeConfig = SIZE_STYLE_MAP[size];
+  (token, { block, displayType, size }: CheckboxStyleOptions) => {
+    const sizeConfig = SIZE_CONFIG[size];
     const isButton = displayType === 'button';
+    const markSize = sizeConfig.markSize;
 
     return {
-      root: {
-        alignSelf: block ? 'stretch' : 'flex-start',
-        width: block ? '100%' : undefined,
-      },
-      groupRoot: {
-        alignSelf: block ? 'stretch' : 'flex-start',
-        flexDirection: direction === 'horizontal' ? 'row' : 'column',
-        flexWrap: direction === 'horizontal' ? 'wrap' : undefined,
-        gap: sizeConfig.gap(token),
-        width: block ? '100%' : undefined,
-      },
       control: {
         alignItems: 'center',
         alignSelf: block ? 'stretch' : 'flex-start',
-        backgroundColor: isButton ? token.colorBgContainer : TRANSPARENT,
-        borderColor: isButton ? token.colorBorder : TRANSPARENT,
-        borderRadius: token.borderRadius,
-        borderWidth: token.lineWidth,
-        flex: block && isButton ? 1 : undefined,
+        backgroundColor: isButton ? token.colorFillTertiary : TRANSPARENT,
+        borderRadius: isButton ? CHIP_RADIUS : token.borderRadiusSM,
         flexDirection: 'row',
         justifyContent: isButton ? 'center' : 'flex-start',
-        minHeight: sizeConfig.minHeight(token),
-        paddingHorizontal: isButton ? sizeConfig.paddingHorizontal(token) : 0,
-        paddingVertical: isButton ? sizeConfig.paddingVertical(token) : 0,
-      },
-      controlChecked: {
-        backgroundColor: isButton ? token.colorPrimaryBg : TRANSPARENT,
-        borderColor: isButton ? token.colorPrimaryBorder : TRANSPARENT,
+        minHeight: isButton
+          ? sizeConfig.chipHeight(token)
+          : sizeConfig.rowMinHeight(token),
+        paddingHorizontal: isButton
+          ? sizeConfig.chipPaddingHorizontal(token)
+          : token.sizeXXS,
       },
       controlPressed: {
         backgroundColor: isButton
-          ? token.controlItemBgActive
-          : token.colorBgTextActive,
+          ? token.colorFillQuaternary
+          : token.colorFillTertiary,
+      },
+      controlChecked: {
+        backgroundColor: isButton ? token.colorPrimaryBg : undefined,
       },
       controlDisabled: {
-        backgroundColor: isButton ? token.colorBgContainerDisabled : TRANSPARENT,
-        borderColor: isButton ? token.colorBorderDisabled : TRANSPARENT,
+        backgroundColor: isButton ? token.colorFillQuaternary : undefined,
       },
       content: {
         alignItems: 'center',
         flexDirection: 'row',
-        gap: sizeConfig.gap(token),
+        gap: isButton ? CHIP_GAP : token.marginXS,
         justifyContent: isButton ? 'center' : 'flex-start',
       },
       indicator: {
         alignItems: 'center',
         backgroundColor: token.colorBgContainer,
         borderColor: token.colorBorder,
-        borderRadius: token.borderRadiusXS,
+        borderRadius: sizeConfig.boxRadius(token),
         borderWidth: token.lineWidth,
-        height: sizeConfig.indicatorSize(token),
+        height: sizeConfig.boxSize,
         justifyContent: 'center',
-        width: sizeConfig.indicatorSize(token),
+        width: sizeConfig.boxSize,
       },
       indicatorChecked: {
         backgroundColor: token.colorPrimary,
         borderColor: token.colorPrimary,
       },
       indicatorDisabled: {
-        backgroundColor: token.colorBgContainerDisabled,
-        borderColor: token.colorBorderDisabled,
+        backgroundColor: token.colorFillQuaternary,
+        borderColor: token.colorSplit,
       },
-      indicatorReadonly: {
-        borderColor: token.colorBorderSecondary,
+      indicatorDisabledChecked: {
+        backgroundColor: token.colorFillTertiary,
+        borderColor: token.colorSplit,
       },
       mark: {
-        backgroundColor: token.colorTextLightSolid,
-        borderRadius: token.borderRadiusXS,
-        height: sizeConfig.markSize(token),
-        width: sizeConfig.markSize(token),
-      },
-      markIndeterminate: {
-        height: token.lineWidthBold,
-        width: sizeConfig.markSize(token),
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: markSize,
+        width: markSize,
       },
       label: {
-        fontFamily: token.fontFamily,
-      },
-      labelChecked: {
-        color: isButton ? token.colorPrimaryText : token.colorText,
-      },
-      labelDisabled: {
-        color: token.colorTextDisabled,
+        flexShrink: 1,
       },
     };
   },
+);
+
+export interface CheckboxGroupStyleOptions {
+  block: boolean;
+  direction: 'horizontal' | 'vertical';
+  isBlockGrid: boolean;
+}
+
+export const useGroupStyles = createUseSheetStyle(
+  (token, { block, direction, isBlockGrid }: CheckboxGroupStyleOptions) => ({
+    root: {
+      alignSelf: block ? 'stretch' : 'flex-start',
+      flexDirection: direction === 'horizontal' ? 'row' : 'column',
+      flexWrap: direction === 'horizontal' ? 'wrap' : undefined,
+      gap: isBlockGrid ? 0 : token.sizeXS,
+      width: block ? '100%' : undefined,
+    },
+    blockCell: {
+      padding: token.sizeXXS,
+      width: `${100 / BLOCK_CHIP_COLUMNS}%`,
+    },
+  }),
 );
