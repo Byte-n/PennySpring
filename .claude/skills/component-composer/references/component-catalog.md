@@ -80,7 +80,7 @@
 - `Popover`：锚定触发元素的轻量浮层。`trigger` 支持 `click`（默认）/`longPress`/`manual`；`placement` 支持四向，空间不足自动翻转到对侧；`align` 控制交叉轴对齐并按屏幕边界收敛；内容经 `Portal` 挂载，点击外部或返回键关闭。
 - `Portal`、`PortalProvider`：在常规树外渲染浮层内容。
 - `Toast`、`useToast`：短暂轻量提示；999 胶囊、单实例替换、1800ms，`status` 提供 dot / success / error 三态图标。
-- `Message`、`useMessage`：行内或全局反馈消息。
+- `Message`、`useMessage`：行内或全局反馈消息；16 语义图标 + 浅语义底（default 为白卡发丝线），支持单个 action 与 closable，有操作时常驻。
 - `Notification`、`useNotification`：信息更丰富的通知。
 - `Loading`：活动指示器；inline / block / more / overlay 四形态，转圈 16 / 20 / 28，tone 控制主色与次级灰。
 
