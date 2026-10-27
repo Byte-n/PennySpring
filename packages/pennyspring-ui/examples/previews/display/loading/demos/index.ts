@@ -1,20 +1,9 @@
-import {
-  loadingCustomIndicatorDemoTitle,
-  LoadingCustomIndicatorDemo,
-} from './custom-indicator';
-import { loadingDirectionDemoTitle, LoadingDirectionDemo } from './direction';
 import { loadingSizeDemoTitle, LoadingSizeDemo } from './size';
+import { loadingStatesDemoTitle, LoadingStatesDemo } from './states';
+import { loadingVariantsDemoTitle, LoadingVariantsDemo } from './variants';
 
 export const loadingDemos = [
-  {
-    id: 'custom-indicator',
-    title: loadingCustomIndicatorDemoTitle,
-    Component: LoadingCustomIndicatorDemo,
-  },
-  {
-    id: 'direction',
-    title: loadingDirectionDemoTitle,
-    Component: LoadingDirectionDemo,
-  },
+  { id: 'variants', title: loadingVariantsDemoTitle, Component: LoadingVariantsDemo },
   { id: 'size', title: loadingSizeDemoTitle, Component: LoadingSizeDemo },
+  { id: 'states', title: loadingStatesDemoTitle, Component: LoadingStatesDemo },
 ];

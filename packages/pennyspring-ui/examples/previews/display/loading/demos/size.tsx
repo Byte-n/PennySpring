@@ -1,17 +1,24 @@
 import React from 'react';
-import { Space, Loading } from '@pennyspring/ui';
+import { Column, Loading, Text } from '@pennyspring/ui';
 
-export const loadingSizeDemoTitle = 'Size';
+export const loadingSizeDemoTitle = '尺寸（size）';
+
+const SIZES = [
+  { value: 'small', label: 'small · 16 转圈' },
+  { value: 'normal', label: 'normal · 20 转圈' },
+  { value: 'large', label: 'large · 28 转圈' },
+] as const;
 
 export function LoadingSizeDemo() {
   return (
-    <>
-      <Space align="center" size="large" wrap>
-        <Loading size="small" text="Small" />
-        <Loading size="normal" text="Normal" />
-        <Loading size="large" text="Large" />
-      </Space>
-    </>
+    <Column gap="normal">
+      {SIZES.map(({ label, value }) => (
+        <Column key={value} gap="small">
+          <Text color="tertiary" size="sm">{label}</Text>
+          <Loading size={value} text="正在加载" />
+        </Column>
+      ))}
+    </Column>
   );
 }
 

@@ -156,7 +156,7 @@ export function DetailTabScreen() {
 
   const renderBody = () => {
     if (loading) {
-      return <Loading vertical text="加载中" style={styles.state} />;
+      return <Loading variant="block" text="加载中" style={styles.state} />;
     }
     if (groups.length === 0) {
       return activeFilter === 'all' ? (

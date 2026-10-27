@@ -151,7 +151,7 @@ function AddRecordContent({
   }, [isTemplateFlow, templatePayload, initFromTemplate, initBlankTemplate]);
 
   if (loading) {
-    return <Loading vertical text="加载中" />;
+    return <Loading variant="block" text="加载中" />;
   }
 
   const tabColor = token[TAB_COLORS[currentTabIndex]];

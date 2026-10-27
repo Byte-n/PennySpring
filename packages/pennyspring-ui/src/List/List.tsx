@@ -5,6 +5,7 @@ import { createUseSheetStyle } from '@pennyspring/theme';
 import { Column } from '../Column';
 import { Row } from '../Row';
 import { Text } from '../Text';
+import { Loading } from '../Loading';
 import { useControllableValue } from '../_hooks';
 import { renderTextNode } from '../shares/node';
 import type { ListItemData, ListProps } from './types';
@@ -66,7 +67,11 @@ function ListInner<ItemT>({
     </Pressable> : null}
   </>;
   const footerNode = <>
-    {loading || isLoadingMore ? <Column style={[styles.loading, styleOverrides?.loading]}>{renderTextNode(loadingContent ?? loadingText, text => <Text color="secondary">{text}</Text>)}</Column> : null}
+    {loading || isLoadingMore ? (
+      loadingContent === undefined
+        ? <Loading size="small" text={loadingText} variant="more" />
+        : <Column style={[styles.loading, styleOverrides?.loading]}>{renderTextNode(loadingContent, text => <Text color="secondary">{text}</Text>)}</Column>
+    ) : null}
     {!hasMore && !loading && !isLoadingMore ? <Column style={[styles.footer, styleOverrides?.footer]}><Text color="tertiary">{completeText}</Text></Column> : null}
     {footer !== undefined ? <Column style={[styles.footer, styleOverrides?.footer]}>{renderTextNode(footer, text => <Text color="secondary">{text}</Text>)}</Column> : null}
   </>;

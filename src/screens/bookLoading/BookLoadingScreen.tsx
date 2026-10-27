@@ -1,5 +1,5 @@
 import React from 'react';
-import { Column, Loading, Text } from '@pennyspring/ui';
+import { Column, Loading } from '@pennyspring/ui';
 import { createUseSheetStyle } from '@pennyspring/theme';
 
 const useStyles = createUseSheetStyle(token => ({
@@ -10,10 +10,6 @@ const useStyles = createUseSheetStyle(token => ({
     alignItems: 'center',
     gap: token.marginLG,
   },
-  text: {
-    fontSize: token.fontSizeLG,
-    color: token.colorTextSecondary,
-  },
 }));
 
 export function BookLoadingScreen() {
@@ -21,8 +17,11 @@ export function BookLoadingScreen() {
 
   return (
     <Column style={styles.container}>
-      <Loading size="large" />
-      <Text style={styles.text}>正在加载账本数据...</Text>
+      <Loading
+        variant="block"
+        text="正在加载账本数据"
+        description="首次打开账本可能需要几秒"
+      />
     </Column>
   );
 }

@@ -267,7 +267,7 @@ export function ChartTabScreen() {
       );
     }
     if (isLoading && records.length === 0) {
-      return <Loading vertical text="加载中" style={styles.state} />;
+      return <Loading variant="block" text="加载中" style={styles.state} />;
     }
     if (view !== 'assets' && !hasCashflow) {
       return (
