@@ -34,7 +34,7 @@
 - `DisplayInput`：只读或触发式输入展示。自身持有 pressed、disabled、readonly 与错误态视觉，不接受调用方叠加状态样式。
 - `ImagePicker`：以 `DisplayInput` 作为触发器，从相册或文件管理选择单张或多张图片。支持 `size`、`allowClear`、`status`、`helper`/`error`，触发器样式统一通过 `styles.input` 覆盖。
 - `CalculatorInput`：带计算器弹窗的数字输入。`CalculatorInput.useCalculatorValueState` 封装弹层开关与表达式状态，打开时回填初始值，确认后再收起。
-- `Stepper`：递增/递减数值调节。
+- `Stepper`：递增/递减数值调节。999 胶囊，高度取 `controlHeightSM / controlHeight / controlHeightLG`（无描边无分隔线），按钮 24 / 32 / 36 + 线性加减图标；数值 600 等宽、最小宽 32 / 40 / 48，`unitText` 以 12/三级紧跟数值；按压只作用于按钮，到边界仅降对应按钮，禁用降胶囊底，只读保留胶囊底但降数值。
 - `Slider`：范围或数值调节。轨道 4 / 6 / 8、thumb 16 / 20 / 24，控件高取 `controlHeightSM / controlHeight / controlHeightLG`；轨道 `colorFillSecondary`、填充 `colorPrimary`，thumb 白面 + 2px 主色环 + `boxShadowTertiary`；按压 thumb ×1.1，禁用改四级灰并去投影，只读保留主色但不响应；端点左右留 thumb 半径。
 - `Switch`：布尔开关。轨道 28×8 / 40×10 / 52×12，滑块 14 / 20 / 26 溢出轨道，控件高取 `controlHeightSM / controlHeight / controlHeightLG`；关态 `colorFillSecondary`、开态 `colorPrimary`，滑块白 + `boxShadowTertiary`；`checkedText` / `uncheckedText` 在轨道右侧 8；支持 disabled / readonly / size。
 - `Checkbox`：独立或分组多选。勾选框 16/20/24（圆角 4/6/8，勾图标 12/14/16），行高与 chip 高统一取 `controlHeightSM / controlHeight / controlHeightLG`；`displayType="button"` 为 999 chip（未选 `colorFillTertiary`、选中 `colorPrimaryBg` + 主色 600 带小勾）；支持 disabled / readonly / indeterminate，`Checkbox.Group` 按 `options` 数据驱动，横向 / 纵向 / `block` 排布统一 gap 8。

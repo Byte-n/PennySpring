@@ -362,7 +362,7 @@ export const COMPONENT_PREVIEW_SECTIONS = [
       {
         id: 'stepper',
         title: 'Stepper',
-        description: '步进器加减、范围限制、尺寸和禁用状态。',
+        description: '步进器加减、范围限制、尺寸、单位与禁用状态。',
         component: StepperPreview,
       },
       {

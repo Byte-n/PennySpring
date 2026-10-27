@@ -2,9 +2,11 @@ import React from 'react';
 import { Pressable, View } from 'react-native';
 import { useTheme } from '@pennyspring/theme';
 import { useControllableValue } from '../_hooks';
+import { Icon } from '../Icon';
 import { Row } from '../Row';
 import { Text } from '../Text';
-import { useStyles, SIZE_TO_TEXT_SIZE } from './style';
+import { getSizeConfig, useStyles, SIZE_TO_TEXT_SIZE } from './style';
+import type { TextColor } from '../Text/types';
 import type { StepperProps } from './types';
 
 function clampValue(value: number, min: number, max: number): number {
@@ -18,6 +20,7 @@ export function Stepper({
   min = -Infinity,
   max = Infinity,
   step = 1,
+  unitText,
   disabled = false,
   readonly = false,
   size = 'normal',
@@ -26,7 +29,8 @@ export function Stepper({
 }: StepperProps) {
   const tokenStyles = useStyles(size);
   const { token } = useTheme();
-  const hitSlop = token.paddingSM;
+  const hitSlop = token.sizeXS;
+  const sizeConfig = getSizeConfig(size);
   const [currentValue, setCurrentValue] = useControllableValue(
     defaultValue,
     value,
@@ -37,6 +41,15 @@ export function Stepper({
   const isAtMin = safeValue <= min;
   const isAtMax = safeValue >= max;
   const textSize = SIZE_TO_TEXT_SIZE[size];
+  const valueColor: TextColor = disabled
+    ? 'quaternary'
+    : readonly
+      ? 'secondary'
+      : 'base';
+
+  function getButtonColor(atBoundary: boolean): TextColor {
+    return isDisabled || atBoundary ? 'quaternary' : 'base';
+  }
 
   function handleIncrement(): void {
     if (isDisabled || isAtMax) {
@@ -74,33 +87,28 @@ export function Stepper({
         ]}
         hitSlop={hitSlop}
       >
-        <Text
-          size={textSize}
-          color={isDisabled || isAtMin ? 'disabled' : 'base'}
+        <Icon
+          color={getButtonColor(isAtMin)}
+          icon="minus"
+          size={sizeConfig.iconSize}
           style={styles?.buttonText}
-        >
-          {'−'}
-        </Text>
+        />
       </Pressable>
-      <View
-        style={[
-          tokenStyles.input,
-          styles?.input,
-          disabled ? tokenStyles.inputDisabled : null,
-        ]}
-      >
+      <View style={[tokenStyles.input, styles?.input]}>
         <Text
           testID="stepper-input"
+          color={valueColor}
           size={textSize}
-          color={disabled ? 'disabled' : 'base'}
-          style={[
-            tokenStyles.inputText,
-            styles?.inputText,
-            disabled ? tokenStyles.inputTextDisabled : null,
-          ]}
+          style={[tokenStyles.inputText, styles?.inputText]}
+          weight="strong"
         >
           {String(safeValue)}
         </Text>
+        {unitText === undefined ? null : (
+          <Text color="tertiary" size="xs" style={tokenStyles.unit} weight="medium">
+            {unitText}
+          </Text>
+        )}
       </View>
       <Pressable
         testID="stepper-increment"
@@ -115,13 +123,12 @@ export function Stepper({
         ]}
         hitSlop={hitSlop}
       >
-        <Text
-          size={textSize}
-          color={isDisabled || isAtMax ? 'disabled' : 'base'}
+        <Icon
+          color={getButtonColor(isAtMax)}
+          icon="plus"
+          size={sizeConfig.iconSize}
           style={styles?.buttonText}
-        >
-          +
-        </Text>
+        />
       </Pressable>
     </Row>
   );

@@ -1,21 +1,18 @@
 import {
-  stepperControlledDemoTitle,
-  StepperControlledDemo,
-} from './controlled';
-import {
-  stepperRangeAndStateDemoTitle,
-  StepperRangeAndStateDemo,
-} from './range-and-state';
+  stepperCompositionDemoTitle,
+  StepperCompositionDemo,
+} from './composition';
+import { stepperDarkDemoTitle, StepperDarkDemo } from './dark';
+import { stepperSizeDemoTitle, StepperSizeDemo } from './size';
+import { stepperStatesDemoTitle, StepperStatesDemo } from './states';
 
 export const stepperDemos = [
+  { id: 'size', title: stepperSizeDemoTitle, Component: StepperSizeDemo },
+  { id: 'states', title: stepperStatesDemoTitle, Component: StepperStatesDemo },
   {
-    id: 'controlled',
-    title: stepperControlledDemoTitle,
-    Component: StepperControlledDemo,
+    id: 'composition',
+    title: stepperCompositionDemoTitle,
+    Component: StepperCompositionDemo,
   },
-  {
-    id: 'range-and-state',
-    title: stepperRangeAndStateDemoTitle,
-    Component: StepperRangeAndStateDemo,
-  },
+  { id: 'dark', title: stepperDarkDemoTitle, Component: StepperDarkDemo },
 ];
