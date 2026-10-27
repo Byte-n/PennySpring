@@ -82,7 +82,7 @@
 - `Toast`、`useToast`：短暂轻量提示。
 - `Message`、`useMessage`：行内或全局反馈消息。
 - `Notification`、`useNotification`：信息更丰富的通知。
-- `Loading`：活动指示器。
+- `Loading`：活动指示器；inline / block / more / overlay 四形态，转圈 16 / 20 / 28，tone 控制主色与次级灰。
 
 ## 常见组合
 

@@ -4,67 +4,106 @@ import type { ViewStyle } from 'react-native';
 import type { ComponentSize } from '../../shares/types';
 import type { ToastPlacement } from '../types';
 
-export const SIZE_TOKEN_MAP: Record<
-  ComponentSize,
-  {
-    verticalPadding: (token: AliasToken) => number;
-    horizontalPadding: (token: AliasToken) => number;
-    textSize: 'sm' | 'md' | 'lg';
-  }
-> = {
+interface ToastSizeConfig {
+  gap: (token: AliasToken) => number;
+  horizontalPadding: (token: AliasToken) => number;
+  iconSize: number;
+  minHeight: number;
+  textSize: 'xs' | 'sm' | 'md';
+  verticalPadding: (token: AliasToken) => number;
+}
+
+/** 胶囊圆角与 34 / 40 / 46 高度在 AliasToken 中没有档位，按设计稿落为语义常量。 */
+const PILL_RADIUS = 999;
+const DOT_SIZE = 6;
+
+export const SIZE_TOKEN_MAP: Record<ComponentSize, ToastSizeConfig> = {
   small: {
-    verticalPadding: token => token.paddingSM / 2,
+    gap: token => token.marginXXS,
     horizontalPadding: token => token.paddingSM,
-    textSize: 'sm',
+    iconSize: 14,
+    minHeight: 34,
+    textSize: 'xs',
+    verticalPadding: token => token.marginXS,
   },
   normal: {
-    verticalPadding: token => token.padding / 2,
+    gap: token => token.marginXS,
     horizontalPadding: token => token.padding,
-    textSize: 'md',
+    iconSize: 16,
+    minHeight: 40,
+    textSize: 'sm',
+    verticalPadding: token => token.marginXS,
   },
   large: {
-    verticalPadding: token => token.paddingMD / 2,
+    gap: token => token.marginSM,
     horizontalPadding: token => token.paddingMD,
-    textSize: 'lg',
+    iconSize: 18,
+    minHeight: 46,
+    textSize: 'md',
+    verticalPadding: token => token.marginSM,
   },
 };
 
-function getPlacementStyle(placement: ToastPlacement): ViewStyle {
+interface ToastStyleOptions {
+  maxWidth: number;
+  placement: ToastPlacement;
+  safeAreaBottom: number;
+  safeAreaTop: number;
+  size: ComponentSize;
+}
+
+function getPlacementStyle(
+  token: AliasToken,
+  placement: ToastPlacement,
+  safeAreaTop: number,
+  safeAreaBottom: number,
+): ViewStyle {
   if (placement === 'top') {
-    return { top: 0 };
+    return { top: safeAreaTop + token.paddingXL };
   }
 
   if (placement === 'bottom') {
-    return { bottom: 0 };
+    return { bottom: safeAreaBottom + token.paddingXL };
   }
 
   return { top: '50%' };
 }
 
 export const useStyles = createUseSheetStyle(
-  (token, { size, placement }: { size: ComponentSize; placement: ToastPlacement }) => {
+  (
+    token,
+    { maxWidth, placement, safeAreaBottom, safeAreaTop, size }: ToastStyleOptions,
+  ) => {
     const sizeConfig = SIZE_TOKEN_MAP[size];
 
     return {
       content: {
         position: 'absolute',
         zIndex: token.zIndexPopupBase + 100,
-        maxWidth: '100%',
-        ...getPlacementStyle(placement),
-        ...(placement === 'top'
-          ? { marginTop: token.paddingXL }
-          : placement === 'bottom'
-          ? { marginBottom: token.paddingXL }
-          : null),
+        maxWidth,
         alignSelf: 'center',
-        borderRadius: token.borderRadius,
+        justifyContent: 'center',
+        borderRadius: PILL_RADIUS,
         backgroundColor: token.colorBgSpotlight,
-        paddingVertical: sizeConfig.verticalPadding(token),
+        minHeight: sizeConfig.minHeight,
         paddingHorizontal: sizeConfig.horizontalPadding(token),
+        paddingVertical: sizeConfig.verticalPadding(token),
+        ...getPlacementStyle(token, placement, safeAreaTop, safeAreaBottom),
+      },
+      row: {
+        alignItems: 'center',
+        gap: sizeConfig.gap(token),
       },
       messageText: {
         color: token.colorTextLightSolid,
-        textAlign: 'center',
+        flexShrink: 1,
+      },
+      dot: {
+        width: DOT_SIZE,
+        height: DOT_SIZE,
+        borderRadius: PILL_RADIUS,
+        backgroundColor: token.colorTextLightSolid,
+        opacity: 0.7,
       },
     };
   },

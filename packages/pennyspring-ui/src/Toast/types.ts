@@ -5,6 +5,12 @@ import type { ComponentSize } from '../shares/types';
 
 export type ToastPlacement = 'top' | 'center' | 'bottom';
 
+/**
+ * 胶囊左侧图标语义。
+dot 无类型、success 操作已生效、error 操作未生效。
+ */
+export type ToastStatus = 'dot' | 'success' | 'error';
+
 export interface ToastStyles {
   content?: StyleProp<ViewStyle>;
   messageText?: StyleProp<TextStyle>;
@@ -19,6 +25,8 @@ export interface ToastProps {
   duration?: number;
   size?: ComponentSize;
   placement?: ToastPlacement;
+  status?: ToastStatus;
+  icon?: ReactNode;
   messageText?: string;
   message?: ReactNode;
   style?: StyleProp<ViewStyle>;
@@ -31,6 +39,8 @@ export interface ToastShowOptions {
   duration?: number;
   size?: ComponentSize;
   placement?: ToastPlacement;
+  status?: ToastStatus;
+  icon?: ReactNode;
   messageText?: string;
   message?: ReactNode;
   style?: StyleProp<ViewStyle>;

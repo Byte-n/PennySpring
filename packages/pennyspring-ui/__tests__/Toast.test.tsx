@@ -4,6 +4,7 @@ import renderer, { act } from 'react-test-renderer';
 import { ThemeProvider } from '@pennyspring/theme';
 import type { WithTimingConfig } from 'react-native-reanimated';
 import { Toast } from '../src/Toast';
+import { Icon } from '../src/Icon';
 import { PortalProvider } from '../src/Portal';
 
 function flattenStyle(style: unknown) {
@@ -107,16 +108,19 @@ describe('Toast', () => {
     expect(toastContentStyle.alignSelf).toBe('center');
   });
   it.each([
-    ['small', 11],
-    ['normal', 13],
-    ['large', 17],
-  ] as const)('maps %s size to container padding token', (size, expectedPadding) => {
+    ['small', 11, 34],
+    ['normal', 13, 40],
+    ['large', 17, 46],
+  ] as const)('maps %s size to capsule padding and min height', (size, expectedPadding, expectedMinHeight) => {
     let testRenderer!: renderer.ReactTestRenderer;
     act(() => {
       testRenderer = renderer.create(
         <ThemeProvider
           config={{
             token: {
+              marginSM: 12,
+              marginXS: 8,
+              marginXXS: 4,
               paddingSM: 11,
               padding: 13,
               paddingMD: 17,
@@ -137,6 +141,32 @@ describe('Toast', () => {
     const toastContentStyle = flattenStyle(toastContent?.props.style);
 
     expect(toastContentStyle.paddingHorizontal).toBe(expectedPadding);
-    expect(toastContentStyle.paddingVertical).toBe(expectedPadding / 2);
+    expect(toastContentStyle.minHeight).toBe(expectedMinHeight);
+    expect(toastContentStyle.borderRadius).toBe(999);
+  });
+
+  it('caps the capsule width and keeps the message on one line', () => {
+    const testRenderer = renderToast();
+    const toastContentStyle = flattenStyle(findToastContent(testRenderer)?.props.style);
+    const textNode = testRenderer.root.findAllByProps({ children: 'Toast message' })[0];
+
+    expect(toastContentStyle.maxWidth).toBe(750 - 48);
+    expect(textNode.props.numberOfLines).toBe(1);
+  });
+
+  it('renders a dot by default and check / warning icons by status', () => {
+    const successRenderer = renderToast({ status: 'success' });
+    const errorRenderer = renderToast({ status: 'error' });
+    const dotRenderer = renderToast();
+
+    expect(dotRenderer.root.findAllByType(Icon)).toHaveLength(0);
+    expect(successRenderer.root.findByType(Icon).props.icon).toBe('check');
+    expect(errorRenderer.root.findByType(Icon).props.icon).toBe('warning');
+  });
+
+  it('renders nothing when both message and messageText are empty', () => {
+    const testRenderer = renderToast({ messageText: undefined });
+
+    expect(findToastContent(testRenderer)).toBeUndefined();
   });
 });
