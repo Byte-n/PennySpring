@@ -36,7 +36,7 @@
 - `CalculatorInput`：带计算器弹窗的数字输入。`CalculatorInput.useCalculatorValueState` 封装弹层开关与表达式状态，打开时回填初始值，确认后再收起。
 - `Stepper`：递增/递减数值调节。
 - `Slider`：范围或数值调节。
-- `Switch`：布尔开关。
+- `Switch`：布尔开关。轨道 28×8 / 40×10 / 52×12，滑块 14 / 20 / 26 溢出轨道，控件高取 `controlHeightSM / controlHeight / controlHeightLG`；关态 `colorFillSecondary`、开态 `colorPrimary`，滑块白 + `boxShadowTertiary`；`checkedText` / `uncheckedText` 在轨道右侧 8；支持 disabled / readonly / size。
 - `Checkbox`：独立或分组多选。勾选框 16/20/24（圆角 4/6/8，勾图标 12/14/16），行高与 chip 高统一取 `controlHeightSM / controlHeight / controlHeightLG`；`displayType="button"` 为 999 chip（未选 `colorFillTertiary`、选中 `colorPrimaryBg` + 主色 600 带小勾）；支持 disabled / readonly / indeterminate，`Checkbox.Group` 按 `options` 数据驱动，横向 / 纵向 / `block` 排布统一 gap 8。
 - `Radio`：独立或分组单选。外圈 16/20/24、圆点 8/10/12，行高与 chip 高统一取 `controlHeightSM / controlHeight / controlHeightLG`；未选 2px `colorBorder`，选中主色描边 + 主色圆点，按压整行 `colorFillTertiary`，禁用外圈 `colorSplit` + 四级圆点 + 三级文字，只读保留主色圆点且不响应；`displayType="button"` 为 999 chip（未选 `colorFillTertiary`、选中 `colorPrimaryBg` + 主色 600）；已选项再点不取消，`Radio.Group` 按 `options` 数据驱动，支持横向 / 纵向 / `block` 排布。
 

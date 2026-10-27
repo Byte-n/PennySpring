@@ -1,116 +1,102 @@
-import { createUseSheetStyle } from '@pennyspring/theme';
+import { createUseSheetStyle, toShadowStyle } from '@pennyspring/theme';
 import type { AliasToken } from '@pennyspring/theme';
 import type { ComponentSize } from '../../shares/types';
 
-interface SizeStyleConfig {
-  thumbSize: (token: AliasToken) => number;
-  textPadding: (token: AliasToken) => number;
-}
+/** 滑块 14 / 20 / 26 与轨道 28×8 / 40×10 / 52×12 在 AliasToken 中没有对应档位。 */
+const THUMB_SIZE_MAP: Record<ComponentSize, number> = {
+  small: 14,
+  normal: 20,
+  large: 26,
+};
+
+const TRACK_HEIGHT_MAP: Record<ComponentSize, number> = {
+  small: 8,
+  normal: 10,
+  large: 12,
+};
 
 export interface SwitchStyleOptions {
   checked: boolean;
   disabled: boolean;
-  hasText: boolean;
+  readonly: boolean;
   size: ComponentSize;
 }
 
-const SIZE_STYLE_MAP: Record<ComponentSize, SizeStyleConfig> = {
-  small: {
-    thumbSize: token => token.fontSize,
-    textPadding: token => token.paddingXXS,
-  },
-  normal: {
-    thumbSize: token => token.fontSizeXL,
-    textPadding: token => token.paddingXS,
-  },
-  large: {
-    thumbSize: token => token.controlHeightSM,
-    textPadding: token => token.paddingSM,
-  },
-};
-
-interface SwitchGeometry {
-  trackHeight: number;
-  thumbSize: number;
-  inset: number;
-  trackWidth: number;
-}
-
-function getGeometry(
+function getContainerHeight(
   token: AliasToken,
-  options: Pick<SwitchStyleOptions, 'hasText' | 'size'>,
-): SwitchGeometry {
-  const sizeConfig = SIZE_STYLE_MAP[options.size];
-  const thumbSize = sizeConfig.thumbSize(token);
-  const inset = token.lineWidth;
-  const trackHeight = thumbSize + inset * 2 + token.lineWidth * 2;
-  const baseWidth = thumbSize * 2 + inset * 2 + token.lineWidth * 2;
-  const trackWidth = options.hasText
-    ? baseWidth + sizeConfig.textPadding(token) * 2
-    : baseWidth;
-
-  return { trackHeight, thumbSize, inset, trackWidth };
-}
-
-export function getCheckedOffset(
-  token: AliasToken,
-  options: Pick<SwitchStyleOptions, 'hasText' | 'size'>,
+  size: ComponentSize,
 ): number {
-  const { thumbSize, inset, trackWidth } = getGeometry(token, options);
+  if (size === 'small') {
+    return token.controlHeightSM;
+  }
 
-  return trackWidth - thumbSize - inset - token.lineWidth - inset;
+  if (size === 'large') {
+    return token.controlHeightLG;
+  }
+
+  return token.controlHeight;
+}
+
+/** 位移等于滑块直径，轨道宽度等于滑块的两倍。 */
+export function getThumbOffset(size: ComponentSize): number {
+  return THUMB_SIZE_MAP[size];
 }
 
 export const useStyles = createUseSheetStyle(
-  (token, options: SwitchStyleOptions) => {
-    const { trackHeight, thumbSize, inset, trackWidth } = getGeometry(
-      token,
-      options,
-    );
-    const textReservedSpace = thumbSize + inset + token.lineWidth;
-    const trackBorderRadius = trackHeight / 2;
-    const textEdgeInset = trackBorderRadius;
+  (token, { checked, size }: SwitchStyleOptions) => {
+    const thumbSize = THUMB_SIZE_MAP[size];
+    const trackHeight = TRACK_HEIGHT_MAP[size];
 
     return {
-      track: {
-        alignItems: 'flex-start',
-        backgroundColor: token.colorFillTertiary,
-        borderColor: token.colorBorder,
-        borderRadius: trackBorderRadius,
-        borderWidth: token.lineWidth,
-        height: trackHeight,
-        justifyContent: 'center',
-        width: trackWidth,
+      container: {
+        alignItems: 'center',
+        flexDirection: 'row',
+        gap: token.sizeXS,
+        height: getContainerHeight(token, size),
       },
-      text: {
-        left: options.checked ? textEdgeInset : textReservedSpace,
-        lineHeight: token.lineHeightSM,
+      box: {
+        height: thumbSize,
+        width: thumbSize * 2,
+      },
+      track: {
+        backgroundColor: token.colorFillSecondary,
+        borderRadius: trackHeight / 2,
+        height: trackHeight,
+        left: 0,
         position: 'absolute',
-        right: options.checked ? textReservedSpace : textEdgeInset,
+        right: 0,
+        top: (thumbSize - trackHeight) / 2,
       },
       trackChecked: {
         backgroundColor: token.colorPrimary,
-        borderColor: token.colorPrimary,
       },
       trackDisabled: {
-        backgroundColor: token.colorBgContainerDisabled,
-        borderColor: token.colorBorderDisabled,
+        backgroundColor: token.colorFillQuaternary,
       },
-      trackReadonly: {
-        borderColor: token.colorBorderSecondary,
-      },
-      trackPressed: {
-        backgroundColor: token.controlItemBgActive,
+      trackDisabledChecked: {
+        backgroundColor: token.colorFillTertiary,
       },
       thumb: {
         backgroundColor: token.colorBgContainer,
-        borderRadius: thumbSize,
+        borderRadius: thumbSize / 2,
         height: thumbSize,
-        marginLeft: inset,
+        left: 0,
+        position: 'absolute',
+        top: 0,
         width: thumbSize,
       },
+      thumbRaised: toShadowStyle(token.boxShadowTertiary),
       thumbDisabled: {
-        backgroundColor: token.colorTextDisabled,
+        backgroundColor: checked
+          ? token.colorTextTertiary
+          : token.colorFillTertiary,
+      },
+      thumbReadonly: {
+        borderColor: token.colorBorder,
+        borderWidth: token.lineWidth,
+      },
+      text: {
+        flexShrink: 1,
       },
     };
   },

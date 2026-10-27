@@ -1,13 +1,7 @@
 import React from 'react';
-import { StyleSheet } from 'react-native';
-import { defaultSeedToken } from '@pennyspring/theme';
-import { derivative } from '@pennyspring/theme/src/algorithms/derivative';
-import { formatToken } from '@pennyspring/theme/src/algorithms/formatToken';
 import renderer, { act } from 'react-test-renderer';
 import { Switch } from '../src/Switch';
 import type { SwitchProps } from '../src/Switch';
-
-const token = formatToken(derivative(defaultSeedToken, false));
 
 function renderSwitch(props: Partial<SwitchProps> = {}) {
   let testRenderer: renderer.ReactTestRenderer;
@@ -23,10 +17,12 @@ function renderSwitch(props: Partial<SwitchProps> = {}) {
   return testRenderer!;
 }
 
+function findSwitch(testRenderer: renderer.ReactTestRenderer) {
+  return testRenderer.root.findByProps({ testID: 'switch' });
+}
+
 function pressSwitch(testRenderer: renderer.ReactTestRenderer) {
-  const target = testRenderer.root.findByProps({
-    testID: 'switch',
-  });
+  const target = findSwitch(testRenderer);
 
   act(() => {
     target.props.onPress();
@@ -35,54 +31,34 @@ function pressSwitch(testRenderer: renderer.ReactTestRenderer) {
   return target;
 }
 
-function findTextStyle(testRenderer: renderer.ReactTestRenderer) {
-  const text = testRenderer.root.findByProps({
-    testID: 'switch-text',
-  });
-
-  return StyleSheet.flatten(text.props.style);
-}
-
 describe('Switch', () => {
-  it('toggles uncontrolled value and reports next state', () => {
+  it('toggles uncontrolled value and reports the next state', () => {
     const onChange = jest.fn();
-    const testRenderer = renderSwitch({
-      defaultValue: false,
-      onChange,
-    });
+    const testRenderer = renderSwitch({ defaultValue: false, onChange });
 
     pressSwitch(testRenderer);
+    expect(onChange).toHaveBeenLastCalledWith(true);
 
-    expect(onChange).toHaveBeenCalledWith(true);
+    pressSwitch(testRenderer);
+    expect(onChange).toHaveBeenLastCalledWith(false);
   });
 
-  it('keeps controlled value while still reporting changes', () => {
+  it('keeps a controlled value derived from props while reporting presses', () => {
     const onChange = jest.fn();
-    const testRenderer = renderSwitch({
-      value: false,
-      onChange,
-    });
+    const testRenderer = renderSwitch({ onChange, value: false });
 
     pressSwitch(testRenderer);
-    const thumb = testRenderer.root.findByProps({
-      testID: 'switch-thumb',
-    });
-    const flattened = StyleSheet.flatten(thumb.props.style);
+    pressSwitch(testRenderer);
 
-    expect(onChange).toHaveBeenCalledWith(true);
-    expect(flattened.transform).toEqual([{ translateX: 0 }]);
+    expect(onChange).toHaveBeenCalledTimes(2);
+    expect(onChange).toHaveBeenNthCalledWith(1, true);
+    expect(onChange).toHaveBeenNthCalledWith(2, true);
   });
 
   it('does not change when disabled or readonly', () => {
     const onChange = jest.fn();
-    const disabledSwitch = renderSwitch({
-      disabled: true,
-      onChange,
-    });
-    const readonlySwitch = renderSwitch({
-      readonly: true,
-      onChange,
-    });
+    const disabledSwitch = renderSwitch({ disabled: true, onChange });
+    const readonlySwitch = renderSwitch({ onChange, readonly: true });
 
     const disabledTarget = pressSwitch(disabledSwitch);
     pressSwitch(readonlySwitch);
@@ -91,106 +67,48 @@ describe('Switch', () => {
     expect(disabledTarget.props.disabled).toBe(true);
   });
 
+  it('forwards press in and press out handlers', () => {
+    const onPressIn = jest.fn();
+    const onPressOut = jest.fn();
+    const testRenderer = renderSwitch({ onPressIn, onPressOut });
+    const target = findSwitch(testRenderer);
+
+    act(() => {
+      target.props.onPressIn({});
+      target.props.onPressOut({});
+    });
+
+    expect(onPressIn).toHaveBeenCalledTimes(1);
+    expect(onPressOut).toHaveBeenCalledTimes(1);
+  });
+
   it('renders the text for the current boolean state', () => {
     const testRenderer = renderSwitch({
-      checkedText: 'true',
+      checkedText: '已开启',
       defaultValue: true,
-      uncheckedText: 'false',
+      uncheckedText: '未开启',
     });
 
-    let text = testRenderer.root.findByProps({
-      testID: 'switch-text',
-    });
-
-    expect(text.props.children).toBe('true');
+    let text = testRenderer.root.findByProps({ testID: 'switch-text' });
+    expect(text.props.children).toBe('已开启');
 
     pressSwitch(testRenderer);
-    text = testRenderer.root.findByProps({
-      testID: 'switch-text',
+    text = testRenderer.root.findByProps({ testID: 'switch-text' });
+    expect(text.props.children).toBe('未开启');
+  });
+
+  it('hides the text until both checked and unchecked texts are provided', () => {
+    const onlyUnchecked = renderSwitch({ uncheckedText: '未开启' });
+    const bothTexts = renderSwitch({
+      checkedText: '已开启',
+      uncheckedText: '未开启',
     });
 
-    expect(text.props.children).toBe('false');
-  });
-
-  it('reserves space on the thumb side so text is not covered', () => {
-    const checkedRenderer = renderSwitch({
-      checkedText: 'enabled',
-      defaultValue: true,
-      uncheckedText: 'disabled',
-    });
-    const uncheckedRenderer = renderSwitch({
-      checkedText: 'enabled',
-      defaultValue: false,
-      uncheckedText: 'disabled',
-    });
-    const reservedSpace = token.fontSizeXL + token.lineWidth + token.lineWidth;
-
-    expect(findTextStyle(checkedRenderer).right).toBe(reservedSpace);
-    expect(findTextStyle(uncheckedRenderer).left).toBe(reservedSpace);
-  });
-
-  it('uses Text color prop instead of style for text color', () => {
-    const testRenderer = renderSwitch({
-      checkedText: 'on',
-      uncheckedText: 'off',
-      defaultValue: true,
-    });
-    const text = testRenderer.root.findByProps({ testID: 'switch-text' });
-
-    expect(text.props.color).toBeDefined();
-    expect(typeof text.props.color).toBe('string');
-
-    const flattened = StyleSheet.flatten(text.props.style);
-    expect(flattened.color).toBeUndefined();
-  });
-
-  it('uses Text weight prop instead of style for font weight', () => {
-    const testRenderer = renderSwitch({
-      checkedText: 'on',
-      uncheckedText: 'off',
-      defaultValue: true,
-    });
-    const text = testRenderer.root.findByProps({ testID: 'switch-text' });
-
-    expect(text.props.weight).toBeDefined();
-    expect(typeof text.props.weight).toBe('string');
-
-    const flattened = StyleSheet.flatten(text.props.style);
-    expect(flattened.fontWeight).toBeUndefined();
-  });
-
-  it('slides the thumb to a positive offset when checked', () => {
-    const uncheckedRenderer = renderSwitch({ defaultValue: false });
-    const checkedRenderer = renderSwitch({ defaultValue: true });
-
-    const uncheckedThumb = StyleSheet.flatten(
-      uncheckedRenderer.root.findByProps({ testID: 'switch-thumb' }).props.style,
-    );
-    const checkedThumb = StyleSheet.flatten(
-      checkedRenderer.root.findByProps({ testID: 'switch-thumb' }).props.style,
-    );
-
-    expect(uncheckedThumb.transform).toEqual([{ translateX: 0 }]);
-    expect(checkedThumb.transform[0].translateX).toBeGreaterThan(0);
-  });
-
-  it('derives track borderRadius from size instead of hardcoded value', () => {
-    const testRenderer = renderSwitch({ defaultValue: true });
-    const track = testRenderer.root.findByProps({ testID: 'switch' });
-    const resolvedStyle = track.props.style({ pressed: false });
-    const flattened = StyleSheet.flatten(resolvedStyle);
-
-    expect(flattened.borderRadius).not.toBe(999);
-    expect(typeof flattened.borderRadius).toBe('number');
-    expect(flattened.borderRadius).toBeGreaterThan(0);
-  });
-
-  it('keeps a compact mobile track height below the large control field', () => {
-    const testRenderer = renderSwitch({ defaultValue: false });
-    const track = testRenderer.root.findByProps({ testID: 'switch' });
-    const flattened = StyleSheet.flatten(track.props.style({ pressed: false }));
-
-    expect(flattened.height).toBeLessThan(token.controlHeightLG);
-    expect(flattened.borderRadius).toBe(flattened.height / 2);
+    expect(
+      onlyUnchecked.root.findAllByProps({ testID: 'switch-text' }),
+    ).toHaveLength(0);
+    expect(
+      bothTexts.root.findAllByProps({ testID: 'switch-text' }).length,
+    ).toBeGreaterThan(0);
   });
 });

@@ -40,9 +40,6 @@ import {
   getBookStorageLabel,
 } from './drawerContentModel';
 
-/** 稿中开关为 44×26；Switch 组件 normal 为 44×24，这里只覆盖轨道高度。 */
-const THEME_SWITCH_TRACK_HEIGHT = 26;
-
 interface DrawerNavItem {
   key: string;
   label: string;
@@ -192,10 +189,6 @@ const useStyles = createUseSheetStyle<number>((token, bottomInset) => ({
   },
   spacer: {
     flex: 1,
-  },
-  switch: {
-    borderRadius: THEME_SWITCH_TRACK_HEIGHT / 2,
-    height: THEME_SWITCH_TRACK_HEIGHT,
   },
   developerSection: {
     paddingTop: token.paddingXXS,
@@ -481,7 +474,6 @@ export function DrawerContent({
               accessibilityState={{ checked: isDark }}
               hitSlop={token.paddingSM}
               onChange={handleThemeChange}
-              style={styles.switch}
               testID="drawer-theme-switch"
               value={isDark}
             />

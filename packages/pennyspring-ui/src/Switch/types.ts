@@ -7,6 +7,7 @@ import type {
 import type { ComponentSize } from '../shares/types';
 
 export interface SwitchStyles {
+  container?: StyleProp<ViewStyle>;
   track?: StyleProp<ViewStyle>;
   thumb?: StyleProp<ViewStyle>;
   text?: StyleProp<TextStyle>;

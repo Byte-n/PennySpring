@@ -1,14 +1,11 @@
-import { switchBasicDemoTitle, SwitchBasicDemo } from './basic';
-import {
-  switchSizeAndStateDemoTitle,
-  SwitchSizeAndStateDemo,
-} from './size-and-state';
+import { switchDarkDemoTitle, SwitchDarkDemo } from './dark';
+import { switchRowDemoTitle, SwitchRowDemo } from './row';
+import { switchSizeDemoTitle, SwitchSizeDemo } from './size';
+import { switchStatesDemoTitle, SwitchStatesDemo } from './states';
 
 export const switchDemos = [
-  { id: 'basic', title: switchBasicDemoTitle, Component: SwitchBasicDemo },
-  {
-    id: 'size-and-state',
-    title: switchSizeAndStateDemoTitle,
-    Component: SwitchSizeAndStateDemo,
-  },
+  { id: 'size', title: switchSizeDemoTitle, Component: SwitchSizeDemo },
+  { id: 'states', title: switchStatesDemoTitle, Component: SwitchStatesDemo },
+  { id: 'row', title: switchRowDemoTitle, Component: SwitchRowDemo },
+  { id: 'dark', title: switchDarkDemoTitle, Component: SwitchDarkDemo },
 ];

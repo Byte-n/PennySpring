@@ -350,7 +350,7 @@ export const COMPONENT_PREVIEW_SECTIONS = [
       {
         id: 'switch',
         title: 'Switch',
-        description: '开关切换、尺寸和禁用只读状态。',
+        description: '细轨道开关、轨道外文案、尺寸与禁用只读状态。',
         component: SwitchPreview,
       },
       {
