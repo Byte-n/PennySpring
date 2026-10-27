@@ -8,6 +8,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ListIcon } from 'phosphor-react-native';
 
 import { APP_NAME } from '../../constants/app';
+import { AgentFloatingEntry } from '../../agent/ui/AgentFloatingEntry';
 import {
   BOOK_SELECT_ROUTES,
   HomeTabsNavigator,
@@ -108,22 +109,25 @@ export function HomeScreen() {
           />
         </Drawer.Layout>
         {isFocused && (
-          <FloatingActionGroup
-            defaultVisibleCount={2}
-            actions={[
-              {
-                key: 'quick-template',
-                icon: 'list',
-                onPress: () => setIsTemplatePanelOpen(true),
-                buttonProps: { type: 'default' },
-              },
-              {
-                key: 'add-record',
-                icon: 'plus',
-                onPress: () => navigation.navigate(ROOT_ROUTES.AddRecord),
-              },
-            ]}
-          />
+          <>
+            <FloatingActionGroup
+              defaultVisibleCount={2}
+              actions={[
+                {
+                  key: 'quick-template',
+                  icon: 'list',
+                  onPress: () => setIsTemplatePanelOpen(true),
+                  buttonProps: { type: 'default' },
+                },
+                {
+                  key: 'add-record',
+                  icon: 'plus',
+                  onPress: () => navigation.navigate(ROOT_ROUTES.AddRecord),
+                },
+              ]}
+            />
+            <AgentFloatingEntry />
+          </>
         )}
         <QuickTemplatePanel
           open={isTemplatePanelOpen}

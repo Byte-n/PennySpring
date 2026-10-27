@@ -1,13 +1,14 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { FloatingActionGroup, useToast } from '@pennyspring/ui';
-import { useTheme } from '@pennyspring/theme';
-import { SparkleIcon } from 'phosphor-react-native';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useToast } from '@pennyspring/ui';
 
-import { ROOT_ROUTES, useNavigation } from '../../navigation';
 import { useBookStore } from '../../stores/bookStore';
 import { getAgentConfig, rehydrateAgentConfig } from '../adapters/configStore';
 import { loadApiKey } from '../adapters/secureKey';
 import { AgentDrawer } from './AgentDrawer';
+import {
+  AgentLauncherContext,
+  type AgentLauncher,
+} from './AgentLauncherContext';
 import { AgentSettingsPanel } from './AgentSettingsPanel';
 import { useAgentChat } from './useAgentChat';
 
@@ -32,30 +33,14 @@ class AgentErrorBoundary extends React.Component<
   }
 }
 
-function useCurrentRouteName(): string {
-  const navigation = useNavigation();
-  const readRouteName = useCallback((): string => {
-    const state = navigation.getState();
-    return state?.routes[state.index]?.name ?? '';
-  }, [navigation]);
-  const [routeName, setRouteName] = useState(readRouteName);
-
-  useEffect(() => {
-    const unsubscribe = navigation.addListener('state', () => {
-      setRouteName(readRouteName());
-    });
-    return unsubscribe;
-  }, [navigation, readRouteName]);
-
-  return routeName;
+interface AgentRootProps {
+  children: React.ReactNode;
 }
 
-function AgentOverlay() {
-  const { token } = useTheme();
+export function AgentRoot({ children }: AgentRootProps) {
   const toast = useToast();
   const book = useBookStore(state => state.currentBook);
   const bookRef = useBookStore(state => state.currentBookRef);
-  const routeName = useCurrentRouteName();
 
   const isRemote = bookRef?.kind === 'remote';
   const chat = useAgentChat({
@@ -102,32 +87,16 @@ function AgentOverlay() {
     setSettingsOpen(true);
   }, []);
 
-  if (!book) {
-    return null;
-  }
-
-  const fabOffset =
-    token.paddingLG + token.controlHeight * 2 + token.paddingXS * 2;
+  const launcher = useMemo<AgentLauncher>(
+    () => ({ openAgent: handleOpen }),
+    [handleOpen],
+  );
 
   return (
-    <>
-      {routeName === ROOT_ROUTES.Home ? (
-        <FloatingActionGroup
-          actions={[
-            {
-              key: 'agent',
-              icon: SparkleIcon,
-              onPress: handleOpen,
-              buttonProps: { type: 'primary' },
-            },
-          ]}
-          offset={{ y: fabOffset }}
-          placement="bottomRight"
-        />
-      ) : null}
-
-      {isRemote ? null : (
-        <>
+    <AgentLauncherContext.Provider value={launcher}>
+      {children}
+      {book && !isRemote ? (
+        <AgentErrorBoundary>
           <AgentDrawer
             chat={chat}
             configured={configured}
@@ -144,16 +113,8 @@ function AgentOverlay() {
             open={settingsOpen}
             usage={chat.usage}
           />
-        </>
-      )}
-    </>
-  );
-}
-
-export function AgentRoot() {
-  return (
-    <AgentErrorBoundary>
-      <AgentOverlay />
-    </AgentErrorBoundary>
+        </AgentErrorBoundary>
+      ) : null}
+    </AgentLauncherContext.Provider>
   );
 }

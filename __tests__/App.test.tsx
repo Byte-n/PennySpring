@@ -70,7 +70,7 @@ jest.mock('../src/navigation', () => ({
 }));
 
 jest.mock('../src/agent/ui/AgentRoot', () => ({
-  AgentRoot: () => null,
+  AgentRoot: ({ children }: { children: React.ReactNode }) => children,
 }));
 
 jest.mock('../src/navigation/BookSelectNavigator', () => ({

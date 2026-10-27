@@ -112,8 +112,9 @@ function AppContent() {
           }}
         >
           <PSApp>
-            <RootStackNavigator />
-            <AgentRoot />
+            <AgentRoot>
+              <RootStackNavigator />
+            </AgentRoot>
           </PSApp>
         </NavigationShell>
       </ThemeProvider>

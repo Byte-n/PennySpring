@@ -10,6 +10,7 @@ const mockDrawerProps: {
   width?: unknown;
 } = {};
 const mockNavigation = { navigate: jest.fn() };
+const mockFocus = { isFocused: true };
 
 jest.mock('@pennyspring/theme', () => {
   const token = {
@@ -46,8 +47,17 @@ jest.mock('@pennyspring/ui', () => {
 });
 
 jest.mock('@react-navigation/native', () => ({
-  useIsFocused: () => true,
+  useIsFocused: () => mockFocus.isFocused,
 }));
+
+jest.mock('../src/agent/ui/AgentFloatingEntry', () => {
+  const ReactLib = require('react');
+  const { View } = require('react-native');
+  return {
+    AgentFloatingEntry: () =>
+      ReactLib.createElement(View, { testID: 'agent-floating-entry' }),
+  };
+});
 
 jest.mock('react-native-safe-area-context', () => {
   const ReactLib = require('react');
@@ -107,6 +117,7 @@ function renderHomeScreen(): TestRenderer.ReactTestRenderer {
 
 beforeEach(() => {
   mockNavigation.navigate.mockClear();
+  mockFocus.isFocused = true;
   for (const key of Object.keys(mockDrawerProps)) {
     delete mockDrawerProps[key as keyof typeof mockDrawerProps];
   }
@@ -130,5 +141,25 @@ describe('HomeScreen 抽屉配置', () => {
     content?.props.onNavigate('BookManage');
 
     expect(mockNavigation.navigate).toHaveBeenCalledWith('BookManage');
+  });
+});
+
+describe('HomeScreen 助手悬浮入口', () => {
+  it('renders the entry on the first focused render', () => {
+    const renderer = renderHomeScreen();
+
+    expect(
+      renderer.root.findByProps({ testID: 'agent-floating-entry' }),
+    ).toBeTruthy();
+  });
+
+  it('hides the entry when the screen is not focused', () => {
+    mockFocus.isFocused = false;
+
+    const renderer = renderHomeScreen();
+
+    expect(() =>
+      renderer.root.findByProps({ testID: 'agent-floating-entry' }),
+    ).toThrow();
   });
 });
