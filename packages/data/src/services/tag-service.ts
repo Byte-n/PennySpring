@@ -1,4 +1,4 @@
-import { count, eq } from 'drizzle-orm'
+import { eq } from 'drizzle-orm'
 
 import { VISIBILITY } from '../constants'
 import type { Database } from '../types'
@@ -70,15 +70,7 @@ export function deleteTag(db: Database, id: number, booksId: number): Promise<vo
   return db.transaction(async (tx) => {
     await getTagRow(tx, id, booksId)
 
-    const usedCountRow = await tx.select({ count: count() })
-      .from(tagWithRecord)
-      .where(eq(tagWithRecord.tagId, id))
-      .get()
-
-    if ((usedCountRow?.count ?? 0) > 0) {
-      throw new Error(`Tag is in use: ${id}`)
-    }
-
+    await tx.delete(tagWithRecord).where(eq(tagWithRecord.tagId, id))
     await tx.delete(tags).where(eq(tags.id, id))
   })
 }
