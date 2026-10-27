@@ -66,9 +66,9 @@ describe('Dialog', () => {
     const title = testRenderer.root.findByProps({
       testID: 'dialog-title-text'
     });
-    expect(title.props.size).toBe('lg');
+    expect(title.props.size).toBe('md');
     expect(title.props.color).toBe('heading');
-    expect(title.props.weight).toBe('strong');
+    expect(title.props.weight).toBe('semibold');
   });
   it('renders custom title and action nodes', () => {
     const testRenderer = renderDialog({
@@ -97,20 +97,52 @@ describe('Dialog', () => {
     expect(calls).toEqual(['cancel:cancel', 'open:false:cancel']);
     expect(testRenderer.toJSON()).toBeNull();
   });
-  it('fires onOk before closing when the ok action is pressed', () => {
+  it('fires onOk before closing when the ok action is pressed', async () => {
     const calls: string[] = [];
     const testRenderer = renderDialog({
       defaultOpen: true,
-      onOk: () => calls.push('ok'),
+      onOk: () => {
+        calls.push('ok');
+      },
       onOpenChange: (nextOpen, params) => calls.push(`open:${nextOpen}:${params.reason}`)
     });
-    act(() => {
-      testRenderer.root.findByProps({
+    await act(async () => {
+      await testRenderer.root.findByProps({
         testID: 'dialog-ok-button'
       }).props.onPress();
     });
     expect(calls).toEqual(['ok', 'open:false:ok']);
     expect(testRenderer.toJSON()).toBeNull();
+  });
+  it('keeps the dialog open when onOk returns false', async () => {
+    const onOk = jest.fn(() => false);
+    const testRenderer = renderDialog({
+      defaultOpen: true,
+      onOk
+    });
+    await act(async () => {
+      await testRenderer.root.findByProps({
+        testID: 'dialog-ok-button'
+      }).props.onPress();
+    });
+    expect(onOk).toHaveBeenCalledTimes(1);
+    expect(JSON.stringify(testRenderer.toJSON())).toContain('Dialog content');
+  });
+  it('keeps the dialog open when async onOk rejects', async () => {
+    const onOk = jest.fn(async () => {
+      throw new Error('failed');
+    });
+    const testRenderer = renderDialog({
+      defaultOpen: true,
+      onOk
+    });
+    await act(async () => {
+      await testRenderer.root.findByProps({
+        testID: 'dialog-ok-button'
+      }).props.onPress();
+    });
+    expect(onOk).toHaveBeenCalledTimes(1);
+    expect(JSON.stringify(testRenderer.toJSON())).toContain('Dialog content');
   });
   it('does not close or call onOk when okDisabled is true', () => {
     const onOk = jest.fn();
@@ -217,5 +249,23 @@ describe('Dialog', () => {
             </Dialog></>);
       });
     }).toThrow('PortalProvider');
+  });
+  it('renders the ok button as primary by default and danger when okDanger is true', () => {
+    const primary = renderDialog({
+      defaultOpen: true,
+      okText: 'Delete'
+    });
+    expect(primary.root.findByProps({
+      testID: 'dialog-ok-button'
+    }).props.type).toBe('primary');
+
+    const danger = renderDialog({
+      defaultOpen: true,
+      okDanger: true,
+      okText: 'Delete'
+    });
+    expect(danger.root.findByProps({
+      testID: 'dialog-ok-button'
+    }).props.type).toBe('danger');
   });
 });

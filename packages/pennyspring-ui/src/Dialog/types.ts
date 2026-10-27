@@ -32,7 +32,8 @@ export interface DialogProps {
   onOpenChange?: (open: boolean, params: DialogOpenChangeParams) => void;
   afterOpenChange?: PopupProps['afterOpenChange'];
   onCancel?: (params: DialogCancelParams) => void;
-  onOk?: () => void;
+  /** 点击确定；返回 false 或 Promise 拒绝时保持弹窗打开。 */
+  onOk?: () => void | boolean | Promise<void | boolean>;
   animation?: PopupAnimation;
   titleText?: string;
   title?: ReactNode;
@@ -40,6 +41,8 @@ export interface DialogProps {
   cancel?: ReactNode;
   okText?: string;
   ok?: ReactNode;
+  /** 主按钮是否使用危险色实底样式。 */
+  okDanger?: boolean;
   okDisabled?: boolean;
   mask?: boolean;
   closeOnMaskClick?: boolean;

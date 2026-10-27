@@ -208,4 +208,23 @@ describe('ActionSheet', () => {
     });
     expect(layout).toBeTruthy();
   });
+  it('renders action icons when provided', () => {
+    const testRenderer = renderActionSheet({
+      actions: [{
+        text: 'Edit',
+        icon: 'edit'
+      }, {
+        text: 'Delete',
+        icon: 'trash',
+        danger: true
+      }],
+      defaultOpen: true
+    });
+    expect(testRenderer.root.findByProps({
+      testID: 'action-sheet-action-icon-0'
+    })).toBeTruthy();
+    expect(testRenderer.root.findByProps({
+      testID: 'action-sheet-action-icon-1'
+    })).toBeTruthy();
+  });
 });

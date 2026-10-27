@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import type { StyleProp, TextStyle, ViewStyle } from 'react-native';
+import type { IconComponent, IconName } from '../Icon';
 import type { PortalMountPoint } from '../Portal/types';
 import type { PopupAnimation, PopupProps } from '../Popup';
 
@@ -8,6 +9,8 @@ export interface ActionSheetAction {
   description?: string;
   danger?: boolean;
   disabled?: boolean;
+  /** 可选的行内图标，展示在文字左侧。 */
+  icon?: IconName | IconComponent;
 }
 
 export type ActionSheetCancelReason = 'cancel' | 'mask' | 'back';

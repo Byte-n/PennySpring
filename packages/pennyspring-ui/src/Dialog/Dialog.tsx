@@ -15,38 +15,38 @@ import type {
 
 const DEFAULT_CANCEL_TEXT = '取消';
 const DEFAULT_OK_TEXT = '确定';
+const DIALOG_MAX_WIDTH = 300;
 
 const useStyles = createUseSheetStyle(
   token => {
     return {
       popupBody: {
+        maxWidth: DIALOG_MAX_WIDTH,
         padding: 0,
         width: '85%',
       },
       panel: {
-        borderRadius: token.borderRadius,
         backgroundColor: token.colorBgElevated,
+        borderRadius: token.borderRadiusLG,
+        overflow: 'hidden',
       },
       header: {
-        paddingHorizontal: token.paddingLG,
-        paddingTop: token.paddingLG / 2,
-        paddingBottom: token.paddingLG / 2,
-        marginBottom: token.marginLG / 2,
-        borderBottomWidth: token.lineWidth,
-        borderBottomColor: token.colorBorderSecondary,
+        paddingHorizontal: token.padding,
+        paddingTop: token.padding,
+        paddingBottom: token.paddingXS,
       },
       body: {
-        paddingHorizontal: token.paddingLG,
-        paddingVertical: token.paddingLG / 2,
+        paddingHorizontal: token.padding,
+        paddingVertical: token.paddingXS,
       },
       footer: {
-        paddingHorizontal: token.paddingLG,
-        marginTop: token.marginLG / 2,
-        paddingTop: token.paddingLG / 2,
-        paddingBottom: token.paddingLG / 2,
-        borderTopWidth: token.lineWidth,
-        borderTopColor: token.colorBorderSecondary,
         gap: token.marginSM,
+        paddingBottom: token.padding,
+        paddingHorizontal: token.padding,
+        paddingTop: token.paddingXS,
+      },
+      footerButton: {
+        borderRadius: token.borderRadiusSM,
       },
     };
   },
@@ -68,10 +68,10 @@ function renderTitle(
   return (
     <Text
       color="heading"
-      size="lg"
+      size="md"
       style={titleTextStyle}
       testID="dialog-title-text"
-      weight="strong"
+      weight="semibold"
     >
       {titleText}
     </Text>
@@ -82,17 +82,22 @@ function renderAction(
   content: React.ReactNode,
   text: string,
   style: StyleProp<ViewStyle>,
+  buttonStyle: StyleProp<ViewStyle>,
   onPress: () => void,
   testID: string,
+  type: 'default' | 'primary' | 'danger',
   disabled = false,
 ) {
+  const buttonStyleList = [buttonStyle, style];
+
   if (content !== undefined && content !== null) {
     return (
       <Button
         disabled={disabled}
         onPress={onPress}
-        style={style}
+        style={buttonStyleList}
         testID={testID}
+        type={type}
       >
         {content}
       </Button>
@@ -103,8 +108,9 @@ function renderAction(
     <Button
       disabled={disabled}
       onPress={onPress}
-      style={style}
+      style={buttonStyleList}
       testID={testID}
+      type={type}
     >
       {text}
     </Button>
@@ -122,6 +128,7 @@ export function Dialog({
   mask = true,
   mountPoint,
   ok,
+  okDanger = false,
   okDisabled = false,
   okText = DEFAULT_OK_TEXT,
   onCancel,
@@ -156,13 +163,19 @@ export function Dialog({
     cancelInternal('cancel');
   };
 
-  const handleOkPress = (): void => {
+  const handleOkPress = async (): Promise<void> => {
     if (okDisabled) {
       return;
     }
 
-    onOk?.();
-    closeInternal('ok');
+    try {
+      const result = await onOk?.();
+      if (result !== false) {
+        closeInternal('ok');
+      }
+    } catch {
+      // 失败时保持弹窗打开，由调用方在内容区展示原因
+    }
   };
 
   return (
@@ -195,15 +208,19 @@ export function Dialog({
             cancel,
             cancelText,
             slotStyles?.cancelButton,
+            tokenStyles.footerButton,
             handleCancelPress,
             'dialog-cancel-button',
+            'default',
           )}
           {renderAction(
             ok,
             okText,
             slotStyles?.okButton,
+            tokenStyles.footerButton,
             handleOkPress,
             'dialog-ok-button',
+            okDanger ? 'danger' : 'primary',
             okDisabled,
           )}
         </Row>

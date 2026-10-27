@@ -1,11 +1,12 @@
 import React from 'react';
+import { Pressable } from 'react-native';
 import { createUseSheetStyle } from '@pennyspring/theme';
-import { Button } from '../Button';
 import { Column } from '../Column';
+import { Icon } from '../Icon';
 import { Popup } from '../Popup';
 import { Text } from '../Text';
 import { useControllableValue } from '../_hooks';
-import type { StyleProp, TextStyle, ViewStyle } from 'react-native';
+import type { StyleProp, TextStyle } from 'react-native';
 import type {
   ActionSheetAction,
   ActionSheetCancelReason,
@@ -16,67 +17,87 @@ import type {
 const useStyles = createUseSheetStyle(token => {
   return {
     body: {
+      borderTopLeftRadius: 0,
+      borderTopRightRadius: 0,
+      paddingBottom: token.paddingSM,
+      paddingHorizontal: token.paddingSM,
+    },
+    popupBody: {
+      backgroundColor: 'transparent',
+      borderTopLeftRadius: 0,
+      borderTopRightRadius: 0,
       padding: 0,
-      borderTopLeftRadius: token.borderRadiusLG,
-      borderTopRightRadius: token.borderRadiusLG,
+      shadowColor: 'transparent',
+    },
+    panel: {
+      gap: token.marginSM,
+    },
+    group: {
+      backgroundColor: token.colorBgContainer,
+      borderRadius: token.borderRadiusLG,
+      overflow: 'hidden',
     },
     titleContainer: {
-      padding: token.paddingMD,
-      paddingBottom: token.paddingSM,
       alignItems: 'center',
+      borderBottomColor: token.colorSplit,
+      borderBottomWidth: token.lineWidth,
+      paddingHorizontal: token.padding,
+      paddingVertical: token.paddingSM,
     },
     titleText: {
-      color: token.colorTextHeading,
-      fontSize: token.fontSizeLG,
-      lineHeight: token.lineHeightLG,
-      fontWeight: String(token.fontWeightStrong) as TextStyle['fontWeight'],
-    },
-    actionsContainer: {
-      padding: token.paddingSM,
+      color: token.colorTextTertiary,
+      fontSize: token.fontSizeXS,
+      lineHeight: token.lineHeightXS,
     },
     action: {
-      padding: token.paddingMD,
       alignItems: 'center',
+      flexDirection: 'row',
+      gap: token.marginXS,
+      height: token.controlHeightLG,
+      justifyContent: 'center',
+    },
+    actionPressed: {
+      backgroundColor: token.colorFillQuaternary,
     },
     actionContent: {
       alignItems: 'center',
     },
     actionText: {
       color: token.colorText,
-      fontSize: token.fontSizeLG,
-      lineHeight: token.lineHeightLG,
+      fontSize: token.fontSize,
+      lineHeight: token.lineHeight,
     },
     actionDescription: {
       color: token.colorTextSecondary,
       fontSize: token.fontSizeSM,
       lineHeight: token.lineHeightSM,
-      marginTop: token.marginXXS,
     },
     dangerActionText: {
-      color: token.colorError,
+      color: token.colorErrorText,
     },
     disabledActionText: {
       color: token.colorTextDisabled,
     },
-    cancelButtonContainer: {
-      padding: token.paddingSM,
-      paddingTop: 0,
+    actionSeparator: {
+      backgroundColor: token.colorSplit,
+      height: token.lineWidth,
     },
+    cancelButtonContainer: {},
     cancelButton: {
-      padding: token.paddingMD,
       alignItems: 'center',
-      backgroundColor: token.colorBgElevated,
-      borderTopLeftRadius: token.borderRadiusLG,
-      borderTopRightRadius: token.borderRadiusLG,
+      backgroundColor: token.colorBgContainer,
+      borderRadius: token.borderRadiusLG,
+      height: token.controlHeightLG,
+      justifyContent: 'center',
+    },
+    cancelButtonPressed: {
+      backgroundColor: token.colorFillQuaternary,
     },
     cancelButtonText: {
       color: token.colorText,
-      fontSize: token.fontSizeLG,
-      lineHeight: token.lineHeightLG,
-    },
-    separator: {
-      height: token.lineWidth,
-      backgroundColor: token.colorBorderSecondary,
+      fontSize: token.fontSize,
+      fontWeight: String(token.fontWeightSemiBold) as TextStyle['fontWeight'],
+      lineHeight: token.lineHeight,
     },
   };
 });
@@ -108,14 +129,9 @@ function renderTitle(
 function renderAction(
   action: ActionSheetAction,
   index: number,
-  actionContainerStyle: StyleProp<ViewStyle>,
-  actionContentStyle: StyleProp<ViewStyle>,
-  actionTextStyle: StyleProp<TextStyle>,
-  actionDescriptionStyle: StyleProp<TextStyle>,
-  dangerActionTextStyle: StyleProp<TextStyle>,
-  disabledActionTextStyle: StyleProp<TextStyle>,
+  styles: ReturnType<typeof useStyles>,
   onAction?: (action: ActionSheetAction, index: number) => void,
-) {
+): React.ReactNode {
   const handlePress = (): void => {
     if (action.disabled) {
       return;
@@ -124,27 +140,42 @@ function renderAction(
   };
 
   const textStyle = [
-    actionTextStyle,
-    action.danger && dangerActionTextStyle,
-    action.disabled && disabledActionTextStyle,
+    styles.actionText,
+    action.danger && styles.dangerActionText,
+    action.disabled && styles.disabledActionText,
   ];
+  const iconColor = action.disabled
+    ? 'disabled'
+    : action.danger
+      ? 'error'
+      : 'default';
 
   return (
-    <Button
+    <Pressable
       disabled={action.disabled}
       key={index}
       onPress={handlePress}
-      style={actionContainerStyle}
+      style={({ pressed }) => [
+        styles.action,
+        pressed && styles.actionPressed,
+      ]}
       testID={`action-sheet-action-${index}`}
-      type="text"
     >
-      <Column style={actionContentStyle}>
+      {action.icon ? (
+        <Icon
+          color={iconColor}
+          icon={action.icon}
+          size="normal"
+          testID={`action-sheet-action-icon-${index}`}
+        />
+      ) : null}
+      <Column style={styles.actionContent}>
         <Text style={textStyle}>{action.text}</Text>
         {action.description ? (
-          <Text style={actionDescriptionStyle}>{action.description}</Text>
+          <Text style={styles.actionDescription}>{action.description}</Text>
         ) : null}
       </Column>
-    </Button>
+    </Pressable>
   );
 }
 
@@ -217,53 +248,44 @@ export function ActionSheet({
       style={tokenStyles.body}
       styles={{
         mask: slotStyles?.mask,
-        body: slotStyles?.body,
+        body: [tokenStyles.popupBody, slotStyles?.body],
       }}
     >
-      <Column style={style} testID="action-sheet-panel">
-        {titleNode ? (
-          <Column
-            style={tokenStyles.titleContainer}
-            testID="action-sheet-title-container"
-          >
-            {titleNode}
+      <Column style={[tokenStyles.panel, style]} testID="action-sheet-panel">
+        {titleNode || actions.length > 0 ? (
+          <Column style={tokenStyles.group} testID="action-sheet-group">
+            {titleNode ? (
+              <Column
+                style={tokenStyles.titleContainer}
+                testID="action-sheet-title-container"
+              >
+                {titleNode}
+              </Column>
+            ) : null}
+            <Column testID="action-sheet-actions-container">
+              {actions.map((action, index) => (
+                <React.Fragment key={index}>
+                  {index > 0 ? (
+                    <Column style={tokenStyles.actionSeparator} />
+                  ) : null}
+                  {renderAction(action, index, tokenStyles, handleActionPress)}
+                </React.Fragment>
+              ))}
+            </Column>
           </Column>
         ) : null}
-        <Column
-          style={tokenStyles.actionsContainer}
-          testID="action-sheet-actions-container"
-        >
-          {actions.map((action, index) =>
-            renderAction(
-              action,
-              index,
-              tokenStyles.action,
-              tokenStyles.actionContent,
-              tokenStyles.actionText,
-              tokenStyles.actionDescription,
-              tokenStyles.dangerActionText,
-              tokenStyles.disabledActionText,
-              handleActionPress,
-            ),
-          )}
-        </Column>
         {shouldRenderCancelSection ? (
           <Column
             style={tokenStyles.cancelButtonContainer}
             testID="action-sheet-cancel-container"
           >
-            <Column style={tokenStyles.separator} />
-            <Button
+            <Pressable
               onPress={handleCancelPress}
-              style={tokenStyles.cancelButton}
-              styles={{
-                content: [
-                  tokenStyles.cancelButtonText,
-                  slotStyles?.cancelButtonText,
-                ],
-              }}
+              style={({ pressed }) => [
+                tokenStyles.cancelButton,
+                pressed && tokenStyles.cancelButtonPressed,
+              ]}
               testID="action-sheet-cancel-button"
-              type="text"
             >
               {cancel !== undefined ? (
                 cancel
@@ -278,7 +300,7 @@ export function ActionSheet({
                   {cancelText}
                 </Text>
               )}
-            </Button>
+            </Pressable>
           </Column>
         ) : null}
       </Column>

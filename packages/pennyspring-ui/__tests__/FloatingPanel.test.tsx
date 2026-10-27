@@ -151,6 +151,30 @@ describe('Popup.FloatingPanel', () => {
     })).toHaveLength(0);
   });
 
+  it('renders only the ok button when cancel is null', () => {
+    let testRenderer: renderer.ReactTestRenderer;
+
+    act(() => {
+      testRenderer = renderer.create(
+        <Popup.FloatingPanel cancel={null} defaultOpen okText="Save">
+          <RNText>content</RNText>
+        </Popup.FloatingPanel>,
+      );
+    });
+
+    expect(testRenderer!.root.findByProps({
+      testID: 'floating-panel-footer',
+    })).toBeTruthy();
+    expect(testRenderer!.root.findAllByProps({
+      testID: 'floating-panel-cancel-button',
+    })).toHaveLength(0);
+    expect(testRenderer!.root.findByProps({
+      testID: 'floating-panel-ok-button',
+    })).toBeTruthy();
+    expect(JSON.stringify(testRenderer!.toJSON())).toContain('Save');
+    expect(JSON.stringify(testRenderer!.toJSON())).not.toContain('取消');
+  });
+
   it('applies size-based title text and default button sizes', () => {
     const titleTextSizeByPanelSize = {
       small: 'md',
@@ -610,5 +634,102 @@ describe('Popup.FloatingPanel', () => {
     });
 
     expect(testRenderer!.toJSON()).toBeNull();
+  });
+
+  it('renders a header close button by default and closes on press', () => {
+    const onCancel = jest.fn();
+    const onOpenChange = jest.fn();
+    let testRenderer: renderer.ReactTestRenderer;
+
+    act(() => {
+      testRenderer = renderer.create(
+        <Popup.FloatingPanel
+          defaultOpen
+          onCancel={onCancel}
+          onOpenChange={onOpenChange}
+          titleText="Panel title"
+        >
+          <RNText>content</RNText>
+        </Popup.FloatingPanel>,
+      );
+    });
+
+    act(() => {
+      testRenderer!.root.findByProps({
+        testID: 'floating-panel-close-button',
+      }).props.onPress();
+    });
+
+    expect(onCancel).toHaveBeenCalledTimes(1);
+    expect(onOpenChange).toHaveBeenCalledWith(false);
+    expect(testRenderer!.toJSON()).toBeNull();
+  });
+
+  it('hides the header close button when showCloseButton is false', () => {
+    let testRenderer: renderer.ReactTestRenderer;
+
+    act(() => {
+      testRenderer = renderer.create(
+        <Popup.FloatingPanel
+          defaultOpen
+          showCloseButton={false}
+          titleText="Panel title"
+        >
+          <RNText>content</RNText>
+        </Popup.FloatingPanel>,
+      );
+    });
+
+    expect(testRenderer!.root.findAllByProps({
+      testID: 'floating-panel-close-button',
+    })).toHaveLength(0);
+  });
+
+  it('renders header left and right slots around the title', () => {
+    let testRenderer: renderer.ReactTestRenderer;
+
+    act(() => {
+      testRenderer = renderer.create(
+        <Popup.FloatingPanel
+          defaultOpen
+          renderHeaderLeft={() => <RNText>left-slot</RNText>}
+          renderHeaderRight={() => <RNText>right-slot</RNText>}
+          titleText="Panel title"
+        >
+          <RNText>content</RNText>
+        </Popup.FloatingPanel>,
+      );
+    });
+
+    const tree = JSON.stringify(testRenderer!.toJSON());
+    expect(tree).toContain('left-slot');
+    expect(tree).toContain('Panel title');
+    expect(tree).toContain('right-slot');
+    expect(tree.indexOf('left-slot')).toBeLessThan(tree.indexOf('Panel title'));
+    expect(tree.indexOf('Panel title')).toBeLessThan(tree.indexOf('right-slot'));
+  });
+
+  it('ignores header left and right slots when renderHeader is provided', () => {
+    let testRenderer: renderer.ReactTestRenderer;
+
+    act(() => {
+      testRenderer = renderer.create(
+        <Popup.FloatingPanel
+          defaultOpen
+          renderHeader={() => <RNText>custom-header</RNText>}
+          renderHeaderLeft={() => <RNText>left-slot</RNText>}
+          renderHeaderRight={() => <RNText>right-slot</RNText>}
+          titleText="Panel title"
+        >
+          <RNText>content</RNText>
+        </Popup.FloatingPanel>,
+      );
+    });
+
+    const tree = JSON.stringify(testRenderer!.toJSON());
+    expect(tree).toContain('custom-header');
+    expect(tree).not.toContain('left-slot');
+    expect(tree).not.toContain('right-slot');
+    expect(tree).not.toContain('Panel title');
   });
 });

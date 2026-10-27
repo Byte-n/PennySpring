@@ -101,6 +101,12 @@ export interface PopupFloatingPanelProps {
   title?: ReactNode;
   header?: ReactNode;
   renderHeader?: ((params: PopupFloatingPanelRenderHeaderParams) => ReactNode) | null;
+  /** 自定义头部左侧内容；提供 renderHeader 或 header 时无效。 */
+  renderHeaderLeft?: ((params: PopupFloatingPanelRenderHeaderParams) => ReactNode) | null;
+  /** 自定义头部右侧内容；提供 renderHeader 或 header 时无效。 */
+  renderHeaderRight?: ((params: PopupFloatingPanelRenderHeaderParams) => ReactNode) | null;
+  /** 是否在头部右侧展示内置关闭按钮，默认 true。 */
+  showCloseButton?: boolean;
   cancelText?: string;
   cancel?: ReactNode;
   okText?: string;

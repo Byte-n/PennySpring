@@ -26,6 +26,7 @@ import {
 } from 'react-native-reanimated';
 import { Button } from '../Button';
 import { Column } from '../Column';
+import { Icon } from '../Icon';
 import { Row } from '../Row';
 import { Text } from '../Text';
 import type { TextSize } from '../Text';
@@ -40,6 +41,8 @@ import type {
   PopupFloatingPanelRenderFooterParams,
   PopupFloatingPanelRenderHeaderParams,
 } from './types';
+
+const CLOSE_BUTTON_HIT_SLOP = 4;
 
 interface FloatingPanelStyleOptions {
   hasFooter: boolean;
@@ -174,11 +177,28 @@ const useStyles = createUseSheetStyle(
         flex: 1,
       },
       header: {
-        borderBottomWidth: token.lineWidth,
-        borderBottomColor: token.colorBorderSecondary,
         paddingHorizontal: contentPadding,
-        paddingTop: contentPadding,
+        paddingTop: 0,
         paddingBottom: sectionPadding,
+      },
+      headerRow: {
+        alignItems: 'center',
+        flexDirection: 'row',
+        gap: token.marginXS,
+      },
+      headerTitle: {
+        flex: 1,
+        minWidth: 0,
+      },
+      closeButton: {
+        alignItems: 'center',
+        borderRadius: token.borderRadiusSM,
+        height: token.controlHeightSM,
+        justifyContent: 'center',
+        width: token.controlHeightSM,
+      },
+      closeButtonPressed: {
+        backgroundColor: token.colorFill,
       },
       titleText: {
         fontWeight: String(token.fontWeightStrong) as TextStyle['fontWeight'],
@@ -335,11 +355,21 @@ function renderTitle(
 function renderPanelHeader(
   props: Pick<
     PopupFloatingPanelProps,
-    'header' | 'renderHeader' | 'title' | 'titleText'
+    | 'header'
+    | 'renderHeader'
+    | 'renderHeaderLeft'
+    | 'renderHeaderRight'
+    | 'showCloseButton'
+    | 'title'
+    | 'titleText'
   >,
   params: PopupFloatingPanelRenderHeaderParams,
   titleTextSize: TextSize,
   titleTextStyle: StyleProp<TextStyle>,
+  headerRowStyle: StyleProp<ViewStyle>,
+  headerTitleStyle: StyleProp<ViewStyle>,
+  closeButtonStyle: StyleProp<ViewStyle>,
+  closeButtonPressedStyle: StyleProp<ViewStyle>,
 ): React.ReactNode {
   if (props.renderHeader === null || props.header === null) {
     return null;
@@ -353,11 +383,52 @@ function renderPanelHeader(
     return props.header;
   }
 
-  return renderTitle(
+  const leftNode = props.renderHeaderLeft?.(params);
+  const rightNode = props.renderHeaderRight?.(params);
+  const titleNode = renderTitle(
     props.title,
     props.titleText,
     titleTextSize,
     titleTextStyle,
+  );
+  const shouldShowCloseButton = props.showCloseButton !== false;
+
+  if (
+    leftNode === undefined &&
+    rightNode === undefined &&
+    titleNode === null &&
+    !shouldShowCloseButton
+  ) {
+    return null;
+  }
+
+  return (
+    <Row style={headerRowStyle}>
+      {leftNode === undefined
+        ? null
+        : renderTextNode(leftNode, text => (
+            <Text color="secondary">{text}</Text>
+          ))}
+      <Column style={headerTitleStyle}>{titleNode}</Column>
+      {rightNode === undefined
+        ? null
+        : renderTextNode(rightNode, text => (
+            <Text color="secondary">{text}</Text>
+          ))}
+      {shouldShowCloseButton ? (
+        <Pressable
+          hitSlop={CLOSE_BUTTON_HIT_SLOP}
+          onPress={params.cancel}
+          style={({ pressed }) => [
+            closeButtonStyle,
+            pressed && closeButtonPressedStyle,
+          ]}
+          testID="floating-panel-close-button"
+        >
+          <Icon icon="close" size="normal" />
+        </Pressable>
+      ) : null}
+    </Row>
   );
 }
 
@@ -368,7 +439,7 @@ function shouldRenderDefaultFooter({
   PopupFloatingPanelProps,
   'cancel' | 'ok'
 >): boolean {
-  return cancel !== null && ok !== null;
+  return cancel !== null || ok !== null;
 }
 
 function renderDefaultFooter(
@@ -496,7 +567,10 @@ export function FloatingPanel({
   position,
   renderFooter,
   renderHeader,
+  renderHeaderLeft,
+  renderHeaderRight,
   scrollEnabled = true,
+  showCloseButton = true,
   size,
   style,
   styles,
@@ -549,6 +623,8 @@ export function FloatingPanel({
     (
       renderHeader !== undefined ||
       header !== undefined ||
+      renderHeaderLeft !== undefined ||
+      renderHeaderRight !== undefined ||
       (title !== undefined && title !== null) ||
       (title === undefined && titleText !== undefined)
     );
@@ -695,6 +771,9 @@ export function FloatingPanel({
     {
       header,
       renderHeader,
+      renderHeaderLeft,
+      renderHeaderRight,
+      showCloseButton,
       title,
       titleText,
     },
@@ -704,6 +783,10 @@ export function FloatingPanel({
     },
     floatingPanelSizeConfig.titleTextSize,
     [tokenStyles.titleText, styles?.titleText],
+    tokenStyles.headerRow,
+    tokenStyles.headerTitle,
+    tokenStyles.closeButton,
+    tokenStyles.closeButtonPressed,
   );
   const footerNode = renderPanelFooter(
     {
@@ -750,7 +833,7 @@ export function FloatingPanel({
       <Column style={[tokenStyles.root, style]} testID="floating-panel-root">
         {handleAtTop ? handleNode : null}
         <Column style={[tokenStyles.content, styles?.content]}>
-          {headerNode ? (
+          {willRenderHeader ? (
             <Column style={[tokenStyles.header, styles?.header]} testID="floating-panel-header">
               {renderTextNode(headerNode, (text) => (
                 <Text color="heading">{text}</Text>
