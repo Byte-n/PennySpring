@@ -356,7 +356,7 @@ export const COMPONENT_PREVIEW_SECTIONS = [
       {
         id: 'slider',
         title: 'Slider',
-        description: '滑块范围、步长、尺寸和状态。',
+        description: '滑块范围、步长、尺寸、状态与数值标注。',
         component: SliderPreview,
       },
       {

@@ -1,10 +1,17 @@
 import type { ComponentSize } from '../shares/types';
 import React, { useMemo, useState } from 'react';
 import { View } from 'react-native';
+import Animated, {
+  Easing,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
 import {
   Gesture,
   GestureDetector,
 } from 'react-native-gesture-handler';
+import { useTheme } from '@pennyspring/theme';
 import { useControllableValue } from '../_hooks';
 import { useStyles } from './style';
 import type { SliderProps } from './types';
@@ -12,6 +19,9 @@ import type { SliderProps } from './types';
 const DEFAULT_MIN = 0;
 const DEFAULT_MAX = 100;
 const DEFAULT_STEP = 1;
+
+/** 按压时 thumb 放大 10%。 */
+const PRESS_SCALE_DELTA = 0.1;
 
 
 function resolveSize(size?: ComponentSize): ComponentSize {
@@ -81,6 +91,8 @@ export function Slider({
     onChange,
   );
   const [trackWidth, setTrackWidth] = useState(0);
+  const { token } = useTheme();
+  const pressProgress = useSharedValue(0);
   const isReadOnly = disabled || readonly;
   const currentValue = normalizeValue(
     internalValue ?? safeMin,
@@ -117,6 +129,17 @@ export function Slider({
     setTrackWidth(event.nativeEvent.layout.width);
   }
 
+  function setPressed(pressed: boolean): void {
+    pressProgress.value = withTiming(pressed ? 1 : 0, {
+      duration: token.motionDurationFast,
+      easing: Easing.bezier(...token.motionEaseOut),
+    });
+  }
+
+  const thumbAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: 1 + pressProgress.value * PRESS_SCALE_DELTA }],
+  }));
+
   const panGesture = useMemo(
     () =>
       Gesture.Pan()
@@ -124,6 +147,7 @@ export function Slider({
         .runOnJS(true)
         .minDistance(0)
         .onBegin((event) => {
+          setPressed(true);
           updateFromLocation(event.x);
         })
         .onUpdate((event) => {
@@ -131,8 +155,21 @@ export function Slider({
         })
         .onEnd((event) => {
           updateFromLocation(event.x);
+        })
+        .onFinalize(() => {
+          setPressed(false);
         }),
-    [isReadOnly, trackWidth, safeMin, safeMax, safeStep, currentValue],
+    [
+      isReadOnly,
+      trackWidth,
+      safeMin,
+      safeMax,
+      safeStep,
+      currentValue,
+      pressProgress,
+      token.motionDurationFast,
+      token.motionEaseOut,
+    ],
   );
 
   return (
@@ -149,11 +186,17 @@ export function Slider({
           />
         </View>
       </GestureDetector>
-      <View
-        pointerEvents="none"
-        style={[tokenStyles.thumbContainer]}
-      >
-        <View testID="slider-thumb" style={[tokenStyles.thumb, styles?.thumb]} />
+      <View pointerEvents="none" style={[tokenStyles.thumbContainer]}>
+        <Animated.View
+          testID="slider-thumb"
+          style={[
+            tokenStyles.thumb,
+            !isReadOnly ? tokenStyles.thumbRaised : null,
+            disabled ? tokenStyles.thumbDisabled : null,
+            styles?.thumb,
+            thumbAnimatedStyle,
+          ]}
+        />
       </View>
     </View>
   );

@@ -1,4 +1,4 @@
-import { createUseSheetStyle } from '@pennyspring/theme';
+import { createUseSheetStyle, toShadowStyle } from '@pennyspring/theme';
 import type { AliasToken } from '@pennyspring/theme';
 import type { ComponentSize } from '../../shares/types';
 
@@ -11,63 +11,74 @@ export interface SliderStyleOptions {
 
 interface SliderSizeConfig {
   height: (token: AliasToken) => number;
-  thumbSize: (token: AliasToken) => number;
-  trackHeight: (token: AliasToken) => number;
+  thumbSize: number;
+  trackHeight: number;
 }
 
-export const SIZE_MAP: Record<ComponentSize, SliderSizeConfig> = {
+/** 轨道 4 / 6 / 8 与 thumb 16 / 20 / 24 在 AliasToken 中没有对应档位。 */
+const SIZE_MAP: Record<ComponentSize, SliderSizeConfig> = {
   small: {
     height: token => token.controlHeightSM,
-    thumbSize: token => token.fontSize,
-    trackHeight: token => token.lineWidthBold,
+    thumbSize: 16,
+    trackHeight: 4,
   },
   normal: {
     height: token => token.controlHeight,
-    thumbSize: token => token.fontSizeXL,
-    trackHeight: token => token.sizeXXS,
+    thumbSize: 20,
+    trackHeight: 6,
   },
   large: {
     height: token => token.controlHeightLG,
-    thumbSize: token => token.fontSizeHeading5,
-    trackHeight: token => token.sizeXS,
+    thumbSize: 24,
+    trackHeight: 8,
   },
 };
+
+const PILL_RADIUS = 999;
 
 export const useStyles = createUseSheetStyle(
   (token, { size, disabled, progress, trackWidth }: SliderStyleOptions) => {
     const sizeConfig = SIZE_MAP[size];
+    const thumbRadius = sizeConfig.thumbSize / 2;
 
     return {
       root: {
-        minHeight: sizeConfig.height(token),
         justifyContent: 'center',
+        minHeight: sizeConfig.height(token),
       },
       track: {
-        width: '100%',
-        height: sizeConfig.trackHeight(token),
-        borderRadius: token.borderRadiusSM,
-        backgroundColor: disabled ? token.colorFillTertiary : token.colorFillSecondary,
+        backgroundColor: disabled
+          ? token.colorFillQuaternary
+          : token.colorFillSecondary,
+        borderRadius: PILL_RADIUS,
+        height: sizeConfig.trackHeight,
+        marginHorizontal: thumbRadius,
         overflow: 'hidden',
       },
       trackFill: {
-        width: `${progress * 100}%`,
+        backgroundColor: disabled ? token.colorTextQuaternary : token.colorPrimary,
+        borderRadius: PILL_RADIUS,
         height: '100%',
-        borderRadius: token.borderRadiusSM,
-        backgroundColor: disabled ? token.colorFillContent : token.colorPrimary,
+        width: `${progress * 100}%`,
       },
       thumbContainer: {
+        left: trackWidth * progress,
         position: 'absolute',
         top: '50%',
-        left: trackWidth * progress,
       },
       thumb: {
-        width: sizeConfig.thumbSize(token),
-        height: sizeConfig.thumbSize(token),
-        marginTop: -sizeConfig.thumbSize(token) / 2,
-        borderRadius: token.borderRadius,
-        backgroundColor: disabled ? token.colorFillContent : token.colorBgContainer,
+        backgroundColor: token.colorBgContainer,
+        borderColor: token.colorPrimary,
+        borderRadius: PILL_RADIUS,
+        borderWidth: token.lineWidthBold,
+        height: sizeConfig.thumbSize,
+        marginTop: -thumbRadius,
+        width: sizeConfig.thumbSize,
+      },
+      thumbRaised: toShadowStyle(token.boxShadowTertiary),
+      thumbDisabled: {
+        borderColor: token.colorBorder,
         borderWidth: token.lineWidth,
-        borderColor: disabled ? token.colorBorderDisabled : token.colorPrimary,
       },
     };
   },

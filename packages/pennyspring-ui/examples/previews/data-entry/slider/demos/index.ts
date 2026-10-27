@@ -1,21 +1,18 @@
 import {
-  sliderBasicAndSizeDemoTitle,
-  SliderBasicAndSizeDemo,
-} from './basic-and-size';
-import {
-  sliderRangeAndStateDemoTitle,
-  SliderRangeAndStateDemo,
-} from './range-and-state';
+  sliderAnnotationsDemoTitle,
+  SliderAnnotationsDemo,
+} from './annotations';
+import { sliderDarkDemoTitle, SliderDarkDemo } from './dark';
+import { sliderSizeDemoTitle, SliderSizeDemo } from './size';
+import { sliderStatesDemoTitle, SliderStatesDemo } from './states';
 
 export const sliderDemos = [
+  { id: 'size', title: sliderSizeDemoTitle, Component: SliderSizeDemo },
+  { id: 'states', title: sliderStatesDemoTitle, Component: SliderStatesDemo },
   {
-    id: 'basic-and-size',
-    title: sliderBasicAndSizeDemoTitle,
-    Component: SliderBasicAndSizeDemo,
+    id: 'annotations',
+    title: sliderAnnotationsDemoTitle,
+    Component: SliderAnnotationsDemo,
   },
-  {
-    id: 'range-and-state',
-    title: sliderRangeAndStateDemoTitle,
-    Component: SliderRangeAndStateDemo,
-  },
+  { id: 'dark', title: sliderDarkDemoTitle, Component: SliderDarkDemo },
 ];
