@@ -47,7 +47,7 @@
 - `DateTimePicker`：日期时间选择。支持 `precision`（year/month/day/hour/minute/second）与 `layout`（`wheel` 默认 / `calendar` 日历浮层）；`DateTimePicker.Date` 仅日期、`DateTimePicker.Time` 仅时间（强制滚轮）。含时间精度且使用日历布局时，可点底部入口在日历与时间滚轮之间翻页。两种布局均支持 `allowClear`、`status`、`helper`/`error` 与 `loading`（日历布局以加载面板替代日历内容）。
 - `CalendarPicker`：日历输入型选择器，值使用 `Date`。`CalendarPicker.View` 为纯日历面板（`mode` 支持 date/month/year，`CalendarPicker.View.Range` 为范围面板）；`CalendarPicker` 为触发器 + 浮层，`CalendarPicker.Range` 为输入型范围选择。面板支持标记、禁用日期、最小/最大日期与自定义文案，触发器支持 `allowClear` 与校验状态展示。
 - `ListPicker`：基于 `FlatList` 的单选/多选触发器与选择面板，支持分组、搜索、受控值与 `allowClear`。触发器样式统一通过 `styles.input` 覆盖；`ListPicker.Cascader` 为层级 Tab + 列表的级联子模式，支持 `closeOnSelectLeaf`、`displayMode="tag"` 与 `allowClear`。
-- `Segmented`：紧凑分段选择。
+- `Segmented`：紧凑分段选择。轨道高取 `controlHeightSM / controlHeight / controlHeightLG`，内边距 2 / 3 / 4，item 圆角 8 / 8 / 12；选中块为白底 + `boxShadowTertiary` + `colorText` 600，未选二级、禁用四级；支持 `options[].icon` / `label` / `disabled`、`block` 与 `size`。
 - `SegmentedControl`：顶部标签式分段控件。
 
 ## 列表与数据展示

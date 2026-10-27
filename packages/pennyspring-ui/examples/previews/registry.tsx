@@ -277,7 +277,7 @@ export const COMPONENT_PREVIEW_SECTIONS = [
       {
         id: 'segmented',
         title: 'Segmented',
-        description: '分段选择、图标选项、尺寸和受控切换。',
+        description: '分段选择、图标选项、全宽与禁用状态。',
         component: SegmentedPreview,
       },
       {

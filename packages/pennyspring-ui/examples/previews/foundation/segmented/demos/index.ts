@@ -1,27 +1,27 @@
+import { segmentedBlockDemoTitle, SegmentedBlockDemo } from './block';
 import {
-  segmentedControlledBlockDemoTitle,
-  SegmentedControlledBlockDemo,
-} from './controlled-block';
-import { segmentedOptionsDemoTitle, SegmentedOptionsDemo } from './options';
+  segmentedContentDemoTitle,
+  SegmentedContentDemo,
+} from './content';
+import { segmentedDarkDemoTitle, SegmentedDarkDemo } from './dark';
+import { segmentedSizeDemoTitle, SegmentedSizeDemo } from './size';
 import {
-  segmentedSizeAndDisabledDemoTitle,
-  SegmentedSizeAndDisabledDemo,
-} from './size-and-disabled';
+  segmentedStatesDemoTitle,
+  SegmentedStatesDemo,
+} from './states';
 
 export const segmentedDemos = [
+  { id: 'size', title: segmentedSizeDemoTitle, Component: SegmentedSizeDemo },
   {
-    id: 'controlled-block',
-    title: segmentedControlledBlockDemoTitle,
-    Component: SegmentedControlledBlockDemo,
+    id: 'states',
+    title: segmentedStatesDemoTitle,
+    Component: SegmentedStatesDemo,
   },
   {
-    id: 'options',
-    title: segmentedOptionsDemoTitle,
-    Component: SegmentedOptionsDemo,
+    id: 'content',
+    title: segmentedContentDemoTitle,
+    Component: SegmentedContentDemo,
   },
-  {
-    id: 'size-and-disabled',
-    title: segmentedSizeAndDisabledDemoTitle,
-    Component: SegmentedSizeAndDisabledDemo,
-  },
+  { id: 'block', title: segmentedBlockDemoTitle, Component: SegmentedBlockDemo },
+  { id: 'dark', title: segmentedDarkDemoTitle, Component: SegmentedDarkDemo },
 ];

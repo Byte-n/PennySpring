@@ -1,4 +1,4 @@
-import { createUseSheetStyle } from '@pennyspring/theme';
+import { createUseSheetStyle, toShadowStyle } from '@pennyspring/theme';
 import type { AliasToken } from '@pennyspring/theme';
 import type { ComponentSize } from '../../shares/types';
 
@@ -9,36 +9,48 @@ export interface SegmentedStyleOptions {
 }
 
 interface SizeStyleConfig {
-  minHeight: (token: AliasToken) => number;
+  inset: number;
+  trackRadius: number;
   itemPaddingHorizontal: (token: AliasToken) => number;
-  itemPaddingVertical: (token: AliasToken) => number;
-  gap: (token: AliasToken) => number;
+  trackHeight: (token: AliasToken) => number;
 }
 
-export const SIZE_STYLE_MAP: Record<ComponentSize, SizeStyleConfig> = {
+/** 图标与文字间距 6 无对应 token。 */
+const ICON_GAP = 6;
+
+/** 自动宽度下每个 item 的最小宽度。 */
+const ITEM_MIN_WIDTH = 64;
+
+const SIZE_STYLE_MAP: Record<ComponentSize, SizeStyleConfig> = {
   small: {
-    minHeight: token => token.controlHeightSM,
-    itemPaddingHorizontal: token => token.controlPaddingHorizontalSM,
-    itemPaddingVertical: token => token.controlPaddingHorizontalSM / 2,
-    gap: token => token.sizeXXS,
+    inset: 2,
+    trackRadius: 10,
+    itemPaddingHorizontal: token => token.paddingXS,
+    trackHeight: token => token.controlHeightSM,
   },
   normal: {
-    minHeight: token => token.controlHeight,
-    itemPaddingHorizontal: token => token.controlPaddingHorizontal,
-    itemPaddingVertical: token => token.controlPaddingHorizontal / 2,
-    gap: token => token.sizeXXS,
+    inset: 3,
+    trackRadius: 12,
+    itemPaddingHorizontal: token => token.paddingSM,
+    trackHeight: token => token.controlHeight,
   },
   large: {
-    minHeight: token => token.controlHeightLG,
-    itemPaddingHorizontal: token => token.paddingMD,
-    itemPaddingVertical: token => token.paddingMD / 2,
-    gap: token => token.sizeXS,
+    inset: 4,
+    trackRadius: 16,
+    itemPaddingHorizontal: token => token.padding,
+    trackHeight: token => token.controlHeightLG,
   },
 };
+
+function getItemRadius(token: AliasToken, size: ComponentSize): number {
+  return size === 'large' ? token.borderRadiusLG : token.borderRadius;
+}
 
 export const useStyles = createUseSheetStyle(
   (token, { block, disabled, size }: SegmentedStyleOptions) => {
     const sizeConfig = SIZE_STYLE_MAP[size];
+    const itemRadius = getItemRadius(token, size);
+    const itemHeight = sizeConfig.trackHeight(token) - sizeConfig.inset * 2;
 
     return {
       root: {
@@ -46,48 +58,44 @@ export const useStyles = createUseSheetStyle(
         width: block ? '100%' : undefined,
       },
       track: {
-        flexDirection: 'row',
         alignItems: 'center',
-        minHeight: sizeConfig.minHeight(token),
-        padding: token.paddingXXS,
-        borderRadius: token.borderRadius,
         backgroundColor: disabled
-          ? token.colorBgContainerDisabled
+          ? token.colorFillQuaternary
           : token.colorFillTertiary,
-      },
-      trackDisabled: {
-        borderColor: token.colorBorderDisabled,
+        borderRadius: sizeConfig.trackRadius,
+        flexDirection: 'row',
+        height: sizeConfig.trackHeight(token),
+        padding: sizeConfig.inset,
       },
       item: {
-        flex: block ? 1 : undefined,
-        paddingHorizontal: sizeConfig.itemPaddingHorizontal(token),
-        paddingVertical: sizeConfig.itemPaddingVertical(token) / 2,
-        borderRadius: token.borderRadiusSM,
         alignItems: 'center',
-        justifyContent: 'center',
         backgroundColor: 'transparent',
+        borderRadius: itemRadius,
+        flex: block ? 1 : undefined,
+        height: itemHeight,
+        justifyContent: 'center',
+        minWidth: ITEM_MIN_WIDTH,
+        paddingHorizontal: sizeConfig.itemPaddingHorizontal(token),
       },
       itemSelected: {
         backgroundColor: token.colorBgContainer,
       },
-      itemPressed: {
-        backgroundColor: token.controlItemBgActive,
+      itemSelectedRaised: toShadowStyle(token.boxShadowTertiary),
+      itemSelectedDisabled: {
+        backgroundColor: token.colorFillTertiary,
       },
-      itemDisabled: {
-        backgroundColor: 'transparent',
+      itemPressed: {
+        backgroundColor: token.colorFillSecondary,
       },
       content: {
-        flexDirection: 'row',
         alignItems: 'center',
+        flexDirection: 'row',
+        gap: ICON_GAP,
         justifyContent: 'center',
-        gap: sizeConfig.gap(token),
       },
       icon: {
         alignItems: 'center',
         justifyContent: 'center',
-      },
-      iconSelected: {
-        opacity: 1,
       },
       iconDisabled: {
         opacity: token.opacityLoading,

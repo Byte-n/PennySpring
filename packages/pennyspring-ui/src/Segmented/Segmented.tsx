@@ -42,14 +42,14 @@ function normalizeOption(option: SegmentedOption): NormalizedSegmentedOption {
 
 function toTextSize(size: ComponentSize): TextSize {
   if (size === 'small') {
-    return 'sm';
+    return 'xs';
   }
 
   if (size === 'large') {
-    return 'lg';
+    return 'md';
   }
 
-  return 'md';
+  return 'sm';
 }
 
 function getOptionLabel(option: NormalizedSegmentedOption): ReactNode {
@@ -67,7 +67,7 @@ function getOptionLabel(option: NormalizedSegmentedOption): ReactNode {
 function renderLabel(
   label: ReactNode,
   size: TextSize,
-  weight: 'regular' | 'strong',
+  weight: 'regular' | 'semibold',
   color: TextColor,
   style: SegmentedProps['styles'],
 ) {
@@ -125,20 +125,16 @@ export function Segmented({
 
   return (
     <Column style={[tokenStyles.root, style]}>
-      <Row
-        style={[
-          tokenStyles.track,
-          disabled ? tokenStyles.trackDisabled : null,
-          styles?.track,
-        ]}
-      >
+      <Row style={[tokenStyles.track, styles?.track]}>
         {normalizedOptions.map(option => {
           const isSelected = option.value === selectedValue;
           const isDisabled = disabled || option.disabled === true;
           const labelColor: TextColor = isDisabled
-            ? 'disabled'
+            ? isSelected
+              ? 'tertiary'
+              : 'quaternary'
             : isSelected
-              ? 'primary'
+              ? 'default'
               : 'secondary';
 
           return (
@@ -153,8 +149,15 @@ export function Segmented({
               style={({ pressed }) => [
                 tokenStyles.item,
                 isSelected ? tokenStyles.itemSelected : null,
-                pressed && !isDisabled ? tokenStyles.itemPressed : null,
-                isDisabled ? tokenStyles.itemDisabled : null,
+                isSelected && isDisabled
+                  ? tokenStyles.itemSelectedDisabled
+                  : null,
+                isSelected && !isDisabled
+                  ? tokenStyles.itemSelectedRaised
+                  : null,
+                pressed && !isSelected && !isDisabled
+                  ? tokenStyles.itemPressed
+                  : null,
                 styles?.item,
               ]}
             >
@@ -163,7 +166,6 @@ export function Segmented({
                   <Column
                     style={[
                       tokenStyles.icon,
-                      isSelected ? tokenStyles.iconSelected : null,
                       isDisabled ? tokenStyles.iconDisabled : null,
                       styles?.icon,
                     ]}
@@ -174,7 +176,7 @@ export function Segmented({
                 {renderLabel(
                   getOptionLabel(option),
                   toTextSize(size),
-                  'regular',
+                  isSelected ? 'semibold' : 'regular',
                   labelColor,
                   styles,
                 )}
