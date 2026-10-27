@@ -3,9 +3,9 @@ import { ScrollView } from 'react-native';
 import { useRequest } from 'ahooks';
 import {
   Card,
-  Cascader,
-  type CascaderOption,
-  type CascaderValue,
+  ListPicker,
+  type ListPickerCascaderOption,
+  type ListPickerCascaderValue,
   Column,
   DateTimePicker,
   Empty,
@@ -86,7 +86,7 @@ function getClassificationLabel(asset: AssetRow): string {
 
 function toCascaderOptions(
   nodes: readonly AssetClassificationTreeNode[],
-): Array<CascaderOption> {
+): Array<ListPickerCascaderOption> {
   return nodes.map(node => ({
     value: node.value,
     labelText: node.label,
@@ -95,10 +95,10 @@ function toCascaderOptions(
 }
 
 function buildPathLookup(
-  options: Array<CascaderOption>,
-): Map<CascaderValue, CascaderValue[]> {
-  const result = new Map<CascaderValue, CascaderValue[]>();
-  const stack: Array<{ node: CascaderOption; parentPath: CascaderValue[] }> =
+  options: Array<ListPickerCascaderOption>,
+): Map<ListPickerCascaderValue[number], ListPickerCascaderValue> {
+  const result = new Map<ListPickerCascaderValue[number], ListPickerCascaderValue>();
+  const stack: Array<{ node: ListPickerCascaderOption; parentPath: ListPickerCascaderValue }> =
     options.map(node => ({ node, parentPath: [] }));
   while (stack.length > 0) {
     const current = stack.pop()!;
@@ -238,7 +238,7 @@ export function AssetManageScreen() {
   const [panelOpen, setPanelOpen] = useState(false);
   const [editingAsset, setEditingAsset] = useState<AssetRow | null>(null);
   const [name, setName] = useState('');
-  const [assetPath, setAssetPath] = useState<CascaderValue[]>([
+  const [assetPath, setAssetPath] = useState<ListPickerCascaderValue>([
     ASSET_TYPE.capitalAccount,
     ASSET_CLASSIFICATION.cash,
   ]);
@@ -609,11 +609,11 @@ export function AssetManageScreen() {
           value={name}
           onChange={setName}
         />
-        <Cascader
-          options={cascaderOptions}
-          value={assetPath}
-          tabPlaceholderText="请选择"
+        <ListPicker.Cascader
           labelText="资产类型和分类"
+          options={cascaderOptions}
+          texts={{ tabPlaceholderText: '请选择' }}
+          value={assetPath}
           onChange={setAssetPath}
         />
         <Input
