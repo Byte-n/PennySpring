@@ -13,6 +13,7 @@ interface SizeConfig {
   paddingVertical: (token: AliasToken) => number;
   gap: (token: AliasToken) => number;
   optionPaddingVertical: (token: AliasToken) => number;
+  panelGap: (token: AliasToken) => number;
 }
 
 const SIZE_MAP: Record<ComponentSize, SizeConfig> = {
@@ -23,6 +24,7 @@ const SIZE_MAP: Record<ComponentSize, SizeConfig> = {
     paddingVertical: token => token.controlPaddingHorizontalSM / 2,
     gap: token => token.marginXXS,
     optionPaddingVertical: token => token.controlPaddingHorizontalSM / 2,
+    panelGap: token => token.paddingSM,
   },
   normal: {
     fontSize: token => token.fontSize,
@@ -31,6 +33,7 @@ const SIZE_MAP: Record<ComponentSize, SizeConfig> = {
     paddingVertical: token => token.controlPaddingHorizontal / 2,
     gap: token => token.marginXS,
     optionPaddingVertical: token => token.controlPaddingHorizontal / 2,
+    panelGap: token => token.paddingMD,
   },
   large: {
     fontSize: token => token.fontSizeLG,
@@ -39,6 +42,7 @@ const SIZE_MAP: Record<ComponentSize, SizeConfig> = {
     paddingVertical: token => token.paddingMD / 2,
     gap: token => token.marginSM,
     optionPaddingVertical: token => token.paddingMD / 2,
+    panelGap: token => token.paddingLG,
   },
 };
 
@@ -149,6 +153,36 @@ export const useListPickerStyles = createUseSheetStyle(
       loading: {
         paddingVertical: token.paddingMD / 2,
         alignItems: 'center',
+      },
+      cascaderPanel: {
+        flex: 1,
+        minHeight: 0,
+        gap: sizeConfig.panelGap(token) / 2,
+      },
+      cascaderList: {
+        flex: 1,
+        minHeight: 0,
+      },
+      cascaderListContent: {
+        gap: token.marginXXS / 2,
+      },
+      cascaderEmpty: {
+        minHeight: sizeConfig.minHeight(token),
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingHorizontal: sizeConfig.panelGap(token),
+        paddingVertical: sizeConfig.panelGap(token) / 2,
+      },
+      cascaderLoading: {
+        minHeight: sizeConfig.minHeight(token),
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingHorizontal: sizeConfig.panelGap(token),
+        paddingVertical: sizeConfig.panelGap(token) / 2,
+      },
+      cascaderFloatingPanelContent: {
+        paddingHorizontal: sizeConfig.panelGap(token),
+        paddingVertical: sizeConfig.panelGap(token) / 2,
       },
       footer: {
         flexDirection: 'row',

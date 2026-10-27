@@ -1,11 +1,11 @@
 import React from 'react';
 import { PreviewScaffold, PreviewSection } from '../../PreviewScaffold';
-import { cascaderDemos } from './demos';
+import { pickerCascaderDemos } from './demos';
 
-export function CascaderPreview() {
+export function PickerCascaderPreview() {
   return (
     <PreviewScaffold>
-      {cascaderDemos.map(({ title, Component }) => (
+      {pickerCascaderDemos.map(({ title, Component }) => (
         <PreviewSection key={title} title={title}>
           <Component />
         </PreviewSection>
@@ -14,4 +14,4 @@ export function CascaderPreview() {
   );
 }
 
-export default CascaderPreview;
+export default PickerCascaderPreview;

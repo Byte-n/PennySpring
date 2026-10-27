@@ -43,12 +43,10 @@
 ## 选择器与选择
 
 - `WheelGroup`：滚轮组内核。支持多列、显式行高、`fit="container"` 按容器高度量化可见行（3/5/7）、实时 activeIndex、拖拽无惯性也提交。样式通过 `WheelGroupStyles` 覆盖。
-- `Picker`：滚轮选择器与触发式选择模式。支持 `allowClear`、`status`、`helper`/`error`，触发器与 `DateTimePicker`、`CalendarPicker`、`ListPicker` 共用同一内部触发器实现。
+- `Picker`：滚轮选择器与触发式选择模式。支持 `allowClear`、`status`、`helper`/`error`，触发器与 `DateTimePicker`、`CalendarPicker`、`ListPicker` 共用同一内部触发器实现；`Picker.Cascader` 为业务 Tab + 多列滚轮的级联子模式。
 - `DateTimePicker`：日期时间选择。支持 `precision`（year/month/day/hour/minute/second）与 `layout`（`wheel` 默认 / `calendar` 日历浮层）；`DateTimePicker.Date` 仅日期、`DateTimePicker.Time` 仅时间（强制滚轮）。含时间精度且使用日历布局时，可点底部入口在日历与时间滚轮之间翻页。两种布局均支持 `allowClear`、`status`、`helper`/`error` 与 `loading`（日历布局以加载面板替代日历内容）。
 - `CalendarPicker`：日历输入型选择器，值使用 `Date`。`CalendarPicker.View` 为纯日历面板（`mode` 支持 date/month/year，`CalendarPicker.View.Range` 为范围面板）；`CalendarPicker` 为触发器 + 浮层，`CalendarPicker.Range` 为输入型范围选择。面板支持标记、禁用日期、最小/最大日期与自定义文案，触发器支持 `allowClear` 与校验状态展示。
-- `CascadePicker`：级联选择弹窗。
-- `Cascader`：级联选择视图或弹窗。
-- `ListPicker`：基于 `FlatList` 的单选/多选触发器与选择面板，支持分组、搜索、受控值与 `allowClear`。触发器样式统一通过 `styles.input` 覆盖。
+- `ListPicker`：基于 `FlatList` 的单选/多选触发器与选择面板，支持分组、搜索、受控值与 `allowClear`。触发器样式统一通过 `styles.input` 覆盖；`ListPicker.Cascader` 为层级 Tab + 列表的级联子模式，支持 `closeOnSelectLeaf`、`displayMode="tag"` 与 `allowClear`。
 - `Segmented`：紧凑分段选择。
 - `SegmentedControl`：顶部标签式分段控件。
 
@@ -90,7 +88,7 @@
 
 - 表单字段行：`Column` + `Text` 标签 + `Input`/`DisplayInput`/`ListPicker` 触发器。
 - 设置项：`List` 的数据行 + 尾部 `Switch`、`Text`、`Badge`、`Tag` 或 `Icon`。
-- 从列表选择流程：`ListPicker`；若数据形态匹配，也可用 `Picker`/`Cascader`。
+- 从列表选择流程：`ListPicker`；若数据形态匹配，也可用 `Picker`/`ListPicker.Cascader`/`Picker.Cascader`。
 - 筛选栏：`Row`/`Space` + `Segmented` + `Button`/`Icon` 操作。
 - 数据页面：`Column` + `HeaderBar`/页面标题 + `List` + `Empty`/`Skeleton`/`Loading` 状态。
 - 卡片列表：使用 `List`；仅当每个重复项都需要框定承载面时搭配 `Card`。

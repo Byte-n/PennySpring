@@ -1,8 +1,8 @@
 import { ThemePreview } from '@pennyspring/theme';
 import { calculatorInputDemos } from './data-entry/calculator-input/demos';
 import { calendarPickerDemos } from './data-entry/calendar-picker/demos';
-import { cascadePickerDemos } from './data-entry/cascade-picker/demos';
-import { cascaderDemos } from './data-entry/cascader/demos';
+import { listPickerCascaderDemos } from './data-entry/list-picker-cascader/demos';
+import { pickerCascaderDemos } from './data-entry/picker-cascader/demos';
 import { checkboxDemos } from './data-entry/checkbox/demos';
 import { dateTimePickerDemos } from './data-entry/date-time-picker/demos';
 import { displayInputDemos } from './data-entry/display-input/demos';
@@ -54,8 +54,8 @@ import { stepsDemos } from './navigation/steps/demos';
 import { tabBarDemos } from './navigation/tab-bar/demos';
 import { CalendarPickerPreview } from './data-entry/calendar-picker';
 import { CalculatorInputPreview } from './data-entry/calculator-input';
-import { CascaderPreview } from './data-entry/cascader';
-import { CascadePickerPreview } from './data-entry/cascade-picker';
+import { ListPickerCascaderPreview } from './data-entry/list-picker-cascader';
+import { PickerCascaderPreview } from './data-entry/picker-cascader';
 import { CheckboxPreview } from './data-entry/checkbox';
 import { DateTimePickerPreview } from './data-entry/date-time-picker';
 import { DisplayInputPreview } from './data-entry/display-input';
@@ -158,11 +158,15 @@ const DEMO_PREVIEW_ITEMS = [
     calendarPickerDemos,
   ),
   ...createDemoPreviewItems(
-    'cascade-picker',
-    'CascadePicker',
-    cascadePickerDemos,
+    'picker-cascader',
+    'Picker.Cascader',
+    pickerCascaderDemos,
   ),
-  ...createDemoPreviewItems('cascader', 'Cascader', cascaderDemos),
+  ...createDemoPreviewItems(
+    'list-picker-cascader',
+    'ListPicker.Cascader',
+    listPickerCascaderDemos,
+  ),
   ...createDemoPreviewItems('checkbox', 'Checkbox', checkboxDemos),
   ...createDemoPreviewItems(
     'date-time-picker',
@@ -397,16 +401,16 @@ export const COMPONENT_PREVIEW_SECTIONS = [
         component: ListPickerPreview,
       },
       {
-        id: 'cascader',
-        title: 'Cascader',
-        description: '多级层级选择、叶子节点提交和展开层级切换。',
-        component: CascaderPreview,
+        id: 'list-picker-cascader',
+        title: 'ListPicker.Cascader',
+        description: '层级标签 + 列表的级联选择，支持叶子提交、标签展示与清除。',
+        component: ListPickerCascaderPreview,
       },
       {
-        id: 'cascade-picker',
-        title: 'CascadePicker',
-        description: '多级级联选择、默认值和默认打开。',
-        component: CascadePickerPreview,
+        id: 'picker-cascader',
+        title: 'Picker.Cascader',
+        description: '分类标签 + 多列滚轮的级联选择，支持默认值和受控值。',
+        component: PickerCascaderPreview,
       },
       {
         id: 'date-time-picker',

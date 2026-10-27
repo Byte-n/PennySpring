@@ -24,7 +24,6 @@ jest.mock('react-native-gesture-handler', () => {
   };
 });
 
-
 jest.mock('react-native-reanimated', () => {
   const ReactModule = require('react');
   const ReactNative = require('react-native');
@@ -47,17 +46,17 @@ jest.mock('react-native-reanimated', () => {
 });
 
 import {
-  CascadePicker,
+  Picker,
   Tabs,
   Text,
-  type CascadePickerTab,
+  type PickerCascaderTab,
 } from '../src';
 
 interface RegionData {
   code: string;
 }
 
-const tabs: Array<CascadePickerTab<RegionData, 'daily' | 'fixed'>> = [
+const tabs: Array<PickerCascaderTab<RegionData, 'daily' | 'fixed'>> = [
   {
     tabKey: 'daily',
     labelText: 'Daily',
@@ -104,7 +103,7 @@ it('builds columns for the active tab value path', () => {
 
   act(() => {
     testRenderer = renderer.create(
-      <CascadePicker
+      <Picker.Cascader
         defaultOpen
         tabs={tabs}
         value={{
@@ -134,7 +133,7 @@ it('switches between tabs and keeps each tab value independent', () => {
 
   act(() => {
     testRenderer = renderer.create(
-      <CascadePicker
+      <Picker.Cascader
         defaultOpen
         onChange={onChange}
         tabs={tabs}
@@ -169,7 +168,7 @@ it('switches between tabs and keeps each tab value independent', () => {
   });
   expect(params.tabKey).toBe('fixed');
   expect(params.tabIndex).toBe(1);
-  expect(params.path.map((it: CascadePickerTab<RegionData>['options'][number]) => it.value)).toEqual([
+  expect(params.path.map((it: PickerCascaderTab<RegionData>['options'][number]) => it.value)).toEqual([
     'home',
     'utilities',
   ]);
@@ -181,7 +180,7 @@ it('updates only the active tab when a picker column changes', () => {
 
   act(() => {
     testRenderer = renderer.create(
-      <CascadePicker
+      <Picker.Cascader
         defaultOpen
         onChange={onChange}
         tabs={tabs}
@@ -206,7 +205,7 @@ it('updates only the active tab when a picker column changes', () => {
   expect(params.tabKey).toBe('daily');
   expect(params.tabIndex).toBe(0);
   expect(params.columnIndex).toBe(0);
-  expect(params.items.map((it: CascadePickerTab<RegionData>['options'][number] | undefined) => it?.value)).toEqual([
+  expect(params.items.map((it: PickerCascaderTab<RegionData>['options'][number] | undefined) => it?.value)).toEqual([
     'food',
     'breakfast',
   ]);
@@ -218,7 +217,7 @@ it('calls onOk with the full record and current tab details', () => {
 
   act(() => {
     testRenderer = renderer.create(
-      <CascadePicker
+      <Picker.Cascader
         defaultOpen
         onOk={onOk}
         tabs={tabs}
@@ -242,7 +241,7 @@ it('calls onOk with the full record and current tab details', () => {
   });
   expect(okParams.tabKey).toBe('daily');
   expect(okParams.tabIndex).toBe(0);
-  expect(okParams.path.map((it: CascadePickerTab<RegionData>['options'][number]) => it.value)).toEqual([
+  expect(okParams.path.map((it: PickerCascaderTab<RegionData>['options'][number]) => it.value)).toEqual([
     'traffic',
     'metro',
   ]);
@@ -255,7 +254,7 @@ it('passes through onCancel and onOpenChange', () => {
 
   act(() => {
     testRenderer = renderer.create(
-      <CascadePicker
+      <Picker.Cascader
         defaultOpen
         onCancel={onCancel}
         onOpenChange={onOpenChange}
@@ -281,7 +280,7 @@ it('renders tabs between the header and picker body', () => {
 
   act(() => {
     testRenderer = renderer.create(
-      <CascadePicker defaultOpen tabs={tabs} titleText="Category" />,
+      <Picker.Cascader defaultOpen tabs={tabs} titleText="Category" />,
     );
   });
 
@@ -299,7 +298,7 @@ it('uses renderLabel with the original option from the active tab', () => {
 
   act(() => {
     testRenderer = renderer.create(
-      <CascadePicker<RegionData, 'daily' | 'fixed'>
+      <Picker.Cascader<RegionData, 'daily' | 'fixed'>
         defaultOpen
         renderLabel={option => <Text>{`node-${option.data?.code ?? 'x'}`}</Text>}
         tabs={tabs}
@@ -321,7 +320,7 @@ it('truncates invalid values within the active tab', () => {
 
   act(() => {
     testRenderer = renderer.create(
-      <CascadePicker
+      <Picker.Cascader
         defaultOpen
         tabs={tabs}
         value={{
@@ -348,7 +347,7 @@ it('renders empty state when the active tab has no options', () => {
 
   act(() => {
     testRenderer = renderer.create(
-      <CascadePicker
+      <Picker.Cascader
         defaultOpen
         tabs={[
           {
@@ -371,7 +370,7 @@ it('prevents opening when readonly is true', () => {
 
   act(() => {
     testRenderer = renderer.create(
-      <CascadePicker
+      <Picker.Cascader
         onOpenChange={onOpenChange}
         readonly
         tabs={tabs}
@@ -386,4 +385,18 @@ it('prevents opening when readonly is true', () => {
 
   expect(onOpenChange).not.toHaveBeenCalledWith(true, { reason: 'trigger' });
   expect(() => testRenderer!.root.findByProps({ testID: 'picker-popup-mask' })).toThrow();
+});
+
+it('passes size through to the picker body', () => {
+  let testRenderer: renderer.ReactTestRenderer;
+
+  act(() => {
+    testRenderer = renderer.create(
+      <Picker.Cascader defaultOpen size="large" tabs={tabs} />,
+    );
+  });
+
+  const tree = JSON.stringify(testRenderer!.toJSON());
+  expect(tree).toContain('Daily');
+  expect(tree).toContain('Food');
 });
