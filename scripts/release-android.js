@@ -5,6 +5,12 @@ const { access, readFile, writeFile } = require('node:fs/promises')
 const { writeFileSync } = require('node:fs')
 const path = require('node:path')
 const inquirer = require('inquirer')
+const {
+  getNextVersionName,
+  readVersionState,
+  toVersionCode,
+  writeVersionState
+} = require('./android/version')
 
 const PROJECT_ROOT = path.resolve(__dirname, '..')
 const ANDROID_DIR = path.join(PROJECT_ROOT, 'android')
@@ -45,18 +51,6 @@ function getErrorMessage(error) {
   return error instanceof Error ? error.message : '未知错误'
 }
 
-/**
- * @param {string} content
- * @returns {{ versionCode: number, versionName: string }}
- */
-function parseVersion(content) {
-  const versionName = content.trim()
-  if (!/^\d+\.\d+\.\d+$/.test(versionName)) {
-    throw new Error('根目录 version 文件必须使用 major.minor.patch 格式')
-  }
-  return versionName
-}
-
 /** @returns {Promise<void>} */
 async function checkBuildEnvironment() {
   const missing = []
@@ -80,25 +74,6 @@ async function checkBuildEnvironment() {
 
   if (missing.length > 0) {
     throw new Error(`构建环境不完整，请先处理以下项目：\n- ${missing.join('\n- ')}`)
-  }
-}
-
-/**
- * @param {{ versionCode: number, versionName: string }} currentVersion
- * @param {'major' | 'minor' | 'patch'} releaseType
- * @returns {{ versionCode: number, versionName: string }}
- */
-function getNextVersion(currentVersion, releaseType) {
-  const [major, minor, patch] = currentVersion.versionName.split('.').map(Number)
-  const versionParts = {
-    major: [major + 1, 0, 0],
-    minor: [major, minor + 1, 0],
-    patch: [major, minor, patch + 1]
-  }
-
-  return {
-    versionCode: currentVersion.versionCode + 1,
-    versionName: versionParts[releaseType].join('.')
   }
 }
 
@@ -136,9 +111,7 @@ async function main() {
   process.stdout.write('构建环境检查通过。\n')
   const originalContent = await readFile(VERSION_FILE, 'utf8')
   const originalAndroidVersion = await readFile(ANDROID_VERSION_FILE, 'utf8')
-  const currentVersionName = parseVersion(originalContent)
-  const androidVersion = JSON.parse(originalAndroidVersion)
-  const currentVersion = { versionCode: androidVersion.versionCode, versionName: currentVersionName }
+  const currentVersion = await readVersionState()
   const { releaseType } = await inquirer.prompt([
     {
       type: 'list',
@@ -160,7 +133,9 @@ async function main() {
     return
   }
 
-  const nextVersion = releaseType === 'none' ? currentVersion : getNextVersion(currentVersion, releaseType)
+  const nextVersionName =
+    releaseType === 'none' ? currentVersion.versionName : getNextVersionName(currentVersion.versionName, releaseType)
+  const nextVersion = { versionName: nextVersionName, versionCode: toVersionCode(nextVersionName) }
   const { artifactType, shouldRelease } = await inquirer.prompt([
     {
       type: 'list',
@@ -185,8 +160,7 @@ async function main() {
     return
   }
 
-  await writeFile(VERSION_FILE, `${nextVersion.versionName}\n`, 'utf8')
-  await writeFile(ANDROID_VERSION_FILE, `${JSON.stringify(nextVersion, null, 2)}\n`, 'utf8')
+  await writeVersionState(nextVersion.versionName)
 
   const restoreOnSignal = () => {
     writeFileSync(VERSION_FILE, originalContent, 'utf8')
