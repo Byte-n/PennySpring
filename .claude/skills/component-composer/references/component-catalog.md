@@ -79,7 +79,7 @@
 - `Popup`：锚定、底部或居中的浮层容器；`Popup.FloatingPanel` 适合可拖拽底部/顶部面板，支持 `titleText`、确认/取消按钮、自定义 header/footer；`bodyScrollable` 控制 body 使用 `ScrollView` 或普通 `View`，ScrollView 模式可通过 `scrollEnabled` 控制滚动。
 - `Popover`：锚定触发元素的轻量浮层。`trigger` 支持 `click`（默认）/`longPress`/`manual`；`placement` 支持四向，空间不足自动翻转到对侧；`align` 控制交叉轴对齐并按屏幕边界收敛；内容经 `Portal` 挂载，点击外部或返回键关闭。
 - `Portal`、`PortalProvider`：在常规树外渲染浮层内容。
-- `Toast`、`useToast`：短暂轻量提示。
+- `Toast`、`useToast`：短暂轻量提示；999 胶囊、单实例替换、1800ms，`status` 提供 dot / success / error 三态图标。
 - `Message`、`useMessage`：行内或全局反馈消息。
 - `Notification`、`useNotification`：信息更丰富的通知。
 - `Loading`：活动指示器；inline / block / more / overlay 四形态，转圈 16 / 20 / 28，tone 控制主色与次级灰。

@@ -1,21 +1,9 @@
-import {
-  messageControllerTypePlacementDurationAndSizeDemoTitle,
-  MessageControllerTypePlacementDurationAndSizeDemo,
-} from './controller-type-placement-duration-and-size';
-import {
-  messageDeclarativeMountPointAndAfterOpenChangeDemoTitle,
-  MessageDeclarativeMountPointAndAfterOpenChangeDemo,
-} from './declarative-mount-point-and-after-open-change';
+import { messagePlacementDemoTitle, MessagePlacementDemo } from './placement';
+import { messageSlotsDemoTitle, MessageSlotsDemo } from './slots';
+import { messageTypesDemoTitle, MessageTypesDemo } from './types';
 
 export const messageDemos = [
-  {
-    id: 'controller-type-placement-duration-and-size',
-    title: messageControllerTypePlacementDurationAndSizeDemoTitle,
-    Component: MessageControllerTypePlacementDurationAndSizeDemo,
-  },
-  {
-    id: 'declarative-mount-point-and-after-open-change',
-    title: messageDeclarativeMountPointAndAfterOpenChangeDemoTitle,
-    Component: MessageDeclarativeMountPointAndAfterOpenChangeDemo,
-  },
+  { id: 'types', title: messageTypesDemoTitle, Component: MessageTypesDemo },
+  { id: 'slots', title: messageSlotsDemoTitle, Component: MessageSlotsDemo },
+  { id: 'placement', title: messagePlacementDemoTitle, Component: MessagePlacementDemo },
 ];

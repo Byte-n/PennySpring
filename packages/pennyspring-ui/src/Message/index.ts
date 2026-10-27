@@ -1,5 +1,6 @@
 export { Message, useMessage } from './Message';
 export type {
+  MessageAction,
   MessageController,
   MessagePlacement,
   MessageProps,

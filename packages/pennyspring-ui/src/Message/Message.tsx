@@ -1,7 +1,6 @@
-import type { ComponentSize } from '../shares/types';
-import { renderTextNode } from '../shares/node';
+import { isPrimitiveContent, renderTextNode } from '../shares/node';
 import React, { useContext } from 'react';
-import { View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import Animated, {
   Easing,
   runOnJS,
@@ -9,13 +8,18 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
-import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
+import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
+import { createUseSheetStyle, toShadowStyle, useTheme } from '@pennyspring/theme';
+import { Icon } from '../Icon';
 import { PortalContext } from '../Portal/Portal';
 import { resolvePortalMount } from '../Portal/resolvePortalMount';
 import { Row } from '../Row';
 import { Text } from '../Text';
 import { useControllableValue } from '../_hooks';
 import { useOverlayEmitter } from '../_hooks/useOverlayEmitter';
+import type { AliasToken } from '@pennyspring/theme';
+import type { IconColor, IconName } from '../Icon';
+import type { TextColor } from '../Text';
 import type {
   MessageController,
   MessagePlacement,
@@ -25,93 +29,113 @@ import type {
 } from './types';
 
 const DEFAULT_DURATION = 2400;
-const DEFAULT_SIZE: ComponentSize = 'normal';
 const DEFAULT_TYPE: MessageType = 'default';
 const DEFAULT_PLACEMENT: MessagePlacement = 'top';
-const SIZE_MAP: Record<
-  ComponentSize,
-  {
-    dotSize: (token: ReturnType<typeof useTheme>['token']) => number;
-    gap: (token: ReturnType<typeof useTheme>['token']) => number;
-    horizontalPadding: (token: ReturnType<typeof useTheme>['token']) => number;
-    textSize: 'sm' | 'md' | 'lg';
-    verticalPadding: (token: ReturnType<typeof useTheme>['token']) => number;
-  }
-> = {
-  small: {
-    dotSize: token => token.fontSizeSM,
-    gap: token => token.marginXXS,
-    horizontalPadding: token => token.paddingSM,
-    textSize: 'sm',
-    verticalPadding: token => token.paddingSM / 2,
+const ICON_SIZE = 16;
+const CLOSE_ICON_SIZE = 14;
+const CLOSE_SIZE = 24;
+/** 进出位移固定 8，不再用内容高度的一半。 */
+const ENTER_OFFSET = 8;
+
+interface TypeStyleConfig {
+  actionColor: TextColor;
+  backgroundColor: (token: AliasToken) => string;
+  iconColor: IconColor;
+  icon: IconName;
+}
+
+const TYPE_STYLE_MAP: Record<MessageType, TypeStyleConfig> = {
+  default: {
+    actionColor: 'primaryText',
+    backgroundColor: token => token.colorBgContainer,
+    iconColor: 'textSecondary',
+    icon: 'info',
   },
-  normal: {
-    dotSize: token => token.fontSize,
-    gap: token => token.marginXS,
-    horizontalPadding: token => token.padding,
-    textSize: 'md',
-    verticalPadding: token => token.padding / 2,
+  success: {
+    actionColor: 'successText',
+    backgroundColor: token => token.colorSuccessBg,
+    iconColor: 'success',
+    icon: 'check-circle',
   },
-  large: {
-    dotSize: token => token.fontSizeLG,
-    gap: token => token.marginSM,
-    horizontalPadding: token => token.paddingMD,
-    textSize: 'lg',
-    verticalPadding: token => token.paddingMD / 2,
+  warning: {
+    actionColor: 'warningText',
+    backgroundColor: token => token.colorWarningBg,
+    iconColor: 'warning',
+    icon: 'warning',
+  },
+  error: {
+    actionColor: 'errorText',
+    backgroundColor: token => token.colorErrorBg,
+    iconColor: 'error',
+    icon: 'close-circle',
+  },
+  info: {
+    actionColor: 'primaryText',
+    backgroundColor: token => token.colorInfoBg,
+    iconColor: 'info',
+    icon: 'info',
   },
 };
 
-function resolveTypeColor(token: ReturnType<typeof useTheme>['token'], type: MessageType): string {
-  if (type === 'success') return token.colorSuccess;
-  if (type === 'warning') return token.colorWarning;
-  if (type === 'error') return token.colorError;
-  if (type === 'info') return token.colorInfo;
-  return token.colorPrimary;
+interface MessageStyleOptions {
+  placement: MessagePlacement;
+  safeAreaBottom: number;
+  safeAreaTop: number;
+  type: MessageType;
 }
 
-const useStyles = createUseSheetStyle((
-  token,
-  { size, placement, type }: {
-    size: ComponentSize;
-    placement: MessagePlacement;
-    type: MessageType;
-  },
-) => {
-  const sizeConfig = SIZE_MAP[size];
-  const dotSize = sizeConfig.dotSize(token);
+const useStyles = createUseSheetStyle(
+  (token, { placement, safeAreaBottom, safeAreaTop, type }: MessageStyleOptions) => {
+    const typeConfig = TYPE_STYLE_MAP[type];
 
-  return {
-    content: {
-      position: 'absolute',
-      zIndex: token.zIndexPopupBase,
-      left: token.paddingLG,
-      right: token.paddingLG,
-      ...(placement === 'top'
-        ? { top: token.paddingXL }
-        : { bottom: token.paddingXL }),
-      borderRadius: token.borderRadius,
-      backgroundColor: token.colorBgElevated,
-      borderWidth: token.lineWidth,
-      borderColor: token.colorBorderSecondary,
-      paddingVertical: sizeConfig.verticalPadding(token),
-      paddingHorizontal: sizeConfig.horizontalPadding(token),
-    },
-    body: {
-      alignItems: 'center',
-      gap: sizeConfig.gap(token),
-      width: '100%',
-    },
-    dot: {
-      width: dotSize,
-      height: dotSize,
-      borderRadius: dotSize,
-      backgroundColor: resolveTypeColor(token, type),
-    },
-    messageText: {
-      flex: 1,
-    },
-  };
-});
+    return {
+      content: {
+        position: 'absolute',
+        zIndex: token.zIndexPopupBase,
+        left: token.padding,
+        right: token.padding,
+        ...(placement === 'top'
+          ? { top: safeAreaTop + token.marginXS }
+          : { bottom: safeAreaBottom + token.paddingLG }),
+        borderRadius: token.borderRadius,
+        backgroundColor: typeConfig.backgroundColor(token),
+        paddingHorizontal: token.paddingSM,
+        paddingVertical: token.paddingSM,
+        ...(type === 'default'
+          ? { borderColor: token.colorSplit, borderWidth: token.lineWidth }
+          : null),
+        ...toShadowStyle(token.boxShadowSecondary),
+      },
+      body: {
+        alignItems: 'flex-start',
+        gap: token.marginXS,
+        width: '100%',
+      },
+      icon: {
+        marginTop: token.marginXXS / 2,
+      },
+      bodyContent: {
+        flex: 1,
+      },
+      messageText: {
+        color: token.colorText,
+        flex: 1,
+      },
+      action: {
+        marginLeft: token.marginXXS,
+      },
+      close: {
+        alignItems: 'center',
+        borderRadius: CLOSE_SIZE / 2,
+        height: CLOSE_SIZE,
+        justifyContent: 'center',
+        marginRight: -token.marginXXS,
+        marginTop: -token.marginXXS / 2,
+        width: CLOSE_SIZE,
+      },
+    };
+  },
+);
 
 interface MessageBodyProps extends MessageShowOptions {
   isOpen: boolean;
@@ -120,22 +144,31 @@ interface MessageBodyProps extends MessageShowOptions {
 }
 
 function MessageBody({
+  action,
+  closable = true,
   duration,
+  icon,
   isOpen,
   message,
   messageText,
   onCloseStart,
   onExited,
   placement = DEFAULT_PLACEMENT,
-  size = DEFAULT_SIZE,
   style,
   styles,
   type = DEFAULT_TYPE,
 }: MessageBodyProps) {
-  const tokenStyles = useStyles({ size, placement, type });
+  const insets = React.useContext(SafeAreaInsetsContext);
+  const tokenStyles = useStyles({
+    placement,
+    safeAreaBottom: insets?.bottom ?? 0,
+    safeAreaTop: insets?.top ?? 0,
+    type,
+  });
   const { token } = useTheme();
   const progress = useSharedValue(0);
   const closedRef = React.useRef(false);
+  const typeConfig = TYPE_STYLE_MAP[type];
 
   const handleClosed = React.useCallback(() => {
     if (!closedRef.current) {
@@ -161,7 +194,8 @@ function MessageBody({
   }, [handleClosed, isOpen, progress, token.motionDurationMid, token.motionEaseInOut]);
 
   React.useEffect(() => {
-    if (duration === 0) {
+    // 有操作时常驻，等用户点操作或关闭；显式 duration 仍然生效。
+    if (duration === 0 || (action !== undefined && duration === undefined)) {
       return;
     }
 
@@ -187,10 +221,18 @@ function MessageBody({
     }, duration ?? DEFAULT_DURATION);
 
     return () => clearTimeout(timer);
-  }, [duration, handleClosed, onCloseStart, progress, token.motionDurationMid, token.motionEaseInOut]);
+  }, [
+    action,
+    duration,
+    handleClosed,
+    onCloseStart,
+    progress,
+    token.motionDurationMid,
+    token.motionEaseInOut,
+  ]);
 
   const animatedStyle = useAnimatedStyle(() => {
-    const distance = (1 - progress.value) * token.controlHeightSM;
+    const distance = (1 - progress.value) * ENTER_OFFSET;
 
     return {
       opacity: progress.value,
@@ -198,27 +240,55 @@ function MessageBody({
     };
   });
 
+  const isActionAttachedInline = isPrimitiveContent(message ?? messageText) && action !== undefined;
+  const actionNode = action === undefined ? null : (
+    <Text
+      color={typeConfig.actionColor}
+      onPress={action.onPress}
+      size="sm"
+      style={[tokenStyles.action, styles?.action]}
+      weight="semibold"
+    >
+      {isActionAttachedInline ? `  ${action.text}` : action.text}
+    </Text>
+  );
+  const resolvedIcon = icon === undefined
+    ? (
+      <Icon
+        color={typeConfig.iconColor}
+        icon={typeConfig.icon}
+        size={ICON_SIZE}
+        style={tokenStyles.icon}
+      />
+    )
+    : icon;
+
   return (
     <Animated.View
       pointerEvents="box-none"
-      style={[
-        tokenStyles.content,
-        style,
-        styles?.content,
-        animatedStyle,
-      ]}
+      style={[tokenStyles.content, style, styles?.content, animatedStyle]}
     >
       <Row style={tokenStyles.body}>
-        <View style={tokenStyles.dot} />
-        {renderTextNode(message ?? messageText, (text) => (
-          <Text
-            color="default"
-            size={SIZE_MAP[size].textSize}
-            style={[tokenStyles.messageText, styles?.messageText]}
-          >
-            {text}
-          </Text>
-        ))}
+        {resolvedIcon}
+        <View style={tokenStyles.bodyContent}>
+          {renderTextNode(message ?? messageText, (text) => (
+            <Text
+              color="default"
+              numberOfLines={2}
+              size="sm"
+              style={[tokenStyles.messageText, styles?.messageText]}
+            >
+              {text}
+              {isActionAttachedInline ? actionNode : null}
+            </Text>
+          ))}
+          {!isActionAttachedInline ? actionNode : null}
+        </View>
+        {closable ? (
+          <Pressable hitSlop={token.marginXXS} onPress={onCloseStart} style={tokenStyles.close}>
+            <Icon color="tertiary" icon="close" size={CLOSE_ICON_SIZE} />
+          </Pressable>
+        ) : null}
       </Row>
     </Animated.View>
   );
