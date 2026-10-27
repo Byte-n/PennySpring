@@ -9,7 +9,8 @@ import type { ComponentSize } from '../shares/types';
 
 /**
  * Card 的视觉变体。
- * plain 用于普通容器，elevated 用于更高层级，summary 用于摘要信息。
+ * plain 靠页面底分层，elevated 用 boxShadowTertiary 浮起，summary 用金额排印建立重点。
+ * 三种变体都不使用描边。
  */
 export type CardVariant = 'plain' | 'elevated' | 'summary';
 export type CardTitleNode = Exclude<ReactNode, string | number | boolean>;
@@ -81,13 +82,13 @@ export interface CardProps {
 
   /**
    * 是否禁用点击。
-   * 仅当 onPress 存在时生效。
+   * 仅当 onPress 存在时生效；禁用时只降标题色，不改变卡片底色。
    */
   disabled?: boolean;
 
   /**
    * 是否处于加载状态。
-   * 用于主体内容加载中的反馈展示。
+   * 未提供 loadingNode 时保留 children，并把主体降到 45% 透明度。
    */
   loading?: boolean;
 

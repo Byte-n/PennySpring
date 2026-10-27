@@ -20,6 +20,9 @@ interface CardStyleOptions {
   variant: CardVariant;
 }
 
+/** 加载态只把内容压到 45%，opacityLoading(.65) 在卡片上过重。 */
+const LOADING_OPACITY = 0.45;
+
 interface SizeStyleConfig {
   padding: (token: AliasToken) => number;
   gap: (token: AliasToken) => number;
@@ -29,45 +32,41 @@ interface SizeStyleConfig {
 
 type VariantStyleConfig = (token: AliasToken) => {
   backgroundColor: string;
-  borderColor: string;
   shadow?: ReturnType<typeof toShadowStyle>;
 };
 
 const SIZE_STYLE_MAP: Record<ComponentSize, SizeStyleConfig> = {
   small: {
     padding: token => token.paddingSM,
-    gap: token => token.marginXXS,
-    titleTextSize: 'md',
-    borderRadius: token => token.borderRadiusSM,
+    gap: token => token.marginXS,
+    titleTextSize: 'sm',
+    borderRadius: token => token.borderRadius,
   },
   normal: {
     padding: token => token.padding,
-    gap: token => token.marginXS,
-    titleTextSize: 'lg',
+    gap: token => token.marginSM,
+    titleTextSize: 'md',
     borderRadius: token => token.borderRadius,
   },
   large: {
     padding: token => token.paddingMD,
     gap: token => token.marginSM,
-    titleTextSize: 'xl',
+    titleTextSize: 'md',
     borderRadius: token => token.borderRadiusLG,
   },
 };
 
+/** 三种变体一律无描边：plain / summary 靠页面底分层，elevated 只用阴影。 */
 const VARIANT_STYLE_MAP: Record<CardVariant, VariantStyleConfig> = {
   plain: token => ({
     backgroundColor: token.colorBgContainer,
-    borderColor: token.colorBorderSecondary,
   }),
   elevated: token => ({
     backgroundColor: token.colorBgElevated,
-    borderColor: token.colorBorderSecondary,
     shadow: toShadowStyle(token.boxShadowTertiary),
   }),
   summary: token => ({
     backgroundColor: token.colorBgContainer,
-    borderColor: token.colorPrimaryBorder,
-    shadow: toShadowStyle(token.boxShadowTertiary),
   }),
 };
 
@@ -76,22 +75,17 @@ const useStyles = createUseSheetStyle(
     const sizeConfig = SIZE_STYLE_MAP[size];
     const variantConfig = VARIANT_STYLE_MAP[variant](token);
     const gap = sizeConfig.gap(token);
+    const padding = sizeConfig.padding(token);
 
     return {
       root: {
         backgroundColor: variantConfig.backgroundColor,
-        borderColor: variantConfig.borderColor,
         borderRadius: sizeConfig.borderRadius(token),
-        borderWidth: token.lineWidth,
-        padding: sizeConfig.padding(token),
+        padding,
         ...(variantConfig.shadow ?? {}),
       },
       rootPressed: {
-        backgroundColor: token.colorFillQuaternary,
-      },
-      rootDisabled: {
-        backgroundColor: token.colorBgContainerDisabled,
-        opacity: token.opacityLoading,
+        backgroundColor: token.colorFillTertiary,
       },
       header: {
         gap,
@@ -105,12 +99,14 @@ const useStyles = createUseSheetStyle(
       },
       body: {},
       bodyLoading: {
-        opacity: token.opacityLoading,
+        opacity: LOADING_OPACITY,
       },
       footer: {
         borderTopColor: token.colorSplit,
         borderTopWidth: token.lineWidth,
+        marginHorizontal: -padding,
         marginTop: gap,
+        paddingHorizontal: padding,
         paddingTop: gap,
       },
     };
@@ -159,10 +155,10 @@ export function Card({
     if (hasTitleText) {
       return (
         <Text
-          color="heading"
+          color={disabled ? 'tertiary' : 'default'}
           size={SIZE_STYLE_MAP[size].titleTextSize}
           style={styles?.titleText}
-          weight="strong"
+          weight="semibold"
         >
           {titleText}
         </Text>
@@ -180,7 +176,7 @@ export function Card({
           {hasExtra ? (
             <Column style={[tokenStyles.extra, styles?.extra]}>
               {renderTextNode(extra, (text) => (
-                <Text color="secondary">{text}</Text>
+                <Text color="tertiary" size="sm">{text}</Text>
               ))}
             </Column>
           ) : null}
@@ -198,7 +194,7 @@ export function Card({
       {shouldRenderFooter ? (
         <Column style={[tokenStyles.footer, styles?.footer]}>
           {renderTextNode(footer, (text) => (
-            <Text color="default">{text}</Text>
+            <Text color="secondary" size="sm">{text}</Text>
           ))}
         </Column>
       ) : null}
@@ -213,7 +209,6 @@ export function Card({
         style={({ pressed }) => [
           tokenStyles.root,
           pressed && isInteractive ? tokenStyles.rootPressed : null,
-          disabled ? tokenStyles.rootDisabled : null,
           style,
         ]}
       >

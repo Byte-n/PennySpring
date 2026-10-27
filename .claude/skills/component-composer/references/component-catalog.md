@@ -12,12 +12,12 @@
 - `GeometryReader`：布局尺寸测量。
 - `KeyboardAwareScreen`、`KeyboardAwareFormScroll`、`KeyboardStickyFooter`、`useKeyboardInsets`：页面、表单滚动与底部操作区的键盘避让布局能力。
 - `Divider`：视觉分隔。
-- `Card`：分组内容承载面。
+- `Card`：分组内容承载面；plain / elevated / summary 三个变体均无描边，elevated 只用 `boxShadowTertiary`，summary 靠金额排印建立重点；尺寸 12 / 16 / 20 内边距。
 
 ## 排版与符号
 
 - `Text`：应用和共享 UI 中的所有展示文本。
-- `Icon`：按名称渲染图标。
+- `Icon`：按名称渲染图标
 - `Ellipsis`：折叠或可展开的长文本。
 
 ## 操作

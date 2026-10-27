@@ -90,14 +90,21 @@ describe('Card', () => {
     const treeString = JSON.stringify(testRenderer.toJSON());
     expect(treeString).toContain('Existing summary');
   });
-  it('uses a clean elevated surface for summary variant', () => {
-    const shadowToken = {
-      shadowColor: 'summaryShadowToken',
-      shadowOffset: { width: 0, height: 1 },
-      shadowOpacity: 0.02,
-      shadowRadius: 4,
-      elevation: 2
-    };
+  it.each(['plain', 'elevated', 'summary'] as const)(
+    'renders %s variant without borders',
+    (variant) => {
+      const testRenderer = renderCard({
+        variant,
+        children: <RNText>Body content</RNText>,
+      });
+      const rootStyle = StyleSheet.flatten(getRootView(testRenderer).props.style);
+
+      expect(rootStyle.borderWidth).toBeUndefined();
+      expect(rootStyle.borderColor).toBeUndefined();
+    }
+  );
+
+  it('keeps summary on the plain surface without shadow or primary border', () => {
     let testRenderer: renderer.ReactTestRenderer;
     act(() => {
       testRenderer = renderer.create(
@@ -105,8 +112,14 @@ describe('Card', () => {
           token: {
             colorBgContainer: 'summaryContainerToken',
             colorPrimaryBorder: 'summaryBorderToken',
-            boxShadowTertiary: shadowToken
-          }
+            boxShadowTertiary: {
+              shadowColor: 'summaryShadowToken',
+              shadowOffset: { width: 0, height: 1 },
+              shadowOpacity: 0.02,
+              shadowRadius: 4,
+              elevation: 2,
+            },
+          },
         }}
         >
           <Card variant="summary">
@@ -116,14 +129,15 @@ describe('Card', () => {
       );
     });
     const rootStyle = StyleSheet.flatten(getRootView(testRenderer!).props.style);
+
     expect(rootStyle.backgroundColor).toBe('summaryContainerToken');
-    expect(rootStyle.borderColor).toBe('summaryBorderToken');
-    expect(rootStyle.shadowColor).toBe('summaryShadowToken');
-    expect(rootStyle.shadowRadius).toBe(shadowToken.shadowRadius);
+    expect(rootStyle.borderColor).toBeUndefined();
+    expect(rootStyle.shadowColor).toBeUndefined();
   });
+
   it.each([
-    ['small', 11, 3],
-    ['normal', 13, 5],
+    ['small', 11, 5],
+    ['normal', 13, 7],
     ['large', 17, 7],
   ] as const)('maps %s size to container padding and layout gap tokens', (size, expectedPadding, expectedGap) => {
     let testRenderer: renderer.ReactTestRenderer;
@@ -166,6 +180,54 @@ describe('Card', () => {
     expect(headerStyle.marginBottom).toBe(expectedGap);
     expect(footerStyle.marginTop).toBe(expectedGap);
     expect(footerStyle.paddingTop).toBe(expectedGap);
+    expect(footerStyle.marginHorizontal).toBe(-expectedPadding);
+    expect(footerStyle.paddingHorizontal).toBe(expectedPadding);
+  });
+
+  it('keeps the card surface and dims only the title when disabled', () => {
+    const testRenderer = renderCard({
+      disabled: true,
+      onPress: jest.fn(),
+      titleText: 'Balance',
+      children: <RNText>Body content</RNText>,
+    });
+    const rootStyle = StyleSheet.flatten(getRootView(testRenderer).props.style);
+    const titleNode = testRenderer.root
+      .findAllByType(Text)
+      .find(node => node.props.children === 'Balance');
+
+    expect(rootStyle.opacity).toBeUndefined();
+    expect(titleNode?.props.color).toBe('tertiary');
+  });
+
+  it('dims the body to 45% while loading without replacing children', () => {
+    const testRenderer = renderCard({
+      loading: true,
+      children: <RNText>Existing summary</RNText>,
+    });
+    const dimmed = testRenderer.root.findAllByType(View).filter(node => {
+      return StyleSheet.flatten(node.props.style)?.opacity === 0.45;
+    });
+
+    expect(dimmed.length).toBe(1);
+    expect(JSON.stringify(testRenderer.toJSON())).toContain('Existing summary');
+  });
+
+  it('renders extra and footer as small secondary text', () => {
+    const testRenderer = renderCard({
+      titleText: 'Balance',
+      extra: 'More',
+      footer: 'Footer action',
+      children: <RNText>Body content</RNText>,
+    });
+    const textNodes = testRenderer.root.findAllByType(Text);
+    const extraNode = textNodes.find(node => node.props.children === 'More');
+    const footerNode = textNodes.find(node => node.props.children === 'Footer action');
+
+    expect(extraNode?.props.size).toBe('sm');
+    expect(extraNode?.props.color).toBe('tertiary');
+    expect(footerNode?.props.size).toBe('sm');
+    expect(footerNode?.props.color).toBe('secondary');
   });
 
   it('does not render header when title and extra are null', () => {
@@ -208,9 +270,9 @@ describe('Card', () => {
   });
 
   it.each([
-    ['small', 'md'],
-    ['normal', 'lg'],
-    ['large', 'xl'],
+    ['small', 'sm'],
+    ['normal', 'md'],
+    ['large', 'md'],
   ] as const)(
     'maps %s titleText to semantic Text props',
     (size, expectedTextSize) => {
@@ -226,8 +288,8 @@ describe('Card', () => {
 
       // Assert
       expect(titleTextNode.props.size).toBe(expectedTextSize);
-      expect(titleTextNode.props.color).toBe('heading');
-      expect(titleTextNode.props.weight).toBe('strong');
+      expect(titleTextNode.props.color).toBe('default');
+      expect(titleTextNode.props.weight).toBe('semibold');
     }
   );
 });
