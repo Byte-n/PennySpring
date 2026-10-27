@@ -22,7 +22,7 @@
 
 ## 操作
 
-- `Button`：主按钮、次按钮、图标、加载和形状变体。
+- `Button`：主/次/文字/链接/危险按钮；32 / 44 / 52 三档高度，默认 `type=default` 为浅底填充（`colorFillTertiary`），描边仅在显式 `variant=outlined` / `dashed` 时出现；支持图标位、加载、圆形与全宽。
 - `FloatingActionGroup`：浮动操作入口。
 - `SwipeAction`：行级滑动操作。
 - `ActionSheet`：移动端操作菜单。

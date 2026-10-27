@@ -36,8 +36,10 @@ interface SizeStyleConfig {
   height: (token: AliasToken) => number;
   paddingHorizontal: (token: AliasToken) => number;
   gap: (token: AliasToken) => number;
+  iconSize: number;
   fontSize: (token: AliasToken) => number;
   lineHeight: (token: AliasToken) => number;
+  borderRadius: (token: AliasToken) => number;
 }
 
 interface ColorStyleConfig {
@@ -53,9 +55,11 @@ interface ColorStyleConfig {
 interface VariantStyleConfig {
   backgroundColor: string;
   borderColor: string;
+  borderWidth: number;
   borderStyle?: ViewStyle['borderStyle'];
   color: string;
   textColor: TextColor;
+  textWeight: TextWeight;
   pressedBackgroundColor: string;
   pressedBorderColor: string;
   pressedTextColor: TextColor;
@@ -72,27 +76,39 @@ type TypeDefaults = {
   variant: ButtonVariant;
 };
 
+const HEIGHT_SMALL = 32;
+const HEIGHT_LARGE = 52;
+const PILL_RADIUS = 999;
+const PRESS_SCALE = 0.97;
+const TRANSPARENT = 'transparent';
+
 const SIZE_STYLE_MAP: Record<ComponentSize, SizeStyleConfig> = {
   small: {
-    height: token => token.controlHeightSM,
-    paddingHorizontal: token => token.paddingXS,
-    gap: token => token.sizeXXS,
+    height: () => HEIGHT_SMALL,
+    paddingHorizontal: token => token.paddingSM,
+    gap: token => token.sizeXS,
+    iconSize: 16,
     fontSize: token => token.fontSizeSM,
     lineHeight: token => token.lineHeightSM,
+    borderRadius: token => token.borderRadiusSM,
   },
   normal: {
     height: token => token.controlHeight,
-    paddingHorizontal: token => token.paddingSM,
+    paddingHorizontal: token => token.padding,
     gap: token => token.sizeXS,
+    iconSize: 18,
     fontSize: token => token.fontSize,
     lineHeight: token => token.lineHeight,
+    borderRadius: token => token.borderRadius,
   },
   large: {
-    height: token => token.controlHeightLG,
+    height: () => HEIGHT_LARGE,
     paddingHorizontal: token => token.paddingMD,
     gap: token => token.sizeXS,
+    iconSize: 20,
     fontSize: token => token.fontSizeLG,
     lineHeight: token => token.lineHeightLG,
+    borderRadius: token => token.borderRadiusLG,
   },
 };
 
@@ -103,7 +119,7 @@ const TYPE_DEFAULTS: Record<ButtonType, TypeDefaults> = {
   },
   default: {
     color: 'default',
-    variant: 'outlined',
+    variant: 'filled',
   },
   dashed: {
     color: 'default',
@@ -139,8 +155,6 @@ const PRESET_COLORS = [
   'gold',
 ] as const;
 
-const TRANSPARENT = 'transparent';
-
 function isPresetColor(
   color: ButtonColor,
 ): color is (typeof PRESET_COLORS)[number] {
@@ -175,8 +189,8 @@ function resolveLoadingConfig(
   return loading;
 }
 
-function resolveIconSize(size: ComponentSize, token: AliasToken): number {
-  return SIZE_STYLE_MAP[size].height(token) / 2;
+function resolveIconSize(size: ComponentSize): number {
+  return SIZE_STYLE_MAP[size].iconSize;
 }
 
 function resolveTextSize(size: ComponentSize): TextSize {
@@ -195,7 +209,7 @@ function resolveTextColor(
   disabled: boolean,
   variantTextColor: TextColor,
 ): TextColor {
-  return disabled ? 'disabled' : variantTextColor;
+  return disabled ? 'quaternary' : variantTextColor;
 }
 
 function resolveColorConfig(
@@ -241,7 +255,7 @@ function resolveColorConfig(
   return {
     base: token.colorText,
     active: token.colorText,
-    background: token.colorFillQuaternary,
+    background: token.colorFillTertiary,
     border: token.colorBorder,
     text: token.colorText,
     textColor: 'default',
@@ -261,21 +275,25 @@ function resolveVariantStyle(
   if (resolvedVariant === 'solid') {
     return {
       backgroundColor: colorConfig.base,
-      borderColor: colorConfig.base,
+      borderColor: TRANSPARENT,
+      borderWidth: 0,
       color: token.colorTextLightSolid,
       textColor: 'lightSolid',
+      textWeight: 'semibold',
       pressedBackgroundColor: colorConfig.active,
-      pressedBorderColor: colorConfig.active,
+      pressedBorderColor: TRANSPARENT,
       pressedTextColor: 'lightSolid',
     };
   }
 
   if (resolvedVariant === 'filled') {
     return {
-      backgroundColor: ghost ? TRANSPARENT : colorConfig.background,
+      backgroundColor: colorConfig.background,
       borderColor: TRANSPARENT,
+      borderWidth: 0,
       color: colorConfig.text,
       textColor: colorConfig.textColor,
+      textWeight: 'medium',
       pressedBackgroundColor: colorConfig.border,
       pressedBorderColor: TRANSPARENT,
       pressedTextColor: colorConfig.textColor,
@@ -284,33 +302,45 @@ function resolveVariantStyle(
 
   if (resolvedVariant === 'text' || resolvedVariant === 'link') {
     const isLinkPrimary = resolvedVariant === 'link' && color === 'primary';
-    const linkColor = isLinkPrimary ? token.colorLink : colorConfig.text;
-    const linkTextColor: TextColor = isLinkPrimary
+    const isNeutralText = resolvedVariant === 'text' && color === 'default';
+    const idleColor = isNeutralText
+      ? token.colorTextSecondary
+      : isLinkPrimary
+      ? token.colorLink
+      : colorConfig.text;
+    const idleTextColor: TextColor = isNeutralText
+      ? 'secondary'
+      : isLinkPrimary
       ? 'link'
       : colorConfig.textColor;
-    const pressedLinkTextColor: TextColor = isLinkPrimary
+    const pressedTextColor: TextColor = isNeutralText
+      ? 'secondary'
+      : isLinkPrimary
       ? 'linkActive'
       : colorConfig.textActiveColor;
-    const pressedBackgroundColor =
-      resolvedVariant === 'link' ? TRANSPARENT : token.colorBgTextActive;
 
     return {
       backgroundColor: TRANSPARENT,
       borderColor: TRANSPARENT,
-      color: linkColor,
-      textColor: linkTextColor,
-      pressedBackgroundColor,
+      borderWidth: 0,
+      color: idleColor,
+      textColor: idleTextColor,
+      textWeight: 'medium',
+      pressedBackgroundColor:
+        resolvedVariant === 'text' ? token.colorFillTertiary : TRANSPARENT,
       pressedBorderColor: TRANSPARENT,
-      pressedTextColor: pressedLinkTextColor,
+      pressedTextColor,
     };
   }
 
   return {
-    backgroundColor: ghost ? TRANSPARENT : token.colorBgContainer,
+    backgroundColor: TRANSPARENT,
     borderColor: colorConfig.border,
+    borderWidth: token.lineWidth,
     borderStyle: resolvedVariant === 'dashed' ? 'dashed' : 'solid',
     color: colorConfig.text,
     textColor: colorConfig.textColor,
+    textWeight: 'medium',
     pressedBackgroundColor: colorConfig.background,
     pressedBorderColor: colorConfig.base,
     pressedTextColor: colorConfig.textActiveColor,
@@ -335,18 +365,20 @@ const useStyles = createUseSheetStyle(
     const isTextButton = variant === 'text' || variant === 'link';
     const isCircle = shape === 'circle';
     const variantStyle = resolveVariantStyle(token, color, variant, ghost);
-    const borderRadius = shape === 'default' ? token.borderRadius : height / 2;
-    const horizontalPadding = sizeConfig.paddingHorizontal(token);
-    const verticalPadding =
-      isCircle && !hasContent ? horizontalPadding : horizontalPadding / 2;
+    const borderRadius = shape === 'default'
+      ? sizeConfig.borderRadius(token)
+      : PILL_RADIUS;
+    const horizontalPadding = isCircle && !hasContent
+      ? 0
+      : sizeConfig.paddingHorizontal(token);
 
     return {
       root: {
-        width: block ? '100%' : undefined,
+        width: block ? '100%' : isCircle && !hasContent ? height : undefined,
+        height,
         paddingHorizontal: horizontalPadding,
-        paddingVertical: verticalPadding,
         borderRadius,
-        borderWidth: isTextButton ? 0 : token.lineWidth,
+        borderWidth: isTextButton ? 0 : variantStyle.borderWidth,
         borderStyle: variantStyle.borderStyle,
         borderColor: variantStyle.borderColor,
         backgroundColor: variantStyle.backgroundColor,
@@ -358,16 +390,14 @@ const useStyles = createUseSheetStyle(
       rootPressed: {
         backgroundColor: variantStyle.pressedBackgroundColor,
         borderColor: variantStyle.pressedBorderColor,
+        transform: [{ scale: PRESS_SCALE }],
       },
       rootDisabled: {
         backgroundColor: isTextButton
           ? TRANSPARENT
-          : token.colorBgContainerDisabled,
-        borderColor: isTextButton ? TRANSPARENT : token.colorBorderDisabled,
+          : token.colorFillTertiary,
+        borderColor: isTextButton ? TRANSPARENT : token.colorBorder,
         opacity: isTextButton ? token.opacityLoading : undefined,
-      },
-      rootLoading: {
-        opacity: token.opacityLoading,
       },
       icon: {
         alignItems: 'center',
@@ -378,8 +408,11 @@ const useStyles = createUseSheetStyle(
         fontFamily: token.fontFamily,
         lineHeight: sizeConfig.lineHeight(token),
       },
+      contentLoading: {
+        opacity: token.opacityLoading,
+      },
       contentDisabled: {
-        color: token.colorTextDisabled,
+        color: token.colorTextQuaternary,
       },
     };
   },
@@ -465,6 +498,7 @@ export function Button({
   );
   const isLoading = hasLoadingRequest && isDelayComplete;
   const hasContent = children !== undefined && children !== null;
+  const hasIcon = icon !== undefined && icon !== null;
   const tokenStyles = useStyles({
     block,
     color: resolvedColor,
@@ -475,7 +509,7 @@ export function Button({
     variant: resolvedVariant,
   });
   const isInteractive = !disabled && !isLoading;
-  const shouldRenderIcon = isLoading || (icon !== undefined && icon !== null);
+  const shouldRenderIcon = isLoading || hasIcon;
   const variantStyle = resolveVariantStyle(
     token,
     resolvedColor,
@@ -483,13 +517,13 @@ export function Button({
     ghost,
   );
   const loadingIndicatorColor = disabled
-    ? token.colorTextDisabled
+    ? token.colorTextQuaternary
     : variantStyle.color;
   const textSize = resolveTextSize(size);
   const loadingIcon = loadingConfig?.icon ?? (
     <ActivityIndicator
       color={loadingIndicatorColor}
-      size={resolveIconSize(size, token)}
+      size={resolveIconSize(size)}
     />
   );
 
@@ -531,7 +565,7 @@ export function Button({
     const activeTextProps: ButtonContentTextProps = {
       color: activeIconColor,
       size: textSize,
-      weight: 'medium',
+      weight: variantStyle.textWeight,
     };
     const activeIconNode = shouldRenderIcon ? (
       <Row
@@ -544,7 +578,7 @@ export function Button({
         ) : (
           <Icon
             color={activeIconColor}
-            size={size}
+            size={resolveIconSize(size)}
             {...iconProps}
             icon={icon!}
           />
@@ -555,7 +589,11 @@ export function Button({
       ? renderContent(
           children,
           activeTextProps,
-          [tokenStyles.content, styles?.content],
+          [
+            tokenStyles.content,
+            isLoading ? tokenStyles.contentLoading : null,
+            styles?.content,
+          ],
           disabled ? tokenStyles.contentDisabled : null,
         )
       : null;
@@ -578,7 +616,6 @@ export function Button({
         tokenStyles.root,
         pressed && isInteractive ? tokenStyles.rootPressed : null,
         disabled ? tokenStyles.rootDisabled : null,
-        isLoading ? tokenStyles.rootLoading : null,
         style,
       ]}
     >

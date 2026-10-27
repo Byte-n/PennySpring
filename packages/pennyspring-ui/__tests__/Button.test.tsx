@@ -99,9 +99,9 @@ describe('Button', () => {
     const smallText = smallRenderer.root.findByType(Text);
     const normalText = normalRenderer.root.findByType(Text);
     const largeText = largeRenderer.root.findByType(Text);
-    expect(smallIcon.props.size).toBe('small');
-    expect(normalIcon.props.size).toBe('normal');
-    expect(largeIcon.props.size).toBe('large');
+    expect(smallIcon.props.size).toBe(16);
+    expect(normalIcon.props.size).toBe(18);
+    expect(largeIcon.props.size).toBe(20);
     expect(smallText.props.size).toBe('sm');
     expect(normalText.props.size).toBe('md');
     expect(largeText.props.size).toBe('lg');
@@ -149,14 +149,15 @@ describe('Button', () => {
     expect(getContentTextStyle(enabledRenderer).color).toBe('red');
     expect(getContentTextStyle(disabledRenderer).color).not.toBe('red');
   });
-  it('uses vertical padding instead of min height constraints', () => {
+  it('uses a fixed height instead of padding-driven height', () => {
     const testRenderer = renderButton({
       size: 'normal',
       children: 'Save',
     });
     const rootStyle = getRootStyle(testRenderer);
 
-    expect(rootStyle.paddingVertical).toBeDefined();
+    expect(rootStyle.height).toBe(token.controlHeight);
+    expect(rootStyle.paddingVertical).toBeUndefined();
     expect(rootStyle.minHeight).toBeUndefined();
   });
   it('uses token-driven color and size for default loading indicator', () => {
@@ -184,7 +185,7 @@ describe('Button', () => {
     const baselineIcon = baselineRenderer.root.findByType(Icon);
 
     expect(enabledIndicator.props.color).toBe(token.colorText);
-    expect(baselineIcon.props.size).toBe('large');
+    expect(baselineIcon.props.size).toBe(20);
     expect(disabledIndicator.props.color).not.toBe(enabledIndicator.props.color);
     expect(typeof enabledIndicator.props.size).toBe('number');
   });
@@ -202,7 +203,7 @@ describe('Button', () => {
 
     // Assert
     expect(textNode.props.size).toBe('sm');
-    expect(textNode.props.weight).toBe('medium');
+    expect(textNode.props.weight).toBe('semibold');
     expect(textNode.props.color).toBe('lightSolid');
     expect(textStyle.color).toBeUndefined();
     expect(textStyle.fontSize).toBeUndefined();
@@ -291,8 +292,8 @@ describe('Button', () => {
     const iconNode = testRenderer.root.findByType(Icon);
     const textNode = testRenderer.root.findByType(Text);
 
-    expect(iconNode.props.color).toBe('disabled');
-    expect(textNode.props.color).toBe('disabled');
+    expect(iconNode.props.color).toBe('quaternary');
+    expect(textNode.props.color).toBe('quaternary');
   });
   it('allows iconProps.color to override the default icon color', () => {
     const testRenderer = renderButton({
@@ -363,7 +364,7 @@ describe('Button', () => {
       color: string;
     }> = [
       { props: { type: 'primary' }, color: 'lightSolid' },
-      { props: { variant: 'text' }, color: 'default' },
+      { props: { variant: 'text' }, color: 'secondary' },
     ];
 
     for (const { props, color } of cases) {
@@ -399,6 +400,69 @@ describe('Button', () => {
       children: 'Save',
     });
 
-    expect(pressedRenderer.root.findByType(Text).props.color).toBe('disabled');
+    expect(pressedRenderer.root.findByType(Text).props.color).toBe('quaternary');
+  });
+});
+
+describe('Button redesign', () => {
+  it('renders default type as filled surface without border', () => {
+    const testRenderer = renderButton({ children: '取消' });
+    const rootStyle = getRootStyle(testRenderer);
+
+    expect(rootStyle.backgroundColor).toBe(token.colorFillTertiary);
+    expect(rootStyle.borderWidth).toBe(0);
+  });
+
+  it('applies fixed height and radius for each size', () => {
+    const small = getRootStyle(renderButton({ size: 'small', children: '保存' }));
+    const normal = getRootStyle(renderButton({ size: 'normal', children: '保存' }));
+    const large = getRootStyle(renderButton({ size: 'large', children: '保存' }));
+
+    expect(small.height).toBe(32);
+    expect(small.borderRadius).toBe(token.borderRadiusSM);
+    expect(normal.height).toBe(token.controlHeight);
+    expect(normal.borderRadius).toBe(token.borderRadius);
+    expect(large.height).toBe(52);
+    expect(large.borderRadius).toBe(token.borderRadiusLG);
+  });
+
+  it('keeps the label and dims it while loading', () => {
+    const testRenderer = renderButton({ loading: true, children: '保存记录' });
+    const textNode = testRenderer.root.findByType(Text);
+    const textStyle = flattenStyle(textNode.props.style) as Record<string, unknown>;
+
+    expect(textNode.props.children).toBe('保存记录');
+    expect(textStyle.opacity).toBe(token.opacityLoading);
+    expect(testRenderer.root.findAllByType(ActivityIndicator)).toHaveLength(1);
+  });
+
+  it('renders disabled button with fill surface and quaternary text', () => {
+    const testRenderer = renderButton({ type: 'primary', disabled: true, children: '保存' });
+    const rootStyle = getRootStyle(testRenderer);
+    const textNode = testRenderer.root.findByType(Text);
+
+    expect(rootStyle.backgroundColor).toBe(token.colorFillTertiary);
+    expect(rootStyle.borderWidth).toBe(0);
+    expect(textNode.props.color).toBe('quaternary');
+  });
+
+  it('maps icon size to the per-size icon scale', () => {
+    const small = renderButton({ icon: 'check', size: 'small', children: '保存' });
+    const normal = renderButton({ icon: 'check', size: 'normal', children: '保存' });
+    const large = renderButton({ icon: 'check', size: 'large', children: '保存' });
+
+    expect(small.root.findByType(Icon).props.size).toBe(16);
+    expect(normal.root.findByType(Icon).props.size).toBe(18);
+    expect(large.root.findByType(Icon).props.size).toBe(20);
+  });
+
+  it('uses semibold text for solid primary and danger buttons', () => {
+    const primary = renderButton({ type: 'primary', children: '保存' });
+    const danger = renderButton({ type: 'danger', children: '删除' });
+    const secondary = renderButton({ children: '取消' });
+
+    expect(primary.root.findByType(Text).props.weight).toBe('semibold');
+    expect(danger.root.findByType(Text).props.weight).toBe('semibold');
+    expect(secondary.root.findByType(Text).props.weight).toBe('medium');
   });
 });

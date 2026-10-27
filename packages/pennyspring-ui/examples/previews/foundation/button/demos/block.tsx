@@ -1,15 +1,19 @@
 import React from 'react';
-import { Button } from '@pennyspring/ui';
+import { Button, Column, Text } from '@pennyspring/ui';
 
-export const buttonBlockDemoTitle = 'Block';
+export const buttonBlockDemoTitle = '全宽按钮（block）';
 
 export function ButtonBlockDemo() {
   return (
-    <>
+    <Column gap="small">
+      <Text color="secondary" size="sm">
+        block 只用于表单底部与浮层动作区；一屏最多一条全宽主按钮
+      </Text>
       <Button block type="primary">
-        Block button
+        保存记录
       </Button>
-    </>
+      <Button block>另存为模板</Button>
+    </Column>
   );
 }
 

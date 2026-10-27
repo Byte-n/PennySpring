@@ -50,7 +50,8 @@ export type IconName =
 
 export interface IconProps {
   icon: IconName | IconComponent;
-  size?: IconSize;
+  /** 尺寸语义或明确的像素值；像素值用于图标与字号不同步的场景（如按钮图标）。 */
+  size?: IconSize | number;
   color?: IconColor;
   weight?: IconWeight;
   duotoneColor?: IconColor;

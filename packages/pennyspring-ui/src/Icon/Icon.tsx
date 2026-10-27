@@ -98,7 +98,14 @@ function resolveIcon(icon: IconName | IconComponent): IconComponent | undefined 
   return icon;
 }
 
-function resolveSize(size: IconSize | undefined, token: AliasToken): number {
+function resolveSize(
+  size: IconSize | number | undefined,
+  token: AliasToken,
+): number {
+  if (typeof size === 'number') {
+    return size;
+  }
+
   const resolvedSize = size ?? 'normal';
   return ICON_SIZE_MAP[resolvedSize].value(token);
 }

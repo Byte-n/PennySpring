@@ -42,11 +42,6 @@ const useStyles = createUseSheetStyle(token => ({
     flexGrow: 1,
     paddingVertical: token.paddingLG,
   },
-  todayTag: {
-    borderRadius: token.borderRadiusLG,
-    paddingHorizontal: token.paddingSM,
-    minHeight: token.controlHeightXS,
-  },
   filterRow: { paddingHorizontal: token.padding, paddingTop: token.paddingSM },
 }));
 
@@ -189,7 +184,7 @@ export function DetailTabScreen() {
           {selectedMonth.formatDateBy('YYYY年M月')}
         </Button>
         <Button type="text" size="small" icon="caret-right" onPress={() => moveMonth(1)} />
-        <Button type="text" size="small" style={styles.todayTag} onPress={() => { setSelectedMonth(new Date()); setActiveFilter('all'); }}>今天</Button>
+        <Button type="text" size="small" shape="round" onPress={() => { setSelectedMonth(new Date()); setActiveFilter('all'); }}>今天</Button>
       </Row>
       <ScrollView
           contentContainerStyle={styles.content}
