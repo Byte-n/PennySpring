@@ -1,6 +1,7 @@
 import React from 'react';
 import { ActivityIndicator, StyleSheet, TextInput, View } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
+import { ThemeProvider } from '@pennyspring/theme';
 import { Textarea } from '../src/Textarea';
 import { Text } from '../src/Text';
 function renderTextarea(props: Partial<React.ComponentProps<typeof Textarea>> = {}) {
@@ -175,54 +176,157 @@ describe('Textarea', () => {
     expect(StyleSheet.flatten(input.props.style)).toMatchObject({ flex: 1 });
   });
 
-  it('keeps field border width constant between focused and unfocused states', () => {
-    function getMaxBorderWidth(styleProp: unknown): number | undefined {
-      if (!Array.isArray(styleProp)) {
-        return typeof styleProp === 'object' && styleProp !== null && 'borderWidth' in styleProp
-          ? (styleProp as Record<string, number>).borderWidth
-          : undefined;
-      }
-      let max: number | undefined;
-      for (const s of styleProp) {
-        if (s && typeof s === 'object' && 'borderWidth' in s) {
-          const bw = (s as Record<string, number>).borderWidth;
-          max = max === undefined ? bw : Math.max(max, bw);
-        }
-      }
-      return max;
-    }
-
-    function findFieldNode(testR: renderer.ReactTestRenderer) {
-      // Find the node that is a parent of TextInput and has borderWidth in its style
-      const input = testR.root.findByType(TextInput);
-      let node: renderer.ReactTestInstance = input.parent!;
-      while (node) {
-        if (
-          node.props.style &&
-          Array.isArray(node.props.style) &&
-          node.props.style.some(
-            (s: Record<string, unknown>) => s && typeof s === 'object' && 'borderWidth' in s,
-          )
-        ) {
-          return node;
-        }
-        node = node.parent!;
-      }
-      throw new Error('Field node not found');
-    }
-
+  it('keeps the underline width constant between focused and unfocused states', () => {
     const testRenderer = renderTextarea({});
     const input = testRenderer.root.findByType(TextInput);
-    const fieldBefore = findFieldNode(testRenderer);
-    const borderWidthBefore = getMaxBorderWidth(fieldBefore.props.style);
+    const fieldStyle = StyleSheet.flatten(input.parent?.props.style);
+
+    expect(fieldStyle.borderBottomWidth).toBe(1);
+    expect(fieldStyle.borderWidth).toBeUndefined();
 
     act(() => {
       input.props.onFocus({ nativeEvent: {} });
     });
 
-    const fieldAfter = findFieldNode(testRenderer);
-    const borderWidthAfter = getMaxBorderWidth(fieldAfter.props.style);
+    const focusedFieldStyle = StyleSheet.flatten(
+      testRenderer.root.findByType(TextInput).parent?.props.style,
+    );
 
-    expect(borderWidthBefore).toBe(borderWidthAfter);
+    expect(focusedFieldStyle.borderBottomWidth).toBe(1);
+  });
+});
+
+const TOKENS = {
+  colorBorder: 'borderToken',
+  colorError: 'errorToken',
+  colorPrimary: 'primaryToken',
+  colorSplit: 'splitToken',
+  colorTextQuaternary: 'quaternaryToken',
+  colorTextSecondary: 'secondaryToken',
+  colorWarning: 'warningToken',
+  lineHeight: 26,
+  lineHeightLG: 28,
+  lineHeightSM: 24,
+  lineWidth: 1,
+  marginSM: 12,
+  marginXS: 8,
+  marginXXS: 4,
+} as const;
+
+function renderThemedTextarea(props: Partial<React.ComponentProps<typeof Textarea>> = {}) {
+  let testRenderer: renderer.ReactTestRenderer;
+
+  act(() => {
+    testRenderer = renderer.create(
+      <ThemeProvider config={{ token: TOKENS }}>
+        <Textarea {...props} />
+      </ThemeProvider>,
+    );
+  });
+
+  return testRenderer!;
+}
+
+function getFieldStyle(testRenderer: renderer.ReactTestRenderer) {
+  return StyleSheet.flatten(testRenderer.root.findByType(TextInput).parent?.props.style);
+}
+
+function getIndicatorStyle(testRenderer: renderer.ReactTestRenderer) {
+  const indicator = testRenderer.root.findAllByType(View).find(node => {
+    const style = StyleSheet.flatten(node.props.style);
+
+    return style?.position === 'absolute' && style?.height === 2;
+  });
+
+  return StyleSheet.flatten(indicator?.props.style);
+}
+
+describe('Textarea underline field', () => {
+  it('renders a transparent underline field without box padding', () => {
+    const fieldStyle = getFieldStyle(renderThemedTextarea());
+
+    expect(fieldStyle.backgroundColor).toBe('transparent');
+    expect(fieldStyle.borderBottomWidth).toBe(TOKENS.lineWidth);
+    expect(fieldStyle.borderBottomColor).toBe(TOKENS.colorBorder);
+    expect(fieldStyle.borderRadius).toBe(0);
+    expect(fieldStyle.paddingHorizontal).toBe(0);
+    expect(fieldStyle.paddingVertical).toBe(TOKENS.marginXS);
+    expect(fieldStyle.minHeight).toBe(TOKENS.lineHeight * 3 + TOKENS.marginXS * 2);
+  });
+
+  it.each([
+    ['default', 'primaryToken'],
+    ['error', 'errorToken'],
+    ['warning', 'warningToken'],
+  ] as const)('paints the %s indicator from its token', (status, expectedColor) => {
+    const indicatorStyle = getIndicatorStyle(renderThemedTextarea({ status }));
+
+    expect(indicatorStyle.backgroundColor).toBe(expectedColor);
+    expect(indicatorStyle.bottom).toBe(-TOKENS.lineWidth);
+  });
+
+  it('weakens the underline and text when disabled', () => {
+    const testRenderer = renderThemedTextarea({ disabled: true });
+    const fieldStyle = getFieldStyle(testRenderer);
+    const inputStyle = StyleSheet.flatten(testRenderer.root.findByType(TextInput).props.style);
+
+    expect(fieldStyle.borderBottomColor).toBe(TOKENS.colorSplit);
+    expect(inputStyle.color).toBe(TOKENS.colorTextQuaternary);
+  });
+
+  it('uses secondary text for readonly without a fill', () => {
+    const testRenderer = renderThemedTextarea({ readonly: true });
+    const inputStyle = StyleSheet.flatten(testRenderer.root.findByType(TextInput).props.style);
+
+    expect(inputStyle.color).toBe(TOKENS.colorTextSecondary);
+    expect(getFieldStyle(testRenderer).backgroundColor).toBe('transparent');
+  });
+
+  it.each([
+    ['default', 'tertiary'],
+    ['error', 'errorText'],
+    ['warning', 'warningText'],
+    ['success', 'successText'],
+  ] as const)('colors %s helper text with %s', (status, expectedColor) => {
+    const testRenderer = renderThemedTextarea({ helperText: '说明文案', status });
+    const helperNode = testRenderer.root
+      .findAllByType(Text)
+      .find(node => node.props.children === '说明文案');
+
+    expect(helperNode?.props.size).toBe('xs');
+    expect(helperNode?.props.color).toBe(expectedColor);
+  });
+
+  it('turns the counter warning color above 84% of maxLength', () => {
+    const normalRenderer = renderThemedTextarea({ maxLength: 10, showCount: true, value: '1234' });
+    const warningRenderer = renderThemedTextarea({ maxLength: 10, showCount: true, value: '123456789' });
+    const countNode = (testRenderer: renderer.ReactTestRenderer) =>
+      testRenderer.root.findAllByType(Text).find(node => String(node.props.children).includes('/'));
+
+    expect(countNode(normalRenderer)?.props.color).toBe('tertiary');
+    expect(countNode(warningRenderer)?.props.color).toBe('warningText');
+  });
+
+  it('moves the loading spinner into the footer and keeps it without helper or count', () => {
+    const testRenderer = renderThemedTextarea({ loading: true });
+    const spinner = testRenderer.root.findByType(ActivityIndicator);
+
+    expect(StyleSheet.flatten(spinner.props.style).position).toBeUndefined();
+    expect(spinner.props.size).toBe(14);
+  });
+
+  it.each([
+    ['small', 'xs', 24],
+    ['normal', 'sm', 26],
+    ['large', 'sm', 28],
+  ] as const)('maps %s label and row height', (size, expectedLabelSize, expectedRowHeight) => {
+    const testRenderer = renderThemedTextarea({ labelText: '备注', size });
+    const labelNode = testRenderer.root
+      .findAllByType(Text)
+      .find(node => node.props.children === '备注');
+
+    expect(labelNode?.props.size).toBe(expectedLabelSize);
+    expect(labelNode?.props.weight).toBe('semibold');
+    expect(getFieldStyle(testRenderer).minHeight).toBe(expectedRowHeight * 3 + TOKENS.marginXS * 2);
   });
 });

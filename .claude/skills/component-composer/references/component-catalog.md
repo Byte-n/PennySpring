@@ -81,7 +81,7 @@
 - `Portal`、`PortalProvider`：在常规树外渲染浮层内容。
 - `Toast`、`useToast`：短暂轻量提示；999 胶囊、单实例替换、1800ms，`status` 提供 dot / success / error 三态图标。
 - `Message`、`useMessage`：行内或全局反馈消息；16 语义图标 + 浅语义底（default 为白卡发丝线），支持单个 action 与 closable，有操作时常驻。
-- `Notification`、`useNotification`：信息更丰富的通知。
+- `Notification`、`useNotification`：信息更丰富的通知；白卡 + 阴影、语义色只在 32 底板与图标，定位收敛为 top / bottom，支持最多两个 action。
 - `Loading`：活动指示器；inline / block / more / overlay 四形态，转圈 16 / 20 / 28，tone 控制主色与次级灰。
 
 ## 常见组合

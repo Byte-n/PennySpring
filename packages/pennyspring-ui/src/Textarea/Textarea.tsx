@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { ActivityIndicator, TextInput, View } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { ActivityIndicator, Animated, TextInput, View } from 'react-native';
 import { useTheme } from '@pennyspring/theme';
 import { Column } from '../Column';
 import { Row } from '../Row';
@@ -12,17 +12,19 @@ import type {
   TextInputContentSizeChangeEventData,
   TextInputProps,
 } from 'react-native';
-import type {
-  TextareaProps,
-} from './types';
+import type { TextareaProps } from './types';
 import {
   clampHeight,
   DEFAULT_MIN_ROWS,
   getFieldHeight,
   resolveMaxRows,
   resolveRows,
+  SIZE_CONFIG,
   useStyles,
 } from './style';
+
+/** 计数超过该比例时转警示色。 */
+const COUNT_WARNING_RATIO = 0.84;
 
 export function Textarea({
   defaultValue,
@@ -60,6 +62,7 @@ export function Textarea({
     value,
     onChangeText,
   );
+  const indicator = useRef(new Animated.Value(0)).current;
   const resolvedMinRows = resolveRows(minRows, DEFAULT_MIN_ROWS);
   const resolvedMaxRows = resolveMaxRows(resolvedMinRows, maxRows);
   const textValue = String(mergedValue);
@@ -71,16 +74,24 @@ export function Textarea({
     ? errorMessage
     : helperMessage;
   const shouldShowMessage = message !== undefined && message !== null;
+  const isIndicatorVisible = !disabled && (isFocused || status !== 'default');
   const tokenStyles = useStyles({
     contentHeight,
     isDisabled: disabled,
-    isError,
     isFocused,
     maxRows: resolvedMaxRows,
     minRows: resolvedMinRows,
     size,
     status,
   });
+
+  useEffect(() => {
+    Animated.timing(indicator, {
+      duration: token.motionDurationMid,
+      toValue: isIndicatorVisible ? 1 : 0,
+      useNativeDriver: true,
+    }).start();
+  }, [indicator, isIndicatorVisible, token.motionDurationMid]);
 
   function handleFocus(event: Parameters<NonNullable<TextInputProps['onFocus']>>[0]): void {
     setIsFocused(true);
@@ -110,12 +121,27 @@ export function Textarea({
 
   const countText =
     maxLength === undefined ? `${textValue.length}` : `${textValue.length} / ${maxLength}`;
-
-  const labelColor = disabled ? 'disabled' : 'label';
+  const isCountWarning =
+    maxLength !== undefined &&
+    maxLength > 0 &&
+    textValue.length / maxLength >= COUNT_WARNING_RATIO;
+  const messageColor = status === 'error'
+    ? 'errorText'
+    : status === 'warning'
+    ? 'warningText'
+    : status === 'success'
+    ? 'successText'
+    : 'tertiary';
+  const labelColor = disabled ? 'quaternary' : readonly ? 'secondary' : 'default';
   const resolvedLabel = label !== undefined ? label : labelText;
   const renderLabelContent = () =>
     renderTextNode(resolvedLabel, (text) => (
-      <Text size="sm" weight="medium" color={labelColor} style={styles?.label}>
+      <Text
+        color={labelColor}
+        size={SIZE_CONFIG[size].labelSize}
+        style={styles?.label}
+        weight="semibold"
+      >
         {text}
       </Text>
     ));
@@ -123,22 +149,13 @@ export function Textarea({
   return (
     <Column style={[tokenStyles.root, style]}>
       {label !== null && (label !== undefined || labelText !== undefined) ? (
-        <Row align="center" gap="small">
+        <Row align="center" style={tokenStyles.labelRow}>
           {renderLabelContent()}
-          {required ? <Text size="sm" color="error">*</Text> : null}
+          {required ? <Text color="error" size={SIZE_CONFIG[size].labelSize}>*</Text> : null}
         </Row>
       ) : null}
 
-      <View
-        style={[
-          tokenStyles.field,
-          styles?.field,
-          readonly ? tokenStyles.fieldReadonly : null,
-          disabled ? tokenStyles.fieldDisabled : null,
-          isError ? tokenStyles.fieldError : null,
-          isFocused ? tokenStyles.fieldFocused : null,
-        ]}
-      >
+      <View style={[tokenStyles.field, styles?.field]}>
         <TextInput
           {...rest}
           editable={isEditable}
@@ -150,32 +167,31 @@ export function Textarea({
           onFocus={handleFocus}
           placeholder={placeholder}
           placeholderTextColor={token.colorTextPlaceholder}
-          style={[tokenStyles.input, styles?.input]}
+          style={[
+            tokenStyles.input,
+            readonly ? tokenStyles.inputReadonly : null,
+            styles?.input,
+          ]}
           value={textValue}
         />
-        {loading ? (
-          <ActivityIndicator
-            color={token.colorPrimary}
-            size="small"
-            style={tokenStyles.loading}
-          />
-        ) : null}
+        <Animated.View
+          style={[
+            tokenStyles.indicator,
+            { transform: [{ scaleX: indicator }] },
+          ]}
+        />
       </View>
 
-      {shouldShowMessage || showCount ? (
-        <Row justify="between" align="start" style={[tokenStyles.footer, styles?.footer]}>
+      {shouldShowMessage || showCount || loading ? (
+        <Row align="start" justify="between" style={[tokenStyles.footer, styles?.footer]}>
           {shouldShowMessage ? (
             renderTextNode(message, (text) => (
               <Text
-                size="sm"
-                color={isError && errorMessage !== undefined ? 'errorText' : 'description'}
+                color={messageColor}
+                size="xs"
                 style={[
-                  isError && errorMessage !== undefined
-                    ? tokenStyles.error
-                    : tokenStyles.helper,
-                  isError && errorMessage !== undefined
-                    ? styles?.error
-                    : styles?.helper,
+                  isError ? tokenStyles.error : tokenStyles.helper,
+                  isError ? styles?.error : styles?.helper,
                 ]}
               >
                 {text}
@@ -184,8 +200,20 @@ export function Textarea({
           ) : (
             <Spacer />
           )}
-          {showCount ? (
-            <Text size="sm" color="tertiary" style={styles?.count}>{countText}</Text>
+          {loading ? (
+            <ActivityIndicator
+              color={token.colorPrimary}
+              size={14}
+              style={tokenStyles.loading}
+            />
+          ) : showCount ? (
+            <Text
+              color={isCountWarning ? 'warningText' : 'tertiary'}
+              size="xs"
+              style={[tokenStyles.count, styles?.count]}
+            >
+              {countText}
+            </Text>
           ) : null}
         </Row>
       ) : null}

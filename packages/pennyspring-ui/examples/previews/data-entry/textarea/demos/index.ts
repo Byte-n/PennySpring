@@ -1,14 +1,9 @@
-import { textareaBasicDemoTitle, TextareaBasicDemo } from './basic';
-import {
-  textareaRowsAndStatusDemoTitle,
-  TextareaRowsAndStatusDemo,
-} from './rows-and-status';
+import { textareaSizeDemoTitle, TextareaSizeDemo } from './size';
+import { textareaSlotsDemoTitle, TextareaSlotsDemo } from './slots';
+import { textareaStatusDemoTitle, TextareaStatusDemo } from './status';
 
 export const textareaDemos = [
-  { id: 'basic', title: textareaBasicDemoTitle, Component: TextareaBasicDemo },
-  {
-    id: 'rows-and-status',
-    title: textareaRowsAndStatusDemoTitle,
-    Component: TextareaRowsAndStatusDemo,
-  },
+  { id: 'size', title: textareaSizeDemoTitle, Component: TextareaSizeDemo },
+  { id: 'status', title: textareaStatusDemoTitle, Component: TextareaStatusDemo },
+  { id: 'slots', title: textareaSlotsDemoTitle, Component: TextareaSlotsDemo },
 ];

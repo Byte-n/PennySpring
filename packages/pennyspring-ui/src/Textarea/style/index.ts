@@ -6,46 +6,39 @@ import type { TextareaStatus } from '../types';
 export interface TextareaStyleOptions {
   contentHeight: number;
   isDisabled: boolean;
-  isError: boolean;
   isFocused: boolean;
-  status: TextareaStatus;
-  minRows: number;
   maxRows: number;
+  minRows: number;
   size: ComponentSize;
+  status: TextareaStatus;
 }
 
 interface SizeConfig {
   fontSize: (token: AliasToken) => number;
+  labelSize: 'xs' | 'sm';
   lineHeight: (token: AliasToken) => number;
-  paddingHorizontal: (token: AliasToken) => number;
-  paddingVertical: (token: AliasToken) => number;
-  footerGap: (token: AliasToken) => number;
 }
 
 const DEFAULT_MIN_ROWS = 3;
 const MIN_ALLOWED_ROWS = 1;
+/** 指示条与字段内边距在 AliasToken 中没有档位，按设计稿落为语义常量。 */
+const INDICATOR_HEIGHT = 2;
 
 export const SIZE_CONFIG: Record<ComponentSize, SizeConfig> = {
   small: {
     fontSize: token => token.fontSizeSM,
+    labelSize: 'xs',
     lineHeight: token => token.lineHeightSM,
-    paddingHorizontal: token => token.controlPaddingHorizontalSM,
-    paddingVertical: token => token.controlPaddingHorizontalSM / 2,
-    footerGap: token => token.marginXXS,
   },
   normal: {
     fontSize: token => token.fontSize,
+    labelSize: 'sm',
     lineHeight: token => token.lineHeight,
-    paddingHorizontal: token => token.controlPaddingHorizontal,
-    paddingVertical: token => token.controlPaddingHorizontal / 2,
-    footerGap: token => token.marginXS,
   },
   large: {
     fontSize: token => token.fontSizeLG,
+    labelSize: 'sm',
     lineHeight: token => token.lineHeightLG,
-    paddingHorizontal: token => token.paddingMD,
-    paddingVertical: token => token.paddingMD / 2,
-    footerGap: token => token.marginSM,
   },
 };
 
@@ -61,8 +54,8 @@ export function getRowHeight(size: ComponentSize, token: AliasToken): number {
   return SIZE_CONFIG[size].lineHeight(token);
 }
 
-export function getVerticalPadding(size: ComponentSize, token: AliasToken): number {
-  return SIZE_CONFIG[size].paddingVertical(token);
+export function getVerticalPadding(_size: ComponentSize, token: AliasToken): number {
+  return token.marginXS;
 }
 
 export function getFieldHeight(
@@ -70,47 +63,53 @@ export function getFieldHeight(
   size: ComponentSize,
   token: AliasToken,
 ): number {
-  const borderSize = token.lineWidth * 2;
-
-  return getRowHeight(size, token) * rows + getVerticalPadding(size, token) * 2 + borderSize;
+  return getRowHeight(size, token) * rows + getVerticalPadding(size, token) * 2;
 }
 
 export function clampHeight(value: number, minHeight: number, maxHeight: number): number {
   return Math.min(Math.max(value, minHeight), maxHeight);
 }
 
-function getStatusBorderColor(status: TextareaStatus, token: AliasToken): string {
+/** 指示条取同族基础色：错误 / 警示 / 成功各自换色，聚焦时用主色。 */
+export function getIndicatorColor(status: TextareaStatus, token: AliasToken): string {
   if (status === 'error') {
-    return token.colorErrorBorder;
+    return token.colorError;
   }
 
   if (status === 'warning') {
-    return token.colorWarningBorder;
+    return token.colorWarning;
   }
 
   if (status === 'success') {
-    return token.colorSuccessBorder;
+    return token.colorSuccess;
   }
 
-  return token.colorBorder;
+  return token.colorPrimary;
 }
 
-export { DEFAULT_MIN_ROWS, MIN_ALLOWED_ROWS };
+export function getTextColor(
+  token: AliasToken,
+  {
+    isDisabled,
+  }: {
+    isDisabled: boolean;
+  },
+): string {
+  return isDisabled ? token.colorTextQuaternary : token.colorText;
+}
+
+export { DEFAULT_MIN_ROWS, INDICATOR_HEIGHT, MIN_ALLOWED_ROWS };
 
 export const useStyles = createUseSheetStyle(
   (token, options: TextareaStyleOptions) => {
     const sizeConfig = SIZE_CONFIG[options.size];
-    const fontSize = sizeConfig.fontSize(token);
     const lineHeight = sizeConfig.lineHeight(token);
     const minHeight = getFieldHeight(options.minRows, options.size, token);
     const maxHeight = getFieldHeight(options.maxRows, options.size, token);
+    const verticalPadding = getVerticalPadding(options.size, token);
     const height =
       options.contentHeight > 0
-        ? clampHeight(
-            options.contentHeight + getVerticalPadding(options.size, token) * 2,
-            minHeight,
-            maxHeight,
-          )
+        ? clampHeight(options.contentHeight + verticalPadding * 2, minHeight, maxHeight)
         : minHeight;
 
     return {
@@ -121,45 +120,42 @@ export const useStyles = createUseSheetStyle(
         flexDirection: 'row',
         alignItems: 'center',
         gap: token.marginXXS,
+        marginBottom: token.marginXS,
       },
       field: {
         minHeight,
         maxHeight,
         height,
-        borderWidth: token.lineWidth,
-        borderColor: getStatusBorderColor(options.status, token),
-        borderRadius: token.borderRadius,
-        backgroundColor: options.isDisabled
-          ? token.colorBgContainerDisabled
-          : token.colorBgContainer,
-        paddingHorizontal: sizeConfig.paddingHorizontal(token),
-        paddingVertical: sizeConfig.paddingVertical(token),
+        backgroundColor: 'transparent',
+        borderBottomColor: options.isDisabled ? token.colorSplit : token.colorBorder,
+        borderBottomWidth: token.lineWidth,
+        borderRadius: 0,
+        paddingHorizontal: 0,
+        paddingVertical: verticalPadding,
       },
-      fieldFocused: {
-        borderColor: options.isError ? token.colorError : token.colorPrimary,
-      },
-      fieldError: {
-        borderColor: token.colorErrorBorder,
-        backgroundColor: token.colorErrorBg,
-      },
-      fieldDisabled: {
-        borderColor: token.colorBorderDisabled,
-        backgroundColor: token.colorBgContainerDisabled,
-      },
-      fieldReadonly: {
-        backgroundColor: token.colorFillQuaternary,
+      indicator: {
+        position: 'absolute' as const,
+        left: 0,
+        right: 0,
+        bottom: -token.lineWidth,
+        height: INDICATOR_HEIGHT,
+        backgroundColor: getIndicatorColor(options.status, token),
+        transformOrigin: 'left center' as const,
       },
       input: {
         // 撑满 field 内容区，避免空值时空白区域点击无法聚焦
         flex: 1,
         minHeight: lineHeight,
-        color: options.isDisabled ? token.colorTextDisabled : token.colorText,
+        color: options.isDisabled ? token.colorTextQuaternary : token.colorText,
         fontFamily: token.fontFamily,
-        fontSize,
+        fontSize: sizeConfig.fontSize(token),
         lineHeight,
         padding: 0,
         margin: 0,
-        textAlignVertical: 'top',
+        textAlignVertical: 'top' as const,
+      },
+      inputReadonly: {
+        color: token.colorTextSecondary,
       },
       helper: {
         flex: 1,
@@ -168,16 +164,18 @@ export const useStyles = createUseSheetStyle(
         flex: 1,
       },
       footer: {
-        minHeight: token.lineHeightSM,
-        flexDirection: 'row',
-        alignItems: 'flex-start',
-        justifyContent: 'space-between',
-        gap: sizeConfig.footerGap(token),
+        minHeight: token.lineHeightXS,
+        flexDirection: 'row' as const,
+        alignItems: 'flex-start' as const,
+        justifyContent: 'space-between' as const,
+        gap: token.marginXS,
+        marginTop: token.marginXS,
+      },
+      count: {
+        flexShrink: 0,
       },
       loading: {
-        position: 'absolute',
-        top: sizeConfig.paddingVertical(token),
-        right: sizeConfig.paddingHorizontal(token),
+        flexShrink: 0,
       },
     };
   },
