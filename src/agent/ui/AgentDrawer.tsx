@@ -19,6 +19,7 @@ import {
 
 import type { ChatMessage } from '../core/types';
 import type { AgentChatState } from './useAgentChat';
+import { MarkdownText } from '../../component/MarkdownText';
 
 const SUGGESTIONS = [
   '上个月吃饭花了多少？',
@@ -108,6 +109,27 @@ interface MessageItemProps {
   message: ChatMessage;
 }
 
+function AssistantBubble({
+  content,
+  selectable,
+  note,
+}: {
+  content: string;
+  selectable?: boolean;
+  note?: React.ReactNode;
+}): React.ReactElement {
+  const styles = useStyles();
+
+  return (
+    <Row justify="start">
+      <View style={[styles.bubble, styles.assistantBubble]}>
+        <MarkdownText content={content} selectable={selectable} />
+        {note}
+      </View>
+    </Row>
+  );
+}
+
 function MessageItem({ message }: MessageItemProps): React.ReactElement | null {
   const styles = useStyles();
 
@@ -135,20 +157,17 @@ function MessageItem({ message }: MessageItemProps): React.ReactElement | null {
   }
 
   return (
-    <Row justify="start">
-      <View style={[styles.bubble, styles.assistantBubble]}>
-        {hasText ? (
-          <Text selectable size="sm">
-            {message.content}
-          </Text>
-        ) : null}
-        {hasToolCalls ? (
+    <AssistantBubble
+      content={message.content}
+      selectable={hasText}
+      note={
+        hasToolCalls ? (
           <Text size="xs" style={styles.toolNote}>
             {QUERIED_TEXT}
           </Text>
-        ) : null}
-      </View>
-    </Row>
+        ) : null
+      }
+    />
   );
 }
 
@@ -300,11 +319,7 @@ export function AgentDrawer({
           ))}
 
           {isStreaming && chat.streamingText ? (
-            <Row justify="start">
-              <View style={[styles.bubble, styles.assistantBubble]}>
-                <Text size="sm">{chat.streamingText}</Text>
-              </View>
-            </Row>
+            <AssistantBubble content={chat.streamingText} />
           ) : null}
 
           {showThinking ? (

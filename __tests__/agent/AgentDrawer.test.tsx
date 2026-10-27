@@ -133,6 +133,31 @@ function renderDrawer(
   return { renderer: renderer!, onOpenSettings };
 }
 
+type HostNode = {
+  type: string;
+  props: Record<string, unknown>;
+  children?: unknown[];
+};
+
+function collectText(nodes: readonly unknown[]): string {
+  return nodes
+    .map(node => {
+      if (typeof node === 'string' || typeof node === 'number') {
+        return String(node);
+      }
+      if (!node || typeof node !== 'object') {
+        return '';
+      }
+      return collectText(((node as HostNode).children) ?? []);
+    })
+    .join(' ');
+}
+
+function renderedText(renderer: TestRenderer.ReactTestRenderer): string {
+  const root = renderer.toJSON();
+  return collectText(root === null ? [] : (Array.isArray(root) ? root : [root]));
+}
+
 describe('AgentDrawer', () => {
   it('shows the setup notice and suggestions when the agent is not configured', () => {
     const { renderer, onOpenSettings } = renderDrawer(createChat(), {
@@ -190,10 +215,7 @@ describe('AgentDrawer', () => {
     const chat = createChat({ sending: true, streamingText: '正在统计支出…' });
     const { renderer } = renderDrawer(chat);
 
-    const texts = renderer.root
-      .findAllByType(require('react-native').Text)
-      .map(node => node.props.children);
-    expect(texts).toContain('正在统计支出…');
+    expect(renderedText(renderer)).toContain('正在统计支出…');
 
     act(() => {
       renderer.root.findByProps({ testID: 'agent-stop-button' }).props.onPress();
@@ -221,24 +243,31 @@ describe('AgentDrawer', () => {
     });
     const { renderer } = renderDrawer(chat);
 
-    const texts = renderer.root
-      .findAllByType(require('react-native').Text)
-      .map(node => node.props.children);
+    const text = renderedText(renderer);
 
-    expect(texts).toContain('上个月吃饭花了多少？');
-    expect(texts).toContain('上个月吃饭共 120.00 元。');
-    expect(texts).toContain('已查询账本数据');
-    expect(texts).not.toContain('{"count":3,"totals":{"expense":120}}');
+    expect(text).toContain('上个月吃饭花了多少？');
+    expect(text).toContain('上个月吃饭共 120.00 元。');
+    expect(text).toContain('已查询账本数据');
+    expect(text).not.toContain('{"count":3,"totals":{"expense":120}}');
+  });
+
+  it('renders assistant markdown without the raw markers', () => {
+    const chat = createChat({
+      messages: [
+        { role: 'assistant', content: '**合计 120 元**' },
+      ],
+    });
+    const { renderer } = renderDrawer(chat);
+
+    const text = renderedText(renderer);
+    expect(text).toContain('合计 120 元');
+    expect(text).not.toContain('**合计 120 元**');
   });
 
   it('shows the current tool status while a tool runs', () => {
     const chat = createChat({ sending: true, activeTool: '正在查询账本数据…' });
     const { renderer } = renderDrawer(chat);
 
-    const texts = renderer.root
-      .findAllByType(require('react-native').Text)
-      .map(node => node.props.children);
-
-    expect(texts).toContain('正在查询账本数据…');
+    expect(renderedText(renderer)).toContain('正在查询账本数据…');
   });
 });
