@@ -200,7 +200,12 @@ export function BookList({
   }
 
   if (items.length === 0) {
-    return <Empty />;
+    return (
+      <Empty
+        titleText="还没有账本"
+        descriptionText="点右上角 + 新建或导入一个账本。"
+      />
+    );
   }
 
   const localItems = items.filter(item => item.entry.kind === BOOK_TYPE.local);

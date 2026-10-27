@@ -51,7 +51,7 @@ export function CategoryField({
   }
 
   if (categories.length === 0) {
-    return <Empty size="small" messageText="暂无可用类型" style={styles.state} />;
+    return <Empty size="small" descriptionText="暂无可用类型" style={styles.state} />;
   }
 
   return (

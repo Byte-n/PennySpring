@@ -159,7 +159,20 @@ export function DetailTabScreen() {
       return <Loading vertical text="加载中" style={styles.state} />;
     }
     if (groups.length === 0) {
-      return <Empty messageText="本月暂无记录" style={styles.state} />;
+      return activeFilter === 'all' ? (
+        <Empty
+          titleText="本月还没有记录"
+          descriptionText="点右下角 + 记一笔，或切换月份查看历史。"
+          style={styles.state}
+        />
+      ) : (
+        <Empty
+          titleText="当前筛选下没有记录"
+          descriptionText="换个分类或时间范围试试。"
+          action={<Button type="text" size="small" onPress={() => setActiveFilter('all')}>清除筛选</Button>}
+          style={styles.state}
+        />
+      );
     }
     return groups.map(group => (
       <DayGroupCard

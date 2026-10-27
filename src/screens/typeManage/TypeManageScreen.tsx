@@ -445,7 +445,7 @@ export function TypeManageScreen() {
           {loading && allTypes.length === 0 ? (
             <ManageSkeleton rows={3} />
           ) : parents.length === 0 ? (
-            <Empty messageText="暂无类型" />
+            <Empty descriptionText="暂无类型" />
           ) : (
             <CategoryGrid
               categories={allTypes}

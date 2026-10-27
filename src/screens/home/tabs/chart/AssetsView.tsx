@@ -130,9 +130,6 @@ const useStyles = createUseSheetStyle(token => ({
   dueAmount: {
     alignItems: 'flex-end',
   },
-  footer: {
-    marginTop: token.marginXS,
-  },
 }));
 
 const useDueStyles = createUseSheetStyle(
@@ -262,10 +259,10 @@ export function AssetsView({
   if (assets.length === 0) {
     return (
       <Card>
-        <Empty messageText="还没有资产账户" />
-        <Text size="sm" color="tertiary" style={styles.footer}>
-          在资产管理中添加账户后，这里会显示净资产、负债与待还提醒。
-        </Text>
+        <Empty
+          titleText="还没有资产账户"
+          descriptionText="在资产管理中添加账户后，这里会显示净资产、负债与待还提醒。"
+        />
       </Card>
     );
   }

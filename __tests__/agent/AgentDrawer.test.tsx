@@ -46,8 +46,8 @@ jest.mock('@pennyspring/ui', () => {
       value: props.value,
     });
 
-  const MockEmpty = ({ messageText }: { messageText?: string }) =>
-    ReactLib.createElement(Text, { testID: 'agent-empty' }, messageText);
+  const MockEmpty = ({ descriptionText, titleText }: { descriptionText?: string; titleText?: string }) =>
+    ReactLib.createElement(Text, { testID: 'agent-empty' }, titleText ?? descriptionText);
 
   const MockLoading = ({ text }: { text?: string }) =>
     ReactLib.createElement(Text, { testID: 'agent-loading' }, text ?? 'loading');

@@ -1,59 +1,29 @@
 import React from 'react';
-import { View } from 'react-native';
-import { Empty, Icon, Text } from '@pennyspring/ui';
-import { createUseSheetStyle } from '@pennyspring/theme';
+import { Button, Column, Empty, Text } from '@pennyspring/ui';
 
-const useStyles = createUseSheetStyle(token => ({
-  stack: {
-    gap: token.marginLG,
-  },
-  panel: {
-    backgroundColor: token.colorBgContainer,
-    borderColor: token.colorBorderSecondary,
-    borderRadius: token.borderRadius,
-    borderWidth: token.lineWidth,
-    paddingHorizontal: token.padding,
-    paddingVertical: token.paddingSM,
-  },
-  textCenter: {
-    textAlign: 'center',
-  },
-}));
+export const emptySizeDemoTitle = '尺寸（size）';
 
-export const emptySizeDemoTitle = 'Size';
+const SIZES = [
+  { value: 'small', label: 'small · 36 底板 / 28 间距', action: '添加记录' },
+  { value: 'normal', label: 'normal · 44 底板 / 32 留白', action: '新建模板' },
+  { value: 'large', label: 'large · 52 底板 / 40 留白', action: '开始记账' },
+] as const;
 
 export function EmptySizeDemo() {
-  const styles = useStyles();
-
   return (
-    <>
-      <View style={styles.stack}>
-        <View style={styles.panel}>
-          <Empty size="small" messageText="Small" />
-        </View>
-        <View style={styles.panel}>
-          <Empty size="normal" messageText="Normal" />
-        </View>
-        <View style={styles.panel}>
+    <Column gap="normal">
+      {SIZES.map(({ action, label, value }) => (
+        <Column key={value} gap="small">
+          <Text color="tertiary" size="sm">{label}</Text>
           <Empty
-            size="large"
-            message={
-              <Text size="h4" weight="strong">
-                Large
-              </Text>
-            }
+            size={value}
+            titleText="还没有快捷模板"
+            descriptionText="把常记的几笔存成模板，下次一键填好。"
+            action={<Button size="small">{action}</Button>}
           />
-        </View>
-        <View style={styles.panel}>
-          <Empty
-            icon={
-              <Icon icon="notification" size="large" color="primary" />
-            }
-            messageText="Custom icon with messageText"
-          />
-        </View>
-      </View>
-    </>
+        </Column>
+      ))}
+    </Column>
   );
 }
 

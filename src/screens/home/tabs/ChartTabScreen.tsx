@@ -8,7 +8,6 @@ import {
   Empty,
   Loading,
   Segmented,
-  Text,
 } from '@pennyspring/ui';
 import type { SegmentedValue } from '@pennyspring/ui';
 import { createUseSheetStyle } from '@pennyspring/theme';
@@ -260,7 +259,10 @@ export function ChartTabScreen() {
     if (!currentBook) {
       return (
         <Column style={styles.state}>
-          <Empty messageText="暂无账本数据" />
+          <Empty
+            titleText="还没有账本"
+            descriptionText="在账本管理里新建或导入一个账本，图表会自动生成。"
+          />
         </Column>
       );
     }
@@ -271,10 +273,10 @@ export function ChartTabScreen() {
       return (
         <Card>
           <Column style={styles.emptyCard}>
-            <Empty messageText="本月暂无记录" />
-            <Text size="sm" color="tertiary">
-              点击右下角 + 记一笔
-            </Text>
+            <Empty
+              titleText="本月还没有记录"
+              descriptionText="点击右下角 + 记一笔，报表会自动生成。"
+            />
           </Column>
         </Card>
       );

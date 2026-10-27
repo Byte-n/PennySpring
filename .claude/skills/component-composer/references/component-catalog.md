@@ -59,7 +59,7 @@
 - `Progress`：条形或环形进度。
 - `Steps`：有序流程状态。
 - `Result`：终态结果页或面板。
-- `Empty`：无数据状态。
+- `Empty`：无数据状态；inline / boxed / compact 三形态，标题 + 说明 + 单个操作三行结构，图标用 44 圆形底板。
 - `Skeleton`：加载占位。
 - `Carousel`：可滑动媒体/内容轮播。
 

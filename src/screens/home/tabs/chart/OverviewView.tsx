@@ -344,7 +344,7 @@ export function OverviewView({
 
       {analysis.totalExpense === 0 ? (
         <ChartCard title="本月支出" subtitle="还没有支出记录">
-          <Empty size="small" messageText="本月暂无支出" />
+          <Empty size="small" descriptionText="本月暂无支出" />
         </ChartCard>
       ) : (
         <>

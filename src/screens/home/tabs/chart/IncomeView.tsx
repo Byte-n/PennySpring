@@ -191,7 +191,7 @@ export function IncomeView({
 
       <ChartCard title="收入来源" subtitle="退款/报销按抵扣后余额计入">
         {analysis.total === 0 ? (
-          <Empty size="small" messageText="本月暂无收入" />
+          <Empty size="small" descriptionText="本月暂无收入" />
         ) : (
           <>
             <DonutChart

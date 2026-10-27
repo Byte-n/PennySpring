@@ -277,7 +277,7 @@ export function ExpenseView({
           ))}
         </Row>
         <ChartCard title="支出构成" subtitle={subtitle}>
-          <Empty size="small" messageText="本月暂无支出" />
+          <Empty size="small" descriptionText="本月暂无支出" />
         </ChartCard>
       </Column>
     );

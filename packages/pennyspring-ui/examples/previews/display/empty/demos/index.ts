@@ -1,7 +1,9 @@
-import { emptyBasicDemoTitle, EmptyBasicDemo } from './basic';
 import { emptySizeDemoTitle, EmptySizeDemo } from './size';
+import { emptySlotsDemoTitle, EmptySlotsDemo } from './slots';
+import { emptyVariantsDemoTitle, EmptyVariantsDemo } from './variants';
 
 export const emptyDemos = [
-  { id: 'basic', title: emptyBasicDemoTitle, Component: EmptyBasicDemo },
+  { id: 'variants', title: emptyVariantsDemoTitle, Component: EmptyVariantsDemo },
   { id: 'size', title: emptySizeDemoTitle, Component: EmptySizeDemo },
+  { id: 'slots', title: emptySlotsDemoTitle, Component: EmptySlotsDemo },
 ];

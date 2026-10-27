@@ -247,7 +247,7 @@ export function CategoryGrid(props: CategoryGridProps) {
                   value={value}
                 />
               ) : (
-                <Empty messageText="暂无二级类型" size="small" />
+                <Empty descriptionText="暂无二级类型" size="small" />
               )
             ) : null}
           </Column>

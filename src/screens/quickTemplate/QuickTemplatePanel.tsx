@@ -225,7 +225,7 @@ export function QuickTemplatePanel({
         })
       ) : (
         <Empty
-          messageText="暂无快捷模板，点右上角加号添加"
+          descriptionText="暂无快捷模板，点右上角加号添加"
           style={styles.state}
         />
       )}

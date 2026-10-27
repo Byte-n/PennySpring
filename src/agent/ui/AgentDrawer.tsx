@@ -278,7 +278,7 @@ export function AgentDrawer({
 
           {!chat.loading && !hasConversation ? (
             <Column style={styles.suggestions}>
-              <Empty messageText="记账遇到问题，可以直接问我。" size="normal" />
+              <Empty descriptionText="记账遇到问题，可以直接问我。" size="normal" />
               {SUGGESTIONS.map((text, index) => (
                 <Button
                   key={text}
