@@ -14,6 +14,7 @@ import { createUseSheetStyle, ThemeProvider, useTheme } from '@pennyspring/theme
 import { AmountDisplay } from '../components/AmountDisplay';
 import { CategoryField } from '../components/CategoryField';
 import { RemarkInput } from '../components/RemarkInput';
+import { TagPicker } from '../components/TagPicker';
 import { useCategoryItems } from '../useCategoryItems';
 import { useAddRecordContext } from '../AddRecordContext';
 import { MoneyField } from '../components/MoneyField';
@@ -24,8 +25,8 @@ import {
   validateAddRecordDraft,
 } from '../addRecordDraft';
 import { buildNewQuickTemplate, validateTemplateDraft } from '../templateDraft';
-import { toAssetOptions, toTagOptions } from '../recordOptions';
-import { toNumberValue, toNumberValues } from '../selectValues';
+import { toAssetOptions } from '../recordOptions';
+import { toNumberValue } from '../selectValues';
 import { useAddRecordResources } from '../useAddRecordResources';
 import { useInitialTypeId } from '../useInitialTypeId';
 import { useNavigation } from '../../../navigation';
@@ -53,7 +54,7 @@ export function TransferTabScreen() {
     setImages,
     setRecordTime,
     setTags,
-    tags,
+    tags: selectedTagIds,
     template,
     templateName,
   } = useAddRecordContext();
@@ -73,9 +74,9 @@ export function TransferTabScreen() {
   const {
     assetsLoading,
     currentBook,
+    tags: allTags,
     tagsLoading,
     visibleAssets,
-    visibleTags,
   } = useAddRecordResources();
   const selectedType = useMemo(
     () => categories.find(category => category.id === typeId),
@@ -97,10 +98,6 @@ export function TransferTabScreen() {
   const intoAssetOptions = useMemo(
     () => toAssetOptions(toAssets, assetId),
     [assetId, toAssets],
-  );
-  const tagOptions = useMemo(
-    () => toTagOptions(visibleTags),
-    [visibleTags],
   );
 
   useEffect(() => {
@@ -138,7 +135,7 @@ export function TransferTabScreen() {
       intoAssetId,
       recordTime,
       remark,
-      tagIds: tags,
+      tagIds: selectedTagIds,
       imagePaths: images.map(image => image.uri),
       relatedRecordIds: [],
     };
@@ -212,8 +209,8 @@ export function TransferTabScreen() {
     recordTime,
     remark,
     reset,
+    selectedTagIds,
     selectedType,
-    tags,
     template,
     templateName,
     toast,
@@ -301,23 +298,12 @@ export function TransferTabScreen() {
                   style={styles.formField}
                 />
               )}
-              <ListPicker
-                displayMode="tag"
-                labelText="标签"
+              <TagPicker
                 loading={tagsLoading}
-                mode="multiple"
-                onChange={value => setTags(toNumberValues(value))}
-                options={tagOptions}
-                searchable
+                onChange={setTags}
                 style={styles.formField}
-                texts={{
-                  headerText: '选择标签',
-                  searchLabelText: '标签',
-                  searchPlaceholder: '搜索标签',
-                  emptyText: '暂无标签',
-                  confirmText: '确定',
-                }}
-                value={tags}
+                tags={allTags}
+                value={selectedTagIds}
               />
             </Row>
           </Card>

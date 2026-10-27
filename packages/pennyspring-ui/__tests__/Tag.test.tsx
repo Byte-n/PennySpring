@@ -97,6 +97,16 @@ describe('Tag', () => {
       expect(testRenderer.root.findAllByType(Text)).toHaveLength(0);
       expect(testRenderer.root.findAllByType(CustomNode).length).toBeGreaterThan(0);
     });
+
+    it('renders prefix before the content text', () => {
+      const testRenderer = renderTag({
+        children: 'Label',
+        prefix: <View testID="tag-prefix" />
+      });
+      const tree = JSON.stringify(testRenderer.toJSON());
+      expect(tree).toContain('tag-prefix');
+      expect(tree.indexOf('tag-prefix')).toBeLessThan(tree.indexOf('Label'));
+    });
   });
 
   describe('root style slot', () => {

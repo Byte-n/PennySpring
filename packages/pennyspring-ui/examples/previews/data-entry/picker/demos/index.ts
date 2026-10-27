@@ -1,4 +1,5 @@
 import { pickerBasicDemoTitle, PickerBasicDemo } from './basic';
+import { pickerCascaderDemos } from './cascader';
 import { pickerControlledDemoTitle, PickerControlledDemo } from './controlled';
 import { pickerPopupPropsDemoTitle, PickerPopupPropsDemo } from './popup-props';
 import { pickerStateDemoTitle, PickerStateDemo } from './state';
@@ -16,4 +17,5 @@ export const pickerDemos = [
     Component: PickerPopupPropsDemo,
   },
   { id: 'state', title: pickerStateDemoTitle, Component: PickerStateDemo },
+  ...pickerCascaderDemos,
 ];

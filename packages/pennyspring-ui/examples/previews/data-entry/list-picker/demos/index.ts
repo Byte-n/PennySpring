@@ -1,3 +1,4 @@
+import { listPickerCascaderDemos } from './cascader';
 import { listPickerGroupedDemoTitle, ListPickerGroupedDemo } from './grouped';
 import {
   listPickerMultipleDemoTitle,
@@ -27,4 +28,5 @@ export const listPickerDemos = [
     title: listPickerStatesDemoTitle,
     Component: ListPickerStatesDemo,
   },
+  ...listPickerCascaderDemos,
 ];

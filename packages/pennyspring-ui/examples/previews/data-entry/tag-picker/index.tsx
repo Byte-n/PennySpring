@@ -1,11 +1,11 @@
 import React from 'react';
 import { PreviewScaffold, PreviewSection } from '../../PreviewScaffold';
-import { pickerCascaderDemos } from './demos';
+import { tagPickerDemos } from './demos';
 
-export function PickerCascaderPreview() {
+export function TagPickerPreview() {
   return (
     <PreviewScaffold>
-      {pickerCascaderDemos.map(({ title, Component }) => (
+      {tagPickerDemos.map(({ title, Component }) => (
         <PreviewSection key={title} title={title}>
           <Component />
         </PreviewSection>
@@ -14,4 +14,4 @@ export function PickerCascaderPreview() {
   );
 }
 
-export default PickerCascaderPreview;
+export default TagPickerPreview;

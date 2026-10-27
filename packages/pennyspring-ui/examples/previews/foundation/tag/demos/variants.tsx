@@ -16,6 +16,10 @@ export function TagVariantsDemo() {
         <Tag color="primary" variant="solid">
           Solid
         </Tag>
+        <Tag color="primary" variant="dashed">
+          Dashed
+        </Tag>
+        <Tag variant="dashed">Default dashed</Tag>
         <Tag color="danger" variant="solid">
           Danger
         </Tag>

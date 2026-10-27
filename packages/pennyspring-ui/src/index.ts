@@ -68,6 +68,15 @@ export type {
 } from './Checkbox';
 export { Tag } from './Tag';
 export type { TagColor, TagProps, TagStyles, TagVariant } from './Tag';
+export { TagPicker } from './TagPicker';
+export type {
+  TagPickerFloatingPanelConfig,
+  TagPickerOption,
+  TagPickerProps,
+  TagPickerStyles,
+  TagPickerTexts,
+  TagPickerValue,
+} from './TagPicker';
 export { Badge } from './Badge';
 export type { BadgeColor, BadgeProps, BadgeStyles } from './Badge';
 export { CalendarPicker, CalendarPickerView } from './CalendarPicker';

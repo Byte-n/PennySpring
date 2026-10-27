@@ -1,11 +1,13 @@
 import { createUseSheetStyle } from '@pennyspring/theme';
 import type { AliasToken } from '@pennyspring/theme';
+import type { ViewStyle } from 'react-native';
 import type { ComponentSize } from '../../shares/types';
 import type { TagColor, TagVariant } from '../types';
 import type { TextSize } from '../../Text';
 
 export interface TagStyleOptions {
   color: TagColor;
+  hasPrefix: boolean;
   size: ComponentSize;
   variant: TagVariant;
 }
@@ -28,6 +30,7 @@ interface ColorStyleConfig {
 interface VariantStyleConfig {
   backgroundColor: string;
   borderColor: string;
+  borderStyle: ViewStyle['borderStyle'];
   color: string;
   pressedBackgroundColor: string;
   pressedBorderColor: string;
@@ -157,9 +160,17 @@ function resolveVariantStyle(
     return {
       backgroundColor: colorConfig.base,
       borderColor: colorConfig.base,
+      borderStyle: 'solid',
       color: token.colorTextLightSolid,
       pressedBackgroundColor: colorConfig.active,
       pressedBorderColor: colorConfig.active,
+    };
+  }
+
+  if (variant === 'dashed') {
+    return {
+      ...resolveVariantStyle(token, color, 'outlined'),
+      borderStyle: 'dashed',
     };
   }
 
@@ -167,6 +178,7 @@ function resolveVariantStyle(
     return {
       backgroundColor: TRANSPARENT,
       borderColor: colorConfig.border,
+      borderStyle: 'solid',
       color: colorConfig.text,
       pressedBackgroundColor: colorConfig.background,
       pressedBorderColor: colorConfig.base,
@@ -176,6 +188,7 @@ function resolveVariantStyle(
   return {
     backgroundColor: colorConfig.background,
     borderColor: colorConfig.background,
+    borderStyle: 'solid',
     color: colorConfig.text,
     pressedBackgroundColor: colorConfig.border,
     pressedBorderColor: colorConfig.border,
@@ -183,7 +196,7 @@ function resolveVariantStyle(
 }
 
 export const useStyles = createUseSheetStyle(
-  (token, { color, size, variant }: TagStyleOptions) => {
+  (token, { color, hasPrefix, size, variant }: TagStyleOptions) => {
     const sizeConfig = SIZE_STYLE_MAP[size];
     const variantStyle = resolveVariantStyle(token, color, variant);
 
@@ -194,8 +207,10 @@ export const useStyles = createUseSheetStyle(
         backgroundColor: variantStyle.backgroundColor,
         borderColor: variantStyle.borderColor,
         borderRadius: sizeConfig.borderRadius(token),
+        borderStyle: variantStyle.borderStyle,
         borderWidth: token.lineWidth,
         flexDirection: 'row',
+        gap: hasPrefix ? token.marginXS : undefined,
         justifyContent: 'center',
         minHeight: sizeConfig.minHeight(token),
         paddingHorizontal: sizeConfig.paddingHorizontal(token),

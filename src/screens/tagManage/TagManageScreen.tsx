@@ -4,13 +4,12 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { Pressable, ScrollView } from 'react-native';
+import { ScrollView } from 'react-native';
 import { useRequest } from 'ahooks';
 import {
   ActionSheet,
   Button,
   Column,
-  Icon,
   Input,
   Row,
   Switch,
@@ -18,29 +17,17 @@ import {
   useToast,
 } from '@pennyspring/ui';
 import { VISIBILITY, type TagRow } from '@pennyspring/api';
-import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
+import { createUseSheetStyle } from '@pennyspring/theme';
 
 import { FormIconGrid, TAG_FORM_ICONS } from '../../component/FormIconGrid';
 import { PhosphorIconPicker } from '../../component/PhosphorIconPicker';
+import { TagChip } from '../../component/TagChip';
 import { createHeaderAddButton } from '../../components/HeaderAddButton';
 import { ManageConfirmDialog } from '../../components/ManageConfirmDialog';
 import { FormFloatingPanel } from '../../components/FormFloatingPanel';
 import { ManageSkeleton } from '../../components/ManageSkeleton';
-import { getPhosphorIconComponent } from '../../constants/typeIconTree';
-import { DEFAULT_TAG_ICON } from '../../constants/tagIcon';
 import { useNavigation } from '../../navigation';
 import { useBookStore, useGlobalApi } from '../../stores/bookStore';
-
-type TagChipVariant = 'default' | 'add' | 'hidden';
-
-interface TagChipProps {
-  label: string;
-  iconName?: string;
-  variant?: TagChipVariant;
-  placeholder?: boolean;
-  onPress?: () => void;
-  onLongPress?: () => void;
-}
 
 const useStyles = createUseSheetStyle(token => ({
   container: {
@@ -76,34 +63,6 @@ const useStyles = createUseSheetStyle(token => ({
     flexWrap: 'wrap',
     gap: token.marginSM,
   },
-  chip: {
-    alignItems: 'center',
-    backgroundColor: token.colorFillQuaternary,
-    borderRadius: token.controlHeightSM,
-    flexDirection: 'row',
-    gap: token.marginXS,
-    height: token.controlHeightSM,
-    maxWidth: '100%',
-    paddingHorizontal: token.paddingSM,
-  },
-  chipPressed: {
-    backgroundColor: token.colorFill,
-  },
-  chipAdd: {
-    backgroundColor: 'transparent',
-    borderColor: token.colorBorder,
-    borderStyle: 'dashed',
-    borderWidth: token.lineWidth,
-  },
-  chipHidden: {
-    backgroundColor: 'transparent',
-    borderColor: token.colorBorder,
-    borderStyle: 'dashed',
-    borderWidth: token.lineWidth,
-  },
-  chipText: {
-    flexShrink: 1,
-  },
   listEnd: {
     color: token.colorTextTertiary,
     lineHeight: token.lineHeight,
@@ -125,65 +84,11 @@ const useStyles = createUseSheetStyle(token => ({
   switchNote: {
     color: token.colorTextTertiary,
   },
-  iconMore: {
-    alignItems: 'flex-start',
+  iconActions: {
+    alignItems: 'center',
+    gap: token.marginXS,
   },
 }));
-
-function TagChip({
-  label,
-  iconName,
-  variant = 'default',
-  placeholder = false,
-  onPress,
-  onLongPress,
-}: TagChipProps) {
-  const styles = useStyles();
-  const { token } = useTheme();
-  const IconComponent = iconName ? getPhosphorIconComponent(iconName) : null;
-  const isAdd = variant === 'add';
-  const isHidden = variant === 'hidden';
-  const textColor = isAdd
-    ? 'primary'
-    : isHidden
-      ? 'tertiary'
-      : placeholder
-        ? 'tertiary'
-        : 'default';
-  const iconColor = isAdd
-    ? token.colorPrimary
-    : isHidden
-      ? token.colorTextTertiary
-      : token.colorTextSecondary;
-
-  return (
-    <Pressable
-      disabled={!onPress}
-      onLongPress={onLongPress}
-      onPress={onPress}
-      style={({ pressed }) => [
-        styles.chip,
-        isAdd && styles.chipAdd,
-        isHidden && styles.chipHidden,
-        pressed && styles.chipPressed,
-      ]}
-    >
-      {isAdd ? (
-        <Icon color="primary" icon="plus" size="small" />
-      ) : IconComponent ? (
-        <IconComponent color={iconColor} size={token.fontSizeSM} />
-      ) : null}
-      <Text
-        color={textColor}
-        numberOfLines={1}
-        size="sm"
-        style={styles.chipText}
-      >
-        {label}
-      </Text>
-    </Pressable>
-  );
-}
 
 function getTagDeleteErrorMessage(error: unknown): string {
   const message = error instanceof Error ? error.message : '';
@@ -218,7 +123,7 @@ export function TagManageScreen() {
   const [formOpen, setFormOpen] = useState(false);
   const [editingTag, setEditingTag] = useState<TagRow | null>(null);
   const [name, setName] = useState('');
-  const [icon, setIcon] = useState(DEFAULT_TAG_ICON);
+  const [icon, setIcon] = useState('');
   const [hidden, setHidden] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [iconPickerOpen, setIconPickerOpen] = useState(false);
@@ -239,7 +144,7 @@ export function TagManageScreen() {
   const openCreate = useCallback(() => {
     setEditingTag(null);
     setName('');
-    setIcon(DEFAULT_TAG_ICON);
+    setIcon('');
     setHidden(false);
     setFormOpen(true);
   }, []);
@@ -247,7 +152,7 @@ export function TagManageScreen() {
   const openEdit = useCallback((tag: TagRow) => {
     setEditingTag(tag);
     setName(tag.name);
-    setIcon(tag.icon || DEFAULT_TAG_ICON);
+    setIcon(tag.icon);
     setHidden(tag.invisible === VISIBILITY.hidden);
     setFormOpen(true);
   }, []);
@@ -434,7 +339,7 @@ export function TagManageScreen() {
             <TagChip label="新建标签" onPress={openCreate} variant="add" />
             {visibleTags.map(tag => (
               <TagChip
-                iconName={tag.icon || DEFAULT_TAG_ICON}
+                iconName={tag.icon}
                 key={tag.id}
                 label={tag.name}
                 onLongPress={() => setMenuTag(tag)}
@@ -457,7 +362,7 @@ export function TagManageScreen() {
             <Row style={styles.chips}>
               {hiddenTags.map(tag => (
                 <TagChip
-                  iconName={tag.icon || DEFAULT_TAG_ICON}
+                  iconName={tag.icon}
                   key={tag.id}
                   label={tag.name}
                   onLongPress={() => setMenuTag(tag)}
@@ -505,14 +410,14 @@ export function TagManageScreen() {
         />
         <Column>
           <Text color="tertiary" size="xs">
-            图标
+            图标（可选）
           </Text>
           <FormIconGrid
             onChange={setIcon}
             value={icon}
             values={formIconValues}
           />
-          <Column style={styles.iconMore}>
+          <Row style={styles.iconActions}>
             <Button
               onPress={() => setIconPickerOpen(true)}
               size="small"
@@ -520,7 +425,15 @@ export function TagManageScreen() {
             >
               更多图标
             </Button>
-          </Column>
+            <Button
+              disabled={!icon}
+              onPress={() => setIcon('')}
+              size="small"
+              type="link"
+            >
+              清除图标
+            </Button>
+          </Row>
         </Column>
         <Row style={styles.switchRow}>
           <Column style={styles.switchText}>

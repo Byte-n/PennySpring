@@ -3,7 +3,6 @@ import {
   ASSET_TYPE,
   type AssetRow,
   type RecordRow,
-  type TagRow,
   type TypeRow,
 } from '@pennyspring/api';
 import type { ListPickerOption } from '@pennyspring/ui';
@@ -35,13 +34,6 @@ export function toAssetOptions(
       .filter(Boolean)
       .join(' · '),
     disabled: disabledAssetId === asset.id,
-  }));
-}
-
-export function toTagOptions(tags: TagRow[]): ListPickerOption[] {
-  return tags.map(tag => ({
-    value: tag.id,
-    labelText: tag.name,
   }));
 }
 

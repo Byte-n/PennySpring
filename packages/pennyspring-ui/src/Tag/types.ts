@@ -18,7 +18,7 @@ export type TagSemanticColor =
   | 'info';
 export type TagColor = SemanticPresetColor<TagSemanticColor>;
 
-export type TagVariant = 'filled' | 'outlined' | 'solid';
+export type TagVariant = 'filled' | 'outlined' | 'solid' | 'dashed';
 
 export interface TagStyles {
   root?: StyleProp<ViewStyle>;
@@ -35,4 +35,6 @@ export interface TagProps
   onPress?: (event: GestureResponderEvent) => void;
   style?: StyleProp<ViewStyle>;
   styles?: TagStyles;
+  /** 内容前置插槽，用于图标或标记。 */
+  prefix?: ReactNode;
 }

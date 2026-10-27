@@ -1,7 +1,7 @@
 import React from 'react';
 import { Picker, Space, Text } from '@pennyspring/ui';
 import type { PickerCascaderValue } from '@pennyspring/ui';
-import { EXPENSE_TABS, type ExpenseTabKey } from './options';
+import { EXPENSE_TABS, type ExpenseTabKey } from './cascader-options';
 
 function joinLabels(labels: Array<string | undefined>): string {
   const visibleLabels = labels.filter((label): label is string =>

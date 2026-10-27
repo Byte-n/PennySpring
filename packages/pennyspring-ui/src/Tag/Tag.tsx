@@ -15,6 +15,7 @@ function renderContent(
   if (typeof children === 'string' || typeof children === 'number') {
     return (
       <Text
+        numberOfLines={1}
         size={SIZE_STYLE_MAP[size ?? 'normal'].textSize}
         weight="regular"
         style={[contentStyle, externalContentStyle]}
@@ -32,13 +33,19 @@ export function Tag({
   color = 'default',
   disabled = false,
   onPress,
+  prefix,
   size = 'normal',
   style,
   styles,
   variant = 'filled',
   ...rest
 }: TagProps) {
-  const tokenStyles = useStyles({ color, size, variant });
+  const tokenStyles = useStyles({
+    color,
+    hasPrefix: prefix !== undefined,
+    size,
+    variant,
+  });
   const isInteractive = Boolean(onPress) && !disabled;
   const shouldUsePressable = Boolean(onPress);
   const contentNode = renderContent(
@@ -70,6 +77,7 @@ export function Tag({
           style,
         ]}
       >
+        {prefix}
         {contentNode}
       </Pressable>
     );
@@ -87,6 +95,7 @@ export function Tag({
         style,
       ]}
     >
+      {prefix}
       {contentNode}
     </Row>
   );

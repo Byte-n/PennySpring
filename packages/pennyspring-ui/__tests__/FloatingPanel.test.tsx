@@ -105,6 +105,25 @@ describe('Popup.FloatingPanel', () => {
     expect(flattenedStyle.height).toBe(320);
   });
 
+  it('opens at 60% of the viewport height by default', () => {
+    let testRenderer: renderer.ReactTestRenderer;
+
+    act(() => {
+      testRenderer = renderer.create(
+        <Popup.FloatingPanel defaultOpen>
+          <RNText>content</RNText>
+        </Popup.FloatingPanel>,
+      );
+    });
+
+    const popupBody = testRenderer!.root.findByProps({
+      testID: 'popup-body',
+    });
+    const flattenedStyle = StyleSheet.flatten(popupBody.props.style);
+
+    expect(flattenedStyle.height).toBe(800.4);
+  });
+
   it('renders footer and default action buttons by default', () => {
     let testRenderer: renderer.ReactTestRenderer;
 

@@ -15,6 +15,7 @@ import { createUseSheetStyle, ThemeProvider, useTheme } from '@pennyspring/theme
 import { AmountDisplay } from '../components/AmountDisplay';
 import { CategoryField } from '../components/CategoryField';
 import { RemarkInput } from '../components/RemarkInput';
+import { TagPicker } from '../components/TagPicker';
 import { useCategoryItems } from '../useCategoryItems';
 import { useAddRecordContext } from '../AddRecordContext';
 import { RecordDateTimeField } from '../components/RecordDateTimeField';
@@ -28,7 +29,6 @@ import { buildNewQuickTemplate, validateTemplateDraft } from '../templateDraft';
 import {
   toAssetOptions,
   toRelatedRecordOptions,
-  toTagOptions,
 } from '../recordOptions';
 import { toNumberValue, toNumberValues } from '../selectValues';
 import { useAddRecordResources } from '../useAddRecordResources';
@@ -57,7 +57,7 @@ export function IncomeTabScreen() {
     setImages,
     setRecordTime,
     setTags,
-    tags,
+    tags: selectedTagIds,
     template,
     templateName,
   } = useAddRecordContext();
@@ -80,9 +80,9 @@ export function IncomeTabScreen() {
   const {
     assetsLoading,
     currentBook,
+    tags: allTags,
     tagsLoading,
     visibleAssets,
-    visibleTags,
   } = useAddRecordResources();
   const { data: records = [], loading: recordsLoading } = useRequest(
     () =>
@@ -111,7 +111,6 @@ export function IncomeTabScreen() {
     () => toAssetOptions(visibleAssets),
     [visibleAssets],
   );
-  const tagOptions = useMemo(() => toTagOptions(visibleTags), [visibleTags]);
 
   useEffect(() => {
     if (!isAbsorption && relatedRecordIds.length > 0) {
@@ -129,7 +128,7 @@ export function IncomeTabScreen() {
       assetId,
       recordTime,
       remark,
-      tagIds: tags,
+      tagIds: selectedTagIds,
       imagePaths: images.map(image => image.uri),
       relatedRecordIds,
     };
@@ -202,8 +201,8 @@ export function IncomeTabScreen() {
     relatedRecordIds,
     remark,
     reset,
+    selectedTagIds,
     selectedType,
-    tags,
     template,
     templateName,
     toast,
@@ -267,22 +266,11 @@ export function IncomeTabScreen() {
                   onChange={setImages}
                 />
               )}
-              <ListPicker
-                displayMode="tag"
-                labelText="标签"
+              <TagPicker
                 loading={tagsLoading}
-                mode="multiple"
-                onChange={value => setTags(toNumberValues(value))}
-                options={tagOptions}
-                searchable
-                texts={{
-                  headerText: '选择标签',
-                  searchLabelText: '标签',
-                  searchPlaceholder: '搜索标签',
-                  emptyText: '暂无标签',
-                  confirmText: '确定',
-                }}
-                value={tags}
+                onChange={setTags}
+                tags={allTags}
+                value={selectedTagIds}
               />
               {!template && isAbsorption ? (
                 <ListPicker

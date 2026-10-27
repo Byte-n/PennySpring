@@ -89,6 +89,7 @@ export interface PopupFloatingPanelProps {
   position?: PopupFloatingPanelPosition;
   keyboardAvoiding?: boolean;
   size?: ComponentSize;
+  /** 面板初始高度，支持数字或百分比，默认 `'60%'`。 */
   height?: PopupFloatingPanelHeight;
   value?: number;
   defaultValue?: number;

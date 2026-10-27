@@ -32,10 +32,6 @@ export function useAddRecordResources() {
     () => assets.filter(asset => asset.invisible !== VISIBILITY.hidden),
     [assets],
   );
-  const visibleTags = useMemo(
-    () => tags.filter(tag => tag.invisible !== VISIBILITY.hidden),
-    [tags],
-  );
 
   return {
     assets,
@@ -45,6 +41,5 @@ export function useAddRecordResources() {
     tags,
     tagsLoading,
     visibleAssets,
-    visibleTags,
   };
 }

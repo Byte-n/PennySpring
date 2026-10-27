@@ -52,6 +52,7 @@ interface FloatingPanelStyleOptions {
   size: ComponentSize;
 }
 
+const DEFAULT_HEIGHT = '60%';
 const DEFAULT_MIN_HEIGHT_RATIO = 0.35;
 const DEFAULT_MAX_HEIGHT_RATIO = 0.8;
 const DEFAULT_CANCEL_TEXT = '取消';
@@ -549,7 +550,7 @@ export function FloatingPanel({
   defaultValue,
   footer,
   header,
-  height,
+  height = DEFAULT_HEIGHT,
   keyboardAvoiding = false,
   mask = true,
   maxHeight,

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Picker, Space } from '@pennyspring/ui';
-import { EXPENSE_TABS } from './options';
+import { EXPENSE_TABS } from './cascader-options';
 
 export const pickerCascaderBasicDemoTitle = '基础用法';
 

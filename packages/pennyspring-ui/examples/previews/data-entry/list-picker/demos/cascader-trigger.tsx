@@ -1,6 +1,6 @@
 import React from 'react';
 import { ListPicker, Space } from '@pennyspring/ui';
-import { CATEGORY_OPTIONS } from './options';
+import { CATEGORY_OPTIONS } from './cascader-options';
 
 export const listPickerCascaderTriggerDemoTitle = '触发器状态';
 

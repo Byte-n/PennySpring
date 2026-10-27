@@ -10,7 +10,6 @@ import {
 } from './detailData';
 import { RECORD_TYPE_CATEGORY } from '@pennyspring/api';
 import { getPhosphorIconComponent } from '../../../../constants/typeIconTree';
-import { DEFAULT_TAG_ICON } from '../../../../constants/tagIcon';
 import { useGlobalApi } from '../../../../stores/bookStore';
 
 const useStyles = createUseSheetStyle(token => ({
@@ -101,12 +100,14 @@ function buildItems(view: DetailRecordView, onImagePress: () => void, styles: Re
       right: (
         <Row align="center" gap={8} style={styles.tagContainer}>
           {view.tags.map(tag => {
-            const TagIconComponent = getPhosphorIconComponent(
-              tag.icon || DEFAULT_TAG_ICON,
-            );
+            const TagIconComponent = tag.icon
+              ? getPhosphorIconComponent(tag.icon)
+              : null;
             return (
               <Row key={tag.id} align="center" gap={4}>
-                <Icon icon={TagIconComponent} size="small" color="secondary" />
+                {TagIconComponent && (
+                  <Icon icon={TagIconComponent} size="small" color="secondary" />
+                )}
                 <Text size="md" color="secondary">
                   {tag.name}
                 </Text>

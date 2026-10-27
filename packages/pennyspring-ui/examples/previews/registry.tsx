@@ -1,8 +1,6 @@
 import { ThemePreview } from '@pennyspring/theme';
 import { calculatorInputDemos } from './data-entry/calculator-input/demos';
 import { calendarPickerDemos } from './data-entry/calendar-picker/demos';
-import { listPickerCascaderDemos } from './data-entry/list-picker-cascader/demos';
-import { pickerCascaderDemos } from './data-entry/picker-cascader/demos';
 import { checkboxDemos } from './data-entry/checkbox/demos';
 import { dateTimePickerDemos } from './data-entry/date-time-picker/demos';
 import { displayInputDemos } from './data-entry/display-input/demos';
@@ -15,6 +13,7 @@ import { radioDemos } from './data-entry/radio/demos';
 import { sliderDemos } from './data-entry/slider/demos';
 import { stepperDemos } from './data-entry/stepper/demos';
 import { switchDemos } from './data-entry/switch/demos';
+import { tagPickerDemos } from './data-entry/tag-picker/demos';
 import { textareaDemos } from './data-entry/textarea/demos';
 import { wheelGroupDemos } from './data-entry/wheel-group/demos';
 import { cardDemos } from './display/card/demos';
@@ -54,8 +53,6 @@ import { stepsDemos } from './navigation/steps/demos';
 import { tabBarDemos } from './navigation/tab-bar/demos';
 import { CalendarPickerPreview } from './data-entry/calendar-picker';
 import { CalculatorInputPreview } from './data-entry/calculator-input';
-import { ListPickerCascaderPreview } from './data-entry/list-picker-cascader';
-import { PickerCascaderPreview } from './data-entry/picker-cascader';
 import { CheckboxPreview } from './data-entry/checkbox';
 import { DateTimePickerPreview } from './data-entry/date-time-picker';
 import { DisplayInputPreview } from './data-entry/display-input';
@@ -67,6 +64,7 @@ import { RadioPreview } from './data-entry/radio';
 import { SliderPreview } from './data-entry/slider';
 import { StepperPreview } from './data-entry/stepper';
 import { SwitchPreview } from './data-entry/switch';
+import { TagPickerPreview } from './data-entry/tag-picker';
 import { TextareaPreview } from './data-entry/textarea';
 import { WheelGroupPreview } from './data-entry/wheel-group';
 import { CardPreview } from './display/card';
@@ -157,16 +155,6 @@ const DEMO_PREVIEW_ITEMS = [
     'CalendarPicker',
     calendarPickerDemos,
   ),
-  ...createDemoPreviewItems(
-    'picker-cascader',
-    'Picker.Cascader',
-    pickerCascaderDemos,
-  ),
-  ...createDemoPreviewItems(
-    'list-picker-cascader',
-    'ListPicker.Cascader',
-    listPickerCascaderDemos,
-  ),
   ...createDemoPreviewItems('checkbox', 'Checkbox', checkboxDemos),
   ...createDemoPreviewItems(
     'date-time-picker',
@@ -183,6 +171,7 @@ const DEMO_PREVIEW_ITEMS = [
   ...createDemoPreviewItems('slider', 'Slider', sliderDemos),
   ...createDemoPreviewItems('stepper', 'Stepper', stepperDemos),
   ...createDemoPreviewItems('switch', 'Switch', switchDemos),
+  ...createDemoPreviewItems('tag-picker', 'TagPicker', tagPickerDemos),
   ...createDemoPreviewItems('textarea', 'Textarea', textareaDemos),
   ...createDemoPreviewItems('wheel-group', 'WheelGroup', wheelGroupDemos),
   ...createDemoPreviewItems('card', 'Card', cardDemos),
@@ -391,26 +380,21 @@ export const COMPONENT_PREVIEW_SECTIONS = [
       {
         id: 'picker',
         title: 'Picker',
-        description: '单列、多列、默认打开和空状态。',
+        description: '单列、多列、默认打开与空状态，含 Picker.Cascader 级联子模式。',
         component: PickerPreview,
       },
       {
         id: 'list-picker',
         title: 'ListPicker',
-        description: '基于 List 行的搜索、分组与单选/多选。',
+        description:
+          '基于 List 行的搜索、分组与单选/多选，含 ListPicker.Cascader 级联子模式。',
         component: ListPickerPreview,
       },
       {
-        id: 'list-picker-cascader',
-        title: 'ListPicker.Cascader',
-        description: '层级标签 + 列表的级联选择，支持叶子提交、标签展示与清除。',
-        component: ListPickerCascaderPreview,
-      },
-      {
-        id: 'picker-cascader',
-        title: 'Picker.Cascader',
-        description: '分类标签 + 多列滚轮的级联选择，支持默认值和受控值。',
-        component: PickerCascaderPreview,
+        id: 'tag-picker',
+        title: 'TagPicker',
+        description: '标签式多选，支持隐藏分组、加载与空状态。',
+        component: TagPickerPreview,
       },
       {
         id: 'date-time-picker',
