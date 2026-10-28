@@ -202,31 +202,31 @@ describe('Result', () => {
 
   // Issue 5: size behavior
   describe('size behavior', () => {
-    it('passes small size to default icon', () => {
+    it('passes small icon size to default icon', () => {
       const testRenderer = renderResult({
         size: 'small',
         titleText: 'Small Result',
       });
       const icon = testRenderer.root.findByType(Icon);
-      expect(icon.props.size).toBe('small');
+      expect(icon.props.size).toBe(20);
     });
 
-    it('passes normal size to default icon', () => {
+    it('passes normal icon size to default icon', () => {
       const testRenderer = renderResult({
         size: 'normal',
         titleText: 'Normal Result',
       });
       const icon = testRenderer.root.findByType(Icon);
-      expect(icon.props.size).toBe('normal');
+      expect(icon.props.size).toBe(24);
     });
 
-    it('passes large size to default icon', () => {
+    it('passes large icon size to default icon', () => {
       const testRenderer = renderResult({
         size: 'large',
         titleText: 'Large Result',
       });
       const icon = testRenderer.root.findByType(Icon);
-      expect(icon.props.size).toBe('large');
+      expect(icon.props.size).toBe(28);
     });
 
     it('renders title and subtitle content for each size', () => {

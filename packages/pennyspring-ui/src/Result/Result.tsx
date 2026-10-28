@@ -32,10 +32,17 @@ export function Result({
   const statusConfig = STATUS_CONFIG_MAP[status];
 
   const resolvedIcon = icon === undefined
-    ? <Icon icon={statusConfig.iconName} size={size} color={statusConfig.iconColor} />
+    ? (
+      <Icon
+        color={statusConfig.iconColor}
+        icon={statusConfig.iconName}
+        size={sizeConfig.iconSize}
+      />
+    )
     : icon;
   const resolvedTitle = title === undefined ? titleText : title;
   const resolvedSubtitle = subtitle === undefined ? subtitleText : subtitle;
+  const hasIcon = hasRenderableContent(resolvedIcon);
 
   return (
     <Column
@@ -43,7 +50,7 @@ export function Result({
       justify="center"
       style={[tokenStyles.root, style]}
     >
-      {hasRenderableContent(resolvedIcon) ? (
+      {hasIcon ? (
         <View style={[tokenStyles.iconContainer, styles?.iconContainer]}>
           {resolvedIcon}
         </View>
@@ -53,7 +60,11 @@ export function Result({
           size={sizeConfig.titleSize}
           weight="semibold"
           color="heading"
-          style={[tokenStyles.title, styles?.titleText]}
+          style={[
+            tokenStyles.title,
+            hasIcon ? undefined : tokenStyles.titleWithoutIcon,
+            styles?.titleText,
+          ]}
         >
           {text}
         </Text>

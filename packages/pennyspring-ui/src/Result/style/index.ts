@@ -11,12 +11,14 @@ export interface ResultStyleOptions {
 }
 
 interface ResultSizeConfig {
-  gap: (token: AliasToken) => number;
   paddingVertical: (token: AliasToken) => number;
+  titleMarginTop: (token: AliasToken) => number;
+  subtitleMarginTop: (token: AliasToken) => number;
+  extraMarginTop: (token: AliasToken) => number;
   titleSize: TextSize;
   subtitleSize: TextSize;
-  iconContainerSize: (token: AliasToken) => number;
-  iconBorderRadius: (token: AliasToken) => number;
+  iconContainerSize: number;
+  iconSize: number;
 }
 
 interface ResultStatusConfig {
@@ -25,32 +27,46 @@ interface ResultStatusConfig {
   iconName: IconName;
 }
 
-export const RESULT_LARGE_ICON_SCALE = 1.25;
+/** AliasToken 没有结果图标档位；40 / 48 / 56 为语义常量。 */
+const RESULT_ICON_SMALL = 40;
+const RESULT_ICON_NORMAL = 48;
+const RESULT_ICON_LARGE = 56;
+const RESULT_ICON_INSET_SMALL = 20;
+const RESULT_ICON_INSET_NORMAL = 24;
+const RESULT_ICON_INSET_LARGE = 28;
+const SUBTITLE_MAX_WIDTH = 320;
+const PILL_RADIUS = 999;
 
 export const SIZE_STYLE_MAP: Record<ComponentSize, ResultSizeConfig> = {
   small: {
-    gap: token => token.marginXXS,
-    paddingVertical: token => token.paddingSM / 2,
+    paddingVertical: token => token.paddingSM,
+    titleMarginTop: token => token.marginXS,
+    subtitleMarginTop: token => token.marginXXS / 2,
+    extraMarginTop: token => token.marginXS,
     titleSize: 'md',
-    subtitleSize: 'sm',
-    iconContainerSize: token => token.sizeXL,
-    iconBorderRadius: token => token.sizeXL / 2,
+    subtitleSize: 'xs',
+    iconContainerSize: RESULT_ICON_SMALL,
+    iconSize: RESULT_ICON_INSET_SMALL,
   },
   normal: {
-    gap: token => token.marginXS,
-    paddingVertical: token => token.paddingMD / 2,
+    paddingVertical: token => token.padding,
+    titleMarginTop: token => token.marginSM,
+    subtitleMarginTop: token => token.marginXXS,
+    extraMarginTop: token => token.marginSM,
     titleSize: 'lg',
-    subtitleSize: 'md',
-    iconContainerSize: token => token.sizeXXL,
-    iconBorderRadius: token => token.sizeXXL / 2,
+    subtitleSize: 'sm',
+    iconContainerSize: RESULT_ICON_NORMAL,
+    iconSize: RESULT_ICON_INSET_NORMAL,
   },
   large: {
-    gap: token => token.marginSM,
-    paddingVertical: token => token.paddingLG / 2,
+    paddingVertical: token => token.paddingLG,
+    titleMarginTop: token => token.padding,
+    subtitleMarginTop: token => token.marginXXS,
+    extraMarginTop: token => token.padding,
     titleSize: 'xl',
-    subtitleSize: 'lg',
-    iconContainerSize: token => token.sizeXXL * RESULT_LARGE_ICON_SCALE,
-    iconBorderRadius: token => (token.sizeXXL * RESULT_LARGE_ICON_SCALE) / 2,
+    subtitleSize: 'sm',
+    iconContainerSize: RESULT_ICON_LARGE,
+    iconSize: RESULT_ICON_INSET_LARGE,
   },
 };
 
@@ -84,27 +100,37 @@ export const useStyles = createUseSheetStyle(
 
     return {
       root: {
-        gap: sizeConfig.gap(token),
+        alignItems: 'center',
         paddingVertical: sizeConfig.paddingVertical(token),
         width: '100%',
       },
       iconContainer: {
         alignItems: 'center',
-        justifyContent: 'center',
         backgroundColor: statusConfig.iconBg(token),
-        borderRadius: sizeConfig.iconBorderRadius(token),
-        height: sizeConfig.iconContainerSize(token),
-        width: sizeConfig.iconContainerSize(token),
+        borderRadius: PILL_RADIUS,
+        height: sizeConfig.iconContainerSize,
+        justifyContent: 'center',
+        width: sizeConfig.iconContainerSize,
       },
       title: {
-        textAlign: 'center',
+        marginTop: sizeConfig.titleMarginTop(token),
+        textAlign: 'center' as const,
+      },
+      titleWithoutIcon: {
+        marginTop: 0,
       },
       subtitle: {
-        textAlign: 'center',
+        marginTop: sizeConfig.subtitleMarginTop(token),
+        maxWidth: SUBTITLE_MAX_WIDTH,
+        textAlign: 'center' as const,
       },
       extra: {
         alignItems: 'center',
-        marginTop: token.marginXS,
+        flexDirection: 'row' as const,
+        flexWrap: 'wrap' as const,
+        gap: token.sizeXS,
+        justifyContent: 'center' as const,
+        marginTop: sizeConfig.extraMarginTop(token),
       },
     };
   },

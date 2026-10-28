@@ -1,13 +1,18 @@
+import {
+  resultContainerDemoTitle,
+  ResultContainerDemo,
+} from './container';
+import { resultDarkDemoTitle, ResultDarkDemo } from './dark';
 import { resultSizeDemoTitle, ResultSizeDemo } from './size';
 import { resultStatusDemoTitle, ResultStatusDemo } from './status';
-import { resultWithExtraDemoTitle, ResultWithExtraDemo } from './with-extra';
 
 export const resultDemos = [
-  { id: 'size', title: resultSizeDemoTitle, Component: ResultSizeDemo },
   { id: 'status', title: resultStatusDemoTitle, Component: ResultStatusDemo },
+  { id: 'size', title: resultSizeDemoTitle, Component: ResultSizeDemo },
   {
-    id: 'with-extra',
-    title: resultWithExtraDemoTitle,
-    Component: ResultWithExtraDemo,
+    id: 'container',
+    title: resultContainerDemoTitle,
+    Component: ResultContainerDemo,
   },
+  { id: 'dark', title: resultDarkDemoTitle, Component: ResultDarkDemo },
 ];

@@ -1,56 +1,38 @@
 import React from 'react';
-import { View } from 'react-native';
-import { Result } from '@pennyspring/ui';
-import { createUseSheetStyle } from '@pennyspring/theme';
+import { Button, Column, Result, Text } from '@pennyspring/ui';
+import type { ComponentSize } from '@pennyspring/ui';
 
-const useStyles = createUseSheetStyle(token => ({
-  stack: {
-    gap: token.marginLG,
-  },
-  panel: {
-    backgroundColor: token.colorBgContainer,
-    borderColor: token.colorBorderSecondary,
-    borderRadius: token.borderRadius,
-    borderWidth: token.lineWidth,
-    paddingHorizontal: token.padding,
-    paddingVertical: token.paddingSM,
-  },
-}));
+const SIZE_SAMPLES: { size: ComponentSize; hint: string }[] = [
+  { size: 'small', hint: 'small · 图标 40 · 标题 16 · 上下 12' },
+  { size: 'normal', hint: 'normal · 图标 48 · 标题 18 · 上下 16' },
+  { size: 'large', hint: 'large · 图标 56 · 标题 22 · 上下 24' },
+];
 
-export const resultSizeDemoTitle = 'Size';
+export const resultSizeDemoTitle = '尺寸（size）';
 
 export function ResultSizeDemo() {
-  const styles = useStyles();
-
   return (
-    <>
-      <View style={styles.stack}>
-        <View style={styles.panel}>
+    <Column gap="normal">
+      {SIZE_SAMPLES.map(({ size, hint }) => (
+        <Column key={size} gap="small">
+          <Text color="tertiary" size="xs">{hint}</Text>
           <Result
-            size="small"
-            status="info"
-            titleText="Small"
-            subtitleText="Compact result."
+            size={size}
+            status="success"
+            subtitleText="¥ 128.00 · 餐饮 · 日常开销"
+            titleText="记账成功"
+            extra={
+              <Button size={size === 'small' ? 'small' : 'normal'} variant="solid">
+                完成
+              </Button>
+            }
           />
-        </View>
-        <View style={styles.panel}>
-          <Result
-            size="normal"
-            status="info"
-            titleText="Normal"
-            subtitleText="Default result."
-          />
-        </View>
-        <View style={styles.panel}>
-          <Result
-            size="large"
-            status="info"
-            titleText="Large"
-            subtitleText="Expanded result with larger rhythm."
-          />
-        </View>
-      </View>
-    </>
+        </Column>
+      ))}
+      <Text color="tertiary" size="xs">
+        图标本体 20 / 24 / 28，语义浅底；说明最大宽 320，居中换行
+      </Text>
+    </Column>
   );
 }
 
