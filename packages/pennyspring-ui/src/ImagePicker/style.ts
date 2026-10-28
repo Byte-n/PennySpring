@@ -1,6 +1,7 @@
 import { createUseSheetStyle } from '@pennyspring/theme';
 
-const IMAGE_THUMBNAIL_SIZE_MULTIPLIER = 2;
+const REMOVE_BUTTON_OFFSET = -6;
+const EMPTY_MIN_HEIGHT = 120;
 
 export const useStyles = createUseSheetStyle(token => ({
   popup: {
@@ -30,14 +31,17 @@ export const useStyles = createUseSheetStyle(token => ({
   popupBody: {
     paddingHorizontal: 0,
   },
+  countText: {
+    color: token.colorTextTertiary,
+  },
   imageGrid: {
-    gap: token.marginSM,
-    paddingHorizontal: token.paddingLG,
-    paddingVertical: token.paddingLG / 2,
+    gap: token.sizeXS,
+    paddingHorizontal: token.padding,
+    paddingVertical: token.paddingSM,
   },
   imageItem: {
-    width: token.controlHeightLG * IMAGE_THUMBNAIL_SIZE_MULTIPLIER,
-    height: token.controlHeightLG * IMAGE_THUMBNAIL_SIZE_MULTIPLIER,
+    width: '100%',
+    aspectRatio: 1,
     borderRadius: token.borderRadius,
     backgroundColor: token.colorFillTertiary,
   },
@@ -48,21 +52,58 @@ export const useStyles = createUseSheetStyle(token => ({
   },
   removeButton: {
     position: 'absolute',
-    top: -token.marginXXS,
-    right: -token.marginXXS,
-    width: token.controlHeightXS,
-    height: token.controlHeightXS,
-    borderRadius: token.controlHeightXS,
+    top: REMOVE_BUTTON_OFFSET,
+    right: REMOVE_BUTTON_OFFSET,
+    width: token.sizeLG,
+    height: token.sizeLG,
+    borderRadius: token.sizeLG,
+    borderWidth: token.lineWidthBold,
+    borderColor: token.colorBgContainer,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: token.colorBgSpotlight,
   },
-  empty: {
-    minHeight: token.controlHeightLG * IMAGE_THUMBNAIL_SIZE_MULTIPLIER,
+  addTile: {
+    width: '100%',
+    aspectRatio: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: token.paddingLG,
-    paddingVertical: token.paddingLG / 2,
+    gap: token.sizeXXS,
+    borderRadius: token.borderRadius,
+    borderWidth: token.lineWidth,
+    borderStyle: 'dashed',
+    borderColor: token.colorBorder,
+    backgroundColor: 'transparent',
+  },
+  addTileText: {
+    color: token.colorTextTertiary,
+  },
+  errorTile: {
+    width: '100%',
+    aspectRatio: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: token.sizeXXS,
+    borderRadius: token.borderRadius,
+    borderWidth: token.lineWidth,
+    borderStyle: 'dashed',
+    borderColor: token.colorError,
+    backgroundColor: token.colorFillQuaternary,
+  },
+  errorText: {
+    color: token.colorError,
+  },
+  empty: {
+    minHeight: EMPTY_MIN_HEIGHT,
+    marginHorizontal: token.padding,
+    marginTop: token.paddingSM,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: token.paddingXS,
+    borderRadius: token.borderRadius,
+    borderWidth: token.lineWidth,
+    borderStyle: 'dashed',
+    borderColor: token.colorBorder,
   },
   emptyText: {
     color: token.colorTextTertiary,

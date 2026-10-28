@@ -226,9 +226,9 @@ describe('ImagePicker', () => {
       testID: 'image-picker-remove-image',
     });
     const removeButtonStyle = StyleSheet.flatten(removeButton.props.style);
-    const expectedHitSlop = (token.controlHeightSM - token.controlHeightXS) / 2;
+    const expectedHitSlop = (token.controlHeight - token.sizeLG) / 2;
 
-    expect(removeButtonStyle.width).toBe(token.controlHeightXS);
+    expect(removeButtonStyle.width).toBe(token.sizeLG);
     expect(removeButton.props.hitSlop).toEqual({
       bottom: expectedHitSlop,
       left: expectedHitSlop,

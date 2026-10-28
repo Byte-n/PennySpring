@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Image, Pressable, ScrollView, View } from 'react-native';
 import type { ImageStyle } from 'react-native';
 import { useTheme } from '@pennyspring/theme';
@@ -187,8 +187,9 @@ export function ImagePicker({
     unselectedText,
   );
   const tokenStyles = useStyles();
+  const [failedImages, setFailedImages] = useState<Record<string, boolean>>({});
   const removeButtonHitSlop = React.useMemo(() => {
-    const hitSlop = (token.controlHeightSM - token.controlHeightXS) / 2;
+    const hitSlop = (token.controlHeight - token.sizeLG) / 2;
 
     return {
       bottom: hitSlop,
@@ -196,7 +197,8 @@ export function ImagePicker({
       right: hitSlop,
       top: hitSlop,
     };
-  }, [token.controlHeightSM, token.controlHeightXS]);
+  }, [token.controlHeight, token.sizeLG]);
+  const isAddTileVisible = !isMaxReached && (multiple || !hasSelectedValue);
 
   function updateOpen(
     nextOpen: boolean,
@@ -244,6 +246,20 @@ export function ImagePicker({
 
     setResolvedValue(undefined);
     onClear?.();
+  }
+
+  function handleImageError(uri: string): void {
+    setFailedImages(previous => ({ ...previous, [uri]: true }));
+  }
+
+  function handleImageRetry(uri: string): void {
+    setFailedImages(previous => {
+      const nextFailedImages = { ...previous };
+
+      delete nextFailedImages[uri];
+
+      return nextFailedImages;
+    });
   }
 
   async function handleSourcePress(source: ImagePickerSource): Promise<void> {
@@ -327,47 +343,100 @@ export function ImagePicker({
     );
   }
 
-  function renderSelectedImages(): React.ReactNode {
-    if (selectedValues.length === 0) {
-      return (
-        <Column style={[tokenStyles.empty, styles?.empty]}>
-          <Text color="tertiary" style={[tokenStyles.emptyText, styles?.emptyText]}>
-            {emptyText}
+  function renderAddTile(): React.ReactNode {
+    if (!isAddTileVisible) {
+      return null;
+    }
+
+    return (
+      <Grid.Item key="image-picker-add">
+        <Pressable
+          onPress={() => {
+            const [firstSource] = sources;
+
+            if (firstSource !== undefined) {
+              handleSourcePress(firstSource);
+            }
+          }}
+          style={tokenStyles.addTile}
+          testID="image-picker-add-tile"
+        >
+          <Icon color="tertiary" icon="plus" size={24} />
+          <Text color="tertiary" size="xs" style={tokenStyles.addTileText}>
+            添加
           </Text>
-        </Column>
+        </Pressable>
+      </Grid.Item>
+    );
+  }
+
+  function renderImageTile(
+    image: ImagePickerValue,
+    index: number,
+  ): React.ReactNode {
+    if (failedImages[image.uri] === true) {
+      return (
+        <Grid.Item key={`${image.uri}-${index}`}>
+          <Pressable
+            onPress={() => handleImageRetry(image.uri)}
+            style={tokenStyles.errorTile}
+            testID="image-picker-failed-item"
+          >
+            <Icon color="error" icon="warning" size={20} />
+            <Text color="error" size="xs" style={tokenStyles.errorText}>
+              加载失败
+            </Text>
+          </Pressable>
+        </Grid.Item>
       );
     }
 
     return (
-      <Grid
-        columns={IMAGE_GRID_COLUMNS}
-        gap="large"
-        style={[tokenStyles.imageGrid, styles?.imageGrid]}
-      >
-        {selectedValues.map((image, index) => (
-          <Grid.Item key={`${image.uri}-${index}`}>
-            <View
-              style={[tokenStyles.imageItem, styles?.imageItem]}
-              testID="image-picker-selected-item"
+      <Grid.Item key={`${image.uri}-${index}`}>
+        <View
+          style={[tokenStyles.imageItem, styles?.imageItem]}
+          testID="image-picker-selected-item"
+        >
+          <Image
+            onError={() => handleImageError(image.uri)}
+            source={{ uri: image.uri }}
+            style={[tokenStyles.image as ImageStyle, styles?.image]}
+          />
+          {multiple && isInteractive ? (
+            <Pressable
+              hitSlop={removeButtonHitSlop}
+              onPress={() => removeSelectedValue(index)}
+              style={[tokenStyles.removeButton, styles?.removeButton]}
+              testID="image-picker-remove-image"
             >
-              <Image
-                source={{ uri: image.uri }}
-                style={[tokenStyles.image as ImageStyle, styles?.image]}
-              />
-              {multiple && isInteractive ? (
-                <Pressable
-                  hitSlop={removeButtonHitSlop}
-                  onPress={() => removeSelectedValue(index)}
-                  style={[tokenStyles.removeButton, styles?.removeButton]}
-                  testID="image-picker-remove-image"
-                >
-                  <Icon color="textLightSolid" icon="minus" size="small" />
-                </Pressable>
-              ) : null}
-            </View>
-          </Grid.Item>
-        ))}
-      </Grid>
+              <Icon color="lightSolid" icon="close" size={12} />
+            </Pressable>
+          ) : null}
+        </View>
+      </Grid.Item>
+    );
+  }
+
+  function renderSelectedImages(): React.ReactNode {
+    return (
+      <>
+        {selectedValues.length === 0 ? (
+          <Column style={[tokenStyles.empty, styles?.empty]}>
+            <Icon color="tertiary" icon="image" size={28} />
+            <Text color="tertiary" size="xs" style={[tokenStyles.emptyText, styles?.emptyText]}>
+              {emptyText}
+            </Text>
+          </Column>
+        ) : null}
+        <Grid
+          columns={IMAGE_GRID_COLUMNS}
+          gap="small"
+          style={[tokenStyles.imageGrid, styles?.imageGrid]}
+        >
+          {selectedValues.map((image, index) => renderImageTile(image, index))}
+          {renderAddTile()}
+        </Grid>
+      </>
     );
   }
 
@@ -399,6 +468,13 @@ export function ImagePicker({
         readonly={isReadonly}
         size={size}
         status={status}
+        suffix={
+          multiple && hasSelectedValue ? (
+            <Text color="tertiary" size="xs" style={tokenStyles.countText}>
+              {`${selectedCount} / ${maxCount}`}
+            </Text>
+          ) : undefined
+        }
         valueText={statusText}
       />
       <Popup.FloatingPanel
