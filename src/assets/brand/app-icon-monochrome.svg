@@ -1,0 +1,17 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Themed-icon silhouette: the coin is punched out so the mark still reads as
+       a drop holding a coin once the system tints it to a single colour. -->
+  <defs>
+    <mask id="mono-hole">
+      <rect width="512" height="512" fill="#fff"/>
+      <circle cx="256" cy="300" r="78" fill="#000"/>
+    </mask>
+  </defs>
+
+  <path d="M256 56C290 132 390 222 390 304C390 378 328 426 256 426C184 426 122 378 122 304C122 222 222 132 256 56Z" fill="#fff" mask="url(#mono-hole)"/>
+  <circle cx="256" cy="300" r="78" stroke="#fff" stroke-width="14"/>
+  <path d="M232 267L256 294L280 267" stroke="#fff" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M256 294V333" stroke="#fff" stroke-width="10" stroke-linecap="round"/>
+  <path d="M236 307H276" stroke="#fff" stroke-width="10" stroke-linecap="round"/>
+  <path d="M236 321H276" stroke="#fff" stroke-width="10" stroke-linecap="round"/>
+</svg>

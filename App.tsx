@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { StatusBar, useColorScheme } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import BootSplash from 'react-native-bootsplash';
@@ -61,6 +61,17 @@ function AppContent() {
   const initializeBook = useBookStore((state) => state.initializeBook);
   const initStatus = useBookStore((state) => state.initStatus);
   const { themeMode, themeToken } = useThemeMode();
+  const splashHiddenRef = useRef(false);
+
+  const hideBootSplash = useCallback(() => {
+    if (splashHiddenRef.current) {
+      return;
+    }
+    splashHiddenRef.current = true;
+    BootSplash.hide({ fade: true }).catch(error => {
+      console.error('Boot splash dismissal failed:', error);
+    });
+  }, []);
 
   useEffect(() => {
     rehydrateNetworkBooks();
@@ -68,6 +79,14 @@ function AppContent() {
       console.error('Book initialization failed:', error);
     });
   }, [initializeBook]);
+
+  // 启动页/失败页已经上屏，原生 splash 就该退场，否则会盖住品牌页与文案。
+  // 成功分支推迟到导航 onReady，避免导航容器首帧还是空白时提前露出白屏。
+  useEffect(() => {
+    if (initStatus !== 'success') {
+      hideBootSplash();
+    }
+  }, [initStatus, hideBootSplash]);
 
   const isDark = themeMode === 'dark';
 
@@ -105,11 +124,7 @@ function AppContent() {
       <ThemeProvider config={{ algorithm: themeMode, token: themeToken }}>
         <NavigationShell
           isDark={isDark}
-          onReady={() => {
-            BootSplash.hide({ fade: true }).catch(error => {
-              console.error('Boot splash dismissal failed:', error);
-            });
-          }}
+          onReady={hideBootSplash}
         >
           <PSApp>
             <AgentRoot>

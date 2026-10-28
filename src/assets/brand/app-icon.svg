@@ -1,0 +1,40 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="app-drop" x1="170" y1="70" x2="360" y2="425" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#8FD2EE"/>
+      <stop offset="0.48" stop-color="#3D93CA"/>
+      <stop offset="1" stop-color="#1A5383"/>
+    </linearGradient>
+    <linearGradient id="app-rim" x1="256" y1="214" x2="256" y2="386" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#D8B65E"/>
+      <stop offset="1" stop-color="#A8822F"/>
+    </linearGradient>
+    <linearGradient id="app-face" x1="256" y1="223" x2="256" y2="377" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFF8E0"/>
+      <stop offset="0.45" stop-color="#FFE29A"/>
+      <stop offset="1" stop-color="#D2A847"/>
+    </linearGradient>
+    <linearGradient id="app-shade" x1="256" y1="340" x2="256" y2="424" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#123D5D" stop-opacity="0"/>
+      <stop offset="1" stop-color="#123D5D" stop-opacity="0.5"/>
+    </linearGradient>
+  </defs>
+
+  <path d="M256 56C290 132 390 222 390 304C390 378 328 426 256 426C184 426 122 378 122 304C122 222 222 132 256 56Z" fill="url(#app-drop)" stroke="#154B72" stroke-width="8" stroke-linejoin="round"/>
+
+  <path d="M256 74C288 144 382 230 382 304C382 370 324 416 256 416C188 416 130 370 130 304C130 230 224 144 256 74Z" fill="url(#app-shade)" opacity="0.32"/>
+  <path d="M250 86C218 150 132 232 132 302" stroke="#E4F6FF" stroke-opacity="0.62" stroke-width="9" stroke-linecap="round"/>
+  <ellipse cx="242" cy="108" rx="10" ry="17" transform="rotate(-30 242 108)" fill="#F2FBFF" fill-opacity="0.7"/>
+
+  <circle cx="256" cy="306" r="82" fill="#8E7028"/>
+  <circle cx="256" cy="300" r="80" fill="url(#app-rim)"/>
+  <circle cx="256" cy="300" r="72" fill="url(#app-face)"/>
+  <path d="M191.2 276.4A69 69 0 0 1 320.8 276.4" stroke="#FFFCF0" stroke-opacity="0.85" stroke-width="5" stroke-linecap="round"/>
+  <path d="M320.8 323.6A69 69 0 0 0 191.2 323.6" stroke="#A8873A" stroke-opacity="0.18" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="256" cy="300" r="54" stroke="#C4A24F" stroke-opacity="0.6" stroke-width="3.5"/>
+
+  <path d="M232 267L256 294L280 267" stroke="#8A6A1E" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M256 294V333" stroke="#8A6A1E" stroke-width="8" stroke-linecap="round"/>
+  <path d="M236 307H276" stroke="#8A6A1E" stroke-width="8" stroke-linecap="round"/>
+  <path d="M236 321H276" stroke="#8A6A1E" stroke-width="8" stroke-linecap="round"/>
+</svg>

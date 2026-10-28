@@ -14,7 +14,7 @@
     "typecheck": "tsc --noEmit",
     "start": "react-native start --port 8080",
     "test": "jest --watchman=false",
-    "generate:bootsplash": "react-native-bootsplash generate src/assets/brand/bootsplash-logo.svg --platforms=android,ios --background=F7F8FA --logo-width=120 --assets-output=src/assets/bootsplash",
+    "generate:brand": "node scripts/generate-brand-assets.js",
     "adb:wireless": "node scripts/adb-wireless.js",
     "adb:tui": "node packages/adb-tui/bin/adb-tui.cjs",
     "init:codex": "node scripts/init-codex.js",
