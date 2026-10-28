@@ -1,36 +1,21 @@
 import {
-  badgeColorAndSizeDemoTitle,
-  BadgeColorAndSizeDemo,
-} from './color-and-size';
+  badgeAnchoredDemoTitle,
+  BadgeAnchoredDemo,
+} from './anchored';
+import { badgeColorDemoTitle, BadgeColorDemo } from './color';
 import {
-  badgeCountAndDotDemoTitle,
-  BadgeCountAndDotDemo,
-} from './count-and-dot';
-import {
-  badgeCustomCountNodeDemoTitle,
-  BadgeCustomCountNodeDemo,
-} from './custom-count-node';
-import { badgeStandaloneDemoTitle, BadgeStandaloneDemo } from './standalone';
+  badgeDotAndOverflowDemoTitle,
+  BadgeDotAndOverflowDemo,
+} from './dot-and-overflow';
+import { badgeSizeDemoTitle, BadgeSizeDemo } from './size';
 
 export const badgeDemos = [
+  { id: 'size', title: badgeSizeDemoTitle, Component: BadgeSizeDemo },
+  { id: 'color', title: badgeColorDemoTitle, Component: BadgeColorDemo },
   {
-    id: 'color-and-size',
-    title: badgeColorAndSizeDemoTitle,
-    Component: BadgeColorAndSizeDemo,
+    id: 'dot-and-overflow',
+    title: badgeDotAndOverflowDemoTitle,
+    Component: BadgeDotAndOverflowDemo,
   },
-  {
-    id: 'count-and-dot',
-    title: badgeCountAndDotDemoTitle,
-    Component: BadgeCountAndDotDemo,
-  },
-  {
-    id: 'custom-count-node',
-    title: badgeCustomCountNodeDemoTitle,
-    Component: BadgeCustomCountNodeDemo,
-  },
-  {
-    id: 'standalone',
-    title: badgeStandaloneDemoTitle,
-    Component: BadgeStandaloneDemo,
-  },
+  { id: 'anchored', title: badgeAnchoredDemoTitle, Component: BadgeAnchoredDemo },
 ];

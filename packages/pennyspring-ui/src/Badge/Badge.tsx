@@ -17,11 +17,10 @@ interface BadgeStyleOptions {
 }
 
 interface SizeStyleConfig {
-  height: (token: AliasToken) => number;
-  dotSize: (token: AliasToken) => number;
-  paddingHorizontal: (token: AliasToken) => number;
-  offsetTop: (token: AliasToken) => number;
-  offsetRight: (token: AliasToken) => number;
+  height: number;
+  dotSize: number;
+  paddingHorizontal: number;
+  textSize: TextSize;
 }
 
 interface ColorStyleConfig {
@@ -37,35 +36,34 @@ interface ResolvedBadgeOffset {
 
 export const DEFAULT_OVERFLOW_COUNT = 99;
 
-const BADGE_ANCHOR_OFFSET_RATIO = 2;
-
-const BADGE_TEXT_SIZE_MAP: Record<ComponentSize, TextSize> = {
-  small: 'sm',
-  normal: 'sm',
-  large: 'md',
-};
+/** AliasToken 没有徽标档位；16 / 20 / 24 与圆点 6 / 8 / 10 为语义常量。 */
+const BADGE_SMALL = 16;
+const BADGE_NORMAL = 20;
+const BADGE_LARGE = 24;
+const BADGE_DOT_SMALL = 6;
+const BADGE_DOT_NORMAL = 8;
+const BADGE_DOT_LARGE = 10;
+const ANCHOR_OFFSET_RATIO = 0.4;
+const DOT_ANCHOR_OFFSET_RATIO = 0.5;
 
 const SIZE_STYLE_MAP: Record<ComponentSize, SizeStyleConfig> = {
   small: {
-    height: token => token.size,
-    dotSize: token => token.sizeXXS,
-    paddingHorizontal: token => token.paddingXXS,
-    offsetTop: token => token.marginXXS,
-    offsetRight: token => token.marginXXS,
+    height: BADGE_SMALL,
+    dotSize: BADGE_DOT_SMALL,
+    paddingHorizontal: 5,
+    textSize: 'xs',
   },
   normal: {
-    height: token => token.sizeMD,
-    dotSize: token => token.sizeXS,
-    paddingHorizontal: token => token.paddingXS,
-    offsetTop: token => token.marginXS,
-    offsetRight: token => token.marginXS,
+    height: BADGE_NORMAL,
+    dotSize: BADGE_DOT_NORMAL,
+    paddingHorizontal: 6,
+    textSize: 'xs',
   },
   large: {
-    height: token => token.controlHeightXS,
-    dotSize: token => token.sizeSM,
-    paddingHorizontal: token => token.paddingSM,
-    offsetTop: token => token.marginSM,
-    offsetRight: token => token.marginSM,
+    height: BADGE_LARGE,
+    dotSize: BADGE_DOT_LARGE,
+    paddingHorizontal: 8,
+    textSize: 'sm',
   },
 };
 
@@ -217,15 +215,15 @@ const useStyles = createUseSheetStyle(
   (token, { color, hasChildren, isDot, offset, size }: BadgeStyleOptions) => {
     const sizeConfig = SIZE_STYLE_MAP[size];
     const colorConfig = resolveColorConfig(token, color);
-    const indicatorHeight = sizeConfig.height(token);
-    const dotSize = sizeConfig.dotSize(token);
+    const indicatorHeight = sizeConfig.height;
+    const dotSize = sizeConfig.dotSize;
     const resolvedOffset = resolveBadgeOffset(offset);
-    const childTranslateX = isDot
-      ? dotSize / BADGE_ANCHOR_OFFSET_RATIO + resolvedOffset.x
-      : sizeConfig.offsetRight(token) + resolvedOffset.x;
-    const childTranslateY = isDot
-      ? -(dotSize / BADGE_ANCHOR_OFFSET_RATIO) + resolvedOffset.y
-      : -sizeConfig.offsetTop(token) + resolvedOffset.y;
+    const anchorSize = isDot ? dotSize : indicatorHeight;
+    const anchorRatio = isDot
+      ? DOT_ANCHOR_OFFSET_RATIO
+      : ANCHOR_OFFSET_RATIO;
+    const anchorTranslateX = anchorSize * anchorRatio + resolvedOffset.x;
+    const anchorTranslateY = -anchorSize * anchorRatio + resolvedOffset.y;
 
     return {
       root: {
@@ -235,26 +233,33 @@ const useStyles = createUseSheetStyle(
       contentWrapper: {
         alignSelf: 'flex-start',
       },
+      anchor: {
+        borderRadius: indicatorHeight,
+        ...(hasChildren
+          ? {
+            borderColor: token.colorBgContainer,
+            borderWidth: token.lineWidthBold,
+            position: 'absolute' as const,
+            right: 0,
+            top: 0,
+            zIndex: token.zIndexBase + 1,
+          }
+          : null),
+      },
+      anchorOffset: {
+        transform: [
+          { translateX: anchorTranslateX },
+          { translateY: anchorTranslateY },
+        ],
+      },
       indicator: {
         alignItems: 'center',
         backgroundColor: colorConfig.base,
         borderRadius: indicatorHeight,
+        height: isDot ? dotSize : indicatorHeight,
         justifyContent: 'center',
-        minHeight: isDot ? dotSize : indicatorHeight,
         minWidth: isDot ? dotSize : indicatorHeight,
-        paddingHorizontal: isDot ? 0 : sizeConfig.paddingHorizontal(token),
-        ...(hasChildren
-          ? {
-            position: 'absolute',
-            right: 0,
-            top: 0,
-            transform: [
-              { translateX: childTranslateX },
-              { translateY: childTranslateY },
-            ],
-            zIndex: token.zIndexBase + 1,
-          }
-          : null),
+        paddingHorizontal: isDot ? 0 : sizeConfig.paddingHorizontal,
       },
       dot: {
         borderRadius: dotSize,
@@ -262,6 +267,7 @@ const useStyles = createUseSheetStyle(
         width: dotSize,
       },
       content: {
+        fontVariant: ['tabular-nums' as const],
         lineHeight: indicatorHeight,
       },
     };
@@ -277,9 +283,9 @@ function renderBadgeContent(
   return renderTextNode(content, (text) => (
     <Text
       color="lightSolid"
-      size={BADGE_TEXT_SIZE_MAP[size]}
+      size={SIZE_STYLE_MAP[size].textSize}
       style={[tokenContentStyle, badgeStyles?.content]}
-      weight="strong"
+      weight="semibold"
     >
       {text}
     </Text>
@@ -314,15 +320,32 @@ export function Badge({
     return null;
   }
 
-  const badgeNode = shouldRender
+  const badgeIndicator = shouldRender
     ? (
-      <View style={[tokenStyles.indicator, styles?.indicator]}>
+      <View
+        style={[tokenStyles.indicator, styles?.indicator]}
+        testID="badge-indicator"
+      >
         {dot
-          ? <View style={[tokenStyles.dot, styles?.dot]} />
+          ? <View style={[tokenStyles.dot, styles?.dot]} testID="badge-dot" />
           : renderBadgeContent(resolveDisplayCount(count, normalizedOverflowCount), styles, tokenStyles.content, size)}
       </View>
     )
     : null;
+
+  const badgeNode = badgeIndicator === null
+    ? null
+    : (
+      <View
+        style={[
+          tokenStyles.anchor,
+          hasChildren ? tokenStyles.anchorOffset : undefined,
+        ]}
+        testID="badge-anchor"
+      >
+        {badgeIndicator}
+      </View>
+    );
 
   return (
     <View {...rest} style={[tokenStyles.root, style]}>

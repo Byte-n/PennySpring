@@ -31,62 +31,34 @@ function flattenStyle(style: unknown) {
   return Object.assign({}, ...styles);
 }
 
-function readText(node: renderer.ReactTestInstance) {
-  const { children } = node.props;
+function getIndicatorStyle(testRenderer: renderer.ReactTestRenderer) {
+  return flattenStyle(
+    testRenderer.root.findByProps({ testID: 'badge-indicator' }).props.style,
+  );
+}
 
-  if (Array.isArray(children)) {
-    return children.join('');
-  }
-
-  return String(children ?? '');
+function getIndicatorAnchorStyle(testRenderer: renderer.ReactTestRenderer) {
+  return flattenStyle(
+    testRenderer.root.findByProps({ testID: 'badge-anchor' }).props.style,
+  );
 }
 
 function getIndicatorStyleByText(
   testRenderer: renderer.ReactTestRenderer,
-  text: string,
+  _text: string,
 ) {
-  const textNode = testRenderer.root.findAllByType(RNText).find((node) => {
-    return readText(node) === text;
-  });
+  return getIndicatorStyle(testRenderer);
+}
 
-  if (!textNode?.parent) {
-    throw new Error(`Cannot find indicator for text: ${text}`);
-  }
-
-  let currentNode: renderer.ReactTestInstance | null = textNode.parent;
-
-  while (currentNode !== null) {
-    const flattened = flattenStyle(currentNode.props.style);
-
-    if (
-      flattened.minHeight !== undefined
-      && flattened.minWidth !== undefined
-      && flattened.justifyContent === 'center'
-    ) {
-      return flattened;
-    }
-
-    currentNode = currentNode.parent;
-  }
-
-  throw new Error(`Cannot resolve indicator style for text: ${text}`);
+function getIndicatorAnchorStyleByText(
+  testRenderer: renderer.ReactTestRenderer,
+  _text: string,
+) {
+  return getIndicatorAnchorStyle(testRenderer);
 }
 
 function getDotIndicatorStyle(testRenderer: renderer.ReactTestRenderer) {
-  const dotNode = testRenderer.root.findAll((node) => {
-    const flattened = flattenStyle(node.props.style);
-
-    return flattened.width !== undefined
-      && flattened.height !== undefined
-      && flattened.width === flattened.height
-      && flattened.borderRadius === flattened.width;
-  })[0];
-
-  if (dotNode?.parent == null) {
-    throw new Error('Cannot find dot indicator style node');
-  }
-
-  return flattenStyle(dotNode.parent.props.style);
+  return getIndicatorAnchorStyle(testRenderer);
 }
 
 describe('Badge', () => {
@@ -136,8 +108,10 @@ describe('Badge', () => {
       count: 6,
     });
 
-    expect(getIndicatorStyleByText(withChildRenderer, '6').position).toBe('absolute');
-    expect(getIndicatorStyleByText(standaloneRenderer, '6').position).toBeUndefined();
+    expect(getIndicatorAnchorStyleByText(withChildRenderer, '6').position).toBe('absolute');
+    expect(getIndicatorAnchorStyleByText(standaloneRenderer, '6').position).toBeUndefined();
+    expect(getIndicatorAnchorStyleByText(withChildRenderer, '6').borderWidth).toBe(2);
+    expect(getIndicatorAnchorStyleByText(standaloneRenderer, '6').borderWidth).toBeUndefined();
   });
 
   it('positions child dot badge by its own radius', () => {
@@ -149,8 +123,8 @@ describe('Badge', () => {
     const indicatorStyle = getDotIndicatorStyle(testRenderer);
 
     expect(indicatorStyle.transform).toEqual([
-      { translateX: token.sizeXS / 2 },
-      { translateY: -token.sizeXS / 2 },
+      { translateX: 4 },
+      { translateY: -4 },
     ]);
   });
 
@@ -164,8 +138,8 @@ describe('Badge', () => {
     const indicatorStyle = getDotIndicatorStyle(testRenderer);
 
     expect(indicatorStyle.transform).toEqual([
-      { translateX: token.sizeXS / 2 + 3 },
-      { translateY: -token.sizeXS / 2 + 5 },
+      { translateX: 4 + 3 },
+      { translateY: -4 + 5 },
     ]);
   });
 
@@ -179,8 +153,8 @@ describe('Badge', () => {
     const indicatorStyle = getDotIndicatorStyle(testRenderer);
 
     expect(indicatorStyle.transform).toEqual([
-      { translateX: token.sizeXS / 2 + 4 },
-      { translateY: -token.sizeXS / 2 + 4 },
+      { translateX: 4 + 4 },
+      { translateY: -4 + 4 },
     ]);
   });
 
@@ -225,8 +199,8 @@ describe('Badge', () => {
 
     // Assert
     expect(badgeTextNode.props.color).toBe('lightSolid');
-    expect(badgeTextNode.props.weight).toBe('strong');
-    expect(badgeTextNode.props.size).toBe('md');
+    expect(badgeTextNode.props.weight).toBe('semibold');
+    expect(badgeTextNode.props.size).toBe('sm');
     expect(mergedStyle.color).toBeUndefined();
     expect(mergedStyle.fontSize).toBeUndefined();
     expect(mergedStyle.fontWeight).toBeUndefined();
