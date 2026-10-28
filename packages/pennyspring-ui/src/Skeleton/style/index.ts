@@ -8,42 +8,78 @@ export interface SkeletonStyleOptions {
   width: DimensionValue;
   height: number;
   borderRadius: number;
+  shimmerWidth: number;
+  fadeMinHeight: number;
 }
 
-export function getDefaultWidth(shape: SkeletonShape, token: AliasToken): DimensionValue {
-  return shape === 'circle' ? token.controlHeightSM : '100%';
+/** AliasToken 没有骨架屏档位；line 对齐行高，circle / rect 为语义常量。 */
+const LINE_SMALL = 12;
+const LINE_NORMAL = 16;
+const LINE_LARGE = 20;
+const CIRCLE_SMALL = 32;
+const CIRCLE_NORMAL = 40;
+const CIRCLE_LARGE = 48;
+const RECT_SMALL = 48;
+const RECT_NORMAL = 64;
+const RECT_LARGE = 80;
+const LINE_RADIUS_SMALL = 4;
+const LINE_RADIUS_NORMAL = 6;
+const LINE_RADIUS_LARGE = 8;
+export const SHIMMER_WIDTH_RATIO = 0.4;
+export const SHIMMER_DURATION = 1200;
+
+const CIRCLE_SIZE_MAP: Record<ComponentSize, number> = {
+  small: CIRCLE_SMALL,
+  normal: CIRCLE_NORMAL,
+  large: CIRCLE_LARGE,
+};
+
+const RECT_HEIGHT_MAP: Record<ComponentSize, number> = {
+  small: RECT_SMALL,
+  normal: RECT_NORMAL,
+  large: RECT_LARGE,
+};
+
+const LINE_HEIGHT_MAP: Record<ComponentSize, number> = {
+  small: LINE_SMALL,
+  normal: LINE_NORMAL,
+  large: LINE_LARGE,
+};
+
+const LINE_RADIUS_MAP: Record<ComponentSize, number> = {
+  small: LINE_RADIUS_SMALL,
+  normal: LINE_RADIUS_NORMAL,
+  large: LINE_RADIUS_LARGE,
+};
+
+export function getDefaultWidth(
+  shape: SkeletonShape,
+  size: ComponentSize,
+): DimensionValue {
+  return shape === 'circle' ? CIRCLE_SIZE_MAP[size] : '100%';
 }
 
-export function getDefaultHeight(shape: SkeletonShape, size: ComponentSize, token: AliasToken): number {
+export function getDefaultHeight(
+  shape: SkeletonShape,
+  size: ComponentSize,
+): number {
   if (shape === 'line') {
-    if (size === 'small') {
-      return token.fontSizeSM;
-    }
-
-    if (size === 'large') {
-      return token.fontSizeLG;
-    }
-
-    return token.fontSize;
+    return LINE_HEIGHT_MAP[size];
   }
 
-  if (size === 'small') {
-    return token.controlHeightSM;
+  if (shape === 'circle') {
+    return CIRCLE_SIZE_MAP[size];
   }
 
-  if (size === 'large') {
-    return token.controlHeightLG;
-  }
-
-  switch (shape) {
-    case 'circle':
-    case 'rect':
-    default:
-      return token.controlHeight;
-  }
+  return RECT_HEIGHT_MAP[size];
 }
 
-export function getDefaultBorderRadius(shape: SkeletonShape, token: AliasToken, height: number): number {
+export function getDefaultBorderRadius(
+  shape: SkeletonShape,
+  token: AliasToken,
+  size: ComponentSize,
+  height: number,
+): number {
   switch (shape) {
     case 'circle':
       return height / 2;
@@ -51,12 +87,12 @@ export function getDefaultBorderRadius(shape: SkeletonShape, token: AliasToken, 
       return token.borderRadius;
     case 'line':
     default:
-      return token.borderRadiusSM;
+      return LINE_RADIUS_MAP[size];
   }
 }
 
 export const useStyles = createUseSheetStyle(
-  (token, { width, height, borderRadius }: SkeletonStyleOptions) => ({
+  (token, { width, height, borderRadius, shimmerWidth, fadeMinHeight }: SkeletonStyleOptions) => ({
     root: {
       backgroundColor: token.colorFillContent,
       borderRadius,
@@ -70,9 +106,11 @@ export const useStyles = createUseSheetStyle(
       bottom: 0,
       left: 0,
       position: 'absolute' as const,
-      right: 0,
       top: 0,
-      width: '50%',
+      width: shimmerWidth,
+    },
+    fade: {
+      minHeight: fadeMinHeight,
     },
   }),
 );
