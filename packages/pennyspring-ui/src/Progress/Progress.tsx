@@ -5,8 +5,9 @@ import { View } from 'react-native';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import { Text } from '../Text';
 import type { ReactNode } from 'react';
-import type { ViewStyle } from 'react-native';
-import type { AliasColorTokenKey, AliasToken } from '@pennyspring/theme';
+import type { StyleProp, TextStyle, ViewStyle } from 'react-native';
+import type { AliasToken } from '@pennyspring/theme';
+import type { TextColor } from '../Text';
 import type {
   ProgressBarProps,
   ProgressCircleProps,
@@ -28,35 +29,51 @@ interface CircleStyleOptions {
 }
 
 interface ProgressSizeConfig {
-  barHeight: (token: AliasToken) => number;
-  circleSize: (token: AliasToken) => number;
-  textSize: TextSize;
-  gap: (token: AliasToken) => number;
+  barHeight: number;
+  circleSize: number;
+  strokeWidth: number;
+  infoSize: TextSize;
+  circleInfoSize: TextSize;
 }
+
+/** AliasToken 没有进度档位；线宽 4 / 6 / 8、圆环 40 / 48 / 56 为语义常量。 */
+const BAR_SMALL = 4;
+const BAR_NORMAL = 6;
+const BAR_LARGE = 8;
+const CIRCLE_SMALL = 40;
+const CIRCLE_NORMAL = 48;
+const CIRCLE_LARGE = 56;
+const STROKE_SMALL = 3;
+const STROKE_NORMAL = 4;
+const INFO_MIN_WIDTH = 34;
 
 const FULL_PERCENT = 100;
 const HALF_PERCENT = 50;
 const QUARTER_TURN = '0deg';
 const HALF_TURN = '180deg';
+const PILL_RADIUS = 999;
 
 const SIZE_STYLE_MAP: Record<ComponentSize, ProgressSizeConfig> = {
   small: {
-    barHeight: token => token.sizeXXS,
-    circleSize: token => token.controlHeight,
-    textSize: 'sm',
-    gap: token => token.marginXXS,
+    barHeight: BAR_SMALL,
+    circleSize: CIRCLE_SMALL,
+    strokeWidth: STROKE_SMALL,
+    infoSize: 'xs',
+    circleInfoSize: 'xs',
   },
   normal: {
-    barHeight: token => token.sizeXS,
-    circleSize: token => token.controlHeightLG,
-    textSize: 'md',
-    gap: token => token.marginXS,
+    barHeight: BAR_NORMAL,
+    circleSize: CIRCLE_NORMAL,
+    strokeWidth: STROKE_NORMAL,
+    infoSize: 'xs',
+    circleInfoSize: 'sm',
   },
   large: {
-    barHeight: token => token.sizeSM,
-    circleSize: token => token.controlHeightLG + token.controlHeightXS,
-    textSize: 'lg',
-    gap: token => token.marginSM,
+    barHeight: BAR_LARGE,
+    circleSize: CIRCLE_LARGE,
+    strokeWidth: STROKE_NORMAL,
+    infoSize: 'sm',
+    circleInfoSize: 'md',
   },
 };
 
@@ -96,7 +113,15 @@ function resolveStatusColor(token: AliasToken, status: ProgressStatus): string {
   return token.colorPrimary;
 }
 
-function resolveStatusColorKey(status: ProgressStatus): AliasColorTokenKey {
+function resolveInfoColor(status: ProgressStatus): TextColor {
+  if (status === 'exception') {
+    return 'error';
+  }
+
+  return 'secondary';
+}
+
+function resolveCircleInfoColor(status: ProgressStatus): TextColor {
   if (status === 'success') {
     return 'success';
   }
@@ -105,7 +130,7 @@ function resolveStatusColorKey(status: ProgressStatus): AliasColorTokenKey {
     return 'error';
   }
 
-  return 'primary';
+  return 'default';
 }
 
 function resolveCircleRotation(percent: number) {
@@ -126,13 +151,23 @@ function defaultFormat(percent: number): string {
   return `${Math.round(percent)}%`;
 }
 
-function renderInfo(
-  format: ((percent: number) => ReactNode) | undefined,
-  percent: number,
-  showInfo: boolean,
-  textSize: TextSize,
-  colorKey: AliasColorTokenKey,
-) {
+interface RenderInfoOptions {
+  format?: (percent: number) => ReactNode;
+  percent: number;
+  showInfo: boolean;
+  size: TextSize;
+  color: TextColor;
+  style?: StyleProp<TextStyle>;
+}
+
+function renderInfo({
+  color,
+  format,
+  percent,
+  showInfo,
+  size,
+  style,
+}: RenderInfoOptions) {
   if (!showInfo) {
     return null;
   }
@@ -145,7 +180,11 @@ function renderInfo(
     || content === null
     || content === undefined
   ) {
-    return <Text color={colorKey} size={textSize}>{content ?? ''}</Text>;
+    return (
+      <Text color={color} size={size} style={style}>
+        {content ?? ''}
+      </Text>
+    );
   }
 
   return content;
@@ -160,20 +199,25 @@ const useBarStyles = createUseSheetStyle(
       barRoot: {
         alignItems: 'center',
         flexDirection: 'row',
-        gap: sizeConfig.gap(token),
+        gap: token.sizeXS,
       },
       barTrack: {
         backgroundColor: token.colorFillSecondary,
-        borderRadius: token.borderRadiusSM,
+        borderRadius: PILL_RADIUS,
         flex: 1,
-        height: sizeConfig.barHeight(token),
+        height: sizeConfig.barHeight,
         overflow: 'hidden',
       },
       barIndicator: {
         backgroundColor: strokeColor,
-        borderRadius: token.borderRadiusSM,
+        borderRadius: PILL_RADIUS,
         height: '100%',
         width: indicatorWidth,
+      },
+      barInfo: {
+        fontVariant: ['tabular-nums' as const],
+        minWidth: INFO_MIN_WIDTH,
+        textAlign: 'right' as const,
       },
     };
   },
@@ -182,14 +226,13 @@ const useBarStyles = createUseSheetStyle(
 const useCircleStyles = createUseSheetStyle(
   (token, { size, status, leftRotation, rightRotation }: CircleStyleOptions) => {
     const sizeConfig = SIZE_STYLE_MAP[size];
-    const dimension = sizeConfig.circleSize(token);
+    const dimension = sizeConfig.circleSize;
     const radius = dimension / 2;
     const strokeColor = resolveStatusColor(token, status);
 
     return {
       circleRoot: {
         alignItems: 'center',
-        gap: sizeConfig.gap(token),
       },
       circleContainer: {
         alignItems: 'center',
@@ -201,7 +244,7 @@ const useCircleStyles = createUseSheetStyle(
       circleTrack: {
         borderColor: token.colorFillSecondary,
         borderRadius: radius,
-        borderWidth: token.lineWidthBold,
+        borderWidth: sizeConfig.strokeWidth,
         height: dimension,
         position: 'absolute',
         width: dimension,
@@ -228,7 +271,7 @@ const useCircleStyles = createUseSheetStyle(
       halfCircle: {
         borderColor: strokeColor,
         borderRadius: radius,
-        borderWidth: token.lineWidthBold,
+        borderWidth: sizeConfig.strokeWidth,
         height: dimension,
         left: 0,
         position: 'absolute',
@@ -240,6 +283,10 @@ const useCircleStyles = createUseSheetStyle(
       halfCircleRight: {
         left: -radius,
         transform: [{ rotate: rightRotation }] as ViewStyle['transform'],
+      },
+      circleInfo: {
+        fontVariant: ['tabular-nums' as const],
+        textAlign: 'center' as const,
       },
     };
   },
@@ -281,13 +328,14 @@ export function ProgressBar({
           ]}
         />
       </View>
-      {renderInfo(
+      {renderInfo({
+        color: resolveInfoColor(resolvedStatus),
         format,
-        normalizedPercent,
+        percent: normalizedPercent,
         showInfo,
-        sizeConfig.textSize,
-        resolveStatusColorKey(resolvedStatus),
-      )}
+        size: sizeConfig.infoSize,
+        style: [tokenStyles.barInfo, styles?.info],
+      })}
     </View>
   );
 }
@@ -337,13 +385,14 @@ export function ProgressCircle({
             />
           </View>
         </View>
-        {renderInfo(
+        {renderInfo({
+          color: resolveCircleInfoColor(resolvedStatus),
           format,
-          normalizedPercent,
+          percent: normalizedPercent,
           showInfo,
-          sizeConfig.textSize,
-          resolveStatusColorKey(resolvedStatus),
-        )}
+          size: sizeConfig.circleInfoSize,
+          style: [tokenStyles.circleInfo, styles?.info],
+        })}
       </View>
     </View>
   );
