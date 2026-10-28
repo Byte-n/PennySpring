@@ -45,7 +45,7 @@ describe('Spacer', () => {
     it('defaults direction to horizontal', () => {
       const testRenderer = renderSpacer(
         { size: 'normal' },
-        { paddingXS: 10 },
+        { paddingSM: 10 },
       );
       const rootStyle = flattenStyle(getSpacerRoot(testRenderer).props.style);
 
@@ -64,7 +64,7 @@ describe('Spacer', () => {
       (size, expectedWidth) => {
         const testRenderer = renderSpacer(
           { size },
-          { paddingXXS: 4, paddingXS: 8, paddingSM: 12 },
+          { sizeXS: 4, paddingSM: 8, padding: 12 },
         );
         const rootStyle = flattenStyle(getSpacerRoot(testRenderer).props.style);
 
@@ -74,20 +74,20 @@ describe('Spacer', () => {
     );
 
     it.each([
-      ['small', 2],
-      ['normal', 4],
-      ['large', 6],
+      ['small', 4],
+      ['normal', 8],
+      ['large', 12],
     ] as const)(
-      'maps %s size to half-gap token for height in vertical direction',
+      'maps %s size to the same token for height in vertical direction',
       (size, expectedHeight) => {
         const testRenderer = renderSpacer(
           { size, direction: 'vertical' },
-          { paddingXXS: 4, paddingXS: 8, paddingSM: 12 },
+          { sizeXS: 4, paddingSM: 8, padding: 12 },
         );
         const rootStyle = flattenStyle(getSpacerRoot(testRenderer).props.style);
 
         expect(rootStyle.height).toBe(expectedHeight);
-        expect(rootStyle.width).toBeUndefined();
+        expect(rootStyle.width).toBe('100%');
       },
     );
   });
@@ -105,7 +105,7 @@ describe('Spacer', () => {
     it('does not apply flex when size is provided', () => {
       const testRenderer = renderSpacer(
         { size: 'normal', flex: 2 },
-        { paddingXS: 8 },
+        { paddingSM: 8 },
       );
       const rootStyle = flattenStyle(getSpacerRoot(testRenderer).props.style);
 

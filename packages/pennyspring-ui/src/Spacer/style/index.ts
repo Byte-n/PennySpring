@@ -1,6 +1,7 @@
 import { createUseSheetStyle } from '@pennyspring/theme';
 import type { AliasToken } from '@pennyspring/theme';
 import type { ComponentSize } from '../../shares/types';
+import { resolveLayoutGap } from '../../shares/layoutGap';
 import type { SpacerDirection } from '../types';
 
 export interface SpacerStyleOptions {
@@ -10,15 +11,7 @@ export interface SpacerStyleOptions {
 }
 
 function getGap(size: ComponentSize, token: AliasToken): number {
-  if (size === 'small') {
-    return token.paddingXXS;
-  }
-
-  if (size === 'large') {
-    return token.paddingSM;
-  }
-
-  return token.paddingXS;
+  return resolveLayoutGap(size, token);
 }
 
 export const useStyles = createUseSheetStyle(
@@ -30,8 +23,8 @@ export const useStyles = createUseSheetStyle(
 
       return {
         root: {
-          width: isHorizontal ? gap : undefined,
-          height: isHorizontal ? undefined : gap / 2,
+          width: isHorizontal ? gap : '100%',
+          height: isHorizontal ? undefined : gap,
         },
       };
     }
