@@ -5,6 +5,7 @@ import type { AliasToken } from '@pennyspring/theme';
 import type { ViewStyle } from 'react-native';
 import type { FlexAlign, FlexJustify, ColumnProps } from './types';
 import type { ComponentSize } from '../shares/types';
+import { resolveLayoutGap } from '../shares/layoutGap';
 
 interface ColumnStyleOptions {
   align?: FlexAlign;
@@ -30,19 +31,11 @@ function mapJustifyContent(justify?: FlexJustify): ViewStyle['justifyContent'] {
 }
 
 function resolveGap(gap: number | ComponentSize | undefined, token: AliasToken) {
-  if (gap === 'small') {
-    return token.paddingXXS;
+  if (gap === undefined) {
+    return undefined;
   }
 
-  if (gap === 'normal') {
-    return token.paddingXS;
-  }
-
-  if (gap === 'large') {
-    return token.paddingSM;
-  }
-
-  return gap;
+  return typeof gap === 'number' ? gap : resolveLayoutGap(gap, token);
 }
 
 const useStyles = createUseSheetStyle(

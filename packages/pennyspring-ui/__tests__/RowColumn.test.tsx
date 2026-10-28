@@ -6,7 +6,6 @@ import { Column } from '../src/Column';
 import { Row } from '../src/Row';
 
 const LAYOUT_GAP_TOKENS = { sizeXS: 3, paddingSM: 5, padding: 7 };
-const LEGACY_GAP_TOKENS = { paddingXXS: 3, paddingXS: 5, paddingSM: 7 };
 
 function renderWithTheme(
   element: React.ReactElement,
@@ -52,7 +51,7 @@ describe('Row and Column', () => {
         <Text>Income</Text>
         <Text>Expense</Text>
       </Column>,
-      LEGACY_GAP_TOKENS,
+      LAYOUT_GAP_TOKENS,
     );
     const column = testRenderer.root.findByProps({
       testID: 'column',
@@ -68,7 +67,7 @@ describe('Row and Column', () => {
         <Text>Income</Text>
         <Text>Expense</Text>
       </Column>,
-      LEGACY_GAP_TOKENS,
+      LAYOUT_GAP_TOKENS,
     );
     const column = testRenderer.root.findByProps({
       testID: 'column',
