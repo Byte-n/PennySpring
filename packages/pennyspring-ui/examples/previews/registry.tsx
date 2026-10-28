@@ -48,7 +48,6 @@ import { indexBarDemos } from './navigation/index-bar/demos';
 import { popoverDemos } from './navigation/popover/demos';
 import { popupDemos } from './navigation/popup/demos';
 import { portalDemos } from './navigation/portal/demos';
-import { sideBarDemos } from './navigation/side-bar/demos';
 import { stepsDemos } from './navigation/steps/demos';
 import { tabBarDemos } from './navigation/tab-bar/demos';
 import { CalendarPickerPreview } from './data-entry/calendar-picker';
@@ -100,7 +99,6 @@ import { IndexBarPreview } from './navigation/index-bar';
 import { PopoverPreview } from './navigation/popover';
 import { PopupPreview } from './navigation/popup';
 import { PortalPreview } from './navigation/portal';
-import { SideBarPreview } from './navigation/side-bar';
 import { TabBarPreview } from './navigation/tab-bar';
 import { StepsPreview } from './navigation/steps';
 import { PreviewScaffold, PreviewSection } from './PreviewScaffold';
@@ -210,7 +208,6 @@ const DEMO_PREVIEW_ITEMS = [
   ...createDemoPreviewItems('popover', 'Popover', popoverDemos),
   ...createDemoPreviewItems('popup', 'Popup', popupDemos),
   ...createDemoPreviewItems('portal', 'Portal', portalDemos),
-  ...createDemoPreviewItems('side-bar', 'SideBar', sideBarDemos),
   ...createDemoPreviewItems('steps', 'Steps', stepsDemos),
   ...createDemoPreviewItems('tab-bar', 'TabBar', tabBarDemos),
 ] satisfies ComponentPreviewItem[];
@@ -235,7 +232,7 @@ export const COMPONENT_PREVIEW_SECTIONS = [
       {
         id: 'avatar',
         title: 'Avatar',
-        description: '头像、文本头像和头像组。',
+        description: '头像尺寸、内容类型、叠放、禁用与深色对照。',
         component: AvatarPreview,
       },
       {
@@ -247,7 +244,7 @@ export const COMPONENT_PREVIEW_SECTIONS = [
       {
         id: 'badge',
         title: 'Badge',
-        description: '角标数字、点状态、颜色和尺寸。',
+        description: '计数、圆点、语义色、尺寸与挂角环。',
         component: BadgePreview,
       },
       {
@@ -368,7 +365,7 @@ export const COMPONENT_PREVIEW_SECTIONS = [
       {
         id: 'progress',
         title: 'Progress',
-        description: '线性和环形进度、状态和尺寸。',
+        description: '条形与圆环进度、状态、信息位与尺寸。',
         component: ProgressPreview,
       },
       {
@@ -417,7 +414,7 @@ export const COMPONENT_PREVIEW_SECTIONS = [
       {
         id: 'carousel',
         title: 'Carousel',
-        description: '轮播滑动、自动播放、纵向模式和自定义指示器。',
+        description: '指示点/计数、单页/露边/纵向排布、深色与边界。',
         component: CarouselPreview,
       },
       {
@@ -459,13 +456,13 @@ export const COMPONENT_PREVIEW_SECTIONS = [
       {
         id: 'skeleton',
         title: 'Skeleton',
-        description: '骨架屏形状、尺寸、动画和加载切换。',
+        description: '骨架形状、尺寸、组合用法、动画与加载切换。',
         component: SkeletonPreview,
       },
       {
         id: 'result',
         title: 'Result',
-        description: '操作结果状态、图标、标题、副标题和附加操作。',
+        description: '结果状态、尺寸、页内/卡片承载与无图标。',
         component: ResultPreview,
       },
     ],
@@ -519,7 +516,7 @@ export const COMPONENT_PREVIEW_SECTIONS = [
       {
         id: 'steps',
         title: 'Steps',
-        description: '步骤条流程状态、尺寸、只读和禁用项。',
+        description: '步骤尺寸、四态、只读/禁用、深色与交互。',
         component: StepsPreview,
       },
       {
@@ -529,15 +526,9 @@ export const COMPONENT_PREVIEW_SECTIONS = [
         component: TabBarPreview,
       },
       {
-        id: 'side-bar',
-        title: 'SideBar',
-        description: '侧边分类切换、滚动布局和面板渲染。',
-        component: SideBarPreview,
-      },
-      {
         id: 'index-bar',
         title: 'IndexBar',
-        description: '索引导航侧栏与分组面板。',
+        description: '索引字母尺寸、选中/禁用、拖动气泡与吸顶分组。',
         component: IndexBarPreview,
       },
       {
