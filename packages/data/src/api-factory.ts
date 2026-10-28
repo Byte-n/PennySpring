@@ -62,16 +62,20 @@ export function createApi(getDatabase: () => Promise<Database>) {
       delete: async (assetId: number, booksId: number) => services.deleteAsset(await getDatabase(), assetId, booksId),
     },
     agent: {
-      getOrCreateThread: async (booksId: number) =>
-        services.getOrCreateThread(await getDatabase(), booksId),
-      getThreadWithMessages: async (booksId: number) =>
-        services.getThreadWithMessages(await getDatabase(), booksId),
+      createThread: async (booksId: number) =>
+        services.createThread(await getDatabase(), booksId),
+      listThreads: async (booksId: number) =>
+        services.listThreads(await getDatabase(), booksId),
+      getLatestThreadWithMessages: async (booksId: number) =>
+        services.getLatestThreadWithMessages(await getDatabase(), booksId),
+      getThreadDetail: async (threadId: number) =>
+        services.getThreadDetail(await getDatabase(), threadId),
       appendMessages: async (threadId: number, inputs: CreateAgentMessageInput[]) =>
         services.appendMessages(await getDatabase(), threadId, inputs),
       updateThreadTitle: async (threadId: number, title: string) =>
         services.updateThreadTitle(await getDatabase(), threadId, title),
-      clearThreadMessages: async (threadId: number) =>
-        services.clearThreadMessages(await getDatabase(), threadId),
+      deleteThread: async (threadId: number) =>
+        services.deleteThread(await getDatabase(), threadId),
     },
   }
 }

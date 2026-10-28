@@ -1,10 +1,16 @@
+import dayjs from 'dayjs';
+
 import type {
   AgentMessageRoleValue,
   AgentMessageRow,
+  AgentThreadRow,
   CreateAgentMessageInput,
 } from '@pennyspring/api';
 
 import type { ChatMessage, TokenUsage, ToolCall } from '../core/types';
+
+export const NEW_THREAD_TITLE = '新对话';
+const THREAD_TIME_FORMAT = 'MM-DD HH:mm';
 
 const CHAT_ROLES = new Set<AgentMessageRoleValue>(['user', 'assistant', 'tool']);
 
@@ -161,4 +167,15 @@ export function formatTokenCount(value: number): string {
     return `${(value / 1_000).toFixed(1)}k`;
   }
   return `${(value / 1_000_000).toFixed(1)}M`;
+}
+
+export function getThreadTitle(thread: AgentThreadRow): string {
+  return thread.title.trim() || NEW_THREAD_TITLE;
+}
+
+export function formatThreadTime(time: number): string {
+  if (!Number.isFinite(time) || time <= 0) {
+    return '时间未知';
+  }
+  return dayjs(time).format(THREAD_TIME_FORMAT);
 }

@@ -1,4 +1,4 @@
-export { appendMessages, clearThreadMessages, getOrCreateThread, getThreadWithMessages, updateThreadTitle } from './agent-service'
+export { appendMessages, createThread, deleteThread, getLatestThreadWithMessages, getThreadDetail, listThreads, updateThreadTitle } from './agent-service'
 export { createBook, deleteBook, getAllBooks, getBookById, getDefaultBook, updateBook } from './book-service'
 export { createAsset, deleteAsset, getAllAssets, getAssetsByBook, updateAsset } from './asset-service'
 export { createRecord, deleteRecord, getImageCountsByBook, getRecordDetailById, getRecordRelationsByBook, getRecordsByBook, getRecordTagsByBook, updateRecord } from './record-service'

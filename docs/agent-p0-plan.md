@@ -39,7 +39,7 @@
 | 一期工具 | **仅 1 个只读工具** `queryRecords`，不做任何写库 |
 | 上下文 | 仅全局：账本 id/名称/币种 + 类型字典；不做逐屏注入 |
 | 对话持久化 | **存完整链**（含 tool_calls 与 tool 结果），落 sqlite |
-| 会话模型 | 一账本一条连续会话（表结构已预留多会话） |
+| 会话模型 | 一账本多会话；启动恢复最近会话，可新建、切换、删除 |
 | 上下文截断 | 拼请求时取最近 20 条，且不切断 tool_call 与其 tool 结果的配对 |
 | UI 形态 | 悬浮球 + 底部抽屉 |
 | 代码分层 | `src/agent/{core,adapters,tools,projection,ui}`，**core 零 RN 依赖** |
@@ -106,19 +106,21 @@ src/agent/
 | `packages/data/src/services/agent-service.ts` | 新增：会话与消息读写 |
 | `packages/data/src/services/types.ts` | 新增 `AgentThreadRow` / `AgentMessageRow` / `AgentThreadDetail` / `CreateAgentMessageInput` |
 | `packages/data/src/services/index.ts` | 导出新 service 与类型 |
-| `packages/data/src/api-factory.ts` | 新增 `api.agent.*` 五个方法 |
+| `packages/data/src/api-factory.ts` | 新增 `api.agent.*` 七个方法 |
 | `packages/data/drizzle/0001_jittery_ultimates.sql` | drizzle-kit 生成 |
 | `packages/data/drizzle/meta/0001_snapshot.json`、`_journal.json`、`migrations.js` | 同上 |
-| `packages/data/__tests__/agent-service.test.ts` | 9 个用例 |
+| `packages/data/__tests__/agent-service.test.ts` | 12 个用例 |
 
 **api 形状**（`localApi.agent.*`）：
 
 ```ts
-getOrCreateThread(booksId): Promise<AgentThreadRow>
-getThreadWithMessages(booksId): Promise<{ thread, messages }>
+createThread(booksId): Promise<AgentThreadRow>
+listThreads(booksId): Promise<AgentThreadRow[]>
+getLatestThreadWithMessages(booksId): Promise<{ thread, messages }>
+getThreadDetail(threadId): Promise<{ thread, messages }>
 appendMessages(threadId, inputs): Promise<AgentMessageRow[]>
 updateThreadTitle(threadId, title): Promise<AgentThreadRow>
-clearThreadMessages(threadId): Promise<void>
+deleteThread(threadId): Promise<void>
 ```
 
 **验证结果**：`npx jest --watchman=false packages/data/__tests__/agent-service.test.ts` → 9/9 通过；`yarn workspace @pennyspring/data typecheck` 通过；相关文件 eslint 无报错。
@@ -150,10 +152,10 @@ clearThreadMessages(threadId): Promise<void>
 | `src/agent/projection/record.ts` | 金额分→元、字段白名单、条数/分组上限、按类型祖先展开 |
 | `src/agent/projection/context.ts` | system prompt：账本、当前日期、类型字典、只读约束、相对时间规则 |
 | `src/agent/ui/chatModel.ts` | 持久化行 ↔ `ChatMessage` 双向映射、tool_calls/usage 解析、token 汇总 |
-| `src/agent/ui/useAgentChat.ts` | 会话加载/持久化、标题、流式文本、工具状态、停止、清空 |
+| `src/agent/ui/useAgentChat.ts` | 会话加载/切换/新建/删除、持久化、标题、流式文本、工具状态、停止 |
 | `src/agent/ui/AgentRoot.tsx` | 覆盖层 + 错误边界；Home 显示悬浮球，其他路由隐藏；远程模式提示后禁用 |
 | `src/agent/ui/AgentDrawer.tsx` | 底部抽屉：消息气泡、空态建议、流式输出、思考/工具状态、输入与停止 |
-| `src/agent/ui/AgentSettingsPanel.tsx` | Base URL / 模型 / Key、连通性测试、token 统计、清空对话 |
+| `src/agent/ui/AgentSettingsPanel.tsx` | Base URL / 模型 / Key、连通性测试、token 统计、删除当前会话 |
 | `src/stores/bookStorage.ts` | 抽出 `createSqliteStateStorage()`，配置库复用同一 op-sqlite Storage |
 | `App.tsx` | 成功分支在 `RootStackNavigator` 同级挂载 `AgentRoot` |
 

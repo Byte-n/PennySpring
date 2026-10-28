@@ -14,6 +14,7 @@ import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   CaretRightIcon,
+  ChatsCircleIcon,
   FlaskIcon,
   LightningIcon,
   MoonIcon,
@@ -71,6 +72,12 @@ const MANAGEMENT_ITEMS: DrawerNavItem[] = [
     key: 'tag',
     label: '标签管理',
     route: ROOT_ROUTES.TagManage,
+  },
+  {
+    icon: ChatsCircleIcon,
+    key: 'session',
+    label: '会话管理',
+    route: ROOT_ROUTES.SessionManage,
   },
 ];
 

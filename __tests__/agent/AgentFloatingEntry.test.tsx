@@ -63,6 +63,10 @@ jest.mock('../../src/agent/ui/useAgentChat', () => ({
   useAgentChat: () => ({
     clear: jest.fn(),
     usage: { inputTokens: 0, outputTokens: 0 },
+    deleteCurrentThread: jest.fn(),
+    threads: [],
+    threadsLoading: false,
+    currentThreadId: null,
   }),
 }));
 
@@ -71,6 +75,10 @@ jest.mock('../../src/agent/ui/AgentDrawer', () => ({
     mockDrawers.push(props);
     return null;
   },
+}));
+
+jest.mock('../../src/agent/ui/AgentSessionsPanel', () => ({
+  AgentSessionsPanel: () => null,
 }));
 
 jest.mock('../../src/agent/ui/AgentSettingsPanel', () => ({

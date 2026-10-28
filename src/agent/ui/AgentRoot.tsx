@@ -4,10 +4,12 @@ import { useBookStore } from '../../stores/bookStore';
 import { getAgentConfig, rehydrateAgentConfig } from '../adapters/configStore';
 import { loadApiKey } from '../adapters/secureKey';
 import { AgentDrawer } from './AgentDrawer';
+import { AgentChatContext } from './AgentChatContext';
 import {
   AgentLauncherContext,
   type AgentLauncher,
 } from './AgentLauncherContext';
+import { AgentSessionsPanel } from './AgentSessionsPanel';
 import { AgentSettingsPanel } from './AgentSettingsPanel';
 import { useAgentChat } from './useAgentChat';
 
@@ -44,6 +46,7 @@ export function AgentRoot({ children }: AgentRootProps) {
 
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [sessionsOpen, setSessionsOpen] = useState(false);
   const [configured, setConfigured] = useState(false);
 
   const refreshConfigured = useCallback(async (): Promise<void> => {
@@ -77,6 +80,10 @@ export function AgentRoot({ children }: AgentRootProps) {
     setSettingsOpen(true);
   }, []);
 
+  const handleOpenSessions = useCallback((): void => {
+    setSessionsOpen(true);
+  }, []);
+
   const launcher = useMemo<AgentLauncher>(
     () => ({ openAgent: handleOpen }),
     [handleOpen],
@@ -84,27 +91,35 @@ export function AgentRoot({ children }: AgentRootProps) {
 
   return (
     <AgentLauncherContext.Provider value={launcher}>
-      {children}
-      {book ? (
-        <AgentErrorBoundary>
-          <AgentDrawer
-            chat={chat}
-            configured={configured}
-            onOpenChange={setDrawerOpen}
-            onOpenSettings={handleOpenSettings}
-            open={drawerOpen}
-          />
-          <AgentSettingsPanel
-            onClearConversation={chat.clear}
-            onOpenChange={setSettingsOpen}
-            onSaved={() => {
-              refreshConfigured().catch(() => undefined);
-            }}
-            open={settingsOpen}
-            usage={chat.usage}
-          />
-        </AgentErrorBoundary>
-      ) : null}
+      <AgentChatContext.Provider value={chat}>
+        {children}
+        {book ? (
+          <AgentErrorBoundary>
+            <AgentDrawer
+              chat={chat}
+              configured={configured}
+              onOpenChange={setDrawerOpen}
+              onOpenSessions={handleOpenSessions}
+              onOpenSettings={handleOpenSettings}
+              open={drawerOpen}
+            />
+            <AgentSessionsPanel
+              chat={chat}
+              onOpenChange={setSessionsOpen}
+              open={sessionsOpen}
+            />
+            <AgentSettingsPanel
+              onDeleteConversation={chat.deleteCurrentThread}
+              onOpenChange={setSettingsOpen}
+              onSaved={() => {
+                refreshConfigured().catch(() => undefined);
+              }}
+              open={settingsOpen}
+              usage={chat.usage}
+            />
+          </AgentErrorBoundary>
+        ) : null}
+      </AgentChatContext.Provider>
     </AgentLauncherContext.Provider>
   );
 }

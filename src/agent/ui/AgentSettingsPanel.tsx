@@ -30,7 +30,7 @@ export interface AgentSettingsPanelProps {
   usage: TokenUsage;
   onOpenChange: (open: boolean) => void;
   onSaved: () => void;
-  onClearConversation: () => Promise<void>;
+  onDeleteConversation: () => Promise<void>;
 }
 
 const useStyles = createUseSheetStyle(token => ({
@@ -77,7 +77,7 @@ export function AgentSettingsPanel({
   usage,
   onOpenChange,
   onSaved,
-  onClearConversation,
+  onDeleteConversation,
 }: AgentSettingsPanelProps) {
   const styles = useStyles();
   const toast = useToast();
@@ -90,7 +90,7 @@ export function AgentSettingsPanel({
   const [testResult, setTestResult] = useState<ConnectionResult | null>(null);
   const [testing, setTesting] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [clearOpen, setClearOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
 
   useEffect(() => {
     if (!open) {
@@ -103,7 +103,7 @@ export function AgentSettingsPanel({
     setModel(config.model);
     setApiKey('');
     setTestResult(null);
-    setClearOpen(false);
+    setDeleteOpen(false);
 
     loadApiKey()
       .then(storedKey => {
@@ -209,11 +209,11 @@ export function AgentSettingsPanel({
     }
   }, []);
 
-  const handleClearConversation = useCallback(async (): Promise<void> => {
-    await onClearConversation();
-    setClearOpen(false);
-    toast.show({ messageText: '对话已清空' });
-  }, [onClearConversation, toast]);
+  const handleDeleteConversation = useCallback(async (): Promise<void> => {
+    await onDeleteConversation();
+    setDeleteOpen(false);
+    toast.show({ messageText: '会话已删除' });
+  }, [onDeleteConversation, toast]);
 
   return (
     <>
@@ -319,23 +319,23 @@ export function AgentSettingsPanel({
           <Button
             color="danger"
             icon={TrashIcon}
-            onPress={() => setClearOpen(true)}
+            onPress={() => setDeleteOpen(true)}
             size="small"
             style={styles.dangerAction}
             type="text"
           >
-            清空当前对话
+            删除当前会话
           </Button>
         </Column>
       </Popup.FloatingPanel>
 
       <ManageConfirmDialog
-        messageText="将删除本账本的全部助手对话记录，删除后不可恢复。"
-        okText="清空"
-        onCancel={() => setClearOpen(false)}
-        onConfirm={handleClearConversation}
-        open={clearOpen}
-        titleText="清空对话"
+        messageText="将删除当前会话及其全部消息，删除后不可恢复。"
+        okText="删除"
+        onCancel={() => setDeleteOpen(false)}
+        onConfirm={handleDeleteConversation}
+        open={deleteOpen}
+        titleText="删除会话"
       />
     </>
   );

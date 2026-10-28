@@ -12,6 +12,7 @@ import {
 } from '@pennyspring/ui';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import {
+  ClockCounterClockwiseIcon,
   GearSixIcon,
   PaperPlaneTiltIcon,
   StopIcon,
@@ -176,6 +177,7 @@ export interface AgentDrawerProps {
   configured: boolean;
   chat: AgentChatState;
   onOpenChange: (open: boolean) => void;
+  onOpenSessions: () => void;
   onOpenSettings: () => void;
 }
 
@@ -184,6 +186,7 @@ export function AgentDrawer({
   configured,
   chat,
   onOpenChange,
+  onOpenSessions,
   onOpenSettings,
 }: AgentDrawerProps) {
   const styles = useStyles();
@@ -248,14 +251,24 @@ export function AgentDrawer({
       position="bottom"
       renderFooter={null}
       renderHeaderRight={() => (
-        <Button
-          icon={GearSixIcon}
-          onPress={onOpenSettings}
-          shape="circle"
-          size="small"
-          testID="agent-settings-button"
-          type="text"
-        />
+        <Row align="center" gap="normal">
+          <Button
+            icon={ClockCounterClockwiseIcon}
+            onPress={onOpenSessions}
+            shape="circle"
+            size="small"
+            testID="agent-sessions-button"
+            type="text"
+          />
+          <Button
+            icon={GearSixIcon}
+            onPress={onOpenSettings}
+            shape="circle"
+            size="small"
+            testID="agent-settings-button"
+            type="text"
+          />
+        </Row>
       )}
       styles={{ panelBody: styles.panelBody }}
       titleText="记账助手"

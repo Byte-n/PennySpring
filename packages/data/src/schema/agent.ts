@@ -1,4 +1,4 @@
-import { index, sqliteTable, text, unique } from 'drizzle-orm/sqlite-core'
+import { index, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 
 import { type AgentMessageRoleValue, AGENT_MESSAGE_ROLE } from '../constants'
 import { enumColumn, integerColumn, primaryKeyColumn, timestampColumns } from '../shared'
@@ -8,7 +8,7 @@ export const agentThreads = sqliteTable(
   {
     // 会话主键，自增长
     id: primaryKeyColumn(),
-    // 所属账本主键，关联 tb_books.id；一期一个账本一条连续会话
+    // 所属账本主键，关联 tb_books.id；一个账本可有多条会话
     booksId: integerColumn('books_id').notNull(),
     // 会话标题；空字符串表示未命名
     title: text('title').notNull().default(''),
@@ -16,7 +16,7 @@ export const agentThreads = sqliteTable(
     // 最后修改时间（时间戳，毫秒）
     ...timestampColumns(),
   },
-  table => [unique('tb_agent_thread_books_id_unique').on(table.booksId)]
+  table => [index('tb_agent_thread_books_id_index').on(table.booksId)]
 )
 
 export const agentMessages = sqliteTable(

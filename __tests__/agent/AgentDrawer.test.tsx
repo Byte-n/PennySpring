@@ -106,18 +106,29 @@ function createChat(overrides: Partial<AgentChatState> = {}): AgentChatState {
     activeTool: null,
     errorText: '',
     usage: EMPTY_USAGE,
+    threads: [],
+    threadsLoading: false,
+    currentThreadId: null,
     send: jest.fn(() => Promise.resolve()),
     stop: jest.fn(),
-    clear: jest.fn(() => Promise.resolve()),
+    createThread: jest.fn(() => Promise.resolve(true)),
+    selectThread: jest.fn(() => Promise.resolve(true)),
+    deleteThread: jest.fn(() => Promise.resolve()),
+    deleteCurrentThread: jest.fn(() => Promise.resolve()),
     ...overrides,
   };
 }
 
 function renderDrawer(
   chat: AgentChatState,
-  options: { configured?: boolean; onOpenSettings?: () => void } = {},
+  options: {
+    configured?: boolean;
+    onOpenSettings?: () => void;
+    onOpenSessions?: () => void;
+  } = {},
 ) {
   const onOpenSettings = options.onOpenSettings ?? jest.fn();
+  const onOpenSessions = options.onOpenSessions ?? jest.fn();
   let renderer: TestRenderer.ReactTestRenderer;
   act(() => {
     renderer = TestRenderer.create(
@@ -125,12 +136,13 @@ function renderDrawer(
         chat={chat}
         configured={options.configured ?? true}
         onOpenChange={jest.fn()}
+        onOpenSessions={onOpenSessions}
         onOpenSettings={onOpenSettings}
         open
       />,
     );
   });
-  return { renderer: renderer!, onOpenSettings };
+  return { renderer: renderer!, onOpenSessions, onOpenSettings };
 }
 
 type HostNode = {
@@ -209,6 +221,18 @@ describe('AgentDrawer', () => {
     expect(
       renderer.root.findByProps({ testID: 'agent-send-button' }).props.disabled,
     ).toBe(true);
+  });
+
+  it('opens the session list from the header', () => {
+    const { renderer, onOpenSessions } = renderDrawer(createChat());
+
+    act(() => {
+      renderer.root
+        .findByProps({ testID: 'agent-sessions-button' })
+        .props.onPress();
+    });
+
+    expect(onOpenSessions).toHaveBeenCalledTimes(1);
   });
 
   it('shows streamed text and replaces send with stop while responding', () => {

@@ -18,6 +18,7 @@ export type RootStackParamList = {
   [ROOT_ROUTES.ThemePreview]: undefined;
   [ROOT_ROUTES.BookManage]: undefined;
   [ROOT_ROUTES.TagManage]: undefined;
+  [ROOT_ROUTES.SessionManage]: undefined;
   [ROOT_ROUTES.TypeManage]: undefined;
   [ROOT_ROUTES.AssetManage]: undefined;
   [ROOT_ROUTES.IconPreview]: undefined;

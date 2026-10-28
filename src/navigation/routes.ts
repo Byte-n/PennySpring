@@ -5,6 +5,7 @@ export const ROOT_ROUTES = {
   ThemePreview: 'ThemePreview',
   BookManage: 'BookManage',
   TagManage: 'TagManage',
+  SessionManage: 'SessionManage',
   TypeManage: 'TypeManage',
   AssetManage: 'AssetManage',
   IconPreview: 'IconPreview',

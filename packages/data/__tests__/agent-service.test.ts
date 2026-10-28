@@ -6,9 +6,11 @@ import path from 'node:path'
 import { schema } from '../src/db'
 import {
   appendMessages,
-  clearThreadMessages,
-  getOrCreateThread,
-  getThreadWithMessages,
+  createThread,
+  deleteThread,
+  getLatestThreadWithMessages,
+  getThreadDetail,
+  listThreads,
   updateThreadTitle,
 } from '../src/services/agent-service'
 import type { Database as AppDatabase } from '../src/types'
@@ -38,23 +40,85 @@ describe('agent-service', () => {
     db = createTestDatabase()
   })
 
-  it('getOrCreateThread 为同一账本复用已有会话', async () => {
-    const first = await getOrCreateThread(db, 1)
-    const second = await getOrCreateThread(db, 1)
-
-    expect(second.id).toBe(first.id)
-    expect(second.booksId).toBe(1)
-  })
-
-  it('getOrCreateThread 为不同账本创建独立会话', async () => {
-    const first = await getOrCreateThread(db, 1)
-    const second = await getOrCreateThread(db, 2)
+  it('createThread 允许同一账本创建多条独立会话', async () => {
+    const first = await createThread(db, 1)
+    const second = await createThread(db, 1)
 
     expect(second.id).not.toBe(first.id)
+    expect((await listThreads(db, 1)).map(thread => thread.id)).toEqual(
+      expect.arrayContaining([first.id, second.id])
+    )
+  })
+
+  it('listThreads 只返回指定账本的会话', async () => {
+    const own = await createThread(db, 1)
+    await createThread(db, 2)
+
+    expect((await listThreads(db, 1)).map(thread => thread.id)).toEqual([own.id])
+  })
+
+  it('listThreads 按最后更新时间倒序排列', async () => {
+    const older = await createThread(db, 1)
+    const newer = await createThread(db, 1)
+    const future = Date.now() + 60_000
+    const nowSpy = jest.spyOn(Date, 'now').mockReturnValue(future)
+    try {
+      await updateThreadTitle(db, older.id, '刚聊过的会话')
+    } finally {
+      nowSpy.mockRestore()
+    }
+
+    expect((await listThreads(db, 1)).map(thread => thread.id)).toEqual([
+      older.id,
+      newer.id,
+    ])
+  })
+
+  it('getLatestThreadWithMessages 返回最近更新的会话及其消息', async () => {
+    const older = await createThread(db, 1)
+    const newer = await createThread(db, 1)
+    const future = Date.now() + 60_000
+    const nowSpy = jest.spyOn(Date, 'now').mockReturnValue(future)
+    try {
+      await appendMessages(db, older.id, [{ role: 'user', content: '你好' }])
+    } finally {
+      nowSpy.mockRestore()
+    }
+
+    const detail = await getLatestThreadWithMessages(db, 1)
+
+    expect(detail.thread.id).toBe(older.id)
+    expect(detail.thread.id).not.toBe(newer.id)
+    expect(detail.messages).toHaveLength(1)
+  })
+
+  it('getLatestThreadWithMessages 在账本没有会话时创建空会话', async () => {
+    const detail = await getLatestThreadWithMessages(db, 3)
+
+    expect(detail.thread.booksId).toBe(3)
+    expect(detail.messages).toEqual([])
+  })
+
+  it('getThreadDetail 返回指定会话的完整消息链', async () => {
+    const thread = await createThread(db, 1)
+    await createThread(db, 1)
+    await appendMessages(db, thread.id, [
+      { role: 'user', content: '这个月花了多少' },
+      { role: 'assistant', content: '', toolCalls: TOOL_CALLS_JSON },
+      { role: 'tool', content: '{"total":123}', toolCallId: 'call_1', toolName: 'queryRecords' },
+    ])
+
+    const detail = await getThreadDetail(db, thread.id)
+
+    expect(detail.thread.id).toBe(thread.id)
+    expect(detail.messages).toHaveLength(3)
+    expect(detail.messages[1]?.toolCalls).toContain('queryRecords')
+    expect(detail.messages[2]?.toolCallId).toBe('call_1')
+    expect(detail.messages[2]?.toolName).toBe('queryRecords')
   })
 
   it('appendMessages 持久化完整消息链并保持写入顺序', async () => {
-    const thread = await getOrCreateThread(db, 1)
+    const thread = await createThread(db, 1)
 
     const saved = await appendMessages(db, thread.id, [
       { role: 'user', content: '这个月花了多少' },
@@ -66,32 +130,8 @@ describe('agent-service', () => {
     expect(saved.map(message => message.threadId)).toEqual([thread.id, thread.id, thread.id])
   })
 
-  it('getThreadWithMessages 返回可回放的完整消息链', async () => {
-    const thread = await getOrCreateThread(db, 1)
-    await appendMessages(db, thread.id, [
-      { role: 'user', content: '这个月花了多少' },
-      { role: 'assistant', content: '', toolCalls: TOOL_CALLS_JSON },
-      { role: 'tool', content: '{"total":123}', toolCallId: 'call_1', toolName: 'queryRecords' },
-    ])
-
-    const detail = await getThreadWithMessages(db, 1)
-
-    expect(detail.thread.id).toBe(thread.id)
-    expect(detail.messages).toHaveLength(3)
-    expect(detail.messages[1]?.toolCalls).toContain('queryRecords')
-    expect(detail.messages[2]?.toolCallId).toBe('call_1')
-    expect(detail.messages[2]?.toolName).toBe('queryRecords')
-  })
-
-  it('getThreadWithMessages 在账本没有会话时创建空会话', async () => {
-    const detail = await getThreadWithMessages(db, 3)
-
-    expect(detail.thread.booksId).toBe(3)
-    expect(detail.messages).toEqual([])
-  })
-
   it('updateThreadTitle 更新会话标题', async () => {
-    const thread = await getOrCreateThread(db, 1)
+    const thread = await createThread(db, 1)
 
     const updated = await updateThreadTitle(db, thread.id, '本月支出')
 
@@ -99,7 +139,7 @@ describe('agent-service', () => {
   })
 
   it('updateThreadTitle 拒绝空标题', async () => {
-    const thread = await getOrCreateThread(db, 1)
+    const thread = await createThread(db, 1)
 
     await expect(updateThreadTitle(db, thread.id, '   ')).rejects.toThrow('会话标题不能为空')
   })
@@ -110,14 +150,17 @@ describe('agent-service', () => {
     ).rejects.toThrow('会话不存在: 999')
   })
 
-  it('clearThreadMessages 清空消息但保留会话', async () => {
-    const thread = await getOrCreateThread(db, 1)
+  it('deleteThread 删除会话及其全部消息', async () => {
+    const thread = await createThread(db, 1)
     await appendMessages(db, thread.id, [{ role: 'user', content: '你好' }])
 
-    await clearThreadMessages(db, thread.id)
+    await deleteThread(db, thread.id)
 
-    const detail = await getThreadWithMessages(db, 1)
-    expect(detail.thread.id).toBe(thread.id)
-    expect(detail.messages).toEqual([])
+    await expect(getThreadDetail(db, thread.id)).rejects.toThrow(`会话不存在: ${thread.id}`)
+    expect(await listThreads(db, 1)).toEqual([])
+  })
+
+  it('deleteThread 拒绝删除不存在的会话', async () => {
+    await expect(deleteThread(db, 999)).rejects.toThrow('会话不存在: 999')
   })
 })

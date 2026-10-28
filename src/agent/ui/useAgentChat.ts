@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import dayjs from 'dayjs';
 
-import type { BookRow } from '@pennyspring/api';
+import type { AgentThreadRow, BookRow } from '@pennyspring/api';
 
 import { getAgentConfig } from '../adapters/configStore';
 import { loadApiKey } from '../adapters/secureKey';
@@ -38,9 +38,15 @@ export interface AgentChatState {
   activeTool: string | null;
   errorText: string;
   usage: TokenUsage;
+  threads: AgentThreadRow[];
+  threadsLoading: boolean;
+  currentThreadId: number | null;
   send: (text: string) => Promise<void>;
   stop: () => void;
-  clear: () => Promise<void>;
+  createThread: () => Promise<boolean>;
+  selectThread: (threadId: number) => Promise<boolean>;
+  deleteThread: (threadId: number) => Promise<void>;
+  deleteCurrentThread: () => Promise<void>;
 }
 
 function getErrorMessage(error: unknown): string {
@@ -74,6 +80,9 @@ export function useAgentChat({
   const [streamingText, setStreamingText] = useState('');
   const [activeTool, setActiveTool] = useState<string | null>(null);
   const [errorText, setErrorText] = useState('');
+  const [threads, setThreads] = useState<AgentThreadRow[]>([]);
+  const [threadsLoading, setThreadsLoading] = useState(false);
+  const [currentThreadId, setCurrentThreadId] = useState<number | null>(null);
 
   const messagesRef = useRef<ChatMessage[]>([]);
   const threadIdRef = useRef<number | null>(null);
@@ -81,47 +90,66 @@ export function useAgentChat({
   const sendingRef = useRef(false);
   const controllerRef = useRef<AbortController | null>(null);
   const streamTextRef = useRef('');
+  const loadSeqRef = useRef(0);
+  const bookIdRef = useRef(bookId);
+  bookIdRef.current = bookId;
 
   const setMessages = useCallback((next: ChatMessage[]): void => {
     messagesRef.current = next;
     setMessagesState(next);
   }, []);
 
+  const resetStream = useCallback((): void => {
+    setStreamingText('');
+    setActiveTool(null);
+    streamTextRef.current = '';
+  }, []);
+
   useEffect(() => {
     let cancelled = false;
+    const seq = ++loadSeqRef.current;
 
     threadIdRef.current = null;
     titleRef.current = '';
+    setCurrentThreadId(null);
     setMessages([]);
-    setStreamingText('');
-    setActiveTool(null);
+    setThreads([]);
+    resetStream();
     setErrorText('');
-    streamTextRef.current = '';
 
     if (!enabled || bookId === undefined) {
       setLoading(false);
+      setThreadsLoading(false);
       return;
     }
 
     setLoading(true);
+    setThreadsLoading(true);
     api.agent
-      .getThreadWithMessages(bookId)
-      .then(detail => {
-        if (cancelled) {
+      .getLatestThreadWithMessages(bookId)
+      .then(async detail => {
+        if (cancelled || seq !== loadSeqRef.current) {
           return;
         }
         threadIdRef.current = detail.thread.id;
         titleRef.current = detail.thread.title;
+        setCurrentThreadId(detail.thread.id);
         setMessages(toChatMessages(detail.messages));
+
+        const list = await api.agent.listThreads(bookId);
+        if (!cancelled && seq === loadSeqRef.current) {
+          setThreads(list);
+        }
       })
       .catch(error => {
-        if (!cancelled) {
+        if (!cancelled && seq === loadSeqRef.current) {
           setErrorText(getErrorMessage(error));
         }
       })
       .finally(() => {
-        if (!cancelled) {
+        if (!cancelled && seq === loadSeqRef.current) {
           setLoading(false);
+          setThreadsLoading(false);
         }
       });
 
@@ -129,7 +157,7 @@ export function useAgentChat({
       cancelled = true;
       controllerRef.current?.abort();
     };
-  }, [api, bookId, enabled, setMessages]);
+  }, [api, bookId, enabled, resetStream, setMessages]);
 
   useEffect(
     () => () => {
@@ -137,6 +165,138 @@ export function useAgentChat({
     },
     [],
   );
+
+  const refreshThreads = useCallback(async (): Promise<void> => {
+    if (bookId === undefined) {
+      return;
+    }
+    setThreadsLoading(true);
+    try {
+      const list = await api.agent.listThreads(bookId);
+      if (bookIdRef.current === bookId) {
+        setThreads(list);
+      }
+    } catch (error) {
+      if (bookIdRef.current === bookId) {
+        setErrorText(getErrorMessage(error));
+      }
+    } finally {
+      if (bookIdRef.current === bookId) {
+        setThreadsLoading(false);
+      }
+    }
+  }, [api, bookId]);
+
+  const createThread = useCallback(async (): Promise<boolean> => {
+    if (!book || sendingRef.current) {
+      return false;
+    }
+    const isCurrentBlank =
+      threadIdRef.current !== null &&
+      messagesRef.current.length === 0 &&
+      !titleRef.current;
+    if (isCurrentBlank) {
+      return false;
+    }
+
+    setLoading(true);
+    setErrorText('');
+    try {
+      const thread = await api.agent.createThread(book.id);
+      threadIdRef.current = thread.id;
+      titleRef.current = thread.title;
+      setCurrentThreadId(thread.id);
+      setMessages([]);
+      resetStream();
+      setThreads(previous => [thread, ...previous]);
+      return true;
+    } catch (error) {
+      setErrorText(getErrorMessage(error));
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  }, [api, book, resetStream, setMessages]);
+
+  const selectThread = useCallback(
+    async (threadId: number): Promise<boolean> => {
+      if (sendingRef.current) {
+        return false;
+      }
+      if (threadId === threadIdRef.current) {
+        return true;
+      }
+      const seq = ++loadSeqRef.current;
+
+      setLoading(true);
+      setErrorText('');
+      resetStream();
+      try {
+        const detail = await api.agent.getThreadDetail(threadId);
+        if (seq !== loadSeqRef.current) {
+          return false;
+        }
+        threadIdRef.current = detail.thread.id;
+        titleRef.current = detail.thread.title;
+        setCurrentThreadId(detail.thread.id);
+        setMessages(toChatMessages(detail.messages));
+        return true;
+      } catch (error) {
+        if (seq === loadSeqRef.current) {
+          setErrorText(getErrorMessage(error));
+        }
+        return false;
+      } finally {
+        if (seq === loadSeqRef.current) {
+          setLoading(false);
+        }
+      }
+    },
+    [api, resetStream, setMessages],
+  );
+
+  const deleteThread = useCallback(
+    async (threadId: number): Promise<void> => {
+      if (!book) {
+        return;
+      }
+      if (sendingRef.current) {
+        throw new Error('请先停止当前回答再删除会话。');
+      }
+      setThreadsLoading(true);
+      try {
+        await api.agent.deleteThread(threadId);
+        setThreads(previous => previous.filter(item => item.id !== threadId));
+        if (threadIdRef.current === threadId) {
+          threadIdRef.current = null;
+          titleRef.current = '';
+          setCurrentThreadId(null);
+          setMessages([]);
+          resetStream();
+
+          const created = await api.agent.createThread(book.id);
+          threadIdRef.current = created.id;
+          titleRef.current = created.title;
+          setCurrentThreadId(created.id);
+          setThreads(previous => [created, ...previous.filter(item => item.id !== threadId)]);
+        }
+      } catch (error) {
+        setErrorText(getErrorMessage(error));
+        throw error;
+      } finally {
+        setThreadsLoading(false);
+      }
+    },
+    [api, book, resetStream, setMessages],
+  );
+
+  const deleteCurrentThread = useCallback(async (): Promise<void> => {
+    const threadId = threadIdRef.current;
+    if (threadId === null) {
+      return;
+    }
+    await deleteThread(threadId);
+  }, [deleteThread]);
 
   const send = useCallback(
     async (rawText: string): Promise<void> => {
@@ -187,9 +347,10 @@ export function useAgentChat({
 
       try {
         if (threadId === null) {
-          const thread = await api.agent.getOrCreateThread(book.id);
+          const thread = await api.agent.createThread(book.id);
           threadId = thread.id;
           threadIdRef.current = thread.id;
+          setCurrentThreadId(thread.id);
         }
 
         await api.agent.appendMessages(
@@ -281,27 +442,15 @@ export function useAgentChat({
         setSending(false);
         setActiveTool(null);
         controllerRef.current = null;
+        refreshThreads().catch(() => undefined);
       }
     },
-    [api, book, enabled, setMessages],
+    [api, book, enabled, refreshThreads, setMessages],
   );
 
   const stop = useCallback((): void => {
     controllerRef.current?.abort();
   }, []);
-
-  const clear = useCallback(async (): Promise<void> => {
-    const threadId = threadIdRef.current;
-    if (threadId !== null) {
-      await api.agent.clearThreadMessages(threadId);
-    }
-    titleRef.current = '';
-    setMessages([]);
-    setStreamingText('');
-    setActiveTool(null);
-    setErrorText('');
-    streamTextRef.current = '';
-  }, [api, setMessages]);
 
   const usage = useMemo(() => sumUsage(messages), [messages]);
 
@@ -313,8 +462,14 @@ export function useAgentChat({
     activeTool,
     errorText,
     usage,
+    threads,
+    threadsLoading,
+    currentThreadId,
     send,
     stop,
-    clear,
+    createThread,
+    selectThread,
+    deleteThread,
+    deleteCurrentThread,
   };
 }

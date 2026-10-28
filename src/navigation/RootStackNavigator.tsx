@@ -12,6 +12,7 @@ import { BookManageScreen } from '../screens/bookManage/BookManageScreen';
 import { BookSelectScreen } from '../screens/bookSelect';
 import { HomeScreen } from '../screens/home/HomeScreen';
 import { IconPreviewScreen } from '../screens/iconPreview';
+import { SessionManageScreen } from '../screens/sessionManage/SessionManageScreen';
 import { TestScreen } from '../screens/test';
 import { TagManageScreen } from '../screens/tagManage/TagManageScreen';
 import { TypeManageScreen } from '../screens/typeManage/TypeManageScreen';
@@ -85,6 +86,11 @@ export function RootStackNavigator() {
         component={TagManageScreen}
         name={ROOT_ROUTES.TagManage}
         options={{ title: '标签管理' }}
+      />
+      <Stack.Screen
+        component={SessionManageScreen}
+        name={ROOT_ROUTES.SessionManage}
+        options={{ title: '会话管理' }}
       />
       <Stack.Screen
         component={TypeManageScreen}
