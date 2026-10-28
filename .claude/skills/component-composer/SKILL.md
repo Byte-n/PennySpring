@@ -38,7 +38,7 @@ description: 将 UI 需求匹配到 packages/pennyspring-ui 中现有的 PennySp
 - 表单：使用 `Input`、`Textarea`、`DisplayInput`、`CalculatorInput`、`Stepper`、`Slider`、`Switch`、`Checkbox`、`Radio`。
 - 选择：使用 `Picker`、`Picker.Cascader`、`ListPicker.Cascader`、`CalendarPicker`、`DateTimePicker`、`SelectionList`、`Segmented`。
 - 列表与结构化数据：使用 `List`、`DataList`、`ListCollapse`、`Card`、`Divider`、`Grid`。
-- 导航或分段：使用 `TabBar`、`Tabs`、`TopTabNavigator`、`SegmentedControl`、`SideBar`、`IndexBar`、`Steps`。
+- 导航或分段：使用 `TabBar`、`Tabs`、`TopTabNavigator`、`SegmentedControl`、`IndexBar`、`Steps`。
 - 反馈与状态：使用 `Toast`、`Message`、`Notification`、`Dialog`、`Popup`、`Loading`、`Skeleton`、`Progress`、`Empty`、`Result`、`Badge`、`Tag`。
 - 媒体、头像与展示辅助：使用 `Avatar`、`Carousel`、`Ellipsis`。
 

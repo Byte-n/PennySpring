@@ -4,14 +4,14 @@
 
 ## 布局
 
-- `Row`：水平 flex 布局。
-- `Column`：垂直 flex 布局。
-- `Space`：为子元素提供一致间距。
-- `Spacer`：固定或弹性的空白占位。
-- `Grid`：网格布局和重复瓦片。
+- `Row`：水平 flex 布局；`gap` 三档 8 / 12 / 16（`sizeXS` / `paddingSM` / `padding`），未传不设间距，`wrap` 后行距与列距同值。
+- `Column`：垂直 flex 布局；默认 `gap='normal'` = 12，三档 8 / 12 / 16，同一层只保留一个 gap。
+- `Space`：为子元素提供一致间距；三档 8 / 12 / 16，纵向与 `wrap` 行距同值，`block` 拉满宽度，`justify='stretch'` 时子项等分。
+- `Spacer`：固定或弹性的空白占位；设 `size` 时横向取宽、纵向取高且两向同值，不设 `size` 时按 `flex` 吃剩余空间。
+- `Grid`：网格布局和重复瓦片；三档 gap 8 / 12 / 16，格内只保留横向半 gap，行距等于 gap，外层负半 gap 抵消首列外扩。
 - `GeometryReader`：布局尺寸测量。
-- `KeyboardAwareScreen`、`KeyboardAwareFormScroll`、`KeyboardStickyFooter`、`useKeyboardInsets`：页面、表单滚动与底部操作区的键盘避让布局能力。
-- `Divider`：视觉分隔。
+- `KeyboardAwareScreen`、`KeyboardAwareFormScroll`、`KeyboardStickyFooter`、`useKeyboardInsets`：页面、表单滚动与底部操作区的键盘避让布局能力。inset 统一按 `max(0, 键盘高 − 安全区)` 计算；Screen 只在键盘可见时补一次，FormScroll 内容底部只补 `inset + extraBottomInset`（默认 0），StickyFooter 取 `max(inset, safeAreaBottom)` 并带 1px `colorSplit` 顶线。
+- `Divider`：视觉分隔；`size` 只调间距（横向上下 12 / 16 / 20，纵向高 16 / 20 / 24、左右 8 / 12 / 16），内容固定 12 三级灰、左右 12，`left` / `right` 短边固定 24。
 - `Card`：分组内容承载面；plain / elevated / summary 三个变体均无描边，elevated 只用 `boxShadowTertiary`，summary 靠金额排印建立重点；尺寸 12 / 16 / 20 内边距。
 
 ## 排版与符号
@@ -23,8 +23,8 @@
 ## 操作
 
 - `Button`：主/次/文字/链接/危险按钮；32 / 44 / 52 三档高度，默认 `type=default` 为浅底填充（`colorFillTertiary`），描边仅在显式 `variant=outlined` / `dashed` 时出现；支持图标位、加载、圆形与全宽。
-- `FloatingActionGroup`：浮动操作入口。
-- `SwipeAction`：行级滑动操作。
+- `FloatingActionGroup`：浮动操作入口；主 FAB 40 / 48 / 56（圆角 12 / 16 / 16），展开项为 44 图标 + 左侧 32 文字胶囊，只有主 FAB 带投影；「更多」用加号旋转 45° 表达收起，展开 180ms + 30ms 阶梯 + 8px 浮出；贴边左右 16，上下 16 + 安全区。
+- `SwipeAction`：行级滑动操作；行高 56 / 64 / 72 与 List 行对齐，动作区固定宽 64 / 72 / 80（危险 +8），图标在上、12/600 文字在下，动作区与行共用 12 圆角裁切，按压缩放 .98。
 - `ActionSheet`：移动端操作菜单。
 
 ## 输入与控件
@@ -32,7 +32,7 @@
 - `Input`：Material flat 风格的单行文本与搜索输入，支持浮动 label、独立底线、错误态、清除按钮、前后缀和加载态。
 - `Textarea`：多行文本输入；下划线字段（1px 底边 + 2px 状态指示条，无底色无圆角），尺寸 14/24・16/26・18/28，错误不铺浅红底。
 - `DisplayInput`：只读或触发式输入展示。自身持有 pressed、disabled、readonly 与错误态视觉，不接受调用方叠加状态样式。
-- `ImagePicker`：以 `DisplayInput` 作为触发器，从相册或文件管理选择单张或多张图片。支持 `size`、`allowClear`、`status`、`helper`/`error`，触发器样式统一通过 `styles.input` 覆盖。
+- `ImagePicker`：以 `DisplayInput` 作为触发器，从相册或文件管理选择单张或多张图片。支持 `size`、`allowClear`、`status`、`helper`/`error`，触发器样式统一通过 `styles.input` 覆盖；浮层内 3 列 1:1 网格（间距 8、左右 16、圆角 12），删除按钮 24 + 2px 容器环，添加位与空态为虚线格，加载失败显示错误框并可点击重试。
 - `CalculatorInput`：带计算器弹窗的数字输入。`CalculatorInput.useCalculatorValueState` 封装弹层开关与表达式状态，打开时回填初始值，确认后再收起。
 - `Stepper`：递增/递减数值调节。999 胶囊，高度取 `controlHeightSM / controlHeight / controlHeightLG`（无描边无分隔线），按钮 24 / 32 / 36 + 线性加减图标；数值 600 等宽、最小宽 32 / 40 / 48，`unitText` 以 12/三级紧跟数值；按压只作用于按钮，到边界仅降对应按钮，禁用降胶囊底，只读保留胶囊底但降数值。
 - `Slider`：范围或数值调节。轨道 4 / 6 / 8、thumb 16 / 20 / 24，控件高取 `controlHeightSM / controlHeight / controlHeightLG`；轨道 `colorFillSecondary`、填充 `colorPrimary`，thumb 白面 + 2px 主色环 + `boxShadowTertiary`；按压 thumb ×1.1，禁用改四级灰并去投影，只读保留主色但不响应；端点左右留 thumb 半径。
@@ -54,28 +54,27 @@
 
 - `List`：基于 `FlatList` 的数据列表容器，支持头尾、空/加载状态、刷新、分页与可折叠分组；行规格为 56 / 64 高、38 圆角图标底板、66 内缩分隔线，`amountText` 自动拆整数小数并按支出/收入/中性上色。
 - `Tag`：紧凑标签。
-- `Badge`：计数或状态标记。
-- `Avatar`：用户/实体图片或首字母，也支持头像组。
-- `Progress`：条形或环形进度。
-- `Steps`：有序流程状态。
-- `Result`：终态结果页或面板。
+- `Badge`：计数或状态标记。高 16 / 20 / 24、圆点 6 / 8 / 10，字号 12 / 12 / 14，左右内边距 5 / 6 / 8；default 用 `colorText`，未读用 `colorError`；挂角时补 2px `colorBgContainer` 环，计数位移 40%、圆点 50%，超过 `overflowCount`（默认 99）显示 `99+`。
+- `Avatar`：用户/实体图片或首字母，也支持头像组。尺寸 28 / 40 / 56，方形圆角 8 / 12 / 16，首字 12 / 14 / 18 + 600 + `colorTextSecondary`；无图无字时渲染 16 / 20 / 26 人物占位图标；头像组重叠 8 / 10 / 14，每个头像外套 2px `colorBgContainer` 环，`+N` 胶囊与头像同尺寸。
+- `Progress`：条形或环形进度。线宽 4 / 6 / 8、圆环 40 / 48 / 56（环宽 3 / 4 / 4）；轨道 `colorFillSecondary` + 999 圆角，只有已完成段与百分比跟随状态色；百分比 12 / 12 / 14 等宽，环内 12 / 14 / 16，0% 不渲染圆头。
+- `Steps`：有序流程状态。指示器 20 / 24 / 28，标题 14 / 16 / 18，说明 12 / 12 / 14；wait 白底发丝描边、process 主色 + 4px `colorPrimaryBg` 外环、finish 成功色 + 勾、error 错误色 + 叉；连接线 2px，未完成 `colorSplit`、已完成 `colorSuccess`；只读保留对比，禁用整体 .45。
+- `Result`：终态结果页或面板。图标容器 40 / 48 / 56（语义浅底），图标本体 20 / 24 / 28，标题 16 / 18 / 22，说明 12 / 14 / 14（最大宽 320）；组件不自带容器与阴影，操作区间距 8、主按钮在左，`icon={null}` 时标题不再保留图标占位。
 - `Empty`：无数据状态；inline / boxed / compact 三形态，标题 + 说明 + 单个操作三行结构，图标用 44 圆形底板。
-- `Skeleton`：加载占位。
-- `Carousel`：可滑动媒体/内容轮播。
+- `Skeleton`：加载占位。line 行高 12 / 16 / 20（圆角 4 / 6 / 8），circle 32 / 40 / 48，rect 48 / 64 / 80（圆角 12）；shimmer 占容器 40% 宽、1.2s 循环，静态不渲染高光；加载完成时内容 100ms 淡入。
+- `Carousel`：可滑动媒体/内容轮播。指示点 6px、选中拉成 16×6 胶囊、间距 8、距底 12；默认 surface 预设（主色 / 四级灰），媒体场景用 `styles.indicatorDot*` 覆盖为白点；超过 8 页切换右下角计数胶囊，单页不渲染指示器；自动播放默认 4s，拖拽期间暂停。
 
 ## 导航
 
 - `TabBar`：底部标签栏导航。高度 48 / 56 / 64，图标盒 20 / 24 / 26，文字统一 12；选中只改图标与文字为主色 + 600，不铺色块；按压为 12 圆角 `colorFillTertiary`，禁用四级；角标 18 高（超 99 显示 99+）或红点，绝对定位于图标右上，不参与布局；支持 `activeIcon`、`safeAreaInsetBottom`、`size`。
 - `Tabs`：标签页内容。行高 32 / 40 / 48，项内边距承担间距，选中为主色 600 + 2px 下划线（宽度等于文字）；列表线 `colorSplit`，按压为 8 圆角 `colorFillTertiary`，禁用文字四级；支持 `layout="wrap" | "scroll"`、`block`、`size`、`renderContent`（唯一函数插槽）。
 - `TopTabNavigator`：顶部标签页屏幕导航器。
-- `SideBar`：侧边分类导航。
-- `IndexBar`：索引列表导航。
+- `IndexBar`：索引列表导航。字母视觉 20 / 24 / 28、条宽 36 / 36 / 40、字号 11 / 12 / 13；默认二级文字，按压 `colorBgTextHover`，选中主色实底 + 白字，禁用四级且不响应；分组标题高 32、左右 16、12/600 + 字距 .08em 并吸顶；拖动字母条时面板中央显示 64 气泡（`colorPrimaryBg` + 主色字母）。
 - `HeaderBar`：顶部导航区域标题栏。
 
 ## 浮层与反馈
 
 - `Dialog`：阻塞式确认或提示。
-- `Drawer`：左右侧滑出的抽屉面板；适合导航、筛选、设置等侧边内容，支持独立浮层和 `Drawer.Layout` 嵌入布局。
+- `Drawer`：左右侧滑出的抽屉面板；适合导航、筛选、设置等侧边内容，支持独立浮层和 `Drawer.Layout` 嵌入布局。外沿 16 圆角、贴边侧直角，宽度 78% 且最大 320，内边距 16；遮罩取 `colorBgMask`，front / slide / back 共用 `motionDurationMid` 且退出对称。
 - `Popup`：锚定、底部或居中的浮层容器；`Popup.FloatingPanel` 适合可拖拽底部/顶部面板，支持 `titleText`、确认/取消按钮、自定义 header/footer；`bodyScrollable` 控制 body 使用 `ScrollView` 或普通 `View`，ScrollView 模式可通过 `scrollEnabled` 控制滚动。
 - `Popover`：锚定触发元素的轻量浮层。`trigger` 支持 `click`（默认）/`longPress`/`manual`；`placement` 支持四向，空间不足自动翻转到对侧；`align` 控制交叉轴对齐并按屏幕边界收敛；内容经 `Portal` 挂载，点击外部或返回键关闭。
 - `Portal`、`PortalProvider`：在常规树外渲染浮层内容。
