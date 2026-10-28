@@ -92,7 +92,6 @@ const sidebars = {
             'components/navigation/popover',
             'components/navigation/popup',
             'components/navigation/portal',
-            'components/navigation/side-bar',
             'components/navigation/tab-bar',
             'components/navigation/steps',
           ],

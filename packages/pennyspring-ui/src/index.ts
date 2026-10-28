@@ -179,14 +179,6 @@ export type {
   TabsStyles,
   TabsValue,
 } from './Tabs';
-export { SideBar } from './SideBar';
-export type {
-  SideBarItem,
-  SideBarLayout,
-  SideBarProps,
-  SideBarStyles,
-  SideBarValue,
-} from './SideBar';
 export { IndexBar } from './IndexBar';
 export type {
   IndexBarItem,
