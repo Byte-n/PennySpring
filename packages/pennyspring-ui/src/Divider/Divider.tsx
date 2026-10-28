@@ -21,30 +21,26 @@ interface DividerStyleOptions {
 type ContentLinePosition = DividerContentPosition | 'none';
 
 interface DividerSizeStyleConfig {
-  contentPaddingHorizontal: (token: AliasToken) => number;
-  lineHeight: (token: AliasToken) => number;
-  marginHorizontal: (token: AliasToken) => number;
   marginVertical: (token: AliasToken) => number;
+  verticalHeight: (token: AliasToken) => number;
+  verticalMarginHorizontal: (token: AliasToken) => number;
 }
 
 const SIZE_STYLE_MAP: Record<ComponentSize, DividerSizeStyleConfig> = {
   small: {
-    contentPaddingHorizontal: token => token.paddingXS,
-    lineHeight: token => token.lineHeightSM,
-    marginHorizontal: token => token.marginSM,
-    marginVertical: token => token.marginSM / 2,
+    marginVertical: token => token.paddingSM,
+    verticalHeight: token => token.padding,
+    verticalMarginHorizontal: token => token.paddingXS,
   },
   normal: {
-    contentPaddingHorizontal: token => token.paddingMD,
-    lineHeight: token => token.lineHeightSM,
-    marginHorizontal: token => token.margin,
-    marginVertical: token => token.margin / 2,
+    marginVertical: token => token.padding,
+    verticalHeight: token => token.paddingMD,
+    verticalMarginHorizontal: token => token.paddingSM,
   },
   large: {
-    contentPaddingHorizontal: token => token.paddingLG,
-    lineHeight: token => token.lineHeight,
-    marginHorizontal: token => token.marginMD,
-    marginVertical: token => token.marginMD / 2,
+    marginVertical: token => token.paddingMD,
+    verticalHeight: token => token.paddingLG,
+    verticalMarginHorizontal: token => token.padding,
   },
 };
 
@@ -55,10 +51,8 @@ const useStyles = createUseSheetStyle(
     const contentLinePosition: ContentLinePosition = options.hasContent
       ? options.contentPosition
       : 'none';
-    const startLineFlexGrow =
-      contentLinePosition === 'left' ? 0 : 1;
-    const endLineFlexGrow =
-      contentLinePosition === 'right' ? 0 : 1;
+    const isStartLineShort = contentLinePosition === 'left';
+    const isEndLineShort = contentLinePosition === 'right';
 
     return {
       root: {
@@ -67,24 +61,26 @@ const useStyles = createUseSheetStyle(
         borderLeftColor: token.colorSplit,
         borderLeftWidth: isHorizontal ? 0 : token.lineWidth,
         flexDirection: isHorizontal ? 'row' : undefined,
-        height: isHorizontal ? undefined : sizeConfig.lineHeight(token),
-        marginHorizontal: isHorizontal ? 0 : sizeConfig.marginHorizontal(token),
+        height: isHorizontal ? undefined : sizeConfig.verticalHeight(token),
+        marginHorizontal: isHorizontal
+          ? 0
+          : sizeConfig.verticalMarginHorizontal(token),
         marginVertical: isHorizontal ? sizeConfig.marginVertical(token) : 0,
       },
       firstLine: {
         borderTopColor: token.colorSplit,
         borderTopWidth: isHorizontal ? token.lineWidth : 0,
-        flexGrow: isHorizontal ? startLineFlexGrow : 0,
+        flexGrow: isHorizontal && !isStartLineShort ? 1 : 0,
+        width: isStartLineShort ? token.sizeLG : undefined,
       },
       secondLine: {
         borderTopColor: token.colorSplit,
         borderTopWidth: isHorizontal ? token.lineWidth : 0,
-        flexGrow: isHorizontal ? endLineFlexGrow : 0,
+        flexGrow: isHorizontal && !isEndLineShort ? 1 : 0,
+        width: isEndLineShort ? token.sizeLG : undefined,
       },
       contentContainer: {
-        paddingHorizontal: isHorizontal
-          ? sizeConfig.contentPaddingHorizontal(token)
-          : 0,
+        paddingHorizontal: isHorizontal ? token.paddingSM : 0,
       },
     };
   },
@@ -126,7 +122,7 @@ export function Divider({
       {shouldRenderContent ? (
         <View style={tokenStyles.contentContainer}>
           {typeof children === 'string' || typeof children === 'number' ? (
-            <Text color="description" size={size === 'small' ? 'sm' : size === 'large' ? 'lg' : 'md'} style={[styles?.content]}>
+            <Text color="tertiary" size="xs" style={[styles?.content]}>
               {children}
             </Text>
           ) : (
