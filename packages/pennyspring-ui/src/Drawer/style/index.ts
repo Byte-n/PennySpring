@@ -1,5 +1,6 @@
 import type { ViewStyle } from 'react-native';
 import { createUseSheetStyle, toShadowStyle } from '@pennyspring/theme';
+import type { AliasToken } from '@pennyspring/theme';
 import type { DrawerPosition } from '../types';
 
 export interface DrawerStyleOptions {
@@ -33,6 +34,24 @@ function getDrawerPosition(position: DrawerPosition): ViewStyle {
   };
 }
 
+/** 贴边侧保持直角，只在外沿做浮层圆角。 */
+function getDrawerRadius(
+  position: DrawerPosition,
+  token: AliasToken,
+): ViewStyle {
+  if (position === 'right') {
+    return {
+      borderTopLeftRadius: token.borderRadiusLG,
+      borderBottomLeftRadius: token.borderRadiusLG,
+    };
+  }
+
+  return {
+    borderTopRightRadius: token.borderRadiusLG,
+    borderBottomRightRadius: token.borderRadiusLG,
+  };
+}
+
 export const useStyles = createUseSheetStyle(
   (token, { position, width }: DrawerStyleOptions) => ({
     container: {
@@ -51,8 +70,8 @@ export const useStyles = createUseSheetStyle(
       position: 'absolute',
       right: 0,
       top: 0,
-      backgroundColor: token.colorFillContent,
-      opacity: token.opacityLoading,
+      backgroundColor: token.colorBgMask,
+      opacity: 0,
       zIndex: token.zIndexBase + 1,
     },
     overlay: {
@@ -66,15 +85,16 @@ export const useStyles = createUseSheetStyle(
     },
     drawer: {
       ...getDrawerPosition(position),
+      ...getDrawerRadius(position, token),
       position: 'absolute',
       top: 0,
       bottom: 0,
       width,
       height: '100%',
-      padding: token.paddingLG,
+      padding: token.padding,
       backgroundColor: token.colorBgElevated,
       zIndex: token.zIndexPopupBase + token.zIndexBase + 1,
-      ...toShadowStyle(token.boxShadow),
+      ...toShadowStyle(token.boxShadowSecondary),
     },
     backDrawer: {
       zIndex: token.zIndexBase,
@@ -83,7 +103,7 @@ export const useStyles = createUseSheetStyle(
       zIndex: token.zIndexBase,
     },
     backMask: {
-      backgroundColor: token.colorFillContent,
+      backgroundColor: token.colorBgMask,
       opacity: 0,
     },
     frontScene: {
@@ -101,8 +121,8 @@ export const useStyles = createUseSheetStyle(
       position: 'absolute',
       right: 0,
       top: 0,
-      backgroundColor: token.colorFillContent,
-      opacity: token.opacityLoading,
+      backgroundColor: token.colorBgMask,
+      opacity: 0,
     },
   }),
 );

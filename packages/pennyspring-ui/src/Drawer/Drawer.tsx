@@ -25,7 +25,6 @@ import Animated, {
   interpolate,
   useAnimatedStyle,
   useSharedValue,
-  withDelay,
   withTiming,
 } from 'react-native-reanimated';
 import { useTheme } from '@pennyspring/theme';
@@ -46,12 +45,21 @@ const DEFAULT_DRAWER_POSITION: DrawerPosition = 'left';
 const DEFAULT_DRAWER_TYPE: DrawerType = 'front';
 const FULLY_CLOSED_PROGRESS = 0;
 const FULLY_OPEN_PROGRESS = 1;
-const DEFAULT_DRAWER_WIDTH_RATIO = 0.7;
+const DEFAULT_DRAWER_WIDTH_RATIO = 0.78;
+/** 平板与横屏下不再让面板跟着视口变宽。 */
+const MAX_DRAWER_WIDTH = 320;
 const SWIPE_DISTANCE_RATIO = 0.5;
 const SWIPE_VELOCITY_THRESHOLD = 400;
 const HORIZONTAL_SWIPE_THRESHOLD = 8;
 const VERTICAL_SWIPE_CANCEL_RATIO = 1.2;
 const PERCENT_WIDTH_PATTERN = /^-?\d+(?:\.\d+)?%$/;
+
+function resolveDefaultDrawerWidth(windowWidth: number): number {
+  return Math.min(
+    Math.round(windowWidth * DEFAULT_DRAWER_WIDTH_RATIO),
+    MAX_DRAWER_WIDTH,
+  );
+}
 
 interface DrawerOpenStateProps {
   defaultOpen?: boolean;
@@ -193,7 +201,8 @@ function DrawerComponent({
     isOpen ? FULLY_OPEN_PROGRESS : FULLY_CLOSED_PROGRESS,
   );
   const progress = externalProgress ?? internalProgress;
-  const resolvedWidth = width ?? Math.round(lastKnownWindowWidthRef.current * DEFAULT_DRAWER_WIDTH_RATIO);
+  const resolvedWidth =
+    width ?? resolveDefaultDrawerWidth(lastKnownWindowWidthRef.current);
   const tokenStyles = useStyles({ position: drawerPosition, width: resolvedWidth });
   const drawerWidth = resolveDrawerWidthPx(resolvedWidth, lastKnownWindowWidthRef.current);
 
@@ -202,24 +211,14 @@ function DrawerComponent({
       const nextProgress = nextOpen
         ? FULLY_OPEN_PROGRESS
         : FULLY_CLOSED_PROGRESS;
-      const drawerDelay = nextOpen ? token.motionDurationMid : 0;
-      const overlayDelay = nextOpen ? 0 : token.motionDurationMid;
       const animationEasing = Easing.bezier(...token.motionEaseOut);
+      const animation = {
+        duration: token.motionDurationMid,
+        easing: animationEasing,
+      };
 
-      progress.value = withDelay(
-        drawerDelay,
-        withTiming(nextProgress, {
-          duration: token.motionDurationSlow,
-          easing: animationEasing,
-        }),
-      );
-      overlayProgress.value = withDelay(
-        overlayDelay,
-        withTiming(nextProgress, {
-          duration: token.motionDurationMid,
-          easing: animationEasing,
-        }),
-      );
+      progress.value = withTiming(nextProgress, animation);
+      overlayProgress.value = withTiming(nextProgress, animation);
     },
     [overlayProgress, progress, token],
   );
@@ -382,7 +381,7 @@ function DrawerLayout({
   style,
   styles,
   swipeEnabled,
-  width = Math.round(Dimensions.get('window').width * DEFAULT_DRAWER_WIDTH_RATIO),
+  width = resolveDefaultDrawerWidth(Dimensions.get('window').width),
 }: DrawerLayoutProps) {
   const tokenStyles = useStyles({ position: drawerPosition, width });
   const [isOpen, setOpen] = useDrawerOpenState({
