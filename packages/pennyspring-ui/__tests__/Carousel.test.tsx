@@ -121,4 +121,24 @@ describe('Carousel', () => {
     expect(indicatorRows.length).toBeGreaterThan(0);
   });
 
+  it('renders a counter instead of dots when there are more than eight slides', () => {
+    const manyItems = Array.from({ length: 10 }, (_, index) => ({
+      id: String(index),
+      title: `Page ${index}`,
+    }));
+    const testRenderer = renderCarousel({ data: manyItems });
+    const counter = testRenderer.root.findAllByProps({ testID: 'carousel-counter' });
+
+    expect(counter.length).toBeGreaterThan(0);
+    expect(JSON.stringify(testRenderer.toJSON())).toContain('1 / 10');
+    expect(testRenderer.root.findAllByProps({ testID: 'carousel-indicator' })).toHaveLength(0);
+  });
+
+  it('does not render an indicator for a single slide', () => {
+    const testRenderer = renderCarousel({ data: [ITEMS[0]] });
+
+    expect(testRenderer.root.findAllByProps({ testID: 'carousel-indicator' })).toHaveLength(0);
+    expect(testRenderer.root.findAllByProps({ testID: 'carousel-counter' })).toHaveLength(0);
+  });
+
 });

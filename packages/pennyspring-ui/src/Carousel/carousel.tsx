@@ -19,7 +19,11 @@ import {
   useCarouselPosition,
   useCarouselSwipe,
 } from './hooks';
-import { useCarouselStyles } from './style';
+import {
+  CAROUSEL_DOT_ACTIVE_WIDTH,
+  CAROUSEL_DOT_SIZE,
+  useCarouselStyles,
+} from './style';
 import type { CarouselProps } from './types';
 import { clampValue } from './utils';
 
@@ -37,7 +41,7 @@ export const Carousel = <Data = unknown,>(props: CarouselProps<Data>) => {
     onChange,
     allowTouchMove = true,
     autoplay = false,
-    autoplayInterval = 3000,
+    autoplayInterval = 4000,
     loop = false,
     direction = 'horizontal',
     indicator,
@@ -238,8 +242,6 @@ export const Carousel = <Data = unknown,>(props: CarouselProps<Data>) => {
     : 0;
 
   const styles = useCarouselStyles({
-    activeColor: token.colorPrimary,
-    inactiveColor: token.colorPrimaryBg,
     direction,
     slidePixels,
     leadingSize,
@@ -287,6 +289,9 @@ export const Carousel = <Data = unknown,>(props: CarouselProps<Data>) => {
           total={total}
           current={current}
           styles={styles}
+          dotSize={CAROUSEL_DOT_SIZE}
+          activeDotWidth={CAROUSEL_DOT_ACTIVE_WIDTH}
+          transitionDuration={token.motionDurationMid}
         />
       </View>
     </Column>

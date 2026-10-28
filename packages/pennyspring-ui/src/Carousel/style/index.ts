@@ -1,18 +1,42 @@
 import { createUseSheetStyle } from '@pennyspring/theme';
+import type { TextStyle, ViewStyle } from 'react-native';
 
 interface CarouselStyleOptions {
-  activeColor?: string;
-  inactiveColor?: string;
   slidePixels?: number;
   direction?: 'horizontal' | 'vertical';
   leadingSize?: number;
   trailingSize?: number;
 }
 
-export const useCarouselStyles = createUseSheetStyle<CarouselStyleOptions>(
+export interface CarouselStyleSheet {
+  [key: string]: ViewStyle | TextStyle;
+  container: ViewStyle;
+  track: ViewStyle;
+  trackInner: ViewStyle;
+  trackInnerHorizontal: ViewStyle;
+  trackInnerVertical: ViewStyle;
+  slide: ViewStyle;
+  slideWrapper: ViewStyle;
+  spacerLeading: ViewStyle;
+  spacerTrailing: ViewStyle;
+  indicatorContainer: ViewStyle;
+  indicatorDot: ViewStyle;
+  indicatorDotActive: ViewStyle;
+  indicatorCounter: ViewStyle;
+  indicatorCounterText: TextStyle;
+}
+
+/** AliasToken 没有指示点档位；6px 圆点、16×6 选中胶囊为语义常量。 */
+export const CAROUSEL_DOT_SIZE = 6;
+export const CAROUSEL_DOT_ACTIVE_WIDTH = 16;
+const PILL_RADIUS = 999;
+const COUNTER_HEIGHT = 20;
+
+export const useCarouselStyles = createUseSheetStyle<
+  CarouselStyleOptions,
+  CarouselStyleSheet
+>(
   (theme, options) => {
-    const activeColor = options?.activeColor ?? theme.colorPrimary;
-    const inactiveColor = options?.inactiveColor ?? theme.colorPrimaryBg;
     const slidePixels = options?.slidePixels ?? 0;
     const direction = options?.direction ?? 'horizontal';
     const leadingSize = options?.leadingSize ?? 0;
@@ -69,22 +93,33 @@ export const useCarouselStyles = createUseSheetStyle<CarouselStyleOptions>(
         position: 'absolute',
         left: 0,
         right: 0,
-        bottom: theme.marginSM,
+        bottom: theme.paddingSM,
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
-        gap: theme.marginSM,
+        gap: theme.sizeXS,
       },
       indicatorDot: {
-        width: theme.sizeXXS,
-        height: theme.sizeXXS,
-        borderRadius: theme.borderRadiusXS,
-        backgroundColor: inactiveColor,
-        opacity: theme.opacityLoading,
+        width: CAROUSEL_DOT_SIZE,
+        height: CAROUSEL_DOT_SIZE,
+        borderRadius: PILL_RADIUS,
+        backgroundColor: theme.colorTextQuaternary,
       },
       indicatorDotActive: {
-        backgroundColor: activeColor,
-        opacity: 1,
+        backgroundColor: theme.colorPrimary,
+      },
+      indicatorCounter: {
+        position: 'absolute',
+        right: theme.paddingSM,
+        bottom: theme.paddingSM,
+        height: COUNTER_HEIGHT,
+        borderRadius: PILL_RADIUS,
+        backgroundColor: theme.colorBgMask,
+        justifyContent: 'center',
+        paddingHorizontal: theme.paddingXS,
+      },
+      indicatorCounterText: {
+        fontVariant: ['tabular-nums' as const],
       },
     };
   },
