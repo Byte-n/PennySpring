@@ -2,18 +2,9 @@ import React from 'react';
 import { Pressable, View } from 'react-native';
 import { MoonIcon, SunIcon } from 'phosphor-react-native';
 import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
-import type { ThemeAlgorithm } from '@pennyspring/theme';
+import type { ThemeAlgorithm, ThemePreset } from '@pennyspring/theme';
 
-export type ComponentPreviewThemePresetName =
-  | 'april'
-  | 'kaori'
-  | 'penny'
-  | 'spring';
-
-export interface ComponentPreviewThemePreset {
-  name: ComponentPreviewThemePresetName;
-  label: string;
-}
+export type ComponentPreviewThemePreset = ThemePreset;
 
 interface ComponentPreviewThemeControlsProps {
   algorithm: ThemeAlgorithm;

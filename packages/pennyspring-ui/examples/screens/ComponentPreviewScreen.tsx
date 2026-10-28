@@ -10,7 +10,7 @@ import { App, Text } from '@pennyspring/ui';
 import {
   createUseSheetStyle,
   ThemeProvider,
-  presets,
+  themePresets,
   useTheme,
 } from '@pennyspring/theme';
 import { ArrowLeftIcon } from 'phosphor-react-native';
@@ -35,28 +35,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 const Stack = createNativeStackNavigator<ComponentPreviewStackParamList>();
 const HEADER_SIDE_WIDTH_MULTIPLIER = 2;
 
-const THEME_PRESETS: ComponentPreviewThemePreset[] = [
-  {
-    name: 'april',
-    label: 'April',
-  },
-  {
-    name: 'kaori',
-    label: 'Kaori',
-  },
-  {
-    name: 'penny',
-    label: 'Penny',
-  },
-  {
-    name: 'spring',
-    label: 'Spring',
-  },
-];
+const THEME_PRESETS: ComponentPreviewThemePreset[] = themePresets;
 
 function getNextPreset(currentPreset: ComponentPreviewThemePreset) {
   const currentIndex = THEME_PRESETS.findIndex(
-    preset => preset.name === currentPreset.name,
+    preset => preset.value === currentPreset.value,
   );
   const nextIndex =
     currentIndex === THEME_PRESETS.length - 1 ? 0 : currentIndex + 1;
@@ -245,9 +228,9 @@ export function ComponentPreviewScreen() {
   const themeConfig = React.useMemo<ThemeConfig>(
     () => ({
       algorithm,
-      token: presets[preset.name],
+      token: preset.data,
     }),
-    [algorithm, preset.name],
+    [algorithm, preset],
   );
   const toggleAlgorithm = React.useCallback(() => {
     setAlgorithm(currentAlgorithm =>

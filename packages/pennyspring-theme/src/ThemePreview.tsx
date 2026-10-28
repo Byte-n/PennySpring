@@ -9,34 +9,24 @@ import { ShadowsPreview } from './preview/ShadowsPreview';
 import { BorderRadiusPreview } from './preview/BorderRadiusPreview';
 import { type ThemeAlgorithm, ThemeProvider } from './ThemeProvider';
 import { createUseSheetStyle } from './createUseSheetStyle';
-import { april, kaori, penny, spring } from './presets';
+import { themePresets } from './presets';
+import type { ThemePreset, ThemePresetName } from './presets';
 import { defaultSeedToken } from './defaults';
 import { useTheme } from './useTheme';
-import type { SeedToken } from './types';
-
-type PresetName = 'default' | 'april' | 'kaori' | 'penny' | 'spring';
 
 interface PresetOption {
-  name: PresetName;
+  name: ThemePresetName;
   label: string;
   color: string;
 }
 
-const PRESET_OPTIONS: ReadonlyArray<PresetOption> = [
-  { name: 'default', label: 'Default', color: defaultSeedToken.colorPrimary },
-  { name: 'april', label: 'April', color: april.colorPrimary as string },
-  { name: 'kaori', label: 'Kaori', color: kaori.colorPrimary as string },
-  { name: 'penny', label: 'Penny', color: penny.colorPrimary as string },
-  { name: 'spring', label: 'Spring', color: spring.colorPrimary as string },
-];
-
-const PRESET_MAP: Record<PresetName, Partial<SeedToken> | undefined> = {
-  default: undefined,
-  april,
-  kaori,
-  penny,
-  spring,
-};
+const PRESET_OPTIONS: ReadonlyArray<PresetOption> = themePresets.map(
+  (preset: ThemePreset) => ({
+    name: preset.value,
+    label: preset.label,
+    color: preset.data.colorPrimary ?? defaultSeedToken.colorPrimary,
+  }),
+);
 
 const useContainerStyles = createUseSheetStyle(
   (tokens, isDarkMode: boolean) => ({
@@ -160,8 +150,8 @@ function PresetChip({ option, selected, isDark, onPress }: PresetChipProps) {
 interface ThemePreviewCompProps {
   algorithm: ThemeAlgorithm;
   setAlgorithm: (a: ThemeAlgorithm) => void;
-  preset: PresetName;
-  setPreset: (p: PresetName) => void;
+  preset: ThemePresetName;
+  setPreset: (p: ThemePresetName) => void;
 }
 
 function ThemePreviewComp({
@@ -221,9 +211,13 @@ function ThemePreviewComp({
 
 export default function ThemePreview() {
   const [algorithm, setAlgorithm] = useState<ThemeAlgorithm>('default');
-  const [preset, setPreset] = useState<PresetName>('default');
+  const [preset, setPreset] = useState<ThemePresetName>('default');
 
-  const token = useMemo(() => PRESET_MAP[preset], [preset]);
+  const token = useMemo(
+    () =>
+      themePresets.find((item: ThemePreset) => item.value === preset)?.data,
+    [preset],
+  );
 
   return (
     <ThemeProvider config={{ algorithm, token }}>

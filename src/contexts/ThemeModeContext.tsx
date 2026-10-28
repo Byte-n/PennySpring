@@ -1,13 +1,13 @@
 import React, { createContext, useContext, useState, useMemo } from 'react';
-import { defaultSeedToken, presets } from '@pennyspring/theme';
-import type { SeedToken, ThemeAlgorithm } from '@pennyspring/theme';
+import { defaultSeedToken, themePresets } from '@pennyspring/theme';
+import type {
+  SeedToken,
+  ThemeAlgorithm,
+  ThemePreset,
+  ThemePresetName,
+} from '@pennyspring/theme';
 
-export type ThemePresetName =
-  | 'default'
-  | 'april'
-  | 'kaori'
-  | 'penny'
-  | 'spring';
+export type { ThemePresetName } from '@pennyspring/theme';
 
 export interface ThemePresetOption {
   name: ThemePresetName;
@@ -15,28 +15,16 @@ export interface ThemePresetOption {
   color: string;
 }
 
-export const THEME_PRESET_OPTIONS: readonly ThemePresetOption[] = [
-  { name: 'default', label: '默认', color: defaultSeedToken.colorPrimary },
-  { name: 'april', label: '春绿', color: presets.april.colorPrimary as string },
-  { name: 'kaori', label: '樱粉', color: presets.kaori.colorPrimary as string },
-  { name: 'penny', label: '暖金', color: presets.penny.colorPrimary as string },
-  {
-    name: 'spring',
-    label: '青碧',
-    color: presets.spring.colorPrimary as string,
-  },
-];
+export const THEME_PRESET_OPTIONS: readonly ThemePresetOption[] =
+  themePresets.map((preset: ThemePreset) => ({
+    name: preset.value,
+    label: preset.label,
+    color: preset.data.colorPrimary ?? defaultSeedToken.colorPrimary,
+  }));
 
-const THEME_PRESET_TOKENS: Record<
-  ThemePresetName,
-  Partial<SeedToken> | undefined
-> = {
-  default: undefined,
-  april: presets.april,
-  kaori: presets.kaori,
-  penny: presets.penny,
-  spring: presets.spring,
-};
+const THEME_PRESET_TOKENS = Object.fromEntries(
+  themePresets.map((preset: ThemePreset) => [preset.value, preset.data]),
+) as Record<ThemePresetName, Partial<SeedToken>>;
 
 interface ThemeModeContextValue {
   themeMode: ThemeAlgorithm;

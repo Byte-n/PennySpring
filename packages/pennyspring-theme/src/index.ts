@@ -41,5 +41,5 @@ export type {
   StylesObject,
 } from './createUseSheetStyle';
 
-import * as presetsNamespace from './presets';
-export const presets = presetsNamespace;
+export { themePresets } from './presets';
+export type { ThemePreset, ThemePresetName } from './presets';

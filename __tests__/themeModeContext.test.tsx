@@ -1,6 +1,6 @@
 import React from 'react';
 import renderer, { act } from 'react-test-renderer';
-import { presets } from '@pennyspring/theme';
+import { themePresets } from '@pennyspring/theme';
 import {
   ThemeModeProvider,
   useThemeMode,
@@ -40,13 +40,15 @@ describe('ThemeModeContext', () => {
   it('maps the selected preset to its seed token', () => {
     const getContext = createProbe();
     expect(getContext()?.themePreset).toBe('default');
-    expect(getContext()?.themeToken).toBeUndefined();
+    expect(getContext()?.themeToken).toEqual({});
 
     act(() => {
       getContext()?.setThemePreset('kaori');
     });
 
     expect(getContext()?.themePreset).toBe('kaori');
-    expect(getContext()?.themeToken).toBe(presets.kaori);
+    expect(getContext()?.themeToken).toBe(
+      themePresets.find(preset => preset.value === 'kaori')?.data,
+    );
   });
 });

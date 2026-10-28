@@ -1,15 +1,17 @@
 # @pennyspring/theme
 
-PennySpring 的移动端主题引擎：ant-design v5 三层 token 模型（SeedToken → MapToken → AliasToken）的 React Native 移植，同包交付 PennySpring 的四套预设色板。
+PennySpring 的移动端主题引擎：ant-design v5 三层 token 模型（SeedToken → MapToken → AliasToken）的 React Native 移植，同包交付 PennySpring 的十套预设色板。
 
 ## 快速上手
 
 ```tsx
-import { ThemeProvider, presets, useTheme } from '@pennyspring/theme';
+import { ThemeProvider, themePresets, useTheme } from '@pennyspring/theme';
+
+const springGreen = themePresets.find(preset => preset.value === 'spring');
 
 function App() {
   return (
-    <ThemeProvider config={{ token: presets.april }}>
+    <ThemeProvider config={{ token: springGreen?.data }}>
       <Screen />
     </ThemeProvider>
   );
@@ -24,23 +26,31 @@ function Screen() {
 切换暗色算法：
 
 ```tsx
-<ThemeProvider config={{ algorithm: 'dark', token: presets.kaori }}>
+const sakura = themePresets.find(preset => preset.value === 'kaori');
+
+<ThemeProvider config={{ algorithm: 'dark', token: sakura?.data }}>
   <App />
 </ThemeProvider>
 ```
 
 ## 预设色板
 
-命名空间 `presets` 下提供四套 PennySpring 主题，仅覆盖 seed 颜色字段，其余 token 走 `defaultSeedToken`。
+`themePresets` 以展示顺序导出全部主题：`value` 是稳定的程序标识（用于查表、选中态与持久化），`label` 仅用于展示，`data` 是仅含 seed 颜色字段的覆盖对象，其余 token 走 `defaultSeedToken`。
 
-| Preset | 意象 | colorPrimary |
-|---|---|---|
-| `presets.april` | 春绿 — 万物复苏 | `#52C41A` |
-| `presets.kaori` | 樱粉 — 宫园薰 / 四月樱花 | `#EB7C8D` |
-| `presets.penny` | 暖金 — 每一枚硬币 | `#D4A84B` |
-| `presets.spring` | 青碧 — 源泉 / 水流之始 | `#2EC4B6` |
+| value | label | 意象 | colorPrimary |
+|---|---|---|---|
+| `default` | 默认 | 品牌蓝（不覆盖 seed） | `#1677FF` |
+| `april` | 春绿 | 万物复苏 | `#3C8A66` |
+| `kaori` | 樱粉 | 宫园薰 / 四月樱花 | `#D95F76` |
+| `penny` | 暖金 | 每一枚硬币 | `#A9761F` |
+| `spring` | 青碧 | 源泉 / 水流之始 | `#148B80` |
+| `yonder` | 远山 | 暮色里的远山 | `#5A7DA8` |
+| `mauve` | 藕荷 | 藕粉偏紫 | `#8F6E9F` |
+| `cocoa` | 可可 | 热可可与牛皮纸 | `#9C7148` |
+| `slate` | 石墨 | 冷调石墨 | `#6E7E91` |
+| `mono` | 墨白 | 黑白摄影 | `#7A7A7A` |
 
-每个 preset 同时覆盖 `colorSuccess / colorWarning / colorError / colorInfo / colorLink`，具体色值参见 [`src/presets/`](./src/presets)。
+每个 preset 同时覆盖 `colorSuccess / colorWarning / colorError / colorInfo / colorLink`，具体色值参见 [`src/presets/`](./src/presets)。主色统一按「浅色白字对比度 ≈ 4、深色卡片底对比度 ≈ 3.5」选取，与默认蓝同档。
 
 业务层（如 income / expense / balance 等记账语义色）请按需覆盖 `AliasToken`，theme 包不提供业务语义 token。
 
@@ -79,10 +89,12 @@ function Screen() {
 本包有意不提供 compact 算法。密集场景请直接在 seed 层覆盖相应字段：
 
 ```tsx
+const preset = themePresets.find(item => item.value === 'spring');
+
 <ThemeProvider
   config={{
     token: {
-      ...presets.spring,
+      ...preset?.data,
       fontSize: 14,      // 信息密集列表场景
       controlHeight: 36, // 次级控件（仍 ≥ HIG 最小值 44 的宽松版）
     },
@@ -126,4 +138,4 @@ SeedToken  ──(derivative)──▶  MapToken  ──(formatToken)──▶  
 npx jest packages/pennyspring-theme
 ```
 
-覆盖：colorAlgorithms / derivative pipeline / formatToken / genFontSizes / genRadius / genSizeMapToken / genControlHeight / genCommonMapToken / genPresetColorPalettes / genColorMapToken / genFontMapToken / presets / ThemeProvider / useTheme / ThemePreview / shadowStyle / types.
+覆盖：colorAlgorithms / derivative pipeline / formatToken / genFontSizes / genRadius / genSizeMapToken / genControlHeight / genCommonMapToken / genPresetColorPalettes / genColorMapToken / genFontMapToken / themePresets / ThemeProvider / useTheme / ThemePreview / shadowStyle / types.

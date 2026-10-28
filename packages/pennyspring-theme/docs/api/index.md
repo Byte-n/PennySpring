@@ -1,3 +1,3 @@
 # API
 
-主要导出：`ThemeProvider`、`useTheme`、`createUseSheetStyle`、`presets`、`derivative`、`formatToken`、`toShadowStyle`。
+主要导出：`ThemeProvider`、`useTheme`、`createUseSheetStyle`、`themePresets`、`derivative`、`formatToken`、`toShadowStyle`。
