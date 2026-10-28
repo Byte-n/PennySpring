@@ -4,39 +4,40 @@ import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
 import type { AliasToken } from '@pennyspring/theme';
 import type { GridGap, GridItemProps, GridProps } from './types';
 import type { ComponentSize } from '../shares/types';
+import { resolveLayoutGap } from '../shares/layoutGap';
 
 const DEFAULT_SPAN = 1;
 const MIN_COLUMNS = 1;
 const MIN_SPAN = 1;
 const GAP_DIVISOR = 2;
 
-interface ResolvedGap {
-  horizontal: number;
-  vertical: number;
-}
-
 interface GridContextValue {
   columns: number;
-  gap: ResolvedGap;
+  gap: number;
 }
 
 const GridContext = React.createContext<GridContextValue | null>(null);
 
-const useGridStyles = createUseSheetStyle(() => ({
-  root: {
-    alignSelf: 'stretch',
-  },
-  row: {
-    flexDirection: 'row',
-  },
-}));
+const useGridStyles = createUseSheetStyle(
+  (_, { gap }: { gap: number }) => ({
+    root: {
+      alignSelf: 'stretch',
+      marginHorizontal: -gap / GAP_DIVISOR,
+    },
+    row: {
+      flexDirection: 'row',
+    },
+    rowSpacing: {
+      marginTop: gap,
+    },
+  }),
+);
 
 const useGridItemStyles = createUseSheetStyle(
-  (_, { gap, span, columns }: { gap: ResolvedGap; span: number; columns: number }) => ({
+  (_, { gap, span, columns }: { gap: number; span: number; columns: number }) => ({
     item: {
       width: `${(span / columns) * 100}%`,
-      paddingHorizontal: gap.horizontal / GAP_DIVISOR,
-      paddingVertical: gap.vertical / GAP_DIVISOR,
+      paddingHorizontal: gap / GAP_DIVISOR,
     },
   }),
 );
@@ -49,21 +50,11 @@ function resolveColumns(columns: number): number {
 }
 
 function getGapValue(gap: ComponentSize, token: AliasToken): number {
-  if (gap === 'small') {
-    return token.paddingXXS;
-  }
-  if (gap === 'large') {
-    return token.paddingSM;
-  }
-  return token.paddingXS;
+  return resolveLayoutGap(gap, token);
 }
 
-function resolveGap(gap: GridGap | undefined, token: AliasToken): ResolvedGap {
-  const value = getGapValue(gap ?? 'normal', token);
-  return {
-    horizontal: value,
-    vertical: value / GAP_DIVISOR,
-  };
+function resolveGap(gap: GridGap | undefined, token: AliasToken): number {
+  return getGapValue(gap ?? 'normal', token);
 }
 
 function resolveSpan(span: number | undefined, columns: number): number {
@@ -76,7 +67,7 @@ function resolveSpan(span: number | undefined, columns: number): number {
 export function GridItem({ children, disabled, onPress, span, style, testID }: GridItemProps) {
   const context = React.useContext(GridContext);
   const columns = context?.columns ?? MIN_COLUMNS;
-  const gap = context?.gap ?? { horizontal: 0, vertical: 0 };
+  const gap = context?.gap ?? 0;
   const resolvedSpan = resolveSpan(span, columns);
   const tokenStyles = useGridItemStyles({ gap, span: resolvedSpan, columns });
   const itemStyle = [tokenStyles.item, style];
@@ -92,7 +83,7 @@ export function GridRoot({ children, columns, gap, style }: GridProps) {
   const { token } = useTheme();
   const resolvedColumns = resolveColumns(columns);
   const resolvedGap = resolveGap(gap, token);
-  const tokenStyles = useGridStyles({});
+  const tokenStyles = useGridStyles({ gap: resolvedGap });
   const context = React.useMemo(
     () => ({ columns: resolvedColumns, gap: resolvedGap }),
     [resolvedColumns, resolvedGap],
@@ -143,7 +134,7 @@ export function GridRoot({ children, columns, gap, style }: GridProps) {
             key={rowIndex}
             style={[
               tokenStyles.row,
-              rowIndex > 0 && { marginTop: resolvedGap.vertical },
+              rowIndex > 0 ? tokenStyles.rowSpacing : null,
             ]}
           >
             {row}

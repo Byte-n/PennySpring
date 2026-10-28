@@ -37,7 +37,7 @@ describe('Grid', () => {
       <ThemeProvider
         config={{
           token: {
-            paddingXS: 5,
+            paddingSM: 5,
           },
         }}
       >
@@ -54,7 +54,11 @@ describe('Grid', () => {
     const itemStyle = StyleSheet.flatten(item.props.style);
 
     expect(itemStyle.paddingHorizontal).toBe(2.5);
-    expect(itemStyle.paddingVertical).toBe(1.25);
+    expect(itemStyle.paddingVertical).toBeUndefined();
+    const rootStyle = StyleSheet.flatten(
+      testRenderer.root.findByProps({ testID: 'grid' }).props.style,
+    );
+    expect(rootStyle.marginHorizontal).toBe(-2.5);
   });
 
   it.each([
@@ -66,9 +70,9 @@ describe('Grid', () => {
       <ThemeProvider
         config={{
           token: {
-            paddingXXS: 3,
-            paddingXS: 5,
-            paddingSM: 7,
+            sizeXS: 3,
+            paddingSM: 5,
+            padding: 7,
           },
         }}
       >
@@ -85,6 +89,6 @@ describe('Grid', () => {
     const itemStyle = StyleSheet.flatten(item.props.style);
 
     expect(itemStyle.paddingHorizontal).toBe(expectedGap / 2);
-    expect(itemStyle.paddingVertical).toBe(expectedGap / 4);
+    expect(itemStyle.paddingVertical).toBeUndefined();
   });
 });
