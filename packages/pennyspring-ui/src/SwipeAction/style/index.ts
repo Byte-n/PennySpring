@@ -10,26 +10,33 @@ export interface SwipeActionStyleOptions {
 }
 
 interface SizeStyleConfig {
-  minHeight: (token: AliasToken) => number;
-  actionMinWidth: (token: AliasToken) => number;
-  actionPaddingHorizontal: (token: AliasToken) => number;
+  minHeight: number;
+  actionWidth: number;
 }
+
+/** 行高与 List 行对齐；动作宽按两字竖排 + 图标留足位置。 */
+const ROW_HEIGHT_SMALL = 56;
+const ROW_HEIGHT_NORMAL = 64;
+const ROW_HEIGHT_LARGE = 72;
+const ACTION_WIDTH_SMALL = 64;
+const ACTION_WIDTH_NORMAL = 72;
+const ACTION_WIDTH_LARGE = 80;
+const DANGER_ACTION_EXTRA_WIDTH = 8;
+const ACTION_PRESS_SCALE = 0.98;
+const ACTION_PRESS_OPACITY = 0.92;
 
 export const SIZE_STYLE_MAP: Record<ComponentSize, SizeStyleConfig> = {
   small: {
-    minHeight: token => token.controlHeightSM,
-    actionMinWidth: token => token.controlHeight,
-    actionPaddingHorizontal: token => token.paddingSM,
+    minHeight: ROW_HEIGHT_SMALL,
+    actionWidth: ACTION_WIDTH_SMALL,
   },
   normal: {
-    minHeight: token => token.controlHeight,
-    actionMinWidth: token => token.controlHeightLG,
-    actionPaddingHorizontal: token => token.paddingMD,
+    minHeight: ROW_HEIGHT_NORMAL,
+    actionWidth: ACTION_WIDTH_NORMAL,
   },
   large: {
-    minHeight: token => token.controlHeightLG,
-    actionMinWidth: token => token.controlHeightLG + token.controlHeightXS,
-    actionPaddingHorizontal: token => token.paddingLG,
+    minHeight: ROW_HEIGHT_LARGE,
+    actionWidth: ACTION_WIDTH_LARGE,
   },
 };
 
@@ -57,7 +64,7 @@ export const useStyles = createUseSheetStyle(
 
     return {
       root: {
-        minHeight: sizeStyle.minHeight(token),
+        minHeight: sizeStyle.minHeight,
         overflow: 'hidden',
         borderRadius: token.borderRadius,
         backgroundColor: token.colorBgContainer,
@@ -71,7 +78,7 @@ export const useStyles = createUseSheetStyle(
       },
       content: {
         flex: 1,
-        minHeight: sizeStyle.minHeight(token),
+        minHeight: sizeStyle.minHeight,
         justifyContent: 'center',
         backgroundColor: token.colorBgContainer,
       },
@@ -91,16 +98,22 @@ export const useStyles = createUseSheetStyle(
         right: 0,
       },
       action: {
-        minWidth: sizeStyle.actionMinWidth(token),
-        paddingHorizontal: sizeStyle.actionPaddingHorizontal(token),
         justifyContent: 'center',
         alignItems: 'center',
+        gap: token.sizeXXS,
+      },
+      actionWidth: {
+        width: sizeStyle.actionWidth,
+      },
+      actionWidthDanger: {
+        width: sizeStyle.actionWidth + DANGER_ACTION_EXTRA_WIDTH,
       },
       actionDisabled: {
         opacity: token.opacityLoading,
       },
       actionPressed: {
-        backgroundColor: token.colorBgTextActive,
+        opacity: ACTION_PRESS_OPACITY,
+        transform: [{ scale: ACTION_PRESS_SCALE }],
       },
       actionBgLight: {
         backgroundColor: token.colorFillSecondary,

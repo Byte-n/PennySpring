@@ -360,7 +360,7 @@ describe('SwipeAction', () => {
     expect(textNode.props.children).toBe('Fallback Text');
   });
 
-  it('renders actionText with correct size based on SwipeAction size', () => {
+  it('renders actionText at the fixed 12px size for small groups', () => {
     const testRenderer = renderSwipeAction({
       size: 'small',
       rightActions: [{
@@ -373,10 +373,10 @@ describe('SwipeAction', () => {
       testID: 'swipe-action-right-action-0',
     });
     const textNode = action.findByType(Text);
-    expect(textNode.props.size).toBe('sm');
+    expect(textNode.props.size).toBe('xs');
   });
 
-  it('renders actionText with large size for large SwipeAction', () => {
+  it('renders actionText at the fixed 12px size for large groups', () => {
     const testRenderer = renderSwipeAction({
       size: 'large',
       rightActions: [{
@@ -389,7 +389,7 @@ describe('SwipeAction', () => {
       testID: 'swipe-action-right-action-0',
     });
     const textNode = action.findByType(Text);
-    expect(textNode.props.size).toBe('lg');
+    expect(textNode.props.size).toBe('xs');
   });
 
   it('applies lightSolid text color for strong background colors', () => {

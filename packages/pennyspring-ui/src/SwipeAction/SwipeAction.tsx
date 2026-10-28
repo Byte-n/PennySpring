@@ -1,5 +1,3 @@
-import type { ComponentSize } from '../shares/types';
-import type { TextSize } from '../Text/types';
 import React from 'react';
 import { Pressable, View } from 'react-native';
 import { useTheme } from '@pennyspring/theme';
@@ -39,12 +37,6 @@ import {
 
 const DEFAULT_SWIPE_VALUE: SwipeActionValue = null;
 const DRAG_START_DISTANCE = 3;
-
-const SIZE_TEXT_MAP: Record<ComponentSize, TextSize> = {
-  small: 'sm',
-  normal: 'md',
-  large: 'lg',
-};
 
 function clamp(value: number, min: number, max: number): number {
   if (value < min) {
@@ -157,7 +149,6 @@ export const SwipeAction = React.forwardRef<SwipeActionRef, SwipeActionProps>(
       size,
     }) as Record<string, ViewStyle>;
     const { token } = useTheme();
-    const textSize = SIZE_TEXT_MAP[size];
     const [swipeValue, setSwipeValue] = useControllableValue<SwipeActionValue>(
       defaultValue,
       value,
@@ -385,23 +376,23 @@ export const SwipeAction = React.forwardRef<SwipeActionRef, SwipeActionProps>(
           return null;
         }
 
-        if (action.action !== undefined) {
-          return action.action;
-        }
+        const actionNode = action.action;
 
-        if (action.actionText !== undefined) {
-          return (
-            <Text
-              color={textColor as 'default' | 'lightSolid' | 'disabled'}
-              size={textSize}
-              style={styles?.actionText}
-            >
-              {action.actionText}
-            </Text>
-          );
-        }
-
-        return null;
+        return (
+          <>
+            {actionNode === undefined ? null : actionNode}
+            {action.actionText === undefined ? null : (
+              <Text
+                color={textColor as 'default' | 'lightSolid' | 'disabled'}
+                size="xs"
+                weight="semibold"
+                style={styles?.actionText}
+              >
+                {action.actionText}
+              </Text>
+            )}
+          </>
+        );
       }
 
       return (
@@ -412,6 +403,9 @@ export const SwipeAction = React.forwardRef<SwipeActionRef, SwipeActionProps>(
           testID={`swipe-action-${side}-action-${index}`}
           style={({ pressed }) => [
             tokenStyles.action,
+            color === 'danger'
+              ? tokenStyles.actionWidthDanger
+              : tokenStyles.actionWidth,
             backgroundStyle,
             actionDisabled ? tokenStyles.actionDisabled : null,
             pressed ? tokenStyles.actionPressed : null,
