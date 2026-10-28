@@ -1,7 +1,7 @@
 import type { Api } from '@pennyspring/data'
 import { Hono } from 'hono'
 
-const KNOWN_GROUPS = ['record', 'tag', 'type', 'book', 'asset'] as const
+const KNOWN_GROUPS = ['record', 'tag', 'type', 'book', 'asset', 'agent'] as const
 type Group = (typeof KNOWN_GROUPS)[number]
 
 type RemoteMethod = (...args: unknown[]) => Promise<unknown>

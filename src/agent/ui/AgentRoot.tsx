@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { useToast } from '@pennyspring/ui';
 
 import { useBookStore } from '../../stores/bookStore';
 import { getAgentConfig, rehydrateAgentConfig } from '../adapters/configStore';
@@ -11,8 +10,6 @@ import {
 } from './AgentLauncherContext';
 import { AgentSettingsPanel } from './AgentSettingsPanel';
 import { useAgentChat } from './useAgentChat';
-
-const REMOTE_MODE_MESSAGE = '当前为远程账本模式，助手不可用';
 
 interface AgentErrorBoundaryState {
   failed: boolean;
@@ -38,14 +35,11 @@ interface AgentRootProps {
 }
 
 export function AgentRoot({ children }: AgentRootProps) {
-  const toast = useToast();
   const book = useBookStore(state => state.currentBook);
-  const bookRef = useBookStore(state => state.currentBookRef);
 
-  const isRemote = bookRef?.kind === 'remote';
   const chat = useAgentChat({
     book,
-    enabled: Boolean(book) && !isRemote,
+    enabled: Boolean(book),
   });
 
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -76,12 +70,8 @@ export function AgentRoot({ children }: AgentRootProps) {
   }, [drawerOpen, refreshConfigured]);
 
   const handleOpen = useCallback((): void => {
-    if (isRemote) {
-      toast.show({ messageText: REMOTE_MODE_MESSAGE });
-      return;
-    }
     setDrawerOpen(true);
-  }, [isRemote, toast]);
+  }, []);
 
   const handleOpenSettings = useCallback((): void => {
     setSettingsOpen(true);
@@ -95,7 +85,7 @@ export function AgentRoot({ children }: AgentRootProps) {
   return (
     <AgentLauncherContext.Provider value={launcher}>
       {children}
-      {book && !isRemote ? (
+      {book ? (
         <AgentErrorBoundary>
           <AgentDrawer
             chat={chat}

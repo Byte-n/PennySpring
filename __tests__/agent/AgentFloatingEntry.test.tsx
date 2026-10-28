@@ -16,7 +16,6 @@ interface MockedDrawerProps {
 
 const mockFloatingGroups: MockedFloatingActionGroupProps[] = [];
 const mockDrawers: MockedDrawerProps[] = [];
-const mockToastShow = jest.fn();
 const mockBookStoreState: {
   currentBook: { id: number } | null;
   currentBookRef: { kind: string } | null;
@@ -30,7 +29,6 @@ jest.mock('@pennyspring/ui', () => ({
     mockFloatingGroups.push(props);
     return null;
   },
-  useToast: () => ({ show: mockToastShow }),
 }));
 
 jest.mock('@pennyspring/theme', () => ({
@@ -113,7 +111,6 @@ async function renderWithEntry(): Promise<TestRenderer.ReactTestRenderer> {
 beforeEach(() => {
   mockFloatingGroups.length = 0;
   mockDrawers.length = 0;
-  mockToastShow.mockClear();
   mockBookStoreState.currentBook = { id: 1 };
   mockBookStoreState.currentBookRef = { kind: 'local' };
 });
@@ -135,7 +132,7 @@ describe('首页助手悬浮入口', () => {
     expect(lastDrawerProps().open).toBe(true);
   });
 
-  it('shows a notice instead of the drawer while the book is remote', async () => {
+  it('opens the assistant drawer while the book is remote', async () => {
     mockBookStoreState.currentBookRef = { kind: 'remote' };
 
     await renderWithEntry();
@@ -144,7 +141,6 @@ describe('首页助手悬浮入口', () => {
       findAgentAction()?.onPress();
     });
 
-    expect(mockToastShow).toHaveBeenCalledTimes(1);
-    expect(mockDrawers).toHaveLength(0);
+    expect(lastDrawerProps().open).toBe(true);
   });
 });
