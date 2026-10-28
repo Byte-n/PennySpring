@@ -1,12 +1,13 @@
-import React, { useContext, useMemo, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import type { StyleProp, ViewStyle } from 'react-native';
 import { Pressable, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, {
   Easing,
   runOnJS,
-  type SharedValue,
   useAnimatedStyle,
   useSharedValue,
+  withDelay,
   withTiming,
 } from 'react-native-reanimated';
 import {
@@ -16,11 +17,13 @@ import {
   type AliasToken,
 } from '@pennyspring/theme';
 import { Button } from '../Button';
-import { Column } from '../Column';
 import type { ButtonColor, ButtonProps, ButtonVariant } from '../Button';
+import { Icon } from '../Icon';
 import type { IconComponent, IconName } from '../Icon';
 import { PortalContext } from '../Portal/Portal';
 import { resolvePortalMount } from '../Portal/resolvePortalMount';
+import { Row } from '../Row';
+import { Text } from '../Text';
 import type { ComponentSize } from '../shares/types';
 import type {
   FloatingActionGroupStyles,
@@ -43,6 +46,7 @@ interface FloatingStyleOptions {
 interface FloatingActionButtonStyleOptions {
   shadow: boolean;
   size: ComponentSize;
+  iconOnly: boolean;
 }
 
 interface FloatingActionButtonProps {
@@ -62,32 +66,54 @@ interface FloatingActionButtonProps {
 const DEFAULT_VISIBLE_COUNT = 1;
 const DEFAULT_PLACEMENT = 'bottomRight' as const;
 const DEFAULT_SIZE = 'normal' as const;
-const HIDDEN_SCALE_START = 0.8;
-const HIDDEN_SCALE_DELTA = 0.2;
+const PILL_RADIUS = 999;
+const EXPANDED_ITEM_GAP = 10;
+const EXPAND_STAGGER = 30;
+const EXPAND_OFFSET = 8;
+const HIDDEN_SCALE_START = 0.94;
+const MORE_ICON_ROTATION = '45deg';
+const IDLE_ICON_ROTATION = '0deg';
 
+/**
+ * 主 FAB 40 / 48 / 56；AliasToken 只覆盖 12 / 16 圆角，
+ * 40 / 48 / 56 落在 4px 网格，用命名常量表达。
+ */
 const BUTTON_SIZE_STYLES: Record<
   ComponentSize,
   {
-    height: (token: AliasToken) => number;
-    paddingHorizontal: (token: AliasToken) => number;
+    height: number;
+    iconSize: number;
     borderRadius: (token: AliasToken) => number;
+    paddingHorizontal: (token: AliasToken) => number;
   }
 > = {
   small: {
-    height: token => token.controlHeightSM,
-    paddingHorizontal: token => token.paddingXS,
+    height: 40,
+    iconSize: 18,
     borderRadius: token => token.borderRadius,
+    paddingHorizontal: token => token.paddingXS,
   },
   normal: {
-    height: token => token.controlHeight,
-    paddingHorizontal: token => token.paddingSM,
+    height: 48,
+    iconSize: 22,
     borderRadius: token => token.borderRadiusLG,
+    paddingHorizontal: token => token.paddingSM,
   },
   large: {
-    height: token => token.controlHeightLG,
-    paddingHorizontal: token => token.paddingMD,
+    height: 56,
+    iconSize: 24,
     borderRadius: token => token.borderRadiusLG,
+    paddingHorizontal: token => token.paddingMD,
   },
+};
+
+const HIDDEN_ITEM_SIZES: Record<
+  ComponentSize,
+  { height: number; iconSize: number }
+> = {
+  small: { height: 40, iconSize: 18 },
+  normal: { height: 44, iconSize: 20 },
+  large: { height: 48, iconSize: 22 },
 };
 
 const useStyles = createUseSheetStyle(
@@ -116,15 +142,77 @@ const useStyles = createUseSheetStyle(
 );
 
 const useButtonStyles = createUseSheetStyle(
-  (token, { shadow, size }: FloatingActionButtonStyleOptions) => {
+  (token, { iconOnly, shadow, size }: FloatingActionButtonStyleOptions) => {
     const sizeStyle = BUTTON_SIZE_STYLES[size];
 
     return {
       button: {
-        height: sizeStyle.height(token),
+        width: iconOnly ? sizeStyle.height : undefined,
+        height: sizeStyle.height,
         borderRadius: sizeStyle.borderRadius(token),
-        paddingHorizontal: sizeStyle.paddingHorizontal(token),
+        paddingHorizontal: iconOnly ? 0 : sizeStyle.paddingHorizontal(token),
         ...(shadow ? toShadowStyle(token.boxShadowSecondary) : undefined),
+      },
+    };
+  },
+);
+
+const useMoreButtonStyles = createUseSheetStyle(
+  (token, { expanded, size }: { expanded: boolean; size: ComponentSize }) => {
+    const sizeStyle = BUTTON_SIZE_STYLES[size];
+
+    return {
+      button: {
+        width: sizeStyle.height,
+        height: sizeStyle.height,
+        borderRadius: sizeStyle.borderRadius(token),
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: token.colorPrimary,
+        ...toShadowStyle(token.boxShadowSecondary),
+      },
+      icon: {
+        transform: [{ rotate: expanded ? MORE_ICON_ROTATION : IDLE_ICON_ROTATION }],
+      },
+    };
+  },
+);
+
+const useHiddenItemStyles = createUseSheetStyle(
+  (token, { size }: { size: ComponentSize }) => {
+    const itemSize = HIDDEN_ITEM_SIZES[size];
+    // 小档复用 12 圆角 token，中/大档 14 无 token 档位。
+    const borderRadius = size === 'small' ? token.borderRadius : 14;
+
+    return {
+      row: {
+        alignItems: 'center',
+        gap: token.paddingXS,
+      },
+      capsule: {
+        height: token.sizeXL,
+        justifyContent: 'center',
+        paddingHorizontal: token.paddingSM,
+        borderRadius: PILL_RADIUS,
+        borderWidth: token.lineWidth,
+        borderColor: token.colorSplit,
+        backgroundColor: token.colorBgContainer,
+      },
+      mini: {
+        width: itemSize.height,
+        height: itemSize.height,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius,
+        borderWidth: token.lineWidth,
+        borderColor: token.colorSplit,
+        backgroundColor: token.colorBgContainer,
+      },
+      miniPressed: {
+        transform: [{ scale: 0.97 }],
+      },
+      disabled: {
+        opacity: token.opacityLoading,
       },
     };
   },
@@ -143,7 +231,8 @@ function FloatingActionButton({
   testID,
   variant = 'solid',
 }: FloatingActionButtonProps) {
-  const tokenStyles = useButtonStyles({ shadow, size });
+  const iconOnly = icon !== undefined;
+  const tokenStyles = useButtonStyles({ iconOnly, shadow, size });
   const {
     style: buttonStyle,
     styles: buttonStyles,
@@ -158,136 +247,198 @@ function FloatingActionButton({
       {...restButtonProps}
       disabled={disabled || restButtonProps.disabled}
       icon={icon}
+      iconProps={{ size: BUTTON_SIZE_STYLES[size].iconSize }}
       onPress={onPress}
-      shape="round"
+      shape={iconOnly ? 'circle' : 'round'}
       size={size}
       style={[tokenStyles.button, style, buttonStyle]}
       styles={buttonStyles}
       testID={resolvedTestID}
       variant={variant}
     >
-      {label}
+      {iconOnly ? null : label}
     </Button>
+  );
+}
+
+function MoreActionButton({
+  expanded,
+  onPress,
+  size,
+  style,
+  testID,
+}: {
+  expanded: boolean;
+  onPress: () => void;
+  size: ComponentSize;
+  style?: StyleProp<ViewStyle>;
+  testID?: string;
+}) {
+  const tokenStyles = useMoreButtonStyles({ expanded, size });
+
+  return (
+    <Pressable
+      onPress={onPress}
+      style={[tokenStyles.button, style]}
+      testID={testID}
+    >
+      <Icon
+        color="lightSolid"
+        icon="plus"
+        size={BUTTON_SIZE_STYLES[size].iconSize}
+        style={tokenStyles.icon}
+      />
+    </Pressable>
   );
 }
 
 function resolvePlacementPosition(
   placement: FloatingPlacement,
   offset: NonNullable<FloatingActionGroupProps['offset']>,
-  token: ReturnType<typeof useTheme>['token'],
+  token: AliasToken,
+  safeAreaTop: number,
+  safeAreaBottom: number,
 ): { top?: number; right?: number; bottom?: number; left?: number } {
-  const baseX = offset.x ?? token.paddingLG;
-  const baseY = offset.y ?? token.paddingLG;
+  const baseX = offset.x ?? token.padding;
+  const baseY = offset.y ?? token.padding;
 
-  if (placement === 'topLeft') return { top: baseY, left: baseX };
-  if (placement === 'topRight') return { top: baseY, right: baseX };
-  if (placement === 'bottomLeft') return { bottom: baseY, left: baseX };
-  if (placement === 'centerLeft') return { top: token.sizeXXL, left: baseX };
-  if (placement === 'centerRight') return { top: token.sizeXXL, right: baseX };
+  if (placement === 'topLeft') {
+    return { top: baseY + safeAreaTop, left: baseX };
+  }
+  if (placement === 'topRight') {
+    return { top: baseY + safeAreaTop, right: baseX };
+  }
+  if (placement === 'bottomLeft') {
+    return { bottom: baseY + safeAreaBottom, left: baseX };
+  }
+  if (placement === 'centerLeft') {
+    return { top: baseY + safeAreaTop, left: baseX };
+  }
+  if (placement === 'centerRight') {
+    return { top: baseY + safeAreaTop, right: baseX };
+  }
 
-  return { bottom: baseY, right: baseX };
+  return { bottom: baseY + safeAreaBottom, right: baseX };
 }
 
-function resolveHiddenItemTransform(
+function resolveHiddenItemOffset(
   index: number,
   placement: FloatingPlacement,
   spacing: number,
-  gap: number,
-): { x: number; y: number } {
+): number {
   'worklet';
 
   const expandUp = placement.startsWith('bottom');
-  const offsetDistance = expandUp
-    ? (index + 1) * spacing
-    : gap + index * spacing;
   const verticalSign = expandUp ? -1 : 1;
 
-  return { x: 0, y: verticalSign * offsetDistance };
+  return verticalSign * (index + 1) * spacing;
 }
 
 function HiddenActionItem({
   action,
   index,
-  isExpanded,
-  progress,
-  shadowProgress,
+  isMounted,
+  isVisible,
   placement,
   spacing,
-  gap,
   style,
-  buttonProps,
   size,
 }: {
   action: FloatingActionItem;
   index: number;
-  isExpanded: boolean;
-  progress: SharedValue<number>;
-  shadowProgress: SharedValue<number>;
+  isMounted: boolean;
+  isVisible: boolean;
   placement: FloatingPlacement;
   spacing: number;
-  gap: number;
   style: FloatingActionGroupStyles['actionButton'];
-  buttonProps?: Omit<ButtonProps, 'children' | 'icon' | 'onPress' | 'size'>;
   size: ComponentSize;
 }) {
   const { token } = useTheme();
-  const baseShadowStyle = useMemo(
-    () => toShadowStyle(token.boxShadowSecondary),
-    [token.boxShadowSecondary],
+  const tokenStyles = useHiddenItemStyles({ size });
+  const itemProgress = useSharedValue(0);
+  const animationEasing = useMemo(
+    () => Easing.bezier(...token.motionEaseOut),
+    [token.motionEaseOut],
   );
-  const baseShadowOpacity = Number(baseShadowStyle.shadowOpacity ?? 0);
-  const hiddenBorderRadius = BUTTON_SIZE_STYLES[size].borderRadius(token);
 
-  const animatedStyle = useAnimatedStyle(() => {
-    const baseTransform = resolveHiddenItemTransform(
-      index,
-      placement,
-      spacing,
-      gap,
-    );
-
-    return {
-      ...baseShadowStyle,
-      position: 'absolute',
-      opacity: progress.value,
-      borderRadius: hiddenBorderRadius,
-      shadowOpacity: baseShadowOpacity * shadowProgress.value,
-      transform: [
-        { translateX: baseTransform.x * progress.value },
-        { translateY: baseTransform.y * progress.value },
-        { scale: HIDDEN_SCALE_START + progress.value * HIDDEN_SCALE_DELTA },
-      ],
-    };
+  useEffect(() => {
+    itemProgress.value = isVisible
+      ? withDelay(
+          index * EXPAND_STAGGER,
+          withTiming(1, {
+            duration: token.motionDurationMid,
+            easing: animationEasing,
+          }),
+        )
+      : withTiming(0, {
+          duration: token.motionDurationMid,
+          easing: animationEasing,
+        });
   }, [
-    baseShadowOpacity,
-    baseShadowStyle,
-    gap,
-    hiddenBorderRadius,
+    animationEasing,
     index,
-    placement,
-    spacing,
+    isVisible,
+    itemProgress,
+    token.motionDurationMid,
   ]);
 
-  if (!isExpanded) {
+  const animatedStyle = useAnimatedStyle(() => {
+    const baseOffset = resolveHiddenItemOffset(index, placement, spacing);
+    const isExpandUp = placement.startsWith('bottom');
+    const enterOffset = (1 - itemProgress.value) * EXPAND_OFFSET;
+
+    return {
+      position: 'absolute',
+      opacity: itemProgress.value,
+      transform: [
+        {
+          // 展开时从主 FAB 一侧浮出 8px；收起时原路退回。
+          translateY: baseOffset + (isExpandUp ? enterOffset : -enterOffset),
+        },
+        {
+          scale:
+            HIDDEN_SCALE_START +
+            itemProgress.value * (1 - HIDDEN_SCALE_START),
+        },
+      ],
+    };
+  }, [index, placement, spacing]);
+
+  const itemSize = HIDDEN_ITEM_SIZES[size];
+  const isDisabled = action.disabled === true;
+
+  if (!isMounted) {
     return null;
   }
 
   return (
-    <Animated.View
-      style={animatedStyle}
-      testID="floating-action-group-hidden-item"
-    >
-      <FloatingActionButton
-        disabled={action.disabled}
-        icon={action.icon}
-        label={action.label}
-        onPress={action.onPress}
-        shadow={false}
-        size={size}
-        style={[style, action.buttonProps?.style]}
-        buttonProps={buttonProps}
-        variant="filled"
-      />
+    <Animated.View style={animatedStyle} testID="floating-action-group-hidden-item">
+      <Row gap="small" style={tokenStyles.row}>
+        {action.label === undefined ? null : (
+          <View style={[tokenStyles.capsule, isDisabled ? tokenStyles.disabled : null]}>
+            <Text color="default" size="sm" weight="medium">
+              {action.label}
+            </Text>
+          </View>
+        )}
+        <Pressable
+          disabled={isDisabled}
+          onPress={action.onPress}
+          style={({ pressed }) => [
+            tokenStyles.mini,
+            pressed ? tokenStyles.miniPressed : null,
+            isDisabled ? tokenStyles.disabled : null,
+            style,
+            action.buttonProps?.style,
+          ]}
+        >
+          <Icon
+            color="default"
+            icon={action.icon ?? 'plus'}
+            size={itemSize.iconSize}
+          />
+        </Pressable>
+      </Row>
     </Animated.View>
   );
 }
@@ -307,10 +458,10 @@ export function FloatingActionGroup({
 }: FloatingActionGroupProps) {
   const portalContext = useContext(PortalContext);
   const { token } = useTheme();
+  const safeAreaInsets = useSafeAreaInsets();
   const [expanded, setExpanded] = useState(false);
   const [hiddenActionsMounted, setHiddenActionsMounted] = useState(false);
   const progress = useSharedValue(0);
-  const shadowProgress = useSharedValue(0);
 
   const visibleCount = Math.max(DEFAULT_VISIBLE_COUNT, defaultVisibleCount);
   const visibleActions = useMemo(() => actions.slice(0, visibleCount), [actions, visibleCount]);
@@ -318,7 +469,7 @@ export function FloatingActionGroup({
   const hasMore = hiddenActions.length > 0;
 
   const computedSpacing =
-    spacing ?? BUTTON_SIZE_STYLES[size].height(token) + token.paddingXS;
+    spacing ?? HIDDEN_ITEM_SIZES[size].height + EXPANDED_ITEM_GAP;
   const alignEnd = !placement.endsWith('Left');
   const expandUp = placement.startsWith('bottom');
 
@@ -326,8 +477,26 @@ export function FloatingActionGroup({
     placement,
     offset ?? {},
     token,
+    safeAreaInsets.top,
+    safeAreaInsets.bottom,
   );
   const tokenStyles = useStyles({ positionStyle, alignEnd, expandUp });
+
+  const collapse = (): void => {
+    setExpanded(false);
+    progress.value = withTiming(
+      0,
+      {
+        duration: token.motionDurationMid,
+        easing: Easing.bezier(...token.motionEaseOut),
+      },
+      finished => {
+        if (finished) {
+          runOnJS(setHiddenActionsMounted)(false);
+        }
+      },
+    );
+  };
 
   const handleToggleExpand = (): void => {
     if (!hasMore) {
@@ -335,27 +504,15 @@ export function FloatingActionGroup({
     }
 
     const nextExpanded = toggleOnMorePress ? !expanded : true;
-    if (nextExpanded) {
-      setHiddenActionsMounted(true);
-      shadowProgress.value = 0;
-    } else {
-      shadowProgress.value = 0;
+
+    if (!nextExpanded) {
+      collapse();
+      return;
     }
-    setExpanded(nextExpanded);
-    progress.value = withTiming(nextExpanded ? 1 : 0, {
-      duration: token.motionDurationMid,
-      easing: Easing.bezier(...token.motionEaseInOut),
-    }, (finished) => {
-      if (nextExpanded && finished) {
-        shadowProgress.value = withTiming(1, {
-          duration: token.motionDurationFast,
-          easing: Easing.bezier(...token.motionEaseInOut),
-        });
-      }
-      if (!nextExpanded && finished) {
-        runOnJS(setHiddenActionsMounted)(false);
-      }
-    });
+
+    progress.value = 1;
+    setHiddenActionsMounted(true);
+    setExpanded(true);
   };
 
   const handleOutsidePress = (): void => {
@@ -363,16 +520,7 @@ export function FloatingActionGroup({
       return;
     }
 
-    setExpanded(false);
-    shadowProgress.value = 0;
-    progress.value = withTiming(0, {
-      duration: token.motionDurationMid,
-      easing: Easing.bezier(...token.motionEaseInOut),
-    }, (finished) => {
-      if (finished) {
-        runOnJS(setHiddenActionsMounted)(false);
-      }
-    });
+    collapse();
   };
 
   const content = (
@@ -389,32 +537,28 @@ export function FloatingActionGroup({
         style={[tokenStyles.root, style, styles?.root, styles?.container]}
         testID="floating-action-group-container"
       >
-        <Column style={tokenStyles.hiddenLayer}>
+        <View style={tokenStyles.hiddenLayer}>
           {hiddenActions.map((action, index) => (
             <HiddenActionItem
               action={action}
               index={index}
-              isExpanded={hiddenActionsMounted}
+              isMounted={hiddenActionsMounted}
+              isVisible={expanded}
               key={action.key}
-              progress={progress}
-              shadowProgress={shadowProgress}
               placement={placement}
               spacing={computedSpacing}
-              gap={token.paddingXS}
               style={styles?.actionButton}
-              buttonProps={action.buttonProps}
               size={size}
             />
           ))}
-        </Column>
+        </View>
         {placement.startsWith('bottom') && hasMore ? (
-          <FloatingActionButton
-            label={expanded ? '收起' : '更多'}
+          <MoreActionButton
+            expanded={expanded}
             onPress={handleToggleExpand}
             size={size}
             style={styles?.moreButton}
             testID="floating-action-group-more-button"
-            variant="filled"
           />
         ) : null}
         {visibleActions.map(action => (
@@ -430,13 +574,12 @@ export function FloatingActionGroup({
           />
         ))}
         {!placement.startsWith('bottom') && hasMore ? (
-          <FloatingActionButton
-            label={expanded ? '收起' : '更多'}
+          <MoreActionButton
+            expanded={expanded}
             onPress={handleToggleExpand}
             size={size}
             style={styles?.moreButton}
             testID="floating-action-group-more-button"
-            variant="filled"
           />
         ) : null}
       </View>

@@ -7,6 +7,10 @@ import { FloatingActionGroup } from '../src/FloatingActionGroup';
 import { PortalProvider } from '../src/Portal';
 import type { FloatingActionGroupStyles } from '../src/FloatingActionGroup';
 
+jest.mock('react-native-safe-area-context', () => ({
+  useSafeAreaInsets: () => ({ top: 0, right: 0, bottom: 0, left: 0 }),
+}));
+
 jest.mock('@pennyspring/theme', () => {
   const actual = jest.requireActual('@pennyspring/theme');
 
@@ -38,6 +42,7 @@ jest.mock('react-native-reanimated', () => {
       value,
     }),
     runOnJS: (fn: (...args: unknown[]) => void) => fn,
+    withDelay: (_delay: number, value: unknown) => value,
     withTiming: (...args: WithTimingArgs) => {
       const callback = args[2];
       if (callback) {
@@ -257,7 +262,7 @@ describe('FloatingActionGroup', () => {
     expect(flattenedStyle.opacity).toBe(rootStyle.opacity);
   });
 
-  it('uses the shared shadow converter for hidden action shadows', () => {
+  it('uses the shared shadow converter for the main fab only', () => {
     // Arrange
     let testRenderer!: renderer.ReactTestRenderer;
 
@@ -281,6 +286,6 @@ describe('FloatingActionGroup', () => {
 
     // Assert
     expect(toShadowStyle).toHaveBeenCalled();
-    expect(flattenedStyle.convertedByToShadowStyle).toBe(true);
+    expect(flattenedStyle.convertedByToShadowStyle).toBeUndefined();
   });
 });
