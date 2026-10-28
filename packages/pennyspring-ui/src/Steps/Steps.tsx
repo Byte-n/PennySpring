@@ -1,49 +1,27 @@
-import type { ComponentSize } from '../shares/types';
 import React, { useMemo } from 'react';
 import { Pressable } from 'react-native';
 import { useControllableValue } from '../_hooks';
 import { Column } from '../Column';
+import { Icon } from '../Icon';
 import { Row } from '../Row';
 import { Text } from '../Text';
 import { renderTextNode } from '../shares/node';
 import type { ReactNode } from 'react';
-import type { TextSize, TextWeight } from '../Text/types';
-import type { TextColor } from '../Text/types';
+import type { TextColor, TextSize } from '../Text/types';
 import type { StyleProp, TextStyle } from 'react-native';
 import type {
   StepsItem,
   StepsProps,
   StepsStatus,
 } from './types';
-import { useStyles } from './style';
+import { SIZE_STYLE_MAP, useStyles } from './style';
 
-function resolveSizeMap(size: ComponentSize): TextSize {
-  if (size === 'small') return 'sm';
-  if (size === 'large') return 'lg';
-  return 'md';
-}
-
-function renderTitleContent(
+function renderContent(
   node: ReactNode,
   text: string | undefined,
-  size: TextSize,
-  weight: TextWeight,
   color: TextColor,
-  style?: StyleProp<TextStyle>,
-) {
-  return renderTextNode(node === undefined ? text : node, (value) => (
-    <Text size={size} weight={weight} color={color} style={style}>
-      {value}
-    </Text>
-  ));
-}
-
-function renderDescriptionContent(
-  node: ReactNode,
-  text: string | undefined,
   size: TextSize,
-  weight: TextWeight,
-  color: TextColor,
+  weight: 'semibold' | 'regular',
   style?: StyleProp<TextStyle>,
 ) {
   return renderTextNode(node === undefined ? text : node, (value) => (
@@ -89,7 +67,7 @@ export function Steps({
   ...rest
 }: StepsProps) {
   const tokenStyles = useStyles({ size });
-  const textSize = resolveSizeMap(size);
+  const sizeConfig = SIZE_STYLE_MAP[size];
   const normalizedItems = useMemo(() => [...items], [items]);
   const [selectedIndex, setSelectedIndex] = useControllableValue(
     defaultValue,
@@ -101,16 +79,16 @@ export function Steps({
     Math.max(selectedIndex ?? 0, 0),
     Math.max(normalizedItems.length - 1, 0),
   );
-  const isRootDisabled = disabled || readonly;
 
   return (
     <Column align="start" style={[tokenStyles.root, style]} testID="steps-root">
       {normalizedItems.map((item, index) => {
-        const itemDisabled = isRootDisabled || item.disabled === true;
+        const isBlocked = disabled || readonly || item.disabled === true;
+        const isDimmed = disabled || item.disabled === true;
         const isSelected = index === safeSelectedIndex;
         const itemStatus = resolveItemStatus(item, index, safeSelectedIndex, status);
         const isLast = index === normalizedItems.length - 1;
-        const indicatorText = String(index + 1);
+        const isMarked = itemStatus === 'finish' || itemStatus === 'error';
         const indicatorStatusStyle =
           itemStatus === 'finish'
             ? tokenStyles.indicatorFinish
@@ -119,19 +97,23 @@ export function Steps({
               : itemStatus === 'wait'
                 ? tokenStyles.indicatorWait
                 : tokenStyles.indicatorProcess;
-        const indicatorTextColor =
-          itemStatus === 'wait' ? 'secondary' : 'lightSolid';
-        const titleColor = itemDisabled ? 'disabled' : 'default';
-        const descriptionColor = itemDisabled ? 'disabled' : 'secondary';
+        const titleColor: TextColor = isDimmed
+          ? 'disabled'
+          : itemStatus === 'error'
+            ? 'error'
+            : itemStatus === 'wait'
+              ? 'secondary'
+              : 'default';
+        const descriptionColor: TextColor = isDimmed ? 'disabled' : 'tertiary';
 
         return (
           <Pressable
             {...rest}
             key={item.key ?? `${String(index)}-${item.titleText ?? ''}`}
             testID={`steps-item-${String(index)}`}
-            disabled={itemDisabled}
+            disabled={isBlocked}
             onPress={event => {
-              if (itemDisabled || isSelected) {
+              if (isBlocked || isSelected) {
                 return;
               }
 
@@ -141,26 +123,41 @@ export function Steps({
             style={({ pressed }) => [
               tokenStyles.item,
               styles?.item,
-              itemDisabled ? tokenStyles.itemDisabled : null,
-              pressed && !itemDisabled ? tokenStyles.itemPressed : null,
+              isDimmed ? tokenStyles.itemDisabled : null,
+              pressed && !isBlocked ? tokenStyles.itemPressed : null,
             ]}
           >
-            <Row align="start" gap={size}>
+            <Row align="stretch" gap="large">
               <Column align="center" style={[tokenStyles.stepHeader, styles?.stepHeader]}>
-                <Row
-                  align="center"
-                  justify="center"
-                  style={[tokenStyles.indicator, indicatorStatusStyle, styles?.indicator]}
+                <Column
+                  style={[
+                    tokenStyles.indicatorRing,
+                    itemStatus === 'process' ? tokenStyles.indicatorRingProcess : null,
+                  ]}
                 >
-                  <Text
-                    size={textSize}
-                    weight="strong"
-                    color={indicatorTextColor}
-                    style={styles?.indicatorText}
+                  <Row
+                    align="center"
+                    justify="center"
+                    style={[tokenStyles.indicator, indicatorStatusStyle, styles?.indicator]}
                   >
-                    {indicatorText}
-                  </Text>
-                </Row>
+                    {isMarked ? (
+                      <Icon
+                        color="lightSolid"
+                        icon={itemStatus === 'finish' ? 'check' : 'close'}
+                        size={sizeConfig.indicatorIconSize}
+                      />
+                    ) : (
+                      <Text
+                        size={sizeConfig.indicatorTextSize}
+                        weight="semibold"
+                        color={itemStatus === 'wait' ? 'secondary' : 'lightSolid'}
+                        style={styles?.indicatorText}
+                      >
+                        {String(index + 1)}
+                      </Text>
+                    )}
+                  </Row>
+                </Column>
                 {isLast ? null : (
                   <Column
                     style={[
@@ -175,20 +172,20 @@ export function Steps({
                 style={[tokenStyles.content, isLast ? tokenStyles.contentLast : null, styles?.content]}
                 testID="steps-content"
               >
-                {renderTitleContent(
+                {renderContent(
                   item.title,
                   item.titleText,
-                  textSize,
-                  'strong',
                   titleColor,
+                  sizeConfig.titleSize,
+                  'semibold',
                   styles?.titleText,
                 )}
-                {renderDescriptionContent(
+                {renderContent(
                   item.description,
                   item.descriptionText,
-                  textSize,
-                  'regular',
                   descriptionColor,
+                  sizeConfig.descriptionSize,
+                  'regular',
                   styles?.descriptionText,
                 )}
               </Column>

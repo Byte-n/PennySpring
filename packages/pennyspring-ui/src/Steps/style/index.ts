@@ -1,71 +1,57 @@
 import { createUseSheetStyle } from '@pennyspring/theme';
-import type { AliasToken } from '@pennyspring/theme';
 import type { ComponentSize } from '../../shares/types';
+import type { TextSize } from '../../Text';
 
 export interface StepsStyleOptions {
   size: ComponentSize;
 }
 
 interface SizeStyleConfig {
-  indicatorSize: (token: AliasToken) => number;
-  indicatorFontSize: (token: AliasToken) => number;
-  indicatorLineHeight: (token: AliasToken) => number;
-  titleFontSize: (token: AliasToken) => number;
-  titleLineHeight: (token: AliasToken) => number;
-  descriptionFontSize: (token: AliasToken) => number;
-  descriptionLineHeight: (token: AliasToken) => number;
-  itemGap: (token: AliasToken) => number;
-  contentGap: (token: AliasToken) => number;
-  connectorHeight: (token: AliasToken) => number;
-  connectorMarginTop: (token: AliasToken) => number;
+  indicatorSize: number;
+  indicatorIconSize: number;
+  indicatorTextSize: TextSize;
+  titleSize: TextSize;
+  descriptionSize: TextSize;
 }
+
+/** AliasToken 没有步骤指示器档位；20 / 24 / 28 与 4px 外环为语义常量。 */
+const STEP_DOT_SMALL = 20;
+const STEP_DOT_NORMAL = 24;
+const STEP_DOT_LARGE = 28;
+const PROCESS_RING_SIZE = 4;
+const CONNECTOR_MIN_HEIGHT = 24;
+const CONNECTOR_MARGIN_TOP = 4;
+const DISABLED_OPACITY = 0.45;
+const PILL_RADIUS = 999;
 
 export const SIZE_STYLE_MAP: Record<ComponentSize, SizeStyleConfig> = {
   small: {
-    indicatorSize: token => token.controlHeightSM,
-    indicatorFontSize: token => token.fontSizeSM,
-    indicatorLineHeight: token => token.lineHeightSM,
-    titleFontSize: token => token.fontSizeSM,
-    titleLineHeight: token => token.lineHeightSM,
-    descriptionFontSize: token => token.fontSizeSM,
-    descriptionLineHeight: token => token.lineHeightSM,
-    itemGap: token => token.marginXXS,
-    contentGap: token => token.marginXXS,
-    connectorHeight: token => token.controlHeightSM,
-    connectorMarginTop: token => token.marginXS,
+    indicatorSize: STEP_DOT_SMALL,
+    indicatorIconSize: 12,
+    indicatorTextSize: 'xs',
+    titleSize: 'sm',
+    descriptionSize: 'xs',
   },
   normal: {
-    indicatorSize: token => token.controlHeight,
-    indicatorFontSize: token => token.fontSize,
-    indicatorLineHeight: token => token.lineHeight,
-    titleFontSize: token => token.fontSize,
-    titleLineHeight: token => token.lineHeight,
-    descriptionFontSize: token => token.fontSizeSM,
-    descriptionLineHeight: token => token.lineHeightSM,
-    itemGap: token => token.marginXS,
-    contentGap: token => token.marginXS,
-    connectorHeight: token => token.controlHeight,
-    connectorMarginTop: token => token.marginSM,
+    indicatorSize: STEP_DOT_NORMAL,
+    indicatorIconSize: 14,
+    indicatorTextSize: 'xs',
+    titleSize: 'md',
+    descriptionSize: 'xs',
   },
   large: {
-    indicatorSize: token => token.controlHeightLG,
-    indicatorFontSize: token => token.fontSizeLG,
-    indicatorLineHeight: token => token.lineHeightLG,
-    titleFontSize: token => token.fontSizeLG,
-    titleLineHeight: token => token.lineHeightLG,
-    descriptionFontSize: token => token.fontSize,
-    descriptionLineHeight: token => token.lineHeight,
-    itemGap: token => token.marginSM,
-    contentGap: token => token.marginSM,
-    connectorHeight: token => token.controlHeightLG,
-    connectorMarginTop: token => token.marginSM,
+    indicatorSize: STEP_DOT_LARGE,
+    indicatorIconSize: 16,
+    indicatorTextSize: 'sm',
+    titleSize: 'lg',
+    descriptionSize: 'sm',
   },
 };
 
 export const useStyles = createUseSheetStyle(
   (token, { size }: StepsStyleOptions) => {
     const sizeConfig = SIZE_STYLE_MAP[size];
-    const indicatorSize = sizeConfig.indicatorSize(token);
+    const railWidth = sizeConfig.indicatorSize;
 
     return {
       root: {
@@ -73,53 +59,64 @@ export const useStyles = createUseSheetStyle(
         width: '100%',
       },
       item: {
+        borderRadius: token.borderRadiusSM,
         width: '100%',
       },
       itemPressed: {
-        backgroundColor: token.colorBgTextHover,
+        backgroundColor: token.colorFillTertiary,
       },
       itemDisabled: {
-        opacity: token.opacityLoading,
+        opacity: DISABLED_OPACITY,
       },
       stepHeader: {
-        width: indicatorSize,
+        width: railWidth,
+      },
+      indicatorRing: {
+        alignItems: 'center',
+        borderRadius: PILL_RADIUS,
+        justifyContent: 'center',
+        marginHorizontal: -PROCESS_RING_SIZE,
+        padding: PROCESS_RING_SIZE,
+      },
+      indicatorRingProcess: {
+        backgroundColor: token.colorPrimaryBg,
       },
       indicator: {
         alignItems: 'center',
-        borderRadius: indicatorSize,
-        borderWidth: token.lineWidth,
-        height: indicatorSize,
+        borderRadius: PILL_RADIUS,
+        height: sizeConfig.indicatorSize,
         justifyContent: 'center',
-        width: indicatorSize,
+        width: sizeConfig.indicatorSize,
       },
       indicatorWait: {
         backgroundColor: token.colorBgContainer,
         borderColor: token.colorBorder,
+        borderWidth: token.lineWidth,
       },
       indicatorProcess: {
         backgroundColor: token.colorPrimary,
-        borderColor: token.colorPrimary,
       },
       indicatorFinish: {
         backgroundColor: token.colorSuccess,
-        borderColor: token.colorSuccess,
       },
       indicatorError: {
         backgroundColor: token.colorError,
-        borderColor: token.colorError,
       },
       connector: {
-        marginTop: sizeConfig.connectorMarginTop(token),
-        width: token.lineWidth,
-        minHeight: sizeConfig.connectorHeight(token),
-        backgroundColor: token.colorBorderSecondary,
+        backgroundColor: token.colorSplit,
+        borderRadius: token.lineWidthBold / 2,
+        flex: 1,
+        marginTop: CONNECTOR_MARGIN_TOP,
+        minHeight: CONNECTOR_MIN_HEIGHT,
+        width: token.lineWidthBold,
       },
       connectorFinish: {
         backgroundColor: token.colorSuccess,
       },
       content: {
         flex: 1,
-        paddingBottom: sizeConfig.itemGap(token),
+        gap: token.marginXXS / 2,
+        paddingBottom: token.paddingMD,
       },
       contentLast: {
         paddingBottom: 0,

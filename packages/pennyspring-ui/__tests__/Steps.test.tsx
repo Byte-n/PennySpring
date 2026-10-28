@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
 import { ThemeProvider } from '@pennyspring/theme';
+import { Icon } from '../src/Icon';
 import { Steps } from '../src/Steps';
 import type { StepsProps } from '../src/Steps';
 
@@ -176,26 +177,27 @@ describe('Steps', () => {
     expect(content).toContain('Fallback Description');
   });
 
-  it.each([
-    ['small', 3],
-    ['normal', 5],
-    ['large', 7],
-  ] as const)('maps %s size to item layout gap token', (size, expectedGap) => {
+  it('renders check icon for finished steps and close icon for error steps', () => {
+    const testRenderer = renderSteps({
+      value: 1,
+      items: [
+        { titleText: '已完成' },
+        { titleText: '失败', status: 'error' },
+        { titleText: '待开始' },
+      ],
+    });
+    const icons = testRenderer.root.findAllByType(Icon);
+
+    expect(icons.map(node => node.props.icon)).toEqual(['check', 'close']);
+  });
+
+  it('reserves item spacing only for non-last steps', () => {
     let testRenderer: renderer.ReactTestRenderer;
 
     act(() => {
       testRenderer = renderer.create(
-        <ThemeProvider
-          config={{
-            token: {
-              marginXXS: 3,
-              marginXS: 5,
-              marginSM: 7,
-            },
-          }}
-        >
+        <ThemeProvider config={{ token: { paddingMD: 13 } }}>
           <Steps
-            size={size}
             items={[
               {
                 titleText: 'Start',
@@ -208,11 +210,13 @@ describe('Steps', () => {
         </ThemeProvider>,
       );
     });
-    const content = testRenderer!.root.findAllByProps({
-      testID: 'steps-content',
-    })[0];
-    const contentStyle = StyleSheet.flatten(content.props.style);
+    const contentNodes = testRenderer!.root.findAll(
+      node => node.props.testID === 'steps-content' && typeof node.type === 'string',
+    );
+    const firstStyle = StyleSheet.flatten(contentNodes[0].props.style);
+    const lastStyle = StyleSheet.flatten(contentNodes[1].props.style);
 
-    expect(contentStyle.paddingBottom).toBe(expectedGap);
+    expect(firstStyle.paddingBottom).toBe(13);
+    expect(lastStyle.paddingBottom).toBe(0);
   });
 });

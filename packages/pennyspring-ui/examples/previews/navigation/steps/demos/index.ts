@@ -1,27 +1,21 @@
-import { stepsControlledDemoTitle, StepsControlledDemo } from './controlled';
 import {
-  stepsReadonlyAndDisabledItemDemoTitle,
-  StepsReadonlyAndDisabledItemDemo,
-} from './readonly-and-disabled-item';
+  stepsDarkDemoTitle,
+  StepsDarkDemo,
+} from './dark';
 import {
-  stepsSizeAndStatusDemoTitle,
-  StepsSizeAndStatusDemo,
-} from './size-and-status';
+  stepsReadonlyAndDisabledDemoTitle,
+  StepsReadonlyAndDisabledDemo,
+} from './readonly-and-disabled';
+import { stepsSizeDemoTitle, StepsSizeDemo } from './size';
+import { stepsStatesDemoTitle, StepsStatesDemo } from './states';
 
 export const stepsDemos = [
+  { id: 'size', title: stepsSizeDemoTitle, Component: StepsSizeDemo },
+  { id: 'states', title: stepsStatesDemoTitle, Component: StepsStatesDemo },
   {
-    id: 'controlled',
-    title: stepsControlledDemoTitle,
-    Component: StepsControlledDemo,
+    id: 'readonly-and-disabled',
+    title: stepsReadonlyAndDisabledDemoTitle,
+    Component: StepsReadonlyAndDisabledDemo,
   },
-  {
-    id: 'readonly-and-disabled-item',
-    title: stepsReadonlyAndDisabledItemDemoTitle,
-    Component: StepsReadonlyAndDisabledItemDemo,
-  },
-  {
-    id: 'size-and-status',
-    title: stepsSizeAndStatusDemoTitle,
-    Component: StepsSizeAndStatusDemo,
-  },
+  { id: 'dark', title: stepsDarkDemoTitle, Component: StepsDarkDemo },
 ];
