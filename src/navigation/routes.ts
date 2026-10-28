@@ -9,6 +9,7 @@ export const ROOT_ROUTES = {
   TypeManage: 'TypeManage',
   AssetManage: 'AssetManage',
   IconPreview: 'IconPreview',
+  AgentSettings: 'AgentSettings',
 } as const;
 
 export const HOME_TAB_ROUTES = {

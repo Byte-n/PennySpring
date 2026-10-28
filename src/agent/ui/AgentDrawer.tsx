@@ -19,7 +19,7 @@ import {
   StopIcon,
 } from 'phosphor-react-native';
 
-import type { ChatMessage } from '../core/types';
+import type { AgentDisplayMessage } from '../core/types';
 import type { AgentChatState } from './useAgentChat';
 import { MarkdownText } from '../../component/MarkdownText';
 import { appendTranscript } from '../voice/transcript';
@@ -111,7 +111,7 @@ const useStyles = createUseSheetStyle(token => ({
 }));
 
 interface MessageItemProps {
-  message: ChatMessage;
+  message: AgentDisplayMessage;
 }
 
 function AssistantBubble({
@@ -155,7 +155,7 @@ function MessageItem({ message }: MessageItemProps): React.ReactElement | null {
   }
 
   const hasText = message.content.trim().length > 0;
-  const hasToolCalls = (message.toolCalls?.length ?? 0) > 0;
+  const hasToolCalls = message.hasToolCalls;
 
   if (!hasText && !hasToolCalls) {
     return null;
@@ -250,7 +250,8 @@ export function AgentDrawer({
   const hasConversation = chat.messages.some(
     message =>
       message.role === 'user' ||
-      (message.role === 'assistant' && message.content.trim().length > 0),
+      (message.role === 'assistant' &&
+        (message.content.trim().length > 0 || message.hasToolCalls)),
   );
 
   return (
@@ -291,7 +292,7 @@ export function AgentDrawer({
         {configured ? null : (
           <Row style={styles.notice}>
             <Text color="warningText" size="xs">
-              尚未配置助手，请先在设置中填写接口信息。
+              尚未配置助手，请先添加一个 AI 提供商。
             </Text>
             <Button
               onPress={onOpenSettings}

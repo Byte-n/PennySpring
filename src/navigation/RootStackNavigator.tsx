@@ -7,6 +7,7 @@ import {
 } from '@pennyspring/theme';
 
 import { AddRecordScreen } from '../screens/addRecord/AddRecordScreen';
+import { AgentSettingsScreen } from '../screens/agentSettings/AgentSettingsScreen';
 import { AssetManageScreen } from '../screens/assetManage/AssetManageScreen';
 import { BookManageScreen } from '../screens/bookManage/BookManageScreen';
 import { BookSelectScreen } from '../screens/bookSelect';
@@ -106,6 +107,11 @@ export function RootStackNavigator() {
         component={IconPreviewScreen}
         name={ROOT_ROUTES.IconPreview}
         options={{ title: '图标预览' }}
+      />
+      <Stack.Screen
+        component={AgentSettingsScreen}
+        name={ROOT_ROUTES.AgentSettings}
+        options={{ title: 'AI 提供商' }}
       />
     </Stack.Navigator>
   );

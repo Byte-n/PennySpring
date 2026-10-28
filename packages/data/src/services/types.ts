@@ -130,10 +130,7 @@ export interface UpdateAssetInput extends CreateAssetInput {
 
 export interface CreateAgentMessageInput {
   role: AgentMessageRoleValue
-  content?: string
-  toolCalls?: string
-  toolCallId?: string
-  toolName?: string
+  message: string
   usage?: string
 }
 

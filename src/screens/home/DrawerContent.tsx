@@ -20,6 +20,7 @@ import {
   MoonIcon,
   NotebookIcon,
   PaletteIcon,
+  RobotIcon,
   ShapesIcon,
   SquaresFourIcon,
   TagIcon,
@@ -46,6 +47,7 @@ interface DrawerNavItem {
   label: string;
   route: keyof RootStackParamList;
   icon: IconComponent;
+  requiresBook?: boolean;
 }
 
 const MANAGEMENT_ITEMS: DrawerNavItem[] = [
@@ -53,31 +55,46 @@ const MANAGEMENT_ITEMS: DrawerNavItem[] = [
     icon: NotebookIcon,
     key: 'book',
     label: '账本管理',
+    requiresBook: true,
     route: ROOT_ROUTES.BookManage,
   },
   {
     icon: WalletIcon,
     key: 'asset',
     label: '资产管理',
+    requiresBook: true,
     route: ROOT_ROUTES.AssetManage,
   },
   {
     icon: ShapesIcon,
     key: 'type',
     label: '类型管理',
+    requiresBook: true,
     route: ROOT_ROUTES.TypeManage,
   },
   {
     icon: TagIcon,
     key: 'tag',
     label: '标签管理',
+    requiresBook: true,
     route: ROOT_ROUTES.TagManage,
   },
+];
+
+const AI_ITEMS: DrawerNavItem[] = [
   {
     icon: ChatsCircleIcon,
     key: 'session',
     label: '会话管理',
+    requiresBook: true,
     route: ROOT_ROUTES.SessionManage,
+  },
+  {
+    icon: RobotIcon,
+    key: 'provider',
+    label: 'AI 提供商',
+    requiresBook: false,
+    route: ROOT_ROUTES.AgentSettings,
   },
 ];
 
@@ -452,7 +469,30 @@ export function DrawerContent({
           {MANAGEMENT_ITEMS.map((item, index) => (
             <DrawerNavRow
               accessibilityLabel={item.label}
-              disabled={!currentBook}
+              disabled={item.requiresBook && !currentBook}
+              icon={item.icon}
+              key={item.key}
+              label={item.label}
+              onPress={() => handleNavigate(item.route)}
+              showSeparator={index > 0}
+              testID={`drawer-nav-${item.key}`}
+            />
+          ))}
+        </Column>
+
+        <Text
+          color="tertiary"
+          size="xs"
+          style={styles.groupLabel}
+          weight="medium"
+        >
+          AI
+        </Text>
+        <Column>
+          {AI_ITEMS.map((item, index) => (
+            <DrawerNavRow
+              accessibilityLabel={item.label}
+              disabled={item.requiresBook && !currentBook}
               icon={item.icon}
               key={item.key}
               label={item.label}

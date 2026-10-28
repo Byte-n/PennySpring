@@ -22,6 +22,7 @@ export type RootStackParamList = {
   [ROOT_ROUTES.TypeManage]: undefined;
   [ROOT_ROUTES.AssetManage]: undefined;
   [ROOT_ROUTES.IconPreview]: undefined;
+  [ROOT_ROUTES.AgentSettings]: undefined;
   [BOOK_SELECT_ROUTES.BookSelect]: undefined;
 };
 

@@ -1,3 +1,5 @@
+require('./src/agent/runtime/polyfills');
+
 /* eslint-env jest */
 jest.mock('react-native-gesture-handler', () => {
   const React = require('react');

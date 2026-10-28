@@ -1,8 +1,13 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { useBookStore } from '../../stores/bookStore';
-import { getAgentConfig, rehydrateAgentConfig } from '../adapters/configStore';
-import { loadApiKey } from '../adapters/secureKey';
+import { ROOT_ROUTES, rootNavigationRef } from '../../navigation';
+import {
+  getActiveAgentProvider,
+  rehydrateAgentProviders,
+  useAgentProviderStore,
+} from '../providers/configStore';
+import { hasProviderApiKey } from '../providers/secureKey';
 import { AgentDrawer } from './AgentDrawer';
 import { AgentChatContext } from './AgentChatContext';
 import {
@@ -10,7 +15,6 @@ import {
   type AgentLauncher,
 } from './AgentLauncherContext';
 import { AgentSessionsPanel } from './AgentSessionsPanel';
-import { AgentSettingsPanel } from './AgentSettingsPanel';
 import { useAgentChat } from './useAgentChat';
 
 interface AgentErrorBoundaryState {
@@ -44,27 +48,37 @@ export function AgentRoot({ children }: AgentRootProps) {
     enabled: Boolean(book),
   });
 
+  const providers = useAgentProviderStore(state => state.providers);
+  const activeProviderId = useAgentProviderStore(
+    state => state.activeProviderId,
+  );
+
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [settingsOpen, setSettingsOpen] = useState(false);
   const [sessionsOpen, setSessionsOpen] = useState(false);
   const [configured, setConfigured] = useState(false);
 
   const refreshConfigured = useCallback(async (): Promise<void> => {
-    const config = getAgentConfig();
-    let hasKey = false;
-    try {
-      hasKey = Boolean(await loadApiKey());
-    } catch {
-      hasKey = false;
+    const provider = getActiveAgentProvider();
+    if (provider === null) {
+      setConfigured(false);
+      return;
     }
-    setConfigured(Boolean(config.baseUrl && config.model && hasKey));
+    try {
+      setConfigured(await hasProviderApiKey(provider.id));
+    } catch {
+      setConfigured(false);
+    }
   }, []);
 
   useEffect(() => {
-    rehydrateAgentConfig()
+    rehydrateAgentProviders()
       .then(refreshConfigured)
       .catch(() => undefined);
   }, [refreshConfigured]);
+
+  useEffect(() => {
+    refreshConfigured().catch(() => undefined);
+  }, [activeProviderId, providers, refreshConfigured]);
 
   useEffect(() => {
     if (drawerOpen) {
@@ -77,7 +91,10 @@ export function AgentRoot({ children }: AgentRootProps) {
   }, []);
 
   const handleOpenSettings = useCallback((): void => {
-    setSettingsOpen(true);
+    setDrawerOpen(false);
+    if (rootNavigationRef.isReady()) {
+      rootNavigationRef.navigate(ROOT_ROUTES.AgentSettings);
+    }
   }, []);
 
   const handleOpenSessions = useCallback((): void => {
@@ -107,15 +124,6 @@ export function AgentRoot({ children }: AgentRootProps) {
               chat={chat}
               onOpenChange={setSessionsOpen}
               open={sessionsOpen}
-            />
-            <AgentSettingsPanel
-              onDeleteConversation={chat.deleteCurrentThread}
-              onOpenChange={setSettingsOpen}
-              onSaved={() => {
-                refreshConfigured().catch(() => undefined);
-              }}
-              open={settingsOpen}
-              usage={chat.usage}
             />
           </AgentErrorBoundary>
         ) : null}

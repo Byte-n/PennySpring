@@ -88,10 +88,7 @@ export async function appendMessages(
         inputs.map(input => ({
           threadId,
           role: input.role,
-          content: input.content ?? '',
-          toolCalls: input.toolCalls ?? '',
-          toolCallId: input.toolCallId ?? '',
-          toolName: input.toolName ?? '',
+          message: input.message ?? '',
           usage: input.usage ?? '',
         }))
       )

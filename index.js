@@ -1,3 +1,4 @@
+import './src/agent/runtime/polyfills';
 import './src/utils/prototype';
 import { AppRegistry } from 'react-native';
 import App from './App';

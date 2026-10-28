@@ -1,6 +1,7 @@
 import {
   buildChatCompletionsUrl,
   buildModelsUrl,
+  buildResponsesUrl,
   isValidBaseUrl,
   normalizeBaseUrl,
 } from '../../src/agent/core/url';
@@ -12,13 +13,19 @@ describe('agent endpoint url', () => {
     );
   });
 
-  it('removes a trailing chat completions path', () => {
+  it('removes a trailing chat completions or responses path', () => {
     expect(
       normalizeBaseUrl('https://api.example.com/v1/chat/completions'),
     ).toBe('https://api.example.com/v1');
     expect(
       normalizeBaseUrl('https://api.example.com/v1/chat/completions/'),
     ).toBe('https://api.example.com/v1');
+    expect(normalizeBaseUrl('https://api.example.com/v1/responses')).toBe(
+      'https://api.example.com/v1',
+    );
+    expect(normalizeBaseUrl('https://api.example.com/v1/responses/')).toBe(
+      'https://api.example.com/v1',
+    );
   });
 
   it('keeps a base url without version untouched', () => {
@@ -48,6 +55,9 @@ describe('agent endpoint url', () => {
     );
     expect(buildModelsUrl('https://api.example.com/v1')).toBe(
       'https://api.example.com/v1/models',
+    );
+    expect(buildResponsesUrl('https://api.example.com/v1/responses')).toBe(
+      'https://api.example.com/v1/responses',
     );
   });
 });

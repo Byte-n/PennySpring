@@ -73,7 +73,7 @@ export function toHttpError(status: number, body: string): AgentError {
   if (status === 404) {
     return new AgentError(
       'not-found',
-      `接口地址不存在（404）。Base URL 应形如 https://host/v1，且不要包含 /chat/completions${suffix}`,
+      `接口地址不存在（404）。Base URL 应形如 https://host/v1，且不要包含 /responses 或 /chat/completions${suffix}`,
       status,
     )
   }

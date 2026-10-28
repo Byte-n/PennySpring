@@ -257,19 +257,13 @@ describe('AgentDrawer', () => {
   it('renders user and assistant messages but skips tool payloads', () => {
     const chat = createChat({
       messages: [
-        { role: 'user', content: '上个月吃饭花了多少？' },
+        { role: 'user', content: '上个月吃饭花了多少？', hasToolCalls: false },
         {
           role: 'assistant',
           content: '',
-          toolCalls: [{ id: 'call_1', name: 'queryRecords', arguments: '{}' }],
+          hasToolCalls: true,
         },
-        {
-          role: 'tool',
-          content: '{"count":3,"totals":{"expense":120}}',
-          toolCallId: 'call_1',
-          toolName: 'queryRecords',
-        },
-        { role: 'assistant', content: '上个月吃饭共 120.00 元。' },
+        { role: 'assistant', content: '上个月吃饭共 120.00 元。', hasToolCalls: false },
       ],
     });
     const { renderer } = renderDrawer(chat);
@@ -285,7 +279,7 @@ describe('AgentDrawer', () => {
   it('renders assistant markdown without the raw markers', () => {
     const chat = createChat({
       messages: [
-        { role: 'assistant', content: '**合计 120 元**' },
+        { role: 'assistant', content: '**合计 120 元**', hasToolCalls: false },
       ],
     });
     const { renderer } = renderDrawer(chat);

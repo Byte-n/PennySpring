@@ -50,13 +50,25 @@ jest.mock('../../src/stores/bookStore', () => ({
   ) => selector(mockBookStoreState),
 }));
 
-jest.mock('../../src/agent/adapters/configStore', () => ({
-  getAgentConfig: () => ({ baseUrl: '', model: '' }),
-  rehydrateAgentConfig: () => Promise.resolve(),
+jest.mock('../../src/navigation', () => ({
+  ROOT_ROUTES: { AgentSettings: 'AgentSettings' },
+  rootNavigationRef: {
+    isReady: () => false,
+    navigate: jest.fn(),
+  },
 }));
 
-jest.mock('../../src/agent/adapters/secureKey', () => ({
-  loadApiKey: () => Promise.resolve(''),
+jest.mock('../../src/agent/providers/configStore', () => ({
+  getActiveAgentProvider: () => null,
+  rehydrateAgentProviders: () => Promise.resolve(),
+  useAgentProviderStore: (selector: (state: {
+    providers: [];
+    activeProviderId: null;
+  }) => unknown) => selector({ providers: [], activeProviderId: null }),
+}));
+
+jest.mock('../../src/agent/providers/secureKey', () => ({
+  hasProviderApiKey: () => Promise.resolve(false),
 }));
 
 jest.mock('../../src/agent/ui/useAgentChat', () => ({
@@ -81,9 +93,6 @@ jest.mock('../../src/agent/ui/AgentSessionsPanel', () => ({
   AgentSessionsPanel: () => null,
 }));
 
-jest.mock('../../src/agent/ui/AgentSettingsPanel', () => ({
-  AgentSettingsPanel: () => null,
-}));
 
 import { AgentFloatingEntry } from '../../src/agent/ui/AgentFloatingEntry';
 import { AgentRoot } from '../../src/agent/ui/AgentRoot';

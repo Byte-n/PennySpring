@@ -5,22 +5,8 @@
     {
       "idx": 0,
       "version": "6",
-      "when": 1784777037935,
-      "tag": "0000_nervous_silvermane",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "6",
-      "when": 1793076500775,
-      "tag": "0001_jittery_ultimates",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "6",
-      "when": 1793181043671,
-      "tag": "0002_lame_living_tribunal",
+      "when": 1793194131139,
+      "tag": "0000_mute_calypso",
       "breakpoints": true
     }
   ]

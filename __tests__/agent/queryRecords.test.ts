@@ -7,7 +7,7 @@ import {
 import { buildSystemPrompt } from '../../src/agent/projection/context';
 import {
   createQueryRecordsTool,
-  QUERY_RECORDS_TOOL,
+  QUERY_RECORDS_TOOL_NAME,
 } from '../../src/agent/tools/queryRecords';
 
 const BASE_ROW = {
@@ -312,24 +312,24 @@ describe('createQueryRecordsTool', () => {
     } as unknown as Api;
   }
 
-  it('读取当前账本数据并返回裁剪后的 JSON', async () => {
-    const api = createApi();
-    const execute = createQueryRecordsTool({
-      api,
+  function createExecute() {
+    const tool = createQueryRecordsTool({
+      api: createApi(),
       booksId: 1,
       bookName: '日常账本',
     });
+    return tool.execute as (
+      input: Record<string, unknown>,
+      options: unknown,
+    ) => Promise<string>;
+  }
 
+  it('读取当前账本数据并返回裁剪后的 JSON', async () => {
+    const execute = createExecute();
     const output = JSON.parse(
-      await execute({
-        id: 'call_1',
-        name: QUERY_RECORDS_TOOL.name,
-        arguments: '{"from":"2026-09-01","to":"2026-09-30"}',
-      }),
+      await execute({ from: '2026-09-01', to: '2026-09-30' }, {}),
     );
 
-    expect(api.record.getByBook).toHaveBeenCalledWith(1);
-    expect(api.record.getRecordTags).toHaveBeenCalledWith(1);
     expect(output).toMatchObject({
       book: '日常账本',
       count: 3,
@@ -337,19 +337,13 @@ describe('createQueryRecordsTool', () => {
     });
   });
 
-  it('拒绝未知工具与非法参数', async () => {
-    const execute = createQueryRecordsTool({
-      api: createApi(),
-      booksId: 1,
-      bookName: '日常账本',
-    });
+  it('非法参数以工具结果回灌中文错误', async () => {
+    const execute = createExecute();
+    const output = await execute({ from: '2026-02-30' }, {});
 
-    await expect(
-      execute({ id: 'call_1', name: 'writeRecord', arguments: '{}' }),
-    ).rejects.toThrow('不支持的工具：writeRecord');
-    await expect(
-      execute({ id: 'call_2', name: QUERY_RECORDS_TOOL.name, arguments: '{oops' }),
-    ).rejects.toThrow('查询参数不是合法的 JSON');
+    expect(output).toContain('工具执行失败');
+    expect(output).toContain('from 不是合法日期');
+    expect(QUERY_RECORDS_TOOL_NAME).toBe('queryRecords');
   });
 });
 

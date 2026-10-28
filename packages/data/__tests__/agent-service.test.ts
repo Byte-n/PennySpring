@@ -30,8 +30,29 @@ function createTestDatabase(): AppDatabase {
   return db as unknown as AppDatabase
 }
 
-const TOOL_CALLS_JSON =
-  '[{"id":"call_1","type":"function","function":{"name":"queryRecords","arguments":"{}"}}]'
+const USER_MESSAGE_JSON = JSON.stringify({ role: 'user', content: '你好' })
+const ASSISTANT_TOOL_MESSAGE_JSON = JSON.stringify({
+  role: 'assistant',
+  content: [
+    {
+      type: 'tool-call',
+      toolCallId: 'call_1',
+      toolName: 'queryRecords',
+      input: {},
+    },
+  ],
+})
+const TOOL_RESULT_MESSAGE_JSON = JSON.stringify({
+  role: 'tool',
+  content: [
+    {
+      type: 'tool-result',
+      toolCallId: 'call_1',
+      toolName: 'queryRecords',
+      output: { type: 'text', value: '{"total":123}' },
+    },
+  ],
+})
 
 describe('agent-service', () => {
   let db: AppDatabase
@@ -80,7 +101,7 @@ describe('agent-service', () => {
     const future = Date.now() + 60_000
     const nowSpy = jest.spyOn(Date, 'now').mockReturnValue(future)
     try {
-      await appendMessages(db, older.id, [{ role: 'user', content: '你好' }])
+      await appendMessages(db, older.id, [{ role: 'user', message: USER_MESSAGE_JSON }])
     } finally {
       nowSpy.mockRestore()
     }
@@ -103,27 +124,27 @@ describe('agent-service', () => {
     const thread = await createThread(db, 1)
     await createThread(db, 1)
     await appendMessages(db, thread.id, [
-      { role: 'user', content: '这个月花了多少' },
-      { role: 'assistant', content: '', toolCalls: TOOL_CALLS_JSON },
-      { role: 'tool', content: '{"total":123}', toolCallId: 'call_1', toolName: 'queryRecords' },
+      { role: 'user', message: USER_MESSAGE_JSON },
+      { role: 'assistant', message: ASSISTANT_TOOL_MESSAGE_JSON },
+      { role: 'tool', message: TOOL_RESULT_MESSAGE_JSON },
     ])
 
     const detail = await getThreadDetail(db, thread.id)
 
     expect(detail.thread.id).toBe(thread.id)
     expect(detail.messages).toHaveLength(3)
-    expect(detail.messages[1]?.toolCalls).toContain('queryRecords')
-    expect(detail.messages[2]?.toolCallId).toBe('call_1')
-    expect(detail.messages[2]?.toolName).toBe('queryRecords')
+    expect(detail.messages[1]?.message).toContain('queryRecords')
+    expect(detail.messages[2]?.message).toContain('call_1')
+    expect(detail.messages[2]?.message).toContain('tool-result')
   })
 
   it('appendMessages 持久化完整消息链并保持写入顺序', async () => {
     const thread = await createThread(db, 1)
 
     const saved = await appendMessages(db, thread.id, [
-      { role: 'user', content: '这个月花了多少' },
-      { role: 'assistant', content: '', toolCalls: TOOL_CALLS_JSON },
-      { role: 'tool', content: '{"total":123}', toolCallId: 'call_1', toolName: 'queryRecords' },
+      { role: 'user', message: USER_MESSAGE_JSON },
+      { role: 'assistant', message: ASSISTANT_TOOL_MESSAGE_JSON },
+      { role: 'tool', message: TOOL_RESULT_MESSAGE_JSON },
     ])
 
     expect(saved.map(message => message.role)).toEqual(['user', 'assistant', 'tool'])
@@ -146,13 +167,13 @@ describe('agent-service', () => {
 
   it('appendMessages 拒绝写入不存在的会话', async () => {
     await expect(
-      appendMessages(db, 999, [{ role: 'user', content: '你好' }])
+      appendMessages(db, 999, [{ role: 'user', message: USER_MESSAGE_JSON }])
     ).rejects.toThrow('会话不存在: 999')
   })
 
   it('deleteThread 删除会话及其全部消息', async () => {
     const thread = await createThread(db, 1)
-    await appendMessages(db, thread.id, [{ role: 'user', content: '你好' }])
+    await appendMessages(db, thread.id, [{ role: 'user', message: USER_MESSAGE_JSON }])
 
     await deleteThread(db, thread.id)
 

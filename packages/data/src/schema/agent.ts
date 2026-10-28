@@ -28,15 +28,9 @@ export const agentMessages = sqliteTable(
     threadId: integerColumn('thread_id').notNull(),
     // 消息角色
     role: enumColumn<AgentMessageRoleValue>('role').notNull(),
-    // 文本内容；仅携带工具调用的 assistant 消息为空字符串
-    content: text('content').notNull().default(''),
-    // assistant 消息携带的工具调用 JSON 数组；空字符串表示无
-    toolCalls: text('tool_calls').notNull().default(''),
-    // tool 消息对应的工具调用 ID；空字符串表示无
-    toolCallId: text('tool_call_id').notNull().default(''),
-    // tool 消息对应的工具名；空字符串表示无
-    toolName: text('tool_name').notNull().default(''),
-    // 本轮请求的 token 用量 JSON；空字符串表示未记录
+    // AI SDK ModelMessage 的 JSON；完整保存 user / assistant / tool 消息
+    message: text('message').notNull().default(''),
+    // 本轮回复的 token 用量 JSON；空字符串表示未记录
     usage: text('usage').notNull().default(''),
     // 记录创建时间（时间戳，毫秒），INSERT 时自动写入
     // 最后修改时间（时间戳，毫秒）

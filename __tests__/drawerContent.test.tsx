@@ -306,6 +306,35 @@ describe('DrawerContent 交互', () => {
     );
   });
 
+  it('places session management and AI provider entries in the AI section', () => {
+    const texts = collectTexts(renderDrawer(createCallbacks()));
+    const aiIndex = texts.indexOf('AI');
+    const sessionIndex = texts.indexOf('会话管理');
+    const providerIndex = texts.indexOf('AI 提供商');
+    const appearanceIndex = texts.indexOf('外观');
+
+    expect(texts.indexOf('管理')).toBeLessThan(aiIndex);
+    expect(aiIndex).toBeLessThan(sessionIndex);
+    expect(sessionIndex).toBeLessThan(providerIndex);
+    expect(providerIndex).toBeLessThan(appearanceIndex);
+  });
+
+  it('navigates to AI provider settings even without a current book', () => {
+    const callbacks = createCallbacks();
+    const renderer = renderDrawer(callbacks);
+
+    act(() => {
+      renderer.root
+        .findByProps({ testID: 'drawer-nav-provider' })
+        .props.onPress();
+    });
+
+    expect(callbacks.onClose).toHaveBeenCalledTimes(1);
+    expect(callbacks.onNavigate).toHaveBeenCalledWith(
+      ROOT_ROUTES.AgentSettings,
+    );
+  });
+
   it('closes the drawer before opening the book select screen or templates', () => {
     bookStoreMock.__bookStoreState.currentBook = createBook();
     bookStoreMock.__bookStoreState.currentBookRef = { id: 1, kind: 'local' };
