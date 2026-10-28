@@ -5,21 +5,17 @@ import { ThemeProvider } from '@pennyspring/theme';
 import { Column } from '../src/Column';
 import { Row } from '../src/Row';
 
-function renderWithTheme(element: React.ReactElement) {
+const LAYOUT_GAP_TOKENS = { sizeXS: 3, paddingSM: 5, padding: 7 };
+const LEGACY_GAP_TOKENS = { paddingXXS: 3, paddingXS: 5, paddingSM: 7 };
+
+function renderWithTheme(
+  element: React.ReactElement,
+  token: Record<string, number>,
+) {
   let testRenderer: renderer.ReactTestRenderer;
   act(() => {
     testRenderer = renderer.create(
-      <ThemeProvider
-        config={{
-          token: {
-            paddingXXS: 3,
-            paddingXS: 5,
-            paddingSM: 7,
-          },
-        }}
-      >
-        {element}
-      </ThemeProvider>,
+      <ThemeProvider config={{ token }}>{element}</ThemeProvider>,
     );
   });
   return testRenderer!;
@@ -36,6 +32,7 @@ describe('Row and Column', () => {
         <Text>Income</Text>
         <Text>Expense</Text>
       </Row>,
+      LAYOUT_GAP_TOKENS,
     );
     const row = testRenderer.root.findByProps({
       testID: 'row',
@@ -55,6 +52,7 @@ describe('Row and Column', () => {
         <Text>Income</Text>
         <Text>Expense</Text>
       </Column>,
+      LEGACY_GAP_TOKENS,
     );
     const column = testRenderer.root.findByProps({
       testID: 'column',
@@ -70,6 +68,7 @@ describe('Row and Column', () => {
         <Text>Income</Text>
         <Text>Expense</Text>
       </Column>,
+      LEGACY_GAP_TOKENS,
     );
     const column = testRenderer.root.findByProps({
       testID: 'column',
@@ -84,6 +83,7 @@ describe('Row and Column', () => {
       <Row gap={9}>
         <View />
       </Row>,
+      LAYOUT_GAP_TOKENS,
     );
     const row = testRenderer.root.findByProps({
       testID: 'row',
@@ -98,6 +98,7 @@ describe('Row and Column', () => {
       <Column gap={9}>
         <View />
       </Column>,
+      LAYOUT_GAP_TOKENS,
     );
     const column = testRenderer.root.findByProps({
       testID: 'column',
