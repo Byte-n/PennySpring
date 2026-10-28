@@ -78,9 +78,16 @@ jest.mock('@pennyspring/ui', () => {
     Empty: MockEmpty,
     Input: MockInput,
     Loading: MockLoading,
+    Popover: ({ children, content, open }: { children?: React.ReactNode; content?: React.ReactNode; open?: boolean }) =>
+      ReactLib.createElement(View, null, children, open ? content : null),
     Popup: { FloatingPanel: MockFloatingPanel },
     Row: passthrough(View),
     Text: passthrough(Text),
+    useToast: () => ({
+      show: jest.fn(() => 0),
+      hide: jest.fn(),
+      clear: jest.fn(),
+    }),
   };
 });
 

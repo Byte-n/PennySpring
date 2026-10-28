@@ -5,6 +5,7 @@
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "paths": {
+      "@dr.pogodin/react-native-fs": ["./src/shims/react-native-fs"],
       "@pennyspring/theme": ["./packages/pennyspring-theme/src"],
       "@pennyspring/theme/*": ["./packages/pennyspring-theme/*"],
       "@pennyspring/ui": ["./packages/pennyspring-ui/src"],

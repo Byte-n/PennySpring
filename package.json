@@ -7,7 +7,7 @@
     "packages/pennyspring-ui/examples"
   ],
   "scripts": {
-    "android": "react-native run-android --port 8080",
+    "android": "react-native run-android --active-arch-only --port 8080",
     "release:android": "node scripts/release-android.js",
     "ios": "react-native run-ios --port 8080",
     "lint": "eslint .",
@@ -49,6 +49,7 @@
     "react-native-reanimated": "^4.3.0",
     "react-native-safe-area-context": "^5.5.2",
     "react-native-screens": "^4.24.0",
+    "react-native-sherpa-onnx": "0.4.4",
     "react-native-svg": "^15.15.4",
     "react-native-tab-view": "^4.3.0",
     "react-native-worklets": "^0.8.1",

@@ -98,3 +98,14 @@ jest.mock('@op-engineering/op-sqlite', () => ({
     removeItem: jest.fn().mockResolvedValue(undefined),
   })),
 }));
+
+// 语音识别依赖原生模块，单元测试只验证会话编排，统一替换为可注入的桩。
+jest.mock('react-native-sherpa-onnx/stt', () => ({
+  __esModule: true,
+  createStreamingSTT: jest.fn(),
+}));
+
+jest.mock('react-native-sherpa-onnx/audio', () => ({
+  __esModule: true,
+  createPcmLiveStream: jest.fn(),
+}));

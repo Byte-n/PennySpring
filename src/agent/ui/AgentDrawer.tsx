@@ -9,6 +9,7 @@ import {
   Popup,
   Row,
   Text,
+  useToast,
 } from '@pennyspring/ui';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import {
@@ -21,6 +22,9 @@ import {
 import type { ChatMessage } from '../core/types';
 import type { AgentChatState } from './useAgentChat';
 import { MarkdownText } from '../../component/MarkdownText';
+import { appendTranscript } from '../voice/transcript';
+import { useVoiceInput } from '../voice/useVoiceInput';
+import { VoiceButton } from './VoiceButton';
 
 const SUGGESTIONS = [
   '上个月吃饭花了多少？',
@@ -192,6 +196,16 @@ export function AgentDrawer({
   const styles = useStyles();
   const scrollRef = useRef<ScrollView>(null);
   const [draft, setDraft] = useState('');
+  const toast = useToast();
+
+  const voice = useVoiceInput({
+    onComplete: text => {
+      setDraft(previous => appendTranscript(previous, text));
+    },
+    onError: message => {
+      toast.show({ messageText: message, status: 'error' });
+    },
+  });
 
   const scrollToEnd = useCallback((): void => {
     scrollRef.current?.scrollToEnd({ animated: true });
@@ -362,6 +376,13 @@ export function AgentDrawer({
               value={draft}
             />
           </Column>
+          <VoiceButton
+            disabled={isStreaming}
+            onStart={voice.start}
+            onStop={voice.stop}
+            partialText={voice.partialText}
+            status={voice.status}
+          />
           {isStreaming ? (
             <Button
               icon={StopIcon}
