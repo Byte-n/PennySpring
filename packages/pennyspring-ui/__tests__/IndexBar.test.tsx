@@ -4,7 +4,6 @@ import renderer, { act } from 'react-test-renderer';
 import { IndexBar } from '../src/IndexBar';
 import { List } from '../src/List';
 import { Row } from '../src/Row';
-import { Column } from '../src/Column';
 import { Text } from '../src/Text';
 import type { IndexBarItem, IndexBarProps } from '../src/IndexBar';
 
@@ -256,31 +255,55 @@ describe('IndexBar', () => {
 
     // Assert
     expect(panelTitleText.type).toBe(Text);
-    expect(panelTitleText.props.size).toBe('sm');
-    expect(panelTitleText.props.color).toBe('secondary');
-    expect(panelTitleText.props.weight).toBe('strong');
-    expect(selectedIndexText.props.size).toBe('md');
-    expect(selectedIndexText.props.color).toBe('primary');
-    expect(selectedIndexText.props.weight).toBe('strong');
-    expect(unselectedIndexText.props.size).toBe('md');
+    expect(panelTitleText.props.size).toBe('xs');
+    expect(panelTitleText.props.color).toBe('tertiary');
+    expect(panelTitleText.props.weight).toBe('semibold');
+    expect(selectedIndexText.props.size).toBe('xs');
+    expect(selectedIndexText.props.color).toBe('lightSolid');
+    expect(selectedIndexText.props.weight).toBe('semibold');
+    expect(unselectedIndexText.props.size).toBe('xs');
     expect(unselectedIndexText.props.color).toBe('secondary');
-    expect(unselectedIndexText.props.weight).toBe('regular');
+    expect(unselectedIndexText.props.weight).toBe('semibold');
   });
 
-  it('uses Row and Column primitives for root and sidebar layout', () => {
+  it('selects the panel under the finger while dragging the sidebar', () => {
+    // Arrange
+    const onChange = jest.fn();
+    const onPress = jest.fn();
+    const testRenderer = renderIndexBar({ onChange, onPress });
+    const sidebar = testRenderer.root.findByProps({ testID: 'index-bar-sidebar' });
+
+    act(() => {
+      sidebar.props.onLayout({
+        nativeEvent: { layout: { height: 300 } },
+      });
+    });
+
+    // Act
+    act(() => {
+      sidebar.props.onResponderGrant({
+        nativeEvent: { locationY: 210 },
+      });
+    });
+
+    // Assert
+    expect(onChange).toHaveBeenCalledWith('C');
+    expect(onPress.mock.calls[0][1]).toBe('C');
+    expect(testRenderer.root.findByProps({ testID: 'index-bar-bubble' })).toBeTruthy();
+  });
+
+  it('renders the root as a Row and the sidebar with its own test id', () => {
     // Arrange
     const testRenderer = renderIndexBar();
 
     // Act
-    const rootNodes = testRenderer.root.findAll(
-      node => node.props.testID === 'index-bar-root',
-    );
-    const sideBarNodes = testRenderer.root.findAll(
+    const rootRows = testRenderer.root.findAllByType(Row);
+    const sidebarNodes = testRenderer.root.findAll(
       node => node.props.testID === 'index-bar-sidebar',
     );
 
     // Assert
-    expect(rootNodes.some(node => node.type === Row)).toBe(true);
-    expect(sideBarNodes.some(node => node.type === Column)).toBe(true);
+    expect(rootRows.length).toBeGreaterThan(0);
+    expect(sidebarNodes.length).toBeGreaterThan(0);
   });
 });

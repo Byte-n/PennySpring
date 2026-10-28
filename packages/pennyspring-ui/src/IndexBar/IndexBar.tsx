@@ -1,13 +1,19 @@
 import type { ComponentSize } from '../shares/types';
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
-import { Column } from '../Column';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
+import { useTheme } from '@pennyspring/theme';
 import { Row } from '../Row';
 import { Text } from '../Text';
 import { useControllableValue } from '../_hooks';
 import { useStyles } from './style';
 import type { ReactNode } from 'react';
 import type {
+  GestureResponderEvent,
   LayoutChangeEvent,
   ScrollView as ScrollViewType,
   StyleProp,
@@ -21,6 +27,9 @@ import type {
 } from './types';
 
 const DEFAULT_SIZE: ComponentSize = 'normal';
+const BUBBLE_SCALE_MIN = 0.92;
+const BUBBLE_SCALE_RANGE = 0.08;
+const LAST_INDEX_OFFSET = 0.9999;
 
 interface IndexTextProps {
   color: TextColor;
@@ -59,18 +68,6 @@ function renderTextNode(
   return node;
 }
 
-function getIndexTextSize(size: ComponentSize): TextSize {
-  if (size === 'small') {
-    return 'sm';
-  }
-
-  if (size === 'large') {
-    return 'lg';
-  }
-
-  return 'md';
-}
-
 function getInitialValue(
   panels: readonly IndexBarItem[],
   defaultValue?: IndexBarValue,
@@ -97,12 +94,22 @@ export function IndexBar({
 }: IndexBarProps) {
   const scrollViewRef = useRef<ScrollViewType | null>(null);
   const panelOffsetYRef = useRef<Record<string, number>>({});
+  const sidebarHeightRef = useRef(0);
+  const lastDragIndexRef = useRef<number | null>(null);
   const resolvedSize = resolveSize(size);
+  const { token } = useTheme();
   const tokenStyles = useStyles({
     disabled,
     size: resolvedSize,
   });
-  const indexTextSize = getIndexTextSize(resolvedSize);
+  const [bubbleValue, setBubbleValue] = useState<IndexBarValue | null>(null);
+  const bubbleOpacity = useSharedValue(0);
+  const bubbleAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: bubbleOpacity.value,
+    transform: [
+      { scale: BUBBLE_SCALE_MIN + BUBBLE_SCALE_RANGE * bubbleOpacity.value },
+    ],
+  }));
 
   const [selectedValue, setSelectedValue] = useControllableValue(
     getInitialValue(data, defaultValue),
@@ -133,47 +140,149 @@ export function IndexBar({
     });
   };
 
+  const showBubble = (panelValue: IndexBarValue) => {
+    setBubbleValue(panelValue);
+    bubbleOpacity.value = withTiming(1, {
+      duration: token.motionDurationFast,
+    });
+  };
+
+  const hideBubble = () => {
+    bubbleOpacity.value = withTiming(0, {
+      duration: token.motionDurationMid,
+    });
+  };
+
+  const activatePanel = (
+    panel: IndexBarItem,
+    event: GestureResponderEvent,
+    showBubbleOnActivate: boolean,
+  ) => {
+    if (disabled || panel.disabled === true) {
+      return;
+    }
+
+    if (showBubbleOnActivate) {
+      showBubble(panel.index);
+    }
+
+    if (selectedValue === panel.index) {
+      return;
+    }
+
+    onPress?.(event, panel.index);
+    setSelectedValue(panel.index);
+    scrollToPanel(panel.index);
+  };
+
+  const handleDrag = (event: GestureResponderEvent) => {
+    if (disabled || data.length === 0) {
+      return;
+    }
+
+    const sidebarHeight = sidebarHeightRef.current;
+
+    if (sidebarHeight <= 0) {
+      return;
+    }
+
+    const ratio = Math.min(
+      Math.max(event.nativeEvent.locationY / sidebarHeight, 0),
+      LAST_INDEX_OFFSET,
+    );
+    const index = Math.floor(ratio * data.length);
+    const panel = data[index];
+
+    if (panel === undefined || lastDragIndexRef.current === index) {
+      return;
+    }
+
+    lastDragIndexRef.current = index;
+    showBubble(panel.index);
+    onPress?.(event, panel.index);
+    setSelectedValue(panel.index);
+    scrollToPanel(panel.index);
+  };
+
+  const endDrag = () => {
+    lastDragIndexRef.current = null;
+    hideBubble();
+  };
+
+  const panelElements = data.flatMap((panel, panelIndex) => {
+    const title = (
+      <View
+        key={`index-bar-title-${String(panel.index)}`}
+        testID={`index-bar-panel-${String(panel.index)}`}
+        style={[tokenStyles.panelTitleContainer, styles?.panelTitleContainer]}
+        onLayout={event => updatePanelOffset(panel.index, event)}
+      >
+        {panel.title ??
+          renderTextNode(
+            panel.titleText ?? String(panel.index),
+            {
+              color: 'tertiary',
+              size: 'xs',
+              weight: 'semibold',
+            },
+            [tokenStyles.panelTitleText, styles?.panelTitleText],
+            `index-bar-panel-title-text-${String(panel.index)}`,
+          )}
+      </View>
+    );
+    const body = (
+      <View
+        key={`index-bar-body-${String(panel.index)}`}
+        testID={`index-bar-panel-body-${String(panel.index)}`}
+        style={[tokenStyles.panel, styles?.panel, panel.style]}
+      >
+        {renderPanel?.(panel, panelIndex)}
+      </View>
+    );
+
+    return [title, body];
+  });
+
   return (
     <Row testID="index-bar-root" style={[tokenStyles.root, style]}>
-      <ScrollView
-        ref={scrollViewRef}
-        testID="index-bar-content"
-        style={[tokenStyles.content, styles?.content]}
-      >
-        <Column gap={resolvedSize} style={tokenStyles.panelList}>
-          {data.map((panel, panelIndex) => (
-            <View
-              key={String(panel.index)}
-              testID={`index-bar-panel-${String(panel.index)}`}
-              style={[tokenStyles.panel, styles?.panel, panel.style]}
-              onLayout={event => updatePanelOffset(panel.index, event)}
-            >
-              <Column
-                style={[
-                  tokenStyles.panelTitleContainer,
-                  styles?.panelTitleContainer,
-                ]}
+      <View style={tokenStyles.contentWrapper}>
+        <ScrollView
+          ref={scrollViewRef}
+          testID="index-bar-content"
+          style={[tokenStyles.content, styles?.content]}
+          stickyHeaderIndices={data.map((_, index) => index * 2)}
+        >
+          {panelElements}
+        </ScrollView>
+        <View pointerEvents="none" style={tokenStyles.bubbleOverlay}>
+          <Animated.View
+            style={[tokenStyles.bubble, bubbleAnimatedStyle]}
+            testID="index-bar-bubble"
+          >
+            {bubbleValue === null ? null : (
+              <Text
+                color="primary"
+                size="xl"
+                weight="semibold"
+                style={tokenStyles.bubbleText}
               >
-                {panel.title ??
-                  renderTextNode(
-                    panel.titleText ?? String(panel.index),
-                    {
-                      color: 'secondary',
-                      size: 'sm',
-                      weight: 'strong',
-                    },
-                    [tokenStyles.panelTitleText, styles?.panelTitleText],
-                    `index-bar-panel-title-text-${String(panel.index)}`,
-                  )}
-              </Column>
-              {renderPanel?.(panel, panelIndex)}
-            </View>
-          ))}
-        </Column>
-      </ScrollView>
-      <Column
+                {String(bubbleValue)}
+              </Text>
+            )}
+          </Animated.View>
+        </View>
+      </View>
+      <View
         testID="index-bar-sidebar"
         style={[tokenStyles.sidebar, styles?.sidebar]}
+        onLayout={event => {
+          sidebarHeightRef.current = event.nativeEvent.layout.height;
+        }}
+        onMoveShouldSetResponderCapture={() => !disabled}
+        onResponderGrant={handleDrag}
+        onResponderMove={handleDrag}
+        onResponderRelease={endDrag}
+        onResponderTerminate={endDrag}
       >
         {data.map(panel => {
           const itemDisabled = disabled || panel.disabled === true;
@@ -190,46 +299,54 @@ export function IndexBar({
                   return;
                 }
 
-                onPress?.(event, panel.index);
-                setSelectedValue(panel.index);
-                scrollToPanel(panel.index);
+                activatePanel(panel, event, false);
               }}
+              onPressIn={() => {
+                if (!itemDisabled) {
+                  showBubble(panel.index);
+                }
+              }}
+              onPressOut={hideBubble}
               style={({ pressed }) => [
                 tokenStyles.indexItem,
                 styles?.indexItem,
-                isSelected ? tokenStyles.indexItemActive : null,
-                isSelected ? styles?.indexItemActive : null,
                 pressed && !itemDisabled ? tokenStyles.indexItemPressed : null,
                 pressed && !itemDisabled ? styles?.indexItemPressed : null,
-                itemDisabled ? tokenStyles.indexItemDisabled : null,
-                itemDisabled ? styles?.indexItemDisabled : null,
               ]}
             >
-              {renderTextNode(
-                panel.index,
-                {
-                  color: itemDisabled
-                    ? 'disabled'
-                    : isSelected
-                      ? 'primary'
-                      : 'secondary',
-                  size: indexTextSize,
-                  weight: isSelected ? 'strong' : 'regular',
-                },
-                [
-                  tokenStyles.indexText,
-                  styles?.indexText,
-                  isSelected ? tokenStyles.indexTextActive : null,
-                  isSelected ? styles?.indexTextActive : null,
-                  itemDisabled ? tokenStyles.indexTextDisabled : null,
-                  itemDisabled ? styles?.indexTextDisabled : null,
-                ],
-                `index-bar-index-text-${String(panel.index)}`,
-              )}
+              <View
+                style={[
+                  tokenStyles.indexLetter,
+                  isSelected ? tokenStyles.indexLetterActive : null,
+                  isSelected ? styles?.indexItemActive : null,
+                ]}
+              >
+                {renderTextNode(
+                  panel.index,
+                  {
+                    color: itemDisabled
+                      ? 'quaternary'
+                      : isSelected
+                        ? 'lightSolid'
+                        : 'secondary',
+                    size: 'xs',
+                    weight: 'semibold',
+                  },
+                  [
+                    tokenStyles.indexText,
+                    styles?.indexText,
+                    isSelected ? tokenStyles.indexTextActive : null,
+                    isSelected ? styles?.indexTextActive : null,
+                    itemDisabled ? tokenStyles.indexTextDisabled : null,
+                    itemDisabled ? styles?.indexTextDisabled : null,
+                  ],
+                  `index-bar-index-text-${String(panel.index)}`,
+                )}
+              </View>
             </Pressable>
           );
         })}
-      </Column>
+      </View>
     </Row>
   );
 }
