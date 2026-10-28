@@ -2,6 +2,7 @@ import { createUseSheetStyle } from '@pennyspring/theme';
 import type { AliasToken } from '@pennyspring/theme';
 import type { ViewStyle } from 'react-native';
 import type { ComponentSize } from '../../shares/types';
+import { resolveLayoutGap } from '../../shares/layoutGap';
 import type {
   SpaceAlign,
   SpaceDirection,
@@ -20,23 +21,12 @@ export interface SpaceItemStyleOptions {
   direction: SpaceDirection;
   gap: number;
   isLast: boolean;
+  stretch: boolean;
   wrap: boolean;
 }
 
 export function getGap(size: ComponentSize, token: AliasToken): number {
-  if (size === 'small') {
-    return token.paddingXXS;
-  }
-
-  if (size === 'large') {
-    return token.paddingSM;
-  }
-
-  return token.paddingXS;
-}
-
-export function getVerticalGap(gap: number): number {
-  return gap / 2;
+  return resolveLayoutGap(size, token);
 }
 
 export function resolveSize(size?: ComponentSize): ComponentSize {
@@ -81,7 +71,7 @@ function mapJustifyContent(justify?: SpaceJustify): ViewStyle['justifyContent'] 
   }
 
   if (justify === 'stretch') {
-    return undefined;
+    return 'space-between';
   }
 
   return mapFlexStartEnd(justify);
@@ -96,6 +86,7 @@ export const useSpaceStyles = createUseSheetStyle(
       flexWrap:
         options.direction === 'horizontal' && options.wrap ? 'wrap' : undefined,
       justifyContent: mapJustifyContent(options.justify),
+      width: options.block ? '100%' : undefined,
     },
     item: {
       flexShrink: 0,
@@ -107,11 +98,12 @@ export const useSpaceItemStyles = createUseSheetStyle(
   (_token, options: SpaceItemStyleOptions) => {
     const style: ViewStyle = {
       flexShrink: 0,
+      flex: options.stretch ? 1 : undefined,
     };
 
     if (options.direction === 'vertical') {
       if (!options.isLast) {
-        style.marginBottom = getVerticalGap(options.gap);
+        style.marginBottom = options.gap;
       }
 
       return {
@@ -124,7 +116,7 @@ export const useSpaceItemStyles = createUseSheetStyle(
     }
 
     if (options.wrap) {
-      style.marginBottom = getVerticalGap(options.gap);
+      style.marginBottom = options.gap;
     }
 
     return {

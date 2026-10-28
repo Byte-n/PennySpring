@@ -24,6 +24,7 @@ interface SpaceItemProps {
   direction: SpaceDirection;
   gap: number;
   isLast: boolean;
+  stretch: boolean;
   style?: SpaceProps['styles'];
   wrap: boolean;
 }
@@ -33,6 +34,7 @@ function SpaceItem({
   direction,
   gap,
   isLast,
+  stretch,
   style,
   wrap,
 }: SpaceItemProps) {
@@ -40,6 +42,7 @@ function SpaceItem({
     direction,
     gap,
     isLast,
+    stretch,
     wrap,
   });
 
@@ -69,6 +72,7 @@ export function Space({
   const { token } = useTheme();
   const gap = getGap(resolvedSize, token);
   const validChildren = getValidChildren(children);
+  const isStretch = justify === 'stretch';
 
   return (
     <View style={[tokenStyles.root, style]}>
@@ -78,6 +82,7 @@ export function Space({
           direction={resolvedDirection}
           gap={gap}
           isLast={index === validChildren.length - 1}
+          stretch={isStretch}
           style={styles}
           wrap={wrap}
         >

@@ -23,9 +23,9 @@ function renderThemedSpace(props: Partial<React.ComponentProps<typeof Space>> = 
       <ThemeProvider
         config={{
           token: {
-            paddingXXS: 3,
-            paddingXS: 5,
-            paddingSM: 7,
+            sizeXS: 3,
+            paddingSM: 5,
+            padding: 7,
           },
         }}
       >
@@ -52,7 +52,21 @@ describe('Space', () => {
     });
     const rootStyle = flattenStyle(getSpaceRoot(testRenderer).props.style);
     expect(rootStyle.alignSelf).toBe('stretch');
+    expect(rootStyle.width).toBe('100%');
   });
+  it('distributes child items evenly when justify is stretch', () => {
+    const testRenderer = renderThemedSpace({ justify: 'stretch' });
+    const rootStyle = flattenStyle(getSpaceRoot(testRenderer).props.style);
+    const itemStyles = testRenderer.root
+      .findAllByType(View)
+      .map(node => StyleSheet.flatten(node.props.style))
+      .filter(style => style?.flexShrink === 0);
+
+    expect(rootStyle.justifyContent).toBe('space-between');
+    expect(itemStyles[0].flex).toBe(1);
+    expect(itemStyles[1].flex).toBe(1);
+  });
+
   it('does not bind built-in press behavior', () => {
     const testRenderer = renderSpace();
     expect(testRenderer.root.findAllByType(Pressable)).toHaveLength(0);
@@ -77,7 +91,7 @@ describe('Space', () => {
     ['small', 3],
     ['normal', 5],
     ['large', 7],
-  ] as const)('maps %s size to half-gap in vertical direction', (size, expectedGap) => {
+  ] as const)('maps %s size to the same gap in vertical direction', (size, expectedGap) => {
     const testRenderer = renderThemedSpace({
       direction: 'vertical',
       size,
@@ -87,7 +101,7 @@ describe('Space', () => {
       .map(node => StyleSheet.flatten(node.props.style))
       .filter(style => style?.marginBottom !== undefined);
 
-    expect(itemStyles[0].marginBottom).toBe(expectedGap / 2);
+    expect(itemStyles[0].marginBottom).toBe(expectedGap);
   });
 
   it('defaults to horizontal direction with row layout', () => {
@@ -138,14 +152,14 @@ describe('Space', () => {
     expect(rootStyle.flexWrap).toBeUndefined();
   });
 
-  it('adds half-gap vertical margins when wrap is enabled', () => {
+  it('adds full gap vertical margins when wrap is enabled', () => {
     const testRenderer = renderThemedSpace({ wrap: true, size: 'normal' });
     const items = testRenderer.root
       .findAllByType(View)
       .map(node => StyleSheet.flatten(node.props.style))
       .filter(style => style?.flexShrink === 0 && style?.marginRight !== undefined);
 
-    expect(items[0].marginBottom).toBe(2.5);
+    expect(items[0].marginBottom).toBe(5);
   });
 
   it('applies external style prop to root container', () => {
