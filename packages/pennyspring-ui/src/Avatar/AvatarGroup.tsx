@@ -4,107 +4,94 @@ import { View } from 'react-native';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import { Row } from '../Row';
 import { Text } from '../Text';
-import type { TextColor, TextSize } from '../Text';
-import { AvatarRoot } from './Avatar';
-import type {
-  AliasToken } from '@pennyspring/theme';
-import type { TextStyle,
-  ViewStyle } from 'react-native';
+import { AvatarRoot, AVATAR_SIZE_CONFIG } from './Avatar';
+import type { StyleProp, ViewStyle } from 'react-native';
 import type { AvatarGroupProps,
+  AvatarShape,
 } from './types';
 
 const DEFAULT_MAX_COUNT = 3;
+const PILL_RADIUS = 999;
 
-interface AvatarGroupStyleOptions {
+/** 重叠 = 头像直径的 25%，按 4px 网格取整；环固定 2px 容器色。 */
+const AVATAR_GROUP_OVERLAP: Record<ComponentSize, number> = {
+  small: 8,
+  normal: 10,
+  large: 14,
+};
+
+const AVATAR_GROUP_REST_PADDING: Record<ComponentSize, number> = {
+  small: 6,
+  normal: 8,
+  large: 10,
+};
+
+interface AvatarGroupItemStyleOptions {
+  isFirst: boolean;
+  shape: AvatarShape;
   size: ComponentSize;
 }
 
-interface AvatarGroupSizeConfig {
-  overlap: (token: AliasToken) => number;
-  restDimension: (token: AliasToken) => number;
-  restPaddingHorizontal: (token: AliasToken) => number;
+const useItemStyles = createUseSheetStyle(
+  (token, { isFirst, shape, size }: AvatarGroupItemStyleOptions) => {
+    const sizeConfig = AVATAR_SIZE_CONFIG[size];
+    const squareRadius = sizeConfig.squareRadius(token) + token.lineWidthBold;
+
+    return {
+      frame: {
+        borderColor: token.colorBgContainer,
+        borderRadius: shape === 'circle' ? PILL_RADIUS : squareRadius,
+        borderWidth: token.lineWidthBold,
+        marginLeft: isFirst ? 0 : -AVATAR_GROUP_OVERLAP[size],
+      },
+    };
+  },
+);
+
+const useRestStyles = createUseSheetStyle(
+  (token, { size }: { size: ComponentSize }) => {
+    const sizeConfig = AVATAR_SIZE_CONFIG[size];
+    const dimension = sizeConfig.dimension;
+
+    return {
+      rest: {
+        alignItems: 'center',
+        backgroundColor: token.colorFillTertiary,
+        borderRadius: PILL_RADIUS,
+        height: dimension,
+        justifyContent: 'center',
+        minWidth: dimension,
+        paddingHorizontal: AVATAR_GROUP_REST_PADDING[size],
+      },
+      restText: {
+        textAlign: 'center',
+      },
+    };
+  },
+);
+
+interface AvatarGroupFrameProps {
+  children: React.ReactNode;
+  isFirst: boolean;
+  shape: AvatarShape;
+  size: ComponentSize;
+  style?: StyleProp<ViewStyle>;
 }
 
-const AVATAR_GROUP_SIZE_CONFIG: Record<ComponentSize, AvatarGroupSizeConfig> = {
-  small: {
-    overlap: token => token.paddingXXS,
-    restDimension: token => token.controlHeightSM,
-    restPaddingHorizontal: token => token.paddingXXS,
-  },
-  normal: {
-    overlap: token => token.paddingXS,
-    restDimension: token => token.controlHeight,
-    restPaddingHorizontal: token => token.paddingXS,
-  },
-  large: {
-    overlap: token => token.paddingSM,
-    restDimension: token => token.controlHeightLG,
-    restPaddingHorizontal: token => token.paddingSM,
-  },
-};
+function AvatarGroupFrame({
+  children,
+  isFirst,
+  shape,
+  size,
+  style,
+}: AvatarGroupFrameProps) {
+  const tokenStyles = useItemStyles({ isFirst, shape, size });
 
-interface AvatarGroupStyleSheet {
-  [key: string]: ViewStyle | TextStyle;
-  root: ViewStyle;
-  item: ViewStyle;
-  firstItem: ViewStyle;
-  rest: ViewStyle;
-  restText: TextStyle;
+  return <View style={[tokenStyles.frame, style]}>{children}</View>;
 }
-
-const useStyles = createUseSheetStyle<
-  AvatarGroupStyleOptions,
-  AvatarGroupStyleSheet
->((token, { size }: AvatarGroupStyleOptions) => {
-  const sizeConfig = AVATAR_GROUP_SIZE_CONFIG[size];
-  const overlap = sizeConfig.overlap(token);
-  const restDimension = sizeConfig.restDimension(token);
-
-  return {
-    root: {
-      alignItems: 'center',
-    },
-    item: {
-      marginLeft: -overlap,
-    },
-    firstItem: {
-      marginLeft: 0,
-    },
-    rest: {
-      alignItems: 'center',
-      backgroundColor: token.colorFillTertiary,
-      borderColor: token.colorBgContainer,
-      borderRadius: restDimension,
-      borderWidth: token.lineWidth,
-      height: restDimension,
-      justifyContent: 'center',
-      marginLeft: -overlap,
-      minWidth: restDimension,
-      paddingHorizontal: sizeConfig.restPaddingHorizontal(token),
-    },
-    restText: {
-    },
-  };
-});
 
 function resolveAvatarGroupSize(size?: ComponentSize): ComponentSize {
   return size ?? 'normal';
-}
-
-function resolveAvatarGroupRestTextSize(size: ComponentSize): TextSize {
-  if (size === 'small') {
-    return 'sm';
-  }
-
-  if (size === 'large') {
-    return 'lg';
-  }
-
-  return 'md';
-}
-
-function resolveAvatarGroupRestTextColor(): TextColor {
-  return 'secondary';
 }
 
 export function resolveAvatarGroupMaxCount(maxCount: number | undefined): number {
@@ -129,39 +116,45 @@ export function AvatarGroup({
 }: AvatarGroupProps) {
   const resolvedSize = resolveAvatarGroupSize(size);
   const resolvedMaxCount = resolveAvatarGroupMaxCount(maxCount);
-  const tokenStyles = useStyles({ size: resolvedSize });
+  const restStyles = useRestStyles({ size: resolvedSize });
   const visibleItems = items.slice(0, resolvedMaxCount);
   const restCount = Math.max(0, items.length - visibleItems.length);
 
   return (
-    <Row style={[tokenStyles.root, style]}>
+    <Row style={style}>
       {visibleItems.map((item, index) => {
         const { key, size: itemSize, ...avatarProps } = item;
+        const resolvedItemSize = itemSize ?? resolvedSize;
 
         return (
-          <View
+          <AvatarGroupFrame
             key={key}
-            style={[
-              tokenStyles.item,
-              index === 0 ? tokenStyles.firstItem : undefined,
-              styles?.item,
-            ]}
+            isFirst={index === 0}
+            shape={avatarProps.shape ?? 'circle'}
+            size={resolvedItemSize}
+            style={styles?.item}
           >
-            <AvatarRoot {...avatarProps} size={itemSize ?? resolvedSize} />
-          </View>
+            <AvatarRoot {...avatarProps} size={resolvedItemSize} />
+          </AvatarGroupFrame>
         );
       })}
       {restCount > 0 ? (
-        <View style={[tokenStyles.rest, styles?.rest]}>
-          <Text
-            color={resolveAvatarGroupRestTextColor()}
-            size={resolveAvatarGroupRestTextSize(resolvedSize)}
-            weight="strong"
-            style={[tokenStyles.restText, styles?.restText]}
-          >
-            {`+${restCount}`}
-          </Text>
-        </View>
+        <AvatarGroupFrame
+          isFirst={visibleItems.length === 0}
+          shape="circle"
+          size={resolvedSize}
+        >
+          <View style={[restStyles.rest, styles?.rest]}>
+            <Text
+              color="secondary"
+              size={AVATAR_SIZE_CONFIG[resolvedSize].textSize}
+              weight="semibold"
+              style={[restStyles.restText, styles?.restText]}
+            >
+              {`+${restCount}`}
+            </Text>
+          </View>
+        </AvatarGroupFrame>
       ) : null}
     </Row>
   );

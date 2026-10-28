@@ -2,6 +2,7 @@ import type { ComponentSize } from '../shares/types';
 import React, { useEffect, useState } from 'react';
 import { Image, View } from 'react-native';
 import { createUseSheetStyle } from '@pennyspring/theme';
+import { Icon } from '../Icon';
 import { Text } from '../Text';
 import { renderTextNode } from '../shares/node';
 import type {
@@ -14,7 +15,7 @@ import type { AliasToken } from '@pennyspring/theme';
 import type { AvatarProps,
   AvatarShape,
 } from './types';
-import type { TextColor, TextSize } from '../Text';
+import type { TextSize } from '../Text';
 
 export type AvatarDisplayType = 'image' | 'text' | 'icon' | 'empty';
 
@@ -24,18 +25,36 @@ interface AvatarStyleOptions {
 }
 
 interface AvatarSizeConfig {
-  dimension: (token: AliasToken) => number;
+  dimension: number;
+  textSize: TextSize;
+  iconSize: number;
+  squareRadius: (token: AliasToken) => number;
 }
 
-const AVATAR_SIZE_CONFIG: Record<ComponentSize, AvatarSizeConfig> = {
+/** AliasToken 没有头像档位；28 / 40 / 56 落在 4px 网格，方角对齐小/中/大卡。 */
+const AVATAR_SMALL = 28;
+const AVATAR_NORMAL = 40;
+const AVATAR_LARGE = 56;
+const PILL_RADIUS = 999;
+
+export const AVATAR_SIZE_CONFIG: Record<ComponentSize, AvatarSizeConfig> = {
   small: {
-    dimension: token => token.controlHeightSM,
+    dimension: AVATAR_SMALL,
+    textSize: 'xs',
+    iconSize: 16,
+    squareRadius: token => token.borderRadiusSM,
   },
   normal: {
-    dimension: token => token.controlHeight,
+    dimension: AVATAR_NORMAL,
+    textSize: 'sm',
+    iconSize: 20,
+    squareRadius: token => token.borderRadius,
   },
   large: {
-    dimension: token => token.controlHeightLG,
+    dimension: AVATAR_LARGE,
+    textSize: 'lg',
+    iconSize: 26,
+    squareRadius: token => token.borderRadiusLG,
   },
 };
 
@@ -50,8 +69,10 @@ interface AvatarStyleSheet {
 const useStyles = createUseSheetStyle<AvatarStyleOptions, AvatarStyleSheet>(
   (token, { shape, size }: AvatarStyleOptions) => {
     const sizeConfig = AVATAR_SIZE_CONFIG[size];
-    const dimension = sizeConfig.dimension(token);
-    const borderRadius = shape === 'circle' ? dimension : token.borderRadius;
+    const dimension = sizeConfig.dimension;
+    const borderRadius = shape === 'circle'
+      ? PILL_RADIUS
+      : sizeConfig.squareRadius(token);
 
     return {
       root: {
@@ -72,7 +93,7 @@ const useStyles = createUseSheetStyle<AvatarStyleOptions, AvatarStyleSheet>(
         justifyContent: 'center',
       },
       rootDisabled: {
-        backgroundColor: token.colorBgContainerDisabled,
+        backgroundColor: token.colorFillQuaternary,
         opacity: token.opacityLoading,
       },
     };
@@ -81,22 +102,6 @@ const useStyles = createUseSheetStyle<AvatarStyleOptions, AvatarStyleSheet>(
 
 function resolveAvatarSize(size?: ComponentSize): ComponentSize {
   return size ?? 'normal';
-}
-
-function resolveAvatarTextSize(size: ComponentSize): TextSize {
-  if (size === 'small') {
-    return 'sm';
-  }
-
-  if (size === 'large') {
-    return 'lg';
-  }
-
-  return 'md';
-}
-
-function resolveAvatarTextColor(): TextColor {
-  return 'default';
 }
 
 export function resolveAvatarDisplayType(
@@ -137,6 +142,7 @@ export function AvatarRoot({
 }: AvatarProps) {
   const resolvedSize = resolveAvatarSize(size);
   const tokenStyles = useStyles({ shape, size: resolvedSize });
+  const sizeConfig = AVATAR_SIZE_CONFIG[resolvedSize];
   const [hasImageError, setHasImageError] = useState(false);
   const displayType = resolveAvatarDisplayType(
     src,
@@ -171,9 +177,9 @@ export function AvatarRoot({
       ) : null}
       {displayType === 'text' ? (
         <Text
-          color={resolveAvatarTextColor()}
-          size={resolveAvatarTextSize(resolvedSize)}
-          weight="strong"
+          color="secondary"
+          size={sizeConfig.textSize}
+          weight="semibold"
           style={styles?.text}
         >
           {formatAvatarText(text ?? '')}
@@ -181,6 +187,14 @@ export function AvatarRoot({
       ) : null}
       {displayType === 'icon' ? (
         <View style={[tokenStyles.icon, styles?.icon]}>{renderTextNode(icon, (value) => <Text>{value}</Text>)}</View>
+      ) : null}
+      {displayType === 'empty' ? (
+        <Icon
+          color="quaternary"
+          icon="user"
+          size={sizeConfig.iconSize}
+          style={[tokenStyles.icon, styles?.icon]}
+        />
       ) : null}
     </View>
   );

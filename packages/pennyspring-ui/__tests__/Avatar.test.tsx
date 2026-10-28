@@ -1,6 +1,7 @@
 import React from 'react';
-import { Image, StyleSheet, View } from 'react-native';
+import { Image, StyleSheet } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
+import { Icon } from '../src/Icon';
 import { Text } from '../src/Text';
 import { Row } from '../src/Row';
 import { Avatar } from '../src/Avatar';
@@ -47,8 +48,8 @@ describe('Avatar', () => {
     const avatarText = testRenderer.root.findByType(Text);
 
     // Assert
-    expect(avatarText.props.size).toBe('sm');
-    expect(avatarText.props.color).toBe('default');
+    expect(avatarText.props.size).toBe('xs');
+    expect(avatarText.props.color).toBe('secondary');
   });
   it('maps text size prop across component sizes', () => {
     // Arrange
@@ -66,7 +67,7 @@ describe('Avatar', () => {
     const largeText = largeRenderer.root.findByType(Text);
 
     // Assert
-    expect(normalText.props.size).toBe('md');
+    expect(normalText.props.size).toBe('sm');
     expect(largeText.props.size).toBe('lg');
   });
   it('does not inject typography semantics through Avatar internal text style', () => {
@@ -95,14 +96,12 @@ describe('Avatar', () => {
     const treeString = JSON.stringify(testRenderer.toJSON());
     expect(treeString).toContain('Icon fallback');
   });
-  it('renders an empty visual surface without image text or icon content', () => {
+  it('renders a person placeholder icon when content is unavailable', () => {
     const testRenderer = renderAvatar({});
-    const tree = testRenderer.toJSON();
-    expect(testRenderer.root.findAllByType(View)).toHaveLength(1);
-    expect(testRenderer.root.findAllByType(Image)).toHaveLength(0);
-    expect(Array.isArray(tree) ? tree[0] : tree).toMatchObject({
-      children: null
-    });
+    const placeholder = testRenderer.root.findByType(Icon);
+
+    expect(placeholder.props.icon).toBe('user');
+    expect(placeholder.props.color).toBe('quaternary');
   });
   it('falls back to text and calls onError after image load fails', () => {
     const onError = jest.fn();
@@ -205,8 +204,8 @@ describe('Avatar.Group', () => {
 
     // Assert
     expect(restText?.props.color).toBe('secondary');
-    expect(restText?.props.size).toBe('md');
-    expect(restText?.props.weight).toBe('strong');
+    expect(restText?.props.size).toBe('sm');
+    expect(restText?.props.weight).toBe('semibold');
   });
   it('uses default maxCount when maxCount is invalid', () => {
     const testRenderer = renderAvatarGroup({
