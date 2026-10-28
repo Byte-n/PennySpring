@@ -28,7 +28,7 @@ export const agentMessages = sqliteTable(
     threadId: integerColumn('thread_id').notNull(),
     // 消息角色
     role: enumColumn<AgentMessageRoleValue>('role').notNull(),
-    // AI SDK ModelMessage 的 JSON；完整保存 user / assistant / tool 消息
+    // 消息 JSON（AI SDK UIMessage）
     message: text('message').notNull().default(''),
     // 本轮回复的 token 用量 JSON；空字符串表示未记录
     usage: text('usage').notNull().default(''),

@@ -363,12 +363,7 @@ export const AGENT_MESSAGE_ROLE = enumOf({
   assistant: {
     value: 'assistant',
     label: '助手',
-    description: '模型回复，可能仅携带工具调用',
-  },
-  tool: {
-    value: 'tool',
-    label: '工具',
-    description: '工具执行结果，回灌给模型',
+    description: '模型回复',
   },
 });
 

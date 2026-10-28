@@ -1,8 +1,15 @@
 import React from 'react';
 import TestRenderer, { act } from 'react-test-renderer';
+import type { ThreadMessageLike } from '@assistant-ui/react-native';
+import {
+  AssistantRuntimeProvider,
+  useLocalRuntime,
+  type ChatModelAdapter,
+  type ThreadMessage,
+} from '@assistant-ui/react-native';
 
 import { AgentDrawer } from '../../src/agent/ui/AgentDrawer';
-import type { AgentChatState } from '../../src/agent/ui/useAgentChat';
+import type { AgentSessionState } from '../../src/agent/ui/useAgentSession';
 
 jest.mock('@pennyspring/theme', () => ({
   createUseSheetStyle: () => () => ({}),
@@ -37,17 +44,27 @@ jest.mock('@pennyspring/ui', () => {
         : children,
     );
 
-  const MockInput = (props: Record<string, any>) =>
+  const MockTextarea = (props: Record<string, any>) =>
     ReactLib.createElement(TextInput, {
-      onChangeText: props.onChange,
-      onSubmitEditing: props.onSubmitEditing,
+      multiline: true,
+      onChangeText: props.onChangeText,
       placeholder: props.placeholder,
       testID: props.testID,
       value: props.value,
     });
 
-  const MockEmpty = ({ descriptionText, titleText }: { descriptionText?: string; titleText?: string }) =>
-    ReactLib.createElement(Text, { testID: 'agent-empty' }, titleText ?? descriptionText);
+  const MockEmpty = ({
+    descriptionText,
+    titleText,
+  }: {
+    descriptionText?: string;
+    titleText?: string;
+  }) =>
+    ReactLib.createElement(
+      Text,
+      { testID: 'agent-empty' },
+      titleText ?? descriptionText,
+    );
 
   const MockLoading = ({ text }: { text?: string }) =>
     ReactLib.createElement(Text, { testID: 'agent-loading' }, text ?? 'loading');
@@ -66,7 +83,10 @@ jest.mock('@pennyspring/ui', () => {
           View,
           null,
           renderHeaderRight
-            ? renderHeaderRight({ cancel: () => undefined, confirm: async () => undefined })
+            ? renderHeaderRight({
+                cancel: () => undefined,
+                confirm: async () => undefined,
+              })
             : null,
           children,
         )
@@ -76,13 +96,22 @@ jest.mock('@pennyspring/ui', () => {
     Button: MockButton,
     Column: passthrough(View),
     Empty: MockEmpty,
-    Input: MockInput,
+    Icon: () => null,
     Loading: MockLoading,
-    Popover: ({ children, content, open }: { children?: React.ReactNode; content?: React.ReactNode; open?: boolean }) =>
+    Popover: ({
+      children,
+      content,
+      open,
+    }: {
+      children?: React.ReactNode;
+      content?: React.ReactNode;
+      open?: boolean;
+    }) =>
       ReactLib.createElement(View, null, children, open ? content : null),
     Popup: { FloatingPanel: MockFloatingPanel },
     Row: passthrough(View),
     Text: passthrough(Text),
+    Textarea: MockTextarea,
     useToast: () => ({
       show: jest.fn(() => 0),
       hide: jest.fn(),
@@ -104,52 +133,131 @@ const EMPTY_USAGE = {
   totalTokens: 0,
 };
 
-function createChat(overrides: Partial<AgentChatState> = {}): AgentChatState {
+function createSession(
+  overrides: Partial<AgentSessionState> = {},
+): AgentSessionState {
   return {
     loading: false,
     sending: false,
-    messages: [],
-    streamingText: '',
-    activeTool: null,
     errorText: '',
     usage: EMPTY_USAGE,
     threads: [],
     threadsLoading: false,
-    currentThreadId: null,
-    send: jest.fn(() => Promise.resolve()),
-    stop: jest.fn(),
+    currentThreadId: 1,
+    initialMessages: [],
     createThread: jest.fn(() => Promise.resolve(true)),
     selectThread: jest.fn(() => Promise.resolve(true)),
     deleteThread: jest.fn(() => Promise.resolve()),
     deleteCurrentThread: jest.fn(() => Promise.resolve()),
+    refreshThreads: jest.fn(() => Promise.resolve()),
+    ensureTitle: jest.fn(() => Promise.resolve()),
+    markActivity: jest.fn(),
+    accumulateUsage: jest.fn(),
+    setSending: jest.fn(),
+    setErrorText: jest.fn(),
     ...overrides,
   };
 }
 
-function renderDrawer(
-  chat: AgentChatState,
-  options: {
-    configured?: boolean;
-    onOpenSettings?: () => void;
-    onOpenSessions?: () => void;
-  } = {},
-) {
-  const onOpenSettings = options.onOpenSettings ?? jest.fn();
-  const onOpenSessions = options.onOpenSessions ?? jest.fn();
+interface HarnessProps {
+  session: AgentSessionState;
+  configured: boolean;
+  initialMessages: readonly ThreadMessageLike[];
+  adapter: ChatModelAdapter;
+  onOpenSettings: () => void;
+  onOpenSessions: () => void;
+}
+
+function Harness({
+  session,
+  configured,
+  initialMessages,
+  adapter,
+  onOpenSettings,
+  onOpenSessions,
+}: HarnessProps) {
+  const runtime = useLocalRuntime(adapter, { initialMessages });
+
+  return (
+    <AssistantRuntimeProvider runtime={runtime}>
+      <AgentDrawer
+        configured={configured}
+        onOpenChange={jest.fn()}
+        onOpenSettings={onOpenSettings}
+        onOpenSessions={onOpenSessions}
+        open
+        runtimeErrorText=""
+        session={session}
+      />
+    </AssistantRuntimeProvider>
+  );
+}
+
+function createAdapter(): ChatModelAdapter {
+  return {
+    run: async () => ({
+      content: [{ type: 'text', text: '收到' }],
+    }),
+  };
+}
+
+function createPendingAdapter(
+  onSignal: (signal: AbortSignal) => void,
+): ChatModelAdapter {
+  return {
+    run: ({ abortSignal }) =>
+      new Promise(resolve => {
+        onSignal(abortSignal);
+        abortSignal.addEventListener(
+          'abort',
+          () => resolve({ content: [] }),
+          { once: true },
+        );
+      }),
+  };
+}
+
+function flush(): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, 0));
+}
+
+interface RenderOptions {
+  session?: Partial<AgentSessionState>;
+  configured?: boolean;
+  initialMessages?: readonly ThreadMessageLike[];
+  adapter?: ChatModelAdapter;
+}
+
+const mountedRenderers: TestRenderer.ReactTestRenderer[] = [];
+
+afterEach(() => {
+  act(() => {
+    mountedRenderers.splice(0).forEach(renderer => renderer.unmount());
+  });
+});
+
+function renderDrawer(options: RenderOptions = {}) {
+  const session = createSession(options.session);
+  const onOpenSettings = jest.fn();
+  const onOpenSessions = jest.fn();
+  const adapter = options.adapter ?? createAdapter();
   let renderer: TestRenderer.ReactTestRenderer;
+
   act(() => {
     renderer = TestRenderer.create(
-      <AgentDrawer
-        chat={chat}
+      <Harness
+        adapter={adapter}
         configured={options.configured ?? true}
-        onOpenChange={jest.fn()}
+        initialMessages={options.initialMessages ?? []}
         onOpenSessions={onOpenSessions}
         onOpenSettings={onOpenSettings}
-        open
+        session={session}
       />,
     );
   });
-  return { renderer: renderer!, onOpenSessions, onOpenSettings };
+
+  mountedRenderers.push(renderer!);
+  return { renderer: renderer!, onOpenSessions, onOpenSettings, session };
 }
 
 type HostNode = {
@@ -174,18 +282,40 @@ function collectText(nodes: readonly unknown[]): string {
 
 function renderedText(renderer: TestRenderer.ReactTestRenderer): string {
   const root = renderer.toJSON();
-  return collectText(root === null ? [] : (Array.isArray(root) ? root : [root]));
+  return collectText(root === null ? [] : Array.isArray(root) ? root : [root]);
 }
 
-describe('AgentDrawer', () => {
-  it('shows the setup notice and suggestions when the agent is not configured', () => {
-    const { renderer, onOpenSettings } = renderDrawer(createChat(), {
-      configured: false,
-    });
+function messageText(message: ThreadMessage): string {
+  return message.content
+    .map(part => (part.type === 'text' ? part.text : ''))
+    .join('');
+}
 
-    expect(renderer.root.findByProps({ testID: 'agent-empty' }).props.children).toBe(
-      '记账遇到问题，可以直接问我。',
-    );
+const CONVERSATION: ThreadMessageLike[] = [
+  { role: 'user', content: '上个月吃饭花了多少？' },
+  {
+    role: 'assistant',
+    content: [
+      {
+        type: 'tool-call',
+        toolCallId: 'call-1',
+        toolName: 'queryRecords',
+        args: {},
+        argsText: '{}',
+        result: { total: 120 },
+      },
+      { type: 'text', text: '**合计 120 元**' },
+    ],
+  },
+];
+
+describe('AgentDrawer', () => {
+  it('shows the setup notice and opens settings from a suggestion', () => {
+    const { renderer, onOpenSettings } = renderDrawer({ configured: false });
+
+    expect(
+      renderer.root.findByProps({ testID: 'agent-empty' }).props.children,
+    ).toBe('记账遇到问题，可以直接问我。');
 
     act(() => {
       renderer.root
@@ -202,28 +332,52 @@ describe('AgentDrawer', () => {
     expect(onOpenSettings).toHaveBeenCalledTimes(2);
   });
 
-  it('sends the trimmed draft when the send button is pressed', () => {
-    const chat = createChat();
-    const { renderer } = renderDrawer(chat);
+  it('renders messages, markdown and completed tool status', () => {
+    const { renderer } = renderDrawer({ initialMessages: CONVERSATION });
+
+    const text = renderedText(renderer);
+
+    expect(text).toContain('上个月吃饭花了多少？');
+    expect(text).toContain('合计 120 元');
+    expect(text).not.toContain('**合计 120 元**');
+    expect(text).toContain('已查询账本数据');
+  });
+
+  it('sends the trimmed draft when the send button is pressed', async () => {
+    const runSpy = jest.fn();
+    const adapter: ChatModelAdapter = {
+      run: async ({ messages }) => {
+        runSpy(messages);
+        return { content: [{ type: 'text', text: '收到' }] };
+      },
+    };
+    const { renderer } = renderDrawer({ adapter });
 
     act(() => {
       renderer.root
         .findByProps({ testID: 'agent-input' })
-        .props.onChange('  上个月吃饭花了多少？  ');
+        .props.onChangeText('  上个月吃饭花了多少？  ');
     });
 
-    const sendButton = renderer.root.findByProps({ testID: 'agent-send-button' });
+    const sendButton = renderer.root.findByProps({
+      testID: 'agent-send-button',
+    });
     expect(sendButton.props.disabled).toBe(false);
 
-    act(() => {
+    await act(async () => {
       sendButton.props.onPress();
+      await flush();
     });
 
-    expect(chat.send).toHaveBeenCalledWith('上个月吃饭花了多少？');
+    expect(runSpy).toHaveBeenCalledTimes(1);
+    const messages = runSpy.mock.calls[0][0] as ThreadMessage[];
+    expect(messageText(messages[messages.length - 1]!).trim()).toBe(
+      '上个月吃饭花了多少？',
+    );
   });
 
   it('keeps the send button disabled for a blank draft', () => {
-    const { renderer } = renderDrawer(createChat());
+    const { renderer } = renderDrawer();
 
     expect(
       renderer.root.findByProps({ testID: 'agent-send-button' }).props.disabled,
@@ -231,7 +385,7 @@ describe('AgentDrawer', () => {
   });
 
   it('opens the session list from the header', () => {
-    const { renderer, onOpenSessions } = renderDrawer(createChat());
+    const { renderer, onOpenSessions } = renderDrawer();
 
     act(() => {
       renderer.root
@@ -242,57 +396,46 @@ describe('AgentDrawer', () => {
     expect(onOpenSessions).toHaveBeenCalledTimes(1);
   });
 
-  it('shows streamed text and replaces send with stop while responding', () => {
-    const chat = createChat({ sending: true, streamingText: '正在统计支出…' });
-    const { renderer } = renderDrawer(chat);
-
-    expect(renderedText(renderer)).toContain('正在统计支出…');
+  it('shows thinking and stops the run while responding', async () => {
+    let signal: AbortSignal | undefined;
+    const { renderer } = renderDrawer({
+      adapter: createPendingAdapter(nextSignal => {
+        signal = nextSignal;
+      }),
+    });
 
     act(() => {
-      renderer.root.findByProps({ testID: 'agent-stop-button' }).props.onPress();
+      renderer.root.findByProps({ testID: 'agent-input' }).props.onChangeText(
+        '本月支出按类型统计',
+      );
     });
-    expect(chat.stop).toHaveBeenCalledTimes(1);
+
+    await act(async () => {
+      renderer.root
+        .findByProps({ testID: 'agent-send-button' })
+        .props.onPress();
+      await flush();
+    });
+
+    expect(renderedText(renderer)).toContain('正在思考…');
+    const stopButton = renderer.root.findByProps({
+      testID: 'agent-stop-button',
+    });
+    expect(signal).toBeDefined();
+
+    await act(async () => {
+      stopButton.props.onPress();
+      await flush();
+    });
+
+    expect(signal?.aborted).toBe(true);
   });
 
-  it('renders user and assistant messages but skips tool payloads', () => {
-    const chat = createChat({
-      messages: [
-        { role: 'user', content: '上个月吃饭花了多少？', hasToolCalls: false },
-        {
-          role: 'assistant',
-          content: '',
-          hasToolCalls: true,
-        },
-        { role: 'assistant', content: '上个月吃饭共 120.00 元。', hasToolCalls: false },
-      ],
+  it('shows session errors above the conversation', () => {
+    const { renderer } = renderDrawer({
+      session: { errorText: '读取会话失败' },
     });
-    const { renderer } = renderDrawer(chat);
 
-    const text = renderedText(renderer);
-
-    expect(text).toContain('上个月吃饭花了多少？');
-    expect(text).toContain('上个月吃饭共 120.00 元。');
-    expect(text).toContain('已查询账本数据');
-    expect(text).not.toContain('{"count":3,"totals":{"expense":120}}');
-  });
-
-  it('renders assistant markdown without the raw markers', () => {
-    const chat = createChat({
-      messages: [
-        { role: 'assistant', content: '**合计 120 元**', hasToolCalls: false },
-      ],
-    });
-    const { renderer } = renderDrawer(chat);
-
-    const text = renderedText(renderer);
-    expect(text).toContain('合计 120 元');
-    expect(text).not.toContain('**合计 120 元**');
-  });
-
-  it('shows the current tool status while a tool runs', () => {
-    const chat = createChat({ sending: true, activeTool: '正在查询账本数据…' });
-    const { renderer } = renderDrawer(chat);
-
-    expect(renderedText(renderer)).toContain('正在查询账本数据…');
+    expect(renderedText(renderer)).toContain('读取会话失败');
   });
 });

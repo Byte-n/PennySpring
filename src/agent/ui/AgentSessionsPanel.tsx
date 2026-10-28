@@ -6,7 +6,7 @@ import { createUseSheetStyle } from '@pennyspring/theme';
 import { ManageConfirmDialog } from '../../components/ManageConfirmDialog';
 import { AgentSessionList } from './AgentSessionList';
 import { getThreadTitle } from './chatModel';
-import type { AgentChatState } from './useAgentChat';
+import type { AgentSessionState } from './useAgentSession';
 
 const useStyles = createUseSheetStyle(token => ({
   panelBody: {
@@ -20,7 +20,7 @@ const useStyles = createUseSheetStyle(token => ({
 
 export interface AgentSessionsPanelProps {
   open: boolean;
-  chat: AgentChatState;
+  chat: AgentSessionState;
   onOpenChange: (open: boolean) => void;
 }
 
@@ -68,6 +68,7 @@ export function AgentSessionsPanel({
       <Popup.FloatingPanel
         bodyScrollable={false}
         height="70%"
+        mountPoint="local"
         onOpenChange={onOpenChange}
         open={open}
         position="bottom"

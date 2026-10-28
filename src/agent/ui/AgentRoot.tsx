@@ -8,14 +8,15 @@ import {
   useAgentProviderStore,
 } from '../providers/configStore';
 import { hasProviderApiKey } from '../providers/secureKey';
-import { AgentDrawer } from './AgentDrawer';
 import { AgentChatContext } from './AgentChatContext';
+import { AgentDrawerFallback } from './AgentDrawerFallback';
 import {
   AgentLauncherContext,
   type AgentLauncher,
 } from './AgentLauncherContext';
+import { AgentRuntimeHost } from './AgentRuntimeHost';
 import { AgentSessionsPanel } from './AgentSessionsPanel';
-import { useAgentChat } from './useAgentChat';
+import { useAgentSession } from './useAgentSession';
 
 interface AgentErrorBoundaryState {
   failed: boolean;
@@ -43,7 +44,7 @@ interface AgentRootProps {
 export function AgentRoot({ children }: AgentRootProps) {
   const book = useBookStore(state => state.currentBook);
 
-  const chat = useAgentChat({
+  const session = useAgentSession({
     book,
     enabled: Boolean(book),
   });
@@ -106,22 +107,37 @@ export function AgentRoot({ children }: AgentRootProps) {
     [handleOpen],
   );
 
+  const threadId = session.currentThreadId;
+
   return (
     <AgentLauncherContext.Provider value={launcher}>
-      <AgentChatContext.Provider value={chat}>
+      <AgentChatContext.Provider value={session}>
         {children}
         {book ? (
           <AgentErrorBoundary>
-            <AgentDrawer
-              chat={chat}
-              configured={configured}
-              onOpenChange={setDrawerOpen}
-              onOpenSessions={handleOpenSessions}
-              onOpenSettings={handleOpenSettings}
-              open={drawerOpen}
-            />
+            {threadId === null ? (
+              <AgentDrawerFallback
+                errorText={session.errorText}
+                onOpenChange={setDrawerOpen}
+                onOpenSessions={handleOpenSessions}
+                onOpenSettings={handleOpenSettings}
+                open={drawerOpen}
+              />
+            ) : (
+              <AgentRuntimeHost
+                key={`${book.id}:${threadId}`}
+                book={book}
+                configured={configured}
+                drawerOpen={drawerOpen}
+                onDrawerOpenChange={setDrawerOpen}
+                onOpenSessions={handleOpenSessions}
+                onOpenSettings={handleOpenSettings}
+                session={session}
+                threadId={threadId}
+              />
+            )}
             <AgentSessionsPanel
-              chat={chat}
+              chat={session}
               onOpenChange={setSessionsOpen}
               open={sessionsOpen}
             />

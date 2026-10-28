@@ -30,26 +30,22 @@ function createTestDatabase(): AppDatabase {
   return db as unknown as AppDatabase
 }
 
-const USER_MESSAGE_JSON = JSON.stringify({ role: 'user', content: '你好' })
-const ASSISTANT_TOOL_MESSAGE_JSON = JSON.stringify({
-  role: 'assistant',
-  content: [
-    {
-      type: 'tool-call',
-      toolCallId: 'call_1',
-      toolName: 'queryRecords',
-      input: {},
-    },
-  ],
+const USER_MESSAGE_JSON = JSON.stringify({
+  id: 'user-1',
+  role: 'user',
+  parts: [{ type: 'text', text: '你好' }],
 })
-const TOOL_RESULT_MESSAGE_JSON = JSON.stringify({
-  role: 'tool',
-  content: [
+const ASSISTANT_MESSAGE_JSON = JSON.stringify({
+  id: 'assistant-1',
+  role: 'assistant',
+  parts: [
+    { type: 'text', text: '你好' },
     {
-      type: 'tool-result',
+      type: 'tool-queryRecords',
       toolCallId: 'call_1',
-      toolName: 'queryRecords',
-      output: { type: 'text', value: '{"total":123}' },
+      state: 'output-available',
+      input: {},
+      output: { total: 123 },
     },
   ],
 })
@@ -125,30 +121,28 @@ describe('agent-service', () => {
     await createThread(db, 1)
     await appendMessages(db, thread.id, [
       { role: 'user', message: USER_MESSAGE_JSON },
-      { role: 'assistant', message: ASSISTANT_TOOL_MESSAGE_JSON },
-      { role: 'tool', message: TOOL_RESULT_MESSAGE_JSON },
+      { role: 'assistant', message: ASSISTANT_MESSAGE_JSON },
     ])
 
     const detail = await getThreadDetail(db, thread.id)
 
     expect(detail.thread.id).toBe(thread.id)
-    expect(detail.messages).toHaveLength(3)
-    expect(detail.messages[1]?.message).toContain('queryRecords')
-    expect(detail.messages[2]?.message).toContain('call_1')
-    expect(detail.messages[2]?.message).toContain('tool-result')
+    expect(detail.messages).toHaveLength(2)
+    expect(detail.messages[1]?.message).toContain('tool-queryRecords')
+    expect(detail.messages[1]?.message).toContain('call_1')
+    expect(detail.messages[1]?.message).toContain('output-available')
   })
 
-  it('appendMessages 持久化完整消息链并保持写入顺序', async () => {
+  it('appendMessages 持久化消息并保持写入顺序', async () => {
     const thread = await createThread(db, 1)
 
     const saved = await appendMessages(db, thread.id, [
       { role: 'user', message: USER_MESSAGE_JSON },
-      { role: 'assistant', message: ASSISTANT_TOOL_MESSAGE_JSON },
-      { role: 'tool', message: TOOL_RESULT_MESSAGE_JSON },
+      { role: 'assistant', message: ASSISTANT_MESSAGE_JSON },
     ])
 
-    expect(saved.map(message => message.role)).toEqual(['user', 'assistant', 'tool'])
-    expect(saved.map(message => message.threadId)).toEqual([thread.id, thread.id, thread.id])
+    expect(saved.map(message => message.role)).toEqual(['user', 'assistant'])
+    expect(saved.map(message => message.threadId)).toEqual([thread.id, thread.id])
   })
 
   it('updateThreadTitle 更新会话标题', async () => {

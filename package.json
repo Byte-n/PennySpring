@@ -24,6 +24,8 @@
   "dependencies": {
     "@ai-sdk/openai": "4.0.104",
     "@ai-sdk/openai-compatible": "3.0.80",
+    "@assistant-ui/ai-sdk": "0.0.16",
+    "@assistant-ui/react-native": "0.1.51",
     "@op-engineering/op-sqlite": "^15.2.14",
     "@pennyspring/data": "*",
     "@pennyspring/share": "*",

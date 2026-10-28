@@ -11,6 +11,16 @@
     "@ai-sdk/provider-utils" "5.0.70"
     "@vercel/oidc" "3.2.0"
 
+"@ai-sdk/mcp@2.0.86", "@ai-sdk/mcp@^2.0.84":
+  version "2.0.86"
+  resolved "https://registry.npmmirror.com/@ai-sdk/mcp/-/mcp-2.0.86.tgz#e3532370832e9334e0d134a0f7662b2e60db2b30"
+  integrity sha512-LHpJMW2CR0D6sb1nXsl8KZ4vWmGueYc1arvCRHSf+9wEBmL0X3Qc4Jwqta5UcodP1DVQcnr4OJD5LKYb2WsCBw==
+  dependencies:
+    "@ai-sdk/provider" "4.0.34"
+    "@ai-sdk/provider-utils" "5.0.70"
+    cross-spawn "^7.0.6"
+    pkce-challenge "^5.0.1"
+
 "@ai-sdk/openai-compatible@3.0.80":
   version "3.0.80"
   resolved "https://registry.npmmirror.com/@ai-sdk/openai-compatible/-/openai-compatible-3.0.80.tgz#0671543cd3dc93e7f475a5e7725a9b8294abe6ce"
@@ -44,6 +54,18 @@
   integrity sha512-Ip7ZQBq/FiGpM1mmOVseTtX9PBjnzo0bLC41WTgBSBBRUBz6LhNFGbYaNUzI6hPm6ll1oNSPOAZc/q/z+3QZEQ==
   dependencies:
     json-schema "^0.4.0"
+
+"@ai-sdk/react@^4.0.157":
+  version "4.0.159"
+  resolved "https://registry.npmmirror.com/@ai-sdk/react/-/react-4.0.159.tgz#e477a160e7e98059e2d213c709482e829f95e691"
+  integrity sha512-dk+4cq+ahLexOBJZtw0uR2qltA3bAN9pxmU3yPEnvcRO4bW5C56K1/2YIfobvClZChmKJJEDNAokvBGDQ3pxYQ==
+  dependencies:
+    "@ai-sdk/mcp" "2.0.86"
+    "@ai-sdk/provider" "4.0.34"
+    "@ai-sdk/provider-utils" "5.0.70"
+    ai "7.0.155"
+    swr "^2.4.1"
+    throttleit "2.1.0"
 
 "@alcalzone/ansi-tokenize@^0.3.0":
   version "0.3.0"
@@ -235,6 +257,49 @@
   version "3.0.1"
   resolved "https://registry.npmjs.org/@ant-design/fast-color/-/fast-color-3.0.1.tgz"
   integrity sha512-esKJegpW4nckh0o6kV3Tkb7NPIZYbPnnFxmQDUmL08ukXZAvV85TZBr70eGuke/CIArLaP6aw8lt9KILjnWuOw==
+
+"@assistant-ui/ai-sdk@0.0.16":
+  version "0.0.16"
+  resolved "https://registry.npmmirror.com/@assistant-ui/ai-sdk/-/ai-sdk-0.0.16.tgz#64d4b94b4fa0d0d9940d2763565845e54a5e5803"
+  integrity sha512-+NBRtxaqtsrvJWFiOWrjjhInZYxWGUIGe8LubaVCcIx7SmbF71l9CpQPbSTQHHDGRfMNd8h5OKOBN3LWzg4LMg==
+  dependencies:
+    "@ai-sdk/mcp" "^2.0.84"
+    "@ai-sdk/react" "^4.0.157"
+    "@assistant-ui/core" "^0.3.32"
+    "@assistant-ui/store" "^0.3.22"
+    "@assistant-ui/tap" "^0.9.24"
+    assistant-cloud "^0.2.9"
+    assistant-stream "^0.3.55"
+
+"@assistant-ui/core@^0.3.32":
+  version "0.3.32"
+  resolved "https://registry.npmmirror.com/@assistant-ui/core/-/core-0.3.32.tgz#16bb28294bfd3166f3f15b4a4a5e3dcb96d4f061"
+  integrity sha512-eEOuM3K0HWoetfFW8WwGJrhFu7lAfn/Su9us6xMk9HbHUc3/5jL6EOa2VsxrWeZbPqu/yXxGT2KaaFVvzZtCbA==
+  dependencies:
+    assistant-cloud "^0.2.9"
+    assistant-stream "^0.3.55"
+    nanoid "^6.0.2"
+
+"@assistant-ui/react-native@0.1.51":
+  version "0.1.51"
+  resolved "https://registry.npmmirror.com/@assistant-ui/react-native/-/react-native-0.1.51.tgz#54483131fdd45de10d79f6186da951309f76a9b1"
+  integrity sha512-apAqKZVasvfzcPUpR5UY1eFiqZPwyBKWZk+eVpyi1nKwG6auSIm/SICXKB+n9unC9lh0s3TUEVn65pLxOQE9DQ==
+  dependencies:
+    "@assistant-ui/core" "^0.3.32"
+    "@assistant-ui/store" "^0.3.22"
+    "@assistant-ui/tap" "^0.9.24"
+    assistant-cloud "^0.2.9"
+    assistant-stream "^0.3.55"
+
+"@assistant-ui/store@^0.3.22":
+  version "0.3.22"
+  resolved "https://registry.npmmirror.com/@assistant-ui/store/-/store-0.3.22.tgz#5b7f968d0d778ad78163273483d78c85ec24b359"
+  integrity sha512-aXp4m42mmtZOQUE0lzxJ8Z9EZKknOWBk+DDg1Pj2gNhhBGYXmfrScYD1N1e/9/8wTKSwL0g4z2fSZqr+5fWbxg==
+
+"@assistant-ui/tap@^0.9.24":
+  version "0.9.24"
+  resolved "https://registry.npmmirror.com/@assistant-ui/tap/-/tap-0.9.24.tgz#4ebc1614c0496df78a108bc3259398a584a6f6ca"
+  integrity sha512-6O0hf2HkKbrylIwNlFUimHf2V/6Gq5UXF0y0r2Fbw5wSvvO8ZDmv0AEkMwwygSfJgbpnQgiC8Xs+2VFaeO0RBw==
 
 "@babel/code-frame@^7.0.0", "@babel/code-frame@^7.12.13", "@babel/code-frame@^7.28.6", "@babel/code-frame@^7.29.0":
   version "7.29.0"
@@ -5509,6 +5574,23 @@ asn1js@^3.0.6:
     pvutils "^1.1.5"
     tslib "^2.8.1"
 
+assistant-cloud@^0.2.9:
+  version "0.2.9"
+  resolved "https://registry.npmmirror.com/assistant-cloud/-/assistant-cloud-0.2.9.tgz#120522fd438796ade5cc123f93b08fe01b52f8e4"
+  integrity sha512-v7HVmQemWIeM9pZjVglviS9mXaoK0aW/Pz9zQYo91XZp8n17Fi9Q7lMpy572TUUYhQAKRqDWZvXpfpPDzwiPWA==
+  dependencies:
+    assistant-stream "^0.3.55"
+
+assistant-stream@^0.3.55:
+  version "0.3.55"
+  resolved "https://registry.npmmirror.com/assistant-stream/-/assistant-stream-0.3.55.tgz#4310e608a73c6000a6abc2b40069bbc09c10b8f4"
+  integrity sha512-hwdutUKnpM/93isBoQdmqGfEUVaxz36mORF7LdNwRQ1bmFDH6H7QOGbD8trIFU3eC4LL4CNJCA4PHFLgCubI6A==
+  dependencies:
+    "@standard-schema/spec" "^1.1.0"
+    "@types/json-schema" "^7.0.15"
+    nanoid "^6.0.2"
+    secure-json-parse "^4.1.1"
+
 astral-regex@^1.0.0:
   version "1.0.0"
   resolved "https://registry.npmjs.org/astral-regex/-/astral-regex-1.0.0.tgz"
@@ -6987,7 +7069,7 @@ depd@~1.1.2:
   resolved "https://registry.yarnpkg.com/depd/-/depd-1.1.2.tgz#9bcd52e14c097763e749b274c4346ed2e560b5a9"
   integrity sha512-7emPTl6Dpo6JRXOXjLRxck+FlLRX5847cLKEn00PLAgc3g2hTZZgr+e4c2v6QpSmLeFP3n5yUo7ft6avBK/5jQ==
 
-dequal@^2.0.0:
+dequal@^2.0.0, dequal@^2.0.3:
   version "2.0.3"
   resolved "https://registry.yarnpkg.com/dequal/-/dequal-2.0.3.tgz#2644214f1997d39ed0ee0ece72335490a7ac67be"
   integrity sha512-0je+qPKHEMohvfRTCEo3CrPG6cAzAYgmzKyxRiYSSDkS6eGJdyVJm7WaYA5ECaAD9wLB2T4EEeymA5aFVcYXCA==
@@ -11536,6 +11618,11 @@ nanoid@^3.3.11, nanoid@^3.3.12:
   resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.3.12.tgz#ab3d912e217a6d0a514f00a72a16543a28982c05"
   integrity sha512-ZB9RH/39qpq5Vu6Y+NmUaFhQR6pp+M2Xt76XBnEwDaGcVAqhlvxrl3B2bKS5D3NH3QR76v3aSrKaF/Kiy7lEtQ==
 
+nanoid@^6.0.2:
+  version "6.0.2"
+  resolved "https://registry.npmmirror.com/nanoid/-/nanoid-6.0.2.tgz#21f04be37e204d616b694de1564a9d89d123d788"
+  integrity sha512-hIvVOb9Qr1p/9CNNLOe0OlWvgx/ziTsVwKN/GDSsuArN2K0wDiafP3s0SWmsm7o2BdnyS8Z9Z64NFBUbn6ziBg==
+
 napi-build-utils@^2.0.0:
   version "2.0.0"
   resolved "https://registry.npmmirror.com/napi-build-utils/-/napi-build-utils-2.0.0.tgz#13c22c0187fcfccce1461844136372a47ddc027e"
@@ -12160,6 +12247,11 @@ pirates@^4.0.1, pirates@^4.0.4:
   version "4.0.7"
   resolved "https://registry.yarnpkg.com/pirates/-/pirates-4.0.7.tgz#643b4a18c4257c8a65104b73f3049ce9a0a15e22"
   integrity sha512-TfySrs/5nm8fQJDcBDuUng3VOUKsd7S+zqvbOTiGXHfxX4wK31ard+hoNuvkicM/2YFzlpDgABOevKSsB4G/FA==
+
+pkce-challenge@^5.0.1:
+  version "5.0.1"
+  resolved "https://registry.npmmirror.com/pkce-challenge/-/pkce-challenge-5.0.1.tgz#3b4446865b17b1745e9ace2016a31f48ddf6230d"
+  integrity sha512-wQ0b/W4Fr01qtpHlqSqspcj3EhBvimsdh0KlHhH8HRZnMsEa0ea2fTULOXOS9ccQr3om+GcGRk4e+isrZWV8qQ==
 
 pkg-dir@^4.2.0:
   version "4.2.0"
@@ -13944,6 +14036,11 @@ section-matter@^1.0.0:
     extend-shallow "^2.0.1"
     kind-of "^6.0.0"
 
+secure-json-parse@^4.1.1:
+  version "4.1.1"
+  resolved "https://registry.npmmirror.com/secure-json-parse/-/secure-json-parse-4.1.1.tgz#065e41f68da3fb4472d01d1b08d290d257070d8f"
+  integrity sha512-lnd81MQEZKjhW/Gd2TQqdd4XP6QYNdDW/EP+I7nTrFHP9y2LmaGPIHk9xsnzcOiEr1c39c/e84xFgGviQKBTRw==
+
 select-hose@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/select-hose/-/select-hose-2.0.0.tgz#625d8658f865af43ec962bfc376a37359a4994ca"
@@ -14741,6 +14838,14 @@ svgo@^3.0.2, svgo@^3.2.0:
     picocolors "^1.0.0"
     sax "^1.5.0"
 
+swr@^2.4.1:
+  version "2.5.1"
+  resolved "https://registry.npmmirror.com/swr/-/swr-2.5.1.tgz#3d1801fafe06d13b149bc52c62323dcd43ca570c"
+  integrity sha512-BRw55e8r0B7SpDN20CAzoQAHl7y1yP7/Zt7oqUjMv0vSt2u2Xnkm88Ws+VypbV9BXHQVuSuyVq7zMjO16wSExw==
+  dependencies:
+    dequal "^2.0.3"
+    use-sync-external-store "^1.6.0"
+
 tagged-tag@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/tagged-tag/-/tagged-tag-1.0.0.tgz#a0b5917c2864cba54841495abfa3f6b13edcf4d6"
@@ -14849,6 +14954,11 @@ throat@^5.0.0:
   version "5.0.0"
   resolved "https://registry.npmjs.org/throat/-/throat-5.0.0.tgz"
   integrity sha512-fcwX4mndzpLQKBS1DVYhGAcYaYt7vsHNIvQV+WXMvnow5cgjPphq5CaayLaGsjRdSCKZFNGt7/GYAuXaNOiYCA==
+
+throttleit@2.1.0:
+  version "2.1.0"
+  resolved "https://registry.npmmirror.com/throttleit/-/throttleit-2.1.0.tgz#a7e4aa0bf4845a5bd10daa39ea0c783f631a07b4"
+  integrity sha512-nt6AMGKW1p/70DF/hGBdJB57B8Tspmbp5gfJ8ilhLnt7kkr2ye7hzD6NVG8GGErk2HWF34igrL2CXmNIkzKqKw==
 
 through@^2.3.6:
   version "2.3.8"
@@ -15333,6 +15443,11 @@ use-sync-external-store@^1.5.0:
   version "1.6.0"
   resolved "https://registry.yarnpkg.com/use-sync-external-store/-/use-sync-external-store-1.6.0.tgz#b174bfa65cb2b526732d9f2ac0a408027876f32d"
   integrity sha512-Pp6GSwGP/NrPIrxVFAIkOQeyw8lFenOHijQWkUTrDvrF4ALqylP2C/KCkeS9dpUM3KvYRQhna5vt7IL95+ZQ9w==
+
+use-sync-external-store@^1.6.0:
+  version "1.7.0"
+  resolved "https://registry.npmmirror.com/use-sync-external-store/-/use-sync-external-store-1.7.0.tgz#6dcb66ef569e02f186af6b3d575f414ce746e18f"
+  integrity sha512-6L+EeigHMQhdaIPNIFUKwfWJSwWFQ8gJbJ2DLOs5sDIegTwR9fRxvnM3uciHKjIZhFz+KAv2emhWMRvDmMcY8A==
 
 util-deprecate@^1.0.1, util-deprecate@^1.0.2, util-deprecate@~1.0.1:
   version "1.0.2"

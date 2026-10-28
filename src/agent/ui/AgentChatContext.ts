@@ -1,10 +1,10 @@
 import { createContext, useContext } from 'react';
 
-import type { AgentChatState } from './useAgentChat';
+import type { AgentSessionState } from './useAgentSession';
 
-export const AgentChatContext = createContext<AgentChatState | null>(null);
+export const AgentChatContext = createContext<AgentSessionState | null>(null);
 
-export function useAgentChatState(): AgentChatState {
+export function useAgentChatState(): AgentSessionState {
   const chat = useContext(AgentChatContext);
 
   if (chat === null) {

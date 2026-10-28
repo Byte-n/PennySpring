@@ -71,22 +71,38 @@ jest.mock('../../src/agent/providers/secureKey', () => ({
   hasProviderApiKey: () => Promise.resolve(false),
 }));
 
-jest.mock('../../src/agent/ui/useAgentChat', () => ({
-  useAgentChat: () => ({
-    clear: jest.fn(),
-    usage: { inputTokens: 0, outputTokens: 0 },
-    deleteCurrentThread: jest.fn(),
+jest.mock('../../src/agent/ui/useAgentSession', () => ({
+  useAgentSession: () => ({
+    loading: false,
+    sending: false,
+    errorText: '',
+    usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 },
     threads: [],
     threadsLoading: false,
-    currentThreadId: null,
+    currentThreadId: 1,
+    initialMessages: [],
+    createThread: jest.fn(),
+    selectThread: jest.fn(),
+    deleteThread: jest.fn(),
+    deleteCurrentThread: jest.fn(),
+    refreshThreads: jest.fn(),
+    ensureTitle: jest.fn(),
+    markActivity: jest.fn(),
+    accumulateUsage: jest.fn(),
+    setSending: jest.fn(),
+    setErrorText: jest.fn(),
   }),
 }));
 
-jest.mock('../../src/agent/ui/AgentDrawer', () => ({
-  AgentDrawer: (props: MockedDrawerProps) => {
-    mockDrawers.push(props);
+jest.mock('../../src/agent/ui/AgentRuntimeHost', () => ({
+  AgentRuntimeHost: (props: { drawerOpen: boolean }) => {
+    mockDrawers.push({ open: props.drawerOpen });
     return null;
   },
+}));
+
+jest.mock('../../src/agent/ui/AgentDrawerFallback', () => ({
+  AgentDrawerFallback: () => null,
 }));
 
 jest.mock('../../src/agent/ui/AgentSessionsPanel', () => ({

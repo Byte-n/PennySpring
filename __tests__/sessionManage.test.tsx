@@ -4,12 +4,12 @@ import TestRenderer, { act } from 'react-test-renderer';
 import type { AgentThreadRow } from '@pennyspring/api';
 
 import { SessionManageScreen } from '../src/screens/sessionManage/SessionManageScreen';
-import type { AgentChatState } from '../src/agent/ui/useAgentChat';
+import type { AgentSessionState } from '../src/agent/ui/useAgentSession';
 
 const mockGoBack = jest.fn();
 const mockOpenAgent = jest.fn();
 const mockToastShow = jest.fn();
-const mockChat: Partial<AgentChatState> = {};
+const mockChat: Partial<AgentSessionState> = {};
 
 jest.mock('@pennyspring/theme', () => ({
   createUseSheetStyle: () => () => ({}),
@@ -110,24 +110,26 @@ const THREADS: AgentThreadRow[] = [
   { id: 2, booksId: 1, title: '', createdTime: 0, updatedTime: 1_700_000_600_000 },
 ];
 
-function setupChat(overrides: Partial<AgentChatState> = {}): void {
+function setupChat(overrides: Partial<AgentSessionState> = {}): void {
   Object.assign(mockChat, {
     loading: false,
     sending: false,
-    messages: [],
-    streamingText: '',
-    activeTool: null,
     errorText: '',
     usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 },
     threads: THREADS,
     threadsLoading: false,
     currentThreadId: 1,
-    send: jest.fn(() => Promise.resolve()),
-    stop: jest.fn(),
+    initialMessages: [],
     createThread: jest.fn(() => Promise.resolve(true)),
     selectThread: jest.fn(() => Promise.resolve(true)),
     deleteThread: jest.fn(() => Promise.resolve()),
     deleteCurrentThread: jest.fn(() => Promise.resolve()),
+    refreshThreads: jest.fn(() => Promise.resolve()),
+    ensureTitle: jest.fn(() => Promise.resolve()),
+    markActivity: jest.fn(),
+    accumulateUsage: jest.fn(),
+    setSending: jest.fn(),
+    setErrorText: jest.fn(),
     ...overrides,
   });
 }

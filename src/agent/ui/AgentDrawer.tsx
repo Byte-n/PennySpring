@@ -1,30 +1,44 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { ScrollView, View } from 'react-native';
+import React, { useCallback } from 'react';
+import type { UIMessage } from 'ai';
+import { useAISDKChat } from '@assistant-ui/ai-sdk';
+import {
+  MessagePrimitive,
+  ThreadPrimitive,
+  useAui,
+  useAuiState,
+  type MessageState,
+  type ToolCallMessagePartProps,
+} from '@assistant-ui/react-native';
 import {
   Button,
   Column,
   Empty,
-  Input,
+  Icon,
   Loading,
-  Popup,
   Row,
   Text,
+  Textarea,
   useToast,
 } from '@pennyspring/ui';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import {
-  ClockCounterClockwiseIcon,
-  GearSixIcon,
+  CheckCircleIcon,
   PaperPlaneTiltIcon,
   StopIcon,
+  WarningCircleIcon,
 } from 'phosphor-react-native';
 
-import type { AgentDisplayMessage } from '../core/types';
-import type { AgentChatState } from './useAgentChat';
 import { MarkdownText } from '../../component/MarkdownText';
 import { appendTranscript } from '../voice/transcript';
 import { useVoiceInput } from '../voice/useVoiceInput';
+import { AgentDrawerFrame } from './AgentDrawerFrame';
 import { VoiceButton } from './VoiceButton';
+import {
+  THINKING_TEXT,
+  toolErrorText,
+  toolStatusText,
+} from './copy';
+import type { AgentSessionState } from './useAgentSession';
 
 const SUGGESTIONS = [
   '上个月吃饭花了多少？',
@@ -32,13 +46,7 @@ const SUGGESTIONS = [
   '最近有哪些转账记录？',
 ];
 
-const THINKING_TEXT = '思考中…';
-const QUERIED_TEXT = '已查询账本数据';
-
 const useStyles = createUseSheetStyle(token => ({
-  panelBody: {
-    padding: 0,
-  },
   container: {
     flex: 1,
   },
@@ -59,38 +67,47 @@ const useStyles = createUseSheetStyle(token => ({
     flex: 1,
   },
   listContent: {
+    flexGrow: 1,
     gap: token.marginSM,
     padding: token.padding,
     paddingBottom: token.paddingSM,
   },
-  messageRow: {
-    flexDirection: 'row',
-  },
-  userRow: {
-    justifyContent: 'flex-end',
-  },
-  bubble: {
-    borderRadius: token.borderRadiusLG,
-    gap: token.marginXXS,
-    maxWidth: '92%',
-    paddingHorizontal: token.paddingSM,
-    paddingVertical: token.paddingXS,
-  },
-  userBubble: {
-    backgroundColor: token.colorPrimary,
-  },
-  assistantBubble: {
-    backgroundColor: token.colorFillTertiary,
-  },
-  toolNote: {
-    color: token.colorTextTertiary,
-  },
-  suggestions: {
+  empty: {
     gap: token.marginSM,
     paddingTop: token.paddingXS,
   },
   suggestion: {
     alignSelf: 'flex-start',
+  },
+  userRow: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+  },
+  assistantRow: {
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+  },
+  userBubble: {
+    backgroundColor: token.colorPrimary,
+    borderRadius: token.borderRadiusLG,
+    gap: token.marginXXS,
+    maxWidth: '88%',
+    paddingHorizontal: token.paddingSM,
+    paddingVertical: token.paddingXS,
+  },
+  assistantBubble: {
+    backgroundColor: token.colorFillQuaternary,
+    borderRadius: token.borderRadiusLG,
+    gap: token.marginXXS,
+    maxWidth: '100%',
+    paddingHorizontal: token.paddingSM,
+    paddingVertical: token.paddingXS,
+  },
+  toolStatus: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: token.marginXXS,
+    paddingVertical: token.paddingXXS,
   },
   thinking: {
     alignItems: 'center',
@@ -105,81 +122,260 @@ const useStyles = createUseSheetStyle(token => ({
     paddingHorizontal: token.padding,
     paddingTop: token.paddingSM,
   },
+  composerRow: {
+    alignItems: 'flex-end',
+    flexDirection: 'row',
+    gap: token.marginXS,
+  },
   inputWrap: {
     flex: 1,
   },
 }));
 
-interface MessageItemProps {
-  message: AgentDisplayMessage;
-}
-
-function AssistantBubble({
-  content,
-  selectable,
-  note,
-}: {
-  content: string;
-  selectable?: boolean;
-  note?: React.ReactNode;
-}): React.ReactElement {
+function ToolNote({
+  status,
+  isError,
+  toolName,
+}: ToolCallMessagePartProps): React.ReactElement {
   const styles = useStyles();
 
-  return (
-    <Row justify="start">
-      <View style={[styles.bubble, styles.assistantBubble]}>
-        <MarkdownText content={content} selectable={selectable} />
-        {note}
-      </View>
-    </Row>
-  );
-}
-
-function MessageItem({ message }: MessageItemProps): React.ReactElement | null {
-  const styles = useStyles();
-
-  if (message.role === 'user') {
+  if (isError || status.type === 'incomplete') {
     return (
-      <Row justify="end">
-        <View style={[styles.bubble, styles.userBubble]}>
-          <Text color="lightSolid" size="sm">
-            {message.content}
-          </Text>
-        </View>
+      <Row style={styles.toolStatus}>
+        <Icon color="errorText" icon={WarningCircleIcon} size="small" />
+        <Text color="errorText" size="xs">
+          {toolErrorText(toolName)}
+        </Text>
       </Row>
     );
   }
 
-  if (message.role !== 'assistant') {
+  if (status.type === 'running') {
+    return (
+      <Row style={styles.toolStatus}>
+        <Loading size="small" />
+        <Text color="secondary" size="xs">
+          {toolStatusText(toolName, false)}
+        </Text>
+      </Row>
+    );
+  }
+
+  return (
+    <Row style={styles.toolStatus}>
+      <Icon color="tertiary" icon={CheckCircleIcon} size="small" />
+      <Text color="tertiary" size="xs">
+        {toolStatusText(toolName, true)}
+      </Text>
+    </Row>
+  );
+}
+
+function MarkdownPart({ text }: { text: string }): React.ReactElement {
+  return <MarkdownText content={text} selectable />;
+}
+
+const ASSISTANT_COMPONENTS = {
+  Text: MarkdownPart,
+  tools: { Fallback: ToolNote },
+};
+
+function AgentMessageRow({
+  role,
+}: {
+  role: MessageState['role'];
+}): React.ReactElement | null {
+  const styles = useStyles();
+  const hasVisiblePart = useAuiState(state =>
+    state.message.parts.some(
+      part =>
+        (part.type === 'text' && part.text.trim().length > 0) ||
+        part.type === 'tool-call',
+    ),
+  );
+
+  if (!hasVisiblePart) {
     return null;
   }
 
-  const hasText = message.content.trim().length > 0;
-  const hasToolCalls = message.hasToolCalls;
+  if (role === 'user') {
+    return (
+      <Row style={styles.userRow}>
+        <Column style={styles.userBubble}>
+          <MessagePrimitive.Content
+            renderText={({ part }) => (
+              <Text color="lightSolid" size="sm">
+                {part.text}
+              </Text>
+            )}
+          />
+        </Column>
+      </Row>
+    );
+  }
 
-  if (!hasText && !hasToolCalls) {
+  if (role !== 'assistant') {
     return null;
   }
 
   return (
-    <AssistantBubble
-      content={message.content}
-      selectable={hasText}
-      note={
-        hasToolCalls ? (
-          <Text size="xs" style={styles.toolNote}>
-            {QUERIED_TEXT}
-          </Text>
-        ) : null
-      }
-    />
+    <Row style={styles.assistantRow}>
+      <Column style={styles.assistantBubble}>
+        <MessagePrimitive.Parts components={ASSISTANT_COMPONENTS} />
+      </Column>
+    </Row>
+  );
+}
+
+function ThinkingFooter(): React.ReactElement | null {
+  const styles = useStyles();
+  const showThinking = useAuiState(state => {
+    if (!state.thread.isRunning) {
+      return false;
+    }
+    const messages = state.thread.messages;
+    const last = messages[messages.length - 1];
+    if (!last || last.role !== 'assistant') {
+      return true;
+    }
+    return !last.parts.some(
+      part =>
+        (part.type === 'text' && part.text.trim().length > 0) ||
+        part.type === 'tool-call',
+    );
+  });
+
+  if (!showThinking) {
+    return null;
+  }
+
+  return (
+    <Row style={styles.thinking}>
+      <Loading size="small" />
+      <Text color="secondary" size="xs">
+        {THINKING_TEXT}
+      </Text>
+    </Row>
+  );
+}
+
+interface EmptyConversationProps {
+  onSuggestion: (text: string) => void;
+}
+
+function EmptyConversation({
+  onSuggestion,
+}: EmptyConversationProps): React.ReactElement {
+  const styles = useStyles();
+
+  return (
+    <Column style={styles.empty}>
+      <Empty descriptionText="记账遇到问题，可以直接问我。" size="normal" />
+      {SUGGESTIONS.map((text, index) => (
+        <Button
+          key={text}
+          onPress={() => onSuggestion(text)}
+          size="small"
+          style={styles.suggestion}
+          testID={`agent-suggestion-${index}`}
+          type="default"
+          variant="filled"
+        >
+          {text}
+        </Button>
+      ))}
+    </Column>
+  );
+}
+
+function AgentComposer(): React.ReactElement {
+  const styles = useStyles();
+  const toast = useToast();
+  const aui = useAui();
+  const text = useAuiState(state => state.composer.text);
+  const canSend = useAuiState(state => state.composer.canSend);
+  const isRunning = useAuiState(state => state.thread.isRunning);
+
+  const voice = useVoiceInput({
+    onComplete: transcript => {
+      aui.composer.setText(appendTranscript(text, transcript), {
+        origin: 'user',
+      });
+    },
+    onError: message => {
+      toast.show({ messageText: message, status: 'error' });
+    },
+  });
+
+  const handleChange = useCallback(
+    (value: string): void => {
+      aui.composer.setText(value, { origin: 'user' });
+    },
+    [aui],
+  );
+
+  const handleSend = useCallback((): void => {
+    if (!canSend || !text.trim()) {
+      return;
+    }
+    aui.composer.send();
+  }, [aui, canSend, text]);
+
+  const handleStop = useCallback((): void => {
+    aui.composer.cancel();
+  }, [aui]);
+
+  return (
+    <Column style={styles.composer}>
+      <Row style={styles.composerRow}>
+        <Column style={styles.inputWrap}>
+          <Textarea
+            maxRows={4}
+            minRows={1}
+            onChangeText={handleChange}
+            placeholder="问问这个月的开销…"
+            size="small"
+            testID="agent-input"
+            value={text}
+          />
+        </Column>
+        <VoiceButton
+          disabled={isRunning}
+          onStart={voice.start}
+          onStop={voice.stop}
+          partialText={voice.partialText}
+          status={voice.status}
+        />
+        {isRunning ? (
+          <Button
+            icon={StopIcon}
+            onPress={handleStop}
+            shape="circle"
+            size="small"
+            testID="agent-stop-button"
+            type="default"
+          />
+        ) : (
+          <Button
+            disabled={!canSend || !text.trim()}
+            icon={PaperPlaneTiltIcon}
+            onPress={handleSend}
+            shape="circle"
+            size="small"
+            testID="agent-send-button"
+            type="primary"
+          />
+        )}
+      </Row>
+    </Column>
   );
 }
 
 export interface AgentDrawerProps {
   open: boolean;
   configured: boolean;
-  chat: AgentChatState;
+  session: AgentSessionState;
+  runtimeErrorText: string;
   onOpenChange: (open: boolean) => void;
   onOpenSessions: () => void;
   onOpenSettings: () => void;
@@ -188,50 +384,15 @@ export interface AgentDrawerProps {
 export function AgentDrawer({
   open,
   configured,
-  chat,
+  session,
+  runtimeErrorText,
   onOpenChange,
   onOpenSessions,
   onOpenSettings,
-}: AgentDrawerProps) {
+}: AgentDrawerProps): React.ReactElement {
   const styles = useStyles();
-  const scrollRef = useRef<ScrollView>(null);
-  const [draft, setDraft] = useState('');
-  const toast = useToast();
-
-  const voice = useVoiceInput({
-    onComplete: text => {
-      setDraft(previous => appendTranscript(previous, text));
-    },
-    onError: message => {
-      toast.show({ messageText: message, status: 'error' });
-    },
-  });
-
-  const scrollToEnd = useCallback((): void => {
-    scrollRef.current?.scrollToEnd({ animated: true });
-  }, []);
-
-  useEffect(() => {
-    if (open) {
-      scrollToEnd();
-    }
-  }, [
-    chat.activeTool,
-    chat.loading,
-    chat.messages,
-    chat.streamingText,
-    open,
-    scrollToEnd,
-  ]);
-
-  const handleSend = useCallback((): void => {
-    const text = draft.trim();
-    if (!text) {
-      return;
-    }
-    setDraft('');
-    chat.send(text).catch(() => undefined);
-  }, [chat, draft]);
+  const aui = useAui();
+  const aiChat = useAISDKChat<UIMessage>();
 
   const handleSuggestion = useCallback(
     (text: string): void => {
@@ -239,54 +400,31 @@ export function AgentDrawer({
         onOpenSettings();
         return;
       }
-      chat.send(text).catch(() => undefined);
+      if (aiChat) {
+        aiChat.sendMessage({ text }).catch(() => undefined);
+        return;
+      }
+      aui.composer.setText(text, { origin: 'user' });
+      aui.composer.send();
     },
-    [chat, configured, onOpenSettings],
+    [aiChat, aui, configured, onOpenSettings],
   );
 
-  const isStreaming = chat.sending;
-  const showThinking =
-    isStreaming && chat.streamingText.length === 0 && chat.activeTool === null;
-  const hasConversation = chat.messages.some(
-    message =>
-      message.role === 'user' ||
-      (message.role === 'assistant' &&
-        (message.content.trim().length > 0 || message.hasToolCalls)),
+  const renderMessage = useCallback(
+    ({ message }: { message: MessageState }) => (
+      <AgentMessageRow role={message.role} />
+    ),
+    [],
   );
+
+  const errorText = session.errorText || runtimeErrorText;
 
   return (
-    <Popup.FloatingPanel
-      bodyScrollable={false}
-      height="82%"
-      keyboardAvoiding
-      maxHeight="95%"
-      minHeight="45%"
+    <AgentDrawerFrame
       onOpenChange={onOpenChange}
+      onOpenSessions={onOpenSessions}
+      onOpenSettings={onOpenSettings}
       open={open}
-      position="bottom"
-      renderFooter={null}
-      renderHeaderRight={() => (
-        <Row align="center" gap="normal">
-          <Button
-            icon={ClockCounterClockwiseIcon}
-            onPress={onOpenSessions}
-            shape="circle"
-            size="small"
-            testID="agent-sessions-button"
-            type="text"
-          />
-          <Button
-            icon={GearSixIcon}
-            onPress={onOpenSettings}
-            shape="circle"
-            size="small"
-            testID="agent-settings-button"
-            type="text"
-          />
-        </Row>
-      )}
-      styles={{ panelBody: styles.panelBody }}
-      titleText="记账助手"
     >
       <Column style={styles.container}>
         {configured ? null : (
@@ -305,107 +443,31 @@ export function AgentDrawer({
           </Row>
         )}
 
-        {chat.errorText ? (
-          <View style={styles.error}>
+        {errorText ? (
+          <Column style={styles.error}>
             <Text color="errorText" size="xs">
-              {chat.errorText}
+              {errorText}
             </Text>
-          </View>
+          </Column>
         ) : null}
 
-        <ScrollView
+        <ThreadPrimitive.MessagesFlatList
+          ListEmptyComponent={
+            <EmptyConversation onSuggestion={handleSuggestion} />
+          }
+          ListFooterComponent={<ThinkingFooter />}
+          autoScroll
           contentContainerStyle={styles.listContent}
           keyboardDismissMode="interactive"
           keyboardShouldPersistTaps="handled"
-          onContentSizeChange={scrollToEnd}
-          ref={scrollRef}
+          scrollToBottomOnRunStart
           style={styles.list}
         >
-          {chat.loading ? <Loading size="small" text="正在读取对话…" /> : null}
+          {renderMessage}
+        </ThreadPrimitive.MessagesFlatList>
 
-          {!chat.loading && !hasConversation ? (
-            <Column style={styles.suggestions}>
-              <Empty descriptionText="记账遇到问题，可以直接问我。" size="normal" />
-              {SUGGESTIONS.map((text, index) => (
-                <Button
-                  key={text}
-                  onPress={() => handleSuggestion(text)}
-                  size="small"
-                  style={styles.suggestion}
-                  testID={`agent-suggestion-${index}`}
-                  type="default"
-                  variant="filled"
-                >
-                  {text}
-                </Button>
-              ))}
-            </Column>
-          ) : null}
-
-          {chat.messages.map((message, index) => (
-            <MessageItem key={`${index}-${message.role}`} message={message} />
-          ))}
-
-          {isStreaming && chat.streamingText ? (
-            <AssistantBubble content={chat.streamingText} />
-          ) : null}
-
-          {showThinking ? (
-            <Loading size="small" text={THINKING_TEXT} />
-          ) : null}
-
-          {chat.activeTool ? (
-            <Row style={styles.thinking}>
-              <Loading size="small" />
-              <Text color="secondary" size="xs">
-                {chat.activeTool}
-              </Text>
-            </Row>
-          ) : null}
-        </ScrollView>
-
-        <Row align="center" gap="small" style={styles.composer}>
-          <Column style={styles.inputWrap}>
-            <Input
-              blurOnSubmit={false}
-              onChange={setDraft}
-              onSubmitEditing={handleSend}
-              placeholder="问问这个月的开销…"
-              returnKeyType="send"
-              size="small"
-              testID="agent-input"
-              value={draft}
-            />
-          </Column>
-          <VoiceButton
-            disabled={isStreaming}
-            onStart={voice.start}
-            onStop={voice.stop}
-            partialText={voice.partialText}
-            status={voice.status}
-          />
-          {isStreaming ? (
-            <Button
-              icon={StopIcon}
-              onPress={chat.stop}
-              shape="circle"
-              size="small"
-              testID="agent-stop-button"
-              type="default"
-            />
-          ) : (
-            <Button
-              disabled={!draft.trim()}
-              icon={PaperPlaneTiltIcon}
-              onPress={handleSend}
-              shape="circle"
-              size="small"
-              testID="agent-send-button"
-              type="primary"
-            />
-          )}
-        </Row>
+        <AgentComposer />
       </Column>
-    </Popup.FloatingPanel>
+    </AgentDrawerFrame>
   );
 }

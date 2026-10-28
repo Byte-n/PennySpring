@@ -105,7 +105,3 @@ export function toNetworkError(error: unknown): AgentError {
   }
   return new AgentError('network', '网络请求失败，请检查网络连接或代理设置。')
 }
-
-export function createAbortedError(): AgentError {
-  return new AgentError('aborted', '请求已取消')
-}

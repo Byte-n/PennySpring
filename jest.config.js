@@ -2,7 +2,7 @@ module.exports = {
   preset: '@react-native/jest-preset',
   setupFiles: ['<rootDir>/jest.setup.js'],
   transformIgnorePatterns: [
-    'node_modules/(?!((jest-)?react-native|@react-native(-community)?|ai|@ai-sdk|@workflow|@vercel|zod|web-streams-polyfill|text-encoding-utf-8|eventsource-parser)/)',
+    'node_modules/(?!((jest-)?react-native|@react-native(-community)?|@assistant-ui|assistant-stream|assistant-cloud|ai|@ai-sdk|@workflow|@vercel|zod|nanoid|swr|throttleit|pkce-challenge|secure-json-parse|web-streams-polyfill|text-encoding-utf-8|eventsource-parser)/)',
   ],
   moduleNameMapper: {
     '^@dr\\.pogodin/react-native-fs$':
