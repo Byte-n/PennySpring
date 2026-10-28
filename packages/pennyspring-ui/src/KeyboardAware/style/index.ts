@@ -22,13 +22,14 @@ export const useScreenStyles = createUseSheetStyle(
 );
 
 export const useFormScrollStyles = createUseSheetStyle(
-  (token, { bottomInset }: FormScrollStyleOptions) => ({
+  (_token, { bottomInset }: FormScrollStyleOptions) => ({
     root: {
       flex: 1,
     },
     content: {
       flexGrow: 1,
-      paddingBottom: bottomInset + token.paddingMD,
+      // 页面边距由页面自己提供，这里只补键盘遮挡与调用方显式追加的留白。
+      paddingBottom: bottomInset,
     },
   }),
 );
@@ -38,6 +39,8 @@ export const useStickyFooterStyles = createUseSheetStyle(
     root: {
       width: '100%',
       paddingBottom: bottomInset,
+      borderTopColor: token.colorSplit,
+      borderTopWidth: token.lineWidth,
       backgroundColor: token.colorBgContainer,
     },
   }),

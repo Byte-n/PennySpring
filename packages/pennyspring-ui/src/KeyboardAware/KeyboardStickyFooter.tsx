@@ -15,7 +15,8 @@ export function KeyboardStickyFooter({
   const keyboardInsets = useKeyboardInsets();
   const bottomInset = disabled
     ? extraBottomInset
-    : keyboardInsets.bottomInset + extraBottomInset;
+    : Math.max(keyboardInsets.bottomInset, keyboardInsets.safeAreaBottom) +
+      extraBottomInset;
   const tokenStyles = useStickyFooterStyles({ bottomInset });
 
   return (

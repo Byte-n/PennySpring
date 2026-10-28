@@ -38,9 +38,7 @@ export function KeyboardAwareFormScroll({
   const scrollOffsetYRef = useRef(MIN_SCROLL_Y);
   const { isScreenAvoidingKeyboard } = useKeyboardAwareContext();
   const keyboardInsets = useKeyboardInsets();
-  const baseBottomInset = isScreenAvoidingKeyboard
-    ? keyboardInsets.safeAreaBottom
-    : keyboardInsets.bottomInset;
+  const baseBottomInset = isScreenAvoidingKeyboard ? 0 : keyboardInsets.bottomInset;
   const bottomInset = useKeyboardInset
     ? baseBottomInset + extraBottomInset
     : extraBottomInset;
@@ -48,7 +46,7 @@ export function KeyboardAwareFormScroll({
   const resolvedScrollEventThrottle =
     scrollEventThrottle ?? SCROLL_EVENT_THROTTLE_MS;
   const resolvedFocusedInputBottomOffset =
-    focusedInputBottomOffset ?? token.paddingMD;
+    focusedInputBottomOffset ?? token.paddingSM;
 
   const layoutCallback = useRef<VoidFunction>(null);
 

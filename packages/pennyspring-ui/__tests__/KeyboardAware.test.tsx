@@ -83,7 +83,7 @@ describe('KeyboardAware', () => {
 
     expect(onRead).toHaveBeenLastCalledWith(
       expect.objectContaining({
-        bottomInset: 24,
+        bottomInset: 0,
         isKeyboardVisible: false,
         keyboardHeight: 0,
         safeAreaBottom: 24,
@@ -96,7 +96,7 @@ describe('KeyboardAware', () => {
 
     expect(onRead).toHaveBeenLastCalledWith(
       expect.objectContaining({
-        bottomInset: 280,
+        bottomInset: 256,
         isKeyboardVisible: true,
         keyboardHeight: 280,
         keyboardScreenY: 560,
@@ -167,7 +167,7 @@ describe('KeyboardAware', () => {
     const screen = testRenderer!.root.findByType(View);
     const flattenedStyle = StyleSheet.flatten(screen.props.style);
 
-    expect(flattenedStyle.paddingBottom).toBe(280);
+    expect(flattenedStyle.paddingBottom).toBe(256);
   });
 
   it('keeps form scroll taps available for input workflows', () => {
@@ -264,7 +264,7 @@ describe('KeyboardAware', () => {
     const footer = testRenderer!.root.findByType(View);
     const flattenedStyle = StyleSheet.flatten(footer.props.style);
 
-    expect(flattenedStyle.paddingBottom).toBe(280);
+    expect(flattenedStyle.paddingBottom).toBe(256);
   });
 
   it('scrolls focused input into view without native animation', () => {

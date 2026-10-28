@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { KeyboardInsets } from './types';
 
 const INITIAL_KEYBOARD_SCREEN_Y = 0;
+const MIN_BOTTOM_INSET = 0;
 
 function resolveKeyboardHeight(event: KeyboardEvent): number {
   const height = event.endCoordinates?.height ?? 0;
@@ -57,7 +58,10 @@ export function useKeyboardInsets(): KeyboardInsets {
       keyboardHeight,
       keyboardScreenY,
       safeAreaBottom: safeAreaInsets.bottom,
-      bottomInset: isKeyboardVisible ? keyboardHeight : safeAreaInsets.bottom,
+      // 键盘高度含底部安全区，先减掉再由各部件各自消费一次。
+      bottomInset: isKeyboardVisible
+        ? Math.max(keyboardHeight - safeAreaInsets.bottom, MIN_BOTTOM_INSET)
+        : MIN_BOTTOM_INSET,
       isKeyboardVisible,
     }),
     [
