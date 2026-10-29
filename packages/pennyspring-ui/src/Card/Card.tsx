@@ -89,7 +89,6 @@ const useStyles = createUseSheetStyle(
       },
       header: {
         gap,
-        marginBottom: gap,
       },
       titleContainer: {
         flex: 1,
@@ -105,7 +104,6 @@ const useStyles = createUseSheetStyle(
         borderTopColor: token.colorSplit,
         borderTopWidth: token.lineWidth,
         marginHorizontal: -padding,
-        marginTop: gap,
         paddingHorizontal: padding,
         paddingTop: gap,
       },

@@ -177,8 +177,6 @@ describe('Card', () => {
 
     expect(rootStyle.padding).toBe(expectedPadding);
     expect(headerStyle.gap).toBe(expectedGap);
-    expect(headerStyle.marginBottom).toBe(expectedGap);
-    expect(footerStyle.marginTop).toBe(expectedGap);
     expect(footerStyle.paddingTop).toBe(expectedGap);
     expect(footerStyle.marginHorizontal).toBe(-expectedPadding);
     expect(footerStyle.paddingHorizontal).toBe(expectedPadding);
