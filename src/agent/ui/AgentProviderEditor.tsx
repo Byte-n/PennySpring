@@ -1,8 +1,9 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Pressable } from 'react-native';
 import {
   Button,
   Column,
+  Divider,
   Icon,
   Input,
   Popup,
@@ -17,24 +18,27 @@ import {
   clearProviderApiKey,
   loadProviderApiKey,
   saveProviderApiKey,
-} from '../../agent/providers/secureKey';
+} from '../providers/secureKey';
 import {
   fetchProviderModels,
   testProviderConnection,
-} from '../../agent/providers/connectionTest';
-import {
-  requireProviderDescriptor,
-} from '../../agent/providers/catalog';
-import {
-  useAgentProviderStore,
-} from '../../agent/providers/configStore';
+} from '../providers/connectionTest';
+import { requireProviderDescriptor } from '../providers/catalog';
+import { useAgentProviderStore } from '../providers/configStore';
 import type {
   AgentProviderConfig,
   AgentProviderDraft,
-} from '../../agent/providers/types';
-import { isValidBaseUrl, normalizeBaseUrl } from '../../agent/core/url';
+} from '../providers/types';
+import { isValidBaseUrl, normalizeBaseUrl } from '../core/url';
+import {
+  ProviderModelSection,
+  createModelRow,
+  toModelConfigs,
+  toModelRow,
+  type ModelRowState,
+} from './ProviderModelSection';
 
-const MODEL_PREVIEW_LIMIT = 12;
+const MODEL_PREVIEW_LIMIT = 20;
 
 interface ConnectionResult {
   ok: boolean;
@@ -56,6 +60,7 @@ const useStyles = createUseSheetStyle(token => ({
   },
   actions: {
     alignItems: 'center',
+    flexWrap: 'wrap',
     gap: token.marginSM,
   },
   result: {
@@ -68,15 +73,6 @@ const useStyles = createUseSheetStyle(token => ({
   },
   error: {
     backgroundColor: token.colorErrorBg,
-  },
-  models: {
-    gap: token.marginXS,
-  },
-  modelsHeader: {
-    gap: token.marginXXS,
-  },
-  modelButton: {
-    alignSelf: 'flex-start',
   },
   advanced: {
     gap: token.marginXS,
@@ -110,40 +106,6 @@ function getErrorMessage(error: unknown): string {
   return '操作失败，请稍后再试。';
 }
 
-function buildDraft(
-  descriptorId: string,
-  name: string,
-  baseUrl: string,
-  model: string,
-  storeResponses: boolean,
-): Required<AgentProviderDraft> {
-  return {
-    descriptorId,
-    name: name.trim(),
-    baseUrl: normalizeBaseUrl(baseUrl),
-    model: model.trim(),
-    storeResponses,
-  };
-}
-
-function createDraftConfig(
-  descriptorId: string,
-  draft: AgentProviderDraft,
-  id: string,
-): AgentProviderConfig {
-  const now = Date.now();
-  return {
-    id,
-    descriptorId: draft.descriptorId,
-    name: draft.name,
-    baseUrl: draft.baseUrl,
-    model: draft.model,
-    storeResponses: draft.storeResponses ?? true,
-    createdAt: now,
-    updatedAt: now,
-  };
-}
-
 export function AgentProviderEditor({
   open,
   initial,
@@ -158,12 +120,14 @@ export function AgentProviderEditor({
 
   const [name, setName] = useState('');
   const [baseUrl, setBaseUrl] = useState('');
-  const [model, setModel] = useState('');
+  const [modelRows, setModelRows] = useState<ModelRowState[]>([]);
+  const [defaultModelId, setDefaultModelId] = useState('');
+  const [manualModel, setManualModel] = useState('');
   const [storeResponses, setStoreResponses] = useState(true);
   const [apiKey, setApiKey] = useState('');
   const [keyStored, setKeyStored] = useState(false);
   const [testResult, setTestResult] = useState<ConnectionResult | null>(null);
-  const [models, setModels] = useState<string[]>([]);
+  const [availableModels, setAvailableModels] = useState<string[]>([]);
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const [testing, setTesting] = useState(false);
   const [fetchingModels, setFetchingModels] = useState(false);
@@ -181,11 +145,13 @@ export function AgentProviderEditor({
     let cancelled = false;
     setName(initial?.name ?? '');
     setBaseUrl(initial?.baseUrl ?? descriptor.defaultBaseUrl);
-    setModel(initial?.model ?? '');
+    setModelRows(initial ? initial.models.map(toModelRow) : []);
+    setDefaultModelId(initial?.defaultModelId ?? '');
+    setManualModel('');
     setStoreResponses(initial?.storeResponses ?? true);
     setApiKey('');
     setTestResult(null);
-    setModels([]);
+    setAvailableModels([]);
     setAdvancedOpen(false);
     setKeyStored(false);
 
@@ -220,29 +186,92 @@ export function AgentProviderEditor({
     return '';
   }, [apiKey, initial]);
 
-  const buildPreviewConfig = useCallback(
-    (draft: AgentProviderDraft): AgentProviderConfig =>
-      createDraftConfig(descriptor.id, draft, initial?.id ?? 'draft'),
-    [descriptor.id, initial?.id],
+  const previewProvider = useMemo<AgentProviderConfig>(() => {
+    const now = Date.now();
+    return {
+      id: initial?.id ?? 'draft',
+      descriptorId: descriptor.id,
+      name: name.trim() || descriptor.name,
+      baseUrl: normalizeBaseUrl(baseUrl),
+      defaultModelId,
+      models: [],
+      storeResponses,
+      createdAt: now,
+      updatedAt: now,
+    };
+  }, [
+    baseUrl,
+    defaultModelId,
+    descriptor.id,
+    descriptor.name,
+    initial?.id,
+    name,
+    storeResponses,
+  ]);
+
+  const previewModelId = defaultModelId || modelRows[0]?.modelId || '';
+
+  const handleAddModel = useCallback((rawModelId: string): void => {
+    const modelId = rawModelId.trim();
+    if (!modelId) {
+      return;
+    }
+    setModelRows(previous => {
+      if (previous.some(row => row.modelId === modelId)) {
+        return previous;
+      }
+      return [...previous, createModelRow(modelId)];
+    });
+    setAvailableModels(previous =>
+      previous.filter(item => item !== modelId),
+    );
+    setDefaultModelId(previous => previous || modelId);
+  }, []);
+
+  const handleAddManualModel = useCallback((): void => {
+    const modelId = manualModel.trim();
+    if (!modelId) {
+      return;
+    }
+    const exists = modelRows.some(row => row.modelId === modelId);
+    handleAddModel(modelId);
+    if (!exists) {
+      setManualModel('');
+    }
+  }, [handleAddModel, manualModel, modelRows]);
+
+  const handleRemoveModel = useCallback(
+    (modelId: string): void => {
+      const next = modelRows.filter(row => row.modelId !== modelId);
+      setModelRows(next);
+      if (defaultModelId === modelId) {
+        setDefaultModelId(next[0]?.modelId ?? '');
+      }
+    },
+    [defaultModelId, modelRows],
+  );
+
+  const handleUpdateRow = useCallback(
+    (modelId: string, patch: Partial<ModelRowState>): void => {
+      setModelRows(previous =>
+        previous.map(row =>
+          row.modelId === modelId ? { ...row, ...patch } : row,
+        ),
+      );
+    },
+    [],
   );
 
   const handleTest = useCallback(async (): Promise<void> => {
-    const draft = buildDraft(
-      descriptor.id,
-      name,
-      baseUrl,
-      model,
-      storeResponses,
-    );
-    if (!isValidBaseUrl(draft.baseUrl)) {
+    if (!isValidBaseUrl(baseUrl)) {
       setTestResult({
         ok: false,
         message: 'Base URL 格式不正确，应形如 https://host/v1。',
       });
       return;
     }
-    if (!draft.model) {
-      setTestResult({ ok: false, message: '请先填写模型名称。' });
+    if (!previewModelId) {
+      setTestResult({ ok: false, message: '请先添加模型。' });
       return;
     }
 
@@ -255,7 +284,8 @@ export function AgentProviderEditor({
         return;
       }
       const result = await testProviderConnection(
-        buildPreviewConfig(draft),
+        previewProvider,
+        previewModelId,
         key,
       );
       setTestResult(result);
@@ -264,25 +294,10 @@ export function AgentProviderEditor({
     } finally {
       setTesting(false);
     }
-  }, [
-    baseUrl,
-    buildPreviewConfig,
-    descriptor.id,
-    model,
-    name,
-    resolveApiKey,
-    storeResponses,
-  ]);
+  }, [baseUrl, previewModelId, previewProvider, resolveApiKey]);
 
   const handleFetchModels = useCallback(async (): Promise<void> => {
-    const draft = buildDraft(
-      descriptor.id,
-      name,
-      baseUrl,
-      model,
-      storeResponses,
-    );
-    if (!isValidBaseUrl(draft.baseUrl)) {
+    if (!isValidBaseUrl(baseUrl)) {
       setTestResult({
         ok: false,
         message: 'Base URL 格式不正确，应形如 https://host/v1。',
@@ -298,12 +313,16 @@ export function AgentProviderEditor({
         setTestResult({ ok: false, message: '请先填写 API Key。' });
         return;
       }
-      const list = await fetchProviderModels(buildPreviewConfig(draft), key);
-      setModels(list.slice(0, MODEL_PREVIEW_LIMIT));
+      const list = await fetchProviderModels(previewProvider, key);
+      const added = new Set(modelRows.map(row => row.modelId));
+      const candidates = list
+        .filter(modelId => !added.has(modelId))
+        .slice(0, MODEL_PREVIEW_LIMIT);
+      setAvailableModels(candidates);
       if (list.length === 0) {
         setTestResult({
           ok: false,
-          message: '端点没有返回模型列表，请手动填写模型名称。',
+          message: '端点没有返回模型列表，请手动添加模型。',
         });
       }
     } catch (error) {
@@ -311,15 +330,7 @@ export function AgentProviderEditor({
     } finally {
       setFetchingModels(false);
     }
-  }, [
-    baseUrl,
-    buildPreviewConfig,
-    descriptor.id,
-    model,
-    name,
-    resolveApiKey,
-    storeResponses,
-  ]);
+  }, [baseUrl, modelRows, previewProvider, resolveApiKey]);
 
   const handleClearKey = useCallback(async (): Promise<void> => {
     if (!initial) {
@@ -338,34 +349,52 @@ export function AgentProviderEditor({
   }, [initial]);
 
   const handleSave = useCallback(async (): Promise<boolean> => {
-    const draft = buildDraft(
-      descriptor.id,
-      name,
-      baseUrl,
-      model,
-      storeResponses,
-    );
-    if (!isValidBaseUrl(draft.baseUrl)) {
+    if (!isValidBaseUrl(baseUrl)) {
       toast.show({
         messageText: 'Base URL 格式不正确，应形如 https://host/v1。',
       });
       return false;
     }
-    if (!draft.model) {
-      toast.show({ messageText: '请填写模型名称。' });
+    if (modelRows.length === 0) {
+      toast.show({ messageText: '请至少添加一个模型。' });
       return false;
     }
+    const models = toModelConfigs(modelRows);
     if (!apiKey.trim() && !keyStored) {
       toast.show({ messageText: '请填写 API Key。' });
       return false;
     }
+
+    const resolvedDefaultId = models.some(
+      model => model.modelId === defaultModelId,
+    )
+      ? defaultModelId
+      : (models[0]?.modelId ?? '');
+
+    const draft: AgentProviderDraft = {
+      descriptorId: descriptor.id,
+      name,
+      baseUrl,
+      defaultModelId: resolvedDefaultId,
+      models,
+      storeResponses,
+    };
 
     setSaving(true);
     try {
       let saved: AgentProviderConfig;
       if (initial) {
         updateProvider(initial.id, draft);
-        saved = { ...initial, ...draft, updatedAt: Date.now() };
+        saved = {
+          ...initial,
+          descriptorId: descriptor.id,
+          name: name.trim() || descriptor.name,
+          baseUrl: normalizeBaseUrl(baseUrl),
+          defaultModelId: resolvedDefaultId,
+          models,
+          storeResponses,
+          updatedAt: Date.now(),
+        };
       } else {
         saved = addProvider(draft);
       }
@@ -390,10 +419,12 @@ export function AgentProviderEditor({
     addProvider,
     apiKey,
     baseUrl,
+    defaultModelId,
     descriptor.id,
+    descriptor.name,
     initial,
     keyStored,
-    model,
+    modelRows,
     name,
     onOpenChange,
     onSaved,
@@ -452,14 +483,53 @@ export function AgentProviderEditor({
           value={apiKey}
         />
 
-        <Input
-          autoCapitalize="none"
-          autoCorrect={false}
-          labelText="模型名称"
-          onChange={setModel}
-          placeholder={descriptor.modelPlaceholder}
-          value={model}
+        <Divider />
+
+        <ProviderModelSection
+          availableModels={availableModels}
+          defaultModelId={defaultModelId}
+          manualModel={manualModel}
+          modelPlaceholder={descriptor.modelPlaceholder}
+          onChangeManualModel={setManualModel}
+          onAddModel={handleAddModel}
+          onRemoveModel={handleRemoveModel}
+          onSetDefaultModel={setDefaultModelId}
+          onSubmitManualModel={handleAddManualModel}
+          onUpdateRow={handleUpdateRow}
+          rows={modelRows}
         />
+
+        <Divider />
+
+        <Row style={styles.actions}>
+          <Button
+            disabled={testing}
+            loading={testing}
+            onPress={handleTest}
+            size="small"
+            type="default"
+          >
+            测试连接
+          </Button>
+          <Button
+            disabled={fetchingModels}
+            loading={fetchingModels}
+            onPress={handleFetchModels}
+            size="small"
+            type="default"
+            variant="filled"
+          >
+            获取模型
+          </Button>
+          <Button
+            disabled={!keyStored}
+            onPress={handleClearKey}
+            size="small"
+            type="text"
+          >
+            清除 Key
+          </Button>
+        </Row>
 
         {descriptor.apiKind === 'responses' ? (
           <Column style={styles.advanced}>
@@ -493,60 +563,6 @@ export function AgentProviderEditor({
                 <Switch onChange={setStoreResponses} value={storeResponses} />
               </Row>
             ) : null}
-          </Column>
-        ) : null}
-
-        <Row style={styles.actions}>
-          <Button
-            disabled={testing}
-            loading={testing}
-            onPress={handleTest}
-            size="small"
-            type="default"
-          >
-            测试连接
-          </Button>
-          <Button
-            disabled={fetchingModels}
-            loading={fetchingModels}
-            onPress={handleFetchModels}
-            size="small"
-            type="default"
-            variant="filled"
-          >
-            获取模型
-          </Button>
-          <Button
-            disabled={!keyStored}
-            onPress={handleClearKey}
-            size="small"
-            type="text"
-          >
-            清除 Key
-          </Button>
-        </Row>
-
-        {models.length > 0 ? (
-          <Column style={styles.models}>
-            <Column style={styles.modelsHeader}>
-              <Text color="secondary" size="xs">
-                可用模型
-              </Text>
-              <Text color="tertiary" size="xs">
-                点击模型会自动填入上方的「模型名称」。
-              </Text>
-            </Column>
-            {models.map(item => (
-              <Button
-                key={item}
-                onPress={() => setModel(item)}
-                size="small"
-                style={styles.modelButton}
-                type="text"
-              >
-                {item}
-              </Button>
-            ))}
           </Column>
         ) : null}
 

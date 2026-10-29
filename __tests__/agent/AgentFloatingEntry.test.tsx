@@ -109,6 +109,10 @@ jest.mock('../../src/agent/ui/AgentSessionsPanel', () => ({
   AgentSessionsPanel: () => null,
 }));
 
+jest.mock('../../src/agent/ui/AgentProviderEditor', () => ({
+  AgentProviderEditor: () => null,
+}));
+
 
 import { AgentFloatingEntry } from '../../src/agent/ui/AgentFloatingEntry';
 import { AgentRoot } from '../../src/agent/ui/AgentRoot';

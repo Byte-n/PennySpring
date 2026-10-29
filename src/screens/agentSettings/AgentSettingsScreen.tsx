@@ -19,6 +19,7 @@ import { ManageConfirmDialog } from '../../components/ManageConfirmDialog';
 import { createHeaderAddButton } from '../../components/HeaderAddButton';
 import { useNavigation } from '../../navigation';
 import { useAgentChatState } from '../../agent/ui/AgentChatContext';
+import { AgentProviderEditor } from '../../agent/ui/AgentProviderEditor';
 import {
   PROVIDER_DESCRIPTORS,
   getProviderDescriptor,
@@ -28,10 +29,10 @@ import {
   getProviderDisplayName,
   useAgentProviderStore,
 } from '../../agent/providers/configStore';
+import { getProviderDefaultModel } from '../../agent/providers/models';
 import { clearProviderApiKey } from '../../agent/providers/secureKey';
 import type { AgentProviderConfig } from '../../agent/providers/types';
 import { formatTokenCount } from '../../agent/core/messages';
-import { AgentProviderEditor } from './AgentProviderEditor';
 
 const useStyles = createUseSheetStyle(token => ({
   container: {
@@ -202,7 +203,8 @@ export function AgentSettingsScreen() {
                   ) : null}
                   <Text size="xs">{provider.baseUrl}</Text>
                   <Text color="secondary" size="xs">
-                    模型：{provider.model}
+                    默认模型：{getProviderDefaultModel(provider)?.modelId ?? '未设置'}
+                    （共 {provider.models.length} 个）
                   </Text>
                 </Column>
               </Card>

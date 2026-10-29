@@ -112,6 +112,7 @@ export async function fetchProviderModels(
 
 function buildProbeRequest(
   config: AgentProviderConfig,
+  modelId: string,
   baseUrl: string,
 ): { url: string; body: Record<string, unknown> } {
   const descriptor = requireProviderDescriptor(config.descriptorId);
@@ -119,7 +120,7 @@ function buildProbeRequest(
     return {
       url: buildResponsesUrl(baseUrl),
       body: {
-        model: config.model,
+        model: modelId,
         input: [{ role: 'user', content: 'ping' }],
         max_output_tokens: CONNECTION_TEST_MAX_TOKENS,
       },
@@ -128,7 +129,7 @@ function buildProbeRequest(
   return {
     url: buildChatCompletionsUrl(baseUrl),
     body: {
-      model: config.model,
+      model: modelId,
       messages: [{ role: 'user', content: 'ping' }],
       max_tokens: CONNECTION_TEST_MAX_TOKENS,
     },
@@ -137,15 +138,16 @@ function buildProbeRequest(
 
 export async function testProviderConnection(
   config: AgentProviderConfig,
+  modelId: string,
   apiKey: string,
 ): Promise<ProviderConnectionResult> {
   try {
     const { baseUrl, apiKey: key } = requireConnectionConfig(config, apiKey);
-    if (!config.model.trim()) {
-      throw new AgentError('not-configured', '请先填写模型名称。');
+    if (!modelId.trim()) {
+      throw new AgentError('not-configured', '请先添加模型。');
     }
 
-    const probe = buildProbeRequest(config, baseUrl);
+    const probe = buildProbeRequest(config, modelId, baseUrl);
     const response = await fetchWithTimeout(probe.url, {
       method: 'POST',
       headers: buildConnectionHeaders(key),

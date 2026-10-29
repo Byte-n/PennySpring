@@ -10,7 +10,11 @@ import type {
   CreateAgentMessageInput,
 } from '@pennyspring/api';
 
-import { DEFAULT_HISTORY_LIMIT } from './messages';
+import {
+  AGENT_MAX_HISTORY_MESSAGES,
+  AGENT_MESSAGE_TOKEN_OVERHEAD,
+} from './constants';
+import { estimateTokens } from './tokens';
 import type { TokenUsage } from './types';
 
 type AgentUiPart = UIMessagePart<UIDataTypes, UITools>;
@@ -99,16 +103,40 @@ export function hasUiMessageContent(message: UIMessage): boolean {
   });
 }
 
-export function trimUiMessages(
+function estimateMessageTokens(message: UIMessage): number {
+  return estimateTokens(JSON.stringify(message)) + AGENT_MESSAGE_TOKEN_OVERHEAD;
+}
+
+export function trimUiMessagesByTokens(
   messages: readonly UIMessage[],
-  limit: number = DEFAULT_HISTORY_LIMIT,
+  tokenBudget: number,
 ): UIMessage[] {
-  const size = Math.max(1, Math.floor(limit));
-  if (messages.length <= size) {
-    return [...messages];
+  if (messages.length === 0) {
+    return [];
   }
 
-  let start = messages.length - size;
+  const budget = Number.isFinite(tokenBudget)
+    ? Math.max(1, Math.floor(tokenBudget))
+    : 1;
+  let start = messages.length;
+  let total = 0;
+
+  for (let index = messages.length - 1; index >= 0; index -= 1) {
+    const message = messages[index];
+    if (!message) {
+      continue;
+    }
+    const cost = estimateMessageTokens(message);
+    if (start < messages.length && total + cost > budget) {
+      break;
+    }
+    total += cost;
+    start = index;
+    if (messages.length - start >= AGENT_MAX_HISTORY_MESSAGES) {
+      break;
+    }
+  }
+
   while (start < messages.length && messages[start]?.role !== 'user') {
     start += 1;
   }

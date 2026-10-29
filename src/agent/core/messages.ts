@@ -3,8 +3,6 @@ import type { AgentMessageRow } from '@pennyspring/api';
 
 import type { TokenUsage } from './types';
 
-export const DEFAULT_HISTORY_LIMIT = 20;
-
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null;
 }

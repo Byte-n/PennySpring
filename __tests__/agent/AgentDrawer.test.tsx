@@ -10,6 +10,12 @@ import {
 
 import { AgentDrawer } from '../../src/agent/ui/AgentDrawer';
 import type { AgentSessionState } from '../../src/agent/ui/useAgentSession';
+import { useAgentProviderStore } from '../../src/agent/providers/configStore';
+import {
+  getThreadModelSelection,
+  useThreadModelStore,
+} from '../../src/agent/providers/modelSelectionStore';
+import type { AgentProviderConfig } from '../../src/agent/providers/types';
 
 jest.mock('@pennyspring/theme', () => ({
   createUseSheetStyle: () => () => ({}),
@@ -69,6 +75,36 @@ jest.mock('@pennyspring/ui', () => {
   const MockLoading = ({ text }: { text?: string }) =>
     ReactLib.createElement(Text, { testID: 'agent-loading' }, text ?? 'loading');
 
+  const MockActionSheet = ({
+    actions = [],
+    onAction,
+    open,
+    titleText,
+  }: {
+    actions?: Array<{ text: string }>;
+    onAction?: (action: { text: string }, index: number) => void;
+    open?: boolean;
+    titleText?: string;
+  }) =>
+    open
+      ? ReactLib.createElement(
+          View,
+          null,
+          titleText ? ReactLib.createElement(Text, null, titleText) : null,
+          actions.map((action, index) =>
+            ReactLib.createElement(
+              Pressable,
+              {
+                key: index,
+                onPress: () => onAction?.(action, index),
+                testID: `action-sheet-action-${index}`,
+              },
+              ReactLib.createElement(Text, null, action.text),
+            ),
+          ),
+        )
+      : null;
+
   const MockFloatingPanel = ({
     children,
     open,
@@ -93,6 +129,7 @@ jest.mock('@pennyspring/ui', () => {
       : null;
 
   return {
+    ActionSheet: MockActionSheet,
     Button: MockButton,
     Column: passthrough(View),
     Empty: MockEmpty,
@@ -166,6 +203,7 @@ interface HarnessProps {
   adapter: ChatModelAdapter;
   onOpenSettings: () => void;
   onOpenSessions: () => void;
+  onOpenModelSettings: () => void;
 }
 
 function Harness({
@@ -175,6 +213,7 @@ function Harness({
   adapter,
   onOpenSettings,
   onOpenSessions,
+  onOpenModelSettings,
 }: HarnessProps) {
   const runtime = useLocalRuntime(adapter, { initialMessages });
 
@@ -183,6 +222,7 @@ function Harness({
       <AgentDrawer
         configured={configured}
         onOpenChange={jest.fn()}
+        onOpenModelSettings={onOpenModelSettings}
         onOpenSettings={onOpenSettings}
         onOpenSessions={onOpenSessions}
         open
@@ -234,12 +274,15 @@ afterEach(() => {
   act(() => {
     mountedRenderers.splice(0).forEach(renderer => renderer.unmount());
   });
+  useAgentProviderStore.setState({ providers: [], activeProviderId: null });
+  useThreadModelStore.setState({ selections: {} });
 });
 
 function renderDrawer(options: RenderOptions = {}) {
   const session = createSession(options.session);
   const onOpenSettings = jest.fn();
   const onOpenSessions = jest.fn();
+  const onOpenModelSettings = jest.fn();
   const adapter = options.adapter ?? createAdapter();
   let renderer: TestRenderer.ReactTestRenderer;
 
@@ -249,6 +292,7 @@ function renderDrawer(options: RenderOptions = {}) {
         adapter={adapter}
         configured={options.configured ?? true}
         initialMessages={options.initialMessages ?? []}
+        onOpenModelSettings={onOpenModelSettings}
         onOpenSessions={onOpenSessions}
         onOpenSettings={onOpenSettings}
         session={session}
@@ -257,7 +301,13 @@ function renderDrawer(options: RenderOptions = {}) {
   });
 
   mountedRenderers.push(renderer!);
-  return { renderer: renderer!, onOpenSessions, onOpenSettings, session };
+  return {
+    renderer: renderer!,
+    onOpenModelSettings,
+    onOpenSessions,
+    onOpenSettings,
+    session,
+  };
 }
 
 type HostNode = {
@@ -394,6 +444,53 @@ describe('AgentDrawer', () => {
     });
 
     expect(onOpenSessions).toHaveBeenCalledTimes(1);
+  });
+
+  it('switches the conversation model and opens model settings', () => {
+    const provider: AgentProviderConfig = {
+      id: 'provider-1',
+      descriptorId: 'openai-compatible',
+      name: '测试',
+      baseUrl: 'https://api.example.com/v1',
+      defaultModelId: 'model-a',
+      models: [
+        { modelId: 'model-a', contextWindow: 32_768, reasoningEffort: 'off' },
+        { modelId: 'model-b', contextWindow: 128_000, reasoningEffort: 'high' },
+      ],
+      storeResponses: true,
+      createdAt: 0,
+      updatedAt: 0,
+    };
+    useAgentProviderStore.setState({
+      providers: [provider],
+      activeProviderId: provider.id,
+    });
+
+    const { renderer, onOpenModelSettings } = renderDrawer();
+
+    expect(renderedText(renderer)).toContain('model-a');
+
+    act(() => {
+      renderer.root
+        .findByProps({ testID: 'agent-model-chip' })
+        .props.onPress();
+    });
+    expect(renderedText(renderer)).toContain('切换模型');
+
+    act(() => {
+      renderer.root
+        .findByProps({ testID: 'action-sheet-action-1' })
+        .props.onPress();
+    });
+    expect(getThreadModelSelection(1)?.modelId).toBe('model-b');
+    expect(renderedText(renderer)).toContain('model-b');
+
+    act(() => {
+      renderer.root
+        .findByProps({ testID: 'action-sheet-action-2' })
+        .props.onPress();
+    });
+    expect(onOpenModelSettings).toHaveBeenCalledTimes(1);
   });
 
   it('shows thinking and stops the run while responding', async () => {

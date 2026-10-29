@@ -1,4 +1,5 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
+import { Pressable } from 'react-native';
 import type { UIMessage } from 'ai';
 import { useAISDKChat } from '@assistant-ui/ai-sdk';
 import {
@@ -10,6 +11,7 @@ import {
   type ToolCallMessagePartProps,
 } from '@assistant-ui/react-native';
 import {
+  ActionSheet,
   Button,
   Column,
   Empty,
@@ -19,16 +21,28 @@ import {
   Text,
   Textarea,
   useToast,
+  type ActionSheetAction,
 } from '@pennyspring/ui';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import {
   CheckCircleIcon,
+  GearSixIcon,
   PaperPlaneTiltIcon,
   StopIcon,
   WarningCircleIcon,
 } from 'phosphor-react-native';
 
 import { MarkdownText } from '../../component/MarkdownText';
+import { useAgentProviderStore } from '../providers/configStore';
+import {
+  formatContextWindow,
+  formatReasoningEffort,
+  resolveProviderModel,
+} from '../providers/models';
+import {
+  rememberThreadModel,
+  useThreadModelStore,
+} from '../providers/modelSelectionStore';
 import { appendTranscript } from '../voice/transcript';
 import { useVoiceInput } from '../voice/useVoiceInput';
 import { AgentDrawerFrame } from './AgentDrawerFrame';
@@ -129,6 +143,17 @@ const useStyles = createUseSheetStyle(token => ({
   },
   inputWrap: {
     flex: 1,
+  },
+  modelChip: {
+    backgroundColor: token.colorFillContent,
+    borderRadius: token.borderRadiusSM,
+    flexShrink: 1,
+    justifyContent: 'center',
+    paddingHorizontal: token.paddingXS,
+    paddingVertical: token.paddingXXS,
+  },
+  modelChipPressed: {
+    backgroundColor: token.colorFillContentHover,
   },
 }));
 
@@ -288,13 +313,85 @@ function EmptyConversation({
   );
 }
 
-function AgentComposer(): React.ReactElement {
+interface AgentComposerProps {
+  threadId: number | null;
+  onOpenModelSettings: () => void;
+}
+
+function AgentComposer({
+  threadId,
+  onOpenModelSettings,
+}: AgentComposerProps): React.ReactElement {
   const styles = useStyles();
   const toast = useToast();
   const aui = useAui();
   const text = useAuiState(state => state.composer.text);
   const canSend = useAuiState(state => state.composer.canSend);
   const isRunning = useAuiState(state => state.thread.isRunning);
+
+  const providers = useAgentProviderStore(state => state.providers);
+  const activeProviderId = useAgentProviderStore(
+    state => state.activeProviderId,
+  );
+  const selection = useThreadModelStore(state =>
+    threadId === null ? undefined : state.selections[String(threadId)],
+  );
+  const [modelSheetOpen, setModelSheetOpen] = useState(false);
+
+  const provider = useMemo(
+    () =>
+      providers.find(item => item.id === activeProviderId) ??
+      providers[0] ??
+      null,
+    [activeProviderId, providers],
+  );
+
+  const currentModel = useMemo(() => {
+    if (provider === null) {
+      return null;
+    }
+    const modelId =
+      selection?.providerId === provider.id ? selection.modelId : null;
+    return resolveProviderModel(provider, modelId);
+  }, [provider, selection]);
+
+  const modelActions = useMemo<ActionSheetAction[]>(() => {
+    if (provider === null) {
+      return [];
+    }
+    const actions: ActionSheetAction[] = provider.models.map(model => {
+      const isCurrent = model.modelId === currentModel?.modelId;
+      return {
+        text: model.modelId,
+        description: `${isCurrent ? '当前 · ' : ''}上下文 ${formatContextWindow(
+          model.contextWindow,
+        )} · 思考${formatReasoningEffort(model.reasoningEffort)}`,
+      };
+    });
+    actions.push({
+      text: '模型设置',
+      description: '编辑当前提供商的模型与参数',
+      icon: GearSixIcon,
+    });
+    return actions;
+  }, [currentModel, provider]);
+
+  const handleModelAction = useCallback(
+    (_action: ActionSheetAction, index: number): void => {
+      if (provider === null) {
+        return;
+      }
+      if (index === provider.models.length) {
+        onOpenModelSettings();
+        return;
+      }
+      const model = provider.models[index];
+      if (model && threadId !== null) {
+        rememberThreadModel(threadId, provider.id, model.modelId);
+      }
+    },
+    [onOpenModelSettings, provider, threadId],
+  );
 
   const voice = useVoiceInput({
     onComplete: transcript => {
@@ -328,6 +425,20 @@ function AgentComposer(): React.ReactElement {
   return (
     <Column style={styles.composer}>
       <Row style={styles.composerRow}>
+        {provider ? (
+          <Pressable
+            onPress={() => setModelSheetOpen(true)}
+            style={({ pressed }) => [
+              styles.modelChip,
+              pressed ? styles.modelChipPressed : undefined,
+            ]}
+            testID="agent-model-chip"
+          >
+            <Text color="secondary" numberOfLines={1} size="xs">
+              {currentModel?.modelId ?? '未配置模型'}
+            </Text>
+          </Pressable>
+        ) : null}
         <Column style={styles.inputWrap}>
           <Textarea
             maxRows={4}
@@ -367,6 +478,13 @@ function AgentComposer(): React.ReactElement {
           />
         )}
       </Row>
+      <ActionSheet
+        actions={modelActions}
+        onAction={handleModelAction}
+        onOpenChange={setModelSheetOpen}
+        open={modelSheetOpen}
+        titleText="切换模型"
+      />
     </Column>
   );
 }
@@ -379,6 +497,7 @@ export interface AgentDrawerProps {
   onOpenChange: (open: boolean) => void;
   onOpenSessions: () => void;
   onOpenSettings: () => void;
+  onOpenModelSettings: () => void;
 }
 
 export function AgentDrawer({
@@ -389,6 +508,7 @@ export function AgentDrawer({
   onOpenChange,
   onOpenSessions,
   onOpenSettings,
+  onOpenModelSettings,
 }: AgentDrawerProps): React.ReactElement {
   const styles = useStyles();
   const aui = useAui();
@@ -466,7 +586,10 @@ export function AgentDrawer({
           {renderMessage}
         </ThreadPrimitive.MessagesFlatList>
 
-        <AgentComposer />
+        <AgentComposer
+          onOpenModelSettings={onOpenModelSettings}
+          threadId={session.currentThreadId}
+        />
       </Column>
     </AgentDrawerFrame>
   );

@@ -5,8 +5,9 @@ import {
   getUiMessageText,
   rowsToUiMessages,
   toPersistedUiInput,
-  trimUiMessages,
+  trimUiMessagesByTokens,
 } from '../../src/agent/core/uiMessages';
+import { estimateTokens } from '../../src/agent/core/tokens';
 
 function row(id: number, message: unknown): AgentMessageRow {
   return {
@@ -57,19 +58,56 @@ describe('rowsToUiMessages', () => {
   });
 });
 
-describe('trimUiMessages', () => {
-  it('keeps the most recent messages starting from a user message', () => {
+describe('trimUiMessagesByTokens', () => {
+  it('keeps every message when the budget is sufficient', () => {
+    const messages: UIMessage[] = Array.from({ length: 6 }, (_, index) => ({
+      id: String(index),
+      role: index % 2 === 0 ? 'user' : 'assistant',
+      parts: [{ type: 'text', text: '短消息' }],
+    }));
+
+    expect(trimUiMessagesByTokens(messages, 10_000)).toEqual(messages);
+  });
+
+  it('drops older messages and starts from a user message', () => {
     const messages: UIMessage[] = Array.from({ length: 30 }, (_, index) => ({
       id: String(index),
       role: index % 2 === 0 ? 'user' : 'assistant',
-      parts: [{ type: 'text', text: String(index) }],
+      parts: [{ type: 'text', text: '历史消息'.repeat(250) }],
     }));
 
-    const result = trimUiMessages(messages, 6);
+    const result = trimUiMessagesByTokens(messages, 5_000);
 
-    expect(result).toHaveLength(6);
+    expect(result.length).toBeGreaterThan(0);
+    expect(result.length).toBeLessThan(30);
     expect(result[0]?.role).toBe('user');
     expect(result[result.length - 1]?.id).toBe('29');
+  });
+
+  it('always keeps the newest message when the budget is tiny', () => {
+    const messages: UIMessage[] = [
+      {
+        id: 'user-1',
+        role: 'user',
+        parts: [{ type: 'text', text: '上个月吃饭花了多少？' }],
+      },
+      {
+        id: 'assistant-1',
+        role: 'assistant',
+        parts: [{ type: 'text', text: '共 120 元。' }],
+      },
+    ];
+
+    expect(trimUiMessagesByTokens(messages, 1)).toEqual([messages[1]]);
+  });
+});
+
+describe('estimateTokens', () => {
+  it('counts CJK characters heavier than latin characters', () => {
+    expect(estimateTokens('')).toBe(0);
+    expect(estimateTokens('中文')).toBe(2);
+    expect(estimateTokens('abcd')).toBe(1);
+    expect(estimateTokens('中文abcd')).toBe(3);
   });
 });
 

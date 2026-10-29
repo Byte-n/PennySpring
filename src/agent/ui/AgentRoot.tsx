@@ -7,6 +7,7 @@ import {
   rehydrateAgentProviders,
   useAgentProviderStore,
 } from '../providers/configStore';
+import { rehydrateThreadModelSelections } from '../providers/modelSelectionStore';
 import { hasProviderApiKey } from '../providers/secureKey';
 import { AgentChatContext } from './AgentChatContext';
 import { AgentDrawerFallback } from './AgentDrawerFallback';
@@ -14,6 +15,7 @@ import {
   AgentLauncherContext,
   type AgentLauncher,
 } from './AgentLauncherContext';
+import { AgentProviderEditor } from './AgentProviderEditor';
 import { AgentRuntimeHost } from './AgentRuntimeHost';
 import { AgentSessionsPanel } from './AgentSessionsPanel';
 import { useAgentSession } from './useAgentSession';
@@ -57,6 +59,12 @@ export function AgentRoot({ children }: AgentRootProps) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [sessionsOpen, setSessionsOpen] = useState(false);
   const [configured, setConfigured] = useState(false);
+  const [providerEditorOpen, setProviderEditorOpen] = useState(false);
+
+  const activeProvider =
+    providers.find(provider => provider.id === activeProviderId) ??
+    providers[0] ??
+    null;
 
   const refreshConfigured = useCallback(async (): Promise<void> => {
     const provider = getActiveAgentProvider();
@@ -75,6 +83,7 @@ export function AgentRoot({ children }: AgentRootProps) {
     rehydrateAgentProviders()
       .then(refreshConfigured)
       .catch(() => undefined);
+    rehydrateThreadModelSelections().catch(() => undefined);
   }, [refreshConfigured]);
 
   useEffect(() => {
@@ -101,6 +110,14 @@ export function AgentRoot({ children }: AgentRootProps) {
   const handleOpenSessions = useCallback((): void => {
     setSessionsOpen(true);
   }, []);
+
+  const handleOpenModelSettings = useCallback((): void => {
+    if (activeProvider === null) {
+      handleOpenSettings();
+      return;
+    }
+    setProviderEditorOpen(true);
+  }, [activeProvider, handleOpenSettings]);
 
   const launcher = useMemo<AgentLauncher>(
     () => ({ openAgent: handleOpen }),
@@ -130,6 +147,7 @@ export function AgentRoot({ children }: AgentRootProps) {
                 configured={configured}
                 drawerOpen={drawerOpen}
                 onDrawerOpenChange={setDrawerOpen}
+                onOpenModelSettings={handleOpenModelSettings}
                 onOpenSessions={handleOpenSessions}
                 onOpenSettings={handleOpenSettings}
                 session={session}
@@ -141,6 +159,15 @@ export function AgentRoot({ children }: AgentRootProps) {
               onOpenChange={setSessionsOpen}
               open={sessionsOpen}
             />
+            {activeProvider ? (
+              <AgentProviderEditor
+                descriptorId={activeProvider.descriptorId}
+                initial={activeProvider}
+                onOpenChange={setProviderEditorOpen}
+                onSaved={() => undefined}
+                open={providerEditorOpen}
+              />
+            ) : null}
           </AgentErrorBoundary>
         ) : null}
       </AgentChatContext.Provider>

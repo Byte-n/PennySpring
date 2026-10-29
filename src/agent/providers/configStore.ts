@@ -3,14 +3,26 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 
 import { createSqliteStateStorage } from '../../stores/bookStorage';
 import { normalizeBaseUrl } from '../core/url';
-import {
-  getProviderDescriptor,
-  requireProviderDescriptor,
-} from './catalog';
-import type { AgentProviderConfig, AgentProviderDraft } from './types';
+import { getProviderDescriptor, requireProviderDescriptor } from './catalog';
+import { normalizeModelDraft } from './models';
+import type {
+  AgentModelConfig,
+  AgentModelDraft,
+  AgentProviderConfig,
+  AgentProviderDraft,
+} from './types';
 
-const PROVIDER_STORE_KEY = 'pennyspring-agent-providers';
+const PROVIDER_STORE_KEY = 'pennyspring-agent-providers-v2';
 const PROVIDER_ID_PREFIX = 'provider';
+
+interface NormalizedProviderDraft {
+  descriptorId: string;
+  name: string;
+  baseUrl: string;
+  defaultModelId: string;
+  models: AgentModelConfig[];
+  storeResponses: boolean;
+}
 
 interface AgentProviderStore {
   providers: AgentProviderConfig[];
@@ -32,13 +44,38 @@ function createProviderId(): string {
     .slice(2, 10)}`;
 }
 
-function normalizeDraft(draft: AgentProviderDraft): Required<AgentProviderDraft> {
+function normalizeModels(
+  drafts: readonly AgentModelDraft[],
+): AgentModelConfig[] {
+  const models: AgentModelConfig[] = [];
+  const seen = new Set<string>();
+  for (const draft of drafts) {
+    const model = normalizeModelDraft(draft);
+    if (!model.modelId || seen.has(model.modelId)) {
+      continue;
+    }
+    seen.add(model.modelId);
+    models.push(model);
+  }
+  return models;
+}
+
+function normalizeDraft(draft: AgentProviderDraft): NormalizedProviderDraft {
   const descriptor = requireProviderDescriptor(draft.descriptorId);
+  const models = normalizeModels(draft.models);
+  const requestedDefaultId = draft.defaultModelId?.trim() ?? '';
+  const defaultModelId = models.some(
+    model => model.modelId === requestedDefaultId,
+  )
+    ? requestedDefaultId
+    : (models[0]?.modelId ?? '');
+
   return {
     descriptorId: descriptor.id,
     name: draft.name.trim() || descriptor.name,
     baseUrl: normalizeBaseUrl(draft.baseUrl || descriptor.defaultBaseUrl),
-    model: draft.model.trim(),
+    defaultModelId,
+    models,
     storeResponses: draft.storeResponses ?? true,
   };
 }
@@ -103,25 +140,8 @@ export const useAgentProviderStore = create<AgentProviderStore>()(
         providers: state.providers,
         activeProviderId: state.activeProviderId,
       }),
-      // 旧版本没有 storeResponses 字段，缺失时按开启处理，避免误改成无状态请求
-      migrate: (
-        persistedState: unknown,
-        version: number,
-      ): PersistedAgentProviderState => {
-        const state = persistedState as PersistedAgentProviderState;
-        if (version < 2) {
-          return {
-            ...state,
-            providers: state.providers.map(provider => ({
-              ...provider,
-              storeResponses: provider.storeResponses ?? true,
-            })),
-          };
-        }
-        return state;
-      },
       skipHydration: true,
-      version: 2,
+      version: 1,
     },
   ),
 );

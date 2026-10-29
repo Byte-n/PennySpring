@@ -10,6 +10,7 @@ const agentFetch = createXhrFetch();
 
 export function createProviderModel(
   config: AgentProviderConfig,
+  modelId: string,
   apiKey: string,
 ): LanguageModel {
   const descriptor = requireProviderDescriptor(config.descriptorId);
@@ -22,7 +23,7 @@ export function createProviderModel(
       baseURL,
       apiKey: key,
       fetch: agentFetch,
-    })(config.model);
+    })(modelId);
   }
 
   const openai = createOpenAI({
@@ -32,8 +33,8 @@ export function createProviderModel(
   });
 
   if (descriptor.apiKind === 'responses') {
-    return openai.responses(config.model);
+    return openai.responses(modelId);
   }
 
-  return openai.chat(config.model);
+  return openai.chat(modelId);
 }

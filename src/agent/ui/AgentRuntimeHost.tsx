@@ -18,6 +18,7 @@ export interface AgentRuntimeHostProps {
   onDrawerOpenChange: (open: boolean) => void;
   onOpenSessions: () => void;
   onOpenSettings: () => void;
+  onOpenModelSettings: () => void;
 }
 
 export function AgentRuntimeHost({
@@ -29,6 +30,7 @@ export function AgentRuntimeHost({
   onDrawerOpenChange,
   onOpenSessions,
   onOpenSettings,
+  onOpenModelSettings,
 }: AgentRuntimeHostProps): React.ReactElement {
   const { runtime, errorText } = useAgentRuntime({
     book,
@@ -43,6 +45,7 @@ export function AgentRuntimeHost({
       <AgentDrawer
         configured={configured}
         onOpenChange={onDrawerOpenChange}
+        onOpenModelSettings={onOpenModelSettings}
         onOpenSessions={onOpenSessions}
         onOpenSettings={onOpenSettings}
         open={drawerOpen}

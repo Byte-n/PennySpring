@@ -71,12 +71,13 @@ export function useAgentRuntime({
         api,
         booksId: book.id,
         bookName: book.name,
+        threadId,
         usageRef,
         persistUserMessage,
         ensureTitle,
         onRunStart: () => setErrorText(''),
       }),
-    [api, book.id, book.name, ensureTitle, persistUserMessage],
+    [api, book.id, book.name, ensureTitle, persistUserMessage, threadId],
   );
 
   const finishRun = useCallback(

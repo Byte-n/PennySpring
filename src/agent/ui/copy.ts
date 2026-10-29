@@ -1,6 +1,9 @@
 export const AGENT_NOT_CONFIGURED_MESSAGE =
   '尚未配置助手，请先打开设置添加 AI 提供商。';
 
+export const AGENT_NO_MODEL_MESSAGE =
+  '当前提供商还没有可用模型，请先在模型设置中添加。';
+
 export const EMPTY_REPLY_MESSAGE = '助手没有返回内容，请换个问法再试。';
 
 export const PARTIAL_SAVE_FAILED_MESSAGE = '回答已生成，但保存到本地失败。';

@@ -14,6 +14,7 @@ import {
 } from '../core/messages';
 import type { TokenUsage } from '../core/types';
 import { rowsToUiMessages } from '../core/uiMessages';
+import { clearThreadModel } from '../providers/modelSelectionStore';
 import { TITLE_MAX_LENGTH } from './copy';
 import { getErrorMessage } from './errorMessage';
 
@@ -266,6 +267,7 @@ export function useAgentSession({
       setThreadsLoading(true);
       try {
         await api.agent.deleteThread(threadId);
+        clearThreadModel(threadId);
 
         if (threadIdRef.current === threadId) {
           resetConversation();

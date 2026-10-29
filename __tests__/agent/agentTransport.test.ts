@@ -1,14 +1,28 @@
 import type { LanguageModelUsage, UIMessage } from 'ai';
 
 import { createAgentTransport } from '../../src/agent/ui/agentTransport';
-import { AGENT_NOT_CONFIGURED_MESSAGE } from '../../src/agent/ui/copy';
+import {
+  AGENT_NOT_CONFIGURED_MESSAGE,
+  AGENT_NO_MODEL_MESSAGE,
+} from '../../src/agent/ui/copy';
 
 const mockGetActiveAgentProvider = jest.fn();
 const mockLoadProviderApiKey = jest.fn();
 const mockCreateAgentUIStream = jest.fn();
+const mockResolveThreadModel = jest.fn();
+const mockRememberThreadModel = jest.fn();
+const mockCreateAgent = jest.fn((_options: unknown) => ({
+  id: 'test-agent',
+}));
 
 jest.mock('../../src/agent/providers/configStore', () => ({
   getActiveAgentProvider: () => mockGetActiveAgentProvider(),
+}));
+
+jest.mock('../../src/agent/providers/modelSelectionStore', () => ({
+  resolveThreadModel: (...args: unknown[]) => mockResolveThreadModel(...args),
+  rememberThreadModel: (threadId: number, providerId: string, modelId: string) =>
+    mockRememberThreadModel(threadId, providerId, modelId),
 }));
 
 jest.mock('../../src/agent/providers/secureKey', () => ({
@@ -24,7 +38,7 @@ jest.mock('../../src/agent/tools/queryRecords', () => ({
 }));
 
 jest.mock('../../src/agent/core/createAgent', () => ({
-  createAgent: () => ({ id: 'test-agent' }),
+  createAgent: (options: unknown) => mockCreateAgent(options),
 }));
 
 jest.mock('ai', () => ({
@@ -63,6 +77,7 @@ function createTransport(overrides: {
     } as never,
     booksId: 1,
     bookName: '测试账本',
+    threadId: 1,
     usageRef,
     persistUserMessage,
     ensureTitle,
@@ -85,6 +100,11 @@ beforeEach(() => {
   jest.clearAllMocks();
   mockGetActiveAgentProvider.mockReturnValue({
     id: 'provider-1',
+  });
+  mockResolveThreadModel.mockReturnValue({
+    modelId: 'gpt-5',
+    contextWindow: 32_768,
+    reasoningEffort: 'off',
   });
   mockLoadProviderApiKey.mockResolvedValue('api-key');
   mockCreateAgentUIStream.mockResolvedValue(new ReadableStream());
@@ -123,8 +143,69 @@ describe('createAgentTransport', () => {
     expect(options.timeout).toEqual({ totalMs: 120_000, chunkMs: 60_000 });
   });
 
-  it('does not persist again when regenerating a response', async () => {
-    const { transport, persistUserMessage, ensureTitle } = createTransport();
+  it('resolves the conversation model, remembers it and passes it to the agent', async () => {
+    mockResolveThreadModel.mockReturnValue({
+      modelId: 'gpt-6-sol',
+      contextWindow: 32_768,
+      reasoningEffort: 'high',
+    });
+    const { transport } = createTransport();
+
+    await transport.sendMessages!(submitRequest([USER_MESSAGE]));
+
+    expect(mockResolveThreadModel).toHaveBeenCalledWith(
+      { id: 'provider-1' },
+      1,
+    );
+    expect(mockRememberThreadModel).toHaveBeenCalledWith(
+      1,
+      'provider-1',
+      'gpt-6-sol',
+    );
+    expect(mockCreateAgent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        provider: { id: 'provider-1' },
+        model: expect.objectContaining({ modelId: 'gpt-6-sol' }),
+        apiKey: 'api-key',
+      }),
+    );
+  });
+
+  it('rejects before persisting when the provider has no model', async () => {
+    mockResolveThreadModel.mockReturnValue(null);
+    const { transport, persistUserMessage } = createTransport();
+
+    await expect(
+      transport.sendMessages!(submitRequest([USER_MESSAGE])),
+    ).rejects.toThrow(AGENT_NO_MODEL_MESSAGE);
+
+    expect(persistUserMessage).not.toHaveBeenCalled();
+    expect(mockRememberThreadModel).not.toHaveBeenCalled();
+  });
+
+  it('trims history to the selected model context window', async () => {
+    mockResolveThreadModel.mockReturnValue({
+      modelId: 'gpt-5',
+      contextWindow: 4_106,
+      reasoningEffort: 'off',
+    });
+    const { transport } = createTransport();
+    const latestUserMessage: UIMessage = {
+      id: 'user-2',
+      role: 'user',
+      parts: [{ type: 'text', text: '最近一笔呢？' }],
+    };
+    const messages = [USER_MESSAGE, ASSISTANT_MESSAGE, latestUserMessage];
+
+    await transport.sendMessages!(submitRequest(messages));
+
+    const options = mockCreateAgentUIStream.mock.calls[0]![0] as {
+      uiMessages: UIMessage[];
+    };
+    expect(options.uiMessages).toEqual([latestUserMessage]);
+  });
+
+  it('does not persist again when regenerating a response', async () => {    const { transport, persistUserMessage, ensureTitle } = createTransport();
 
     await transport.sendMessages!({
       ...submitRequest([USER_MESSAGE, ASSISTANT_MESSAGE]),
