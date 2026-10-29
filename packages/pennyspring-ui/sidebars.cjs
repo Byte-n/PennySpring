@@ -78,6 +78,7 @@ const sidebars = {
             'components/feedback/message',
             'components/feedback/notification',
             'components/feedback/toast',
+            'components/feedback/tooltip',
           ],
         },
         {

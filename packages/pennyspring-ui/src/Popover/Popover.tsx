@@ -11,7 +11,7 @@ import {
   View,
   useWindowDimensions,
 } from 'react-native';
-import type { GestureResponderEvent, LayoutChangeEvent } from 'react-native';
+import type { LayoutChangeEvent } from 'react-native';
 import {
   Easing,
   createAnimatedComponent,
@@ -29,6 +29,7 @@ import { PortalContext } from '../Portal/Portal';
 import { resolvePortalMount } from '../Portal/resolvePortalMount';
 import { useControllableValue } from '../_hooks';
 import { measurePopoverAnchor } from './measureAnchor';
+import { mergeTriggerHandlers } from './triggerHandlers';
 import { resolvePopoverLayout } from './popoverLayout';
 import type { PopoverOpenChangeReason, PopoverProps } from './types';
 import type {
@@ -42,41 +43,6 @@ const DEFAULT_ALIGN = 'center' as const;
 const DEFAULT_TRIGGER = 'click' as const;
 
 const ReanimatedView = createAnimatedComponent(View);
-
-interface TriggerHandlers {
-  onLongPress?: (event: GestureResponderEvent) => void;
-  onPress?: (event: GestureResponderEvent) => void;
-}
-
-function mergeTriggerHandlers(
-  child: React.ReactElement,
-  onPress?: () => void,
-  onLongPress?: () => void,
-): React.ReactElement {
-  if (onPress === undefined && onLongPress === undefined) {
-    return child;
-  }
-
-  const childProps = child.props as TriggerHandlers;
-  const mergedProps: TriggerHandlers = {
-    onPress:
-      onPress === undefined
-        ? childProps.onPress
-        : event => {
-            childProps.onPress?.(event);
-            onPress();
-          },
-    onLongPress:
-      onLongPress === undefined
-        ? childProps.onLongPress
-        : event => {
-            childProps.onLongPress?.(event);
-            onLongPress();
-          },
-  };
-
-  return React.cloneElement(child, mergedProps);
-}
 
 interface PopoverContentStyleOptions {
   left: number;

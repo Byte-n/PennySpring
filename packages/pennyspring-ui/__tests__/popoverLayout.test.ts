@@ -1,4 +1,7 @@
-import { resolvePopoverLayout } from '../src/Popover/popoverLayout';
+import {
+  getPopoverAvailableExtent,
+  resolvePopoverLayout,
+} from '../src/Popover/popoverLayout';
 
 const DEFAULT_PARAMS = {
   anchor: { x: 200, y: 100, width: 24, height: 24 },
@@ -68,5 +71,70 @@ describe('resolvePopoverLayout', () => {
       top: 52,
       placement: 'left',
     });
+  });
+
+  it('keeps the preferred side when neither side fully fits', () => {
+    const layout = resolvePopoverLayout({
+      ...DEFAULT_PARAMS,
+      panel: { width: 160, height: 700 },
+      anchor: { x: 200, y: 60, width: 24, height: 24 },
+      placement: 'top',
+    });
+
+    expect(layout.placement).toBe('top');
+  });
+
+  it('flips to the roomier side when allowShrink is enabled', () => {
+    const layout = resolvePopoverLayout({
+      ...DEFAULT_PARAMS,
+      panel: { width: 160, height: 700 },
+      anchor: { x: 200, y: 60, width: 24, height: 24 },
+      placement: 'top',
+      allowShrink: true,
+    });
+
+    expect(layout.placement).toBe('bottom');
+    expect(layout.top).toBe(88);
+  });
+
+  it('keeps the preferred side when it is already the roomier one', () => {
+    const layout = resolvePopoverLayout({
+      ...DEFAULT_PARAMS,
+      panel: { width: 160, height: 700 },
+      anchor: { x: 200, y: 400, width: 24, height: 24 },
+      placement: 'top',
+      allowShrink: true,
+    });
+
+    expect(layout.placement).toBe('top');
+  });
+});
+
+describe('getPopoverAvailableExtent', () => {
+  const anchor = { x: 200, y: 300, width: 24, height: 24 };
+  const viewport = { width: 400, height: 800 };
+
+  it('measures the room above the anchor', () => {
+    expect(
+      getPopoverAvailableExtent('top', anchor, viewport, 12, 8),
+    ).toBe(280);
+  });
+
+  it('measures the room below the anchor', () => {
+    expect(
+      getPopoverAvailableExtent('bottom', anchor, viewport, 12, 8),
+    ).toBe(456);
+  });
+
+  it('measures the room left of the anchor', () => {
+    expect(
+      getPopoverAvailableExtent('left', anchor, viewport, 12, 8),
+    ).toBe(180);
+  });
+
+  it('measures the room right of the anchor', () => {
+    expect(
+      getPopoverAvailableExtent('right', anchor, viewport, 12, 8),
+    ).toBe(156);
   });
 });

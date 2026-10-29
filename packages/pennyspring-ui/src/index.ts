@@ -340,6 +340,18 @@ export type {
   ToastShowOptions,
   ToastStyles,
 } from './Toast';
+export { Tooltip } from './Tooltip';
+export type {
+  TooltipAlign,
+  TooltipCancelParams,
+  TooltipOpenChangeParams,
+  TooltipOpenChangeReason,
+  TooltipPlacement,
+  TooltipProps,
+  TooltipStyles,
+  TooltipTrigger,
+  TooltipVariant,
+} from './Tooltip';
 export { Message, useMessage } from './Message';
 export type {
   MessageController,

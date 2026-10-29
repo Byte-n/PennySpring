@@ -77,6 +77,7 @@
 - `Drawer`：左右侧滑出的抽屉面板；适合导航、筛选、设置等侧边内容，支持独立浮层和 `Drawer.Layout` 嵌入布局。外沿 16 圆角、贴边侧直角，宽度 78% 且最大 320，内边距 16；遮罩取 `colorBgMask`，front / slide / back 共用 `motionDurationMid` 且退出对称。
 - `Popup`：锚定、底部或居中的浮层容器；`Popup.FloatingPanel` 适合可拖拽底部/顶部面板，支持 `titleText`、确认/取消按钮、自定义 header/footer；`bodyScrollable` 控制 body 使用 `ScrollView` 或普通 `View`，ScrollView 模式可通过 `scrollEnabled` 控制滚动。
 - `Popover`：锚定触发元素的轻量浮层。`trigger` 支持 `click`（默认）/`longPress`/`manual`；`placement` 支持四向，空间不足自动翻转到对侧；`align` 控制交叉轴对齐并按屏幕边界收敛；内容经 `Portal` 挂载，点击外部或返回键关闭。
+- `Tooltip`：纯文本轻提示。`variant` 提供 dark（`colorBgSpotlight`，压图表/金额）与 light（`colorBgElevated` + 1px `colorBorder`，贴列表）；`trigger` 支持 `press`（默认）/`longPress`/`manual`；默认 `top`，空间不足翻到对侧；宽封顶 240，高取当前方位可用空间并按整行封顶，超出在气泡内滚动；`arrow` 可关闭；不放按钮或表单，需要交互请用 `Popover`。
 - `Portal`、`PortalProvider`：在常规树外渲染浮层内容。
 - `Toast`、`useToast`：短暂轻量提示；999 胶囊、单实例替换、1800ms，`status` 提供 dot / success / error 三态图标。
 - `Message`、`useMessage`：行内或全局反馈消息；16 语义图标 + 浅语义底（default 为白卡发丝线），支持单个 action 与 closable，有操作时常驻。

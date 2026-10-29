@@ -25,6 +25,8 @@ export interface PopoverLayoutParams {
   align: PopoverAlign;
   offset: number;
   edgeInset: number;
+  /** 面板内容可收缩（如可滚动）时，对侧更宽裕即可翻面。 */
+  allowShrink?: boolean;
 }
 
 export interface PopoverLayout {
@@ -86,6 +88,16 @@ function getRequiredSpace(
   return panelExtent + offset;
 }
 
+export function getPopoverAvailableExtent(
+  placement: PopoverPlacement,
+  anchor: PopoverAnchorRect,
+  viewport: PopoverViewport,
+  edgeInset: number,
+  offset: number,
+): number {
+  return getAvailableSpace(placement, anchor, viewport, edgeInset) - offset;
+}
+
 function alignCrossAxis(
   anchorStart: number,
   anchorExtent: number,
@@ -120,6 +132,7 @@ function clamp(value: number, min: number, max: number): number {
 export function resolvePopoverLayout({
   anchor,
   align,
+  allowShrink = false,
   edgeInset,
   offset,
   panel,
@@ -128,10 +141,14 @@ export function resolvePopoverLayout({
 }: PopoverLayoutParams): PopoverLayout {
   let resolvedPlacement = placement;
   const requiredSpace = getRequiredSpace(placement, panel, offset);
+  const availableSpace = getAvailableSpace(
+    placement,
+    anchor,
+    viewport,
+    edgeInset,
+  );
 
-  if (
-    getAvailableSpace(placement, anchor, viewport, edgeInset) < requiredSpace
-  ) {
+  if (availableSpace < requiredSpace) {
     const oppositePlacement = getOppositePlacement(placement);
     const oppositeSpace = getAvailableSpace(
       oppositePlacement,
@@ -139,8 +156,11 @@ export function resolvePopoverLayout({
       viewport,
       edgeInset,
     );
+    const shouldFlip = allowShrink
+      ? oppositeSpace > availableSpace
+      : oppositeSpace >= getRequiredSpace(oppositePlacement, panel, offset);
 
-    if (oppositeSpace >= getRequiredSpace(oppositePlacement, panel, offset)) {
+    if (shouldFlip) {
       resolvedPlacement = oppositePlacement;
     }
   }

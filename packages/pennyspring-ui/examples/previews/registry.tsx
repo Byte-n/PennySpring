@@ -28,6 +28,7 @@ import { swipeActionDemos } from './display/swipe-action/demos';
 import { messageDemos } from './feedback/message/demos';
 import { notificationDemos } from './feedback/notification/demos';
 import { toastDemos } from './feedback/toast/demos';
+import { tooltipDemos } from './feedback/tooltip/demos';
 import { avatarDemos } from './foundation/avatar/demos';
 import { badgeDemos } from './foundation/badge/demos';
 import { buttonDemos } from './foundation/button/demos';
@@ -79,6 +80,7 @@ import { SwipeActionPreview } from './display/swipe-action';
 import { MessagePreview } from './feedback/message';
 import { NotificationPreview } from './feedback/notification';
 import { ToastPreview } from './feedback/toast';
+import { TooltipPreview } from './feedback/tooltip';
 import { AvatarPreview } from './foundation/avatar';
 import { BadgePreview } from './foundation/badge';
 import { ButtonPreview } from './foundation/button';
@@ -184,6 +186,7 @@ const DEMO_PREVIEW_ITEMS = [
   ...createDemoPreviewItems('message', 'Message', messageDemos),
   ...createDemoPreviewItems('notification', 'Notification', notificationDemos),
   ...createDemoPreviewItems('toast', 'Toast', toastDemos),
+  ...createDemoPreviewItems('tooltip', 'Tooltip', tooltipDemos),
   ...createDemoPreviewItems('avatar', 'Avatar', avatarDemos),
   ...createDemoPreviewItems('badge', 'Badge', badgeDemos),
   ...createDemoPreviewItems('button', 'Button', buttonDemos),
@@ -488,6 +491,12 @@ export const COMPONENT_PREVIEW_SECTIONS = [
         title: 'Notification',
         description: '通知卡片组件与 useNotification。',
         component: NotificationPreview,
+      },
+      {
+        id: 'tooltip',
+        title: 'Tooltip',
+        description: '纯文本轻提示：深浅两套底色、三种触发、自动翻面与超长滚动。',
+        component: TooltipPreview,
       },
     ],
   },
