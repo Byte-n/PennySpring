@@ -1,7 +1,9 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import { Pressable } from 'react-native';
 import {
   Button,
   Column,
+  Icon,
   Input,
   Popup,
   Row,
@@ -70,8 +72,26 @@ const useStyles = createUseSheetStyle(token => ({
   models: {
     gap: token.marginXS,
   },
+  modelsHeader: {
+    gap: token.marginXXS,
+  },
   modelButton: {
     alignSelf: 'flex-start',
+  },
+  advanced: {
+    gap: token.marginXS,
+  },
+  advancedToggle: {
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    borderRadius: token.borderRadiusSM,
+    flexDirection: 'row',
+    gap: token.marginXXS,
+    minHeight: token.controlHeight,
+    paddingHorizontal: token.paddingXXS,
+  },
+  advancedTogglePressed: {
+    backgroundColor: token.colorFillContent,
   },
   switchRow: {
     alignItems: 'center',
@@ -144,6 +164,7 @@ export function AgentProviderEditor({
   const [keyStored, setKeyStored] = useState(false);
   const [testResult, setTestResult] = useState<ConnectionResult | null>(null);
   const [models, setModels] = useState<string[]>([]);
+  const [advancedOpen, setAdvancedOpen] = useState(false);
   const [testing, setTesting] = useState(false);
   const [fetchingModels, setFetchingModels] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -165,6 +186,7 @@ export function AgentProviderEditor({
     setApiKey('');
     setTestResult(null);
     setModels([]);
+    setAdvancedOpen(false);
     setKeyStored(false);
 
     if (!initial) {
@@ -419,6 +441,20 @@ export function AgentProviderEditor({
         <Input
           autoCapitalize="none"
           autoCorrect={false}
+          labelText={`API Key${keyStored ? '（已填）' : ''}`}
+          onChange={setApiKey}
+          placeholder={
+            keyStored
+              ? '已保存到系统钥匙串，留空则不修改'
+              : 'sk-...，仅保存在系统钥匙串'
+          }
+          secureTextEntry
+          value={apiKey}
+        />
+
+        <Input
+          autoCapitalize="none"
+          autoCorrect={false}
           labelText="模型名称"
           onChange={setModel}
           placeholder={descriptor.modelPlaceholder}
@@ -426,31 +462,39 @@ export function AgentProviderEditor({
         />
 
         {descriptor.apiKind === 'responses' ? (
-          <Row style={styles.switchRow}>
-            <Column style={styles.switchText}>
-              <Text size="md">服务端存储会话</Text>
-              <Text color="secondary" size="xs">
-                对应 Responses 的 store 参数。第三方中转网关无法引用上一轮结果时需关闭。
+          <Column style={styles.advanced}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityState={{ expanded: advancedOpen }}
+              onPress={() => setAdvancedOpen(previous => !previous)}
+              style={({ pressed }) => [
+                styles.advancedToggle,
+                pressed ? styles.advancedTogglePressed : undefined,
+              ]}
+            >
+              <Text color="secondary" size="md">
+                其他
               </Text>
-            </Column>
-            <Switch onChange={setStoreResponses} value={storeResponses} />
-          </Row>
+              <Icon
+                color="tertiary"
+                icon={advancedOpen ? 'caret-down' : 'caret-right'}
+                size="small"
+              />
+            </Pressable>
+            {advancedOpen ? (
+              <Row style={styles.switchRow}>
+                <Column style={styles.switchText}>
+                  <Text size="md">服务端存储会话</Text>
+                  <Text color="secondary" size="xs">
+                    对应 Responses 的 store
+                    参数。第三方中转网关无法引用上一轮结果时需关闭。
+                  </Text>
+                </Column>
+                <Switch onChange={setStoreResponses} value={storeResponses} />
+              </Row>
+            ) : null}
+          </Column>
         ) : null}
-
-        <Input
-          autoCapitalize="none"
-          autoCorrect={false}
-          helperText={
-            keyStored
-              ? '已保存到系统钥匙串，留空则不修改。'
-              : '仅保存在系统钥匙串。'
-          }
-          labelText="API Key"
-          onChange={setApiKey}
-          placeholder={keyStored ? '已保存' : 'sk-...'}
-          secureTextEntry
-          value={apiKey}
-        />
 
         <Row style={styles.actions}>
           <Button
@@ -484,9 +528,14 @@ export function AgentProviderEditor({
 
         {models.length > 0 ? (
           <Column style={styles.models}>
-            <Text color="secondary" size="xs">
-              可用模型
-            </Text>
+            <Column style={styles.modelsHeader}>
+              <Text color="secondary" size="xs">
+                可用模型
+              </Text>
+              <Text color="tertiary" size="xs">
+                点击模型会自动填入上方的「模型名称」。
+              </Text>
+            </Column>
             {models.map(item => (
               <Button
                 key={item}
@@ -513,7 +562,6 @@ export function AgentProviderEditor({
             </Text>
           </Column>
         ) : null}
-
       </Column>
     </Popup.FloatingPanel>
   );
