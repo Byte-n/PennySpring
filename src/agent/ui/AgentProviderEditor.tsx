@@ -30,6 +30,7 @@ import type {
   AgentProviderDraft,
 } from '../providers/types';
 import { isValidBaseUrl, normalizeBaseUrl } from '../core/url';
+import { InfoHint } from './InfoHint';
 import {
   ProviderModelSection,
   createModelRow,
@@ -77,6 +78,9 @@ const useStyles = createUseSheetStyle(token => ({
   advanced: {
     gap: token.marginXS,
   },
+  sectionDivider: {
+    marginVertical: 0,
+  },
   advancedToggle: {
     alignItems: 'center',
     alignSelf: 'flex-start',
@@ -93,7 +97,8 @@ const useStyles = createUseSheetStyle(token => ({
     alignItems: 'center',
     gap: token.marginSM,
   },
-  switchText: {
+  switchLabel: {
+    alignItems: 'center',
     flex: 1,
     gap: token.marginXXS,
   },
@@ -466,6 +471,9 @@ export function AgentProviderEditor({
           labelText="Base URL"
           onChange={setBaseUrl}
           placeholder={descriptor.baseUrlHint}
+          suffix={
+            <InfoHint content="填到版本路径为止，例如 https://host/v1；兼容端点不要带具体接口路径。" />
+          }
           value={baseUrl}
         />
 
@@ -474,16 +482,15 @@ export function AgentProviderEditor({
           autoCorrect={false}
           labelText={`API Key${keyStored ? '（已填）' : ''}`}
           onChange={setApiKey}
-          placeholder={
-            keyStored
-              ? '已保存到系统钥匙串，留空则不修改'
-              : 'sk-...，仅保存在系统钥匙串'
-          }
+          placeholder={keyStored ? '已保存，留空不修改' : 'sk-...'}
           secureTextEntry
+          suffix={
+            <InfoHint content="仅保存在系统钥匙串，不写入账本数据库；留空则保留原 Key。" />
+          }
           value={apiKey}
         />
 
-        <Divider />
+        <Divider style={styles.sectionDivider} />
 
         <ProviderModelSection
           availableModels={availableModels}
@@ -499,7 +506,7 @@ export function AgentProviderEditor({
           rows={modelRows}
         />
 
-        <Divider />
+        <Divider style={styles.sectionDivider} />
 
         <Row style={styles.actions}>
           <Button
@@ -553,13 +560,10 @@ export function AgentProviderEditor({
             </Pressable>
             {advancedOpen ? (
               <Row style={styles.switchRow}>
-                <Column style={styles.switchText}>
+                <Row style={styles.switchLabel}>
                   <Text size="md">服务端存储会话</Text>
-                  <Text color="secondary" size="xs">
-                    对应 Responses 的 store
-                    参数。第三方中转网关无法引用上一轮结果时需关闭。
-                  </Text>
-                </Column>
+                  <InfoHint content="对应 Responses 的 store 参数。第三方中转网关无法引用上一轮结果时需关闭。" />
+                </Row>
                 <Switch onChange={setStoreResponses} value={storeResponses} />
               </Row>
             ) : null}

@@ -1,11 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { Pressable } from 'react-native';
+import type { StyleProp, ViewStyle } from 'react-native';
 import {
   Button,
   Column,
+  DisplayInput,
   Divider,
+  Icon,
   Input,
+  Popover,
   Row,
-  Tag,
   Text,
 } from '@pennyspring/ui';
 import { createUseSheetStyle } from '@pennyspring/theme';
@@ -22,6 +26,11 @@ import type {
   AgentModelConfig,
   AgentReasoningEffort,
 } from '../providers/types';
+import { InfoHint } from './InfoHint';
+
+/** 表头与值列共用固定宽度，跨行对齐；窄屏剩余宽度全部留给模型名。 */
+const CONTEXT_COLUMN_WIDTH = 72;
+const EFFORT_COLUMN_WIDTH = 68;
 
 export interface ModelRowState {
   modelId: string;
@@ -43,31 +52,83 @@ export interface ProviderModelSectionProps {
   onSubmitManualModel: () => void;
 }
 
+type ModelMenuField = 'context' | 'effort' | 'actions';
+
+interface OpenMenuState {
+  modelId: string;
+  field: ModelMenuField;
+}
+
 const useStyles = createUseSheetStyle(token => ({
   section: {
     gap: token.marginSM,
   },
   header: {
-    gap: token.marginXXS,
-  },
-  modelRow: {
-    gap: token.marginSM,
-    paddingVertical: token.paddingXS,
-  },
-  modelHeader: {
     alignItems: 'center',
     gap: token.marginXS,
   },
-  modelNameWrap: {
-    flex: 1,
+  tableHead: {
+    alignItems: 'center',
     gap: token.marginXXS,
   },
-  effortField: {
-    gap: token.marginXS,
+  rowDivider: {
+    marginVertical: 0,
   },
-  optionRow: {
-    flexWrap: 'wrap',
+  headName: {
+    flex: 1,
+  },
+  nameCell: {
+    flex: 1,
+    gap: token.marginXXS,
+    minWidth: 0,
+  },
+  modelName: {
+    flexShrink: 1,
+  },
+  contextCell: {
+    textAlign: 'center',
+    width: CONTEXT_COLUMN_WIDTH,
+  },
+  effortCell: {
+    textAlign: 'center',
+    width: EFFORT_COLUMN_WIDTH,
+  },
+  actionsCell: {
+    textAlign: 'center',
+    width: token.controlHeightSM,
+  },
+  modelRow: {
+    alignItems: 'center',
+    gap: token.marginXXS,
+    minHeight: token.controlHeight,
+    paddingVertical: token.paddingXXS,
+  },
+  contextField: {
+    width: CONTEXT_COLUMN_WIDTH,
+  },
+  effortField: {
+    width: EFFORT_COLUMN_WIDTH,
+  },
+  menu: {
+    gap: token.marginXXS,
+    minWidth: 80,
+  },
+  menuOption: {
+    alignItems: 'center',
+    borderRadius: token.borderRadius,
+    flexDirection: 'row',
     gap: token.marginXS,
+    minHeight: token.controlHeight,
+    paddingHorizontal: token.paddingXS,
+  },
+  menuOptionSelected: {
+    backgroundColor: token.colorPrimaryBg,
+  },
+  menuOptionPressed: {
+    backgroundColor: token.colorFillContent,
+  },
+  menuOptionLabel: {
+    flex: 1,
   },
   addRow: {
     alignItems: 'flex-end',
@@ -111,6 +172,265 @@ export function toModelConfigs(
   }));
 }
 
+interface MenuOptionProps {
+  label: string;
+  danger?: boolean;
+  selected?: boolean;
+  onPress: () => void;
+}
+
+function MenuOption({
+  label,
+  danger = false,
+  selected = false,
+  onPress,
+}: MenuOptionProps): React.ReactElement {
+  const styles = useStyles();
+
+  return (
+    <Pressable
+      onPress={onPress}
+      style={({ pressed }) => [
+        styles.menuOption,
+        selected ? styles.menuOptionSelected : undefined,
+        pressed ? styles.menuOptionPressed : undefined,
+      ]}
+    >
+      <Text
+        color={danger ? 'error' : 'default'}
+        size="sm"
+        style={styles.menuOptionLabel}
+      >
+        {label}
+      </Text>
+      {selected ? <Icon color="primary" icon="check" size="small" /> : null}
+    </Pressable>
+  );
+}
+
+interface ContextMenuProps {
+  value: number;
+  onSelect: (value: number) => void;
+}
+
+function ContextMenu({ value, onSelect }: ContextMenuProps): React.ReactElement {
+  const styles = useStyles();
+
+  return (
+    <Column style={styles.menu}>
+      {CONTEXT_WINDOW_OPTIONS.map(option => (
+        <MenuOption
+          key={option.value}
+          label={option.label}
+          onPress={() => onSelect(option.value)}
+          selected={value === option.value}
+        />
+      ))}
+    </Column>
+  );
+}
+
+interface EffortMenuProps {
+  value: AgentReasoningEffort;
+  onSelect: (value: AgentReasoningEffort) => void;
+}
+
+function EffortMenu({ value, onSelect }: EffortMenuProps): React.ReactElement {
+  const styles = useStyles();
+
+  return (
+    <Column style={styles.menu}>
+      {REASONING_EFFORT_OPTIONS.map(option => (
+        <MenuOption
+          key={option.value}
+          label={option.label}
+          onPress={() => onSelect(option.value)}
+          selected={value === option.value}
+        />
+      ))}
+    </Column>
+  );
+}
+
+interface ActionsMenuProps {
+  isDefault: boolean;
+  onSetDefault: () => void;
+  onRemove: () => void;
+  onClose: () => void;
+}
+
+function ActionsMenu({
+  isDefault,
+  onSetDefault,
+  onRemove,
+  onClose,
+}: ActionsMenuProps): React.ReactElement {
+  const styles = useStyles();
+
+  return (
+    <Column style={styles.menu}>
+      {isDefault ? (
+        <MenuOption label="默认模型" onPress={onClose} selected />
+      ) : (
+        <MenuOption label="设为默认" onPress={onSetDefault} />
+      )}
+      <MenuOption danger label="移除" onPress={onRemove} />
+    </Column>
+  );
+}
+
+interface SelectFieldProps {
+  label: string;
+  open: boolean;
+  style: StyleProp<ViewStyle>;
+  content: React.ReactNode;
+  onPress: () => void;
+  onOpenChange: (open: boolean) => void;
+}
+
+function SelectField({
+  label,
+  open,
+  style,
+  content,
+  onPress,
+  onOpenChange,
+}: SelectFieldProps): React.ReactElement {
+  return (
+    <Popover
+      align="end"
+      content={content}
+      onOpenChange={onOpenChange}
+      open={open}
+      placement="bottom"
+      trigger="manual"
+    >
+      <DisplayInput
+        display="inline"
+        onPress={onPress}
+        size="small"
+        style={style}
+        suffix={<Icon color="tertiary" icon="caret-down" size="small" />}
+        valueText={label}
+      />
+    </Popover>
+  );
+}
+
+interface ModelRowProps {
+  row: ModelRowState;
+  isDefault: boolean;
+  openField: ModelMenuField | null;
+  onOpenFieldChange: (field: ModelMenuField | null) => void;
+  onUpdate: (patch: Partial<ModelRowState>) => void;
+  onSetDefault: () => void;
+  onRemove: () => void;
+}
+
+function ModelRow({
+  row,
+  isDefault,
+  openField,
+  onOpenFieldChange,
+  onUpdate,
+  onSetDefault,
+  onRemove,
+}: ModelRowProps): React.ReactElement {
+  const styles = useStyles();
+  const closeMenu = () => onOpenFieldChange(null);
+  const handleOpenChange = (open: boolean) => {
+    if (!open) {
+      closeMenu();
+    }
+  };
+  const toggleMenu = (field: ModelMenuField) => {
+    onOpenFieldChange(openField === field ? null : field);
+  };
+
+  return (
+    <Row style={styles.modelRow}>
+      <Row style={styles.nameCell}>
+        <Text
+          ellipsizeMode="middle"
+          numberOfLines={1}
+          size="sm"
+          style={styles.modelName}
+          weight={isDefault ? 'medium' : 'regular'}
+        >
+          {row.modelId}
+        </Text>
+        {isDefault ? (
+          <Icon color="primary" icon="check-circle" size="small" />
+        ) : null}
+      </Row>
+
+      <SelectField
+        content={
+          <ContextMenu
+            onSelect={value => {
+              onUpdate({ contextWindow: value });
+              closeMenu();
+            }}
+            value={row.contextWindow}
+          />
+        }
+        label={formatContextWindow(row.contextWindow)}
+        onOpenChange={handleOpenChange}
+        onPress={() => toggleMenu('context')}
+        open={openField === 'context'}
+        style={styles.contextField}
+      />
+
+      <SelectField
+        content={
+          <EffortMenu
+            onSelect={value => {
+              onUpdate({ reasoningEffort: value });
+              closeMenu();
+            }}
+            value={row.reasoningEffort}
+          />
+        }
+        label={formatReasoningEffort(row.reasoningEffort)}
+        onOpenChange={handleOpenChange}
+        onPress={() => toggleMenu('effort')}
+        open={openField === 'effort'}
+        style={styles.effortField}
+      />
+
+      <Popover
+        align="end"
+        content={
+          <ActionsMenu
+            isDefault={isDefault}
+            onClose={closeMenu}
+            onRemove={() => {
+              onRemove();
+              closeMenu();
+            }}
+            onSetDefault={() => {
+              onSetDefault();
+              closeMenu();
+            }}
+          />
+        }
+        onOpenChange={handleOpenChange}
+        open={openField === 'actions'}
+        placement="bottom"
+        trigger="manual"
+      >
+        <Button
+          icon="more"
+          onPress={() => toggleMenu('actions')}
+          shape="circle"
+          size="small"
+          type="text"
+        />
+      </Popover>
+    </Row>
+  );
+}
+
 export function ProviderModelSection({
   rows,
   defaultModelId,
@@ -125,118 +445,61 @@ export function ProviderModelSection({
   onSubmitManualModel,
 }: ProviderModelSectionProps): React.ReactElement {
   const styles = useStyles();
+  const [openMenu, setOpenMenu] = useState<OpenMenuState | null>(null);
+
+  const handleOpenFieldChange = (modelId: string) => (
+    field: ModelMenuField | null,
+  ): void => {
+    setOpenMenu(field === null ? null : { modelId, field });
+  };
 
   return (
     <Column style={styles.section}>
-      <Column style={styles.header}>
+      <Row style={styles.header}>
         <Text size="md" weight="medium">
           可用模型
         </Text>
-        <Text color="tertiary" size="xs">
-          默认模型用于新会话；会话中可在输入框左侧随时切换。
-        </Text>
-        <Text color="tertiary" size="xs">
-          思考强度为「关闭」时不下发参数；所选档位需模型支持。
-        </Text>
-      </Column>
+        <InfoHint content="默认模型用于新会话，会话中可在输入框左侧随时切换。" />
+      </Row>
 
       {rows.length === 0 ? (
         <Text color="placeholder" size="xs">
           尚未添加模型，请从下方选择或手动添加。
         </Text>
       ) : (
-        rows.map((row, index) => (
-          <React.Fragment key={row.modelId}>
-            {index > 0 ? <Divider /> : null}
-            <Column style={styles.modelRow}>
-              <Row style={styles.modelHeader}>
-                <Column style={styles.modelNameWrap}>
-                  <Text numberOfLines={1} size="sm" weight="medium">
-                    {row.modelId}
-                  </Text>
-                  <Text color="tertiary" size="xs">
-                    上下文 {formatContextWindow(row.contextWindow)}
-                    {' · '}
-                    思考{formatReasoningEffort(row.reasoningEffort)}
-                  </Text>
-                </Column>
-                {row.modelId === defaultModelId ? (
-                  <Tag color="success" size="small">
-                    默认
-                  </Tag>
-                ) : (
-                  <Button
-                    onPress={() => onSetDefaultModel(row.modelId)}
-                    size="small"
-                    type="text"
-                  >
-                    设为默认
-                  </Button>
-                )}
-                <Button
-                  color="danger"
-                  onPress={() => onRemoveModel(row.modelId)}
-                  size="small"
-                  type="text"
-                >
-                  移除
-                </Button>
-              </Row>
-
-              <Column style={styles.effortField}>
-                <Text color="secondary" size="xs">
-                  上下文窗口
-                </Text>
-                <Row style={styles.optionRow}>
-                  {CONTEXT_WINDOW_OPTIONS.map(option => (
-                    <Button
-                      key={option.value}
-                      onPress={() =>
-                        onUpdateRow(row.modelId, {
-                          contextWindow: option.value,
-                        })
-                      }
-                      size="small"
-                      type={
-                        row.contextWindow === option.value
-                          ? 'primary'
-                          : 'default'
-                      }
-                    >
-                      {option.label}
-                    </Button>
-                  ))}
-                </Row>
-              </Column>
-
-              <Column style={styles.effortField}>
-                <Text color="secondary" size="xs">
-                  思考强度
-                </Text>
-                <Row style={styles.optionRow}>
-                  {REASONING_EFFORT_OPTIONS.map(option => (
-                    <Button
-                      key={option.value}
-                      onPress={() =>
-                        onUpdateRow(row.modelId, {
-                          reasoningEffort: option.value,
-                        })
-                      }
-                      size="small"
-                      type={
-                        row.reasoningEffort === option.value
-                          ? 'primary'
-                          : 'default'
-                      }
-                    >
-                      {option.label}
-                    </Button>
-                  ))}
-                </Row>
-              </Column>
-            </Column>
-          </React.Fragment>
-        ))
+        <Column>
+          <Row style={styles.tableHead}>
+            <Text color="tertiary" size="xs" style={styles.headName}>
+              模型
+            </Text>
+            <Text color="tertiary" size="xs" style={styles.contextCell}>
+              上下文
+            </Text>
+            <Text color="tertiary" size="xs" style={styles.effortCell}>
+              思考强度
+            </Text>
+            <Text color="tertiary" size="xs" style={styles.actionsCell}>
+              操作
+            </Text>
+          </Row>
+          <Divider style={styles.rowDivider} />
+          {rows.map((row, index) => (
+            <React.Fragment key={row.modelId}>
+              {index > 0 ? <Divider style={styles.rowDivider} /> : null}
+              <ModelRow
+                isDefault={row.modelId === defaultModelId}
+                onOpenFieldChange={handleOpenFieldChange(row.modelId)}
+                onRemove={() => onRemoveModel(row.modelId)}
+                onSetDefault={() => onSetDefaultModel(row.modelId)}
+                onUpdate={patch => onUpdateRow(row.modelId, patch)}
+                openField={
+                  openMenu?.modelId === row.modelId ? openMenu.field : null
+                }
+                row={row}
+              />
+            </React.Fragment>
+          ))}
+        </Column>
       )}
 
       <Row style={styles.addRow}>
