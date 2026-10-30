@@ -10,10 +10,6 @@ import type { AliasToken } from '@pennyspring/theme';
 import type { LoadingProps, LoadingTone, LoadingVariant } from './types';
 import type { TextSize } from '../Text';
 
-interface LoadingStyleOptions {
-  center: boolean;
-}
-
 interface VariantStyleConfig {
   gap: (token: AliasToken) => number;
   textSize: TextSize;
@@ -66,12 +62,10 @@ const TONE_COLOR_MAP: Record<LoadingTone, (token: AliasToken) => string> = {
   inverse: token => token.colorTextLightSolid,
 };
 
-const useStyles = createUseSheetStyle((token, { center }: LoadingStyleOptions) => {
+const useStyles = createUseSheetStyle(token => {
   return {
     inline: {
       minHeight: INLINE_MIN_HEIGHT,
-      width: '100%',
-      ...(center ? { justifyContent: 'center' as const } : {}),
     },
     block: {
       minHeight: BLOCK_MIN_HEIGHT,
@@ -115,7 +109,6 @@ const useStyles = createUseSheetStyle((token, { center }: LoadingStyleOptions) =
 
 export function Loading({
   animating = true,
-  center = false,
   description,
   hidesWhenStopped = true,
   indicator,
@@ -128,7 +121,7 @@ export function Loading({
   ...rest
 }: LoadingProps) {
   const resolvedSize = size ?? DEFAULT_SIZE_MAP[variant];
-  const tokenStyles = useStyles({ center });
+  const tokenStyles = useStyles();
   const { token } = useTheme();
   const variantConfig = VARIANT_STYLE_MAP[variant];
   const hasText = text !== undefined && text !== '';
@@ -208,7 +201,6 @@ export function Loading({
     <Row
       align="center"
       gap={variantConfig.gap(token)}
-      justify={center ? 'center' : undefined}
       style={[variant === 'more' ? tokenStyles.more : tokenStyles.inline, style]}
     >
       {indicatorNode}

@@ -53,7 +53,7 @@ export function BookLoadingScreen() {
         每一笔，都算数
       </Text>
       <View style={styles.footer}>
-        <Loading variant="inline" center text="正在加载账本数据" />
+        <Loading variant="inline" text="正在加载账本数据" />
       </View>
     </View>
   );

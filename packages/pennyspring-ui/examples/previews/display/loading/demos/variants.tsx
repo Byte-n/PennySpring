@@ -34,7 +34,6 @@ export function LoadingVariantsDemo() {
       <Column style={styles.panel} gap="small">
         <Loading text="正在读取本月账单" />
         <Loading tone="muted" text="正在校验本地差异（次级任务）" />
-        <Loading center text="居中行内" />
       </Column>
       <Column style={styles.canvas} align="center" justify="center">
         <Loading variant="block" text="正在同步账单" description="128 笔记录 · 约 2 秒" />

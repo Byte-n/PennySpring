@@ -38,9 +38,6 @@ export interface LoadingProps
   /** 副文案。只写进度或耗时，block 下位于主文案下方。 */
   description?: ReactNode;
 
-  /** 行内形态是否居中，默认左对齐。 */
-  center?: boolean;
-
   /** 自定义转圈。传了就不渲染 ActivityIndicator。 */
   indicator?: ReactNode;
 

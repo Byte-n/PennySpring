@@ -85,13 +85,6 @@ describe('Loading', () => {
     expect(textNode.props.color).toBe('secondary');
   });
 
-  it('centers inline content when center is set', () => {
-    const testRenderer = renderLoading({ center: true, text: '居中' });
-    const rowStyle = getFirstRowStyle(testRenderer);
-
-    expect(rowStyle.justifyContent).toBe('center');
-  });
-
   it('renders block as a 120 min-height column with description', () => {
     const testRenderer = renderLoading({
       variant: 'block',
