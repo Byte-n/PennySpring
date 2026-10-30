@@ -47,6 +47,7 @@ paths:
 - 禁止使用 `<A><A.Item /></A>` 形式声明子项。
 - 推荐使用 `<A data={[]} renderItem={(data, index, opt) => ({})} />`。
 - 例外：`Form.Item` 承载与 `Form` 上下文的绑定，属于结构声明而非同构子项集合，无法用 `data + renderItem` 等价表达。
+- 例外：`Grid.Item` 承载栅格跨列布局，列宽由子项 `span` 与父级 `columns` 共同决定，属于结构声明而非同构子项集合，无法用 `data + renderItem` 等价表达。
 - 集合 props 按语义使用固定名词，同义新增即违规：
   - 泛型行列表：`data` + `renderItem`（如 `List`、`Carousel`、`IndexBar`）。
   - 可选择同构选项：`options`（如 `CheckboxGroup`、`RadioGroup`、`Segmented`、`ListPicker`、`TagPicker`）。
@@ -76,6 +77,7 @@ paths:
 
 - 交互控件、展示控件、表单控件、反馈控件等存在明确尺寸语义的组件应提供 `size`。
 - `size` 只支持 `small`、`normal`、`large` 三个值；默认值必须是 `normal`。
+- 例外：`Icon` 的 `size` 允许接受像素数值，用于图标与字号不同步的装饰场景；其余组件不得开放裸数值。
 - 组件应在内部完整实现受支持尺寸，不要要求调用方通过 `style` 或 `styles` 拼出尺寸差异。
 - 交互控件的 `size` 应影响高度、内边距、图标尺寸、文字尺寸或圆角等与尺寸语义相关的 token 样式。
 - 容器、布局、录入和展示组件有 `size` 时，必须完整响应对应尺寸变化，包括边距、阴影、字号等与尺寸语义相关的样式。
