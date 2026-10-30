@@ -12,8 +12,6 @@ export type {
   CalculatorInputPopupProps,
   CalculatorInputProps,
   CalculatorInputStyles,
-} from './types';
-export type {
   CalculatorValueState,
   UseCalculatorValueStateOptions,
-} from './useCalculatorValueState';
+} from './types';

@@ -15,4 +15,4 @@ export type {
   PickerCascaderTabsStyles,
   PickerCascaderValue,
   PickerCascaderViewStyles,
-} from './types';
+} from '../types';

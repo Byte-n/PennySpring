@@ -1,6 +1,4 @@
-export { KeyboardAwareScreen } from './KeyboardAwareScreen';
-export { KeyboardAwareFormScroll } from './KeyboardAwareFormScroll';
-export { KeyboardStickyFooter } from './KeyboardStickyFooter';
+export { KeyboardAware, KeyboardAwareScreen, KeyboardAwareFormScroll, KeyboardStickyFooter, useKeyboardAwareInsets } from './KeyboardAware';
 export { useKeyboardInsets } from './useKeyboardInsets';
 export type {
   KeyboardAwareFormScrollProps,

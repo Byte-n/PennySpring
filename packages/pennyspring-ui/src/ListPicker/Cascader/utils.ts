@@ -4,7 +4,7 @@ import type {
   ListPickerCascaderRemoveParams,
   ListPickerCascaderSelectParams,
   ListPickerCascaderValue,
-} from './types';
+} from '../types';
 import type { ListPickerValue } from '../types';
 
 export function extractText(node: React.ReactNode): string {

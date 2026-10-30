@@ -7,6 +7,17 @@ export const ListPicker = Object.assign(ListPickerRoot, {
 });
 
 export type {
+  ListPickerDisplayMode,
+  ListPickerMode,
+  ListPickerOption,
+  ListPickerOptionGroup,
+  ListPickerPopupProps,
+  ListPickerPopupStyles,
+  ListPickerProps,
+  ListPickerSelectedValue,
+  ListPickerStatus,
+  ListPickerStyles,
+  ListPickerValue,
   ListPickerCascaderChangeParams,
   ListPickerCascaderClearParams,
   ListPickerCascaderOpenChangeParams,
@@ -20,17 +31,4 @@ export type {
   ListPickerCascaderTabsStyles,
   ListPickerCascaderTexts,
   ListPickerCascaderValue,
-} from './Cascader';
-export type {
-  ListPickerDisplayMode,
-  ListPickerMode,
-  ListPickerOption,
-  ListPickerOptionGroup,
-  ListPickerPopupProps,
-  ListPickerPopupStyles,
-  ListPickerProps,
-  ListPickerSelectedValue,
-  ListPickerStatus,
-  ListPickerStyles,
-  ListPickerValue,
 } from './types';

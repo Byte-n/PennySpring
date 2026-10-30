@@ -14,12 +14,12 @@ import { renderTextNode } from '../../shares/node';
 import { useListPickerStyles } from '../style';
 import type { ComponentSize } from '../../shares/types';
 import type { TabsItem } from '../../Tabs';
-import type { ListPickerCascaderStyles } from './types';
+import type { ListPickerCascaderStyles } from '../types';
 import type {
   ListPickerCascaderOption,
   ListPickerCascaderPopupConfig,
   ListPickerCascaderValue,
-} from './types';
+} from '../types';
 
 const DEFAULT_POSITION = 'bottom';
 

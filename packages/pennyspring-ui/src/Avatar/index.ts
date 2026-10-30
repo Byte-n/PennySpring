@@ -1,12 +1,8 @@
 import { AvatarRoot } from './Avatar';
 import { AvatarGroup } from './AvatarGroup';
 
-export {
-  AvatarRoot,
-  formatAvatarText,
-  resolveAvatarDisplayType,
-} from './Avatar';
-export { AvatarGroup, resolveAvatarGroupMaxCount } from './AvatarGroup';
+export { AvatarRoot } from './Avatar';
+export { AvatarGroup } from './AvatarGroup';
 export type {
   AvatarGroupItem,
   AvatarGroupProps,

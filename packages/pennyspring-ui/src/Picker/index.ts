@@ -1,21 +1,5 @@
 export { Picker } from './Picker';
-export type {
-  PickerCascaderBodyStyles,
-  PickerCascaderChangeParams,
-  PickerCascaderColumnStyles,
-  PickerCascaderHeaderStyles,
-  PickerCascaderOkParams,
-  PickerCascaderOption,
-  PickerCascaderPanelStyles,
-  PickerCascaderPopupStyles,
-  PickerCascaderProps,
-  PickerCascaderStyles,
-  PickerCascaderTab,
-  PickerCascaderTabKey,
-  PickerCascaderTabsStyles,
-  PickerCascaderValue,
-  PickerCascaderViewStyles,
-} from './Cascader';
+export { PickerCascader } from './Cascader';
 export type {
   PickerCancelParams,
   PickerCancelReason,
@@ -37,4 +21,19 @@ export type {
   PickerSelectChangeParams,
   PickerStyles,
   PickerValue,
+  PickerCascaderBodyStyles,
+  PickerCascaderChangeParams,
+  PickerCascaderColumnStyles,
+  PickerCascaderHeaderStyles,
+  PickerCascaderOkParams,
+  PickerCascaderOption,
+  PickerCascaderPanelStyles,
+  PickerCascaderPopupStyles,
+  PickerCascaderProps,
+  PickerCascaderStyles,
+  PickerCascaderTab,
+  PickerCascaderTabKey,
+  PickerCascaderTabsStyles,
+  PickerCascaderValue,
+  PickerCascaderViewStyles,
 } from './types';

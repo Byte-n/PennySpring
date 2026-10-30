@@ -11,7 +11,7 @@ import type {
   PickerCascaderProps,
   PickerCascaderTab,
   PickerCascaderTabKey,
-} from './types';
+} from '../types';
 import type { PickerCascaderItem } from './utils';
 import {
   buildChangeParams,

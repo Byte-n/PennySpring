@@ -93,3 +93,72 @@ export interface CalculatorInputPopupProps
   onCancel?: (params: PopupCancelParams) => void;
   style?: StyleProp<ViewStyle>;
 }
+
+export interface UseCalculatorValueStateOptions {
+  /**
+   * 每次打开弹层时回填到表达式的初始值。
+   */
+  initialValue?: string;
+
+  /**
+   * 非受控模式下弹层的初始展开状态。
+   */
+  defaultOpen?: boolean;
+
+  /**
+   * 受控模式下弹层的展开状态。
+   */
+  open?: boolean;
+
+  /**
+   * 弹层展开状态变化回调。
+   */
+  onOpenChange?: (open: boolean) => void;
+
+  /**
+   * 表达式变化回调。
+   */
+  onChange?: (value: string) => void;
+
+  /**
+   * 按确认键且表达式可计算时触发。
+   */
+  onOk?: (params: CalculatorInputOkParams) => void;
+}
+
+export interface CalculatorValueState {
+  /**
+   * 弹层是否展开。
+   */
+  isOpen: boolean;
+
+  /**
+   * 当前表达式。
+   */
+  value: string;
+
+  /**
+   * 展开弹层，并把表达式重置为 initialValue。
+   */
+  open: () => void;
+
+  /**
+   * 收起弹层。
+   */
+  close: () => void;
+
+  /**
+   * 同步弹层展开状态，供 CalculatorInput.Popup 的 onOpenChange 使用。
+   */
+  setOpen: (open: boolean) => void;
+
+  /**
+   * 更新表达式，供 CalculatorInput.Popup 的 onChange 使用。
+   */
+  setValue: (value: string) => void;
+
+  /**
+   * 处理确认，供 CalculatorInput.Popup 的 onOk 使用。
+   */
+  handleOk: (params: CalculatorInputOkParams) => void;
+}

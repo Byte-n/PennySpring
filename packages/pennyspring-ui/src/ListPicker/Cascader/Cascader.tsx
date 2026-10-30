@@ -23,7 +23,7 @@ import type {
   ListPickerCascaderOption,
   ListPickerCascaderProps,
   ListPickerCascaderValue,
-} from './types';
+} from '../types';
 import type { ListPickerValue } from '../types';
 import { useFieldProps } from '../../Form/hooks/useFieldProps.ts';
 

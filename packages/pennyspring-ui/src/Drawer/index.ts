@@ -1,4 +1,4 @@
-export { Drawer } from './Drawer.tsx';
+export { Drawer } from './Drawer';
 export type {
   DrawerLayoutProps,
   DrawerLayoutStyles,

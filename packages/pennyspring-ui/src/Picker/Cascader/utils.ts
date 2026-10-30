@@ -11,7 +11,7 @@ import type {
   PickerCascaderTab,
   PickerCascaderTabKey,
   PickerCascaderValue,
-} from './types';
+} from '../types';
 
 export type PickerCascaderItem<TData> = PickerColumnItemData<PickerValue, TData>;
 
