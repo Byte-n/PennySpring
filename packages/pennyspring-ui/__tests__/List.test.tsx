@@ -129,33 +129,20 @@ describe('List row spec', () => {
     expect(titleNode?.props.color).toBe('default');
   });
 
-  it('splits the amount into integer and decimal with a semantic tone', () => {
+  it('renders custom trailing content from right', () => {
     const testRenderer = renderRow([
-      { amountText: { tone: 'expense', value: 128 }, titleText: '餐饮 · 外卖' },
+      { right: '¥128.00', titleText: '餐饮 · 外卖' },
     ]);
-    const textNodes = testRenderer.root.findAllByType(Text);
-    const integer = textNodes.find(node => node.props.children === '128');
-    const decimal = textNodes.find(node => node.props.children === '.00');
-
-    expect(integer?.props.weight).toBe('semibold');
-    expect(integer?.props.color).toBe('errorText');
-    expect(decimal?.props.color).toBe('errorText');
-  });
-
-  it('prefixes income amounts with a plus sign', () => {
-    const testRenderer = renderRow([
-      { amountText: { tone: 'income', value: '12,800.00' }, titleText: '工资入账' },
-    ]);
-    const signNode = testRenderer.root
+    const rightNode = testRenderer.root
       .findAllByType(Text)
-      .find(node => node.props.children === '+¥');
+      .find(node => node.props.children === '¥128.00');
 
-    expect(signNode).toBeTruthy();
+    expect(rightNode).toBeTruthy();
   });
 
   it('replaces the trailing content with a check icon when selected', () => {
     const testRenderer = renderRow([
-      { amountText: { value: 28 }, selected: true, titleText: '已选中' },
+      { right: '28', selected: true, titleText: '已选中' },
     ]);
     const icon = testRenderer.root.findByType(Icon);
     const rowStyle = getRowStyle(testRenderer);

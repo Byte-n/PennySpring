@@ -3,8 +3,16 @@ import { List, Text, Column } from '@pennyspring/ui';
 import type { ListItemData } from '@pennyspring/ui';
 
 const EXPENSE_ROWS: ListItemData[] = [
-  { amountText: { tone: 'expense', value: '1286.50' }, icon: 'list', titleText: '餐饮' },
-  { amountText: { tone: 'expense', value: '693.35' }, icon: 'home', titleText: '交通' },
+  {
+    icon: 'list',
+    right: <Text color="error" weight="semibold">-¥1,286.50</Text>,
+    titleText: '餐饮',
+  },
+  {
+    icon: 'home',
+    right: <Text color="error" weight="semibold">-¥693.35</Text>,
+    titleText: '交通',
+  },
 ];
 
 export function ListCollapsibleDemo() {

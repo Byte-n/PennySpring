@@ -39,7 +39,7 @@ export function TagPicker({
       tags.map(tag => ({
         hidden: tag.invisible === VISIBILITY.hidden,
         icon: tag.icon ? getPhosphorIconComponent(tag.icon) : undefined,
-        label: tag.name,
+        labelText: tag.name,
         value: tag.id,
       })),
     [tags],

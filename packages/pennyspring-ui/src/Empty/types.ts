@@ -12,11 +12,11 @@ export interface EmptyStyles {
   /** 图标底板容器样式。可改尺寸，不改背景色语义。 */
   iconContainer?: StyleProp<ViewStyle>;
 
-  /** 标题文本样式。仅作用于内部渲染的标题。 */
-  title?: StyleProp<TextStyle>;
+  /** 标题文本样式。仅作用于 titleText 或 title 渲染出的文本。 */
+  titleText?: StyleProp<TextStyle>;
 
-  /** 说明文本样式。说明被提升为主行时同样生效。 */
-  description?: StyleProp<TextStyle>;
+  /** 说明文本样式。仅作用于 descriptionText 或 description 渲染出的文本。 */
+  descriptionText?: StyleProp<TextStyle>;
 }
 
 export interface EmptyProps {

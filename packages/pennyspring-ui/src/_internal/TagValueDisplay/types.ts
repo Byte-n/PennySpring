@@ -1,7 +1,9 @@
+import type { ReactNode } from 'react';
 import type { ComponentSize } from '../../shares/types';
 
 export interface TagValueItem {
-  label: string;
+  labelText?: string;
+  label?: ReactNode | null;
   value: string | number;
 }
 

@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import type { StyleProp, TextStyle, ViewStyle } from 'react-native';
 import type { IconComponent, IconName } from '../Icon';
 import type { InputStatus } from '../Input';
@@ -14,7 +15,10 @@ export interface TagPickerOption {
   value: TagPickerValue;
 
   /** 选项文本，由组件内部渲染为 Text 并单行截断。 */
-  label: string;
+  labelText?: string;
+
+  /** 选项自定义节点；传入后由外部完全控制渲染，传 null 不渲染。 */
+  label?: ReactNode | null;
 
   /** 选项前置图标。 */
   icon?: IconName | IconComponent;

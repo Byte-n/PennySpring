@@ -93,7 +93,11 @@ export function TagPicker({
       selectedValues
         .map(selected => options.find(option => option.value === selected))
         .filter(isOption)
-        .map(option => ({ label: option.label, value: option.value })),
+        .map(option => ({
+          label: option.label,
+          labelText: option.labelText,
+          value: option.value,
+        })),
     [options, selectedValues],
   );
 
@@ -180,7 +184,7 @@ export function TagPicker({
         testID={`tag-picker-option-${option.value}`}
         variant={dashed ? 'dashed' : 'filled'}
       >
-        {option.label}
+        {option.label === undefined ? option.labelText : option.label}
       </Tag>
     );
   }

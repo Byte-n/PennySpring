@@ -19,7 +19,7 @@ export function ListStatesDemo() {
   const loadedRows: ListItemData[] = Array.from(
     { length: loadedCount },
     (_, index) => ({
-      amountText: { value: '120.00', tone: 'expense' as const },
+      right: <Text color="error" weight="semibold">-¥120.00</Text>,
       descriptionText: '刚刚加载的记录',
       icon: 'list' as const,
       titleText: `新增记录 ${index + 1}`,

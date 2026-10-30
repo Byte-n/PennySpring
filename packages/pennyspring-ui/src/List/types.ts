@@ -3,17 +3,6 @@ import type { FlatListProps, GestureResponderEvent, StyleProp, ViewStyle } from 
 import type { IconName } from '../Icon';
 import type { ComponentSize } from '../shares/types';
 
-export type ListAmountTone = 'expense' | 'income' | 'neutral';
-
-/** 行尾金额。组件自动拆整数与小数并右对齐。 */
-export interface ListAmount {
-  value: number | string;
-  /** 语义色调：支出红、收入绿、中性主文字。 */
-  tone?: ListAmountTone;
-  /** 货币符号，默认 ¥。 */
-  currency?: string;
-}
-
 export interface ListStyles {
   header?: StyleProp<ViewStyle>;
   footer?: StyleProp<ViewStyle>;
@@ -31,8 +20,7 @@ export interface ListItemData {
   title?: ReactNode;
   descriptionText?: string;
   description?: ReactNode;
-  /** 行尾金额，优先于 right。 */
-  amountText?: ListAmount;
+  /** 行尾自定义内容。 */
   right?: ReactNode;
   children?: ReactNode;
   onPress?: (event: GestureResponderEvent) => void;

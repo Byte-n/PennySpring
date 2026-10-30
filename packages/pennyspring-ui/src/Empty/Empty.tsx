@@ -2,6 +2,7 @@ import type { ComponentSize } from '../shares/types';
 import { renderTextNode } from '../shares/node';
 import React from 'react';
 import { View } from 'react-native';
+import type { StyleProp, TextStyle } from 'react-native';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import { Column } from '../Column';
 import { Icon } from '../Icon';
@@ -138,12 +139,15 @@ export function Empty({
   const shouldRenderBody = hasTitle || hasDescription;
   const shouldRenderAction = !compact && hasRenderableContent(action);
 
-  function renderPrimaryLine(content: React.ReactNode) {
+  function renderPrimaryLine(
+    content: React.ReactNode,
+    textStyle: StyleProp<TextStyle>,
+  ) {
     return renderTextNode(content, text => (
       <Text
         color="default"
         size="sm"
-        style={[tokenStyles.title, styles?.title]}
+        style={[tokenStyles.title, textStyle]}
         weight="semibold"
       >
         {text}
@@ -156,7 +160,7 @@ export function Empty({
       <Text
         color="tertiary"
         size="xs"
-        style={[tokenStyles.description, styles?.description]}
+        style={[tokenStyles.description, styles?.descriptionText]}
       >
         {text}
       </Text>
@@ -175,7 +179,11 @@ export function Empty({
   ) : null;
 
   if (compact) {
-    const compactLine = hasTitle ? resolvedTitle : resolvedDescription;
+    const compactIsTitle = hasTitle;
+    const compactLine = compactIsTitle ? resolvedTitle : resolvedDescription;
+    const compactStyle = compactIsTitle
+      ? styles?.titleText
+      : styles?.descriptionText;
 
     return (
       <Row align="center" gap="large" style={[tokenStyles.root, style]}>
@@ -183,7 +191,12 @@ export function Empty({
         {hasRenderableContent(compactLine) ? (
           <View style={tokenStyles.head}>
             {renderTextNode(compactLine, text => (
-              <Text color="secondary" size="sm" weight="medium">
+              <Text
+                color="secondary"
+                size="sm"
+                style={compactStyle}
+                weight="medium"
+              >
                 {text}
               </Text>
             ))}
@@ -197,11 +210,11 @@ export function Empty({
   const bodyNode = hasTitle
     ? (
       <>
-        {renderPrimaryLine(resolvedTitle)}
+        {renderPrimaryLine(resolvedTitle, styles?.titleText)}
         {hasDescription ? renderDescriptionLine(resolvedDescription) : null}
       </>
     )
-    : renderPrimaryLine(resolvedDescription);
+    : renderPrimaryLine(resolvedDescription, styles?.descriptionText);
 
   return (
     <Column align="center" gap={0} style={[tokenStyles.root, style]}>

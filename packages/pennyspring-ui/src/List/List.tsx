@@ -10,7 +10,6 @@ import { Loading } from '../Loading';
 import { useControllableValue } from '../_hooks';
 import { renderTextNode } from '../shares/node';
 import type { ListItemData, ListProps } from './types';
-import type { ListAmount } from './types';
 
 /** 行高 / 底板 / 分隔线内缩在 AliasToken 中没有档位，按设计稿落为语义常量。 */
 const PLATE_SIZE = 38;
@@ -73,66 +72,8 @@ const useStyles = createUseSheetStyle(token => ({
     backgroundColor: token.colorSplit,
   },
   dividerTextOnly: { left: DIVIDER_INSET_TEXT_ONLY },
-  amount: { alignItems: 'baseline' },
-  amountAffix: { opacity: 0.55 },
-  amountInteger: { fontVariant: ['tabular-nums'] },
-  amountDecimal: { opacity: 0.72 },
   right: { alignItems: 'flex-end', flexDirection: 'row', gap: token.marginXS },
 }));
-
-const AMOUNT_TONE_COLOR = {
-  expense: 'errorText',
-  income: 'successText',
-  neutral: 'default',
-} as const;
-
-function formatAmount(value: number | string): { decimal: string; integer: string } {
-  if (typeof value === 'number') {
-    const fixed = value.toFixed(2);
-    const [integer, decimal = '00'] = fixed.split('.');
-
-    return { decimal, integer: Number(integer).toLocaleString('en-US') };
-  }
-
-  const matched = value.match(/^(-?)([\d,]+)(?:\.(\d+))?$/);
-
-  if (matched === null) {
-    return { decimal: '', integer: value };
-  }
-
-  return {
-    decimal: matched[3] ?? '00',
-    integer: `${matched[1]}${Number(matched[2].replace(/,/g, '')).toLocaleString('en-US')}`,
-  };
-}
-
-function renderAmount(
-  amount: ListAmount,
-  styles: ReturnType<typeof useStyles>,
-  disabled: boolean,
-) {
-  const tone = amount.tone ?? 'neutral';
-  const color = disabled ? 'tertiary' : AMOUNT_TONE_COLOR[tone];
-  const { decimal, integer } = formatAmount(amount.value);
-  const currency = amount.currency ?? '¥';
-  const sign = tone === 'income' ? '+' : '';
-
-  return (
-    <Row align="baseline" style={styles.amount}>
-      <Text color={color} size="xs" style={styles.amountAffix} weight="medium">
-        {`${sign}${currency}`}
-      </Text>
-      <Text color={color} size="md" style={styles.amountInteger} weight="semibold">
-        {integer}
-      </Text>
-      {decimal === '' ? null : (
-        <Text color={color} size="xs" style={styles.amountDecimal} weight="medium">
-          {`.${decimal}`}
-        </Text>
-      )}
-    </Row>
-  );
-}
 
 function renderRow(
   item: ListItemData,
@@ -165,9 +106,6 @@ function renderRow(
       ))}
     </Column>
   );
-  const amountNode = item.amountText !== undefined
-    ? renderAmount(item.amountText, styles, item.disabled === true)
-    : null;
   const rightNode = item.right !== undefined
     ? renderTextNode(item.right, text => (
       <Text color={item.disabled ? 'tertiary' : 'secondary'} size="sm">{text}</Text>
@@ -194,7 +132,7 @@ function renderRow(
       {item.selected ? (
         <Icon color={item.disabled ? 'tertiary' : 'primary'} icon="check" size={CHECK_SIZE} />
       ) : (
-        <View style={styles.right}>{amountNode}{rightNode}</View>
+        <View style={styles.right}>{rightNode}</View>
       )}
       {showDivider ? (
         <View style={[styles.divider, hasPlate ? null : styles.dividerTextOnly]} />

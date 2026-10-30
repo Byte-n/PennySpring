@@ -1,49 +1,52 @@
 import React from 'react';
-import { List } from '@pennyspring/ui';
+import { List, Row, Text } from '@pennyspring/ui';
 import type { ListItemData } from '@pennyspring/ui';
 
 const ROWS: ListItemData[] = [
   {
     icon: 'list',
     titleText: '餐饮 · 外卖',
-    amountText: { tone: 'expense', value: '128.00' },
+    right: <Text color="error" weight="semibold">-¥128.00</Text>,
   },
   {
     icon: 'home',
     titleText: '房租',
     descriptionText: '固定支出 · 1 笔',
-    amountText: { tone: 'expense', value: '2400' },
+    right: <Text color="error" weight="semibold">-¥2,400.00</Text>,
   },
   {
     titleText: '本月结余',
-    amountText: { tone: 'income', value: '8420.15' },
+    right: <Text color="success" weight="semibold">+¥8,420.15</Text>,
   },
   {
     icon: 'user',
     titleText: '工资入账',
     descriptionText: '已到账 · 招商银行',
-    amountText: { tone: 'income', value: '12800' },
+    right: <Text color="success" weight="semibold">+¥12,800.00</Text>,
   },
   {
     icon: 'star',
     titleText: '餐饮',
     descriptionText: '3 个二级分类',
-    amountText: { value: '1286.50' },
-    right: '›',
+    right: (
+      <Row align="center" gap="small">
+        <Text color="default" weight="semibold">¥1,286.50</Text>
+        <Text color="tertiary">›</Text>
+      </Row>
+    ),
   },
   {
     icon: 'settings',
     selected: true,
     titleText: '已选中',
     descriptionText: '可批量打标签',
-    amountText: { value: '28' },
   },
   {
     icon: 'list',
     disabled: true,
     titleText: '已归档账本',
     descriptionText: '只读，不可切换',
-    amountText: { value: '0' },
+    right: <Text color="tertiary" weight="semibold">¥0.00</Text>,
   },
   {
     icon: 'warning',

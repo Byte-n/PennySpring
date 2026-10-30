@@ -26,7 +26,7 @@ export function TagValueDisplay({
       {visibleItems.map(item => (
         <View key={String(item.value)} style={styles.tagItem}>
           <Tag size="small" disabled={disabled}>
-            {item.label}
+            {item.label === undefined ? item.labelText : item.label}
           </Tag>
           {closable ? (
             <Pressable

@@ -18,7 +18,10 @@ export interface FloatingActionItem {
   icon?: IconName | IconComponent;
   disabled?: boolean;
   onPress: () => void;
-  buttonProps?: Omit<ButtonProps, 'children' | 'icon' | 'onPress' | 'size'>;
+  buttonProps?: Omit<
+    ButtonProps,
+    'children' | 'icon' | 'onPress' | 'size' | 'style' | 'styles'
+  >;
 }
 
 export interface FloatingActionGroupStyles {

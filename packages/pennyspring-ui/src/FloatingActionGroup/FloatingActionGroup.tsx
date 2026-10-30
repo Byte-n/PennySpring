@@ -59,7 +59,10 @@ interface FloatingActionButtonProps {
   shadow?: boolean;
   onPress?: () => void;
   style?: StyleProp<ViewStyle>;
-  buttonProps?: Omit<ButtonProps, 'children' | 'icon' | 'onPress' | 'size'>;
+  buttonProps?: Omit<
+    ButtonProps,
+    'children' | 'icon' | 'onPress' | 'size' | 'style' | 'styles'
+  >;
   testID?: string;
 }
 
@@ -233,12 +236,7 @@ function FloatingActionButton({
 }: FloatingActionButtonProps) {
   const iconOnly = icon !== undefined;
   const tokenStyles = useButtonStyles({ iconOnly, shadow, size });
-  const {
-    style: buttonStyle,
-    styles: buttonStyles,
-    testID: buttonTestID,
-    ...restButtonProps
-  } = buttonProps ?? {};
+  const { testID: buttonTestID, ...restButtonProps } = buttonProps ?? {};
   const resolvedTestID = testID ?? buttonTestID;
 
   return (
@@ -251,8 +249,7 @@ function FloatingActionButton({
       onPress={onPress}
       shape={iconOnly ? 'circle' : 'round'}
       size={size}
-      style={[tokenStyles.button, style, buttonStyle]}
-      styles={buttonStyles}
+      style={[tokenStyles.button, style]}
       testID={resolvedTestID}
       variant={variant}
     >
@@ -429,7 +426,6 @@ function HiddenActionItem({
             pressed ? tokenStyles.miniPressed : null,
             isDisabled ? tokenStyles.disabled : null,
             style,
-            action.buttonProps?.style,
           ]}
         >
           <Icon
@@ -569,7 +565,7 @@ export function FloatingActionGroup({
             label={action.label}
             onPress={action.onPress}
             size={size}
-            style={[styles?.actionButton, action.buttonProps?.style]}
+            style={styles?.actionButton}
             buttonProps={action.buttonProps}
           />
         ))}

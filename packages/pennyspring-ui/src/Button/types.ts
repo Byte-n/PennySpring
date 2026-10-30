@@ -47,7 +47,8 @@ export interface ButtonProps
   shape?: ButtonShape;
   size?: ComponentSize;
   icon?: IconName | IconComponent;
-  iconProps?: Omit<IconProps, 'icon'>;
+  /** 图标的非样式配置；尺寸与颜色由 Button 按 size / type 统一映射。 */
+  iconProps?: Omit<IconProps, 'icon' | 'style'>;
   iconPlacement?: ButtonIconPlacement;
   loading?: boolean | ButtonLoadingConfig;
   disabled?: boolean;

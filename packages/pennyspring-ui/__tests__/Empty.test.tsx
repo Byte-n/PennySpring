@@ -79,6 +79,56 @@ describe('Empty', () => {
     expect(textNode.props.color).toBe('default');
   });
 
+  it('applies titleText and descriptionText styles only to their own text slots', () => {
+    const testRenderer = renderEmpty({
+      titleText: '标题',
+      descriptionText: '说明',
+      styles: {
+        titleText: { color: 'titleSlot' },
+        descriptionText: { color: 'descriptionSlot' },
+      },
+    });
+    const textNodes = testRenderer.root.findAllByType(Text);
+    const titleNode = textNodes.find(node => node.props.children === '标题');
+    const descriptionNode = textNodes.find(node => node.props.children === '说明');
+
+    expect(StyleSheet.flatten(titleNode?.props.style)?.color).toBe('titleSlot');
+    expect(StyleSheet.flatten(descriptionNode?.props.style)?.color).toBe(
+      'descriptionSlot',
+    );
+  });
+
+  it('keeps the descriptionText style when the description is promoted to the primary line', () => {
+    const testRenderer = renderEmpty({
+      descriptionText: '本月暂无收入',
+      styles: {
+        titleText: { color: 'titleSlot' },
+        descriptionText: { color: 'descriptionSlot' },
+      },
+    });
+    const textNode = testRenderer.root.findByType(Text);
+
+    expect(StyleSheet.flatten(textNode.props.style)?.color).toBe(
+      'descriptionSlot',
+    );
+  });
+
+  it('applies the descriptionText style to the compact line', () => {
+    const testRenderer = renderEmpty({
+      compact: true,
+      descriptionText: '暂无记录',
+      styles: {
+        titleText: { color: 'titleSlot' },
+        descriptionText: { color: 'descriptionSlot' },
+      },
+    });
+    const textNode = testRenderer.root.findByType(Text);
+
+    expect(StyleSheet.flatten(textNode.props.style)?.color).toBe(
+      'descriptionSlot',
+    );
+  });
+
   it('renders a single action below the text block', () => {
     const testRenderer = renderEmpty({
       titleText: '还没有快捷模板',

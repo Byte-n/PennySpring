@@ -1,13 +1,14 @@
 import React from 'react';
+import { Text as RNText } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
 import { DisplayInput } from '../src/DisplayInput';
 import { Form } from '../src/Form';
 import { TagPicker } from '../src/TagPicker';
 
 const options = [
-  { value: 'food', label: '餐饮' },
-  { value: 'travel', label: '出行' },
-  { value: 'archived', label: '旧账本', hidden: true },
+  { value: 'food', labelText: '餐饮' },
+  { value: 'travel', labelText: '出行' },
+  { value: 'archived', labelText: '旧账本', hidden: true },
 ];
 
 function renderTagPicker(
@@ -101,6 +102,31 @@ describe('TagPicker', () => {
     expect(onChange).toHaveBeenCalledWith(['travel']);
   });
 
+  it('renders a custom option label node and falls back to labelText', () => {
+    const testRenderer = renderTagPicker({
+      defaultOpen: true,
+      options: [
+        { value: 'food', label: <RNText testID="custom-food-label">餐饮</RNText> },
+        { value: 'travel', labelText: '出行' },
+      ],
+      value: ['travel'],
+    });
+
+    expect(
+      testRenderer.root.findAllByProps({ testID: 'custom-food-label' }).length,
+    ).toBeGreaterThan(0);
+    expect(treeText(testRenderer)).toContain('出行');
+  });
+
+  it('suppresses the option label when label is null', () => {
+    const testRenderer = renderTagPicker({
+      defaultOpen: true,
+      options: [{ value: 'food', label: null, labelText: '餐饮' }],
+    });
+
+    expect(treeText(testRenderer)).not.toContain('餐饮');
+  });
+
   it('only renders hidden options after they are selected', () => {
     const hiddenRenderer = renderTagPicker({ defaultOpen: true });
 
@@ -152,8 +178,8 @@ describe('TagPicker', () => {
       defaultOpen: true,
       onChange,
       options: [
-        { value: 'food', label: '餐饮', disabled: true },
-        { value: 'travel', label: '出行' },
+        { value: 'food', labelText: '餐饮', disabled: true },
+        { value: 'travel', labelText: '出行' },
       ],
     });
 

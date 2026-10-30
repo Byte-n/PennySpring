@@ -164,10 +164,10 @@ function getSelectedTagItems(
   selectedValues: ListPickerValue[],
 ): TagValueItem[] {
   return selectedValues
-    .map(value => {
+    .map((value): TagValueItem | undefined => {
       const option = options.find(o => o.value === value);
       if (!option) return undefined;
-      return { label: option.labelText ?? extractText(option.label), value };
+      return { labelText: option.labelText ?? extractText(option.label), value };
     })
     .filter((item): item is TagValueItem => item !== undefined);
 }

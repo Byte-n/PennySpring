@@ -9,7 +9,7 @@ export const previewMeta = {
   order: 3,
   demos: [
     { id: 'rows', title: '行结构（8 种）' },
-    { id: 'amount', title: '金额样式（tone）' },
+    { id: 'right', title: '行尾自定义内容（right）' },
     { id: 'collapsible', title: '分组头与分隔线' },
     { id: 'states', title: '空态、加载与加载更多' },
   ],
