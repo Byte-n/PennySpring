@@ -38,6 +38,7 @@ export interface TextProps {
   size?: TextSize;
   weight?: TextWeight;
   color?: TextColor;
+  textAlign?: TextStyle['textAlign'];
   style?: StyleProp<TextStyle>;
   numberOfLines?: number;
   ellipsizeMode?: 'head' | 'middle' | 'tail' | 'clip';

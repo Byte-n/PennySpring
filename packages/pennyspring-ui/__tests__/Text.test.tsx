@@ -93,4 +93,16 @@ describe('Text', () => {
       expect(rnText.props.style[0].color).not.toBe('#123456');
     });
   });
+
+  describe('textAlign', () => {
+    it('applies textAlign to the underlying Text', () => {
+      const testRenderer = renderText({
+        textAlign: 'center',
+        children: 'Hello',
+      });
+      const rnText = getRNText(testRenderer);
+
+      expect(rnText.props.style[0].textAlign).toBe('center');
+    });
+  });
 });

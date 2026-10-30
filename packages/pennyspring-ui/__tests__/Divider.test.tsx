@@ -68,4 +68,53 @@ describe('Divider', () => {
 
     expect(rootStyle.marginVertical).toBe(expectedMargin);
   });
+
+  it.each([
+    ['none', 0],
+    ['small', 11],
+    ['normal', 13],
+    ['large', 17],
+  ] as const)('maps %s spacing to vertical margin regardless of size', (spacing, expectedMargin) => {
+    let testRenderer: renderer.ReactTestRenderer;
+    act(() => {
+      testRenderer = renderer.create(
+        <ThemeProvider
+          config={{
+            token: {
+              paddingSM: 11,
+              padding: 13,
+              paddingMD: 17,
+            },
+          }}
+        >
+          <Divider size="large" spacing={spacing}>Budget</Divider>
+        </ThemeProvider>,
+      );
+    });
+    const dividerRoot = testRenderer!.root.findAllByType(View)[0];
+    const rootStyle = StyleSheet.flatten(dividerRoot.props.style);
+
+    expect(rootStyle.marginVertical).toBe(expectedMargin);
+  });
+
+  it('applies spacing none to the horizontal margin of a vertical divider', () => {
+    let testRenderer: renderer.ReactTestRenderer;
+    act(() => {
+      testRenderer = renderer.create(
+        <ThemeProvider
+          config={{
+            token: {
+              paddingSM: 11,
+            },
+          }}
+        >
+          <Divider direction="vertical" spacing="none" />
+        </ThemeProvider>,
+      );
+    });
+    const dividerRoot = testRenderer!.root.findAllByType(View)[0];
+    const rootStyle = StyleSheet.flatten(dividerRoot.props.style);
+
+    expect(rootStyle.marginHorizontal).toBe(0);
+  });
 });

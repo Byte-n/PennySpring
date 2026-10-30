@@ -11,12 +11,12 @@
 - `Grid`：网格布局和重复瓦片；三档 gap 8 / 12 / 16，格内只保留横向半 gap，行距等于 gap，外层负半 gap 抵消首列外扩。
 - `GeometryReader`：布局尺寸测量。
 - `KeyboardAwareScreen`、`KeyboardAwareFormScroll`、`KeyboardStickyFooter`、`useKeyboardInsets`：页面、表单滚动与底部操作区的键盘避让布局能力。inset 统一按 `max(0, 键盘高 − 安全区)` 计算；Screen 只在键盘可见时补一次，FormScroll 内容底部只补 `inset + extraBottomInset`（默认 0），StickyFooter 取 `max(inset, safeAreaBottom)` 并带 1px `colorSplit` 顶线。
-- `Divider`：视觉分隔；`size` 只调间距（横向上下 12 / 16 / 20，纵向高 16 / 20 / 24、左右 8 / 12 / 16），内容固定 12 三级灰、左右 12，`left` / `right` 短边固定 24。
+- `Divider`：视觉分隔；`size` 只调间距（横向上下 12 / 16 / 20，纵向高 16 / 20 / 24、左右 8 / 12 / 16），`spacing` 可覆盖两侧间距、`none` 关闭间距，内容固定 12 三级灰、左右 12，`left` / `right` 短边固定 24。
 - `Card`：分组内容承载面；plain / elevated / summary 三个变体均无描边，elevated 只用 `boxShadowTertiary`，summary 靠金额排印建立重点；尺寸 12 / 16 / 20 内边距。
 
 ## 排版与符号
 
-- `Text`：应用和共享 UI 中的所有展示文本。
+- `Text`：应用和共享 UI 中的所有展示文本；支持 `size` / `weight` / `color` / `textAlign`。
 - `Icon`：按名称渲染图标
 - `Ellipsis`：折叠或可展开的长文本。
 
@@ -61,7 +61,7 @@
 - `Steps`：有序流程状态。指示器 20 / 24 / 28，标题 14 / 16 / 18，说明 12 / 12 / 14；wait 白底发丝描边、process 主色 + 4px `colorPrimaryBg` 外环、finish 成功色 + 勾、error 错误色 + 叉；连接线 2px，未完成 `colorSplit`、已完成 `colorSuccess`；只读保留对比，禁用整体 .45。
 - `Result`：终态结果页或面板。图标容器 40 / 48 / 56（语义浅底），图标本体 20 / 24 / 28，标题 16 / 18 / 22，说明 12 / 14 / 14（最大宽 320）；组件不自带容器与阴影，操作区间距 8、主按钮在左，`icon={null}` 时标题不再保留图标占位。
 - `Empty`：无数据状态；inline / boxed / compact 三形态，标题 + 说明 + 单个操作三行结构，图标用 44 圆形底板。
-- `Skeleton`：加载占位。line 行高 12 / 16 / 20（圆角 4 / 6 / 8），circle 32 / 40 / 48，rect 48 / 64 / 80（圆角 12）；shimmer 占容器 40% 宽、1.2s 循环，静态不渲染高光；加载完成时内容 100ms 淡入。
+- `Skeleton`：加载占位。line 行高 12 / 16 / 20（圆角 4 / 6 / 8），circle 32 / 40 / 48，rect 48 / 64 / 80（圆角 12）；`width` / `height` / `borderRadius` 可覆盖默认尺寸；shimmer 占容器 40% 宽、1.2s 循环，静态不渲染高光；加载完成时内容 100ms 淡入。
 - `Carousel`：可滑动媒体/内容轮播。指示点 6px、选中拉成 16×6 胶囊、间距 8、距底 12；默认 surface 预设（主色 / 四级灰），媒体场景用 `styles.indicatorDot*` 覆盖为白点；超过 8 页切换右下角计数胶囊，单页不渲染指示器；自动播放默认 4s，拖拽期间暂停。
 
 ## 导航

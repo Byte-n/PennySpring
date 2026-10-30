@@ -8,6 +8,7 @@ export const Text = React.forwardRef<RNText, TextProps>(function Text({
   size = 'md',
   weight,
   color,
+  textAlign,
   style,
   numberOfLines,
   ellipsizeMode,
@@ -18,7 +19,7 @@ export const Text = React.forwardRef<RNText, TextProps>(function Text({
   children,
 }, ref) {
   const resolvedColor = useTextColor(color);
-  const tokenStyles = useStyles({ size, weight, color: resolvedColor });
+  const tokenStyles = useStyles({ size, weight, color: resolvedColor, textAlign });
 
   return (
     <RNText

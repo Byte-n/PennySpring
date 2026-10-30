@@ -18,6 +18,7 @@ export type {
   DividerContentPosition,
   DividerDirection,
   DividerProps,
+  DividerSpacing,
   DividerStyles,
 } from './Divider';
 export { Dialog } from './Dialog';

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text as RNText, View } from 'react-native';
+import { StyleSheet, Text as RNText, View } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
 import { Skeleton } from '../src/Skeleton';
 
@@ -112,6 +112,33 @@ describe('Skeleton', () => {
       expect(appliedStyle).toEqual(
         expect.arrayContaining([expect.objectContaining(customStyle)]),
       );
+    });
+  });
+
+  describe('dimension overrides', () => {
+    it('applies width, height and borderRadius overrides', () => {
+      const testRenderer = renderSkeleton({
+        width: 120,
+        height: 16,
+        borderRadius: 8,
+        animated: false,
+      });
+      const root = testRenderer.root.findAllByType(View)[0];
+      const rootStyle = StyleSheet.flatten(root.props.style);
+
+      expect(rootStyle.width).toBe(120);
+      expect(rootStyle.height).toBe(16);
+      expect(rootStyle.borderRadius).toBe(8);
+    });
+
+    it('accepts percentage width overrides', () => {
+      const testRenderer = renderSkeleton({
+        width: '58%',
+        animated: false,
+      });
+      const root = testRenderer.root.findAllByType(View)[0];
+
+      expect(StyleSheet.flatten(root.props.style).width).toBe('58%');
     });
   });
 });

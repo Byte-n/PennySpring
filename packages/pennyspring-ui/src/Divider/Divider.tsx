@@ -9,6 +9,7 @@ import type {
   DividerContentPosition,
   DividerDirection,
   DividerProps,
+  DividerSpacing,
 } from './types';
 
 interface DividerStyleOptions {
@@ -16,6 +17,7 @@ interface DividerStyleOptions {
   direction: DividerDirection;
   hasContent: boolean;
   size: ComponentSize;
+  spacing?: DividerSpacing;
 }
 
 type ContentLinePosition = DividerContentPosition | 'none';
@@ -53,6 +55,14 @@ const useStyles = createUseSheetStyle(
       : 'none';
     const isStartLineShort = contentLinePosition === 'left';
     const isEndLineShort = contentLinePosition === 'right';
+    const resolvedSpacing =
+      options.spacing === 'none'
+        ? 0
+        : options.spacing
+          ? SIZE_STYLE_MAP[options.spacing].marginVertical(token)
+          : isHorizontal
+            ? sizeConfig.marginVertical(token)
+            : sizeConfig.verticalMarginHorizontal(token);
 
     return {
       root: {
@@ -62,10 +72,8 @@ const useStyles = createUseSheetStyle(
         borderLeftWidth: isHorizontal ? 0 : token.lineWidth,
         flexDirection: isHorizontal ? 'row' : undefined,
         height: isHorizontal ? undefined : sizeConfig.verticalHeight(token),
-        marginHorizontal: isHorizontal
-          ? 0
-          : sizeConfig.verticalMarginHorizontal(token),
-        marginVertical: isHorizontal ? sizeConfig.marginVertical(token) : 0,
+        marginHorizontal: isHorizontal ? 0 : resolvedSpacing,
+        marginVertical: isHorizontal ? resolvedSpacing : 0,
       },
       firstLine: {
         borderTopColor: token.colorSplit,
@@ -99,6 +107,7 @@ export function Divider({
   contentPosition = 'center',
   direction = 'horizontal',
   size = 'normal',
+  spacing,
   style,
   styles,
 }: DividerProps) {
@@ -108,6 +117,7 @@ export function Divider({
     direction,
     hasContent: shouldRenderContent,
     size,
+    spacing,
   });
   const firstLineStyle = [tokenStyles.firstLine, styles?.line];
   const secondLineStyle = [tokenStyles.secondLine, styles?.line];

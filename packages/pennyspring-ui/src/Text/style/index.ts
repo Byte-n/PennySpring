@@ -12,6 +12,7 @@ interface TextStyleOptions {
   size: TextSize;
   weight?: TextWeight;
   color: string;
+  textAlign?: TextStyle['textAlign'];
 }
 
 type FontWeightSelector = (token: AliasToken) => TextStyle['fontWeight'];
@@ -82,17 +83,18 @@ export const SIZE_DEFAULT_WEIGHT_MAP: Record<TextSize, TextWeight> = {
 };
 
 export const useStyles = createUseSheetStyle(
-  (token, { size, weight, color }: TextStyleOptions) => {
+  (token, { size, weight, color, textAlign }: TextStyleOptions) => {
     const config = SIZE_MAP[size];
     const resolvedWeight = weight ?? SIZE_DEFAULT_WEIGHT_MAP[size];
 
     return {
       text: {
+        color,
         fontFamily: token.fontFamily,
         fontSize: config.fontSize(token),
-        lineHeight: config.lineHeight(token),
         fontWeight: WEIGHT_MAP[resolvedWeight](token),
-        color,
+        lineHeight: config.lineHeight(token),
+        textAlign,
       },
     };
   },

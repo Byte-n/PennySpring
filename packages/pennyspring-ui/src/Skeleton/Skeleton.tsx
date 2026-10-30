@@ -55,6 +55,9 @@ export function Skeleton({
   size = 'normal',
   animated = true,
   loading = true,
+  width,
+  height,
+  borderRadius,
   style,
   styles: externalStyles,
   children,
@@ -64,9 +67,11 @@ export function Skeleton({
   const wasLoadingRef = React.useRef(loading);
   const placeholderHeightRef = React.useRef(0);
   const shouldFadeIn = wasLoadingRef.current && !loading;
-  const resolvedHeight = getDefaultHeight(shape, size);
-  const resolvedWidth = getDefaultWidth(shape, size);
-  const resolvedBorderRadius = getDefaultBorderRadius(shape, token, size, resolvedHeight);
+  const resolvedWidth = width ?? getDefaultWidth(shape, size);
+  const resolvedHeight = height ?? getDefaultHeight(shape, size);
+  const resolvedBorderRadius =
+    borderRadius ??
+    getDefaultBorderRadius(shape, token, size, resolvedHeight);
   const shimmerWidth = containerWidth * SHIMMER_WIDTH_RATIO;
 
   const tokenStyles = useStyles({
@@ -92,9 +97,10 @@ export function Skeleton({
   return (
     <View
       onLayout={event => {
-        const { height, width } = event.nativeEvent.layout;
-        placeholderHeightRef.current = height;
-        setContainerWidth(width);
+        const { height: layoutHeight, width: layoutWidth } =
+          event.nativeEvent.layout;
+        placeholderHeightRef.current = layoutHeight;
+        setContainerWidth(layoutWidth);
       }}
       style={[tokenStyles.root, externalStyles?.root, style]}
     >
