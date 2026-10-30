@@ -25,6 +25,7 @@ export function ListCollapsibleDemo() {
         onOpenChange={setOpen}
         footer="合计 ¥1,979.85"
         keyExtractor={item => item.titleText ?? ''}
+        scrollEnabled={false}
       />
     </Column>
   );

@@ -127,6 +127,8 @@ export function ComponentPreviewListScreen({ navigation }: Props) {
                   });
               },
             }))}
+            initialNumToRender={section.items.length}
+            scrollEnabled={false}
             style={styles.list}
           />
         </View>

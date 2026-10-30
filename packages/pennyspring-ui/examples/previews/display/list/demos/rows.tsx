@@ -61,6 +61,7 @@ export function ListRowsDemo() {
       header="十月账单"
       footer="共 8 种行结构"
       keyExtractor={item => item.titleText ?? ''}
+      scrollEnabled={false}
     />
   );
 }

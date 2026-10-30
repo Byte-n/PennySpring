@@ -26,10 +26,10 @@ export function ListAmountDemo() {
       <Text color="tertiary" size="sm">
         金额 16/600 等宽右对齐；符号与小数 13；支出红、收入绿只作辅助，符号必须出现；无金额用 —
       </Text>
-      <List<ListItemData> data={EXPENSE_ROWS} header="支出 expense" />
-      <List<ListItemData> data={INCOME_ROWS} header="收入 income" />
-      <List<ListItemData> data={NEUTRAL_ROWS} header="中性 neutral" />
-      <List<ListItemData> data={EMPTY_ROWS} header="无金额" />
+      <List<ListItemData> data={EXPENSE_ROWS} header="支出 expense" scrollEnabled={false} />
+      <List<ListItemData> data={INCOME_ROWS} header="收入 income" scrollEnabled={false} />
+      <List<ListItemData> data={NEUTRAL_ROWS} header="中性 neutral" scrollEnabled={false} />
+      <List<ListItemData> data={EMPTY_ROWS} header="无金额" scrollEnabled={false} />
     </Column>
   );
 }
