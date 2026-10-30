@@ -7,6 +7,19 @@ import type { TriggerFieldStyles } from '../shares/pickerStyles';
 
 export type ImagePickerSource = 'camera' | 'photo' | 'fileSystem';
 
+export type ImagePickerImageQuality =
+  | 0
+  | 0.1
+  | 0.2
+  | 0.3
+  | 0.4
+  | 0.5
+  | 0.6
+  | 0.7
+  | 0.8
+  | 0.9
+  | 1;
+
 export interface ImagePickerValue {
   uri: string;
   fileName?: string;
@@ -16,6 +29,8 @@ export interface ImagePickerValue {
   name?: string;
   type?: string;
   width?: number;
+  /** 图片的 base64 内容；仅在 includeBase64 开启时由原生选择器返回。 */
+  base64?: string;
 }
 
 export interface ImagePickerOpenChangeParams {
@@ -25,6 +40,10 @@ export interface ImagePickerOpenChangeParams {
 export interface ImagePickerPickOptions {
   maxCount: number;
   multiple: boolean;
+  includeBase64?: boolean;
+  maxWidth?: number;
+  maxHeight?: number;
+  quality?: ImagePickerImageQuality;
 }
 
 export interface ImagePickerStyles {
@@ -80,6 +99,14 @@ interface ImagePickerBaseProps {
   selectedText?: string;
   unselectedText?: string;
   maxCount?: number;
+  /** 是否让原生选择器返回 base64 内容，默认关闭。 */
+  includeBase64?: boolean;
+  /** 选择后压缩的最长边宽度。 */
+  maxWidth?: number;
+  /** 选择后压缩的最长边高度。 */
+  maxHeight?: number;
+  /** 选择后压缩质量，取值 0 - 1。 */
+  quality?: ImagePickerImageQuality;
   children?: ReactNode;
   style?: StyleProp<ViewStyle>;
   styles?: ImagePickerStyles;
@@ -100,3 +127,57 @@ export interface ImagePickerMultipleProps extends ImagePickerBaseProps {
 }
 
 export type ImagePickerProps = ImagePickerSingleProps | ImagePickerMultipleProps;
+
+export interface ImagePickerPopupBaseProps {
+  open?: boolean;
+  defaultOpen?: boolean;
+  onOpenChange?: (
+    open: boolean,
+    params: ImagePickerOpenChangeParams,
+  ) => void;
+  onError?: (error: unknown) => void;
+  readonly?: boolean;
+  disabled?: boolean;
+  cameraText?: string;
+  photoText?: string;
+  fileSystemText?: string;
+  cancelText?: string;
+  okText?: string;
+  titleText?: string;
+  multipleHintText?: string;
+  emptyText?: string;
+  sources?: ImagePickerSource[];
+  selectedText?: string;
+  unselectedText?: string;
+  maxCount?: number;
+  /** 是否让原生选择器返回 base64 内容，默认关闭。 */
+  includeBase64?: boolean;
+  /** 选择后压缩的最长边宽度。 */
+  maxWidth?: number;
+  /** 选择后压缩的最长边高度。 */
+  maxHeight?: number;
+  /** 选择后压缩质量，取值 0 - 1。 */
+  quality?: ImagePickerImageQuality;
+  style?: StyleProp<ViewStyle>;
+  styles?: ImagePickerStyles;
+}
+
+export interface ImagePickerPopupSingleProps
+  extends ImagePickerPopupBaseProps {
+  multiple?: false;
+  value?: ImagePickerValue;
+  defaultValue?: ImagePickerValue;
+  onChange?: (value: ImagePickerValue) => void;
+}
+
+export interface ImagePickerPopupMultipleProps
+  extends ImagePickerPopupBaseProps {
+  multiple: true;
+  value?: ImagePickerValue[];
+  defaultValue?: ImagePickerValue[];
+  onChange?: (value: ImagePickerValue[]) => void;
+}
+
+export type ImagePickerPopupProps =
+  | ImagePickerPopupSingleProps
+  | ImagePickerPopupMultipleProps;

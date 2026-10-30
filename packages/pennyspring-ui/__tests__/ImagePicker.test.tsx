@@ -11,7 +11,11 @@ import { ImagePicker } from '../src/ImagePicker';
 import { pickImageFromCamera, pickImageFromFiles, pickImageFromLibrary } from '../src/ImagePicker/nativePickers';
 import { Popup } from '../src/Popup';
 import { Row } from '../src/Row';
-import type { ImagePickerProps, ImagePickerValue } from '../src/ImagePicker';
+import type {
+  ImagePickerPopupProps,
+  ImagePickerProps,
+  ImagePickerValue,
+} from '../src/ImagePicker';
 
 jest.mock('../src/ImagePicker/nativePickers', () => ({
   pickImageFromCamera: jest.fn(),
@@ -32,6 +36,20 @@ function renderImagePicker(
 
   act(() => {
     testRenderer = renderer.create(<ImagePicker {...props as ImagePickerProps} />);
+  });
+
+  return testRenderer!;
+}
+
+function renderImagePickerPopup(
+  props: Omit<ImagePickerPopupProps, 'open'> & { open?: boolean } = {},
+) {
+  let testRenderer: renderer.ReactTestRenderer;
+
+  act(() => {
+    testRenderer = renderer.create(
+      <ImagePicker.Popup open {...props as ImagePickerPopupProps} />,
+    );
   });
 
   return testRenderer!;
@@ -327,5 +345,106 @@ describe('ImagePicker', () => {
 
     expect(triggerInput.props.styles?.field).toBeUndefined();
     expect(triggerInput.props.styles?.value).toBeUndefined();
+  });
+
+  it('forwards includeBase64 to the native picker', async () => {
+    mockPickImageFromLibrary.mockResolvedValue({
+      uri: 'file:///with-base64.jpg',
+      base64: 'QUJD',
+    });
+    const testRenderer = renderImagePicker({ includeBase64: true });
+
+    pressTrigger(testRenderer);
+    await act(async () => {
+      testRenderer.root.findByProps({ testID: 'image-picker-action-photo' }).props.onPress();
+    });
+
+    expect(mockPickImageFromLibrary).toHaveBeenCalledWith({
+      maxCount: 1,
+      multiple: false,
+      includeBase64: true,
+    });
+  });
+});
+
+describe('ImagePicker.Popup', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('renders only the photo panel without a trigger', () => {
+    const testRenderer = renderImagePickerPopup();
+
+    expect(testRenderer.root.findAllByType(DisplayInput)).toHaveLength(0);
+    expect(testRenderer.root.findByType(Popup.FloatingPanel).props.open).toBe(true);
+  });
+
+  it('picks multiple images and keeps the panel open', async () => {
+    const nextValues: ImagePickerValue[] = [
+      {
+        uri: 'file:///chat-first.jpg',
+        fileName: 'chat-first.jpg',
+        mimeType: 'image/jpeg',
+        base64: 'QUJD',
+      },
+      {
+        uri: 'file:///chat-second.jpg',
+        fileName: 'chat-second.jpg',
+        mimeType: 'image/jpeg',
+        base64: 'REVG',
+      },
+    ];
+    const onChange = jest.fn();
+    mockPickImageFromLibrary.mockResolvedValue(nextValues);
+    const testRenderer = renderImagePickerPopup({
+      includeBase64: true,
+      maxCount: 4,
+      maxHeight: 1_600,
+      maxWidth: 1_600,
+      multiple: true,
+      onChange,
+      quality: 0.8,
+    });
+
+    await act(async () => {
+      testRenderer.root.findByProps({ testID: 'image-picker-action-photo' }).props.onPress();
+    });
+
+    expect(mockPickImageFromLibrary).toHaveBeenCalledWith({
+      maxCount: 4,
+      multiple: true,
+      includeBase64: true,
+      maxWidth: 1_600,
+      maxHeight: 1_600,
+      quality: 0.8,
+    });
+    expect(onChange).toHaveBeenCalledWith(nextValues);
+    expect(testRenderer.root.findByType(Popup.FloatingPanel).props.open).toBe(true);
+  });
+
+  it('reports done through onOpenChange', async () => {
+    const onOpenChange = jest.fn();
+    const testRenderer = renderImagePickerPopup({ onOpenChange });
+
+    await act(async () => {
+      testRenderer.root.findByProps({ testID: 'image-picker-action-done' }).props.onPress();
+    });
+
+    expect(onOpenChange).toHaveBeenCalledWith(false, { reason: 'action' });
+  });
+
+  it('passes includeBase64 to the camera picker', async () => {
+    mockPickImageFromCamera.mockResolvedValue(undefined);
+    const testRenderer = renderImagePickerPopup({ includeBase64: true });
+
+    await act(async () => {
+      testRenderer.root.findByProps({ testID: 'image-picker-action-camera' }).props.onPress();
+    });
+
+    expect(mockPickImageFromCamera).toHaveBeenCalledWith({
+      maxCount: 1,
+      multiple: false,
+      includeBase64: true,
+    });
   });
 });

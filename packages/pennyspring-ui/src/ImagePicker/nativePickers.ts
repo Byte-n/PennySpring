@@ -31,12 +31,28 @@ function getSelectionLimit({ maxCount, multiple }: ImagePickerPickOptions): numb
   return multiple ? maxCount : 1;
 }
 
+function getTransformOptions(options: ImagePickerPickOptions): {
+  maxWidth?: number;
+  maxHeight?: number;
+  quality?: ImagePickerPickOptions['quality'];
+} {
+  return {
+    ...(options.maxWidth !== undefined ? { maxWidth: options.maxWidth } : null),
+    ...(options.maxHeight !== undefined
+      ? { maxHeight: options.maxHeight }
+      : null),
+    ...(options.quality !== undefined ? { quality: options.quality } : null),
+  };
+}
+
 export async function pickImageFromLibrary(
   options: ImagePickerPickOptions,
 ): Promise<ImagePickerValue | ImagePickerValue[] | undefined> {
   const response = await launchImageLibrary({
     mediaType: 'photo',
     selectionLimit: getSelectionLimit(options),
+    ...(options.includeBase64 === true ? { includeBase64: true } : null),
+    ...getTransformOptions(options),
   });
   const assets = response.assets ?? [];
 
@@ -55,6 +71,7 @@ export async function pickImageFromLibrary(
         height: asset.height,
         mimeType: asset.type,
         width: asset.width,
+        base64: asset.base64,
       })),
   );
 
@@ -66,10 +83,12 @@ export async function pickImageFromLibrary(
 }
 
 export async function pickImageFromCamera(
-  _options: ImagePickerPickOptions,
+  options: ImagePickerPickOptions,
 ): Promise<ImagePickerValue | undefined> {
   const response = await launchCamera({
     mediaType: 'photo',
+    ...(options.includeBase64 === true ? { includeBase64: true } : null),
+    ...getTransformOptions(options),
   });
   const asset = response.assets?.find(
     (item): item is typeof item & { uri: string } => item.uri !== undefined,
@@ -86,6 +105,7 @@ export async function pickImageFromCamera(
     height: asset.height,
     mimeType: asset.type,
     width: asset.width,
+    base64: asset.base64,
   });
 }
 

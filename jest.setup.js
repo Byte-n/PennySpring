@@ -87,6 +87,7 @@ jest.mock('@react-native-documents/picker', () => ({
 
 jest.mock('react-native-image-picker', () => ({
   __esModule: true,
+  launchCamera: jest.fn(),
   launchImageLibrary: jest.fn(),
 }));
 
