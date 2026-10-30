@@ -13,8 +13,6 @@ const useStyles = createUseSheetStyle(token => ({
   },
 }));
 
-export const dividerVerticalDemoTitle = 'Vertical';
-
 export function DividerVerticalDemo() {
   const styles = useStyles();
 

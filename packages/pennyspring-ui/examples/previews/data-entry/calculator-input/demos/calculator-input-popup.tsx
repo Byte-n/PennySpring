@@ -9,8 +9,6 @@ const useStyles = createUseSheetStyle(token => ({
   },
 }));
 
-export const calculatorInputCalculatorInputPopupDemoTitle = 'Popup';
-
 export function CalculatorInputCalculatorInputPopupDemo() {
   const styles = useStyles();
   const [amount, setAmount] = React.useState<number | null>(null);

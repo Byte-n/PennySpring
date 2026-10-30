@@ -1,8 +1,6 @@
 import React from 'react';
 import { Column, Loading, Text } from '@pennyspring/ui';
 
-export const loadingSizeDemoTitle = '尺寸（size）';
-
 const SIZES = [
   { value: 'small', label: 'small · 16 转圈' },
   { value: 'normal', label: 'normal · 20 转圈' },

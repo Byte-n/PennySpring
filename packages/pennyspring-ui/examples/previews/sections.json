@@ -1,0 +1,22 @@
+[
+  {
+    "id": "foundation",
+    "title": "基础"
+  },
+  {
+    "id": "data-entry",
+    "title": "录入"
+  },
+  {
+    "id": "display",
+    "title": "展示"
+  },
+  {
+    "id": "feedback",
+    "title": "反馈"
+  },
+  {
+    "id": "navigation",
+    "title": "导航与容器"
+  }
+]

@@ -20,8 +20,6 @@ const MINUTES_WITH_DISABLED: WheelGroupColumn = Array.from(
   }),
 );
 
-export const wheelGroupStateDemoTitle = 'Disabled items';
-
 export function WheelGroupStateDemo() {
   return (
     <Space block direction="vertical" size="large">

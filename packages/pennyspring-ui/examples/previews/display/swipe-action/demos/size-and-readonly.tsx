@@ -40,8 +40,6 @@ function SwipeRow({ title, description }: SwipeRowProps) {
   );
 }
 
-export const swipeActionSizeAndReadonlyDemoTitle = 'Size and readonly';
-
 export function SwipeActionSizeAndReadonlyDemo() {
   const styles = useStyles();
 

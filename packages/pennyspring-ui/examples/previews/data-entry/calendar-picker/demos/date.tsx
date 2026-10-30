@@ -17,8 +17,6 @@ const useStyles = createUseSheetStyle(token => ({
 
 const INPUT_DATE = new Date(2026, 4, 7);
 
-export const calendarPickerDateDemoTitle = 'Date';
-
 export function CalendarPickerDateDemo() {
   const styles = useStyles();
 

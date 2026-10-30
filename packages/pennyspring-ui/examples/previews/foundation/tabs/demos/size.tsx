@@ -2,8 +2,6 @@ import React from 'react';
 import { Column, Tabs, Text } from '@pennyspring/ui';
 import type { ComponentSize } from '@pennyspring/ui';
 
-export const tabsSizeDemoTitle = '尺寸（size）';
-
 const SIZE_SAMPLES: { size: ComponentSize; hint: string; labels: string[] }[] = [
   {
     size: 'small',

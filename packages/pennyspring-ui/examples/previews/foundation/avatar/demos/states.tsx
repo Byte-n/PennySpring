@@ -20,8 +20,6 @@ const useStyles = createUseSheetStyle(token => ({
   },
 }));
 
-export const avatarStatesDemoTitle = '状态与场景';
-
 function DarkSurface() {
   const styles = useStyles();
 

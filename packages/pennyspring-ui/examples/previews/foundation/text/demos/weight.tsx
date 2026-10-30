@@ -38,8 +38,6 @@ const useStyles = createUseSheetStyle(token => ({
   },
 }));
 
-export const textWeightDemoTitle = 'Weight';
-
 export function TextWeightDemo() {
   const styles = useStyles();
 

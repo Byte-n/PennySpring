@@ -105,8 +105,6 @@ function DrawerContent({ onClose, position, title }: DrawerContentProps) {
   );
 }
 
-export const drawerEmbeddedLayoutDemoTitle = 'Embedded layout';
-
 export function DrawerEmbeddedLayoutDemo() {
   const styles = useStyles();
   const [layoutOpenMap, setLayoutOpenMap] = React.useState<

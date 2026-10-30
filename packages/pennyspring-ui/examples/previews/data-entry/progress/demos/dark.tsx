@@ -11,8 +11,6 @@ const useStyles = createUseSheetStyle(token => ({
   },
 }));
 
-export const progressDarkDemoTitle = '深色对照';
-
 function DarkSurface() {
   const styles = useStyles();
 

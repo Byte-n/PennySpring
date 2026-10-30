@@ -1,8 +1,6 @@
 import React from 'react';
 import { Column, Text, Textarea } from '@pennyspring/ui';
 
-export const textareaStatusDemoTitle = '状态（status）';
-
 export function TextareaStatusDemo() {
   return (
     <Column gap="normal">

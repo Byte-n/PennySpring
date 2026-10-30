@@ -49,8 +49,6 @@ function joinLabels(labels: Array<string | undefined>): string {
   return visibleLabels.join(' / ');
 }
 
-export const pickerPopupPropsDemoTitle = 'Popup props';
-
 export function PickerPopupPropsDemo() {
   const [clearCount, setClearCount] = useState(0);
 

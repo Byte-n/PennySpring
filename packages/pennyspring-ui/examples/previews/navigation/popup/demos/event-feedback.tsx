@@ -9,8 +9,6 @@ const useStyles = createUseSheetStyle(token => ({
   },
 }));
 
-export const popupEventFeedbackDemoTitle = 'Event feedback';
-
 export function PopupEventFeedbackDemo() {
   const styles = useStyles();
   const [open, setOpen] = React.useState(false);

@@ -93,8 +93,6 @@ const cycleOptions = [
   { labelText: '按年', value: 'year' },
 ];
 
-export const formControlsDemoTitle = '输入组件总览';
-
 export function FormControlsDemo() {
   const [form] = TypedForm.useForm();
 

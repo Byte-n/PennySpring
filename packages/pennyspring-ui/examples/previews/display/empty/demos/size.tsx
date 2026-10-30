@@ -1,8 +1,6 @@
 import React from 'react';
 import { Button, Column, Empty, Text } from '@pennyspring/ui';
 
-export const emptySizeDemoTitle = '尺寸（size）';
-
 const SIZES = [
   { value: 'small', label: 'small · 36 底板 / 28 间距', action: '添加记录' },
   { value: 'normal', label: 'normal · 44 底板 / 32 留白', action: '新建模板' },

@@ -8,8 +8,6 @@ const DOT_SIZES: { size: ComponentSize; hint: string }[] = [
   { size: 'large', hint: 'large · 10' },
 ];
 
-export const badgeDotAndOverflowDemoTitle = '圆点与溢出';
-
 export function BadgeDotAndOverflowDemo() {
   return (
     <Column gap="normal">

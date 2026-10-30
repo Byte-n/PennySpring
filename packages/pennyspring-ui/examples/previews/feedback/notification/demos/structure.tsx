@@ -1,8 +1,6 @@
 import React from 'react';
 import { Button, Column, Text, useNotification } from '@pennyspring/ui';
 
-export const notificationStructureDemoTitle = '结构组合（slots）';
-
 export function NotificationStructureDemo() {
   const notification = useNotification();
 

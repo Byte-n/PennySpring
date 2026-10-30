@@ -1,8 +1,6 @@
 import React from 'react';
 import { Button, Column, Text, useToast } from '@pennyspring/ui';
 
-export const toastSizeDemoTitle = '尺寸（size）';
-
 export function ToastSizeDemo() {
   const toast = useToast();
 

@@ -33,8 +33,6 @@ const useStyles = createUseSheetStyle(token => ({
   },
 }));
 
-export const wheelGroupFitContainerDemoTitle = 'Container height';
-
 export function WheelGroupFitContainerDemo() {
   const styles = useStyles();
 

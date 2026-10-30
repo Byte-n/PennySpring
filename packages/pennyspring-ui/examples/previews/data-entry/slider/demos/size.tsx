@@ -2,8 +2,6 @@ import React from 'react';
 import { Column, Slider, Text } from '@pennyspring/ui';
 import type { ComponentSize } from '@pennyspring/ui';
 
-export const sliderSizeDemoTitle = '尺寸（size）';
-
 const SIZE_SAMPLES: { size: ComponentSize; hint: string; value: number }[] = [
   { size: 'small', hint: 'small · 轨道 4 / thumb 16 / 控件高 37.4', value: 32 },
   { size: 'normal', hint: 'normal · 轨道 6 / thumb 20 / 控件高 44', value: 58 },

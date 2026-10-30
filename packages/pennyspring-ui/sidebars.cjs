@@ -1,3 +1,5 @@
+const { componentSidebarItems } = require('./sidebars.generated.cjs');
+
 /** @type {import('@docusaurus/plugin-content-docs').SidebarsConfig} */
 const sidebars = {
   docs: [
@@ -14,91 +16,7 @@ const sidebars = {
     {
       type: 'category',
       label: '组件',
-      items: [
-        {
-          type: 'category',
-          label: '基础',
-          items: [
-            'components/foundation/theme',
-            'components/foundation/text',
-            'components/foundation/avatar',
-            'components/foundation/button',
-            'components/foundation/badge',
-            'components/foundation/grid',
-            'components/foundation/layout',
-            'components/foundation/space',
-            'components/foundation/tag',
-            'components/foundation/segmented',
-            'components/foundation/tabs',
-            'components/foundation/icon',
-            'components/foundation/divider',
-          ],
-        },
-        {
-          type: 'category',
-          label: '录入',
-          items: [
-            'components/data-entry/form',
-            'components/data-entry/input',
-            'components/data-entry/display-input',
-            'components/data-entry/image-picker',
-            'components/data-entry/calculator-input',
-            'components/data-entry/textarea',
-            'components/data-entry/checkbox',
-            'components/data-entry/radio',
-            'components/data-entry/switch',
-            'components/data-entry/slider',
-            'components/data-entry/stepper',
-            'components/data-entry/progress',
-            'components/data-entry/list-picker',
-            'components/data-entry/tag-picker',
-            'components/data-entry/calendar',
-            'components/data-entry/picker',
-            'components/data-entry/date-time-picker',
-          ],
-        },
-        {
-          type: 'category',
-          label: '展示',
-          items: [
-            'components/display/card',
-            'components/display/carousel',
-            'components/display/ellipsis',
-            'components/display/empty',
-            'components/display/list',
-            'components/display/loading',
-            'components/display/result',
-            'components/display/skeleton',
-            'components/display/swipe-action',
-          ],
-        },
-        {
-          type: 'category',
-          label: '反馈',
-          items: [
-            'components/feedback/message',
-            'components/feedback/notification',
-            'components/feedback/toast',
-            'components/feedback/tooltip',
-          ],
-        },
-        {
-          type: 'category',
-          label: '导航',
-          items: [
-            'components/navigation/action-sheet',
-            'components/navigation/dialog',
-            'components/navigation/drawer',
-            'components/navigation/floating-action-group',
-            'components/navigation/index-bar',
-            'components/navigation/popover',
-            'components/navigation/popup',
-            'components/navigation/portal',
-            'components/navigation/tab-bar',
-            'components/navigation/steps',
-          ],
-        },
-      ],
+      items: componentSidebarItems,
     },
     'api/index',
     'changelogs/index',

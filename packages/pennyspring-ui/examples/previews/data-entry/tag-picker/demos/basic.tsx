@@ -3,8 +3,6 @@ import { Column, TagPicker, Text } from '@pennyspring/ui';
 import type { TagPickerValue } from '@pennyspring/ui';
 import { TAG_PICKER_OPTIONS } from './options';
 
-export const tagPickerBasicDemoTitle = 'Multiple selection and removal';
-
 export function TagPickerBasicDemo() {
   const [value, setValue] = useState<TagPickerValue[]>(['food', 'transport']);
 

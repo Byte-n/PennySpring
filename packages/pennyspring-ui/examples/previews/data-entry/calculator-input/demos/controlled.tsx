@@ -27,8 +27,6 @@ function formatExpression(cents: number): string {
   return formatCents(cents).replace(/0+$/, '').replace(/\.$/, '');
 }
 
-export const calculatorInputControlledDemoTitle = 'Controlled';
-
 export function CalculatorInputControlledDemo() {
   const styles = useStyles();
   const [amount, setAmount] = React.useState(INITIAL_AMOUNT);

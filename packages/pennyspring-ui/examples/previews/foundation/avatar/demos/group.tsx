@@ -12,8 +12,6 @@ const AVATAR_ITEMS: AvatarGroupItem[] = [
   { key: 'zheng', text: '郑' },
 ];
 
-export const avatarGroupDemoTitle = '叠放（Avatar.Group）';
-
 export function AvatarGroupDemo() {
   return (
     <Column gap="normal">

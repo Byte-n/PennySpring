@@ -21,8 +21,6 @@ const INPUT_RANGE: [Date, Date] = [
   new Date(2026, 4, 12),
 ];
 
-export const calendarPickerModesAndRangeDemoTitle = 'Modes and range';
-
 export function CalendarPickerModesAndRangeDemo() {
   const styles = useStyles();
 

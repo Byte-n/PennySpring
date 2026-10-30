@@ -40,8 +40,6 @@ function SwipeRow({ title, description }: SwipeRowProps) {
   );
 }
 
-export const swipeActionLeftAndRightActionsDemoTitle = 'Left and right actions';
-
 export function SwipeActionLeftAndRightActionsDemo() {
   const styles = useStyles();
 

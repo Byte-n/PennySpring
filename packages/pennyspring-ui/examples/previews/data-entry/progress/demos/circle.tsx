@@ -8,8 +8,6 @@ const CIRCLE_SIZES: { size: ComponentSize; hint: string }[] = [
   { size: 'large', hint: 'large · 56 · 环宽 4' },
 ];
 
-export const progressCircleDemoTitle = '圆环（Progress.Circle）';
-
 export function ProgressCircleDemo() {
   return (
     <Column gap="normal">

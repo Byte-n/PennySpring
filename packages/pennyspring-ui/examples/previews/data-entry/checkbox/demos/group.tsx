@@ -2,8 +2,6 @@ import React from 'react';
 import { Checkbox, Column, Text } from '@pennyspring/ui';
 import type { CheckboxGroupOption, CheckboxValue } from '@pennyspring/ui';
 
-export const checkboxGroupDemoTitle = '组排布（Group）';
-
 const SAVE_OPTIONS: CheckboxGroupOption[] = [
   { label: '保存记录', value: 'record' },
   { label: '存为模板', value: 'template' },

@@ -9,8 +9,6 @@ const useStyles = createUseSheetStyle(token => ({
   },
 }));
 
-export const inputSearchDemoTitle = 'Search';
-
 export function InputSearchDemo() {
   const styles = useStyles();
   const [searchValue, setSearchValue] = React.useState('PennySpring');

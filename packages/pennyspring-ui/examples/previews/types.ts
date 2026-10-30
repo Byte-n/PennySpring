@@ -1,5 +1,19 @@
 import type { ComponentType } from 'react';
 
+export interface PreviewDemoMeta {
+  id: string;
+  title: string;
+  description?: string;
+}
+
+export interface PreviewMeta {
+  title: string;
+  description: string;
+  order: number;
+  docId?: string;
+  demos: readonly PreviewDemoMeta[];
+}
+
 export interface ComponentPreviewItem {
   id: string;
   title: string;

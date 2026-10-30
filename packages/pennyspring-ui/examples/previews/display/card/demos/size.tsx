@@ -1,8 +1,6 @@
 import React from 'react';
 import { Card, Column, Row, Text } from '@pennyspring/ui';
 
-export const cardSizeDemoTitle = '尺寸（size）';
-
 const SIZES = [
   { value: 'small', label: 'small · 内边距 12 / 圆角 12' },
   { value: 'normal', label: 'normal · 内边距 16 / 圆角 12' },

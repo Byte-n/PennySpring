@@ -21,8 +21,6 @@ const useStyles = createUseSheetStyle(token => ({
   },
 }));
 
-export const skeletonShapeDemoTitle = '形状与尺寸';
-
 export function SkeletonShapeDemo() {
   const styles = useStyles();
 

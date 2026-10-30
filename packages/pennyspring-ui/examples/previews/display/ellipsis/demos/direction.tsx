@@ -17,8 +17,6 @@ const useStyles = createUseSheetStyle(token => ({
   },
 }));
 
-export const ellipsisDirectionDemoTitle = 'Direction';
-
 export function EllipsisDirectionDemo() {
   const styles = useStyles();
 

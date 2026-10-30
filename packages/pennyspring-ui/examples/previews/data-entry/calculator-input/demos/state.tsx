@@ -12,8 +12,6 @@ const useStyles = createUseSheetStyle(token => ({
   },
 }));
 
-export const calculatorInputStateDemoTitle = 'State';
-
 export function CalculatorInputStateDemo() {
   const styles = useStyles();
 

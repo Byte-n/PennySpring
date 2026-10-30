@@ -2,8 +2,6 @@ import React from 'react';
 import { Avatar, Column, Row, Text } from '@pennyspring/ui';
 import type { ComponentSize } from '@pennyspring/ui';
 
-export const avatarSizeDemoTitle = '尺寸（size）';
-
 const SIZE_SAMPLES: { size: ComponentSize; hint: string }[] = [
   { size: 'small', hint: 'small · 28 · 方角 8 · 首字 12' },
   { size: 'normal', hint: 'normal · 40 · 方角 12 · 首字 14' },

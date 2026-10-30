@@ -42,8 +42,6 @@ const useStyles = createUseSheetStyle(token => ({
   },
 }));
 
-export const skeletonCompositionDemoTitle = '组合用法';
-
 export function SkeletonCompositionDemo() {
   const styles = useStyles();
 

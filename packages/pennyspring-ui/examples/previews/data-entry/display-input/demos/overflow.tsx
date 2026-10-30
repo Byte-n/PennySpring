@@ -8,8 +8,6 @@ const useStyles = createUseSheetStyle(token => ({
   },
 }));
 
-export const displayInputOverflowDemoTitle = 'Overflow hidden (default)';
-
 export function DisplayInputOverflowDemo() {
   const styles = useStyles();
 

@@ -1,8 +1,6 @@
 import React from 'react';
 import { Space, Icon } from '@pennyspring/ui';
 
-export const iconWeightAndMirroredDemoTitle = 'Weight and mirrored';
-
 export function IconWeightAndMirroredDemo() {
   return (
     <>

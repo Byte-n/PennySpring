@@ -14,8 +14,6 @@ const modeOptions = [
   { labelText: '严格', value: 'strict' },
 ];
 
-export const formDependenciesDemoTitle = '字段依赖与条件渲染';
-
 export function FormDependenciesDemo() {
   const [form] = TypedForm.useForm();
 

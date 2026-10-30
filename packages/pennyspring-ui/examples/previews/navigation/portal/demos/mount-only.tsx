@@ -23,8 +23,6 @@ const useStyles = createUseSheetStyle(token => ({
   },
 }));
 
-export const portalMountOnlyDemoTitle = 'Mount only';
-
 export function PortalMountOnlyDemo() {
   const styles = useStyles();
   const [showPortal, setShowPortal] = React.useState(false);

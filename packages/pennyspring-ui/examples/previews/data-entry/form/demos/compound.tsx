@@ -27,8 +27,6 @@ function MoneyField() {
   );
 }
 
-export const formCompoundDemoTitle = '复合控件隔断';
-
 export function FormCompoundDemo() {
   const [form] = TypedForm.useForm();
 

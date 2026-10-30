@@ -10,8 +10,6 @@ const useStyles = createUseSheetStyle(token => ({
   },
 }));
 
-export const radioDarkDemoTitle = '深色对照';
-
 const DIMENSION_OPTIONS = [
   { label: '按分类', value: 'category' },
   { label: '按标签', value: 'tag' },

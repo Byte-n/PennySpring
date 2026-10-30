@@ -86,6 +86,19 @@ const useHeaderStyles = createUseSheetStyle(token => ({
   },
 }));
 
+const usePreviewRootStyles = createUseSheetStyle(token => ({
+  root: {
+    backgroundColor: token.colorBgContainer,
+    flex: 1,
+  },
+}));
+
+function ComponentPreviewRoot({ children }: { children: React.ReactNode }) {
+  const styles = usePreviewRootStyles();
+
+  return <View style={styles.root}>{children}</View>;
+}
+
 interface ComponentPreviewHeaderProps extends NativeStackHeaderProps {
   right: React.ReactNode;
 }
@@ -149,7 +162,7 @@ function ComponentPreviewNavigator({
       dark: algorithm === 'dark',
       colors: {
         primary: token.colorPrimary,
-        background: token.colorBgLayout,
+        background: token.colorBgContainer,
         card: token.colorBgContainer,
         text: token.colorText,
         border: token.colorSplit,
@@ -243,14 +256,16 @@ export function ComponentPreviewScreen() {
 
   return (
     <SafeAreaProvider>
-      <SafeAreaView/>
       <ThemeProvider config={themeConfig}>
-        <ComponentPreviewNavigator
-          algorithm={algorithm}
-          onNextPreset={selectNextPreset}
-          onToggleAlgorithm={toggleAlgorithm}
-          preset={preset}
-        />
+        <ComponentPreviewRoot>
+          <SafeAreaView/>
+          <ComponentPreviewNavigator
+            algorithm={algorithm}
+            onNextPreset={selectNextPreset}
+            onToggleAlgorithm={toggleAlgorithm}
+            preset={preset}
+          />
+        </ComponentPreviewRoot>
       </ThemeProvider>
     </SafeAreaProvider>
   );

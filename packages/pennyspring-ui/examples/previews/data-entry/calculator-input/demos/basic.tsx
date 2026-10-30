@@ -9,8 +9,6 @@ const useStyles = createUseSheetStyle(token => ({
   },
 }));
 
-export const calculatorInputBasicDemoTitle = 'Basic';
-
 export function CalculatorInputBasicDemo() {
   const styles = useStyles();
 

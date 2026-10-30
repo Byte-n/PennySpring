@@ -39,8 +39,6 @@ function DemoCell({ children }: { children: ReactNode }) {
   return <View style={styles.cell}>{children}</View>;
 }
 
-export const layoutColumnDemoTitle = 'Column';
-
 export function LayoutColumnDemo() {
   const styles = useStyles();
 

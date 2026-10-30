@@ -7,8 +7,6 @@ const MIN_DATE = new Date(2026, 0, 1, 0, 0, 0);
 
 const MAX_DATE = new Date(2026, 11, 31, 23, 59, 59);
 
-export const dateTimePickerRangeAndStateDemoTitle = 'Range and state';
-
 export function DateTimePickerRangeAndStateDemo() {
   return (
     <>

@@ -8,8 +8,6 @@ const SIZE_SAMPLES: { size: ComponentSize; hint: string }[] = [
   { size: 'large', hint: 'large · 图标 56 · 标题 22 · 上下 24' },
 ];
 
-export const resultSizeDemoTitle = '尺寸（size）';
-
 export function ResultSizeDemo() {
   return (
     <Column gap="normal">

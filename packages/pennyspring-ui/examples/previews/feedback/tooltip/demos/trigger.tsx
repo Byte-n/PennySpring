@@ -2,8 +2,6 @@ import React from 'react';
 import { Button, Column, Space, Text, Tooltip } from '@pennyspring/ui';
 import type { TooltipOpenChangeParams } from '@pennyspring/ui';
 
-export const tooltipTriggerDemoTitle = '触发方式（trigger）';
-
 export function TooltipTriggerDemo() {
   const [lastEvent, setLastEvent] = React.useState('尚未触发提示');
   const [manualOpen, setManualOpen] = React.useState(false);

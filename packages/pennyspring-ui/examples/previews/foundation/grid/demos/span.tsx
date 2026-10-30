@@ -30,8 +30,6 @@ const useStyles = createUseSheetStyle(token => ({
   },
 }));
 
-export const gridSpanDemoTitle = 'Span';
-
 export function GridSpanDemo() {
   const styles = useStyles();
   const { token } = useTheme();

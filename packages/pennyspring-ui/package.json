@@ -5,9 +5,13 @@
   "main": "src/index.ts",
   "types": "src/index.ts",
   "scripts": {
-    "docs:dev": "docusaurus start",
-    "docs:build": "docusaurus build --out-dir docs-dist",
+    "previews:sync": "node scripts/sync-previews.cjs",
+    "previews:check": "node scripts/sync-previews.cjs --check",
+    "docs:dev": "node scripts/sync-previews.cjs && docusaurus start",
+    "docs:build": "node scripts/sync-previews.cjs && docusaurus build --out-dir docs-dist",
     "docs:preview": "docusaurus serve docs-dist",
+    "docs:sync": "node scripts/sync-previews.cjs",
+    "docs:check": "node scripts/sync-previews.cjs --check",
     "typecheck": "tsc --noEmit",
     "test": "echo 'No tests yet' && exit 0"
   },

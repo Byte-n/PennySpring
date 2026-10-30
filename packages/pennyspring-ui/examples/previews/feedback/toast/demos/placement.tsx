@@ -1,8 +1,6 @@
 import React from 'react';
 import { Button, Column, Text, useToast } from '@pennyspring/ui';
 
-export const toastPlacementDemoTitle = '定位（placement）';
-
 export function ToastPlacementDemo() {
   const toast = useToast();
 

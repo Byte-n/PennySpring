@@ -2,8 +2,6 @@ import React from 'react';
 import { Space, TagPicker } from '@pennyspring/ui';
 import { TAG_PICKER_OPTIONS } from './options';
 
-export const tagPickerStatesDemoTitle = 'Disabled, loading and empty states';
-
 export function TagPickerStatesDemo() {
   return (
     <Space direction="vertical" size="large">

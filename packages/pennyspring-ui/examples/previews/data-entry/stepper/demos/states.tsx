@@ -1,8 +1,6 @@
 import React from 'react';
 import { Column, Row, Stepper, Text } from '@pennyspring/ui';
 
-export const stepperStatesDemoTitle = '状态';
-
 export function StepperStatesDemo() {
   return (
     <Column gap="normal">

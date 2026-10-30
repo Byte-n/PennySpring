@@ -26,8 +26,6 @@ const SIZE_SAMPLES: { size: ComponentSize; hint: string }[] = [
   { size: 'large', hint: 'large · 指示器 28 · 标题 18' },
 ];
 
-export const stepsSizeDemoTitle = '尺寸（size）';
-
 export function StepsSizeDemo() {
   return (
     <Column gap="normal">

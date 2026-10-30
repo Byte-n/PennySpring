@@ -19,8 +19,6 @@ function getDialogTitle(key: DialogDemoKey): string {
   return 'Controlled dialog';
 }
 
-export const dialogStateAndSlotsDemoTitle = 'State and slots';
-
 export function DialogStateAndSlotsDemo() {
   const [openDialog, setOpenDialog] = React.useState<DialogDemoKey | null>(
     null,

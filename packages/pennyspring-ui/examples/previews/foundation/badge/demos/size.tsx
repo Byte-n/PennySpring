@@ -2,8 +2,6 @@ import React from 'react';
 import { Badge, Column, Row, Text } from '@pennyspring/ui';
 import type { ComponentSize } from '@pennyspring/ui';
 
-export const badgeSizeDemoTitle = '尺寸（size）';
-
 const SIZE_SAMPLES: { size: ComponentSize; hint: string }[] = [
   { size: 'small', hint: 'small · 高 16 · 字 12 · 左右 5' },
   { size: 'normal', hint: 'normal · 高 20 · 字 12 · 左右 6' },

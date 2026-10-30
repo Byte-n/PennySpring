@@ -11,8 +11,6 @@ const SEMANTIC_COLORS: TagColor[] = [
   'info',
 ];
 
-export const tagSemanticColorsDemoTitle = 'Semantic colors';
-
 export function TagSemanticColorsDemo() {
   return (
     <>

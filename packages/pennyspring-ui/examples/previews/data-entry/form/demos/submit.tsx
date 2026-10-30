@@ -10,8 +10,6 @@ const TypedForm = Form.infer<SubmitValues>();
 const requiredRule = (value: string): string | undefined =>
   value.trim() === '' ? '请输入备注' : undefined;
 
-export const formSubmitDemoTitle = '提交与加载态';
-
 export function FormSubmitDemo() {
   const [form] = TypedForm.useForm();
 

@@ -15,9 +15,6 @@ const useStyles = createUseSheetStyle(token => ({
   },
 }));
 
-export const calendarPickerConfirmAndCustomTextsDemoTitle =
-  'Confirm and custom texts';
-
 export function CalendarPickerConfirmAndCustomTextsDemo() {
   const styles = useStyles();
 

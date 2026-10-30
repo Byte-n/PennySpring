@@ -2,8 +2,6 @@ import React from 'react';
 import { Button, Column, Popover, Space, Text } from '@pennyspring/ui';
 import type { PopoverOpenChangeParams } from '@pennyspring/ui';
 
-export const popoverTriggerDemoTitle = '触发方式';
-
 export function PopoverTriggerDemo() {
   const [lastEvent, setLastEvent] = React.useState('尚未触发浮层');
   const [manualOpen, setManualOpen] = React.useState(false);

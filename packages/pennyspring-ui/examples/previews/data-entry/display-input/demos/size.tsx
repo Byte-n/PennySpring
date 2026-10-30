@@ -8,8 +8,6 @@ const useStyles = createUseSheetStyle(token => ({
   },
 }));
 
-export const displayInputSizeDemoTitle = 'Size';
-
 export function DisplayInputSizeDemo() {
   const styles = useStyles();
 

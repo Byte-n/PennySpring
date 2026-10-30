@@ -1,8 +1,6 @@
 import React from 'react';
 import { Column, Icon, Loading, Text } from '@pennyspring/ui';
 
-export const loadingStatesDemoTitle = '文案与特殊状态';
-
 export function LoadingStatesDemo() {
   return (
     <Column gap="normal">

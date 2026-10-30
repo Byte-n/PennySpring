@@ -1,8 +1,6 @@
 import React from 'react';
 import { Column, Icon, Segmented, Text } from '@pennyspring/ui';
 
-export const segmentedContentDemoTitle = '内容组合';
-
 export function SegmentedContentDemo() {
   return (
     <Column gap="normal">

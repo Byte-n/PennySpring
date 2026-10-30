@@ -1,8 +1,6 @@
 import React from 'react';
 import { Space, Button, Popup, Text } from '@pennyspring/ui';
 
-export const popupFloatingPanelDemoTitle = 'FloatingPanel';
-
 export function PopupFloatingPanelDemo() {
   const [floatingOpen, setFloatingOpen] = React.useState(false);
   const [customOpen, setCustomOpen] = React.useState(false);

@@ -29,8 +29,6 @@ const useStyles = createUseSheetStyle(token => ({
   },
 }));
 
-export const drawerControlledDemoTitle = 'Controlled';
-
 export function DrawerControlledDemo() {
   const styles = useStyles();
   const [open, setOpen] = React.useState(false);

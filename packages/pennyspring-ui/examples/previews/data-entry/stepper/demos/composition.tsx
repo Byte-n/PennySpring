@@ -1,8 +1,6 @@
 import React from 'react';
 import { Column, Row, Stepper, Text } from '@pennyspring/ui';
 
-export const stepperCompositionDemoTitle = '单位与整行组合';
-
 export function StepperCompositionDemo() {
   const [terms, setTerms] = React.useState(4);
   const [count, setCount] = React.useState(3);

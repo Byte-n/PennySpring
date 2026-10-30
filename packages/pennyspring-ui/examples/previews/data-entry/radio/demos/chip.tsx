@@ -2,8 +2,6 @@ import React from 'react';
 import { Column, Radio, Text } from '@pennyspring/ui';
 import type { ComponentSize, RadioGroupOption, RadioGroupValue } from '@pennyspring/ui';
 
-export const radioChipDemoTitle = 'button 形态（chip）';
-
 const RANGE_OPTIONS: RadioGroupOption[] = [
   { label: '本月', value: 'month' },
   { label: '近 3 月', value: 'quarter' },

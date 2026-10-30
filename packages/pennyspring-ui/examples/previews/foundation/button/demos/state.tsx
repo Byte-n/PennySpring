@@ -1,8 +1,6 @@
 import React from 'react';
 import { Button, Column, Space, Text } from '@pennyspring/ui';
 
-export const buttonStateDemoTitle = '状态';
-
 export function ButtonStateDemo() {
   return (
     <Column gap="normal">

@@ -2,8 +2,6 @@ import React from 'react';
 import { Button, Column, Row, Space, Text } from '@pennyspring/ui';
 import { PlusIcon } from 'phosphor-react-native';
 
-export const buttonSizeAndShapeDemoTitle = '尺寸、形状与图标位';
-
 const SIZES = [
   { value: 'small', label: 'small · 32 / 圆角 8' },
   { value: 'normal', label: 'normal · 44 / 圆角 12' },

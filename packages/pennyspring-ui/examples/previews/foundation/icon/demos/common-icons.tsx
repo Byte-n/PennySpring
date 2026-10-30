@@ -25,8 +25,6 @@ const useStyles = createUseSheetStyle(token => ({
   },
 }));
 
-export const iconCommonIconsDemoTitle = 'Common icons';
-
 export function IconCommonIconsDemo() {
   const styles = useStyles();
 

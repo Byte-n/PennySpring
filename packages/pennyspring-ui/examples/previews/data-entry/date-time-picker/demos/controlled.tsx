@@ -17,8 +17,6 @@ function formatDateTime(date: Date): string {
   return `${year}-${month}-${day} ${hours}:${minutes}`;
 }
 
-export const dateTimePickerControlledDemoTitle = 'Controlled';
-
 export function DateTimePickerControlledDemo() {
   const [controlledDate, setControlledDate] = React.useState(BASE_DATE);
 

@@ -1,8 +1,6 @@
 import React from 'react';
 import { Button, Column, Text, useNotification } from '@pennyspring/ui';
 
-export const notificationPlacementDemoTitle = '定位（placement）';
-
 export function NotificationPlacementDemo() {
   const notification = useNotification();
 

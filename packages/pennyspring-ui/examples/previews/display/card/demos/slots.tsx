@@ -1,8 +1,6 @@
 import React from 'react';
 import { Card, Column, Row, Text } from '@pennyspring/ui';
 
-export const cardSlotsDemoTitle = '插槽组合（slots）';
-
 export function CardSlotsDemo() {
   return (
     <Column gap="normal">

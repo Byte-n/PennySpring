@@ -29,8 +29,6 @@ const useStyles = createUseSheetStyle(token => ({
   },
 }));
 
-export const floatingActionGroupPreviewCanvasDemoTitle = 'Preview canvas';
-
 export function FloatingActionGroupPreviewCanvasDemo() {
   const styles = useStyles();
   const [placement, _setPlacement] =

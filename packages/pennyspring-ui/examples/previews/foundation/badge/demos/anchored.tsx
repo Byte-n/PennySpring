@@ -22,8 +22,6 @@ const useStyles = createUseSheetStyle(token => ({
   },
 }));
 
-export const badgeAnchoredDemoTitle = '挂角（有 children）';
-
 function IconButton({ icon }: { icon: 'notification' | 'calendar' }) {
   const styles = useStyles();
 

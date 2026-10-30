@@ -16,7 +16,7 @@ type Props = NativeStackScreenProps<
 const useStyles = createUseSheetStyle(token => ({
   container: {
     flex: 1,
-    backgroundColor: token.colorBgLayout,
+    backgroundColor: token.colorBgContainer,
   },
   scroll: {
     flex: 1,
@@ -28,7 +28,7 @@ const useStyles = createUseSheetStyle(token => ({
   tabsWrap: {
     paddingTop: token.paddingMD,
     paddingHorizontal: token.paddingMD,
-    backgroundColor: token.colorBgLayout,
+    backgroundColor: token.colorBgContainer,
   },
   section: {
     gap: token.marginXS,
@@ -85,54 +85,57 @@ export function ComponentPreviewListScreen({ navigation }: Props) {
         style={styles.scroll}
         contentContainerStyle={styles.content}
       >
-      {COMPONENT_PREVIEW_SECTIONS.map(section => (
-        <View
-          key={section.id}
-          style={styles.section}
-          onLayout={event => {
-            const nextY = event.nativeEvent.layout.y;
-            setSectionOffsets(prev => {
-              if (prev[section.id] === nextY) {
-                return prev;
-              }
+        {COMPONENT_PREVIEW_SECTIONS.map(section => (
+          <View
+            key={section.id}
+            style={styles.section}
+            onLayout={event => {
+              const nextY = event.nativeEvent.layout.y;
+              setSectionOffsets(prev => {
+                if (prev[section.id] === nextY) {
+                  return prev;
+                }
 
-              return {
-                ...prev,
-                [section.id]: nextY,
-              };
-            });
-          }}
-        >
-          <Text
-            color="description"
-            size="sm"
-            weight="medium"
-            style={styles.sectionTitle}
+                return {
+                  ...prev,
+                  [section.id]: nextY,
+                };
+              });
+            }}
           >
-            {section.title}
-          </Text>
-          <List
-            data={section.items.map(item => ({
-              titleText: item.title,
-              descriptionText: item.description,
-              right: (
+            <Text
+              color="description"
+              size="sm"
+              weight="medium"
+              style={styles.sectionTitle}
+            >
+              {section.title}
+            </Text>
+            <List
+              data={section.items.map(item => ({
+                titleText: item.title,
+                descriptionText: item.description,
+                right: (
                   <CaretRightIcon
                     color={token.colorIcon}
                     size={token.fontSizeLG}
                   />
-              ),
-              onPress: () => {
-                  navigation.navigate(COMPONENT_PREVIEW_ROUTES.ComponentDetail, {
-                    previewId: item.id,
-                  });
-              },
-            }))}
-            initialNumToRender={section.items.length}
-            scrollEnabled={false}
-            style={styles.list}
-          />
-        </View>
-      ))}
+                ),
+                onPress: () => {
+                  navigation.navigate(
+                    COMPONENT_PREVIEW_ROUTES.ComponentDetail,
+                    {
+                      previewId: item.id,
+                    },
+                  );
+                },
+              }))}
+              initialNumToRender={section.items.length}
+              scrollEnabled={false}
+              style={styles.list}
+            />
+          </View>
+        ))}
       </ScrollView>
     </View>
   );

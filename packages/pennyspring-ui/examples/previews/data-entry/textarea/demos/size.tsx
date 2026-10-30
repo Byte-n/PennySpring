@@ -1,8 +1,6 @@
 import React from 'react';
 import { Column, Text, Textarea } from '@pennyspring/ui';
 
-export const textareaSizeDemoTitle = '尺寸（size）';
-
 const SIZES = [
   { value: 'small', label: 'small · 14/24，3 行 98', text: '地铁通勤，单程 4 元。' },
   { value: 'normal', label: 'normal · 16/26，3 行 107', text: '十月份聚餐分摊：人均 64 元，共 6 人。' },

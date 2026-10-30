@@ -3,8 +3,6 @@ import { ListPicker } from '@pennyspring/ui';
 import type { ListPickerValue } from '@pennyspring/ui';
 import { GROUPED_OPTIONS } from './options';
 
-export const listPickerGroupedDemoTitle = 'Grouped options';
-
 export function ListPickerGroupedDemo() {
   const [value, setValue] = useState<ListPickerValue>('housing');
 

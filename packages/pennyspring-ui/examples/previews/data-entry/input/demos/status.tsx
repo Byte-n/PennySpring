@@ -9,8 +9,6 @@ const useStyles = createUseSheetStyle(token => ({
   },
 }));
 
-export const inputStatusDemoTitle = 'Floating Label';
-
 export function InputStatusDemo() {
   const styles = useStyles();
 

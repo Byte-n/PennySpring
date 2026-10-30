@@ -2,8 +2,6 @@ import React from 'react';
 import { ListPicker, Space } from '@pennyspring/ui';
 import { CATEGORY_OPTIONS } from './options';
 
-export const listPickerStatesDemoTitle = 'Disabled, readonly and validation';
-
 export function ListPickerStatesDemo() {
   return (
     <Space direction="vertical" size="large">

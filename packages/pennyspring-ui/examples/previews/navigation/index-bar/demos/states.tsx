@@ -67,8 +67,6 @@ function renderPanel(item: IndexBarItem) {
   return <DemoPanel index={String(item.index)} />;
 }
 
-export const indexBarStatesDemoTitle = '状态';
-
 export function IndexBarStatesDemo() {
   const styles = useStyles();
 

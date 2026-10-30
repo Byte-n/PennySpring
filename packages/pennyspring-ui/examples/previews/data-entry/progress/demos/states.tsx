@@ -1,8 +1,6 @@
 import React from 'react';
 import { Column, Progress, Text } from '@pennyspring/ui';
 
-export const progressStatesDemoTitle = '状态与信息位';
-
 function RecordCountInfo() {
   return <Text color="tertiary" size="xs">已记 12 / 20 笔</Text>;
 }

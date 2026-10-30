@@ -35,9 +35,6 @@ const useStyles = createUseSheetStyle(token => ({
   },
 }));
 
-export const floatingActionGroupPlacementAndMountPointDemoTitle =
-  'Placement and mountPoint';
-
 export function FloatingActionGroupPlacementAndMountPointDemo() {
   const styles = useStyles();
   const [placement, setPlacement] =

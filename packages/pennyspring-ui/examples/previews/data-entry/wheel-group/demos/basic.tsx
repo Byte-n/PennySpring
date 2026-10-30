@@ -17,8 +17,6 @@ const HOURS = buildNumberColumn(24);
 const MINUTES = buildNumberColumn(60);
 const SECONDS = buildNumberColumn(60);
 
-export const wheelGroupBasicDemoTitle = 'Time wheel (HH:mm:ss)';
-
 export function WheelGroupBasicDemo() {
   const [value, setValue] = useState<WheelGroupValue[]>([14, 30, 15]);
   const valueText = value.map(item => padValue(Number(item))).join(':');

@@ -13,8 +13,6 @@ function renderRemarkError(message: string) {
   return <Text color="error" size="sm">{`注意：${message}`}</Text>;
 }
 
-export const formFeedbackDemoTitle = '校验反馈';
-
 export function FormFeedbackDemo() {
   const [form] = TypedForm.useForm();
 

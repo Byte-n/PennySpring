@@ -25,8 +25,6 @@ const BLOCK_ITEMS = [
   { label: '转账', value: 'transfer' },
 ];
 
-export const tabsLayoutsDemoTitle = '排布与面板';
-
 export function TabsLayoutsDemo() {
   const [value, setValue] = React.useState<TabsValue>('overview');
 

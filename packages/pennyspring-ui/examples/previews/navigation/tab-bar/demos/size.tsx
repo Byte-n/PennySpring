@@ -2,8 +2,6 @@ import React from 'react';
 import { Column, Icon, TabBar, Text } from '@pennyspring/ui';
 import type { ComponentSize, TabBarItem } from '@pennyspring/ui';
 
-export const tabBarSizeDemoTitle = '尺寸（size）';
-
 const SIZE_SAMPLES: { size: ComponentSize; hint: string; iconSize: number }[] = [
   { size: 'small', hint: 'small · 48 高 / 图标 20 / 文字 12', iconSize: 20 },
   { size: 'normal', hint: 'normal · 56 高 / 图标 24 / 文字 12', iconSize: 24 },

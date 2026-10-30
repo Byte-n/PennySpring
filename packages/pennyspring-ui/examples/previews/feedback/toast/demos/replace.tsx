@@ -1,8 +1,6 @@
 import React from 'react';
 import { Button, Column, Text, useToast } from '@pennyspring/ui';
 
-export const toastReplaceDemoTitle = '单实例替换';
-
 export function ToastReplaceDemo() {
   const toast = useToast();
 

@@ -1,8 +1,6 @@
 import React from 'react';
 import { Avatar, Column, Icon, Row, Text } from '@pennyspring/ui';
 
-export const avatarContentDemoTitle = '内容类型';
-
 export function AvatarContentDemo() {
   return (
     <Column gap="normal">

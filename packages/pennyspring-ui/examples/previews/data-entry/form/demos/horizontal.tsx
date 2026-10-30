@@ -8,8 +8,6 @@ interface LayoutValues {
 
 const TypedForm = Form.infer<LayoutValues>();
 
-export const formHorizontalDemoTitle = '水平布局';
-
 export function FormHorizontalDemo() {
   const [form] = TypedForm.useForm();
 

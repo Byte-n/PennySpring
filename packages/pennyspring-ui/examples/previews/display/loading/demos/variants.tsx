@@ -23,8 +23,6 @@ const useStyles = createUseSheetStyle(token => ({
   },
 }));
 
-export const loadingVariantsDemoTitle = '形态（variant）';
-
 export function LoadingVariantsDemo() {
   const styles = useStyles();
 

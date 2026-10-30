@@ -2,8 +2,6 @@ import React from 'react';
 import { Space, TagPicker } from '@pennyspring/ui';
 import { TAG_PICKER_OPTIONS } from './options';
 
-export const tagPickerSizesDemoTitle = 'Sizes';
-
 export function TagPickerSizesDemo() {
   return (
     <Space direction="vertical" size="large">

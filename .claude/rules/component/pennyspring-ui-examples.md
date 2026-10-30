@@ -9,18 +9,18 @@ paths:
 ## 目录与职责
 
 - 每个组件使用 `index.tsx`、`demos/`、`demos/index.ts` 结构。
-- `index.tsx` 只负责渲染 `PreviewScaffold`，遍历 demos 并生成 `PreviewSection`。
-- 每个演示场景独立放在 `demos/<scenario>.tsx`，导出 `*Demo` 组件和 `*DemoTitle`。
-- `demos/index.ts` 统一导入并注册 demos，条目必须包含稳定的 `id`、`title`、`Component`。
+- `index.tsx` 提供聚合预览组件并 default export；通常渲染 `PreviewScaffold` 并遍历生成的 demos。Theme 例外，直接复用 `@pennyspring/theme` 的 `ThemePreview`。
+- 每个演示场景独立放在 `demos/<scenario>.tsx`，并 default export 组件；展示标题写入入口 `previewMeta.demos`，不再使用 `*DemoTitle` 常量。
+- `demos/index.ts` 由 `scripts/sync-previews.cjs` 生成，禁止手写导入或数组。
 - 多个 demo 共享的静态选项或数据放在同一 `demos/` 目录的独立文件中。
 
 ## Registry 与文档
 
-- 在 `examples/previews/registry.tsx` 同时注册组件 preview 和 demos：
-  - 组件分区使用组件 id，例如 `list-picker`。
-  - `DEMO_PREVIEW_ITEMS` 使用 `createDemoPreviewItems(componentId, title, demos)`。
-- `componentId` 必须与文档 `.mdx` 中的 `<PreviewDocIntro id>`、`<PreviewDocs id>` 完全一致。
-- 新增或重命名组件 preview 时，同步检查 registry、文档路径和 sidebar 配置。
+- 每个预览入口 `index.tsx` 必须导出 `previewMeta`，包含 `title`、`description`、`order`、可选 `docId` 和 `demos` 列表；值必须使用字面量，供生成器通过 AST 读取。
+- 每个 demo 文件必须 default export；demo 的 id 使用文件名（不含 `.tsx`），标题写入 `previewMeta.demos`。
+- 分组中文名和顺序配置在 `examples/previews/sections.json`。
+- `examples/previews/registry.tsx`、各组件的 `demos/index.ts`、`docs/components/**/*.mdx` 和 `sidebars.generated.cjs` 均由 `scripts/sync-previews.cjs` 生成，禁止手动编辑。
+- 新增、重命名或删除 preview / demo 后，运行 `yarn workspace @pennyspring/ui previews:sync`；`yarn test` 会校验生成产物是否同步。
 
 ## 导入与实现
 

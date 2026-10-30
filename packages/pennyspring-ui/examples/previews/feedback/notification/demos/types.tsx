@@ -1,8 +1,6 @@
 import React from 'react';
 import { Button, Column, Text, useNotification } from '@pennyspring/ui';
 
-export const notificationTypesDemoTitle = '类型（type）';
-
 const TYPES = [
   { type: 'default', label: 'default · 中性底板', title: '备份已完成', description: '本地 1,284 笔记录已写入云端。' },
   { type: 'success', label: 'success · 浅绿底板', title: '已导入 128 笔记录', description: '96 笔已匹配分类，32 笔待分类。' },

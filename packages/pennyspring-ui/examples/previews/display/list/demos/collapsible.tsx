@@ -7,8 +7,6 @@ const EXPENSE_ROWS: ListItemData[] = [
   { amountText: { tone: 'expense', value: '693.35' }, icon: 'home', titleText: '交通' },
 ];
 
-export const listCollapsibleDemoTitle = '分组头与分隔线';
-
 export function ListCollapsibleDemo() {
   const [open, setOpen] = useState(true);
 

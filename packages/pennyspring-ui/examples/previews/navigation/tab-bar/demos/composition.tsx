@@ -1,8 +1,6 @@
 import React from 'react';
 import { Column, Icon, TabBar, Text } from '@pennyspring/ui';
 
-export const tabBarCompositionDemoTitle = '结构组合';
-
 export function TabBarCompositionDemo() {
   return (
     <Column gap="normal">

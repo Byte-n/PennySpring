@@ -1,8 +1,6 @@
 import React from 'react';
 import { Button, Column, Space, Text, Tooltip } from '@pennyspring/ui';
 
-export const tooltipVariantDemoTitle = '变体（variant）';
-
 export function TooltipVariantDemo() {
   return (
     <Column gap="normal">

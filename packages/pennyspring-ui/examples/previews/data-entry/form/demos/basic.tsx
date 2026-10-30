@@ -9,8 +9,6 @@ interface BasicValues {
 
 const TypedForm = Form.infer<BasicValues>();
 
-export const formBasicDemoTitle = '基础用法';
-
 export function FormBasicDemo() {
   const [form] = TypedForm.useForm();
 

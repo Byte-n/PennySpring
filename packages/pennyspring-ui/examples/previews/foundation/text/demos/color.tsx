@@ -44,8 +44,6 @@ const useStyles = createUseSheetStyle(token => ({
   },
 }));
 
-export const textColorDemoTitle = 'Color';
-
 export function TextColorDemo() {
   const styles = useStyles();
 

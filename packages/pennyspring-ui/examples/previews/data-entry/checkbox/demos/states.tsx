@@ -1,8 +1,6 @@
 import React from 'react';
 import { Checkbox, Column, Text } from '@pennyspring/ui';
 
-export const checkboxStatesDemoTitle = '状态（5 种）';
-
 export function CheckboxStatesDemo() {
   return (
     <Column gap="normal">

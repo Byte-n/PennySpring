@@ -41,8 +41,6 @@ const useStyles = createUseSheetStyle(token => ({
   },
 }));
 
-export const textSizeDemoTitle = 'Size';
-
 export function TextSizeDemo() {
   const styles = useStyles();
 

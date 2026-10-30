@@ -2,8 +2,6 @@ import React from 'react';
 import { Column, Radio, Text } from '@pennyspring/ui';
 import type { RadioGroupOption, RadioGroupValue } from '@pennyspring/ui';
 
-export const radioGroupDemoTitle = '组排布（Group）';
-
 const STAT_OPTIONS: RadioGroupOption[] = [
   { label: '按分类统计', value: 'category' },
   { label: '按标签统计', value: 'tag' },

@@ -1,8 +1,6 @@
 import React from 'react';
 import { Button, Column, Text } from '@pennyspring/ui';
 
-export const buttonBlockDemoTitle = '全宽按钮（block）';
-
 export function ButtonBlockDemo() {
   return (
     <Column gap="small">

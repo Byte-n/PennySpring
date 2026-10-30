@@ -11,8 +11,6 @@ const useStyles = createUseSheetStyle(token => ({
   },
 }));
 
-export const displayInputCustomValueNodeDemoTitle = 'Custom value node';
-
 export function DisplayInputCustomValueNodeDemo() {
   const styles = useStyles();
 

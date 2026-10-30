@@ -12,8 +12,6 @@ const useStyles = createUseSheetStyle(token => ({
   },
 }));
 
-export const checkboxSlotsDemoTitle = '插槽（slots）';
-
 const LABEL_PRIORITY_OPTIONS: CheckboxGroupOption[] = [
   { label: '保存记录', labelText: 'labelText 不生效', value: 'record' },
   { labelText: '存为模板', value: 'template' },

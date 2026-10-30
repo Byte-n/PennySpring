@@ -3,8 +3,6 @@ import { Column, ListPicker, Text } from '@pennyspring/ui';
 import type { ListPickerValue } from '@pennyspring/ui';
 import { CATEGORY_OPTIONS } from './options';
 
-export const listPickerMultipleDemoTitle = 'Multiple selection and tags';
-
 export function ListPickerMultipleDemo() {
   const [value, setValue] = useState<ListPickerValue[]>(['food', 'transport']);
 

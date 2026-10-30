@@ -19,8 +19,6 @@ const useStyles = createUseSheetStyle(token => ({
   },
 }));
 
-export const floatingActionGroupEventFeedbackDemoTitle = 'Event feedback';
-
 export function FloatingActionGroupEventFeedbackDemo() {
   const styles = useStyles();
   const [lastEvent, setLastEvent] = React.useState('No action yet');

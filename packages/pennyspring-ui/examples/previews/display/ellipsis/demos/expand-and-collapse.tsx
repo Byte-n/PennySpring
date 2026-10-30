@@ -17,8 +17,6 @@ const useStyles = createUseSheetStyle(token => ({
   },
 }));
 
-export const ellipsisExpandAndCollapseDemoTitle = 'Expand and collapse';
-
 export function EllipsisExpandAndCollapseDemo() {
   const styles = useStyles();
 

@@ -4,8 +4,6 @@ import type { ListItemData } from '@pennyspring/ui';
 
 const LOAD_DELAY_MS = 600;
 
-export const listStatesDemoTitle = '空态、加载与加载更多';
-
 export function ListStatesDemo() {
   const [loading, setLoading] = useState(false);
   const [loadedCount, setLoadedCount] = useState(0);

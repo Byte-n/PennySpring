@@ -15,8 +15,6 @@ function joinLabels(labels: Array<string | undefined>): string {
   return visibleLabels.join(' / ');
 }
 
-export const pickerCascaderControlledDemoTitle = '受控模式';
-
 export function PickerCascaderControlledDemo() {
   const [controlledValue, setControlledValue] = React.useState<
     PickerCascaderValue<ExpenseTabKey>

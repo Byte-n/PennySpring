@@ -2,8 +2,6 @@ import React from 'react';
 import { View } from 'react-native';
 import { Column, Icon, TabBar, Text } from '@pennyspring/ui';
 
-export const tabBarStatesDemoTitle = '状态与角标';
-
 function icon(name: 'home' | 'list' | 'user', active = false) {
   return (
     <Icon

@@ -1,8 +1,6 @@
 import React from 'react';
 import { Button, Column, Text, useMessage } from '@pennyspring/ui';
 
-export const messageTypesDemoTitle = '类型（type）';
-
 const TYPES = [
   { type: 'default', label: 'default · 白卡 + 发丝线', text: '云端只保留最近 12 个月，更早的记录在本机' },
   { type: 'success', label: 'success · 浅绿底', text: '已删除 餐饮 · 外卖 ¥128.00' },

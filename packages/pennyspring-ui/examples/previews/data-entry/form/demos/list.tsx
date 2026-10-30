@@ -7,8 +7,6 @@ interface ListValues {
 
 const TypedForm = Form.infer<ListValues>();
 
-export const formListDemoTitle = '动态字段列表';
-
 export function FormListDemo() {
   const [form] = TypedForm.useForm();
 

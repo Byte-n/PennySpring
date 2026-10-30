@@ -8,8 +8,6 @@ const BAR_SAMPLES: { size: ComponentSize; percent: number; hint: string }[] = [
   { size: 'large', percent: 88, hint: 'large · 线宽 8 · 大屏汇总' },
 ];
 
-export const progressBarDemoTitle = '条形（Progress.Bar）';
-
 export function ProgressBarDemo() {
   return (
     <Column gap="normal">

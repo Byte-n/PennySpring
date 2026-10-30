@@ -9,8 +9,6 @@ const useStyles = createUseSheetStyle(token => ({
   },
 }));
 
-export const dialogEventFeedbackDemoTitle = 'Event feedback';
-
 export function DialogEventFeedbackDemo() {
   const styles = useStyles();
   const [open, setOpen] = React.useState(false);

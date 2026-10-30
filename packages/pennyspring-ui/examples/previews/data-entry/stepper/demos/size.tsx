@@ -2,8 +2,6 @@ import React from 'react';
 import { Column, Row, Stepper, Text } from '@pennyspring/ui';
 import type { ComponentSize } from '@pennyspring/ui';
 
-export const stepperSizeDemoTitle = '尺寸（size）';
-
 const SIZE_SAMPLES: { size: ComponentSize; hint: string; value: number }[] = [
   { size: 'small', hint: 'small · 胶囊 37.4 / 按钮 24 / 图标 12', value: 2 },
   { size: 'normal', hint: 'normal · 胶囊 44 / 按钮 32 / 图标 16', value: 6 },

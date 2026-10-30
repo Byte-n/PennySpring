@@ -2,8 +2,6 @@ import React from 'react';
 import { Column, Radio, Text } from '@pennyspring/ui';
 import type { ComponentSize, RadioGroupOption } from '@pennyspring/ui';
 
-export const radioSizeDemoTitle = '尺寸（size）';
-
 interface SizeSample {
   size: ComponentSize;
   hint: string;

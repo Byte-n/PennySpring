@@ -1,8 +1,6 @@
 import React from 'react';
 import { Button, Column, Space, Text, Tooltip } from '@pennyspring/ui';
 
-export const tooltipOverflowDemoTitle = '尺寸与溢出';
-
 export function TooltipOverflowDemo() {
   return (
     <Column gap="normal">

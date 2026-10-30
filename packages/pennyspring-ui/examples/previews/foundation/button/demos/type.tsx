@@ -1,8 +1,6 @@
 import React from 'react';
 import { Button, Space, Text } from '@pennyspring/ui';
 
-export const buttonTypeDemoTitle = '类型（type）';
-
 export function ButtonTypeDemo() {
   return (
     <Space direction="vertical" size="normal" align="start">

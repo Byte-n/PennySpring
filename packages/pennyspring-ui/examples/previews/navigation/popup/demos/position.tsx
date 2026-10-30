@@ -4,8 +4,6 @@ import type { PopupPosition } from '@pennyspring/ui';
 
 const POSITIONS: PopupPosition[] = ['bottom', 'top', 'left', 'right', 'center'];
 
-export const popupPositionDemoTitle = 'Position';
-
 export function PopupPositionDemo() {
   const [position, setPosition] = React.useState<PopupPosition>('bottom');
   const [open, setOpen] = React.useState(false);

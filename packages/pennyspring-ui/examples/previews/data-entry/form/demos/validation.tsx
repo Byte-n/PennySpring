@@ -12,8 +12,6 @@ const TypedForm = Form.infer<ValidationValues>();
 const requiredRule = (value: string): string | undefined =>
   value.trim() === '' ? '该字段不能为空' : undefined;
 
-export const formValidationDemoTitle = '校验触发';
-
 export function FormValidationDemo() {
   const [form] = TypedForm.useForm();
 

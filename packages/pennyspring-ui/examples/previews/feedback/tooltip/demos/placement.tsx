@@ -1,8 +1,6 @@
 import React from 'react';
 import { Button, Column, Space, Text, Tooltip } from '@pennyspring/ui';
 
-export const tooltipPlacementDemoTitle = '方位（placement）';
-
 export function TooltipPlacementDemo() {
   return (
     <Column gap="normal">

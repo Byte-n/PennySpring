@@ -7,8 +7,6 @@ const ITEMS = [
   { label: '图表', value: 'trend' },
 ];
 
-export const tabsStatesDemoTitle = '状态';
-
 export function TabsStatesDemo() {
   return (
     <Column gap="normal">

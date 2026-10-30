@@ -4,10 +4,13 @@
   "private": true,
   "main": "app.js",
   "scripts": {
+    "preandroid": "node ../scripts/sync-previews.cjs",
     "android": "react-native run-android --port 8081",
     "clean": "bash ../../../scripts/clean.sh --app .",
+    "preios": "node ../scripts/sync-previews.cjs",
     "ios": "react-native run-ios --port 8081",
     "lint": "eslint .",
+    "prestart": "node ../scripts/sync-previews.cjs",
     "start": "react-native start --port 8081",
     "typecheck": "tsc --noEmit",
     "test": "echo 'No tests yet' && exit 0"

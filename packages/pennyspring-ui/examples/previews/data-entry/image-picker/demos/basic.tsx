@@ -8,8 +8,6 @@ const useStyles = createUseSheetStyle(token => ({
   },
 }));
 
-export const imagePickerBasicDemoTitle = 'Basic';
-
 export function ImagePickerBasicDemo() {
   const styles = useStyles();
 

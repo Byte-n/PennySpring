@@ -2,8 +2,6 @@ import React from 'react';
 import { Picker, Space } from '@pennyspring/ui';
 import { DISABLED_TABS, EMPTY_TABS, EXPENSE_TABS } from './cascader-options';
 
-export const pickerCascaderStateDemoTitle = '状态与自定义';
-
 export function PickerCascaderStateDemo() {
   return (
     <Space block direction="vertical" size="large">

@@ -41,8 +41,6 @@ function DemoCell({ children }: { children: ReactNode }) {
   return <View style={styles.cell}>{children}</View>;
 }
 
-export const spaceSizeDemoTitle = 'Size';
-
 export function SpaceSizeDemo() {
   const styles = useStyles();
 

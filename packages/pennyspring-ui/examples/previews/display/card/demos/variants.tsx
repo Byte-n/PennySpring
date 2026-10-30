@@ -1,8 +1,6 @@
 import React from 'react';
 import { Card, Column, Row, Text } from '@pennyspring/ui';
 
-export const cardVariantsDemoTitle = '变体（variant）';
-
 export function CardVariantsDemo() {
   return (
     <Column gap="normal">

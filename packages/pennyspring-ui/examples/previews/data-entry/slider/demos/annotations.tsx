@@ -1,8 +1,6 @@
 import React from 'react';
 import { Column, Row, Slider, Text } from '@pennyspring/ui';
 
-export const sliderAnnotationsDemoTitle = '数值标注';
-
 export function SliderAnnotationsDemo() {
   const [budget, setBudget] = React.useState(3200);
   const [volume, setVolume] = React.useState(35);

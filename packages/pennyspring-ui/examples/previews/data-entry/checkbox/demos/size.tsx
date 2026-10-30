@@ -1,8 +1,6 @@
 import React from 'react';
 import { Checkbox, Column, Text } from '@pennyspring/ui';
 
-export const checkboxSizeDemoTitle = '尺寸（size）';
-
 const SIZES = [
   { hint: 'small · 框 16 / 圆角 4 / 勾 12 / 行高 37.4', value: 'small' },
   { hint: 'normal · 框 20 / 圆角 6 / 勾 14 / 行高 44', value: 'normal' },

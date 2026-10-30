@@ -1,8 +1,6 @@
 import React from 'react';
 import { Button, Column, Space, Text } from '@pennyspring/ui';
 
-export const buttonVariantDemoTitle = '变体 × 颜色（variant × color）';
-
 const COLORS = ['primary', 'default', 'danger'] as const;
 
 const VARIANTS = [

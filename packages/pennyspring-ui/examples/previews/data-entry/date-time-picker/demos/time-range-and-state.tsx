@@ -7,8 +7,6 @@ const MIN_TIME = new Date(2026, 4, 9, 9, 0, 0);
 
 const MAX_TIME = new Date(2026, 4, 9, 18, 0, 0);
 
-export const dateTimePickerTimeRangeAndStateDemoTitle = 'Time range and state';
-
 export function DateTimePickerTimeRangeAndStateDemo() {
   return (
     <Space block direction="vertical" size="large">

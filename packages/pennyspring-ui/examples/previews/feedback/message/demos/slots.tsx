@@ -1,8 +1,6 @@
 import React from 'react';
 import { Button, Column, Text, useMessage } from '@pennyspring/ui';
 
-export const messageSlotsDemoTitle = '结构组合（slots）';
-
 export function MessageSlotsDemo() {
   const message = useMessage();
 

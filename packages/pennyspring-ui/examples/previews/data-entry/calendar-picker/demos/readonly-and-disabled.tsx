@@ -17,8 +17,6 @@ const useStyles = createUseSheetStyle(token => ({
 
 const DEFAULT_DATE = new Date(2026, 4, 16);
 
-export const calendarPickerReadonlyAndDisabledDemoTitle = 'Readonly and disabled';
-
 export function CalendarPickerReadonlyAndDisabledDemo() {
   const styles = useStyles();
 

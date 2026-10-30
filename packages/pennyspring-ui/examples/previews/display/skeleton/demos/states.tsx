@@ -28,8 +28,6 @@ const useStyles = createUseSheetStyle(token => ({
   },
 }));
 
-export const skeletonStatesDemoTitle = '状态';
-
 export function SkeletonStatesDemo() {
   const styles = useStyles();
   const [loading, setLoading] = React.useState(true);

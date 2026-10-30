@@ -2,8 +2,6 @@ import React from 'react';
 import { Badge, Column, Row, Text } from '@pennyspring/ui';
 import type { BadgeColor } from '@pennyspring/ui';
 
-export const badgeColorDemoTitle = '语义色';
-
 const BADGE_COLORS: { color: BadgeColor; hint: string }[] = [
   { color: 'default', hint: 'default · 中性计数' },
   { color: 'primary', hint: 'primary · 进行中' },

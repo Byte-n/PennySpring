@@ -1,8 +1,6 @@
 import React from 'react';
 import { Space, Tag } from '@pennyspring/ui';
 
-export const tagSizeAndStateDemoTitle = 'Size and state';
-
 export function TagSizeAndStateDemo() {
   return (
     <>

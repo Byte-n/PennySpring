@@ -72,8 +72,6 @@ function SurfaceSlide({ item }: { item: SlideItem }) {
   );
 }
 
-export const carouselStatesDemoTitle = '深色与边界';
-
 function DarkSurface() {
   const styles = useStyles();
 

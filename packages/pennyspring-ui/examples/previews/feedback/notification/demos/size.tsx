@@ -1,8 +1,6 @@
 import React from 'react';
 import { Button, Column, Text, useNotification } from '@pennyspring/ui';
 
-export const notificationSizeDemoTitle = '尺寸（size）';
-
 const SIZES = [
   { label: 'small · 26 底板 / 内边距 12', size: 'small' },
   { label: 'normal · 32 底板 / 内边距 16', size: 'normal' },

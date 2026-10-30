@@ -15,8 +15,6 @@ function formatTime(date: Date): string {
   return `${hours}:${minutes}:${seconds}`;
 }
 
-export const dateTimePickerTimeControlledDemoTitle = 'Time controlled';
-
 export function DateTimePickerTimeControlledDemo() {
   const [controlledTime, setControlledTime] = React.useState(BASE_TIME);
 

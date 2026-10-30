@@ -82,8 +82,6 @@ function SurfaceSlide({ item }: { item: SlideItem }) {
   );
 }
 
-export const carouselIndicatorsDemoTitle = '指示器';
-
 export function CarouselIndicatorsDemo() {
   const styles = useStyles();
   const { token } = useTheme();

@@ -11,8 +11,6 @@ const useStyles = createUseSheetStyle(token => ({
   },
 }));
 
-export const displayInputDisplayDemoTitle = 'Display';
-
 export function DisplayInputDisplayDemo() {
   const styles = useStyles();
 

@@ -1,8 +1,6 @@
 import React from 'react';
 import { Button, Column, Empty, Text } from '@pennyspring/ui';
 
-export const emptyVariantsDemoTitle = '形态（variant）';
-
 export function EmptyVariantsDemo() {
   return (
     <Column gap="normal">

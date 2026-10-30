@@ -14,8 +14,6 @@ const useStyles = createUseSheetStyle(token => ({
   },
 }));
 
-export const dividerSizeDemoTitle = 'Size';
-
 export function DividerSizeDemo() {
   const styles = useStyles();
 

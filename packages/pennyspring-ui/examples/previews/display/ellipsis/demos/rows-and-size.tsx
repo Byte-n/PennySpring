@@ -17,8 +17,6 @@ const useStyles = createUseSheetStyle(token => ({
   },
 }));
 
-export const ellipsisRowsAndSizeDemoTitle = 'Rows and size';
-
 export function EllipsisRowsAndSizeDemo() {
   const styles = useStyles();
 

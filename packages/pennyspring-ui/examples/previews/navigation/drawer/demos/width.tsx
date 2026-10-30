@@ -101,8 +101,6 @@ function DrawerContent({ onClose, position, title }: DrawerContentProps) {
   );
 }
 
-export const drawerWidthDemoTitle = 'Width';
-
 export function DrawerWidthDemo() {
   const styles = useStyles();
   const [widthDemoOpen, setWidthDemoOpen] = React.useState(false);

@@ -9,8 +9,6 @@ const useStyles = createUseSheetStyle(token => ({
   },
 }));
 
-export const imagePickerStateDemoTitle = 'State';
-
 export function ImagePickerStateDemo() {
   const styles = useStyles();
   const presetValue: ImagePickerValue = {

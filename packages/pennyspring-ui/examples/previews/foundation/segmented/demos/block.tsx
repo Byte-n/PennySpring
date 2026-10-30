@@ -2,8 +2,6 @@ import React from 'react';
 import { Column, Segmented, Text } from '@pennyspring/ui';
 import type { SegmentedValue } from '@pennyspring/ui';
 
-export const segmentedBlockDemoTitle = '全宽与受控';
-
 const OPTIONS = [
   { label: '按分类', value: 'category' },
   { label: '按标签', value: 'tag' },

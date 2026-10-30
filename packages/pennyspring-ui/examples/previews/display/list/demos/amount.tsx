@@ -18,8 +18,6 @@ const EMPTY_ROWS: ListItemData[] = [
   { icon: 'warning', titleText: '待补全金额', right: '—' },
 ];
 
-export const listAmountDemoTitle = '金额样式（tone）';
-
 export function ListAmountDemo() {
   return (
     <Column gap="normal">

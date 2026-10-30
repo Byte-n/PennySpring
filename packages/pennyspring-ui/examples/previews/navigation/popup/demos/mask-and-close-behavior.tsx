@@ -1,8 +1,6 @@
 import React from 'react';
 import { Space, Button, Popup, Text } from '@pennyspring/ui';
 
-export const popupMaskAndCloseBehaviorDemoTitle = 'Mask and close behavior';
-
 export function PopupMaskAndCloseBehaviorDemo() {
   const [centerOpen, setCenterOpen] = React.useState(false);
   const [lockedOpen, setLockedOpen] = React.useState(false);

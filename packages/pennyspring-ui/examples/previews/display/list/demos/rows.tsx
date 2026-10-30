@@ -52,8 +52,6 @@ const ROWS: ListItemData[] = [
   },
 ];
 
-export const listRowsDemoTitle = '行结构（8 种）';
-
 export function ListRowsDemo() {
   return (
     <List<ListItemData>

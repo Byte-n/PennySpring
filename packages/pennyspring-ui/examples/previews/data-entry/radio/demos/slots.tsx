@@ -12,8 +12,6 @@ const useStyles = createUseSheetStyle(token => ({
   },
 }));
 
-export const radioSlotsDemoTitle = '插槽（slots）';
-
 const LABEL_PRIORITY_OPTIONS: RadioGroupOption[] = [
   { value: 'record', label: '保存记录', labelText: 'labelText 不生效' },
   { value: 'template', labelText: '存为模板' },

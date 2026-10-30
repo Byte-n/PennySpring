@@ -54,8 +54,6 @@ function getPickerSummary(params: PickerChangeParams): string {
   return joinLabels(params.items.map(item => item?.labelText));
 }
 
-export const pickerControlledDemoTitle = 'Controlled';
-
 export function PickerControlledDemo() {
   const [controlledValue, setControlledValue] = React.useState<PickerValue[]>([
     'may',

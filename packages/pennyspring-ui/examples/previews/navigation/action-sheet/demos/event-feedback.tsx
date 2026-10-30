@@ -16,8 +16,6 @@ const useStyles = createUseSheetStyle(token => ({
   },
 }));
 
-export const actionSheetEventFeedbackDemoTitle = 'Event feedback';
-
 export function ActionSheetEventFeedbackDemo() {
   const styles = useStyles();
   const [open, setOpen] = React.useState(false);

@@ -1,8 +1,6 @@
 import React from 'react';
 import { Column, Text, Textarea } from '@pennyspring/ui';
 
-export const textareaSlotsDemoTitle = '行数、计数与加载';
-
 export function TextareaSlotsDemo() {
   return (
     <Column gap="normal">

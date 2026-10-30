@@ -1,8 +1,6 @@
 import React from 'react';
 import { Column, Row, Switch, Text } from '@pennyspring/ui';
 
-export const switchStatesDemoTitle = '状态';
-
 export function SwitchStatesDemo() {
   return (
     <Column gap="normal">

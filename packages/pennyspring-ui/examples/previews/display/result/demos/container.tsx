@@ -1,8 +1,6 @@
 import React from 'react';
 import { Button, Card, Column, Result, Text } from '@pennyspring/ui';
 
-export const resultContainerDemoTitle = '承载场景';
-
 export function ResultContainerDemo() {
   return (
     <Column gap="large">

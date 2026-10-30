@@ -1,8 +1,6 @@
 import React from 'react';
 import { Column, Slider, Text } from '@pennyspring/ui';
 
-export const sliderStatesDemoTitle = '状态';
-
 export function SliderStatesDemo() {
   return (
     <Column gap="normal">

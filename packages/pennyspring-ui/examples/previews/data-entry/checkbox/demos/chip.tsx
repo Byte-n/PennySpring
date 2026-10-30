@@ -2,8 +2,6 @@ import React from 'react';
 import { Checkbox, Column, Row, Text } from '@pennyspring/ui';
 import type { CheckboxGroupOption, CheckboxValue } from '@pennyspring/ui';
 
-export const checkboxChipDemoTitle = 'button 形态（chip）';
-
 const CATEGORY_OPTIONS: CheckboxGroupOption[] = [
   { label: '餐饮', value: 'food' },
   { label: '交通', value: 'traffic' },

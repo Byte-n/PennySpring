@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import { Button, Column, Dialog, Row, Text } from '@pennyspring/ui';
 
-export const dialogAnimationDemoTitle = 'Dialog 动画';
-
 export function DialogAnimationDemo() {
   const [fadeOpen, setFadeOpen] = useState(false);
   const [opacityOpen, setOpacityOpen] = useState(false);
@@ -38,3 +36,5 @@ export function DialogAnimationDemo() {
     </Column>
   );
 }
+
+export default DialogAnimationDemo;

@@ -1,8 +1,6 @@
 import React from 'react';
 import { Space, Tag } from '@pennyspring/ui';
 
-export const tagVariantsDemoTitle = 'Variants';
-
 export function TagVariantsDemo() {
   return (
     <>

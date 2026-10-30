@@ -1,8 +1,6 @@
 import React from 'react';
 import { Column, Radio, Text } from '@pennyspring/ui';
 
-export const radioStatesDemoTitle = '状态（5 种）';
-
 export function RadioStatesDemo() {
   return (
     <Column gap="normal">

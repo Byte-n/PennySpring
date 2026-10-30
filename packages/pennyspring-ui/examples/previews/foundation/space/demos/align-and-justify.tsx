@@ -39,8 +39,6 @@ function DemoCell({ children }: { children: ReactNode }) {
   return <View style={styles.cell}>{children}</View>;
 }
 
-export const spaceAlignAndJustifyDemoTitle = 'Align and justify';
-
 export function SpaceAlignAndJustifyDemo() {
   const styles = useStyles();
 

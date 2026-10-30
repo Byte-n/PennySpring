@@ -42,8 +42,6 @@ const useStyles = createUseSheetStyle(token => ({
   },
 }));
 
-export const gridColumnsDemoTitle = 'Columns';
-
 export function GridColumnsDemo() {
   const styles = useStyles();
   const { token } = useTheme();

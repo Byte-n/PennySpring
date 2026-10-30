@@ -1,8 +1,6 @@
 import React from 'react';
 import { Card, Column, Text } from '@pennyspring/ui';
 
-export const cardStateDemoTitle = '状态（state）';
-
 export function CardStateDemo() {
   return (
     <Column gap="normal">

@@ -20,8 +20,6 @@ const ACCOUNT_COLUMN: PickerColumn = [
 
 const EMPTY_COLUMN: PickerColumn = [];
 
-export const pickerStateDemoTitle = 'State';
-
 export function PickerStateDemo() {
   return (
     <>

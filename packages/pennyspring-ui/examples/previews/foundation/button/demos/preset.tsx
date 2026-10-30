@@ -1,8 +1,6 @@
 import React from 'react';
 import { Button, Column, Space, Text } from '@pennyspring/ui';
 
-export const buttonPresetDemoTitle = '预设色（API 支持，不推荐）';
-
 const PRESET_COLORS = [
   'red',
   'volcano',

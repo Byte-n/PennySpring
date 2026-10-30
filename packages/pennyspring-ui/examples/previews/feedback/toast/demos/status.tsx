@@ -1,8 +1,6 @@
 import React from 'react';
 import { Button, Column, Text, useToast } from '@pennyspring/ui';
 
-export const toastStatusDemoTitle = '内容形态（status）';
-
 export function ToastStatusDemo() {
   const toast = useToast();
 

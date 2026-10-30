@@ -1,117 +1,125 @@
-import { ThemePreview } from '@pennyspring/theme';
-import { calculatorInputDemos } from './data-entry/calculator-input/demos';
-import { calendarPickerDemos } from './data-entry/calendar-picker/demos';
-import { checkboxDemos } from './data-entry/checkbox/demos';
-import { dateTimePickerDemos } from './data-entry/date-time-picker/demos';
-import { displayInputDemos } from './data-entry/display-input/demos';
-import { formDemos } from './data-entry/form/demos';
-import { imagePickerDemos } from './data-entry/image-picker/demos';
-import { inputDemos } from './data-entry/input/demos';
-import { listPickerDemos } from './data-entry/list-picker/demos';
-import { pickerDemos } from './data-entry/picker/demos';
-import { progressDemos } from './data-entry/progress/demos';
-import { radioDemos } from './data-entry/radio/demos';
-import { sliderDemos } from './data-entry/slider/demos';
-import { stepperDemos } from './data-entry/stepper/demos';
-import { switchDemos } from './data-entry/switch/demos';
-import { tagPickerDemos } from './data-entry/tag-picker/demos';
-import { textareaDemos } from './data-entry/textarea/demos';
-import { wheelGroupDemos } from './data-entry/wheel-group/demos';
-import { cardDemos } from './display/card/demos';
-import { carouselDemos } from './display/carousel/demos';
-import { ellipsisDemos } from './display/ellipsis/demos';
-import { emptyDemos } from './display/empty/demos';
-import { loadingDemos } from './display/loading/demos';
-import { listDemos } from './display/list/demos';
-import { resultDemos } from './display/result/demos';
-import { skeletonDemos } from './display/skeleton/demos';
-import { swipeActionDemos } from './display/swipe-action/demos';
-import { messageDemos } from './feedback/message/demos';
-import { notificationDemos } from './feedback/notification/demos';
-import { toastDemos } from './feedback/toast/demos';
-import { tooltipDemos } from './feedback/tooltip/demos';
-import { avatarDemos } from './foundation/avatar/demos';
-import { badgeDemos } from './foundation/badge/demos';
-import { buttonDemos } from './foundation/button/demos';
-import { dividerDemos } from './foundation/divider/demos';
-import { gridDemos } from './foundation/grid/demos';
-import { iconDemos } from './foundation/icon/demos';
-import { layoutDemos } from './foundation/layout/demos';
-import { segmentedDemos } from './foundation/segmented/demos';
-import { spaceDemos } from './foundation/space/demos';
-import { tabsDemos } from './foundation/tabs/demos';
-import { tagDemos } from './foundation/tag/demos';
-import { textDemos } from './foundation/text/demos';
-import { actionSheetDemos } from './navigation/action-sheet/demos';
-import { dialogDemos } from './navigation/dialog/demos';
-import { drawerDemos } from './navigation/drawer/demos';
-import { floatingActionGroupDemos } from './navigation/floating-action-group/demos';
-import { indexBarDemos } from './navigation/index-bar/demos';
-import { popoverDemos } from './navigation/popover/demos';
-import { popupDemos } from './navigation/popup/demos';
-import { portalDemos } from './navigation/portal/demos';
-import { stepsDemos } from './navigation/steps/demos';
-import { tabBarDemos } from './navigation/tab-bar/demos';
-import { CalendarPickerPreview } from './data-entry/calendar-picker';
-import { CalculatorInputPreview } from './data-entry/calculator-input';
-import { CheckboxPreview } from './data-entry/checkbox';
-import { DateTimePickerPreview } from './data-entry/date-time-picker';
-import { DisplayInputPreview } from './data-entry/display-input';
-import { FormPreview } from './data-entry/form';
-import { ImagePickerPreview } from './data-entry/image-picker';
-import { InputPreview } from './data-entry/input';
-import { PickerPreview } from './data-entry/picker';
-import { ProgressPreview } from './data-entry/progress';
-import { RadioPreview } from './data-entry/radio';
-import { SliderPreview } from './data-entry/slider';
-import { StepperPreview } from './data-entry/stepper';
-import { SwitchPreview } from './data-entry/switch';
-import { TagPickerPreview } from './data-entry/tag-picker';
-import { TextareaPreview } from './data-entry/textarea';
-import { WheelGroupPreview } from './data-entry/wheel-group';
-import { CardPreview } from './display/card';
-import { CarouselPreview } from './display/carousel';
-import { EllipsisPreview } from './display/ellipsis';
-import { EmptyPreview } from './display/empty';
-import { ListPreview } from './display/list';
-import { ListPickerPreview } from './data-entry/list-picker';
-import { LoadingPreview } from './display/loading';
-import { ResultPreview } from './display/result';
-import { SkeletonPreview } from './display/skeleton';
-import { SwipeActionPreview } from './display/swipe-action';
-import { MessagePreview } from './feedback/message';
-import { NotificationPreview } from './feedback/notification';
-import { ToastPreview } from './feedback/toast';
-import { TooltipPreview } from './feedback/tooltip';
-import { AvatarPreview } from './foundation/avatar';
-import { BadgePreview } from './foundation/badge';
-import { ButtonPreview } from './foundation/button';
-import { DividerPreview } from './foundation/divider';
-import { GridPreview } from './foundation/grid';
-import { IconPreview } from './foundation/icon';
-import { LayoutPreview } from './foundation/layout';
-import { SegmentedPreview } from './foundation/segmented';
-import { SpacePreview } from './foundation/space';
-import { TabsPreview } from './foundation/tabs';
-import { TagPreview } from './foundation/tag';
-import { TextPreview } from './foundation/text';
-import { ActionSheetPreview } from './navigation/action-sheet';
-import { DialogPreview } from './navigation/dialog';
-import { DrawerPreview } from './navigation/drawer';
-import { FloatingActionGroupPreview } from './navigation/floating-action-group';
-import { IndexBarPreview } from './navigation/index-bar';
-import { PopoverPreview } from './navigation/popover';
-import { PopupPreview } from './navigation/popup';
-import { PortalPreview } from './navigation/portal';
-import { TabBarPreview } from './navigation/tab-bar';
-import { StepsPreview } from './navigation/steps';
+// AUTO-GENERATED by scripts/sync-previews.cjs. Do not edit.
+import React from 'react';
 import { PreviewScaffold, PreviewSection } from './PreviewScaffold';
+import ThemePreview from './foundation/theme';
+import { themeDemos } from './foundation/theme/demos';
+import TextPreview from './foundation/text';
+import { textDemos } from './foundation/text/demos';
+import AvatarPreview from './foundation/avatar';
+import { avatarDemos } from './foundation/avatar/demos';
+import ButtonPreview from './foundation/button';
+import { buttonDemos } from './foundation/button/demos';
+import BadgePreview from './foundation/badge';
+import { badgeDemos } from './foundation/badge/demos';
+import GridPreview from './foundation/grid';
+import { gridDemos } from './foundation/grid/demos';
+import LayoutPreview from './foundation/layout';
+import { layoutDemos } from './foundation/layout/demos';
+import SpacePreview from './foundation/space';
+import { spaceDemos } from './foundation/space/demos';
+import TagPreview from './foundation/tag';
+import { tagDemos } from './foundation/tag/demos';
+import SegmentedPreview from './foundation/segmented';
+import { segmentedDemos } from './foundation/segmented/demos';
+import TabsPreview from './foundation/tabs';
+import { tabsDemos } from './foundation/tabs/demos';
+import IconPreview from './foundation/icon';
+import { iconDemos } from './foundation/icon/demos';
+import DividerPreview from './foundation/divider';
+import { dividerDemos } from './foundation/divider/demos';
+import FormPreview from './data-entry/form';
+import { formDemos } from './data-entry/form/demos';
+import InputPreview from './data-entry/input';
+import { inputDemos } from './data-entry/input/demos';
+import DisplayInputPreview from './data-entry/display-input';
+import { displayInputDemos } from './data-entry/display-input/demos';
+import ImagePickerPreview from './data-entry/image-picker';
+import { imagePickerDemos } from './data-entry/image-picker/demos';
+import CalculatorInputPreview from './data-entry/calculator-input';
+import { calculatorInputDemos } from './data-entry/calculator-input/demos';
+import TextareaPreview from './data-entry/textarea';
+import { textareaDemos } from './data-entry/textarea/demos';
+import CheckboxPreview from './data-entry/checkbox';
+import { checkboxDemos } from './data-entry/checkbox/demos';
+import RadioPreview from './data-entry/radio';
+import { radioDemos } from './data-entry/radio/demos';
+import SwitchPreview from './data-entry/switch';
+import { switchDemos } from './data-entry/switch/demos';
+import SliderPreview from './data-entry/slider';
+import { sliderDemos } from './data-entry/slider/demos';
+import StepperPreview from './data-entry/stepper';
+import { stepperDemos } from './data-entry/stepper/demos';
+import ProgressPreview from './data-entry/progress';
+import { progressDemos } from './data-entry/progress/demos';
+import CalendarPickerPreview from './data-entry/calendar-picker';
+import { calendarPickerDemos } from './data-entry/calendar-picker/demos';
+import PickerPreview from './data-entry/picker';
+import { pickerDemos } from './data-entry/picker/demos';
+import ListPickerPreview from './data-entry/list-picker';
+import { listPickerDemos } from './data-entry/list-picker/demos';
+import TagPickerPreview from './data-entry/tag-picker';
+import { tagPickerDemos } from './data-entry/tag-picker/demos';
+import DateTimePickerPreview from './data-entry/date-time-picker';
+import { dateTimePickerDemos } from './data-entry/date-time-picker/demos';
+import WheelGroupPreview from './data-entry/wheel-group';
+import { wheelGroupDemos } from './data-entry/wheel-group/demos';
+import CarouselPreview from './display/carousel';
+import { carouselDemos } from './display/carousel/demos';
+import CardPreview from './display/card';
+import { cardDemos } from './display/card/demos';
+import ListPreview from './display/list';
+import { listDemos } from './display/list/demos';
+import EllipsisPreview from './display/ellipsis';
+import { ellipsisDemos } from './display/ellipsis/demos';
+import SwipeActionPreview from './display/swipe-action';
+import { swipeActionDemos } from './display/swipe-action/demos';
+import EmptyPreview from './display/empty';
+import { emptyDemos } from './display/empty/demos';
+import LoadingPreview from './display/loading';
+import { loadingDemos } from './display/loading/demos';
+import SkeletonPreview from './display/skeleton';
+import { skeletonDemos } from './display/skeleton/demos';
+import ResultPreview from './display/result';
+import { resultDemos } from './display/result/demos';
+import ToastPreview from './feedback/toast';
+import { toastDemos } from './feedback/toast/demos';
+import MessagePreview from './feedback/message';
+import { messageDemos } from './feedback/message/demos';
+import NotificationPreview from './feedback/notification';
+import { notificationDemos } from './feedback/notification/demos';
+import TooltipPreview from './feedback/tooltip';
+import { tooltipDemos } from './feedback/tooltip/demos';
+import DrawerPreview from './navigation/drawer';
+import { drawerDemos } from './navigation/drawer/demos';
+import DialogPreview from './navigation/dialog';
+import { dialogDemos } from './navigation/dialog/demos';
+import ActionSheetPreview from './navigation/action-sheet';
+import { actionSheetDemos } from './navigation/action-sheet/demos';
+import StepsPreview from './navigation/steps';
+import { stepsDemos } from './navigation/steps/demos';
+import TabBarPreview from './navigation/tab-bar';
+import { tabBarDemos } from './navigation/tab-bar/demos';
+import IndexBarPreview from './navigation/index-bar';
+import { indexBarDemos } from './navigation/index-bar/demos';
+import PortalPreview from './navigation/portal';
+import { portalDemos } from './navigation/portal/demos';
+import FloatingActionGroupPreview from './navigation/floating-action-group';
+import { floatingActionGroupDemos } from './navigation/floating-action-group/demos';
+import PopoverPreview from './navigation/popover';
+import { popoverDemos } from './navigation/popover/demos';
+import PopupPreview from './navigation/popup';
+import { popupDemos } from './navigation/popup/demos';
+
 import type { ComponentType } from 'react';
-import type { ComponentPreviewItem, ComponentPreviewSection } from './types';
+import type {
+  ComponentPreviewItem,
+  ComponentPreviewSection,
+} from './types';
 
 interface ComponentDemoPreview {
   id: string;
   title: string;
+  description?: string;
   Component: ComponentType;
 }
 
@@ -120,7 +128,7 @@ function createDemoPreviewItems(
   componentTitle: string,
   demos: readonly ComponentDemoPreview[],
 ): ComponentPreviewItem[] {
-  return demos.map(({ Component, id, title }) => {
+  return demos.map(({ Component, description, id, title }) => {
     function DemoPreview() {
       return (
         <PreviewScaffold>
@@ -134,88 +142,67 @@ function createDemoPreviewItems(
     return {
       id: `${componentId}/${id}`,
       title: `${componentTitle} / ${title}`,
-      description: title,
+      description: description ?? title,
       component: DemoPreview,
     };
   });
 }
 
 const DEMO_PREVIEW_ITEMS = [
-  {
-    id: 'theme/basic',
-    title: 'Theme / Basic',
-    description: '主题算法、预设色和设计 token 预览。',
-    component: ThemePreview,
-  },
-  ...createDemoPreviewItems(
-    'calculator-input',
-    'CalculatorInput',
-    calculatorInputDemos,
-  ),
-  ...createDemoPreviewItems(
-    'calendar-picker',
-    'CalendarPicker',
-    calendarPickerDemos,
-  ),
-  ...createDemoPreviewItems('checkbox', 'Checkbox', checkboxDemos),
-  ...createDemoPreviewItems(
-    'date-time-picker',
-    'DateTimePicker',
-    dateTimePickerDemos,
-  ),
-  ...createDemoPreviewItems('display-input', 'DisplayInput', displayInputDemos),
+  ...createDemoPreviewItems('theme', 'Theme', themeDemos),
+  ...createDemoPreviewItems('text', 'Text', textDemos),
+  ...createDemoPreviewItems('avatar', 'Avatar', avatarDemos),
+  ...createDemoPreviewItems('button', 'Button', buttonDemos),
+  ...createDemoPreviewItems('badge', 'Badge', badgeDemos),
+  ...createDemoPreviewItems('grid', 'Grid', gridDemos),
+  ...createDemoPreviewItems('layout', 'Layout', layoutDemos),
+  ...createDemoPreviewItems('space', 'Space', spaceDemos),
+  ...createDemoPreviewItems('tag', 'Tag', tagDemos),
+  ...createDemoPreviewItems('segmented', 'Segmented', segmentedDemos),
+  ...createDemoPreviewItems('tabs', 'Tabs', tabsDemos),
+  ...createDemoPreviewItems('icon', 'Icon', iconDemos),
+  ...createDemoPreviewItems('divider', 'Divider', dividerDemos),
   ...createDemoPreviewItems('form', 'Form', formDemos),
-  ...createDemoPreviewItems('image-picker', 'ImagePicker', imagePickerDemos),
   ...createDemoPreviewItems('input', 'Input', inputDemos),
-  ...createDemoPreviewItems('list-picker', 'ListPicker', listPickerDemos),
-  ...createDemoPreviewItems('picker', 'Picker', pickerDemos),
-  ...createDemoPreviewItems('progress', 'Progress', progressDemos),
+  ...createDemoPreviewItems('display-input', 'DisplayInput', displayInputDemos),
+  ...createDemoPreviewItems('image-picker', 'ImagePicker', imagePickerDemos),
+  ...createDemoPreviewItems('calculator-input', 'CalculatorInput', calculatorInputDemos),
+  ...createDemoPreviewItems('textarea', 'Textarea', textareaDemos),
+  ...createDemoPreviewItems('checkbox', 'Checkbox', checkboxDemos),
   ...createDemoPreviewItems('radio', 'Radio', radioDemos),
+  ...createDemoPreviewItems('switch', 'Switch', switchDemos),
   ...createDemoPreviewItems('slider', 'Slider', sliderDemos),
   ...createDemoPreviewItems('stepper', 'Stepper', stepperDemos),
-  ...createDemoPreviewItems('switch', 'Switch', switchDemos),
+  ...createDemoPreviewItems('progress', 'Progress', progressDemos),
+  ...createDemoPreviewItems('calendar-picker', 'CalendarPicker', calendarPickerDemos),
+  ...createDemoPreviewItems('picker', 'Picker', pickerDemos),
+  ...createDemoPreviewItems('list-picker', 'ListPicker', listPickerDemos),
   ...createDemoPreviewItems('tag-picker', 'TagPicker', tagPickerDemos),
-  ...createDemoPreviewItems('textarea', 'Textarea', textareaDemos),
+  ...createDemoPreviewItems('date-time-picker', 'DateTimePicker', dateTimePickerDemos),
   ...createDemoPreviewItems('wheel-group', 'WheelGroup', wheelGroupDemos),
-  ...createDemoPreviewItems('card', 'Card', cardDemos),
   ...createDemoPreviewItems('carousel', 'Carousel', carouselDemos),
-  ...createDemoPreviewItems('ellipsis', 'Ellipsis', ellipsisDemos),
-  ...createDemoPreviewItems('empty', 'Empty', emptyDemos),
+  ...createDemoPreviewItems('card', 'Card', cardDemos),
   ...createDemoPreviewItems('list', 'List', listDemos),
-  ...createDemoPreviewItems('loading', 'Loading', loadingDemos),
-  ...createDemoPreviewItems('result', 'Result', resultDemos),
-  ...createDemoPreviewItems('skeleton', 'Skeleton', skeletonDemos),
+  ...createDemoPreviewItems('ellipsis', 'Ellipsis', ellipsisDemos),
   ...createDemoPreviewItems('swipe-action', 'SwipeAction', swipeActionDemos),
+  ...createDemoPreviewItems('empty', 'Empty', emptyDemos),
+  ...createDemoPreviewItems('loading', 'Loading', loadingDemos),
+  ...createDemoPreviewItems('skeleton', 'Skeleton', skeletonDemos),
+  ...createDemoPreviewItems('result', 'Result', resultDemos),
+  ...createDemoPreviewItems('toast', 'Toast', toastDemos),
   ...createDemoPreviewItems('message', 'Message', messageDemos),
   ...createDemoPreviewItems('notification', 'Notification', notificationDemos),
-  ...createDemoPreviewItems('toast', 'Toast', toastDemos),
   ...createDemoPreviewItems('tooltip', 'Tooltip', tooltipDemos),
-  ...createDemoPreviewItems('avatar', 'Avatar', avatarDemos),
-  ...createDemoPreviewItems('badge', 'Badge', badgeDemos),
-  ...createDemoPreviewItems('button', 'Button', buttonDemos),
-  ...createDemoPreviewItems('divider', 'Divider', dividerDemos),
-  ...createDemoPreviewItems('grid', 'Grid', gridDemos),
-  ...createDemoPreviewItems('icon', 'Icon', iconDemos),
-  ...createDemoPreviewItems('layout', 'Layout', layoutDemos),
-  ...createDemoPreviewItems('segmented', 'Segmented', segmentedDemos),
-  ...createDemoPreviewItems('space', 'Space', spaceDemos),
-  ...createDemoPreviewItems('tabs', 'Tabs', tabsDemos),
-  ...createDemoPreviewItems('tag', 'Tag', tagDemos),
-  ...createDemoPreviewItems('text', 'Text', textDemos),
-  ...createDemoPreviewItems('action-sheet', 'ActionSheet', actionSheetDemos),
-  ...createDemoPreviewItems('dialog', 'Dialog', dialogDemos),
   ...createDemoPreviewItems('drawer', 'Drawer', drawerDemos),
-  ...createDemoPreviewItems(
-    'floating-action-group',
-    'FloatingActionGroup',
-    floatingActionGroupDemos,
-  ),
-  ...createDemoPreviewItems('index-bar', 'IndexBar', indexBarDemos),
-  ...createDemoPreviewItems('popover', 'Popover', popoverDemos),
-  ...createDemoPreviewItems('popup', 'Popup', popupDemos),
-  ...createDemoPreviewItems('portal', 'Portal', portalDemos),
+  ...createDemoPreviewItems('dialog', 'Dialog', dialogDemos),
+  ...createDemoPreviewItems('action-sheet', 'ActionSheet', actionSheetDemos),
   ...createDemoPreviewItems('steps', 'Steps', stepsDemos),
   ...createDemoPreviewItems('tab-bar', 'TabBar', tabBarDemos),
+  ...createDemoPreviewItems('index-bar', 'IndexBar', indexBarDemos),
+  ...createDemoPreviewItems('portal', 'Portal', portalDemos),
+  ...createDemoPreviewItems('floating-action-group', 'FloatingActionGroup', floatingActionGroupDemos),
+  ...createDemoPreviewItems('popover', 'Popover', popoverDemos),
+  ...createDemoPreviewItems('popup', 'Popup', popupDemos),
 ] satisfies ComponentPreviewItem[];
 
 export const COMPONENT_PREVIEW_SECTIONS = [
@@ -310,8 +297,7 @@ export const COMPONENT_PREVIEW_SECTIONS = [
       {
         id: 'form',
         title: 'Form',
-        description:
-          '字段布局、label 归属、noStyle、依赖与条件渲染、校验反馈；输入控件自动绑定表单状态。',
+        description: '字段布局、label 归属、noStyle、依赖与条件渲染、校验反馈；输入控件自动绑定表单状态。',
         component: FormPreview,
       },
       {
@@ -323,8 +309,7 @@ export const COMPONENT_PREVIEW_SECTIONS = [
       {
         id: 'display-input',
         title: 'DisplayInput',
-        description:
-          '可点击展示输入风格内容，无光标，支持 inline 与 block 布局。',
+        description: '可点击展示输入风格内容，无光标，支持 inline 与 block 布局。',
         component: DisplayInputPreview,
       },
       {
@@ -396,8 +381,7 @@ export const COMPONENT_PREVIEW_SECTIONS = [
       {
         id: 'list-picker',
         title: 'ListPicker',
-        description:
-          '基于 List 行的搜索、分组与单选/多选，含 ListPicker.Cascader 级联子模式。',
+        description: '基于 List 行的搜索、分组与单选/多选，含 ListPicker.Cascader 级联子模式。',
         component: ListPickerPreview,
       },
       {
@@ -559,8 +543,7 @@ export const COMPONENT_PREVIEW_SECTIONS = [
       {
         id: 'floating-action-group',
         title: 'FloatingActionGroup',
-        description:
-          '悬浮按钮组：任意定位、更多展开、三种展开方向与 mountPoint。',
+        description: '悬浮按钮组：任意定位、更多展开、三种展开方向与 mountPoint。',
         component: FloatingActionGroupPreview,
       },
       {

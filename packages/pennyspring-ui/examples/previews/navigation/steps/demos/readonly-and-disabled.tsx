@@ -20,8 +20,6 @@ const STEP_ITEMS: StepsItem[] = [
   },
 ];
 
-export const stepsReadonlyAndDisabledDemoTitle = '只读 / 禁用';
-
 export function StepsReadonlyAndDisabledDemo() {
   return (
     <Column gap="large">

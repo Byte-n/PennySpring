@@ -14,8 +14,6 @@ const useStyles = createUseSheetStyle(token => ({
   },
 }));
 
-export const dividerHorizontalDemoTitle = 'Horizontal';
-
 export function DividerHorizontalDemo() {
   const styles = useStyles();
 

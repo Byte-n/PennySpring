@@ -69,8 +69,6 @@ function Slide({ item }: { item: SlideItem }) {
   );
 }
 
-export const carouselLayoutDemoTitle = '排布';
-
 export function CarouselLayoutDemo() {
   const styles = useStyles();
   const { token } = useTheme();

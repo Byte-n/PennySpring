@@ -10,8 +10,6 @@ const useStyles = createUseSheetStyle(token => ({
   },
 }));
 
-export const checkboxDarkDemoTitle = '深色对照';
-
 const DARK_CATEGORY_OPTIONS = [
   { label: '餐饮', value: 'food' },
   { label: '交通', value: 'traffic' },

@@ -1,8 +1,6 @@
 import React from 'react';
 import { Button, Column, Text, useMessage } from '@pennyspring/ui';
 
-export const messagePlacementDemoTitle = '定位（placement）';
-
 export function MessagePlacementDemo() {
   const message = useMessage();
 

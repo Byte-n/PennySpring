@@ -2,8 +2,6 @@ import React from 'react';
 import { Picker, Space } from '@pennyspring/ui';
 import { EXPENSE_TABS } from './cascader-options';
 
-export const pickerCascaderBasicDemoTitle = '基础用法';
-
 export function PickerCascaderBasicDemo() {
   return (
     <Space block direction="vertical" size="large">

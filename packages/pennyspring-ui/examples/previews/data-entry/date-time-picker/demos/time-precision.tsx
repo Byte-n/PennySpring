@@ -3,8 +3,6 @@ import { DateTimePicker, Space } from '@pennyspring/ui';
 
 const BASE_TIME = new Date(2026, 4, 9, 14, 30, 20);
 
-export const dateTimePickerTimePrecisionDemoTitle = 'Time precision';
-
 export function DateTimePickerTimePrecisionDemo() {
   return (
     <Space block direction="vertical" size="large">

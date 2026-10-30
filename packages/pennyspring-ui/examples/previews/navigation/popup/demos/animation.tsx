@@ -4,8 +4,6 @@ import type { PopupAnimation } from '@pennyspring/ui';
 
 const ANIMATIONS: PopupAnimation[] = ['fade', 'opacity'];
 
-export const popupAnimationDemoTitle = 'Animation';
-
 export function PopupAnimationDemo() {
   const [animation, setAnimation] = React.useState<PopupAnimation>('fade');
   const [open, setOpen] = React.useState(false);

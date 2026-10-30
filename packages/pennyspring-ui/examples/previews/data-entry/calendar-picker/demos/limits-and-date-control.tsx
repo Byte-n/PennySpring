@@ -19,9 +19,6 @@ const MIN_DATE = new Date(2026, 4, 5);
 const MAX_DATE = new Date(2026, 4, 20);
 const DEFAULT_DATE = new Date(2026, 4, 10);
 
-export const calendarPickerLimitsAndDateControlDemoTitle =
-  'Limits and date control';
-
 export function CalendarPickerLimitsAndDateControlDemo() {
   const styles = useStyles();
 

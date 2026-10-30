@@ -26,8 +26,6 @@ const INTERACTIVE_ITEMS: StepsItem[] = [
   },
 ];
 
-export const stepsStatesDemoTitle = '状态（status）';
-
 export function StepsStatesDemo() {
   const [value, setValue] = React.useState(0);
 

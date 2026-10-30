@@ -50,8 +50,6 @@ const MONTH_COLUMN: PickerColumn = [
   { labelText: 'December', value: 'december' },
 ];
 
-export const pickerBasicDemoTitle = 'Basic';
-
 interface TriggerContentProps {
   label: string;
   value: string;

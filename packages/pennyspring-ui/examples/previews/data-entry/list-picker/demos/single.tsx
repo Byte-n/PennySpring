@@ -3,8 +3,6 @@ import { Column, ListPicker, Text } from '@pennyspring/ui';
 import type { ListPickerValue } from '@pennyspring/ui';
 import { CATEGORY_OPTIONS } from './options';
 
-export const listPickerSingleDemoTitle = 'Single selection and search';
-
 export function ListPickerSingleDemo() {
   const [value, setValue] = useState<ListPickerValue>('food');
 

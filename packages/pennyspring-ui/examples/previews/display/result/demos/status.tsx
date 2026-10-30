@@ -34,8 +34,6 @@ const STATUS_SAMPLES: {
   },
 ];
 
-export const resultStatusDemoTitle = '状态（status）';
-
 export function ResultStatusDemo() {
   return (
     <Column gap="large">

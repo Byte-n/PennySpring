@@ -22,8 +22,6 @@ const accountColumns = [
 
 const TypedForm = Form.infer<PickerValues>();
 
-export const formPickerDemoTitle = '选择器与展示';
-
 export function FormPickerDemo() {
   const [form] = TypedForm.useForm();
 

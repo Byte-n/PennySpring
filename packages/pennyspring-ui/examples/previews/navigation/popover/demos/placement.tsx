@@ -9,8 +9,6 @@ const PLACEMENTS: readonly PopoverPlacement[] = [
   'right',
 ];
 
-export const popoverPlacementDemoTitle = '弹出方向';
-
 export function PopoverPlacementDemo() {
   return (
     <Space align="center" size="large" wrap>

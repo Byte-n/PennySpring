@@ -11,8 +11,6 @@ const PRESET_COLORS: TagColor[] = [
   'gold',
 ];
 
-export const tagPresetColorsDemoTitle = 'Preset colors';
-
 export function TagPresetColorsDemo() {
   return (
     <>

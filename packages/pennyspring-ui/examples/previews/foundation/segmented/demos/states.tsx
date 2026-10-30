@@ -1,8 +1,6 @@
 import React from 'react';
 import { Column, Segmented, Text } from '@pennyspring/ui';
 
-export const segmentedStatesDemoTitle = '状态';
-
 export function SegmentedStatesDemo() {
   return (
     <Column gap="normal">

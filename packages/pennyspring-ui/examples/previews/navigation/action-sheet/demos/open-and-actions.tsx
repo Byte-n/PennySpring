@@ -9,8 +9,6 @@ const ACTIONS: ActionSheetAction[] = [
   { text: '删除', description: '不可恢复', danger: true },
 ];
 
-export const actionSheetOpenAndActionsDemoTitle = 'Open and actions';
-
 export function ActionSheetOpenAndActionsDemo() {
   const [open, setOpen] = React.useState(false);
   const [lastEvent, setLastEvent] = React.useState('No action yet');

@@ -33,8 +33,6 @@ const useStyles = createUseSheetStyle(token => ({
   },
 }));
 
-export const layoutGeometryReaderDemoTitle = 'GeometryReader';
-
 export function LayoutGeometryReaderDemo() {
   const styles = useStyles();
 

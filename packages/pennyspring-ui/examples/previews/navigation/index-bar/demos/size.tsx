@@ -80,8 +80,6 @@ function DemoPanel({ index }: { index: string }) {
   );
 }
 
-export const indexBarSizeDemoTitle = '尺寸（size）';
-
 export function IndexBarSizeDemo() {
   const styles = useStyles();
 
