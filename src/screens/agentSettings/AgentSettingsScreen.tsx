@@ -44,24 +44,6 @@ const useStyles = createUseSheetStyle(token => ({
     padding: token.padding,
     paddingBottom: token.paddingXL,
   },
-  intro: {
-    color: token.colorTextTertiary,
-  },
-  cardBody: {
-    gap: token.marginXS,
-  },
-  cardActions: {
-    alignItems: 'center',
-    flexWrap: 'wrap',
-    gap: token.marginSM,
-  },
-  section: {
-    gap: token.marginSM,
-  },
-  usageRow: {
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
   dangerAction: {
     alignSelf: 'flex-start',
   },
@@ -142,8 +124,8 @@ export function AgentSettingsScreen() {
   return (
     <Column style={styles.container}>
       <ScrollView contentContainerStyle={styles.content}>
-        <Column style={styles.section}>
-          <Text color="secondary" size="xs" style={styles.intro}>
+        <Column gap="normal">
+          <Text color="tertiary" size="xs" >
             API Key 只保存在系统钥匙串，不会写入账本数据库。新增提供商后会自动设为当前提供商。
           </Text>
         </Column>
@@ -158,7 +140,7 @@ export function AgentSettingsScreen() {
               <Card
                 key={provider.id}
                 footer={
-                  <Row style={styles.cardActions}>
+                  <Row gap="normal" align="center" wrap>
                     <Button
                       onPress={() => openEdit(provider)}
                       size="small"
@@ -195,7 +177,7 @@ export function AgentSettingsScreen() {
                 titleText={getProviderDisplayName(provider)}
                 variant="plain"
               >
-                <Column style={styles.cardBody}>
+                <Column gap="small">
                   {descriptor && descriptor.name !== getProviderDisplayName(provider) ? (
                     <Text color="secondary" size="xs">
                       {descriptor.name}
@@ -214,8 +196,8 @@ export function AgentSettingsScreen() {
 
         <Divider />
 
-        <Column style={styles.section}>
-          <Row style={styles.usageRow}>
+        <Column gap="normal">
+          <Row align="center" justify="between">
             <Text color="secondary" size="xs">
               累计 token
             </Text>

@@ -1,7 +1,7 @@
 import React, { Fragment, useMemo } from 'react';
 import { Linking } from 'react-native';
 import { Column, Row, Text } from '@pennyspring/ui';
-import { createUseSheetStyle } from '@pennyspring/theme';
+import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
 
 import { parseMarkdown } from './markdown/parser';
 import type { MarkdownBlock, MarkdownInline } from './markdown/types';
@@ -11,9 +11,6 @@ const BULLET_TEXT = '• ';
 const LINK_SCHEMES = ['http://', 'https://'];
 
 const useStyles = createUseSheetStyle(token => ({
-  root: {
-    gap: token.marginXS,
-  },
   codeBlock: {
     backgroundColor: token.colorFillTertiary,
     borderRadius: token.borderRadiusSM,
@@ -34,19 +31,10 @@ const useStyles = createUseSheetStyle(token => ({
     borderLeftWidth: token.lineWidthBold,
     paddingStart: token.paddingXS,
   },
-  quoteText: {
-    color: token.colorTextSecondary,
-  },
   rule: {
     backgroundColor: token.colorBorderSecondary,
     height: token.lineWidthBold,
     width: '100%',
-  },
-  table: {
-    gap: token.marginXXS,
-  },
-  tableRow: {
-    gap: token.marginXS,
   },
   tableCell: {
     flex: 1,
@@ -123,6 +111,7 @@ export function MarkdownText({
   baseSize = 'sm',
   selectable = false,
 }: MarkdownTextProps): React.ReactElement | null {
+  const { token: themeToken } = useTheme();
   const styles = useStyles();
   const blocks = useMemo(() => parseMarkdown(content), [content]);
 
@@ -239,7 +228,7 @@ export function MarkdownText({
       case 'blockquote':
         return (
           <Column key={key} style={styles.quote}>
-            <Text key={`${key}-text`} selectable={selectable} size={baseSize} style={styles.quoteText}>
+            <Text key={`${key}-text`} selectable={selectable} size={baseSize} color="secondary">
               {flattenBlocks(block.children)}
             </Text>
           </Column>
@@ -247,9 +236,9 @@ export function MarkdownText({
 
       case 'table':
         return (
-          <Column key={key} style={styles.table} testID="markdown-table">
+          <Column key={key} testID="markdown-table" gap={themeToken.marginXXS}>
             {block.rows.map((cells, rowIndex) => (
-              <Row key={`${key}-row-${rowIndex}`} style={styles.tableRow}>
+              <Row key={`${key}-row-${rowIndex}`} gap="small">
                 {cells.map((cell, cellIndex) => (
                   <Text
                     key={`${key}-cell-${cellIndex}`}
@@ -275,7 +264,7 @@ export function MarkdownText({
   };
 
   return (
-    <Column style={styles.root}>
+    <Column gap="small">
       {renderBlocks(blocks, 'block')}
     </Column>
   );

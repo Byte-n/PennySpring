@@ -1,6 +1,6 @@
 import React from 'react';
 import { Image, ScrollView, View } from 'react-native';
-import type { ImageStyle, StyleProp, TextStyle } from 'react-native';
+import type { ImageStyle, StyleProp } from 'react-native';
 import {
   Column,
   Empty,
@@ -10,7 +10,7 @@ import {
   Text,
 } from '@pennyspring/ui';
 import { BOOK_TYPE, type BookRow } from '@pennyspring/api';
-import { createUseSheetStyle } from '@pennyspring/theme';
+import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
 import { NetworkIcon } from 'phosphor-react-native';
 import '../../utils/prototype';
 import type { BookEntry, CurrentBookRef } from '../../stores/bookStore';
@@ -46,24 +46,11 @@ const useStyles = createUseSheetStyle(token => ({
     paddingBottom: token.paddingXL,
   },
   metaLine: {
-    alignItems: 'center',
-    gap: token.marginXXS,
     paddingHorizontal: token.paddingXXS,
-  },
-  section: {
-    gap: token.marginXXS,
   },
   sectionHeader: {
-    alignItems: 'baseline',
-    gap: token.marginXS,
     paddingHorizontal: token.paddingXXS,
     paddingVertical: token.paddingXS,
-  },
-  sectionTitle: {
-    color: token.colorTextSecondary,
-  },
-  sectionCount: {
-    color: token.colorTextTertiary,
   },
   spine: {
     alignItems: 'center',
@@ -78,12 +65,6 @@ const useStyles = createUseSheetStyle(token => ({
     height: '100%',
     width: '100%',
   },
-  spineInitial: {
-    color: token.colorPrimaryText,
-    fontSize: token.fontSizeLG,
-    fontWeight: String(token.fontWeightSemiBold) as TextStyle['fontWeight'],
-    lineHeight: token.lineHeightLG,
-  },
   spineNetwork: {
     alignItems: 'center',
     backgroundColor: token.colorFillTertiary,
@@ -91,11 +72,6 @@ const useStyles = createUseSheetStyle(token => ({
     height: '100%',
     justifyContent: 'center',
     width: '100%',
-  },
-  spineNetworkText: {
-    color: token.colorTextTertiary,
-    fontSize: token.fontSizeXS,
-    lineHeight: token.lineHeightXS,
   },
   currentTag: {
     alignItems: 'center',
@@ -106,21 +82,8 @@ const useStyles = createUseSheetStyle(token => ({
     height: token.controlHeightXS,
     paddingHorizontal: token.paddingXS,
   },
-  currentTagText: {
-    color: token.colorPrimaryText,
-    fontSize: token.fontSizeXS,
-    fontWeight: String(token.fontWeightSemiBold) as TextStyle['fontWeight'],
-    lineHeight: token.lineHeightXS,
-  },
   listEnd: {
-    alignItems: 'center',
     paddingTop: token.paddingSM,
-  },
-  listEndText: {
-    color: token.colorTextTertiary,
-    fontSize: token.fontSizeXS,
-    lineHeight: token.lineHeightXS,
-    textAlign: 'center',
   },
 }));
 
@@ -152,7 +115,7 @@ function BookSpine({ item }: { item: BookListItem }) {
       <View style={styles.spine}>
         <View style={styles.spineNetwork}>
           <Icon color="secondary" icon={NetworkIcon} size="normal" />
-          <Text style={styles.spineNetworkText}>网络</Text>
+          <Text color="tertiary" size="xs">网络</Text>
         </View>
       </View>
     );
@@ -172,7 +135,7 @@ function BookSpine({ item }: { item: BookListItem }) {
 
   return (
     <View style={styles.spine}>
-      <Text style={styles.spineInitial}>{getFirstCharacter(entry.name)}</Text>
+      <Text color="primaryText" weight="semibold" size="lg">{getFirstCharacter(entry.name)}</Text>
     </View>
   );
 }
@@ -189,6 +152,7 @@ export function BookList({
   onNetworkRetry,
   onBookMenu,
 }: BookListProps) {
+  const { token } = useTheme();
   const styles = useStyles();
 
   if (loading && items.length === 0) {
@@ -292,7 +256,7 @@ export function BookList({
           ) : isCurrentBook ? (
             <View style={styles.currentTag}>
               <Icon color="primaryText" icon="check" size="small" />
-              <Text style={styles.currentTagText}>当前</Text>
+              <Text color="primaryText" weight="semibold" size="xs">当前</Text>
             </View>
           ) : (
             <Icon color="tertiary" icon="caret-right" size="normal" />
@@ -310,7 +274,7 @@ export function BookList({
 
   return (
     <ScrollView contentContainerStyle={styles.content}>
-      <Row style={styles.metaLine}>
+      <Row style={styles.metaLine} gap={token.marginXXS} align="center">
         <Text color="tertiary" size="xs">
           共
         </Text>
@@ -332,12 +296,12 @@ export function BookList({
       </Row>
 
       {localItems.length > 0 ? (
-        <Column style={styles.section}>
-          <Row style={styles.sectionHeader}>
-            <Text size="xs" style={styles.sectionTitle} weight="semibold">
+        <Column gap={token.marginXXS}>
+          <Row style={styles.sectionHeader} gap="small" align="baseline">
+            <Text size="xs" weight="semibold" color="secondary">
               本地账本
             </Text>
-            <Text size="xs" style={styles.sectionCount}>
+            <Text size="xs" color="tertiary">
               {localItems.length}
             </Text>
           </Row>
@@ -346,12 +310,12 @@ export function BookList({
       ) : null}
 
       {networkItems.length > 0 ? (
-        <Column style={styles.section}>
-          <Row style={styles.sectionHeader}>
-            <Text size="xs" style={styles.sectionTitle} weight="semibold">
+        <Column gap={token.marginXXS}>
+          <Row style={styles.sectionHeader} gap="small" align="baseline">
+            <Text size="xs" weight="semibold" color="secondary">
               网络账本
             </Text>
-            <Text size="xs" style={styles.sectionCount}>
+            <Text size="xs" color="tertiary">
               {networkItems.length}
             </Text>
           </Row>
@@ -359,8 +323,8 @@ export function BookList({
         </Column>
       ) : null}
 
-      <Column style={styles.listEnd}>
-        <Text style={styles.listEndText}>
+      <Column style={styles.listEnd} align="center">
+        <Text color="tertiary" size="xs" textAlign="center">
           {mode === 'manage'
             ? '轻点整行切换账本 · 行尾「⋯」可编辑或删除'
             : '轻点整行切换账本'}

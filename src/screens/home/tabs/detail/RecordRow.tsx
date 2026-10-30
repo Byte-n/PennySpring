@@ -22,8 +22,6 @@ const useStyles = createUseSheetStyle((token, { isIncome, isTransfer }: { isInco
     height: token.controlHeightSM + token.paddingXXS,
     borderRadius: token.borderRadius,
     backgroundColor: isIncome ? token.colorSuccessBg : isTransfer ? token.colorPrimaryBg : token.colorFillTertiary,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
 }));
 

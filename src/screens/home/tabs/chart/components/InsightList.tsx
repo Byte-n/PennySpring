@@ -20,9 +20,6 @@ const useStyles = createUseSheetStyle(token => ({
   list: {
     gap: token.marginSM,
   },
-  row: {
-    gap: token.marginXS,
-  },
   text: {
     flex: 1,
   },
@@ -34,8 +31,6 @@ const useChipStyles = createUseSheetStyle(
       width: token.sizeLG,
       height: token.sizeLG,
       borderRadius: token.borderRadiusXS,
-      alignItems: 'center',
-      justifyContent: 'center',
       backgroundColor:
         kind === 'pace'
           ? token.colorWarningBg
@@ -62,8 +57,8 @@ function InsightRow({ insight, month }: InsightRowProps) {
         : 'primary';
 
   return (
-    <Row align="start" gap="normal" style={styles.row}>
-      <Column style={chipStyles.chip}>
+    <Row align="start" gap="small" >
+      <Column style={chipStyles.chip} align="center" justify="center">
         <Text size="xs" weight="strong" color={chipColor}>
           {CHIP_GLYPHS[insight.kind]}
         </Text>

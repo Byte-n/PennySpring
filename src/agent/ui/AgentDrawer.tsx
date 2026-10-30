@@ -23,7 +23,7 @@ import {
   useToast,
   type ActionSheetAction,
 } from '@pennyspring/ui';
-import { createUseSheetStyle } from '@pennyspring/theme';
+import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
 import {
   CheckCircleIcon,
   GearSixIcon,
@@ -65,10 +65,7 @@ const useStyles = createUseSheetStyle(token => ({
     flex: 1,
   },
   notice: {
-    alignItems: 'center',
     backgroundColor: token.colorWarningBg,
-    flexDirection: 'row',
-    gap: token.marginXS,
     paddingHorizontal: token.padding,
     paddingVertical: token.paddingXS,
   },
@@ -87,24 +84,14 @@ const useStyles = createUseSheetStyle(token => ({
     paddingBottom: token.paddingSM,
   },
   empty: {
-    gap: token.marginSM,
     paddingTop: token.paddingXS,
   },
   suggestion: {
     alignSelf: 'flex-start',
   },
-  userRow: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-  },
-  assistantRow: {
-    flexDirection: 'row',
-    justifyContent: 'flex-start',
-  },
   userBubble: {
     backgroundColor: token.colorPrimary,
     borderRadius: token.borderRadiusLG,
-    gap: token.marginXXS,
     maxWidth: '88%',
     paddingHorizontal: token.paddingSM,
     paddingVertical: token.paddingXS,
@@ -112,21 +99,14 @@ const useStyles = createUseSheetStyle(token => ({
   assistantBubble: {
     backgroundColor: token.colorFillQuaternary,
     borderRadius: token.borderRadiusLG,
-    gap: token.marginXXS,
     maxWidth: '100%',
     paddingHorizontal: token.paddingSM,
     paddingVertical: token.paddingXS,
   },
   toolStatus: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    gap: token.marginXXS,
     paddingVertical: token.paddingXXS,
   },
   thinking: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    gap: token.marginXS,
     paddingVertical: token.paddingXXS,
   },
   composer: {
@@ -135,11 +115,6 @@ const useStyles = createUseSheetStyle(token => ({
     paddingBottom: token.padding,
     paddingHorizontal: token.padding,
     paddingTop: token.paddingSM,
-  },
-  composerRow: {
-    alignItems: 'flex-end',
-    flexDirection: 'row',
-    gap: token.marginXS,
   },
   inputWrap: {
     flex: 1,
@@ -162,11 +137,12 @@ function ToolNote({
   isError,
   toolName,
 }: ToolCallMessagePartProps): React.ReactElement {
+  const { token } = useTheme();
   const styles = useStyles();
 
   if (isError || status.type === 'incomplete') {
     return (
-      <Row style={styles.toolStatus}>
+      <Row style={styles.toolStatus} gap={token.marginXXS} align="center">
         <Icon color="errorText" icon={WarningCircleIcon} size="small" />
         <Text color="errorText" size="xs">
           {toolErrorText(toolName)}
@@ -177,7 +153,7 @@ function ToolNote({
 
   if (status.type === 'running') {
     return (
-      <Row style={styles.toolStatus}>
+      <Row style={styles.toolStatus} gap={token.marginXXS} align="center">
         <Loading size="small" />
         <Text color="secondary" size="xs">
           {toolStatusText(toolName, false)}
@@ -187,7 +163,7 @@ function ToolNote({
   }
 
   return (
-    <Row style={styles.toolStatus}>
+    <Row style={styles.toolStatus} gap={token.marginXXS} align="center">
       <Icon color="tertiary" icon={CheckCircleIcon} size="small" />
       <Text color="tertiary" size="xs">
         {toolStatusText(toolName, true)}
@@ -210,6 +186,7 @@ function AgentMessageRow({
 }: {
   role: MessageState['role'];
 }): React.ReactElement | null {
+  const { token } = useTheme();
   const styles = useStyles();
   const hasVisiblePart = useAuiState(state =>
     state.message.parts.some(
@@ -225,8 +202,8 @@ function AgentMessageRow({
 
   if (role === 'user') {
     return (
-      <Row style={styles.userRow}>
-        <Column style={styles.userBubble}>
+      <Row justify="end">
+        <Column style={styles.userBubble} gap={token.marginXXS}>
           <MessagePrimitive.Content
             renderText={({ part }) => (
               <Text color="lightSolid" size="sm">
@@ -244,8 +221,8 @@ function AgentMessageRow({
   }
 
   return (
-    <Row style={styles.assistantRow}>
-      <Column style={styles.assistantBubble}>
+    <Row justify="start">
+      <Column style={styles.assistantBubble} gap={token.marginXXS}>
         <MessagePrimitive.Parts components={ASSISTANT_COMPONENTS} />
       </Column>
     </Row>
@@ -275,7 +252,7 @@ function ThinkingFooter(): React.ReactElement | null {
   }
 
   return (
-    <Row style={styles.thinking}>
+    <Row style={styles.thinking} gap="small" align="center">
       <Loading size="small" />
       <Text color="secondary" size="xs">
         {THINKING_TEXT}
@@ -294,7 +271,7 @@ function EmptyConversation({
   const styles = useStyles();
 
   return (
-    <Column style={styles.empty}>
+    <Column style={styles.empty} gap="normal">
       <Empty descriptionText="记账遇到问题，可以直接问我。" size="normal" />
       {SUGGESTIONS.map((text, index) => (
         <Button
@@ -424,7 +401,7 @@ function AgentComposer({
 
   return (
     <Column style={styles.composer}>
-      <Row style={styles.composerRow}>
+      <Row gap="small" align="end">
         {provider ? (
           <Pressable
             onPress={() => setModelSheetOpen(true)}
@@ -548,7 +525,7 @@ export function AgentDrawer({
     >
       <Column style={styles.container}>
         {configured ? null : (
-          <Row style={styles.notice}>
+          <Row style={styles.notice} gap="small" align="center">
             <Text color="warningText" size="xs">
               尚未配置助手，请先添加一个 AI 提供商。
             </Text>

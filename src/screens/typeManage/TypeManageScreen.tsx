@@ -2,6 +2,7 @@ import React, {
   useCallback,
   useLayoutEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 import { ScrollView } from 'react-native';
@@ -11,6 +12,7 @@ import {
   Button,
   Column,
   Empty,
+  Form,
   Input,
   ListPicker,
   Row,
@@ -25,7 +27,7 @@ import {
   type RecordTypeCategoryValue,
   type TypeRow,
 } from '@pennyspring/api';
-import { createUseSheetStyle } from '@pennyspring/theme';
+import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
 import { CategoryGrid } from '../../component/CategoryGrid';
 import { FormIconGrid, TYPE_FORM_ICONS } from '../../component/FormIconGrid';
 import { PhosphorIconPicker } from '../../component/PhosphorIconPicker';
@@ -60,6 +62,27 @@ function getTypeDeleteErrorMessage(error: unknown): string {
   return hint?.message ?? (message || '删除失败');
 }
 
+interface TypeFormValues {
+  name: string;
+  icon: string;
+  parentId?: number;
+}
+
+const TypedForm = Form.infer<TypeFormValues>();
+
+const EMPTY_TYPE_FORM: TypeFormValues = {
+  name: '',
+  icon: DEFAULT_ICON,
+  parentId: undefined,
+};
+
+function buildTypeIconValues(icon: string | undefined): readonly string[] {
+  if (icon && !(TYPE_FORM_ICONS as readonly string[]).includes(icon)) {
+    return [icon, ...TYPE_FORM_ICONS];
+  }
+  return TYPE_FORM_ICONS;
+}
+
 const useStyles = createUseSheetStyle(token => ({
   container: {
     backgroundColor: token.colorBgLayout,
@@ -73,22 +96,14 @@ const useStyles = createUseSheetStyle(token => ({
     flex: 1,
   },
   content: {
-    gap: token.marginSM,
     padding: token.padding,
     paddingBottom: token.paddingXL,
   },
   metaLine: {
-    alignItems: 'center',
-    gap: token.marginXXS,
     paddingHorizontal: token.paddingXXS,
   },
   listEnd: {
-    color: token.colorTextTertiary,
     lineHeight: token.lineHeight,
-    textAlign: 'center',
-  },
-  formBody: {
-    gap: token.marginMD,
   },
   levelWarn: {
     backgroundColor: token.colorWarningBg,
@@ -96,9 +111,6 @@ const useStyles = createUseSheetStyle(token => ({
     marginTop: token.marginXS,
     paddingHorizontal: token.paddingSM,
     paddingVertical: token.paddingXS,
-  },
-  iconMore: {
-    alignItems: 'flex-start',
   },
   dangerZone: {
     borderTopColor: token.colorSplit,
@@ -108,6 +120,7 @@ const useStyles = createUseSheetStyle(token => ({
 }));
 
 export function TypeManageScreen() {
+  const { token } = useTheme();
   const styles = useStyles();
   const toast = useToast();
   const navigation = useNavigation();
@@ -146,12 +159,11 @@ export function TypeManageScreen() {
     [category],
   );
 
+  const [form] = TypedForm.useForm();
+  const submitSucceededRef = useRef(false);
   const [formOpen, setFormOpen] = useState(false);
   const [editingType, setEditingType] = useState<TypeRow | null>(null);
   const [level, setLevel] = useState<TypeLevel>('parent');
-  const [parentId, setParentId] = useState<number | undefined>();
-  const [name, setName] = useState('');
-  const [icon, setIcon] = useState(DEFAULT_ICON);
   const [iconPickerOpen, setIconPickerOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
@@ -179,42 +191,36 @@ export function TypeManageScreen() {
         ? '还没有其它一级类型可以作为上级。'
         : '';
 
-  const formIconValues = useMemo(() => {
-    if (
-      icon &&
-      !(TYPE_FORM_ICONS as readonly string[]).includes(icon)
-    ) {
-      return [icon, ...TYPE_FORM_ICONS];
-    }
-    return TYPE_FORM_ICONS;
-  }, [icon]);
-
   const openCreateParent = useCallback(() => {
     setEditingType(null);
     setLevel('parent');
-    setParentId(undefined);
-    setName('');
-    setIcon(DEFAULT_ICON);
+    form.reset(EMPTY_TYPE_FORM);
     setFormOpen(true);
-  }, []);
+  }, [form]);
 
-  const openCreateChild = useCallback((parent: TypeRow) => {
-    setEditingType(null);
-    setLevel('child');
-    setParentId(parent.id);
-    setName('');
-    setIcon(DEFAULT_ICON);
-    setFormOpen(true);
-  }, []);
+  const openCreateChild = useCallback(
+    (parent: TypeRow) => {
+      setEditingType(null);
+      setLevel('child');
+      form.reset({ ...EMPTY_TYPE_FORM, parentId: parent.id });
+      setFormOpen(true);
+    },
+    [form],
+  );
 
-  const openEditType = useCallback((type: TypeRow) => {
-    setEditingType(type);
-    setLevel(type.parentId === 0 ? 'parent' : 'child');
-    setParentId(type.parentId > 0 ? type.parentId : undefined);
-    setName(type.name);
-    setIcon(type.icon || DEFAULT_ICON);
-    setFormOpen(true);
-  }, []);
+  const openEditType = useCallback(
+    (type: TypeRow) => {
+      setEditingType(type);
+      setLevel(type.parentId === 0 ? 'parent' : 'child');
+      form.reset({
+        name: type.name,
+        icon: type.icon || DEFAULT_ICON,
+        parentId: type.parentId > 0 ? type.parentId : undefined,
+      });
+      setFormOpen(true);
+    },
+    [form],
+  );
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -229,90 +235,89 @@ export function TypeManageScreen() {
       }
       const nextLevel = next as TypeLevel;
       setLevel(nextLevel);
+      const currentParentId = form.getFieldValue('parentId');
       if (
         nextLevel === 'child' &&
-        !availableParents.some(parent => parent.id === parentId)
+        !availableParents.some(parent => parent.id === currentParentId)
       ) {
-        setParentId(availableParents[0]?.id);
+        form.setFieldValue('parentId', availableParents[0]?.id);
       }
     },
-    [availableParents, childLevelDisabled, parentId],
+    [availableParents, childLevelDisabled, form],
   );
 
-  const handleSave = useCallback(async (): Promise<boolean> => {
-    if (!currentBook) {
-      toast.show({ messageText: '未找到当前账本' });
-      return false;
-    }
-    if (!name.trim()) {
-      toast.show({ messageText: '请输入类型名称' });
-      return false;
-    }
-    const resolvedParentId = level === 'child' ? parentId : 0;
-    if (level === 'child' && !resolvedParentId) {
-      toast.show({ messageText: '请选择上级类型' });
-      return false;
-    }
-    setSubmitting(true);
-    try {
-      const convertingChildToParent =
-        editingType !== null &&
-        editingType.parentId !== 0 &&
-        level === 'parent';
-      const nextSort = convertingChildToParent
-        ? Math.max(0, ...parents.map(parent => parent.sort)) + 1
-        : editingType?.sort ?? 1;
-      const payload = {
-        booksId: currentBook.id,
-        icon,
-        isSystem: editingType?.isSystem ?? SYSTEM_STATUS.custom,
-        name: name.trim(),
-        parentId: resolvedParentId,
-        sort: nextSort,
-        specialBehavior:
-          editingType?.specialBehavior ?? RECORD_TYPE_SPECIAL_BEHAVIOR.none,
-        typeCategory: category,
-      };
-      if (editingType) {
-        await globalApi.type.update({ ...payload, id: editingType.id });
-        if (
-          editingType.parentId === 0 &&
-          level === 'child' &&
-          expandedId === editingType.id
-        ) {
-          setExpandedId(undefined);
-        }
-      } else {
-        await globalApi.type.create(payload);
+  const handleFinish = useCallback(
+    async (values: TypeFormValues) => {
+      submitSucceededRef.current = false;
+      if (!currentBook) {
+        toast.show({ messageText: '未找到当前账本' });
+        return;
       }
-      refresh();
-      return true;
-    } catch (error: unknown) {
-      toast.show({
-        messageText:
-          error instanceof Error && error.message
-            ? error.message
-            : '保存失败',
-      });
-      return false;
-    } finally {
-      setSubmitting(false);
-    }
-  }, [
-    category,
-    currentBook,
-    editingType,
-    expandedId,
-    globalApi.type,
-    icon,
-    level,
-    name,
-    parentId,
-    parents,
-    refresh,
-    setExpandedId,
-    toast,
-  ]);
+      const resolvedParentId = level === 'child' ? values.parentId : 0;
+      setSubmitting(true);
+      try {
+        const convertingChildToParent =
+          editingType !== null &&
+          editingType.parentId !== 0 &&
+          level === 'parent';
+        const nextSort = convertingChildToParent
+          ? Math.max(0, ...parents.map(parent => parent.sort)) + 1
+          : editingType?.sort ?? 1;
+        const payload = {
+          booksId: currentBook.id,
+          icon: values.icon,
+          isSystem: editingType?.isSystem ?? SYSTEM_STATUS.custom,
+          name: values.name.trim(),
+          parentId: resolvedParentId ?? 0,
+          sort: nextSort,
+          specialBehavior:
+            editingType?.specialBehavior ?? RECORD_TYPE_SPECIAL_BEHAVIOR.none,
+          typeCategory: category,
+        };
+        if (editingType) {
+          await globalApi.type.update({ ...payload, id: editingType.id });
+          if (
+            editingType.parentId === 0 &&
+            level === 'child' &&
+            expandedId === editingType.id
+          ) {
+            setExpandedId(undefined);
+          }
+        } else {
+          await globalApi.type.create(payload);
+        }
+        refresh();
+        submitSucceededRef.current = true;
+      } catch (error: unknown) {
+        toast.show({
+          messageText:
+            error instanceof Error && error.message
+              ? error.message
+              : '保存失败',
+        });
+      } finally {
+        setSubmitting(false);
+      }
+    },
+    [
+      category,
+      currentBook,
+      editingType,
+      expandedId,
+      globalApi.type,
+      level,
+      parents,
+      refresh,
+      setExpandedId,
+      toast,
+    ],
+  );
+
+  const handlePanelOk = useCallback(async () => {
+    submitSucceededRef.current = false;
+    await form.handleSubmit();
+    return submitSucceededRef.current;
+  }, [form]);
 
   const handleDelete = useCallback(async () => {
     const target = pendingDeleteType;
@@ -398,15 +403,7 @@ export function TypeManageScreen() {
     : level === 'child'
       ? '新增二级类型'
       : '新增一级类型';
-  const nameLabel =
-    level === 'child'
-      ? `二级类型名称${parentId ? ` · ${parents.find(parent => parent.id === parentId)?.name ?? ''}` : ''}`
-      : '类型名称';
   const okText = editingType ? '保存' : '新增';
-  const okDisabled =
-    submitting ||
-    !name.trim() ||
-    (level === 'child' && (!parentId || childLevelDisabled));
   const deleteChildCount = pendingDeleteType
     ? allTypes.filter(type => type.parentId === pendingDeleteType.id).length
     : 0;
@@ -426,8 +423,8 @@ export function TypeManageScreen() {
       </Row>
 
       <ScrollView style={styles.contentScroll}>
-        <Column style={styles.content}>
-          <Row style={styles.metaLine}>
+        <Column style={styles.content} gap="normal">
+          <Row style={styles.metaLine} gap={token.marginXXS} align="center">
             <Text color="secondary" size="xs" weight="semibold">
               {parents.length}
             </Text>
@@ -469,7 +466,7 @@ export function TypeManageScreen() {
             />
           )}
 
-          <Text size="xs" style={styles.listEnd}>
+          <Text size="xs" style={styles.listEnd} color="tertiary" textAlign="center">
             轻点一级类型展开二级 · 展开区「⋯」编辑或删除{'\n'}
             轻点二级类型编辑，删除在浮层底部
           </Text>
@@ -477,110 +474,125 @@ export function TypeManageScreen() {
       </ScrollView>
 
       <FormFloatingPanel
-        onOk={handleSave}
+        onOk={handlePanelOk}
         onOpenChange={open => {
           if (!open) {
             setFormOpen(false);
           }
         }}
         open={formOpen}
-        panelBodyStyle={styles.formBody}
-        submitDisabled={okDisabled}
         submitLoading={submitting}
         submitText={okText}
         titleText={formTitle}
       >
-        <Input
-          labelText={nameLabel}
-          onChange={setName}
-          placeholder="例如：餐饮"
-          value={name}
-        />
+        <TypedForm form={form} labelMode="child" onFinish={handleFinish}>
+          <TypedForm.Subscribe selector={state => state.values.parentId}>
+            {parentId => (
+              <TypedForm.Item
+                name="name"
+                labelText={
+                  level === 'child'
+                    ? `二级类型名称${parentId ? ` · ${parents.find(parent => parent.id === parentId)?.name ?? ''}` : ''}`
+                    : '类型名称'
+                }
+                required
+                requiredMessage="请输入类型名称"
+              >
+                <Input placeholder="例如：餐饮" />
+              </TypedForm.Item>
+            )}
+          </TypedForm.Subscribe>
 
-        <Column>
-          <Text color="tertiary" size="xs">
-            层级
-          </Text>
-          <Segmented
-            block
-            onChange={handleLevelChange}
-            options={[
-              { label: '一级类型', value: 'parent' },
-              {
-                disabled: childLevelDisabled,
-                label: '二级类型',
-                value: 'child',
-              },
-            ]}
-            value={level}
-          />
-          {childLevelReason ? (
-            <Column style={styles.levelWarn}>
-              <Text color="warningText" size="xs">
-                {childLevelReason}
+          <Column>
+            <Text color="tertiary" size="xs">
+              层级
+            </Text>
+            <Segmented
+              block
+              onChange={handleLevelChange}
+              options={[
+                { label: '一级类型', value: 'parent' },
+                {
+                  disabled: childLevelDisabled,
+                  label: '二级类型',
+                  value: 'child',
+                },
+              ]}
+              value={level}
+            />
+            {childLevelReason ? (
+              <Column style={styles.levelWarn}>
+                <Text color="warningText" size="xs">
+                  {childLevelReason}
+                </Text>
+              </Column>
+            ) : null}
+          </Column>
+
+          {level === 'child' ? (
+            <TypedForm.Item
+              name="parentId"
+              labelText="上级类型"
+              rules={value => (value === undefined ? '请选择上级类型' : undefined)}
+            >
+              <ListPicker
+                options={availableParents.map(parent => ({
+                  labelText: parent.name,
+                  value: parent.id,
+                }))}
+              />
+            </TypedForm.Item>
+          ) : null}
+
+          <TypedForm.Item name="icon" noStyle>
+            <Column>
+              <Text color="tertiary" size="xs">
+                图标
               </Text>
+              <TypedForm.Subscribe selector={state => state.values.icon}>
+                {icon => <FormIconGrid values={buildTypeIconValues(icon)} />}
+              </TypedForm.Subscribe>
+              <Column align="start">
+                <Button
+                  onPress={() => setIconPickerOpen(true)}
+                  size="small"
+                  type="link"
+                >
+                  更多图标
+                </Button>
+              </Column>
+            </Column>
+          </TypedForm.Item>
+
+          <Text color="tertiary" size="xs">
+            类型可在两级之间转换；带二级类型的一级类型需先处理子类型
+          </Text>
+
+          {canDeleteFromForm ? (
+            <Column style={styles.dangerZone}>
+              <Button
+                block
+                onPress={() => setPendingDeleteType(editingType)}
+                type="danger"
+                variant="filled"
+              >
+                删除这个类型
+              </Button>
             </Column>
           ) : null}
-        </Column>
-
-        {level === 'child' ? (
-          <ListPicker
-            labelText="上级类型"
-            onChange={value =>
-              setParentId(typeof value === 'number' ? value : undefined)
-            }
-            options={availableParents.map(parent => ({
-              labelText: parent.name,
-              value: parent.id,
-            }))}
-            value={parentId}
-          />
-        ) : null}
-
-        <Column>
-          <Text color="tertiary" size="xs">
-            图标
-          </Text>
-          <FormIconGrid
-            onChange={setIcon}
-            value={icon}
-            values={formIconValues}
-          />
-          <Column style={styles.iconMore}>
-            <Button
-              onPress={() => setIconPickerOpen(true)}
-              size="small"
-              type="link"
-            >
-              更多图标
-            </Button>
-          </Column>
-        </Column>
-
-        <Text color="tertiary" size="xs">
-          类型可在两级之间转换；带二级类型的一级类型需先处理子类型
-        </Text>
-
-        {canDeleteFromForm ? (
-          <Column style={styles.dangerZone}>
-            <Button
-              block
-              onPress={() => setPendingDeleteType(editingType)}
-              type="danger"
-              variant="filled"
-            >
-              删除这个类型
-            </Button>
-          </Column>
-        ) : null}
+        </TypedForm>
       </FormFloatingPanel>
 
-      <PhosphorIconPicker
-        onChange={setIcon}
-        onOpenChange={setIconPickerOpen}
-        open={iconPickerOpen}
-        value={icon}
-      />
+      <form.Subscribe selector={state => state.values.icon}>
+        {icon => (
+          <PhosphorIconPicker
+            onChange={value => form.setFieldValue('icon', value)}
+            onOpenChange={setIconPickerOpen}
+            open={iconPickerOpen}
+            value={icon}
+          />
+        )}
+      </form.Subscribe>
 
       <ActionSheet
         actions={menuActions}

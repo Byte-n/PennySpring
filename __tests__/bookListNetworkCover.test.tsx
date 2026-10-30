@@ -4,6 +4,7 @@ import TestRenderer, { act } from 'react-test-renderer';
 
 jest.mock('@pennyspring/theme', () => ({
   createUseSheetStyle: () => () => ({}),
+  useTheme: () => ({ token: { marginXXS: 4 } }),
 }));
 
 jest.mock('@pennyspring/api', () => ({

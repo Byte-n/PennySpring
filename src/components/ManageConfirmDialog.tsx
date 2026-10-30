@@ -23,9 +23,6 @@ function getErrorMessage(error: unknown): string {
 }
 
 const useStyles = createUseSheetStyle(token => ({
-  body: {
-    gap: token.marginSM,
-  },
   warning: {
     backgroundColor: token.colorWarningBg,
     borderRadius: token.borderRadiusSM,
@@ -86,7 +83,7 @@ export function ManageConfirmDialog({
       open={open}
       titleText={titleText}
     >
-      <Column style={styles.body}>
+      <Column gap="normal">
         <Text color="secondary" size="xs">
           {messageText}
         </Text>

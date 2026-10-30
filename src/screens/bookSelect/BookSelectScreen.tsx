@@ -34,17 +34,11 @@ const useStyles = createUseSheetStyle(token => ({
     borderBottomColor: token.colorErrorBorder,
     padding: token.padding,
   },
-  errorText: {
-    fontSize: token.fontSize,
-    color: token.colorErrorText,
-  },
   retryButton: {
     marginTop: token.marginXS,
   },
   loadingContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
 }));
 
@@ -165,7 +159,7 @@ export function BookSelectScreen({
             },
           ]}
         >
-          <Text style={styles.errorText}>
+          <Text color="errorText">
             {`账本加载失败：${initError.message}`}
           </Text>
           <Button
@@ -179,7 +173,7 @@ export function BookSelectScreen({
         </Column>
       ) : null}
       {loading ? (
-        <Column style={styles.loadingContainer}>
+        <Column style={styles.loadingContainer} align="center" justify="center">
           <Loading size="large" />
         </Column>
       ) : (

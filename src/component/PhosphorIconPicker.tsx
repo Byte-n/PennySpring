@@ -51,7 +51,6 @@ const CATEGORY_OPTIONS: readonly CategoryOption[] = [
 const useStyles = createUseSheetStyle(token => ({
   body: {
     flex: 1,
-    gap: token.marginSM,
   },
   categoryItem: {
     alignItems: 'center',
@@ -71,8 +70,6 @@ const useStyles = createUseSheetStyle(token => ({
     flexGrow: 0,
   },
   empty: {
-    alignItems: 'center',
-    justifyContent: 'center',
     padding: token.padding,
   },
   grid: {
@@ -100,9 +97,6 @@ const useStyles = createUseSheetStyle(token => ({
   iconCellActive: {
     backgroundColor: token.colorPrimaryBg,
     borderColor: token.colorPrimary,
-  },
-  iconLabel: {
-    textAlign: 'center',
   },
   panelBody: {
     flex: 1,
@@ -190,7 +184,7 @@ export function PhosphorIconPickerContent({
         <Text
           color={isActive ? 'primary' : 'secondary'}
           size="sm"
-          style={styles.iconLabel}
+          textAlign="center"
         >
           {item.label}
         </Text>
@@ -199,7 +193,7 @@ export function PhosphorIconPickerContent({
   }
 
   return (
-    <Column style={styles.body}>
+    <Column style={styles.body} gap="normal">
       <Input.Search
         labelText="搜索"
         clearable
@@ -227,7 +221,7 @@ export function PhosphorIconPickerContent({
         style={styles.grid}
         windowSize={ICON_LIST_WINDOW_SIZE}
         empty={(
-          <Row style={styles.empty}>
+          <Row style={styles.empty} align="center" justify="center">
             <Text color="tertiary">暂无匹配图标</Text>
           </Row>
         )}

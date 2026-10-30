@@ -1,14 +1,13 @@
 import React, { useMemo } from 'react';
 import { Button, Card, Column, Row, Text } from '@pennyspring/ui';
-import { createUseSheetStyle } from '@pennyspring/theme';
+import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
 import { filterByMonth, formatAmountParts, getElapsedMonthDayCount, summarizeCashflow, type CashflowItem, type CashflowSummary, type DailyExpenseBar } from './detailData';
 
 const useStyles = createUseSheetStyle(token => ({
   card: { marginHorizontal: token.padding, marginTop: token.paddingSM },
   amount: { marginTop: token.marginXXS },
   amountInteger: { fontVariant: ['tabular-nums'] },
-  amountDecimal: { fontSize: token.fontSizeSM },
-  chart: { height: token.controlHeightSM, alignItems: 'flex-end', gap: token.sizeXXS },
+  chart: { height: token.controlHeightSM },
   axis: { marginTop: token.marginXXS },
   split: { borderTopWidth: token.lineWidth, borderTopColor: token.colorSplit, paddingTop: token.paddingSM },
   stat: { flex: 1 },
@@ -41,6 +40,7 @@ interface MonthSummaryCardProps {
 }
 
 export function MonthSummaryCard({ month, summary, dailyExpenses, recordCount, hidden, onToggleHidden, records }: MonthSummaryCardProps) {
+  const { token } = useTheme();
   const styles = useStyles();
   const maxExpense = Math.max(...dailyExpenses.map(bar => bar.expense), 1);
   const average = summary.expense / getElapsedMonthDayCount(month) || 0;
@@ -64,7 +64,7 @@ export function MonthSummaryCard({ month, summary, dailyExpenses, recordCount, h
             <Text size="h2" weight="semibold" color="error" style={styles.amount}>
               {hidden ? '••••' : <>
               <Text size="h2" weight="semibold" color="error" style={styles.amountInteger}>{expense.integer}</Text>
-              <Text size="sm" weight="semibold" color="error" style={styles.amountDecimal}>.{expense.decimal}</Text>
+              <Text size="sm" weight="semibold" color="error">.{expense.decimal}</Text>
               </>}
             </Text>
           </Column>
@@ -75,7 +75,7 @@ export function MonthSummaryCard({ month, summary, dailyExpenses, recordCount, h
             <Button type="text" size="small" icon={hidden ? 'eye' : 'eye-slash'} onPress={onToggleHidden} />
           </Row>
         </Row>
-        <Row align="end" gap="small" style={styles.chart}>
+        <Row align="end" gap={token.sizeXXS} style={styles.chart}>
           {bars.map(bar => (
             <SummaryBar
               key={bar.dayStart}

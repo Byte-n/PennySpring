@@ -6,12 +6,9 @@ import {
   GearSixIcon,
 } from 'phosphor-react-native';
 
-const useStyles = createUseSheetStyle(token => ({
+const useStyles = createUseSheetStyle(() => ({
   panelBody: {
     padding: 0,
-  },
-  headerActions: {
-    gap: token.marginXS,
   },
 }));
 
@@ -46,7 +43,7 @@ export function AgentDrawerFrame({
       position="bottom"
       renderFooter={null}
       renderHeaderRight={() => (
-        <Row align="center" style={styles.headerActions}>
+        <Row align="center" gap="small">
           <Button
             icon={ClockCounterClockwiseIcon}
             onPress={onOpenSessions}

@@ -17,15 +17,9 @@ const useStyles = createUseSheetStyle(token => ({
     paddingHorizontal: token.padding,
     paddingVertical: token.padding / 2,
   },
-  actions: {
-    gap: token.marginXS,
-  },
-  tagContainer: {
-    flexWrap: 'wrap',
-  },
 }));
 
-function buildItems(view: DetailRecordView, onImagePress: () => void, styles: ReturnType<typeof useStyles>): ListItemData[] {
+function buildItems(view: DetailRecordView, onImagePress: () => void): ListItemData[] {
   const valueText = (text: string): ListItemData['right'] => (
     <Text size="md" color="secondary">
       {text}
@@ -98,7 +92,7 @@ function buildItems(view: DetailRecordView, onImagePress: () => void, styles: Re
     items.push({
       titleText: '标签',
       right: (
-        <Row align="center" gap={8} style={styles.tagContainer}>
+        <Row align="center" gap={8} wrap>
           {view.tags.map(tag => {
             const TagIconComponent = tag.icon
               ? getPhosphorIconComponent(tag.icon)
@@ -172,7 +166,7 @@ export function RecordDetailPanel({
           <Text size="lg" weight="semibold" color="heading">
             记录详情
           </Text>
-          <Row align="center" style={styles.actions}>
+          <Row align="center" gap="small">
             <Button
               size="small"
               variant="text"
@@ -194,7 +188,7 @@ export function RecordDetailPanel({
         </Row>
       )}
     >
-      {view ? <List data={buildItems(view, handleImagePress, styles)} /> : null}
+      {view ? <List data={buildItems(view, handleImagePress)} /> : null}
     </Popup.FloatingPanel>
   );
 }

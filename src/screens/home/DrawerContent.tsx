@@ -217,9 +217,6 @@ const useStyles = createUseSheetStyle<number>((token, bottomInset) => ({
   developerSection: {
     paddingTop: token.paddingXXS,
   },
-  divider: {
-    marginVertical: 0,
-  },
   developerHeader: {
     alignItems: 'center',
     flexDirection: 'row',
@@ -251,22 +248,6 @@ const useStyles = createUseSheetStyle<number>((token, bottomInset) => ({
   },
   skeletonMain: {
     flex: 1,
-    gap: token.paddingXXS,
-  },
-  skeletonCover: {
-    borderRadius: token.borderRadius,
-    height: token.controlHeight,
-    width: token.controlHeight,
-  },
-  skeletonLine: {
-    borderRadius: token.borderRadiusSM,
-    height: token.paddingXS,
-  },
-  skeletonLineMid: {
-    width: '36%',
-  },
-  skeletonLineWide: {
-    width: '58%',
   },
 }));
 
@@ -405,19 +386,25 @@ export function DrawerContent({
           <View style={styles.skeletonCard} testID="drawer-book-skeleton">
             <Skeleton
               animated={false}
+              borderRadius={token.borderRadius}
+              height={token.controlHeight}
               shape="rect"
-              style={styles.skeletonCover}
+              width={token.controlHeight}
             />
-            <Column style={styles.skeletonMain}>
+            <Column style={styles.skeletonMain} gap={token.paddingXXS}>
               <Skeleton
                 animated={false}
+                borderRadius={token.borderRadiusSM}
+                height={token.paddingXS}
                 shape="line"
-                style={[styles.skeletonLine, styles.skeletonLineWide]}
+                width="58%"
               />
               <Skeleton
                 animated={false}
+                borderRadius={token.borderRadiusSM}
+                height={token.paddingXS}
                 shape="line"
-                style={[styles.skeletonLine, styles.skeletonLineMid]}
+                width="36%"
               />
             </Column>
           </View>
@@ -530,7 +517,7 @@ export function DrawerContent({
         <View style={styles.spacer} />
 
         <View style={styles.developerSection}>
-          <Divider style={styles.divider} />
+          <Divider spacing="none" />
           <Pressable
             accessibilityRole="button"
             accessibilityState={{ expanded: isDeveloperOpen }}
@@ -571,7 +558,7 @@ export function DrawerContent({
       </ScrollView>
 
       <View style={styles.footer}>
-        <Divider style={styles.divider} />
+        <Divider spacing="none" />
         <Row align="center" justify="between" style={styles.footerContent}>
           <Text color="quaternary" numberOfLines={1} size="sm">
             {footerStorage}

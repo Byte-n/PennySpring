@@ -2,6 +2,7 @@ import React, {
   useCallback,
   useLayoutEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 import { ScrollView } from 'react-native';
@@ -10,6 +11,7 @@ import {
   ActionSheet,
   Button,
   Column,
+  Form,
   Input,
   Row,
   Switch,
@@ -17,7 +19,7 @@ import {
   useToast,
 } from '@pennyspring/ui';
 import { VISIBILITY, type TagRow } from '@pennyspring/api';
-import { createUseSheetStyle } from '@pennyspring/theme';
+import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
 
 import { FormIconGrid, TAG_FORM_ICONS } from '../../component/FormIconGrid';
 import { PhosphorIconPicker } from '../../component/PhosphorIconPicker';
@@ -40,53 +42,19 @@ const useStyles = createUseSheetStyle(token => ({
     paddingBottom: token.paddingXL,
   },
   metaLine: {
-    alignItems: 'center',
-    gap: token.marginXXS,
     paddingHorizontal: token.paddingXXS,
-  },
-  section: {
-    gap: token.marginXS,
   },
   sectionHeader: {
-    alignItems: 'baseline',
-    gap: token.marginXS,
     paddingHorizontal: token.paddingXXS,
   },
-  sectionTitle: {
-    color: token.colorTextSecondary,
-  },
-  sectionCount: {
-    color: token.colorTextTertiary,
-  },
-  chips: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: token.marginSM,
-  },
   listEnd: {
-    color: token.colorTextTertiary,
     lineHeight: token.lineHeight,
-    textAlign: 'center',
-  },
-  formBody: {
-    gap: token.marginMD,
   },
   preview: {
-    alignItems: 'center',
     paddingVertical: token.paddingXS,
-  },
-  switchRow: {
-    alignItems: 'center',
   },
   switchText: {
     flex: 1,
-  },
-  switchNote: {
-    color: token.colorTextTertiary,
-  },
-  iconActions: {
-    alignItems: 'center',
-    gap: token.marginXS,
   },
 }));
 
@@ -98,7 +66,29 @@ function getTagDeleteErrorMessage(error: unknown): string {
   return message || '删除失败';
 }
 
+interface TagFormValues {
+  name: string;
+  icon: string;
+  hidden: boolean;
+}
+
+const TypedForm = Form.infer<TagFormValues>();
+
+const EMPTY_TAG_FORM: TagFormValues = {
+  name: '',
+  icon: '',
+  hidden: false,
+};
+
+function buildTagIconValues(icon: string | undefined): readonly string[] {
+  if (icon && !(TAG_FORM_ICONS as readonly string[]).includes(icon)) {
+    return [icon, ...TAG_FORM_ICONS];
+  }
+  return TAG_FORM_ICONS;
+}
+
 export function TagManageScreen() {
+  const { token } = useTheme();
   const styles = useStyles();
   const toast = useToast();
   const navigation = useNavigation();
@@ -120,42 +110,34 @@ export function TagManageScreen() {
     [tags],
   );
 
+  const [form] = TypedForm.useForm();
+  const submitSucceededRef = useRef(false);
   const [formOpen, setFormOpen] = useState(false);
   const [editingTag, setEditingTag] = useState<TagRow | null>(null);
-  const [name, setName] = useState('');
-  const [icon, setIcon] = useState('');
-  const [hidden, setHidden] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [iconPickerOpen, setIconPickerOpen] = useState(false);
 
   const [menuTag, setMenuTag] = useState<TagRow | null>(null);
   const [pendingDeleteTag, setPendingDeleteTag] = useState<TagRow | null>(null);
 
-  const formIconValues = useMemo(() => {
-    if (
-      icon &&
-      !(TAG_FORM_ICONS as readonly string[]).includes(icon)
-    ) {
-      return [icon, ...TAG_FORM_ICONS];
-    }
-    return TAG_FORM_ICONS;
-  }, [icon]);
-
   const openCreate = useCallback(() => {
     setEditingTag(null);
-    setName('');
-    setIcon('');
-    setHidden(false);
+    form.reset(EMPTY_TAG_FORM);
     setFormOpen(true);
-  }, []);
+  }, [form]);
 
-  const openEdit = useCallback((tag: TagRow) => {
-    setEditingTag(tag);
-    setName(tag.name);
-    setIcon(tag.icon);
-    setHidden(tag.invisible === VISIBILITY.hidden);
-    setFormOpen(true);
-  }, []);
+  const openEdit = useCallback(
+    (tag: TagRow) => {
+      setEditingTag(tag);
+      form.reset({
+        name: tag.name,
+        icon: tag.icon,
+        hidden: tag.invisible === VISIBILITY.hidden,
+      });
+      setFormOpen(true);
+    },
+    [form],
+  );
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -163,48 +145,55 @@ export function TagManageScreen() {
     });
   }, [navigation, openCreate]);
 
-  const handleSave = useCallback(async (): Promise<boolean> => {
-    if (!name.trim()) {
-      toast.show({ messageText: '请输入标签名称' });
-      return false;
-    }
-    if (!currentBook) {
-      toast.show({ messageText: '未找到当前账本' });
-      return false;
-    }
-    setSubmitting(true);
-    try {
-      const invisible = hidden ? VISIBILITY.hidden : VISIBILITY.visible;
-      if (editingTag) {
-        await globalApi.tag.update({
-          booksId: currentBook.id,
-          icon,
-          id: editingTag.id,
-          invisible,
-          name: name.trim(),
-        });
-      } else {
-        await globalApi.tag.create({
-          booksId: currentBook.id,
-          icon,
-          invisible,
-          name: name.trim(),
-        });
+  const handleFinish = useCallback(
+    async (values: TagFormValues) => {
+      submitSucceededRef.current = false;
+      if (!currentBook) {
+        toast.show({ messageText: '未找到当前账本' });
+        return;
       }
-      refresh();
-      return true;
-    } catch (error: unknown) {
-      toast.show({
-        messageText:
-          error instanceof Error && error.message
-            ? error.message
-            : '保存失败',
-      });
-      return false;
-    } finally {
-      setSubmitting(false);
-    }
-  }, [currentBook, editingTag, globalApi.tag, hidden, icon, name, refresh, toast]);
+      setSubmitting(true);
+      try {
+        const invisible = values.hidden
+          ? VISIBILITY.hidden
+          : VISIBILITY.visible;
+        if (editingTag) {
+          await globalApi.tag.update({
+            booksId: currentBook.id,
+            icon: values.icon,
+            id: editingTag.id,
+            invisible,
+            name: values.name.trim(),
+          });
+        } else {
+          await globalApi.tag.create({
+            booksId: currentBook.id,
+            icon: values.icon,
+            invisible,
+            name: values.name.trim(),
+          });
+        }
+        refresh();
+        submitSucceededRef.current = true;
+      } catch (error: unknown) {
+        toast.show({
+          messageText:
+            error instanceof Error && error.message
+              ? error.message
+              : '保存失败',
+        });
+      } finally {
+        setSubmitting(false);
+      }
+    },
+    [currentBook, editingTag, globalApi.tag, refresh, toast],
+  );
+
+  const handlePanelOk = useCallback(async () => {
+    submitSucceededRef.current = false;
+    await form.handleSubmit();
+    return submitSucceededRef.current;
+  }, [form]);
 
   const toggleVisibility = useCallback(
     async (tag: TagRow) => {
@@ -294,8 +283,6 @@ export function TagManageScreen() {
     [menuTag, openEdit, toggleVisibility],
   );
 
-  const okDisabled = submitting || !name.trim();
-  const previewLabel = name.trim() || '标签名称';
   const submitText = editingTag ? '保存' : '新增';
 
   if (loading && tags.length === 0) {
@@ -311,7 +298,7 @@ export function TagManageScreen() {
   return (
     <Column style={styles.container}>
       <ScrollView contentContainerStyle={styles.content}>
-        <Row style={styles.metaLine}>
+        <Row style={styles.metaLine} gap={token.marginXXS} align="center">
           <Text color="secondary" size="xs" weight="semibold">
             {tags.length}
           </Text>
@@ -326,16 +313,16 @@ export function TagManageScreen() {
           </Text>
         </Row>
 
-        <Column style={styles.section}>
-          <Row style={styles.sectionHeader}>
-            <Text size="xs" style={styles.sectionTitle} weight="semibold">
+        <Column gap="small">
+          <Row style={styles.sectionHeader} gap="small" align="baseline">
+            <Text size="xs" weight="semibold" color="secondary">
               标签
             </Text>
-            <Text size="xs" style={styles.sectionCount}>
+            <Text size="xs" color="tertiary">
               {visibleTags.length}
             </Text>
           </Row>
-          <Row style={styles.chips}>
+          <Row gap="normal" wrap>
             <TagChip label="新建标签" onPress={openCreate} variant="add" />
             {visibleTags.map(tag => (
               <TagChip
@@ -350,16 +337,16 @@ export function TagManageScreen() {
         </Column>
 
         {hiddenTags.length > 0 ? (
-          <Column style={styles.section}>
-            <Row style={styles.sectionHeader}>
-              <Text size="xs" style={styles.sectionTitle} weight="semibold">
+          <Column gap="small">
+            <Row style={styles.sectionHeader} gap="small" align="baseline">
+              <Text size="xs" weight="semibold" color="secondary">
                 已隐藏
               </Text>
-              <Text size="xs" style={styles.sectionCount}>
+              <Text size="xs" color="tertiary">
                 {hiddenTags.length}
               </Text>
             </Row>
-            <Row style={styles.chips}>
+            <Row gap="normal" wrap>
               {hiddenTags.map(tag => (
                 <TagChip
                   iconName={tag.icon}
@@ -374,84 +361,100 @@ export function TagManageScreen() {
           </Column>
         ) : null}
 
-        <Text size="xs" style={styles.listEnd}>
+        <Text size="xs" style={styles.listEnd} color="tertiary" textAlign="center">
           轻点标签可编辑、隐藏或删除{'\n'}
           删除只解除关联，不影响记录金额
         </Text>
       </ScrollView>
 
       <FormFloatingPanel
-        onOk={handleSave}
+        onOk={handlePanelOk}
         onOpenChange={open => {
           if (!open) {
             setFormOpen(false);
           }
         }}
         open={formOpen}
-        panelBodyStyle={styles.formBody}
-        submitDisabled={okDisabled}
         submitLoading={submitting}
         submitText={submitText}
         titleText={editingTag ? '编辑标签' : '新增标签'}
       >
-        <Column style={styles.preview}>
-          <TagChip
-            iconName={icon}
-            label={previewLabel}
-            placeholder={!name.trim()}
-            variant={hidden ? 'hidden' : 'default'}
-          />
-        </Column>
-        <Input
-          labelText="标签名称"
-          onChange={setName}
-          placeholder="例如：报销"
-          value={name}
-        />
-        <Column>
-          <Text color="tertiary" size="xs">
-            图标（可选）
-          </Text>
-          <FormIconGrid
-            onChange={setIcon}
-            value={icon}
-            values={formIconValues}
-          />
-          <Row style={styles.iconActions}>
-            <Button
-              onPress={() => setIconPickerOpen(true)}
-              size="small"
-              type="link"
-            >
-              更多图标
-            </Button>
-            <Button
-              disabled={!icon}
-              onPress={() => setIcon('')}
-              size="small"
-              type="link"
-            >
-              清除图标
-            </Button>
-          </Row>
-        </Column>
-        <Row style={styles.switchRow}>
-          <Column style={styles.switchText}>
-            <Text size="md">隐藏该标签</Text>
-            <Text size="xs" style={styles.switchNote}>
-              隐藏后不出现在新增记录与统计里，历史记录保留
-            </Text>
-          </Column>
-          <Switch onChange={setHidden} value={hidden} />
-        </Row>
+        <TypedForm form={form} labelMode="child" onFinish={handleFinish}>
+          <TypedForm.Subscribe selector={state => state.values}>
+            {values => (
+              <Column style={styles.preview} align="center">
+                <TagChip
+                  iconName={values.icon}
+                  label={values.name.trim() || '标签名称'}
+                  placeholder={!values.name.trim()}
+                  variant={values.hidden ? 'hidden' : 'default'}
+                />
+              </Column>
+            )}
+          </TypedForm.Subscribe>
+          <TypedForm.Item
+            name="name"
+            labelText="标签名称"
+            required
+            requiredMessage="请输入标签名称"
+          >
+            <Input placeholder="例如：报销" />
+          </TypedForm.Item>
+          <TypedForm.Item name="icon" noStyle>
+            <Column>
+              <Text color="tertiary" size="xs">
+                图标（可选）
+              </Text>
+              <TypedForm.Subscribe selector={state => state.values.icon}>
+                {icon => (
+                  <>
+                    <FormIconGrid values={buildTagIconValues(icon)} />
+                    <Row gap="small" align="center">
+                      <Button
+                        onPress={() => setIconPickerOpen(true)}
+                        size="small"
+                        type="link"
+                      >
+                        更多图标
+                      </Button>
+                      <Button
+                        disabled={!icon}
+                        onPress={() => form.setFieldValue('icon', '')}
+                        size="small"
+                        type="link"
+                      >
+                        清除图标
+                      </Button>
+                    </Row>
+                  </>
+                )}
+              </TypedForm.Subscribe>
+            </Column>
+          </TypedForm.Item>
+          <TypedForm.Item name="hidden" noStyle>
+            <Row align="center">
+              <Column style={styles.switchText}>
+                <Text size="md">隐藏该标签</Text>
+                <Text size="xs" color="tertiary">
+                  隐藏后不出现在新增记录与统计里，历史记录保留
+                </Text>
+              </Column>
+              <Switch />
+            </Row>
+          </TypedForm.Item>
+        </TypedForm>
       </FormFloatingPanel>
 
-      <PhosphorIconPicker
-        onChange={setIcon}
-        onOpenChange={setIconPickerOpen}
-        open={iconPickerOpen}
-        value={icon}
-      />
+      <form.Subscribe selector={state => state.values.icon}>
+        {icon => (
+          <PhosphorIconPicker
+            onChange={value => form.setFieldValue('icon', value)}
+            onOpenChange={setIconPickerOpen}
+            open={iconPickerOpen}
+            value={icon}
+          />
+        )}
+      </form.Subscribe>
 
       <ActionSheet
         actions={menuActions}

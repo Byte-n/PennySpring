@@ -1,6 +1,6 @@
 import React from 'react';
 import { Pressable } from 'react-native';
-import { Grid } from '@pennyspring/ui';
+import { Form, Grid } from '@pennyspring/ui';
 import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
 
 import { getPhosphorIconComponent } from '../constants/typeIconTree';
@@ -10,7 +10,7 @@ const ICON_GRID_COLUMNS = 6;
 export interface FormIconGridProps {
   values: readonly string[];
   value?: string;
-  onChange: (value: string) => void;
+  onChange?: (value: string) => void;
 }
 
 const useStyles = createUseSheetStyle(token => ({
@@ -34,16 +34,17 @@ const useStyles = createUseSheetStyle(token => ({
 export function FormIconGrid({ values, value, onChange }: FormIconGridProps) {
   const styles = useStyles();
   const { token } = useTheme();
+  const field = Form.Item.useFieldProps<string>({ value, onChange });
 
   return (
     <Grid columns={ICON_GRID_COLUMNS}>
       {values.map(iconName => {
         const IconComponent = getPhosphorIconComponent(iconName);
-        const selected = iconName === value;
+        const selected = iconName === field.value;
         return (
           <Grid.Item key={iconName}>
             <Pressable
-              onPress={() => onChange(iconName)}
+              onPress={() => field.onChange?.(iconName)}
               style={({ pressed }) => [
                 styles.cell,
                 selected && styles.cellSelected,

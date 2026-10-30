@@ -10,7 +10,7 @@ import {
   Text,
 } from '@pennyspring/ui';
 import type { AgentThreadRow } from '@pennyspring/api';
-import { createUseSheetStyle } from '@pennyspring/theme';
+import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
 import { ChatsCircleIcon, CaretRightIcon } from 'phosphor-react-native';
 
 import { ManageCard, ManageRow } from '../../components/ManageRow';
@@ -27,14 +27,10 @@ const useStyles = createUseSheetStyle(token => ({
     paddingBottom: token.paddingXL,
   },
   metaLine: {
-    alignItems: 'center',
-    gap: token.marginXXS,
     paddingHorizontal: token.paddingXXS,
   },
   hint: {
-    color: token.colorTextTertiary,
     paddingHorizontal: token.paddingXXS,
-    textAlign: 'center',
   },
   currentLabel: {
     paddingHorizontal: token.paddingXXS,
@@ -60,6 +56,7 @@ export function AgentSessionList({
   onSelect,
   onDelete,
 }: AgentSessionListProps) {
+  const { token } = useTheme();
   const styles = useStyles();
 
   const renderRow = useCallback(
@@ -129,7 +126,7 @@ export function AgentSessionList({
       showsVerticalScrollIndicator={false}
       style={styles.container}
     >
-      <Row style={styles.metaLine}>
+      <Row style={styles.metaLine} gap={token.marginXXS} align="center">
         <Text color="tertiary" size="xs">
           共
         </Text>
@@ -143,7 +140,7 @@ export function AgentSessionList({
 
       <ManageCard>{threads.map(renderRow)}</ManageCard>
 
-      <Text size="xs" style={styles.hint}>
+      <Text size="xs" style={styles.hint} color="tertiary" textAlign="center">
         轻点会话恢复对话 · 左滑删除
       </Text>
     </ScrollView>

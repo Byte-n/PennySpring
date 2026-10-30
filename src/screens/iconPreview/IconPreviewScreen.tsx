@@ -20,9 +20,6 @@ const useStyles = createUseSheetStyle(token => ({
     paddingVertical: token.paddingMD,
     backgroundColor: token.colorBgContainer,
   },
-  filterRow: {
-    gap: token.paddingXS,
-  },
   categorySelection: {
     flex: 0,
     minWidth: 120,
@@ -36,8 +33,6 @@ const useStyles = createUseSheetStyle(token => ({
   iconItem: {
     width: '23%',
     aspectRatio: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
     margin: token.marginXXS,
     backgroundColor: token.colorBgContainer,
     borderRadius: token.borderRadius,
@@ -46,7 +41,6 @@ const useStyles = createUseSheetStyle(token => ({
   },
   iconName: {
     marginTop: token.marginXXS,
-    textAlign: 'center',
     paddingHorizontal: token.paddingXXS,
   },
   emptyContainer: {
@@ -92,9 +86,9 @@ function IconItem({ item }: IconItemProps) {
     }
 
     return (
-      <Column style={styles.iconItem}>
+      <Column style={styles.iconItem} align="center" justify="center">
         <IconComponent size={ICON_PREVIEW_SIZE} color={token.colorText} />
-        <Text size="sm" color="secondary" style={styles.iconName} numberOfLines={1}>
+        <Text size="sm" color="secondary" style={styles.iconName} numberOfLines={1} textAlign="center">
           {item.pascalName}
         </Text>
       </Column>
@@ -103,9 +97,9 @@ function IconItem({ item }: IconItemProps) {
 
   const AssetIcon = item.icon;
   return (
-    <Column style={styles.iconItem}>
+    <Column style={styles.iconItem} align="center" justify="center">
       <AssetIcon width={ICON_PREVIEW_SIZE} height={ICON_PREVIEW_SIZE} />
-      <Text size="sm" color="secondary" style={styles.iconName} numberOfLines={1}>
+      <Text size="sm" color="secondary" style={styles.iconName} numberOfLines={1} textAlign="center">
         {item.label}
       </Text>
     </Column>
@@ -243,7 +237,7 @@ export function IconPreviewScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.searchContainer}>
-        <Row style={styles.filterRow}>
+        <Row gap="small">
           <ListPicker
             style={styles.categorySelection}
             options={CATEGORY_OPTIONS}

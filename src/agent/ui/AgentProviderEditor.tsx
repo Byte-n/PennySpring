@@ -1,9 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Pressable } from 'react-native';
 import {
   Button,
   Column,
   Divider,
+  Form,
   Icon,
   Input,
   Popup,
@@ -12,7 +13,7 @@ import {
   Text,
   useToast,
 } from '@pennyspring/ui';
-import { createUseSheetStyle } from '@pennyspring/theme';
+import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
 
 import {
   clearProviderApiKey,
@@ -46,6 +47,17 @@ interface ConnectionResult {
   message: string;
 }
 
+interface ProviderFormValues {
+  name: string;
+  baseUrl: string;
+  apiKey: string;
+  storeResponses: boolean;
+  models: ModelRowState[];
+  defaultModelId: string;
+}
+
+const TypedForm = Form.infer<ProviderFormValues>();
+
 export interface AgentProviderEditorProps {
   open: boolean;
   initial: AgentProviderConfig | null;
@@ -56,13 +68,7 @@ export interface AgentProviderEditorProps {
 
 const useStyles = createUseSheetStyle(token => ({
   body: {
-    gap: token.marginMD,
     paddingBottom: token.padding,
-  },
-  actions: {
-    alignItems: 'center',
-    flexWrap: 'wrap',
-    gap: token.marginSM,
   },
   result: {
     borderRadius: token.borderRadiusSM,
@@ -74,12 +80,6 @@ const useStyles = createUseSheetStyle(token => ({
   },
   error: {
     backgroundColor: token.colorErrorBg,
-  },
-  advanced: {
-    gap: token.marginXS,
-  },
-  sectionDivider: {
-    marginVertical: 0,
   },
   advancedToggle: {
     alignItems: 'center',
@@ -93,14 +93,8 @@ const useStyles = createUseSheetStyle(token => ({
   advancedTogglePressed: {
     backgroundColor: token.colorFillContent,
   },
-  switchRow: {
-    alignItems: 'center',
-    gap: token.marginSM,
-  },
   switchLabel: {
-    alignItems: 'center',
     flex: 1,
-    gap: token.marginXXS,
   },
 }));
 
@@ -118,18 +112,15 @@ export function AgentProviderEditor({
   onOpenChange,
   onSaved,
 }: AgentProviderEditorProps) {
+  const { token } = useTheme();
   const styles = useStyles();
   const toast = useToast();
   const addProvider = useAgentProviderStore(state => state.addProvider);
   const updateProvider = useAgentProviderStore(state => state.updateProvider);
 
-  const [name, setName] = useState('');
-  const [baseUrl, setBaseUrl] = useState('');
-  const [modelRows, setModelRows] = useState<ModelRowState[]>([]);
-  const [defaultModelId, setDefaultModelId] = useState('');
+  const [form] = TypedForm.useForm();
+  const submitSucceededRef = useRef(false);
   const [manualModel, setManualModel] = useState('');
-  const [storeResponses, setStoreResponses] = useState(true);
-  const [apiKey, setApiKey] = useState('');
   const [keyStored, setKeyStored] = useState(false);
   const [testResult, setTestResult] = useState<ConnectionResult | null>(null);
   const [availableModels, setAvailableModels] = useState<string[]>([]);
@@ -148,13 +139,15 @@ export function AgentProviderEditor({
     }
 
     let cancelled = false;
-    setName(initial?.name ?? '');
-    setBaseUrl(initial?.baseUrl ?? descriptor.defaultBaseUrl);
-    setModelRows(initial ? initial.models.map(toModelRow) : []);
-    setDefaultModelId(initial?.defaultModelId ?? '');
+    form.reset({
+      name: initial?.name ?? '',
+      baseUrl: initial?.baseUrl ?? descriptor.defaultBaseUrl,
+      apiKey: '',
+      storeResponses: initial?.storeResponses ?? true,
+      models: initial ? initial.models.map(toModelRow) : [],
+      defaultModelId: initial?.defaultModelId ?? '',
+    });
     setManualModel('');
-    setStoreResponses(initial?.storeResponses ?? true);
-    setApiKey('');
     setTestResult(null);
     setAvailableModels([]);
     setAdvancedOpen(false);
@@ -179,102 +172,103 @@ export function AgentProviderEditor({
     return () => {
       cancelled = true;
     };
-  }, [descriptor.defaultBaseUrl, initial, open]);
+  }, [descriptor.defaultBaseUrl, form, initial, open]);
 
   const resolveApiKey = useCallback(async (): Promise<string> => {
-    if (apiKey.trim()) {
-      return apiKey.trim();
+    const enteredKey = form.state.values.apiKey.trim();
+    if (enteredKey) {
+      return enteredKey;
     }
     if (initial) {
       return (await loadProviderApiKey(initial.id)) ?? '';
     }
     return '';
-  }, [apiKey, initial]);
+  }, [form, initial]);
 
-  const previewProvider = useMemo<AgentProviderConfig>(() => {
+  const buildPreviewProvider = useCallback((): AgentProviderConfig => {
+    const values = form.state.values;
     const now = Date.now();
     return {
       id: initial?.id ?? 'draft',
       descriptorId: descriptor.id,
-      name: name.trim() || descriptor.name,
-      baseUrl: normalizeBaseUrl(baseUrl),
-      defaultModelId,
+      name: values.name.trim() || descriptor.name,
+      baseUrl: normalizeBaseUrl(values.baseUrl),
+      defaultModelId: values.defaultModelId,
       models: [],
-      storeResponses,
+      storeResponses: values.storeResponses,
       createdAt: now,
       updatedAt: now,
     };
-  }, [
-    baseUrl,
-    defaultModelId,
-    descriptor.id,
-    descriptor.name,
-    initial?.id,
-    name,
-    storeResponses,
-  ]);
+  }, [descriptor.id, descriptor.name, form, initial?.id]);
 
-  const previewModelId = defaultModelId || modelRows[0]?.modelId || '';
-
-  const handleAddModel = useCallback((rawModelId: string): void => {
-    const modelId = rawModelId.trim();
-    if (!modelId) {
-      return;
-    }
-    setModelRows(previous => {
-      if (previous.some(row => row.modelId === modelId)) {
-        return previous;
+  const handleAddModel = useCallback(
+    (rawModelId: string): void => {
+      const modelId = rawModelId.trim();
+      if (!modelId) {
+        return;
       }
-      return [...previous, createModelRow(modelId)];
-    });
-    setAvailableModels(previous =>
-      previous.filter(item => item !== modelId),
-    );
-    setDefaultModelId(previous => previous || modelId);
-  }, []);
+      form.setFieldValue('models', previous => {
+        if (previous.some(row => row.modelId === modelId)) {
+          return previous;
+        }
+        return [...previous, createModelRow(modelId)];
+      });
+      setAvailableModels(previous =>
+        previous.filter(item => item !== modelId),
+      );
+      form.setFieldValue('defaultModelId', previous => previous || modelId);
+    },
+    [form],
+  );
 
   const handleAddManualModel = useCallback((): void => {
     const modelId = manualModel.trim();
     if (!modelId) {
       return;
     }
-    const exists = modelRows.some(row => row.modelId === modelId);
+    const exists = form.state.values.models.some(
+      row => row.modelId === modelId,
+    );
     handleAddModel(modelId);
     if (!exists) {
       setManualModel('');
     }
-  }, [handleAddModel, manualModel, modelRows]);
+  }, [form, handleAddModel, manualModel]);
 
   const handleRemoveModel = useCallback(
     (modelId: string): void => {
-      const next = modelRows.filter(row => row.modelId !== modelId);
-      setModelRows(next);
-      if (defaultModelId === modelId) {
-        setDefaultModelId(next[0]?.modelId ?? '');
+      const values = form.state.values;
+      const next = values.models.filter(row => row.modelId !== modelId);
+      form.setFieldValue('models', next);
+      if (values.defaultModelId === modelId) {
+        form.setFieldValue('defaultModelId', next[0]?.modelId ?? '');
       }
     },
-    [defaultModelId, modelRows],
+    [form],
   );
 
   const handleUpdateRow = useCallback(
     (modelId: string, patch: Partial<ModelRowState>): void => {
-      setModelRows(previous =>
+      form.setFieldValue('models', previous =>
         previous.map(row =>
           row.modelId === modelId ? { ...row, ...patch } : row,
         ),
       );
     },
-    [],
+    [form],
   );
 
   const handleTest = useCallback(async (): Promise<void> => {
-    if (!isValidBaseUrl(baseUrl)) {
+    const values = form.state.values;
+    if (!isValidBaseUrl(values.baseUrl)) {
       setTestResult({
         ok: false,
         message: 'Base URL 格式不正确，应形如 https://host/v1。',
       });
       return;
     }
+    const previewModelId =
+      values.defaultModelId || values.models[0]?.modelId || '';
     if (!previewModelId) {
       setTestResult({ ok: false, message: '请先添加模型。' });
       return;
@@ -289,7 +283,7 @@ export function AgentProviderEditor({
         return;
       }
       const result = await testProviderConnection(
-        previewProvider,
+        buildPreviewProvider(),
         previewModelId,
         key,
       );
@@ -299,10 +293,11 @@ export function AgentProviderEditor({
     } finally {
       setTesting(false);
     }
-  }, [baseUrl, previewModelId, previewProvider, resolveApiKey]);
+  }, [buildPreviewProvider, form, resolveApiKey]);
 
   const handleFetchModels = useCallback(async (): Promise<void> => {
-    if (!isValidBaseUrl(baseUrl)) {
+    const values = form.state.values;
+    if (!isValidBaseUrl(values.baseUrl)) {
       setTestResult({
         ok: false,
         message: 'Base URL 格式不正确，应形如 https://host/v1。',
@@ -318,8 +313,8 @@ export function AgentProviderEditor({
         setTestResult({ ok: false, message: '请先填写 API Key。' });
         return;
       }
-      const list = await fetchProviderModels(previewProvider, key);
-      const added = new Set(modelRows.map(row => row.modelId));
+      const list = await fetchProviderModels(buildPreviewProvider(), key);
+      const added = new Set(values.models.map(row => row.modelId));
       const candidates = list
         .filter(modelId => !added.has(modelId))
         .slice(0, MODEL_PREVIEW_LIMIT);
@@ -335,108 +330,96 @@ export function AgentProviderEditor({
     } finally {
       setFetchingModels(false);
     }
-  }, [baseUrl, modelRows, previewProvider, resolveApiKey]);
+  }, [buildPreviewProvider, form, resolveApiKey]);
 
   const handleClearKey = useCallback(async (): Promise<void> => {
     if (!initial) {
-      setApiKey('');
+      form.setFieldValue('apiKey', '');
       setKeyStored(false);
       return;
     }
     try {
       await clearProviderApiKey(initial.id);
       setKeyStored(false);
-      setApiKey('');
+      form.setFieldValue('apiKey', '');
       setTestResult({ ok: true, message: '已清除保存的 API Key。' });
     } catch (error) {
       setTestResult({ ok: false, message: getErrorMessage(error) });
     }
-  }, [initial]);
+  }, [form, initial]);
 
-  const handleSave = useCallback(async (): Promise<boolean> => {
-    if (!isValidBaseUrl(baseUrl)) {
-      toast.show({
-        messageText: 'Base URL 格式不正确，应形如 https://host/v1。',
-      });
-      return false;
-    }
-    if (modelRows.length === 0) {
-      toast.show({ messageText: '请至少添加一个模型。' });
-      return false;
-    }
-    const models = toModelConfigs(modelRows);
-    if (!apiKey.trim() && !keyStored) {
-      toast.show({ messageText: '请填写 API Key。' });
-      return false;
-    }
+  const handleFinish = useCallback(
+    async (values: ProviderFormValues) => {
+      submitSucceededRef.current = false;
+      const models = toModelConfigs(values.models);
+      const resolvedDefaultId = models.some(
+        model => model.modelId === values.defaultModelId,
+      )
+        ? values.defaultModelId
+        : (models[0]?.modelId ?? '');
 
-    const resolvedDefaultId = models.some(
-      model => model.modelId === defaultModelId,
-    )
-      ? defaultModelId
-      : (models[0]?.modelId ?? '');
+      const draft: AgentProviderDraft = {
+        descriptorId: descriptor.id,
+        name: values.name,
+        baseUrl: values.baseUrl,
+        defaultModelId: resolvedDefaultId,
+        models,
+        storeResponses: values.storeResponses,
+      };
 
-    const draft: AgentProviderDraft = {
-      descriptorId: descriptor.id,
-      name,
-      baseUrl,
-      defaultModelId: resolvedDefaultId,
-      models,
-      storeResponses,
-    };
+      setSaving(true);
+      try {
+        let saved: AgentProviderConfig;
+        if (initial) {
+          updateProvider(initial.id, draft);
+          saved = {
+            ...initial,
+            descriptorId: descriptor.id,
+            name: values.name.trim() || descriptor.name,
+            baseUrl: normalizeBaseUrl(values.baseUrl),
+            defaultModelId: resolvedDefaultId,
+            models,
+            storeResponses: values.storeResponses,
+            updatedAt: Date.now(),
+          };
+        } else {
+          saved = addProvider(draft);
+        }
 
-    setSaving(true);
-    try {
-      let saved: AgentProviderConfig;
-      if (initial) {
-        updateProvider(initial.id, draft);
-        saved = {
-          ...initial,
-          descriptorId: descriptor.id,
-          name: name.trim() || descriptor.name,
-          baseUrl: normalizeBaseUrl(baseUrl),
-          defaultModelId: resolvedDefaultId,
-          models,
-          storeResponses,
-          updatedAt: Date.now(),
-        };
-      } else {
-        saved = addProvider(draft);
+        if (values.apiKey.trim()) {
+          await saveProviderApiKey(saved.id, values.apiKey);
+          setKeyStored(true);
+          form.setFieldValue('apiKey', '');
+        }
+
+        onSaved(saved);
+        submitSucceededRef.current = true;
+        toast.show({ messageText: 'AI 提供商已保存' });
+        onOpenChange(false);
+      } catch (error) {
+        setTestResult({ ok: false, message: getErrorMessage(error) });
+      } finally {
+        setSaving(false);
       }
+    },
+    [
+      addProvider,
+      descriptor.id,
+      descriptor.name,
+      form,
+      initial,
+      onOpenChange,
+      onSaved,
+      toast,
+      updateProvider,
+    ],
+  );
 
-      if (apiKey.trim()) {
-        await saveProviderApiKey(saved.id, apiKey);
-        setKeyStored(true);
-        setApiKey('');
-      }
-
-      onSaved(saved);
-      toast.show({ messageText: 'AI 提供商已保存' });
-      onOpenChange(false);
-      return true;
-    } catch (error) {
-      setTestResult({ ok: false, message: getErrorMessage(error) });
-      return false;
-    } finally {
-      setSaving(false);
-    }
-  }, [
-    addProvider,
-    apiKey,
-    baseUrl,
-    defaultModelId,
-    descriptor.id,
-    descriptor.name,
-    initial,
-    keyStored,
-    modelRows,
-    name,
-    onOpenChange,
-    onSaved,
-    storeResponses,
-    toast,
-    updateProvider,
-  ]);
+  const handlePanelOk = useCallback(async () => {
+    submitSucceededRef.current = false;
+    await form.handleSubmit();
+    return submitSucceededRef.current;
+  }, [form]);
 
   return (
     <Popup.FloatingPanel
@@ -446,69 +429,101 @@ export function AgentProviderEditor({
       okDisabled={saving}
       okLoading={saving}
       okText="保存"
-      onOk={handleSave}
+      onOk={handlePanelOk}
       onOpenChange={onOpenChange}
       open={open}
       titleText={initial ? '编辑提供商' : '添加提供商'}
     >
-      <Column style={styles.body}>
+      <TypedForm
+        form={form}
+        labelMode="child"
+        onFinish={handleFinish}
+        style={styles.body} gap={token.marginMD}
+      >
         <Text color="secondary" size="xs">
           {descriptor.description}
         </Text>
 
-        <Input
-          autoCapitalize="none"
-          autoCorrect={false}
-          labelText="名称"
-          onChange={setName}
-          placeholder={descriptor.name}
-          value={name}
-        />
+        <TypedForm.Item name="name" labelText="名称">
+          <Input
+            autoCapitalize="none"
+            autoCorrect={false}
+            placeholder={descriptor.name}
+          />
+        </TypedForm.Item>
 
-        <Input
-          autoCapitalize="none"
-          autoCorrect={false}
+        <TypedForm.Item
+          name="baseUrl"
           labelText="Base URL"
-          onChange={setBaseUrl}
-          placeholder={descriptor.baseUrlHint}
-          suffix={
-            <InfoHint content="填到版本路径为止，例如 https://host/v1；兼容端点不要带具体接口路径。" />
+          rules={value =>
+            isValidBaseUrl(value)
+              ? undefined
+              : 'Base URL 格式不正确，应形如 https://host/v1。'
           }
-          value={baseUrl}
-        />
+        >
+          <Input
+            autoCapitalize="none"
+            autoCorrect={false}
+            placeholder={descriptor.baseUrlHint}
+            suffix={
+              <InfoHint content="填到版本路径为止，例如 https://host/v1；兼容端点不要带具体接口路径。" />
+            }
+          />
+        </TypedForm.Item>
 
-        <Input
-          autoCapitalize="none"
-          autoCorrect={false}
+        <TypedForm.Item
+          name="apiKey"
           labelText={`API Key${keyStored ? '（已填）' : ''}`}
-          onChange={setApiKey}
-          placeholder={keyStored ? '已保存，留空不修改' : 'sk-...'}
-          secureTextEntry
-          suffix={
-            <InfoHint content="仅保存在系统钥匙串，不写入账本数据库；留空则保留原 Key。" />
+          rules={value =>
+            keyStored || value.trim() ? undefined : '请填写 API Key。'
           }
-          value={apiKey}
-        />
+        >
+          <Input
+            autoCapitalize="none"
+            autoCorrect={false}
+            placeholder={keyStored ? '已保存，留空不修改' : 'sk-...'}
+            secureTextEntry
+            suffix={
+              <InfoHint content="仅保存在系统钥匙串，不写入账本数据库；留空则保留原 Key。" />
+            }
+          />
+        </TypedForm.Item>
 
-        <Divider style={styles.sectionDivider} />
+        <Divider spacing="none" />
 
-        <ProviderModelSection
-          availableModels={availableModels}
-          defaultModelId={defaultModelId}
-          manualModel={manualModel}
-          modelPlaceholder={descriptor.modelPlaceholder}
-          onChangeManualModel={setManualModel}
-          onAddModel={handleAddModel}
-          onRemoveModel={handleRemoveModel}
-          onSetDefaultModel={setDefaultModelId}
-          onSubmitManualModel={handleAddManualModel}
-          onUpdateRow={handleUpdateRow}
-          rows={modelRows}
-        />
+        <TypedForm.Subscribe selector={state => state.values}>
+          {values => (
+            <ProviderModelSection
+              availableModels={availableModels}
+              defaultModelId={values.defaultModelId}
+              manualModel={manualModel}
+              modelPlaceholder={descriptor.modelPlaceholder}
+              onChangeManualModel={setManualModel}
+              onAddModel={handleAddModel}
+              onRemoveModel={handleRemoveModel}
+              onSetDefaultModel={modelId =>
+                form.setFieldValue('defaultModelId', modelId)
+              }
+              onSubmitManualModel={handleAddManualModel}
+              onUpdateRow={handleUpdateRow}
+              rows={values.models}
+            />
+          )}
+        </TypedForm.Subscribe>
 
-        <Divider style={styles.sectionDivider} />
+        <TypedForm.Item
+          name="models"
+          noStyle
+          rules={value =>
+            (value?.length ?? 0) === 0 ? '请至少添加一个模型' : undefined
+          }
+        >
+          {null}
+        </TypedForm.Item>
 
-        <Row style={styles.actions}>
+        <Divider spacing="none" />
+
+        <Row gap="normal" align="center" wrap>
           <Button
             disabled={testing}
             loading={testing}
@@ -539,7 +554,7 @@ export function AgentProviderEditor({
         </Row>
 
         {descriptor.apiKind === 'responses' ? (
-          <Column style={styles.advanced}>
+          <Column gap="small">
             <Pressable
               accessibilityRole="button"
               accessibilityState={{ expanded: advancedOpen }}
@@ -559,13 +574,15 @@ export function AgentProviderEditor({
               />
             </Pressable>
             {advancedOpen ? (
-              <Row style={styles.switchRow}>
-                <Row style={styles.switchLabel}>
-                  <Text size="md">服务端存储会话</Text>
-                  <InfoHint content="对应 Responses 的 store 参数。第三方中转网关无法引用上一轮结果时需关闭。" />
+              <TypedForm.Item name="storeResponses" noStyle>
+                <Row gap="normal" align="center">
+                  <Row style={styles.switchLabel} gap={token.marginXXS} align="center">
+                    <Text size="md">服务端存储会话</Text>
+                    <InfoHint content="对应 Responses 的 store 参数。第三方中转网关无法引用上一轮结果时需关闭。" />
+                  </Row>
+                  <Switch />
                 </Row>
-                <Switch onChange={setStoreResponses} value={storeResponses} />
-              </Row>
+              </TypedForm.Item>
             ) : null}
           </Column>
         ) : null}
@@ -582,7 +599,7 @@ export function AgentProviderEditor({
             </Text>
           </Column>
         ) : null}
-      </Column>
+      </TypedForm>
     </Popup.FloatingPanel>
   );
 }

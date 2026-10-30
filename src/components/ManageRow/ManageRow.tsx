@@ -1,7 +1,7 @@
 import React, { type ReactNode } from 'react';
 import { Pressable, View } from 'react-native';
 import { Column, Icon, Row, Text } from '@pennyspring/ui';
-import { createUseSheetStyle } from '@pennyspring/theme';
+import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
 
 const MENU_HIT_SLOP = 6;
 
@@ -92,12 +92,7 @@ const useStyles = createUseSheetStyle(token => ({
   },
   main: {
     flex: 1,
-    gap: token.marginXXS,
     minWidth: 0,
-  },
-  titleRow: {
-    alignItems: 'center',
-    gap: token.marginXS,
   },
   title: {
     flexShrink: 1,
@@ -106,7 +101,6 @@ const useStyles = createUseSheetStyle(token => ({
     minWidth: 0,
   },
   trailing: {
-    alignItems: 'flex-end',
     flexShrink: 0,
   },
   menu: {
@@ -128,29 +122,17 @@ const useStyles = createUseSheetStyle(token => ({
     paddingHorizontal: token.paddingXS,
   },
   sectionHeader: {
-    alignItems: 'flex-end',
-    gap: token.marginXS,
     paddingHorizontal: token.paddingXXS,
     paddingVertical: token.paddingXS,
   },
   sectionTitleArea: {
-    alignItems: 'baseline',
     flex: 1,
-    gap: token.marginXS,
-  },
-  sectionTotalNegative: {
-    color: token.colorErrorText,
-  },
-  sectionTotal: {
-    color: token.colorTextSecondary,
   },
   emptyCard: {
-    alignItems: 'center',
     borderColor: token.colorBorder,
     borderRadius: token.borderRadius,
     borderStyle: 'dashed',
     borderWidth: token.lineWidth,
-    gap: token.marginSM,
     paddingHorizontal: token.padding,
     paddingVertical: token.paddingLG,
   },
@@ -177,6 +159,7 @@ export function ManageRow({
   isCurrent = false,
   isHidden = false,
 }: ManageRowProps) {
+  const { token } = useTheme();
   const styles = useStyles();
   const tileStyle = [
     styles.tile,
@@ -203,8 +186,8 @@ export function ManageRow({
       {isHidden ? <View style={styles.hiddenMarker} /> : null}
       {isCurrent ? <View style={styles.currentMarker} /> : null}
       {leading ?? (icon ? <View style={tileStyle}>{icon}</View> : null)}
-      <Column style={styles.main}>
-        <Row style={styles.titleRow}>
+      <Column style={styles.main} gap={token.marginXXS}>
+        <Row gap="small" align="center">
           <Text
             numberOfLines={1}
             size="md"
@@ -224,7 +207,7 @@ export function ManageRow({
           {subtitle ?? ' '}
         </Text>
       </Column>
-      {trailing ? <Column style={styles.trailing}>{trailing}</Column> : null}
+      {trailing ? <Column style={styles.trailing} align="end">{trailing}</Column> : null}
       {onMenuPress ? (
         <Pressable
           hitSlop={MENU_HIT_SLOP}
@@ -269,8 +252,8 @@ export function ManageSectionHeader({
   const styles = useStyles();
 
   return (
-    <Row style={styles.sectionHeader}>
-      <Row style={styles.sectionTitleArea}>
+    <Row style={styles.sectionHeader} gap="small" align="end">
+      <Row style={styles.sectionTitleArea} gap="small" align="baseline">
         <Text color="secondary" size="xs" weight="semibold">
           {title}
         </Text>
@@ -282,8 +265,8 @@ export function ManageSectionHeader({
       </Row>
       {totalText ? (
         <Text
+          color={totalNegative ? 'errorText' : 'secondary'}
           size="xs"
-          style={totalNegative ? styles.sectionTotalNegative : styles.sectionTotal}
           weight="semibold"
         >
           {totalText}
@@ -296,5 +279,5 @@ export function ManageSectionHeader({
 export function ManageEmptyCard({ children }: { children: ReactNode }) {
   const styles = useStyles();
 
-  return <Column style={styles.emptyCard}>{children}</Column>;
+  return <Column style={styles.emptyCard} gap="normal" align="center">{children}</Column>;
 }

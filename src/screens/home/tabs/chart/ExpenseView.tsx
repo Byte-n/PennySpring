@@ -54,15 +54,7 @@ interface ExpenseViewProps {
 }
 
 const useStyles = createUseSheetStyle(token => ({
-  content: {
-    gap: token.marginSM,
-  },
-  scope: {
-    gap: token.marginXS,
-  },
   crumb: {
-    alignItems: 'center',
-    gap: token.marginXXS,
     marginBottom: token.marginXS,
   },
   crumbButton: {
@@ -70,7 +62,6 @@ const useStyles = createUseSheetStyle(token => ({
   },
   footer: {
     marginTop: token.marginXS,
-    alignItems: 'center',
   },
 }));
 
@@ -265,8 +256,8 @@ export function ExpenseView({
 
   if (total === 0) {
     return (
-      <Column style={styles.content}>
-        <Row gap="small" style={styles.scope}>
+      <Column gap="normal">
+        <Row gap="small" >
           {DIMENSION_OPTIONS.map(option => (
             <Pill
               key={option.value}
@@ -284,8 +275,8 @@ export function ExpenseView({
   }
 
   return (
-    <Column style={styles.content}>
-      <Row gap="small" style={styles.scope}>
+    <Column gap="normal">
+      <Row gap="small" >
         {DIMENSION_OPTIONS.map(option => (
           <Pill
             key={option.value}
@@ -298,7 +289,7 @@ export function ExpenseView({
 
       <ChartCard title="支出构成" subtitle={subtitle}>
         {isDrilled ? (
-          <Row style={styles.crumb}>
+          <Row style={styles.crumb} gap={token.marginXXS} align="center">
             <Pressable onPress={onBackParent} style={styles.crumbButton}>
               <Text size="xs" color="primary">
                 全部支出
@@ -328,7 +319,7 @@ export function ExpenseView({
             onEnterParent(typeId);
           }}
         />
-        <Row justify="center" style={styles.footer}>
+        <Row justify="center" style={styles.footer} align="center">
           <Text size="xs" color="tertiary">
             共 {count} 笔支出
           </Text>

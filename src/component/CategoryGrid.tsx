@@ -80,10 +80,6 @@ const useStyles = createUseSheetStyle(token => ({
   cellPressed: {
     backgroundColor: token.colorFillQuaternary,
   },
-  iconWrap: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   expansion: {
     backgroundColor: token.colorFillQuaternary,
     borderTopColor: token.colorSplit,
@@ -92,13 +88,10 @@ const useStyles = createUseSheetStyle(token => ({
     paddingBottom: token.paddingXS,
   },
   expansionHeader: {
-    alignItems: 'center',
     height: token.controlHeightSM,
-    justifyContent: 'space-between',
     paddingHorizontal: token.paddingXS,
   },
   expansionMeta: {
-    color: token.colorTextTertiary,
     flex: 1,
   },
   moreButton: {
@@ -336,8 +329,8 @@ function ManageExpansion({
 
   return (
     <Column style={styles.expansion}>
-      <Row style={styles.expansionHeader}>
-        <Text size="xs" style={styles.expansionMeta}>
+      <Row style={styles.expansionHeader} align="center" justify="between">
+        <Text size="xs" style={styles.expansionMeta} color="tertiary">
           {meta}
         </Text>
         {onMorePress ? (
@@ -430,7 +423,7 @@ function Cell({
         pressed && styles.cellPressed,
       ]}
     >
-      <Column align="center" style={styles.iconWrap}>
+      <Column align="center" justify="center">
         <IconComponent
           color={iconColor}
           size={

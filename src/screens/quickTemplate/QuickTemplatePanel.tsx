@@ -198,7 +198,7 @@ export function QuickTemplatePanel({
                   pressed ? styles.itemPressed : null,
                 ]}
               >
-                <Row align="center" gap={token.marginSM}>
+                <Row align="center" gap="normal">
                   <Column
                     align="center"
                     justify="center"
@@ -254,15 +254,12 @@ const useStyles = createUseSheetStyle(token => ({
     backgroundColor: token.controlItemBgHover,
   },
   itemIcon: {
-    alignItems: 'center',
     backgroundColor: token.colorPrimaryBg,
     borderRadius: token.borderRadiusLG,
     height: token.controlHeight,
-    justifyContent: 'center',
     width: token.controlHeight,
   },
   itemMain: {
     flex: 1,
-    gap: token.marginXXS,
   },
 }));

@@ -7,6 +7,7 @@ import type { AgentThreadRow } from '@pennyspring/api';
 
 jest.mock('@pennyspring/theme', () => ({
   createUseSheetStyle: () => () => ({}),
+  useTheme: () => ({ token: { marginXXS: 4 } }),
 }));
 
 jest.mock('../../src/components/ManageRow', () => {

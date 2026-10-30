@@ -1,12 +1,11 @@
 import React from 'react';
 import type { ReactNode } from 'react';
 import { Card, Column, Row, Text } from '@pennyspring/ui';
-import { createUseSheetStyle } from '@pennyspring/theme';
+import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
 
 const useStyles = createUseSheetStyle(token => ({
   titleArea: {
     flex: 1,
-    gap: token.marginXXS,
   },
   body: {
     marginTop: token.marginSM,
@@ -26,13 +25,14 @@ export function ChartCard({
   extra,
   children,
 }: ChartCardProps) {
+  const { token } = useTheme();
   const styles = useStyles();
 
   return (
     <Card>
       <Column>
         <Row align="start" justify="between" gap="normal">
-          <Column style={styles.titleArea}>
+          <Column style={styles.titleArea} gap={token.marginXXS}>
             <Text size="md" weight="semibold">
               {title}
             </Text>

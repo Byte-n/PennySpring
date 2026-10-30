@@ -14,9 +14,6 @@ const useStyles = createUseSheetStyle(token => ({
   list: {
     gap: token.marginSM,
   },
-  row: {
-    gap: token.marginXXS,
-  },
   tag: {
     paddingHorizontal: token.paddingXXS,
     paddingVertical: token.paddingXXS / 2,
@@ -28,15 +25,10 @@ const useStyles = createUseSheetStyle(token => ({
     borderRadius: token.borderRadiusXS,
     backgroundColor: token.colorFillQuaternary,
     overflow: 'hidden',
-    flexDirection: 'row',
   },
   half: {
     flex: 1,
     height: '100%',
-    flexDirection: 'row',
-  },
-  halfEnd: {
-    justifyContent: 'flex-end',
   },
   mid: {
     width: token.lineWidth,
@@ -85,7 +77,7 @@ export function MoverList({ movers }: MoverListProps) {
         const percentText =
           mover.percent === null ? '新增' : formatPercent(mover.percent);
         return (
-          <Column style={styles.row}>
+          <Column gap={token.marginXXS}>
             <Row align="center" justify="between">
               <Row align="center" gap="small">
                 <Text size="sm">{mover.name}</Text>
@@ -104,7 +96,7 @@ export function MoverList({ movers }: MoverListProps) {
               </Text>
             </Row>
             <Row style={styles.track}>
-              <Row style={[styles.half, styles.halfEnd]}>
+              <Row style={styles.half} justify="end">
                 {!isUp ? (
                   <Bar ratio={ratio} color={token.colorSuccess} />
                 ) : null}

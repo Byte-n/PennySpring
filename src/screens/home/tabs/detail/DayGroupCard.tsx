@@ -14,7 +14,6 @@ const useStyles = createUseSheetStyle(token => ({
   dayHeader: { paddingHorizontal: token.paddingSM, paddingTop: token.paddingSM, paddingBottom: token.paddingXS, backgroundColor: token.colorBgLayout },
   card: { marginHorizontal: token.padding, padding: 0, overflow: 'hidden' },
   cardBody: { gap: 0 },
-  divider: { marginVertical: 0 },
   spacer: { flex: 1 },
 }));
 
@@ -46,7 +45,7 @@ export function DayGroupCard({ group, onPressRecord, hidden = false }: DayGroupC
       <Card style={styles.card} styles={{ body: styles.cardBody }}>
       {group.records.map((view, index) => (
         <React.Fragment key={view.record.id}>
-          {index > 0 ? <Divider style={styles.divider} /> : null}
+          {index > 0 ? <Divider spacing="none" /> : null}
           <RecordRow view={view} onPress={onPressRecord} hidden={hidden} />
         </React.Fragment>
       ))}

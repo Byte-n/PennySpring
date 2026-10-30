@@ -12,12 +12,8 @@ interface ReimbursementCardProps {
 }
 
 const useStyles = createUseSheetStyle(token => ({
-  cells: {
-    gap: token.marginXS,
-  },
   cell: {
     flex: 1,
-    gap: token.marginXXS,
     paddingHorizontal: token.paddingXS,
     paddingVertical: token.paddingXS,
     borderRadius: token.borderRadiusSM,
@@ -34,8 +30,8 @@ export function ReimbursementCard({ summary }: ReimbursementCardProps) {
 
   return (
     <Column>
-      <Row style={styles.cells}>
-        <Column style={styles.cell}>
+      <Row gap="small">
+        <Column style={styles.cell} gap={token.marginXXS}>
           <Text size="xs" color="tertiary">
             可报销
           </Text>
@@ -43,7 +39,7 @@ export function ReimbursementCard({ summary }: ReimbursementCardProps) {
             {formatMoney(summary.total)}
           </Text>
         </Column>
-        <Column style={styles.cell}>
+        <Column style={styles.cell} gap={token.marginXXS}>
           <Text size="xs" color="tertiary">
             已报销
           </Text>
@@ -51,7 +47,7 @@ export function ReimbursementCard({ summary }: ReimbursementCardProps) {
             {formatMoney(summary.reimbursed)}
           </Text>
         </Column>
-        <Column style={styles.cell}>
+        <Column style={styles.cell} gap={token.marginXXS}>
           <Text size="xs" color="tertiary">
             待报销
           </Text>

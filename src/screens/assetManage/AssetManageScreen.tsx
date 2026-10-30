@@ -1,4 +1,4 @@
-import React, { useCallback, useLayoutEffect, useMemo, useState } from 'react';
+import React, { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { ScrollView } from 'react-native';
 import { useRequest } from 'ahooks';
 import {
@@ -6,6 +6,7 @@ import {
   Button,
   Column,
   DateTimePicker,
+  Form,
   Icon,
   Input,
   ListPicker,
@@ -28,7 +29,7 @@ import {
   type AssetTypeValue,
   VISIBILITY,
 } from '@pennyspring/api';
-import { createUseSheetStyle } from '@pennyspring/theme';
+import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
 import {
   BankIcon,
   ChartLineIcon,
@@ -83,10 +84,6 @@ interface AssetGroupView {
 function dayToPickerDate(day?: number): Date | undefined {
   if (!day || day < 1 || day > 31) return undefined;
   return new Date(PICKER_BASE_YEAR, PICKER_BASE_MONTH, day);
-}
-
-function formatDayText(day?: number): string {
-  return day ? `每月 ${day} 日` : '请选择';
 }
 
 function formatSignedCents(cents: number): string {
@@ -182,6 +179,30 @@ function getErrorMessage(error: unknown, fallback: string): string {
   return fallback;
 }
 
+interface AssetFormValues {
+  name: string;
+  assetPath: ListPickerCascaderValue;
+  balance: string;
+  totalAmount: string;
+  billingDate?: number;
+  repaymentDate?: number;
+  remark: string;
+  invisible: boolean;
+}
+
+const TypedForm = Form.infer<AssetFormValues>();
+
+const EMPTY_ASSET_FORM: AssetFormValues = {
+  name: '',
+  assetPath: [ASSET_TYPE.capitalAccount, ASSET_CLASSIFICATION.cash],
+  balance: '',
+  totalAmount: '',
+  billingDate: undefined,
+  repaymentDate: undefined,
+  remark: '',
+  invisible: false,
+};
+
 const useStyles = createUseSheetStyle(token => ({
   container: {
     backgroundColor: token.colorBgLayout,
@@ -197,28 +218,15 @@ const useStyles = createUseSheetStyle(token => ({
     borderColor: token.colorSplit,
     borderRadius: token.borderRadius,
     borderWidth: token.lineWidth,
-    gap: token.marginXXS,
     padding: token.padding,
   },
-  heroTop: {
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  heroLabel: {
-    color: token.colorTextSecondary,
-  },
-  heroNote: {
-    color: token.colorTextTertiary,
-  },
   heroFoot: {
-    alignItems: 'center',
     borderTopColor: token.colorSplit,
     borderTopWidth: token.lineWidth,
     marginTop: token.marginSM,
     paddingTop: token.paddingXS,
   },
   heroFootText: {
-    color: token.colorTextTertiary,
     flex: 1,
   },
   heroSplit: {
@@ -236,41 +244,16 @@ const useStyles = createUseSheetStyle(token => ({
     backgroundColor: token.colorSplit,
     width: token.lineWidth,
   },
-  heroSplitLabel: {
-    color: token.colorTextTertiary,
-  },
-  heroSplitValue: {
-    color: token.colorTextSecondary,
-  },
-  heroSplitValueNegative: {
-    color: token.colorErrorText,
-  },
-  section: {
-    gap: token.marginXXS,
-  },
   listEnd: {
-    color: token.colorTextTertiary,
     lineHeight: token.lineHeight,
-    textAlign: 'center',
-  },
-  emptyBody: {
-    gap: token.marginXS,
-  },
-  panelContent: {
-    gap: token.marginMD,
-  },
-  switchRow: {
-    alignItems: 'center',
   },
   switchText: {
     flex: 1,
   },
-  switchNote: {
-    color: token.colorTextTertiary,
-  },
 }));
 
 export function AssetManageScreen() {
+  const { token } = useTheme();
   const styles = useStyles();
   const toast = useToast();
   const navigation = useNavigation();
@@ -326,41 +309,21 @@ export function AssetManageScreen() {
     [assets],
   );
 
+  const [form] = TypedForm.useForm();
+  const submitSucceededRef = useRef(false);
   const [panelOpen, setPanelOpen] = useState(false);
   const [editingAsset, setEditingAsset] = useState<AssetRow | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const [name, setName] = useState('');
-  const [assetPath, setAssetPath] = useState<ListPickerCascaderValue>([
-    ASSET_TYPE.capitalAccount,
-    ASSET_CLASSIFICATION.cash,
-  ]);
-  const [balance, setBalance] = useState('');
-  const [totalAmount, setTotalAmount] = useState('');
-  const [billingDate, setBillingDate] = useState<number | undefined>();
-  const [repaymentDate, setRepaymentDate] = useState<number | undefined>();
-  const [remark, setRemark] = useState('');
-  const [invisible, setInvisible] = useState(false);
 
   const [menuAsset, setMenuAsset] = useState<AssetRow | null>(null);
   const [pendingDeleteAsset, setPendingDeleteAsset] =
     useState<AssetRow | null>(null);
 
-  const resetForm = useCallback(() => {
-    setName('');
-    setAssetPath([ASSET_TYPE.capitalAccount, ASSET_CLASSIFICATION.cash]);
-    setBalance('');
-    setTotalAmount('');
-    setBillingDate(undefined);
-    setRepaymentDate(undefined);
-    setRemark('');
-    setInvisible(false);
-  }, []);
-
   const openCreate = useCallback(() => {
     setEditingAsset(null);
-    resetForm();
+    form.reset(EMPTY_ASSET_FORM);
     setPanelOpen(true);
-  }, [resetForm]);
+  }, [form]);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -371,91 +334,76 @@ export function AssetManageScreen() {
   const openEdit = useCallback(
     (asset: AssetRow) => {
       setEditingAsset(asset);
-      setName(asset.name);
       const classificationPath = pathLookup.get(asset.classification);
       const typePath = pathLookup.get(asset.type);
-      setAssetPath(
-        classificationPath ??
+      form.reset({
+        assetPath:
+          classificationPath ??
           typePath ?? [ASSET_TYPE.capitalAccount, ASSET_CLASSIFICATION.cash],
-      );
-      setBalance((asset.balance / CENTS_PER_YUAN).toFixed(2));
-      setTotalAmount((asset.totalAmount / CENTS_PER_YUAN).toFixed(2));
-      setBillingDate(asset.billingDate > 0 ? asset.billingDate : undefined);
-      setRepaymentDate(
-        asset.repaymentDate > 0 ? asset.repaymentDate : undefined,
-      );
-      setRemark(asset.remark);
-      setInvisible(asset.invisible === VISIBILITY.hidden);
+        balance: (asset.balance / CENTS_PER_YUAN).toFixed(2),
+        billingDate: asset.billingDate > 0 ? asset.billingDate : undefined,
+        invisible: asset.invisible === VISIBILITY.hidden,
+        name: asset.name,
+        remark: asset.remark,
+        repaymentDate:
+          asset.repaymentDate > 0 ? asset.repaymentDate : undefined,
+        totalAmount: (asset.totalAmount / CENTS_PER_YUAN).toFixed(2),
+      });
       setPanelOpen(true);
     },
-    [pathLookup],
+    [form, pathLookup],
   );
 
-  const type = assetPath[0] as AssetTypeValue | undefined;
-  const classification = assetPath[assetPath.length - 1] as
-    | AssetClassificationValue
-    | undefined;
-  const isCreditCard = type === ASSET_TYPE.creditCard;
-
-  const handleSave = useCallback(async (): Promise<boolean> => {
-    if (!name.trim()) {
-      toast.show({ messageText: '请输入资产名称' });
-      return false;
-    }
-    if (!currentBook) {
-      toast.show({ messageText: '未找到当前账本' });
-      return false;
-    }
-    if (!type || !classification) {
-      toast.show({ messageText: '请选择资产类型和分类' });
-      return false;
-    }
-    setSubmitting(true);
-    try {
-      const input = {
-        balance: Math.round(parseFloat(balance || '0') * CENTS_PER_YUAN),
-        billingDate: billingDate ?? 0,
-        booksId: currentBook.id,
-        cardNo: editingAsset?.cardNo ?? '',
-        classification,
-        invisible: invisible ? VISIBILITY.hidden : VISIBILITY.visible,
-        name: name.trim(),
-        openBank: editingAsset?.openBank ?? '',
-        remark,
-        repaymentDate: repaymentDate ?? 0,
-        totalAmount: Math.round(
-          parseFloat(totalAmount || '0') * CENTS_PER_YUAN,
-        ),
-        type,
-      };
-      if (editingAsset) {
-        await globalApi.asset.update({ ...input, id: editingAsset.id });
-      } else {
-        await globalApi.asset.create(input);
+  const handleFinish = useCallback(
+    async (values: AssetFormValues) => {
+      submitSucceededRef.current = false;
+      if (!currentBook) {
+        toast.show({ messageText: '未找到当前账本' });
+        return;
       }
-      refresh();
-      return true;
-    } catch (error: unknown) {
-      toast.show({ messageText: getErrorMessage(error, '保存失败') });
-      return false;
-    } finally {
-      setSubmitting(false);
-    }
-  }, [
-    balance,
-    billingDate,
-    classification,
-    currentBook,
-    editingAsset,
-    invisible,
-    name,
-    refresh,
-    remark,
-    repaymentDate,
-    toast,
-    totalAmount,
-    type,
-  ]);
+      const type = values.assetPath[0] as AssetTypeValue;
+      const classification = values.assetPath[
+        values.assetPath.length - 1
+      ] as AssetClassificationValue;
+      setSubmitting(true);
+      try {
+        const input = {
+          balance: Math.round(parseFloat(values.balance || '0') * CENTS_PER_YUAN),
+          billingDate: values.billingDate ?? 0,
+          booksId: currentBook.id,
+          cardNo: editingAsset?.cardNo ?? '',
+          classification,
+          invisible: values.invisible ? VISIBILITY.hidden : VISIBILITY.visible,
+          name: values.name.trim(),
+          openBank: editingAsset?.openBank ?? '',
+          remark: values.remark,
+          repaymentDate: values.repaymentDate ?? 0,
+          totalAmount: Math.round(
+            parseFloat(values.totalAmount || '0') * CENTS_PER_YUAN,
+          ),
+          type,
+        };
+        if (editingAsset) {
+          await globalApi.asset.update({ ...input, id: editingAsset.id });
+        } else {
+          await globalApi.asset.create(input);
+        }
+        refresh();
+        submitSucceededRef.current = true;
+      } catch (error: unknown) {
+        toast.show({ messageText: getErrorMessage(error, '保存失败') });
+      } finally {
+        setSubmitting(false);
+      }
+    },
+    [currentBook, editingAsset, globalApi.asset, refresh, toast],
+  );
+
+  const handlePanelOk = useCallback(async () => {
+    submitSucceededRef.current = false;
+    await form.handleSubmit();
+    return submitSucceededRef.current;
+  }, [form]);
 
   const handleDelete = useCallback(async () => {
     const target = pendingDeleteAsset;
@@ -502,7 +450,6 @@ export function AssetManageScreen() {
     }
   }, []);
 
-  const okDisabled = submitting || !name.trim();
   const hasAssets = assets.length > 0;
   const submitText = editingAsset ? '保存' : '新增';
 
@@ -513,7 +460,7 @@ export function AssetManageScreen() {
           <ManageSkeleton showHero />
         ) : !hasAssets ? (
           <ManageEmptyCard>
-            <Column style={styles.emptyBody}>
+            <Column gap="small">
               <Text size="md" weight="medium">
                 还没有账户
               </Text>
@@ -527,12 +474,12 @@ export function AssetManageScreen() {
           </ManageEmptyCard>
         ) : (
           <>
-            <Column style={styles.hero}>
-              <Row style={styles.heroTop}>
-                <Text size="xs" style={styles.heroLabel}>
+            <Column style={styles.hero} gap={token.marginXXS}>
+              <Row align="center" justify="between">
+                <Text size="xs" color="secondary">
                   净资产
                 </Text>
-                <Text size="xs" style={styles.heroNote}>
+                <Text size="xs" color="tertiary">
                   {`负债率 ${(overview.debtRatio * 100).toFixed(1)}%`}
                 </Text>
               </Row>
@@ -544,39 +491,38 @@ export function AssetManageScreen() {
               />
               <Row style={styles.heroSplit}>
                 <Column style={styles.heroSplitItem}>
-                  <Text size="xs" style={styles.heroSplitLabel}>
+                  <Text size="xs" color="tertiary">
                     资产
                   </Text>
-                  <Text size="xs" style={styles.heroSplitValue} weight="semibold">
+                  <Text size="xs" weight="semibold" color="secondary">
                     {formatSignedCents(overview.assetsTotal)}
                   </Text>
                 </Column>
                 <Column style={styles.heroSplitDivider} />
                 <Column style={styles.heroSplitItem}>
-                  <Text size="xs" style={styles.heroSplitLabel}>
+                  <Text size="xs" color="tertiary">
                     负债
                   </Text>
                   <Text
                     size="xs"
-                    style={styles.heroSplitValueNegative}
-                    weight="semibold"
+                    weight="semibold" color="errorText"
                   >
                     {formatSignedCents(-overview.liabilitiesTotal)}
                   </Text>
                 </Column>
                 <Column style={styles.heroSplitDivider} />
                 <Column style={styles.heroSplitItem}>
-                  <Text size="xs" style={styles.heroSplitLabel}>
+                  <Text size="xs" color="tertiary">
                     账户
                   </Text>
-                  <Text size="xs" style={styles.heroSplitValue} weight="semibold">
+                  <Text size="xs" weight="semibold" color="secondary">
                     {`${overview.accounts.length} 个`}
                   </Text>
                 </Column>
               </Row>
               {hiddenCount > 0 ? (
-                <Row style={styles.heroFoot}>
-                  <Text size="xs" style={styles.heroFootText}>
+                <Row style={styles.heroFoot} align="center">
+                  <Text size="xs" style={styles.heroFootText} color="tertiary">
                     {`其中 ${hiddenCount} 个已隐藏，不计入合计`}
                   </Text>
                 </Row>
@@ -584,7 +530,7 @@ export function AssetManageScreen() {
             </Column>
 
             {groups.map(group => (
-              <Column key={group.key} style={styles.section}>
+              <Column key={group.key} gap={token.marginXXS}>
                 <ManageSectionHeader
                   countText={`${group.visibleCount} 个${
                     group.hiddenCount > 0
@@ -661,7 +607,7 @@ export function AssetManageScreen() {
               </Column>
             ))}
 
-            <Text size="xs" style={styles.listEnd}>
+            <Text size="xs" style={styles.listEnd} color="tertiary" textAlign="center">
               合计口径与图表页一致：净资产 = 资产 − 负债
               {hiddenCount > 0 ? '\n隐藏账户仍可管理，但不参与任何合计' : ''}
             </Text>
@@ -670,95 +616,98 @@ export function AssetManageScreen() {
       </ScrollView>
 
       <FormFloatingPanel
-        onOk={handleSave}
+        onOk={handlePanelOk}
         onOpenChange={handleFormOpenChange}
         open={panelOpen}
-        panelBodyStyle={styles.panelContent}
-        submitDisabled={okDisabled}
         submitLoading={submitting}
         submitText={submitText}
         titleText={editingAsset ? '编辑资产' : '新增资产'}
       >
-        <Input
-          labelText="名称"
-          onChange={setName}
-          placeholder="例如：招商银行储蓄卡"
-          value={name}
-        />
-        <ListPicker.Cascader
-          labelText="类型与分类"
-          onChange={setAssetPath}
-          options={cascaderOptions}
-          texts={{ tabPlaceholderText: '请选择' }}
-          value={assetPath}
-        />
-        <Input
-          keyboardType="numeric"
-          labelText={isCreditCard ? '待还金额' : '当前余额'}
-          onChange={setBalance}
-          placeholder="0.00"
-          value={balance}
-        />
-        {isCreditCard ? (
-          <>
-            <Input
-              keyboardType="numeric"
-              labelText="总额度"
-              onChange={setTotalAmount}
-              placeholder="0.00"
-              value={totalAmount}
+        <TypedForm form={form} labelMode="child" onFinish={handleFinish}>
+          <TypedForm.Item
+            name="name"
+            labelText="名称"
+            required
+            requiredMessage="请输入资产名称"
+          >
+            <Input placeholder="例如：招商银行储蓄卡" />
+          </TypedForm.Item>
+          <TypedForm.Item
+            name="assetPath"
+            labelText="类型与分类"
+            rules={value =>
+              value.length >= 2 ? undefined : '请选择资产类型和分类'
+            }
+          >
+            <ListPicker.Cascader
+              options={cascaderOptions}
+              texts={{ tabPlaceholderText: '请选择' }}
             />
-            <Row gap="small">
+          </TypedForm.Item>
+          <TypedForm.Subscribe selector={state => state.values}>
+            {values => {
+              const isCreditCard = values.assetPath[0] === ASSET_TYPE.creditCard;
+              return (
+                <>
+                  <TypedForm.Item
+                    name="balance"
+                    labelText={isCreditCard ? '待还金额' : '当前余额'}
+                  >
+                    <Input keyboardType="numeric" placeholder="0.00" />
+                  </TypedForm.Item>
+                  {isCreditCard ? (
+                    <>
+                      <TypedForm.Item name="totalAmount" labelText="总额度">
+                        <Input keyboardType="numeric" placeholder="0.00" />
+                      </TypedForm.Item>
+                      <Row gap="small">
+                        <Column style={styles.switchText}>
+                          <DateTimePicker
+                            labelText="账单日"
+                            layout="calendar"
+                            onOk={(_value, params) =>
+                              form.setFieldValue('billingDate', params.day)
+                            }
+                            precision="day"
+                            titleText="选择账单日"
+                            value={dayToPickerDate(values.billingDate)}
+                          />
+                        </Column>
+                        <Column style={styles.switchText}>
+                          <DateTimePicker
+                            labelText="还款日"
+                            layout="calendar"
+                            onOk={(_value, params) =>
+                              form.setFieldValue('repaymentDate', params.day)
+                            }
+                            precision="day"
+                            titleText="选择还款日"
+                            value={dayToPickerDate(values.repaymentDate)}
+                          />
+                        </Column>
+                      </Row>
+                    </>
+                  ) : null}
+                </>
+              );
+            }}
+          </TypedForm.Subscribe>
+          <TypedForm.Item name="remark" noStyle>
+            <Textarea placeholder="备注（可选）" />
+          </TypedForm.Item>
+          <TypedForm.Item name="invisible" noStyle>
+            <Row align="center">
               <Column style={styles.switchText}>
-                <DateTimePicker
-                  layout="calendar"
-                  onOk={(_value, params) => setBillingDate(params.day)}
-                  precision="day"
-                  titleText="选择账单日"
-                  value={dayToPickerDate(billingDate)}
-                >
-                  <Input
-                    labelText="账单日"
-                    placeholder="请选择"
-                    readonly
-                    value={formatDayText(billingDate)}
-                  />
-                </DateTimePicker>
+                <Text size="md">在总览中隐藏</Text>
+                <Text size="xs" color="tertiary">
+                  隐藏后不计入净资产，首页图表同步忽略
+                </Text>
               </Column>
-              <Column style={styles.switchText}>
-                <DateTimePicker
-                  layout="calendar"
-                  onOk={(_value, params) => setRepaymentDate(params.day)}
-                  precision="day"
-                  titleText="选择还款日"
-                  value={dayToPickerDate(repaymentDate)}
-                >
-                  <Input
-                    labelText="还款日"
-                    placeholder="请选择"
-                    readonly
-                    value={formatDayText(repaymentDate)}
-                  />
-                </DateTimePicker>
-              </Column>
+              <Spacer size="small" />
+              <Switch />
             </Row>
-          </>
-        ) : null}
-        <Textarea
-          onChangeText={setRemark}
-          placeholder="备注（可选）"
-          value={remark}
-        />
-        <Row style={styles.switchRow}>
-          <Column style={styles.switchText}>
-            <Text size="md">在总览中隐藏</Text>
-            <Text size="xs" style={styles.switchNote}>
-              隐藏后不计入净资产，首页图表同步忽略
-            </Text>
-          </Column>
-          <Spacer size="small" />
-          <Switch onChange={setInvisible} value={invisible} />
-        </Row>
+          </TypedForm.Item>
+        </TypedForm>
       </FormFloatingPanel>
 
       <ActionSheet

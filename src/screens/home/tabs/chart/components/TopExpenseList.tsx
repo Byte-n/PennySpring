@@ -18,28 +18,17 @@ const useStyles = createUseSheetStyle(token => ({
   list: {
     gap: token.marginSM,
   },
-  row: {
-    gap: token.marginXS,
-    alignItems: 'center',
-  },
   date: {
     width: token.sizeXXL,
-    alignItems: 'flex-start',
   },
   iconBox: {
     width: ICON_BOX_SIZE,
     height: ICON_BOX_SIZE,
     borderRadius: token.borderRadiusSM,
     backgroundColor: token.colorFillQuaternary,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   main: {
     flex: 1,
-    gap: token.marginXXS,
-  },
-  amount: {
-    alignItems: 'flex-end',
   },
 }));
 
@@ -59,8 +48,8 @@ export function TopExpenseList({ items }: TopExpenseListProps) {
           ? getPhosphorIconComponent(item.typeIcon)
           : null;
         return (
-          <Row style={styles.row}>
-            <Column style={styles.date}>
+          <Row gap="small" align="center">
+            <Column style={styles.date} align="start">
               <Text size="xs" weight="medium" color="secondary" numberOfLines={1}>
                 {`${date.getMonth() + 1}/${date.getDate()}`}
               </Text>
@@ -68,12 +57,12 @@ export function TopExpenseList({ items }: TopExpenseListProps) {
                 {WEEKDAY_LABELS[date.getDay()]}
               </Text>
             </Column>
-            <Column style={styles.iconBox}>
+            <Column style={styles.iconBox} align="center" justify="center">
               {IconComponent ? (
                 <IconComponent color={token.colorTextSecondary} size={ICON_SIZE} />
               ) : null}
             </Column>
-            <Column style={styles.main}>
+            <Column style={styles.main} gap={token.marginXXS}>
               <Text size="sm" numberOfLines={1}>
                 {item.title}
               </Text>
@@ -83,7 +72,7 @@ export function TopExpenseList({ items }: TopExpenseListProps) {
                   : item.typeName}
               </Text>
             </Column>
-            <Column style={styles.amount}>
+            <Column align="end">
               <Text size="sm" weight="medium" color="error">
                 {`−${formatMoney(item.amount)}`}
               </Text>

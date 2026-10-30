@@ -44,9 +44,6 @@ interface AssetsViewProps {
 }
 
 const useStyles = createUseSheetStyle(token => ({
-  content: {
-    gap: token.marginSM,
-  },
   heroDelta: {
     marginTop: token.marginXXS,
   },
@@ -61,7 +58,6 @@ const useStyles = createUseSheetStyle(token => ({
   },
   splitItem: {
     flex: 1,
-    gap: token.marginXXS,
   },
   splitDivider: {
     width: token.lineWidth,
@@ -79,10 +75,6 @@ const useStyles = createUseSheetStyle(token => ({
   },
   legendColumn: {
     flex: 1,
-    gap: token.marginXS,
-  },
-  legendItem: {
-    gap: token.marginXXS,
   },
   legendName: {
     flex: 1,
@@ -107,15 +99,9 @@ const useStyles = createUseSheetStyle(token => ({
     height: ACCOUNT_ICON_BOX_SIZE,
     borderRadius: token.borderRadiusSM,
     backgroundColor: token.colorFillQuaternary,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   accountMain: {
     flex: 1,
-    gap: token.marginXXS,
-  },
-  accountAmount: {
-    alignItems: 'flex-end',
   },
   dueDate: {
     width: token.sizeXXL,
@@ -125,10 +111,6 @@ const useStyles = createUseSheetStyle(token => ({
   },
   dueMain: {
     flex: 1,
-    gap: token.marginXXS,
-  },
-  dueAmount: {
-    alignItems: 'flex-end',
   },
 }));
 
@@ -138,7 +120,6 @@ const useDueStyles = createUseSheetStyle(
       width: token.sizeXXL,
       paddingVertical: token.paddingXXS,
       borderRadius: token.borderRadiusXS,
-      alignItems: 'center',
       backgroundColor: urgent ? token.colorWarningBg : token.colorFillQuaternary,
     },
   }),
@@ -159,6 +140,7 @@ interface AssetLegendProps {
 }
 
 function AssetLegend({ groups, colors, footer }: AssetLegendProps) {
+  const { token } = useTheme();
   const styles = useStyles();
   const columns = [groups.slice(0, 2), groups.slice(2, 4)];
 
@@ -166,9 +148,9 @@ function AssetLegend({ groups, colors, footer }: AssetLegendProps) {
     <>
       <Row gap="large" style={styles.legend}>
         {columns.map((column, columnIndex) => (
-          <Column key={`legend-${columnIndex}`} style={styles.legendColumn}>
+          <Column key={`legend-${columnIndex}`} style={styles.legendColumn} gap="small">
             {column.map((group, index) => (
-              <Row key={group.key} align="center" gap="small" style={styles.legendItem}>
+              <Row key={group.key} align="center" gap={token.marginXXS} >
                 <ColorDot color={colors[columnIndex * 2 + index]} />
                 <Text size="xs" color="secondary" style={styles.legendName}>
                   {group.name}
@@ -193,6 +175,7 @@ interface DueRowProps {
 }
 
 function DueRow({ reminder }: DueRowProps) {
+  const { token } = useTheme();
   const styles = useStyles();
   const dueDate = new Date(reminder.dueDate);
   const urgent = reminder.daysLeft <= URGENT_DAYS;
@@ -200,7 +183,7 @@ function DueRow({ reminder }: DueRowProps) {
 
   return (
     <Row style={styles.accountRow}>
-      <Column style={dueStyles.dueDate}>
+      <Column style={dueStyles.dueDate} align="center">
         <Text
           size="xs"
           weight="semibold"
@@ -212,7 +195,7 @@ function DueRow({ reminder }: DueRowProps) {
           {reminder.daysLeft === 0 ? '今天' : `${reminder.daysLeft} 天后`}
         </Text>
       </Column>
-      <Column style={styles.dueMain}>
+      <Column style={styles.dueMain} gap={token.marginXXS}>
         <Text size="sm" numberOfLines={1}>
           {reminder.asset.name}
         </Text>
@@ -220,7 +203,7 @@ function DueRow({ reminder }: DueRowProps) {
           {reminder.asset.type === ASSET_TYPE.creditCard ? '信用卡待还' : '借入债务'}
         </Text>
       </Column>
-      <Column style={styles.dueAmount}>
+      <Column align="end">
         <Text size="sm" weight="medium" color="error">
           {formatMoney(reminder.amount)}
         </Text>
@@ -283,7 +266,7 @@ export function AssetsView({
   const dueTotal = reminders.reduce((sum, reminder) => sum + reminder.amount, 0);
 
   return (
-    <Column style={styles.content}>
+    <Column gap="normal">
       <Card variant="summary">
         <Row align="start" justify="between" gap="normal">
           <Column gap="small">
@@ -326,7 +309,7 @@ export function AssetsView({
           <NetWorthSparkline points={history} />
         </Column>
         <Row style={styles.split}>
-          <Column style={styles.splitItem}>
+          <Column style={styles.splitItem} gap={token.marginXXS}>
             <Text size="xs" color="tertiary">
               可用资金
             </Text>
@@ -335,7 +318,7 @@ export function AssetsView({
             </Text>
           </Column>
           <Column style={styles.splitDivider} />
-          <Column style={styles.splitItem}>
+          <Column style={styles.splitItem} gap={token.marginXXS}>
             <Text size="xs" color="tertiary">
               应收债权
             </Text>
@@ -344,7 +327,7 @@ export function AssetsView({
             </Text>
           </Column>
           <Column style={styles.splitDivider} />
-          <Column style={styles.splitItem}>
+          <Column style={styles.splitItem} gap={token.marginXXS}>
             <Text size="xs" color="tertiary">
               应还债务
             </Text>
@@ -424,13 +407,13 @@ export function AssetsView({
                   pressed ? styles.accountRowPressed : null,
                 ]}
               >
-                <Column style={styles.accountIcon}>
+                <Column style={styles.accountIcon} align="center" justify="center">
                   <IconComponent
                     color={token.colorTextSecondary}
                     size={ACCOUNT_ICON_SIZE}
                   />
                 </Column>
-                <Column style={styles.accountMain}>
+                <Column style={styles.accountMain} gap={token.marginXXS}>
                   <Text size="sm" numberOfLines={1}>
                     {account.name}
                   </Text>
@@ -438,7 +421,7 @@ export function AssetsView({
                     {account.subtitle}
                   </Text>
                 </Column>
-                <Column style={styles.accountAmount}>
+                <Column align="end">
                   <Text
                     size="sm"
                     weight="medium"

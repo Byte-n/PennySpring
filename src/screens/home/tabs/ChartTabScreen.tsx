@@ -55,7 +55,6 @@ const useStyles = createUseSheetStyle(token => ({
     backgroundColor: token.colorBgLayout,
   },
   controls: {
-    gap: token.marginXS,
     paddingHorizontal: token.padding,
     paddingVertical: token.paddingXS,
   },
@@ -67,10 +66,6 @@ const useStyles = createUseSheetStyle(token => ({
   },
   state: {
     paddingVertical: token.paddingLG,
-  },
-  emptyCard: {
-    alignItems: 'center',
-    gap: token.marginSM,
   },
 }));
 
@@ -272,7 +267,7 @@ export function ChartTabScreen() {
     if (view !== 'assets' && !hasCashflow) {
       return (
         <Card>
-          <Column style={styles.emptyCard}>
+          <Column gap="normal" align="center">
             <Empty
               titleText="本月还没有记录"
               descriptionText="点击右下角 + 记一笔，报表会自动生成。"
@@ -337,7 +332,7 @@ export function ChartTabScreen() {
 
   return (
     <Column style={styles.container}>
-      <Column style={styles.controls}>
+      <Column style={styles.controls} gap="small">
         {view !== 'assets' ? (
           <PeriodBar
             label={period.label}

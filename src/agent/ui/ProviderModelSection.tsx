@@ -12,7 +12,7 @@ import {
   Row,
   Text,
 } from '@pennyspring/ui';
-import { createUseSheetStyle } from '@pennyspring/theme';
+import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
 
 import {
   CONTEXT_WINDOW_OPTIONS,
@@ -60,46 +60,26 @@ interface OpenMenuState {
 }
 
 const useStyles = createUseSheetStyle(token => ({
-  section: {
-    gap: token.marginSM,
-  },
-  header: {
-    alignItems: 'center',
-    gap: token.marginXS,
-  },
-  tableHead: {
-    alignItems: 'center',
-    gap: token.marginXXS,
-  },
-  rowDivider: {
-    marginVertical: 0,
-  },
   headName: {
     flex: 1,
   },
   nameCell: {
     flex: 1,
-    gap: token.marginXXS,
     minWidth: 0,
   },
   modelName: {
     flexShrink: 1,
   },
   contextCell: {
-    textAlign: 'center',
     width: CONTEXT_COLUMN_WIDTH,
   },
   effortCell: {
-    textAlign: 'center',
     width: EFFORT_COLUMN_WIDTH,
   },
   actionsCell: {
-    textAlign: 'center',
     width: token.controlHeightSM,
   },
   modelRow: {
-    alignItems: 'center',
-    gap: token.marginXXS,
     minHeight: token.controlHeight,
     paddingVertical: token.paddingXXS,
   },
@@ -110,7 +90,6 @@ const useStyles = createUseSheetStyle(token => ({
     width: EFFORT_COLUMN_WIDTH,
   },
   menu: {
-    gap: token.marginXXS,
     minWidth: 80,
   },
   menuOption: {
@@ -130,19 +109,8 @@ const useStyles = createUseSheetStyle(token => ({
   menuOptionLabel: {
     flex: 1,
   },
-  addRow: {
-    alignItems: 'flex-end',
-    gap: token.marginXS,
-  },
   addField: {
     flex: 1,
-  },
-  available: {
-    gap: token.marginXS,
-  },
-  availableList: {
-    flexWrap: 'wrap',
-    gap: token.marginXS,
   },
 }));
 
@@ -214,10 +182,11 @@ interface ContextMenuProps {
 }
 
 function ContextMenu({ value, onSelect }: ContextMenuProps): React.ReactElement {
+  const { token } = useTheme();
   const styles = useStyles();
 
   return (
-    <Column style={styles.menu}>
+    <Column style={styles.menu} gap={token.marginXXS}>
       {CONTEXT_WINDOW_OPTIONS.map(option => (
         <MenuOption
           key={option.value}
@@ -236,10 +205,11 @@ interface EffortMenuProps {
 }
 
 function EffortMenu({ value, onSelect }: EffortMenuProps): React.ReactElement {
+  const { token } = useTheme();
   const styles = useStyles();
 
   return (
-    <Column style={styles.menu}>
+    <Column style={styles.menu} gap={token.marginXXS}>
       {REASONING_EFFORT_OPTIONS.map(option => (
         <MenuOption
           key={option.value}
@@ -265,10 +235,11 @@ function ActionsMenu({
   onRemove,
   onClose,
 }: ActionsMenuProps): React.ReactElement {
+  const { token } = useTheme();
   const styles = useStyles();
 
   return (
-    <Column style={styles.menu}>
+    <Column style={styles.menu} gap={token.marginXXS}>
       {isDefault ? (
         <MenuOption label="默认模型" onPress={onClose} selected />
       ) : (
@@ -336,6 +307,7 @@ function ModelRow({
   onSetDefault,
   onRemove,
 }: ModelRowProps): React.ReactElement {
+  const { token } = useTheme();
   const styles = useStyles();
   const closeMenu = () => onOpenFieldChange(null);
   const handleOpenChange = (open: boolean) => {
@@ -348,8 +320,8 @@ function ModelRow({
   };
 
   return (
-    <Row style={styles.modelRow}>
-      <Row style={styles.nameCell}>
+    <Row style={styles.modelRow} gap={token.marginXXS} align="center">
+      <Row style={styles.nameCell} gap={token.marginXXS}>
         <Text
           ellipsizeMode="middle"
           numberOfLines={1}
@@ -444,6 +416,7 @@ export function ProviderModelSection({
   onChangeManualModel,
   onSubmitManualModel,
 }: ProviderModelSectionProps): React.ReactElement {
+  const { token } = useTheme();
   const styles = useStyles();
   const [openMenu, setOpenMenu] = useState<OpenMenuState | null>(null);
 
@@ -454,8 +427,8 @@ export function ProviderModelSection({
   };
 
   return (
-    <Column style={styles.section}>
-      <Row style={styles.header}>
+    <Column gap="normal">
+      <Row gap="small" align="center">
         <Text size="md" weight="medium">
           可用模型
         </Text>
@@ -468,24 +441,24 @@ export function ProviderModelSection({
         </Text>
       ) : (
         <Column>
-          <Row style={styles.tableHead}>
+          <Row gap={token.marginXXS} align="center">
             <Text color="tertiary" size="xs" style={styles.headName}>
               模型
             </Text>
-            <Text color="tertiary" size="xs" style={styles.contextCell}>
+            <Text color="tertiary" size="xs" style={styles.contextCell} textAlign="center">
               上下文
             </Text>
-            <Text color="tertiary" size="xs" style={styles.effortCell}>
+            <Text color="tertiary" size="xs" style={styles.effortCell} textAlign="center">
               思考强度
             </Text>
-            <Text color="tertiary" size="xs" style={styles.actionsCell}>
+            <Text color="tertiary" size="xs" style={styles.actionsCell} textAlign="center">
               操作
             </Text>
           </Row>
-          <Divider style={styles.rowDivider} />
+          <Divider spacing="none" />
           {rows.map((row, index) => (
             <React.Fragment key={row.modelId}>
-              {index > 0 ? <Divider style={styles.rowDivider} /> : null}
+              {index > 0 ? <Divider spacing="none" /> : null}
               <ModelRow
                 isDefault={row.modelId === defaultModelId}
                 onOpenFieldChange={handleOpenFieldChange(row.modelId)}
@@ -502,7 +475,7 @@ export function ProviderModelSection({
         </Column>
       )}
 
-      <Row style={styles.addRow}>
+      <Row gap="small" align="end">
         <Column style={styles.addField}>
           <Input
             autoCapitalize="none"
@@ -525,11 +498,11 @@ export function ProviderModelSection({
       </Row>
 
       {availableModels.length > 0 ? (
-        <Column style={styles.available}>
+        <Column gap="small">
           <Text color="secondary" size="xs">
             可添加的模型
           </Text>
-          <Row style={styles.availableList}>
+          <Row gap="small" wrap>
             {availableModels.map(modelId => (
               <Button
                 key={modelId}

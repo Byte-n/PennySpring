@@ -34,23 +34,17 @@ interface IncomeViewProps {
 }
 
 const useStyles = createUseSheetStyle(token => ({
-  content: {
-    gap: token.marginSM,
-  },
   heroBody: {
     marginTop: token.marginSM,
   },
   heroAmount: {
     flex: 1,
-    gap: token.marginXXS,
   },
   rateBox: {
     paddingHorizontal: token.paddingSM,
     paddingVertical: token.paddingXS,
     borderRadius: token.borderRadiusSM,
     backgroundColor: token.colorPrimaryBg,
-    alignItems: 'center',
-    gap: token.marginXXS,
   },
   footer: {
     marginTop: token.marginSM,
@@ -63,14 +57,8 @@ const useStyles = createUseSheetStyle(token => ({
     height: token.fontSizeSM,
     backgroundColor: token.colorSplit,
   },
-  legend: {
-    alignItems: 'center',
-  },
   trendFooter: {
     marginTop: token.marginXS,
-  },
-  note: {
-    gap: token.marginXS,
   },
 }));
 
@@ -131,7 +119,7 @@ export function IncomeView({
   );
 
   return (
-    <Column style={styles.content}>
+    <Column gap="normal">
       <Card variant="summary">
         <Row align="start" justify="between" gap="normal">
           <Column gap="small">
@@ -149,7 +137,7 @@ export function IncomeView({
           ) : null}
         </Row>
         <Row align="end" justify="between" gap="normal" style={styles.heroBody}>
-          <Column style={styles.heroAmount}>
+          <Column style={styles.heroAmount} gap={token.marginXXS}>
             <Text size="h3" weight="semibold" color="success" numberOfLines={1}>
               {formatMoney(comparison.current.income)}
             </Text>
@@ -157,7 +145,7 @@ export function IncomeView({
               <GrowthText ratio={comparison.incomeDelta} />
             ) : null}
           </Column>
-          <Column style={styles.rateBox}>
+          <Column style={styles.rateBox} gap={token.marginXXS} align="center">
             <Text size="xs" color="tertiary">
               结余率
             </Text>
@@ -211,7 +199,7 @@ export function IncomeView({
         title="近 6 个月收支"
         subtitle="带 * 为月初至今"
         extra={
-          <Row align="center" gap="small" style={styles.legend}>
+          <Row align="center" gap="small" >
             <ColorDot color={token.colorSuccess} />
             <Text size="xs" color="tertiary">
               收入
@@ -237,7 +225,7 @@ export function IncomeView({
       </ChartCard>
 
       <Card>
-        <Column style={styles.note}>
+        <Column gap="small">
           <Text size="sm" weight="medium">
             收入口径说明
           </Text>

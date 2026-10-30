@@ -1,7 +1,7 @@
 import React from 'react';
 import { Pressable } from 'react-native';
 import { Column, Icon, List, Row, Text } from '@pennyspring/ui';
-import { createUseSheetStyle } from '@pennyspring/theme';
+import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
 
 import {
   formatMoney,
@@ -54,30 +54,20 @@ const useStyles = createUseSheetStyle(token => ({
   name: {
     flex: 1,
     minWidth: 0,
-    gap: token.marginXXS,
   },
   nameText: {
     flexShrink: 1,
   },
   percent: {
     width: token.sizeXL,
-    alignItems: 'flex-end',
   },
   delta: {
     width: token.sizeXXL,
-    alignItems: 'flex-end',
-  },
-  amount: {
-    alignItems: 'flex-end',
   },
   chevron: {
     width: token.sizeMD,
-    alignItems: 'flex-end',
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: token.marginXS,
     paddingHorizontal: token.paddingXXS,
     paddingBottom: token.paddingXS,
   },
@@ -86,9 +76,6 @@ const useStyles = createUseSheetStyle(token => ({
   },
   headerName: {
     flex: 1,
-  },
-  headerAmount: {
-    alignItems: 'flex-end',
   },
 }));
 
@@ -100,6 +87,7 @@ export function RankList({
   showHeader = false,
   onPressItem,
 }: RankListProps) {
+  const { token } = useTheme();
   const styles = useStyles();
 
   return (
@@ -108,31 +96,31 @@ export function RankList({
       keyExtractor={item => item.key}
       scrollEnabled={false}
       header={showHeader ? (
-        <Row style={styles.header}>
+        <Row style={styles.header} gap="small" align="center">
           <Column style={styles.headerDot} />
           <Column style={styles.headerName}>
             <Text size="xs" color="tertiary">
               {nameHeader}
             </Text>
           </Column>
-          <Column style={styles.percent}>
+          <Column style={styles.percent} align="end">
             <Text size="xs" color="tertiary">
               占比
             </Text>
           </Column>
           {showDelta ? (
-            <Column style={styles.delta}>
+            <Column style={styles.delta} align="end">
               <Text size="xs" color="tertiary">
                 较上月
               </Text>
             </Column>
           ) : null}
-          <Column style={styles.headerAmount}>
+          <Column align="end">
             <Text size="xs" color="tertiary">
               金额
             </Text>
           </Column>
-          <Column style={styles.chevron} />
+          <Column style={styles.chevron} align="end" />
         </Row>
       ) : undefined}
       styles={{ header: styles.listHeader }}
@@ -161,7 +149,7 @@ export function RankList({
             ]}
           >
             <ColorDot color={item.color} />
-            <Row align="center" gap="small" style={styles.name}>
+            <Row align="center" gap={token.marginXXS} style={styles.name}>
               <Text size="sm" numberOfLines={1} style={styles.nameText}>
                 {item.name}
               </Text>
@@ -171,24 +159,24 @@ export function RankList({
                 </Text>
               ) : null}
             </Row>
-            <Column style={styles.percent}>
+            <Column style={styles.percent} align="end">
               <Text size="xs" color="tertiary">
                 {formatPercent(item.percent)}
               </Text>
             </Column>
             {showDelta ? (
-              <Column style={styles.delta}>
+              <Column style={styles.delta} align="end">
                 <Text size="xs" weight="medium" color={deltaColor}>
                   {item.delta === null ? '—' : formatSignedMoney(item.delta)}
                 </Text>
               </Column>
             ) : null}
-            <Column style={styles.amount}>
+            <Column align="end">
               <Text size="sm" weight="medium">
                 {formatMoney(item.amount)}
               </Text>
             </Column>
-            <Column style={styles.chevron}>
+            <Column style={styles.chevron} align="end">
               {item.drillable ? (
                 <Icon icon="caret-right" size="small" color="tertiary" />
               ) : null}

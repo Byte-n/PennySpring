@@ -49,16 +49,12 @@ interface OverviewViewProps {
 }
 
 const useStyles = createUseSheetStyle(token => ({
-  content: {
-    gap: token.marginSM,
-  },
   kpis: {
     marginTop: token.marginSM,
   },
   kpi: {
     flex: 1,
     minWidth: 0,
-    gap: token.marginXXS,
   },
   divider: {
     width: token.lineWidth,
@@ -75,9 +71,6 @@ const useStyles = createUseSheetStyle(token => ({
     width: token.lineWidth,
     height: token.fontSizeSM,
     backgroundColor: token.colorSplit,
-  },
-  legend: {
-    alignItems: 'center',
   },
   legendLine: {
     width: token.sizeMD,
@@ -97,10 +90,6 @@ const useStyles = createUseSheetStyle(token => ({
   },
   legendColumn: {
     flex: 1,
-    gap: token.marginXS,
-  },
-  legendItem: {
-    gap: token.marginXXS,
   },
   legendName: {
     flex: 1,
@@ -109,13 +98,9 @@ const useStyles = createUseSheetStyle(token => ({
     marginTop: token.marginXS,
   },
   link: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: token.marginXXS,
     paddingLeft: token.paddingXS,
   },
   calendarDetail: {
-    gap: token.marginXXS,
     paddingHorizontal: token.paddingXS,
     paddingVertical: token.paddingXS,
     borderRadius: token.borderRadiusSM,
@@ -269,7 +254,7 @@ export function OverviewView({
       : `共 ${analysis.stats.length} 个分类`;
 
   return (
-    <Column style={styles.content}>
+    <Column gap="normal">
       <Card variant="summary">
         <Row align="start" justify="between" gap="normal">
           <Column gap="small">
@@ -287,7 +272,7 @@ export function OverviewView({
           ) : null}
         </Row>
         <Row style={styles.kpis}>
-          <Column style={styles.kpi}>
+          <Column style={styles.kpi} gap={token.marginXXS}>
             <Text size="xs" color="tertiary">
               支出
             </Text>
@@ -299,7 +284,7 @@ export function OverviewView({
             ) : null}
           </Column>
           <Column style={styles.divider} />
-          <Column style={styles.kpi}>
+          <Column style={styles.kpi} gap={token.marginXXS}>
             <Text size="xs" color="tertiary">
               收入
             </Text>
@@ -311,7 +296,7 @@ export function OverviewView({
             ) : null}
           </Column>
           <Column style={styles.divider} />
-          <Column style={styles.kpi}>
+          <Column style={styles.kpi} gap={token.marginXXS}>
             <Text size="xs" color="tertiary">
               结余
             </Text>
@@ -352,7 +337,7 @@ export function OverviewView({
             title="支出节奏"
             subtitle="按日累计 · 截至今天"
             extra={
-              <Row align="center" gap="small" style={styles.legend}>
+              <Row align="center" gap="small" >
                 <Column style={styles.legendLine} />
                 <Text size="xs" color="tertiary">
                   本月
@@ -392,7 +377,7 @@ export function OverviewView({
             subtitle={structureSubtitle}
             extra={
               <Pressable onPress={onOpenExpense}>
-                <Row align="center" style={styles.link}>
+                <Row align="center" style={styles.link} gap={token.marginXXS}>
                   <Text size="xs" color="primary">
                     分类明细
                   </Text>
@@ -404,9 +389,9 @@ export function OverviewView({
             <StackBar segments={structureSegments} />
             <Row gap="large" style={styles.legendGrid}>
               {structureColumns.map((column, columnIndex) => (
-                <Column key={`column-${columnIndex}`} style={styles.legendColumn}>
+                <Column key={`column-${columnIndex}`} style={styles.legendColumn} gap="small">
                   {column.map((item, index) => (
-                    <Row key={item.key} align="center" gap="small" style={styles.legendItem}>
+                    <Row key={item.key} align="center" gap={token.marginXXS} >
                       <ColorDot
                         color={
                           item.isOther
@@ -445,7 +430,7 @@ export function OverviewView({
               selectedDay={selectedDay}
               onSelectDay={setSelectedDay}
               detail={
-                <Column style={styles.calendarDetail}>
+                <Column style={styles.calendarDetail} gap={token.marginXXS}>
                   <Text size="xs" color="secondary">
                     {month}/{selectedDay} · 支出{' '}
                     <Text size="xs" weight="medium" color="heading">
