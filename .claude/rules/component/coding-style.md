@@ -47,6 +47,14 @@ paths:
 - 禁止使用 `<A><A.Item /></A>` 形式声明子项。
 - 推荐使用 `<A data={[]} renderItem={(data, index, opt) => ({})} />`。
 - 例外：`Form.Item` 承载与 `Form` 上下文的绑定，属于结构声明而非同构子项集合，无法用 `data + renderItem` 等价表达。
+- 集合 props 按语义使用固定名词，同义新增即违规：
+  - 泛型行列表：`data` + `renderItem`（如 `List`、`Carousel`、`IndexBar`）。
+  - 可选择同构选项：`options`（如 `CheckboxGroup`、`RadioGroup`、`Segmented`、`ListPicker`、`TagPicker`）。
+  - 按列组织的选项矩阵：`columns`（如 `Picker`、`WheelGroup`）。
+  - 分栏组织的选项树：`tabs`（如 `Picker.Cascader`）。
+  - 固定 schema 的展示条目：`items`（如 `Tabs`、`TabBar`、`Steps`、`Avatar.Group`）。
+  - 按钮类集合：`actions`；分组选项：`groups`。
+- 条目的业务标识统一使用 `value`；`key` 仅用于 React 列表 key，不得承载业务选中值。
 
 ## 内部渲染节点
 
@@ -57,6 +65,7 @@ paths:
 - 需要支持调用方用 `null` 控制某部分不渲染时，应额外定义 `xxx?: ReactNode | null`。
 - `xxx`、`xxxRender` 和其他插槽类 prop 为 `null` 时，表示明确不渲染该部分内容。
 - `xxx`、`xxxText`、`xxxRender` 和其他插槽类 prop 为 `undefined` 时，表示调用方未传递该属性，组件应走默认行为。
+- 例外：`DisplayInput` 的值节点固定使用 `children` 与 `valueText` 配对（历史约定，豁免 `xxx` 命名要求）；触发器类组件的 `children` 统一透传到该槽位。
 - 当结构插槽的所有可见内容都被置为 `null` 时，外层结构也不渲染；例如 `header` 中仅有 `title`，`title={null}` 时整个 `header` 不渲染，也可以通过 `header={null}` 明确不渲染。
 - 文本样式只作用于内部文本，例如 `styles.titleText` 仅作用于 `titleText` 渲染出的文本。
 - 如需包裹节点，使用 `titleContainer` 承载 `title ?? titleText`，不要用 `title` 表示容器。

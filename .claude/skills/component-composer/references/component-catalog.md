@@ -44,7 +44,7 @@
 ## 选择器与选择
 
 - `WheelGroup`：滚轮组内核。支持多列、显式行高、`fit="container"` 按容器高度量化可见行（3/5/7）、实时 activeIndex、拖拽无惯性也提交。样式通过 `WheelGroupStyles` 覆盖。
-- `Picker`：滚轮选择器与触发式选择模式。支持 `allowClear`、`status`，触发器与 `DateTimePicker`、`CalendarPicker`、`ListPicker` 共用同一内部触发器实现；`Picker.Cascader` 为业务 Tab + 多列滚轮的级联子模式。
+- `Picker`：滚轮选择器与触发式选择模式。支持 `allowClear`、`status`，触发器与 `DateTimePicker`、`CalendarPicker`、`ListPicker` 共用同一内部触发器实现；`Picker.Cascader` 为业务 Tab + 多列滚轮的级联子模式，同样支持 `allowClear`（清除当前 Tab 路径）。
 - `DateTimePicker`：日期时间选择。支持 `precision`（year/month/day/hour/minute/second）与 `layout`（`wheel` 默认 / `calendar` 日历浮层）；`DateTimePicker.Date` 仅日期、`DateTimePicker.Time` 仅时间（强制滚轮）。含时间精度且使用日历布局时，可点底部入口在日历与时间滚轮之间翻页。两种布局均支持 `allowClear`、`status` 与 `loading`（日历布局以加载面板替代日历内容）。
 - `CalendarPicker`：日历输入型选择器，值使用 `Date`。`CalendarPicker.View` 为纯日历面板（`mode` 支持 date/month/year，`CalendarPicker.View.Range` 为范围面板）；`CalendarPicker` 为触发器 + 浮层，`CalendarPicker.Range` 为输入型范围选择。面板支持标记、禁用日期、最小/最大日期与自定义文案，触发器支持 `allowClear` 与校验状态展示。
 - `ListPicker`：基于 `FlatList` 的单选/多选触发器与选择面板，支持分组、搜索、受控值与 `allowClear`。触发器样式统一通过 `styles.input` 覆盖；`ListPicker.Cascader` 为层级 Tab + 列表的级联子模式，支持 `closeOnSelectLeaf`、`displayMode="tag"` 与 `allowClear`。
@@ -77,7 +77,7 @@
 - `Dialog`：阻塞式确认或提示。
 - `Drawer`：左右侧滑出的抽屉面板；适合导航、筛选、设置等侧边内容，支持独立浮层和 `Drawer.Layout` 嵌入布局。外沿 16 圆角、贴边侧直角，宽度 78% 且最大 320，内边距 16；遮罩取 `colorBgMask`，front / slide / back 共用 `motionDurationMid` 且退出对称。
 - `Popup`：锚定、底部或居中的浮层容器；`Popup.FloatingPanel` 适合可拖拽底部/顶部面板，支持 `titleText`、确认/取消按钮、自定义 header/footer；`bodyScrollable` 控制 body 使用 `ScrollView` 或普通 `View`，ScrollView 模式可通过 `scrollEnabled` 控制滚动。
-- `Popover`：锚定触发元素的轻量浮层。`trigger` 支持 `click`（默认）/`longPress`/`manual`；`placement` 支持四向，空间不足自动翻转到对侧；`align` 控制交叉轴对齐并按屏幕边界收敛；内容经 `Portal` 挂载，点击外部或返回键关闭。
+- `Popover`：锚定触发元素的轻量浮层。`trigger` 支持 `press`（默认）/`longPress`/`manual`；`placement` 支持四向，空间不足自动翻转到对侧；`align` 控制交叉轴对齐并按屏幕边界收敛；内容经 `Portal` 挂载，点击外部或返回键关闭。
 - `Tooltip`：纯文本轻提示。`variant` 提供 dark（`colorBgSpotlight`，压图表/金额）与 light（`colorBgElevated` + 1px `colorBorder`，贴列表）；`trigger` 支持 `press`（默认）/`longPress`/`manual`；默认 `top`，空间不足翻到对侧；宽封顶 240，高取当前方位可用空间并按整行封顶，超出在气泡内滚动；`arrow` 可关闭；不放按钮或表单，需要交互请用 `Popover`。
 - `Portal`、`PortalProvider`：在常规树外渲染浮层内容。
 - `Toast`、`useToast`：短暂轻量提示；999 胶囊、单实例替换、1800ms，`status` 提供 dot / success / error 三态图标。
