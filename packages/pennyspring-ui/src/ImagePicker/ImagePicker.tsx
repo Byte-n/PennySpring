@@ -24,6 +24,7 @@ import type {
   ImagePickerSelectedValue,
   ImagePickerValue,
 } from './types';
+import { useFieldProps } from '@pennyspring/ui/src/Form/hooks/useFieldProps.ts';
 
 const DEFAULT_CAMERA_TEXT = '拍照';
 const DEFAULT_PHOTO_TEXT = '相册';
@@ -130,11 +131,7 @@ export function ImagePicker({
   displayInputProps,
   doneText = DEFAULT_DONE_TEXT,
   emptyText = DEFAULT_EMPTY_TEXT,
-  error,
-  errorText,
   fileSystemText = DEFAULT_FILE_SYSTEM_TEXT,
-  helper,
-  helperText,
   label,
   labelText,
   maxCount = DEFAULT_MAX_COUNT,
@@ -157,14 +154,25 @@ export function ImagePicker({
   unselectedText,
   value,
 }: ImagePickerProps) {
+  const field = useFieldProps<ImagePickerSelectedValue | undefined>({
+    value: value as ImagePickerSelectedValue | undefined,
+    onChange: onChange as
+      | ((nextValue: ImagePickerSelectedValue | undefined) => void)
+      | undefined,
+    label,
+    labelText,
+    disabled,
+    readonly,
+    status,
+  });
+  const resolvedDisabled = field.disabled === true;
+  const resolvedReadonly = field.readonly === true;
   const [resolvedValue, setResolvedValue] = useControllableValue<
     ImagePickerSelectedValue | undefined
   >(
     defaultValue as ImagePickerSelectedValue | undefined,
-    value as ImagePickerSelectedValue | undefined,
-    onChange as
-      | ((nextValue: ImagePickerSelectedValue | undefined) => void)
-      | undefined,
+    field.value,
+    field.onChange,
   );
   const [resolvedOpen, setResolvedOpen] = useControllableValue(
     defaultOpen === true,
@@ -173,8 +181,8 @@ export function ImagePicker({
   );
   const { token } = useTheme();
   const isOpen = resolvedOpen === true;
-  const isDisabled = disabled === true;
-  const isReadonly = readonly === true;
+  const isDisabled = resolvedDisabled;
+  const isReadonly = resolvedReadonly;
   const isInteractive = !isDisabled && !isReadonly;
   const selectedCount = getSelectedCount(resolvedValue);
   const hasSelectedValue = selectedCount > 0;
@@ -443,18 +451,14 @@ export function ImagePicker({
   return (
     <>
       <PickerTrigger
-        active={isOpen && status !== 'error'}
+        active={isOpen && field.status !== 'error'}
         allowClear={allowClear}
         disabled={isDisabled}
         displayInputProps={displayInputProps}
-        error={error}
-        errorText={errorText}
         externalInputStyles={styles?.input}
         externalTriggerStyle={style}
         hasValue={hasSelectedValue}
-        helper={helper}
-        helperText={helperText}
-        label={label ?? labelText}
+        label={field.label ?? field.labelText}
         onClearPress={handleClearPress}
         onPress={handleTriggerPress}
         prefix={(
@@ -467,7 +471,7 @@ export function ImagePicker({
         )}
         readonly={isReadonly}
         size={size}
-        status={status}
+        status={field.status}
         suffix={
           multiple && hasSelectedValue ? (
             <Text color="tertiary" size="xs" style={tokenStyles.countText}>

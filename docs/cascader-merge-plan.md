@@ -129,10 +129,6 @@ export interface ListPickerCascaderProps<TData = unknown> {
   onClear?: () => void;
 
   status?: ListPickerStatus;
-  helperText?: string;
-  helper?: ReactNode | null;
-  errorText?: string;
-  error?: ReactNode | null;
   labelText?: string;
   label?: ReactNode;
 
@@ -555,7 +551,7 @@ packages/pennyspring-ui/src/
 7. `disabled` / `readonly` 不打开浮层；选项 `disabled` 不可选。
 8. `activeLevel` 受控时定位到指定层级。
 9. 空选项与 `loading` 分别渲染空态与加载态。
-10. 触发器使用 `DisplayInput`（`PickerTrigger`），`labelText`、`helperText`、`errorText` 正常展示。
+10. 触发器使用 `DisplayInput`（`PickerTrigger`），`labelText` 与 `status` 正常展示。
 
 ### 7.2 `PickerCascader.test.tsx`
 

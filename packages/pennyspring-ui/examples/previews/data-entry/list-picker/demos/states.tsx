@@ -25,7 +25,6 @@ export function ListPickerStatesDemo() {
         labelText="错误状态"
         options={CATEGORY_OPTIONS}
         status="error"
-        errorText="请选择一个消费类别"
         texts={{ headerText: '选择消费类别' }}
       />
       <ListPicker

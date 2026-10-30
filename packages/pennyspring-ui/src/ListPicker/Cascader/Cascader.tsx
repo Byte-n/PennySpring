@@ -25,6 +25,7 @@ import type {
   ListPickerCascaderValue,
 } from './types';
 import type { ListPickerValue } from '../types';
+import { useFieldProps } from '@pennyspring/ui/src/Form/hooks/useFieldProps.ts';
 
 const DEFAULT_SIZE: ComponentSize = 'normal';
 const DEFAULT_EMPTY_TEXT = '暂无选项';
@@ -46,10 +47,6 @@ export function ListPickerCascader<TData = unknown>({
   displayInputProps,
   displayMode,
   empty,
-  error,
-  errorText,
-  helper,
-  helperText,
   label,
   labelText,
   loading,
@@ -71,6 +68,16 @@ export function ListPickerCascader<TData = unknown>({
   texts,
   value,
 }: ListPickerCascaderProps<TData>) {
+  const field = useFieldProps<ListPickerCascaderValue>({
+    value,
+    label,
+    labelText,
+    disabled,
+    readonly,
+    status,
+  });
+  const resolvedDisabled = field.disabled === true;
+  const resolvedReadonly = field.readonly === true;
   const resolvedSize = resolveSize(size);
   const { token } = useTheme();
   const [mergedOpen, setMergedOpen] = useControllableValue(
@@ -83,8 +90,8 @@ export function ListPickerCascader<TData = unknown>({
     [defaultValue, options],
   );
   const normalizedControlledValue = useMemo(
-    () => (value === undefined ? undefined : normalizeValue(options, value)),
-    [options, value],
+    () => (field.value === undefined ? undefined : normalizeValue(options, field.value)),
+    [field.value, options],
   );
   const [mergedValue, setMergedValue] = useControllableValue(
     normalizedDefaultValue,
@@ -104,8 +111,8 @@ export function ListPickerCascader<TData = unknown>({
   );
   const currentLevel = clampLevel(resolvedActiveLevel ?? 0, visibleLevelCount);
   const currentOptions = getOptionsAtLevel(options, selectedPath, currentLevel);
-  const isInteractive = !disabled && !readonly && !loading;
-  const isError = status === 'error';
+  const isInteractive = !resolvedDisabled && !resolvedReadonly && !loading;
+  const isError = field.status === 'error';
   const selectedLabel = getPathLabel(options, currentValue);
   const tagItems = displayMode === 'tag'
     ? getPathTagItems(options, currentValue)
@@ -167,6 +174,7 @@ export function ListPickerCascader<TData = unknown>({
     );
 
     setMergedValue(nextValue);
+    field.onChange?.(nextValue);
     onChange?.(nextValue, params);
 
     if (!params.isLeaf) {
@@ -202,6 +210,7 @@ export function ListPickerCascader<TData = unknown>({
     setMergedValue(nextValue);
 
     if (params) {
+      field.onChange?.(nextValue);
       onChange?.(nextValue, params);
     }
   }
@@ -214,6 +223,7 @@ export function ListPickerCascader<TData = unknown>({
     const nextValue: ListPickerCascaderValue = [];
 
     setMergedValue(nextValue);
+    field.onChange?.(nextValue);
     onChange?.(nextValue, { reason: 'clear', path: [], items: [] });
     onClear?.();
   }
@@ -223,24 +233,20 @@ export function ListPickerCascader<TData = unknown>({
       <PickerTrigger
         active={mergedOpen && !isError}
         allowClear={allowClear}
-        disabled={disabled === true || loading === true}
+        disabled={resolvedDisabled || loading === true}
         displayInputProps={displayInputProps}
-        error={error}
-        errorText={errorText}
         externalInputStyles={styles?.input}
         externalTriggerStyle={style}
         hasValue={selectedPath.length > 0}
-        helper={helper}
-        helperText={helperText}
-        label={label ?? labelText}
+        label={field.label ?? field.labelText}
         onClearPress={handleClearPress}
         overflow={
           displayInputProps?.overflow ??
           (displayMode === 'tag' ? 'visible' : 'hidden')
         }
-        readonly={readonly}
+        readonly={resolvedReadonly}
         size={resolvedSize}
-        status={status}
+        status={field.status}
         suffix={
           loading === true ? (
             <ActivityIndicator color={token.colorTextTertiary} />
@@ -268,7 +274,7 @@ export function ListPickerCascader<TData = unknown>({
       <ListPickerCascaderPopup
         activeLevel={currentLevel}
         closeText={texts?.closeText}
-        disabled={disabled}
+        disabled={resolvedDisabled}
         empty={empty}
         emptyText={texts?.emptyText ?? DEFAULT_EMPTY_TEXT}
         headerText={texts?.headerText}
@@ -280,7 +286,7 @@ export function ListPickerCascader<TData = unknown>({
         open={mergedOpen === true}
         options={currentOptions}
         popupProps={popupProps}
-        readonly={readonly}
+        readonly={resolvedReadonly}
         renderOptionLabel={renderOptionLabel}
         selectedValue={currentValue}
         size={resolvedSize}

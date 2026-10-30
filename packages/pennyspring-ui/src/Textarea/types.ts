@@ -26,12 +26,6 @@ export interface TextareaStyles {
   /** 底部说明与计数容器样式。 */
   footer?: StyleProp<ViewStyle>;
 
-  /** 辅助说明文本样式。 */
-  helper?: StyleProp<TextStyle>;
-
-  /** 错误说明文本样式。 */
-  error?: StyleProp<TextStyle>;
-
   /** 字数计数文本样式。 */
   count?: StyleProp<TextStyle>;
 }
@@ -46,7 +40,6 @@ export interface TextareaProps
 
   /**
    * 文本域状态。
-   * error 状态会优先展示 errorText。
    * 默认值为 default。
    */
   status?: TextareaStatus;
@@ -69,36 +62,6 @@ export interface TextareaProps
    * 只能用于格式示例或输入提示，不得替代 label。
    */
   placeholder?: string;
-
-  /**
-   * 辅助说明文本。
-   * 当 status 为 error 且 errorText 存在时，优先展示 errorText。
-   */
-  helperText?: string;
-
-  /**
-   * 辅助说明自定义节点。
-   * 传入 null 时不渲染辅助说明。
-   */
-  helper?: ReactNode | null;
-
-  /**
-   * 错误说明文本。
-   * 只负责展示错误，不负责执行校验。
-   */
-  errorText?: string;
-
-  /**
-   * 错误说明自定义节点。
-   * 传入 null 时不渲染错误说明。
-   */
-  error?: ReactNode | null;
-
-  /**
-   * 是否展示必填语义。
-   * 不自动执行必填校验。
-   */
-  required?: boolean;
 
   /**
    * 最小显示行数。

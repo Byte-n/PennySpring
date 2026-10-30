@@ -35,8 +35,6 @@ export function ListPickerCascaderTriggerDemo() {
         texts={{ loadingText: '正在加载分类' }}
       />
       <ListPicker.Cascader
-        errorText="请选择三级分类"
-        helperText="用于计算资产归属"
         labelText="错误状态"
         options={CATEGORY_OPTIONS}
         status="error"

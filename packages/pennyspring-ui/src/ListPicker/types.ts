@@ -170,8 +170,6 @@ type SearchInputControlledKey =
   | 'clearable'
   | 'defaultValue'
   | 'disabled'
-  | 'errorText'
-  | 'helperText'
   | 'label'
   | 'labelText'
   | 'loading'
@@ -379,7 +377,6 @@ export interface ListPickerProps
   extends Omit<ListPickerPopupProps, 'style' | 'styles'> {
   /**
    * ListPicker 状态。
-   * error 状态会优先展示 errorText。
    */
   status?: ListPickerStatus;
 
@@ -405,30 +402,6 @@ export interface ListPickerProps
    * 传入后由外部完全控制节点渲染。
    */
   label?: ReactNode;
-
-  /**
-   * 辅助说明文本。
-   * 当 status 为 error 且 errorText 存在时，优先展示 errorText。
-   */
-  helperText?: string;
-
-  /**
-   * 辅助说明自定义节点。
-   * 传入 null 时不渲染辅助说明。
-   */
-  helper?: ReactNode | null;
-
-  /**
-   * 错误说明文本。
-   * 只负责展示错误，不负责执行校验。
-   */
-  errorText?: string;
-
-  /**
-   * 错误说明自定义节点。
-   * 传入 null 时不渲染错误说明。
-   */
-  error?: ReactNode | null;
 
   displayMode?: ListPickerDisplayMode;
 

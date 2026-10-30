@@ -15,6 +15,7 @@ import { useTheme } from '@pennyspring/theme';
 import { useControllableValue } from '../_hooks';
 import { useStyles } from './style';
 import type { SliderProps } from './types';
+import { useFieldProps } from '@pennyspring/ui/src/Form/hooks/useFieldProps.ts';
 
 const DEFAULT_MIN = 0;
 const DEFAULT_MAX = 100;
@@ -58,19 +59,26 @@ function normalizeValue(value: number, min: number, max: number, step: number): 
   return clamp(snapped, safeMin, safeMax);
 }
 
-export function Slider({
-  defaultValue,
-  disabled = false,
-  max = DEFAULT_MAX,
-  min = DEFAULT_MIN,
-  onChange,
-  readonly = false,
-  size = 'normal',
-  step = DEFAULT_STEP,
-  style,
-  styles,
-  value,
-}: SliderProps) {
+export function Slider(rawProps: SliderProps) {
+  const {
+    defaultValue,
+    max = DEFAULT_MAX,
+    min = DEFAULT_MIN,
+    onChange,
+    size = 'normal',
+    step = DEFAULT_STEP,
+    style,
+    styles,
+    value,
+    disabled,
+    readonly,
+  } = rawProps;
+  const field = useFieldProps<number>({
+    value,
+    onChange,
+    disabled,
+    readonly,
+  });
   const resolvedSize = resolveSize(size);
   const safeStep = resolveStep(step);
   const safeMin = Math.min(min, max);
@@ -82,18 +90,20 @@ export function Slider({
     safeStep,
   );
   const normalizedControlledValue =
-    value === undefined
+    field.value === undefined
       ? undefined
-      : normalizeValue(value, safeMin, safeMax, safeStep);
+      : normalizeValue(field.value, safeMin, safeMax, safeStep);
   const [internalValue, setInternalValue] = useControllableValue(
     normalizedDefaultValue,
     normalizedControlledValue,
-    onChange,
+    field.onChange,
   );
   const [trackWidth, setTrackWidth] = useState(0);
   const { token } = useTheme();
   const pressProgress = useSharedValue(0);
-  const isReadOnly = disabled || readonly;
+  const resolvedDisabled = field.disabled === true;
+  const resolvedReadonly = field.readonly === true;
+  const isReadOnly = resolvedDisabled || resolvedReadonly;
   const currentValue = normalizeValue(
     internalValue ?? safeMin,
     safeMin,
@@ -103,7 +113,7 @@ export function Slider({
   const progress = safeMax === safeMin ? 0 : (currentValue - safeMin) / (safeMax - safeMin);
   const clampedProgress = clamp(progress, 0, 1);
   const tokenStyles = useStyles({
-    disabled: disabled || readonly,
+    disabled: isReadOnly,
     size: resolvedSize,
     progress: clampedProgress,
     trackWidth,
@@ -192,7 +202,7 @@ export function Slider({
           style={[
             tokenStyles.thumb,
             !isReadOnly ? tokenStyles.thumbRaised : null,
-            disabled ? tokenStyles.thumbDisabled : null,
+            resolvedDisabled ? tokenStyles.thumbDisabled : null,
             styles?.thumb,
             thumbAnimatedStyle,
           ]}

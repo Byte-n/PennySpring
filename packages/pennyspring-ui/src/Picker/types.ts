@@ -193,10 +193,6 @@ export interface PickerProps<
   labelText?: string;
   label?: DisplayInputProps['label'];
   status?: InputStatus;
-  helperText?: string;
-  helper?: ReactNode | null;
-  errorText?: string;
-  error?: ReactNode | null;
   readonly?: boolean;
   displayInputProps?: PickerDisplayInputProps;
   popupProps?: PickerPopupProps<TItem>;

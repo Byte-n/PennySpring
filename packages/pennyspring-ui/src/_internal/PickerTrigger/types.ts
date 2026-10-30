@@ -24,10 +24,6 @@ export type PickerDisplayInputProps = Omit<
   DisplayInputProps,
   | 'children'
   | 'disabled'
-  | 'error'
-  | 'errorText'
-  | 'helper'
-  | 'helperText'
   | 'label'
   | 'labelText'
   | 'onPress'
@@ -47,13 +43,9 @@ export interface PickerTriggerProps {
   children?: ReactNode;
   disabled?: boolean;
   displayInputProps?: PickerDisplayInputProps;
-  error?: ReactNode | null;
-  errorText?: string;
   externalInputStyles?: PickerInputStyles;
   externalTriggerStyle?: StyleProp<ViewStyle>;
   hasValue?: boolean;
-  helper?: ReactNode | null;
-  helperText?: string;
   label?: ReactNode | null;
   onClearPress?: () => void;
   onPress?: () => void;

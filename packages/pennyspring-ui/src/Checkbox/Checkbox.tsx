@@ -26,6 +26,7 @@ import type {
   CheckboxStyles,
   CheckboxValue,
 } from './types';
+import { useFieldProps } from '@pennyspring/ui/src/Form/hooks/useFieldProps.ts';
 
 /**
  * 设计稿勾/半选笔画为 2.4px；Phosphor 图标按权重出笔画（bold 在 14 档约 1.3px），
@@ -212,24 +213,33 @@ function CheckboxControl({
   );
 }
 
-function BaseCheckbox({
-  value,
-  defaultValue = false,
-  onChange,
-  disabled = false,
-  readonly = false,
-  indeterminate = false,
-  children,
-  size = 'normal',
-  displayType = 'default',
-  style,
-  styles,
-  ...rest
-}: CheckboxProps) {
-  const [checked, setChecked] = useControllableValue(
-    defaultValue,
+function BaseCheckbox(rawProps: CheckboxProps) {
+  const {
+    value,
+    defaultValue = false,
+    onChange,
+    disabled,
+    readonly,
+    indeterminate = false,
+    children,
+    size = 'normal',
+    displayType = 'default',
+    style,
+    styles,
+    ...rest
+  } = rawProps;
+  const field = useFieldProps<boolean>({
     value,
     onChange,
+    disabled,
+    readonly,
+  });
+  const resolvedDisabled = field.disabled === true;
+  const resolvedReadonly = field.readonly === true;
+  const [checked, setChecked] = useControllableValue(
+    defaultValue,
+    field.value,
+    field.onChange,
   );
 
   function handleToggle(): void {
@@ -241,10 +251,10 @@ function BaseCheckbox({
       {...rest}
       block={false}
       checked={Boolean(checked)}
-      disabled={disabled}
+      disabled={resolvedDisabled}
       displayType={displayType}
       indeterminate={indeterminate}
-      readonly={readonly}
+      readonly={resolvedReadonly}
       rootStyle={style}
       size={size}
       slotStyles={styles}
@@ -256,25 +266,34 @@ function BaseCheckbox({
   );
 }
 
-function CheckboxGroup({
-  value,
-  defaultValue = [],
-  onChange,
-  options = [],
-  disabled = false,
-  readonly = false,
-  displayType = 'default',
-  size = 'normal',
-  block = false,
-  direction = 'horizontal',
-  style,
-  styles,
-  ...rest
-}: CheckboxGroupProps) {
-  const [selectedValues, setSelectedValues] = useControllableValue(
-    defaultValue,
+function CheckboxGroup(rawProps: CheckboxGroupProps) {
+  const {
+    value,
+    defaultValue = [],
+    onChange,
+    options = [],
+    disabled,
+    readonly,
+    displayType = 'default',
+    size = 'normal',
+    block = false,
+    direction = 'horizontal',
+    style,
+    styles,
+    ...rest
+  } = rawProps;
+  const field = useFieldProps<CheckboxValue[]>({
     value,
     onChange,
+    disabled,
+    readonly,
+  });
+  const resolvedDisabled = field.disabled === true;
+  const resolvedReadonly = field.readonly === true;
+  const [selectedValues, setSelectedValues] = useControllableValue(
+    defaultValue,
+    field.value,
+    field.onChange,
   );
   const isHorizontal = direction === 'horizontal';
   const isBlockGrid = block && isHorizontal && displayType === 'button';
@@ -294,7 +313,7 @@ function CheckboxGroup({
   );
 
   function toggleOption(option: CheckboxGroupOption): void {
-    if (disabled || readonly || option.disabled === true) {
+    if (resolvedDisabled || resolvedReadonly || option.disabled === true) {
       return;
     }
 
@@ -316,9 +335,9 @@ function CheckboxGroup({
         block={block}
         checked={isSelected}
         controlStyle={styles?.option}
-        disabled={disabled || option.disabled === true}
+        disabled={resolvedDisabled || option.disabled === true}
         displayType={displayType}
-        readonly={readonly}
+        readonly={resolvedReadonly}
         size={size}
         slotStyles={optionSlotStyles}
         testID={optionTestID}

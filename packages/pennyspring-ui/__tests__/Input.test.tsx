@@ -83,20 +83,6 @@ describe('Input', () => {
     ).not.toThrow();
   });
 
-  it('renders helper nodes in the root view instead of a text container', () => {
-    const testRenderer = renderInput({
-      helper: <View testID="custom-input-helper-node" />,
-      helperText: 'Helper text',
-    });
-
-    const helperNode = testRenderer.root.findByProps({
-      testID: 'custom-input-helper-node',
-    });
-
-    expect(helperNode.parent?.type).toBe('View');
-    expect(JSON.stringify(testRenderer.toJSON())).not.toContain('Helper text');
-  });
-
   it('reserves bottom clearance between the input text and the underline', () => {
     const testRenderer = renderInput({
       defaultValue: '现金账户',
@@ -111,7 +97,6 @@ describe('Input', () => {
 
   it('uses an independent underline layer for flat active and error states', () => {
     const testRenderer = renderInput({
-      errorText: 'Required',
       status: 'error',
     });
 
@@ -120,7 +105,6 @@ describe('Input', () => {
     expect(underline.type).toBe(View);
     expect(underlineStyle.height).toBe(token.lineWidth);
     expect(underlineStyle.backgroundColor).toBe(token.colorError);
-    expect(JSON.stringify(testRenderer.toJSON())).toContain('Required');
   });
 
   it('updates uncontrolled value and forwards changes', () => {

@@ -10,6 +10,7 @@ import { useControllableValue } from '../_hooks';
 import { useStyles } from './style';
 import type { CalculatorInputProps, CalculatorInputStyles } from './types';
 import type { TextColor, TextSize, TextWeight } from '../Text/types';
+import { useFieldProps } from '@pennyspring/ui/src/Form/hooks/useFieldProps.ts';
 
 type Operator = '+' | '-' | '×' | '/';
 type EvaluationOperator = '+' | '-' | '*' | '/';
@@ -517,35 +518,44 @@ function createKeypadHitSlop(token: AliasToken) {
   };
 }
 
-export function CalculatorInput({
-  defaultValue,
-  disabled = false,
-  onChange,
-  onOk,
-  placeholder = EXPRESSION_PLACEHOLDER,
-  readonly = false,
-  style,
-  styles,
-  value,
-}: CalculatorInputProps) {
-  const tokenStyles = useStyles({ disabled });
+export function CalculatorInput(rawProps: CalculatorInputProps) {
+  const {
+    defaultValue,
+    onChange,
+    onOk,
+    placeholder = EXPRESSION_PLACEHOLDER,
+    style,
+    styles,
+    value,
+    disabled,
+    readonly,
+  } = rawProps;
+  const field = useFieldProps<string>({
+    value,
+    onChange,
+    disabled,
+    readonly,
+  });
+  const resolvedDisabled = field.disabled === true;
+  const resolvedReadonly = field.readonly === true;
+  const tokenStyles = useStyles({ disabled: resolvedDisabled });
   const { token } = useTheme();
   const [expression = EMPTY_TEXT, setExpression] = useControllableValue(
     defaultValue ?? EMPTY_TEXT,
-    value,
-    onChange,
+    field.value,
+    field.onChange,
   );
-  const isReadOnly = disabled || readonly;
+  const isReadOnly = resolvedDisabled || resolvedReadonly;
   const result = useMemo(() => evaluateExpression(expression), [expression]);
   const hasResult = result.value !== null;
   const resultText = hasResult ? result.display : EMPTY_RESULT_TEXT;
   const isLongResult = hasResult && result.display.length > MAX_RESULT_DISPLAY_LENGTH;
-  const resultColor: TextColor = disabled
+  const resultColor: TextColor = resolvedDisabled
     ? 'disabled'
     : hasResult
       ? 'default'
       : 'tertiary';
-  const resultSignColor: TextColor = disabled ? 'disabled' : 'tertiary';
+  const resultSignColor: TextColor = resolvedDisabled ? 'disabled' : 'tertiary';
   const canConfirm = !isReadOnly && hasResult;
   const keyHitSlop = useMemo(() => createKeypadHitSlop(token), [token]);
 
@@ -627,7 +637,7 @@ export function CalculatorInput({
         ]}
         testID={`calc-key-${key.label || key.role}`}
       >
-        {renderKeyContent(key, tokenStyles, styles?.keyText, disabled)}
+        {renderKeyContent(key, tokenStyles, styles?.keyText, resolvedDisabled)}
       </Pressable>
     );
   }
@@ -665,7 +675,7 @@ export function CalculatorInput({
       <Column
         gap={token.sizeXS}
         style={[
-          readonly && !disabled ? tokenStyles.readonlyKeypad : null,
+          resolvedReadonly && !resolvedDisabled ? tokenStyles.readonlyKeypad : null,
           styles?.keypad,
         ]}
       >

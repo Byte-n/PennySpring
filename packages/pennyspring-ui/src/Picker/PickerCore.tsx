@@ -10,6 +10,7 @@ import type {
   PickerItemValue,
   PickerProps,
 } from './types';
+import { useFieldProps } from '@pennyspring/ui/src/Form/hooks/useFieldProps.ts';
 
 const DEFAULT_SIZE: ComponentSize = 'normal';
 const DEFAULT_CANCEL_TEXT = '取消';
@@ -108,11 +109,7 @@ export function PickerCore<TItem extends PickerColumnItemData = PickerColumnItem
   defaultValue,
   displayInputProps,
   disabled,
-  error,
-  errorText,
   formatValueText,
-  helper,
-  helperText,
   label,
   labelText,
   popupProps,
@@ -131,6 +128,17 @@ export function PickerCore<TItem extends PickerColumnItemData = PickerColumnItem
 }: PickerProps<TItem>) {
   const pickerStyleOptions = React.useMemo(() => ({ size }), [size]);
   const tokenStyles = usePickerStyles(pickerStyleOptions);
+  const field = useFieldProps<Array<PickerItemValue<TItem>>>({
+    value,
+    label,
+    labelText,
+    disabled,
+    readonly,
+    status,
+  });
+  const resolvedDisabled = field.disabled === true;
+  const resolvedReadonly = field.readonly === true;
+  const resolvedStatus = field.status;
   const [resolvedOpen, setResolvedOpen] = useControllableValue(
     defaultOpen === true,
     open,
@@ -140,8 +148,8 @@ export function PickerCore<TItem extends PickerColumnItemData = PickerColumnItem
   const [mainValue = [], setMainValue] = useControllableValue<
     Array<PickerItemValue<TItem>>
   >(
-    getInitialValue(defaultValue, value),
-    value,
+    getInitialValue(defaultValue, field.value),
+    field.value,
     undefined,
   );
   const [draftValue, setDraftValue] = useState(mainValue);
@@ -174,7 +182,7 @@ export function PickerCore<TItem extends PickerColumnItemData = PickerColumnItem
   }, [columns, isOpen, mainValue]);
 
   const handleTriggerPress = () => {
-    if (disabled || readonly) {
+    if (resolvedDisabled || resolvedReadonly) {
       return;
     }
 
@@ -198,13 +206,14 @@ export function PickerCore<TItem extends PickerColumnItemData = PickerColumnItem
   };
 
   const handleOkPress = () => {
-    if (disabled || okDisabled) {
+    if (resolvedDisabled || okDisabled) {
       return;
     }
 
     const nextValue = draftValueRef.current;
 
     setMainValue(nextValue);
+    field.onChange?.(nextValue);
     onOk?.(nextValue, { items: getSelectedItems(columns, nextValue) });
 
     if (!popupProps?.loading && !hasEmptyColumn(columns)) {
@@ -233,6 +242,7 @@ export function PickerCore<TItem extends PickerColumnItemData = PickerColumnItem
 
     draftValueRef.current = nextDraftValue;
     setDraftValue(nextDraftValue);
+    field.onChange?.(nextDraftValue);
     onChange?.(nextDraftValue, {
       reason: 'select',
       columnIndex,
@@ -255,6 +265,7 @@ export function PickerCore<TItem extends PickerColumnItemData = PickerColumnItem
     setDraftValue(nextValue);
     setMainValue(nextValue);
     setFocusedIndexes(getSelectedIndexes(columns, nextValue));
+    field.onChange?.(nextValue);
     onClear?.();
     onChange?.(nextValue, {
       reason: 'clear',
@@ -265,23 +276,19 @@ export function PickerCore<TItem extends PickerColumnItemData = PickerColumnItem
   return (
     <>
       <PickerTrigger
-        active={isOpen && status !== 'error'}
+        active={isOpen && resolvedStatus !== 'error'}
         allowClear={allowClear}
         displayInputProps={displayInputProps}
-        disabled={disabled}
-        error={error}
-        errorText={errorText}
+        disabled={field.disabled}
         externalInputStyles={externalStyles?.input}
         externalTriggerStyle={[externalStyles?.trigger, style]}
         hasValue={hasMainValue}
-        helper={helper}
-        helperText={helperText}
-        label={label ?? labelText}
+        label={field.label ?? field.labelText}
         onClearPress={handleClearPress}
         onPress={handleTriggerPress}
-        readonly={readonly}
+        readonly={field.readonly}
         size={size}
-        status={status}
+        status={resolvedStatus}
         valueText={triggerValueText}
       >
         {children}

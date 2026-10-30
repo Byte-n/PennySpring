@@ -40,24 +40,6 @@ function treeText(testRenderer: renderer.ReactTestRenderer): string {
 }
 
 describe('ListPicker', () => {
-  it('passes helper and error node slots to the trigger display input', () => {
-    const helperRenderer = renderListPicker({
-      helper: <>Helper node</>,
-      helperText: 'Helper text',
-    });
-    const hiddenErrorRenderer = renderListPicker({
-      error: null,
-      errorText: 'Error text',
-      helperText: 'Helper text',
-      status: 'error',
-    });
-
-    expect(treeText(helperRenderer)).toContain('Helper node');
-    expect(treeText(helperRenderer)).not.toContain('Helper text');
-    expect(treeText(hiddenErrorRenderer)).not.toContain('Error text');
-    expect(treeText(hiddenErrorRenderer)).not.toContain('Helper text');
-  });
-
   it('opens in uncontrolled mode and renders text/custom option nodes', () => {
     const onOpenChange = jest.fn();
     const testRenderer = renderListPicker({
@@ -183,7 +165,6 @@ describe('ListPicker', () => {
       displayInputProps: {
         display: 'block',
         prefix,
-        required: true,
         suffix,
       },
     });
@@ -193,7 +174,6 @@ describe('ListPicker', () => {
     expect(triggerInput.props.display).toBe('block');
     expect(triggerInput.props.label).toBe('Payment method');
     expect(triggerInput.props.prefix).toBe(prefix);
-    expect(triggerInput.props.required).toBe(true);
     expect(triggerInput.props.suffix).toBe(suffix);
   });
 

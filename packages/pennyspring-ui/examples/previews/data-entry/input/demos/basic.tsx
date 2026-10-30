@@ -22,7 +22,7 @@ export function InputBasicDemo() {
           placeholder="Placeholder"
           defaultValue="PennySpring"
         />
-        <Input required labelText="Required" placeholder="Required field" />
+        <Input disabled labelText="Disabled" placeholder="Disabled field" />
         <Input
           clearable
           defaultValue="Search text"

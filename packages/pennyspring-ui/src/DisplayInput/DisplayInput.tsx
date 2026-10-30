@@ -21,7 +21,7 @@ import type {
   DisplayInputOverflow,
   DisplayInputProps,
 } from './types';
-const REQUIRED_MARK = '*';
+import { useFieldProps } from '@pennyspring/ui/src/Form/hooks/useFieldProps.ts';
 const AnimatedText = createAnimatedComponent(Text);
 const AnimatedView = createAnimatedComponent(View);
 
@@ -46,16 +46,11 @@ function isTextLikeValue(value: React.ReactNode): value is string | number {
 export function DisplayInput({
   disabled,
   display,
-  error,
-  errorText,
-  helper,
-  helperText,
   label,
   labelText,
   onPress,
   prefix,
   readonly,
-  required,
   size,
   status,
   overflow,
@@ -65,13 +60,20 @@ export function DisplayInput({
   valueText,
   children,
 }: DisplayInputProps) {
+  const field = useFieldProps({
+    label,
+    labelText,
+    status,
+    disabled,
+    readonly,
+  });
   const resolvedSize = resolveFieldSize(size);
-  const resolvedStatus = resolveStatus(status);
+  const resolvedStatus = resolveStatus(field.status);
   const resolvedDisplay = resolveDisplay(display);
   const resolvedOverflow = resolveOverflow(overflow);
   const { token } = useTheme();
-  const isDisabled = disabled === true;
-  const isReadonly = readonly === true;
+  const isDisabled = field.disabled === true;
+  const isReadonly = field.readonly === true;
   const isClickable = !isDisabled && !isReadonly && onPress !== undefined;
   const hasPrefix = prefix !== undefined && prefix !== null;
   const hasSuffix = suffix !== undefined && suffix !== null;
@@ -85,14 +87,9 @@ export function DisplayInput({
     ? valueText
     : undefined;
   const hasDisplayValue = hasCustomValue || hasTextValue;
-  const errorMessage = error !== undefined ? error : errorText;
-  const helperMessage = helper !== undefined ? helper : helperText;
-  const isError =
-    resolvedStatus === 'error' ||
-    (errorMessage !== undefined && errorMessage !== null);
-  const message =
-    isError && errorMessage !== undefined ? errorMessage : helperMessage;
-  const labelNode = label === null ? null : label ?? labelText ?? null;
+  const isError = resolvedStatus === 'error';
+  const labelNode =
+    field.label === null ? null : field.label ?? field.labelText ?? null;
   const hasFloatingLabel = labelNode !== null && labelNode !== undefined;
   const tokenStyles = useStyles({
     disabled: isDisabled,
@@ -152,10 +149,7 @@ export function DisplayInput({
     ),
   }));
 
-  const labelContent =
-    required === true && typeof labelNode === 'string'
-      ? `${labelNode} ${REQUIRED_MARK}`
-      : labelNode;
+  const labelContent = labelNode;
   const isTextLabel = isPrimitiveContent(labelContent);
 
   return (
@@ -259,18 +253,6 @@ export function DisplayInput({
           </Row>
         ) : null}
       </Pressable>
-      {message !== undefined && message !== null
-        ? renderTextNode(message, text => (
-            <Text
-              color={isError ? 'error' : 'description'}
-              style={[
-                isError ? styles?.error : styles?.helper,
-              ]}
-            >
-              {text}
-            </Text>
-          ))
-        : null}
     </Column>
   );
 }

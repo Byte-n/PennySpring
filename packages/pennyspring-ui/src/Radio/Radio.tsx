@@ -26,9 +26,11 @@ import type {
   RadioGroupOption,
   RadioGroupProps,
   RadioGroupStyles,
+  RadioGroupValue,
   RadioProps,
   RadioStyles,
 } from './types';
+import { useFieldProps } from '@pennyspring/ui/src/Form/hooks/useFieldProps.ts';
 
 function toSlotTestID(base: string, slot: string): string {
   return base === 'radio' ? `radio-${slot}` : `${base}-${slot}`;
@@ -182,23 +184,32 @@ function RadioControl({
   );
 }
 
-function BaseRadio({
-  value,
-  defaultValue = false,
-  onChange,
-  disabled = false,
-  readonly = false,
-  children,
-  size = 'normal',
-  displayType = 'default',
-  style,
-  styles,
-  ...rest
-}: RadioProps) {
-  const [selectedValue, setSelectedValue] = useControllableValue(
-    defaultValue,
+function BaseRadio(rawProps: RadioProps) {
+  const {
+    value,
+    defaultValue = false,
+    onChange,
+    disabled,
+    readonly,
+    children,
+    size = 'normal',
+    displayType = 'default',
+    style,
+    styles,
+    ...rest
+  } = rawProps;
+  const field = useFieldProps<boolean>({
     value,
     onChange,
+    disabled,
+    readonly,
+  });
+  const resolvedDisabled = field.disabled === true;
+  const resolvedReadonly = field.readonly === true;
+  const [selectedValue, setSelectedValue] = useControllableValue(
+    defaultValue,
+    field.value,
+    field.onChange,
   );
 
   function handleSelect(): void {
@@ -209,9 +220,9 @@ function BaseRadio({
     <RadioControl
       {...rest}
       block={false}
-      disabled={disabled}
+      disabled={resolvedDisabled}
       displayType={displayType}
-      readonly={readonly}
+      readonly={resolvedReadonly}
       rootStyle={style}
       selected={Boolean(selectedValue)}
       size={size}
@@ -224,25 +235,34 @@ function BaseRadio({
   );
 }
 
-export function RadioGroup({
-  value,
-  defaultValue,
-  onChange,
-  options = [],
-  disabled = false,
-  readonly = false,
-  displayType = 'default',
-  size = 'normal',
-  block = false,
-  direction = 'horizontal',
-  style,
-  styles,
-  ...rest
-}: RadioGroupProps) {
-  const [selectedValue, setSelectedValue] = useControllableValue(
+export function RadioGroup(rawProps: RadioGroupProps) {
+  const {
+    value,
     defaultValue,
+    onChange,
+    options = [],
+    disabled,
+    readonly,
+    displayType = 'default',
+    size = 'normal',
+    block = false,
+    direction = 'horizontal',
+    style,
+    styles,
+    ...rest
+  } = rawProps;
+  const field = useFieldProps<RadioGroupValue>({
     value,
     onChange,
+    disabled,
+    readonly,
+  });
+  const resolvedDisabled = field.disabled === true;
+  const resolvedReadonly = field.readonly === true;
+  const [selectedValue, setSelectedValue] = useControllableValue(
+    defaultValue,
+    field.value,
+    field.onChange,
   );
   const isHorizontal = direction === 'horizontal';
   const isBlockGrid = block && isHorizontal && displayType === 'button';
@@ -265,9 +285,9 @@ export function RadioGroup({
         key={optionTestID}
         block={block}
         controlStyle={styles?.option}
-        disabled={disabled || option.disabled === true}
+        disabled={resolvedDisabled || option.disabled === true}
         displayType={displayType}
-        readonly={readonly}
+        readonly={resolvedReadonly}
         selected={option.value === selectedValue}
         size={size}
         slotStyles={optionSlotStyles}

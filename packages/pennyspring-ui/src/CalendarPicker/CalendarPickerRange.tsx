@@ -16,6 +16,7 @@ import type {
   CalendarPickerPrecision,
   CalendarPickerRangeProps,
 } from './types';
+import { useFieldProps } from '@pennyspring/ui/src/Form/hooks/useFieldProps.ts';
 
 const DEFAULT_SIZE: ComponentSize = 'normal';
 const DEFAULT_PRECISION: CalendarPickerPrecision = 'day';
@@ -50,6 +51,19 @@ export function CalendarPickerRange(props: CalendarPickerRangeProps) {
   const size = props.size ?? DEFAULT_SIZE;
   const precision = props.precision ?? DEFAULT_PRECISION;
   const mode = getCalendarViewMode(precision);
+  const field = useFieldProps<DateRange | undefined>({
+    value: props.value,
+    onChange: props.onChange as
+      | ((value: DateRange | undefined) => void)
+      | undefined,
+    label: props.label,
+    labelText: props.labelText,
+    disabled: props.disabled,
+    readonly: props.readonly,
+    status: props.status,
+  });
+  const resolvedDisabled = field.disabled === true;
+  const resolvedReadonly = field.readonly === true;
 
   const [resolvedOpen, setResolvedOpen] = useControllableValue(
     props.defaultOpen === true,
@@ -60,7 +74,7 @@ export function CalendarPickerRange(props: CalendarPickerRangeProps) {
 
   const [committedValue, setCommittedValue] = useControllableValue<
     DateRange | undefined
-  >(props.defaultValue, props.value, undefined);
+  >(props.defaultValue, field.value, field.onChange);
   const [draftRange, setDraftRange] = useState<DateRange | undefined>(
     () => normalizeRange(committedValue),
   );
@@ -110,7 +124,7 @@ export function CalendarPickerRange(props: CalendarPickerRangeProps) {
   );
 
   function handleTriggerPress() {
-    if (props.disabled || props.readonly) {
+    if (resolvedDisabled || resolvedReadonly) {
       return;
     }
 
@@ -151,7 +165,7 @@ export function CalendarPickerRange(props: CalendarPickerRangeProps) {
   }
 
   function handleClearPress() {
-    if (props.disabled || props.readonly) {
+    if (resolvedDisabled || resolvedReadonly) {
       return;
     }
 
@@ -161,7 +175,7 @@ export function CalendarPickerRange(props: CalendarPickerRangeProps) {
   }
 
   function handleOkPress() {
-    if (props.disabled || props.okDisabled === true || !draftRange) {
+    if (resolvedDisabled || props.okDisabled === true || !draftRange) {
       return;
     }
 
@@ -173,23 +187,19 @@ export function CalendarPickerRange(props: CalendarPickerRangeProps) {
   return (
     <>
       <PickerTrigger
-        active={isOpen && props.status !== 'error'}
+        active={isOpen && field.status !== 'error'}
         allowClear={props.allowClear}
-        disabled={props.disabled}
+        disabled={resolvedDisabled}
         displayInputProps={props.displayInputProps}
-        error={props.error}
-        errorText={props.errorText}
         externalInputStyles={props.styles?.input}
         externalTriggerStyle={[props.styles?.trigger, props.style]}
         hasValue={committedValue !== undefined}
-        helper={props.helper}
-        helperText={props.helperText}
-        label={props.label ?? props.labelText}
+        label={field.label ?? field.labelText}
         onClearPress={handleClearPress}
         onPress={handleTriggerPress}
-        readonly={props.readonly}
+        readonly={resolvedReadonly}
         size={size}
-        status={props.status}
+        status={field.status}
         valueText={formatRangeText(committedValue, precision)}
       >
         {props.children}
@@ -218,14 +228,14 @@ export function CalendarPickerRange(props: CalendarPickerRangeProps) {
         titleText={props.titleText}
       >
         <CalendarPickerView.Range
-          disabled={props.disabled}
+          disabled={resolvedDisabled}
           disabledDate={disabledDate}
           marks={marks}
           maxDate={maxDate}
           minDate={minDate}
           mode={mode}
           onChange={handlePanelChange}
-          readonly={props.readonly}
+          readonly={resolvedReadonly}
           showValue={false}
           size={size}
           styles={props.styles?.calendar}

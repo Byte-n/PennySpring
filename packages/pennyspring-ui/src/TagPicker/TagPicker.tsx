@@ -19,6 +19,7 @@ import type {
   TagPickerProps,
   TagPickerValue,
 } from './types';
+import { useFieldProps } from '@pennyspring/ui/src/Form/hooks/useFieldProps.ts';
 
 function isOption(
   option: TagPickerOption | undefined,
@@ -45,6 +46,13 @@ export function TagPicker({
   texts,
   value,
 }: TagPickerProps) {
+  const field = useFieldProps<TagPickerValue[]>({
+    value,
+    onChange,
+    labelText,
+    disabled,
+  });
+  const resolvedDisabled = field.disabled === true;
   const { token } = useTheme();
   const tokenStyles = useTagPickerStyles();
   const resolvedSize: ComponentSize = size ?? 'normal';
@@ -55,11 +63,11 @@ export function TagPicker({
   );
   const [mergedValue, setMergedValue] = useControllableValue<TagPickerValue[]>(
     defaultValue,
-    value,
-    onChange,
+    field.value,
+    field.onChange,
   );
   const selectedValues = useMemo(() => mergedValue ?? [], [mergedValue]);
-  const isInteractive = !disabled && !loading;
+  const isInteractive = !resolvedDisabled && !loading;
   const visibleOptions = useMemo(
     () => options.filter(option => option.hidden !== true),
     [options],
@@ -194,10 +202,11 @@ export function TagPicker({
         externalInputStyles={styles?.input}
         externalTriggerStyle={style}
         hasValue={tagItems.length > 0}
-        label={labelText}
+        label={field.label ?? field.labelText}
         onPress={() => setOpen(mergedOpen !== true)}
         overflow={displayInputProps?.overflow ?? 'visible'}
         size={resolvedSize}
+        status={field.status}
         suffix={
           loading ? (
             <ActivityIndicator color={token.colorTextTertiary} />

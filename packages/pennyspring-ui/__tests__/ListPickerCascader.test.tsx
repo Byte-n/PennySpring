@@ -513,14 +513,13 @@ describe('ListPicker.Cascader', () => {
     });
   });
 
-  it('renders trigger label, helper and selected path text', () => {
+  it('renders trigger label and selected path text', () => {
     let testRenderer: renderer.ReactTestRenderer;
 
     act(() => {
       testRenderer = renderer.create(
         <ListPicker.Cascader
           defaultValue={['zhejiang', 'hangzhou']}
-          helperText="Pick a region"
           labelText="Region"
           options={options}
         />,
@@ -529,7 +528,6 @@ describe('ListPicker.Cascader', () => {
 
     const tree = JSON.stringify(testRenderer!.toJSON());
     expect(tree).toContain('Region');
-    expect(tree).toContain('Pick a region');
     expect(tree).toContain('Zhejiang / Hangzhou');
 
     act(() => {

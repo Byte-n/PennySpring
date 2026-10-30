@@ -1,12 +1,13 @@
 import { createUseSheetStyle } from '@pennyspring/theme';
 import type { AliasToken } from '@pennyspring/theme';
+import { FIELD_SIZE_MAP } from '../../shares/fieldMetrics';
 import type { ComponentSize } from '../../shares/types';
 import type { TextareaStatus } from '../types';
 
 export interface TextareaStyleOptions {
   contentHeight: number;
+  hasLabel: boolean;
   isDisabled: boolean;
-  isFocused: boolean;
   maxRows: number;
   minRows: number;
   size: ComponentSize;
@@ -15,7 +16,6 @@ export interface TextareaStyleOptions {
 
 interface SizeConfig {
   fontSize: (token: AliasToken) => number;
-  labelSize: 'xs' | 'sm';
   lineHeight: (token: AliasToken) => number;
 }
 
@@ -27,17 +27,14 @@ const INDICATOR_HEIGHT = 2;
 export const SIZE_CONFIG: Record<ComponentSize, SizeConfig> = {
   small: {
     fontSize: token => token.fontSizeSM,
-    labelSize: 'xs',
     lineHeight: token => token.lineHeightSM,
   },
   normal: {
     fontSize: token => token.fontSize,
-    labelSize: 'sm',
     lineHeight: token => token.lineHeight,
   },
   large: {
     fontSize: token => token.fontSizeLG,
-    labelSize: 'sm',
     lineHeight: token => token.lineHeightLG,
   },
 };
@@ -58,12 +55,36 @@ export function getVerticalPadding(_size: ComponentSize, token: AliasToken): num
   return token.marginXS;
 }
 
+/** 有标签时，正文从标签带下方开始；标签度量与 Input 同源。 */
+export function getContentTop(
+  size: ComponentSize,
+  token: AliasToken,
+  hasLabel: boolean,
+): number {
+  if (!hasLabel) {
+    return getVerticalPadding(size, token);
+  }
+
+  const metrics = FIELD_SIZE_MAP[size];
+
+  return (
+    metrics.labelTop +
+    metrics.labelLineHeight(token) +
+    metrics.valuePaddingBottom
+  );
+}
+
 export function getFieldHeight(
   rows: number,
   size: ComponentSize,
   token: AliasToken,
+  hasLabel = false,
 ): number {
-  return getRowHeight(size, token) * rows + getVerticalPadding(size, token) * 2;
+  return (
+    getContentTop(size, token, hasLabel) +
+    getRowHeight(size, token) * rows +
+    getVerticalPadding(size, token)
+  );
 }
 
 export function clampHeight(value: number, minHeight: number, maxHeight: number): number {
@@ -98,29 +119,67 @@ export function getTextColor(
   return isDisabled ? token.colorTextQuaternary : token.colorText;
 }
 
+function getStatusColor(status: TextareaStatus, token: AliasToken): string | null {
+  if (status === 'error') {
+    return token.colorError;
+  }
+
+  if (status === 'warning') {
+    return token.colorWarning;
+  }
+
+  if (status === 'success') {
+    return token.colorSuccess;
+  }
+
+  return null;
+}
+
 export { DEFAULT_MIN_ROWS, INDICATOR_HEIGHT, MIN_ALLOWED_ROWS };
 
 export const useStyles = createUseSheetStyle(
   (token, options: TextareaStyleOptions) => {
     const sizeConfig = SIZE_CONFIG[options.size];
     const lineHeight = sizeConfig.lineHeight(token);
-    const minHeight = getFieldHeight(options.minRows, options.size, token);
-    const maxHeight = getFieldHeight(options.maxRows, options.size, token);
     const verticalPadding = getVerticalPadding(options.size, token);
+    const contentTop = getContentTop(options.size, token, options.hasLabel);
+    const minHeight = getFieldHeight(
+      options.minRows,
+      options.size,
+      token,
+      options.hasLabel,
+    );
+    const maxHeight = getFieldHeight(
+      options.maxRows,
+      options.size,
+      token,
+      options.hasLabel,
+    );
     const height =
       options.contentHeight > 0
-        ? clampHeight(options.contentHeight + verticalPadding * 2, minHeight, maxHeight)
+        ? clampHeight(
+            options.contentHeight + contentTop + verticalPadding,
+            minHeight,
+            maxHeight,
+          )
         : minHeight;
+    const statusColor = getStatusColor(options.status, token);
+    // 静止态只有 error 会染红标签；warning / success 在浮起后生效
+    const labelRestColor = options.isDisabled
+      ? token.colorTextQuaternary
+      : options.status === 'error'
+      ? token.colorError
+      : token.colorTextPlaceholder;
+    const labelFilledColor = options.isDisabled
+      ? token.colorTextQuaternary
+      : statusColor ?? token.colorTextTertiary;
+    const labelActiveColor = options.isDisabled
+      ? token.colorTextQuaternary
+      : statusColor ?? token.colorPrimary;
 
     return {
       root: {
         gap: token.marginXS,
-      },
-      labelRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: token.marginXXS,
-        marginBottom: token.marginXS,
       },
       field: {
         minHeight,
@@ -132,6 +191,28 @@ export const useStyles = createUseSheetStyle(
         borderRadius: 0,
         paddingHorizontal: 0,
         paddingVertical: verticalPadding,
+        position: 'relative',
+      },
+      // 标签带只在有 label 时占用，避免无 label 场景凭空变高
+      fieldWithLabel: {
+        paddingTop: contentTop,
+      },
+      labelContainer: {
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        zIndex: token.zIndexBase,
+      },
+      label: {
+        color: labelRestColor,
+        fontFamily: token.fontFamily,
+      },
+      // 标签浮起后承担“字段名”职责，用 tertiary 保证小字号可读性
+      labelFilled: {
+        color: labelFilledColor,
+      },
+      labelActive: {
+        color: labelActiveColor,
       },
       indicator: {
         position: 'absolute' as const,
@@ -157,17 +238,11 @@ export const useStyles = createUseSheetStyle(
       inputReadonly: {
         color: token.colorTextSecondary,
       },
-      helper: {
-        flex: 1,
-      },
-      error: {
-        flex: 1,
-      },
       footer: {
         minHeight: token.lineHeightXS,
         flexDirection: 'row' as const,
         alignItems: 'flex-start' as const,
-        justifyContent: 'space-between' as const,
+        justifyContent: 'flex-end' as const,
         gap: token.marginXS,
         marginTop: token.marginXS,
       },

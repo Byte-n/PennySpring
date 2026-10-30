@@ -12,38 +12,6 @@ function renderTextarea(props: Partial<React.ComponentProps<typeof Textarea>> = 
   return testRenderer!;
 }
 describe('Textarea', () => {
-  it('uses helper and error node slots to control message rendering', () => {
-    const helperRenderer = renderTextarea({
-      helper: <>Helper node</>,
-      helperText: 'Helper text',
-    });
-    const hiddenErrorRenderer = renderTextarea({
-      error: null,
-      errorText: 'Error text',
-      helperText: 'Helper text',
-      status: 'error',
-    });
-
-    expect(JSON.stringify(helperRenderer.toJSON())).toContain('Helper node');
-    expect(JSON.stringify(helperRenderer.toJSON())).not.toContain('Helper text');
-    expect(JSON.stringify(hiddenErrorRenderer.toJSON())).not.toContain('Error text');
-    expect(JSON.stringify(hiddenErrorRenderer.toJSON())).not.toContain('Helper text');
-  });
-
-  it('renders helper nodes in the footer view instead of a text container', () => {
-    const testRenderer = renderTextarea({
-      helper: <View testID="custom-textarea-helper-node" />,
-      helperText: 'Helper text',
-    });
-
-    const helperNode = testRenderer.root.findByProps({
-      testID: 'custom-textarea-helper-node',
-    });
-
-    expect(helperNode.parent?.type).toBe('View');
-    expect(JSON.stringify(testRenderer.toJSON())).not.toContain('Helper text');
-  });
-
   it('uses controlled value for display and count while forwarding text changes', () => {
     const handleChangeText = jest.fn();
     const testRenderer = renderTextarea({
@@ -72,24 +40,43 @@ describe('Textarea', () => {
     expect(testRenderer.root.findByType(TextInput).props.value).toBe('Memo updated');
     expect(JSON.stringify(testRenderer.toJSON())).toContain('12');
   });
-  it('prioritizes error text over helper text only when status is error', () => {
-    const testRenderer = renderTextarea({
-      status: 'error',
-      helperText: 'Helper copy',
-      errorText: 'Required copy'
+  it('renders labelText as a floating label inside the field and hides the placeholder until focus', () => {
+    const testRenderer = renderThemedTextarea({
+      labelText: '备注',
+      placeholder: '请输入备注',
     });
-    const treeString = JSON.stringify(testRenderer.toJSON());
-    expect(treeString).toContain('Required copy');
-    expect(treeString).not.toContain('Helper copy');
+    const label = testRenderer.root.findByProps({ testID: 'textarea-floating-label' });
+    const input = testRenderer.root.findByType(TextInput);
+
+    expect(label.parent).toBe(input.parent);
+    expect(label.findByType(Text).props.children).toBe('备注');
+    expect(input.props.placeholderTextColor).toBe('transparent');
+
+    act(() => {
+      input.props.onFocus({ nativeEvent: {} });
+    });
+
+    expect(testRenderer.root.findByType(TextInput).props.placeholderTextColor).toBe(
+      TOKENS.colorTextPlaceholder,
+    );
   });
-  it('renders required marker next to the label without validating input', () => {
+
+  it('renders custom label nodes inside the floating label container', () => {
     const testRenderer = renderTextarea({
-      label: 'Description',
-      required: true
+      label: <View testID="custom-textarea-label-node" />,
     });
-    const treeString = JSON.stringify(testRenderer.toJSON());
-    expect(treeString).toContain('Description');
-    expect(treeString).toContain('*');
+    const label = testRenderer.root.findByProps({ testID: 'textarea-floating-label' });
+
+    expect(() =>
+      label.findByProps({ testID: 'custom-textarea-label-node' }),
+    ).not.toThrow();
+  });
+
+  it('keeps the placeholder visible when no label is rendered', () => {
+    const testRenderer = renderThemedTextarea({ placeholder: '添加备注' });
+    const input = testRenderer.root.findByType(TextInput);
+
+    expect(input.props.placeholderTextColor).toBe(TOKENS.colorTextPlaceholder);
   });
   it('makes disabled input non-editable', () => {
     const testRenderer = renderTextarea({
@@ -201,6 +188,7 @@ const TOKENS = {
   colorError: 'errorToken',
   colorPrimary: 'primaryToken',
   colorSplit: 'splitToken',
+  colorTextPlaceholder: 'placeholderToken',
   colorTextQuaternary: 'quaternaryToken',
   colorTextSecondary: 'secondaryToken',
   colorWarning: 'warningToken',
@@ -282,21 +270,6 @@ describe('Textarea underline field', () => {
     expect(getFieldStyle(testRenderer).backgroundColor).toBe('transparent');
   });
 
-  it.each([
-    ['default', 'tertiary'],
-    ['error', 'errorText'],
-    ['warning', 'warningText'],
-    ['success', 'successText'],
-  ] as const)('colors %s helper text with %s', (status, expectedColor) => {
-    const testRenderer = renderThemedTextarea({ helperText: '说明文案', status });
-    const helperNode = testRenderer.root
-      .findAllByType(Text)
-      .find(node => node.props.children === '说明文案');
-
-    expect(helperNode?.props.size).toBe('xs');
-    expect(helperNode?.props.color).toBe(expectedColor);
-  });
-
   it('turns the counter warning color above 84% of maxLength', () => {
     const normalRenderer = renderThemedTextarea({ maxLength: 10, showCount: true, value: '1234' });
     const warningRenderer = renderThemedTextarea({ maxLength: 10, showCount: true, value: '123456789' });
@@ -307,7 +280,7 @@ describe('Textarea underline field', () => {
     expect(countNode(warningRenderer)?.props.color).toBe('warningText');
   });
 
-  it('moves the loading spinner into the footer and keeps it without helper or count', () => {
+  it('moves the loading spinner into the footer', () => {
     const testRenderer = renderThemedTextarea({ loading: true });
     const spinner = testRenderer.root.findByType(ActivityIndicator);
 
@@ -316,17 +289,15 @@ describe('Textarea underline field', () => {
   });
 
   it.each([
-    ['small', 'xs', 24],
-    ['normal', 'sm', 26],
-    ['large', 'sm', 28],
-  ] as const)('maps %s label and row height', (size, expectedLabelSize, expectedRowHeight) => {
+    ['small', 98],
+    ['normal', 107],
+    ['large', 116],
+  ] as const)('includes the floating label band in %s field height', (size, expectedHeight) => {
     const testRenderer = renderThemedTextarea({ labelText: '备注', size });
-    const labelNode = testRenderer.root
-      .findAllByType(Text)
-      .find(node => node.props.children === '备注');
 
-    expect(labelNode?.props.size).toBe(expectedLabelSize);
-    expect(labelNode?.props.weight).toBe('semibold');
-    expect(getFieldStyle(testRenderer).minHeight).toBe(expectedRowHeight * 3 + TOKENS.marginXS * 2);
+    expect(() =>
+      testRenderer.root.findByProps({ testID: 'textarea-floating-label' }),
+    ).not.toThrow();
+    expect(getFieldStyle(testRenderer).minHeight).toBe(expectedHeight);
   });
 });

@@ -1,25 +1,21 @@
 import React from 'react';
 import { Column, Text, Textarea } from '@pennyspring/ui';
 
-export const textareaSlotsDemoTitle = '插槽与行数（slots）';
+export const textareaSlotsDemoTitle = '行数、计数与加载';
 
 export function TextareaSlotsDemo() {
   return (
     <Column gap="normal">
       <Text color="tertiary" size="sm">
-        label &gt; labelText，error &gt; helper；计数超过 84% 转警示色；加载转圈替换计数位
+        label &gt; labelText；计数超过 84% 转警示色；加载转圈替换计数位
       </Text>
       <Textarea
-        helperText="会出现在账单明细里"
         labelText="备注"
         maxLength={200}
         placeholder="例如：工作日午餐"
-        required
         showCount
       />
       <Textarea
-        errorText="小票号已被另一笔记录使用"
-        helperText="会出现在账单明细里"
         labelText="小票号"
         minRows={1}
         placeholder="2026-1026-0031"
@@ -28,7 +24,6 @@ export function TextareaSlotsDemo() {
       />
       <Textarea
         defaultValue="十月份聚餐分摊：人均 64 元，共 6 人。"
-        helperText="已达 6 行上限，更多内容在字段内滚动"
         labelText="备注"
         maxLength={200}
         maxRows={6}

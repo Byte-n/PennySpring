@@ -33,6 +33,7 @@ import type {
   InputProps,
   InputSearchProps,
 } from './types';
+import { useFieldProps } from '@pennyspring/ui/src/Form/hooks/useFieldProps.ts';
 
 const AnimatedText = createAnimatedComponent(Text);
 const AnimatedView = createAnimatedComponent(View);
@@ -186,8 +187,6 @@ const useStyles = createUseSheetStyle(
       clearButtonPressed: {
         backgroundColor: token.colorBgTextActive,
       },
-      helper: {},
-      error: {},
       loading: {
         flexShrink: 0,
       },
@@ -218,14 +217,10 @@ const useSearchStyles = createUseSheetStyle(
   },
 );
 
-function InputRoot({
+function InputView({
   clearable,
   defaultValue,
   disabled = false,
-  error,
-  errorText,
-  helper,
-  helperText,
   label,
   labelText,
   loading,
@@ -237,7 +232,6 @@ function InputRoot({
   placeholder,
   prefix,
   readonly = false,
-  required,
   size,
   status = 'default',
   style,
@@ -254,10 +248,7 @@ function InputRoot({
     value,
     onChange,
   );
-  const errorMessage = error !== undefined ? error : errorText;
-  const helperMessage = helper !== undefined ? helper : helperText;
-  const isError = status === 'error' || hasNode(errorMessage);
-  const message = hasNode(errorMessage) ? errorMessage : helperMessage;
+  const isError = status === 'error';
   const labelNode = resolveLabel({ label, labelText });
   const hasFloatingLabel = hasNode(labelNode);
   const tokenStyles = useStyles({
@@ -351,9 +342,7 @@ function InputRoot({
     onBlur?.(event as NativeSyntheticEvent<TextInputFocusEventData>);
   }
 
-  const labelContent = required === true && typeof labelNode === 'string'
-    ? `${labelNode} *`
-    : labelNode;
+  const labelContent = labelNode;
   const isTextLabel = isPrimitiveContent(labelContent);
 
   return (
@@ -455,46 +444,52 @@ function InputRoot({
           </Row>
         ) : null}
       </Row>
-      {hasNode(message)
-        ? renderTextNode(message, (text) => (
-          <Text
-            color={isError ? 'error' : 'description'}
-            style={[
-              isError ? tokenStyles.error : tokenStyles.helper,
-              isError ? styles?.error : styles?.helper,
-            ]}
-          >
-            {text}
-          </Text>
-        ))
-        : null}
     </Column>
   );
 }
 
-function SearchInput({
-  defaultValue,
-  disabled,
-  loading,
-  onClear,
-  onChange,
-  onSearch,
-  onSubmitEditing,
-  readonly,
-  searchIcon,
-  size,
-  value,
-  ...rest
-}: InputSearchProps) {
+type InputBlurEvent = Parameters<NonNullable<TextInputProps['onBlur']>>[0];
+
+function useBoundInputProps(props: InputProps | InputSearchProps) {
+  return useFieldProps<string, InputBlurEvent>({
+    value: props.value,
+    onChange: props.onChange,
+    onBlur: props.onBlur,
+    label: props.label,
+    labelText: props.labelText,
+    disabled: props.disabled,
+    readonly: props.readonly,
+    status: props.status,
+  });
+}
+
+function InputRoot(rawProps: InputProps) {
+  const field = useBoundInputProps(rawProps);
+
+  return <InputView {...rawProps} {...field} />;
+}
+
+function SearchInput(rawProps: InputSearchProps) {
+  const field = useBoundInputProps(rawProps);
+  const {
+    defaultValue,
+    loading,
+    onClear,
+    onSearch,
+    onSubmitEditing,
+    searchIcon,
+    size,
+    ...rest
+  } = rawProps;
   const resolvedSize = resolveFieldSize(size);
   const tokenStyles = useSearchStyles({ size: resolvedSize });
   const { token } = useTheme();
   const [mergedValue = '', setMergedValue] = useControllableValue(
     defaultValue ?? '',
-    value,
-    onChange,
+    field.value,
+    field.onChange,
   );
-  const canSearch = !disabled && !readonly && loading !== true;
+  const canSearch = field.disabled !== true && field.readonly !== true && loading !== true;
 
   function handleChangeText(text: string): void {
     setMergedValue(text);
@@ -529,16 +524,17 @@ function SearchInput({
   );
 
   return (
-    <InputRoot
+    <InputView
       {...rest}
+      {...field}
       defaultValue={defaultValue}
-      disabled={disabled}
+      disabled={field.disabled === true}
       loading={loading}
       onChange={handleChangeText}
       onClear={handleClear}
       onSubmitEditing={handleSubmitEditing}
-      readonly={readonly}
-      returnKeyType={rest.returnKeyType ?? 'search'}
+      readonly={field.readonly === true}
+      returnKeyType={rawProps.returnKeyType ?? 'search'}
       size={resolvedSize}
       suffix={
         <Pressable

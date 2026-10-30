@@ -14,6 +14,7 @@ import type {
   SegmentedProps,
   SegmentedValue,
 } from './types';
+import { useFieldProps } from '@pennyspring/ui/src/Form/hooks/useFieldProps.ts';
 
 interface NormalizedSegmentedOption {
   value: SegmentedValue;
@@ -86,24 +87,31 @@ function renderLabel(
   return label;
 }
 
-export function Segmented({
-  options = [],
-  value,
-  defaultValue,
-  onChange,
-  disabled = false,
-  block = false,
-  size = 'normal',
-  style,
-  styles,
-  onPress,
-  ...rest
-}: SegmentedProps) {
-  const tokenStyles = useStyles({ block, disabled, size });
-  const [selectedValue, setSelectedValue] = useControllableValue(
+export function Segmented(rawProps: SegmentedProps) {
+  const {
+    options = [],
+    value,
     defaultValue,
+    onChange,
+    disabled,
+    block = false,
+    size = 'normal',
+    style,
+    styles,
+    onPress,
+    ...rest
+  } = rawProps;
+  const field = useFieldProps<SegmentedValue>({
     value,
     onChange,
+    disabled,
+  });
+  const resolvedDisabled = field.disabled === true;
+  const tokenStyles = useStyles({ block, disabled: resolvedDisabled, size });
+  const [selectedValue, setSelectedValue] = useControllableValue(
+    defaultValue,
+    field.value,
+    field.onChange,
   );
   const normalizedOptions = useMemo(
     () => options.map(normalizeOption),
@@ -128,7 +136,7 @@ export function Segmented({
       <Row style={[tokenStyles.track, styles?.track]}>
         {normalizedOptions.map(option => {
           const isSelected = option.value === selectedValue;
-          const isDisabled = disabled || option.disabled === true;
+          const isDisabled = resolvedDisabled || option.disabled === true;
           const labelColor: TextColor = isDisabled
             ? isSelected
               ? 'tertiary'

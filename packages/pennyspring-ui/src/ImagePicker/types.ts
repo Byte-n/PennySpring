@@ -67,10 +67,6 @@ interface ImagePickerBaseProps {
   onClear?: () => void;
   label?: ReactNode | null;
   labelText?: string;
-  helperText?: string;
-  helper?: ReactNode | null;
-  errorText?: string;
-  error?: ReactNode | null;
   displayInputProps?: ImagePickerDisplayInputProps;
   cameraText?: string;
   photoText?: string;

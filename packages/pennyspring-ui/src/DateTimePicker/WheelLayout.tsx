@@ -359,11 +359,7 @@ export function DateTimeWheelPicker(props: DateTimePickerCoreProps) {
       defaultValue={defaultPickerValue}
       disabled={props.disabled || props.loading === true}
       displayInputProps={props.displayInputProps}
-      error={props.error}
-      errorText={props.errorText}
       formatValueText={formatValueText}
-      helper={props.helper}
-      helperText={props.helperText}
       label={props.label}
       labelText={props.labelText}
       onCancel={props.onCancel}

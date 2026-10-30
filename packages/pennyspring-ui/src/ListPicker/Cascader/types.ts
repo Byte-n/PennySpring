@@ -221,18 +221,6 @@ export interface ListPickerCascaderProps<TData = unknown> {
   /** 校验展示状态。 */
   status?: ListPickerStatus;
 
-  /** 辅助说明文本。 */
-  helperText?: string;
-
-  /** 辅助说明自定义节点。传入 null 时不渲染。 */
-  helper?: ReactNode | null;
-
-  /** 错误说明文本。 */
-  errorText?: string;
-
-  /** 错误说明自定义节点。传入 null 时不渲染。 */
-  error?: ReactNode | null;
-
   /** 字段标签文本。 */
   labelText?: string;
 

@@ -38,6 +38,7 @@ const sidebars = {
           type: 'category',
           label: '录入',
           items: [
+            'components/data-entry/form',
             'components/data-entry/input',
             'components/data-entry/display-input',
             'components/data-entry/image-picker',

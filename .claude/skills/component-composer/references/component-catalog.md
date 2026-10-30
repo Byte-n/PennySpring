@@ -29,10 +29,11 @@
 
 ## 输入与控件
 
+- `Form` / `Form.Item`：表单与表单项；支持 item/child/noStyle 布局、跨字段 `dependencies`、`Form.Subscribe` 条件渲染、`required` 在未传 rules 时自动校验、`extra`/`errorRender` 反馈与提交后重校验。`Form.infer<Values>()` 返回带类型的 Form（含 `Item`/`Subscribe`/`useForm`/`useFormInstance`，不含 `infer`）；表单实例用 `Form.useFormInstance`，字段控件用 `Form.Item.useFieldProps` 自动绑定，状态读取用 `Form.Item.useFieldState`。
 - `Input`：Material flat 风格的单行文本与搜索输入，支持浮动 label、独立底线、错误态、清除按钮、前后缀和加载态。
-- `Textarea`：多行文本输入；下划线字段（1px 底边 + 2px 状态指示条，无底色无圆角），尺寸 14/24・16/26・18/28，错误不铺浅红底。
+- `Textarea`：多行文本输入；下划线字段（1px 底边 + 2px 状态指示条，无底色无圆角），浮动 label（与 Input 一致，placeholder 聚焦后出现），尺寸 14/24・16/26・18/28，错误不铺浅红底。
 - `DisplayInput`：只读或触发式输入展示。自身持有 pressed、disabled、readonly 与错误态视觉，不接受调用方叠加状态样式。
-- `ImagePicker`：以 `DisplayInput` 作为触发器，从相册或文件管理选择单张或多张图片。支持 `size`、`allowClear`、`status`、`helper`/`error`，触发器样式统一通过 `styles.input` 覆盖；浮层内 3 列 1:1 网格（间距 8、左右 16、圆角 12），删除按钮 24 + 2px 容器环，添加位与空态为虚线格，加载失败显示错误框并可点击重试。
+- `ImagePicker`：以 `DisplayInput` 作为触发器，从相册或文件管理选择单张或多张图片。支持 `size`、`allowClear`、`status`，触发器样式统一通过 `styles.input` 覆盖；浮层内 3 列 1:1 网格（间距 8、左右 16、圆角 12），删除按钮 24 + 2px 容器环，添加位与空态为虚线格，加载失败显示错误框并可点击重试。
 - `CalculatorInput`：带计算器弹窗的数字输入。`CalculatorInput.useCalculatorValueState` 封装弹层开关与表达式状态，打开时回填初始值，确认后再收起。
 - `Stepper`：递增/递减数值调节。999 胶囊，高度取 `controlHeightSM / controlHeight / controlHeightLG`（无描边无分隔线），按钮 24 / 32 / 36 + 线性加减图标；数值 600 等宽、最小宽 32 / 40 / 48，`unitText` 以 12/三级紧跟数值；按压只作用于按钮，到边界仅降对应按钮，禁用降胶囊底，只读保留胶囊底但降数值。
 - `Slider`：范围或数值调节。轨道 4 / 6 / 8、thumb 16 / 20 / 24，控件高取 `controlHeightSM / controlHeight / controlHeightLG`；轨道 `colorFillSecondary`、填充 `colorPrimary`，thumb 白面 + 2px 主色环 + `boxShadowTertiary`；按压 thumb ×1.1，禁用改四级灰并去投影，只读保留主色但不响应；端点左右留 thumb 半径。
@@ -43,8 +44,8 @@
 ## 选择器与选择
 
 - `WheelGroup`：滚轮组内核。支持多列、显式行高、`fit="container"` 按容器高度量化可见行（3/5/7）、实时 activeIndex、拖拽无惯性也提交。样式通过 `WheelGroupStyles` 覆盖。
-- `Picker`：滚轮选择器与触发式选择模式。支持 `allowClear`、`status`、`helper`/`error`，触发器与 `DateTimePicker`、`CalendarPicker`、`ListPicker` 共用同一内部触发器实现；`Picker.Cascader` 为业务 Tab + 多列滚轮的级联子模式。
-- `DateTimePicker`：日期时间选择。支持 `precision`（year/month/day/hour/minute/second）与 `layout`（`wheel` 默认 / `calendar` 日历浮层）；`DateTimePicker.Date` 仅日期、`DateTimePicker.Time` 仅时间（强制滚轮）。含时间精度且使用日历布局时，可点底部入口在日历与时间滚轮之间翻页。两种布局均支持 `allowClear`、`status`、`helper`/`error` 与 `loading`（日历布局以加载面板替代日历内容）。
+- `Picker`：滚轮选择器与触发式选择模式。支持 `allowClear`、`status`，触发器与 `DateTimePicker`、`CalendarPicker`、`ListPicker` 共用同一内部触发器实现；`Picker.Cascader` 为业务 Tab + 多列滚轮的级联子模式。
+- `DateTimePicker`：日期时间选择。支持 `precision`（year/month/day/hour/minute/second）与 `layout`（`wheel` 默认 / `calendar` 日历浮层）；`DateTimePicker.Date` 仅日期、`DateTimePicker.Time` 仅时间（强制滚轮）。含时间精度且使用日历布局时，可点底部入口在日历与时间滚轮之间翻页。两种布局均支持 `allowClear`、`status` 与 `loading`（日历布局以加载面板替代日历内容）。
 - `CalendarPicker`：日历输入型选择器，值使用 `Date`。`CalendarPicker.View` 为纯日历面板（`mode` 支持 date/month/year，`CalendarPicker.View.Range` 为范围面板）；`CalendarPicker` 为触发器 + 浮层，`CalendarPicker.Range` 为输入型范围选择。面板支持标记、禁用日期、最小/最大日期与自定义文案，触发器支持 `allowClear` 与校验状态展示。
 - `ListPicker`：基于 `FlatList` 的单选/多选触发器与选择面板，支持分组、搜索、受控值与 `allowClear`。触发器样式统一通过 `styles.input` 覆盖；`ListPicker.Cascader` 为层级 Tab + 列表的级联子模式，支持 `closeOnSelectLeaf`、`displayMode="tag"` 与 `allowClear`。
 - `Segmented`：紧凑分段选择。轨道高取 `controlHeightSM / controlHeight / controlHeightLG`，内边距 2 / 3 / 4，item 圆角 8 / 8 / 12；选中块为白底 + `boxShadowTertiary` + `colorText` 600，未选二级、禁用四级；支持 `options[].icon` / `label` / `disabled`、`block` 与 `size`。
@@ -86,7 +87,7 @@
 
 ## 常见组合
 
-- 表单字段行：`Column` + `Text` 标签 + `Input`/`DisplayInput`/`ListPicker` 触发器。
+- 表单字段行：优先 `Form` + `Form.Item` 承载 label、布局与校验错误；字段控件直接放入 Item，不再手写 `Text` 标签。
 - 设置项：`List` 的数据行 + 尾部 `Switch`、`Text`、`Badge`、`Tag` 或 `Icon`。
 - 从列表选择流程：`ListPicker`；若数据形态匹配，也可用 `Picker`/`ListPicker.Cascader`/`Picker.Cascader`。
 - 筛选栏：`Row`/`Space` + `Segmented` + `Button`/`Icon` 操作。

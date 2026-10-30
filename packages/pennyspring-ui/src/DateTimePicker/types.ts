@@ -100,10 +100,6 @@ export interface DateTimePickerProps {
   labelText?: string;
   label?: ReactNode;
   status?: InputStatus;
-  helperText?: string;
-  helper?: ReactNode | null;
-  errorText?: string;
-  error?: ReactNode | null;
   displayInputProps?: PickerDisplayInputProps;
   allowClear?: boolean;
   onClear?: () => void;

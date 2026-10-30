@@ -27,14 +27,9 @@ export function InputStatusDemo() {
           placeholder="请输入账户名称"
         />
         <Input
-          labelText="备注"
-          placeholder="可选"
-          helperText="最多 100 字"
-        />
-        <Input
           labelText="金额"
           placeholder="0.00"
-          errorText="请输入有效金额"
+          status="error"
         />
       </View>
     </>

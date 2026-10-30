@@ -8,42 +8,52 @@ import { Text } from '../Text';
 import { getSizeConfig, useStyles, SIZE_TO_TEXT_SIZE } from './style';
 import type { TextColor } from '../Text/types';
 import type { StepperProps } from './types';
+import { useFieldProps } from '@pennyspring/ui/src/Form/hooks/useFieldProps.ts';
 
 function clampValue(value: number, min: number, max: number): number {
   return Math.min(Math.max(value, min), max);
 }
 
-export function Stepper({
-  value,
-  defaultValue = 0,
-  onChange,
-  min = -Infinity,
-  max = Infinity,
-  step = 1,
-  unitText,
-  disabled = false,
-  readonly = false,
-  size = 'normal',
-  style,
-  styles,
-}: StepperProps) {
+export function Stepper(rawProps: StepperProps) {
+  const {
+    value,
+    defaultValue = 0,
+    onChange,
+    min = -Infinity,
+    max = Infinity,
+    step = 1,
+    unitText,
+    disabled,
+    readonly,
+    size = 'normal',
+    style,
+    styles,
+  } = rawProps;
+  const field = useFieldProps<number>({
+    value,
+    onChange,
+    disabled,
+    readonly,
+  });
   const tokenStyles = useStyles(size);
   const { token } = useTheme();
   const hitSlop = token.sizeXS;
   const sizeConfig = getSizeConfig(size);
   const [currentValue, setCurrentValue] = useControllableValue(
     defaultValue,
-    value,
-    onChange,
+    field.value,
+    field.onChange,
   );
-  const isDisabled = disabled || readonly;
+  const resolvedDisabled = field.disabled === true;
+  const resolvedReadonly = field.readonly === true;
+  const isDisabled = resolvedDisabled || resolvedReadonly;
   const safeValue = currentValue ?? 0;
   const isAtMin = safeValue <= min;
   const isAtMax = safeValue >= max;
   const textSize = SIZE_TO_TEXT_SIZE[size];
-  const valueColor: TextColor = disabled
+  const valueColor: TextColor = resolvedDisabled
     ? 'quaternary'
-    : readonly
+    : resolvedReadonly
       ? 'secondary'
       : 'base';
 
@@ -70,7 +80,7 @@ export function Stepper({
       align="center"
       style={[
         tokenStyles.container,
-        disabled ? tokenStyles.containerDisabled : null,
+        resolvedDisabled ? tokenStyles.containerDisabled : null,
         style,
       ]}
     >

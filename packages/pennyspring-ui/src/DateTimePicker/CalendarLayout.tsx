@@ -44,6 +44,7 @@ import type {
   DateTimePickerPrecision,
   DateTimePickerValueParams,
 } from './types';
+import { useFieldProps } from '@pennyspring/ui/src/Form/hooks/useFieldProps.ts';
 
 const DEFAULT_SIZE: ComponentSize = 'normal';
 const WEEK_DAYS = ['日', '一', '二', '三', '四', '五', '六'];
@@ -149,10 +150,20 @@ export function DateTimeCalendarPicker(props: DateTimePickerCoreProps) {
   );
   const isOpen = resolvedOpen === true;
   const isLoading = props.loading === true;
+  const field = useFieldProps<number | undefined>({
+    value: props.value?.getTime(),
+    label: props.label,
+    labelText: props.labelText,
+    disabled: props.disabled,
+    readonly: props.readonly,
+    status: props.status,
+  });
+  const resolvedDisabled = field.disabled === true;
+  const resolvedReadonly = field.readonly === true;
 
   const [mainTime, setMainTime] = useControllableValue<number | undefined>(
     props.defaultValue?.getTime(),
-    props.value?.getTime(),
+    field.value,
     undefined,
   );
   // 未提交过任何值时触发器保持空白，避免把「今天」误当成选中值。
@@ -322,7 +333,7 @@ export function DateTimeCalendarPicker(props: DateTimePickerCoreProps) {
   }
 
   function handleTriggerPress() {
-    if (props.disabled || props.readonly) {
+    if (resolvedDisabled || resolvedReadonly) {
       return;
     }
 
@@ -347,21 +358,23 @@ export function DateTimeCalendarPicker(props: DateTimePickerCoreProps) {
   }
 
   function handleClearPress() {
-    if (props.disabled || props.readonly) {
+    if (resolvedDisabled || resolvedReadonly) {
       return;
     }
 
     setMainTime(undefined);
+    field.onChange?.(undefined);
     setDraft(normalizeDateOnly(new Date(), dateOnly));
     props.onClear?.();
   }
 
   function handleOkPress() {
-    if (props.disabled || resolvedOkDisabled) {
+    if (resolvedDisabled || resolvedOkDisabled) {
       return;
     }
 
     setMainTime(draft.getTime());
+    field.onChange?.(draft.getTime());
     props.onOk?.(draft, buildValueParams(draft));
     closePanel('ok');
   }
@@ -369,23 +382,19 @@ export function DateTimeCalendarPicker(props: DateTimePickerCoreProps) {
   return (
     <>
       <PickerTrigger
-        active={isOpen && props.status !== 'error'}
+        active={isOpen && field.status !== 'error'}
         allowClear={props.allowClear}
-        disabled={props.disabled || isLoading}
+        disabled={resolvedDisabled || isLoading}
         displayInputProps={props.displayInputProps}
-        error={props.error}
-        errorText={props.errorText}
         externalInputStyles={props.styles?.input}
         externalTriggerStyle={[props.styles?.trigger, props.style]}
         hasValue={hasValue}
-        helper={props.helper}
-        helperText={props.helperText}
-        label={props.label ?? props.labelText}
+        label={field.label ?? field.labelText}
         onClearPress={handleClearPress}
         onPress={handleTriggerPress}
-        readonly={props.readonly}
+        readonly={resolvedReadonly}
         size={size}
-        status={props.status}
+        status={field.status}
         valueText={hasValue
           ? formatValueText(props.parts, precision, committedDate)
           : undefined}
@@ -429,14 +438,14 @@ export function DateTimeCalendarPicker(props: DateTimePickerCoreProps) {
               style={calendarAnimatedStyle}
             >
               <CalendarPickerView
-                disabled={props.disabled}
+                disabled={resolvedDisabled}
                 disabledDate={panelDisabledDate}
                 marks={marks}
                 maxDate={maxDate}
                 minDate={minDate}
                 mode={calendarMode}
                 onChange={handleCalendarChange}
-                readonly={props.readonly}
+                readonly={resolvedReadonly}
                 showValue={false}
                 size={size}
                 styles={calendarStyles}

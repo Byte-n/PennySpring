@@ -1,0 +1,149 @@
+import type { DeepKeys, DeepValue } from '@tanstack/react-form';
+import type {
+  FormAsyncValidateOrFn,
+  FormOptions as TanStackFormOptions,
+  FormState as TanStackFormState,
+  FormValidateOrFn,
+  ReactFormExtendedApi,
+  StandardSchemaV1,
+} from '@tanstack/react-form';
+import type { ReactNode } from 'react';
+import type { StyleProp, ViewStyle } from 'react-native';
+
+export type FormValues = Record<string, unknown>;
+export type FormLabelMode = 'item' | 'child';
+export type FormLayout = 'vertical' | 'horizontal';
+export type FormLabelAlign = 'left' | 'right';
+export type FormValidateTrigger = 'onChange' | 'onBlur' | 'onSubmit';
+export type FormFieldStatus = 'default' | 'error' | 'warning' | 'success';
+
+export type FormItemRule<TValue, TValues extends object> =
+  | StandardSchemaV1<TValue>
+  | ((
+      value: TValue,
+      context: { values: TValues; name: string },
+    ) => string | undefined | Promise<string | undefined>);
+
+type FormSyncValidator<TValues extends object> =
+  | FormValidateOrFn<TValues>
+  | undefined;
+
+type FormAsyncValidator<TValues extends object> =
+  | FormAsyncValidateOrFn<TValues>
+  | undefined;
+
+/**
+ * Form instance returned by Form.useForm. Validator slots are erased to the
+ * sync/async validator unions instead of TanStack's per-slot inference.
+ */
+export type FormInstance<TValues extends object = FormValues> = ReactFormExtendedApi<
+  TValues,
+  FormSyncValidator<TValues>,
+  FormSyncValidator<TValues>,
+  FormAsyncValidator<TValues>,
+  FormSyncValidator<TValues>,
+  FormAsyncValidator<TValues>,
+  FormSyncValidator<TValues>,
+  FormAsyncValidator<TValues>,
+  FormSyncValidator<TValues>,
+  FormAsyncValidator<TValues>,
+  FormAsyncValidator<TValues>,
+  never
+>;
+
+export type FormOptions<TValues extends object = FormValues> = TanStackFormOptions<
+  TValues,
+  FormSyncValidator<TValues>,
+  FormSyncValidator<TValues>,
+  FormAsyncValidator<TValues>,
+  FormSyncValidator<TValues>,
+  FormAsyncValidator<TValues>,
+  FormSyncValidator<TValues>,
+  FormAsyncValidator<TValues>,
+  FormSyncValidator<TValues>,
+  FormAsyncValidator<TValues>,
+  FormAsyncValidator<TValues>,
+  never
+>;
+
+export type FormState<TValues extends object = FormValues> = TanStackFormState<
+  TValues,
+  FormSyncValidator<TValues>,
+  FormSyncValidator<TValues>,
+  FormAsyncValidator<TValues>,
+  FormSyncValidator<TValues>,
+  FormAsyncValidator<TValues>,
+  FormSyncValidator<TValues>,
+  FormAsyncValidator<TValues>,
+  FormSyncValidator<TValues>,
+  FormAsyncValidator<TValues>,
+  FormAsyncValidator<TValues>
+>;
+
+export interface FormProps<TValues extends object = FormValues> {
+  form: FormInstance<TValues>;
+  layout?: FormLayout;
+  labelMode?: FormLabelMode;
+  labelWidth?: number;
+  labelAlign?: FormLabelAlign;
+  gap?: number;
+  requiredMark?: boolean;
+  validateTrigger?: FormValidateTrigger | FormValidateTrigger[];
+  disabled?: boolean;
+  readonly?: boolean;
+  style?: StyleProp<ViewStyle>;
+  children: ReactNode;
+}
+
+export interface FormItemProps<
+  TValues extends object = FormValues,
+  TName extends DeepKeys<TValues> = DeepKeys<TValues>,
+> {
+  name: TName;
+  labelText?: string;
+  label?: ReactNode | null;
+  required?: boolean;
+  requiredMessage?: string;
+  rules?: FormItemRule<DeepValue<TValues, TName>, TValues>;
+  dependencies?: DeepKeys<TValues>[];
+  labelMode?: FormLabelMode;
+  noStyle?: boolean;
+  labelWidth?: number;
+  validateTrigger?: FormValidateTrigger | FormValidateTrigger[];
+  extraText?: string;
+  extra?: ReactNode | null;
+  errorRender?: (message: string) => ReactNode;
+  children: ReactNode;
+}
+
+export interface FormSubscribeProps<TValues extends object, TSelected> {
+  selector: (state: FormState<TValues>) => TSelected;
+  children: ReactNode | ((state: TSelected) => ReactNode);
+}
+
+export interface FormItemScopeProps {
+  children: ReactNode;
+}
+
+export interface FormFieldState<TValue = unknown> {
+  name: string;
+  value: TValue;
+  onChange: (value: TValue) => void;
+  onBlur: () => void;
+  disabled?: boolean;
+  readonly?: boolean;
+  status?: FormFieldStatus;
+  isTouched: boolean;
+  isValid: boolean;
+}
+
+export interface FormFieldProps<TValue = unknown, TBlurEvent = unknown> {
+  value?: TValue;
+  onChange?: (value: TValue) => void;
+  onBlur?: (event: TBlurEvent) => void;
+  label?: ReactNode | null;
+  labelText?: string;
+  disabled?: boolean;
+  readonly?: boolean;
+  status?: FormFieldStatus;
+}

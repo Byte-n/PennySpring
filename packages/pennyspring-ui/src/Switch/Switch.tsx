@@ -13,34 +13,49 @@ import { Text } from '../Text';
 import { getThumbOffset, useStyles } from './style';
 import type { SwitchProps } from './types';
 import type { TextColor } from '../Text/types';
+import { useFieldProps } from '@pennyspring/ui/src/Form/hooks/useFieldProps.ts';
 
 /** 按压时滑块放大 8%，轨道保持不动。 */
 const PRESS_SCALE_DELTA = 0.08;
 
-export function Switch({
-  value,
-  defaultValue = false,
-  onChange,
-  checkedText,
-  uncheckedText,
-  disabled = false,
-  readonly = false,
-  size = 'normal',
-  style,
-  styles,
-  onPressIn,
-  onPressOut,
-  ...rest
-}: SwitchProps) {
-  const [resolvedChecked, setChecked] = useControllableValue(
-    defaultValue,
+export function Switch(rawProps: SwitchProps) {
+  const {
+    value,
+    defaultValue = false,
+    onChange,
+    checkedText,
+    uncheckedText,
+    disabled,
+    readonly,
+    size = 'normal',
+    style,
+    styles,
+    onPressIn,
+    onPressOut,
+    ...rest
+  } = rawProps;
+  const field = useFieldProps<boolean>({
     value,
     onChange,
+    disabled,
+    readonly,
+  });
+  const resolvedDisabled = field.disabled === true;
+  const resolvedReadonly = field.readonly === true;
+  const [resolvedChecked, setChecked] = useControllableValue(
+    defaultValue,
+    field.value,
+    field.onChange,
   );
   const checked = resolvedChecked ?? false;
-  const isDisabled = disabled || readonly;
+  const isDisabled = resolvedDisabled || resolvedReadonly;
   const hasText = checkedText !== undefined && uncheckedText !== undefined;
-  const tokenStyles = useStyles({ checked, disabled, readonly, size });
+  const tokenStyles = useStyles({
+    checked,
+    disabled: resolvedDisabled,
+    readonly: resolvedReadonly,
+    size,
+  });
   const { token } = useTheme();
 
   const offset = getThumbOffset(size);
@@ -110,7 +125,7 @@ export function Switch({
             tokenStyles.track,
             styles?.track,
             checked ? tokenStyles.trackChecked : null,
-            disabled
+            resolvedDisabled
               ? checked
                 ? tokenStyles.trackDisabledChecked
                 : tokenStyles.trackDisabled
@@ -122,8 +137,8 @@ export function Switch({
           style={[
             tokenStyles.thumb,
             !isDisabled ? tokenStyles.thumbRaised : null,
-            disabled ? tokenStyles.thumbDisabled : null,
-            readonly ? tokenStyles.thumbReadonly : null,
+            resolvedDisabled ? tokenStyles.thumbDisabled : null,
+            resolvedReadonly ? tokenStyles.thumbReadonly : null,
             styles?.thumb,
             thumbAnimatedStyle,
           ]}

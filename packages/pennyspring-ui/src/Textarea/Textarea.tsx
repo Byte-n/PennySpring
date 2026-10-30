@@ -1,11 +1,19 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Animated, TextInput, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, TextInput, View } from 'react-native';
+import {
+  Easing,
+  createAnimatedComponent,
+  interpolate,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
 import { useTheme } from '@pennyspring/theme';
 import { Column } from '../Column';
 import { Row } from '../Row';
-import { Spacer } from '../Spacer';
 import { Text } from '../Text';
-import { renderTextNode } from '../shares/node';
+import { FIELD_SIZE_MAP } from '../shares/fieldMetrics';
+import { isPrimitiveContent } from '../shares/node';
 import { useControllableValue } from '../_hooks';
 import type {
   NativeSyntheticEvent,
@@ -16,91 +24,159 @@ import type { TextareaProps } from './types';
 import {
   clampHeight,
   DEFAULT_MIN_ROWS,
+  getContentTop,
   getFieldHeight,
   resolveMaxRows,
   resolveRows,
   SIZE_CONFIG,
   useStyles,
 } from './style';
+import { useFieldProps } from '@pennyspring/ui/src/Form/hooks/useFieldProps.ts';
+
+const AnimatedText = createAnimatedComponent(Text);
+const AnimatedView = createAnimatedComponent(View);
 
 /** 计数超过该比例时转警示色。 */
 const COUNT_WARNING_RATIO = 0.84;
 
-export function Textarea({
-  defaultValue,
-  disabled = false,
-  error,
-  errorText,
-  helper,
-  helperText,
-  label,
-  labelText,
-  loading = false,
-  maxLength,
-  maxRows,
-  minRows,
-  onBlur,
-  onChangeText,
-  onContentSizeChange,
-  onFocus,
-  placeholder,
-  readonly = false,
-  required = false,
-  showCount = false,
-  size = 'normal',
-  status = 'default',
-  style,
-  styles,
-  value,
-  ...rest
-}: TextareaProps) {
+export function Textarea(rawProps: TextareaProps) {
+  const {
+    defaultValue,
+    disabled,
+    label,
+    labelText,
+    loading = false,
+    maxLength,
+    maxRows,
+    minRows,
+    onBlur,
+    onChangeText,
+    onContentSizeChange,
+    onFocus,
+    placeholder,
+    readonly,
+    showCount = false,
+    size = 'normal',
+    status,
+    style,
+    styles,
+    value,
+    ...rest
+  } = rawProps;
+  const field = useFieldProps<
+    string,
+    Parameters<NonNullable<TextInputProps['onBlur']>>[0]
+  >({
+    value,
+    onChange: onChangeText,
+    onBlur,
+    label,
+    labelText,
+    disabled,
+    readonly,
+    status,
+  });
   const { token } = useTheme();
   const [isFocused, setIsFocused] = useState(false);
   const [contentHeight, setContentHeight] = useState(0);
   const [mergedValue = '', setMergedValue] = useControllableValue(
     defaultValue ?? '',
-    value,
-    onChangeText,
+    field.value,
+    field.onChange,
   );
-  const indicator = useRef(new Animated.Value(0)).current;
   const resolvedMinRows = resolveRows(minRows, DEFAULT_MIN_ROWS);
   const resolvedMaxRows = resolveMaxRows(resolvedMinRows, maxRows);
   const textValue = String(mergedValue);
-  const isEditable = !disabled && !readonly;
-  const isError = status === 'error';
-  const errorMessage = error !== undefined ? error : errorText;
-  const helperMessage = helper !== undefined ? helper : helperText;
-  const message = isError && errorMessage !== undefined
-    ? errorMessage
-    : helperMessage;
-  const shouldShowMessage = message !== undefined && message !== null;
-  const isIndicatorVisible = !disabled && (isFocused || status !== 'default');
+  const isDisabled = field.disabled === true;
+  const isReadonly = field.readonly === true;
+  const resolvedStatus = field.status ?? 'default';
+  const isEditable = !isDisabled && !isReadonly;
+  const isIndicatorVisible =
+    !isDisabled && (isFocused || resolvedStatus !== 'default');
+  const resolvedLabel =
+    field.label !== undefined ? field.label : field.labelText;
+  const hasFloatingLabel =
+    resolvedLabel !== undefined && resolvedLabel !== null;
+  const labelContent = resolvedLabel;
+  const isTextLabel = isPrimitiveContent(labelContent);
+  const isFloated = isFocused || textValue.length > 0;
+  const placeholderTextColor =
+    hasFloatingLabel && !isFocused
+      ? 'transparent'
+      : token.colorTextPlaceholder;
   const tokenStyles = useStyles({
     contentHeight,
-    isDisabled: disabled,
-    isFocused,
+    hasLabel: hasFloatingLabel,
+    isDisabled,
     maxRows: resolvedMaxRows,
     minRows: resolvedMinRows,
     size,
-    status,
+    status: resolvedStatus,
   });
+  const metrics = FIELD_SIZE_MAP[size];
+  const bodyFontSize = SIZE_CONFIG[size].fontSize(token);
+  const bodyLineHeight = SIZE_CONFIG[size].lineHeight(token);
+  const labelFontSize = metrics.labelFontSize(token);
+  const labelLineHeight = metrics.labelLineHeight(token);
+  const restLabelTop = getContentTop(size, token, hasFloatingLabel);
+  const activeLabelTop = metrics.labelTop;
+  const labelProgress = useSharedValue(isFloated ? 1 : 0);
+  const indicatorProgress = useSharedValue(0);
 
   useEffect(() => {
-    Animated.timing(indicator, {
+    labelProgress.value = withTiming(isFloated ? 1 : 0, {
       duration: token.motionDurationMid,
-      toValue: isIndicatorVisible ? 1 : 0,
-      useNativeDriver: true,
-    }).start();
-  }, [indicator, isIndicatorVisible, token.motionDurationMid]);
+      easing: Easing.bezier(...token.motionEaseInOut),
+    });
+  }, [isFloated, labelProgress, token.motionDurationMid, token.motionEaseInOut]);
 
-  function handleFocus(event: Parameters<NonNullable<TextInputProps['onFocus']>>[0]): void {
+  useEffect(() => {
+    indicatorProgress.value = withTiming(isIndicatorVisible ? 1 : 0, {
+      duration: token.motionDurationMid,
+      easing: Easing.bezier(...token.motionEaseInOut),
+    });
+  }, [
+    indicatorProgress,
+    isIndicatorVisible,
+    token.motionDurationMid,
+    token.motionEaseInOut,
+  ]);
+
+  const labelPositionAnimatedStyle = useAnimatedStyle(() => ({
+    top: interpolate(
+      labelProgress.value,
+      [0, 1],
+      [restLabelTop, activeLabelTop],
+    ),
+  }));
+  const labelTextAnimatedStyle = useAnimatedStyle(() => ({
+    fontSize: interpolate(
+      labelProgress.value,
+      [0, 1],
+      [bodyFontSize, labelFontSize],
+    ),
+    lineHeight: interpolate(
+      labelProgress.value,
+      [0, 1],
+      [bodyLineHeight, labelLineHeight],
+    ),
+  }));
+  const indicatorAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scaleX: indicatorProgress.value }],
+  }));
+
+  function handleFocus(
+    event: Parameters<NonNullable<TextInputProps['onFocus']>>[0],
+  ): void {
     setIsFocused(true);
     onFocus?.(event);
   }
 
-  function handleBlur(event: Parameters<NonNullable<TextInputProps['onBlur']>>[0]): void {
+  function handleBlur(
+    event: Parameters<NonNullable<TextInputProps['onBlur']>>[0],
+  ): void {
     setIsFocused(false);
-    onBlur?.(event);
+    field.onBlur?.(event);
   }
 
   function handleChangeText(text: string): void {
@@ -110,8 +186,18 @@ export function Textarea({
   function handleContentSizeChange(
     event: NativeSyntheticEvent<TextInputContentSizeChangeEventData>,
   ): void {
-    const minHeight = getFieldHeight(resolvedMinRows, size, token);
-    const maxHeight = getFieldHeight(resolvedMaxRows, size, token);
+    const minHeight = getFieldHeight(
+      resolvedMinRows,
+      size,
+      token,
+      hasFloatingLabel,
+    );
+    const maxHeight = getFieldHeight(
+      resolvedMaxRows,
+      size,
+      token,
+      hasFloatingLabel,
+    );
 
     setContentHeight(
       clampHeight(event.nativeEvent.contentSize.height, minHeight, maxHeight),
@@ -120,42 +206,49 @@ export function Textarea({
   }
 
   const countText =
-    maxLength === undefined ? `${textValue.length}` : `${textValue.length} / ${maxLength}`;
+    maxLength === undefined
+      ? `${textValue.length}`
+      : `${textValue.length} / ${maxLength}`;
   const isCountWarning =
     maxLength !== undefined &&
     maxLength > 0 &&
     textValue.length / maxLength >= COUNT_WARNING_RATIO;
-  const messageColor = status === 'error'
-    ? 'errorText'
-    : status === 'warning'
-    ? 'warningText'
-    : status === 'success'
-    ? 'successText'
-    : 'tertiary';
-  const labelColor = disabled ? 'quaternary' : readonly ? 'secondary' : 'default';
-  const resolvedLabel = label !== undefined ? label : labelText;
-  const renderLabelContent = () =>
-    renderTextNode(resolvedLabel, (text) => (
-      <Text
-        color={labelColor}
-        size={SIZE_CONFIG[size].labelSize}
-        style={styles?.label}
-        weight="semibold"
-      >
-        {text}
-      </Text>
-    ));
 
   return (
     <Column style={[tokenStyles.root, style]}>
-      {label !== null && (label !== undefined || labelText !== undefined) ? (
-        <Row align="center" style={tokenStyles.labelRow}>
-          {renderLabelContent()}
-          {required ? <Text color="error" size={SIZE_CONFIG[size].labelSize}>*</Text> : null}
-        </Row>
-      ) : null}
-
-      <View style={[tokenStyles.field, styles?.field]}>
+      <View
+        style={[
+          tokenStyles.field,
+          hasFloatingLabel ? tokenStyles.fieldWithLabel : null,
+          styles?.field,
+        ]}
+      >
+        {hasFloatingLabel ? (
+          <AnimatedView
+            pointerEvents="none"
+            style={[tokenStyles.labelContainer, labelPositionAnimatedStyle]}
+            testID="textarea-floating-label"
+          >
+            {isTextLabel ? (
+              <AnimatedText
+                style={[
+                  tokenStyles.label,
+                  isFocused
+                    ? tokenStyles.labelActive
+                    : isFloated
+                    ? tokenStyles.labelFilled
+                    : null,
+                  styles?.label,
+                  labelTextAnimatedStyle,
+                ]}
+              >
+                {labelContent}
+              </AnimatedText>
+            ) : (
+              labelContent
+            )}
+          </AnimatedView>
+        ) : null}
         <TextInput
           {...rest}
           editable={isEditable}
@@ -166,40 +259,21 @@ export function Textarea({
           onContentSizeChange={handleContentSizeChange}
           onFocus={handleFocus}
           placeholder={placeholder}
-          placeholderTextColor={token.colorTextPlaceholder}
+          placeholderTextColor={placeholderTextColor}
           style={[
             tokenStyles.input,
-            readonly ? tokenStyles.inputReadonly : null,
+            isReadonly ? tokenStyles.inputReadonly : null,
             styles?.input,
           ]}
           value={textValue}
         />
-        <Animated.View
-          style={[
-            tokenStyles.indicator,
-            { transform: [{ scaleX: indicator }] },
-          ]}
+        <AnimatedView
+          style={[tokenStyles.indicator, indicatorAnimatedStyle]}
         />
       </View>
 
-      {shouldShowMessage || showCount || loading ? (
-        <Row align="start" justify="between" style={[tokenStyles.footer, styles?.footer]}>
-          {shouldShowMessage ? (
-            renderTextNode(message, (text) => (
-              <Text
-                color={messageColor}
-                size="xs"
-                style={[
-                  isError ? tokenStyles.error : tokenStyles.helper,
-                  isError ? styles?.error : styles?.helper,
-                ]}
-              >
-                {text}
-              </Text>
-            ))
-          ) : (
-            <Spacer />
-          )}
+      {showCount || loading ? (
+        <Row style={[tokenStyles.footer, styles?.footer]}>
           {loading ? (
             <ActivityIndicator
               color={token.colorPrimary}

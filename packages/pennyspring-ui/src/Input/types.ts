@@ -32,12 +32,6 @@ export interface InputStyles {
   /** Suffix container style. */
   suffix?: StyleProp<ViewStyle>;
 
-  /** Helper text style. */
-  helper?: StyleProp<TextStyle>;
-
-  /** Error text style. */
-  error?: StyleProp<TextStyle>;
-
   /** Clear button container style. */
   clearButton?: StyleProp<ViewStyle>;
 }
@@ -89,34 +83,9 @@ export interface InputProps
   placeholder?: string;
 
   /**
-   * Helper text shown near the field.
-   */
-  helperText?: string;
-
-  /**
-   * Helper custom node. Pass null to suppress helper rendering.
-   */
-  helper?: ReactNode | null;
-
-  /**
-   * Error text shown only when status is error.
-   */
-  errorText?: string;
-
-  /**
-   * Error custom node. Pass null to suppress error rendering.
-   */
-  error?: ReactNode | null;
-
-  /**
-   * Validation status. Error status switches label, underline and message to error styling.
+   * Validation status. Error status switches label and underline to error styling.
    */
   status?: InputStatus;
-
-  /**
-   * Required semantic marker. Does not run validation.
-   */
-  required?: boolean;
 
   /**
    * Left side content.

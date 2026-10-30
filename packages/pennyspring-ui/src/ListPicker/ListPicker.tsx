@@ -27,6 +27,7 @@ import type {
   ListPickerStatus,
   ListPickerValue,
 } from './types';
+import { useFieldProps } from '@pennyspring/ui/src/Form/hooks/useFieldProps.ts';
 
 interface RenderGroup {
   key: string;
@@ -480,11 +481,7 @@ function ListPickerRoot({
   disabled,
   displayInputProps,
   displayMode,
-  error,
-  errorText,
   groups,
-  helper,
-  helperText,
   label,
   labelText,
   loading,
@@ -504,9 +501,22 @@ function ListPickerRoot({
   value,
   ...directPopupProps
 }: ListPickerProps) {
+  const field = useFieldProps<ListPickerSelectedValue | undefined>({
+    value,
+    onChange: onChange as
+      | ((nextValue: ListPickerSelectedValue | undefined) => void)
+      | undefined,
+    label,
+    labelText,
+    disabled,
+    readonly,
+    status,
+  });
   const resolvedSize = resolveSize(size);
   const resolvedMode = resolveMode(mode);
-  const resolvedStatus = resolveStatus(status);
+  const resolvedStatus = resolveStatus(field.status);
+  const resolvedDisabled = field.disabled === true;
+  const resolvedReadonly = field.readonly === true;
   const { token } = useTheme();
   const [mergedOpen, setMergedOpen] = useControllableValue(
     defaultOpen === true,
@@ -517,12 +527,12 @@ function ListPickerRoot({
     ListPickerSelectedValue | undefined
   >(
     normalizeValue(resolvedMode, defaultValue),
-    value,
-    onChange as
+    field.value,
+    field.onChange as
       | ((nextValue: ListPickerSelectedValue | undefined) => void)
       | undefined,
   );
-  const isInteractive = !disabled && !readonly && !loading;
+  const isInteractive = !resolvedDisabled && !resolvedReadonly && !loading;
   const isError = resolvedStatus === 'error';
   const renderGroups = useMemo(
     () => buildRenderGroups(options, groups),
@@ -593,22 +603,18 @@ function ListPickerRoot({
       <PickerTrigger
         active={mergedOpen && !isError}
         allowClear={allowClear}
-        disabled={disabled === true || loading === true}
+        disabled={resolvedDisabled || loading === true}
         displayInputProps={displayInputProps}
-        error={error}
-        errorText={errorText}
         externalInputStyles={inputStyles}
         externalTriggerStyle={style}
         hasValue={selectedValues.length > 0}
-        helper={helper}
-        helperText={helperText}
-        label={label ?? labelText}
+        label={field.label ?? field.labelText}
         onClearPress={handleClearPress}
         overflow={
           displayInputProps?.overflow ??
           (displayMode === 'tag' ? 'visible' : 'hidden')
         }
-        readonly={readonly}
+        readonly={field.readonly}
         size={resolvedSize}
         status={resolvedStatus}
         suffix={
@@ -640,7 +646,7 @@ function ListPickerRoot({
         {...nestedPopupProps}
         defaultOpen={defaultOpen}
         defaultValue={defaultValue}
-        disabled={disabled}
+        disabled={resolvedDisabled}
         groups={groups}
         loading={loading}
         mode={resolvedMode}
@@ -650,7 +656,7 @@ function ListPickerRoot({
         }
         open={mergedOpen}
         options={options}
-        readonly={readonly}
+        readonly={resolvedReadonly}
         size={resolvedSize}
         style={popupStyle}
         styles={mergedPopupStyles}

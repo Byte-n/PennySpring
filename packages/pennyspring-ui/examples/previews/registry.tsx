@@ -4,6 +4,7 @@ import { calendarPickerDemos } from './data-entry/calendar-picker/demos';
 import { checkboxDemos } from './data-entry/checkbox/demos';
 import { dateTimePickerDemos } from './data-entry/date-time-picker/demos';
 import { displayInputDemos } from './data-entry/display-input/demos';
+import { formDemos } from './data-entry/form/demos';
 import { imagePickerDemos } from './data-entry/image-picker/demos';
 import { inputDemos } from './data-entry/input/demos';
 import { listPickerDemos } from './data-entry/list-picker/demos';
@@ -56,6 +57,7 @@ import { CalculatorInputPreview } from './data-entry/calculator-input';
 import { CheckboxPreview } from './data-entry/checkbox';
 import { DateTimePickerPreview } from './data-entry/date-time-picker';
 import { DisplayInputPreview } from './data-entry/display-input';
+import { FormPreview } from './data-entry/form';
 import { ImagePickerPreview } from './data-entry/image-picker';
 import { InputPreview } from './data-entry/input';
 import { PickerPreview } from './data-entry/picker';
@@ -162,6 +164,7 @@ const DEMO_PREVIEW_ITEMS = [
     dateTimePickerDemos,
   ),
   ...createDemoPreviewItems('display-input', 'DisplayInput', displayInputDemos),
+  ...createDemoPreviewItems('form', 'Form', formDemos),
   ...createDemoPreviewItems('image-picker', 'ImagePicker', imagePickerDemos),
   ...createDemoPreviewItems('input', 'Input', inputDemos),
   ...createDemoPreviewItems('list-picker', 'ListPicker', listPickerDemos),
@@ -304,6 +307,13 @@ export const COMPONENT_PREVIEW_SECTIONS = [
     id: 'data-entry',
     title: '录入',
     items: [
+      {
+        id: 'form',
+        title: 'Form',
+        description:
+          '字段布局、label 归属、noStyle、依赖与条件渲染、校验反馈；输入控件自动绑定表单状态。',
+        component: FormPreview,
+      },
       {
         id: 'input',
         title: 'Input',

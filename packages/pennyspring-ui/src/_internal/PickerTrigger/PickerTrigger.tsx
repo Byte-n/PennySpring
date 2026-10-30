@@ -18,13 +18,9 @@ export function PickerTrigger({
   children,
   disabled,
   displayInputProps,
-  error,
-  errorText,
   externalInputStyles,
   externalTriggerStyle,
   hasValue,
-  helper,
-  helperText,
   label,
   onClearPress,
   onPress,
@@ -105,10 +101,6 @@ export function PickerTrigger({
     <DisplayInput
       {...displayInputProps}
       disabled={disabled}
-      error={error}
-      errorText={errorText}
-      helper={helper}
-      helperText={helperText}
       label={label}
       onPress={handleTriggerPress}
       overflow={displayInputProps?.overflow ?? overflow}
