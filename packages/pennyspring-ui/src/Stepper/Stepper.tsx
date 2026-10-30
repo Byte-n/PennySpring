@@ -8,7 +8,7 @@ import { Text } from '../Text';
 import { getSizeConfig, useStyles, SIZE_TO_TEXT_SIZE } from './style';
 import type { TextColor } from '../Text/types';
 import type { StepperProps } from './types';
-import { useFieldProps } from '@pennyspring/ui/src/Form/hooks/useFieldProps.ts';
+import { useFieldProps } from '../Form/hooks/useFieldProps.ts';
 
 function clampValue(value: number, min: number, max: number): number {
   return Math.min(Math.max(value, min), max);

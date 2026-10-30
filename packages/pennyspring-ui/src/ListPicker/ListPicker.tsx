@@ -27,7 +27,7 @@ import type {
   ListPickerStatus,
   ListPickerValue,
 } from './types';
-import { useFieldProps } from '@pennyspring/ui/src/Form/hooks/useFieldProps.ts';
+import { useFieldProps } from '../Form/hooks/useFieldProps.ts';
 
 interface RenderGroup {
   key: string;

@@ -10,7 +10,7 @@ import { useControllableValue } from '../_hooks';
 import { useStyles } from './style';
 import type { CalculatorInputProps, CalculatorInputStyles } from './types';
 import type { TextColor, TextSize, TextWeight } from '../Text/types';
-import { useFieldProps } from '@pennyspring/ui/src/Form/hooks/useFieldProps.ts';
+import { useFieldProps } from '../Form/hooks/useFieldProps.ts';
 
 type Operator = '+' | '-' | '×' | '/';
 type EvaluationOperator = '+' | '-' | '*' | '/';

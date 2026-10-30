@@ -13,7 +13,7 @@ import { Text } from '../Text';
 import { getThumbOffset, useStyles } from './style';
 import type { SwitchProps } from './types';
 import type { TextColor } from '../Text/types';
-import { useFieldProps } from '@pennyspring/ui/src/Form/hooks/useFieldProps.ts';
+import { useFieldProps } from '../Form/hooks/useFieldProps.ts';
 
 /** 按压时滑块放大 8%，轨道保持不动。 */
 const PRESS_SCALE_DELTA = 0.08;

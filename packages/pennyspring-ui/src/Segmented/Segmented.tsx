@@ -14,7 +14,7 @@ import type {
   SegmentedProps,
   SegmentedValue,
 } from './types';
-import { useFieldProps } from '@pennyspring/ui/src/Form/hooks/useFieldProps.ts';
+import { useFieldProps } from '../Form/hooks/useFieldProps.ts';
 
 interface NormalizedSegmentedOption {
   value: SegmentedValue;

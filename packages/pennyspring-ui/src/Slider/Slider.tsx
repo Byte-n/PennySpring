@@ -15,7 +15,7 @@ import { useTheme } from '@pennyspring/theme';
 import { useControllableValue } from '../_hooks';
 import { useStyles } from './style';
 import type { SliderProps } from './types';
-import { useFieldProps } from '@pennyspring/ui/src/Form/hooks/useFieldProps.ts';
+import { useFieldProps } from '../Form/hooks/useFieldProps.ts';
 
 const DEFAULT_MIN = 0;
 const DEFAULT_MAX = 100;

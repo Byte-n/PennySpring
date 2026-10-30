@@ -10,7 +10,7 @@ import type {
   PickerItemValue,
   PickerProps,
 } from './types';
-import { useFieldProps } from '@pennyspring/ui/src/Form/hooks/useFieldProps.ts';
+import { useFieldProps } from '../Form/hooks/useFieldProps.ts';
 
 const DEFAULT_SIZE: ComponentSize = 'normal';
 const DEFAULT_CANCEL_TEXT = '取消';

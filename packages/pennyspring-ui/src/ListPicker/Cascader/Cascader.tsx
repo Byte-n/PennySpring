@@ -25,7 +25,7 @@ import type {
   ListPickerCascaderValue,
 } from './types';
 import type { ListPickerValue } from '../types';
-import { useFieldProps } from '@pennyspring/ui/src/Form/hooks/useFieldProps.ts';
+import { useFieldProps } from '../../Form/hooks/useFieldProps.ts';
 
 const DEFAULT_SIZE: ComponentSize = 'normal';
 const DEFAULT_EMPTY_TEXT = '暂无选项';

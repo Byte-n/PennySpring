@@ -30,7 +30,7 @@ import type {
   RadioProps,
   RadioStyles,
 } from './types';
-import { useFieldProps } from '@pennyspring/ui/src/Form/hooks/useFieldProps.ts';
+import { useFieldProps } from '../Form/hooks/useFieldProps.ts';
 
 function toSlotTestID(base: string, slot: string): string {
   return base === 'radio' ? `radio-${slot}` : `${base}-${slot}`;

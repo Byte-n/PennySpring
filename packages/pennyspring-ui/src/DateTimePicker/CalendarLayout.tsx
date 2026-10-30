@@ -44,7 +44,7 @@ import type {
   DateTimePickerPrecision,
   DateTimePickerValueParams,
 } from './types';
-import { useFieldProps } from '@pennyspring/ui/src/Form/hooks/useFieldProps.ts';
+import { useFieldProps } from '../Form/hooks/useFieldProps.ts';
 
 const DEFAULT_SIZE: ComponentSize = 'normal';
 const WEEK_DAYS = ['日', '一', '二', '三', '四', '五', '六'];

@@ -24,7 +24,7 @@ import type {
   ImagePickerSelectedValue,
   ImagePickerValue,
 } from './types';
-import { useFieldProps } from '@pennyspring/ui/src/Form/hooks/useFieldProps.ts';
+import { useFieldProps } from '../Form/hooks/useFieldProps.ts';
 
 const DEFAULT_CAMERA_TEXT = '拍照';
 const DEFAULT_PHOTO_TEXT = '相册';

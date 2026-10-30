@@ -21,7 +21,7 @@ import type {
   DisplayInputOverflow,
   DisplayInputProps,
 } from './types';
-import { useFieldProps } from '@pennyspring/ui/src/Form/hooks/useFieldProps.ts';
+import { useFieldProps } from '../Form/hooks/useFieldProps.ts';
 const AnimatedText = createAnimatedComponent(Text);
 const AnimatedView = createAnimatedComponent(View);
 

@@ -16,7 +16,7 @@ import type {
   CalendarPickerPrecision,
   CalendarPickerRangeProps,
 } from './types';
-import { useFieldProps } from '@pennyspring/ui/src/Form/hooks/useFieldProps.ts';
+import { useFieldProps } from '../Form/hooks/useFieldProps.ts';
 
 const DEFAULT_SIZE: ComponentSize = 'normal';
 const DEFAULT_PRECISION: CalendarPickerPrecision = 'day';

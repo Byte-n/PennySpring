@@ -19,7 +19,7 @@ import type {
   TagPickerProps,
   TagPickerValue,
 } from './types';
-import { useFieldProps } from '@pennyspring/ui/src/Form/hooks/useFieldProps.ts';
+import { useFieldProps } from '../Form/hooks/useFieldProps.ts';
 
 function isOption(
   option: TagPickerOption | undefined,

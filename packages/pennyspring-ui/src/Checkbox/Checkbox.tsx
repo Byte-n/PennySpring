@@ -26,7 +26,7 @@ import type {
   CheckboxStyles,
   CheckboxValue,
 } from './types';
-import { useFieldProps } from '@pennyspring/ui/src/Form/hooks/useFieldProps.ts';
+import { useFieldProps } from '../Form/hooks/useFieldProps.ts';
 
 /**
  * 设计稿勾/半选笔画为 2.4px；Phosphor 图标按权重出笔画（bold 在 14 档约 1.3px），
