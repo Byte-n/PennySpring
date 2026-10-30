@@ -28,9 +28,16 @@ import type {
 } from './types';
 import type { DeepKeys } from '@tanstack/react-form';
 
-const useInternalForm = useTanStackForm as unknown as <TValues extends object>(
+// 勿给导入的 hook 建模块级运行时别名：Metro inlineRequires 会把它内联成独立 CJS 依赖，导致同一个包出现两份实例。
+type InternalFormHook = <TValues extends object>(
   options?: FormOptions<TValues>,
 ) => FormInstance<TValues>;
+
+function useInternalForm<TValues extends object>(
+  options?: FormOptions<TValues>,
+): FormInstance<TValues> {
+  return (useTanStackForm as unknown as InternalFormHook)<TValues>(options);
+}
 
 type BoundFormItem<TValues extends object> = (<TName extends DeepKeys<TValues>>(
   props: FormItemProps<TValues, TName>,
