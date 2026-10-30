@@ -11,9 +11,11 @@ import type {
 } from '@pennyspring/api';
 
 import {
+  AGENT_IMAGE_TOKEN_ESTIMATE,
   AGENT_MAX_HISTORY_MESSAGES,
   AGENT_MESSAGE_TOKEN_OVERHEAD,
 } from './constants';
+import { isUiFilePart } from './attachments';
 import { estimateTokens } from './tokens';
 import type { TokenUsage } from './types';
 
@@ -99,12 +101,22 @@ export function hasUiMessageContent(message: UIMessage): boolean {
     if (part.type === 'text') {
       return part.text.trim().length > 0;
     }
-    return isToolUIPart(part);
+    return isUiFilePart(part) || isToolUIPart(part);
   });
 }
 
 function estimateMessageTokens(message: UIMessage): number {
-  return estimateTokens(JSON.stringify(message)) + AGENT_MESSAGE_TOKEN_OVERHEAD;
+  const fileParts = message.parts.filter(isUiFilePart);
+  const parts =
+    fileParts.length === 0
+      ? message.parts
+      : message.parts.filter(part => !isUiFilePart(part));
+
+  return (
+    estimateTokens(JSON.stringify({ ...message, parts })) +
+    fileParts.length * AGENT_IMAGE_TOKEN_ESTIMATE +
+    AGENT_MESSAGE_TOKEN_OVERHEAD
+  );
 }
 
 export function trimUiMessagesByTokens(

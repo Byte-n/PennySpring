@@ -1,4 +1,5 @@
 import React from 'react';
+import { Image } from 'react-native';
 import TestRenderer, { act } from 'react-test-renderer';
 import type { ThreadMessageLike } from '@assistant-ui/react-native';
 import {
@@ -128,12 +129,42 @@ jest.mock('@pennyspring/ui', () => {
         )
       : null;
 
+  const MockImagePickerPopup = ({
+    onChange,
+    open,
+    value = [],
+  }: {
+    onChange?: (value: Array<Record<string, unknown>>) => void;
+    open?: boolean;
+    value?: Array<Record<string, unknown>>;
+  }) =>
+    open
+      ? ReactLib.createElement(
+          Pressable,
+          {
+            onPress: () =>
+              onChange?.([
+                ...value,
+                {
+                  base64: 'QUJD',
+                  fileName: 'chat.jpg',
+                  mimeType: 'image/jpeg',
+                  uri: 'file:///chat.jpg',
+                },
+              ]),
+            testID: 'mock-image-picker-popup',
+          },
+          ReactLib.createElement(Text, null, '发送图片'),
+        )
+      : null;
+
   return {
     ActionSheet: MockActionSheet,
     Button: MockButton,
     Column: passthrough(View),
     Empty: MockEmpty,
     Icon: () => null,
+    ImagePicker: { Popup: MockImagePickerPopup },
     Loading: MockLoading,
     Popover: ({
       children,
@@ -359,6 +390,24 @@ const CONVERSATION: ThreadMessageLike[] = [
   },
 ];
 
+const IMAGE_URI = 'data:image/jpeg;base64,QUJD';
+const CONVERSATION_WITH_IMAGE: ThreadMessageLike[] = [
+  {
+    role: 'user',
+    content: [{ type: 'text', text: '看看这张小票' }],
+    attachments: [
+      {
+        id: 'attachment-1',
+        type: 'image',
+        name: 'receipt.jpg',
+        contentType: 'image/jpeg',
+        content: [{ type: 'image', image: IMAGE_URI }],
+        status: { type: 'complete' },
+      },
+    ],
+  },
+];
+
 describe('AgentDrawer', () => {
   it('shows the setup notice and opens settings from a suggestion', () => {
     const { renderer, onOpenSettings } = renderDrawer({ configured: false });
@@ -391,6 +440,18 @@ describe('AgentDrawer', () => {
     expect(text).toContain('合计 120 元');
     expect(text).not.toContain('**合计 120 元**');
     expect(text).toContain('已查询账本数据');
+  });
+
+  it('renders user image attachments in the bubble', () => {
+    const { renderer } = renderDrawer({
+      initialMessages: CONVERSATION_WITH_IMAGE,
+    });
+
+    const images = renderer.root.findAllByType(Image);
+
+    expect(images).toHaveLength(1);
+    expect(images[0]?.props.source).toEqual({ uri: IMAGE_URI });
+    expect(renderedText(renderer)).toContain('看看这张小票');
   });
 
   it('sends the trimmed draft when the send button is pressed', async () => {
@@ -454,8 +515,18 @@ describe('AgentDrawer', () => {
       baseUrl: 'https://api.example.com/v1',
       defaultModelId: 'model-a',
       models: [
-        { modelId: 'model-a', contextWindow: 32_768, reasoningEffort: 'off' },
-        { modelId: 'model-b', contextWindow: 128_000, reasoningEffort: 'high' },
+        {
+          modelId: 'model-a',
+          contextWindow: 32_768,
+          reasoningEffort: 'off',
+          multimodal: false,
+        },
+        {
+          modelId: 'model-b',
+          contextWindow: 128_000,
+          reasoningEffort: 'high',
+          multimodal: false,
+        },
       ],
       storeResponses: true,
       createdAt: 0,
@@ -491,6 +562,94 @@ describe('AgentDrawer', () => {
         .props.onPress();
     });
     expect(onOpenModelSettings).toHaveBeenCalledTimes(1);
+  });
+
+  it('stages images only after switching to a multimodal model', () => {
+    const provider: AgentProviderConfig = {
+      id: 'provider-1',
+      descriptorId: 'openai-compatible',
+      name: '测试',
+      baseUrl: 'https://api.example.com/v1',
+      defaultModelId: 'model-text',
+      models: [
+        {
+          modelId: 'model-text',
+          contextWindow: 32_768,
+          reasoningEffort: 'off',
+          multimodal: false,
+        },
+        {
+          modelId: 'model-vision',
+          contextWindow: 128_000,
+          reasoningEffort: 'off',
+          multimodal: true,
+        },
+      ],
+      storeResponses: true,
+      createdAt: 0,
+      updatedAt: 0,
+    };
+    useAgentProviderStore.setState({
+      providers: [provider],
+      activeProviderId: provider.id,
+    });
+
+    const { renderer } = renderDrawer();
+
+    act(() => {
+      renderer.root
+        .findByProps({ testID: 'agent-plus-button' })
+        .props.onPress();
+    });
+    expect(renderedText(renderer)).toContain('当前模型不支持');
+    expect(
+      renderer.root.findByProps({ testID: 'agent-composer-image-option' })
+        .props.disabled,
+    ).toBe(true);
+
+    act(() => {
+      renderer.root
+        .findByProps({ testID: 'agent-model-chip' })
+        .props.onPress();
+    });
+    act(() => {
+      renderer.root
+        .findByProps({ testID: 'action-sheet-action-1' })
+        .props.onPress();
+    });
+
+    expect(
+      renderer.root.findByProps({ testID: 'agent-composer-image-option' })
+        .props.disabled,
+    ).toBe(false);
+
+    act(() => {
+      renderer.root
+        .findByProps({ testID: 'agent-composer-image-option' })
+        .props.onPress();
+    });
+    act(() => {
+      renderer.root
+        .findByProps({ testID: 'mock-image-picker-popup' })
+        .props.onPress();
+    });
+
+    expect(renderedText(renderer)).toContain('× 1');
+
+    act(() => {
+      renderer.root
+        .findByProps({ testID: 'agent-model-chip' })
+        .props.onPress();
+    });
+    act(() => {
+      renderer.root
+        .findByProps({ testID: 'action-sheet-action-0' })
+        .props.onPress();
+    });
+
+    expect(
+      renderer.root.findAllByProps({ testID: 'agent-image-staging-bar' }),
+    ).toHaveLength(0);
   });
 
   it('shows thinking and stops the run while responding', async () => {

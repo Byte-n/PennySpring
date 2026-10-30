@@ -4,6 +4,18 @@ export const AGENT_NOT_CONFIGURED_MESSAGE =
 export const AGENT_NO_MODEL_MESSAGE =
   '当前提供商还没有可用模型，请先在模型设置中添加。';
 
+export const AGENT_MODEL_NO_IMAGE_MESSAGE =
+  '当前模型不支持图片，请先切换到支持多模态的模型。';
+
+export const AGENT_IMAGE_UNREADABLE_MESSAGE =
+  '有图片读取失败，请重新选择后再发送。';
+
+export const AGENT_IMAGE_PICK_FAILED_MESSAGE = '选择图片失败，请稍后再试。';
+
+export const AGENT_IMAGE_UNAVAILABLE_MESSAGE = '当前会话暂不支持发送图片。';
+
+export const IMAGE_MESSAGE_TITLE = '图片消息';
+
 export const EMPTY_REPLY_MESSAGE = '助手没有返回内容，请换个问法再试。';
 
 export const PARTIAL_SAVE_FAILED_MESSAGE = '回答已生成，但保存到本地失败。';

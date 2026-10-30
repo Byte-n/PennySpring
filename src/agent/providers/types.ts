@@ -6,12 +6,15 @@ export interface AgentModelConfig {
   modelId: string;
   contextWindow: number;
   reasoningEffort: AgentReasoningEffort;
+  /** 是否支持图片输入（多模态）。 */
+  multimodal: boolean;
 }
 
 export interface AgentModelDraft {
   modelId: string;
   contextWindow?: number;
   reasoningEffort?: AgentReasoningEffort;
+  multimodal?: boolean;
 }
 
 export interface ProviderDescriptor {

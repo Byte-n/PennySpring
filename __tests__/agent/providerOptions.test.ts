@@ -34,6 +34,7 @@ function createModel(
     modelId: 'gpt-5',
     contextWindow: 32_768,
     reasoningEffort,
+    multimodal: false,
   };
 }
 

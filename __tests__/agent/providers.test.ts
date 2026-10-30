@@ -20,6 +20,7 @@ import {
 import {
   DEFAULT_CONTEXT_WINDOW,
   getProviderDefaultModel,
+  isMultimodalModel,
   resolveProviderModel,
 } from '../../src/agent/providers/models';
 import type { AgentProviderConfig } from '../../src/agent/providers/types';
@@ -70,6 +71,7 @@ describe('agent provider store', () => {
         modelId: 'deepseek-chat',
         contextWindow: 64_000,
         reasoningEffort: 'high',
+        multimodal: false,
       },
     ]);
     expect(provider.defaultModelId).toBe('deepseek-chat');
@@ -92,7 +94,28 @@ describe('agent provider store', () => {
       modelId: 'gpt-5.1',
       contextWindow: DEFAULT_CONTEXT_WINDOW,
       reasoningEffort: 'off',
+      multimodal: false,
     });
+  });
+
+  it('保留模型的多模态标记并默认关闭', () => {
+    const provider = useAgentProviderStore.getState().addProvider({
+      descriptorId: OPENAI_COMPATIBLE_PROVIDER_ID,
+      name: '',
+      baseUrl: 'https://api.example.com/v1',
+      models: [
+        { modelId: 'vision-model', multimodal: true },
+        { modelId: 'text-model' },
+      ],
+    });
+
+    expect(provider.models.map(model => model.multimodal)).toEqual([
+      true,
+      false,
+    ]);
+    expect(isMultimodalModel(provider.models[0])).toBe(true);
+    expect(isMultimodalModel(provider.models[1])).toBe(false);
+    expect(isMultimodalModel(null)).toBe(false);
   });
 
   it('服务端存储默认开启，并保留草稿中的关闭选择', () => {
@@ -176,11 +199,13 @@ describe('provider model resolution', () => {
         modelId: 'model-a',
         contextWindow: 32_768,
         reasoningEffort: 'low',
+        multimodal: false,
       },
       {
         modelId: 'model-b',
         contextWindow: 128_000,
         reasoningEffort: 'medium',
+        multimodal: true,
       },
     ],
     storeResponses: true,

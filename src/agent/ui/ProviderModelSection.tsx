@@ -31,11 +31,14 @@ import { InfoHint } from './InfoHint';
 /** 表头与值列共用固定宽度，跨行对齐；窄屏剩余宽度全部留给模型名。 */
 const CONTEXT_COLUMN_WIDTH = 72;
 const EFFORT_COLUMN_WIDTH = 68;
+const IMAGE_COLUMN_WIDTH = 32;
+const IMAGE_TOGGLE_HIT_SLOP = 8;
 
 export interface ModelRowState {
   modelId: string;
   contextWindow: number;
   reasoningEffort: AgentReasoningEffort;
+  multimodal: boolean;
 }
 
 export interface ProviderModelSectionProps {
@@ -75,6 +78,19 @@ const useStyles = createUseSheetStyle(token => ({
   },
   effortCell: {
     width: EFFORT_COLUMN_WIDTH,
+  },
+  imageCell: {
+    width: IMAGE_COLUMN_WIDTH,
+  },
+  imageToggle: {
+    alignItems: 'center',
+    borderRadius: token.borderRadiusSM,
+    height: token.controlHeightSM,
+    justifyContent: 'center',
+    width: IMAGE_COLUMN_WIDTH,
+  },
+  imageTogglePressed: {
+    backgroundColor: token.colorFillContent,
   },
   actionsCell: {
     width: token.controlHeightSM,
@@ -119,6 +135,7 @@ export function createModelRow(modelId: string): ModelRowState {
     modelId,
     contextWindow: DEFAULT_CONTEXT_WINDOW,
     reasoningEffort: DEFAULT_REASONING_EFFORT,
+    multimodal: false,
   };
 }
 
@@ -127,6 +144,7 @@ export function toModelRow(model: AgentModelConfig): ModelRowState {
     modelId: model.modelId,
     contextWindow: model.contextWindow,
     reasoningEffort: model.reasoningEffort,
+    multimodal: model.multimodal === true,
   };
 }
 
@@ -137,6 +155,7 @@ export function toModelConfigs(
     modelId: row.modelId,
     contextWindow: row.contextWindow,
     reasoningEffort: row.reasoningEffort,
+    multimodal: row.multimodal,
   }));
 }
 
@@ -336,6 +355,25 @@ function ModelRow({
         ) : null}
       </Row>
 
+      <Pressable
+        accessibilityRole="button"
+        accessibilityState={{ selected: row.multimodal }}
+        hitSlop={IMAGE_TOGGLE_HIT_SLOP}
+        onPress={() => onUpdate({ multimodal: !row.multimodal })}
+        style={({ pressed }) => [
+          styles.imageToggle,
+          pressed ? styles.imageTogglePressed : undefined,
+        ]}
+        testID={`agent-model-multimodal-${row.modelId}`}
+      >
+        <Icon
+          color={row.multimodal ? 'primary' : 'tertiary'}
+          icon="image"
+          size="small"
+          weight={row.multimodal ? 'fill' : undefined}
+        />
+      </Pressable>
+
       <SelectField
         content={
           <ContextMenu
@@ -432,7 +470,7 @@ export function ProviderModelSection({
         <Text size="md" weight="medium">
           可用模型
         </Text>
-        <InfoHint content="默认模型用于新会话，会话中可在输入框左侧随时切换。" />
+        <InfoHint content="默认模型用于新会话，会话中可在输入框左侧随时切换。点亮「图片」的模型支持图片输入，只有多模态模型才能发送图片。" />
       </Row>
 
       {rows.length === 0 ? (
@@ -444,6 +482,9 @@ export function ProviderModelSection({
           <Row gap={token.marginXXS} align="center">
             <Text color="tertiary" size="xs" style={styles.headName}>
               模型
+            </Text>
+            <Text color="tertiary" size="xs" style={styles.imageCell} textAlign="center">
+              图片
             </Text>
             <Text color="tertiary" size="xs" style={styles.contextCell} textAlign="center">
               上下文

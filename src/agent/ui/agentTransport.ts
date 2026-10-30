@@ -9,6 +9,10 @@ import {
 } from '../core/constants';
 import { createAgent } from '../core/createAgent';
 import { addUsage, EMPTY_USAGE, toTokenUsage } from '../core/messages';
+import {
+  hasUiMessageImages,
+  stripUiMessageFiles,
+} from '../core/attachments';
 import { estimateTokens } from '../core/tokens';
 import type { TokenUsage } from '../core/types';
 import {
@@ -21,11 +25,14 @@ import {
   rememberThreadModel,
   resolveThreadModel,
 } from '../providers/modelSelectionStore';
+import { isMultimodalModel } from '../providers/models';
 import { loadProviderApiKey } from '../providers/secureKey';
 import { createQueryRecordsTool } from '../tools/queryRecords';
 import {
+  AGENT_MODEL_NO_IMAGE_MESSAGE,
   AGENT_NOT_CONFIGURED_MESSAGE,
   AGENT_NO_MODEL_MESSAGE,
+  IMAGE_MESSAGE_TITLE,
 } from './copy';
 
 export interface AgentTransportOptions {
@@ -63,14 +70,21 @@ export function createAgentTransport(
       }
 
       rememberThreadModel(options.threadId, provider.id, model.modelId);
+      const supportsImages = isMultimodalModel(model);
 
       if (trigger === 'submit-message') {
         const userMessage = messages[messages.length - 1];
         if (userMessage?.role === 'user') {
+          if (!supportsImages && hasUiMessageImages(userMessage)) {
+            throw new Error(AGENT_MODEL_NO_IMAGE_MESSAGE);
+          }
           await options.persistUserMessage(userMessage);
           const text = getUiMessageText(userMessage);
-          if (text) {
-            await options.ensureTitle(text);
+          const title =
+            text ||
+            (hasUiMessageImages(userMessage) ? IMAGE_MESSAGE_TITLE : '');
+          if (title) {
+            await options.ensureTitle(title);
           }
         }
       }
@@ -85,6 +99,9 @@ export function createAgentTransport(
         model.contextWindow -
         estimateTokens(systemPrompt) -
         AGENT_RESPONSE_TOKEN_RESERVE;
+      const requestMessages = supportsImages
+        ? messages
+        : stripUiMessageFiles(messages);
       const tools = {
         queryRecords: createQueryRecordsTool({
           api: options.api,
@@ -101,7 +118,7 @@ export function createAgentTransport(
           systemPrompt,
           tools,
         }),
-        uiMessages: trimUiMessagesByTokens(messages, tokenBudget),
+        uiMessages: trimUiMessagesByTokens(requestMessages, tokenBudget),
         abortSignal,
         sendReasoning: false,
         sendSources: false,

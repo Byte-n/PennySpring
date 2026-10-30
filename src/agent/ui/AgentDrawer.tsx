@@ -1,5 +1,6 @@
-import React, { useCallback, useMemo, useState } from 'react';
-import { Pressable } from 'react-native';
+import React, { useCallback } from 'react';
+import { Image } from 'react-native';
+import type { ImageStyle } from 'react-native';
 import type { UIMessage } from 'ai';
 import { useAISDKChat } from '@assistant-ui/ai-sdk';
 import {
@@ -11,7 +12,6 @@ import {
   type ToolCallMessagePartProps,
 } from '@assistant-ui/react-native';
 import {
-  ActionSheet,
   Button,
   Column,
   Empty,
@@ -19,34 +19,16 @@ import {
   Loading,
   Row,
   Text,
-  Textarea,
-  useToast,
-  type ActionSheetAction,
 } from '@pennyspring/ui';
 import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
 import {
   CheckCircleIcon,
-  GearSixIcon,
-  PaperPlaneTiltIcon,
-  StopIcon,
   WarningCircleIcon,
 } from 'phosphor-react-native';
 
 import { MarkdownText } from '../../component/MarkdownText';
-import { useAgentProviderStore } from '../providers/configStore';
-import {
-  formatContextWindow,
-  formatReasoningEffort,
-  resolveProviderModel,
-} from '../providers/models';
-import {
-  rememberThreadModel,
-  useThreadModelStore,
-} from '../providers/modelSelectionStore';
-import { appendTranscript } from '../voice/transcript';
-import { useVoiceInput } from '../voice/useVoiceInput';
+import { AgentComposer } from './AgentComposer';
 import { AgentDrawerFrame } from './AgentDrawerFrame';
-import { VoiceButton } from './VoiceButton';
 import {
   THINKING_TEXT,
   toolErrorText,
@@ -59,6 +41,8 @@ const SUGGESTIONS = [
   '这个月支出按类型统计',
   '最近有哪些转账记录？',
 ];
+
+const MESSAGE_IMAGE_SIZE = 180;
 
 const useStyles = createUseSheetStyle(token => ({
   container: {
@@ -96,6 +80,11 @@ const useStyles = createUseSheetStyle(token => ({
     paddingHorizontal: token.paddingSM,
     paddingVertical: token.paddingXS,
   },
+  messageImage: {
+    borderRadius: token.borderRadius,
+    height: MESSAGE_IMAGE_SIZE,
+    width: MESSAGE_IMAGE_SIZE,
+  },
   assistantBubble: {
     backgroundColor: token.colorFillQuaternary,
     borderRadius: token.borderRadiusLG,
@@ -108,27 +97,6 @@ const useStyles = createUseSheetStyle(token => ({
   },
   thinking: {
     paddingVertical: token.paddingXXS,
-  },
-  composer: {
-    borderTopColor: token.colorBorderSecondary,
-    borderTopWidth: token.lineWidth,
-    paddingBottom: token.padding,
-    paddingHorizontal: token.padding,
-    paddingTop: token.paddingSM,
-  },
-  inputWrap: {
-    flex: 1,
-  },
-  modelChip: {
-    backgroundColor: token.colorFillContent,
-    borderRadius: token.borderRadiusSM,
-    flexShrink: 1,
-    justifyContent: 'center',
-    paddingHorizontal: token.paddingXS,
-    paddingVertical: token.paddingXXS,
-  },
-  modelChipPressed: {
-    backgroundColor: token.colorFillContentHover,
   },
 }));
 
@@ -181,6 +149,30 @@ const ASSISTANT_COMPONENTS = {
   tools: { Fallback: ToolNote },
 };
 
+function UserImageAttachments(): React.ReactElement | null {
+  const styles = useStyles();
+
+  return (
+    <MessagePrimitive.Attachments>
+      {({ attachment }) => {
+        const imagePart = attachment.content?.find(
+          part => part.type === 'image',
+        );
+        if (!imagePart) {
+          return null;
+        }
+        return (
+          <Image
+            resizeMode="cover"
+            source={{ uri: imagePart.image }}
+            style={styles.messageImage as ImageStyle}
+          />
+        );
+      }}
+    </MessagePrimitive.Attachments>
+  );
+}
+
 function AgentMessageRow({
   role,
 }: {
@@ -188,13 +180,21 @@ function AgentMessageRow({
 }): React.ReactElement | null {
   const { token } = useTheme();
   const styles = useStyles();
-  const hasVisiblePart = useAuiState(state =>
-    state.message.parts.some(
+  const hasVisiblePart = useAuiState(state => {
+    const hasAttachment =
+      (state.message.attachments?.length ?? 0) > 0 ||
+      (state.message.submission?.attachments?.length ?? 0) > 0;
+
+    if (state.message.role === 'user' && hasAttachment) {
+      return true;
+    }
+
+    return state.message.parts.some(
       part =>
         (part.type === 'text' && part.text.trim().length > 0) ||
         part.type === 'tool-call',
-    ),
-  );
+    );
+  });
 
   if (!hasVisiblePart) {
     return null;
@@ -204,6 +204,7 @@ function AgentMessageRow({
     return (
       <Row justify="end">
         <Column style={styles.userBubble} gap={token.marginXXS}>
+          <UserImageAttachments />
           <MessagePrimitive.Content
             renderText={({ part }) => (
               <Text color="lightSolid" size="sm">
@@ -286,182 +287,6 @@ function EmptyConversation({
           {text}
         </Button>
       ))}
-    </Column>
-  );
-}
-
-interface AgentComposerProps {
-  threadId: number | null;
-  onOpenModelSettings: () => void;
-}
-
-function AgentComposer({
-  threadId,
-  onOpenModelSettings,
-}: AgentComposerProps): React.ReactElement {
-  const styles = useStyles();
-  const toast = useToast();
-  const aui = useAui();
-  const text = useAuiState(state => state.composer.text);
-  const canSend = useAuiState(state => state.composer.canSend);
-  const isRunning = useAuiState(state => state.thread.isRunning);
-
-  const providers = useAgentProviderStore(state => state.providers);
-  const activeProviderId = useAgentProviderStore(
-    state => state.activeProviderId,
-  );
-  const selection = useThreadModelStore(state =>
-    threadId === null ? undefined : state.selections[String(threadId)],
-  );
-  const [modelSheetOpen, setModelSheetOpen] = useState(false);
-
-  const provider = useMemo(
-    () =>
-      providers.find(item => item.id === activeProviderId) ??
-      providers[0] ??
-      null,
-    [activeProviderId, providers],
-  );
-
-  const currentModel = useMemo(() => {
-    if (provider === null) {
-      return null;
-    }
-    const modelId =
-      selection?.providerId === provider.id ? selection.modelId : null;
-    return resolveProviderModel(provider, modelId);
-  }, [provider, selection]);
-
-  const modelActions = useMemo<ActionSheetAction[]>(() => {
-    if (provider === null) {
-      return [];
-    }
-    const actions: ActionSheetAction[] = provider.models.map(model => {
-      const isCurrent = model.modelId === currentModel?.modelId;
-      return {
-        text: model.modelId,
-        description: `${isCurrent ? '当前 · ' : ''}上下文 ${formatContextWindow(
-          model.contextWindow,
-        )} · 思考${formatReasoningEffort(model.reasoningEffort)}`,
-      };
-    });
-    actions.push({
-      text: '模型设置',
-      description: '编辑当前提供商的模型与参数',
-      icon: GearSixIcon,
-    });
-    return actions;
-  }, [currentModel, provider]);
-
-  const handleModelAction = useCallback(
-    (_action: ActionSheetAction, index: number): void => {
-      if (provider === null) {
-        return;
-      }
-      if (index === provider.models.length) {
-        onOpenModelSettings();
-        return;
-      }
-      const model = provider.models[index];
-      if (model && threadId !== null) {
-        rememberThreadModel(threadId, provider.id, model.modelId);
-      }
-    },
-    [onOpenModelSettings, provider, threadId],
-  );
-
-  const voice = useVoiceInput({
-    onComplete: transcript => {
-      aui.composer.setText(appendTranscript(text, transcript), {
-        origin: 'user',
-      });
-    },
-    onError: message => {
-      toast.show({ messageText: message, status: 'error' });
-    },
-  });
-
-  const handleChange = useCallback(
-    (value: string): void => {
-      aui.composer.setText(value, { origin: 'user' });
-    },
-    [aui],
-  );
-
-  const handleSend = useCallback((): void => {
-    if (!canSend || !text.trim()) {
-      return;
-    }
-    aui.composer.send();
-  }, [aui, canSend, text]);
-
-  const handleStop = useCallback((): void => {
-    aui.composer.cancel();
-  }, [aui]);
-
-  return (
-    <Column style={styles.composer}>
-      <Row gap="small" align="end">
-        {provider ? (
-          <Pressable
-            onPress={() => setModelSheetOpen(true)}
-            style={({ pressed }) => [
-              styles.modelChip,
-              pressed ? styles.modelChipPressed : undefined,
-            ]}
-            testID="agent-model-chip"
-          >
-            <Text color="secondary" numberOfLines={1} size="xs">
-              {currentModel?.modelId ?? '未配置模型'}
-            </Text>
-          </Pressable>
-        ) : null}
-        <Column style={styles.inputWrap}>
-          <Textarea
-            maxRows={4}
-            minRows={1}
-            onChange={handleChange}
-            placeholder="问问这个月的开销…"
-            size="small"
-            testID="agent-input"
-            value={text}
-          />
-        </Column>
-        <VoiceButton
-          disabled={isRunning}
-          onStart={voice.start}
-          onStop={voice.stop}
-          partialText={voice.partialText}
-          status={voice.status}
-        />
-        {isRunning ? (
-          <Button
-            icon={StopIcon}
-            onPress={handleStop}
-            shape="circle"
-            size="small"
-            testID="agent-stop-button"
-            type="default"
-          />
-        ) : (
-          <Button
-            disabled={!canSend || !text.trim()}
-            icon={PaperPlaneTiltIcon}
-            onPress={handleSend}
-            shape="circle"
-            size="small"
-            testID="agent-send-button"
-            type="primary"
-          />
-        )}
-      </Row>
-      <ActionSheet
-        actions={modelActions}
-        onAction={handleModelAction}
-        onOpenChange={setModelSheetOpen}
-        open={modelSheetOpen}
-        titleText="切换模型"
-      />
     </Column>
   );
 }

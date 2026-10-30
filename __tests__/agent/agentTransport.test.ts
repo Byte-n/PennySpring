@@ -2,8 +2,10 @@ import type { LanguageModelUsage, UIMessage } from 'ai';
 
 import { createAgentTransport } from '../../src/agent/ui/agentTransport';
 import {
+  AGENT_MODEL_NO_IMAGE_MESSAGE,
   AGENT_NOT_CONFIGURED_MESSAGE,
   AGENT_NO_MODEL_MESSAGE,
+  IMAGE_MESSAGE_TITLE,
 } from '../../src/agent/ui/copy';
 
 const mockGetActiveAgentProvider = jest.fn();
@@ -57,6 +59,20 @@ const ASSISTANT_MESSAGE: UIMessage = {
   parts: [{ type: 'text', text: '共 120 元。' }],
 };
 
+const IMAGE_MESSAGE: UIMessage = {
+  id: 'user-image',
+  role: 'user',
+  parts: [
+    { type: 'text', text: '看看这张小票' },
+    {
+      type: 'file',
+      mediaType: 'image/jpeg',
+      filename: 'receipt.jpg',
+      url: 'data:image/jpeg;base64,QUJD',
+    },
+  ],
+};
+
 function createTransport(overrides: {
   persistUserMessage?: jest.Mock;
   ensureTitle?: jest.Mock;
@@ -105,12 +121,92 @@ beforeEach(() => {
     modelId: 'gpt-5',
     contextWindow: 32_768,
     reasoningEffort: 'off',
+    multimodal: false,
   });
   mockLoadProviderApiKey.mockResolvedValue('api-key');
   mockCreateAgentUIStream.mockResolvedValue(new ReadableStream());
 });
 
 describe('createAgentTransport', () => {
+  it('rejects image messages when the selected model is not multimodal', async () => {
+    const { transport, persistUserMessage } = createTransport();
+
+    await expect(
+      transport.sendMessages!(submitRequest([IMAGE_MESSAGE])),
+    ).rejects.toThrow(AGENT_MODEL_NO_IMAGE_MESSAGE);
+
+    expect(persistUserMessage).not.toHaveBeenCalled();
+    expect(mockCreateAgentUIStream).not.toHaveBeenCalled();
+  });
+
+  it('keeps image parts when the selected model is multimodal', async () => {
+    mockResolveThreadModel.mockReturnValue({
+      modelId: 'gpt-5-vision',
+      contextWindow: 32_768,
+      reasoningEffort: 'off',
+      multimodal: true,
+    });
+    const { transport } = createTransport();
+
+    await transport.sendMessages!(submitRequest([IMAGE_MESSAGE]));
+
+    const options = mockCreateAgentUIStream.mock.calls[0]![0] as {
+      uiMessages: UIMessage[];
+    };
+    expect(options.uiMessages).toEqual([IMAGE_MESSAGE]);
+  });
+
+  it('uses an image title when the user only sends a picture', async () => {
+    mockResolveThreadModel.mockReturnValue({
+      modelId: 'gpt-5-vision',
+      contextWindow: 32_768,
+      reasoningEffort: 'off',
+      multimodal: true,
+    });
+    const imageOnly: UIMessage = {
+      id: 'user-image-only',
+      role: 'user',
+      parts: [
+        {
+          type: 'file',
+          mediaType: 'image/jpeg',
+          filename: 'receipt.jpg',
+          url: 'data:image/jpeg;base64,QUJD',
+        },
+      ],
+    };
+    const { transport, ensureTitle } = createTransport();
+
+    await transport.sendMessages!(submitRequest([imageOnly]));
+
+    expect(ensureTitle).toHaveBeenCalledWith(IMAGE_MESSAGE_TITLE);
+  });
+
+  it('strips historical images when the selected model is not multimodal', async () => {
+    const latestUser: UIMessage = {
+      id: 'user-2',
+      role: 'user',
+      parts: [{ type: 'text', text: '最近一笔呢？' }],
+    };
+    const { transport } = createTransport();
+
+    await transport.sendMessages!(
+      submitRequest([IMAGE_MESSAGE, ASSISTANT_MESSAGE, latestUser]),
+    );
+
+    const options = mockCreateAgentUIStream.mock.calls[0]![0] as {
+      uiMessages: UIMessage[];
+    };
+    expect(options.uiMessages).toEqual([
+      {
+        ...IMAGE_MESSAGE,
+        parts: [{ type: 'text', text: '看看这张小票' }],
+      },
+      ASSISTANT_MESSAGE,
+      latestUser,
+    ]);
+  });
+
   it('rejects before persisting when no provider is configured', async () => {
     mockGetActiveAgentProvider.mockReturnValue(null);
     const { transport, persistUserMessage } = createTransport();

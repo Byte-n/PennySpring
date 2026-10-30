@@ -22,8 +22,18 @@ const provider: AgentProviderConfig = {
   baseUrl: 'https://api.example.com/v1',
   defaultModelId: 'model-b',
   models: [
-    { modelId: 'model-a', contextWindow: 32_768, reasoningEffort: 'low' },
-    { modelId: 'model-b', contextWindow: 128_000, reasoningEffort: 'medium' },
+    {
+      modelId: 'model-a',
+      contextWindow: 32_768,
+      reasoningEffort: 'low',
+      multimodal: false,
+    },
+    {
+      modelId: 'model-b',
+      contextWindow: 128_000,
+      reasoningEffort: 'medium',
+      multimodal: false,
+    },
   ],
   storeResponses: true,
   createdAt: 0,

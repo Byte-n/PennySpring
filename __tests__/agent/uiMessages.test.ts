@@ -3,6 +3,7 @@ import type { UIMessage } from 'ai';
 
 import {
   getUiMessageText,
+  hasUiMessageContent,
   rowsToUiMessages,
   toPersistedUiInput,
   trimUiMessagesByTokens,
@@ -99,6 +100,57 @@ describe('trimUiMessagesByTokens', () => {
     ];
 
     expect(trimUiMessagesByTokens(messages, 1)).toEqual([messages[1]]);
+  });
+
+  it('estimates image payloads without counting base64 characters', () => {
+    const messages: UIMessage[] = [
+      {
+        id: 'user-image',
+        role: 'user',
+        parts: [
+          { type: 'text', text: '看看这张小票' },
+          {
+            type: 'file',
+            mediaType: 'image/jpeg',
+            filename: 'receipt.jpg',
+            url: `data:image/jpeg;base64,${'A'.repeat(200_000)}`,
+          },
+        ],
+      },
+      {
+        id: 'assistant-1',
+        role: 'assistant',
+        parts: [{ type: 'text', text: '收到。' }],
+      },
+    ];
+
+    expect(trimUiMessagesByTokens(messages, 10_000)).toEqual(messages);
+  });
+});
+
+describe('hasUiMessageContent', () => {
+  it('treats image parts as visible content', () => {
+    expect(
+      hasUiMessageContent({
+        id: 'user-image',
+        role: 'user',
+        parts: [
+          {
+            type: 'file',
+            mediaType: 'image/jpeg',
+            filename: 'receipt.jpg',
+            url: 'data:image/jpeg;base64,QUJD',
+          },
+        ],
+      }),
+    ).toBe(true);
+    expect(
+      hasUiMessageContent({
+        id: 'user-blank',
+        role: 'user',
+        parts: [{ type: 'text', text: '   ' }],
+      }),
+    ).toBe(false);
   });
 });
 

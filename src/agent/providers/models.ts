@@ -55,7 +55,14 @@ export function normalizeModelDraft(draft: AgentModelDraft): AgentModelConfig {
     reasoningEffort: isReasoningEffort(draft.reasoningEffort)
       ? draft.reasoningEffort
       : DEFAULT_REASONING_EFFORT,
+    multimodal: draft.multimodal === true,
   };
+}
+
+export function isMultimodalModel(
+  model: AgentModelConfig | null | undefined,
+): boolean {
+  return model?.multimodal === true;
 }
 
 export function getProviderDefaultModel(
