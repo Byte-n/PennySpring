@@ -2,6 +2,7 @@ import type { ProviderDescriptor } from './types';
 
 export const OPENAI_RESPONSES_PROVIDER_ID = 'openai-responses';
 export const OPENAI_CHAT_PROVIDER_ID = 'openai-chat';
+export const DASHSCOPE_PROVIDER_ID = 'dashscope';
 export const OPENAI_COMPATIBLE_PROVIDER_ID = 'openai-compatible';
 
 const OPENAI_BASE_URL = 'https://api.openai.com/v1';
@@ -25,6 +26,16 @@ export const PROVIDER_DESCRIPTORS: readonly ProviderDescriptor[] = [
     defaultBaseUrl: OPENAI_BASE_URL,
     baseUrlHint: 'https://host/v1',
     modelPlaceholder: '例如 gpt-4.1',
+    requiresApiKey: true,
+  },
+  {
+    id: DASHSCOPE_PROVIDER_ID,
+    name: '阿里云百炼',
+    description: '适用于百炼 Qwen 系列，支持思考流式输出。',
+    apiKind: 'alibaba',
+    defaultBaseUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
+    baseUrlHint: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
+    modelPlaceholder: '例如 qwen3-max',
     requiresApiKey: true,
   },
   {

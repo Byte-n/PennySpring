@@ -1,4 +1,8 @@
-export type ProviderApiKind = 'responses' | 'chat' | 'openai-compatible';
+export type ProviderApiKind =
+  | 'responses'
+  | 'chat'
+  | 'alibaba'
+  | 'openai-compatible';
 
 export type AgentReasoningEffort = 'off' | 'low' | 'medium' | 'high';
 

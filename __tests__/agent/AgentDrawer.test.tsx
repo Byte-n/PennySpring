@@ -23,6 +23,43 @@ jest.mock('@pennyspring/theme', () => ({
   useTheme: () => ({ token: {} }),
 }));
 
+jest.mock('../../src/stores/bookStore', () => {
+  const {
+    RECORD_TYPE_CATEGORY,
+    RECORD_TYPE_SPECIAL_BEHAVIOR,
+    SYSTEM_STATUS,
+  } = require('@pennyspring/api');
+
+  const book = { id: 1, name: '测试账本' };
+  const api = {
+    type: {
+      getAll: async () => [
+        {
+          id: 2,
+          booksId: 1,
+          parentId: 0,
+          name: '三餐',
+          icon: '',
+          typeCategory: RECORD_TYPE_CATEGORY.expense,
+          isSystem: SYSTEM_STATUS.custom,
+          specialBehavior: RECORD_TYPE_SPECIAL_BEHAVIOR.none,
+          sort: 1,
+          createdTime: 0,
+          updatedTime: 0,
+        },
+      ],
+    },
+    tag: { getAll: async () => [] },
+    asset: { getByBook: async () => [] },
+  };
+
+  return {
+    useGlobalApi: () => api,
+    useBookStore: (selector: (state: unknown) => unknown) =>
+      selector({ currentBook: book }),
+  };
+});
+
 jest.mock('@pennyspring/ui', () => {
   const ReactLib = require('react');
   const { Pressable, Text, TextInput, View } = require('react-native');
@@ -31,6 +68,23 @@ jest.mock('@pennyspring/ui', () => {
     (Component: React.ComponentType) =>
     ({ children, ...props }: { children?: React.ReactNode }) =>
       ReactLib.createElement(Component, props, children);
+
+  const MockCard = ({
+    titleText,
+    children,
+    footer,
+  }: {
+    titleText?: string;
+    children?: React.ReactNode;
+    footer?: React.ReactNode;
+  }) =>
+    ReactLib.createElement(
+      View,
+      null,
+      titleText ? ReactLib.createElement(Text, null, titleText) : null,
+      children,
+      footer,
+    );
 
   const MockButton = ({
     children,
@@ -161,6 +215,7 @@ jest.mock('@pennyspring/ui', () => {
   return {
     ActionSheet: MockActionSheet,
     Button: MockButton,
+    Card: MockCard,
     Column: passthrough(View),
     Empty: MockEmpty,
     Icon: () => null,
@@ -390,6 +445,66 @@ const CONVERSATION: ThreadMessageLike[] = [
   },
 ];
 
+const PENDING_RECORD_APPROVAL: ThreadMessageLike[] = [
+  { role: 'user', content: '帮我记一笔午饭 30 元' },
+  {
+    role: 'assistant',
+    content: [
+      {
+        type: 'tool-call',
+        toolCallId: 'call-record-1',
+        toolName: 'createRecord',
+        args: {
+          typeId: 2,
+          amount: 30,
+          date: '2026-10-30',
+          time: '12:34',
+          remark: '午饭',
+        },
+        argsText:
+          '{"typeId":2,"amount":30,"date":"2026-10-30","time":"12:34","remark":"午饭"}',
+        approval: { id: 'approval-1' },
+      },
+    ],
+  },
+];
+
+const COMPLETED_RECORD_APPROVAL: ThreadMessageLike[] = [
+  { role: 'user', content: '帮我记一笔午饭 30 元' },
+  {
+    role: 'assistant',
+    content: [
+      {
+        type: 'tool-call',
+        toolCallId: 'call-record-1',
+        toolName: 'createRecord',
+        args: {
+          typeId: 2,
+          amount: 30,
+          date: '2026-10-30',
+          time: '12:34',
+          remark: '午饭',
+        },
+        argsText:
+          '{"typeId":2,"amount":30,"date":"2026-10-30","time":"12:34","remark":"午饭"}',
+        approval: { id: 'approval-1', approved: true },
+        result: { ok: true, recordId: 99 },
+      },
+    ],
+  },
+];
+
+const CONVERSATION_WITH_REASONING: ThreadMessageLike[] = [
+  { role: 'user', content: '帮我记一笔午饭 30 元' },
+  {
+    role: 'assistant',
+    content: [
+      { type: 'reasoning', text: '先核对类型和资产，再写入账本。' },
+      { type: 'text', text: '已记录午饭 30 元。' },
+    ],
+  },
+];
+
 const IMAGE_URI = 'data:image/jpeg;base64,QUJD';
 const CONVERSATION_WITH_IMAGE: ThreadMessageLike[] = [
   {
@@ -440,6 +555,79 @@ describe('AgentDrawer', () => {
     expect(text).toContain('合计 120 元');
     expect(text).not.toContain('**合计 120 元**');
     expect(text).toContain('已查询账本数据');
+  });
+
+  it('renders the record approval card for a pending createRecord call', async () => {
+    const { renderer } = renderDrawer({
+      initialMessages: PENDING_RECORD_APPROVAL,
+    });
+
+    await act(async () => {
+      await flush();
+    });
+
+    expect(renderedText(renderer)).toContain('待确认的记账');
+    expect(renderedText(renderer)).toContain('¥30.00');
+    expect(renderedText(renderer)).toContain('确认记账');
+    expect(
+      renderer.root.findAllByProps({ testID: 'agent-record-confirm' }).length,
+    ).toBeGreaterThan(0);
+    expect(
+      renderer.root.findAllByProps({ testID: 'agent-record-cancel' }).length,
+    ).toBeGreaterThan(0);
+  });
+
+  it('keeps the approved record card in restored history', async () => {
+    const { renderer } = renderDrawer({
+      initialMessages: COMPLETED_RECORD_APPROVAL,
+    });
+
+    await act(async () => {
+      await flush();
+    });
+
+    expect(renderedText(renderer)).toContain('已记账');
+    expect(renderedText(renderer)).toContain('¥30.00');
+    expect(renderedText(renderer)).toContain('记录 #99');
+  });
+
+  it('collapses reasoning by default and expands it on tap', () => {
+    const { renderer } = renderDrawer({
+      initialMessages: CONVERSATION_WITH_REASONING,
+    });
+
+    expect(renderedText(renderer)).toContain('思考过程');
+    expect(renderedText(renderer)).not.toContain('先核对类型和资产');
+
+    act(() => {
+      renderer.root
+        .findByProps({ testID: 'agent-thinking-toggle' })
+        .props.onPress();
+    });
+
+    expect(renderedText(renderer)).toContain('先核对类型和资产，再写入账本。');
+
+    act(() => {
+      renderer.root
+        .findByProps({ testID: 'agent-thinking-toggle' })
+        .props.onPress();
+    });
+
+    expect(renderedText(renderer)).not.toContain('先核对类型和资产');
+  });
+
+  it('renders an assistant turn that only contains reasoning', () => {
+    const { renderer } = renderDrawer({
+      initialMessages: [
+        { role: 'user', content: '帮我记一笔午饭 30 元' },
+        {
+          role: 'assistant',
+          content: [{ type: 'reasoning', text: '先核对类型和资产。' }],
+        },
+      ],
+    });
+
+    expect(renderedText(renderer)).toContain('思考过程');
   });
 
   it('renders user image attachments in the bubble', () => {

@@ -9,6 +9,7 @@ import {
   useAui,
   useAuiState,
   type MessageState,
+  type PartState,
   type ToolCallMessagePartProps,
 } from '@assistant-ui/react-native';
 import {
@@ -21,22 +22,23 @@ import {
   Text,
 } from '@pennyspring/ui';
 import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
-import {
-  CheckCircleIcon,
-  WarningCircleIcon,
-} from 'phosphor-react-native';
+import { CheckCircleIcon, WarningCircleIcon } from 'phosphor-react-native';
 
 import { MarkdownText } from '../../component/MarkdownText';
 import { AgentComposer } from './AgentComposer';
 import { AgentDrawerFrame } from './AgentDrawerFrame';
 import {
+  CREATE_RECORD_TOOL_NAME,
   THINKING_TEXT,
   toolErrorText,
   toolStatusText,
 } from './copy';
+import { RecordCreationCard } from './RecordCreationCard';
+import { ThinkingBlock } from './ThinkingBlock';
 import type { AgentSessionState } from './useAgentSession';
 
 const SUGGESTIONS = [
+  '帮我记一笔午饭 30 元',
   '上个月吃饭花了多少？',
   '这个月支出按类型统计',
   '最近有哪些转账记录？',
@@ -100,6 +102,13 @@ const useStyles = createUseSheetStyle(token => ({
   },
 }));
 
+function hasVisibleMessagePart(part: PartState): boolean {
+  if (part.type === 'text' || part.type === 'reasoning') {
+    return part.text.trim().length > 0;
+  }
+  return part.type === 'tool-call';
+}
+
 function ToolNote({
   status,
   isError,
@@ -146,7 +155,13 @@ function MarkdownPart({ text }: { text: string }): React.ReactElement {
 
 const ASSISTANT_COMPONENTS = {
   Text: MarkdownPart,
-  tools: { Fallback: ToolNote },
+  Reasoning: ThinkingBlock,
+  tools: {
+    by_name: {
+      [CREATE_RECORD_TOOL_NAME]: RecordCreationCard,
+    },
+    Fallback: ToolNote,
+  },
 };
 
 function UserImageAttachments(): React.ReactElement | null {
@@ -189,11 +204,7 @@ function AgentMessageRow({
       return true;
     }
 
-    return state.message.parts.some(
-      part =>
-        (part.type === 'text' && part.text.trim().length > 0) ||
-        part.type === 'tool-call',
-    );
+    return state.message.parts.some(hasVisibleMessagePart);
   });
 
   if (!hasVisiblePart) {
@@ -241,11 +252,7 @@ function ThinkingFooter(): React.ReactElement | null {
     if (!last || last.role !== 'assistant') {
       return true;
     }
-    return !last.parts.some(
-      part =>
-        (part.type === 'text' && part.text.trim().length > 0) ||
-        part.type === 'tool-call',
-    );
+    return !last.parts.some(hasVisibleMessagePart);
   });
 
   if (!showThinking) {

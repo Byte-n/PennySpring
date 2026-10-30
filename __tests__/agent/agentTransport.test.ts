@@ -23,8 +23,11 @@ jest.mock('../../src/agent/providers/configStore', () => ({
 
 jest.mock('../../src/agent/providers/modelSelectionStore', () => ({
   resolveThreadModel: (...args: unknown[]) => mockResolveThreadModel(...args),
-  rememberThreadModel: (threadId: number, providerId: string, modelId: string) =>
-    mockRememberThreadModel(threadId, providerId, modelId),
+  rememberThreadModel: (
+    threadId: number,
+    providerId: string,
+    modelId: string,
+  ) => mockRememberThreadModel(threadId, providerId, modelId),
 }));
 
 jest.mock('../../src/agent/providers/secureKey', () => ({
@@ -36,7 +39,28 @@ jest.mock('../../src/agent/projection/context', () => ({
 }));
 
 jest.mock('../../src/agent/tools/queryRecords', () => ({
+  QUERY_RECORDS_TOOL_NAME: 'queryRecords',
   createQueryRecordsTool: () => ({}),
+}));
+
+jest.mock('../../src/agent/tools/listTypes', () => ({
+  LIST_TYPES_TOOL_NAME: 'listTypes',
+  createListTypesTool: () => ({}),
+}));
+
+jest.mock('../../src/agent/tools/listTags', () => ({
+  LIST_TAGS_TOOL_NAME: 'listTags',
+  createListTagsTool: () => ({}),
+}));
+
+jest.mock('../../src/agent/tools/listAssets', () => ({
+  LIST_ASSETS_TOOL_NAME: 'listAssets',
+  createListAssetsTool: () => ({}),
+}));
+
+jest.mock('../../src/agent/tools/createRecord', () => ({
+  CREATE_RECORD_TOOL_NAME: 'createRecord',
+  createCreateRecordTool: () => ({}),
 }));
 
 jest.mock('../../src/agent/core/createAgent', () => ({
@@ -59,6 +83,15 @@ const ASSISTANT_MESSAGE: UIMessage = {
   parts: [{ type: 'text', text: '共 120 元。' }],
 };
 
+const ASSISTANT_REASONING_MESSAGE: UIMessage = {
+  id: 'assistant-reasoning',
+  role: 'assistant',
+  parts: [
+    { type: 'reasoning', text: '先核对类型和资产。', state: 'done' },
+    { type: 'text', text: '共 120 元。' },
+  ],
+};
+
 const IMAGE_MESSAGE: UIMessage = {
   id: 'user-image',
   role: 'user',
@@ -73,11 +106,19 @@ const IMAGE_MESSAGE: UIMessage = {
   ],
 };
 
-function createTransport(overrides: {
-  persistUserMessage?: jest.Mock;
-  ensureTitle?: jest.Mock;
-  usageRef?: { current: { promptTokens: number; completionTokens: number; totalTokens: number } };
-} = {}) {
+function createTransport(
+  overrides: {
+    persistUserMessage?: jest.Mock;
+    ensureTitle?: jest.Mock;
+    usageRef?: {
+      current: {
+        promptTokens: number;
+        completionTokens: number;
+        totalTokens: number;
+      };
+    };
+  } = {},
+) {
   const persistUserMessage =
     overrides.persistUserMessage ?? jest.fn(() => Promise.resolve());
   const ensureTitle = overrides.ensureTitle ?? jest.fn(() => Promise.resolve());
@@ -125,6 +166,10 @@ beforeEach(() => {
   });
   mockLoadProviderApiKey.mockResolvedValue('api-key');
   mockCreateAgentUIStream.mockResolvedValue(new ReadableStream());
+});
+
+afterEach(() => {
+  jest.restoreAllMocks();
 });
 
 describe('createAgentTransport', () => {
@@ -182,6 +227,28 @@ describe('createAgentTransport', () => {
     expect(ensureTitle).toHaveBeenCalledWith(IMAGE_MESSAGE_TITLE);
   });
 
+  it('keeps reasoning parts in the conversation history', async () => {
+    const latestUser: UIMessage = {
+      id: 'user-2',
+      role: 'user',
+      parts: [{ type: 'text', text: '最近一笔呢？' }],
+    };
+    const { transport } = createTransport();
+
+    await transport.sendMessages!(
+      submitRequest([USER_MESSAGE, ASSISTANT_REASONING_MESSAGE, latestUser]),
+    );
+
+    const options = mockCreateAgentUIStream.mock.calls[0]![0] as {
+      uiMessages: UIMessage[];
+    };
+    expect(options.uiMessages).toEqual([
+      USER_MESSAGE,
+      ASSISTANT_REASONING_MESSAGE,
+      latestUser,
+    ]);
+  });
+
   it('strips historical images when the selected model is not multimodal', async () => {
     const latestUser: UIMessage = {
       id: 'user-2',
@@ -234,7 +301,7 @@ describe('createAgentTransport', () => {
       timeout: { totalMs: number; chunkMs: number };
     };
     expect(options.uiMessages).toEqual([USER_MESSAGE]);
-    expect(options.sendReasoning).toBe(false);
+    expect(options.sendReasoning).toBe(true);
     expect(options.sendSources).toBe(false);
     expect(options.timeout).toEqual({ totalMs: 120_000, chunkMs: 60_000 });
   });
@@ -263,6 +330,30 @@ describe('createAgentTransport', () => {
         provider: { id: 'provider-1' },
         model: expect.objectContaining({ modelId: 'gpt-6-sol' }),
         apiKey: 'api-key',
+      }),
+    );
+  });
+
+  it('passes metadata and write tools with a user approval gate to the agent', async () => {
+    const { transport } = createTransport();
+
+    await transport.sendMessages!(submitRequest([USER_MESSAGE]));
+
+    expect(mockCreateAgent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        tools: expect.objectContaining({
+          queryRecords: expect.anything(),
+          listTypes: expect.anything(),
+          listTags: expect.anything(),
+          listAssets: expect.anything(),
+          createRecord: expect.anything(),
+        }),
+        toolApproval: {
+          createRecord: {
+            type: 'user-approval',
+            reason: '将写入账本，请确认',
+          },
+        },
       }),
     );
   });
@@ -301,7 +392,8 @@ describe('createAgentTransport', () => {
     expect(options.uiMessages).toEqual([latestUserMessage]);
   });
 
-  it('does not persist again when regenerating a response', async () => {    const { transport, persistUserMessage, ensureTitle } = createTransport();
+  it('does not persist again when regenerating a response', async () => {
+    const { transport, persistUserMessage, ensureTitle } = createTransport();
 
     await transport.sendMessages!({
       ...submitRequest([USER_MESSAGE, ASSISTANT_MESSAGE]),
@@ -341,5 +433,29 @@ describe('createAgentTransport', () => {
       completionTokens: 5,
       totalTokens: 17,
     });
+  });
+
+  it('logs SDK validation errors and forwards their real text', async () => {
+    const { transport } = createTransport();
+    await transport.sendMessages!(submitRequest([USER_MESSAGE]));
+
+    const options = mockCreateAgentUIStream.mock.calls[0]![0] as {
+      onError: (error: unknown) => string;
+    };
+    const errorLog = jest
+      .spyOn(console, 'error')
+      .mockImplementation(() => undefined);
+    const validationError =
+      'Invalid input for tool createRecord: amount: Expected number, received string';
+
+    expect(options.onError(validationError)).toBe(validationError);
+    expect(errorLog).toHaveBeenCalledWith(
+      '[agent:tool-call] 工具调用失败',
+      validationError,
+    );
+
+    const executedError = new Error('工具 createRecord 执行失败：database down');
+    expect(options.onError(executedError)).toBe(executedError.message);
+    expect(errorLog).toHaveBeenCalledTimes(1);
   });
 });

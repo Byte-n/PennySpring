@@ -2,6 +2,7 @@ import React from 'react';
 import { AssistantRuntimeProvider } from '@assistant-ui/react-native';
 import type { BookRow } from '@pennyspring/api';
 
+import { AgentDebugProbe } from './AgentDebugProbe';
 import { AgentDrawer } from './AgentDrawer';
 import {
   AgentRuntimeStatusBridge,
@@ -41,6 +42,7 @@ export function AgentRuntimeHost({
 
   return (
     <AssistantRuntimeProvider runtime={runtime}>
+      {__DEV__ ? <AgentDebugProbe /> : null}
       <AgentRuntimeStatusBridge onChange={session.setSending} />
       <AgentDrawer
         configured={configured}

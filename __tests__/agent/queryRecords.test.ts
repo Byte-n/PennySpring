@@ -89,7 +89,10 @@ const RECORDS: RecordRow[] = [
   createRecord(1, 1, 1000, 1200, at(2026, 8, 31), { remark: '八月最后一顿' }),
   createRecord(2, 2, 2000, 2000, at(2026, 9, 1), { remark: '公司楼下午饭' }),
   createRecord(3, 3, 500000, 499000, at(2026, 9, 15), { remark: '九月工资' }),
-  createRecord(4, 4, 10000, 100, at(2026, 9, 20), { charge: 100, remark: '转到储蓄卡' }),
+  createRecord(4, 4, 10000, 100, at(2026, 9, 20), {
+    charge: 100,
+    remark: '转到储蓄卡',
+  }),
   createRecord(5, 1, 3000, 3000, at(2026, 10, 1), { remark: '国庆聚餐' }),
 ];
 const RECORD_TAGS = [
@@ -130,8 +133,12 @@ describe('parseQueryArguments', () => {
   });
 
   it('拒绝非法 limit、groupBy 与类型数组', () => {
-    expect(() => parseQueryArguments('{"limit":0}')).toThrow('limit 必须在 1 到 50');
-    expect(() => parseQueryArguments('{"limit":51}')).toThrow('limit 必须在 1 到 50');
+    expect(() => parseQueryArguments('{"limit":0}')).toThrow(
+      'limit 必须在 1 到 50',
+    );
+    expect(() => parseQueryArguments('{"limit":51}')).toThrow(
+      'limit 必须在 1 到 50',
+    );
     expect(() => parseQueryArguments('{"groupBy":"week"}')).toThrow(
       'groupBy 不支持 week',
     );
@@ -141,7 +148,9 @@ describe('parseQueryArguments', () => {
   });
 
   it('拒绝非法 JSON', () => {
-    expect(() => parseQueryArguments('{oops')).toThrow('查询参数不是合法的 JSON');
+    expect(() => parseQueryArguments('{oops')).toThrow(
+      '查询参数不是合法的 JSON',
+    );
   });
 });
 
@@ -192,9 +201,9 @@ describe('projectQueryResult', () => {
 
     expect(withKeyword.count).toBe(1);
     expect(withKeyword.records?.[0]?.remark).toBe('九月工资');
-    expect(withoutKeyword.records?.every(record => record.remark === undefined)).toBe(
-      true,
-    );
+    expect(
+      withoutKeyword.records?.every(record => record.remark === undefined),
+    ).toBe(true);
   });
 
   it('groupBy=type 聚合收支并省略明细', () => {
@@ -297,10 +306,18 @@ describe('projectQueryResult', () => {
 });
 
 describe('createQueryRecordsTool', () => {
-  function createApi(): Api {
+  beforeEach(() => {
+    jest.spyOn(console, 'error').mockImplementation(() => undefined);
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  function createApi(overrides: { getRecords?: jest.Mock } = {}): Api {
     return {
       record: {
-        getByBook: jest.fn(async () => RECORDS),
+        getByBook: overrides.getRecords ?? jest.fn(async () => RECORDS),
         getRecordTags: jest.fn(async () => RECORD_TAGS),
       },
       type: {
@@ -312,9 +329,9 @@ describe('createQueryRecordsTool', () => {
     } as unknown as Api;
   }
 
-  function createExecute() {
+  function createExecute(api: Api = createApi()) {
     const tool = createQueryRecordsTool({
-      api: createApi(),
+      api,
       booksId: 1,
       bookName: '日常账本',
     });
@@ -337,29 +354,41 @@ describe('createQueryRecordsTool', () => {
     });
   });
 
-  it('非法参数以工具结果回灌中文错误', async () => {
+  it('非法参数抛出统一工具错误', async () => {
     const execute = createExecute();
-    const output = await execute({ from: '2026-02-30' }, {});
 
-    expect(output).toContain('工具执行失败');
-    expect(output).toContain('from 不是合法日期');
+    await expect(execute({ from: '2026-02-30' }, {})).rejects.toThrow(
+      '工具 queryRecords 执行失败：from 不是合法日期：2026-02-30',
+    );
     expect(QUERY_RECORDS_TOOL_NAME).toBe('queryRecords');
+  });
+
+  it('读取账本失败时抛出统一工具错误', async () => {
+    const getRecords = jest.fn(async () => {
+      throw new Error('database down');
+    });
+    const execute = createExecute(createApi({ getRecords }));
+
+    await expect(execute({}, {})).rejects.toThrow(
+      '工具 queryRecords 执行失败：database down',
+    );
   });
 });
 
 describe('buildSystemPrompt', () => {
-  it('注入账本、当前日期与类型字典，并声明只读约束', () => {
+  it('注入账本与当前日期，声明工具约束且不包含类型字典', () => {
     const prompt = buildSystemPrompt({
       bookName: '日常账本',
       today: '2026-10-27',
-      types: TYPES,
     });
 
     expect(prompt).toContain('日常账本');
     expect(prompt).toContain('2026-10-27');
-    expect(prompt).toContain('- 1 餐饮（支出）');
-    expect(prompt).toContain('- 2 午饭（支出，父类型：餐饮）');
-    expect(prompt).toContain('只能查询');
+    expect(prompt).toContain('listTypes');
+    expect(prompt).toContain('createRecord');
+    expect(prompt).toContain('用户确认');
     expect(prompt).toContain('金额单位：元');
+    expect(prompt).not.toContain('- 1 餐饮（支出）');
+    expect(prompt).not.toContain('- 2 午饭（支出，父类型：餐饮）');
   });
 });

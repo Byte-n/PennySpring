@@ -1,10 +1,5 @@
-import { isToolUIPart } from 'ai';
-import type {
-  UIDataTypes,
-  UIMessage,
-  UIMessagePart,
-  UITools,
-} from 'ai';
+import { isReasoningUIPart, isToolUIPart } from 'ai';
+import type { UIDataTypes, UIMessage, UIMessagePart, UITools } from 'ai';
 import type {
   AgentMessageRow,
   CreateAgentMessageInput,
@@ -41,9 +36,7 @@ function isUiMessage(value: unknown): value is UIMessage {
   }
   return (
     Array.isArray(value.parts) &&
-    value.parts.every(
-      part => isRecord(part) && typeof part.type === 'string',
-    )
+    value.parts.every(part => isRecord(part) && typeof part.type === 'string')
   );
 }
 
@@ -65,9 +58,24 @@ export function parsePersistedUiMessage(raw: string): UIMessage | null {
 export function rowsToUiMessages(
   rows: readonly AgentMessageRow[],
 ): UIMessage[] {
-  return rows
-    .map(row => parsePersistedUiMessage(row.message))
-    .filter((message): message is UIMessage => message !== null);
+  const messages: UIMessage[] = [];
+  const indexById = new Map<string, number>();
+
+  for (const row of rows) {
+    const message = parsePersistedUiMessage(row.message);
+    if (!message) {
+      continue;
+    }
+    const existingIndex = indexById.get(message.id);
+    if (existingIndex === undefined) {
+      indexById.set(message.id, messages.length);
+      messages.push(message);
+    } else {
+      messages[existingIndex] = message;
+    }
+  }
+
+  return messages;
 }
 
 export function toPersistedUiInput(
@@ -99,6 +107,9 @@ export function getUiMessageText(message: UIMessage): string {
 export function hasUiMessageContent(message: UIMessage): boolean {
   return message.parts.some(part => {
     if (part.type === 'text') {
+      return part.text.trim().length > 0;
+    }
+    if (isReasoningUIPart(part)) {
       return part.text.trim().length > 0;
     }
     return isUiFilePart(part) || isToolUIPart(part);

@@ -1,8 +1,8 @@
 import type { Api } from '@pennyspring/api';
-import { tool } from 'ai';
 import { z } from 'zod';
 
 import { parseQueryArguments, projectQueryResult } from '../projection/record';
+import { createAgentTool } from './createAgentTool';
 
 export const QUERY_RECORDS_TOOL_NAME = 'queryRecords';
 
@@ -54,34 +54,29 @@ export interface QueryRecordsToolDeps {
 }
 
 export function createQueryRecordsTool(deps: QueryRecordsToolDeps) {
-  return tool({
+  return createAgentTool({
+    name: QUERY_RECORDS_TOOL_NAME,
     description: QUERY_RECORDS_TOOL_DESCRIPTION,
     inputSchema: queryRecordsInputSchema,
     execute: async input => {
-      try {
-        const options = parseQueryArguments(JSON.stringify(input));
-        const [records, types, tags, recordTags] = await Promise.all([
-          deps.api.record.getByBook(deps.booksId),
-          deps.api.type.getAll(deps.booksId),
-          deps.api.tag.getAll(deps.booksId),
-          deps.api.record.getRecordTags(deps.booksId),
-        ]);
+      const options = parseQueryArguments(JSON.stringify(input));
+      const [records, types, tags, recordTags] = await Promise.all([
+        deps.api.record.getByBook(deps.booksId),
+        deps.api.type.getAll(deps.booksId),
+        deps.api.tag.getAll(deps.booksId),
+        deps.api.record.getRecordTags(deps.booksId),
+      ]);
 
-        return JSON.stringify(
-          projectQueryResult({
-            bookName: deps.bookName,
-            options,
-            records,
-            types,
-            tags,
-            recordTags,
-          }),
-        );
-      } catch (error) {
-        const message =
-          error instanceof Error ? error.message : String(error);
-        return `工具执行失败：${message}`;
-      }
+      return JSON.stringify(
+        projectQueryResult({
+          bookName: deps.bookName,
+          options,
+          records,
+          types,
+          tags,
+          recordTags,
+        }),
+      );
     },
   });
 }

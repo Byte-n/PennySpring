@@ -93,6 +93,126 @@ if (streamGlobals.TextDecoderStream === undefined) {
   streamGlobals.TextDecoderStream = TextDecoderStream;
 }
 
+interface StructuredCloneGlobal {
+  structuredClone?: <T>(value: T) => T;
+}
+
+const cloneGlobals = globalThis as unknown as StructuredCloneGlobal;
+
+function createDataCloneError(value: unknown): Error {
+  const message = `Failed to execute 'structuredClone' on 'Window': ${String(value)} could not be cloned.`;
+  const DOMExceptionCtor = (
+    globalThis as unknown as {
+      DOMException?: new (message: string, name: string) => Error;
+    }
+  ).DOMException;
+  if (DOMExceptionCtor) {
+    return new DOMExceptionCtor(message, 'DataCloneError');
+  }
+  const error = new Error(message);
+  error.name = 'DataCloneError';
+  return error;
+}
+
+function cloneArrayBufferView(view: ArrayBufferView): ArrayBufferView {
+  if (view instanceof DataView) {
+    return new DataView(view.buffer.slice(0), view.byteOffset, view.byteLength);
+  }
+  // ArrayBufferView 接口不含 slice，但具体 TypedArray 均实现该拷贝方法。
+  return (view as unknown as { slice(): ArrayBufferView }).slice();
+}
+
+function cloneStructuredValue<T>(value: T, seen: Map<unknown, unknown>): T {
+  if (value === null || typeof value !== 'object') {
+    if (typeof value === 'function' || typeof value === 'symbol') {
+      throw createDataCloneError(value);
+    }
+    return value;
+  }
+
+  if (seen.has(value)) {
+    return seen.get(value) as T;
+  }
+
+  if (Array.isArray(value)) {
+    const result: unknown[] = new Array(value.length);
+    seen.set(value, result);
+    value.forEach((item, index) => {
+      result[index] = cloneStructuredValue(item, seen);
+    });
+    return result as T;
+  }
+
+  if (value instanceof Date) {
+    const result = new Date(value.getTime());
+    seen.set(value, result);
+    return result as T;
+  }
+
+  if (value instanceof RegExp) {
+    const result = new RegExp(value.source, value.flags);
+    seen.set(value, result);
+    return result as T;
+  }
+
+  if (value instanceof Map) {
+    const result = new Map<unknown, unknown>();
+    seen.set(value, result);
+    value.forEach((item, key) => {
+      result.set(
+        cloneStructuredValue(key, seen),
+        cloneStructuredValue(item, seen),
+      );
+    });
+    return result as T;
+  }
+
+  if (value instanceof Set) {
+    const result = new Set<unknown>();
+    seen.set(value, result);
+    value.forEach(item => {
+      result.add(cloneStructuredValue(item, seen));
+    });
+    return result as T;
+  }
+
+  if (value instanceof ArrayBuffer) {
+    const result = value.slice(0);
+    seen.set(value, result);
+    return result as T;
+  }
+
+  if (ArrayBuffer.isView(value)) {
+    const result = cloneArrayBufferView(value);
+    seen.set(value, result);
+    return result as T;
+  }
+
+  if (value instanceof Error) {
+    const result = new Error(value.message);
+    result.name = value.name;
+    result.stack = value.stack;
+    seen.set(value, result);
+    return result as T;
+  }
+
+  const result: Record<string, unknown> = {};
+  seen.set(value, result);
+  Object.keys(value).forEach(key => {
+    result[key] = cloneStructuredValue(
+      (value as Record<string, unknown>)[key],
+      seen,
+    );
+  });
+  return result as T;
+}
+
+// Hermes 未提供 structuredClone，AI SDK 的审批校验与消息快照依赖它。
+if (cloneGlobals.structuredClone === undefined) {
+  cloneGlobals.structuredClone = <T>(value: T): T =>
+    cloneStructuredValue(value, new Map());
+}
+
 interface AbortSignalConstructorLike {
   any?: (signals: readonly AbortSignal[]) => AbortSignal;
   timeout?: (milliseconds: number) => AbortSignal;

@@ -48,6 +48,52 @@ describe('rowsToUiMessages', () => {
     );
   });
 
+  it('keeps the latest row when the same UI message is persisted twice', () => {
+    const userMessage: UIMessage = {
+      id: 'user-1',
+      role: 'user',
+      parts: [{ type: 'text', text: '帮我记一笔午饭' }],
+    };
+    const pendingMessage: UIMessage = {
+      id: 'assistant-1',
+      role: 'assistant',
+      parts: [
+        {
+          type: 'tool-createRecord',
+          toolCallId: 'tool-1',
+          state: 'approval-requested',
+          input: { typeId: 2, amount: 30 },
+          approval: { id: 'approval-1' },
+        },
+      ],
+    };
+    const completedMessage: UIMessage = {
+      id: 'assistant-1',
+      role: 'assistant',
+      parts: [
+        {
+          type: 'tool-createRecord',
+          toolCallId: 'tool-1',
+          state: 'output-available',
+          input: { typeId: 2, amount: 30 },
+          output: { ok: true, recordId: 9 },
+          approval: { id: 'approval-1', approved: true },
+        },
+        { type: 'text', text: '已记录午饭 30 元。' },
+      ],
+    };
+
+    const messages = rowsToUiMessages([
+      row(1, userMessage),
+      row(2, pendingMessage),
+      row(3, completedMessage),
+    ]);
+
+    expect(messages).toHaveLength(2);
+    expect(messages[0]).toEqual(userMessage);
+    expect(messages[1]).toEqual(completedMessage);
+  });
+
   it('skips rows that are not UI messages', () => {
     expect(
       rowsToUiMessages([
@@ -129,6 +175,25 @@ describe('trimUiMessagesByTokens', () => {
 });
 
 describe('hasUiMessageContent', () => {
+  it('treats reasoning text as visible content', () => {
+    expect(
+      hasUiMessageContent({
+        id: 'assistant-reasoning',
+        role: 'assistant',
+        parts: [
+          { type: 'reasoning', text: '先核对类型和资产。', state: 'done' },
+        ],
+      }),
+    ).toBe(true);
+    expect(
+      hasUiMessageContent({
+        id: 'assistant-blank-reasoning',
+        role: 'assistant',
+        parts: [{ type: 'reasoning', text: '   ' }],
+      }),
+    ).toBe(false);
+  });
+
   it('treats image parts as visible content', () => {
     expect(
       hasUiMessageContent({

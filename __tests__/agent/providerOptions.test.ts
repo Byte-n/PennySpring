@@ -1,4 +1,5 @@
 import {
+  DASHSCOPE_PROVIDER_ID,
   OPENAI_CHAT_PROVIDER_ID,
   OPENAI_COMPATIBLE_PROVIDER_ID,
   OPENAI_RESPONSES_PROVIDER_ID,
@@ -89,6 +90,15 @@ describe('buildProviderOptions', () => {
       buildProviderOptions(
         createConfig(OPENAI_COMPATIBLE_PROVIDER_ID, false),
         createModel('off'),
+      ),
+    ).toBeUndefined();
+  });
+
+  it('百炼不生成 OpenAI 命名空间参数', () => {
+    expect(
+      buildProviderOptions(
+        createConfig(DASHSCOPE_PROVIDER_ID, true),
+        createModel('high'),
       ),
     ).toBeUndefined();
   });

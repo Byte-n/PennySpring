@@ -24,16 +24,34 @@ export const TITLE_MAX_LENGTH = 30;
 
 export const THINKING_TEXT = '正在思考…';
 
+export const THINKING_LABEL = '思考过程';
+
 export const QUERY_RECORDS_TOOL_NAME = 'queryRecords';
+export const CREATE_RECORD_TOOL_NAME = 'createRecord';
+
+const TOOL_LABELS: Record<string, string> = {
+  queryRecords: '账本数据',
+  listTypes: '类型清单',
+  listTags: '标签清单',
+  listAssets: '资产清单',
+  createRecord: '记账',
+};
+
+function toolLabel(toolName: string): string {
+  return TOOL_LABELS[toolName] ?? '工具';
+}
 
 export function toolStatusText(toolName: string, isDone: boolean): string {
-  const label =
-    toolName === QUERY_RECORDS_TOOL_NAME ? '账本数据' : '工具';
+  if (toolName === CREATE_RECORD_TOOL_NAME) {
+    return isDone ? '已记账' : '正在记账…';
+  }
+  const label = toolLabel(toolName);
   return isDone ? `已查询${label}` : `正在查询${label}…`;
 }
 
 export function toolErrorText(toolName: string): string {
-  const label =
-    toolName === QUERY_RECORDS_TOOL_NAME ? '账本数据' : '工具';
-  return `查询${label}失败，请稍后再试。`;
+  if (toolName === CREATE_RECORD_TOOL_NAME) {
+    return '记账失败，请稍后再试。';
+  }
+  return `查询${toolLabel(toolName)}失败，请稍后再试。`;
 }

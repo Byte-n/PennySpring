@@ -1,5 +1,7 @@
 import type { ReadableStream } from 'web-streams-polyfill';
 
+import { agentDebugLog } from '../core/debug';
+
 const DEFAULT_TIMEOUT_MS = 120_000;
 const BODY_EXCERPT_LIMIT = 200;
 
@@ -216,10 +218,18 @@ export function createXhrFetch(timeoutMs: number = DEFAULT_TIMEOUT_MS): typeof f
         return;
       }
       responseResolved = true;
+      agentDebugLog('xhr', 'response', {
+        readyState: xhr.readyState,
+        status: xhr.status,
+      });
       resolveResponse.resolve(buildResponse());
     };
 
     xhr.onprogress = () => {
+      agentDebugLog('xhr', 'progress', {
+        readyState: xhr.readyState,
+        length: (xhr.responseText ?? '').length,
+      });
       enqueueIncrementalText();
     };
 
@@ -228,12 +238,17 @@ export function createXhrFetch(timeoutMs: number = DEFAULT_TIMEOUT_MS): typeof f
         responseResolved = true;
         resolveResponse.resolve(buildResponse());
       }
+      agentDebugLog('xhr', 'load', {
+        status: xhr.status,
+        length: (xhr.responseText ?? '').length,
+      });
       closeStream();
       completion.resolve();
     };
 
     xhr.onerror = () => {
       const error = new Error(`网络请求失败：${errorExcerpt(xhr.statusText)}`);
+      agentDebugLog('xhr', 'error', { message: error.message });
       if (!responseResolved) {
         resolveResponse.reject(error);
       }
@@ -242,6 +257,7 @@ export function createXhrFetch(timeoutMs: number = DEFAULT_TIMEOUT_MS): typeof f
 
     xhr.ontimeout = () => {
       const error = createTimeoutError();
+      agentDebugLog('xhr', 'timeout');
       if (!responseResolved) {
         resolveResponse.reject(error);
       }
@@ -250,6 +266,7 @@ export function createXhrFetch(timeoutMs: number = DEFAULT_TIMEOUT_MS): typeof f
 
     xhr.onabort = () => {
       const error = createAbortError();
+      agentDebugLog('xhr', 'abort');
       if (!responseResolved) {
         resolveResponse.reject(error);
       }

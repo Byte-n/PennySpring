@@ -23,6 +23,7 @@
     "postinstall": "patch-package"
   },
   "dependencies": {
+    "@ai-sdk/alibaba": "2.0.80",
     "@ai-sdk/openai": "4.0.104",
     "@ai-sdk/openai-compatible": "3.0.80",
     "@assistant-ui/ai-sdk": "0.0.16",

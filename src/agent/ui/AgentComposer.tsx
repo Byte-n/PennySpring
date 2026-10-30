@@ -37,6 +37,7 @@ import {
 } from '../providers/modelSelectionStore';
 import { appendTranscript } from '../voice/transcript';
 import { useVoiceInput } from '../voice/useVoiceInput';
+import { hasPendingToolApproval } from './approval';
 import { VoiceButton } from './VoiceButton';
 import {
   AGENT_IMAGE_PICK_FAILED_MESSAGE,
@@ -125,6 +126,9 @@ export function AgentComposer({
   const text = useAuiState(state => state.composer.text);
   const canSend = useAuiState(state => state.composer.canSend);
   const isRunning = useAuiState(state => state.thread.isRunning);
+  const hasPendingApproval = useAuiState(state =>
+    hasPendingToolApproval(state.thread.messages),
+  );
 
   const providers = useAgentProviderStore(state => state.providers);
   const activeProviderId = useAgentProviderStore(
@@ -159,7 +163,9 @@ export function AgentComposer({
   const hasStagedImages = pendingImages.length > 0;
   const hasDraftText = text.trim().length > 0;
   const canSubmit =
-    !isRunning && (hasDraftText ? canSend : hasStagedImages);
+    !isRunning &&
+    !hasPendingApproval &&
+    (hasDraftText ? canSend : hasStagedImages);
 
   useEffect(() => {
     if (canAttachImage) {
@@ -243,7 +249,10 @@ export function AgentComposer({
     }
 
     if (!isMultimodalModel(currentModel)) {
-      toast.show({ messageText: AGENT_MODEL_NO_IMAGE_MESSAGE, status: 'error' });
+      toast.show({
+        messageText: AGENT_MODEL_NO_IMAGE_MESSAGE,
+        status: 'error',
+      });
       return;
     }
 
@@ -269,17 +278,18 @@ export function AgentComposer({
     setImagePickerOpen(false);
     setPendingImages([]);
     aui.composer.setText('', { origin: 'user' });
-    aiChat
-      .sendMessage({ text: nextText, files })
-      .catch(error => {
-        toast.show({ messageText: getErrorMessage(error), status: 'error' });
-      });
+    aiChat.sendMessage({ text: nextText, files }).catch(error => {
+      toast.show({ messageText: getErrorMessage(error), status: 'error' });
+    });
   }, [aiChat, aui, canSubmit, currentModel, pendingImages, text, toast]);
 
   const handleOpenImagePicker = useCallback((): void => {
     setPlusMenuOpen(false);
     if (!canAttachImage) {
-      toast.show({ messageText: AGENT_MODEL_NO_IMAGE_MESSAGE, status: 'error' });
+      toast.show({
+        messageText: AGENT_MODEL_NO_IMAGE_MESSAGE,
+        status: 'error',
+      });
       return;
     }
     Keyboard.dismiss();
@@ -324,6 +334,11 @@ export function AgentComposer({
             {`× ${pendingImages.length}`}
           </Text>
         </Pressable>
+      ) : null}
+      {hasPendingApproval ? (
+        <Text color="warningText" size="xs" testID="agent-approval-pending">
+          请先确认或取消待处理的记账
+        </Text>
       ) : null}
       <Row gap="small" align="end">
         {provider ? (

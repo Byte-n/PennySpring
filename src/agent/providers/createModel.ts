@@ -1,4 +1,5 @@
 import type { LanguageModel } from 'ai';
+import { createAlibaba } from '@ai-sdk/alibaba';
 import { createOpenAI } from '@ai-sdk/openai';
 import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 
@@ -16,6 +17,14 @@ export function createProviderModel(
   const descriptor = requireProviderDescriptor(config.descriptorId);
   const baseURL = config.baseUrl;
   const key = apiKey.trim() || undefined;
+
+  if (descriptor.apiKind === 'alibaba') {
+    return createAlibaba({
+      baseURL,
+      apiKey: key,
+      fetch: agentFetch,
+    })(modelId);
+  }
 
   if (descriptor.apiKind === 'openai-compatible') {
     return createOpenAICompatible({

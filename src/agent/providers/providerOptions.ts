@@ -23,6 +23,10 @@ export function buildProviderOptions(
   const descriptor = requireProviderDescriptor(config.descriptorId);
   const reasoningEffort = reasoningEffortOf(model);
 
+  if (descriptor.apiKind === 'alibaba') {
+    return undefined;
+  }
+
   if (descriptor.apiKind === 'openai-compatible') {
     return reasoningEffort
       ? { openaiCompatible: { reasoningEffort } }

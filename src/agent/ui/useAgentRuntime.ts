@@ -1,24 +1,18 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import type { UIMessage } from 'ai';
-import { useChatRuntime } from '@assistant-ui/ai-sdk';
 import {
-  useAuiState,
-  type AssistantRuntime,
-} from '@assistant-ui/react-native';
+  lastAssistantMessageIsCompleteWithApprovalResponses,
+  type UIMessage,
+} from 'ai';
+import { useChatRuntime } from '@assistant-ui/ai-sdk';
+import { useAuiState, type AssistantRuntime } from '@assistant-ui/react-native';
 import type { BookRow } from '@pennyspring/api';
 
 import { useGlobalApi } from '../../stores/bookStore';
 import { EMPTY_USAGE } from '../core/messages';
 import type { TokenUsage } from '../core/types';
-import {
-  hasUiMessageContent,
-  toPersistedUiInput,
-} from '../core/uiMessages';
+import { hasUiMessageContent, toPersistedUiInput } from '../core/uiMessages';
 import { createAgentTransport } from './agentTransport';
-import {
-  EMPTY_REPLY_MESSAGE,
-  PARTIAL_SAVE_FAILED_MESSAGE,
-} from './copy';
+import { EMPTY_REPLY_MESSAGE, PARTIAL_SAVE_FAILED_MESSAGE } from './copy';
 import { getErrorMessage, isAbortedError } from './errorMessage';
 import type { AgentSessionState } from './useAgentSession';
 
@@ -81,11 +75,7 @@ export function useAgentRuntime({
   );
 
   const finishRun = useCallback(
-    async ({
-      message,
-      isAbort,
-      isError,
-    }: FinishRunOptions): Promise<void> => {
+    async ({ message, isAbort, isError }: FinishRunOptions): Promise<void> => {
       const usage = usageRef.current;
       usageRef.current = EMPTY_USAGE;
 
@@ -118,6 +108,7 @@ export function useAgentRuntime({
     id: `agent-thread-${threadId}`,
     messages: initialMessages,
     transport,
+    sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithApprovalResponses,
     onFinish: options => {
       finishRun(options).catch(() => undefined);
     },

@@ -12,6 +12,7 @@ import {
   useAgentProviderStore,
 } from '../../src/agent/providers/configStore';
 import {
+  DASHSCOPE_PROVIDER_ID,
   getProviderDescriptor,
   OPENAI_COMPATIBLE_PROVIDER_ID,
   OPENAI_RESPONSES_PROVIDER_ID,
@@ -26,14 +27,18 @@ import {
 import type { AgentProviderConfig } from '../../src/agent/providers/types';
 
 describe('provider catalog', () => {
-  it('提供 Responses、Chat 与兼容接口三个描述', () => {
+  it('提供 Responses、Chat、百炼与兼容接口四个描述', () => {
     expect(PROVIDER_DESCRIPTORS.map(item => item.apiKind)).toEqual([
       'responses',
       'chat',
+      'alibaba',
       'openai-compatible',
     ]);
     expect(getProviderDescriptor(OPENAI_RESPONSES_PROVIDER_ID)?.defaultBaseUrl).toBe(
       'https://api.openai.com/v1',
+    );
+    expect(getProviderDescriptor(DASHSCOPE_PROVIDER_ID)?.defaultBaseUrl).toBe(
+      'https://dashscope.aliyuncs.com/compatible-mode/v1',
     );
     expect(getProviderDescriptor('missing')).toBeUndefined();
   });
