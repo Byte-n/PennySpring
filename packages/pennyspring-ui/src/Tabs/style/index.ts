@@ -50,6 +50,7 @@ export const useStyles = createUseSheetStyle(
     return {
       root: {
         alignSelf: block ? 'stretch' : 'flex-start',
+        backgroundColor: token.colorBgContainer,
         width: block ? '100%' : undefined,
       },
       tabList: {
@@ -72,7 +73,8 @@ export const useStyles = createUseSheetStyle(
         position: 'relative',
       },
       tabBlock: {
-        flex: 1,
+        flexBasis: 'auto',
+        flexGrow: 1,
       },
       tabPressed: {
         backgroundColor: token.colorFillTertiary,

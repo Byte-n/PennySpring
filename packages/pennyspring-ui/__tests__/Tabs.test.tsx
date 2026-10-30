@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text as RNText } from 'react-native';
+import { StyleSheet, Text as RNText } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
 import { Tabs } from '../src/Tabs';
 import { Text } from '../src/Text';
@@ -28,6 +28,15 @@ function pressByValue(testRenderer: renderer.ReactTestRenderer, value: string | 
     target.props.onPress();
   });
   return target;
+}
+function getTabStyle(testRenderer: renderer.ReactTestRenderer, value: string | number) {
+  const host = testRenderer.root
+    .findAllByProps({ testID: `tabs-item-${String(value)}` })
+    .find(instance => typeof instance.type === 'string');
+  const style = host?.props.style;
+  return StyleSheet.flatten(
+    typeof style === 'function' ? style({ pressed: false }) : style,
+  );
 }
 describe('Tabs', () => {
   it('renders tab labels from items', () => {
@@ -269,6 +278,18 @@ describe('Tabs', () => {
       );
 
       expect(labelText!.props.color).toBe('quaternary');
+    });
+  });
+
+  describe('block layout', () => {
+    it('sizes block tabs from label content instead of splitting the row evenly', () => {
+      const testRenderer = renderTabs({ block: true });
+      const tabStyle = getTabStyle(testRenderer, 'records');
+
+      expect(tabStyle!.flexGrow).toBe(1);
+      expect(tabStyle!.flexBasis).toBe('auto');
+      expect(tabStyle!.flexShrink).toBe(0);
+      expect(tabStyle!.flex).toBeUndefined();
     });
   });
 });

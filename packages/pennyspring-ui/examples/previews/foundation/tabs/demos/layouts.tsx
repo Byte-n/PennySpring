@@ -41,7 +41,7 @@ export function TabsLayoutsDemo() {
       </Text>
       <Tabs defaultValue="all" items={SCROLL_ITEMS} layout="scroll" />
       <Text color="tertiary" size="sm">
-        block：item 等分整行，文字不换行
+        block：标签保持内容宽，剩余空间均分铺满整行；放不下时整项换行
       </Text>
       <Tabs block defaultValue="income" items={BLOCK_ITEMS} />
       <Text color="tertiary" size="sm">
