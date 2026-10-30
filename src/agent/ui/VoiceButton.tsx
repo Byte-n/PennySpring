@@ -4,6 +4,9 @@ import { MicrophoneIcon } from 'phosphor-react-native';
 
 import type { VoiceInputStatus } from '../voice/useVoiceInput';
 
+const CONTROL_HIT_SLOP = 6;
+const CONTROL_ICON_SIZE = 18;
+
 const ACTIVE_STATUS_TEXT: Record<Exclude<VoiceInputStatus, 'idle'>, string> = {
   preparing: '正在准备语音识别…',
   listening: '正在聆听，松开完成输入',
@@ -83,13 +86,18 @@ export function VoiceButton({
       <Button
         delayLongPress={250}
         disabled={disabled}
+        hitSlop={CONTROL_HIT_SLOP}
         icon={MicrophoneIcon}
+        iconProps={{
+          color: isActive ? 'lightSolid' : 'secondary',
+          size: CONTROL_ICON_SIZE,
+        }}
         onLongPress={handleLongPress}
         onPressOut={handlePressOut}
         shape="circle"
         size="small"
         testID="agent-voice-button"
-        type={isActive ? 'primary' : 'default'}
+        type={isActive ? 'primary' : 'text'}
       />
     </Popover>
   );

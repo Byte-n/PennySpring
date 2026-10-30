@@ -20,7 +20,9 @@ import type { AgentProviderConfig } from '../../src/agent/providers/types';
 
 jest.mock('@pennyspring/theme', () => ({
   createUseSheetStyle: () => () => ({}),
-  useTheme: () => ({ token: {} }),
+  useTheme: () => ({
+    token: { motionEaseInOut: [0.645, 0.045, 0.355, 1] },
+  }),
 }));
 
 jest.mock('../../src/stores/bookStore', () => {
@@ -577,6 +579,23 @@ describe('AgentDrawer', () => {
     ).toBeGreaterThan(0);
   });
 
+  it('renders no approval hint in the composer', async () => {
+    const { renderer } = renderDrawer({
+      initialMessages: PENDING_RECORD_APPROVAL,
+    });
+
+    await act(async () => {
+      await flush();
+    });
+
+    expect(renderedText(renderer)).not.toContain(
+      '请先确认或取消待处理的记账',
+    );
+    expect(
+      renderer.root.findAllByProps({ testID: 'agent-approval-pending' }),
+    ).toHaveLength(0);
+  });
+
   it('keeps the approved record card in restored history', async () => {
     const { renderer } = renderDrawer({
       initialMessages: COMPLETED_RECORD_APPROVAL,
@@ -655,7 +674,7 @@ describe('AgentDrawer', () => {
     act(() => {
       renderer.root
         .findByProps({ testID: 'agent-input' })
-        .props.onChange('  上个月吃饭花了多少？  ');
+        .props.onChangeText('  上个月吃饭花了多少？  ');
     });
 
     const sendButton = renderer.root.findByProps({
@@ -822,7 +841,7 @@ describe('AgentDrawer', () => {
         .props.onPress();
     });
 
-    expect(renderedText(renderer)).toContain('× 1');
+    expect(renderedText(renderer)).toContain('1 / 4');
 
     act(() => {
       renderer.root
@@ -840,6 +859,62 @@ describe('AgentDrawer', () => {
     ).toHaveLength(0);
   });
 
+  it('removes a single staged image', () => {
+    const provider: AgentProviderConfig = {
+      id: 'provider-1',
+      descriptorId: 'openai-compatible',
+      name: '测试',
+      baseUrl: 'https://api.example.com/v1',
+      defaultModelId: 'model-vision',
+      models: [
+        {
+          modelId: 'model-vision',
+          contextWindow: 128_000,
+          reasoningEffort: 'off',
+          multimodal: true,
+        },
+      ],
+      storeResponses: true,
+      createdAt: 0,
+      updatedAt: 0,
+    };
+    useAgentProviderStore.setState({
+      providers: [provider],
+      activeProviderId: provider.id,
+    });
+
+    const { renderer } = renderDrawer();
+
+    act(() => {
+      renderer.root
+        .findByProps({ testID: 'agent-plus-button' })
+        .props.onPress();
+    });
+    act(() => {
+      renderer.root
+        .findByProps({ testID: 'agent-composer-image-option' })
+        .props.onPress();
+    });
+    act(() => {
+      renderer.root
+        .findByProps({ testID: 'mock-image-picker-popup' })
+        .props.onPress();
+    });
+
+    expect(renderedText(renderer)).toContain('1 / 4');
+
+    act(() => {
+      renderer.root
+        .findByProps({ testID: 'agent-image-remove-0' })
+        .props.onPress();
+    });
+
+    expect(renderedText(renderer)).not.toContain('1 / 4');
+    expect(
+      renderer.root.findAllByProps({ testID: 'agent-image-staging-bar' }),
+    ).toHaveLength(0);
+  });
+
   it('shows thinking and stops the run while responding', async () => {
     let signal: AbortSignal | undefined;
     const { renderer } = renderDrawer({
@@ -849,7 +924,7 @@ describe('AgentDrawer', () => {
     });
 
     act(() => {
-      renderer.root.findByProps({ testID: 'agent-input' }).props.onChange(
+      renderer.root.findByProps({ testID: 'agent-input' }).props.onChangeText(
         '本月支出按类型统计',
       );
     });

@@ -12,7 +12,6 @@ import {
   Popover,
   Row,
   Text,
-  Textarea,
   useToast,
   type ActionSheetAction,
   type ImagePickerValue,
@@ -38,6 +37,9 @@ import {
 import { appendTranscript } from '../voice/transcript';
 import { useVoiceInput } from '../voice/useVoiceInput';
 import { hasPendingToolApproval } from './approval';
+import { ComposerAttachments } from './ComposerAttachments';
+import { ComposerInput } from './ComposerInput';
+import { ComposerRunningProgress } from './ComposerRunningProgress';
 import { VoiceButton } from './VoiceButton';
 import {
   AGENT_IMAGE_PICK_FAILED_MESSAGE,
@@ -54,72 +56,114 @@ import {
 } from './imageAttachments';
 
 const PLUS_MENU_MIN_WIDTH = 140;
+const MODEL_CHIP_MAX_WIDTH = 132;
+const MODEL_CHIP_HEIGHT = 28;
+const MODEL_CHIP_HIT_SLOP = 8;
+const CONTROL_HIT_SLOP = 6;
+const SEND_BUTTON_SIZE = 36;
+const SEND_BUTTON_HIT_SLOP = 4;
+const PILL_RADIUS = 999;
+const PRESS_SCALE = 0.97;
+
+interface ComposerStyleOptions {
+  isFocused: boolean;
+}
+
+const useStyles = createUseSheetStyle<ComposerStyleOptions>(
+  (token, { isFocused }) => ({
+    composer: {
+      borderTopColor: token.colorSplit,
+      borderTopWidth: token.lineWidth,
+      paddingBottom: token.padding,
+      paddingHorizontal: token.padding,
+      paddingTop: token.paddingSM,
+    },
+    card: {
+      position: 'relative' as const,
+      backgroundColor: isFocused
+        ? token.colorBgElevated
+        : token.colorFillTertiary,
+      borderColor: isFocused ? token.colorPrimary : 'transparent',
+      borderRadius: token.borderRadiusLG,
+      borderWidth: token.lineWidth,
+      paddingHorizontal: token.paddingSM,
+      paddingVertical: token.paddingXS,
+    },
+    toolbar: {
+      marginTop: token.marginXS,
+      minHeight: SEND_BUTTON_SIZE,
+    },
+    toolLeft: {
+      flexShrink: 1,
+    },
+    toolRight: {
+      flexShrink: 0,
+    },
+    modelChip: {
+      alignItems: 'center' as const,
+      backgroundColor: 'transparent',
+      borderRadius: PILL_RADIUS,
+      flexDirection: 'row' as const,
+      flexShrink: 1,
+      gap: token.marginXXS,
+      height: MODEL_CHIP_HEIGHT,
+      maxWidth: MODEL_CHIP_MAX_WIDTH,
+      paddingHorizontal: token.paddingXS,
+    },
+    modelChipPressed: {
+      backgroundColor: token.colorFillContent,
+    },
+    modelChipLabel: {
+      flexShrink: 1,
+    },
+    sendButton: {
+      width: SEND_BUTTON_SIZE,
+      height: SEND_BUTTON_SIZE,
+    },
+    sendDisabled: {
+      backgroundColor: token.colorFillContent,
+    },
+    stopButton: {
+      alignItems: 'center' as const,
+      justifyContent: 'center' as const,
+      width: SEND_BUTTON_SIZE,
+      height: SEND_BUTTON_SIZE,
+      backgroundColor: token.colorFillContent,
+      borderRadius: PILL_RADIUS,
+    },
+    stopButtonPressed: {
+      backgroundColor: token.colorFillContentHover,
+      transform: [{ scale: PRESS_SCALE }],
+    },
+    plusMenu: {
+      minWidth: PLUS_MENU_MIN_WIDTH,
+    },
+    plusMenuItem: {
+      alignItems: 'center',
+      borderRadius: token.borderRadius,
+      flexDirection: 'row',
+      gap: token.marginXS,
+      minHeight: token.controlHeight,
+      paddingHorizontal: token.paddingXS,
+    },
+    plusMenuItemPressed: {
+      backgroundColor: token.colorFillContent,
+    },
+    plusMenuLabel: {
+      flex: 1,
+    },
+  }),
+);
 
 export interface AgentComposerProps {
   threadId: number | null;
-  onOpenModelSettings: () => void;
+  onOpenModelSettings: (providerId?: string) => void;
 }
-
-const useStyles = createUseSheetStyle(token => ({
-  composer: {
-    borderTopColor: token.colorBorderSecondary,
-    borderTopWidth: token.lineWidth,
-    paddingBottom: token.padding,
-    paddingHorizontal: token.padding,
-    paddingTop: token.paddingSM,
-  },
-  inputWrap: {
-    flex: 1,
-  },
-  modelChip: {
-    backgroundColor: token.colorFillContent,
-    borderRadius: token.borderRadiusSM,
-    flexShrink: 1,
-    justifyContent: 'center',
-    paddingHorizontal: token.paddingXS,
-    paddingVertical: token.paddingXXS,
-  },
-  modelChipPressed: {
-    backgroundColor: token.colorFillContentHover,
-  },
-  imageBar: {
-    alignItems: 'center',
-    alignSelf: 'flex-start',
-    backgroundColor: token.colorFillContent,
-    borderRadius: token.borderRadiusSM,
-    flexDirection: 'row',
-    gap: token.marginXXS,
-    marginBottom: token.marginXXS,
-    minHeight: token.controlHeightSM,
-    paddingHorizontal: token.paddingXS,
-  },
-  imageBarPressed: {
-    backgroundColor: token.colorFillContentHover,
-  },
-  plusMenu: {
-    minWidth: PLUS_MENU_MIN_WIDTH,
-  },
-  plusMenuItem: {
-    alignItems: 'center',
-    borderRadius: token.borderRadius,
-    flexDirection: 'row',
-    gap: token.marginXS,
-    minHeight: token.controlHeight,
-    paddingHorizontal: token.paddingXS,
-  },
-  plusMenuItemPressed: {
-    backgroundColor: token.colorFillContent,
-  },
-  plusMenuLabel: {
-    flex: 1,
-  },
-}));
 
 export function AgentComposer({
   threadId,
   onOpenModelSettings,
 }: AgentComposerProps): React.ReactElement {
-  const styles = useStyles();
   const toast = useToast();
   const aui = useAui();
   const aiChat = useAISDKChat<UIMessage>();
@@ -137,18 +181,26 @@ export function AgentComposer({
   const selection = useThreadModelStore(state =>
     threadId === null ? undefined : state.selections[String(threadId)],
   );
+  const [isInputFocused, setIsInputFocused] = useState(false);
   const [modelSheetOpen, setModelSheetOpen] = useState(false);
   const [plusMenuOpen, setPlusMenuOpen] = useState(false);
   const [imagePickerOpen, setImagePickerOpen] = useState(false);
   const [pendingImages, setPendingImages] = useState<ImagePickerValue[]>([]);
+  const styles = useStyles({ isFocused: isInputFocused });
 
-  const provider = useMemo(
-    () =>
+  const provider = useMemo(() => {
+    if (selection) {
+      const selected = providers.find(item => item.id === selection.providerId);
+      if (selected) {
+        return selected;
+      }
+    }
+    return (
       providers.find(item => item.id === activeProviderId) ??
       providers[0] ??
-      null,
-    [activeProviderId, providers],
-  );
+      null
+    );
+  }, [activeProviderId, providers, selection]);
 
   const currentModel = useMemo(() => {
     if (provider === null) {
@@ -162,10 +214,6 @@ export function AgentComposer({
   const canAttachImage = isMultimodalModel(currentModel);
   const hasStagedImages = pendingImages.length > 0;
   const hasDraftText = text.trim().length > 0;
-  const canSubmit =
-    !isRunning &&
-    !hasPendingApproval &&
-    (hasDraftText ? canSend : hasStagedImages);
 
   useEffect(() => {
     if (canAttachImage) {
@@ -203,7 +251,7 @@ export function AgentComposer({
         return;
       }
       if (index === provider.models.length) {
-        onOpenModelSettings();
+        onOpenModelSettings(provider.id);
         return;
       }
       const model = provider.models[index];
@@ -230,6 +278,13 @@ export function AgentComposer({
       toast.show({ messageText: message, status: 'error' });
     },
   });
+
+  const isVoiceActive = voice.status !== 'idle';
+  const canSubmit =
+    !isRunning &&
+    !hasPendingApproval &&
+    !isVoiceActive &&
+    (hasDraftText ? canSend : hasStagedImages);
 
   const handleChange = useCallback(
     (value: string): void => {
@@ -296,9 +351,10 @@ export function AgentComposer({
     setImagePickerOpen(true);
   }, [canAttachImage, toast]);
 
-  const handleOpenStagedImages = useCallback((): void => {
-    Keyboard.dismiss();
-    setImagePickerOpen(true);
+  const handleRemoveImage = useCallback((index: number): void => {
+    setPendingImages(previous =>
+      previous.filter((_image, currentIndex) => currentIndex !== index),
+    );
   }, []);
 
   const handleImagePickError = useCallback(
@@ -320,128 +376,142 @@ export function AgentComposer({
 
   return (
     <Column style={styles.composer}>
-      {hasStagedImages ? (
-        <Pressable
-          onPress={handleOpenStagedImages}
-          style={({ pressed }) => [
-            styles.imageBar,
-            pressed ? styles.imageBarPressed : undefined,
-          ]}
-          testID="agent-image-staging-bar"
-        >
-          <Icon color="primary" icon="image" size="small" weight="fill" />
-          <Text color="secondary" size="xs">
-            {`× ${pendingImages.length}`}
-          </Text>
-        </Pressable>
-      ) : null}
-      {hasPendingApproval ? (
-        <Text color="warningText" size="xs" testID="agent-approval-pending">
-          请先确认或取消待处理的记账
-        </Text>
-      ) : null}
-      <Row gap="small" align="end">
-        {provider ? (
-          <Pressable
-            onPress={() => setModelSheetOpen(true)}
-            style={({ pressed }) => [
-              styles.modelChip,
-              pressed ? styles.modelChipPressed : undefined,
-            ]}
-            testID="agent-model-chip"
-          >
-            <Text color="secondary" numberOfLines={1} size="xs">
-              {currentModel?.modelId ?? '未配置模型'}
-            </Text>
-          </Pressable>
+      <Column style={styles.card}>
+        {isRunning ? <ComposerRunningProgress /> : null}
+        {hasStagedImages ? (
+          <ComposerAttachments
+            canAdd={
+              canAttachImage &&
+              pendingImages.length < AGENT_MAX_IMAGE_ATTACHMENTS
+            }
+            images={pendingImages}
+            maxCount={AGENT_MAX_IMAGE_ATTACHMENTS}
+            onAdd={handleOpenImagePicker}
+            onRemove={handleRemoveImage}
+          />
         ) : null}
-        <Column style={styles.inputWrap}>
-          <Textarea
-            maxRows={4}
-            minRows={1}
-            onChange={handleChange}
-            placeholder="问问这个月的开销…"
-            size="small"
-            testID="agent-input"
-            value={text}
-          />
-        </Column>
-        <Popover
-          align="end"
-          content={
-            <Column style={styles.plusMenu}>
-              <Pressable
-                disabled={!canAttachImage}
-                onPress={handleOpenImagePicker}
-                style={({ pressed }) => [
-                  styles.plusMenuItem,
-                  pressed ? styles.plusMenuItemPressed : undefined,
-                ]}
-                testID="agent-composer-image-option"
-              >
-                <Icon
-                  color={canAttachImage ? 'primary' : 'tertiary'}
-                  icon="image"
-                  size="normal"
-                />
-                <Column style={styles.plusMenuLabel}>
-                  <Text
-                    color={canAttachImage ? 'default' : 'tertiary'}
-                    size="sm"
-                  >
-                    图片
-                  </Text>
-                  {canAttachImage ? null : (
-                    <Text color="tertiary" size="xs">
-                      当前模型不支持
-                    </Text>
-                  )}
-                </Column>
-              </Pressable>
-            </Column>
-          }
-          onOpenChange={setPlusMenuOpen}
-          open={plusMenuOpen}
-          placement="top"
-          trigger="manual"
-        >
-          <Button
-            icon="plus"
-            onPress={() => setPlusMenuOpen(previous => !previous)}
-            shape="circle"
-            size="small"
-            testID="agent-plus-button"
-            type="text"
-          />
-        </Popover>
-        <VoiceButton
-          disabled={isRunning}
-          onStart={voice.start}
-          onStop={voice.stop}
-          partialText={voice.partialText}
-          status={voice.status}
+        <ComposerInput
+          onBlur={() => setIsInputFocused(false)}
+          onChangeText={handleChange}
+          onFocus={() => setIsInputFocused(true)}
+          placeholder="记一笔，或问这个月的开销"
+          testID="agent-input"
+          value={text}
         />
-        {isRunning ? (
-          <Button
-            icon={StopIcon}
-            onPress={handleStop}
-            shape="circle"
-            size="small"
-            testID="agent-stop-button"
-            type="default"
-          />
-        ) : (
-          <Button
-            disabled={!canSubmit}
-            icon={PaperPlaneTiltIcon}
-            onPress={handleSend}
-            shape="circle"
-            size="small"
-            testID="agent-send-button"
-            type="primary"
-          />
-        )}
-      </Row>
+        <Row align="center" justify="between" style={styles.toolbar}>
+          <Row align="center" gap="small" style={styles.toolLeft}>
+            <Popover
+              align="end"
+              content={
+                <Column style={styles.plusMenu}>
+                  <Pressable
+                    disabled={!canAttachImage}
+                    onPress={handleOpenImagePicker}
+                    style={({ pressed }) => [
+                      styles.plusMenuItem,
+                      pressed ? styles.plusMenuItemPressed : undefined,
+                    ]}
+                    testID="agent-composer-image-option"
+                  >
+                    <Icon
+                      color={canAttachImage ? 'primary' : 'tertiary'}
+                      icon="image"
+                      size="normal"
+                    />
+                    <Column style={styles.plusMenuLabel}>
+                      <Text
+                        color={canAttachImage ? 'default' : 'tertiary'}
+                        size="sm"
+                      >
+                        图片
+                      </Text>
+                      <Text color="tertiary" size="xs">
+                        {canAttachImage ? '从相册或相机选择' : '当前模型不支持'}
+                      </Text>
+                    </Column>
+                  </Pressable>
+                </Column>
+              }
+              onOpenChange={setPlusMenuOpen}
+              open={plusMenuOpen}
+              placement="top"
+              trigger="manual"
+            >
+              <Button
+                hitSlop={CONTROL_HIT_SLOP}
+                icon="plus"
+                iconProps={{ color: 'secondary', size: 18 }}
+                onPress={() => setPlusMenuOpen(previous => !previous)}
+                shape="circle"
+                size="small"
+                testID="agent-plus-button"
+                type="text"
+              />
+            </Popover>
+            {provider ? (
+              <Pressable
+                hitSlop={{
+                  top: MODEL_CHIP_HIT_SLOP,
+                  bottom: MODEL_CHIP_HIT_SLOP,
+                }}
+                onPress={() => setModelSheetOpen(true)}
+                style={({ pressed }) => [
+                  styles.modelChip,
+                  pressed ? styles.modelChipPressed : undefined,
+                ]}
+                testID="agent-model-chip"
+              >
+                <Text
+                  color="tertiary"
+                  numberOfLines={1}
+                  size="xs"
+                  style={styles.modelChipLabel}
+                >
+                  {currentModel?.modelId ?? '未配置模型'}
+                </Text>
+                <Icon color="tertiary" icon="caret-down" size={12} />
+              </Pressable>
+            ) : null}
+          </Row>
+          <Row align="center" gap="small" style={styles.toolRight}>
+            <VoiceButton
+              disabled={isRunning}
+              onStart={voice.start}
+              onStop={voice.stop}
+              partialText={voice.partialText}
+              status={voice.status}
+            />
+            {isRunning ? (
+              <Pressable
+                hitSlop={SEND_BUTTON_HIT_SLOP}
+                onPress={handleStop}
+                style={({ pressed }) => [
+                  styles.stopButton,
+                  pressed ? styles.stopButtonPressed : undefined,
+                ]}
+                testID="agent-stop-button"
+              >
+                <Icon color="default" icon={StopIcon} size={16} />
+              </Pressable>
+            ) : (
+              <Button
+                disabled={!canSubmit}
+                hitSlop={SEND_BUTTON_HIT_SLOP}
+                icon={PaperPlaneTiltIcon}
+                onPress={handleSend}
+                shape="circle"
+                size="small"
+                style={[
+                  styles.sendButton,
+                  canSubmit ? undefined : styles.sendDisabled,
+                ]}
+                testID="agent-send-button"
+                type="primary"
+              />
+            )}
+          </Row>
+        </Row>
+      </Column>
       <ActionSheet
         actions={modelActions}
         onAction={handleModelAction}

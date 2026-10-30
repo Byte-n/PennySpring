@@ -64,6 +64,7 @@ jest.mock('react-native-reanimated', () => {
     cancelAnimation: jest.fn(),
     runOnJS: jest.fn(fn => fn),
     withDelay: (_delay, value) => value,
+    withRepeat: animation => animation,
     withTiming: jest.fn((value, _config, callback) => {
       if (typeof callback === 'function') {
         callback(true);
