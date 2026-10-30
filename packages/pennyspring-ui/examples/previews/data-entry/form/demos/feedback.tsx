@@ -16,12 +16,13 @@ function renderRemarkError(message: string) {
 export const formFeedbackDemoTitle = '校验反馈';
 
 export function FormFeedbackDemo() {
-  const form = TypedForm.useForm({
-    defaultValues: { amount: '', nickname: '', remark: '' },
-  });
+  const [form] = TypedForm.useForm();
 
   return (
-    <TypedForm form={form}>
+    <TypedForm
+      form={form}
+      initialValues={{ amount: '', nickname: '', remark: '' }}
+    >
       <Text color="description" size="sm">
         required 在未传 rules 时自动校验；extra 展示说明，errorRender
         自定义错误内容，noStyle 字段仍会渲染错误。

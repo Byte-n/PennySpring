@@ -1,9 +1,9 @@
 import React from 'react';
-import { TextInput } from 'react-native';
+import { StyleSheet, TextInput } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
 import { DisplayInput } from '../src/DisplayInput';
 import { Input } from '../src/Input';
-import { Form, FormItemScope } from '../src/Form';
+import { Form } from '../src/Form';
 import { Text } from '../src/Text';
 import type { FormItemProps } from '../src/Form';
 import type { ReactNode } from 'react';
@@ -35,17 +35,19 @@ interface HarnessProps {
 }
 
 function renderHarness({ children, itemProps, formProps }: HarnessProps) {
-  let formApi: ReturnType<typeof useForm> | undefined;
+  let formApi: ReturnType<typeof useForm>[0] | undefined;
 
   function Harness() {
-    const form = useForm({
-      defaultValues: { amount: 0, name: '', remark: '' },
-    });
+    const [form] = useForm();
 
     formApi = form;
 
     return (
-      <TypedForm form={form} {...formProps}>
+      <TypedForm
+        form={form}
+        initialValues={{ amount: 0, name: '', remark: '' }}
+        {...formProps}
+      >
         <FormItem name="remark" labelText="备注" {...itemProps}>
           {children}
         </FormItem>
@@ -209,6 +211,31 @@ describe('Form labelMode', () => {
     expect(countTestId(testRenderer, 'form-item-label-column')).toBe(1);
     expect(countTestId(testRenderer, 'form-item-content')).toBe(1);
     expect(countTestId(testRenderer, 'form-item-label')).toBe(0);
+  });
+
+  it('uses the form labelWidth for horizontal label columns', () => {
+    const { testRenderer } = renderHarness({
+      formProps: { layout: 'horizontal', labelWidth: 96 },
+      children: <Input />,
+    });
+    const labelColumn = testRenderer.root.findAll(
+      instance => instance.props.testID === 'form-item-label-column',
+    )[0];
+
+    expect(StyleSheet.flatten(labelColumn.props.style).width).toBe(96);
+  });
+
+  it('prefers the item labelWidth over the form labelWidth', () => {
+    const { testRenderer } = renderHarness({
+      formProps: { layout: 'horizontal', labelWidth: 96 },
+      itemProps: { labelWidth: 120 },
+      children: <Input />,
+    });
+    const labelColumn = testRenderer.root.findAll(
+      instance => instance.props.testID === 'form-item-label-column',
+    )[0];
+
+    expect(StyleSheet.flatten(labelColumn.props.style).width).toBe(120);
   });
 });
 
@@ -449,15 +476,15 @@ describe('DisplayInput in Form', () => {
   });
 });
 
-describe('FormItemScope', () => {
+describe('Form.Item.Scope', () => {
   it('isolates nested controls from the surrounding form item', () => {
     const { testRenderer } = renderHarness({
       children: (
         <>
           <FieldProbe />
-          <FormItemScope>
+          <FormItem.Scope>
             <Input labelText="独立标签" />
-          </FormItemScope>
+          </FormItem.Scope>
         </>
       ),
     });

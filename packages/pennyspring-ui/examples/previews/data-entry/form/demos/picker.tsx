@@ -25,12 +25,13 @@ const TypedForm = Form.infer<PickerValues>();
 export const formPickerDemoTitle = '选择器与展示';
 
 export function FormPickerDemo() {
-  const form = TypedForm.useForm({
-    defaultValues: { account: [], category: '', display: '' },
-  });
+  const [form] = TypedForm.useForm();
 
   return (
-    <TypedForm form={form}>
+    <TypedForm
+      form={form}
+      initialValues={{ account: [], category: '', display: '' }}
+    >
       <TypedForm.Item
         labelText="分类"
         name="category"

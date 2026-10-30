@@ -29,25 +29,27 @@ function renderForm(
   children: ReactNode,
   formProps: Partial<React.ComponentProps<typeof TypedForm>> = {},
 ) {
-  let formApi: ReturnType<typeof useForm> | undefined;
+  let formApi: ReturnType<typeof useForm>[0] | undefined;
 
   function Harness() {
-    const form = useForm({
-      defaultValues: {
-        expression: '',
-        flag: false,
-        mode: 'a',
-        options: [],
-        pick: '',
-        choice: '',
-        count: 0,
-      },
-    });
+    const [form] = useForm();
 
     formApi = form;
 
     return (
-      <TypedForm form={form} {...formProps}>
+      <TypedForm
+        form={form}
+        initialValues={{
+          expression: '',
+          flag: false,
+          mode: 'a',
+          options: [],
+          pick: '',
+          choice: '',
+          count: 0,
+        }}
+        {...formProps}
+      >
         {children}
       </TypedForm>
     );

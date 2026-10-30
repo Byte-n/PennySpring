@@ -1,6 +1,6 @@
 const EMPTY_ERROR = undefined;
 
-function normalizeError(error: unknown): string | undefined {
+export function getErrorMessage(error: unknown): string | undefined {
   if (typeof error === 'string') {
     return error === '' ? EMPTY_ERROR : error;
   }
@@ -23,7 +23,7 @@ function normalizeError(error: unknown): string | undefined {
 
 export function getFieldErrorMessage(errors: readonly unknown[]): string | undefined {
   for (const error of errors) {
-    const message = normalizeError(error);
+    const message = getErrorMessage(error);
 
     if (message !== undefined) {
       return message;
@@ -31,4 +31,18 @@ export function getFieldErrorMessage(errors: readonly unknown[]): string | undef
   }
 
   return EMPTY_ERROR;
+}
+
+export function getFieldErrorMessages(errors: readonly unknown[]): string[] {
+  const messages: string[] = [];
+
+  for (const error of errors) {
+    const message = getErrorMessage(error);
+
+    if (message !== undefined && !messages.includes(message)) {
+      messages.push(message);
+    }
+  }
+
+  return messages;
 }

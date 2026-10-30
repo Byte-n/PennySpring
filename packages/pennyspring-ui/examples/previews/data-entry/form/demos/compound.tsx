@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Form, FormItemScope, Input, Row, Text } from '@pennyspring/ui';
+import { Button, Form, Input, Row, Text } from '@pennyspring/ui';
 
 interface CompoundValues {
   amount: number;
@@ -13,9 +13,9 @@ function MoneyField() {
 
   return (
     <Row align="center" gap="small">
-      <FormItemScope>
+      <TypedForm.Item.Scope>
         <Input readonly value={`${amount} 元`} />
-      </FormItemScope>
+      </TypedForm.Item.Scope>
       <Button
         onPress={() => {
           field.onChange?.(amount + 1);
@@ -30,12 +30,12 @@ function MoneyField() {
 export const formCompoundDemoTitle = '复合控件隔断';
 
 export function FormCompoundDemo() {
-  const form = TypedForm.useForm({ defaultValues: { amount: 0 } });
+  const [form] = TypedForm.useForm();
 
   return (
-    <TypedForm form={form}>
+    <TypedForm form={form} initialValues={{ amount: 0 }}>
       <Text color="description" size="sm">
-        复合控件内部通过 FormItemScope 隔断，内层 Input 不重复绑定字段。
+        复合控件内部通过 Form.Item.Scope 隔断，内层 Input 不重复绑定字段。
       </Text>
       <TypedForm.Item labelText="金额" name="amount">
         <MoneyField />

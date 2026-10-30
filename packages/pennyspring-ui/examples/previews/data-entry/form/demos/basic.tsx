@@ -12,12 +12,13 @@ const TypedForm = Form.infer<BasicValues>();
 export const formBasicDemoTitle = '基础用法';
 
 export function FormBasicDemo() {
-  const form = TypedForm.useForm({
-    defaultValues: { name: '', nickname: '', remark: '' },
-  });
+  const [form] = TypedForm.useForm();
 
   return (
-    <TypedForm form={form}>
+    <TypedForm
+      form={form}
+      initialValues={{ name: '', nickname: '', remark: '' }}
+    >
       <TypedForm.Item
         labelText="名称"
         name="name"

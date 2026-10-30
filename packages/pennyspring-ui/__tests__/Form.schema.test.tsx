@@ -13,26 +13,21 @@ interface SchemaValues {
 const TypedForm = Form.infer<SchemaValues>();
 const { Item: FormItem, useForm } = TypedForm;
 
-const schema = z.object({
-  remark: z.string().min(1, '表单级必填'),
-});
+const schema = z.string().min(1, '字段级必填');
 
 function renderSchemaForm(
   itemProps: Partial<FormItemProps<SchemaValues, 'remark'>> = {},
 ) {
   let testRenderer: renderer.ReactTestRenderer;
-  let formApi: ReturnType<typeof useForm> | undefined;
+  let formApi: ReturnType<typeof useForm>[0] | undefined;
 
   function Harness() {
-    const form = useForm({
-      defaultValues: { remark: '' },
-      validators: { onSubmit: schema },
-    });
+    const [form] = useForm();
 
     formApi = form;
 
     return (
-      <TypedForm form={form}>
+      <TypedForm form={form} initialValues={{ remark: '' }}>
         <FormItem labelText="备注" name="remark" {...itemProps}>
           <Input />
         </FormItem>
@@ -71,8 +66,9 @@ async function waitForText(
 }
 
 describe('Form schema validation', () => {
-  it('renders form-level schema errors inside the item after submit', async () => {
+  it('renders field-level schema errors inside the item after submit', async () => {
     const { testRenderer, getForm } = renderSchemaForm({
+      rules: schema,
       validateTrigger: 'onSubmit',
     });
 
@@ -81,7 +77,7 @@ describe('Form schema validation', () => {
     });
 
     expect(errorCount(testRenderer)).toBeGreaterThan(0);
-    expect(JSON.stringify(testRenderer.toJSON())).toContain('表单级必填');
+    expect(JSON.stringify(testRenderer.toJSON())).toContain('字段级必填');
   });
 
   it('supports async field rules', async () => {

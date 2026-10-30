@@ -1,19 +1,25 @@
 export { Form } from './Form';
 export type { BoundForm } from './Form';
 export { FormItem } from './FormItem';
-export { FormItemScope } from './FormItemScope';
-export { FormSubscribe } from './FormSubscribe';
 export type {
+  FormErrorSummaryProps,
   FormFieldProps,
   FormFieldState,
   FormFieldStatus,
+  FormFinishFailedField,
+  FormFinishFailedInfo,
   FormInstance,
   FormItemProps,
   FormItemRule,
+  FormItemRules,
   FormItemScopeProps,
   FormLabelAlign,
   FormLabelMode,
   FormLayout,
+  FormListItem,
+  FormListField,
+  FormListOperations,
+  FormListProps,
   FormOptions,
   FormProps,
   FormState,

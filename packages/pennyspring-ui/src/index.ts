@@ -122,19 +122,27 @@ export type {
   InputStatus,
   InputStyles,
 } from './Input';
-export { Form, FormItem, FormItemScope, FormSubscribe } from './Form';
+export { Form, FormItem } from './Form';
 export type {
   BoundForm,
+  FormErrorSummaryProps,
   FormFieldProps,
   FormFieldState,
   FormFieldStatus,
+  FormFinishFailedField,
+  FormFinishFailedInfo,
   FormInstance,
   FormItemProps,
   FormItemRule,
+  FormItemRules,
   FormItemScopeProps,
   FormLabelAlign,
   FormLabelMode,
   FormLayout,
+  FormListField,
+  FormListItem,
+  FormListOperations,
+  FormListProps,
   FormOptions,
   FormProps,
   FormState,

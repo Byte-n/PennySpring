@@ -22,16 +22,21 @@ const requiredRule = (value: string): string | undefined =>
   value.trim() === '' ? '请输入备注' : undefined;
 
 function renderForm(children: ReactNode) {
-  let formApi: ReturnType<typeof useForm> | undefined;
+  let formApi: ReturnType<typeof useForm>[0] | undefined;
 
   function Harness() {
-    const form = useForm({
-      defaultValues: { flag: false, mode: 'loose', remark: '' },
-    });
+    const [form] = useForm();
 
     formApi = form;
 
-    return <TypedForm form={form}>{children}</TypedForm>;
+    return (
+      <TypedForm
+        form={form}
+        initialValues={{ flag: false, mode: 'loose', remark: '' }}
+      >
+        {children}
+      </TypedForm>
+    );
   }
 
   let testRenderer: renderer.ReactTestRenderer;
@@ -52,6 +57,7 @@ function findInputs(
 }
 
 async function flushAsyncUpdates(): Promise<void> {
+  await new Promise(resolve => setTimeout(resolve, 0));
   await new Promise(resolve => setTimeout(resolve, 0));
 }
 
@@ -156,6 +162,31 @@ describe('Form required validation', () => {
 
     expect(json(testRenderer)).toContain('请输入备注');
     expect(json(testRenderer)).not.toContain(DEFAULT_REQUIRED_ERROR);
+  });
+
+  it('runs rules in order and shows the first error', async () => {
+    const { testRenderer } = renderForm(
+      <FormItem
+        labelText="备注"
+        name="remark"
+        rules={[
+          value => (value === '' ? '必填错误' : undefined),
+          value => (value.length < 3 ? '长度错误' : undefined),
+        ]}
+      >
+        <Input />
+      </FormItem>,
+    );
+
+    await changeInput(testRenderer, 0, '');
+    expect(json(testRenderer)).toContain('必填错误');
+
+    await changeInput(testRenderer, 0, 'ab');
+    expect(json(testRenderer)).toContain('长度错误');
+    expect(json(testRenderer)).not.toContain('必填错误');
+
+    await changeInput(testRenderer, 0, 'abc');
+    expect(countTestId(testRenderer, 'form-item-error')).toBe(0);
   });
 
   it('does not treat false as an empty value', async () => {

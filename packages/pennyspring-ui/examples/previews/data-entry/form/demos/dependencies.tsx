@@ -17,12 +17,13 @@ const modeOptions = [
 export const formDependenciesDemoTitle = '字段依赖与条件渲染';
 
 export function FormDependenciesDemo() {
-  const form = TypedForm.useForm({
-    defaultValues: { mode: 'loose', reason: '', remark: '' },
-  });
+  const [form] = TypedForm.useForm();
 
   return (
-    <TypedForm form={form}>
+    <TypedForm
+      form={form}
+      initialValues={{ mode: 'loose', reason: '', remark: '' }}
+    >
       <Text color="description" size="sm">
         备注通过 dependencies 跟随模式重新校验；原因字段通过 Form.Subscribe
         仅在严格模式挂载。

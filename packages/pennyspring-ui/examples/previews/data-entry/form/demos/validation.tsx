@@ -15,12 +15,13 @@ const requiredRule = (value: string): string | undefined =>
 export const formValidationDemoTitle = '校验触发';
 
 export function FormValidationDemo() {
-  const form = TypedForm.useForm({
-    defaultValues: { blur: '', change: '', submit: '' },
-  });
+  const [form] = TypedForm.useForm();
 
   return (
-    <TypedForm form={form}>
+    <TypedForm
+      form={form}
+      initialValues={{ blur: '', change: '', submit: '' }}
+    >
       <TypedForm.Item labelText="onChange" name="change" rules={requiredRule}>
         <Input placeholder="输入后立即校验" />
       </TypedForm.Item>

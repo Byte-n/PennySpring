@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useField, useStore } from '@tanstack/react-form';
+import { useField, useSelector } from '@tanstack/react-form';
 import { useTheme } from '@pennyspring/theme';
 import { Column } from '../Column';
 import { Row } from '../Row';
@@ -7,6 +7,7 @@ import { Text } from '../Text';
 import { renderTextNode } from '../shares/node';
 import { useFormContext } from './FormContext.ts';
 import { FormItemContext } from './FormItemContext.ts';
+import { FormItemScope } from './FormItemScope.tsx';
 import { useFieldProps } from './hooks/useFieldProps.ts';
 import { useFieldState } from './hooks/useFieldState.ts';
 import { getFieldErrorMessage } from './utils/fieldError.ts';
@@ -47,6 +48,7 @@ function FormItemRoot<
   noStyle = false,
   labelWidth,
   validateTrigger,
+  asyncDebounceMs,
   extraText,
   extra,
   errorRender,
@@ -54,6 +56,7 @@ function FormItemRoot<
 }: FormItemProps<TValues, TName>) {
   const formContext = useFormContext();
   const { token } = useTheme();
+  const resolvedLabelWidth = labelWidth ?? formContext.labelWidth;
 
   const resolvedLabelMode = noStyle
     ? 'item'
@@ -62,7 +65,7 @@ function FormItemRoot<
     validateTrigger ?? formContext.validateTrigger,
   );
   const fieldName = String(name);
-  const submissionAttempts = useStore(
+  const submissionAttempts = useSelector(
     formContext.form.store as never,
     (state: { submissionAttempts: number }) => state.submissionAttempts,
   ) as number;
@@ -73,16 +76,18 @@ function FormItemRoot<
     requiredMessage:
       requiredMessage ?? (labelText ? `请填写${labelText}` : undefined),
     revalidateOnChangeAfterSubmit: hasSubmitted,
+    asyncDebounceMs,
   });
   const field = useField({
     form: formContext.form as never,
     name: name as never,
     validators: validators as never,
+    asyncDebounceMs,
   }) as unknown as RuntimeFieldApi;
   const [hasTriggered, setHasTriggered] = useState(false);
 
   const styles = useFormItemStyles({
-    labelWidth,
+    labelWidth: resolvedLabelWidth,
     layout: formContext.layout,
   });
 
@@ -185,7 +190,8 @@ function FormItemRoot<
 
   if (formContext.layout === 'horizontal') {
     const showLabelColumn =
-      isItemLabelMode && (showItemLabel || labelWidth !== undefined);
+      isItemLabelMode &&
+      (showItemLabel || resolvedLabelWidth !== undefined);
 
     return (
       <FormItemContext.Provider value={contextValue}>
@@ -222,6 +228,7 @@ function FormItemRoot<
 }
 
 export const FormItem = Object.assign(FormItemRoot, {
+  Scope: FormItemScope,
   useFieldState,
   useFieldProps,
 });

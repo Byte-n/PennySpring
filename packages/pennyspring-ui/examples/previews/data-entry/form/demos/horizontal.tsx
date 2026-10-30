@@ -11,12 +11,16 @@ const TypedForm = Form.infer<LayoutValues>();
 export const formHorizontalDemoTitle = '水平布局';
 
 export function FormHorizontalDemo() {
-  const form = TypedForm.useForm({
-    defaultValues: { account: '', amount: '' },
-  });
+  const [form] = TypedForm.useForm();
 
   return (
-    <TypedForm form={form} labelAlign="right" labelWidth={96} layout="horizontal">
+    <TypedForm
+      form={form}
+      initialValues={{ account: '', amount: '' }}
+      labelAlign="right"
+      labelWidth={96}
+      layout="horizontal"
+    >
       <TypedForm.Item labelText="账户" name="account">
         <Input placeholder="请输入账户" />
       </TypedForm.Item>

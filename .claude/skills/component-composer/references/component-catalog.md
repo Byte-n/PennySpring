@@ -29,7 +29,7 @@
 
 ## 输入与控件
 
-- `Form` / `Form.Item`：表单与表单项；支持 item/child/noStyle 布局、跨字段 `dependencies`、`Form.Subscribe` 条件渲染、`required` 在未传 rules 时自动校验、`extra`/`errorRender` 反馈与提交后重校验。`Form.infer<Values>()` 返回带类型的 Form（含 `Item`/`Subscribe`/`useForm`/`useFormInstance`，不含 `infer`）；表单实例用 `Form.useFormInstance`，字段控件用 `Form.Item.useFieldProps` 自动绑定，状态读取用 `Form.Item.useFieldState`。
+- `Form` / `Form.Item`：表单与表单项；支持 item/child/noStyle 布局、跨字段 `dependencies`、`Form.Subscribe` 条件渲染、`required` 在未传 rules 时自动校验、`extra`/`errorRender` 反馈、rules 数组与 `asyncDebounceMs`。FormProps 提供 `initialValues`、`onFinish`、`onFinishFailed`、`onValuesChange`、`validateTrigger`；`Form.useForm(form?)` 返回 `[FormInstance]`，不传 form 时 Form 自动创建实例。`Form.List` 提供动态行，`Form.ErrorSummary` 展示表单级/根级错误，`Form.useFormState(selector)` 读取提交态。`Form.infer<Values>()` 返回带类型的 Form（含 `Item`/`List`/`Subscribe`/`ErrorSummary`/`useForm`/`useFormInstance`/`useFormState`，不含 `infer`）；字段控件用 `Form.Item.useFieldProps` 自动绑定，状态读取用 `Form.Item.useFieldState`。校验规则只在 Form.Item，Form 不提供表单级 rules/validators。
 - `Input`：Material flat 风格的单行文本与搜索输入，支持浮动 label、独立底线、错误态、清除按钮、前后缀和加载态。
 - `Textarea`：多行文本输入；下划线字段（1px 底边 + 2px 状态指示条，无底色无圆角），浮动 label（与 Input 一致，placeholder 聚焦后出现），尺寸 14/24・16/26・18/28，错误不铺浅红底。
 - `DisplayInput`：只读或触发式输入展示。自身持有 pressed、disabled、readonly 与错误态视觉，不接受调用方叠加状态样式。
