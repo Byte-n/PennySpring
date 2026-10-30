@@ -979,6 +979,23 @@ it('renders title text with xl size and strong weight matching ImagePicker', () 
   expect(titleText!.props.weight).toBe('strong');
 });
 
+it('renders placeholder only when there is no label and no selected value', () => {
+  let emptyRenderer: renderer.ReactTestRenderer;
+  let labeledRenderer: renderer.ReactTestRenderer;
+
+  act(() => {
+    emptyRenderer = renderer.create(
+      <Picker columns={columns} placeholder="请选择账户" />,
+    );
+    labeledRenderer = renderer.create(
+      <Picker columns={columns} labelText="账户" placeholder="请选择账户" />,
+    );
+  });
+
+  expect(JSON.stringify(emptyRenderer!.toJSON())).toContain('请选择账户');
+  expect(JSON.stringify(labeledRenderer!.toJSON())).not.toContain('请选择账户');
+});
+
 it('defaults cancel button to danger and ok button to primary color', () => {
   let testRenderer: renderer.ReactTestRenderer;
 

@@ -6,9 +6,9 @@ import { PickerHeader } from '../Picker/PickerHeader';
 import { usePickerStyles } from '../Picker/usePickerStyles';
 import type { ReactNode } from 'react';
 import type {
-  PickerPanelStyles,
-  PickerPopupStyles,
-} from '../Picker';
+  PickerPanelStyleSlots,
+  PickerPopupStyleSlots,
+} from '../shares/pickerStyles';
 import type { ComponentSize } from '../shares/types';
 
 const DEFAULT_CANCEL_TEXT = '取消';
@@ -51,8 +51,8 @@ export interface CalendarPickerSheetProps {
   okText?: string;
   ok?: ReactNode;
   okDisabled?: boolean;
-  panelStyles?: PickerPanelStyles;
-  popupStyles?: PickerPopupStyles;
+  panelStyles?: PickerPanelStyleSlots;
+  popupStyles?: PickerPopupStyleSlots;
   onMaskPress: () => void;
   onCancelPress: () => void;
   onOkPress: () => void;

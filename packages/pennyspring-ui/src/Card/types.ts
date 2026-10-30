@@ -88,15 +88,15 @@ export interface CardProps {
 
   /**
    * 是否处于加载状态。
-   * 未提供 loadingNode 时保留 children，并把主体降到 45% 透明度。
+   * 未提供 loadingPlaceholder 时保留 children，并把主体降到 45% 透明度。
    */
   loading?: boolean;
 
   /**
-   * 加载状态下的主体替换内容。
-   * loading 为 true 且 loadingNode 存在时，Body 渲染 loadingNode 而不是 children。
+   * 加载状态下的主体占位内容。
+   * loading 为 true 且 loadingPlaceholder 存在时，Body 渲染 loadingPlaceholder 而不是 children。
    */
-  loadingNode?: ReactNode;
+  loadingPlaceholder?: ReactNode;
 
   /**
    * 根元素样式。

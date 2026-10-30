@@ -16,5 +16,6 @@ export interface TagValueDisplayProps {
   size?: ComponentSize;
   tagProps?: TagDisplayProps;
   disabled?: boolean;
+  readonly?: boolean;
   onRemove?: (value: string | number) => void;
 }

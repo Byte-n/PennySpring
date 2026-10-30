@@ -387,6 +387,7 @@ export function DateTimeWheelPicker(props: DateTimePickerCoreProps) {
       }}
       onOpenChange={props.onOpenChange}
       open={props.open}
+      placeholder={props.placeholder}
       popupProps={{
         cancel: props.cancel,
         cancelText: props.cancelText,

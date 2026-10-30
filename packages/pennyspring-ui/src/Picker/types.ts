@@ -8,14 +8,23 @@ import type { ComponentSize } from '../shares/types';
 import type { InputStatus } from '../Input';
 import type { DisplayInputProps } from '../DisplayInput';
 import type {
-  PickerDisplayInputProps,
-  PickerInputStyles,
-} from '../_internal/PickerTrigger';
+  PickerBodyStyleSlots,
+  PickerHeaderStyleSlots,
+  PickerPanelStyleSlots,
+  PickerPopupStyleSlots,
+  TriggerFieldStyles,
+} from '../shares/pickerStyles';
+import type { PickerDisplayInputProps } from '../_internal/PickerTrigger';
 
+export type { PickerDisplayInputProps } from '../_internal/PickerTrigger';
 export type {
-  PickerDisplayInputProps,
-  PickerInputStyles,
-} from '../_internal/PickerTrigger';
+  PickerBodyStyleSlots,
+  PickerHeaderStyleSlots,
+  PickerPanelStyleSlots,
+  PickerPopupStyleSlots,
+  TriggerFieldStyles,
+};
+export type PickerInputStyles = TriggerFieldStyles;
 
 export type PickerValue = string | number;
 export type PickerOpenChangeReason = 'trigger' | 'cancel' | 'mask' | 'ok';
@@ -87,49 +96,10 @@ export interface PickerStyles {
   panel?: PickerPanelStyles;
 }
 
-export interface PickerPopupStyles {
-  root?: StyleProp<ViewStyle>;
-  mask?: StyleProp<ViewStyle>;
-  container?: StyleProp<ViewStyle>;
-  content?: StyleProp<ViewStyle>;
-  handle?: StyleProp<ViewStyle>;
-  handleIndicator?: StyleProp<ViewStyle>;
-}
-
-export interface PickerPanelStyles {
-  root?: StyleProp<ViewStyle>;
-  header?: PickerHeaderStyles;
-  body?: PickerBodyStyles;
-  safeArea?: StyleProp<ViewStyle>;
-}
-
-export interface PickerHeaderStyles {
-  cancelButton?: StyleProp<ViewStyle>;
-  cancelText?: StyleProp<TextStyle>;
-  titleContainer?: StyleProp<ViewStyle>;
-  titleText?: StyleProp<TextStyle>;
-  okButton?: StyleProp<ViewStyle>;
-  okText?: StyleProp<TextStyle>;
-}
-
-export interface PickerBodyStyles {
-  root?: StyleProp<ViewStyle>;
-  view?: PickerViewStyles;
-  loading?: StyleProp<ViewStyle>;
-  empty?: StyleProp<ViewStyle>;
-}
-
-export interface PickerViewStyles {
-  column?: PickerColumnStyles;
-  indicator?: StyleProp<ViewStyle>;
-}
-
-export interface PickerColumnStyles {
-  root?: StyleProp<ViewStyle>;
-  item?: StyleProp<ViewStyle>;
-  itemText?: StyleProp<TextStyle>;
-  empty?: StyleProp<ViewStyle>;
-}
+export type PickerPopupStyles = PickerPopupStyleSlots;
+export type PickerPanelStyles = PickerPanelStyleSlots;
+export type PickerHeaderStyles = PickerHeaderStyleSlots;
+export type PickerBodyStyles = PickerBodyStyleSlots;
 
 export interface PickerRenderHeaderParams<
   TItem extends PickerColumnItemData = PickerColumnItemData,
@@ -192,6 +162,8 @@ export interface PickerProps<
   ) => string | undefined;
   labelText?: string;
   label?: DisplayInputProps['label'];
+  /** 无标签且未选择时展示的提示文本。 */
+  placeholder?: string;
   status?: InputStatus;
   readonly?: boolean;
   displayInputProps?: PickerDisplayInputProps;
@@ -378,6 +350,8 @@ export interface PickerCascaderProps<
 
   labelText?: string;
   label?: ReactNode;
+  /** 无标签且未选择时展示的提示文本。 */
+  placeholder?: string;
   displayInputProps?: PickerDisplayInputProps;
   readonly?: boolean;
   disabled?: boolean;

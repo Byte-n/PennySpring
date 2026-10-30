@@ -221,7 +221,7 @@ function isPromiseLike(value: unknown): value is PromiseLike<unknown> {
 }
 
 function ListInner<ItemT>({
-  children, data, renderItem, header, footer, empty, loading, loadingText = '加载中…', loadingContent,
+  children, data, renderItem, header, footer, empty, loading, loadingText = '加载中…', loadingIndicator,
   hasMore = true, isLoadingMore = false, onLoadMore, loadMoreThreshold = 0.1, completeText = '没有更多了',
   collapsible, title, titleText, open, defaultOpen, onOpenChange, onEndReached, onEndReachedThreshold,
   keyExtractor, style, styles: styleOverrides, contentContainerStyle, ...flatListProps
@@ -267,9 +267,9 @@ function ListInner<ItemT>({
   </>;
   const footerNode = <>
     {loading || isLoadingMore ? (
-      loadingContent === undefined
+      loadingIndicator === undefined
         ? <Loading size="small" text={loadingText} variant="more" />
-        : <Column style={[styles.loading, styleOverrides?.loading]}>{renderTextNode(loadingContent, text => <Text color="secondary">{text}</Text>)}</Column>
+        : <Column style={[styles.loading, styleOverrides?.loading]}>{renderTextNode(loadingIndicator, text => <Text color="secondary">{text}</Text>)}</Column>
     ) : null}
     {!hasMore && !loading && !isLoadingMore ? <Column style={[styles.footer, styleOverrides?.footer]}><Text color="tertiary">{completeText}</Text></Column> : null}
     {footer !== undefined ? <Column style={[styles.footer, styleOverrides?.footer]}>{renderTextNode(footer, text => <Text color="secondary">{text}</Text>)}</Column> : null}

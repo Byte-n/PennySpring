@@ -29,7 +29,7 @@ import { useFieldProps } from '../Form/hooks/useFieldProps.ts';
 const DEFAULT_CAMERA_TEXT = '拍照';
 const DEFAULT_PHOTO_TEXT = '相册';
 const DEFAULT_FILE_SYSTEM_TEXT = '文件';
-const DEFAULT_DONE_TEXT = '完成';
+const DEFAULT_OK_TEXT = '完成';
 const DEFAULT_TITLE_TEXT = '请选择图片';
 const DEFAULT_EMPTY_TEXT = '暂无已选图片';
 const DEFAULT_SINGLE_HINT_TEXT = '最多1张';
@@ -129,7 +129,7 @@ export function ImagePicker({
   defaultValue,
   disabled,
   displayInputProps,
-  doneText = DEFAULT_DONE_TEXT,
+  okText = DEFAULT_OK_TEXT,
   emptyText = DEFAULT_EMPTY_TEXT,
   fileSystemText = DEFAULT_FILE_SYSTEM_TEXT,
   label,
@@ -146,6 +146,7 @@ export function ImagePicker({
   onError,
   onOpenChange,
   open,
+  placeholder,
   readonly,
   sources = DEFAULT_SOURCES,
   style,
@@ -344,7 +345,7 @@ export function ImagePicker({
             onPress={handleDonePress}
             testID="image-picker-action-done"
           >
-            {doneText}
+            {okText}
           </Button>
         </Row>
       </Row>
@@ -461,6 +462,7 @@ export function ImagePicker({
         label={field.label ?? field.labelText}
         onClearPress={handleClearPress}
         onPress={handleTriggerPress}
+        placeholder={placeholder}
         prefix={(
           <Icon
             color={hasSelectedValue ? 'primary' : 'tertiary'}

@@ -1,16 +1,17 @@
 import type { ReactNode } from 'react';
 import type { StyleProp, TextStyle, ViewStyle } from 'react-native';
-import type { CalendarPickerViewStyles } from '../CalendarPicker/types';
 import type {
   PickerCancelParams,
   PickerDisplayInputProps,
-  PickerInputStyles,
   PickerOpenChangeParams,
-  PickerPanelStyles,
-  PickerPopupStyles,
 } from '../Picker';
 import type { ComponentSize } from '../shares/types';
 import type { InputStatus } from '../Input';
+import type {
+  PickerPanelStyleSlots,
+  PickerPopupStyleSlots,
+  TriggerFieldStyles,
+} from '../shares/pickerStyles';
 
 export type DateTimePickerLayout = 'wheel' | 'calendar';
 
@@ -99,6 +100,8 @@ export interface DateTimePickerProps {
   empty?: ReactNode;
   labelText?: string;
   label?: ReactNode;
+  /** 无标签且未选择时展示的提示文本。 */
+  placeholder?: string;
   status?: InputStatus;
   displayInputProps?: PickerDisplayInputProps;
   allowClear?: boolean;
@@ -135,13 +138,45 @@ export interface DateTimePickerEntryStyles {
   value?: StyleProp<TextStyle>;
 }
 
+export interface DateTimePickerCalendarCellState {
+  isSelected: boolean;
+  isToday: boolean;
+  isDisabled: boolean;
+  isInRange: boolean;
+}
+
+export type DateTimePickerCalendarCellStyle = (
+  value: string,
+  state: DateTimePickerCalendarCellState,
+) => ViewStyle | undefined;
+
+export type DateTimePickerCalendarDateTextStyle = (
+  value: string,
+  state: DateTimePickerCalendarCellState,
+) => TextStyle | undefined;
+
+/** 日历布局的语义槽位，不直接复用 CalendarPicker 面板的样式类型。 */
+export interface DateTimePickerCalendarStyles {
+  root?: StyleProp<ViewStyle>;
+  header?: StyleProp<ViewStyle>;
+  title?: StyleProp<TextStyle>;
+  valueText?: StyleProp<TextStyle>;
+  weekHeader?: StyleProp<ViewStyle>;
+  weekText?: StyleProp<TextStyle>;
+  grid?: StyleProp<ViewStyle>;
+  cell?: StyleProp<ViewStyle> | DateTimePickerCalendarCellStyle;
+  dateText?: StyleProp<TextStyle> | DateTimePickerCalendarDateTextStyle;
+  mark?: StyleProp<ViewStyle>;
+  footer?: StyleProp<ViewStyle>;
+}
+
 export interface DateTimePickerStyles {
   trigger?: StyleProp<ViewStyle>;
-  input?: PickerInputStyles;
-  popup?: PickerPopupStyles;
-  panel?: PickerPanelStyles;
+  input?: TriggerFieldStyles;
+  popup?: PickerPopupStyleSlots;
+  panel?: PickerPanelStyleSlots;
   /** 仅日历布局生效。 */
-  calendar?: CalendarPickerViewStyles;
+  calendar?: DateTimePickerCalendarStyles;
   /** 仅日历布局生效。 */
   entry?: DateTimePickerEntryStyles;
 }

@@ -57,6 +57,7 @@ export function ListPickerCascader<TData = unknown>({
   onOpenChange,
   open,
   options,
+  placeholder,
   popupProps,
   readonly,
   renderOptionLabel,
@@ -244,6 +245,7 @@ export function ListPickerCascader<TData = unknown>({
           displayInputProps?.overflow ??
           (displayMode === 'tag' ? 'visible' : 'hidden')
         }
+        placeholder={placeholder}
         readonly={resolvedReadonly}
         size={resolvedSize}
         status={field.status}

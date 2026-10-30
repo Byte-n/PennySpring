@@ -1,12 +1,11 @@
 import type { StyleProp, TextStyle, ViewStyle } from 'react-native';
 import type { IconComponent, IconName } from '../Icon';
+import type { InputStatus } from '../Input';
 import type { PopupFloatingPanelProps } from '../Popup';
 import type { ComponentSize } from '../shares/types';
 import type { TagDisplayProps } from '../_internal/TagValueDisplay';
-import type {
-  PickerDisplayInputProps,
-  PickerInputStyles,
-} from '../_internal/PickerTrigger';
+import type { PickerDisplayInputProps } from '../_internal/PickerTrigger';
+import type { TriggerFieldStyles } from '../shares/pickerStyles';
 
 export type TagPickerValue = string | number;
 
@@ -64,7 +63,7 @@ export type TagPickerFloatingPanelConfig = Omit<
 
 export interface TagPickerStyles {
   /** 触发器槽位样式，root 对应 DisplayInput 根节点。 */
-  input?: PickerInputStyles;
+  input?: TriggerFieldStyles;
 
   /** 弹层容器样式。 */
   panel?: StyleProp<ViewStyle>;
@@ -91,6 +90,12 @@ export interface TagPickerProps {
   /** 是否禁用整个选择器。 */
   disabled?: boolean;
 
+  /** 是否只读；只读不可展开或移除已选标签，但保持正常可读性。 */
+  readonly?: boolean;
+
+  /** 校验展示状态。 */
+  status?: InputStatus;
+
   /** 是否展示清除按钮；清除后回传空数组。 */
   allowClear?: boolean;
 
@@ -105,6 +110,9 @@ export interface TagPickerProps {
 
   /** 触发器字段标签文本。 */
   labelText?: string;
+
+  /** 无标签且未选择时展示的提示文本。 */
+  placeholder?: string;
 
   /** 是否展开，传入后由调用方控制。 */
   open?: boolean;

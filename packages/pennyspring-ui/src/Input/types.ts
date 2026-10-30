@@ -44,6 +44,7 @@ export interface InputProps
     | 'onChange'
     | 'onChangeText'
     | 'placeholder'
+    | 'readOnly'
     | 'style'
     | 'value'
   > {

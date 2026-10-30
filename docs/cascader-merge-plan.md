@@ -167,7 +167,7 @@ export interface ListPickerCascaderTexts {
 ```ts
 export interface ListPickerCascaderStyles {
   /** 触发器槽位，root 对应 DisplayInput 根节点。 */
-  input?: PickerInputStyles;
+  input?: TriggerFieldStyles;
   /** 浮层内容容器。 */
   popup?: StyleProp<ViewStyle>;
   /** 层级 Tab。 */
@@ -311,7 +311,7 @@ export interface PickerCascaderProps<
 ```ts
 export interface PickerCascaderStyles {
   trigger?: StyleProp<ViewStyle>;
-  input?: PickerInputStyles;
+  input?: TriggerFieldStyles;
   popup?: PickerCascaderPopupStyles;
   panel?: PickerCascaderPanelStyles;
   tabs?: PickerCascaderTabsStyles;

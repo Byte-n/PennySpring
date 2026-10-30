@@ -4,7 +4,8 @@ import { useTheme } from '@pennyspring/theme';
 import { DisplayInput } from '../../DisplayInput';
 import { Icon } from '../../Icon';
 import { useStyles } from './style';
-import type { PickerInputStyles, PickerTriggerProps } from './types';
+import type { PickerTriggerProps } from './types';
+import type { TriggerFieldStyles } from '../../shares/pickerStyles';
 
 /**
  * 清除按钮点击后，部分平台仍会向上冒泡触发父 Pressable。
@@ -25,6 +26,7 @@ export function PickerTrigger({
   onClearPress,
   onPress,
   overflow,
+  placeholder,
   prefix,
   readonly,
   size,
@@ -86,10 +88,10 @@ export function PickerTrigger({
     : shouldShowClearButton
       ? renderClearButton()
       : suffix;
-  const resolvedUnderline: PickerInputStyles['underline'] = active === true
+  const resolvedUnderline: TriggerFieldStyles['underline'] = active === true
     ? [styles.underlineActive, externalInputSlotStyles.underline]
     : externalInputSlotStyles.underline;
-  const resolvedInputStyles: PickerInputStyles = {
+  const resolvedInputStyles: TriggerFieldStyles = {
     ...externalInputSlotStyles,
     underline: resolvedUnderline,
   };
@@ -104,6 +106,7 @@ export function PickerTrigger({
       label={label}
       onPress={handleTriggerPress}
       overflow={displayInputProps?.overflow ?? overflow}
+      placeholder={placeholder}
       prefix={displayInputProps?.prefix ?? prefix}
       readonly={readonly}
       size={size}

@@ -273,10 +273,10 @@ export function DateTimeCalendarPicker(props: DateTimePickerCoreProps) {
     : undefined;
   const wheelStyles = useMemo<WheelGroupStyles>(
     () => ({
-      band: props.styles?.panel?.body?.view?.indicator,
-      column: props.styles?.panel?.body?.view?.column?.root,
-      item: props.styles?.panel?.body?.view?.column?.item,
-      itemText: props.styles?.panel?.body?.view?.column?.itemText,
+      band: props.styles?.panel?.body?.indicator,
+      column: props.styles?.panel?.body?.column,
+      item: props.styles?.panel?.body?.item,
+      itemText: props.styles?.panel?.body?.itemText,
     }),
     [props.styles],
   );
@@ -393,6 +393,7 @@ export function DateTimeCalendarPicker(props: DateTimePickerCoreProps) {
         label={field.label ?? field.labelText}
         onClearPress={handleClearPress}
         onPress={handleTriggerPress}
+        placeholder={props.placeholder}
         readonly={resolvedReadonly}
         size={size}
         status={field.status}

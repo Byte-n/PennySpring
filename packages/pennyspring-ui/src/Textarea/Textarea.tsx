@@ -50,7 +50,7 @@ export function Textarea(rawProps: TextareaProps) {
     maxRows,
     minRows,
     onBlur,
-    onChangeText,
+    onChange,
     onContentSizeChange,
     onFocus,
     placeholder,
@@ -68,7 +68,7 @@ export function Textarea(rawProps: TextareaProps) {
     Parameters<NonNullable<TextInputProps['onBlur']>>[0]
   >({
     value,
-    onChange: onChangeText,
+    onChange,
     onBlur,
     label,
     labelText,

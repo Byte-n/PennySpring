@@ -72,17 +72,17 @@ describe('Card', () => {
     });
     expect(onPress).not.toHaveBeenCalled();
   });
-  it('replaces children with loadingNode while loading', () => {
+  it('replaces children with loadingPlaceholder while loading', () => {
     const testRenderer = renderCard({
       loading: true,
-      loadingNode: <RNText>Loading summary</RNText>,
+      loadingPlaceholder: <RNText>Loading summary</RNText>,
       children: <RNText>Loaded summary</RNText>
     });
     const treeString = JSON.stringify(testRenderer.toJSON());
     expect(treeString).toContain('Loading summary');
     expect(treeString).not.toContain('Loaded summary');
   });
-  it('keeps children when loadingNode is absent', () => {
+  it('keeps children when loadingPlaceholder is absent', () => {
     const testRenderer = renderCard({
       loading: true,
       children: <RNText>Existing summary</RNText>

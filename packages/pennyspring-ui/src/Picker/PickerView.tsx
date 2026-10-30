@@ -53,11 +53,11 @@ export function PickerView<TItem extends PickerColumnItemData>({
     () => ({
       band: [
         showErrorBand ? bandErrorStyle : undefined,
-        slotStyles?.view?.indicator,
+        slotStyles?.indicator,
       ],
-      column: slotStyles?.view?.column?.root,
-      item: slotStyles?.view?.column?.item,
-      itemText: slotStyles?.view?.column?.itemText,
+      column: slotStyles?.column,
+      item: slotStyles?.item,
+      itemText: slotStyles?.itemText,
       empty: slotStyles?.empty,
     }),
     [bandErrorStyle, showErrorBand, slotStyles],

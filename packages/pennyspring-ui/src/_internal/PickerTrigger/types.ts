@@ -3,18 +3,10 @@ import type { StyleProp, ViewStyle } from 'react-native';
 import type {
   DisplayInputOverflow,
   DisplayInputProps,
-  DisplayInputStyles,
 } from '../../DisplayInput';
 import type { InputStatus } from '../../Input';
 import type { ComponentSize } from '../../shares/types';
-
-/**
- * 触发器类组件共用的 DisplayInput 槽位样式。
- * root 对应 DisplayInput 根节点，其余槽位与 DisplayInputStyles 保持一致。
- */
-export interface PickerInputStyles extends DisplayInputStyles {
-  root?: StyleProp<ViewStyle>;
-}
+import type { TriggerFieldStyles } from '../../shares/pickerStyles';
 
 /**
  * 触发器类组件统一接管的 DisplayInput 配置。
@@ -27,6 +19,7 @@ export type PickerDisplayInputProps = Omit<
   | 'label'
   | 'labelText'
   | 'onPress'
+  | 'placeholder'
   | 'readonly'
   | 'size'
   | 'status'
@@ -43,13 +36,14 @@ export interface PickerTriggerProps {
   children?: ReactNode;
   disabled?: boolean;
   displayInputProps?: PickerDisplayInputProps;
-  externalInputStyles?: PickerInputStyles;
+  externalInputStyles?: TriggerFieldStyles;
   externalTriggerStyle?: StyleProp<ViewStyle>;
   hasValue?: boolean;
   label?: ReactNode | null;
   onClearPress?: () => void;
   onPress?: () => void;
   overflow?: DisplayInputOverflow;
+  placeholder?: string;
   prefix?: ReactNode;
   readonly?: boolean;
   size?: ComponentSize;

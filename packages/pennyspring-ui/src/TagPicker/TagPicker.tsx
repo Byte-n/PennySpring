@@ -31,7 +31,7 @@ export function TagPicker({
   allowClear,
   defaultOpen,
   defaultValue,
-  disabled = false,
+  disabled,
   displayInputProps,
   floatingPanelProps,
   labelText,
@@ -41,7 +41,10 @@ export function TagPicker({
   onOpenChange,
   open,
   options,
+  placeholder,
+  readonly,
   size,
+  status,
   style,
   styles,
   tagProps,
@@ -53,8 +56,11 @@ export function TagPicker({
     onChange,
     labelText,
     disabled,
+    readonly,
+    status,
   });
   const resolvedDisabled = field.disabled === true;
+  const resolvedReadonly = field.readonly === true;
   const { token } = useTheme();
   const tokenStyles = useTagPickerStyles();
   const resolvedSize: ComponentSize = size ?? 'normal';
@@ -69,7 +75,7 @@ export function TagPicker({
     field.onChange,
   );
   const selectedValues = useMemo(() => mergedValue ?? [], [mergedValue]);
-  const isInteractive = !resolvedDisabled && !loading;
+  const isInteractive = !resolvedDisabled && !resolvedReadonly && !loading;
   const visibleOptions = useMemo(
     () => options.filter(option => option.hidden !== true),
     [options],
@@ -209,7 +215,7 @@ export function TagPicker({
       <PickerTrigger
         active={mergedOpen === true}
         allowClear={allowClear}
-        disabled={!isInteractive}
+        disabled={resolvedDisabled || loading}
         displayInputProps={displayInputProps}
         externalInputStyles={styles?.input}
         externalTriggerStyle={style}
@@ -218,6 +224,8 @@ export function TagPicker({
         onClearPress={handleClear}
         onPress={() => setOpen(mergedOpen !== true)}
         overflow={displayInputProps?.overflow ?? 'visible'}
+        placeholder={placeholder}
+        readonly={resolvedReadonly}
         size={resolvedSize}
         status={field.status}
         suffix={
@@ -230,9 +238,10 @@ export function TagPicker({
       >
         {tagItems.length > 0 ? (
           <TagValueDisplay
-            disabled={!isInteractive}
+            disabled={resolvedDisabled || loading}
             items={tagItems}
             onRemove={handleRemove}
+            readonly={resolvedReadonly}
             size={resolvedSize}
             tagProps={tagProps}
           />

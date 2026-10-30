@@ -49,6 +49,7 @@ export function DisplayInput({
   label,
   labelText,
   onPress,
+  placeholder,
   prefix,
   readonly,
   size,
@@ -91,6 +92,10 @@ export function DisplayInput({
   const labelNode =
     field.label === null ? null : field.label ?? field.labelText ?? null;
   const hasFloatingLabel = labelNode !== null && labelNode !== undefined;
+  const shouldRenderPlaceholder = !hasFloatingLabel
+    && !hasDisplayValue
+    && placeholder !== undefined
+    && placeholder !== '';
   const tokenStyles = useStyles({
     disabled: isDisabled,
     display: resolvedDisplay,
@@ -242,6 +247,15 @@ export function DisplayInput({
               ]}
             >
               {textValue}
+            </Text>
+          ) : shouldRenderPlaceholder ? (
+            <Text
+              color="placeholder"
+              ellipsizeMode={resolvedOverflow === 'hidden' ? 'tail' : undefined}
+              numberOfLines={resolvedOverflow === 'hidden' ? 1 : undefined}
+              style={tokenStyles.value}
+            >
+              {placeholder}
             </Text>
           ) : null}
         </View>

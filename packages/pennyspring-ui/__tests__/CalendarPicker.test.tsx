@@ -388,4 +388,15 @@ describe('CalendarPicker', () => {
     // Assert
     expect(onOpenChange).not.toHaveBeenCalled();
   });
+
+  it('renders placeholder without a label and hides it when a label exists', () => {
+    const emptyRenderer = renderCalendarPicker({ placeholder: '请选择日期' });
+    const labeledRenderer = renderCalendarPicker({
+      labelText: '日期',
+      placeholder: '请选择日期',
+    });
+
+    expect(JSON.stringify(emptyRenderer.toJSON())).toContain('请选择日期');
+    expect(JSON.stringify(labeledRenderer.toJSON())).not.toContain('请选择日期');
+  });
 });

@@ -491,6 +491,7 @@ function ListPickerRoot({
   onOpenChange,
   open,
   options,
+  placeholder,
   popupProps,
   readonly,
   size,
@@ -614,6 +615,7 @@ function ListPickerRoot({
           displayInputProps?.overflow ??
           (displayMode === 'tag' ? 'visible' : 'hidden')
         }
+        placeholder={placeholder}
         readonly={field.readonly}
         size={resolvedSize}
         status={resolvedStatus}

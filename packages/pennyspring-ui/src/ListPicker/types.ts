@@ -4,10 +4,8 @@ import type { InputProps } from '../Input';
 import type { PopupFloatingPanelProps } from '../Popup';
 import type { ComponentSize } from '../shares/types';
 import type { TagDisplayProps } from '../_internal/TagValueDisplay';
-import type {
-  PickerDisplayInputProps,
-  PickerInputStyles,
-} from '../_internal/PickerTrigger';
+import type { PickerDisplayInputProps } from '../_internal/PickerTrigger';
+import type { TriggerFieldStyles } from '../shares/pickerStyles';
 
 /**
  * ListPicker 的选择模式。
@@ -124,7 +122,7 @@ export interface ListPickerPopupStyles {
 
 export interface ListPickerStyles extends ListPickerPopupStyles {
   /** 触发器槽位样式，root 对应 DisplayInput 根节点。 */
-  input?: PickerInputStyles;
+  input?: TriggerFieldStyles;
 }
 
 export interface ListPickerTexts {
@@ -403,6 +401,9 @@ export interface ListPickerProps
    */
   label?: ReactNode;
 
+  /** 无标签且未选择时展示的提示文本。 */
+  placeholder?: string;
+
   displayMode?: ListPickerDisplayMode;
 
   /**
@@ -516,7 +517,7 @@ export interface ListPickerCascaderTabsStyles {
 
 export interface ListPickerCascaderStyles {
   /** 触发器槽位，root 对应 DisplayInput 根节点。 */
-  input?: PickerInputStyles;
+  input?: TriggerFieldStyles;
 
   /** 浮层内容容器。 */
   popup?: StyleProp<ViewStyle>;
@@ -643,6 +644,9 @@ export interface ListPickerCascaderProps<TData = unknown> {
 
   /** 字段标签自定义节点。 */
   label?: ReactNode;
+
+  /** 无标签且未选择时展示的提示文本。 */
+  placeholder?: string;
 
   /** 是否禁用。 */
   disabled?: boolean;

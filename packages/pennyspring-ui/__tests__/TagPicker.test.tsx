@@ -1,6 +1,7 @@
 import React from 'react';
 import renderer, { act } from 'react-test-renderer';
 import { DisplayInput } from '../src/DisplayInput';
+import { Form } from '../src/Form';
 import { TagPicker } from '../src/TagPicker';
 
 const options = [
@@ -159,6 +160,53 @@ describe('TagPicker', () => {
     pressChip(testRenderer, 'food');
 
     expect(onChange).not.toHaveBeenCalled();
+  });
+
+  it('keeps the trigger readonly and tags non-removable in readonly mode', () => {
+    const testRenderer = renderTagPicker({ readonly: true, value: ['food'] });
+    const trigger = testRenderer.root.findByType(DisplayInput);
+
+    expect(trigger.props.readonly).toBe(true);
+    expect(
+      testRenderer.root.findAllByProps({ testID: 'tag-close' }),
+    ).toHaveLength(0);
+    expect(treeText(testRenderer)).toContain('餐饮');
+  });
+
+  it('forwards status to the trigger', () => {
+    const testRenderer = renderTagPicker({ status: 'error' });
+    const trigger = testRenderer.root.findByType(DisplayInput);
+
+    expect(trigger.props.status).toBe('error');
+  });
+
+  it('inherits disabled and readonly from the Form context', () => {
+    let disabledRenderer: renderer.ReactTestRenderer;
+    let readonlyRenderer: renderer.ReactTestRenderer;
+
+    act(() => {
+      disabledRenderer = renderer.create(
+        <Form disabled initialValues={{ tags: [] }}>
+          <Form.Item name="tags" labelText="标签">
+            <TagPicker options={options} />
+          </Form.Item>
+        </Form>,
+      );
+      readonlyRenderer = renderer.create(
+        <Form readonly initialValues={{ tags: [] }}>
+          <Form.Item name="tags" labelText="标签">
+            <TagPicker options={options} />
+          </Form.Item>
+        </Form>,
+      );
+    });
+
+    expect(
+      disabledRenderer!.root.findByType(DisplayInput).props.disabled,
+    ).toBe(true);
+    expect(
+      readonlyRenderer!.root.findByType(DisplayInput).props.readonly,
+    ).toBe(true);
   });
 
   it('clears every selected tag through the clear button', () => {

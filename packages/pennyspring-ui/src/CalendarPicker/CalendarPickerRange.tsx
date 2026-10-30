@@ -197,6 +197,7 @@ export function CalendarPickerRange(props: CalendarPickerRangeProps) {
         label={field.label ?? field.labelText}
         onClearPress={handleClearPress}
         onPress={handleTriggerPress}
+        placeholder={props.placeholder}
         readonly={resolvedReadonly}
         size={size}
         status={field.status}

@@ -10,10 +10,11 @@ export function TagValueDisplay({
   size = 'normal',
   tagProps,
   disabled,
+  readonly,
   onRemove,
 }: TagValueDisplayProps) {
   const wrap = tagProps?.wrap !== false;
-  const closable = tagProps?.closable !== false && !disabled;
+  const closable = tagProps?.closable !== false && !disabled && !readonly;
   const maxCount = tagProps?.maxCount;
   const styles = useTagValueDisplayStyles({ size, wrap });
 

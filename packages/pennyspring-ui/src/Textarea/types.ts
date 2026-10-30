@@ -31,12 +31,38 @@ export interface TextareaStyles {
 }
 
 export interface TextareaProps
-  extends Omit<TextInputProps, 'style' | 'editable' | 'multiline' | 'placeholder'> {
+  extends Omit<
+    TextInputProps,
+    | 'style'
+    | 'editable'
+    | 'multiline'
+    | 'placeholder'
+    | 'value'
+    | 'defaultValue'
+    | 'onChange'
+    | 'onChangeText'
+    | 'readOnly'
+  > {
   /**
    * 文本域尺寸。
    * 使用组件库公共尺寸语义，默认值为 normal。
    */
   size?: ComponentSize;
+
+  /**
+   * 受控文本值。
+   */
+  value?: string;
+
+  /**
+   * 非受控初始文本值。
+   */
+  defaultValue?: string;
+
+  /**
+   * 文本值变化时触发。
+   */
+  onChange?: (value: string) => void;
 
   /**
    * 文本域状态。

@@ -135,6 +135,31 @@ describe('DisplayInput', () => {
     expect(tree).toBeTruthy();
   });
 
+  it('renders placeholder when there is no label and no value', () => {
+    const testRenderer = renderDisplayInput({ placeholder: '请选择日期' });
+
+    expect(JSON.stringify(testRenderer.toJSON())).toContain('请选择日期');
+  });
+
+  it('does not render placeholder when a label is present', () => {
+    const testRenderer = renderDisplayInput({
+      labelText: '日期',
+      placeholder: '请选择日期',
+    });
+
+    expect(JSON.stringify(testRenderer.toJSON())).not.toContain('请选择日期');
+  });
+
+  it('does not render placeholder when a value is present', () => {
+    const testRenderer = renderDisplayInput({
+      placeholder: '请选择日期',
+      valueText: '2026-10-30',
+    });
+
+    expect(JSON.stringify(testRenderer.toJSON())).toContain('2026-10-30');
+    expect(JSON.stringify(testRenderer.toJSON())).not.toContain('请选择日期');
+  });
+
   it('shows valueText when value is not provided', () => {
     const testRenderer = renderDisplayInput({
       valueText: '文本值',

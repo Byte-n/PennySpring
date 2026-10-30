@@ -51,7 +51,7 @@ export interface ListProps<ItemT = ListItemData>
   empty?: ReactNode;
   loading?: boolean;
   loadingText?: string;
-  loadingContent?: ReactNode;
+  loadingIndicator?: ReactNode;
   hasMore?: boolean;
   isLoadingMore?: boolean;
   onLoadMore?: () => void | Promise<void>;

@@ -3,13 +3,15 @@ import type { StyleProp, TextStyle, ViewStyle } from 'react-native';
 import type {
   PickerCancelParams,
   PickerDisplayInputProps,
-  PickerInputStyles,
   PickerOpenChangeParams,
-  PickerPanelStyles,
-  PickerPopupStyles,
 } from '../Picker';
 import type { ComponentSize } from '../shares/types';
 import type { InputStatus } from '../Input';
+import type {
+  PickerPanelStyleSlots,
+  PickerPopupStyleSlots,
+  TriggerFieldStyles,
+} from '../shares/pickerStyles';
 
 /** 日历面板模式：按精度切换日期、月份、年份网格。 */
 export type CalendarPickerViewMode = 'date' | 'month' | 'year';
@@ -148,9 +150,9 @@ export interface CalendarPickerMark {
 
 export interface CalendarPickerStyles {
   trigger?: StyleProp<ViewStyle>;
-  input?: PickerInputStyles;
-  popup?: PickerPopupStyles;
-  panel?: PickerPanelStyles;
+  input?: TriggerFieldStyles;
+  popup?: PickerPopupStyleSlots;
+  panel?: PickerPanelStyleSlots;
   calendar?: CalendarPickerViewStyles;
 }
 
@@ -177,6 +179,8 @@ export interface CalendarPickerProps {
   ok?: ReactNode;
   labelText?: string;
   label?: ReactNode;
+  /** 无标签且未选择时展示的提示文本。 */
+  placeholder?: string;
   status?: InputStatus;
   displayInputProps?: PickerDisplayInputProps;
   allowClear?: boolean;

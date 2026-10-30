@@ -261,6 +261,7 @@ export function PickerCascader<
       onOk={handlePickerOk}
       onOpenChange={props.onOpenChange}
       open={props.open}
+      placeholder={props.placeholder}
       readonly={props.readonly}
       popupProps={{
         cancel: props.cancel,

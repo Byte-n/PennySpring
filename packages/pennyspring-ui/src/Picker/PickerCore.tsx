@@ -119,6 +119,7 @@ export function PickerCore<TItem extends PickerColumnItemData = PickerColumnItem
   onOk,
   onOpenChange,
   open,
+  placeholder,
   readonly,
   size = DEFAULT_SIZE,
   status,
@@ -286,6 +287,7 @@ export function PickerCore<TItem extends PickerColumnItemData = PickerColumnItem
         label={field.label ?? field.labelText}
         onClearPress={handleClearPress}
         onPress={handleTriggerPress}
+        placeholder={placeholder}
         readonly={field.readonly}
         size={size}
         status={resolvedStatus}

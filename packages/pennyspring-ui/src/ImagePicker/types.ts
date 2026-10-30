@@ -2,10 +2,8 @@ import type { ReactNode } from 'react';
 import type { ImageStyle, StyleProp, TextStyle, ViewStyle } from 'react-native';
 import type { InputStatus } from '../Input';
 import type { ComponentSize } from '../shares/types';
-import type {
-  PickerDisplayInputProps,
-  PickerInputStyles,
-} from '../_internal/PickerTrigger';
+import type { PickerDisplayInputProps } from '../_internal/PickerTrigger';
+import type { TriggerFieldStyles } from '../shares/pickerStyles';
 
 export type ImagePickerSource = 'camera' | 'photo' | 'fileSystem';
 
@@ -31,7 +29,7 @@ export interface ImagePickerPickOptions {
 
 export interface ImagePickerStyles {
   /** 触发器槽位样式，root 对应 DisplayInput 根节点。 */
-  input?: PickerInputStyles;
+  input?: TriggerFieldStyles;
   popup?: StyleProp<ViewStyle>;
   popupHeader?: StyleProp<ViewStyle>;
   popupTitleArea?: StyleProp<ViewStyle>;
@@ -67,12 +65,14 @@ interface ImagePickerBaseProps {
   onClear?: () => void;
   label?: ReactNode | null;
   labelText?: string;
+  /** 无标签且未选择时展示的提示文本。 */
+  placeholder?: string;
   displayInputProps?: ImagePickerDisplayInputProps;
   cameraText?: string;
   photoText?: string;
   fileSystemText?: string;
   cancelText?: string;
-  doneText?: string;
+  okText?: string;
   titleText?: string;
   multipleHintText?: string;
   emptyText?: string;

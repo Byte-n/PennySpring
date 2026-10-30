@@ -19,10 +19,10 @@ export function CardStateDemo() {
       </Card>
       <Card
         loading
-        loadingNode={<Text color="tertiary" size="sm">骨架屏节点</Text>}
+        loadingPlaceholder={<Text color="tertiary" size="sm">骨架屏节点</Text>}
         titleText="自定义加载节点"
       >
-        <Text color="secondary" size="sm">该文案会被 loadingNode 替换</Text>
+        <Text color="secondary" size="sm">该文案会被 loadingPlaceholder 替换</Text>
       </Card>
       <Card disabled onPress={() => undefined} titleText="报销凭证" extra="不可用">
         <Text color="secondary" size="sm">本月无可报销记录</Text>

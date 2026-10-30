@@ -117,7 +117,7 @@ export function Card({
   extra,
   footer,
   loading = false,
-  loadingNode,
+  loadingPlaceholder,
   onPress,
   size = 'normal',
   style,
@@ -134,8 +134,8 @@ export function Card({
   const hasExtra = extra !== undefined && extra !== null && extra !== false;
   const shouldRenderHeader = hasTitleNode || hasTitleText || hasExtra;
   const shouldRenderFooter = footer !== undefined && footer !== null && footer !== false;
-  const shouldRenderLoadingNode = loading && loadingNode !== undefined;
-  const bodyContent = shouldRenderLoadingNode ? loadingNode : children;
+  const shouldRenderLoadingPlaceholder = loading && loadingPlaceholder !== undefined;
+  const bodyContent = shouldRenderLoadingPlaceholder ? loadingPlaceholder : children;
 
   function handlePress(event: GestureResponderEvent): void {
     if (!isInteractive) {
