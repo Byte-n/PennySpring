@@ -1,5 +1,6 @@
 import { formBasicDemoTitle, FormBasicDemo } from './basic';
 import { FormCompoundDemo, formCompoundDemoTitle } from './compound';
+import { FormControlsDemo, formControlsDemoTitle } from './controls';
 import {
   FormDependenciesDemo,
   formDependenciesDemoTitle,
@@ -13,6 +14,11 @@ import { FormValidationDemo, formValidationDemoTitle } from './validation';
 
 export const formDemos = [
   { id: 'basic', title: formBasicDemoTitle, Component: FormBasicDemo },
+  {
+    id: 'controls',
+    title: formControlsDemoTitle,
+    Component: FormControlsDemo,
+  },
   {
     id: 'horizontal',
     title: formHorizontalDemoTitle,
