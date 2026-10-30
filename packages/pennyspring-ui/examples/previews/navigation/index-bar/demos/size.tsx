@@ -56,7 +56,7 @@ const useStyles = createUseSheetStyle(token => ({
   },
 }));
 
-function renderPanel(item: IndexBarItem) {
+function renderItem(item: IndexBarItem) {
   return (
     <DemoPanel index={String(item.index)} />
   );
@@ -89,7 +89,7 @@ export function IndexBarSizeDemo() {
         <Column key={size} style={styles.section}>
           <Text color="tertiary" size="xs">{hint}</Text>
           <Column style={styles.frame}>
-            <IndexBar data={INDEX_DATA} renderPanel={renderPanel} size={size} />
+            <IndexBar data={INDEX_DATA} renderItem={renderItem} size={size} />
           </Column>
         </Column>
       ))}

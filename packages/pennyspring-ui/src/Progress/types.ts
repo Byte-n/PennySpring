@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import type { StyleProp, TextStyle, ViewStyle } from 'react-native';
 import type { ComponentSize } from '../shares/types';
 
-export type ProgressStatus = 'normal' | 'success' | 'exception';
+export type ProgressStatus = 'default' | 'success' | 'error';
 
 export interface ProgressBaseProps {
   percent?: number;

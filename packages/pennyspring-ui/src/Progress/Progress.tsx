@@ -98,7 +98,7 @@ function resolveSize(size?: ComponentSize): ComponentSize {
 }
 
 function resolveStatus(status?: ProgressStatus): ProgressStatus {
-  return status ?? 'normal';
+  return status ?? 'default';
 }
 
 function resolveStatusColor(token: AliasToken, status: ProgressStatus): string {
@@ -106,7 +106,7 @@ function resolveStatusColor(token: AliasToken, status: ProgressStatus): string {
     return token.colorSuccess;
   }
 
-  if (status === 'exception') {
+  if (status === 'error') {
     return token.colorError;
   }
 
@@ -114,7 +114,7 @@ function resolveStatusColor(token: AliasToken, status: ProgressStatus): string {
 }
 
 function resolveInfoColor(status: ProgressStatus): TextColor {
-  if (status === 'exception') {
+  if (status === 'error') {
     return 'error';
   }
 
@@ -126,7 +126,7 @@ function resolveCircleInfoColor(status: ProgressStatus): TextColor {
     return 'success';
   }
 
-  if (status === 'exception') {
+  if (status === 'error') {
     return 'error';
   }
 

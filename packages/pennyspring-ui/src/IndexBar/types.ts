@@ -36,7 +36,7 @@ export interface IndexBarStyles {
 export interface IndexBarProps
   extends Omit<PressableProps, 'style' | 'children' | 'disabled' | 'onPress'> {
   data: readonly IndexBarItem[];
-  renderPanel?: (item: IndexBarItem, index: number) => ReactNode;
+  renderItem?: (item: IndexBarItem, index: number) => ReactNode;
   value?: IndexBarValue;
   defaultValue?: IndexBarValue;
   onChange?: (value: IndexBarValue) => void;

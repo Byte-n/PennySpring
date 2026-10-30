@@ -13,16 +13,16 @@ export function ProgressStatesDemo() {
   return (
     <Column gap="normal">
       <Column gap="small">
-        <Text color="tertiary" size="xs">normal / success / exception：只有已完成段与百分比跟状态色</Text>
+        <Text color="tertiary" size="xs">default / success / error：只有已完成段与百分比跟状态色</Text>
         <Progress.Bar percent={62} />
         <Progress.Bar percent={100} status="success" />
-        <Progress.Bar percent={84} status="exception" />
+        <Progress.Bar percent={84} status="error" />
       </Column>
       <Column gap="small">
-        <Text color="tertiary" size="xs">exception 必须配文案，不能只靠红色</Text>
+        <Text color="tertiary" size="xs">error 必须配文案，不能只靠红色</Text>
         <Progress.Bar
           percent={84}
-          status="exception"
+          status="error"
           format={percent => `已超支 ${Math.round(percent)}%`}
         />
       </Column>

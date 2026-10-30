@@ -70,7 +70,7 @@ const PANEL_LAYOUT_Y: Record<string, number> = {
   C: 240,
 };
 
-function renderPanel(item: IndexBarItem) {
+function renderItem(item: IndexBarItem) {
   return (
     <List
       data={PANEL_ITEMS[String(item.index)]}
@@ -83,14 +83,14 @@ function renderIndexBar(props: Partial<IndexBarProps> = {}) {
   let testRenderer: renderer.ReactTestRenderer;
   const {
     data = DEFAULT_DATA,
-    renderPanel: renderPanelProp = renderPanel,
+    renderItem: renderItemProp = renderItem,
     ...restProps
   } = props;
 
   act(() => {
     testRenderer = renderer.create(
       <>
-        <IndexBar data={data} renderPanel={renderPanelProp} {...restProps} />
+        <IndexBar data={data} renderItem={renderItemProp} {...restProps} />
       </>,
     );
   });

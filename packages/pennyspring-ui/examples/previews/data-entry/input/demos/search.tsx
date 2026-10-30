@@ -19,14 +19,14 @@ export function InputSearchDemo() {
     <>
       <View style={styles.stack}>
         <Input.Search
-          clearable
+          allowClear
           labelText="Default search"
           placeholder="Search"
           defaultValue="Component"
           onSearch={setSubmittedSearchValue}
         />
         <Input.Search
-          clearable
+          allowClear
           labelText="Controlled search"
           placeholder="Search component"
           value={searchValue}

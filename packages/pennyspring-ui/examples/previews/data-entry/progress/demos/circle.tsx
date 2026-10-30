@@ -25,14 +25,14 @@ export function ProgressCircleDemo() {
       <Row gap="large" wrap>
         <Progress.Circle percent={60} />
         <Progress.Circle percent={100} status="success" />
-        <Progress.Circle percent={84} status="exception" />
+        <Progress.Circle percent={84} status="error" />
       </Row>
       <Text color="tertiary" size="xs">
         中心数字 12 / 14 / 16，600 等宽；环内不显示百分号时用 format 返回节点
       </Text>
       <Progress.Circle
         percent={42}
-        status="exception"
+        status="error"
         format={percent => `${Math.round(percent / 10)}/10`}
       />
     </Column>

@@ -63,7 +63,7 @@ function DemoPanel({ index }: { index: string }) {
   );
 }
 
-function renderPanel(item: IndexBarItem) {
+function renderItem(item: IndexBarItem) {
   return <DemoPanel index={String(item.index)} />;
 }
 
@@ -77,7 +77,7 @@ export function IndexBarStatesDemo() {
           四态：默认二级文字；按压 8% 底；选中主色实底 + 白字；禁用四级文字且不响应
         </Text>
         <Column style={styles.frame}>
-          <IndexBar data={INDEX_DATA} defaultValue="B" renderPanel={renderPanel} />
+          <IndexBar data={INDEX_DATA} defaultValue="B" renderItem={renderItem} />
         </Column>
       </Column>
       <Text color="tertiary" size="xs">
@@ -87,7 +87,7 @@ export function IndexBarStatesDemo() {
         <Text color="tertiary" size="xs">深色对照：面板与字母条同底，分组标题吸顶不加阴影</Text>
         <ThemeProvider config={{ algorithm: 'dark' }}>
           <Column style={styles.frame}>
-            <IndexBar data={INDEX_DATA} defaultValue="A" renderPanel={renderPanel} />
+            <IndexBar data={INDEX_DATA} defaultValue="A" renderItem={renderItem} />
           </Column>
         </ThemeProvider>
       </Column>

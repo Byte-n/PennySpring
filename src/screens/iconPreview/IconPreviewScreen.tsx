@@ -255,7 +255,7 @@ export function IconPreviewScreen() {
             placeholder="图标名称、分类或标签"
             value={searchText}
             onChange={setSearchText}
-            clearable
+            allowClear
           />
         </Row>
       </View>

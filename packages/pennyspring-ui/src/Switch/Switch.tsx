@@ -116,7 +116,7 @@ export function Switch(rawProps: SwitchProps) {
       onPress={handlePress}
       onPressIn={handlePressIn}
       onPressOut={handlePressOut}
-      style={[tokenStyles.container, styles?.container, style]}
+      style={[tokenStyles.container, styles?.root, style]}
     >
       <View style={tokenStyles.box}>
         <View

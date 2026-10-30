@@ -30,7 +30,7 @@ import { SIZE_TOKEN_MAP, useStyles } from './style';
 const DEFAULT_DURATION = 1800;
 const DEFAULT_SIZE: ComponentSize = 'normal';
 const DEFAULT_PLACEMENT: ToastPlacement = 'bottom';
-const DEFAULT_STATUS: ToastStatus = 'dot';
+const DEFAULT_STATUS: ToastStatus = 'default';
 /** 最大宽 = 屏宽 - 左右各 24 的留白。 */
 const MAX_WIDTH_INSET = 48;
 
@@ -146,7 +146,7 @@ function ToastBody({
 
   const sizeConfig = SIZE_TOKEN_MAP[size];
   const resolvedIcon = icon === undefined
-    ? status === 'dot'
+    ? status === 'default'
       ? <View style={tokenStyles.dot} />
       : (
         <Icon

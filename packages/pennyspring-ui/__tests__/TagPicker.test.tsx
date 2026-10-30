@@ -160,4 +160,24 @@ describe('TagPicker', () => {
 
     expect(onChange).not.toHaveBeenCalled();
   });
+
+  it('clears every selected tag through the clear button', () => {
+    const onChange = jest.fn();
+    const onClear = jest.fn();
+    const testRenderer = renderTagPicker({
+      allowClear: true,
+      defaultValue: ['food', 'travel'],
+      onChange,
+      onClear,
+    });
+
+    act(() => {
+      testRenderer.root
+        .findByProps({ testID: 'picker-trigger-clear-button' })
+        .props.onPress();
+    });
+
+    expect(onClear).toHaveBeenCalledTimes(1);
+    expect(onChange).toHaveBeenCalledWith([]);
+  });
 });

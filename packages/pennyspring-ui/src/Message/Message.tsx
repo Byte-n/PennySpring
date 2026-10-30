@@ -25,11 +25,11 @@ import type {
   MessagePlacement,
   MessageProps,
   MessageShowOptions,
-  MessageType,
+  MessageStatus,
 } from './types';
 
 const DEFAULT_DURATION = 2400;
-const DEFAULT_TYPE: MessageType = 'default';
+const DEFAULT_STATUS: MessageStatus = 'default';
 const DEFAULT_PLACEMENT: MessagePlacement = 'top';
 const ICON_SIZE = 16;
 const CLOSE_ICON_SIZE = 14;
@@ -44,7 +44,7 @@ interface TypeStyleConfig {
   icon: IconName;
 }
 
-const TYPE_STYLE_MAP: Record<MessageType, TypeStyleConfig> = {
+const STATUS_STYLE_MAP: Record<MessageStatus, TypeStyleConfig> = {
   default: {
     actionColor: 'primaryText',
     backgroundColor: token => token.colorBgContainer,
@@ -81,12 +81,12 @@ interface MessageStyleOptions {
   placement: MessagePlacement;
   safeAreaBottom: number;
   safeAreaTop: number;
-  type: MessageType;
+  status: MessageStatus;
 }
 
 const useStyles = createUseSheetStyle(
-  (token, { placement, safeAreaBottom, safeAreaTop, type }: MessageStyleOptions) => {
-    const typeConfig = TYPE_STYLE_MAP[type];
+  (token, { placement, safeAreaBottom, safeAreaTop, status }: MessageStyleOptions) => {
+    const statusConfig = STATUS_STYLE_MAP[status];
 
     return {
       content: {
@@ -98,10 +98,10 @@ const useStyles = createUseSheetStyle(
           ? { top: safeAreaTop + token.marginXS }
           : { bottom: safeAreaBottom + token.paddingLG }),
         borderRadius: token.borderRadius,
-        backgroundColor: typeConfig.backgroundColor(token),
+        backgroundColor: statusConfig.backgroundColor(token),
         paddingHorizontal: token.paddingSM,
         paddingVertical: token.paddingSM,
-        ...(type === 'default'
+        ...(status === 'default'
           ? { borderColor: token.colorSplit, borderWidth: token.lineWidth }
           : null),
         ...toShadowStyle(token.boxShadowSecondary),
@@ -155,20 +155,20 @@ function MessageBody({
   onExited,
   placement = DEFAULT_PLACEMENT,
   style,
+  status = DEFAULT_STATUS,
   styles,
-  type = DEFAULT_TYPE,
 }: MessageBodyProps) {
   const insets = React.useContext(SafeAreaInsetsContext);
   const tokenStyles = useStyles({
     placement,
     safeAreaBottom: insets?.bottom ?? 0,
     safeAreaTop: insets?.top ?? 0,
-    type,
+    status,
   });
   const { token } = useTheme();
   const progress = useSharedValue(0);
   const closedRef = React.useRef(false);
-  const typeConfig = TYPE_STYLE_MAP[type];
+  const statusConfig = STATUS_STYLE_MAP[status];
 
   const handleClosed = React.useCallback(() => {
     if (!closedRef.current) {
@@ -243,7 +243,7 @@ function MessageBody({
   const isActionAttachedInline = isPrimitiveContent(message ?? messageText) && action !== undefined;
   const actionNode = action === undefined ? null : (
     <Text
-      color={typeConfig.actionColor}
+      color={statusConfig.actionColor}
       onPress={action.onPress}
       size="sm"
       style={[tokenStyles.action, styles?.action]}
@@ -255,8 +255,8 @@ function MessageBody({
   const resolvedIcon = icon === undefined
     ? (
       <Icon
-        color={typeConfig.iconColor}
-        icon={typeConfig.icon}
+        color={statusConfig.iconColor}
+        icon={statusConfig.icon}
         size={ICON_SIZE}
         style={tokenStyles.icon}
       />

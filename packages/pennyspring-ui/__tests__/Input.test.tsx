@@ -134,7 +134,7 @@ describe('Input', () => {
   it('clears editable non-empty values through the clear button', () => {
     const onClear = jest.fn();
     const testRenderer = renderInput({
-      clearable: true,
+      allowClear: true,
       defaultValue: 'Draft',
       onClear,
     });

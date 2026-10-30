@@ -14,7 +14,7 @@ export function MessageSlotsDemo() {
           onPress={() =>
             message.show({
               messageText: '已切换到「十月账单」账本',
-              type: 'info',
+              status: 'info',
               closable: false,
             })}
         >
@@ -25,7 +25,7 @@ export function MessageSlotsDemo() {
             message.show({
               action: { text: '撤销', onPress: () => message.hide(0) },
               messageText: '已保存这笔记录',
-              type: 'success',
+              status: 'success',
             })}
         >
           文本 + 撤销
@@ -35,7 +35,7 @@ export function MessageSlotsDemo() {
             message.show({
               action: { text: '重试', onPress: () => message.hide(0) },
               messageText: '同步失败：网络不可用',
-              type: 'error',
+              status: 'error',
             })}
         >
           文本 + 重试
@@ -44,7 +44,7 @@ export function MessageSlotsDemo() {
           onPress={() =>
             message.show({
               messageText: '3 笔记录时间缺失，已按创建时间归档。可到「账单明细」逐笔修正，或批量重新导入。',
-              type: 'warning',
+              status: 'warning',
             })}
         >
           两行截断
@@ -54,7 +54,7 @@ export function MessageSlotsDemo() {
             message.show({
               icon: null,
               messageText: '列表已按金额重新排序',
-              type: 'info',
+              status: 'info',
             })}
         >
           无图标（不推荐）

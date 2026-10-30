@@ -1,4 +1,5 @@
 import React from 'react';
+import { Text as RNText } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
 import { CalendarPicker, CalendarPickerView } from '../src';
 import { DisplayInput } from '../src/DisplayInput';
@@ -59,6 +60,17 @@ describe('CalendarPicker', () => {
 
     // Assert
     expect(triggerValueText(testRenderer)).toBeUndefined();
+  });
+
+  it('renders custom children as the trigger value node', () => {
+    // Arrange & Act
+    const testRenderer = renderCalendarPicker({
+      children: <RNText>自定义日期</RNText>,
+      value: BASE_DATE,
+    });
+
+    // Assert
+    expect(JSON.stringify(testRenderer.toJSON())).toContain('自定义日期');
   });
 
   it('clears the selected date when allowClear is pressed', () => {

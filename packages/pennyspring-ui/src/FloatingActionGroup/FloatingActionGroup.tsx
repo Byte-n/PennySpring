@@ -534,7 +534,7 @@ export function FloatingActionGroup({
       ) : null}
       <View
         pointerEvents="box-none"
-        style={[tokenStyles.root, style, styles?.root, styles?.container]}
+        style={[tokenStyles.root, style, styles?.root]}
         testID="floating-action-group-container"
       >
         <View style={tokenStyles.hiddenLayer}>

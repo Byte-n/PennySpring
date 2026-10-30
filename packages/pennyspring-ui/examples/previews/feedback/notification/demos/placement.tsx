@@ -16,7 +16,7 @@ export function NotificationPlacementDemo() {
               descriptionText: '96 笔已匹配分类。',
               placement: 'top',
               titleText: '已导入 128 笔记录',
-              type: 'success',
+              status: 'success',
             })}
         >
           top · 状态栏 + 8
@@ -27,7 +27,7 @@ export function NotificationPlacementDemo() {
               descriptionText: '未连接 iCloud。',
               placement: 'bottom',
               titleText: '备份失败',
-              type: 'error',
+              status: 'error',
             })}
         >
           bottom · 24 + 安全区

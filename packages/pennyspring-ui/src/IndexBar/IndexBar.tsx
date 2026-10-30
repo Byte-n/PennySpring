@@ -81,7 +81,7 @@ function getInitialValue(
 
 export function IndexBar({
   data,
-  renderPanel,
+  renderItem,
   value,
   defaultValue,
   onChange,
@@ -236,7 +236,7 @@ export function IndexBar({
         testID={`index-bar-panel-body-${String(panel.index)}`}
         style={[tokenStyles.panel, styles?.panel, panel.style]}
       >
-        {renderPanel?.(panel, panelIndex)}
+        {renderItem?.(panel, panelIndex)}
       </View>
     );
 

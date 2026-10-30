@@ -21,20 +21,20 @@ function DarkSurface() {
           {
             activeIcon: <Icon color="primary" icon="home" size={24} weight="fill" />,
             icon: <Icon color="tertiary" icon="home" size={24} />,
-            key: 'home',
+            value: 'home',
             titleText: '首页',
           },
           {
             activeIcon: <Icon color="primary" icon="list" size={24} weight="fill" />,
             badgeText: '3',
             icon: <Icon color="tertiary" icon="list" size={24} />,
-            key: 'chart',
+            value: 'chart',
             titleText: '图表',
           },
           {
             disabled: true,
             icon: <Icon color="tertiary" icon="user" size={24} />,
-            key: 'me',
+            value: 'me',
             titleText: '我的',
           },
         ]}

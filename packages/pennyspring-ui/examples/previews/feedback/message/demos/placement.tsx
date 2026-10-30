@@ -16,7 +16,7 @@ export function MessagePlacementDemo() {
               action: { text: '撤销', onPress: () => message.hide(0) },
               messageText: '已保存这笔记录',
               placement: 'top',
-              type: 'success',
+              status: 'success',
             })}
         >
           top · 状态栏 + 8
@@ -27,7 +27,7 @@ export function MessagePlacementDemo() {
               action: { text: '重试', onPress: () => message.hide(0) },
               messageText: '同步失败：网络不可用',
               placement: 'bottom',
-              type: 'error',
+              status: 'error',
             })}
         >
           bottom · 24 + 安全区

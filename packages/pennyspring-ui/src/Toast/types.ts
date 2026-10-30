@@ -7,9 +7,9 @@ export type ToastPlacement = 'top' | 'center' | 'bottom';
 
 /**
  * 胶囊左侧图标语义。
-dot 无类型、success 操作已生效、error 操作未生效。
+ * default 显示无类型圆点、success 操作已生效、error 操作未生效。
  */
-export type ToastStatus = 'dot' | 'success' | 'error';
+export type ToastStatus = 'default' | 'success' | 'error';
 
 export interface ToastStyles {
   content?: StyleProp<ViewStyle>;

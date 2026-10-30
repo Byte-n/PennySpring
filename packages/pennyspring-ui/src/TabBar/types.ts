@@ -11,7 +11,7 @@ import type { ComponentSize } from '../shares/types';
 export type TabBarValue = string | number;
 
 export interface TabBarItem {
-  key: TabBarValue;
+  value: TabBarValue;
   titleText?: string;
   title?: ReactNode;
   icon?: ReactNode;

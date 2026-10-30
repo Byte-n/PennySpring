@@ -22,8 +22,8 @@ export function TabBarStatesDemo() {
       <TabBar
         defaultValue="home"
         items={[
-          { activeIcon: icon('home', true), icon: icon('home'), key: 'home', titleText: '首页' },
-          { activeIcon: icon('list', true), icon: icon('list'), key: 'chart', titleText: '图表' },
+          { activeIcon: icon('home', true), icon: icon('home'), value: 'home', titleText: '首页' },
+          { activeIcon: icon('list', true), icon: icon('list'), value: 'chart', titleText: '图表' },
         ]}
         safeAreaInsetBottom={false}
       />
@@ -33,8 +33,8 @@ export function TabBarStatesDemo() {
       <TabBar
         defaultValue="home"
         items={[
-          { activeIcon: icon('home', true), icon: icon('home'), key: 'home', titleText: '首页' },
-          { disabled: true, icon: icon('user'), key: 'me', titleText: '我的' },
+          { activeIcon: icon('home', true), icon: icon('home'), value: 'home', titleText: '首页' },
+          { disabled: true, icon: icon('user'), value: 'me', titleText: '我的' },
         ]}
         safeAreaInsetBottom={false}
       />
@@ -44,18 +44,18 @@ export function TabBarStatesDemo() {
       <TabBar
         defaultValue="chart"
         items={[
-          { icon: icon('home'), key: 'home', titleText: '首页' },
+          { icon: icon('home'), value: 'home', titleText: '首页' },
           {
             activeIcon: icon('list', true),
             badgeText: '12',
             icon: icon('list'),
-            key: 'chart',
+            value: 'chart',
             titleText: '图表',
           },
           {
             badge: <View />,
             icon: icon('user'),
-            key: 'me',
+            value: 'me',
             titleText: '我的',
           },
         ]}

@@ -384,6 +384,7 @@ export function DateTimeCalendarPicker(props: DateTimePickerCoreProps) {
       <PickerTrigger
         active={isOpen && field.status !== 'error'}
         allowClear={props.allowClear}
+        children={props.children}
         disabled={resolvedDisabled || isLoading}
         displayInputProps={props.displayInputProps}
         externalInputStyles={props.styles?.input}

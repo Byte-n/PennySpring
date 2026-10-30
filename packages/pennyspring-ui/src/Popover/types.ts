@@ -6,7 +6,7 @@ export type PopoverPlacement = 'top' | 'bottom' | 'left' | 'right';
 
 export type PopoverAlign = 'start' | 'center' | 'end';
 
-export type PopoverTrigger = 'click' | 'longPress' | 'manual';
+export type PopoverTrigger = 'press' | 'longPress' | 'manual';
 
 export type PopoverOpenChangeReason = 'trigger' | 'outside' | 'back';
 

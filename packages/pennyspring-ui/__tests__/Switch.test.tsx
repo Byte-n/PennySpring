@@ -1,4 +1,5 @@
 import React from 'react';
+import { StyleSheet } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
 import { Switch } from '../src/Switch';
 import type { SwitchProps } from '../src/Switch';
@@ -32,6 +33,13 @@ function pressSwitch(testRenderer: renderer.ReactTestRenderer) {
 }
 
 describe('Switch', () => {
+  it('applies the root slot style to the root node', () => {
+    const testRenderer = renderSwitch({ styles: { root: { marginTop: 8 } } });
+    const style = StyleSheet.flatten(findSwitch(testRenderer).props.style);
+
+    expect(style.marginTop).toBe(8);
+  });
+
   it('toggles uncontrolled value and reports the next state', () => {
     const onChange = jest.fn();
     const testRenderer = renderSwitch({ defaultValue: false, onChange });

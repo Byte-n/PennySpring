@@ -15,7 +15,7 @@ export function NotificationStructureDemo() {
             notification.show({
               descriptionText: '结余 ¥612.40，比 8 月少花 8%。',
               titleText: '9 月预算报告已生成',
-              type: 'info',
+              status: 'info',
             })}
         >
           仅标题 + 说明
@@ -29,7 +29,7 @@ export function NotificationStructureDemo() {
               ],
               descriptionText: '未连接 iCloud，请检查账号。',
               titleText: '备份失败',
-              type: 'error',
+              status: 'error',
             })}
         >
           两个操作 · 常驻
@@ -41,7 +41,7 @@ export function NotificationStructureDemo() {
               closable: false,
               descriptionText: '还剩 4 天，按当前节奏预计超出 ¥520。',
               titleText: '本月预算已超支 ¥379.85',
-              type: 'warning',
+              status: 'warning',
             })}
         >
           无关闭 + 一个操作

@@ -37,7 +37,7 @@ function getInitialValue(
     return defaultValue;
   }
 
-  return items.find(item => !item.disabled)?.key;
+  return items.find(item => !item.disabled)?.value;
 }
 
 function renderTitle(
@@ -99,7 +99,7 @@ export function TabBar({
       <Row align="stretch" style={styles?.tabList}>
         {normalizedItems.map(item => {
           const itemDisabled = disabled || item.disabled === true;
-          const isSelected = selectedValue === item.key;
+          const isSelected = selectedValue === item.value;
           const titleNode =
             item.title !== undefined ? item.title : item.titleText;
           const iconNode =
@@ -116,16 +116,16 @@ export function TabBar({
           return (
             <Pressable
               {...rest}
-              key={String(item.key)}
-              testID={`tab-bar-item-${String(item.key)}`}
+              key={String(item.value)}
+              testID={`tab-bar-item-${String(item.value)}`}
               disabled={itemDisabled}
               onPress={event => {
                 if (itemDisabled || isSelected) {
                   return;
                 }
 
-                onPress?.(event, item.key);
-                setSelectedValue(item.key);
+                onPress?.(event, item.value);
+                setSelectedValue(item.value);
               }}
               style={[
                 tokenStyles.tab,

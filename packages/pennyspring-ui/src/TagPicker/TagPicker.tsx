@@ -28,6 +28,7 @@ function isOption(
 }
 
 export function TagPicker({
+  allowClear,
   defaultOpen,
   defaultValue,
   disabled = false,
@@ -36,6 +37,7 @@ export function TagPicker({
   labelText,
   loading = false,
   onChange,
+  onClear,
   onOpenChange,
   open,
   options,
@@ -127,6 +129,15 @@ export function TagPicker({
     [isInteractive, selectedValues, setMergedValue],
   );
 
+  function handleClear(): void {
+    if (!isInteractive) {
+      return;
+    }
+
+    onClear?.();
+    setMergedValue([]);
+  }
+
   function renderChip(option: TagPickerOption, dashed: boolean) {
     const isSelected = selectedValues.includes(option.value);
     const isOptionDisabled = !isInteractive || option.disabled === true;
@@ -197,12 +208,14 @@ export function TagPicker({
     <>
       <PickerTrigger
         active={mergedOpen === true}
+        allowClear={allowClear}
         disabled={!isInteractive}
         displayInputProps={displayInputProps}
         externalInputStyles={styles?.input}
         externalTriggerStyle={style}
         hasValue={tagItems.length > 0}
         label={field.label ?? field.labelText}
+        onClearPress={handleClear}
         onPress={() => setOpen(mergedOpen !== true)}
         overflow={displayInputProps?.overflow ?? 'visible'}
         size={resolvedSize}

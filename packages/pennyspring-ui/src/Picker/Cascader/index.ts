@@ -1,7 +1,9 @@
 export { PickerCascader } from './Cascader';
 export type {
   PickerCascaderBodyStyles,
+  PickerCascaderChangeEvent,
   PickerCascaderChangeParams,
+  PickerCascaderClearParams,
   PickerCascaderColumnStyles,
   PickerCascaderHeaderStyles,
   PickerCascaderOkParams,

@@ -5,6 +5,6 @@ export type {
   NotificationPlacement,
   NotificationProps,
   NotificationShowOptions,
+  NotificationStatus,
   NotificationStyles,
-  NotificationType,
 } from './types';

@@ -23,8 +23,6 @@ export interface FloatingActionItem {
 
 export interface FloatingActionGroupStyles {
   root?: StyleProp<ViewStyle>;
-  /** @deprecated Use root instead. */
-  container?: StyleProp<ViewStyle>;
   moreButton?: StyleProp<ViewStyle>;
   actionButton?: StyleProp<ViewStyle>;
 }

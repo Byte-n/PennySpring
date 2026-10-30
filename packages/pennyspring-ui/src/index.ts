@@ -296,7 +296,9 @@ export type {
 } from './Picker';
 export type {
   PickerCascaderBodyStyles,
+  PickerCascaderChangeEvent,
   PickerCascaderChangeParams,
+  PickerCascaderClearParams,
   PickerCascaderColumnStyles,
   PickerCascaderHeaderStyles,
   PickerCascaderOkParams,
@@ -420,8 +422,8 @@ export type {
   MessagePlacement,
   MessageProps,
   MessageShowOptions,
+  MessageStatus,
   MessageStyles,
-  MessageType,
 } from './Message';
 export { Notification, useNotification } from './Notification';
 export type {
@@ -429,8 +431,8 @@ export type {
   NotificationPlacement,
   NotificationProps,
   NotificationShowOptions,
+  NotificationStatus,
   NotificationStyles,
-  NotificationType,
 } from './Notification';
 export { SwipeAction } from './SwipeAction';
 export type {

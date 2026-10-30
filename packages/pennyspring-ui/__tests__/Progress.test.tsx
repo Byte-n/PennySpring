@@ -65,8 +65,8 @@ describe('Progress', () => {
       expect(text.props.children).toBe('100%');
     });
 
-    it('renders exception status percent text', () => {
-      const testRenderer = renderProgressBar({ percent: 38, status: 'exception' });
+    it('renders error status percent text', () => {
+      const testRenderer = renderProgressBar({ percent: 38, status: 'error' });
       const text = testRenderer.root.findByType(Text);
       expect(text.props.children).toBe('38%');
     });
@@ -110,8 +110,8 @@ describe('Progress', () => {
       expect(text.props.children).toBe('100%');
     });
 
-    it('renders exception status percent text', () => {
-      const testRenderer = renderProgressCircle({ percent: 25, status: 'exception' });
+    it('renders error status percent text', () => {
+      const testRenderer = renderProgressCircle({ percent: 25, status: 'error' });
       const text = testRenderer.root.findByType(Text);
       expect(text.props.children).toBe('25%');
     });

@@ -119,9 +119,9 @@ it('prefers external suffix over the clear button', () => {
   ).toHaveLength(0);
 });
 
-it('replaces the component suffix with the clear button when clearable', () => {
+it('replaces the component suffix with the clear button when allowClear is set', () => {
   const componentSuffix = <Text>caret</Text>;
-  const clearableRenderer = renderTrigger({
+  const clearRenderer = renderTrigger({
     allowClear: true,
     hasValue: true,
     suffix: componentSuffix,
@@ -129,7 +129,7 @@ it('replaces the component suffix with the clear button when clearable', () => {
   const plainRenderer = renderTrigger({ suffix: componentSuffix });
 
   expect(
-    clearableRenderer.root.findAllByProps({ testID: 'picker-trigger-clear-button' }).length,
+    clearRenderer.root.findAllByProps({ testID: 'picker-trigger-clear-button' }).length,
   ).toBeGreaterThan(0);
   expect(
     plainRenderer.root.findByType(DisplayInput).props.suffix,

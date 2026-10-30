@@ -100,7 +100,7 @@ export interface InputProps
   /**
    * Whether to show a clear button for editable non-empty values.
    */
-  clearable?: boolean;
+  allowClear?: boolean;
 
   /**
    * Called when the clear button is pressed.

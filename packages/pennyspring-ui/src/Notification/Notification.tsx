@@ -26,12 +26,12 @@ import type {
   NotificationPlacement,
   NotificationProps,
   NotificationShowOptions,
-  NotificationType,
+  NotificationStatus,
 } from './types';
 
 const DEFAULT_DURATION = 3200;
 const DEFAULT_SIZE: ComponentSize = 'normal';
-const DEFAULT_TYPE: NotificationType = 'default';
+const DEFAULT_STATUS: NotificationStatus = 'default';
 const DEFAULT_PLACEMENT: NotificationPlacement = 'top';
 const CLOSE_SIZE = 24;
 const CLOSE_ICON_SIZE = 14;
@@ -87,7 +87,7 @@ interface TypeConfig {
   plateColor: (token: AliasToken) => string;
 }
 
-const TYPE_STYLE_MAP: Record<NotificationType, TypeConfig> = {
+const STATUS_STYLE_MAP: Record<NotificationStatus, TypeConfig> = {
   default: {
     actionColor: 'primaryText',
     icon: 'info',
@@ -126,16 +126,16 @@ interface NotificationStyleOptions {
   safeAreaBottom: number;
   safeAreaTop: number;
   size: ComponentSize;
-  type: NotificationType;
+  status: NotificationStatus;
 }
 
 const useStyles = createUseSheetStyle(
   (
     token,
-    { maxContentWidth, placement, safeAreaBottom, safeAreaTop, size, type }: NotificationStyleOptions,
+    { maxContentWidth, placement, safeAreaBottom, safeAreaTop, size, status }: NotificationStyleOptions,
   ) => {
     const sizeConfig = SIZE_MAP[size];
-    const typeConfig = TYPE_STYLE_MAP[type];
+    const statusConfig = STATUS_STYLE_MAP[status];
 
     return {
       content: {
@@ -160,7 +160,7 @@ const useStyles = createUseSheetStyle(
       },
       plate: {
         alignItems: 'center',
-        backgroundColor: typeConfig.plateColor(token),
+        backgroundColor: statusConfig.plateColor(token),
         borderRadius: sizeConfig.plateRadius,
         height: sizeConfig.plateSize,
         justifyContent: 'center',
@@ -214,11 +214,11 @@ function NotificationBody({
   onExited,
   placement = DEFAULT_PLACEMENT,
   size = DEFAULT_SIZE,
+  status = DEFAULT_STATUS,
   style,
   styles,
   title,
   titleText,
-  type = DEFAULT_TYPE,
 }: NotificationBodyProps) {
   const { token } = useTheme();
   const { width: windowWidth } = useWindowDimensions();
@@ -229,12 +229,12 @@ function NotificationBody({
     safeAreaBottom: insets?.bottom ?? 0,
     safeAreaTop: insets?.top ?? 0,
     size,
-    type,
+    status,
   });
   const progress = useSharedValue(0);
   const closedRef = React.useRef(false);
   const sizeConfig = SIZE_MAP[size];
-  const typeConfig = TYPE_STYLE_MAP[type];
+  const statusConfig = STATUS_STYLE_MAP[status];
   const visibleActions = actions?.slice(0, MAX_ACTIONS) ?? [];
   const hasTitle = title !== undefined || titleText !== undefined;
   const hasDescription = description !== undefined || descriptionText !== undefined;
@@ -323,7 +323,7 @@ function NotificationBody({
   const resolvedIcon = icon === null
     ? null
     : icon ?? (
-      <Icon color={typeConfig.iconColor} icon={typeConfig.icon} size={sizeConfig.iconSize} />
+      <Icon color={statusConfig.iconColor} icon={statusConfig.icon} size={sizeConfig.iconSize} />
     );
 
   return (
@@ -360,8 +360,8 @@ function NotificationBody({
             <Row style={tokenStyles.actions}>
               {visibleActions.map(action => (
                 <Text
-                  key={action.text}
-                  color={typeConfig.actionColor}
+                  key={action.key ?? action.text}
+                  color={statusConfig.actionColor}
                   onPress={action.onPress}
                   size="sm"
                   weight="semibold"

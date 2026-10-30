@@ -153,7 +153,7 @@ function renderAction(
   return (
     <Pressable
       disabled={action.disabled}
-      key={index}
+      key={action.key ?? index}
       onPress={handlePress}
       style={({ pressed }) => [
         styles.action,
@@ -264,7 +264,7 @@ export function ActionSheet({
             ) : null}
             <Column testID="action-sheet-actions-container">
               {actions.map((action, index) => (
-                <React.Fragment key={index}>
+                <React.Fragment key={action.key ?? index}>
                   {index > 0 ? (
                     <Column style={tokenStyles.actionSeparator} />
                   ) : null}

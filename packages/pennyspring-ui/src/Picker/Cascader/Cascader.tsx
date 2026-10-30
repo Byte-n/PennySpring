@@ -169,7 +169,28 @@ export function PickerCascader<
   const handlePickerChange: NonNullable<
     PickerProps<PickerCascaderItem<TData>>['onChange']
   > = (_nextPickerValue, pickerParams) => {
-    if (pickerParams.reason !== 'select' || !activeTab || resolvedActiveTabKey === undefined) {
+    if (!activeTab || resolvedActiveTabKey === undefined) {
+      return;
+    }
+
+    if (pickerParams.reason === 'clear') {
+      const nextDraftValue = {
+        ...draftValue,
+        [resolvedActiveTabKey]: [],
+      };
+
+      setDraftValue(nextDraftValue);
+      setMainValue(nextDraftValue);
+      props.onChange?.(nextDraftValue, {
+        reason: 'clear',
+        tabKey: resolvedActiveTabKey,
+        tabIndex: activeTabIndex,
+        tab: activeTab,
+      });
+      return;
+    }
+
+    if (pickerParams.reason !== 'select') {
       return;
     }
 
@@ -227,6 +248,7 @@ export function PickerCascader<
 
   return (
     <PickerCore
+      allowClear={props.allowClear}
       columns={columns}
       defaultOpen={props.defaultOpen}
       disabled={props.disabled}
@@ -235,6 +257,7 @@ export function PickerCascader<
       labelText={props.labelText}
       onCancel={props.onCancel}
       onChange={handlePickerChange}
+      onClear={props.onClear}
       onOk={handlePickerOk}
       onOpenChange={props.onOpenChange}
       open={props.open}

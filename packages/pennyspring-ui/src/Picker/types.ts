@@ -234,6 +234,7 @@ export interface PickerCascaderChangeParams<
   TData = unknown,
   TTabKey extends PickerCascaderTabKey = string,
 > {
+  reason: 'select';
   tabKey: TTabKey;
   tabIndex: number;
   tab: PickerCascaderTab<TData, TTabKey>;
@@ -244,6 +245,23 @@ export interface PickerCascaderChangeParams<
   path: Array<PickerCascaderOption<TData>>;
   items: Array<PickerCascaderOption<TData> | undefined>;
 }
+
+export interface PickerCascaderClearParams<
+  TData = unknown,
+  TTabKey extends PickerCascaderTabKey = string,
+> {
+  reason: 'clear';
+  tabKey: TTabKey;
+  tabIndex: number;
+  tab: PickerCascaderTab<TData, TTabKey>;
+}
+
+export type PickerCascaderChangeEvent<
+  TData = unknown,
+  TTabKey extends PickerCascaderTabKey = string,
+> =
+  | PickerCascaderChangeParams<TData, TTabKey>
+  | PickerCascaderClearParams<TData, TTabKey>;
 
 export interface PickerCascaderOkParams<
   TData = unknown,
@@ -327,13 +345,19 @@ export interface PickerCascaderProps<
   defaultValue?: PickerCascaderValue<TTabKey>;
   onChange?: (
     value: PickerCascaderValue<TTabKey>,
-    params: PickerCascaderChangeParams<TData, TTabKey>,
+    params: PickerCascaderChangeEvent<TData, TTabKey>,
   ) => void;
   onOk?: (
     value: PickerCascaderValue<TTabKey>,
     params: PickerCascaderOkParams<TData, TTabKey>,
   ) => void;
   onCancel?: (params: PickerCancelParams) => void;
+
+  /** 是否展示清除按钮；清除当前 Tab 的选中路径。 */
+  allowClear?: boolean;
+
+  /** 清除当前 Tab 的选中路径后触发。 */
+  onClear?: () => void;
 
   open?: boolean;
   defaultOpen?: boolean;

@@ -196,7 +196,7 @@ export function PhosphorIconPickerContent({
     <Column style={styles.body} gap="normal">
       <Input.Search
         labelText="搜索"
-        clearable
+        allowClear
         placeholder="图标名称"
         value={searchText}
         onChange={setSearchText}

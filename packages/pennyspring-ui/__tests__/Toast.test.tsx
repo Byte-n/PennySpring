@@ -154,12 +154,14 @@ describe('Toast', () => {
     expect(textNode.props.numberOfLines).toBe(1);
   });
 
-  it('renders a dot by default and check / warning icons by status', () => {
+  it('renders a dot for default status and check / warning icons for success / error', () => {
     const successRenderer = renderToast({ status: 'success' });
     const errorRenderer = renderToast({ status: 'error' });
-    const dotRenderer = renderToast();
+    const defaultRenderer = renderToast({ status: 'default' });
+    const omittedRenderer = renderToast();
 
-    expect(dotRenderer.root.findAllByType(Icon)).toHaveLength(0);
+    expect(defaultRenderer.root.findAllByType(Icon)).toHaveLength(0);
+    expect(omittedRenderer.root.findAllByType(Icon)).toHaveLength(0);
     expect(successRenderer.root.findByType(Icon).props.icon).toBe('check');
     expect(errorRenderer.root.findByType(Icon).props.icon).toBe('warning');
   });

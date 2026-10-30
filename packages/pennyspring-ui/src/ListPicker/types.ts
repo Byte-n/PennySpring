@@ -167,7 +167,7 @@ export interface ListPickerTexts {
 }
 
 type SearchInputControlledKey =
-  | 'clearable'
+  | 'allowClear'
   | 'defaultValue'
   | 'disabled'
   | 'label'

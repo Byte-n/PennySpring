@@ -92,8 +92,8 @@ describe('Notification', () => {
     ['warning', 'warningBgToken', 'warning'],
     ['error', 'errorBgToken', 'close-circle'],
     ['info', 'infoBgToken', 'info'],
-  ] as const)('paints %s plate with its semantic background', (type, expectedBackground, expectedIcon) => {
-    const testRenderer = renderNotification({ type });
+  ] as const)('paints %s plate with its semantic background', (status, expectedBackground, expectedIcon) => {
+    const testRenderer = renderNotification({ status });
     const plateStyle = StyleSheet.flatten(getPlate(testRenderer)?.props.style);
     const headerIcon = testRenderer.root
       .findAllByType(Icon)
@@ -139,7 +139,7 @@ describe('Notification', () => {
         { text: '忽略', onPress: jest.fn() },
       ],
       onCancel,
-      type: 'success',
+      status: 'success',
     });
     const actionNodes = testRenderer.root
       .findAllByType(Text)

@@ -13,19 +13,19 @@ function createItems(iconSize: number): TabBarItem[] {
     {
       activeIcon: <Icon color="primary" icon="home" size={iconSize} weight="fill" />,
       icon: <Icon color="tertiary" icon="home" size={iconSize} />,
-      key: 'home',
+      value: 'home',
       titleText: '首页',
     },
     {
       activeIcon: <Icon color="primary" icon="list" size={iconSize} weight="fill" />,
       icon: <Icon color="tertiary" icon="list" size={iconSize} />,
-      key: 'chart',
+      value: 'chart',
       titleText: '图表',
     },
     {
       activeIcon: <Icon color="primary" icon="user" size={iconSize} weight="fill" />,
       icon: <Icon color="tertiary" icon="user" size={iconSize} />,
-      key: 'me',
+      value: 'me',
       titleText: '我的',
     },
   ];

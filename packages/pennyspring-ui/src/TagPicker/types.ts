@@ -91,6 +91,12 @@ export interface TagPickerProps {
   /** 是否禁用整个选择器。 */
   disabled?: boolean;
 
+  /** 是否展示清除按钮；清除后回传空数组。 */
+  allowClear?: boolean;
+
+  /** 清除全部已选值后触发。 */
+  onClear?: () => void;
+
   /** 是否处于加载态。 */
   loading?: boolean;
 

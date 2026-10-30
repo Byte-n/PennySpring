@@ -1,4 +1,5 @@
 import React from 'react';
+import { Text as RNText } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
 import { CalendarPickerView, DateTimePicker } from '../src';
 import { DisplayInput } from '../src/DisplayInput';
@@ -362,4 +363,22 @@ it('disables ok when the selected time is outside the allowed range', () => {
   expect(
     testRenderer!.root.findByProps({ testID: 'picker-ok-button' }).props.disabled,
   ).toBe(true);
+});
+
+it('renders custom children in the calendar value slot', () => {
+  let testRenderer: renderer.ReactTestRenderer;
+
+  act(() => {
+    testRenderer = renderer.create(
+      <DateTimePicker
+        layout="calendar"
+        precision="minute"
+        value={makeDate(2026, 10, 25, 14, 30)}
+      >
+        <RNText>自定义时间</RNText>
+      </DateTimePicker>,
+    );
+  });
+
+  expect(JSON.stringify(testRenderer!.toJSON())).toContain('自定义时间');
 });

@@ -218,7 +218,7 @@ const useSearchStyles = createUseSheetStyle(
 );
 
 function InputView({
-  clearable,
+  allowClear,
   defaultValue,
   disabled = false,
   label,
@@ -262,7 +262,7 @@ function InputView({
   const hasSuffix = hasNode(suffix);
   const isActive = isFocused || Boolean(mergedValue);
   const shouldShowClearButton =
-    clearable === true && Boolean(mergedValue) && isEditable && loading !== true;
+    allowClear === true && Boolean(mergedValue) && isEditable && loading !== true;
   const progress = useSharedValue(isActive ? 1 : 0);
   const metrics = FIELD_SIZE_MAP[resolvedSize];
   const bodyFontSize = metrics.valueFontSize(token);

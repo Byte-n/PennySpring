@@ -40,7 +40,7 @@ import type {
 
 const DEFAULT_PLACEMENT = 'bottom' as const;
 const DEFAULT_ALIGN = 'center' as const;
-const DEFAULT_TRIGGER = 'click' as const;
+const DEFAULT_TRIGGER = 'press' as const;
 
 const ReanimatedView = createAnimatedComponent(View);
 
@@ -286,7 +286,7 @@ export function Popover({
       {React.isValidElement(children)
         ? mergeTriggerHandlers(
             children,
-            trigger === 'click' ? handleTriggerPress : undefined,
+            trigger === 'press' ? handleTriggerPress : undefined,
             trigger === 'longPress' ? handleTriggerPress : undefined,
           )
         : children}
@@ -299,7 +299,7 @@ export function Popover({
     ) : (
       <Pressable
         onLongPress={trigger === 'longPress' ? handleTriggerPress : undefined}
-        onPress={trigger === 'click' ? handleTriggerPress : undefined}
+        onPress={trigger === 'press' ? handleTriggerPress : undefined}
         testID="popover-trigger"
       >
         {anchor}

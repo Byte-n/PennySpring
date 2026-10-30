@@ -3,13 +3,14 @@ import type { StyleProp, TextStyle, ViewStyle } from 'react-native';
 import type { PortalMountPoint } from '../Portal/types';
 import type { ComponentSize } from '../shares/types';
 
-export type NotificationType = 'default' | 'success' | 'warning' | 'error' | 'info';
+export type NotificationStatus = 'default' | 'success' | 'warning' | 'error' | 'info';
 
 /** 四角定位收敛为顶部与底部，左右统一 16。 */
 export type NotificationPlacement = 'top' | 'bottom';
 
 /** 说明下方的文字操作，最多两个。 */
 export interface NotificationAction {
+  key?: string;
   text: string;
   onPress: () => void;
 }
@@ -29,9 +30,9 @@ export interface NotificationProps {
   afterOpenChange?: (open: boolean) => void;
   duration?: number;
   size?: ComponentSize;
-  type?: NotificationType;
+  status?: NotificationStatus;
   placement?: NotificationPlacement;
-  /** 图标位。传 null 不渲染底板；缺省按 type 映射。 */
+  /** 图标位。传 null 不渲染底板；缺省按 status 映射。 */
   icon?: ReactNode | null;
   titleText?: string;
   title?: ReactNode;
@@ -49,7 +50,7 @@ export interface NotificationShowOptions {
   onCancel?: () => void;
   duration?: number;
   size?: ComponentSize;
-  type?: NotificationType;
+  status?: NotificationStatus;
   placement?: NotificationPlacement;
   icon?: ReactNode | null;
   titleText?: string;

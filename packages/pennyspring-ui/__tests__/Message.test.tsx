@@ -66,16 +66,16 @@ describe('Message', () => {
     ['error', 'errorBgToken'],
     ['info', 'infoBgToken'],
     ['default', 'containerToken'],
-  ] as const)('paints %s on its semantic background', (type, expectedBackground) => {
-    const testRenderer = renderMessage({ type });
+  ] as const)('paints %s on its semantic background', (status, expectedBackground) => {
+    const testRenderer = renderMessage({ status });
     const contentStyle = getContentStyle(testRenderer);
 
     expect(contentStyle.backgroundColor).toBe(expectedBackground);
   });
 
-  it('keeps a hairline border only on the default type', () => {
+  it('keeps a hairline border only on the default status', () => {
     const defaultStyle = getContentStyle(renderMessage());
-    const successStyle = getContentStyle(renderMessage({ type: 'success' }));
+    const successStyle = getContentStyle(renderMessage({ status: 'success' }));
 
     expect(defaultStyle.borderWidth).toBe(TOKENS.lineWidth);
     expect(defaultStyle.borderColor).toBe(TOKENS.colorSplit);
@@ -88,8 +88,8 @@ describe('Message', () => {
     ['warning', 'warning', 'warning'],
     ['error', 'close-circle', 'error'],
     ['info', 'info', 'info'],
-  ] as const)('maps %s to its icon', (type, expectedIcon, expectedColor) => {
-    const testRenderer = renderMessage({ type });
+  ] as const)('maps %s to its icon', (status, expectedIcon, expectedColor) => {
+    const testRenderer = renderMessage({ status });
     const icon = getHeaderIcon(testRenderer);
 
     expect(icon?.props.icon).toBe(expectedIcon);
@@ -113,7 +113,7 @@ describe('Message', () => {
     jest.useFakeTimers();
     const onPress = jest.fn();
     const onCancel = jest.fn();
-    const testRenderer = renderMessage({ action: { onPress, text: '撤销' }, onCancel, type: 'success' });
+    const testRenderer = renderMessage({ action: { onPress, text: '撤销' }, onCancel, status: 'success' });
     const actionNode = testRenderer.root.findAllByType(Text).find(node => {
       return typeof node.props.onPress === 'function';
     });

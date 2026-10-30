@@ -13,14 +13,14 @@ function renderTabBar(props: Partial<TabBarProps> = {}) {
       <>
         <TabBar
           items={[
-            { key: 'home', titleText: '首页', icon: <RNText>H</RNText> },
+            { value: 'home', titleText: '首页', icon: <RNText>H</RNText> },
             {
-              key: 'assets',
+              value: 'assets',
               titleText: '资产',
               icon: <RNText>A</RNText>,
               badgeText: '3',
             },
-            { key: 'profile', titleText: '我的', icon: <RNText>P</RNText> },
+            { value: 'profile', titleText: '我的', icon: <RNText>P</RNText> },
           ]}
           {...props}
         />
@@ -31,12 +31,12 @@ function renderTabBar(props: Partial<TabBarProps> = {}) {
   return testRenderer!;
 }
 
-function pressByKey(
+function pressItem(
   testRenderer: renderer.ReactTestRenderer,
-  key: string | number,
+  value: string | number,
 ) {
   const target = testRenderer.root.findByProps({
-    testID: `tab-bar-item-${String(key)}`,
+    testID: `tab-bar-item-${String(value)}`,
   });
 
   act(() => {
@@ -72,7 +72,7 @@ describe('TabBar', () => {
     const onChange = jest.fn();
     const testRenderer = renderTabBar({ defaultValue: 'home', onChange });
 
-    pressByKey(testRenderer, 'assets');
+    pressItem(testRenderer, 'assets');
 
     expect(onChange).toHaveBeenCalledWith('assets');
   });
@@ -81,7 +81,7 @@ describe('TabBar', () => {
     const onChange = jest.fn();
     const testRenderer = renderTabBar({ onChange, value: 'home' });
 
-    pressByKey(testRenderer, 'assets');
+    pressItem(testRenderer, 'assets');
 
     expect(onChange).toHaveBeenCalledWith('assets');
     const activeBadge = testRenderer.root.findAllByProps({
@@ -102,7 +102,7 @@ describe('TabBar', () => {
       },
     });
 
-    pressByKey(testRenderer, 'assets');
+    pressItem(testRenderer, 'assets');
 
     expect(calls).toEqual(['press', 'change']);
   });
@@ -114,13 +114,13 @@ describe('TabBar', () => {
       defaultValue: 'home',
       onChange,
       items: [
-        { key: 'home', titleText: '首页' },
-        { disabled: true, key: 'assets', titleText: '资产' },
+        { value: 'home', titleText: '首页' },
+        { disabled: true, value: 'assets', titleText: '资产' },
       ],
     });
 
-    pressByKey(disabledRoot, 'assets');
-    const item = pressByKey(disabledItem, 'assets');
+    pressItem(disabledRoot, 'assets');
+    const item = pressItem(disabledItem, 'assets');
 
     expect(onChange).not.toHaveBeenCalled();
     expect(item.props.disabled).toBe(true);
@@ -132,13 +132,13 @@ describe('TabBar', () => {
         {
           activeIcon: <RNText>ACTIVE</RNText>,
           icon: <RNText>INACTIVE</RNText>,
-          key: 'home',
+          value: 'home',
           titleText: '首页',
         },
         {
           activeIcon: <RNText>ACTIVE-2</RNText>,
           icon: <RNText>INACTIVE-2</RNText>,
-          key: 'assets',
+          value: 'assets',
           titleText: '资产',
         },
       ],
@@ -155,9 +155,9 @@ describe('TabBar', () => {
   it('maps title color and weight to the selection state', () => {
     const testRenderer = renderTabBar({
       items: [
-        { key: 'home', titleText: '首页' },
-        { key: 'assets', titleText: '资产' },
-        { disabled: true, key: 'profile', titleText: '我的' },
+        { value: 'home', titleText: '首页' },
+        { value: 'assets', titleText: '资产' },
+        { disabled: true, value: 'profile', titleText: '我的' },
       ],
       value: 'home',
     });
@@ -172,7 +172,7 @@ describe('TabBar', () => {
   it('uses the same 12px title size for every TabBar size', () => {
     for (const size of ['small', 'normal', 'large'] as const) {
       const testRenderer = renderTabBar({
-        items: [{ key: 'home', titleText: '首页' }],
+        items: [{ value: 'home', titleText: '首页' }],
         size,
       });
 
@@ -183,8 +183,8 @@ describe('TabBar', () => {
   it('caps badge text at 99+', () => {
     const testRenderer = renderTabBar({
       items: [
-        { badgeText: '9', key: 'a', titleText: 'A' },
-        { badgeText: '120', key: 'b', titleText: 'B' },
+        { badgeText: '9', value: 'a', titleText: 'A' },
+        { badgeText: '120', value: 'b', titleText: 'B' },
       ],
     });
     const badges = testRenderer.root
@@ -199,7 +199,7 @@ describe('TabBar', () => {
       items: [
         {
           badge: <View testID="custom-dot" />,
-          key: 'home',
+          value: 'home',
           titleText: '首页',
         },
       ],
@@ -214,7 +214,7 @@ describe('TabBar', () => {
     it('does not render title when title is explicitly null', () => {
       const content = JSON.stringify(
         renderTabBar({
-          items: [{ key: 'a', title: null, titleText: 'ShouldNotRender' }],
+          items: [{ value: 'a', title: null, titleText: 'ShouldNotRender' }],
         }).toJSON(),
       );
 
@@ -223,7 +223,7 @@ describe('TabBar', () => {
 
     it('falls back to titleText when title is undefined', () => {
       const content = JSON.stringify(
-        renderTabBar({ items: [{ key: 'a', titleText: 'FallbackTitle' }] }).toJSON(),
+        renderTabBar({ items: [{ value: 'a', titleText: 'FallbackTitle' }] }).toJSON(),
       );
 
       expect(content).toContain('FallbackTitle');
@@ -232,7 +232,7 @@ describe('TabBar', () => {
     it('does not render badge when badge is explicitly null', () => {
       const content = JSON.stringify(
         renderTabBar({
-          items: [{ badge: null, badgeText: 'ShouldNotRender', key: 'a', titleText: 'Tab' }],
+          items: [{ badge: null, badgeText: 'ShouldNotRender', value: 'a', titleText: 'Tab' }],
         }).toJSON(),
       );
 
@@ -241,7 +241,7 @@ describe('TabBar', () => {
 
     it('falls back to badgeText when badge is undefined', () => {
       const content = JSON.stringify(
-        renderTabBar({ items: [{ badgeText: '5', key: 'a', titleText: 'Tab' }] }).toJSON(),
+        renderTabBar({ items: [{ badgeText: '5', value: 'a', titleText: 'Tab' }] }).toJSON(),
       );
 
       expect(content).toContain('5');

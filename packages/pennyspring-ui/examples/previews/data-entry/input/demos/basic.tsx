@@ -22,7 +22,7 @@ export function InputBasicDemo() {
         />
         <Input disabled labelText="Disabled" placeholder="Disabled field" />
         <Input
-          clearable
+          allowClear
           defaultValue="Search text"
           labelText="With addons"
           prefix={

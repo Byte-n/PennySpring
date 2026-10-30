@@ -5,6 +5,7 @@ import type { PortalMountPoint } from '../Portal/types';
 import type { PopupAnimation, PopupProps } from '../Popup';
 
 export interface ActionSheetAction {
+  key?: string;
   text: string;
   description?: string;
   danger?: boolean;

@@ -24,7 +24,7 @@ export function NotificationSizeDemo() {
                 descriptionText: '96 笔已匹配分类，32 笔待分类。',
                 size,
                 titleText: '已导入 128 笔记录',
-                type: 'success',
+                status: 'success',
               })}
           >
             {label}

@@ -400,3 +400,40 @@ it('passes size through to the picker body', () => {
   expect(tree).toContain('Daily');
   expect(tree).toContain('Food');
 });
+
+it('clears the active tab path through the clear button', () => {
+  const onChange = jest.fn();
+  const onClear = jest.fn();
+  let testRenderer: renderer.ReactTestRenderer;
+
+  act(() => {
+    testRenderer = renderer.create(
+      <Picker.Cascader
+        allowClear
+        onChange={onChange}
+        onClear={onClear}
+        tabs={tabs}
+        value={{
+          daily: ['traffic', 'metro'],
+          fixed: ['home', 'rent'],
+        }}
+      />,
+    );
+  });
+
+  act(() => {
+    testRenderer!.root
+      .findByProps({ testID: 'picker-trigger-clear-button' })
+      .props.onPress();
+  });
+
+  expect(onClear).toHaveBeenCalledTimes(1);
+  expect(onChange).toHaveBeenCalledTimes(1);
+  const [nextValue, params] = onChange.mock.calls[0];
+  expect(nextValue).toEqual({
+    daily: [],
+    fixed: ['home', 'rent'],
+  });
+  expect(params.reason).toBe('clear');
+  expect(params.tabKey).toBe('daily');
+});

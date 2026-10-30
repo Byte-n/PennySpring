@@ -276,6 +276,7 @@ export function buildChangeParams<TData, TTabKey extends PickerCascaderTabKey>(
   const changedItem = path[columnIndex] ?? path[path.length - 1];
 
   return {
+    reason: 'select',
     tabKey,
     tabIndex,
     tab,
