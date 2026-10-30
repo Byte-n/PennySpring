@@ -4,15 +4,7 @@ const { componentSidebarItems } = require('./sidebars.generated.cjs');
 const sidebars = {
   docs: [
     'index',
-    {
-      type: 'category',
-      label: '指南',
-      link: {
-        type: 'doc',
-        id: 'guide/index',
-      },
-      items: ['guide/migration'],
-    },
+    'guide/index',
     {
       type: 'category',
       label: '组件',

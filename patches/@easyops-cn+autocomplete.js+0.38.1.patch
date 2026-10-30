@@ -1,0 +1,13 @@
+diff --git a/node_modules/@easyops-cn/autocomplete.js/zepto.js b/node_modules/@easyops-cn/autocomplete.js/zepto.js
+index 390e5ca..495843a 100644
+--- a/node_modules/@easyops-cn/autocomplete.js/zepto.js
++++ b/node_modules/@easyops-cn/autocomplete.js/zepto.js
+@@ -1065,7 +1065,7 @@
+       }
+ 
+   function compatible(event, source) {
+-    if (source || !event.isDefaultPrevented) {
++    if (source || !event.isDefaultPrevented || !event.isImmediatePropagationStopped) {
+       source || (source = event)
+ 
+       $.each(eventMethods, function(name, predicate) {
