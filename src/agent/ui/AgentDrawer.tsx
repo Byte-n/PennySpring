@@ -420,7 +420,7 @@ function AgentComposer({
           <Textarea
             maxRows={4}
             minRows={1}
-            onChangeText={handleChange}
+            onChange={handleChange}
             placeholder="问问这个月的开销…"
             size="small"
             testID="agent-input"

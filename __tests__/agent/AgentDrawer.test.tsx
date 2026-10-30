@@ -53,7 +53,7 @@ jest.mock('@pennyspring/ui', () => {
   const MockTextarea = (props: Record<string, any>) =>
     ReactLib.createElement(TextInput, {
       multiline: true,
-      onChangeText: props.onChangeText,
+      onChangeText: props.onChange,
       placeholder: props.placeholder,
       testID: props.testID,
       value: props.value,
@@ -406,7 +406,7 @@ describe('AgentDrawer', () => {
     act(() => {
       renderer.root
         .findByProps({ testID: 'agent-input' })
-        .props.onChangeText('  上个月吃饭花了多少？  ');
+        .props.onChange('  上个月吃饭花了多少？  ');
     });
 
     const sendButton = renderer.root.findByProps({
@@ -502,7 +502,7 @@ describe('AgentDrawer', () => {
     });
 
     act(() => {
-      renderer.root.findByProps({ testID: 'agent-input' }).props.onChangeText(
+      renderer.root.findByProps({ testID: 'agent-input' }).props.onChange(
         '本月支出按类型统计',
       );
     });

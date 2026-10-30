@@ -9,7 +9,7 @@ export function RemarkInput() {
     <Textarea
       maxRows={4}
       minRows={2}
-      onChangeText={setRemark}
+      onChange={setRemark}
       placeholder="添加备注"
       value={remark}
     />
