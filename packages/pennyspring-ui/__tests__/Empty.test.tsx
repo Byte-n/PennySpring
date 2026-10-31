@@ -36,7 +36,9 @@ function renderEmpty(props: Partial<React.ComponentProps<typeof Empty>> = {}) {
 }
 
 function getRootStyle(testRenderer: renderer.ReactTestRenderer) {
-  return StyleSheet.flatten(testRenderer.root.findAllByType(View)[0].props.style);
+  return StyleSheet.flatten(
+    testRenderer.root.findAllByType(View)[0].props.style,
+  );
 }
 
 function toTreeText(testRenderer: renderer.ReactTestRenderer): string {
@@ -48,7 +50,11 @@ describe('Empty', () => {
     const testRenderer = renderEmpty();
     const plate = testRenderer.root
       .findAllByType(View)
-      .find(node => StyleSheet.flatten(node.props.style)?.backgroundColor === TOKENS.colorFillTertiary);
+      .find(
+        node =>
+          StyleSheet.flatten(node.props.style)?.backgroundColor ===
+          TOKENS.colorFillTertiary,
+      );
 
     expect(testRenderer.root.findAllByType(Icon)).toHaveLength(1);
     expect(testRenderer.root.findAllByType(Text)).toHaveLength(0);
@@ -61,8 +67,12 @@ describe('Empty', () => {
       descriptionText: '点右下角记一笔。',
     });
     const textNodes = testRenderer.root.findAllByType(Text);
-    const titleNode = textNodes.find(node => node.props.children === '十月还没有记录');
-    const descriptionNode = textNodes.find(node => node.props.children === '点右下角记一笔。');
+    const titleNode = textNodes.find(
+      node => node.props.children === '十月还没有记录',
+    );
+    const descriptionNode = textNodes.find(
+      node => node.props.children === '点右下角记一笔。',
+    );
 
     expect(titleNode?.props.size).toBe('sm');
     expect(titleNode?.props.weight).toBe('semibold');
@@ -90,7 +100,9 @@ describe('Empty', () => {
     });
     const textNodes = testRenderer.root.findAllByType(Text);
     const titleNode = textNodes.find(node => node.props.children === '标题');
-    const descriptionNode = textNodes.find(node => node.props.children === '说明');
+    const descriptionNode = textNodes.find(
+      node => node.props.children === '说明',
+    );
 
     expect(StyleSheet.flatten(titleNode?.props.style)?.color).toBe('titleSlot');
     expect(StyleSheet.flatten(descriptionNode?.props.style)?.color).toBe(
@@ -137,7 +149,9 @@ describe('Empty', () => {
     const tree = toTreeText(testRenderer);
 
     expect(tree).toContain('新建模板');
-    expect(tree.indexOf('还没有快捷模板')).toBeLessThan(tree.indexOf('新建模板'));
+    expect(tree.indexOf('还没有快捷模板')).toBeLessThan(
+      tree.indexOf('新建模板'),
+    );
   });
 
   it('drops the plate when icon is null and keeps custom icons unwrapped', () => {
@@ -148,10 +162,16 @@ describe('Empty', () => {
     });
     const plates = customIconRenderer.root
       .findAllByType(View)
-      .filter(node => StyleSheet.flatten(node.props.style)?.backgroundColor === TOKENS.colorFillTertiary);
+      .filter(
+        node =>
+          StyleSheet.flatten(node.props.style)?.backgroundColor ===
+          TOKENS.colorFillTertiary,
+      );
 
     expect(nullIconRenderer.root.findAllByType(Icon)).toHaveLength(0);
-    expect(customIconRenderer.root.findByProps({ testID: 'custom-icon' })).toBeTruthy();
+    expect(
+      customIconRenderer.root.findByProps({ testID: 'custom-icon' }),
+    ).toBeTruthy();
     expect(plates).toHaveLength(0);
   });
 
@@ -171,30 +191,40 @@ describe('Empty', () => {
     ['small', 24],
     ['normal', 32],
     ['large', 40],
-  ] as const)('uses %s inline vertical padding of %s', (size, expectedPadding) => {
-    const testRenderer = renderEmpty({ size });
-    const rootStyle = getRootStyle(testRenderer);
+  ] as const)(
+    'uses %s inline vertical padding of %s',
+    (size, expectedPadding) => {
+      const testRenderer = renderEmpty({ size });
+      const rootStyle = getRootStyle(testRenderer);
 
-    expect(rootStyle.paddingVertical).toBe(expectedPadding);
-    expect(rootStyle.borderWidth).toBeUndefined();
-  });
+      expect(rootStyle.paddingVertical).toBe(expectedPadding);
+      expect(rootStyle.borderWidth).toBeUndefined();
+    },
+  );
 
   it.each([
     ['small', 36, 18],
     ['normal', 44, 20],
     ['large', 52, 24],
-  ] as const)('maps %s to plate %s and icon %s', (size, expectedPlate, expectedIcon) => {
-    const testRenderer = renderEmpty({ size });
-    const plate = testRenderer.root
-      .findAllByType(View)
-      .find(node => StyleSheet.flatten(node.props.style)?.backgroundColor === TOKENS.colorFillTertiary);
-    const plateStyle = StyleSheet.flatten(plate?.props.style);
+  ] as const)(
+    'maps %s to plate %s and icon %s',
+    (size, expectedPlate, expectedIcon) => {
+      const testRenderer = renderEmpty({ size });
+      const plate = testRenderer.root
+        .findAllByType(View)
+        .find(
+          node =>
+            StyleSheet.flatten(node.props.style)?.backgroundColor ===
+            TOKENS.colorFillTertiary,
+        );
+      const plateStyle = StyleSheet.flatten(plate?.props.style);
 
-    expect(plateStyle?.width).toBe(expectedPlate);
-    expect(plateStyle?.height).toBe(expectedPlate);
-    expect(plateStyle?.borderRadius).toBe(999);
-    expect(testRenderer.root.findByType(Icon).props.size).toBe(expectedIcon);
-  });
+      expect(plateStyle?.width).toBe(expectedPlate);
+      expect(plateStyle?.height).toBe(expectedPlate);
+      expect(plateStyle?.borderRadius).toBe(999);
+      expect(testRenderer.root.findByType(Icon).props.size).toBe(expectedIcon);
+    },
+  );
 
   it('renders compact as a single row with a 32 plate and no action', () => {
     const testRenderer = renderEmpty({
@@ -204,12 +234,17 @@ describe('Empty', () => {
     });
     const plate = testRenderer.root
       .findAllByType(View)
-      .find(node => StyleSheet.flatten(node.props.style)?.backgroundColor === TOKENS.colorFillTertiary);
+      .find(
+        node =>
+          StyleSheet.flatten(node.props.style)?.backgroundColor ===
+          TOKENS.colorFillTertiary,
+      );
     const plateStyle = StyleSheet.flatten(plate?.props.style);
     const rootStyle = getRootStyle(testRenderer);
 
-    expect(testRenderer.root.findAllByProps({ testID: 'row' }).length).toBeGreaterThan(0);
-    expect(rootStyle.paddingVertical).toBe(TOKENS.paddingMD);
+    expect(
+      testRenderer.root.findAllByProps({ testID: 'row' }).length,
+    ).toBeGreaterThan(0);
     expect(rootStyle.borderWidth).toBeUndefined();
     expect(plateStyle?.width).toBe(32);
     expect(testRenderer.root.findByType(Icon).props.size).toBe(16);

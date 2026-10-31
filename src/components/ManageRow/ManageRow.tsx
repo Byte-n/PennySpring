@@ -141,7 +141,11 @@ const useStyles = createUseSheetStyle(token => ({
 export function ManageCard({ children }: { children: ReactNode }) {
   const styles = useStyles();
 
-  return <Column style={styles.card}>{children}</Column>;
+  return (
+    <Column gap={0} style={styles.card}>
+      {children}
+    </Column>
+  );
 }
 
 export function ManageRow({
@@ -180,9 +184,7 @@ export function ManageRow({
         pressed && styles.rowPressed,
       ]}
     >
-      {hasDivider ? (
-        <View style={styles.divider} />
-      ) : null}
+      {hasDivider ? <View style={styles.divider} /> : null}
       {isHidden ? <View style={styles.hiddenMarker} /> : null}
       {isCurrent ? <View style={styles.currentMarker} /> : null}
       {leading ?? (icon ? <View style={tileStyle}>{icon}</View> : null)}
@@ -207,15 +209,16 @@ export function ManageRow({
           {subtitle ?? ' '}
         </Text>
       </Column>
-      {trailing ? <Column style={styles.trailing} align="end">{trailing}</Column> : null}
+      {trailing ? (
+        <Column style={styles.trailing} align="end">
+          {trailing}
+        </Column>
+      ) : null}
       {onMenuPress ? (
         <Pressable
           hitSlop={MENU_HIT_SLOP}
           onPress={onMenuPress}
-          style={({ pressed }) => [
-            styles.menu,
-            pressed && styles.menuPressed,
-          ]}
+          style={({ pressed }) => [styles.menu, pressed && styles.menuPressed]}
         >
           <Icon color="tertiary" icon="more" size="large" />
         </Pressable>
@@ -279,5 +282,9 @@ export function ManageSectionHeader({
 export function ManageEmptyCard({ children }: { children: ReactNode }) {
   const styles = useStyles();
 
-  return <Column style={styles.emptyCard} gap="normal" align="center">{children}</Column>;
+  return (
+    <Column style={styles.emptyCard} gap="normal" align="center">
+      {children}
+    </Column>
+  );
 }
