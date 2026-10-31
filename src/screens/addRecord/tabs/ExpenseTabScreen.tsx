@@ -11,7 +11,11 @@ import {
   useToast,
 } from '@pennyspring/ui';
 import { RECORD_TYPE_CATEGORY } from '@pennyspring/api';
-import { createUseSheetStyle, ThemeProvider, useTheme } from '@pennyspring/theme';
+import {
+  createUseSheetStyle,
+  ThemeProvider,
+  useTheme,
+} from '@pennyspring/theme';
 import { AmountDisplay } from '../components/AmountDisplay';
 import { CategoryField } from '../components/CategoryField';
 import { RemarkInput } from '../components/RemarkInput';
@@ -72,9 +76,7 @@ export function ExpenseTabScreen() {
     error: categoriesError,
     loading: categoriesLoading,
     refresh: refreshCategories,
-  } = useCategoryItems(
-    RECORD_TYPE_CATEGORY.expense,
-  );
+  } = useCategoryItems(RECORD_TYPE_CATEGORY.expense);
   const {
     assetsLoading,
     currentBook,
@@ -109,7 +111,11 @@ export function ExpenseTabScreen() {
     };
 
     if (template) {
-      const validationMessage = validateTemplateDraft(templateName, 'expense', draft);
+      const validationMessage = validateTemplateDraft(
+        templateName,
+        'expense',
+        draft,
+      );
       if (validationMessage !== undefined) {
         toast.show({ messageText: validationMessage });
         return;
@@ -135,7 +141,8 @@ export function ExpenseTabScreen() {
         bumpTemplateVersion();
         reset();
         toast.show({
-          messageText: editingTemplateId !== undefined ? '已更新模板' : '已新增模板',
+          messageText:
+            editingTemplateId !== undefined ? '已更新模板' : '已新增模板',
         });
         navigation.goBack();
       } catch (error: unknown) {
@@ -213,7 +220,7 @@ export function ExpenseTabScreen() {
       >
         <Column gap={token.marginMD}>
           <AmountDisplay />
-          <Card variant="elevated">
+          <Card variant="elevated" size="small">
             <CategoryField
               categories={categories}
               error={categoriesError}
@@ -279,7 +286,12 @@ export function ExpenseTabScreen() {
           <Card variant="elevated">
             <RemarkInput />
           </Card>
-          <Button block loading={submitting} onPress={handleSave} type="primary">
+          <Button
+            block
+            loading={submitting}
+            onPress={handleSave}
+            type="primary"
+          >
             {template ? '保存模板' : '保存支出'}
           </Button>
         </Column>

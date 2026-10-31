@@ -11,7 +11,11 @@ import {
   useToast,
 } from '@pennyspring/ui';
 import { RECORD_TYPE_CATEGORY } from '@pennyspring/api';
-import { createUseSheetStyle, ThemeProvider, useTheme } from '@pennyspring/theme';
+import {
+  createUseSheetStyle,
+  ThemeProvider,
+  useTheme,
+} from '@pennyspring/theme';
 import { AmountDisplay } from '../components/AmountDisplay';
 import { CategoryField } from '../components/CategoryField';
 import { RemarkInput } from '../components/RemarkInput';
@@ -27,10 +31,7 @@ import {
 } from '../addRecordDraft';
 import { persistRecordImages } from '../persistRecordImages';
 import { buildNewQuickTemplate, validateTemplateDraft } from '../templateDraft';
-import {
-  toAssetOptions,
-  toRelatedRecordOptions,
-} from '../recordOptions';
+import { toAssetOptions, toRelatedRecordOptions } from '../recordOptions';
 import { toNumberValue, toNumberValues } from '../selectValues';
 import { useAddRecordResources } from '../useAddRecordResources';
 import { useInitialTypeId } from '../useInitialTypeId';
@@ -80,9 +81,7 @@ export function IncomeTabScreen() {
     error: categoriesError,
     loading: categoriesLoading,
     refresh: refreshCategories,
-  } = useCategoryItems(
-    RECORD_TYPE_CATEGORY.income,
-  );
+  } = useCategoryItems(RECORD_TYPE_CATEGORY.income);
   const { categories: expenseTypes } = useCategoryItems(
     RECORD_TYPE_CATEGORY.expense,
   );
@@ -95,7 +94,9 @@ export function IncomeTabScreen() {
   } = useAddRecordResources();
   const { data: records = [], loading: recordsLoading } = useRequest(
     () =>
-      currentBook ? globalApi.record.getByBook(currentBook.id) : Promise.resolve([]),
+      currentBook
+        ? globalApi.record.getByBook(currentBook.id)
+        : Promise.resolve([]),
     { refreshDeps: [currentBook?.id] },
   );
   const selectedType = useMemo(
@@ -143,7 +144,11 @@ export function IncomeTabScreen() {
     };
 
     if (template) {
-      const validationMessage = validateTemplateDraft(templateName, 'income', draft);
+      const validationMessage = validateTemplateDraft(
+        templateName,
+        'income',
+        draft,
+      );
       if (validationMessage !== undefined) {
         toast.show({ messageText: validationMessage });
         return;
@@ -169,7 +174,8 @@ export function IncomeTabScreen() {
         bumpTemplateVersion();
         reset();
         toast.show({
-          messageText: editingTemplateId !== undefined ? '已更新模板' : '已新增模板',
+          messageText:
+            editingTemplateId !== undefined ? '已更新模板' : '已新增模板',
         });
         navigation.goBack();
       } catch (error: unknown) {
@@ -203,7 +209,10 @@ export function IncomeTabScreen() {
         editingRecordId,
       );
       reset();
-      toast.show({ messageText: editingRecordId !== undefined ? '已更新收入' : '已新增收入' });
+      toast.show({
+        messageText:
+          editingRecordId !== undefined ? '已更新收入' : '已新增收入',
+      });
       navigation.goBack();
     } catch (error: unknown) {
       toast.show({
@@ -244,7 +253,7 @@ export function IncomeTabScreen() {
       >
         <Column gap={token.marginMD}>
           <AmountDisplay />
-          <Card variant="elevated">
+          <Card variant="elevated" size="small">
             <CategoryField
               categories={categories}
               error={categoriesError}

@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import {
   Button,
   Card,
@@ -10,7 +16,11 @@ import {
   useToast,
 } from '@pennyspring/ui';
 import { RECORD_TYPE_CATEGORY } from '@pennyspring/api';
-import { createUseSheetStyle, ThemeProvider, useTheme } from '@pennyspring/theme';
+import {
+  createUseSheetStyle,
+  ThemeProvider,
+  useTheme,
+} from '@pennyspring/theme';
 import { AmountDisplay } from '../components/AmountDisplay';
 import { CategoryField } from '../components/CategoryField';
 import { RemarkInput } from '../components/RemarkInput';
@@ -78,9 +88,7 @@ export function TransferTabScreen() {
     error: categoriesError,
     loading: categoriesLoading,
     refresh: refreshCategories,
-  } = useCategoryItems(
-    RECORD_TYPE_CATEGORY.transfer,
-  );
+  } = useCategoryItems(RECORD_TYPE_CATEGORY.transfer);
   const {
     assetsLoading,
     currentBook,
@@ -151,7 +159,11 @@ export function TransferTabScreen() {
     };
 
     if (template) {
-      const validationMessage = validateTemplateDraft(templateName, 'transfer', draft);
+      const validationMessage = validateTemplateDraft(
+        templateName,
+        'transfer',
+        draft,
+      );
       if (validationMessage !== undefined) {
         toast.show({ messageText: validationMessage });
         return;
@@ -177,7 +189,8 @@ export function TransferTabScreen() {
         bumpTemplateVersion();
         reset();
         toast.show({
-          messageText: editingTemplateId !== undefined ? '已更新模板' : '已新增模板',
+          messageText:
+            editingTemplateId !== undefined ? '已更新模板' : '已新增模板',
         });
         navigation.goBack();
       } catch (error: unknown) {
@@ -211,7 +224,10 @@ export function TransferTabScreen() {
         editingRecordId,
       );
       reset();
-      toast.show({ messageText: editingRecordId !== undefined ? '已更新转账' : '已新增转账' });
+      toast.show({
+        messageText:
+          editingRecordId !== undefined ? '已更新转账' : '已新增转账',
+      });
       navigation.goBack();
     } catch (error: unknown) {
       toast.show({
@@ -253,7 +269,7 @@ export function TransferTabScreen() {
       >
         <Column gap={token.marginMD}>
           <AmountDisplay />
-          <Card variant="elevated">
+          <Card variant="elevated" size="small">
             <CategoryField
               categories={categories}
               error={categoriesError}
@@ -283,9 +299,7 @@ export function TransferTabScreen() {
               <ListPicker
                 labelText="转入资产"
                 loading={assetsLoading}
-                onChange={value =>
-                  setIntoAssetId(toNumberValue(value) ?? null)
-                }
+                onChange={value => setIntoAssetId(toNumberValue(value) ?? null)}
                 options={intoAssetOptions}
                 searchable
                 style={styles.formField}
@@ -339,7 +353,12 @@ export function TransferTabScreen() {
           <Card variant="elevated">
             <RemarkInput />
           </Card>
-          <Button block loading={submitting} onPress={handleSave} type="primary">
+          <Button
+            block
+            loading={submitting}
+            onPress={handleSave}
+            type="primary"
+          >
             {template ? '保存模板' : '保存转账'}
           </Button>
         </Column>

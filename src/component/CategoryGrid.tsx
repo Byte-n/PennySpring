@@ -17,6 +17,7 @@ import { getPhosphorIconComponent } from '../constants/typeIconTree.ts';
 import { useControllableValue } from '@pennyspring/ui/src/_hooks';
 
 const MORE_BUTTON_HIT_SLOP = 6;
+const COLUMN = 5;
 
 export interface CategoryItem extends Omit<TypeRow, 'icon'> {
   icon: TypeRow['icon'] | IconComponent;
@@ -52,12 +53,7 @@ const useStyles = createUseSheetStyle(token => ({
     borderWidth: token.lineWidth,
   },
   groupHeader: {
-    paddingHorizontal: token.paddingXS,
     paddingVertical: token.paddingXS,
-  },
-  groupDivider: {
-    borderTopColor: token.colorSplit,
-    borderTopWidth: token.lineWidth,
   },
   cells: { flex: 1 },
   cell: {
@@ -66,16 +62,11 @@ const useStyles = createUseSheetStyle(token => ({
     gap: token.marginXXS,
     justifyContent: 'center',
     minHeight: token.controlHeightLG,
-    paddingHorizontal: token.paddingXXS,
-    paddingVertical: token.paddingXXS,
   },
   cellSmall: {
     gap: token.marginXXS / 2,
     minHeight: token.controlHeightLG,
     paddingVertical: token.paddingXXS,
-  },
-  cellSelected: {
-    backgroundColor: token.colorPrimaryBg,
   },
   cellPressed: {
     backgroundColor: token.colorFillQuaternary,
@@ -200,19 +191,16 @@ export function CategoryGrid(props: CategoryGridProps) {
 
   return (
     <Column style={[styles.root, manage && styles.rootManage, style]}>
-      {chunk(tree, 5).map((list, rowIndex) => {
+      {chunk(tree, COLUMN).map(list => {
         const expandedCatInList = list.find(cat =>
           activeExpandedIds.has(cat.id),
         );
         const isOpen = expandedCatInList !== undefined;
         const expandedCat = manage
           ? expandedCatInList
-          : (expandedCatInList ?? getExpandedCat(value));
+          : expandedCatInList ?? getExpandedCat(value);
         return (
-          <Column
-            key={list[0].id}
-            style={rowIndex > 0 ? styles.groupDivider : undefined}
-          >
+          <Column key={list[0].id}>
             <Column style={styles.groupHeader}>
               <Cells
                 expandedIds={activeExpandedIds}
@@ -240,7 +228,12 @@ export function CategoryGrid(props: CategoryGridProps) {
                   value={value}
                 />
               ) : (
-                <Empty descriptionText="暂无二级类型" size="small" />
+                <Empty
+                  descriptionText="暂无二级类型"
+                  size="small"
+                  variant="inline"
+                  compact
+                />
               )
             ) : null}
           </Column>
@@ -284,11 +277,13 @@ function Cells({
   );
 
   return (
-    <Grid columns={5} style={[styles.cells, style]}>
+    <Grid columns={COLUMN} style={[styles.cells, style]}>
       {list.map(item => (
         <Grid.Item key={item.id}>
           <Cell
-            isSelected={value === item.id || (expandedIds?.has(item.id) ?? false)}
+            isSelected={
+              value === item.id || (expandedIds?.has(item.id) ?? false)
+            }
             item={item}
             onLongPress={
               onItemLongPress ? () => onItemLongPress(item.id) : undefined
@@ -347,7 +342,7 @@ function ManageExpansion({
           </Pressable>
         ) : null}
       </Row>
-      <Grid columns={5} style={styles.cells}>
+      <Grid columns={COLUMN} style={styles.cells}>
         {parent.children.map(child => (
           <Grid.Item key={child.id}>
             <Cell
@@ -419,16 +414,13 @@ function Cell({
       style={({ pressed }) => [
         styles.cell,
         small && styles.cellSmall,
-        isSelected && styles.cellSelected,
         pressed && styles.cellPressed,
       ]}
     >
       <Column align="center" justify="center">
         <IconComponent
           color={iconColor}
-          size={
-            small ? token.fontSizeHeading4 : token.fontSizeHeading2
-          }
+          size={small ? token.fontSizeHeading5 : token.fontSizeHeading3}
           weight="duotone"
         />
       </Column>

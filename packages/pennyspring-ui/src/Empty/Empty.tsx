@@ -58,56 +58,60 @@ const SIZE_STYLE_MAP: Record<ComponentSize, EmptySizeConfig> = {
   },
 };
 
-const useStyles = createUseSheetStyle((token, { compact, size, variant }: EmptyStyleOptions) => {
-  const sizeConfig = SIZE_STYLE_MAP[size];
-  const isBoxed = !compact && variant === 'boxed';
-  const plateSize = compact ? PLATE_COMPACT : sizeConfig.plateSize(token);
+const useStyles = createUseSheetStyle(
+  (token, { compact, size, variant }: EmptyStyleOptions) => {
+    const sizeConfig = SIZE_STYLE_MAP[size];
+    const isBoxed = !compact && variant === 'boxed';
+    const plateSize = compact ? PLATE_COMPACT : sizeConfig.plateSize(token);
 
-  return {
-    root: compact
-      ? {
-          paddingVertical: token.paddingMD,
-          width: '100%',
-        }
-      : {
-          paddingVertical: isBoxed ? token.paddingLG : sizeConfig.paddingVertical(token),
-          width: '100%',
-          ...(isBoxed
-            ? {
-                borderColor: token.colorBorderSecondary,
-                borderRadius: token.borderRadius,
-                borderStyle: 'dashed' as const,
-                borderWidth: token.lineWidth,
-                paddingHorizontal: token.padding,
-              }
-            : {}),
-        },
-    plate: {
-      alignItems: 'center',
-      backgroundColor: token.colorFillTertiary,
-      borderRadius: PILL_RADIUS,
-      height: plateSize,
-      justifyContent: 'center',
-      width: plateSize,
-    },
-    head: {
-      marginTop: compact ? 0 : sizeConfig.headGap(token),
-    },
-    title: {
-      color: token.colorText,
-      textAlign: compact ? 'left' as const : 'center' as const,
-    },
-    description: {
-      color: token.colorTextTertiary,
-      marginTop: token.marginXXS,
-      maxWidth: sizeConfig.descriptionMaxWidth,
-      textAlign: 'center' as const,
-    },
-    action: {
-      marginTop: token.marginSM,
-    },
-  };
-});
+    return {
+      root: compact
+        ? {
+            paddingVertical: token.paddingXS / 2,
+            width: '100%',
+          }
+        : {
+            paddingVertical: isBoxed
+              ? token.paddingLG
+              : sizeConfig.paddingVertical(token),
+            width: '100%',
+            ...(isBoxed
+              ? {
+                  borderColor: token.colorBorderSecondary,
+                  borderRadius: token.borderRadius,
+                  borderStyle: 'dashed' as const,
+                  borderWidth: token.lineWidth,
+                  paddingHorizontal: token.padding,
+                }
+              : {}),
+          },
+      plate: {
+        alignItems: 'center',
+        backgroundColor: token.colorFillTertiary,
+        borderRadius: PILL_RADIUS,
+        height: plateSize,
+        justifyContent: 'center',
+        width: plateSize,
+      },
+      head: {
+        marginTop: compact ? 0 : sizeConfig.headGap(token),
+      },
+      title: {
+        color: token.colorText,
+        textAlign: compact ? ('left' as const) : ('center' as const),
+      },
+      description: {
+        color: token.colorTextTertiary,
+        marginTop: token.marginXXS,
+        maxWidth: sizeConfig.descriptionMaxWidth,
+        textAlign: 'center' as const,
+      },
+      action: {
+        marginTop: token.marginSM,
+      },
+    };
+  },
+);
 
 function hasRenderableContent(content: React.ReactNode): boolean {
   return content !== null && content !== undefined && content !== false;
@@ -128,11 +132,19 @@ export function Empty({
 }: EmptyProps) {
   const tokenStyles = useStyles({ compact, size, variant });
   const sizeConfig = SIZE_STYLE_MAP[size];
-  const resolvedIcon = icon === undefined
-    ? <Icon icon={EmptyIcon} size={compact ? ICON_COMPACT : sizeConfig.iconSize} color="tertiary" />
-    : icon;
+  const resolvedIcon =
+    icon === undefined ? (
+      <Icon
+        icon={EmptyIcon}
+        size={compact ? ICON_COMPACT : sizeConfig.iconSize}
+        color="tertiary"
+      />
+    ) : (
+      icon
+    );
   const resolvedTitle = title === undefined ? titleText : title;
-  const resolvedDescription = description === undefined ? descriptionText : description;
+  const resolvedDescription =
+    description === undefined ? descriptionText : description;
   const shouldRenderIcon = hasRenderableContent(resolvedIcon);
   const hasTitle = hasRenderableContent(resolvedTitle);
   const hasDescription = hasRenderableContent(resolvedDescription);
@@ -207,14 +219,14 @@ export function Empty({
   }
 
   // 没有标题时，说明升为主行，避免出现「只有一行灰色小字」的半成品空态。
-  const bodyNode = hasTitle
-    ? (
-      <>
-        {renderPrimaryLine(resolvedTitle, styles?.titleText)}
-        {hasDescription ? renderDescriptionLine(resolvedDescription) : null}
-      </>
-    )
-    : renderPrimaryLine(resolvedDescription, styles?.descriptionText);
+  const bodyNode = hasTitle ? (
+    <>
+      {renderPrimaryLine(resolvedTitle, styles?.titleText)}
+      {hasDescription ? renderDescriptionLine(resolvedDescription) : null}
+    </>
+  ) : (
+    renderPrimaryLine(resolvedDescription, styles?.descriptionText)
+  );
 
   return (
     <Column align="center" gap={0} style={[tokenStyles.root, style]}>
