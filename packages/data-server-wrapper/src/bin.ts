@@ -4,6 +4,7 @@ import path from 'node:path'
 import { createRemoteApi } from '@pennyspring/data-server'
 
 import { createServer } from './server'
+import { initializeDatabase } from './startup'
 
 function getLocalAddresses(port: number): {
   local: string
@@ -36,6 +37,7 @@ const port = Number(process.env.PORT ?? 3000)
 const mediaDir =
   process.env.MEDIA_DIR ??
   path.join(path.dirname(path.resolve(dbPath)), 'media')
+await initializeDatabase(dbPath)
 const api = createRemoteApi({ dbPath })
 const app = createServer(api, { mediaDir })
 
