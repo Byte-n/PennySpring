@@ -10,7 +10,7 @@ import { Loading } from '../Loading';
 import { SwipeAction } from '../SwipeAction';
 import { useControllableValue } from '../_hooks';
 import { renderTextNode } from '../shares/node';
-import type { ListItemData, ListProps } from './types';
+import type { ListItemData, ListProps, ListSectionData } from './types';
 
 /** 行高 / 底板 / 分隔线内缩在 AliasToken 中没有档位，按设计稿落为语义常量。 */
 const PLATE_SIZE = 38;
@@ -24,6 +24,22 @@ const DIVIDER_INSET_TEXT_ONLY = ROW_PADDING_HORIZONTAL;
 const GROUP_HEADER_HEIGHT = 32;
 const CHECK_SIZE = 18;
 const ARROW_SIZE = 16;
+
+interface SectionEntry<ItemT> {
+  kind: 'section';
+  key: string;
+  section: ListSectionData<ItemT>;
+}
+
+interface ItemEntry<ItemT> {
+  kind: 'item';
+  key: string;
+  item: ItemT;
+  indexInSection?: number;
+  sectionItemCount?: number;
+}
+
+type ListEntry<ItemT> = SectionEntry<ItemT> | ItemEntry<ItemT>;
 
 const useStyles = createUseSheetStyle(token => ({
   root: { backgroundColor: token.colorBgContainer },
@@ -71,6 +87,10 @@ const useStyles = createUseSheetStyle(token => ({
   },
   plateDisabled: { backgroundColor: token.colorFillQuaternary },
   content: { flex: 1 },
+  titleLine: { flexDirection: 'row', alignItems: 'center', gap: token.marginXS },
+  title: { flex: 1, minWidth: 0 },
+  badge: { borderRadius: token.borderRadiusOuter, backgroundColor: token.colorFillQuaternary, paddingHorizontal: token.paddingXS, paddingVertical: token.paddingXXS / 2 },
+  badgeText: { color: token.colorTextTertiary },
   description: { marginTop: token.marginXXS / 2 },
   divider: {
     position: 'absolute',
@@ -82,27 +102,59 @@ const useStyles = createUseSheetStyle(token => ({
   },
   dividerTextOnly: { left: DIVIDER_INSET_TEXT_ONLY },
   right: { alignItems: 'flex-end', flexDirection: 'row', gap: token.marginXS },
+  disclosure: { marginLeft: token.marginXXS },
+  status: { borderRadius: token.borderRadiusOuter, paddingHorizontal: token.paddingXS, paddingVertical: token.paddingXXS / 2 },
+  statusPrimary: { backgroundColor: token.colorPrimaryBg },
+  statusSuccess: { backgroundColor: token.colorSuccessBg },
+  statusWarning: { backgroundColor: token.colorWarningBg },
+  statusError: { backgroundColor: token.colorErrorBg },
+  statusText: { color: token.colorTextSecondary },
+  statusPrimaryText: { color: token.colorPrimaryText },
+  statusSuccessText: { color: token.colorSuccessText },
+  statusWarningText: { color: token.colorWarningText },
+  statusErrorText: { color: token.colorErrorText },
+  metricGroup: { flexDirection: 'row', alignItems: 'center', gap: token.marginSM },
+  metric: { alignItems: 'flex-end', width: token.sizeXXL },
+  metricValue: { color: token.colorText, fontVariant: ['tabular-nums'] },
+  metricLabel: { color: token.colorTextTertiary },
 }));
+
+const TONE_STYLES = {
+  default: { background: undefined, text: undefined },
+  primary: { background: 'statusPrimary', text: 'statusPrimaryText' },
+  success: { background: 'statusSuccess', text: 'statusSuccessText' },
+  warning: { background: 'statusWarning', text: 'statusWarningText' },
+  error: { background: 'statusError', text: 'statusErrorText' },
+} as const;
 
 function renderRow(
   item: ListItemData,
   styles: ReturnType<typeof useStyles>,
   showDivider: boolean,
+  hasDisclosure = false,
 ) {
   const hasDescription = (item.description ?? item.descriptionText) !== undefined;
   const hasPlate = item.icon !== undefined || item.left !== undefined;
-  const content = item.children ?? (
+  const content = item.body ?? item.children ?? (
     <Column style={styles.content}>
-      {renderTextNode(item.title ?? item.titleText, text => (
-        <Text
-          color={item.disabled ? 'tertiary' : 'default'}
-          numberOfLines={1}
-          size="sm"
-          weight="medium"
-        >
-          {text}
-        </Text>
-      ))}
+      <Row align="center" style={styles.titleLine}>
+        {renderTextNode(item.title ?? item.titleText, text => (
+          <Text
+            color={item.disabled ? 'tertiary' : 'default'}
+            numberOfLines={1}
+            size="sm"
+            style={styles.title}
+            weight="medium"
+          >
+            {text}
+          </Text>
+        ))}
+        {item.badgeText ? (
+          <View style={styles.badge}>
+            <Text size="xs" style={styles.badgeText}>{item.badgeText}</Text>
+          </View>
+        ) : null}
+      </Row>
       {renderTextNode(item.description ?? item.descriptionText, text => (
         <Text
           color="tertiary"
@@ -139,20 +191,39 @@ function renderRow(
         </View>
       ) : null}
       {content}
-      {item.selected ? (
-        <Icon color={item.disabled ? 'tertiary' : 'primary'} icon="check" size={CHECK_SIZE} />
-      ) : (
-        <View style={styles.right}>{rightNode}</View>
-      )}
+      {item.metrics?.length ? (
+        <Row style={styles.metricGroup}>
+          {item.metrics.map(metric => {
+            return (
+              <Column key={metric.key} style={styles.metric}>
+                {metric.label !== undefined ? <Text color="tertiary" size="xs" numberOfLines={1}>{metric.label}</Text> : null}
+                {renderTextNode(metric.value, text => <Text color={metric.tone ?? 'default'} size="sm" weight="medium" style={styles.metricValue} numberOfLines={1}>{text}</Text>)}
+              </Column>
+            );
+          })}
+        </Row>
+      ) : null}
+      {item.statusText !== undefined ? (() => {
+        const tone = TONE_STYLES[item.statusTone ?? 'default'];
+        return <View style={[styles.status, tone.background ? styles[tone.background] : null]}>
+          <Text size="xs" style={[styles.statusText, tone.text ? styles[tone.text] : null]}>{item.statusText}</Text>
+        </View>;
+      })() : null}
+      {item.selected ? <Icon color={item.disabled ? 'tertiary' : 'primary'} icon="check" size={CHECK_SIZE} /> : null}
+      <View style={styles.right}>
+        {rightNode}
+        {item.disclosure || hasDisclosure ? <Icon color="tertiary" icon="caret-right" size={ARROW_SIZE} style={styles.disclosure} /> : null}
+      </View>
       {showDivider ? (
         <View style={[styles.divider, hasPlate ? null : styles.dividerTextOnly]} />
       ) : null}
     </Row>
   );
 
-  if (item.onPress !== undefined && !item.disabled) {
+  if ((item.onPress !== undefined || item.onLongPress !== undefined) && !item.disabled) {
     return (
       <Pressable
+        onLongPress={item.onLongPress}
         onPress={item.onPress}
         style={({ pressed }) => [item.style, pressed ? styles.itemPressed : null]}
       >
@@ -169,7 +240,7 @@ function isPromiseLike(value: unknown): value is PromiseLike<unknown> {
 }
 
 function ListInner<ItemT>({
-  children, data, renderItem, header, footer, empty, loading, loadingText = '加载中…', loadingIndicator,
+  children, data, sections, renderItem, header, footer, empty, loading, loadingText = '加载中…', loadingIndicator,
   renderSwipeActions, size = 'normal',
   hasMore = true, isLoadingMore = false, onLoadMore, loadMoreThreshold = 0.1, completeText = '没有更多了',
   collapsible, title, titleText, open, defaultOpen, onOpenChange, onEndReached, onEndReachedThreshold,
@@ -177,23 +248,67 @@ function ListInner<ItemT>({
 }: ListProps<ItemT>) {
   const styles = useStyles();
   const [isOpen, setOpen] = useControllableValue(defaultOpen ?? false, open, onOpenChange);
+  const [sectionOpenState, setSectionOpenState] = React.useState<Record<string, boolean>>({});
   const loadingMoreRef = useRef(false);
   const listData = collapsible && !isOpen ? [] : data ?? (children == null ? [] : [children as ItemT]);
-  const mergedRenderItem = (info: ListRenderItemInfo<ItemT>) => {
-    const row = info.item === children && data === undefined
+  const sectionEntries: ListEntry<ItemT>[] | undefined = sections !== undefined
+    ? sections.flatMap(section => {
+      const sectionIsOpen = section.open ?? sectionOpenState[section.key] ?? section.defaultOpen ?? true;
+      const headerEntry: SectionEntry<ItemT> = { kind: 'section', key: `section-${section.key}`, section };
+      if (!sectionIsOpen) return [headerEntry];
+      return [headerEntry, ...section.data.map((item, index): ItemEntry<ItemT> => ({
+        kind: 'item', key: `${section.key}-${String(keyExtractor?.(item, index) ?? (item as ListItemData).value ?? index)}`, item,
+        indexInSection: index, sectionItemCount: section.data.length,
+      }))];
+    })
+    : undefined;
+  const entries = sectionEntries ?? listData;
+  const mergedRenderItem = (entryInfo: ListRenderItemInfo<ItemT>) => {
+    const entry = sectionEntries === undefined
+      ? { kind: 'item' as const, key: String(keyExtractor?.(entryInfo.item, entryInfo.index) ?? entryInfo.index), item: entryInfo.item }
+      : entryInfo.item as unknown as ListEntry<ItemT>;
+    if (entry.kind === 'section') {
+      const section = entry.section;
+      const isSectionOpen = section.open ?? sectionOpenState[section.key] ?? section.defaultOpen ?? true;
+      const onSectionPress = section.collapsible
+        ? () => {
+          const nextOpen = !isSectionOpen;
+          setSectionOpenState(current => ({ ...current, [section.key]: nextOpen }));
+          section.onOpenChange?.(nextOpen);
+        }
+        : undefined;
+      return (
+        <Pressable disabled={onSectionPress === undefined} onPress={onSectionPress} style={[styles.groupHeader, styleOverrides?.groupHeader]}>
+          <Row align="center" style={styles.groupHeaderTitle} gap="small">
+            {renderTextNode(section.title ?? section.titleText, text => <Text color="tertiary" size="xs" weight="semibold">{text}</Text>)}
+            {section.countText !== undefined ? <Text color="tertiary" size="xs">{section.countText}</Text> : null}
+          </Row>
+          {section.collapsible ? <Icon color="tertiary" icon="caret-right" size={ARROW_SIZE} style={isSectionOpen ? styles.groupHeaderChevronOpen : styles.groupHeaderChevron} /> : null}
+        </Pressable>
+      );
+    }
+    const item = entry.item;
+    const itemInfo = {
+      ...entryInfo,
+      index: entry.indexInSection ?? entryInfo.index,
+      item,
+    } as ListRenderItemInfo<ItemT>;
+    const row = entryInfo.item === children && data === undefined && sections === undefined
       ? <>{children}</>
       : renderItem !== undefined
-        ? <>{renderItem(info)}</>
+        ? <>{renderItem(itemInfo)}</>
         : (
       <>
         {renderRow(
-          info.item as unknown as ListItemData,
+          item as unknown as ListItemData,
           styles,
-          info.index < listData.length - 1,
+          entry.indexInSection !== undefined
+            ? entry.indexInSection < (entry.sectionItemCount ?? 0) - 1
+            : entryInfo.index < entries.length - 1,
         )}
       </>
         );
-    const actions = renderSwipeActions?.(info);
+    const actions = renderSwipeActions?.(itemInfo);
 
     if (
       actions === null ||
@@ -266,9 +381,11 @@ function ListInner<ItemT>({
   return <FlatList<ItemT>
     {...flatListProps}
     scrollEnabled={flatListProps.scrollEnabled ?? false}
-    data={[...listData]}
+    data={[...entries] as ItemT[]}
     renderItem={mergedRenderItem}
-    keyExtractor={keyExtractor ?? ((_, index) => String(index))}
+    keyExtractor={sectionEntries === undefined
+      ? keyExtractor ?? ((_, index) => String(index))
+      : entry => (entry as unknown as ListEntry<ItemT>).key}
     ListHeaderComponent={headerNode}
     ListFooterComponent={footerNode}
     ListEmptyComponent={emptyNode}

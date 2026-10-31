@@ -1,5 +1,5 @@
 import React from 'react';
-import { Image, View } from 'react-native';
+import { Image, Pressable, View } from 'react-native';
 import type { ImageStyle, StyleProp } from 'react-native';
 import {
   Column,
@@ -7,8 +7,8 @@ import {
   Icon,
   List,
   Row,
-  SwipeAction,
   Text,
+  type ListItemData,
 } from '@pennyspring/ui';
 import { BOOK_TYPE, type BookRow } from '@pennyspring/api';
 import { createUseSheetStyle, useTheme } from '@pennyspring/ui';
@@ -16,7 +16,6 @@ import { NetworkIcon } from 'phosphor-react-native';
 import '../../utils/prototype';
 import type { BookEntry, CurrentBookRef } from '../../stores/bookStore';
 import type { NetworkBookRef } from '../../stores/networkBookStore';
-import { ManageCard, ManageRow } from '../ManageRow';
 import { ManageSkeleton } from '../ManageSkeleton';
 
 export interface BookListItem {
@@ -51,10 +50,6 @@ const useStyles = createUseSheetStyle(token => ({
   },
   metaLine: {
     paddingHorizontal: token.paddingXXS,
-  },
-  sectionHeader: {
-    paddingHorizontal: token.paddingXXS,
-    paddingVertical: token.paddingXS,
   },
   spine: {
     alignItems: 'center',
@@ -196,116 +191,69 @@ export function BookList({
     item => item.entry.kind === BOOK_TYPE.remote,
   );
 
-  const renderRow = (item: BookListItem, index: number) => {
+  const toListItem = (item: BookListItem): ListItemData & { item: BookListItem } => {
     const { entry } = item;
-    const isCurrentBook =
-      currentBook?.kind === entry.kind && currentBook?.id === entry.id;
+    const isCurrentBook = currentBook?.kind === entry.kind && currentBook?.id === entry.id;
     const isRemote = entry.kind === BOOK_TYPE.remote;
-
-    const handleSelect = () => {
+    const canSelect = !isCurrentBook && !item.error;
+    const onSelect = () => {
       if (item.error) {
-        item.networkRef && onNetworkRetry?.(item.networkRef);
-        return;
+        if (item.networkRef) onNetworkRetry?.(item.networkRef);
+      } else if (!isCurrentBook) {
+        onBookSelect?.(item.ref, item.entry);
       }
-      if (isCurrentBook) {
-        return;
-      }
-      onBookSelect?.(item.ref, item.entry);
     };
+    const trailing = item.error ? (
+      <Icon color="warningText" icon="warning" size="normal" />
+    ) : isCurrentBook ? (
+      <View style={styles.currentTag}>
+        <Icon color="primaryText" icon="check" size="small" />
+        <Text color="primaryText" weight="semibold" size="xs">当前</Text>
+      </View>
+    ) : mode === 'manage' && onBookMenu ? (
+      <Pressable
+        accessibilityLabel={`更多操作：${entry.name}`}
+        hitSlop={6}
+        onPress={() => onBookMenu(item)}
+      >
+        <Icon color="tertiary" icon="more" size="normal" />
+      </Pressable>
+    ) : undefined;
 
-    const rightActions =
-      mode === 'manage'
-        ? isRemote
-          ? [
-              {
-                key: 'remove',
-                actionText: '移除',
-                color: 'danger' as const,
-                onPress: () =>
-                  item.networkRef && onNetworkRemove?.(item.networkRef),
-              },
-            ]
-          : [
-              {
-                key: 'edit',
-                actionText: '编辑',
-                color: 'primary' as const,
-                onPress: () => onBookEdit?.(entry),
-              },
-              {
-                key: 'delete',
-                actionText: '删除',
-                color: 'danger' as const,
-                onPress: () => onBookDelete?.(entry.id),
-              },
-            ]
-        : [];
-
-    const row = (
-      <ManageRow
-        hasDivider={index > 0}
-        isCurrent={isCurrentBook}
-        leading={<BookSpine item={item} />}
-        onLongPress={
-          mode === 'manage' && onBookMenu
-            ? () => onBookMenu(item)
-            : item.error
-              ? undefined
-              : isCurrentBook
-                ? undefined
-                : handleSelect
-        }
-        onMenuPress={
-          mode === 'manage' && onBookMenu && !item.error
-            ? () => onBookMenu(item)
-            : undefined
-        }
-        onPress={
-          item.error ? handleSelect : isCurrentBook ? undefined : handleSelect
-        }
-        subtitle={
-          item.error
-            ? '连接失败 · 重试'
-            : isRemote
-              ? item.networkRef?.serverUrl || '网络账本'
-              : formatCreatedAt(entry.createdTime)
-        }
-        title={entry.name}
-        trailing={
-          item.error ? (
-            <Icon color="warningText" icon="warning" size="normal" />
-          ) : isCurrentBook ? (
-            <View style={styles.currentTag}>
-              <Icon color="primaryText" icon="check" size="small" />
-              <Text color="primaryText" weight="semibold" size="xs">当前</Text>
-            </View>
-          ) : (
-            <Icon color="tertiary" icon="caret-right" size="normal" />
-          )
-        }
-      />
-    );
-
-    return (
-      <SwipeAction key={getItemKey(item)} rightActions={rightActions}>
-        {row}
-      </SwipeAction>
-    );
+    return {
+      value: getItemKey(item),
+      item,
+      left: <BookSpine item={item} />,
+      titleText: entry.name,
+      descriptionText: item.error
+        ? '连接失败 · 重试'
+        : isRemote
+          ? item.networkRef?.serverUrl || '网络账本'
+          : formatCreatedAt(entry.createdTime),
+      right: trailing,
+      disclosure: mode === 'select' && canSelect,
+      onPress: item.error || canSelect ? onSelect : undefined,
+      onLongPress: mode === 'manage' && onBookMenu
+        ? () => onBookMenu(item)
+        : mode === 'select' && canSelect
+          ? onSelect
+          : undefined,
+    };
   };
 
   const sections = [
     ...(localItems.length > 0
-      ? [{ key: 'local', title: '本地账本', items: localItems }]
+      ? [{ key: 'local', titleText: '本地账本', countText: String(localItems.length), data: localItems.map(toListItem) }]
       : []),
     ...(networkItems.length > 0
-      ? [{ key: 'remote', title: '网络账本', items: networkItems }]
+      ? [{ key: 'remote', titleText: '网络账本', countText: String(networkItems.length), data: networkItems.map(toListItem) }]
       : []),
   ];
 
   return (
     <List
       contentContainerStyle={styles.content}
-      data={sections}
+      sections={sections}
       footer={(
         <Column style={styles.listEnd} align="center">
           <Text color="tertiary" size="xs" textAlign="center">
@@ -337,22 +285,32 @@ export function BookList({
         </Text>
         </Row>
       )}
-      keyExtractor={section => section.key}
-      renderItem={({ item: section }) => (
-        <Column gap={token.marginXXS}>
-          <Row style={styles.sectionHeader} gap="small" align="baseline">
-            <Text size="xs" weight="semibold" color="secondary">
-              {section.title}
-            </Text>
-            <Text size="xs" color="tertiary">
-              {section.items.length}
-            </Text>
-          </Row>
-          <ManageCard>
-            {section.items.map((item, index) => renderRow(item, index))}
-          </ManageCard>
-        </Column>
-      )}
+      renderSwipeActions={({ item }) => {
+        const book = item.item;
+        if (mode !== 'manage') return undefined;
+        if (book.entry.kind === BOOK_TYPE.remote) {
+          return { rightActions: [{
+            key: 'remove',
+            actionText: '移除',
+            color: 'danger',
+            onPress: () => book.networkRef && onNetworkRemove?.(book.networkRef),
+          }] };
+        }
+        return { rightActions: [
+          {
+            key: 'edit',
+            actionText: '编辑',
+            color: 'primary',
+            onPress: () => onBookEdit?.(book.entry),
+          },
+          {
+            key: 'delete',
+            actionText: '删除',
+            color: 'danger',
+            onPress: () => onBookDelete?.(book.entry.id),
+          },
+        ] };
+      }}
       scrollEnabled
       showsVerticalScrollIndicator={false}
       style={styles.list}

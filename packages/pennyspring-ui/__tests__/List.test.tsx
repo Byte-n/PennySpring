@@ -48,6 +48,48 @@ describe('List', () => {
     expect(renderedRow.props.children.props.children).toBe('one');
   });
 
+  it('shows a disclosure icon only when navigation is explicitly declared', () => {
+    const navigable = renderRow([{ disclosure: true, onPress: jest.fn(), titleText: '打开账本' }]);
+    const action = renderRow([{ onPress: jest.fn(), titleText: '执行操作' }]);
+
+    expect(navigable.root.findAllByType(Icon).some(node => node.props.icon === 'caret-right')).toBe(true);
+    expect(action.root.findAllByType(Icon).some(node => node.props.icon === 'caret-right')).toBe(false);
+  });
+
+  it('renders section rows from section data and passes only domain items to renderItem', () => {
+    const renderItem = jest.fn(({ item }: { item: { title: string } }) => <Text>{item.title}</Text>);
+    const testRenderer = renderList(
+      <List
+        sections={[{
+          key: 'local',
+          titleText: '本地账本',
+          countText: '1',
+          data: [{ title: '日常账本' }],
+        }]}
+        renderItem={renderItem}
+      />,
+    );
+    const flatList = testRenderer.root.findByType(FlatList);
+
+    expect(flatList.props.data).toHaveLength(2);
+    expect(renderItem.mock.calls[0]?.[0].item).toEqual({ title: '日常账本' });
+    expect(testRenderer.root.findAllByType(Text).some(node => node.props.children === '本地账本')).toBe(true);
+  });
+
+  it('renders metric values in aligned columns from data', () => {
+    const testRenderer = renderRow([{
+      titleText: '餐饮',
+      metrics: [
+        { key: 'percent', label: '占比', value: '35.4%' },
+        { key: 'amount', label: '金额', value: '¥2,421.30' },
+      ],
+    }]);
+    const values = testRenderer.root.findAllByType(Text).map(node => node.props.children);
+
+    expect(values).toContain('35.4%');
+    expect(values).toContain('¥2,421.30');
+  });
+
   it('renders empty content when there are no rows', () => {
     const testRenderer = renderList(<List data={[]} empty={<Text>Nothing here</Text>} />);
     const flatList = testRenderer.root.findByType(FlatList);
@@ -167,7 +209,19 @@ describe('List row spec', () => {
     expect(rightNode).toBeTruthy();
   });
 
-  it('replaces the trailing content with a check icon when selected', () => {
+  it('renders a data-driven badge beside the title', () => {
+    const testRenderer = renderRow([
+      { badgeText: '已隐藏', titleText: '现金账户' },
+    ]);
+    const badge = testRenderer.root
+      .findAllByType(Text)
+      .find(node => node.props.children === '已隐藏');
+
+    expect(badge?.props.size).toBe('xs');
+    expect(badge).toBeTruthy();
+  });
+
+  it('keeps trailing content and adds a check icon when selected', () => {
     const testRenderer = renderRow([
       { right: '28', selected: true, titleText: '已选中' },
     ]);
@@ -177,7 +231,7 @@ describe('List row spec', () => {
     expect(icon.props.icon).toBe('check');
     expect(icon.props.size).toBe(18);
     expect(rowStyle.backgroundColor).toBe(ROW_TOKENS.colorPrimaryBg);
-    expect(testRenderer.root.findAllByType(Text).some(node => node.props.children === '28')).toBe(false);
+    expect(testRenderer.root.findAllByType(Text).some(node => node.props.children === '28')).toBe(true);
   });
 
   it('marks a selected row with a primary left bar', () => {

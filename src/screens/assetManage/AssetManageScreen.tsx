@@ -1,5 +1,5 @@
 import React, { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { ScrollView } from 'react-native';
+import { Pressable, ScrollView } from 'react-native';
 import { useRequest } from 'ahooks';
 import {
   ActionSheet,
@@ -18,6 +18,7 @@ import {
   Textarea,
   useToast,
   type IconComponent,
+  type ListItemData,
   type ListPickerCascaderOption,
   type ListPickerCascaderValue,
 } from '@pennyspring/ui';
@@ -52,7 +53,6 @@ import {
   ManageAmount,
   ManageCard,
   ManageEmptyCard,
-  ManageRow,
   ManageSectionHeader,
 } from '../../components/ManageRow';
 import {
@@ -79,6 +79,11 @@ interface AssetGroupView {
   visibleTotal: number;
   visibleCount: number;
   hiddenCount: number;
+}
+
+interface AssetListItem extends ListItemData {
+  id: number;
+  asset: AssetRow;
 }
 
 function dayToPickerDate(day?: number): Date | undefined {
@@ -542,41 +547,33 @@ export function AssetManageScreen() {
                   totalText={formatSignedCents(group.visibleTotal)}
                 />
                 <ManageCard>
-                  <List
-                    data={group.assets}
-                    keyExtractor={asset => String(asset.id)}
-                    renderItem={({ item: asset, index }) => {
+                  <List<AssetListItem>
+                    data={group.assets.map((asset): AssetListItem => {
                       const hidden = asset.invisible === VISIBILITY.hidden;
                       const liability = isLiabilityAsset(asset);
 
-                      return (
-                        <ManageRow
-                          badgeText={hidden ? '已隐藏' : undefined}
-                          hasDivider={index > 0}
-                          icon={(
-                            <Icon
-                              color="secondary"
-                              icon={ASSET_ICONS[asset.type]}
-                              size="large"
-                            />
-                          )}
-                          isHidden={hidden}
-                          onLongPress={() => setMenuAsset(asset)}
-                          onMenuPress={() => setMenuAsset(asset)}
-                          onPress={() => openEdit(asset)}
-                          subtitle={buildAssetSubtitle(asset)}
-                          title={asset.name}
-                          trailing={(
+                      return {
+                        id: asset.id,
+                        asset,
+                        value: asset.id,
+                        titleText: asset.name,
+                        descriptionText: buildAssetSubtitle(asset),
+                        left: (
+                          <Icon
+                            color="secondary"
+                            icon={ASSET_ICONS[asset.type]}
+                            size="large"
+                          />
+                        ),
+                        badgeText: hidden ? '已隐藏' : undefined,
+                        onLongPress: () => setMenuAsset(asset),
+                        onPress: () => openEdit(asset),
+                        right: (
+                          <Row align="center" gap="small">
                             <Column align="end">
                               <ManageAmount
                                 showCurrency
-                                tone={
-                                  hidden
-                                    ? 'dim'
-                                    : liability
-                                      ? 'negative'
-                                      : 'default'
-                                }
+                                tone={hidden ? 'dim' : liability ? 'negative' : 'default'}
                                 value={liability ? -asset.balance : asset.balance}
                               />
                               {asset.type === ASSET_TYPE.creditCard ? (
@@ -585,23 +582,31 @@ export function AssetManageScreen() {
                                 </Text>
                               ) : null}
                             </Column>
-                          )}
-                        />
-                      );
-                    }}
-                    renderSwipeActions={({ item: asset }) => ({
+                            <Pressable
+                              accessibilityLabel={`更多操作：${asset.name}`}
+                              hitSlop={6}
+                              onPress={() => setMenuAsset(asset)}
+                            >
+                              <Icon color="tertiary" icon="more" size="large" />
+                            </Pressable>
+                          </Row>
+                        ),
+                      };
+                    })}
+                    keyExtractor={asset => String(asset.id)}
+                    renderSwipeActions={({ item }) => ({
                       rightActions: [
                         {
                           color: 'primary',
                           key: 'edit',
                           actionText: '编辑',
-                          onPress: () => openEdit(asset),
+                          onPress: () => openEdit(item.asset),
                         },
                         {
                           color: 'danger',
                           key: 'delete',
                           actionText: '删除',
-                          onPress: () => setPendingDeleteAsset(asset),
+                          onPress: () => setPendingDeleteAsset(item.asset),
                         },
                       ],
                     })}
