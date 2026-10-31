@@ -42,11 +42,12 @@ const BOOTSPLASH_DP = 288;
 /**
  * The artwork occupies ~72% of the 512 viewBox, so the frame scale below is what
  * decides the rendered mark size.
- *   - adaptive foreground: 86% frame -> ~62% of the canvas, inside the 66dp safe circle
+ *   - adaptive foreground: 70% frame -> ~53% of the canvas, keeping ~5dp above
+ *     and ~10dp below the drop inside the 72dp visible tile
  *   - legacy icons: 90% frame, they have no safe-area rule
  *   - splash logo: 61.5% frame -> a 128dp mark inside the 288dp splash canvas
  */
-const FOREGROUND_SCALE = 0.86;
+const FOREGROUND_SCALE = 0.7;
 const LEGACY_SCALE = 0.9;
 const BOOTSPLASH_SCALE = 0.615;
 
