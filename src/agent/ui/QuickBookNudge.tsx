@@ -10,12 +10,13 @@ import type { QuickBookImage } from '../../features/quickBook/types';
 
 const NUDGE_Z_INDEX = 10;
 
-const useStyles = createUseSheetStyle<{ top: number }>((token, options) => ({
+const useStyles = createUseSheetStyle<{ bottom: number }>((token, options) => ({
   root: {
+    bottom: options.bottom,
     left: token.padding,
     position: 'absolute',
-    right: token.padding,
-    top: options.top,
+    // 让出右下角悬浮按钮列，避免遮挡助手/快捷记账/新增入口。
+    right: token.controlHeight + token.paddingLG,
     zIndex: NUDGE_Z_INDEX,
   },
   card: {
@@ -49,7 +50,7 @@ export function QuickBookNudge({
 }: QuickBookNudgeProps): React.ReactElement | null {
   const { token } = useTheme();
   const insets = useSafeAreaInsets();
-  const styles = useStyles({ top: insets.top + token.paddingXS });
+  const styles = useStyles({ bottom: insets.bottom + token.padding });
 
   if (image === null) {
     return null;
