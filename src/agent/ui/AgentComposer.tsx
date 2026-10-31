@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Keyboard, Pressable } from 'react-native';
 import type { UIMessage } from 'ai';
 import { useAISDKChat } from '@assistant-ui/ai-sdk';
@@ -188,6 +188,7 @@ export function AgentComposer({
   const [plusMenuOpen, setPlusMenuOpen] = useState(false);
   const [imagePickerOpen, setImagePickerOpen] = useState(false);
   const [pendingImages, setPendingImages] = useState<ImagePickerValue[]>([]);
+  const sendingImagesRef = useRef(false);
   const styles = useStyles({ isFocused: isInputFocused });
 
   const provider = useMemo(() => {
@@ -296,7 +297,7 @@ export function AgentComposer({
   );
 
   const handleSend = useCallback((): void => {
-    if (!canSubmit) {
+    if (!canSubmit || sendingImagesRef.current) {
       return;
     }
 
@@ -330,20 +331,36 @@ export function AgentComposer({
       return;
     }
 
+    sendingImagesRef.current = true;
     const nextText = text.trim();
-    const attachments = toAgentAttachments(pendingImages);
-    setPlusMenuOpen(false);
-    setImagePickerOpen(false);
-    setPendingImages([]);
-    aui.composer.setText('', { origin: 'user' });
-    aiChat
-      .sendMessage({
-        parts: buildAttachmentMessageParts(files, attachments, nextText),
-        metadata: { attachments },
-      })
-      .catch(error => {
+
+    const sendWithPersistedImages = async (): Promise<void> => {
+      try {
+        const persistedImages = await ImagePicker.persistImage(pendingImages);
+        const persistedFiles = toImageFileParts(persistedImages);
+        const attachments = toAgentAttachments(persistedImages);
+
+        setPlusMenuOpen(false);
+        setImagePickerOpen(false);
+        setPendingImages([]);
+        aui.composer.setText('', { origin: 'user' });
+
+        await aiChat.sendMessage({
+          parts: buildAttachmentMessageParts(
+            persistedFiles,
+            attachments,
+            nextText,
+          ),
+          metadata: { attachments },
+        });
+      } catch (error: unknown) {
         toast.show({ messageText: getErrorMessage(error), status: 'error' });
-      });
+      } finally {
+        sendingImagesRef.current = false;
+      }
+    };
+
+    sendWithPersistedImages();
   }, [aiChat, aui, canSubmit, currentModel, pendingImages, text, toast]);
 
   const handleOpenImagePicker = useCallback((): void => {

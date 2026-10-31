@@ -20,6 +20,7 @@ import { useCategoryItems } from '../useCategoryItems';
 import { useAddRecordContext } from '../AddRecordContext';
 import { RecordDateTimeField } from '../components/RecordDateTimeField';
 import { saveAddRecordDraft, validateAddRecordDraft } from '../addRecordDraft';
+import { persistRecordImages } from '../persistRecordImages';
 import { buildNewQuickTemplate, validateTemplateDraft } from '../templateDraft';
 import { toAssetOptions } from '../recordOptions';
 import { toNumberValue } from '../selectValues';
@@ -142,7 +143,13 @@ export function ExpenseTabScreen() {
 
     try {
       setSubmitting(true);
-      await saveAddRecordDraft('expense', draft, editingRecordId);
+      const persisted = await persistRecordImages(images);
+      setImages(persisted.images);
+      await saveAddRecordDraft(
+        'expense',
+        { ...draft, imagePaths: persisted.imagePaths },
+        editingRecordId,
+      );
       reset();
       toast.show({
         messageText:

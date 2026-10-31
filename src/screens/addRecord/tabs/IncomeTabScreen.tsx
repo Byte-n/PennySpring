@@ -25,6 +25,7 @@ import {
   saveAddRecordDraft,
   validateAddRecordDraft,
 } from '../addRecordDraft';
+import { persistRecordImages } from '../persistRecordImages';
 import { buildNewQuickTemplate, validateTemplateDraft } from '../templateDraft';
 import {
   toAssetOptions,
@@ -177,7 +178,13 @@ export function IncomeTabScreen() {
 
     try {
       setSubmitting(true);
-      await saveAddRecordDraft('income', draft, editingRecordId);
+      const persisted = await persistRecordImages(images);
+      setImages(persisted.images);
+      await saveAddRecordDraft(
+        'income',
+        { ...draft, imagePaths: persisted.imagePaths },
+        editingRecordId,
+      );
       reset();
       toast.show({ messageText: editingRecordId !== undefined ? '已更新收入' : '已新增收入' });
       navigation.goBack();

@@ -24,6 +24,7 @@ import {
   saveAddRecordDraft,
   validateAddRecordDraft,
 } from '../addRecordDraft';
+import { persistRecordImages } from '../persistRecordImages';
 import { buildNewQuickTemplate, validateTemplateDraft } from '../templateDraft';
 import { toAssetOptions } from '../recordOptions';
 import { toNumberValue } from '../selectValues';
@@ -184,7 +185,13 @@ export function TransferTabScreen() {
 
     try {
       setSubmitting(true);
-      await saveAddRecordDraft('transfer', draft, editingRecordId);
+      const persisted = await persistRecordImages(images);
+      setImages(persisted.images);
+      await saveAddRecordDraft(
+        'transfer',
+        { ...draft, imagePaths: persisted.imagePaths },
+        editingRecordId,
+      );
       reset();
       toast.show({ messageText: editingRecordId !== undefined ? '已更新转账' : '已新增转账' });
       navigation.goBack();
