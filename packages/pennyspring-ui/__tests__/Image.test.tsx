@@ -1,5 +1,5 @@
 import React from 'react';
-import { Image as RNImage } from 'react-native';
+import { Image as RNImage, ScrollView } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
 
 import { Image } from '../src/Image';
@@ -152,6 +152,55 @@ describe('Image.PreviewGroup', () => {
 
     expect(hasPreview(testRenderer)).toBe(false);
     expect(onOpenChange).toHaveBeenCalledWith(false);
+  });
+
+  it('repositions to the pressed image after reopening the preview', () => {
+    const scrollToSpy = jest.spyOn(ScrollView.prototype, 'scrollTo');
+    const testRenderer = render(
+      <Image.PreviewGroup>
+        <Image src={IMAGE_A} testID="image-a" />
+        <Image src={IMAGE_B} testID="image-b" />
+        <Image src={IMAGE_C} testID="image-c" />
+      </Image.PreviewGroup>,
+    );
+
+    pressByTestID(testRenderer, 'image-a');
+
+    act(() => {
+      testRenderer.root
+        .findByProps({ testID: 'image-preview-root' })
+        .props.onLayout({
+          nativeEvent: { layout: { height: 100, width: 100 } },
+        });
+    });
+
+    const scrollView = testRenderer.root.findByType(ScrollView);
+    act(() => {
+      scrollView.props.onMomentumScrollEnd({
+        nativeEvent: { contentOffset: { x: 200 } },
+      });
+    });
+
+    expect(JSON.stringify(testRenderer.toJSON())).toContain('3 / 3');
+
+    pressByTestID(testRenderer, 'image-preview-close');
+    pressByTestID(testRenderer, 'image-b');
+
+    act(() => {
+      testRenderer.root
+        .findByProps({ testID: 'image-preview-root' })
+        .props.onLayout({
+          nativeEvent: { layout: { height: 100, width: 100 } },
+        });
+    });
+
+    expect(JSON.stringify(testRenderer.toJSON())).toContain('2 / 3');
+    expect(scrollToSpy).toHaveBeenLastCalledWith({
+      animated: false,
+      x: 100,
+      y: 0,
+    });
+    scrollToSpy.mockRestore();
   });
 
   it('includes a child even when preview is disabled on Image', () => {

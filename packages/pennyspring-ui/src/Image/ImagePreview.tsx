@@ -1,4 +1,5 @@
 import React, {
+  useCallback,
   useContext,
   useEffect,
   useRef,
@@ -57,6 +58,18 @@ export function ImagePreview({
   const isOpen = resolvedOpen === true;
   const normalizedIndex = clampIndex(resolvedIndex ?? 0, images.length);
 
+  const scrollToIndex = useCallback((nextIndex: number, width: number) => {
+    if (width <= 0) {
+      return;
+    }
+
+    scrollRef.current?.scrollTo?.({
+      x: nextIndex * width,
+      y: 0,
+      animated: false,
+    });
+  }, []);
+
   useEffect(() => {
     if (!isOpen) {
       return;
@@ -66,12 +79,8 @@ export function ImagePreview({
       return;
     }
 
-    scrollRef.current?.scrollTo?.({
-      x: normalizedIndex * viewport.width,
-      y: 0,
-      animated: false,
-    });
-  }, [isOpen, normalizedIndex, viewport.width]);
+    scrollToIndex(normalizedIndex, viewport.width);
+  }, [isOpen, normalizedIndex, scrollToIndex, viewport.width]);
 
   useEffect(() => {
     setIsZoomed(false);
@@ -90,6 +99,7 @@ export function ImagePreview({
         ? current
         : { height, width },
     );
+    scrollToIndex(normalizedIndex, width);
   }
 
   function handleMomentumScrollEnd(
