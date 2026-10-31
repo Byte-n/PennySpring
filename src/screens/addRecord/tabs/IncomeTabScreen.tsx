@@ -6,16 +6,14 @@ import {
   Column,
   ImagePicker,
   KeyboardAwareFormScroll,
+  Sticky,
+  StickyLayout,
   Row,
   ListPicker,
   useToast,
 } from '@pennyspring/ui';
 import { RECORD_TYPE_CATEGORY } from '@pennyspring/api';
-import {
-  createUseSheetStyle,
-  ThemeProvider,
-  useTheme,
-} from '@pennyspring/ui';
+import { createUseSheetStyle, ThemeProvider, useTheme } from '@pennyspring/ui';
 import { AmountDisplay } from '../components/AmountDisplay';
 import { CategoryField } from '../components/CategoryField';
 import { RemarkInput } from '../components/RemarkInput';
@@ -100,7 +98,10 @@ export function IncomeTabScreen() {
     { refreshDeps: [currentBook?.id] },
   );
   const selectedType = useMemo(
-    () => categories.find(category => category.id === (typeId ?? categories[0]?.id)),
+    () =>
+      categories.find(
+        category => category.id === (typeId ?? categories[0]?.id),
+      ),
     [categories, typeId],
   );
   const isAbsorption = isAbsorptionIncomeType(selectedType);
@@ -122,13 +123,16 @@ export function IncomeTabScreen() {
     [visibleAssets],
   );
 
-  const handleTypeChange = useCallback((nextTypeId: number | undefined) => {
-    setTypeId(nextTypeId);
-    const nextType = categories.find(category => category.id === nextTypeId);
-    if (!isAbsorptionIncomeType(nextType)) {
-      setRelatedRecordIds([]);
-    }
-  }, [categories, setRelatedRecordIds, setTypeId]);
+  const handleTypeChange = useCallback(
+    (nextTypeId: number | undefined) => {
+      setTypeId(nextTypeId);
+      const nextType = categories.find(category => category.id === nextTypeId);
+      if (!isAbsorptionIncomeType(nextType)) {
+        setRelatedRecordIds([]);
+      }
+    },
+    [categories, setRelatedRecordIds, setTypeId],
+  );
 
   const handleSave = useCallback(async () => {
     const draft = {
@@ -248,109 +252,120 @@ export function IncomeTabScreen() {
 
   return (
     <ThemeProvider config={{ token: { colorPrimary: token.green10 } }}>
-      <KeyboardAwareFormScroll
-        scrollEnabled
-        extraBottomInset={token.paddingXL}
-        focusedInputBottomOffset={token.paddingXL}
-        styles={{ content: styles.page }}
-      >
-        <Column gap={token.marginMD}>
-          <AmountDisplay />
-          <Card variant="elevated" size="small">
-            <CategoryField
-              categories={categories}
-              error={categoriesError}
-              loading={categoriesLoading}
-              onRetry={refreshCategories}
-              value={selectedTypeId}
-              onChange={handleTypeChange}
-            />
-          </Card>
-          <Card variant="elevated">
-            <Row wrap gap={token.marginSM}>
-              <ListPicker
-                labelText="付款资产（可选）"
-                loading={assetsLoading}
-                onChange={value => setAssetId(toNumberValue(value) ?? null)}
-                options={assetOptions}
-                searchable
-                texts={{
-                  headerText: '选择收款资产',
-                  searchLabelText: '收款资产',
-                  searchPlaceholder: '搜索资产',
-                  emptyText: '暂无可用资产',
-                }}
-                value={assetId ?? undefined}
+      <StickyLayout style={styles.tab}>
+        <KeyboardAwareFormScroll
+          scrollEnabled
+          extraBottomInset={token.paddingXL}
+          focusedInputBottomOffset={token.paddingXL}
+          styles={{ content: styles.page }}
+        >
+          <Column gap={token.marginMD}>
+            <AmountDisplay />
+            <Card variant="elevated" size="small">
+              <CategoryField
+                categories={categories}
+                error={categoriesError}
+                loading={categoriesLoading}
+                onRetry={refreshCategories}
+                value={selectedTypeId}
+                onChange={handleTypeChange}
               />
-              {!template && (
-                <RecordDateTimeField
-                  value={recordTime}
-                  onChange={setRecordTime}
-                />
-              )}
-              {!template && (
-                <ImagePicker
-                  multiple
-                  maxCount={3}
-                  maxHeight={MEDIA_IMAGE_MAX_DIMENSION}
-                  maxWidth={MEDIA_IMAGE_MAX_DIMENSION}
-                  quality={MEDIA_IMAGE_QUALITY}
-                  onError={(error: unknown) => {
-                    toast.show({
-                      messageText:
-                        error instanceof Error ? error.message : '选择图片失败',
-                    });
-                  }}
-                  labelText="图片"
-                  value={images}
-                  onChange={setImages}
-                />
-              )}
-              <TagPicker
-                loading={tagsLoading}
-                onChange={setTags}
-                tags={allTags}
-                value={selectedTagIds}
-              />
-              {!template && isAbsorption ? (
+            </Card>
+            <Card variant="elevated">
+              <Row wrap gap={token.marginSM}>
                 <ListPicker
-                  displayMode="tag"
-                  labelText="关联支出"
-                  loading={recordsLoading}
-                  mode="multiple"
-                  onChange={value => setRelatedRecordIds(toNumberValues(value))}
-                  options={relatedExpenseOptions}
+                  labelText="付款资产（可选）"
+                  loading={assetsLoading}
+                  onChange={value => setAssetId(toNumberValue(value) ?? null)}
+                  options={assetOptions}
                   searchable
                   texts={{
-                    headerText: '选择关联支出',
-                    searchLabelText: '关联支出',
-                    searchPlaceholder: '搜索支出',
-                    emptyText: '暂无可关联支出',
-                    confirmText: '确定',
+                    headerText: '选择收款资产',
+                    searchLabelText: '收款资产',
+                    searchPlaceholder: '搜索资产',
+                    emptyText: '暂无可用资产',
                   }}
-                  value={relatedRecordIds}
+                  value={assetId ?? undefined}
                 />
-              ) : null}
-            </Row>
-          </Card>
-          <Card variant="elevated">
-            <RemarkInput />
-          </Card>
-          <Button
-            block
-            loading={submitting}
-            onPress={handleSave}
-            type="primary"
-          >
-            {template ? '保存模板' : '保存收入'}
-          </Button>
-        </Column>
-      </KeyboardAwareFormScroll>
+                {!template && (
+                  <RecordDateTimeField
+                    value={recordTime}
+                    onChange={setRecordTime}
+                  />
+                )}
+                {!template && (
+                  <ImagePicker
+                    multiple
+                    maxCount={3}
+                    maxHeight={MEDIA_IMAGE_MAX_DIMENSION}
+                    maxWidth={MEDIA_IMAGE_MAX_DIMENSION}
+                    quality={MEDIA_IMAGE_QUALITY}
+                    onError={(error: unknown) => {
+                      toast.show({
+                        messageText:
+                          error instanceof Error
+                            ? error.message
+                            : '选择图片失败',
+                      });
+                    }}
+                    labelText="图片"
+                    value={images}
+                    onChange={setImages}
+                  />
+                )}
+                <TagPicker
+                  loading={tagsLoading}
+                  onChange={setTags}
+                  tags={allTags}
+                  value={selectedTagIds}
+                />
+                {!template && isAbsorption ? (
+                  <ListPicker
+                    displayMode="tag"
+                    labelText="关联支出"
+                    loading={recordsLoading}
+                    mode="multiple"
+                    onChange={value =>
+                      setRelatedRecordIds(toNumberValues(value))
+                    }
+                    options={relatedExpenseOptions}
+                    searchable
+                    texts={{
+                      headerText: '选择关联支出',
+                      searchLabelText: '关联支出',
+                      searchPlaceholder: '搜索支出',
+                      emptyText: '暂无可关联支出',
+                      confirmText: '确定',
+                    }}
+                    value={relatedRecordIds}
+                  />
+                ) : null}
+              </Row>
+            </Card>
+            <Card variant="elevated">
+              <RemarkInput />
+            </Card>
+            <Sticky placement="bottom">
+              <Button
+                block
+                loading={submitting}
+                onPress={handleSave}
+                type="primary"
+              >
+                {template ? '保存模板' : '保存收入'}
+              </Button>
+            </Sticky>
+          </Column>
+        </KeyboardAwareFormScroll>
+      </StickyLayout>
     </ThemeProvider>
   );
 }
 
 const useStyles = createUseSheetStyle(token => ({
+  tab: {
+    flex: 1,
+  },
   page: {
     backgroundColor: token.colorBgLayout,
     paddingTop: token.paddingMD,

@@ -503,5 +503,13 @@ export { Spacer } from './Spacer';
 export type { SpacerDirection, SpacerProps } from './Spacer';
 export { GeometryReader } from './GeometryReader';
 export type { Geometry, GeometryReaderProps } from './GeometryReader';
+export { Sticky, StickyLayout } from './Sticky';
+export type {
+  StickyLayoutProps,
+  StickyLayoutStyles,
+  StickyPlacement,
+  StickyProps,
+  StickyStyles,
+} from './Sticky';
 
 export * from '@pennyspring/theme';

@@ -1,24 +1,18 @@
-import React, {
-  useCallback,
-  useMemo,
-  useState,
-} from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import {
   Button,
   Card,
   Column,
   ImagePicker,
   KeyboardAwareFormScroll,
+  Sticky,
+  StickyLayout,
   Row,
   ListPicker,
   useToast,
 } from '@pennyspring/ui';
 import { RECORD_TYPE_CATEGORY } from '@pennyspring/api';
-import {
-  createUseSheetStyle,
-  ThemeProvider,
-  useTheme,
-} from '@pennyspring/ui';
+import { createUseSheetStyle, ThemeProvider, useTheme } from '@pennyspring/ui';
 import { AmountDisplay } from '../components/AmountDisplay';
 import { CategoryField } from '../components/CategoryField';
 import { RemarkInput } from '../components/RemarkInput';
@@ -94,7 +88,10 @@ export function TransferTabScreen() {
     visibleAssets,
   } = useAddRecordResources();
   const selectedType = useMemo(
-    () => categories.find(category => category.id === (typeId ?? categories[0]?.id)),
+    () =>
+      categories.find(
+        category => category.id === (typeId ?? categories[0]?.id),
+      ),
     [categories, typeId],
   );
   const selectedTypeId = selectedType?.id;
@@ -115,20 +112,42 @@ export function TransferTabScreen() {
     [assetId, toAssets],
   );
 
-  const handleTypeChange = useCallback((nextTypeId: number | undefined) => {
-    setTypeId(nextTypeId);
-    if (assetsLoading) return;
+  const handleTypeChange = useCallback(
+    (nextTypeId: number | undefined) => {
+      setTypeId(nextTypeId);
+      if (assetsLoading) return;
 
-    const nextType = categories.find(category => category.id === nextTypeId);
-    const nextFromAssets = filterTransferAssets(visibleAssets, nextType, 'from');
-    const nextToAssets = filterTransferAssets(visibleAssets, nextType, 'to');
-    if (assetId !== null && !nextFromAssets.some(asset => asset.id === assetId)) {
-      setAssetId(null);
-    }
-    if (intoAssetId !== null && !nextToAssets.some(asset => asset.id === intoAssetId)) {
-      setIntoAssetId(null);
-    }
-  }, [assetId, assetsLoading, categories, intoAssetId, setAssetId, setIntoAssetId, setTypeId, visibleAssets]);
+      const nextType = categories.find(category => category.id === nextTypeId);
+      const nextFromAssets = filterTransferAssets(
+        visibleAssets,
+        nextType,
+        'from',
+      );
+      const nextToAssets = filterTransferAssets(visibleAssets, nextType, 'to');
+      if (
+        assetId !== null &&
+        !nextFromAssets.some(asset => asset.id === assetId)
+      ) {
+        setAssetId(null);
+      }
+      if (
+        intoAssetId !== null &&
+        !nextToAssets.some(asset => asset.id === intoAssetId)
+      ) {
+        setIntoAssetId(null);
+      }
+    },
+    [
+      assetId,
+      assetsLoading,
+      categories,
+      intoAssetId,
+      setAssetId,
+      setIntoAssetId,
+      setTypeId,
+      visibleAssets,
+    ],
+  );
 
   const handleSave = useCallback(async () => {
     const draft = {
@@ -250,113 +269,124 @@ export function TransferTabScreen() {
 
   return (
     <ThemeProvider config={{ token: { colorPrimary: token.blue10 } }}>
-      <KeyboardAwareFormScroll
-        scrollEnabled
-        extraBottomInset={token.paddingXL}
-        focusedInputBottomOffset={token.paddingXL}
-        styles={{ content: styles.page }}
-      >
-        <Column gap={token.marginMD}>
-          <AmountDisplay />
-          <Card variant="elevated" size="small">
-            <CategoryField
-              categories={categories}
-              error={categoriesError}
-              loading={categoriesLoading}
-              onRetry={refreshCategories}
-              value={selectedTypeId}
-              onChange={handleTypeChange}
-            />
-          </Card>
-          <Card variant="elevated">
-            <Row wrap gap={token.marginSM}>
-              <ListPicker
-                labelText="转出资产"
-                loading={assetsLoading}
-                onChange={value => setAssetId(toNumberValue(value) ?? null)}
-                options={fromAssetOptions}
-                searchable
-                style={styles.formField}
-                texts={{
-                  headerText: '选择转出资产',
-                  searchLabelText: '转出资产',
-                  searchPlaceholder: '搜索资产',
-                  emptyText: '暂无可用转出资产',
-                }}
-                value={assetId ?? undefined}
+      <StickyLayout style={styles.tab}>
+        <KeyboardAwareFormScroll
+          scrollEnabled
+          extraBottomInset={token.paddingXL}
+          focusedInputBottomOffset={token.paddingXL}
+          styles={{ content: styles.page }}
+        >
+          <Column gap={token.marginMD}>
+            <AmountDisplay />
+            <Card variant="elevated" size="small">
+              <CategoryField
+                categories={categories}
+                error={categoriesError}
+                loading={categoriesLoading}
+                onRetry={refreshCategories}
+                value={selectedTypeId}
+                onChange={handleTypeChange}
               />
-              <ListPicker
-                labelText="转入资产"
-                loading={assetsLoading}
-                onChange={value => setIntoAssetId(toNumberValue(value) ?? null)}
-                options={intoAssetOptions}
-                searchable
-                style={styles.formField}
-                texts={{
-                  headerText: '选择转入资产',
-                  searchLabelText: '转入资产',
-                  searchPlaceholder: '搜索资产',
-                  emptyText: '暂无可用转入资产',
-                }}
-                value={intoAssetId ?? undefined}
-              />
-              <MoneyField
-                labelText="手续费"
-                value={charge}
-                onChange={setCharge}
-              />
-              {!template && (
-                <RecordDateTimeField
-                  value={recordTime}
-                  onChange={setRecordTime}
-                />
-              )}
-              {!template && (
-                <ImagePicker
-                  multiple
-                  maxCount={3}
-                  maxHeight={MEDIA_IMAGE_MAX_DIMENSION}
-                  maxWidth={MEDIA_IMAGE_MAX_DIMENSION}
-                  quality={MEDIA_IMAGE_QUALITY}
-                  onError={(error: unknown) => {
-                    toast.show({
-                      messageText:
-                        error instanceof Error ? error.message : '选择图片失败',
-                    });
-                  }}
-                  labelText="图片"
-                  value={images}
-                  onChange={setImages}
+            </Card>
+            <Card variant="elevated">
+              <Row wrap gap={token.marginSM}>
+                <ListPicker
+                  labelText="转出资产"
+                  loading={assetsLoading}
+                  onChange={value => setAssetId(toNumberValue(value) ?? null)}
+                  options={fromAssetOptions}
+                  searchable
                   style={styles.formField}
+                  texts={{
+                    headerText: '选择转出资产',
+                    searchLabelText: '转出资产',
+                    searchPlaceholder: '搜索资产',
+                    emptyText: '暂无可用转出资产',
+                  }}
+                  value={assetId ?? undefined}
                 />
-              )}
-              <TagPicker
-                loading={tagsLoading}
-                onChange={setTags}
-                style={styles.formField}
-                tags={allTags}
-                value={selectedTagIds}
-              />
-            </Row>
-          </Card>
-          <Card variant="elevated">
-            <RemarkInput />
-          </Card>
-          <Button
-            block
-            loading={submitting}
-            onPress={handleSave}
-            type="primary"
-          >
-            {template ? '保存模板' : '保存转账'}
-          </Button>
-        </Column>
-      </KeyboardAwareFormScroll>
+                <ListPicker
+                  labelText="转入资产"
+                  loading={assetsLoading}
+                  onChange={value =>
+                    setIntoAssetId(toNumberValue(value) ?? null)
+                  }
+                  options={intoAssetOptions}
+                  searchable
+                  style={styles.formField}
+                  texts={{
+                    headerText: '选择转入资产',
+                    searchLabelText: '转入资产',
+                    searchPlaceholder: '搜索资产',
+                    emptyText: '暂无可用转入资产',
+                  }}
+                  value={intoAssetId ?? undefined}
+                />
+                <MoneyField
+                  labelText="手续费"
+                  value={charge}
+                  onChange={setCharge}
+                />
+                {!template && (
+                  <RecordDateTimeField
+                    value={recordTime}
+                    onChange={setRecordTime}
+                  />
+                )}
+                {!template && (
+                  <ImagePicker
+                    multiple
+                    maxCount={3}
+                    maxHeight={MEDIA_IMAGE_MAX_DIMENSION}
+                    maxWidth={MEDIA_IMAGE_MAX_DIMENSION}
+                    quality={MEDIA_IMAGE_QUALITY}
+                    onError={(error: unknown) => {
+                      toast.show({
+                        messageText:
+                          error instanceof Error
+                            ? error.message
+                            : '选择图片失败',
+                      });
+                    }}
+                    labelText="图片"
+                    value={images}
+                    onChange={setImages}
+                    style={styles.formField}
+                  />
+                )}
+                <TagPicker
+                  loading={tagsLoading}
+                  onChange={setTags}
+                  style={styles.formField}
+                  tags={allTags}
+                  value={selectedTagIds}
+                />
+              </Row>
+            </Card>
+            <Card variant="elevated">
+              <RemarkInput />
+            </Card>
+            <Sticky placement="bottom">
+              <Button
+                block
+                loading={submitting}
+                onPress={handleSave}
+                type="primary"
+              >
+                {template ? '保存模板' : '保存转账'}
+              </Button>
+            </Sticky>
+          </Column>
+        </KeyboardAwareFormScroll>
+      </StickyLayout>
     </ThemeProvider>
   );
 }
 
 const useStyles = createUseSheetStyle(token => ({
+  tab: {
+    flex: 1,
+  },
   page: {
     backgroundColor: token.colorBgLayout,
     paddingTop: token.paddingMD,

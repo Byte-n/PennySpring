@@ -111,6 +111,8 @@ import PopoverPreview from './navigation/popover';
 import { popoverDemos } from './navigation/popover/demos';
 import PopupPreview from './navigation/popup';
 import { popupDemos } from './navigation/popup/demos';
+import StickyPreview from './navigation/sticky';
+import { stickyDemos } from './navigation/sticky/demos';
 
 import type { ComponentType } from 'react';
 import type {
@@ -206,6 +208,7 @@ const DEMO_PREVIEW_ITEMS = [
   ...createDemoPreviewItems('floating-action-group', 'FloatingActionGroup', floatingActionGroupDemos),
   ...createDemoPreviewItems('popover', 'Popover', popoverDemos),
   ...createDemoPreviewItems('popup', 'Popup', popupDemos),
+  ...createDemoPreviewItems('sticky', 'Sticky', stickyDemos),
 ] satisfies ComponentPreviewItem[];
 
 export const COMPONENT_PREVIEW_SECTIONS = [
@@ -566,6 +569,12 @@ export const COMPONENT_PREVIEW_SECTIONS = [
         title: 'Popup',
         description: '弹层位置、尺寸、遮罩和 FloatingPanel 操作。',
         component: PopupPreview,
+      },
+      {
+        id: 'sticky',
+        title: 'Sticky',
+        description: '在业务滚动区域内吸顶或吸底，并保留原始内容占位。',
+        component: StickyPreview,
       },
     ],
   },

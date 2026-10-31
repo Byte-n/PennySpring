@@ -10,6 +10,7 @@
 - `Spacer`：固定或弹性的空白占位；设 `size` 时横向取宽、纵向取高且两向同值，不设 `size` 时按 `flex` 吃剩余空间。
 - `Grid`：网格布局和重复瓦片；三档 gap 8 / 12 / 16，格内只保留横向半 gap，行距等于 gap，外层负半 gap 抵消首列外扩。
 - `GeometryReader`：布局尺寸测量。
+- `StickyLayout` + `Sticky`：在业务滚动容器外提供局部 overlay；Sticky 保留内容占位并支持 `placement="top" / "bottom"`、offset、disabled 与吸附状态回调，滚动容器仍由调用方提供。
 - `KeyboardAwareScreen`、`KeyboardAwareFormScroll`、`KeyboardStickyFooter`、`useKeyboardInsets`：页面、表单滚动与底部操作区的键盘避让布局能力。FormScroll 默认关闭滚动，需滚动时显式设置 `scrollEnabled`。inset 统一按 `max(0, 键盘高 − 安全区)` 计算；Screen 只在键盘可见时补一次，FormScroll 内容底部只补 `inset + extraBottomInset`（默认 0），StickyFooter 取 `max(inset, safeAreaBottom)` 并带 1px `colorSplit` 顶线。
 - `Divider`：视觉分隔；`size` 只调间距（横向上下 12 / 16 / 20，纵向高 16 / 20 / 24、左右 8 / 12 / 16），`spacing` 可覆盖两侧间距、`none` 关闭间距，内容固定 12 三级灰、左右 12，`left` / `right` 短边固定 24。
 - `Card`：分组内容承载面；plain / elevated / summary 三个变体均无描边，elevated 只用 `boxShadowTertiary`，summary 靠金额排印建立重点；尺寸 12 / 16 / 20 内边距。

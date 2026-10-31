@@ -83,7 +83,8 @@ module.exports = {
         "components/navigation/portal",
         "components/navigation/floating-action-group",
         "components/navigation/popover",
-        "components/navigation/popup"
+        "components/navigation/popup",
+        "components/navigation/sticky"
       ]
     }
   ]

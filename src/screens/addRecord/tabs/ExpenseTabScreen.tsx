@@ -6,16 +6,14 @@ import {
   Column,
   ImagePicker,
   KeyboardAwareFormScroll,
+  Sticky,
+  StickyLayout,
   Row,
   ListPicker,
   useToast,
 } from '@pennyspring/ui';
 import { RECORD_TYPE_CATEGORY } from '@pennyspring/api';
-import {
-  createUseSheetStyle,
-  ThemeProvider,
-  useTheme,
-} from '@pennyspring/ui';
+import { createUseSheetStyle, ThemeProvider, useTheme } from '@pennyspring/ui';
 import { AmountDisplay } from '../components/AmountDisplay';
 import { CategoryField } from '../components/CategoryField';
 import { RemarkInput } from '../components/RemarkInput';
@@ -84,7 +82,10 @@ export function ExpenseTabScreen() {
     visibleAssets,
   } = useAddRecordResources();
   const selectedType = useMemo(
-    () => categories.find(category => category.id === (typeId ?? categories[0]?.id)),
+    () =>
+      categories.find(
+        category => category.id === (typeId ?? categories[0]?.id),
+      ),
     [categories, typeId],
   );
   const selectedTypeId = selectedType?.id;
@@ -212,95 +213,104 @@ export function ExpenseTabScreen() {
 
   return (
     <ThemeProvider config={{ token: { colorPrimary: token.red10 } }}>
-      <KeyboardAwareFormScroll
-        scrollEnabled
-        extraBottomInset={token.paddingXL}
-        focusedInputBottomOffset={token.paddingXL}
-        styles={{ content: styles.page }}
-      >
-        <Column gap={token.marginMD}>
-          <AmountDisplay />
-          <Card variant="elevated" size="small">
-            <CategoryField
-              categories={categories}
-              error={categoriesError}
-              loading={categoriesLoading}
-              onRetry={refreshCategories}
-              value={selectedTypeId}
-              onChange={setTypeId}
-            />
-          </Card>
-          <Card variant="elevated">
-            <Row wrap gap={token.marginSM}>
-              <ListPicker
-                labelText="付款资产（可选）"
-                loading={assetsLoading}
-                onChange={value => setAssetId(toNumberValue(value) ?? null)}
-                options={assetOptions}
-                searchable
-                texts={{
-                  headerText: '选择付款资产',
-                  searchLabelText: '付款资产',
-                  searchPlaceholder: '搜索资产',
-                  emptyText: '暂无可用资产',
-                }}
-                value={assetId ?? undefined}
+      <StickyLayout style={styles.tab}>
+        <KeyboardAwareFormScroll
+          scrollEnabled
+          extraBottomInset={token.paddingXL}
+          focusedInputBottomOffset={token.paddingXL}
+          styles={{ content: styles.page }}
+        >
+          <Column gap={token.marginMD}>
+            <AmountDisplay />
+            <Card variant="elevated" size="small">
+              <CategoryField
+                categories={categories}
+                error={categoriesError}
+                loading={categoriesLoading}
+                onRetry={refreshCategories}
+                value={selectedTypeId}
+                onChange={setTypeId}
               />
-              {!template && (
-                <RecordDateTimeField
-                  value={recordTime}
-                  onChange={setRecordTime}
-                />
-              )}
-              {!template && (
-                <ImagePicker
-                  multiple
-                  maxCount={3}
-                  maxHeight={MEDIA_IMAGE_MAX_DIMENSION}
-                  maxWidth={MEDIA_IMAGE_MAX_DIMENSION}
-                  quality={MEDIA_IMAGE_QUALITY}
-                  onError={(error: unknown) => {
-                    toast.show({
-                      messageText:
-                        error instanceof Error ? error.message : '选择图片失败',
-                    });
+            </Card>
+            <Card variant="elevated">
+              <Row wrap gap={token.marginSM}>
+                <ListPicker
+                  labelText="付款资产（可选）"
+                  loading={assetsLoading}
+                  onChange={value => setAssetId(toNumberValue(value) ?? null)}
+                  options={assetOptions}
+                  searchable
+                  texts={{
+                    headerText: '选择付款资产',
+                    searchLabelText: '付款资产',
+                    searchPlaceholder: '搜索资产',
+                    emptyText: '暂无可用资产',
                   }}
-                  labelText="图片"
-                  value={images}
-                  onChange={setImages}
+                  value={assetId ?? undefined}
                 />
-              )}
-              <TagPicker
-                loading={tagsLoading}
-                onChange={setTags}
-                tags={allTags}
-                value={selectedTagIds}
-              />
-              <Row justify="center" align="center" style={styles.switchCell}>
-                <Checkbox value={reimbursable} onChange={setReimbursable}>
-                  报销
-                </Checkbox>
+                {!template && (
+                  <RecordDateTimeField
+                    value={recordTime}
+                    onChange={setRecordTime}
+                  />
+                )}
+                {!template && (
+                  <ImagePicker
+                    multiple
+                    maxCount={3}
+                    maxHeight={MEDIA_IMAGE_MAX_DIMENSION}
+                    maxWidth={MEDIA_IMAGE_MAX_DIMENSION}
+                    quality={MEDIA_IMAGE_QUALITY}
+                    onError={(error: unknown) => {
+                      toast.show({
+                        messageText:
+                          error instanceof Error
+                            ? error.message
+                            : '选择图片失败',
+                      });
+                    }}
+                    labelText="图片"
+                    value={images}
+                    onChange={setImages}
+                  />
+                )}
+                <TagPicker
+                  loading={tagsLoading}
+                  onChange={setTags}
+                  tags={allTags}
+                  value={selectedTagIds}
+                />
+                <Row justify="center" align="center" style={styles.switchCell}>
+                  <Checkbox value={reimbursable} onChange={setReimbursable}>
+                    报销
+                  </Checkbox>
+                </Row>
               </Row>
-            </Row>
-          </Card>
-          <Card variant="elevated">
-            <RemarkInput />
-          </Card>
-          <Button
-            block
-            loading={submitting}
-            onPress={handleSave}
-            type="primary"
-          >
-            {template ? '保存模板' : '保存支出'}
-          </Button>
-        </Column>
-      </KeyboardAwareFormScroll>
+            </Card>
+            <Card variant="elevated">
+              <RemarkInput />
+            </Card>
+            <Sticky placement="bottom">
+              <Button
+                block
+                loading={submitting}
+                onPress={handleSave}
+                type="primary"
+              >
+                {template ? '保存模板' : '保存支出'}
+              </Button>
+            </Sticky>
+          </Column>
+        </KeyboardAwareFormScroll>
+      </StickyLayout>
     </ThemeProvider>
   );
 }
 
 const useStyles = createUseSheetStyle(token => ({
+  tab: {
+    flex: 1,
+  },
   page: {
     backgroundColor: token.colorBgLayout,
     paddingTop: token.paddingMD,
