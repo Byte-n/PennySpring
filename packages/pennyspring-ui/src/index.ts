@@ -172,8 +172,16 @@ export type {
   DisplayInputProps,
   DisplayInputStyles,
 } from './DisplayInput';
-export { ImagePicker, ImagePickerPopup } from './ImagePicker';
+export {
+  ImagePicker,
+  ImagePickerActionSheet,
+  ImagePickerPopup,
+} from './ImagePicker';
 export type {
+  ImagePickerActionSheetBaseProps,
+  ImagePickerActionSheetMultipleProps,
+  ImagePickerActionSheetProps,
+  ImagePickerActionSheetSingleProps,
   ImagePickerDisplayInputProps,
   ImagePickerImageQuality,
   ImagePickerOpenChangeParams,

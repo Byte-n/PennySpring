@@ -10,6 +10,7 @@ export const DEFAULT_PHOTO_TEXT = '相册';
 export const DEFAULT_FILE_SYSTEM_TEXT = '文件';
 export const DEFAULT_OK_TEXT = '完成';
 export const DEFAULT_TITLE_TEXT = '请选择图片';
+export const DEFAULT_ACTION_SHEET_TITLE_TEXT = '选择图片';
 export const DEFAULT_EMPTY_TEXT = '暂无已选图片';
 export const DEFAULT_SINGLE_HINT_TEXT = '最多1张';
 export const DEFAULT_SELECTED_TEXT = '已选择';

@@ -9,6 +9,7 @@ export const previewMeta = {
   order: 4,
   demos: [
     { id: 'basic', title: 'Basic' },
+    { id: 'action-sheet', title: 'ActionSheet' },
     { id: 'state', title: 'State' },
   ],
 } satisfies PreviewMeta;

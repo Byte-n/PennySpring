@@ -538,7 +538,7 @@ export function AgentComposer({
         open={modelSheetOpen}
         titleText="切换模型"
       />
-      <ImagePicker.Popup
+      <ImagePicker.ActionSheet
         includeBase64
         maxCount={AGENT_MAX_IMAGE_ATTACHMENTS}
         maxHeight={AGENT_IMAGE_MAX_DIMENSION}
@@ -550,7 +550,7 @@ export function AgentComposer({
         open={imagePickerOpen}
         quality={AGENT_IMAGE_QUALITY}
         sources={['photo', 'camera']}
-        titleText="发送图片"
+        titleText="添加图片"
         value={pendingImages}
       />
     </Column>

@@ -182,3 +182,48 @@ export interface ImagePickerPopupMultipleProps
 export type ImagePickerPopupProps =
   | ImagePickerPopupSingleProps
   | ImagePickerPopupMultipleProps;
+
+export interface ImagePickerActionSheetBaseProps {
+  open?: boolean;
+  defaultOpen?: boolean;
+  onOpenChange?: (
+    open: boolean,
+    params: ImagePickerOpenChangeParams,
+  ) => void;
+  onError?: (error: unknown) => void;
+  cameraText?: string;
+  photoText?: string;
+  fileSystemText?: string;
+  cancelText?: string;
+  titleText?: string;
+  sources?: ImagePickerSource[];
+  maxCount?: number;
+  /** 是否让原生选择器返回 base64 内容，默认关闭。 */
+  includeBase64?: boolean;
+  /** 选择后压缩的最长边宽度。 */
+  maxWidth?: number;
+  /** 选择后压缩的最长边高度。 */
+  maxHeight?: number;
+  /** 选择后压缩质量，取值 0 - 1。 */
+  quality?: ImagePickerImageQuality;
+}
+
+export interface ImagePickerActionSheetSingleProps
+  extends ImagePickerActionSheetBaseProps {
+  multiple?: false;
+  value?: ImagePickerValue;
+  defaultValue?: ImagePickerValue;
+  onChange?: (value: ImagePickerValue) => void;
+}
+
+export interface ImagePickerActionSheetMultipleProps
+  extends ImagePickerActionSheetBaseProps {
+  multiple: true;
+  value?: ImagePickerValue[];
+  defaultValue?: ImagePickerValue[];
+  onChange?: (value: ImagePickerValue[]) => void;
+}
+
+export type ImagePickerActionSheetProps =
+  | ImagePickerActionSheetSingleProps
+  | ImagePickerActionSheetMultipleProps;

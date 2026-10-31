@@ -234,12 +234,14 @@ jest.mock('@pennyspring/ui', () => {
     children?: React.ReactNode;
   }) => ReactLib.createElement(ReactLib.Fragment, null, children);
 
-  const MockImagePickerPopup = ({
+  const MockImagePickerActionSheet = ({
     onChange,
+    onOpenChange,
     open,
     value = [],
   }: {
     onChange?: (value: Array<Record<string, unknown>>) => void;
+    onOpenChange?: (nextOpen: boolean) => void;
     open?: boolean;
     value?: Array<Record<string, unknown>>;
   }) =>
@@ -247,7 +249,7 @@ jest.mock('@pennyspring/ui', () => {
       ? ReactLib.createElement(
           Pressable,
           {
-            onPress: () =>
+            onPress: () => {
               onChange?.([
                 ...value,
                 {
@@ -256,10 +258,12 @@ jest.mock('@pennyspring/ui', () => {
                   mimeType: 'image/jpeg',
                   uri: 'file:///chat.jpg',
                 },
-              ]),
-            testID: 'mock-image-picker-popup',
+              ]);
+              onOpenChange?.(false);
+            },
+            testID: 'mock-image-picker-action-sheet',
           },
-          ReactLib.createElement(Text, null, '发送图片'),
+          ReactLib.createElement(Text, null, '添加图片'),
         )
       : null;
 
@@ -271,7 +275,7 @@ jest.mock('@pennyspring/ui', () => {
     Empty: MockEmpty,
     Icon: () => null,
     Image: MockImage,
-    ImagePicker: { Popup: MockImagePickerPopup },
+    ImagePicker: { ActionSheet: MockImagePickerActionSheet },
     Loading: MockLoading,
     Popover: ({
       children,
@@ -931,7 +935,7 @@ describe('AgentDrawer', () => {
     });
     act(() => {
       renderer.root
-        .findByProps({ testID: 'mock-image-picker-popup' })
+        .findByProps({ testID: 'mock-image-picker-action-sheet' })
         .props.onPress();
     });
 

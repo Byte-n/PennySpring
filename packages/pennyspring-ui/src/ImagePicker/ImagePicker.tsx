@@ -4,6 +4,7 @@ import { PickerTrigger } from '../_internal/PickerTrigger';
 import { Icon } from '../Icon';
 import { Text } from '../Text';
 import { useFieldProps } from '../Form/hooks/useFieldProps.ts';
+import { ImagePickerActionSheet } from './ImagePickerActionSheet';
 import { ImagePickerPanel } from './ImagePickerPanel';
 import { ImagePickerPopup } from './ImagePickerPopup';
 import { persistImage } from './persistImage';
@@ -192,6 +193,7 @@ function ImagePickerRoot({
 }
 
 export const ImagePicker = Object.assign(ImagePickerRoot, {
+  ActionSheet: ImagePickerActionSheet,
   Popup: ImagePickerPopup,
   persistImage,
 });
