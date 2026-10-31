@@ -44,10 +44,7 @@ import type {
 
 export interface ImagePickerPanelProps {
   open: boolean;
-  onOpenChange: (
-    open: boolean,
-    params: ImagePickerOpenChangeParams,
-  ) => void;
+  onOpenChange: (open: boolean, params: ImagePickerOpenChangeParams) => void;
   value?: ImagePickerSelectedValue;
   onChange: (value: ImagePickerSelectedValue | undefined) => void;
   multiple: boolean;
@@ -164,9 +161,7 @@ export function ImagePickerPanel({
       return;
     }
 
-    const remainingCount = multiple
-      ? Math.max(maxCount - selectedCount, 0)
-      : 1;
+    const remainingCount = multiple ? Math.max(maxCount - selectedCount, 0) : 1;
 
     try {
       const pickOptions = {
@@ -181,8 +176,8 @@ export function ImagePickerPanel({
         source === 'camera'
           ? await pickImageFromCamera(pickOptions)
           : source === 'photo'
-            ? await pickImageFromLibrary(pickOptions)
-            : await pickImageFromFiles(pickOptions);
+          ? await pickImageFromLibrary(pickOptions)
+          : await pickImageFromFiles(pickOptions);
 
       if (nextValue !== undefined) {
         const nextValues = getSelectedValues(
@@ -230,12 +225,15 @@ export function ImagePickerPanel({
               }}
               testID={getActionTestID(source)}
               type="link"
+              size="small"
+              color="primary"
             >
               {getActionText(source, cameraText, photoText, fileSystemText)}
             </Button>
           ))}
           <Button
             onPress={handleDonePress}
+            size="small"
             testID="image-picker-action-done"
           >
             {doneText}

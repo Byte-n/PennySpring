@@ -88,7 +88,7 @@ export function getActionTestID(source: ImagePickerSource): string {
 }
 
 export function getMultipleHintText(maxCount: number): string {
-  return `允许多选，最多${maxCount}张`;
+  return `多选，最多${maxCount}张`;
 }
 
 export function getSelectionHintText(

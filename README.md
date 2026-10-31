@@ -18,3 +18,5 @@ Agent 编排与 ReAct 引擎：ai (Vercel AI SDK) + @ai-sdk/openai
 环境兼容层：react-native-polyfill-globals
 
 作用：补全 RN JS 引擎缺失的 fetch / ReadableStream / TextEncoder，确保 Fetch 流式传输和流式 Fetch 不报错。
+
+- [ ] ImagePicker已选图片，需要支持点击放大预览。提供一个 Image 、 Image.Preview 组件。
