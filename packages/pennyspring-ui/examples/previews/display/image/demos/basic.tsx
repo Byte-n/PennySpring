@@ -41,20 +41,20 @@ export function ImageBasicDemo() {
   return (
     <Column gap="large">
       <Column style={styles.section}>
-        <Text color="tertiary" size="xs">默认 cover、圆角 12；点击打开单图预览</Text>
-        <Image src={PREVIEW_IMAGE} style={styles.image} />
+        <Text color="tertiary" size="xs">preview · 显式开启单图预览；默认不响应点击</Text>
+        <Image preview src={PREVIEW_IMAGE} style={styles.image} />
       </Column>
       <Column style={styles.section}>
         <Text color="tertiary" size="xs">radius · small / normal / circle</Text>
         <Column style={styles.row}>
-          <Image radius="small" src={PREVIEW_IMAGE} style={styles.image} />
-          <Image radius="normal" src={SECOND_IMAGE} style={styles.image} />
-          <Image radius="circle" src={THIRD_IMAGE} style={styles.circle} />
+          <Image preview radius="small" src={PREVIEW_IMAGE} style={styles.image} />
+          <Image preview radius="normal" src={SECOND_IMAGE} style={styles.image} />
+          <Image preview radius="circle" src={THIRD_IMAGE} style={styles.circle} />
         </Column>
       </Column>
       <Column style={styles.section}>
         <Text color="tertiary" size="xs">fit="contain" · 不裁切，留出底色</Text>
-        <Image fit="contain" src={SECOND_IMAGE} style={styles.contain} />
+        <Image fit="contain" preview src={SECOND_IMAGE} style={styles.contain} />
       </Column>
     </Column>
   );

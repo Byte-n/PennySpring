@@ -55,10 +55,7 @@ export function ImagePreviewGroup({
 
       const existing = current[existingIndex];
 
-      if (
-        existing.canPreview === data.canPreview &&
-        isSameImageSource(existing.src, data.src)
-      ) {
+      if (isSameImageSource(existing.src, data.src)) {
         return current;
       }
 
@@ -72,16 +69,12 @@ export function ImagePreviewGroup({
     };
   }, []);
 
-  const previewEntries = useMemo(
-    () => registered.filter(entry => entry.canPreview),
-    [registered],
-  );
   const previewItems = useMemo(
     () =>
       items !== undefined
         ? normalizePreviewItems(items)
-        : previewEntries.map(entry => entry.src),
-    [items, previewEntries],
+        : registered.map(entry => entry.src),
+    [items, registered],
   );
   const fromItems = items !== undefined;
 
@@ -95,7 +88,7 @@ export function ImagePreviewGroup({
         );
         nextIndex = foundIndex < 0 ? 0 : foundIndex;
       } else {
-        const foundIndex = previewEntries.findIndex(entry => entry.id === id);
+        const foundIndex = registered.findIndex(entry => entry.id === id);
         nextIndex = foundIndex < 0 ? 0 : foundIndex;
       }
 
@@ -104,8 +97,8 @@ export function ImagePreviewGroup({
     },
     [
       fromItems,
-      previewEntries,
       previewItems,
+      registered,
       setResolvedIndex,
       setResolvedOpen,
     ],

@@ -34,7 +34,7 @@ function ImageRoot({
   error,
   fit = 'cover',
   onPress,
-  preview = true,
+  preview = false,
   radius = 'normal',
   src,
   style,
@@ -45,18 +45,20 @@ function ImageRoot({
   const group = useContext(ImagePreviewGroupContext);
   const [status, setStatus] = useState<LoadStatus>('loading');
   const [reloadToken, setReloadToken] = useState(0);
-  const previewConfig = typeof preview === 'object' ? preview : undefined;
-  const canPreview = preview !== false;
-  const previewSrc = previewConfig?.src ?? src;
+  const isInGroup = group !== null;
+  const singlePreviewConfig =
+    !isInGroup && typeof preview === 'object' ? preview : undefined;
+  const singlePreviewEnabled = !isInGroup && preview !== false;
+  const previewSrc = singlePreviewConfig?.src ?? src;
   const [previewOpen, setPreviewOpen] = useControllableValue(
     false,
-    previewConfig?.open,
-    previewConfig?.onOpenChange,
+    singlePreviewConfig?.open,
+    singlePreviewConfig?.onOpenChange,
   );
   const id = useId();
   const register = group?.register;
-  const registerDataRef = useRef({ canPreview, src: previewSrc });
-  registerDataRef.current = { canPreview, src: previewSrc };
+  const registerDataRef = useRef({ src });
+  registerDataRef.current = { src };
   const sourceKey = getSourceKey(src);
   const tokenStyles = useStyles({ radius });
   const pressProgress = useSharedValue(0);
@@ -80,7 +82,7 @@ function ImageRoot({
     }
 
     register(id, registerDataRef.current);
-  }, [canPreview, id, previewSrc, register]);
+  }, [id, register, src]);
 
   useEffect(() => {
     setStatus('loading');
@@ -115,19 +117,20 @@ function ImageRoot({
       return;
     }
 
-    if (canPreview) {
-      if (group) {
-        group.onPreview(id, previewSrc);
-      } else {
-        setPreviewOpen(true);
-      }
+    if (isInGroup) {
+      group.onPreview(id, src);
+    } else if (singlePreviewEnabled) {
+      setPreviewOpen(true);
     }
 
     onPress?.();
   }
 
   const isPressable =
-    canPreview || onPress !== undefined || status === 'error';
+    isInGroup ||
+    singlePreviewEnabled ||
+    onPress !== undefined ||
+    status === 'error';
   const errorContent =
     error === null ? null : error !== undefined ? error : (
       <>
@@ -174,10 +177,10 @@ function ImageRoot({
           ) : null}
         </Pressable>
       </Animated.View>
-      {!group && canPreview ? (
+      {singlePreviewEnabled ? (
         <ImagePreview
           images={[previewSrc]}
-          onCancel={previewConfig?.onCancel}
+          onCancel={singlePreviewConfig?.onCancel}
           onOpenChange={nextOpen => setPreviewOpen(nextOpen)}
           open={previewOpen === true}
         />

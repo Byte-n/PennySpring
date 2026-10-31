@@ -6,5 +6,5 @@ import Demo2 from './states';
 export const imageDemos = [
   { id: 'basic', title: '基础与尺寸', Component: Demo0 },
   { id: 'group', title: '预览组', Component: Demo1 },
-  { id: 'states', title: '失败与只读', Component: Demo2 },
+  { id: 'states', title: '失败与预览开关', Component: Demo2 },
 ];

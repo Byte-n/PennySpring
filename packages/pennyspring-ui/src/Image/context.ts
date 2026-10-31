@@ -2,7 +2,6 @@ import { createContext } from 'react';
 import type { ImageSourcePropType } from 'react-native';
 
 export interface RegisteredImage {
-  canPreview: boolean;
   src: ImageSourcePropType;
 }
 

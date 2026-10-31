@@ -10,7 +10,7 @@ export const previewMeta = {
   demos: [
     { id: 'basic', title: '基础与尺寸' },
     { id: 'group', title: '预览组' },
-    { id: 'states', title: '失败与只读' },
+    { id: 'states', title: '失败与预览开关' },
   ],
 } satisfies PreviewMeta;
 

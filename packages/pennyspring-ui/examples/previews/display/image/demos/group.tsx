@@ -24,13 +24,14 @@ export function ImageGroupDemo() {
   return (
     <Column gap="small">
       <Text color="tertiary" size="xs">
-        Image.PreviewGroup · 子图片自动注册；点击后打开共享预览，左右滑动切换
+        Image.PreviewGroup · 子图片自动注册；组内忽略 preview 属性，点击后打开共享预览
       </Text>
       <Image.PreviewGroup>
         <Row style={styles.row}>
           {PREVIEW_IMAGES.map((image, index) => (
             <Image
               key={`${image.uri}-${index}`}
+              preview={false}
               src={image}
               style={styles.image}
               testID={`image-demo-group-${index}`}

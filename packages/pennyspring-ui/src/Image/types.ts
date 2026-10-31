@@ -30,7 +30,10 @@ export interface ImageProps {
   src: ImageSourcePropType;
   fit?: ImageFit;
   radius?: ImageRadius;
-  /** 是否可预览；传 false 时只负责展示。默认 true。 */
+  /**
+   * 无 PreviewGroup 时是否启用单图预览，默认 false。
+   * 在 PreviewGroup 内忽略；组内所有 Image 都会参与组预览。
+   */
   preview?: boolean | ImagePreviewConfig;
   onPress?: () => void;
   /** 自定义失败内容；undefined 使用默认失败态，null 表示不渲染内容。 */

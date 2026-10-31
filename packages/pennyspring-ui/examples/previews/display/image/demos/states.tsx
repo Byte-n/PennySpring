@@ -33,8 +33,12 @@ export function ImageStatesDemo() {
         <Image src={BROKEN_IMAGE} style={styles.frame} />
       </Column>
       <Column style={styles.section}>
-        <Text color="tertiary" size="xs">{'preview={false} · 只展示，不响应预览'}</Text>
-        <Image preview={false} src={VALID_IMAGE} style={styles.frame} />
+        <Text color="tertiary" size="xs">默认 · 只展示，不响应预览</Text>
+        <Image src={VALID_IMAGE} style={styles.frame} />
+      </Column>
+      <Column style={styles.section}>
+        <Text color="tertiary" size="xs">preview · 单图点击预览</Text>
+        <Image preview src={VALID_IMAGE} style={styles.frame} />
       </Column>
       <Column style={styles.section}>
         <Text color="tertiary" size="xs">自定义失败内容 · error slot</Text>

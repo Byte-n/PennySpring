@@ -55,8 +55,10 @@ describe('Image', () => {
     expect(images[0].props.source).toEqual(IMAGE_A);
   });
 
-  it('opens a single-image preview when pressed', () => {
-    const testRenderer = render(<Image src={IMAGE_A} testID="image" />);
+  it('opens a single-image preview only when preview is enabled', () => {
+    const testRenderer = render(
+      <Image preview src={IMAGE_A} testID="image" />,
+    );
 
     pressByTestID(testRenderer, 'image');
 
@@ -64,6 +66,14 @@ describe('Image', () => {
     expect(
       testRenderer.root.findAllByProps({ testID: 'image-preview-count' }),
     ).toHaveLength(0);
+  });
+
+  it('does not open a preview by default', () => {
+    const testRenderer = render(<Image src={IMAGE_A} testID="image" />);
+
+    pressByTestID(testRenderer, 'image');
+
+    expect(hasPreview(testRenderer)).toBe(false);
   });
 
   it('does not open a preview when preview is false', () => {
@@ -144,7 +154,7 @@ describe('Image.PreviewGroup', () => {
     expect(onOpenChange).toHaveBeenCalledWith(false);
   });
 
-  it('does not register a child with preview disabled', () => {
+  it('includes a child even when preview is disabled on Image', () => {
     const testRenderer = render(
       <Image.PreviewGroup>
         <Image preview={false} src={IMAGE_A} testID="image-a" />
@@ -153,7 +163,27 @@ describe('Image.PreviewGroup', () => {
 
     pressByTestID(testRenderer, 'image-a');
 
-    expect(hasPreview(testRenderer)).toBe(false);
+    expect(hasPreview(testRenderer)).toBe(true);
+  });
+
+  it('ignores a preview source override inside PreviewGroup', () => {
+    const testRenderer = render(
+      <Image.PreviewGroup>
+        <Image
+          preview={{ src: IMAGE_B }}
+          src={IMAGE_A}
+          testID="image-a"
+        />
+      </Image.PreviewGroup>,
+    );
+
+    pressByTestID(testRenderer, 'image-a');
+
+    const previewImages = testRenderer.root
+      .findAllByType(RNImage)
+      .filter(node => node.props.testID === 'image-preview-image');
+
+    expect(previewImages.map(node => node.props.source)).toEqual([IMAGE_A]);
   });
 
   it('prefers items over registered children', () => {
