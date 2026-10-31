@@ -12,7 +12,7 @@ const useStyles = createUseSheetStyle(token => ({
 export function ImagePickerStateDemo() {
   const styles = useStyles();
   const presetValue: ImagePickerValue = {
-    uri: 'file:///preset.jpg',
+    uri: 'https://reactnative.dev/img/tiny_logo.png',
     fileName: 'preset.jpg',
   };
 

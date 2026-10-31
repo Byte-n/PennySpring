@@ -56,7 +56,8 @@ module.exports = {
         "components/display/empty",
         "components/display/loading",
         "components/display/skeleton",
-        "components/display/result"
+        "components/display/result",
+        "components/display/image"
       ]
     },
     {

@@ -50,6 +50,15 @@ export const useStyles = createUseSheetStyle(token => ({
     height: '100%',
     borderRadius: token.borderRadius,
   },
+  errorTile: {
+    borderWidth: token.lineWidth,
+    borderStyle: 'dashed',
+    borderColor: token.colorError,
+    backgroundColor: token.colorFillQuaternary,
+  },
+  errorText: {
+    color: token.colorError,
+  },
   removeButton: {
     position: 'absolute',
     top: REMOVE_BUTTON_OFFSET,
@@ -77,21 +86,6 @@ export const useStyles = createUseSheetStyle(token => ({
   },
   addTileText: {
     color: token.colorTextTertiary,
-  },
-  errorTile: {
-    width: '100%',
-    aspectRatio: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: token.sizeXXS,
-    borderRadius: token.borderRadius,
-    borderWidth: token.lineWidth,
-    borderStyle: 'dashed',
-    borderColor: token.colorError,
-    backgroundColor: token.colorFillQuaternary,
-  },
-  errorText: {
-    color: token.colorError,
   },
   empty: {
     minHeight: EMPTY_MIN_HEIGHT,

@@ -33,7 +33,8 @@
 - `Input`：Material flat 风格的单行文本与搜索输入，支持浮动 label、独立底线、错误态、清除按钮、前后缀和加载态。
 - `Textarea`：多行文本输入；下划线字段（1px 底边 + 2px 状态指示条，无底色无圆角），浮动 label（与 Input 一致，placeholder 聚焦后出现），尺寸 14/24・16/26・18/28，错误不铺浅红底。
 - `DisplayInput`：只读或触发式输入展示。自身持有 pressed、disabled、readonly 与错误态视觉，不接受调用方叠加状态样式。
-- `ImagePicker`：以 `DisplayInput` 作为触发器，从相册或文件管理选择单张或多张图片。支持 `size`、`allowClear`、`status`、`includeBase64`，触发器样式统一通过 `styles.input` 覆盖；`ImagePicker.Popup` 为无触发器的独立浮层版本，适合聊天/附件等场景自行控制入口；`ImagePicker.persistImage(value)` 在提交时把选图副本转存到应用永久目录并返回同形状的新值（已是永久路径时原样返回）；浮层内 3 列 1:1 网格（间距 8、左右 16、圆角 12），删除按钮 24 + 2px 容器环，添加位与空态为虚线格，加载失败显示错误框并可点击重试。
+- `Image`：图片显示原语。支持 `fit="cover" / "contain"`、圆角 none/small/normal/large/circle、缩略图底色占位、失败态点按重试与自定义 `error` 内容；`preview` 默认开启，单图点击打开全屏预览。`Image.PreviewGroup` 用 Context 自动注册子图片，`items` 数据入口优先于 children，组内共享一个全屏预览：固定黑底、关闭/计数、横滑翻页、双指 1–3×、双击 2×、放大后平移；`Image.Preview` 为可直接受控使用的全屏预览层。
+- `ImagePicker`：以 `DisplayInput` 作为触发器，从相册或文件管理选择单张或多张图片。支持 `size`、`allowClear`、`status`、`includeBase64`，触发器样式统一通过 `styles.input` 覆盖；`ImagePicker.Popup` 为无触发器的独立浮层版本，适合聊天/附件等场景自行控制入口；`ImagePicker.persistImage(value)` 在提交时把选图副本转存到应用永久目录并返回同形状的新值（已是永久路径时原样返回）；浮层内 3 列 1:1 网格（间距 8、左右 16、圆角 12），缩略图由 Image 渲染并自动注册到 Image.PreviewGroup，点击可全屏预览；删除按钮 24 + 2px 容器环且独立命中，添加位与空态为虚线格，加载失败显示红色虚线错误框并可点击重试。
 - `CalculatorInput`：带计算器弹窗的数字输入。`CalculatorInput.useCalculatorValueState` 封装弹层开关与表达式状态，打开时回填初始值，确认后再收起。
 - `Stepper`：递增/递减数值调节。999 胶囊，高度取 `controlHeightSM / controlHeight / controlHeightLG`（无描边无分隔线），按钮 24 / 32 / 36 + 线性加减图标；数值 600 等宽、最小宽 32 / 40 / 48，`unitText` 以 12/三级紧跟数值；按压只作用于按钮，到边界仅降对应按钮，禁用降胶囊底，只读保留胶囊底但降数值。
 - `Slider`：范围或数值调节。轨道 4 / 6 / 8、thumb 16 / 20 / 24，控件高取 `controlHeightSM / controlHeight / controlHeightLG`；轨道 `colorFillSecondary`、填充 `colorPrimary`，thumb 白面 + 2px 主色环 + `boxShadowTertiary`；按压 thumb ×1.1，禁用改四级灰并去投影，只读保留主色但不响应；端点左右留 thumb 半径。

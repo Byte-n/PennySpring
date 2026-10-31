@@ -5,28 +5,53 @@ jest.mock('react-native-gesture-handler', () => {
   const React = require('react');
   const ReactNative = require('react-native');
 
-  const createPanGesture = () => {
-    const gesture = {
-      runOnJS: () => gesture,
-      enabled: () => gesture,
-      minDistance: () => gesture,
-      activeOffsetX: () => gesture,
-      activeOffsetY: () => gesture,
-      failOffsetX: () => gesture,
-      failOffsetY: () => gesture,
-      onBegin: () => gesture,
-      onUpdate: () => gesture,
-      onEnd: () => gesture,
-      onFinalize: () => gesture,
-    };
+  const createGesture = () => {
+    const gesture = {};
+    const chainableMethods = [
+      'runOnJS',
+      'enabled',
+      'minDistance',
+      'minPointers',
+      'maxPointers',
+      'activeOffsetX',
+      'activeOffsetY',
+      'failOffsetX',
+      'failOffsetY',
+      'numberOfTaps',
+      'maxDuration',
+      'maxDistance',
+      'requireExternalGestureToFail',
+      'simultaneousWithExternalGesture',
+      'blocksExternalGesture',
+      'shouldCancelWhenOutside',
+      'onBegin',
+      'onStart',
+      'onUpdate',
+      'onEnd',
+      'onChange',
+      'onFinalize',
+    ];
+
+    chainableMethods.forEach(method => {
+      gesture[method] = () => gesture;
+    });
 
     return gesture;
   };
 
+  const compose = (...gestures) => gestures[0] ?? createGesture();
+
   return {
     __esModule: true,
     Gesture: {
-      Pan: createPanGesture,
+      Pan: createGesture,
+      Pinch: createGesture,
+      Tap: createGesture,
+      LongPress: createGesture,
+      Native: createGesture,
+      Simultaneous: compose,
+      Race: compose,
+      Exclusive: compose,
     },
     GestureDetector: ({ children }) => React.createElement(React.Fragment, null, children),
     GestureHandlerRootView: ({ children }) =>

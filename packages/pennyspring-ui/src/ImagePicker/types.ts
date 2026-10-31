@@ -59,6 +59,7 @@ export interface ImagePickerStyles {
   imageGrid?: StyleProp<ViewStyle>;
   imageItem?: StyleProp<ViewStyle>;
   image?: StyleProp<ImageStyle>;
+  imageError?: StyleProp<ViewStyle>;
   removeButton?: StyleProp<ViewStyle>;
   empty?: StyleProp<ViewStyle>;
   emptyText?: StyleProp<TextStyle>;

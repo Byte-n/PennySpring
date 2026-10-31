@@ -81,6 +81,8 @@ import SkeletonPreview from './display/skeleton';
 import { skeletonDemos } from './display/skeleton/demos';
 import ResultPreview from './display/result';
 import { resultDemos } from './display/result/demos';
+import ImagePreview from './display/image';
+import { imageDemos } from './display/image/demos';
 import ToastPreview from './feedback/toast';
 import { toastDemos } from './feedback/toast/demos';
 import MessagePreview from './feedback/message';
@@ -189,6 +191,7 @@ const DEMO_PREVIEW_ITEMS = [
   ...createDemoPreviewItems('loading', 'Loading', loadingDemos),
   ...createDemoPreviewItems('skeleton', 'Skeleton', skeletonDemos),
   ...createDemoPreviewItems('result', 'Result', resultDemos),
+  ...createDemoPreviewItems('image', 'Image', imageDemos),
   ...createDemoPreviewItems('toast', 'Toast', toastDemos),
   ...createDemoPreviewItems('message', 'Message', messageDemos),
   ...createDemoPreviewItems('notification', 'Notification', notificationDemos),
@@ -461,6 +464,12 @@ export const COMPONENT_PREVIEW_SECTIONS = [
         title: 'Result',
         description: '结果状态、尺寸、页内/卡片承载与无图标。',
         component: ResultPreview,
+      },
+      {
+        id: 'image',
+        title: 'Image',
+        description: '图片展示、失败重试与 Image.PreviewGroup 全屏预览。',
+        component: ImagePreview,
       },
     ],
   },

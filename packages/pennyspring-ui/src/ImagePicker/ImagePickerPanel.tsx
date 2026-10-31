@@ -1,11 +1,12 @@
-import React, { useMemo, useState } from 'react';
-import { Image, Pressable, ScrollView, View } from 'react-native';
-import type { ImageStyle, StyleProp, ViewStyle } from 'react-native';
+import React, { useMemo } from 'react';
+import { Pressable, ScrollView, View } from 'react-native';
+import type { StyleProp, ViewStyle } from 'react-native';
 import { useTheme } from '@pennyspring/theme';
 import { Button } from '../Button';
 import { Column } from '../Column';
 import { Grid } from '../Grid';
 import { Icon } from '../Icon';
+import { Image } from '../Image';
 import { Popup } from '../Popup';
 import { Row } from '../Row';
 import { Text } from '../Text';
@@ -95,7 +96,6 @@ export function ImagePickerPanel({
 }: ImagePickerPanelProps): React.ReactElement {
   const { token } = useTheme();
   const tokenStyles = useStyles();
-  const [failedImages, setFailedImages] = useState<Record<string, boolean>>({});
   const selectedValues = getSelectedValues(value);
   const selectedCount = getSelectedCount(value);
   const isMaxReached = multiple && selectedCount >= maxCount;
@@ -140,20 +140,6 @@ export function ImagePickerPanel({
     );
 
     onChange(createSelectedValue(nextValues, multiple));
-  }
-
-  function handleImageError(uri: string): void {
-    setFailedImages(previous => ({ ...previous, [uri]: true }));
-  }
-
-  function handleImageRetry(uri: string): void {
-    setFailedImages(previous => {
-      const nextFailedImages = { ...previous };
-
-      delete nextFailedImages[uri];
-
-      return nextFailedImages;
-    });
   }
 
   async function handleSourcePress(source: ImagePickerSource): Promise<void> {
@@ -274,23 +260,6 @@ export function ImagePickerPanel({
     image: ImagePickerValue,
     index: number,
   ): React.ReactNode {
-    if (failedImages[image.uri] === true) {
-      return (
-        <Grid.Item key={`${image.uri}-${index}`}>
-          <Pressable
-            onPress={() => handleImageRetry(image.uri)}
-            style={tokenStyles.errorTile}
-            testID="image-picker-failed-item"
-          >
-            <Icon color="error" icon="warning" size={20} />
-            <Text color="error" size="xs" style={tokenStyles.errorText}>
-              加载失败
-            </Text>
-          </Pressable>
-        </Grid.Item>
-      );
-    }
-
     return (
       <Grid.Item key={`${image.uri}-${index}`}>
         <View
@@ -298,9 +267,25 @@ export function ImagePickerPanel({
           testID="image-picker-selected-item"
         >
           <Image
-            onError={() => handleImageError(image.uri)}
-            source={{ uri: image.uri }}
-            style={[tokenStyles.image as ImageStyle, styles?.image]}
+            error={
+              <>
+                <Icon color="error" icon="warning" size={20} />
+                <Text
+                  color="error"
+                  size="xs"
+                  style={tokenStyles.errorText}
+                >
+                  加载失败
+                </Text>
+              </>
+            }
+            src={{ uri: image.uri }}
+            style={tokenStyles.image}
+            styles={{
+              error: [tokenStyles.errorTile, styles?.imageError],
+              image: styles?.image,
+            }}
+            testID="image-picker-selected-image"
           />
           {multiple && isInteractive ? (
             <Pressable
@@ -332,14 +317,18 @@ export function ImagePickerPanel({
             </Text>
           </Column>
         ) : null}
-        <Grid
-          columns={IMAGE_GRID_COLUMNS}
-          gap="small"
-          style={[tokenStyles.imageGrid, styles?.imageGrid]}
-        >
-          {selectedValues.map((image, index) => renderImageTile(image, index))}
-          {renderAddTile()}
-        </Grid>
+        <Image.PreviewGroup>
+          <Grid
+            columns={IMAGE_GRID_COLUMNS}
+            gap="small"
+            style={[tokenStyles.imageGrid, styles?.imageGrid]}
+          >
+            {selectedValues.map((image, index) =>
+              renderImageTile(image, index),
+            )}
+            {renderAddTile()}
+          </Grid>
+        </Image.PreviewGroup>
       </>
     );
   }

@@ -40,6 +40,19 @@ export type {
   SpaceProps,
   SpaceStyles,
 } from './Space';
+export { Image, ImagePreview, ImagePreviewGroup } from './Image';
+export type {
+  ImageFit,
+  ImagePreviewConfig,
+  ImagePreviewGroupItem,
+  ImagePreviewGroupItemInput,
+  ImagePreviewGroupProps,
+  ImagePreviewProps,
+  ImagePreviewStyles,
+  ImageProps,
+  ImageRadius,
+  ImageStyles,
+} from './Image';
 export { Avatar } from './Avatar';
 export type {
   AvatarGroupItem,

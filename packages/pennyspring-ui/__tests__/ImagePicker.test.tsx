@@ -65,6 +65,17 @@ function getStatusText(testRenderer: renderer.ReactTestRenderer): string {
   return testRenderer.root.findByType(DisplayInput).props.valueText;
 }
 
+function pressSelectedImage(
+  testRenderer: renderer.ReactTestRenderer,
+  index: number,
+): void {
+  const pressables = testRenderer.root
+    .findAllByProps({ testID: 'image-picker-selected-image' })
+    .filter(node => typeof node.props.onPress === 'function');
+
+  pressables[index].props.onPress();
+}
+
 describe('ImagePicker', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -227,6 +238,51 @@ describe('ImagePicker', () => {
 
     expect(onChange).toHaveBeenCalledWith([selectedValues[1]]);
     expect(getStatusText(testRenderer)).toBe('已选择 1 张');
+    expect(
+      testRenderer.root.findAllByProps({ testID: 'image-preview-root' }),
+    ).toHaveLength(0);
+  });
+
+  it('opens the selected image preview at the pressed index', async () => {
+    const selectedValues: ImagePickerValue[] = [
+      { uri: 'file:///first.jpg', fileName: 'first.jpg' },
+      { uri: 'file:///second.jpg', fileName: 'second.jpg' },
+    ];
+    const testRenderer = renderImagePicker({
+      defaultValue: selectedValues,
+      multiple: true,
+    });
+
+    pressTrigger(testRenderer);
+    await act(async () => {
+      pressSelectedImage(testRenderer, 1);
+    });
+
+    expect(
+      testRenderer.root.findAllByProps({ testID: 'image-preview-root' })
+        .length,
+    ).toBeGreaterThan(0);
+    expect(JSON.stringify(testRenderer.toJSON())).toContain('2 / 2');
+  });
+
+  it('keeps the preview entry available in readonly mode', async () => {
+    const selectedValues: ImagePickerValue[] = [
+      { uri: 'file:///first.jpg', fileName: 'first.jpg' },
+    ];
+    const testRenderer = renderImagePicker({
+      defaultValue: selectedValues,
+      open: true,
+      readonly: true,
+    });
+
+    await act(async () => {
+      pressSelectedImage(testRenderer, 0);
+    });
+
+    expect(
+      testRenderer.root.findAllByProps({ testID: 'image-preview-root' })
+        .length,
+    ).toBeGreaterThan(0);
   });
 
   it('keeps remove button visual size separate from a token based hit area', () => {
