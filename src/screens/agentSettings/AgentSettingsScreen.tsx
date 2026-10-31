@@ -18,6 +18,7 @@ import { TrashIcon } from 'phosphor-react-native';
 import { ManageConfirmDialog } from '../../components/ManageConfirmDialog';
 import { createHeaderAddButton } from '../../components/HeaderAddButton';
 import { useNavigation } from '../../navigation';
+import { ROOT_ROUTES } from '../../navigation/routes';
 import { useAgentChatState } from '../../agent/ui/AgentChatContext';
 import { AgentProviderEditor } from '../../agent/ui/AgentProviderEditor';
 import {
@@ -129,6 +130,24 @@ export function AgentSettingsScreen() {
             API Key 只保存在系统钥匙串，不会写入账本数据库。新增提供商后会自动设为当前提供商。
           </Text>
         </Column>
+
+        <Card
+          footer={
+            <Button
+              onPress={() => navigation.navigate(ROOT_ROUTES.QuickBookSettings)}
+              size="small"
+              type="default"
+            >
+              配置 AI 记账
+            </Button>
+          }
+          titleText="AI 记账"
+          variant="plain"
+        >
+          <Text color="secondary" size="xs">
+            截图后由助手识别并记账。需要选择支持图片的提供商与模型，并授予相册读取权限。
+          </Text>
+        </Card>
 
         {providers.length === 0 ? (
           <Empty descriptionText="还没有 AI 提供商，点击右上角添加。" />

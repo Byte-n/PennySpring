@@ -80,6 +80,10 @@ export type CreateRecordToolInput = z.infer<typeof createRecordInputSchema>;
 export interface CreateRecordToolDeps {
   api: Api;
   booksId: number;
+  /** 快捷记账会话的来源截图，由程序附加，模型不可见。 */
+  attachmentImagePaths?: readonly string[];
+  /** 截图已成功挂到记录后触发，用于清理会话级附件。 */
+  onAttachmentConsumed?: () => void;
 }
 
 export function createCreateRecordTool(deps: CreateRecordToolDeps) {
@@ -102,7 +106,15 @@ export function createCreateRecordTool(deps: CreateRecordToolDeps) {
         throw new Error(resolved.error);
       }
 
-      const row = await deps.api.record.create(resolved.draft.createInput);
+      const row = await deps.api.record.create({
+        ...resolved.draft.createInput,
+        ...(deps.attachmentImagePaths?.length
+          ? { imagePaths: [...deps.attachmentImagePaths] }
+          : {}),
+      });
+      if (deps.attachmentImagePaths?.length) {
+        deps.onAttachmentConsumed?.();
+      }
       return {
         ok: true,
         recordId: row.id,

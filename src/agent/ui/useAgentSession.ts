@@ -28,6 +28,7 @@ export interface AgentSessionState {
   currentThreadId: number | null;
   initialMessages: UIMessage[];
   createThread: () => Promise<boolean>;
+  ensureQuickBookThread: (title: string) => Promise<number | null>;
   selectThread: (threadId: number) => Promise<boolean>;
   deleteThread: (threadId: number) => Promise<void>;
   deleteCurrentThread: () => Promise<void>;
@@ -221,6 +222,57 @@ export function useAgentSession({
     }
   }, [api, book]);
 
+  const ensureQuickBookThread = useCallback(
+    async (title: string): Promise<number | null> => {
+      if (!book || sendingRef.current) {
+        return null;
+      }
+
+      setLoading(true);
+      setErrorText('');
+      try {
+        const isReusableBlank =
+          threadIdRef.current !== null &&
+          !hasMessagesRef.current &&
+          !titleRef.current;
+        let threadId = threadIdRef.current;
+
+        if (!isReusableBlank) {
+          const thread = await api.agent.createThread(book.id);
+          threadId = thread.id;
+          threadIdRef.current = thread.id;
+          hasMessagesRef.current = false;
+          setCurrentThreadId(thread.id);
+          setInitialMessages([]);
+          setUsage(EMPTY_USAGE);
+          setThreads(previous => [thread, ...previous]);
+        }
+
+        if (threadId === null) {
+          return null;
+        }
+
+        const nextTitle = title.trim();
+        if (nextTitle) {
+          await api.agent.updateThreadTitle(threadId, nextTitle);
+          titleRef.current = nextTitle;
+          setThreads(previous =>
+            previous.map(item =>
+              item.id === threadId ? { ...item, title: nextTitle } : item,
+            ),
+          );
+        }
+        return threadId;
+      } catch (error) {
+        setErrorText(getErrorMessage(error));
+        return null;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [api, book],
+  );
+
   const selectThread = useCallback(
     async (threadId: number): Promise<boolean> => {
       if (sendingRef.current) {
@@ -313,6 +365,7 @@ export function useAgentSession({
     currentThreadId,
     initialMessages,
     createThread,
+    ensureQuickBookThread,
     selectThread,
     deleteThread,
     deleteCurrentThread,

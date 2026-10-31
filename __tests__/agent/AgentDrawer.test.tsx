@@ -271,6 +271,7 @@ function createSession(
     currentThreadId: 1,
     initialMessages: [],
     createThread: jest.fn(() => Promise.resolve(true)),
+    ensureQuickBookThread: jest.fn(() => Promise.resolve(null)),
     selectThread: jest.fn(() => Promise.resolve(true)),
     deleteThread: jest.fn(() => Promise.resolve()),
     deleteCurrentThread: jest.fn(() => Promise.resolve()),
@@ -313,7 +314,9 @@ function Harness({
         onOpenModelSettings={onOpenModelSettings}
         onOpenSettings={onOpenSettings}
         onOpenSessions={onOpenSessions}
+        onPendingQuickBookSent={jest.fn()}
         open
+        pendingQuickBook={null}
         runtimeErrorText=""
         session={session}
       />

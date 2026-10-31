@@ -144,6 +144,7 @@ function createChat(
     currentThreadId: 1,
     initialMessages: [],
     createThread: jest.fn(() => Promise.resolve(true)),
+    ensureQuickBookThread: jest.fn(() => Promise.resolve(null)),
     selectThread: jest.fn(() => Promise.resolve(true)),
     deleteThread: jest.fn(() => Promise.resolve()),
     deleteCurrentThread: jest.fn(() => Promise.resolve()),

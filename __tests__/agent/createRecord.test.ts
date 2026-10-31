@@ -183,4 +183,48 @@ describe('createCreateRecordTool', () => {
       '工具 createRecord 执行失败：metadata down',
     );
   });
+
+  it('attaches the quick book screenshot and consumes it after writing', async () => {
+    const create = jest.fn(async () => ({ id: 100 }));
+    const onAttachmentConsumed = jest.fn();
+    const created = createCreateRecordTool({
+      api: createApi({ create }),
+      booksId: 1,
+      attachmentImagePaths: ['file:///tmp/quick-book/shot.jpg'],
+      onAttachmentConsumed,
+    });
+    const execute = created.execute as (
+      input: Record<string, unknown>,
+      options: unknown,
+    ) => Promise<unknown>;
+
+    await execute({ typeId: 2, amount: 30 }, {});
+
+    expect(create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        imagePaths: ['file:///tmp/quick-book/shot.jpg'],
+      }),
+    );
+    expect(onAttachmentConsumed).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps the screenshot when validation fails', async () => {
+    const create = jest.fn();
+    const onAttachmentConsumed = jest.fn();
+    const created = createCreateRecordTool({
+      api: createApi({ create }),
+      booksId: 1,
+      attachmentImagePaths: ['file:///tmp/quick-book/shot.jpg'],
+      onAttachmentConsumed,
+    });
+    const execute = created.execute as (
+      input: Record<string, unknown>,
+      options: unknown,
+    ) => Promise<unknown>;
+
+    await expect(execute({ typeId: 999, amount: 30 }, {})).rejects.toThrow(
+      '类型 ID 999 不存在',
+    );
+    expect(onAttachmentConsumed).not.toHaveBeenCalled();
+  });
 });

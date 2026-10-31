@@ -1,0 +1,314 @@
+import React, { useCallback, useMemo, useState } from 'react';
+import { ScrollView } from 'react-native';
+import {
+  ActionSheet,
+  Button,
+  Card,
+  Column,
+  Input,
+  Row,
+  Switch,
+  Text,
+  Textarea,
+  useToast,
+} from '@pennyspring/ui';
+import { createUseSheetStyle } from '@pennyspring/theme';
+
+import {
+  getProviderDisplayName,
+  useAgentProviderStore,
+} from '../../agent/providers/configStore';
+import type { AgentProviderConfig } from '../../agent/providers/types';
+import {
+  DEFAULT_QUICK_BOOK_PROMPT,
+  MAX_SCREENSHOT_FRESH_WINDOW_SECONDS,
+  MIN_SCREENSHOT_FRESH_WINDOW_SECONDS,
+} from '../../features/quickBook/constants';
+import {
+  hasScreenshotPermission,
+  isScreenshotDetectionSupported,
+  requestScreenshotPermission,
+} from '../../features/quickBook/permission';
+import {
+  clampFreshWindowSeconds,
+  useQuickBookSettingsStore,
+} from '../../features/quickBook/settingsStore';
+import {
+  getDefaultQuickBookModel,
+  resolveQuickBookModel,
+} from '../../features/quickBook/validation';
+import { ROOT_ROUTES, useNavigation } from '../../navigation';
+
+const useStyles = createUseSheetStyle(token => ({
+  container: {
+    backgroundColor: token.colorBgLayout,
+    flex: 1,
+  },
+  content: {
+    gap: token.marginMD,
+    padding: token.padding,
+    paddingBottom: token.paddingXL,
+  },
+  section: {
+    gap: token.marginSM,
+  },
+  hint: {
+    paddingTop: token.paddingXXS,
+  },
+  truncate: {
+    flexShrink: 1,
+  },
+}));
+
+function getMultimodalModels(
+  provider: AgentProviderConfig | null,
+): AgentProviderConfig['models'] {
+  if (provider === null) {
+    return [];
+  }
+  return provider.models.filter(model => model.multimodal);
+}
+
+export function QuickBookSettingsScreen(): React.ReactElement {
+  const styles = useStyles();
+  const toast = useToast();
+  const navigation = useNavigation();
+
+  const settings = useQuickBookSettingsStore();
+  const providers = useAgentProviderStore(state => state.providers);
+
+  const [providerSheetOpen, setProviderSheetOpen] = useState(false);
+  const [modelSheetOpen, setModelSheetOpen] = useState(false);
+  const [windowText, setWindowText] = useState(
+    String(settings.freshWindowSeconds),
+  );
+
+  const selectedProvider = useMemo(
+    () => providers.find(provider => provider.id === settings.providerId) ?? null,
+    [providers, settings.providerId],
+  );
+  const multimodalModels = useMemo(
+    () => getMultimodalModels(selectedProvider),
+    [selectedProvider],
+  );
+  const resolution = useMemo(
+    () => resolveQuickBookModel(providers, settings),
+    [providers, settings],
+  );
+  const isConfigured = resolution.ok;
+  const isAndroid = isScreenshotDetectionSupported();
+
+  const providerActions = useMemo(
+    () =>
+      providers.map(provider => ({
+        text: getProviderDisplayName(provider),
+        description: provider.baseUrl,
+      })),
+    [providers],
+  );
+
+  const modelActions = useMemo(
+    () =>
+      multimodalModels.map(model => ({
+        text: model.modelId,
+        description: `上下文 ${model.contextWindow}`,
+      })),
+    [multimodalModels],
+  );
+
+  const handleProviderAction = useCallback(
+    (_action: unknown, index: number): void => {
+      const provider = providers[index];
+      if (!provider) {
+        return;
+      }
+      settings.setProviderId(provider.id);
+      const defaultModel = getDefaultQuickBookModel(provider);
+      settings.setModelId(defaultModel?.modelId ?? null);
+      if (defaultModel === null) {
+        toast.show({
+          messageText: '该提供商没有支持图片的模型，请先在提供商设置中开启多模态。',
+          status: 'error',
+        });
+      }
+    },
+    [providers, settings, toast],
+  );
+
+  const handleModelAction = useCallback(
+    (_action: unknown, index: number): void => {
+      const model = multimodalModels[index];
+      if (model) {
+        settings.setModelId(model.modelId);
+      }
+    },
+    [multimodalModels, settings],
+  );
+
+  const handleNudgeChange = useCallback(
+    async (next: boolean): Promise<void> => {
+      if (!next) {
+        settings.setNudgeEnabled(false);
+        return;
+      }
+      if (!isConfigured) {
+        toast.show({
+          messageText: '请先选择支持图片的 AI 模型。',
+          status: 'error',
+        });
+        return;
+      }
+      const granted =
+        (await hasScreenshotPermission()) || (await requestScreenshotPermission());
+      if (!granted) {
+        toast.show({
+          messageText: '需要相册读取权限才能检测截图，请在系统设置中允许。',
+          status: 'error',
+        });
+        settings.setNudgeEnabled(false);
+        return;
+      }
+      settings.setNudgeEnabled(true);
+    },
+    [isConfigured, settings, toast],
+  );
+
+  const commitWindowText = useCallback((): void => {
+    const parsed = Number(windowText);
+    const clamped = clampFreshWindowSeconds(parsed);
+    settings.setFreshWindowSeconds(clamped);
+    setWindowText(String(clamped));
+  }, [settings, windowText]);
+
+  const handleOpenProviderSettings = useCallback((): void => {
+    navigation.navigate(ROOT_ROUTES.AgentSettings);
+  }, [navigation]);
+
+  return (
+    <Column style={styles.container}>
+      <ScrollView contentContainerStyle={styles.content}>
+        <Card titleText="截图提醒" variant="plain">
+          <Column style={styles.section}>
+            <Row align="center" gap="normal" justify="between">
+              <Column gap="small" style={styles.truncate}>
+                <Text size="sm">回到 App 时发现新截图</Text>
+                <Text color="secondary" size="xs">
+                  {isAndroid
+                    ? '需要相册读取权限；点击提示后由助手记账。'
+                    : 'iOS 暂不支持：系统不提供后台截屏感知。'}
+                </Text>
+              </Column>
+              <Switch
+                disabled={!isAndroid || !isConfigured}
+                onChange={value => {
+                  handleNudgeChange(value).catch(() => undefined);
+                }}
+                value={settings.nudgeEnabled && isConfigured}
+              />
+            </Row>
+            <Input
+              keyboardType="number-pad"
+              labelText="最近判断时间"
+              onBlur={commitWindowText}
+              onChange={setWindowText}
+              suffix={
+                <Text color="secondary" size="sm">
+                  秒
+                </Text>
+              }
+              value={windowText}
+            />
+            <Text color="tertiary" size="xs" style={styles.hint}>
+              最新一张截图的创建时间距今不超过该值（
+              {MIN_SCREENSHOT_FRESH_WINDOW_SECONDS}–
+              {MAX_SCREENSHOT_FRESH_WINDOW_SECONDS} 秒）才会提示。
+            </Text>
+          </Column>
+        </Card>
+
+        <Card titleText="AI 模型" variant="plain">
+          <Column style={styles.section}>
+            <Row align="center" justify="between">
+              <Text size="sm">提供商</Text>
+              <Button
+                disabled={providers.length === 0}
+                onPress={() => setProviderSheetOpen(true)}
+                size="small"
+                type="text"
+              >
+                {selectedProvider
+                  ? getProviderDisplayName(selectedProvider)
+                  : '未选择'}
+              </Button>
+            </Row>
+            <Row align="center" justify="between">
+              <Text size="sm">模型</Text>
+              <Button
+                disabled={selectedProvider === null}
+                onPress={() => setModelSheetOpen(true)}
+                size="small"
+                type="text"
+              >
+                {settings.modelId ?? '未选择'}
+              </Button>
+            </Row>
+            {providers.length === 0 ? (
+              <Column gap="small">
+                <Text color="secondary" size="xs">
+                  还没有 AI 提供商，先添加一个并配置支持图片的模型。
+                </Text>
+                <Button
+                  onPress={handleOpenProviderSettings}
+                  size="small"
+                  type="default"
+                >
+                  去添加提供商
+                </Button>
+              </Column>
+            ) : null}
+            {isConfigured ? (
+              <Text color="tertiary" size="xs">
+                该会话只使用所选提供商与模型，不影响普通对话。
+              </Text>
+            ) : (
+              <Text color="errorText" size="xs">
+                请选择支持图片输入的提供商与模型。
+              </Text>
+            )}
+          </Column>
+        </Card>
+
+        <Card titleText="预设提示词" variant="plain">
+          <Column style={styles.section}>
+            <Textarea
+              maxRows={8}
+              minRows={4}
+              onChange={settings.setPresetPrompt}
+              placeholder={DEFAULT_QUICK_BOOK_PROMPT}
+              showCount
+              value={settings.presetPrompt}
+            />
+            <Text color="tertiary" size="xs">
+              发送截图时，这段文字会作为用户消息的第一段内容。
+            </Text>
+          </Column>
+        </Card>
+      </ScrollView>
+
+      <ActionSheet
+        actions={providerActions}
+        onAction={handleProviderAction}
+        onOpenChange={setProviderSheetOpen}
+        open={providerSheetOpen}
+        titleText="选择 AI 提供商"
+      />
+      <ActionSheet
+        actions={modelActions}
+        onAction={handleModelAction}
+        onOpenChange={setModelSheetOpen}
+        open={modelSheetOpen}
+        titleText="选择支持图片的模型"
+      />
+    </Column>
+  );
+}

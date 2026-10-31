@@ -9,19 +9,25 @@ import {
 } from '../../src/agent/ui/copy';
 
 const mockGetActiveAgentProvider = jest.fn();
+const mockGetAgentProvider = jest.fn();
+const mockGetThreadModelSelection = jest.fn();
 const mockLoadProviderApiKey = jest.fn();
 const mockCreateAgentUIStream = jest.fn();
 const mockResolveThreadModel = jest.fn();
 const mockRememberThreadModel = jest.fn();
+const mockCreateCreateRecordTool = jest.fn((_deps: unknown) => ({}));
 const mockCreateAgent = jest.fn((_options: unknown) => ({
   id: 'test-agent',
 }));
 
 jest.mock('../../src/agent/providers/configStore', () => ({
   getActiveAgentProvider: () => mockGetActiveAgentProvider(),
+  getAgentProvider: (...args: unknown[]) => mockGetAgentProvider(...args),
 }));
 
 jest.mock('../../src/agent/providers/modelSelectionStore', () => ({
+  getThreadModelSelection: (...args: unknown[]) =>
+    mockGetThreadModelSelection(...args),
   resolveThreadModel: (...args: unknown[]) => mockResolveThreadModel(...args),
   rememberThreadModel: (
     threadId: number,
@@ -60,7 +66,7 @@ jest.mock('../../src/agent/tools/listAssets', () => ({
 
 jest.mock('../../src/agent/tools/createRecord', () => ({
   CREATE_RECORD_TOOL_NAME: 'createRecord',
-  createCreateRecordTool: () => ({}),
+  createCreateRecordTool: (deps: unknown) => mockCreateCreateRecordTool(deps),
 }));
 
 jest.mock('../../src/agent/core/createAgent', () => ({
@@ -110,6 +116,8 @@ function createTransport(
   overrides: {
     persistUserMessage?: jest.Mock;
     ensureTitle?: jest.Mock;
+    attachmentImagePath?: string;
+    onAttachmentConsumed?: () => void;
     usageRef?: {
       current: {
         promptTokens: number;
@@ -138,6 +146,8 @@ function createTransport(
     usageRef,
     persistUserMessage,
     ensureTitle,
+    attachmentImagePath: overrides.attachmentImagePath,
+    onAttachmentConsumed: overrides.onAttachmentConsumed,
   });
 
   return { transport, persistUserMessage, ensureTitle, usageRef };
@@ -158,6 +168,8 @@ beforeEach(() => {
   mockGetActiveAgentProvider.mockReturnValue({
     id: 'provider-1',
   });
+  mockGetAgentProvider.mockReturnValue(null);
+  mockGetThreadModelSelection.mockReturnValue(null);
   mockResolveThreadModel.mockReturnValue({
     modelId: 'gpt-5',
     contextWindow: 32_768,
@@ -457,5 +469,62 @@ describe('createAgentTransport', () => {
     const executedError = new Error('工具 createRecord 执行失败：database down');
     expect(options.onError(executedError)).toBe(executedError.message);
     expect(errorLog).toHaveBeenCalledTimes(1);
+  });
+
+  it('uses the provider remembered for the conversation', async () => {
+    const provider = {
+      id: 'provider-2',
+      descriptorId: 'openai-compatible',
+      name: '视觉提供商',
+      baseUrl: 'https://api.example.com/v1',
+      defaultModelId: 'vision',
+      models: [],
+      storeResponses: true,
+      createdAt: 0,
+      updatedAt: 0,
+    };
+    mockGetThreadModelSelection.mockReturnValue({
+      providerId: 'provider-2',
+      modelId: 'vision',
+    });
+    mockGetAgentProvider.mockReturnValue(provider);
+    mockResolveThreadModel.mockReturnValue({
+      modelId: 'vision',
+      contextWindow: 32_768,
+      reasoningEffort: 'off',
+      multimodal: true,
+    });
+    const { transport } = createTransport();
+
+    await transport.sendMessages!(submitRequest([USER_MESSAGE]));
+
+    expect(mockGetAgentProvider).toHaveBeenCalledWith('provider-2');
+    expect(mockResolveThreadModel).toHaveBeenCalledWith(provider, 1);
+    expect(mockRememberThreadModel).toHaveBeenCalledWith(
+      1,
+      'provider-2',
+      'vision',
+    );
+    const agentOptions = mockCreateAgent.mock.calls[0]![0] as {
+      provider: unknown;
+    };
+    expect(agentOptions.provider).toBe(provider);
+  });
+
+  it('passes the quick book screenshot to the createRecord tool', async () => {
+    const onAttachmentConsumed = jest.fn();
+    const { transport } = createTransport({
+      attachmentImagePath: 'file:///tmp/quick-book/shot.jpg',
+      onAttachmentConsumed,
+    });
+
+    await transport.sendMessages!(submitRequest([USER_MESSAGE]));
+
+    expect(mockCreateCreateRecordTool).toHaveBeenCalledWith(
+      expect.objectContaining({
+        attachmentImagePaths: ['file:///tmp/quick-book/shot.jpg'],
+        onAttachmentConsumed,
+      }),
+    );
   });
 });

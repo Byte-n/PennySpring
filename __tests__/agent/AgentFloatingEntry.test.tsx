@@ -29,12 +29,31 @@ jest.mock('@pennyspring/ui', () => ({
     mockFloatingGroups.push(props);
     return null;
   },
+  Column: (props: { children?: React.ReactNode }) => props.children ?? null,
+  Row: (props: { children?: React.ReactNode }) => props.children ?? null,
+  Text: () => null,
+  Button: () => null,
+  useToast: () => ({ show: jest.fn() }),
 }));
 
-jest.mock('@pennyspring/theme', () => ({
-  useTheme: () => ({
-    token: { paddingLG: 24, controlHeight: 44, paddingXS: 8 },
-  }),
+jest.mock('@pennyspring/theme', () => {
+  const token = new Proxy(
+    {},
+    {
+      get: () => 1,
+    },
+  );
+  return {
+    useTheme: () => ({ token }),
+    createUseSheetStyle:
+      (generator: (themeToken: unknown, options?: unknown) => unknown) =>
+      (options?: unknown) =>
+        generator(token, options),
+  };
+});
+
+jest.mock('react-native-safe-area-context', () => ({
+  useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }),
 }));
 
 jest.mock('phosphor-react-native', () => {
@@ -51,7 +70,8 @@ jest.mock('../../src/stores/bookStore', () => ({
 }));
 
 jest.mock('../../src/navigation', () => ({
-  ROOT_ROUTES: { AgentSettings: 'AgentSettings' },
+  ROOT_ROUTES: { Home: 'Home', AgentSettings: 'AgentSettings' },
+  HOME_TAB_ROUTES: { DetailTab: 'DetailTab', ChartTab: 'ChartTab' },
   rootNavigationRef: {
     isReady: () => false,
     navigate: jest.fn(),
@@ -60,6 +80,7 @@ jest.mock('../../src/navigation', () => ({
 
 jest.mock('../../src/agent/providers/configStore', () => ({
   getActiveAgentProvider: () => null,
+  getAgentProvider: () => null,
   rehydrateAgentProviders: () => Promise.resolve(),
   useAgentProviderStore: (selector: (state: {
     providers: [];
@@ -82,6 +103,7 @@ jest.mock('../../src/agent/ui/useAgentSession', () => ({
     currentThreadId: 1,
     initialMessages: [],
     createThread: jest.fn(),
+    ensureQuickBookThread: jest.fn(() => Promise.resolve(null)),
     selectThread: jest.fn(),
     deleteThread: jest.fn(),
     deleteCurrentThread: jest.fn(),

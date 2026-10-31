@@ -20,8 +20,9 @@ import { estimateTokens } from '../core/tokens';
 import type { TokenUsage } from '../core/types';
 import { getUiMessageText, trimUiMessagesByTokens } from '../core/uiMessages';
 import { buildSystemPrompt } from '../projection/context';
-import { getActiveAgentProvider } from '../providers/configStore';
+import { getActiveAgentProvider, getAgentProvider } from '../providers/configStore';
 import {
+  getThreadModelSelection,
   rememberThreadModel,
   resolveThreadModel,
 } from '../providers/modelSelectionStore';
@@ -57,6 +58,9 @@ export interface AgentTransportOptions {
   persistUserMessage: (message: UIMessage) => Promise<void>;
   ensureTitle: (text: string) => Promise<void>;
   onRunStart?: () => void;
+  /** 快捷记账会话的来源截图路径，写入记录时附带。 */
+  attachmentImagePath?: string;
+  onAttachmentConsumed?: () => void;
 }
 
 function describeStreamError(error: unknown): string {
@@ -136,7 +140,11 @@ export function createAgentTransport(
       options.onRunStart?.();
       options.usageRef.current = EMPTY_USAGE;
 
-      const provider = getActiveAgentProvider();
+      const selection = getThreadModelSelection(options.threadId);
+      const selectedProvider = selection
+        ? getAgentProvider(selection.providerId)
+        : null;
+      const provider = selectedProvider ?? getActiveAgentProvider();
       if (provider === null) {
         throw new Error(AGENT_NOT_CONFIGURED_MESSAGE);
       }
@@ -203,6 +211,10 @@ export function createAgentTransport(
         [CREATE_RECORD_TOOL_NAME]: createCreateRecordTool({
           api: options.api,
           booksId: options.booksId,
+          attachmentImagePaths: options.attachmentImagePath
+            ? [options.attachmentImagePath]
+            : undefined,
+          onAttachmentConsumed: options.onAttachmentConsumed,
         }),
       };
       const toolApproval = {

@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { Image } from 'react-native';
 import type { ImageStyle } from 'react-native';
 import type { UIMessage } from 'ai';
@@ -20,11 +20,13 @@ import {
   Loading,
   Row,
   Text,
+  useToast,
 } from '@pennyspring/ui';
 import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
 import { CheckCircleIcon, WarningCircleIcon } from 'phosphor-react-native';
 
 import { MarkdownText } from '../../component/MarkdownText';
+import type { PendingQuickBookMessage } from '../../features/quickBook/types';
 import { AgentComposer } from './AgentComposer';
 import { AgentDrawerFrame } from './AgentDrawerFrame';
 import {
@@ -33,6 +35,7 @@ import {
   toolErrorText,
   toolStatusText,
 } from './copy';
+import { getErrorMessage } from './errorMessage';
 import { RecordCreationCard } from './RecordCreationCard';
 import { ThinkingBlock } from './ThinkingBlock';
 import type { AgentSessionState } from './useAgentSession';
@@ -303,10 +306,12 @@ export interface AgentDrawerProps {
   configured: boolean;
   session: AgentSessionState;
   runtimeErrorText: string;
+  pendingQuickBook: PendingQuickBookMessage | null;
+  onPendingQuickBookSent: () => void;
   onOpenChange: (open: boolean) => void;
   onOpenSessions: () => void;
   onOpenSettings: () => void;
-  onOpenModelSettings: () => void;
+  onOpenModelSettings: (providerId?: string) => void;
 }
 
 export function AgentDrawer({
@@ -314,14 +319,52 @@ export function AgentDrawer({
   configured,
   session,
   runtimeErrorText,
+  pendingQuickBook,
+  onPendingQuickBookSent,
   onOpenChange,
   onOpenSessions,
   onOpenSettings,
   onOpenModelSettings,
 }: AgentDrawerProps): React.ReactElement {
   const styles = useStyles();
+  const toast = useToast();
   const aui = useAui();
   const aiChat = useAISDKChat<UIMessage>();
+  const sentQuickBookRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (pendingQuickBook === null || !aiChat) {
+      return;
+    }
+    if (session.currentThreadId !== pendingQuickBook.threadId) {
+      return;
+    }
+    if (sentQuickBookRef.current === pendingQuickBook.id) {
+      return;
+    }
+    sentQuickBookRef.current = pendingQuickBook.id;
+    aiChat
+      .sendMessage({
+        text: pendingQuickBook.text,
+        files: pendingQuickBook.files,
+      })
+      .then(() => {
+        onPendingQuickBookSent();
+      })
+      .catch(error => {
+        onPendingQuickBookSent();
+        toast.show({
+          messageText: getErrorMessage(error),
+          status: 'error',
+        });
+      });
+  }, [
+    aiChat,
+    onPendingQuickBookSent,
+    pendingQuickBook,
+    session.currentThreadId,
+    toast,
+  ]);
 
   const handleSuggestion = useCallback(
     (text: string): void => {

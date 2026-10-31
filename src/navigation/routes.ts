@@ -10,6 +10,7 @@ export const ROOT_ROUTES = {
   AssetManage: 'AssetManage',
   IconPreview: 'IconPreview',
   AgentSettings: 'AgentSettings',
+  QuickBookSettings: 'QuickBookSettings',
 } as const;
 
 export const HOME_TAB_ROUTES = {

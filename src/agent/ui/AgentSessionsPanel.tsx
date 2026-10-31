@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { Button, Column, Popup, useToast } from '@pennyspring/ui';
+import { Button, Popup, useToast } from '@pennyspring/ui';
 import type { AgentThreadRow } from '@pennyspring/api';
 import { createUseSheetStyle } from '@pennyspring/theme';
 
@@ -8,13 +8,9 @@ import { AgentSessionList } from './AgentSessionList';
 import { getThreadTitle } from './chatModel';
 import type { AgentSessionState } from './useAgentSession';
 
-const useStyles = createUseSheetStyle(token => ({
+const useStyles = createUseSheetStyle(() => ({
   panelBody: {
     padding: 0,
-  },
-  body: {
-    flex: 1,
-    padding: token.paddingMD,
   },
 }));
 
@@ -31,7 +27,9 @@ export function AgentSessionsPanel({
 }: AgentSessionsPanelProps) {
   const styles = useStyles();
   const toast = useToast();
-  const [pendingDelete, setPendingDelete] = useState<AgentThreadRow | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<AgentThreadRow | null>(
+    null,
+  );
 
   const handleSelect = useCallback(
     (thread: AgentThreadRow): void => {
@@ -87,16 +85,14 @@ export function AgentSessionsPanel({
         styles={{ panelBody: styles.panelBody }}
         titleText="会话记录"
       >
-        <Column style={styles.body}>
-          <AgentSessionList
-            currentThreadId={chat.currentThreadId}
-            disabled={chat.sending || chat.loading}
-            loading={chat.threadsLoading}
-            onDelete={setPendingDelete}
-            onSelect={handleSelect}
-            threads={chat.threads}
-          />
-        </Column>
+        <AgentSessionList
+          currentThreadId={chat.currentThreadId}
+          disabled={chat.sending || chat.loading}
+          loading={chat.threadsLoading}
+          onDelete={setPendingDelete}
+          onSelect={handleSelect}
+          threads={chat.threads}
+        />
       </Popup.FloatingPanel>
 
       <ManageConfirmDialog

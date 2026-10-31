@@ -2,6 +2,7 @@ import React from 'react';
 import { AssistantRuntimeProvider } from '@assistant-ui/react-native';
 import type { BookRow } from '@pennyspring/api';
 
+import type { PendingQuickBookMessage } from '../../features/quickBook/types';
 import { AgentDebugProbe } from './AgentDebugProbe';
 import { AgentDrawer } from './AgentDrawer';
 import {
@@ -16,10 +17,14 @@ export interface AgentRuntimeHostProps {
   threadId: number;
   drawerOpen: boolean;
   configured: boolean;
+  attachmentImagePath?: string;
+  onAttachmentConsumed?: () => void;
+  pendingQuickBook: PendingQuickBookMessage | null;
+  onPendingQuickBookSent: () => void;
   onDrawerOpenChange: (open: boolean) => void;
   onOpenSessions: () => void;
   onOpenSettings: () => void;
-  onOpenModelSettings: () => void;
+  onOpenModelSettings: (providerId?: string) => void;
 }
 
 export function AgentRuntimeHost({
@@ -28,6 +33,10 @@ export function AgentRuntimeHost({
   threadId,
   drawerOpen,
   configured,
+  attachmentImagePath,
+  onAttachmentConsumed,
+  pendingQuickBook,
+  onPendingQuickBookSent,
   onDrawerOpenChange,
   onOpenSessions,
   onOpenSettings,
@@ -38,6 +47,8 @@ export function AgentRuntimeHost({
     session,
     threadId,
     initialMessages: session.initialMessages,
+    attachmentImagePath,
+    onAttachmentConsumed,
   });
 
   return (
@@ -50,7 +61,9 @@ export function AgentRuntimeHost({
         onOpenModelSettings={onOpenModelSettings}
         onOpenSessions={onOpenSessions}
         onOpenSettings={onOpenSettings}
+        onPendingQuickBookSent={onPendingQuickBookSent}
         open={drawerOpen}
+        pendingQuickBook={pendingQuickBook}
         runtimeErrorText={errorText}
         session={session}
       />
