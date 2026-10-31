@@ -1,5 +1,5 @@
 import React from 'react';
-import { FlatList, Text as RNText, TextInput } from 'react-native';
+import { FlatList, StyleSheet, Text as RNText, TextInput } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
 import { DisplayInput } from '../src/DisplayInput';
 import { Button } from '../src/Button';
@@ -36,7 +36,10 @@ function renderListPicker(
 }
 
 function treeText(testRenderer: renderer.ReactTestRenderer): string {
-  return JSON.stringify(testRenderer.toJSON());
+  return testRenderer.root
+    .findAll(node => typeof node.props.children === 'string')
+    .map(node => node.props.children as string)
+    .join(' ');
 }
 
 describe('ListPicker', () => {
@@ -113,7 +116,8 @@ describe('ListPicker', () => {
     const popup = testRenderer.root.findByProps({ testID: 'list-picker-popup' });
 
     expect(popup.props.style).toEqual(expect.objectContaining({ flex: 1 }));
-    expect(list.props.style).toEqual(expect.objectContaining({ flex: 1 }));
+    expect(StyleSheet.flatten(list.props.style)).toEqual(expect.objectContaining({ flex: 1 }));
+    expect(list.props.scrollEnabled).toBe(true);
   });
 
   it('filters searchable options by text props and custom node text', () => {

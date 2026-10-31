@@ -14,6 +14,7 @@ import {
   Icon,
   ImagePicker,
   Input,
+  List,
   Loading,
   Row,
   Segmented,
@@ -621,17 +622,6 @@ export function BookManageScreen() {
       : '新增网络账本';
   const okText = editingBook ? '保存' : '创建账本';
 
-  const serverBookRows = serverBookList.map((book, index) => (
-    <ManageRow
-      hasDivider={index > 0}
-      key={book.id}
-      icon={<Icon color="secondary" icon="list" size="large" />}
-      onPress={() => addExistingRemoteBook(book)}
-      subtitle={book.description || '服务器上的账本'}
-      title={book.name}
-    />
-  ));
-
   return (
     <Column style={styles.container}>
       <BookList
@@ -648,6 +638,7 @@ export function BookManageScreen() {
       />
 
       <FormFloatingPanel
+        scrollEnabled
         onOk={handlePanelOk}
         onOpenChange={open => {
           if (!open) {
@@ -767,7 +758,22 @@ export function BookManageScreen() {
                             <Text size="xs" color="tertiary">
                               服务器上的账本 · 轻点添加到本机
                             </Text>
-                            <ManageCard>{serverBookRows}</ManageCard>
+                            <ManageCard>
+                              <List
+                                data={serverBookList}
+                                keyExtractor={book => String(book.id)}
+                                renderItem={({ item: book, index }) => (
+                                  <ManageRow
+                                    hasDivider={index > 0}
+                                    icon={<Icon color="secondary" icon="list" size="large" />}
+                                    onPress={() => addExistingRemoteBook(book)}
+                                    subtitle={book.description || '服务器上的账本'}
+                                    title={book.name}
+                                  />
+                                )}
+                                scrollEnabled={false}
+                              />
+                            </ManageCard>
                           </Column>
                         ) : (
                           <Text size="xs" color="tertiary">

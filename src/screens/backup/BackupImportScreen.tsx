@@ -114,7 +114,7 @@ export function BackupImportScreen() {
   if (result) {
     const records = result.books.reduce((sum, book) => sum + book.counts.records, 0)
     return (
-      <ScrollView contentContainerStyle={styles.content} style={styles.container}>
+      <ScrollView contentContainerStyle={styles.content} scrollEnabled style={styles.container}>
         <Result
           status="success"
           titleText="导入完成"
@@ -136,7 +136,7 @@ export function BackupImportScreen() {
 
   if (!preview) {
     return (
-      <ScrollView contentContainerStyle={styles.content} style={styles.container}>
+      <ScrollView contentContainerStyle={styles.content} scrollEnabled style={styles.container}>
         <Card>
           <Empty
             variant="boxed"
@@ -159,7 +159,7 @@ export function BackupImportScreen() {
   const { manifest } = preview.parsed
 
   return (
-    <ScrollView contentContainerStyle={styles.content} style={styles.container}>
+    <ScrollView contentContainerStyle={styles.content} scrollEnabled style={styles.container}>
       <Card titleText="备份文件" extra={<Text color="tertiary" size="xs">格式 v{manifest.formatVersion}</Text>}>
         <Column style={styles.cardContent}>
           <Text weight="semibold">{preview.sourceName}</Text>

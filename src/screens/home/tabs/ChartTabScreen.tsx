@@ -354,6 +354,7 @@ export function ChartTabScreen() {
         />
       </Column>
       <ScrollView
+        scrollEnabled
         ref={scrollRef}
         contentContainerStyle={styles.content}
         refreshControl={

@@ -206,6 +206,7 @@ export function PhosphorIconPickerContent({
         horizontal
         keyExtractor={item => item.value}
         renderItem={renderCategory}
+        scrollEnabled
         showsHorizontalScrollIndicator={false}
         style={styles.categoryList}
       />
@@ -218,6 +219,7 @@ export function PhosphorIconPickerContent({
         maxToRenderPerBatch={ICON_LIST_MAX_RENDER_BATCH}
         numColumns={ICON_GRID_COLUMNS}
         renderItem={renderIcon}
+        scrollEnabled
         style={styles.grid}
         windowSize={ICON_LIST_WINDOW_SIZE}
         empty={(
@@ -246,6 +248,7 @@ export function PhosphorIconPicker({
 
   return (
     <Popup.FloatingPanel
+      bodyScrollable={false}
       footer={null}
       height="80%"
       keyboardAvoiding

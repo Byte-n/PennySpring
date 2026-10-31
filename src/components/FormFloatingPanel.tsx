@@ -9,6 +9,7 @@ export interface FormFloatingPanelProps {
   submitDisabled?: boolean;
   submitLoading?: boolean;
   keyboardAvoiding?: boolean;
+  scrollEnabled?: boolean;
   panelBodyStyle?: StyleProp<ViewStyle>;
   children: ReactNode;
   onOpenChange: (open: boolean) => void;
@@ -28,6 +29,7 @@ export function FormFloatingPanel({
   submitDisabled = false,
   submitLoading = false,
   keyboardAvoiding = true,
+  scrollEnabled = false,
   panelBodyStyle,
   children,
   onOpenChange,
@@ -35,7 +37,9 @@ export function FormFloatingPanel({
 }: FormFloatingPanelProps) {
   return (
     <Popup.FloatingPanel
+      bodyScrollable
       keyboardAvoiding={keyboardAvoiding}
+      scrollEnabled={scrollEnabled}
       okDisabled={submitDisabled}
       okLoading={submitLoading}
       onOk={onOk}

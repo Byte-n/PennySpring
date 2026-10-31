@@ -9,10 +9,10 @@ import {
   Form,
   Icon,
   Input,
+  List,
   ListPicker,
   Row,
   Spacer,
-  SwipeAction,
   Switch,
   Text,
   Textarea,
@@ -455,7 +455,7 @@ export function AssetManageScreen() {
 
   return (
     <Column style={styles.container}>
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView contentContainerStyle={styles.content} scrollEnabled>
         {loading && !hasAssets ? (
           <ManageSkeleton showHero />
         ) : !hasAssets ? (
@@ -542,44 +542,31 @@ export function AssetManageScreen() {
                   totalText={formatSignedCents(group.visibleTotal)}
                 />
                 <ManageCard>
-                  {group.assets.map((asset, index) => {
-                    const hidden = asset.invisible === VISIBILITY.hidden;
-                    const liability = isLiabilityAsset(asset);
-                    return (
-                      <SwipeAction
-                        key={asset.id}
-                        rightActions={[
-                          {
-                            color: 'primary',
-                            key: 'edit',
-                            actionText: '编辑',
-                            onPress: () => openEdit(asset),
-                          },
-                          {
-                            color: 'danger',
-                            key: 'delete',
-                            actionText: '删除',
-                            onPress: () => setPendingDeleteAsset(asset),
-                          },
-                        ]}
-                      >
+                  <List
+                    data={group.assets}
+                    keyExtractor={asset => String(asset.id)}
+                    renderItem={({ item: asset, index }) => {
+                      const hidden = asset.invisible === VISIBILITY.hidden;
+                      const liability = isLiabilityAsset(asset);
+
+                      return (
                         <ManageRow
                           badgeText={hidden ? '已隐藏' : undefined}
                           hasDivider={index > 0}
-                          icon={
+                          icon={(
                             <Icon
                               color="secondary"
                               icon={ASSET_ICONS[asset.type]}
                               size="large"
                             />
-                          }
+                          )}
                           isHidden={hidden}
                           onLongPress={() => setMenuAsset(asset)}
                           onMenuPress={() => setMenuAsset(asset)}
                           onPress={() => openEdit(asset)}
                           subtitle={buildAssetSubtitle(asset)}
                           title={asset.name}
-                          trailing={
+                          trailing={(
                             <Column align="end">
                               <ManageAmount
                                 showCurrency
@@ -598,11 +585,28 @@ export function AssetManageScreen() {
                                 </Text>
                               ) : null}
                             </Column>
-                          }
+                          )}
                         />
-                      </SwipeAction>
-                    );
-                  })}
+                      );
+                    }}
+                    renderSwipeActions={({ item: asset }) => ({
+                      rightActions: [
+                        {
+                          color: 'primary',
+                          key: 'edit',
+                          actionText: '编辑',
+                          onPress: () => openEdit(asset),
+                        },
+                        {
+                          color: 'danger',
+                          key: 'delete',
+                          actionText: '删除',
+                          onPress: () => setPendingDeleteAsset(asset),
+                        },
+                      ],
+                    })}
+                    scrollEnabled={false}
+                  />
                 </ManageCard>
               </Column>
             ))}
@@ -616,6 +620,7 @@ export function AssetManageScreen() {
       </ScrollView>
 
       <FormFloatingPanel
+        scrollEnabled
         onOk={handlePanelOk}
         onOpenChange={handleFormOpenChange}
         open={panelOpen}

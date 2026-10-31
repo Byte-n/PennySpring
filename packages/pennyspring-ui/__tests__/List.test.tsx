@@ -4,6 +4,7 @@ import { FlatList, StyleSheet, View } from 'react-native';
 import { ThemeProvider } from '@pennyspring/theme';
 import { List } from '../src/List';
 import { Icon } from '../src/Icon';
+import { SwipeAction } from '../src/SwipeAction';
 import { Text } from '../src/Text';
 import type { ListItemData } from '../src/List';
 
@@ -14,6 +15,31 @@ function renderList(element: React.ReactElement) {
 }
 
 describe('List', () => {
+  it('disables scrolling by default and enables it when requested', () => {
+    const defaultList = renderList(<List data={[]} />);
+    const scrollableList = renderList(<List data={[]} scrollEnabled />);
+
+    expect(defaultList.root.findByType(FlatList).props.scrollEnabled).toBe(false);
+    expect(scrollableList.root.findByType(FlatList).props.scrollEnabled).toBe(true);
+  });
+
+  it('wraps rendered rows with SwipeAction when row actions are provided', () => {
+    const testRenderer = renderList(
+      <List
+        data={['one']}
+        renderItem={({ item }) => <Text>{item}</Text>}
+        renderSwipeActions={() => ({
+          rightActions: [{ key: 'delete', actionText: '删除' }],
+        })}
+      />,
+    );
+
+    const flatList = testRenderer.root.findByType(FlatList);
+    const row = flatList.props.renderItem({ item: 'one', index: 0, separators: {} });
+
+    expect(row.type).toBe(SwipeAction);
+  });
+
   it('renders data through a FlatList and forwards row rendering', () => {
     const testRenderer = renderList(<List data={['one', 'two']} renderItem={({ item }) => <Text>{item}</Text>} />);
     const flatList = testRenderer.root.findByType(FlatList);

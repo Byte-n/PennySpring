@@ -422,7 +422,7 @@ export function TypeManageScreen() {
         />
       </Row>
 
-      <ScrollView style={styles.contentScroll}>
+      <ScrollView scrollEnabled style={styles.contentScroll}>
         <Column style={styles.content} gap="normal">
           <Row style={styles.metaLine} gap={token.marginXXS} align="center">
             <Text color="secondary" size="xs" weight="semibold">
@@ -474,6 +474,7 @@ export function TypeManageScreen() {
       </ScrollView>
 
       <FormFloatingPanel
+        scrollEnabled
         onOk={handlePanelOk}
         onOpenChange={open => {
           if (!open) {

@@ -1,10 +1,11 @@
 import React from 'react';
-import { Image, ScrollView, View } from 'react-native';
+import { Image, View } from 'react-native';
 import type { ImageStyle, StyleProp } from 'react-native';
 import {
   Column,
   Empty,
   Icon,
+  List,
   Row,
   SwipeAction,
   Text,
@@ -40,10 +41,13 @@ export interface BookListProps {
 
 const useStyles = createUseSheetStyle(token => ({
   content: {
-    flex: 1,
+    flexGrow: 1,
     gap: token.marginSM,
     padding: token.padding,
     paddingBottom: token.paddingXL,
+  },
+  list: {
+    flex: 1,
   },
   metaLine: {
     paddingHorizontal: token.paddingXXS,
@@ -84,6 +88,16 @@ const useStyles = createUseSheetStyle(token => ({
   },
   listEnd: {
     paddingTop: token.paddingSM,
+  },
+  listHeader: {
+    borderBottomWidth: 0,
+    paddingHorizontal: 0,
+    paddingVertical: 0,
+  },
+  listFooter: {
+    borderTopWidth: 0,
+    paddingHorizontal: 0,
+    paddingVertical: 0,
   },
 }));
 
@@ -157,9 +171,14 @@ export function BookList({
 
   if (loading && items.length === 0) {
     return (
-      <ScrollView contentContainerStyle={styles.content}>
-        <ManageSkeleton rows={4} />
-      </ScrollView>
+      <List
+        data={[0]}
+        contentContainerStyle={styles.content}
+        renderItem={() => <ManageSkeleton rows={4} />}
+        scrollEnabled
+        showsVerticalScrollIndicator={false}
+        style={styles.list}
+      />
     );
   }
 
@@ -274,9 +293,30 @@ export function BookList({
     );
   };
 
+  const sections = [
+    ...(localItems.length > 0
+      ? [{ key: 'local', title: '本地账本', items: localItems }]
+      : []),
+    ...(networkItems.length > 0
+      ? [{ key: 'remote', title: '网络账本', items: networkItems }]
+      : []),
+  ];
+
   return (
-    <ScrollView contentContainerStyle={styles.content}>
-      <Row style={styles.metaLine} gap={token.marginXXS} align="center">
+    <List
+      contentContainerStyle={styles.content}
+      data={sections}
+      footer={(
+        <Column style={styles.listEnd} align="center">
+          <Text color="tertiary" size="xs" textAlign="center">
+            {mode === 'manage'
+              ? '轻点整行切换账本 · 行尾「⋯」可编辑或删除'
+              : '轻点整行切换账本'}
+          </Text>
+        </Column>
+      )}
+      header={(
+        <Row style={styles.metaLine} gap={token.marginXXS} align="center">
         <Text color="tertiary" size="xs">
           共
         </Text>
@@ -295,43 +335,28 @@ export function BookList({
         <Text color="secondary" size="xs" weight="semibold">
           {networkItems.length}
         </Text>
-      </Row>
-
-      {localItems.length > 0 ? (
+        </Row>
+      )}
+      keyExtractor={section => section.key}
+      renderItem={({ item: section }) => (
         <Column gap={token.marginXXS}>
           <Row style={styles.sectionHeader} gap="small" align="baseline">
             <Text size="xs" weight="semibold" color="secondary">
-              本地账本
+              {section.title}
             </Text>
             <Text size="xs" color="tertiary">
-              {localItems.length}
+              {section.items.length}
             </Text>
           </Row>
-          <ManageCard>{localItems.map(renderRow)}</ManageCard>
+          <ManageCard>
+            {section.items.map((item, index) => renderRow(item, index))}
+          </ManageCard>
         </Column>
-      ) : null}
-
-      {networkItems.length > 0 ? (
-        <Column gap={token.marginXXS}>
-          <Row style={styles.sectionHeader} gap="small" align="baseline">
-            <Text size="xs" weight="semibold" color="secondary">
-              网络账本
-            </Text>
-            <Text size="xs" color="tertiary">
-              {networkItems.length}
-            </Text>
-          </Row>
-          <ManageCard>{networkItems.map(renderRow)}</ManageCard>
-        </Column>
-      ) : null}
-
-      <Column style={styles.listEnd} align="center">
-        <Text color="tertiary" size="xs" textAlign="center">
-          {mode === 'manage'
-            ? '轻点整行切换账本 · 行尾「⋯」可编辑或删除'
-            : '轻点整行切换账本'}
-        </Text>
-      </Column>
-    </ScrollView>
+      )}
+      scrollEnabled
+      showsVerticalScrollIndicator={false}
+      style={styles.list}
+      styles={{ header: styles.listHeader, footer: styles.listFooter }}
+    />
   );
 }

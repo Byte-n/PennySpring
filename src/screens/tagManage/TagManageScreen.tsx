@@ -288,7 +288,7 @@ export function TagManageScreen() {
   if (loading && tags.length === 0) {
     return (
       <Column style={styles.container}>
-        <ScrollView contentContainerStyle={styles.content}>
+        <ScrollView contentContainerStyle={styles.content} scrollEnabled>
           <ManageSkeleton rows={3} />
         </ScrollView>
       </Column>
@@ -297,7 +297,7 @@ export function TagManageScreen() {
 
   return (
     <Column style={styles.container}>
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView contentContainerStyle={styles.content} scrollEnabled>
         <Row style={styles.metaLine} gap={token.marginXXS} align="center">
           <Text color="secondary" size="xs" weight="semibold">
             {tags.length}
@@ -368,6 +368,7 @@ export function TagManageScreen() {
       </ScrollView>
 
       <FormFloatingPanel
+        scrollEnabled
         onOk={handlePanelOk}
         onOpenChange={open => {
           if (!open) {

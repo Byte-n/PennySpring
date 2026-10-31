@@ -423,6 +423,8 @@ export function AgentProviderEditor({
 
   return (
     <Popup.FloatingPanel
+      bodyScrollable
+      scrollEnabled
       cancelText="关闭"
       height="82%"
       keyboardAvoiding

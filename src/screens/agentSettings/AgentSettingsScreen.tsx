@@ -157,7 +157,7 @@ export function AgentSettingsScreen() {
 
   return (
     <Column style={styles.container}>
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView contentContainerStyle={styles.content} scrollEnabled>
         <Column gap="normal">
           <Text color="tertiary" size="xs" >
             提供商配置与 API Key 保存在账本所在服务器；API Key 暂为明文存储，请勿在共享服务器使用敏感 Key。

@@ -143,7 +143,7 @@ function swipeRow(testRenderer: renderer.ReactTestRenderer, options: {
   const gesture = gestureDetector.props.gesture as {
     __handlers: {
       onBegin?: () => void;
-      onEnd?: (event: { translationX: number; velocityX: number }) => void;
+      onEnd?: (event: { translationX: number; translationY: number; velocityX: number }) => void;
       onUpdate?: (event: { translationX: number; translationY: number }) => void;
     };
   };
@@ -157,6 +157,7 @@ function swipeRow(testRenderer: renderer.ReactTestRenderer, options: {
     });
     gesture.__handlers.onEnd?.({
       translationX,
+      translationY: pageY,
       velocityX: 0,
     });
   });
@@ -213,6 +214,18 @@ describe('SwipeAction', () => {
     expect(onActionsReveal).toHaveBeenCalledWith('right');
     expect(onChange).toHaveBeenCalledWith('right');
     expect(getTrackTranslateX(testRenderer)).toBe(-80);
+  });
+  it('does not reveal horizontal actions for a vertical drag', () => {
+    const testRenderer = renderSwipeAction();
+    setupActionWidth(testRenderer);
+
+    swipeRow(testRenderer, {
+      startX: 100,
+      endX: 90,
+      pageY: 80,
+    });
+
+    expect(getTrackTranslateX(testRenderer)).toBe(0);
   });
   it('fires action callbacks and closes by default after action press', () => {
     const actionPress = jest.fn();

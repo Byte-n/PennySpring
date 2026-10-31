@@ -261,6 +261,7 @@ export function IconPreviewScreen() {
       </View>
 
       <FlatList
+        scrollEnabled
         data={filteredIcons}
         renderItem={({ item }) => <IconItem item={item} />}
         keyExtractor={(item, index) =>

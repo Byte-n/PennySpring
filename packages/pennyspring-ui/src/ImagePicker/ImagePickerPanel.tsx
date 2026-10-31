@@ -335,6 +335,7 @@ export function ImagePickerPanel({
 
   return (
     <Popup.FloatingPanel
+      bodyScrollable={false}
       cancel={null}
       closeOnMaskClick
       footer={null}
@@ -351,7 +352,7 @@ export function ImagePickerPanel({
       style={[tokenStyles.popup, styles?.popup, style]}
       styles={{ panelBody: [tokenStyles.popupBody, styles?.popupBody] }}
     >
-      <ScrollView>{renderSelectedImages()}</ScrollView>
+      <ScrollView scrollEnabled>{renderSelectedImages()}</ScrollView>
     </Popup.FloatingPanel>
   );
 }

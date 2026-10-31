@@ -129,7 +129,7 @@ export function BackupExportScreen() {
 
   if (saved) {
     return (
-      <ScrollView contentContainerStyle={styles.content} style={styles.container}>
+      <ScrollView contentContainerStyle={styles.content} scrollEnabled style={styles.container}>
         <Result
           status="success"
           titleText="备份已保存"
@@ -149,7 +149,7 @@ export function BackupExportScreen() {
   const canExport = (selectedIds?.length ?? 0) > 0 && !busy
 
   return (
-    <ScrollView contentContainerStyle={styles.content} style={styles.container}>
+    <ScrollView contentContainerStyle={styles.content} scrollEnabled style={styles.container}>
       <Card titleText="选择账本">
         {loading ? (
           <Text color="secondary" size="sm">正在读取本地账本…</Text>

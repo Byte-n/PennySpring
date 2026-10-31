@@ -153,6 +153,8 @@ export function QuickTemplatePanel({
 
   return (
     <Popup.FloatingPanel
+      bodyScrollable
+      scrollEnabled
       closeOnMaskClick
       footer={null}
       height="50%"

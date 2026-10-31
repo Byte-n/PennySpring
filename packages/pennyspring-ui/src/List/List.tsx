@@ -7,6 +7,7 @@ import { Icon } from '../Icon';
 import { Row } from '../Row';
 import { Text } from '../Text';
 import { Loading } from '../Loading';
+import { SwipeAction } from '../SwipeAction';
 import { useControllableValue } from '../_hooks';
 import { renderTextNode } from '../shares/node';
 import type { ListItemData, ListProps } from './types';
@@ -169,6 +170,7 @@ function isPromiseLike(value: unknown): value is PromiseLike<unknown> {
 
 function ListInner<ItemT>({
   children, data, renderItem, header, footer, empty, loading, loadingText = '加载中…', loadingIndicator,
+  renderSwipeActions, size = 'normal',
   hasMore = true, isLoadingMore = false, onLoadMore, loadMoreThreshold = 0.1, completeText = '没有更多了',
   collapsible, title, titleText, open, defaultOpen, onOpenChange, onEndReached, onEndReachedThreshold,
   keyExtractor, style, styles: styleOverrides, contentContainerStyle, ...flatListProps
@@ -178,9 +180,11 @@ function ListInner<ItemT>({
   const loadingMoreRef = useRef(false);
   const listData = collapsible && !isOpen ? [] : data ?? (children == null ? [] : [children as ItemT]);
   const mergedRenderItem = (info: ListRenderItemInfo<ItemT>) => {
-    if (info.item === children && data === undefined) return <>{children}</>;
-    if (renderItem !== undefined) return <>{renderItem(info)}</>;
-    return (
+    const row = info.item === children && data === undefined
+      ? <>{children}</>
+      : renderItem !== undefined
+        ? <>{renderItem(info)}</>
+        : (
       <>
         {renderRow(
           info.item as unknown as ListItemData,
@@ -188,6 +192,26 @@ function ListInner<ItemT>({
           info.index < listData.length - 1,
         )}
       </>
+        );
+    const actions = renderSwipeActions?.(info);
+
+    if (
+      actions === null ||
+      actions === undefined ||
+      (!actions.leftActions?.length && !actions.rightActions?.length)
+    ) {
+      return row;
+    }
+
+    return (
+      <SwipeAction
+        disabled={actions.disabled}
+        leftActions={actions.leftActions}
+        rightActions={actions.rightActions}
+        size={size}
+      >
+        {row}
+      </SwipeAction>
     );
   };
   const headerNode = <>
@@ -241,6 +265,7 @@ function ListInner<ItemT>({
   };
   return <FlatList<ItemT>
     {...flatListProps}
+    scrollEnabled={flatListProps.scrollEnabled ?? false}
     data={[...listData]}
     renderItem={mergedRenderItem}
     keyExtractor={keyExtractor ?? ((_, index) => String(index))}

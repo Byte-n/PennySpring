@@ -67,6 +67,8 @@ export function RecordDetailPanel({
 
   return (
     <Popup.FloatingPanel
+      bodyScrollable
+      scrollEnabled
       open={open}
       onOpenChange={onOpenChange}
       onChange={height => setPanelHeight(height)}

@@ -253,7 +253,9 @@ export function TagPicker({
       </PickerTrigger>
       <Popup.FloatingPanel
         {...floatingPanelProps}
+        bodyScrollable
         footer={null}
+        scrollEnabled
         onCancel={closePanel}
         onOpenChange={nextOpen => {
           if (nextOpen) {

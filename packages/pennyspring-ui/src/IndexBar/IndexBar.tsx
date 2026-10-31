@@ -248,6 +248,7 @@ export function IndexBar({
       <View style={tokenStyles.contentWrapper}>
         <ScrollView
           ref={scrollViewRef}
+          scrollEnabled
           testID="index-bar-content"
           style={[tokenStyles.content, styles?.content]}
           stickyHeaderIndices={data.map((_, index) => index * 2)}

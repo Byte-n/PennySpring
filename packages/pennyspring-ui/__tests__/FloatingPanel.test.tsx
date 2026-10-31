@@ -28,6 +28,31 @@ function createKeyboardSubscription(): EmitterSubscription {
 }
 
 describe('Popup.FloatingPanel', () => {
+  it('disables body scrolling by default and enables it when requested', () => {
+    let defaultRenderer: renderer.ReactTestRenderer;
+    let scrollableRenderer: renderer.ReactTestRenderer;
+
+    act(() => {
+      defaultRenderer = renderer.create(
+        <Popup.FloatingPanel defaultOpen>content</Popup.FloatingPanel>,
+      );
+      scrollableRenderer = renderer.create(
+        <Popup.FloatingPanel bodyScrollable defaultOpen scrollEnabled>
+          content
+        </Popup.FloatingPanel>,
+      );
+    });
+
+    const defaultBody = defaultRenderer!.root.findByProps({ testID: 'floating-panel-body' });
+
+    expect(defaultBody.type).toBe(ScrollView);
+    expect(defaultBody.props.scrollEnabled).toBe(false);
+    const scrollableBody = scrollableRenderer!.root.findByProps({ testID: 'floating-panel-body' });
+
+    expect(scrollableBody.type).toBe(ScrollView);
+    expect(scrollableBody.props.scrollEnabled).toBe(true);
+  });
+
   beforeEach(() => {
     jest.restoreAllMocks();
   });

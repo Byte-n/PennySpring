@@ -96,7 +96,9 @@ export interface PopupFloatingPanelProps {
   minHeight?: PopupFloatingPanelHeight;
   maxHeight?: PopupFloatingPanelHeight;
   onChange?: (value: number) => void;
+  /** 是否将 body 渲染为 ScrollView；默认 true。 */
   bodyScrollable?: boolean;
+  /** bodyScrollable 开启时是否允许滚动；默认 false。 */
   scrollEnabled?: boolean;
   titleText?: string;
   title?: ReactNode;

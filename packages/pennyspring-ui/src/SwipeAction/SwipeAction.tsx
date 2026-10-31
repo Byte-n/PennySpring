@@ -431,6 +431,7 @@ export const SwipeAction = React.forwardRef<SwipeActionRef, SwipeActionProps>(
           .runOnJS(true)
           .minDistance(DRAG_START_DISTANCE)
           .activeOffsetX([-DRAG_START_DISTANCE, DRAG_START_DISTANCE])
+          .failOffsetY([-DRAG_START_DISTANCE, DRAG_START_DISTANCE])
           .onBegin(handleGestureBegin)
           .onUpdate(handleGestureUpdate)
           .onEnd(handleGestureEnd)

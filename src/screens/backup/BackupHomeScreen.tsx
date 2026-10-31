@@ -39,6 +39,7 @@ export function BackupHomeScreen() {
 
   return (
     <ScrollView
+      scrollEnabled
       contentContainerStyle={styles.content}
       style={styles.container}
     >

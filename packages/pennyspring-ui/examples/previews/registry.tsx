@@ -426,7 +426,7 @@ export const COMPONENT_PREVIEW_SECTIONS = [
       {
         id: 'list',
         title: 'List',
-        description: '列表容器、列表项和分割线。',
+        description: '默认不滚动的数据列表，支持行级滑动操作、状态与分组。',
         component: ListPreview,
       },
       {

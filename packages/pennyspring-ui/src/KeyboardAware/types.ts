@@ -35,11 +35,13 @@ export interface KeyboardAwareFormScrollStyles {
 export interface KeyboardAwareFormScrollProps
   extends Omit<
     ScrollViewProps,
-    'children' | 'contentContainerStyle' | 'style'
+    'children' | 'contentContainerStyle' | 'scrollEnabled' | 'style'
   > {
   children?: ReactNode;
   extraBottomInset?: number;
   focusedInputBottomOffset?: number;
+  /** 是否允许表单内容滚动；默认 false。 */
+  scrollEnabled?: boolean;
   style?: StyleProp<ViewStyle>;
   styles?: KeyboardAwareFormScrollStyles;
   useKeyboardInset?: boolean;

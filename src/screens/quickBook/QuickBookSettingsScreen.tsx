@@ -235,7 +235,7 @@ export function QuickBookSettingsScreen(): React.ReactElement {
 
   return (
     <Column style={styles.container}>
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView contentContainerStyle={styles.content} scrollEnabled>
         <Card titleText="截图提醒" variant="plain">
           <Column style={styles.section}>
             <Row align="center" gap="normal" justify="between">

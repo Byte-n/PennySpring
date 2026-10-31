@@ -248,6 +248,7 @@ export function DetailTabScreen() {
         <Button type="text" size="small" shape="round" onPress={() => { setSelectedMonth(new Date()); setActiveFilter('all'); }}>今天</Button>
       </Row>
       <ScrollView
+          scrollEnabled
           contentContainerStyle={styles.content}
           stickyHeaderIndices={groups.flatMap((_, index) => [2 + (activeFilter === 'all' ? 0 : 1) + index * 2])}
           refreshControl={<RefreshControl refreshing={loading} onRefresh={refresh} />}

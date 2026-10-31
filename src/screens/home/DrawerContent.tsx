@@ -381,6 +381,7 @@ export function DrawerContent({
       </View>
 
       <ScrollView
+        scrollEnabled
         contentContainerStyle={styles.bodyContent}
         showsVerticalScrollIndicator={false}
         style={styles.body}

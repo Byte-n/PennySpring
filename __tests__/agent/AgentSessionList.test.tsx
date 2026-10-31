@@ -66,6 +66,31 @@ jest.mock('@pennyspring/ui', () => {
       children,
     );
 
+  const List = ({
+    data = [],
+    renderItem,
+    renderSwipeActions,
+    ...props
+  }: {
+    data?: AgentThreadRow[];
+    renderItem?: (info: { item: AgentThreadRow; index: number; separators: object }) => React.ReactNode;
+    renderSwipeActions?: (info: { item: AgentThreadRow; index: number; separators: object }) => {
+      rightActions?: { key: string; actionText?: string; onPress?: () => void }[];
+    } | null;
+  }) =>
+    ReactLib.createElement(
+      View,
+      { ...props, testID: 'session-list' },
+      ...data.map((item, index) => {
+        const info = { item, index, separators: {} };
+        const row = renderItem?.(info);
+        const actions = renderSwipeActions?.(info);
+        return actions?.rightActions?.length
+          ? ReactLib.createElement(SwipeAction, actions, row)
+          : row;
+      }),
+    );
+
   const MockEmpty = ({ titleText, descriptionText }: { titleText?: string; descriptionText?: string }) =>
     ReactLib.createElement(Text, { testID: 'session-list-empty' }, titleText ?? descriptionText);
 
@@ -76,6 +101,7 @@ jest.mock('@pennyspring/ui', () => {
     Column: passthrough(View),
     Empty: MockEmpty,
     Icon: () => null,
+    List,
     Loading: MockLoading,
     Row: passthrough(View),
     SwipeAction,
@@ -131,6 +157,12 @@ function renderList(overrides: Partial<React.ComponentProps<typeof AgentSessionL
 }
 
 describe('AgentSessionList', () => {
+  it('uses a scrollable List container for sessions', () => {
+    const renderer = renderList();
+
+    expect(renderer.root.findByProps({ testID: 'session-list' }).props.scrollEnabled).toBe(true);
+  });
+
   it('renders the fallback title and marks the current session', () => {
     const text = renderedText(renderList());
 

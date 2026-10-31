@@ -251,6 +251,7 @@ export function TransferTabScreen() {
   return (
     <ThemeProvider config={{ token: { colorPrimary: token.blue10 } }}>
       <KeyboardAwareFormScroll
+        scrollEnabled
         extraBottomInset={token.paddingXL}
         focusedInputBottomOffset={token.paddingXL}
         styles={{ content: styles.page }}

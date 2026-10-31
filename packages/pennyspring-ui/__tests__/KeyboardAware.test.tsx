@@ -186,7 +186,22 @@ describe('KeyboardAware', () => {
 
     expect(scroll.props.keyboardShouldPersistTaps).toBe('handled');
     expect(scroll.props.keyboardDismissMode).toBe('interactive');
+    expect(scroll.props.scrollEnabled).toBe(false);
     expect(contentStyle.flexGrow).toBe(1);
+  });
+
+  it('enables form scrolling when explicitly requested', () => {
+    let testRenderer: renderer.ReactTestRenderer;
+
+    act(() => {
+      testRenderer = renderer.create(
+        <KeyboardAwareFormScroll scrollEnabled testID="form-scroll">
+          <RNText>field</RNText>
+        </KeyboardAwareFormScroll>,
+      );
+    });
+
+    expect(testRenderer!.root.findByType(ScrollView).props.scrollEnabled).toBe(true);
   });
 
   it('does not duplicate keyboard inset when form scroll is inside a keyboard aware screen', () => {

@@ -269,6 +269,7 @@ export function ListPickerCascaderPopup<TData>({
               keyExtractor={option => String(option.value)}
               nestedScrollEnabled
               renderItem={({ item, index }) => renderOption(item, index)}
+              scrollEnabled
               showsVerticalScrollIndicator={false}
               style={[tokenStyles.cascaderList]}
               testID="list-picker-cascader-list"

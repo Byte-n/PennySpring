@@ -202,7 +202,7 @@ export type {
 export { Slider } from './Slider';
 export type { SliderProps, SliderStyles } from './Slider';
 export { List } from './List';
-export type { ListItemData, ListProps, ListStyles } from './List';
+export type { ListItemData, ListItemSwipeActions, ListProps, ListStyles } from './List';
 export { ListPicker } from './ListPicker';
 export type {
   ListPickerCascaderChangeParams,

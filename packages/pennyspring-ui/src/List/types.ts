@@ -1,7 +1,14 @@
 import type { ReactNode } from 'react';
-import type { FlatListProps, GestureResponderEvent, StyleProp, ViewStyle } from 'react-native';
+import type { FlatListProps, GestureResponderEvent, ListRenderItemInfo, StyleProp, ViewStyle } from 'react-native';
 import type { IconName } from '../Icon';
 import type { ComponentSize } from '../shares/types';
+import type { SwipeActionAction } from '../SwipeAction';
+
+export interface ListItemSwipeActions {
+  leftActions?: SwipeActionAction[];
+  rightActions?: SwipeActionAction[];
+  disabled?: boolean;
+}
 
 export interface ListStyles {
   header?: StyleProp<ViewStyle>;
@@ -34,6 +41,10 @@ export interface ListProps<ItemT = ListItemData>
   size?: ComponentSize;
   data?: readonly ItemT[] | null;
   renderItem?: NonNullable<FlatListProps<ItemT>['renderItem']>;
+  /** 按行返回滑动操作；未提供操作时该行不创建 SwipeAction。 */
+  renderSwipeActions?: (
+    info: ListRenderItemInfo<ItemT>,
+  ) => ListItemSwipeActions | null | undefined;
   header?: ReactNode;
   footer?: ReactNode;
   empty?: ReactNode;

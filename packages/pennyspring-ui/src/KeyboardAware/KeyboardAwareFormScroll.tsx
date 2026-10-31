@@ -27,6 +27,7 @@ export function KeyboardAwareFormScroll({
   onFocus,
   onLayout,
   onScroll,
+  scrollEnabled = false,
   scrollEventThrottle,
   style,
   styles,
@@ -146,6 +147,7 @@ export function KeyboardAwareFormScroll({
       style={[tokenStyles.root, style, styles?.root]}
       contentContainerStyle={[tokenStyles.content, styles?.content]}
       {...restProps}
+      scrollEnabled={scrollEnabled}
       showsVerticalScrollIndicator={false}
     >
       {children}

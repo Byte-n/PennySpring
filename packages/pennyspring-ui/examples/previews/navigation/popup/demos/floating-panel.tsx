@@ -64,6 +64,8 @@ export function PopupFloatingPanelDemo() {
         </Space>
       </Space>
       <Popup.FloatingPanel
+        bodyScrollable
+        scrollEnabled
         closeOnMaskClick
         okText="完成"
         onCancel={() => {
@@ -90,6 +92,8 @@ export function PopupFloatingPanelDemo() {
         </Space>
       </Popup.FloatingPanel>
       <Popup.FloatingPanel
+        bodyScrollable
+        scrollEnabled
         onCancel={() => {
           setLastEvent('Custom floating panel cancelled');
           setCustomOpen(false);

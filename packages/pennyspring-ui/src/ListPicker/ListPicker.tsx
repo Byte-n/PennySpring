@@ -1,11 +1,13 @@
 import React, { useMemo, useState } from 'react';
-import { ActivityIndicator, FlatList, Pressable } from 'react-native';
+import { ActivityIndicator, Pressable } from 'react-native';
+import type { StyleProp, TextStyle } from 'react-native';
 import { CircleIcon } from 'phosphor-react-native';
 import { useTheme } from '@pennyspring/theme';
 import { Button } from '../Button';
 import { Column } from '../Column';
 import { Icon } from '../Icon';
 import { Input } from '../Input';
+import { List } from '../List';
 import { Popup } from '../Popup';
 import { Row } from '../Row';
 import { Spacer } from '../Spacer';
@@ -60,6 +62,16 @@ function resolveTextSize(
   }
 
   return 'md';
+}
+
+function renderGroupTitle(
+  content: React.ReactNode,
+  size: React.ComponentProps<typeof Text>['size'],
+  style: StyleProp<TextStyle>,
+): React.ReactNode {
+  return renderTextNode(content, text => (
+    <Text color="description" size={size} style={style}>{text}</Text>
+  ));
 }
 
 function normalizeValue(
@@ -441,7 +453,7 @@ export function ListPickerPopup({
               )}
             </Column>
           ) : filteredGroups.length > 0 ? (
-            <FlatList
+            <List
               data={filteredGroups.flatMap(group => [
                 { kind: 'header' as const, key: `group-${group.key}`, group },
                 ...group.options.map(option => ({
@@ -453,12 +465,15 @@ export function ListPickerPopup({
               keyExtractor={item => item.key}
               renderItem={({ item }) => item.kind === 'header' ? (
                 <Column style={tokenStyles.group}>
-                  {renderTextNode(item.group.title ?? item.group.titleText, text => (
-                    <Text color="description" size={resolveTextSize(resolvedSize)} style={[tokenStyles.groupTitle, styles?.groupTitle]}>{text}</Text>
-                  ))}
+                  {renderGroupTitle(
+                    item.group.title ?? item.group.titleText,
+                    resolveTextSize(resolvedSize),
+                    [tokenStyles.groupTitle, styles?.groupTitle],
+                  )}
                 </Column>
               ) : renderOption(item.option)}
               style={tokenStyles.list}
+              scrollEnabled
               showsVerticalScrollIndicator={false}
             />
           ) : (

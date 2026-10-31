@@ -5,7 +5,7 @@ import type { PreviewMeta } from '../../types';
 
 export const previewMeta = {
   title: 'List',
-  description: '列表容器、列表项和分割线。',
+  description: '默认不滚动的数据列表，支持行级滑动操作、状态与分组。',
   order: 3,
   demos: [
     { id: 'rows', title: '行结构（8 种）' },

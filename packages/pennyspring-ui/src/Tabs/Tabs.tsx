@@ -170,6 +170,7 @@ export function Tabs({
       {layout === 'scroll' ? (
         <ScrollView
           horizontal
+          scrollEnabled
           showsHorizontalScrollIndicator={false}
           style={tokenStyles.scrollList}
           contentContainerStyle={[tokenStyles.tabList, styles?.tabList]}

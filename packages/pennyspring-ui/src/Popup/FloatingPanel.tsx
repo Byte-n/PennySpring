@@ -570,7 +570,7 @@ export function FloatingPanel({
   renderHeader,
   renderHeaderLeft,
   renderHeaderRight,
-  scrollEnabled = true,
+  scrollEnabled = false,
   showCloseButton = true,
   size,
   style,

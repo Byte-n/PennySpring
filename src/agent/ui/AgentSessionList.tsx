@@ -1,23 +1,28 @@
 import React, { useCallback } from 'react';
-import { ScrollView } from 'react-native';
 import type { StyleProp, ViewStyle } from 'react-native';
-import { Empty, Icon, Loading, Row, SwipeAction, Text } from '@pennyspring/ui';
+import { Column, Empty, Icon, List, Loading, Row, Text } from '@pennyspring/ui';
 import type { AgentThreadRow } from '@pennyspring/api';
 import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
 import { ChatsCircleIcon, CaretRightIcon } from 'phosphor-react-native';
 
-import { ManageCard, ManageRow } from '../../components/ManageRow';
+import { ManageRow } from '../../components/ManageRow';
 import { formatThreadTime, getThreadTitle } from './chatModel';
 
 const CURRENT_LABEL = '当前';
 
 const useStyles = createUseSheetStyle(token => ({
-  container: {
-    flex: 1,
-  },
   content: {
+    flex: 1,
     gap: token.marginSM,
     paddingBottom: token.paddingXL,
+  },
+  list: {
+    flex: 1,
+    backgroundColor: token.colorBgContainer,
+    borderColor: token.colorSplit,
+    borderRadius: token.borderRadius,
+    borderWidth: token.lineWidth,
+    overflow: 'hidden',
   },
   metaLine: {
     paddingHorizontal: token.paddingXXS,
@@ -80,22 +85,7 @@ export function AgentSessionList({
         />
       );
 
-      return (
-        <SwipeAction
-          key={thread.id}
-          rightActions={[
-            {
-              key: 'delete',
-              actionText: '删除',
-              color: 'danger',
-              disabled,
-              onPress: () => onDelete(thread),
-            },
-          ]}
-        >
-          {row}
-        </SwipeAction>
-      );
+      return row;
     },
     [currentThreadId, disabled, onDelete, onSelect, styles.currentLabel],
   );
@@ -114,11 +104,7 @@ export function AgentSessionList({
   }
 
   return (
-    <ScrollView
-      contentContainerStyle={[styles.content, contentStyle]}
-      showsVerticalScrollIndicator={false}
-      style={styles.container}
-    >
+    <Column style={[styles.content, contentStyle]}>
       <Row style={styles.metaLine} gap={token.marginXXS} align="center">
         <Text color="tertiary" size="xs">
           共
@@ -130,12 +116,26 @@ export function AgentSessionList({
           个会话
         </Text>
       </Row>
-
-      <ManageCard>{threads.map(renderRow)}</ManageCard>
-
+      <List
+        data={threads}
+        keyExtractor={thread => String(thread.id)}
+        renderItem={({ item, index }) => renderRow(item, index)}
+        renderSwipeActions={({ item }) => ({
+          rightActions: [{
+            key: 'delete',
+            actionText: '删除',
+            color: 'danger',
+            disabled,
+            onPress: () => onDelete(item),
+          }],
+        })}
+        scrollEnabled
+        showsVerticalScrollIndicator={false}
+        style={styles.list}
+      />
       <Text size="xs" style={styles.hint} color="tertiary" textAlign="center">
         轻点会话恢复对话 · 左滑删除
       </Text>
-    </ScrollView>
+    </Column>
   );
 }
