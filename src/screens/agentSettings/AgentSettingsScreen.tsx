@@ -287,6 +287,11 @@ export function AgentSettingsScreen() {
       <AgentProviderEditor
         descriptorId={editorDescriptorId}
         initial={editorInitial}
+        onCreated={provider => {
+          if (providers.length === 0) {
+            return handleSetActiveProvider(provider);
+          }
+        }}
         onOpenChange={setEditorOpen}
         open={editorOpen}
       />

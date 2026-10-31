@@ -56,6 +56,7 @@ export interface AgentProviderEditorProps {
   initial: AgentProviderConfig | null;
   descriptorId: string;
   onOpenChange: (open: boolean) => void;
+  onCreated?: (provider: AgentProviderConfig) => void | Promise<void>;
 }
 
 const useStyles = createUseSheetStyle(token => ({
@@ -102,6 +103,7 @@ export function AgentProviderEditor({
   initial,
   descriptorId,
   onOpenChange,
+  onCreated,
 }: AgentProviderEditorProps) {
   const { token } = useTheme();
   const styles = useStyles();
@@ -386,6 +388,10 @@ export function AgentProviderEditor({
           form.setFieldValue('apiKey', '');
         }
 
+        if (!initial) {
+          await onCreated?.(saved);
+        }
+
         submitSucceededRef.current = true;
         toast.show({ messageText: 'AI 提供商已保存' });
         onOpenChange(false);
@@ -404,6 +410,7 @@ export function AgentProviderEditor({
       form,
       initial,
       onOpenChange,
+      onCreated,
       toast,
     ],
   );
