@@ -112,12 +112,33 @@ const IMAGE_MESSAGE: UIMessage = {
   ],
 };
 
+const ATTACHMENT = {
+  id: 'att_1',
+  localPath: 'file:///tmp/quick-book/shot.jpg',
+  mediaType: 'image/jpeg',
+  filename: 'shot.jpg',
+};
+
+const ATTACHMENT_MESSAGE: UIMessage = {
+  ...IMAGE_MESSAGE,
+  id: 'user-image-with-attachment',
+  metadata: { attachments: [ATTACHMENT] },
+};
+
+const CAPTION_ONLY_MESSAGE: UIMessage = {
+  id: 'user-caption-only',
+  role: 'user',
+  parts: [
+    IMAGE_MESSAGE.parts[1]!,
+    { type: 'text', text: '【图片附件 att_1：shot.jpg】' },
+  ],
+  metadata: { attachments: [ATTACHMENT] },
+};
+
 function createTransport(
   overrides: {
     persistUserMessage?: jest.Mock;
     ensureTitle?: jest.Mock;
-    attachmentImagePath?: string;
-    onAttachmentConsumed?: () => void;
     usageRef?: {
       current: {
         promptTokens: number;
@@ -146,8 +167,6 @@ function createTransport(
     usageRef,
     persistUserMessage,
     ensureTitle,
-    attachmentImagePath: overrides.attachmentImagePath,
-    onAttachmentConsumed: overrides.onAttachmentConsumed,
   });
 
   return { transport, persistUserMessage, ensureTitle, usageRef };
@@ -511,20 +530,35 @@ describe('createAgentTransport', () => {
     expect(agentOptions.provider).toBe(provider);
   });
 
-  it('passes the quick book screenshot to the createRecord tool', async () => {
-    const onAttachmentConsumed = jest.fn();
-    const { transport } = createTransport({
-      attachmentImagePath: 'file:///tmp/quick-book/shot.jpg',
-      onAttachmentConsumed,
+  it('passes message attachments to the createRecord tool', async () => {
+    mockResolveThreadModel.mockReturnValue({
+      modelId: 'gpt-5-vision',
+      contextWindow: 32_768,
+      reasoningEffort: 'off',
+      multimodal: true,
     });
+    const { transport } = createTransport();
 
-    await transport.sendMessages!(submitRequest([USER_MESSAGE]));
+    await transport.sendMessages!(submitRequest([ATTACHMENT_MESSAGE]));
 
     expect(mockCreateCreateRecordTool).toHaveBeenCalledWith(
       expect.objectContaining({
-        attachmentImagePaths: ['file:///tmp/quick-book/shot.jpg'],
-        onAttachmentConsumed,
+        attachments: [ATTACHMENT],
       }),
     );
+  });
+
+  it('ignores attachment captions when deriving the thread title', async () => {
+    mockResolveThreadModel.mockReturnValue({
+      modelId: 'gpt-5-vision',
+      contextWindow: 32_768,
+      reasoningEffort: 'off',
+      multimodal: true,
+    });
+    const { transport, ensureTitle } = createTransport();
+
+    await transport.sendMessages!(submitRequest([CAPTION_ONLY_MESSAGE]));
+
+    expect(ensureTitle).toHaveBeenCalledWith(IMAGE_MESSAGE_TITLE);
   });
 });

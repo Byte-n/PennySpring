@@ -9,16 +9,16 @@ import { Column, useToast } from '@pennyspring/ui';
 import { createUseSheetStyle } from '@pennyspring/theme';
 
 import { DEFAULT_QUICK_BOOK_PROMPT } from '../../features/quickBook/constants';
-import { toQuickBookFilePart } from '../../features/quickBook/imagePayload';
+import {
+  toQuickBookAttachment,
+  toQuickBookFilePart,
+} from '../../features/quickBook/imagePayload';
 import {
   getQuickBookSettings,
   rehydrateQuickBookSettings,
   useQuickBookSettingsStore,
 } from '../../features/quickBook/settingsStore';
-import {
-  rehydrateQuickBookRuntime,
-  useQuickBookRuntimeStore,
-} from '../../features/quickBook/runtimeStore';
+import { rehydrateQuickBookRuntime } from '../../features/quickBook/runtimeStore';
 import { buildQuickBookThreadTitle } from '../../features/quickBook/title';
 import type {
   PendingQuickBookMessage,
@@ -312,9 +312,6 @@ export function AgentRoot({ children }: AgentRootProps) {
           resolution.provider.id,
           resolution.model.modelId,
         );
-        useQuickBookRuntimeStore
-          .getState()
-          .rememberThreadImage(threadIdOrNull, image.localPath);
 
         const text =
           settings.presetPrompt.trim() || DEFAULT_QUICK_BOOK_PROMPT;
@@ -323,6 +320,7 @@ export function AgentRoot({ children }: AgentRootProps) {
           threadId: threadIdOrNull,
           text,
           files: [filePart],
+          attachments: [toQuickBookAttachment(image)],
         });
         setDrawerOpen(true);
         return { ok: true };
@@ -422,18 +420,6 @@ export function AgentRoot({ children }: AgentRootProps) {
     showQuickBookError,
   ]);
 
-  const attachmentImagePath = useQuickBookRuntimeStore(state =>
-    threadId === null
-      ? undefined
-      : state.threadImagePaths[String(threadId)],
-  );
-
-  const handleAttachmentConsumed = useCallback((): void => {
-    if (threadId !== null) {
-      useQuickBookRuntimeStore.getState().clearThreadImage(threadId);
-    }
-  }, [threadId]);
-
   return (
     <AgentLauncherContext.Provider value={launcher}>
       <AgentChatContext.Provider value={session}>
@@ -452,11 +438,9 @@ export function AgentRoot({ children }: AgentRootProps) {
               ) : (
                 <AgentRuntimeHost
                   key={`${book.id}:${threadId}`}
-                  attachmentImagePath={attachmentImagePath}
                   book={book}
                   configured={configured}
                   drawerOpen={drawerOpen}
-                  onAttachmentConsumed={handleAttachmentConsumed}
                   onDrawerOpenChange={setDrawerOpen}
                   onOpenModelSettings={handleOpenModelSettings}
                   onOpenSessions={handleOpenSessions}

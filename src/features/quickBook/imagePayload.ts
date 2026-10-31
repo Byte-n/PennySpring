@@ -1,6 +1,10 @@
 import type { FileUIPart } from 'ai';
 import type { ImagePickerValue } from '@pennyspring/ui';
 
+import {
+  createAgentAttachment,
+  type AgentAttachment,
+} from '../../agent/core/attachments';
 import { toImageFilePart } from '../../agent/ui/imageAttachments';
 import type { QuickBookImage } from './types';
 
@@ -21,4 +25,12 @@ export function toQuickBookImagePickerValue(
 
 export function toQuickBookFilePart(image: QuickBookImage): FileUIPart | null {
   return toImageFilePart(toQuickBookImagePickerValue(image));
+}
+
+export function toQuickBookAttachment(image: QuickBookImage): AgentAttachment {
+  return createAgentAttachment({
+    localPath: image.localPath,
+    mediaType: image.mimeType,
+    filename: image.fileName,
+  });
 }

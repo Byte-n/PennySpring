@@ -21,8 +21,6 @@ interface UseAgentRuntimeOptions {
   session: AgentSessionState;
   threadId: number;
   initialMessages: UIMessage[];
-  attachmentImagePath?: string;
-  onAttachmentConsumed?: () => void;
 }
 
 export interface AgentRuntimeHandle {
@@ -41,8 +39,6 @@ export function useAgentRuntime({
   session,
   threadId,
   initialMessages,
-  attachmentImagePath,
-  onAttachmentConsumed,
 }: UseAgentRuntimeOptions): AgentRuntimeHandle {
   const api = useGlobalApi();
   const [errorText, setErrorText] = useState('');
@@ -73,17 +69,13 @@ export function useAgentRuntime({
         usageRef,
         persistUserMessage,
         ensureTitle,
-        attachmentImagePath,
-        onAttachmentConsumed,
         onRunStart: () => setErrorText(''),
       }),
     [
       api,
-      attachmentImagePath,
       book.id,
       book.name,
       ensureTitle,
-      onAttachmentConsumed,
       persistUserMessage,
       threadId,
     ],

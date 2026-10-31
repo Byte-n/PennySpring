@@ -8,6 +8,150 @@ import type {
 
 type AgentUiPart = UIMessagePart<UIDataTypes, UITools>;
 
+export interface AgentAttachment {
+  id: string;
+  localPath: string;
+  mediaType: string;
+  filename: string;
+}
+
+export interface AgentAttachmentInput {
+  localPath: string;
+  id?: string;
+  mediaType?: string;
+  filename?: string;
+}
+
+export interface AgentMessageMetadata {
+  attachments?: AgentAttachment[];
+}
+
+const DEFAULT_ATTACHMENT_MEDIA_TYPE = 'image/jpeg';
+const DEFAULT_ATTACHMENT_FILENAME = 'image.jpg';
+
+let attachmentSequence = 0;
+
+function createAttachmentId(): string {
+  attachmentSequence += 1;
+  const random = Math.random().toString(36).slice(2, 8);
+  return `att_${Date.now().toString(36)}_${attachmentSequence.toString(36)}_${random}`;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
+}
+
+function isAgentAttachment(value: unknown): value is AgentAttachment {
+  return (
+    isRecord(value) &&
+    typeof value.id === 'string' &&
+    value.id.trim() !== '' &&
+    typeof value.localPath === 'string' &&
+    value.localPath.trim() !== '' &&
+    typeof value.mediaType === 'string' &&
+    value.mediaType.trim() !== '' &&
+    typeof value.filename === 'string' &&
+    value.filename.trim() !== ''
+  );
+}
+
+export function createAgentAttachment(
+  input: AgentAttachmentInput,
+): AgentAttachment {
+  return {
+    id: input.id ?? createAttachmentId(),
+    localPath: input.localPath,
+    mediaType: input.mediaType?.startsWith('image/')
+      ? input.mediaType
+      : DEFAULT_ATTACHMENT_MEDIA_TYPE,
+    filename: input.filename?.trim() || DEFAULT_ATTACHMENT_FILENAME,
+  };
+}
+
+export function readMessageAttachments(message: UIMessage): AgentAttachment[] {
+  const metadata = message.metadata;
+  if (!isRecord(metadata) || !Array.isArray(metadata.attachments)) {
+    return [];
+  }
+  return metadata.attachments.filter(isAgentAttachment);
+}
+
+export function collectMessageAttachments(
+  messages: readonly UIMessage[],
+): AgentAttachment[] {
+  const seen = new Set<string>();
+  const attachments: AgentAttachment[] = [];
+
+  for (const message of messages) {
+    for (const attachment of readMessageAttachments(message)) {
+      if (seen.has(attachment.id)) {
+        continue;
+      }
+      seen.add(attachment.id);
+      attachments.push(attachment);
+    }
+  }
+
+  return attachments;
+}
+
+export function resolveAttachmentsByIds(
+  attachments: readonly AgentAttachment[],
+  ids: readonly string[],
+): { resolved: AgentAttachment[]; missingIds: string[] } {
+  const byId = new Map(attachments.map(attachment => [attachment.id, attachment]));
+  const resolved: AgentAttachment[] = [];
+  const missingIds: string[] = [];
+
+  for (const id of new Set(ids)) {
+    const attachment = byId.get(id);
+    if (attachment === undefined) {
+      missingIds.push(id);
+    } else {
+      resolved.push(attachment);
+    }
+  }
+
+  return { resolved, missingIds };
+}
+
+const ATTACHMENT_CAPTION_PATTERN = /^【图片附件 att_[a-z0-9_]+：.*】$/;
+
+export function formatAttachmentCaption(attachment: AgentAttachment): string {
+  return `【图片附件 ${attachment.id}：${attachment.filename}】`;
+}
+
+export function buildAttachmentMessageParts(
+  files: readonly FileUIPart[],
+  attachments: readonly AgentAttachment[],
+  text: string,
+): AgentUiPart[] {
+  const parts: AgentUiPart[] = [];
+
+  files.forEach((file, index) => {
+    parts.push(file);
+    const attachment = attachments[index];
+    if (attachment !== undefined) {
+      parts.push({ type: 'text', text: formatAttachmentCaption(attachment) });
+    }
+  });
+
+  const body = text.trim();
+  if (body) {
+    parts.push({ type: 'text', text: body });
+  }
+
+  return parts;
+}
+
+export function stripAttachmentCaptions(text: string): string {
+  return text
+    .split('\n')
+    .filter(line => !ATTACHMENT_CAPTION_PATTERN.test(line.trim()))
+    .join('\n')
+    .trim();
+}
+
 export function isUiFilePart(part: AgentUiPart): part is FileUIPart {
   return part.type === 'file';
 }

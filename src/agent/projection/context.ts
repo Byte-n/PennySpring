@@ -15,7 +15,7 @@ export function buildSystemPrompt(input: SystemPromptInput): string {
     '- listTypes：查询类型清单，返回 markdown 表格（id、名称、父类型）。',
     '- listTags：查询标签清单，返回 markdown 表格（id、名称）。',
     '- listAssets：查询资产清单，返回 markdown 表格（id、名称、类型、分类）。',
-    '- createRecord：创建记录；调用后会先请用户确认，只有用户确认且工具返回成功后才算写入。',
+    '- createRecord：创建记录；可用 attachmentIds 引用用户消息里的图片附件；调用后会先请用户确认，只有用户确认且工具返回成功后才算写入。',
     '',
     '规则：',
     '1. 需要类型、标签、资产 id 时必须先调用对应清单工具，不要猜测 id。',
@@ -28,5 +28,6 @@ export function buildSystemPrompt(input: SystemPromptInput): string {
     '8. 相对时间（如“上个月”“最近一周”）先按当前日期换算成 YYYY-MM-DD 再查询。',
     '9. 退款/报销等需要关联原支出的类型暂不支持助手创建，请引导用户在 App 内记账。',
     '10. 回答用中文，结论简洁，金额保留两位小数；查询结果为空时直接说明该范围内没有记录。',
+    '11. 当本次记录需要图片凭证时，把用户消息里【图片附件 ...】标注的 id 填入 createRecord 的 attachmentIds；只引用与本次记录相关的附件，不要编造 id。',
   ].join('\n');
 }

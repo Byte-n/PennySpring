@@ -11,7 +11,10 @@ import {
   type TypeRow,
 } from '@pennyspring/api';
 
-import { createCreateRecordTool } from '../../src/agent/tools/createRecord';
+import {
+  createCreateRecordTool,
+  type CreateRecordToolDeps,
+} from '../../src/agent/tools/createRecord';
 
 function typeRow(
   overrides: Partial<TypeRow> & Pick<TypeRow, 'id' | 'name' | 'typeCategory'>,
@@ -96,8 +99,11 @@ function createApi(
   } as unknown as Api;
 }
 
-function createExecute(api: Api) {
-  const created = createCreateRecordTool({ api, booksId: 1 });
+function createExecute(
+  api: Api,
+  overrides: Omit<CreateRecordToolDeps, 'api' | 'booksId'> = {},
+) {
+  const created = createCreateRecordTool({ api, booksId: 1, ...overrides });
   return created.execute as (
     input: Record<string, unknown>,
     options: unknown,
@@ -184,47 +190,80 @@ describe('createCreateRecordTool', () => {
     );
   });
 
-  it('attaches the quick book screenshot and consumes it after writing', async () => {
+  it('attaches the image attachments selected by the model', async () => {
     const create = jest.fn(async () => ({ id: 100 }));
-    const onAttachmentConsumed = jest.fn();
     const created = createCreateRecordTool({
       api: createApi({ create }),
       booksId: 1,
-      attachmentImagePaths: ['file:///tmp/quick-book/shot.jpg'],
-      onAttachmentConsumed,
+      attachments: [
+        {
+          id: 'att_1',
+          localPath: 'file:///tmp/quick-book/shot.jpg',
+          mediaType: 'image/jpeg',
+          filename: 'shot.jpg',
+        },
+        {
+          id: 'att_2',
+          localPath: 'file:///tmp/quick-book/receipt.jpg',
+          mediaType: 'image/jpeg',
+          filename: 'receipt.jpg',
+        },
+      ],
     });
     const execute = created.execute as (
       input: Record<string, unknown>,
       options: unknown,
     ) => Promise<unknown>;
 
-    await execute({ typeId: 2, amount: 30 }, {});
+    await execute(
+      { typeId: 2, amount: 30, attachmentIds: ['att_2', 'att_1'] },
+      {},
+    );
 
     expect(create).toHaveBeenCalledWith(
       expect.objectContaining({
-        imagePaths: ['file:///tmp/quick-book/shot.jpg'],
+        imagePaths: [
+          'file:///tmp/quick-book/receipt.jpg',
+          'file:///tmp/quick-book/shot.jpg',
+        ],
       }),
     );
-    expect(onAttachmentConsumed).toHaveBeenCalledTimes(1);
   });
 
-  it('keeps the screenshot when validation fails', async () => {
-    const create = jest.fn();
-    const onAttachmentConsumed = jest.fn();
-    const created = createCreateRecordTool({
-      api: createApi({ create }),
-      booksId: 1,
-      attachmentImagePaths: ['file:///tmp/quick-book/shot.jpg'],
-      onAttachmentConsumed,
+  it('writes the record without images when the model omits attachmentIds', async () => {
+    const create = jest.fn(async (_input: Record<string, unknown>) => ({ id: 101 }));
+    const execute = createExecute(createApi({ create }), {
+      attachments: [
+        {
+          id: 'att_1',
+          localPath: 'file:///tmp/quick-book/shot.jpg',
+          mediaType: 'image/jpeg',
+          filename: 'shot.jpg',
+        },
+      ],
     });
-    const execute = created.execute as (
-      input: Record<string, unknown>,
-      options: unknown,
-    ) => Promise<unknown>;
 
-    await expect(execute({ typeId: 999, amount: 30 }, {})).rejects.toThrow(
-      '类型 ID 999 不存在',
-    );
-    expect(onAttachmentConsumed).not.toHaveBeenCalled();
+    await execute({ typeId: 2, amount: 30 }, {});
+
+    expect(create.mock.calls[0]?.[0]).not.toHaveProperty('imagePaths');
+  });
+
+  it('rejects unknown attachment ids before writing', async () => {
+    const create = jest.fn();
+    const execute = createExecute(createApi({ create }), {
+      attachments: [
+        {
+          id: 'att_1',
+          localPath: 'file:///tmp/quick-book/shot.jpg',
+          mediaType: 'image/jpeg',
+          filename: 'shot.jpg',
+        },
+      ],
+    });
+
+    await expect(
+      execute({ typeId: 2, amount: 30, attachmentIds: ['att_missing'] }, {}),
+    ).rejects.toThrow('未知附件 id：att_missing');
+    expect(create).not.toHaveBeenCalled();
   });
 });

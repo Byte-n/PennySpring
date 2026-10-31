@@ -27,6 +27,10 @@ import { CheckCircleIcon, WarningCircleIcon } from 'phosphor-react-native';
 
 import { MarkdownText } from '../../component/MarkdownText';
 import type { PendingQuickBookMessage } from '../../features/quickBook/types';
+import {
+  buildAttachmentMessageParts,
+  stripAttachmentCaptions,
+} from '../core/attachments';
 import { AgentComposer } from './AgentComposer';
 import { AgentDrawerFrame } from './AgentDrawerFrame';
 import {
@@ -220,11 +224,17 @@ function AgentMessageRow({
         <Column style={styles.userBubble} gap={token.marginXXS}>
           <UserImageAttachments />
           <MessagePrimitive.Content
-            renderText={({ part }) => (
-              <Text color="lightSolid" size="sm">
-                {part.text}
-              </Text>
-            )}
+            renderText={({ part }) => {
+              const text = stripAttachmentCaptions(part.text);
+              if (!text) {
+                return <></>;
+              }
+              return (
+                <Text color="lightSolid" size="sm">
+                  {text}
+                </Text>
+              );
+            }}
           />
         </Column>
       </Row>
@@ -345,8 +355,12 @@ export function AgentDrawer({
     sentQuickBookRef.current = pendingQuickBook.id;
     aiChat
       .sendMessage({
-        text: pendingQuickBook.text,
-        files: pendingQuickBook.files,
+        parts: buildAttachmentMessageParts(
+          pendingQuickBook.files,
+          pendingQuickBook.attachments,
+          pendingQuickBook.text,
+        ),
+        metadata: { attachments: pendingQuickBook.attachments },
       })
       .then(() => {
         onPendingQuickBookSent();

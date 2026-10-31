@@ -253,6 +253,30 @@ describe('toPersistedUiInput', () => {
     });
   });
 
+  it('keeps attachment metadata through persistence', () => {
+    const message: UIMessage = {
+      id: 'ui-image',
+      role: 'user',
+      parts: [{ type: 'text', text: '看看这张小票' }],
+      metadata: {
+        attachments: [
+          {
+            id: 'att_1',
+            localPath: 'file:///tmp/quick-book/shot.jpg',
+            mediaType: 'image/jpeg',
+            filename: 'shot.jpg',
+          },
+        ],
+      },
+    };
+
+    const input = toPersistedUiInput(message);
+
+    expect(input && JSON.parse(input.message).metadata).toEqual(
+      message.metadata,
+    );
+  });
+
   it('skips system messages', () => {
     expect(
       toPersistedUiInput({

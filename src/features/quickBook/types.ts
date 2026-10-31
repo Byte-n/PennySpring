@@ -1,5 +1,7 @@
 import type { FileUIPart } from 'ai';
 
+import type { AgentAttachment } from '../../agent/core/attachments';
+
 export interface QuickBookImage {
   localPath: string;
   base64: string;
@@ -35,6 +37,7 @@ export interface PendingQuickBookMessage {
   threadId: number;
   text: string;
   files: FileUIPart[];
+  attachments: AgentAttachment[];
 }
 
 export type QuickBookScreenshotResult =

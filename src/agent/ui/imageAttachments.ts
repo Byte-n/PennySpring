@@ -4,6 +4,11 @@ import type {
   ImagePickerValue,
 } from '@pennyspring/ui';
 
+import {
+  createAgentAttachment,
+  type AgentAttachment,
+} from '../core/attachments';
+
 export const AGENT_MAX_IMAGE_ATTACHMENTS = 4;
 export const AGENT_IMAGE_MAX_BYTES = 8 * 1024 * 1024;
 export const AGENT_IMAGE_MAX_DIMENSION = 1_600;
@@ -44,4 +49,18 @@ export function toImageFileParts(
   return values
     .map(toImageFilePart)
     .filter((part): part is FileUIPart => part !== null);
+}
+
+export function toAgentAttachment(value: ImagePickerValue): AgentAttachment {
+  return createAgentAttachment({
+    localPath: value.uri,
+    mediaType: value.mimeType,
+    filename: value.fileName ?? value.name,
+  });
+}
+
+export function toAgentAttachments(
+  values: readonly ImagePickerValue[],
+): AgentAttachment[] {
+  return values.map(toAgentAttachment);
 }

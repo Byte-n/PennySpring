@@ -1,4 +1,5 @@
 import {
+  toQuickBookAttachment,
   toQuickBookFilePart,
   toQuickBookImagePickerValue,
 } from '../../src/features/quickBook/imagePayload';
@@ -39,5 +40,15 @@ describe('quick book image payload', () => {
 
   it('returns null when the base64 payload is missing', () => {
     expect(toQuickBookFilePart({ ...image, base64: '' })).toBeNull();
+  });
+
+  it('builds a model-selectable attachment from the screenshot file', () => {
+    expect(toQuickBookAttachment(image)).toEqual(
+      expect.objectContaining({
+        localPath: 'file:///tmp/quick-book/shot.jpg',
+        mediaType: 'image/jpeg',
+        filename: 'shot.jpg',
+      }),
+    );
   });
 });

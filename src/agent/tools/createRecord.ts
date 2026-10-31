@@ -3,6 +3,10 @@ import type { Api } from '@pennyspring/api';
 import { z } from 'zod';
 
 import {
+  resolveAttachmentsByIds,
+  type AgentAttachment,
+} from '../core/attachments';
+import {
   CREATE_RECORD_DATE_PATTERN,
   CREATE_RECORD_MAX_AMOUNT_YUAN,
   CREATE_RECORD_MAX_REMARK_LENGTH,
@@ -14,8 +18,10 @@ import { createAgentTool } from './createAgentTool';
 
 export const CREATE_RECORD_TOOL_NAME = 'createRecord';
 
+export const CREATE_RECORD_MAX_ATTACHMENT_COUNT = 3;
+
 export const CREATE_RECORD_TOOL_DESCRIPTION =
-  '在当前账本创建一条记账记录。调用后会先请求用户确认，只有用户确认且工具返回成功后才算写入。金额单位元；typeId 来自 listTypes，tagIds 来自 listTags，转账的 assetId/intoAssetId 来自 listAssets。支出/收入可以不填资产；转账必须填写转出和转入资产。退款/报销等吸收类收入暂不支持。';
+  '在当前账本创建一条记账记录。调用后会先请求用户确认，只有用户确认且工具返回成功后才算写入。金额单位元；typeId 来自 listTypes，tagIds 来自 listTags，转账的 assetId/intoAssetId 来自 listAssets。支出/收入可以不填资产；转账必须填写转出和转入资产。记录需要图片凭证时，从用户消息里的【图片附件 ...】标注中选择 attachmentIds。退款/报销等吸收类收入暂不支持。';
 
 export const createRecordInputSchema = z.object({
   typeId: z
@@ -73,6 +79,16 @@ export const createRecordInputSchema = z.object({
     .optional()
     .describe('转账的转入资产 id，仅转账需要。'),
   reimbursable: z.boolean().optional().describe('支出是否可报销，默认 false。'),
+  attachmentIds: z
+    .array(z.string().min(1))
+    .max(
+      CREATE_RECORD_MAX_ATTACHMENT_COUNT,
+      `attachmentIds 最多 ${CREATE_RECORD_MAX_ATTACHMENT_COUNT} 个`,
+    )
+    .optional()
+    .describe(
+      '记录图片附件的 id 列表，必须来自用户消息里的【图片附件 ...】标注，不要编造。',
+    ),
 });
 
 export type CreateRecordToolInput = z.infer<typeof createRecordInputSchema>;
@@ -80,10 +96,8 @@ export type CreateRecordToolInput = z.infer<typeof createRecordInputSchema>;
 export interface CreateRecordToolDeps {
   api: Api;
   booksId: number;
-  /** 快捷记账会话的来源截图，由程序附加，模型不可见。 */
-  attachmentImagePaths?: readonly string[];
-  /** 截图已成功挂到记录后触发，用于清理会话级附件。 */
-  onAttachmentConsumed?: () => void;
+  /** 当前会话可引用的图片附件，按 id 由模型选择。 */
+  attachments?: readonly AgentAttachment[];
 }
 
 export function createCreateRecordTool(deps: CreateRecordToolDeps) {
@@ -92,6 +106,17 @@ export function createCreateRecordTool(deps: CreateRecordToolDeps) {
     description: CREATE_RECORD_TOOL_DESCRIPTION,
     inputSchema: createRecordInputSchema,
     execute: async input => {
+      const { resolved: resolvedAttachments, missingIds } =
+        resolveAttachmentsByIds(deps.attachments ?? [], input.attachmentIds ?? []);
+      if (missingIds.length > 0) {
+        const available = (deps.attachments ?? [])
+          .map(attachment => attachment.id)
+          .join('、');
+        throw new Error(
+          `未知附件 id：${missingIds.join('、')}。可用附件：${available || '无'}`,
+        );
+      }
+
       const [types, tags, assets] = await Promise.all([
         deps.api.type.getAll(deps.booksId),
         deps.api.tag.getAll(deps.booksId),
@@ -106,15 +131,13 @@ export function createCreateRecordTool(deps: CreateRecordToolDeps) {
         throw new Error(resolved.error);
       }
 
+      const imagePaths = resolvedAttachments.map(
+        attachment => attachment.localPath,
+      );
       const row = await deps.api.record.create({
         ...resolved.draft.createInput,
-        ...(deps.attachmentImagePaths?.length
-          ? { imagePaths: [...deps.attachmentImagePaths] }
-          : {}),
+        ...(imagePaths.length > 0 ? { imagePaths } : {}),
       });
-      if (deps.attachmentImagePaths?.length) {
-        deps.onAttachmentConsumed?.();
-      }
       return {
         ok: true,
         recordId: row.id,

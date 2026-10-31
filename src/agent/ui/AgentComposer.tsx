@@ -47,11 +47,13 @@ import {
   AGENT_IMAGE_UNREADABLE_MESSAGE,
   AGENT_MODEL_NO_IMAGE_MESSAGE,
 } from './copy';
+import { buildAttachmentMessageParts } from '../core/attachments';
 import { getErrorMessage } from './errorMessage';
 import {
   AGENT_IMAGE_MAX_DIMENSION,
   AGENT_IMAGE_QUALITY,
   AGENT_MAX_IMAGE_ATTACHMENTS,
+  toAgentAttachments,
   toImageFileParts,
 } from './imageAttachments';
 
@@ -329,13 +331,19 @@ export function AgentComposer({
     }
 
     const nextText = text.trim();
+    const attachments = toAgentAttachments(pendingImages);
     setPlusMenuOpen(false);
     setImagePickerOpen(false);
     setPendingImages([]);
     aui.composer.setText('', { origin: 'user' });
-    aiChat.sendMessage({ text: nextText, files }).catch(error => {
-      toast.show({ messageText: getErrorMessage(error), status: 'error' });
-    });
+    aiChat
+      .sendMessage({
+        parts: buildAttachmentMessageParts(files, attachments, nextText),
+        metadata: { attachments },
+      })
+      .catch(error => {
+        toast.show({ messageText: getErrorMessage(error), status: 'error' });
+      });
   }, [aiChat, aui, canSubmit, currentModel, pendingImages, text, toast]);
 
   const handleOpenImagePicker = useCallback((): void => {

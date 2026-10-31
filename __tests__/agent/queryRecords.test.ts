@@ -388,6 +388,7 @@ describe('buildSystemPrompt', () => {
     expect(prompt).toContain('createRecord');
     expect(prompt).toContain('用户确认');
     expect(prompt).toContain('金额单位：元');
+    expect(prompt).toContain('attachmentIds');
     expect(prompt).not.toContain('- 1 餐饮（支出）');
     expect(prompt).not.toContain('- 2 午饭（支出，父类型：餐饮）');
   });

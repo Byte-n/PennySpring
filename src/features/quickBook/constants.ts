@@ -19,5 +19,3 @@ export const QUICK_BOOK_IMAGE_QUALITY_PERCENT = Math.round(
 );
 
 export const QUICK_BOOK_SHARE_EVENT = 'QuickBookShareAvailable';
-
-export const QUICK_BOOK_MAX_THREAD_IMAGE_ENTRIES = 50;

@@ -3,6 +3,7 @@ import type { ImagePickerValue } from '@pennyspring/ui';
 import {
   AGENT_IMAGE_MAX_BYTES,
   isSendableImageValue,
+  toAgentAttachments,
   toImageFilePart,
   toImageFileParts,
 } from '../../src/agent/ui/imageAttachments';
@@ -66,5 +67,28 @@ describe('agent image attachments', () => {
 
     expect(parts).toHaveLength(1);
     expect(parts[0]?.filename).toBe('receipt.jpg');
+  });
+
+  it('builds model-selectable attachments from picked images', () => {
+    const attachments = toAgentAttachments([
+      IMAGE,
+      { uri: 'file:///photo' },
+    ]);
+
+    expect(attachments).toHaveLength(2);
+    expect(attachments[0]).toEqual(
+      expect.objectContaining({
+        localPath: 'file:///receipt.jpg',
+        mediaType: 'image/jpeg',
+        filename: 'receipt.jpg',
+      }),
+    );
+    expect(attachments[1]).toEqual(
+      expect.objectContaining({
+        localPath: 'file:///photo',
+        mediaType: 'image/jpeg',
+        filename: 'image.jpg',
+      }),
+    );
   });
 });

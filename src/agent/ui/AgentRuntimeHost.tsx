@@ -17,8 +17,6 @@ export interface AgentRuntimeHostProps {
   threadId: number;
   drawerOpen: boolean;
   configured: boolean;
-  attachmentImagePath?: string;
-  onAttachmentConsumed?: () => void;
   pendingQuickBook: PendingQuickBookMessage | null;
   onPendingQuickBookSent: () => void;
   onDrawerOpenChange: (open: boolean) => void;
@@ -33,8 +31,6 @@ export function AgentRuntimeHost({
   threadId,
   drawerOpen,
   configured,
-  attachmentImagePath,
-  onAttachmentConsumed,
   pendingQuickBook,
   onPendingQuickBookSent,
   onDrawerOpenChange,
@@ -47,8 +43,6 @@ export function AgentRuntimeHost({
     session,
     threadId,
     initialMessages: session.initialMessages,
-    attachmentImagePath,
-    onAttachmentConsumed,
   });
 
   return (

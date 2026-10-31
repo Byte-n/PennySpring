@@ -14,8 +14,13 @@ import {
 } from '../core/constants';
 import { agentDebugLog } from '../core/debug';
 import { createAgent } from '../core/createAgent';
+import {
+  collectMessageAttachments,
+  hasUiMessageImages,
+  stripAttachmentCaptions,
+  stripUiMessageFiles,
+} from '../core/attachments';
 import { addUsage, EMPTY_USAGE, toTokenUsage } from '../core/messages';
-import { hasUiMessageImages, stripUiMessageFiles } from '../core/attachments';
 import { estimateTokens } from '../core/tokens';
 import type { TokenUsage } from '../core/types';
 import { getUiMessageText, trimUiMessagesByTokens } from '../core/uiMessages';
@@ -58,9 +63,6 @@ export interface AgentTransportOptions {
   persistUserMessage: (message: UIMessage) => Promise<void>;
   ensureTitle: (text: string) => Promise<void>;
   onRunStart?: () => void;
-  /** 快捷记账会话的来源截图路径，写入记录时附带。 */
-  attachmentImagePath?: string;
-  onAttachmentConsumed?: () => void;
 }
 
 function describeStreamError(error: unknown): string {
@@ -169,7 +171,7 @@ export function createAgentTransport(
             throw new Error(AGENT_MODEL_NO_IMAGE_MESSAGE);
           }
           await options.persistUserMessage(userMessage);
-          const text = getUiMessageText(userMessage);
+          const text = stripAttachmentCaptions(getUiMessageText(userMessage));
           const title =
             text ||
             (hasUiMessageImages(userMessage) ? IMAGE_MESSAGE_TITLE : '');
@@ -179,6 +181,7 @@ export function createAgentTransport(
         }
       }
 
+      const attachments = collectMessageAttachments(messages);
       const systemPrompt = buildSystemPrompt({
         bookName: options.bookName,
         today: dayjs().format('YYYY-MM-DD'),
@@ -211,10 +214,7 @@ export function createAgentTransport(
         [CREATE_RECORD_TOOL_NAME]: createCreateRecordTool({
           api: options.api,
           booksId: options.booksId,
-          attachmentImagePaths: options.attachmentImagePath
-            ? [options.attachmentImagePath]
-            : undefined,
-          onAttachmentConsumed: options.onAttachmentConsumed,
+          attachments,
         }),
       };
       const toolApproval = {
