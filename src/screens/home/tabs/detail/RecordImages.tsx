@@ -1,39 +1,30 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Pressable } from 'react-native';
-import { useRequest } from 'ahooks';
 import { Image, ImagePreview, Row, Text } from '@pennyspring/ui';
 import { useMediaStore } from '../../../../media';
-import { useGlobalApi } from '../../../../stores/bookStore';
 import { useRecordDetailStyles } from './recordDetailStyles';
 
 const RECORD_IMAGE_HIT_SLOP = 6;
 
 interface RecordImagesProps {
   recordId: number;
-  booksId: number;
-  imageCount: number;
+  imagePaths: readonly string[];
 }
 
 export function RecordImages({
   recordId,
-  booksId,
-  imageCount,
+  imagePaths,
 }: RecordImagesProps): React.ReactElement {
   const styles = useRecordDetailStyles();
-  const globalApi = useGlobalApi();
   const media = useMediaStore();
   const [previewIndex, setPreviewIndex] = useState<number | null>(null);
-  const { data, error, loading } = useRequest(
-    () => globalApi.record.getDetailById(recordId, booksId),
-    { refreshDeps: [recordId, booksId, globalApi] },
-  );
   const images = useMemo(() => {
-    if (data === undefined || data.record.id !== recordId || media === null) {
+    if (media === null) {
       return [];
     }
 
-    return data.imagePaths.map(ref => media.resolveSource(ref));
-  }, [data, media, recordId]);
+    return imagePaths.map(ref => media.resolveSource(ref));
+  }, [imagePaths, media]);
 
   useEffect(() => {
     setPreviewIndex(null);
@@ -42,7 +33,7 @@ export function RecordImages({
   if (images.length === 0) {
     return (
       <Text size="sm" color="tertiary">
-        {!loading && error ? '图片加载失败' : `${imageCount} 张`}
+        {`${imagePaths.length} 张`}
       </Text>
     );
   }

@@ -1,8 +1,9 @@
-import { desc, eq, count } from 'drizzle-orm'
+import { and, desc, eq, count, gte, lt } from 'drizzle-orm'
+import { alias } from 'drizzle-orm/sqlite-core'
 
 import { RECORD_TYPE_CATEGORY, REIMBURSABLE } from '../constants'
 import type { Database } from '../types'
-import { imageWithRelated, records, recordWithRecord, tagWithRecord, types } from '../schema'
+import { assets, imageWithRelated, records, recordWithRecord, tagWithRecord, tags, types } from '../schema'
 import { applyExpense, createExpense, rollbackExpense } from './expense-service'
 import {
   deleteAllJunctions,
@@ -21,6 +22,7 @@ import type {
   CreateRecordInput,
   CreateTransferRecordInput,
   RecordDetail,
+  RecordListRow,
   RecordRow,
   Tx,
   TypeRow,
@@ -28,6 +30,9 @@ import type {
   UpdateRecordInput,
   UpdateTransferRecordInput,
 } from './types'
+import type { RecordTimeRange } from './types'
+
+const intoAssets = alias(assets, 'into_assets')
 
 async function getTypeRow(tx: Tx, typeId: number, booksId: number): Promise<TypeRow> {
   const requiredTypeId = getRequiredForeignKey({ typeId }, 'typeId')
@@ -99,27 +104,110 @@ async function validateUpdateRecordReferences(
   return intoAssetId
 }
 
-export function getRecordsByBook(db: Database, booksId: number): Promise<RecordRow[]> {
+export function getRecordsByBook(
+  db: Database,
+  booksId: number,
+  range?: RecordTimeRange,
+): Promise<RecordRow[]> {
   const requiredBooksId = getRequiredForeignKey({ booksId }, 'booksId')
+
+  const conditions = range
+    ? and(
+        eq(records.booksId, requiredBooksId),
+        gte(records.recordTime, range.startTime),
+        lt(records.recordTime, range.endTime),
+      )
+    : eq(records.booksId, requiredBooksId)
 
   return db
     .select()
     .from(records)
-    .where(eq(records.booksId, requiredBooksId))
+    .where(conditions)
     .orderBy(desc(records.recordTime))
     .all()
+}
+
+export async function getRecordListByBook(
+  db: Database,
+  booksId: number,
+  range?: RecordTimeRange,
+): Promise<RecordListRow[]> {
+  const requiredBooksId = getRequiredForeignKey({ booksId }, 'booksId')
+  const conditions = range
+    ? and(
+        eq(records.booksId, requiredBooksId),
+        gte(records.recordTime, range.startTime),
+        lt(records.recordTime, range.endTime),
+      )
+    : eq(records.booksId, requiredBooksId)
+  const rows = await db
+    .select({
+      record: {
+        id: records.id,
+      },
+      recordTime: records.recordTime,
+      finalAmount: records.finalAmount,
+      category: types.typeCategory,
+      typeName: types.name,
+      iconValue: types.icon,
+      assetName: assets.name,
+      intoAssetName: intoAssets.name,
+      tagId: tags.id,
+      tagName: tags.name,
+    })
+    .from(records)
+    .innerJoin(types, and(eq(records.typeId, types.id), eq(types.booksId, requiredBooksId)))
+    .leftJoin(assets, and(eq(records.assetId, assets.id), eq(assets.booksId, requiredBooksId)))
+    .leftJoin(intoAssets, and(eq(records.intoAssetId, intoAssets.id), eq(intoAssets.booksId, requiredBooksId)))
+    .leftJoin(tagWithRecord, eq(tagWithRecord.recordId, records.id))
+    .leftJoin(tags, and(eq(tagWithRecord.tagId, tags.id), eq(tags.booksId, requiredBooksId)))
+    .where(conditions)
+    .orderBy(desc(records.recordTime))
+    .all()
+
+  const grouped = new Map<number, RecordListRow>()
+  for (const row of rows) {
+    const current = grouped.get(row.record.id)
+    const tag = row.tagId === null || row.tagName === null
+      ? null
+      : { id: row.tagId, name: row.tagName }
+    if (current) {
+      if (tag) grouped.set(row.record.id, { ...current, tags: [...current.tags, tag] })
+      continue
+    }
+    grouped.set(row.record.id, {
+      record: row.record,
+      recordTime: row.recordTime,
+      finalAmount: row.finalAmount,
+      category: row.category,
+      typeName: row.typeName,
+      iconValue: row.iconValue,
+      assetName: row.assetName ?? '',
+      intoAssetName: row.intoAssetName ?? '',
+      tags: tag ? [tag] : [],
+    })
+  }
+  return [...grouped.values()]
 }
 
 export async function getRecordRelationsByBook(
   db: Database,
   booksId: number,
+  range?: RecordTimeRange,
 ): Promise<Array<{ recordId: number; relatedRecordId: number }>> {
   const requiredBooksId = getRequiredForeignKey({ booksId }, 'booksId')
+  const conditions = range
+    ? and(
+        eq(records.booksId, requiredBooksId),
+        gte(records.recordTime, range.startTime),
+        lt(records.recordTime, range.endTime),
+      )
+    : eq(records.booksId, requiredBooksId)
   return db
     .select({ recordId: recordWithRecord.recordId, relatedRecordId: recordWithRecord.relatedRecordId })
     .from(recordWithRecord)
     .innerJoin(records, eq(recordWithRecord.recordId, records.id))
-    .where(eq(records.booksId, requiredBooksId))
+    .where(conditions)
     .all()
 }
 
@@ -154,8 +242,16 @@ export async function getRecordDetailById(db: Database, recordId: number, booksI
 export async function getImageCountsByBook(
   db: Database,
   booksId: number,
+  range?: RecordTimeRange,
 ): Promise<Array<{ recordId: number; count: number }>> {
   const requiredBooksId = getRequiredForeignKey({ booksId }, 'booksId')
+  const conditions = range
+    ? and(
+        eq(records.booksId, requiredBooksId),
+        gte(records.recordTime, range.startTime),
+        lt(records.recordTime, range.endTime),
+      )
+    : eq(records.booksId, requiredBooksId)
 
   const result = await db
     .select({
@@ -164,7 +260,7 @@ export async function getImageCountsByBook(
     })
     .from(imageWithRelated)
     .innerJoin(records, eq(imageWithRelated.recordId, records.id))
-    .where(eq(records.booksId, requiredBooksId))
+    .where(conditions)
     .groupBy(imageWithRelated.recordId)
     .all()
 
@@ -177,8 +273,16 @@ export async function getImageCountsByBook(
 export async function getRecordTagsByBook(
   db: Database,
   booksId: number,
+  range?: RecordTimeRange,
 ): Promise<Array<{ recordId: number; tagId: number }>> {
   const requiredBooksId = getRequiredForeignKey({ booksId }, 'booksId')
+  const conditions = range
+    ? and(
+        eq(records.booksId, requiredBooksId),
+        gte(records.recordTime, range.startTime),
+        lt(records.recordTime, range.endTime),
+      )
+    : eq(records.booksId, requiredBooksId)
 
   const result = await db
     .select({
@@ -187,7 +291,7 @@ export async function getRecordTagsByBook(
     })
     .from(tagWithRecord)
     .innerJoin(records, eq(tagWithRecord.recordId, records.id))
-    .where(eq(records.booksId, requiredBooksId))
+    .where(conditions)
     .all()
 
   return result

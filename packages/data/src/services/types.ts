@@ -27,6 +27,23 @@ export type BookRow = InferSelectModel<typeof books>
 export type AgentThreadRow = InferSelectModel<typeof agentThreads>
 export type AgentMessageRow = InferSelectModel<typeof agentMessages>
 
+export interface RecordTimeRange {
+  startTime: number
+  endTime: number
+}
+
+export interface RecordListRow {
+  record: Pick<RecordRow, 'id'>
+  recordTime: number
+  finalAmount: number
+  category: RecordTypeCategoryValue
+  typeName: string
+  iconValue: TypeRow['icon'] | null
+  assetName: string
+  intoAssetName: string
+  tags: Array<{ id: number; name: string }>
+}
+
 export interface RecordDetail {
   record: RecordRow
   tagIds: number[]

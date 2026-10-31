@@ -1,12 +1,39 @@
-import { eq } from 'drizzle-orm'
+import { and, eq, gte, lt } from 'drizzle-orm'
 
 import { VISIBILITY } from '../constants'
 import type { Database } from '../types'
-import { tagWithRecord, tags } from '../schema'
-import type { CreateTagInput, TagRow, Tx, UpdateTagInput } from './types'
+import { records, tagWithRecord, tags } from '../schema'
+import type { CreateTagInput, RecordTimeRange, TagRow, Tx, UpdateTagInput } from './types'
 
-export async function getAllTags(db: Database, booksId: number): Promise<TagRow[]> {
-  return db.select().from(tags).where(eq(tags.booksId, booksId)).all()
+export async function getAllTags(
+  db: Database,
+  booksId: number,
+  range?: RecordTimeRange,
+): Promise<TagRow[]> {
+  if (!range) {
+    return db.select().from(tags).where(eq(tags.booksId, booksId)).all()
+  }
+
+  return db
+    .selectDistinct({
+      id: tags.id,
+      booksId: tags.booksId,
+      name: tags.name,
+      invisible: tags.invisible,
+      icon: tags.icon,
+      createdTime: tags.createdTime,
+      updatedTime: tags.updatedTime,
+    })
+    .from(tags)
+    .innerJoin(tagWithRecord, eq(tagWithRecord.tagId, tags.id))
+    .innerJoin(records, eq(tagWithRecord.recordId, records.id))
+    .where(and(
+      eq(tags.booksId, booksId),
+      eq(records.booksId, booksId),
+      gte(records.recordTime, range.startTime),
+      lt(records.recordTime, range.endTime),
+    ))
+    .all()
 }
 
 function validateTagInput(input: CreateTagInput | UpdateTagInput): void {

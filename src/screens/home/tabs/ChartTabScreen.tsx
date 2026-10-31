@@ -86,22 +86,42 @@ export function ChartTabScreen() {
   >(null);
 
   const bookId = currentBook?.id;
+  const dataRange = useMemo(() => {
+    const rangeAnchor = view === 'assets' ? now : anchor;
+    const start = new Date(
+      rangeAnchor.getFullYear(),
+      rangeAnchor.getMonth() - 5,
+      1,
+    ).getTime();
+    const end = new Date(
+      rangeAnchor.getFullYear(),
+      rangeAnchor.getMonth() + 1,
+      1,
+    ).getTime();
+    return { startTime: start, endTime: end };
+  }, [anchor, now, view]);
 
   const {
     data: records = [],
     loading: recordsLoading,
     refresh: refreshRecords,
   } = useRequest<RecordRow[], []>(
-    () => (bookId ? globalApi.record.getByBook(bookId) : Promise.resolve([])),
-    { refreshDeps: [bookId] },
+    () =>
+      bookId
+        ? globalApi.record.getByBook(bookId, dataRange)
+        : Promise.resolve([]),
+    { refreshDeps: [bookId, dataRange] },
   );
   const {
     data: types = [],
     loading: typesLoading,
     refresh: refreshTypes,
   } = useRequest<TypeRow[], []>(
-    () => (bookId ? globalApi.type.getAll(bookId) : Promise.resolve([])),
-    { refreshDeps: [bookId] },
+    () =>
+      bookId
+        ? globalApi.type.getAll(bookId, dataRange)
+        : Promise.resolve([]),
+    { refreshDeps: [bookId, dataRange] },
   );
   const {
     data: assets = [],
@@ -116,12 +136,12 @@ export function ChartTabScreen() {
     loading: tagsLoading,
     refresh: refreshTags,
   } = useRequest<TagRow[], []>(
-    () => (bookId ? globalApi.tag.getAll(bookId) : Promise.resolve([])),
-    { refreshDeps: [bookId] },
+    () => (bookId ? globalApi.tag.getAll(bookId, dataRange) : Promise.resolve([])),
+    { refreshDeps: [bookId, dataRange] },
   );
   const { data: recordRelations = EMPTY_RELATIONS, loading: recordRelationsLoading = false, refresh: refreshRecordRelations } = useRequest<RecordRelation[], []>(
-    () => (bookId ? globalApi.record.getRelationsByBook(bookId) : Promise.resolve([])),
-    { refreshDeps: [bookId] },
+    () => (bookId ? globalApi.record.getRelationsByBook(bookId, dataRange) : Promise.resolve([])),
+    { refreshDeps: [bookId, dataRange] },
   );
   const {
     data: recordTags = EMPTY_RECORD_TAGS,
@@ -130,7 +150,7 @@ export function ChartTabScreen() {
   } = useRequest<ReadonlyMap<number, readonly number[]>, []>(
     async () => {
       if (!bookId) return EMPTY_RECORD_TAGS;
-      const rows = await globalApi.record.getRecordTags(bookId);
+      const rows = await globalApi.record.getRecordTags(bookId, dataRange);
       const map = new Map<number, number[]>();
       for (const row of rows) {
         const tagIds = map.get(row.recordId) ?? [];
@@ -139,7 +159,7 @@ export function ChartTabScreen() {
       }
       return map;
     },
-    { refreshDeps: [bookId] },
+    { refreshDeps: [bookId, dataRange] },
   );
 
   const isLoading =

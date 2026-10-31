@@ -1,10 +1,10 @@
-import { and, asc, count, eq } from 'drizzle-orm'
+import { and, asc, count, eq, inArray, gte, lt } from 'drizzle-orm'
 
 import type { RecordTypeCategoryValue } from '../constants'
 import { RECORD_TYPE_SPECIAL_BEHAVIOR, SYSTEM_STATUS } from '../constants'
 import type { Database } from '../types'
 import { records, types } from '../schema'
-import type { CreateTypeInput, Tx, TypeRow, UpdateTypeInput } from './types'
+import type { CreateTypeInput, RecordTimeRange, Tx, TypeRow, UpdateTypeInput } from './types'
 
 export interface CategoryItem {
   id: number
@@ -29,8 +29,43 @@ export function buildCategoryTree(rows: TypeRow[]): CategoryItem[] {
   }))
 }
 
-export async function getAllTypes(db: Database, booksId: number): Promise<TypeRow[]> {
-  return db.select().from(types).where(eq(types.booksId, booksId)).orderBy(asc(types.sort)).all()
+export async function getAllTypes(
+  db: Database,
+  booksId: number,
+  range?: RecordTimeRange,
+): Promise<TypeRow[]> {
+  if (!range) {
+    return db.select().from(types).where(eq(types.booksId, booksId)).orderBy(asc(types.sort)).all()
+  }
+
+  const usedTypes = await db
+    .select({ typeId: records.typeId })
+    .from(records)
+    .where(and(
+      eq(records.booksId, booksId),
+      gte(records.recordTime, range.startTime),
+      lt(records.recordTime, range.endTime),
+    ))
+    .all()
+  const typeIds = [...new Set(usedTypes.map(row => row.typeId))]
+  if (typeIds.length === 0) return []
+
+  const usedTypeRows = await db
+    .select({ id: types.id, parentId: types.parentId })
+    .from(types)
+    .where(and(eq(types.booksId, booksId), inArray(types.id, typeIds)))
+    .all()
+  const parentIds = usedTypeRows
+    .map(type => type.parentId)
+    .filter(parentId => parentId !== 0)
+  const requestedIds = [...new Set([...typeIds, ...parentIds])]
+
+  return db
+    .select()
+    .from(types)
+    .where(and(eq(types.booksId, booksId), inArray(types.id, requestedIds)))
+    .orderBy(asc(types.sort))
+    .all()
 }
 
 function validateTypeInput(input: CreateTypeInput | UpdateTypeInput): void {

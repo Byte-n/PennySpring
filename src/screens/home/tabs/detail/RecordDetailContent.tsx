@@ -251,8 +251,7 @@ function InfoCard({ view }: { view: DetailRecordView }) {
         isBlock
       >
         <RecordImages
-          booksId={view.record.booksId}
-          imageCount={view.imageCount}
+          imagePaths={view.imagePaths}
           recordId={view.record.id}
         />
       </InfoRow>,

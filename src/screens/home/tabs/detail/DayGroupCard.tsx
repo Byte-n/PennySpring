@@ -7,7 +7,7 @@ import {
   formatWeekday,
   isSameDay,
   type DayGroup,
-  type DetailRecordView,
+  type DetailListItem,
 } from './detailData';
 
 const useStyles = createUseSheetStyle(token => ({
@@ -18,8 +18,8 @@ const useStyles = createUseSheetStyle(token => ({
 }));
 
 interface DayGroupCardProps {
-  group: DayGroup<DetailRecordView>;
-  onPressRecord: (view: DetailRecordView) => void;
+  group: DayGroup<DetailListItem>;
+  onPressRecord: (recordId: number) => void;
   hidden?: boolean;
 }
 

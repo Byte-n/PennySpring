@@ -24,6 +24,7 @@ import type {
   UpdateTypeInput,
 } from './services'
 import type { Database } from './types'
+import type { RecordTimeRange } from './services'
 
 /**
  * createApi：把 services 按 api 形状组装成调度器（1 方法 → 1 service 函数）。
@@ -36,20 +37,21 @@ export function createApi(getDatabase: () => Promise<Database>) {
       create: async (input: CreateRecordInput) => services.createRecord(await getDatabase(), input),
       update: async (input: UpdateRecordInput) => services.updateRecord(await getDatabase(), input),
       delete: async (recordId: number, booksId: number) => services.deleteRecord(await getDatabase(), recordId, booksId),
-      getByBook: async (booksId: number) => services.getRecordsByBook(await getDatabase(), booksId),
+      getByBook: async (booksId: number, range?: RecordTimeRange) => services.getRecordsByBook(await getDatabase(), booksId, range),
+      getListByBook: async (booksId: number, range?: RecordTimeRange) => services.getRecordListByBook(await getDatabase(), booksId, range),
       getDetailById: async (recordId: number, booksId: number) => services.getRecordDetailById(await getDatabase(), recordId, booksId),
-      getImageCounts: async (booksId: number) => services.getImageCountsByBook(await getDatabase(), booksId),
-      getRecordTags: async (booksId: number) => services.getRecordTagsByBook(await getDatabase(), booksId),
-      getRelationsByBook: async (booksId: number) => services.getRecordRelationsByBook(await getDatabase(), booksId),
+      getImageCounts: async (booksId: number, range?: RecordTimeRange) => services.getImageCountsByBook(await getDatabase(), booksId, range),
+      getRecordTags: async (booksId: number, range?: RecordTimeRange) => services.getRecordTagsByBook(await getDatabase(), booksId, range),
+      getRelationsByBook: async (booksId: number, range?: RecordTimeRange) => services.getRecordRelationsByBook(await getDatabase(), booksId, range),
     },
     tag: {
-      getAll: async (booksId: number) => services.getAllTags(await getDatabase(), booksId),
+      getAll: async (booksId: number, range?: RecordTimeRange) => services.getAllTags(await getDatabase(), booksId, range),
       create: async (input: CreateTagInput) => services.createTag(await getDatabase(), input),
       update: async (input: UpdateTagInput) => services.updateTag(await getDatabase(), input),
       delete: async (tagId: number, booksId: number) => services.deleteTag(await getDatabase(), tagId, booksId),
     },
     type: {
-      getAll: async (booksId: number) => services.getAllTypes(await getDatabase(), booksId),
+      getAll: async (booksId: number, range?: RecordTimeRange) => services.getAllTypes(await getDatabase(), booksId, range),
       create: async (input: CreateTypeInput) => services.createType(await getDatabase(), input),
       update: async (input: UpdateTypeInput) => services.updateType(await getDatabase(), input),
       delete: async (typeId: number, booksId: number) => services.deleteType(await getDatabase(), typeId, booksId),

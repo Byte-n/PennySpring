@@ -1,6 +1,7 @@
 import {
   RECORD_TYPE_CATEGORY,
   type AssetRow,
+  type RecordListRow,
   type RecordRow,
   type RecordTypeCategoryValue,
   type TagRow,
@@ -96,16 +97,19 @@ export interface DetailRecordView extends CashflowItem {
   parentIconValue: TypeRow['icon'] | null;
   intoAssetName: string;
   imageCount: number;
+  imagePaths: string[];
   tags: Array<{ id: number; name: string; icon: string }>;
 }
+
+export type DetailListItem = RecordListRow;
 
 export function buildDetailViews(
   records: readonly RecordRow[],
   typeMap: ReadonlyMap<number, TypeRow>,
   assetMap: ReadonlyMap<number, AssetRow>,
-  imageCountMap: ReadonlyMap<number, number>,
-  tagMap: ReadonlyMap<number, TagRow>,
-  recordTagsMap: ReadonlyMap<number, number[]>,
+  imageCountMap: ReadonlyMap<number, number> = new Map(),
+  tagMap: ReadonlyMap<number, TagRow> = new Map(),
+  recordTagsMap: ReadonlyMap<number, number[]> = new Map(),
 ): DetailRecordView[] {
   return records.map(record => {
     const type = typeMap.get(record.typeId);
@@ -128,6 +132,7 @@ export function buildDetailViews(
       parentIconValue: parentType?.icon ?? null,
       intoAssetName: assetMap.get(record.intoAssetId)?.name ?? '',
       imageCount: imageCountMap.get(record.id) ?? 0,
+      imagePaths: [],
       tags: recordTags,
     };
   });

@@ -22,6 +22,10 @@ import {
   getAllTypes,
   getAssetsByBook,
   getBookById,
+  getImageCountsByBook,
+  getRecordRelationsByBook,
+  getRecordListByBook,
+  getRecordTagsByBook,
   getRecordsByBook,
   getThreadDetail,
   listQuickTemplates,
@@ -156,6 +160,96 @@ async function seedSourceBook(db: AppDatabase) {
 }
 
 describe('transfer-service', () => {
+  it('returns joined list fields only for records in the requested range', async () => {
+    const db = createTestDatabase()
+    const { book, expenseType, asset, tag, expense } = await seedSourceBook(db)
+
+    const rows = await getRecordListByBook(db, book.id, {
+      startTime: Date.UTC(2026, 9, 30, 12),
+      endTime: Date.UTC(2026, 9, 30, 12, 30),
+    })
+
+    expect(rows).toEqual([
+      expect.objectContaining({
+        record: expect.objectContaining({
+          id: expense.id,
+        }),
+        category: RECORD_TYPE_CATEGORY.expense,
+        typeName: expenseType.name,
+        iconValue: expenseType.icon,
+        assetName: asset.name,
+        tags: [expect.objectContaining({ id: tag.id, name: tag.name })],
+      }),
+    ])
+    expect(rows[0]).not.toHaveProperty('imagePaths')
+    expect(rows[0]).not.toHaveProperty('relatedRecordIds')
+    expect(rows[0]?.record).not.toHaveProperty('remark')
+  })
+
+  it('returns both asset names for transfer records', async () => {
+    const db = createTestDatabase()
+    const { book, asset } = await seedSourceBook(db)
+    const types = await getAllTypes(db, book.id)
+    const transferType = types.find(
+      type => type.typeCategory === RECORD_TYPE_CATEGORY.transfer && type.parentId === 0,
+    )
+    if (!transferType) throw new Error('missing seeded transfer type')
+
+    const intoAsset = await createAsset(db, {
+      booksId: book.id,
+      name: '现金账户',
+      balance: 0,
+      type: ASSET_TYPE.capitalAccount,
+      classification: ASSET_CLASSIFICATION.cash,
+    })
+    const transfer = await createRecord(db, {
+      typeId: transferType.id,
+      assetId: asset.id,
+      intoAssetId: intoAsset.id,
+      booksId: book.id,
+      amount: 2_000,
+      recordTime: Date.UTC(2026, 9, 30, 14, 0),
+    })
+
+    const rows = await getRecordListByBook(db, book.id, {
+      startTime: Date.UTC(2026, 9, 30, 13, 30),
+      endTime: Date.UTC(2026, 9, 30, 14, 30),
+    })
+
+    expect(rows).toEqual([
+      expect.objectContaining({
+        record: { id: transfer.id },
+        category: RECORD_TYPE_CATEGORY.transfer,
+        assetName: asset.name,
+        intoAssetName: intoAsset.name,
+      }),
+    ])
+  })
+
+  it('returns only types used by records in the requested time range', async () => {
+    const db = createTestDatabase()
+    const { book, expenseType, incomeType, tag } = await seedSourceBook(db)
+
+    const range = {
+      startTime: Date.UTC(2026, 9, 30, 12),
+      endTime: Date.UTC(2026, 9, 30, 12, 30),
+    }
+    const types = await getAllTypes(db, book.id, range)
+    const records = await getRecordsByBook(db, book.id, range)
+    const tags = await getAllTags(db, book.id, range)
+    const imageCounts = await getImageCountsByBook(db, book.id, range)
+    const recordTags = await getRecordTagsByBook(db, book.id, range)
+    const relations = await getRecordRelationsByBook(db, book.id, range)
+
+    expect(types.map(type => type.id)).toContain(expenseType.id)
+    expect(types.map(type => type.id)).not.toContain(incomeType.id)
+    expect(records).toHaveLength(1)
+    expect(tags.map(row => row.id)).toEqual([tag.id])
+    expect(imageCounts).toHaveLength(1)
+    expect(recordTags).toHaveLength(1)
+    expect(relations).toHaveLength(0)
+  })
+
   it('exports and imports a complete book snapshot with remapped ids', async () => {
     const sourceDb = createTestDatabase()
     const targetDb = createTestDatabase()

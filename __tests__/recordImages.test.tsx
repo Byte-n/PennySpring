@@ -2,19 +2,11 @@ import React from 'react';
 import { Image, Text as RNText } from 'react-native';
 import TestRenderer, { act } from 'react-test-renderer';
 
-const mockGetDetailById = jest.fn();
-const mockGlobalApi = {
-  record: { getDetailById: mockGetDetailById },
-};
 const mockMedia = {
   resolveSource: (ref: string) => ({
     uri: ref.startsWith('media:') ? `https://example.com/${ref}` : ref,
   }),
 };
-
-jest.mock('../src/stores/bookStore', () => ({
-  useGlobalApi: () => mockGlobalApi,
-}));
 
 jest.mock('../src/media', () => ({
   useMediaStore: () => mockMedia,
@@ -72,17 +64,14 @@ jest.mock('@pennyspring/ui', () => {
 
 import { RecordImages } from '../src/screens/home/tabs/detail/RecordImages';
 
-const RECORD_DETAIL = {
-  record: { id: 9 },
-  imagePaths: ['media:a.jpg', 'media:b.png', 'file:///local/c.jpg'],
-};
+const IMAGE_PATHS = ['media:a.jpg', 'media:b.png', 'file:///local/c.jpg'];
 
 async function renderRecordImages(): Promise<TestRenderer.ReactTestRenderer> {
   let renderer: TestRenderer.ReactTestRenderer;
 
   await act(async () => {
     renderer = TestRenderer.create(
-      <RecordImages booksId={1} imageCount={3} recordId={9} />,
+      <RecordImages imagePaths={IMAGE_PATHS} recordId={9} />,
     );
     await new Promise(resolve => setTimeout(resolve, 0));
   });
@@ -91,15 +80,9 @@ async function renderRecordImages(): Promise<TestRenderer.ReactTestRenderer> {
 }
 
 describe('RecordImages', () => {
-  beforeEach(() => {
-    mockGetDetailById.mockReset();
-    mockGetDetailById.mockResolvedValue(RECORD_DETAIL);
-  });
-
-  it('loads record images and resolves media refs for thumbnails', async () => {
+  it('resolves supplied media refs for thumbnails', async () => {
     const renderer = await renderRecordImages();
 
-    expect(mockGetDetailById).toHaveBeenCalledWith(9, 1);
     const images = renderer.root.findAllByType(Image);
 
     expect(images).toHaveLength(3);
@@ -124,30 +107,17 @@ describe('RecordImages', () => {
     ).toMatchObject({ imageCount: 3, index: 1 });
   });
 
-  it('keeps the image count visible while the detail request is pending', async () => {
-    let resolveDetail: ((value: unknown) => void) | null = null;
-    mockGetDetailById.mockImplementation(
-      () =>
-        new Promise(resolve => {
-          resolveDetail = resolve;
-        }),
-    );
-
+  it('shows an empty image count when the detail has no images', async () => {
     let renderer: TestRenderer.ReactTestRenderer;
-    act(() => {
+    await act(async () => {
       renderer = TestRenderer.create(
-        <RecordImages booksId={1} imageCount={3} recordId={9} />,
+        <RecordImages imagePaths={[]} recordId={9} />,
       );
     });
 
     expect(
       renderer!.root.findAllByType(RNText).map(node => node.props.children),
-    ).toContain('3 张');
-
-    await act(async () => {
-      resolveDetail?.(RECORD_DETAIL);
-      await new Promise(resolve => setTimeout(resolve, 0));
-    });
+    ).toContain('0 张');
     act(() => {
       renderer!.unmount();
     });

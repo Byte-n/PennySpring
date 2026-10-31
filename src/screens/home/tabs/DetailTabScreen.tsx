@@ -2,9 +2,18 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { ScrollView, RefreshControl } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { useRequest } from 'ahooks';
-import { Button, Column, Dialog, Empty, Loading, Row, Segmented, Text, useToast } from '@pennyspring/ui';
+import {
+  Button,
+  Column,
+  Dialog,
+  Empty,
+  Loading,
+  Row,
+  Segmented,
+  Text,
+  useToast,
+} from '@pennyspring/ui';
 import { createUseSheetStyle } from '@pennyspring/ui';
-import { type AssetRow, type RecordRelationRow, type TypeRow, type TagRow } from '@pennyspring/api';
 import { useBookStore, useGlobalApi } from '../../../stores/bookStore';
 import { ROOT_ROUTES, useNavigation } from '../../../navigation';
 import { useRecordSync } from '../recordSync';
@@ -12,12 +21,10 @@ import { MonthSummaryCard } from './detail/MonthSummaryCard';
 import { DayGroupCard } from './detail/DayGroupCard';
 import { RecordDetailPanel } from './detail/RecordDetailPanel';
 import {
-  buildDetailViews,
   buildDailyExpenseBars,
   filterByMonth,
   groupByDay,
   summarizeCashflow,
-  type DetailRecordView,
 } from './detail/detailData';
 
 type DetailFilter = 'all' | 'expense' | 'income' | 'transfer';
@@ -37,20 +44,18 @@ const useStyles = createUseSheetStyle(token => ({
     paddingTop: token.paddingXS,
   },
   monthLabel: { minWidth: token.controlHeightLG, alignItems: 'center' },
-  filterResult: { marginHorizontal: token.padding, padding: token.paddingXS, backgroundColor: token.colorFillQuaternary, borderRadius: token.borderRadiusSM },
+  filterResult: {
+    marginHorizontal: token.padding,
+    padding: token.paddingXS,
+    backgroundColor: token.colorFillQuaternary,
+    borderRadius: token.borderRadiusSM,
+  },
   state: {
     flexGrow: 1,
     paddingVertical: token.paddingLG,
   },
   filterRow: { paddingHorizontal: token.padding, paddingTop: token.paddingSM },
 }));
-
-function toMap<T extends { id: number }>(rows: readonly T[]): Map<number, T> {
-  return new Map(rows.map(row => [row.id, row]));
-}
-
-type RecordRelation = Pick<RecordRelationRow, 'recordId' | 'relatedRecordId'>;
-const EMPTY_RECORD_RELATIONS: RecordRelation[] = [];
 
 export function DetailTabScreen() {
   const styles = useStyles();
@@ -59,133 +64,95 @@ export function DetailTabScreen() {
   const currentBook = useBookStore(state => state.currentBook);
   const globalApi = useGlobalApi();
   const { version } = useRecordSync();
-  const [activeView, setActiveView] = useState<DetailRecordView | null>(null);
-  const [pendingDelete, setPendingDelete] = useState<DetailRecordView | null>(null);
+  const [activeRecordId, setActiveRecordId] = useState<number | null>(null);
+  const [pendingDeleteId, setPendingDeleteId] = useState<number | null>(null);
   const [selectedMonth, setSelectedMonth] = useState(() => new Date());
   const [activeFilter, setActiveFilter] = useState<DetailFilter>('all');
   const [isAmountHidden, setIsAmountHidden] = useState(false);
 
   const bookId = currentBook?.id;
+  const dataRange = useMemo(() => {
+    const start = new Date(
+      selectedMonth.getFullYear(),
+      selectedMonth.getMonth() - 1,
+      1,
+    ).getTime();
+    const end = new Date(
+      selectedMonth.getFullYear(),
+      selectedMonth.getMonth() + 1,
+      1,
+    ).getTime();
+    return { startTime: start, endTime: end };
+  }, [selectedMonth]);
 
-  const { data: records = [], loading, refresh } = useRequest(
-    () => (bookId ? globalApi.record.getByBook(bookId) : Promise.resolve([])),
-    { refreshDeps: [bookId, version] },
+  const {
+    data: records = [],
+    loading,
+    refresh,
+  } = useRequest(
+    () =>
+      bookId
+        ? globalApi.record.getListByBook(bookId, dataRange)
+        : Promise.resolve([]),
+    { refreshDeps: [bookId, version, dataRange] },
   );
-  const { data: types = [] } = useRequest<TypeRow[], []>(
-    () => (bookId ? globalApi.type.getAll(bookId) : Promise.resolve([])),
-    { refreshDeps: [bookId] },
-  );
-  const { data: assets = [] } = useRequest<AssetRow[], []>(
-    () => (bookId ? globalApi.asset.getByBook(bookId) : Promise.resolve([])),
-    { refreshDeps: [bookId] },
-  );
-  const { data: tags = [] } = useRequest<TagRow[], []>(
-    () => (bookId ? globalApi.tag.getAll(bookId) : Promise.resolve([])),
-    { refreshDeps: [bookId] },
-  );
-  const { data: imageCountMap = new Map<number, number>() } = useRequest(
-    async () => {
-      if (!bookId) return new Map();
-      const counts = await globalApi.record.getImageCounts(bookId);
-      return new Map(counts.map((item: { recordId: number; count: number }) => [item.recordId, item.count]));
-    },
-    { refreshDeps: [bookId] },
-  );
-  const { data: recordTagsMap = new Map<number, number[]>() } = useRequest(
-    async () => {
-      if (!bookId) return new Map();
-      const recordTags = await globalApi.record.getRecordTags(bookId);
-      const map = new Map<number, number[]>();
-      for (const { recordId, tagId } of recordTags) {
-        const tagIds = map.get(recordId) ?? [];
-        tagIds.push(tagId);
-        map.set(recordId, tagIds);
-      }
-      return map;
-    },
-    { refreshDeps: [bookId] },
-  );
-  const { data: recordRelations = EMPTY_RECORD_RELATIONS } = useRequest<RecordRelation[], []>(
-    () => (bookId ? globalApi.record.getRelationsByBook(bookId) : Promise.resolve([])),
-    { refreshDeps: [bookId, version] },
-  );
+  const refreshAll = useCallback(() => refresh(), [refresh]);
 
-  const { groups, summary, dailyExpenses, counts, monthViews, allViews } = useMemo(() => {
-    const typeMap = toMap(types);
-    const assetMap = toMap(assets);
-    const tagMap = toMap(tags);
-    const views = buildDetailViews(records, typeMap, assetMap, imageCountMap, tagMap, recordTagsMap);
-    const selectedMonthViews = filterByMonth(views, selectedMonth);
-    const categories: DetailFilter[] = ['expense', 'income', 'transfer'];
-    const categoryCounts = categories.reduce<Record<string, number>>((result, category) => {
-      result[category] = selectedMonthViews.filter(view => view.category === category).length;
-      return result;
-    }, {});
-    const filteredViews = activeFilter === 'all'
-      ? selectedMonthViews
-      : selectedMonthViews.filter(view => view.category === activeFilter);
-    return {
-      groups: groupByDay(filteredViews),
-      summary: summarizeCashflow(selectedMonthViews),
-      dailyExpenses: buildDailyExpenseBars(selectedMonthViews, selectedMonth),
-      counts: categoryCounts,
-      monthViews: selectedMonthViews,
-      allViews: views,
-    };
-  }, [records, types, assets, tags, imageCountMap, recordTagsMap, selectedMonth, activeFilter]);
-
-  const relationMap = useMemo(() => {
-    const map = new Map<number, number[]>();
-    for (const relation of recordRelations) {
-      map.set(relation.recordId, [
-        ...(map.get(relation.recordId) ?? []),
-        relation.relatedRecordId,
-      ]);
-    }
-    return map;
-  }, [recordRelations]);
-
-  const viewById = useMemo(
-    () => new Map<number, DetailRecordView>(
-      allViews.map(view => [view.record.id, view] as const),
-    ),
-    [allViews],
-  );
-
-  const relatedViews = useMemo(() => {
-    if (!activeView) {
-      return [];
-    }
-
-    const relatedIds = relationMap.get(activeView.record.id) ?? [];
-
-    return relatedIds
-      .map(id => viewById.get(id))
-      .filter((related): related is DetailRecordView => related !== undefined);
-  }, [activeView, relationMap, viewById]);
+  const { groups, summary, dailyExpenses, counts, monthViews } =
+    useMemo(() => {
+      const selectedMonthViews = filterByMonth(records, selectedMonth);
+      const categories: DetailFilter[] = ['expense', 'income', 'transfer'];
+      const categoryCounts = categories.reduce<Record<string, number>>(
+        (result, category) => {
+          result[category] = selectedMonthViews.filter(
+            view => view.category === category,
+          ).length;
+          return result;
+        },
+        {},
+      );
+      const filteredViews =
+        activeFilter === 'all'
+          ? selectedMonthViews
+          : selectedMonthViews.filter(view => view.category === activeFilter);
+      return {
+        groups: groupByDay(filteredViews),
+        summary: summarizeCashflow(selectedMonthViews),
+        dailyExpenses: buildDailyExpenseBars(selectedMonthViews, selectedMonth),
+        counts: categoryCounts,
+        monthViews: selectedMonthViews,
+      };
+    }, [
+      records,
+      selectedMonth,
+      activeFilter,
+    ]);
 
   const moveMonth = (offset: number) => {
-    setSelectedMonth(current => new Date(current.getFullYear(), current.getMonth() + offset, 1));
+    setSelectedMonth(
+      current =>
+        new Date(current.getFullYear(), current.getMonth() + offset, 1),
+    );
     setActiveFilter('all');
   };
 
-  const closePanel = () => setActiveView(null);
+  const closePanel = () => setActiveRecordId(null);
 
   useFocusEffect(
     useCallback(() => {
-      refresh();
-    }, [refresh]),
+      refreshAll();
+    }, [refreshAll]),
   );
 
-  const handleEdit = (view: DetailRecordView) => {
+  const handleEdit = (recordId: number) => {
     closePanel();
-    navigation.navigate(ROOT_ROUTES.AddRecord, { recordId: view.record.id });
+    navigation.navigate(ROOT_ROUTES.AddRecord, { recordId });
   };
 
   const confirmDelete = async () => {
-    const target = pendingDelete;
-    setPendingDelete(null);
-    if (!target) return;
+    const recordId = pendingDeleteId;
+    setPendingDeleteId(null);
+    if (!recordId) return;
 
     try {
       if (!currentBook) {
@@ -193,9 +160,9 @@ export function DetailTabScreen() {
         return;
       }
 
-      await globalApi.record.delete(target.record.id, currentBook.id);
+      await globalApi.record.delete(recordId, currentBook.id);
       closePanel();
-      refresh();
+      refreshAll();
       toast.show({ messageText: '已删除记录' });
     } catch {
       toast.show({ messageText: '删除失败，请稍后重试', status: 'error' });
@@ -217,7 +184,15 @@ export function DetailTabScreen() {
         <Empty
           titleText="当前筛选下没有记录"
           descriptionText="换个分类或时间范围试试。"
-          action={<Button type="text" size="small" onPress={() => setActiveFilter('all')}>清除筛选</Button>}
+          action={
+            <Button
+              type="text"
+              size="small"
+              onPress={() => setActiveFilter('all')}
+            >
+              清除筛选
+            </Button>
+          }
           style={styles.state}
         />
       );
@@ -226,7 +201,7 @@ export function DetailTabScreen() {
       <DayGroupCard
         key={group.dayStart}
         group={group}
-        onPressRecord={setActiveView}
+        onPressRecord={setActiveRecordId}
       />
     ));
   };
@@ -234,7 +209,12 @@ export function DetailTabScreen() {
   return (
     <Column style={styles.container}>
       <Row align="center" style={styles.monthBar}>
-        <Button type="text" size="small" icon="caret-left" onPress={() => moveMonth(-1)} />
+        <Button
+          type="text"
+          size="small"
+          icon="caret-left"
+          onPress={() => moveMonth(-1)}
+        />
         <Button
           type="text"
           size="small"
@@ -244,16 +224,43 @@ export function DetailTabScreen() {
         >
           {selectedMonth.formatDateBy('YYYY年M月')}
         </Button>
-        <Button type="text" size="small" icon="caret-right" onPress={() => moveMonth(1)} />
-        <Button type="text" size="small" shape="round" onPress={() => { setSelectedMonth(new Date()); setActiveFilter('all'); }}>今天</Button>
+        <Button
+          type="text"
+          size="small"
+          icon="caret-right"
+          onPress={() => moveMonth(1)}
+        />
+        <Button
+          type="text"
+          size="small"
+          shape="round"
+          onPress={() => {
+            setSelectedMonth(new Date());
+            setActiveFilter('all');
+          }}
+        >
+          今天
+        </Button>
       </Row>
       <ScrollView
-          scrollEnabled
-          contentContainerStyle={styles.content}
-          stickyHeaderIndices={groups.flatMap((_, index) => [2 + (activeFilter === 'all' ? 0 : 1) + index * 2])}
-          refreshControl={<RefreshControl refreshing={loading} onRefresh={refresh} />}
-        >
-        <MonthSummaryCard month={selectedMonth} summary={summary} dailyExpenses={dailyExpenses} recordCount={monthViews.length} hidden={isAmountHidden} onToggleHidden={() => setIsAmountHidden(value => !value)} records={allViews} />
+        scrollEnabled
+        contentContainerStyle={styles.content}
+        stickyHeaderIndices={groups.flatMap((_, index) => [
+          2 + (activeFilter === 'all' ? 0 : 1) + index * 2,
+        ])}
+        refreshControl={
+          <RefreshControl refreshing={loading} onRefresh={refreshAll} />
+        }
+      >
+        <MonthSummaryCard
+          month={selectedMonth}
+          summary={summary}
+          dailyExpenses={dailyExpenses}
+          recordCount={monthViews.length}
+          hidden={isAmountHidden}
+          onToggleHidden={() => setIsAmountHidden(value => !value)}
+          records={records}
+        />
         <Segmented
           block
           size="small"
@@ -269,33 +276,42 @@ export function DetailTabScreen() {
         />
         {activeFilter !== 'all' ? (
           <Row style={styles.filterResult}>
-            <Text size="sm" color="tertiary">当前筛选</Text>
-            <Text size="sm" color="heading">{activeFilter === 'expense' ? '支出' : activeFilter === 'income' ? '收入' : '转账'} · {groups.reduce((sum, group) => sum + group.records.length, 0)} 笔</Text>
+            <Text size="sm" color="tertiary">
+              当前筛选
+            </Text>
+            <Text size="sm" color="heading">
+              {activeFilter === 'expense'
+                ? '支出'
+                : activeFilter === 'income'
+                ? '收入'
+                : '转账'}{' '}
+              · {groups.reduce((sum, group) => sum + group.records.length, 0)}{' '}
+              笔
+            </Text>
           </Row>
         ) : null}
         {renderBody()}
       </ScrollView>
 
       <RecordDetailPanel
-        view={activeView}
-        relatedViews={relatedViews}
+        recordId={activeRecordId}
         hidden={isAmountHidden}
-        open={activeView !== null}
+        open={activeRecordId !== null}
         onOpenChange={open => {
           if (!open) closePanel();
         }}
         onEdit={handleEdit}
-        onDelete={setPendingDelete}
+        onDelete={setPendingDeleteId}
       />
 
       <Dialog
-        open={pendingDelete !== null}
+        open={pendingDeleteId !== null}
         titleText="删除记录"
         okText="删除"
         cancelText="取消"
         okDanger
         onOk={confirmDelete}
-        onCancel={() => setPendingDelete(null)}
+        onCancel={() => setPendingDeleteId(null)}
       >
         <Text size="md" color="secondary">
           删除后无法恢复，这条记录的图片与标签关联也会一并移除。

@@ -5,7 +5,7 @@ export { getProviderKey, hasProviderKey, setProviderKey } from './agent-credenti
 export { createBook, deleteBook, getAllBooks, getBookById, getDefaultBook, updateBook } from './book-service'
 export { createAsset, deleteAsset, getAllAssets, getAssetsByBook, updateAsset } from './asset-service'
 export { createQuickTemplate, deleteQuickTemplate, listQuickTemplates, reorderQuickTemplates, updateQuickTemplate } from './quick-template-service'
-export { createRecord, deleteRecord, getImageCountsByBook, getRecordDetailById, getRecordRelationsByBook, getRecordsByBook, getRecordTagsByBook, updateRecord } from './record-service'
+export { createRecord, deleteRecord, getImageCountsByBook, getRecordDetailById, getRecordListByBook, getRecordRelationsByBook, getRecordsByBook, getRecordTagsByBook, updateRecord } from './record-service'
 export { createTag, deleteTag, getAllTags, updateTag } from './tag-service'
 export { buildCategoryTree, createType, deleteType, getAllTypes, getTypesByCategory, updateType } from './type-service'
 export { ensureDefaultBook, seedSystemTypesForBook } from './seed-service'
@@ -47,7 +47,9 @@ export type {
   CreateTypeInput,
   QuickTemplateRow,
   RecordDetail,
+  RecordListRow,
   RecordRelationRow,
+  RecordTimeRange,
   RecordRow,
   SnapshotCounts,
   SnapshotIdMaps,
