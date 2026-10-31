@@ -1,18 +1,26 @@
+import type {
+  AgentProviderModel,
+  AgentProviderRow,
+  AgentReasoningEffort,
+} from '@pennyspring/api';
+
+export type {
+  AgentProviderModel,
+  AgentProviderRow,
+  AgentReasoningEffort,
+};
+
 export type ProviderApiKind =
   | 'responses'
   | 'chat'
   | 'alibaba'
   | 'openai-compatible';
 
-export type AgentReasoningEffort = 'off' | 'low' | 'medium' | 'high';
+/** 数据库提供商行，id 为服务器级自增整数。 */
+export type AgentProviderConfig = AgentProviderRow;
 
-export interface AgentModelConfig {
-  modelId: string;
-  contextWindow: number;
-  reasoningEffort: AgentReasoningEffort;
-  /** 是否支持图片输入（多模态）。 */
-  multimodal: boolean;
-}
+/** 提供商模型配置。 */
+export type AgentModelConfig = AgentProviderModel;
 
 export interface AgentModelDraft {
   modelId: string;
@@ -30,18 +38,6 @@ export interface ProviderDescriptor {
   baseUrlHint: string;
   modelPlaceholder: string;
   requiresApiKey: boolean;
-}
-
-export interface AgentProviderConfig {
-  id: string;
-  descriptorId: string;
-  name: string;
-  baseUrl: string;
-  defaultModelId: string;
-  models: AgentModelConfig[];
-  storeResponses: boolean;
-  createdAt: number;
-  updatedAt: number;
 }
 
 export interface AgentProviderDraft {

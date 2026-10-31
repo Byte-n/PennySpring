@@ -22,7 +22,7 @@ export interface AgentRuntimeHostProps {
   onDrawerOpenChange: (open: boolean) => void;
   onOpenSessions: () => void;
   onOpenSettings: () => void;
-  onOpenModelSettings: (providerId?: string) => void;
+  onOpenModelSettings: (providerId?: number) => void;
 }
 
 export function AgentRuntimeHost({

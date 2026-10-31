@@ -1,6 +1,8 @@
 export { agentMessages, agentThreads } from './agent'
+export { agentProviders, agentSelections, bookProviderKeys } from './agent-provider'
 export { assets } from './assets'
 export { books } from './books'
+export { quickTemplates } from './quick-template'
 export { imageWithRelated, records, recordWithRecord, tagWithRecord } from './records'
 export { tags } from './tags'
 export { types } from './types'

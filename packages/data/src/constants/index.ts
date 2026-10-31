@@ -367,6 +367,12 @@ export const AGENT_MESSAGE_ROLE = enumOf({
   },
 });
 
+/** 模型推理强度；随提供商模型配置以 JSON 存储。 */
+export type AgentReasoningEffort = 'off' | 'low' | 'medium' | 'high';
+
+/** 服务器级模型选择的作用域：Agent 新会话默认值 / 快捷记账默认值。 */
+export type AgentSelectionScope = 'agent' | 'quickBook';
+
 export type AssetTypeValue = EnumOf<typeof ASSET_TYPE>;
 export type AssetClassificationValue = EnumOf<typeof ASSET_CLASSIFICATION>;
 export type IconValue = string;

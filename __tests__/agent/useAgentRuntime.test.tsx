@@ -17,11 +17,19 @@ jest.mock('../../src/agent/ui/agentTransport', () => ({
   createAgentTransport: () => mockCreateAgentTransport(),
 }));
 
-jest.mock('../../src/stores/bookStore', () => ({
-  useGlobalApi: () => ({
-    agent: { appendMessages: jest.fn(async () => []) },
-  }),
-}));
+jest.mock('../../src/stores/bookStore', () => {
+  const state = {
+    currentBook: { id: 1 },
+    currentBookRef: { kind: 'local', id: 1 },
+  };
+  return {
+    useBookStore: (selector: (value: typeof state) => unknown) =>
+      selector(state),
+    useGlobalApi: () => ({
+      agent: { appendMessages: jest.fn(async () => []) },
+    }),
+  };
+});
 
 const BOOK = { id: 1, name: '测试账本' } as BookRow;
 

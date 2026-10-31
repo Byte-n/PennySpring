@@ -26,13 +26,16 @@ import {
   getProviderDescriptor,
   OPENAI_RESPONSES_PROVIDER_ID,
 } from '../../agent/providers/catalog';
-import {
-  getProviderDisplayName,
-  useAgentProviderStore,
-} from '../../agent/providers/configStore';
+import { getProviderDisplayName } from '../../agent/providers/display';
 import { getProviderDefaultModel } from '../../agent/providers/models';
-import { clearProviderApiKey } from '../../agent/providers/secureKey';
 import type { AgentProviderConfig } from '../../agent/providers/types';
+import {
+  EMPTY_AGENT_SELECTION,
+  useProviderSelection,
+  useProviders,
+} from '../../agent/providers/useProviders';
+import { useGlobalApi } from '../../stores/bookStore';
+import { useSyncVersionStore } from '../../stores/syncVersionStore';
 import { formatTokenCount } from '../../agent/core/messages';
 
 const useStyles = createUseSheetStyle(token => ({
@@ -56,14 +59,13 @@ export function AgentSettingsScreen() {
   const navigation = useNavigation();
   const chat = useAgentChatState();
 
-  const providers = useAgentProviderStore(state => state.providers);
-  const activeProviderId = useAgentProviderStore(
-    state => state.activeProviderId,
+  const api = useGlobalApi();
+  const bumpProviderVersion = useSyncVersionStore(
+    state => state.bumpProviderVersion,
   );
-  const setActiveProvider = useAgentProviderStore(
-    state => state.setActiveProvider,
-  );
-  const removeProvider = useAgentProviderStore(state => state.removeProvider);
+  const { data: providers = [] } = useProviders();
+  const { data: selection = EMPTY_AGENT_SELECTION } = useProviderSelection();
+  const activeProviderId = selection.providerId;
 
   const [addSheetOpen, setAddSheetOpen] = useState(false);
   const [editorOpen, setEditorOpen] = useState(false);
@@ -105,16 +107,47 @@ export function AgentSettingsScreen() {
     [openCreate],
   );
 
+  const handleSetActiveProvider = useCallback(
+    async (provider: AgentProviderConfig): Promise<void> => {
+      try {
+        const modelId = getProviderDefaultModel(provider)?.modelId ?? '';
+        await api.provider.setSelection({
+          providerId: provider.id,
+          modelId,
+        });
+        bumpProviderVersion();
+        toast.show({
+          messageText: `已将「${getProviderDisplayName(provider)}」设为当前提供商`,
+        });
+      } catch (error) {
+        toast.show({
+          messageText:
+            error instanceof Error ? error.message : '设置当前提供商失败',
+          status: 'error',
+        });
+      }
+    },
+    [api, bumpProviderVersion, toast],
+  );
+
   const handleDeleteProvider = useCallback(async (): Promise<void> => {
     const target = pendingDelete;
     if (!target) {
       return;
     }
-    await clearProviderApiKey(target.id);
-    removeProvider(target.id);
-    setPendingDelete(null);
-    toast.show({ messageText: `已删除「${getProviderDisplayName(target)}」` });
-  }, [pendingDelete, removeProvider, toast]);
+    try {
+      await api.provider.delete(target.id);
+      bumpProviderVersion();
+      setPendingDelete(null);
+      toast.show({ messageText: `已删除「${getProviderDisplayName(target)}」` });
+    } catch (error) {
+      toast.show({
+        messageText:
+          error instanceof Error ? error.message : '删除提供商失败',
+        status: 'error',
+      });
+    }
+  }, [api, bumpProviderVersion, pendingDelete, toast]);
 
   const handleDeleteConversation = useCallback(async (): Promise<void> => {
     await chat.deleteCurrentThread();
@@ -127,7 +160,7 @@ export function AgentSettingsScreen() {
       <ScrollView contentContainerStyle={styles.content}>
         <Column gap="normal">
           <Text color="tertiary" size="xs" >
-            API Key 只保存在系统钥匙串，不会写入账本数据库。新增提供商后会自动设为当前提供商。
+            提供商配置与 API Key 保存在账本所在服务器；API Key 暂为明文存储，请勿在共享服务器使用敏感 Key。
           </Text>
         </Column>
 
@@ -169,7 +202,9 @@ export function AgentSettingsScreen() {
                     </Button>
                     <Button
                       disabled={isActive}
-                      onPress={() => setActiveProvider(provider.id)}
+                      onPress={() => {
+                        handleSetActiveProvider(provider).catch(() => undefined);
+                      }}
                       size="small"
                       type="text"
                     >
@@ -253,7 +288,6 @@ export function AgentSettingsScreen() {
         descriptorId={editorDescriptorId}
         initial={editorInitial}
         onOpenChange={setEditorOpen}
-        onSaved={() => undefined}
         open={editorOpen}
       />
 

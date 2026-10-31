@@ -23,7 +23,6 @@ import {
   StopIcon,
 } from 'phosphor-react-native';
 
-import { useAgentProviderStore } from '../providers/configStore';
 import {
   formatContextWindow,
   formatReasoningEffort,
@@ -31,12 +30,13 @@ import {
   resolveProviderModel,
 } from '../providers/models';
 import {
-  rememberThreadModel,
-  useThreadModelStore,
-} from '../providers/modelSelectionStore';
+  EMPTY_AGENT_SELECTION,
+  useProviders,
+} from '../providers/useProviders';
 import { appendTranscript } from '../voice/transcript';
 import { useVoiceInput } from '../voice/useVoiceInput';
 import { hasPendingToolApproval } from './approval';
+import { useAgentChatState } from './AgentChatContext';
 import { ComposerAttachments } from './ComposerAttachments';
 import { ComposerInput } from './ComposerInput';
 import { ComposerRunningProgress } from './ComposerRunningProgress';
@@ -44,7 +44,6 @@ import { VoiceButton } from './VoiceButton';
 import {
   AGENT_IMAGE_PICK_FAILED_MESSAGE,
   AGENT_IMAGE_UNAVAILABLE_MESSAGE,
-  AGENT_IMAGE_UNREADABLE_MESSAGE,
   AGENT_MODEL_NO_IMAGE_MESSAGE,
 } from './copy';
 import { buildAttachmentMessageParts } from '../core/attachments';
@@ -53,9 +52,9 @@ import {
   AGENT_IMAGE_MAX_DIMENSION,
   AGENT_IMAGE_QUALITY,
   AGENT_MAX_IMAGE_ATTACHMENTS,
-  toAgentAttachments,
-  toImageFileParts,
+  prepareImageMessage,
 } from './imageAttachments';
+import { useMediaStore } from '../../media';
 
 const PLUS_MENU_MIN_WIDTH = 140;
 const MODEL_CHIP_MAX_WIDTH = 132;
@@ -159,7 +158,7 @@ const useStyles = createUseSheetStyle<ComposerStyleOptions>(
 
 export interface AgentComposerProps {
   threadId: number | null;
-  onOpenModelSettings: (providerId?: string) => void;
+  onOpenModelSettings: (providerId?: number) => void;
 }
 
 export function AgentComposer({
@@ -176,13 +175,14 @@ export function AgentComposer({
     hasPendingToolApproval(state.thread.messages),
   );
 
-  const providers = useAgentProviderStore(state => state.providers);
-  const activeProviderId = useAgentProviderStore(
-    state => state.activeProviderId,
-  );
-  const selection = useThreadModelStore(state =>
-    threadId === null ? undefined : state.selections[String(threadId)],
-  );
+  const chat = useAgentChatState();
+  const media = useMediaStore();
+  const { data: providers = [] } = useProviders();
+  const thread = chat.currentThread;
+  const selection =
+    thread === null
+      ? EMPTY_AGENT_SELECTION
+      : { providerId: thread.providerId, modelId: thread.modelId };
   const [isInputFocused, setIsInputFocused] = useState(false);
   const [modelSheetOpen, setModelSheetOpen] = useState(false);
   const [plusMenuOpen, setPlusMenuOpen] = useState(false);
@@ -191,28 +191,18 @@ export function AgentComposer({
   const sendingImagesRef = useRef(false);
   const styles = useStyles({ isFocused: isInputFocused });
 
-  const provider = useMemo(() => {
-    if (selection) {
-      const selected = providers.find(item => item.id === selection.providerId);
-      if (selected) {
-        return selected;
-      }
-    }
-    return (
-      providers.find(item => item.id === activeProviderId) ??
-      providers[0] ??
-      null
-    );
-  }, [activeProviderId, providers, selection]);
+  const provider = useMemo(
+    () =>
+      providers.find(item => item.id === selection.providerId) ?? null,
+    [providers, selection.providerId],
+  );
 
   const currentModel = useMemo(() => {
     if (provider === null) {
       return null;
     }
-    const modelId =
-      selection?.providerId === provider.id ? selection.modelId : null;
-    return resolveProviderModel(provider, modelId);
-  }, [provider, selection]);
+    return resolveProviderModel(provider, selection.modelId);
+  }, [provider, selection.modelId]);
 
   const canAttachImage = isMultimodalModel(currentModel);
   const hasStagedImages = pendingImages.length > 0;
@@ -227,7 +217,13 @@ export function AgentComposer({
 
   const modelActions = useMemo<ActionSheetAction[]>(() => {
     if (provider === null) {
-      return [];
+      return [
+        {
+          text: '模型设置',
+          description: '配置提供商与模型',
+          icon: GearSixIcon,
+        },
+      ];
     }
     const actions: ActionSheetAction[] = provider.models.map(model => {
       const isCurrent = model.modelId === currentModel?.modelId;
@@ -251,6 +247,7 @@ export function AgentComposer({
   const handleModelAction = useCallback(
     (_action: ActionSheetAction, index: number): void => {
       if (provider === null) {
+        onOpenModelSettings();
         return;
       }
       if (index === provider.models.length) {
@@ -265,10 +262,18 @@ export function AgentComposer({
             messageText: '已切换为不支持图片的模型，待发送图片已清空。',
           });
         }
-        rememberThreadModel(threadId, provider.id, model.modelId);
+        chat
+          .updateThreadModel({ providerId: provider.id, modelId: model.modelId })
+          .catch(error => {
+            toast.show({
+              messageText:
+                error instanceof Error ? error.message : '切换模型失败',
+              status: 'error',
+            });
+          });
       }
     },
-    [onOpenModelSettings, pendingImages.length, provider, threadId, toast],
+    [chat, onOpenModelSettings, pendingImages.length, provider, threadId, toast],
   );
 
   const voice = useVoiceInput({
@@ -314,16 +319,7 @@ export function AgentComposer({
       return;
     }
 
-    const files = toImageFileParts(pendingImages);
-    if (files.length !== pendingImages.length) {
-      toast.show({
-        messageText: AGENT_IMAGE_UNREADABLE_MESSAGE,
-        status: 'error',
-      });
-      return;
-    }
-
-    if (!aiChat) {
+    if (!aiChat || !media) {
       toast.show({
         messageText: AGENT_IMAGE_UNAVAILABLE_MESSAGE,
         status: 'error',
@@ -334,11 +330,9 @@ export function AgentComposer({
     sendingImagesRef.current = true;
     const nextText = text.trim();
 
-    const sendWithPersistedImages = async (): Promise<void> => {
+    const sendWithPreparedImages = async (): Promise<void> => {
       try {
-        const persistedImages = await ImagePicker.persistImage(pendingImages);
-        const persistedFiles = toImageFileParts(persistedImages);
-        const attachments = toAgentAttachments(persistedImages);
+        const prepared = await prepareImageMessage(pendingImages, media);
 
         setPlusMenuOpen(false);
         setImagePickerOpen(false);
@@ -347,11 +341,11 @@ export function AgentComposer({
 
         await aiChat.sendMessage({
           parts: buildAttachmentMessageParts(
-            persistedFiles,
-            attachments,
+            prepared.files,
+            prepared.attachments,
             nextText,
           ),
-          metadata: { attachments },
+          metadata: { attachments: prepared.attachments },
         });
       } catch (error: unknown) {
         toast.show({ messageText: getErrorMessage(error), status: 'error' });
@@ -360,8 +354,8 @@ export function AgentComposer({
       }
     };
 
-    sendWithPersistedImages();
-  }, [aiChat, aui, canSubmit, currentModel, pendingImages, text, toast]);
+    sendWithPreparedImages();
+  }, [aiChat, aui, canSubmit, currentModel, media, pendingImages, text, toast]);
 
   const handleOpenImagePicker = useCallback((): void => {
     setPlusMenuOpen(false);
@@ -473,7 +467,7 @@ export function AgentComposer({
                 type="text"
               />
             </Popover>
-            {provider ? (
+            {thread !== null ? (
               <Pressable
                 hitSlop={{
                   top: MODEL_CHIP_HIT_SLOP,

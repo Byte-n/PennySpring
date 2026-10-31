@@ -1,4 +1,6 @@
-import { ImagePicker, type ImagePickerValue } from '@pennyspring/ui';
+import type { ImagePickerValue } from '@pennyspring/ui';
+
+import { toMediaSaveInput, type MediaStore } from '../../media';
 
 export interface PersistedRecordImages {
   images: ImagePickerValue[];
@@ -6,19 +8,23 @@ export interface PersistedRecordImages {
 }
 
 /**
- * 提交记账前把选图副本转存到永久目录；落库只使用返回的 imagePaths。
+ * 提交记账前把选图交给当前账本的 MediaStore；落库只使用返回的 refs。
  */
 export async function persistRecordImages(
   images: readonly ImagePickerValue[],
+  media: MediaStore,
 ): Promise<PersistedRecordImages> {
   if (images.length === 0) {
     return { images: [], imagePaths: [] };
   }
 
-  const persistedImages = await ImagePicker.persistImage([...images]);
+  const persistedImages: ImagePickerValue[] = [];
+  const imagePaths: string[] = [];
+  for (const image of images) {
+    const ref = await media.save(toMediaSaveInput(image));
+    imagePaths.push(ref);
+    persistedImages.push({ ...image, uri: media.resolveUri(ref) });
+  }
 
-  return {
-    images: persistedImages,
-    imagePaths: persistedImages.map(image => image.uri),
-  };
+  return { images: persistedImages, imagePaths };
 }

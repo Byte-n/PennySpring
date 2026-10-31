@@ -19,8 +19,6 @@ import {
 
 beforeEach(() => {
   useQuickBookSettingsStore.setState({
-    providerId: null,
-    modelId: null,
     freshWindowSeconds: DEFAULT_SCREENSHOT_FRESH_WINDOW_SECONDS,
     presetPrompt: DEFAULT_QUICK_BOOK_PROMPT,
     nudgeEnabled: false,
@@ -54,24 +52,13 @@ describe('clampFreshWindowSeconds', () => {
 });
 
 describe('quick book settings store', () => {
-  it('starts with a disabled switch and no model selection', () => {
+  it('starts with a disabled switch and default device settings', () => {
     const state = useQuickBookSettingsStore.getState();
-    expect(state.providerId).toBeNull();
-    expect(state.modelId).toBeNull();
     expect(state.nudgeEnabled).toBe(false);
     expect(state.freshWindowSeconds).toBe(
       DEFAULT_SCREENSHOT_FRESH_WINDOW_SECONDS,
     );
     expect(state.presetPrompt).toBe(DEFAULT_QUICK_BOOK_PROMPT);
-  });
-
-  it('stores the provider and model for quick bookkeeping', () => {
-    const state = useQuickBookSettingsStore.getState();
-    state.setProviderId('provider-1');
-    state.setModelId('vision-model');
-
-    expect(useQuickBookSettingsStore.getState().providerId).toBe('provider-1');
-    expect(useQuickBookSettingsStore.getState().modelId).toBe('vision-model');
   });
 
   it('clamps the window when written through the store', () => {
@@ -90,19 +77,14 @@ describe('quick book settings store', () => {
     expect(useQuickBookSettingsStore.getState().nudgeEnabled).toBe(true);
   });
 
-  it('clears the provider and model and turns off the nudge switch', () => {
+  it('keeps device settings independent from the nudge switch', () => {
     const state = useQuickBookSettingsStore.getState();
-    state.setProviderId('provider-1');
-    state.setModelId('vision-model');
     state.setFreshWindowSeconds(120);
     state.setPresetPrompt('自定义提示');
     state.setNudgeEnabled(true);
-
-    state.clearProviderModel();
+    state.setNudgeEnabled(false);
 
     const next = useQuickBookSettingsStore.getState();
-    expect(next.providerId).toBeNull();
-    expect(next.modelId).toBeNull();
     expect(next.nudgeEnabled).toBe(false);
     expect(next.freshWindowSeconds).toBe(120);
     expect(next.presetPrompt).toBe('自定义提示');

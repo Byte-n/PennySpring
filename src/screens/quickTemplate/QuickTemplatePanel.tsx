@@ -19,12 +19,13 @@ import {
   validateAddRecordDraft,
 } from '../addRecord/addRecordDraft';
 import { useBookStore, useGlobalApi } from '../../stores/bookStore';
+import { useSyncVersionStore } from '../../stores/syncVersionStore';
 import { ROOT_ROUTES, useNavigation } from '../../navigation';
 import { getPhosphorIconComponent } from '../../constants/typeIconTree';
 import { useRecordSync } from '../home/recordSync';
 import { buildDraftFromTemplate, tabTypeFor } from './buildDraft';
 import { toPresetPayload, toTemplatePayload } from './payload';
-import { useQuickTemplateStore, useQuickTemplates } from './quickTemplateStore';
+import { useQuickTemplates } from './useQuickTemplates';
 import type { QuickTemplate } from './types';
 
 interface QuickTemplatePanelProps {
@@ -49,9 +50,11 @@ export function QuickTemplatePanel({
   const { bump } = useRecordSync();
   const currentBook = useBookStore(state => state.currentBook);
   const globalApi = useGlobalApi();
-  const templates = useQuickTemplates();
-  const deleteTemplate = useQuickTemplateStore(state => state.deleteTemplate);
-  const [busyId, setBusyId] = useState<string | null>(null);
+  const bumpTemplateVersion = useSyncVersionStore(
+    state => state.bumpTemplateVersion,
+  );
+  const { templates } = useQuickTemplates();
+  const [busyId, setBusyId] = useState<number | null>(null);
 
   const bookId = currentBook?.id;
   const { data: types = [] } = useRequest(
@@ -127,15 +130,23 @@ export function QuickTemplatePanel({
   }, [closePanel, navigation]);
 
   const handleDeleteTemplate = useCallback(
-    (id: string) => {
+    async (id: number): Promise<void> => {
       if (!currentBook) {
         toast.show({ messageText: '未找到当前账本' });
         return;
       }
-      deleteTemplate(currentBook.id, id);
-      toast.show({ messageText: '已删除模板' });
+      try {
+        await globalApi.quickTemplate.delete(id, currentBook.id);
+        bumpTemplateVersion();
+        toast.show({ messageText: '已删除模板' });
+      } catch (error) {
+        toast.show({
+          messageText: error instanceof Error ? error.message : '删除模板失败',
+          status: 'error',
+        });
+      }
     },
-    [currentBook, deleteTemplate, toast],
+    [bumpTemplateVersion, currentBook, globalApi, toast],
   );
 
   const hasTemplates = templates.length > 0;

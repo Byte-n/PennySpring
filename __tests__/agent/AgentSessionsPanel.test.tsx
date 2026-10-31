@@ -127,8 +127,8 @@ jest.mock('../../src/agent/ui/AgentSessionList', () => {
 });
 
 const THREADS: AgentThreadRow[] = [
-  { id: 1, booksId: 1, title: '本月支出', createdTime: 0, updatedTime: 1_700_000_000_000 },
-  { id: 2, booksId: 1, title: '', createdTime: 0, updatedTime: 1_700_000_600_000 },
+  { id: 1, booksId: 1, title: '本月支出', providerId: 0, modelId: '', createdTime: 0, updatedTime: 1_700_000_000_000 },
+  { id: 2, booksId: 1, title: '', providerId: 0, modelId: '', createdTime: 0, updatedTime: 1_700_000_600_000 },
 ];
 
 function createChat(
@@ -142,6 +142,7 @@ function createChat(
     threads: THREADS,
     threadsLoading: false,
     currentThreadId: 1,
+    currentThread: null,
     initialMessages: [],
     createThread: jest.fn(() => Promise.resolve(true)),
     ensureQuickBookThread: jest.fn(() => Promise.resolve(null)),
@@ -150,6 +151,7 @@ function createChat(
     deleteCurrentThread: jest.fn(() => Promise.resolve()),
     refreshThreads: jest.fn(() => Promise.resolve()),
     ensureTitle: jest.fn(() => Promise.resolve()),
+    updateThreadModel: jest.fn(() => Promise.resolve()),
     markActivity: jest.fn(),
     accumulateUsage: jest.fn(),
     setSending: jest.fn(),

@@ -12,6 +12,10 @@ export const agentThreads = sqliteTable(
     booksId: integerColumn('books_id').notNull(),
     // 会话标题；空字符串表示未命名
     title: text('title').notNull().default(''),
+    // 当前绑定的提供商主键；0 表示未设置
+    providerId: integerColumn('provider_id').notNull().default(0),
+    // 当前绑定的模型 id；空字符串表示未设置
+    modelId: text('model_id').notNull().default(''),
     // 记录创建时间（时间戳，毫秒），INSERT 时自动写入
     // 最后修改时间（时间戳，毫秒）
     ...timestampColumns(),

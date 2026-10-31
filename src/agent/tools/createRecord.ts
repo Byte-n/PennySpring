@@ -132,7 +132,7 @@ export function createCreateRecordTool(deps: CreateRecordToolDeps) {
       }
 
       const imagePaths = resolvedAttachments.map(
-        attachment => attachment.localPath,
+        attachment => attachment.ref,
       );
       const row = await deps.api.record.create({
         ...resolved.draft.createInput,

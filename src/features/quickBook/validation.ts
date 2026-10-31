@@ -1,13 +1,12 @@
+import type { AgentSelection } from '@pennyspring/api';
+
 import { isMultimodalModel } from '../../agent/providers/models';
 import type {
   AgentModelConfig,
   AgentProviderConfig,
 } from '../../agent/providers/types';
 
-export interface QuickBookModelSettings {
-  providerId: string | null;
-  modelId: string | null;
-}
+export type QuickBookModelSettings = AgentSelection;
 
 export type QuickBookModelResolution =
   | {
@@ -24,7 +23,7 @@ export function resolveQuickBookModel(
   providers: readonly AgentProviderConfig[],
   settings: QuickBookModelSettings,
 ): QuickBookModelResolution {
-  if (!settings.providerId) {
+  if (settings.providerId <= 0) {
     return { ok: false, reason: 'provider-missing' };
   }
   const provider = providers.find(item => item.id === settings.providerId);

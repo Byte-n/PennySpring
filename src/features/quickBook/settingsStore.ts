@@ -9,20 +9,16 @@ import {
   MIN_SCREENSHOT_FRESH_WINDOW_SECONDS,
 } from './constants';
 
-const QUICK_BOOK_SETTINGS_STORE_KEY = 'pennyspring-quick-book-settings-v1';
+const QUICK_BOOK_SETTINGS_STORE_KEY = 'pennyspring-quick-book-settings-v2';
 
+/** 快捷记账的设备级设置；provider/model 属于服务器级选择，见 api.quickBook。 */
 export interface QuickBookSettings {
-  providerId: string | null;
-  modelId: string | null;
   freshWindowSeconds: number;
   presetPrompt: string;
   nudgeEnabled: boolean;
 }
 
 interface QuickBookSettingsStore extends QuickBookSettings {
-  setProviderId: (providerId: string | null) => void;
-  setModelId: (modelId: string | null) => void;
-  clearProviderModel: () => void;
   setFreshWindowSeconds: (seconds: number) => void;
   setPresetPrompt: (prompt: string) => void;
   setNudgeEnabled: (enabled: boolean) => void;
@@ -39,8 +35,6 @@ export function clampFreshWindowSeconds(seconds: number): number {
 }
 
 const DEFAULT_SETTINGS: QuickBookSettings = {
-  providerId: null,
-  modelId: null,
   freshWindowSeconds: DEFAULT_SCREENSHOT_FRESH_WINDOW_SECONDS,
   presetPrompt: DEFAULT_QUICK_BOOK_PROMPT,
   nudgeEnabled: false,
@@ -50,15 +44,6 @@ export const useQuickBookSettingsStore = create<QuickBookSettingsStore>()(
   persist(
     set => ({
       ...DEFAULT_SETTINGS,
-      setProviderId: providerId => {
-        set({ providerId });
-      },
-      setModelId: modelId => {
-        set({ modelId });
-      },
-      clearProviderModel: () => {
-        set({ providerId: null, modelId: null, nudgeEnabled: false });
-      },
       setFreshWindowSeconds: seconds => {
         set({ freshWindowSeconds: clampFreshWindowSeconds(seconds) });
       },
@@ -73,14 +58,12 @@ export const useQuickBookSettingsStore = create<QuickBookSettingsStore>()(
       name: QUICK_BOOK_SETTINGS_STORE_KEY,
       storage: createJSONStorage(() => createSqliteStateStorage()),
       partialize: (state): QuickBookSettings => ({
-        providerId: state.providerId,
-        modelId: state.modelId,
         freshWindowSeconds: state.freshWindowSeconds,
         presetPrompt: state.presetPrompt,
         nudgeEnabled: state.nudgeEnabled,
       }),
       skipHydration: true,
-      version: 1,
+      version: 2,
     },
   ),
 );
@@ -92,8 +75,6 @@ export async function rehydrateQuickBookSettings(): Promise<void> {
 export function getQuickBookSettings(): QuickBookSettings {
   const state = useQuickBookSettingsStore.getState();
   return {
-    providerId: state.providerId,
-    modelId: state.modelId,
     freshWindowSeconds: state.freshWindowSeconds,
     presetPrompt: state.presetPrompt,
     nudgeEnabled: state.nudgeEnabled,

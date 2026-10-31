@@ -1,5 +1,6 @@
 import { serve } from '@hono/node-server'
 import { networkInterfaces } from 'node:os'
+import path from 'node:path'
 import { createRemoteApi } from '@pennyspring/data-server'
 
 import { createServer } from './server'
@@ -32,8 +33,11 @@ if (!dbPath) {
   throw new Error('DB_PATH 未设置')
 }
 const port = Number(process.env.PORT ?? 3000)
+const mediaDir =
+  process.env.MEDIA_DIR ??
+  path.join(path.dirname(path.resolve(dbPath)), 'media')
 const api = createRemoteApi({ dbPath })
-const app = createServer(api)
+const app = createServer(api, { mediaDir })
 
 serve({ fetch: app.fetch, port }, (info) => {
   const { local, network, ios, android } = getLocalAddresses(info.port)

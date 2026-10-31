@@ -22,6 +22,7 @@ import { IncomeTabScreen } from './tabs/IncomeTabScreen';
 import { TransferTabScreen } from './tabs/TransferTabScreen';
 import { ROOT_ROUTES, type RootStackParamList } from '../../navigation';
 import { useBookStore, useGlobalApi } from '../../stores/bookStore';
+import { useMediaStore } from '../../media';
 import { TabScreen, TopTabNavigator } from '../../component/TopTabNavigator';
 
 type AddRecordRoute = RouteProp<RootStackParamList, typeof ROOT_ROUTES.AddRecord>;
@@ -80,6 +81,7 @@ function AddRecordContent({
   } = useAddRecordContext();
   const currentBook = useBookStore(state => state.currentBook);
   const globalApi = useGlobalApi();
+  const media = useMediaStore();
   const [initialRouteName, setInitialRouteName] = useState<string>();
   const [loading, setLoading] = useState(
     recordId !== undefined || preset !== undefined || isTemplateFlow === true,
@@ -101,7 +103,9 @@ function AddRecordContent({
         remark: detail.record.remark,
         recordTime: detail.record.recordTime,
         tags: detail.tagIds,
-        images: detail.imagePaths.map(uri => ({ uri })),
+        images: detail.imagePaths.map(uri => ({
+          uri: media?.resolveUri(uri) ?? uri,
+        })),
         assetId: detail.record.assetId > 0 ? detail.record.assetId : null,
         intoAssetId: detail.record.intoAssetId > 0 ? detail.record.intoAssetId : null,
         charge: detail.record.charge,
@@ -115,7 +119,7 @@ function AddRecordContent({
     return () => {
       active = false;
     };
-  }, [init, recordId, currentBook]);
+  }, [init, recordId, currentBook, media]);
 
   // 快捷模板预填：以模板进入「编辑后新建」，mode 始终为 create，recordTime 取当前时刻。
   useEffect(() => {

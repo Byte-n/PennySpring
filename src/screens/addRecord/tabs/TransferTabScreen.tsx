@@ -31,7 +31,13 @@ import { toNumberValue } from '../selectValues';
 import { useAddRecordResources } from '../useAddRecordResources';
 import { useInitialTypeId } from '../useInitialTypeId';
 import { useNavigation } from '../../../navigation';
-import { useQuickTemplateStore } from '../../quickTemplate/quickTemplateStore';
+import { useGlobalApi } from '../../../stores/bookStore';
+import { useSyncVersionStore } from '../../../stores/syncVersionStore';
+import {
+  MEDIA_IMAGE_MAX_DIMENSION,
+  MEDIA_IMAGE_QUALITY,
+  useMediaStore,
+} from '../../../media';
 
 export function TransferTabScreen() {
   const { token } = useTheme();
@@ -62,8 +68,11 @@ export function TransferTabScreen() {
   const [typeId, setTypeId] = useState<number>();
   const [intoAssetId, setIntoAssetId] = useState<number | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const addTemplate = useQuickTemplateStore(state => state.addTemplate);
-  const updateTemplate = useQuickTemplateStore(state => state.updateTemplate);
+  const api = useGlobalApi();
+  const media = useMediaStore();
+  const bumpTemplateVersion = useSyncVersionStore(
+    state => state.bumpTemplateVersion,
+  );
   const {
     categories,
     error: categoriesError,
@@ -158,10 +167,14 @@ export function TransferTabScreen() {
           name: templateName,
         });
         if (editingTemplateId !== undefined) {
-          updateTemplate(currentBook.id, editingTemplateId, payload);
+          await api.quickTemplate.update({
+            ...payload,
+            id: editingTemplateId,
+          });
         } else {
-          addTemplate(currentBook.id, payload);
+          await api.quickTemplate.create(payload);
         }
+        bumpTemplateVersion();
         reset();
         toast.show({
           messageText: editingTemplateId !== undefined ? '已更新模板' : '已新增模板',
@@ -183,9 +196,14 @@ export function TransferTabScreen() {
       return;
     }
 
+    if (!media) {
+      toast.show({ messageText: '未找到当前账本' });
+      return;
+    }
+
     try {
       setSubmitting(true);
-      const persisted = await persistRecordImages(images);
+      const persisted = await persistRecordImages(images, media);
       setImages(persisted.images);
       await saveAddRecordDraft(
         'transfer',
@@ -203,15 +221,17 @@ export function TransferTabScreen() {
       setSubmitting(false);
     }
   }, [
-    addTemplate,
     amount,
+    api,
     assetId,
+    bumpTemplateVersion,
     charge,
     currentBook,
     editingRecordId,
     editingTemplateId,
     images,
     intoAssetId,
+    media,
     navigation,
     recordTime,
     remark,
@@ -222,7 +242,6 @@ export function TransferTabScreen() {
     templateName,
     toast,
     typeId,
-    updateTemplate,
   ]);
 
   return (
@@ -293,6 +312,9 @@ export function TransferTabScreen() {
                 <ImagePicker
                   multiple
                   maxCount={3}
+                  maxHeight={MEDIA_IMAGE_MAX_DIMENSION}
+                  maxWidth={MEDIA_IMAGE_MAX_DIMENSION}
+                  quality={MEDIA_IMAGE_QUALITY}
                   onError={(error: unknown) => {
                     toast.show({
                       messageText:

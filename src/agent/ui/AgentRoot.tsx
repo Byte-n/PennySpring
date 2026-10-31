@@ -9,10 +9,7 @@ import { Column, useToast } from '@pennyspring/ui';
 import { createUseSheetStyle } from '@pennyspring/theme';
 
 import { DEFAULT_QUICK_BOOK_PROMPT } from '../../features/quickBook/constants';
-import {
-  toQuickBookAttachment,
-  toQuickBookFilePart,
-} from '../../features/quickBook/imagePayload';
+import { toQuickBookImagePickerValue } from '../../features/quickBook/imagePayload';
 import {
   getQuickBookSettings,
   rehydrateQuickBookSettings,
@@ -31,19 +28,14 @@ import { useQuickBookShare } from '../../features/quickBook/useQuickBookShare';
 import { useScreenshotNudge } from '../../features/quickBook/useScreenshotNudge';
 import { resolveQuickBookModel } from '../../features/quickBook/validation';
 import { ROOT_ROUTES, rootNavigationRef } from '../../navigation';
-import { useBookStore } from '../../stores/bookStore';
+import { useBookStore, useGlobalApi } from '../../stores/bookStore';
+import { useMediaStore } from '../../media';
 import {
-  getActiveAgentProvider,
-  getAgentProvider,
-  rehydrateAgentProviders,
-  useAgentProviderStore,
-} from '../providers/configStore';
-import {
-  rehydrateThreadModelSelections,
-  rememberThreadModel,
-  useThreadModelStore,
-} from '../providers/modelSelectionStore';
-import { hasProviderApiKey } from '../providers/secureKey';
+  EMPTY_AGENT_SELECTION,
+  useProviderKeyStatus,
+  useProviders,
+  useQuickBookSelection,
+} from '../providers/useProviders';
 import { AgentChatContext } from './AgentChatContext';
 import { AgentDrawerFallback } from './AgentDrawerFallback';
 import {
@@ -53,6 +45,8 @@ import {
 import { AgentProviderEditor } from './AgentProviderEditor';
 import { AgentRuntimeHost } from './AgentRuntimeHost';
 import { AgentSessionsPanel } from './AgentSessionsPanel';
+import { getErrorMessage } from './errorMessage';
+import { prepareImageMessage } from './imageAttachments';
 import { QuickBookNudge } from './QuickBookNudge';
 import { useAgentSession } from './useAgentSession';
 
@@ -98,21 +92,26 @@ export function AgentRoot({ children }: AgentRootProps) {
   const styles = useStyles();
   const toast = useToast();
   const book = useBookStore(state => state.currentBook);
+  const api = useGlobalApi();
+  const media = useMediaStore();
+  const getDefaultSelection = useCallback(
+    () => api.provider.getSelection(),
+    [api],
+  );
 
   const session = useAgentSession({
     book,
     enabled: Boolean(book),
+    getDefaultSelection,
   });
 
-  const providers = useAgentProviderStore(state => state.providers);
-  const activeProviderId = useAgentProviderStore(
-    state => state.activeProviderId,
-  );
+  const { data: providers = [] } = useProviders();
+  const { data: quickBookSelection = EMPTY_AGENT_SELECTION } =
+    useQuickBookSelection();
 
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [sessionsOpen, setSessionsOpen] = useState(false);
-  const [configured, setConfigured] = useState(false);
-  const [providerEditorId, setProviderEditorId] = useState<string | null>(null);
+  const [providerEditorId, setProviderEditorId] = useState<number | null>(null);
   const [quickBookReady, setQuickBookReady] = useState(false);
   const [pendingQuickBook, setPendingQuickBook] =
     useState<PendingQuickBookMessage | null>(null);
@@ -122,44 +121,26 @@ export function AgentRoot({ children }: AgentRootProps) {
 
   const quickBookSettings = useQuickBookSettingsStore();
   const threadId = session.currentThreadId;
+  const currentThread = session.currentThread;
   const sessionSending = session.sending;
   const sessionErrorText = session.errorText;
   const ensureQuickBookThread = session.ensureQuickBookThread;
-  const threadSelection = useThreadModelStore(state =>
-    threadId === null ? undefined : state.selections[String(threadId)],
-  );
-  const configuredProviderId =
-    threadSelection?.providerId ?? activeProviderId;
 
-  const activeProvider =
-    providers.find(provider => provider.id === activeProviderId) ??
-    providers[0] ??
-    null;
+  const {
+    data: configured = false,
+    refresh: refreshConfigured,
+  } = useProviderKeyStatus(
+    book?.id ?? null,
+    currentThread?.providerId ?? 0,
+  );
+
   const editingProvider =
     providers.find(provider => provider.id === providerEditorId) ?? null;
-
-  const refreshConfigured = useCallback(async (): Promise<void> => {
-    const provider =
-      configuredProviderId === null
-        ? getActiveAgentProvider()
-        : getAgentProvider(configuredProviderId);
-    if (provider === null) {
-      setConfigured(false);
-      return;
-    }
-    try {
-      setConfigured(await hasProviderApiKey(provider.id));
-    } catch {
-      setConfigured(false);
-    }
-  }, [configuredProviderId]);
 
   useEffect(() => {
     let cancelled = false;
     const hydrate = async (): Promise<void> => {
       await Promise.all([
-        rehydrateAgentProviders(),
-        rehydrateThreadModelSelections(),
         rehydrateQuickBookSettings(),
         rehydrateQuickBookRuntime(),
       ]);
@@ -178,12 +159,8 @@ export function AgentRoot({ children }: AgentRootProps) {
   }, []);
 
   useEffect(() => {
-    refreshConfigured().catch(() => undefined);
-  }, [providers, configuredProviderId, refreshConfigured]);
-
-  useEffect(() => {
     if (drawerOpen) {
-      refreshConfigured().catch(() => undefined);
+      refreshConfigured();
     }
   }, [drawerOpen, refreshConfigured]);
 
@@ -203,17 +180,16 @@ export function AgentRoot({ children }: AgentRootProps) {
   }, []);
 
   const handleOpenModelSettings = useCallback(
-    (targetProviderId?: string): void => {
-      const target = targetProviderId ?? activeProvider?.id ?? null;
-      const exists =
-        target !== null && providers.some(provider => provider.id === target);
+    (targetProviderId?: number): void => {
+      const target = targetProviderId ?? currentThread?.providerId ?? 0;
+      const exists = providers.some(provider => provider.id === target);
       if (!exists) {
         handleOpenSettings();
         return;
       }
       setProviderEditorId(target);
     },
-    [activeProvider, handleOpenSettings, providers],
+    [currentThread?.providerId, handleOpenSettings, providers],
   );
 
   const navigateToQuickBookSettings = useCallback((): void => {
@@ -259,10 +235,18 @@ export function AgentRoot({ children }: AgentRootProps) {
         };
       }
 
+      if (!media) {
+        return { ok: false, reason: 'failed', message: '未找到当前账本。' };
+      }
+
       startingQuickBookRef.current = true;
       try {
         const settings = getQuickBookSettings();
-        const resolution = resolveQuickBookModel(providers, settings);
+        const [providerList, selection] = await Promise.all([
+          api.provider.getAll(),
+          api.quickBook.getSelection(),
+        ]);
+        const resolution = resolveQuickBookModel(providerList, selection);
         if (!resolution.ok) {
           const message =
             resolution.reason === 'provider-missing'
@@ -273,12 +257,10 @@ export function AgentRoot({ children }: AgentRootProps) {
           return { ok: false, reason: resolution.reason, message };
         }
 
-        let hasKey = false;
-        try {
-          hasKey = await hasProviderApiKey(resolution.provider.id);
-        } catch {
-          hasKey = false;
-        }
+        const hasKey = await api.credential.hasKey(
+          book.id,
+          resolution.provider.id,
+        );
         if (!hasKey) {
           return {
             ok: false,
@@ -287,17 +269,23 @@ export function AgentRoot({ children }: AgentRootProps) {
           };
         }
 
-        const filePart = toQuickBookFilePart(image);
-        if (filePart === null) {
+        let prepared;
+        try {
+          prepared = await prepareImageMessage(
+            [toQuickBookImagePickerValue(image)],
+            media,
+          );
+        } catch (error: unknown) {
           return {
             ok: false,
             reason: 'image-unavailable',
-            message: '截图读取失败，请重试。',
+            message: getErrorMessage(error),
           };
         }
 
         const threadIdOrNull = await ensureQuickBookThread(
           buildQuickBookThreadTitle(),
+          selection,
         );
         if (threadIdOrNull === null) {
           return {
@@ -307,20 +295,14 @@ export function AgentRoot({ children }: AgentRootProps) {
           };
         }
 
-        rememberThreadModel(
-          threadIdOrNull,
-          resolution.provider.id,
-          resolution.model.modelId,
-        );
-
         const text =
           settings.presetPrompt.trim() || DEFAULT_QUICK_BOOK_PROMPT;
         setPendingQuickBook({
           id: `${threadIdOrNull}-${Date.now()}`,
           threadId: threadIdOrNull,
           text,
-          files: [filePart],
-          attachments: [toQuickBookAttachment(image)],
+          files: prepared.files,
+          attachments: prepared.attachments,
         });
         setDrawerOpen(true);
         return { ok: true };
@@ -335,9 +317,10 @@ export function AgentRoot({ children }: AgentRootProps) {
       }
     },
     [
+      api,
       book,
       ensureQuickBookThread,
-      providers,
+      media,
       sessionErrorText,
       sessionSending,
     ],
@@ -352,8 +335,8 @@ export function AgentRoot({ children }: AgentRootProps) {
   );
 
   const isQuickBookConfigured = useMemo(
-    () => resolveQuickBookModel(providers, quickBookSettings).ok,
-    [providers, quickBookSettings],
+    () => resolveQuickBookModel(providers, quickBookSelection).ok,
+    [providers, quickBookSelection],
   );
 
   const { nudge, dismiss } = useScreenshotNudge({
@@ -465,7 +448,6 @@ export function AgentRoot({ children }: AgentRootProps) {
                       setProviderEditorId(null);
                     }
                   }}
-                  onSaved={() => undefined}
                   open={providerEditorId !== null}
                 />
               ) : null}

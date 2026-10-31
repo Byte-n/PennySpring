@@ -1,54 +1,63 @@
 import type { ImagePickerValue } from '@pennyspring/ui';
 
-jest.mock('@pennyspring/ui', () => ({
-  ImagePicker: {
-    persistImage: jest.fn(),
-  },
-}));
-
-import { ImagePicker } from '@pennyspring/ui';
+import type { MediaSaveInput, MediaStore } from '../src/media';
 import { persistRecordImages } from '../src/screens/addRecord/persistRecordImages';
 
-const mockPersistImage = ImagePicker.persistImage as unknown as jest.MockedFunction<
-  (value: ImagePickerValue[]) => Promise<ImagePickerValue[]>
->;
-
-beforeEach(() => {
-  jest.clearAllMocks();
-});
+function createMediaStore(overrides: Partial<MediaStore> = {}): MediaStore {
+  return {
+    scope: { kind: 'local', booksId: 1 },
+    save: jest.fn(async (input: MediaSaveInput) => `media:${input.fileName}`),
+    resolveUri: jest.fn((ref: string) => `resolved:${ref}`),
+    toRef: jest.fn((uri: string) => uri),
+    toDataUrl: jest.fn(async (ref: string) => ref),
+    ...overrides,
+  } as MediaStore;
+}
 
 describe('persistRecordImages', () => {
-  it('returns empty results without persisting when there are no images', async () => {
-    await expect(persistRecordImages([])).resolves.toEqual({
+  it('returns empty results without saving when there are no images', async () => {
+    const media = createMediaStore();
+
+    await expect(persistRecordImages([], media)).resolves.toEqual({
       images: [],
       imagePaths: [],
     });
-    expect(mockPersistImage).not.toHaveBeenCalled();
+    expect(media.save).not.toHaveBeenCalled();
   });
 
-  it('persists picked images and returns their permanent paths', async () => {
+  it('saves images in order and resolves their display uris', async () => {
     const picked: ImagePickerValue[] = [
       { uri: 'file:///tmp/a.jpg', fileName: 'a.jpg' },
       { uri: 'file:///tmp/b.jpg', fileName: 'b.jpg' },
     ];
-    const persisted: ImagePickerValue[] = [
-      { ...picked[0], uri: 'file:///Documents/x/a.jpg' },
-      { ...picked[1], uri: 'file:///Documents/x/b.jpg' },
-    ];
-    mockPersistImage.mockResolvedValue(persisted);
+    const media = createMediaStore();
 
-    await expect(persistRecordImages(picked)).resolves.toEqual({
-      images: persisted,
-      imagePaths: ['file:///Documents/x/a.jpg', 'file:///Documents/x/b.jpg'],
-    });
-    expect(mockPersistImage).toHaveBeenCalledWith(picked);
+    const result = await persistRecordImages(picked, media);
+
+    expect(media.save).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({ uri: 'file:///tmp/a.jpg', fileName: 'a.jpg' }),
+    );
+    expect(media.save).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({ uri: 'file:///tmp/b.jpg', fileName: 'b.jpg' }),
+    );
+    expect(result.imagePaths).toEqual(['media:a.jpg', 'media:b.jpg']);
+    expect(result.images.map(image => image.uri)).toEqual([
+      'resolved:media:a.jpg',
+      'resolved:media:b.jpg',
+    ]);
   });
 
-  it('propagates persistence errors', async () => {
-    mockPersistImage.mockRejectedValue(new Error('图片转存失败：磁盘已满'));
+  it('propagates media save errors', async () => {
+    const media = createMediaStore({
+      save: jest.fn(async () => {
+        throw new Error('图片上传超时');
+      }),
+    });
 
     await expect(
-      persistRecordImages([{ uri: 'file:///tmp/a.jpg' }]),
-    ).rejects.toThrow('磁盘已满');
+      persistRecordImages([{ uri: 'file:///tmp/a.jpg' }], media),
+    ).rejects.toThrow('图片上传超时');
   });
 });

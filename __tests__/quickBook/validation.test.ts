@@ -5,7 +5,7 @@ import {
 } from '../../src/features/quickBook/validation';
 
 const provider: AgentProviderConfig = {
-  id: 'provider-1',
+  id: 1,
   descriptorId: 'openai-compatible',
   name: '测试提供商',
   baseUrl: 'https://api.example.com/v1',
@@ -25,34 +25,34 @@ const provider: AgentProviderConfig = {
     },
   ],
   storeResponses: true,
-  createdAt: 0,
-  updatedAt: 0,
+  createdTime: 0,
+  updatedTime: 0,
 };
 
 describe('resolveQuickBookModel', () => {
   it('returns the configured multimodal provider and model', () => {
     const result = resolveQuickBookModel([provider], {
-      providerId: 'provider-1',
+      providerId: 1,
       modelId: 'vision-model',
     });
 
     expect(result.ok).toBe(true);
     if (result.ok) {
-      expect(result.provider.id).toBe('provider-1');
+      expect(result.provider.id).toBe(1);
       expect(result.model.modelId).toBe('vision-model');
     }
   });
 
   it('rejects a missing provider selection', () => {
     expect(
-      resolveQuickBookModel([provider], { providerId: null, modelId: null }),
+      resolveQuickBookModel([provider], { providerId: 0, modelId: '' }),
     ).toEqual({ ok: false, reason: 'provider-missing' });
   });
 
   it('rejects a provider that no longer exists', () => {
     expect(
       resolveQuickBookModel([provider], {
-        providerId: 'provider-removed',
+        providerId: 99,
         modelId: 'vision-model',
       }),
     ).toEqual({ ok: false, reason: 'provider-missing' });
@@ -61,7 +61,7 @@ describe('resolveQuickBookModel', () => {
   it('rejects a model that no longer exists', () => {
     expect(
       resolveQuickBookModel([provider], {
-        providerId: 'provider-1',
+        providerId: 1,
         modelId: 'removed-model',
       }),
     ).toEqual({ ok: false, reason: 'model-missing' });
@@ -70,7 +70,7 @@ describe('resolveQuickBookModel', () => {
   it('rejects a model without image support', () => {
     expect(
       resolveQuickBookModel([provider], {
-        providerId: 'provider-1',
+        providerId: 1,
         modelId: 'text-model',
       }),
     ).toEqual({ ok: false, reason: 'model-not-multimodal' });

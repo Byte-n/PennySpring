@@ -2,14 +2,21 @@ import { asc, desc, eq } from 'drizzle-orm'
 
 import { agentMessages, agentThreads } from '../schema'
 import type { Database } from '../types'
+import { validateAgentSelection } from './agent-provider-service'
+import { validateBookExists } from './helpers'
 import type {
   AgentMessageRow,
+  AgentSelection,
   AgentThreadDetail,
   AgentThreadRow,
   CreateAgentMessageInput,
+  Tx,
 } from './types'
 
-async function getThreadRow(db: Database, threadId: number): Promise<AgentThreadRow> {
+async function getThreadRow(
+  db: Database | Tx,
+  threadId: number,
+): Promise<AgentThreadRow> {
   const row = await db.select().from(agentThreads).where(eq(agentThreads.id, threadId)).get()
   if (!row) {
     throw new Error(`会话不存在: ${threadId}`)
@@ -17,16 +24,30 @@ async function getThreadRow(db: Database, threadId: number): Promise<AgentThread
   return row
 }
 
-export async function createThread(db: Database, booksId: number): Promise<AgentThreadRow> {
-  let created: AgentThreadRow | undefined
-  await db.transaction(async tx => {
-    const rows = await tx.insert(agentThreads).values({ booksId, title: '' }).returning()
-    created = rows[0]
+export function createThread(
+  db: Database,
+  booksId: number,
+  selection: AgentSelection,
+): Promise<AgentThreadRow> {
+  return db.transaction(async tx => {
+    await validateBookExists(tx, { booksId }, 'booksId')
+    await validateAgentSelection(tx, selection)
+
+    const rows = await tx
+      .insert(agentThreads)
+      .values({
+        booksId,
+        title: '',
+        providerId: selection.providerId,
+        modelId: selection.modelId,
+      })
+      .returning()
+    const created = rows[0]
+    if (!created) {
+      throw new Error('创建会话失败')
+    }
+    return created
   })
-  if (!created) {
-    throw new Error('创建会话失败')
-  }
-  return created
 }
 
 export async function listThreads(db: Database, booksId: number): Promise<AgentThreadRow[]> {
@@ -57,7 +78,8 @@ export async function getThreadDetail(
  */
 export async function getLatestThreadWithMessages(
   db: Database,
-  booksId: number
+  booksId: number,
+  selection: AgentSelection
 ): Promise<AgentThreadDetail> {
   const latest = await db
     .select()
@@ -65,8 +87,24 @@ export async function getLatestThreadWithMessages(
     .where(eq(agentThreads.booksId, booksId))
     .orderBy(desc(agentThreads.updatedTime), desc(agentThreads.id))
     .get()
-  const thread = latest ?? (await createThread(db, booksId))
+  const thread = latest ?? (await createThread(db, booksId, selection))
   return getThreadDetail(db, thread.id)
+}
+
+export function updateThreadModel(
+  db: Database,
+  threadId: number,
+  selection: AgentSelection,
+): Promise<AgentThreadRow> {
+  return db.transaction(async tx => {
+    await getThreadRow(tx, threadId)
+    await validateAgentSelection(tx, selection)
+    await tx
+      .update(agentThreads)
+      .set({ providerId: selection.providerId, modelId: selection.modelId })
+      .where(eq(agentThreads.id, threadId))
+    return getThreadRow(tx, threadId)
+  })
 }
 
 /**

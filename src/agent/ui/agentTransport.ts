@@ -17,22 +17,17 @@ import { createAgent } from '../core/createAgent';
 import {
   collectMessageAttachments,
   hasUiMessageImages,
+  isUiFilePart,
   stripAttachmentCaptions,
   stripUiMessageFiles,
 } from '../core/attachments';
+import type { MediaStore } from '../../media';
 import { addUsage, EMPTY_USAGE, toTokenUsage } from '../core/messages';
 import { estimateTokens } from '../core/tokens';
 import type { TokenUsage } from '../core/types';
 import { getUiMessageText, trimUiMessagesByTokens } from '../core/uiMessages';
 import { buildSystemPrompt } from '../projection/context';
-import { getActiveAgentProvider, getAgentProvider } from '../providers/configStore';
-import {
-  getThreadModelSelection,
-  rememberThreadModel,
-  resolveThreadModel,
-} from '../providers/modelSelectionStore';
 import { isMultimodalModel } from '../providers/models';
-import { loadProviderApiKey } from '../providers/secureKey';
 import {
   CREATE_RECORD_TOOL_NAME,
   createCreateRecordTool,
@@ -60,9 +55,33 @@ export interface AgentTransportOptions {
   bookName: string;
   threadId: number;
   usageRef: { current: TokenUsage };
+  media: MediaStore;
   persistUserMessage: (message: UIMessage) => Promise<void>;
   ensureTitle: (text: string) => Promise<void>;
   onRunStart?: () => void;
+}
+
+async function hydrateMessageFiles(
+  messages: readonly UIMessage[],
+  media: MediaStore,
+): Promise<UIMessage[]> {
+  const hydrated: UIMessage[] = [];
+
+  for (const message of messages) {
+    let changed = false;
+    const parts: UIMessage['parts'] = [];
+    for (const part of message.parts) {
+      if (!isUiFilePart(part) || part.url.startsWith('data:')) {
+        parts.push(part);
+        continue;
+      }
+      changed = true;
+      parts.push({ ...part, url: await media.toDataUrl(part.url) });
+    }
+    hydrated.push(changed ? { ...message, parts } : message);
+  }
+
+  return hydrated;
 }
 
 function describeStreamError(error: unknown): string {
@@ -142,43 +161,44 @@ export function createAgentTransport(
       options.onRunStart?.();
       options.usageRef.current = EMPTY_USAGE;
 
-      const selection = getThreadModelSelection(options.threadId);
-      const selectedProvider = selection
-        ? getAgentProvider(selection.providerId)
-        : null;
-      const provider = selectedProvider ?? getActiveAgentProvider();
-      if (provider === null) {
-        throw new Error(AGENT_NOT_CONFIGURED_MESSAGE);
+      const threadDetail = await options.api.agent.getThreadDetail(
+        options.threadId,
+      );
+      const providerId = threadDetail.thread.providerId;
+      if (providerId <= 0) {
+        throw new Error(AGENT_NO_MODEL_MESSAGE);
       }
 
-      const model = resolveThreadModel(provider, options.threadId);
+      const provider = await options.api.provider.getById(providerId);
+      const model =
+        provider.models.find(
+          item => item.modelId === threadDetail.thread.modelId,
+        ) ??
+        provider.models.find(
+          item => item.modelId === provider.defaultModelId,
+        ) ??
+        null;
       if (model === null) {
         throw new Error(AGENT_NO_MODEL_MESSAGE);
       }
 
-      const apiKey = await loadProviderApiKey(provider.id);
+      const apiKey = await options.api.credential.getKey(
+        options.booksId,
+        provider.id,
+      );
       if (!apiKey) {
         throw new Error(AGENT_NOT_CONFIGURED_MESSAGE);
       }
 
-      rememberThreadModel(options.threadId, provider.id, model.modelId);
       const supportsImages = isMultimodalModel(model);
-
-      if (trigger === 'submit-message') {
-        const userMessage = messages[messages.length - 1];
-        if (userMessage?.role === 'user') {
-          if (!supportsImages && hasUiMessageImages(userMessage)) {
-            throw new Error(AGENT_MODEL_NO_IMAGE_MESSAGE);
-          }
-          await options.persistUserMessage(userMessage);
-          const text = stripAttachmentCaptions(getUiMessageText(userMessage));
-          const title =
-            text ||
-            (hasUiMessageImages(userMessage) ? IMAGE_MESSAGE_TITLE : '');
-          if (title) {
-            await options.ensureTitle(title);
-          }
-        }
+      const userMessage =
+        trigger === 'submit-message' ? messages[messages.length - 1] : undefined;
+      if (
+        userMessage?.role === 'user' &&
+        !supportsImages &&
+        hasUiMessageImages(userMessage)
+      ) {
+        throw new Error(AGENT_MODEL_NO_IMAGE_MESSAGE);
       }
 
       const attachments = collectMessageAttachments(messages);
@@ -190,9 +210,28 @@ export function createAgentTransport(
         model.contextWindow -
         estimateTokens(systemPrompt) -
         AGENT_RESPONSE_TOKEN_RESERVE;
-      const requestMessages = supportsImages
+      const candidateMessages = supportsImages
         ? messages
         : stripUiMessageFiles(messages);
+      const trimmedMessages = trimUiMessagesByTokens(
+        candidateMessages,
+        tokenBudget,
+      );
+      const requestMessages = supportsImages
+        ? await hydrateMessageFiles(trimmedMessages, options.media)
+        : trimmedMessages;
+
+      if (trigger === 'submit-message' && userMessage?.role === 'user') {
+        const text = stripAttachmentCaptions(getUiMessageText(userMessage));
+        const title =
+          text ||
+          (hasUiMessageImages(userMessage) ? IMAGE_MESSAGE_TITLE : '');
+        if (title) {
+          await options.ensureTitle(title);
+        }
+        await options.persistUserMessage(userMessage);
+      }
+
       const tools = {
         [QUERY_RECORDS_TOOL_NAME]: createQueryRecordsTool({
           api: options.api,
@@ -243,7 +282,7 @@ export function createAgentTransport(
           tools,
           toolApproval,
         }),
-        uiMessages: trimUiMessagesByTokens(requestMessages, tokenBudget),
+        uiMessages: requestMessages,
         abortSignal,
         sendReasoning: true,
         sendSources: false,

@@ -262,6 +262,7 @@ describe('toPersistedUiInput', () => {
         attachments: [
           {
             id: 'att_1',
+            ref: 'file:///tmp/quick-book/shot.jpg',
             localPath: 'file:///tmp/quick-book/shot.jpg',
             mediaType: 'image/jpeg',
             filename: 'shot.jpg',

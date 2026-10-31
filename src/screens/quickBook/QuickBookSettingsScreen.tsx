@@ -14,11 +14,15 @@ import {
 } from '@pennyspring/ui';
 import { createUseSheetStyle } from '@pennyspring/theme';
 
-import {
-  getProviderDisplayName,
-  useAgentProviderStore,
-} from '../../agent/providers/configStore';
+import { getProviderDisplayName } from '../../agent/providers/display';
 import type { AgentProviderConfig } from '../../agent/providers/types';
+import {
+  EMPTY_AGENT_SELECTION,
+  useQuickBookSelection,
+  useProviders,
+} from '../../agent/providers/useProviders';
+import { useGlobalApi } from '../../stores/bookStore';
+import { useSyncVersionStore } from '../../stores/syncVersionStore';
 import {
   DEFAULT_QUICK_BOOK_PROMPT,
   MAX_SCREENSHOT_FRESH_WINDOW_SECONDS,
@@ -75,7 +79,12 @@ export function QuickBookSettingsScreen(): React.ReactElement {
   const navigation = useNavigation();
 
   const settings = useQuickBookSettingsStore();
-  const providers = useAgentProviderStore(state => state.providers);
+  const api = useGlobalApi();
+  const bumpProviderVersion = useSyncVersionStore(
+    state => state.bumpProviderVersion,
+  );
+  const { data: providers = [] } = useProviders();
+  const { data: selection = EMPTY_AGENT_SELECTION } = useQuickBookSelection();
 
   const [providerSheetOpen, setProviderSheetOpen] = useState(false);
   const [modelSheetOpen, setModelSheetOpen] = useState(false);
@@ -84,16 +93,16 @@ export function QuickBookSettingsScreen(): React.ReactElement {
   );
 
   const selectedProvider = useMemo(
-    () => providers.find(provider => provider.id === settings.providerId) ?? null,
-    [providers, settings.providerId],
+    () => providers.find(provider => provider.id === selection.providerId) ?? null,
+    [providers, selection.providerId],
   );
   const multimodalModels = useMemo(
     () => getMultimodalModels(selectedProvider),
     [selectedProvider],
   );
   const resolution = useMemo(
-    () => resolveQuickBookModel(providers, settings),
-    [providers, settings],
+    () => resolveQuickBookModel(providers, selection),
+    [providers, selection],
   );
   const isConfigured = resolution.ok;
   const isAndroid = isScreenshotDetectionSupported();
@@ -122,9 +131,20 @@ export function QuickBookSettingsScreen(): React.ReactElement {
       if (!provider) {
         return;
       }
-      settings.setProviderId(provider.id);
       const defaultModel = getDefaultQuickBookModel(provider);
-      settings.setModelId(defaultModel?.modelId ?? null);
+      api.quickBook
+        .setSelection({
+          providerId: provider.id,
+          modelId: defaultModel?.modelId ?? '',
+        })
+        .then(() => bumpProviderVersion())
+        .catch(error => {
+          toast.show({
+            messageText:
+              error instanceof Error ? error.message : '保存模型选择失败',
+            status: 'error',
+          });
+        });
       if (defaultModel === null) {
         toast.show({
           messageText: '该提供商没有支持图片的模型，请先在提供商设置中开启多模态。',
@@ -132,17 +152,30 @@ export function QuickBookSettingsScreen(): React.ReactElement {
         });
       }
     },
-    [providers, settings, toast],
+    [api, bumpProviderVersion, providers, toast],
   );
 
   const handleModelAction = useCallback(
     (_action: unknown, index: number): void => {
       const model = multimodalModels[index];
-      if (model) {
-        settings.setModelId(model.modelId);
+      if (!model || selectedProvider === null) {
+        return;
       }
+      api.quickBook
+        .setSelection({
+          providerId: selectedProvider.id,
+          modelId: model.modelId,
+        })
+        .then(() => bumpProviderVersion())
+        .catch(error => {
+          toast.show({
+            messageText:
+              error instanceof Error ? error.message : '保存模型选择失败',
+            status: 'error',
+          });
+        });
     },
-    [multimodalModels, settings],
+    [api, bumpProviderVersion, multimodalModels, selectedProvider, toast],
   );
 
   const handleNudgeChange = useCallback(
@@ -175,9 +208,19 @@ export function QuickBookSettingsScreen(): React.ReactElement {
   );
 
   const handleClearProviderModel = useCallback((): void => {
-    settings.clearProviderModel();
+    settings.setNudgeEnabled(false);
+    api.quickBook
+      .setSelection(EMPTY_AGENT_SELECTION)
+      .then(() => bumpProviderVersion())
+      .catch(error => {
+        toast.show({
+          messageText:
+            error instanceof Error ? error.message : '清空模型选择失败',
+          status: 'error',
+        });
+      });
     toast.show({ messageText: '已清空 AI 模型，截图提醒已关闭。' });
-  }, [settings, toast]);
+  }, [api, bumpProviderVersion, settings, toast]);
 
   const commitWindowText = useCallback((): void => {
     const parsed = Number(windowText);
@@ -239,7 +282,7 @@ export function QuickBookSettingsScreen(): React.ReactElement {
 
         <Card
           extra={
-            selectedProvider !== null || settings.modelId !== null ? (
+            selectedProvider !== null || selection.modelId !== '' ? (
               <Button
                 onPress={handleClearProviderModel}
                 size="small"
@@ -274,7 +317,7 @@ export function QuickBookSettingsScreen(): React.ReactElement {
                 size="small"
                 type="text"
               >
-                {settings.modelId ?? '未选择'}
+                {selection.modelId || '未选择'}
               </Button>
             </Row>
             {providers.length === 0 ? (

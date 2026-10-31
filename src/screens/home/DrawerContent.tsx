@@ -1,5 +1,6 @@
 import React from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
+import { useRequest } from 'ahooks';
 import {
   Avatar,
   Column,
@@ -33,8 +34,9 @@ import { APP_NAME, APP_VERSION } from '../../constants/app';
 import { useThemeMode } from '../../contexts/ThemeModeContext';
 import { ROOT_ROUTES } from '../../navigation/routes';
 import type { RootStackParamList } from '../../navigation/types';
-import { useBookStore } from '../../stores/bookStore';
-import { useQuickTemplateStore } from '../quickTemplate/quickTemplateStore';
+import { resolveMediaRef } from '../../media';
+import { useBookStore, useGlobalApi } from '../../stores/bookStore';
+import { useSyncVersionStore } from '../../stores/syncVersionStore';
 import { DrawerNavRow } from './DrawerNavRow';
 import {
   formatUpdatedTime,
@@ -264,9 +266,24 @@ export function DrawerContent({
   const currentBook = useBookStore(state => state.currentBook);
   const currentBookRef = useBookStore(state => state.currentBookRef);
   const bookId = currentBook?.id ?? null;
-  const templateCount = useQuickTemplateStore(state =>
-    bookId === null ? 0 : state.templatesByBook[bookId]?.length ?? 0,
+  const api = useGlobalApi();
+  const templateVersion = useSyncVersionStore(state => state.templateVersion);
+  const { data: templates = [] } = useRequest(
+    () =>
+      bookId === null
+        ? Promise.resolve([])
+        : api.quickTemplate.list(bookId),
+    { refreshDeps: [api, bookId, templateVersion] },
   );
+  const templateCount = templates.length;
+  const backgroundUri = currentBook?.background
+    ? resolveMediaRef(
+        currentBook.background,
+        currentBookRef?.kind === 'remote'
+          ? currentBookRef.serverUrl
+          : undefined,
+      )
+    : '';
   const [isDeveloperOpen, setIsDeveloperOpen] = React.useState(false);
   const isDark = themeMode === 'dark';
 
@@ -339,11 +356,7 @@ export function DrawerContent({
             <Avatar
               shape="square"
               size="normal"
-              src={
-                currentBook.background
-                  ? { uri: currentBook.background }
-                  : undefined
-              }
+              src={backgroundUri ? { uri: backgroundUri } : undefined}
               style={styles.cover}
               text={currentBook.name}
             />

@@ -1,14 +1,19 @@
 import type { RecordTypeCategoryValue } from './constants'
 import * as services from './services'
 import type {
+  AgentSelection,
   CreateAgentMessageInput,
+  CreateAgentProviderInput,
   CreateAssetInput,
   CreateBookInput,
+  CreateQuickTemplateInput,
   CreateRecordInput,
   CreateTagInput,
   CreateTypeInput,
+  UpdateAgentProviderInput,
   UpdateAssetInput,
   UpdateBookInput,
+  UpdateQuickTemplateInput,
   UpdateRecordInput,
   UpdateTagInput,
   UpdateTypeInput,
@@ -61,17 +66,60 @@ export function createApi(getDatabase: () => Promise<Database>) {
       update: async (input: UpdateAssetInput) => services.updateAsset(await getDatabase(), input),
       delete: async (assetId: number, booksId: number) => services.deleteAsset(await getDatabase(), assetId, booksId),
     },
+    provider: {
+      getAll: async () => services.getAllProviders(await getDatabase()),
+      getById: async (providerId: number) =>
+        services.getProviderById(await getDatabase(), providerId),
+      create: async (input: CreateAgentProviderInput) =>
+        services.createProvider(await getDatabase(), input),
+      update: async (input: UpdateAgentProviderInput) =>
+        services.updateProvider(await getDatabase(), input),
+      delete: async (providerId: number) =>
+        services.deleteProvider(await getDatabase(), providerId),
+      getSelection: async () =>
+        services.getAgentSelection(await getDatabase(), 'agent'),
+      setSelection: async (selection: AgentSelection) =>
+        services.setAgentSelection(await getDatabase(), 'agent', selection),
+    },
+    quickBook: {
+      getSelection: async () =>
+        services.getAgentSelection(await getDatabase(), 'quickBook'),
+      setSelection: async (selection: AgentSelection) =>
+        services.setAgentSelection(await getDatabase(), 'quickBook', selection),
+    },
+    credential: {
+      hasKey: async (booksId: number, providerId: number) =>
+        services.hasProviderKey(await getDatabase(), booksId, providerId),
+      getKey: async (booksId: number, providerId: number) =>
+        services.getProviderKey(await getDatabase(), booksId, providerId),
+      setKey: async (booksId: number, providerId: number, apiKey: string) =>
+        services.setProviderKey(await getDatabase(), booksId, providerId, apiKey),
+    },
+    quickTemplate: {
+      list: async (booksId: number) =>
+        services.listQuickTemplates(await getDatabase(), booksId),
+      create: async (input: CreateQuickTemplateInput) =>
+        services.createQuickTemplate(await getDatabase(), input),
+      update: async (input: UpdateQuickTemplateInput) =>
+        services.updateQuickTemplate(await getDatabase(), input),
+      delete: async (templateId: number, booksId: number) =>
+        services.deleteQuickTemplate(await getDatabase(), templateId, booksId),
+      reorder: async (booksId: number, templateIds: number[]) =>
+        services.reorderQuickTemplates(await getDatabase(), booksId, templateIds),
+    },
     agent: {
-      createThread: async (booksId: number) =>
-        services.createThread(await getDatabase(), booksId),
+      createThread: async (booksId: number, selection: AgentSelection) =>
+        services.createThread(await getDatabase(), booksId, selection),
       listThreads: async (booksId: number) =>
         services.listThreads(await getDatabase(), booksId),
-      getLatestThreadWithMessages: async (booksId: number) =>
-        services.getLatestThreadWithMessages(await getDatabase(), booksId),
+      getLatestThreadWithMessages: async (booksId: number, selection: AgentSelection) =>
+        services.getLatestThreadWithMessages(await getDatabase(), booksId, selection),
       getThreadDetail: async (threadId: number) =>
         services.getThreadDetail(await getDatabase(), threadId),
       appendMessages: async (threadId: number, inputs: CreateAgentMessageInput[]) =>
         services.appendMessages(await getDatabase(), threadId, inputs),
+      updateThreadModel: async (threadId: number, selection: AgentSelection) =>
+        services.updateThreadModel(await getDatabase(), threadId, selection),
       updateThreadTitle: async (threadId: number, title: string) =>
         services.updateThreadTitle(await getDatabase(), threadId, title),
       deleteThread: async (threadId: number) =>

@@ -1,8 +1,4 @@
-import {
-  toQuickBookAttachment,
-  toQuickBookFilePart,
-  toQuickBookImagePickerValue,
-} from '../../src/features/quickBook/imagePayload';
+import { toQuickBookImagePickerValue } from '../../src/features/quickBook/imagePayload';
 import type { QuickBookImage } from '../../src/features/quickBook/types';
 
 const image: QuickBookImage = {
@@ -29,26 +25,4 @@ describe('quick book image payload', () => {
     });
   });
 
-  it('builds a file part with a data url', () => {
-    expect(toQuickBookFilePart(image)).toEqual({
-      type: 'file',
-      mediaType: 'image/jpeg',
-      filename: 'shot.jpg',
-      url: 'data:image/jpeg;base64,QUJD',
-    });
-  });
-
-  it('returns null when the base64 payload is missing', () => {
-    expect(toQuickBookFilePart({ ...image, base64: '' })).toBeNull();
-  });
-
-  it('builds a model-selectable attachment from the screenshot file', () => {
-    expect(toQuickBookAttachment(image)).toEqual(
-      expect.objectContaining({
-        localPath: 'file:///tmp/quick-book/shot.jpg',
-        mediaType: 'image/jpeg',
-        filename: 'shot.jpg',
-      }),
-    );
-  });
 });

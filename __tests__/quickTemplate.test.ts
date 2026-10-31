@@ -36,7 +36,7 @@ function typeRow(overrides: Partial<TypeRow>): TypeRow {
 
 function template(overrides: Partial<QuickTemplate>): QuickTemplate {
   return {
-    id: 'tpl-1',
+    id: 1,
     booksId: 1,
     name: '模板',
     typeCategory: RECORD_TYPE_CATEGORY.expense,
@@ -48,7 +48,10 @@ function template(overrides: Partial<QuickTemplate>): QuickTemplate {
     intoAssetId: 0,
     reimbursable: false,
     tagIds: [],
+    icon: '',
     sort: 1,
+    createdTime: NOW,
+    updatedTime: NOW,
     ...overrides,
   };
 }
@@ -142,7 +145,7 @@ describe('quickTemplate payload mappers', () => {
 
   test('toTemplatePayload carries id/name/typeCategory and normalizes 0 assets to null', () => {
     const tpl = template({
-      id: 'tpl-9',
+      id: 9,
       name: '通勤',
       assetId: 0,
       intoAssetId: 0,
@@ -150,7 +153,7 @@ describe('quickTemplate payload mappers', () => {
     });
     const payload: AddRecordTemplatePayload = toTemplatePayload(tpl);
 
-    expect(payload.id).toBe('tpl-9');
+    expect(payload.id).toBe(9);
     expect(payload.name).toBe('通勤');
     expect(payload.typeCategory).toBe(tpl.typeCategory);
     expect(payload.assetId).toBeNull();

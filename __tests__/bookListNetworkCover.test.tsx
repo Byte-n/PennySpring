@@ -47,6 +47,7 @@ jest.mock('@pennyspring/ui', () => {
 import type { BookRow } from '@pennyspring/api';
 import { BookList } from '../src/components/BookList';
 import type { BookListItem } from '../src/components/BookList';
+import { ManageRow } from '../src/components/ManageRow';
 import type { BookEntry, CurrentBookRef } from '../src/stores/bookStore';
 
 const REMOTE_SERVER_URL = 'http://192.168.1.10:8080';
@@ -97,9 +98,24 @@ function renderBookList(items: BookListItem[]): TestRenderer.ReactTestRenderer {
   return renderer!;
 }
 
+function findNetworkCoverLabel(
+  renderer: TestRenderer.ReactTestRenderer,
+): unknown[] {
+  return renderer.root
+    .findAllByType(RNText)
+    .map(node => node.props.children);
+}
+
 describe('BookList 账本封面', () => {
-  it('网络账本即使存在图片地址也不渲染图片，改用网络图标封面', () => {
+  it('网络账本有封面地址时渲染图片封面', () => {
     const renderer = renderBookList([createRemoteItem(COVER_IMAGE_URI)]);
+
+    expect(renderer.root.findAllByType(Image)).toHaveLength(1);
+    expect(findNetworkCoverLabel(renderer)).not.toContain('网络');
+  });
+
+  it('网络账本没有封面时使用网络图标封面', () => {
+    const renderer = renderBookList([createRemoteItem('')]);
 
     expect(renderer.root.findAllByType(Image)).toHaveLength(0);
 
@@ -109,16 +125,30 @@ describe('BookList 账本封面', () => {
         typeof node.props.icon === 'function',
     );
     expect(icons.length).toBeGreaterThan(0);
-
-    const texts = renderer.root
-      .findAllByType(RNText)
-      .map(node => node.props.children);
-    expect(texts).toContain('网络');
+    expect(findNetworkCoverLabel(renderer)).toContain('网络');
   });
 
   it('本地账本存在图片地址时仍然渲染图片封面', () => {
     const renderer = renderBookList([createLocalItem(COVER_IMAGE_URI)]);
 
     expect(renderer.root.findAllByType(Image)).toHaveLength(1);
+  });
+
+  it('网络账本加载失败时不提供菜单编辑入口', () => {
+    const item = { ...createRemoteItem(''), error: '连接失败' };
+    let renderer: TestRenderer.ReactTestRenderer;
+    act(() => {
+      renderer = TestRenderer.create(
+        <BookList
+          currentBook={null}
+          items={[item]}
+          mode="manage"
+          onBookMenu={jest.fn()}
+        />,
+      );
+    });
+
+    const row = renderer!.root.findByType(ManageRow);
+    expect(row.props.onMenuPress).toBeUndefined();
   });
 });

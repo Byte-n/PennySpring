@@ -16,15 +16,15 @@ function createConfig(
   storeResponses: boolean,
 ): AgentProviderConfig {
   return {
-    id: 'provider_1',
+    id: 1,
     descriptorId,
     name: '测试提供商',
     baseUrl: 'https://host/v1',
     defaultModelId: 'gpt-5',
     models: [],
     storeResponses,
-    createdAt: 0,
-    updatedAt: 0,
+    createdTime: 0,
+    updatedTime: 0,
   };
 }
 

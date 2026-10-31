@@ -40,7 +40,16 @@ import { FormFloatingPanel } from '../../components/FormFloatingPanel';
 import { createHeaderAddButton } from '../../components/HeaderAddButton';
 import { ManageConfirmDialog } from '../../components/ManageConfirmDialog';
 import { ManageCard, ManageRow } from '../../components/ManageRow';
+import {
+  MEDIA_IMAGE_MAX_DIMENSION,
+  MEDIA_IMAGE_QUALITY,
+  resolveMediaRef,
+} from '../../media';
 import { useNavigation } from '../../navigation';
+import {
+  createRemoteBookWithCover,
+  updateRemoteBookWithCover,
+} from './remoteBook';
 
 type BookFormKind = 'local' | 'remote';
 
@@ -147,7 +156,11 @@ export function BookManageScreen() {
       })),
       ...networkEntries.map(({ ref, book, error }) => {
         const entry: BookEntry = book
-          ? { kind: BOOK_TYPE.remote, ...book }
+          ? {
+              kind: BOOK_TYPE.remote,
+              ...book,
+              background: resolveMediaRef(book.background, ref.serverUrl),
+            }
           : {
               background: '',
               createdTime: 0,
@@ -208,7 +221,39 @@ export function BookManageScreen() {
   }, [navigation, openCreate]);
 
   const openEdit = useCallback(
-    (item: BookListItem) => {
+    async (item: BookListItem): Promise<void> => {
+      if (item.error) {
+        return;
+      }
+
+      if (item.entry.kind === BOOK_TYPE.remote) {
+        const serverUrl = item.networkRef?.serverUrl;
+        if (!serverUrl) {
+          return;
+        }
+        try {
+          const book = await getRemoteApi(serverUrl).book.getById(item.entry.id);
+          setEditingBook(book);
+          setFormKind('remote');
+          form.reset({
+            name: book.name,
+            description: book.description,
+            backgroundImage: getImageValue(
+              resolveMediaRef(book.background, serverUrl),
+            ),
+            networkServerUrl: serverUrl,
+          });
+          resetNetworkState();
+          setNetworkLoading(false);
+          setFormOpen(true);
+        } catch (error: unknown) {
+          toast.show({
+            messageText: getErrorMessage(error, '读取网络账本失败'),
+          });
+        }
+        return;
+      }
+
       setEditingBook(item.entry);
       setFormKind('local');
       form.reset({
@@ -221,7 +266,7 @@ export function BookManageScreen() {
       setNetworkLoading(false);
       setFormOpen(true);
     },
-    [form, resetNetworkState],
+    [form, resetNetworkState, toast],
   );
 
   const existingServerUrls = useMemo(() => {
@@ -311,20 +356,70 @@ export function BookManageScreen() {
         }
 
         const url = values.networkServerUrl.trim();
-        // 网络账本暂不支持上传图片，封面统一由客户端渲染为网络图标
-        const created = await getRemoteApi(url).book.create({
-          name: values.name.trim(),
-          description: values.description,
-          background: '',
-        });
-        addRef({ serverUrl: url, bookId: created.id });
-        toast.show({ messageText: `已创建网络账本「${created.name}」` });
+        const name = values.name.trim();
+        const remoteApi = getRemoteApi(url);
+
+        if (editingBook) {
+          const updated = await updateRemoteBookWithCover(
+            remoteApi.book,
+            url,
+            editingBook,
+            {
+              name,
+              description: values.description,
+              backgroundImage: values.backgroundImage,
+            },
+          );
+          refreshNetwork();
+          if (
+            currentBook?.kind === BOOK_TYPE.remote &&
+            currentBook.id === updated.id
+          ) {
+            setCurrentBook(
+              { kind: 'remote', serverUrl: url, bookId: updated.id },
+              { kind: BOOK_TYPE.remote, ...updated },
+            );
+          }
+          toast.show({ messageText: `已更新网络账本「${updated.name}」` });
+          submitSucceededRef.current = true;
+          return;
+        }
+
+        const result = await createRemoteBookWithCover(
+          remoteApi.book,
+          url,
+          {
+            name,
+            description: values.description,
+            backgroundImage: values.backgroundImage,
+          },
+        );
+        addRef({ serverUrl: url, bookId: result.book.id });
+        refreshNetwork();
+
+        if (result.coverError) {
+          toast.show({
+            messageText: `账本已创建，但封面上传失败：${getErrorMessage(
+              result.coverError,
+              '未知错误',
+            )}`,
+            status: 'error',
+          });
+          submitSucceededRef.current = true;
+          return;
+        }
+
+        toast.show({ messageText: `已创建网络账本「${result.book.name}」` });
         submitSucceededRef.current = true;
       } catch (error: unknown) {
         toast.show({
           messageText: getErrorMessage(
             error,
-            formKind === 'local' ? '操作失败' : '创建失败',
+            formKind === 'local'
+              ? '操作失败'
+              : editingBook
+                ? '更新失败'
+                : '创建失败',
           ),
         });
       } finally {
@@ -337,6 +432,7 @@ export function BookManageScreen() {
       editingBook,
       formKind,
       refreshAll,
+      refreshNetwork,
       setCurrentBook,
       toast,
     ],
@@ -429,7 +525,10 @@ export function BookManageScreen() {
       return [];
     }
     if (menuItem.entry.kind === BOOK_TYPE.remote) {
-      return [{ text: '移除缓存', icon: 'trash' as const, danger: true }];
+      return [
+        { text: '编辑账本', icon: 'edit' as const },
+        { text: '移除缓存', icon: 'trash' as const, danger: true },
+      ];
     }
     return [
       { text: '编辑账本', icon: 'edit' as const },
@@ -441,11 +540,15 @@ export function BookManageScreen() {
     (_action: { text: string }, index: number) => {
       const item = menuItem;
       setMenuItem(null);
-      if (!item) {
+      if (!item || item.error) {
         return;
       }
       if (item.entry.kind === BOOK_TYPE.remote) {
-        setConfirmState({ kind: 'remove', item });
+        if (index === 0) {
+          openEdit(item);
+        } else {
+          setConfirmState({ kind: 'remove', item });
+        }
         return;
       }
       if (index === 0) {
@@ -552,21 +655,19 @@ export function BookManageScreen() {
           labelMode="child"
           onFinish={handleFinish}
         >
-          <Column>
-            <Segmented
-              block
-              onChange={value => setFormKind(value as BookFormKind)}
-              options={[
-                { label: '本地账本', value: 'local' },
-                {
-                  disabled: editingBook !== null,
-                  label: '网络账本',
-                  value: 'remote',
-                },
-              ]}
-              value={formKind}
-            />
-          </Column>
+          {editingBook === null ? (
+            <Column>
+              <Segmented
+                block
+                onChange={value => setFormKind(value as BookFormKind)}
+                options={[
+                  { label: '本地账本', value: 'local' },
+                  { label: '网络账本', value: 'remote' },
+                ]}
+                value={formKind}
+              />
+            </Column>
+          ) : null}
 
           <TypedForm.Item
             name="name"
@@ -580,93 +681,106 @@ export function BookManageScreen() {
             <Input placeholder="一句话说明这本账用在哪儿" />
           </TypedForm.Item>
 
-          {formKind === 'local' ? (
-            <TypedForm.Item name="backgroundImage" labelText="封面">
-              <ImagePicker />
-            </TypedForm.Item>
-          ) : (
-            <>
-              <TypedForm.Item
-                name="networkServerUrl"
-                labelText="服务器地址"
-                required
-                requiredMessage="请输入服务器地址"
-              >
-                <Input
-                  onChange={handleServerUrlInputChange}
-                  placeholder="http://192.168.1.12:8787"
-                />
-              </TypedForm.Item>
+          <TypedForm.Item name="backgroundImage" labelText="封面">
+            <ImagePicker
+              maxHeight={MEDIA_IMAGE_MAX_DIMENSION}
+              maxWidth={MEDIA_IMAGE_MAX_DIMENSION}
+              quality={MEDIA_IMAGE_QUALITY}
+            />
+          </TypedForm.Item>
+
+          {formKind === 'remote' ? (
+            editingBook === null ? (
+              <>
+                <TypedForm.Item
+                  name="networkServerUrl"
+                  labelText="服务器地址"
+                  required
+                  requiredMessage="请输入服务器地址"
+                >
+                  <Input
+                    onChange={handleServerUrlInputChange}
+                    placeholder="http://192.168.1.12:8787"
+                  />
+                </TypedForm.Item>
+                <TypedForm.Subscribe
+                  selector={state => state.values.networkServerUrl}
+                >
+                  {networkServerUrl => (
+                    <>
+                      {networkError ? (
+                        <Text color="errorText" size="xs">
+                          {networkError}
+                        </Text>
+                      ) : null}
+                      {existingServerUrls.length > 0 ? (
+                        <Column gap="small">
+                          <Text size="xs" color="tertiary">
+                            最近使用
+                          </Text>
+                          <Row gap="small" wrap>
+                            {existingServerUrls.map(url => (
+                              <Tag
+                                key={url}
+                                color="default"
+                                onPress={() => handleSelectServerUrl(url)}
+                                size="small"
+                                variant="filled"
+                              >
+                                {url}
+                              </Tag>
+                            ))}
+                          </Row>
+                        </Column>
+                      ) : null}
+                      <Button
+                        block
+                        disabled={!networkServerUrl.trim() || networkLoading}
+                        onPress={handleConnect}
+                        size="small"
+                        type="dashed"
+                      >
+                        {networkLoading
+                          ? '连接中…'
+                          : networkConnected
+                            ? '重新读取服务器账本'
+                            : '连接并读取服务器账本'}
+                      </Button>
+                      {networkLoading ? (
+                        <Column style={styles.remoteLoading}>
+                          <Loading size="small" text="连接中..." />
+                        </Column>
+                      ) : null}
+                      {networkConnected ? (
+                        serverBookList.length > 0 ? (
+                          <Column gap="small">
+                            <Text size="xs" color="tertiary">
+                              服务器上的账本 · 轻点添加到本机
+                            </Text>
+                            <ManageCard>{serverBookRows}</ManageCard>
+                          </Column>
+                        ) : (
+                          <Text size="xs" color="tertiary">
+                            该服务器暂无账本，可直接创建。
+                          </Text>
+                        )
+                      ) : null}
+                    </>
+                  )}
+                </TypedForm.Subscribe>
+              </>
+            ) : (
               <TypedForm.Subscribe
                 selector={state => state.values.networkServerUrl}
               >
                 {networkServerUrl => (
-                  <>
-                    {networkError ? (
-                      <Text color="errorText" size="xs">
-                        {networkError}
-                      </Text>
-                    ) : null}
-                    {existingServerUrls.length > 0 ? (
-                      <Column gap="small">
-                        <Text size="xs" color="tertiary">
-                          最近使用
-                        </Text>
-                        <Row gap="small" wrap>
-                          {existingServerUrls.map(url => (
-                            <Tag
-                              key={url}
-                              color="default"
-                              onPress={() => handleSelectServerUrl(url)}
-                              size="small"
-                              variant="filled"
-                            >
-                              {url}
-                            </Tag>
-                          ))}
-                        </Row>
-                      </Column>
-                    ) : null}
-                    <Button
-                      block
-                      disabled={!networkServerUrl.trim() || networkLoading}
-                      onPress={handleConnect}
-                      size="small"
-                      type="dashed"
-                    >
-                      {networkLoading
-                        ? '连接中…'
-                        : networkConnected
-                          ? '重新读取服务器账本'
-                          : '连接并读取服务器账本'}
-                    </Button>
-                    {networkLoading ? (
-                      <Column style={styles.remoteLoading}>
-                        <Loading size="small" text="连接中..." />
-                      </Column>
-                    ) : null}
-                    {networkConnected ? (
-                      serverBookList.length > 0 ? (
-                        <Column gap="small">
-                          <Text size="xs" color="tertiary">
-                            服务器上的账本 · 轻点添加到本机
-                          </Text>
-                          <ManageCard>{serverBookRows}</ManageCard>
-                        </Column>
-                      ) : (
-                        <Text size="xs" color="tertiary">
-                          该服务器暂无账本，可直接创建。
-                        </Text>
-                      )
-                    ) : null}
-                    <Text size="xs" color="tertiary">
-                      网络账本的封面统一使用网络图标，由服务器返回的账本信息决定
-                    </Text>
-                  </>
+                  <Text color="secondary" size="xs">
+                    服务器：{networkServerUrl}
+                  </Text>
                 )}
               </TypedForm.Subscribe>
-            </>
-          )}
+            )
+          ) : null}
         </TypedForm>
       </FormFloatingPanel>
 

@@ -63,10 +63,28 @@ jest.mock('phosphor-react-native', () => {
   return new Proxy({ __esModule: true }, { get: () => MockPhosphorIcon });
 });
 
+const mockGlobalApi = {
+  provider: {
+    getAll: async () => [],
+    getSelection: async () => ({ providerId: 0, modelId: '' }),
+    getById: async () => {
+      throw new Error('provider not found');
+    },
+  },
+  quickBook: {
+    getSelection: async () => ({ providerId: 0, modelId: '' }),
+  },
+  credential: {
+    hasKey: async () => false,
+    getKey: async () => '',
+  },
+};
+
 jest.mock('../../src/stores/bookStore', () => ({
   useBookStore: (
     selector: (state: typeof mockBookStoreState) => unknown,
   ) => selector(mockBookStoreState),
+  useGlobalApi: () => mockGlobalApi,
 }));
 
 jest.mock('../../src/navigation', () => ({
@@ -78,20 +96,6 @@ jest.mock('../../src/navigation', () => ({
   },
 }));
 
-jest.mock('../../src/agent/providers/configStore', () => ({
-  getActiveAgentProvider: () => null,
-  getAgentProvider: () => null,
-  rehydrateAgentProviders: () => Promise.resolve(),
-  useAgentProviderStore: (selector: (state: {
-    providers: [];
-    activeProviderId: null;
-  }) => unknown) => selector({ providers: [], activeProviderId: null }),
-}));
-
-jest.mock('../../src/agent/providers/secureKey', () => ({
-  hasProviderApiKey: () => Promise.resolve(false),
-}));
-
 jest.mock('../../src/agent/ui/useAgentSession', () => ({
   useAgentSession: () => ({
     loading: false,
@@ -101,6 +105,7 @@ jest.mock('../../src/agent/ui/useAgentSession', () => ({
     threads: [],
     threadsLoading: false,
     currentThreadId: 1,
+    currentThread: null,
     initialMessages: [],
     createThread: jest.fn(),
     ensureQuickBookThread: jest.fn(() => Promise.resolve(null)),
@@ -108,6 +113,7 @@ jest.mock('../../src/agent/ui/useAgentSession', () => ({
     deleteThread: jest.fn(),
     deleteCurrentThread: jest.fn(),
     refreshThreads: jest.fn(),
+    updateThreadModel: jest.fn(() => Promise.resolve()),
     ensureTitle: jest.fn(),
     markActivity: jest.fn(),
     accumulateUsage: jest.fn(),

@@ -39,7 +39,7 @@ export interface AddRecordPresetPayload {
  * typeCategory 供 AddRecordScreen 决定初始 tab。
  */
 export interface AddRecordTemplatePayload {
-  id: string;
+  id: number;
   name: string;
   typeCategory: RecordTypeCategoryValue;
   typeId: number;
@@ -58,7 +58,7 @@ export interface AddRecordContextValue {
   /** 是否处于模板编辑流程（新增/编辑模板） */
   template: boolean;
   /** 编辑模板时携带的模板 id；undefined 表示新增模板 */
-  editingTemplateId?: string;
+  editingTemplateId?: number;
   templateName: string;
   setTemplateName: (v: string) => void;
   reimbursable: boolean;
@@ -105,7 +105,7 @@ export function AddRecordProvider({
   const [mode, setMode] = useState<AddRecordMode>('create');
   const [editingRecordId, setEditingRecordId] = useState<number>();
   const [template, setTemplate] = useState(false);
-  const [editingTemplateId, setEditingTemplateId] = useState<string>();
+  const [editingTemplateId, setEditingTemplateId] = useState<number>();
   const [templateName, setTemplateName] = useState('');
   const [reimbursable, setReimbursable] = useState(false);
   const [initialTypeId, setInitialTypeId] = useState<number>();

@@ -85,21 +85,29 @@ jest.mock('react-native-safe-area-context', () => ({
   useSafeAreaInsets: () => ({ bottom: 34, left: 0, right: 0, top: 47 }),
 }));
 
+const mockDrawerTemplates: unknown[] = [];
+
 jest.mock('../src/stores/bookStore', () => {
   const state = { currentBook: null, currentBookRef: null };
   return {
     useBookStore: (selector: (value: typeof state) => unknown) =>
       selector(state),
+    useGlobalApi: () => ({
+      quickTemplate: { list: async () => mockDrawerTemplates },
+    }),
     __bookStoreState: state,
   };
 });
 
-jest.mock('../src/screens/quickTemplate/quickTemplateStore', () => {
-  const state = { templatesByBook: {} as Record<number, unknown[]> };
+jest.mock('ahooks', () => {
+  const actual = jest.requireActual('ahooks');
   return {
-    useQuickTemplateStore: (selector: (value: typeof state) => unknown) =>
-      selector(state),
-    __quickTemplateState: state,
+    ...actual,
+    useRequest: () => ({
+      data: mockDrawerTemplates,
+      loading: false,
+      refresh: jest.fn(),
+    }),
   };
 });
 
@@ -132,11 +140,6 @@ const bookStoreMock = jest.requireMock('../src/stores/bookStore') as {
     currentBook: BookEntry | null;
     currentBookRef: CurrentBookRef | null;
   };
-};
-const quickTemplateMock = jest.requireMock(
-  '../src/screens/quickTemplate/quickTemplateStore',
-) as {
-  __quickTemplateState: { templatesByBook: Record<number, unknown[]> };
 };
 const themeModeMock = jest.requireMock('../src/contexts/ThemeModeContext') as {
   __setThemeMode: jest.Mock;
@@ -201,7 +204,7 @@ function collectTexts(renderer: TestRenderer.ReactTestRenderer): string[] {
 beforeEach(() => {
   bookStoreMock.__bookStoreState.currentBook = null;
   bookStoreMock.__bookStoreState.currentBookRef = null;
-  quickTemplateMock.__quickTemplateState.templatesByBook = {};
+  mockDrawerTemplates.length = 0;
   themeModeMock.__themeModeState.mode = 'default';
   themeModeMock.__setThemeMode.mockClear();
 });
@@ -210,9 +213,7 @@ describe('DrawerContent 账本卡', () => {
   it('renders the current book, its storage location, template count and footer', () => {
     bookStoreMock.__bookStoreState.currentBook = createBook();
     bookStoreMock.__bookStoreState.currentBookRef = { id: 1, kind: 'local' };
-    quickTemplateMock.__quickTemplateState.templatesByBook = {
-      1: [{}, {}, {}, {}, {}, {}],
-    };
+    mockDrawerTemplates.push({}, {}, {}, {}, {}, {});
 
     const texts = collectTexts(renderDrawer(createCallbacks()));
 

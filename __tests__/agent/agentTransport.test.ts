@@ -1,43 +1,20 @@
 import type { LanguageModelUsage, UIMessage } from 'ai';
 
+import type { MediaStore } from '../../src/media';
 import { createAgentTransport } from '../../src/agent/ui/agentTransport';
 import {
   AGENT_MODEL_NO_IMAGE_MESSAGE,
-  AGENT_NOT_CONFIGURED_MESSAGE,
   AGENT_NO_MODEL_MESSAGE,
   IMAGE_MESSAGE_TITLE,
 } from '../../src/agent/ui/copy';
 
-const mockGetActiveAgentProvider = jest.fn();
-const mockGetAgentProvider = jest.fn();
-const mockGetThreadModelSelection = jest.fn();
-const mockLoadProviderApiKey = jest.fn();
+const mockGetThreadDetail = jest.fn();
+const mockGetProvider = jest.fn();
+const mockGetProviderKey = jest.fn();
 const mockCreateAgentUIStream = jest.fn();
-const mockResolveThreadModel = jest.fn();
-const mockRememberThreadModel = jest.fn();
 const mockCreateCreateRecordTool = jest.fn((_deps: unknown) => ({}));
 const mockCreateAgent = jest.fn((_options: unknown) => ({
   id: 'test-agent',
-}));
-
-jest.mock('../../src/agent/providers/configStore', () => ({
-  getActiveAgentProvider: () => mockGetActiveAgentProvider(),
-  getAgentProvider: (...args: unknown[]) => mockGetAgentProvider(...args),
-}));
-
-jest.mock('../../src/agent/providers/modelSelectionStore', () => ({
-  getThreadModelSelection: (...args: unknown[]) =>
-    mockGetThreadModelSelection(...args),
-  resolveThreadModel: (...args: unknown[]) => mockResolveThreadModel(...args),
-  rememberThreadModel: (
-    threadId: number,
-    providerId: string,
-    modelId: string,
-  ) => mockRememberThreadModel(threadId, providerId, modelId),
-}));
-
-jest.mock('../../src/agent/providers/secureKey', () => ({
-  loadProviderApiKey: (...args: unknown[]) => mockLoadProviderApiKey(...args),
 }));
 
 jest.mock('../../src/agent/projection/context', () => ({
@@ -114,10 +91,21 @@ const IMAGE_MESSAGE: UIMessage = {
 
 const ATTACHMENT = {
   id: 'att_1',
+  ref: 'file:///tmp/quick-book/shot.jpg',
   localPath: 'file:///tmp/quick-book/shot.jpg',
   mediaType: 'image/jpeg',
   filename: 'shot.jpg',
 };
+
+function createMediaStoreMock(): MediaStore {
+  return {
+    scope: { kind: 'local', booksId: 1 },
+    save: jest.fn(async () => 'file:///tmp/media.jpg'),
+    resolveUri: jest.fn((ref: string) => ref),
+    toRef: jest.fn((uri: string) => uri),
+    toDataUrl: jest.fn(async (ref: string) => ref),
+  };
+}
 
 const ATTACHMENT_MESSAGE: UIMessage = {
   ...IMAGE_MESSAGE,
@@ -137,6 +125,7 @@ const CAPTION_ONLY_MESSAGE: UIMessage = {
 
 function createTransport(
   overrides: {
+    media?: MediaStore;
     persistUserMessage?: jest.Mock;
     ensureTitle?: jest.Mock;
     usageRef?: {
@@ -154,22 +143,35 @@ function createTransport(
   const usageRef = overrides.usageRef ?? {
     current: { promptTokens: 99, completionTokens: 99, totalTokens: 198 },
   };
+  const media = overrides.media ?? createMediaStoreMock();
 
   const transport = createAgentTransport({
     api: {
       type: {
         getAll: jest.fn(() => Promise.resolve([])),
       },
+      tag: { getAll: jest.fn(() => Promise.resolve([])) },
+      asset: { getByBook: jest.fn(() => Promise.resolve([])) },
+      agent: {
+        getThreadDetail: () => mockGetThreadDetail(),
+      },
+      provider: {
+        getById: (...args: unknown[]) => mockGetProvider(...args),
+      },
+      credential: {
+        getKey: (...args: unknown[]) => mockGetProviderKey(...args),
+      },
     } as never,
     booksId: 1,
     bookName: '测试账本',
     threadId: 1,
     usageRef,
+    media,
     persistUserMessage,
     ensureTitle,
   });
 
-  return { transport, persistUserMessage, ensureTitle, usageRef };
+  return { transport, media, persistUserMessage, ensureTitle, usageRef };
 }
 
 function submitRequest(messages: UIMessage[]) {
@@ -182,20 +184,57 @@ function submitRequest(messages: UIMessage[]) {
   };
 }
 
+const BASE_PROVIDER = {
+  id: 1,
+  descriptorId: 'openai-chat',
+  name: '测试提供商',
+  baseUrl: 'https://api.example.com/v1',
+  defaultModelId: 'gpt-5',
+  models: [
+    {
+      modelId: 'gpt-5',
+      contextWindow: 32_768,
+      reasoningEffort: 'off',
+      multimodal: false,
+    },
+    {
+      modelId: 'gpt-5-vision',
+      contextWindow: 32_768,
+      reasoningEffort: 'off',
+      multimodal: true,
+    },
+    {
+      modelId: 'gpt-6-sol',
+      contextWindow: 32_768,
+      reasoningEffort: 'high',
+      multimodal: false,
+    },
+  ],
+  storeResponses: true,
+  createdTime: 0,
+  updatedTime: 0,
+};
+
+function threadDetail(providerId = 1, modelId = 'gpt-5') {
+  return {
+    thread: {
+      id: 1,
+      booksId: 1,
+      title: '',
+      providerId,
+      modelId,
+      createdTime: 0,
+      updatedTime: 0,
+    },
+    messages: [],
+  };
+}
+
 beforeEach(() => {
   jest.clearAllMocks();
-  mockGetActiveAgentProvider.mockReturnValue({
-    id: 'provider-1',
-  });
-  mockGetAgentProvider.mockReturnValue(null);
-  mockGetThreadModelSelection.mockReturnValue(null);
-  mockResolveThreadModel.mockReturnValue({
-    modelId: 'gpt-5',
-    contextWindow: 32_768,
-    reasoningEffort: 'off',
-    multimodal: false,
-  });
-  mockLoadProviderApiKey.mockResolvedValue('api-key');
+  mockGetThreadDetail.mockResolvedValue(threadDetail());
+  mockGetProvider.mockResolvedValue(BASE_PROVIDER);
+  mockGetProviderKey.mockResolvedValue('api-key');
   mockCreateAgentUIStream.mockResolvedValue(new ReadableStream());
 });
 
@@ -216,12 +255,7 @@ describe('createAgentTransport', () => {
   });
 
   it('keeps image parts when the selected model is multimodal', async () => {
-    mockResolveThreadModel.mockReturnValue({
-      modelId: 'gpt-5-vision',
-      contextWindow: 32_768,
-      reasoningEffort: 'off',
-      multimodal: true,
-    });
+    mockGetThreadDetail.mockResolvedValue(threadDetail(1, 'gpt-5-vision'));
     const { transport } = createTransport();
 
     await transport.sendMessages!(submitRequest([IMAGE_MESSAGE]));
@@ -232,13 +266,67 @@ describe('createAgentTransport', () => {
     expect(options.uiMessages).toEqual([IMAGE_MESSAGE]);
   });
 
-  it('uses an image title when the user only sends a picture', async () => {
-    mockResolveThreadModel.mockReturnValue({
-      modelId: 'gpt-5-vision',
-      contextWindow: 32_768,
-      reasoningEffort: 'off',
-      multimodal: true,
+  it('hydrates persisted media refs before sending them to the model', async () => {
+    mockGetThreadDetail.mockResolvedValue(threadDetail(1, 'gpt-5-vision'));
+    const media = createMediaStoreMock();
+    media.toDataUrl = jest.fn(async () => 'data:image/png;base64,REF');
+    const { transport } = createTransport({ media });
+    const refMessage: UIMessage = {
+      id: 'user-media',
+      role: 'user',
+      parts: [
+        {
+          type: 'file',
+          mediaType: 'image/png',
+          filename: 'shot.png',
+          url: 'media:abc.png',
+        },
+      ],
+    };
+
+    await transport.sendMessages!(submitRequest([refMessage]));
+
+    const options = mockCreateAgentUIStream.mock.calls[0]![0] as {
+      uiMessages: UIMessage[];
+    };
+    expect(options.uiMessages[0]?.parts[0]).toEqual({
+      type: 'file',
+      mediaType: 'image/png',
+      filename: 'shot.png',
+      url: 'data:image/png;base64,REF',
     });
+    expect(media.toDataUrl).toHaveBeenCalledWith('media:abc.png');
+  });
+
+  it('aborts before streaming when a persisted image cannot be read', async () => {
+    mockGetThreadDetail.mockResolvedValue(threadDetail(1, 'gpt-5-vision'));
+    const media = createMediaStoreMock();
+    media.toDataUrl = jest.fn(async () => {
+      throw new Error('图片读取失败（404）');
+    });
+    const { transport, persistUserMessage } = createTransport({ media });
+    const refMessage: UIMessage = {
+      id: 'user-media',
+      role: 'user',
+      parts: [
+        {
+          type: 'file',
+          mediaType: 'image/png',
+          filename: 'shot.png',
+          url: 'media:abc.png',
+        },
+      ],
+    };
+
+    await expect(
+      transport.sendMessages!(submitRequest([refMessage])),
+    ).rejects.toThrow('图片读取失败');
+    expect(persistUserMessage).not.toHaveBeenCalled();
+    expect(mockCreateAgentUIStream).not.toHaveBeenCalled();
+  });
+
+  it('uses an image title when the user only sends a picture', async () => {
+    mockGetThreadDetail.mockResolvedValue(threadDetail(1, 'gpt-5-vision'));
     const imageOnly: UIMessage = {
       id: 'user-image-only',
       role: 'user',
@@ -305,13 +393,13 @@ describe('createAgentTransport', () => {
     ]);
   });
 
-  it('rejects before persisting when no provider is configured', async () => {
-    mockGetActiveAgentProvider.mockReturnValue(null);
+  it('rejects before persisting when the thread has no provider', async () => {
+    mockGetThreadDetail.mockResolvedValue(threadDetail(0, ''));
     const { transport, persistUserMessage } = createTransport();
 
     await expect(
       transport.sendMessages!(submitRequest([USER_MESSAGE])),
-    ).rejects.toThrow(AGENT_NOT_CONFIGURED_MESSAGE);
+    ).rejects.toThrow(AGENT_NO_MODEL_MESSAGE);
 
     expect(persistUserMessage).not.toHaveBeenCalled();
   });
@@ -337,28 +425,17 @@ describe('createAgentTransport', () => {
     expect(options.timeout).toEqual({ totalMs: 120_000, chunkMs: 60_000 });
   });
 
-  it('resolves the conversation model, remembers it and passes it to the agent', async () => {
-    mockResolveThreadModel.mockReturnValue({
-      modelId: 'gpt-6-sol',
-      contextWindow: 32_768,
-      reasoningEffort: 'high',
-    });
+  it('resolves the model bound to the thread and passes it to the agent', async () => {
+    mockGetThreadDetail.mockResolvedValue(threadDetail(1, 'gpt-6-sol'));
     const { transport } = createTransport();
 
     await transport.sendMessages!(submitRequest([USER_MESSAGE]));
 
-    expect(mockResolveThreadModel).toHaveBeenCalledWith(
-      { id: 'provider-1' },
-      1,
-    );
-    expect(mockRememberThreadModel).toHaveBeenCalledWith(
-      1,
-      'provider-1',
-      'gpt-6-sol',
-    );
+    expect(mockGetProvider).toHaveBeenCalledWith(1);
+    expect(mockGetProviderKey).toHaveBeenCalledWith(1, 1);
     expect(mockCreateAgent).toHaveBeenCalledWith(
       expect.objectContaining({
-        provider: { id: 'provider-1' },
+        provider: BASE_PROVIDER,
         model: expect.objectContaining({ modelId: 'gpt-6-sol' }),
         apiKey: 'api-key',
       }),
@@ -390,7 +467,7 @@ describe('createAgentTransport', () => {
   });
 
   it('rejects before persisting when the provider has no model', async () => {
-    mockResolveThreadModel.mockReturnValue(null);
+    mockGetProvider.mockResolvedValue({ ...BASE_PROVIDER, models: [] });
     const { transport, persistUserMessage } = createTransport();
 
     await expect(
@@ -398,14 +475,12 @@ describe('createAgentTransport', () => {
     ).rejects.toThrow(AGENT_NO_MODEL_MESSAGE);
 
     expect(persistUserMessage).not.toHaveBeenCalled();
-    expect(mockRememberThreadModel).not.toHaveBeenCalled();
   });
 
   it('trims history to the selected model context window', async () => {
-    mockResolveThreadModel.mockReturnValue({
-      modelId: 'gpt-5',
-      contextWindow: 4_106,
-      reasoningEffort: 'off',
+    mockGetProvider.mockResolvedValue({
+      ...BASE_PROVIDER,
+      models: [{ ...BASE_PROVIDER.models[0]!, contextWindow: 4_106 }],
     });
     const { transport } = createTransport();
     const latestUserMessage: UIMessage = {
@@ -490,40 +565,33 @@ describe('createAgentTransport', () => {
     expect(errorLog).toHaveBeenCalledTimes(1);
   });
 
-  it('uses the provider remembered for the conversation', async () => {
+  it('uses the provider bound to the conversation', async () => {
     const provider = {
-      id: 'provider-2',
+      id: 2,
       descriptorId: 'openai-compatible',
       name: '视觉提供商',
       baseUrl: 'https://api.example.com/v1',
       defaultModelId: 'vision',
-      models: [],
+      models: [
+        {
+          modelId: 'vision',
+          contextWindow: 32_768,
+          reasoningEffort: 'off',
+          multimodal: true,
+        },
+      ],
       storeResponses: true,
-      createdAt: 0,
-      updatedAt: 0,
+      createdTime: 0,
+      updatedTime: 0,
     };
-    mockGetThreadModelSelection.mockReturnValue({
-      providerId: 'provider-2',
-      modelId: 'vision',
-    });
-    mockGetAgentProvider.mockReturnValue(provider);
-    mockResolveThreadModel.mockReturnValue({
-      modelId: 'vision',
-      contextWindow: 32_768,
-      reasoningEffort: 'off',
-      multimodal: true,
-    });
+    mockGetThreadDetail.mockResolvedValue(threadDetail(2, 'vision'));
+    mockGetProvider.mockResolvedValue(provider);
     const { transport } = createTransport();
 
     await transport.sendMessages!(submitRequest([USER_MESSAGE]));
 
-    expect(mockGetAgentProvider).toHaveBeenCalledWith('provider-2');
-    expect(mockResolveThreadModel).toHaveBeenCalledWith(provider, 1);
-    expect(mockRememberThreadModel).toHaveBeenCalledWith(
-      1,
-      'provider-2',
-      'vision',
-    );
+    expect(mockGetProvider).toHaveBeenCalledWith(2);
+    expect(mockGetProviderKey).toHaveBeenCalledWith(1, 2);
     const agentOptions = mockCreateAgent.mock.calls[0]![0] as {
       provider: unknown;
     };
@@ -531,12 +599,7 @@ describe('createAgentTransport', () => {
   });
 
   it('passes message attachments to the createRecord tool', async () => {
-    mockResolveThreadModel.mockReturnValue({
-      modelId: 'gpt-5-vision',
-      contextWindow: 32_768,
-      reasoningEffort: 'off',
-      multimodal: true,
-    });
+    mockGetThreadDetail.mockResolvedValue(threadDetail(1, 'gpt-5-vision'));
     const { transport } = createTransport();
 
     await transport.sendMessages!(submitRequest([ATTACHMENT_MESSAGE]));
@@ -549,12 +612,7 @@ describe('createAgentTransport', () => {
   });
 
   it('ignores attachment captions when deriving the thread title', async () => {
-    mockResolveThreadModel.mockReturnValue({
-      modelId: 'gpt-5-vision',
-      contextWindow: 32_768,
-      reasoningEffort: 'off',
-      multimodal: true,
-    });
+    mockGetThreadDetail.mockResolvedValue(threadDetail(1, 'gpt-5-vision'));
     const { transport, ensureTitle } = createTransport();
 
     await transport.sendMessages!(submitRequest([CAPTION_ONLY_MESSAGE]));

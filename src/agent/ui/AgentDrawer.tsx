@@ -27,6 +27,7 @@ import { CheckCircleIcon, WarningCircleIcon } from 'phosphor-react-native';
 
 import { MarkdownText } from '../../component/MarkdownText';
 import type { PendingQuickBookMessage } from '../../features/quickBook/types';
+import { useMediaStore } from '../../media';
 import {
   buildAttachmentMessageParts,
   stripAttachmentCaptions,
@@ -173,6 +174,7 @@ const ASSISTANT_COMPONENTS = {
 
 function UserImageAttachments(): React.ReactElement | null {
   const styles = useStyles();
+  const media = useMediaStore();
 
   return (
     <MessagePrimitive.Attachments>
@@ -186,7 +188,9 @@ function UserImageAttachments(): React.ReactElement | null {
         return (
           <Image
             resizeMode="cover"
-            source={{ uri: imagePart.image }}
+            source={{
+              uri: media ? media.resolveUri(imagePart.image) : imagePart.image,
+            }}
             style={styles.messageImage as ImageStyle}
           />
         );
@@ -321,7 +325,7 @@ export interface AgentDrawerProps {
   onOpenChange: (open: boolean) => void;
   onOpenSessions: () => void;
   onOpenSettings: () => void;
-  onOpenModelSettings: (providerId?: string) => void;
+  onOpenModelSettings: (providerId?: number) => void;
 }
 
 export function AgentDrawer({

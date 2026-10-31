@@ -7,6 +7,7 @@ import { useChatRuntime } from '@assistant-ui/ai-sdk';
 import { useAuiState, type AssistantRuntime } from '@assistant-ui/react-native';
 import type { BookRow } from '@pennyspring/api';
 
+import { useMediaStore } from '../../media';
 import { useGlobalApi } from '../../stores/bookStore';
 import { EMPTY_USAGE } from '../core/messages';
 import type { TokenUsage } from '../core/types';
@@ -41,6 +42,7 @@ export function useAgentRuntime({
   initialMessages,
 }: UseAgentRuntimeOptions): AgentRuntimeHandle {
   const api = useGlobalApi();
+  const media = useMediaStore();
   const [errorText, setErrorText] = useState('');
   const usageRef = useRef<TokenUsage>(EMPTY_USAGE);
 
@@ -59,27 +61,30 @@ export function useAgentRuntime({
     [api, markActivity, threadId],
   );
 
-  const transport = useMemo(
-    () =>
-      createAgentTransport({
-        api,
-        booksId: book.id,
-        bookName: book.name,
-        threadId,
-        usageRef,
-        persistUserMessage,
-        ensureTitle,
-        onRunStart: () => setErrorText(''),
-      }),
-    [
+  const transport = useMemo(() => {
+    if (!media) {
+      throw new Error('未找到当前账本');
+    }
+    return createAgentTransport({
       api,
-      book.id,
-      book.name,
-      ensureTitle,
-      persistUserMessage,
+      booksId: book.id,
+      bookName: book.name,
       threadId,
-    ],
-  );
+      usageRef,
+      media,
+      persistUserMessage,
+      ensureTitle,
+      onRunStart: () => setErrorText(''),
+    });
+  }, [
+    api,
+    book.id,
+    book.name,
+    ensureTitle,
+    media,
+    persistUserMessage,
+    threadId,
+  ]);
 
   const finishRun = useCallback(
     async ({ message, isAbort, isError }: FinishRunOptions): Promise<void> => {

@@ -110,17 +110,6 @@ function BookSpine({ item }: { item: BookListItem }) {
   const { entry } = item;
   const isRemote = entry.kind === BOOK_TYPE.remote;
 
-  if (isRemote) {
-    return (
-      <View style={styles.spine}>
-        <View style={styles.spineNetwork}>
-          <Icon color="secondary" icon={NetworkIcon} size="normal" />
-          <Text color="tertiary" size="xs">网络</Text>
-        </View>
-      </View>
-    );
-  }
-
   if (entry.background) {
     return (
       <View style={styles.spine}>
@@ -129,6 +118,17 @@ function BookSpine({ item }: { item: BookListItem }) {
           source={{ uri: entry.background }}
           style={styles.spineImage as StyleProp<ImageStyle>}
         />
+      </View>
+    );
+  }
+
+  if (isRemote) {
+    return (
+      <View style={styles.spine}>
+        <View style={styles.spineNetwork}>
+          <Icon color="secondary" icon={NetworkIcon} size="normal" />
+          <Text color="tertiary" size="xs">网络</Text>
+        </View>
       </View>
     );
   }
@@ -237,7 +237,9 @@ export function BookList({
                 : handleSelect
         }
         onMenuPress={
-          mode === 'manage' && onBookMenu ? () => onBookMenu(item) : undefined
+          mode === 'manage' && onBookMenu && !item.error
+            ? () => onBookMenu(item)
+            : undefined
         }
         onPress={
           item.error ? handleSelect : isCurrentBook ? undefined : handleSelect

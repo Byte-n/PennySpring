@@ -16,21 +16,14 @@ import {
 import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
 
 import {
-  clearProviderApiKey,
-  loadProviderApiKey,
-  saveProviderApiKey,
-} from '../providers/secureKey';
-import {
   fetchProviderModels,
   testProviderConnection,
 } from '../providers/connectionTest';
 import { requireProviderDescriptor } from '../providers/catalog';
-import { useAgentProviderStore } from '../providers/configStore';
-import type {
-  AgentProviderConfig,
-  AgentProviderDraft,
-} from '../providers/types';
+import type { AgentProviderConfig } from '../providers/types';
 import { isValidBaseUrl, normalizeBaseUrl } from '../core/url';
+import { useBookStore, useGlobalApi } from '../../stores/bookStore';
+import { useSyncVersionStore } from '../../stores/syncVersionStore';
 import { InfoHint } from './InfoHint';
 import {
   ProviderModelSection,
@@ -63,7 +56,6 @@ export interface AgentProviderEditorProps {
   initial: AgentProviderConfig | null;
   descriptorId: string;
   onOpenChange: (open: boolean) => void;
-  onSaved: (provider: AgentProviderConfig) => void;
 }
 
 const useStyles = createUseSheetStyle(token => ({
@@ -110,13 +102,15 @@ export function AgentProviderEditor({
   initial,
   descriptorId,
   onOpenChange,
-  onSaved,
 }: AgentProviderEditorProps) {
   const { token } = useTheme();
   const styles = useStyles();
   const toast = useToast();
-  const addProvider = useAgentProviderStore(state => state.addProvider);
-  const updateProvider = useAgentProviderStore(state => state.updateProvider);
+  const api = useGlobalApi();
+  const booksId = useBookStore(state => state.currentBook?.id ?? null);
+  const bumpProviderVersion = useSyncVersionStore(
+    state => state.bumpProviderVersion,
+  );
 
   const [form] = TypedForm.useForm();
   const submitSucceededRef = useRef(false);
@@ -153,14 +147,15 @@ export function AgentProviderEditor({
     setAdvancedOpen(false);
     setKeyStored(false);
 
-    if (!initial) {
+    if (!initial || booksId === null) {
       return;
     }
 
-    loadProviderApiKey(initial.id)
-      .then(storedKey => {
+    api.credential
+      .hasKey(booksId, initial.id)
+      .then(hasStoredKey => {
         if (!cancelled) {
-          setKeyStored(Boolean(storedKey));
+          setKeyStored(hasStoredKey);
         }
       })
       .catch(() => {
@@ -172,32 +167,32 @@ export function AgentProviderEditor({
     return () => {
       cancelled = true;
     };
-  }, [descriptor.defaultBaseUrl, form, initial, open]);
+  }, [api, booksId, descriptor.defaultBaseUrl, form, initial, open]);
 
   const resolveApiKey = useCallback(async (): Promise<string> => {
     const enteredKey = form.state.values.apiKey.trim();
     if (enteredKey) {
       return enteredKey;
     }
-    if (initial) {
-      return (await loadProviderApiKey(initial.id)) ?? '';
+    if (initial && booksId !== null) {
+      return api.credential.getKey(booksId, initial.id);
     }
     return '';
-  }, [form, initial]);
+  }, [api, booksId, form, initial]);
 
   const buildPreviewProvider = useCallback((): AgentProviderConfig => {
     const values = form.state.values;
     const now = Date.now();
     return {
-      id: initial?.id ?? 'draft',
+      id: initial?.id ?? 0,
       descriptorId: descriptor.id,
       name: values.name.trim() || descriptor.name,
       baseUrl: normalizeBaseUrl(values.baseUrl),
       defaultModelId: values.defaultModelId,
       models: [],
       storeResponses: values.storeResponses,
-      createdAt: now,
-      updatedAt: now,
+      createdTime: now,
+      updatedTime: now,
     };
   }, [descriptor.id, descriptor.name, form, initial?.id]);
 
@@ -333,20 +328,21 @@ export function AgentProviderEditor({
   }, [buildPreviewProvider, form, resolveApiKey]);
 
   const handleClearKey = useCallback(async (): Promise<void> => {
-    if (!initial) {
+    if (!initial || booksId === null) {
       form.setFieldValue('apiKey', '');
       setKeyStored(false);
       return;
     }
     try {
-      await clearProviderApiKey(initial.id);
+      await api.credential.setKey(booksId, initial.id, '');
+      bumpProviderVersion();
       setKeyStored(false);
       form.setFieldValue('apiKey', '');
       setTestResult({ ok: true, message: '已清除保存的 API Key。' });
     } catch (error) {
       setTestResult({ ok: false, message: getErrorMessage(error) });
     }
-  }, [form, initial]);
+  }, [api, booksId, bumpProviderVersion, form, initial]);
 
   const handleFinish = useCallback(
     async (values: ProviderFormValues) => {
@@ -358,10 +354,10 @@ export function AgentProviderEditor({
         ? values.defaultModelId
         : (models[0]?.modelId ?? '');
 
-      const draft: AgentProviderDraft = {
+      const input = {
         descriptorId: descriptor.id,
-        name: values.name,
-        baseUrl: values.baseUrl,
+        name: values.name.trim() || descriptor.name,
+        baseUrl: normalizeBaseUrl(values.baseUrl),
         defaultModelId: resolvedDefaultId,
         models,
         storeResponses: values.storeResponses,
@@ -369,30 +365,21 @@ export function AgentProviderEditor({
 
       setSaving(true);
       try {
-        let saved: AgentProviderConfig;
-        if (initial) {
-          updateProvider(initial.id, draft);
-          saved = {
-            ...initial,
-            descriptorId: descriptor.id,
-            name: values.name.trim() || descriptor.name,
-            baseUrl: normalizeBaseUrl(values.baseUrl),
-            defaultModelId: resolvedDefaultId,
-            models,
-            storeResponses: values.storeResponses,
-            updatedAt: Date.now(),
-          };
-        } else {
-          saved = addProvider(draft);
-        }
+        const saved = initial
+          ? await api.provider.update({ ...input, id: initial.id })
+          : await api.provider.create(input);
+        bumpProviderVersion();
 
         if (values.apiKey.trim()) {
-          await saveProviderApiKey(saved.id, values.apiKey);
+          if (booksId === null) {
+            throw new Error('请先选择账本');
+          }
+          await api.credential.setKey(booksId, saved.id, values.apiKey);
+          bumpProviderVersion();
           setKeyStored(true);
           form.setFieldValue('apiKey', '');
         }
 
-        onSaved(saved);
         submitSucceededRef.current = true;
         toast.show({ messageText: 'AI 提供商已保存' });
         onOpenChange(false);
@@ -403,15 +390,15 @@ export function AgentProviderEditor({
       }
     },
     [
-      addProvider,
+      api,
+      booksId,
+      bumpProviderVersion,
       descriptor.id,
       descriptor.name,
       form,
       initial,
       onOpenChange,
-      onSaved,
       toast,
-      updateProvider,
     ],
   );
 
@@ -484,7 +471,7 @@ export function AgentProviderEditor({
             placeholder={keyStored ? '已保存，留空不修改' : 'sk-...'}
             secureTextEntry
             suffix={
-              <InfoHint content="仅保存在系统钥匙串，不写入账本数据库；留空则保留原 Key。" />
+              <InfoHint content="随账本保存在账本所在服务器，当前为明文存储；请勿在共享服务器使用敏感 Key。留空则保留原 Key。" />
             }
           />
         </TypedForm.Item>

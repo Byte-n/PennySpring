@@ -50,16 +50,23 @@ const ASSISTANT_MESSAGE_JSON = JSON.stringify({
   ],
 })
 
+const EMPTY_SELECTION = { providerId: 0, modelId: '' }
+
 describe('agent-service', () => {
   let db: AppDatabase
 
-  beforeEach(() => {
+  beforeEach(async () => {
     db = createTestDatabase()
+    await db.insert(schema.books).values([
+      { name: '账本 1' },
+      { name: '账本 2' },
+      { name: '账本 3' },
+    ])
   })
 
   it('createThread 允许同一账本创建多条独立会话', async () => {
-    const first = await createThread(db, 1)
-    const second = await createThread(db, 1)
+    const first = await createThread(db, 1, EMPTY_SELECTION)
+    const second = await createThread(db, 1, EMPTY_SELECTION)
 
     expect(second.id).not.toBe(first.id)
     expect((await listThreads(db, 1)).map(thread => thread.id)).toEqual(
@@ -68,15 +75,15 @@ describe('agent-service', () => {
   })
 
   it('listThreads 只返回指定账本的会话', async () => {
-    const own = await createThread(db, 1)
-    await createThread(db, 2)
+    const own = await createThread(db, 1, EMPTY_SELECTION)
+    await createThread(db, 2, EMPTY_SELECTION)
 
     expect((await listThreads(db, 1)).map(thread => thread.id)).toEqual([own.id])
   })
 
   it('listThreads 按最后更新时间倒序排列', async () => {
-    const older = await createThread(db, 1)
-    const newer = await createThread(db, 1)
+    const older = await createThread(db, 1, EMPTY_SELECTION)
+    const newer = await createThread(db, 1, EMPTY_SELECTION)
     const future = Date.now() + 60_000
     const nowSpy = jest.spyOn(Date, 'now').mockReturnValue(future)
     try {
@@ -92,8 +99,8 @@ describe('agent-service', () => {
   })
 
   it('getLatestThreadWithMessages 返回最近更新的会话及其消息', async () => {
-    const older = await createThread(db, 1)
-    const newer = await createThread(db, 1)
+    const older = await createThread(db, 1, EMPTY_SELECTION)
+    const newer = await createThread(db, 1, EMPTY_SELECTION)
     const future = Date.now() + 60_000
     const nowSpy = jest.spyOn(Date, 'now').mockReturnValue(future)
     try {
@@ -102,7 +109,7 @@ describe('agent-service', () => {
       nowSpy.mockRestore()
     }
 
-    const detail = await getLatestThreadWithMessages(db, 1)
+    const detail = await getLatestThreadWithMessages(db, 1, EMPTY_SELECTION)
 
     expect(detail.thread.id).toBe(older.id)
     expect(detail.thread.id).not.toBe(newer.id)
@@ -110,15 +117,15 @@ describe('agent-service', () => {
   })
 
   it('getLatestThreadWithMessages 在账本没有会话时创建空会话', async () => {
-    const detail = await getLatestThreadWithMessages(db, 3)
+    const detail = await getLatestThreadWithMessages(db, 3, EMPTY_SELECTION)
 
     expect(detail.thread.booksId).toBe(3)
     expect(detail.messages).toEqual([])
   })
 
   it('getThreadDetail 返回指定会话的完整消息链', async () => {
-    const thread = await createThread(db, 1)
-    await createThread(db, 1)
+    const thread = await createThread(db, 1, EMPTY_SELECTION)
+    await createThread(db, 1, EMPTY_SELECTION)
     await appendMessages(db, thread.id, [
       { role: 'user', message: USER_MESSAGE_JSON },
       { role: 'assistant', message: ASSISTANT_MESSAGE_JSON },
@@ -134,7 +141,7 @@ describe('agent-service', () => {
   })
 
   it('appendMessages 持久化消息并保持写入顺序', async () => {
-    const thread = await createThread(db, 1)
+    const thread = await createThread(db, 1, EMPTY_SELECTION)
 
     const saved = await appendMessages(db, thread.id, [
       { role: 'user', message: USER_MESSAGE_JSON },
@@ -146,7 +153,7 @@ describe('agent-service', () => {
   })
 
   it('updateThreadTitle 更新会话标题', async () => {
-    const thread = await createThread(db, 1)
+    const thread = await createThread(db, 1, EMPTY_SELECTION)
 
     const updated = await updateThreadTitle(db, thread.id, '本月支出')
 
@@ -154,7 +161,7 @@ describe('agent-service', () => {
   })
 
   it('updateThreadTitle 拒绝空标题', async () => {
-    const thread = await createThread(db, 1)
+    const thread = await createThread(db, 1, EMPTY_SELECTION)
 
     await expect(updateThreadTitle(db, thread.id, '   ')).rejects.toThrow('会话标题不能为空')
   })
@@ -166,7 +173,7 @@ describe('agent-service', () => {
   })
 
   it('deleteThread 删除会话及其全部消息', async () => {
-    const thread = await createThread(db, 1)
+    const thread = await createThread(db, 1, EMPTY_SELECTION)
     await appendMessages(db, thread.id, [{ role: 'user', message: USER_MESSAGE_JSON }])
 
     await deleteThread(db, thread.id)

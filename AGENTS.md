@@ -5,6 +5,7 @@
 ## `.claude/rules` 使用说明
 
 - 修改或新增任意代码时：遵循 `.claude/rules/common/coding-style.md`
+- 新增、修改或迁移任意持久化数据（表、字段、本地 store、文件、凭据）时：遵循 `.claude/rules/common/persistence.md`；存储位置与作用域必须由用户决策，禁止擅自决定
 - 编写、修改或补充任意测试时：遵循 `.claude/rules/common/testing.md`
 - 涉及组件视觉、布局、交互或可访问性时：遵循 `.claude/rules/common/component-visual-layout.md`
 - 修改 `*.ts`、`*.tsx`、`*.js`、`*.jsx` 时：额外遵循 `.claude/rules/typescript/coding-style.md`

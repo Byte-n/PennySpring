@@ -10,18 +10,42 @@ import {
 } from '@assistant-ui/react-native';
 
 import { AgentDrawer } from '../../src/agent/ui/AgentDrawer';
+import { AgentChatContext } from '../../src/agent/ui/AgentChatContext';
 import type { AgentSessionState } from '../../src/agent/ui/useAgentSession';
-import { useAgentProviderStore } from '../../src/agent/providers/configStore';
-import {
-  getThreadModelSelection,
-  useThreadModelStore,
-} from '../../src/agent/providers/modelSelectionStore';
 import type { AgentProviderConfig } from '../../src/agent/providers/types';
+
+const mockProviderState: { providers: AgentProviderConfig[] } = {
+  providers: [],
+};
 
 jest.mock('@pennyspring/theme', () => ({
   createUseSheetStyle: () => () => ({}),
   useTheme: () => ({
     token: { motionEaseInOut: [0.645, 0.045, 0.355, 1] },
+  }),
+}));
+
+jest.mock('../../src/agent/providers/useProviders', () => ({
+  EMPTY_AGENT_SELECTION: { providerId: 0, modelId: '' },
+  useProviders: () => ({
+    data: mockProviderState.providers,
+    loading: false,
+    refresh: jest.fn(),
+  }),
+  useProviderSelection: () => ({
+    data: { providerId: 0, modelId: '' },
+    loading: false,
+    refresh: jest.fn(),
+  }),
+  useQuickBookSelection: () => ({
+    data: { providerId: 0, modelId: '' },
+    loading: false,
+    refresh: jest.fn(),
+  }),
+  useProviderKeyStatus: () => ({
+    data: false,
+    loading: false,
+    refresh: jest.fn(),
   }),
 }));
 
@@ -53,6 +77,7 @@ jest.mock('../../src/stores/bookStore', () => {
     },
     tag: { getAll: async () => [] },
     asset: { getByBook: async () => [] },
+    provider: { getAll: async () => mockProviderState.providers },
   };
 
   return {
@@ -269,6 +294,15 @@ function createSession(
     threads: [],
     threadsLoading: false,
     currentThreadId: 1,
+    currentThread: {
+      id: 1,
+      booksId: 1,
+      title: '',
+      providerId: 1,
+      modelId: 'model-a',
+      createdTime: 0,
+      updatedTime: 0,
+    },
     initialMessages: [],
     createThread: jest.fn(() => Promise.resolve(true)),
     ensureQuickBookThread: jest.fn(() => Promise.resolve(null)),
@@ -277,6 +311,7 @@ function createSession(
     deleteCurrentThread: jest.fn(() => Promise.resolve()),
     refreshThreads: jest.fn(() => Promise.resolve()),
     ensureTitle: jest.fn(() => Promise.resolve()),
+    updateThreadModel: jest.fn(() => Promise.resolve()),
     markActivity: jest.fn(),
     accumulateUsage: jest.fn(),
     setSending: jest.fn(),
@@ -308,18 +343,20 @@ function Harness({
 
   return (
     <AssistantRuntimeProvider runtime={runtime}>
-      <AgentDrawer
-        configured={configured}
-        onOpenChange={jest.fn()}
-        onOpenModelSettings={onOpenModelSettings}
-        onOpenSettings={onOpenSettings}
-        onOpenSessions={onOpenSessions}
-        onPendingQuickBookSent={jest.fn()}
-        open
-        pendingQuickBook={null}
-        runtimeErrorText=""
-        session={session}
-      />
+      <AgentChatContext.Provider value={session}>
+        <AgentDrawer
+          configured={configured}
+          onOpenChange={jest.fn()}
+          onOpenModelSettings={onOpenModelSettings}
+          onOpenSettings={onOpenSettings}
+          onOpenSessions={onOpenSessions}
+          onPendingQuickBookSent={jest.fn()}
+          open
+          pendingQuickBook={null}
+          runtimeErrorText=""
+          session={session}
+        />
+      </AgentChatContext.Provider>
     </AssistantRuntimeProvider>
   );
 }
@@ -365,8 +402,7 @@ afterEach(() => {
   act(() => {
     mountedRenderers.splice(0).forEach(renderer => renderer.unmount());
   });
-  useAgentProviderStore.setState({ providers: [], activeProviderId: null });
-  useThreadModelStore.setState({ selections: {} });
+  mockProviderState.providers = [];
 });
 
 function renderDrawer(options: RenderOptions = {}) {
@@ -719,7 +755,7 @@ describe('AgentDrawer', () => {
 
   it('switches the conversation model and opens model settings', () => {
     const provider: AgentProviderConfig = {
-      id: 'provider-1',
+      id: 1,
       descriptorId: 'openai-compatible',
       name: '测试',
       baseUrl: 'https://api.example.com/v1',
@@ -739,15 +775,12 @@ describe('AgentDrawer', () => {
         },
       ],
       storeResponses: true,
-      createdAt: 0,
-      updatedAt: 0,
+      createdTime: 0,
+      updatedTime: 0,
     };
-    useAgentProviderStore.setState({
-      providers: [provider],
-      activeProviderId: provider.id,
-    });
+    mockProviderState.providers = [provider];
 
-    const { renderer, onOpenModelSettings } = renderDrawer();
+    const { renderer, onOpenModelSettings, session } = renderDrawer();
 
     expect(renderedText(renderer)).toContain('model-a');
 
@@ -763,8 +796,10 @@ describe('AgentDrawer', () => {
         .findByProps({ testID: 'action-sheet-action-1' })
         .props.onPress();
     });
-    expect(getThreadModelSelection(1)?.modelId).toBe('model-b');
-    expect(renderedText(renderer)).toContain('model-b');
+    expect(session.updateThreadModel).toHaveBeenCalledWith({
+      providerId: 1,
+      modelId: 'model-b',
+    });
 
     act(() => {
       renderer.root
@@ -774,9 +809,9 @@ describe('AgentDrawer', () => {
     expect(onOpenModelSettings).toHaveBeenCalledTimes(1);
   });
 
-  it('stages images only after switching to a multimodal model', () => {
+  it('disables image staging for a non-multimodal thread model', () => {
     const provider: AgentProviderConfig = {
-      id: 'provider-1',
+      id: 1,
       descriptorId: 'openai-compatible',
       name: '测试',
       baseUrl: 'https://api.example.com/v1',
@@ -788,23 +823,26 @@ describe('AgentDrawer', () => {
           reasoningEffort: 'off',
           multimodal: false,
         },
-        {
-          modelId: 'model-vision',
-          contextWindow: 128_000,
-          reasoningEffort: 'off',
-          multimodal: true,
-        },
       ],
       storeResponses: true,
-      createdAt: 0,
-      updatedAt: 0,
+      createdTime: 0,
+      updatedTime: 0,
     };
-    useAgentProviderStore.setState({
-      providers: [provider],
-      activeProviderId: provider.id,
-    });
+    mockProviderState.providers = [provider];
 
-    const { renderer } = renderDrawer();
+    const { renderer } = renderDrawer({
+      session: {
+        currentThread: {
+          id: 1,
+          booksId: 1,
+          title: '',
+          providerId: 1,
+          modelId: 'model-text',
+          createdTime: 0,
+          updatedTime: 0,
+        },
+      },
+    });
 
     act(() => {
       renderer.root
@@ -816,55 +854,11 @@ describe('AgentDrawer', () => {
       renderer.root.findByProps({ testID: 'agent-composer-image-option' })
         .props.disabled,
     ).toBe(true);
-
-    act(() => {
-      renderer.root
-        .findByProps({ testID: 'agent-model-chip' })
-        .props.onPress();
-    });
-    act(() => {
-      renderer.root
-        .findByProps({ testID: 'action-sheet-action-1' })
-        .props.onPress();
-    });
-
-    expect(
-      renderer.root.findByProps({ testID: 'agent-composer-image-option' })
-        .props.disabled,
-    ).toBe(false);
-
-    act(() => {
-      renderer.root
-        .findByProps({ testID: 'agent-composer-image-option' })
-        .props.onPress();
-    });
-    act(() => {
-      renderer.root
-        .findByProps({ testID: 'mock-image-picker-popup' })
-        .props.onPress();
-    });
-
-    expect(renderedText(renderer)).toContain('1 / 4');
-
-    act(() => {
-      renderer.root
-        .findByProps({ testID: 'agent-model-chip' })
-        .props.onPress();
-    });
-    act(() => {
-      renderer.root
-        .findByProps({ testID: 'action-sheet-action-0' })
-        .props.onPress();
-    });
-
-    expect(
-      renderer.root.findAllByProps({ testID: 'agent-image-staging-bar' }),
-    ).toHaveLength(0);
   });
 
   it('removes a single staged image', () => {
     const provider: AgentProviderConfig = {
-      id: 'provider-1',
+      id: 1,
       descriptorId: 'openai-compatible',
       name: '测试',
       baseUrl: 'https://api.example.com/v1',
@@ -878,15 +872,24 @@ describe('AgentDrawer', () => {
         },
       ],
       storeResponses: true,
-      createdAt: 0,
-      updatedAt: 0,
+      createdTime: 0,
+      updatedTime: 0,
     };
-    useAgentProviderStore.setState({
-      providers: [provider],
-      activeProviderId: provider.id,
-    });
+    mockProviderState.providers = [provider];
 
-    const { renderer } = renderDrawer();
+    const { renderer } = renderDrawer({
+      session: {
+        currentThread: {
+          id: 1,
+          booksId: 1,
+          title: '',
+          providerId: 1,
+          modelId: 'model-vision',
+          createdTime: 0,
+          updatedTime: 0,
+        },
+      },
+    });
 
     act(() => {
       renderer.root

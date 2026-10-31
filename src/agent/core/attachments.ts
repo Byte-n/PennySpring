@@ -10,14 +10,16 @@ type AgentUiPart = UIMessagePart<UIDataTypes, UITools>;
 
 export interface AgentAttachment {
   id: string;
-  localPath: string;
+  ref: string;
+  localPath?: string;
   mediaType: string;
   filename: string;
 }
 
 export interface AgentAttachmentInput {
-  localPath: string;
+  ref: string;
   id?: string;
+  localPath?: string;
   mediaType?: string;
   filename?: string;
 }
@@ -46,8 +48,11 @@ function isAgentAttachment(value: unknown): value is AgentAttachment {
     isRecord(value) &&
     typeof value.id === 'string' &&
     value.id.trim() !== '' &&
-    typeof value.localPath === 'string' &&
-    value.localPath.trim() !== '' &&
+    typeof value.ref === 'string' &&
+    value.ref.trim() !== '' &&
+    (value.localPath === undefined ||
+      (typeof value.localPath === 'string' &&
+        value.localPath.trim() !== '')) &&
     typeof value.mediaType === 'string' &&
     value.mediaType.trim() !== '' &&
     typeof value.filename === 'string' &&
@@ -58,9 +63,14 @@ function isAgentAttachment(value: unknown): value is AgentAttachment {
 export function createAgentAttachment(
   input: AgentAttachmentInput,
 ): AgentAttachment {
+  const ref = input.ref.trim();
+  if (!ref) {
+    throw new Error('附件引用不能为空');
+  }
   return {
     id: input.id ?? createAttachmentId(),
-    localPath: input.localPath,
+    ref,
+    ...(input.localPath ? { localPath: input.localPath } : {}),
     mediaType: input.mediaType?.startsWith('image/')
       ? input.mediaType
       : DEFAULT_ATTACHMENT_MEDIA_TYPE,

@@ -198,13 +198,13 @@ describe('createCreateRecordTool', () => {
       attachments: [
         {
           id: 'att_1',
-          localPath: 'file:///tmp/quick-book/shot.jpg',
+          ref: 'media:shot.png',
           mediaType: 'image/jpeg',
           filename: 'shot.jpg',
         },
         {
           id: 'att_2',
-          localPath: 'file:///tmp/quick-book/receipt.jpg',
+          ref: 'media:receipt.png',
           mediaType: 'image/jpeg',
           filename: 'receipt.jpg',
         },
@@ -222,10 +222,7 @@ describe('createCreateRecordTool', () => {
 
     expect(create).toHaveBeenCalledWith(
       expect.objectContaining({
-        imagePaths: [
-          'file:///tmp/quick-book/receipt.jpg',
-          'file:///tmp/quick-book/shot.jpg',
-        ],
+        imagePaths: ['media:receipt.png', 'media:shot.png'],
       }),
     );
   });
@@ -236,7 +233,7 @@ describe('createCreateRecordTool', () => {
       attachments: [
         {
           id: 'att_1',
-          localPath: 'file:///tmp/quick-book/shot.jpg',
+          ref: 'media:shot.png',
           mediaType: 'image/jpeg',
           filename: 'shot.jpg',
         },
@@ -254,7 +251,7 @@ describe('createCreateRecordTool', () => {
       attachments: [
         {
           id: 'att_1',
-          localPath: 'file:///tmp/quick-book/shot.jpg',
+          ref: 'media:shot.png',
           mediaType: 'image/jpeg',
           filename: 'shot.jpg',
         },

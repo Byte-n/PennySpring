@@ -75,6 +75,7 @@ describe('agent message attachments', () => {
   it('reads, collects and dedupes attachment metadata across messages', () => {
     const attachment = createAgentAttachment({
       id: 'att_1',
+      ref: 'file:///tmp/quick-book/shot.jpg',
       localPath: 'file:///tmp/quick-book/shot.jpg',
       mediaType: 'image/jpeg',
       filename: 'shot.jpg',
@@ -95,7 +96,7 @@ describe('agent message attachments', () => {
       id: 'user-3',
       role: 'user',
       parts: [TEXT_PART],
-      metadata: { attachments: [{ id: '', localPath: '' }] },
+      metadata: { attachments: [{ id: '', ref: '' }] },
     };
 
     expect(readMessageAttachments(first)).toEqual([attachment]);
@@ -108,12 +109,14 @@ describe('agent message attachments', () => {
   it('resolves requested attachment ids and reports missing ones', () => {
     const first = createAgentAttachment({
       id: 'att_1',
+      ref: 'file:///tmp/shot.jpg',
       localPath: 'file:///tmp/shot.jpg',
       mediaType: 'image/jpeg',
       filename: 'shot.jpg',
     });
     const second = createAgentAttachment({
       id: 'att_2',
+      ref: 'file:///tmp/receipt.jpg',
       localPath: 'file:///tmp/receipt.jpg',
       mediaType: 'image/jpeg',
       filename: 'receipt.jpg',
@@ -130,12 +133,14 @@ describe('agent message attachments', () => {
   it('interleaves images with model-visible captions without local paths', () => {
     const first = createAgentAttachment({
       id: 'att_1',
+      ref: 'file:///secret/shot.jpg',
       localPath: 'file:///secret/shot.jpg',
       mediaType: 'image/jpeg',
       filename: 'shot.jpg',
     });
     const second = createAgentAttachment({
       id: 'att_2',
+      ref: 'file:///secret/receipt.jpg',
       localPath: 'file:///secret/receipt.jpg',
       mediaType: 'image/jpeg',
       filename: 'receipt.jpg',

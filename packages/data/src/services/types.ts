@@ -2,6 +2,8 @@ import type { InferSelectModel } from 'drizzle-orm'
 
 import type {
   AgentMessageRoleValue,
+  AgentReasoningEffort,
+  AgentSelectionScope,
   AssetClassificationValue,
   AssetTypeValue,
   RecordTypeCategoryValue,
@@ -138,3 +140,81 @@ export interface AgentThreadDetail {
   thread: AgentThreadRow
   messages: AgentMessageRow[]
 }
+
+export interface AgentProviderModel {
+  modelId: string
+  contextWindow: number
+  reasoningEffort: AgentReasoningEffort
+  multimodal: boolean
+}
+
+export interface AgentProviderRow {
+  id: number
+  descriptorId: string
+  name: string
+  baseUrl: string
+  defaultModelId: string
+  models: AgentProviderModel[]
+  storeResponses: boolean
+  createdTime: number
+  updatedTime: number
+}
+
+export interface AgentSelection {
+  providerId: number
+  modelId: string
+}
+
+export interface CreateAgentProviderInput {
+  descriptorId: string
+  name: string
+  baseUrl: string
+  defaultModelId?: string
+  models: AgentProviderModel[]
+  storeResponses?: boolean
+}
+
+export interface UpdateAgentProviderInput extends CreateAgentProviderInput {
+  id: number
+}
+
+export interface QuickTemplateRow {
+  id: number
+  booksId: number
+  name: string
+  typeCategory: RecordTypeCategoryValue
+  typeId: number
+  amount: number
+  charge: number
+  remark: string
+  assetId: number
+  intoAssetId: number
+  reimbursable: boolean
+  tagIds: number[]
+  icon: string
+  sort: number
+  createdTime: number
+  updatedTime: number
+}
+
+export interface CreateQuickTemplateInput {
+  booksId: number
+  name: string
+  typeCategory: RecordTypeCategoryValue
+  typeId: number
+  amount: number
+  charge?: number
+  remark?: string
+  assetId?: number
+  intoAssetId?: number
+  reimbursable?: boolean
+  tagIds?: number[]
+  icon?: string
+  sort?: number
+}
+
+export interface UpdateQuickTemplateInput extends CreateQuickTemplateInput {
+  id: number
+}
+
+export type { AgentReasoningEffort, AgentSelectionScope }

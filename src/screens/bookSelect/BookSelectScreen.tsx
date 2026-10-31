@@ -22,6 +22,7 @@ import {
   useNetworkBookRefs,
 } from '../../stores/networkBookStore';
 import { BookList, type BookListItem } from '../../components/BookList';
+import { resolveMediaRef } from '../../media';
 
 const useStyles = createUseSheetStyle(token => ({
   container: {
@@ -101,7 +102,11 @@ export function BookSelectScreen({
       ref: { kind: 'local' as const, id: row.id },
     })),
     ...networkBooks.map(({ ref, book }) => ({
-      entry: { kind: BOOK_TYPE.remote, ...book } as BookEntry,
+      entry: {
+        kind: BOOK_TYPE.remote,
+        ...book,
+        background: resolveMediaRef(book.background, ref.serverUrl),
+      } as BookEntry,
       ref: {
         kind: 'remote' as const,
         serverUrl: ref.serverUrl,
