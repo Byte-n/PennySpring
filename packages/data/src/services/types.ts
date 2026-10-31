@@ -12,12 +12,14 @@ import type {
   SystemStatusValue,
   VisibilityValue,
 } from '../constants'
-import type { agentMessages, agentThreads, assets, books, records, recordWithRecord, tags, types } from '../schema'
+import type { agentMessages, agentThreads, assets, books, imageWithRelated, records, recordWithRecord, tagWithRecord, tags, types } from '../schema'
 
 export type { Tx } from '../types'
 
 export type RecordRow = InferSelectModel<typeof records>
 export type RecordRelationRow = InferSelectModel<typeof recordWithRecord>
+export type TagRelationRow = InferSelectModel<typeof tagWithRecord>
+export type ImageRow = InferSelectModel<typeof imageWithRelated>
 export type AssetRow = InferSelectModel<typeof assets>
 export type TagRow = InferSelectModel<typeof tags>
 export type TypeRow = InferSelectModel<typeof types>
@@ -215,6 +217,67 @@ export interface CreateQuickTemplateInput {
 
 export interface UpdateQuickTemplateInput extends CreateQuickTemplateInput {
   id: number
+}
+
+export interface BookSnapshot {
+  book: BookRow
+  types: TypeRow[]
+  assets: AssetRow[]
+  tags: TagRow[]
+  records: RecordRow[]
+  recordRelations: RecordRelationRow[]
+  tagRelations: TagRelationRow[]
+  images: ImageRow[]
+  quickTemplates: QuickTemplateRow[]
+  agentThreads: AgentThreadRow[]
+  agentMessages: AgentMessageRow[]
+}
+
+export interface LibrarySnapshot {
+  books: BookSnapshot[]
+}
+
+export interface BuildSnapshotOptions {
+  includeAgent?: boolean
+}
+
+export interface SnapshotIdMaps {
+  types: Map<number, number>
+  assets: Map<number, number>
+  tags: Map<number, number>
+  records: Map<number, number>
+  threads: Map<number, number>
+}
+
+export interface ApplySnapshotOptions {
+  bookName?: string
+  mapAgentMessage?: (
+    message: AgentMessageRow,
+    maps: SnapshotIdMaps,
+  ) => AgentMessageRow
+}
+
+export interface SnapshotCounts {
+  types: number
+  assets: number
+  tags: number
+  records: number
+  recordRelations: number
+  tagRelations: number
+  images: number
+  quickTemplates: number
+  agentThreads: number
+  agentMessages: number
+}
+
+export interface ApplyBookSnapshotResult {
+  bookId: number
+  name: string
+  counts: SnapshotCounts
+}
+
+export interface ApplyLibrarySnapshotResult {
+  books: ApplyBookSnapshotResult[]
 }
 
 export type { AgentReasoningEffort, AgentSelectionScope }

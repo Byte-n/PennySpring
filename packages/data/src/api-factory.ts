@@ -2,6 +2,9 @@ import type { RecordTypeCategoryValue } from './constants'
 import * as services from './services'
 import type {
   AgentSelection,
+  ApplySnapshotOptions,
+  BookSnapshot,
+  BuildSnapshotOptions,
   CreateAgentMessageInput,
   CreateAgentProviderInput,
   CreateAssetInput,
@@ -10,6 +13,7 @@ import type {
   CreateRecordInput,
   CreateTagInput,
   CreateTypeInput,
+  LibrarySnapshot,
   UpdateAgentProviderInput,
   UpdateAssetInput,
   UpdateBookInput,
@@ -106,6 +110,16 @@ export function createApi(getDatabase: () => Promise<Database>) {
         services.deleteQuickTemplate(await getDatabase(), templateId, booksId),
       reorder: async (booksId: number, templateIds: number[]) =>
         services.reorderQuickTemplates(await getDatabase(), booksId, templateIds),
+    },
+    transfer: {
+      exportBook: async (booksId: number, options?: BuildSnapshotOptions) =>
+        services.buildBookSnapshot(await getDatabase(), booksId, options),
+      exportLibrary: async (booksIds: number[], options?: BuildSnapshotOptions) =>
+        services.buildLibrarySnapshot(await getDatabase(), booksIds, options),
+      importBook: async (snapshot: BookSnapshot, options?: ApplySnapshotOptions) =>
+        services.applyBookSnapshot(await getDatabase(), snapshot, options),
+      importLibrary: async (snapshot: LibrarySnapshot, options?: ApplySnapshotOptions) =>
+        services.applyLibrarySnapshot(await getDatabase(), snapshot, options),
     },
     agent: {
       createThread: async (booksId: number, selection: AgentSelection) =>

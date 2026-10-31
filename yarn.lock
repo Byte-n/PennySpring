@@ -8750,6 +8750,11 @@ feed@^4.2.2:
   dependencies:
     xml-js "^1.6.11"
 
+fflate@^0.8.3:
+  version "0.8.3"
+  resolved "https://registry.npmmirror.com/fflate/-/fflate-0.8.3.tgz#bc27d8eb30343d4d512abb03480202ce65d825fc"
+  integrity sha512-tbZNuJrLwGUp3zshBtdy4W+ORxZuIh8a5ilyIEQDC5rY1f3U20JMry0Ll3WBzU58EZKsEuJFXhb5gwv8CsPvgA==
+
 figures@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/figures/-/figures-2.0.0.tgz#3ab1a2d2a62c8bfb431a0c94cb797a2fce27c962"
@@ -13853,6 +13858,11 @@ react-native-bootsplash@^7.3.2:
     sharp "^0.35.2"
     ts-dedent "^2.2.0"
     xml-formatter "^3.7.0"
+
+react-native-file-access@^4.0.4:
+  version "4.0.4"
+  resolved "https://registry.npmmirror.com/react-native-file-access/-/react-native-file-access-4.0.4.tgz#86dc3020c12be887226ae1d3d55a389ee930dd3b"
+  integrity sha512-HbwqE9Wwx7c2ExNb+Xhps03COK5o1LjhVSGSNzLsV7Ck+LWVwrbeYfOW3QwuJATHyZLGOEQwkH6KbH+i4rsm3w==
 
 react-native-gesture-handler@^2.31.1:
   version "2.31.1"

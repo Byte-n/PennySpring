@@ -8,6 +8,12 @@ export { createRecord, deleteRecord, getImageCountsByBook, getRecordDetailById, 
 export { createTag, deleteTag, getAllTags, updateTag } from './tag-service'
 export { buildCategoryTree, createType, deleteType, getAllTypes, getTypesByCategory, updateType } from './type-service'
 export { ensureDefaultBook, seedSystemTypesForBook } from './seed-service'
+export {
+  applyBookSnapshot,
+  applyLibrarySnapshot,
+  buildBookSnapshot,
+  buildLibrarySnapshot,
+} from './snapshot-service'
 export type { CategoryItem } from './type-service'
 export type {
   AgentMessageRow,
@@ -18,8 +24,15 @@ export type {
   AgentSelectionScope,
   AgentThreadDetail,
   AgentThreadRow,
+  ApplyBookSnapshotResult,
+  ApplyLibrarySnapshotResult,
+  ApplySnapshotOptions,
   AssetRow,
   BookRow,
+  BookSnapshot,
+  BuildSnapshotOptions,
+  ImageRow,
+  LibrarySnapshot,
   CreateAgentMessageInput,
   CreateAgentProviderInput,
   CreateAssetInput,
@@ -32,6 +45,9 @@ export type {
   RecordDetail,
   RecordRelationRow,
   RecordRow,
+  SnapshotCounts,
+  SnapshotIdMaps,
+  TagRelationRow,
   TagRow,
   Tx,
   TypeRow,

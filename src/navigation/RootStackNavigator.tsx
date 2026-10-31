@@ -9,6 +9,9 @@ import {
 import { AddRecordScreen } from '../screens/addRecord/AddRecordScreen';
 import { AgentSettingsScreen } from '../screens/agentSettings/AgentSettingsScreen';
 import { AssetManageScreen } from '../screens/assetManage/AssetManageScreen';
+import { BackupExportScreen } from '../screens/backup/BackupExportScreen';
+import { BackupHomeScreen } from '../screens/backup/BackupHomeScreen';
+import { BackupImportScreen } from '../screens/backup/BackupImportScreen';
 import { BookManageScreen } from '../screens/bookManage/BookManageScreen';
 import { HomeScreen } from '../screens/home/HomeScreen';
 import { IconPreviewScreen } from '../screens/iconPreview';
@@ -111,6 +114,21 @@ export function RootStackNavigator() {
         component={QuickBookSettingsScreen}
         name={ROOT_ROUTES.QuickBookSettings}
         options={{ title: 'AI 记账' }}
+      />
+      <Stack.Screen
+        component={BackupHomeScreen}
+        name={ROOT_ROUTES.Backup}
+        options={{ title: '备份与迁移' }}
+      />
+      <Stack.Screen
+        component={BackupExportScreen}
+        name={ROOT_ROUTES.BackupExport}
+        options={{ title: '导出账本' }}
+      />
+      <Stack.Screen
+        component={BackupImportScreen}
+        name={ROOT_ROUTES.BackupImport}
+        options={{ title: '导入备份' }}
       />
     </Stack.Navigator>
   );

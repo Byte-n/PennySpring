@@ -11,6 +11,9 @@ export const ROOT_ROUTES = {
   IconPreview: 'IconPreview',
   AgentSettings: 'AgentSettings',
   QuickBookSettings: 'QuickBookSettings',
+  Backup: 'Backup',
+  BackupExport: 'BackupExport',
+  BackupImport: 'BackupImport',
 } as const;
 
 export const HOME_TAB_ROUTES = {

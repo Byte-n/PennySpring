@@ -13,6 +13,7 @@ import type { IconComponent } from '@pennyspring/ui';
 import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
+  ArchiveIcon,
   CaretRightIcon,
   ChatsCircleIcon,
   FlaskIcon,
@@ -69,6 +70,16 @@ const MANAGEMENT_ITEMS: DrawerNavItem[] = [
     label: '标签管理',
     requiresBook: true,
     route: ROOT_ROUTES.TagManage,
+  },
+];
+
+const DATA_ITEMS: DrawerNavItem[] = [
+  {
+    icon: ArchiveIcon,
+    key: 'backup',
+    label: '备份与迁移',
+    requiresBook: false,
+    route: ROOT_ROUTES.Backup,
   },
 ];
 
@@ -415,6 +426,27 @@ export function DrawerContent({
               label={item.label}
               onPress={() => handleNavigate(item.route)}
               showSeparator={index > 0}
+              testID={`drawer-nav-${item.key}`}
+            />
+          ))}
+        </Column>
+
+        <Text
+          color="tertiary"
+          size="xs"
+          style={styles.groupLabel}
+          weight="medium"
+        >
+          数据
+        </Text>
+        <Column>
+          {DATA_ITEMS.map(item => (
+            <DrawerNavRow
+              accessibilityLabel={item.label}
+              icon={item.icon}
+              key={item.key}
+              label={item.label}
+              onPress={() => handleNavigate(item.route)}
               testID={`drawer-nav-${item.key}`}
             />
           ))}

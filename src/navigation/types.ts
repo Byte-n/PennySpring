@@ -24,6 +24,9 @@ export type RootStackParamList = {
   [ROOT_ROUTES.IconPreview]: undefined;
   [ROOT_ROUTES.AgentSettings]: undefined;
   [ROOT_ROUTES.QuickBookSettings]: undefined;
+  [ROOT_ROUTES.Backup]: undefined;
+  [ROOT_ROUTES.BackupExport]: undefined;
+  [ROOT_ROUTES.BackupImport]: undefined;
 };
 
 export type BookSelectStackParamList = {

@@ -33,6 +33,8 @@
 		<key>NSAllowsLocalNetworking</key>
 		<true/>
 	</dict>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>用于在同一局域网内直接发送和接收账本备份。</string>
 	<key>NSCameraUsageDescription</key>
 	<string>用于拍摄照片并发送给 AI 助手。</string>
 	<key>NSPhotoLibraryUsageDescription</key>
