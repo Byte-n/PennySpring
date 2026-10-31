@@ -2,9 +2,9 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { ScrollView, RefreshControl } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { useRequest } from 'ahooks';
-import { Button, Column, Dialog, Empty, Loading, Row, Segmented, Text } from '@pennyspring/ui';
+import { Button, Column, Dialog, Empty, Loading, Row, Segmented, Text, useToast } from '@pennyspring/ui';
 import { createUseSheetStyle } from '@pennyspring/theme';
-import { type AssetRow, type TypeRow, type TagRow } from '@pennyspring/api';
+import { type AssetRow, type RecordRelationRow, type TypeRow, type TagRow } from '@pennyspring/api';
 import { useBookStore, useGlobalApi } from '../../../stores/bookStore';
 import { ROOT_ROUTES, useNavigation } from '../../../navigation';
 import { useRecordSync } from '../recordSync';
@@ -49,9 +49,13 @@ function toMap<T extends { id: number }>(rows: readonly T[]): Map<number, T> {
   return new Map(rows.map(row => [row.id, row]));
 }
 
+type RecordRelation = Pick<RecordRelationRow, 'recordId' | 'relatedRecordId'>;
+const EMPTY_RECORD_RELATIONS: RecordRelation[] = [];
+
 export function DetailTabScreen() {
   const styles = useStyles();
   const navigation = useNavigation();
+  const toast = useToast();
   const currentBook = useBookStore(state => state.currentBook);
   const globalApi = useGlobalApi();
   const { version } = useRecordSync();
@@ -101,6 +105,10 @@ export function DetailTabScreen() {
     },
     { refreshDeps: [bookId] },
   );
+  const { data: recordRelations = EMPTY_RECORD_RELATIONS } = useRequest<RecordRelation[], []>(
+    () => (bookId ? globalApi.record.getRelationsByBook(bookId) : Promise.resolve([])),
+    { refreshDeps: [bookId, version] },
+  );
 
   const { groups, summary, dailyExpenses, counts, monthViews, allViews } = useMemo(() => {
     const typeMap = toMap(types);
@@ -126,6 +134,36 @@ export function DetailTabScreen() {
     };
   }, [records, types, assets, tags, imageCountMap, recordTagsMap, selectedMonth, activeFilter]);
 
+  const relationMap = useMemo(() => {
+    const map = new Map<number, number[]>();
+    for (const relation of recordRelations) {
+      map.set(relation.recordId, [
+        ...(map.get(relation.recordId) ?? []),
+        relation.relatedRecordId,
+      ]);
+    }
+    return map;
+  }, [recordRelations]);
+
+  const viewById = useMemo(
+    () => new Map<number, DetailRecordView>(
+      allViews.map(view => [view.record.id, view] as const),
+    ),
+    [allViews],
+  );
+
+  const relatedViews = useMemo(() => {
+    if (!activeView) {
+      return [];
+    }
+
+    const relatedIds = relationMap.get(activeView.record.id) ?? [];
+
+    return relatedIds
+      .map(id => viewById.get(id))
+      .filter((related): related is DetailRecordView => related !== undefined);
+  }, [activeView, relationMap, viewById]);
+
   const moveMonth = (offset: number) => {
     setSelectedMonth(current => new Date(current.getFullYear(), current.getMonth() + offset, 1));
     setActiveFilter('all');
@@ -148,10 +186,20 @@ export function DetailTabScreen() {
     const target = pendingDelete;
     setPendingDelete(null);
     if (!target) return;
-    if (!currentBook) return;
-    await globalApi.record.delete(target.record.id, currentBook.id);
-    closePanel();
-    refresh();
+
+    try {
+      if (!currentBook) {
+        toast.show({ messageText: '未找到当前账本' });
+        return;
+      }
+
+      await globalApi.record.delete(target.record.id, currentBook.id);
+      closePanel();
+      refresh();
+      toast.show({ messageText: '已删除记录' });
+    } catch {
+      toast.show({ messageText: '删除失败，请稍后重试', status: 'error' });
+    }
   };
 
   const renderBody = () => {
@@ -229,6 +277,8 @@ export function DetailTabScreen() {
 
       <RecordDetailPanel
         view={activeView}
+        relatedViews={relatedViews}
+        hidden={isAmountHidden}
         open={activeView !== null}
         onOpenChange={open => {
           if (!open) closePanel();
@@ -237,8 +287,18 @@ export function DetailTabScreen() {
         onDelete={setPendingDelete}
       />
 
-      <Dialog open={pendingDelete !== null} titleText="删除记录" okText="删除" cancelText="取消" onOk={confirmDelete} onCancel={() => setPendingDelete(null)}>
-        <Text size="md" color="secondary">确定删除这条记录吗？删除后无法恢复。</Text>
+      <Dialog
+        open={pendingDelete !== null}
+        titleText="删除记录"
+        okText="删除"
+        cancelText="取消"
+        okDanger
+        onOk={confirmDelete}
+        onCancel={() => setPendingDelete(null)}
+      >
+        <Text size="md" color="secondary">
+          删除后无法恢复，这条记录的图片与标签关联也会一并移除。
+        </Text>
       </Dialog>
     </Column>
   );

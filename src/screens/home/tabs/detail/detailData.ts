@@ -142,6 +142,11 @@ export function formatAmountParts(cents: number): { integer: string; decimal: st
   return { integer: Number(integer).toLocaleString('zh-CN'), decimal: decimal ?? '00' };
 }
 
+export function formatCurrency(cents: number): string {
+  const parts = formatAmountParts(cents);
+  return `¥${parts.integer}.${parts.decimal}`;
+}
+
 export function formatSignedAmount(cents: number, category: CashflowCategory): string {
   if (category === RECORD_TYPE_CATEGORY.income) return `+${formatAmount(cents)}`;
   if (category === RECORD_TYPE_CATEGORY.expense) return `-${formatAmount(cents)}`;
@@ -206,6 +211,20 @@ export function buildDailyExpenseBars(
 
 export function formatRecordTime(time: number): string {
   return time.formatDateTime();
+}
+
+export interface RecordDateParts {
+  date: string;
+  time: string;
+  weekday: string;
+}
+
+export function formatRecordDateParts(time: number): RecordDateParts {
+  return {
+    date: time.formatDateBy('YYYY-MM-DD'),
+    time: time.formatDateBy('HH:mm'),
+    weekday: time.formatDateBy('ddd'),
+  };
 }
 
 export type AmountColor = 'success' | 'error' | 'heading';

@@ -1,139 +1,42 @@
-import React from 'react';
-import { Row, Text, List, Button, Popup, Icon } from '@pennyspring/ui';
-import { createUseSheetStyle } from '@pennyspring/theme';
-import type { ListItemData } from '@pennyspring/ui';
-import {
-  amountColor,
-  formatRecordTime,
-  formatSignedAmount,
-  type DetailRecordView,
-} from './detailData';
+import React, { useLayoutEffect, useState } from 'react';
+import { useWindowDimensions } from 'react-native';
+import { Button, Popup, Row, Text } from '@pennyspring/ui';
 import { RECORD_TYPE_CATEGORY } from '@pennyspring/api';
-import { getPhosphorIconComponent } from '../../../../constants/typeIconTree';
-import { useGlobalApi } from '../../../../stores/bookStore';
+import { RecordDetailContent } from './RecordDetailContent';
+import { useRecordDetailStyles } from './recordDetailStyles';
+import type { DetailRecordView } from './detailData';
 
-const useStyles = createUseSheetStyle(token => ({
-  header: {
-    paddingHorizontal: token.padding,
-    paddingVertical: token.padding / 2,
-  },
-}));
+const CLOSE_HIT_SLOP = 6;
+const DEFAULT_PANEL_HEIGHT_RATIO = 0.6;
+const TRANSFER_PANEL_HEIGHT_RATIO = 0.66;
+const RELATED_PANEL_HEIGHT_RATIO = 0.62;
 
-function buildItems(view: DetailRecordView, onImagePress: () => void): ListItemData[] {
-  const valueText = (text: string): ListItemData['right'] => (
-    <Text size="md" color="secondary">
-      {text}
-    </Text>
-  );
-
-  const typeDisplay = view.parentTypeName
-    ? `${view.parentTypeName} > ${view.typeName}`
-    : view.typeName;
-
-  const IconComponent = view.iconValue
-    ? getPhosphorIconComponent(view.iconValue)
-    : null;
-
-  const ParentIconComponent = view.parentIconValue
-    ? getPhosphorIconComponent(view.parentIconValue)
-    : null;
-
-  const typeContent = (
-    <Row align="center" gap={8}>
-      {view.parentTypeName && ParentIconComponent && (
-        <>
-          <Icon icon={ParentIconComponent} size="small" color="secondary" />
-          <Text size="md" color="secondary">
-            {view.parentTypeName}
-          </Text>
-          <Text size="md" color="secondary">
-            {'>'}
-          </Text>
-        </>
-      )}
-      {IconComponent && <Icon icon={IconComponent} size="small" color="secondary" />}
-      <Text size="md" color="secondary">
-        {view.parentTypeName ? view.typeName : typeDisplay}
-      </Text>
-    </Row>
-  );
-
-  const items: ListItemData[] = [
-    { titleText: '类型', right: typeContent },
-    {
-      titleText: '金额',
-      right: (
-        <Text size="md" weight="medium" color={amountColor(view.category)}>
-          {formatSignedAmount(view.finalAmount, view.category)}
-        </Text>
-      ),
-    },
-    { titleText: '时间', right: valueText(formatRecordTime(view.recordTime)) },
-  ];
-
-  if (view.category === RECORD_TYPE_CATEGORY.transfer) {
-    if (view.assetName && view.intoAssetName) {
-      items.splice(2, 0, {
-        titleText: '资产',
-        right: valueText(`${view.assetName} → ${view.intoAssetName}`),
-      });
-    }
-  } else {
-    if (view.assetName) {
-      items.splice(2, 0, { titleText: '资产', right: valueText(view.assetName) });
-    }
+function getPreferredPanelRatio(
+  view: DetailRecordView | null,
+  relatedCount: number,
+): number {
+  if (!view) {
+    return DEFAULT_PANEL_HEIGHT_RATIO;
   }
 
-  if (view.record.remark) {
-    items.push({ titleText: '备注', right: valueText(view.record.remark) });
+  if (
+    view.category === RECORD_TYPE_CATEGORY.transfer &&
+    view.record.charge > 0
+  ) {
+    return TRANSFER_PANEL_HEIGHT_RATIO;
   }
 
-  if (view.tags.length > 0) {
-    items.push({
-      titleText: '标签',
-      right: (
-        <Row align="center" gap={8} wrap>
-          {view.tags.map(tag => {
-            const TagIconComponent = tag.icon
-              ? getPhosphorIconComponent(tag.icon)
-              : null;
-            return (
-              <Row key={tag.id} align="center" gap={4}>
-                {TagIconComponent && (
-                  <Icon icon={TagIconComponent} size="small" color="secondary" />
-                )}
-                <Text size="md" color="secondary">
-                  {tag.name}
-                </Text>
-              </Row>
-            );
-          })}
-        </Row>
-      ),
-    });
+  if (view.category === RECORD_TYPE_CATEGORY.income && relatedCount > 0) {
+    return RELATED_PANEL_HEIGHT_RATIO;
   }
 
-  if (view.imageCount > 0) {
-    items.push({
-      titleText: '图片',
-      right: (
-        <Button
-          size="small"
-          variant="text"
-          icon="image"
-          onPress={onImagePress}
-        >
-          {view.imageCount} 张
-        </Button>
-      ),
-    });
-  }
-
-  return items;
+  return DEFAULT_PANEL_HEIGHT_RATIO;
 }
 
 interface RecordDetailPanelProps {
   view: DetailRecordView | null;
+  relatedViews: readonly DetailRecordView[];
+  hidden?: boolean;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onEdit: (view: DetailRecordView) => void;
@@ -142,53 +45,99 @@ interface RecordDetailPanelProps {
 
 export function RecordDetailPanel({
   view,
+  relatedViews,
+  hidden = false,
   open,
   onOpenChange,
   onEdit,
   onDelete,
 }: RecordDetailPanelProps) {
-  const styles = useStyles();
-  const globalApi = useGlobalApi();
-  const handleImagePress = async () => {
-    if (!view) return;
-    await globalApi.record.getDetailById(view.record.id, view.record.booksId);
-    // TODO: 实现图片预览功能
-  };
+  const styles = useRecordDetailStyles();
+  const { height: viewportHeight } = useWindowDimensions();
+  const preferredRatio = getPreferredPanelRatio(view, relatedViews.length);
+  const [panelHeight, setPanelHeight] = useState(
+    () => viewportHeight * preferredRatio,
+  );
+
+  useLayoutEffect(() => {
+    if (view) {
+      setPanelHeight(viewportHeight * preferredRatio);
+    }
+  }, [preferredRatio, view, viewportHeight]);
 
   return (
     <Popup.FloatingPanel
-      footer={null}
       open={open}
       onOpenChange={onOpenChange}
+      onChange={height => setPanelHeight(height)}
       position="bottom"
-      renderHeader={() => (
-        <Row align="center" justify="between" style={styles.header}>
-          <Text size="lg" weight="semibold" color="heading">
+      value={panelHeight}
+      minHeight="42%"
+      maxHeight="80%"
+      styles={{
+        header: styles.panelHeader,
+        handle: styles.panelHandle,
+        panelBody: styles.panelBody,
+        footer: styles.panelFooter,
+      }}
+      renderHeader={({ cancel }) => (
+        <Row align="center" justify="between" style={styles.headerRow}>
+          <Text
+            size="lg"
+            weight="semibold"
+            color="heading"
+            style={styles.headerTitle}
+          >
             记录详情
           </Text>
-          <Row align="center" gap="small">
-            <Button
-              size="small"
-              variant="text"
-              icon="edit"
-              onPress={() => view && onEdit(view)}
-            >
-              编辑
-            </Button>
-            <Button
-              size="small"
-              variant="text"
-              color="danger"
-              icon="trash"
-              onPress={() => view && onDelete(view)}
-            >
-              删除
-            </Button>
-          </Row>
+          <Button
+            type="text"
+            size="small"
+            shape="circle"
+            icon="close"
+            iconProps={{ color: 'tertiary' }}
+            hitSlop={CLOSE_HIT_SLOP}
+            onPress={cancel}
+          />
+        </Row>
+      )}
+      renderFooter={() => (
+        <Row align="center" gap="small" style={styles.footerRow}>
+          <Button
+            type="text"
+            color="danger"
+            size="small"
+            icon="trash"
+            style={styles.deleteButton}
+            onPress={() => {
+              if (view) {
+                onDelete(view);
+              }
+            }}
+          >
+            删除
+          </Button>
+          <Button
+            type="primary"
+            style={styles.editButton}
+            onPress={() => {
+              if (view) {
+                onEdit(view);
+              }
+            }}
+          >
+            编辑记录
+          </Button>
         </Row>
       )}
     >
-      {view ? <List data={buildItems(view, handleImagePress)} /> : null}
+      {view ? (
+        <RecordDetailContent
+          view={view}
+          relatedViews={relatedViews}
+          hidden={hidden}
+        />
+      ) : null}
     </Popup.FloatingPanel>
   );
 }

@@ -1,7 +1,9 @@
 import { RECORD_TYPE_CATEGORY } from '@pennyspring/api';
 import {
   filterByMonth,
+  formatCurrency,
   formatDayTitle,
+  formatRecordDateParts,
   groupByDay,
   summarizeCashflow,
   type CashflowCategory,
@@ -158,5 +160,28 @@ describe('groupByDay', () => {
 
   test('returns empty array for empty input', () => {
     expect(groupByDay([])).toEqual([]);
+  });
+});
+
+describe('formatCurrency', () => {
+  test('adds the yuan symbol and locale thousands separators', () => {
+    expect(formatCurrency(120000)).toBe('¥1,200.00');
+    expect(formatCurrency(36800)).toBe('¥368.00');
+  });
+
+  test('keeps two decimal places', () => {
+    expect(formatCurrency(48650)).toBe('¥486.50');
+  });
+});
+
+describe('formatRecordDateParts', () => {
+  test('splits a timestamp into date, time, and Chinese weekday', () => {
+    const time = new Date(2026, 9, 31, 19, 24).getTime();
+
+    expect(formatRecordDateParts(time)).toEqual({
+      date: '2026-10-31',
+      time: '19:24',
+      weekday: '周六',
+    });
   });
 });
