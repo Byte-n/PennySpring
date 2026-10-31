@@ -342,11 +342,35 @@ export function BookManageScreen() {
     ],
   );
 
+  const handleBeforeSubmit = useCallback(
+    async (values: BookFormValues): Promise<BookFormValues> => {
+      const backgroundImage = values.backgroundImage;
+
+      if (
+        formKind !== 'local' ||
+        backgroundImage === undefined ||
+        backgroundImage.uri === editingBook?.background
+      ) {
+        return values;
+      }
+
+      return {
+        ...values,
+        backgroundImage: await ImagePicker.persistImage(backgroundImage),
+      };
+    },
+    [editingBook, formKind],
+  );
+
   const handlePanelOk = useCallback(async () => {
     submitSucceededRef.current = false;
-    await form.handleSubmit();
+    try {
+      await form.handleSubmit();
+    } catch (error: unknown) {
+      toast.show({ messageText: getErrorMessage(error, '操作失败') });
+    }
     return submitSucceededRef.current;
-  }, [form]);
+  }, [form, toast]);
 
   const handleSelectBook = useCallback(
     (ref: CurrentBookRef, entry: BookEntry) => {
@@ -522,7 +546,12 @@ export function BookManageScreen() {
         submitText={okText}
         titleText={formTitle}
       >
-        <TypedForm form={form} labelMode="child" onFinish={handleFinish}>
+        <TypedForm
+          beforeSubmit={handleBeforeSubmit}
+          form={form}
+          labelMode="child"
+          onFinish={handleFinish}
+        >
           <Column>
             <Segmented
               block

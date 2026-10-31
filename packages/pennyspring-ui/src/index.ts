@@ -126,6 +126,7 @@ export type {
 export { Form, FormItem } from './Form';
 export type {
   BoundForm,
+  FormBeforeSubmit,
   FormErrorSummaryProps,
   FormFieldProps,
   FormFieldState,

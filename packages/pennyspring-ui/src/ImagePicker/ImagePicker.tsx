@@ -6,6 +6,7 @@ import { Text } from '../Text';
 import { useFieldProps } from '../Form/hooks/useFieldProps.ts';
 import { ImagePickerPanel } from './ImagePickerPanel';
 import { ImagePickerPopup } from './ImagePickerPopup';
+import { persistImage } from './persistImage';
 import { useStyles } from './style';
 import {
   DEFAULT_CAMERA_TEXT,
@@ -192,4 +193,5 @@ function ImagePickerRoot({
 
 export const ImagePicker = Object.assign(ImagePickerRoot, {
   Popup: ImagePickerPopup,
+  persistImage,
 });

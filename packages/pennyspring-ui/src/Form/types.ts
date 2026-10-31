@@ -28,6 +28,10 @@ export type FormItemRules<TValue, TValues extends object> =
   | FormItemRule<TValue, TValues>
   | readonly FormItemRule<TValue, TValues>[];
 
+export type FormBeforeSubmit<TValues extends object = FormValues> = (
+  values: TValues,
+) => TValues | Promise<TValues>;
+
 export type FormListItem<
   TValues extends object,
   TName extends DeepKeys<TValues>,
@@ -111,6 +115,11 @@ export interface FormProps<TValues extends object = FormValues> {
   validateTrigger?: FormValidateTrigger | FormValidateTrigger[];
   disabled?: boolean;
   readonly?: boolean;
+  /**
+   * 校验通过后、onFinish 之前执行；返回的新值会写回表单以供重试使用。
+   * 抛错会中止提交，并让 handleSubmit 返回的 Promise reject。
+   */
+  beforeSubmit?: FormBeforeSubmit<TValues>;
   onFinish?: (values: TValues) => void | Promise<void>;
   onFinishFailed?: (errorInfo: FormFinishFailedInfo<TValues>) => void;
   onValuesChange?: (

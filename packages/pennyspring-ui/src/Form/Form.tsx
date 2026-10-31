@@ -48,6 +48,7 @@ type BoundFormItem<TValues extends object> = (<TName extends DeepKeys<TValues>>(
 };
 
 interface FormBehaviorProps<TValues extends object> {
+  beforeSubmit?: FormProps<TValues>['beforeSubmit'];
   onFinish?: FormProps<TValues>['onFinish'];
   onFinishFailed?: FormProps<TValues>['onFinishFailed'];
 }
@@ -70,6 +71,7 @@ function createFinishFailedInfo<TValues extends object>(
 }
 
 function createFormBehaviorOptions<TValues extends object>({
+  beforeSubmit,
   onFinish,
   onFinishFailed,
 }: FormBehaviorProps<TValues>): Pick<
@@ -77,8 +79,21 @@ function createFormBehaviorOptions<TValues extends object>({
   'onSubmit' | 'onSubmitInvalid'
 > {
   return {
-    onSubmit: async ({ value }) => {
-      await onFinish?.(value as TValues);
+    onSubmit: async ({ value, formApi }) => {
+      const currentValues = value as TValues;
+      const nextValues = beforeSubmit
+        ? await beforeSubmit(currentValues)
+        : currentValues;
+
+      if (nextValues !== currentValues) {
+        for (const key of Object.keys(nextValues) as Array<keyof TValues>) {
+          if (nextValues[key] !== currentValues[key]) {
+            formApi.setFieldValue(key as never, nextValues[key] as never);
+          }
+        }
+      }
+
+      await onFinish?.(nextValues);
     },
     onSubmitInvalid: ({ value, formApi }) => {
       onFinishFailed?.(
@@ -150,7 +165,7 @@ function useFormState<TValues extends object, TSelected>(
 
 type FormViewProps<TValues extends object> = Omit<
   FormProps<TValues>,
-  'form' | 'initialValues' | 'onFinish' | 'onFinishFailed'
+  'form' | 'initialValues' | 'beforeSubmit' | 'onFinish' | 'onFinishFailed'
 > & {
   form: FormInstance<TValues>;
 };
@@ -199,6 +214,7 @@ function FormView<TValues extends object>({
 
 function InternalForm<TValues extends object>({
   initialValues,
+  beforeSubmit,
   onFinish,
   onFinishFailed,
   form: _form,
@@ -206,7 +222,7 @@ function InternalForm<TValues extends object>({
 }: FormProps<TValues>) {
   const form = useInternalForm<TValues>({
     defaultValues: initialValues,
-    ...createFormBehaviorOptions({ onFinish, onFinishFailed }),
+    ...createFormBehaviorOptions({ beforeSubmit, onFinish, onFinishFailed }),
   });
 
   return <FormView form={form} {...viewProps} />;
@@ -215,6 +231,7 @@ function InternalForm<TValues extends object>({
 function ExternalForm<TValues extends object>({
   form,
   initialValues,
+  beforeSubmit,
   onFinish,
   onFinishFailed,
   ...viewProps
@@ -224,14 +241,14 @@ function ExternalForm<TValues extends object>({
     // be merged in rather than overwritten.
     const nextOptions = {
       ...form.options,
-      ...createFormBehaviorOptions({ onFinish, onFinishFailed }),
+      ...createFormBehaviorOptions({ beforeSubmit, onFinish, onFinishFailed }),
       ...(initialValues !== undefined
         ? { defaultValues: initialValues }
         : undefined),
     } as FormOptions<TValues>;
 
     form.update(nextOptions);
-  }, [form, initialValues, onFinish, onFinishFailed]);
+  }, [form, initialValues, beforeSubmit, onFinish, onFinishFailed]);
 
   return <FormView form={form} {...viewProps} />;
 }

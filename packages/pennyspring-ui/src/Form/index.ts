@@ -2,6 +2,7 @@ export { Form } from './Form';
 export type { BoundForm } from './Form';
 export { FormItem } from './FormItem';
 export type {
+  FormBeforeSubmit,
   FormErrorSummaryProps,
   FormFieldProps,
   FormFieldState,
