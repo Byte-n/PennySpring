@@ -8,11 +8,11 @@ export function PopupMaskAndCloseBehaviorDemo() {
 
   return (
     <>
-      <Space direction="vertical" size="small">
+      <Space direction="vertical" gap="small">
         <Text color="description" size="sm">
           {lastEvent}
         </Text>
-        <Space align="center" size="large" wrap>
+        <Space align="center" gap="large" wrap>
           <Button
             type={centerOpen ? 'primary' : 'default'}
             onPress={() => {
@@ -42,14 +42,14 @@ export function PopupMaskAndCloseBehaviorDemo() {
         onOpenChange={setCenterOpen}
         open={centerOpen}
       >
-        <Space direction="vertical" size="normal">
+        <Space direction="vertical" gap="normal">
           <Text color="heading" size="lg" weight="strong">
             无遮罩
           </Text>
           <Text color="secondary">
             mask 为 false 时不渲染遮罩层，点击空白处不会关闭，需通过按钮或硬件返回键关闭。
           </Text>
-          <Space justify="end" size="small">
+          <Space justify="end" gap="small">
             <Button type="primary" onPress={() => setCenterOpen(false)}>
               关闭
             </Button>
@@ -65,14 +65,14 @@ export function PopupMaskAndCloseBehaviorDemo() {
         onOpenChange={setLockedOpen}
         open={lockedOpen}
       >
-        <Space direction="vertical" size="normal">
+        <Space direction="vertical" gap="normal">
           <Text color="heading" size="lg" weight="strong">
             遮罩锁定
           </Text>
           <Text color="secondary">
             closeOnMaskClick 为 false 时遮罩可见但点击不关闭，强制用户通过按钮或确认流程关闭。
           </Text>
-          <Space justify="end" size="small">
+          <Space justify="end" gap="small">
             <Button type="primary" onPress={() => setLockedOpen(false)}>
               关闭
             </Button>

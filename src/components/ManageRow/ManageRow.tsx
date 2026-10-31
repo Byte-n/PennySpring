@@ -142,7 +142,7 @@ export function ManageCard({ children }: { children: ReactNode }) {
   const styles = useStyles();
 
   return (
-    <Column gap={0} style={styles.card}>
+    <Column style={styles.card}>
       {children}
     </Column>
   );

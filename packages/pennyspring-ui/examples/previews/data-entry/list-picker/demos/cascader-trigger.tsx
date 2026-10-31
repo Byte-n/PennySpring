@@ -4,7 +4,7 @@ import { CATEGORY_OPTIONS } from './cascader-options';
 
 export function ListPickerCascaderTriggerDemo() {
   return (
-    <Space block direction="vertical" size="large">
+    <Space block direction="vertical" gap="large">
       <ListPicker.Cascader
         allowClear
         defaultValue={['daily', 'traffic', 'taxi']}

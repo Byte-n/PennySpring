@@ -4,7 +4,7 @@ import { DISABLED_TABS, EMPTY_TABS, EXPENSE_TABS } from './cascader-options';
 
 export function PickerCascaderStateDemo() {
   return (
-    <Space block direction="vertical" size="large">
+    <Space block direction="vertical" gap="large">
       <Picker.Cascader
         disabled
         labelText="不可选择"

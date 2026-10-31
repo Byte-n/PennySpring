@@ -20,7 +20,7 @@ export interface SpaceStyles {
 }
 
 export interface SpaceProps {
-  size?: ComponentSize;
+  gap?: number | ComponentSize;
   direction?: SpaceDirection;
   align?: SpaceAlign;
   justify?: SpaceJustify;

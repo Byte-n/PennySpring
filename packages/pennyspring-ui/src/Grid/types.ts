@@ -2,7 +2,7 @@ import type React from 'react';
 import type { GestureResponderEvent, StyleProp, ViewStyle } from 'react-native';
 import type { ComponentSize } from '../shares/types';
 
-export type GridGap = ComponentSize;
+export type GridGap = number | ComponentSize;
 
 export interface GridProps {
   columns: number;

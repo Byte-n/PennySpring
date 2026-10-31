@@ -137,7 +137,7 @@ export function DrawerEmbeddedLayoutDemo() {
 
         return (
           <View key={`layout-${item}`}>
-            <Space align="center" size="large" wrap>
+            <Space align="center" gap="large" wrap>
               <Checkbox
                 displayType="button"
                 value={layoutOpen}

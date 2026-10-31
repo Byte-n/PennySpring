@@ -48,7 +48,7 @@ export function SpaceSizeDemo() {
     <>
       <View style={styles.stack}>
         {SPACE_SIZES.map(size => (
-          <Space key={size} size={size} style={styles.spaceFrame}>
+          <Space key={size} gap={size} style={styles.spaceFrame}>
             <DemoCell>
               <Text size="sm">{size}</Text>
             </DemoCell>

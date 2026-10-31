@@ -83,7 +83,7 @@ function renderRow(
   const hasDescription = (item.description ?? item.descriptionText) !== undefined;
   const hasPlate = item.icon !== undefined || item.left !== undefined;
   const content = item.children ?? (
-    <Column gap={0} style={styles.content}>
+    <Column style={styles.content}>
       {renderTextNode(item.title ?? item.titleText, text => (
         <Text
           color={item.disabled ? 'tertiary' : 'default'}

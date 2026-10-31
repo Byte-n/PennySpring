@@ -14,11 +14,11 @@ export function PopupFloatingPanelDemo() {
 
   return (
     <>
-      <Space direction="vertical" size="small">
+      <Space direction="vertical" gap="small">
         <Text color="description" size="sm">
           {lastEvent}
         </Text>
-        <Space align="center" size="large" wrap>
+        <Space align="center" gap="large" wrap>
           <Button
             type={floatingOpen ? 'primary' : 'default'}
             onPress={() => {
@@ -80,7 +80,7 @@ export function PopupFloatingPanelDemo() {
         size={floatingSize}
         titleText="基础浮动面板"
       >
-        <Space direction="vertical" size="normal">
+        <Space direction="vertical" gap="normal">
           <Text color="secondary">
             这是带 titleText、okText、onOk 和 onCancel 的三段式面板。
           </Text>
@@ -101,7 +101,7 @@ export function PopupFloatingPanelDemo() {
         onOpenChange={setCustomOpen}
         open={customOpen}
         renderFooter={({ cancel, confirm }) => (
-          <Space justify="end" size="normal">
+          <Space justify="end" gap="normal">
             <Button onPress={cancel} type="text">
               稍后
             </Button>

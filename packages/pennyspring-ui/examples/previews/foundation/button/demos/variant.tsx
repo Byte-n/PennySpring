@@ -19,11 +19,11 @@ export function ButtonVariantDemo() {
         业务优先用 type；需要同一类型换底时才显式传 variant。text / link 不接受 solid
       </Text>
       {VARIANTS.map(({ label, value }) => (
-        <Space key={value} direction="vertical" size="small" align="start">
+        <Space key={value} direction="vertical" gap="small" align="start">
           <Text color="secondary" size="sm">
             {label}
           </Text>
-          <Space align="center" size="normal" wrap>
+          <Space align="center" gap="normal" wrap>
             {COLORS.map(color => (
               <Button key={color} color={color} variant={value}>
                 {color}

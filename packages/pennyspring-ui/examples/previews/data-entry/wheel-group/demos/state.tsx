@@ -22,7 +22,7 @@ const MINUTES_WITH_DISABLED: WheelGroupColumn = Array.from(
 
 export function WheelGroupStateDemo() {
   return (
-    <Space block direction="vertical" size="large">
+    <Space block direction="vertical" gap="large">
       <WheelGroup
         columns={[HOURS, MINUTES_WITH_DISABLED]}
         defaultValue={[9, 0]}

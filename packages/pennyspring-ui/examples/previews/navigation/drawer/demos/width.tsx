@@ -108,7 +108,7 @@ export function DrawerWidthDemo() {
 
   return (
     <>
-      <Space align="center" size="large" wrap>
+      <Space align="center" gap="large" wrap>
         <Button
           type={widthDemoOpen ? 'primary' : 'default'}
           onPress={() => {
@@ -118,12 +118,12 @@ export function DrawerWidthDemo() {
           {widthDemoOpen ? 'Close 50% Drawer' : 'Open 50% Drawer'}
         </Button>
       </Space>
-      <Space align="center" size="large" wrap>
+      <Space align="center" gap="large" wrap>
         <Text color="secondary">
           Drawer width=&quot;50%&quot; (based on viewport width)
         </Text>
       </Space>
-      <Space align="center" size="large" wrap>
+      <Space align="center" gap="large" wrap>
         <Checkbox
           displayType="button"
           value={layoutWidthDemoOpen}
@@ -136,7 +136,7 @@ export function DrawerWidthDemo() {
             : 'Open 50% Layout Drawer'}
         </Checkbox>
       </Space>
-      <Space align="center" size="large" wrap>
+      <Space align="center" gap="large" wrap>
         <Text color="secondary">
           Drawer.Layout width=&quot;50%&quot; (based on main content width)
         </Text>

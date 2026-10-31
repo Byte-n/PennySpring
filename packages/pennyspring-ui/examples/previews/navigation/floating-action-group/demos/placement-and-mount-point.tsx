@@ -81,13 +81,13 @@ export function FloatingActionGroupPlacementAndMountPointDemo() {
 
   return (
     <>
-      <Space direction="vertical" size="small">
+      <Space direction="vertical" gap="small">
         <View style={styles.statusLine}>
           <Text color="description" size="sm">
             {lastEvent}
           </Text>
         </View>
-        <Space align="center" size="large" wrap>
+        <Space align="center" gap="large" wrap>
           {PLACEMENTS.map(item => (
             <Button
               key={item}
@@ -101,7 +101,7 @@ export function FloatingActionGroupPlacementAndMountPointDemo() {
             </Button>
           ))}
         </Space>
-        <Space align="center" size="large" wrap>
+        <Space align="center" gap="large" wrap>
           {MOUNT_POINTS.map(item => (
             <Button
               key={item}

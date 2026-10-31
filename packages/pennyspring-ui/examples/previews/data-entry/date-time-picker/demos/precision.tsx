@@ -6,7 +6,7 @@ const BASE_DATE = new Date(2026, 4, 9, 14, 30, 20);
 export function DateTimePickerPrecisionDemo() {
   return (
     <>
-      <Space block direction="vertical" size="large">
+      <Space block direction="vertical" gap="large">
         <DateTimePicker
           precision="day"
           defaultValue={BASE_DATE}

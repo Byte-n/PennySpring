@@ -6,7 +6,7 @@ import { useStyles } from './style';
 export function Row({
   align,
   justify,
-  gap,
+  gap = 0,
   wrap = false,
   children,
   style,

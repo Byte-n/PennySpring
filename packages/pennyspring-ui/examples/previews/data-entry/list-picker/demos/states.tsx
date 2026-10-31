@@ -4,7 +4,7 @@ import { CATEGORY_OPTIONS } from './options';
 
 export function ListPickerStatesDemo() {
   return (
-    <Space direction="vertical" size="large">
+    <Space direction="vertical" gap="large">
       <ListPicker
         labelText="禁用状态"
         value="food"

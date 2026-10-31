@@ -14,7 +14,7 @@ const PRESET_COLORS: TagColor[] = [
 export function TagPresetColorsDemo() {
   return (
     <>
-      <Space align="center" size="large" wrap>
+      <Space align="center" gap="large" wrap>
         {PRESET_COLORS.map(color => (
           <Tag key={color} color={color} variant="outlined">
             {color}

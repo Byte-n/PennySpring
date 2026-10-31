@@ -61,7 +61,7 @@ describe('Row and Column', () => {
     expect(style.gap).toBe(expectedGap);
   });
 
-  it('uses normal gap token by default for Column', () => {
+  it('uses zero gap by default for Column', () => {
     const testRenderer = renderWithTheme(
       <Column>
         <Text>Income</Text>
@@ -74,7 +74,7 @@ describe('Row and Column', () => {
     });
     const style = StyleSheet.flatten(column.props.style);
 
-    expect(style.gap).toBe(5);
+    expect(style.gap).toBe(0);
   });
 
   it('keeps numeric gap values for explicit layout overrides', () => {

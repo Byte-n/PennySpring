@@ -12,11 +12,11 @@ export function ButtonSizeAndShapeDemo() {
   return (
     <Column gap="normal">
       {SIZES.map(({ label, value }) => (
-        <Space key={value} direction="vertical" size="small" align="start">
+        <Space key={value} direction="vertical" gap="small" align="start">
           <Text color="secondary" size="sm">
             {label}
           </Text>
-          <Space align="center" size="normal" wrap>
+          <Space align="center" gap="normal" wrap>
             <Button size={value} type="primary">
               保存记录
             </Button>
@@ -28,11 +28,11 @@ export function ButtonSizeAndShapeDemo() {
         </Space>
       ))}
 
-      <Space direction="vertical" size="small" align="start">
+      <Space direction="vertical" gap="small" align="start">
         <Text color="secondary" size="sm">
           shape：default / round（999）/ circle（宽高等于高度）
         </Text>
-        <Space align="center" size="normal" wrap>
+        <Space align="center" gap="normal" wrap>
           <Button type="primary">default</Button>
           <Button shape="round" type="primary">
             round
@@ -43,7 +43,7 @@ export function ButtonSizeAndShapeDemo() {
         </Space>
       </Space>
 
-      <Space direction="vertical" size="small" align="start">
+      <Space direction="vertical" gap="small" align="start">
         <Text color="secondary" size="sm">
           iconPlacement：start / end，图标 16 / 18 / 20
         </Text>

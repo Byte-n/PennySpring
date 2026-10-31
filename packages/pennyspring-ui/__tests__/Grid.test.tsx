@@ -32,7 +32,7 @@ describe('Grid', () => {
     expect(handlePress).toHaveBeenCalledTimes(1);
   });
 
-  it('uses normal layout gap token by default', () => {
+  it('uses zero layout gap by default', () => {
     const testRenderer = renderGrid(
       <ThemeProvider
         config={{
@@ -53,12 +53,12 @@ describe('Grid', () => {
     });
     const itemStyle = StyleSheet.flatten(item.props.style);
 
-    expect(itemStyle.paddingHorizontal).toBe(2.5);
+    expect(itemStyle.paddingHorizontal).toBe(0);
     expect(itemStyle.paddingVertical).toBeUndefined();
     const rootStyle = StyleSheet.flatten(
       testRenderer.root.findByProps({ testID: 'grid' }).props.style,
     );
-    expect(rootStyle.marginHorizontal).toBe(-2.5);
+    expect(rootStyle.marginHorizontal).toBe(0);
   });
 
   it.each([

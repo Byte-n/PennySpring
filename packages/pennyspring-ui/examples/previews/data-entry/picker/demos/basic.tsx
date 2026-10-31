@@ -71,7 +71,7 @@ export function PickerBasicDemo() {
 
   return (
     <>
-      <Space block direction="vertical" size="large">
+      <Space block direction="vertical" gap="large">
         <Picker
           allowClear
           label="Account"

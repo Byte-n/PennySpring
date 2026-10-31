@@ -16,13 +16,13 @@ export function PopupEventFeedbackDemo() {
 
   return (
     <>
-      <Space direction="vertical" size="normal">
+      <Space direction="vertical" gap="normal">
         <View style={styles.statusLine}>
           <Text color="description" size="sm">
             {lastEvent}
           </Text>
         </View>
-        <Space align="center" size="large" wrap>
+        <Space align="center" gap="large" wrap>
           <Button
             type={open ? 'primary' : 'default'}
             onPress={() => {
@@ -47,14 +47,14 @@ export function PopupEventFeedbackDemo() {
         }}
         open={open}
       >
-        <Space direction="vertical" size="normal">
+        <Space direction="vertical" gap="normal">
           <Text color="heading" size="lg" weight="strong">
             事件反馈
           </Text>
           <Text color="secondary">
             点击遮罩会触发 onCancel 并携带 reason: mask；按下硬件返回键会携带 reason: back。状态行会实时显示最近一次事件。
           </Text>
-          <Space justify="end" size="small">
+          <Space justify="end" gap="small">
             <Button type="primary" onPress={() => setOpen(false)}>
               编程式关闭
             </Button>

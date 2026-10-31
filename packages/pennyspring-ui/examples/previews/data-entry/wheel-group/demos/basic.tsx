@@ -22,7 +22,7 @@ export function WheelGroupBasicDemo() {
   const valueText = value.map(item => padValue(Number(item))).join(':');
 
   return (
-    <Space block direction="vertical" size="large">
+    <Space block direction="vertical" gap="large">
       <WheelGroup
         columns={[HOURS, MINUTES, SECONDS]}
         value={value}

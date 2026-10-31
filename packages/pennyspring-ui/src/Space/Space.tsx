@@ -7,7 +7,6 @@ import type {
 } from './types';
 import {
   getGap,
-  resolveSize,
   resolveDirection,
   useSpaceStyles,
   useSpaceItemStyles,
@@ -54,14 +53,13 @@ export function Space({
   block = false,
   children,
   direction,
+  gap = 0,
   justify,
-  size,
   style,
   styles,
   wrap = false,
 }: SpaceProps): React.JSX.Element {
   const resolvedDirection = resolveDirection(direction);
-  const resolvedSize = resolveSize(size);
   const tokenStyles = useSpaceStyles({
     align,
     block,
@@ -70,7 +68,7 @@ export function Space({
     wrap,
   });
   const { token } = useTheme();
-  const gap = getGap(resolvedSize, token);
+  const resolvedGap = getGap(gap, token);
   const validChildren = getValidChildren(children);
   const isStretch = justify === 'stretch';
 
@@ -80,7 +78,7 @@ export function Space({
         <SpaceItem
           key={(child as React.ReactElement).key ?? String(index)}
           direction={resolvedDirection}
-          gap={gap}
+          gap={resolvedGap}
           isLast={index === validChildren.length - 1}
           stretch={isStretch}
           style={styles}

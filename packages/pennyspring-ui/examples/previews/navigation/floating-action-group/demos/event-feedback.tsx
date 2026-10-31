@@ -62,7 +62,7 @@ export function FloatingActionGroupEventFeedbackDemo() {
 
   return (
     <>
-      <Space direction="vertical" size="normal">
+      <Space direction="vertical" gap="normal">
         <View style={styles.statusLine}>
           <Text color="description" size="sm">
             {lastEvent}

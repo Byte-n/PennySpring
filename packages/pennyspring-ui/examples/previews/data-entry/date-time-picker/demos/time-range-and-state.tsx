@@ -9,7 +9,7 @@ const MAX_TIME = new Date(2026, 4, 9, 18, 0, 0);
 
 export function DateTimePickerTimeRangeAndStateDemo() {
   return (
-    <Space block direction="vertical" size="large">
+    <Space block direction="vertical" gap="large">
       <DateTimePicker.Time
         precision="minute"
         minuteStep={15}

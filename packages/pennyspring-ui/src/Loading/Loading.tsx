@@ -171,7 +171,7 @@ export function Loading({
   ) : null;
 
   const textBlock = hasText || hasDescription ? (
-    <Column align="center" gap={0} style={tokenStyles.textBlock}>
+    <Column align="center" style={tokenStyles.textBlock}>
       {textNode}
       {descriptionNode}
     </Column>

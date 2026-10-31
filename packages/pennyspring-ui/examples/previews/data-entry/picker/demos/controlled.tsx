@@ -64,7 +64,7 @@ export function PickerControlledDemo() {
 
   return (
     <>
-      <Space block direction="vertical" size="large">
+      <Space block direction="vertical" gap="large">
         <Picker
           allowClear
           columns={[MONTH_COLUMN, CATEGORY_COLUMN]}

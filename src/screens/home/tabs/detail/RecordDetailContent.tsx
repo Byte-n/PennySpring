@@ -91,7 +91,7 @@ function RecordHero({
   );
 
   return (
-    <Column gap={0} style={styles.hero}>
+    <Column style={styles.hero}>
       <Row
         align="center"
         justify="between"
@@ -108,7 +108,7 @@ function RecordHero({
               <Icon icon={CategoryIcon} size="large" color={iconColor} />
             ) : null}
           </Row>
-          <Column gap={0} style={styles.heroText}>
+          <Column style={styles.heroText}>
             {crumb}
           </Column>
         </Row>
@@ -170,7 +170,7 @@ function RecordHero({
             </>
           )}
         </Text>
-        <Column gap={0} align="end">
+        <Column align="end">
           <Text size="xs" color="tertiary">
             {date.date}
           </Text>
@@ -209,7 +209,7 @@ function InfoRow({
     </Text>
   );
   const valueNode = (
-    <Column gap={0} style={styles.infoValue}>
+    <Column style={styles.infoValue}>
       {children}
     </Column>
   );
@@ -328,7 +328,7 @@ function InfoCard({
   }
 
   return (
-    <Column gap={0} style={styles.infoCard}>
+    <Column style={styles.infoCard}>
       {rows}
     </Column>
   );
@@ -416,7 +416,7 @@ function AmountComposition({
   }
 
   return (
-    <Column gap={0} style={styles.composeBar}>
+    <Column style={styles.composeBar}>
       <ComposeRow items={getComposeItems(view, false)} hidden={hidden} />
     </Column>
   );
@@ -470,7 +470,7 @@ function TransferFlow({
   }
 
   return (
-    <Column gap={0} style={styles.flowCard}>
+    <Column style={styles.flowCard}>
       {hasOut ? (
         <RouteRow label="转出" name={view.assetName} isOutline={false} />
       ) : null}
@@ -499,7 +499,7 @@ function RelatedExpenses({
   const total = views.reduce((sum, view) => sum + view.finalAmount, 0);
 
   return (
-    <Column gap={0} style={styles.relatedBlock}>
+    <Column style={styles.relatedBlock}>
       <Row align="baseline" justify="between" style={styles.relatedHead}>
         <Text size="xs" weight="medium" color="tertiary">
           关联支出
@@ -509,7 +509,7 @@ function RelatedExpenses({
           {hidden ? HIDDEN_AMOUNT_TEXT : formatCurrency(total)}
         </Text>
       </Row>
-      <Column gap={0} style={styles.relatedList}>
+      <Column style={styles.relatedList}>
         {views.map((related, index) => (
           <Row
             key={related.record.id}
@@ -555,7 +555,7 @@ function RecordMeta({ view }: { view: DetailRecordView }) {
   const styles = useRecordDetailStyles();
 
   return (
-    <Column gap={0} style={styles.metaWrap}>
+    <Column style={styles.metaWrap}>
       <Text size="xs" color="quaternary">
         创建于 {formatRecordTime(view.record.createdTime)} · 更新于{' '}
         {formatRecordTime(view.record.updatedTime)}
@@ -581,7 +581,7 @@ export function RecordDetailContent({
   };
 
   return (
-    <Column gap={0}>
+    <Column>
       <RecordHero view={view} hidden={hidden} />
       {isTransfer ? (
         <TransferFlow view={view} hidden={hidden} />

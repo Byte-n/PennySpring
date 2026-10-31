@@ -37,7 +37,7 @@ export function WheelGroupFitContainerDemo() {
   const styles = useStyles();
 
   return (
-    <Space block direction="vertical" size="large">
+    <Space block direction="vertical" gap="large">
       <Column gap="small">
         <Text color="description" size="sm">
           3 rows container

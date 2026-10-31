@@ -23,7 +23,7 @@ const EMPTY_COLUMN: PickerColumn = [];
 export function PickerStateDemo() {
   return (
     <>
-      <Space block direction="vertical" size="large">
+      <Space block direction="vertical" gap="large">
         <Picker
           disabled
           columns={[ACCOUNT_COLUMN]}

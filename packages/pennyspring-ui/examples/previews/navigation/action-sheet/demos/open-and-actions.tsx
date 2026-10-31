@@ -15,11 +15,11 @@ export function ActionSheetOpenAndActionsDemo() {
 
   return (
     <>
-      <Space direction="vertical" size="small">
+      <Space direction="vertical" gap="small">
         <Text color="description" size="sm">
           {lastEvent}
         </Text>
-        <Space align="center" size="large" wrap>
+        <Space align="center" gap="large" wrap>
           <Button
             type={open ? 'primary' : 'default'}
             onPress={() => {

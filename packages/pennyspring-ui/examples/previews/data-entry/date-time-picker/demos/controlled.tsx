@@ -22,7 +22,7 @@ export function DateTimePickerControlledDemo() {
 
   return (
     <>
-      <Space block direction="vertical" size="large">
+      <Space block direction="vertical" gap="large">
         <DateTimePicker
           precision="minute"
           value={controlledDate}

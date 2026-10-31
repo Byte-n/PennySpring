@@ -23,7 +23,7 @@ export function ButtonPresetDemo() {
       <Text color="tertiary" size="sm">
         预设色走 colorX6 / colorX1 / colorX3；财务界面除收支与转账外不应出现彩色按钮
       </Text>
-      <Space align="center" size="normal" wrap>
+      <Space align="center" gap="normal" wrap>
         {PRESET_COLORS.map(color => (
           <Button key={color} color={color} variant="filled">
             {color}

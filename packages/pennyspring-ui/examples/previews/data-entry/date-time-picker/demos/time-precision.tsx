@@ -5,7 +5,7 @@ const BASE_TIME = new Date(2026, 4, 9, 14, 30, 20);
 
 export function DateTimePickerTimePrecisionDemo() {
   return (
-    <Space block direction="vertical" size="large">
+    <Space block direction="vertical" gap="large">
       <DateTimePicker.Time
         precision="hour"
         defaultValue={BASE_TIME}

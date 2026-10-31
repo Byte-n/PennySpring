@@ -30,7 +30,7 @@ export function IconCommonIconsDemo() {
 
   return (
     <>
-      <Space align="center" size="large" wrap>
+      <Space align="center" gap="large" wrap>
         {SHOWCASE_ICONS.map(name => (
           <View key={name} style={styles.iconCell}>
             <Icon icon={name} />

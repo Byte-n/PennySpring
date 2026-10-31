@@ -15,7 +15,7 @@ export function PopoverTriggerDemo() {
       <Text color="description" size="sm">
         {lastEvent}
       </Text>
-      <Space align="center" size="large" wrap>
+      <Space align="center" gap="large" wrap>
         <Popover
           content={
             <Column gap="small">

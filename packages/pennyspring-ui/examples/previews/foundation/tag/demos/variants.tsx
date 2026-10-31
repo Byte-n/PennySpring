@@ -4,7 +4,7 @@ import { Space, Tag } from '@pennyspring/ui';
 export function TagVariantsDemo() {
   return (
     <>
-      <Space align="center" size="large" wrap>
+      <Space align="center" gap="large" wrap>
         <Tag color="primary" variant="filled">
           Filled
         </Tag>

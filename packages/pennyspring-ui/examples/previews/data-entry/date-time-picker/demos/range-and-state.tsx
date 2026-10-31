@@ -10,7 +10,7 @@ const MAX_DATE = new Date(2026, 11, 31, 23, 59, 59);
 export function DateTimePickerRangeAndStateDemo() {
   return (
     <>
-      <Space block direction="vertical" size="large">
+      <Space block direction="vertical" gap="large">
         <DateTimePicker
           precision="month"
           min={MIN_DATE}

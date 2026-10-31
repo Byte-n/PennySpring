@@ -27,7 +27,7 @@ export function PickerCascaderControlledDemo() {
   );
 
   return (
-    <Space block direction="vertical" size="large">
+    <Space block direction="vertical" gap="large">
       <Picker.Cascader
         labelText="选择分类路径"
         tabs={EXPENSE_TABS}

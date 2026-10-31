@@ -4,7 +4,7 @@ import { CATEGORY_OPTIONS } from './cascader-options';
 
 export function ListPickerCascaderBasicDemo() {
   return (
-    <Space block direction="vertical" size="large">
+    <Space block direction="vertical" gap="large">
       <ListPicker.Cascader
         defaultValue={['daily', 'traffic', 'metro']}
         labelText="选择分类"

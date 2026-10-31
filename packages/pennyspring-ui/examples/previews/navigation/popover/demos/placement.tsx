@@ -11,7 +11,7 @@ const PLACEMENTS: readonly PopoverPlacement[] = [
 
 export function PopoverPlacementDemo() {
   return (
-    <Space align="center" size="large" wrap>
+    <Space align="center" gap="large" wrap>
       {PLACEMENTS.map(placement => (
         <Popover
           key={placement}

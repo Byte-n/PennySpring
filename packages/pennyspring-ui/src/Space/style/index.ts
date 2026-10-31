@@ -25,12 +25,8 @@ export interface SpaceItemStyleOptions {
   wrap: boolean;
 }
 
-export function getGap(size: ComponentSize, token: AliasToken): number {
-  return resolveLayoutGap(size, token);
-}
-
-export function resolveSize(size?: ComponentSize): ComponentSize {
-  return size ?? 'normal';
+export function getGap(gap: number | ComponentSize, token: AliasToken): number {
+  return typeof gap === 'number' ? gap : resolveLayoutGap(gap, token);
 }
 
 export function resolveDirection(direction?: SpaceDirection): SpaceDirection {

@@ -75,9 +75,9 @@ describe('Space', () => {
     ['small', 3],
     ['normal', 5],
     ['large', 7],
-  ] as const)('maps %s size to layout gap token', (size, expectedGap) => {
+  ] as const)('maps %s gap to layout gap token', (gap, expectedGap) => {
     const testRenderer = renderThemedSpace({
-      size,
+      gap,
     });
     const itemStyles = testRenderer.root
       .findAllByType(View)
@@ -87,14 +87,24 @@ describe('Space', () => {
     expect(itemStyles[0].marginRight).toBe(expectedGap);
   });
 
+  it('keeps numeric gap values for explicit layout overrides', () => {
+    const testRenderer = renderSpace({ gap: 9 });
+    const itemStyles = testRenderer.root
+      .findAllByType(View)
+      .map(node => StyleSheet.flatten(node.props.style))
+      .filter(style => style?.flexShrink === 0);
+
+    expect(itemStyles[0].marginRight).toBe(9);
+  });
+
   it.each([
     ['small', 3],
     ['normal', 5],
     ['large', 7],
-  ] as const)('maps %s size to the same gap in vertical direction', (size, expectedGap) => {
+  ] as const)('maps %s gap to the same gap in vertical direction', (gap, expectedGap) => {
     const testRenderer = renderThemedSpace({
       direction: 'vertical',
-      size,
+      gap,
     });
     const itemStyles = testRenderer.root
       .findAllByType(View)
@@ -108,6 +118,16 @@ describe('Space', () => {
     const testRenderer = renderSpace();
     const rootStyle = flattenStyle(getSpaceRoot(testRenderer).props.style);
     expect(rootStyle.flexDirection).toBe('row');
+  });
+
+  it('uses zero gap by default', () => {
+    const testRenderer = renderSpace();
+    const itemStyles = testRenderer.root
+      .findAllByType(View)
+      .map(node => StyleSheet.flatten(node.props.style))
+      .filter(style => style?.flexShrink === 0);
+
+    expect(itemStyles[0].marginRight).toBe(0);
   });
 
   it('renders vertical direction as column layout', () => {
@@ -153,7 +173,7 @@ describe('Space', () => {
   });
 
   it('adds full gap vertical margins when wrap is enabled', () => {
-    const testRenderer = renderThemedSpace({ wrap: true, size: 'normal' });
+    const testRenderer = renderThemedSpace({ wrap: true, gap: 'normal' });
     const items = testRenderer.root
       .findAllByType(View)
       .map(node => StyleSheet.flatten(node.props.style))

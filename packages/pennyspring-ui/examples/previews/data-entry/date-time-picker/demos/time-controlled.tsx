@@ -19,7 +19,7 @@ export function DateTimePickerTimeControlledDemo() {
   const [controlledTime, setControlledTime] = React.useState(BASE_TIME);
 
   return (
-    <Space block direction="vertical" size="large">
+    <Space block direction="vertical" gap="large">
       <DateTimePicker.Time
         precision="minute"
         minuteStep={15}

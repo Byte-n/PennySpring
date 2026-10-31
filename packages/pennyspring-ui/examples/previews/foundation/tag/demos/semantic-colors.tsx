@@ -14,21 +14,21 @@ const SEMANTIC_COLORS: TagColor[] = [
 export function TagSemanticColorsDemo() {
   return (
     <>
-      <Space align="center" size="large" wrap>
+      <Space align="center" gap="large" wrap>
         {SEMANTIC_COLORS.map(color => (
           <Tag key={color} color={color}>
             {color}
           </Tag>
         ))}
       </Space>
-      <Space align="center" size="large" wrap>
+      <Space align="center" gap="large" wrap>
         {SEMANTIC_COLORS.map(color => (
           <Tag key={`${color}-outlined`} color={color} variant="outlined">
             {color}
           </Tag>
         ))}
       </Space>
-      <Space align="center" size="large" wrap>
+      <Space align="center" gap="large" wrap>
         {SEMANTIC_COLORS.map(color => (
           <Tag key={`${color}-solid`} color={color} variant="solid">
             {color}

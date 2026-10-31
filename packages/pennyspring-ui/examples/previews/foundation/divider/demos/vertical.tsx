@@ -18,7 +18,7 @@ export function DividerVerticalDemo() {
 
   return (
     <>
-      <Space align="center" size="large" wrap style={styles.verticalRow}>
+      <Space align="center" gap="large" wrap style={styles.verticalRow}>
         <Text color="secondary">A</Text>
         <Divider direction="vertical" size="small" />
         <Text color="secondary">B</Text>

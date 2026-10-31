@@ -162,7 +162,7 @@ function renderAction(
       style={({ pressed }) => [styles.action, pressed && styles.actionPressed]}
       testID={`action-sheet-action-${index}`}
     >
-      <Column gap={0} style={styles.actionContent}>
+      <Column style={styles.actionContent}>
         <Row gap="small" testID={`action-sheet-action-title-${index}`}>
           {action.icon ? (
             <Icon

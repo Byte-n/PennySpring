@@ -5,7 +5,7 @@ const BASE_DATE = new Date(2026, 9, 25);
 
 export function DateTimePickerDateDemo() {
   return (
-    <Space block direction="vertical" size="large">
+    <Space block direction="vertical" gap="large">
       <DateTimePicker.Date
         layout="calendar"
         defaultValue={BASE_DATE}

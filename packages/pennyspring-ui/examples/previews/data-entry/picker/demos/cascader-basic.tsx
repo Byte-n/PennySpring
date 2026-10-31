@@ -4,7 +4,7 @@ import { EXPENSE_TABS } from './cascader-options';
 
 export function PickerCascaderBasicDemo() {
   return (
-    <Space block direction="vertical" size="large">
+    <Space block direction="vertical" gap="large">
       <Picker.Cascader
         defaultValue={{
           daily: ['food', 'breakfast'],

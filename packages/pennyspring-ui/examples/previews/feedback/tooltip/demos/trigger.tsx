@@ -15,7 +15,7 @@ export function TooltipTriggerDemo() {
       <Text color="description" size="sm">
         {lastEvent}
       </Text>
-      <Space align="center" size="large" wrap>
+      <Space align="center" gap="large" wrap>
         <Tooltip
           content="press 是默认触发：点一下打开，再点一下关闭。"
           onCancel={handleCancel}

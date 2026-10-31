@@ -45,11 +45,11 @@ export function DrawerControlledDemo() {
 
   return (
     <>
-      <Space direction="vertical" size="small">
+      <Space direction="vertical" gap="small">
         <Text color="description" size="sm">
           {lastEvent}
         </Text>
-        <Space align="center" size="large" wrap>
+        <Space align="center" gap="large" wrap>
           {DRAWER_POSITIONS.map(item => (
             <Button
               key={item}

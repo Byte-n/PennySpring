@@ -229,10 +229,10 @@ export function Empty({
   );
 
   return (
-    <Column align="center" gap={0} style={[tokenStyles.root, style]}>
+    <Column align="center" style={[tokenStyles.root, style]}>
       {iconNode}
       {shouldRenderBody ? (
-        <Column align="center" gap={0} style={tokenStyles.head}>
+        <Column align="center" style={tokenStyles.head}>
           {bodyNode}
         </Column>
       ) : null}

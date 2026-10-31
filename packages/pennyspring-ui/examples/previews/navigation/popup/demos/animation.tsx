@@ -11,11 +11,11 @@ export function PopupAnimationDemo() {
 
   return (
     <>
-      <Space direction="vertical" size="small">
+      <Space direction="vertical" gap="small">
         <Text color="description" size="sm">
           {lastEvent}
         </Text>
-        <Space align="center" size="large" wrap>
+        <Space align="center" gap="large" wrap>
           {ANIMATIONS.map(item => (
             <Button
               key={item}
@@ -49,7 +49,7 @@ export function PopupAnimationDemo() {
         onOpenChange={setOpen}
         open={open}
       >
-        <Space direction="vertical" size="normal">
+        <Space direction="vertical" gap="normal">
           <Text color="heading" size="lg" weight="strong">
             动画：{animation}
           </Text>
@@ -57,7 +57,7 @@ export function PopupAnimationDemo() {
             fade 从底部滑出与退出，opacity 仅透明度淡入淡出；显示为「挂载 →
             动画」，隐藏为「动画 → 卸载」。
           </Text>
-          <Space justify="end" size="small">
+          <Space justify="end" gap="small">
             <Button type="primary" onPress={() => setOpen(false)}>
               关闭
             </Button>

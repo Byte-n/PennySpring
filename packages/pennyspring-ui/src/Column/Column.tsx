@@ -52,7 +52,7 @@ const useStyles = createUseSheetStyle(
 export function Column({
   align,
   justify,
-  gap = 'normal',
+  gap = 0,
   children,
   style,
   testID = 'column',

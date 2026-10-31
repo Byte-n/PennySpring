@@ -16,13 +16,13 @@ export function DialogEventFeedbackDemo() {
 
   return (
     <>
-      <Space direction="vertical" size="normal">
+      <Space direction="vertical" gap="normal">
         <View style={styles.statusLine}>
           <Text color="description" size="sm">
             {lastEvent}
           </Text>
         </View>
-        <Space align="center" size="large" wrap>
+        <Space align="center" gap="large" wrap>
           <Button
             type={open ? 'primary' : 'default'}
             onPress={() => {

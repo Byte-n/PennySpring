@@ -54,7 +54,7 @@ export function PickerPopupPropsDemo() {
 
   return (
     <>
-      <Space block direction="vertical" size="large">
+      <Space block direction="vertical" gap="large">
         <Picker
           allowClear
           columns={[ACCOUNT_COLUMN]}

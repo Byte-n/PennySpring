@@ -4,7 +4,7 @@ import { Space, Icon } from '@pennyspring/ui';
 export function IconWeightAndMirroredDemo() {
   return (
     <>
-      <Space align="center" size="large" wrap>
+      <Space align="center" gap="large" wrap>
         <Icon icon="heart" weight="thin" />
         <Icon icon="heart" weight="regular" />
         <Icon icon="heart" weight="fill" />

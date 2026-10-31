@@ -277,7 +277,7 @@ function Cells({
   );
 
   return (
-    <Grid columns={COLUMN} style={[styles.cells, style]}>
+    <Grid columns={COLUMN} gap="normal" style={[styles.cells, style]}>
       {list.map(item => (
         <Grid.Item key={item.id}>
           <Cell
@@ -342,7 +342,7 @@ function ManageExpansion({
           </Pressable>
         ) : null}
       </Row>
-      <Grid columns={COLUMN} style={styles.cells}>
+      <Grid columns={COLUMN} gap="normal" style={styles.cells}>
         {parent.children.map(child => (
           <Grid.Item key={child.id}>
             <Cell

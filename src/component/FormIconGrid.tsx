@@ -37,7 +37,7 @@ export function FormIconGrid({ values, value, onChange }: FormIconGridProps) {
   const field = Form.Item.useFieldProps<string>({ value, onChange });
 
   return (
-    <Grid columns={ICON_GRID_COLUMNS}>
+    <Grid columns={ICON_GRID_COLUMNS} gap="normal">
       {values.map(iconName => {
         const IconComponent = getPhosphorIconComponent(iconName);
         const selected = iconName === field.value;

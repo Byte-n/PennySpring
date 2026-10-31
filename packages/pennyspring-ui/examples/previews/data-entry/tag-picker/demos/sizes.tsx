@@ -4,7 +4,7 @@ import { TAG_PICKER_OPTIONS } from './options';
 
 export function TagPickerSizesDemo() {
   return (
-    <Space direction="vertical" size="large">
+    <Space direction="vertical" gap="large">
       <TagPicker
         labelText="小尺寸"
         size="small"

@@ -29,7 +29,7 @@ export function PortalMountOnlyDemo() {
 
   return (
     <>
-      <Space align="center" size="large" wrap>
+      <Space align="center" gap="large" wrap>
         <Button
           type={showPortal ? 'primary' : 'default'}
           onPress={() => {

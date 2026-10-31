@@ -7,7 +7,7 @@ export function TooltipPlacementDemo() {
       <Text color="tertiary" size="sm">
         默认 top；本侧装不下且对侧更宽裕时自动翻面，水平方向收敛在屏幕 12 边距内。
       </Text>
-      <Space align="center" size="normal" wrap>
+      <Space align="center" gap="normal" wrap>
         <Tooltip content="从上方向下指。" placement="top">
           <Button>top</Button>
         </Tooltip>

@@ -11,11 +11,11 @@ export function PopupPositionDemo() {
 
   return (
     <>
-      <Space direction="vertical" size="small">
+      <Space direction="vertical" gap="small">
         <Text color="description" size="sm">
           {lastEvent}
         </Text>
-        <Space align="center" size="large" wrap>
+        <Space align="center" gap="large" wrap>
           {POSITIONS.map(item => (
             <Button
               key={item}
@@ -40,14 +40,14 @@ export function PopupPositionDemo() {
         open={open}
         position={position}
       >
-        <Space direction="vertical" size="normal">
+        <Space direction="vertical" gap="normal">
           <Text color="heading" size="lg" weight="strong">
             位置：{position}
           </Text>
           <Text color="secondary">
             bottom/top 从屏幕边缘滑入并铺满宽度，left/right 占 70% 宽度贴边弹出，center 居中显示。
           </Text>
-          <Space justify="end" size="small">
+          <Space justify="end" gap="small">
             <Button type="primary" onPress={() => setOpen(false)}>
               关闭
             </Button>

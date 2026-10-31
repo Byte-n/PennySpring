@@ -3,7 +3,6 @@ import { Pressable, View } from 'react-native';
 import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
 import type { AliasToken } from '@pennyspring/theme';
 import type { GridGap, GridItemProps, GridProps } from './types';
-import type { ComponentSize } from '../shares/types';
 import { resolveLayoutGap } from '../shares/layoutGap';
 
 const DEFAULT_SPAN = 1;
@@ -22,7 +21,7 @@ const useGridStyles = createUseSheetStyle(
   (_, { gap }: { gap: number }) => ({
     root: {
       alignSelf: 'stretch',
-      marginHorizontal: -gap / GAP_DIVISOR,
+      marginHorizontal: gap === 0 ? 0 : -gap / GAP_DIVISOR,
     },
     row: {
       flexDirection: 'row',
@@ -49,12 +48,12 @@ function resolveColumns(columns: number): number {
   return Math.max(MIN_COLUMNS, Math.floor(columns));
 }
 
-function getGapValue(gap: ComponentSize, token: AliasToken): number {
-  return resolveLayoutGap(gap, token);
+function getGapValue(gap: GridGap, token: AliasToken): number {
+  return typeof gap === 'number' ? gap : resolveLayoutGap(gap, token);
 }
 
 function resolveGap(gap: GridGap | undefined, token: AliasToken): number {
-  return getGapValue(gap ?? 'normal', token);
+  return getGapValue(gap ?? 0, token);
 }
 
 function resolveSpan(span: number | undefined, columns: number): number {

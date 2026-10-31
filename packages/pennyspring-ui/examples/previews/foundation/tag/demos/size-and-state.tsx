@@ -4,7 +4,7 @@ import { Space, Tag } from '@pennyspring/ui';
 export function TagSizeAndStateDemo() {
   return (
     <>
-      <Space align="center" size="large" wrap>
+      <Space align="center" gap="large" wrap>
         <Tag size="small">Small</Tag>
         <Tag>Normal</Tag>
         <Tag size="large">Large</Tag>
