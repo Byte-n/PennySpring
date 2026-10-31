@@ -75,10 +75,10 @@ jobs:
           haskell: true
           large-packages: false
 
-      - name: 准备 Node
+      - name: 准备 Node.js 22
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: '22'
           cache: yarn
 
       - name: 准备 JDK
@@ -89,6 +89,8 @@ jobs:
 
       - name: 准备 Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
 
       - name: 安装 SDK / NDK / CMake
         run: |
