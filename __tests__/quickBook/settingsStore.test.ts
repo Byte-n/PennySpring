@@ -89,4 +89,22 @@ describe('quick book settings store', () => {
     expect(useQuickBookSettingsStore.getState().presetPrompt).toBe('帮我记账');
     expect(useQuickBookSettingsStore.getState().nudgeEnabled).toBe(true);
   });
+
+  it('clears the provider and model and turns off the nudge switch', () => {
+    const state = useQuickBookSettingsStore.getState();
+    state.setProviderId('provider-1');
+    state.setModelId('vision-model');
+    state.setFreshWindowSeconds(120);
+    state.setPresetPrompt('自定义提示');
+    state.setNudgeEnabled(true);
+
+    state.clearProviderModel();
+
+    const next = useQuickBookSettingsStore.getState();
+    expect(next.providerId).toBeNull();
+    expect(next.modelId).toBeNull();
+    expect(next.nudgeEnabled).toBe(false);
+    expect(next.freshWindowSeconds).toBe(120);
+    expect(next.presetPrompt).toBe('自定义提示');
+  });
 });

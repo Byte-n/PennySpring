@@ -22,6 +22,7 @@ export interface QuickBookSettings {
 interface QuickBookSettingsStore extends QuickBookSettings {
   setProviderId: (providerId: string | null) => void;
   setModelId: (modelId: string | null) => void;
+  clearProviderModel: () => void;
   setFreshWindowSeconds: (seconds: number) => void;
   setPresetPrompt: (prompt: string) => void;
   setNudgeEnabled: (enabled: boolean) => void;
@@ -54,6 +55,9 @@ export const useQuickBookSettingsStore = create<QuickBookSettingsStore>()(
       },
       setModelId: modelId => {
         set({ modelId });
+      },
+      clearProviderModel: () => {
+        set({ providerId: null, modelId: null, nudgeEnabled: false });
       },
       setFreshWindowSeconds: seconds => {
         set({ freshWindowSeconds: clampFreshWindowSeconds(seconds) });

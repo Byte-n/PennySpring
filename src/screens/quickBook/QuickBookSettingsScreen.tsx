@@ -153,9 +153,10 @@ export function QuickBookSettingsScreen(): React.ReactElement {
       }
       if (!isConfigured) {
         toast.show({
-          messageText: '请先选择支持图片的 AI 模型。',
+          messageText: '请先配置支持图片的 AI 模型。',
           status: 'error',
         });
+        settings.setNudgeEnabled(false);
         return;
       }
       const granted =
@@ -172,6 +173,11 @@ export function QuickBookSettingsScreen(): React.ReactElement {
     },
     [isConfigured, settings, toast],
   );
+
+  const handleClearProviderModel = useCallback((): void => {
+    settings.clearProviderModel();
+    toast.show({ messageText: '已清空 AI 模型，截图提醒已关闭。' });
+  }, [settings, toast]);
 
   const commitWindowText = useCallback((): void => {
     const parsed = Number(windowText);
@@ -199,13 +205,18 @@ export function QuickBookSettingsScreen(): React.ReactElement {
                 </Text>
               </Column>
               <Switch
-                disabled={!isAndroid || !isConfigured}
+                disabled={!isAndroid}
                 onChange={value => {
                   handleNudgeChange(value).catch(() => undefined);
                 }}
                 value={settings.nudgeEnabled && isConfigured}
               />
             </Row>
+            {isAndroid && !isConfigured ? (
+              <Text color="warningText" size="xs" style={styles.hint}>
+                请先配置支持图片的 AI 模型，才能开启截图提醒。
+              </Text>
+            ) : null}
             <Input
               keyboardType="number-pad"
               labelText="最近判断时间"
@@ -226,7 +237,21 @@ export function QuickBookSettingsScreen(): React.ReactElement {
           </Column>
         </Card>
 
-        <Card titleText="AI 模型" variant="plain">
+        <Card
+          extra={
+            selectedProvider !== null || settings.modelId !== null ? (
+              <Button
+                onPress={handleClearProviderModel}
+                size="small"
+                type="text"
+              >
+                清空
+              </Button>
+            ) : null
+          }
+          titleText="AI 模型"
+          variant="plain"
+        >
           <Column style={styles.section}>
             <Row align="center" justify="between">
               <Text size="sm">提供商</Text>
