@@ -22,7 +22,12 @@ import {
   useToast,
   type ImagePickerValue,
 } from '@pennyspring/ui';
-import { BOOK_TYPE, localApi, type BookRow } from '@pennyspring/api';
+import {
+  BOOK_TYPE,
+  createRemoteApi,
+  localApi,
+  type BookRow,
+} from '@pennyspring/api';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import {
   type BookEntry,
@@ -73,6 +78,8 @@ const EMPTY_BOOK_FORM: BookFormValues = {
   backgroundImage: undefined,
   networkServerUrl: '',
 };
+
+const SERVER_BOOK_DISCOVERY_TIMEOUT_MS = 3_000;
 
 const useStyles = createUseSheetStyle(token => ({
   container: {
@@ -294,7 +301,10 @@ export function BookManageScreen() {
     setNetworkLoading(true);
     setNetworkError('');
     try {
-      const books = await getRemoteApi(url).book.getAll();
+      const books = await createRemoteApi(url, {
+        timeoutMs: SERVER_BOOK_DISCOVERY_TIMEOUT_MS,
+        timeoutMessage: '连接服务器超时',
+      }).book.getAll();
       setServerBookList(books);
       setNetworkConnected(true);
     } catch (error: unknown) {
