@@ -1,11 +1,13 @@
 #!/usr/bin/env node
 
+const { execFileSync, spawnSync } = require('node:child_process')
 const { readFile, writeFile } = require('node:fs/promises')
 const path = require('node:path')
 
 const PROJECT_ROOT = path.resolve(__dirname, '..', '..')
 const VERSION_FILE = path.join(PROJECT_ROOT, 'version')
 const ANDROID_VERSION_FILE = path.join(PROJECT_ROOT, 'android', 'version.json')
+const VERSION_RELATIVE_PATHS = ['version', 'android/version.json']
 
 const VERSION_NAME_PATTERN = /^\d+\.\d+\.\d+$/
 const RELEASE_MARKER_PATTERN = /^update:\s*v?(\d+\.\d+\.\d+)\b/
@@ -111,6 +113,57 @@ async function writeVersionState(versionName) {
   return { versionName: name, versionCode }
 }
 
+/**
+ * @param {string[]} argumentsList
+ * @returns {{ versionName: string, shouldCommit: boolean }}
+ */
+function parseSetArguments(argumentsList) {
+  const versionArguments = argumentsList.filter(argument => argument !== '--commit')
+  const shouldCommit = argumentsList.includes('--commit')
+
+  if (
+    versionArguments.length !== 1 ||
+    argumentsList.some(argument => argument.startsWith('-') && argument !== '--commit')
+  ) {
+    throw new Error('用法: version.js set [--commit] <x.y.z>')
+  }
+
+  return { versionName: versionArguments[0], shouldCommit }
+}
+
+/** @returns {boolean} */
+function hasVersionChanges() {
+  const result = spawnSync('git', ['diff', '--quiet', 'HEAD', '--', ...VERSION_RELATIVE_PATHS], {
+    cwd: PROJECT_ROOT,
+    stdio: 'ignore'
+  })
+
+  if (result.error) throw result.error
+  if (result.status === null || result.status > 1) {
+    throw new Error('无法检查版本文件的 Git 状态')
+  }
+
+  return result.status === 1
+}
+
+/**
+ * @param {string} versionName
+ * @returns {boolean}
+ */
+function commitVersionState(versionName) {
+  if (!hasVersionChanges()) return false
+
+  execFileSync('git', ['add', '--', ...VERSION_RELATIVE_PATHS], {
+    cwd: PROJECT_ROOT,
+    stdio: 'inherit'
+  })
+  execFileSync('git', ['commit', '-m', `update: v${versionName}`, '--', ...VERSION_RELATIVE_PATHS], {
+    cwd: PROJECT_ROOT,
+    stdio: 'inherit'
+  })
+  return true
+}
+
 /** @returns {Promise<string>} */
 async function readStdin() {
   let content = ''
@@ -122,7 +175,7 @@ async function readStdin() {
 }
 
 async function main() {
-  const [command = 'print', argument] = process.argv.slice(2)
+  const [command = 'print', ...argumentsList] = process.argv.slice(2)
 
   if (command === 'print') {
     const state = await readVersionState()
@@ -131,15 +184,24 @@ async function main() {
   }
 
   if (command === 'set') {
-    const state = await writeVersionState(argument)
-    process.stdout.write(`版本已写入 ${state.versionName} (${state.versionCode})\n`)
+    const { versionName, shouldCommit } = parseSetArguments(argumentsList)
+    const state = await writeVersionState(versionName)
+    const committed = shouldCommit && commitVersionState(state.versionName)
+    const commitMessage = shouldCommit
+      ? committed
+        ? `，已创建提交 update: v${state.versionName}`
+        : '，版本文件未变化，未创建提交'
+      : ''
+    process.stdout.write(`版本已写入 ${state.versionName} (${state.versionCode})${commitMessage}\n`)
     return
   }
 
   if (command === 'assert') {
     const state = await readVersionState()
-    if (state.versionName !== argument) {
-      throw new Error(`仓库版本 ${state.versionName} 与期望版本 ${argument} 不一致，请先提交版本变更`)
+    if (state.versionName !== argumentsList[0]) {
+      throw new Error(
+        `仓库版本 ${state.versionName} 与期望版本 ${argumentsList[0]} 不一致，请先提交版本变更`
+      )
     }
     process.stdout.write(`${JSON.stringify(state)}\n`)
     return
@@ -154,7 +216,7 @@ async function main() {
     return
   }
 
-  throw new Error(`未知命令: ${command}\n用法: version.js [print|set <x.y.z>|assert <x.y.z>|from-commit]`)
+  throw new Error(`未知命令: ${command}\n用法: version.js [print|set [--commit] <x.y.z>|assert <x.y.z>|from-commit]`)
 }
 
 if (require.main === module) {
@@ -168,6 +230,7 @@ module.exports = {
   assertVersionName,
   getNextVersionName,
   parseReleaseMarker,
+  parseSetArguments,
   readVersionState,
   toVersionCode,
   writeVersionState

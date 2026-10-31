@@ -1,6 +1,7 @@
 const {
   getNextVersionName,
   parseReleaseMarker,
+  parseSetArguments,
   toVersionCode,
 } = require('../scripts/android/version');
 
@@ -26,5 +27,16 @@ describe('Android 版本号工具', () => {
   it('版本号格式非法时抛错', () => {
     expect(() => toVersionCode('1.0')).toThrow();
     expect(() => getNextVersionName('1.0', 'patch')).toThrow();
+  });
+
+  it('release:version 解析自动提交选项', () => {
+    expect(parseSetArguments(['--commit', '1.0.3'])).toEqual({
+      versionName: '1.0.3',
+      shouldCommit: true,
+    });
+    expect(parseSetArguments(['1.0.3'])).toEqual({
+      versionName: '1.0.3',
+      shouldCommit: false,
+    });
   });
 });
