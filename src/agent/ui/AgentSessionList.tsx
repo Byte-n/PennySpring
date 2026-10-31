@@ -1,14 +1,7 @@
 import React, { useCallback } from 'react';
 import { ScrollView } from 'react-native';
 import type { StyleProp, ViewStyle } from 'react-native';
-import {
-  Empty,
-  Icon,
-  Loading,
-  Row,
-  SwipeAction,
-  Text,
-} from '@pennyspring/ui';
+import { Empty, Icon, Loading, Row, SwipeAction, Text } from '@pennyspring/ui';
 import type { AgentThreadRow } from '@pennyspring/api';
 import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
 import { ChatsCircleIcon, CaretRightIcon } from 'phosphor-react-native';

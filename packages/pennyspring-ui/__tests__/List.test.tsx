@@ -49,6 +49,7 @@ const ROW_TOKENS = {
   colorPrimaryBg: 'primaryBgToken',
   colorSplit: 'splitToken',
   lineWidth: 1,
+  lineWidthBold: 3,
   marginSM: 12,
   marginXS: 8,
   marginXXS: 4,
@@ -151,6 +152,33 @@ describe('List row spec', () => {
     expect(icon.props.size).toBe(18);
     expect(rowStyle.backgroundColor).toBe(ROW_TOKENS.colorPrimaryBg);
     expect(testRenderer.root.findAllByType(Text).some(node => node.props.children === '28')).toBe(false);
+  });
+
+  it('marks a selected row with a primary left bar', () => {
+    const testRenderer = renderRow([{ selected: true, titleText: '已选中' }]);
+    const marker = testRenderer.root.findAllByType(View).find(node => {
+      const style = StyleSheet.flatten(node.props.style);
+
+      return style?.position === 'absolute' && style?.width === ROW_TOKENS.lineWidthBold;
+    });
+    const markerStyle = StyleSheet.flatten(marker?.props.style);
+
+    expect(marker).toBeTruthy();
+    expect(markerStyle.backgroundColor).toBe(ROW_TOKENS.colorPrimary);
+    expect(markerStyle.left).toBe(0);
+    expect(markerStyle.top).toBe(0);
+    expect(markerStyle.bottom).toBe(0);
+  });
+
+  it('leaves rows without the left bar when not selected', () => {
+    const testRenderer = renderRow([{ titleText: '未选中' }]);
+    const marker = testRenderer.root.findAllByType(View).find(node => {
+      const style = StyleSheet.flatten(node.props.style);
+
+      return style?.position === 'absolute' && style?.width === ROW_TOKENS.lineWidthBold;
+    });
+
+    expect(marker).toBeUndefined();
   });
 
   it('insets the divider to 66 for plated rows and 16 for text-only rows', () => {

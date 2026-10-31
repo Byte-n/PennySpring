@@ -50,6 +50,14 @@ const useStyles = createUseSheetStyle(token => ({
   },
   itemTwoLine: { minHeight: TWO_LINE_ROW_HEIGHT },
   itemSelected: { backgroundColor: token.colorPrimaryBg },
+  selectedMarker: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    bottom: 0,
+    width: token.lineWidthBold,
+    backgroundColor: token.colorPrimary,
+  },
   itemPressed: { backgroundColor: token.colorFillTertiary },
   itemDisabled: {},
   plate: {
@@ -121,6 +129,7 @@ function renderRow(
         item.disabled ? styles.itemDisabled : null,
       ]}
     >
+      {item.selected ? <View style={styles.selectedMarker} /> : null}
       {hasPlate ? (
         <View style={[styles.plate, item.disabled ? styles.plateDisabled : null]}>
           {item.icon !== undefined

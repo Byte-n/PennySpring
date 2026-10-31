@@ -1,18 +1,10 @@
 import React, { useCallback, useState } from 'react';
 import { Button, Popup, useToast } from '@pennyspring/ui';
 import type { AgentThreadRow } from '@pennyspring/api';
-import { createUseSheetStyle } from '@pennyspring/theme';
-
 import { ManageConfirmDialog } from '../../components/ManageConfirmDialog';
 import { AgentSessionList } from './AgentSessionList';
 import { getThreadTitle } from './chatModel';
 import type { AgentSessionState } from './useAgentSession';
-
-const useStyles = createUseSheetStyle(() => ({
-  panelBody: {
-    padding: 0,
-  },
-}));
 
 export interface AgentSessionsPanelProps {
   open: boolean;
@@ -25,7 +17,6 @@ export function AgentSessionsPanel({
   chat,
   onOpenChange,
 }: AgentSessionsPanelProps) {
-  const styles = useStyles();
   const toast = useToast();
   const [pendingDelete, setPendingDelete] = useState<AgentThreadRow | null>(
     null,
@@ -82,7 +73,6 @@ export function AgentSessionsPanel({
             新建
           </Button>
         )}
-        styles={{ panelBody: styles.panelBody }}
         titleText="会话记录"
       >
         <AgentSessionList

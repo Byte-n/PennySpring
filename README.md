@@ -19,6 +19,10 @@ Agent 编排与 ReAct 引擎：ai (Vercel AI SDK) + @ai-sdk/openai
 
 作用：补全 RN JS 引擎缺失的 fetch / ReadableStream / TextEncoder，确保 Fetch 流式传输和流式 Fetch 不报错。
 
-- [ ] ImagePicker已选图片，需要支持点击放大预览。提供一个 Image 、 Image.Preview 组件。
 - [ ] Agent
   - 添加编辑记录的能力
+- [ ] List 专项
+  - 是否默认不应该提供滚动能力？另外一个值得思考的问题：所有支持滚动的容器、都应该将滚动能力默认禁用，避免嵌套滚动的问题，需要滚动的地方主动打开
+  - list row 支持 SwipeAction，需要解决手势冲突的问题。
+  - ListPicker 使用 List 来重构
+  - 项目中的 AgentSessionList 等都用 List 来重构。
