@@ -2,11 +2,7 @@ import { ImagePicker } from '@pennyspring/ui';
 
 import { uploadMedia } from './http';
 import { isMediaRef, resolveMediaSource, toMediaRef } from './refs';
-import type {
-  MediaSaveInput,
-  MediaScope,
-  MediaStore,
-} from './types';
+import type { MediaSaveInput, MediaScope, MediaStore } from './types';
 
 const DEFAULT_IMAGE_MIME_TYPE = 'image/jpeg';
 const READ_TIMEOUT_MS = 30_000;
@@ -46,7 +42,7 @@ function resolveMimeType(input: MediaSaveInput): string {
   }
   const extension = inferExtension(input.fileName ?? input.uri);
   return extension
-    ? (MIME_BY_EXTENSION[extension] ?? DEFAULT_IMAGE_MIME_TYPE)
+    ? MIME_BY_EXTENSION[extension] ?? DEFAULT_IMAGE_MIME_TYPE
     : DEFAULT_IMAGE_MIME_TYPE;
 }
 
@@ -118,7 +114,9 @@ async function readRefAsDataUrl(
   }
 }
 
-function createLocalStore(scope: Extract<MediaScope, { kind: 'local' }>): MediaStore {
+function createLocalStore(
+  scope: Extract<MediaScope, { kind: 'local' }>,
+): MediaStore {
   const cache = new Map<string, string>();
 
   return {
