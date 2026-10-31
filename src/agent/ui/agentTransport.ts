@@ -53,7 +53,8 @@ export interface AgentTransportOptions {
   api: Api;
   booksId: number;
   bookName: string;
-  threadId: number;
+  ensureThreadId?: () => Promise<number | null>;
+  threadId?: number;
   usageRef: { current: TokenUsage };
   media: MediaStore;
   persistUserMessage: (message: UIMessage) => Promise<void>;
@@ -161,8 +162,14 @@ export function createAgentTransport(
       options.onRunStart?.();
       options.usageRef.current = EMPTY_USAGE;
 
+      const threadId = options.ensureThreadId
+        ? await options.ensureThreadId()
+        : (options.threadId ?? null);
+      if (threadId === null) {
+        throw new Error(AGENT_NOT_CONFIGURED_MESSAGE);
+      }
       const threadDetail = await options.api.agent.getThreadDetail(
-        options.threadId,
+        threadId,
       );
       const providerId = threadDetail.thread.providerId;
       if (providerId <= 0) {
@@ -264,7 +271,7 @@ export function createAgentTransport(
       };
 
       agentDebugLog('transport', 'request', {
-        threadId: options.threadId,
+        threadId,
         provider: provider.descriptorId,
         model: model.modelId,
         reasoningEffort: model.reasoningEffort,

@@ -143,8 +143,11 @@ function createChat(
     threadsLoading: false,
     currentThreadId: 1,
     currentThread: null,
+    sessionVersion: 0,
     initialMessages: [],
     createThread: jest.fn(() => Promise.resolve(true)),
+    ensureThread: jest.fn(() => Promise.resolve(null)),
+    syncDraftSelection: jest.fn(),
     ensureQuickBookThread: jest.fn(() => Promise.resolve(null)),
     selectThread: jest.fn(() => Promise.resolve(true)),
     deleteThread: jest.fn(() => Promise.resolve()),
@@ -188,7 +191,7 @@ describe('AgentSessionsPanel', () => {
 
     expect(chat.createThread).toHaveBeenCalledTimes(1);
     expect(onOpenChange).toHaveBeenCalledWith(false);
-    expect(mockToastShow).toHaveBeenCalledWith({ messageText: '已新建会话' });
+    expect(mockToastShow).toHaveBeenCalledWith({ messageText: '已切换到新会话' });
   });
 
   it('restores the selected session and closes the panel', async () => {

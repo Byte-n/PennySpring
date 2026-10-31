@@ -251,7 +251,7 @@ describe('storage backend api', () => {
     expect(detail.thread.modelId).toBe('m2')
   })
 
-  test('latest thread creation uses the provided selection', async () => {
+  test('latest thread lookup does not create a session', async () => {
     const provider = await createProvider()
 
     const detail = await api.agent.getLatestThreadWithMessages(booksId, {
@@ -259,9 +259,8 @@ describe('storage backend api', () => {
       modelId: 'm2',
     })
 
-    expect(detail.thread.providerId).toBe(provider.id)
-    expect(detail.thread.modelId).toBe('m2')
-    expect(detail.messages).toEqual([])
+    expect(detail).toBeNull()
+    expect(await api.agent.listThreads(booksId)).toEqual([])
   })
 
   test('quick templates round-trip json tags and boolean reimbursable', async () => {

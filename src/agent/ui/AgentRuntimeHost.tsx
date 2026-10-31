@@ -14,7 +14,7 @@ import type { AgentSessionState } from './useAgentSession';
 export interface AgentRuntimeHostProps {
   book: BookRow;
   session: AgentSessionState;
-  threadId: number;
+  threadId: number | null;
   drawerOpen: boolean;
   configured: boolean;
   pendingQuickBook: PendingQuickBookMessage | null;

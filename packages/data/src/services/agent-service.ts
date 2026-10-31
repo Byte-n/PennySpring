@@ -79,16 +79,15 @@ export async function getThreadDetail(
 export async function getLatestThreadWithMessages(
   db: Database,
   booksId: number,
-  selection: AgentSelection
-): Promise<AgentThreadDetail> {
+  _selection?: AgentSelection,
+): Promise<AgentThreadDetail | null> {
   const latest = await db
     .select()
     .from(agentThreads)
     .where(eq(agentThreads.booksId, booksId))
     .orderBy(desc(agentThreads.updatedTime), desc(agentThreads.id))
     .get()
-  const thread = latest ?? (await createThread(db, booksId, selection))
-  return getThreadDetail(db, thread.id)
+  return latest ? getThreadDetail(db, latest.id) : null
 }
 
 export function updateThreadModel(

@@ -45,7 +45,7 @@ export function AgentSessionsPanel({
       .createThread()
       .then(created => {
         if (created) {
-          toast.show({ messageText: '已新建会话' });
+          toast.show({ messageText: '已切换到新会话' });
         }
       })
       .catch(() => undefined);

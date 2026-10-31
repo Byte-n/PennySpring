@@ -20,7 +20,7 @@ import type { AgentSessionState } from './useAgentSession';
 interface UseAgentRuntimeOptions {
   book: BookRow;
   session: AgentSessionState;
-  threadId: number;
+  threadId: number | null;
   initialMessages: UIMessage[];
 }
 
@@ -45,9 +45,20 @@ export function useAgentRuntime({
   const media = useMediaStore();
   const [errorText, setErrorText] = useState('');
   const usageRef = useRef<TokenUsage>(EMPTY_USAGE);
+  const activeThreadIdRef = useRef<number | null>(threadId && threadId > 0 ? threadId : null);
 
   const { markActivity, ensureTitle, accumulateUsage, refreshThreads } =
     session;
+  const ensureThread = session.ensureThread;
+
+  const ensureThreadId = useCallback(async (): Promise<number | null> => {
+    if (activeThreadIdRef.current !== null) {
+      return activeThreadIdRef.current;
+    }
+    const nextId = await ensureThread();
+    activeThreadIdRef.current = nextId;
+    return nextId;
+  }, [ensureThread]);
 
   const persistUserMessage = useCallback(
     async (message: UIMessage): Promise<void> => {
@@ -55,10 +66,14 @@ export function useAgentRuntime({
       if (!input) {
         return;
       }
-      await api.agent.appendMessages(threadId, [input]);
+      const activeThreadId = activeThreadIdRef.current;
+      if (activeThreadId === null) {
+        throw new Error('当前会话尚未创建');
+      }
+      await api.agent.appendMessages(activeThreadId, [input]);
       markActivity();
     },
-    [api, markActivity, threadId],
+    [api, markActivity],
   );
 
   const transport = useMemo(() => {
@@ -69,7 +84,7 @@ export function useAgentRuntime({
       api,
       booksId: book.id,
       bookName: book.name,
-      threadId,
+      ensureThreadId,
       usageRef,
       media,
       persistUserMessage,
@@ -83,7 +98,7 @@ export function useAgentRuntime({
     ensureTitle,
     media,
     persistUserMessage,
-    threadId,
+    ensureThreadId,
   ]);
 
   const finishRun = useCallback(
@@ -102,7 +117,10 @@ export function useAgentRuntime({
             usage.totalTokens > 0 ? usage : undefined,
           );
           if (input) {
-            await api.agent.appendMessages(threadId, [input]);
+            const activeThreadId = activeThreadIdRef.current;
+            if (activeThreadId !== null) {
+              await api.agent.appendMessages(activeThreadId, [input]);
+            }
           }
         } else if (!isAbort && !isError) {
           setErrorText(EMPTY_REPLY_MESSAGE);
@@ -113,11 +131,11 @@ export function useAgentRuntime({
         refreshThreads().catch(() => undefined);
       }
     },
-    [accumulateUsage, api, refreshThreads, threadId],
+    [accumulateUsage, api, refreshThreads],
   );
 
   const runtime = useChatRuntime<UIMessage>({
-    id: `agent-thread-${threadId}`,
+    id: `agent-book-${book.id}`,
     messages: initialMessages,
     transport,
     sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithApprovalResponses,

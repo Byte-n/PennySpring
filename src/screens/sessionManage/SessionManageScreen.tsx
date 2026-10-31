@@ -39,11 +39,12 @@ export function SessionManageScreen() {
       .createThread()
       .then(created => {
         if (created) {
-          toast.show({ messageText: '已新建会话' });
+          navigation.goBack();
+          openAgent();
         }
       })
       .catch(() => undefined);
-  }, [chat, toast]);
+  }, [chat, navigation, openAgent, toast]);
 
   useLayoutEffect(() => {
     navigation.setOptions({ headerRight: createHeaderAddButton(handleCreate) });

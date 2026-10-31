@@ -27,8 +27,11 @@ export interface AgentSessionState {
   threadsLoading: boolean;
   currentThreadId: number | null;
   currentThread: AgentThreadRow | null;
+  sessionVersion: number;
   initialMessages: UIMessage[];
   createThread: () => Promise<boolean>;
+  ensureThread: () => Promise<number | null>;
+  syncDraftSelection: (selection: AgentSelection) => void;
   ensureQuickBookThread: (
     title: string,
     selection: AgentSelection,
@@ -67,12 +70,14 @@ export function useAgentSession({
   const [threadsLoading, setThreadsLoading] = useState(false);
   const [currentThreadId, setCurrentThreadId] = useState<number | null>(null);
   const [currentThread, setCurrentThread] = useState<AgentThreadRow | null>(null);
+  const [sessionVersion, setSessionVersion] = useState(0);
   const [initialMessages, setInitialMessages] = useState<UIMessage[]>([]);
 
   const threadIdRef = useRef<number | null>(null);
   const titleRef = useRef('');
   const hasMessagesRef = useRef(false);
   const sendingRef = useRef(false);
+  const creatingThreadRef = useRef<Promise<number | null> | null>(null);
   const bookIdRef = useRef(bookId);
   bookIdRef.current = bookId;
   const loadSeqRef = useRef(0);
@@ -91,6 +96,38 @@ export function useAgentSession({
     setInitialMessages([]);
     setUsage(EMPTY_USAGE);
   }, []);
+
+  const setDraftConversation = useCallback(
+    (selection: AgentSelection): void => {
+      const now = Date.now();
+      const draft: AgentThreadRow = {
+        id: 0,
+        booksId: bookId ?? 0,
+        title: '',
+        providerId: selection.providerId,
+        modelId: selection.modelId,
+        createdTime: now,
+        updatedTime: now,
+      };
+      threadIdRef.current = 0;
+      titleRef.current = '';
+      hasMessagesRef.current = false;
+      setCurrentThreadId(0);
+      setCurrentThread(draft);
+      setInitialMessages([]);
+      setUsage(EMPTY_USAGE);
+    },
+    [bookId],
+  );
+
+  const syncDraftSelection = useCallback(
+    (selection: AgentSelection): void => {
+      if (threadIdRef.current === 0) {
+        setDraftConversation(selection);
+      }
+    },
+    [setDraftConversation],
+  );
 
   const applyDetail = useCallback((detail: AgentThreadDetail): void => {
     const messages = rowsToUiMessages(detail.messages);
@@ -132,7 +169,7 @@ export function useAgentSession({
           return;
         }
 
-        if (detail.thread.providerId === 0 && selection.providerId > 0) {
+        if (detail && detail.thread.providerId === 0 && selection.providerId > 0) {
           const thread = await api.agent.updateThreadModel(
             detail.thread.id,
             selection,
@@ -140,7 +177,14 @@ export function useAgentSession({
           detail = { ...detail, thread };
         }
 
-        applyDetail(detail);
+        if (
+          detail === null ||
+          (detail.thread.title === '' && detail.messages.length === 0)
+        ) {
+          setDraftConversation(selection);
+        } else {
+          applyDetail(detail);
+        }
 
         const list = await api.agent.listThreads(bookId);
         if (!cancelled && seq === loadSeqRef.current) {
@@ -170,6 +214,7 @@ export function useAgentSession({
     enabled,
     getDefaultSelection,
     resetConversation,
+    setDraftConversation,
     setSending,
   ]);
 
@@ -225,37 +270,58 @@ export function useAgentSession({
     if (!book || sendingRef.current) {
       return false;
     }
-
-    const isCurrentBlank =
-      threadIdRef.current !== null &&
-      !hasMessagesRef.current &&
-      !titleRef.current;
-    if (isCurrentBlank) {
-      return false;
-    }
-
-    setLoading(true);
-    setErrorText('');
     try {
-      const thread = await api.agent.createThread(
-        book.id,
-        await getDefaultSelection(),
-      );
-      threadIdRef.current = thread.id;
-      titleRef.current = thread.title;
-      hasMessagesRef.current = false;
-      setCurrentThreadId(thread.id);
-      setCurrentThread(thread);
-      setInitialMessages([]);
-      setUsage(EMPTY_USAGE);
-      setThreads(previous => [thread, ...previous]);
+      const selection = await getDefaultSelection();
+      resetConversation();
+      setDraftConversation(selection);
+      setSessionVersion(previous => previous + 1);
       return true;
-    } catch (error) {
+    } catch (error: unknown) {
       setErrorText(getErrorMessage(error));
       return false;
-    } finally {
-      setLoading(false);
     }
+  }, [book, getDefaultSelection, resetConversation, setDraftConversation]);
+
+  const ensureThread = useCallback(async (): Promise<number | null> => {
+    const currentId = threadIdRef.current;
+    if (currentId !== null && currentId > 0) {
+      return currentId;
+    }
+    if (!book || sendingRef.current) {
+      return null;
+    }
+    if (creatingThreadRef.current) {
+      return creatingThreadRef.current;
+    }
+
+    const creation = (async (): Promise<number | null> => {
+      try {
+        const selection = await getDefaultSelection();
+        if (selection.providerId <= 0) {
+          return null;
+        }
+        const thread = await api.agent.createThread(
+          book.id,
+          selection,
+        );
+        threadIdRef.current = thread.id;
+        titleRef.current = thread.title;
+        hasMessagesRef.current = false;
+        setCurrentThreadId(thread.id);
+        setCurrentThread(thread);
+        setInitialMessages([]);
+        setUsage(EMPTY_USAGE);
+        setThreads(previous => [thread, ...previous]);
+        return thread.id;
+      } catch (error: unknown) {
+        setErrorText(getErrorMessage(error));
+        return null;
+      } finally {
+        creatingThreadRef.current = null;
+      }
+    })();
+    creatingThreadRef.current = creation;
+    return creation;
   }, [api, book, getDefaultSelection]);
 
   const ensureQuickBookThread = useCallback(
@@ -272,6 +338,7 @@ export function useAgentSession({
       try {
         const isReusableBlank =
           threadIdRef.current !== null &&
+          threadIdRef.current > 0 &&
           !hasMessagesRef.current &&
           !titleRef.current;
         let threadId = threadIdRef.current;
@@ -341,6 +408,7 @@ export function useAgentSession({
           return false;
         }
         applyDetail(detail);
+        setSessionVersion(previous => previous + 1);
         return true;
       } catch (error) {
         if (seq === loadSeqRef.current) {
@@ -371,19 +439,9 @@ export function useAgentSession({
 
         if (threadIdRef.current === threadId) {
           resetConversation();
-          const created = await api.agent.createThread(
-            book.id,
-            await getDefaultSelection(),
-          );
-          threadIdRef.current = created.id;
-          titleRef.current = created.title;
-          setCurrentThreadId(created.id);
-          setCurrentThread(created);
-          setInitialMessages([]);
-          setThreads(previous => [
-            created,
-            ...previous.filter(item => item.id !== threadId),
-          ]);
+          setDraftConversation(await getDefaultSelection());
+          setSessionVersion(previous => previous + 1);
+          setThreads(previous => previous.filter(item => item.id !== threadId));
         } else {
           setThreads(previous =>
             previous.filter(item => item.id !== threadId),
@@ -396,12 +454,12 @@ export function useAgentSession({
         setThreadsLoading(false);
       }
     },
-    [api, book, getDefaultSelection, resetConversation],
+    [api, book, getDefaultSelection, resetConversation, setDraftConversation],
   );
 
   const deleteCurrentThread = useCallback(async (): Promise<void> => {
     const threadId = threadIdRef.current;
-    if (threadId === null) {
+    if (threadId === null || threadId <= 0) {
       return;
     }
     await deleteThread(threadId);
@@ -431,8 +489,11 @@ export function useAgentSession({
     threadsLoading,
     currentThreadId,
     currentThread,
+    sessionVersion,
     initialMessages,
     createThread,
+    ensureThread,
+    syncDraftSelection,
     ensureQuickBookThread,
     selectThread,
     deleteThread,

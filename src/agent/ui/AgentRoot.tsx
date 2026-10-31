@@ -33,6 +33,7 @@ import { useMediaStore } from '../../media';
 import {
   EMPTY_AGENT_SELECTION,
   useProviderKeyStatus,
+  useProviderSelection,
   useProviders,
   useQuickBookSelection,
 } from '../providers/useProviders';
@@ -106,6 +107,7 @@ export function AgentRoot({ children }: AgentRootProps) {
   });
 
   const { data: providers = [] } = useProviders();
+  const { data: agentSelection = EMPTY_AGENT_SELECTION } = useProviderSelection();
   const { data: quickBookSelection = EMPTY_AGENT_SELECTION } =
     useQuickBookSelection();
 
@@ -125,13 +127,14 @@ export function AgentRoot({ children }: AgentRootProps) {
   const sessionSending = session.sending;
   const sessionErrorText = session.errorText;
   const ensureQuickBookThread = session.ensureQuickBookThread;
+  const syncDraftSelection = session.syncDraftSelection;
 
   const {
     data: configured = false,
     refresh: refreshConfigured,
   } = useProviderKeyStatus(
     book?.id ?? null,
-    currentThread?.providerId ?? 0,
+    currentThread?.providerId ?? agentSelection.providerId,
   );
 
   const editingProvider =
@@ -163,6 +166,10 @@ export function AgentRoot({ children }: AgentRootProps) {
       refreshConfigured();
     }
   }, [drawerOpen, refreshConfigured]);
+
+  useEffect(() => {
+    syncDraftSelection(agentSelection);
+  }, [agentSelection, syncDraftSelection]);
 
   const handleOpen = useCallback((): void => {
     setDrawerOpen(true);
@@ -410,7 +417,7 @@ export function AgentRoot({ children }: AgentRootProps) {
           {children}
           {book ? (
             <AgentErrorBoundary>
-              {threadId === null ? (
+              {session.loading ? (
                 <AgentDrawerFallback
                   errorText={session.errorText}
                   onOpenChange={setDrawerOpen}
@@ -420,7 +427,7 @@ export function AgentRoot({ children }: AgentRootProps) {
                 />
               ) : (
                 <AgentRuntimeHost
-                  key={`${book.id}:${threadId}`}
+                  key={`${book.id}:${session.sessionVersion}`}
                   book={book}
                   configured={configured}
                   drawerOpen={drawerOpen}

@@ -111,16 +111,18 @@ describe('agent-service', () => {
 
     const detail = await getLatestThreadWithMessages(db, 1, EMPTY_SELECTION)
 
+    expect(detail).not.toBeNull()
+    if (!detail) throw new Error('expected latest thread')
     expect(detail.thread.id).toBe(older.id)
     expect(detail.thread.id).not.toBe(newer.id)
     expect(detail.messages).toHaveLength(1)
   })
 
-  it('getLatestThreadWithMessages 在账本没有会话时创建空会话', async () => {
+  it('getLatestThreadWithMessages 在账本没有会话时返回空结果', async () => {
     const detail = await getLatestThreadWithMessages(db, 3, EMPTY_SELECTION)
 
-    expect(detail.thread.booksId).toBe(3)
-    expect(detail.messages).toEqual([])
+    expect(detail).toBeNull()
+    expect(await listThreads(db, 3)).toEqual([])
   })
 
   it('getThreadDetail 返回指定会话的完整消息链', async () => {
