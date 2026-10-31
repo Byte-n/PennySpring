@@ -1,6 +1,7 @@
 import React from 'react';
 import TestRenderer, { act } from 'react-test-renderer';
 import dayjs from 'dayjs';
+import type { ListItemData } from '@pennyspring/ui';
 
 import { AgentSessionList } from '../../src/agent/ui/AgentSessionList';
 import type { AgentThreadRow } from '@pennyspring/api';
@@ -9,34 +10,6 @@ jest.mock('@pennyspring/theme', () => ({
   createUseSheetStyle: () => () => ({}),
   useTheme: () => ({ token: { marginXXS: 4 } }),
 }));
-
-jest.mock('../../src/components/ManageRow', () => {
-  const ReactLib = require('react');
-  const { Pressable, Text } = require('react-native');
-
-  const ManageRow = ({
-    isCurrent,
-    onPress,
-    subtitle,
-    title,
-  }: {
-    isCurrent?: boolean;
-    onPress?: () => void;
-    subtitle?: string;
-    title: string;
-  }) =>
-    ReactLib.createElement(
-      Pressable,
-      { onPress, testID: `session-row-${title}` },
-      ReactLib.createElement(Text, null, `${title}|${subtitle}|${isCurrent ? 'current' : ''}`),
-    );
-
-  return {
-    ManageCard: ({ children }: { children?: React.ReactNode }) =>
-      ReactLib.createElement(ReactLib.Fragment, null, children),
-    ManageRow,
-  };
-});
 
 jest.mock('@pennyspring/ui', () => {
   const ReactLib = require('react');
@@ -72,9 +45,9 @@ jest.mock('@pennyspring/ui', () => {
     renderSwipeActions,
     ...props
   }: {
-    data?: AgentThreadRow[];
-    renderItem?: (info: { item: AgentThreadRow; index: number; separators: object }) => React.ReactNode;
-    renderSwipeActions?: (info: { item: AgentThreadRow; index: number; separators: object }) => {
+    data?: AgentSessionListItem[];
+    renderItem?: (info: { item: AgentSessionListItem; index: number; separators: object }) => React.ReactNode;
+    renderSwipeActions?: (info: { item: AgentSessionListItem; index: number; separators: object }) => {
       rightActions?: { key: string; actionText?: string; onPress?: () => void }[];
     } | null;
   }) =>
@@ -83,7 +56,18 @@ jest.mock('@pennyspring/ui', () => {
       { ...props, testID: 'session-list' },
       ...data.map((item, index) => {
         const info = { item, index, separators: {} };
-        const row = renderItem?.(info);
+        const row = renderItem?.(info) ?? ReactLib.createElement(
+          Pressable,
+          {
+            disabled: item.disabled,
+            onPress: item.onPress,
+            testID: `session-row-${item.titleText}`,
+          },
+          item.left,
+          ReactLib.createElement(Text, null, item.titleText),
+          ReactLib.createElement(Text, null, item.descriptionText),
+          item.right,
+        );
         const actions = renderSwipeActions?.(info);
         return actions?.rightActions?.length
           ? ReactLib.createElement(SwipeAction, actions, row)
@@ -123,6 +107,11 @@ const THREADS: AgentThreadRow[] = [
   { id: 1, booksId: 1, title: '本月支出', providerId: 0, modelId: '', createdTime: 0, updatedTime: 1_700_000_000_000 },
   { id: 2, booksId: 1, title: '', providerId: 0, modelId: '', createdTime: 0, updatedTime: 1_700_000_600_000 },
 ];
+
+interface AgentSessionListItem extends ListItemData {
+  id: number;
+  thread: AgentThreadRow;
+}
 
 function collectText(nodes: readonly unknown[]): string {
   return nodes
@@ -172,7 +161,7 @@ describe('AgentSessionList', () => {
     expect(text).toContain('本月支出');
     expect(text).toContain('新对话');
     expect(text).toContain(dayjs(THREADS[0]!.updatedTime).format('MM-DD HH:mm'));
-    expect(text).toContain('current');
+    expect(text).toContain('当前');
   });
 
   it('calls onSelect with the pressed session', () => {

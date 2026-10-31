@@ -11,7 +11,6 @@ import {
   Button,
   Column,
   Form,
-  Icon,
   ImagePicker,
   Input,
   List,
@@ -21,6 +20,7 @@ import {
   Tag,
   Text,
   useToast,
+  type ListItemData,
   type ImagePickerValue,
 } from '@pennyspring/ui';
 import {
@@ -45,7 +45,7 @@ import { BookList, type BookListItem } from '../../components/BookList';
 import { FormFloatingPanel } from '../../components/FormFloatingPanel';
 import { createHeaderAddButton } from '../../components/HeaderAddButton';
 import { ManageConfirmDialog } from '../../components/ManageConfirmDialog';
-import { ManageCard, ManageRow } from '../../components/ManageRow';
+import { ManageCard } from '../../components/ManageRow';
 import {
   MEDIA_IMAGE_MAX_DIMENSION,
   MEDIA_IMAGE_QUALITY,
@@ -329,6 +329,17 @@ export function BookManageScreen() {
       setFormOpen(false);
     },
     [addRef, form, toast],
+  );
+
+  const serverBookItems = useMemo<Array<ListItemData & { id: number }>>(
+    () => serverBookList.map(book => ({
+      id: book.id,
+      icon: 'list',
+      titleText: book.name,
+      descriptionText: book.description || '服务器上的账本',
+      onPress: () => addExistingRemoteBook(book),
+    })),
+    [addExistingRemoteBook, serverBookList],
   );
 
   const handleFinish = useCallback(
@@ -760,17 +771,8 @@ export function BookManageScreen() {
                             </Text>
                             <ManageCard>
                               <List
-                                data={serverBookList}
+                                data={serverBookItems}
                                 keyExtractor={book => String(book.id)}
-                                renderItem={({ item: book, index }) => (
-                                  <ManageRow
-                                    hasDivider={index > 0}
-                                    icon={<Icon color="secondary" icon="list" size="large" />}
-                                    onPress={() => addExistingRemoteBook(book)}
-                                    subtitle={book.description || '服务器上的账本'}
-                                    title={book.name}
-                                  />
-                                )}
                                 scrollEnabled={false}
                               />
                             </ManageCard>

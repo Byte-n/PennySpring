@@ -11,10 +11,11 @@ import {
   TopTabNavigator,
   type TopTabNavigatorStyles,
 } from '../component/TopTabNavigator';
+import { ThemeSwitchButton } from '../screens/home/ThemeSwitchButton.tsx';
+import { HomeHeaderLeft } from '../screens/home/HomeHeaderLeft.tsx';
 
 interface HomeTabsNavigatorProps {
-  leftActions?: React.ReactNode;
-  rightActions?: React.ReactNode;
+  openDrawer: VoidFunction;
 }
 
 const HOME_TAB_SCREENS: readonly TabScreen[] = [
@@ -38,10 +39,7 @@ const useStyles = createUseSheetStyle(() => ({
   },
 }));
 
-export function HomeTabsNavigator({
-  leftActions,
-  rightActions,
-}: HomeTabsNavigatorProps) {
+export function HomeTabsNavigator({ openDrawer }: HomeTabsNavigatorProps) {
   const styles = useStyles();
   const navigatorStyles: TopTabNavigatorStyles = {
     headerBar: {
@@ -52,8 +50,8 @@ export function HomeTabsNavigator({
 
   return (
     <TopTabNavigator
-      leftActions={leftActions}
-      rightActions={rightActions}
+      leftActions={<HomeHeaderLeft onMenuPress={openDrawer} />}
+      rightActions={<ThemeSwitchButton />}
       screens={HOME_TAB_SCREENS}
       styles={navigatorStyles}
     />

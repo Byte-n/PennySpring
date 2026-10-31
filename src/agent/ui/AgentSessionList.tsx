@@ -1,14 +1,19 @@
-import React, { useCallback } from 'react';
+import React, { useMemo } from 'react';
 import type { StyleProp, ViewStyle } from 'react-native';
 import { Column, Empty, Icon, List, Loading, Row, Text } from '@pennyspring/ui';
+import type { ListItemData } from '@pennyspring/ui';
 import type { AgentThreadRow } from '@pennyspring/api';
 import { createUseSheetStyle, useTheme } from '@pennyspring/ui';
 import { ChatsCircleIcon, CaretRightIcon } from 'phosphor-react-native';
 
-import { ManageRow } from '../../components/ManageRow';
 import { formatThreadTime, getThreadTitle } from './chatModel';
 
 const CURRENT_LABEL = '当前';
+
+interface AgentSessionListItem extends ListItemData {
+  id: number;
+  thread: AgentThreadRow;
+}
 
 const useStyles = createUseSheetStyle(token => ({
   content: {
@@ -57,37 +62,32 @@ export function AgentSessionList({
   const { token } = useTheme();
   const styles = useStyles();
 
-  const renderRow = useCallback(
-    (thread: AgentThreadRow, index: number) => {
+  const data = useMemo<AgentSessionListItem[]>(
+    () => threads.map(thread => {
       const isCurrent = thread.id === currentThreadId;
-      const row = (
-        <ManageRow
-          hasDivider={index > 0}
-          icon={<Icon color="secondary" icon={ChatsCircleIcon} size="large" />}
-          isCurrent={isCurrent}
-          onPress={disabled ? undefined : () => onSelect(thread)}
-          subtitle={formatThreadTime(thread.updatedTime)}
-          title={getThreadTitle(thread)}
-          trailing={
-            isCurrent ? (
-              <Text
-                color="primaryText"
-                size="xs"
-                style={styles.currentLabel}
-                weight="semibold"
-              >
-                {CURRENT_LABEL}
-              </Text>
-            ) : (
-              <Icon color="quaternary" icon={CaretRightIcon} size="normal" />
-            )
-          }
-        />
-      );
-
-      return row;
-    },
-    [currentThreadId, disabled, onDelete, onSelect, styles.currentLabel],
+      return {
+        id: thread.id,
+        thread,
+        left: <Icon color="secondary" icon={ChatsCircleIcon} size="large" />,
+        titleText: getThreadTitle(thread),
+        descriptionText: formatThreadTime(thread.updatedTime),
+        right: isCurrent ? (
+          <Text
+            color="primaryText"
+            size="xs"
+            style={styles.currentLabel}
+            weight="semibold"
+          >
+            {CURRENT_LABEL}
+          </Text>
+        ) : (
+          <Icon color="quaternary" icon={CaretRightIcon} size="normal" />
+        ),
+        disabled,
+        onPress: disabled ? undefined : () => onSelect(thread),
+      };
+    }),
+    [currentThreadId, disabled, onSelect, styles.currentLabel, threads],
   );
 
   if (loading && threads.length === 0) {
@@ -117,16 +117,15 @@ export function AgentSessionList({
         </Text>
       </Row>
       <List
-        data={threads}
-        keyExtractor={thread => String(thread.id)}
-        renderItem={({ item, index }) => renderRow(item, index)}
+        data={data}
+        keyExtractor={item => String(item.id)}
         renderSwipeActions={({ item }) => ({
           rightActions: [{
             key: 'delete',
             actionText: '删除',
             color: 'danger',
             disabled,
-            onPress: () => onDelete(item),
+            onPress: () => onDelete(item.thread),
           }],
         })}
         scrollEnabled
