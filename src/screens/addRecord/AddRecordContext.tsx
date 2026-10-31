@@ -16,6 +16,7 @@ export interface AddRecordInitPayload {
   intoAssetId: number | null;
   charge: number;
   reimbursable: boolean;
+  relatedRecordIds: number[];
 }
 
 /**
@@ -63,8 +64,8 @@ export interface AddRecordContextValue {
   setTemplateName: (v: string) => void;
   reimbursable: boolean;
   setReimbursable: (v: boolean) => void;
-  initialTypeId?: number;
-  initialIntoAssetId?: number | null;
+  typeId?: number;
+  setTypeId: (v: number | undefined) => void;
   amount: number;
   setAmount: (v: number) => void;
   remark: string;
@@ -77,6 +78,10 @@ export interface AddRecordContextValue {
   setImages: (v: ImagePickerValue[]) => void;
   assetId: number | null;
   setAssetId: (v: number | null) => void;
+  intoAssetId: number | null;
+  setIntoAssetId: (v: number | null) => void;
+  relatedRecordIds: number[];
+  setRelatedRecordIds: (v: number[]) => void;
   charge: number;
   setCharge: (v: number) => void;
   init: (payload: AddRecordInitPayload) => void;
@@ -108,14 +113,15 @@ export function AddRecordProvider({
   const [editingTemplateId, setEditingTemplateId] = useState<number>();
   const [templateName, setTemplateName] = useState('');
   const [reimbursable, setReimbursable] = useState(false);
-  const [initialTypeId, setInitialTypeId] = useState<number>();
-  const [initialIntoAssetId, setInitialIntoAssetId] = useState<number | null>();
+  const [typeId, setTypeId] = useState<number>();
   const [amount, setAmount] = useState(0);
   const [remark, setRemark] = useState('');
   const [recordTime, setRecordTime] = useState(() => Date.now());
   const [tags, setTags] = useState<number[]>([]);
   const [images, setImages] = useState<ImagePickerValue[]>([]);
   const [assetId, setAssetId] = useState<number | null>(null);
+  const [intoAssetId, setIntoAssetId] = useState<number | null>(null);
+  const [relatedRecordIds, setRelatedRecordIds] = useState<number[]>([]);
   const [charge, setCharge] = useState(0);
   const autoOpenAmountConsumedRef = useRef(false);
 
@@ -135,28 +141,30 @@ export function AddRecordProvider({
     setEditingTemplateId(undefined);
     setTemplateName('');
     setReimbursable(false);
-    setInitialTypeId(undefined);
-    setInitialIntoAssetId(undefined);
+    setTypeId(undefined);
     setAmount(0);
     setRemark('');
     setRecordTime(Date.now());
     setTags([]);
     setImages([]);
     setAssetId(null);
+    setIntoAssetId(null);
+    setRelatedRecordIds([]);
     setCharge(0);
   }, []);
 
   const init = useCallback((payload: AddRecordInitPayload) => {
     setMode('edit');
     setEditingRecordId(payload.editingRecordId);
-    setInitialTypeId(payload.typeId);
-    setInitialIntoAssetId(payload.intoAssetId);
+    setTypeId(payload.typeId);
     setAmount(payload.amount);
     setRemark(payload.remark);
     setRecordTime(payload.recordTime);
     setTags(payload.tags);
     setImages(payload.images);
     setAssetId(payload.assetId);
+    setIntoAssetId(payload.intoAssetId);
+    setRelatedRecordIds(payload.relatedRecordIds);
     setCharge(payload.charge);
     setReimbursable(payload.reimbursable);
   }, []);
@@ -164,14 +172,15 @@ export function AddRecordProvider({
   const initFromPreset = useCallback((payload: AddRecordPresetPayload) => {
     setMode('create');
     setEditingRecordId(undefined);
-    setInitialTypeId(payload.typeId);
-    setInitialIntoAssetId(payload.intoAssetId);
+    setTypeId(payload.typeId);
     setAmount(payload.amount);
     setRemark(payload.remark);
     setRecordTime(Date.now());
     setTags(payload.tagIds);
     setImages([]);
     setAssetId(payload.assetId);
+    setIntoAssetId(payload.intoAssetId);
+    setRelatedRecordIds([]);
     setCharge(payload.charge);
     setReimbursable(payload.reimbursable);
   }, []);
@@ -183,13 +192,14 @@ export function AddRecordProvider({
     setEditingTemplateId(payload.id);
     setTemplateName(payload.name);
     setReimbursable(payload.reimbursable);
-    setInitialTypeId(payload.typeId);
-    setInitialIntoAssetId(payload.intoAssetId);
+    setTypeId(payload.typeId);
     setAmount(payload.amount);
     setRemark(payload.remark);
     setTags(payload.tagIds);
     setImages([]);
     setAssetId(payload.assetId);
+    setIntoAssetId(payload.intoAssetId);
+    setRelatedRecordIds([]);
     setCharge(payload.charge);
     setRecordTime(Date.now());
   }, []);
@@ -201,13 +211,14 @@ export function AddRecordProvider({
     setEditingTemplateId(undefined);
     setTemplateName('');
     setReimbursable(false);
-    setInitialTypeId(undefined);
-    setInitialIntoAssetId(undefined);
+    setTypeId(undefined);
     setAmount(0);
     setRemark('');
     setTags([]);
     setImages([]);
     setAssetId(null);
+    setIntoAssetId(null);
+    setRelatedRecordIds([]);
     setCharge(0);
     setRecordTime(Date.now());
   }, []);
@@ -222,8 +233,8 @@ export function AddRecordProvider({
       setTemplateName,
       reimbursable,
       setReimbursable,
-      initialTypeId,
-      initialIntoAssetId,
+      typeId,
+      setTypeId,
       amount,
       setAmount,
       remark,
@@ -236,6 +247,10 @@ export function AddRecordProvider({
       setImages,
       assetId,
       setAssetId,
+      intoAssetId,
+      setIntoAssetId,
+      relatedRecordIds,
+      setRelatedRecordIds,
       charge,
       setCharge,
       init,
@@ -257,14 +272,15 @@ export function AddRecordProvider({
       initBlankTemplate,
       initFromPreset,
       initFromTemplate,
-      initialIntoAssetId,
-      initialTypeId,
+      intoAssetId,
       mode,
       recordTime,
       remark,
       reset,
       reimbursable,
       tags,
+      relatedRecordIds,
+      typeId,
       template,
       templateName,
     ],

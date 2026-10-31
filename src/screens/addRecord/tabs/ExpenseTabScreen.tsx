@@ -29,7 +29,6 @@ import { buildNewQuickTemplate, validateTemplateDraft } from '../templateDraft';
 import { toAssetOptions } from '../recordOptions';
 import { toNumberValue } from '../selectValues';
 import { useAddRecordResources } from '../useAddRecordResources';
-import { useInitialTypeId } from '../useInitialTypeId';
 import { useNavigation } from '../../../navigation';
 import { useGlobalApi } from '../../../stores/bookStore';
 import { useSyncVersionStore } from '../../../stores/syncVersionStore';
@@ -54,12 +53,13 @@ export function ExpenseTabScreen() {
     editingRecordId,
     editingTemplateId,
     images,
-    initialTypeId,
     recordTime,
     remark,
     reimbursable,
     reset,
     setAssetId,
+    setTypeId,
+    typeId,
     setImages,
     setRecordTime,
     setReimbursable,
@@ -68,7 +68,6 @@ export function ExpenseTabScreen() {
     template,
     templateName,
   } = useAddRecordContext();
-  const [typeId, setTypeId] = useState<number>();
   const [submitting, setSubmitting] = useState(false);
   const api = useGlobalApi();
   const {
@@ -85,10 +84,10 @@ export function ExpenseTabScreen() {
     visibleAssets,
   } = useAddRecordResources();
   const selectedType = useMemo(
-    () => categories.find(category => category.id === typeId),
+    () => categories.find(category => category.id === (typeId ?? categories[0]?.id)),
     [categories, typeId],
   );
-  useInitialTypeId(initialTypeId, categories, setTypeId);
+  const selectedTypeId = selectedType?.id;
   const assetOptions = useMemo(
     () => toAssetOptions(visibleAssets),
     [visibleAssets],
@@ -99,7 +98,7 @@ export function ExpenseTabScreen() {
       booksId: currentBook?.id,
       amount,
       charge: 0,
-      typeId,
+      typeId: selectedTypeId,
       selectedType,
       assetId,
       reimbursable,
@@ -208,7 +207,7 @@ export function ExpenseTabScreen() {
     template,
     templateName,
     toast,
-    typeId,
+    selectedTypeId,
   ]);
 
   return (
@@ -226,7 +225,7 @@ export function ExpenseTabScreen() {
               error={categoriesError}
               loading={categoriesLoading}
               onRetry={refreshCategories}
-              value={typeId}
+              value={selectedTypeId}
               onChange={setTypeId}
             />
           </Card>

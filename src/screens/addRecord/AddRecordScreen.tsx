@@ -110,6 +110,7 @@ function AddRecordContent({
         intoAssetId: detail.record.intoAssetId > 0 ? detail.record.intoAssetId : null,
         charge: detail.record.charge,
         reimbursable: detail.record.reimbursable === REIMBURSABLE.reimbursable,
+        relatedRecordIds: detail.relatedRecordIds,
       });
       if (typeRow) {
         setInitialRouteName(TAB_NAME_BY_CATEGORY[typeRow.typeCategory]);

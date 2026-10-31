@@ -1,8 +1,6 @@
 import React, {
   useCallback,
-  useEffect,
   useMemo,
-  useRef,
   useState,
 } from 'react';
 import {
@@ -39,7 +37,6 @@ import { buildNewQuickTemplate, validateTemplateDraft } from '../templateDraft';
 import { toAssetOptions } from '../recordOptions';
 import { toNumberValue } from '../selectValues';
 import { useAddRecordResources } from '../useAddRecordResources';
-import { useInitialTypeId } from '../useInitialTypeId';
 import { useNavigation } from '../../../navigation';
 import { useGlobalApi } from '../../../stores/bookStore';
 import { useSyncVersionStore } from '../../../stores/syncVersionStore';
@@ -61,22 +58,22 @@ export function TransferTabScreen() {
     editingRecordId,
     editingTemplateId,
     images,
-    initialIntoAssetId,
-    initialTypeId,
+    intoAssetId,
     recordTime,
     remark,
     reset,
     setAssetId,
     setCharge,
+    setIntoAssetId,
     setImages,
     setRecordTime,
     setTags,
+    setTypeId,
     tags: selectedTagIds,
     template,
     templateName,
+    typeId,
   } = useAddRecordContext();
-  const [typeId, setTypeId] = useState<number>();
-  const [intoAssetId, setIntoAssetId] = useState<number | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const api = useGlobalApi();
   const media = useMediaStore();
@@ -97,10 +94,10 @@ export function TransferTabScreen() {
     visibleAssets,
   } = useAddRecordResources();
   const selectedType = useMemo(
-    () => categories.find(category => category.id === typeId),
+    () => categories.find(category => category.id === (typeId ?? categories[0]?.id)),
     [categories, typeId],
   );
-  useInitialTypeId(initialTypeId, categories, setTypeId);
+  const selectedTypeId = selectedType?.id;
   const fromAssets = useMemo(
     () => filterTransferAssets(visibleAssets, selectedType, 'from'),
     [selectedType, visibleAssets],
@@ -118,36 +115,27 @@ export function TransferTabScreen() {
     [assetId, toAssets],
   );
 
-  useEffect(() => {
-    if (assetId !== null && !fromAssets.some(asset => asset.id === assetId)) {
+  const handleTypeChange = useCallback((nextTypeId: number | undefined) => {
+    setTypeId(nextTypeId);
+    if (assetsLoading) return;
+
+    const nextType = categories.find(category => category.id === nextTypeId);
+    const nextFromAssets = filterTransferAssets(visibleAssets, nextType, 'from');
+    const nextToAssets = filterTransferAssets(visibleAssets, nextType, 'to');
+    if (assetId !== null && !nextFromAssets.some(asset => asset.id === assetId)) {
       setAssetId(null);
     }
-  }, [assetId, fromAssets, setAssetId]);
-
-  const intoAssetInitializedRef = useRef(false);
-  useEffect(() => {
-    if (intoAssetInitializedRef.current) return;
-    if (initialIntoAssetId === undefined || initialIntoAssetId === null) return;
-    if (!toAssets.some(asset => asset.id === initialIntoAssetId)) return;
-    intoAssetInitializedRef.current = true;
-    setIntoAssetId(initialIntoAssetId);
-  }, [initialIntoAssetId, toAssets]);
-
-  useEffect(() => {
-    if (
-      intoAssetId !== null &&
-      !toAssets.some(asset => asset.id === intoAssetId)
-    ) {
+    if (intoAssetId !== null && !nextToAssets.some(asset => asset.id === intoAssetId)) {
       setIntoAssetId(null);
     }
-  }, [intoAssetId, toAssets]);
+  }, [assetId, assetsLoading, categories, intoAssetId, setAssetId, setIntoAssetId, setTypeId, visibleAssets]);
 
   const handleSave = useCallback(async () => {
     const draft = {
       booksId: currentBook?.id,
       amount,
       charge,
-      typeId,
+      typeId: selectedTypeId,
       selectedType,
       assetId,
       intoAssetId,
@@ -257,7 +245,7 @@ export function TransferTabScreen() {
     template,
     templateName,
     toast,
-    typeId,
+    selectedTypeId,
   ]);
 
   return (
@@ -275,8 +263,8 @@ export function TransferTabScreen() {
               error={categoriesError}
               loading={categoriesLoading}
               onRetry={refreshCategories}
-              value={typeId}
-              onChange={setTypeId}
+              value={selectedTypeId}
+              onChange={handleTypeChange}
             />
           </Card>
           <Card variant="elevated">

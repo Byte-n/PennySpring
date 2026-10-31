@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { useRequest } from 'ahooks';
 import {
   Button,
@@ -34,7 +34,6 @@ import { buildNewQuickTemplate, validateTemplateDraft } from '../templateDraft';
 import { toAssetOptions, toRelatedRecordOptions } from '../recordOptions';
 import { toNumberValue, toNumberValues } from '../selectValues';
 import { useAddRecordResources } from '../useAddRecordResources';
-import { useInitialTypeId } from '../useInitialTypeId';
 import { useNavigation } from '../../../navigation';
 import { useGlobalApi } from '../../../stores/bookStore';
 import { useSyncVersionStore } from '../../../stores/syncVersionStore';
@@ -56,7 +55,7 @@ export function IncomeTabScreen() {
     editingRecordId,
     editingTemplateId,
     images,
-    initialTypeId,
+    relatedRecordIds,
     recordTime,
     remark,
     reset,
@@ -64,12 +63,13 @@ export function IncomeTabScreen() {
     setImages,
     setRecordTime,
     setTags,
+    setRelatedRecordIds,
+    setTypeId,
     tags: selectedTagIds,
     template,
     templateName,
+    typeId,
   } = useAddRecordContext();
-  const [typeId, setTypeId] = useState<number>();
-  const [relatedRecordIds, setRelatedRecordIds] = useState<number[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const api = useGlobalApi();
   const media = useMediaStore();
@@ -100,11 +100,11 @@ export function IncomeTabScreen() {
     { refreshDeps: [currentBook?.id] },
   );
   const selectedType = useMemo(
-    () => categories.find(category => category.id === typeId),
+    () => categories.find(category => category.id === (typeId ?? categories[0]?.id)),
     [categories, typeId],
   );
   const isAbsorption = isAbsorptionIncomeType(selectedType);
-  useInitialTypeId(initialTypeId, categories, setTypeId);
+  const selectedTypeId = selectedType?.id;
   const expenseTypeLookup = useMemo(
     () => new Map(expenseTypes.map(typeRow => [typeRow.id, typeRow])),
     [expenseTypes],
@@ -122,18 +122,20 @@ export function IncomeTabScreen() {
     [visibleAssets],
   );
 
-  useEffect(() => {
-    if (!isAbsorption && relatedRecordIds.length > 0) {
+  const handleTypeChange = useCallback((nextTypeId: number | undefined) => {
+    setTypeId(nextTypeId);
+    const nextType = categories.find(category => category.id === nextTypeId);
+    if (!isAbsorptionIncomeType(nextType)) {
       setRelatedRecordIds([]);
     }
-  }, [isAbsorption, relatedRecordIds.length]);
+  }, [categories, setRelatedRecordIds, setTypeId]);
 
   const handleSave = useCallback(async () => {
     const draft = {
       booksId: currentBook?.id,
       amount,
       charge: 0,
-      typeId,
+      typeId: selectedTypeId,
       selectedType,
       assetId,
       recordTime,
@@ -241,7 +243,7 @@ export function IncomeTabScreen() {
     template,
     templateName,
     toast,
-    typeId,
+    selectedTypeId,
   ]);
 
   return (
@@ -259,8 +261,8 @@ export function IncomeTabScreen() {
               error={categoriesError}
               loading={categoriesLoading}
               onRetry={refreshCategories}
-              value={typeId}
-              onChange={setTypeId}
+              value={selectedTypeId}
+              onChange={handleTypeChange}
             />
           </Card>
           <Card variant="elevated">
