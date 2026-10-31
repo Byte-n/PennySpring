@@ -227,4 +227,23 @@ describe('ActionSheet', () => {
       testID: 'action-sheet-action-icon-1'
     })).toBeTruthy();
   });
+  it('renders action icon on the title line when description is present', () => {
+    const testRenderer = renderActionSheet({
+      actions: [{
+        text: 'Settings',
+        description: 'Edit provider models',
+        icon: 'edit'
+      }],
+      defaultOpen: true
+    });
+    const titleRow = testRenderer.root.findByProps({
+      testID: 'action-sheet-action-title-0'
+    });
+    expect(titleRow.findByProps({
+      testID: 'action-sheet-action-icon-0'
+    })).toBeTruthy();
+    expect(titleRow.findAllByProps({
+      testID: 'action-sheet-action-description-0'
+    })).toHaveLength(0);
+  });
 });

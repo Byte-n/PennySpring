@@ -418,7 +418,7 @@ export function AgentComposer({
                       icon="image"
                       size="normal"
                     />
-                    <Column style={styles.plusMenuLabel}>
+                    <Column gap={0} style={styles.plusMenuLabel}>
                       <Text
                         color={canAttachImage ? 'default' : 'tertiary'}
                         size="sm"

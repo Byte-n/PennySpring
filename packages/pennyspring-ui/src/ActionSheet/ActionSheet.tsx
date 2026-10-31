@@ -4,6 +4,7 @@ import { createUseSheetStyle } from '@pennyspring/theme';
 import { Column } from '../Column';
 import { Icon } from '../Icon';
 import { Popup } from '../Popup';
+import { Row } from '../Row';
 import { Text } from '../Text';
 import { useControllableValue } from '../_hooks';
 import type { StyleProp, TextStyle } from 'react-native';
@@ -46,15 +47,15 @@ const useStyles = createUseSheetStyle(token => {
     },
     titleText: {
       color: token.colorTextTertiary,
-      fontSize: token.fontSizeXS,
+      fontSize: token.fontSizeSM,
       lineHeight: token.lineHeightXS,
     },
     action: {
       alignItems: 'center',
-      flexDirection: 'row',
-      gap: token.marginXS,
-      height: token.controlHeightLG,
       justifyContent: 'center',
+      minHeight: token.controlHeightLG,
+      paddingHorizontal: token.padding,
+      paddingVertical: token.paddingXS / 2,
     },
     actionPressed: {
       backgroundColor: token.colorFillQuaternary,
@@ -66,11 +67,14 @@ const useStyles = createUseSheetStyle(token => {
       color: token.colorText,
       fontSize: token.fontSize,
       lineHeight: token.lineHeight,
+      textAlign: 'center',
     },
     actionDescription: {
       color: token.colorTextSecondary,
       fontSize: token.fontSizeSM,
       lineHeight: token.lineHeightSM,
+      marginTop: token.marginXXS / 2,
+      textAlign: 'center',
     },
     dangerActionText: {
       color: token.colorErrorText,
@@ -147,32 +151,33 @@ function renderAction(
   const iconColor = action.disabled
     ? 'disabled'
     : action.danger
-      ? 'error'
-      : 'default';
+    ? 'error'
+    : 'default';
 
   return (
     <Pressable
       disabled={action.disabled}
       key={action.key ?? index}
       onPress={handlePress}
-      style={({ pressed }) => [
-        styles.action,
-        pressed && styles.actionPressed,
-      ]}
+      style={({ pressed }) => [styles.action, pressed && styles.actionPressed]}
       testID={`action-sheet-action-${index}`}
     >
-      {action.icon ? (
-        <Icon
-          color={iconColor}
-          icon={action.icon}
-          size="normal"
-          testID={`action-sheet-action-icon-${index}`}
-        />
-      ) : null}
-      <Column style={styles.actionContent}>
-        <Text style={textStyle}>{action.text}</Text>
+      <Column gap={0} style={styles.actionContent}>
+        <Row gap="small" testID={`action-sheet-action-title-${index}`}>
+          {action.icon ? (
+            <Icon
+              color={iconColor}
+              icon={action.icon}
+              size="normal"
+              testID={`action-sheet-action-icon-${index}`}
+            />
+          ) : null}
+          <Text style={textStyle}>{action.text}</Text>
+        </Row>
         {action.description ? (
-          <Text style={styles.actionDescription}>{action.description}</Text>
+          <Text style={styles.actionDescription} testID={`action-sheet-action-description-${index}`}>
+            {action.description}
+          </Text>
         ) : null}
       </Column>
     </Pressable>
@@ -183,7 +188,7 @@ export function ActionSheet({
   afterOpenChange,
   actions,
   cancel,
-  cancelText,
+  cancelText = '取消',
   closeOnMaskClick = true,
   defaultOpen,
   mask = true,
