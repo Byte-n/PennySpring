@@ -10,7 +10,6 @@ import { AddRecordScreen } from '../screens/addRecord/AddRecordScreen';
 import { AgentSettingsScreen } from '../screens/agentSettings/AgentSettingsScreen';
 import { AssetManageScreen } from '../screens/assetManage/AssetManageScreen';
 import { BookManageScreen } from '../screens/bookManage/BookManageScreen';
-import { BookSelectScreen } from '../screens/bookSelect';
 import { HomeScreen } from '../screens/home/HomeScreen';
 import { IconPreviewScreen } from '../screens/iconPreview';
 import { QuickBookSettingsScreen } from '../screens/quickBook/QuickBookSettingsScreen';
@@ -18,7 +17,7 @@ import { SessionManageScreen } from '../screens/sessionManage/SessionManageScree
 import { TestScreen } from '../screens/test';
 import { TagManageScreen } from '../screens/tagManage/TagManageScreen';
 import { TypeManageScreen } from '../screens/typeManage/TypeManageScreen';
-import { ROOT_ROUTES, BOOK_SELECT_ROUTES } from './routes';
+import { ROOT_ROUTES } from './routes';
 import type { RootStackParamList } from './types';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -74,15 +73,9 @@ export function RootStackNavigator() {
         options={{ title: '测试页' }}
       />
       <Stack.Screen
-        name={BOOK_SELECT_ROUTES.BookSelect}
-        options={{ title: '选择账本' }}
-      >
-        {() => <BookSelectScreen isEmbedded />}
-      </Stack.Screen>
-      <Stack.Screen
         component={BookManageScreen}
         name={ROOT_ROUTES.BookManage}
-        options={{ title: '账本管理' }}
+        options={{ title: '账本' }}
       />
       <Stack.Screen
         component={TagManageScreen}

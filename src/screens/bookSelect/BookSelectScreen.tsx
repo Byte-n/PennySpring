@@ -43,14 +43,7 @@ const useStyles = createUseSheetStyle(token => ({
   },
 }));
 
-interface BookSelectScreenProps {
-  /** 作为 RootStack 子页挂载时已有返回头，不再叠加顶部安全区。 */
-  isEmbedded?: boolean;
-}
-
-export function BookSelectScreen({
-  isEmbedded = false,
-}: BookSelectScreenProps = {}) {
+export function BookSelectScreen() {
   const styles = useStyles();
   const toast = useToast();
   const insets = useSafeAreaInsets();
@@ -159,8 +152,7 @@ export function BookSelectScreen({
           style={[
             styles.errorBanner,
             {
-              paddingTop:
-                (isEmbedded ? 0 : insets.top) + styles.errorBanner.padding,
+              paddingTop: insets.top + styles.errorBanner.padding,
             },
           ]}
         >

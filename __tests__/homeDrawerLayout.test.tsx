@@ -76,7 +76,6 @@ jest.mock('phosphor-react-native', () => {
 });
 
 jest.mock('../src/navigation', () => ({
-  BOOK_SELECT_ROUTES: { BookSelect: 'BookSelect' },
   HomeTabsNavigator: () => null,
   ROOT_ROUTES: { AddRecord: 'AddRecord' },
   useNavigation: () => mockNavigation,

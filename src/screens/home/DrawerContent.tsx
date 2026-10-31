@@ -1,6 +1,5 @@
 import React from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
-import { useRequest } from 'ahooks';
 import {
   Avatar,
   Column,
@@ -17,9 +16,7 @@ import {
   CaretRightIcon,
   ChatsCircleIcon,
   FlaskIcon,
-  LightningIcon,
   MoonIcon,
-  NotebookIcon,
   PaletteIcon,
   RobotIcon,
   ShapesIcon,
@@ -35,8 +32,7 @@ import { useThemeMode } from '../../contexts/ThemeModeContext';
 import { ROOT_ROUTES } from '../../navigation/routes';
 import type { RootStackParamList } from '../../navigation/types';
 import { resolveMediaRef } from '../../media';
-import { useBookStore, useGlobalApi } from '../../stores/bookStore';
-import { useSyncVersionStore } from '../../stores/syncVersionStore';
+import { useBookStore } from '../../stores/bookStore';
 import { DrawerNavRow } from './DrawerNavRow';
 import {
   formatUpdatedTime,
@@ -53,13 +49,6 @@ interface DrawerNavItem {
 }
 
 const MANAGEMENT_ITEMS: DrawerNavItem[] = [
-  {
-    icon: NotebookIcon,
-    key: 'book',
-    label: '账本管理',
-    requiresBook: true,
-    route: ROOT_ROUTES.BookManage,
-  },
   {
     icon: WalletIcon,
     key: 'asset',
@@ -119,8 +108,6 @@ const DEVELOPER_ITEMS: DrawerNavItem[] = [
 export interface DrawerContentProps {
   onClose: () => void;
   onNavigate: (route: keyof RootStackParamList) => void;
-  onOpenBookSelect: () => void;
-  onOpenTemplate: () => void;
 }
 
 const useStyles = createUseSheetStyle<number>((token, bottomInset) => ({
@@ -176,29 +163,6 @@ const useStyles = createUseSheetStyle<number>((token, bottomInset) => ({
   },
   bookStorage: {
     marginTop: token.paddingXXS / 2,
-  },
-  quickRow: {
-    alignItems: 'center',
-    borderRadius: token.borderRadiusSM,
-    flexDirection: 'row',
-    gap: token.marginSM,
-    marginTop: token.paddingXXS,
-    minHeight: token.controlHeight + token.paddingXS,
-    paddingHorizontal: token.paddingXXS,
-  },
-  quickRowPressed: {
-    backgroundColor: token.colorFillContent,
-  },
-  quickTile: {
-    alignItems: 'center',
-    backgroundColor: token.colorFillTertiary,
-    borderRadius: token.borderRadiusSM,
-    height: token.sizeXL,
-    justifyContent: 'center',
-    width: token.sizeXL,
-  },
-  quickLabel: {
-    flex: 1,
   },
   body: {
     flex: 1,
@@ -256,8 +220,6 @@ const useStyles = createUseSheetStyle<number>((token, bottomInset) => ({
 export function DrawerContent({
   onClose,
   onNavigate,
-  onOpenBookSelect,
-  onOpenTemplate,
 }: DrawerContentProps) {
   const insets = useSafeAreaInsets();
   const styles = useStyles(insets.bottom);
@@ -265,17 +227,6 @@ export function DrawerContent({
   const { setThemeMode, themeMode } = useThemeMode();
   const currentBook = useBookStore(state => state.currentBook);
   const currentBookRef = useBookStore(state => state.currentBookRef);
-  const bookId = currentBook?.id ?? null;
-  const api = useGlobalApi();
-  const templateVersion = useSyncVersionStore(state => state.templateVersion);
-  const { data: templates = [] } = useRequest(
-    () =>
-      bookId === null
-        ? Promise.resolve([])
-        : api.quickTemplate.list(bookId),
-    { refreshDeps: [api, bookId, templateVersion] },
-  );
-  const templateCount = templates.length;
   const backgroundUri = currentBook?.background
     ? resolveMediaRef(
         currentBook.background,
@@ -296,14 +247,8 @@ export function DrawerContent({
   );
 
   const handleBookPress = React.useCallback((): void => {
-    onClose();
-    onOpenBookSelect();
-  }, [onClose, onOpenBookSelect]);
-
-  const handleTemplatePress = React.useCallback((): void => {
-    onClose();
-    onOpenTemplate();
-  }, [onClose, onOpenTemplate]);
+    handleNavigate(ROOT_ROUTES.BookManage);
+  }, [handleNavigate]);
 
   const handleThemeChange = React.useCallback(
     (value: boolean): void => {
@@ -344,7 +289,7 @@ export function DrawerContent({
 
         {currentBook ? (
           <Pressable
-            accessibilityHint="进入账本选择"
+            accessibilityHint="进入账本列表"
             accessibilityRole="button"
             onPress={handleBookPress}
             style={({ pressed }) => [
@@ -422,34 +367,6 @@ export function DrawerContent({
             </Column>
           </View>
         )}
-
-        <Pressable
-          accessibilityHint="打开快捷模板"
-          accessibilityRole="button"
-          onPress={handleTemplatePress}
-          style={({ pressed }) => [
-            styles.quickRow,
-            pressed ? styles.quickRowPressed : undefined,
-          ]}
-          testID="drawer-quick-template"
-        >
-          <View style={styles.quickTile}>
-            <LightningIcon
-              color={token.colorTextSecondary}
-              size={token.fontSizeLG}
-            />
-          </View>
-          <Text size="md" style={styles.quickLabel} weight="medium">
-            快捷模板
-          </Text>
-          {templateCount > 0 ? (
-            <Text color="tertiary" size="sm">{`${templateCount} 个`}</Text>
-          ) : null}
-          <CaretRightIcon
-            color={token.colorTextQuaternary}
-            size={token.fontSize}
-          />
-        </Pressable>
       </View>
 
       <ScrollView

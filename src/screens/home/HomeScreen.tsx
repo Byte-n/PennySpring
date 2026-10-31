@@ -10,7 +10,6 @@ import { ListIcon } from 'phosphor-react-native';
 import { APP_NAME } from '../../constants/app';
 import { AgentFloatingEntry } from '../../agent/ui/AgentFloatingEntry';
 import {
-  BOOK_SELECT_ROUTES,
   HomeTabsNavigator,
   ROOT_ROUTES,
   useNavigation,
@@ -77,14 +76,6 @@ export function HomeScreen() {
     [navigation],
   );
 
-  const handleOpenBookSelect = React.useCallback(() => {
-    navigation.navigate(BOOK_SELECT_ROUTES.BookSelect);
-  }, [navigation]);
-
-  const openTemplatePanel = React.useCallback(() => {
-    setIsTemplatePanelOpen(true);
-  }, []);
-
   return (
     <RecordSyncProvider>
       <SafeAreaView edges={['top']} style={styles.screen}>
@@ -96,8 +87,6 @@ export function HomeScreen() {
             <DrawerContent
               onClose={closeDrawer}
               onNavigate={handleNavigate}
-              onOpenBookSelect={handleOpenBookSelect}
-              onOpenTemplate={openTemplatePanel}
             />
           )}
           styles={drawerStyles}

@@ -85,29 +85,12 @@ jest.mock('react-native-safe-area-context', () => ({
   useSafeAreaInsets: () => ({ bottom: 34, left: 0, right: 0, top: 47 }),
 }));
 
-const mockDrawerTemplates: unknown[] = [];
-
 jest.mock('../src/stores/bookStore', () => {
   const state = { currentBook: null, currentBookRef: null };
   return {
     useBookStore: (selector: (value: typeof state) => unknown) =>
       selector(state),
-    useGlobalApi: () => ({
-      quickTemplate: { list: async () => mockDrawerTemplates },
-    }),
     __bookStoreState: state,
-  };
-});
-
-jest.mock('ahooks', () => {
-  const actual = jest.requireActual('ahooks');
-  return {
-    ...actual,
-    useRequest: () => ({
-      data: mockDrawerTemplates,
-      loading: false,
-      refresh: jest.fn(),
-    }),
   };
 });
 
@@ -162,16 +145,12 @@ function createBook(overrides: Partial<BookEntry> = {}): BookEntry {
 interface DrawerCallbacks {
   onClose: jest.Mock;
   onNavigate: jest.Mock;
-  onOpenBookSelect: jest.Mock;
-  onOpenTemplate: jest.Mock;
 }
 
 function createCallbacks(): DrawerCallbacks {
   return {
     onClose: jest.fn(),
     onNavigate: jest.fn(),
-    onOpenBookSelect: jest.fn(),
-    onOpenTemplate: jest.fn(),
   };
 }
 
@@ -185,8 +164,6 @@ function renderDrawer(
       <DrawerContent
         onClose={callbacks.onClose}
         onNavigate={callbacks.onNavigate}
-        onOpenBookSelect={callbacks.onOpenBookSelect}
-        onOpenTemplate={callbacks.onOpenTemplate}
       />,
     );
   });
@@ -204,28 +181,29 @@ function collectTexts(renderer: TestRenderer.ReactTestRenderer): string[] {
 beforeEach(() => {
   bookStoreMock.__bookStoreState.currentBook = null;
   bookStoreMock.__bookStoreState.currentBookRef = null;
-  mockDrawerTemplates.length = 0;
   themeModeMock.__themeModeState.mode = 'default';
   themeModeMock.__setThemeMode.mockClear();
 });
 
 describe('DrawerContent 账本卡', () => {
-  it('renders the current book, its storage location, template count and footer', () => {
+  it('renders the current book, its storage location and footer', () => {
     bookStoreMock.__bookStoreState.currentBook = createBook();
     bookStoreMock.__bookStoreState.currentBookRef = { id: 1, kind: 'local' };
-    mockDrawerTemplates.push({}, {}, {}, {}, {}, {});
 
-    const texts = collectTexts(renderDrawer(createCallbacks()));
+    const renderer = renderDrawer(createCallbacks());
+    const texts = collectTexts(renderer);
 
     expect(texts).toContain('日常账本');
     expect(texts).toContain('记录每日开销与固定支出');
     expect(texts).toContain('本地 · 数据保存在此设备');
-    expect(texts).toContain('6 个');
     expect(texts).toContain('管理');
     expect(texts).toContain('外观');
     expect(texts).toContain('深色模式');
     expect(texts).toContain(`本地 · v${APP_VERSION}`);
     expect(texts.some(text => text.startsWith('更新 '))).toBe(true);
+    expect(
+      renderer.root.findAllByProps({ testID: 'drawer-quick-template' }),
+    ).toHaveLength(0);
   });
 
   it('hides the description line when the book has no description', () => {
@@ -284,7 +262,7 @@ describe('DrawerContent 账本卡', () => {
     ).toBeDefined();
     expect(
       renderer.root
-        .findAllByProps({ testID: 'drawer-nav-book' })
+        .findAllByProps({ testID: 'drawer-nav-asset' })
         .some(node => node.props.disabled === true),
     ).toBe(true);
     expect(collectTexts(renderer)).toContain('正在读取账本…');
@@ -297,7 +275,29 @@ describe('DrawerContent 交互', () => {
     const renderer = renderDrawer(callbacks);
 
     act(() => {
-      renderer.root.findByProps({ testID: 'drawer-nav-book' }).props.onPress();
+      renderer.root.findByProps({ testID: 'drawer-nav-asset' }).props.onPress();
+    });
+
+    expect(callbacks.onClose).toHaveBeenCalledTimes(1);
+    expect(callbacks.onNavigate).toHaveBeenCalledWith(ROOT_ROUTES.AssetManage);
+    expect(callbacks.onClose.mock.invocationCallOrder[0]).toBeLessThan(
+      callbacks.onNavigate.mock.invocationCallOrder[0],
+    );
+  });
+
+  it('opens the merged book list from the book card and drops the separate book row', () => {
+    bookStoreMock.__bookStoreState.currentBook = createBook();
+    bookStoreMock.__bookStoreState.currentBookRef = { id: 1, kind: 'local' };
+
+    const callbacks = createCallbacks();
+    const renderer = renderDrawer(callbacks);
+
+    expect(
+      renderer.root.findAllByProps({ testID: 'drawer-nav-book' }),
+    ).toHaveLength(0);
+
+    act(() => {
+      renderer.root.findByProps({ testID: 'drawer-book-card' }).props.onPress();
     });
 
     expect(callbacks.onClose).toHaveBeenCalledTimes(1);
@@ -333,31 +333,6 @@ describe('DrawerContent 交互', () => {
     expect(callbacks.onClose).toHaveBeenCalledTimes(1);
     expect(callbacks.onNavigate).toHaveBeenCalledWith(
       ROOT_ROUTES.AgentSettings,
-    );
-  });
-
-  it('closes the drawer before opening the book select screen or templates', () => {
-    bookStoreMock.__bookStoreState.currentBook = createBook();
-    bookStoreMock.__bookStoreState.currentBookRef = { id: 1, kind: 'local' };
-
-    const callbacks = createCallbacks();
-    const renderer = renderDrawer(callbacks);
-
-    act(() => {
-      renderer.root.findByProps({ testID: 'drawer-book-card' }).props.onPress();
-      renderer.root
-        .findByProps({ testID: 'drawer-quick-template' })
-        .props.onPress();
-    });
-
-    expect(callbacks.onOpenBookSelect).toHaveBeenCalledTimes(1);
-    expect(callbacks.onOpenTemplate).toHaveBeenCalledTimes(1);
-    expect(callbacks.onClose).toHaveBeenCalledTimes(2);
-    expect(callbacks.onClose.mock.invocationCallOrder[0]).toBeLessThan(
-      callbacks.onOpenBookSelect.mock.invocationCallOrder[0],
-    );
-    expect(callbacks.onClose.mock.invocationCallOrder[1]).toBeLessThan(
-      callbacks.onOpenTemplate.mock.invocationCallOrder[0],
     );
   });
 
