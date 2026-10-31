@@ -14,6 +14,7 @@ const KNOWN_GROUPS = [
   'credential',
   'quickTemplate',
   'quickBook',
+  'agentConfig',
 ] as const
 type Group = (typeof KNOWN_GROUPS)[number]
 

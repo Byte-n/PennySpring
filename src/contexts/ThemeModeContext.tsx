@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useState, useMemo } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { defaultSeedToken, themePresets } from '@pennyspring/ui';
 import type {
   SeedToken,
@@ -6,6 +12,8 @@ import type {
   ThemePreset,
   ThemePresetName,
 } from '@pennyspring/ui';
+
+import { rehydrateThemeStore, useThemeStore } from '../stores/themeStore';
 
 export type { ThemePresetName } from '@pennyspring/ui';
 
@@ -47,8 +55,23 @@ export function ThemeModeProvider({
   initialMode = 'default',
   children,
 }: ThemeModeProviderProps) {
-  const [themeMode, setThemeMode] = useState<ThemeAlgorithm>(initialMode);
-  const [themePreset, setThemePreset] = useState<ThemePresetName>('default');
+  const [ready, setReady] = useState(false);
+  const themeMode = useThemeStore(state => state.themeMode);
+  const themePreset = useThemeStore(state => state.themePreset);
+  const setThemeMode = useThemeStore(state => state.setThemeMode);
+  const setThemePreset = useThemeStore(state => state.setThemePreset);
+
+  useEffect(() => {
+    let cancelled = false;
+    rehydrateThemeStore(initialMode)
+      .catch(() => undefined)
+      .finally(() => {
+        if (!cancelled) setReady(true);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [initialMode]);
 
   const themeToken = useMemo(
     () => THEME_PRESET_TOKENS[themePreset],
@@ -63,8 +86,12 @@ export function ThemeModeProvider({
       setThemePreset,
       themeToken,
     }),
-    [themeMode, themePreset, themeToken],
+    [themeMode, setThemeMode, themePreset, setThemePreset, themeToken],
   );
+
+  if (!ready) {
+    return null;
+  }
 
   return (
     <ThemeModeContext.Provider value={value}>

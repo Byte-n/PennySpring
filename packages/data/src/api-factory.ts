@@ -2,6 +2,7 @@ import type { RecordTypeCategoryValue } from './constants'
 import * as services from './services'
 import type {
   AgentSelection,
+  AiConfigSnapshot,
   ApplySnapshotOptions,
   BookSnapshot,
   BuildSnapshotOptions,
@@ -90,6 +91,11 @@ export function createApi(getDatabase: () => Promise<Database>) {
         services.getAgentSelection(await getDatabase(), 'quickBook'),
       setSelection: async (selection: AgentSelection) =>
         services.setAgentSelection(await getDatabase(), 'quickBook', selection),
+    },
+    agentConfig: {
+      exportConfig: async () => services.buildAiConfigSnapshot(await getDatabase()),
+      importConfig: async (snapshot: AiConfigSnapshot) =>
+        services.applyAiConfigSnapshot(await getDatabase(), snapshot),
     },
     credential: {
       hasKey: async (booksId: number, providerId: number) =>

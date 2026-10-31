@@ -13,6 +13,7 @@ import {
 } from '@react-navigation/native';
 import { useBookStore } from './src/stores/bookStore';
 import { rehydrateNetworkBooks } from './src/stores/networkBookStore';
+import { useAutoBackup } from './src/features/backup/useAutoBackup';
 import { ThemeModeProvider, useThemeMode } from './src/contexts/ThemeModeContext';
 import { BookLoadingScreen } from './src/screens/bookLoading';
 
@@ -61,6 +62,8 @@ function AppContent() {
   const initStatus = useBookStore((state) => state.initStatus);
   const { themeMode, themeToken } = useThemeMode();
   const splashHiddenRef = useRef(false);
+
+  useAutoBackup();
 
   const hideBootSplash = useCallback(() => {
     if (splashHiddenRef.current) {

@@ -280,4 +280,27 @@ export interface ApplyLibrarySnapshotResult {
   books: ApplyBookSnapshotResult[]
 }
 
+export interface AiConfigProvider {
+  id: number
+  descriptorId: string
+  name: string
+  baseUrl: string
+  defaultModelId: string
+  models: AgentProviderModel[]
+  storeResponses: boolean
+}
+
+export interface AiConfigSnapshot {
+  providers: AiConfigProvider[]
+  agentSelection: AgentSelection
+  quickBookSelection: AgentSelection
+}
+
+export interface ApplyAiConfigResult {
+  providerIdMap: Record<number, number>
+  providersCreated: number
+  providersUpdated: number
+  threadsUpdated: number
+}
+
 export type { AgentReasoningEffort, AgentSelectionScope }

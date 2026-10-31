@@ -117,6 +117,35 @@ jest.mock('react-native-image-picker', () => ({
   launchImageLibrary: jest.fn(),
 }));
 
+// 文件访问是原生模块，单元测试统一用内存桩，避免加载 ESM 产物。
+jest.mock('react-native-file-access', () => ({
+  __esModule: true,
+  Dirs: {
+    CacheDir: '/mock/cache',
+    DocumentDir: '/mock/documents',
+    LibraryDir: '/mock/library',
+    MainBundleDir: '/mock/bundle',
+  },
+  FileSystem: {
+    exists: jest.fn(async () => false),
+    mkdir: jest.fn(async path => path),
+    writeFile: jest.fn(async () => undefined),
+    readFile: jest.fn(async () => ''),
+    statDir: jest.fn(async () => []),
+    unlink: jest.fn(async () => undefined),
+    fetch: jest.fn(async () => ({
+      ok: true,
+      status: 200,
+      statusText: 'OK',
+      headers: {},
+      getHeader: () => undefined,
+      redirected: false,
+      url: '',
+    })),
+    fetchManaged: jest.fn(),
+  },
+}));
+
 // op-sqlite 是原生模块，单元测试中统一 mock，避免 bookStorage 初始化时加载其 ESM 产物报错。
 jest.mock('@op-engineering/op-sqlite', () => ({
   __esModule: true,

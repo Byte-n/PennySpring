@@ -9,9 +9,14 @@ import {
 import { AddRecordScreen } from '../screens/addRecord/AddRecordScreen';
 import { AgentSettingsScreen } from '../screens/agentSettings/AgentSettingsScreen';
 import { AssetManageScreen } from '../screens/assetManage/AssetManageScreen';
+import { BackupAiConfigScreen } from '../screens/backup/BackupAiConfigScreen';
+import { BackupAutoScreen } from '../screens/backup/BackupAutoScreen';
 import { BackupExportScreen } from '../screens/backup/BackupExportScreen';
 import { BackupHomeScreen } from '../screens/backup/BackupHomeScreen';
 import { BackupImportScreen } from '../screens/backup/BackupImportScreen';
+import { BackupLanReceiveScreen } from '../screens/backup/BackupLanReceiveScreen';
+import { BackupLanSendScreen } from '../screens/backup/BackupLanSendScreen';
+import { BackupSettingsScreen } from '../screens/backup/BackupSettingsScreen';
 import { BookManageScreen } from '../screens/bookManage/BookManageScreen';
 import { HomeScreen } from '../screens/home/HomeScreen';
 import { IconPreviewScreen } from '../screens/iconPreview';
@@ -129,6 +134,31 @@ export function RootStackNavigator() {
         component={BackupImportScreen}
         name={ROOT_ROUTES.BackupImport}
         options={{ title: '导入备份' }}
+      />
+      <Stack.Screen
+        component={BackupAutoScreen}
+        name={ROOT_ROUTES.BackupAuto}
+        options={{ title: '自动备份' }}
+      />
+      <Stack.Screen
+        component={BackupAiConfigScreen}
+        name={ROOT_ROUTES.BackupAiConfig}
+        options={{ title: 'AI 配置包' }}
+      />
+      <Stack.Screen
+        component={BackupSettingsScreen}
+        name={ROOT_ROUTES.BackupSettings}
+        options={{ title: '设置包' }}
+      />
+      <Stack.Screen
+        component={BackupLanSendScreen}
+        name={ROOT_ROUTES.BackupLanSend}
+        options={{ title: '局域网发送' }}
+      />
+      <Stack.Screen
+        component={BackupLanReceiveScreen}
+        name={ROOT_ROUTES.BackupLanReceive}
+        options={{ title: '局域网接收' }}
       />
     </Stack.Navigator>
   );

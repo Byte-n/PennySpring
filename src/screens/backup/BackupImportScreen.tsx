@@ -23,6 +23,10 @@ import {
   type PickedPackagePreview,
 } from '../../features/transfer/operations'
 import { ROOT_ROUTES, useNavigation } from '../../navigation'
+import {
+  createBackupHistoryId,
+  useBackupHistoryStore,
+} from '../../stores/backupHistoryStore'
 import { useBookStore } from '../../stores/bookStore'
 
 const useStyles = createUseSheetStyle(token => ({
@@ -61,6 +65,7 @@ function getErrorMessage(error: unknown): string {
 export function BackupImportScreen() {
   const styles = useStyles()
   const navigation = useNavigation()
+  const addHistory = useBackupHistoryStore(state => state.addEntry)
   const [preview, setPreview] = useState<PickedPackagePreview | null>(null)
   const [result, setResult] = useState<ApplyLibrarySnapshotResult | null>(null)
   const [busy, setBusy] = useState(false)
@@ -86,13 +91,25 @@ export function BackupImportScreen() {
     setErrorText('')
     try {
       const imported = await importPackage(preview.parsed)
+      addHistory({
+        id: createBackupHistoryId(),
+        kind: 'import',
+        fileName: preview.sourceName,
+        sizeBytes: preview.sizeBytes,
+        createdAt: Date.now(),
+        bookNames: preview.parsed.manifest.books.map(book => book.name),
+        recordCount: totalRecords(preview.parsed.manifest),
+        uri: '',
+        status: 'success',
+        errorText: '',
+      })
       setResult(imported.result)
     } catch (error: unknown) {
       setErrorText(getErrorMessage(error))
     } finally {
       setBusy(false)
     }
-  }, [busy, preview])
+  }, [addHistory, busy, preview])
 
   const openImportedBook = useCallback(async () => {
     if (!result?.books[0]) {

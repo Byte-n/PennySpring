@@ -9,9 +9,12 @@
 /* Begin PBXBuildFile section */
 		0C80B921A6F3F58F76C31292 /* libPods-PennySpring.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5DCACB8F33CDC322A6C60F78 /* libPods-PennySpring.a */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
-		761780ED2CA45674006654EE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 761780EC2CA45674006654EE /* AppDelegate.swift */; };
-		C998C74B6AC27D07B34CA661 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */; };
 		39715B5BEF9D4871BE5C57CE /* BootSplash.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B24A2CA01CE4422280F2DFDE /* BootSplash.storyboard */; };
+		761780ED2CA45674006654EE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 761780EC2CA45674006654EE /* AppDelegate.swift */; };
+		B11B22C33D44E55F66A77B88 /* BackupNative.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11B22C33D44E55F66A77B88 /* BackupNative.swift */; };
+		C998C74B6AC27D07B34CA661 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */; };
+		D11B22C33D44E55F66A77B88 /* LanTransfer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C11B22C33D44E55F66A77B88 /* LanTransfer.swift */; };
+		F11B22C33D44E55F66A77B88 /* BackupModules.m in Sources */ = {isa = PBXBuildFile; fileRef = E11B22C33D44E55F66A77B88 /* BackupModules.m */; };
 		E0D34FE2A21C4B0183E6893C /* Colors.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C497164C49434C35B9100035 /* Colors.xcassets */; };
 /* End PBXBuildFile section */
 
@@ -24,9 +27,12 @@
 		5709B34CF0A7D63546082F79 /* Pods-PennySpring.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PennySpring.release.xcconfig"; path = "Target Support Files/Pods-PennySpring/Pods-PennySpring.release.xcconfig"; sourceTree = "<group>"; };
 		5DCACB8F33CDC322A6C60F78 /* libPods-PennySpring.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-PennySpring.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		761780EC2CA45674006654EE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = PennySpring/AppDelegate.swift; sourceTree = "<group>"; };
+		A11B22C33D44E55F66A77B88 /* BackupNative.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = BackupNative.swift; path = PennySpring/BackupNative.swift; sourceTree = "<group>"; };
+		B24A2CA01CE4422280F2DFDE /* BootSplash.storyboard */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = BootSplash.storyboard; path = PennySpring/BootSplash.storyboard; sourceTree = "<group>"; };
+		C11B22C33D44E55F66A77B88 /* LanTransfer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LanTransfer.swift; path = PennySpring/LanTransfer.swift; sourceTree = "<group>"; };
+		E11B22C33D44E55F66A77B88 /* BackupModules.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = BackupModules.m; path = PennySpring/BackupModules.m; sourceTree = "<group>"; };
+		C497164C49434C35B9100035 /* Colors.xcassets */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = folder.assetcatalog; name = Colors.xcassets; path = PennySpring/Colors.xcassets; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
-		B24A2CA01CE4422280F2DFDE /* BootSplash.storyboard */ = {isa = PBXFileReference; name = "BootSplash.storyboard"; path = "PennySpring/BootSplash.storyboard"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
-		C497164C49434C35B9100035 /* Colors.xcassets */ = {isa = PBXFileReference; name = "Colors.xcassets"; path = "PennySpring/Colors.xcassets"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = folder.assetcatalog; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -46,6 +52,9 @@
 			children = (
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				761780EC2CA45674006654EE /* AppDelegate.swift */,
+				A11B22C33D44E55F66A77B88 /* BackupNative.swift */,
+				C11B22C33D44E55F66A77B88 /* LanTransfer.swift */,
+				E11B22C33D44E55F66A77B88 /* BackupModules.m */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */,
 				B24A2CA01CE4422280F2DFDE /* BootSplash.storyboard */,
@@ -251,6 +260,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				761780ED2CA45674006654EE /* AppDelegate.swift in Sources */,
+				B11B22C33D44E55F66A77B88 /* BackupNative.swift in Sources */,
+				D11B22C33D44E55F66A77B88 /* LanTransfer.swift in Sources */,
+				F11B22C33D44E55F66A77B88 /* BackupModules.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

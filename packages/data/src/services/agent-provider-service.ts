@@ -73,7 +73,18 @@ function serializeModels(models: AgentProviderModel[]): string {
   return JSON.stringify(models)
 }
 
-function normalizeProviderInput(input: CreateAgentProviderInput | UpdateAgentProviderInput) {
+export interface NormalizedProviderConfig {
+  descriptorId: string
+  name: string
+  baseUrl: string
+  defaultModelId: string
+  models: AgentProviderModel[]
+  storeResponses: boolean
+}
+
+export function normalizeProviderConfig(
+  input: CreateAgentProviderInput | UpdateAgentProviderInput,
+): NormalizedProviderConfig {
   const descriptorId = input.descriptorId.trim()
   if (!descriptorId) {
     throw new Error('提供商类型不能为空')
@@ -138,7 +149,7 @@ export function createProvider(
   db: Database,
   input: CreateAgentProviderInput,
 ): Promise<AgentProviderRow> {
-  const normalized = normalizeProviderInput(input)
+  const normalized = normalizeProviderConfig(input)
 
   return db.transaction(async tx => {
     const inserted = await tx
@@ -200,7 +211,7 @@ export function updateProvider(
   db: Database,
   input: UpdateAgentProviderInput,
 ): Promise<AgentProviderRow> {
-  const normalized = normalizeProviderInput(input)
+  const normalized = normalizeProviderConfig(input)
 
   return db.transaction(async tx => {
     await getProviderDbRow(tx, input.id)

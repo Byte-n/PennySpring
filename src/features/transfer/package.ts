@@ -1,5 +1,7 @@
 import { fromByteArray, toByteArray } from 'base64-js'
-import { strFromU8, strToU8, unzip, zip } from 'fflate'
+import { strFromU8, strToU8 } from 'fflate'
+
+import { unzipFiles, zipFiles } from './zip'
 
 import type {
   AgentMessageRow,
@@ -247,21 +249,11 @@ export async function buildSnapshotPackage(
 }
 
 export function zipSnapshotPackage(files: SnapshotPackageFiles): Promise<Uint8Array> {
-  return new Promise((resolve, reject) => {
-    zip(files, { level: 6 }, (error, data) => {
-      if (error) reject(error)
-      else resolve(data)
-    })
-  })
+  return zipFiles(files)
 }
 
 export function unzipSnapshotPackage(data: Uint8Array): Promise<SnapshotPackageFiles> {
-  return new Promise((resolve, reject) => {
-    unzip(data, (error, files) => {
-      if (error) reject(error)
-      else resolve(files)
-    })
-  })
+  return unzipFiles(data)
 }
 
 function readJson(files: SnapshotPackageFiles, path: string): unknown {

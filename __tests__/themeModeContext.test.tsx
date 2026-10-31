@@ -6,7 +6,7 @@ import {
   useThemeMode,
 } from '../src/contexts/ThemeModeContext';
 
-function createProbe() {
+async function createProbe() {
   let current: ReturnType<typeof useThemeMode> | undefined;
 
   function Probe() {
@@ -14,7 +14,7 @@ function createProbe() {
     return null;
   }
 
-  act(() => {
+  await act(async () => {
     renderer.create(
       <ThemeModeProvider>
         <Probe />
@@ -26,8 +26,8 @@ function createProbe() {
 }
 
 describe('ThemeModeContext', () => {
-  it('toggles the theme mode', () => {
-    const getContext = createProbe();
+  it('toggles the theme mode', async () => {
+    const getContext = await createProbe();
     expect(getContext()?.themeMode).toBe('default');
 
     act(() => {
@@ -37,8 +37,8 @@ describe('ThemeModeContext', () => {
     expect(getContext()?.themeMode).toBe('dark');
   });
 
-  it('maps the selected preset to its seed token', () => {
-    const getContext = createProbe();
+  it('maps the selected preset to its seed token', async () => {
+    const getContext = await createProbe();
     expect(getContext()?.themePreset).toBe('default');
     expect(getContext()?.themeToken).toEqual({});
 

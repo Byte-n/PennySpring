@@ -10,18 +10,23 @@ import {
   Row,
   Switch,
   Text,
+  useToast,
 } from '@pennyspring/ui'
 import type { BookRow } from '@pennyspring/api'
 import { localApi } from '@pennyspring/api'
 import { createUseSheetStyle } from '@pennyspring/ui'
 
+import { shareBackupBytes } from '../../features/backup/share'
 import { formatBytes, totalRecords } from '../../features/transfer'
 import {
   exportBooksToFile,
   type SavedExportResult,
 } from '../../features/transfer/operations'
 import { useNavigation } from '../../navigation'
-import { useBackupSessionStore } from '../../stores/backupSessionStore'
+import {
+  createBackupHistoryId,
+  useBackupHistoryStore,
+} from '../../stores/backupHistoryStore'
 import { useBookStore } from '../../stores/bookStore'
 
 const useStyles = createUseSheetStyle(token => ({
@@ -63,21 +68,12 @@ function getErrorMessage(error: unknown): string {
   return error instanceof Error ? error.message : '导出失败'
 }
 
-function toSessionSummary(result: SavedExportResult) {
-  return {
-    bookNames: result.manifest.books.map(book => book.name),
-    createdAt: Date.now(),
-    fileName: result.fileName,
-    recordCount: totalRecords(result.manifest),
-    sizeBytes: result.sizeBytes,
-  }
-}
-
 export function BackupExportScreen() {
   const styles = useStyles()
   const navigation = useNavigation()
+  const toast = useToast()
   const currentBookRef = useBookStore(state => state.currentBookRef)
-  const setLastExport = useBackupSessionStore(state => state.setLastExport)
+  const addHistory = useBackupHistoryStore(state => state.addEntry)
   const { data, loading } = useRequest(() => localApi.book.getAll())
   const books = data ?? []
 
@@ -85,6 +81,7 @@ export function BackupExportScreen() {
   const [includeImages, setIncludeImages] = useState(true)
   const [includeAgent, setIncludeAgent] = useState(false)
   const [busy, setBusy] = useState(false)
+  const [sharing, setSharing] = useState(false)
   const [errorText, setErrorText] = useState('')
   const [saved, setSaved] = useState<SavedExportResult | null>(null)
 
@@ -118,14 +115,37 @@ export function BackupExportScreen() {
         includeAgent,
         includeImages,
       })
-      setLastExport(toSessionSummary(result))
+      addHistory({
+        id: createBackupHistoryId(),
+        kind: 'export',
+        fileName: result.fileName,
+        sizeBytes: result.sizeBytes,
+        createdAt: Date.now(),
+        bookNames: result.manifest.books.map(book => book.name),
+        recordCount: totalRecords(result.manifest),
+        uri: result.savedUri,
+        status: 'success',
+        errorText: '',
+      })
       setSaved(result)
     } catch (error: unknown) {
       setErrorText(getErrorMessage(error))
     } finally {
       setBusy(false)
     }
-  }, [busy, includeAgent, includeImages, selectedIds, setLastExport])
+  }, [addHistory, busy, includeAgent, includeImages, selectedIds])
+
+  const handleShare = useCallback(async (): Promise<void> => {
+    if (!saved || sharing) return
+    setSharing(true)
+    try {
+      await shareBackupBytes(saved.zip, saved.fileName)
+    } catch (error: unknown) {
+      toast.show({ messageText: getErrorMessage(error), status: 'error' })
+    } finally {
+      setSharing(false)
+    }
+  }, [saved, sharing, toast])
 
   if (saved) {
     return (
@@ -136,6 +156,14 @@ export function BackupExportScreen() {
           subtitleText={`${saved.fileName} · ${formatBytes(saved.sizeBytes)}`}
           extra={
             <Column style={styles.resultActions}>
+              <Button
+                block
+                loading={sharing}
+                onPress={handleShare}
+                type="dashed"
+              >
+                分享备份
+              </Button>
               <Button block onPress={() => navigation.goBack()} type="primary">
                 完成
               </Button>

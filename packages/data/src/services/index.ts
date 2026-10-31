@@ -1,3 +1,4 @@
+export { applyAiConfigSnapshot, buildAiConfigSnapshot } from './ai-config-service'
 export { appendMessages, createThread, deleteThread, getLatestThreadWithMessages, getThreadDetail, listThreads, updateThreadModel, updateThreadTitle } from './agent-service'
 export { createProvider, deleteProvider, getAllProviders, getProviderById, getAgentSelection, setAgentSelection, updateProvider } from './agent-provider-service'
 export { getProviderKey, hasProviderKey, setProviderKey } from './agent-credential-service'
@@ -24,6 +25,9 @@ export type {
   AgentSelectionScope,
   AgentThreadDetail,
   AgentThreadRow,
+  AiConfigProvider,
+  AiConfigSnapshot,
+  ApplyAiConfigResult,
   ApplyBookSnapshotResult,
   ApplyLibrarySnapshotResult,
   ApplySnapshotOptions,

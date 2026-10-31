@@ -14,6 +14,11 @@ export const ROOT_ROUTES = {
   Backup: 'Backup',
   BackupExport: 'BackupExport',
   BackupImport: 'BackupImport',
+  BackupAuto: 'BackupAuto',
+  BackupAiConfig: 'BackupAiConfig',
+  BackupSettings: 'BackupSettings',
+  BackupLanSend: 'BackupLanSend',
+  BackupLanReceive: 'BackupLanReceive',
 } as const;
 
 export const HOME_TAB_ROUTES = {
