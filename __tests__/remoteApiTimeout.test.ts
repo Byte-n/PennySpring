@@ -1,6 +1,7 @@
 import { createRemoteApi } from '../packages/api/src/remote';
 
 const SERVER_URL = 'http://example.com';
+const SERVER_TOKEN = 'test-token-0123456789';
 const originalFetch = global.fetch;
 
 describe('createRemoteApi request timeout', () => {
@@ -22,7 +23,9 @@ describe('createRemoteApi request timeout', () => {
   });
 
   it('aborts API calls after ten seconds by default', async () => {
-    const request = createRemoteApi(SERVER_URL).book.getAll();
+    const request = createRemoteApi(SERVER_URL, {
+      token: SERVER_TOKEN,
+    }).book.getAll();
     const result = request.then(
       () => null,
       (error: unknown) => error,
@@ -39,6 +42,7 @@ describe('createRemoteApi request timeout', () => {
 
   it('uses a shorter timeout when configured for server book discovery', async () => {
     const request = createRemoteApi(SERVER_URL, {
+      token: SERVER_TOKEN,
       timeoutMs: 3_000,
       timeoutMessage: '连接服务器超时',
     }).book.getAll();
@@ -54,5 +58,30 @@ describe('createRemoteApi request timeout', () => {
 
     expect(requestSignal?.aborted).toBe(true);
     expect(await result).toEqual(new Error('连接服务器超时'));
+  });
+
+  it('sends the access token as a bearer authorization header', async () => {
+    const request = createRemoteApi(SERVER_URL, {
+      token: SERVER_TOKEN,
+    }).book.getAll();
+    const result = request.then(
+      () => null,
+      (error: unknown) => error,
+    );
+    const headers = jest.mocked(global.fetch).mock.calls[0][1]?.headers as
+      | Record<string, string>
+      | undefined;
+
+    expect(headers?.authorization).toBe(`Bearer ${SERVER_TOKEN}`);
+
+    await jest.advanceTimersByTimeAsync(10_000);
+    await result;
+  });
+
+  it('fails fast when no token is configured', async () => {
+    const request = createRemoteApi(SERVER_URL, { token: '' }).book.getAll();
+
+    await expect(request).rejects.toThrow('服务器访问令牌未配置');
+    expect(global.fetch).not.toHaveBeenCalled();
   });
 });

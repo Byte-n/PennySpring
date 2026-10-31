@@ -33,17 +33,29 @@ jest.mock('@pennyspring/ui', () => {
     ReactLib.createElement('MockUiIcon', props);
   const List = ({
     data = [],
+    sections,
     renderItem,
     ...props
   }: {
-    data?: unknown[];
+    data?: Array<Record<string, unknown>>;
+    sections?: Array<{ data: Array<Record<string, unknown>> }>;
     renderItem?: (info: { item: unknown; index: number; separators: object }) => React.ReactNode;
-  }) =>
-    ReactLib.createElement(
+  }) => {
+    const rows = sections ? sections.flatMap(section => section.data) : data;
+    return ReactLib.createElement(
       View,
       { ...props, testID: 'book-list' },
-      ...data.map((item, index) => renderItem?.({ item, index, separators: {} })),
+      ...rows.map((item, index) =>
+        ReactLib.createElement(
+          'MockListRow',
+          { key: String(item.value ?? index), ...item },
+          item.left,
+          item.right,
+          renderItem?.({ item, index, separators: {} }),
+        ),
+      ),
     );
+  };
 
   const theme = jest.requireMock('@pennyspring/theme');
 
@@ -64,11 +76,14 @@ jest.mock('@pennyspring/ui', () => {
 import type { BookRow } from '@pennyspring/api';
 import { BookList } from '../src/components/BookList';
 import type { BookListItem } from '../src/components/BookList';
-import { ManageRow } from '../src/components/ManageRow';
 import type { BookEntry, CurrentBookRef } from '../src/stores/bookStore';
+import { useNetworkBookStore } from '../src/stores/networkBookStore';
 
 const REMOTE_SERVER_URL = 'http://192.168.1.10:8080';
 const COVER_IMAGE_URI = 'https://example.com/cover.png';
+const SERVER_MEDIA_URI =
+  'http://192.168.1.10:8080/api/media/123e4567-e89b-12d3-a456-426614174000.png';
+const SERVER_TOKEN = 'test-token-0123456789';
 
 function createBookRow(overrides: Partial<BookRow>): BookRow {
   return {
@@ -124,6 +139,10 @@ function findNetworkCoverLabel(
 }
 
 describe('BookList 账本封面', () => {
+  beforeEach(() => {
+    useNetworkBookStore.setState({ tokens: {} });
+  });
+
   it('renders book sections through the shared List container', () => {
     const renderer = renderBookList([createRemoteItem('')]);
 
@@ -157,6 +176,37 @@ describe('BookList 账本封面', () => {
     expect(renderer.root.findAllByType(Image)).toHaveLength(1);
   });
 
+  it('网络账本封面请求携带服务器访问令牌', () => {
+    useNetworkBookStore.setState({
+      tokens: { [REMOTE_SERVER_URL]: SERVER_TOKEN },
+    });
+    const renderer = renderBookList([createRemoteItem(SERVER_MEDIA_URI)]);
+
+    expect(renderer.root.findByType(Image).props.source).toEqual({
+      uri: SERVER_MEDIA_URI,
+      headers: { Authorization: `Bearer ${SERVER_TOKEN}` },
+    });
+  });
+
+  it('不为外部封面地址附带服务器访问令牌', () => {
+    useNetworkBookStore.setState({
+      tokens: { [REMOTE_SERVER_URL]: SERVER_TOKEN },
+    });
+    const renderer = renderBookList([createRemoteItem(COVER_IMAGE_URI)]);
+
+    expect(renderer.root.findByType(Image).props.source).toEqual({
+      uri: COVER_IMAGE_URI,
+    });
+  });
+
+  it('本地账本封面不携带访问令牌', () => {
+    const renderer = renderBookList([createLocalItem(COVER_IMAGE_URI)]);
+
+    expect(renderer.root.findByType(Image).props.source).toEqual({
+      uri: COVER_IMAGE_URI,
+    });
+  });
+
   it('网络账本加载失败时不提供菜单编辑入口', () => {
     const item = { ...createRemoteItem(''), error: '连接失败' };
     let renderer: TestRenderer.ReactTestRenderer;
@@ -171,7 +221,9 @@ describe('BookList 账本封面', () => {
       );
     });
 
-    const row = renderer!.root.findByType(ManageRow);
-    expect(row.props.onMenuPress).toBeUndefined();
+    const row = renderer!.root.find(
+      node => String(node.type) === 'MockListRow',
+    );
+    expect(row.props.onLongPress).toBeUndefined();
   });
 });

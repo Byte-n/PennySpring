@@ -103,9 +103,9 @@ function AddRecordContent({
         remark: detail.record.remark,
         recordTime: detail.record.recordTime,
         tags: detail.tagIds,
-        images: detail.imagePaths.map(uri => ({
-          uri: media?.resolveUri(uri) ?? uri,
-        })),
+        images: detail.imagePaths.map(uri =>
+          media ? media.resolveSource(uri) : { uri },
+        ),
         assetId: detail.record.assetId > 0 ? detail.record.assetId : null,
         intoAssetId: detail.record.intoAssetId > 0 ? detail.record.intoAssetId : null,
         charge: detail.record.charge,

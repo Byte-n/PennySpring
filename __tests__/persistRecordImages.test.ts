@@ -7,7 +7,7 @@ function createMediaStore(overrides: Partial<MediaStore> = {}): MediaStore {
   return {
     scope: { kind: 'local', booksId: 1 },
     save: jest.fn(async (input: MediaSaveInput) => `media:${input.fileName}`),
-    resolveUri: jest.fn((ref: string) => `resolved:${ref}`),
+    resolveSource: jest.fn((ref: string) => ({ uri: `resolved:${ref}` })),
     toRef: jest.fn((uri: string) => uri),
     toDataUrl: jest.fn(async (ref: string) => ref),
     ...overrides,

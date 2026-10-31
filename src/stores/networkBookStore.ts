@@ -11,15 +11,21 @@ const NETWORK_BOOK_STORE_KEY = 'pennyspring-network-books'
  */
 export type NetworkBookRef = { serverUrl: string; bookId: number }
 
+/** 设备级的服务器访问令牌，按服务器地址索引；同一服务器的所有账本共享。 */
+export type ServerTokenMap = Record<string, string>
+
 interface NetworkBookStoreState {
   refs: NetworkBookRef[]
+  tokens: ServerTokenMap
   addRef: (ref: NetworkBookRef) => void
   removeRef: (serverUrl: string, bookId: number) => void
   setRefs: (refs: NetworkBookRef[]) => void
+  setServerToken: (serverUrl: string, token: string) => void
 }
 
 interface PersistedNetworkBookStore {
   refs: NetworkBookRef[]
+  tokens: ServerTokenMap
 }
 
 let rehydrateNetworkBooks = async (): Promise<void> => undefined
@@ -28,6 +34,7 @@ export const useNetworkBookStore = create<NetworkBookStoreState>()(
   persist(
     (set, get) => ({
       refs: [],
+      tokens: {},
       addRef: (ref) => {
         const refs = get().refs
         const exists = refs.some(
@@ -48,15 +55,30 @@ export const useNetworkBookStore = create<NetworkBookStoreState>()(
       setRefs: (refs) => {
         set({ refs })
       },
+      setServerToken: (serverUrl, token) => {
+        if (!serverUrl || !token) {
+          return
+        }
+        set({ tokens: { ...get().tokens, [serverUrl]: token } })
+      },
     }),
     {
       name: NETWORK_BOOK_STORE_KEY,
       storage: createJSONStorage(() => bookStorage),
       partialize: (state): PersistedNetworkBookStore => ({
         refs: state.refs,
+        tokens: state.tokens,
       }),
+      // 版本 1 没有令牌，保留已缓存的网络账本引用，等待用户重新录入令牌
+      migrate: (persistedState: unknown, version: number): PersistedNetworkBookStore => {
+        if (version < 2) {
+          const legacy = persistedState as { refs?: NetworkBookRef[] } | null
+          return { refs: legacy?.refs ?? [], tokens: {} }
+        }
+        return persistedState as PersistedNetworkBookStore
+      },
       skipHydration: true,
-      version: 1,
+      version: 2,
     },
   ),
 )
@@ -69,4 +91,14 @@ export { rehydrateNetworkBooks }
 
 export function useNetworkBookRefs(): NetworkBookRef[] {
   return useNetworkBookStore(state => state.refs)
+}
+
+export function useServerToken(serverUrl: string | undefined): string {
+  return useNetworkBookStore(state =>
+    serverUrl ? (state.tokens[serverUrl] ?? '') : '',
+  )
+}
+
+export function getServerToken(serverUrl: string): string {
+  return useNetworkBookStore.getState().tokens[serverUrl] ?? ''
 }

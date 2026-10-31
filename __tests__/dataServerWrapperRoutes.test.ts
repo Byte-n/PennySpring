@@ -2,16 +2,23 @@ import type { Api } from '@pennyspring/data';
 
 import { createServer } from '../packages/data-server-wrapper/src/server';
 
+const SERVER_TOKEN = 'test-token-0123456789';
+const AUTH_HEADERS = { authorization: `Bearer ${SERVER_TOKEN}` };
+
+function createApp(api: Api) {
+  return createServer(api, { token: SERVER_TOKEN });
+}
+
 describe('data-server 路由分组', () => {
   it('exposes agent routes so remote books can persist assistant threads', async () => {
     const thread = { id: 7, booksId: 1, title: '' };
     const createThread = jest.fn(async () => thread);
     const api = { agent: { createThread } } as unknown as Api;
-    const app = createServer(api);
+    const app = createApp(api);
 
     const response = await app.request('/api/agent/createThread', {
       method: 'POST',
-      headers: { 'content-type': 'application/json' },
+      headers: { 'content-type': 'application/json', ...AUTH_HEADERS },
       body: JSON.stringify([1]),
     });
 
@@ -24,11 +31,11 @@ describe('data-server 路由分组', () => {
     const providers = [{ id: 1, name: '测试提供商' }];
     const getAll = jest.fn(async () => providers);
     const api = { provider: { getAll } } as unknown as Api;
-    const app = createServer(api);
+    const app = createApp(api);
 
     const response = await app.request('/api/provider/getAll', {
       method: 'POST',
-      headers: { 'content-type': 'application/json' },
+      headers: { 'content-type': 'application/json', ...AUTH_HEADERS },
       body: JSON.stringify([]),
     });
 
@@ -44,16 +51,16 @@ describe('data-server 路由分组', () => {
       credential: { hasKey },
       quickTemplate: { list },
     } as unknown as Api;
-    const app = createServer(api);
+    const app = createApp(api);
 
     const credentialResponse = await app.request('/api/credential/hasKey', {
       method: 'POST',
-      headers: { 'content-type': 'application/json' },
+      headers: { 'content-type': 'application/json', ...AUTH_HEADERS },
       body: JSON.stringify([1, 2]),
     });
     const templateResponse = await app.request('/api/quickTemplate/list', {
       method: 'POST',
-      headers: { 'content-type': 'application/json' },
+      headers: { 'content-type': 'application/json', ...AUTH_HEADERS },
       body: JSON.stringify([1]),
     });
 
@@ -65,11 +72,11 @@ describe('data-server 路由分组', () => {
 
   it('rejects malformed JSON request bodies', async () => {
     const api = { book: { getAll: jest.fn() } } as unknown as Api
-    const app = createServer(api)
+    const app = createApp(api)
 
     const response = await app.request('/api/book/getAll', {
       method: 'POST',
-      headers: { 'content-type': 'application/json' },
+      headers: { 'content-type': 'application/json', ...AUTH_HEADERS },
       body: '{',
     })
 
@@ -79,14 +86,70 @@ describe('data-server 路由分组', () => {
 
   it('rejects the database accessor group', async () => {
     const api = {} as unknown as Api;
-    const app = createServer(api);
+    const app = createApp(api);
 
     const response = await app.request('/api/get', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', ...AUTH_HEADERS },
+      body: JSON.stringify([]),
+    });
+
+    expect(response.status).toBe(404);
+  });
+
+  it('rejects requests without a bearer token', async () => {
+    const getAll = jest.fn(async () => []);
+    const app = createApp({ book: { getAll } } as unknown as Api);
+
+    const response = await app.request('/api/book/getAll', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify([]),
     });
 
-    expect(response.status).toBe(404);
+    expect(response.status).toBe(401);
+    expect(await response.json()).toEqual({ error: '访问令牌无效' });
+    expect(getAll).not.toHaveBeenCalled();
+  });
+
+  it('rejects requests with an invalid token', async () => {
+    const getAll = jest.fn(async () => []);
+    const app = createApp({ book: { getAll } } as unknown as Api);
+
+    const response = await app.request('/api/book/getAll', {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        authorization: 'Bearer wrong-token-0123456789',
+      },
+      body: JSON.stringify([]),
+    });
+
+    expect(response.status).toBe(401);
+    expect(await response.json()).toEqual({ error: '访问令牌无效' });
+    expect(getAll).not.toHaveBeenCalled();
+  });
+
+  it('accepts a case-insensitive bearer scheme', async () => {
+    const getAll = jest.fn(async () => []);
+    const app = createApp({ book: { getAll } } as unknown as Api);
+
+    const response = await app.request('/api/book/getAll', {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        authorization: `bEaReR ${SERVER_TOKEN}`,
+      },
+      body: JSON.stringify([]),
+    });
+
+    expect(response.status).toBe(200);
+    expect(getAll).toHaveBeenCalledWith();
+  });
+
+  it('refuses to create an unauthenticated server', () => {
+    expect(() => createServer({} as Api, { token: '' })).toThrow(
+      '访问令牌不能为空',
+    );
   });
 });

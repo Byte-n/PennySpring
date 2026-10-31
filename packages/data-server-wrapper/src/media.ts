@@ -163,7 +163,7 @@ export function registerMediaRoutes(
         200,
         {
           'Content-Type': MIME_BY_EXTENSION[extension] ?? 'application/octet-stream',
-          'Cache-Control': 'public, max-age=31536000, immutable',
+          'Cache-Control': 'private, max-age=31536000, immutable',
           'X-Content-Type-Options': 'nosniff',
         },
       )

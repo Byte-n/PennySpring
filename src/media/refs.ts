@@ -1,3 +1,5 @@
+import type { MediaImageSource } from './types';
+
 export const MEDIA_REF_PREFIX = 'media:';
 
 const MEDIA_KEY_PATTERN = /^[0-9a-f-]+\.(?:jpg|png|webp)$/i;
@@ -47,4 +49,32 @@ export function toMediaRef(uri: string, serverUrl: string): string {
 
 export function buildMediaUploadUrl(serverUrl: string): string {
   return `${normalizeServerUrl(serverUrl)}/api/media/upload`;
+}
+
+export function buildAuthHeaders(
+  token: string | undefined,
+): Record<string, string> | undefined {
+  return token ? { Authorization: `Bearer ${token}` } : undefined;
+}
+
+export function isServerMediaRef(ref: string, serverUrl?: string): boolean {
+  if (isMediaRef(ref)) {
+    return Boolean(serverUrl);
+  }
+  if (!serverUrl) {
+    return false;
+  }
+  return isMediaRef(toMediaRef(ref, serverUrl));
+}
+
+export function resolveMediaSource(
+  ref: string,
+  serverUrl?: string,
+  token?: string,
+): MediaImageSource {
+  const uri = resolveMediaRef(ref, serverUrl);
+  const headers = isServerMediaRef(ref, serverUrl)
+    ? buildAuthHeaders(token)
+    : undefined;
+  return headers ? { uri, headers } : { uri };
 }

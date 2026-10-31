@@ -23,7 +23,8 @@ export async function persistRecordImages(
   for (const image of images) {
     const ref = await media.save(toMediaSaveInput(image));
     imagePaths.push(ref);
-    persistedImages.push({ ...image, uri: media.resolveUri(ref) });
+    const source = media.resolveSource(ref);
+    persistedImages.push({ ...image, uri: source.uri, headers: source.headers });
   }
 
   return { images: persistedImages, imagePaths };

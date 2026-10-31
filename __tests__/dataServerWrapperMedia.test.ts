@@ -13,6 +13,8 @@ const WEBP_BYTES = Buffer.from([
   0x52, 0x49, 0x46, 0x46, 0x24, 0x00, 0x00, 0x00, 0x57, 0x45, 0x42, 0x50,
 ])
 const MAX_MEDIA_BYTES = 10 * 1024 * 1024
+const SERVER_TOKEN = 'test-token-0123456789'
+const AUTH_HEADERS = { authorization: `Bearer ${SERVER_TOKEN}` }
 
 type App = ReturnType<typeof createServer>
 
@@ -53,7 +55,11 @@ function createUploadForm(
 }
 
 async function upload(app: App, form: FormData): Promise<Response> {
-  return app.request('/api/media/upload', { method: 'POST', body: form })
+  return app.request('/api/media/upload', {
+    method: 'POST',
+    headers: AUTH_HEADERS,
+    body: form,
+  })
 }
 
 describe('data-server media routes', () => {
@@ -68,7 +74,7 @@ describe('data-server media routes', () => {
   })
 
   it('stores uploaded files with an opaque ref and serves them back', async () => {
-    const app = createServer(createApi(), { mediaDir })
+    const app = createServer(createApi(), { mediaDir, token: SERVER_TOKEN })
 
     const response = await upload(app, createUploadForm())
 
@@ -79,7 +85,9 @@ describe('data-server media routes', () => {
     const fileName = body.result.slice('media:'.length)
     expect(readFileSync(path.join(mediaDir, fileName))).toEqual(PNG_BYTES)
 
-    const fetched = await app.request(`/api/media/${fileName}`)
+    const fetched = await app.request(`/api/media/${fileName}`, {
+      headers: AUTH_HEADERS,
+    })
     expect(fetched.status).toBe(200)
     expect(fetched.headers.get('content-type')).toBe('image/png')
     expect(fetched.headers.get('cache-control')).toContain('immutable')
@@ -88,7 +96,7 @@ describe('data-server media routes', () => {
   })
 
   it('accepts webp images', async () => {
-    const app = createServer(createApi(), { mediaDir })
+    const app = createServer(createApi(), { mediaDir, token: SERVER_TOKEN })
 
     const response = await upload(
       app,
@@ -103,32 +111,39 @@ describe('data-server media routes', () => {
     const body = (await response.json()) as { result: string }
     expect(body.result).toMatch(/^media:[0-9a-f-]+\.webp$/)
     const fileName = body.result.slice('media:'.length)
-    const fetched = await app.request(`/api/media/${fileName}`)
+    const fetched = await app.request(`/api/media/${fileName}`, {
+      headers: AUTH_HEADERS,
+    })
     expect(fetched.headers.get('content-type')).toBe('image/webp')
   })
 
   it('returns 404 for a media file that does not exist', async () => {
-    const app = createServer(createApi(), { mediaDir })
+    const app = createServer(createApi(), { mediaDir, token: SERVER_TOKEN })
 
     const response = await app.request(
       '/api/media/123e4567-e89b-12d3-a456-426614174000.png',
+      { headers: AUTH_HEADERS },
     )
 
     expect(response.status).toBe(404)
   })
 
   it('rejects path traversal and malformed media names', async () => {
-    const app = createServer(createApi(), { mediaDir })
+    const app = createServer(createApi(), { mediaDir, token: SERVER_TOKEN })
 
-    const traversal = await app.request('/api/media/..%2Fsecret.png')
+    const traversal = await app.request('/api/media/..%2Fsecret.png', {
+      headers: AUTH_HEADERS,
+    })
     expect(traversal.status).toBe(400)
 
-    const malformed = await app.request('/api/media/not-a-media-name.txt')
+    const malformed = await app.request('/api/media/not-a-media-name.txt', {
+      headers: AUTH_HEADERS,
+    })
     expect(malformed.status).toBe(400)
   })
 
   it('rejects unsupported image types', async () => {
-    const app = createServer(createApi(), { mediaDir })
+    const app = createServer(createApi(), { mediaDir, token: SERVER_TOKEN })
 
     const response = await upload(
       app,
@@ -139,7 +154,7 @@ describe('data-server media routes', () => {
   })
 
   it('rejects bytes that do not match the declared image type', async () => {
-    const app = createServer(createApi(), { mediaDir })
+    const app = createServer(createApi(), { mediaDir, token: SERVER_TOKEN })
 
     const notAnImage = await upload(
       app,
@@ -158,7 +173,7 @@ describe('data-server media routes', () => {
   })
 
   it('rejects an empty image file', async () => {
-    const app = createServer(createApi(), { mediaDir })
+    const app = createServer(createApi(), { mediaDir, token: SERVER_TOKEN })
 
     const response = await upload(
       app,
@@ -169,7 +184,7 @@ describe('data-server media routes', () => {
   })
 
   it('rejects an invalid or missing book', async () => {
-    const app = createServer(createApi(false), { mediaDir })
+    const app = createServer(createApi(false), { mediaDir, token: SERVER_TOKEN })
 
     const invalidId = await upload(app, createUploadForm({ booksId: 'abc' }))
     expect(invalidId.status).toBe(400)
@@ -186,7 +201,7 @@ describe('data-server media routes', () => {
         }),
       },
     } as unknown as Api
-    const app = createServer(api, { mediaDir })
+    const app = createServer(api, { mediaDir, token: SERVER_TOKEN })
 
     const response = await upload(app, createUploadForm())
 
@@ -194,7 +209,7 @@ describe('data-server media routes', () => {
   })
 
   it('rejects files above the size limit', async () => {
-    const app = createServer(createApi(), { mediaDir })
+    const app = createServer(createApi(), { mediaDir, token: SERVER_TOKEN })
 
     const response = await upload(
       app,
@@ -205,7 +220,7 @@ describe('data-server media routes', () => {
   })
 
   it('rejects an oversized multipart body before parsing it', async () => {
-    const app = createServer(createApi(), { mediaDir })
+    const app = createServer(createApi(), { mediaDir, token: SERVER_TOKEN })
 
     const response = await upload(
       app,
@@ -217,12 +232,32 @@ describe('data-server media routes', () => {
   })
 
   it('returns 503 when no media directory is configured', async () => {
-    const app = createServer(createApi())
+    const app = createServer(createApi(), { token: SERVER_TOKEN })
 
     const response = await upload(app, createUploadForm())
     expect(response.status).toBe(503)
 
-    const fetched = await app.request('/api/media/anything.png')
+    const fetched = await app.request('/api/media/anything.png', {
+      headers: AUTH_HEADERS,
+    })
     expect(fetched.status).toBe(503)
+  })
+
+  it('rejects media reads and uploads without a token', async () => {
+    const app = createServer(createApi(), {
+      mediaDir,
+      token: SERVER_TOKEN,
+    })
+
+    const read = await app.request(
+      '/api/media/123e4567-e89b-12d3-a456-426614174000.png',
+    )
+    expect(read.status).toBe(401)
+
+    const write = await app.request('/api/media/upload', {
+      method: 'POST',
+      body: createUploadForm(),
+    })
+    expect(write.status).toBe(401)
   })
 })

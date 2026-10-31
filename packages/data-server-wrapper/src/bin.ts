@@ -4,7 +4,7 @@ import path from 'node:path'
 import { createRemoteApi } from '@pennyspring/data-server'
 
 import { createServer } from './server'
-import { initializeDatabase } from './startup'
+import { initializeDatabase, resolveServerToken } from './startup'
 
 function getLocalAddresses(port: number): {
   local: string
@@ -33,13 +33,14 @@ const dbPath = process.env.DB_PATH
 if (!dbPath) {
   throw new Error('DB_PATH 未设置')
 }
+const serverToken = resolveServerToken(process.env.SERVER_TOKEN)
 const port = Number(process.env.PORT ?? 3000)
 const mediaDir =
   process.env.MEDIA_DIR ??
   path.join(path.dirname(path.resolve(dbPath)), 'media')
 await initializeDatabase(dbPath)
 const api = createRemoteApi({ dbPath })
-const app = createServer(api, { mediaDir })
+const app = createServer(api, { mediaDir, token: serverToken })
 
 serve({ fetch: app.fetch, port }, (info) => {
   const { local, network, ios, android } = getLocalAddresses(info.port)

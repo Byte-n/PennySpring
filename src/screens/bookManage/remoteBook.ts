@@ -28,10 +28,14 @@ export interface RemoteBookCreateResult {
   coverError: Error | null;
 }
 
-type MediaFactory = (booksId: number, serverUrl: string) => MediaStore;
+type MediaFactory = (
+  booksId: number,
+  serverUrl: string,
+  token: string,
+) => MediaStore;
 
-const defaultMediaFactory: MediaFactory = (booksId, serverUrl) =>
-  createMediaStore({ kind: 'remote', booksId, serverUrl });
+const defaultMediaFactory: MediaFactory = (booksId, serverUrl, token) =>
+  createMediaStore({ kind: 'remote', booksId, serverUrl, token });
 
 async function saveRemoteCover(
   media: MediaStore,
@@ -56,6 +60,7 @@ function toError(value: unknown): Error {
 export async function createRemoteBookWithCover(
   api: RemoteBookApi,
   serverUrl: string,
+  token: string,
   input: RemoteBookCoverInput,
   mediaFactory: MediaFactory = defaultMediaFactory,
 ): Promise<RemoteBookCreateResult> {
@@ -68,7 +73,7 @@ export async function createRemoteBookWithCover(
     return { book: created, coverError: null };
   }
 
-  const media = mediaFactory(created.id, serverUrl);
+  const media = mediaFactory(created.id, serverUrl, token);
   try {
     const background = await saveRemoteCover(media, input.backgroundImage);
     if (!background) {
@@ -89,11 +94,12 @@ export async function createRemoteBookWithCover(
 export async function updateRemoteBookWithCover(
   api: RemoteBookApi,
   serverUrl: string,
+  token: string,
   book: BookRow,
   input: RemoteBookCoverInput,
   mediaFactory: MediaFactory = defaultMediaFactory,
 ): Promise<BookRow> {
-  const media = mediaFactory(book.id, serverUrl);
+  const media = mediaFactory(book.id, serverUrl, token);
   const background = await saveRemoteCover(media, input.backgroundImage);
   return api.update({
     id: book.id,

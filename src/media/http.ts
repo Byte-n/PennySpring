@@ -1,4 +1,4 @@
-import { buildMediaUploadUrl, isMediaRef } from './refs';
+import { buildAuthHeaders, buildMediaUploadUrl, isMediaRef } from './refs';
 import type { MediaSaveInput } from './types';
 
 const UPLOAD_TIMEOUT_MS = 60_000;
@@ -17,6 +17,7 @@ function getFileName(input: MediaSaveInput): string {
 
 export async function uploadMedia(
   serverUrl: string,
+  token: string,
   booksId: number,
   input: MediaSaveInput,
 ): Promise<string> {
@@ -33,6 +34,7 @@ export async function uploadMedia(
   try {
     const response = await fetch(buildMediaUploadUrl(serverUrl), {
       method: 'POST',
+      headers: buildAuthHeaders(token),
       body: form,
       signal: controller.signal,
     });

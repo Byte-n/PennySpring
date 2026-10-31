@@ -32,7 +32,7 @@ export function RecordImages({
       return [];
     }
 
-    return data.imagePaths.map(ref => ({ uri: media.resolveUri(ref) }));
+    return data.imagePaths.map(ref => media.resolveSource(ref));
   }, [data, media, recordId]);
 
   useEffect(() => {

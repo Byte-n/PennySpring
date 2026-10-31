@@ -118,6 +118,7 @@ import { APP_VERSION } from '../src/constants/app';
 import { ROOT_ROUTES } from '../src/navigation/routes';
 import { DrawerContent } from '../src/screens/home/DrawerContent';
 import type { BookEntry, CurrentBookRef } from '../src/stores/bookStore';
+import { useNetworkBookStore } from '../src/stores/networkBookStore';
 
 const UPDATED_TIME = new Date('2026-10-26T21:04:00').getTime();
 
@@ -186,6 +187,7 @@ beforeEach(() => {
   bookStoreMock.__bookStoreState.currentBookRef = null;
   themeModeMock.__themeModeState.mode = 'default';
   themeModeMock.__setThemeMode.mockClear();
+  useNetworkBookStore.setState({ tokens: {} });
 });
 
 describe('DrawerContent 账本卡', () => {
@@ -255,6 +257,31 @@ describe('DrawerContent 账本卡', () => {
 
     expect(avatar.props.text).toBe('日常账本');
     expect(avatar.props.src).toEqual({ uri: 'file://cover.png' });
+  });
+
+  it('adds the access token to remote book cover requests', () => {
+    const serverUrl = 'http://192.168.1.20:3000';
+    const token = 'test-token-0123456789';
+    useNetworkBookStore.setState({ tokens: { [serverUrl]: token } });
+    bookStoreMock.__bookStoreState.currentBook = createBook({
+      background: 'media:123e4567-e89b-12d3-a456-426614174000.png',
+      kind: BOOK_TYPE.remote,
+    });
+    bookStoreMock.__bookStoreState.currentBookRef = {
+      bookId: 2,
+      kind: 'remote',
+      serverUrl,
+    };
+
+    const renderer = renderDrawer(createCallbacks());
+    const avatar = renderer.root.find(
+      node => String(node.type) === 'MockAvatar',
+    );
+
+    expect(avatar.props.src).toEqual({
+      uri: 'http://192.168.1.20:3000/api/media/123e4567-e89b-12d3-a456-426614174000.png',
+      headers: { Authorization: `Bearer ${token}` },
+    });
   });
 
   it('renders a skeleton card while the book is not ready', () => {

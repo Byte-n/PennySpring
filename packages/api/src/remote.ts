@@ -5,6 +5,7 @@ import { buildPath } from './contract';
 export const REMOTE_API_TIMEOUT_MS = 10_000;
 
 export interface RemoteApiOptions {
+  token: string;
   timeoutMs?: number;
   timeoutMessage?: string;
 }
@@ -23,13 +24,19 @@ async function call<T>(
   if (!serverUrl) {
     throw new Error('SERVER_URL 未设置（remote 模式需构建期注入）');
   }
+  if (!options.token) {
+    throw new Error('服务器访问令牌未配置');
+  }
 
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), options.timeoutMs);
   try {
     const res = await fetch(`${serverUrl}${buildPath(group, method)}`, {
       method: 'POST',
-      headers: { 'content-type': 'application/json' },
+      headers: {
+        'content-type': 'application/json',
+        authorization: `Bearer ${options.token}`,
+      },
       body: JSON.stringify(args),
       signal: controller.signal,
     });
@@ -61,9 +68,10 @@ async function call<T>(
  */
 export function createRemoteApi(
   serverUrl: string,
-  options: RemoteApiOptions = {},
+  options: RemoteApiOptions,
 ): Api {
   const requestOptions: Required<RemoteApiOptions> = {
+    token: options.token,
     timeoutMs: options.timeoutMs ?? REMOTE_API_TIMEOUT_MS,
     timeoutMessage: options.timeoutMessage ?? '服务器请求超时',
   };

@@ -1,7 +1,7 @@
 import { ImagePicker } from '@pennyspring/ui';
 
 import { uploadMedia } from './http';
-import { isMediaRef, resolveMediaRef, toMediaRef } from './refs';
+import { isMediaRef, resolveMediaSource, toMediaRef } from './refs';
 import type {
   MediaSaveInput,
   MediaScope,
@@ -78,6 +78,7 @@ function readBlobAsDataUrl(blob: Blob): Promise<string> {
 async function readRefAsDataUrl(
   ref: string,
   serverUrl: string | undefined,
+  token: string | undefined,
   cache: Map<string, string>,
 ): Promise<string> {
   if (ref.startsWith('data:')) {
@@ -89,15 +90,18 @@ async function readRefAsDataUrl(
     return cached;
   }
 
-  const uri = isMediaRef(ref) ? resolveMediaRef(ref, serverUrl) : ref;
-  if (isMediaRef(ref) && uri === ref) {
+  const source = resolveMediaSource(ref, serverUrl, token);
+  if (isMediaRef(ref) && source.uri === ref) {
     throw new Error('图片引用无法解析');
   }
 
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), READ_TIMEOUT_MS);
   try {
-    const response = await fetch(uri, { signal: controller.signal });
+    const response = await fetch(source.uri, {
+      headers: source.headers,
+      signal: controller.signal,
+    });
     if (!response.ok) {
       throw new Error(`图片读取失败（${response.status}）`);
     }
@@ -132,14 +136,14 @@ function createLocalStore(scope: Extract<MediaScope, { kind: 'local' }>): MediaS
       });
       return persisted.uri;
     },
-    resolveUri(ref) {
-      return ref;
+    resolveSource(ref) {
+      return { uri: ref };
     },
     toRef(uri) {
       return uri;
     },
     toDataUrl(ref) {
-      return readRefAsDataUrl(ref, undefined, cache);
+      return readRefAsDataUrl(ref, undefined, undefined, cache);
     },
   };
 }
@@ -171,22 +175,27 @@ function createRemoteStore(
       if (cachedRef !== undefined) {
         return cachedRef;
       }
-      const uploadedRef = await uploadMedia(scope.serverUrl, scope.booksId, {
-        ...input,
-        mimeType,
-        fileName: resolveFileName(input, mimeType),
-      });
+      const uploadedRef = await uploadMedia(
+        scope.serverUrl,
+        scope.token,
+        scope.booksId,
+        {
+          ...input,
+          mimeType,
+          fileName: resolveFileName(input, mimeType),
+        },
+      );
       uploadedRefs.set(cacheKey, uploadedRef);
       return uploadedRef;
     },
-    resolveUri(ref) {
-      return resolveMediaRef(ref, scope.serverUrl);
+    resolveSource(ref) {
+      return resolveMediaSource(ref, scope.serverUrl, scope.token);
     },
     toRef(uri) {
       return toMediaRef(uri, scope.serverUrl);
     },
     toDataUrl(ref) {
-      return readRefAsDataUrl(ref, scope.serverUrl, cache);
+      return readRefAsDataUrl(ref, scope.serverUrl, scope.token, cache);
     },
   };
 }

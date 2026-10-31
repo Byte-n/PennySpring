@@ -32,8 +32,9 @@ import { APP_NAME, APP_VERSION } from '../../constants/app';
 import { useThemeMode } from '../../contexts/ThemeModeContext';
 import { ROOT_ROUTES } from '../../navigation/routes';
 import type { RootStackParamList } from '../../navigation/types';
-import { resolveMediaRef } from '../../media';
+import { resolveMediaSource } from '../../media';
 import { useBookStore } from '../../stores/bookStore';
+import { useServerToken } from '../../stores/networkBookStore';
 import { DrawerNavRow } from './DrawerNavRow';
 import {
   formatUpdatedTime,
@@ -238,14 +239,16 @@ export function DrawerContent({
   const { setThemeMode, themeMode } = useThemeMode();
   const currentBook = useBookStore(state => state.currentBook);
   const currentBookRef = useBookStore(state => state.currentBookRef);
-  const backgroundUri = currentBook?.background
-    ? resolveMediaRef(
+  const remoteServerUrl =
+    currentBookRef?.kind === 'remote' ? currentBookRef.serverUrl : undefined;
+  const remoteToken = useServerToken(remoteServerUrl);
+  const backgroundSource = currentBook?.background
+    ? resolveMediaSource(
         currentBook.background,
-        currentBookRef?.kind === 'remote'
-          ? currentBookRef.serverUrl
-          : undefined,
+        remoteServerUrl,
+        remoteToken,
       )
-    : '';
+    : undefined;
   const [isDeveloperOpen, setIsDeveloperOpen] = React.useState(false);
   const isDark = themeMode === 'dark';
 
@@ -312,7 +315,7 @@ export function DrawerContent({
             <Avatar
               shape="square"
               size="normal"
-              src={backgroundUri ? { uri: backgroundUri } : undefined}
+              src={backgroundSource}
               style={styles.cover}
               text={currentBook.name}
             />

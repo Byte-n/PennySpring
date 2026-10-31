@@ -13,6 +13,7 @@ const pickerMock = jest.requireMock('@pennyspring/ui') as {
 };
 
 const SERVER_URL = 'http://host:3000/';
+const SERVER_TOKEN = 'test-token-0123456789';
 const MEDIA_KEY = '123e4567-e89b-12d3-a456-426614174000.png';
 const MEDIA_REF = `media:${MEDIA_KEY}`;
 
@@ -59,6 +60,7 @@ describe('createMediaStore', () => {
       kind: 'remote',
       booksId: 7,
       serverUrl: SERVER_URL,
+      token: SERVER_TOKEN,
     });
 
     const ref = await store.save({
@@ -70,7 +72,10 @@ describe('createMediaStore', () => {
     expect(ref).toBe(MEDIA_REF);
     expect(fetchMock).toHaveBeenCalledWith(
       'http://host:3000/api/media/upload',
-      expect.objectContaining({ method: 'POST' }),
+      expect.objectContaining({
+        method: 'POST',
+        headers: { Authorization: `Bearer ${SERVER_TOKEN}` },
+      }),
     );
     const body = fetchMock.mock.calls[0]?.[1]?.body as FormData;
     expect(body.get('booksId')).toBe('7');
@@ -87,6 +92,7 @@ describe('createMediaStore', () => {
       kind: 'remote',
       booksId: 7,
       serverUrl: SERVER_URL,
+      token: SERVER_TOKEN,
     });
 
     const first = await store.save({ uri: 'file:///tmp/photo.png' });
@@ -102,6 +108,7 @@ describe('createMediaStore', () => {
       kind: 'remote',
       booksId: 7,
       serverUrl: SERVER_URL,
+      token: SERVER_TOKEN,
     });
 
     await expect(
@@ -118,6 +125,7 @@ describe('createMediaStore', () => {
       kind: 'remote',
       booksId: 7,
       serverUrl: SERVER_URL,
+      token: SERVER_TOKEN,
     });
 
     const ref = await store.save({
@@ -155,18 +163,29 @@ describe('createMediaStore', () => {
       kind: 'remote',
       booksId: 7,
       serverUrl: SERVER_URL,
+      token: SERVER_TOKEN,
     });
     const local = createMediaStore({ kind: 'local', booksId: 1 });
 
-    expect(remote.resolveUri(MEDIA_REF)).toBe(
-      `http://host:3000/api/media/${MEDIA_KEY}`,
-    );
+    expect(remote.resolveSource(MEDIA_REF)).toEqual({
+      uri: `http://host:3000/api/media/${MEDIA_KEY}`,
+      headers: { Authorization: `Bearer ${SERVER_TOKEN}` },
+    });
+    expect(
+      remote.resolveSource(`http://host:3000/api/media/${MEDIA_KEY}`),
+    ).toEqual({
+      uri: `http://host:3000/api/media/${MEDIA_KEY}`,
+      headers: { Authorization: `Bearer ${SERVER_TOKEN}` },
+    });
+    expect(remote.resolveSource('https://other-host/cover.png')).toEqual({
+      uri: 'https://other-host/cover.png',
+    });
     expect(remote.toRef(`http://host:3000/api/media/${MEDIA_KEY}`)).toBe(
       MEDIA_REF,
     );
-    expect(local.resolveUri('file:///Documents/id/photo.jpg')).toBe(
-      'file:///Documents/id/photo.jpg',
-    );
+    expect(local.resolveSource('file:///Documents/id/photo.jpg')).toEqual({
+      uri: 'file:///Documents/id/photo.jpg',
+    });
   });
 
   it('reads a remote media ref into a cached data url', async () => {
@@ -179,6 +198,7 @@ describe('createMediaStore', () => {
       kind: 'remote',
       booksId: 7,
       serverUrl: SERVER_URL,
+      token: SERVER_TOKEN,
     });
 
     const first = await store.toDataUrl(MEDIA_REF);
@@ -187,6 +207,12 @@ describe('createMediaStore', () => {
     expect(first).toBe('data:image/png;base64,QUJD');
     expect(second).toBe(first);
     expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(fetchMock).toHaveBeenCalledWith(
+      `http://host:3000/api/media/${MEDIA_KEY}`,
+      expect.objectContaining({
+        headers: { Authorization: `Bearer ${SERVER_TOKEN}` },
+      }),
+    );
   });
 
   it('reports a read failure when the media response is not ok', async () => {
@@ -199,6 +225,7 @@ describe('createMediaStore', () => {
       kind: 'remote',
       booksId: 7,
       serverUrl: SERVER_URL,
+      token: SERVER_TOKEN,
     });
 
     await expect(store.toDataUrl(MEDIA_REF)).rejects.toThrow(
@@ -225,6 +252,7 @@ describe('createMediaStore', () => {
       kind: 'remote',
       booksId: 7,
       serverUrl: SERVER_URL,
+      token: SERVER_TOKEN,
     });
 
     await expect(

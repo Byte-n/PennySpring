@@ -22,6 +22,8 @@ export type ImagePickerImageQuality =
 
 export interface ImagePickerValue {
   uri: string;
+  /** 展示远程图片时附带的请求头；不参与持久化。 */
+  headers?: Record<string, string>;
   fileName?: string;
   fileSize?: number;
   height?: number;

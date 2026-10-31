@@ -76,8 +76,15 @@ function AppContent() {
   }, []);
 
   useEffect(() => {
-    rehydrateNetworkBooks();
-    initializeBook().catch((error) => {
+    const bootstrap = async (): Promise<void> => {
+      try {
+        await rehydrateNetworkBooks();
+      } catch (error) {
+        console.error('Network book rehydration failed:', error);
+      }
+      await initializeBook();
+    };
+    bootstrap().catch((error) => {
       console.error('Book initialization failed:', error);
     });
   }, [initializeBook]);

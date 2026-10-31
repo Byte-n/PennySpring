@@ -188,11 +188,11 @@ function UserImageAttachments(): React.ReactElement | null {
           return (
             <Image
               radius="small"
-              src={{
-                uri: media
-                  ? media.resolveUri(imagePart.image)
-                  : imagePart.image,
-              }}
+              src={
+                media
+                  ? media.resolveSource(imagePart.image)
+                  : { uri: imagePart.image }
+              }
               style={styles.messageImage}
             />
           );

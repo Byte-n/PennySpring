@@ -14,8 +14,12 @@ import { BOOK_TYPE, type BookRow } from '@pennyspring/api';
 import { createUseSheetStyle, useTheme } from '@pennyspring/ui';
 import { NetworkIcon } from 'phosphor-react-native';
 import '../../utils/prototype';
+import { resolveMediaSource } from '../../media/refs';
 import type { BookEntry, CurrentBookRef } from '../../stores/bookStore';
-import type { NetworkBookRef } from '../../stores/networkBookStore';
+import {
+  getServerToken,
+  type NetworkBookRef,
+} from '../../stores/networkBookStore';
 import { ManageSkeleton } from '../ManageSkeleton';
 
 export interface BookListItem {
@@ -120,11 +124,19 @@ function BookSpine({ item }: { item: BookListItem }) {
   const isRemote = entry.kind === BOOK_TYPE.remote;
 
   if (entry.background) {
+    const serverUrl = item.networkRef?.serverUrl;
+    const source = isRemote && serverUrl
+      ? resolveMediaSource(
+          entry.background,
+          serverUrl,
+          getServerToken(serverUrl),
+        )
+      : { uri: entry.background };
     return (
       <View style={styles.spine}>
         <Image
           resizeMode="cover"
-          source={{ uri: entry.background }}
+          source={source}
           style={styles.spineImage as StyleProp<ImageStyle>}
         />
       </View>
@@ -233,7 +245,7 @@ export function BookList({
       right: trailing,
       disclosure: mode === 'select' && canSelect,
       onPress: item.error || canSelect ? onSelect : undefined,
-      onLongPress: mode === 'manage' && onBookMenu
+      onLongPress: !item.error && mode === 'manage' && onBookMenu
         ? () => onBookMenu(item)
         : mode === 'select' && canSelect
           ? onSelect

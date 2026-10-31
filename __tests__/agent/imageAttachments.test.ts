@@ -27,9 +27,14 @@ function createStore(
     scope:
       kind === 'local'
         ? { kind: 'local', booksId: 1 }
-        : { kind: 'remote', booksId: 1, serverUrl: 'http://host:3000' },
+        : {
+            kind: 'remote',
+            booksId: 1,
+            serverUrl: 'http://host:3000',
+            token: 'test-token-0123456789',
+          },
     save: jest.fn(async () => savedRef),
-    resolveUri: (ref: string) => ref,
+    resolveSource: (ref: string) => ({ uri: ref }),
     toRef: (uri: string) => uri,
     toDataUrl: async (ref: string) => ref,
   };

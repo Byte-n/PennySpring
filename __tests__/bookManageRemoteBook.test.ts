@@ -8,6 +8,7 @@ import {
 } from '../src/screens/bookManage/remoteBook';
 
 const SERVER_URL = 'http://192.168.1.12:8787';
+const SERVER_TOKEN = 'test-token-0123456789';
 const COVER: ImagePickerValue = {
   uri: 'file:///tmp/cover.jpg',
   fileName: 'cover.jpg',
@@ -29,9 +30,9 @@ function createBook(overrides: Partial<BookRow> = {}): BookRow {
 
 function createMedia(save: jest.Mock, booksId = 10): MediaStore {
   return {
-    scope: { kind: 'remote', booksId, serverUrl: SERVER_URL },
+    scope: { kind: 'remote', booksId, serverUrl: SERVER_URL, token: SERVER_TOKEN },
     save,
-    resolveUri: (ref: string) => ref,
+    resolveSource: (ref: string) => ({ uri: ref }),
     toRef: (uri: string) => uri,
     toDataUrl: async (ref: string) => ref,
   };
@@ -68,6 +69,7 @@ describe('remote book cover flow', () => {
     const result = await createRemoteBookWithCover(
       api,
       SERVER_URL,
+      SERVER_TOKEN,
       { name: '测试账本', description: '描述', backgroundImage: COVER },
       mediaFactory,
     );
@@ -76,7 +78,7 @@ describe('remote book cover flow', () => {
     expect(api.create).toHaveBeenCalledWith(
       expect.objectContaining({ background: '' }),
     );
-    expect(mediaFactory).toHaveBeenCalledWith(10, SERVER_URL);
+    expect(mediaFactory).toHaveBeenCalledWith(10, SERVER_URL, SERVER_TOKEN);
     expect(api.update).toHaveBeenCalledWith(
       expect.objectContaining({ id: 10, background: 'media:cover.png' }),
     );
@@ -91,6 +93,7 @@ describe('remote book cover flow', () => {
     const result = await createRemoteBookWithCover(
       api,
       SERVER_URL,
+      SERVER_TOKEN,
       { name: '测试账本', description: '' },
       mediaFactory,
     );
@@ -110,6 +113,7 @@ describe('remote book cover flow', () => {
     const result = await createRemoteBookWithCover(
       api,
       SERVER_URL,
+      SERVER_TOKEN,
       { name: '测试账本', description: '', backgroundImage: COVER },
       mediaFactory,
     );
@@ -129,6 +133,7 @@ describe('remote book cover flow', () => {
     const updated = await updateRemoteBookWithCover(
       api,
       SERVER_URL,
+      SERVER_TOKEN,
       book,
       {
         name: '新名称',
@@ -138,7 +143,7 @@ describe('remote book cover flow', () => {
       mediaFactory,
     );
 
-    expect(mediaFactory).toHaveBeenCalledWith(10, SERVER_URL);
+    expect(mediaFactory).toHaveBeenCalledWith(10, SERVER_URL, SERVER_TOKEN);
     expect(api.update).toHaveBeenCalledWith({
       id: 10,
       name: '新名称',
@@ -159,6 +164,7 @@ describe('remote book cover flow', () => {
       updateRemoteBookWithCover(
         api,
         SERVER_URL,
+        SERVER_TOKEN,
         createBook(),
         { name: '新名称', description: '', backgroundImage: COVER },
         mediaFactory,

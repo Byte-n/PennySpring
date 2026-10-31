@@ -279,7 +279,7 @@ export function ImagePickerPanel({
                 </Text>
               </>
             }
-            src={{ uri: image.uri }}
+            src={{ uri: image.uri, headers: image.headers }}
             style={tokenStyles.image}
             styles={{
               error: [tokenStyles.errorTile, styles?.imageError],

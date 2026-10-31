@@ -10,6 +10,7 @@ import {
 import { createJSONStorage, persist } from 'zustand/middleware';
 
 import { bookStorage } from './bookStorage';
+import { getServerToken } from './networkBookStore';
 
 const BOOK_STORE_KEY = 'pennyspring-book-store'
 
@@ -29,11 +30,15 @@ export type CurrentBookRef =
   | { kind: 'local'; id: number }
   | { kind: 'remote'; serverUrl: string; bookId: number }
 
-export function getRemoteApi(serverUrl: string): Api {
-  let api = remoteApiCache.get(serverUrl)
+export function getRemoteApi(
+  serverUrl: string,
+  token: string = getServerToken(serverUrl),
+): Api {
+  const cacheKey = `${serverUrl}\n${token}`
+  let api = remoteApiCache.get(cacheKey)
   if (!api) {
-    api = createRemoteApi(serverUrl)
-    remoteApiCache.set(serverUrl, api)
+    api = createRemoteApi(serverUrl, { token })
+    remoteApiCache.set(cacheKey, api)
   }
   return api
 }

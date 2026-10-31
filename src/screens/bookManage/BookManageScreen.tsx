@@ -50,6 +50,7 @@ import {
   MEDIA_IMAGE_MAX_DIMENSION,
   MEDIA_IMAGE_QUALITY,
   resolveMediaRef,
+  resolveMediaSource,
 } from '../../media';
 import { useNavigation } from '../../navigation';
 import {
@@ -69,6 +70,7 @@ interface BookFormValues {
   description: string;
   backgroundImage?: ImagePickerValue;
   networkServerUrl: string;
+  networkToken: string;
 }
 
 const TypedForm = Form.infer<BookFormValues>();
@@ -78,6 +80,7 @@ const EMPTY_BOOK_FORM: BookFormValues = {
   description: '',
   backgroundImage: undefined,
   networkServerUrl: '',
+  networkToken: '',
 };
 
 const SERVER_BOOK_DISCOVERY_TIMEOUT_MS = 3_000;
@@ -92,8 +95,11 @@ const useStyles = createUseSheetStyle(token => ({
   },
 }));
 
-function getImageValue(background: string): ImagePickerValue | undefined {
-  return background ? { uri: background } : undefined;
+function getImageValue(
+  background: string,
+  headers?: Record<string, string>,
+): ImagePickerValue | undefined {
+  return background ? { uri: background, headers } : undefined;
 }
 
 function getImageUri(imageValue: ImagePickerValue | undefined): string {
@@ -116,6 +122,8 @@ export function BookManageScreen() {
   const networkRefs = useNetworkBookRefs();
   const addRef = useNetworkBookStore(state => state.addRef);
   const removeRef = useNetworkBookStore(state => state.removeRef);
+  const serverTokens = useNetworkBookStore(state => state.tokens);
+  const setServerToken = useNetworkBookStore(state => state.setServerToken);
 
   const { data: localBooks = [], loading: localLoading, refresh: refreshLocal } = useRequest(
     () => localApi.book.getAll(),
@@ -240,16 +248,26 @@ export function BookManageScreen() {
           return;
         }
         try {
-          const book = await getRemoteApi(serverUrl).book.getById(item.entry.id);
+          const token = serverTokens[serverUrl] ?? '';
+          const book = await getRemoteApi(serverUrl, token).book.getById(
+            item.entry.id,
+          );
+          const background = resolveMediaSource(
+            book.background,
+            serverUrl,
+            token,
+          );
           setEditingBook(book);
           setFormKind('remote');
           form.reset({
             name: book.name,
             description: book.description,
             backgroundImage: getImageValue(
-              resolveMediaRef(book.background, serverUrl),
+              background.uri,
+              background.headers,
             ),
             networkServerUrl: serverUrl,
+            networkToken: token,
           });
           resetNetworkState();
           setNetworkLoading(false);
@@ -269,43 +287,51 @@ export function BookManageScreen() {
         description: item.entry.description,
         backgroundImage: getImageValue(item.entry.background),
         networkServerUrl: '',
+        networkToken: '',
       });
       resetNetworkState();
       setNetworkLoading(false);
       setFormOpen(true);
     },
-    [form, resetNetworkState, toast],
+    [form, resetNetworkState, serverTokens, toast],
   );
 
   const existingServerUrls = useMemo(() => {
-    const urls = networkRefs.map(ref => ref.serverUrl);
+    const urls = [
+      ...Object.keys(serverTokens),
+      ...networkRefs.map(ref => ref.serverUrl),
+    ];
     return Array.from(new Set(urls));
-  }, [networkRefs]);
+  }, [networkRefs, serverTokens]);
 
-  const handleServerUrlInputChange = useCallback(() => {
+  const handleNetworkInputChange = useCallback(() => {
     resetNetworkState();
   }, [resetNetworkState]);
 
   const handleSelectServerUrl = useCallback(
     (url: string) => {
       form.setFieldValue('networkServerUrl', url);
+      form.setFieldValue('networkToken', serverTokens[url] ?? '');
       resetNetworkState();
     },
-    [form, resetNetworkState],
+    [form, resetNetworkState, serverTokens],
   );
 
   const handleConnect = useCallback(async () => {
     const url = form.getFieldValue('networkServerUrl').trim();
-    if (!url) {
+    const token = form.getFieldValue('networkToken').trim();
+    if (!url || !token) {
       return;
     }
     setNetworkLoading(true);
     setNetworkError('');
     try {
       const books = await createRemoteApi(url, {
+        token,
         timeoutMs: SERVER_BOOK_DISCOVERY_TIMEOUT_MS,
         timeoutMessage: '连接服务器超时',
       }).book.getAll();
+      setServerToken(url, token);
       setServerBookList(books);
       setNetworkConnected(true);
     } catch (error: unknown) {
@@ -317,7 +343,7 @@ export function BookManageScreen() {
     } finally {
       setNetworkLoading(false);
     }
-  }, [form, toast]);
+  }, [form, setServerToken, toast]);
 
   const addExistingRemoteBook = useCallback(
     (book: BookRow) => {
@@ -378,13 +404,18 @@ export function BookManageScreen() {
         }
 
         const url = values.networkServerUrl.trim();
+        const token = values.networkToken.trim();
+        if (!token) {
+          throw new Error('请输入访问令牌');
+        }
         const name = values.name.trim();
-        const remoteApi = getRemoteApi(url);
+        const remoteApi = getRemoteApi(url, token);
 
         if (editingBook) {
           const updated = await updateRemoteBookWithCover(
             remoteApi.book,
             url,
+            token,
             editingBook,
             {
               name,
@@ -392,6 +423,7 @@ export function BookManageScreen() {
               backgroundImage: values.backgroundImage,
             },
           );
+          setServerToken(url, token);
           refreshNetwork();
           if (
             currentBook?.kind === BOOK_TYPE.remote &&
@@ -410,12 +442,14 @@ export function BookManageScreen() {
         const result = await createRemoteBookWithCover(
           remoteApi.book,
           url,
+          token,
           {
             name,
             description: values.description,
             backgroundImage: values.backgroundImage,
           },
         );
+        setServerToken(url, token);
         addRef({ serverUrl: url, bookId: result.book.id });
         refreshNetwork();
 
@@ -456,6 +490,7 @@ export function BookManageScreen() {
       refreshAll,
       refreshNetwork,
       setCurrentBook,
+      setServerToken,
       toast,
     ],
   );
@@ -711,14 +746,26 @@ export function BookManageScreen() {
                   requiredMessage="请输入服务器地址"
                 >
                   <Input
-                    onChange={handleServerUrlInputChange}
+                    onChange={handleNetworkInputChange}
                     placeholder="http://192.168.1.12:8787"
                   />
                 </TypedForm.Item>
-                <TypedForm.Subscribe
-                  selector={state => state.values.networkServerUrl}
+                <TypedForm.Item
+                  name="networkToken"
+                  labelText="访问令牌"
+                  required
+                  requiredMessage="请输入访问令牌"
                 >
-                  {networkServerUrl => (
+                  <Input
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    onChange={handleNetworkInputChange}
+                    placeholder="服务器启动时设置的 SERVER_TOKEN"
+                    secureTextEntry
+                  />
+                </TypedForm.Item>
+                <TypedForm.Subscribe selector={state => state.values}>
+                  {values => (
                     <>
                       {networkError ? (
                         <Text color="errorText" size="xs">
@@ -747,7 +794,11 @@ export function BookManageScreen() {
                       ) : null}
                       <Button
                         block
-                        disabled={!networkServerUrl.trim() || networkLoading}
+                        disabled={
+                          !values.networkServerUrl.trim() ||
+                          !values.networkToken.trim() ||
+                          networkLoading
+                        }
                         onPress={handleConnect}
                         size="small"
                         type="dashed"
@@ -788,15 +839,31 @@ export function BookManageScreen() {
                 </TypedForm.Subscribe>
               </>
             ) : (
-              <TypedForm.Subscribe
-                selector={state => state.values.networkServerUrl}
-              >
-                {networkServerUrl => (
-                  <Text color="secondary" size="xs">
-                    服务器：{networkServerUrl}
-                  </Text>
-                )}
-              </TypedForm.Subscribe>
+              <>
+                <TypedForm.Item
+                  name="networkToken"
+                  labelText="访问令牌"
+                  required
+                  requiredMessage="请输入访问令牌"
+                >
+                  <Input
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    onChange={handleNetworkInputChange}
+                    placeholder="服务器启动时设置的 SERVER_TOKEN"
+                    secureTextEntry
+                  />
+                </TypedForm.Item>
+                <TypedForm.Subscribe
+                  selector={state => state.values.networkServerUrl}
+                >
+                  {networkServerUrl => (
+                    <Text color="secondary" size="xs">
+                      服务器：{networkServerUrl}
+                    </Text>
+                  )}
+                </TypedForm.Subscribe>
+              </>
             )
           ) : null}
         </TypedForm>

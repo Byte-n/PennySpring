@@ -32,8 +32,10 @@ jest.mock('@pennyspring/api', () => ({
 
 import { createRemoteApi, localApi } from '@pennyspring/api';
 import { useBookStore } from '../src/stores/bookStore';
+import { useNetworkBookStore } from '../src/stores/networkBookStore';
 
 const STORE_KEY = 'pennyspring-book-store';
+const SERVER_TOKEN = 'test-token-0123456789';
 
 const travelBook: BookRow = {
   id: 2,
@@ -78,6 +80,7 @@ describe('bookStore', () => {
     mockStorageState.clear();
     jest.clearAllMocks();
     useBookStore.setState({ currentBook: null, currentBookRef: null });
+    useNetworkBookStore.setState({ tokens: {} });
     jest.mocked(localApi.book.getDefault).mockResolvedValue(defaultBook);
     // 清空 persist 缓存，确保每次测试重新读取 mockStorageState
     await useBookStore.persist.clearStorage();
@@ -125,10 +128,15 @@ describe('bookStore', () => {
 
     // 直接设置 store state，模拟 rehydrate 后的状态
     useBookStore.setState({ currentBookRef: networkRef });
+    useNetworkBookStore.setState({
+      tokens: { 'http://example.com': SERVER_TOKEN },
+    });
 
     await useBookStore.getState().initializeBook();
 
-    expect(createRemoteApi).toHaveBeenCalledWith('http://example.com');
+    expect(createRemoteApi).toHaveBeenCalledWith('http://example.com', {
+      token: SERVER_TOKEN,
+    });
     expect(remoteApi.book.getById).toHaveBeenCalledWith(remoteBook.id);
     expect(localApi.book.getDefault).not.toHaveBeenCalled();
     expect(useBookStore.getState().currentBook).toEqual({

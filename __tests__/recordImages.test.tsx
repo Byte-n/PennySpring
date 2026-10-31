@@ -7,8 +7,9 @@ const mockGlobalApi = {
   record: { getDetailById: mockGetDetailById },
 };
 const mockMedia = {
-  resolveUri: (ref: string) =>
-    ref.startsWith('media:') ? `https://example.com/${ref}` : ref,
+  resolveSource: (ref: string) => ({
+    uri: ref.startsWith('media:') ? `https://example.com/${ref}` : ref,
+  }),
 };
 
 jest.mock('../src/stores/bookStore', () => ({

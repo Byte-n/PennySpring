@@ -106,7 +106,7 @@ function createMediaStoreMock(): MediaStore {
   return {
     scope: { kind: 'local', booksId: 1 },
     save: jest.fn(async () => 'file:///tmp/media.jpg'),
-    resolveUri: jest.fn((ref: string) => ref),
+    resolveSource: jest.fn((ref: string) => ({ uri: ref })),
     toRef: jest.fn((uri: string) => uri),
     toDataUrl: jest.fn(async (ref: string) => ref),
   };
