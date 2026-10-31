@@ -1,7 +1,7 @@
 import React from 'react';
 import { Pressable } from 'react-native';
 import { Icon, Tooltip } from '@pennyspring/ui';
-import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
+import { createUseSheetStyle, useTheme } from '@pennyspring/ui';
 
 const useStyles = createUseSheetStyle(token => ({
   trigger: {

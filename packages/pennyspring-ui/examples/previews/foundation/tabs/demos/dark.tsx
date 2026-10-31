@@ -1,6 +1,6 @@
 import React from 'react';
 import { Column, Tabs, Text } from '@pennyspring/ui';
-import { createUseSheetStyle, ThemeProvider } from '@pennyspring/theme';
+import { createUseSheetStyle, ThemeProvider } from '@pennyspring/ui';
 
 const useStyles = createUseSheetStyle(token => ({
   surface: {

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Carousel, Column, Text } from '@pennyspring/ui';
-import { createUseSheetStyle, ThemeProvider } from '@pennyspring/theme';
+import { createUseSheetStyle, ThemeProvider } from '@pennyspring/ui';
 
 interface SlideItem {
   kicker: string;

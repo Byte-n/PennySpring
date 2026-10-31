@@ -97,7 +97,10 @@ jest.mock('@pennyspring/ui', () => {
   const MockLoading = ({ text }: { text?: string }) =>
     ReactLib.createElement(Text, { testID: 'session-list-loading' }, text ?? 'loading');
 
+  const theme = jest.requireMock('@pennyspring/theme');
+
   return {
+    ...theme,
     Column: passthrough(View),
     Empty: MockEmpty,
     Icon: () => null,

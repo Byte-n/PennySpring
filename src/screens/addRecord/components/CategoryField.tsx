@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button, Empty, Loading, Result } from '@pennyspring/ui';
-import { createUseSheetStyle } from '@pennyspring/theme';
+import { createUseSheetStyle } from '@pennyspring/ui';
 import type { TypeRow } from '@pennyspring/api';
 import { CategoryGrid, type CategoryItem } from '../../../component/CategoryGrid';
 

@@ -1,11 +1,11 @@
 import React from 'react';
 import { Column, Row, Text } from '@pennyspring/ui';
-import { createUseSheetStyle } from '@pennyspring/theme';
+import { createUseSheetStyle } from '@pennyspring/ui';
 
 import { formatMoney } from '../analysisData';
 import type { ReimbursementSummary } from '../analysisData';
 import { StackBar } from './StackBar';
-import { useTheme } from '@pennyspring/theme';
+import { useTheme } from '@pennyspring/ui';
 
 interface ReimbursementCardProps {
   summary: ReimbursementSummary;

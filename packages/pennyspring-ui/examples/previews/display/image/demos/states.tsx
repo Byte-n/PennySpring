@@ -1,6 +1,6 @@
 import React from 'react';
 import { Column, Image, Text } from '@pennyspring/ui';
-import { createUseSheetStyle } from '@pennyspring/theme';
+import { createUseSheetStyle } from '@pennyspring/ui';
 
 const BROKEN_IMAGE = {
   uri: 'https://example.invalid/missing-image.jpg',

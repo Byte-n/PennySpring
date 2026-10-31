@@ -16,7 +16,7 @@ import {
   type ActionSheetAction,
   type ImagePickerValue,
 } from '@pennyspring/ui';
-import { createUseSheetStyle } from '@pennyspring/theme';
+import { createUseSheetStyle } from '@pennyspring/ui';
 import {
   GearSixIcon,
   PaperPlaneTiltIcon,

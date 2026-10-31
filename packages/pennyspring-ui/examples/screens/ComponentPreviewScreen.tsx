@@ -12,7 +12,7 @@ import {
   ThemeProvider,
   themePresets,
   useTheme,
-} from '@pennyspring/theme';
+} from '@pennyspring/ui';
 import { ArrowLeftIcon } from 'phosphor-react-native';
 import { ComponentPreviewDetailScreen } from './ComponentPreviewDetailScreen';
 import { ComponentPreviewListScreen } from './ComponentPreviewListScreen';
@@ -23,7 +23,7 @@ import {
 import { COMPONENT_PREVIEW_ROUTES } from '../navigation/routes';
 import { getComponentPreviewById } from '../previews/registry';
 import type { TextStyle } from 'react-native';
-import type { ThemeAlgorithm, ThemeConfig } from '@pennyspring/theme';
+import type { ThemeAlgorithm, ThemeConfig } from '@pennyspring/ui';
 import type {
   NativeStackHeaderProps,
   NativeStackNavigationOptions,

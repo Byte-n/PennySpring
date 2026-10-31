@@ -1,7 +1,7 @@
 import React from 'react';
 import { View } from 'react-native';
 import { CalculatorInput, DisplayInput, Text } from '@pennyspring/ui';
-import { createUseSheetStyle } from '@pennyspring/theme';
+import { createUseSheetStyle } from '@pennyspring/ui';
 
 const CENTS_PER_YUAN = 100;
 const INITIAL_AMOUNT = 1200;

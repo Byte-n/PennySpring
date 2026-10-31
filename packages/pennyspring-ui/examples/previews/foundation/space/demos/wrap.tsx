@@ -1,7 +1,7 @@
 import React from 'react';
 import { View } from 'react-native';
 import { Space, Tag } from '@pennyspring/ui';
-import { createUseSheetStyle } from '@pennyspring/theme';
+import { createUseSheetStyle } from '@pennyspring/ui';
 import type { ReactNode } from 'react';
 
 const useStyles = createUseSheetStyle(token => ({

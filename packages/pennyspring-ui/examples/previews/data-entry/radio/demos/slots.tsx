@@ -1,6 +1,6 @@
 import React from 'react';
 import { Column, Radio, Row, Text } from '@pennyspring/ui';
-import { createUseSheetStyle } from '@pennyspring/theme';
+import { createUseSheetStyle } from '@pennyspring/ui';
 import type { RadioGroupOption } from '@pennyspring/ui';
 
 const useStyles = createUseSheetStyle(token => ({

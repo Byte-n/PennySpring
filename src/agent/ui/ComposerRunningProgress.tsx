@@ -10,7 +10,7 @@ import {
   withRepeat,
   withTiming,
 } from 'react-native-reanimated';
-import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
+import { createUseSheetStyle, useTheme } from '@pennyspring/ui';
 
 const AnimatedView = createAnimatedComponent(View);
 const PROGRESS_BAR_RATIO = 0.38;

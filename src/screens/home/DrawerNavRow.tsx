@@ -2,7 +2,7 @@ import React from 'react';
 import { Pressable, View } from 'react-native';
 import { Text } from '@pennyspring/ui';
 import type { IconComponent } from '@pennyspring/ui';
-import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
+import { createUseSheetStyle, useTheme } from '@pennyspring/ui';
 import { CaretRightIcon } from 'phosphor-react-native';
 
 export type DrawerNavRowVariant = 'default' | 'compact';

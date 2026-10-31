@@ -45,7 +45,10 @@ jest.mock('@pennyspring/ui', () => {
       ...data.map((item, index) => renderItem?.({ item, index, separators: {} })),
     );
 
+  const theme = jest.requireMock('@pennyspring/theme');
+
   return {
+    ...theme,
     Card: passthrough(View),
     Column: passthrough(View),
     Empty: () => null,

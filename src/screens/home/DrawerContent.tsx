@@ -10,7 +10,7 @@ import {
   Text,
 } from '@pennyspring/ui';
 import type { IconComponent } from '@pennyspring/ui';
-import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
+import { createUseSheetStyle, useTheme } from '@pennyspring/ui';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   ArchiveIcon,

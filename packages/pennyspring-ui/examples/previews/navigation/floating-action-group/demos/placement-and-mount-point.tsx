@@ -8,7 +8,7 @@ import {
   PortalProvider,
   Text,
 } from '@pennyspring/ui';
-import { createUseSheetStyle } from '@pennyspring/theme';
+import { createUseSheetStyle } from '@pennyspring/ui';
 import { CompassIcon, ListIcon, MapPinIcon, PlusIcon } from 'phosphor-react-native';
 
 const PLACEMENTS: FloatingPlacement[] = [

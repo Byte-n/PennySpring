@@ -4,7 +4,7 @@ import {
   createUseSheetStyle,
   ThemePreview,
   useTheme,
-} from '@pennyspring/theme';
+} from '@pennyspring/ui';
 
 import { AddRecordScreen } from '../screens/addRecord/AddRecordScreen';
 import { AgentSettingsScreen } from '../screens/agentSettings/AgentSettingsScreen';

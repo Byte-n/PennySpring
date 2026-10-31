@@ -1,6 +1,6 @@
 import React from 'react';
 import { Avatar, Badge, Column, Icon, Row, Text } from '@pennyspring/ui';
-import { createUseSheetStyle, ThemeProvider } from '@pennyspring/theme';
+import { createUseSheetStyle, ThemeProvider } from '@pennyspring/ui';
 
 const useStyles = createUseSheetStyle(token => ({
   iconButton: {

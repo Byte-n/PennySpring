@@ -1,7 +1,7 @@
 import React from 'react';
 import { Pressable } from 'react-native';
 import { Form, Grid } from '@pennyspring/ui';
-import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
+import { createUseSheetStyle, useTheme } from '@pennyspring/ui';
 
 import { getPhosphorIconComponent } from '../constants/typeIconTree';
 

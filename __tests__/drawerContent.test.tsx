@@ -58,7 +58,10 @@ jest.mock('@pennyspring/ui', () => {
   const MockSkeleton = (props: Record<string, unknown>) =>
     ReactLib.createElement(View, { style: props.style });
 
+  const theme = jest.requireMock('@pennyspring/theme');
+
   return {
+    ...theme,
     Avatar: MockAvatar,
     Column: passthrough(View),
     Divider: (props: Record<string, unknown>) =>

@@ -1,5 +1,5 @@
 import { FloatingActionGroup } from '@pennyspring/ui';
-import { useTheme } from '@pennyspring/theme';
+import { useTheme } from '@pennyspring/ui';
 import { SparkleIcon } from 'phosphor-react-native';
 
 import { useAgentLauncher } from './AgentLauncherContext';

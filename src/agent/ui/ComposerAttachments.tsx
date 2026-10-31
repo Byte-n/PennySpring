@@ -1,7 +1,7 @@
 import React from 'react';
 import { Pressable } from 'react-native';
 import { Icon, Image, Row, Text, type ImagePickerValue } from '@pennyspring/ui';
-import { createUseSheetStyle } from '@pennyspring/theme';
+import { createUseSheetStyle } from '@pennyspring/ui';
 
 const ATTACHMENT_SIZE = 44;
 const REMOVE_BADGE_SIZE = 18;

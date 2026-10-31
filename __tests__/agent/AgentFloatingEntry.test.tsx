@@ -25,6 +25,7 @@ const mockBookStoreState: {
 };
 
 jest.mock('@pennyspring/ui', () => ({
+  ...jest.requireMock('@pennyspring/theme'),
   FloatingActionGroup: (props: MockedFloatingActionGroupProps) => {
     mockFloatingGroups.push(props);
     return null;

@@ -1,7 +1,7 @@
 import React, { useCallback, useLayoutEffect, useState } from 'react';
 import { Column, useToast } from '@pennyspring/ui';
 import type { AgentThreadRow } from '@pennyspring/api';
-import { createUseSheetStyle } from '@pennyspring/theme';
+import { createUseSheetStyle } from '@pennyspring/ui';
 
 import { useAgentChatState } from '../../agent/ui/AgentChatContext';
 import { useAgentLauncher } from '../../agent/ui/AgentLauncherContext';

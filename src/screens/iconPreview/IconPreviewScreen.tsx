@@ -2,7 +2,7 @@ import React from 'react';
 import { FlatList, View } from 'react-native';
 import { Column, Input, Row, ListPicker, Text } from '@pennyspring/ui';
 import type { ListPickerOption, ListPickerSelectedValue } from '@pennyspring/ui';
-import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
+import { createUseSheetStyle, useTheme } from '@pennyspring/ui';
 import * as PhosphorIcons from 'phosphor-react-native';
 import type { Icon } from 'phosphor-react-native';
 

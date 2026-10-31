@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { Button, Card, Column, Row, Text } from '@pennyspring/ui';
-import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
+import { createUseSheetStyle, useTheme } from '@pennyspring/ui';
 import { filterByMonth, formatAmountParts, getElapsedMonthDayCount, summarizeCashflow, type CashflowItem, type CashflowSummary, type DailyExpenseBar } from './detailData';
 
 const useStyles = createUseSheetStyle(token => ({

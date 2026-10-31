@@ -1,6 +1,6 @@
 import React from 'react';
 import { Row, Text } from '@pennyspring/ui';
-import { createUseSheetStyle } from '@pennyspring/theme';
+import { createUseSheetStyle } from '@pennyspring/ui';
 
 const CENTS_PER_YUAN = 100;
 const DECIMAL_OPACITY = 0.72;

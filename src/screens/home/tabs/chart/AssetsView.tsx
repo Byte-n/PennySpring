@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { Pressable } from 'react-native';
 import { Card, Column, Empty, Row, Text } from '@pennyspring/ui';
-import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
+import { createUseSheetStyle, useTheme } from '@pennyspring/ui';
 import {
   ChartLineUpIcon,
   CreditCardIcon,

@@ -1,4 +1,4 @@
-import { ThemePreview } from '@pennyspring/theme';
+import { ThemePreview } from '@pennyspring/ui';
 import type { PreviewMeta } from '../../types';
 
 export const previewMeta = {

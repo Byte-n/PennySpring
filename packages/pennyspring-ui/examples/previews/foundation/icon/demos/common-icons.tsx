@@ -1,7 +1,7 @@
 import React from 'react';
 import { View } from 'react-native';
 import { Space, Icon, type IconName, Text } from '@pennyspring/ui';
-import { createUseSheetStyle } from '@pennyspring/theme';
+import { createUseSheetStyle } from '@pennyspring/ui';
 
 const SHOWCASE_ICONS: readonly IconName[] = [
   'home',

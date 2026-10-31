@@ -14,6 +14,7 @@ export interface ThemeConfig {
 export interface ThemeContextValue {
   token: AliasToken;
   algorithm: ThemeAlgorithm | ThemeAlgorithm[];
+  tokenOverrides: Partial<AliasToken>;
 }
 
 function normalizeAlgorithms(raw?: ThemeAlgorithm | ThemeAlgorithm[]): ThemeAlgorithm[] {
@@ -33,7 +34,11 @@ function extractSeedOverrides(tokenOverrides: Partial<AliasToken>): Partial<Seed
 
 function buildContextValue(): ThemeContextValue {
   const mapToken = derivative(defaultSeedToken, false);
-  return { token: formatToken(mapToken), algorithm: 'default' };
+  return {
+    token: formatToken(mapToken),
+    algorithm: 'default',
+    tokenOverrides: {},
+  };
 }
 
 export const ThemeContext = createContext<ThemeContextValue>(buildContextValue());
@@ -50,15 +55,22 @@ export function ThemeProvider({ config, children }: ThemeProviderProps) {
     const algorithms = normalizeAlgorithms(config?.algorithm ?? parentContext.algorithm);
     const isDark = algorithms.includes('dark');
 
-    const tokenOverrides = config?.token ?? {};
+    const tokenOverrides: Partial<AliasToken> = {
+      ...parentContext.tokenOverrides,
+      ...config?.token,
+    };
     const seedOverrides = extractSeedOverrides(tokenOverrides);
 
     const seed: SeedToken = { ...defaultSeedToken, ...seedOverrides };
     const mapToken = derivative(seed, isDark);
     const aliasToken = formatToken(mapToken);
 
-    return { token: { ...aliasToken, ...tokenOverrides }, algorithm: algorithms };
-  }, [config?.token, config?.algorithm, parentContext.algorithm]);
+    return {
+      token: { ...aliasToken, ...tokenOverrides },
+      algorithm: algorithms,
+      tokenOverrides,
+    };
+  }, [config?.token, config?.algorithm, parentContext.algorithm, parentContext.tokenOverrides]);
 
   return (
     <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>

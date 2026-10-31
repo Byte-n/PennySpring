@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { View } from 'react-native';
-import { createUseSheetStyle } from '@pennyspring/theme';
+import { createUseSheetStyle } from '@pennyspring/ui';
 import SkiaChart, { SkiaRenderer } from '@wuba/react-native-echarts/skiaChart';
 import type { EChartsOption } from 'echarts';
 import * as echarts from 'echarts/core';

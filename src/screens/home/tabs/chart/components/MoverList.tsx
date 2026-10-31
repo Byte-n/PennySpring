@@ -1,6 +1,6 @@
 import React from 'react';
 import { Column, List, Row, Text } from '@pennyspring/ui';
-import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
+import { createUseSheetStyle, useTheme } from '@pennyspring/ui';
 
 import { formatPercent, formatSignedMoney } from '../analysisData';
 import type { CategoryMover } from '../analysisData';

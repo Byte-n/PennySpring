@@ -1,6 +1,6 @@
 import React from 'react';
 import { Column, Image, Row, Text } from '@pennyspring/ui';
-import { createUseSheetStyle } from '@pennyspring/theme';
+import { createUseSheetStyle } from '@pennyspring/ui';
 
 const PREVIEW_IMAGES = [
   { uri: 'https://reactnative.dev/img/tiny_logo.png' },

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Column, Dialog, Text } from '@pennyspring/ui';
-import { createUseSheetStyle } from '@pennyspring/theme';
+import { createUseSheetStyle } from '@pennyspring/ui';
 
 const DEFAULT_OK_TEXT = '删除';
 

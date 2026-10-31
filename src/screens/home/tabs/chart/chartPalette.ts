@@ -1,4 +1,4 @@
-import type { AliasToken } from '@pennyspring/theme';
+import type { AliasToken } from '@pennyspring/ui';
 
 export function categoryPalette(token: AliasToken): string[] {
   return [

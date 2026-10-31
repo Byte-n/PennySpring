@@ -1,7 +1,7 @@
 import React, { Fragment, useMemo } from 'react';
 import { Linking } from 'react-native';
 import { Column, Row, Text } from '@pennyspring/ui';
-import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
+import { createUseSheetStyle, useTheme } from '@pennyspring/ui';
 
 import { parseMarkdown } from './markdown/parser';
 import type { MarkdownBlock, MarkdownInline } from './markdown/types';

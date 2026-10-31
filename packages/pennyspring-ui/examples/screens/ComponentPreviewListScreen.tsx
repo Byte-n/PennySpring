@@ -2,7 +2,7 @@ import React from 'react';
 import { ScrollView, View } from 'react-native';
 import { List, Tabs, Text } from '@pennyspring/ui';
 import { CaretRightIcon } from 'phosphor-react-native';
-import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
+import { createUseSheetStyle, useTheme } from '@pennyspring/ui';
 import { COMPONENT_PREVIEW_SECTIONS } from '../previews/registry';
 import { COMPONENT_PREVIEW_ROUTES } from '../navigation/routes';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button, Popup, Row } from '@pennyspring/ui';
-import { createUseSheetStyle } from '@pennyspring/theme';
+import { createUseSheetStyle } from '@pennyspring/ui';
 import {
   ClockCounterClockwiseIcon,
   GearSixIcon,

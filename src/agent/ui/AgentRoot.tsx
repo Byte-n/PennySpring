@@ -6,7 +6,7 @@ import React, {
   useState,
 } from 'react';
 import { Column, useToast } from '@pennyspring/ui';
-import { createUseSheetStyle } from '@pennyspring/theme';
+import { createUseSheetStyle } from '@pennyspring/ui';
 
 import { DEFAULT_QUICK_BOOK_PROMPT } from '../../features/quickBook/constants';
 import { toQuickBookImagePickerValue } from '../../features/quickBook/imagePayload';

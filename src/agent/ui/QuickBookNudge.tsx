@@ -9,7 +9,7 @@ import {
   Row,
   Text,
 } from '@pennyspring/ui';
-import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
+import { createUseSheetStyle, useTheme } from '@pennyspring/ui';
 import { XIcon } from 'phosphor-react-native';
 
 import type { QuickBookImage } from '../../features/quickBook/types';

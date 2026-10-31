@@ -1,13 +1,13 @@
 import React, { createContext, useContext, useState, useMemo } from 'react';
-import { defaultSeedToken, themePresets } from '@pennyspring/theme';
+import { defaultSeedToken, themePresets } from '@pennyspring/ui';
 import type {
   SeedToken,
   ThemeAlgorithm,
   ThemePreset,
   ThemePresetName,
-} from '@pennyspring/theme';
+} from '@pennyspring/ui';
 
-export type { ThemePresetName } from '@pennyspring/theme';
+export type { ThemePresetName } from '@pennyspring/ui';
 
 export interface ThemePresetOption {
   name: ThemePresetName;

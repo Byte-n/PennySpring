@@ -1,6 +1,6 @@
 import React from 'react';
 import { Row } from '@pennyspring/ui';
-import { createUseSheetStyle } from '@pennyspring/theme';
+import { createUseSheetStyle } from '@pennyspring/ui';
 
 export interface StackSegment {
   key: string;

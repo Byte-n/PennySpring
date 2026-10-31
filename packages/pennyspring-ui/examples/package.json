@@ -16,7 +16,6 @@
     "test": "echo 'No tests yet' && exit 0"
   },
   "dependencies": {
-    "@pennyspring/theme": "*",
     "@pennyspring/ui": "*",
     "@react-navigation/elements": "^2.9.2",
     "@react-navigation/native": "^7.2.2",

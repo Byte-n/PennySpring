@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { Pressable } from 'react-native';
 import { Card, Column, Empty, Icon, Row, Text } from '@pennyspring/ui';
-import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
+import { createUseSheetStyle, useTheme } from '@pennyspring/ui';
 import type { RecordRow, TypeRow } from '@pennyspring/api';
 
 import { aggregateExpenseStatsForRange } from './chartData';

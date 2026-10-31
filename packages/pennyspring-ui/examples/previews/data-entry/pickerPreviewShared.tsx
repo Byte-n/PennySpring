@@ -1,6 +1,6 @@
 import React from 'react';
 import { Column, Text } from '@pennyspring/ui';
-import { useTheme } from '@pennyspring/theme';
+import { useTheme } from '@pennyspring/ui';
 import type { ReactNode } from 'react';
 
 interface PreviewStackProps {

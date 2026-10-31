@@ -31,7 +31,6 @@
     "@op-engineering/op-sqlite": "^15.2.14",
     "@pennyspring/data": "*",
     "@pennyspring/share": "*",
-    "@pennyspring/theme": "*",
     "@pennyspring/ui": "*",
     "@react-native-documents/picker": "^10.1.7",
     "@react-navigation/material-top-tabs": "^7.4.24",

@@ -36,7 +36,7 @@
 
 ```ts
 // packages/pennyspring-ui/src/shares/color.ts
-import type { AliasColorTokenKey, PresetColorKey } from '@pennyspring/theme';
+import type { AliasColorTokenKey, PresetColorKey } from '@pennyspring/ui';
 
 export type SemanticPresetColor<TSemantic extends string> =
   | TSemantic
@@ -67,7 +67,7 @@ export type SemanticAliasColor<TSemantic extends string> =
 
 ```ts
 // Button/types.ts
-import type { PresetColorKey } from '@pennyspring/theme';
+import type { PresetColorKey } from '@pennyspring/ui';
 
 export type ButtonSemanticColor = 'default' | 'primary' | 'danger';
 export type ButtonColor = ButtonSemanticColor | PresetColorKey;
@@ -77,7 +77,7 @@ export type ButtonColor = ButtonSemanticColor | PresetColorKey;
 
 ```ts
 // Tag/types.ts
-import type { PresetColorKey } from '@pennyspring/theme';
+import type { PresetColorKey } from '@pennyspring/ui';
 
 export type TagSemanticColor =
   | 'default'
@@ -94,7 +94,7 @@ export type TagColor = TagSemanticColor | PresetColorKey;
 
 ```ts
 // Badge/types.ts
-import type { PresetColorKey } from '@pennyspring/theme';
+import type { PresetColorKey } from '@pennyspring/ui';
 
 export type BadgeSemanticColor =
   | 'default'
@@ -111,7 +111,7 @@ export type BadgeColor = BadgeSemanticColor | PresetColorKey;
 
 ```ts
 // SwipeAction/types.ts
-import type { PresetColorKey } from '@pennyspring/theme';
+import type { PresetColorKey } from '@pennyspring/ui';
 
 export type SwipeActionSemanticColor =
   | 'light'
@@ -177,7 +177,7 @@ export interface SwipeActionAction {
 
 ```ts
 // Text/types.ts
-import type { AliasColorTokenKey } from '@pennyspring/theme';
+import type { AliasColorTokenKey } from '@pennyspring/ui';
 
 export type TextSemanticColor =
   | 'base'
@@ -201,7 +201,7 @@ export type TextColor = TextSemanticColor | AliasColorTokenKey;
 
 ```ts
 // Icon/types.ts
-import type { AliasColorTokenKey } from '@pennyspring/theme';
+import type { AliasColorTokenKey } from '@pennyspring/ui';
 
 export type IconSemanticColor =
   | 'base'

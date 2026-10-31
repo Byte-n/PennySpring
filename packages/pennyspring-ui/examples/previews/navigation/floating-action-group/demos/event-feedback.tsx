@@ -1,7 +1,7 @@
 import React from 'react';
 import { View } from 'react-native';
 import { Space, FloatingActionGroup, Text } from '@pennyspring/ui';
-import { createUseSheetStyle } from '@pennyspring/theme';
+import { createUseSheetStyle } from '@pennyspring/ui';
 import { CompassIcon, ListIcon, MapPinIcon, PlusIcon } from 'phosphor-react-native';
 
 const useStyles = createUseSheetStyle(token => ({

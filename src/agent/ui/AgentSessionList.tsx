@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 import type { StyleProp, ViewStyle } from 'react-native';
 import { Column, Empty, Icon, List, Loading, Row, Text } from '@pennyspring/ui';
 import type { AgentThreadRow } from '@pennyspring/api';
-import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
+import { createUseSheetStyle, useTheme } from '@pennyspring/ui';
 import { ChatsCircleIcon, CaretRightIcon } from 'phosphor-react-native';
 
 import { ManageRow } from '../../components/ManageRow';

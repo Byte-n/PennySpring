@@ -2,7 +2,7 @@ import React from 'react';
 import { View } from 'react-native';
 import type { FloatingPlacement, PortalMountPoint } from '@pennyspring/ui';
 import { FloatingActionGroup, Text } from '@pennyspring/ui';
-import { createUseSheetStyle } from '@pennyspring/theme';
+import { createUseSheetStyle } from '@pennyspring/ui';
 import {
   CompassIcon,
   ListIcon,

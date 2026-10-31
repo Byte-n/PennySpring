@@ -19,7 +19,7 @@ import {
   useToast,
 } from '@pennyspring/ui';
 import { VISIBILITY, type TagRow } from '@pennyspring/api';
-import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
+import { createUseSheetStyle, useTheme } from '@pennyspring/ui';
 
 import { FormIconGrid, TAG_FORM_ICONS } from '../../component/FormIconGrid';
 import { PhosphorIconPicker } from '../../component/PhosphorIconPicker';

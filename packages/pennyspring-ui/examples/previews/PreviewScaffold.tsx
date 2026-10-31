@@ -1,7 +1,7 @@
 import React from 'react';
 import { ScrollView, View } from 'react-native';
 import { Text } from '@pennyspring/ui';
-import { createUseSheetStyle } from '@pennyspring/theme';
+import { createUseSheetStyle } from '@pennyspring/ui';
 import type { ReactNode } from 'react';
 import type { StyleProp, ViewStyle } from 'react-native';
 

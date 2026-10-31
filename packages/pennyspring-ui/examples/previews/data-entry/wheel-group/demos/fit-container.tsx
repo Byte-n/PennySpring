@@ -1,5 +1,5 @@
 import React from 'react';
-import { createUseSheetStyle } from '@pennyspring/theme';
+import { createUseSheetStyle } from '@pennyspring/ui';
 import { Column, Space, Text, WheelGroup } from '@pennyspring/ui';
 import type { WheelGroupColumn } from '@pennyspring/ui';
 

@@ -1,4 +1,4 @@
-import { createUseSheetStyle } from '@pennyspring/theme';
+import { createUseSheetStyle } from '@pennyspring/ui';
 
 const INFO_LABEL_WIDTH = 48;
 const RECORD_IMAGE_THUMB_SIZE = 32;

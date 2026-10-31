@@ -2,8 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { StatusBar, useColorScheme } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import BootSplash from 'react-native-bootsplash';
-import { ThemeProvider, useTheme } from '@pennyspring/theme';
-import { App as PSApp } from '@pennyspring/ui';
+import { App as PSApp, useTheme } from '@pennyspring/ui';
 import { rootNavigationRef, RootStackNavigator } from './src/navigation';
 import { AgentRoot } from './src/agent/ui/AgentRoot';
 import { BookSelectNavigator } from './src/navigation/BookSelectNavigator';
@@ -94,11 +93,9 @@ function AppContent() {
     return (
       <SafeAreaProvider>
         <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
-        <ThemeProvider config={{ algorithm: themeMode, token: themeToken }}>
-          <PSApp>
-            <BookLoadingScreen />
-          </PSApp>
-        </ThemeProvider>
+        <PSApp themeConfig={{ algorithm: themeMode, token: themeToken }}>
+          <BookLoadingScreen />
+        </PSApp>
       </SafeAreaProvider>
     );
   }
@@ -107,13 +104,11 @@ function AppContent() {
     return (
       <SafeAreaProvider>
         <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
-        <ThemeProvider config={{ algorithm: themeMode, token: themeToken }}>
+        <PSApp themeConfig={{ algorithm: themeMode, token: themeToken }}>
           <NavigationShell isDark={isDark}>
-            <PSApp>
-              <BookSelectNavigator />
-            </PSApp>
+            <BookSelectNavigator />
           </NavigationShell>
-        </ThemeProvider>
+        </PSApp>
       </SafeAreaProvider>
     );
   }
@@ -121,18 +116,16 @@ function AppContent() {
   return (
     <SafeAreaProvider>
       <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
-      <ThemeProvider config={{ algorithm: themeMode, token: themeToken }}>
+      <PSApp themeConfig={{ algorithm: themeMode, token: themeToken }}>
         <NavigationShell
           isDark={isDark}
           onReady={hideBootSplash}
         >
-          <PSApp>
-            <AgentRoot>
-              <RootStackNavigator />
-            </AgentRoot>
-          </PSApp>
+          <AgentRoot>
+            <RootStackNavigator />
+          </AgentRoot>
         </NavigationShell>
-      </ThemeProvider>
+      </PSApp>
     </SafeAreaProvider>
   );
 }

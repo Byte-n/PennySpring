@@ -15,7 +15,7 @@ import {
   createUseSheetStyle,
   ThemeProvider,
   useTheme,
-} from '@pennyspring/theme';
+} from '@pennyspring/ui';
 import { AmountDisplay } from '../components/AmountDisplay';
 import { CategoryField } from '../components/CategoryField';
 import { RemarkInput } from '../components/RemarkInput';

@@ -503,3 +503,5 @@ export { Spacer } from './Spacer';
 export type { SpacerDirection, SpacerProps } from './Spacer';
 export { GeometryReader } from './GeometryReader';
 export type { Geometry, GeometryReaderProps } from './GeometryReader';
+
+export * from '@pennyspring/theme';

@@ -10,7 +10,7 @@ import {
   Segmented,
 } from '@pennyspring/ui';
 import type { SegmentedValue } from '@pennyspring/ui';
-import { createUseSheetStyle } from '@pennyspring/theme';
+import { createUseSheetStyle } from '@pennyspring/ui';
 import type { AssetRow, RecordRelationRow, RecordRow, TagRow, TypeRow } from '@pennyspring/api';
 
 import { ROOT_ROUTES, useNavigation } from '../../../navigation';

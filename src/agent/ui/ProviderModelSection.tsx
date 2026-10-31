@@ -12,7 +12,7 @@ import {
   Row,
   Text,
 } from '@pennyspring/ui';
-import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
+import { createUseSheetStyle, useTheme } from '@pennyspring/ui';
 
 import {
   CONTEXT_WINDOW_OPTIONS,

@@ -1,7 +1,7 @@
 import React from 'react';
 import { View } from 'react-native';
 import { Column, Loading, Text } from '@pennyspring/ui';
-import { createUseSheetStyle } from '@pennyspring/theme';
+import { createUseSheetStyle } from '@pennyspring/ui';
 import AppIcon from '../../assets/brand/app-icon.svg';
 
 /**

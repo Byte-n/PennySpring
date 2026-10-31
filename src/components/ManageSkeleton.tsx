@@ -1,6 +1,6 @@
 import React from 'react';
 import { Column, Row, Skeleton } from '@pennyspring/ui';
-import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
+import { createUseSheetStyle, useTheme } from '@pennyspring/ui';
 
 const DEFAULT_ROW_COUNT = 3;
 

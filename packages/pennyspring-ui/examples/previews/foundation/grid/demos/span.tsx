@@ -2,7 +2,7 @@ import React from 'react';
 import { View } from 'react-native';
 import { Grid, Text } from '@pennyspring/ui';
 import { DotsThreeIcon } from 'phosphor-react-native';
-import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
+import { createUseSheetStyle, useTheme } from '@pennyspring/ui';
 
 const useStyles = createUseSheetStyle(token => ({
   stack: {

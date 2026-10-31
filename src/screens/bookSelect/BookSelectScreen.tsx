@@ -10,7 +10,7 @@ import {
   useToast,
 } from '@pennyspring/ui';
 import { BOOK_TYPE, localApi, type BookRow } from '@pennyspring/api';
-import { createUseSheetStyle } from '@pennyspring/theme';
+import { createUseSheetStyle } from '@pennyspring/ui';
 import {
   type BookEntry,
   type CurrentBookRef,

@@ -1,7 +1,7 @@
 import React from 'react'
 import { ScrollView } from 'react-native'
 import { Button, Card, Column, Text } from '@pennyspring/ui'
-import { createUseSheetStyle } from '@pennyspring/theme'
+import { createUseSheetStyle } from '@pennyspring/ui'
 
 import { formatBytes } from '../../features/transfer'
 import { ROOT_ROUTES, useNavigation } from '../../navigation'

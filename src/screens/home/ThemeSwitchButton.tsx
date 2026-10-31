@@ -1,7 +1,7 @@
 import React from 'react';
 import { Pressable, View } from 'react-native';
 import { Column, Icon, Popover, Row, Text } from '@pennyspring/ui';
-import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
+import { createUseSheetStyle, useTheme } from '@pennyspring/ui';
 import { MoonIcon, SunIcon } from 'phosphor-react-native';
 
 import {

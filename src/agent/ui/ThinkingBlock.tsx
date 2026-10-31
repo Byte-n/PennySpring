@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { Pressable } from 'react-native';
 import type { ReasoningMessagePartProps } from '@assistant-ui/react-native';
 import { Column, Icon, Row, Text } from '@pennyspring/ui';
-import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
+import { createUseSheetStyle, useTheme } from '@pennyspring/ui';
 
 import { agentDebugLog } from '../core/debug';
 import { THINKING_LABEL, THINKING_TEXT } from './copy';

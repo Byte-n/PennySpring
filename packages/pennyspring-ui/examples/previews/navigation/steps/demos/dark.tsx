@@ -1,6 +1,6 @@
 import React from 'react';
 import { Column, Steps, Text } from '@pennyspring/ui';
-import { createUseSheetStyle, ThemeProvider } from '@pennyspring/theme';
+import { createUseSheetStyle, ThemeProvider } from '@pennyspring/ui';
 import type { StepsItem } from '@pennyspring/ui';
 
 const STEP_ITEMS: StepsItem[] = [

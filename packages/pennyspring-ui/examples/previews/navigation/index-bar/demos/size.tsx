@@ -1,6 +1,6 @@
 import React from 'react';
 import { Avatar, Column, IndexBar, Row, Text } from '@pennyspring/ui';
-import { createUseSheetStyle } from '@pennyspring/theme';
+import { createUseSheetStyle } from '@pennyspring/ui';
 import type { ComponentSize, IndexBarItem } from '@pennyspring/ui';
 
 const INDEX_DATA: IndexBarItem[] = [

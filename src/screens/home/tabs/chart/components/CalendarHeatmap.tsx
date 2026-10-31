@@ -1,9 +1,9 @@
 import React, { useMemo } from 'react';
 import type { ReactNode } from 'react';
 import { CalendarPicker as Calendar, Column, Row, Text } from '@pennyspring/ui';
-import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
+import { createUseSheetStyle, useTheme } from '@pennyspring/ui';
 import type { CalendarPickerViewCellState } from '@pennyspring/ui';
-import type { AliasToken } from '@pennyspring/theme';
+import type { AliasToken } from '@pennyspring/ui';
 import type { ViewStyle, TextStyle } from 'react-native';
 
 import type { CalendarDay } from '../analysisData';

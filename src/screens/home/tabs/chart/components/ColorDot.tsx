@@ -1,6 +1,6 @@
 import React from 'react';
 import { Column } from '@pennyspring/ui';
-import { createUseSheetStyle } from '@pennyspring/theme';
+import { createUseSheetStyle } from '@pennyspring/ui';
 
 interface ColorDotProps {
   color: string;

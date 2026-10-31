@@ -14,7 +14,7 @@ import {
   localApi,
   type ApplyLibrarySnapshotResult,
 } from '@pennyspring/api'
-import { createUseSheetStyle } from '@pennyspring/theme'
+import { createUseSheetStyle } from '@pennyspring/ui'
 
 import { formatBytes, totalRecords } from '../../features/transfer'
 import {

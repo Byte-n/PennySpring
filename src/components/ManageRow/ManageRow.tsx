@@ -1,7 +1,7 @@
 import React, { type ReactNode } from 'react';
 import { Pressable, View } from 'react-native';
 import { Column, Icon, Row, Text } from '@pennyspring/ui';
-import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
+import { createUseSheetStyle, useTheme } from '@pennyspring/ui';
 
 const MENU_HIT_SLOP = 6;
 

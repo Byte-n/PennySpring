@@ -56,7 +56,10 @@ jest.mock('@pennyspring/ui', () => {
         })
       : null;
 
+  const theme = jest.requireMock('@pennyspring/theme');
+
   return {
+    ...theme,
     Image: MockImage,
     ImagePreview: MockImagePreview,
     Row: ({ children, ...props }: { children?: React.ReactNode }) =>

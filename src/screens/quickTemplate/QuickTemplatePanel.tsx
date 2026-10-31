@@ -12,7 +12,7 @@ import {
   Text,
   useToast,
 } from '@pennyspring/ui';
-import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
+import { createUseSheetStyle, useTheme } from '@pennyspring/ui';
 import {
   formatAmount,
   saveAddRecordDraft,

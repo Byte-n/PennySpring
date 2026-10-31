@@ -1,7 +1,7 @@
 import React from 'react';
 import { View } from 'react-native';
 import { Ellipsis } from '@pennyspring/ui';
-import { createUseSheetStyle } from '@pennyspring/theme';
+import { createUseSheetStyle } from '@pennyspring/ui';
 
 const LONG_TEXT =
   'PennySpring helps teams review spending details quickly, compare trends, and keep financial records consistent across daily workflows.';

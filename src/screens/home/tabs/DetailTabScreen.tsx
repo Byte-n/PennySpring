@@ -3,7 +3,7 @@ import { ScrollView, RefreshControl } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { useRequest } from 'ahooks';
 import { Button, Column, Dialog, Empty, Loading, Row, Segmented, Text, useToast } from '@pennyspring/ui';
-import { createUseSheetStyle } from '@pennyspring/theme';
+import { createUseSheetStyle } from '@pennyspring/ui';
 import { type AssetRow, type RecordRelationRow, type TypeRow, type TagRow } from '@pennyspring/api';
 import { useBookStore, useGlobalApi } from '../../../stores/bookStore';
 import { ROOT_ROUTES, useNavigation } from '../../../navigation';

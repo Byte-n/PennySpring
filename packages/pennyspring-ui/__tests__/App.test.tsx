@@ -4,6 +4,7 @@ import renderer, { act } from 'react-test-renderer';
 import { App } from '../src/App';
 import { Portal } from '../src/Portal';
 import { useComponentConfig } from '../src/ConfigProvider';
+import { useTheme } from '@pennyspring/theme';
 
 jest.mock('react-native-gesture-handler', () => {
   const ReactLocal = require('react');
@@ -45,6 +46,12 @@ function AppProbe({ onRead }: AppProbeProps) {
   );
 }
 
+function ThemeProbe({ onRead }: { onRead: (color: string) => void }) {
+  const { token } = useTheme();
+  onRead(token.colorPrimary);
+  return null;
+}
+
 describe('App', () => {
   it('provides component config and a portal host to children', () => {
     const onRead = jest.fn();
@@ -63,5 +70,19 @@ describe('App', () => {
     expect(onRead).toHaveBeenCalledWith({});
     expect(treeString).toContain('App content');
     expect(treeString).toContain('Portal content');
+  });
+
+  it('provides the configured theme to children', () => {
+    const onRead = jest.fn();
+
+    act(() => {
+      renderer.create(
+        <App themeConfig={{ token: { colorPrimary: '#ff0000' } }}>
+          <ThemeProbe onRead={onRead} />
+        </App>,
+      );
+    });
+
+    expect(onRead).toHaveBeenCalledWith('#ff0000');
   });
 });

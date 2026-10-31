@@ -1,7 +1,7 @@
 import React from 'react';
 import { View } from 'react-native';
 import { MaterialTopTabBar } from '@react-navigation/material-top-tabs';
-import { useTheme } from '@pennyspring/theme';
+import { useTheme } from '@pennyspring/ui';
 import { useHeaderBarStyles } from './style';
 import type { HeaderBarProps } from './types';
 import { Row } from '@pennyspring/ui';

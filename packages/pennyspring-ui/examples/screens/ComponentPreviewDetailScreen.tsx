@@ -1,7 +1,7 @@
 import React from 'react';
 import { View } from 'react-native';
 import { Text } from '@pennyspring/ui';
-import { createUseSheetStyle } from '@pennyspring/theme';
+import { createUseSheetStyle } from '@pennyspring/ui';
 import { getComponentPreviewById } from '../previews/registry';
 import { COMPONENT_PREVIEW_ROUTES } from '../navigation/routes';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';

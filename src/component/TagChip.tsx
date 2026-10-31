@@ -1,6 +1,6 @@
 import React from 'react';
 import { Icon, Tag } from '@pennyspring/ui';
-import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
+import { createUseSheetStyle, useTheme } from '@pennyspring/ui';
 
 import { getPhosphorIconComponent } from '../constants/typeIconTree';
 

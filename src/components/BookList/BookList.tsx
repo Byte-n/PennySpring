@@ -11,7 +11,7 @@ import {
   Text,
 } from '@pennyspring/ui';
 import { BOOK_TYPE, type BookRow } from '@pennyspring/api';
-import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
+import { createUseSheetStyle, useTheme } from '@pennyspring/ui';
 import { NetworkIcon } from 'phosphor-react-native';
 import '../../utils/prototype';
 import type { BookEntry, CurrentBookRef } from '../../stores/bookStore';

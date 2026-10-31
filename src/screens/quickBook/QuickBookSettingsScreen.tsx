@@ -12,7 +12,7 @@ import {
   Textarea,
   useToast,
 } from '@pennyspring/ui';
-import { createUseSheetStyle } from '@pennyspring/theme';
+import { createUseSheetStyle } from '@pennyspring/ui';
 
 import { getProviderDisplayName } from '../../agent/providers/display';
 import type { AgentProviderConfig } from '../../agent/providers/types';

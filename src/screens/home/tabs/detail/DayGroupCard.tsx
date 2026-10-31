@@ -1,6 +1,6 @@
 import React from 'react';
 import { Column, Row, Text, Card, Divider } from '@pennyspring/ui';
-import { createUseSheetStyle } from '@pennyspring/theme';
+import { createUseSheetStyle } from '@pennyspring/ui';
 import { RecordRow } from './RecordRow';
 import {
   formatAmount,

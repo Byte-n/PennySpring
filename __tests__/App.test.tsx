@@ -32,6 +32,16 @@ jest.mock('@pennyspring/theme', () => ({
 
 jest.mock('@pennyspring/ui', () => ({
   App: ({ children }: { children: React.ReactNode }) => children,
+  useTheme: () => ({
+    token: {
+      colorPrimary: '#1677ff',
+      colorBgLayout: '#f5f5f5',
+      colorBgContainer: '#ffffff',
+      colorText: 'rgba(0, 0, 0, 0.88)',
+      colorBorderSecondary: '#f0f0f0',
+      colorError: '#ff4d4f',
+    },
+  }),
 }));
 
 jest.mock('@react-navigation/native', () => ({

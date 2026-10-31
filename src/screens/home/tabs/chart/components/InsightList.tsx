@@ -1,6 +1,6 @@
 import React from 'react';
 import { Column, List, Row, Text } from '@pennyspring/ui';
-import { createUseSheetStyle } from '@pennyspring/theme';
+import { createUseSheetStyle } from '@pennyspring/ui';
 
 import { formatMoney, formatSignedPercent } from '../analysisData';
 import type { ChartPeriod, ExpenseInsight } from '../analysisData';

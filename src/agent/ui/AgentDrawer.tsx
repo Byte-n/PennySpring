@@ -21,7 +21,7 @@ import {
   Text,
   useToast,
 } from '@pennyspring/ui';
-import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
+import { createUseSheetStyle, useTheme } from '@pennyspring/ui';
 import { CheckCircleIcon, WarningCircleIcon } from 'phosphor-react-native';
 
 import { MarkdownText } from '../../component/MarkdownText';

@@ -17,7 +17,10 @@ jest.mock('@pennyspring/ui', () => {
     ({ children, ...props }: { children?: React.ReactNode }) =>
       ReactLib.createElement(Component, props, children);
 
+  const theme = jest.requireMock('@pennyspring/theme');
+
   return {
+    ...theme,
     Column: passthrough(View),
     FlatList: passthrough(FlatList),
     Input: () => null,

@@ -11,7 +11,7 @@ import {
   KeyboardAwareScreen,
   Loading,
 } from '@pennyspring/ui';
-import { createUseSheetStyle, ThemeProvider, useTheme } from '@pennyspring/theme';
+import { createUseSheetStyle, ThemeProvider, useTheme } from '@pennyspring/ui';
 import {
   RECORD_TYPE_CATEGORY,
   REIMBURSABLE,

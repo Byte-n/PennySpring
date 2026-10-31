@@ -1,6 +1,6 @@
 import React from 'react';
 import { View } from 'react-native';
-import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
+import { createUseSheetStyle, useTheme } from '@pennyspring/ui';
 
 import type { NetWorthPoint } from '../analysisData';
 import { useMeasuredWidth } from './useMeasuredWidth';

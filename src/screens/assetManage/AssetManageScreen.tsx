@@ -29,7 +29,7 @@ import {
   type AssetTypeValue,
   VISIBILITY,
 } from '@pennyspring/api';
-import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
+import { createUseSheetStyle, useTheme } from '@pennyspring/ui';
 import {
   BankIcon,
   ChartLineIcon,

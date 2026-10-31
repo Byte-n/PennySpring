@@ -2,7 +2,7 @@ import React from 'react';
 import { View } from 'react-native';
 import { Space, Button, ActionSheet, Text } from '@pennyspring/ui';
 import type { ActionSheetAction } from '@pennyspring/ui';
-import { createUseSheetStyle } from '@pennyspring/theme';
+import { createUseSheetStyle } from '@pennyspring/ui';
 
 const ACTIONS: ActionSheetAction[] = [
   { text: '收藏' },

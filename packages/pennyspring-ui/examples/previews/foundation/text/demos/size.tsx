@@ -1,7 +1,7 @@
 import React from 'react';
 import { View } from 'react-native';
 import { Text } from '@pennyspring/ui';
-import { createUseSheetStyle } from '@pennyspring/theme';
+import { createUseSheetStyle } from '@pennyspring/ui';
 import type { TextSize } from '@pennyspring/ui';
 
 const SIZES: TextSize[] = [

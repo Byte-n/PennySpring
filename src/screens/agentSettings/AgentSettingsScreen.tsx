@@ -12,7 +12,7 @@ import {
   Text,
   useToast,
 } from '@pennyspring/ui';
-import { createUseSheetStyle } from '@pennyspring/theme';
+import { createUseSheetStyle } from '@pennyspring/ui';
 import { TrashIcon } from 'phosphor-react-native';
 
 import { ManageConfirmDialog } from '../../components/ManageConfirmDialog';

@@ -53,6 +53,7 @@ jest.mock('@pennyspring/theme', () => ({
 }));
 
 jest.mock('@pennyspring/ui', () => ({
+  ...jest.requireMock('@pennyspring/theme'),
   Row: ({ children }: { children: React.ReactNode }) => children,
 }));
 

@@ -1,8 +1,8 @@
 import React from 'react';
 import { Pressable, View } from 'react-native';
 import { MoonIcon, SunIcon } from 'phosphor-react-native';
-import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
-import type { ThemeAlgorithm, ThemePreset } from '@pennyspring/theme';
+import { createUseSheetStyle, useTheme } from '@pennyspring/ui';
+import type { ThemeAlgorithm, ThemePreset } from '@pennyspring/ui';
 
 export type ComponentPreviewThemePreset = ThemePreset;
 

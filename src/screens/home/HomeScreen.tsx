@@ -2,7 +2,7 @@ import React from 'react';
 import { Pressable } from 'react-native';
 import { Drawer, FloatingActionGroup, Row, Text } from '@pennyspring/ui';
 import type { DrawerLayoutStyles } from '@pennyspring/ui';
-import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
+import { createUseSheetStyle, useTheme } from '@pennyspring/ui';
 import { useIsFocused } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ListIcon } from 'phosphor-react-native';

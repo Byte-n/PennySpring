@@ -1,6 +1,9 @@
 import React from 'react';
 import renderer, { act } from 'react-test-renderer';
 import { ThemeProvider, useTheme } from '../src/index';
+import { defaultSeedToken as baseSeedToken } from '../src/defaults';
+import { derivative as deriveTokens } from '../src/algorithms/derivative';
+import { formatToken as formatTokens } from '../src/algorithms/formatToken';
 
 
 // 测试用的 Hook 包装组件
@@ -11,6 +14,47 @@ function TestHook<T>({ hook, onResult }: { hook: () => T; onResult: (r: T) => vo
 }
 
 describe('ThemeProvider', () => {
+  describe('nested providers', () => {
+    it('inherits parent seed overrides when child changes an alias token', () => {
+      let hookResult: any;
+
+      act(() => {
+        renderer.create(
+          <ThemeProvider config={{ token: { colorPrimary: '#ff0000' } }}>
+            <ThemeProvider config={{ token: { paddingSM: 99 } }}>
+              <TestHook hook={useTheme} onResult={result => { hookResult = result; }} />
+            </ThemeProvider>
+          </ThemeProvider>,
+        );
+      });
+
+      expect(hookResult.token.colorPrimary).toBe('#ff0000');
+      expect(hookResult.token.colorPrimaryBg).toBe(
+        formatTokens(deriveTokens({ ...baseSeedToken, colorPrimary: '#ff0000' }, false)).colorPrimaryBg,
+      );
+      expect(hookResult.token.paddingSM).toBe(99);
+    });
+
+    it('recomputes derived tokens when a child overrides an inherited seed token', () => {
+      let hookResult: any;
+
+      act(() => {
+        renderer.create(
+          <ThemeProvider config={{ token: { colorPrimary: '#ff0000' } }}>
+            <ThemeProvider config={{ token: { colorPrimary: '#0000ff' } }}>
+              <TestHook hook={useTheme} onResult={result => { hookResult = result; }} />
+            </ThemeProvider>
+          </ThemeProvider>,
+        );
+      });
+
+      expect(hookResult.token.colorPrimary).toBe('#0000ff');
+      expect(hookResult.token.colorPrimaryBg).toBe(
+        formatTokens(deriveTokens({ ...baseSeedToken, colorPrimary: '#0000ff' }, false)).colorPrimaryBg,
+      );
+    });
+  });
+
       describe('algorithm configuration', () => {
     it('algorithm accepts string form', () => {
       let hookResult: any;

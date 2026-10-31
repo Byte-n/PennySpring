@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { Card, Column, Empty, Row, Text } from '@pennyspring/ui';
-import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
+import { createUseSheetStyle, useTheme } from '@pennyspring/ui';
 import type { RecordRow, TypeRow } from '@pennyspring/api';
 
 import {

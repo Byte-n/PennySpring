@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { Pressable } from 'react-native';
 import { Text, CalculatorInput, Column } from '@pennyspring/ui';
-import { createUseSheetStyle, toShadowStyle } from '@pennyspring/theme';
+import { createUseSheetStyle, toShadowStyle } from '@pennyspring/ui';
 import { useAddRecordContext } from '../AddRecordContext';
 import { formatCentsAsExpression, yuanToCents } from '../addRecordDraft';
 

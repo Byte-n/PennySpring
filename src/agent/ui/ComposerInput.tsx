@@ -4,7 +4,7 @@ import type {
   NativeSyntheticEvent,
   TextInputContentSizeChangeEventData,
 } from 'react-native';
-import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
+import { createUseSheetStyle, useTheme } from '@pennyspring/ui';
 
 const MIN_ROWS = 1;
 const MAX_ROWS = 4;

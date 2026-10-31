@@ -1,6 +1,6 @@
 import React from 'react';
 import { Icon } from '@pennyspring/ui';
-import { createUseSheetStyle } from '@pennyspring/theme';
+import { createUseSheetStyle } from '@pennyspring/ui';
 import { ChartBarIcon, ListBulletsIcon } from 'phosphor-react-native';
 
 import { ChartTabScreen } from '../screens/home/tabs/ChartTabScreen';

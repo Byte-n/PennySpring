@@ -1,7 +1,7 @@
 import React from 'react';
 import type { ReactNode } from 'react';
 import { Card, Column, Row, Text } from '@pennyspring/ui';
-import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
+import { createUseSheetStyle, useTheme } from '@pennyspring/ui';
 
 const useStyles = createUseSheetStyle(token => ({
   titleArea: {

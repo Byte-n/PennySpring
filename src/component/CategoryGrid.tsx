@@ -10,7 +10,7 @@ import {
   type GridProps,
   type IconComponent,
 } from '@pennyspring/ui';
-import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
+import { createUseSheetStyle, useTheme } from '@pennyspring/ui';
 import { chunk, isNil } from 'es-toolkit';
 import { TypeRow } from '@pennyspring/api';
 import { getPhosphorIconComponent } from '../constants/typeIconTree.ts';

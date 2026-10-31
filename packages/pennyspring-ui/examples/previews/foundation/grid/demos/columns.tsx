@@ -1,7 +1,7 @@
 import React from 'react';
 import { View } from 'react-native';
 import { Grid, Text } from '@pennyspring/ui';
-import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
+import { createUseSheetStyle, useTheme } from '@pennyspring/ui';
 
 interface GridDemoItem {
   key: string;

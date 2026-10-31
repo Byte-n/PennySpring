@@ -267,7 +267,10 @@ jest.mock('@pennyspring/ui', () => {
         )
       : null;
 
+  const theme = jest.requireMock('@pennyspring/theme');
+
   return {
+    ...theme,
     ActionSheet: MockActionSheet,
     Button: MockButton,
     Card: MockCard,

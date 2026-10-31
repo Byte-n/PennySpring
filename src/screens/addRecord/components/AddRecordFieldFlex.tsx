@@ -1,6 +1,6 @@
 import React, { type ReactNode } from 'react';
 import { Column, Row } from '@pennyspring/ui';
-import { createUseSheetStyle } from '@pennyspring/theme';
+import { createUseSheetStyle } from '@pennyspring/ui';
 
 const GAP_DIVISOR = 2;
 

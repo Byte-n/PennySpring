@@ -1,7 +1,7 @@
 import React from 'react';
 import { View } from 'react-native';
 import { Space, Button, Drawer, Text } from '@pennyspring/ui';
-import { createUseSheetStyle } from '@pennyspring/theme';
+import { createUseSheetStyle } from '@pennyspring/ui';
 
 type DrawerPosition = 'left' | 'right';
 

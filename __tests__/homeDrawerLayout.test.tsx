@@ -38,7 +38,10 @@ jest.mock('@pennyspring/ui', () => {
     return ReactLib.createElement(View, { testID: 'drawer-layout' });
   };
 
+  const theme = jest.requireMock('@pennyspring/theme');
+
   return {
+    ...theme,
     Drawer: { Layout: DrawerLayout },
     FloatingActionGroup: () => null,
     Row: passthrough(View),

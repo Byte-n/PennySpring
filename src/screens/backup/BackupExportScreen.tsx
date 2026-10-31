@@ -13,7 +13,7 @@ import {
 } from '@pennyspring/ui'
 import type { BookRow } from '@pennyspring/api'
 import { localApi } from '@pennyspring/api'
-import { createUseSheetStyle } from '@pennyspring/theme'
+import { createUseSheetStyle } from '@pennyspring/ui'
 
 import { formatBytes, totalRecords } from '../../features/transfer'
 import {
