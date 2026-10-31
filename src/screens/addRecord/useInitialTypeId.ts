@@ -9,9 +9,14 @@ export function useInitialTypeId(
   const appliedRef = useRef(false);
   useEffect(() => {
     if (appliedRef.current) return;
-    if (initialTypeId === undefined) return;
-    if (!categories.some(category => category.id === initialTypeId)) return;
+    if (categories.length === 0) return;
+
+    const initialCategory = categories.find(
+      category => category.id === initialTypeId,
+    );
+    const nextTypeId = initialCategory?.id ?? categories[0].id;
+
     appliedRef.current = true;
-    setTypeId(initialTypeId);
+    setTypeId(nextTypeId);
   }, [categories, initialTypeId, setTypeId]);
 }
