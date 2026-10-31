@@ -256,16 +256,16 @@ export function AgentProviderEditor({
   const handleTest = useCallback(async (): Promise<void> => {
     const values = form.state.values;
     if (!isValidBaseUrl(values.baseUrl)) {
-      setTestResult({
-        ok: false,
-        message: 'Base URL 格式不正确，应形如 https://host/v1。',
+      toast.show({
+        messageText: 'Base URL 格式不正确，应形如 https://host/v1。',
+        status: 'error',
       });
       return;
     }
     const previewModelId =
       values.defaultModelId || values.models[0]?.modelId || '';
     if (!previewModelId) {
-      setTestResult({ ok: false, message: '请先添加模型。' });
+      toast.show({ messageText: '请先添加模型。', status: 'error' });
       return;
     }
 
@@ -274,7 +274,7 @@ export function AgentProviderEditor({
     try {
       const key = await resolveApiKey();
       if (!key) {
-        setTestResult({ ok: false, message: '请先填写 API Key。' });
+        toast.show({ messageText: '请先填写 API Key。', status: 'error' });
         return;
       }
       const result = await testProviderConnection(
@@ -282,13 +282,19 @@ export function AgentProviderEditor({
         previewModelId,
         key,
       );
-      setTestResult(result);
+      toast.show({
+        messageText: result.message,
+        status: result.ok ? 'success' : 'error',
+      });
     } catch (error) {
-      setTestResult({ ok: false, message: getErrorMessage(error) });
+      toast.show({
+        messageText: getErrorMessage(error),
+        status: 'error',
+      });
     } finally {
       setTesting(false);
     }
-  }, [buildPreviewProvider, form, resolveApiKey]);
+  }, [buildPreviewProvider, form, resolveApiKey, toast]);
 
   const handleFetchModels = useCallback(async (): Promise<void> => {
     const values = form.state.values;
