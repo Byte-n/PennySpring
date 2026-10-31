@@ -195,6 +195,12 @@ describe('projectQueryResult', () => {
     });
   });
 
+  it('明细返回记录 id 供修改记录引用', () => {
+    const result = project({ from: '2026-09-01', to: '2026-09-30' });
+
+    expect(result.records?.map(record => record.id)).toEqual([4, 3, 2]);
+  });
+
   it('关键词只匹配备注，并仅在命中时返回备注', () => {
     const withKeyword = project({ keyword: '工资' });
     const withoutKeyword = project({});
@@ -386,6 +392,8 @@ describe('buildSystemPrompt', () => {
     expect(prompt).toContain('2026-10-27');
     expect(prompt).toContain('listTypes');
     expect(prompt).toContain('createRecord');
+    expect(prompt).toContain('updateRecord');
+    expect(prompt).toContain('修改记录前必须先调用 queryRecords');
     expect(prompt).toContain('用户确认');
     expect(prompt).toContain('金额单位：元');
     expect(prompt).toContain('attachmentIds');

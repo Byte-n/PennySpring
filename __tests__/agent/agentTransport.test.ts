@@ -46,6 +46,11 @@ jest.mock('../../src/agent/tools/createRecord', () => ({
   createCreateRecordTool: (deps: unknown) => mockCreateCreateRecordTool(deps),
 }));
 
+jest.mock('../../src/agent/tools/updateRecord', () => ({
+  UPDATE_RECORD_TOOL_NAME: 'updateRecord',
+  createUpdateRecordTool: () => ({}),
+}));
+
 jest.mock('../../src/agent/core/createAgent', () => ({
   createAgent: (options: unknown) => mockCreateAgent(options),
 }));
@@ -455,11 +460,16 @@ describe('createAgentTransport', () => {
           listTags: expect.anything(),
           listAssets: expect.anything(),
           createRecord: expect.anything(),
+          updateRecord: expect.anything(),
         }),
         toolApproval: {
           createRecord: {
             type: 'user-approval',
             reason: '将写入账本，请确认',
+          },
+          updateRecord: {
+            type: 'user-approval',
+            reason: '将更新账本记录，请确认',
           },
         },
       }),

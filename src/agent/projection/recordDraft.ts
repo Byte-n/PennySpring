@@ -40,6 +40,12 @@ export interface RecordMetadata {
   assets: readonly AssetRow[];
 }
 
+export interface ResolveRecordReferenceOptions {
+  /** 修改记录时，未显式指定的标签/资产允许沿用已隐藏的旧引用。 */
+  allowHiddenTags?: boolean;
+  allowHiddenAssets?: boolean;
+}
+
 export interface ResolvedRecordDraft {
   category: RecordTypeCategoryValue;
   categoryLabel: string;
@@ -138,6 +144,7 @@ function resolveTags(
   booksId: number,
   tags: readonly TagRow[],
   tagIds: readonly number[] | undefined,
+  allowHidden: boolean,
 ): TagRow[] {
   const uniqueIds = Array.from(new Set(tagIds ?? []));
   if (uniqueIds.length > CREATE_RECORD_MAX_TAG_COUNT) {
@@ -149,7 +156,7 @@ function resolveTags(
     if (!tag || tag.booksId !== booksId) {
       throw new Error(`标签 ID ${tagId} 不存在`);
     }
-    if (tag.invisible === VISIBILITY.hidden) {
+    if (!allowHidden && tag.invisible === VISIBILITY.hidden) {
       throw new Error(`标签“${tag.name}”已隐藏，不能使用`);
     }
     return tag;
@@ -160,6 +167,7 @@ function resolveAsset(
   booksId: number,
   assets: readonly AssetRow[],
   assetId: number | undefined,
+  allowHidden: boolean,
 ): AssetRow | undefined {
   if (assetId === undefined || assetId === 0) {
     return undefined;
@@ -168,7 +176,7 @@ function resolveAsset(
   if (!asset || asset.booksId !== booksId) {
     throw new Error(`资产 ID ${assetId} 不存在`);
   }
-  if (asset.invisible === VISIBILITY.hidden) {
+  if (!allowHidden && asset.invisible === VISIBILITY.hidden) {
     throw new Error(`资产“${asset.name}”已隐藏，不能使用`);
   }
   return asset;
@@ -224,7 +232,10 @@ function assertTransferAssetRules(
   }
 }
 
-function buildTypePath(type: TypeRow, types: readonly TypeRow[]): string {
+export function buildTypePath(
+  type: TypeRow,
+  types: readonly TypeRow[],
+): string {
   if (type.parentId === 0) {
     return type.name;
   }
@@ -259,7 +270,7 @@ function createResolvedDraft(
   };
 }
 
-function isAbsorptionBehavior(specialBehavior: string): boolean {
+export function isAbsorptionBehavior(specialBehavior: string): boolean {
   return (
     specialBehavior === RECORD_TYPE_SPECIAL_BEHAVIOR.refundAbsorption ||
     specialBehavior === RECORD_TYPE_SPECIAL_BEHAVIOR.reimbursementAbsorption
@@ -271,6 +282,7 @@ export function resolveCreateRecordInput(
   input: CreateRecordArgs,
   metadata: RecordMetadata,
   now = Date.now(),
+  options: ResolveRecordReferenceOptions = {},
 ): ResolveCreateRecordResult {
   try {
     const type = resolveType(booksId, metadata.types, input.typeId);
@@ -281,7 +293,12 @@ export function resolveCreateRecordInput(
         : parseYuanToCents(input.charge, '手续费', true);
     const recordTime = parseRecordTime(input.date, input.time, now);
     const remark = normalizeRemark(input.remark);
-    const tags = resolveTags(booksId, metadata.tags, input.tagIds);
+    const tags = resolveTags(
+      booksId,
+      metadata.tags,
+      input.tagIds,
+      options.allowHiddenTags === true,
+    );
     const baseInput = {
       typeId: type.id,
       booksId,
@@ -299,7 +316,12 @@ export function resolveCreateRecordInput(
       if (input.intoAssetId !== undefined) {
         throw new Error('支出记录不需要转入资产');
       }
-      const asset = resolveAsset(booksId, metadata.assets, input.assetId);
+      const asset = resolveAsset(
+        booksId,
+        metadata.assets,
+        input.assetId,
+        options.allowHiddenAssets === true,
+      );
       return createResolvedDraft(type, metadata, {
         amountCents,
         chargeCents,
@@ -322,7 +344,7 @@ export function resolveCreateRecordInput(
     if (type.typeCategory === RECORD_TYPE_CATEGORY.income) {
       if (isAbsorptionBehavior(type.specialBehavior)) {
         throw new Error(
-          '退款/报销类型需要关联原支出，暂不支持在助手中创建，请在 App 内记账',
+          '退款/报销类型需要关联原支出，暂不支持在助手中创建或修改，请在 App 内操作',
         );
       }
       if (type.specialBehavior !== RECORD_TYPE_SPECIAL_BEHAVIOR.none) {
@@ -334,7 +356,12 @@ export function resolveCreateRecordInput(
       if (chargeCents > amountCents) {
         throw new Error('手续费不能大于收入金额');
       }
-      const asset = resolveAsset(booksId, metadata.assets, input.assetId);
+      const asset = resolveAsset(
+        booksId,
+        metadata.assets,
+        input.assetId,
+        options.allowHiddenAssets === true,
+      );
       return createResolvedDraft(type, metadata, {
         amountCents,
         chargeCents,
@@ -353,11 +380,17 @@ export function resolveCreateRecordInput(
     }
 
     if (type.typeCategory === RECORD_TYPE_CATEGORY.transfer) {
-      const fromAsset = resolveAsset(booksId, metadata.assets, input.assetId);
+      const fromAsset = resolveAsset(
+        booksId,
+        metadata.assets,
+        input.assetId,
+        options.allowHiddenAssets === true,
+      );
       const intoAsset = resolveAsset(
         booksId,
         metadata.assets,
         input.intoAssetId,
+        options.allowHiddenAssets === true,
       );
       if (!fromAsset) {
         throw new Error('转账必须指定转出资产');

@@ -26,6 +26,7 @@ export interface QueryGroup {
 }
 
 export interface QueryRecordItem {
+  id: number;
   time: string;
   type: string;
   category: string;
@@ -393,6 +394,7 @@ function toQueryRecord(
   const remark = record.remark.trim()
 
   return {
+    id: record.id,
     time: dayjs(record.recordTime).format('YYYY-MM-DD HH:mm'),
     type: type?.name ?? UNKNOWN_TYPE_LABEL,
     category,

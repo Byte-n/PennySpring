@@ -43,6 +43,10 @@ import {
   QUERY_RECORDS_TOOL_NAME,
 } from '../tools/queryRecords';
 import {
+  createUpdateRecordTool,
+  UPDATE_RECORD_TOOL_NAME,
+} from '../tools/updateRecord';
+import {
   AGENT_MODEL_NO_IMAGE_MESSAGE,
   AGENT_NO_MODEL_MESSAGE,
   AGENT_NOT_CONFIGURED_MESSAGE,
@@ -262,11 +266,20 @@ export function createAgentTransport(
           booksId: options.booksId,
           attachments,
         }),
+        [UPDATE_RECORD_TOOL_NAME]: createUpdateRecordTool({
+          api: options.api,
+          booksId: options.booksId,
+          attachments,
+        }),
       };
       const toolApproval = {
         [CREATE_RECORD_TOOL_NAME]: {
           type: 'user-approval' as const,
           reason: '将写入账本，请确认',
+        },
+        [UPDATE_RECORD_TOOL_NAME]: {
+          type: 'user-approval' as const,
+          reason: '将更新账本记录，请确认',
         },
       };
 

@@ -77,6 +77,28 @@ jest.mock('../../src/stores/bookStore', () => {
     },
     tag: { getAll: async () => [] },
     asset: { getByBook: async () => [] },
+    record: {
+      getDetailById: async (recordId: number) => ({
+        record: {
+          id: recordId,
+          typeId: 2,
+          assetId: 0,
+          intoAssetId: 0,
+          booksId: 1,
+          amount: 3000,
+          finalAmount: 3000,
+          charge: 0,
+          remark: '午饭',
+          reimbursable: 'none',
+          recordTime: new Date(2026, 9, 30, 12, 34).getTime(),
+          createdTime: 0,
+          updatedTime: 0,
+        },
+        tagIds: [],
+        imagePaths: [],
+        relatedRecordIds: [],
+      }),
+    },
     provider: { getAll: async () => mockProviderState.providers },
   };
 
@@ -570,6 +592,23 @@ const COMPLETED_RECORD_APPROVAL: ThreadMessageLike[] = [
   },
 ];
 
+const PENDING_UPDATE_APPROVAL: ThreadMessageLike[] = [
+  { role: 'user', content: '把午饭那笔改成 35 元' },
+  {
+    role: 'assistant',
+    content: [
+      {
+        type: 'tool-call',
+        toolCallId: 'call-record-update-1',
+        toolName: 'updateRecord',
+        args: { recordId: 100, amount: 35 },
+        argsText: '{"recordId":100,"amount":35}',
+        approval: { id: 'approval-update-1' },
+      },
+    ],
+  },
+];
+
 const CONVERSATION_WITH_REASONING: ThreadMessageLike[] = [
   { role: 'user', content: '帮我记一笔午饭 30 元' },
   {
@@ -650,6 +689,26 @@ describe('AgentDrawer', () => {
     ).toBeGreaterThan(0);
     expect(
       renderer.root.findAllByProps({ testID: 'agent-record-cancel' }).length,
+    ).toBeGreaterThan(0);
+  });
+
+  it('renders the record update card for a pending updateRecord call', async () => {
+    const { renderer } = renderDrawer({
+      initialMessages: PENDING_UPDATE_APPROVAL,
+    });
+
+    await act(async () => {
+      await flush();
+    });
+
+    const text = renderedText(renderer);
+    expect(text).toContain('待确认的修改');
+    expect(text).toContain('¥35.00');
+    expect(text).toContain('记录 #100');
+    expect(text).toContain('确认修改');
+    expect(
+      renderer.root.findAllByProps({ testID: 'agent-record-update-confirm' })
+        .length,
     ).toBeGreaterThan(0);
   });
 

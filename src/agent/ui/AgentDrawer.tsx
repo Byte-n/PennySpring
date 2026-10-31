@@ -38,9 +38,11 @@ import {
   THINKING_TEXT,
   toolErrorText,
   toolStatusText,
+  UPDATE_RECORD_TOOL_NAME,
 } from './copy';
 import { getErrorMessage } from './errorMessage';
 import { RecordCreationCard } from './RecordCreationCard';
+import { RecordUpdateCard } from './RecordUpdateCard';
 import { ThinkingBlock } from './ThinkingBlock';
 import type { AgentSessionState } from './useAgentSession';
 
@@ -163,6 +165,7 @@ const ASSISTANT_COMPONENTS = {
   tools: {
     by_name: {
       [CREATE_RECORD_TOOL_NAME]: RecordCreationCard,
+      [UPDATE_RECORD_TOOL_NAME]: RecordUpdateCard,
     },
     Fallback: ToolNote,
   },
