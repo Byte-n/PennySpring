@@ -89,7 +89,13 @@ jest.mock('../../src/stores/bookStore', () => {
 
 jest.mock('@pennyspring/ui', () => {
   const ReactLib = require('react');
-  const { Pressable, Text, TextInput, View } = require('react-native');
+  const {
+    Image: RNImage,
+    Pressable,
+    Text,
+    TextInput,
+    View,
+  } = require('react-native');
 
   const passthrough =
     (Component: React.ComponentType) =>
@@ -210,6 +216,24 @@ jest.mock('@pennyspring/ui', () => {
         )
       : null;
 
+  const MockImage = ({
+    src,
+    ...props
+  }: {
+    src?: Record<string, unknown>;
+    [key: string]: unknown;
+  }) =>
+    ReactLib.createElement(RNImage, {
+      ...props,
+      source: src,
+    });
+
+  MockImage.PreviewGroup = ({
+    children,
+  }: {
+    children?: React.ReactNode;
+  }) => ReactLib.createElement(ReactLib.Fragment, null, children);
+
   const MockImagePickerPopup = ({
     onChange,
     open,
@@ -246,6 +270,7 @@ jest.mock('@pennyspring/ui', () => {
     Column: passthrough(View),
     Empty: MockEmpty,
     Icon: () => null,
+    Image: MockImage,
     ImagePicker: { Popup: MockImagePickerPopup },
     Loading: MockLoading,
     Popover: ({

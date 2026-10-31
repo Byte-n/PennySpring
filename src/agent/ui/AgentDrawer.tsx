@@ -1,6 +1,4 @@
 import React, { useCallback, useEffect, useRef } from 'react';
-import { Image } from 'react-native';
-import type { ImageStyle } from 'react-native';
 import type { UIMessage } from 'ai';
 import { useAISDKChat } from '@assistant-ui/ai-sdk';
 import {
@@ -17,6 +15,7 @@ import {
   Column,
   Empty,
   Icon,
+  Image,
   Loading,
   Row,
   Text,
@@ -51,8 +50,6 @@ const SUGGESTIONS = [
   '这个月支出按类型统计',
   '最近有哪些转账记录？',
 ];
-
-const MESSAGE_IMAGE_SIZE = 180;
 
 const useStyles = createUseSheetStyle(token => ({
   container: {
@@ -91,9 +88,8 @@ const useStyles = createUseSheetStyle(token => ({
     paddingVertical: token.paddingXS,
   },
   messageImage: {
-    borderRadius: token.borderRadius,
-    height: MESSAGE_IMAGE_SIZE,
-    width: MESSAGE_IMAGE_SIZE,
+    height: token.controlHeight,
+    width: token.controlHeight,
   },
   assistantBubble: {
     backgroundColor: token.colorFillQuaternary,
@@ -177,25 +173,29 @@ function UserImageAttachments(): React.ReactElement | null {
   const media = useMediaStore();
 
   return (
-    <MessagePrimitive.Attachments>
-      {({ attachment }) => {
-        const imagePart = attachment.content?.find(
-          part => part.type === 'image',
-        );
-        if (!imagePart) {
-          return null;
-        }
-        return (
-          <Image
-            resizeMode="cover"
-            source={{
-              uri: media ? media.resolveUri(imagePart.image) : imagePart.image,
-            }}
-            style={styles.messageImage as ImageStyle}
-          />
-        );
-      }}
-    </MessagePrimitive.Attachments>
+    <Image.PreviewGroup>
+      <MessagePrimitive.Attachments>
+        {({ attachment }) => {
+          const imagePart = attachment.content?.find(
+            part => part.type === 'image',
+          );
+          if (!imagePart) {
+            return null;
+          }
+          return (
+            <Image
+              radius="small"
+              src={{
+                uri: media
+                  ? media.resolveUri(imagePart.image)
+                  : imagePart.image,
+              }}
+              style={styles.messageImage}
+            />
+          );
+        }}
+      </MessagePrimitive.Attachments>
+    </Image.PreviewGroup>
   );
 }
 

@@ -1,14 +1,13 @@
 import React from 'react';
-import { Image, Pressable } from 'react-native';
-import type { ImageStyle } from 'react-native';
-import { Icon, Row, Text, type ImagePickerValue } from '@pennyspring/ui';
+import { Pressable } from 'react-native';
+import { Icon, Image, Row, Text, type ImagePickerValue } from '@pennyspring/ui';
 import { createUseSheetStyle } from '@pennyspring/theme';
 
-const ATTACHMENT_SIZE = 56;
-const REMOVE_BADGE_SIZE = 20;
+const ATTACHMENT_SIZE = 44;
+const REMOVE_BADGE_SIZE = 18;
 const REMOVE_BADGE_OFFSET = 6;
-const REMOVE_BADGE_ICON_SIZE = 10;
-const REMOVE_BADGE_HIT_SLOP = 12;
+const REMOVE_BADGE_ICON_SIZE = 9;
+const REMOVE_BADGE_HIT_SLOP = 13;
 const ADD_ICON_SIZE = 18;
 const PILL_RADIUS = 999;
 const PRESS_SCALE = 0.97;
@@ -26,13 +25,6 @@ const useStyles = createUseSheetStyle(token => ({
     width: ATTACHMENT_SIZE,
     height: ATTACHMENT_SIZE,
     position: 'relative' as const,
-  },
-  thumbnailFrame: {
-    width: ATTACHMENT_SIZE,
-    height: ATTACHMENT_SIZE,
-    backgroundColor: token.colorFillQuaternary,
-    borderRadius: token.borderRadius,
-    overflow: 'hidden' as const,
   },
   thumbnail: {
     width: ATTACHMENT_SIZE,
@@ -58,7 +50,7 @@ const useStyles = createUseSheetStyle(token => ({
     alignItems: 'center' as const,
     justifyContent: 'center' as const,
     borderColor: token.colorBorder,
-    borderRadius: token.borderRadius,
+    borderRadius: token.borderRadiusSM,
     borderStyle: 'dashed' as const,
     borderWidth: token.lineWidth,
   },
@@ -85,45 +77,49 @@ export function ComposerAttachments({
   const styles = useStyles();
 
   return (
-    <Row align="center" style={styles.rail} testID="agent-image-staging-bar">
-      {images.map((image, index) => (
-        <Row key={`${image.uri}-${index}`} style={styles.item}>
-          <Row style={styles.thumbnailFrame}>
+    <Image.PreviewGroup>
+      <Row align="center" style={styles.rail} testID="agent-image-staging-bar">
+        {images.map((image, index) => (
+          <Row key={`${image.uri}-${index}`} style={styles.item}>
             <Image
-              resizeMode="cover"
-              source={{ uri: image.uri }}
-              style={styles.thumbnail as ImageStyle}
+              radius="small"
+              src={{ uri: image.uri }}
+              style={styles.thumbnail}
               testID={`agent-image-thumb-${index}`}
             />
+            <Pressable
+              hitSlop={REMOVE_BADGE_HIT_SLOP}
+              onPress={() => onRemove(index)}
+              style={({ pressed }) => [
+                styles.removeButton,
+                pressed ? styles.removeButtonPressed : undefined,
+              ]}
+              testID={`agent-image-remove-${index}`}
+            >
+              <Icon
+                color="lightSolid"
+                icon="close"
+                size={REMOVE_BADGE_ICON_SIZE}
+              />
+            </Pressable>
           </Row>
+        ))}
+        {canAdd ? (
           <Pressable
-            hitSlop={REMOVE_BADGE_HIT_SLOP}
-            onPress={() => onRemove(index)}
+            onPress={onAdd}
             style={({ pressed }) => [
-              styles.removeButton,
-              pressed ? styles.removeButtonPressed : undefined,
+              styles.addTile,
+              pressed ? styles.addTilePressed : undefined,
             ]}
-            testID={`agent-image-remove-${index}`}
+            testID="agent-image-add"
           >
-            <Icon color="lightSolid" icon="close" size={REMOVE_BADGE_ICON_SIZE} />
+            <Icon color="tertiary" icon="plus" size={ADD_ICON_SIZE} />
           </Pressable>
-        </Row>
-      ))}
-      {canAdd ? (
-        <Pressable
-          onPress={onAdd}
-          style={({ pressed }) => [
-            styles.addTile,
-            pressed ? styles.addTilePressed : undefined,
-          ]}
-          testID="agent-image-add"
-        >
-          <Icon color="tertiary" icon="plus" size={ADD_ICON_SIZE} />
-        </Pressable>
-      ) : null}
-      <Text color="tertiary" size="xs" testID="agent-image-count">
-        {`${images.length} / ${maxCount}`}
-      </Text>
-    </Row>
+        ) : null}
+        <Text color="tertiary" size="xs" testID="agent-image-count">
+          {`${images.length} / ${maxCount}`}
+        </Text>
+      </Row>
+    </Image.PreviewGroup>
   );
 }

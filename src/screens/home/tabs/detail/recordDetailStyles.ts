@@ -1,6 +1,7 @@
 import { createUseSheetStyle } from '@pennyspring/theme';
 
 const INFO_LABEL_WIDTH = 48;
+const RECORD_IMAGE_THUMB_SIZE = 32;
 
 export const useRecordDetailStyles = createUseSheetStyle(token => ({
   panelHeader: {
@@ -112,12 +113,6 @@ export const useRecordDetailStyles = createUseSheetStyle(token => ({
   infoRowBlock: {
     alignItems: 'flex-start',
   },
-  infoRowButton: {
-    minHeight: token.controlHeight,
-  },
-  infoRowPressed: {
-    backgroundColor: token.colorFillTertiary,
-  },
   infoLabel: {
     width: INFO_LABEL_WIDTH,
   },
@@ -127,6 +122,10 @@ export const useRecordDetailStyles = createUseSheetStyle(token => ({
   infoValue: {
     flex: 1,
     minWidth: 0,
+  },
+  imageThumb: {
+    width: RECORD_IMAGE_THUMB_SIZE,
+    height: RECORD_IMAGE_THUMB_SIZE,
   },
   chips: {
     gap: token.marginXS,

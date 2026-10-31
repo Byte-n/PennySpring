@@ -1,14 +1,22 @@
-import React from 'react';
-import { Image } from 'react-native';
-import type { ImageStyle } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { Pressable } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Button, Column, Row, Text } from '@pennyspring/ui';
+import {
+  Button,
+  Column,
+  Image,
+  ImagePreview,
+  Row,
+  Text,
+} from '@pennyspring/ui';
 import { createUseSheetStyle, useTheme } from '@pennyspring/theme';
 import { XIcon } from 'phosphor-react-native';
 
 import type { QuickBookImage } from '../../features/quickBook/types';
 
 const NUDGE_Z_INDEX = 10;
+const NUDGE_THUMB_SIZE = 36;
+const NUDGE_IMAGE_HIT_SLOP = 4;
 
 const useStyles = createUseSheetStyle<{ bottom: number }>((token, options) => ({
   root: {
@@ -28,9 +36,8 @@ const useStyles = createUseSheetStyle<{ bottom: number }>((token, options) => ({
     padding: token.paddingSM,
   },
   thumbnail: {
-    borderRadius: token.borderRadius,
-    height: token.controlHeight,
-    width: token.controlHeight,
+    height: NUDGE_THUMB_SIZE,
+    width: NUDGE_THUMB_SIZE,
   },
   copy: {
     flex: 1,
@@ -51,18 +58,33 @@ export function QuickBookNudge({
   const { token } = useTheme();
   const insets = useSafeAreaInsets();
   const styles = useStyles({ bottom: insets.bottom + token.padding });
+  const [previewOpen, setPreviewOpen] = useState(false);
+
+  useEffect(() => {
+    setPreviewOpen(false);
+  }, [image?.localPath]);
 
   if (image === null) {
     return null;
   }
 
+  const imageSource = { uri: image.localPath };
+
   return (
     <Column style={styles.root}>
       <Row align="center" gap={token.marginSM} style={styles.card}>
-        <Image
-          source={{ uri: image.localPath }}
-          style={styles.thumbnail as ImageStyle}
-        />
+        <Pressable
+          hitSlop={NUDGE_IMAGE_HIT_SLOP}
+          onPress={() => setPreviewOpen(true)}
+          testID="quick-book-nudge-image"
+        >
+          <Image
+            preview={false}
+            radius="small"
+            src={imageSource}
+            style={styles.thumbnail}
+          />
+        </Pressable>
         <Column gap={token.marginXXS} style={styles.copy}>
           <Text size="sm">发现新截图</Text>
           <Text color="secondary" size="xs">
@@ -81,6 +103,11 @@ export function QuickBookNudge({
           type="text"
         />
       </Row>
+      <ImagePreview
+        images={[imageSource]}
+        onOpenChange={setPreviewOpen}
+        open={previewOpen}
+      />
     </Column>
   );
 }

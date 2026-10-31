@@ -1,6 +1,6 @@
 import React from 'react';
-import { Pressable, View } from 'react-native';
-import { Column, Icon, Row, Text, useToast } from '@pennyspring/ui';
+import { View } from 'react-native';
+import { Column, Icon, Row, Text } from '@pennyspring/ui';
 import { RECORD_TYPE_CATEGORY, REIMBURSABLE } from '@pennyspring/api';
 import { getPhosphorIconComponent } from '../../../../constants/typeIconTree';
 import {
@@ -12,10 +12,10 @@ import {
   formatSignedAmount,
   type DetailRecordView,
 } from './detailData';
+import { RecordImages } from './RecordImages';
 import { useRecordDetailStyles } from './recordDetailStyles';
 
 const HIDDEN_AMOUNT_TEXT = '••••';
-const HIDDEN_IMAGE_TOAST = '图片预览功能暂未实现';
 
 function getCategoryLabel(category: DetailRecordView['category']): string {
   if (category === RECORD_TYPE_CATEGORY.income) {
@@ -188,7 +188,6 @@ interface InfoRowProps {
   children: React.ReactNode;
   showDivider: boolean;
   isBlock?: boolean;
-  onPress?: () => void;
 }
 
 function InfoRow({
@@ -196,7 +195,6 @@ function InfoRow({
   children,
   showDivider,
   isBlock = false,
-  onPress,
 }: InfoRowProps) {
   const styles = useRecordDetailStyles();
   const labelNode = (
@@ -214,46 +212,22 @@ function InfoRow({
     </Column>
   );
 
-  if (!onPress) {
-    return (
-      <Row
-        align={isBlock ? 'start' : 'center'}
-        style={[
-          styles.infoRow,
-          !showDivider && styles.infoRowFirst,
-          isBlock && styles.infoRowBlock,
-        ]}
-      >
-        {labelNode}
-        {valueNode}
-      </Row>
-    );
-  }
-
   return (
-    <Pressable
-      onPress={onPress}
-      style={({ pressed }) => [
+    <Row
+      align={isBlock ? 'start' : 'center'}
+      style={[
         styles.infoRow,
-        styles.infoRowButton,
         !showDivider && styles.infoRowFirst,
-        pressed && styles.infoRowPressed,
+        isBlock && styles.infoRowBlock,
       ]}
     >
       {labelNode}
       {valueNode}
-      <Icon icon="caret-right" size="normal" color="quaternary" />
-    </Pressable>
+    </Row>
   );
 }
 
-function InfoCard({
-  view,
-  onImagePress,
-}: {
-  view: DetailRecordView;
-  onImagePress: () => void;
-}) {
+function InfoCard({ view }: { view: DetailRecordView }) {
   const styles = useRecordDetailStyles();
   const isTransfer = view.category === RECORD_TYPE_CATEGORY.transfer;
   const rows: React.ReactNode[] = [];
@@ -274,11 +248,13 @@ function InfoCard({
         key="image"
         label="图片"
         showDivider={rows.length > 0}
-        onPress={onImagePress}
+        isBlock
       >
-        <Text size="sm" color="default">
-          {`${view.imageCount} 张 · 点击查看`}
-        </Text>
+        <RecordImages
+          booksId={view.record.booksId}
+          imageCount={view.imageCount}
+          recordId={view.record.id}
+        />
       </InfoRow>,
     );
   }
@@ -573,12 +549,8 @@ export function RecordDetailContent({
   relatedViews: readonly DetailRecordView[];
   hidden: boolean;
 }) {
-  const toast = useToast();
   const isTransfer = view.category === RECORD_TYPE_CATEGORY.transfer;
   const isIncome = view.category === RECORD_TYPE_CATEGORY.income;
-  const handleImagePress = () => {
-    toast.show({ messageText: HIDDEN_IMAGE_TOAST });
-  };
 
   return (
     <Column>
@@ -588,7 +560,7 @@ export function RecordDetailContent({
       ) : (
         <AmountComposition view={view} hidden={hidden} />
       )}
-      <InfoCard view={view} onImagePress={handleImagePress} />
+      <InfoCard view={view} />
       {isIncome && relatedViews.length > 0 ? (
         <RelatedExpenses views={relatedViews} hidden={hidden} />
       ) : null}
