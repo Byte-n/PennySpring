@@ -19,6 +19,19 @@ interface ThemePresetOptionStyleOptions {
 // 收起态浮层宽度由内容决定，给足空间避免中文标签逐字换行。
 const PRESET_OPTION_MIN_WIDTH = 160;
 
+const useButtonStyles = createUseSheetStyle(token => ({
+  button: {
+    alignItems: 'center',
+    borderRadius: token.borderRadius,
+    height: token.controlHeight,
+    justifyContent: 'center',
+    width: token.controlHeight,
+  },
+  buttonPressed: {
+    backgroundColor: token.colorFillTertiary,
+  },
+}));
+
 const usePresetOptionStyles =
   createUseSheetStyle<ThemePresetOptionStyleOptions>(
     (token, { color, selected }) => ({
@@ -83,6 +96,7 @@ export function ThemeSwitchButton() {
     useThemeMode();
   const isDark = themeMode === 'dark';
   const { token } = useTheme();
+  const buttonStyles = useButtonStyles();
   const [isPresetPanelOpen, setIsPresetPanelOpen] = React.useState(false);
 
   const handleToggle = React.useCallback(() => {
@@ -120,12 +134,15 @@ export function ThemeSwitchButton() {
       trigger="manual"
     >
       <Pressable
-        hitSlop={token.paddingSM}
         onLongPress={() => setIsPresetPanelOpen(true)}
         onPress={handleToggle}
+        style={({ pressed }) => [
+          buttonStyles.button,
+          pressed ? buttonStyles.buttonPressed : undefined,
+        ]}
         testID="theme-switch-button"
       >
-        <IconComp size={24} color={token.colorText} />
+        <IconComp size={token.fontSizeXL} color={token.colorText} />
       </Pressable>
     </Popover>
   );

@@ -72,8 +72,7 @@ export function TopTabNavigator({
           name={screen.name}
           options={{
             title: screen.labelText,
-            tabBarLabel:
-              screen.label === undefined ? screen.labelText : () => screen.label,
+            tabBarLabel: screen.label,
           }}
         />
       ))}

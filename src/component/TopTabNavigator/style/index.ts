@@ -2,31 +2,29 @@ import { createUseSheetStyle } from '@pennyspring/ui';
 
 export const useHeaderBarStyles = createUseSheetStyle((token) => ({
   container: {
-    alignItems: 'center',
     backgroundColor: token.colorBgContainer,
     borderBottomColor: token.colorSplit,
     borderBottomWidth: token.lineWidth,
+  },
+  topRow: {
+    alignItems: 'center',
     flexDirection: 'row',
-    minHeight: token.controlHeightLG,
-    paddingHorizontal: token.paddingMD / 4,
-    gap: token.paddingContentHorizontal,
+    height: token.controlHeight,
+    paddingHorizontal: token.paddingXS,
   },
   leftActions: {
     alignItems: 'center',
     flex: 1,
     flexDirection: 'row',
-    justifyContent: 'flex-start',
-  },
-  center: {
-    alignItems: 'stretch',
-    flex: 2,
-    justifyContent: 'center',
+    minWidth: 0,
   },
   rightActions: {
     alignItems: 'center',
-    flex: 1,
     flexDirection: 'row',
-    justifyContent: 'flex-end',
+    flexShrink: 0,
+  },
+  tabsRow: {
+    height: token.controlHeight,
   },
   tabBar: {
     backgroundColor: token.colorBgContainer,
@@ -42,7 +40,7 @@ export const useHeaderBarStyles = createUseSheetStyle((token) => ({
     height: token.lineWidthBold,
   },
   tabBarItem: {
-    minHeight: token.controlHeightLG,
+    minHeight: token.controlHeight,
   },
   tabBarLabel: {
     fontFamily: token.fontFamily,

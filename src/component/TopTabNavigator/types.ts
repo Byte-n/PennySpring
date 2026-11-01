@@ -10,9 +10,13 @@ import type { StyleProp, ViewStyle } from 'react-native';
  */
 export type TopTabBackBehavior = NonNullable<TabRouterOptions['backBehavior']>;
 
+export interface TabLabelRenderProps {
+  focused: boolean;
+}
+
 export interface TabScreen {
   name: string;
-  label?: ReactNode;
+  label?: (props: TabLabelRenderProps) => ReactNode;
   labelText?: string;
   component: ComponentType<object>;
 }

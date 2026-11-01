@@ -12,6 +12,7 @@ let mockNavigatorProps: Record<string, unknown> | undefined;
 const mockThemeToken = {
   colorPrimary: 'theme-primary',
   colorTextTertiary: 'theme-text-tertiary',
+  colorFillQuaternary: 'theme-fill-quaternary',
 };
 
 jest.mock('@react-navigation/native', () => ({
@@ -44,6 +45,8 @@ jest.mock('@pennyspring/theme', () => ({
     container: {},
     leftActions: {},
     rightActions: {},
+    tabsRow: {},
+    topRow: {},
     tabBar: { backgroundColor: 'theme-background' },
     tabBarIndicator: { backgroundColor: 'theme-indicator' },
     tabBarItem: { minHeight: 'theme-item-height' },
@@ -54,6 +57,7 @@ jest.mock('@pennyspring/theme', () => ({
 
 jest.mock('@pennyspring/ui', () => ({
   ...jest.requireMock('@pennyspring/theme'),
+  Column: ({ children }: { children: React.ReactNode }) => children,
   Row: ({ children }: { children: React.ReactNode }) => children,
 }));
 

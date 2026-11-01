@@ -1,10 +1,8 @@
 import React from 'react';
-import { View } from 'react-native';
 import { MaterialTopTabBar } from '@react-navigation/material-top-tabs';
-import { useTheme } from '@pennyspring/ui';
+import { Column, Row, useTheme } from '@pennyspring/ui';
 import { useHeaderBarStyles } from './style';
 import type { HeaderBarProps } from './types';
-import { Row } from '@pennyspring/ui';
 
 export function HeaderBar({
   leftActions,
@@ -27,6 +25,7 @@ export function HeaderBar({
           tabBarIndicatorStyle: tokenStyles.tabBarIndicator,
           tabBarItemStyle: tokenStyles.tabBarItem,
           tabBarLabelStyle: tokenStyles.tabBarLabel,
+          tabBarPressColor: token.colorFillQuaternary,
           tabBarStyle: tokenStyles.tabBar,
         },
       },
@@ -34,23 +33,21 @@ export function HeaderBar({
   );
 
   return (
-    <Row wrap={false} style={[tokenStyles.container, style]}>
-      {leftActions && (
-        <View style={[tokenStyles.leftActions, styles?.leftActions]}>
+    <Column style={[tokenStyles.container, style]}>
+      <Row align="center" style={tokenStyles.topRow} wrap={false}>
+        <Row style={[tokenStyles.leftActions, styles?.leftActions]}>
           {leftActions}
-        </View>
-      )}
-      <View style={[tokenStyles.center, styles?.center]}>
+        </Row>
+        <Row style={[tokenStyles.rightActions, styles?.rightActions]}>
+          {rightActions}
+        </Row>
+      </Row>
+      <Column style={[tokenStyles.tabsRow, styles?.center]}>
         <MaterialTopTabBar
           {...tabBarProps}
           descriptors={themedDescriptors}
         />
-      </View>
-      {rightActions && (
-        <View style={[tokenStyles.rightActions, styles?.rightActions]}>
-          {rightActions}
-        </View>
-      )}
-    </Row>
+      </Column>
+    </Column>
   );
 }
