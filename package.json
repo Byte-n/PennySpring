@@ -7,7 +7,7 @@
     "packages/pennyspring-ui/examples"
   ],
   "scripts": {
-    "android": "react-native run-android --active-arch-only --port 8080",
+    "android": "react-native run-android --active-arch-only --port 8080 --appIdSuffix debug",
     "release:android": "node scripts/release-android.js",
     "ios": "react-native run-ios --port 8080",
     "lint": "eslint .",

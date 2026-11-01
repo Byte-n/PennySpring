@@ -17,8 +17,10 @@ const path = require('node:path');
 
 const ROOT = path.resolve(__dirname, '..');
 const RES_DIR = path.join(ROOT, 'android/app/src/main/res');
+const DEBUG_RES_DIR = path.join(ROOT, 'android/app/src/debug/res');
 const BRAND_DIR = path.join(ROOT, 'src/assets/brand');
 const COLORS_XML = path.join(RES_DIR, 'values/colors.xml');
+const DEBUG_COLORS_XML = path.join(DEBUG_RES_DIR, 'values/colors.xml');
 
 const CHROME =
   process.env.CHROME_PATH ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
@@ -51,11 +53,11 @@ const FOREGROUND_SCALE = 0.7;
 const LEGACY_SCALE = 0.9;
 const BOOTSPLASH_SCALE = 0.615;
 
-function readLauncherBackground() {
-  const xml = fs.readFileSync(COLORS_XML, 'utf8');
+function readLauncherBackground(colorsXml) {
+  const xml = fs.readFileSync(colorsXml, 'utf8');
   const match = /<color name="ic_launcher_background">\s*(#[0-9a-fA-F]{3,8})\s*<\/color>/.exec(xml);
   if (!match) {
-    throw new Error('ic_launcher_background not found in values/colors.xml');
+    throw new Error(`ic_launcher_background not found in ${colorsXml}`);
   }
   return match[1];
 }
@@ -127,7 +129,12 @@ function main() {
     }
   }
 
-  const background = readLauncherBackground();
+  const background = readLauncherBackground(COLORS_XML);
+  // Adaptive icons resolve the background colour at build time, so debug only needs
+  // the API 24-25 legacy bitmaps re-rendered against its own colour.
+  const debugBackground = fs.existsSync(DEBUG_COLORS_XML)
+    ? readLauncherBackground(DEBUG_COLORS_XML)
+    : null;
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'pennysplash-brand-'));
   const render = createRenderer(tmpDir);
   const written = [];
@@ -174,6 +181,28 @@ function main() {
         path.join(RES_DIR, `mipmap-${bucket}/ic_launcher_round.png`),
       );
 
+      if (debugBackground) {
+        writeAsset(
+          render(`debug-launcher-${bucket}`, legacySize, {
+            svg: APP_ICON,
+            scale: LEGACY_SCALE,
+            background: debugBackground,
+            radius: '22%',
+          }),
+          path.join(DEBUG_RES_DIR, `mipmap-${bucket}/ic_launcher.png`),
+        );
+
+        writeAsset(
+          render(`debug-launcher-round-${bucket}`, legacySize, {
+            svg: APP_ICON,
+            scale: LEGACY_SCALE,
+            background: debugBackground,
+            radius: '50%',
+          }),
+          path.join(DEBUG_RES_DIR, `mipmap-${bucket}/ic_launcher_round.png`),
+        );
+      }
+
       writeAsset(
         render(`bootsplash-${bucket}`, splashSize, {
           svg: APP_ICON,
@@ -189,6 +218,9 @@ function main() {
   }
 
   console.log(`Launcher background: ${background}`);
+  if (debugBackground) {
+    console.log(`Debug launcher background: ${debugBackground}`);
+  }
   for (const line of written) {
     console.log(`  ${line}`);
   }
