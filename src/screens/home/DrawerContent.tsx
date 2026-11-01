@@ -17,6 +17,7 @@ import {
   CaretRightIcon,
   ChatsCircleIcon,
   FlaskIcon,
+  InfoIcon,
   MoonIcon,
   PaletteIcon,
   RobotIcon,
@@ -75,6 +76,13 @@ const MANAGEMENT_ITEMS: DrawerNavItem[] = [
 ];
 
 const DATA_ITEMS: DrawerNavItem[] = [
+  {
+    icon: InfoIcon,
+    key: 'about',
+    label: '关于与更新',
+    requiresBook: false,
+    route: ROOT_ROUTES.About,
+  },
   {
     icon: ArchiveIcon,
     key: 'backup',

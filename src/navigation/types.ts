@@ -6,6 +6,7 @@ import type {
 
 export type RootStackParamList = {
   [ROOT_ROUTES.Home]: undefined;
+  [ROOT_ROUTES.About]: undefined;
   [ROOT_ROUTES.AddRecord]:
     | {
         recordId?: number;

@@ -9,6 +9,7 @@ import com.facebook.react.defaults.DefaultReactHost.getDefaultReactHost
 import com.pennyspring.backup.BackupPackage
 import com.pennyspring.lantransfer.LanTransferPackage
 import com.pennyspring.quickbook.QuickBookPackage
+import com.pennyspring.update.UpdatePackage
 
 class MainApplication : Application(), ReactApplication {
 
@@ -22,6 +23,7 @@ class MainApplication : Application(), ReactApplication {
           add(QuickBookPackage())
           add(BackupPackage())
           add(LanTransferPackage())
+          add(UpdatePackage())
         },
     )
   }

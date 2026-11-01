@@ -1,5 +1,6 @@
 export const ROOT_ROUTES = {
   Home: 'Home',
+  About: 'About',
   AddRecord: 'AddRecord',
   Test: 'Test',
   ThemePreview: 'ThemePreview',

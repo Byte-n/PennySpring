@@ -7,6 +7,7 @@ import {
 } from '@pennyspring/ui';
 
 import { AddRecordScreen } from '../screens/addRecord/AddRecordScreen';
+import { AboutScreen } from '../screens/about/AboutScreen';
 import { AgentSettingsScreen } from '../screens/agentSettings/AgentSettingsScreen';
 import { AssetManageScreen } from '../screens/assetManage/AssetManageScreen';
 import { BackupAiConfigScreen } from '../screens/backup/BackupAiConfigScreen';
@@ -56,6 +57,11 @@ export function RootStackNavigator() {
         component={HomeScreen}
         name={ROOT_ROUTES.Home}
         options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        component={AboutScreen}
+        name={ROOT_ROUTES.About}
+        options={{ title: '关于' }}
       />
       <Stack.Screen
         component={AddRecordScreen}
