@@ -12,15 +12,15 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 import { bookStorage } from './bookStorage';
 import { getServerToken } from './networkBookStore';
 
-const BOOK_STORE_KEY = 'pennyspring-book-store'
+const BOOK_STORE_KEY = 'pennyspring-book-store';
 
-const remoteApiCache = new Map<string, Api>()
+const remoteApiCache = new Map<string, Api>();
 
 /**
  * 统一账本条目：kind 标记来源，其余字段等同 BookRow。
  * 不含 serverUrl——网络账本的 serverUrl 由 CurrentBookRef 持有。
  */
-export type BookEntry = { kind: BookTypeValue } & BookRow
+export type BookEntry = { kind: BookTypeValue } & BookRow;
 
 /**
  * 当前账本的持久化引用：本地账本仅记 id，网络账本记 serverUrl + bookId。
@@ -28,26 +28,26 @@ export type BookEntry = { kind: BookTypeValue } & BookRow
  */
 export type CurrentBookRef =
   | { kind: 'local'; id: number }
-  | { kind: 'remote'; serverUrl: string; bookId: number }
+  | { kind: 'remote'; serverUrl: string; bookId: number };
 
 export function getRemoteApi(
   serverUrl: string,
   token: string = getServerToken(serverUrl),
 ): Api {
-  const cacheKey = `${serverUrl}\n${token}`
-  let api = remoteApiCache.get(cacheKey)
+  const cacheKey = `${serverUrl}\n${token}`;
+  let api = remoteApiCache.get(cacheKey);
   if (!api) {
-    api = createRemoteApi(serverUrl, { token })
-    remoteApiCache.set(cacheKey, api)
+    api = createRemoteApi(serverUrl, { token });
+    remoteApiCache.set(cacheKey, api);
   }
-  return api
+  return api;
 }
 
 function createApiForRef(ref: CurrentBookRef | null): Api {
   if (ref?.kind === 'remote') {
-    return getRemoteApi(ref.serverUrl)
+    return getRemoteApi(ref.serverUrl);
   }
-  return localApi
+  return localApi;
 }
 
 function toLocalEntry(row: BookRow): BookEntry {
@@ -100,7 +100,7 @@ interface PersistedBookStore {
   currentBookRef: CurrentBookRef | null;
 }
 
-let rehydrateBookStore = async (): Promise<void> => undefined
+let rehydrateBookStore = async (): Promise<void> => undefined;
 
 export const useBookStore = create<BookStore>()(
   persist(
@@ -120,7 +120,11 @@ export const useBookStore = create<BookStore>()(
           await rehydrateBookStore();
           const persistedRef = get().currentBookRef;
           const { ref, book } = await getInitialBook(persistedRef);
-          set({ currentBook: book, currentBookRef: ref, initStatus: 'success' });
+          set({
+            currentBook: book,
+            currentBookRef: ref,
+            initStatus: 'success',
+          });
         } catch (error) {
           set({ initStatus: 'error', initError: error as Error });
           throw error;
@@ -138,7 +142,10 @@ export const useBookStore = create<BookStore>()(
         currentBookRef: state.currentBookRef,
       }),
       // shape 由 { currentBook: BookRow } 变为 { currentBookRef }，旧版本数据直接丢弃
-      migrate: (persistedState: unknown, version: number): PersistedBookStore => {
+      migrate: (
+        persistedState: unknown,
+        version: number,
+      ): PersistedBookStore => {
         // 版本 < 2 时，旧数据结构不兼容，清空
         if (version < 2) {
           return { currentBookRef: null };
@@ -153,8 +160,8 @@ export const useBookStore = create<BookStore>()(
 );
 
 rehydrateBookStore = async (): Promise<void> => {
-  await useBookStore.persist.rehydrate()
-}
+  await useBookStore.persist.rehydrate();
+};
 
 export function useGlobalApi(): Api {
   const ref = useBookStore(state => state.currentBookRef);

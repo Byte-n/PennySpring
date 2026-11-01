@@ -57,7 +57,9 @@ export function BadgeAnchoredDemo() {
 
   return (
     <Column gap="normal">
-      <Text color="tertiary" size="xs">图标按钮：数字优先，圆点用于「有更新」；环 2px colorBgContainer</Text>
+      <Text color="tertiary" size="xs">
+        图标按钮：数字优先，圆点用于「有更新」；环 2px colorBgContainer
+      </Text>
       <Row gap="large">
         <Badge count={3} color="danger">
           <IconButton icon="notification" />
@@ -66,7 +68,9 @@ export function BadgeAnchoredDemo() {
           <IconButton icon="calendar" />
         </Badge>
       </Row>
-      <Text color="tertiary" size="xs">头像：在线状态用 success 圆点，不写 0</Text>
+      <Text color="tertiary" size="xs">
+        头像：在线状态用 success 圆点，不写 0
+      </Text>
       <Row gap="large">
         <Badge count={2} color="danger">
           <Avatar text="陈" />
@@ -75,7 +79,9 @@ export function BadgeAnchoredDemo() {
           <Avatar text="王" />
         </Badge>
       </Row>
-      <Text color="tertiary" size="xs">Tab 文案：计数贴在文字右上角，位移 40%</Text>
+      <Text color="tertiary" size="xs">
+        Tab 文案：计数贴在文字右上角，位移 40%
+      </Text>
       <Row style={styles.tabRow}>
         <Badge count={9} color="danger" size="small">
           <Text color="secondary">账本</Text>
@@ -85,7 +91,9 @@ export function BadgeAnchoredDemo() {
         </Badge>
         <Text color="secondary">统计</Text>
       </Row>
-      <Text color="tertiary" size="xs">深色对照：环取 colorBgContainer，自然融进深色卡</Text>
+      <Text color="tertiary" size="xs">
+        深色对照：环取 colorBgContainer，自然融进深色卡
+      </Text>
       <ThemeProvider config={{ algorithm: 'dark' }}>
         <DarkSurface />
       </ThemeProvider>

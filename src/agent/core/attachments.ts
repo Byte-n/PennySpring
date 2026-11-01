@@ -51,8 +51,7 @@ function isAgentAttachment(value: unknown): value is AgentAttachment {
     typeof value.ref === 'string' &&
     value.ref.trim() !== '' &&
     (value.localPath === undefined ||
-      (typeof value.localPath === 'string' &&
-        value.localPath.trim() !== '')) &&
+      (typeof value.localPath === 'string' && value.localPath.trim() !== '')) &&
     typeof value.mediaType === 'string' &&
     value.mediaType.trim() !== '' &&
     typeof value.filename === 'string' &&
@@ -109,7 +108,9 @@ export function resolveAttachmentsByIds(
   attachments: readonly AgentAttachment[],
   ids: readonly string[],
 ): { resolved: AgentAttachment[]; missingIds: string[] } {
-  const byId = new Map(attachments.map(attachment => [attachment.id, attachment]));
+  const byId = new Map(
+    attachments.map(attachment => [attachment.id, attachment]),
+  );
   const resolved: AgentAttachment[] = [];
   const missingIds: string[] = [];
 

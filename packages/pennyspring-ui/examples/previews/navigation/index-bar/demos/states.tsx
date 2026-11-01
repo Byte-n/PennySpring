@@ -56,7 +56,9 @@ function DemoPanel({ index }: { index: string }) {
           <Column gap={0} style={styles.body}>
             <Text weight="medium">{row.name}</Text>
           </Column>
-          <Text style={styles.amount} weight="semibold">{row.amount}</Text>
+          <Text style={styles.amount} weight="semibold">
+            {row.amount}
+          </Text>
         </Row>
       ))}
     </Column>
@@ -74,20 +76,32 @@ export function IndexBarStatesDemo() {
     <Column gap="large">
       <Column style={styles.section}>
         <Text color="tertiary" size="xs">
-          四态：默认二级文字；按压 8% 底；选中主色实底 + 白字；禁用四级文字且不响应
+          四态：默认二级文字；按压 8% 底；选中主色实底 +
+          白字；禁用四级文字且不响应
         </Text>
         <Column style={styles.frame}>
-          <IndexBar data={INDEX_DATA} defaultValue="B" renderItem={renderItem} />
+          <IndexBar
+            data={INDEX_DATA}
+            defaultValue="B"
+            renderItem={renderItem}
+          />
         </Column>
       </Column>
       <Text color="tertiary" size="xs">
-        拖动字母条时中央显示 64 气泡（colorPrimaryBg + 主色字母），抬起后 200ms 淡出
+        拖动字母条时中央显示 64 气泡（colorPrimaryBg + 主色字母），抬起后 200ms
+        淡出
       </Text>
       <Column style={styles.section}>
-        <Text color="tertiary" size="xs">深色对照：面板与字母条同底，分组标题吸顶不加阴影</Text>
+        <Text color="tertiary" size="xs">
+          深色对照：面板与字母条同底，分组标题吸顶不加阴影
+        </Text>
         <ThemeProvider config={{ algorithm: 'dark' }}>
           <Column style={styles.frame}>
-            <IndexBar data={INDEX_DATA} defaultValue="A" renderItem={renderItem} />
+            <IndexBar
+              data={INDEX_DATA}
+              defaultValue="A"
+              renderItem={renderItem}
+            />
           </Column>
         </ThemeProvider>
       </Column>

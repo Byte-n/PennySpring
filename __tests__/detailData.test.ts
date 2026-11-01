@@ -69,13 +69,28 @@ describe('formatDayTitle', () => {
   });
 });
 
-
 describe('filterByMonth', () => {
   test('keeps only records whose recordTime falls in the given month', () => {
-    const inMonth = rec(ts('2026-05-01T00:00:00'), 100, RECORD_TYPE_CATEGORY.expense);
-    const lateInMonth = rec(ts('2026-05-31T23:59:59'), 200, RECORD_TYPE_CATEGORY.income);
-    const prevMonth = rec(ts('2026-04-30T23:59:59'), 300, RECORD_TYPE_CATEGORY.expense);
-    const nextMonth = rec(ts('2026-06-01T00:00:00'), 400, RECORD_TYPE_CATEGORY.expense);
+    const inMonth = rec(
+      ts('2026-05-01T00:00:00'),
+      100,
+      RECORD_TYPE_CATEGORY.expense,
+    );
+    const lateInMonth = rec(
+      ts('2026-05-31T23:59:59'),
+      200,
+      RECORD_TYPE_CATEGORY.income,
+    );
+    const prevMonth = rec(
+      ts('2026-04-30T23:59:59'),
+      300,
+      RECORD_TYPE_CATEGORY.expense,
+    );
+    const nextMonth = rec(
+      ts('2026-06-01T00:00:00'),
+      400,
+      RECORD_TYPE_CATEGORY.expense,
+    );
 
     const result = filterByMonth(
       [inMonth, lateInMonth, prevMonth, nextMonth],
@@ -132,16 +147,32 @@ describe('summarizeCashflow', () => {
 
 describe('groupByDay', () => {
   test('groups records by calendar day in descending day order', () => {
-    const day28a = rec(ts('2026-05-28T20:00:00'), 100, RECORD_TYPE_CATEGORY.expense);
-    const day28b = rec(ts('2026-05-28T08:00:00'), 200, RECORD_TYPE_CATEGORY.expense);
-    const day27 = rec(ts('2026-05-27T12:00:00'), 800000, RECORD_TYPE_CATEGORY.income);
+    const day28a = rec(
+      ts('2026-05-28T20:00:00'),
+      100,
+      RECORD_TYPE_CATEGORY.expense,
+    );
+    const day28b = rec(
+      ts('2026-05-28T08:00:00'),
+      200,
+      RECORD_TYPE_CATEGORY.expense,
+    );
+    const day27 = rec(
+      ts('2026-05-27T12:00:00'),
+      800000,
+      RECORD_TYPE_CATEGORY.income,
+    );
 
     const groups = groupByDay([day28b, day27, day28a]);
 
     expect(groups).toHaveLength(2);
-    expect(groups[0].dayStart).toBe(new Date(ts('2026-05-28T00:00:00')).getTime());
+    expect(groups[0].dayStart).toBe(
+      new Date(ts('2026-05-28T00:00:00')).getTime(),
+    );
     expect(groups[0].records).toEqual([day28a, day28b]);
-    expect(groups[1].dayStart).toBe(new Date(ts('2026-05-27T00:00:00')).getTime());
+    expect(groups[1].dayStart).toBe(
+      new Date(ts('2026-05-27T00:00:00')).getTime(),
+    );
     expect(groups[1].records).toEqual([day27]);
   });
 

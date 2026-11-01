@@ -17,7 +17,8 @@ export function ButtonStateDemo() {
 
       <Space direction="vertical" gap="small" align="start">
         <Text color="secondary" size="sm">
-          loading：图标位显示转圈，保留文案并降到 opacityLoading（0.65），期间不可点
+          loading：图标位显示转圈，保留文案并降到
+          opacityLoading（0.65），期间不可点
         </Text>
         <Space align="center" gap="large" wrap>
           <Button loading type="primary">
@@ -50,7 +51,8 @@ export function ButtonStateDemo() {
 
       <Space direction="vertical" gap="small" align="start">
         <Text color="secondary" size="sm">
-          ghost：solid 降级为 outlined；Button 没有 readonly 语义，用 disabled + 文案说明
+          ghost：solid 降级为 outlined；Button 没有 readonly 语义，用 disabled +
+          文案说明
         </Text>
         <Space align="center" gap="large" wrap>
           <Button ghost>幽灵按钮</Button>

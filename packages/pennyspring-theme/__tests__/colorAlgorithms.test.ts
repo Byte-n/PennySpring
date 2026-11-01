@@ -36,7 +36,8 @@ describe('getAlphaColor (simple variant)', () => {
   let getAlphaColorSimple: (baseColor: string, alpha: number) => string;
 
   beforeAll(() => {
-    getAlphaColorSimple = require('../src/algorithms/colorAlgorithm').getAlphaColor;
+    getAlphaColorSimple =
+      require('../src/algorithms/colorAlgorithm').getAlphaColor;
   });
 
   it('returns rgba string with applied alpha', () => {
@@ -96,7 +97,8 @@ describe('generateColorPalettes (default)', () => {
   let generateColorPalettes: (baseColor: string) => string[];
 
   beforeAll(() => {
-    generateColorPalettes = require('../src/algorithms/colorPalettes').generateColorPalettes;
+    generateColorPalettes =
+      require('../src/algorithms/colorPalettes').generateColorPalettes;
   });
 
   it('returns a 10-element array', () => {
@@ -127,7 +129,8 @@ describe('generateColorPalettes (dark)', () => {
   let generateColorPalettesDark: (baseColor: string) => string[];
 
   beforeAll(() => {
-    generateColorPalettesDark = require('../src/algorithms/colorPalettes').generateColorPalettesDark;
+    generateColorPalettesDark =
+      require('../src/algorithms/colorPalettes').generateColorPalettesDark;
   });
 
   it('returns a 10-element array', () => {
@@ -143,20 +146,28 @@ describe('generateColorPalettes (dark)', () => {
   });
 
   it('produces different palette from default for same base color', () => {
-    const { generateColorPalettes } = require('../src/algorithms/colorPalettes');
+    const {
+      generateColorPalettes,
+    } = require('../src/algorithms/colorPalettes');
     const defaultPalette = generateColorPalettes('#1677ff');
     const darkPalette = generateColorPalettesDark('#1677ff');
     // Dark palette should differ from default palette in at least some positions
-    const differs = defaultPalette.some((c: string, i: number) => c !== darkPalette[i]);
+    const differs = defaultPalette.some(
+      (c: string, i: number) => c !== darkPalette[i],
+    );
     expect(differs).toBe(true);
   });
 });
 
 describe('generateNeutralColorPalettes (default)', () => {
-  let generateNeutralColorPalettes: (bgBase: string, textBase: string) => Record<string, string>;
+  let generateNeutralColorPalettes: (
+    bgBase: string,
+    textBase: string,
+  ) => Record<string, string>;
 
   beforeAll(() => {
-    generateNeutralColorPalettes = require('../src/algorithms/neutralPalettes').generateNeutralColorPalettes;
+    generateNeutralColorPalettes =
+      require('../src/algorithms/neutralPalettes').generateNeutralColorPalettes;
   });
 
   it('returns text gradient with 4 levels', () => {
@@ -208,10 +219,14 @@ describe('generateNeutralColorPalettes (default)', () => {
 });
 
 describe('generateNeutralColorPalettes (dark)', () => {
-  let generateNeutralColorPalettesDark: (bgBase: string, textBase: string) => Record<string, string>;
+  let generateNeutralColorPalettesDark: (
+    bgBase: string,
+    textBase: string,
+  ) => Record<string, string>;
 
   beforeAll(() => {
-    generateNeutralColorPalettesDark = require('../src/algorithms/neutralPalettes').generateNeutralColorPalettesDark;
+    generateNeutralColorPalettesDark =
+      require('../src/algorithms/neutralPalettes').generateNeutralColorPalettesDark;
   });
 
   it('returns text gradient with 4 levels', () => {

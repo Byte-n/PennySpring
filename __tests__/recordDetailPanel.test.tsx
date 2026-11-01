@@ -24,8 +24,7 @@ jest.mock('../src/screens/home/tabs/detail/RecordDetailContent', () => {
   const ReactLib = require('react');
   const { Text } = require('react-native');
   return {
-    RecordDetailContent: () =>
-      ReactLib.createElement(Text, null, '详情内容'),
+    RecordDetailContent: () => ReactLib.createElement(Text, null, '详情内容'),
   };
 });
 
@@ -106,7 +105,9 @@ describe('RecordDetailPanel', () => {
     const renderer = await renderPanel(true);
 
     expect(mockGetDetailById).toHaveBeenCalledWith(9, 1);
-    expect(renderer.root.findAllByType(RNText).map(node => node.props.children)).toContain('详情内容');
+    expect(
+      renderer.root.findAllByType(RNText).map(node => node.props.children),
+    ).toContain('详情内容');
 
     act(() => renderer.unmount());
   });

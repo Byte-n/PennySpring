@@ -5,7 +5,9 @@ export function EmptySlotsDemo() {
   return (
     <Column gap="normal">
       <Column gap="small">
-        <Text color="tertiary" size="sm">icon + title + description + action：最常见组合</Text>
+        <Text color="tertiary" size="sm">
+          icon + title + description + action：最常见组合
+        </Text>
         <Empty
           size="small"
           titleText="还没有创建标签"
@@ -14,7 +16,9 @@ export function EmptySlotsDemo() {
         />
       </Column>
       <Column gap="small">
-        <Text color="tertiary" size="sm">title + description：没有下一步动作时不要硬塞按钮</Text>
+        <Text color="tertiary" size="sm">
+          title + description：没有下一步动作时不要硬塞按钮
+        </Text>
         <Empty
           size="small"
           titleText="搜索无结果"
@@ -22,15 +26,23 @@ export function EmptySlotsDemo() {
         />
       </Column>
       <Column gap="small">
-        <Text color="tertiary" size="sm">文字链操作：筛选空用无底文字，避免出现第二个主色块</Text>
+        <Text color="tertiary" size="sm">
+          文字链操作：筛选空用无底文字，避免出现第二个主色块
+        </Text>
         <Empty
           size="small"
           titleText="「餐饮」没有记录"
-          action={<Button size="small" type="text">清除筛选</Button>}
+          action={
+            <Button size="small" type="text">
+              清除筛选
+            </Button>
+          }
         />
       </Column>
       <Column gap="small">
-        <Text color="tertiary" size="sm">自定义图标：节点自带语义色时不再套默认底板</Text>
+        <Text color="tertiary" size="sm">
+          自定义图标：节点自带语义色时不再套默认底板
+        </Text>
         <Empty
           size="small"
           icon={<Icon icon="warning" size={20} color="error" />}

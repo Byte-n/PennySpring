@@ -81,7 +81,9 @@ export function DialogStateAndSlotsDemo() {
           type={acknowledged ? 'primary' : 'default'}
           onPress={() => {
             setAcknowledged(prev => !prev);
-            setLastEvent(acknowledged ? 'Acknowledgement cleared' : 'Acknowledged');
+            setLastEvent(
+              acknowledged ? 'Acknowledgement cleared' : 'Acknowledged',
+            );
           }}
         >
           {acknowledged ? '已确认' : '点击确认'}

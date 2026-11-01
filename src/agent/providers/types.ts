@@ -4,17 +4,10 @@ import type {
   AgentReasoningEffort,
 } from '@pennyspring/api';
 
-export type {
-  AgentProviderModel,
-  AgentProviderRow,
-  AgentReasoningEffort,
-};
+export type { AgentProviderModel, AgentProviderRow, AgentReasoningEffort };
 
 export type ProviderApiKind =
-  | 'responses'
-  | 'chat'
-  | 'alibaba'
-  | 'openai-compatible';
+  'responses' | 'chat' | 'alibaba' | 'openai-compatible';
 
 /** 数据库提供商行，id 为服务器级自增整数。 */
 export type AgentProviderConfig = AgentProviderRow;

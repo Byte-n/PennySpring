@@ -46,9 +46,8 @@ function renderItemContent<TItem extends WheelGroupItemData>(
   ) => ReactNode,
 ): ReactNode {
   return (
-    renderLabel?.(item, columnIndex, itemIndex)
-    ?? item.label
-    ?? <Text>{item.labelText}</Text>
+    renderLabel?.(item, columnIndex, itemIndex) ??
+    item.label ?? <Text>{item.labelText}</Text>
   );
 }
 

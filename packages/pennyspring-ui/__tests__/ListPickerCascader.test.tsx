@@ -21,8 +21,10 @@ jest.mock('react-native-reanimated', () => {
     default: {
       View: ReactNative.View,
     },
-    createAnimatedComponent: (Component: React.ComponentType<Record<string, unknown>>) =>
-      (props: Record<string, unknown>) => ReactModule.createElement(Component, props),
+    createAnimatedComponent:
+      (Component: React.ComponentType<Record<string, unknown>>) =>
+      (props: Record<string, unknown>) =>
+        ReactModule.createElement(Component, props),
     Easing: {
       bezier: jest.fn(() => (value: number) => value),
     },
@@ -30,12 +32,18 @@ jest.mock('react-native-reanimated', () => {
     runOnJS: jest.fn(fn => fn),
     useAnimatedStyle: (updater: () => Record<string, unknown>) => updater(),
     useSharedValue: (value: number) => ({ value }),
-    withTiming: jest.fn((value: number, _config: unknown, callback?: (finished: boolean) => void) => {
-      if (typeof callback === 'function') {
-        callback(true);
-      }
-      return value;
-    }),
+    withTiming: jest.fn(
+      (
+        value: number,
+        _config: unknown,
+        callback?: (finished: boolean) => void,
+      ) => {
+        if (typeof callback === 'function') {
+          callback(true);
+        }
+        return value;
+      },
+    ),
   };
 });
 
@@ -203,10 +211,11 @@ describe('ListPicker.Cascader', () => {
     expect(value).toEqual(['zhejiang', 'hangzhou']);
     expect(params.level).toBe(1);
     expect(params.isLeaf).toBe(true);
-    expect(params.path.map((item: ListPickerCascaderOption<RegionData>) => item.value)).toEqual([
-      'zhejiang',
-      'hangzhou',
-    ]);
+    expect(
+      params.path.map(
+        (item: ListPickerCascaderOption<RegionData>) => item.value,
+      ),
+    ).toEqual(['zhejiang', 'hangzhou']);
 
     act(() => {
       testRenderer!.unmount();
@@ -344,9 +353,11 @@ describe('ListPicker.Cascader', () => {
     expect(value).toEqual(['zhejiang']);
     expect(params.value).toBe('hangzhou');
     expect(params.level).toBe(1);
-    expect(params.path.map((item: ListPickerCascaderOption<RegionData>) => item.value)).toEqual([
-      'zhejiang',
-    ]);
+    expect(
+      params.path.map(
+        (item: ListPickerCascaderOption<RegionData>) => item.value,
+      ),
+    ).toEqual(['zhejiang']);
 
     act(() => {
       testRenderer!.unmount();
@@ -500,12 +511,10 @@ describe('ListPicker.Cascader', () => {
       );
     });
 
-    expect(
-      JSON.stringify(emptyRenderer!.toJSON()),
-    ).toContain('No options');
-    expect(
-      JSON.stringify(loadingRenderer!.toJSON()),
-    ).toContain('Loading options');
+    expect(JSON.stringify(emptyRenderer!.toJSON())).toContain('No options');
+    expect(JSON.stringify(loadingRenderer!.toJSON())).toContain(
+      'Loading options',
+    );
 
     act(() => {
       emptyRenderer!.unmount();

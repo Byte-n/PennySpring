@@ -30,19 +30,18 @@ export interface TextareaStyles {
   count?: StyleProp<TextStyle>;
 }
 
-export interface TextareaProps
-  extends Omit<
-    TextInputProps,
-    | 'style'
-    | 'editable'
-    | 'multiline'
-    | 'placeholder'
-    | 'value'
-    | 'defaultValue'
-    | 'onChange'
-    | 'onChangeText'
-    | 'readOnly'
-  > {
+export interface TextareaProps extends Omit<
+  TextInputProps,
+  | 'style'
+  | 'editable'
+  | 'multiline'
+  | 'placeholder'
+  | 'value'
+  | 'defaultValue'
+  | 'onChange'
+  | 'onChangeText'
+  | 'readOnly'
+> {
   /**
    * 文本域尺寸。
    * 使用组件库公共尺寸语义，默认值为 normal。

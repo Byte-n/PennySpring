@@ -570,7 +570,9 @@ describe('createAgentTransport', () => {
       validationError,
     );
 
-    const executedError = new Error('工具 createRecord 执行失败：database down');
+    const executedError = new Error(
+      '工具 createRecord 执行失败：database down',
+    );
     expect(options.onError(executedError)).toBe(executedError.message);
     expect(errorLog).toHaveBeenCalledTimes(1);
   });

@@ -80,7 +80,7 @@ describe('createMediaStore', () => {
     const body = fetchMock.mock.calls[0]?.[1]?.body as FormData;
     expect(body.get('booksId')).toBe('7');
     expect(body.has('file')).toBe(true);
-  })
+  });
 
   it('reuses the uploaded ref for the same local file', async () => {
     fetchMock.mockResolvedValue({
@@ -101,7 +101,7 @@ describe('createMediaStore', () => {
     expect(first).toBe(MEDIA_REF);
     expect(second).toBe(MEDIA_REF);
     expect(fetchMock).toHaveBeenCalledTimes(1);
-  })
+  });
 
   it('rejects unsupported remote image types before uploading', async () => {
     const store = createMediaStore({
@@ -231,14 +231,14 @@ describe('createMediaStore', () => {
     await expect(store.toDataUrl(MEDIA_REF)).rejects.toThrow(
       '图片读取失败（404）',
     );
-  })
+  });
 
   it('passes data urls through without fetching', async () => {
     const store = createMediaStore({ kind: 'local', booksId: 1 });
 
-    await expect(
-      store.toDataUrl('data:image/png;base64,QUJD'),
-    ).resolves.toBe('data:image/png;base64,QUJD');
+    await expect(store.toDataUrl('data:image/png;base64,QUJD')).resolves.toBe(
+      'data:image/png;base64,QUJD',
+    );
     expect(fetchMock).not.toHaveBeenCalled();
   });
 

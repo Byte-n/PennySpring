@@ -39,7 +39,9 @@ export function ResultStatusDemo() {
     <Column gap="large">
       {STATUS_SAMPLES.map(({ status, titleText, subtitleText, hint }) => (
         <Column key={status} gap="small">
-          <Text color="tertiary" size="xs">{hint}</Text>
+          <Text color="tertiary" size="xs">
+            {hint}
+          </Text>
           <Result
             size="small"
             status={status}
@@ -49,15 +51,21 @@ export function ResultStatusDemo() {
         </Column>
       ))}
       <Column gap="small">
-        <Text color="tertiary" size="xs">错误态给下一步：主按钮在左，次按钮在右，间距 8</Text>
+        <Text color="tertiary" size="xs">
+          错误态给下一步：主按钮在左，次按钮在右，间距 8
+        </Text>
         <Result
           status="error"
           subtitleText="文件超过 20MB，请缩小时间范围后重试"
           titleText="导出失败"
           extra={
             <Row gap="small">
-              <Button size="small" variant="solid">重新导出</Button>
-              <Button size="small" variant="outlined">取消</Button>
+              <Button size="small" variant="solid">
+                重新导出
+              </Button>
+              <Button size="small" variant="outlined">
+                取消
+              </Button>
             </Row>
           }
         />

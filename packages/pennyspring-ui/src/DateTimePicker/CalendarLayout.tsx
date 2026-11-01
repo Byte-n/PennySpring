@@ -176,8 +176,8 @@ export function DateTimeCalendarPicker(props: DateTimePickerCoreProps) {
   );
   const mainTimestamp = mainTime ?? fallbackTimestamp;
   const committedDate = useMemo(() => new Date(mainTimestamp), [mainTimestamp]);
-  const [draft, setDraft] = useState<Date>(
-    () => normalizeDateOnly(new Date(mainTimestamp), dateOnly),
+  const [draft, setDraft] = useState<Date>(() =>
+    normalizeDateOnly(new Date(mainTimestamp), dateOnly),
   );
   const [view, setView] = useState<DateTimeCalendarView>('calendar');
 
@@ -199,12 +199,7 @@ export function DateTimeCalendarPicker(props: DateTimePickerCoreProps) {
       duration: token.motionDurationMid,
       ...(easing ? { easing } : null),
     });
-  }, [
-    flipProgress,
-    token.motionDurationMid,
-    token.motionEaseOut,
-    view,
-  ]);
+  }, [flipProgress, token.motionDurationMid, token.motionEaseOut, view]);
 
   const calendarAnimatedStyle = useAnimatedStyle(() => ({
     opacity: 1 - flipProgress.value,
@@ -222,18 +217,19 @@ export function DateTimeCalendarPicker(props: DateTimePickerCoreProps) {
     [draftDayKey],
   );
   const timeColumns = useMemo(
-    () => showTime
-      ? buildTimeColumns({
-        baseDate: timeBaseDate,
-        disabledDate: props.disabledDate,
-        formatLabel: props.formatLabel,
-        max: props.max,
-        min: props.min,
-        minuteStep: props.minuteStep,
-        precision: getTimePrecision(precision),
-        secondStep: props.secondStep,
-      })
-      : [],
+    () =>
+      showTime
+        ? buildTimeColumns({
+            baseDate: timeBaseDate,
+            disabledDate: props.disabledDate,
+            formatLabel: props.formatLabel,
+            max: props.max,
+            min: props.min,
+            minuteStep: props.minuteStep,
+            precision: getTimePrecision(precision),
+            secondStep: props.secondStep,
+          })
+        : [],
     [
       props.disabledDate,
       props.formatLabel,
@@ -247,9 +243,8 @@ export function DateTimeCalendarPicker(props: DateTimePickerCoreProps) {
     ],
   );
   const timeValues = useMemo(
-    () => showTime
-      ? dateToTimePickerValue(draft, getTimePrecision(precision))
-      : [],
+    () =>
+      showTime ? dateToTimePickerValue(draft, getTimePrecision(precision)) : [],
     [draft, precision, showTime],
   );
   const columnTypes = useMemo(
@@ -296,26 +291,32 @@ export function DateTimeCalendarPicker(props: DateTimePickerCoreProps) {
     ? formatDateValue(props.max, panelPrecision)
     : undefined;
   const marks = useMemo(
-    () => props.marks?.map(mark => ({
-      date: formatDateValue(mark.date, panelPrecision),
-      content: mark.content,
-    })),
+    () =>
+      props.marks?.map(mark => ({
+        date: formatDateValue(mark.date, panelPrecision),
+        content: mark.content,
+      })),
     [panelPrecision, props.marks],
   );
   // 面板只处理字符串值，这里把字符串还原成 Date 后交给外部禁用判断。
   const panelDisabledDate = useMemo(
-    () => props.disabledDate
-      ? (value: string) => props.disabledDate!(parseDateValue(value, committedDate))
-      : undefined,
+    () =>
+      props.disabledDate
+        ? (value: string) =>
+            props.disabledDate!(parseDateValue(value, committedDate))
+        : undefined,
     [committedDate, props.disabledDate],
   );
 
-  const timeInvalid = showTime && timeColumns.some((column, columnIndex) => {
-    const itemValue = timeValues[columnIndex];
+  const timeInvalid =
+    showTime &&
+    timeColumns.some((column, columnIndex) => {
+      const itemValue = timeValues[columnIndex];
 
-    return column.find(item => item.value === itemValue)?.disabled === true;
-  });
-  const resolvedOkDisabled = props.okDisabled === true || timeInvalid || isLoading;
+      return column.find(item => item.value === itemValue)?.disabled === true;
+    });
+  const resolvedOkDisabled =
+    props.okDisabled === true || timeInvalid || isLoading;
 
   function applyDraft(next: Date) {
     setDraft(next);
@@ -397,9 +398,11 @@ export function DateTimeCalendarPicker(props: DateTimePickerCoreProps) {
         readonly={resolvedReadonly}
         size={size}
         status={field.status}
-        valueText={hasValue
-          ? formatValueText(props.parts, precision, committedDate)
-          : undefined}
+        valueText={
+          hasValue
+            ? formatValueText(props.parts, precision, committedDate)
+            : undefined
+        }
       />
       <CalendarPickerSheet
         cancel={props.cancel}
@@ -500,11 +503,7 @@ export function DateTimeCalendarPicker(props: DateTimePickerCoreProps) {
                 ? formatTimeDateValue(draft, getTimePrecision(precision))
                 : formatShortDate(draft)}
             </Text>
-            <Text
-              color="tertiary"
-              size="sm"
-              style={[styles.entryArrow]}
-            >
+            <Text color="tertiary" size="sm" style={[styles.entryArrow]}>
               ›
             </Text>
           </Pressable>

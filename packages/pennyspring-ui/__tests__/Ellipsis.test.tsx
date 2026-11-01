@@ -12,7 +12,9 @@ interface TestNode {
   children?: (TestNode | string)[];
 }
 
-function findRNTextWithOnTextLayout(root: ReactTestRenderer['root']): TestNode | null {
+function findRNTextWithOnTextLayout(
+  root: ReactTestRenderer['root'],
+): TestNode | null {
   let found: TestNode | null = null;
   function walk(node: TestNode) {
     if (found) return;
@@ -30,10 +32,7 @@ function findRNTextWithOnTextLayout(root: ReactTestRenderer['root']): TestNode |
   return found;
 }
 
-function triggerTextLayout(
-  renderer: ReactTestRenderer,
-  lineCount: number,
-) {
+function triggerTextLayout(renderer: ReactTestRenderer, lineCount: number) {
   const node = findRNTextWithOnTextLayout(renderer.root);
   if (!node) {
     throw new Error('No RNText with onTextLayout found');
@@ -68,7 +67,8 @@ function driveSearchToConvergence(
     if (!node) break;
 
     const candidateText = node.props.children as string;
-    const lineCount = candidateText.length > overflowThreshold ? rows + 1 : rows;
+    const lineCount =
+      candidateText.length > overflowThreshold ? rows + 1 : rows;
 
     const lines = Array.from({ length: lineCount }, (_, idx) => ({
       x: 0,
@@ -108,7 +108,9 @@ describe('Ellipsis', () => {
 
       triggerTextLayout(renderer!, 1);
 
-      const text = renderer!.root.findByProps({ 'data-testid': 'ellipsis-text' });
+      const text = renderer!.root.findByProps({
+        'data-testid': 'ellipsis-text',
+      });
       expect(text.props.children).toBe(SHORT_TEXT);
     });
   });
@@ -125,7 +127,9 @@ describe('Ellipsis', () => {
       triggerTextLayout(renderer!, 5);
       driveSearchToConvergence(renderer!, 1, 50);
 
-      const text = renderer!.root.findByProps({ 'data-testid': 'ellipsis-text' });
+      const text = renderer!.root.findByProps({
+        'data-testid': 'ellipsis-text',
+      });
       const content = text.props.children as string;
       expect(content).toContain('...');
       expect(content.length).toBeLessThan(LONG_TEXT.length + 3);
@@ -146,7 +150,9 @@ describe('Ellipsis', () => {
       driveSearchToConvergence(renderer!, 1, lastFittingLength);
 
       // Assert
-      const text = renderer!.root.findByProps({ 'data-testid': 'ellipsis-text' });
+      const text = renderer!.root.findByProps({
+        'data-testid': 'ellipsis-text',
+      });
       const content = text.props.children as string;
       expect(content.replace('...', '').length).toBeLessThanOrEqual(
         lastFittingLength,
@@ -181,14 +187,20 @@ describe('Ellipsis', () => {
       let renderer: ReactTestRenderer;
       act(() => {
         renderer = create(
-          <Ellipsis content={LONG_TEXT} direction="start" data-testid="ellipsis" />,
+          <Ellipsis
+            content={LONG_TEXT}
+            direction="start"
+            data-testid="ellipsis"
+          />,
         );
       });
 
       triggerTextLayout(renderer!, 5);
       driveSearchToConvergence(renderer!, 1, 50);
 
-      const text = renderer!.root.findByProps({ 'data-testid': 'ellipsis-text' });
+      const text = renderer!.root.findByProps({
+        'data-testid': 'ellipsis-text',
+      });
       const content = text.props.children as string;
       expect(content).toContain('...');
       expect(content.startsWith('...')).toBe(true);
@@ -200,14 +212,20 @@ describe('Ellipsis', () => {
       let renderer: ReactTestRenderer;
       act(() => {
         renderer = create(
-          <Ellipsis content={LONG_TEXT} direction="middle" data-testid="ellipsis" />,
+          <Ellipsis
+            content={LONG_TEXT}
+            direction="middle"
+            data-testid="ellipsis"
+          />,
         );
       });
 
       triggerTextLayout(renderer!, 5);
       driveSearchToConvergence(renderer!, 1, 25);
 
-      const text = renderer!.root.findByProps({ 'data-testid': 'ellipsis-text' });
+      const text = renderer!.root.findByProps({
+        'data-testid': 'ellipsis-text',
+      });
       const content = text.props.children as string;
       expect(content).toContain('...');
       expect(content.startsWith('T')).toBe(true);
@@ -228,7 +246,9 @@ describe('Ellipsis', () => {
       // Threshold is higher for 2 rows (more text fits)
       driveSearchToConvergence(renderer!, 2, 100);
 
-      const text = renderer!.root.findByProps({ 'data-testid': 'ellipsis-text' });
+      const text = renderer!.root.findByProps({
+        'data-testid': 'ellipsis-text',
+      });
       const content = text.props.children as string;
       expect(content).toContain('...');
       expect(content.length).toBeLessThan(LONG_TEXT.length + 3);
@@ -258,7 +278,9 @@ describe('Ellipsis', () => {
         expandButton.props.onPress();
       });
 
-      const text = renderer!.root.findByProps({ 'data-testid': 'ellipsis-text' });
+      const text = renderer!.root.findByProps({
+        'data-testid': 'ellipsis-text',
+      });
       expect(text.props.children).toBe(LONG_TEXT);
     });
 
@@ -292,7 +314,9 @@ describe('Ellipsis', () => {
         collapseButton.props.onPress();
       });
 
-      const text = renderer!.root.findByProps({ 'data-testid': 'ellipsis-text' });
+      const text = renderer!.root.findByProps({
+        'data-testid': 'ellipsis-text',
+      });
       const content = text.props.children as string;
       expect(content).toContain('...');
     });
@@ -350,7 +374,9 @@ describe('Ellipsis', () => {
         );
       });
 
-      const text = renderer!.root.findByProps({ 'data-testid': 'ellipsis-text' });
+      const text = renderer!.root.findByProps({
+        'data-testid': 'ellipsis-text',
+      });
       expect(text.props.children).toBe(LONG_TEXT);
     });
   });
@@ -361,11 +387,7 @@ describe('Ellipsis', () => {
       let renderer: ReactTestRenderer;
       act(() => {
         renderer = create(
-          <Ellipsis
-            content={SHORT_TEXT}
-            size="small"
-            data-testid="ellipsis"
-          />,
+          <Ellipsis content={SHORT_TEXT} size="small" data-testid="ellipsis" />,
         );
       });
 
@@ -373,7 +395,9 @@ describe('Ellipsis', () => {
       triggerTextLayout(renderer!, 1);
 
       // Assert
-      const text = renderer!.root.findByProps({ 'data-testid': 'ellipsis-text' });
+      const text = renderer!.root.findByProps({
+        'data-testid': 'ellipsis-text',
+      });
       expect(text.props.size).toBe('sm');
     });
   });

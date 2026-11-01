@@ -1,6 +1,6 @@
 ---
 paths:
-  - "packages/data/src/**/*.ts"
+  - 'packages/data/src/**/*.ts'
 ---
 
 # Data 包编码风格

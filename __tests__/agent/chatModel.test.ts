@@ -7,9 +7,7 @@ import {
 } from '../../src/agent/core/messages';
 import { formatTokenCount } from '../../src/agent/ui/chatModel';
 
-function createRow(
-  overrides: Partial<AgentMessageRow> = {},
-): AgentMessageRow {
+function createRow(overrides: Partial<AgentMessageRow> = {}): AgentMessageRow {
   return {
     id: 1,
     threadId: 1,
@@ -25,8 +23,14 @@ function createRow(
 describe('sumUsage', () => {
   it('汇总已持久化的 token 用量', () => {
     const rows = [
-      createRow({ usage: '{"promptTokens":10,"completionTokens":2,"totalTokens":12}' }),
-      createRow({ id: 2, role: 'assistant', usage: '{"promptTokens":20,"completionTokens":3,"totalTokens":23}' }),
+      createRow({
+        usage: '{"promptTokens":10,"completionTokens":2,"totalTokens":12}',
+      }),
+      createRow({
+        id: 2,
+        role: 'assistant',
+        usage: '{"promptTokens":20,"completionTokens":3,"totalTokens":23}',
+      }),
       createRow({ id: 3, role: 'assistant', usage: '' }),
     ];
 
@@ -38,9 +42,9 @@ describe('sumUsage', () => {
   });
 
   it('解析合法值与非法值', () => {
-    expect(parseUsage('{"promptTokens":1,"completionTokens":2,"totalTokens":3}')).toEqual(
-      { promptTokens: 1, completionTokens: 2, totalTokens: 3 },
-    );
+    expect(
+      parseUsage('{"promptTokens":1,"completionTokens":2,"totalTokens":3}'),
+    ).toEqual({ promptTokens: 1, completionTokens: 2, totalTokens: 3 });
     expect(parseUsage('')).toBeUndefined();
     expect(parseUsage('[]')).toBeUndefined();
   });

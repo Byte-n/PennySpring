@@ -71,18 +71,18 @@ describe('data-server 路由分组', () => {
   });
 
   it('rejects malformed JSON request bodies', async () => {
-    const api = { book: { getAll: jest.fn() } } as unknown as Api
-    const app = createApp(api)
+    const api = { book: { getAll: jest.fn() } } as unknown as Api;
+    const app = createApp(api);
 
     const response = await app.request('/api/book/getAll', {
       method: 'POST',
       headers: { 'content-type': 'application/json', ...AUTH_HEADERS },
       body: '{',
-    })
+    });
 
-    expect(response.status).toBe(400)
-    expect(await response.json()).toEqual({ error: '请求体格式不正确' })
-  })
+    expect(response.status).toBe(400);
+    expect(await response.json()).toEqual({ error: '请求体格式不正确' });
+  });
 
   it('rejects the database accessor group', async () => {
     const api = {} as unknown as Api;

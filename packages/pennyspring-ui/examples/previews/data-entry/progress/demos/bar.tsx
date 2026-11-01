@@ -13,13 +13,19 @@ export function ProgressBarDemo() {
     <Column gap="normal">
       {BAR_SAMPLES.map(({ size, percent, hint }) => (
         <Column key={size} gap="small">
-          <Text color="tertiary" size="xs">{hint}</Text>
-          <Text color="secondary" size="xs">预算</Text>
+          <Text color="tertiary" size="xs">
+            {hint}
+          </Text>
+          <Text color="secondary" size="xs">
+            预算
+          </Text>
           <Progress.Bar percent={percent} size={size} />
         </Column>
       ))}
       <Column gap="small">
-        <Text color="tertiary" size="xs">0% 不渲染圆头；100% 铺满轨道</Text>
+        <Text color="tertiary" size="xs">
+          0% 不渲染圆头；100% 铺满轨道
+        </Text>
         <Progress.Bar percent={0} />
         <Progress.Bar percent={100} />
       </Column>

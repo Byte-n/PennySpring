@@ -17,8 +17,7 @@ export const assets = sqliteTable('tb_asset', {
   // 资产主键，自增长
   id: primaryKeyColumn(),
   // 所属账本主键，关联 tb_books.id
-  booksId: integerColumn('books_id')
-    .notNull(),
+  booksId: integerColumn('books_id').notNull(),
   // 资产名称（如"招商银行储蓄卡"）
   name: text('name').notNull(),
   // 当前余额，单位：分；通用资产为持有金额，信用卡/信用付为待还金额（正数=欠款）

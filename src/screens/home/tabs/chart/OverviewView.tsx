@@ -137,13 +137,7 @@ export function OverviewView({
   );
   const analysis = useMemo(
     () =>
-      aggregateExpenseStatsForRange(
-        records,
-        types,
-        null,
-        period.start,
-        cutoff,
-      ),
+      aggregateExpenseStatsForRange(records, types, null, period.start, cutoff),
     [records, types, period.start, cutoff],
   );
   const previousAnalysis = useMemo(() => {
@@ -199,7 +193,8 @@ export function OverviewView({
     selectedDay + 1,
   ).getTime();
   const dayStats = useMemo(
-    () => buildDayCategoryStats(records, types, dayStart, dayEnd, DAY_DETAIL_LIMIT),
+    () =>
+      buildDayCategoryStats(records, types, dayStart, dayEnd, DAY_DETAIL_LIMIT),
     [records, types, dayStart, dayEnd],
   );
   const dayTotal = calendar.find(day => day.day === selectedDay)?.amount ?? 0;
@@ -212,8 +207,9 @@ export function OverviewView({
   const recentAverage =
     recentDays === 0
       ? 0
-      : daily.slice(-RECENT_AVERAGE_DAYS).reduce((sum, day) => sum + day.amount, 0) /
-        recentDays;
+      : daily
+          .slice(-RECENT_AVERAGE_DAYS)
+          .reduce((sum, day) => sum + day.amount, 0) / recentDays;
   const projection =
     period.isCurrent && remainingDays > 0 && daily.length > 0
       ? comparison.current.expense + recentAverage * remainingDays
@@ -240,7 +236,9 @@ export function OverviewView({
   const structureSegments = structure.map((item, index) => ({
     key: item.key,
     value: item.amount,
-    color: item.isOther ? token.colorTextTertiary : categoryColorAt(index, token),
+    color: item.isOther
+      ? token.colorTextTertiary
+      : categoryColorAt(index, token),
   }));
   const structureColumns = [
     structure.slice(0, 2),
@@ -337,7 +335,7 @@ export function OverviewView({
             title="支出节奏"
             subtitle="按日累计 · 截至今天"
             extra={
-              <Row align="center" gap="small" >
+              <Row align="center" gap="small">
                 <Column style={styles.legendLine} />
                 <Text size="xs" color="tertiary">
                   本月
@@ -389,9 +387,13 @@ export function OverviewView({
             <StackBar segments={structureSegments} />
             <Row gap="large" style={styles.legendGrid}>
               {structureColumns.map((column, columnIndex) => (
-                <Column key={`column-${columnIndex}`} style={styles.legendColumn} gap="small">
+                <Column
+                  key={`column-${columnIndex}`}
+                  style={styles.legendColumn}
+                  gap="small"
+                >
                   {column.map((item, index) => (
-                    <Row key={item.key} align="center" gap={token.marginXXS} >
+                    <Row key={item.key} align="center" gap={token.marginXXS}>
                       <ColorDot
                         color={
                           item.isOther
@@ -399,7 +401,11 @@ export function OverviewView({
                             : categoryColorAt(columnIndex * 2 + index, token)
                         }
                       />
-                      <Text size="xs" color="secondary" style={styles.legendName}>
+                      <Text
+                        size="xs"
+                        color="secondary"
+                        style={styles.legendName}
+                      >
                         {item.name}
                       </Text>
                       <Text size="xs" weight="medium">

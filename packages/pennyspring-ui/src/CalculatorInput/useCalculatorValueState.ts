@@ -1,6 +1,10 @@
 import { useCallback, useState } from 'react';
 import { useControllableValue } from '../_hooks';
-import type { CalculatorInputOkParams, CalculatorValueState, UseCalculatorValueStateOptions } from './types';
+import type {
+  CalculatorInputOkParams,
+  CalculatorValueState,
+  UseCalculatorValueStateOptions,
+} from './types';
 
 const EMPTY_VALUE = '';
 

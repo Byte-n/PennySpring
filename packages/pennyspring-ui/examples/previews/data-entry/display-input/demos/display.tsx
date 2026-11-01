@@ -22,11 +22,7 @@ export function DisplayInputDisplayDemo() {
         valueText="Block 模式占据整行宽度"
       />
       <Row style={styles.row}>
-        <DisplayInput
-          display="inline"
-          labelText="Inline 1"
-          valueText="短值"
-        />
+        <DisplayInput display="inline" labelText="Inline 1" valueText="短值" />
         <DisplayInput
           display="inline"
           labelText="Inline 2"

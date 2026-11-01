@@ -201,7 +201,9 @@ describe('KeyboardAware', () => {
       );
     });
 
-    expect(testRenderer!.root.findByType(ScrollView).props.scrollEnabled).toBe(true);
+    expect(testRenderer!.root.findByType(ScrollView).props.scrollEnabled).toBe(
+      true,
+    );
   });
 
   it('does not duplicate keyboard inset when form scroll is inside a keyboard aware screen', () => {
@@ -347,12 +349,9 @@ describe('KeyboardAware', () => {
     });
 
     expect(scrollToSpy).toHaveBeenCalled();
-    const lastCall =
-      scrollToSpy.mock.calls[scrollToSpy.mock.calls.length - 1];
+    const lastCall = scrollToSpy.mock.calls[scrollToSpy.mock.calls.length - 1];
 
-    expect(lastCall![0]).toEqual(
-      expect.objectContaining({ animated: false }),
-    );
+    expect(lastCall![0]).toEqual(expect.objectContaining({ animated: false }));
 
     scrollToSpy.mockRestore();
   });

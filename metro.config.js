@@ -26,8 +26,15 @@ const config = {
           platform,
         );
       }
-      if (process.env.DATA_MODE === 'remote' && moduleName === '@pennyspring/api') {
-        return context.resolveRequest(context, '@pennyspring/api/remote', platform);
+      if (
+        process.env.DATA_MODE === 'remote' &&
+        moduleName === '@pennyspring/api'
+      ) {
+        return context.resolveRequest(
+          context,
+          '@pennyspring/api/remote',
+          platform,
+        );
       }
       return context.resolveRequest(context, moduleName, platform);
     },

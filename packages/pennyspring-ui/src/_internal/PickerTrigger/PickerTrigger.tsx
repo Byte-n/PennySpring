@@ -40,15 +40,14 @@ export function PickerTrigger({
   const isDisabled = disabled === true;
   const isReadonly = readonly === true;
   const externalSuffix = displayInputProps?.suffix;
-  const shouldShowClearButton = allowClear === true
-    && hasValue === true
-    && !isDisabled
-    && !isReadonly
-    && externalSuffix === undefined;
-  const {
-    root: externalInputRootStyle,
-    ...externalInputSlotStyles
-  } = externalInputStyles ?? {};
+  const shouldShowClearButton =
+    allowClear === true &&
+    hasValue === true &&
+    !isDisabled &&
+    !isReadonly &&
+    externalSuffix === undefined;
+  const { root: externalInputRootStyle, ...externalInputSlotStyles } =
+    externalInputStyles ?? {};
 
   function handleTriggerPress(): void {
     if (skipNextTriggerPressRef.current) {
@@ -83,21 +82,24 @@ export function PickerTrigger({
     );
   }
 
-  const resolvedSuffix = externalSuffix !== undefined
-    ? externalSuffix
-    : shouldShowClearButton
-      ? renderClearButton()
-      : suffix;
-  const resolvedUnderline: TriggerFieldStyles['underline'] = active === true
-    ? [styles.underlineActive, externalInputSlotStyles.underline]
-    : externalInputSlotStyles.underline;
+  const resolvedSuffix =
+    externalSuffix !== undefined
+      ? externalSuffix
+      : shouldShowClearButton
+        ? renderClearButton()
+        : suffix;
+  const resolvedUnderline: TriggerFieldStyles['underline'] =
+    active === true
+      ? [styles.underlineActive, externalInputSlotStyles.underline]
+      : externalInputSlotStyles.underline;
   const resolvedInputStyles: TriggerFieldStyles = {
     ...externalInputSlotStyles,
     underline: resolvedUnderline,
   };
-  const resolvedTriggerStyle = externalInputRootStyle === undefined
-    ? externalTriggerStyle
-    : [externalInputRootStyle, externalTriggerStyle];
+  const resolvedTriggerStyle =
+    externalInputRootStyle === undefined
+      ? externalTriggerStyle
+      : [externalInputRootStyle, externalTriggerStyle];
 
   return (
     <DisplayInput

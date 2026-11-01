@@ -13,8 +13,10 @@ export interface SwitchStyles {
   text?: StyleProp<TextStyle>;
 }
 
-export interface SwitchProps
-  extends Omit<PressableProps, 'style' | 'children' | 'disabled' | 'onPress'> {
+export interface SwitchProps extends Omit<
+  PressableProps,
+  'style' | 'children' | 'disabled' | 'onPress'
+> {
   value?: boolean;
   defaultValue?: boolean;
   onChange?: (value: boolean) => void;

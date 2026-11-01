@@ -13,7 +13,9 @@ export function SliderSizeDemo() {
     <Column gap="normal">
       {SIZE_SAMPLES.map(({ size, hint, value }) => (
         <Column key={size} gap="small">
-          <Text color="tertiary" size="sm">{hint}</Text>
+          <Text color="tertiary" size="sm">
+            {hint}
+          </Text>
           <Slider defaultValue={value} size={size} />
         </Column>
       ))}

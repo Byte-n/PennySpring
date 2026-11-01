@@ -51,5 +51,13 @@ export const useCarouselAutoplay = (params: UseCarouselAutoplayParams) => {
     return () => {
       clearTimeout(timer);
     };
-  }, [autoplay, autoplayInterval, dragging, swipeNext, swipePrev, total, current]);
+  }, [
+    autoplay,
+    autoplayInterval,
+    dragging,
+    swipeNext,
+    swipePrev,
+    total,
+    current,
+  ]);
 };

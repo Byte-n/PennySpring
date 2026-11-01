@@ -19,24 +19,14 @@ export type DateTimePickerLayout = 'wheel' | 'calendar';
 export type DateTimePickerParts = 'datetime' | 'date' | 'time';
 
 export type DateTimePickerPrecision =
-  | 'year'
-  | 'month'
-  | 'day'
-  | 'hour'
-  | 'minute'
-  | 'second';
+  'year' | 'month' | 'day' | 'hour' | 'minute' | 'second';
 
 export type DateTimePickerDatePrecision = 'year' | 'month' | 'day';
 
 export type DateTimePickerTimePrecision = 'hour' | 'minute' | 'second';
 
 export type DateTimePickerColumnType =
-  | 'year'
-  | 'month'
-  | 'day'
-  | 'hour'
-  | 'minute'
-  | 'second';
+  'year' | 'month' | 'day' | 'hour' | 'minute' | 'second';
 
 export interface DateTimePickerLabelParams {
   type: DateTimePickerColumnType;
@@ -115,20 +105,18 @@ export interface DateTimePickerProps {
 }
 
 /** 仅日期预设：屏蔽时间步长等时间专属配置。 */
-export interface DateTimePickerDateProps
-  extends Omit<
-    DateTimePickerProps,
-    'precision' | 'minuteStep' | 'secondStep'
-  > {
+export interface DateTimePickerDateProps extends Omit<
+  DateTimePickerProps,
+  'precision' | 'minuteStep' | 'secondStep'
+> {
   precision?: DateTimePickerDatePrecision;
 }
 
 /** 仅时间预设：强制滚轮布局，故屏蔽布局、日期标记与日期禁用谓词。 */
-export interface DateTimePickerTimeProps
-  extends Omit<
-    DateTimePickerProps,
-    'precision' | 'layout' | 'marks' | 'disabledDate'
-  > {
+export interface DateTimePickerTimeProps extends Omit<
+  DateTimePickerProps,
+  'precision' | 'layout' | 'marks' | 'disabledDate'
+> {
   precision?: DateTimePickerTimePrecision;
 }
 

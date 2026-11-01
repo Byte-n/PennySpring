@@ -1,50 +1,45 @@
-import { create } from 'zustand'
-import { createJSONStorage, persist } from 'zustand/middleware'
+import { create } from 'zustand';
+import { createJSONStorage, persist } from 'zustand/middleware';
 
-import { bookStorage } from '../../stores/bookStorage'
-import type { BackupDirectoryTarget } from './directory'
+import { bookStorage } from '../../stores/bookStorage';
+import type { BackupDirectoryTarget } from './directory';
 
-const AUTO_BACKUP_STORE_KEY = 'pennyspring-auto-backup'
-export const DEFAULT_AUTO_BACKUP_RETENTION = 5
+const AUTO_BACKUP_STORE_KEY = 'pennyspring-auto-backup';
+export const DEFAULT_AUTO_BACKUP_RETENTION = 5;
 
 export type AutoBackupFrequency =
-  | 'off'
-  | 'everyLaunch'
-  | 'daily'
-  | 'weekly'
-  | 'monthly'
-  | 'customDays'
+  'off' | 'everyLaunch' | 'daily' | 'weekly' | 'monthly' | 'customDays';
 
-export type AutoBackupRunStatus = 'success' | 'failed' | 'skipped' | ''
+export type AutoBackupRunStatus = 'success' | 'failed' | 'skipped' | '';
 
 export interface AutoBackupSettings {
-  frequency: AutoBackupFrequency
-  customDays: number
-  includeImages: boolean
-  includeAgent: boolean
-  bookIds: number[] | null
-  directory: BackupDirectoryTarget | null
-  retention: number | null
-  lastRunAt: number
-  lastRunStatus: AutoBackupRunStatus
-  lastRunError: string
-  lastFileName: string
+  frequency: AutoBackupFrequency;
+  customDays: number;
+  includeImages: boolean;
+  includeAgent: boolean;
+  bookIds: number[] | null;
+  directory: BackupDirectoryTarget | null;
+  retention: number | null;
+  lastRunAt: number;
+  lastRunStatus: AutoBackupRunStatus;
+  lastRunError: string;
+  lastFileName: string;
 }
 
 interface AutoBackupStore extends AutoBackupSettings {
-  setFrequency: (frequency: AutoBackupFrequency) => void
-  setCustomDays: (days: number) => void
-  setIncludeImages: (includeImages: boolean) => void
-  setIncludeAgent: (includeAgent: boolean) => void
-  setBookIds: (bookIds: number[] | null) => void
-  setDirectory: (directory: BackupDirectoryTarget | null) => void
-  setRetention: (retention: number | null) => void
+  setFrequency: (frequency: AutoBackupFrequency) => void;
+  setCustomDays: (days: number) => void;
+  setIncludeImages: (includeImages: boolean) => void;
+  setIncludeAgent: (includeAgent: boolean) => void;
+  setBookIds: (bookIds: number[] | null) => void;
+  setDirectory: (directory: BackupDirectoryTarget | null) => void;
+  setRetention: (retention: number | null) => void;
   markRun: (input: {
-    status: AutoBackupRunStatus
-    at: number
-    fileName?: string
-    error?: string
-  }) => void
+    status: AutoBackupRunStatus;
+    at: number;
+    fileName?: string;
+    error?: string;
+  }) => void;
 }
 
 const DEFAULT_SETTINGS: AutoBackupSettings = {
@@ -59,18 +54,18 @@ const DEFAULT_SETTINGS: AutoBackupSettings = {
   lastRunStatus: '',
   lastRunError: '',
   lastFileName: '',
-}
+};
 
 export function clampRetention(value: number | null): number | null {
   if (value === null || !Number.isFinite(value) || value <= 0) {
-    return null
+    return null;
   }
-  return Math.max(1, Math.floor(value))
+  return Math.max(1, Math.floor(value));
 }
 
 export function clampCustomDays(value: number): number {
-  if (!Number.isFinite(value)) return DEFAULT_SETTINGS.customDays
-  return Math.max(1, Math.min(365, Math.floor(value)))
+  if (!Number.isFinite(value)) return DEFAULT_SETTINGS.customDays;
+  return Math.max(1, Math.min(365, Math.floor(value)));
 }
 
 export const useAutoBackupStore = create<AutoBackupStore>()(
@@ -78,7 +73,8 @@ export const useAutoBackupStore = create<AutoBackupStore>()(
     set => ({
       ...DEFAULT_SETTINGS,
       setFrequency: frequency => set({ frequency }),
-      setCustomDays: customDays => set({ customDays: clampCustomDays(customDays) }),
+      setCustomDays: customDays =>
+        set({ customDays: clampCustomDays(customDays) }),
       setIncludeImages: includeImages => set({ includeImages }),
       setIncludeAgent: includeAgent => set({ includeAgent }),
       setBookIds: bookIds => set({ bookIds }),
@@ -112,14 +108,14 @@ export const useAutoBackupStore = create<AutoBackupStore>()(
       version: 1,
     },
   ),
-)
+);
 
 export async function rehydrateAutoBackup(): Promise<void> {
-  await useAutoBackupStore.persist.rehydrate()
+  await useAutoBackupStore.persist.rehydrate();
 }
 
 export function getAutoBackupSettings(): AutoBackupSettings {
-  const state = useAutoBackupStore.getState()
+  const state = useAutoBackupStore.getState();
   return {
     frequency: state.frequency,
     customDays: state.customDays,
@@ -132,5 +128,5 @@ export function getAutoBackupSettings(): AutoBackupSettings {
     lastRunStatus: state.lastRunStatus,
     lastRunError: state.lastRunError,
     lastFileName: state.lastFileName,
-  }
+  };
 }

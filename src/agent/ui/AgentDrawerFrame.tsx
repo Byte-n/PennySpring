@@ -1,10 +1,7 @@
 import React from 'react';
 import { Button, Popup, Row } from '@pennyspring/ui';
 import { createUseSheetStyle } from '@pennyspring/ui';
-import {
-  ClockCounterClockwiseIcon,
-  GearSixIcon,
-} from 'phosphor-react-native';
+import { ClockCounterClockwiseIcon, GearSixIcon } from 'phosphor-react-native';
 
 const useStyles = createUseSheetStyle(() => ({
   panelBody: {

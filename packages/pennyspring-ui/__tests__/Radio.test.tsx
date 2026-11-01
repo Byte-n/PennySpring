@@ -22,17 +22,17 @@ function renderRadio(props: Partial<RadioProps> = {}) {
 function renderRadioGroup(props: Partial<RadioGroupProps> = {}) {
   let testRenderer: renderer.ReactTestRenderer;
   act(() => {
-    testRenderer = renderer.create(<Radio.Group options={[...GROUP_OPTIONS]} {...props} />);
+    testRenderer = renderer.create(
+      <Radio.Group options={[...GROUP_OPTIONS]} {...props} />,
+    );
   });
   return testRenderer!;
 }
 
-function pressOption(
-  testRenderer: renderer.ReactTestRenderer,
-  testID: string,
-) {
+function pressOption(testRenderer: renderer.ReactTestRenderer, testID: string) {
   const [control] = testRenderer.root.findAll(
-    node => typeof node.props.onPress === 'function' && node.props.testID === testID,
+    node =>
+      typeof node.props.onPress === 'function' && node.props.testID === testID,
   );
   act(() => {
     control.props.onPress();
@@ -40,10 +40,7 @@ function pressOption(
   return control;
 }
 
-function hasTestID(
-  testRenderer: renderer.ReactTestRenderer,
-  testID: string,
-) {
+function hasTestID(testRenderer: renderer.ReactTestRenderer, testID: string) {
   return testRenderer.root.findAllByProps({ testID }).length > 0;
 }
 
@@ -99,9 +96,19 @@ describe('Radio', () => {
   });
 
   it('maps chip foreground color and weight to the selection state', () => {
-    const selectedRenderer = renderRadio({ defaultValue: true, displayType: 'button' });
-    const unselectedRenderer = renderRadio({ defaultValue: false, displayType: 'button' });
-    const disabledRenderer = renderRadio({ defaultValue: true, disabled: true, displayType: 'button' });
+    const selectedRenderer = renderRadio({
+      defaultValue: true,
+      displayType: 'button',
+    });
+    const unselectedRenderer = renderRadio({
+      defaultValue: false,
+      displayType: 'button',
+    });
+    const disabledRenderer = renderRadio({
+      defaultValue: true,
+      disabled: true,
+      displayType: 'button',
+    });
 
     expect(readLabelProps(selectedRenderer, 'radio-label')).toMatchObject({
       color: 'primary',
@@ -117,8 +124,14 @@ describe('Radio', () => {
   });
 
   it('dims the label of a disabled or readonly row', () => {
-    const disabledRenderer = renderRadio({ disabled: true, defaultValue: true });
-    const readonlyRenderer = renderRadio({ readonly: true, defaultValue: true });
+    const disabledRenderer = renderRadio({
+      disabled: true,
+      defaultValue: true,
+    });
+    const readonlyRenderer = renderRadio({
+      readonly: true,
+      defaultValue: true,
+    });
 
     expect(readLabelProps(disabledRenderer, 'radio-label')).toMatchObject({
       color: 'tertiary',
@@ -130,7 +143,10 @@ describe('Radio', () => {
 
   it('renders the outer ring only for the default display type', () => {
     const defaultRenderer = renderRadio({ defaultValue: true });
-    const chipRenderer = renderRadio({ defaultValue: true, displayType: 'button' });
+    const chipRenderer = renderRadio({
+      defaultValue: true,
+      displayType: 'button',
+    });
 
     expect(hasTestID(defaultRenderer, 'radio-control')).toBe(true);
     expect(hasTestID(chipRenderer, 'radio-control')).toBe(false);
@@ -141,7 +157,11 @@ describe('Radio.Group', () => {
   it('prefers option label over labelText and value', () => {
     const testRenderer = renderRadioGroup({
       options: [
-        { value: 'label-first', label: '按分类统计', labelText: 'labelText 落后' },
+        {
+          value: 'label-first',
+          label: '按分类统计',
+          labelText: 'labelText 落后',
+        },
         { value: 'text-second', labelText: '按标签统计' },
         { value: 'value-last' },
       ],
@@ -223,12 +243,18 @@ describe('Radio.Group', () => {
       displayType: 'button',
     });
 
-    expect(hasTestID(testRenderer, 'radio-group-option-category-control')).toBe(false);
-    expect(readLabelProps(testRenderer, 'radio-group-option-category-label')).toMatchObject({
+    expect(hasTestID(testRenderer, 'radio-group-option-category-control')).toBe(
+      false,
+    );
+    expect(
+      readLabelProps(testRenderer, 'radio-group-option-category-label'),
+    ).toMatchObject({
       color: 'primary',
       weight: 'semibold',
     });
-    expect(readLabelProps(testRenderer, 'radio-group-option-tag-label')).toMatchObject({
+    expect(
+      readLabelProps(testRenderer, 'radio-group-option-tag-label'),
+    ).toMatchObject({
       color: 'secondary',
       weight: 'regular',
     });

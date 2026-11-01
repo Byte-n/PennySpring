@@ -35,9 +35,7 @@ export function addUsage(total: TokenUsage, delta: TokenUsage): TokenUsage {
   };
 }
 
-export function sumUsage(
-  messages: readonly AgentMessageRow[],
-): TokenUsage {
+export function sumUsage(messages: readonly AgentMessageRow[]): TokenUsage {
   return messages.reduce<TokenUsage>(
     (total, message) => {
       const usage = parseUsage(message.usage);

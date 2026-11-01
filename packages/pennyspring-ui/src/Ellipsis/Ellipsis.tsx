@@ -7,10 +7,7 @@ import { Text } from '../Text';
 import type { TextSize } from '../Text';
 import type { AliasToken } from '@pennyspring/theme';
 import type { TextLayoutEventData } from 'react-native';
-import type {
-  EllipsisDirection,
-  EllipsisProps,
-} from './types';
+import type { EllipsisDirection, EllipsisProps } from './types';
 
 const ELLIPSIS_TEXT = '...';
 
@@ -44,28 +41,26 @@ const SIZE_CONFIG: Record<ComponentSize, SizeConfig> = {
   },
 };
 
-const useStyles = createUseSheetStyle(
-  (token, { size }: StyleOptions) => {
-    const config = SIZE_CONFIG[size];
+const useStyles = createUseSheetStyle((token, { size }: StyleOptions) => {
+  const config = SIZE_CONFIG[size];
 
-    return {
-      content: {
-        fontFamily: token.fontFamily,
-        fontSize: config.fontSize(token),
-        lineHeight: config.lineHeight(token),
-        color: token.colorText,
-      },
-      action: {
-        fontFamily: token.fontFamily,
-      },
-      measure: {
-        position: 'absolute',
-        opacity: 0,
-        pointerEvents: 'none',
-      },
-    };
-  },
-);
+  return {
+    content: {
+      fontFamily: token.fontFamily,
+      fontSize: config.fontSize(token),
+      lineHeight: config.lineHeight(token),
+      color: token.colorText,
+    },
+    action: {
+      fontFamily: token.fontFamily,
+    },
+    measure: {
+      position: 'absolute',
+      opacity: 0,
+      pointerEvents: 'none',
+    },
+  };
+});
 
 function getCollapsedText(
   content: string,
@@ -120,10 +115,7 @@ function HiddenMeasurementText({
   style,
 }: HiddenMeasurementTextProps) {
   return (
-    <MeasurementText
-      onTextLayout={onTextLayout}
-      style={style}
-    >
+    <MeasurementText onTextLayout={onTextLayout} style={style}>
       {children}
     </MeasurementText>
   );
@@ -181,9 +173,10 @@ export function Ellipsis({
         setMaxChars(content.length);
         setStatus('done');
       } else {
-        const half = direction === 'middle'
-          ? Math.ceil(content.length / 2)
-          : content.length;
+        const half =
+          direction === 'middle'
+            ? Math.ceil(content.length / 2)
+            : content.length;
         searchRangeRef.current = [0, half];
         setSearchLow(0);
         setSearchHigh(half);
@@ -249,10 +242,7 @@ export function Ellipsis({
 
   // Build content text node
   const contentNode = showContent ? (
-    <Text
-      data-testid={testId ? `${testId}-text` : undefined}
-      size={textSize}
-    >
+    <Text data-testid={testId ? `${testId}-text` : undefined} size={textSize}>
       {needsTruncation ? displayText : content}
     </Text>
   ) : null;
@@ -265,7 +255,9 @@ export function Ellipsis({
         onPress={handleExpand}
         data-testid={testId ? `${testId}-expand` : undefined}
       >
-        <Text color="primary" size={textSize} style={actionStyle}>{expandText}</Text>
+        <Text color="primary" size={textSize} style={actionStyle}>
+          {expandText}
+        </Text>
       </Pressable>
     ) : null;
 
@@ -275,7 +267,9 @@ export function Ellipsis({
         onPress={handleCollapse}
         data-testid={testId ? `${testId}-collapse` : undefined}
       >
-        <Text color="primary" size={textSize} style={actionStyle}>{collapseText}</Text>
+        <Text color="primary" size={textSize} style={actionStyle}>
+          {collapseText}
+        </Text>
       </Pressable>
     ) : null;
 

@@ -27,8 +27,13 @@ export function PickerTitle({
 
   return (
     <Column style={[styles.titleContainer, slotStyles?.titleContainer]}>
-      {renderTextNode(title !== undefined ? title : titleText, (text) => (
-        <Text color="heading" size="xl" weight="strong" style={[styles.titleText, slotStyles?.titleText]}>
+      {renderTextNode(title !== undefined ? title : titleText, text => (
+        <Text
+          color="heading"
+          size="xl"
+          weight="strong"
+          style={[styles.titleText, slotStyles?.titleText]}
+        >
           {text}
         </Text>
       ))}

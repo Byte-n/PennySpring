@@ -13,19 +13,26 @@ jest.mock('react-native', () => {
   const ReactModule = require('react');
   const ReactNative = jest.requireActual('react-native');
 
-  const MockScrollView = ReactModule.forwardRef((props: object, ref: React.Ref<unknown>) => {
-    ReactModule.useImperativeHandle(ref, () => ({
-      scrollTo: mockScrollTo,
-    }));
+  const MockScrollView = ReactModule.forwardRef(
+    (props: object, ref: React.Ref<unknown>) => {
+      ReactModule.useImperativeHandle(ref, () => ({
+        scrollTo: mockScrollTo,
+      }));
 
-    return ReactModule.createElement(ReactNative.ScrollView, props);
-  });
+      return ReactModule.createElement(ReactNative.ScrollView, props);
+    },
+  );
 
-  const MockFlatList = (props: { data?: unknown[]; renderItem?: (info: { item: unknown; index: number }) => React.ReactNode }) =>
+  const MockFlatList = (props: {
+    data?: unknown[];
+    renderItem?: (info: { item: unknown; index: number }) => React.ReactNode;
+  }) =>
     ReactModule.createElement(
       ReactNative.View,
       null,
-      ...(props.data ?? []).map((item, index) => props.renderItem?.({ item, index }) ?? null),
+      ...(props.data ?? []).map(
+        (item, index) => props.renderItem?.({ item, index }) ?? null,
+      ),
     );
 
   return new Proxy(ReactNative, {
@@ -271,7 +278,9 @@ describe('IndexBar', () => {
     const onChange = jest.fn();
     const onPress = jest.fn();
     const testRenderer = renderIndexBar({ onChange, onPress });
-    const sidebar = testRenderer.root.findByProps({ testID: 'index-bar-sidebar' });
+    const sidebar = testRenderer.root.findByProps({
+      testID: 'index-bar-sidebar',
+    });
 
     act(() => {
       sidebar.props.onLayout({
@@ -289,7 +298,9 @@ describe('IndexBar', () => {
     // Assert
     expect(onChange).toHaveBeenCalledWith('C');
     expect(onPress.mock.calls[0][1]).toBe('C');
-    expect(testRenderer.root.findByProps({ testID: 'index-bar-bubble' })).toBeTruthy();
+    expect(
+      testRenderer.root.findByProps({ testID: 'index-bar-bubble' }),
+    ).toBeTruthy();
   });
 
   it('renders the root as a Row and the sidebar with its own test id', () => {

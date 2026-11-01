@@ -1,18 +1,18 @@
-import { and, eq } from 'drizzle-orm'
+import { and, eq } from 'drizzle-orm';
 
-import { agentProviders, bookProviderKeys } from '../schema'
-import type { Database } from '../types'
-import { validateBookExists } from './helpers'
-import type { Tx } from './types'
+import { agentProviders, bookProviderKeys } from '../schema';
+import type { Database } from '../types';
+import { validateBookExists } from './helpers';
+import type { Tx } from './types';
 
 async function ensureProviderExists(tx: Tx, providerId: number): Promise<void> {
   const row = await tx
     .select({ id: agentProviders.id })
     .from(agentProviders)
     .where(eq(agentProviders.id, providerId))
-    .get()
+    .get();
   if (!row) {
-    throw new Error(`提供商不存在: ${providerId}`)
+    throw new Error(`提供商不存在: ${providerId}`);
   }
 }
 
@@ -30,8 +30,8 @@ export async function hasProviderKey(
         eq(bookProviderKeys.providerId, providerId),
       ),
     )
-    .get()
-  return row !== undefined && row.apiKey !== ''
+    .get();
+  return row !== undefined && row.apiKey !== '';
 }
 
 export async function getProviderKey(
@@ -48,8 +48,8 @@ export async function getProviderKey(
         eq(bookProviderKeys.providerId, providerId),
       ),
     )
-    .get()
-  return row?.apiKey ?? ''
+    .get();
+  return row?.apiKey ?? '';
 }
 
 export function setProviderKey(
@@ -59,10 +59,10 @@ export function setProviderKey(
   apiKey: string,
 ): Promise<void> {
   return db.transaction(async tx => {
-    await validateBookExists(tx, { booksId }, 'booksId')
-    await ensureProviderExists(tx, providerId)
+    await validateBookExists(tx, { booksId }, 'booksId');
+    await ensureProviderExists(tx, providerId);
 
-    const normalizedKey = apiKey.trim()
+    const normalizedKey = apiKey.trim();
     if (!normalizedKey) {
       await tx
         .delete(bookProviderKeys)
@@ -71,8 +71,8 @@ export function setProviderKey(
             eq(bookProviderKeys.booksId, booksId),
             eq(bookProviderKeys.providerId, providerId),
           ),
-        )
-      return
+        );
+      return;
     }
 
     await tx
@@ -81,6 +81,6 @@ export function setProviderKey(
       .onConflictDoUpdate({
         target: [bookProviderKeys.booksId, bookProviderKeys.providerId],
         set: { apiKey: normalizedKey, updatedTime: Date.now() },
-      })
-  })
+      });
+  });
 }

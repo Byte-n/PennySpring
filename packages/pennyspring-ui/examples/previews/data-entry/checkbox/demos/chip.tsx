@@ -23,14 +23,15 @@ const CHIP_SIZES = [
 ] as const;
 
 export function CheckboxChipDemo() {
-  const [selectedCategories, setSelectedCategories] = React.useState<CheckboxValue[]>([
-    'food',
-  ]);
+  const [selectedCategories, setSelectedCategories] = React.useState<
+    CheckboxValue[]
+  >(['food']);
 
   return (
     <Column gap="normal">
       <Text color="tertiary" size="sm">
-        37.4 / 44 / 50.6 高 chip，999 圆角无描边；默认 colorFillTertiary + 二级文字，选中 colorPrimaryBg + 主色 600 + 小勾
+        37.4 / 44 / 50.6 高 chip，999 圆角无描边；默认 colorFillTertiary +
+        二级文字，选中 colorPrimaryBg + 主色 600 + 小勾
       </Text>
       <Checkbox.Group
         displayType="button"
@@ -38,23 +39,39 @@ export function CheckboxChipDemo() {
         value={selectedCategories}
         onChange={setSelectedCategories}
       />
-      <Text color="tertiary" size="sm">禁用 chip 用 colorFillQuaternary + 四级文字</Text>
+      <Text color="tertiary" size="sm">
+        禁用 chip 用 colorFillQuaternary + 四级文字
+      </Text>
       <Row gap="small" wrap>
-        <Checkbox defaultValue displayType="button">存为模板</Checkbox>
+        <Checkbox defaultValue displayType="button">
+          存为模板
+        </Checkbox>
         <Checkbox displayType="button">保存记录</Checkbox>
-        <Checkbox displayType="button" disabled>已归档</Checkbox>
+        <Checkbox displayType="button" disabled>
+          已归档
+        </Checkbox>
       </Row>
-      <Text color="tertiary" size="sm">chip 三档高度</Text>
+      <Text color="tertiary" size="sm">
+        chip 三档高度
+      </Text>
       {CHIP_SIZES.map(({ hint, value }) => (
         <Column key={value} gap="small">
-          <Text color="tertiary" size="sm">{hint}</Text>
+          <Text color="tertiary" size="sm">
+            {hint}
+          </Text>
           <Row gap="small" wrap>
-            <Checkbox defaultValue displayType="button" size={value}>同一张卡连续记账</Checkbox>
-            <Checkbox displayType="button" size={value}>自动匹配历史分类</Checkbox>
+            <Checkbox defaultValue displayType="button" size={value}>
+              同一张卡连续记账
+            </Checkbox>
+            <Checkbox displayType="button" size={value}>
+              自动匹配历史分类
+            </Checkbox>
           </Row>
         </Column>
       ))}
-      <Text color="tertiary" size="sm">block 时 chip 等分宽度，一屏不超过两行</Text>
+      <Text color="tertiary" size="sm">
+        block 时 chip 等分宽度，一屏不超过两行
+      </Text>
       <Checkbox.Group
         block
         defaultValue={['category', 'remark']}

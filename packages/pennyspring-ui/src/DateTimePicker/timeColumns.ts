@@ -93,7 +93,10 @@ export function formatTimeValueText(
   );
 }
 
-function defaultLabelText(type: DateTimePickerColumnType, value: number): string {
+function defaultLabelText(
+  type: DateTimePickerColumnType,
+  value: number,
+): string {
   return padTimeValue(value);
 }
 
@@ -150,9 +153,11 @@ function buildColumn(
       options.precision,
     );
     const disabled =
-      (options.min !== undefined && candidate.getTime() < options.min.getTime())
-      || (options.max !== undefined && candidate.getTime() > options.max.getTime())
-      || options.disabledDate?.(candidate) === true;
+      (options.min !== undefined &&
+        candidate.getTime() < options.min.getTime()) ||
+      (options.max !== undefined &&
+        candidate.getTime() > options.max.getTime()) ||
+      options.disabledDate?.(candidate) === true;
 
     const labelText = options.formatLabel
       ? options.formatLabel(value, { type, value, date: candidate })

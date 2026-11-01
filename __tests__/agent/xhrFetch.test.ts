@@ -61,13 +61,15 @@ describe('createXhrFetch', () => {
   const originalXhr = globalThis.XMLHttpRequest;
 
   beforeEach(() => {
-    (globalThis as unknown as { XMLHttpRequest: typeof FakeXmlHttpRequest })
-      .XMLHttpRequest = FakeXmlHttpRequest;
+    (
+      globalThis as unknown as { XMLHttpRequest: typeof FakeXmlHttpRequest }
+    ).XMLHttpRequest = FakeXmlHttpRequest;
   });
 
   afterAll(() => {
-    (globalThis as unknown as { XMLHttpRequest: typeof XMLHttpRequest })
-      .XMLHttpRequest = originalXhr;
+    (
+      globalThis as unknown as { XMLHttpRequest: typeof XMLHttpRequest }
+    ).XMLHttpRequest = originalXhr;
   });
 
   it('把 XHR 增量文本转成可读取的字节流，并保留响应头', async () => {

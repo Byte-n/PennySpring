@@ -6,6 +6,6 @@ export function createLocalApi(): Api {
   return createApi(getDatabase);
 }
 
-export { createDatabase } from './database'
-export { runMigrations } from './migrate'
-export { getDatabase } from './getDatabase'
+export { createDatabase } from './database';
+export { runMigrations } from './migrate';
+export { getDatabase } from './getDatabase';

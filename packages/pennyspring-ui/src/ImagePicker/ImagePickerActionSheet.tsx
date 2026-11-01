@@ -65,8 +65,7 @@ function ImagePickerActionSheetRoot({
     defaultValue as ImagePickerSelectedValue | undefined,
     value as ImagePickerSelectedValue | undefined,
     onChange as
-      | ((nextValue: ImagePickerSelectedValue | undefined) => void)
-      | undefined,
+      ((nextValue: ImagePickerSelectedValue | undefined) => void) | undefined,
   );
   const selectedValues = getSelectedValues(resolvedValue);
   const selectedCount = getSelectedCount(resolvedValue);
@@ -111,8 +110,8 @@ function ImagePickerActionSheetRoot({
         source === 'camera'
           ? await pickImageFromCamera(pickOptions)
           : source === 'photo'
-          ? await pickImageFromLibrary(pickOptions)
-          : await pickImageFromFiles(pickOptions);
+            ? await pickImageFromLibrary(pickOptions)
+            : await pickImageFromFiles(pickOptions);
 
       if (nextValue !== undefined) {
         const nextValues = getSelectedValues(

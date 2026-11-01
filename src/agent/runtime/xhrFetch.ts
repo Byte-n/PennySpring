@@ -105,7 +105,9 @@ interface ResponseLike {
   clone(): Response;
 }
 
-export function createXhrFetch(timeoutMs: number = DEFAULT_TIMEOUT_MS): typeof fetch {
+export function createXhrFetch(
+  timeoutMs: number = DEFAULT_TIMEOUT_MS,
+): typeof fetch {
   return async function xhrFetch(
     input: RequestInfo | URL,
     init?: RequestInit,

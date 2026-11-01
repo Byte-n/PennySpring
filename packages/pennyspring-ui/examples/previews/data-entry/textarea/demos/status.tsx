@@ -5,12 +5,10 @@ export function TextareaStatusDemo() {
   return (
     <Column gap="normal">
       <Text color="tertiary" size="sm">
-        有 label 时未聚焦 placeholder 透明，label 占首行；聚焦或有值后 label 浮到左上。聚焦与状态用 2px 指示条自左展开
+        有 label 时未聚焦 placeholder 透明，label 占首行；聚焦或有值后 label
+        浮到左上。聚焦与状态用 2px 指示条自左展开
       </Text>
-      <Textarea
-        labelText="备注"
-        placeholder="例如：工作日午餐"
-      />
+      <Textarea labelText="备注" placeholder="例如：工作日午餐" />
       <Textarea
         defaultValue="工作日午餐"
         labelText="备注"

@@ -19,10 +19,7 @@ export function DisplayInputCustomValueNodeDemo() {
       <DisplayInput labelText="Text node">
         <Text style={styles.customValue}>自定义样式的文本节点</Text>
       </DisplayInput>
-      <DisplayInput
-        display="inline"
-        labelText="Icon + Text"
-      >
+      <DisplayInput display="inline" labelText="Icon + Text">
         <Row gap={4}>
           <Icon color="success" icon="check-circle" size="small" />
           <Text color="success" size="sm">

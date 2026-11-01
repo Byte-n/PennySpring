@@ -57,9 +57,7 @@ const useStyles = createUseSheetStyle(token => ({
 }));
 
 function renderItem(item: IndexBarItem) {
-  return (
-    <DemoPanel index={String(item.index)} />
-  );
+  return <DemoPanel index={String(item.index)} />;
 }
 
 function DemoPanel({ index }: { index: string }) {
@@ -73,7 +71,9 @@ function DemoPanel({ index }: { index: string }) {
           <Column gap={0} style={styles.body}>
             <Text weight="medium">{row.name}</Text>
           </Column>
-          <Text style={styles.amount} weight="semibold">{row.amount}</Text>
+          <Text style={styles.amount} weight="semibold">
+            {row.amount}
+          </Text>
         </Row>
       ))}
     </Column>
@@ -87,14 +87,17 @@ export function IndexBarSizeDemo() {
     <Column gap="large">
       {SIZE_SAMPLES.map(({ size, hint }) => (
         <Column key={size} style={styles.section}>
-          <Text color="tertiary" size="xs">{hint}</Text>
+          <Text color="tertiary" size="xs">
+            {hint}
+          </Text>
           <Column style={styles.frame}>
             <IndexBar data={INDEX_DATA} renderItem={renderItem} size={size} />
           </Column>
         </Column>
       ))}
       <Text color="tertiary" size="xs">
-        视觉 20 / 24 / 28，热区由整条字母栏承担；分组标题高 32，12/600 + 字距 .08em
+        视觉 20 / 24 / 28，热区由整条字母栏承担；分组标题高 32，12/600 + 字距
+        .08em
       </Text>
     </Column>
   );

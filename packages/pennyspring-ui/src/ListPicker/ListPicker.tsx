@@ -70,7 +70,9 @@ function renderGroupTitle(
   style: StyleProp<TextStyle>,
 ): React.ReactNode {
   return renderTextNode(content, text => (
-    <Text color="description" size={size} style={style}>{text}</Text>
+    <Text color="description" size={size} style={style}>
+      {text}
+    </Text>
   ));
 }
 
@@ -130,10 +132,7 @@ function buildRenderGroups(
   ];
 }
 
-function optionMatchesSearch(
-  option: ListPickerOption,
-  query: string,
-): boolean {
+function optionMatchesSearch(option: ListPickerOption, query: string): boolean {
   if (query.length === 0) {
     return true;
   }
@@ -179,7 +178,10 @@ function getSelectedTagItems(
     .map((value): TagValueItem | undefined => {
       const option = options.find(o => o.value === value);
       if (!option) return undefined;
-      return { labelText: option.labelText ?? extractText(option.label), value };
+      return {
+        labelText: option.labelText ?? extractText(option.label),
+        value,
+      };
     })
     .filter((item): item is TagValueItem => item !== undefined);
 }
@@ -354,8 +356,8 @@ export function ListPickerPopup({
               isDisabled
                 ? 'textDisabled'
                 : isSelected
-                ? 'primaryText'
-                : 'textQuaternary'
+                  ? 'primaryText'
+                  : 'textQuaternary'
             }
             icon={isSelected ? 'check' : CircleIcon}
             size={resolvedSize}
@@ -463,15 +465,19 @@ export function ListPickerPopup({
                 })),
               ])}
               keyExtractor={item => item.key}
-              renderItem={({ item }) => item.kind === 'header' ? (
-                <Column style={tokenStyles.group}>
-                  {renderGroupTitle(
-                    item.group.title ?? item.group.titleText,
-                    resolveTextSize(resolvedSize),
-                    [tokenStyles.groupTitle, styles?.groupTitle],
-                  )}
-                </Column>
-              ) : renderOption(item.option)}
+              renderItem={({ item }) =>
+                item.kind === 'header' ? (
+                  <Column style={tokenStyles.group}>
+                    {renderGroupTitle(
+                      item.group.title ?? item.group.titleText,
+                      resolveTextSize(resolvedSize),
+                      [tokenStyles.groupTitle, styles?.groupTitle],
+                    )}
+                  </Column>
+                ) : (
+                  renderOption(item.option)
+                )
+              }
               style={tokenStyles.list}
               scrollEnabled
               showsVerticalScrollIndicator={false}
@@ -520,8 +526,7 @@ function ListPickerRoot({
   const field = useFieldProps<ListPickerSelectedValue | undefined>({
     value,
     onChange: onChange as
-      | ((nextValue: ListPickerSelectedValue | undefined) => void)
-      | undefined,
+      ((nextValue: ListPickerSelectedValue | undefined) => void) | undefined,
     label,
     labelText,
     disabled,
@@ -545,8 +550,7 @@ function ListPickerRoot({
     normalizeValue(resolvedMode, defaultValue),
     field.value,
     field.onChange as
-      | ((nextValue: ListPickerSelectedValue | undefined) => void)
-      | undefined,
+      ((nextValue: ListPickerSelectedValue | undefined) => void) | undefined,
   );
   const isInteractive = !resolvedDisabled && !resolvedReadonly && !loading;
   const isError = resolvedStatus === 'error';

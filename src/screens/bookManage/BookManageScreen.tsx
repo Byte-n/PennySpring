@@ -125,9 +125,11 @@ export function BookManageScreen() {
   const serverTokens = useNetworkBookStore(state => state.tokens);
   const setServerToken = useNetworkBookStore(state => state.setServerToken);
 
-  const { data: localBooks = [], loading: localLoading, refresh: refreshLocal } = useRequest(
-    () => localApi.book.getAll(),
-  );
+  const {
+    data: localBooks = [],
+    loading: localLoading,
+    refresh: refreshLocal,
+  } = useRequest(() => localApi.book.getAll());
   const {
     data: networkEntries = [],
     loading: networkDataLoading,
@@ -262,10 +264,7 @@ export function BookManageScreen() {
           form.reset({
             name: book.name,
             description: book.description,
-            backgroundImage: getImageValue(
-              background.uri,
-              background.headers,
-            ),
+            backgroundImage: getImageValue(background.uri, background.headers),
             networkServerUrl: serverUrl,
             networkToken: token,
           });
@@ -358,13 +357,14 @@ export function BookManageScreen() {
   );
 
   const serverBookItems = useMemo<Array<ListItemData & { id: number }>>(
-    () => serverBookList.map(book => ({
-      id: book.id,
-      icon: 'list',
-      titleText: book.name,
-      descriptionText: book.description || '服务器上的账本',
-      onPress: () => addExistingRemoteBook(book),
-    })),
+    () =>
+      serverBookList.map(book => ({
+        id: book.id,
+        icon: 'list',
+        titleText: book.name,
+        descriptionText: book.description || '服务器上的账本',
+        onPress: () => addExistingRemoteBook(book),
+      })),
     [addExistingRemoteBook, serverBookList],
   );
 
@@ -647,14 +647,7 @@ export function BookManageScreen() {
     }
     setConfirmState(null);
     refreshAll();
-  }, [
-    confirmState,
-    currentBook,
-    initializeBook,
-    refreshAll,
-    removeRef,
-    toast,
-  ]);
+  }, [confirmState, currentBook, initializeBook, refreshAll, removeRef, toast]);
 
   const confirmIsCurrent =
     confirmState !== null &&

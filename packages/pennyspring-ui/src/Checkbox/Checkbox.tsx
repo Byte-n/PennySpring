@@ -16,7 +16,12 @@ import { Row } from '../Row';
 import { Text } from '../Text';
 import { useControllableValue } from '../_hooks';
 import { renderTextNode } from '../shares/node';
-import { MARK_TRANSITION_DURATION, SIZE_CONFIG, useGroupStyles, useStyles } from './style';
+import {
+  MARK_TRANSITION_DURATION,
+  SIZE_CONFIG,
+  useGroupStyles,
+  useStyles,
+} from './style';
 import type {
   CheckboxDisplayType,
   CheckboxGroupOption,
@@ -129,9 +134,17 @@ function CheckboxControl({
     });
   }, [isVisualChecked, progress, token.motionEaseInOut]);
 
-  const labelColor = getLabelColor({ checked, disabled, displayType, readonly });
+  const labelColor = getLabelColor({
+    checked,
+    disabled,
+    displayType,
+    readonly,
+  });
   const labelWeight: TextWeight = isButton && checked ? 'semibold' : 'regular';
-  const labelStyle: StyleProp<TextStyle> = [tokenStyles.label, slotStyles?.label];
+  const labelStyle: StyleProp<TextStyle> = [
+    tokenStyles.label,
+    slotStyles?.label,
+  ];
   const markColor: TextColor = isButton
     ? disabled
       ? 'quaternary'
@@ -160,7 +173,10 @@ function CheckboxControl({
           color={markColor}
           icon={indeterminate ? 'minus' : 'check'}
           size={sizeConfig.markSize}
-          testID={toSlotTestID(testID, indeterminate ? 'mark-minus' : 'mark-check')}
+          testID={toSlotTestID(
+            testID,
+            indeterminate ? 'mark-minus' : 'mark-check',
+          )}
           weight={MARK_ICON_WEIGHT}
         />
       ) : null}
@@ -202,7 +218,10 @@ function CheckboxControl({
     >
       <Row style={[tokenStyles.content, slotStyles?.content]}>
         {isButton ? null : (
-          <View style={indicatorStyle} testID={toSlotTestID(testID, 'indicator')}>
+          <View
+            style={indicatorStyle}
+            testID={toSlotTestID(testID, 'indicator')}
+          >
             {markNode}
           </View>
         )}

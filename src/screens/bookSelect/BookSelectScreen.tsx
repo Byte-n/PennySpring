@@ -2,13 +2,7 @@ import React, { useCallback, useState } from 'react';
 import { useRequest } from 'ahooks';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
-import {
-  Button,
-  Column,
-  Loading,
-  Text,
-  useToast,
-} from '@pennyspring/ui';
+import { Button, Column, Loading, Text, useToast } from '@pennyspring/ui';
 import { BOOK_TYPE, localApi, type BookRow } from '@pennyspring/api';
 import { createUseSheetStyle } from '@pennyspring/ui';
 import {
@@ -56,11 +50,17 @@ export function BookSelectScreen() {
 
   const [selecting, setSelecting] = useState(false);
 
-  const { data: localBooks = [], loading: localLoading, refresh: refreshLocal } = useRequest(
-    () => localApi.book.getAll(),
-  );
+  const {
+    data: localBooks = [],
+    loading: localLoading,
+    refresh: refreshLocal,
+  } = useRequest(() => localApi.book.getAll());
 
-  const { data: networkBooks = [], loading: networkLoading, refresh: refreshNetwork } = useRequest(
+  const {
+    data: networkBooks = [],
+    loading: networkLoading,
+    refresh: refreshNetwork,
+  } = useRequest(
     async () => {
       const settled = await Promise.allSettled(
         networkRefs.map(async ref => {
@@ -75,9 +75,7 @@ export function BookSelectScreen() {
           const result = settled[index];
           return result && result.status === 'fulfilled' ? result.value : null;
         })
-        .filter(
-          (x): x is { ref: NetworkBookRef; book: BookRow } => x !== null,
-        );
+        .filter((x): x is { ref: NetworkBookRef; book: BookRow } => x !== null);
     },
     { refreshDeps: [JSON.stringify(networkRefs)] },
   );
@@ -156,9 +154,7 @@ export function BookSelectScreen() {
             },
           ]}
         >
-          <Text color="errorText">
-            {`账本加载失败：${initError.message}`}
-          </Text>
+          <Text color="errorText">{`账本加载失败：${initError.message}`}</Text>
           <Button
             size="small"
             onPress={handleRetry}

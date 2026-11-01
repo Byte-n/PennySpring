@@ -1,7 +1,4 @@
-export {
-  MEDIA_IMAGE_MAX_DIMENSION,
-  MEDIA_IMAGE_QUALITY,
-} from './constants';
+export { MEDIA_IMAGE_MAX_DIMENSION, MEDIA_IMAGE_QUALITY } from './constants';
 export {
   MEDIA_REF_PREFIX,
   buildAuthHeaders,

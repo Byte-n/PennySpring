@@ -39,19 +39,23 @@ yarn adb:tui db watch --serial <serial> [--once]
 
 `db watch` 默认参数：
 
-| 项 | 默认值 |
-|---|---|
-| 包名 | `com.pennyspring` |
+| 项         | 默认值                                                |
+| ---------- | ----------------------------------------------------- |
+| 包名       | `com.pennyspring`                                     |
 | 远端数据库 | `/data/data/com.pennyspring/databases/pennyspring.db` |
-| 本地数据库 | `./pennyspring.db` |
-| 轮询间隔 | 2000 ms |
+| 本地数据库 | `./pennyspring.db`                                    |
+| 轮询间隔   | 2000 ms                                               |
 
 > `db:watch` 会覆盖本地目标数据库文件。执行前请确认本地没有未备份的数据。
 
 ## 作为包使用
 
 ```ts
-import { createAdbClient, listDevices, scanWireless } from '@pennyspring/adb-tui';
+import {
+  createAdbClient,
+  listDevices,
+  scanWireless,
+} from '@pennyspring/adb-tui';
 
 const { client } = createAdbClient();
 const devices = await listDevices(client);

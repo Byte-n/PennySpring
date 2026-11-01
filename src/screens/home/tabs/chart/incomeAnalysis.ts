@@ -80,9 +80,7 @@ export function buildIncomeAnalysis(
   const stats = [...groups.values()]
     .filter(item => item.amount > 0)
     .map(item => ({ ...item, percent: percentOf(item.amount, total) }))
-    .sort(
-      (a, b) => b.amount - a.amount || a.name.localeCompare(b.name),
-    );
+    .sort((a, b) => b.amount - a.amount || a.name.localeCompare(b.name));
 
   return {
     total,
@@ -100,11 +98,7 @@ export function buildIncomeTrend(
   now: Date,
   months = DEFAULT_TREND_MONTHS,
 ): MonthlyCashflow[] {
-  const anchorStart = new Date(
-    anchor.getFullYear(),
-    anchor.getMonth(),
-    1,
-  );
+  const anchorStart = new Date(anchor.getFullYear(), anchor.getMonth(), 1);
   const isAnchorCurrent =
     anchorStart.getFullYear() === now.getFullYear() &&
     anchorStart.getMonth() === now.getMonth();
@@ -127,4 +121,3 @@ export function buildIncomeTrend(
     };
   });
 }
-

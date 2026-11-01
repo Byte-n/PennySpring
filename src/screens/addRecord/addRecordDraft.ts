@@ -74,12 +74,16 @@ export function isAbsorptionIncomeType(
   typeRow: TypeRow | undefined,
 ): typeRow is TypeRow {
   return (
-    typeRow?.specialBehavior === RECORD_TYPE_SPECIAL_BEHAVIOR.refundAbsorption ||
-    typeRow?.specialBehavior === RECORD_TYPE_SPECIAL_BEHAVIOR.reimbursementAbsorption
+    typeRow?.specialBehavior ===
+      RECORD_TYPE_SPECIAL_BEHAVIOR.refundAbsorption ||
+    typeRow?.specialBehavior ===
+      RECORD_TYPE_SPECIAL_BEHAVIOR.reimbursementAbsorption
   );
 }
 
-function getExpectedCategory(tabType: AddRecordTabType): RecordTypeCategoryValue {
+function getExpectedCategory(
+  tabType: AddRecordTabType,
+): RecordTypeCategoryValue {
   if (tabType === 'expense') return RECORD_TYPE_CATEGORY.expense;
   if (tabType === 'income') return RECORD_TYPE_CATEGORY.income;
   return RECORD_TYPE_CATEGORY.transfer;
@@ -153,9 +157,10 @@ export function buildCreateRecordInput(
     return {
       ...baseInput,
       assetId: draft.assetId ?? 0,
-      reimbursable: draft.reimbursable === true
-        ? REIMBURSABLE.reimbursable
-        : REIMBURSABLE.notReimbursable,
+      reimbursable:
+        draft.reimbursable === true
+          ? REIMBURSABLE.reimbursable
+          : REIMBURSABLE.notReimbursable,
     };
   }
 
@@ -196,11 +201,17 @@ function isVisibleAsset(asset: AssetRow): boolean {
 }
 
 function isBorrowDebtAsset(asset: AssetRow): boolean {
-  return asset.type === ASSET_TYPE.debt && asset.classification === ASSET_CLASSIFICATION.borrow;
+  return (
+    asset.type === ASSET_TYPE.debt &&
+    asset.classification === ASSET_CLASSIFICATION.borrow
+  );
 }
 
 function isLendDebtAsset(asset: AssetRow): boolean {
-  return asset.type === ASSET_TYPE.debt && asset.classification === ASSET_CLASSIFICATION.lend;
+  return (
+    asset.type === ASSET_TYPE.debt &&
+    asset.classification === ASSET_CLASSIFICATION.lend
+  );
 }
 
 function isCapitalAsset(asset: AssetRow): boolean {
@@ -254,13 +265,15 @@ export function getRelatedExpenseCandidates(
       .filter(typeRow => typeRow.typeCategory === RECORD_TYPE_CATEGORY.expense)
       .map(typeRow => typeRow.id),
   );
-  const requiredReimbursable = selectedIncomeType.specialBehavior ===
+  const requiredReimbursable =
+    selectedIncomeType.specialBehavior ===
     RECORD_TYPE_SPECIAL_BEHAVIOR.reimbursementAbsorption
-    ? REIMBURSABLE.reimbursable
-    : REIMBURSABLE.notReimbursable;
+      ? REIMBURSABLE.reimbursable
+      : REIMBURSABLE.notReimbursable;
 
-  return records.filter(record => (
-    expenseTypeIds.has(record.typeId) &&
-    record.reimbursable === requiredReimbursable
-  ));
+  return records.filter(
+    record =>
+      expenseTypeIds.has(record.typeId) &&
+      record.reimbursable === requiredReimbursable,
+  );
 }

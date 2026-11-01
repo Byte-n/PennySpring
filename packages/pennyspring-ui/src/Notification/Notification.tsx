@@ -10,7 +10,11 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
-import { createUseSheetStyle, toShadowStyle, useTheme } from '@pennyspring/theme';
+import {
+  createUseSheetStyle,
+  toShadowStyle,
+  useTheme,
+} from '@pennyspring/theme';
 import { Icon } from '../Icon';
 import { PortalContext } from '../Portal/Portal';
 import { resolvePortalMount } from '../Portal/resolvePortalMount';
@@ -132,7 +136,14 @@ interface NotificationStyleOptions {
 const useStyles = createUseSheetStyle(
   (
     token,
-    { maxContentWidth, placement, safeAreaBottom, safeAreaTop, size, status }: NotificationStyleOptions,
+    {
+      maxContentWidth,
+      placement,
+      safeAreaBottom,
+      safeAreaTop,
+      size,
+      status,
+    }: NotificationStyleOptions,
   ) => {
     const sizeConfig = SIZE_MAP[size];
     const statusConfig = STATUS_STYLE_MAP[status];
@@ -237,7 +248,8 @@ function NotificationBody({
   const statusConfig = STATUS_STYLE_MAP[status];
   const visibleActions = actions?.slice(0, MAX_ACTIONS) ?? [];
   const hasTitle = title !== undefined || titleText !== undefined;
-  const hasDescription = description !== undefined || descriptionText !== undefined;
+  const hasDescription =
+    description !== undefined || descriptionText !== undefined;
 
   const handleClosed = React.useCallback(() => {
     if (!closedRef.current) {
@@ -270,7 +282,10 @@ function NotificationBody({
 
   React.useEffect(() => {
     // 有操作时常驻，等用户点操作或关闭；显式 duration 仍然生效。
-    if (duration === 0 || (visibleActions.length > 0 && duration === undefined)) {
+    if (
+      duration === 0 ||
+      (visibleActions.length > 0 && duration === undefined)
+    ) {
       return;
     }
 
@@ -320,11 +335,16 @@ function NotificationBody({
     return null;
   }
 
-  const resolvedIcon = icon === null
-    ? null
-    : icon ?? (
-      <Icon color={statusConfig.iconColor} icon={statusConfig.icon} size={sizeConfig.iconSize} />
-    );
+  const resolvedIcon =
+    icon === null
+      ? null
+      : (icon ?? (
+          <Icon
+            color={statusConfig.iconColor}
+            icon={statusConfig.icon}
+            size={sizeConfig.iconSize}
+          />
+        ));
 
   return (
     <Animated.View
@@ -336,7 +356,7 @@ function NotificationBody({
           <View style={tokenStyles.plate}>{resolvedIcon}</View>
         )}
         <View style={tokenStyles.main}>
-          {renderTextNode(title ?? titleText, (text) => (
+          {renderTextNode(title ?? titleText, text => (
             <Text
               color="default"
               size={sizeConfig.titleTextSize}
@@ -346,7 +366,7 @@ function NotificationBody({
               {text}
             </Text>
           ))}
-          {renderTextNode(description ?? descriptionText, (text) => (
+          {renderTextNode(description ?? descriptionText, text => (
             <Text
               color="secondary"
               numberOfLines={2}
@@ -373,7 +393,11 @@ function NotificationBody({
           ) : null}
         </View>
         {closable ? (
-          <Pressable hitSlop={token.marginXXS} onPress={onCloseStart} style={tokenStyles.close}>
+          <Pressable
+            hitSlop={token.marginXXS}
+            onPress={onCloseStart}
+            style={tokenStyles.close}
+          >
             <Icon color="tertiary" icon="close" size={CLOSE_ICON_SIZE} />
           </Pressable>
         ) : null}
@@ -456,19 +480,17 @@ export function useNotification(): NotificationController {
     render: (options, params) => {
       const { onCancel, ...restOptions } = options;
 
-      return (
-        resolvePortalMount(
-          <NotificationBody
-            {...restOptions}
-            isOpen={params.isOpen}
-            onExited={() => {
-              onCancel?.();
-              params.onExited();
-            }}
-          />,
-          'portal',
-          true,
-        )
+      return resolvePortalMount(
+        <NotificationBody
+          {...restOptions}
+          isOpen={params.isOpen}
+          onExited={() => {
+            onCancel?.();
+            params.onExited();
+          }}
+        />,
+        'portal',
+        true,
       );
     },
   });

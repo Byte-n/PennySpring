@@ -92,7 +92,16 @@ export function getDefaultBorderRadius(
 }
 
 export const useStyles = createUseSheetStyle(
-  (token, { width, height, borderRadius, shimmerWidth, fadeMinHeight }: SkeletonStyleOptions) => ({
+  (
+    token,
+    {
+      width,
+      height,
+      borderRadius,
+      shimmerWidth,
+      fadeMinHeight,
+    }: SkeletonStyleOptions,
+  ) => ({
     root: {
       backgroundColor: token.colorFillContent,
       borderRadius,

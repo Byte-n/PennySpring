@@ -22,13 +22,13 @@ React Native 内置 `fetch` 是 whatwg-fetch 基于 XHR 的实现，`Response.bo
 
 当前实现的边界：
 
-| 能力 | 现有 XHR transport | AI SDK / Web Streams 需要 |
-|---|---|---|
-| 增量读取 | ✅ `onprogress` + `responseText` | ✅ 需要 |
-| `Response.body` | ❌ 不存在 | ✅ `ReadableStream` |
-| `getReader()` | ❌ | ✅ |
-| `TextDecoder` 增量解码 | ❌ 手动字符串拼接 | ✅ |
-| 与 fetch 生态兼容 | ❌ | ✅ |
+| 能力                   | 现有 XHR transport               | AI SDK / Web Streams 需要 |
+| ---------------------- | -------------------------------- | ------------------------- |
+| 增量读取               | ✅ `onprogress` + `responseText` | ✅ 需要                   |
+| `Response.body`        | ❌ 不存在                        | ✅ `ReadableStream`       |
+| `getReader()`          | ❌                               | ✅                        |
+| `TextDecoder` 增量解码 | ❌ 手动字符串拼接                | ✅                        |
+| 与 fetch 生态兼容      | ❌                               | ✅                        |
 
 另外，现有 `streamTransport` 的 `xhr.timeout = 120_000` 是**总时长**而不是空闲超时，长回答可能被 120 秒截断；迁移 fetch 时应一并改为 idle timeout。
 
@@ -40,11 +40,11 @@ React Native 内置 `fetch` 是 whatwg-fetch 基于 XHR 的实现，`Response.bo
 
 `expo/fetch` 随 `expo` 包提供，要求 Expo SDK 52+。项目当前 RN 0.85.2 + React 19.2，对应 **Expo SDK 56**：
 
-| Expo SDK | React Native | 说明 |
-|---|---|---|
-| 56 | 0.85 | 与本项目匹配 |
-| 57 | 0.86 | 不匹配 |
-| 58 | 0.88 | 当前最新，不匹配 |
+| Expo SDK | React Native | 说明             |
+| -------- | ------------ | ---------------- |
+| 56       | 0.85         | 与本项目匹配     |
+| 57       | 0.86         | 不匹配           |
+| 58       | 0.88         | 当前最新，不匹配 |
 
 安装时不要用 `install-expo-modules@latest`（目前 0.18.x，对应 SDK 58 / RN 0.88），否则会找不到兼容 SDK。SDK 56 对应 `0.15.x`：
 
@@ -77,12 +77,12 @@ AI SDK 5/6 的 transport 也支持注入 `fetch`，例如 `DefaultChatTransport(
 
 ### 2.4 优点 / 缺点
 
-| 优点 | 缺点 |
-|---|---|
-| AI SDK 官方 Expo 文档直接推荐 | 绑定 Expo SDK 版本，RN 升级需同步升级 SDK |
-| 标准 `Response.body`，无需包装 | SDK 56 会替换全局 fetch，影响面大 |
-| 同时补齐 ReadableStream / TextDecoder 等全局 | SDK 56 已不是最新，已知断连缺陷未回移 |
-| 后续可复用 `expo-widgets` 等 Expo 能力 | 新增 ExpoModulesCore 原生依赖，需要重建 |
+| 优点                                         | 缺点                                      |
+| -------------------------------------------- | ----------------------------------------- |
+| AI SDK 官方 Expo 文档直接推荐                | 绑定 Expo SDK 版本，RN 升级需同步升级 SDK |
+| 标准 `Response.body`，无需包装               | SDK 56 会替换全局 fetch，影响面大         |
+| 同时补齐 ReadableStream / TextDecoder 等全局 | SDK 56 已不是最新，已知断连缺陷未回移     |
+| 后续可复用 `expo-widgets` 等 Expo 能力       | 新增 ExpoModulesCore 原生依赖，需要重建   |
 
 ---
 
@@ -118,13 +118,13 @@ AI SDK 没有官方 nitro-fetch 集成文档，需要自行验证：
 
 ### 3.3 优点 / 缺点
 
-| 优点 | 缺点 |
-|---|---|
-| 不替换全局 fetch，现有调用不受影响 | 需要自己包 `stream: true` |
-| 不绑定 Expo SDK，可独立升级 | 库较新，生态和案例少于 Expo |
-| 支持 HTTP/3、Brotli、磁盘缓存、prefetch、WebSocket | Android 内嵌 Cronet，包体增大 |
-| 原生 URLSession / Cronet，性能好 | `timeoutMs` 在 `stream: true` 下无效，需要 AbortController + 定时器 |
-| | 流式解码需要 `react-native-nitro-text-decoder` |
+| 优点                                               | 缺点                                                                |
+| -------------------------------------------------- | ------------------------------------------------------------------- |
+| 不替换全局 fetch，现有调用不受影响                 | 需要自己包 `stream: true`                                           |
+| 不绑定 Expo SDK，可独立升级                        | 库较新，生态和案例少于 Expo                                         |
+| 支持 HTTP/3、Brotli、磁盘缓存、prefetch、WebSocket | Android 内嵌 Cronet，包体增大                                       |
+| 原生 URLSession / Cronet，性能好                   | `timeoutMs` 在 `stream: true` 下无效，需要 AbortController + 定时器 |
+|                                                    | 流式解码需要 `react-native-nitro-text-decoder`                      |
 
 ---
 
@@ -184,12 +184,12 @@ AI SDK 没有官方 nitro-fetch 集成文档，需要自行验证：
 
 ## 6. 决策建议
 
-| 场景 | 建议 |
-|---|---|
-| 只维护现有自研 agent | 保持 XHR transport，不引入原生依赖 |
+| 场景                                               | 建议                                                                                    |
+| -------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| 只维护现有自研 agent                               | 保持 XHR transport，不引入原生依赖                                                      |
 | 确定接 AI SDK / assistant-ui，且愿意引入 Expo 体系 | `expo/fetch` + SDK 56；必须加超时/断连兜底；长期看需升级 RN 0.88 + SDK 58 获取 iOS 修复 |
-| 确定接 AI SDK / assistant-ui，但坚持裸 RN | `react-native-nitro-fetch`；包一层 `stream: true`，配 TextDecoder，保留 XHR 作为回退 |
-| 只想快速验证 AI SDK 可行性 | 先 PoC `expo/fetch`（官方路径、代码最少），同时记录断连表现 |
+| 确定接 AI SDK / assistant-ui，但坚持裸 RN          | `react-native-nitro-fetch`；包一层 `stream: true`，配 TextDecoder，保留 XHR 作为回退    |
+| 只想快速验证 AI SDK 可行性                         | 先 PoC `expo/fetch`（官方路径、代码最少），同时记录断连表现                             |
 
 ---
 

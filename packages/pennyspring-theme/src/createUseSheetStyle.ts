@@ -10,16 +10,13 @@ export type StylesObject = Record<string, SheetStyle>;
 type StyleOptions = any | undefined;
 
 export type StyleGenerator<TStyles extends StylesObject> = (
-  tokens: AliasToken
+  tokens: AliasToken,
 ) => TStyles;
 
 export type StyleGeneratorWithOptions<
   TOptions,
   TStyles extends StylesObject,
-> = (
-  tokens: AliasToken,
-  options: TOptions
-) => TStyles;
+> = (tokens: AliasToken, options: TOptions) => TStyles;
 
 export type SheetStyleHook<TStyles extends StylesObject> = () => TStyles;
 
@@ -34,7 +31,7 @@ export function createUseSheetStyle<
   TOptions extends StyleOptions,
   TStyles extends StylesObject = StylesObject,
 >(
-  generator: (tokens: AliasToken, options: TOptions) => TStyles
+  generator: (tokens: AliasToken, options: TOptions) => TStyles,
 ): SheetStyleHookWithOptions<TOptions, TStyles> {
   return function useSheetStyle(options?: TOptions): TStyles {
     const { token } = useTheme();

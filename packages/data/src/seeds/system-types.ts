@@ -1,32 +1,32 @@
 import type {
   RecordTypeCategoryValue,
   RecordTypeSpecialBehaviorValue,
-} from '../constants'
+} from '../constants';
 import {
   RECORD_TYPE_CATEGORY,
   RECORD_TYPE_SPECIAL_BEHAVIOR,
-} from '../constants'
+} from '../constants';
 
 /**
  * 二级类型种子节点。typeCategory 继承自父节点，无需重复声明。
  */
 export interface SystemTypeSeedChild {
-  name: string
-  icon: string
-  sort: number
-  specialBehavior?: RecordTypeSpecialBehaviorValue
+  name: string;
+  icon: string;
+  sort: number;
+  specialBehavior?: RecordTypeSpecialBehaviorValue;
 }
 
 /**
  * 一级类型种子节点，可携带二级子类型。
  */
 export interface SystemTypeSeedNode {
-  name: string
-  icon: string
-  typeCategory: RecordTypeCategoryValue
-  sort: number
-  specialBehavior?: RecordTypeSpecialBehaviorValue
-  children?: SystemTypeSeedChild[]
+  name: string;
+  icon: string;
+  typeCategory: RecordTypeCategoryValue;
+  sort: number;
+  specialBehavior?: RecordTypeSpecialBehaviorValue;
+  children?: SystemTypeSeedChild[];
 }
 
 /**
@@ -352,4 +352,4 @@ export const SYSTEM_TYPE_SEEDS: SystemTypeSeedNode[] = [
     typeCategory: RECORD_TYPE_CATEGORY.transfer,
     sort: 208,
   },
-]
+];

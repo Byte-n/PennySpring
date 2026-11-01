@@ -19,13 +19,17 @@ function DarkSurface() {
         defaultValue="home"
         items={[
           {
-            activeIcon: <Icon color="primary" icon="home" size={24} weight="fill" />,
+            activeIcon: (
+              <Icon color="primary" icon="home" size={24} weight="fill" />
+            ),
             icon: <Icon color="tertiary" icon="home" size={24} />,
             value: 'home',
             titleText: '首页',
           },
           {
-            activeIcon: <Icon color="primary" icon="list" size={24} weight="fill" />,
+            activeIcon: (
+              <Icon color="primary" icon="list" size={24} weight="fill" />
+            ),
             badgeText: '3',
             icon: <Icon color="tertiary" icon="list" size={24} />,
             value: 'chart',
@@ -47,7 +51,8 @@ export function TabBarDarkDemo() {
   return (
     <Column gap="normal">
       <Text color="tertiary" size="sm">
-        固定深色，不随页面主题：背景取 colorBgContainer，顶部线 colorSplit，未选图标 .45 白
+        固定深色，不随页面主题：背景取 colorBgContainer，顶部线
+        colorSplit，未选图标 .45 白
       </Text>
       <ThemeProvider config={{ algorithm: 'dark' }}>
         <DarkSurface />

@@ -2,10 +2,7 @@ import dayjs from 'dayjs';
 
 import type { AgentThreadRow } from '@pennyspring/api';
 
-export {
-  formatTokenCount,
-  sumUsage,
-} from '../core/messages';
+export { formatTokenCount, sumUsage } from '../core/messages';
 
 export const NEW_THREAD_TITLE = '新对话';
 const THREAD_TIME_FORMAT = 'MM-DD HH:mm';

@@ -17,18 +17,9 @@ export function DisplayInputValueTextDemo() {
         labelText="With valueText"
         valueText="通过 valueText 展示文本值"
       />
-      <DisplayInput
-        labelText="Empty valueText"
-        valueText=""
-      />
-      <DisplayInput
-        labelText="Number as child"
-      >
-        {12345}
-      </DisplayInput>
-      <DisplayInput
-        labelText="String as child"
-      >
+      <DisplayInput labelText="Empty valueText" valueText="" />
+      <DisplayInput labelText="Number as child">{12345}</DisplayInput>
+      <DisplayInput labelText="String as child">
         字符串作为 children
       </DisplayInput>
     </Column>

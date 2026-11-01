@@ -4,8 +4,6 @@ import type { FormItemScopeProps } from './types.ts';
 
 export function FormItemScope({ children }: FormItemScopeProps) {
   return (
-    <FormItemContext.Provider value={null}>
-      {children}
-    </FormItemContext.Provider>
+    <FormItemContext.Provider value={null}>{children}</FormItemContext.Provider>
   );
 }

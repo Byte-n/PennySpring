@@ -16,7 +16,11 @@ export function EmptyVariantsDemo() {
         variant="boxed"
         titleText="「餐饮」没有记录"
         descriptionText="换个分类或时间范围试试。"
-        action={<Button size="small" type="text">清除筛选</Button>}
+        action={
+          <Button size="small" type="text">
+            清除筛选
+          </Button>
+        }
       />
       <Column gap="small">
         <Empty compact descriptionText="当天没有更多记录" />

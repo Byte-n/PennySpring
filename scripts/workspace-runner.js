@@ -14,7 +14,7 @@ function scanWorkspaces() {
 
   // 扫描 packages/* 下的子包
   const packages = fs.readdirSync(packagesDir);
-  packages.forEach((pkg) => {
+  packages.forEach(pkg => {
     const pkgPath = path.join(packagesDir, pkg);
     const packageJsonPath = path.join(pkgPath, 'package.json');
 
@@ -34,7 +34,9 @@ function scanWorkspaces() {
   const examplesPath = path.join(packagesDir, 'pennyspring-ui', 'examples');
   const examplesPackageJsonPath = path.join(examplesPath, 'package.json');
   if (fs.existsSync(examplesPackageJsonPath)) {
-    const packageJson = JSON.parse(fs.readFileSync(examplesPackageJsonPath, 'utf-8'));
+    const packageJson = JSON.parse(
+      fs.readFileSync(examplesPackageJsonPath, 'utf-8'),
+    );
     if (packageJson.scripts && Object.keys(packageJson.scripts).length > 0) {
       workspaces.push({
         name: packageJson.name,
@@ -64,9 +66,11 @@ async function main() {
   // 添加根目录 scripts（排除 ws 命令本身）
   const rootPackageJsonPath = path.join(__dirname, '..', 'package.json');
   if (fs.existsSync(rootPackageJsonPath)) {
-    const rootPackageJson = JSON.parse(fs.readFileSync(rootPackageJsonPath, 'utf-8'));
+    const rootPackageJson = JSON.parse(
+      fs.readFileSync(rootPackageJsonPath, 'utf-8'),
+    );
     if (rootPackageJson.scripts) {
-      Object.keys(rootPackageJson.scripts).forEach((script) => {
+      Object.keys(rootPackageJson.scripts).forEach(script => {
         if (script !== 'ws') {
           const value = `root:${script}`;
           commandMap.set(value, { workspace: null, script });
@@ -77,9 +81,9 @@ async function main() {
   }
 
   // 添加子包 scripts
-  workspaces.forEach((ws) => {
+  workspaces.forEach(ws => {
     const scriptNames = Object.keys(ws.scripts);
-    scriptNames.forEach((script) => {
+    scriptNames.forEach(script => {
       const value = `${ws.name}:${script}`;
       commandMap.set(value, { workspace: ws.name, script });
       choices.push({ name: `${ws.name} → ${script}`, value });
@@ -111,7 +115,7 @@ async function main() {
   }
 }
 
-main().catch((error) => {
+main().catch(error => {
   console.error('脚本执行出错:', error);
   process.exit(1);
 });

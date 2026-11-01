@@ -20,11 +20,7 @@ import type {
   TextStyle,
 } from 'react-native';
 import type { TextColor, TextSize, TextWeight } from '../Text';
-import type {
-  IndexBarItem,
-  IndexBarProps,
-  IndexBarValue,
-} from './types';
+import type { IndexBarItem, IndexBarProps, IndexBarValue } from './types';
 
 const DEFAULT_SIZE: ComponentSize = 'normal';
 const BUBBLE_SCALE_MIN = 0.92;

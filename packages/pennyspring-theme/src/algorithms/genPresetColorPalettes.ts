@@ -1,5 +1,8 @@
 import type { SeedToken, PresetColorGradientToken } from '../types';
-import { generateColorPalettes, generateColorPalettesDark } from './colorPalettes';
+import {
+  generateColorPalettes,
+  generateColorPalettesDark,
+} from './colorPalettes';
 
 export function genPresetColorPalettes(
   seed: SeedToken,
@@ -9,8 +12,19 @@ export function genPresetColorPalettes(
     algorithm === 'dark' ? generateColorPalettesDark : generateColorPalettes;
 
   const presetColors = [
-    'blue', 'purple', 'cyan', 'green', 'magenta', 'pink', 'red',
-    'orange', 'yellow', 'volcano', 'geekblue', 'lime', 'gold',
+    'blue',
+    'purple',
+    'cyan',
+    'green',
+    'magenta',
+    'pink',
+    'red',
+    'orange',
+    'yellow',
+    'volcano',
+    'geekblue',
+    'lime',
+    'gold',
   ];
 
   const result: Record<string, string> = {};

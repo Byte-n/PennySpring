@@ -35,92 +35,92 @@ const COUNTER_HEIGHT = 20;
 export const useCarouselStyles = createUseSheetStyle<
   CarouselStyleOptions,
   CarouselStyleSheet
->(
-  (theme, options) => {
-    const slidePixels = options?.slidePixels ?? 0;
-    const direction = options?.direction ?? 'horizontal';
-    const leadingSize = options?.leadingSize ?? 0;
-    const trailingSize = options?.trailingSize ?? 0;
+>((theme, options) => {
+  const slidePixels = options?.slidePixels ?? 0;
+  const direction = options?.direction ?? 'horizontal';
+  const leadingSize = options?.leadingSize ?? 0;
+  const trailingSize = options?.trailingSize ?? 0;
 
-    return {
-      container: {
-        overflow: 'hidden',
-        height: '100%',
-        width: '100%',
-      },
-      track: {
-        flex: 1,
-        overflow: 'hidden',
-      },
-      trackInner: {
-        flexGrow: 0,
-        flexShrink: 0,
-      },
-      trackInnerHorizontal: {
-        flexDirection: 'row',
-        height: '100%',
-        flexGrow: 0,
-        flexShrink: 0,
-      },
-      trackInnerVertical: {
-        flexDirection: 'column',
-        width: '100%',
-        flexGrow: 0,
-        flexShrink: 0,
-      },
-      slide: {
-        flexGrow: 0,
-        flexShrink: 0,
-        overflow: 'hidden',
-      },
-      slideWrapper:
-        direction === 'horizontal'
-          ? {
-              width: slidePixels,
-              height: '100%',
-            }
-          : {
-              height: slidePixels,
-              width: '100%',
-            },
-      spacerLeading:
-        direction === 'horizontal' ? { width: leadingSize } : { height: leadingSize },
-      spacerTrailing:
-        direction === 'horizontal'
-          ? { width: trailingSize }
-          : { height: trailingSize },
-      indicatorContainer: {
-        position: 'absolute',
-        left: 0,
-        right: 0,
-        bottom: theme.paddingSM,
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center',
-        gap: theme.sizeXS,
-      },
-      indicatorDot: {
-        width: CAROUSEL_DOT_SIZE,
-        height: CAROUSEL_DOT_SIZE,
-        borderRadius: PILL_RADIUS,
-        backgroundColor: theme.colorTextQuaternary,
-      },
-      indicatorDotActive: {
-        backgroundColor: theme.colorPrimary,
-      },
-      indicatorCounter: {
-        position: 'absolute',
-        right: theme.paddingSM,
-        bottom: theme.paddingSM,
-        height: COUNTER_HEIGHT,
-        borderRadius: PILL_RADIUS,
-        backgroundColor: theme.colorBgMask,
-        justifyContent: 'center',
-        paddingHorizontal: theme.paddingXS,
-      },
-      indicatorCounterText: {
-        fontVariant: ['tabular-nums' as const],
-      },
-    };
-  },
-);
+  return {
+    container: {
+      overflow: 'hidden',
+      height: '100%',
+      width: '100%',
+    },
+    track: {
+      flex: 1,
+      overflow: 'hidden',
+    },
+    trackInner: {
+      flexGrow: 0,
+      flexShrink: 0,
+    },
+    trackInnerHorizontal: {
+      flexDirection: 'row',
+      height: '100%',
+      flexGrow: 0,
+      flexShrink: 0,
+    },
+    trackInnerVertical: {
+      flexDirection: 'column',
+      width: '100%',
+      flexGrow: 0,
+      flexShrink: 0,
+    },
+    slide: {
+      flexGrow: 0,
+      flexShrink: 0,
+      overflow: 'hidden',
+    },
+    slideWrapper:
+      direction === 'horizontal'
+        ? {
+            width: slidePixels,
+            height: '100%',
+          }
+        : {
+            height: slidePixels,
+            width: '100%',
+          },
+    spacerLeading:
+      direction === 'horizontal'
+        ? { width: leadingSize }
+        : { height: leadingSize },
+    spacerTrailing:
+      direction === 'horizontal'
+        ? { width: trailingSize }
+        : { height: trailingSize },
+    indicatorContainer: {
+      position: 'absolute',
+      left: 0,
+      right: 0,
+      bottom: theme.paddingSM,
+      flexDirection: 'row',
+      justifyContent: 'center',
+      alignItems: 'center',
+      gap: theme.sizeXS,
+    },
+    indicatorDot: {
+      width: CAROUSEL_DOT_SIZE,
+      height: CAROUSEL_DOT_SIZE,
+      borderRadius: PILL_RADIUS,
+      backgroundColor: theme.colorTextQuaternary,
+    },
+    indicatorDotActive: {
+      backgroundColor: theme.colorPrimary,
+    },
+    indicatorCounter: {
+      position: 'absolute',
+      right: theme.paddingSM,
+      bottom: theme.paddingSM,
+      height: COUNTER_HEIGHT,
+      borderRadius: PILL_RADIUS,
+      backgroundColor: theme.colorBgMask,
+      justifyContent: 'center',
+      paddingHorizontal: theme.paddingXS,
+    },
+    indicatorCounterText: {
+      fontVariant: ['tabular-nums' as const],
+    },
+  };
+});

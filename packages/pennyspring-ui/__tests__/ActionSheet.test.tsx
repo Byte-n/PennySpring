@@ -2,16 +2,29 @@ import React from 'react';
 import { Text as RNText } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
 import { ActionSheet } from '../src/ActionSheet';
-function renderActionSheet(props: Partial<React.ComponentProps<typeof ActionSheet>> = {}) {
+function renderActionSheet(
+  props: Partial<React.ComponentProps<typeof ActionSheet>> = {},
+) {
   let testRenderer: renderer.ReactTestRenderer;
   act(() => {
-    testRenderer = renderer.create(<><ActionSheet actions={[{
-        text: 'Option 1'
-      }, {
-        text: 'Option 2'
-      }, {
-        text: 'Option 3'
-      }]} {...props} /></>);
+    testRenderer = renderer.create(
+      <>
+        <ActionSheet
+          actions={[
+            {
+              text: 'Option 1',
+            },
+            {
+              text: 'Option 2',
+            },
+            {
+              text: 'Option 3',
+            },
+          ]}
+          {...props}
+        />
+      </>,
+    );
   });
   return testRenderer!;
 }
@@ -22,7 +35,7 @@ describe('ActionSheet', () => {
   });
   it('renders actions when opened', () => {
     const testRenderer = renderActionSheet({
-      defaultOpen: true
+      defaultOpen: true,
     });
     const treeString = JSON.stringify(testRenderer.toJSON());
     expect(treeString).toContain('Option 1');
@@ -32,7 +45,7 @@ describe('ActionSheet', () => {
   it('renders title when provided', () => {
     const testRenderer = renderActionSheet({
       defaultOpen: true,
-      titleText: 'Select an option'
+      titleText: 'Select an option',
     });
     const treeString = JSON.stringify(testRenderer.toJSON());
     expect(treeString).toContain('Select an option');
@@ -40,7 +53,7 @@ describe('ActionSheet', () => {
   it('renders cancel button when cancelText is provided', () => {
     const testRenderer = renderActionSheet({
       cancelText: 'Cancel',
-      defaultOpen: true
+      defaultOpen: true,
     });
     const treeString = JSON.stringify(testRenderer.toJSON());
     expect(treeString).toContain('Cancel');
@@ -49,16 +62,21 @@ describe('ActionSheet', () => {
     const onAction = jest.fn();
     const testRenderer = renderActionSheet({
       defaultOpen: true,
-      onAction
+      onAction,
     });
     act(() => {
-      testRenderer.root.findByProps({
-        testID: 'action-sheet-action-0'
-      }).props.onPress();
+      testRenderer.root
+        .findByProps({
+          testID: 'action-sheet-action-0',
+        })
+        .props.onPress();
     });
-    expect(onAction).toHaveBeenCalledWith({
-      text: 'Option 1'
-    }, 0);
+    expect(onAction).toHaveBeenCalledWith(
+      {
+        text: 'Option 1',
+      },
+      0,
+    );
   });
   it('fires onCancel before onOpenChange when cancel is pressed', () => {
     const calls: string[] = [];
@@ -66,12 +84,14 @@ describe('ActionSheet', () => {
       cancelText: 'Cancel',
       defaultOpen: true,
       onCancel: () => calls.push('cancel'),
-      onOpenChange: nextOpen => calls.push(`open:${nextOpen}`)
+      onOpenChange: nextOpen => calls.push(`open:${nextOpen}`),
     });
     act(() => {
-      testRenderer.root.findByProps({
-        testID: 'action-sheet-cancel-button'
-      }).props.onPress();
+      testRenderer.root
+        .findByProps({
+          testID: 'action-sheet-cancel-button',
+        })
+        .props.onPress();
     });
     expect(calls).toEqual(['cancel', 'open:false']);
   });
@@ -80,12 +100,14 @@ describe('ActionSheet', () => {
     const testRenderer = renderActionSheet({
       defaultOpen: true,
       onCancel: () => calls.push('cancel'),
-      onOpenChange: nextOpen => calls.push(`open:${nextOpen}`)
+      onOpenChange: nextOpen => calls.push(`open:${nextOpen}`),
     });
     act(() => {
-      testRenderer.root.findByProps({
-        testID: 'popup-mask'
-      }).props.onPress();
+      testRenderer.root
+        .findByProps({
+          testID: 'popup-mask',
+        })
+        .props.onPress();
     });
     expect(calls).toEqual(['cancel', 'open:false']);
   });
@@ -94,14 +116,36 @@ describe('ActionSheet', () => {
     const onOpenChange = jest.fn();
     let testRenderer: renderer.ReactTestRenderer;
     act(() => {
-      testRenderer = renderer.create(<><ActionSheet actions={[{
-          text: 'Option 1'
-        }]} open onCancel={onCancel} onOpenChange={onOpenChange} /></>);
+      testRenderer = renderer.create(
+        <>
+          <ActionSheet
+            actions={[
+              {
+                text: 'Option 1',
+              },
+            ]}
+            open
+            onCancel={onCancel}
+            onOpenChange={onOpenChange}
+          />
+        </>,
+      );
     });
     act(() => {
-      testRenderer!.update(<><ActionSheet actions={[{
-          text: 'Option 1'
-        }]} open={false} onCancel={onCancel} onOpenChange={onOpenChange} /></>);
+      testRenderer!.update(
+        <>
+          <ActionSheet
+            actions={[
+              {
+                text: 'Option 1',
+              },
+            ]}
+            open={false}
+            onCancel={onCancel}
+            onOpenChange={onOpenChange}
+          />
+        </>,
+      );
     });
     expect(onCancel).not.toHaveBeenCalled();
     expect(onOpenChange).not.toHaveBeenCalled();
@@ -109,7 +153,7 @@ describe('ActionSheet', () => {
   it('renders custom title node', () => {
     const testRenderer = renderActionSheet({
       defaultOpen: true,
-      title: <RNText>Custom title</RNText>
+      title: <RNText>Custom title</RNText>,
     });
     const treeString = JSON.stringify(testRenderer.toJSON());
     expect(treeString).toContain('Custom title');
@@ -117,7 +161,7 @@ describe('ActionSheet', () => {
   it('renders custom cancel node', () => {
     const testRenderer = renderActionSheet({
       cancel: <RNText>Custom cancel</RNText>,
-      defaultOpen: true
+      defaultOpen: true,
     });
     const treeString = JSON.stringify(testRenderer.toJSON());
     expect(treeString).toContain('Custom cancel');
@@ -126,38 +170,49 @@ describe('ActionSheet', () => {
     const testRenderer = renderActionSheet({
       defaultOpen: true,
       title: null,
-      titleText: 'Select an option'
+      titleText: 'Select an option',
     });
-    expect(() => testRenderer.root.findByProps({
-      testID: 'action-sheet-title-container'
-    })).toThrow();
-    expect(() => testRenderer.root.findByProps({
-      testID: 'action-sheet-title-text'
-    })).toThrow();
+    expect(() =>
+      testRenderer.root.findByProps({
+        testID: 'action-sheet-title-container',
+      }),
+    ).toThrow();
+    expect(() =>
+      testRenderer.root.findByProps({
+        testID: 'action-sheet-title-text',
+      }),
+    ).toThrow();
   });
   it('does not render cancel area when cancel is explicitly null', () => {
     const testRenderer = renderActionSheet({
       cancel: null,
       cancelText: 'Cancel',
-      defaultOpen: true
+      defaultOpen: true,
     });
-    expect(() => testRenderer.root.findByProps({
-      testID: 'action-sheet-cancel-container'
-    })).toThrow();
-    expect(() => testRenderer.root.findByProps({
-      testID: 'action-sheet-cancel-text'
-    })).toThrow();
+    expect(() =>
+      testRenderer.root.findByProps({
+        testID: 'action-sheet-cancel-container',
+      }),
+    ).toThrow();
+    expect(() =>
+      testRenderer.root.findByProps({
+        testID: 'action-sheet-cancel-text',
+      }),
+    ).toThrow();
   });
   it('supports actions with description', () => {
     const testRenderer = renderActionSheet({
-      actions: [{
-        text: 'Option 1',
-        description: 'Description 1'
-      }, {
-        text: 'Option 2',
-        description: 'Description 2'
-      }],
-      defaultOpen: true
+      actions: [
+        {
+          text: 'Option 1',
+          description: 'Description 1',
+        },
+        {
+          text: 'Option 2',
+          description: 'Description 2',
+        },
+      ],
+      defaultOpen: true,
     });
     const treeString = JSON.stringify(testRenderer.toJSON());
     expect(treeString).toContain('Option 1');
@@ -167,83 +222,104 @@ describe('ActionSheet', () => {
   });
   it('supports actions with danger style', () => {
     const testRenderer = renderActionSheet({
-      actions: [{
-        text: 'Delete',
-        danger: true
-      }, {
-        text: 'Cancel'
-      }],
-      defaultOpen: true
+      actions: [
+        {
+          text: 'Delete',
+          danger: true,
+        },
+        {
+          text: 'Cancel',
+        },
+      ],
+      defaultOpen: true,
     });
     const dangerAction = testRenderer.root.findByProps({
-      testID: 'action-sheet-action-0'
+      testID: 'action-sheet-action-0',
     });
     expect(dangerAction).toBeTruthy();
   });
   it('supports actions with disabled state', () => {
     const onAction = jest.fn();
     const testRenderer = renderActionSheet({
-      actions: [{
-        text: 'Option 1',
-        disabled: true
-      }, {
-        text: 'Option 2'
-      }],
+      actions: [
+        {
+          text: 'Option 1',
+          disabled: true,
+        },
+        {
+          text: 'Option 2',
+        },
+      ],
       defaultOpen: true,
-      onAction
+      onAction,
     });
     act(() => {
-      testRenderer.root.findByProps({
-        testID: 'action-sheet-action-0'
-      }).props.onPress();
+      testRenderer.root
+        .findByProps({
+          testID: 'action-sheet-action-0',
+        })
+        .props.onPress();
     });
     expect(onAction).not.toHaveBeenCalled();
   });
   it('uses Popup position bottom', () => {
     const testRenderer = renderActionSheet({
-      defaultOpen: true
+      defaultOpen: true,
     });
     const layout = testRenderer.root.findByProps({
-      testID: 'popup-layout'
+      testID: 'popup-layout',
     });
     expect(layout).toBeTruthy();
   });
   it('renders action icons when provided', () => {
     const testRenderer = renderActionSheet({
-      actions: [{
-        text: 'Edit',
-        icon: 'edit'
-      }, {
-        text: 'Delete',
-        icon: 'trash',
-        danger: true
-      }],
-      defaultOpen: true
+      actions: [
+        {
+          text: 'Edit',
+          icon: 'edit',
+        },
+        {
+          text: 'Delete',
+          icon: 'trash',
+          danger: true,
+        },
+      ],
+      defaultOpen: true,
     });
-    expect(testRenderer.root.findByProps({
-      testID: 'action-sheet-action-icon-0'
-    })).toBeTruthy();
-    expect(testRenderer.root.findByProps({
-      testID: 'action-sheet-action-icon-1'
-    })).toBeTruthy();
+    expect(
+      testRenderer.root.findByProps({
+        testID: 'action-sheet-action-icon-0',
+      }),
+    ).toBeTruthy();
+    expect(
+      testRenderer.root.findByProps({
+        testID: 'action-sheet-action-icon-1',
+      }),
+    ).toBeTruthy();
   });
   it('renders action icon on the title line when description is present', () => {
     const testRenderer = renderActionSheet({
-      actions: [{
-        text: 'Settings',
-        description: 'Edit provider models',
-        icon: 'edit'
-      }],
-      defaultOpen: true
+      actions: [
+        {
+          text: 'Settings',
+          description: 'Edit provider models',
+          icon: 'edit',
+        },
+      ],
+      defaultOpen: true,
     });
     const titleRow = testRenderer.root.findByProps({
-      testID: 'action-sheet-action-title-0'
+      testID: 'action-sheet-action-title-0',
     });
-    expect(titleRow.findByProps({
-      testID: 'action-sheet-action-icon-0'
-    })).toBeTruthy();
-    expect(titleRow.findAllByProps({
-      testID: 'action-sheet-action-description-0'
-    })).toHaveLength(0);
+    expect(
+      titleRow.findByProps({
+        testID: 'action-sheet-action-icon-0',
+      }),
+    ).toBeTruthy();
+    expect(
+      titleRow.findAllByProps({
+        testID: 'action-sheet-action-description-0',
+      }),
+    ).toHaveLength(0);
   });
 });

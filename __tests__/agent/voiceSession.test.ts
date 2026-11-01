@@ -40,7 +40,10 @@ function createFakeMic(): FakeMic {
   return mic;
 }
 
-function createStreamMock(partialText = '', finalText = ''): {
+function createStreamMock(
+  partialText = '',
+  finalText = '',
+): {
   stream: SpeechStreamHandle;
   release: jest.Mock;
   inputFinished: jest.Mock;

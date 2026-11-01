@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text } from 'react-native';
 import { createUseSheetStyle } from '../../createUseSheetStyle';
 
-const useSectionStyles = createUseSheetStyle((tokens) => ({
+const useSectionStyles = createUseSheetStyle(tokens => ({
   section: {
     padding: 16,
     borderBottomWidth: 1,

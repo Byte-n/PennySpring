@@ -57,7 +57,9 @@ describe('Input', () => {
       input.props.onFocus({ nativeEvent: {} });
     });
 
-    expect(findNativeInput(testRenderer).props.placeholderTextColor).not.toBe('transparent');
+    expect(findNativeInput(testRenderer).props.placeholderTextColor).not.toBe(
+      'transparent',
+    );
   });
 
   it('keeps floating label constrained to the input width', () => {
@@ -65,7 +67,9 @@ describe('Input', () => {
       labelText: '账本名称',
     });
 
-    const label = testRenderer.root.findByProps({ testID: 'input-floating-label' });
+    const label = testRenderer.root.findByProps({
+      testID: 'input-floating-label',
+    });
 
     expect(JSON.stringify(label.props.style)).toContain('"right":0');
   });
@@ -75,7 +79,9 @@ describe('Input', () => {
       label: <View testID="custom-input-label-node" />,
     });
 
-    const label = testRenderer.root.findByProps({ testID: 'input-floating-label' });
+    const label = testRenderer.root.findByProps({
+      testID: 'input-floating-label',
+    });
 
     expect(label.type).toBe(View);
     expect(() =>
@@ -89,7 +95,9 @@ describe('Input', () => {
       labelText: '账户名称',
     });
 
-    const inputStyle = StyleSheet.flatten(findNativeInput(testRenderer).props.style);
+    const inputStyle = StyleSheet.flatten(
+      findNativeInput(testRenderer).props.style,
+    );
 
     expect(inputStyle.paddingBottom).toBeGreaterThan(0);
     expect(inputStyle.paddingTop).toBeGreaterThan(inputStyle.paddingBottom);
@@ -100,7 +108,9 @@ describe('Input', () => {
       status: 'error',
     });
 
-    const underline = testRenderer.root.findByProps({ testID: 'input-underline' });
+    const underline = testRenderer.root.findByProps({
+      testID: 'input-underline',
+    });
     const underlineStyle = StyleSheet.flatten(underline.props.style);
     expect(underline.type).toBe(View);
     expect(underlineStyle.height).toBe(token.lineWidth);
@@ -140,7 +150,9 @@ describe('Input', () => {
     });
 
     act(() => {
-      testRenderer.root.findByProps({ testID: 'input-clear-button' }).props.onPress();
+      testRenderer.root
+        .findByProps({ testID: 'input-clear-button' })
+        .props.onPress();
     });
 
     expect(findNativeInput(testRenderer).props.value).toBe('');
@@ -148,8 +160,12 @@ describe('Input', () => {
   });
 
   it('makes disabled and readonly fields non-editable', () => {
-    expect(findNativeInput(renderInput({ disabled: true })).props.editable).toBe(false);
-    expect(findNativeInput(renderInput({ readonly: true })).props.editable).toBe(false);
+    expect(
+      findNativeInput(renderInput({ disabled: true })).props.editable,
+    ).toBe(false);
+    expect(
+      findNativeInput(renderInput({ readonly: true })).props.editable,
+    ).toBe(false);
   });
 
   it('renders loading before suffix content', () => {
@@ -177,7 +193,9 @@ describe('Input', () => {
       multiline: true,
     });
 
-    const inputStyle = StyleSheet.flatten(findNativeInput(testRenderer).props.style);
+    const inputStyle = StyleSheet.flatten(
+      findNativeInput(testRenderer).props.style,
+    );
 
     expect(inputStyle.textAlignVertical).toBe('top');
   });
@@ -213,7 +231,9 @@ describe('Input', () => {
       );
 
       expect(
-        inputStyle.paddingTop + inputStyle.paddingBottom + inputStyle.lineHeight,
+        inputStyle.paddingTop +
+          inputStyle.paddingBottom +
+          inputStyle.lineHeight,
       ).toBeCloseTo(height);
     });
   });
@@ -231,7 +251,9 @@ describe('Input.Search', () => {
       findNativeInput(testRenderer).props.onSubmitEditing({ nativeEvent: {} });
     });
     act(() => {
-      testRenderer.root.findByProps({ testID: 'input-search-button' }).props.onPress();
+      testRenderer.root
+        .findByProps({ testID: 'input-search-button' })
+        .props.onPress();
     });
 
     expect(onSearch).toHaveBeenCalledTimes(2);
@@ -251,7 +273,9 @@ describe('Input.Search', () => {
       disabled: true,
       onSearch,
     });
-    const button = testRenderer.root.findByProps({ testID: 'input-search-button' });
+    const button = testRenderer.root.findByProps({
+      testID: 'input-search-button',
+    });
 
     act(() => {
       button.props.onPress();

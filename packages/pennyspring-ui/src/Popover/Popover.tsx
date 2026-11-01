@@ -260,14 +260,14 @@ export function Popover({
     layout.placement === 'left'
       ? token.marginXXS
       : layout.placement === 'right'
-      ? -token.marginXXS
-      : 0;
+        ? -token.marginXXS
+        : 0;
   const enterOffsetY =
     layout.placement === 'top'
       ? token.marginXXS
       : layout.placement === 'bottom'
-      ? -token.marginXXS
-      : 0;
+        ? -token.marginXXS
+        : 0;
   const contentAnimatedStyle = useAnimatedStyle(() => ({
     opacity: progress.value,
     transform: [

@@ -16,7 +16,7 @@ jest.mock('@pennyspring/theme', () => {
 
   return {
     ...actual,
-    toShadowStyle: jest.fn((shadow) => ({
+    toShadowStyle: jest.fn(shadow => ({
       ...actual.toShadowStyle(shadow),
       convertedByToShadowStyle: true,
     })),
@@ -73,12 +73,17 @@ describe('FloatingActionGroup', () => {
 
     act(() => {
       testRenderer = renderer.create(
-        <FloatingActionGroup actions={baseActions.slice(0, 2)} defaultVisibleCount={2} />,
+        <FloatingActionGroup
+          actions={baseActions.slice(0, 2)}
+          defaultVisibleCount={2}
+        />,
       );
     });
 
     expect(() =>
-      testRenderer.root.findByProps({ testID: 'floating-action-group-more-button' }),
+      testRenderer.root.findByProps({
+        testID: 'floating-action-group-more-button',
+      }),
     ).toThrow();
   });
 
@@ -92,7 +97,9 @@ describe('FloatingActionGroup', () => {
     });
 
     expect(
-      testRenderer.root.findAllByProps({ testID: 'floating-action-group-hidden-item' }).length,
+      testRenderer.root.findAllByProps({
+        testID: 'floating-action-group-hidden-item',
+      }).length,
     ).toBe(0);
 
     act(() => {
@@ -113,7 +120,9 @@ describe('FloatingActionGroup', () => {
     });
 
     expect(
-      testRenderer.root.findAllByProps({ testID: 'floating-action-group-hidden-item' }).length,
+      testRenderer.root.findAllByProps({
+        testID: 'floating-action-group-hidden-item',
+      }).length,
     ).toBeGreaterThanOrEqual(2);
 
     act(() => {
@@ -121,7 +130,9 @@ describe('FloatingActionGroup', () => {
     });
 
     expect(
-      testRenderer.root.findAllByProps({ testID: 'floating-action-group-hidden-item' }).length,
+      testRenderer.root.findAllByProps({
+        testID: 'floating-action-group-hidden-item',
+      }).length,
     ).toBe(0);
   });
 
@@ -156,7 +167,9 @@ describe('FloatingActionGroup', () => {
     });
 
     expect(
-      testRenderer.root.findAllByProps({ testID: 'floating-action-group-hidden-item' }).length,
+      testRenderer.root.findAllByProps({
+        testID: 'floating-action-group-hidden-item',
+      }).length,
     ).toBeGreaterThanOrEqual(2);
 
     act(() => {
@@ -164,7 +177,9 @@ describe('FloatingActionGroup', () => {
     });
 
     expect(
-      testRenderer.root.findAllByProps({ testID: 'floating-action-group-hidden-item' }).length,
+      testRenderer.root.findAllByProps({
+        testID: 'floating-action-group-hidden-item',
+      }).length,
     ).toBe(0);
   });
 
@@ -183,7 +198,9 @@ describe('FloatingActionGroup', () => {
     });
 
     expect(
-      testRenderer.root.findByProps({ testID: 'floating-action-group-container' }),
+      testRenderer.root.findByProps({
+        testID: 'floating-action-group-container',
+      }),
     ).toBeTruthy();
   });
 
@@ -210,7 +227,12 @@ describe('FloatingActionGroup', () => {
 
     const button = testRenderer.root.findByType(Button);
     expect(button.props.testID).toBe('book-manage-create-button');
-    expect(button.props.hitSlop).toEqual({ top: 12, bottom: 12, left: 12, right: 12 });
+    expect(button.props.hitSlop).toEqual({
+      top: 12,
+      bottom: 12,
+      left: 12,
+      right: 12,
+    });
   });
 
   it('passes group size to every floating button', () => {
@@ -235,7 +257,9 @@ describe('FloatingActionGroup', () => {
 
     // Assert
     expect(
-      testRenderer.root.findAllByType(Button).every(button => button.props.size === 'small'),
+      testRenderer.root
+        .findAllByType(Button)
+        .every(button => button.props.size === 'small'),
     ).toBe(true);
   });
 
@@ -248,7 +272,10 @@ describe('FloatingActionGroup', () => {
 
     act(() => {
       testRenderer = renderer.create(
-        <FloatingActionGroup actions={baseActions.slice(0, 1)} styles={styles} />,
+        <FloatingActionGroup
+          actions={baseActions.slice(0, 1)}
+          styles={styles}
+        />,
       );
     });
 

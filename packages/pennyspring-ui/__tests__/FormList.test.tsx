@@ -78,10 +78,7 @@ function renderList(initialItems: Array<{ amount: string }>) {
   return { testRenderer: testRenderer!, getForm: () => formApi! };
 }
 
-function press(
-  testRenderer: renderer.ReactTestRenderer,
-  testID: string,
-): void {
+function press(testRenderer: renderer.ReactTestRenderer, testID: string): void {
   const node = testRenderer.root.findAll(
     instance =>
       instance.props.testID === testID &&
@@ -93,9 +90,7 @@ function press(
   });
 }
 
-function inputValues(
-  testRenderer: renderer.ReactTestRenderer,
-): unknown[] {
+function inputValues(testRenderer: renderer.ReactTestRenderer): unknown[] {
   return testRenderer.root
     .findAllByType(TextInput)
     .map(instance => instance.props.value);

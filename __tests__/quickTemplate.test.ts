@@ -7,8 +7,14 @@ import {
 } from '@pennyspring/data';
 
 import { validateAddRecordDraft } from '../src/screens/addRecord/addRecordDraft';
-import { buildDraftFromTemplate, tabTypeFor } from '../src/screens/quickTemplate/buildDraft';
-import { toPresetPayload, toTemplatePayload } from '../src/screens/quickTemplate/payload';
+import {
+  buildDraftFromTemplate,
+  tabTypeFor,
+} from '../src/screens/quickTemplate/buildDraft';
+import {
+  toPresetPayload,
+  toTemplatePayload,
+} from '../src/screens/quickTemplate/payload';
 import type {
   AddRecordPresetPayload,
   AddRecordTemplatePayload,
@@ -58,7 +64,10 @@ function template(overrides: Partial<QuickTemplate>): QuickTemplate {
 
 describe('quickTemplate buildDraft', () => {
   test('builds a valid expense draft from an expense template', () => {
-    const expenseType = typeRow({ id: 1, typeCategory: RECORD_TYPE_CATEGORY.expense });
+    const expenseType = typeRow({
+      id: 1,
+      typeCategory: RECORD_TYPE_CATEGORY.expense,
+    });
     const tpl = template({
       typeCategory: RECORD_TYPE_CATEGORY.expense,
       typeId: 1,
@@ -79,11 +88,16 @@ describe('quickTemplate buildDraft', () => {
     expect(draft.remark).toBe('通勤');
     expect(draft.imagePaths).toEqual([]);
     expect(draft.relatedRecordIds).toEqual([]);
-    expect(Number.isFinite(draft.recordTime) && draft.recordTime > 0).toBe(true);
+    expect(Number.isFinite(draft.recordTime) && draft.recordTime > 0).toBe(
+      true,
+    );
   });
 
   test('builds a valid income draft from an income template', () => {
-    const incomeType = typeRow({ id: 2, typeCategory: RECORD_TYPE_CATEGORY.income });
+    const incomeType = typeRow({
+      id: 2,
+      typeCategory: RECORD_TYPE_CATEGORY.income,
+    });
     const tpl = template({
       typeCategory: RECORD_TYPE_CATEGORY.income,
       typeId: 2,
@@ -100,7 +114,10 @@ describe('quickTemplate buildDraft', () => {
   });
 
   test('builds a valid transfer draft from a transfer template', () => {
-    const transferType = typeRow({ id: 3, typeCategory: RECORD_TYPE_CATEGORY.transfer });
+    const transferType = typeRow({
+      id: 3,
+      typeCategory: RECORD_TYPE_CATEGORY.transfer,
+    });
     const tpl = template({
       typeCategory: RECORD_TYPE_CATEGORY.transfer,
       typeId: 3,
@@ -117,15 +134,26 @@ describe('quickTemplate buildDraft', () => {
   });
 
   test('tabTypeFor maps type category to the matching add-record tab type', () => {
-    expect(tabTypeFor(typeRow({ typeCategory: RECORD_TYPE_CATEGORY.expense }))).toBe('expense');
-    expect(tabTypeFor(typeRow({ typeCategory: RECORD_TYPE_CATEGORY.income }))).toBe('income');
-    expect(tabTypeFor(typeRow({ typeCategory: RECORD_TYPE_CATEGORY.transfer }))).toBe('transfer');
+    expect(
+      tabTypeFor(typeRow({ typeCategory: RECORD_TYPE_CATEGORY.expense })),
+    ).toBe('expense');
+    expect(
+      tabTypeFor(typeRow({ typeCategory: RECORD_TYPE_CATEGORY.income })),
+    ).toBe('income');
+    expect(
+      tabTypeFor(typeRow({ typeCategory: RECORD_TYPE_CATEGORY.transfer })),
+    ).toBe('transfer');
   });
 });
 
 describe('quickTemplate payload mappers', () => {
   test('toPresetPayload normalizes 0 assets to null and carries reimbursable', () => {
-    const tpl = template({ assetId: 0, intoAssetId: 0, reimbursable: true, tagIds: [7] });
+    const tpl = template({
+      assetId: 0,
+      intoAssetId: 0,
+      reimbursable: true,
+      tagIds: [7],
+    });
     const payload: AddRecordPresetPayload = toPresetPayload(tpl);
 
     expect(payload.typeId).toBe(tpl.typeId);

@@ -34,16 +34,16 @@ export function getPathOptions<TData>(
   value: ListPickerCascaderValue | undefined,
 ): Array<ListPickerCascaderOption<TData>> {
   const path: Array<ListPickerCascaderOption<TData>> = [];
-  let currentOptions: Array<ListPickerCascaderOption<TData>> | undefined = options;
+  let currentOptions: Array<ListPickerCascaderOption<TData>> | undefined =
+    options;
 
   for (const itemValue of value ?? []) {
     if (!currentOptions) {
       break;
     }
 
-    const option: ListPickerCascaderOption<TData> | undefined = currentOptions.find(
-      item => item.value === itemValue,
-    );
+    const option: ListPickerCascaderOption<TData> | undefined =
+      currentOptions.find(item => item.value === itemValue);
 
     if (!option) {
       break;
@@ -144,9 +144,10 @@ export function buildRemoveParams<TData>(
   }
 
   const nextPath = getPathOptions(options, nextValue);
-  const siblingOptions = removedLevel === 0
-    ? options
-    : currentPath[removedLevel - 1]?.children ?? [];
+  const siblingOptions =
+    removedLevel === 0
+      ? options
+      : (currentPath[removedLevel - 1]?.children ?? []);
   const optionIndex = siblingOptions.findIndex(
     item => item.value === removedOption.value,
   );

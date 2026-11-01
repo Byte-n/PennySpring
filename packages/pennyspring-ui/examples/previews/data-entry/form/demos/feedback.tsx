@@ -38,9 +38,7 @@ export function FormFeedbackDemo() {
         extraText="最多 10 个字"
         labelText="备注"
         name="remark"
-        rules={value =>
-          value.length > 10 ? '备注最多 10 个字' : undefined
-        }
+        rules={value => (value.length > 10 ? '备注最多 10 个字' : undefined)}
       >
         <Input placeholder="请输入备注" />
       </TypedForm.Item>

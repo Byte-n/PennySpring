@@ -196,9 +196,9 @@ describe('resolveUpdateRecordInput', () => {
       return;
     }
 
-    expect(dayjs(result.updateInput.recordTime).format('YYYY-MM-DD HH:mm')).toBe(
-      '2026-10-01 12:34',
-    );
+    expect(
+      dayjs(result.updateInput.recordTime).format('YYYY-MM-DD HH:mm'),
+    ).toBe('2026-10-01 12:34');
   });
 
   it('replaces all tags when tagIds are provided', () => {

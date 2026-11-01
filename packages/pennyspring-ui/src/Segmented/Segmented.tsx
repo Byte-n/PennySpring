@@ -9,11 +9,7 @@ import type { ReactNode } from 'react';
 import type { GestureResponderEvent } from 'react-native';
 import type { TextColor, TextSize } from '../Text';
 import type { ComponentSize } from '../shares/types';
-import type {
-  SegmentedOption,
-  SegmentedProps,
-  SegmentedValue,
-} from './types';
+import type { SegmentedOption, SegmentedProps, SegmentedValue } from './types';
 import { useFieldProps } from '../Form/hooks/useFieldProps.ts';
 
 interface NormalizedSegmentedOption {

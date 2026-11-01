@@ -108,10 +108,18 @@ describe('Badge', () => {
       count: 6,
     });
 
-    expect(getIndicatorAnchorStyleByText(withChildRenderer, '6').position).toBe('absolute');
-    expect(getIndicatorAnchorStyleByText(standaloneRenderer, '6').position).toBeUndefined();
-    expect(getIndicatorAnchorStyleByText(withChildRenderer, '6').borderWidth).toBe(2);
-    expect(getIndicatorAnchorStyleByText(standaloneRenderer, '6').borderWidth).toBeUndefined();
+    expect(getIndicatorAnchorStyleByText(withChildRenderer, '6').position).toBe(
+      'absolute',
+    );
+    expect(
+      getIndicatorAnchorStyleByText(standaloneRenderer, '6').position,
+    ).toBeUndefined();
+    expect(
+      getIndicatorAnchorStyleByText(withChildRenderer, '6').borderWidth,
+    ).toBe(2);
+    expect(
+      getIndicatorAnchorStyleByText(standaloneRenderer, '6').borderWidth,
+    ).toBeUndefined();
   });
 
   it('positions child dot badge by its own radius', () => {
@@ -167,8 +175,12 @@ describe('Badge', () => {
       color: 'danger',
     });
 
-    expect(getIndicatorStyleByText(defaultRenderer, '1').backgroundColor).toBe(token.colorText);
-    expect(getIndicatorStyleByText(dangerRenderer, '1').backgroundColor).toBe(token.colorError);
+    expect(getIndicatorStyleByText(defaultRenderer, '1').backgroundColor).toBe(
+      token.colorText,
+    );
+    expect(getIndicatorStyleByText(dangerRenderer, '1').backgroundColor).toBe(
+      token.colorError,
+    );
   });
 
   it('keeps children when badge should be hidden', () => {
@@ -216,6 +228,8 @@ describe('Badge', () => {
     });
 
     // Assert
-    expect(JSON.stringify(testRenderer.toJSON())).toContain(`${DEFAULT_OVERFLOW_COUNT}+`);
+    expect(JSON.stringify(testRenderer.toJSON())).toContain(
+      `${DEFAULT_OVERFLOW_COUNT}+`,
+    );
   });
 });

@@ -183,7 +183,11 @@ jest.mock('@pennyspring/ui', () => {
     );
 
   const MockLoading = ({ text }: { text?: string }) =>
-    ReactLib.createElement(Text, { testID: 'agent-loading' }, text ?? 'loading');
+    ReactLib.createElement(
+      Text,
+      { testID: 'agent-loading' },
+      text ?? 'loading',
+    );
 
   const MockActionSheet = ({
     actions = [],
@@ -250,11 +254,8 @@ jest.mock('@pennyspring/ui', () => {
       source: src,
     });
 
-  MockImage.PreviewGroup = ({
-    children,
-  }: {
-    children?: React.ReactNode;
-  }) => ReactLib.createElement(ReactLib.Fragment, null, children);
+  MockImage.PreviewGroup = ({ children }: { children?: React.ReactNode }) =>
+    ReactLib.createElement(ReactLib.Fragment, null, children);
 
   const MockImagePickerActionSheet = ({
     onChange,
@@ -310,8 +311,7 @@ jest.mock('@pennyspring/ui', () => {
       children?: React.ReactNode;
       content?: React.ReactNode;
       open?: boolean;
-    }) =>
-      ReactLib.createElement(View, null, children, open ? content : null),
+    }) => ReactLib.createElement(View, null, children, open ? content : null),
     Popup: { FloatingPanel: MockFloatingPanel },
     Row: passthrough(View),
     Text: passthrough(Text),
@@ -433,11 +433,9 @@ function createPendingAdapter(
     run: ({ abortSignal }) =>
       new Promise(resolve => {
         onSignal(abortSignal);
-        abortSignal.addEventListener(
-          'abort',
-          () => resolve({ content: [] }),
-          { once: true },
-        );
+        abortSignal.addEventListener('abort', () => resolve({ content: [] }), {
+          once: true,
+        });
       }),
   };
 }
@@ -509,7 +507,7 @@ function collectText(nodes: readonly unknown[]): string {
       if (!node || typeof node !== 'object') {
         return '';
       }
-      return collectText(((node as HostNode).children) ?? []);
+      return collectText((node as HostNode).children ?? []);
     })
     .join(' ');
 }
@@ -721,9 +719,7 @@ describe('AgentDrawer', () => {
       await flush();
     });
 
-    expect(renderedText(renderer)).not.toContain(
-      '请先确认或取消待处理的记账',
-    );
+    expect(renderedText(renderer)).not.toContain('请先确认或取消待处理的记账');
     expect(
       renderer.root.findAllByProps({ testID: 'agent-approval-pending' }),
     ).toHaveLength(0);
@@ -879,9 +875,7 @@ describe('AgentDrawer', () => {
     expect(renderedText(renderer)).toContain('model-a');
 
     act(() => {
-      renderer.root
-        .findByProps({ testID: 'agent-model-chip' })
-        .props.onPress();
+      renderer.root.findByProps({ testID: 'agent-model-chip' }).props.onPress();
     });
     expect(renderedText(renderer)).toContain('切换模型');
 
@@ -945,8 +939,8 @@ describe('AgentDrawer', () => {
     });
     expect(renderedText(renderer)).toContain('当前模型不支持');
     expect(
-      renderer.root.findByProps({ testID: 'agent-composer-image-option' })
-        .props.disabled,
+      renderer.root.findByProps({ testID: 'agent-composer-image-option' }).props
+        .disabled,
     ).toBe(true);
   });
 
@@ -1024,9 +1018,9 @@ describe('AgentDrawer', () => {
     });
 
     act(() => {
-      renderer.root.findByProps({ testID: 'agent-input' }).props.onChangeText(
-        '本月支出按类型统计',
-      );
+      renderer.root
+        .findByProps({ testID: 'agent-input' })
+        .props.onChangeText('本月支出按类型统计');
     });
 
     await act(async () => {

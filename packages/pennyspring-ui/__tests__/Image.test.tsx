@@ -41,8 +41,8 @@ function pressByTestID(
 
 function hasPreview(testRenderer: renderer.ReactTestRenderer): boolean {
   return (
-    testRenderer.root.findAllByProps({ testID: 'image-preview-root' })
-      .length > 0
+    testRenderer.root.findAllByProps({ testID: 'image-preview-root' }).length >
+    0
   );
 }
 
@@ -56,9 +56,7 @@ describe('Image', () => {
   });
 
   it('opens a single-image preview only when preview is enabled', () => {
-    const testRenderer = render(
-      <Image preview src={IMAGE_A} testID="image" />,
-    );
+    const testRenderer = render(<Image preview src={IMAGE_A} testID="image" />);
 
     pressByTestID(testRenderer, 'image');
 
@@ -105,17 +103,16 @@ describe('Image', () => {
 
     pressByTestID(testRenderer, 'image');
 
-    expect(testRenderer.root.findAllByProps({ testID: 'custom-error' })).toHaveLength(0);
+    expect(
+      testRenderer.root.findAllByProps({ testID: 'custom-error' }),
+    ).toHaveLength(0);
     expect(hasPreview(testRenderer)).toBe(false);
   });
 
   it('supports a controlled single-image preview config', () => {
     const onOpenChange = jest.fn();
     const testRenderer = render(
-      <Image
-        preview={{ onOpenChange, open: true }}
-        src={IMAGE_A}
-      />,
+      <Image preview={{ onOpenChange, open: true }} src={IMAGE_A} />,
     );
 
     expect(hasPreview(testRenderer)).toBe(true);
@@ -218,11 +215,7 @@ describe('Image.PreviewGroup', () => {
   it('ignores a preview source override inside PreviewGroup', () => {
     const testRenderer = render(
       <Image.PreviewGroup>
-        <Image
-          preview={{ src: IMAGE_B }}
-          src={IMAGE_A}
-          testID="image-a"
-        />
+        <Image preview={{ src: IMAGE_B }} src={IMAGE_A} testID="image-a" />
       </Image.PreviewGroup>,
     );
 
@@ -258,11 +251,7 @@ describe('Image.PreviewGroup', () => {
 
   it('renders data-only items when controlled open', () => {
     const testRenderer = render(
-      <Image.PreviewGroup
-        index={1}
-        items={[IMAGE_A, IMAGE_B]}
-        open
-      />,
+      <Image.PreviewGroup index={1} items={[IMAGE_A, IMAGE_B]} open />,
     );
 
     expect(hasPreview(testRenderer)).toBe(true);
@@ -293,9 +282,7 @@ describe('Image.Preview', () => {
   });
 
   it('hides the counter for a single image', () => {
-    const testRenderer = render(
-      <Image.Preview images={[IMAGE_A]} open />,
-    );
+    const testRenderer = render(<Image.Preview images={[IMAGE_A]} open />);
 
     expect(
       testRenderer.root.findAllByProps({ testID: 'image-preview-count' }),
@@ -303,9 +290,7 @@ describe('Image.Preview', () => {
   });
 
   it('renders the preview error state and retries on press', () => {
-    const testRenderer = render(
-      <Image.Preview images={[IMAGE_A]} open />,
-    );
+    const testRenderer = render(<Image.Preview images={[IMAGE_A]} open />);
     const previewImage = testRenderer.root
       .findAllByType(RNImage)
       .find(node => node.props.testID === 'image-preview-image');

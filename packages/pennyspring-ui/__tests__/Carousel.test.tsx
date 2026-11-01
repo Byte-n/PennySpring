@@ -10,7 +10,9 @@ const ITEMS = [
 ];
 
 function renderCarousel(
-  props: Partial<React.ComponentProps<typeof Carousel<(typeof ITEMS)[number]>>> = {},
+  props: Partial<
+    React.ComponentProps<typeof Carousel<(typeof ITEMS)[number]>>
+  > = {},
 ): renderer.ReactTestRenderer {
   let testRenderer: renderer.ReactTestRenderer;
 
@@ -29,7 +31,10 @@ function renderCarousel(
   return testRenderer!;
 }
 
-function triggerLayout(testRenderer: renderer.ReactTestRenderer, width = 300): void {
+function triggerLayout(
+  testRenderer: renderer.ReactTestRenderer,
+  width = 300,
+): void {
   const pressable = testRenderer.root.findAll(
     node => typeof node.props.onLayout === 'function',
   )[0];
@@ -64,7 +69,11 @@ describe('Carousel', () => {
   it('supports hiding and customizing indicator', () => {
     const hiddenIndicator = renderCarousel({ indicator: false });
     const customIndicator = renderCarousel({
-      indicator: (total: number, current: number) => <>custom-{total}-{current}</>,
+      indicator: (total: number, current: number) => (
+        <>
+          custom-{total}-{current}
+        </>
+      ),
     });
 
     expect(JSON.stringify(hiddenIndicator.toJSON())).not.toContain('custom-');
@@ -114,8 +123,12 @@ describe('Carousel', () => {
   it('uses layout primitives for root and indicator container', () => {
     const testRenderer = renderCarousel();
 
-    const rootColumns = testRenderer.root.findAllByProps({ testID: 'carousel-root' });
-    const indicatorRows = testRenderer.root.findAllByProps({ testID: 'carousel-indicator' });
+    const rootColumns = testRenderer.root.findAllByProps({
+      testID: 'carousel-root',
+    });
+    const indicatorRows = testRenderer.root.findAllByProps({
+      testID: 'carousel-indicator',
+    });
 
     expect(rootColumns.length).toBeGreaterThan(0);
     expect(indicatorRows.length).toBeGreaterThan(0);
@@ -127,18 +140,25 @@ describe('Carousel', () => {
       title: `Page ${index}`,
     }));
     const testRenderer = renderCarousel({ data: manyItems });
-    const counter = testRenderer.root.findAllByProps({ testID: 'carousel-counter' });
+    const counter = testRenderer.root.findAllByProps({
+      testID: 'carousel-counter',
+    });
 
     expect(counter.length).toBeGreaterThan(0);
     expect(JSON.stringify(testRenderer.toJSON())).toContain('1 / 10');
-    expect(testRenderer.root.findAllByProps({ testID: 'carousel-indicator' })).toHaveLength(0);
+    expect(
+      testRenderer.root.findAllByProps({ testID: 'carousel-indicator' }),
+    ).toHaveLength(0);
   });
 
   it('does not render an indicator for a single slide', () => {
     const testRenderer = renderCarousel({ data: [ITEMS[0]] });
 
-    expect(testRenderer.root.findAllByProps({ testID: 'carousel-indicator' })).toHaveLength(0);
-    expect(testRenderer.root.findAllByProps({ testID: 'carousel-counter' })).toHaveLength(0);
+    expect(
+      testRenderer.root.findAllByProps({ testID: 'carousel-indicator' }),
+    ).toHaveLength(0);
+    expect(
+      testRenderer.root.findAllByProps({ testID: 'carousel-counter' }),
+    ).toHaveLength(0);
   });
-
 });

@@ -17,13 +17,24 @@ export function TabBarStatesDemo() {
   return (
     <Column gap="normal">
       <Text color="tertiary" size="sm">
-        未选图标与文字三级；选中主色图标 + 主色 600 文字；按压为 12 圆角 colorFillTertiary，内缩 4
+        未选图标与文字三级；选中主色图标 + 主色 600 文字；按压为 12 圆角
+        colorFillTertiary，内缩 4
       </Text>
       <TabBar
         defaultValue="home"
         items={[
-          { activeIcon: icon('home', true), icon: icon('home'), value: 'home', titleText: '首页' },
-          { activeIcon: icon('list', true), icon: icon('list'), value: 'chart', titleText: '图表' },
+          {
+            activeIcon: icon('home', true),
+            icon: icon('home'),
+            value: 'home',
+            titleText: '首页',
+          },
+          {
+            activeIcon: icon('list', true),
+            icon: icon('list'),
+            value: 'chart',
+            titleText: '图表',
+          },
         ]}
         safeAreaInsetBottom={false}
       />
@@ -33,8 +44,18 @@ export function TabBarStatesDemo() {
       <TabBar
         defaultValue="home"
         items={[
-          { activeIcon: icon('home', true), icon: icon('home'), value: 'home', titleText: '首页' },
-          { disabled: true, icon: icon('user'), value: 'me', titleText: '我的' },
+          {
+            activeIcon: icon('home', true),
+            icon: icon('home'),
+            value: 'home',
+            titleText: '首页',
+          },
+          {
+            disabled: true,
+            icon: icon('user'),
+            value: 'me',
+            titleText: '我的',
+          },
         ]}
         safeAreaInsetBottom={false}
       />

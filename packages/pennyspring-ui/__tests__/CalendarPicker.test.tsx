@@ -11,11 +11,17 @@ function makeDate(year: number, month: number, day: number): Date {
 
 const BASE_DATE = makeDate(2026, 10, 25);
 
-function renderCalendarPicker(props: React.ComponentProps<typeof CalendarPicker>) {
+function renderCalendarPicker(
+  props: React.ComponentProps<typeof CalendarPicker>,
+) {
   let testRenderer: renderer.ReactTestRenderer;
 
   act(() => {
-    testRenderer = renderer.create(<><CalendarPicker {...props} /></>);
+    testRenderer = renderer.create(
+      <>
+        <CalendarPicker {...props} />
+      </>,
+    );
   });
 
   return testRenderer!;
@@ -27,13 +33,20 @@ function renderCalendarPickerRange(
   let testRenderer: renderer.ReactTestRenderer;
 
   act(() => {
-    testRenderer = renderer.create(<><CalendarPicker.Range {...props} /></>);
+    testRenderer = renderer.create(
+      <>
+        <CalendarPicker.Range {...props} />
+      </>,
+    );
   });
 
   return testRenderer!;
 }
 
-function pressByTestID(testRenderer: renderer.ReactTestRenderer, testID: string) {
+function pressByTestID(
+  testRenderer: renderer.ReactTestRenderer,
+  testID: string,
+) {
   const node = testRenderer.root.findByProps({ testID });
 
   act(() => {
@@ -100,7 +113,9 @@ describe('CalendarPicker', () => {
 
     // Assert
     expect(
-      testRenderer.root.findAllByProps({ testID: 'picker-trigger-clear-button' }),
+      testRenderer.root.findAllByProps({
+        testID: 'picker-trigger-clear-button',
+      }),
     ).toHaveLength(0);
   });
 
@@ -397,6 +412,8 @@ describe('CalendarPicker', () => {
     });
 
     expect(JSON.stringify(emptyRenderer.toJSON())).toContain('请选择日期');
-    expect(JSON.stringify(labeledRenderer.toJSON())).not.toContain('请选择日期');
+    expect(JSON.stringify(labeledRenderer.toJSON())).not.toContain(
+      '请选择日期',
+    );
   });
 });

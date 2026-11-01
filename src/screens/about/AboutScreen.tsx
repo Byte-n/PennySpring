@@ -317,10 +317,7 @@ export function AboutScreen() {
                     {target ? formatBytes(target.apk.size) : ''}
                   </Text>
                 </Column>
-                <Button
-                  onPress={() => setReleaseNotesOpen(true)}
-                  type="link"
-                >
+                <Button onPress={() => setReleaseNotesOpen(true)} type="link">
                   更新说明
                 </Button>
               </Row>
@@ -370,8 +367,8 @@ export function AboutScreen() {
                     {state === 'installing'
                       ? '正在打开安装器…'
                       : state === 'interrupted'
-                      ? '继续下载'
-                      : '下载更新'}
+                        ? '继续下载'
+                        : '下载更新'}
                   </Button>
                 )}
               </Row>

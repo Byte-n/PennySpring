@@ -105,7 +105,9 @@ export function CalendarPickerSheet({
     >
       <View style={[styles.panel, panelStyles?.root]}>
         <View style={[styles.handle, popupStyles?.handle]}>
-          <View style={[styles.handleIndicator, popupStyles?.handleIndicator]} />
+          <View
+            style={[styles.handleIndicator, popupStyles?.handleIndicator]}
+          />
         </View>
         <PickerHeader
           cancel={cancel}

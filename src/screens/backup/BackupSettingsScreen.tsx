@@ -1,5 +1,5 @@
-import React, { useCallback, useState } from 'react'
-import { ScrollView } from 'react-native'
+import React, { useCallback, useState } from 'react';
+import { ScrollView } from 'react-native';
 import {
   Button,
   Card,
@@ -8,23 +8,23 @@ import {
   Text,
   createUseSheetStyle,
   useToast,
-} from '@pennyspring/ui'
+} from '@pennyspring/ui';
 
-import { useThemeMode } from '../../contexts/ThemeModeContext'
+import { useThemeMode } from '../../contexts/ThemeModeContext';
 import {
   applySettingsPackage,
   exportSettingsToFile,
   pickSettingsPreview,
   type PickedSettingsPreview,
   type SettingsExportResult,
-} from '../../features/transfer/settingsOperations'
-import { formatBytes } from '../../features/transfer'
-import { shareBackupBytes } from '../../features/backup/share'
-import { useQuickBookSettingsStore } from '../../features/quickBook/settingsStore'
+} from '../../features/transfer/settingsOperations';
+import { formatBytes } from '../../features/transfer';
+import { shareBackupBytes } from '../../features/backup/share';
+import { useQuickBookSettingsStore } from '../../features/quickBook/settingsStore';
 import {
   createBackupHistoryId,
   useBackupHistoryStore,
-} from '../../stores/backupHistoryStore'
+} from '../../stores/backupHistoryStore';
 
 const useStyles = createUseSheetStyle(token => ({
   container: {
@@ -42,31 +42,31 @@ const useStyles = createUseSheetStyle(token => ({
   hint: {
     gap: token.marginXXS,
   },
-}))
+}));
 
 function getErrorMessage(error: unknown): string {
-  return error instanceof Error ? error.message : '操作失败'
+  return error instanceof Error ? error.message : '操作失败';
 }
 
 export function BackupSettingsScreen() {
-  const styles = useStyles()
-  const toast = useToast()
-  const quickBook = useQuickBookSettingsStore()
-  const { themeMode, themePreset } = useThemeMode()
-  const addHistory = useBackupHistoryStore(state => state.addEntry)
+  const styles = useStyles();
+  const toast = useToast();
+  const quickBook = useQuickBookSettingsStore();
+  const { themeMode, themePreset } = useThemeMode();
+  const addHistory = useBackupHistoryStore(state => state.addEntry);
 
-  const [busy, setBusy] = useState(false)
-  const [exported, setExported] = useState<SettingsExportResult | null>(null)
-  const [preview, setPreview] = useState<PickedSettingsPreview | null>(null)
-  const [errorText, setErrorText] = useState('')
+  const [busy, setBusy] = useState(false);
+  const [exported, setExported] = useState<SettingsExportResult | null>(null);
+  const [preview, setPreview] = useState<PickedSettingsPreview | null>(null);
+  const [errorText, setErrorText] = useState('');
 
   const handleExport = useCallback(async (): Promise<void> => {
-    if (busy) return
-    setBusy(true)
-    setErrorText('')
+    if (busy) return;
+    setBusy(true);
+    setErrorText('');
     try {
-      const result = await exportSettingsToFile()
-      setExported(result)
+      const result = await exportSettingsToFile();
+      setExported(result);
       addHistory({
         id: createBackupHistoryId(),
         kind: 'settings-export',
@@ -78,44 +78,44 @@ export function BackupSettingsScreen() {
         uri: result.savedUri,
         status: 'success',
         errorText: '',
-      })
-      toast.show({ messageText: '设置包已保存', status: 'success' })
+      });
+      toast.show({ messageText: '设置包已保存', status: 'success' });
     } catch (error: unknown) {
-      setErrorText(getErrorMessage(error))
+      setErrorText(getErrorMessage(error));
     } finally {
-      setBusy(false)
+      setBusy(false);
     }
-  }, [addHistory, busy, toast])
+  }, [addHistory, busy, toast]);
 
   const handleShareExport = useCallback(async (): Promise<void> => {
-    if (!exported) return
+    if (!exported) return;
     try {
-      await shareBackupBytes(exported.zip, exported.fileName)
+      await shareBackupBytes(exported.zip, exported.fileName);
     } catch (error: unknown) {
-      toast.show({ messageText: getErrorMessage(error), status: 'error' })
+      toast.show({ messageText: getErrorMessage(error), status: 'error' });
     }
-  }, [exported, toast])
+  }, [exported, toast]);
 
   const handlePick = useCallback(async (): Promise<void> => {
-    if (busy) return
-    setBusy(true)
-    setErrorText('')
+    if (busy) return;
+    setBusy(true);
+    setErrorText('');
     try {
-      const picked = await pickSettingsPreview()
-      if (picked) setPreview(picked)
+      const picked = await pickSettingsPreview();
+      if (picked) setPreview(picked);
     } catch (error: unknown) {
-      setErrorText(getErrorMessage(error))
+      setErrorText(getErrorMessage(error));
     } finally {
-      setBusy(false)
+      setBusy(false);
     }
-  }, [busy])
+  }, [busy]);
 
   const handleImport = useCallback((): void => {
-    if (!preview || busy) return
-    setBusy(true)
-    setErrorText('')
+    if (!preview || busy) return;
+    setBusy(true);
+    setErrorText('');
     try {
-      applySettingsPackage(preview.parsed.settings)
+      applySettingsPackage(preview.parsed.settings);
       addHistory({
         id: createBackupHistoryId(),
         kind: 'settings-import',
@@ -127,15 +127,15 @@ export function BackupSettingsScreen() {
         uri: '',
         status: 'success',
         errorText: '',
-      })
-      toast.show({ messageText: '设置已导入', status: 'success' })
-      setPreview(null)
+      });
+      toast.show({ messageText: '设置已导入', status: 'success' });
+      setPreview(null);
     } catch (error: unknown) {
-      setErrorText(getErrorMessage(error))
+      setErrorText(getErrorMessage(error));
     } finally {
-      setBusy(false)
+      setBusy(false);
     }
-  }, [addHistory, busy, preview, toast])
+  }, [addHistory, busy, preview, toast]);
 
   return (
     <ScrollView contentContainerStyle={styles.content} style={styles.container}>
@@ -155,7 +155,8 @@ export function BackupSettingsScreen() {
             {quickBook.presetPrompt.length > 48 ? '…' : ''}
           </Text>
           <Text color="tertiary" size="xs">
-            设置包只包含快捷记账设置与主题；不包含网络账本、服务器地址和 API Key。
+            设置包只包含快捷记账设置与主题；不包含网络账本、服务器地址和 API
+            Key。
           </Text>
         </Column>
       </Card>
@@ -208,7 +209,12 @@ export function BackupSettingsScreen() {
         ) : (
           <Empty
             action={
-              <Button loading={busy} onPress={handlePick} size="small" type="primary">
+              <Button
+                loading={busy}
+                onPress={handlePick}
+                size="small"
+                type="primary"
+              >
                 选择 .pss 设置包
               </Button>
             }
@@ -220,8 +226,10 @@ export function BackupSettingsScreen() {
       </Card>
 
       {errorText ? (
-        <Text color="errorText" size="sm">{errorText}</Text>
+        <Text color="errorText" size="sm">
+          {errorText}
+        </Text>
       ) : null}
     </ScrollView>
-  )
+  );
 }

@@ -35,21 +35,27 @@ export function SkeletonStatesDemo() {
   return (
     <Column gap="large">
       <Column gap="small">
-        <Text color="tertiary" size="xs">animated vs static：静态不渲染高光块，只留底色</Text>
+        <Text color="tertiary" size="xs">
+          animated vs static：静态不渲染高光块，只留底色
+        </Text>
         <Skeleton />
         <Skeleton style={styles.w80} />
         <Skeleton animated={false} style={styles.w60} />
         <Skeleton animated={false} style={styles.w40} />
       </Column>
       <Column gap="small">
-        <Text color="tertiary" size="xs">loading=false：切换时内容 100ms 淡入</Text>
+        <Text color="tertiary" size="xs">
+          loading=false：切换时内容 100ms 淡入
+        </Text>
         <Column style={styles.card}>
           <Skeleton loading={loading} shape="rect" size="small">
             <Row style={styles.row}>
               <Avatar text="陈" />
               <Column style={styles.column}>
                 <Text weight="medium">陈嘉宁</Text>
-                <Text color="tertiary" size="xs">共同记账 128 天</Text>
+                <Text color="tertiary" size="xs">
+                  共同记账 128 天
+                </Text>
               </Column>
             </Row>
           </Skeleton>

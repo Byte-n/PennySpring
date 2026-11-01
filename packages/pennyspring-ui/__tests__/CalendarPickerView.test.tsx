@@ -3,11 +3,17 @@ import renderer, { act } from 'react-test-renderer';
 import { CalendarPickerView } from '../src';
 import { Text } from '../src/Text';
 
-function renderCalendarPickerView(props: React.ComponentProps<typeof CalendarPickerView>) {
+function renderCalendarPickerView(
+  props: React.ComponentProps<typeof CalendarPickerView>,
+) {
   let testRenderer: renderer.ReactTestRenderer;
 
   act(() => {
-    testRenderer = renderer.create(<><CalendarPickerView {...props} /></>);
+    testRenderer = renderer.create(
+      <>
+        <CalendarPickerView {...props} />
+      </>,
+    );
   });
 
   return testRenderer!;
@@ -19,7 +25,11 @@ function renderCalendarPickerViewRange(
   let testRenderer: renderer.ReactTestRenderer;
 
   act(() => {
-    testRenderer = renderer.create(<><CalendarPickerView.Range {...props} /></>);
+    testRenderer = renderer.create(
+      <>
+        <CalendarPickerView.Range {...props} />
+      </>,
+    );
   });
 
   return testRenderer!;
@@ -29,7 +39,10 @@ function textOf(testRenderer: renderer.ReactTestRenderer) {
   return JSON.stringify(testRenderer.toJSON());
 }
 
-function pressByTestID(testRenderer: renderer.ReactTestRenderer, testID: string) {
+function pressByTestID(
+  testRenderer: renderer.ReactTestRenderer,
+  testID: string,
+) {
   const node = testRenderer.root.findByProps({ testID });
 
   act(() => {
@@ -43,11 +56,13 @@ describe('CalendarPickerView', () => {
     const onChange = jest.fn();
     const testRenderer = renderCalendarPickerView({
       defaultValue: '2026-05-01',
-      marks: [{
-        date: '2026-05-07',
-        content: 'dot'
-      }],
-      onChange
+      marks: [
+        {
+          date: '2026-05-07',
+          content: 'dot',
+        },
+      ],
+      onChange,
     });
 
     // Act
@@ -65,7 +80,7 @@ describe('CalendarPickerView', () => {
     const testRenderer = renderCalendarPickerView({
       mode: 'month',
       onChange,
-      value: '2026-05'
+      value: '2026-05',
     });
 
     // Act
@@ -82,11 +97,13 @@ describe('CalendarPickerView', () => {
     const testRenderer = renderCalendarPickerView({
       defaultValue: '2026-05-01',
       disabledDate: value => value === '2026-05-07',
-      onChange
+      onChange,
     });
 
     // Act
-    const disabledCell = testRenderer.root.findByProps({ testID: 'calendar-cell-2026-05-07' });
+    const disabledCell = testRenderer.root.findByProps({
+      testID: 'calendar-cell-2026-05-07',
+    });
     act(() => {
       disabledCell.props.onPress({});
     });
@@ -104,7 +121,7 @@ describe('CalendarPickerView', () => {
       defaultValue: '2026-05-01',
       onChange,
       onOk,
-      showConfirm: true
+      showConfirm: true,
     });
 
     // Act
@@ -122,7 +139,7 @@ describe('CalendarPickerView', () => {
     const testRenderer = renderCalendarPickerViewRange({
       mode: 'month',
       onChange,
-      value: ['2026-05', '2026-05']
+      value: ['2026-05', '2026-05'],
     });
 
     // Act
@@ -136,12 +153,16 @@ describe('CalendarPickerView', () => {
   it('exposes cell as pressable and navigation buttons', () => {
     // Arrange
     const testRenderer = renderCalendarPickerView({
-      value: '2026-05-07'
+      value: '2026-05-07',
     });
 
     // Act
-    const selectedCell = testRenderer.root.findByProps({ testID: 'calendar-cell-2026-05-07' });
-    const navigationButton = testRenderer.root.findByProps({ testID: 'calendar-nav-prev' });
+    const selectedCell = testRenderer.root.findByProps({
+      testID: 'calendar-cell-2026-05-07',
+    });
+    const navigationButton = testRenderer.root.findByProps({
+      testID: 'calendar-nav-prev',
+    });
 
     // Assert
     expect(selectedCell.props.onPress).toBeDefined();
@@ -155,11 +176,13 @@ describe('CalendarPickerView', () => {
     const testRenderer = renderCalendarPickerViewRange({
       onChange,
       showToday: true,
-      disabledDate: value => value === '2026-05-15'
+      disabledDate: value => value === '2026-05-15',
     });
 
     // Act
-    const todayButton = testRenderer.root.findAll(node => typeof node.props.hitSlop === 'number')[0];
+    const todayButton = testRenderer.root.findAll(
+      node => typeof node.props.hitSlop === 'number',
+    )[0];
     act(() => {
       todayButton.props.onPress({});
     });
@@ -180,13 +203,19 @@ describe('CalendarPickerView', () => {
       showToday: true,
       showConfirm: true,
       onCancel,
-      onOk
+      onOk,
     });
 
     // Act
-    const prevButton = testRenderer.root.findByProps({ testID: 'calendar-nav-prev' });
-    const nextButton = testRenderer.root.findByProps({ testID: 'calendar-nav-next' });
-    const confirmButton = testRenderer.root.findByProps({ testID: 'calendar-confirm' });
+    const prevButton = testRenderer.root.findByProps({
+      testID: 'calendar-nav-prev',
+    });
+    const nextButton = testRenderer.root.findByProps({
+      testID: 'calendar-nav-next',
+    });
+    const confirmButton = testRenderer.root.findByProps({
+      testID: 'calendar-confirm',
+    });
 
     // Assert
     expect(prevButton.props.disabled).toBe(true);
@@ -199,7 +228,9 @@ describe('CalendarPickerView', () => {
 
   it('uses text color props for title week and date labels', () => {
     // Arrange
-    const testRenderer = renderCalendarPickerView({ defaultValue: '2026-05-07' });
+    const testRenderer = renderCalendarPickerView({
+      defaultValue: '2026-05-07',
+    });
 
     // Act
     const textNodes = testRenderer.root.findAllByType(Text);
@@ -219,7 +250,9 @@ describe('CalendarPickerView', () => {
     });
 
     // Act
-    const actionButtons = testRenderer.root.findAll(node => typeof node.props.hitSlop === 'number');
+    const actionButtons = testRenderer.root.findAll(
+      node => typeof node.props.hitSlop === 'number',
+    );
 
     // Assert
     expect(actionButtons.length).toBeGreaterThanOrEqual(3);
@@ -228,26 +261,44 @@ describe('CalendarPickerView', () => {
 
   it('uses semantic flex basis values for calendar cells', () => {
     // Arrange
-    const dateRenderer = renderCalendarPickerView({ defaultValue: '2026-05-07' });
-    const monthRenderer = renderCalendarPickerView({ mode: 'month', defaultValue: '2026-05' });
-    const yearRenderer = renderCalendarPickerView({ mode: 'year', defaultValue: '2026' });
+    const dateRenderer = renderCalendarPickerView({
+      defaultValue: '2026-05-07',
+    });
+    const monthRenderer = renderCalendarPickerView({
+      mode: 'month',
+      defaultValue: '2026-05',
+    });
+    const yearRenderer = renderCalendarPickerView({
+      mode: 'year',
+      defaultValue: '2026',
+    });
 
     // Act
-    const dateCell = dateRenderer.root.findByProps({ testID: 'calendar-cell-2026-05-07' });
-    const monthCell = monthRenderer.root.findByProps({ testID: 'calendar-cell-2026-05' });
-    const yearCell = yearRenderer.root.findByProps({ testID: 'calendar-cell-2026' });
+    const dateCell = dateRenderer.root.findByProps({
+      testID: 'calendar-cell-2026-05-07',
+    });
+    const monthCell = monthRenderer.root.findByProps({
+      testID: 'calendar-cell-2026-05',
+    });
+    const yearCell = yearRenderer.root.findByProps({
+      testID: 'calendar-cell-2026',
+    });
 
     // Assert
     expect(JSON.stringify(dateCell.props.style)).toContain('flexBasis');
     expect(JSON.stringify(monthCell.props.style)).toContain('flexBasis');
     expect(JSON.stringify(yearCell.props.style)).toContain('flexBasis');
-    expect(JSON.stringify(dateCell.props.style)).toContain('14.285714285714286%');
+    expect(JSON.stringify(dateCell.props.style)).toContain(
+      '14.285714285714286%',
+    );
     expect(JSON.stringify(monthCell.props.style)).not.toContain('33.3333%');
   });
 
   it('renders a readable month title', () => {
     // Arrange
-    const testRenderer = renderCalendarPickerView({ defaultValue: '2026-05-07' });
+    const testRenderer = renderCalendarPickerView({
+      defaultValue: '2026-05-07',
+    });
 
     // Assert
     expect(textOf(testRenderer)).toContain('2026 年 5 月');
@@ -274,7 +325,9 @@ describe('CalendarPickerView', () => {
     });
 
     // Assert
-    expect(testRenderer.root.findAllByProps({ testID: 'calendar-nav-prev' })).toHaveLength(0);
+    expect(
+      testRenderer.root.findAllByProps({ testID: 'calendar-nav-prev' }),
+    ).toHaveLength(0);
     expect(textOf(testRenderer)).not.toContain('2026 年 5 月');
   });
 
@@ -293,7 +346,11 @@ describe('CalendarPickerView', () => {
 
   it('aligns dates to a Monday-first week and exposes dynamic cell state', () => {
     // Arrange
-    const cellStates: Array<{ value: string; isSelected: boolean; isDisabled: boolean }> = [];
+    const cellStates: Array<{
+      value: string;
+      isSelected: boolean;
+      isDisabled: boolean;
+    }> = [];
     const testRenderer = renderCalendarPickerView({
       value: '2026-02-02',
       weekStartsOn: 'monday',
@@ -311,14 +368,22 @@ describe('CalendarPickerView', () => {
     });
 
     // Act
-    const selectedCellState = cellStates.find(item => item.value === '2026-02-02');
-    const disabledCellState = cellStates.find(item => item.value === '2026-02-03');
+    const selectedCellState = cellStates.find(
+      item => item.value === '2026-02-02',
+    );
+    const disabledCellState = cellStates.find(
+      item => item.value === '2026-02-03',
+    );
 
     // Assert
-    const dateCells = testRenderer.root.findAll(node =>
-      typeof node.props.testID === 'string' && node.props.testID.startsWith('calendar-cell-2026-02-'),
+    const dateCells = testRenderer.root.findAll(
+      node =>
+        typeof node.props.testID === 'string' &&
+        node.props.testID.startsWith('calendar-cell-2026-02-'),
     );
-    const firstDateIndex = testRenderer.root.findAllByProps({ testID: 'calendar-empty-cell' }).length;
+    const firstDateIndex = testRenderer.root.findAllByProps({
+      testID: 'calendar-empty-cell',
+    }).length;
     expect(dateCells[0].props.testID).toBe('calendar-cell-2026-02-01');
     expect(firstDateIndex).toBeGreaterThanOrEqual(5);
     expect(selectedCellState).toEqual({

@@ -3,7 +3,8 @@ import type { StyleProp, TextStyle, ViewStyle } from 'react-native';
 import type { PortalMountPoint } from '../Portal/types';
 import type { ComponentSize } from '../shares/types';
 
-export type NotificationStatus = 'default' | 'success' | 'warning' | 'error' | 'info';
+export type NotificationStatus =
+  'default' | 'success' | 'warning' | 'error' | 'info';
 
 /** 四角定位收敛为顶部与底部，左右统一 16。 */
 export type NotificationPlacement = 'top' | 'bottom';

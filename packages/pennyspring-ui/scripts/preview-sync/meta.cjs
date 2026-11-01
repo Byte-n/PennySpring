@@ -61,7 +61,10 @@ function unwrap(node) {
 function readLiteral(node, label) {
   const current = unwrap(node);
 
-  if (ts.isStringLiteral(current) || ts.isNoSubstitutionTemplateLiteral(current)) {
+  if (
+    ts.isStringLiteral(current) ||
+    ts.isNoSubstitutionTemplateLiteral(current)
+  ) {
     return current.text;
   }
 

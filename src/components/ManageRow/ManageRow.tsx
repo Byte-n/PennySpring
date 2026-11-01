@@ -141,11 +141,7 @@ const useStyles = createUseSheetStyle(token => ({
 export function ManageCard({ children }: { children: ReactNode }) {
   const styles = useStyles();
 
-  return (
-    <Column style={styles.card}>
-      {children}
-    </Column>
-  );
+  return <Column style={styles.card}>{children}</Column>;
 }
 
 export function ManageRow({

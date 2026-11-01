@@ -1,4 +1,7 @@
-import type { IconProps as PhosphorIconProps, IconWeight } from 'phosphor-react-native';
+import type {
+  IconProps as PhosphorIconProps,
+  IconWeight,
+} from 'phosphor-react-native';
 import type { ComponentType } from 'react';
 import type { StyleProp, ViewStyle } from 'react-native';
 import type { TextColor, TextSemanticColor } from '../Text/types';

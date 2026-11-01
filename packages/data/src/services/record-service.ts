@@ -1,10 +1,22 @@
-import { and, desc, eq, count, gte, lt } from 'drizzle-orm'
-import { alias } from 'drizzle-orm/sqlite-core'
+import { and, desc, eq, count, gte, lt } from 'drizzle-orm';
+import { alias } from 'drizzle-orm/sqlite-core';
 
-import { RECORD_TYPE_CATEGORY, REIMBURSABLE } from '../constants'
-import type { Database } from '../types'
-import { assets, imageWithRelated, records, recordWithRecord, tagWithRecord, tags, types } from '../schema'
-import { applyExpense, createExpense, rollbackExpense } from './expense-service'
+import { RECORD_TYPE_CATEGORY, REIMBURSABLE } from '../constants';
+import type { Database } from '../types';
+import {
+  assets,
+  imageWithRelated,
+  records,
+  recordWithRecord,
+  tagWithRecord,
+  tags,
+  types,
+} from '../schema';
+import {
+  applyExpense,
+  createExpense,
+  rollbackExpense,
+} from './expense-service';
 import {
   deleteAllJunctions,
   getAssetForBooks,
@@ -14,9 +26,13 @@ import {
   syncImages,
   syncTags,
   validateBookExists,
-} from './helpers'
-import { applyIncome, createIncome, rollbackIncome } from './income-service'
-import { applyTransfer, createTransfer, rollbackTransfer } from './transfer-service'
+} from './helpers';
+import { applyIncome, createIncome, rollbackIncome } from './income-service';
+import {
+  applyTransfer,
+  createTransfer,
+  rollbackTransfer,
+} from './transfer-service';
 import type {
   CreateCashflowRecordInput,
   CreateRecordInput,
@@ -29,79 +45,108 @@ import type {
   UpdateCashflowRecordInput,
   UpdateRecordInput,
   UpdateTransferRecordInput,
-} from './types'
-import type { RecordTimeRange } from './types'
+} from './types';
+import type { RecordTimeRange } from './types';
 
-const intoAssets = alias(assets, 'into_assets')
+const intoAssets = alias(assets, 'into_assets');
 
-async function getTypeRow(tx: Tx, typeId: number, booksId: number): Promise<TypeRow> {
-  const requiredTypeId = getRequiredForeignKey({ typeId }, 'typeId')
-  const row = await tx.select().from(types).where(eq(types.id, requiredTypeId)).get()
-  if (!row) throw new Error(`Type not found: ${requiredTypeId}`)
+async function getTypeRow(
+  tx: Tx,
+  typeId: number,
+  booksId: number,
+): Promise<TypeRow> {
+  const requiredTypeId = getRequiredForeignKey({ typeId }, 'typeId');
+  const row = await tx
+    .select()
+    .from(types)
+    .where(eq(types.id, requiredTypeId))
+    .get();
+  if (!row) throw new Error(`Type not found: ${requiredTypeId}`);
   if (row.booksId !== booksId) {
-    throw new Error(`Type ${requiredTypeId} does not belong to book ${booksId}`)
+    throw new Error(
+      `Type ${requiredTypeId} does not belong to book ${booksId}`,
+    );
   }
-  return row
+  return row;
 }
 
-async function getRecordRow(tx: Tx, recordId: number, booksId?: number): Promise<RecordRow> {
-  const row = await tx.select().from(records).where(eq(records.id, recordId)).get()
-  if (!row) throw new Error(`Record not found: ${recordId}`)
+async function getRecordRow(
+  tx: Tx,
+  recordId: number,
+  booksId?: number,
+): Promise<RecordRow> {
+  const row = await tx
+    .select()
+    .from(records)
+    .where(eq(records.id, recordId))
+    .get();
+  if (!row) throw new Error(`Record not found: ${recordId}`);
   if (booksId !== undefined && row.booksId !== booksId) {
-    throw new Error(`Record ${recordId} does not belong to book ${booksId}`)
+    throw new Error(`Record ${recordId} does not belong to book ${booksId}`);
   }
-  return row
+  return row;
 }
 
 function validateInput(input: CreateRecordInput | UpdateRecordInput) {
-  getRequiredForeignKey(input, 'typeId')
-  getRequiredForeignKey(input, 'booksId')
-  if (input.amount < 0) throw new Error('amount must be >= 0')
-  if ((input.charge ?? 0) < 0) throw new Error('charge must be >= 0')
+  getRequiredForeignKey(input, 'typeId');
+  getRequiredForeignKey(input, 'booksId');
+  if (input.amount < 0) throw new Error('amount must be >= 0');
+  if ((input.charge ?? 0) < 0) throw new Error('charge must be >= 0');
 }
 
-function assertCreateCashflowInput(input: CreateRecordInput): asserts input is CreateCashflowRecordInput {
-  if (input.reimbursable === undefined) throw new Error('reimbursable is required')
+function assertCreateCashflowInput(
+  input: CreateRecordInput,
+): asserts input is CreateCashflowRecordInput {
+  if (input.reimbursable === undefined)
+    throw new Error('reimbursable is required');
 }
 
-function assertUpdateCashflowInput(input: UpdateRecordInput): asserts input is UpdateCashflowRecordInput {
-  if (input.reimbursable === undefined) throw new Error('reimbursable is required')
+function assertUpdateCashflowInput(
+  input: UpdateRecordInput,
+): asserts input is UpdateCashflowRecordInput {
+  if (input.reimbursable === undefined)
+    throw new Error('reimbursable is required');
 }
 
 async function rollbackRecord(tx: Tx, record: RecordRow, typeRow: TypeRow) {
   switch (typeRow.typeCategory) {
     case RECORD_TYPE_CATEGORY.expense:
-      await rollbackExpense(tx, record)
-      break
+      await rollbackExpense(tx, record);
+      break;
     case RECORD_TYPE_CATEGORY.income:
-      await rollbackIncome(tx, record, typeRow)
-      break
+      await rollbackIncome(tx, record, typeRow);
+      break;
     case RECORD_TYPE_CATEGORY.transfer:
-      await rollbackTransfer(tx, record)
-      break
+      await rollbackTransfer(tx, record);
+      break;
   }
 }
 
 async function validateUpdateRecordReferences(
   tx: Tx,
   input: UpdateRecordInput,
-  typeRow: TypeRow
+  typeRow: TypeRow,
 ): Promise<number> {
   if (typeRow.typeCategory !== RECORD_TYPE_CATEGORY.transfer) {
-    await getOptionalAssetForBooks(tx, input as UpdateCashflowRecordInput, 'assetId', 'booksId')
-    return 0
+    await getOptionalAssetForBooks(
+      tx,
+      input as UpdateCashflowRecordInput,
+      'assetId',
+      'booksId',
+    );
+    return 0;
   }
 
-  const transferInput = input as UpdateTransferRecordInput
-  const intoAssetId = getRequiredForeignKey(transferInput, 'intoAssetId')
+  const transferInput = input as UpdateTransferRecordInput;
+  const intoAssetId = getRequiredForeignKey(transferInput, 'intoAssetId');
   if (transferInput.assetId === intoAssetId) {
-    throw new Error('Transfer source and destination assets must be different')
+    throw new Error('Transfer source and destination assets must be different');
   }
 
-  await getAssetForBooks(tx, transferInput, 'assetId', 'booksId')
-  await getAssetForBooks(tx, transferInput, 'intoAssetId', 'booksId')
+  await getAssetForBooks(tx, transferInput, 'assetId', 'booksId');
+  await getAssetForBooks(tx, transferInput, 'intoAssetId', 'booksId');
 
-  return intoAssetId
+  return intoAssetId;
 }
 
 export function getRecordsByBook(
@@ -109,7 +154,7 @@ export function getRecordsByBook(
   booksId: number,
   range?: RecordTimeRange,
 ): Promise<RecordRow[]> {
-  const requiredBooksId = getRequiredForeignKey({ booksId }, 'booksId')
+  const requiredBooksId = getRequiredForeignKey({ booksId }, 'booksId');
 
   const conditions = range
     ? and(
@@ -117,14 +162,14 @@ export function getRecordsByBook(
         gte(records.recordTime, range.startTime),
         lt(records.recordTime, range.endTime),
       )
-    : eq(records.booksId, requiredBooksId)
+    : eq(records.booksId, requiredBooksId);
 
   return db
     .select()
     .from(records)
     .where(conditions)
     .orderBy(desc(records.recordTime))
-    .all()
+    .all();
 }
 
 export async function getRecordListByBook(
@@ -132,14 +177,14 @@ export async function getRecordListByBook(
   booksId: number,
   range?: RecordTimeRange,
 ): Promise<RecordListRow[]> {
-  const requiredBooksId = getRequiredForeignKey({ booksId }, 'booksId')
+  const requiredBooksId = getRequiredForeignKey({ booksId }, 'booksId');
   const conditions = range
     ? and(
         eq(records.booksId, requiredBooksId),
         gte(records.recordTime, range.startTime),
         lt(records.recordTime, range.endTime),
       )
-    : eq(records.booksId, requiredBooksId)
+    : eq(records.booksId, requiredBooksId);
   const rows = await db
     .select({
       record: {
@@ -156,24 +201,44 @@ export async function getRecordListByBook(
       tagName: tags.name,
     })
     .from(records)
-    .innerJoin(types, and(eq(records.typeId, types.id), eq(types.booksId, requiredBooksId)))
-    .leftJoin(assets, and(eq(records.assetId, assets.id), eq(assets.booksId, requiredBooksId)))
-    .leftJoin(intoAssets, and(eq(records.intoAssetId, intoAssets.id), eq(intoAssets.booksId, requiredBooksId)))
+    .innerJoin(
+      types,
+      and(eq(records.typeId, types.id), eq(types.booksId, requiredBooksId)),
+    )
+    .leftJoin(
+      assets,
+      and(eq(records.assetId, assets.id), eq(assets.booksId, requiredBooksId)),
+    )
+    .leftJoin(
+      intoAssets,
+      and(
+        eq(records.intoAssetId, intoAssets.id),
+        eq(intoAssets.booksId, requiredBooksId),
+      ),
+    )
     .leftJoin(tagWithRecord, eq(tagWithRecord.recordId, records.id))
-    .leftJoin(tags, and(eq(tagWithRecord.tagId, tags.id), eq(tags.booksId, requiredBooksId)))
+    .leftJoin(
+      tags,
+      and(eq(tagWithRecord.tagId, tags.id), eq(tags.booksId, requiredBooksId)),
+    )
     .where(conditions)
     .orderBy(desc(records.recordTime))
-    .all()
+    .all();
 
-  const grouped = new Map<number, RecordListRow>()
+  const grouped = new Map<number, RecordListRow>();
   for (const row of rows) {
-    const current = grouped.get(row.record.id)
-    const tag = row.tagId === null || row.tagName === null
-      ? null
-      : { id: row.tagId, name: row.tagName }
+    const current = grouped.get(row.record.id);
+    const tag =
+      row.tagId === null || row.tagName === null
+        ? null
+        : { id: row.tagId, name: row.tagName };
     if (current) {
-      if (tag) grouped.set(row.record.id, { ...current, tags: [...current.tags, tag] })
-      continue
+      if (tag)
+        grouped.set(row.record.id, {
+          ...current,
+          tags: [...current.tags, tag],
+        });
+      continue;
     }
     grouped.set(row.record.id, {
       record: row.record,
@@ -185,9 +250,9 @@ export async function getRecordListByBook(
       assetName: row.assetName ?? '',
       intoAssetName: row.intoAssetName ?? '',
       tags: tag ? [tag] : [],
-    })
+    });
   }
-  return [...grouped.values()]
+  return [...grouped.values()];
 }
 
 export async function getRecordRelationsByBook(
@@ -195,48 +260,59 @@ export async function getRecordRelationsByBook(
   booksId: number,
   range?: RecordTimeRange,
 ): Promise<Array<{ recordId: number; relatedRecordId: number }>> {
-  const requiredBooksId = getRequiredForeignKey({ booksId }, 'booksId')
+  const requiredBooksId = getRequiredForeignKey({ booksId }, 'booksId');
   const conditions = range
     ? and(
         eq(records.booksId, requiredBooksId),
         gte(records.recordTime, range.startTime),
         lt(records.recordTime, range.endTime),
       )
-    : eq(records.booksId, requiredBooksId)
+    : eq(records.booksId, requiredBooksId);
   return db
-    .select({ recordId: recordWithRecord.recordId, relatedRecordId: recordWithRecord.relatedRecordId })
+    .select({
+      recordId: recordWithRecord.recordId,
+      relatedRecordId: recordWithRecord.relatedRecordId,
+    })
     .from(recordWithRecord)
     .innerJoin(records, eq(recordWithRecord.recordId, records.id))
     .where(conditions)
-    .all()
+    .all();
 }
 
-export async function getRecordDetailById(db: Database, recordId: number, booksId: number): Promise<RecordDetail> {
-  const record = await db.select().from(records).where(eq(records.id, recordId)).get()
-  if (!record) throw new Error(`记录不存在: ${recordId}`)
+export async function getRecordDetailById(
+  db: Database,
+  recordId: number,
+  booksId: number,
+): Promise<RecordDetail> {
+  const record = await db
+    .select()
+    .from(records)
+    .where(eq(records.id, recordId))
+    .get();
+  if (!record) throw new Error(`记录不存在: ${recordId}`);
   if (record.booksId !== booksId) {
-    throw new Error(`记录 ${recordId} 不属于账本 ${booksId}`)
+    throw new Error(`记录 ${recordId} 不属于账本 ${booksId}`);
   }
 
   const tagRows = await db
     .select({ tagId: tagWithRecord.tagId })
     .from(tagWithRecord)
-    .where(eq(tagWithRecord.recordId, recordId))
+    .where(eq(tagWithRecord.recordId, recordId));
   const imageRows = await db
     .select({ imagePath: imageWithRelated.imagePath })
     .from(imageWithRelated)
-    .where(eq(imageWithRelated.recordId, recordId))
+    .where(eq(imageWithRelated.recordId, recordId));
   const relatedRows = await db
     .select({ relatedRecordId: recordWithRecord.relatedRecordId })
     .from(recordWithRecord)
-    .where(eq(recordWithRecord.recordId, recordId))
+    .where(eq(recordWithRecord.recordId, recordId));
 
   return {
     record,
-    tagIds: tagRows.map((row) => row.tagId),
-    imagePaths: imageRows.map((row) => row.imagePath),
-    relatedRecordIds: relatedRows.map((row) => row.relatedRecordId),
-  }
+    tagIds: tagRows.map(row => row.tagId),
+    imagePaths: imageRows.map(row => row.imagePath),
+    relatedRecordIds: relatedRows.map(row => row.relatedRecordId),
+  };
 }
 
 export async function getImageCountsByBook(
@@ -244,14 +320,14 @@ export async function getImageCountsByBook(
   booksId: number,
   range?: RecordTimeRange,
 ): Promise<Array<{ recordId: number; count: number }>> {
-  const requiredBooksId = getRequiredForeignKey({ booksId }, 'booksId')
+  const requiredBooksId = getRequiredForeignKey({ booksId }, 'booksId');
   const conditions = range
     ? and(
         eq(records.booksId, requiredBooksId),
         gte(records.recordTime, range.startTime),
         lt(records.recordTime, range.endTime),
       )
-    : eq(records.booksId, requiredBooksId)
+    : eq(records.booksId, requiredBooksId);
 
   const result = await db
     .select({
@@ -262,12 +338,12 @@ export async function getImageCountsByBook(
     .innerJoin(records, eq(imageWithRelated.recordId, records.id))
     .where(conditions)
     .groupBy(imageWithRelated.recordId)
-    .all()
+    .all();
 
   return result.map(row => ({
     recordId: row.recordId,
     count: Number(row.count),
-  }))
+  }));
 }
 
 export async function getRecordTagsByBook(
@@ -275,14 +351,14 @@ export async function getRecordTagsByBook(
   booksId: number,
   range?: RecordTimeRange,
 ): Promise<Array<{ recordId: number; tagId: number }>> {
-  const requiredBooksId = getRequiredForeignKey({ booksId }, 'booksId')
+  const requiredBooksId = getRequiredForeignKey({ booksId }, 'booksId');
   const conditions = range
     ? and(
         eq(records.booksId, requiredBooksId),
         gte(records.recordTime, range.startTime),
         lt(records.recordTime, range.endTime),
       )
-    : eq(records.booksId, requiredBooksId)
+    : eq(records.booksId, requiredBooksId);
 
   const result = await db
     .select({
@@ -292,159 +368,189 @@ export async function getRecordTagsByBook(
     .from(tagWithRecord)
     .innerJoin(records, eq(tagWithRecord.recordId, records.id))
     .where(conditions)
-    .all()
+    .all();
 
-  return result
+  return result;
 }
 
-export function createRecord(db: Database, input: CreateRecordInput): Promise<RecordRow> {
-  validateInput(input)
+export function createRecord(
+  db: Database,
+  input: CreateRecordInput,
+): Promise<RecordRow> {
+  validateInput(input);
 
-  return db.transaction(async (tx) => {
-    const typeRow = await getTypeRow(tx, input.typeId, input.booksId)
-    await validateBookExists(tx, input, 'booksId')
+  return db.transaction(async tx => {
+    const typeRow = await getTypeRow(tx, input.typeId, input.booksId);
+    await validateBookExists(tx, input, 'booksId');
 
     switch (typeRow.typeCategory) {
       case RECORD_TYPE_CATEGORY.expense:
-        assertCreateCashflowInput(input)
-        return createExpense(tx, input)
+        assertCreateCashflowInput(input);
+        return createExpense(tx, input);
       case RECORD_TYPE_CATEGORY.income:
-        assertCreateCashflowInput(input)
-        return createIncome(tx, input, typeRow)
+        assertCreateCashflowInput(input);
+        return createIncome(tx, input, typeRow);
       case RECORD_TYPE_CATEGORY.transfer:
-        return createTransfer(tx, input as CreateTransferRecordInput, typeRow)
+        return createTransfer(tx, input as CreateTransferRecordInput, typeRow);
       default:
-        throw new Error(`Unknown type category: ${typeRow.typeCategory}`)
+        throw new Error(`Unknown type category: ${typeRow.typeCategory}`);
     }
-  })
+  });
 }
 
-export function updateRecord(db: Database, input: UpdateRecordInput): Promise<RecordRow> {
-  validateInput(input)
+export function updateRecord(
+  db: Database,
+  input: UpdateRecordInput,
+): Promise<RecordRow> {
+  validateInput(input);
 
-  return db.transaction(async (tx) => {
-    const oldRecord = await getRecordRow(tx, input.id, input.booksId)
-    const oldTypeRow = await getTypeRow(tx, oldRecord.typeId, input.booksId)
-    const newTypeRow = await getTypeRow(tx, input.typeId, input.booksId)
-    await validateBookExists(tx, input, 'booksId')
-    const intoAssetId = await validateUpdateRecordReferences(tx, input, newTypeRow)
-    const charge = input.charge ?? 0
+  return db.transaction(async tx => {
+    const oldRecord = await getRecordRow(tx, input.id, input.booksId);
+    const oldTypeRow = await getTypeRow(tx, oldRecord.typeId, input.booksId);
+    const newTypeRow = await getTypeRow(tx, input.typeId, input.booksId);
+    await validateBookExists(tx, input, 'booksId');
+    const intoAssetId = await validateUpdateRecordReferences(
+      tx,
+      input,
+      newTypeRow,
+    );
+    const charge = input.charge ?? 0;
 
-    await rollbackRecord(tx, oldRecord, oldTypeRow)
+    await rollbackRecord(tx, oldRecord, oldTypeRow);
 
-    let finalAmount: number
+    let finalAmount: number;
     switch (newTypeRow.typeCategory) {
       case RECORD_TYPE_CATEGORY.expense:
-        assertUpdateCashflowInput(input)
-        finalAmount = input.amount + charge
-        break
+        assertUpdateCashflowInput(input);
+        finalAmount = input.amount + charge;
+        break;
       case RECORD_TYPE_CATEGORY.income:
-        assertUpdateCashflowInput(input)
-        finalAmount = input.amount - charge
-        if (finalAmount < 0) throw new Error('Income final amount (amount - charge) must be >= 0')
-        break
+        assertUpdateCashflowInput(input);
+        finalAmount = input.amount - charge;
+        if (finalAmount < 0)
+          throw new Error('Income final amount (amount - charge) must be >= 0');
+        break;
       case RECORD_TYPE_CATEGORY.transfer:
-        finalAmount = charge
-        break
+        finalAmount = charge;
+        break;
       default:
-        throw new Error(`Unknown type category: ${newTypeRow.typeCategory}`)
+        throw new Error(`Unknown type category: ${newTypeRow.typeCategory}`);
     }
 
-    await tx.update(records)
+    await tx
+      .update(records)
       .set({
         typeId: input.typeId,
-        assetId: newTypeRow.typeCategory === RECORD_TYPE_CATEGORY.transfer
-          ? (input as UpdateTransferRecordInput).assetId
-          : (input as UpdateCashflowRecordInput).assetId ?? 0,
+        assetId:
+          newTypeRow.typeCategory === RECORD_TYPE_CATEGORY.transfer
+            ? (input as UpdateTransferRecordInput).assetId
+            : ((input as UpdateCashflowRecordInput).assetId ?? 0),
         intoAssetId,
         booksId: input.booksId,
         amount: input.amount,
         finalAmount,
         charge,
         remark: input.remark ?? '',
-        reimbursable: newTypeRow.typeCategory === RECORD_TYPE_CATEGORY.transfer
-          ? REIMBURSABLE.notReimbursable
-          : newTypeRow.typeCategory === RECORD_TYPE_CATEGORY.income
+        reimbursable:
+          newTypeRow.typeCategory === RECORD_TYPE_CATEGORY.transfer
             ? REIMBURSABLE.notReimbursable
-            : (input as UpdateCashflowRecordInput).reimbursable,
+            : newTypeRow.typeCategory === RECORD_TYPE_CATEGORY.income
+              ? REIMBURSABLE.notReimbursable
+              : (input as UpdateCashflowRecordInput).reimbursable,
         recordTime: input.recordTime,
       })
-      .where(eq(records.id, input.id))
+      .where(eq(records.id, input.id));
 
-    const updatedRecord = await getRecordRow(tx, input.id)
+    const updatedRecord = await getRecordRow(tx, input.id);
 
     switch (newTypeRow.typeCategory) {
       case RECORD_TYPE_CATEGORY.expense:
-        await applyExpense(tx, updatedRecord)
-        await handleExpenseAbsorptionOnModify(tx, input.id)
-        break
+        await applyExpense(tx, updatedRecord);
+        await handleExpenseAbsorptionOnModify(tx, input.id);
+        break;
       case RECORD_TYPE_CATEGORY.income:
-        await applyIncome(tx, updatedRecord, newTypeRow, input.relatedRecordIds)
-        break
+        await applyIncome(
+          tx,
+          updatedRecord,
+          newTypeRow,
+          input.relatedRecordIds,
+        );
+        break;
       case RECORD_TYPE_CATEGORY.transfer:
-        await applyTransfer(tx, updatedRecord)
-        break
+        await applyTransfer(tx, updatedRecord);
+        break;
     }
 
-    await syncTags(tx, input.id, input.tagIds ?? [])
-    await syncImages(tx, input.id, input.imagePaths ?? [])
+    await syncTags(tx, input.id, input.tagIds ?? []);
+    await syncImages(tx, input.id, input.imagePaths ?? []);
 
-    return getRecordRow(tx, input.id)
-  })
+    return getRecordRow(tx, input.id);
+  });
 }
 
 async function handleExpenseAbsorptionOnModify(tx: Tx, recordId: number) {
   const links = await tx
     .select({ recordId: recordWithRecord.recordId })
     .from(recordWithRecord)
-    .where(eq(recordWithRecord.relatedRecordId, recordId))
+    .where(eq(recordWithRecord.relatedRecordId, recordId));
 
   if (links.length > 0) {
-    await recalculateAbsorption(tx, recordId)
+    await recalculateAbsorption(tx, recordId);
   }
 }
 
-export function deleteRecord(db: Database, recordId: number, booksId: number): Promise<void> {
-  return db.transaction(async (tx) => {
-    const record = await getRecordRow(tx, recordId, booksId)
-    const typeRow = await getTypeRow(tx, record.typeId, booksId)
+export function deleteRecord(
+  db: Database,
+  recordId: number,
+  booksId: number,
+): Promise<void> {
+  return db.transaction(async tx => {
+    const record = await getRecordRow(tx, recordId, booksId);
+    const typeRow = await getTypeRow(tx, record.typeId, booksId);
 
     const absorbedByLinks = await tx
       .select({ recordId: recordWithRecord.recordId })
       .from(recordWithRecord)
-      .where(eq(recordWithRecord.relatedRecordId, recordId))
+      .where(eq(recordWithRecord.relatedRecordId, recordId));
 
     if (absorbedByLinks.length > 0) {
-      await tx.delete(recordWithRecord).where(eq(recordWithRecord.relatedRecordId, recordId))
+      await tx
+        .delete(recordWithRecord)
+        .where(eq(recordWithRecord.relatedRecordId, recordId));
 
-      const affectedExpenseIds = new Set<number>()
+      const affectedExpenseIds = new Set<number>();
       for (const link of absorbedByLinks) {
         const remainingLinks = await tx
           .select({ relatedRecordId: recordWithRecord.relatedRecordId })
           .from(recordWithRecord)
-          .where(eq(recordWithRecord.recordId, link.recordId))
+          .where(eq(recordWithRecord.recordId, link.recordId));
 
         if (remainingLinks.length === 0) {
-          const incomeRecord = await tx.select().from(records).where(eq(records.id, link.recordId)).get()
+          const incomeRecord = await tx
+            .select()
+            .from(records)
+            .where(eq(records.id, link.recordId))
+            .get();
           if (incomeRecord) {
-            await tx.update(records)
+            await tx
+              .update(records)
               .set({ finalAmount: incomeRecord.amount - incomeRecord.charge })
-              .where(eq(records.id, link.recordId))
+              .where(eq(records.id, link.recordId));
           }
         } else {
           for (const r of remainingLinks) {
-            affectedExpenseIds.add(r.relatedRecordId)
+            affectedExpenseIds.add(r.relatedRecordId);
           }
         }
       }
 
       for (const expenseId of affectedExpenseIds) {
-        await recalculateAbsorption(tx, expenseId)
+        await recalculateAbsorption(tx, expenseId);
       }
     }
 
-    await rollbackRecord(tx, record, typeRow)
-    await deleteAllJunctions(tx, recordId)
-    await tx.delete(records).where(eq(records.id, recordId))
-  })
+    await rollbackRecord(tx, record, typeRow);
+    await deleteAllJunctions(tx, recordId);
+    await tx.delete(records).where(eq(records.id, recordId));
+  });
 }

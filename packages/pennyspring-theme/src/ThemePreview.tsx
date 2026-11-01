@@ -32,7 +32,9 @@ const useContainerStyles = createUseSheetStyle(
   (tokens, isDarkMode: boolean) => ({
     container: {
       flex: 1,
-      backgroundColor: isDarkMode ? tokens.colorBgBase : tokens.colorBgContainer,
+      backgroundColor: isDarkMode
+        ? tokens.colorBgBase
+        : tokens.colorBgContainer,
     },
   }),
 );
@@ -214,8 +216,7 @@ export default function ThemePreview() {
   const [preset, setPreset] = useState<ThemePresetName>('default');
 
   const token = useMemo(
-    () =>
-      themePresets.find((item: ThemePreset) => item.value === preset)?.data,
+    () => themePresets.find((item: ThemePreset) => item.value === preset)?.data,
     [preset],
   );
 

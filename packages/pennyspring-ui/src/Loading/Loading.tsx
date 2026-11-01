@@ -2,7 +2,11 @@ import type { ComponentSize } from '../shares/types';
 import { renderTextNode } from '../shares/node';
 import React from 'react';
 import { ActivityIndicator, View } from 'react-native';
-import { createUseSheetStyle, toShadowStyle, useTheme } from '@pennyspring/theme';
+import {
+  createUseSheetStyle,
+  toShadowStyle,
+  useTheme,
+} from '@pennyspring/theme';
 import { Text } from '../Text';
 import { Row } from '../Row';
 import { Column } from '../Column';
@@ -125,15 +129,16 @@ export function Loading({
   const { token } = useTheme();
   const variantConfig = VARIANT_STYLE_MAP[variant];
   const hasText = text !== undefined && text !== '';
-  const hasDescription = description !== undefined && description !== null && description !== false;
+  const hasDescription =
+    description !== undefined && description !== null && description !== false;
 
   // 停止且没有任何文案时不留空占位，避免布局跳动。
   if (!animating && !hasText && !hasDescription) {
     return null;
   }
 
-  const resolvedIndicator = indicator === undefined
-    ? (
+  const resolvedIndicator =
+    indicator === undefined ? (
       animating ? (
         <ActivityIndicator
           {...rest}
@@ -143,12 +148,12 @@ export function Loading({
           size={INDICATOR_SIZE_MAP[resolvedSize]}
         />
       ) : null
-    )
-    : renderTextNode(indicator, value => <Text>{value}</Text>);
+    ) : (
+      renderTextNode(indicator, value => <Text>{value}</Text>)
+    );
 
-  const indicatorNode = resolvedIndicator === null
-    ? null
-    : (
+  const indicatorNode =
+    resolvedIndicator === null ? null : (
       <View style={[tokenStyles.indicator, styles?.indicator]}>
         {resolvedIndicator}
       </View>
@@ -170,17 +175,22 @@ export function Loading({
     </Text>
   ) : null;
 
-  const textBlock = hasText || hasDescription ? (
-    <Column align="center" style={tokenStyles.textBlock}>
-      {textNode}
-      {descriptionNode}
-    </Column>
-  ) : null;
+  const textBlock =
+    hasText || hasDescription ? (
+      <Column align="center" style={tokenStyles.textBlock}>
+        {textNode}
+        {descriptionNode}
+      </Column>
+    ) : null;
 
   if (variant === 'overlay') {
     return (
       <View style={[tokenStyles.overlay, style]}>
-        <Column align="center" gap={variantConfig.gap(token)} style={tokenStyles.overlayCard}>
+        <Column
+          align="center"
+          gap={variantConfig.gap(token)}
+          style={tokenStyles.overlayCard}
+        >
           {indicatorNode}
           {textBlock}
         </Column>
@@ -190,7 +200,11 @@ export function Loading({
 
   if (variant === 'block') {
     return (
-      <Column align="center" gap={variantConfig.gap(token)} style={[tokenStyles.block, style]}>
+      <Column
+        align="center"
+        gap={variantConfig.gap(token)}
+        style={[tokenStyles.block, style]}
+      >
         {indicatorNode}
         {textBlock}
       </Column>
@@ -201,7 +215,10 @@ export function Loading({
     <Row
       align="center"
       gap={variantConfig.gap(token)}
-      style={[variant === 'more' ? tokenStyles.more : tokenStyles.inline, style]}
+      style={[
+        variant === 'more' ? tokenStyles.more : tokenStyles.inline,
+        style,
+      ]}
     >
       {indicatorNode}
       {textNode}

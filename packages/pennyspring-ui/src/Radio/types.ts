@@ -20,8 +20,10 @@ export interface RadioStyles {
   label?: StyleProp<TextStyle>;
 }
 
-export interface RadioProps
-  extends Omit<PressableProps, 'style' | 'children' | 'disabled' | 'onPress'> {
+export interface RadioProps extends Omit<
+  PressableProps,
+  'style' | 'children' | 'disabled' | 'onPress'
+> {
   value?: boolean;
   defaultValue?: boolean;
   onChange?: (value: boolean) => void;
@@ -49,8 +51,10 @@ export interface RadioGroupStyles {
   label?: StyleProp<TextStyle>;
 }
 
-export interface RadioGroupProps
-  extends Omit<PressableProps, 'style' | 'children' | 'disabled' | 'onPress'> {
+export interface RadioGroupProps extends Omit<
+  PressableProps,
+  'style' | 'children' | 'disabled' | 'onPress'
+> {
   value?: RadioGroupValue;
   defaultValue?: RadioGroupValue;
   onChange?: (value: RadioGroupValue) => void;

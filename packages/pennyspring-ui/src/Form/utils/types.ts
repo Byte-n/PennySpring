@@ -6,7 +6,8 @@ export interface FormControlLabel {
   labelText?: string;
 }
 
-export interface FormItemContextValue<TValue = unknown>
-  extends FormFieldState<TValue> {
+export interface FormItemContextValue<
+  TValue = unknown,
+> extends FormFieldState<TValue> {
   controlLabel: FormControlLabel | null;
 }

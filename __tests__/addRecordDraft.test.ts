@@ -213,9 +213,19 @@ describe('addRecordDraft', () => {
   });
 
   test('filters related expense candidates by refund and reimbursement behavior', () => {
-    const expenseTypes = [typeRow({ id: 1, typeCategory: RECORD_TYPE_CATEGORY.expense })];
-    const refundable = recordRow({ id: 1, typeId: 1, reimbursable: REIMBURSABLE.notReimbursable });
-    const reimbursable = recordRow({ id: 2, typeId: 1, reimbursable: REIMBURSABLE.reimbursable });
+    const expenseTypes = [
+      typeRow({ id: 1, typeCategory: RECORD_TYPE_CATEGORY.expense }),
+    ];
+    const refundable = recordRow({
+      id: 1,
+      typeId: 1,
+      reimbursable: REIMBURSABLE.notReimbursable,
+    });
+    const reimbursable = recordRow({
+      id: 2,
+      typeId: 1,
+      reimbursable: REIMBURSABLE.reimbursable,
+    });
     const refundType = typeRow({
       typeCategory: RECORD_TYPE_CATEGORY.income,
       specialBehavior: RECORD_TYPE_SPECIAL_BEHAVIOR.refundAbsorption,
@@ -226,12 +236,18 @@ describe('addRecordDraft', () => {
     });
 
     expect(
-      getRelatedExpenseCandidates([refundable, reimbursable], expenseTypes, refundType)
-        .map(record => record.id),
+      getRelatedExpenseCandidates(
+        [refundable, reimbursable],
+        expenseTypes,
+        refundType,
+      ).map(record => record.id),
     ).toEqual([1]);
     expect(
-      getRelatedExpenseCandidates([refundable, reimbursable], expenseTypes, reimbursementType)
-        .map(record => record.id),
+      getRelatedExpenseCandidates(
+        [refundable, reimbursable],
+        expenseTypes,
+        reimbursementType,
+      ).map(record => record.id),
     ).toEqual([2]);
   });
 });

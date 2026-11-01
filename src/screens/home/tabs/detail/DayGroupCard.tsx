@@ -11,7 +11,12 @@ import {
 } from './detailData';
 
 const useStyles = createUseSheetStyle(token => ({
-  dayHeader: { paddingHorizontal: token.paddingSM, paddingTop: token.paddingSM, paddingBottom: token.paddingXS, backgroundColor: token.colorBgLayout },
+  dayHeader: {
+    paddingHorizontal: token.paddingSM,
+    paddingTop: token.paddingSM,
+    paddingBottom: token.paddingXS,
+    backgroundColor: token.colorBgLayout,
+  },
   card: { marginHorizontal: token.padding, padding: 0, overflow: 'hidden' },
   cardBody: { gap: 0 },
   spacer: { flex: 1 },
@@ -23,7 +28,11 @@ interface DayGroupCardProps {
   hidden?: boolean;
 }
 
-export function DayGroupCard({ group, onPressRecord, hidden = false }: DayGroupCardProps) {
+export function DayGroupCard({
+  group,
+  onPressRecord,
+  hidden = false,
+}: DayGroupCardProps) {
   const styles = useStyles();
   const today = isSameDay(new Date(group.dayStart), new Date());
   const title = (
@@ -31,11 +40,31 @@ export function DayGroupCard({ group, onPressRecord, hidden = false }: DayGroupC
       <Text size="md" weight="semibold" color="heading">
         {group.dayStart.formatDateBy('M月D日')}
       </Text>
-      <Text size="sm" color="tertiary">{formatWeekday(group.dayStart)}</Text>
-      {today ? <Text size="xs" color="primary">今天</Text> : null}
+      <Text size="sm" color="tertiary">
+        {formatWeekday(group.dayStart)}
+      </Text>
+      {today ? (
+        <Text size="xs" color="primary">
+          今天
+        </Text>
+      ) : null}
       <Column style={styles.spacer} />
-      {group.summary.expense > 0 ? <Text size="xs" color="tertiary">支 <Text size="xs" color="error">{hidden ? '••••' : formatAmount(group.summary.expense)}</Text></Text> : null}
-      {group.summary.income > 0 ? <Text size="xs" color="tertiary">收 <Text size="xs" color="success">{hidden ? '••••' : formatAmount(group.summary.income)}</Text></Text> : null}
+      {group.summary.expense > 0 ? (
+        <Text size="xs" color="tertiary">
+          支{' '}
+          <Text size="xs" color="error">
+            {hidden ? '••••' : formatAmount(group.summary.expense)}
+          </Text>
+        </Text>
+      ) : null}
+      {group.summary.income > 0 ? (
+        <Text size="xs" color="tertiary">
+          收{' '}
+          <Text size="xs" color="success">
+            {hidden ? '••••' : formatAmount(group.summary.income)}
+          </Text>
+        </Text>
+      ) : null}
     </Row>
   );
 
@@ -43,12 +72,12 @@ export function DayGroupCard({ group, onPressRecord, hidden = false }: DayGroupC
     <>
       {title}
       <Card style={styles.card} styles={{ body: styles.cardBody }}>
-      {group.records.map((view, index) => (
-        <React.Fragment key={view.record.id}>
-          {index > 0 ? <Divider spacing="none" /> : null}
-          <RecordRow view={view} onPress={onPressRecord} hidden={hidden} />
-        </React.Fragment>
-      ))}
+        {group.records.map((view, index) => (
+          <React.Fragment key={view.record.id}>
+            {index > 0 ? <Divider spacing="none" /> : null}
+            <RecordRow view={view} onPress={onPressRecord} hidden={hidden} />
+          </React.Fragment>
+        ))}
       </Card>
     </>
   );

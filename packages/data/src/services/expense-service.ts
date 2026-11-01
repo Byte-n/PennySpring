@@ -1,17 +1,20 @@
-import { records } from '../schema'
+import { records } from '../schema';
 import {
   applyBalanceChange,
   computeBalanceChange,
   getOptionalAssetForBooks,
   syncImages,
   syncTags,
-} from './helpers'
-import type { CreateCashflowRecordInput, RecordRow, Tx } from './types'
+} from './helpers';
+import type { CreateCashflowRecordInput, RecordRow, Tx } from './types';
 
-export async function createExpense(tx: Tx, input: CreateCashflowRecordInput): Promise<RecordRow> {
-  const asset = await getOptionalAssetForBooks(tx, input, 'assetId', 'booksId')
-  const charge = input.charge ?? 0
-  const finalAmount = input.amount + charge
+export async function createExpense(
+  tx: Tx,
+  input: CreateCashflowRecordInput,
+): Promise<RecordRow> {
+  const asset = await getOptionalAssetForBooks(tx, input, 'assetId', 'booksId');
+  const charge = input.charge ?? 0;
+  const finalAmount = input.amount + charge;
 
   const [inserted] = await tx
     .insert(records)
@@ -27,31 +30,57 @@ export async function createExpense(tx: Tx, input: CreateCashflowRecordInput): P
       reimbursable: input.reimbursable,
       recordTime: input.recordTime,
     })
-    .returning()
+    .returning();
 
   if (asset) {
-    const balanceChange = computeBalanceChange(asset, 'expense', input.amount, charge)
-    await applyBalanceChange(tx, asset.id, balanceChange)
+    const balanceChange = computeBalanceChange(
+      asset,
+      'expense',
+      input.amount,
+      charge,
+    );
+    await applyBalanceChange(tx, asset.id, balanceChange);
   }
 
-  if (input.tagIds?.length) await syncTags(tx, inserted.id, input.tagIds)
-  if (input.imagePaths?.length) await syncImages(tx, inserted.id, input.imagePaths)
+  if (input.tagIds?.length) await syncTags(tx, inserted.id, input.tagIds);
+  if (input.imagePaths?.length)
+    await syncImages(tx, inserted.id, input.imagePaths);
 
-  return inserted
+  return inserted;
 }
 
 export async function rollbackExpense(tx: Tx, record: RecordRow) {
-  const asset = await getOptionalAssetForBooks(tx, record, 'assetId', 'booksId')
-  if (!asset) return
+  const asset = await getOptionalAssetForBooks(
+    tx,
+    record,
+    'assetId',
+    'booksId',
+  );
+  if (!asset) return;
 
-  const reverseChange = -computeBalanceChange(asset, 'expense', record.amount, record.charge)
-  await applyBalanceChange(tx, asset.id, reverseChange)
+  const reverseChange = -computeBalanceChange(
+    asset,
+    'expense',
+    record.amount,
+    record.charge,
+  );
+  await applyBalanceChange(tx, asset.id, reverseChange);
 }
 
 export async function applyExpense(tx: Tx, record: RecordRow) {
-  const asset = await getOptionalAssetForBooks(tx, record, 'assetId', 'booksId')
-  if (!asset) return
+  const asset = await getOptionalAssetForBooks(
+    tx,
+    record,
+    'assetId',
+    'booksId',
+  );
+  if (!asset) return;
 
-  const change = computeBalanceChange(asset, 'expense', record.amount, record.charge)
-  await applyBalanceChange(tx, asset.id, change)
+  const change = computeBalanceChange(
+    asset,
+    'expense',
+    record.amount,
+    record.charge,
+  );
+  await applyBalanceChange(tx, asset.id, change);
 }

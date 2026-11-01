@@ -8,12 +8,7 @@ export type SwipeActionSide = 'left' | 'right';
 export type SwipeActionValue = SwipeActionSide | null;
 
 export type SwipeActionSemanticColor =
-  | 'light'
-  | 'weak'
-  | 'primary'
-  | 'success'
-  | 'warning'
-  | 'danger';
+  'light' | 'weak' | 'primary' | 'success' | 'warning' | 'danger';
 export type SwipeActionColor = SemanticPresetColor<SwipeActionSemanticColor>;
 
 export interface SwipeActionAction {
@@ -34,8 +29,10 @@ export interface SwipeActionStyles {
   actionText?: StyleProp<TextStyle>;
 }
 
-export interface SwipeActionProps
-  extends Omit<ViewProps, 'style' | 'children'> {
+export interface SwipeActionProps extends Omit<
+  ViewProps,
+  'style' | 'children'
+> {
   size?: ComponentSize;
   value?: SwipeActionValue;
   defaultValue?: SwipeActionValue;
@@ -43,7 +40,11 @@ export interface SwipeActionProps
   leftActions?: SwipeActionAction[];
   rightActions?: SwipeActionAction[];
   closeOnAction?: boolean;
-  onAction?: (action: SwipeActionAction, index: number, side: SwipeActionSide) => void;
+  onAction?: (
+    action: SwipeActionAction,
+    index: number,
+    side: SwipeActionSide,
+  ) => void;
   onActionsReveal?: (side: SwipeActionSide) => void;
   onCancel?: () => void;
   disabled?: boolean;

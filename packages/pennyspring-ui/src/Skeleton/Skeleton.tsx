@@ -70,8 +70,7 @@ export function Skeleton({
   const resolvedWidth = width ?? getDefaultWidth(shape, size);
   const resolvedHeight = height ?? getDefaultHeight(shape, size);
   const resolvedBorderRadius =
-    borderRadius ??
-    getDefaultBorderRadius(shape, token, size, resolvedHeight);
+    borderRadius ?? getDefaultBorderRadius(shape, token, size, resolvedHeight);
   const shimmerWidth = containerWidth * SHIMMER_WIDTH_RATIO;
 
   const tokenStyles = useStyles({

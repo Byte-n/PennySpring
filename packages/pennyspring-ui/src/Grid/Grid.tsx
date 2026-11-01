@@ -17,23 +17,24 @@ interface GridContextValue {
 
 const GridContext = React.createContext<GridContextValue | null>(null);
 
-const useGridStyles = createUseSheetStyle(
-  (_, { gap }: { gap: number }) => ({
-    root: {
-      alignSelf: 'stretch',
-      marginHorizontal: gap === 0 ? 0 : -gap / GAP_DIVISOR,
-    },
-    row: {
-      flexDirection: 'row',
-    },
-    rowSpacing: {
-      marginTop: gap,
-    },
-  }),
-);
+const useGridStyles = createUseSheetStyle((_, { gap }: { gap: number }) => ({
+  root: {
+    alignSelf: 'stretch',
+    marginHorizontal: gap === 0 ? 0 : -gap / GAP_DIVISOR,
+  },
+  row: {
+    flexDirection: 'row',
+  },
+  rowSpacing: {
+    marginTop: gap,
+  },
+}));
 
 const useGridItemStyles = createUseSheetStyle(
-  (_, { gap, span, columns }: { gap: number; span: number; columns: number }) => ({
+  (
+    _,
+    { gap, span, columns }: { gap: number; span: number; columns: number },
+  ) => ({
     item: {
       width: `${(span / columns) * 100}%`,
       paddingHorizontal: gap / GAP_DIVISOR,
@@ -60,10 +61,20 @@ function resolveSpan(span: number | undefined, columns: number): number {
   if (span !== undefined && !Number.isFinite(span)) {
     return MIN_SPAN;
   }
-  return Math.min(columns, Math.max(MIN_SPAN, Math.floor(span ?? DEFAULT_SPAN)));
+  return Math.min(
+    columns,
+    Math.max(MIN_SPAN, Math.floor(span ?? DEFAULT_SPAN)),
+  );
 }
 
-export function GridItem({ children, disabled, onPress, span, style, testID }: GridItemProps) {
+export function GridItem({
+  children,
+  disabled,
+  onPress,
+  span,
+  style,
+  testID,
+}: GridItemProps) {
   const context = React.useContext(GridContext);
   const columns = context?.columns ?? MIN_COLUMNS;
   const gap = context?.gap ?? 0;
@@ -72,7 +83,12 @@ export function GridItem({ children, disabled, onPress, span, style, testID }: G
   const itemStyle = [tokenStyles.item, style];
 
   return (
-    <Pressable disabled={disabled} testID={testID ?? 'grid-item'} style={itemStyle} onPress={onPress}>
+    <Pressable
+      disabled={disabled}
+      testID={testID ?? 'grid-item'}
+      style={itemStyle}
+      onPress={onPress}
+    >
       {children}
     </Pressable>
   );

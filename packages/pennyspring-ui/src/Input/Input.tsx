@@ -1,10 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {
-  ActivityIndicator,
-  Pressable,
-  TextInput,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Pressable, TextInput, View } from 'react-native';
 import {
   Easing,
   createAnimatedComponent,
@@ -29,10 +24,7 @@ import type {
   TextStyle,
   ViewStyle,
 } from 'react-native';
-import type {
-  InputProps,
-  InputSearchProps,
-} from './types';
+import type { InputProps, InputSearchProps } from './types';
 import { useFieldProps } from '../Form/hooks/useFieldProps.ts';
 
 const AnimatedText = createAnimatedComponent(Text);
@@ -71,12 +63,14 @@ const useStyles = createUseSheetStyle(
     const valueFontSize = metrics.valueFontSize(token);
     const valueLineHeight = metrics.valueLineHeight(token);
     const valuePaddingBottom = metrics.valuePaddingBottom;
-    const activeUnderlineColor = isError ? token.colorError : token.colorPrimary;
+    const activeUnderlineColor = isError
+      ? token.colorError
+      : token.colorPrimary;
     const labelColor = disabled
       ? token.colorTextDisabled
       : isError
-      ? token.colorError
-      : token.colorTextPlaceholder;
+        ? token.colorError
+        : token.colorTextPlaceholder;
 
     return {
       root: {
@@ -122,8 +116,8 @@ const useStyles = createUseSheetStyle(
         color: disabled
           ? token.colorTextDisabled
           : isError
-          ? token.colorError
-          : token.colorTextTertiary,
+            ? token.colorError
+            : token.colorTextTertiary,
       },
       labelActive: {
         color: activeUnderlineColor,
@@ -172,7 +166,9 @@ const useStyles = createUseSheetStyle(
         right: 0,
         bottom: 0,
         height: token.lineWidth,
-        backgroundColor: disabled ? token.colorBorderDisabled : token.colorBorder,
+        backgroundColor: disabled
+          ? token.colorBorderDisabled
+          : token.colorBorder,
       } as ViewStyle,
       underlineActive: {
         backgroundColor: activeUnderlineColor,
@@ -262,7 +258,10 @@ function InputView({
   const hasSuffix = hasNode(suffix);
   const isActive = isFocused || Boolean(mergedValue);
   const shouldShowClearButton =
-    allowClear === true && Boolean(mergedValue) && isEditable && loading !== true;
+    allowClear === true &&
+    Boolean(mergedValue) &&
+    isEditable &&
+    loading !== true;
   const progress = useSharedValue(isActive ? 1 : 0);
   const metrics = FIELD_SIZE_MAP[resolvedSize];
   const bodyFontSize = metrics.valueFontSize(token);
@@ -274,9 +273,8 @@ function InputView({
   const labelOffsetX = metrics.labelOffsetX(token);
   // 激活态标签收起字号并向控件左上角收拢，为输入文本让出视觉空间
   const activeLabelTop = metrics.labelTop;
-  const placeholderTextColor = hasFloatingLabel && !isFocused
-    ? 'transparent'
-    : token.colorTextPlaceholder;
+  const placeholderTextColor =
+    hasFloatingLabel && !isFocused ? 'transparent' : token.colorTextPlaceholder;
 
   useEffect(() => {
     progress.value = withTiming(isActive ? 1 : 0, {
@@ -358,12 +356,17 @@ function InputView({
         />
         {hasPrefix ? (
           <Row style={[tokenStyles.prefix, styles?.prefix]}>
-            {renderTextNode(prefix, (text) => (
+            {renderTextNode(prefix, text => (
               <Text>{text}</Text>
             ))}
           </Row>
         ) : null}
-        <View style={[tokenStyles.inputWrapper, multiline ? tokenStyles.inputWrapperMultiline : null]}>
+        <View
+          style={[
+            tokenStyles.inputWrapper,
+            multiline ? tokenStyles.inputWrapperMultiline : null,
+          ]}
+        >
           {hasFloatingLabel && isTextLabel ? (
             <AnimatedText
               style={[
@@ -372,8 +375,8 @@ function InputView({
                 isFocused
                   ? tokenStyles.labelActive
                   : isActive
-                  ? tokenStyles.labelFilled
-                  : null,
+                    ? tokenStyles.labelFilled
+                    : null,
                 styles?.labelText,
                 labelPositionAnimatedStyle,
                 labelTextAnimatedStyle,
@@ -384,10 +387,7 @@ function InputView({
             </AnimatedText>
           ) : hasFloatingLabel ? (
             <AnimatedView
-              style={[
-                tokenStyles.labelContainer,
-                labelPositionAnimatedStyle,
-              ]}
+              style={[tokenStyles.labelContainer, labelPositionAnimatedStyle]}
               testID="input-floating-label"
             >
               {labelContent}
@@ -406,7 +406,9 @@ function InputView({
             selectionColor={isError ? token.colorError : token.colorPrimary}
             style={[
               tokenStyles.input,
-              multiline ? tokenStyles.inputPaddingMultiline : tokenStyles.inputPadding,
+              multiline
+                ? tokenStyles.inputPaddingMultiline
+                : tokenStyles.inputPadding,
               multiline ? tokenStyles.inputMultiline : null,
               styles?.input,
             ]}
@@ -425,11 +427,7 @@ function InputView({
             ]}
             testID="input-clear-button"
           >
-            <Icon
-              color="icon"
-              icon="close"
-              size={resolvedSize}
-            />
+            <Icon color="icon" icon="close" size={resolvedSize} />
           </Pressable>
         ) : loading === true ? (
           <ActivityIndicator
@@ -438,7 +436,7 @@ function InputView({
           />
         ) : hasSuffix ? (
           <Row style={[tokenStyles.suffix, styles?.suffix]}>
-            {renderTextNode(suffix, (text) => (
+            {renderTextNode(suffix, text => (
               <Text>{text}</Text>
             ))}
           </Row>
@@ -489,7 +487,8 @@ function SearchInput(rawProps: InputSearchProps) {
     field.value,
     field.onChange,
   );
-  const canSearch = field.disabled !== true && field.readonly !== true && loading !== true;
+  const canSearch =
+    field.disabled !== true && field.readonly !== true && loading !== true;
 
   function handleChangeText(text: string): void {
     setMergedValue(text);

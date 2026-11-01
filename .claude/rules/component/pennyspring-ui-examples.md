@@ -1,7 +1,7 @@
 ---
 paths:
-  - "packages/pennyspring-ui/examples/previews/**/*.ts"
-  - "packages/pennyspring-ui/examples/previews/**/*.tsx"
+  - 'packages/pennyspring-ui/examples/previews/**/*.ts'
+  - 'packages/pennyspring-ui/examples/previews/**/*.tsx'
 ---
 
 # 组件预览规则

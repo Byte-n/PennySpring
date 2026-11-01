@@ -22,10 +22,7 @@ export interface SwitchStyleOptions {
   size: ComponentSize;
 }
 
-function getContainerHeight(
-  token: AliasToken,
-  size: ComponentSize,
-): number {
+function getContainerHeight(token: AliasToken, size: ComponentSize): number {
   if (size === 'small') {
     return token.controlHeightSM;
   }

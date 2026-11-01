@@ -51,9 +51,7 @@ function ValueProbe() {
 function SubmittingProbe() {
   const isSubmitting = TypedForm.useFormState(state => state.isSubmitting);
 
-  return (
-    <Text testID="probe-submitting">{String(isSubmitting)}</Text>
-  );
+  return <Text testID="probe-submitting">{String(isSubmitting)}</Text>;
 }
 
 describe('Form API', () => {

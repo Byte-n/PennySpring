@@ -25,7 +25,9 @@ export function toPresetPayload(tpl: QuickTemplate): AddRecordPresetPayload {
  * 模板 → 模板编辑载荷（「以 AddRecord 编辑模板」流程）。
  * assetId/intoAssetId 的 0 归一化为 null，与 AddRecordContext.initFromTemplate 口径一致。
  */
-export function toTemplatePayload(tpl: QuickTemplate): AddRecordTemplatePayload {
+export function toTemplatePayload(
+  tpl: QuickTemplate,
+): AddRecordTemplatePayload {
   return {
     id: tpl.id,
     name: tpl.name,

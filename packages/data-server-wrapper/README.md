@@ -16,12 +16,12 @@ DB_PATH=/data/pennyspring.db SERVER_TOKEN=<strong-token> \
 
 ### 环境变量
 
-| 变量 | 必填 | 说明 |
-|---|---|---|
-| `DB_PATH` | 是 | SQLite 文件路径；文件不存在会自动创建并执行迁移 |
-| `SERVER_TOKEN` | 是 | Bearer 访问令牌，至少 3 个字符（生产环境请使用强随机值） |
-| `PORT` | 否 | 监听端口，默认 `3000` |
-| `MEDIA_DIR` | 否 | 图片目录，默认与数据库同级的 `media/` |
+| 变量           | 必填 | 说明                                                     |
+| -------------- | ---- | -------------------------------------------------------- |
+| `DB_PATH`      | 是   | SQLite 文件路径；文件不存在会自动创建并执行迁移          |
+| `SERVER_TOKEN` | 是   | Bearer 访问令牌，至少 3 个字符（生产环境请使用强随机值） |
+| `PORT`         | 否   | 监听端口，默认 `3000`                                    |
+| `MEDIA_DIR`    | 否   | 图片目录，默认与数据库同级的 `media/`                    |
 
 启动后会打印本机、iOS 模拟器、Android 模拟器与局域网访问地址。
 
@@ -42,10 +42,10 @@ Content-Type: application/json
 
 ### 媒体
 
-| 方法 | 路径 | 说明 |
-|---|---|---|
-| `POST` | `/api/media/upload` | `multipart/form-data`，字段 `booksId` 与 `file`；返回 `media:<uuid>.<ext>` |
-| `GET` | `/api/media/:fileName` | 按 UUID 文件名读取图片，带私有缓存头 |
+| 方法   | 路径                   | 说明                                                                       |
+| ------ | ---------------------- | -------------------------------------------------------------------------- |
+| `POST` | `/api/media/upload`    | `multipart/form-data`，字段 `booksId` 与 `file`；返回 `media:<uuid>.<ext>` |
+| `GET`  | `/api/media/:fileName` | 按 UUID 文件名读取图片，带私有缓存头                                       |
 
 上传会同时校验声明 MIME 与文件头，仅接受 JPEG / PNG / WebP，单文件上限 10 MB。
 

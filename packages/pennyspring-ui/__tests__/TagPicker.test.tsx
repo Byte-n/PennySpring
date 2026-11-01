@@ -17,9 +17,7 @@ function renderTagPicker(
   let testRenderer: renderer.ReactTestRenderer;
 
   act(() => {
-    testRenderer = renderer.create(
-      <TagPicker options={options} {...props} />,
-    );
+    testRenderer = renderer.create(<TagPicker options={options} {...props} />);
   });
 
   return testRenderer!;
@@ -96,7 +94,9 @@ describe('TagPicker', () => {
     });
 
     act(() => {
-      testRenderer.root.findAllByProps({ testID: 'tag-close' })[0].props.onPress();
+      testRenderer.root
+        .findAllByProps({ testID: 'tag-close' })[0]
+        .props.onPress();
     });
 
     expect(onChange).toHaveBeenCalledWith(['travel']);
@@ -106,7 +106,10 @@ describe('TagPicker', () => {
     const testRenderer = renderTagPicker({
       defaultOpen: true,
       options: [
-        { value: 'food', label: <RNText testID="custom-food-label">餐饮</RNText> },
+        {
+          value: 'food',
+          label: <RNText testID="custom-food-label">餐饮</RNText>,
+        },
         { value: 'travel', labelText: '出行' },
       ],
       value: ['travel'],
@@ -227,12 +230,12 @@ describe('TagPicker', () => {
       );
     });
 
-    expect(
-      disabledRenderer!.root.findByType(DisplayInput).props.disabled,
-    ).toBe(true);
-    expect(
-      readonlyRenderer!.root.findByType(DisplayInput).props.readonly,
-    ).toBe(true);
+    expect(disabledRenderer!.root.findByType(DisplayInput).props.disabled).toBe(
+      true,
+    );
+    expect(readonlyRenderer!.root.findByType(DisplayInput).props.readonly).toBe(
+      true,
+    );
   });
 
   it('clears every selected tag through the clear button', () => {

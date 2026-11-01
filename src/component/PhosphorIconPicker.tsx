@@ -1,14 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { Pressable } from 'react-native';
-import {
-  Column,
-  List,
-  Icon,
-  Input,
-  Popup,
-  Row,
-  Text,
-} from '@pennyspring/ui';
+import { Column, List, Icon, Input, Popup, Row, Text } from '@pennyspring/ui';
 import { createUseSheetStyle } from '@pennyspring/ui';
 
 import {
@@ -124,8 +116,7 @@ function matchesSearch(info: PhosphorIconOption, searchText: string): boolean {
 
 function matchesCategory(info: PhosphorIconOption, category: string): boolean {
   return (
-    category === ALL_CATEGORY_VALUE ||
-    info.primaryCategoryLabel === category
+    category === ALL_CATEGORY_VALUE || info.primaryCategoryLabel === category
   );
 }
 
@@ -140,10 +131,11 @@ export function PhosphorIconPickerContent({
   const filteredIcons = useMemo(() => {
     const normalizedSearchText = normalizeSearchText(searchText);
 
-    return PHOSPHOR_ICON_OPTIONS.filter(info => (
-      matchesCategory(info, category) &&
-      matchesSearch(info, normalizedSearchText)
-    ));
+    return PHOSPHOR_ICON_OPTIONS.filter(
+      info =>
+        matchesCategory(info, category) &&
+        matchesSearch(info, normalizedSearchText),
+    );
   }, [category, searchText]);
 
   function renderCategory({ item }: { item: CategoryOption }) {
@@ -170,10 +162,7 @@ export function PhosphorIconPickerContent({
     return (
       <Pressable
         onPress={() => onChange(item.pascalName)}
-        style={[
-          styles.iconCell,
-          isActive ? styles.iconCellActive : null,
-        ]}
+        style={[styles.iconCell, isActive ? styles.iconCellActive : null]}
       >
         <Icon
           color={isActive ? 'primary' : 'text'}
@@ -222,11 +211,11 @@ export function PhosphorIconPickerContent({
         scrollEnabled
         style={styles.grid}
         windowSize={ICON_LIST_WINDOW_SIZE}
-        empty={(
+        empty={
           <Row style={styles.empty} align="center" justify="center">
             <Text color="tertiary">暂无匹配图标</Text>
           </Row>
-        )}
+        }
       />
     </Column>
   );

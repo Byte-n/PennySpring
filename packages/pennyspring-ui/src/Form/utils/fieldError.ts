@@ -21,7 +21,9 @@ export function getErrorMessage(error: unknown): string | undefined {
   return EMPTY_ERROR;
 }
 
-export function getFieldErrorMessage(errors: readonly unknown[]): string | undefined {
+export function getFieldErrorMessage(
+  errors: readonly unknown[],
+): string | undefined {
   for (const error of errors) {
     const message = getErrorMessage(error);
 

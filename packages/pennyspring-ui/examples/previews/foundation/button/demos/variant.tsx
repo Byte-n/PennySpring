@@ -16,7 +16,8 @@ export function ButtonVariantDemo() {
   return (
     <Column gap="normal">
       <Text color="tertiary" size="sm">
-        业务优先用 type；需要同一类型换底时才显式传 variant。text / link 不接受 solid
+        业务优先用 type；需要同一类型换底时才显式传 variant。text / link 不接受
+        solid
       </Text>
       {VARIANTS.map(({ label, value }) => (
         <Space key={value} direction="vertical" gap="small" align="start">

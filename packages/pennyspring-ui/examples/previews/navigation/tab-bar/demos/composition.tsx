@@ -11,13 +11,17 @@ export function TabBarCompositionDemo() {
         defaultValue="home"
         items={[
           {
-            activeIcon: <Icon color="primary" icon="home" size={24} weight="fill" />,
+            activeIcon: (
+              <Icon color="primary" icon="home" size={24} weight="fill" />
+            ),
             icon: <Icon color="tertiary" icon="home" size={24} />,
             value: 'home',
             titleText: '首页',
           },
           {
-            activeIcon: <Icon color="primary" icon="list" size={24} weight="fill" />,
+            activeIcon: (
+              <Icon color="primary" icon="list" size={24} weight="fill" />
+            ),
             icon: <Icon color="tertiary" icon="list" size={24} />,
             value: 'chart',
             titleText: '图表',
@@ -31,9 +35,21 @@ export function TabBarCompositionDemo() {
       <TabBar
         defaultValue="home"
         items={[
-          { activeIcon: <Icon color="primary" icon="home" size={24} weight="fill" />, icon: <Icon color="tertiary" icon="home" size={24} />, value: 'home' },
-          { icon: <Icon color="tertiary" icon="list" size={24} />, value: 'chart' },
-          { icon: <Icon color="tertiary" icon="user" size={24} />, value: 'me' },
+          {
+            activeIcon: (
+              <Icon color="primary" icon="home" size={24} weight="fill" />
+            ),
+            icon: <Icon color="tertiary" icon="home" size={24} />,
+            value: 'home',
+          },
+          {
+            icon: <Icon color="tertiary" icon="list" size={24} />,
+            value: 'chart',
+          },
+          {
+            icon: <Icon color="tertiary" icon="user" size={24} />,
+            value: 'me',
+          },
         ]}
         safeAreaInsetBottom={false}
       />

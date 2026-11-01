@@ -8,11 +8,7 @@ import type {
 } from '@pennyspring/api';
 
 import { useGlobalApi } from '../../stores/bookStore';
-import {
-  addUsage,
-  EMPTY_USAGE,
-  sumUsage,
-} from '../core/messages';
+import { addUsage, EMPTY_USAGE, sumUsage } from '../core/messages';
 import type { TokenUsage } from '../core/types';
 import { rowsToUiMessages } from '../core/uiMessages';
 import { TITLE_MAX_LENGTH } from './copy';
@@ -69,7 +65,9 @@ export function useAgentSession({
   const [threads, setThreads] = useState<AgentThreadRow[]>([]);
   const [threadsLoading, setThreadsLoading] = useState(false);
   const [currentThreadId, setCurrentThreadId] = useState<number | null>(null);
-  const [currentThread, setCurrentThread] = useState<AgentThreadRow | null>(null);
+  const [currentThread, setCurrentThread] = useState<AgentThreadRow | null>(
+    null,
+  );
   const [sessionVersion, setSessionVersion] = useState(0);
   const [initialMessages, setInitialMessages] = useState<UIMessage[]>([]);
 
@@ -169,7 +167,11 @@ export function useAgentSession({
           return;
         }
 
-        if (detail && detail.thread.providerId === 0 && selection.providerId > 0) {
+        if (
+          detail &&
+          detail.thread.providerId === 0 &&
+          selection.providerId > 0
+        ) {
           const thread = await api.agent.updateThreadModel(
             detail.thread.id,
             selection,
@@ -300,10 +302,7 @@ export function useAgentSession({
         if (selection.providerId <= 0) {
           return null;
         }
-        const thread = await api.agent.createThread(
-          book.id,
-          selection,
-        );
+        const thread = await api.agent.createThread(book.id, selection);
         threadIdRef.current = thread.id;
         titleRef.current = thread.title;
         hasMessagesRef.current = false;
@@ -443,9 +442,7 @@ export function useAgentSession({
           setSessionVersion(previous => previous + 1);
           setThreads(previous => previous.filter(item => item.id !== threadId));
         } else {
-          setThreads(previous =>
-            previous.filter(item => item.id !== threadId),
-          );
+          setThreads(previous => previous.filter(item => item.id !== threadId));
         }
       } catch (error) {
         setErrorText(getErrorMessage(error));

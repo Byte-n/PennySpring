@@ -28,9 +28,7 @@ function createConfig(
   };
 }
 
-function createModel(
-  reasoningEffort: AgentReasoningEffort,
-): AgentModelConfig {
+function createModel(reasoningEffort: AgentReasoningEffort): AgentModelConfig {
   return {
     modelId: 'gpt-5',
     contextWindow: 32_768,

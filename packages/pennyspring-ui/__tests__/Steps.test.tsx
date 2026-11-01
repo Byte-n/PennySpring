@@ -211,7 +211,8 @@ describe('Steps', () => {
       );
     });
     const contentNodes = testRenderer!.root.findAll(
-      node => node.props.testID === 'steps-content' && typeof node.type === 'string',
+      node =>
+        node.props.testID === 'steps-content' && typeof node.type === 'string',
     );
     const firstStyle = StyleSheet.flatten(contentNodes[0].props.style);
     const lastStyle = StyleSheet.flatten(contentNodes[1].props.style);

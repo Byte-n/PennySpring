@@ -36,8 +36,10 @@ jest.mock('react-native-reanimated', () => {
     default: {
       View: ReactNative.View,
     },
-    createAnimatedComponent: (Component: React.ComponentType<Record<string, unknown>>) =>
-      (props: Record<string, unknown>) => ReactModule.createElement(Component, props),
+    createAnimatedComponent:
+      (Component: React.ComponentType<Record<string, unknown>>) =>
+      (props: Record<string, unknown>) =>
+        ReactModule.createElement(Component, props),
     interpolate: (value: number) => value,
     useAnimatedStyle: (updater: () => Record<string, unknown>) => updater(),
     useSharedValue: (value: number) => ({ value }),
@@ -45,12 +47,7 @@ jest.mock('react-native-reanimated', () => {
   };
 });
 
-import {
-  Picker,
-  Tabs,
-  Text,
-  type PickerCascaderTab,
-} from '../src';
+import { Picker, Tabs, Text, type PickerCascaderTab } from '../src';
 
 interface RegionData {
   code: string;
@@ -66,8 +63,16 @@ const tabs: Array<PickerCascaderTab<RegionData, 'daily' | 'fixed'>> = [
         value: 'food',
         data: { code: 'daily-food' },
         children: [
-          { labelText: 'Breakfast', value: 'breakfast', data: { code: 'daily-breakfast' } },
-          { labelText: 'Dinner', value: 'dinner', data: { code: 'daily-dinner' } },
+          {
+            labelText: 'Breakfast',
+            value: 'breakfast',
+            data: { code: 'daily-breakfast' },
+          },
+          {
+            labelText: 'Dinner',
+            value: 'dinner',
+            data: { code: 'daily-dinner' },
+          },
         ],
       },
       {
@@ -91,7 +96,11 @@ const tabs: Array<PickerCascaderTab<RegionData, 'daily' | 'fixed'>> = [
         data: { code: 'fixed-home' },
         children: [
           { labelText: 'Rent', value: 'rent', data: { code: 'fixed-rent' } },
-          { labelText: 'Utilities', value: 'utilities', data: { code: 'fixed-utilities' } },
+          {
+            labelText: 'Utilities',
+            value: 'utilities',
+            data: { code: 'fixed-utilities' },
+          },
         ],
       },
     ],
@@ -120,10 +129,12 @@ it('builds columns for the active tab value path', () => {
   expect(tree).toContain('Metro');
 
   expect(
-    testRenderer!.root.findByProps({ testID: 'picker-item-0-1' }).props.selected,
+    testRenderer!.root.findByProps({ testID: 'picker-item-0-1' }).props
+      .selected,
   ).toBe(true);
   expect(
-    testRenderer!.root.findByProps({ testID: 'picker-item-1-0' }).props.selected,
+    testRenderer!.root.findByProps({ testID: 'picker-item-1-0' }).props
+      .selected,
   ).toBe(true);
 });
 
@@ -146,7 +157,9 @@ it('switches between tabs and keeps each tab value independent', () => {
   });
 
   act(() => {
-    testRenderer!.root.findByProps({ testID: 'tabs-item-fixed' }).props.onPress();
+    testRenderer!.root
+      .findByProps({ testID: 'tabs-item-fixed' })
+      .props.onPress();
   });
 
   const tabsComponent = testRenderer!.root.findByType(Tabs);
@@ -157,7 +170,9 @@ it('switches between tabs and keeps each tab value independent', () => {
   expect(tree).toContain('Rent');
 
   act(() => {
-    testRenderer!.root.findByProps({ testID: 'picker-item-1-1' }).props.onPress();
+    testRenderer!.root
+      .findByProps({ testID: 'picker-item-1-1' })
+      .props.onPress();
   });
 
   expect(onChange).toHaveBeenCalledTimes(1);
@@ -168,10 +183,11 @@ it('switches between tabs and keeps each tab value independent', () => {
   });
   expect(params.tabKey).toBe('fixed');
   expect(params.tabIndex).toBe(1);
-  expect(params.path.map((it: PickerCascaderTab<RegionData>['options'][number]) => it.value)).toEqual([
-    'home',
-    'utilities',
-  ]);
+  expect(
+    params.path.map(
+      (it: PickerCascaderTab<RegionData>['options'][number]) => it.value,
+    ),
+  ).toEqual(['home', 'utilities']);
 });
 
 it('updates only the active tab when a picker column changes', () => {
@@ -193,7 +209,9 @@ it('updates only the active tab when a picker column changes', () => {
   });
 
   act(() => {
-    testRenderer!.root.findByProps({ testID: 'picker-item-0-0' }).props.onPress();
+    testRenderer!.root
+      .findByProps({ testID: 'picker-item-0-0' })
+      .props.onPress();
   });
 
   expect(onChange).toHaveBeenCalledTimes(1);
@@ -205,10 +223,12 @@ it('updates only the active tab when a picker column changes', () => {
   expect(params.tabKey).toBe('daily');
   expect(params.tabIndex).toBe(0);
   expect(params.columnIndex).toBe(0);
-  expect(params.items.map((it: PickerCascaderTab<RegionData>['options'][number] | undefined) => it?.value)).toEqual([
-    'food',
-    'breakfast',
-  ]);
+  expect(
+    params.items.map(
+      (it: PickerCascaderTab<RegionData>['options'][number] | undefined) =>
+        it?.value,
+    ),
+  ).toEqual(['food', 'breakfast']);
 });
 
 it('calls onOk with the full record and current tab details', () => {
@@ -230,7 +250,9 @@ it('calls onOk with the full record and current tab details', () => {
   });
 
   act(() => {
-    testRenderer!.root.findByProps({ testID: 'picker-ok-button' }).props.onPress();
+    testRenderer!.root
+      .findByProps({ testID: 'picker-ok-button' })
+      .props.onPress();
   });
 
   expect(onOk).toHaveBeenCalledTimes(1);
@@ -241,10 +263,11 @@ it('calls onOk with the full record and current tab details', () => {
   });
   expect(okParams.tabKey).toBe('daily');
   expect(okParams.tabIndex).toBe(0);
-  expect(okParams.path.map((it: PickerCascaderTab<RegionData>['options'][number]) => it.value)).toEqual([
-    'traffic',
-    'metro',
-  ]);
+  expect(
+    okParams.path.map(
+      (it: PickerCascaderTab<RegionData>['options'][number]) => it.value,
+    ),
+  ).toEqual(['traffic', 'metro']);
 });
 
 it('passes through onCancel and onOpenChange', () => {
@@ -268,7 +291,9 @@ it('passes through onCancel and onOpenChange', () => {
   });
 
   act(() => {
-    testRenderer!.root.findByProps({ testID: 'picker-cancel-button' }).props.onPress();
+    testRenderer!.root
+      .findByProps({ testID: 'picker-cancel-button' })
+      .props.onPress();
   });
 
   expect(onCancel).toHaveBeenCalledWith({ reason: 'cancel' });
@@ -300,7 +325,9 @@ it('uses renderLabel with the original option from the active tab', () => {
     testRenderer = renderer.create(
       <Picker.Cascader<RegionData, 'daily' | 'fixed'>
         defaultOpen
-        renderLabel={option => <Text>{`node-${option.data?.code ?? 'x'}`}</Text>}
+        renderLabel={option => (
+          <Text>{`node-${option.data?.code ?? 'x'}`}</Text>
+        )}
         tabs={tabs}
         value={{
           daily: ['traffic'],
@@ -332,10 +359,12 @@ it('truncates invalid values within the active tab', () => {
   });
 
   expect(
-    testRenderer!.root.findByProps({ testID: 'picker-item-0-1' }).props.selected,
+    testRenderer!.root.findByProps({ testID: 'picker-item-0-1' }).props
+      .selected,
   ).toBe(true);
   expect(
-    testRenderer!.root.findByProps({ testID: 'picker-item-1-0' }).props.selected,
+    testRenderer!.root.findByProps({ testID: 'picker-item-1-0' }).props
+      .selected,
   ).toBe(false);
   expect(() =>
     testRenderer!.root.findByProps({ testID: 'picker-item-2-0' }),
@@ -370,11 +399,7 @@ it('prevents opening when readonly is true', () => {
 
   act(() => {
     testRenderer = renderer.create(
-      <Picker.Cascader
-        onOpenChange={onOpenChange}
-        readonly
-        tabs={tabs}
-      />,
+      <Picker.Cascader onOpenChange={onOpenChange} readonly tabs={tabs} />,
     );
   });
 
@@ -384,7 +409,9 @@ it('prevents opening when readonly is true', () => {
   });
 
   expect(onOpenChange).not.toHaveBeenCalledWith(true, { reason: 'trigger' });
-  expect(() => testRenderer!.root.findByProps({ testID: 'picker-popup-mask' })).toThrow();
+  expect(() =>
+    testRenderer!.root.findByProps({ testID: 'picker-popup-mask' }),
+  ).toThrow();
 });
 
 it('passes size through to the picker body', () => {

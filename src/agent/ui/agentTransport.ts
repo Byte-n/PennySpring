@@ -172,9 +172,7 @@ export function createAgentTransport(
       if (threadId === null) {
         throw new Error(AGENT_NOT_CONFIGURED_MESSAGE);
       }
-      const threadDetail = await options.api.agent.getThreadDetail(
-        threadId,
-      );
+      const threadDetail = await options.api.agent.getThreadDetail(threadId);
       const providerId = threadDetail.thread.providerId;
       if (providerId <= 0) {
         throw new Error(AGENT_NO_MODEL_MESSAGE);
@@ -203,7 +201,9 @@ export function createAgentTransport(
 
       const supportsImages = isMultimodalModel(model);
       const userMessage =
-        trigger === 'submit-message' ? messages[messages.length - 1] : undefined;
+        trigger === 'submit-message'
+          ? messages[messages.length - 1]
+          : undefined;
       if (
         userMessage?.role === 'user' &&
         !supportsImages &&
@@ -235,8 +235,7 @@ export function createAgentTransport(
       if (trigger === 'submit-message' && userMessage?.role === 'user') {
         const text = stripAttachmentCaptions(getUiMessageText(userMessage));
         const title =
-          text ||
-          (hasUiMessageImages(userMessage) ? IMAGE_MESSAGE_TITLE : '');
+          text || (hasUiMessageImages(userMessage) ? IMAGE_MESSAGE_TITLE : '');
         if (title) {
           await options.ensureTitle(title);
         }

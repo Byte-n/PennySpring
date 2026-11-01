@@ -14,16 +14,20 @@ function renderGrid(element: React.ReactElement) {
 describe('Grid', () => {
   it('renders pressable items only when onPress is provided', () => {
     const handlePress = jest.fn();
-    const testRenderer = renderGrid(<Grid columns={2}>
+    const testRenderer = renderGrid(
+      <Grid columns={2}>
         <Grid.Item onPress={handlePress}>
           <Text>Clickable</Text>
         </Grid.Item>
         <Grid.Item>
           <Text>Static</Text>
         </Grid.Item>
-      </Grid>);
+      </Grid>,
+    );
     const pressableNodes = testRenderer.root.findAll(node => {
-      return node.props.testID === 'grid-item' && node.props.onPress !== undefined;
+      return (
+        node.props.testID === 'grid-item' && node.props.onPress !== undefined
+      );
     });
     expect(pressableNodes).toHaveLength(1);
     act(() => {

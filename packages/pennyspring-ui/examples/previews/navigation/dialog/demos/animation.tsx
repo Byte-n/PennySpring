@@ -8,12 +8,8 @@ export function DialogAnimationDemo() {
   return (
     <Column gap="normal">
       <Row gap="small">
-        <Button onPress={() => setFadeOpen(true)}>
-          Fade 动画
-        </Button>
-        <Button onPress={() => setOpacityOpen(true)}>
-          Opacity 动画
-        </Button>
+        <Button onPress={() => setFadeOpen(true)}>Fade 动画</Button>
+        <Button onPress={() => setOpacityOpen(true)}>Opacity 动画</Button>
       </Row>
 
       <Dialog

@@ -24,13 +24,16 @@ export function CheckboxSlotsDemo() {
   return (
     <Column gap="normal">
       <Text color="tertiary" size="sm">
-        children 支持字符串 / 数字 / 自定义节点；字符串自动套 Text，自定义节点自带内部间距
+        children 支持字符串 / 数字 / 自定义节点；字符串自动套
+        Text，自定义节点自带内部间距
       </Text>
       <Checkbox defaultValue>保存记录</Checkbox>
       <Checkbox defaultValue>
         <Row gap="small">
           <Text>保存记录</Text>
-          <Text color="tertiary" size="sm">默认账本</Text>
+          <Text color="tertiary" size="sm">
+            默认账本
+          </Text>
         </Row>
       </Checkbox>
       <Text color="tertiary" size="sm">

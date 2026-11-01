@@ -72,7 +72,8 @@ export function DialogControlledDemo() {
         onOk={() => setLastEvent('Controlled confirmed')}
       >
         <Text color="secondary">
-          受控 Dialog 通过 open 与 onOpenChange 双向绑定，按钮高亮态与弹窗开关同步。
+          受控 Dialog 通过 open 与 onOpenChange
+          双向绑定，按钮高亮态与弹窗开关同步。
         </Text>
       </Dialog>
       <Dialog
@@ -90,7 +91,8 @@ export function DialogControlledDemo() {
         onOk={() => setLastEvent('Mask locked confirmed')}
       >
         <Text color="secondary">
-          closeOnMaskClick 为 false 时遮罩可见但点击不关闭，需通过按钮或硬件返回键关闭。
+          closeOnMaskClick 为 false
+          时遮罩可见但点击不关闭，需通过按钮或硬件返回键关闭。
         </Text>
       </Dialog>
     </>

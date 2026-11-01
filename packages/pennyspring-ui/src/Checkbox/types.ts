@@ -18,8 +18,10 @@ export interface CheckboxStyles {
   label?: StyleProp<TextStyle>;
 }
 
-export interface CheckboxProps
-  extends Omit<PressableProps, 'style' | 'children' | 'disabled' | 'onPress'> {
+export interface CheckboxProps extends Omit<
+  PressableProps,
+  'style' | 'children' | 'disabled' | 'onPress'
+> {
   value?: boolean;
   defaultValue?: boolean;
   onChange?: (value: boolean) => void;
@@ -48,8 +50,10 @@ export interface CheckboxGroupStyles {
   label?: StyleProp<TextStyle>;
 }
 
-export interface CheckboxGroupProps
-  extends Omit<PressableProps, 'style' | 'children' | 'disabled' | 'onPress'> {
+export interface CheckboxGroupProps extends Omit<
+  PressableProps,
+  'style' | 'children' | 'disabled' | 'onPress'
+> {
   value?: CheckboxValue[];
   defaultValue?: CheckboxValue[];
   onChange?: (value: CheckboxValue[]) => void;

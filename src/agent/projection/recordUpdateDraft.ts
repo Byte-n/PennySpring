@@ -271,12 +271,12 @@ export function resolveUpdateRecordInput(
       date: input.date ?? recordDate.format('YYYY-MM-DD'),
       time: input.time ?? recordDate.format('HH:mm'),
       remark: input.remark ?? record.remark,
-      tagIds: input.tagIds !== undefined ? [...input.tagIds] : [...context.tagIds],
+      tagIds:
+        input.tagIds !== undefined ? [...input.tagIds] : [...context.tagIds],
       charge: input.charge ?? record.charge / CENTS_PER_YUAN,
       assetId: mergeOptionalId(input.assetId, record.assetId),
       reimbursable:
-        input.reimbursable ??
-        record.reimbursable === REIMBURSABLE.reimbursable,
+        input.reimbursable ?? record.reimbursable === REIMBURSABLE.reimbursable,
     };
 
     if (targetType?.typeCategory === RECORD_TYPE_CATEGORY.transfer) {

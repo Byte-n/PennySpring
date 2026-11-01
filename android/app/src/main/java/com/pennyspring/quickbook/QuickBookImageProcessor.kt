@@ -33,10 +33,11 @@ object QuickBookImageProcessor {
             }
 
             val directory = File(context.filesDir, OUTPUT_DIR).apply { mkdirs() }
-            val file = File(
-                directory,
-                "quick_book_${System.currentTimeMillis()}_${UUID.randomUUID().toString().take(8)}.jpg",
-            )
+            val file =
+                File(
+                    directory,
+                    "quick_book_${System.currentTimeMillis()}_${UUID.randomUUID().toString().take(8)}.jpg",
+                )
             FileOutputStream(file).use { output ->
                 scaled.compress(
                     Bitmap.CompressFormat.JPEG,
@@ -45,15 +46,16 @@ object QuickBookImageProcessor {
                 )
             }
             val bytes = file.readBytes()
-            val result = Arguments.createMap().apply {
-                putString("localPath", Uri.fromFile(file).toString())
-                putString("base64", Base64.encodeToString(bytes, Base64.NO_WRAP))
-                putString("mimeType", JPEG_MIME)
-                putString("fileName", file.name)
-                putDouble("fileSize", bytes.size.toDouble())
-                putDouble("width", scaled.width.toDouble())
-                putDouble("height", scaled.height.toDouble())
-            }
+            val result =
+                Arguments.createMap().apply {
+                    putString("localPath", Uri.fromFile(file).toString())
+                    putString("base64", Base64.encodeToString(bytes, Base64.NO_WRAP))
+                    putString("mimeType", JPEG_MIME)
+                    putString("fileName", file.name)
+                    putDouble("fileSize", bytes.size.toDouble())
+                    putDouble("width", scaled.width.toDouble())
+                    putDouble("height", scaled.height.toDouble())
+                }
             scaled.recycle()
             result
         } catch (_: Exception) {
@@ -61,10 +63,15 @@ object QuickBookImageProcessor {
         }
     }
 
-    private fun decode(context: Context, uri: Uri, maxEdge: Int): Bitmap? {
+    private fun decode(
+        context: Context,
+        uri: Uri,
+        maxEdge: Int,
+    ): Bitmap? {
         val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
-        val boundsStream = context.contentResolver.openInputStream(uri)
-            ?: return null
+        val boundsStream =
+            context.contentResolver.openInputStream(uri)
+                ?: return null
         boundsStream.use { stream ->
             BitmapFactory.decodeStream(stream, null, bounds)
         }
@@ -73,11 +80,13 @@ object QuickBookImageProcessor {
             return null
         }
 
-        val options = BitmapFactory.Options().apply {
-            inSampleSize = calculateInSampleSize(bounds.outWidth, bounds.outHeight, maxEdge)
-        }
-        val imageStream = context.contentResolver.openInputStream(uri)
-            ?: return null
+        val options =
+            BitmapFactory.Options().apply {
+                inSampleSize = calculateInSampleSize(bounds.outWidth, bounds.outHeight, maxEdge)
+            }
+        val imageStream =
+            context.contentResolver.openInputStream(uri)
+                ?: return null
         return imageStream.use { stream ->
             BitmapFactory.decodeStream(stream, null, options)
         }
@@ -99,7 +108,10 @@ object QuickBookImageProcessor {
         return sampleSize
     }
 
-    private fun scaleToMaxEdge(bitmap: Bitmap, maxEdge: Int): Bitmap {
+    private fun scaleToMaxEdge(
+        bitmap: Bitmap,
+        maxEdge: Int,
+    ): Bitmap {
         val longestEdge = maxOf(bitmap.width, bitmap.height)
         if (longestEdge <= maxEdge) {
             return bitmap

@@ -13,18 +13,15 @@ export function useAddRecordResources() {
     loading: assetsLoading,
     refresh: refreshAssets,
   } = useRequest(
-    () => currentBook
-      ? globalApi.asset.getByBook(currentBook.id)
-      : Promise.resolve([]),
+    () =>
+      currentBook
+        ? globalApi.asset.getByBook(currentBook.id)
+        : Promise.resolve([]),
     { refreshDeps: [currentBook?.id] },
   );
-  const {
-    data: tags = [],
-    loading: tagsLoading,
-  } = useRequest(
-    () => currentBook
-      ? globalApi.tag.getAll(currentBook.id)
-      : Promise.resolve([]),
+  const { data: tags = [], loading: tagsLoading } = useRequest(
+    () =>
+      currentBook ? globalApi.tag.getAll(currentBook.id) : Promise.resolve([]),
     { refreshDeps: [currentBook?.id] },
   );
 

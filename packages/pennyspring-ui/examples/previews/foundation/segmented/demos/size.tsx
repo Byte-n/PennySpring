@@ -45,7 +45,9 @@ export function SegmentedSizeDemo() {
     <Column gap="normal">
       {SIZE_SAMPLES.map(sample => (
         <Column key={sample.size} gap="small">
-          <Text color="tertiary" size="sm">{sample.hint}</Text>
+          <Text color="tertiary" size="sm">
+            {sample.hint}
+          </Text>
           <Segmented
             defaultValue={sample.value}
             options={sample.options}
@@ -54,7 +56,8 @@ export function SegmentedSizeDemo() {
         </Column>
       ))}
       <Text color="tertiary" size="sm">
-        轨道高度取 controlHeightSM / controlHeight / controlHeightLG；选中块为白底 + boxShadowTertiary，不使用主色
+        轨道高度取 controlHeightSM / controlHeight /
+        controlHeightLG；选中块为白底 + boxShadowTertiary，不使用主色
       </Text>
     </Column>
   );

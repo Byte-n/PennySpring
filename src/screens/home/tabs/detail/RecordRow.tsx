@@ -29,8 +29,8 @@ const useStyles = createUseSheetStyle(
       backgroundColor: isIncome
         ? token.colorSuccessBg
         : isTransfer
-        ? token.colorPrimaryBg
-        : token.colorFillTertiary,
+          ? token.colorPrimaryBg
+          : token.colorFillTertiary,
     },
     assetName: {
       maxWidth: token.sizeXXL * 2,
@@ -69,8 +69,8 @@ export function RecordRow({ view, onPress, hidden = false }: RecordRowProps) {
                 isIncome
                   ? token.colorSuccess
                   : isTransfer
-                  ? token.colorPrimary
-                  : token.colorTextSecondary
+                    ? token.colorPrimary
+                    : token.colorTextSecondary
               }
               size={token.fontSizeLG}
             />
@@ -109,8 +109,8 @@ export function RecordRow({ view, onPress, hidden = false }: RecordRowProps) {
                 {view.category === 'income'
                   ? '+'
                   : view.category === 'expense'
-                  ? '-'
-                  : ''}
+                    ? '-'
+                    : ''}
                 {parts.integer}
                 <Text
                   size="sm"

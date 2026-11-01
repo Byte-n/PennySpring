@@ -6,9 +6,7 @@ import { Row } from '../Row';
 import { Text } from '../Text';
 import { AvatarRoot, AVATAR_SIZE_CONFIG } from './Avatar';
 import type { StyleProp, ViewStyle } from 'react-native';
-import type { AvatarGroupProps,
-  AvatarShape,
-} from './types';
+import type { AvatarGroupProps, AvatarShape } from './types';
 
 const DEFAULT_MAX_COUNT = 3;
 const PILL_RADIUS = 999;
@@ -94,7 +92,9 @@ function resolveAvatarGroupSize(size?: ComponentSize): ComponentSize {
   return size ?? 'normal';
 }
 
-export function resolveAvatarGroupMaxCount(maxCount: number | undefined): number {
+export function resolveAvatarGroupMaxCount(
+  maxCount: number | undefined,
+): number {
   if (
     maxCount === undefined ||
     !Number.isFinite(maxCount) ||

@@ -175,10 +175,10 @@ function renderInfo({
   const content = format?.(percent) ?? defaultFormat(percent);
 
   if (
-    typeof content === 'string'
-    || typeof content === 'number'
-    || content === null
-    || content === undefined
+    typeof content === 'string' ||
+    typeof content === 'number' ||
+    content === null ||
+    content === undefined
   ) {
     return (
       <Text color={color} size={size} style={style}>
@@ -224,7 +224,10 @@ const useBarStyles = createUseSheetStyle(
 );
 
 const useCircleStyles = createUseSheetStyle(
-  (token, { size, status, leftRotation, rightRotation }: CircleStyleOptions) => {
+  (
+    token,
+    { size, status, leftRotation, rightRotation }: CircleStyleOptions,
+  ) => {
     const sizeConfig = SIZE_STYLE_MAP[size];
     const dimension = sizeConfig.circleSize;
     const radius = dimension / 2;
@@ -305,7 +308,7 @@ export function ProgressBar({
   const resolvedStatus = resolveStatus(status);
   const normalizedPercent = clampPercent(percent);
   const [trackWidth, setTrackWidth] = React.useState(0);
-  const indicatorWidth = trackWidth * normalizedPercent / FULL_PERCENT;
+  const indicatorWidth = (trackWidth * normalizedPercent) / FULL_PERCENT;
   const sizeConfig = SIZE_STYLE_MAP[resolvedSize];
   const tokenStyles = useBarStyles({
     indicatorWidth,
@@ -321,12 +324,7 @@ export function ProgressBar({
         }}
         style={[tokenStyles.barTrack, styles?.track]}
       >
-        <View
-          style={[
-            tokenStyles.barIndicator,
-            styles?.indicator,
-          ]}
-        />
+        <View style={[tokenStyles.barIndicator, styles?.indicator]} />
       </View>
       {renderInfo({
         color: resolveInfoColor(resolvedStatus),

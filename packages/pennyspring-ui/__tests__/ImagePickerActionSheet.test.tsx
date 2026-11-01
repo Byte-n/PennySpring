@@ -28,7 +28,10 @@ function renderActionSheet(
 
   act(() => {
     testRenderer = renderer.create(
-      <ImagePicker.ActionSheet open {...(props as ImagePickerActionSheetProps)} />,
+      <ImagePicker.ActionSheet
+        open
+        {...(props as ImagePickerActionSheetProps)}
+      />,
     );
   });
 

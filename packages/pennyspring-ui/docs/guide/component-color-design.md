@@ -39,24 +39,22 @@
 import type { AliasColorTokenKey, PresetColorKey } from '@pennyspring/ui';
 
 export type SemanticPresetColor<TSemantic extends string> =
-  | TSemantic
-  | PresetColorKey;
+  TSemantic | PresetColorKey;
 
 export type SemanticAliasColor<TSemantic extends string> =
-  | TSemantic
-  | AliasColorTokenKey;
+  TSemantic | AliasColorTokenKey;
 ```
 
 ### 类型边界
 
-| 组件 | `color` 范围 | 解析方式 |
-|---|---|---|
-| `Badge` | 语义色 + `PresetColorKey` | 语义色与 preset 都映射为 Badge 内部颜色配置 |
-| `Tag` | 语义色 + `PresetColorKey` | 语义色与 preset 都映射为 Tag 内部颜色配置 |
-| `Button` | 语义色 + `PresetColorKey` | 语义色与 preset 都映射为 Button 内部颜色配置 |
-| `SwipeActionAction` | 语义色 + `PresetColorKey` | 语义色与 preset 都映射为 SwipeAction action 内部颜色配置 |
-| `Text` | 语义色 + `AliasColorTokenKey` | 语义色映射为文本 token，alias token key 直接解析为 token 值 |
-| `Icon` | 语义色 + `AliasColorTokenKey` | 语义色映射为图标 token，alias token key 直接解析为 token 值 |
+| 组件                | `color` 范围                  | 解析方式                                                    |
+| ------------------- | ----------------------------- | ----------------------------------------------------------- |
+| `Badge`             | 语义色 + `PresetColorKey`     | 语义色与 preset 都映射为 Badge 内部颜色配置                 |
+| `Tag`               | 语义色 + `PresetColorKey`     | 语义色与 preset 都映射为 Tag 内部颜色配置                   |
+| `Button`            | 语义色 + `PresetColorKey`     | 语义色与 preset 都映射为 Button 内部颜色配置                |
+| `SwipeActionAction` | 语义色 + `PresetColorKey`     | 语义色与 preset 都映射为 SwipeAction action 内部颜色配置    |
+| `Text`              | 语义色 + `AliasColorTokenKey` | 语义色映射为文本 token，alias token key 直接解析为 token 值 |
+| `Icon`              | 语义色 + `AliasColorTokenKey` | 语义色映射为图标 token，alias token key 直接解析为 token 值 |
 
 ## Badge / Tag / Button / SwipeActionAction 类型
 
@@ -80,12 +78,7 @@ export type ButtonColor = ButtonSemanticColor | PresetColorKey;
 import type { PresetColorKey } from '@pennyspring/ui';
 
 export type TagSemanticColor =
-  | 'default'
-  | 'primary'
-  | 'success'
-  | 'warning'
-  | 'danger'
-  | 'info';
+  'default' | 'primary' | 'success' | 'warning' | 'danger' | 'info';
 
 export type TagColor = TagSemanticColor | PresetColorKey;
 ```
@@ -97,12 +90,7 @@ export type TagColor = TagSemanticColor | PresetColorKey;
 import type { PresetColorKey } from '@pennyspring/ui';
 
 export type BadgeSemanticColor =
-  | 'default'
-  | 'primary'
-  | 'success'
-  | 'warning'
-  | 'danger'
-  | 'info';
+  'default' | 'primary' | 'success' | 'warning' | 'danger' | 'info';
 
 export type BadgeColor = BadgeSemanticColor | PresetColorKey;
 ```
@@ -114,12 +102,7 @@ export type BadgeColor = BadgeSemanticColor | PresetColorKey;
 import type { PresetColorKey } from '@pennyspring/ui';
 
 export type SwipeActionSemanticColor =
-  | 'light'
-  | 'weak'
-  | 'primary'
-  | 'success'
-  | 'warning'
-  | 'danger';
+  'light' | 'weak' | 'primary' | 'success' | 'warning' | 'danger';
 
 export type SwipeActionColor = SwipeActionSemanticColor | PresetColorKey;
 

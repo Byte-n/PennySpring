@@ -30,7 +30,12 @@ function createBook(overrides: Partial<BookRow> = {}): BookRow {
 
 function createMedia(save: jest.Mock, booksId = 10): MediaStore {
   return {
-    scope: { kind: 'remote', booksId, serverUrl: SERVER_URL, token: SERVER_TOKEN },
+    scope: {
+      kind: 'remote',
+      booksId,
+      serverUrl: SERVER_URL,
+      token: SERVER_TOKEN,
+    },
     save,
     resolveSource: (ref: string) => ({ uri: ref }),
     toRef: (uri: string) => uri,

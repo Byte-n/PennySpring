@@ -1,41 +1,47 @@
-import { stdout as output } from 'node:process'
-import React, { useEffect, useState } from 'react'
-import { Box, Text, useInput, useStdin } from 'ink'
-import { BRAND_GRADIENT, UI_COLORS } from './theme'
-import { useSyncStatus } from './SyncStatusContext'
+import { stdout as output } from 'node:process';
+import React, { useEffect, useState } from 'react';
+import { Box, Text, useInput, useStdin } from 'ink';
+import { BRAND_GRADIENT, UI_COLORS } from './theme';
+import { useSyncStatus } from './SyncStatusContext';
 
 interface GradientTextProps {
-  children?: React.ReactNode
-  bold?: boolean
+  children?: React.ReactNode;
+  bold?: boolean;
 }
 
 export interface PromptFrameProps {
-  title: string
-  hint?: string
-  error?: string | null
-  message?: string
-  syncStatus?: string
-  children?: React.ReactNode
+  title: string;
+  hint?: string;
+  error?: string | null;
+  message?: string;
+  syncStatus?: string;
+  children?: React.ReactNode;
 }
 
-export interface TextFieldProps extends Omit<PromptFrameProps, 'children' | 'message'> {
-  initialValue?: string
-  password?: boolean
-  validate?: (value: string) => string | void
-  onSubmit: (value: string) => void
-  onCancel?: () => void
+export interface TextFieldProps extends Omit<
+  PromptFrameProps,
+  'children' | 'message'
+> {
+  initialValue?: string;
+  password?: boolean;
+  validate?: (value: string) => string | void;
+  onSubmit: (value: string) => void;
+  onCancel?: () => void;
 }
 
 function getPromptFrameWidth(): number | undefined {
   if (!output.isTTY || !output.columns) {
-    return undefined
+    return undefined;
   }
 
-  return Math.max(40, output.columns - 2)
+  return Math.max(40, output.columns - 2);
 }
 
-function GradientText({ children, bold = false }: GradientTextProps): React.ReactElement {
-  let visibleIndex = 0
+function GradientText({
+  children,
+  bold = false,
+}: GradientTextProps): React.ReactElement {
+  let visibleIndex = 0;
 
   return (
     <Text>
@@ -43,23 +49,27 @@ function GradientText({ children, bold = false }: GradientTextProps): React.Reac
         .split('')
         .map((character, index) => {
           if (character === ' ') {
-            return <Text key={index}>{character}</Text>
+            return <Text key={index}>{character}</Text>;
           }
 
-          const color = BRAND_GRADIENT[visibleIndex % BRAND_GRADIENT.length]
-          visibleIndex += 1
+          const color = BRAND_GRADIENT[visibleIndex % BRAND_GRADIENT.length];
+          visibleIndex += 1;
 
           return (
             <Text key={index} color={color} bold={bold}>
               {character}
             </Text>
-          )
+          );
         })}
     </Text>
-  )
+  );
 }
 
-function BrandHeader({ syncStatus }: { syncStatus?: string }): React.ReactElement {
+function BrandHeader({
+  syncStatus,
+}: {
+  syncStatus?: string;
+}): React.ReactElement {
   return (
     <Box flexDirection="column">
       <Box gap={1}>
@@ -71,7 +81,7 @@ function BrandHeader({ syncStatus }: { syncStatus?: string }): React.ReactElemen
       </Box>
       {syncStatus ? <Text color={UI_COLORS.success}>{syncStatus}</Text> : null}
     </Box>
-  )
+  );
 }
 
 export function PromptFrame({
@@ -82,8 +92,8 @@ export function PromptFrame({
   syncStatus,
   children,
 }: PromptFrameProps): React.ReactElement {
-  const contextStatus = useSyncStatus()
-  const status = syncStatus ?? contextStatus
+  const contextStatus = useSyncStatus();
+  const status = syncStatus ?? contextStatus;
   return (
     <Box
       flexDirection="column"
@@ -113,7 +123,7 @@ export function PromptFrame({
         </Box>
       ) : null}
     </Box>
-  )
+  );
 }
 
 function TextInputFrame({
@@ -121,12 +131,12 @@ function TextInputFrame({
   password,
   hasError,
 }: {
-  value: string
-  password: boolean
-  hasError: boolean
+  value: string;
+  password: boolean;
+  hasError: boolean;
 }): React.ReactElement {
-  const displayValue = password ? '*'.repeat(value.length) : value
-  const placeholder = password ? '请输入密码' : '请输入内容'
+  const displayValue = password ? '*'.repeat(value.length) : value;
+  const placeholder = password ? '请输入密码' : '请输入内容';
 
   return (
     <Box
@@ -143,9 +153,11 @@ function TextInputFrame({
       ) : (
         <Text color={UI_COLORS.muted}>{placeholder}</Text>
       )}
-      <Text color={hasError ? UI_COLORS.error : UI_COLORS.primaryStrong}>_</Text>
+      <Text color={hasError ? UI_COLORS.error : UI_COLORS.primaryStrong}>
+        _
+      </Text>
     </Box>
-  )
+  );
 }
 
 export function TextField({
@@ -158,62 +170,66 @@ export function TextField({
   onSubmit,
   onCancel,
 }: TextFieldProps): React.ReactElement {
-  const [value, setValue] = useState(initialValue)
-  const [error, setError] = useState<string | null>(null)
-  const displayError = error ?? externalError
-  const { stdin, setRawMode } = useStdin()
+  const [value, setValue] = useState(initialValue);
+  const [error, setError] = useState<string | null>(null);
+  const displayError = error ?? externalError;
+  const { stdin, setRawMode } = useStdin();
 
   useEffect(() => {
-    setValue(initialValue)
-    setError(null)
-  }, [initialValue, title])
+    setValue(initialValue);
+    setError(null);
+  }, [initialValue, title]);
 
   useEffect(() => {
     if (!stdin) {
-      return undefined
+      return undefined;
     }
 
-    setRawMode(true)
+    setRawMode(true);
     return () => {
-      setRawMode(false)
-    }
-  }, [stdin, setRawMode])
+      setRawMode(false);
+    };
+  }, [stdin, setRawMode]);
 
   useInput(
     (inputValue, key) => {
       if (key.escape) {
-        onCancel?.()
-        return
+        onCancel?.();
+        return;
       }
 
       if (key.return) {
-        const nextError = validate?.(value)
+        const nextError = validate?.(value);
         if (nextError) {
-          setError(nextError)
-          return
+          setError(nextError);
+          return;
         }
 
-        onSubmit(value)
-        return
+        onSubmit(value);
+        return;
       }
 
       if (key.backspace || key.delete) {
-        setValue(current => current.slice(0, -1))
-        setError(null)
-        return
+        setValue(current => current.slice(0, -1));
+        setError(null);
+        return;
       }
 
       if (inputValue && !key.ctrl && !key.meta && inputValue.length === 1) {
-        setValue(current => `${current}${inputValue}`)
-        setError(null)
+        setValue(current => `${current}${inputValue}`);
+        setError(null);
       }
     },
     { isActive: true },
-  )
+  );
 
   return (
     <PromptFrame title={title} hint={hint} error={displayError}>
-      <TextInputFrame value={value} password={password} hasError={Boolean(displayError)} />
+      <TextInputFrame
+        value={value}
+        password={password}
+        hasError={Boolean(displayError)}
+      />
     </PromptFrame>
-  )
+  );
 }

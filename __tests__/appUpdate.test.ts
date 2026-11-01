@@ -6,11 +6,14 @@ import {
   selectUpdateApk,
 } from '../src/features/appUpdate/update';
 
-function createAssets(versionName: string, digests = {
-  universal: 'a'.repeat(64),
-  arm64: 'b'.repeat(64),
-  armv7: 'c'.repeat(64),
-}) {
+function createAssets(
+  versionName: string,
+  digests = {
+    universal: 'a'.repeat(64),
+    arm64: 'b'.repeat(64),
+    armv7: 'c'.repeat(64),
+  },
+) {
   const createAsset = (suffix: string, size: number, digest: string) => ({
     name: `PennySpring-${versionName}${suffix}.apk`,
     size,
@@ -24,7 +27,10 @@ function createAssets(versionName: string, digests = {
   ];
 }
 
-function createRelease(versionName: string, overrides: Record<string, unknown> = {}) {
+function createRelease(
+  versionName: string,
+  overrides: Record<string, unknown> = {},
+) {
   return {
     tag_name: `v${versionName}`,
     name: `v${versionName}`,
@@ -112,7 +118,10 @@ describe('app update metadata', () => {
         createRelease('0.0.5', {
           assets: assets.map(asset =>
             asset.name.includes('arm64-v8a')
-              ? { ...asset, browser_download_url: 'https://example.com/update.apk' }
+              ? {
+                  ...asset,
+                  browser_download_url: 'https://example.com/update.apk',
+                }
               : asset,
           ),
         }),
@@ -123,7 +132,9 @@ describe('app update metadata', () => {
   it('selects the first supported ABI package and falls back to the universal package', () => {
     const release = parseGitHubReleases([createRelease('0.0.5')])[0];
 
-    expect(selectUpdateApk(release, ['armeabi-v7a', 'arm64-v8a']).size).toBe(120);
+    expect(selectUpdateApk(release, ['armeabi-v7a', 'arm64-v8a']).size).toBe(
+      120,
+    );
     expect(selectUpdateApk(release, ['x86_64']).size).toBe(300);
   });
 
@@ -148,7 +159,11 @@ describe('app update metadata', () => {
         'https://github.com/Byte-n/PennySpring/releases/download/v0.0.5/PennySpring-0.0.5.apk',
       ),
     ).toBe(true);
-    expect(isTrustedApkUrl('http://github.com/Byte-n/PennySpring/update.apk')).toBe(false);
-    expect(isTrustedApkUrl('https://release-assets.githubusercontent.com/file.apk')).toBe(false);
+    expect(
+      isTrustedApkUrl('http://github.com/Byte-n/PennySpring/update.apk'),
+    ).toBe(false);
+    expect(
+      isTrustedApkUrl('https://release-assets.githubusercontent.com/file.apk'),
+    ).toBe(false);
   });
 });

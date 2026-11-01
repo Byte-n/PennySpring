@@ -69,8 +69,7 @@ function ImagePickerRoot({
   const field = useFieldProps<ImagePickerSelectedValue | undefined>({
     value: value as ImagePickerSelectedValue | undefined,
     onChange: onChange as
-      | ((nextValue: ImagePickerSelectedValue | undefined) => void)
-      | undefined,
+      ((nextValue: ImagePickerSelectedValue | undefined) => void) | undefined,
     label,
     labelText,
     disabled,

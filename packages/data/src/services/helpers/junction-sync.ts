@@ -1,71 +1,114 @@
-import { and, eq, inArray } from 'drizzle-orm'
+import { and, eq, inArray } from 'drizzle-orm';
 
-import { imageWithRelated, recordWithRecord, tagWithRecord } from '../../schema'
-import type { Tx } from '../types'
-import { compactForeignKeys, validateTagIdsExist } from './reference-validation'
+import {
+  imageWithRelated,
+  recordWithRecord,
+  tagWithRecord,
+} from '../../schema';
+import type { Tx } from '../types';
+import {
+  compactForeignKeys,
+  validateTagIdsExist,
+} from './reference-validation';
 
 export async function syncTags(tx: Tx, recordId: number, tagIds: number[]) {
-  const normalizedTagIds = await validateTagIdsExist(tx, tagIds)
+  const normalizedTagIds = await validateTagIdsExist(tx, tagIds);
   const existing = await tx
     .select({ tagId: tagWithRecord.tagId })
     .from(tagWithRecord)
-    .where(eq(tagWithRecord.recordId, recordId))
+    .where(eq(tagWithRecord.recordId, recordId));
 
-  const existingIds = existing.map((r) => r.tagId)
-  const toAdd = normalizedTagIds.filter((id) => !existingIds.includes(id))
-  const toRemove = existingIds.filter((id) => !normalizedTagIds.includes(id))
+  const existingIds = existing.map(r => r.tagId);
+  const toAdd = normalizedTagIds.filter(id => !existingIds.includes(id));
+  const toRemove = existingIds.filter(id => !normalizedTagIds.includes(id));
 
   if (toRemove.length > 0) {
-    await tx.delete(tagWithRecord)
-      .where(and(eq(tagWithRecord.recordId, recordId), inArray(tagWithRecord.tagId, toRemove)))
+    await tx
+      .delete(tagWithRecord)
+      .where(
+        and(
+          eq(tagWithRecord.recordId, recordId),
+          inArray(tagWithRecord.tagId, toRemove),
+        ),
+      );
   }
   for (const tagId of toAdd) {
-    await tx.insert(tagWithRecord).values({ recordId, tagId })
+    await tx.insert(tagWithRecord).values({ recordId, tagId });
   }
 }
 
-export async function syncImages(tx: Tx, recordId: number, imagePaths: string[]) {
+export async function syncImages(
+  tx: Tx,
+  recordId: number,
+  imagePaths: string[],
+) {
   const existing = await tx
     .select({ imagePath: imageWithRelated.imagePath })
     .from(imageWithRelated)
-    .where(eq(imageWithRelated.recordId, recordId))
+    .where(eq(imageWithRelated.recordId, recordId));
 
-  const existingPaths = existing.map((r) => r.imagePath)
-  const toAdd = imagePaths.filter((p) => !existingPaths.includes(p))
-  const toRemove = existingPaths.filter((p) => !imagePaths.includes(p))
+  const existingPaths = existing.map(r => r.imagePath);
+  const toAdd = imagePaths.filter(p => !existingPaths.includes(p));
+  const toRemove = existingPaths.filter(p => !imagePaths.includes(p));
 
   if (toRemove.length > 0) {
-    await tx.delete(imageWithRelated)
-      .where(and(eq(imageWithRelated.recordId, recordId), inArray(imageWithRelated.imagePath, toRemove)))
+    await tx
+      .delete(imageWithRelated)
+      .where(
+        and(
+          eq(imageWithRelated.recordId, recordId),
+          inArray(imageWithRelated.imagePath, toRemove),
+        ),
+      );
   }
   for (const imagePath of toAdd) {
-    await tx.insert(imageWithRelated).values({ recordId, imagePath })
+    await tx.insert(imageWithRelated).values({ recordId, imagePath });
   }
 }
 
-export async function syncRecordRelations(tx: Tx, recordId: number, relatedRecordIds: number[]) {
-  const normalizedRelatedRecordIds = compactForeignKeys(relatedRecordIds)
+export async function syncRecordRelations(
+  tx: Tx,
+  recordId: number,
+  relatedRecordIds: number[],
+) {
+  const normalizedRelatedRecordIds = compactForeignKeys(relatedRecordIds);
   const existing = await tx
     .select({ relatedRecordId: recordWithRecord.relatedRecordId })
     .from(recordWithRecord)
-    .where(eq(recordWithRecord.recordId, recordId))
+    .where(eq(recordWithRecord.recordId, recordId));
 
-  const existingIds = existing.map((r) => r.relatedRecordId)
-  const toAdd = normalizedRelatedRecordIds.filter((id) => !existingIds.includes(id))
-  const toRemove = existingIds.filter((id) => !normalizedRelatedRecordIds.includes(id))
+  const existingIds = existing.map(r => r.relatedRecordId);
+  const toAdd = normalizedRelatedRecordIds.filter(
+    id => !existingIds.includes(id),
+  );
+  const toRemove = existingIds.filter(
+    id => !normalizedRelatedRecordIds.includes(id),
+  );
 
   if (toRemove.length > 0) {
-    await tx.delete(recordWithRecord)
-      .where(and(eq(recordWithRecord.recordId, recordId), inArray(recordWithRecord.relatedRecordId, toRemove)))
+    await tx
+      .delete(recordWithRecord)
+      .where(
+        and(
+          eq(recordWithRecord.recordId, recordId),
+          inArray(recordWithRecord.relatedRecordId, toRemove),
+        ),
+      );
   }
   for (const relatedRecordId of toAdd) {
-    await tx.insert(recordWithRecord).values({ recordId, relatedRecordId })
+    await tx.insert(recordWithRecord).values({ recordId, relatedRecordId });
   }
 }
 
 export async function deleteAllJunctions(tx: Tx, recordId: number) {
-  await tx.delete(tagWithRecord).where(eq(tagWithRecord.recordId, recordId))
-  await tx.delete(imageWithRelated).where(eq(imageWithRelated.recordId, recordId))
-  await tx.delete(recordWithRecord).where(eq(recordWithRecord.recordId, recordId))
-  await tx.delete(recordWithRecord).where(eq(recordWithRecord.relatedRecordId, recordId))
+  await tx.delete(tagWithRecord).where(eq(tagWithRecord.recordId, recordId));
+  await tx
+    .delete(imageWithRelated)
+    .where(eq(imageWithRelated.recordId, recordId));
+  await tx
+    .delete(recordWithRecord)
+    .where(eq(recordWithRecord.recordId, recordId));
+  await tx
+    .delete(recordWithRecord)
+    .where(eq(recordWithRecord.relatedRecordId, recordId));
 }

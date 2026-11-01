@@ -14,11 +14,7 @@ import { PickerTrigger } from '../_internal/PickerTrigger';
 import { useControllableValue } from '../_hooks';
 import type { ComponentSize } from '../shares/types';
 import { useTagPickerStyles } from './style';
-import type {
-  TagPickerOption,
-  TagPickerProps,
-  TagPickerValue,
-} from './types';
+import type { TagPickerOption, TagPickerProps, TagPickerValue } from './types';
 import { useFieldProps } from '../Form/hooks/useFieldProps.ts';
 
 function isOption(
@@ -171,11 +167,7 @@ export function TagPicker({
         onPress={() => toggleOption(option)}
         prefix={
           option.icon === undefined ? undefined : (
-            <Icon
-              color={iconColor}
-              icon={option.icon}
-              size={resolvedSize}
-            />
+            <Icon color={iconColor} icon={option.icon} size={resolvedSize} />
           )
         }
         size={resolvedSize}
@@ -276,20 +268,18 @@ export function TagPicker({
             </Column>
           ) : (
             <>
-              {visibleOptions.length > 0
-                ? renderSection(
-                    visibleOptions,
-                    texts?.optionsTitle,
-                    false,
-                    'tag-picker-chips',
-                  )
-                : texts?.emptyText !== undefined
-                  ? (
-                      <Column style={tokenStyles.state}>
-                        <Text color="description">{texts.emptyText}</Text>
-                      </Column>
-                    )
-                  : null}
+              {visibleOptions.length > 0 ? (
+                renderSection(
+                  visibleOptions,
+                  texts?.optionsTitle,
+                  false,
+                  'tag-picker-chips',
+                )
+              ) : texts?.emptyText !== undefined ? (
+                <Column style={tokenStyles.state}>
+                  <Text color="description">{texts.emptyText}</Text>
+                </Column>
+              ) : null}
               {hiddenSelectedOptions.length > 0
                 ? renderSection(
                     hiddenSelectedOptions,

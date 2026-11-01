@@ -17,7 +17,8 @@ export function NotificationPlacementDemo() {
               placement: 'top',
               titleText: '已导入 128 笔记录',
               status: 'success',
-            })}
+            })
+          }
         >
           top · 状态栏 + 8
         </Button>
@@ -28,7 +29,8 @@ export function NotificationPlacementDemo() {
               placement: 'bottom',
               titleText: '备份失败',
               status: 'error',
-            })}
+            })
+          }
         >
           bottom · 24 + 安全区
         </Button>

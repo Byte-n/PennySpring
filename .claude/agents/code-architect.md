@@ -22,16 +22,20 @@ tools: [Read, Grep, Glob, Bash]
 ## Architecture: [Feature]
 
 ### Decisions
+
 - [Decision]: [Rationale]
 
 ### Files
+
 | File | Change | Priority |
-|------|--------|----------|
+| ---- | ------ | -------- |
 
 ### Data Flow
+
 [Description]
 
 ### Build Order
+
 1. [Step]
 ```
 

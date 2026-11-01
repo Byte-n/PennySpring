@@ -33,7 +33,9 @@ export const updateRecordInputSchema = z.object({
     .int()
     .positive()
     .optional()
-    .describe('新的类型 id，必须来自 listTypes，且选择具体子类型；不传保持原类型。'),
+    .describe(
+      '新的类型 id，必须来自 listTypes，且选择具体子类型；不传保持原类型。',
+    ),
   amount: z
     .number()
     .positive()
@@ -65,7 +67,9 @@ export const updateRecordInputSchema = z.object({
       `tagIds 最多 ${CREATE_RECORD_MAX_TAG_COUNT} 个`,
     )
     .optional()
-    .describe('新的标签 id 列表，必须来自 listTags；传入时整体替换标签，传空数组清空，不传保持原标签。'),
+    .describe(
+      '新的标签 id 列表，必须来自 listTags；传入时整体替换标签，传空数组清空，不传保持原标签。',
+    ),
   charge: z
     .number()
     .min(0)
@@ -139,7 +143,9 @@ export function createUpdateRecordTool(deps: UpdateRecordToolDeps) {
           record: detail.record,
           tagIds: detail.tagIds,
           imagePaths: detail.imagePaths,
-          addedImagePaths: resolvedAttachments.map(attachment => attachment.ref),
+          addedImagePaths: resolvedAttachments.map(
+            attachment => attachment.ref,
+          ),
         },
         { recordId, ...args },
         { types, tags, assets },
@@ -159,9 +165,7 @@ export function createUpdateRecordTool(deps: UpdateRecordToolDeps) {
         category: resolved.draft.category,
         type: resolved.draft.typePath,
         amountYuan: resolved.draft.amountCents / 100,
-        recordTime: dayjs(resolved.draft.recordTime).format(
-          'YYYY-MM-DD HH:mm',
-        ),
+        recordTime: dayjs(resolved.draft.recordTime).format('YYYY-MM-DD HH:mm'),
       };
     },
   });

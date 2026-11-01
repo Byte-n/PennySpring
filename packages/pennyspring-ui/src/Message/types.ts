@@ -2,7 +2,8 @@ import type { ReactNode } from 'react';
 import type { StyleProp, TextStyle, ViewStyle } from 'react-native';
 import type { PortalMountPoint } from '../Portal/types';
 
-export type MessageStatus = 'default' | 'success' | 'warning' | 'error' | 'info';
+export type MessageStatus =
+  'default' | 'success' | 'warning' | 'error' | 'info';
 export type MessagePlacement = 'top' | 'bottom';
 
 /** 正文末尾的唯一操作，例如撤销、重试、查看。 */

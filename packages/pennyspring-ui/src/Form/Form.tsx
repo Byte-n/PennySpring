@@ -1,8 +1,5 @@
 import React, { useEffect, useLayoutEffect, useRef } from 'react';
-import {
-  useForm as useTanStackForm,
-  useSelector,
-} from '@tanstack/react-form';
+import { useForm as useTanStackForm, useSelector } from '@tanstack/react-form';
 import { useTheme } from '@pennyspring/theme';
 import { Column } from '../Column';
 import { FormContext } from './FormContext.ts';
@@ -157,10 +154,7 @@ function useFormState<TValues extends object, TSelected>(
 ): TSelected {
   const form = useFormInstance<TValues>();
 
-  return useSelector(
-    form.store as never,
-    selector as never,
-  ) as TSelected;
+  return useSelector(form.store as never, selector as never) as TSelected;
 }
 
 type FormViewProps<TValues extends object> = Omit<

@@ -31,8 +31,10 @@ export interface TabsStyles {
   panel?: StyleProp<ViewStyle>;
 }
 
-export interface TabsProps
-  extends Omit<PressableProps, 'style' | 'children' | 'disabled' | 'onPress'> {
+export interface TabsProps extends Omit<
+  PressableProps,
+  'style' | 'children' | 'disabled' | 'onPress'
+> {
   items: TabsItem[];
   value?: TabsValue;
   defaultValue?: TabsValue;

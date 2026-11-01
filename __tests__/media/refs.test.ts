@@ -30,16 +30,10 @@ describe('media refs', () => {
 
   it('turns a server media URL back into a ref', () => {
     expect(
-      toMediaRef(
-        `http://192.168.1.12:8787/api/media/${MEDIA_KEY}`,
-        SERVER_URL,
-      ),
+      toMediaRef(`http://192.168.1.12:8787/api/media/${MEDIA_KEY}`, SERVER_URL),
     ).toBe(`media:${MEDIA_KEY}`);
     expect(
-      toMediaRef(
-        `http://other-host/api/media/${MEDIA_KEY}`,
-        SERVER_URL,
-      ),
+      toMediaRef(`http://other-host/api/media/${MEDIA_KEY}`, SERVER_URL),
     ).toBe(`http://other-host/api/media/${MEDIA_KEY}`);
     expect(toMediaRef(`media:${MEDIA_KEY}`, SERVER_URL)).toBe(
       `media:${MEDIA_KEY}`,

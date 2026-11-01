@@ -95,8 +95,12 @@ describe('HeaderBar', () => {
       );
     });
 
-    expect(renderer!.root.findByProps({ testID: 'left-actions' })).toBeDefined();
-    expect(renderer!.root.findByProps({ testID: 'right-actions' })).toBeDefined();
+    expect(
+      renderer!.root.findByProps({ testID: 'left-actions' }),
+    ).toBeDefined();
+    expect(
+      renderer!.root.findByProps({ testID: 'right-actions' }),
+    ).toBeDefined();
     expect(mockMaterialTopTabBarProps).toMatchObject({
       ...tabBarProps,
       descriptors: {
@@ -128,7 +132,9 @@ describe('TopTabNavigator', () => {
 
   it('passes backBehavior through when a screen overrides the default', () => {
     act(() => {
-      TestRenderer.create(<TopTabNavigator backBehavior="history" screens={screens} />);
+      TestRenderer.create(
+        <TopTabNavigator backBehavior="history" screens={screens} />,
+      );
     });
 
     expect(mockNavigatorProps?.backBehavior).toBe('history');

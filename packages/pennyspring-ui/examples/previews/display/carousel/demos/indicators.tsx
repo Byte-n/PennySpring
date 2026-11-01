@@ -63,9 +63,15 @@ function MediaSlide({ item }: { item: SlideItem }) {
 
   return (
     <Column style={styles.mediaSlide}>
-      <Text color="lightSolid" size="xs" style={styles.kicker}>{item.kicker}</Text>
-      <Text color="lightSolid" size="xl" weight="semibold">{item.title}</Text>
-      <Text color="lightSolid" size="xs" style={styles.kicker}>{item.meta}</Text>
+      <Text color="lightSolid" size="xs" style={styles.kicker}>
+        {item.kicker}
+      </Text>
+      <Text color="lightSolid" size="xl" weight="semibold">
+        {item.title}
+      </Text>
+      <Text color="lightSolid" size="xs" style={styles.kicker}>
+        {item.meta}
+      </Text>
     </Column>
   );
 }
@@ -75,9 +81,15 @@ function SurfaceSlide({ item }: { item: SlideItem }) {
 
   return (
     <Column style={styles.surfaceSlide}>
-      <Text color="tertiary" size="xs">{item.kicker}</Text>
-      <Text size="xl" weight="semibold">{item.title}</Text>
-      <Text color="tertiary" size="xs" style={styles.gap}>{item.meta}</Text>
+      <Text color="tertiary" size="xs">
+        {item.kicker}
+      </Text>
+      <Text size="xl" weight="semibold">
+        {item.title}
+      </Text>
+      <Text color="tertiary" size="xs" style={styles.gap}>
+        {item.meta}
+      </Text>
     </Column>
   );
 }
@@ -89,7 +101,9 @@ export function CarouselIndicatorsDemo() {
   return (
     <Column gap="large">
       <Column style={styles.section}>
-        <Text color="tertiary" size="xs">dots · 1–8 页；媒体预设 active 纯白 / inactive 45% 白</Text>
+        <Text color="tertiary" size="xs">
+          dots · 1–8 页；媒体预设 active 纯白 / inactive 45% 白
+        </Text>
         <Column style={styles.frame}>
           <Carousel
             data={MEDIA_SLIDES}
@@ -108,7 +122,9 @@ export function CarouselIndicatorsDemo() {
         </Column>
       </Column>
       <Column style={styles.section}>
-        <Text color="tertiary" size="xs">surface · 白卡场景；active colorPrimary / inactive colorTextQuaternary</Text>
+        <Text color="tertiary" size="xs">
+          surface · 白卡场景；active colorPrimary / inactive colorTextQuaternary
+        </Text>
         <Column style={styles.frame}>
           <Carousel
             data={SURFACE_SLIDES}
@@ -117,7 +133,9 @@ export function CarouselIndicatorsDemo() {
         </Column>
       </Column>
       <Column style={styles.section}>
-        <Text color="tertiary" size="xs">counter · 超过 8 页改用右下角计数胶囊，不再渲染圆点</Text>
+        <Text color="tertiary" size="xs">
+          counter · 超过 8 页改用右下角计数胶囊，不再渲染圆点
+        </Text>
         <Column style={styles.frame}>
           <Carousel
             data={COUNTER_SLIDES}

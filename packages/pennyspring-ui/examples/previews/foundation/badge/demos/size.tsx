@@ -13,7 +13,9 @@ export function BadgeSizeDemo() {
     <Column gap="normal">
       {SIZE_SAMPLES.map(({ size, hint }) => (
         <Column key={size} gap="small">
-          <Text color="tertiary" size="xs">{hint}</Text>
+          <Text color="tertiary" size="xs">
+            {hint}
+          </Text>
           <Row gap="small">
             <Badge count={3} size={size} />
             <Badge count={12} size={size} />

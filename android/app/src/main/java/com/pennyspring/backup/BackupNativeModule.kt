@@ -18,8 +18,8 @@ import java.util.concurrent.Executors
 
 class BackupNativeModule(
     private val reactContext: ReactApplicationContext,
-) : ReactContextBaseJavaModule(reactContext), ActivityEventListener {
-
+) : ReactContextBaseJavaModule(reactContext),
+    ActivityEventListener {
     companion object {
         private const val PICK_DIRECTORY_REQUEST = 7311
         private const val MIME_ZIP = "application/zip"
@@ -47,14 +47,15 @@ class BackupNativeModule(
         }
         pickDirectoryPromise = promise
         try {
-            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE).apply {
-                addFlags(
-                    Intent.FLAG_GRANT_READ_URI_PERMISSION or
-                        Intent.FLAG_GRANT_WRITE_URI_PERMISSION or
-                        Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION or
-                        Intent.FLAG_GRANT_PREFIX_URI_PERMISSION,
-                )
-            }
+            val intent =
+                Intent(Intent.ACTION_OPEN_DOCUMENT_TREE).apply {
+                    addFlags(
+                        Intent.FLAG_GRANT_READ_URI_PERMISSION or
+                            Intent.FLAG_GRANT_WRITE_URI_PERMISSION or
+                            Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION or
+                            Intent.FLAG_GRANT_PREFIX_URI_PERMISSION,
+                    )
+                }
             activity.startActivityForResult(intent, PICK_DIRECTORY_REQUEST)
         } catch (error: Exception) {
             pickDirectoryPromise = null
@@ -91,19 +92,22 @@ class BackupNativeModule(
             return
         }
         try {
-            val flags = data.flags and (
-                Intent.FLAG_GRANT_READ_URI_PERMISSION or
-                    Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+            val flags =
+                data.flags and (
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION or
+                        Intent.FLAG_GRANT_WRITE_URI_PERMISSION
                 )
             reactContext.contentResolver.takePersistableUriPermission(uri, flags)
             val document = DocumentFile.fromTreeUri(reactContext, uri)
-            val label = document?.name?.takeIf { it.isNotBlank() }
-                ?: uri.lastPathSegment
-                ?: "已选择目录"
-            val result = Arguments.createMap().apply {
-                putString("id", uri.toString())
-                putString("label", label)
-            }
+            val label =
+                document?.name?.takeIf { it.isNotBlank() }
+                    ?: uri.lastPathSegment
+                    ?: "已选择目录"
+            val result =
+                Arguments.createMap().apply {
+                    putString("id", uri.toString())
+                    putString("label", label)
+                }
             promise.resolve(result)
         } catch (error: Exception) {
             promise.reject(
@@ -129,12 +133,13 @@ class BackupNativeModule(
             try {
                 val directory = openDirectory(directoryId)
                 directory.findFile(fileName)?.delete()
-                val fileUri = DocumentsContract.createDocument(
-                    reactContext.contentResolver,
-                    directory.uri,
-                    MIME_ZIP,
-                    fileName,
-                ) ?: throw IllegalStateException("无法在目标目录创建文件")
+                val fileUri =
+                    DocumentsContract.createDocument(
+                        reactContext.contentResolver,
+                        directory.uri,
+                        MIME_ZIP,
+                        fileName,
+                    ) ?: throw IllegalStateException("无法在目标目录创建文件")
                 val bytes = android.util.Base64.decode(base64, android.util.Base64.DEFAULT)
                 reactContext.contentResolver.openOutputStream(fileUri)?.use { stream ->
                     stream.write(bytes)
@@ -152,12 +157,16 @@ class BackupNativeModule(
     }
 
     @ReactMethod
-    fun listFiles(directoryId: String, promise: Promise) {
+    fun listFiles(
+        directoryId: String,
+        promise: Promise,
+    ) {
         executor.execute {
             try {
                 val directory = openDirectory(directoryId)
                 val result = Arguments.createArray()
-                directory.listFiles()
+                directory
+                    .listFiles()
                     .filter { it.isFile }
                     .forEach { file ->
                         result.pushMap(
@@ -192,8 +201,9 @@ class BackupNativeModule(
         executor.execute {
             try {
                 val directory = openDirectory(directoryId)
-                val file = directory.findFile(fileName)
-                    ?: throw IllegalStateException("备份文件不存在")
+                val file =
+                    directory.findFile(fileName)
+                        ?: throw IllegalStateException("备份文件不存在")
                 if (!file.delete()) {
                     throw IllegalStateException("删除备份文件失败")
                 }
@@ -209,16 +219,21 @@ class BackupNativeModule(
     }
 
     @ReactMethod
-    fun shareFile(uri: String, fileName: String, promise: Promise) {
+    fun shareFile(
+        uri: String,
+        fileName: String,
+        promise: Promise,
+    ) {
         try {
             val contentUri = toContentUri(uri)
-            val intent = Intent(Intent.ACTION_SEND).apply {
-                type = MIME_ZIP
-                putExtra(Intent.EXTRA_STREAM, contentUri)
-                putExtra(Intent.EXTRA_SUBJECT, fileName)
-                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                clipData = ClipData.newRawUri(fileName, contentUri)
-            }
+            val intent =
+                Intent(Intent.ACTION_SEND).apply {
+                    type = MIME_ZIP
+                    putExtra(Intent.EXTRA_STREAM, contentUri)
+                    putExtra(Intent.EXTRA_SUBJECT, fileName)
+                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    clipData = ClipData.newRawUri(fileName, contentUri)
+                }
             val chooser = Intent.createChooser(intent, "分享备份")
             chooser.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             val activity = reactContext.currentActivity
@@ -243,8 +258,9 @@ class BackupNativeModule(
         if (uri.scheme != "content") {
             throw IllegalArgumentException("备份目录无效")
         }
-        val directory = DocumentFile.fromTreeUri(reactContext, uri)
-            ?: throw IllegalStateException("无法访问备份目录")
+        val directory =
+            DocumentFile.fromTreeUri(reactContext, uri)
+                ?: throw IllegalStateException("无法访问备份目录")
         if (!directory.exists() || !directory.isDirectory) {
             throw IllegalStateException("备份目录不存在")
         }
@@ -256,11 +272,12 @@ class BackupNativeModule(
         if (uri.scheme == "content") {
             return uri
         }
-        val path = if (raw.startsWith("file://")) {
-            Uri.decode(raw.removePrefix("file://"))
-        } else {
-            raw
-        }
+        val path =
+            if (raw.startsWith("file://")) {
+                Uri.decode(raw.removePrefix("file://"))
+            } else {
+                raw
+            }
         return FileProvider.getUriForFile(
             reactContext,
             "${reactContext.packageName}.fileprovider",

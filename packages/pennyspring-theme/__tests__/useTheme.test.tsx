@@ -3,14 +3,20 @@ import renderer, { act } from 'react-test-renderer';
 import { ThemeProvider, useTheme } from '../src/index';
 
 // 测试用的 Hook 包装组件
-function TestHook<T>({ hook, onResult }: { hook: () => T; onResult: (r: T) => void }) {
+function TestHook<T>({
+  hook,
+  onResult,
+}: {
+  hook: () => T;
+  onResult: (r: T) => void;
+}) {
   const result = hook();
   onResult(result);
   return null;
 }
 
 describe('useTheme', () => {
-      describe('hook behavior', () => {
+  describe('hook behavior', () => {
     it('returns { token: AliasToken } structure', () => {
       let hookResult: any;
 
@@ -19,9 +25,11 @@ describe('useTheme', () => {
           <ThemeProvider>
             <TestHook
               hook={useTheme}
-              onResult={(r) => { hookResult = r; }}
+              onResult={r => {
+                hookResult = r;
+              }}
             />
-          </ThemeProvider>
+          </ThemeProvider>,
         );
       });
 
@@ -37,9 +45,11 @@ describe('useTheme', () => {
           <ThemeProvider>
             <TestHook
               hook={useTheme}
-              onResult={(r) => { hookResult = r; }}
+              onResult={r => {
+                hookResult = r;
+              }}
             />
-          </ThemeProvider>
+          </ThemeProvider>,
         );
       });
 
@@ -65,7 +75,6 @@ describe('useTheme', () => {
       // 字体 token
       expect(token.fontSize).toBeGreaterThan(0);
       expect(token.lineHeight).toBeGreaterThan(0);
-
     });
 
     it('returns different tokens in dark mode', () => {
@@ -77,9 +86,11 @@ describe('useTheme', () => {
           <ThemeProvider>
             <TestHook
               hook={useTheme}
-              onResult={(r) => { defaultResult = r; }}
+              onResult={r => {
+                defaultResult = r;
+              }}
             />
-          </ThemeProvider>
+          </ThemeProvider>,
         );
       });
 
@@ -88,13 +99,17 @@ describe('useTheme', () => {
           <ThemeProvider config={{ algorithm: 'dark' }}>
             <TestHook
               hook={useTheme}
-              onResult={(r) => { darkResult = r; }}
+              onResult={r => {
+                darkResult = r;
+              }}
             />
-          </ThemeProvider>
+          </ThemeProvider>,
         );
       });
 
-      expect(defaultResult.token.colorBgBase).not.toBe(darkResult.token.colorBgBase);
+      expect(defaultResult.token.colorBgBase).not.toBe(
+        darkResult.token.colorBgBase,
+      );
       expect(darkResult.token.colorBgBase).toMatch(/^#0{3,6}$/);
     });
   });

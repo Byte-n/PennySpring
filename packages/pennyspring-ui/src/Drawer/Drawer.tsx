@@ -203,8 +203,14 @@ function DrawerComponent({
   const progress = externalProgress ?? internalProgress;
   const resolvedWidth =
     width ?? resolveDefaultDrawerWidth(lastKnownWindowWidthRef.current);
-  const tokenStyles = useStyles({ position: drawerPosition, width: resolvedWidth });
-  const drawerWidth = resolveDrawerWidthPx(resolvedWidth, lastKnownWindowWidthRef.current);
+  const tokenStyles = useStyles({
+    position: drawerPosition,
+    width: resolvedWidth,
+  });
+  const drawerWidth = resolveDrawerWidthPx(
+    resolvedWidth,
+    lastKnownWindowWidthRef.current,
+  );
 
   const setProgressForOpenState = useCallback(
     (nextOpen: boolean): void => {
@@ -436,7 +442,7 @@ function DrawerLayout({
   const handleContainerLayout = useCallback(
     (event: LayoutChangeEvent): void => {
       const nextWidth = event.nativeEvent.layout.width;
-      setContentWidth((prevWidth) => {
+      setContentWidth(prevWidth => {
         if (prevWidth === nextWidth) {
           return prevWidth;
         }
@@ -454,13 +460,22 @@ function DrawerLayout({
     >
       <Animated.View
         testID="drawer-layout-scene"
-        style={[tokenStyles.scene, sceneLayerStyle, styles?.content, sceneAnimatedStyle]}
+        style={[
+          tokenStyles.scene,
+          sceneLayerStyle,
+          styles?.content,
+          sceneAnimatedStyle,
+        ]}
       >
         {children}
         {drawerType === 'back' ? (
           <AnimatedPressable
             onPress={handleBackMaskPress}
-            style={[tokenStyles.sceneMask, styles?.overlay, sceneMaskAnimatedStyle]}
+            style={[
+              tokenStyles.sceneMask,
+              styles?.overlay,
+              sceneMaskAnimatedStyle,
+            ]}
             testID="drawer-layout-back-mask"
           />
         ) : null}

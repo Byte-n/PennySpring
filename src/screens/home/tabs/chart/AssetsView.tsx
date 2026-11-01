@@ -120,7 +120,9 @@ const useDueStyles = createUseSheetStyle(
       width: token.sizeXXL,
       paddingVertical: token.paddingXXS,
       borderRadius: token.borderRadiusXS,
-      backgroundColor: urgent ? token.colorWarningBg : token.colorFillQuaternary,
+      backgroundColor: urgent
+        ? token.colorWarningBg
+        : token.colorFillQuaternary,
     },
   }),
 );
@@ -148,9 +150,13 @@ function AssetLegend({ groups, colors, footer }: AssetLegendProps) {
     <>
       <Row gap="large" style={styles.legend}>
         {columns.map((column, columnIndex) => (
-          <Column key={`legend-${columnIndex}`} style={styles.legendColumn} gap="small">
+          <Column
+            key={`legend-${columnIndex}`}
+            style={styles.legendColumn}
+            gap="small"
+          >
             {column.map((group, index) => (
-              <Row key={group.key} align="center" gap={token.marginXXS} >
+              <Row key={group.key} align="center" gap={token.marginXXS}>
                 <ColorDot color={colors[columnIndex * 2 + index]} />
                 <Text size="xs" color="secondary" style={styles.legendName}>
                   {group.name}
@@ -200,7 +206,9 @@ function DueRow({ reminder }: DueRowProps) {
           {reminder.asset.name}
         </Text>
         <Text size="xs" color="tertiary" numberOfLines={1}>
-          {reminder.asset.type === ASSET_TYPE.creditCard ? '信用卡待还' : '借入债务'}
+          {reminder.asset.type === ASSET_TYPE.creditCard
+            ? '信用卡待还'
+            : '借入债务'}
         </Text>
       </Column>
       <Column align="end">
@@ -250,20 +258,20 @@ export function AssetsView({
     );
   }
 
-  const currentNetWorth = history[history.length - 1]?.value ?? overview.netWorth;
-  const previousNetWorth = history[history.length - 2]?.value ?? currentNetWorth;
+  const currentNetWorth =
+    history[history.length - 1]?.value ?? overview.netWorth;
+  const previousNetWorth =
+    history[history.length - 2]?.value ?? currentNetWorth;
   const netWorthDelta = currentNetWorth - previousNetWorth;
   const netWorthDeltaRatio =
     previousNetWorth > 0 ? currentNetWorth / previousNetWorth - 1 : null;
-  const assetColors = [
-    token.blue6,
-    token.cyan6,
-    token.gold6,
-    token.purple6,
-  ];
+  const assetColors = [token.blue6, token.cyan6, token.gold6, token.purple6];
   const liabilityColors = [token.colorError, token.colorWarning];
   const previewAccounts = overview.accounts.slice(0, ACCOUNT_PREVIEW_LIMIT);
-  const dueTotal = reminders.reduce((sum, reminder) => sum + reminder.amount, 0);
+  const dueTotal = reminders.reduce(
+    (sum, reminder) => sum + reminder.amount,
+    0,
+  );
 
   return (
     <Column gap="normal">
@@ -338,10 +346,7 @@ export function AssetsView({
         </Row>
       </Card>
 
-      <ChartCard
-        title="资产与负债"
-        subtitle="两条独立堆叠条，不混进同一个饼图"
-      >
+      <ChartCard title="资产与负债" subtitle="两条独立堆叠条，不混进同一个饼图">
         <Row align="center" justify="between" style={styles.groupLabelFirst}>
           <Text size="sm" color="secondary">
             资产
@@ -407,7 +412,11 @@ export function AssetsView({
                   pressed ? styles.accountRowPressed : null,
                 ]}
               >
-                <Column style={styles.accountIcon} align="center" justify="center">
+                <Column
+                  style={styles.accountIcon}
+                  align="center"
+                  justify="center"
+                >
                   <IconComponent
                     color={token.colorTextSecondary}
                     size={ACCOUNT_ICON_SIZE}

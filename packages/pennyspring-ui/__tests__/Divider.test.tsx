@@ -3,10 +3,16 @@ import { StyleSheet, View } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
 import { ThemeProvider } from '@pennyspring/theme';
 import { Divider } from '../src/Divider';
-function renderDivider(props: Partial<React.ComponentProps<typeof Divider>> = {}) {
+function renderDivider(
+  props: Partial<React.ComponentProps<typeof Divider>> = {},
+) {
   let testRenderer: renderer.ReactTestRenderer;
   act(() => {
-    testRenderer = renderer.create(<><Divider {...props}>Budget</Divider></>);
+    testRenderer = renderer.create(
+      <>
+        <Divider {...props}>Budget</Divider>
+      </>,
+    );
   });
   return testRenderer!;
 }
@@ -19,7 +25,7 @@ describe('Divider', () => {
   });
   it('renders vertical divider without content node', () => {
     const testRenderer = renderDivider({
-      direction: 'vertical'
+      direction: 'vertical',
     });
     expect(testRenderer.root.findAllByType(View)).toHaveLength(1);
   });
@@ -30,7 +36,9 @@ describe('Divider', () => {
     const viewNodes = testRenderer.root.findAllByType(View);
     const firstLineStyle = viewNodes[1].props.style;
     const secondLineStyle = viewNodes[3].props.style;
-    const lineStyleEntries = [firstLineStyle, secondLineStyle].flat().filter(Boolean);
+    const lineStyleEntries = [firstLineStyle, secondLineStyle]
+      .flat()
+      .filter(Boolean);
 
     expect(
       lineStyleEntries.some(
@@ -46,56 +54,64 @@ describe('Divider', () => {
     ['small', 11],
     ['normal', 13],
     ['large', 17],
-  ] as const)('maps %s size to vertical section margin', (size, expectedMargin) => {
-    let testRenderer: renderer.ReactTestRenderer;
-    act(() => {
-      testRenderer = renderer.create(
-        <ThemeProvider
-          config={{
-            token: {
-              paddingSM: 11,
-              padding: 13,
-              paddingMD: 17,
-            },
-          }}
-        >
-          <Divider size={size}>Budget</Divider>
-        </ThemeProvider>,
-      );
-    });
-    const dividerRoot = testRenderer!.root.findAllByType(View)[0];
-    const rootStyle = StyleSheet.flatten(dividerRoot.props.style);
+  ] as const)(
+    'maps %s size to vertical section margin',
+    (size, expectedMargin) => {
+      let testRenderer: renderer.ReactTestRenderer;
+      act(() => {
+        testRenderer = renderer.create(
+          <ThemeProvider
+            config={{
+              token: {
+                paddingSM: 11,
+                padding: 13,
+                paddingMD: 17,
+              },
+            }}
+          >
+            <Divider size={size}>Budget</Divider>
+          </ThemeProvider>,
+        );
+      });
+      const dividerRoot = testRenderer!.root.findAllByType(View)[0];
+      const rootStyle = StyleSheet.flatten(dividerRoot.props.style);
 
-    expect(rootStyle.marginVertical).toBe(expectedMargin);
-  });
+      expect(rootStyle.marginVertical).toBe(expectedMargin);
+    },
+  );
 
   it.each([
     ['none', 0],
     ['small', 11],
     ['normal', 13],
     ['large', 17],
-  ] as const)('maps %s spacing to vertical margin regardless of size', (spacing, expectedMargin) => {
-    let testRenderer: renderer.ReactTestRenderer;
-    act(() => {
-      testRenderer = renderer.create(
-        <ThemeProvider
-          config={{
-            token: {
-              paddingSM: 11,
-              padding: 13,
-              paddingMD: 17,
-            },
-          }}
-        >
-          <Divider size="large" spacing={spacing}>Budget</Divider>
-        </ThemeProvider>,
-      );
-    });
-    const dividerRoot = testRenderer!.root.findAllByType(View)[0];
-    const rootStyle = StyleSheet.flatten(dividerRoot.props.style);
+  ] as const)(
+    'maps %s spacing to vertical margin regardless of size',
+    (spacing, expectedMargin) => {
+      let testRenderer: renderer.ReactTestRenderer;
+      act(() => {
+        testRenderer = renderer.create(
+          <ThemeProvider
+            config={{
+              token: {
+                paddingSM: 11,
+                padding: 13,
+                paddingMD: 17,
+              },
+            }}
+          >
+            <Divider size="large" spacing={spacing}>
+              Budget
+            </Divider>
+          </ThemeProvider>,
+        );
+      });
+      const dividerRoot = testRenderer!.root.findAllByType(View)[0];
+      const rootStyle = StyleSheet.flatten(dividerRoot.props.style);
 
-    expect(rootStyle.marginVertical).toBe(expectedMargin);
-  });
+      expect(rootStyle.marginVertical).toBe(expectedMargin);
+    },
+  );
 
   it('applies spacing none to the horizontal margin of a vertical divider', () => {
     let testRenderer: renderer.ReactTestRenderer;

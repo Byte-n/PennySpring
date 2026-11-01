@@ -9,15 +9,19 @@ jest.mock('react-native-reanimated', () => {
     __esModule: true,
     default: {
       createAnimatedComponent: <T,>(component: T) => component,
-      View: ReactNative.View
+      View: ReactNative.View,
     },
     Easing: {
       bezier: () => 'bezier',
       cubic: 'cubic',
-      out: (value: unknown) => value
+      out: (value: unknown) => value,
     },
     createAnimatedComponent: <T,>(component: T) => component,
-    interpolate: (value: number, input: [number, number], output: [number, number]) => {
+    interpolate: (
+      value: number,
+      input: [number, number],
+      output: [number, number],
+    ) => {
       const [inputStart, inputEnd] = input;
       const [outputStart, outputEnd] = output;
       if (inputEnd === inputStart) {
@@ -28,10 +32,10 @@ jest.mock('react-native-reanimated', () => {
     },
     useAnimatedStyle: (updater: () => Record<string, unknown>) => updater(),
     useSharedValue: (value: number) => ({
-      value
+      value,
     }),
     withDelay: (_delay: number, value: number) => value,
-    withTiming: (value: number) => value
+    withTiming: (value: number) => value,
   };
 });
 jest.mock('react-native-gesture-handler', () => {
@@ -45,32 +49,36 @@ jest.mock('react-native-gesture-handler', () => {
       failOffsetY: () => gesture,
       onUpdate: () => gesture,
       onEnd: () => gesture,
-      onFinalize: () => gesture
+      onFinalize: () => gesture,
     };
     return gesture;
   };
   return {
     Gesture: {
-      Pan: createPanGesture
+      Pan: createPanGesture,
     },
-    GestureDetector: ({
-      children
-    }: {
-      children: React.ReactNode;
-    }) => ReactLocal.createElement(ReactLocal.Fragment, undefined, children)
+    GestureDetector: ({ children }: { children: React.ReactNode }) =>
+      ReactLocal.createElement(ReactLocal.Fragment, undefined, children),
   };
 });
 
 function getPointerEvents(testRenderer: renderer.ReactTestRenderer) {
   return testRenderer.root.findByProps({
-    testID: 'drawer-overlay-container'
+    testID: 'drawer-overlay-container',
   }).props.pointerEvents;
 }
 
-function renderDrawer(props: Partial<React.ComponentProps<typeof Drawer>> = {}, children: React.ReactNode = <RNText>Drawer content</RNText>) {
+function renderDrawer(
+  props: Partial<React.ComponentProps<typeof Drawer>> = {},
+  children: React.ReactNode = <RNText>Drawer content</RNText>,
+) {
   let testRenderer: renderer.ReactTestRenderer;
   act(() => {
-    testRenderer = renderer.create(<><Drawer {...props}>{children}</Drawer></>);
+    testRenderer = renderer.create(
+      <>
+        <Drawer {...props}>{children}</Drawer>
+      </>,
+    );
   });
   return testRenderer!;
 }
@@ -78,7 +86,7 @@ describe('Drawer', () => {
   it('opens initially when defaultOpen is true', () => {
     // Arrange & Act
     const testRenderer = renderDrawer({
-      defaultOpen: true
+      defaultOpen: true,
     });
 
     // Assert
@@ -92,14 +100,16 @@ describe('Drawer', () => {
     const testRenderer = renderDrawer({
       defaultOpen: true,
       onCancel: () => calls.push('cancel'),
-      onOpenChange: nextOpen => calls.push(`open:${nextOpen}`)
+      onOpenChange: nextOpen => calls.push(`open:${nextOpen}`),
     });
 
     // Act
     act(() => {
-      testRenderer.root.findByProps({
-        testID: 'drawer-overlay'
-      }).props.onPress();
+      testRenderer.root
+        .findByProps({
+          testID: 'drawer-overlay',
+        })
+        .props.onPress();
     });
 
     // Assert
@@ -112,14 +122,16 @@ describe('Drawer', () => {
     const onOpenChange = jest.fn();
     const testRenderer = renderDrawer({
       open: true,
-      onOpenChange
+      onOpenChange,
     });
 
     // Act
     act(() => {
-      testRenderer.root.findByProps({
-        testID: 'drawer-overlay'
-      }).props.onPress();
+      testRenderer.root
+        .findByProps({
+          testID: 'drawer-overlay',
+        })
+        .props.onPress();
     });
 
     // Assert
@@ -132,7 +144,9 @@ describe('Drawer', () => {
     const calls: string[] = [];
     let testRenderer: renderer.ReactTestRenderer;
     act(() => {
-      testRenderer = renderer.create(<><Drawer.Layout
+      testRenderer = renderer.create(
+        <>
+          <Drawer.Layout
             defaultOpen
             drawerType="back"
             onCancel={() => calls.push('cancel')}
@@ -140,14 +154,18 @@ describe('Drawer', () => {
             renderDrawerContent={() => <RNText>Layout drawer</RNText>}
           >
             <RNText>Scene content</RNText>
-          </Drawer.Layout></>);
+          </Drawer.Layout>
+        </>,
+      );
     });
 
     // Act
     act(() => {
-      testRenderer!.root.findByProps({
-        testID: 'drawer-layout-back-mask'
-      }).props.onPress();
+      testRenderer!.root
+        .findByProps({
+          testID: 'drawer-layout-back-mask',
+        })
+        .props.onPress();
     });
 
     // Assert
@@ -169,22 +187,26 @@ describe('Drawer', () => {
   it('mounts content through a Portal when wrapped in a PortalProvider', () => {
     let testRenderer: renderer.ReactTestRenderer;
     act(() => {
-      testRenderer = renderer.create(<><PortalProvider>
+      testRenderer = renderer.create(
+        <>
+          <PortalProvider>
             <View testID="provider-host">
               <Drawer open>
                 <RNText>Portaled drawer</RNText>
               </Drawer>
             </View>
-          </PortalProvider></>);
+          </PortalProvider>
+        </>,
+      );
     });
     const providerHost = testRenderer!.root.findByProps({
-      testID: 'provider-host'
+      testID: 'provider-host',
     });
     const drawerOverlay = testRenderer!.root.findByProps({
-      testID: 'drawer-overlay-container'
+      testID: 'drawer-overlay-container',
     });
     const hostDescendants = providerHost.findAllByProps({
-      testID: 'drawer-overlay-container'
+      testID: 'drawer-overlay-container',
     });
     expect(hostDescendants).toHaveLength(0);
     expect(JSON.stringify(testRenderer!.toJSON())).toContain('Portaled drawer');
@@ -193,19 +215,23 @@ describe('Drawer', () => {
   it('keeps content local when mountPoint is local inside a PortalProvider', () => {
     let testRenderer: renderer.ReactTestRenderer;
     act(() => {
-      testRenderer = renderer.create(<><PortalProvider>
+      testRenderer = renderer.create(
+        <>
+          <PortalProvider>
             <View testID="provider-host">
               <Drawer mountPoint="local" open>
                 <RNText>Local drawer</RNText>
               </Drawer>
             </View>
-          </PortalProvider></>);
+          </PortalProvider>
+        </>,
+      );
     });
     const providerHost = testRenderer!.root.findByProps({
-      testID: 'provider-host'
+      testID: 'provider-host',
     });
     const drawerOverlay = testRenderer!.root.findByProps({
-      testID: 'drawer-overlay-container'
+      testID: 'drawer-overlay-container',
     });
     const ancestors: renderer.ReactTestInstance[] = [];
     let current = drawerOverlay.parent;
@@ -219,7 +245,7 @@ describe('Drawer', () => {
     expect(() => {
       renderDrawer({
         mountPoint: 'portal',
-        open: true
+        open: true,
       });
     }).toThrow('PortalProvider');
   });

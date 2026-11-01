@@ -379,7 +379,9 @@ export type IconValue = string;
 export type VisibilityValue = EnumOf<typeof VISIBILITY>;
 export type SystemStatusValue = EnumOf<typeof SYSTEM_STATUS>;
 export type RecordTypeCategoryValue = EnumOf<typeof RECORD_TYPE_CATEGORY>;
-export type RecordTypeSpecialBehaviorValue = EnumOf<typeof RECORD_TYPE_SPECIAL_BEHAVIOR>;
+export type RecordTypeSpecialBehaviorValue = EnumOf<
+  typeof RECORD_TYPE_SPECIAL_BEHAVIOR
+>;
 export type ReimbursableValue = EnumOf<typeof REIMBURSABLE>;
 
 export type BookTypeValue = EnumOf<typeof BOOK_TYPE>;

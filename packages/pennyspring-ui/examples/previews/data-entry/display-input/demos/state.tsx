@@ -27,11 +27,7 @@ export function DisplayInputStateDemo() {
         status="success"
         valueText="已确认状态"
       />
-      <DisplayInput
-        labelText="Error"
-        status="error"
-        valueText="异常状态"
-      />
+      <DisplayInput labelText="Error" status="error" valueText="异常状态" />
     </Column>
   );
 }

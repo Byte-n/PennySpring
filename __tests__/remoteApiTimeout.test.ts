@@ -69,8 +69,7 @@ describe('createRemoteApi request timeout', () => {
       (error: unknown) => error,
     );
     const headers = jest.mocked(global.fetch).mock.calls[0][1]?.headers as
-      | Record<string, string>
-      | undefined;
+      Record<string, string> | undefined;
 
     expect(headers?.authorization).toBe(`Bearer ${SERVER_TOKEN}`);
 

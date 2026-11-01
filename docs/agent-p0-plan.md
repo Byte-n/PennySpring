@@ -15,14 +15,14 @@
 
 因此所有依赖运行时服务端的方案全部出局：
 
-| 被否方案 | 否因 |
-|---|---|
-| CopilotKit（`@copilotkit/react-native`） | 必须有 Copilot Runtime 服务端 |
-| Vercel AI SDK 服务端 `streamText` | 需要服务端 |
-| LangGraph / Mastra | 需要服务端进程 |
-| 纯端侧推理（llama.rn / Apple Foundation Models） | 用户明确不需要 |
-| Firebase AI Logic | 需绑定 GCP 项目 |
-| 自有 Key 内嵌客户端 | 会被提取，且可能被封禁 |
+| 被否方案                                         | 否因                          |
+| ------------------------------------------------ | ----------------------------- |
+| CopilotKit（`@copilotkit/react-native`）         | 必须有 Copilot Runtime 服务端 |
+| Vercel AI SDK 服务端 `streamText`                | 需要服务端                    |
+| LangGraph / Mastra                               | 需要服务端进程                |
+| 纯端侧推理（llama.rn / Apple Foundation Models） | 用户明确不需要                |
+| Firebase AI Logic                                | 需绑定 GCP 项目               |
+| 自有 Key 内嵌客户端                              | 会被提取，且可能被封禁        |
 
 **最终方案**：BYOK + OpenAI-compatible 直连 + 客户端自研 tool loop。
 
@@ -30,20 +30,20 @@
 
 ## 2. 已定决策
 
-| 项 | 决策 |
-|---|---|
-| 协议 | 只做 OpenAI-compatible（`{baseUrl}/chat/completions`），Anthropic 原生协议留 P2 |
-| Key 来源 | 用户在设置页填 Base URL / API Key / 模型名 |
-| Key 存储 | `react-native-keychain`（**已装 10.0.0，尚未重建原生**） |
-| 工具执行 | 设备端执行，直接调 `localApi`，不走 HTTP |
-| 一期工具 | **仅 1 个只读工具** `queryRecords`，不做任何写库 |
-| 上下文 | 仅全局：账本 id/名称/币种 + 类型字典；不做逐屏注入 |
-| 对话持久化 | **存完整链**（含 tool_calls 与 tool 结果），落 sqlite |
-| 会话模型 | 一账本多会话；启动恢复最近会话，可新建、切换、删除 |
-| 上下文截断 | 拼请求时取最近 20 条，且不切断 tool_call 与其 tool 结果的配对 |
-| UI 形态 | 悬浮球 + 底部抽屉 |
-| 代码分层 | `src/agent/{core,adapters,tools,projection,ui}`，**core 零 RN 依赖** |
-| 分包 | P0 不建 `packages/agent`；core 达到触发条件后整目录 `git mv` |
+| 项         | 决策                                                                            |
+| ---------- | ------------------------------------------------------------------------------- |
+| 协议       | 只做 OpenAI-compatible（`{baseUrl}/chat/completions`），Anthropic 原生协议留 P2 |
+| Key 来源   | 用户在设置页填 Base URL / API Key / 模型名                                      |
+| Key 存储   | `react-native-keychain`（**已装 10.0.0，尚未重建原生**）                        |
+| 工具执行   | 设备端执行，直接调 `localApi`，不走 HTTP                                        |
+| 一期工具   | **仅 1 个只读工具** `queryRecords`，不做任何写库                                |
+| 上下文     | 仅全局：账本 id/名称/币种 + 类型字典；不做逐屏注入                              |
+| 对话持久化 | **存完整链**（含 tool_calls 与 tool 结果），落 sqlite                           |
+| 会话模型   | 一账本多会话；启动恢复最近会话，可新建、切换、删除                              |
+| 上下文截断 | 拼请求时取最近 20 条，且不切断 tool_call 与其 tool 结果的配对                   |
+| UI 形态    | 悬浮球 + 底部抽屉                                                               |
+| 代码分层   | `src/agent/{core,adapters,tools,projection,ui}`，**core 零 RN 依赖**            |
+| 分包       | P0 不建 `packages/agent`；core 达到触发条件后整目录 `git mv`                    |
 
 ---
 
@@ -51,15 +51,15 @@
 
 联调端点（凭据在 `.env.agent.local`，已被 gitignore；**不要提交、不要写进代码**）。
 
-| 项目 | 结果 |
-|---|---|
-| Base URL | 必须是 `https://www.fastaitoken.com/v1`，根域不够 |
-| 模型 | 8 个：`gpt-5.5`、`gpt-5.6-sol`、`gpt-6-astra`、`gpt-6-sol`、`gpt-6.1-sol`、`codex-auto-review`、`gpt-image-2`、`gpt-image-2.5` |
-| tools | 支持，`arguments` 合法 JSON，`id` 正常返回 |
-| 流式 | 真流式：217 chunk / 246 字 / 5241ms |
-| tool loop 闭环 | 成立（回灌 `role: 'tool'` 后 `finish_reason=stop` 并正确引用结果） |
-| 固定注入 | **每次请求 prompt_tokens ≈ 4387，其中 cached 4224**，是站点注入的黑盒 system prompt |
-| TTFT | ≈ 2025ms，约 47 字/秒 |
+| 项目           | 结果                                                                                                                           |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| Base URL       | 必须是 `https://www.fastaitoken.com/v1`，根域不够                                                                              |
+| 模型           | 8 个：`gpt-5.5`、`gpt-5.6-sol`、`gpt-6-astra`、`gpt-6-sol`、`gpt-6.1-sol`、`codex-auto-review`、`gpt-image-2`、`gpt-image-2.5` |
+| tools          | 支持，`arguments` 合法 JSON，`id` 正常返回                                                                                     |
+| 流式           | 真流式：217 chunk / 246 字 / 5241ms                                                                                            |
+| tool loop 闭环 | 成立（回灌 `role: 'tool'` 后 `finish_reason=stop` 并正确引用结果）                                                             |
+| 固定注入       | **每次请求 prompt_tokens ≈ 4387，其中 cached 4224**，是站点注入的黑盒 system prompt                                            |
+| TTFT           | ≈ 2025ms，约 47 字/秒                                                                                                          |
 
 两个直接影响实现的结论：
 
@@ -98,18 +98,18 @@ src/agent/
 
 ### S1 数据层 ✅ 已完成
 
-| 文件 | 状态 |
-|---|---|
-| `packages/data/src/schema/agent.ts` | 新增：`tb_agent_thread`、`tb_agent_message` |
-| `packages/data/src/schema/index.ts` | 导出 agent 表 |
-| `packages/data/src/constants/index.ts` | 新增 `AGENT_MESSAGE_ROLE` + `AgentMessageRoleValue` |
-| `packages/data/src/services/agent-service.ts` | 新增：会话与消息读写 |
-| `packages/data/src/services/types.ts` | 新增 `AgentThreadRow` / `AgentMessageRow` / `AgentThreadDetail` / `CreateAgentMessageInput` |
-| `packages/data/src/services/index.ts` | 导出新 service 与类型 |
-| `packages/data/src/api-factory.ts` | 新增 `api.agent.*` 七个方法 |
-| `packages/data/drizzle/0001_jittery_ultimates.sql` | drizzle-kit 生成 |
-| `packages/data/drizzle/meta/0001_snapshot.json`、`_journal.json`、`migrations.js` | 同上 |
-| `packages/data/__tests__/agent-service.test.ts` | 12 个用例 |
+| 文件                                                                              | 状态                                                                                        |
+| --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| `packages/data/src/schema/agent.ts`                                               | 新增：`tb_agent_thread`、`tb_agent_message`                                                 |
+| `packages/data/src/schema/index.ts`                                               | 导出 agent 表                                                                               |
+| `packages/data/src/constants/index.ts`                                            | 新增 `AGENT_MESSAGE_ROLE` + `AgentMessageRoleValue`                                         |
+| `packages/data/src/services/agent-service.ts`                                     | 新增：会话与消息读写                                                                        |
+| `packages/data/src/services/types.ts`                                             | 新增 `AgentThreadRow` / `AgentMessageRow` / `AgentThreadDetail` / `CreateAgentMessageInput` |
+| `packages/data/src/services/index.ts`                                             | 导出新 service 与类型                                                                       |
+| `packages/data/src/api-factory.ts`                                                | 新增 `api.agent.*` 七个方法                                                                 |
+| `packages/data/drizzle/0001_jittery_ultimates.sql`                                | drizzle-kit 生成                                                                            |
+| `packages/data/drizzle/meta/0001_snapshot.json`、`_journal.json`、`migrations.js` | 同上                                                                                        |
+| `packages/data/__tests__/agent-service.test.ts`                                   | 12 个用例                                                                                   |
 
 **api 形状**（`localApi.agent.*`）：
 
@@ -127,14 +127,14 @@ deleteThread(threadId): Promise<void>
 
 ### S2 core 循环 ✅ 已完成
 
-| 文件 | 内容 |
-|---|---|
-| `src/agent/core/types.ts` | `ChatMessage` / `ToolCall` / `StreamEvent` / `TokenUsage` / `Transport` / `ToolExecutor` |
-| `src/agent/core/protocol/openai.ts` | 请求构造（OpenAI 消息映射）、SSE 行缓冲解析、tool_calls 按 index 分片拼装 |
-| `src/agent/core/protocol/errors.ts` | 401/403/404/429/5xx/网络/超时/中断归一化为 `AgentError`（中文文案） |
-| `src/agent/core/context.ts` | 历史窗口默认 20 条，保留首部 system，且不切断 assistant(tool_calls) 与 tool 结果 |
-| `src/agent/core/loop/runAgent.ts` | 工具循环（默认 3 步、硬上限 5）、AbortSignal、usage 收集、工具异常回灌 |
-| `src/agent/core/url.ts` | Base URL 归一化与 `/chat/completions`、`/models` 拼接 |
+| 文件                                | 内容                                                                                     |
+| ----------------------------------- | ---------------------------------------------------------------------------------------- |
+| `src/agent/core/types.ts`           | `ChatMessage` / `ToolCall` / `StreamEvent` / `TokenUsage` / `Transport` / `ToolExecutor` |
+| `src/agent/core/protocol/openai.ts` | 请求构造（OpenAI 消息映射）、SSE 行缓冲解析、tool_calls 按 index 分片拼装                |
+| `src/agent/core/protocol/errors.ts` | 401/403/404/429/5xx/网络/超时/中断归一化为 `AgentError`（中文文案）                      |
+| `src/agent/core/context.ts`         | 历史窗口默认 20 条，保留首部 system，且不切断 assistant(tool_calls) 与 tool 结果         |
+| `src/agent/core/loop/runAgent.ts`   | 工具循环（默认 3 步、硬上限 5）、AbortSignal、usage 收集、工具异常回灌                   |
+| `src/agent/core/url.ts`             | Base URL 归一化与 `/chat/completions`、`/models` 拼接                                    |
 
 **接口调整**：`Transport` 不再携带 baseUrl/apiKey/model，改由适配层闭包绑定（`createXhrStreamTransport({ baseUrl, apiKey, model })`），core 保持纯函数式依赖注入。
 
@@ -142,22 +142,22 @@ deleteThread(threadId): Promise<void>
 
 ### S3 装配与 UI ✅ 已完成
 
-| 文件 | 内容 |
-|---|---|
+| 文件                                    | 内容                                                                                         |
+| --------------------------------------- | -------------------------------------------------------------------------------------------- |
 | `src/agent/adapters/streamTransport.ts` | XHR `onprogress` + 增量 `responseText` 手写 SSE；120s 超时、AbortSignal、HTTP/网络错误归一化 |
-| `src/agent/adapters/secureKey.ts` | `react-native-keychain` 读写，service = `pennyspring.agent`；Key 不进入配置库 |
-| `src/agent/adapters/configStore.ts` | zustand + persist（复用 op-sqlite Storage），仅持久化 `baseUrl` / `model` |
-| `src/agent/adapters/connectionTest.ts` | `GET {baseUrl}/models` 连通性测试，中文结果提示 |
-| `src/agent/tools/queryRecords.ts` | 只读查询工具，本地 API 拉取后在内存过滤/聚合 |
-| `src/agent/projection/record.ts` | 金额分→元、字段白名单、条数/分组上限、按类型祖先展开 |
-| `src/agent/projection/context.ts` | system prompt：账本、当前日期、类型字典、只读约束、相对时间规则 |
-| `src/agent/ui/chatModel.ts` | 持久化行 ↔ `ChatMessage` 双向映射、tool_calls/usage 解析、token 汇总 |
-| `src/agent/ui/useAgentChat.ts` | 会话加载/切换/新建/删除、持久化、标题、流式文本、工具状态、停止 |
-| `src/agent/ui/AgentRoot.tsx` | 覆盖层 + 错误边界；Home 显示悬浮球，其他路由隐藏；远程模式提示后禁用 |
-| `src/agent/ui/AgentDrawer.tsx` | 底部抽屉：消息气泡、空态建议、流式输出、思考/工具状态、输入与停止 |
-| `src/agent/ui/AgentSettingsPanel.tsx` | Base URL / 模型 / Key、连通性测试、token 统计、删除当前会话 |
-| `src/stores/bookStorage.ts` | 抽出 `createSqliteStateStorage()`，配置库复用同一 op-sqlite Storage |
-| `App.tsx` | 成功分支在 `RootStackNavigator` 同级挂载 `AgentRoot` |
+| `src/agent/adapters/secureKey.ts`       | `react-native-keychain` 读写，service = `pennyspring.agent`；Key 不进入配置库                |
+| `src/agent/adapters/configStore.ts`     | zustand + persist（复用 op-sqlite Storage），仅持久化 `baseUrl` / `model`                    |
+| `src/agent/adapters/connectionTest.ts`  | `GET {baseUrl}/models` 连通性测试，中文结果提示                                              |
+| `src/agent/tools/queryRecords.ts`       | 只读查询工具，本地 API 拉取后在内存过滤/聚合                                                 |
+| `src/agent/projection/record.ts`        | 金额分→元、字段白名单、条数/分组上限、按类型祖先展开                                         |
+| `src/agent/projection/context.ts`       | system prompt：账本、当前日期、类型字典、只读约束、相对时间规则                              |
+| `src/agent/ui/chatModel.ts`             | 持久化行 ↔ `ChatMessage` 双向映射、tool_calls/usage 解析、token 汇总                         |
+| `src/agent/ui/useAgentChat.ts`          | 会话加载/切换/新建/删除、持久化、标题、流式文本、工具状态、停止                              |
+| `src/agent/ui/AgentRoot.tsx`            | 覆盖层 + 错误边界；Home 显示悬浮球，其他路由隐藏；远程模式提示后禁用                         |
+| `src/agent/ui/AgentDrawer.tsx`          | 底部抽屉：消息气泡、空态建议、流式输出、思考/工具状态、输入与停止                            |
+| `src/agent/ui/AgentSettingsPanel.tsx`   | Base URL / 模型 / Key、连通性测试、token 统计、删除当前会话                                  |
+| `src/stores/bookStorage.ts`             | 抽出 `createSqliteStateStorage()`，配置库复用同一 op-sqlite Storage                          |
+| `App.tsx`                               | 成功分支在 `RootStackNavigator` 同级挂载 `AgentRoot`                                         |
 
 **测试**：`__tests__/agent/queryRecords.test.ts`（18）、`chatModel.test.ts`（8）、`AgentDrawer.test.tsx`（6），全部通过。
 

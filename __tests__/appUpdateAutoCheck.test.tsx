@@ -17,9 +17,8 @@ jest.mock('../src/stores/bookStorage', () => ({
 }));
 
 jest.mock('../src/stores/bookStore', () => ({
-  useBookStore: (
-    selector: (state: { initStatus: string }) => unknown,
-  ) => selector({ initStatus: 'success' }),
+  useBookStore: (selector: (state: { initStatus: string }) => unknown) =>
+    selector({ initStatus: 'success' }),
 }));
 
 jest.mock('../src/navigation', () => ({
@@ -153,7 +152,9 @@ describe('auto update check', () => {
 
     const raw = mockStorageState.get(AUTO_UPDATE_STORE_KEY);
     expect(raw).toBeDefined();
-    expect(JSON.parse(raw as string).state).toEqual({ autoCheckEnabled: false });
+    expect(JSON.parse(raw as string).state).toEqual({
+      autoCheckEnabled: false,
+    });
   });
 
   it('checks once on launch and shows a notification when an update is available', async () => {

@@ -5,7 +5,9 @@ export function TooltipOverflowDemo() {
   return (
     <Column gap="normal">
       <Text color="tertiary" size="sm">
-        宽度封顶 240；高度取当前方位的可用空间并按整行封顶，超出在气泡内滚动。内容仍读不完时，应该改用 Popover 或页面。
+        宽度封顶
+        240；高度取当前方位的可用空间并按整行封顶，超出在气泡内滚动。内容仍读不完时，应该改用
+        Popover 或页面。
       </Text>
       <Space align="center" gap="large" wrap>
         <Tooltip content="短内容只占一行，不会出现滚动条。">

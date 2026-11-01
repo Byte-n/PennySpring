@@ -1,5 +1,8 @@
 import { parseMarkdown } from '../../src/component/markdown/parser';
-import type { MarkdownBlock, MarkdownInline } from '../../src/component/markdown/types';
+import type {
+  MarkdownBlock,
+  MarkdownInline,
+} from '../../src/component/markdown/types';
 
 function joinText(tokens: readonly MarkdownInline[]): string {
   return tokens
@@ -54,7 +57,11 @@ describe('parseMarkdown', () => {
 
     expect(tokens).toHaveLength(1);
     expect(tokens[0]).toMatchObject({ level: 3 });
-    expect(joinText((tokens[0] as Extract<MarkdownBlock, { type: 'heading' }>).children)).toBe('本月支出 汇总');
+    expect(
+      joinText(
+        (tokens[0] as Extract<MarkdownBlock, { type: 'heading' }>).children,
+      ),
+    ).toBe('本月支出 汇总');
   });
 
   it('joins consecutive lines into one paragraph and treats blank lines as block breaks', () => {
@@ -83,7 +90,9 @@ describe('parseMarkdown', () => {
   it('treats paired tildes as strikethrough', () => {
     const [paragraph] = parseMarkdown('~~已删除~~ 记录');
 
-    expect((paragraph as Extract<MarkdownBlock, { type: 'paragraph' }>).children[0]).toMatchObject({
+    expect(
+      (paragraph as Extract<MarkdownBlock, { type: 'paragraph' }>).children[0],
+    ).toMatchObject({
       type: 'del',
       children: [{ type: 'text', value: '已删除' }],
     });
@@ -92,7 +101,9 @@ describe('parseMarkdown', () => {
   it('keeps inline code verbatim without parsing emphasis inside', () => {
     const [paragraph] = parseMarkdown('金额 `**120.00**` 元');
 
-    expect((paragraph as Extract<MarkdownBlock, { type: 'paragraph' }>).children).toContainEqual({
+    expect(
+      (paragraph as Extract<MarkdownBlock, { type: 'paragraph' }>).children,
+    ).toContainEqual({
       type: 'code',
       value: '**120.00**',
     });
@@ -101,13 +112,21 @@ describe('parseMarkdown', () => {
   it('keeps an unpaired backtick as literal text instead of swallowing the line', () => {
     const [paragraph] = parseMarkdown('` 号 *娱乐*');
 
-    expect(joinText((paragraph as Extract<MarkdownBlock, { type: 'paragraph' }>).children)).toBe('` 号 娱乐');
+    expect(
+      joinText(
+        (paragraph as Extract<MarkdownBlock, { type: 'paragraph' }>).children,
+      ),
+    ).toBe('` 号 娱乐');
   });
 
   it('prefers a link over an emphasis marker when brackets and parentheses pair up', () => {
-    const [paragraph] = parseMarkdown('账单明细 [明细页](https://example.com/bill) *备注*');
+    const [paragraph] = parseMarkdown(
+      '账单明细 [明细页](https://example.com/bill) *备注*',
+    );
 
-    const children = (paragraph as Extract<MarkdownBlock, { type: 'paragraph' }>).children;
+    const children = (
+      paragraph as Extract<MarkdownBlock, { type: 'paragraph' }>
+    ).children;
     expect(children).toContainEqual({
       type: 'link',
       href: 'https://example.com/bill',
@@ -123,11 +142,17 @@ describe('parseMarkdown', () => {
   it('drops the image label brackets but keeps its alt text as plain text', () => {
     const [paragraph] = parseMarkdown('![收据](https://example.com/a.png)');
 
-    expect(joinText((paragraph as Extract<MarkdownBlock, { type: 'paragraph' }>).children)).toBe('收据');
+    expect(
+      joinText(
+        (paragraph as Extract<MarkdownBlock, { type: 'paragraph' }>).children,
+      ),
+    ).toBe('收据');
   });
 
   it('keeps fence content untouched and records the language', () => {
-    const tokens = parseMarkdown('```json\n{"total": **120**}\n```\n\n后续说明');
+    const tokens = parseMarkdown(
+      '```json\n{"total": **120**}\n```\n\n后续说明',
+    );
 
     expect(tokens[0]).toMatchObject({
       type: 'code_block',
@@ -149,7 +174,10 @@ describe('parseMarkdown', () => {
 
     expect(tokens[0]).toMatchObject({ type: 'list', ordered: true, start: 3 });
     const list = tokens[0] as Extract<MarkdownBlock, { type: 'list' }>;
-    expect(list.items.map(item => joinBlocks(item.children))).toEqual(['餐饮', '交通']);
+    expect(list.items.map(item => joinBlocks(item.children))).toEqual([
+      '餐饮',
+      '交通',
+    ]);
   });
 
   it('nests indented list items under the preceding item', () => {
@@ -157,11 +185,13 @@ describe('parseMarkdown', () => {
 
     const list = tokens[0] as Extract<MarkdownBlock, { type: 'list' }>;
     expect(list.items).toHaveLength(2);
-    const nested = list.items[0].children.find(child => child.type === 'list') as Extract<
-      MarkdownBlock,
-      { type: 'list' }
-    >;
-    expect(nested.items.map(item => joinBlocks(item.children))).toEqual(['火锅', '咖啡']);
+    const nested = list.items[0].children.find(
+      child => child.type === 'list',
+    ) as Extract<MarkdownBlock, { type: 'list' }>;
+    expect(nested.items.map(item => joinBlocks(item.children))).toEqual([
+      '火锅',
+      '咖啡',
+    ]);
   });
 
   it('parses blockquote content as blocks without the marker', () => {
@@ -169,13 +199,18 @@ describe('parseMarkdown', () => {
 
     const quote = tokens[0] as Extract<MarkdownBlock, { type: 'blockquote' }>;
     expect(tokens[0]).toMatchObject({ type: 'blockquote' });
-    expect(joinText((quote.children[0] as Extract<MarkdownBlock, { type: 'paragraph' }>).children)).toBe(
-      '提示：先选月份 再选类型',
-    );
+    expect(
+      joinText(
+        (quote.children[0] as Extract<MarkdownBlock, { type: 'paragraph' }>)
+          .children,
+      ),
+    ).toBe('提示：先选月份 再选类型');
   });
 
   it('recognises a pipe table with header, separator and body rows', () => {
-    const tokens = parseMarkdown('| 类型 | 金额 |\n| --- | --- |\n| 餐饮 | 120 |');
+    const tokens = parseMarkdown(
+      '| 类型 | 金额 |\n| --- | --- |\n| 餐饮 | 120 |',
+    );
 
     const table = tokens[0] as Extract<MarkdownBlock, { type: 'table' }>;
     expect(tokens[0]).toMatchObject({ type: 'table' });
@@ -202,8 +237,10 @@ describe('parseMarkdown', () => {
   it('ignores escaped markers so they show as literal characters', () => {
     const [paragraph] = parseMarkdown('节省 \\*注意\\* 金额');
 
-    expect(joinText((paragraph as Extract<MarkdownBlock, { type: 'paragraph' }>).children)).toBe(
-      '节省 *注意* 金额',
-    );
+    expect(
+      joinText(
+        (paragraph as Extract<MarkdownBlock, { type: 'paragraph' }>).children,
+      ),
+    ).toBe('节省 *注意* 金额');
   });
 });

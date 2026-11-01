@@ -30,8 +30,10 @@ export interface SegmentedStyles {
   label?: StyleProp<TextStyle>;
 }
 
-export interface SegmentedProps
-  extends Omit<PressableProps, 'style' | 'children' | 'disabled' | 'onPress'> {
+export interface SegmentedProps extends Omit<
+  PressableProps,
+  'style' | 'children' | 'disabled' | 'onPress'
+> {
   options?: SegmentedOption[];
   value?: SegmentedValue;
   defaultValue?: SegmentedValue;

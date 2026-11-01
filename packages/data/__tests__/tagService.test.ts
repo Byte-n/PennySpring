@@ -32,9 +32,9 @@ function createTestDatabase(): TestDatabase {
   `);
 
   const syncDb = drizzle(connection, { schema });
-  (syncDb as unknown as { transaction: unknown }).transaction = async function <T>(
-    fn: (tx: unknown) => Promise<T>,
-  ): Promise<T> {
+  (syncDb as unknown as { transaction: unknown }).transaction = async function <
+    T,
+  >(fn: (tx: unknown) => Promise<T>): Promise<T> {
     connection.exec('BEGIN');
     try {
       const result = await fn(syncDb);
@@ -57,7 +57,9 @@ describe('deleteTag', () => {
     const { connection, db } = createTestDatabase();
     const tag = await createTag(db, { booksId: 1, name: '报销' });
     connection
-      .prepare('INSERT INTO tb_tag_with_record (record_id, tag_id) VALUES (?, ?)')
+      .prepare(
+        'INSERT INTO tb_tag_with_record (record_id, tag_id) VALUES (?, ?)',
+      )
       .run(10, tag.id);
 
     await deleteTag(db, tag.id, 1);

@@ -29,7 +29,9 @@ const TOKENS = {
   paddingSM: 12,
 } as const;
 
-function renderMessage(props: Partial<React.ComponentProps<typeof Message>> = {}) {
+function renderMessage(
+  props: Partial<React.ComponentProps<typeof Message>> = {},
+) {
   let testRenderer: renderer.ReactTestRenderer;
 
   act(() => {
@@ -56,7 +58,9 @@ function getContentStyle(testRenderer: renderer.ReactTestRenderer) {
 }
 
 function getHeaderIcon(testRenderer: renderer.ReactTestRenderer) {
-  return testRenderer.root.findAllByType(Icon).find(node => node.props.icon !== 'close');
+  return testRenderer.root
+    .findAllByType(Icon)
+    .find(node => node.props.icon !== 'close');
 }
 
 describe('Message', () => {
@@ -66,12 +70,15 @@ describe('Message', () => {
     ['error', 'errorBgToken'],
     ['info', 'infoBgToken'],
     ['default', 'containerToken'],
-  ] as const)('paints %s on its semantic background', (status, expectedBackground) => {
-    const testRenderer = renderMessage({ status });
-    const contentStyle = getContentStyle(testRenderer);
+  ] as const)(
+    'paints %s on its semantic background',
+    (status, expectedBackground) => {
+      const testRenderer = renderMessage({ status });
+      const contentStyle = getContentStyle(testRenderer);
 
-    expect(contentStyle.backgroundColor).toBe(expectedBackground);
-  });
+      expect(contentStyle.backgroundColor).toBe(expectedBackground);
+    },
+  );
 
   it('keeps a hairline border only on the default status', () => {
     const defaultStyle = getContentStyle(renderMessage());
@@ -99,10 +106,14 @@ describe('Message', () => {
 
   it('renders the body as 14 / two lines of colorText', () => {
     const testRenderer = renderMessage();
-    const textNode = testRenderer.root
-      .findAllByType(Text)
-      .find(node => typeof node.props.children !== 'string' && node.props.children !== undefined)
-      ?? testRenderer.root.findAllByType(Text)[0];
+    const textNode =
+      testRenderer.root
+        .findAllByType(Text)
+        .find(
+          node =>
+            typeof node.props.children !== 'string' &&
+            node.props.children !== undefined,
+        ) ?? testRenderer.root.findAllByType(Text)[0];
 
     expect(textNode.props.size).toBe('sm');
     expect(textNode.props.numberOfLines).toBe(2);
@@ -113,7 +124,11 @@ describe('Message', () => {
     jest.useFakeTimers();
     const onPress = jest.fn();
     const onCancel = jest.fn();
-    const testRenderer = renderMessage({ action: { onPress, text: '撤销' }, onCancel, status: 'success' });
+    const testRenderer = renderMessage({
+      action: { onPress, text: '撤销' },
+      onCancel,
+      status: 'success',
+    });
     const actionNode = testRenderer.root.findAllByType(Text).find(node => {
       return typeof node.props.onPress === 'function';
     });
@@ -138,7 +153,9 @@ describe('Message', () => {
     const closableRenderer = renderMessage();
     const lockedRenderer = renderMessage({ closable: false });
     const findCloseIcon = (testRenderer: renderer.ReactTestRenderer) =>
-      testRenderer.root.findAllByType(Icon).filter(node => node.props.icon === 'close');
+      testRenderer.root
+        .findAllByType(Icon)
+        .filter(node => node.props.icon === 'close');
 
     expect(findCloseIcon(closableRenderer)).toHaveLength(1);
     expect(findCloseIcon(lockedRenderer)).toHaveLength(0);

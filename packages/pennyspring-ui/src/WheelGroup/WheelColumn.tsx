@@ -104,9 +104,10 @@ export function WheelColumn<TItem extends WheelGroupItemData>({
     }
 
     const itemHeightChanged = lastItemHeightRef.current !== itemHeight;
-    const needsSync = !didSyncRef.current
-      || itemHeightChanged
-      || selectedIndex !== activeIndexRef.current;
+    const needsSync =
+      !didSyncRef.current ||
+      itemHeightChanged ||
+      selectedIndex !== activeIndexRef.current;
 
     lastItemHeightRef.current = itemHeight;
     didSyncRef.current = true;
@@ -124,12 +125,15 @@ export function WheelColumn<TItem extends WheelGroupItemData>({
     });
   }, [itemHeight, selectedIndex]);
 
-  useEffect(() => () => {
-    if (settleTimerRef.current !== null) {
-      clearTimeout(settleTimerRef.current);
-      settleTimerRef.current = null;
-    }
-  }, []);
+  useEffect(
+    () => () => {
+      if (settleTimerRef.current !== null) {
+        clearTimeout(settleTimerRef.current);
+        settleTimerRef.current = null;
+      }
+    },
+    [],
+  );
 
   const handleScroll = useMemoizedFn(
     (event: NativeSyntheticEvent<NativeScrollEvent>) => {

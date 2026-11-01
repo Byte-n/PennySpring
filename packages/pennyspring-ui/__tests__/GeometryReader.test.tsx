@@ -20,9 +20,7 @@ describe('GeometryReader', () => {
 
   it('calls children with geometry after onLayout fires', () => {
     const children = jest.fn(() => <Text>Content</Text>);
-    const testRenderer = render(
-      <GeometryReader>{children}</GeometryReader>,
-    );
+    const testRenderer = render(<GeometryReader>{children}</GeometryReader>);
     const root = testRenderer.root.findByProps({ testID: 'geometry-reader' });
     act(() => {
       root.props.onLayout({
@@ -34,9 +32,7 @@ describe('GeometryReader', () => {
 
   it('updates children when layout size changes', () => {
     const children = jest.fn(() => <Text>Content</Text>);
-    const testRenderer = render(
-      <GeometryReader>{children}</GeometryReader>,
-    );
+    const testRenderer = render(<GeometryReader>{children}</GeometryReader>);
     const root = testRenderer.root.findByProps({ testID: 'geometry-reader' });
 
     act(() => {

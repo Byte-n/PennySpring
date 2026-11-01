@@ -24,7 +24,8 @@ export function ImageGroupDemo() {
   return (
     <Column gap="small">
       <Text color="tertiary" size="xs">
-        Image.PreviewGroup · 子图片自动注册；组内忽略 preview 属性，点击后打开共享预览
+        Image.PreviewGroup · 子图片自动注册；组内忽略 preview
+        属性，点击后打开共享预览
       </Text>
       <Image.PreviewGroup>
         <Row style={styles.row}>

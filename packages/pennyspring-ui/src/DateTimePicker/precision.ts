@@ -18,7 +18,10 @@ const TIME_COLUMN_TYPES: DateTimePickerColumnType[] = [
   'minute',
   'second',
 ];
-const DEFAULT_PARTS_PRECISION: Record<DateTimePickerParts, DateTimePickerPrecision> = {
+const DEFAULT_PARTS_PRECISION: Record<
+  DateTimePickerParts,
+  DateTimePickerPrecision
+> = {
   datetime: 'minute',
   date: 'day',
   time: 'minute',
@@ -99,15 +102,17 @@ export function hasTimePart(
     return false;
   }
 
-  return indexOfPrecision(TIME_PRECISIONS, normalizePrecision(parts, precision)) >= 0;
+  return (
+    indexOfPrecision(TIME_PRECISIONS, normalizePrecision(parts, precision)) >= 0
+  );
 }
 
 export function hasDatePart(
   parts: DateTimePickerParts,
   precision?: DateTimePickerPrecision,
 ): boolean {
-  return getColumnTypes(parts, precision).some(type =>
-    indexOfPrecision(DATE_PRECISIONS, type) >= 0,
+  return getColumnTypes(parts, precision).some(
+    type => indexOfPrecision(DATE_PRECISIONS, type) >= 0,
   );
 }
 

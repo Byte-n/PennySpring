@@ -1,6 +1,6 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { ScrollView } from 'react-native'
-import { useRequest } from 'ahooks'
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { ScrollView } from 'react-native';
+import { useRequest } from 'ahooks';
 import {
   Button,
   Card,
@@ -11,23 +11,23 @@ import {
   Switch,
   Text,
   useToast,
-} from '@pennyspring/ui'
-import type { BookRow } from '@pennyspring/api'
-import { localApi } from '@pennyspring/api'
-import { createUseSheetStyle } from '@pennyspring/ui'
+} from '@pennyspring/ui';
+import type { BookRow } from '@pennyspring/api';
+import { localApi } from '@pennyspring/api';
+import { createUseSheetStyle } from '@pennyspring/ui';
 
-import { shareBackupBytes } from '../../features/backup/share'
-import { formatBytes, totalRecords } from '../../features/transfer'
+import { shareBackupBytes } from '../../features/backup/share';
+import { formatBytes, totalRecords } from '../../features/transfer';
 import {
   exportBooksToFile,
   type SavedExportResult,
-} from '../../features/transfer/operations'
-import { useNavigation } from '../../navigation'
+} from '../../features/transfer/operations';
+import { useNavigation } from '../../navigation';
 import {
   createBackupHistoryId,
   useBackupHistoryStore,
-} from '../../stores/backupHistoryStore'
-import { useBookStore } from '../../stores/bookStore'
+} from '../../stores/backupHistoryStore';
+import { useBookStore } from '../../stores/bookStore';
 
 const useStyles = createUseSheetStyle(token => ({
   container: {
@@ -62,59 +62,60 @@ const useStyles = createUseSheetStyle(token => ({
     gap: token.marginXS,
     width: '100%',
   },
-}))
+}));
 
 function getErrorMessage(error: unknown): string {
-  return error instanceof Error ? error.message : '导出失败'
+  return error instanceof Error ? error.message : '导出失败';
 }
 
 export function BackupExportScreen() {
-  const styles = useStyles()
-  const navigation = useNavigation()
-  const toast = useToast()
-  const currentBookRef = useBookStore(state => state.currentBookRef)
-  const addHistory = useBackupHistoryStore(state => state.addEntry)
-  const { data, loading } = useRequest(() => localApi.book.getAll())
-  const books = data ?? []
+  const styles = useStyles();
+  const navigation = useNavigation();
+  const toast = useToast();
+  const currentBookRef = useBookStore(state => state.currentBookRef);
+  const addHistory = useBackupHistoryStore(state => state.addEntry);
+  const { data, loading } = useRequest(() => localApi.book.getAll());
+  const books = data ?? [];
 
-  const [selectedIds, setSelectedIds] = useState<number[] | null>(null)
-  const [includeImages, setIncludeImages] = useState(true)
-  const [includeAgent, setIncludeAgent] = useState(false)
-  const [busy, setBusy] = useState(false)
-  const [sharing, setSharing] = useState(false)
-  const [errorText, setErrorText] = useState('')
-  const [saved, setSaved] = useState<SavedExportResult | null>(null)
+  const [selectedIds, setSelectedIds] = useState<number[] | null>(null);
+  const [includeImages, setIncludeImages] = useState(true);
+  const [includeAgent, setIncludeAgent] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [sharing, setSharing] = useState(false);
+  const [errorText, setErrorText] = useState('');
+  const [saved, setSaved] = useState<SavedExportResult | null>(null);
 
   useEffect(() => {
-    if (selectedIds !== null || books.length === 0) return
-    const currentId = currentBookRef?.kind === 'local' ? currentBookRef.id : books[0]?.id
-    setSelectedIds(currentId ? [currentId] : [])
-  }, [books, currentBookRef, selectedIds])
+    if (selectedIds !== null || books.length === 0) return;
+    const currentId =
+      currentBookRef?.kind === 'local' ? currentBookRef.id : books[0]?.id;
+    setSelectedIds(currentId ? [currentId] : []);
+  }, [books, currentBookRef, selectedIds]);
 
   const selectedBooks = useMemo(
     () => books.filter(book => selectedIds?.includes(book.id) ?? false),
     [books, selectedIds],
-  )
+  );
 
   const toggleBook = useCallback((book: BookRow) => {
     setSelectedIds(current => {
-      const values = current ?? []
+      const values = current ?? [];
       return values.includes(book.id)
         ? values.filter(id => id !== book.id)
-        : [...values, book.id]
-    })
-  }, [])
+        : [...values, book.id];
+    });
+  }, []);
 
   const handleExport = useCallback(async () => {
-    if (!selectedIds || selectedIds.length === 0 || busy) return
-    setBusy(true)
-    setErrorText('')
+    if (!selectedIds || selectedIds.length === 0 || busy) return;
+    setBusy(true);
+    setErrorText('');
     try {
       const result = await exportBooksToFile({
         bookIds: selectedIds,
         includeAgent,
         includeImages,
-      })
+      });
       addHistory({
         id: createBackupHistoryId(),
         kind: 'export',
@@ -126,30 +127,34 @@ export function BackupExportScreen() {
         uri: result.savedUri,
         status: 'success',
         errorText: '',
-      })
-      setSaved(result)
+      });
+      setSaved(result);
     } catch (error: unknown) {
-      setErrorText(getErrorMessage(error))
+      setErrorText(getErrorMessage(error));
     } finally {
-      setBusy(false)
+      setBusy(false);
     }
-  }, [addHistory, busy, includeAgent, includeImages, selectedIds])
+  }, [addHistory, busy, includeAgent, includeImages, selectedIds]);
 
   const handleShare = useCallback(async (): Promise<void> => {
-    if (!saved || sharing) return
-    setSharing(true)
+    if (!saved || sharing) return;
+    setSharing(true);
     try {
-      await shareBackupBytes(saved.zip, saved.fileName)
+      await shareBackupBytes(saved.zip, saved.fileName);
     } catch (error: unknown) {
-      toast.show({ messageText: getErrorMessage(error), status: 'error' })
+      toast.show({ messageText: getErrorMessage(error), status: 'error' });
     } finally {
-      setSharing(false)
+      setSharing(false);
     }
-  }, [saved, sharing, toast])
+  }, [saved, sharing, toast]);
 
   if (saved) {
     return (
-      <ScrollView contentContainerStyle={styles.content} scrollEnabled style={styles.container}>
+      <ScrollView
+        contentContainerStyle={styles.content}
+        scrollEnabled
+        style={styles.container}
+      >
         <Result
           status="success"
           titleText="备份已保存"
@@ -171,18 +176,26 @@ export function BackupExportScreen() {
           }
         />
       </ScrollView>
-    )
+    );
   }
 
-  const canExport = (selectedIds?.length ?? 0) > 0 && !busy
+  const canExport = (selectedIds?.length ?? 0) > 0 && !busy;
 
   return (
-    <ScrollView contentContainerStyle={styles.content} scrollEnabled style={styles.container}>
+    <ScrollView
+      contentContainerStyle={styles.content}
+      scrollEnabled
+      style={styles.container}
+    >
       <Card titleText="选择账本">
         {loading ? (
-          <Text color="secondary" size="sm">正在读取本地账本…</Text>
+          <Text color="secondary" size="sm">
+            正在读取本地账本…
+          </Text>
         ) : books.length === 0 ? (
-          <Text color="secondary" size="sm">没有可导出的本地账本。</Text>
+          <Text color="secondary" size="sm">
+            没有可导出的本地账本。
+          </Text>
         ) : (
           <Column style={styles.books}>
             {books.map(book => (
@@ -208,7 +221,9 @@ export function BackupExportScreen() {
           <Row align="center" justify="between" gap="small">
             <Column style={styles.optionText}>
               <Text>图片附件</Text>
-              <Text color="secondary" size="sm">账本封面与流水图片会打入备份包。</Text>
+              <Text color="secondary" size="sm">
+                账本封面与流水图片会打入备份包。
+              </Text>
             </Column>
             <Switch
               accessibilityLabel="图片附件"
@@ -219,7 +234,9 @@ export function BackupExportScreen() {
           <Row align="center" justify="between" gap="small">
             <Column style={styles.optionText}>
               <Text>AI 会话</Text>
-              <Text color="secondary" size="sm">默认关闭；开启后包含会话、消息和消息中的图片。</Text>
+              <Text color="secondary" size="sm">
+                默认关闭；开启后包含会话、消息和消息中的图片。
+              </Text>
             </Column>
             <Switch
               accessibilityLabel="AI 会话"
@@ -232,13 +249,19 @@ export function BackupExportScreen() {
 
       <Card titleText="安全边界">
         <Column style={styles.note}>
-          <Text color="secondary" size="sm">API Key、AI 提供商配置、服务器连接信息永不写入备份。</Text>
-          <Text color="tertiary" size="xs">导入时只新建账本，不覆盖、不合并现有数据。</Text>
+          <Text color="secondary" size="sm">
+            API Key、AI 提供商配置、服务器连接信息永不写入备份。
+          </Text>
+          <Text color="tertiary" size="xs">
+            导入时只新建账本，不覆盖、不合并现有数据。
+          </Text>
         </Column>
       </Card>
 
       {errorText ? (
-        <Text color="errorText" size="sm" style={styles.error}>{errorText}</Text>
+        <Text color="errorText" size="sm" style={styles.error}>
+          {errorText}
+        </Text>
       ) : null}
 
       <Button
@@ -254,5 +277,5 @@ export function BackupExportScreen() {
         已选择 {selectedBooks.length} 个账本
       </Text>
     </ScrollView>
-  )
+  );
 }

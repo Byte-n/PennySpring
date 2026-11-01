@@ -11,25 +11,26 @@ import com.pennyspring.lantransfer.LanTransferPackage
 import com.pennyspring.quickbook.QuickBookPackage
 import com.pennyspring.update.UpdatePackage
 
-class MainApplication : Application(), ReactApplication {
+class MainApplication :
+    Application(),
+    ReactApplication {
+    override val reactHost: ReactHost by lazy {
+        getDefaultReactHost(
+            context = applicationContext,
+            packageList =
+                PackageList(this).packages.apply {
+                    // Packages that cannot be autolinked yet can be added manually here, for example:
+                    // add(MyReactNativePackage())
+                    add(QuickBookPackage())
+                    add(BackupPackage())
+                    add(LanTransferPackage())
+                    add(UpdatePackage())
+                },
+        )
+    }
 
-  override val reactHost: ReactHost by lazy {
-    getDefaultReactHost(
-      context = applicationContext,
-      packageList =
-        PackageList(this).packages.apply {
-          // Packages that cannot be autolinked yet can be added manually here, for example:
-          // add(MyReactNativePackage())
-          add(QuickBookPackage())
-          add(BackupPackage())
-          add(LanTransferPackage())
-          add(UpdatePackage())
-        },
-    )
-  }
-
-  override fun onCreate() {
-    super.onCreate()
-    loadReactNative(this)
-  }
+    override fun onCreate() {
+        super.onCreate()
+        loadReactNative(this)
+    }
 }

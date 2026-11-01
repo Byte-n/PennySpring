@@ -1,9 +1,5 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import {
-  BackHandler,
-  Pressable,
-  View,
-} from 'react-native';
+import { BackHandler, Pressable, View } from 'react-native';
 import {
   createAnimatedComponent,
   runOnJS,
@@ -12,16 +8,16 @@ import {
   withTiming,
   Easing,
 } from 'react-native-reanimated';
-import { createUseSheetStyle, toShadowStyle, useTheme } from '@pennyspring/theme';
+import {
+  createUseSheetStyle,
+  toShadowStyle,
+  useTheme,
+} from '@pennyspring/theme';
 import type { ViewStyle } from 'react-native';
 import { PortalContext } from '../Portal/Portal';
 import { resolvePortalMount } from '../Portal/resolvePortalMount';
 import { useControllableValue } from '../_hooks';
-import type {
-  PopupCancelReason,
-  PopupPosition,
-  PopupProps,
-} from './types';
+import type { PopupCancelReason, PopupPosition, PopupProps } from './types';
 
 const DEFAULT_POSITION: PopupPosition = 'bottom';
 const POPUP_SIDE_WIDTH = '70%';
@@ -117,7 +113,6 @@ const usePopupStyles = createUseSheetStyle(
         padding: token.paddingMD,
         backgroundColor: token.colorBgElevated,
         ...toShadowStyle(token.boxShadow),
-
       },
     };
   },

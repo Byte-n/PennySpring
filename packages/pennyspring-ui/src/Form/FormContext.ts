@@ -22,7 +22,9 @@ export interface FormContextValue<TValues extends object = FormValues> {
 
 export const FormContext = createContext<FormContextValue | null>(null);
 
-export function useFormContext<TValues extends object = FormValues>(): FormContextValue<TValues> {
+export function useFormContext<
+  TValues extends object = FormValues,
+>(): FormContextValue<TValues> {
   const context = useContext(FormContext);
 
   if (context === null) {

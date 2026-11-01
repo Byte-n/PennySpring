@@ -2,16 +2,16 @@ import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { RefreshControl, ScrollView } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { useRequest } from 'ahooks';
-import {
-  Card,
-  Column,
-  Empty,
-  Loading,
-  Segmented,
-} from '@pennyspring/ui';
+import { Card, Column, Empty, Loading, Segmented } from '@pennyspring/ui';
 import type { SegmentedValue } from '@pennyspring/ui';
 import { createUseSheetStyle } from '@pennyspring/ui';
-import type { AssetRow, RecordRelationRow, RecordRow, TagRow, TypeRow } from '@pennyspring/api';
+import type {
+  AssetRow,
+  RecordRelationRow,
+  RecordRow,
+  TagRow,
+  TypeRow,
+} from '@pennyspring/api';
 
 import { ROOT_ROUTES, useNavigation } from '../../../navigation';
 import { useBookStore, useGlobalApi } from '../../../stores/bookStore';
@@ -118,9 +118,7 @@ export function ChartTabScreen() {
     refresh: refreshTypes,
   } = useRequest<TypeRow[], []>(
     () =>
-      bookId
-        ? globalApi.type.getAll(bookId, dataRange)
-        : Promise.resolve([]),
+      bookId ? globalApi.type.getAll(bookId, dataRange) : Promise.resolve([]),
     { refreshDeps: [bookId, dataRange] },
   );
   const {
@@ -136,11 +134,19 @@ export function ChartTabScreen() {
     loading: tagsLoading,
     refresh: refreshTags,
   } = useRequest<TagRow[], []>(
-    () => (bookId ? globalApi.tag.getAll(bookId, dataRange) : Promise.resolve([])),
+    () =>
+      bookId ? globalApi.tag.getAll(bookId, dataRange) : Promise.resolve([]),
     { refreshDeps: [bookId, dataRange] },
   );
-  const { data: recordRelations = EMPTY_RELATIONS, loading: recordRelationsLoading = false, refresh: refreshRecordRelations } = useRequest<RecordRelation[], []>(
-    () => (bookId ? globalApi.record.getRelationsByBook(bookId, dataRange) : Promise.resolve([])),
+  const {
+    data: recordRelations = EMPTY_RELATIONS,
+    loading: recordRelationsLoading = false,
+    refresh: refreshRecordRelations,
+  } = useRequest<RecordRelation[], []>(
+    () =>
+      bookId
+        ? globalApi.record.getRelationsByBook(bookId, dataRange)
+        : Promise.resolve([]),
     { refreshDeps: [bookId, dataRange] },
   );
   const {

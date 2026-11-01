@@ -19,7 +19,6 @@ import java.util.concurrent.Executors
 class QuickBookScreenshotModule(
     private val reactContext: ReactApplicationContext,
 ) : ReactContextBaseJavaModule(reactContext) {
-
     private val executor = Executors.newSingleThreadExecutor()
 
     override fun getName(): String = "QuickBookScreenshot"
@@ -47,79 +46,86 @@ class QuickBookScreenshotModule(
         maxEdge: Int,
         quality: Int,
     ): WritableMap {
-        val permission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            Manifest.permission.READ_MEDIA_IMAGES
-        } else {
-            Manifest.permission.READ_EXTERNAL_STORAGE
-        }
+        val permission =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                Manifest.permission.READ_MEDIA_IMAGES
+            } else {
+                Manifest.permission.READ_EXTERNAL_STORAGE
+            }
         if (reactContext.checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
             return Arguments.createMap().apply { putString("status", "permission") }
         }
 
-        val collection = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL)
-        } else {
-            MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-        }
-        val projection = arrayOf(
-            MediaStore.Images.Media._ID,
-            MediaStore.Images.Media.DATE_ADDED,
-        )
+        val collection =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL)
+            } else {
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+            }
+        val projection =
+            arrayOf(
+                MediaStore.Images.Media._ID,
+                MediaStore.Images.Media.DATE_ADDED,
+            )
         val selection: String
         val selectionArgs: Array<String>
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             selection =
                 "${MediaStore.Images.Media.RELATIVE_PATH} LIKE ? OR " +
-                    "${MediaStore.Images.Media.RELATIVE_PATH} LIKE ? OR " +
-                    "${MediaStore.Images.Media.RELATIVE_PATH} LIKE ?"
+                "${MediaStore.Images.Media.RELATIVE_PATH} LIKE ? OR " +
+                "${MediaStore.Images.Media.RELATIVE_PATH} LIKE ?"
             selectionArgs = arrayOf("%Screenshots%", "%截屏%", "%截图%")
         } else {
             selection =
                 "${MediaStore.Images.Media.DATA} LIKE ? OR " +
-                    "${MediaStore.Images.Media.DATA} LIKE ? OR " +
-                    "${MediaStore.Images.Media.DATA} LIKE ?"
+                "${MediaStore.Images.Media.DATA} LIKE ? OR " +
+                "${MediaStore.Images.Media.DATA} LIKE ?"
             selectionArgs = arrayOf("%/Screenshots/%", "%截屏%", "%截图%")
         }
 
-        reactContext.contentResolver.query(
-            collection,
-            projection,
-            selection,
-            selectionArgs,
-            "${MediaStore.Images.Media.DATE_ADDED} DESC",
-        )?.use { cursor ->
-            if (!cursor.moveToFirst()) {
-                return Arguments.createMap().apply { putString("status", "empty") }
-            }
-
-            val assetId = cursor.getLong(
-                cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID),
-            )
-            val dateAddedSeconds = cursor.getLong(
-                cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATE_ADDED),
-            )
-            val ageSeconds = System.currentTimeMillis() / 1000 - dateAddedSeconds
-            if (ageSeconds > maxAgeSeconds) {
-                return Arguments.createMap().apply {
-                    putString("status", "stale")
-                    putString("assetId", assetId.toString())
-                    putDouble("dateAddedSeconds", dateAddedSeconds.toDouble())
+        reactContext.contentResolver
+            .query(
+                collection,
+                projection,
+                selection,
+                selectionArgs,
+                "${MediaStore.Images.Media.DATE_ADDED} DESC",
+            )?.use { cursor ->
+                if (!cursor.moveToFirst()) {
+                    return Arguments.createMap().apply { putString("status", "empty") }
                 }
+
+                val assetId =
+                    cursor.getLong(
+                        cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID),
+                    )
+                val dateAddedSeconds =
+                    cursor.getLong(
+                        cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATE_ADDED),
+                    )
+                val ageSeconds = System.currentTimeMillis() / 1000 - dateAddedSeconds
+                if (ageSeconds > maxAgeSeconds) {
+                    return Arguments.createMap().apply {
+                        putString("status", "stale")
+                        putString("assetId", assetId.toString())
+                        putDouble("dateAddedSeconds", dateAddedSeconds.toDouble())
+                    }
+                }
+
+                val imageUri = ContentUris.withAppendedId(collection, assetId)
+                val payload =
+                    QuickBookImageProcessor.process(
+                        reactContext,
+                        imageUri,
+                        maxEdge,
+                        quality,
+                    ) ?: return Arguments.createMap().apply { putString("status", "empty") }
+
+                payload.putString("status", "ok")
+                payload.putString("assetId", assetId.toString())
+                payload.putDouble("dateAddedSeconds", dateAddedSeconds.toDouble())
+                return payload
             }
-
-            val imageUri = ContentUris.withAppendedId(collection, assetId)
-            val payload = QuickBookImageProcessor.process(
-                reactContext,
-                imageUri,
-                maxEdge,
-                quality,
-            ) ?: return Arguments.createMap().apply { putString("status", "empty") }
-
-            payload.putString("status", "ok")
-            payload.putString("assetId", assetId.toString())
-            payload.putDouble("dateAddedSeconds", dateAddedSeconds.toDouble())
-            return payload
-        }
 
         return Arguments.createMap().apply { putString("status", "empty") }
     }

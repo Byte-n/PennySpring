@@ -12,9 +12,13 @@ export function CheckboxSizeDemo() {
     <Column gap="normal">
       {SIZES.map(({ hint, value }) => (
         <Column key={value} gap="small">
-          <Text color="tertiary" size="sm">{hint}</Text>
+          <Text color="tertiary" size="sm">
+            {hint}
+          </Text>
           <Checkbox size={value}>同一张卡连续记账</Checkbox>
-          <Checkbox defaultValue size={value}>自动匹配历史分类</Checkbox>
+          <Checkbox defaultValue size={value}>
+            自动匹配历史分类
+          </Checkbox>
         </Column>
       ))}
       <Text color="tertiary" size="sm">

@@ -306,18 +306,18 @@ function resolveVariantStyle(
     const idleColor = isNeutralText
       ? token.colorTextSecondary
       : isLinkPrimary
-      ? token.colorLink
-      : colorConfig.text;
+        ? token.colorLink
+        : colorConfig.text;
     const idleTextColor: TextColor = isNeutralText
       ? 'secondary'
       : isLinkPrimary
-      ? 'link'
-      : colorConfig.textColor;
+        ? 'link'
+        : colorConfig.textColor;
     const pressedTextColor: TextColor = isNeutralText
       ? 'secondary'
       : isLinkPrimary
-      ? 'linkActive'
-      : colorConfig.textActiveColor;
+        ? 'linkActive'
+        : colorConfig.textActiveColor;
 
     return {
       backgroundColor: TRANSPARENT,
@@ -365,12 +365,10 @@ const useStyles = createUseSheetStyle(
     const isTextButton = variant === 'text' || variant === 'link';
     const isCircle = shape === 'circle';
     const variantStyle = resolveVariantStyle(token, color, variant, ghost);
-    const borderRadius = shape === 'default'
-      ? sizeConfig.borderRadius(token)
-      : PILL_RADIUS;
-    const horizontalPadding = isCircle && !hasContent
-      ? 0
-      : sizeConfig.paddingHorizontal(token);
+    const borderRadius =
+      shape === 'default' ? sizeConfig.borderRadius(token) : PILL_RADIUS;
+    const horizontalPadding =
+      isCircle && !hasContent ? 0 : sizeConfig.paddingHorizontal(token);
 
     return {
       root: {
@@ -393,9 +391,7 @@ const useStyles = createUseSheetStyle(
         transform: [{ scale: PRESS_SCALE }],
       },
       rootDisabled: {
-        backgroundColor: isTextButton
-          ? TRANSPARENT
-          : token.colorFillTertiary,
+        backgroundColor: isTextButton ? TRANSPARENT : token.colorFillTertiary,
         borderColor: isTextButton ? TRANSPARENT : token.colorBorder,
         opacity: isTextButton ? token.opacityLoading : undefined,
       },

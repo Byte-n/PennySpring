@@ -25,11 +25,7 @@ function renderTabLabel(icon: IconComponent, label: string) {
     return (
       <Row align="center" gap="small">
         <Icon color={color} icon={icon} size="large" weight="bold" />
-        <Text
-          color={color}
-          size="sm"
-          weight={focused ? 'strong' : 'regular'}
-        >
+        <Text color={color} size="sm" weight={focused ? 'strong' : 'regular'}>
           {label}
         </Text>
       </Row>

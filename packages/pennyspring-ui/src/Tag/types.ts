@@ -10,12 +10,7 @@ import type { ComponentSize } from '../shares/types';
 import type { SemanticPresetColor } from '../shares/color';
 
 export type TagSemanticColor =
-  | 'default'
-  | 'primary'
-  | 'success'
-  | 'warning'
-  | 'danger'
-  | 'info';
+  'default' | 'primary' | 'success' | 'warning' | 'danger' | 'info';
 export type TagColor = SemanticPresetColor<TagSemanticColor>;
 
 export type TagVariant = 'filled' | 'outlined' | 'solid' | 'dashed';
@@ -25,8 +20,10 @@ export interface TagStyles {
   content?: StyleProp<TextStyle>;
 }
 
-export interface TagProps
-  extends Omit<PressableProps, 'style' | 'children' | 'disabled'> {
+export interface TagProps extends Omit<
+  PressableProps,
+  'style' | 'children' | 'disabled'
+> {
   children?: ReactNode;
   size?: ComponentSize;
   color?: TagColor;

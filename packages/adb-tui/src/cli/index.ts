@@ -1,2 +1,2 @@
-export * from './parseArgs'
-export { run } from './run'
+export * from './parseArgs';
+export { run } from './run';

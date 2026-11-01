@@ -62,9 +62,15 @@ function Slide({ item }: { item: SlideItem }) {
 
   return (
     <Column style={styles.slide}>
-      <Text color="lightSolid" size="xs">{item.kicker}</Text>
-      <Text color="lightSolid" size="xl" weight="semibold">{item.title}</Text>
-      <Text color="lightSolid" size="xs">{item.meta}</Text>
+      <Text color="lightSolid" size="xs">
+        {item.kicker}
+      </Text>
+      <Text color="lightSolid" size="xl" weight="semibold">
+        {item.title}
+      </Text>
+      <Text color="lightSolid" size="xs">
+        {item.meta}
+      </Text>
     </Column>
   );
 }
@@ -84,7 +90,9 @@ export function CarouselLayoutDemo() {
   return (
     <Column gap="large">
       <Column style={styles.section}>
-        <Text color="tertiary" size="xs">single · 单页整屏，底部指示器居中</Text>
+        <Text color="tertiary" size="xs">
+          single · 单页整屏，底部指示器居中
+        </Text>
         <Column style={styles.frame}>
           <Carousel
             data={SINGLE_SLIDES}
@@ -93,7 +101,9 @@ export function CarouselLayoutDemo() {
         </Column>
       </Column>
       <Column style={styles.section}>
-        <Text color="tertiary" size="xs">peek · 下页露 24%，slideSize=76；组件不内置间距，由调用方决定</Text>
+        <Text color="tertiary" size="xs">
+          peek · 下页露 24%，slideSize=76；组件不内置间距，由调用方决定
+        </Text>
         <Column style={styles.peekFrame}>
           <Carousel
             data={PEEK_SLIDES}
@@ -104,7 +114,9 @@ export function CarouselLayoutDemo() {
         </Column>
       </Column>
       <Column style={styles.section}>
-        <Text color="tertiary" size="xs">vertical · 纵向翻页，指示器移到右侧垂直居中</Text>
+        <Text color="tertiary" size="xs">
+          vertical · 纵向翻页，指示器移到右侧垂直居中
+        </Text>
         <Column style={styles.verticalFrame}>
           <Carousel
             data={VERTICAL_SLIDES}

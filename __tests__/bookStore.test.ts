@@ -4,7 +4,9 @@ const mockStorageState = new Map<string, string>();
 
 jest.mock('../src/stores/bookStorage', () => ({
   bookStorage: {
-    getItem: jest.fn((key: string) => Promise.resolve(mockStorageState.get(key) ?? null)),
+    getItem: jest.fn((key: string) =>
+      Promise.resolve(mockStorageState.get(key) ?? null),
+    ),
     setItem: jest.fn((key: string, value: string) => {
       mockStorageState.set(key, value);
       return Promise.resolve();
@@ -87,10 +89,12 @@ describe('bookStore', () => {
   });
 
   test('persists the selected current book ref', async () => {
-    useBookStore.getState().setCurrentBook(
-      { kind: 'local', id: travelBook.id },
-      { kind: 'local', ...travelBook },
-    );
+    useBookStore
+      .getState()
+      .setCurrentBook(
+        { kind: 'local', id: travelBook.id },
+        { kind: 'local', ...travelBook },
+      );
     await Promise.resolve();
 
     expect(getPersistedCurrentBookRef()).toEqual({ kind: 'local', id: 2 });
@@ -100,7 +104,9 @@ describe('bookStore', () => {
     jest.mocked(localApi.book.getById).mockResolvedValue(travelBook);
 
     // 直接设置 store state，模拟 rehydrate 后的状态
-    useBookStore.setState({ currentBookRef: { kind: 'local', id: travelBook.id } });
+    useBookStore.setState({
+      currentBookRef: { kind: 'local', id: travelBook.id },
+    });
 
     await useBookStore.getState().initializeBook();
 

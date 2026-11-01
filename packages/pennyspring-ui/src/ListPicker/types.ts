@@ -27,9 +27,7 @@ export type ListPickerStatus = 'default' | 'error' | 'warning' | 'success';
  */
 export type ListPickerValue = string | number;
 
-export type ListPickerSelectedValue =
-  | ListPickerValue
-  | ListPickerValue[];
+export type ListPickerSelectedValue = ListPickerValue | ListPickerValue[];
 
 export interface ListPickerOption {
   /**
@@ -371,8 +369,10 @@ type RootControlledPopupKey =
 
 type PopupConfig = Omit<ListPickerPopupProps, RootControlledPopupKey>;
 
-export interface ListPickerProps
-  extends Omit<ListPickerPopupProps, 'style' | 'styles'> {
+export interface ListPickerProps extends Omit<
+  ListPickerPopupProps,
+  'style' | 'styles'
+> {
   /**
    * ListPicker 状态。
    */
@@ -499,9 +499,7 @@ export type ListPickerCascaderChangeParams<TData = unknown> =
   | ListPickerCascaderClearParams;
 
 export type ListPickerCascaderOpenChangeReason =
-  | 'trigger'
-  | 'select'
-  | 'cancel';
+  'trigger' | 'select' | 'cancel';
 
 export interface ListPickerCascaderOpenChangeParams {
   reason: ListPickerCascaderOpenChangeReason;

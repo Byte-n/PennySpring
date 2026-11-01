@@ -134,9 +134,10 @@ export function ListPickerCascaderPopup<TData>({
     const isSelected = selectedValue?.[activeLevel] === option.value;
     const optionDisabled = option.disabled === true || !isInteractive;
     const customLabel = renderOptionLabel?.(option, activeLevel, optionIndex);
-    const labelContent = customLabel !== undefined
-      ? customLabel
-      : option.label ?? option.labelText;
+    const labelContent =
+      customLabel !== undefined
+        ? customLabel
+        : (option.label ?? option.labelText);
     const textColor = optionDisabled
       ? 'disabled'
       : isSelected

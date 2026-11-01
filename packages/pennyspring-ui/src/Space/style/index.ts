@@ -3,11 +3,7 @@ import type { AliasToken } from '@pennyspring/theme';
 import type { ViewStyle } from 'react-native';
 import type { ComponentSize } from '../../shares/types';
 import { resolveLayoutGap } from '../../shares/layoutGap';
-import type {
-  SpaceAlign,
-  SpaceDirection,
-  SpaceJustify,
-} from '../types';
+import type { SpaceAlign, SpaceDirection, SpaceJustify } from '../types';
 
 export interface SpaceStyleOptions {
   align?: SpaceAlign;
@@ -53,7 +49,9 @@ function mapAlignItems(align?: SpaceAlign): ViewStyle['alignItems'] {
   return mapFlexStartEnd(align);
 }
 
-function mapJustifyContent(justify?: SpaceJustify): ViewStyle['justifyContent'] {
+function mapJustifyContent(
+  justify?: SpaceJustify,
+): ViewStyle['justifyContent'] {
   if (justify === 'between') {
     return 'space-between';
   }

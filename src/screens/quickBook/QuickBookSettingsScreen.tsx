@@ -93,7 +93,8 @@ export function QuickBookSettingsScreen(): React.ReactElement {
   );
 
   const selectedProvider = useMemo(
-    () => providers.find(provider => provider.id === selection.providerId) ?? null,
+    () =>
+      providers.find(provider => provider.id === selection.providerId) ?? null,
     [providers, selection.providerId],
   );
   const multimodalModels = useMemo(
@@ -147,7 +148,8 @@ export function QuickBookSettingsScreen(): React.ReactElement {
         });
       if (defaultModel === null) {
         toast.show({
-          messageText: '该提供商没有支持图片的模型，请先在提供商设置中开启多模态。',
+          messageText:
+            '该提供商没有支持图片的模型，请先在提供商设置中开启多模态。',
           status: 'error',
         });
       }
@@ -193,7 +195,8 @@ export function QuickBookSettingsScreen(): React.ReactElement {
         return;
       }
       const granted =
-        (await hasScreenshotPermission()) || (await requestScreenshotPermission());
+        (await hasScreenshotPermission()) ||
+        (await requestScreenshotPermission());
       if (!granted) {
         toast.show({
           messageText: '需要相册读取权限才能检测截图，请在系统设置中允许。',

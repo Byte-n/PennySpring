@@ -34,7 +34,9 @@ function DarkSurface() {
 export function TabsDarkDemo() {
   return (
     <Column gap="normal">
-      <Text color="tertiary" size="sm">固定深色，不随页面主题</Text>
+      <Text color="tertiary" size="sm">
+        固定深色，不随页面主题
+      </Text>
       <ThemeProvider config={{ algorithm: 'dark' }}>
         <DarkSurface />
       </ThemeProvider>

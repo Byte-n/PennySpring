@@ -9,5 +9,10 @@ export const TAG_PICKER_OPTIONS: TagPickerOption[] = [
   { value: 'work', labelText: '工作', icon: 'settings' },
   { value: 'archived', labelText: '已归档', icon: 'image', hidden: true },
   { value: 'budget', labelText: '预算', icon: 'calendar', hidden: true },
-  { value: 'unavailable', labelText: '暂不可选', icon: 'warning', disabled: true },
+  {
+    value: 'unavailable',
+    labelText: '暂不可选',
+    icon: 'warning',
+    disabled: true,
+  },
 ];

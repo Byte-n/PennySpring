@@ -49,7 +49,10 @@ const CATEGORY_OPTIONS = [
 const DEFAULT_ICON = 'DotsThreeCircle';
 
 const TYPE_DELETE_ERROR_HINTS = [
-  { keyword: 'Type is in use', message: '该类型已被记录使用，先调整这些记录再删除。' },
+  {
+    keyword: 'Type is in use',
+    message: '该类型已被记录使用，先调整这些记录再删除。',
+  },
   {
     keyword: 'Type has children',
     message: '该类型下还有二级类型，先处理后再删除。',
@@ -134,7 +137,11 @@ export function TypeManageScreen() {
     Record<string, number | undefined>
   >({});
 
-  const { data: allTypes = [], loading, refresh } = useRequest(
+  const {
+    data: allTypes = [],
+    loading,
+    refresh,
+  } = useRequest(
     () => {
       if (!currentBook) return Promise.resolve<TypeRow[]>([]);
       return globalApi.type.getByCategory(category, currentBook.id);
@@ -262,7 +269,7 @@ export function TypeManageScreen() {
           level === 'parent';
         const nextSort = convertingChildToParent
           ? Math.max(0, ...parents.map(parent => parent.sort)) + 1
-          : editingType?.sort ?? 1;
+          : (editingType?.sort ?? 1);
         const payload = {
           booksId: currentBook.id,
           icon: values.icon,
@@ -408,8 +415,7 @@ export function TypeManageScreen() {
     ? allTypes.filter(type => type.parentId === pendingDeleteType.id).length
     : 0;
   const deleteBlocked = deleteChildCount > 0;
-  const canDeleteFromForm =
-    editingType !== null && editingType.parentId !== 0;
+  const canDeleteFromForm = editingType !== null && editingType.parentId !== 0;
 
   return (
     <Column style={styles.container}>
@@ -458,15 +464,18 @@ export function TypeManageScreen() {
                 }
               }}
               onMorePress={parentIdValue => {
-                const parent = parents.find(
-                  item => item.id === parentIdValue,
-                );
+                const parent = parents.find(item => item.id === parentIdValue);
                 setParentMenu(parent ?? null);
               }}
             />
           )}
 
-          <Text size="xs" style={styles.listEnd} color="tertiary" textAlign="center">
+          <Text
+            size="xs"
+            style={styles.listEnd}
+            color="tertiary"
+            textAlign="center"
+          >
             轻点一级类型展开二级 · 展开区「⋯」编辑或删除{'\n'}
             轻点二级类型编辑，删除在浮层底部
           </Text>
@@ -534,7 +543,9 @@ export function TypeManageScreen() {
             <TypedForm.Item
               name="parentId"
               labelText="上级类型"
-              rules={value => (value === undefined ? '请选择上级类型' : undefined)}
+              rules={value =>
+                value === undefined ? '请选择上级类型' : undefined
+              }
             >
               <ListPicker
                 options={availableParents.map(parent => ({
@@ -619,9 +630,7 @@ export function TypeManageScreen() {
         onConfirm={handleDelete}
         open={pendingDeleteType !== null}
         titleText={
-          pendingDeleteType
-            ? `删除「${pendingDeleteType.name}」？`
-            : '删除类型'
+          pendingDeleteType ? `删除「${pendingDeleteType.name}」？` : '删除类型'
         }
         warningText={
           deleteBlocked

@@ -1,4 +1,10 @@
-import React, { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { Pressable, ScrollView } from 'react-native';
 import { useRequest } from 'ahooks';
 import {
@@ -108,13 +114,9 @@ function formatLimit(cents: number): string {
 function buildAssetSubtitle(asset: AssetRow): string {
   if (asset.type === ASSET_TYPE.creditCard) {
     const billing =
-      asset.billingDate > 0
-        ? `每月 ${asset.billingDate} 日出账`
-        : '账单日未设';
+      asset.billingDate > 0 ? `每月 ${asset.billingDate} 日出账` : '账单日未设';
     const repayment =
-      asset.repaymentDate > 0
-        ? `${asset.repaymentDate} 日还款`
-        : '还款日未设';
+      asset.repaymentDate > 0 ? `${asset.repaymentDate} 日还款` : '还款日未设';
     return `${billing} · ${repayment}`;
   }
   if (asset.type === ASSET_TYPE.debt) {
@@ -321,8 +323,9 @@ export function AssetManageScreen() {
   const [submitting, setSubmitting] = useState(false);
 
   const [menuAsset, setMenuAsset] = useState<AssetRow | null>(null);
-  const [pendingDeleteAsset, setPendingDeleteAsset] =
-    useState<AssetRow | null>(null);
+  const [pendingDeleteAsset, setPendingDeleteAsset] = useState<AssetRow | null>(
+    null,
+  );
 
   const openCreate = useCallback(() => {
     setEditingAsset(null);
@@ -342,8 +345,7 @@ export function AssetManageScreen() {
       const classificationPath = pathLookup.get(asset.classification);
       const typePath = pathLookup.get(asset.type);
       form.reset({
-        assetPath:
-          classificationPath ??
+        assetPath: classificationPath ??
           typePath ?? [ASSET_TYPE.capitalAccount, ASSET_CLASSIFICATION.cash],
         balance: (asset.balance / CENTS_PER_YUAN).toFixed(2),
         billingDate: asset.billingDate > 0 ? asset.billingDate : undefined,
@@ -373,7 +375,9 @@ export function AssetManageScreen() {
       setSubmitting(true);
       try {
         const input = {
-          balance: Math.round(parseFloat(values.balance || '0') * CENTS_PER_YUAN),
+          balance: Math.round(
+            parseFloat(values.balance || '0') * CENTS_PER_YUAN,
+          ),
           billingDate: values.billingDate ?? 0,
           booksId: currentBook.id,
           cardNo: editingAsset?.cardNo ?? '',
@@ -508,10 +512,7 @@ export function AssetManageScreen() {
                   <Text size="xs" color="tertiary">
                     负债
                   </Text>
-                  <Text
-                    size="xs"
-                    weight="semibold" color="errorText"
-                  >
+                  <Text size="xs" weight="semibold" color="errorText">
                     {formatSignedCents(-overview.liabilitiesTotal)}
                   </Text>
                 </Column>
@@ -538,9 +539,7 @@ export function AssetManageScreen() {
               <Column key={group.key} gap={token.marginXXS}>
                 <ManageSectionHeader
                   countText={`${group.visibleCount} 个${
-                    group.hiddenCount > 0
-                      ? ` · ${group.hiddenCount} 隐藏`
-                      : ''
+                    group.hiddenCount > 0 ? ` · ${group.hiddenCount} 隐藏` : ''
                   }`}
                   title={group.label}
                   totalNegative={group.visibleTotal < 0}
@@ -573,8 +572,16 @@ export function AssetManageScreen() {
                             <Column align="end">
                               <ManageAmount
                                 showCurrency
-                                tone={hidden ? 'dim' : liability ? 'negative' : 'default'}
-                                value={liability ? -asset.balance : asset.balance}
+                                tone={
+                                  hidden
+                                    ? 'dim'
+                                    : liability
+                                      ? 'negative'
+                                      : 'default'
+                                }
+                                value={
+                                  liability ? -asset.balance : asset.balance
+                                }
                               />
                               {asset.type === ASSET_TYPE.creditCard ? (
                                 <Text color="tertiary" size="xs">
@@ -616,7 +623,12 @@ export function AssetManageScreen() {
               </Column>
             ))}
 
-            <Text size="xs" style={styles.listEnd} color="tertiary" textAlign="center">
+            <Text
+              size="xs"
+              style={styles.listEnd}
+              color="tertiary"
+              textAlign="center"
+            >
               合计口径与图表页一致：净资产 = 资产 − 负债
               {hiddenCount > 0 ? '\n隐藏账户仍可管理，但不参与任何合计' : ''}
             </Text>
@@ -656,7 +668,8 @@ export function AssetManageScreen() {
           </TypedForm.Item>
           <TypedForm.Subscribe selector={state => state.values}>
             {values => {
-              const isCreditCard = values.assetPath[0] === ASSET_TYPE.creditCard;
+              const isCreditCard =
+                values.assetPath[0] === ASSET_TYPE.creditCard;
               return (
                 <>
                   <TypedForm.Item

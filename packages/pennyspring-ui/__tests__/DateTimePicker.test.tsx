@@ -33,8 +33,10 @@ jest.mock('react-native-reanimated', () => {
     default: {
       View: ReactNative.View,
     },
-    createAnimatedComponent: (Component: React.ComponentType<Record<string, unknown>>) =>
-      (props: Record<string, unknown>) => ReactModule.createElement(Component, props),
+    createAnimatedComponent:
+      (Component: React.ComponentType<Record<string, unknown>>) =>
+      (props: Record<string, unknown>) =>
+        ReactModule.createElement(Component, props),
     interpolate: (value: number) => value,
     useAnimatedStyle: (updater: () => Record<string, unknown>) => updater(),
     useSharedValue: (value: number) => ({ value }),
@@ -50,7 +52,14 @@ import {
 } from '../src';
 import { DateTimePickerCore } from '../src/DateTimePicker/DateTimePickerCore';
 
-function makeDate(year: number, month: number, day: number, hours = 0, minutes = 0, seconds = 0): Date {
+function makeDate(
+  year: number,
+  month: number,
+  day: number,
+  hours = 0,
+  minutes = 0,
+  seconds = 0,
+): Date {
   // month is 1-based here
   return new Date(year, month - 1, day, hours, minutes, seconds, 0);
 }
@@ -70,11 +79,21 @@ it('builds year/month/day/hour/minute columns at default precision', () => {
   });
 
   // year, month, day, hour, minute → 5 columns
-  expect(testRenderer!.root.findByProps({ testID: 'picker-item-0-0' })).toBeTruthy();
-  expect(testRenderer!.root.findByProps({ testID: 'picker-item-1-0' })).toBeTruthy();
-  expect(testRenderer!.root.findByProps({ testID: 'picker-item-2-0' })).toBeTruthy();
-  expect(testRenderer!.root.findByProps({ testID: 'picker-item-3-0' })).toBeTruthy();
-  expect(testRenderer!.root.findByProps({ testID: 'picker-item-4-0' })).toBeTruthy();
+  expect(
+    testRenderer!.root.findByProps({ testID: 'picker-item-0-0' }),
+  ).toBeTruthy();
+  expect(
+    testRenderer!.root.findByProps({ testID: 'picker-item-1-0' }),
+  ).toBeTruthy();
+  expect(
+    testRenderer!.root.findByProps({ testID: 'picker-item-2-0' }),
+  ).toBeTruthy();
+  expect(
+    testRenderer!.root.findByProps({ testID: 'picker-item-3-0' }),
+  ).toBeTruthy();
+  expect(
+    testRenderer!.root.findByProps({ testID: 'picker-item-4-0' }),
+  ).toBeTruthy();
   // No seconds column
   expect(() =>
     testRenderer!.root.findByProps({ testID: 'picker-item-5-0' }),
@@ -96,7 +115,9 @@ it('limits precision to year only', () => {
     );
   });
 
-  expect(testRenderer!.root.findByProps({ testID: 'picker-item-0-0' })).toBeTruthy();
+  expect(
+    testRenderer!.root.findByProps({ testID: 'picker-item-0-0' }),
+  ).toBeTruthy();
   expect(() =>
     testRenderer!.root.findByProps({ testID: 'picker-item-1-0' }),
   ).toThrow();
@@ -118,13 +139,16 @@ it('uses month/day columns correctly with 1-based month', () => {
   });
 
   // Month column: 1..12 → 12 items, itemIndex 0..11
-  expect(testRenderer!.root.findByProps({ testID: 'picker-item-1-11' })).toBeTruthy();
+  expect(
+    testRenderer!.root.findByProps({ testID: 'picker-item-1-11' }),
+  ).toBeTruthy();
   expect(() =>
     testRenderer!.root.findByProps({ testID: 'picker-item-1-12' }),
   ).toThrow();
   // Selected month is 5 → itemIndex 4
   expect(
-    testRenderer!.root.findByProps({ testID: 'picker-item-1-4' }).props.selected,
+    testRenderer!.root.findByProps({ testID: 'picker-item-1-4' }).props
+      .selected,
   ).toBe(true);
 });
 
@@ -144,7 +168,9 @@ it('generates day column based on current year/month (leap year Feb)', () => {
   });
 
   // Feb 2024 → 29 days
-  expect(testRenderer!.root.findByProps({ testID: 'picker-item-2-28' })).toBeTruthy();
+  expect(
+    testRenderer!.root.findByProps({ testID: 'picker-item-2-28' }),
+  ).toBeTruthy();
   expect(() =>
     testRenderer!.root.findByProps({ testID: 'picker-item-2-29' }),
   ).toThrow();
@@ -165,7 +191,9 @@ it('generates day column for non-leap year Feb with 28 days', () => {
     );
   });
 
-  expect(testRenderer!.root.findByProps({ testID: 'picker-item-2-27' })).toBeTruthy();
+  expect(
+    testRenderer!.root.findByProps({ testID: 'picker-item-2-27' }),
+  ).toBeTruthy();
   expect(() =>
     testRenderer!.root.findByProps({ testID: 'picker-item-2-28' }),
   ).toThrow();
@@ -187,7 +215,9 @@ it('uses year range from min/max', () => {
   });
 
   // Years 2024, 2025, 2026 → 3 items
-  expect(testRenderer!.root.findByProps({ testID: 'picker-item-0-2' })).toBeTruthy();
+  expect(
+    testRenderer!.root.findByProps({ testID: 'picker-item-0-2' }),
+  ).toBeTruthy();
   expect(() =>
     testRenderer!.root.findByProps({ testID: 'picker-item-0-3' }),
   ).toThrow();
@@ -225,7 +255,9 @@ it('translates picker change into Date in onChange', () => {
 
   // Click minute item at index 45 (column 4)
   act(() => {
-    testRenderer!.root.findByProps({ testID: 'picker-item-4-45' }).props.onPress();
+    testRenderer!.root
+      .findByProps({ testID: 'picker-item-4-45' })
+      .props.onPress();
   });
 
   expect(onChange).toHaveBeenCalledTimes(1);
@@ -258,10 +290,14 @@ it('calls onOk with commited date', () => {
   });
 
   act(() => {
-    testRenderer!.root.findByProps({ testID: 'picker-item-3-11' }).props.onPress();
+    testRenderer!.root
+      .findByProps({ testID: 'picker-item-3-11' })
+      .props.onPress();
   });
   act(() => {
-    testRenderer!.root.findByProps({ testID: 'picker-ok-button' }).props.onPress();
+    testRenderer!.root
+      .findByProps({ testID: 'picker-ok-button' })
+      .props.onPress();
   });
 
   expect(onOk).toHaveBeenCalledTimes(1);
@@ -289,7 +325,9 @@ it('passes through onCancel and onOpenChange', () => {
   });
 
   act(() => {
-    testRenderer!.root.findByProps({ testID: 'picker-cancel-button' }).props.onPress();
+    testRenderer!.root
+      .findByProps({ testID: 'picker-cancel-button' })
+      .props.onPress();
   });
 
   expect(onCancel).toHaveBeenCalledWith({ reason: 'cancel' });
@@ -360,7 +398,9 @@ it('uses minuteStep when building minute column', () => {
   });
 
   // 4 minute items at column 4 (year, month, day, hour, minute)
-  expect(testRenderer!.root.findByProps({ testID: 'picker-item-4-3' })).toBeTruthy();
+  expect(
+    testRenderer!.root.findByProps({ testID: 'picker-item-4-3' }),
+  ).toBeTruthy();
   expect(() =>
     testRenderer!.root.findByProps({ testID: 'picker-item-4-4' }),
   ).toThrow();
@@ -418,8 +458,12 @@ it('applies size prop to picker item height semantics', () => {
   });
 
   // Act
-  const smallItemStyle = smallRenderer!.root.findByProps({ testID: 'picker-item-0-0' }).props.style;
-  const largeItemStyle = largeRenderer!.root.findByProps({ testID: 'picker-item-0-0' }).props.style;
+  const smallItemStyle = smallRenderer!.root.findByProps({
+    testID: 'picker-item-0-0',
+  }).props.style;
+  const largeItemStyle = largeRenderer!.root.findByProps({
+    testID: 'picker-item-0-0',
+  }).props.style;
 
   // Assert
   expect(smallItemStyle).not.toEqual(largeItemStyle);
@@ -455,9 +499,15 @@ it('builds only date columns for the date preset by default', () => {
   });
 
   // year, month, day → 3 列
-  expect(testRenderer!.root.findByProps({ testID: 'picker-item-0-0' })).toBeTruthy();
-  expect(testRenderer!.root.findByProps({ testID: 'picker-item-1-0' })).toBeTruthy();
-  expect(testRenderer!.root.findByProps({ testID: 'picker-item-2-0' })).toBeTruthy();
+  expect(
+    testRenderer!.root.findByProps({ testID: 'picker-item-0-0' }),
+  ).toBeTruthy();
+  expect(
+    testRenderer!.root.findByProps({ testID: 'picker-item-1-0' }),
+  ).toBeTruthy();
+  expect(
+    testRenderer!.root.findByProps({ testID: 'picker-item-2-0' }),
+  ).toBeTruthy();
   expect(() =>
     testRenderer!.root.findByProps({ testID: 'picker-item-3-0' }),
   ).toThrow();
@@ -478,7 +528,9 @@ it('limits the date preset to a single year column', () => {
     );
   });
 
-  expect(testRenderer!.root.findByProps({ testID: 'picker-item-0-0' })).toBeTruthy();
+  expect(
+    testRenderer!.root.findByProps({ testID: 'picker-item-0-0' }),
+  ).toBeTruthy();
   expect(() =>
     testRenderer!.root.findByProps({ testID: 'picker-item-1-0' }),
   ).toThrow();
@@ -514,8 +566,12 @@ it('starts the time preset with an hour column and no date columns', () => {
   });
 
   // 首列小时 0..23；第二列分钟 0..59
-  expect(testRenderer!.root.findByProps({ testID: 'picker-item-0-23' })).toBeTruthy();
-  expect(testRenderer!.root.findByProps({ testID: 'picker-item-1-59' })).toBeTruthy();
+  expect(
+    testRenderer!.root.findByProps({ testID: 'picker-item-0-23' }),
+  ).toBeTruthy();
+  expect(
+    testRenderer!.root.findByProps({ testID: 'picker-item-1-59' }),
+  ).toBeTruthy();
   expect(
     testRenderer!.root.findAllByProps({ testID: 'picker-item-2-0' }),
   ).toHaveLength(0);
@@ -538,10 +594,14 @@ it('zeros the time part for the date preset in wheel layout', () => {
   });
 
   act(() => {
-    testRenderer!.root.findByProps({ testID: 'picker-item-2-19' }).props.onPress();
+    testRenderer!.root
+      .findByProps({ testID: 'picker-item-2-19' })
+      .props.onPress();
   });
   act(() => {
-    testRenderer!.root.findByProps({ testID: 'picker-ok-button' }).props.onPress();
+    testRenderer!.root
+      .findByProps({ testID: 'picker-ok-button' })
+      .props.onPress();
   });
 
   const [nextDate] = onOk.mock.calls[0];
@@ -572,7 +632,9 @@ it('zeros the time part for the date preset in calendar layout', () => {
       .props.onPress();
   });
   act(() => {
-    testRenderer!.root.findByProps({ testID: 'picker-ok-button' }).props.onPress();
+    testRenderer!.root
+      .findByProps({ testID: 'picker-ok-button' })
+      .props.onPress();
   });
 
   const [nextDate] = onOk.mock.calls[0];
@@ -596,6 +658,8 @@ it('forces the wheel layout for the time parts', () => {
     );
   });
 
-  expect(testRenderer!.root.findByProps({ testID: 'picker-item-0-23' })).toBeTruthy();
+  expect(
+    testRenderer!.root.findByProps({ testID: 'picker-item-0-23' }),
+  ).toBeTruthy();
   expect(testRenderer!.root.findAllByType(CalendarPickerView)).toHaveLength(0);
 });

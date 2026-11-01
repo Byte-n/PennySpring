@@ -25,7 +25,8 @@ export function NotificationSizeDemo() {
                 size,
                 titleText: '已导入 128 笔记录',
                 status: 'success',
-              })}
+              })
+            }
           >
             {label}
           </Button>

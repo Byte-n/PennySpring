@@ -228,7 +228,9 @@ describe('createCreateRecordTool', () => {
   });
 
   it('writes the record without images when the model omits attachmentIds', async () => {
-    const create = jest.fn(async (_input: Record<string, unknown>) => ({ id: 101 }));
+    const create = jest.fn(async (_input: Record<string, unknown>) => ({
+      id: 101,
+    }));
     const execute = createExecute(createApi({ create }), {
       attachments: [
         {

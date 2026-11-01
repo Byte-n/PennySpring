@@ -91,7 +91,10 @@ export function ListPickerCascader<TData = unknown>({
     [defaultValue, options],
   );
   const normalizedControlledValue = useMemo(
-    () => (field.value === undefined ? undefined : normalizeValue(options, field.value)),
+    () =>
+      field.value === undefined
+        ? undefined
+        : normalizeValue(options, field.value),
     [field.value, options],
   );
   const [mergedValue, setMergedValue] = useControllableValue(
@@ -115,9 +118,8 @@ export function ListPickerCascader<TData = unknown>({
   const isInteractive = !resolvedDisabled && !resolvedReadonly && !loading;
   const isError = field.status === 'error';
   const selectedLabel = getPathLabel(options, currentValue);
-  const tagItems = displayMode === 'tag'
-    ? getPathTagItems(options, currentValue)
-    : [];
+  const tagItems =
+    displayMode === 'tag' ? getPathTagItems(options, currentValue) : [];
   const resolvedTabPlaceholder =
     texts?.tabPlaceholderText ?? DEFAULT_TAB_PLACEHOLDER;
   const tabItems: Array<TabsItem> = Array.from(

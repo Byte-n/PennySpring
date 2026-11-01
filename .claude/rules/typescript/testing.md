@@ -1,10 +1,11 @@
 ---
 paths:
-  - "**/*.ts"
-  - "**/*.tsx"
-  - "**/*.js"
-  - "**/*.jsx"
+  - '**/*.ts'
+  - '**/*.tsx'
+  - '**/*.js'
+  - '**/*.jsx'
 ---
+
 # TypeScript/JavaScript Testing
 
 > 扩展 [common/testing.md](../common/testing.md)。

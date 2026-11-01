@@ -35,7 +35,7 @@ function collectText(nodes: readonly unknown[]): string {
       if (!node || typeof node !== 'object') {
         return '';
       }
-      return collectText(((node as HostNode).children) ?? []);
+      return collectText((node as HostNode).children ?? []);
     })
     .join('');
 }
@@ -62,7 +62,10 @@ function hostNodesOfType(content: string, type: string): HostNode[] {
   return found;
 }
 
-function componentWithText(renderer: TestRenderer.ReactTestRenderer, text: string) {
+function componentWithText(
+  renderer: TestRenderer.ReactTestRenderer,
+  text: string,
+) {
   return renderer.root.findAll(
     node =>
       typeof node.type !== 'string' &&
@@ -73,7 +76,9 @@ function componentWithText(renderer: TestRenderer.ReactTestRenderer, text: strin
 
 describe('MarkdownText', () => {
   it('shows plain sentences without markdown markers', () => {
-    expect(visibleTextOf('上个月餐饮共 120 元。')).toBe('上个月餐饮共 120 元。');
+    expect(visibleTextOf('上个月餐饮共 120 元。')).toBe(
+      '上个月餐饮共 120 元。',
+    );
   });
 
   it('hides emphasis markers and styles the wrapped words instead', () => {
@@ -95,7 +100,10 @@ describe('MarkdownText', () => {
   });
 
   it('renders fenced code verbatim in a monospace block', () => {
-    const codeBlock = hostNodesOfType('```sql\nSELECT * FROM records\n```', 'Text')[0];
+    const codeBlock = hostNodesOfType(
+      '```sql\nSELECT * FROM records\n```',
+      'Text',
+    )[0];
 
     expect(collectText([codeBlock])).toBe('SELECT * FROM records');
     expect(codeBlock.props.style).toContainEqual(
@@ -117,21 +125,28 @@ describe('MarkdownText', () => {
 
   it('renders heading content without the leading hashes', () => {
     const renderer = renderMarkdown('## 本月支出');
-    const headingNode = renderer.root.findByProps({ testID: 'markdown-heading', size: 'h2' });
+    const headingNode = renderer.root.findByProps({
+      testID: 'markdown-heading',
+      size: 'h2',
+    });
 
     expect(componentWithText(renderer, '本月支出').length).toBeGreaterThan(0);
     expect(headingNode.props.weight).toBe('semibold');
   });
 
   it('renders table cells row by row without separator pipes', () => {
-    expect(visibleTextOf('| 类型 | **金额** |\n| --- | --- |\n| 餐饮 | 120 |')).toBe('类型金额餐饮120');
+    expect(
+      visibleTextOf('| 类型 | **金额** |\n| --- | --- |\n| 餐饮 | 120 |'),
+    ).toBe('类型金额餐饮120');
   });
 
   it('renders a rule instead of a paragraph of dashes', () => {
     const content = '前一段\n\n---\n\n后一段';
 
     expect(
-      hostNodesOfType(content, 'View').filter(node => node.props.testID === 'markdown-rule'),
+      hostNodesOfType(content, 'View').filter(
+        node => node.props.testID === 'markdown-rule',
+      ),
     ).toHaveLength(1);
     expect(visibleTextOf(content)).toBe('前一段后一段');
   });
@@ -152,7 +167,9 @@ describe('MarkdownText', () => {
 
   it('does not open links that are not web addresses', () => {
     const openURL = jest.spyOn(Linking, 'openURL').mockResolvedValue(true);
-    const renderer = renderMarkdown('[点开](https://example.com/a) 与 [点开](javascript:alert(1))');
+    const renderer = renderMarkdown(
+      '[点开](https://example.com/a) 与 [点开](javascript:alert(1))',
+    );
 
     const linkNodes = renderer.root.findAllByProps({ testID: 'markdown-link' });
     act(() => {

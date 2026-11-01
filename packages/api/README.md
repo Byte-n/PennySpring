@@ -4,11 +4,11 @@ PennySpring 应用的 API 聚合入口。它把 `@pennyspring/data` 的领域类
 
 ## 入口
 
-| 导入路径 | 内容 |
-|---|---|
-| `@pennyspring/api` | 重新导出 `@pennyspring/data`、`localApi`、`createRemoteApi`；默认本地模式 |
-| `@pennyspring/api/remote` | 远程 HTTP 客户端 `createRemoteApi(serverUrl, options)` |
-| `@pennyspring/api/contract` | `API_BASE`、`buildPath(group, method)` 与通用错误类型 |
+| 导入路径                    | 内容                                                                      |
+| --------------------------- | ------------------------------------------------------------------------- |
+| `@pennyspring/api`          | 重新导出 `@pennyspring/data`、`localApi`、`createRemoteApi`；默认本地模式 |
+| `@pennyspring/api/remote`   | 远程 HTTP 客户端 `createRemoteApi(serverUrl, options)`                    |
+| `@pennyspring/api/contract` | `API_BASE`、`buildPath(group, method)` 与通用错误类型                     |
 
 ## 本地模式
 

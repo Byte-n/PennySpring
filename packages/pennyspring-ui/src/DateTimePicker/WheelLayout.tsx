@@ -105,7 +105,10 @@ function buildValueParams(date: Date): DateTimePickerValueParams {
   };
 }
 
-function defaultLabelText(type: DateTimePickerColumnType, value: number): string {
+function defaultLabelText(
+  type: DateTimePickerColumnType,
+  value: number,
+): string {
   if (type === 'year') {
     return String(value);
   }
@@ -133,10 +136,7 @@ function buildCandidateDate(
   const year = type === 'year' ? value : baseDate.getFullYear();
   const month = type === 'month' ? value : baseDate.getMonth() + 1;
   const maxDay = getDaysInMonth(year, month);
-  const day = Math.min(
-    type === 'day' ? value : baseDate.getDate(),
-    maxDay,
-  );
+  const day = Math.min(type === 'day' ? value : baseDate.getDate(), maxDay);
   const hours = type === 'hour' ? value : baseDate.getHours();
   const minutes = type === 'minute' ? value : baseDate.getMinutes();
   const seconds = type === 'second' ? value : baseDate.getSeconds();
@@ -194,7 +194,11 @@ function buildColumn(
   return column;
 }
 
-function rangeValues(start: number, end: number, step = DEFAULT_STEP): number[] {
+function rangeValues(
+  start: number,
+  end: number,
+  step = DEFAULT_STEP,
+): number[] {
   const values: number[] = [];
   const safeStep = step > 0 ? step : DEFAULT_STEP;
 
@@ -278,7 +282,8 @@ export function DateTimeWheelPicker(props: DateTimePickerCoreProps) {
   const baseTime = baseDate.getTime();
   const minTime = props.min?.getTime();
   const maxTime = props.max?.getTime();
-  const { disabledDate, formatLabel, minuteStep, renderLabel, secondStep } = props;
+  const { disabledDate, formatLabel, minuteStep, renderLabel, secondStep } =
+    props;
   // 仅日期相关的 parts 才需要按天禁用候选值。
   const candidateDisabledDate = hasDatePart(props.parts, precision)
     ? disabledDate
@@ -319,13 +324,19 @@ export function DateTimeWheelPicker(props: DateTimePickerCoreProps) {
         const type = columnTypes[columnIndex];
         const value = Number(item.value);
         const candidate = buildCandidateDate(type, value, baseDate);
-        const params: DateTimePickerLabelParams = { type, value, date: candidate };
+        const params: DateTimePickerLabelParams = {
+          type,
+          value,
+          date: candidate,
+        };
 
         return renderLabel(params);
       }
     : undefined;
 
-  const formatValueText = (nextPickerValue: PickerValue[]): string | undefined => {
+  const formatValueText = (
+    nextPickerValue: PickerValue[],
+  ): string | undefined => {
     if (nextPickerValue.length === 0) {
       return undefined;
     }
@@ -407,12 +418,16 @@ export function DateTimeWheelPicker(props: DateTimePickerCoreProps) {
       size={props.size}
       status={props.status}
       style={props.style}
-      styles={props.styles ? {
-        trigger: props.styles.trigger,
-        input: props.styles.input,
-        popup: props.styles.popup,
-        panel: props.styles.panel,
-      } : undefined}
+      styles={
+        props.styles
+          ? {
+              trigger: props.styles.trigger,
+              input: props.styles.input,
+              popup: props.styles.popup,
+              panel: props.styles.panel,
+            }
+          : undefined
+      }
       value={pickerValue}
     >
       {props.children}

@@ -4,12 +4,7 @@ import type { ComponentSize } from '../shares/types';
 import type { SemanticPresetColor } from '../shares/color';
 
 export type BadgeSemanticColor =
-  | 'default'
-  | 'primary'
-  | 'success'
-  | 'warning'
-  | 'danger'
-  | 'info';
+  'default' | 'primary' | 'success' | 'warning' | 'danger' | 'info';
 export type BadgeColor = SemanticPresetColor<BadgeSemanticColor>;
 
 export interface BadgeStyles {

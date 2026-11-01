@@ -12,7 +12,9 @@ export function ToastSizeDemo() {
       <Column gap="small">
         <Button
           size="small"
-          onPress={() => toast.show({ messageText: '已复制 ¥128.00', size: 'small' })}
+          onPress={() =>
+            toast.show({ messageText: '已复制 ¥128.00', size: 'small' })
+          }
         >
           small · 密集操作反馈
         </Button>
@@ -24,7 +26,9 @@ export function ToastSizeDemo() {
         </Button>
         <Button
           size="small"
-          onPress={() => toast.show({ messageText: '已导入 128 笔记录', size: 'large' })}
+          onPress={() =>
+            toast.show({ messageText: '已导入 128 笔记录', size: 'large' })
+          }
         >
           large · 字数多或需要看清金额
         </Button>

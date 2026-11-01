@@ -50,10 +50,7 @@ export async function uploadMedia(
           : `图片上传失败（${response.status}）`,
       );
     }
-    if (
-      typeof payload?.result !== 'string' ||
-      !isMediaRef(payload.result)
-    ) {
+    if (typeof payload?.result !== 'string' || !isMediaRef(payload.result)) {
       throw new Error('图片上传返回格式不正确');
     }
     return payload.result;

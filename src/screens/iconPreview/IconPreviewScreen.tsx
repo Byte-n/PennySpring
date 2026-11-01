@@ -1,14 +1,20 @@
 import React from 'react';
 import { FlatList, View } from 'react-native';
 import { Column, Input, Row, ListPicker, Text } from '@pennyspring/ui';
-import type { ListPickerOption, ListPickerSelectedValue } from '@pennyspring/ui';
+import type {
+  ListPickerOption,
+  ListPickerSelectedValue,
+} from '@pennyspring/ui';
 import { createUseSheetStyle, useTheme } from '@pennyspring/ui';
 import * as PhosphorIcons from 'phosphor-react-native';
 import type { Icon } from 'phosphor-react-native';
 
 import { PHOSPHOR_ICON_INFO_LIST } from '../../constants/phosphorIconInfoList';
 import { ASSET_CLASSIFICATION_TREE } from '../../constants/assetClassificationTree';
-import type { AssetClassificationIcon, AssetTypeValue } from '../../constants/assetClassificationTree';
+import type {
+  AssetClassificationIcon,
+  AssetTypeValue,
+} from '../../constants/assetClassificationTree';
 
 const useStyles = createUseSheetStyle(token => ({
   container: {
@@ -88,7 +94,13 @@ function IconItem({ item }: IconItemProps) {
     return (
       <Column style={styles.iconItem} align="center" justify="center">
         <IconComponent size={ICON_PREVIEW_SIZE} color={token.colorText} />
-        <Text size="sm" color="secondary" style={styles.iconName} numberOfLines={1} textAlign="center">
+        <Text
+          size="sm"
+          color="secondary"
+          style={styles.iconName}
+          numberOfLines={1}
+          textAlign="center"
+        >
           {item.pascalName}
         </Text>
       </Column>
@@ -99,7 +111,13 @@ function IconItem({ item }: IconItemProps) {
   return (
     <Column style={styles.iconItem} align="center" justify="center">
       <AssetIcon width={ICON_PREVIEW_SIZE} height={ICON_PREVIEW_SIZE} />
-      <Text size="sm" color="secondary" style={styles.iconName} numberOfLines={1} textAlign="center">
+      <Text
+        size="sm"
+        color="secondary"
+        style={styles.iconName}
+        numberOfLines={1}
+        textAlign="center"
+      >
         {item.label}
       </Text>
     </Column>
@@ -111,7 +129,9 @@ function collectAssetIcons(categoryFilter?: AssetTypeValue): AssetIconInfo[] {
 
   function traverse(nodes: readonly any[], parentLabel = '') {
     for (const node of nodes) {
-      const fullLabel = parentLabel ? `${parentLabel}/${node.label}` : node.label;
+      const fullLabel = parentLabel
+        ? `${parentLabel}/${node.label}`
+        : node.label;
       result.push({
         type: 'asset',
         name: String(node.value),
@@ -126,7 +146,7 @@ function collectAssetIcons(categoryFilter?: AssetTypeValue): AssetIconInfo[] {
 
   if (categoryFilter) {
     const filteredTree = ASSET_CLASSIFICATION_TREE.filter(
-      node => node.value === categoryFilter
+      node => node.value === categoryFilter,
     );
     traverse(filteredTree);
   } else {
@@ -178,28 +198,35 @@ const CATEGORY_OPTIONS: ListPickerOption[] = [
 export function IconPreviewScreen() {
   const styles = useStyles();
   const [searchText, setSearchText] = React.useState('');
-  const [category, setCategory] = React.useState<string | number>(CATEGORY_OPTIONS[0]?.value ?? '');
+  const [category, setCategory] = React.useState<string | number>(
+    CATEGORY_OPTIONS[0]?.value ?? '',
+  );
 
-  const handleCategoryChange = React.useCallback((value: ListPickerSelectedValue) => {
-    if (Array.isArray(value)) {
-      setCategory(value[0] ?? CATEGORY_OPTIONS[0]?.value ?? '');
-    } else {
-      setCategory(value);
-    }
-  }, []);
+  const handleCategoryChange = React.useCallback(
+    (value: ListPickerSelectedValue) => {
+      if (Array.isArray(value)) {
+        setCategory(value[0] ?? CATEGORY_OPTIONS[0]?.value ?? '');
+      } else {
+        setCategory(value);
+      }
+    },
+    [],
+  );
 
   const allIcons = React.useMemo<IconInfo[]>(() => {
-    const phosphorIcons: PhosphorIconInfo[] = PHOSPHOR_ICON_INFO_LIST.map(icon => ({
-      type: 'phosphor',
-      ...icon,
-    }));
+    const phosphorIcons: PhosphorIconInfo[] = PHOSPHOR_ICON_INFO_LIST.map(
+      icon => ({
+        type: 'phosphor',
+        ...icon,
+      }),
+    );
 
     const categoryStr = String(category);
 
     if (categoryStr.startsWith('phosphor:')) {
       const phosphorCategory = categoryStr.replace('phosphor:', '');
       const filteredPhosphor = phosphorIcons.filter(icon =>
-        icon.categories.includes(phosphorCategory)
+        icon.categories.includes(phosphorCategory),
       );
       return filteredPhosphor;
     }
@@ -247,7 +274,7 @@ export function IconPreviewScreen() {
               headerText: '选择分类',
               closeText: '关闭',
             }}
-            labelText='分类'
+            labelText="分类"
           />
           <Input
             labelText="搜索"

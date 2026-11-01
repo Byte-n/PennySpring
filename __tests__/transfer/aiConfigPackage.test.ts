@@ -1,5 +1,5 @@
-import type { AiConfigSnapshot } from '@pennyspring/api'
-import { strToU8 } from 'fflate'
+import type { AiConfigSnapshot } from '@pennyspring/api';
+import { strToU8 } from 'fflate';
 
 import {
   AI_CONFIG_FORMAT,
@@ -8,8 +8,8 @@ import {
   createAiConfigFileName,
   parseAiConfigPackage,
   zipAiConfigPackage,
-} from '../../src/features/transfer/aiConfig'
-import { zipFiles, type PackageFiles } from '../../src/features/transfer/zip'
+} from '../../src/features/transfer/aiConfig';
+import { zipFiles, type PackageFiles } from '../../src/features/transfer/zip';
 
 const SNAPSHOT: AiConfigSnapshot = {
   providers: [
@@ -32,7 +32,7 @@ const SNAPSHOT: AiConfigSnapshot = {
   ],
   agentSelection: { providerId: 1, modelId: 'gpt-4.1' },
   quickBookSelection: { providerId: 1, modelId: 'gpt-4.1' },
-}
+};
 
 function createPackageFiles(
   snapshot: unknown,
@@ -49,33 +49,35 @@ function createPackageFiles(
       }),
     ),
     'ai-config.json': strToU8(JSON.stringify(snapshot)),
-  }
+  };
 }
 
 describe('AI config package', () => {
   it('round-trips provider definitions and selections through a zip package', async () => {
     const built = buildAiConfigPackage(SNAPSHOT, {
       createdAt: 1_800_000_000_000,
-    })
+    });
 
-    const parsed = await parseAiConfigPackage(await zipAiConfigPackage(built.files))
+    const parsed = await parseAiConfigPackage(
+      await zipAiConfigPackage(built.files),
+    );
 
-    expect(parsed.manifest.providerCount).toBe(1)
-    expect(parsed.snapshot).toEqual(SNAPSHOT)
+    expect(parsed.manifest.providerCount).toBe(1);
+    expect(parsed.snapshot).toEqual(SNAPSHOT);
     expect(createAiConfigFileName(built.manifest.createdAt)).toBe(
       'PennySpring_AI配置_2027-01-15.psa',
-    )
-  })
+    );
+  });
 
   it('rejects a package from a newer format version', async () => {
     const data = await zipFiles(
       createPackageFiles(SNAPSHOT, AI_CONFIG_FORMAT_VERSION + 1),
-    )
+    );
 
     await expect(parseAiConfigPackage(data)).rejects.toThrow(
       'AI 配置包版本过高，请升级 PennySpring 后再导入',
-    )
-  })
+    );
+  });
 
   it('rejects an invalid provider model payload', async () => {
     const data = await zipFiles(
@@ -88,10 +90,10 @@ describe('AI config package', () => {
           },
         ],
       }),
-    )
+    );
 
     await expect(parseAiConfigPackage(data)).rejects.toThrow(
       'AI 配置包内容格式不正确',
-    )
-  })
-})
+    );
+  });
+});

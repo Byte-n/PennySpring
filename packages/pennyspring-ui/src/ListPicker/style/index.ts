@@ -91,8 +91,7 @@ export const useListPickerStyles = createUseSheetStyle(
         alignItems: 'center',
         gap: token.marginXS,
       },
-      headerText: {
-      },
+      headerText: {},
       list: {
         flex: 1,
         minHeight: 0,
@@ -108,8 +107,7 @@ export const useListPickerStyles = createUseSheetStyle(
       group: {
         gap: token.marginXXS / 2,
       },
-      groupTitle: {
-      },
+      groupTitle: {},
       option: {
         minHeight: sizeConfig.minHeight(token),
         paddingHorizontal: sizeConfig.paddingHorizontal(token),
@@ -137,8 +135,7 @@ export const useListPickerStyles = createUseSheetStyle(
         minWidth: 0,
         gap: token.marginXXS / 2,
       },
-      optionDescription: {
-      },
+      optionDescription: {},
       optionMeta: {
         flexShrink: 0,
       },
@@ -189,18 +186,15 @@ export const useListPickerStyles = createUseSheetStyle(
         justifyContent: 'flex-end',
         gap: token.marginXS,
       },
-      footerButton: {
-      },
+      footerButton: {},
       footerButtonPressed: {
         backgroundColor: token.colorBgTextActive,
       },
       footerPrimaryButton: {
         backgroundColor: token.colorPrimary,
       },
-      footerButtonText: {
-      },
-      footerPrimaryButtonText: {
-      },
+      footerButtonText: {},
+      footerPrimaryButtonText: {},
     };
   },
 );

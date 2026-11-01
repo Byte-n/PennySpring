@@ -27,7 +27,9 @@ export function useOverlayEmitter<TOptions extends object>({
   render,
 }: OverlayOptions<TOptions>): OverlayEmitter<TOptions> {
   const portalContext = React.useContext(PortalContext);
-  const entriesRef = React.useRef<Map<number, OverlayEntry<TOptions>>>(new Map());
+  const entriesRef = React.useRef<Map<number, OverlayEntry<TOptions>>>(
+    new Map(),
+  );
   const nextLocalKeyRef = React.useRef(0);
 
   const show = React.useCallback(

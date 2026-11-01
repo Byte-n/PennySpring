@@ -46,8 +46,7 @@ export type AssetClassificationValue = ReturnType<
   typeof ASSET_CLASSIFICATION.values
 >[number];
 export type AssetClassificationTreeValue =
-  | AssetTypeValue
-  | AssetClassificationValue;
+  AssetTypeValue | AssetClassificationValue;
 export type AssetClassificationIcon = ComponentType<SvgProps>;
 
 export interface AssetClassificationTreeNode {

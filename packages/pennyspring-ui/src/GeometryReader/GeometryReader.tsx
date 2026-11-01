@@ -26,7 +26,11 @@ export function GeometryReader({
   }
 
   return (
-    <View testID="geometry-reader" style={[tokenStyles.root, style]} onLayout={handleLayout}>
+    <View
+      testID="geometry-reader"
+      style={[tokenStyles.root, style]}
+      onLayout={handleLayout}
+    >
       {geometry ? children(geometry) : null}
     </View>
   );

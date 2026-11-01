@@ -25,7 +25,6 @@ import java.nio.charset.StandardCharsets
 class LanTransferModule(
     private val reactContext: ReactApplicationContext,
 ) : ReactContextBaseJavaModule(reactContext) {
-
     companion object {
         private const val DEFAULT_TIMEOUT_MS = 10 * 60 * 1000L
         private const val MIN_TIMEOUT_MS = 60 * 1000L
@@ -34,7 +33,10 @@ class LanTransferModule(
         private const val COPY_BUFFER = 64 * 1024
     }
 
-    private class Source(val stream: InputStream, val length: Long)
+    private class Source(
+        val stream: InputStream,
+        val length: Long,
+    )
 
     private val lock = Any()
 
@@ -65,9 +67,10 @@ class LanTransferModule(
             return
         }
 
-        val timeout = timeoutMs.toLong().takeIf {
-            it in MIN_TIMEOUT_MS..MAX_TIMEOUT_MS
-        } ?: DEFAULT_TIMEOUT_MS
+        val timeout =
+            timeoutMs.toLong().takeIf {
+                it in MIN_TIMEOUT_MS..MAX_TIMEOUT_MS
+            } ?: DEFAULT_TIMEOUT_MS
 
         synchronized(lock) {
             stopInternal()
@@ -84,10 +87,11 @@ class LanTransferModule(
                 servedAt = 0L
 
                 val port = socket.localPort
-                worker = Thread(
-                    { serveLoop(token, fileUri, fileName, socket, timeout) },
-                    "PennySpringLanTransfer",
-                ).apply { start() }
+                worker =
+                    Thread(
+                        { serveLoop(token, fileUri, fileName, socket, timeout) },
+                        "PennySpringLanTransfer",
+                    ).apply { start() }
 
                 val urls = Arguments.createArray()
                 localAddresses().forEach { host ->
@@ -145,11 +149,12 @@ class LanTransferModule(
                 System.currentTimeMillis() < deadline &&
                 !socket.isClosed
             ) {
-                val client = try {
-                    socket.accept()
-                } catch (_: SocketTimeoutException) {
-                    continue
-                }
+                val client =
+                    try {
+                        socket.accept()
+                    } catch (_: SocketTimeoutException) {
+                        continue
+                    }
 
                 client.use { connection ->
                     connection.soTimeout = 5000
@@ -211,26 +216,31 @@ class LanTransferModule(
         }
 
         val query = target.substringAfter('?', "")
-        val providedToken = query.split('&')
-            .firstOrNull { it.startsWith("token=") }
-            ?.substringAfter('=')
-            ?.let { URLDecoder.decode(it, StandardCharsets.UTF_8.name()) }
+        val providedToken =
+            query
+                .split('&')
+                .firstOrNull { it.startsWith("token=") }
+                ?.substringAfter('=')
+                ?.let { URLDecoder.decode(it, StandardCharsets.UTF_8.name()) }
         if (providedToken != token) {
             writeTextResponse(output, "403 Forbidden", "传输口令不正确")
             return
         }
 
         val source = openSource(fileUri)
-        val encodedName = URLEncoder.encode(fileName, StandardCharsets.UTF_8.name())
-            .replace("+", "%20")
-        val headers = buildString {
-            append("HTTP/1.1 200 OK\r\n")
-            append("Content-Type: application/zip\r\n")
-            append("Content-Length: ${source.length}\r\n")
-            append("Content-Disposition: attachment; filename=\"pennyspring-backup.psb\"; filename*=UTF-8''$encodedName\r\n")
-            append("Connection: close\r\n")
-            append("\r\n")
-        }
+        val encodedName =
+            URLEncoder
+                .encode(fileName, StandardCharsets.UTF_8.name())
+                .replace("+", "%20")
+        val headers =
+            buildString {
+                append("HTTP/1.1 200 OK\r\n")
+                append("Content-Type: application/zip\r\n")
+                append("Content-Length: ${source.length}\r\n")
+                append("Content-Disposition: attachment; filename=\"pennyspring-backup.psb\"; filename*=UTF-8''$encodedName\r\n")
+                append("Connection: close\r\n")
+                append("\r\n")
+            }
         output.write(headers.toByteArray(StandardCharsets.ISO_8859_1))
 
         source.stream.use { stream ->
@@ -264,15 +274,20 @@ class LanTransferModule(
         throw IllegalArgumentException("请求头过大")
     }
 
-    private fun writeTextResponse(output: OutputStream, status: String, message: String) {
+    private fun writeTextResponse(
+        output: OutputStream,
+        status: String,
+        message: String,
+    ) {
         val body = message.toByteArray(StandardCharsets.UTF_8)
-        val headers = buildString {
-            append("HTTP/1.1 $status\r\n")
-            append("Content-Type: text/plain; charset=utf-8\r\n")
-            append("Content-Length: ${body.size}\r\n")
-            append("Connection: close\r\n")
-            append("\r\n")
-        }
+        val headers =
+            buildString {
+                append("HTTP/1.1 $status\r\n")
+                append("Content-Type: text/plain; charset=utf-8\r\n")
+                append("Content-Length: ${body.size}\r\n")
+                append("Connection: close\r\n")
+                append("\r\n")
+            }
         output.write(headers.toByteArray(StandardCharsets.ISO_8859_1))
         output.write(body)
     }
@@ -280,18 +295,21 @@ class LanTransferModule(
     private fun openSource(raw: String): Source {
         if (raw.startsWith("content://")) {
             val uri = Uri.parse(raw)
-            val descriptor = reactContext.contentResolver.openAssetFileDescriptor(uri, "r")
-                ?: throw IllegalStateException("无法读取待发送的备份文件")
-            val stream = descriptor.createInputStream()
-                ?: throw IllegalStateException("无法读取待发送的备份文件")
+            val descriptor =
+                reactContext.contentResolver.openAssetFileDescriptor(uri, "r")
+                    ?: throw IllegalStateException("无法读取待发送的备份文件")
+            val stream =
+                descriptor.createInputStream()
+                    ?: throw IllegalStateException("无法读取待发送的备份文件")
             return Source(stream, descriptor.length)
         }
 
-        val path = if (raw.startsWith("file://")) {
-            Uri.decode(raw.removePrefix("file://"))
-        } else {
-            raw
-        }
+        val path =
+            if (raw.startsWith("file://")) {
+                Uri.decode(raw.removePrefix("file://"))
+            } else {
+                raw
+            }
         val file = File(path)
         if (!file.isFile) {
             throw IllegalStateException("待发送的备份文件不存在")

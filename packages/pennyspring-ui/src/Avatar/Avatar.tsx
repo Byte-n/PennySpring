@@ -5,16 +5,15 @@ import { createUseSheetStyle } from '@pennyspring/theme';
 import { Icon } from '../Icon';
 import { Text } from '../Text';
 import { renderTextNode } from '../shares/node';
+import type { ReactNode } from 'react';
 import type {
-  ReactNode } from 'react';
-import type { ImageSourcePropType,
+  ImageSourcePropType,
   ImageStyle,
   TextStyle,
-  ViewStyle } from 'react-native';
+  ViewStyle,
+} from 'react-native';
 import type { AliasToken } from '@pennyspring/theme';
-import type { AvatarProps,
-  AvatarShape,
-} from './types';
+import type { AvatarProps, AvatarShape } from './types';
 import type { TextSize } from '../Text';
 
 export type AvatarDisplayType = 'image' | 'text' | 'icon' | 'empty';
@@ -70,9 +69,8 @@ const useStyles = createUseSheetStyle<AvatarStyleOptions, AvatarStyleSheet>(
   (token, { shape, size }: AvatarStyleOptions) => {
     const sizeConfig = AVATAR_SIZE_CONFIG[size];
     const dimension = sizeConfig.dimension;
-    const borderRadius = shape === 'circle'
-      ? PILL_RADIUS
-      : sizeConfig.squareRadius(token);
+    const borderRadius =
+      shape === 'circle' ? PILL_RADIUS : sizeConfig.squareRadius(token);
 
     return {
       root: {
@@ -144,12 +142,7 @@ export function AvatarRoot({
   const tokenStyles = useStyles({ shape, size: resolvedSize });
   const sizeConfig = AVATAR_SIZE_CONFIG[resolvedSize];
   const [hasImageError, setHasImageError] = useState(false);
-  const displayType = resolveAvatarDisplayType(
-    src,
-    text,
-    icon,
-    hasImageError,
-  );
+  const displayType = resolveAvatarDisplayType(src, text, icon, hasImageError);
 
   useEffect(() => {
     setHasImageError(false);
@@ -186,7 +179,11 @@ export function AvatarRoot({
         </Text>
       ) : null}
       {displayType === 'icon' ? (
-        <View style={[tokenStyles.icon, styles?.icon]}>{renderTextNode(icon, (value) => <Text>{value}</Text>)}</View>
+        <View style={[tokenStyles.icon, styles?.icon]}>
+          {renderTextNode(icon, value => (
+            <Text>{value}</Text>
+          ))}
+        </View>
       ) : null}
       {displayType === 'empty' ? (
         <Icon

@@ -19,8 +19,8 @@ export function ListPickerMultipleDemo() {
             Array.isArray(nextValue)
               ? nextValue
               : nextValue === undefined
-              ? []
-              : [nextValue],
+                ? []
+                : [nextValue],
           );
         }}
         texts={{

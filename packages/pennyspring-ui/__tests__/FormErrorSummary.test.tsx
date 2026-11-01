@@ -51,9 +51,10 @@ function hasTestId(
   testRenderer: renderer.ReactTestRenderer,
   testID: string,
 ): boolean {
-  return testRenderer.root.findAll(
-    instance => instance.props.testID === testID,
-  ).length > 0;
+  return (
+    testRenderer.root.findAll(instance => instance.props.testID === testID)
+      .length > 0
+  );
 }
 
 describe('Form.ErrorSummary', () => {

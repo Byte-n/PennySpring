@@ -39,7 +39,10 @@ interface HeatmapStyles {
 
 function levelOf(amount: number, maxAmount: number): number {
   if (amount <= 0) return 0;
-  return Math.min(MAX_LEVEL, Math.max(1, Math.ceil((amount / maxAmount) * MAX_LEVEL)));
+  return Math.min(
+    MAX_LEVEL,
+    Math.max(1, Math.ceil((amount / maxAmount) * MAX_LEVEL)),
+  );
 }
 
 function dateValue(start: number, day: number): string {
@@ -50,7 +53,10 @@ function dateValue(start: number, day: number): string {
   return `${date.getFullYear()}-${month}-${dateText}`;
 }
 
-function createHeatmapStyles(token: AliasToken, { days, maxAmount, start }: HeatmapStyleOptions): HeatmapStyles {
+function createHeatmapStyles(
+  token: AliasToken,
+  { days, maxAmount, start }: HeatmapStyleOptions,
+): HeatmapStyles {
   const dayByDate = new Map(days.map(day => [dateValue(start, day.day), day]));
 
   return {
@@ -70,18 +76,21 @@ function createHeatmapStyles(token: AliasToken, { days, maxAmount, start }: Heat
     cell: (value: string, state: CalendarPickerViewCellState): ViewStyle => {
       const day = dayByDate.get(value);
       const level = day ? levelOf(day.amount, maxAmount) : 0;
-      const background = level === 4
-        ? token.colorPrimary
-        : level === 3
-          ? token.colorPrimaryBorder
-          : level === 2
-            ? token.colorPrimaryBgHover
-            : level === 1
-              ? token.colorPrimaryBg
-              : token.colorFillQuaternary;
+      const background =
+        level === 4
+          ? token.colorPrimary
+          : level === 3
+            ? token.colorPrimaryBorder
+            : level === 2
+              ? token.colorPrimaryBgHover
+              : level === 1
+                ? token.colorPrimaryBg
+                : token.colorFillQuaternary;
 
       return {
-        backgroundColor: state.isDisabled ? token.colorFillQuaternary : background,
+        backgroundColor: state.isDisabled
+          ? token.colorFillQuaternary
+          : background,
         borderWidth: state.isSelected ? token.lineWidthBold : token.lineWidth,
         borderColor: state.isSelected
           ? token.colorText
@@ -95,7 +104,10 @@ function createHeatmapStyles(token: AliasToken, { days, maxAmount, start }: Heat
           : null),
       };
     },
-    dateText: (value: string, _state: CalendarPickerViewCellState): TextStyle => {
+    dateText: (
+      value: string,
+      _state: CalendarPickerViewCellState,
+    ): TextStyle => {
       const day = dayByDate.get(value);
       const level = day ? levelOf(day.amount, maxAmount) : 0;
 
@@ -119,7 +131,11 @@ function createHeatmapStyles(token: AliasToken, { days, maxAmount, start }: Heat
 }
 
 const useStyles = createUseSheetStyle(
-  (token, options: HeatmapStyleOptions) => createHeatmapStyles(token, options) as unknown as Record<string, ViewStyle | TextStyle>,
+  (token, options: HeatmapStyleOptions) =>
+    createHeatmapStyles(token, options) as unknown as Record<
+      string,
+      ViewStyle | TextStyle
+    >,
 );
 
 export function CalendarHeatmap({
@@ -131,7 +147,8 @@ export function CalendarHeatmap({
 }: CalendarHeatmapProps) {
   const { token } = useTheme();
   const maxAmount = Math.max(...days.map(day => day.amount), 1);
-  const selectedValue = selectedDay === null ? undefined : dateValue(start, selectedDay);
+  const selectedValue =
+    selectedDay === null ? undefined : dateValue(start, selectedDay);
   const dayByDate = useMemo(
     () => new Map(days.map(day => [dateValue(start, day.day), day])),
     [days, start],
@@ -154,14 +171,28 @@ export function CalendarHeatmap({
       />
       <Row align="center" justify="between">
         <Row align="center" style={styles.legend}>
-          <Text size="xs" color="tertiary">少</Text>
-          <Column style={styles.legendDot}><ColorDot color={token.colorPrimaryBg} /></Column>
-          <Column style={styles.legendDot}><ColorDot color={token.colorPrimaryBgHover} /></Column>
-          <Column style={styles.legendDot}><ColorDot color={token.colorPrimaryBorder} /></Column>
-          <Column style={styles.legendDot}><ColorDot color={token.colorPrimary} /></Column>
-          <Text size="xs" color="tertiary">多</Text>
+          <Text size="xs" color="tertiary">
+            少
+          </Text>
+          <Column style={styles.legendDot}>
+            <ColorDot color={token.colorPrimaryBg} />
+          </Column>
+          <Column style={styles.legendDot}>
+            <ColorDot color={token.colorPrimaryBgHover} />
+          </Column>
+          <Column style={styles.legendDot}>
+            <ColorDot color={token.colorPrimaryBorder} />
+          </Column>
+          <Column style={styles.legendDot}>
+            <ColorDot color={token.colorPrimary} />
+          </Column>
+          <Text size="xs" color="tertiary">
+            多
+          </Text>
         </Row>
-        <Text size="xs" color="tertiary">深色 = 当日支出高</Text>
+        <Text size="xs" color="tertiary">
+          深色 = 当日支出高
+        </Text>
       </Row>
       {detail}
     </Column>

@@ -29,9 +29,17 @@ export function TriggerContent({ label, meta, value }: TriggerContentProps) {
 
   return (
     <Column gap={token.marginXXS}>
-      <Text color="description" size="sm">{label}</Text>
-      <Text color="heading" weight="strong">{value}</Text>
-      {meta ? <Text color="description" size="sm">{meta}</Text> : null}
+      <Text color="description" size="sm">
+        {label}
+      </Text>
+      <Text color="heading" weight="strong">
+        {value}
+      </Text>
+      {meta ? (
+        <Text color="description" size="sm">
+          {meta}
+        </Text>
+      ) : null}
     </Column>
   );
 }
@@ -45,8 +53,8 @@ export function InlineValue({ label, value }: InlineValueProps) {
 }
 
 export function joinLabels(labels: Array<string | undefined>): string {
-  const visibleLabels = labels.filter((label): label is string =>
-    label !== undefined && label.length > 0,
+  const visibleLabels = labels.filter(
+    (label): label is string => label !== undefined && label.length > 0,
   );
 
   if (visibleLabels.length === 0) {

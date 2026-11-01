@@ -6,9 +6,26 @@ import { Section } from './components/Section';
 import { Swatch } from './components/Swatch';
 import { usePreviewStyles } from './styles';
 
-const BRAND_COLORS = ['colorPrimary', 'colorSuccess', 'colorWarning', 'colorError', 'colorInfo'] as const;
+const BRAND_COLORS = [
+  'colorPrimary',
+  'colorSuccess',
+  'colorWarning',
+  'colorError',
+  'colorInfo',
+] as const;
 
-const BRAND_STEPS = ['Bg', 'BgHover', 'Border', 'BorderHover', 'Hover', '', 'Active', 'TextHover', 'Text', 'TextActive'];
+const BRAND_STEPS = [
+  'Bg',
+  'BgHover',
+  'Border',
+  'BorderHover',
+  'Hover',
+  '',
+  'Active',
+  'TextHover',
+  'Text',
+  'TextActive',
+];
 
 export function BrandColorsPreview() {
   const { token } = useTheme();

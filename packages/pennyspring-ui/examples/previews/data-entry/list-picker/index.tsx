@@ -5,7 +5,8 @@ import type { PreviewMeta } from '../../types';
 
 export const previewMeta = {
   title: 'ListPicker',
-  description: '基于 List 行的搜索、分组与单选/多选，含 ListPicker.Cascader 级联子模式。',
+  description:
+    '基于 List 行的搜索、分组与单选/多选，含 ListPicker.Cascader 级联子模式。',
   order: 15,
   demos: [
     { id: 'single', title: 'Single selection and search' },

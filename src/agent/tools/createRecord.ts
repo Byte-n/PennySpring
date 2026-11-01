@@ -107,7 +107,10 @@ export function createCreateRecordTool(deps: CreateRecordToolDeps) {
     inputSchema: createRecordInputSchema,
     execute: async input => {
       const { resolved: resolvedAttachments, missingIds } =
-        resolveAttachmentsByIds(deps.attachments ?? [], input.attachmentIds ?? []);
+        resolveAttachmentsByIds(
+          deps.attachments ?? [],
+          input.attachmentIds ?? [],
+        );
       if (missingIds.length > 0) {
         const available = (deps.attachments ?? [])
           .map(attachment => attachment.id)
@@ -131,9 +134,7 @@ export function createCreateRecordTool(deps: CreateRecordToolDeps) {
         throw new Error(resolved.error);
       }
 
-      const imagePaths = resolvedAttachments.map(
-        attachment => attachment.ref,
-      );
+      const imagePaths = resolvedAttachments.map(attachment => attachment.ref);
       const row = await deps.api.record.create({
         ...resolved.draft.createInput,
         ...(imagePaths.length > 0 ? { imagePaths } : {}),
@@ -144,9 +145,7 @@ export function createCreateRecordTool(deps: CreateRecordToolDeps) {
         category: resolved.draft.category,
         type: resolved.draft.typePath,
         amountYuan: resolved.draft.amountCents / 100,
-        recordTime: dayjs(resolved.draft.recordTime).format(
-          'YYYY-MM-DD HH:mm',
-        ),
+        recordTime: dayjs(resolved.draft.recordTime).format('YYYY-MM-DD HH:mm'),
       };
     },
   });

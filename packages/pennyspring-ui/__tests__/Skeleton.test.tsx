@@ -11,7 +11,10 @@ jest.mock('react-native-reanimated', () => {
       View: ReactNative.View,
     },
     Easing: {
-      bezier: (..._args: number[]) => (_t: number) => _t,
+      bezier:
+        (..._args: number[]) =>
+        (_t: number) =>
+          _t,
     },
     useAnimatedStyle: (updater: () => Record<string, unknown>) => updater(),
     useSharedValue: (value: number) => ({ value }),

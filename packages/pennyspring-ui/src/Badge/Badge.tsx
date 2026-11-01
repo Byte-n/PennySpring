@@ -97,11 +97,16 @@ function resolveBadgeOffset(offset: BadgeProps['offset']): ResolvedBadgeOffset {
   };
 }
 
-function isPresetColor(color: BadgeColor): color is (typeof PRESET_COLORS)[number] {
+function isPresetColor(
+  color: BadgeColor,
+): color is (typeof PRESET_COLORS)[number] {
   return PRESET_COLORS.includes(color as (typeof PRESET_COLORS)[number]);
 }
 
-function resolveColorConfig(token: AliasToken, color: BadgeColor): ColorStyleConfig {
+function resolveColorConfig(
+  token: AliasToken,
+  color: BadgeColor,
+): ColorStyleConfig {
   if (color === 'default') {
     return {
       base: token.colorText,
@@ -149,10 +154,7 @@ function resolveColorConfig(token: AliasToken, color: BadgeColor): ColorStyleCon
   };
 }
 
-function resolveNumericCount(
-  count: number,
-  overflowCount: number,
-): string {
+function resolveNumericCount(count: number, overflowCount: number): string {
   if (count > overflowCount) {
     return `${overflowCount}+`;
   }
@@ -219,9 +221,7 @@ const useStyles = createUseSheetStyle(
     const dotSize = sizeConfig.dotSize;
     const resolvedOffset = resolveBadgeOffset(offset);
     const anchorSize = isDot ? dotSize : indicatorHeight;
-    const anchorRatio = isDot
-      ? DOT_ANCHOR_OFFSET_RATIO
-      : ANCHOR_OFFSET_RATIO;
+    const anchorRatio = isDot ? DOT_ANCHOR_OFFSET_RATIO : ANCHOR_OFFSET_RATIO;
     const anchorTranslateX = anchorSize * anchorRatio + resolvedOffset.x;
     const anchorTranslateY = -anchorSize * anchorRatio + resolvedOffset.y;
 
@@ -237,13 +237,13 @@ const useStyles = createUseSheetStyle(
         borderRadius: indicatorHeight,
         ...(hasChildren
           ? {
-            borderColor: token.colorBgContainer,
-            borderWidth: token.lineWidthBold,
-            position: 'absolute' as const,
-            right: 0,
-            top: 0,
-            zIndex: token.zIndexBase + 1,
-          }
+              borderColor: token.colorBgContainer,
+              borderWidth: token.lineWidthBold,
+              position: 'absolute' as const,
+              right: 0,
+              top: 0,
+              zIndex: token.zIndexBase + 1,
+            }
           : null),
       },
       anchorOffset: {
@@ -280,7 +280,7 @@ function renderBadgeContent(
   tokenContentStyle: ReturnType<typeof useStyles>['content'],
   size: ComponentSize,
 ): React.ReactNode {
-  return renderTextNode(content, (text) => (
+  return renderTextNode(content, text => (
     <Text
       color="lightSolid"
       size={SIZE_STYLE_MAP[size].textSize}
@@ -320,22 +320,26 @@ export function Badge({
     return null;
   }
 
-  const badgeIndicator = shouldRender
-    ? (
-      <View
-        style={[tokenStyles.indicator, styles?.indicator]}
-        testID="badge-indicator"
-      >
-        {dot
-          ? <View style={[tokenStyles.dot, styles?.dot]} testID="badge-dot" />
-          : renderBadgeContent(resolveDisplayCount(count, normalizedOverflowCount), styles, tokenStyles.content, size)}
-      </View>
-    )
-    : null;
+  const badgeIndicator = shouldRender ? (
+    <View
+      style={[tokenStyles.indicator, styles?.indicator]}
+      testID="badge-indicator"
+    >
+      {dot ? (
+        <View style={[tokenStyles.dot, styles?.dot]} testID="badge-dot" />
+      ) : (
+        renderBadgeContent(
+          resolveDisplayCount(count, normalizedOverflowCount),
+          styles,
+          tokenStyles.content,
+          size,
+        )
+      )}
+    </View>
+  ) : null;
 
-  const badgeNode = badgeIndicator === null
-    ? null
-    : (
+  const badgeNode =
+    badgeIndicator === null ? null : (
       <View
         style={[
           tokenStyles.anchor,
@@ -349,7 +353,9 @@ export function Badge({
 
   return (
     <View {...rest} style={[tokenStyles.root, style]}>
-      {hasChildren ? <View style={tokenStyles.contentWrapper}>{children}</View> : null}
+      {hasChildren ? (
+        <View style={tokenStyles.contentWrapper}>{children}</View>
+      ) : null}
       {badgeNode}
     </View>
   );

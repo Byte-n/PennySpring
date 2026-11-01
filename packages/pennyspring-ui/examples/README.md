@@ -21,14 +21,14 @@ react-native start --port 8081
 
 ## 命令
 
-| 命令 | 说明 |
-|---|---|
-| `yarn workspace @pennyspring/ui-examples start` | 同步预览并启动 Metro（8081） |
-| `yarn workspace @pennyspring/ui-examples android` | 同步预览并运行 Android |
-| `yarn workspace @pennyspring/ui-examples ios` | 同步预览并运行 iOS |
-| `yarn workspace @pennyspring/ui-examples lint` | ESLint |
-| `yarn workspace @pennyspring/ui-examples typecheck` | TypeScript |
-| `yarn workspace @pennyspring/ui-examples clean` | 清理该 App 的构建缓存 |
+| 命令                                                | 说明                         |
+| --------------------------------------------------- | ---------------------------- |
+| `yarn workspace @pennyspring/ui-examples start`     | 同步预览并启动 Metro（8081） |
+| `yarn workspace @pennyspring/ui-examples android`   | 同步预览并运行 Android       |
+| `yarn workspace @pennyspring/ui-examples ios`       | 同步预览并运行 iOS           |
+| `yarn workspace @pennyspring/ui-examples lint`      | ESLint                       |
+| `yarn workspace @pennyspring/ui-examples typecheck` | TypeScript                   |
+| `yarn workspace @pennyspring/ui-examples clean`     | 清理该 App 的构建缓存        |
 
 ## 结构
 

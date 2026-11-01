@@ -27,13 +27,17 @@ export function SkeletonShapeDemo() {
   return (
     <Column gap="large">
       <Column gap="small">
-        <Text color="tertiary" size="xs">line · 12 / 16 / 20，圆角 4 / 6 / 8</Text>
+        <Text color="tertiary" size="xs">
+          line · 12 / 16 / 20，圆角 4 / 6 / 8
+        </Text>
         <Skeleton size="small" />
         <Skeleton />
         <Skeleton size="large" />
       </Column>
       <Column gap="small">
-        <Text color="tertiary" size="xs">circle · 32 / 40 / 48，只用于头像位</Text>
+        <Text color="tertiary" size="xs">
+          circle · 32 / 40 / 48，只用于头像位
+        </Text>
         <Row gap="small">
           <Skeleton shape="circle" size="small" />
           <Column style={styles.column}>
@@ -57,7 +61,9 @@ export function SkeletonShapeDemo() {
         </Row>
       </Column>
       <Column gap="small">
-        <Text color="tertiary" size="xs">rect · 48 / 64 / 80，圆角 12 与 Card 对齐</Text>
+        <Text color="tertiary" size="xs">
+          rect · 48 / 64 / 80，圆角 12 与 Card 对齐
+        </Text>
         <Skeleton shape="rect" size="small" />
         <Skeleton shape="rect" />
         <Skeleton shape="rect" size="large" />

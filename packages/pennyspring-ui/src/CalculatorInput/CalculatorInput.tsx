@@ -15,7 +15,8 @@ import { useFieldProps } from '../Form/hooks/useFieldProps.ts';
 type Operator = '+' | '-' | '×' | '/';
 type EvaluationOperator = '+' | '-' | '*' | '/';
 type Token = number | Operator | '(' | ')';
-type CalculatorKeyRole = 'digit' | 'decimal' | 'operator' | 'clear' | 'backspace' | 'paren';
+type CalculatorKeyRole =
+  'digit' | 'decimal' | 'operator' | 'clear' | 'backspace' | 'paren';
 
 interface CalculatorKeyConfig {
   label: string;
@@ -121,7 +122,10 @@ function appendDecimal(expression: string): string {
     return expression;
   }
 
-  if (expression.length === 0 || isOperator(expression[expression.length - 1])) {
+  if (
+    expression.length === 0 ||
+    isOperator(expression[expression.length - 1])
+  ) {
     return `${expression}0.`;
   }
 
@@ -159,11 +163,7 @@ function appendParen(expression: string): string {
   const closeCount = countChar(expression, ')');
   const lastChar = expression[expression.length - 1];
 
-  if (
-    expression.length === 0
-    || lastChar === '('
-    || isOperator(lastChar)
-  ) {
+  if (expression.length === 0 || lastChar === '(' || isOperator(lastChar)) {
     return `${expression}(`;
   }
 
@@ -383,9 +383,9 @@ function evaluateFlat(tokens: Token[]): number | null {
     const right = collapsedTokens[index + 1];
 
     if (
-      typeof operator !== 'string'
-      || !isOperator(operator)
-      || typeof right !== 'number'
+      typeof operator !== 'string' ||
+      !isOperator(operator) ||
+      typeof right !== 'number'
     ) {
       return null;
     }
@@ -458,10 +458,15 @@ function evaluateExpression(expression: string): CalculatorInputResult {
 }
 
 function isFunctionKey(key: CalculatorKeyConfig): boolean {
-  return key.role === 'clear' || key.role === 'backspace' || key.role === 'paren';
+  return (
+    key.role === 'clear' || key.role === 'backspace' || key.role === 'paren'
+  );
 }
 
-function getKeyTextColor(key: CalculatorKeyConfig, disabled: boolean): TextColor {
+function getKeyTextColor(
+  key: CalculatorKeyConfig,
+  disabled: boolean,
+): TextColor {
   if (disabled) {
     return 'disabled';
   }
@@ -549,7 +554,8 @@ export function CalculatorInput(rawProps: CalculatorInputProps) {
   const result = useMemo(() => evaluateExpression(expression), [expression]);
   const hasResult = result.value !== null;
   const resultText = hasResult ? result.display : EMPTY_RESULT_TEXT;
-  const isLongResult = hasResult && result.display.length > MAX_RESULT_DISPLAY_LENGTH;
+  const isLongResult =
+    hasResult && result.display.length > MAX_RESULT_DISPLAY_LENGTH;
   const resultColor: TextColor = resolvedDisabled
     ? 'disabled'
     : hasResult
@@ -644,7 +650,10 @@ export function CalculatorInput(rawProps: CalculatorInputProps) {
 
   return (
     <Column gap={token.size} style={style}>
-      <Column gap={token.sizeXXS} style={[tokenStyles.display, styles?.display]}>
+      <Column
+        gap={token.sizeXXS}
+        style={[tokenStyles.display, styles?.display]}
+      >
         <TextInput
           editable={false}
           placeholder={placeholder}
@@ -675,7 +684,9 @@ export function CalculatorInput(rawProps: CalculatorInputProps) {
       <Column
         gap={token.sizeXS}
         style={[
-          resolvedReadonly && !resolvedDisabled ? tokenStyles.readonlyKeypad : null,
+          resolvedReadonly && !resolvedDisabled
+            ? tokenStyles.readonlyKeypad
+            : null,
           styles?.keypad,
         ]}
       >

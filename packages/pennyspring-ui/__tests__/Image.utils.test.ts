@@ -14,17 +14,16 @@ describe('Image utils', () => {
     expect(isSameImageSource({ uri: 'a.jpg' }, { uri: 'b.jpg' })).toBe(false);
     expect(isSameImageSource(1, 1)).toBe(true);
     expect(isSameImageSource(1, 2)).toBe(false);
-    expect(isSameImageSource([{ uri: 'a.jpg' }], [{ uri: 'a.jpg' }])).toBe(false);
+    expect(isSameImageSource([{ uri: 'a.jpg' }], [{ uri: 'a.jpg' }])).toBe(
+      false,
+    );
   });
 
   it('normalizes raw sources and wrapped items', () => {
     const raw = { uri: 'a.jpg' };
     const wrapped = { src: { uri: 'b.jpg' } };
 
-    expect(normalizePreviewItems([raw, wrapped])).toEqual([
-      raw,
-      wrapped.src,
-    ]);
+    expect(normalizePreviewItems([raw, wrapped])).toEqual([raw, wrapped.src]);
   });
 
   it('clamps an index into the available image range', () => {

@@ -25,7 +25,8 @@ export function SliderDarkDemo() {
   return (
     <Column gap="normal">
       <Text color="tertiary" size="sm">
-        固定深色，不随页面主题：深色轨道 .12 白，thumb 白面自然浮起，禁用滑块去投影
+        固定深色，不随页面主题：深色轨道 .12 白，thumb
+        白面自然浮起，禁用滑块去投影
       </Text>
       <ThemeProvider config={{ algorithm: 'dark' }}>
         <DarkSurface />

@@ -27,7 +27,10 @@ function normalizeImageValues(values: ImagePickerValue[]): ImagePickerValue[] {
   return values.map(normalizeImageValue);
 }
 
-function getSelectionLimit({ maxCount, multiple }: ImagePickerPickOptions): number {
+function getSelectionLimit({
+  maxCount,
+  multiple,
+}: ImagePickerPickOptions): number {
   return multiple ? maxCount : 1;
 }
 
@@ -62,7 +65,10 @@ export async function pickImageFromLibrary(
 
   const values = normalizeImageValues(
     assets
-      .filter((asset): asset is typeof asset & { uri: string } => asset.uri !== undefined)
+      .filter(
+        (asset): asset is typeof asset & { uri: string } =>
+          asset.uri !== undefined,
+      )
       .slice(0, getSelectionLimit(options))
       .map(asset => ({
         uri: asset.uri,
@@ -124,7 +130,10 @@ export async function pickImageFromFiles(
 
     const values = normalizeImageValues(
       files
-        .filter((file): file is typeof file & { uri: string } => file.uri !== undefined)
+        .filter(
+          (file): file is typeof file & { uri: string } =>
+            file.uri !== undefined,
+        )
         .slice(0, getSelectionLimit(options))
         .map(file => ({
           uri: file.uri,
@@ -141,8 +150,8 @@ export async function pickImageFromFiles(
     return options.multiple ? values : values[0];
   } catch (error: unknown) {
     if (
-      isErrorWithCode(error)
-      && error.code === errorCodes.OPERATION_CANCELED
+      isErrorWithCode(error) &&
+      error.code === errorCodes.OPERATION_CANCELED
     ) {
       return undefined;
     }

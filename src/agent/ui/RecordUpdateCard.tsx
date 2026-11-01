@@ -255,8 +255,8 @@ export function RecordUpdateCard(
     const errorText = !parsed.success
       ? '修改参数不完整，请取消后让助手补充。'
       : resolved?.ok === false
-      ? resolved.error
-      : '修改参数不完整，请取消后让助手补充。';
+        ? resolved.error
+        : '修改参数不完整，请取消后让助手补充。';
     return (
       <StatusCard
         descriptionText={errorText}

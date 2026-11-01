@@ -75,7 +75,10 @@ export function PickerCascader<
 >(props: PickerCascaderProps<TData, TTabKey>) {
   const { tabs, renderLabel } = props;
   const normalizedValue = useMemo(
-    () => (props.value === undefined ? undefined : normalizeTabValue(tabs, props.value)),
+    () =>
+      props.value === undefined
+        ? undefined
+        : normalizeTabValue(tabs, props.value),
     [props.value, tabs],
   );
   const normalizedDefaultValue = useMemo(
@@ -85,11 +88,8 @@ export function PickerCascader<
         : normalizeTabValue(tabs, props.defaultValue),
     [props.defaultValue, tabs],
   );
-  const [mainValue = normalizedDefaultValue, setMainValue] = useControllableValue(
-    normalizedDefaultValue,
-    normalizedValue,
-    undefined,
-  );
+  const [mainValue = normalizedDefaultValue, setMainValue] =
+    useControllableValue(normalizedDefaultValue, normalizedValue, undefined);
   const [draftValue, setDraftValue] = useState(mainValue);
   const [activeTabKey, setActiveTabKey] = useState<TTabKey | undefined>(() =>
     getInitialActiveTabKey(tabs),
@@ -117,32 +117,40 @@ export function PickerCascader<
   const activeTab = getActiveTab(tabs, activeTabKey);
   const resolvedActiveTabKey = activeTab?.tabKey;
   const activeTabIndex = getActiveTabIndex(tabs, resolvedActiveTabKey);
-  const activeTabValue = resolvedActiveTabKey === undefined
-    ? []
-    : draftValue[resolvedActiveTabKey] ?? [];
+  const activeTabValue =
+    resolvedActiveTabKey === undefined
+      ? []
+      : (draftValue[resolvedActiveTabKey] ?? []);
 
   const columns = useMemo(
-    () => (activeTab ? optionsToColumns(activeTab.options, activeTabValue) : []),
+    () =>
+      activeTab ? optionsToColumns(activeTab.options, activeTabValue) : [],
     [activeTab, activeTabValue],
   );
 
   const layerOptionsForLabel = useMemo(
-    () => (activeTab ? getOptionsForPath(activeTab.options, activeTabValue) : []),
+    () =>
+      activeTab ? getOptionsForPath(activeTab.options, activeTabValue) : [],
     [activeTab, activeTabValue],
   );
 
-  const pickerRenderLabel = renderLabel && activeTab
-    ? (item: PickerCascaderItem<TData>, columnIndex: number, itemIndex: number) => {
-        const layer = layerOptionsForLabel[columnIndex];
-        const originalOption = layer?.[itemIndex];
+  const pickerRenderLabel =
+    renderLabel && activeTab
+      ? (
+          item: PickerCascaderItem<TData>,
+          columnIndex: number,
+          itemIndex: number,
+        ) => {
+          const layer = layerOptionsForLabel[columnIndex];
+          const originalOption = layer?.[itemIndex];
 
-        if (!originalOption) {
-          return item.label ?? item.labelText;
+          if (!originalOption) {
+            return item.label ?? item.labelText;
+          }
+
+          return renderLabel(originalOption);
         }
-
-        return renderLabel(originalOption);
-      }
-    : undefined;
+      : undefined;
 
   const pickerRenderHeader: NonNullable<
     PickerPopupProps<PickerCascaderItem<TData>>['renderHeader']
@@ -151,7 +159,7 @@ export function PickerCascader<
 
     return (
       <Column>
-        {renderTextNode(header, (text) => (
+        {renderTextNode(header, text => (
           <Text>{text}</Text>
         ))}
         <Tabs

@@ -17,7 +17,8 @@ export function MessagePlacementDemo() {
               messageText: '已保存这笔记录',
               placement: 'top',
               status: 'success',
-            })}
+            })
+          }
         >
           top · 状态栏 + 8
         </Button>
@@ -28,7 +29,8 @@ export function MessagePlacementDemo() {
               messageText: '同步失败：网络不可用',
               placement: 'bottom',
               status: 'error',
-            })}
+            })
+          }
         >
           bottom · 24 + 安全区
         </Button>

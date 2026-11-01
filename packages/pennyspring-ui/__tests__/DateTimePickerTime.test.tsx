@@ -33,8 +33,10 @@ jest.mock('react-native-reanimated', () => {
     default: {
       View: ReactNative.View,
     },
-    createAnimatedComponent: (Component: React.ComponentType<Record<string, unknown>>) =>
-      (props: Record<string, unknown>) => ReactModule.createElement(Component, props),
+    createAnimatedComponent:
+      (Component: React.ComponentType<Record<string, unknown>>) =>
+      (props: Record<string, unknown>) =>
+        ReactModule.createElement(Component, props),
     interpolate: (value: number) => value,
     useAnimatedStyle: (updater: () => Record<string, unknown>) => updater(),
     useSharedValue: (value: number) => ({ value }),
@@ -42,10 +44,7 @@ jest.mock('react-native-reanimated', () => {
   };
 });
 
-import {
-  DateTimePicker,
-  Text,
-} from '../src';
+import { DateTimePicker, Text } from '../src';
 
 function makeDate(hours: number, minutes: number, seconds = 0): Date {
   return new Date(2026, 4, 9, hours, minutes, seconds, 0);
@@ -61,16 +60,20 @@ it('builds hour and minute columns by default precision', () => {
   });
 
   // 小时列：0..23 → 24 项
-  expect(testRenderer!.root.findByProps({ testID: 'picker-item-0-0' }).props)
-    .toBeTruthy();
-  expect(testRenderer!.root.findByProps({ testID: 'picker-item-0-23' }).props)
-    .toBeTruthy();
+  expect(
+    testRenderer!.root.findByProps({ testID: 'picker-item-0-0' }).props,
+  ).toBeTruthy();
+  expect(
+    testRenderer!.root.findByProps({ testID: 'picker-item-0-23' }).props,
+  ).toBeTruthy();
   // 分钟列：0..59 → 60 项
-  expect(testRenderer!.root.findByProps({ testID: 'picker-item-1-59' }).props)
-    .toBeTruthy();
+  expect(
+    testRenderer!.root.findByProps({ testID: 'picker-item-1-59' }).props,
+  ).toBeTruthy();
   // 默认精度下没有秒列
-  expect(testRenderer!.root.findAllByProps({ testID: 'picker-item-2-0' }))
-    .toHaveLength(0);
+  expect(
+    testRenderer!.root.findAllByProps({ testID: 'picker-item-2-0' }),
+  ).toHaveLength(0);
 });
 
 it('includes second column when precision is second', () => {
@@ -78,12 +81,17 @@ it('includes second column when precision is second', () => {
 
   act(() => {
     testRenderer = renderer.create(
-      <DateTimePicker.Time defaultOpen precision="second" value={makeDate(9, 15, 20)} />,
+      <DateTimePicker.Time
+        defaultOpen
+        precision="second"
+        value={makeDate(9, 15, 20)}
+      />,
     );
   });
 
-  expect(testRenderer!.root.findByProps({ testID: 'picker-item-2-59' }).props)
-    .toBeTruthy();
+  expect(
+    testRenderer!.root.findByProps({ testID: 'picker-item-2-59' }).props,
+  ).toBeTruthy();
 });
 
 it('renders only hour column when precision is hour', () => {
@@ -91,14 +99,20 @@ it('renders only hour column when precision is hour', () => {
 
   act(() => {
     testRenderer = renderer.create(
-      <DateTimePicker.Time defaultOpen precision="hour" value={makeDate(9, 15)} />,
+      <DateTimePicker.Time
+        defaultOpen
+        precision="hour"
+        value={makeDate(9, 15)}
+      />,
     );
   });
 
-  expect(testRenderer!.root.findByProps({ testID: 'picker-item-0-23' }).props)
-    .toBeTruthy();
-  expect(testRenderer!.root.findAllByProps({ testID: 'picker-item-1-0' }))
-    .toHaveLength(0);
+  expect(
+    testRenderer!.root.findByProps({ testID: 'picker-item-0-23' }).props,
+  ).toBeTruthy();
+  expect(
+    testRenderer!.root.findAllByProps({ testID: 'picker-item-1-0' }),
+  ).toHaveLength(0);
 });
 
 it('selects hour 10 and minute 30 from value prop', () => {
@@ -111,10 +125,12 @@ it('selects hour 10 and minute 30 from value prop', () => {
   });
 
   expect(
-    testRenderer!.root.findByProps({ testID: 'picker-item-0-10' }).props.selected,
+    testRenderer!.root.findByProps({ testID: 'picker-item-0-10' }).props
+      .selected,
   ).toBe(true);
   expect(
-    testRenderer!.root.findByProps({ testID: 'picker-item-1-30' }).props.selected,
+    testRenderer!.root.findByProps({ testID: 'picker-item-1-30' }).props
+      .selected,
   ).toBe(true);
 });
 
@@ -163,7 +179,9 @@ it('uses renderLabel to render custom nodes', () => {
       <DateTimePicker.Time
         defaultOpen
         value={makeDate(10, 30)}
-        renderLabel={params => <Text>{`custom-${params.type}-${params.value}`}</Text>}
+        renderLabel={params => (
+          <Text>{`custom-${params.type}-${params.value}`}</Text>
+        )}
       />,
     );
   });
@@ -188,7 +206,9 @@ it('translates picker change into Date in onChange', () => {
   });
 
   act(() => {
-    testRenderer!.root.findByProps({ testID: 'picker-item-1-45' }).props.onPress();
+    testRenderer!.root
+      .findByProps({ testID: 'picker-item-1-45' })
+      .props.onPress();
   });
 
   expect(onChange).toHaveBeenCalledTimes(1);
@@ -216,10 +236,14 @@ it('translates picker ok into Date in onOk', () => {
   });
 
   act(() => {
-    testRenderer!.root.findByProps({ testID: 'picker-item-0-11' }).props.onPress();
+    testRenderer!.root
+      .findByProps({ testID: 'picker-item-0-11' })
+      .props.onPress();
   });
   act(() => {
-    testRenderer!.root.findByProps({ testID: 'picker-ok-button' }).props.onPress();
+    testRenderer!.root
+      .findByProps({ testID: 'picker-ok-button' })
+      .props.onPress();
   });
 
   expect(onOk).toHaveBeenCalledTimes(1);
@@ -246,7 +270,9 @@ it('passes through onCancel and onOpenChange', () => {
   });
 
   act(() => {
-    testRenderer!.root.findByProps({ testID: 'picker-cancel-button' }).props.onPress();
+    testRenderer!.root
+      .findByProps({ testID: 'picker-cancel-button' })
+      .props.onPress();
   });
 
   expect(onCancel).toHaveBeenCalledWith({ reason: 'cancel' });
@@ -291,10 +317,14 @@ it('preserves year/month/day from base date on selection', () => {
   });
 
   act(() => {
-    testRenderer!.root.findByProps({ testID: 'picker-item-1-45' }).props.onPress();
+    testRenderer!.root
+      .findByProps({ testID: 'picker-item-1-45' })
+      .props.onPress();
   });
   act(() => {
-    testRenderer!.root.findByProps({ testID: 'picker-ok-button' }).props.onPress();
+    testRenderer!.root
+      .findByProps({ testID: 'picker-ok-button' })
+      .props.onPress();
   });
 
   const [nextDate] = onOk.mock.calls[0];
@@ -310,7 +340,10 @@ describe('placeholder behavior', () => {
 
     act(() => {
       testRenderer = renderer.create(
-        <DateTimePicker.Time defaultValue={makeDate(10, 30)} labelText="请选择时间" />,
+        <DateTimePicker.Time
+          defaultValue={makeDate(10, 30)}
+          labelText="请选择时间"
+        />,
       );
     });
 

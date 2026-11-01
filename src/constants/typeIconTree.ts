@@ -64,13 +64,13 @@ export const PHOSPHOR_ICON_OPTIONS = PHOSPHOR_ICON_INFO_LIST.map(info => ({
 export const TYPE_ICON_TREE = TYPE_ICON_CATEGORIES.map(category => ({
   key: category,
   label: category,
-  children: PHOSPHOR_ICON_OPTIONS
-    .filter(info => info.primaryCategoryLabel === category)
-    .map(info => ({
-      value: info.pascalName,
-      label: info.label,
-      icon: getPhosphorIconComponent(info.pascalName),
-    })),
+  children: PHOSPHOR_ICON_OPTIONS.filter(
+    info => info.primaryCategoryLabel === category,
+  ).map(info => ({
+    value: info.pascalName,
+    label: info.label,
+    icon: getPhosphorIconComponent(info.pascalName),
+  })),
 })) satisfies readonly TypeIconGroupNode[];
 
 export const ICON_MAP = Object.fromEntries(

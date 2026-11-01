@@ -20,19 +20,13 @@ const useStyles = createUseSheetStyle(token => ({
 
 export function AmountDisplay() {
   const { amount, consumeAutoOpenAmount, setAmount } = useAddRecordContext();
-  const {
-    isOpen,
-    value,
-    open,
-    setOpen,
-    setValue,
-    handleOk,
-  } = CalculatorInput.useCalculatorValueState({
-    initialValue: formatCentsAsExpression(amount),
-    onOk: params => {
-      setAmount(yuanToCents(params.result));
-    },
-  });
+  const { isOpen, value, open, setOpen, setValue, handleOk } =
+    CalculatorInput.useCalculatorValueState({
+      initialValue: formatCentsAsExpression(amount),
+      onOk: params => {
+        setAmount(yuanToCents(params.result));
+      },
+    });
   const styles = useStyles();
   const autoOpenHandledRef = useRef(false);
 
@@ -51,11 +45,7 @@ export function AmountDisplay() {
 
   return (
     <>
-      <Pressable
-        testID="amount-pressable"
-        style={styles.card}
-        onPress={open}
-      >
+      <Pressable testID="amount-pressable" style={styles.card} onPress={open}>
         <Column align="center">
           <Text testID="amount-text" color="primary" size="h1">
             {displayText}

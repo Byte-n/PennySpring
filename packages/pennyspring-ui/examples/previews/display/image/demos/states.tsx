@@ -29,21 +29,33 @@ export function ImageStatesDemo() {
   return (
     <Column gap="large">
       <Column style={styles.section}>
-        <Text color="tertiary" size="xs">失败态 · 图标 +「加载失败」，点击图片重试</Text>
+        <Text color="tertiary" size="xs">
+          失败态 · 图标 +「加载失败」，点击图片重试
+        </Text>
         <Image src={BROKEN_IMAGE} style={styles.frame} />
       </Column>
       <Column style={styles.section}>
-        <Text color="tertiary" size="xs">默认 · 只展示，不响应预览</Text>
+        <Text color="tertiary" size="xs">
+          默认 · 只展示，不响应预览
+        </Text>
         <Image src={VALID_IMAGE} style={styles.frame} />
       </Column>
       <Column style={styles.section}>
-        <Text color="tertiary" size="xs">preview · 单图点击预览</Text>
+        <Text color="tertiary" size="xs">
+          preview · 单图点击预览
+        </Text>
         <Image preview src={VALID_IMAGE} style={styles.frame} />
       </Column>
       <Column style={styles.section}>
-        <Text color="tertiary" size="xs">自定义失败内容 · error slot</Text>
+        <Text color="tertiary" size="xs">
+          自定义失败内容 · error slot
+        </Text>
         <Image
-          error={<Text color="error" size="xs">图片不可用</Text>}
+          error={
+            <Text color="error" size="xs">
+              图片不可用
+            </Text>
+          }
           src={BROKEN_IMAGE}
           style={styles.frame}
         />

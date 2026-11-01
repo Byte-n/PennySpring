@@ -85,17 +85,18 @@ export function DisplayInput({
       ? String(children)
       : undefined
     : hasTextValue
-    ? valueText
-    : undefined;
+      ? valueText
+      : undefined;
   const hasDisplayValue = hasCustomValue || hasTextValue;
   const isError = resolvedStatus === 'error';
   const labelNode =
-    field.label === null ? null : field.label ?? field.labelText ?? null;
+    field.label === null ? null : (field.label ?? field.labelText ?? null);
   const hasFloatingLabel = labelNode !== null && labelNode !== undefined;
-  const shouldRenderPlaceholder = !hasFloatingLabel
-    && !hasDisplayValue
-    && placeholder !== undefined
-    && placeholder !== '';
+  const shouldRenderPlaceholder =
+    !hasFloatingLabel &&
+    !hasDisplayValue &&
+    placeholder !== undefined &&
+    placeholder !== '';
   const tokenStyles = useStyles({
     disabled: isDisabled,
     display: resolvedDisplay,
@@ -241,10 +242,7 @@ export function DisplayInput({
               color={isDisabled ? 'disabled' : 'default'}
               ellipsizeMode={resolvedOverflow === 'hidden' ? 'tail' : undefined}
               numberOfLines={resolvedOverflow === 'hidden' ? 1 : undefined}
-              style={[
-                tokenStyles.value,
-                styles?.value,
-              ]}
+              style={[tokenStyles.value, styles?.value]}
             >
               {textValue}
             </Text>

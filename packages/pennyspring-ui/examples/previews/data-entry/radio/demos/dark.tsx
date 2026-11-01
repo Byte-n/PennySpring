@@ -22,8 +22,12 @@ function DarkSurface() {
     <Column gap="small" style={styles.surface}>
       <Radio>深色未选</Radio>
       <Radio defaultValue>深色选中</Radio>
-      <Radio defaultValue disabled>深色禁用</Radio>
-      <Radio defaultValue readonly>深色只读</Radio>
+      <Radio defaultValue disabled>
+        深色禁用
+      </Radio>
+      <Radio defaultValue readonly>
+        深色只读
+      </Radio>
       <Radio.Group
         defaultValue="month"
         displayType="button"
@@ -32,7 +36,12 @@ function DarkSurface() {
           { label: '近 3 月', value: 'quarter' },
         ]}
       />
-      <Radio.Group block defaultValue="category" displayType="button" options={DIMENSION_OPTIONS} />
+      <Radio.Group
+        block
+        defaultValue="category"
+        displayType="button"
+        options={DIMENSION_OPTIONS}
+      />
     </Column>
   );
 }
@@ -41,7 +50,8 @@ export function RadioDarkDemo() {
   return (
     <Column gap="normal">
       <Text color="tertiary" size="sm">
-        固定深色，不随页面主题：外圈取 colorBorder（.18 白），圆点取深色档 colorPrimary，禁用外圈降到 colorSplit
+        固定深色，不随页面主题：外圈取 colorBorder（.18 白），圆点取深色档
+        colorPrimary，禁用外圈降到 colorSplit
       </Text>
       <ThemeProvider config={{ algorithm: 'dark' }}>
         <DarkSurface />

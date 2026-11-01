@@ -20,7 +20,9 @@ export function StepperCompositionDemo() {
       <Row align="center" justify="between" gap="normal">
         <Column gap="small">
           <Text size="sm">分期数</Text>
-          <Text color="tertiary" size="xs">每期 ¥1,080.00</Text>
+          <Text color="tertiary" size="xs">
+            每期 ¥1,080.00
+          </Text>
         </Column>
         <Stepper
           max={12}
@@ -33,7 +35,9 @@ export function StepperCompositionDemo() {
       <Row align="center" justify="between" gap="normal">
         <Column gap="small">
           <Text size="sm">记账提醒</Text>
-          <Text color="tertiary" size="xs">每天 20:00</Text>
+          <Text color="tertiary" size="xs">
+            每天 20:00
+          </Text>
         </Column>
         <Stepper max={3} min={0} onChange={setCount} value={count} />
       </Row>

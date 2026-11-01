@@ -42,15 +42,26 @@ const useStyles = createUseSheetStyle(token => ({
 export function PreviewScaffold({ children }: PreviewScaffoldProps) {
   const styles = useStyles();
 
-  return <ScrollView contentContainerStyle={styles.content}>{children}</ScrollView>;
+  return (
+    <ScrollView contentContainerStyle={styles.content}>{children}</ScrollView>
+  );
 }
 
-export function PreviewSection({ children, style, title }: PreviewSectionProps) {
+export function PreviewSection({
+  children,
+  style,
+  title,
+}: PreviewSectionProps) {
   const styles = useStyles();
 
   return (
     <View style={[styles.section, style]}>
-      <Text color="heading" size="h5" weight="strong" style={styles.sectionTitle}>
+      <Text
+        color="heading"
+        size="h5"
+        weight="strong"
+        style={styles.sectionTitle}
+      >
         {title}
       </Text>
       {children}

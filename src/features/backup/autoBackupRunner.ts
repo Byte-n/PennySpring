@@ -1,92 +1,92 @@
-import { fromByteArray } from 'base64-js'
-import { Dirs, FileSystem } from 'react-native-file-access'
-import { localApi } from '@pennyspring/api'
+import { fromByteArray } from 'base64-js';
+import { Dirs, FileSystem } from 'react-native-file-access';
+import { localApi } from '@pennyspring/api';
 
 import {
   createBackupHistoryId,
   useBackupHistoryStore,
-} from '../../stores/backupHistoryStore'
-import { buildExportPackage } from '../transfer/operations'
-import { totalRecords } from '../transfer/summary'
+} from '../../stores/backupHistoryStore';
+import { buildExportPackage } from '../transfer/operations';
+import { totalRecords } from '../transfer/summary';
 import {
   getAutoBackupSettings,
   useAutoBackupStore,
   type AutoBackupSettings,
-} from './autoBackupStore'
+} from './autoBackupStore';
 import {
   deleteBackupDirectoryFile,
   listBackupDirectoryFiles,
   writeBackupFileToDirectory,
-} from './directory'
+} from './directory';
 
-const AUTO_BACKUP_DIR_NAME = 'backups'
-const AUTO_BACKUP_PREFIX = 'auto-'
-const BACKUP_EXTENSION = '.psb'
+const AUTO_BACKUP_DIR_NAME = 'backups';
+const AUTO_BACKUP_PREFIX = 'auto-';
+const BACKUP_EXTENSION = '.psb';
 
 export interface AutoBackupRunResult {
-  status: 'success' | 'skipped' | 'failed'
-  fileName: string
-  sizeBytes: number
-  errorText: string
+  status: 'success' | 'skipped' | 'failed';
+  fileName: string;
+  sizeBytes: number;
+  errorText: string;
 }
 
-let activeRun: Promise<AutoBackupRunResult> | null = null
+let activeRun: Promise<AutoBackupRunResult> | null = null;
 
 function getErrorMessage(error: unknown): string {
-  return error instanceof Error ? error.message : '自动备份失败'
+  return error instanceof Error ? error.message : '自动备份失败';
 }
 
 function getDefaultBackupDir(): string {
-  return `${Dirs.DocumentDir}/${AUTO_BACKUP_DIR_NAME}`
+  return `${Dirs.DocumentDir}/${AUTO_BACKUP_DIR_NAME}`;
 }
 
 function toFileUri(path: string): string {
-  return path.startsWith('file://') ? path : `file://${encodeURI(path)}`
+  return path.startsWith('file://') ? path : `file://${encodeURI(path)}`;
 }
 
 function toTimestampText(date: Date): string {
-  const year = date.getFullYear()
-  const month = String(date.getMonth() + 1).padStart(2, '0')
-  const day = String(date.getDate()).padStart(2, '0')
-  const hour = String(date.getHours()).padStart(2, '0')
-  const minute = String(date.getMinutes()).padStart(2, '0')
-  const second = String(date.getSeconds()).padStart(2, '0')
-  return `${year}${month}${day}-${hour}${minute}${second}`
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hour = String(date.getHours()).padStart(2, '0');
+  const minute = String(date.getMinutes()).padStart(2, '0');
+  const second = String(date.getSeconds()).padStart(2, '0');
+  return `${year}${month}${day}-${hour}${minute}${second}`;
 }
 
 export function createAutoBackupFileName(now: Date = new Date()): string {
-  return `${AUTO_BACKUP_PREFIX}${toTimestampText(now)}${BACKUP_EXTENSION}`
+  return `${AUTO_BACKUP_PREFIX}${toTimestampText(now)}${BACKUP_EXTENSION}`;
 }
 
 function isAutoBackupFile(fileName: string): boolean {
   return (
     fileName.startsWith(AUTO_BACKUP_PREFIX) &&
     fileName.endsWith(BACKUP_EXTENSION)
-  )
+  );
 }
 
 async function writeToDefaultDirectory(
   fileName: string,
   base64: string,
 ): Promise<string> {
-  const directory = getDefaultBackupDir()
+  const directory = getDefaultBackupDir();
   if (!(await FileSystem.exists(directory))) {
-    await FileSystem.mkdir(directory)
+    await FileSystem.mkdir(directory);
   }
-  const path = `${directory}/${fileName}`
-  await FileSystem.writeFile(path, base64, 'base64')
-  return toFileUri(path)
+  const path = `${directory}/${fileName}`;
+  await FileSystem.writeFile(path, base64, 'base64');
+  return toFileUri(path);
 }
 
 async function pruneDefaultDirectory(retention: number | null): Promise<void> {
-  if (retention === null) return
-  const directory = getDefaultBackupDir()
-  if (!(await FileSystem.exists(directory))) return
+  if (retention === null) return;
+  const directory = getDefaultBackupDir();
+  if (!(await FileSystem.exists(directory))) return;
   const files = (await FileSystem.statDir(directory))
     .filter(file => file.type === 'file' && isAutoBackupFile(file.filename))
-    .sort((a, b) => b.lastModified - a.lastModified)
+    .sort((a, b) => b.lastModified - a.lastModified);
   for (const file of files.slice(retention)) {
-    await FileSystem.unlink(file.path)
+    await FileSystem.unlink(file.path);
   }
 }
 
@@ -94,12 +94,12 @@ async function pruneCustomDirectory(
   settings: AutoBackupSettings,
   retention: number | null,
 ): Promise<void> {
-  if (retention === null || settings.directory === null) return
+  if (retention === null || settings.directory === null) return;
   const files = (await listBackupDirectoryFiles(settings.directory))
     .filter(file => isAutoBackupFile(file.name))
-    .sort((a, b) => b.lastModified - a.lastModified)
+    .sort((a, b) => b.lastModified - a.lastModified);
   for (const file of files.slice(retention)) {
-    await deleteBackupDirectoryFile(settings.directory, file.name)
+    await deleteBackupDirectoryFile(settings.directory, file.name);
   }
 }
 
@@ -108,46 +108,52 @@ async function pruneOldBackups(
   retention: number | null,
 ): Promise<void> {
   if (settings.directory === null) {
-    await pruneDefaultDirectory(retention)
-    return
+    await pruneDefaultDirectory(retention);
+    return;
   }
-  await pruneCustomDirectory(settings, retention)
+  await pruneCustomDirectory(settings, retention);
 }
 
 async function executeAutoBackup(): Promise<AutoBackupRunResult> {
-  const now = new Date()
-  const settings = getAutoBackupSettings()
-  const history = useBackupHistoryStore.getState()
-  const markRun = useAutoBackupStore.getState().markRun
+  const now = new Date();
+  const settings = getAutoBackupSettings();
+  const history = useBackupHistoryStore.getState();
+  const markRun = useAutoBackupStore.getState().markRun;
 
   try {
-    const books = await localApi.book.getAll()
-    const selected = settings.bookIds === null
-      ? books
-      : books.filter(book => settings.bookIds?.includes(book.id) ?? false)
+    const books = await localApi.book.getAll();
+    const selected =
+      settings.bookIds === null
+        ? books
+        : books.filter(book => settings.bookIds?.includes(book.id) ?? false);
 
     if (selected.length === 0) {
-      const errorText = '没有可备份的本地账本'
-      markRun({ status: 'skipped', at: now.getTime(), error: errorText })
-      return { status: 'skipped', fileName: '', sizeBytes: 0, errorText }
+      const errorText = '没有可备份的本地账本';
+      markRun({ status: 'skipped', at: now.getTime(), error: errorText });
+      return { status: 'skipped', fileName: '', sizeBytes: 0, errorText };
     }
 
     const pkg = await buildExportPackage({
       bookIds: selected.map(book => book.id),
       includeAgent: settings.includeAgent,
       includeImages: settings.includeImages,
-    })
-    const fileName = createAutoBackupFileName(now)
-    const base64 = fromByteArray(pkg.zip)
-    const uri = settings.directory === null
-      ? await writeToDefaultDirectory(fileName, base64)
-      : await writeBackupFileToDirectory(settings.directory, fileName, base64)
+    });
+    const fileName = createAutoBackupFileName(now);
+    const base64 = fromByteArray(pkg.zip);
+    const uri =
+      settings.directory === null
+        ? await writeToDefaultDirectory(fileName, base64)
+        : await writeBackupFileToDirectory(
+            settings.directory,
+            fileName,
+            base64,
+          );
 
-    let warningText = ''
+    let warningText = '';
     try {
-      await pruneOldBackups(settings, settings.retention)
+      await pruneOldBackups(settings, settings.retention);
     } catch (error: unknown) {
-      warningText = `清理旧备份失败：${getErrorMessage(error)}`
+      warningText = `清理旧备份失败：${getErrorMessage(error)}`;
     }
 
     history.addEntry({
@@ -161,23 +167,23 @@ async function executeAutoBackup(): Promise<AutoBackupRunResult> {
       uri,
       status: 'success',
       errorText: warningText,
-    })
+    });
     markRun({
       status: 'success',
       at: now.getTime(),
       fileName,
       error: warningText,
-    })
+    });
 
     return {
       status: 'success',
       fileName,
       sizeBytes: pkg.sizeBytes,
       errorText: warningText,
-    }
+    };
   } catch (error: unknown) {
-    const errorText = getErrorMessage(error)
-    markRun({ status: 'failed', at: now.getTime(), error: errorText })
+    const errorText = getErrorMessage(error);
+    markRun({ status: 'failed', at: now.getTime(), error: errorText });
     history.addEntry({
       id: createBackupHistoryId(),
       kind: 'auto',
@@ -189,23 +195,23 @@ async function executeAutoBackup(): Promise<AutoBackupRunResult> {
       uri: '',
       status: 'failed',
       errorText,
-    })
+    });
     return {
       status: 'failed',
       fileName: '',
       sizeBytes: 0,
       errorText,
-    }
+    };
   }
 }
 
 export function runAutoBackup(): Promise<AutoBackupRunResult> {
-  if (activeRun) return activeRun
+  if (activeRun) return activeRun;
   const run = executeAutoBackup().finally(() => {
     if (activeRun === run) {
-      activeRun = null
+      activeRun = null;
     }
-  })
-  activeRun = run
-  return run
+  });
+  activeRun = run;
+  return run;
 }

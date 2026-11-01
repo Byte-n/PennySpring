@@ -23,7 +23,9 @@ const TOKENS = {
   paddingSM: 12,
 } as const;
 
-function renderNotification(props: Partial<React.ComponentProps<typeof Notification>> = {}) {
+function renderNotification(
+  props: Partial<React.ComponentProps<typeof Notification>> = {},
+) {
   let testRenderer: renderer.ReactTestRenderer;
 
   act(() => {
@@ -59,7 +61,11 @@ function getPlate(testRenderer: renderer.ReactTestRenderer) {
   return testRenderer.root.findAllByType(View).find(node => {
     const style = StyleSheet.flatten(node.props.style);
 
-    return typeof style?.width === 'number' && style.width === style.height && style.backgroundColor !== undefined;
+    return (
+      typeof style?.width === 'number' &&
+      style.width === style.height &&
+      style.backgroundColor !== undefined
+    );
   });
 }
 
@@ -92,16 +98,21 @@ describe('Notification', () => {
     ['warning', 'warningBgToken', 'warning'],
     ['error', 'errorBgToken', 'close-circle'],
     ['info', 'infoBgToken', 'info'],
-  ] as const)('paints %s plate with its semantic background', (status, expectedBackground, expectedIcon) => {
-    const testRenderer = renderNotification({ status });
-    const plateStyle = StyleSheet.flatten(getPlate(testRenderer)?.props.style);
-    const headerIcon = testRenderer.root
-      .findAllByType(Icon)
-      .find(node => node.props.icon !== 'close');
+  ] as const)(
+    'paints %s plate with its semantic background',
+    (status, expectedBackground, expectedIcon) => {
+      const testRenderer = renderNotification({ status });
+      const plateStyle = StyleSheet.flatten(
+        getPlate(testRenderer)?.props.style,
+      );
+      const headerIcon = testRenderer.root
+        .findAllByType(Icon)
+        .find(node => node.props.icon !== 'close');
 
-    expect(plateStyle.backgroundColor).toBe(expectedBackground);
-    expect(headerIcon?.props.icon).toBe(expectedIcon);
-  });
+      expect(plateStyle.backgroundColor).toBe(expectedBackground);
+      expect(headerIcon?.props.icon).toBe(expectedIcon);
+    },
+  );
 
   it.each([
     ['small', 'xs'],
@@ -163,10 +174,14 @@ describe('Notification', () => {
 
   it('shows the close icon by default and hides it when closable is false', () => {
     const findCloseIcon = (testRenderer: renderer.ReactTestRenderer) =>
-      testRenderer.root.findAllByType(Icon).filter(node => node.props.icon === 'close');
+      testRenderer.root
+        .findAllByType(Icon)
+        .filter(node => node.props.icon === 'close');
 
     expect(findCloseIcon(renderNotification())).toHaveLength(1);
-    expect(findCloseIcon(renderNotification({ closable: false }))).toHaveLength(0);
+    expect(findCloseIcon(renderNotification({ closable: false }))).toHaveLength(
+      0,
+    );
   });
 
   it('drops the plate when icon is null', () => {
@@ -176,7 +191,10 @@ describe('Notification', () => {
   });
 
   it('renders nothing when both title and description are empty', () => {
-    const testRenderer = renderNotification({ descriptionText: undefined, titleText: undefined });
+    const testRenderer = renderNotification({
+      descriptionText: undefined,
+      titleText: undefined,
+    });
 
     expect(getCardStyle(testRenderer)).toBeUndefined();
   });

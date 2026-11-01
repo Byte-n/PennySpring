@@ -25,7 +25,11 @@ function DarkSurface() {
       <Checkbox indeterminate>深色半选</Checkbox>
       <Checkbox disabled>深色禁用</Checkbox>
       <Row gap="small" wrap>
-        <Checkbox.Group defaultValue={['food']} displayType="button" options={DARK_CATEGORY_OPTIONS} />
+        <Checkbox.Group
+          defaultValue={['food']}
+          displayType="button"
+          options={DARK_CATEGORY_OPTIONS}
+        />
       </Row>
     </Column>
   );
@@ -35,7 +39,8 @@ export function CheckboxDarkDemo() {
   return (
     <Column gap="normal">
       <Text color="tertiary" size="sm">
-        固定深色，不随页面主题：未选框底取 colorBgContainer、描边取 colorBorder，禁用框底降到 colorFillQuaternary
+        固定深色，不随页面主题：未选框底取 colorBgContainer、描边取
+        colorBorder，禁用框底降到 colorFillQuaternary
       </Text>
       <ThemeProvider config={{ algorithm: 'dark' }}>
         <DarkSurface />

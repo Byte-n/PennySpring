@@ -23,7 +23,9 @@ interface UseCarouselPanResponderParams {
   swipeToExtIndex: (extIndex: number) => void;
 }
 
-export const useCarouselPanResponder = (params: UseCarouselPanResponderParams) => {
+export const useCarouselPanResponder = (
+  params: UseCarouselPanResponderParams,
+) => {
   const {
     allowTouchMove,
     total,
@@ -58,7 +60,9 @@ export const useCarouselPanResponder = (params: UseCarouselPanResponderParams) =
         runOnJS(setAnimating)(false);
       })
       .onUpdate(event => {
-        const delta = axisIsHorizontal ? event.translationX : event.translationY;
+        const delta = axisIsHorizontal
+          ? event.translationX
+          : event.translationY;
         let nextPosition = startPosition - delta;
 
         if (extTotal > total && slidePixels > 0) {
@@ -93,7 +97,8 @@ export const useCarouselPanResponder = (params: UseCarouselPanResponderParams) =
         const velocity = axisIsHorizontal ? event.velocityX : event.velocityY;
         const baseIndex = position.value / slidePixels;
         const projectedIndex =
-          (position.value - velocity * VELOCITY_PROJECTION_FACTOR) / slidePixels;
+          (position.value - velocity * VELOCITY_PROJECTION_FACTOR) /
+          slidePixels;
 
         const minAdj = Math.floor(baseIndex);
         const maxAdj = minAdj + 1;

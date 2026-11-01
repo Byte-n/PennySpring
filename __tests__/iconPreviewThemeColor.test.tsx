@@ -55,7 +55,7 @@ describe('IconPreviewScreen', () => {
     });
 
     const icons = renderer!.root.findAll(
-      node => String(node.type) === 'MockPhosphorIcon'
+      node => String(node.type) === 'MockPhosphorIcon',
     );
 
     expect(icons.length).toBeGreaterThan(0);

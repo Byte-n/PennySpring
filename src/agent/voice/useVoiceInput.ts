@@ -5,7 +5,8 @@ import { sherpaSpeechDeps } from './sherpaDeps';
 import { VoiceSession } from './speechSession';
 import type { SpeechSessionDeps } from './speechSession';
 
-export type VoiceInputStatus = 'idle' | 'preparing' | 'listening' | 'finalizing';
+export type VoiceInputStatus =
+  'idle' | 'preparing' | 'listening' | 'finalizing';
 
 export interface VoiceInputOptions {
   onComplete: (text: string) => void;

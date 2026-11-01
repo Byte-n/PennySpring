@@ -8,7 +8,11 @@ import { Column } from '../src/Column';
 import { DisplayInput } from '../src/DisplayInput';
 import { Grid } from '../src/Grid';
 import { ImagePicker } from '../src/ImagePicker';
-import { pickImageFromCamera, pickImageFromFiles, pickImageFromLibrary } from '../src/ImagePicker/nativePickers';
+import {
+  pickImageFromCamera,
+  pickImageFromFiles,
+  pickImageFromLibrary,
+} from '../src/ImagePicker/nativePickers';
 import { Popup } from '../src/Popup';
 import { Row } from '../src/Row';
 import type {
@@ -23,19 +27,18 @@ jest.mock('../src/ImagePicker/nativePickers', () => ({
   pickImageFromLibrary: jest.fn(),
 }));
 
-
 const mockPickImageFromFiles = jest.mocked(pickImageFromFiles);
 const mockPickImageFromLibrary = jest.mocked(pickImageFromLibrary);
 const mockPickImageFromCamera = jest.mocked(pickImageFromCamera);
 const token = formatToken(derivative(defaultSeedToken, false));
 
-function renderImagePicker(
-  props: Partial<ImagePickerProps> = {},
-) {
+function renderImagePicker(props: Partial<ImagePickerProps> = {}) {
   let testRenderer: renderer.ReactTestRenderer;
 
   act(() => {
-    testRenderer = renderer.create(<ImagePicker {...props as ImagePickerProps} />);
+    testRenderer = renderer.create(
+      <ImagePicker {...(props as ImagePickerProps)} />,
+    );
   });
 
   return testRenderer!;
@@ -48,7 +51,7 @@ function renderImagePickerPopup(
 
   act(() => {
     testRenderer = renderer.create(
-      <ImagePicker.Popup open {...props as ImagePickerPopupProps} />,
+      <ImagePicker.Popup open {...(props as ImagePickerPopupProps)} />,
     );
   });
 
@@ -134,13 +137,17 @@ describe('ImagePicker', () => {
 
     pressTrigger(testRenderer);
     await act(async () => {
-      testRenderer.root.findByProps({ testID: 'image-picker-action-camera' }).props.onPress();
+      testRenderer.root
+        .findByProps({ testID: 'image-picker-action-camera' })
+        .props.onPress();
     });
 
     expect(mockPickImageFromCamera).toHaveBeenCalledTimes(1);
     expect(onChange).toHaveBeenCalledWith(nextValue);
     expect(getStatusText(testRenderer)).toBe('已选择');
-    expect(testRenderer.root.findByType(Popup.FloatingPanel).props.open).toBe(true);
+    expect(testRenderer.root.findByType(Popup.FloatingPanel).props.open).toBe(
+      true,
+    );
     expect(JSON.stringify(testRenderer.toJSON())).toContain('camera-image.jpg');
   });
 
@@ -156,7 +163,9 @@ describe('ImagePicker', () => {
 
     pressTrigger(testRenderer);
     await act(async () => {
-      testRenderer.root.findByProps({ testID: 'image-picker-action-photo' }).props.onPress();
+      testRenderer.root
+        .findByProps({ testID: 'image-picker-action-photo' })
+        .props.onPress();
     });
 
     expect(mockPickImageFromLibrary).toHaveBeenCalledTimes(1);
@@ -179,7 +188,9 @@ describe('ImagePicker', () => {
 
     pressTrigger(testRenderer);
     await act(async () => {
-      testRenderer.root.findByProps({ testID: 'image-picker-action-fileSystem' }).props.onPress();
+      testRenderer.root
+        .findByProps({ testID: 'image-picker-action-fileSystem' })
+        .props.onPress();
     });
 
     expect(mockPickImageFromFiles).toHaveBeenCalledTimes(1);
@@ -193,7 +204,9 @@ describe('ImagePicker', () => {
 
     pressTrigger(testRenderer);
     await act(async () => {
-      testRenderer.root.findByProps({ testID: 'image-picker-action-photo' }).props.onPress();
+      testRenderer.root
+        .findByProps({ testID: 'image-picker-action-photo' })
+        .props.onPress();
     });
 
     expect(onChange).not.toHaveBeenCalled();
@@ -212,7 +225,9 @@ describe('ImagePicker', () => {
 
     pressTrigger(testRenderer);
     await act(async () => {
-      testRenderer.root.findByProps({ testID: 'image-picker-action-fileSystem' }).props.onPress();
+      testRenderer.root
+        .findByProps({ testID: 'image-picker-action-fileSystem' })
+        .props.onPress();
     });
 
     expect(onError).toHaveBeenCalledWith(error);
@@ -233,7 +248,9 @@ describe('ImagePicker', () => {
 
     pressTrigger(testRenderer);
     await act(async () => {
-      testRenderer.root.findAllByProps({ testID: 'image-picker-remove-image' })[0].props.onPress();
+      testRenderer.root
+        .findAllByProps({ testID: 'image-picker-remove-image' })[0]
+        .props.onPress();
     });
 
     expect(onChange).toHaveBeenCalledWith([selectedValues[1]]);
@@ -259,8 +276,7 @@ describe('ImagePicker', () => {
     });
 
     expect(
-      testRenderer.root.findAllByProps({ testID: 'image-preview-root' })
-        .length,
+      testRenderer.root.findAllByProps({ testID: 'image-preview-root' }).length,
     ).toBeGreaterThan(0);
     expect(JSON.stringify(testRenderer.toJSON())).toContain('2 / 2');
   });
@@ -280,8 +296,7 @@ describe('ImagePicker', () => {
     });
 
     expect(
-      testRenderer.root.findAllByProps({ testID: 'image-preview-root' })
-        .length,
+      testRenderer.root.findAllByProps({ testID: 'image-preview-root' }).length,
     ).toBeGreaterThan(0);
   });
 
@@ -316,10 +331,14 @@ describe('ImagePicker', () => {
 
     pressTrigger(testRenderer);
     await act(async () => {
-      testRenderer.root.findByProps({ testID: 'image-picker-action-done' }).props.onPress();
+      testRenderer.root
+        .findByProps({ testID: 'image-picker-action-done' })
+        .props.onPress();
     });
 
-    expect(testRenderer.root.findByType(Popup.FloatingPanel).props.open).toBe(false);
+    expect(testRenderer.root.findByType(Popup.FloatingPanel).props.open).toBe(
+      false,
+    );
   });
 
   it('does not open when disabled', () => {
@@ -327,8 +346,12 @@ describe('ImagePicker', () => {
 
     pressTrigger(testRenderer);
 
-    expect(testRenderer.root.findByType(DisplayInput).props.disabled).toBe(true);
-    expect(testRenderer.root.findByType(Popup.FloatingPanel).props.open).toBe(false);
+    expect(testRenderer.root.findByType(DisplayInput).props.disabled).toBe(
+      true,
+    );
+    expect(testRenderer.root.findByType(Popup.FloatingPanel).props.open).toBe(
+      false,
+    );
   });
 
   it('does not open when readonly', () => {
@@ -336,8 +359,12 @@ describe('ImagePicker', () => {
 
     pressTrigger(testRenderer);
 
-    expect(testRenderer.root.findByType(DisplayInput).props.readonly).toBe(true);
-    expect(testRenderer.root.findByType(Popup.FloatingPanel).props.open).toBe(false);
+    expect(testRenderer.root.findByType(DisplayInput).props.readonly).toBe(
+      true,
+    );
+    expect(testRenderer.root.findByType(Popup.FloatingPanel).props.open).toBe(
+      false,
+    );
   });
 
   it('clears the selected image when allowClear is pressed', () => {
@@ -369,7 +396,9 @@ describe('ImagePicker', () => {
     });
 
     expect(
-      testRenderer.root.findAllByProps({ testID: 'picker-trigger-clear-button' }),
+      testRenderer.root.findAllByProps({
+        testID: 'picker-trigger-clear-button',
+      }),
     ).toHaveLength(0);
   });
 
@@ -412,7 +441,9 @@ describe('ImagePicker', () => {
 
     pressTrigger(testRenderer);
     await act(async () => {
-      testRenderer.root.findByProps({ testID: 'image-picker-action-photo' }).props.onPress();
+      testRenderer.root
+        .findByProps({ testID: 'image-picker-action-photo' })
+        .props.onPress();
     });
 
     expect(mockPickImageFromLibrary).toHaveBeenCalledWith({
@@ -432,7 +463,9 @@ describe('ImagePicker.Popup', () => {
     const testRenderer = renderImagePickerPopup();
 
     expect(testRenderer.root.findAllByType(DisplayInput)).toHaveLength(0);
-    expect(testRenderer.root.findByType(Popup.FloatingPanel).props.open).toBe(true);
+    expect(testRenderer.root.findByType(Popup.FloatingPanel).props.open).toBe(
+      true,
+    );
   });
 
   it('picks multiple images and keeps the panel open', async () => {
@@ -463,7 +496,9 @@ describe('ImagePicker.Popup', () => {
     });
 
     await act(async () => {
-      testRenderer.root.findByProps({ testID: 'image-picker-action-photo' }).props.onPress();
+      testRenderer.root
+        .findByProps({ testID: 'image-picker-action-photo' })
+        .props.onPress();
     });
 
     expect(mockPickImageFromLibrary).toHaveBeenCalledWith({
@@ -475,7 +510,9 @@ describe('ImagePicker.Popup', () => {
       quality: 0.8,
     });
     expect(onChange).toHaveBeenCalledWith(nextValues);
-    expect(testRenderer.root.findByType(Popup.FloatingPanel).props.open).toBe(true);
+    expect(testRenderer.root.findByType(Popup.FloatingPanel).props.open).toBe(
+      true,
+    );
   });
 
   it('reports done through onOpenChange', async () => {
@@ -483,7 +520,9 @@ describe('ImagePicker.Popup', () => {
     const testRenderer = renderImagePickerPopup({ onOpenChange });
 
     await act(async () => {
-      testRenderer.root.findByProps({ testID: 'image-picker-action-done' }).props.onPress();
+      testRenderer.root
+        .findByProps({ testID: 'image-picker-action-done' })
+        .props.onPress();
     });
 
     expect(onOpenChange).toHaveBeenCalledWith(false, { reason: 'action' });
@@ -494,7 +533,9 @@ describe('ImagePicker.Popup', () => {
     const testRenderer = renderImagePickerPopup({ includeBase64: true });
 
     await act(async () => {
-      testRenderer.root.findByProps({ testID: 'image-picker-action-camera' }).props.onPress();
+      testRenderer.root
+        .findByProps({ testID: 'image-picker-action-camera' })
+        .props.onPress();
     });
 
     expect(mockPickImageFromCamera).toHaveBeenCalledWith({

@@ -86,8 +86,8 @@ function StickyOverlay({
     const top = registration.disabled
       ? naturalTop
       : isBottom
-      ? Math.min(naturalTop, resolvedViewportHeight - offset - layoutHeight)
-      : Math.max(naturalTop, offset);
+        ? Math.min(naturalTop, resolvedViewportHeight - offset - layoutHeight)
+        : Math.max(naturalTop, offset);
 
     return {
       left: layoutLeft,

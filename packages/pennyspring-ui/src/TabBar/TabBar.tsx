@@ -95,7 +95,11 @@ export function TabBar({
   );
 
   return (
-    <Row align="stretch" testID="tab-bar-root" style={[tokenStyles.root, style]}>
+    <Row
+      align="stretch"
+      testID="tab-bar-root"
+      style={[tokenStyles.root, style]}
+    >
       <Row align="stretch" style={styles?.tabList}>
         {normalizedItems.map(item => {
           const itemDisabled = disabled || item.disabled === true;

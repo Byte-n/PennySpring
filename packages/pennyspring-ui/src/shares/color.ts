@@ -1,9 +1,7 @@
 import type { AliasColorTokenKey, PresetColorKey } from '@pennyspring/theme';
 
 export type SemanticPresetColor<TSemantic extends string> =
-  | TSemantic
-  | PresetColorKey;
+  TSemantic | PresetColorKey;
 
 export type SemanticAliasColor<TSemantic extends string> =
-  | TSemantic
-  | AliasColorTokenKey;
+  TSemantic | AliasColorTokenKey;

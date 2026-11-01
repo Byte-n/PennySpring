@@ -8,21 +8,28 @@ import { Avatar } from '../src/Avatar';
 function renderAvatar(props: React.ComponentProps<typeof Avatar>) {
   let testRenderer: renderer.ReactTestRenderer;
   act(() => {
-    testRenderer = renderer.create(<><Avatar {...props} /></>);
+    testRenderer = renderer.create(
+      <>
+        <Avatar {...props} />
+      </>,
+    );
   });
   return testRenderer!;
 }
 function getRenderedText(testRenderer: renderer.ReactTestRenderer) {
-  return testRenderer.root.findAllByType(Text).flatMap(node => node.props.children).join('');
+  return testRenderer.root
+    .findAllByType(Text)
+    .flatMap(node => node.props.children)
+    .join('');
 }
 describe('Avatar', () => {
   it('renders image before text and icon when src is available', () => {
     const testRenderer = renderAvatar({
       icon: <Text>Icon fallback</Text>,
       src: {
-        uri: 'https://example.com/avatar.png'
+        uri: 'https://example.com/avatar.png',
       },
-      text: 'Alice'
+      text: 'Alice',
     });
     const treeString = JSON.stringify(testRenderer.toJSON());
     expect(testRenderer.root.findAllByType(Image)).toHaveLength(1);
@@ -31,7 +38,7 @@ describe('Avatar', () => {
   });
   it('renders the first trimmed text character when image is unavailable', () => {
     const testRenderer = renderAvatar({
-      text: '  Alice  '
+      text: '  Alice  ',
     });
     const treeString = JSON.stringify(testRenderer.toJSON());
     expect(treeString).toContain('A');
@@ -41,7 +48,7 @@ describe('Avatar', () => {
     // Arrange
     const testRenderer = renderAvatar({
       size: 'small',
-      text: 'Alice'
+      text: 'Alice',
     });
 
     // Act
@@ -55,11 +62,11 @@ describe('Avatar', () => {
     // Arrange
     const normalRenderer = renderAvatar({
       size: 'normal',
-      text: 'Alice'
+      text: 'Alice',
     });
     const largeRenderer = renderAvatar({
       size: 'large',
-      text: 'Alice'
+      text: 'Alice',
     });
 
     // Act
@@ -74,7 +81,7 @@ describe('Avatar', () => {
     // Arrange
     const testRenderer = renderAvatar({
       size: 'large',
-      text: 'Alice'
+      text: 'Alice',
     });
 
     // Act
@@ -91,7 +98,7 @@ describe('Avatar', () => {
   it('renders icon when image and text are unavailable', () => {
     const testRenderer = renderAvatar({
       icon: <Text>Icon fallback</Text>,
-      text: '   '
+      text: '   ',
     });
     const treeString = JSON.stringify(testRenderer.toJSON());
     expect(treeString).toContain('Icon fallback');
@@ -108,9 +115,9 @@ describe('Avatar', () => {
     const testRenderer = renderAvatar({
       onError,
       src: {
-        uri: 'https://example.com/broken.png'
+        uri: 'https://example.com/broken.png',
       },
-      text: 'Penny'
+      text: 'Penny',
     });
     act(() => {
       testRenderer.root.findByType(Image).props.onError();
@@ -123,18 +130,32 @@ describe('Avatar', () => {
   it('renders a new image again when src changes after an error', () => {
     let testRenderer: renderer.ReactTestRenderer;
     act(() => {
-      testRenderer = renderer.create(<><Avatar src={{
-          uri: 'https://example.com/broken.png'
-        }} text="Penny" /></>);
+      testRenderer = renderer.create(
+        <>
+          <Avatar
+            src={{
+              uri: 'https://example.com/broken.png',
+            }}
+            text="Penny"
+          />
+        </>,
+      );
     });
     act(() => {
       testRenderer!.root.findByType(Image).props.onError();
     });
     expect(testRenderer!.root.findAllByType(Image)).toHaveLength(0);
     act(() => {
-      testRenderer!.update(<><Avatar src={{
-          uri: 'https://example.com/new.png'
-        }} text="Penny" /></>);
+      testRenderer!.update(
+        <>
+          <Avatar
+            src={{
+              uri: 'https://example.com/new.png',
+            }}
+            text="Penny"
+          />
+        </>,
+      );
     });
     expect(testRenderer!.root.findAllByType(Image)).toHaveLength(1);
   });
@@ -142,20 +163,25 @@ describe('Avatar', () => {
 describe('Avatar.Group', () => {
   it('renders visible avatars and rest count from maxCount', () => {
     const testRenderer = renderAvatarGroup({
-      items: [{
-        key: 'alice',
-        text: 'Alice'
-      }, {
-        key: 'bob',
-        text: 'Bob'
-      }, {
-        key: 'cora',
-        text: 'Cora'
-      }, {
-        key: 'dana',
-        text: 'Dana'
-      }],
-      maxCount: 2
+      items: [
+        {
+          key: 'alice',
+          text: 'Alice',
+        },
+        {
+          key: 'bob',
+          text: 'Bob',
+        },
+        {
+          key: 'cora',
+          text: 'Cora',
+        },
+        {
+          key: 'dana',
+          text: 'Dana',
+        },
+      ],
+      maxCount: 2,
     });
     const renderedText = getRenderedText(testRenderer);
     expect(renderedText).toContain('A');
@@ -167,13 +193,16 @@ describe('Avatar.Group', () => {
   it('uses Row as the root layout container for horizontal avatar composition', () => {
     // Arrange
     const testRenderer = renderAvatarGroup({
-      items: [{
-        key: 'alice',
-        text: 'Alice'
-      }, {
-        key: 'bob',
-        text: 'Bob'
-      }]
+      items: [
+        {
+          key: 'alice',
+          text: 'Alice',
+        },
+        {
+          key: 'bob',
+          text: 'Bob',
+        },
+      ],
     });
 
     // Act
@@ -185,22 +214,28 @@ describe('Avatar.Group', () => {
   it('passes semantic text props for rest count content', () => {
     // Arrange
     const testRenderer = renderAvatarGroup({
-      items: [{
-        key: 'alice',
-        text: 'Alice'
-      }, {
-        key: 'bob',
-        text: 'Bob'
-      }, {
-        key: 'cora',
-        text: 'Cora'
-      }],
+      items: [
+        {
+          key: 'alice',
+          text: 'Alice',
+        },
+        {
+          key: 'bob',
+          text: 'Bob',
+        },
+        {
+          key: 'cora',
+          text: 'Cora',
+        },
+      ],
       maxCount: 2,
-      size: 'normal'
+      size: 'normal',
     });
 
     // Act
-    const restText = testRenderer.root.findAllByType(Text).find(node => node.props.children === '+1');
+    const restText = testRenderer.root
+      .findAllByType(Text)
+      .find(node => node.props.children === '+1');
 
     // Assert
     expect(restText?.props.color).toBe('secondary');
@@ -209,20 +244,25 @@ describe('Avatar.Group', () => {
   });
   it('uses default maxCount when maxCount is invalid', () => {
     const testRenderer = renderAvatarGroup({
-      items: [{
-        key: 'alice',
-        text: 'Alice'
-      }, {
-        key: 'bob',
-        text: 'Bob'
-      }, {
-        key: 'cora',
-        text: 'Cora'
-      }, {
-        key: 'dana',
-        text: 'Dana'
-      }],
-      maxCount: Number.POSITIVE_INFINITY
+      items: [
+        {
+          key: 'alice',
+          text: 'Alice',
+        },
+        {
+          key: 'bob',
+          text: 'Bob',
+        },
+        {
+          key: 'cora',
+          text: 'Cora',
+        },
+        {
+          key: 'dana',
+          text: 'Dana',
+        },
+      ],
+      maxCount: Number.POSITIVE_INFINITY,
     });
     const renderedText = getRenderedText(testRenderer);
     expect(renderedText).toContain('A');
@@ -233,76 +273,103 @@ describe('Avatar.Group', () => {
   });
   it('does not render rest count when all items are visible', () => {
     const testRenderer = renderAvatarGroup({
-      items: [{
-        key: 'alice',
-        text: 'Alice'
-      }, {
-        key: 'bob',
-        text: 'Bob'
-      }],
-      maxCount: 3
+      items: [
+        {
+          key: 'alice',
+          text: 'Alice',
+        },
+        {
+          key: 'bob',
+          text: 'Bob',
+        },
+      ],
+      maxCount: 3,
     });
     const treeString = JSON.stringify(testRenderer.toJSON());
     expect(treeString).not.toContain('+');
   });
   it('scales rest count capsule styles with group size', () => {
     const smallRenderer = renderAvatarGroup({
-      items: [{
-        key: 'alice',
-        text: 'Alice'
-      }, {
-        key: 'bob',
-        text: 'Bob'
-      }, {
-        key: 'cora',
-        text: 'Cora'
-      }],
+      items: [
+        {
+          key: 'alice',
+          text: 'Alice',
+        },
+        {
+          key: 'bob',
+          text: 'Bob',
+        },
+        {
+          key: 'cora',
+          text: 'Cora',
+        },
+      ],
       maxCount: 2,
-      size: 'small'
+      size: 'small',
     });
     const normalRenderer = renderAvatarGroup({
-      items: [{
-        key: 'alice',
-        text: 'Alice'
-      }, {
-        key: 'bob',
-        text: 'Bob'
-      }, {
-        key: 'cora',
-        text: 'Cora'
-      }],
+      items: [
+        {
+          key: 'alice',
+          text: 'Alice',
+        },
+        {
+          key: 'bob',
+          text: 'Bob',
+        },
+        {
+          key: 'cora',
+          text: 'Cora',
+        },
+      ],
       maxCount: 2,
-      size: 'normal'
+      size: 'normal',
     });
     const largeRenderer = renderAvatarGroup({
-      items: [{
-        key: 'alice',
-        text: 'Alice'
-      }, {
-        key: 'bob',
-        text: 'Bob'
-      }, {
-        key: 'cora',
-        text: 'Cora'
-      }],
+      items: [
+        {
+          key: 'alice',
+          text: 'Alice',
+        },
+        {
+          key: 'bob',
+          text: 'Bob',
+        },
+        {
+          key: 'cora',
+          text: 'Cora',
+        },
+      ],
       maxCount: 2,
-      size: 'large'
+      size: 'large',
     });
 
     const smallRest = getRestCapsuleStyles(smallRenderer);
     const normalRest = getRestCapsuleStyles(normalRenderer);
     const largeRest = getRestCapsuleStyles(largeRenderer);
 
-    expect(smallRest.containerStyle.height).toBeLessThan(normalRest.containerStyle.height);
-    expect(normalRest.containerStyle.height).toBeLessThan(largeRest.containerStyle.height);
-    expect(smallRest.containerStyle.paddingHorizontal).toBeLessThan(normalRest.containerStyle.paddingHorizontal);
-    expect(normalRest.containerStyle.paddingHorizontal).toBeLessThan(largeRest.containerStyle.paddingHorizontal);
+    expect(smallRest.containerStyle.height).toBeLessThan(
+      normalRest.containerStyle.height,
+    );
+    expect(normalRest.containerStyle.height).toBeLessThan(
+      largeRest.containerStyle.height,
+    );
+    expect(smallRest.containerStyle.paddingHorizontal).toBeLessThan(
+      normalRest.containerStyle.paddingHorizontal,
+    );
+    expect(normalRest.containerStyle.paddingHorizontal).toBeLessThan(
+      largeRest.containerStyle.paddingHorizontal,
+    );
   });
 });
 function renderAvatarGroup(props: React.ComponentProps<typeof Avatar.Group>) {
   let testRenderer: renderer.ReactTestRenderer;
   act(() => {
-    testRenderer = renderer.create(<><Avatar.Group {...props} /></>);
+    testRenderer = renderer.create(
+      <>
+        <Avatar.Group {...props} />
+      </>,
+    );
   });
   return testRenderer!;
 }

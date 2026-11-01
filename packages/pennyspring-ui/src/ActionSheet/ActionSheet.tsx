@@ -151,8 +151,8 @@ function renderAction(
   const iconColor = action.disabled
     ? 'disabled'
     : action.danger
-    ? 'error'
-    : 'default';
+      ? 'error'
+      : 'default';
 
   return (
     <Pressable
@@ -175,7 +175,10 @@ function renderAction(
           <Text style={textStyle}>{action.text}</Text>
         </Row>
         {action.description ? (
-          <Text style={styles.actionDescription} testID={`action-sheet-action-description-${index}`}>
+          <Text
+            style={styles.actionDescription}
+            testID={`action-sheet-action-description-${index}`}
+          >
             {action.description}
           </Text>
         ) : null}

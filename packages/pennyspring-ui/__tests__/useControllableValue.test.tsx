@@ -5,7 +5,9 @@ import { useControllableValue } from '../src/_hooks';
 interface HookProbeProps<T> {
   defaultValue?: T;
   onChange?: (value: T) => void;
-  onRender: (snapshot: readonly [T | undefined, (value: T) => void, boolean]) => void;
+  onRender: (
+    snapshot: readonly [T | undefined, (value: T) => void, boolean],
+  ) => void;
   value?: T;
 }
 

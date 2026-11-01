@@ -4,9 +4,9 @@ import React, {
   useMemo,
   useRef,
   useState,
-} from 'react'
-import { ScrollView } from 'react-native'
-import { useRequest } from 'ahooks'
+} from 'react';
+import { ScrollView } from 'react-native';
+import { useRequest } from 'ahooks';
 import {
   Button,
   Card,
@@ -18,12 +18,12 @@ import {
   Text,
   createUseSheetStyle,
   useToast,
-} from '@pennyspring/ui'
-import type { BookRow } from '@pennyspring/api'
-import { localApi } from '@pennyspring/api'
-import { fromByteArray } from 'base64-js'
+} from '@pennyspring/ui';
+import type { BookRow } from '@pennyspring/api';
+import { localApi } from '@pennyspring/api';
+import { fromByteArray } from 'base64-js';
 
-import { shareBackupBytes } from '../../features/backup/share'
+import { shareBackupBytes } from '../../features/backup/share';
 import {
   createLanToken,
   getLanServerStatus,
@@ -32,23 +32,23 @@ import {
   stopLanServer,
   type LanServerInfo,
   type LanServerStatus,
-} from '../../features/backup/lan'
-import { formatBytes, totalRecords } from '../../features/transfer'
+} from '../../features/backup/lan';
+import { formatBytes, totalRecords } from '../../features/transfer';
 import {
   buildExportPackage,
   type ExportPackageResult,
-} from '../../features/transfer/operations'
+} from '../../features/transfer/operations';
 import {
   deleteFileUri,
   writePackageToCache,
-} from '../../features/transfer/nativeFileSystem'
-import { useNavigation } from '../../navigation'
+} from '../../features/transfer/nativeFileSystem';
+import { useNavigation } from '../../navigation';
 import {
   createBackupHistoryId,
   useBackupHistoryStore,
-} from '../../stores/backupHistoryStore'
+} from '../../stores/backupHistoryStore';
 
-const RECEIVE_TIMEOUT_MS = 10 * 60 * 1000
+const RECEIVE_TIMEOUT_MS = 10 * 60 * 1000;
 
 const useStyles = createUseSheetStyle(token => ({
   container: {
@@ -85,69 +85,71 @@ const useStyles = createUseSheetStyle(token => ({
   error: {
     paddingHorizontal: token.paddingXXS,
   },
-}))
+}));
 
 interface LanSession {
-  info: LanServerInfo
-  token: string
-  pkg: ExportPackageResult
-  cacheUri: string
+  info: LanServerInfo;
+  token: string;
+  pkg: ExportPackageResult;
+  cacheUri: string;
 }
 
-type Phase = 'config' | 'sharing' | 'done' | 'error'
+type Phase = 'config' | 'sharing' | 'done' | 'error';
 
 function getErrorMessage(error: unknown): string {
-  return error instanceof Error ? error.message : '局域网发送失败'
+  return error instanceof Error ? error.message : '局域网发送失败';
 }
 
 export function BackupLanSendScreen() {
-  const styles = useStyles()
-  const toast = useToast()
-  const navigation = useNavigation()
-  const addHistory = useBackupHistoryStore(state => state.addEntry)
-  const { data, loading } = useRequest(() => localApi.book.getAll())
-  const books = data ?? []
-  const supported = isLanTransferSupported()
+  const styles = useStyles();
+  const toast = useToast();
+  const navigation = useNavigation();
+  const addHistory = useBackupHistoryStore(state => state.addEntry);
+  const { data, loading } = useRequest(() => localApi.book.getAll());
+  const books = data ?? [];
+  const supported = isLanTransferSupported();
 
-  const [selectedIds, setSelectedIds] = useState<number[] | null>(null)
-  const [includeImages, setIncludeImages] = useState(true)
-  const [includeAgent, setIncludeAgent] = useState(false)
-  const [phase, setPhase] = useState<Phase>('config')
-  const [session, setSession] = useState<LanSession | null>(null)
-  const [serverStatus, setServerStatus] = useState<LanServerStatus | null>(null)
-  const [busy, setBusy] = useState(false)
-  const [errorText, setErrorText] = useState('')
-  const recordedRef = useRef(false)
+  const [selectedIds, setSelectedIds] = useState<number[] | null>(null);
+  const [includeImages, setIncludeImages] = useState(true);
+  const [includeAgent, setIncludeAgent] = useState(false);
+  const [phase, setPhase] = useState<Phase>('config');
+  const [session, setSession] = useState<LanSession | null>(null);
+  const [serverStatus, setServerStatus] = useState<LanServerStatus | null>(
+    null,
+  );
+  const [busy, setBusy] = useState(false);
+  const [errorText, setErrorText] = useState('');
+  const recordedRef = useRef(false);
 
   useEffect(() => {
-    if (selectedIds !== null || books.length === 0) return
-    setSelectedIds(books[0]?.id ? [books[0].id] : [])
-  }, [books, selectedIds])
+    if (selectedIds !== null || books.length === 0) return;
+    setSelectedIds(books[0]?.id ? [books[0].id] : []);
+  }, [books, selectedIds]);
 
   useEffect(() => {
     return () => {
-      stopLanServer().catch(() => undefined)
-    }
-  }, [])
+      stopLanServer().catch(() => undefined);
+    };
+  }, []);
 
   const selectedBooks = useMemo(
     () => books.filter(book => selectedIds?.includes(book.id) ?? false),
     [books, selectedIds],
-  )
+  );
 
   const toggleBook = useCallback((book: BookRow): void => {
     setSelectedIds(current => {
-      const values = current ?? []
+      const values = current ?? [];
       return values.includes(book.id)
         ? values.filter(id => id !== book.id)
-        : [...values, book.id]
-    })
-  }, [])
+        : [...values, book.id];
+    });
+  }, []);
 
   const recordSend = useCallback(
     (current: LanSession): void => {
-      if (recordedRef.current) return
-      recordedRef.current = true
+      if (recordedRef.current) return;
+      recordedRef.current = true;
       addHistory({
         id: createBackupHistoryId(),
         kind: 'lan-send',
@@ -159,95 +161,98 @@ export function BackupLanSendScreen() {
         uri: current.cacheUri,
         status: 'success',
         errorText: '',
-      })
+      });
     },
     [addHistory],
-  )
+  );
 
   useEffect(() => {
-    if (phase !== 'sharing' || !session) return
-    let cancelled = false
+    if (phase !== 'sharing' || !session) return;
+    let cancelled = false;
     const timer = setInterval(() => {
       getLanServerStatus()
         .then(status => {
-          if (cancelled) return
-          setServerStatus(status)
+          if (cancelled) return;
+          setServerStatus(status);
           if (status.state === 'served') {
-            recordSend(session)
-            setPhase('done')
+            recordSend(session);
+            setPhase('done');
           } else if (status.state === 'error') {
-            setErrorText(status.error || '传输服务已停止')
-            setPhase('error')
+            setErrorText(status.error || '传输服务已停止');
+            setPhase('error');
           }
         })
         .catch(error => {
-          if (cancelled) return
-          setErrorText(getErrorMessage(error))
-          setPhase('error')
-        })
-    }, 1000)
+          if (cancelled) return;
+          setErrorText(getErrorMessage(error));
+          setPhase('error');
+        });
+    }, 1000);
     return () => {
-      cancelled = true
-      clearInterval(timer)
-    }
-  }, [phase, recordSend, session])
+      cancelled = true;
+      clearInterval(timer);
+    };
+  }, [phase, recordSend, session]);
 
   const handleStart = useCallback(async (): Promise<void> => {
-    if (busy || !selectedIds || selectedIds.length === 0) return
-    setBusy(true)
-    setErrorText('')
+    if (busy || !selectedIds || selectedIds.length === 0) return;
+    setBusy(true);
+    setErrorText('');
     try {
       const pkg = await buildExportPackage({
         bookIds: selectedIds,
         includeAgent,
         includeImages,
-      })
+      });
       const cacheUri = await writePackageToCache(
         pkg.fileName,
         fromByteArray(pkg.zip),
-      )
+      );
       try {
-        const token = createLanToken()
+        const token = createLanToken();
         const info = await startLanServer(
           token,
           cacheUri,
           pkg.fileName,
           RECEIVE_TIMEOUT_MS,
-        )
-        recordedRef.current = false
-        setSession({ info, token, pkg, cacheUri })
-        setServerStatus({ state: 'waiting', error: '', servedAt: 0 })
-        setPhase('sharing')
+        );
+        recordedRef.current = false;
+        setSession({ info, token, pkg, cacheUri });
+        setServerStatus({ state: 'waiting', error: '', servedAt: 0 });
+        setPhase('sharing');
       } catch (error: unknown) {
-        await deleteFileUri(cacheUri).catch(() => undefined)
-        throw error
+        await deleteFileUri(cacheUri).catch(() => undefined);
+        throw error;
       }
     } catch (error: unknown) {
-      setErrorText(getErrorMessage(error))
+      setErrorText(getErrorMessage(error));
     } finally {
-      setBusy(false)
+      setBusy(false);
     }
-  }, [busy, includeAgent, includeImages, selectedIds])
+  }, [busy, includeAgent, includeImages, selectedIds]);
 
   const handleStop = useCallback(async (): Promise<void> => {
-    await stopLanServer().catch(() => undefined)
-    setPhase('config')
-    setSession(null)
-    setServerStatus(null)
-  }, [])
+    await stopLanServer().catch(() => undefined);
+    setPhase('config');
+    setSession(null);
+    setServerStatus(null);
+  }, []);
 
   const handleShareCache = useCallback(async (): Promise<void> => {
-    if (!session) return
+    if (!session) return;
     try {
-      await shareBackupBytes(session.pkg.zip, session.pkg.fileName)
+      await shareBackupBytes(session.pkg.zip, session.pkg.fileName);
     } catch (error: unknown) {
-      toast.show({ messageText: getErrorMessage(error), status: 'error' })
+      toast.show({ messageText: getErrorMessage(error), status: 'error' });
     }
-  }, [session, toast])
+  }, [session, toast]);
 
   if (phase === 'done' && session) {
     return (
-      <ScrollView contentContainerStyle={styles.content} style={styles.container}>
+      <ScrollView
+        contentContainerStyle={styles.content}
+        style={styles.container}
+      >
         <Result
           status="success"
           titleText="发送完成"
@@ -264,12 +269,15 @@ export function BackupLanSendScreen() {
           }
         />
       </ScrollView>
-    )
+    );
   }
 
   if (phase === 'sharing' && session) {
     return (
-      <ScrollView contentContainerStyle={styles.content} style={styles.container}>
+      <ScrollView
+        contentContainerStyle={styles.content}
+        style={styles.container}
+      >
         <Card titleText="在另一台设备上接收">
           <Column style={styles.actions}>
             <Text color="secondary" size="sm">
@@ -280,16 +288,23 @@ export function BackupLanSendScreen() {
                 {url}
               </Text>
             ))}
-            <Text color="secondary" size="sm">一次性口令</Text>
-            <Text size="h2" style={styles.token}>{session.token}</Text>
+            <Text color="secondary" size="sm">
+              一次性口令
+            </Text>
+            <Text size="h2" style={styles.token}>
+              {session.token}
+            </Text>
             <Text color="tertiary" size="xs">
               口令只能成功使用一次；传输成功、手动停止或等待 10 分钟后服务关闭。
             </Text>
             <Text color="secondary" size="sm">
-              正在等待接收 · {session.pkg.fileName} · {formatBytes(session.pkg.sizeBytes)}
+              正在等待接收 · {session.pkg.fileName} ·{' '}
+              {formatBytes(session.pkg.sizeBytes)}
             </Text>
             {serverStatus?.state === 'error' ? (
-              <Text color="errorText" size="sm">{serverStatus.error}</Text>
+              <Text color="errorText" size="sm">
+                {serverStatus.error}
+              </Text>
             ) : null}
             <Button block onPress={handleStop} type="dashed">
               停止发送
@@ -297,12 +312,15 @@ export function BackupLanSendScreen() {
           </Column>
         </Card>
       </ScrollView>
-    )
+    );
   }
 
   if (phase === 'error') {
     return (
-      <ScrollView contentContainerStyle={styles.content} style={styles.container}>
+      <ScrollView
+        contentContainerStyle={styles.content}
+        style={styles.container}
+      >
         <Result
           status="error"
           titleText="发送失败"
@@ -311,9 +329,9 @@ export function BackupLanSendScreen() {
             <Button
               block
               onPress={() => {
-                setPhase('config')
-                setSession(null)
-                setErrorText('')
+                setPhase('config');
+                setSession(null);
+                setErrorText('');
               }}
               type="primary"
             >
@@ -322,7 +340,7 @@ export function BackupLanSendScreen() {
           }
         />
       </ScrollView>
-    )
+    );
   }
 
   return (
@@ -337,9 +355,13 @@ export function BackupLanSendScreen() {
 
       <Card titleText="选择要发送的账本">
         {loading ? (
-          <Text color="secondary" size="sm">正在读取本地账本…</Text>
+          <Text color="secondary" size="sm">
+            正在读取本地账本…
+          </Text>
         ) : books.length === 0 ? (
-          <Text color="secondary" size="sm">没有可发送的本地账本。</Text>
+          <Text color="secondary" size="sm">
+            没有可发送的本地账本。
+          </Text>
         ) : (
           <Column style={styles.books}>
             {books.map(book => (
@@ -350,7 +372,9 @@ export function BackupLanSendScreen() {
               >
                 <Column style={styles.bookText}>
                   <Text>{book.name}</Text>
-                  <Text color="secondary" size="sm">{book.description || '本地账本'}</Text>
+                  <Text color="secondary" size="sm">
+                    {book.description || '本地账本'}
+                  </Text>
                 </Column>
               </Checkbox>
             ))}
@@ -363,14 +387,18 @@ export function BackupLanSendScreen() {
           <Row align="center" gap="small" justify="between">
             <Column style={styles.optionText}>
               <Text>图片附件</Text>
-              <Text color="secondary" size="sm">账本封面与流水图片会打包发送。</Text>
+              <Text color="secondary" size="sm">
+                账本封面与流水图片会打包发送。
+              </Text>
             </Column>
             <Switch onChange={setIncludeImages} value={includeImages} />
           </Row>
           <Row align="center" gap="small" justify="between">
             <Column style={styles.optionText}>
               <Text>AI 会话</Text>
-              <Text color="secondary" size="sm">默认关闭；开启后包含会话、消息和消息图片。</Text>
+              <Text color="secondary" size="sm">
+                默认关闭；开启后包含会话、消息和消息图片。
+              </Text>
             </Column>
             <Switch onChange={setIncludeAgent} value={includeAgent} />
           </Row>
@@ -380,16 +408,21 @@ export function BackupLanSendScreen() {
       <Card titleText="传输方式">
         <Column style={styles.hint}>
           <Text color="secondary" size="sm">
-            发送端临时启动一个局域网 HTTP 服务，接收端下载后导入为新账本。服务只提供当前备份文件，使用一次性口令，10 分钟后自动关闭。
+            发送端临时启动一个局域网 HTTP
+            服务，接收端下载后导入为新账本。服务只提供当前备份文件，使用一次性口令，10
+            分钟后自动关闭。
           </Text>
           <Text color="tertiary" size="xs">
-            请只在可信局域网使用；传输不经过互联网，也不包含 API Key 或 AI 提供商配置。
+            请只在可信局域网使用；传输不经过互联网，也不包含 API Key 或 AI
+            提供商配置。
           </Text>
         </Column>
       </Card>
 
       {errorText ? (
-        <Text color="errorText" size="sm" style={styles.error}>{errorText}</Text>
+        <Text color="errorText" size="sm" style={styles.error}>
+          {errorText}
+        </Text>
       ) : null}
 
       <Button
@@ -405,5 +438,5 @@ export function BackupLanSendScreen() {
         已选择 {selectedBooks.length} 个账本
       </Text>
     </ScrollView>
-  )
+  );
 }

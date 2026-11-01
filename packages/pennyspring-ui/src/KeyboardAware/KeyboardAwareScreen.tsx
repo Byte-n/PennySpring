@@ -20,10 +20,7 @@ export function KeyboardAwareScreen({
     <KeyboardAwareContext.Provider
       value={{ isScreenAvoidingKeyboard: enabled }}
     >
-      <View
-        style={[tokenStyles.root, style, styles?.root]}
-        {...restProps}
-      >
+      <View style={[tokenStyles.root, style, styles?.root]} {...restProps}>
         {children}
       </View>
     </KeyboardAwareContext.Provider>

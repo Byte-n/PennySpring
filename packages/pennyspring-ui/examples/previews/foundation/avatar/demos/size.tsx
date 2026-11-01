@@ -13,7 +13,9 @@ export function AvatarSizeDemo() {
     <Column gap="normal">
       {SIZE_SAMPLES.map(({ size, hint }) => (
         <Column key={size} gap="small">
-          <Text color="tertiary" size="xs">{hint}</Text>
+          <Text color="tertiary" size="xs">
+            {hint}
+          </Text>
           <Row gap="small">
             <Avatar size={size} text="王" />
             <Avatar shape="square" size={size} text="李" />
@@ -22,7 +24,8 @@ export function AvatarSizeDemo() {
         </Column>
       ))}
       <Text color="tertiary" size="xs">
-        圆形用 999；方形圆角取 borderRadiusSM / borderRadius / borderRadiusLG；空态渲染 16 / 20 / 26 的人物占位图标
+        圆形用 999；方形圆角取 borderRadiusSM / borderRadius /
+        borderRadiusLG；空态渲染 16 / 20 / 26 的人物占位图标
       </Text>
     </Column>
   );

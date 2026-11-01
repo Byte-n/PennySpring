@@ -6,13 +6,9 @@ import { createUseSheetStyle, toShadowStyle } from '@pennyspring/theme';
 import { Text } from '../Text';
 import { Column } from '../Column';
 import { Row } from '../Row';
-import type {
-  GestureResponderEvent,
-} from 'react-native';
+import type { GestureResponderEvent } from 'react-native';
 import type { AliasToken } from '@pennyspring/theme';
-import type { CardProps,
-  CardVariant,
-} from './types';
+import type { CardProps, CardVariant } from './types';
 import type { TextSize } from '../Text/types';
 
 interface CardStyleOptions {
@@ -133,9 +129,13 @@ export function Card({
   const hasTitleText = titleText !== undefined;
   const hasExtra = extra !== undefined && extra !== null && extra !== false;
   const shouldRenderHeader = hasTitleNode || hasTitleText || hasExtra;
-  const shouldRenderFooter = footer !== undefined && footer !== null && footer !== false;
-  const shouldRenderLoadingPlaceholder = loading && loadingPlaceholder !== undefined;
-  const bodyContent = shouldRenderLoadingPlaceholder ? loadingPlaceholder : children;
+  const shouldRenderFooter =
+    footer !== undefined && footer !== null && footer !== false;
+  const shouldRenderLoadingPlaceholder =
+    loading && loadingPlaceholder !== undefined;
+  const bodyContent = shouldRenderLoadingPlaceholder
+    ? loadingPlaceholder
+    : children;
 
   function handlePress(event: GestureResponderEvent): void {
     if (!isInteractive) {
@@ -173,8 +173,10 @@ export function Card({
           <Column style={tokenStyles.titleContainer}>{renderTitle()}</Column>
           {hasExtra ? (
             <Column style={[tokenStyles.extra, styles?.extra]}>
-              {renderTextNode(extra, (text) => (
-                <Text color="tertiary" size="sm">{text}</Text>
+              {renderTextNode(extra, text => (
+                <Text color="tertiary" size="sm">
+                  {text}
+                </Text>
               ))}
             </Column>
           ) : null}
@@ -191,8 +193,10 @@ export function Card({
       </Column>
       {shouldRenderFooter ? (
         <Column style={[tokenStyles.footer, styles?.footer]}>
-          {renderTextNode(footer, (text) => (
-            <Text color="secondary" size="sm">{text}</Text>
+          {renderTextNode(footer, text => (
+            <Text color="secondary" size="sm">
+              {text}
+            </Text>
           ))}
         </Column>
       ) : null}

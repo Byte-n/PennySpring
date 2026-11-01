@@ -64,11 +64,6 @@ export function useKeyboardInsets(): KeyboardInsets {
         : MIN_BOTTOM_INSET,
       isKeyboardVisible,
     }),
-    [
-      isKeyboardVisible,
-      keyboardHeight,
-      keyboardScreenY,
-      safeAreaInsets.bottom,
-    ],
+    [isKeyboardVisible, keyboardHeight, keyboardScreenY, safeAreaInsets.bottom],
   );
 }

@@ -14,7 +14,8 @@ jest.mock('@pennyspring/ui', () => {
   const ReactLib = require('react');
   const { Pressable, Text, View } = require('react-native');
 
-  const passthrough = (Component: React.ComponentType) =>
+  const passthrough =
+    (Component: React.ComponentType) =>
     ({ children, ...props }: { children?: React.ReactNode }) =>
       ReactLib.createElement(Component, props, children);
 
@@ -31,7 +32,11 @@ jest.mock('@pennyspring/ui', () => {
       ...rightActions.map(action =>
         ReactLib.createElement(
           Pressable,
-          { key: action.key, onPress: action.onPress, testID: `swipe-${action.key}` },
+          {
+            key: action.key,
+            onPress: action.onPress,
+            testID: `swipe-${action.key}`,
+          },
           ReactLib.createElement(Text, null, action.actionText ?? ''),
         ),
       ),
@@ -50,8 +55,16 @@ jest.mock('@pennyspring/ui', () => {
       onPress?: () => void;
       thread: AgentThreadRow;
     }>;
-    renderSwipeActions?: (info: { item: { thread: AgentThreadRow }; index: number; separators: object }) => {
-      rightActions?: { key: string; actionText?: string; onPress?: () => void }[];
+    renderSwipeActions?: (info: {
+      item: { thread: AgentThreadRow };
+      index: number;
+      separators: object;
+    }) => {
+      rightActions?: {
+        key: string;
+        actionText?: string;
+        onPress?: () => void;
+      }[];
     } | null;
   }) =>
     ReactLib.createElement(
@@ -64,7 +77,11 @@ jest.mock('@pennyspring/ui', () => {
         const row = ReactLib.createElement(
           Pressable,
           { onPress: item.onPress, testID: `session-row-${title}` },
-          ReactLib.createElement(Text, null, `${title}|${item.descriptionText ?? ''}|${item.selected ? 'current' : ''}`),
+          ReactLib.createElement(
+            Text,
+            null,
+            `${title}|${item.descriptionText ?? ''}|${item.selected ? 'current' : ''}`,
+          ),
         );
         return actions?.rightActions?.length
           ? ReactLib.createElement(SwipeAction, actions, row)
@@ -72,11 +89,25 @@ jest.mock('@pennyspring/ui', () => {
       }),
     );
 
-  const MockEmpty = ({ titleText, descriptionText }: { titleText?: string; descriptionText?: string }) =>
-    ReactLib.createElement(Text, { testID: 'session-list-empty' }, titleText ?? descriptionText);
+  const MockEmpty = ({
+    titleText,
+    descriptionText,
+  }: {
+    titleText?: string;
+    descriptionText?: string;
+  }) =>
+    ReactLib.createElement(
+      Text,
+      { testID: 'session-list-empty' },
+      titleText ?? descriptionText,
+    );
 
   const MockLoading = ({ text }: { text?: string }) =>
-    ReactLib.createElement(Text, { testID: 'session-list-loading' }, text ?? 'loading');
+    ReactLib.createElement(
+      Text,
+      { testID: 'session-list-loading' },
+      text ?? 'loading',
+    );
 
   const theme = jest.requireMock('@pennyspring/theme');
 
@@ -101,8 +132,24 @@ jest.mock('phosphor-react-native', () => {
 });
 
 const THREADS: AgentThreadRow[] = [
-  { id: 1, booksId: 1, title: '本月支出', providerId: 0, modelId: '', createdTime: 0, updatedTime: 1_700_000_000_000 },
-  { id: 2, booksId: 1, title: '', providerId: 0, modelId: '', createdTime: 0, updatedTime: 1_700_000_600_000 },
+  {
+    id: 1,
+    booksId: 1,
+    title: '本月支出',
+    providerId: 0,
+    modelId: '',
+    createdTime: 0,
+    updatedTime: 1_700_000_000_000,
+  },
+  {
+    id: 2,
+    booksId: 1,
+    title: '',
+    providerId: 0,
+    modelId: '',
+    createdTime: 0,
+    updatedTime: 1_700_000_600_000,
+  },
 ];
 
 function collectText(nodes: readonly unknown[]): string {
@@ -114,7 +161,7 @@ function collectText(nodes: readonly unknown[]): string {
       if (!node || typeof node !== 'object') {
         return '';
       }
-      return collectText(((node as { children?: unknown[] }).children) ?? []);
+      return collectText((node as { children?: unknown[] }).children ?? []);
     })
     .join(' ');
 }
@@ -124,7 +171,9 @@ function renderedText(renderer: TestRenderer.ReactTestRenderer): string {
   return collectText(root === null ? [] : Array.isArray(root) ? root : [root]);
 }
 
-function renderList(overrides: Partial<React.ComponentProps<typeof AgentSessionList>> = {}) {
+function renderList(
+  overrides: Partial<React.ComponentProps<typeof AgentSessionList>> = {},
+) {
   let renderer: TestRenderer.ReactTestRenderer;
   act(() => {
     renderer = TestRenderer.create(
@@ -144,7 +193,9 @@ describe('AgentSessionList', () => {
   it('uses a scrollable List container for sessions', () => {
     const renderer = renderList();
 
-    expect(renderer.root.findByProps({ testID: 'session-list' }).props.scrollEnabled).toBe(true);
+    expect(
+      renderer.root.findByProps({ testID: 'session-list' }).props.scrollEnabled,
+    ).toBe(true);
   });
 
   it('renders the fallback title and marks the current session', () => {
@@ -152,7 +203,9 @@ describe('AgentSessionList', () => {
 
     expect(text).toContain('本月支出');
     expect(text).toContain('新对话');
-    expect(text).toContain(dayjs(THREADS[0]!.updatedTime).format('MM-DD HH:mm'));
+    expect(text).toContain(
+      dayjs(THREADS[0]!.updatedTime).format('MM-DD HH:mm'),
+    );
     expect(text).toContain('current');
   });
 
@@ -161,7 +214,9 @@ describe('AgentSessionList', () => {
     const renderer = renderList({ onSelect });
 
     act(() => {
-      renderer.root.findByProps({ testID: 'session-row-本月支出' }).props.onPress();
+      renderer.root
+        .findByProps({ testID: 'session-row-本月支出' })
+        .props.onPress();
     });
 
     expect(onSelect).toHaveBeenCalledWith(THREADS[0]);
@@ -172,7 +227,9 @@ describe('AgentSessionList', () => {
     const renderer = renderList({ onDelete });
 
     act(() => {
-      renderer.root.findAllByProps({ testID: 'swipe-delete' })[0]!.props.onPress();
+      renderer.root
+        .findAllByProps({ testID: 'swipe-delete' })[0]!
+        .props.onPress();
     });
 
     expect(onDelete).toHaveBeenCalledWith(THREADS[0]);
@@ -181,6 +238,8 @@ describe('AgentSessionList', () => {
   it('shows an empty state when the book has no sessions', () => {
     const renderer = renderList({ threads: [] });
 
-    expect(renderer.root.findByProps({ testID: 'session-list-empty' })).toBeTruthy();
+    expect(
+      renderer.root.findByProps({ testID: 'session-list-empty' }),
+    ).toBeTruthy();
   });
 });

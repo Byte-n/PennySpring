@@ -24,19 +24,44 @@ export function CheckboxGroupDemo() {
       <Text color="tertiary" size="sm">
         横纵统一 gap 8；option 标签优先级 label &gt; labelText &gt; value
       </Text>
-      <Text color="tertiary" size="sm">横向（默认，自动换行）</Text>
+      <Text color="tertiary" size="sm">
+        横向（默认，自动换行）
+      </Text>
       <Checkbox.Group
         options={SAVE_OPTIONS}
         value={selectedValues}
         onChange={setSelectedValues}
       />
-      <Text color="tertiary" size="sm">纵向（每行 44 行高）</Text>
-      <Checkbox.Group direction="vertical" options={LEDGER_OPTIONS} defaultValue={['daily']} />
-      <Text color="tertiary" size="sm">block（整组铺满宽度）</Text>
-      <Checkbox.Group block direction="vertical" options={LEDGER_OPTIONS} defaultValue={['travel']} />
-      <Text color="tertiary" size="sm">只读组与禁用组</Text>
-      <Checkbox.Group readonly options={LEDGER_OPTIONS} defaultValue={['daily', 'travel']} />
-      <Checkbox.Group disabled options={LEDGER_OPTIONS} defaultValue={['family']} />
+      <Text color="tertiary" size="sm">
+        纵向（每行 44 行高）
+      </Text>
+      <Checkbox.Group
+        direction="vertical"
+        options={LEDGER_OPTIONS}
+        defaultValue={['daily']}
+      />
+      <Text color="tertiary" size="sm">
+        block（整组铺满宽度）
+      </Text>
+      <Checkbox.Group
+        block
+        direction="vertical"
+        options={LEDGER_OPTIONS}
+        defaultValue={['travel']}
+      />
+      <Text color="tertiary" size="sm">
+        只读组与禁用组
+      </Text>
+      <Checkbox.Group
+        readonly
+        options={LEDGER_OPTIONS}
+        defaultValue={['daily', 'travel']}
+      />
+      <Checkbox.Group
+        disabled
+        options={LEDGER_OPTIONS}
+        defaultValue={['family']}
+      />
       <Text color="tertiary" size="sm">
         当前已选：{selectedValues.join('、') || '无'}
       </Text>

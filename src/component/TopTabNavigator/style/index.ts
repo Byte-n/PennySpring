@@ -1,6 +1,6 @@
 import { createUseSheetStyle } from '@pennyspring/ui';
 
-export const useHeaderBarStyles = createUseSheetStyle((token) => ({
+export const useHeaderBarStyles = createUseSheetStyle(token => ({
   container: {
     backgroundColor: token.colorBgContainer,
     borderBottomColor: token.colorSplit,
@@ -49,7 +49,7 @@ export const useHeaderBarStyles = createUseSheetStyle((token) => ({
   },
 }));
 
-export const useTopTabNavigatorStyles = createUseSheetStyle((token) => ({
+export const useTopTabNavigatorStyles = createUseSheetStyle(token => ({
   sceneContainer: {
     backgroundColor: token.colorBgLayout,
   },

@@ -132,8 +132,7 @@ function createApi(
 ): Api {
   return {
     record: {
-      getDetailById:
-        overrides.detail ?? jest.fn(async () => recordDetail()),
+      getDetailById: overrides.detail ?? jest.fn(async () => recordDetail()),
       update:
         overrides.update ??
         jest.fn(async (input: Partial<RecordRow>) => ({
@@ -216,10 +215,7 @@ describe('createUpdateRecordTool', () => {
       ],
     });
 
-    await execute(
-      { recordId: 100, attachmentIds: ['att_1'] },
-      {},
-    );
+    await execute({ recordId: 100, attachmentIds: ['att_1'] }, {});
 
     expect(update).toHaveBeenCalledWith(
       expect.objectContaining({

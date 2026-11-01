@@ -160,14 +160,14 @@ const styles = StyleSheet.create({
 
 ## Props 说明
 
-| Prop | 类型 | 默认值 | 说明 |
-|------|------|--------|------|
-| `children` | `ReactNode` | - | 子元素 |
-| `onPress` | `() => void` | - | 点击回调 |
-| `style` | `ViewStyle` | - | 容器样式 |
-| `rippleColor` | `string` | `'rgba(0, 0, 0, 0.12)'` | 波纹颜色 |
-| `borderRadius` | `number` | `0` | 容器圆角 |
-| `disabled` | `boolean` | `false` | 是否禁用 |
+| Prop           | 类型         | 默认值                  | 说明     |
+| -------------- | ------------ | ----------------------- | -------- |
+| `children`     | `ReactNode`  | -                       | 子元素   |
+| `onPress`      | `() => void` | -                       | 点击回调 |
+| `style`        | `ViewStyle`  | -                       | 容器样式 |
+| `rippleColor`  | `string`     | `'rgba(0, 0, 0, 0.12)'` | 波纹颜色 |
+| `borderRadius` | `number`     | `0`                     | 容器圆角 |
+| `disabled`     | `boolean`    | `false`                 | 是否禁用 |
 
 ---
 

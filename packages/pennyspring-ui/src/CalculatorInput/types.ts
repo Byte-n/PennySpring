@@ -82,11 +82,17 @@ export interface CalculatorInputProps {
   styles?: CalculatorInputStyles;
 }
 
-export interface CalculatorInputPopupProps
-  extends Pick<
-    CalculatorInputProps,
-    'value' | 'defaultValue' | 'onChange' | 'onOk' | 'placeholder' | 'disabled' | 'readonly' | 'styles'
-  > {
+export interface CalculatorInputPopupProps extends Pick<
+  CalculatorInputProps,
+  | 'value'
+  | 'defaultValue'
+  | 'onChange'
+  | 'onOk'
+  | 'placeholder'
+  | 'disabled'
+  | 'readonly'
+  | 'styles'
+> {
   open?: boolean;
   defaultOpen?: boolean;
   onOpenChange?: (open: boolean) => void;

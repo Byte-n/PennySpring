@@ -1,5 +1,5 @@
-import React, { useCallback, useMemo, useState } from 'react'
-import { ScrollView } from 'react-native'
+import React, { useCallback, useMemo, useState } from 'react';
+import { ScrollView } from 'react-native';
 import {
   Button,
   Card,
@@ -9,29 +9,29 @@ import {
   Row,
   Text,
   createUseSheetStyle,
-} from '@pennyspring/ui'
+} from '@pennyspring/ui';
 import {
   BOOK_TYPE,
   localApi,
   type ApplyLibrarySnapshotResult,
-} from '@pennyspring/api'
+} from '@pennyspring/api';
 
 import {
   downloadLanPackage,
   type LanDownloadProgress,
-} from '../../features/backup/lanDownload'
-import { formatBytes, totalRecords } from '../../features/transfer'
-import { parseSnapshotPackage } from '../../features/transfer'
+} from '../../features/backup/lanDownload';
+import { formatBytes, totalRecords } from '../../features/transfer';
+import { parseSnapshotPackage } from '../../features/transfer';
 import {
   importPackage,
   type PickedPackagePreview,
-} from '../../features/transfer/operations'
-import { ROOT_ROUTES, useNavigation } from '../../navigation'
+} from '../../features/transfer/operations';
+import { ROOT_ROUTES, useNavigation } from '../../navigation';
 import {
   createBackupHistoryId,
   useBackupHistoryStore,
-} from '../../stores/backupHistoryStore'
-import { useBookStore } from '../../stores/bookStore'
+} from '../../stores/backupHistoryStore';
+import { useBookStore } from '../../stores/bookStore';
 
 const useStyles = createUseSheetStyle(token => ({
   container: {
@@ -60,66 +60,66 @@ const useStyles = createUseSheetStyle(token => ({
     gap: token.marginXS,
     width: '100%',
   },
-}))
+}));
 
 function getErrorMessage(error: unknown): string {
-  return error instanceof Error ? error.message : '局域网接收失败'
+  return error instanceof Error ? error.message : '局域网接收失败';
 }
 
 function formatProgress(progress: LanDownloadProgress | null): string {
-  if (!progress) return '等待连接发送端…'
+  if (!progress) return '等待连接发送端…';
   if (progress.contentLength > 0) {
     const percent = Math.min(
       100,
       Math.round((progress.bytesRead / progress.contentLength) * 100),
-    )
-    return `已接收 ${formatBytes(progress.bytesRead)} / ${formatBytes(progress.contentLength)}（${percent}%）`
+    );
+    return `已接收 ${formatBytes(progress.bytesRead)} / ${formatBytes(progress.contentLength)}（${percent}%）`;
   }
-  return `已接收 ${formatBytes(progress.bytesRead)}`
+  return `已接收 ${formatBytes(progress.bytesRead)}`;
 }
 
 export function BackupLanReceiveScreen() {
-  const styles = useStyles()
-  const navigation = useNavigation()
-  const addHistory = useBackupHistoryStore(state => state.addEntry)
-  const [address, setAddress] = useState('')
-  const [token, setToken] = useState('')
-  const [busy, setBusy] = useState(false)
-  const [progress, setProgress] = useState<LanDownloadProgress | null>(null)
-  const [preview, setPreview] = useState<PickedPackagePreview | null>(null)
-  const [result, setResult] = useState<ApplyLibrarySnapshotResult | null>(null)
-  const [errorText, setErrorText] = useState('')
+  const styles = useStyles();
+  const navigation = useNavigation();
+  const addHistory = useBackupHistoryStore(state => state.addEntry);
+  const [address, setAddress] = useState('');
+  const [token, setToken] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [progress, setProgress] = useState<LanDownloadProgress | null>(null);
+  const [preview, setPreview] = useState<PickedPackagePreview | null>(null);
+  const [result, setResult] = useState<ApplyLibrarySnapshotResult | null>(null);
+  const [errorText, setErrorText] = useState('');
 
   const handleDownload = useCallback(async (): Promise<void> => {
-    if (busy) return
-    setBusy(true)
-    setErrorText('')
-    setProgress(null)
+    if (busy) return;
+    setBusy(true);
+    setErrorText('');
+    setProgress(null);
     try {
-      const downloaded = await downloadLanPackage(address, token, setProgress)
+      const downloaded = await downloadLanPackage(address, token, setProgress);
       try {
-        const parsed = await parseSnapshotPackage(downloaded.bytes)
+        const parsed = await parseSnapshotPackage(downloaded.bytes);
         setPreview({
           sourceName: '局域网传输',
           sizeBytes: downloaded.sizeBytes,
           parsed,
-        })
+        });
       } finally {
-        await downloaded.cleanup()
+        await downloaded.cleanup();
       }
     } catch (error: unknown) {
-      setErrorText(getErrorMessage(error))
+      setErrorText(getErrorMessage(error));
     } finally {
-      setBusy(false)
+      setBusy(false);
     }
-  }, [address, busy, token])
+  }, [address, busy, token]);
 
   const handleImport = useCallback(async (): Promise<void> => {
-    if (!preview || busy) return
-    setBusy(true)
-    setErrorText('')
+    if (!preview || busy) return;
+    setBusy(true);
+    setErrorText('');
     try {
-      const imported = await importPackage(preview.parsed)
+      const imported = await importPackage(preview.parsed);
       addHistory({
         id: createBackupHistoryId(),
         kind: 'lan-receive',
@@ -133,39 +133,47 @@ export function BackupLanReceiveScreen() {
         uri: '',
         status: 'success',
         errorText: '',
-      })
-      setResult(imported.result)
+      });
+      setResult(imported.result);
     } catch (error: unknown) {
-      setErrorText(getErrorMessage(error))
+      setErrorText(getErrorMessage(error));
     } finally {
-      setBusy(false)
+      setBusy(false);
     }
-  }, [addHistory, busy, preview])
+  }, [addHistory, busy, preview]);
 
   const openImportedBook = useCallback(async (): Promise<void> => {
     if (!result?.books[0]) {
-      navigation.navigate(ROOT_ROUTES.Home)
-      return
+      navigation.navigate(ROOT_ROUTES.Home);
+      return;
     }
     try {
-      const book = await localApi.book.getById(result.books[0].bookId)
-      useBookStore.getState().setCurrentBook(
-        { kind: 'local', id: book.id },
-        { kind: BOOK_TYPE.local, ...book },
-      )
-      navigation.navigate(ROOT_ROUTES.Home)
+      const book = await localApi.book.getById(result.books[0].bookId);
+      useBookStore
+        .getState()
+        .setCurrentBook(
+          { kind: 'local', id: book.id },
+          { kind: BOOK_TYPE.local, ...book },
+        );
+      navigation.navigate(ROOT_ROUTES.Home);
     } catch (error: unknown) {
-      setErrorText(getErrorMessage(error))
+      setErrorText(getErrorMessage(error));
     }
-  }, [navigation, result])
+  }, [navigation, result]);
 
-  const manifest = preview?.parsed.manifest
-  const previewBooks = useMemo(() => manifest?.books ?? [], [manifest])
+  const manifest = preview?.parsed.manifest;
+  const previewBooks = useMemo(() => manifest?.books ?? [], [manifest]);
 
   if (result) {
-    const records = result.books.reduce((sum, book) => sum + book.counts.records, 0)
+    const records = result.books.reduce(
+      (sum, book) => sum + book.counts.records,
+      0,
+    );
     return (
-      <ScrollView contentContainerStyle={styles.content} style={styles.container}>
+      <ScrollView
+        contentContainerStyle={styles.content}
+        style={styles.container}
+      >
         <Result
           status="success"
           titleText="接收完成"
@@ -186,20 +194,28 @@ export function BackupLanReceiveScreen() {
           }
         />
       </ScrollView>
-    )
+    );
   }
 
   if (preview && manifest) {
     return (
-      <ScrollView contentContainerStyle={styles.content} style={styles.container}>
+      <ScrollView
+        contentContainerStyle={styles.content}
+        style={styles.container}
+      >
         <Card
-          extra={<Text color="tertiary" size="xs">格式 v{manifest.formatVersion}</Text>}
+          extra={
+            <Text color="tertiary" size="xs">
+              格式 v{manifest.formatVersion}
+            </Text>
+          }
           titleText="接收到的备份"
         >
           <Column style={styles.section}>
             <Text weight="semibold">{preview.sourceName}</Text>
             <Text color="secondary" size="sm">
-              {formatBytes(preview.sizeBytes)} · {manifest.books.length} 个账本 · {totalRecords(manifest).toLocaleString('zh-CN')} 条流水
+              {formatBytes(preview.sizeBytes)} · {manifest.books.length} 个账本
+              · {totalRecords(manifest).toLocaleString('zh-CN')} 条流水
             </Text>
           </Column>
         </Card>
@@ -210,7 +226,8 @@ export function BackupLanReceiveScreen() {
               <Column key={book.key} style={styles.bookRow}>
                 <Text>{book.name}</Text>
                 <Text color="secondary" size="sm">
-                  {book.counts.records.toLocaleString('zh-CN')} 条流水 · {book.counts.assets} 个资产 · {book.counts.images} 张图片
+                  {book.counts.records.toLocaleString('zh-CN')} 条流水 ·{' '}
+                  {book.counts.assets} 个资产 · {book.counts.images} 张图片
                 </Text>
               </Column>
             ))}
@@ -220,21 +237,32 @@ export function BackupLanReceiveScreen() {
         <Card titleText="导入规则">
           <Column style={styles.note}>
             <Row justify="between" gap="small">
-              <Text size="sm" color="secondary">图片附件</Text>
-              <Text size="sm">{manifest.options.includeImages ? '包含' : '不包含'}</Text>
+              <Text size="sm" color="secondary">
+                图片附件
+              </Text>
+              <Text size="sm">
+                {manifest.options.includeImages ? '包含' : '不包含'}
+              </Text>
             </Row>
             <Row justify="between" gap="small">
-              <Text size="sm" color="secondary">AI 会话</Text>
-              <Text size="sm">{manifest.options.includeAgent ? '包含' : '不包含'}</Text>
+              <Text size="sm" color="secondary">
+                AI 会话
+              </Text>
+              <Text size="sm">
+                {manifest.options.includeAgent ? '包含' : '不包含'}
+              </Text>
             </Row>
             <Text size="sm" color="secondary">
-              会新建账本，不会覆盖现有数据；不包含 API Key、AI 提供商配置或服务器连接。
+              会新建账本，不会覆盖现有数据；不包含 API Key、AI
+              提供商配置或服务器连接。
             </Text>
           </Column>
         </Card>
 
         {errorText ? (
-          <Text color="errorText" size="sm" style={styles.error}>{errorText}</Text>
+          <Text color="errorText" size="sm" style={styles.error}>
+            {errorText}
+          </Text>
         ) : null}
 
         <Button block loading={busy} onPress={handleImport} type="primary">
@@ -244,15 +272,15 @@ export function BackupLanReceiveScreen() {
           block
           disabled={busy}
           onPress={() => {
-            setPreview(null)
-            setErrorText('')
+            setPreview(null);
+            setErrorText('');
           }}
           type="dashed"
         >
           重新接收
         </Button>
       </ScrollView>
-    )
+    );
   }
 
   return (
@@ -260,7 +288,8 @@ export function BackupLanReceiveScreen() {
       <Card titleText="连接发送端">
         <Column style={styles.section}>
           <Text color="secondary" size="sm">
-            在发送端选择「局域网发送」，把显示的地址和 6 位口令填到这里。两台设备需要在同一局域网。
+            在发送端选择「局域网发送」，把显示的地址和 6
+            位口令填到这里。两台设备需要在同一局域网。
           </Text>
           <Input
             autoCapitalize="none"
@@ -279,7 +308,9 @@ export function BackupLanReceiveScreen() {
             value={token}
           />
           {busy || progress ? (
-            <Text color="secondary" size="sm">{formatProgress(progress)}</Text>
+            <Text color="secondary" size="sm">
+              {formatProgress(progress)}
+            </Text>
           ) : null}
         </Column>
       </Card>
@@ -296,7 +327,9 @@ export function BackupLanReceiveScreen() {
       </Card>
 
       {errorText ? (
-        <Text color="errorText" size="sm" style={styles.error}>{errorText}</Text>
+        <Text color="errorText" size="sm" style={styles.error}>
+          {errorText}
+        </Text>
       ) : null}
 
       <Button
@@ -309,5 +342,5 @@ export function BackupLanReceiveScreen() {
         连接并下载
       </Button>
     </ScrollView>
-  )
+  );
 }

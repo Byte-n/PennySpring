@@ -15,7 +15,12 @@ const SECTIONS: ListSectionData<ListItemData>[] = [
         descriptionText: '日常备用金',
         metrics: [
           { key: 'balance', label: '余额', value: '¥8,420.15' },
-          { key: 'change', label: '本月变化', value: '+¥1,280', tone: 'success' },
+          {
+            key: 'change',
+            label: '本月变化',
+            value: '+¥1,280',
+            tone: 'success',
+          },
         ],
       },
       {
@@ -25,7 +30,12 @@ const SECTIONS: ListSectionData<ListItemData>[] = [
         descriptionText: '每月 12 日出账',
         badgeText: '待还款',
         metrics: [
-          { key: 'balance', label: '待还', value: '¥1,286.50', tone: 'warning' },
+          {
+            key: 'balance',
+            label: '待还',
+            value: '¥1,286.50',
+            tone: 'warning',
+          },
           { key: 'limit', label: '额度', value: '¥20,000' },
         ],
       },

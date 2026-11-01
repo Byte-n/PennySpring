@@ -1,10 +1,7 @@
 import React from 'react';
 import renderer, { act } from 'react-test-renderer';
 import { CheckCircleIcon } from 'phosphor-react-native';
-import {
-  defaultSeedToken,
-  ThemeProvider,
-} from '@pennyspring/theme';
+import { defaultSeedToken, ThemeProvider } from '@pennyspring/theme';
 import { derivative } from '@pennyspring/theme/src/algorithms/derivative';
 import { formatToken } from '@pennyspring/theme/src/algorithms/formatToken';
 import { Icon } from '../src/Icon';
@@ -48,14 +45,18 @@ describe('Icon', () => {
       );
     });
 
-    const iconNode = testRenderer!.root.findByProps({ testID: 'icon-under-test' });
+    const iconNode = testRenderer!.root.findByProps({
+      testID: 'icon-under-test',
+    });
 
     expect(iconNode).toBeDefined();
   });
 
   it('supports phosphor icon component directly', () => {
     const testRenderer = renderIcon({ icon: CheckCircleIcon });
-    const iconNode = testRenderer.root.findByProps({ testID: 'icon-under-test' });
+    const iconNode = testRenderer.root.findByProps({
+      testID: 'icon-under-test',
+    });
 
     expect(iconNode).toBeDefined();
   });
@@ -86,8 +87,12 @@ describe('Icon', () => {
     const aliasRenderer = renderIcon({ color: 'textDescription' });
 
     // Assert
-    expect(getGlyph(semanticRenderer).props.color).toBe(token.colorTextSecondary);
-    expect(getGlyph(aliasRenderer).props.color).toBe(token.colorTextDescription);
+    expect(getGlyph(semanticRenderer).props.color).toBe(
+      token.colorTextSecondary,
+    );
+    expect(getGlyph(aliasRenderer).props.color).toBe(
+      token.colorTextDescription,
+    );
   });
 
   it('falls back to icon color for unknown runtime color values', () => {

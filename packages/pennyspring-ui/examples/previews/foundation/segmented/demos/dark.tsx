@@ -40,7 +40,8 @@ export function SegmentedDarkDemo() {
   return (
     <Column gap="normal">
       <Text color="tertiary" size="sm">
-        固定深色，不随页面主题：轨道 8% 白，选中块取 colorBgContainer 并保留轻投影，文字对比靠白度
+        固定深色，不随页面主题：轨道 8% 白，选中块取 colorBgContainer
+        并保留轻投影，文字对比靠白度
       </Text>
       <ThemeProvider config={{ algorithm: 'dark' }}>
         <DarkSurface />

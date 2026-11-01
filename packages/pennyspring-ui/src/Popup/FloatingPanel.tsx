@@ -102,15 +102,15 @@ function resolveHeightRange(
   const defaultMinHeight = viewportHeight * DEFAULT_MIN_HEIGHT_RATIO;
   const defaultMaxHeight = viewportHeight * DEFAULT_MAX_HEIGHT_RATIO;
   const rawMinHeight =
-    resolvedMinHeight
-      ?? (resolvedHeight === undefined
-        ? defaultMinHeight
-        : Math.min(resolvedHeight, defaultMinHeight));
+    resolvedMinHeight ??
+    (resolvedHeight === undefined
+      ? defaultMinHeight
+      : Math.min(resolvedHeight, defaultMinHeight));
   const rawMaxHeight =
-    resolvedMaxHeight
-      ?? (resolvedHeight === undefined
-        ? defaultMaxHeight
-        : Math.max(resolvedHeight, defaultMaxHeight));
+    resolvedMaxHeight ??
+    (resolvedHeight === undefined
+      ? defaultMaxHeight
+      : Math.max(resolvedHeight, defaultMaxHeight));
 
   if (rawMinHeight <= rawMaxHeight) {
     return [rawMinHeight, rawMaxHeight];
@@ -137,7 +137,7 @@ function resolveHeightValue(
     return undefined;
   }
 
-  return viewportHeight * percentage / PERCENT_HEIGHT_RATIO;
+  return (viewportHeight * percentage) / PERCENT_HEIGHT_RATIO;
 }
 
 const useStyles = createUseSheetStyle(
@@ -164,10 +164,8 @@ const useStyles = createUseSheetStyle(
       root: {
         width: '100%',
         height: '100%',
-        borderTopLeftRadius:
-          position === 'top' ? 0 : token.borderRadiusLG * 2,
-        borderTopRightRadius:
-          position === 'top' ? 0 : token.borderRadiusLG * 2,
+        borderTopLeftRadius: position === 'top' ? 0 : token.borderRadiusLG * 2,
+        borderTopRightRadius: position === 'top' ? 0 : token.borderRadiusLG * 2,
         borderBottomLeftRadius:
           position === 'top' ? token.borderRadiusLG * 2 : 0,
         borderBottomRightRadius:
@@ -229,14 +227,10 @@ const useStyles = createUseSheetStyle(
         minHeight: sizeConfig.handleHeight(token),
         alignItems: 'center',
         justifyContent: 'center',
-        borderTopLeftRadius:
-          position === 'top' ? 0 : token.borderRadiusLG,
-        borderTopRightRadius:
-          position === 'top' ? 0 : token.borderRadiusLG,
-        borderBottomLeftRadius:
-          position === 'top' ? token.borderRadiusLG : 0,
-        borderBottomRightRadius:
-          position === 'top' ? token.borderRadiusLG : 0,
+        borderTopLeftRadius: position === 'top' ? 0 : token.borderRadiusLG,
+        borderTopRightRadius: position === 'top' ? 0 : token.borderRadiusLG,
+        borderBottomLeftRadius: position === 'top' ? token.borderRadiusLG : 0,
+        borderBottomRightRadius: position === 'top' ? token.borderRadiusLG : 0,
       },
       handleIndicator: {
         width: sizeConfig.handleWidth(token),
@@ -251,9 +245,7 @@ const useStyles = createUseSheetStyle(
 function createDragGesture(
   onBegin: () => void,
   onUpdate: (translationY: number) => void,
-):
-  | ReturnType<typeof Gesture.Pan>
-  | undefined {
+): ReturnType<typeof Gesture.Pan> | undefined {
   const panGestureFactory = Gesture?.Pan;
 
   if (typeof panGestureFactory !== 'function') {
@@ -268,12 +260,10 @@ function createDragGesture(
     });
 }
 
-function getResponderTranslationY(
-  gestureState?: {
-    dy?: number;
-    translationY?: number;
-  },
-): number {
+function getResponderTranslationY(gestureState?: {
+  dy?: number;
+  translationY?: number;
+}): number {
   if (gestureState?.translationY !== undefined) {
     return gestureState.translationY;
   }
@@ -436,10 +426,7 @@ function renderPanelHeader(
 function shouldRenderDefaultFooter({
   cancel,
   ok,
-}: Pick<
-  PopupFloatingPanelProps,
-  'cancel' | 'ok'
->): boolean {
+}: Pick<PopupFloatingPanelProps, 'cancel' | 'ok'>): boolean {
   return cancel !== null || ok !== null;
 }
 
@@ -453,16 +440,18 @@ function renderDefaultFooter(
   footerButtonStyle: StyleProp<ViewStyle>,
   defaultButtonSize: ComponentSize,
 ): React.ReactNode {
-  const cancelNode = props.cancel === undefined
-    ? props.cancelText === undefined
-      ? DEFAULT_CANCEL_TEXT
-      : props.cancelText
-    : props.cancel;
-  const okNode = props.ok === undefined
-    ? props.okText === undefined
-      ? DEFAULT_OK_TEXT
-      : props.okText
-    : props.ok;
+  const cancelNode =
+    props.cancel === undefined
+      ? props.cancelText === undefined
+        ? DEFAULT_CANCEL_TEXT
+        : props.cancelText
+      : props.cancel;
+  const okNode =
+    props.ok === undefined
+      ? props.okText === undefined
+        ? DEFAULT_OK_TEXT
+        : props.okText
+      : props.ok;
 
   return (
     <>
@@ -621,25 +610,21 @@ export function FloatingPanel({
   const willRenderHeader =
     renderHeader !== null &&
     header !== null &&
-    (
-      renderHeader !== undefined ||
+    (renderHeader !== undefined ||
       header !== undefined ||
       renderHeaderLeft !== undefined ||
       renderHeaderRight !== undefined ||
       (title !== undefined && title !== null) ||
-      (title === undefined && titleText !== undefined)
-    );
+      (title === undefined && titleText !== undefined));
   const willRenderFooter =
     renderFooter !== null &&
     footer !== null &&
-    (
-      renderFooter !== undefined ||
+    (renderFooter !== undefined ||
       footer !== undefined ||
       shouldRenderDefaultFooter({
         cancel,
         ok,
-      })
-    );
+      }));
   const tokenStyles = useStyles({
     hasFooter: willRenderFooter,
     hasHeader: willRenderHeader,
@@ -759,9 +744,7 @@ export function FloatingPanel({
   );
 
   const handleNode = dragGesture ? (
-    <GestureDetector gesture={dragGesture}>
-      {handleContent}
-    </GestureDetector>
+    <GestureDetector gesture={dragGesture}>{handleContent}</GestureDetector>
   ) : (
     handleContent
   );
@@ -835,15 +818,21 @@ export function FloatingPanel({
         {handleAtTop ? handleNode : null}
         <Column style={[tokenStyles.content, styles?.content]}>
           {willRenderHeader ? (
-            <Column style={[tokenStyles.header, styles?.header]} testID="floating-panel-header">
-              {renderTextNode(headerNode, (text) => (
+            <Column
+              style={[tokenStyles.header, styles?.header]}
+              testID="floating-panel-header"
+            >
+              {renderTextNode(headerNode, text => (
                 <Text color="heading">{text}</Text>
               ))}
             </Column>
           ) : null}
           {bodyScrollable ? (
             <ScrollView
-              contentContainerStyle={[tokenStyles.panelBodyScrollView, styles?.panelBody]}
+              contentContainerStyle={[
+                tokenStyles.panelBodyScrollView,
+                styles?.panelBody,
+              ]}
               scrollEnabled={scrollEnabled}
               style={tokenStyles.panelBody}
               testID="floating-panel-body"
@@ -863,8 +852,11 @@ export function FloatingPanel({
             </View>
           )}
           {footerNode ? (
-            <Row style={[tokenStyles.footer, styles?.footer]} testID="floating-panel-footer">
-              {renderTextNode(footerNode, (text) => (
+            <Row
+              style={[tokenStyles.footer, styles?.footer]}
+              testID="floating-panel-footer"
+            >
+              {renderTextNode(footerNode, text => (
                 <Text>{text}</Text>
               ))}
             </Row>

@@ -1,21 +1,9 @@
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useControllableValue } from '../_hooks';
 import { ImagePreview } from './ImagePreview';
-import {
-  ImagePreviewGroupContext,
-  type RegisteredImage,
-} from './context';
+import { ImagePreviewGroupContext, type RegisteredImage } from './context';
 import type { ImagePreviewGroupProps } from './types';
-import {
-  clampIndex,
-  isSameImageSource,
-  normalizePreviewItems,
-} from './utils';
+import { clampIndex, isSameImageSource, normalizePreviewItems } from './utils';
 
 interface RegisteredEntry extends RegisteredImage {
   id: string;
@@ -95,23 +83,14 @@ export function ImagePreviewGroup({
       setResolvedIndex(nextIndex);
       setResolvedOpen(true);
     },
-    [
-      fromItems,
-      previewItems,
-      registered,
-      setResolvedIndex,
-      setResolvedOpen,
-    ],
+    [fromItems, previewItems, registered, setResolvedIndex, setResolvedOpen],
   );
 
   const contextValue = useMemo(
     () => ({ onPreview: handlePreview, register }),
     [handlePreview, register],
   );
-  const normalizedIndex = clampIndex(
-    resolvedIndex ?? 0,
-    previewItems.length,
-  );
+  const normalizedIndex = clampIndex(resolvedIndex ?? 0, previewItems.length);
 
   useEffect(() => {
     if (previewItems.length === 0) {
@@ -121,12 +100,7 @@ export function ImagePreviewGroup({
     if (normalizedIndex !== resolvedIndex) {
       setResolvedIndex(normalizedIndex);
     }
-  }, [
-    normalizedIndex,
-    previewItems.length,
-    resolvedIndex,
-    setResolvedIndex,
-  ]);
+  }, [normalizedIndex, previewItems.length, resolvedIndex, setResolvedIndex]);
 
   return (
     <ImagePreviewGroupContext.Provider value={contextValue}>

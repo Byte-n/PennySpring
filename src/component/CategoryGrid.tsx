@@ -198,7 +198,7 @@ export function CategoryGrid(props: CategoryGridProps) {
         const isOpen = expandedCatInList !== undefined;
         const expandedCat = manage
           ? expandedCatInList
-          : expandedCatInList ?? getExpandedCat(value);
+          : (expandedCatInList ?? getExpandedCat(value));
         return (
           <Column key={list[0].id}>
             <Column style={styles.groupHeader}>

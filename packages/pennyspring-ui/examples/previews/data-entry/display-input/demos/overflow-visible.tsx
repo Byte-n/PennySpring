@@ -31,7 +31,8 @@ export function DisplayInputOverflowVisibleDemo() {
         overflow="visible"
       >
         <Text>
-          自定义节点：这是一个很长的节点文本，用于观察 overflow visible 对节点容器的影响，文本会完整显示不截断
+          自定义节点：这是一个很长的节点文本，用于观察 overflow visible
+          对节点容器的影响，文本会完整显示不截断
         </Text>
       </DisplayInput>
       <Text color="description" size="sm">

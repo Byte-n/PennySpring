@@ -16,10 +16,7 @@ export function FormValidationDemo() {
   const [form] = TypedForm.useForm();
 
   return (
-    <TypedForm
-      form={form}
-      initialValues={{ blur: '', change: '', submit: '' }}
-    >
+    <TypedForm form={form} initialValues={{ blur: '', change: '', submit: '' }}>
       <TypedForm.Item labelText="onChange" name="change" rules={requiredRule}>
         <Input placeholder="输入后立即校验" />
       </TypedForm.Item>

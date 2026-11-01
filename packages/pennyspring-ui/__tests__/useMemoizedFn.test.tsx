@@ -55,7 +55,9 @@ describe('useMemoizedFn', () => {
       );
     });
 
-    const memoizedFn = onRender.mock.calls.at(-1)[0] as (value: number) => number;
+    const memoizedFn = onRender.mock.calls.at(-1)[0] as (
+      value: number,
+    ) => number;
 
     const firstResult = memoizedFn(1);
 

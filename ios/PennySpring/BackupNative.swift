@@ -1,7 +1,7 @@
 import Foundation
+import React
 import UIKit
 import UniformTypeIdentifiers
-import React
 
 @objc(BackupNative)
 class BackupNative: NSObject, RCTBridgeModule, UIDocumentPickerDelegate {
@@ -89,13 +89,15 @@ class BackupNative: NSObject, RCTBridgeModule, UIDocumentPickerDelegate {
 
       let result: [[String: Any]] = files.compactMap { fileURL in
         guard let values = try? fileURL.resourceValues(forKeys: keys),
-              values.isRegularFile == true else {
+          values.isRegularFile == true
+        else {
           return nil
         }
         return [
           "name": fileURL.lastPathComponent,
           "size": values.fileSize ?? 0,
-          "lastModified": Int64((values.contentModificationDate ?? .distantPast).timeIntervalSince1970 * 1000),
+          "lastModified": Int64(
+            (values.contentModificationDate ?? .distantPast).timeIntervalSince1970 * 1000),
         ]
       }
       resolve(result)
@@ -204,18 +206,18 @@ class BackupNative: NSObject, RCTBridgeModule, UIDocumentPickerDelegate {
   }
 
   private func isValidFileName(_ fileName: String) -> Bool {
-    !fileName.isEmpty &&
-      !fileName.contains("/") &&
-      !fileName.contains("\\") &&
-      !fileName.contains("..")
+    !fileName.isEmpty && !fileName.contains("/") && !fileName.contains("\\")
+      && !fileName.contains("..")
   }
 
   private func topViewController() -> UIViewController? {
     let scenes = UIApplication.shared.connectedScenes
-    let windowScene = scenes.first {
-      $0.activationState == .foregroundActive
-    } as? UIWindowScene
-    let window = windowScene?.windows.first { $0.isKeyWindow }
+    let windowScene =
+      scenes.first {
+        $0.activationState == .foregroundActive
+      } as? UIWindowScene
+    let window =
+      windowScene?.windows.first { $0.isKeyWindow }
       ?? windowScene?.windows.first
 
     var controller = window?.rootViewController

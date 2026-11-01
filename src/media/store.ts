@@ -42,7 +42,7 @@ function resolveMimeType(input: MediaSaveInput): string {
   }
   const extension = inferExtension(input.fileName ?? input.uri);
   return extension
-    ? MIME_BY_EXTENSION[extension] ?? DEFAULT_IMAGE_MIME_TYPE
+    ? (MIME_BY_EXTENSION[extension] ?? DEFAULT_IMAGE_MIME_TYPE)
     : DEFAULT_IMAGE_MIME_TYPE;
 }
 

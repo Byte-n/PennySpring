@@ -47,14 +47,12 @@ export function PickerView<TItem extends PickerColumnItemData>({
 }: PickerViewProps<TItem>) {
   const { token } = useTheme();
   const itemHeight = getPickerItemHeight(size, token);
-  const showErrorBand = hasDisabledFocusedItem === true && isWheelScrolling !== true;
+  const showErrorBand =
+    hasDisabledFocusedItem === true && isWheelScrolling !== true;
   const bandErrorStyle = styles.indicatorError;
   const wheelStyles = React.useMemo<WheelGroupStyles>(
     () => ({
-      band: [
-        showErrorBand ? bandErrorStyle : undefined,
-        slotStyles?.indicator,
-      ],
+      band: [showErrorBand ? bandErrorStyle : undefined, slotStyles?.indicator],
       column: slotStyles?.column,
       item: slotStyles?.item,
       itemText: slotStyles?.itemText,

@@ -60,10 +60,7 @@ interface MoverListProps {
 export function MoverList({ movers }: MoverListProps) {
   const styles = useStyles();
   const { token } = useTheme();
-  const maxAbs = Math.max(
-    ...movers.map(mover => Math.abs(mover.delta)),
-    1,
-  );
+  const maxAbs = Math.max(...movers.map(mover => Math.abs(mover.delta)), 1);
 
   return (
     <List
@@ -90,7 +87,9 @@ export function MoverList({ movers }: MoverListProps) {
               <Text
                 size="sm"
                 weight="medium"
-                color={isUp ? 'error' : mover.delta < 0 ? 'success' : 'tertiary'}
+                color={
+                  isUp ? 'error' : mover.delta < 0 ? 'success' : 'tertiary'
+                }
               >
                 {formatSignedMoney(mover.delta)}
               </Text>
@@ -103,9 +102,7 @@ export function MoverList({ movers }: MoverListProps) {
               </Row>
               <Column style={styles.mid} />
               <Row style={styles.half}>
-                {isUp ? (
-                  <Bar ratio={ratio} color={token.colorWarning} />
-                ) : null}
+                {isUp ? <Bar ratio={ratio} color={token.colorWarning} /> : null}
               </Row>
             </Row>
           </Column>

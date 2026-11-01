@@ -1,7 +1,7 @@
 ---
 paths:
-  - "packages/pennyspring-ui/**/*.ts"
-  - "packages/pennyspring-ui/**/*.tsx"
+  - 'packages/pennyspring-ui/**/*.ts'
+  - 'packages/pennyspring-ui/**/*.tsx'
 ---
 
 # 组件编码风格

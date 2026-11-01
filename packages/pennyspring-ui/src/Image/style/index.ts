@@ -29,37 +29,39 @@ function resolveRadius(radius: ImageRadius, token: AliasToken): number {
   return token.borderRadius;
 }
 
-export const useStyles = createUseSheetStyle<ImageStyleOptions>((token, { radius }) => ({
-  root: {
-    width: '100%',
-    height: '100%',
-    overflow: 'hidden',
-    borderRadius: resolveRadius(radius, token),
-    backgroundColor: token.colorFillQuaternary,
-  },
-  pressable: {
-    width: '100%',
-    height: '100%',
-  },
-  image: {
-    width: '100%',
-    height: '100%',
-  },
-  error: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: token.marginXXS,
-    backgroundColor: token.colorFillQuaternary,
-  },
-  errorText: {
-    color: token.colorTextTertiary,
-  },
-}));
+export const useStyles = createUseSheetStyle<ImageStyleOptions>(
+  (token, { radius }) => ({
+    root: {
+      width: '100%',
+      height: '100%',
+      overflow: 'hidden',
+      borderRadius: resolveRadius(radius, token),
+      backgroundColor: token.colorFillQuaternary,
+    },
+    pressable: {
+      width: '100%',
+      height: '100%',
+    },
+    image: {
+      width: '100%',
+      height: '100%',
+    },
+    error: {
+      position: 'absolute',
+      top: 0,
+      right: 0,
+      bottom: 0,
+      left: 0,
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: token.marginXXS,
+      backgroundColor: token.colorFillQuaternary,
+    },
+    errorText: {
+      color: token.colorTextTertiary,
+    },
+  }),
+);
 
 interface PreviewStyleOptions {
   pageHeight: number;

@@ -1,8 +1,5 @@
 import React from 'react';
-import {
-  getAliasColorTokenValue,
-  useTheme,
-} from '@pennyspring/theme';
+import { getAliasColorTokenValue, useTheme } from '@pennyspring/theme';
 import type { AliasToken } from '@pennyspring/theme';
 import type { IconColor, IconSemanticColor } from './types';
 
@@ -22,7 +19,10 @@ const COLOR_MAP: Record<IconSemanticColor, ColorSelector> = {
   lightSolid: token => token.colorTextLightSolid,
 };
 
-function resolveIconColor(color: IconColor | undefined, token: AliasToken): string {
+function resolveIconColor(
+  color: IconColor | undefined,
+  token: AliasToken,
+): string {
   if (color === undefined) {
     return token.colorIcon;
   }
@@ -37,8 +37,5 @@ function resolveIconColor(color: IconColor | undefined, token: AliasToken): stri
 export function useIconColor(color: IconColor | undefined): string {
   const { token } = useTheme();
 
-  return React.useMemo(
-    () => resolveIconColor(color, token),
-    [color, token],
-  );
+  return React.useMemo(() => resolveIconColor(color, token), [color, token]);
 }

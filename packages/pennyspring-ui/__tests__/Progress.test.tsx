@@ -7,15 +7,25 @@ import { ProgressBar, ProgressCircle } from '../src/Progress/Progress';
 function renderProgressBar(props: React.ComponentProps<typeof ProgressBar>) {
   let testRenderer: renderer.ReactTestRenderer;
   act(() => {
-    testRenderer = renderer.create(<><ProgressBar {...props} /></>);
+    testRenderer = renderer.create(
+      <>
+        <ProgressBar {...props} />
+      </>,
+    );
   });
   return testRenderer!;
 }
 
-function renderProgressCircle(props: React.ComponentProps<typeof ProgressCircle>) {
+function renderProgressCircle(
+  props: React.ComponentProps<typeof ProgressCircle>,
+) {
   let testRenderer: renderer.ReactTestRenderer;
   act(() => {
-    testRenderer = renderer.create(<><ProgressCircle {...props} /></>);
+    testRenderer = renderer.create(
+      <>
+        <ProgressCircle {...props} />
+      </>,
+    );
   });
   return testRenderer!;
 }
@@ -60,7 +70,10 @@ describe('Progress', () => {
     });
 
     it('renders success status percent text', () => {
-      const testRenderer = renderProgressBar({ percent: 100, status: 'success' });
+      const testRenderer = renderProgressBar({
+        percent: 100,
+        status: 'success',
+      });
       const text = testRenderer.root.findByType(Text);
       expect(text.props.children).toBe('100%');
     });
@@ -78,11 +91,16 @@ describe('Progress', () => {
         percent: 66,
         format: value => <View testID={`circle-${value}`} />,
       });
-      expect(testRenderer.root.findByProps({ testID: 'circle-66' })).toBeTruthy();
+      expect(
+        testRenderer.root.findByProps({ testID: 'circle-66' }),
+      ).toBeTruthy();
     });
 
     it('hides info text when showInfo is false', () => {
-      const testRenderer = renderProgressCircle({ percent: 50, showInfo: false });
+      const testRenderer = renderProgressCircle({
+        percent: 50,
+        showInfo: false,
+      });
       expect(testRenderer.root.findAllByType(Text)).toHaveLength(0);
     });
 
@@ -105,13 +123,19 @@ describe('Progress', () => {
     });
 
     it('renders success status percent text', () => {
-      const testRenderer = renderProgressCircle({ percent: 100, status: 'success' });
+      const testRenderer = renderProgressCircle({
+        percent: 100,
+        status: 'success',
+      });
       const text = testRenderer.root.findByType(Text);
       expect(text.props.children).toBe('100%');
     });
 
     it('renders error status percent text', () => {
-      const testRenderer = renderProgressCircle({ percent: 25, status: 'error' });
+      const testRenderer = renderProgressCircle({
+        percent: 25,
+        status: 'error',
+      });
       const text = testRenderer.root.findByType(Text);
       expect(text.props.children).toBe('25%');
     });

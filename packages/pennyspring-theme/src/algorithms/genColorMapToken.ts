@@ -62,7 +62,7 @@ export function genColorMapToken(
   result.colorLinkHover = linkColors[3];
   result.colorLinkActive = linkColors[6];
 
-  PresetColors.forEach((colorKey) => {
+  PresetColors.forEach(colorKey => {
     const colorBase = seed[colorKey];
     if (colorBase) {
       const colorPalette = generateColorPalettes(colorBase);

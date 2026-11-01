@@ -88,63 +88,90 @@ jest.mock('react-native-gesture-handler', () => {
   };
 });
 
-function renderSwipeAction(props: Partial<React.ComponentProps<typeof SwipeAction>> = {}) {
-  const leftActions: SwipeActionAction[] = [{
-    key: 'left-archive',
-    actionText: 'Archive'
-  }];
-  const rightActions: SwipeActionAction[] = [{
-    key: 'right-delete',
-    actionText: 'Delete'
-  }];
+function renderSwipeAction(
+  props: Partial<React.ComponentProps<typeof SwipeAction>> = {},
+) {
+  const leftActions: SwipeActionAction[] = [
+    {
+      key: 'left-archive',
+      actionText: 'Archive',
+    },
+  ];
+  const rightActions: SwipeActionAction[] = [
+    {
+      key: 'right-delete',
+      actionText: 'Delete',
+    },
+  ];
   let testRenderer: renderer.ReactTestRenderer;
   act(() => {
-    testRenderer = renderer.create(<><SwipeAction leftActions={leftActions} rightActions={rightActions} {...props}>
+    testRenderer = renderer.create(
+      <>
+        <SwipeAction
+          leftActions={leftActions}
+          rightActions={rightActions}
+          {...props}
+        >
           <View testID="swipe-action-child" />
-        </SwipeAction></>);
+        </SwipeAction>
+      </>,
+    );
   });
   return testRenderer!;
 }
-function setupActionWidth(testRenderer: renderer.ReactTestRenderer, options: {
-  leftWidth?: number;
-  rightWidth?: number;
-} = {}): void {
+function setupActionWidth(
+  testRenderer: renderer.ReactTestRenderer,
+  options: {
+    leftWidth?: number;
+    rightWidth?: number;
+  } = {},
+): void {
   const leftActions = testRenderer.root.findByProps({
-    testID: 'swipe-action-left-actions'
+    testID: 'swipe-action-left-actions',
   });
   const rightActions = testRenderer.root.findByProps({
-    testID: 'swipe-action-right-actions'
+    testID: 'swipe-action-right-actions',
   });
   act(() => {
     leftActions.props.onLayout({
       nativeEvent: {
         layout: {
-          width: options.leftWidth ?? 80
-        }
-      }
+          width: options.leftWidth ?? 80,
+        },
+      },
     });
     rightActions.props.onLayout({
       nativeEvent: {
         layout: {
-          width: options.rightWidth ?? 80
-        }
-      }
+          width: options.rightWidth ?? 80,
+        },
+      },
     });
   });
 }
-function swipeRow(testRenderer: renderer.ReactTestRenderer, options: {
-  startX: number;
-  endX: number;
-  pageY?: number;
-}): void {
+function swipeRow(
+  testRenderer: renderer.ReactTestRenderer,
+  options: {
+    startX: number;
+    endX: number;
+    pageY?: number;
+  },
+): void {
   const gestureDetector = testRenderer.root.findByProps({
-    testID: 'swipe-action-gesture-detector'
+    testID: 'swipe-action-gesture-detector',
   });
   const gesture = gestureDetector.props.gesture as {
     __handlers: {
       onBegin?: () => void;
-      onEnd?: (event: { translationX: number; translationY: number; velocityX: number }) => void;
-      onUpdate?: (event: { translationX: number; translationY: number }) => void;
+      onEnd?: (event: {
+        translationX: number;
+        translationY: number;
+        velocityX: number;
+      }) => void;
+      onUpdate?: (event: {
+        translationX: number;
+        translationY: number;
+      }) => void;
     };
   };
   const pageY = options.pageY ?? 0;
@@ -164,15 +191,19 @@ function swipeRow(testRenderer: renderer.ReactTestRenderer, options: {
 }
 function getTrackTranslateX(testRenderer: renderer.ReactTestRenderer): number {
   const track = testRenderer.root.findByProps({
-    testID: 'swipe-action-track'
+    testID: 'swipe-action-track',
   });
   const styleList = track.props.style as Array<Record<string, unknown>>;
   const transformStyle = styleList.find(style => style.transform !== undefined);
   if (transformStyle === undefined) {
     return 0;
   }
-  const transformList = transformStyle.transform as Array<Record<string, number>>;
-  const translateStyle = transformList.find(style => style.translateX !== undefined);
+  const transformList = transformStyle.transform as Array<
+    Record<string, number>
+  >;
+  const translateStyle = transformList.find(
+    style => style.translateX !== undefined,
+  );
   return translateStyle?.translateX ?? 0;
 }
 describe('SwipeAction', () => {
@@ -184,10 +215,10 @@ describe('SwipeAction', () => {
   it('clips the moving track to prevent action backgrounds from bleeding through rounded content corners', () => {
     const testRenderer = renderSwipeAction();
     const root = testRenderer.root.findByProps({
-      testID: 'swipe-action-root'
+      testID: 'swipe-action-root',
     });
     const track = testRenderer.root.findByProps({
-      testID: 'swipe-action-track'
+      testID: 'swipe-action-track',
     });
     const rootStyle = StyleSheet.flatten(root.props.style);
     const trackStyle = StyleSheet.flatten(track.props.style);
@@ -202,14 +233,14 @@ describe('SwipeAction', () => {
     const testRenderer = renderSwipeAction({
       defaultValue: null,
       onActionsReveal,
-      onChange
+      onChange,
     });
     setupActionWidth(testRenderer, {
-      rightWidth: 80
+      rightWidth: 80,
     });
     swipeRow(testRenderer, {
       startX: 100,
-      endX: 20
+      endX: 20,
     });
     expect(onActionsReveal).toHaveBeenCalledWith('right');
     expect(onChange).toHaveBeenCalledWith('right');
@@ -234,29 +265,35 @@ describe('SwipeAction', () => {
     const testRenderer = renderSwipeAction({
       onAction,
       onChange,
-      rightActions: [{
-        key: 'delete',
-        onPress: actionPress,
-        actionText: 'Delete'
-      }]
+      rightActions: [
+        {
+          key: 'delete',
+          onPress: actionPress,
+          actionText: 'Delete',
+        },
+      ],
     });
     setupActionWidth(testRenderer, {
-      rightWidth: 80
+      rightWidth: 80,
     });
     swipeRow(testRenderer, {
       startX: 100,
-      endX: 20
+      endX: 20,
     });
     const action = testRenderer.root.findByProps({
-      testID: 'swipe-action-right-action-0'
+      testID: 'swipe-action-right-action-0',
     });
     act(() => {
       action.props.onPress();
     });
     expect(actionPress).toHaveBeenCalledTimes(1);
-    expect(onAction).toHaveBeenCalledWith(expect.objectContaining({
-      key: 'delete'
-    }), 0, 'right');
+    expect(onAction).toHaveBeenCalledWith(
+      expect.objectContaining({
+        key: 'delete',
+      }),
+      0,
+      'right',
+    );
     expect(onChange).toHaveBeenNthCalledWith(2, null);
     expect(getTrackTranslateX(testRenderer)).toBe(0);
   });
@@ -264,17 +301,17 @@ describe('SwipeAction', () => {
     const onChange = jest.fn();
     const testRenderer = renderSwipeAction({
       closeOnAction: false,
-      onChange
+      onChange,
     });
     setupActionWidth(testRenderer, {
-      rightWidth: 80
+      rightWidth: 80,
     });
     swipeRow(testRenderer, {
       startX: 100,
-      endX: 20
+      endX: 20,
     });
     const action = testRenderer.root.findByProps({
-      testID: 'swipe-action-right-action-0'
+      testID: 'swipe-action-right-action-0',
     });
     act(() => {
       action.props.onPress();
@@ -291,13 +328,13 @@ describe('SwipeAction', () => {
       },
       onChange: nextValue => {
         calls.push(`change:${String(nextValue)}`);
-      }
+      },
     });
     setupActionWidth(testRenderer, {
-      rightWidth: 80
+      rightWidth: 80,
     });
     const content = testRenderer.root.findByProps({
-      testID: 'swipe-action-content'
+      testID: 'swipe-action-content',
     });
     act(() => {
       content.props.onResponderRelease();
@@ -308,17 +345,26 @@ describe('SwipeAction', () => {
 
   it('rejects backgroundColor on action items', () => {
     type ActionKeys = keyof SwipeActionAction;
-    const keys: ActionKeys[] = ['key', 'actionText', 'action', 'color', 'disabled', 'onPress'];
+    const keys: ActionKeys[] = [
+      'key',
+      'actionText',
+      'action',
+      'color',
+      'disabled',
+      'onPress',
+    ];
     expect(keys).toHaveLength(6);
   });
 
   it('renders actionText as the visible text content', () => {
     const testRenderer = renderSwipeAction({
-      rightActions: [{
-        key: 'label',
-        actionText: 'Archive',
-        color: 'success',
-      }],
+      rightActions: [
+        {
+          key: 'label',
+          actionText: 'Archive',
+          color: 'success',
+        },
+      ],
     });
     const action = testRenderer.root.findByProps({
       testID: 'swipe-action-right-action-0',
@@ -328,12 +374,16 @@ describe('SwipeAction', () => {
   });
 
   it('renders custom action node directly without wrapping in Text', () => {
-    const customNode = React.createElement(View, { testID: 'custom-action-node' });
+    const customNode = React.createElement(View, {
+      testID: 'custom-action-node',
+    });
     const testRenderer = renderSwipeAction({
-      rightActions: [{
-        key: 'custom',
-        action: customNode,
-      }],
+      rightActions: [
+        {
+          key: 'custom',
+          action: customNode,
+        },
+      ],
     });
     const action = testRenderer.root.findByProps({
       testID: 'swipe-action-right-action-0',
@@ -344,27 +394,33 @@ describe('SwipeAction', () => {
 
   it('suppresses rendering when action is explicitly null', () => {
     const testRenderer = renderSwipeAction({
-      rightActions: [{
-        key: 'hidden',
-        actionText: 'Should not render',
-        action: null,
-      }],
+      rightActions: [
+        {
+          key: 'hidden',
+          actionText: 'Should not render',
+          action: null,
+        },
+      ],
     });
     const action = testRenderer.root.findByProps({
       testID: 'swipe-action-right-action-0',
     });
     expect(() => action.findByType(Text)).toThrow();
     const renderedText = testRenderer.root.findAllByType(Text);
-    const hiddenText = renderedText.find(t => t.props.children === 'Should not render');
+    const hiddenText = renderedText.find(
+      t => t.props.children === 'Should not render',
+    );
     expect(hiddenText).toBeUndefined();
   });
 
   it('falls back to actionText when action is undefined', () => {
     const testRenderer = renderSwipeAction({
-      rightActions: [{
-        key: 'fallback',
-        actionText: 'Fallback Text',
-      }],
+      rightActions: [
+        {
+          key: 'fallback',
+          actionText: 'Fallback Text',
+        },
+      ],
     });
     const action = testRenderer.root.findByProps({
       testID: 'swipe-action-right-action-0',
@@ -376,11 +432,13 @@ describe('SwipeAction', () => {
   it('renders actionText at the fixed 12px size for small groups', () => {
     const testRenderer = renderSwipeAction({
       size: 'small',
-      rightActions: [{
-        key: 'sized',
-        actionText: 'Small',
-        color: 'primary',
-      }],
+      rightActions: [
+        {
+          key: 'sized',
+          actionText: 'Small',
+          color: 'primary',
+        },
+      ],
     });
     const action = testRenderer.root.findByProps({
       testID: 'swipe-action-right-action-0',
@@ -392,11 +450,13 @@ describe('SwipeAction', () => {
   it('renders actionText at the fixed 12px size for large groups', () => {
     const testRenderer = renderSwipeAction({
       size: 'large',
-      rightActions: [{
-        key: 'sized',
-        actionText: 'Large',
-        color: 'primary',
-      }],
+      rightActions: [
+        {
+          key: 'sized',
+          actionText: 'Large',
+          color: 'primary',
+        },
+      ],
     });
     const action = testRenderer.root.findByProps({
       testID: 'swipe-action-right-action-0',
@@ -407,11 +467,13 @@ describe('SwipeAction', () => {
 
   it('applies lightSolid text color for strong background colors', () => {
     const testRenderer = renderSwipeAction({
-      rightActions: [{
-        key: 'strong-bg',
-        actionText: 'Delete',
-        color: 'danger',
-      }],
+      rightActions: [
+        {
+          key: 'strong-bg',
+          actionText: 'Delete',
+          color: 'danger',
+        },
+      ],
     });
     const action = testRenderer.root.findByProps({
       testID: 'swipe-action-right-action-0',
@@ -422,11 +484,13 @@ describe('SwipeAction', () => {
 
   it('applies default text color for light background', () => {
     const testRenderer = renderSwipeAction({
-      rightActions: [{
-        key: 'light-bg',
-        actionText: 'Light',
-        color: 'light',
-      }],
+      rightActions: [
+        {
+          key: 'light-bg',
+          actionText: 'Light',
+          color: 'light',
+        },
+      ],
     });
     const action = testRenderer.root.findByProps({
       testID: 'swipe-action-right-action-0',
@@ -437,12 +501,14 @@ describe('SwipeAction', () => {
 
   it('applies disabled text color when action is disabled', () => {
     const testRenderer = renderSwipeAction({
-      rightActions: [{
-        key: 'disabled-action',
-        actionText: 'Disabled',
-        color: 'primary',
-        disabled: true,
-      }],
+      rightActions: [
+        {
+          key: 'disabled-action',
+          actionText: 'Disabled',
+          color: 'primary',
+          disabled: true,
+        },
+      ],
     });
     const action = testRenderer.root.findByProps({
       testID: 'swipe-action-right-action-0',
@@ -450,5 +516,4 @@ describe('SwipeAction', () => {
     const textNode = action.findByType(Text);
     expect(textNode.props.color).toBe('disabled');
   });
-
 });

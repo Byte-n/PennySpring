@@ -45,8 +45,7 @@ export const FIELD_SIZE_MAP: Record<ComponentSize, FieldSizeMetrics> = {
     valueFontSize: token => token.fontSizeSM,
     valueLineHeight: token => token.fontSizeSM + VALUE_LINE_HEIGHT_LEADING,
     labelFontSize: token => token.fontSizeXS - 1,
-    labelLineHeight: token =>
-      token.fontSizeXS - 1 + LABEL_LINE_HEIGHT_LEADING,
+    labelLineHeight: token => token.fontSizeXS - 1 + LABEL_LINE_HEIGHT_LEADING,
     labelTop: 0,
     labelOffsetX: token => token.sizeXXS / 2,
     valuePaddingBottom: 4,
@@ -70,8 +69,7 @@ export const FIELD_SIZE_MAP: Record<ComponentSize, FieldSizeMetrics> = {
     valueFontSize: token => token.fontSizeLG,
     valueLineHeight: token => token.fontSizeLG + VALUE_LINE_HEIGHT_LEADING,
     labelFontSize: token => token.fontSizeXS + 1,
-    labelLineHeight: token =>
-      token.fontSizeXS + 1 + LABEL_LINE_HEIGHT_LEADING,
+    labelLineHeight: token => token.fontSizeXS + 1 + LABEL_LINE_HEIGHT_LEADING,
     labelTop: 3,
     labelOffsetX: token => token.sizeXXS,
     valuePaddingBottom: 5,

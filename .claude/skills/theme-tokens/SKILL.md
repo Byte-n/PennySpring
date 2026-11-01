@@ -12,7 +12,9 @@ description: PennySpring 主题 token（@pennyspring/theme）使用手册。**�
 ```tsx
 import { createUseSheetStyle, toShadowStyle } from '@pennyspring/theme';
 
-const useStyles = createUseSheetStyle<TOptions>((token, opts) => ({ /* styles */ }));
+const useStyles = createUseSheetStyle<TOptions>((token, opts) => ({
+  /* styles */
+}));
 // 无参数版本：TOptions = void，调用时 useStyles()
 ```
 
@@ -44,15 +46,15 @@ node .claude/skills/theme-tokens/scripts/get-tokens.js --json colorPrimary motio
 
 ## RN 踩坑（必记）
 
-| 坑 | 正确做法 |
-|---|---|
-| RN `lineHeight` 字段要像素数值 | 直接用 `token.lineHeight*`（已是像素值） |
-| `boxShadow*` 不是 ViewStyle | 必须 `...toShadowStyle(token.boxShadow)`，不能 `...token.boxShadow` |
-| Easing 曲线是 `[x1,y1,x2,y2]` 元组 | `Easing.bezier(...token.motionEaseInOut)` |
-| 动效时长是数值 ms（非字符串） | `duration: token.motionDurationMid`；`motion:false` 时自动归零，勿手写 if |
-| Primary 按钮上的白字 | `token.colorTextLightSolid`（dark 下仍白），不是 `'#fff'` |
-| `controlHeightXS=22` 仅装饰用 | 可点击控件最小 `controlHeightSM` |
-| `TextInput.placeholderTextColor` 是 prop 不是 style | 从 `useTheme().token.colorTextPlaceholder` 取 |
+| 坑                                                  | 正确做法                                                                  |
+| --------------------------------------------------- | ------------------------------------------------------------------------- |
+| RN `lineHeight` 字段要像素数值                      | 直接用 `token.lineHeight*`（已是像素值）                                  |
+| `boxShadow*` 不是 ViewStyle                         | 必须 `...toShadowStyle(token.boxShadow)`，不能 `...token.boxShadow`       |
+| Easing 曲线是 `[x1,y1,x2,y2]` 元组                  | `Easing.bezier(...token.motionEaseInOut)`                                 |
+| 动效时长是数值 ms（非字符串）                       | `duration: token.motionDurationMid`；`motion:false` 时自动归零，勿手写 if |
+| Primary 按钮上的白字                                | `token.colorTextLightSolid`（dark 下仍白），不是 `'#fff'`                 |
+| `controlHeightXS=22` 仅装饰用                       | 可点击控件最小 `controlHeightSM`                                          |
+| `TextInput.placeholderTextColor` 是 prop 不是 style | 从 `useTheme().token.colorTextPlaceholder` 取                             |
 
 ## AliasToken 分类索引
 

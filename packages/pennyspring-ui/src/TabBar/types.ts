@@ -35,8 +35,10 @@ export interface TabBarStyles {
   badgeText?: StyleProp<TextStyle>;
 }
 
-export interface TabBarProps
-  extends Omit<PressableProps, 'style' | 'children' | 'disabled' | 'onPress'> {
+export interface TabBarProps extends Omit<
+  PressableProps,
+  'style' | 'children' | 'disabled' | 'onPress'
+> {
   items: TabBarItem[];
   value?: TabBarValue;
   defaultValue?: TabBarValue;

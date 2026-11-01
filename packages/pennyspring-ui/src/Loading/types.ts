@@ -1,5 +1,10 @@
 import type { ReactNode } from 'react';
-import type { ActivityIndicatorProps, StyleProp, TextStyle, ViewStyle } from 'react-native';
+import type {
+  ActivityIndicatorProps,
+  StyleProp,
+  TextStyle,
+  ViewStyle,
+} from 'react-native';
 import type { ComponentSize } from '../shares/types';
 
 /**
@@ -21,8 +26,10 @@ export interface LoadingStyles {
   text?: StyleProp<TextStyle>;
 }
 
-export interface LoadingProps
-  extends Omit<ActivityIndicatorProps, 'size' | 'style' | 'color'> {
+export interface LoadingProps extends Omit<
+  ActivityIndicatorProps,
+  'size' | 'style' | 'color'
+> {
   /** 转圈尺寸：small 16 / normal 20 / large 28。缺省按 variant 取默认档。 */
   size?: ComponentSize;
 

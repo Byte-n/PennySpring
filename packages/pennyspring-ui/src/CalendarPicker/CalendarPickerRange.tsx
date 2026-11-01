@@ -54,8 +54,7 @@ export function CalendarPickerRange(props: CalendarPickerRangeProps) {
   const field = useFieldProps<DateRange | undefined>({
     value: props.value,
     onChange: props.onChange as
-      | ((value: DateRange | undefined) => void)
-      | undefined,
+      ((value: DateRange | undefined) => void) | undefined,
     label: props.label,
     labelText: props.labelText,
     disabled: props.disabled,
@@ -75,8 +74,8 @@ export function CalendarPickerRange(props: CalendarPickerRangeProps) {
   const [committedValue, setCommittedValue] = useControllableValue<
     DateRange | undefined
   >(props.defaultValue, field.value, field.onChange);
-  const [draftRange, setDraftRange] = useState<DateRange | undefined>(
-    () => normalizeRange(committedValue),
+  const [draftRange, setDraftRange] = useState<DateRange | undefined>(() =>
+    normalizeRange(committedValue),
   );
   const previousOpenRef = useRef(isOpen);
 
@@ -92,34 +91,35 @@ export function CalendarPickerRange(props: CalendarPickerRangeProps) {
   const fallbackTimestamp = fallbackDate?.getTime();
 
   const panelValue = draftRange
-    ? [
-      toCalendarViewValue(draftRange[0], precision),
-      toCalendarViewValue(draftRange[1], precision),
-    ] as CalendarPickerViewRangeValue
+    ? ([
+        toCalendarViewValue(draftRange[0], precision),
+        toCalendarViewValue(draftRange[1], precision),
+      ] as CalendarPickerViewRangeValue)
     : undefined;
-  const minDate = props.min
-    ? formatDateValue(props.min, precision)
-    : undefined;
-  const maxDate = props.max
-    ? formatDateValue(props.max, precision)
-    : undefined;
+  const minDate = props.min ? formatDateValue(props.min, precision) : undefined;
+  const maxDate = props.max ? formatDateValue(props.max, precision) : undefined;
   const marks = useMemo(
-    () => props.marks?.map(mark => ({
-      date: formatDateValue(mark.date, precision),
-      content: mark.content,
-    })),
+    () =>
+      props.marks?.map(mark => ({
+        date: formatDateValue(mark.date, precision),
+        content: mark.content,
+      })),
     [precision, props.marks],
   );
   // 面板只处理字符串值，这里把字符串还原成 Date 后交给外部禁用判断。
   const disabledDate = useMemo(
-    () => props.disabledDate
-      ? (value: string) => props.disabledDate!(
-        parseDateValue(
-          value,
-          fallbackTimestamp === undefined ? new Date() : new Date(fallbackTimestamp),
-        ),
-      )
-      : undefined,
+    () =>
+      props.disabledDate
+        ? (value: string) =>
+            props.disabledDate!(
+              parseDateValue(
+                value,
+                fallbackTimestamp === undefined
+                  ? new Date()
+                  : new Date(fallbackTimestamp),
+              ),
+            )
+        : undefined,
     [fallbackTimestamp, props.disabledDate],
   );
 

@@ -33,7 +33,9 @@ function walkFiles(dir) {
 }
 
 function readFileIfExists(filePath) {
-  return fs.existsSync(filePath) ? fs.readFileSync(filePath, 'utf8') : undefined;
+  return fs.existsSync(filePath)
+    ? fs.readFileSync(filePath, 'utf8')
+    : undefined;
 }
 
 function collectGeneratedFileIssues(expected, filePaths, marker, label) {
@@ -106,9 +108,7 @@ function removeStaleGeneratedFiles(staleIssues) {
       fail(issue);
     }
 
-    const relativePath = issue.slice(
-      '删除未在扫描结果中的生成文件：'.length,
-    );
+    const relativePath = issue.slice('删除未在扫描结果中的生成文件：'.length);
     fs.rmSync(path.join(PACKAGE_ROOT, relativePath));
   }
 }
@@ -149,7 +149,9 @@ function runCli(args) {
       process.stderr.write(
         `预览注册产物与 previewMeta 不同步：\n${issues
           .map(issue => `- ${issue}`)
-          .join('\n')}\n运行 yarn workspace @pennyspring/ui previews:sync 后重试。\n`,
+          .join(
+            '\n',
+          )}\n运行 yarn workspace @pennyspring/ui previews:sync 后重试。\n`,
       );
       process.exitCode = 1;
       return;

@@ -123,9 +123,9 @@ function readSectionComponents(section) {
 
   const components = [];
 
-  for (const entry of fs.readdirSync(sectionDir, { withFileTypes: true }).sort(
-    (left, right) => left.name.localeCompare(right.name),
-  )) {
+  for (const entry of fs
+    .readdirSync(sectionDir, { withFileTypes: true })
+    .sort((left, right) => left.name.localeCompare(right.name))) {
     if (!entry.isDirectory()) {
       continue;
     }

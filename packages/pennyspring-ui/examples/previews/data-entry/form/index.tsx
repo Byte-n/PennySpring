@@ -5,7 +5,8 @@ import type { PreviewMeta } from '../../types';
 
 export const previewMeta = {
   title: 'Form',
-  description: '字段布局、label 归属、noStyle、依赖与条件渲染、校验反馈；输入控件自动绑定表单状态。',
+  description:
+    '字段布局、label 归属、noStyle、依赖与条件渲染、校验反馈；输入控件自动绑定表单状态。',
   order: 1,
   demos: [
     { id: 'basic', title: '基础用法' },

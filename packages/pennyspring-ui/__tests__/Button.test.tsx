@@ -11,10 +11,16 @@ import { formatToken } from '@pennyspring/theme/src/algorithms/formatToken';
 
 const token = formatToken(derivative(defaultSeedToken, false));
 
-function renderButton(props: Partial<React.ComponentProps<typeof Button>> = {}) {
+function renderButton(
+  props: Partial<React.ComponentProps<typeof Button>> = {},
+) {
   let testRenderer: renderer.ReactTestRenderer;
   act(() => {
-    testRenderer = renderer.create(<><Button {...props} /></>);
+    testRenderer = renderer.create(
+      <>
+        <Button {...props} />
+      </>,
+    );
   });
   return testRenderer!;
 }
@@ -49,30 +55,36 @@ function getContentTextStyle(testRenderer: renderer.ReactTestRenderer) {
 describe('Button', () => {
   it('renders text content', () => {
     const testRenderer = renderButton({
-      children: 'Save'
+      children: 'Save',
     });
     expect(JSON.stringify(testRenderer.toJSON())).toContain('Save');
   });
   it('orders icon and content by icon placement', () => {
     const startIcon = renderButton({
       icon: 'check',
-      children: 'Label'
+      children: 'Label',
     });
     const endIcon = renderButton({
       icon: 'check',
       iconPlacement: 'end',
-      children: 'Label'
+      children: 'Label',
     });
-    const startChildren = (startIcon.toJSON() as renderer.ReactTestRendererJSON).children ?? [];
-    const endChildren = (endIcon.toJSON() as renderer.ReactTestRendererJSON).children ?? [];
-    expect((startChildren[0] as renderer.ReactTestRendererJSON).type).toBe('View');
-    expect((endChildren[0] as renderer.ReactTestRendererJSON).type).toBe('Text');
+    const startChildren =
+      (startIcon.toJSON() as renderer.ReactTestRendererJSON).children ?? [];
+    const endChildren =
+      (endIcon.toJSON() as renderer.ReactTestRendererJSON).children ?? [];
+    expect((startChildren[0] as renderer.ReactTestRendererJSON).type).toBe(
+      'View',
+    );
+    expect((endChildren[0] as renderer.ReactTestRendererJSON).type).toBe(
+      'Text',
+    );
   });
   it('passes iconProps to internal icon renderer', () => {
     const testRenderer = renderButton({
       icon: 'check',
       iconProps: { weight: 'fill' },
-      children: 'Save'
+      children: 'Save',
     });
     const iconNode = testRenderer.root.findByType(Icon);
     expect(iconNode.props.weight).toBe('fill');
@@ -81,17 +93,17 @@ describe('Button', () => {
     const smallRenderer = renderButton({
       icon: 'check',
       size: 'small',
-      children: 'Save'
+      children: 'Save',
     });
     const normalRenderer = renderButton({
       icon: 'check',
       size: 'normal',
-      children: 'Save'
+      children: 'Save',
     });
     const largeRenderer = renderButton({
       icon: 'check',
       size: 'large',
-      children: 'Save'
+      children: 'Save',
     });
     const smallIcon = smallRenderer.root.findByType(Icon);
     const normalIcon = normalRenderer.root.findByType(Icon);
@@ -111,7 +123,7 @@ describe('Button', () => {
     const testRenderer = renderButton({
       loading: true,
       onPress,
-      children: 'Save'
+      children: 'Save',
     });
     const root = getPressableRoot(testRenderer);
     act(() => {
@@ -125,7 +137,7 @@ describe('Button', () => {
     const testRenderer = renderButton({
       disabled: true,
       onPress,
-      children: 'Disabled'
+      children: 'Disabled',
     });
     const root = getPressableRoot(testRenderer);
     act(() => {
@@ -181,12 +193,15 @@ describe('Button', () => {
     });
 
     const enabledIndicator = enabledRenderer.root.findByType(ActivityIndicator);
-    const disabledIndicator = disabledRenderer.root.findByType(ActivityIndicator);
+    const disabledIndicator =
+      disabledRenderer.root.findByType(ActivityIndicator);
     const baselineIcon = baselineRenderer.root.findByType(Icon);
 
     expect(enabledIndicator.props.color).toBe(token.colorText);
     expect(baselineIcon.props.size).toBe(20);
-    expect(disabledIndicator.props.color).not.toBe(enabledIndicator.props.color);
+    expect(disabledIndicator.props.color).not.toBe(
+      enabledIndicator.props.color,
+    );
     expect(typeof enabledIndicator.props.size).toBe('number');
   });
   it('maps button text semantics to Text props before style overrides', () => {
@@ -264,7 +279,10 @@ describe('Button', () => {
       expected: string;
     }> = [
       { props: { type: 'primary' }, expected: 'lightSolid' },
-      { props: { color: 'primary', variant: 'outlined' }, expected: 'primaryText' },
+      {
+        props: { color: 'primary', variant: 'outlined' },
+        expected: 'primaryText',
+      },
       { props: { type: 'danger' }, expected: 'lightSolid' },
       { props: { color: 'red', variant: 'text' }, expected: 'red6' },
     ];
@@ -400,7 +418,9 @@ describe('Button', () => {
       children: 'Save',
     });
 
-    expect(pressedRenderer.root.findByType(Text).props.color).toBe('quaternary');
+    expect(pressedRenderer.root.findByType(Text).props.color).toBe(
+      'quaternary',
+    );
   });
 });
 
@@ -414,9 +434,15 @@ describe('Button redesign', () => {
   });
 
   it('applies fixed height and radius for each size', () => {
-    const small = getRootStyle(renderButton({ size: 'small', children: '保存' }));
-    const normal = getRootStyle(renderButton({ size: 'normal', children: '保存' }));
-    const large = getRootStyle(renderButton({ size: 'large', children: '保存' }));
+    const small = getRootStyle(
+      renderButton({ size: 'small', children: '保存' }),
+    );
+    const normal = getRootStyle(
+      renderButton({ size: 'normal', children: '保存' }),
+    );
+    const large = getRootStyle(
+      renderButton({ size: 'large', children: '保存' }),
+    );
 
     expect(small.height).toBe(32);
     expect(small.borderRadius).toBe(token.borderRadiusSM);
@@ -429,7 +455,10 @@ describe('Button redesign', () => {
   it('keeps the label and dims it while loading', () => {
     const testRenderer = renderButton({ loading: true, children: '保存记录' });
     const textNode = testRenderer.root.findByType(Text);
-    const textStyle = flattenStyle(textNode.props.style) as Record<string, unknown>;
+    const textStyle = flattenStyle(textNode.props.style) as Record<
+      string,
+      unknown
+    >;
 
     expect(textNode.props.children).toBe('保存记录');
     expect(textStyle.opacity).toBe(token.opacityLoading);
@@ -437,7 +466,11 @@ describe('Button redesign', () => {
   });
 
   it('renders disabled button with fill surface and quaternary text', () => {
-    const testRenderer = renderButton({ type: 'primary', disabled: true, children: '保存' });
+    const testRenderer = renderButton({
+      type: 'primary',
+      disabled: true,
+      children: '保存',
+    });
     const rootStyle = getRootStyle(testRenderer);
     const textNode = testRenderer.root.findByType(Text);
 
@@ -447,9 +480,21 @@ describe('Button redesign', () => {
   });
 
   it('maps icon size to the per-size icon scale', () => {
-    const small = renderButton({ icon: 'check', size: 'small', children: '保存' });
-    const normal = renderButton({ icon: 'check', size: 'normal', children: '保存' });
-    const large = renderButton({ icon: 'check', size: 'large', children: '保存' });
+    const small = renderButton({
+      icon: 'check',
+      size: 'small',
+      children: '保存',
+    });
+    const normal = renderButton({
+      icon: 'check',
+      size: 'normal',
+      children: '保存',
+    });
+    const large = renderButton({
+      icon: 'check',
+      size: 'large',
+      children: '保存',
+    });
 
     expect(small.root.findByType(Icon).props.size).toBe(16);
     expect(normal.root.findByType(Icon).props.size).toBe(18);

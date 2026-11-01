@@ -491,10 +491,7 @@ export function buildPreviousDailyExpense(
     startDate.getMonth() + 1,
     0,
   ).getDate();
-  const rangeDays = Math.max(
-    0,
-    Math.round((range.end - range.start) / DAY_MS),
-  );
+  const rangeDays = Math.max(0, Math.round((range.end - range.start) / DAY_MS));
   const dayCount = Math.min(period.totalDays, previousMonthDays, rangeDays);
   return buildDailyPoints(records, types, range.start, dayCount);
 }
@@ -530,7 +527,7 @@ export function buildCalendarDays(
     return {
       day,
       date: new Date(year, month, day).getTime(),
-      amount: isFuture ? 0 : buckets.get(day) ?? 0,
+      amount: isFuture ? 0 : (buckets.get(day) ?? 0),
       isFuture,
       isToday: period.isCurrent && day === period.elapsedDays,
     };
@@ -565,8 +562,7 @@ export function buildMovers(
     })
     .sort(
       (a, b) =>
-        Math.abs(b.delta) - Math.abs(a.delta) ||
-        a.name.localeCompare(b.name),
+        Math.abs(b.delta) - Math.abs(a.delta) || a.name.localeCompare(b.name),
     )
     .slice(0, limit);
 }
@@ -627,7 +623,10 @@ export function buildStructure(
   limit = DEFAULT_STRUCTURE_LIMIT,
 ): StructureStat[] {
   const total = stats.reduce((sum, item) => sum + item.amount, 0);
-  const toStructure = (item: CategoryAmount, isOther: boolean): StructureStat => ({
+  const toStructure = (
+    item: CategoryAmount,
+    isOther: boolean,
+  ): StructureStat => ({
     key: item.key,
     name: item.name,
     amount: item.amount,
@@ -653,4 +652,3 @@ export function buildStructure(
     },
   ];
 }
-

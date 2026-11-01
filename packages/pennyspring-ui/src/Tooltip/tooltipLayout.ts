@@ -78,9 +78,7 @@ export function resolveTooltipLayout({
   );
   const scrollable = naturalHeight > available;
   const height = scrollable
-    ? Math.floor(
-        (available - tokens.paddingVertical * 2) / tokens.lineHeight,
-      ) *
+    ? Math.floor((available - tokens.paddingVertical * 2) / tokens.lineHeight) *
         tokens.lineHeight +
       tokens.paddingVertical * 2
     : naturalHeight;
@@ -116,8 +114,6 @@ export function resolveTooltipLayout({
     width,
     height,
     scrollable,
-    scrollMaxHeight: scrollable
-      ? height - tokens.paddingVertical * 2
-      : 0,
+    scrollMaxHeight: scrollable ? height - tokens.paddingVertical * 2 : 0,
   };
 }

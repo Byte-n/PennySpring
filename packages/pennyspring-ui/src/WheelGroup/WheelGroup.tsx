@@ -33,7 +33,9 @@ function resolveRowsFromHeight(height: number, itemHeight: number): number {
   return normalizeRows(Math.floor((height + ROW_FIT_TOLERANCE) / itemHeight));
 }
 
-export function WheelGroup<TItem extends WheelGroupItemData = WheelGroupItemData>({
+export function WheelGroup<
+  TItem extends WheelGroupItemData = WheelGroupItemData,
+>({
   columns,
   value,
   defaultValue,
@@ -108,9 +110,8 @@ export function WheelGroup<TItem extends WheelGroupItemData = WheelGroupItemData
       const nextValue: Array<WheelGroupItemValue<TItem>> = [];
 
       for (let index = 0; index < nextLength; index += 1) {
-        const itemValue = index === columnIndex
-          ? item.value
-          : selectedValues[index];
+        const itemValue =
+          index === columnIndex ? item.value : selectedValues[index];
 
         if (itemValue !== undefined) {
           nextValue[index] = itemValue;

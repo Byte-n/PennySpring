@@ -26,8 +26,8 @@ describe('derivative pipeline', () => {
   it('produces complete MapToken with dark algorithm', () => {
     const { defaultSeedToken } = require('../src/defaults');
     const result = derivative(defaultSeedToken, true);
-    expect(result.colorBgBase).toMatch(/^#0{3,6}$/);  // '#000' or '#000000'
-    expect(result.colorTextBase).toMatch(/^#f{3,6}$/);  // '#fff' or '#ffffff'
+    expect(result.colorBgBase).toMatch(/^#0{3,6}$/); // '#000' or '#000000'
+    expect(result.colorTextBase).toMatch(/^#f{3,6}$/); // '#fff' or '#ffffff'
   });
 
   it('dark uses lighten for solid colors (bgContainer)', () => {

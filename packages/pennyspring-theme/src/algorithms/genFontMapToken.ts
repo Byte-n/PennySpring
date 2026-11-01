@@ -22,15 +22,20 @@ export function genFontMapToken(base: number): Record<string, number> {
   // 中文字符视觉密度高于拉丁字符，+8 在 16px 正文下行高=1.5 偏紧；
   // +10 在 16px 下行高≈ 1.625，20px 下≈ 1.5，更靠近中文阅读舒适区。
   // 输出为像素值，可直接用于 RN lineHeight 样式。
-  const lineHeightXSRatio = ((fontSizeXS + 8) / fontSizeXS * 1000) / 1000; // xs 使用更紧凑的 +8
-  const lineHeightSMRatio = ((fontSizeSM + 10) / fontSizeSM * 1000) / 1000;
-  const lineHeightRatio = ((fontSize + 10) / fontSize * 1000) / 1000;
-  const lineHeightLGRatio = ((fontSizeLG + 10) / fontSizeLG * 1000) / 1000;
-  const lineHeightHeading1Ratio = ((fontSizeHeading1 + 10) / fontSizeHeading1 * 1000) / 1000;
-  const lineHeightHeading2Ratio = ((fontSizeHeading2 + 10) / fontSizeHeading2 * 1000) / 1000;
-  const lineHeightHeading3Ratio = ((fontSizeHeading3 + 10) / fontSizeHeading3 * 1000) / 1000;
-  const lineHeightHeading4Ratio = ((fontSizeHeading4 + 10) / fontSizeHeading4 * 1000) / 1000;
-  const lineHeightHeading5Ratio = ((fontSizeHeading5 + 10) / fontSizeHeading5 * 1000) / 1000;
+  const lineHeightXSRatio = (((fontSizeXS + 8) / fontSizeXS) * 1000) / 1000; // xs 使用更紧凑的 +8
+  const lineHeightSMRatio = (((fontSizeSM + 10) / fontSizeSM) * 1000) / 1000;
+  const lineHeightRatio = (((fontSize + 10) / fontSize) * 1000) / 1000;
+  const lineHeightLGRatio = (((fontSizeLG + 10) / fontSizeLG) * 1000) / 1000;
+  const lineHeightHeading1Ratio =
+    (((fontSizeHeading1 + 10) / fontSizeHeading1) * 1000) / 1000;
+  const lineHeightHeading2Ratio =
+    (((fontSizeHeading2 + 10) / fontSizeHeading2) * 1000) / 1000;
+  const lineHeightHeading3Ratio =
+    (((fontSizeHeading3 + 10) / fontSizeHeading3) * 1000) / 1000;
+  const lineHeightHeading4Ratio =
+    (((fontSizeHeading4 + 10) / fontSizeHeading4) * 1000) / 1000;
+  const lineHeightHeading5Ratio =
+    (((fontSizeHeading5 + 10) / fontSizeHeading5) * 1000) / 1000;
 
   const lineHeightXS = round(lineHeightXSRatio * fontSizeXS);
   const lineHeightSM = round(lineHeightSMRatio * fontSizeSM);

@@ -60,7 +60,7 @@ function FormItemRoot<
 
   const resolvedLabelMode = noStyle
     ? 'item'
-    : labelMode ?? formContext.labelMode;
+    : (labelMode ?? formContext.labelMode);
   const resolvedTriggers = normalizeValidateTrigger(
     validateTrigger ?? formContext.validateTrigger,
   );
@@ -111,7 +111,7 @@ function FormItemRoot<
     hasTriggered || hasSubmitted
       ? getFieldErrorMessage(field.state.meta.errors)
       : undefined;
-  const resolvedLabel = label === null ? null : label ?? labelText ?? null;
+  const resolvedLabel = label === null ? null : (label ?? labelText ?? null);
   const isItemLabelMode = !noStyle && resolvedLabelMode === 'item';
   const showItemLabel = isItemLabelMode && resolvedLabel !== null;
   const showRequiredMark =
@@ -135,21 +135,19 @@ function FormItemRoot<
   };
 
   const errorNode =
-    visibleError === undefined
-      ? null
-      : errorRender !== undefined
-        ? renderTextNode(errorRender(visibleError), text => (
-            <Text color="error" size="sm">
-              {text}
-            </Text>
-          ))
-        : (
-            <Text color="error" size="sm" testID="form-item-error">
-              {visibleError}
-            </Text>
-          );
+    visibleError === undefined ? null : errorRender !== undefined ? (
+      renderTextNode(errorRender(visibleError), text => (
+        <Text color="error" size="sm">
+          {text}
+        </Text>
+      ))
+    ) : (
+      <Text color="error" size="sm" testID="form-item-error">
+        {visibleError}
+      </Text>
+    );
 
-  const resolvedExtra = extra === null ? null : extra ?? extraText ?? null;
+  const resolvedExtra = extra === null ? null : (extra ?? extraText ?? null);
   const extraNode =
     !noStyle && resolvedExtra !== null
       ? renderTextNode(resolvedExtra, text => (
@@ -190,8 +188,7 @@ function FormItemRoot<
 
   if (formContext.layout === 'horizontal') {
     const showLabelColumn =
-      isItemLabelMode &&
-      (showItemLabel || resolvedLabelWidth !== undefined);
+      isItemLabelMode && (showItemLabel || resolvedLabelWidth !== undefined);
 
     return (
       <FormItemContext.Provider value={contextValue}>

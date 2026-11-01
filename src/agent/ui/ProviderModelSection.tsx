@@ -200,7 +200,10 @@ interface ContextMenuProps {
   onSelect: (value: number) => void;
 }
 
-function ContextMenu({ value, onSelect }: ContextMenuProps): React.ReactElement {
+function ContextMenu({
+  value,
+  onSelect,
+}: ContextMenuProps): React.ReactElement {
   const { token } = useTheme();
   const styles = useStyles();
 
@@ -458,11 +461,11 @@ export function ProviderModelSection({
   const styles = useStyles();
   const [openMenu, setOpenMenu] = useState<OpenMenuState | null>(null);
 
-  const handleOpenFieldChange = (modelId: string) => (
-    field: ModelMenuField | null,
-  ): void => {
-    setOpenMenu(field === null ? null : { modelId, field });
-  };
+  const handleOpenFieldChange =
+    (modelId: string) =>
+    (field: ModelMenuField | null): void => {
+      setOpenMenu(field === null ? null : { modelId, field });
+    };
 
   return (
     <Column gap="normal">
@@ -483,16 +486,36 @@ export function ProviderModelSection({
             <Text color="tertiary" size="xs" style={styles.headName}>
               模型
             </Text>
-            <Text color="tertiary" size="xs" style={styles.imageCell} textAlign="center">
+            <Text
+              color="tertiary"
+              size="xs"
+              style={styles.imageCell}
+              textAlign="center"
+            >
               图片
             </Text>
-            <Text color="tertiary" size="xs" style={styles.contextCell} textAlign="center">
+            <Text
+              color="tertiary"
+              size="xs"
+              style={styles.contextCell}
+              textAlign="center"
+            >
               上下文
             </Text>
-            <Text color="tertiary" size="xs" style={styles.effortCell} textAlign="center">
+            <Text
+              color="tertiary"
+              size="xs"
+              style={styles.effortCell}
+              textAlign="center"
+            >
               思考强度
             </Text>
-            <Text color="tertiary" size="xs" style={styles.actionsCell} textAlign="center">
+            <Text
+              color="tertiary"
+              size="xs"
+              style={styles.actionsCell}
+              textAlign="center"
+            >
               操作
             </Text>
           </Row>

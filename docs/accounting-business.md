@@ -22,11 +22,11 @@
 
 ### 金额公式
 
-| 类型 | `amount` | `final_amount` | 资产影响金额 |
-| --- | --- | --- | --- |
-| 支出 | 原始支出金额 | 普通支出为 `amount + charge`；被退款/报销吸收后为 `max(0, amount + charge - 累计吸收金额)` | `amount + charge` |
-| 收入 | 原始收入金额 | 普通收入为 `amount - charge`；退款/报销为 `max(0, amount - charge - 实际吸收金额)` | `amount - charge` |
-| 转账 | 转账本金 | `charge` | 转出资产：`amount + charge`；转入资产：`amount` |
+| 类型 | `amount`     | `final_amount`                                                                             | 资产影响金额                                    |
+| ---- | ------------ | ------------------------------------------------------------------------------------------ | ----------------------------------------------- |
+| 支出 | 原始支出金额 | 普通支出为 `amount + charge`；被退款/报销吸收后为 `max(0, amount + charge - 累计吸收金额)` | `amount + charge`                               |
+| 收入 | 原始收入金额 | 普通收入为 `amount - charge`；退款/报销为 `max(0, amount - charge - 实际吸收金额)`         | `amount - charge`                               |
+| 转账 | 转账本金     | `charge`                                                                                   | 转出资产：`amount + charge`；转入资产：`amount` |
 
 ### 特殊行为分类
 
@@ -41,32 +41,32 @@ special_behavior TEXT NOT NULL DEFAULT ''
 
 应用层常量新增 `RECORD_TYPE_SPECIAL_BEHAVIOR` 枚举：
 
-| 枚举值 | 标签 | 业务含义 |
-| --- | --- | --- |
-| `refund_absorption` | 退款吸收 | 退款收入必须关联普通支出，并按吸收规则抵扣支出统计 |
-| `reimbursement_absorption` | 报销吸收 | 报销收入必须关联可报销支出，并按吸收规则抵扣支出统计 |
-| `credit_card_payment` | 还信用卡 | 转入资产必须是信用卡/信用付资产，并减少信用卡/信用付待还 |
-| `debt_borrow` | 债务借入 | 资金账户增加，借入债务余额增加 |
-| `debt_lend` | 债权借出 | 资金账户减少，借出债权余额增加 |
-| `debt_repayment` | 债务还款 | 资金账户减少，借入债务余额减少 |
-| `debt_proceeds` | 债权收款 | 资金账户增加，借出债权余额减少 |
+| 枚举值                     | 标签     | 业务含义                                                 |
+| -------------------------- | -------- | -------------------------------------------------------- |
+| `refund_absorption`        | 退款吸收 | 退款收入必须关联普通支出，并按吸收规则抵扣支出统计       |
+| `reimbursement_absorption` | 报销吸收 | 报销收入必须关联可报销支出，并按吸收规则抵扣支出统计     |
+| `credit_card_payment`      | 还信用卡 | 转入资产必须是信用卡/信用付资产，并减少信用卡/信用付待还 |
+| `debt_borrow`              | 债务借入 | 资金账户增加，借入债务余额增加                           |
+| `debt_lend`                | 债权借出 | 资金账户减少，借出债权余额增加                           |
+| `debt_repayment`           | 债务还款 | 资金账户减少，借入债务余额减少                           |
+| `debt_proceeds`            | 债权收款 | 资金账户增加，借出债权余额减少                           |
 
 分类枚举映射：
 
-| 记录大类 | 分类 | `type_category` | `special_behavior` |
-| --- | --- | --- | --- |
-| 支出 | 所有普通支出分类 | `expense` |  |
-| 收入 | 所有普通收入分类 | `income` |  |
-| 收入 | 退款 | `income` | `refund_absorption` |
-| 收入 | 报销 | `income` | `reimbursement_absorption` |
-| 转账 | 账户互转 | `transfer` |  |
-| 转账 | 取款 | `transfer` |  |
-| 转账 | 存款 | `transfer` |  |
-| 转账 | 还信用卡 | `transfer` | `credit_card_payment` |
-| 转账 | 借入 | `transfer` | `debt_borrow` |
-| 转账 | 借出 | `transfer` | `debt_lend` |
-| 转账 | 还款 | `transfer` | `debt_repayment` |
-| 转账 | 收款 | `transfer` | `debt_proceeds` |
+| 记录大类 | 分类             | `type_category` | `special_behavior`         |
+| -------- | ---------------- | --------------- | -------------------------- |
+| 支出     | 所有普通支出分类 | `expense`       |                            |
+| 收入     | 所有普通收入分类 | `income`        |                            |
+| 收入     | 退款             | `income`        | `refund_absorption`        |
+| 收入     | 报销             | `income`        | `reimbursement_absorption` |
+| 转账     | 账户互转         | `transfer`      |                            |
+| 转账     | 取款             | `transfer`      |                            |
+| 转账     | 存款             | `transfer`      |                            |
+| 转账     | 还信用卡         | `transfer`      | `credit_card_payment`      |
+| 转账     | 借入             | `transfer`      | `debt_borrow`              |
+| 转账     | 借出             | `transfer`      | `debt_lend`                |
+| 转账     | 还款             | `transfer`      | `debt_repayment`           |
+| 转账     | 收款             | `transfer`      | `debt_proceeds`            |
 
 业务实现不得依赖分类名称、图标 key 或展示枚举判断特殊逻辑，只能依赖 `special_behavior`。
 
@@ -77,12 +77,12 @@ special_behavior TEXT NOT NULL DEFAULT ''
 - 资金类资产（资金账户、储值卡、投资理财、借出债权）：余额为实际持有/应收金额，增加表示资产变多，减少表示资产变少。
 - 负债类资产（信用卡/信用付、借入债务）：余额为待还/欠款金额，增加表示欠款变多，减少表示欠款变少。
 
-| 业务动作 | 资金类资产 | 负债类资产 |
-| --- | --- | --- |
-| 支出 | `balance -= amount + charge` | `balance += amount + charge` |
-| 收入 | `balance += amount - charge` | `balance -= amount - charge` |
-| 转出 | `balance -= amount + charge` | `balance += amount + charge` |
-| 转入 | `balance += amount` | `balance -= amount` |
+| 业务动作 | 资金类资产                   | 负债类资产                   |
+| -------- | ---------------------------- | ---------------------------- |
+| 支出     | `balance -= amount + charge` | `balance += amount + charge` |
+| 收入     | `balance += amount - charge` | `balance -= amount - charge` |
+| 转出     | `balance -= amount + charge` | `balance += amount + charge` |
+| 转入     | `balance += amount`          | `balance -= amount`          |
 
 > 退款、报销属于收入记录，但资产到账金额按 `amount - charge` 处理；关联支出的吸收只影响统计金额 `final_amount`，不额外改变资产余额。
 
@@ -90,12 +90,12 @@ special_behavior TEXT NOT NULL DEFAULT ''
 
 账本资产汇总以 `tb_asset.books_id` 为维度计算，只汇总当前账本下的资产余额。`tb_record.books_id` 用于记录归属校验，不直接参与资产余额汇总。
 
-| 指标 | 计算规则 |
-| --- | --- |
+| 指标     | 计算规则                                 |
+| -------- | ---------------------------------------- |
 | 可用资金 | 资金账户余额 + 储值卡余额 + 投资理财余额 |
-| 应还债务 | 借入债务余额 + 信用卡/信用付待还余额 |
-| 应收债权 | 借出债权余额 |
-| 净资产 | 可用资金 + 应收债权 - 应还债务 |
+| 应还债务 | 借入债务余额 + 信用卡/信用付待还余额     |
+| 应收债权 | 借出债权余额                             |
+| 净资产   | 可用资金 + 应收债权 - 应还债务           |
 
 资产分类口径：
 
@@ -108,13 +108,13 @@ special_behavior TEXT NOT NULL DEFAULT ''
 
 示例：
 
-| 资产 | 余额 | 汇总归属 |
-| --- | ---: | --- |
-| 银行卡 | 1000 | 可用资金 +1000 |
-| 储值卡 | 200 | 可用资金 +200 |
-| 信用卡 | 300 | 应还债务 +300 |
-| 借入债务 | 500 | 应还债务 +500 |
-| 借出债权 | 400 | 应收债权 +400 |
+| 资产     | 余额 | 汇总归属       |
+| -------- | ---: | -------------- |
+| 银行卡   | 1000 | 可用资金 +1000 |
+| 储值卡   |  200 | 可用资金 +200  |
+| 信用卡   |  300 | 应还债务 +300  |
+| 借入债务 |  500 | 应还债务 +500  |
+| 借出债权 |  400 | 应收债权 +400  |
 
 则：
 
@@ -178,12 +178,12 @@ special_behavior TEXT NOT NULL DEFAULT ''
 
 示例：
 
-| 场景 | 支出 `amount` | 支出 `final_amount` | 退款 `amount` | 退款 `final_amount` |
-| --- | ---: | ---: | ---: | ---: |
-| 支出 100，退款 100 | 100 | 0 | 100 | 0 |
-| 支出 100，退款 30 | 100 | 70 | 30 | 0 |
-| 支出 100，退款 120 | 100 | 0 | 120 | 20 |
-| 支出 100，退款 60 后再退款 50 | 100 | 0 | 第一笔 60→吸收 60，final 0；第二笔 50→吸收 40，final 10 | — |
+| 场景                          | 支出 `amount` | 支出 `final_amount` |                                           退款 `amount` | 退款 `final_amount` |
+| ----------------------------- | ------------: | ------------------: | ------------------------------------------------------: | ------------------: |
+| 支出 100，退款 100            |           100 |                   0 |                                                     100 |                   0 |
+| 支出 100，退款 30             |           100 |                  70 |                                                      30 |                   0 |
+| 支出 100，退款 120            |           100 |                   0 |                                                     120 |                  20 |
+| 支出 100，退款 60 后再退款 50 |           100 |                   0 | 第一笔 60→吸收 60，final 0；第二笔 50→吸收 40，final 10 |                   — |
 
 ### 新增
 

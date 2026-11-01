@@ -47,9 +47,7 @@ function isWrappedPreviewItem(
 export function normalizePreviewItems(
   items: readonly ImagePreviewGroupItemInput[],
 ): ImageSourcePropType[] {
-  return items.map(item =>
-    isWrappedPreviewItem(item) ? item.src : item,
-  );
+  return items.map(item => (isWrappedPreviewItem(item) ? item.src : item));
 }
 
 export function getSourceKey(src: ImageSourcePropType): string {
@@ -59,7 +57,7 @@ export function getSourceKey(src: ImageSourcePropType): string {
 
   if (Array.isArray(src)) {
     return `array:${src
-      .map(item => (typeof item === 'number' ? item : item.uri ?? ''))
+      .map(item => (typeof item === 'number' ? item : (item.uri ?? '')))
       .join('|')}`;
   }
 

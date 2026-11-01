@@ -48,46 +48,44 @@ export function getSizeConfig(size: ComponentSize) {
   return SIZE_STYLE_MAP[size];
 }
 
-export const useStyles = createUseSheetStyle(
-  (token, size: ComponentSize) => {
-    const config = SIZE_STYLE_MAP[size];
+export const useStyles = createUseSheetStyle((token, size: ComponentSize) => {
+  const config = SIZE_STYLE_MAP[size];
 
-    return {
-      container: {
-        alignItems: 'center',
-        backgroundColor: token.colorFillTertiary,
-        borderRadius: PILL_RADIUS,
-        flexDirection: 'row',
-        height: config.height(token),
-        paddingHorizontal: config.paddingHorizontal,
-      },
-      containerDisabled: {
-        backgroundColor: token.colorFillQuaternary,
-      },
-      button: {
-        alignItems: 'center',
-        borderRadius: PILL_RADIUS,
-        height: config.buttonSize,
-        justifyContent: 'center',
-        width: config.buttonSize,
-      },
-      buttonPressed: {
-        backgroundColor: token.colorFillSecondary,
-      },
-      input: {
-        alignItems: 'center',
-        flexDirection: 'row',
-        justifyContent: 'center',
-        minWidth: config.inputMinWidth,
-        paddingHorizontal: token.sizeXXS,
-      },
-      inputText: {
-        fontFamily: token.fontFamily,
-        fontVariant: ['tabular-nums'],
-      },
-      unit: {
-        marginLeft: token.sizeXXS,
-      },
-    };
-  },
-);
+  return {
+    container: {
+      alignItems: 'center',
+      backgroundColor: token.colorFillTertiary,
+      borderRadius: PILL_RADIUS,
+      flexDirection: 'row',
+      height: config.height(token),
+      paddingHorizontal: config.paddingHorizontal,
+    },
+    containerDisabled: {
+      backgroundColor: token.colorFillQuaternary,
+    },
+    button: {
+      alignItems: 'center',
+      borderRadius: PILL_RADIUS,
+      height: config.buttonSize,
+      justifyContent: 'center',
+      width: config.buttonSize,
+    },
+    buttonPressed: {
+      backgroundColor: token.colorFillSecondary,
+    },
+    input: {
+      alignItems: 'center',
+      flexDirection: 'row',
+      justifyContent: 'center',
+      minWidth: config.inputMinWidth,
+      paddingHorizontal: token.sizeXXS,
+    },
+    inputText: {
+      fontFamily: token.fontFamily,
+      fontVariant: ['tabular-nums'],
+    },
+    unit: {
+      marginLeft: token.sizeXXS,
+    },
+  };
+});

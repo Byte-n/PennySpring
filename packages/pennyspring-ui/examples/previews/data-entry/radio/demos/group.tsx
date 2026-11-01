@@ -25,7 +25,8 @@ export function RadioGroupDemo() {
   return (
     <Column gap="normal">
       <Text color="tertiary" size="sm">
-        组内互斥，已选项再点不取消；option 标签优先级 label &gt; labelText &gt; value
+        组内互斥，已选项再点不取消；option 标签优先级 label &gt; labelText &gt;
+        value
       </Text>
       <Text color="tertiary" size="sm">
         纵向（每项行高 44 + 组间距，一屏不超过 4 项，超过改用 Picker）
@@ -40,13 +41,27 @@ export function RadioGroupDemo() {
         横向（gap 8 自动换行，超过 3 项改纵向）
       </Text>
       <Radio.Group size="small" options={TYPE_OPTIONS} defaultValue="expense" />
-      <Text color="tertiary" size="sm">block（整组铺满宽度）</Text>
-      <Radio.Group block direction="vertical" options={STAT_OPTIONS} defaultValue="tag" />
+      <Text color="tertiary" size="sm">
+        block（整组铺满宽度）
+      </Text>
+      <Radio.Group
+        block
+        direction="vertical"
+        options={STAT_OPTIONS}
+        defaultValue="tag"
+      />
       <Text color="tertiary" size="sm">
         组级禁用逐项降级，不给整组 opacity
       </Text>
-      <Radio.Group disabled direction="vertical" options={LOCKED_OPTIONS} defaultValue="locked" />
-      <Text color="tertiary" size="sm">当前统计方式：{String(stat)}</Text>
+      <Radio.Group
+        disabled
+        direction="vertical"
+        options={LOCKED_OPTIONS}
+        defaultValue="locked"
+      />
+      <Text color="tertiary" size="sm">
+        当前统计方式：{String(stat)}
+      </Text>
     </Column>
   );
 }

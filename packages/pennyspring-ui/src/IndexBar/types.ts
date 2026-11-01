@@ -33,8 +33,10 @@ export interface IndexBarStyles {
   indexTextDisabled?: StyleProp<TextStyle>;
 }
 
-export interface IndexBarProps
-  extends Omit<PressableProps, 'style' | 'children' | 'disabled' | 'onPress'> {
+export interface IndexBarProps extends Omit<
+  PressableProps,
+  'style' | 'children' | 'disabled' | 'onPress'
+> {
   data: readonly IndexBarItem[];
   renderItem?: (item: IndexBarItem, index: number) => ReactNode;
   value?: IndexBarValue;

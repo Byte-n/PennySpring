@@ -14,5 +14,12 @@
     }
   },
   "include": ["**/*.ts", "**/*.tsx", "**/*.d.ts"],
-  "exclude": ["**/node_modules", "**/Pods", "packages/adb-tui", "packages/data-server", "packages/data-server-wrapper", "packages/api"]
+  "exclude": [
+    "**/node_modules",
+    "**/Pods",
+    "packages/adb-tui",
+    "packages/data-server",
+    "packages/data-server-wrapper",
+    "packages/api"
+  ]
 }

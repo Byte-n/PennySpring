@@ -9,11 +9,7 @@ import { renderTextNode } from '../shares/node';
 import type { ReactNode } from 'react';
 import type { TextColor, TextSize } from '../Text/types';
 import type { StyleProp, TextStyle } from 'react-native';
-import type {
-  StepsItem,
-  StepsProps,
-  StepsStatus,
-} from './types';
+import type { StepsItem, StepsProps, StepsStatus } from './types';
 import { SIZE_STYLE_MAP, useStyles } from './style';
 
 function renderContent(
@@ -24,7 +20,7 @@ function renderContent(
   weight: 'semibold' | 'regular',
   style?: StyleProp<TextStyle>,
 ) {
-  return renderTextNode(node === undefined ? text : node, (value) => (
+  return renderTextNode(node === undefined ? text : node, value => (
     <Text size={size} weight={weight} color={color} style={style}>
       {value}
     </Text>
@@ -86,7 +82,12 @@ export function Steps({
         const isBlocked = disabled || readonly || item.disabled === true;
         const isDimmed = disabled || item.disabled === true;
         const isSelected = index === safeSelectedIndex;
-        const itemStatus = resolveItemStatus(item, index, safeSelectedIndex, status);
+        const itemStatus = resolveItemStatus(
+          item,
+          index,
+          safeSelectedIndex,
+          status,
+        );
         const isLast = index === normalizedItems.length - 1;
         const isMarked = itemStatus === 'finish' || itemStatus === 'error';
         const indicatorStatusStyle =
@@ -128,17 +129,26 @@ export function Steps({
             ]}
           >
             <Row align="stretch" gap="large">
-              <Column align="center" style={[tokenStyles.stepHeader, styles?.stepHeader]}>
+              <Column
+                align="center"
+                style={[tokenStyles.stepHeader, styles?.stepHeader]}
+              >
                 <Column
                   style={[
                     tokenStyles.indicatorRing,
-                    itemStatus === 'process' ? tokenStyles.indicatorRingProcess : null,
+                    itemStatus === 'process'
+                      ? tokenStyles.indicatorRingProcess
+                      : null,
                   ]}
                 >
                   <Row
                     align="center"
                     justify="center"
-                    style={[tokenStyles.indicator, indicatorStatusStyle, styles?.indicator]}
+                    style={[
+                      tokenStyles.indicator,
+                      indicatorStatusStyle,
+                      styles?.indicator,
+                    ]}
                   >
                     {isMarked ? (
                       <Icon
@@ -150,7 +160,9 @@ export function Steps({
                       <Text
                         size={sizeConfig.indicatorTextSize}
                         weight="semibold"
-                        color={itemStatus === 'wait' ? 'secondary' : 'lightSolid'}
+                        color={
+                          itemStatus === 'wait' ? 'secondary' : 'lightSolid'
+                        }
                         style={styles?.indicatorText}
                       >
                         {String(index + 1)}
@@ -162,14 +174,20 @@ export function Steps({
                   <Column
                     style={[
                       tokenStyles.connector,
-                      itemStatus === 'finish' ? tokenStyles.connectorFinish : null,
+                      itemStatus === 'finish'
+                        ? tokenStyles.connectorFinish
+                        : null,
                       styles?.connector,
                     ]}
                   />
                 )}
               </Column>
               <Column
-                style={[tokenStyles.content, isLast ? tokenStyles.contentLast : null, styles?.content]}
+                style={[
+                  tokenStyles.content,
+                  isLast ? tokenStyles.contentLast : null,
+                  styles?.content,
+                ]}
                 testID="steps-content"
               >
                 {renderContent(

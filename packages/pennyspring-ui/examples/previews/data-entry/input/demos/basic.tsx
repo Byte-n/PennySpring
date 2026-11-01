@@ -25,9 +25,7 @@ export function InputBasicDemo() {
           allowClear
           defaultValue="Search text"
           labelText="With addons"
-          prefix={
-            <Icon icon="search" color="icon" size="large" />
-          }
+          prefix={<Icon icon="search" color="icon" size="large" />}
           suffix={<Text color="description">USD</Text>}
         />
       </View>

@@ -5,9 +5,14 @@ import { defaultSeedToken as baseSeedToken } from '../src/defaults';
 import { derivative as deriveTokens } from '../src/algorithms/derivative';
 import { formatToken as formatTokens } from '../src/algorithms/formatToken';
 
-
 // 测试用的 Hook 包装组件
-function TestHook<T>({ hook, onResult }: { hook: () => T; onResult: (r: T) => void }) {
+function TestHook<T>({
+  hook,
+  onResult,
+}: {
+  hook: () => T;
+  onResult: (r: T) => void;
+}) {
   const result = hook();
   onResult(result);
   return null;
@@ -22,7 +27,12 @@ describe('ThemeProvider', () => {
         renderer.create(
           <ThemeProvider config={{ token: { colorPrimary: '#ff0000' } }}>
             <ThemeProvider config={{ token: { paddingSM: 99 } }}>
-              <TestHook hook={useTheme} onResult={result => { hookResult = result; }} />
+              <TestHook
+                hook={useTheme}
+                onResult={result => {
+                  hookResult = result;
+                }}
+              />
             </ThemeProvider>
           </ThemeProvider>,
         );
@@ -30,7 +40,9 @@ describe('ThemeProvider', () => {
 
       expect(hookResult.token.colorPrimary).toBe('#ff0000');
       expect(hookResult.token.colorPrimaryBg).toBe(
-        formatTokens(deriveTokens({ ...baseSeedToken, colorPrimary: '#ff0000' }, false)).colorPrimaryBg,
+        formatTokens(
+          deriveTokens({ ...baseSeedToken, colorPrimary: '#ff0000' }, false),
+        ).colorPrimaryBg,
       );
       expect(hookResult.token.paddingSM).toBe(99);
     });
@@ -42,7 +54,12 @@ describe('ThemeProvider', () => {
         renderer.create(
           <ThemeProvider config={{ token: { colorPrimary: '#ff0000' } }}>
             <ThemeProvider config={{ token: { colorPrimary: '#0000ff' } }}>
-              <TestHook hook={useTheme} onResult={result => { hookResult = result; }} />
+              <TestHook
+                hook={useTheme}
+                onResult={result => {
+                  hookResult = result;
+                }}
+              />
             </ThemeProvider>
           </ThemeProvider>,
         );
@@ -50,20 +67,27 @@ describe('ThemeProvider', () => {
 
       expect(hookResult.token.colorPrimary).toBe('#0000ff');
       expect(hookResult.token.colorPrimaryBg).toBe(
-        formatTokens(deriveTokens({ ...baseSeedToken, colorPrimary: '#0000ff' }, false)).colorPrimaryBg,
+        formatTokens(
+          deriveTokens({ ...baseSeedToken, colorPrimary: '#0000ff' }, false),
+        ).colorPrimaryBg,
       );
     });
   });
 
-      describe('algorithm configuration', () => {
+  describe('algorithm configuration', () => {
     it('algorithm accepts string form', () => {
       let hookResult: any;
 
       act(() => {
         renderer.create(
           <ThemeProvider config={{ algorithm: 'dark' }}>
-            <TestHook hook={useTheme} onResult={(r) => { hookResult = r; }} />
-          </ThemeProvider>
+            <TestHook
+              hook={useTheme}
+              onResult={r => {
+                hookResult = r;
+              }}
+            />
+          </ThemeProvider>,
         );
       });
 
@@ -77,20 +101,32 @@ describe('ThemeProvider', () => {
       act(() => {
         renderer.create(
           <ThemeProvider config={{ algorithm: 'dark' }}>
-            <TestHook hook={useTheme} onResult={(r) => { stringResult = r; }} />
-          </ThemeProvider>
+            <TestHook
+              hook={useTheme}
+              onResult={r => {
+                stringResult = r;
+              }}
+            />
+          </ThemeProvider>,
         );
       });
 
       act(() => {
         renderer.create(
           <ThemeProvider config={{ algorithm: ['dark'] }}>
-            <TestHook hook={useTheme} onResult={(r) => { arrayResult = r; }} />
-          </ThemeProvider>
+            <TestHook
+              hook={useTheme}
+              onResult={r => {
+                arrayResult = r;
+              }}
+            />
+          </ThemeProvider>,
         );
       });
 
-      expect(stringResult.token.colorBgBase).toBe(arrayResult.token.colorBgBase);
+      expect(stringResult.token.colorBgBase).toBe(
+        arrayResult.token.colorBgBase,
+      );
     });
 
     it('ignores compact algorithm (mobile does not support)', () => {
@@ -100,18 +136,24 @@ describe('ThemeProvider', () => {
       act(() => {
         renderer.create(
           <ThemeProvider config={{ algorithm: 'compact' as any }}>
-            <TestHook hook={useTheme} onResult={(r) => { hookResult = r; }} />
-          </ThemeProvider>
+            <TestHook
+              hook={useTheme}
+              onResult={r => {
+                hookResult = r;
+              }}
+            />
+          </ThemeProvider>,
         );
       });
 
       // controlHeight 应该是默认 44，而不是 compact 的更小值
-      expect(hookResult.token.controlHeight || defaultSeedToken.controlHeight).toBeGreaterThanOrEqual(44);
+      expect(
+        hookResult.token.controlHeight || defaultSeedToken.controlHeight,
+      ).toBeGreaterThanOrEqual(44);
     });
   });
 
-  describe('token memoization', () => {
-      });
+  describe('token memoization', () => {});
 
   describe('token overrides', () => {
     it('overrides seed token via config.token', () => {
@@ -120,8 +162,13 @@ describe('ThemeProvider', () => {
       act(() => {
         renderer.create(
           <ThemeProvider config={{ token: { colorPrimary: '#ff0000' } }}>
-            <TestHook hook={useTheme} onResult={(r) => { hookResult = r; }} />
-          </ThemeProvider>
+            <TestHook
+              hook={useTheme}
+              onResult={r => {
+                hookResult = r;
+              }}
+            />
+          </ThemeProvider>,
         );
       });
 
@@ -135,8 +182,13 @@ describe('ThemeProvider', () => {
       act(() => {
         renderer.create(
           <ThemeProvider config={{ token: { colorPrimary: '#ff0000' } }}>
-            <TestHook hook={useTheme} onResult={(r) => { hookResult = r; }} />
-          </ThemeProvider>
+            <TestHook
+              hook={useTheme}
+              onResult={r => {
+                hookResult = r;
+              }}
+            />
+          </ThemeProvider>,
         );
       });
 
@@ -151,8 +203,13 @@ describe('ThemeProvider', () => {
       act(() => {
         renderer.create(
           <ThemeProvider config={{ token: { colorSplit: customColorSplit } }}>
-            <TestHook hook={useTheme} onResult={(r) => { hookResult = r; }} />
-          </ThemeProvider>
+            <TestHook
+              hook={useTheme}
+              onResult={r => {
+                hookResult = r;
+              }}
+            />
+          </ThemeProvider>,
         );
       });
 
@@ -208,5 +265,4 @@ describe('derivative and formatToken integration', () => {
   });
 });
 
-describe('useTheme basic', () => {
-    });
+describe('useTheme basic', () => {});

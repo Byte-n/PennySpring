@@ -189,9 +189,14 @@ describe('TabBar', () => {
     });
     const badges = testRenderer.root
       .findAllByType(Text)
-      .filter(node => node.props.children === '9' || node.props.children === '99+');
+      .filter(
+        node => node.props.children === '9' || node.props.children === '99+',
+      );
 
-    expect(badges.map(node => node.props.children).sort()).toEqual(['9', '99+']);
+    expect(badges.map(node => node.props.children).sort()).toEqual([
+      '9',
+      '99+',
+    ]);
   });
 
   it('renders a custom badge node as a dot', () => {
@@ -223,7 +228,9 @@ describe('TabBar', () => {
 
     it('falls back to titleText when title is undefined', () => {
       const content = JSON.stringify(
-        renderTabBar({ items: [{ value: 'a', titleText: 'FallbackTitle' }] }).toJSON(),
+        renderTabBar({
+          items: [{ value: 'a', titleText: 'FallbackTitle' }],
+        }).toJSON(),
       );
 
       expect(content).toContain('FallbackTitle');
@@ -232,7 +239,14 @@ describe('TabBar', () => {
     it('does not render badge when badge is explicitly null', () => {
       const content = JSON.stringify(
         renderTabBar({
-          items: [{ badge: null, badgeText: 'ShouldNotRender', value: 'a', titleText: 'Tab' }],
+          items: [
+            {
+              badge: null,
+              badgeText: 'ShouldNotRender',
+              value: 'a',
+              titleText: 'Tab',
+            },
+          ],
         }).toJSON(),
       );
 
@@ -241,7 +255,9 @@ describe('TabBar', () => {
 
     it('falls back to badgeText when badge is undefined', () => {
       const content = JSON.stringify(
-        renderTabBar({ items: [{ badgeText: '5', value: 'a', titleText: 'Tab' }] }).toJSON(),
+        renderTabBar({
+          items: [{ badgeText: '5', value: 'a', titleText: 'Tab' }],
+        }).toJSON(),
       );
 
       expect(content).toContain('5');

@@ -34,7 +34,8 @@ function pressControl(
   testID: string,
 ) {
   const [control] = testRenderer.root.findAll(
-    node => typeof node.props.onPress === 'function' && node.props.testID === testID,
+    node =>
+      typeof node.props.onPress === 'function' && node.props.testID === testID,
   );
   act(() => {
     control.props.onPress();
@@ -112,8 +113,14 @@ describe('Checkbox', () => {
   });
 
   it('renders an inner tick instead of a box indicator for the button display type', () => {
-    const unselectedRenderer = renderCheckbox({ defaultValue: false, displayType: 'button' });
-    const selectedRenderer = renderCheckbox({ defaultValue: true, displayType: 'button' });
+    const unselectedRenderer = renderCheckbox({
+      defaultValue: false,
+      displayType: 'button',
+    });
+    const selectedRenderer = renderCheckbox({
+      defaultValue: true,
+      displayType: 'button',
+    });
 
     expect(hasTestID(unselectedRenderer, 'checkbox-indicator')).toBe(false);
     expect(hasTestID(unselectedRenderer, 'checkbox-mark-check')).toBe(false);
@@ -122,9 +129,19 @@ describe('Checkbox', () => {
   });
 
   it('maps chip foreground color and weight to the selection state', () => {
-    const selectedLabel = renderCheckbox({ defaultValue: true, displayType: 'button' });
-    const unselectedLabel = renderCheckbox({ defaultValue: false, displayType: 'button' });
-    const disabledLabel = renderCheckbox({ defaultValue: true, disabled: true, displayType: 'button' });
+    const selectedLabel = renderCheckbox({
+      defaultValue: true,
+      displayType: 'button',
+    });
+    const unselectedLabel = renderCheckbox({
+      defaultValue: false,
+      displayType: 'button',
+    });
+    const disabledLabel = renderCheckbox({
+      defaultValue: true,
+      disabled: true,
+      displayType: 'button',
+    });
 
     const readLabel = (target: renderer.ReactTestRenderer) =>
       target.root.findByProps({ testID: 'checkbox-label' });
@@ -147,7 +164,8 @@ describe('Checkbox', () => {
     const readonlyRow = renderCheckbox({ readonly: true, defaultValue: true });
 
     const readTextProps = (target: renderer.ReactTestRenderer) =>
-      target.root.findByProps({ testID: 'checkbox-label' }).findByType(Text).props;
+      target.root.findByProps({ testID: 'checkbox-label' }).findByType(Text)
+        .props;
 
     expect(readTextProps(disabledRow)).toMatchObject({ color: 'tertiary' });
     expect(readTextProps(readonlyRow)).toMatchObject({ color: 'secondary' });
@@ -158,7 +176,11 @@ describe('Checkbox.Group', () => {
   it('prefers option label over labelText and value', () => {
     const testRenderer = renderCheckboxGroup({
       options: [
-        { value: 'label-first', label: '标签优先', labelText: 'labelText 落后' },
+        {
+          value: 'label-first',
+          label: '标签优先',
+          labelText: 'labelText 落后',
+        },
         { value: 'text-second', labelText: 'labelText 胜出' },
         { value: 'value-last' },
       ],
@@ -195,8 +217,12 @@ describe('Checkbox.Group', () => {
     pressControl(testRenderer, 'checkbox-group-option-rent');
 
     expect(onChange).toHaveBeenCalledWith(['food', 'rent']);
-    expect(hasTestID(testRenderer, 'checkbox-group-option-food-mark-check')).toBe(true);
-    expect(hasTestID(testRenderer, 'checkbox-group-option-rent-mark-check')).toBe(false);
+    expect(
+      hasTestID(testRenderer, 'checkbox-group-option-food-mark-check'),
+    ).toBe(true);
+    expect(
+      hasTestID(testRenderer, 'checkbox-group-option-rent-mark-check'),
+    ).toBe(false);
   });
 
   it('does not change when the group or an option is disabled or readonly', () => {
@@ -228,8 +254,14 @@ describe('Checkbox.Group', () => {
       displayType: 'button',
     });
 
-    expect(hasTestID(testRenderer, 'checkbox-group-option-food-indicator')).toBe(false);
-    expect(hasTestID(testRenderer, 'checkbox-group-option-food-mark-check')).toBe(true);
-    expect(hasTestID(testRenderer, 'checkbox-group-option-rent-mark-check')).toBe(false);
+    expect(
+      hasTestID(testRenderer, 'checkbox-group-option-food-indicator'),
+    ).toBe(false);
+    expect(
+      hasTestID(testRenderer, 'checkbox-group-option-food-mark-check'),
+    ).toBe(true);
+    expect(
+      hasTestID(testRenderer, 'checkbox-group-option-rent-mark-check'),
+    ).toBe(false);
   });
 });

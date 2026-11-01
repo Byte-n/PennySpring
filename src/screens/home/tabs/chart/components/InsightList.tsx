@@ -57,7 +57,7 @@ function InsightRow({ insight, month }: InsightRowProps) {
         : 'primary';
 
   return (
-    <Row align="start" gap="small" >
+    <Row align="start" gap="small">
       <Column style={chipStyles.chip} align="center" justify="center">
         <Text size="xs" weight="strong" color={chipColor}>
           {CHIP_GLYPHS[insight.kind]}
@@ -124,10 +124,7 @@ export function InsightList({ insights, period }: InsightListProps) {
       scrollEnabled={false}
       contentContainerStyle={styles.list}
       renderItem={({ item: insight }) => (
-        <InsightRow
-          insight={insight}
-          month={month}
-        />
+        <InsightRow insight={insight} month={month} />
       )}
     />
   );

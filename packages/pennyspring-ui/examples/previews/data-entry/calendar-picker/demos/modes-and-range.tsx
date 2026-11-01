@@ -16,10 +16,7 @@ const useStyles = createUseSheetStyle(token => ({
 }));
 
 const INPUT_MONTH = new Date(2026, 4, 9);
-const INPUT_RANGE: [Date, Date] = [
-  new Date(2026, 4, 3),
-  new Date(2026, 4, 12),
-];
+const INPUT_RANGE: [Date, Date] = [new Date(2026, 4, 3), new Date(2026, 4, 12)];
 
 export function CalendarPickerModesAndRangeDemo() {
   const styles = useStyles();

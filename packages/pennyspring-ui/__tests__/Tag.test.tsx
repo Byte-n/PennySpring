@@ -8,14 +8,21 @@ import { Text } from '../src/Text';
 function renderTag(props: Partial<React.ComponentProps<typeof Tag>> = {}) {
   let testRenderer: renderer.ReactTestRenderer;
   act(() => {
-    testRenderer = renderer.create(<><Tag {...props} /></>);
+    testRenderer = renderer.create(
+      <>
+        <Tag {...props} />
+      </>,
+    );
   });
   return testRenderer!;
 }
 
 function getPressableRoot(testRenderer: renderer.ReactTestRenderer) {
   return testRenderer.root.find(node => {
-    return typeof node.props.onPress === 'function' && typeof node.props.style === 'function';
+    return (
+      typeof node.props.onPress === 'function' &&
+      typeof node.props.style === 'function'
+    );
   });
 }
 
@@ -25,7 +32,7 @@ describe('Tag', () => {
       const onPress = jest.fn();
       const testRenderer = renderTag({
         onPress,
-        children: 'Open'
+        children: 'Open',
       });
       const root = getPressableRoot(testRenderer);
       act(() => {
@@ -39,7 +46,7 @@ describe('Tag', () => {
       const testRenderer = renderTag({
         disabled: true,
         onPress,
-        children: 'Disabled'
+        children: 'Disabled',
       });
       const root = getPressableRoot(testRenderer);
       act(() => {
@@ -50,7 +57,7 @@ describe('Tag', () => {
 
     it('uses Row root when onPress is absent', () => {
       const testRenderer = renderTag({
-        children: 'Static'
+        children: 'Static',
       });
       expect(testRenderer.root.findAllByType(Pressable)).toHaveLength(0);
       expect(testRenderer.root.findAllByType(Row).length).toBeGreaterThan(0);
@@ -59,7 +66,7 @@ describe('Tag', () => {
     it('forwards testID to the Row root when onPress is absent', () => {
       const testRenderer = renderTag({
         testID: 'static-tag',
-        children: 'Static'
+        children: 'Static',
       });
       const rows = testRenderer.root.findAllByType(Row);
       expect(rows.length).toBeGreaterThan(0);
@@ -71,7 +78,7 @@ describe('Tag', () => {
     it('renders string content with Text size and weight props', () => {
       const testRenderer = renderTag({
         size: 'large',
-        children: 'Label'
+        children: 'Label',
       });
       const textNodes = testRenderer.root.findAllByType(Text);
       expect(textNodes.length).toBeGreaterThan(0);
@@ -83,7 +90,7 @@ describe('Tag', () => {
     it('renders small size string content with sm Text size', () => {
       const testRenderer = renderTag({
         size: 'small',
-        children: 'Small'
+        children: 'Small',
       });
       const textNodes = testRenderer.root.findAllByType(Text);
       expect(textNodes[0].props.size).toBe('sm');
@@ -92,16 +99,18 @@ describe('Tag', () => {
     it('does not wrap non-string children in Text', () => {
       const CustomNode = () => <View testID="custom" />;
       const testRenderer = renderTag({
-        children: <CustomNode />
+        children: <CustomNode />,
       });
       expect(testRenderer.root.findAllByType(Text)).toHaveLength(0);
-      expect(testRenderer.root.findAllByType(CustomNode).length).toBeGreaterThan(0);
+      expect(
+        testRenderer.root.findAllByType(CustomNode).length,
+      ).toBeGreaterThan(0);
     });
 
     it('renders prefix before the content text', () => {
       const testRenderer = renderTag({
         children: 'Label',
-        prefix: <View testID="tag-prefix" />
+        prefix: <View testID="tag-prefix" />,
       });
       const tree = JSON.stringify(testRenderer.toJSON());
       expect(tree).toContain('tag-prefix');
@@ -115,12 +124,12 @@ describe('Tag', () => {
       const testRenderer = renderTag({
         onPress: jest.fn(),
         styles: { root: rootOverride },
-        children: 'Tag'
+        children: 'Tag',
       });
       const pressable = getPressableRoot(testRenderer);
       const styleArray = pressable.props.style({ pressed: false });
       expect(styleArray).toEqual(
-        expect.arrayContaining([expect.objectContaining(rootOverride)])
+        expect.arrayContaining([expect.objectContaining(rootOverride)]),
       );
     });
 
@@ -128,13 +137,13 @@ describe('Tag', () => {
       const rootOverride = { opacity: 0.5 };
       const testRenderer = renderTag({
         styles: { root: rootOverride },
-        children: 'Tag'
+        children: 'Tag',
       });
       const rows = testRenderer.root.findAllByType(Row);
       expect(rows.length).toBeGreaterThan(0);
       const rowStyle = rows[0].props.style;
       expect(rowStyle).toEqual(
-        expect.arrayContaining([expect.objectContaining(rootOverride)])
+        expect.arrayContaining([expect.objectContaining(rootOverride)]),
       );
     });
   });

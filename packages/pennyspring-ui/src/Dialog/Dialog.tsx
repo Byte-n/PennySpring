@@ -17,40 +17,38 @@ const DEFAULT_CANCEL_TEXT = '取消';
 const DEFAULT_OK_TEXT = '确定';
 const DIALOG_MAX_WIDTH = 300;
 
-const useStyles = createUseSheetStyle(
-  token => {
-    return {
-      popupBody: {
-        maxWidth: DIALOG_MAX_WIDTH,
-        padding: 0,
-        width: '85%',
-      },
-      panel: {
-        backgroundColor: token.colorBgElevated,
-        borderRadius: token.borderRadiusLG,
-        overflow: 'hidden',
-      },
-      header: {
-        paddingHorizontal: token.padding,
-        paddingTop: token.padding,
-        paddingBottom: token.paddingXS,
-      },
-      body: {
-        paddingHorizontal: token.padding,
-        paddingVertical: token.paddingXS,
-      },
-      footer: {
-        gap: token.marginSM,
-        paddingBottom: token.padding,
-        paddingHorizontal: token.padding,
-        paddingTop: token.paddingXS,
-      },
-      footerButton: {
-        borderRadius: token.borderRadiusSM,
-      },
-    };
-  },
-);
+const useStyles = createUseSheetStyle(token => {
+  return {
+    popupBody: {
+      maxWidth: DIALOG_MAX_WIDTH,
+      padding: 0,
+      width: '85%',
+    },
+    panel: {
+      backgroundColor: token.colorBgElevated,
+      borderRadius: token.borderRadiusLG,
+      overflow: 'hidden',
+    },
+    header: {
+      paddingHorizontal: token.padding,
+      paddingTop: token.padding,
+      paddingBottom: token.paddingXS,
+    },
+    body: {
+      paddingHorizontal: token.padding,
+      paddingVertical: token.paddingXS,
+    },
+    footer: {
+      gap: token.marginSM,
+      paddingBottom: token.padding,
+      paddingHorizontal: token.padding,
+      paddingTop: token.paddingXS,
+    },
+    footerButton: {
+      borderRadius: token.borderRadiusSM,
+    },
+  };
+});
 
 function renderTitle(
   title: DialogProps['title'],
@@ -200,10 +198,12 @@ export function Dialog({
             {titleNode}
           </Column>
         ) : null}
-        <Column style={[tokenStyles.body, slotStyles?.body]}>
-          {children}
-        </Column>
-        <Row gap="small" justify="end" style={[tokenStyles.footer, slotStyles?.footer]}>
+        <Column style={[tokenStyles.body, slotStyles?.body]}>{children}</Column>
+        <Row
+          gap="small"
+          justify="end"
+          style={[tokenStyles.footer, slotStyles?.footer]}
+        >
           {renderAction(
             cancel,
             cancelText,

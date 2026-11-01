@@ -12,7 +12,10 @@ const Tab = createMaterialTopTabNavigator();
 
 function renderHeaderBar(
   props: MaterialTopTabBarProps,
-  options: Pick<TopTabNavigatorProps, 'leftActions' | 'rightActions' | 'style' | 'styles'>
+  options: Pick<
+    TopTabNavigatorProps,
+    'leftActions' | 'rightActions' | 'style' | 'styles'
+  >,
 ) {
   return (
     <HeaderBar
@@ -65,7 +68,7 @@ export function TopTabNavigator({
       }}
       tabBar={handleTabBarProps}
     >
-      {screens.map((screen) => (
+      {screens.map(screen => (
         <Tab.Screen
           component={screen.component}
           key={screen.name}

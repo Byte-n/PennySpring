@@ -10,18 +10,14 @@ import type { ComponentSize } from '../shares/types';
 import type { IconComponent, IconName, IconProps } from '../Icon';
 import type { SemanticPresetColor } from '../shares/color';
 
-export type ButtonType = 'default' | 'primary' | 'dashed' | 'text' | 'link' | 'danger';
+export type ButtonType =
+  'default' | 'primary' | 'dashed' | 'text' | 'link' | 'danger';
 
 export type ButtonSemanticColor = 'default' | 'primary' | 'danger';
 export type ButtonColor = SemanticPresetColor<ButtonSemanticColor>;
 
 export type ButtonVariant =
-  | 'solid'
-  | 'outlined'
-  | 'dashed'
-  | 'filled'
-  | 'text'
-  | 'link';
+  'solid' | 'outlined' | 'dashed' | 'filled' | 'text' | 'link';
 
 export type ButtonShape = 'default' | 'round' | 'circle';
 
@@ -37,8 +33,10 @@ export interface ButtonStyles {
   content?: StyleProp<TextStyle>;
 }
 
-export interface ButtonProps
-  extends Omit<PressableProps, 'style' | 'children' | 'disabled'> {
+export interface ButtonProps extends Omit<
+  PressableProps,
+  'style' | 'children' | 'disabled'
+> {
   children?: ReactNode;
   type?: ButtonType;
   color?: ButtonColor;

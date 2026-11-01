@@ -4,7 +4,7 @@ import type { ImagePickerPickOptions, ImagePickerValue } from './types';
 function pickImageViaInput(
   options: ImagePickerPickOptions,
 ): Promise<ImagePickerValue | ImagePickerValue[] | undefined> {
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = 'image/*';

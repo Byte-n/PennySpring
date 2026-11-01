@@ -1,5 +1,4 @@
-describe('PresetColors', () => {
-    });
+describe('PresetColors', () => {});
 
 describe('SeedToken and defaults', () => {
   it('defaultSeedToken has correct primary values', () => {
@@ -14,7 +13,7 @@ describe('SeedToken and defaults', () => {
     expect(defaultSeedToken.controlHeight).toBe(44);
   });
 
-    it('defaultSeedToken excludes web-only fields', () => {
+  it('defaultSeedToken excludes web-only fields', () => {
     const { defaultSeedToken } = require('../src/defaults');
     expect('lineType' in defaultSeedToken).toBe(false);
     expect('linkDecoration' in defaultSeedToken).toBe(false);

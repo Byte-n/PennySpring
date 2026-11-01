@@ -38,10 +38,7 @@ export interface TooltipProps {
   arrow?: boolean;
   open?: boolean;
   defaultOpen?: boolean;
-  onOpenChange?: (
-    open: boolean,
-    params: TooltipOpenChangeParams,
-  ) => void;
+  onOpenChange?: (open: boolean, params: TooltipOpenChangeParams) => void;
   onCancel?: (params: TooltipCancelParams) => void;
   style?: StyleProp<ViewStyle>;
   styles?: TooltipStyles;

@@ -1,15 +1,22 @@
 #!/usr/bin/env node
 
-const { cp, mkdir, readdir, readFile, rm, writeFile } = require('node:fs/promises')
-const path = require('node:path')
+const {
+  cp,
+  mkdir,
+  readdir,
+  readFile,
+  rm,
+  writeFile,
+} = require('node:fs/promises');
+const path = require('node:path');
 
-const PROJECT_ROOT = path.resolve(__dirname, '..')
-const CLAUDE_DIR = path.join(PROJECT_ROOT, '.claude')
-const CODEX_DIR = path.join(PROJECT_ROOT, '.codex')
-const CLAUDE_SKILLS_DIR = path.join(CLAUDE_DIR, 'skills')
-const CLAUDE_AGENTS_DIR = path.join(CLAUDE_DIR, 'agents')
-const CODEX_SKILLS_DIR = path.join(CODEX_DIR, 'skills')
-const CODEX_AGENTS_DIR = path.join(CODEX_DIR, 'agents')
+const PROJECT_ROOT = path.resolve(__dirname, '..');
+const CLAUDE_DIR = path.join(PROJECT_ROOT, '.claude');
+const CODEX_DIR = path.join(PROJECT_ROOT, '.codex');
+const CLAUDE_SKILLS_DIR = path.join(CLAUDE_DIR, 'skills');
+const CLAUDE_AGENTS_DIR = path.join(CLAUDE_DIR, 'agents');
+const CODEX_SKILLS_DIR = path.join(CODEX_DIR, 'skills');
+const CODEX_AGENTS_DIR = path.join(CODEX_DIR, 'agents');
 
 /**
  * @param {unknown} error
@@ -17,10 +24,10 @@ const CODEX_AGENTS_DIR = path.join(CODEX_DIR, 'agents')
  */
 function getErrorMessage(error) {
   if (error instanceof Error) {
-    return error.message
+    return error.message;
   }
 
-  return 'Unexpected error'
+  return 'Unexpected error';
 }
 
 /**
@@ -28,7 +35,7 @@ function getErrorMessage(error) {
  * @returns {string}
  */
 function escapeTomlString(value) {
-  return value.replaceAll('\\', '\\\\').replaceAll('"', '\\"')
+  return value.replaceAll('\\', '\\\\').replaceAll('"', '\\"');
 }
 
 /**
@@ -36,7 +43,7 @@ function escapeTomlString(value) {
  * @returns {string}
  */
 function normalizeNewlines(value) {
-  return value.replaceAll('\r\n', '\n')
+  return value.replaceAll('\r\n', '\n');
 }
 
 /**
@@ -44,44 +51,46 @@ function normalizeNewlines(value) {
  * @returns {{ frontmatter: Record<string, string>, body: string }}
  */
 function parseMarkdownAgent(fileContent) {
-  const normalizedContent = normalizeNewlines(fileContent)
+  const normalizedContent = normalizeNewlines(fileContent);
 
   if (!normalizedContent.startsWith('---\n')) {
-    throw new Error('Agent file is missing frontmatter')
+    throw new Error('Agent file is missing frontmatter');
   }
 
-  const closingFenceIndex = normalizedContent.indexOf('\n---\n', 4)
+  const closingFenceIndex = normalizedContent.indexOf('\n---\n', 4);
 
   if (closingFenceIndex === -1) {
-    throw new Error('Agent file frontmatter is not closed')
+    throw new Error('Agent file frontmatter is not closed');
   }
 
-  const rawFrontmatter = normalizedContent.slice(4, closingFenceIndex)
-  const body = normalizedContent.slice(closingFenceIndex + '\n---\n'.length).trim()
+  const rawFrontmatter = normalizedContent.slice(4, closingFenceIndex);
+  const body = normalizedContent
+    .slice(closingFenceIndex + '\n---\n'.length)
+    .trim();
   const frontmatterEntries = rawFrontmatter
     .split('\n')
-    .map((line) => line.trim())
-    .filter(Boolean)
+    .map(line => line.trim())
+    .filter(Boolean);
 
   /** @type {Record<string, string>} */
-  const frontmatter = {}
+  const frontmatter = {};
 
   for (const entry of frontmatterEntries) {
-    const separatorIndex = entry.indexOf(':')
+    const separatorIndex = entry.indexOf(':');
 
     if (separatorIndex === -1) {
-      continue
+      continue;
     }
 
-    const key = entry.slice(0, separatorIndex).trim()
-    const value = entry.slice(separatorIndex + 1).trim()
-    frontmatter[key] = value
+    const key = entry.slice(0, separatorIndex).trim();
+    const value = entry.slice(separatorIndex + 1).trim();
+    frontmatter[key] = value;
   }
 
   return {
     frontmatter,
-    body
-  }
+    body,
+  };
 }
 
 /**
@@ -93,10 +102,10 @@ function stripYamlQuotes(rawValue) {
     (rawValue.startsWith('"') && rawValue.endsWith('"')) ||
     (rawValue.startsWith("'") && rawValue.endsWith("'"))
   ) {
-    return rawValue.slice(1, -1)
+    return rawValue.slice(1, -1);
   }
 
-  return rawValue
+  return rawValue;
 }
 
 /**
@@ -105,12 +114,14 @@ function stripYamlQuotes(rawValue) {
  * @returns {{ outputFileName: string, tomlContent: string }}
  */
 function convertMarkdownAgentToToml(fileName, fileContent) {
-  const { frontmatter, body } = parseMarkdownAgent(fileContent)
-  const name = stripYamlQuotes(frontmatter.name || path.basename(fileName, '.md'))
-  const description = stripYamlQuotes(frontmatter.description || '')
+  const { frontmatter, body } = parseMarkdownAgent(fileContent);
+  const name = stripYamlQuotes(
+    frontmatter.name || path.basename(fileName, '.md'),
+  );
+  const description = stripYamlQuotes(frontmatter.description || '');
 
   if (!name) {
-    throw new Error(`Agent file ${fileName} is missing a name`)
+    throw new Error(`Agent file ${fileName} is missing a name`);
   }
 
   const tomlContent = [
@@ -119,13 +130,13 @@ function convertMarkdownAgentToToml(fileName, fileContent) {
     'developer_instructions = """',
     body,
     '"""',
-    ''
-  ].join('\n')
+    '',
+  ].join('\n');
 
   return {
     outputFileName: `${path.basename(fileName, '.md')}.toml`,
-    tomlContent
-  }
+    tomlContent,
+  };
 }
 
 /**
@@ -134,48 +145,53 @@ function convertMarkdownAgentToToml(fileName, fileContent) {
  * @returns {Promise<void>}
  */
 async function replaceDirectory(sourcePath, destinationPath) {
-  await rm(destinationPath, { recursive: true, force: true })
+  await rm(destinationPath, { recursive: true, force: true });
   await cp(sourcePath, destinationPath, {
     recursive: true,
     dereference: true,
-    force: true
-  })
+    force: true,
+  });
 }
 
 async function syncSkills() {
-  await replaceDirectory(CLAUDE_SKILLS_DIR, CODEX_SKILLS_DIR)
-  console.log('Copied .claude/skills -> .codex/skills')
+  await replaceDirectory(CLAUDE_SKILLS_DIR, CODEX_SKILLS_DIR);
+  console.log('Copied .claude/skills -> .codex/skills');
 }
 
 async function syncAgents() {
-  await rm(CODEX_AGENTS_DIR, { recursive: true, force: true })
-  await mkdir(CODEX_AGENTS_DIR, { recursive: true })
+  await rm(CODEX_AGENTS_DIR, { recursive: true, force: true });
+  await mkdir(CODEX_AGENTS_DIR, { recursive: true });
 
-  const entries = await readdir(CLAUDE_AGENTS_DIR, { withFileTypes: true })
+  const entries = await readdir(CLAUDE_AGENTS_DIR, { withFileTypes: true });
   const markdownFiles = entries
-    .filter((entry) => entry.isFile() && entry.name.endsWith('.md'))
-    .map((entry) => entry.name)
-    .sort()
+    .filter(entry => entry.isFile() && entry.name.endsWith('.md'))
+    .map(entry => entry.name)
+    .sort();
 
   for (const fileName of markdownFiles) {
-    const sourcePath = path.join(CLAUDE_AGENTS_DIR, fileName)
-    const fileContent = await readFile(sourcePath, 'utf8')
-    const { outputFileName, tomlContent } = convertMarkdownAgentToToml(fileName, fileContent)
-    const destinationPath = path.join(CODEX_AGENTS_DIR, outputFileName)
+    const sourcePath = path.join(CLAUDE_AGENTS_DIR, fileName);
+    const fileContent = await readFile(sourcePath, 'utf8');
+    const { outputFileName, tomlContent } = convertMarkdownAgentToToml(
+      fileName,
+      fileContent,
+    );
+    const destinationPath = path.join(CODEX_AGENTS_DIR, outputFileName);
 
-    await writeFile(destinationPath, tomlContent, 'utf8')
-    console.log(`Converted .claude/agents/${fileName} -> .codex/agents/${outputFileName}`)
+    await writeFile(destinationPath, tomlContent, 'utf8');
+    console.log(
+      `Converted .claude/agents/${fileName} -> .codex/agents/${outputFileName}`,
+    );
   }
 }
 
 async function main() {
-  await mkdir(CODEX_DIR, { recursive: true })
-  await syncSkills()
-  await syncAgents()
-  console.log('Codex initialization complete.')
+  await mkdir(CODEX_DIR, { recursive: true });
+  await syncSkills();
+  await syncAgents();
+  console.log('Codex initialization complete.');
 }
 
-main().catch((error) => {
-  console.error(getErrorMessage(error))
-  process.exitCode = 1
-})
+main().catch(error => {
+  console.error(getErrorMessage(error));
+  process.exitCode = 1;
+});

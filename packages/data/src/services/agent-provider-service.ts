@@ -1,9 +1,14 @@
-import type { InferSelectModel } from 'drizzle-orm'
-import { eq } from 'drizzle-orm'
+import type { InferSelectModel } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 
-import type { AgentReasoningEffort, AgentSelectionScope } from '../constants'
-import { agentProviders, agentSelections, agentThreads, bookProviderKeys } from '../schema'
-import type { Database } from '../types'
+import type { AgentReasoningEffort, AgentSelectionScope } from '../constants';
+import {
+  agentProviders,
+  agentSelections,
+  agentThreads,
+  bookProviderKeys,
+} from '../schema';
+import type { Database } from '../types';
 import type {
   AgentProviderModel,
   AgentProviderRow,
@@ -11,98 +16,105 @@ import type {
   CreateAgentProviderInput,
   Tx,
   UpdateAgentProviderInput,
-} from './types'
+} from './types';
 
-const DEFAULT_CONTEXT_WINDOW = 200_000
-const DEFAULT_REASONING_EFFORT: AgentReasoningEffort = 'off'
-const REASONING_EFFORTS: readonly AgentReasoningEffort[] = ['off', 'low', 'medium', 'high']
+const DEFAULT_CONTEXT_WINDOW = 200_000;
+const DEFAULT_REASONING_EFFORT: AgentReasoningEffort = 'off';
+const REASONING_EFFORTS: readonly AgentReasoningEffort[] = [
+  'off',
+  'low',
+  'medium',
+  'high',
+];
 
-type ProviderDbRow = InferSelectModel<typeof agentProviders>
+type ProviderDbRow = InferSelectModel<typeof agentProviders>;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null
+  return typeof value === 'object' && value !== null;
 }
 
 function normalizeContextWindow(value: unknown): number {
   if (typeof value !== 'number' || !Number.isFinite(value) || value <= 0) {
-    return DEFAULT_CONTEXT_WINDOW
+    return DEFAULT_CONTEXT_WINDOW;
   }
-  return Math.floor(value)
+  return Math.floor(value);
 }
 
 function normalizeReasoningEffort(value: unknown): AgentReasoningEffort {
   return typeof value === 'string' &&
     REASONING_EFFORTS.includes(value as AgentReasoningEffort)
     ? (value as AgentReasoningEffort)
-    : DEFAULT_REASONING_EFFORT
+    : DEFAULT_REASONING_EFFORT;
 }
 
 function parseModels(raw: string): AgentProviderModel[] {
-  let parsed: unknown
+  let parsed: unknown;
   try {
-    parsed = JSON.parse(raw)
+    parsed = JSON.parse(raw);
   } catch {
-    return []
+    return [];
   }
   if (!Array.isArray(parsed)) {
-    return []
+    return [];
   }
 
-  const models: AgentProviderModel[] = []
-  const seen = new Set<string>()
+  const models: AgentProviderModel[] = [];
+  const seen = new Set<string>();
   for (const item of parsed) {
     if (!isRecord(item) || typeof item.modelId !== 'string') {
-      continue
+      continue;
     }
-    const modelId = item.modelId.trim()
+    const modelId = item.modelId.trim();
     if (!modelId || seen.has(modelId)) {
-      continue
+      continue;
     }
-    seen.add(modelId)
+    seen.add(modelId);
     models.push({
       modelId,
       contextWindow: normalizeContextWindow(item.contextWindow),
       reasoningEffort: normalizeReasoningEffort(item.reasoningEffort),
       multimodal: item.multimodal === true,
-    })
+    });
   }
-  return models
+  return models;
 }
 
 function serializeModels(models: AgentProviderModel[]): string {
-  return JSON.stringify(models)
+  return JSON.stringify(models);
 }
 
 export interface NormalizedProviderConfig {
-  descriptorId: string
-  name: string
-  baseUrl: string
-  defaultModelId: string
-  models: AgentProviderModel[]
-  storeResponses: boolean
+  descriptorId: string;
+  name: string;
+  baseUrl: string;
+  defaultModelId: string;
+  models: AgentProviderModel[];
+  storeResponses: boolean;
 }
 
 export function normalizeProviderConfig(
   input: CreateAgentProviderInput | UpdateAgentProviderInput,
 ): NormalizedProviderConfig {
-  const descriptorId = input.descriptorId.trim()
+  const descriptorId = input.descriptorId.trim();
   if (!descriptorId) {
-    throw new Error('提供商类型不能为空')
+    throw new Error('提供商类型不能为空');
   }
-  const name = input.name.trim()
+  const name = input.name.trim();
   if (!name) {
-    throw new Error('提供商名称不能为空')
+    throw new Error('提供商名称不能为空');
   }
-  const baseUrl = input.baseUrl.trim()
+  const baseUrl = input.baseUrl.trim();
   if (!baseUrl) {
-    throw new Error('Base URL 不能为空')
+    throw new Error('Base URL 不能为空');
   }
 
-  const models = parseModels(serializeModels(input.models))
-  const requestedDefault = input.defaultModelId?.trim() ?? ''
-  const defaultModelId = models.some(model => model.modelId === requestedDefault)
+  const models = parseModels(serializeModels(input.models));
+  const requestedDefault = input.defaultModelId?.trim() ?? '';
+  const defaultModelId = models.some(
+    model => model.modelId === requestedDefault,
+  )
     ? requestedDefault
-    : (models[0]?.modelId ?? '')
+    : (models[0]?.modelId ?? '');
 
   return {
     descriptorId,
@@ -111,7 +123,7 @@ export function normalizeProviderConfig(
     defaultModelId,
     models,
     storeResponses: input.storeResponses !== false,
-  }
+  };
 }
 
 function toProviderRow(row: ProviderDbRow): AgentProviderRow {
@@ -125,31 +137,47 @@ function toProviderRow(row: ProviderDbRow): AgentProviderRow {
     storeResponses: row.storeResponses === 1,
     createdTime: row.createdTime,
     updatedTime: row.updatedTime,
-  }
+  };
 }
 
-async function getProviderDbRow(tx: Tx, providerId: number): Promise<ProviderDbRow> {
-  const row = await tx.select().from(agentProviders).where(eq(agentProviders.id, providerId)).get()
+async function getProviderDbRow(
+  tx: Tx,
+  providerId: number,
+): Promise<ProviderDbRow> {
+  const row = await tx
+    .select()
+    .from(agentProviders)
+    .where(eq(agentProviders.id, providerId))
+    .get();
   if (!row) {
-    throw new Error(`提供商不存在: ${providerId}`)
+    throw new Error(`提供商不存在: ${providerId}`);
   }
-  return row
+  return row;
 }
 
-export async function getAllProviders(db: Database): Promise<AgentProviderRow[]> {
-  const rows = await db.select().from(agentProviders).orderBy(agentProviders.id).all()
-  return rows.map(toProviderRow)
+export async function getAllProviders(
+  db: Database,
+): Promise<AgentProviderRow[]> {
+  const rows = await db
+    .select()
+    .from(agentProviders)
+    .orderBy(agentProviders.id)
+    .all();
+  return rows.map(toProviderRow);
 }
 
-export async function getProviderById(db: Database, providerId: number): Promise<AgentProviderRow> {
-  return toProviderRow(await getProviderDbRow(db as Tx, providerId))
+export async function getProviderById(
+  db: Database,
+  providerId: number,
+): Promise<AgentProviderRow> {
+  return toProviderRow(await getProviderDbRow(db as Tx, providerId));
 }
 
 export function createProvider(
   db: Database,
   input: CreateAgentProviderInput,
 ): Promise<AgentProviderRow> {
-  const normalized = normalizeProviderConfig(input)
+  const normalized = normalizeProviderConfig(input);
 
   return db.transaction(async tx => {
     const inserted = await tx
@@ -162,14 +190,14 @@ export function createProvider(
         models: serializeModels(normalized.models),
         storeResponses: normalized.storeResponses ? 1 : 0,
       })
-      .returning({ id: agentProviders.id })
+      .returning({ id: agentProviders.id });
 
-    const providerId = inserted[0]?.id
+    const providerId = inserted[0]?.id;
     if (providerId === undefined) {
-      throw new Error('创建提供商失败')
+      throw new Error('创建提供商失败');
     }
-    return toProviderRow(await getProviderDbRow(tx, providerId))
-  })
+    return toProviderRow(await getProviderDbRow(tx, providerId));
+  });
 }
 
 async function reconcileModelReferences(
@@ -178,31 +206,31 @@ async function reconcileModelReferences(
   modelIds: readonly string[],
   fallbackModelId: string,
 ): Promise<void> {
-  const validModelIds = new Set(modelIds)
+  const validModelIds = new Set(modelIds);
 
   const selections = await tx
     .select({ id: agentSelections.id, modelId: agentSelections.modelId })
     .from(agentSelections)
-    .where(eq(agentSelections.providerId, providerId))
+    .where(eq(agentSelections.providerId, providerId));
   for (const selection of selections) {
     if (selection.modelId !== '' && !validModelIds.has(selection.modelId)) {
       await tx
         .update(agentSelections)
         .set({ modelId: fallbackModelId })
-        .where(eq(agentSelections.id, selection.id))
+        .where(eq(agentSelections.id, selection.id));
     }
   }
 
   const threads = await tx
     .select({ id: agentThreads.id, modelId: agentThreads.modelId })
     .from(agentThreads)
-    .where(eq(agentThreads.providerId, providerId))
+    .where(eq(agentThreads.providerId, providerId));
   for (const thread of threads) {
     if (thread.modelId !== '' && !validModelIds.has(thread.modelId)) {
       await tx
         .update(agentThreads)
         .set({ modelId: fallbackModelId })
-        .where(eq(agentThreads.id, thread.id))
+        .where(eq(agentThreads.id, thread.id));
     }
   }
 }
@@ -211,10 +239,10 @@ export function updateProvider(
   db: Database,
   input: UpdateAgentProviderInput,
 ): Promise<AgentProviderRow> {
-  const normalized = normalizeProviderConfig(input)
+  const normalized = normalizeProviderConfig(input);
 
   return db.transaction(async tx => {
-    await getProviderDbRow(tx, input.id)
+    await getProviderDbRow(tx, input.id);
     await tx
       .update(agentProviders)
       .set({
@@ -225,53 +253,61 @@ export function updateProvider(
         models: serializeModels(normalized.models),
         storeResponses: normalized.storeResponses ? 1 : 0,
       })
-      .where(eq(agentProviders.id, input.id))
+      .where(eq(agentProviders.id, input.id));
     await reconcileModelReferences(
       tx,
       input.id,
       normalized.models.map(model => model.modelId),
       normalized.defaultModelId,
-    )
+    );
 
-    return toProviderRow(await getProviderDbRow(tx, input.id))
-  })
+    return toProviderRow(await getProviderDbRow(tx, input.id));
+  });
 }
 
-export function deleteProvider(db: Database, providerId: number): Promise<void> {
+export function deleteProvider(
+  db: Database,
+  providerId: number,
+): Promise<void> {
   return db.transaction(async tx => {
-    await getProviderDbRow(tx, providerId)
+    await getProviderDbRow(tx, providerId);
 
     await tx
       .update(agentThreads)
       .set({ providerId: 0, modelId: '' })
-      .where(eq(agentThreads.providerId, providerId))
-    await tx.delete(bookProviderKeys).where(eq(bookProviderKeys.providerId, providerId))
+      .where(eq(agentThreads.providerId, providerId));
+    await tx
+      .delete(bookProviderKeys)
+      .where(eq(bookProviderKeys.providerId, providerId));
     await tx
       .update(agentSelections)
       .set({ providerId: 0, modelId: '' })
-      .where(eq(agentSelections.providerId, providerId))
-    await tx.delete(agentProviders).where(eq(agentProviders.id, providerId))
-  })
+      .where(eq(agentSelections.providerId, providerId));
+    await tx.delete(agentProviders).where(eq(agentProviders.id, providerId));
+  });
 }
 
-export async function validateAgentSelection(tx: Tx, selection: AgentSelection): Promise<void> {
+export async function validateAgentSelection(
+  tx: Tx,
+  selection: AgentSelection,
+): Promise<void> {
   if (selection.providerId === 0) {
     if (selection.modelId !== '') {
-      throw new Error('未选择提供商时模型必须为空')
+      throw new Error('未选择提供商时模型必须为空');
     }
-    return
+    return;
   }
   if (selection.providerId < 0) {
-    throw new Error(`提供商不存在: ${selection.providerId}`)
+    throw new Error(`提供商不存在: ${selection.providerId}`);
   }
 
-  const provider = await getProviderDbRow(tx, selection.providerId)
+  const provider = await getProviderDbRow(tx, selection.providerId);
   if (selection.modelId === '') {
-    return
+    return;
   }
-  const models = parseModels(provider.models)
+  const models = parseModels(provider.models);
   if (!models.some(model => model.modelId === selection.modelId)) {
-    throw new Error(`模型不存在: ${selection.modelId}`)
+    throw new Error(`模型不存在: ${selection.modelId}`);
   }
 }
 
@@ -283,8 +319,10 @@ export async function getAgentSelection(
     .select()
     .from(agentSelections)
     .where(eq(agentSelections.scope, scope))
-    .get()
-  return row ? { providerId: row.providerId, modelId: row.modelId } : { providerId: 0, modelId: '' }
+    .get();
+  return row
+    ? { providerId: row.providerId, modelId: row.modelId }
+    : { providerId: 0, modelId: '' };
 }
 
 export function setAgentSelection(
@@ -293,7 +331,7 @@ export function setAgentSelection(
   selection: AgentSelection,
 ): Promise<AgentSelection> {
   return db.transaction(async tx => {
-    await validateAgentSelection(tx, selection)
+    await validateAgentSelection(tx, selection);
     await tx
       .insert(agentSelections)
       .values({
@@ -308,7 +346,7 @@ export function setAgentSelection(
           modelId: selection.modelId,
           updatedTime: Date.now(),
         },
-      })
-    return { providerId: selection.providerId, modelId: selection.modelId }
-  })
+      });
+    return { providerId: selection.providerId, modelId: selection.modelId };
+  });
 }

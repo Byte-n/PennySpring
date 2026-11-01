@@ -1,7 +1,4 @@
-import type {
-  ComponentConfig,
-  ConfigProviderProps,
-} from '@pennyspring/ui';
+import type { ComponentConfig, ConfigProviderProps } from '@pennyspring/ui';
 
 const componentConfig: ComponentConfig = {};
 

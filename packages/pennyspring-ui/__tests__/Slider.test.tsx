@@ -60,15 +60,24 @@ jest.mock('react-native-gesture-handler', () => {
   };
 });
 
-function renderSlider(props: Partial<React.ComponentProps<typeof Slider>> = {}) {
+function renderSlider(
+  props: Partial<React.ComponentProps<typeof Slider>> = {},
+) {
   let testRenderer: renderer.ReactTestRenderer;
   act(() => {
-    testRenderer = renderer.create(<><Slider {...props} /></>);
+    testRenderer = renderer.create(
+      <>
+        <Slider {...props} />
+      </>,
+    );
   });
   return testRenderer!;
 }
 
-function setupTrackWidth(testRenderer: renderer.ReactTestRenderer, width = 200) {
+function setupTrackWidth(
+  testRenderer: renderer.ReactTestRenderer,
+  width = 200,
+) {
   const track = testRenderer.root.findByProps({
     testID: 'slider-track',
   });
@@ -272,5 +281,4 @@ describe('Slider', () => {
       expect(calledValue).toBeLessThanOrEqual(90);
     });
   });
-
 });

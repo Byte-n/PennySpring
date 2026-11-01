@@ -1,7 +1,12 @@
-import { index, sqliteTable, text } from 'drizzle-orm/sqlite-core'
+import { index, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 
-import { type AgentMessageRoleValue, AGENT_MESSAGE_ROLE } from '../constants'
-import { enumColumn, integerColumn, primaryKeyColumn, timestampColumns } from '../shared'
+import { type AgentMessageRoleValue, AGENT_MESSAGE_ROLE } from '../constants';
+import {
+  enumColumn,
+  integerColumn,
+  primaryKeyColumn,
+  timestampColumns,
+} from '../shared';
 
 export const agentThreads = sqliteTable(
   'tb_agent_thread',
@@ -20,8 +25,8 @@ export const agentThreads = sqliteTable(
     // 最后修改时间（时间戳，毫秒）
     ...timestampColumns(),
   },
-  table => [index('tb_agent_thread_books_id_index').on(table.booksId)]
-)
+  table => [index('tb_agent_thread_books_id_index').on(table.booksId)],
+);
 
 export const agentMessages = sqliteTable(
   'tb_agent_message',
@@ -40,7 +45,7 @@ export const agentMessages = sqliteTable(
     // 最后修改时间（时间戳，毫秒）
     ...timestampColumns(),
   },
-  table => [index('tb_agent_message_thread_id_index').on(table.threadId)]
-)
+  table => [index('tb_agent_message_thread_id_index').on(table.threadId)],
+);
 
-export { AGENT_MESSAGE_ROLE }
+export { AGENT_MESSAGE_ROLE };

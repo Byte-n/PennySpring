@@ -339,7 +339,12 @@ describe('Form item feedback', () => {
 
   it('suppresses extra when extra is null', () => {
     const { testRenderer } = renderForm(
-      <FormItem extra={null} extraText="默认说明" labelText="备注" name="remark">
+      <FormItem
+        extra={null}
+        extraText="默认说明"
+        labelText="备注"
+        name="remark"
+      >
         <Input />
       </FormItem>,
     );

@@ -86,7 +86,9 @@ export function ManageSkeleton({
         {items.map(index => (
           <Row
             key={index}
-            style={[styles.row, index > 0 && styles.rowDivider]} gap={token.marginMD} align="center"
+            style={[styles.row, index > 0 && styles.rowDivider]}
+            gap={token.marginMD}
+            align="center"
           >
             <Skeleton
               borderRadius={token.borderRadiusSM}

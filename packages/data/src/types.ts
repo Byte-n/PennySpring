@@ -1,6 +1,6 @@
-import type { BaseSQLiteDatabase } from 'drizzle-orm/sqlite-core'
+import type { BaseSQLiteDatabase } from 'drizzle-orm/sqlite-core';
 
-import type { DataSchema } from './db'
+import type { DataSchema } from './db';
 
 /**
  * Canonical async Database（driver 无关）。
@@ -10,6 +10,6 @@ import type { DataSchema } from './db'
  * 在 data-server 适配器出口断言为 'async'。选 async canonical 用类型系统强制 await 纪律——
  * 正因为强制 await，sync 驱动才行为一致。
  */
-export type Database = BaseSQLiteDatabase<'async', unknown, DataSchema>
+export type Database = BaseSQLiteDatabase<'async', unknown, DataSchema>;
 
-export type Tx = Parameters<Parameters<Database['transaction']>[0]>[0]
+export type Tx = Parameters<Parameters<Database['transaction']>[0]>[0];

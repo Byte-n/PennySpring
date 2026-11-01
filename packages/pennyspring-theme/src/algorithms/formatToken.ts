@@ -128,9 +128,12 @@ export function formatToken(mapToken: MapToken): AliasToken {
   const boxShadowSecondary = getShadowToken(colorShadow, 0, 2, 8, 0.04, 3);
   const boxShadowTertiary = getShadowToken(colorShadow, 0, 1, 4, 0.02, 2);
 
-  const motionDurationFast = mapToken.motion === false ? 0 : mapToken.motionDurationFast;
-  const motionDurationMid = mapToken.motion === false ? 0 : mapToken.motionDurationMid;
-  const motionDurationSlow = mapToken.motion === false ? 0 : mapToken.motionDurationSlow;
+  const motionDurationFast =
+    mapToken.motion === false ? 0 : mapToken.motionDurationFast;
+  const motionDurationMid =
+    mapToken.motion === false ? 0 : mapToken.motionDurationMid;
+  const motionDurationSlow =
+    mapToken.motion === false ? 0 : mapToken.motionDurationSlow;
 
   return {
     ...mapToken,

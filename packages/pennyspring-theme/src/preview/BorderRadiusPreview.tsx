@@ -6,7 +6,13 @@ import type { AliasToken } from '../types';
 import { Section } from './components/Section';
 import { usePreviewStyles } from './styles';
 
-const RADIUS_TOKENS = ['borderRadiusXS', 'borderRadiusSM', 'borderRadius', 'borderRadiusLG', 'borderRadiusOuter'];
+const RADIUS_TOKENS = [
+  'borderRadiusXS',
+  'borderRadiusSM',
+  'borderRadius',
+  'borderRadiusLG',
+  'borderRadiusOuter',
+];
 const PREVIEW_BOX_WIDTH = 60;
 const PREVIEW_BOX_HEIGHT = 40;
 

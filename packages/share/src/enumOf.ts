@@ -45,8 +45,7 @@ export type EnumOfValueObject = {
 };
 
 export type EnumOfConfigValue =
-  | EnumOfValue
-  | (EnumOfValueObject & Record<string, unknown>);
+  EnumOfValue | (EnumOfValueObject & Record<string, unknown>);
 
 export type EnumOfNormalizeToOption<V> = V extends { value: unknown }
   ? V

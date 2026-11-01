@@ -210,9 +210,7 @@ export function AgentProviderEditor({
         }
         return [...previous, createModelRow(modelId)];
       });
-      setAvailableModels(previous =>
-        previous.filter(item => item !== modelId),
-      );
+      setAvailableModels(previous => previous.filter(item => item !== modelId));
       form.setFieldValue('defaultModelId', previous => previous || modelId);
     },
     [form],
@@ -440,7 +438,8 @@ export function AgentProviderEditor({
         form={form}
         labelMode="child"
         onFinish={handleFinish}
-        style={styles.body} gap={token.marginMD}
+        style={styles.body}
+        gap={token.marginMD}
       >
         <Text color="secondary" size="xs">
           {descriptor.description}
@@ -578,7 +577,11 @@ export function AgentProviderEditor({
             {advancedOpen ? (
               <TypedForm.Item name="storeResponses" noStyle>
                 <Row gap="normal" align="center">
-                  <Row style={styles.switchLabel} gap={token.marginXXS} align="center">
+                  <Row
+                    style={styles.switchLabel}
+                    gap={token.marginXXS}
+                    align="center"
+                  >
                     <Text size="md">服务端存储会话</Text>
                     <InfoHint content="对应 Responses 的 store 参数。第三方中转网关无法引用上一轮结果时需关闭。" />
                   </Row>

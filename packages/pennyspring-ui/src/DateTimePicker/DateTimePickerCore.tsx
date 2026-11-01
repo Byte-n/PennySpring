@@ -7,8 +7,10 @@ import type {
   DateTimePickerProps,
 } from './types';
 
-export interface DateTimePickerCoreProps
-  extends Omit<DateTimePickerProps, 'precision'> {
+export interface DateTimePickerCoreProps extends Omit<
+  DateTimePickerProps,
+  'precision'
+> {
   parts: DateTimePickerParts;
   precision?: DateTimePickerPrecision;
 }
@@ -18,9 +20,7 @@ export interface DateTimePickerCoreProps
  * 仅时间场景强制使用滚轮布局。
  */
 export function DateTimePickerCore(props: DateTimePickerCoreProps) {
-  const layout = props.parts === 'time'
-    ? 'wheel'
-    : (props.layout ?? 'wheel');
+  const layout = props.parts === 'time' ? 'wheel' : (props.layout ?? 'wheel');
 
   if (layout === 'calendar') {
     return <DateTimeCalendarPicker {...props} />;

@@ -1,9 +1,5 @@
 import type { ReactNode } from 'react';
-import type {
-  PickerColumn,
-  PickerColumnItemData,
-  PickerValue,
-} from '../types';
+import type { PickerColumn, PickerColumnItemData, PickerValue } from '../types';
 import type {
   PickerCascaderChangeParams,
   PickerCascaderOkParams,
@@ -13,7 +9,10 @@ import type {
   PickerCascaderValue,
 } from '../types';
 
-export type PickerCascaderItem<TData> = PickerColumnItemData<PickerValue, TData>;
+export type PickerCascaderItem<TData> = PickerColumnItemData<
+  PickerValue,
+  TData
+>;
 
 export function toPickerColumn<TData>(
   options: Array<PickerCascaderOption<TData>>,
@@ -90,9 +89,8 @@ export function getOptionsForPath<TData>(
     }
 
     layers.push(currentOptions);
-    const nextOptions: Array<PickerCascaderOption<TData>> | undefined = currentOptions.find(
-      option => option.value === path[index],
-    )?.children;
+    const nextOptions: Array<PickerCascaderOption<TData>> | undefined =
+      currentOptions.find(option => option.value === path[index])?.children;
 
     if (!nextOptions || nextOptions.length === 0) {
       return layers;
@@ -167,17 +165,17 @@ export function normalizeCascadeValue<TData>(
   return normalized;
 }
 
-export function normalizeTabValue<
-  TData,
-  TTabKey extends PickerCascaderTabKey,
->(
+export function normalizeTabValue<TData, TTabKey extends PickerCascaderTabKey>(
   tabs: Array<PickerCascaderTab<TData, TTabKey>>,
   value: PickerCascaderValue<TTabKey> | undefined,
 ): PickerCascaderValue<TTabKey> {
   const normalized = {} as PickerCascaderValue<TTabKey>;
 
   for (const tab of tabs) {
-    normalized[tab.tabKey] = normalizeCascadeValue(tab.options, value?.[tab.tabKey]);
+    normalized[tab.tabKey] = normalizeCascadeValue(
+      tab.options,
+      value?.[tab.tabKey],
+    );
   }
 
   return normalized;
@@ -200,14 +198,17 @@ export function getTabLabel<TData, TTabKey extends PickerCascaderTabKey>(
 export function isTabDisabled<TData, TTabKey extends PickerCascaderTabKey>(
   tab: PickerCascaderTab<TData, TTabKey>,
 ): boolean {
-  return tab.disabled === true
-    || tab.options.length === 0
-    || tab.options.every(item => item.disabled === true);
+  return (
+    tab.disabled === true ||
+    tab.options.length === 0 ||
+    tab.options.every(item => item.disabled === true)
+  );
 }
 
-export function getInitialActiveTabKey<TData, TTabKey extends PickerCascaderTabKey>(
-  tabs: Array<PickerCascaderTab<TData, TTabKey>>,
-): TTabKey | undefined {
+export function getInitialActiveTabKey<
+  TData,
+  TTabKey extends PickerCascaderTabKey,
+>(tabs: Array<PickerCascaderTab<TData, TTabKey>>): TTabKey | undefined {
   const enabledTab = tabs.find(tab => !isTabDisabled(tab));
   return enabledTab?.tabKey ?? tabs[0]?.tabKey;
 }

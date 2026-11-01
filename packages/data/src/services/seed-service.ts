@@ -1,13 +1,10 @@
-import {
-  RECORD_TYPE_SPECIAL_BEHAVIOR,
-  SYSTEM_STATUS,
-} from '../constants'
-import { books } from '../schema'
-import { SYSTEM_TYPE_SEEDS } from '../seeds/system-types'
-import { types } from '../schema'
-import type { Database } from '../types'
-import { createBook } from './book-service'
-import type { Tx } from './types'
+import { RECORD_TYPE_SPECIAL_BEHAVIOR, SYSTEM_STATUS } from '../constants';
+import { books } from '../schema';
+import { SYSTEM_TYPE_SEEDS } from '../seeds/system-types';
+import { types } from '../schema';
+import type { Database } from '../types';
+import { createBook } from './book-service';
+import type { Tx } from './types';
 
 /**
  * 为指定账本写入系统默认类型数据。
@@ -29,17 +26,18 @@ export async function seedSystemTypesForBook(
         icon: seed.icon,
         typeCategory: seed.typeCategory,
         isSystem: SYSTEM_STATUS.system,
-        specialBehavior: seed.specialBehavior ?? RECORD_TYPE_SPECIAL_BEHAVIOR.none,
+        specialBehavior:
+          seed.specialBehavior ?? RECORD_TYPE_SPECIAL_BEHAVIOR.none,
         sort: seed.sort,
       })
-      .returning({ id: types.id })
+      .returning({ id: types.id });
 
-    const parentId = inserted[0]?.id
+    const parentId = inserted[0]?.id;
     if (!parentId) {
-      throw new Error(`Failed to seed parent type: ${seed.name}`)
+      throw new Error(`Failed to seed parent type: ${seed.name}`);
     }
 
-    if (!seed.children?.length) continue
+    if (!seed.children?.length) continue;
 
     for (const child of seed.children) {
       await tx.insert(types).values({
@@ -52,7 +50,7 @@ export async function seedSystemTypesForBook(
         specialBehavior:
           child.specialBehavior ?? RECORD_TYPE_SPECIAL_BEHAVIOR.none,
         sort: child.sort,
-      })
+      });
     }
   }
 }
@@ -67,8 +65,8 @@ export async function seedSystemTypesForBook(
  * 唯一事实来源保留在 {@link SYSTEM_TYPE_SEEDS} 与 {@link createBook}。
  */
 export async function ensureDefaultBook(db: Database): Promise<void> {
-  const book = await db.select().from(books).limit(1).get()
-  if (book) return
+  const book = await db.select().from(books).limit(1).get();
+  if (book) return;
 
-  await createBook(db, { name: '默认账本' })
+  await createBook(db, { name: '默认账本' });
 }

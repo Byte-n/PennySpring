@@ -30,25 +30,25 @@ const sakura = themePresets.find(preset => preset.value === 'kaori');
 
 <ThemeProvider config={{ algorithm: 'dark', token: sakura?.data }}>
   <App />
-</ThemeProvider>
+</ThemeProvider>;
 ```
 
 ## 预设色板
 
 `themePresets` 以展示顺序导出全部主题：`value` 是稳定的程序标识（用于查表、选中态与持久化），`label` 仅用于展示，`data` 是仅含 seed 颜色字段的覆盖对象，其余 token 走 `defaultSeedToken`。
 
-| value | label | 意象 | colorPrimary |
-|---|---|---|---|
-| `default` | 默认 | 品牌蓝（不覆盖 seed） | `#1677FF` |
-| `april` | 春绿 | 万物复苏 | `#3C8A66` |
-| `kaori` | 樱粉 | 宫园薰 / 四月樱花 | `#D95F76` |
-| `penny` | 暖金 | 每一枚硬币 | `#A9761F` |
-| `spring` | 青碧 | 源泉 / 水流之始 | `#148B80` |
-| `yonder` | 远山 | 暮色里的远山 | `#5A7DA8` |
-| `mauve` | 藕荷 | 藕粉偏紫 | `#8F6E9F` |
-| `cocoa` | 可可 | 热可可与牛皮纸 | `#9C7148` |
-| `slate` | 石墨 | 冷调石墨 | `#6E7E91` |
-| `mono` | 墨白 | 黑白摄影 | `#7A7A7A` |
+| value     | label | 意象                  | colorPrimary |
+| --------- | ----- | --------------------- | ------------ |
+| `default` | 默认  | 品牌蓝（不覆盖 seed） | `#1677FF`    |
+| `april`   | 春绿  | 万物复苏              | `#3C8A66`    |
+| `kaori`   | 樱粉  | 宫园薰 / 四月樱花     | `#D95F76`    |
+| `penny`   | 暖金  | 每一枚硬币            | `#A9761F`    |
+| `spring`  | 青碧  | 源泉 / 水流之始       | `#148B80`    |
+| `yonder`  | 远山  | 暮色里的远山          | `#5A7DA8`    |
+| `mauve`   | 藕荷  | 藕粉偏紫              | `#8F6E9F`    |
+| `cocoa`   | 可可  | 热可可与牛皮纸        | `#9C7148`    |
+| `slate`   | 石墨  | 冷调石墨              | `#6E7E91`    |
+| `mono`    | 墨白  | 黑白摄影              | `#7A7A7A`    |
 
 每个 preset 同时覆盖 `colorSuccess / colorWarning / colorError / colorInfo / colorLink`，具体色值参见 [`src/presets/`](./src/presets)。主色统一按「浅色白字对比度 ≈ 4、深色卡片底对比度 ≈ 3.5」选取，与默认蓝同档。
 
@@ -58,31 +58,31 @@ const sakura = themePresets.find(preset => preset.value === 'kaori');
 
 ### 一、RN 平台硬约束（不可调整）
 
-| 维度 | ant-design (Web) | @pennyspring/theme (RN) |
-|---|---|---|
-| 样式方案 | `@ant-design/cssinjs` useToken | React Context + `createUseSheetStyle` |
-| 阴影 | CSS `box-shadow` 多层字符串 | 结构化 `ShadowToken` + `toShadowStyle()` |
-| 动画曲线 | `cubic-bezier(...)` 字符串 | `CubicBezier` 元组 `[x1,y1,x2,y2]`（对接 `Easing.bezier`） |
-| 动效时长 | `"0.3s"` 字符串 | `number` 毫秒 |
-| 描边样式 | `lineType: solid/dashed` | 已删除（RN 无 border-style） |
-| 链接装饰 | `linkDecoration` | 已删除（RN 无 text-decoration） |
-| `wireframe` | V4 遗留 | 保留字段但不生效 |
-| 断点 | 绑定 CSS media query | 仅数值，配合 `useWindowDimensions` |
+| 维度        | ant-design (Web)               | @pennyspring/theme (RN)                                    |
+| ----------- | ------------------------------ | ---------------------------------------------------------- |
+| 样式方案    | `@ant-design/cssinjs` useToken | React Context + `createUseSheetStyle`                      |
+| 阴影        | CSS `box-shadow` 多层字符串    | 结构化 `ShadowToken` + `toShadowStyle()`                   |
+| 动画曲线    | `cubic-bezier(...)` 字符串     | `CubicBezier` 元组 `[x1,y1,x2,y2]`（对接 `Easing.bezier`） |
+| 动效时长    | `"0.3s"` 字符串                | `number` 毫秒                                              |
+| 描边样式    | `lineType: solid/dashed`       | 已删除（RN 无 border-style）                               |
+| 链接装饰    | `linkDecoration`               | 已删除（RN 无 text-decoration）                            |
+| `wireframe` | V4 遗留                        | 保留字段但不生效                                           |
+| 断点        | 绑定 CSS media query           | 仅数值，配合 `useWindowDimensions`                         |
 
 ### 二、移动端破坏性修正
 
-| 字段 | ant-design Web 值 | @pennyspring/theme RN 值 | 理由 |
-|---|---|---|---|
-| `fontFamily` | CSS 字体栈 | `Platform.select({ ios: 'System', android: 'Roboto' })` | RN 不认 CSS 字体栈；Emoji 字体无效 |
-| `fontFamilyCode` | `'SF Mono', ...` | `Platform.select({ ios: 'Menlo', android: 'monospace' })` | 同上 |
-| `fontSize` | `14` | `16` | iOS HIG / Material 移动端正文最小 16 |
-| `controlHeight` | `32` | `44` | Apple HIG 最小触控目标 44×44 |
-| `borderRadius` | `6` | `8` | 现代移动端 UI 基准圆角 |
-| 行高公式 | `(fontSize + 8) / fontSize` | `(fontSize + 10) / fontSize` | 中文视觉密度高于拉丁，+8 在 16px 下=1.5 偏紧 |
-| `boxShadow` | offset=6 blur=16 opacity=0.08 | offset=4 blur=12 opacity=0.06 | iOS 无 spread 扩散，比 CSS 更硬更集中，需柔化 |
-| `boxShadowSecondary` | offset=3 blur=6 opacity=0.06 | offset=2 blur=8 opacity=0.04 | 同上 |
-| `boxShadowTertiary` | offset=1 blur=2 opacity=0.03 | offset=1 blur=4 opacity=0.02 | 同上 |
-| `compact` 算法 | 提供 | **移除** | compact 会使 `controlHeight` 跌破 44×44 触达区；手机屏本身已紧凑，无信息密度红利 |
+| 字段                 | ant-design Web 值             | @pennyspring/theme RN 值                                  | 理由                                                                             |
+| -------------------- | ----------------------------- | --------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| `fontFamily`         | CSS 字体栈                    | `Platform.select({ ios: 'System', android: 'Roboto' })`   | RN 不认 CSS 字体栈；Emoji 字体无效                                               |
+| `fontFamilyCode`     | `'SF Mono', ...`              | `Platform.select({ ios: 'Menlo', android: 'monospace' })` | 同上                                                                             |
+| `fontSize`           | `14`                          | `16`                                                      | iOS HIG / Material 移动端正文最小 16                                             |
+| `controlHeight`      | `32`                          | `44`                                                      | Apple HIG 最小触控目标 44×44                                                     |
+| `borderRadius`       | `6`                           | `8`                                                       | 现代移动端 UI 基准圆角                                                           |
+| 行高公式             | `(fontSize + 8) / fontSize`   | `(fontSize + 10) / fontSize`                              | 中文视觉密度高于拉丁，+8 在 16px 下=1.5 偏紧                                     |
+| `boxShadow`          | offset=6 blur=16 opacity=0.08 | offset=4 blur=12 opacity=0.06                             | iOS 无 spread 扩散，比 CSS 更硬更集中，需柔化                                    |
+| `boxShadowSecondary` | offset=3 blur=6 opacity=0.06  | offset=2 blur=8 opacity=0.04                              | 同上                                                                             |
+| `boxShadowTertiary`  | offset=1 blur=2 opacity=0.03  | offset=1 blur=4 opacity=0.02                              | 同上                                                                             |
+| `compact` 算法       | 提供                          | **移除**                                                  | compact 会使 `controlHeight` 跌破 44×44 触达区；手机屏本身已紧凑，无信息密度红利 |
 
 ### 三、关于 compact
 
@@ -95,13 +95,13 @@ const preset = themePresets.find(item => item.value === 'spring');
   config={{
     token: {
       ...preset?.data,
-      fontSize: 14,      // 信息密集列表场景
+      fontSize: 14, // 信息密集列表场景
       controlHeight: 36, // 次级控件（仍 ≥ HIG 最小值 44 的宽松版）
     },
   }}
 >
   <App />
-</ThemeProvider>
+</ThemeProvider>;
 ```
 
 ## Token 层次

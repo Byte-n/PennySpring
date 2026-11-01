@@ -258,7 +258,7 @@ export function ComponentPreviewScreen() {
     <SafeAreaProvider>
       <ThemeProvider config={themeConfig}>
         <ComponentPreviewRoot>
-          <SafeAreaView/>
+          <SafeAreaView />
           <ComponentPreviewNavigator
             algorithm={algorithm}
             onNextPreset={selectNextPreset}

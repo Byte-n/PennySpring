@@ -1,10 +1,11 @@
 ---
 paths:
-  - "**/*.ts"
-  - "**/*.tsx"
-  - "**/*.js"
-  - "**/*.jsx"
+  - '**/*.ts'
+  - '**/*.tsx'
+  - '**/*.js'
+  - '**/*.jsx'
 ---
+
 # TypeScript/JavaScript Coding Style
 
 > 扩展 [common/coding-style.md](../common/coding-style.md)。
@@ -23,8 +24,8 @@ paths:
 
 ```typescript
 function getErrorMessage(error: unknown): string {
-  if (error instanceof Error) return error.message
-  return 'Unexpected error'
+  if (error instanceof Error) return error.message;
+  return 'Unexpected error';
 }
 ```
 
@@ -39,7 +40,7 @@ function getErrorMessage(error: unknown): string {
 
 ```typescript
 function updateUser(user: Readonly<User>, name: string): User {
-  return { ...user, name }
+  return { ...user, name };
 }
 ```
 

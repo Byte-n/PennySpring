@@ -2,7 +2,8 @@ describe('genFontWeightMap', () => {
   let genFontWeightMap: (fontWeight: number) => Record<string, number>;
 
   beforeAll(() => {
-    genFontWeightMap = require('../src/algorithms/genFontWeightMap').genFontWeightMap;
+    genFontWeightMap =
+      require('../src/algorithms/genFontWeightMap').genFontWeightMap;
   });
 
   it('generates standard font weights from default seed', () => {

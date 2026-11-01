@@ -6,10 +6,10 @@ interface PreviewDocIntro {
 type PreviewIntroResolver = (previewId: string) => PreviewDocIntro | undefined;
 
 declare const __PENNYSPRING_UI_PREVIEW_SOURCES__:
-  | Record<string, string>
-  | undefined;
+  Record<string, string> | undefined;
 
-const PREVIEW_DOC_ID_PATTERN = /<PreviewDoc\s+id=(?:"([^"]+)"|'([^']+)')\s*\/?>/;
+const PREVIEW_DOC_ID_PATTERN =
+  /<PreviewDoc\s+id=(?:"([^"]+)"|'([^']+)')\s*\/?>/;
 const IMPORT_STATEMENT_PATTERN = /import\s+[\s\S]*?\s+from.*?\n/g;
 const EXPORT_DEFAULT_FUNCTION_PATTERN = /export\s+default\s+function\s+/g;
 const EXPORT_DEFAULT_STATEMENT_PATTERN =

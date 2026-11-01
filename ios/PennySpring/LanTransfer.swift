@@ -173,7 +173,7 @@ class LanTransfer: NSObject, RCTBridgeModule {
 
   private func handleRequest(_ connection: NWConnection, request: Data) {
     guard let requestText = String(data: request, encoding: .isoLatin1),
-          let requestLine = requestText.components(separatedBy: "\r\n").first
+      let requestLine = requestText.components(separatedBy: "\r\n").first
     else {
       sendText(connection, status: "400 Bad Request", message: "请求格式不正确")
       return
@@ -194,7 +194,8 @@ class LanTransfer: NSObject, RCTBridgeModule {
     }
 
     let query = targetParts.count > 1 ? String(targetParts[1]) : ""
-    let providedToken = query
+    let providedToken =
+      query
       .split(separator: "&")
       .first(where: { $0.hasPrefix("token=") })
       .map { String($0.dropFirst("token=".count)) }
@@ -403,7 +404,8 @@ class LanTransfer: NSObject, RCTBridgeModule {
     while let pointer = cursor {
       let interface = pointer.pointee
       if let address = interface.ifa_addr,
-         address.pointee.sa_family == UInt8(AF_INET) {
+        address.pointee.sa_family == UInt8(AF_INET)
+      {
         let flags = Int32(interface.ifa_flags)
         if (flags & IFF_UP) != 0, (flags & IFF_LOOPBACK) == 0 {
           var hostname = [CChar](repeating: 0, count: Int(NI_MAXHOST))

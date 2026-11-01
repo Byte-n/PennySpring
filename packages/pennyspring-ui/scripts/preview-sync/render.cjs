@@ -162,7 +162,7 @@ function renderRegistry(sections) {
   lines.push(
     '',
     "import type { ComponentType } from 'react';",
-    "import type {",
+    'import type {',
     '  ComponentPreviewItem,',
     '  ComponentPreviewSection,',
     "} from './types';",

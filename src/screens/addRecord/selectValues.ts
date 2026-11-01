@@ -4,7 +4,8 @@ export function toNumberValue(
   value: ListPickerValue | ListPickerValue[],
 ): number | undefined {
   const rawValue = Array.isArray(value) ? value[0] : value;
-  const numberValue = typeof rawValue === 'number' ? rawValue : Number(rawValue);
+  const numberValue =
+    typeof rawValue === 'number' ? rawValue : Number(rawValue);
 
   return Number.isFinite(numberValue) ? numberValue : undefined;
 }

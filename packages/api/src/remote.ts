@@ -75,32 +75,32 @@ export function createRemoteApi(
     timeoutMs: options.timeoutMs ?? REMOTE_API_TIMEOUT_MS,
     timeoutMessage: options.timeoutMessage ?? '服务器请求超时',
   };
-  const groupCache = new Map<string, unknown>()
+  const groupCache = new Map<string, unknown>();
 
   const getGroup = (group: string) => {
-    const cached = groupCache.get(group)
-    if (cached) return cached
+    const cached = groupCache.get(group);
+    if (cached) return cached;
     const proxy = new Proxy(
       {} as Record<string, (...args: unknown[]) => Promise<unknown>>,
       {
         get: (_target, method) => {
-          if (typeof method === 'symbol') return undefined
+          if (typeof method === 'symbol') return undefined;
           return (...args: unknown[]) =>
             call(serverUrl, group, method, args, requestOptions);
         },
       },
-    )
-    groupCache.set(group, proxy)
-    return proxy
-  }
+    );
+    groupCache.set(group, proxy);
+    return proxy;
+  };
 
   return new Proxy({} as Record<string, unknown>, {
     get: (_target, group) => {
-      if (typeof group === 'symbol') return undefined
+      if (typeof group === 'symbol') return undefined;
       if (group === 'get') {
-        return () => Promise.reject(new Error('remote 模式不支持 api.get'))
+        return () => Promise.reject(new Error('remote 模式不支持 api.get'));
       }
-      return getGroup(group)
+      return getGroup(group);
     },
-  }) as Api
+  }) as Api;
 }

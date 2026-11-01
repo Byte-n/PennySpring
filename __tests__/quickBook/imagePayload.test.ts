@@ -24,5 +24,4 @@ describe('quick book image payload', () => {
       base64: 'QUJD',
     });
   });
-
 });

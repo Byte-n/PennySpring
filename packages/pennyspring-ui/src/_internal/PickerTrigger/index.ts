@@ -1,5 +1,2 @@
 export { PickerTrigger } from './PickerTrigger';
-export type {
-  PickerDisplayInputProps,
-  PickerTriggerProps,
-} from './types';
+export type { PickerDisplayInputProps, PickerTriggerProps } from './types';

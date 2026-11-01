@@ -101,9 +101,7 @@ export function Textarea(rawProps: TextareaProps) {
   const isTextLabel = isPrimitiveContent(labelContent);
   const isFloated = isFocused || textValue.length > 0;
   const placeholderTextColor =
-    hasFloatingLabel && !isFocused
-      ? 'transparent'
-      : token.colorTextPlaceholder;
+    hasFloatingLabel && !isFocused ? 'transparent' : token.colorTextPlaceholder;
   const tokenStyles = useStyles({
     contentHeight,
     hasLabel: hasFloatingLabel,
@@ -128,7 +126,12 @@ export function Textarea(rawProps: TextareaProps) {
       duration: token.motionDurationMid,
       easing: Easing.bezier(...token.motionEaseInOut),
     });
-  }, [isFloated, labelProgress, token.motionDurationMid, token.motionEaseInOut]);
+  }, [
+    isFloated,
+    labelProgress,
+    token.motionDurationMid,
+    token.motionEaseInOut,
+  ]);
 
   useEffect(() => {
     indicatorProgress.value = withTiming(isIndicatorVisible ? 1 : 0, {
@@ -236,8 +239,8 @@ export function Textarea(rawProps: TextareaProps) {
                   isFocused
                     ? tokenStyles.labelActive
                     : isFloated
-                    ? tokenStyles.labelFilled
-                    : null,
+                      ? tokenStyles.labelFilled
+                      : null,
                   styles?.label,
                   labelTextAnimatedStyle,
                 ]}
@@ -267,9 +270,7 @@ export function Textarea(rawProps: TextareaProps) {
           ]}
           value={textValue}
         />
-        <AnimatedView
-          style={[tokenStyles.indicator, indicatorAnimatedStyle]}
-        />
+        <AnimatedView style={[tokenStyles.indicator, indicatorAnimatedStyle]} />
       </View>
 
       {showCount || loading ? (

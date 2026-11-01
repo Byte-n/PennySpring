@@ -18,8 +18,7 @@ export const types = sqliteTable('tb_type', {
   // 类型主键，自增长
   id: primaryKeyColumn(),
   // 所属账本主键，关联 tb_books.id
-  booksId: integerColumn('books_id')
-    .notNull(),
+  booksId: integerColumn('books_id').notNull(),
   // 父类型 ID，0 表示一级类型（顶级）
   parentId: integerColumn('parent_id').notNull().default(0),
   // 类型名称（如"餐饮"、"工资"）

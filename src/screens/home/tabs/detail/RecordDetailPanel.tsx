@@ -67,14 +67,14 @@ export function RecordDetailPanel({
   const currentBook = useBookStore(state => state.currentBook);
   const globalApi = useGlobalApi();
   const bookId = currentBook?.id;
-  const { data, loading, error } = useRequest<
-    RecordDetailPanelData | null,
-    []
-  >(
+  const { data, loading, error } = useRequest<RecordDetailPanelData | null, []>(
     async () => {
       if (recordId === null || !bookId) return null;
 
-      const recordDetail = await globalApi.record.getDetailById(recordId, bookId);
+      const recordDetail = await globalApi.record.getDetailById(
+        recordId,
+        bookId,
+      );
       const relatedDetails = await Promise.all(
         recordDetail.relatedRecordIds.map(relatedRecordId =>
           globalApi.record.getDetailById(relatedRecordId, bookId),
@@ -115,7 +115,9 @@ export function RecordDetailPanel({
         view,
         relatedViews: recordDetail.relatedRecordIds
           .map(relatedRecordId => viewsById.get(relatedRecordId))
-          .filter((related): related is DetailRecordView => related !== undefined),
+          .filter(
+            (related): related is DetailRecordView => related !== undefined,
+          ),
       };
     },
     {

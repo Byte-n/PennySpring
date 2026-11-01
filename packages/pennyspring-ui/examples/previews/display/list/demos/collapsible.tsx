@@ -5,12 +5,20 @@ import type { ListItemData } from '@pennyspring/ui';
 const EXPENSE_ROWS: ListItemData[] = [
   {
     icon: 'list',
-    right: <Text color="error" weight="semibold">-¥1,286.50</Text>,
+    right: (
+      <Text color="error" weight="semibold">
+        -¥1,286.50
+      </Text>
+    ),
     titleText: '餐饮',
   },
   {
     icon: 'home',
-    right: <Text color="error" weight="semibold">-¥693.35</Text>,
+    right: (
+      <Text color="error" weight="semibold">
+        -¥693.35
+      </Text>
+    ),
     titleText: '交通',
   },
 ];
@@ -21,7 +29,8 @@ export function ListCollapsibleDemo() {
   return (
     <Column gap="normal">
       <Text color="tertiary" size="sm">
-        分组头 32 高无底色，箭头 16 旋转 90°；分隔线从 66 起与标题左缘对齐，首末行不画
+        分组头 32 高无底色，箭头 16 旋转 90°；分隔线从 66
+        起与标题左缘对齐，首末行不画
       </Text>
       <List<ListItemData>
         collapsible

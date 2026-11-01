@@ -1,8 +1,5 @@
 import React from 'react';
-import {
-  getAliasColorTokenValue,
-  useTheme,
-} from '@pennyspring/theme';
+import { getAliasColorTokenValue, useTheme } from '@pennyspring/theme';
 import type { AliasToken } from '@pennyspring/theme';
 import type { TextColor, TextSemanticColor } from './types';
 
@@ -22,7 +19,10 @@ const COLOR_MAP: Record<TextSemanticColor, ColorSelector> = {
   lightSolid: token => token.colorTextLightSolid,
 };
 
-function resolveTextColor(color: TextColor | undefined, token: AliasToken): string {
+function resolveTextColor(
+  color: TextColor | undefined,
+  token: AliasToken,
+): string {
   if (color === undefined) {
     return token.colorText;
   }
@@ -37,8 +37,5 @@ function resolveTextColor(color: TextColor | undefined, token: AliasToken): stri
 export function useTextColor(color: TextColor | undefined): string {
   const { token } = useTheme();
 
-  return React.useMemo(
-    () => resolveTextColor(color, token),
-    [color, token],
-  );
+  return React.useMemo(() => resolveTextColor(color, token), [color, token]);
 }

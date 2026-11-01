@@ -52,7 +52,8 @@ export function PopupEventFeedbackDemo() {
             事件反馈
           </Text>
           <Text color="secondary">
-            点击遮罩会触发 onCancel 并携带 reason: mask；按下硬件返回键会携带 reason: back。状态行会实时显示最近一次事件。
+            点击遮罩会触发 onCancel 并携带 reason: mask；按下硬件返回键会携带
+            reason: back。状态行会实时显示最近一次事件。
           </Text>
           <Space justify="end" gap="small">
             <Button type="primary" onPress={() => setOpen(false)}>

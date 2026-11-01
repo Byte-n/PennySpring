@@ -4,8 +4,8 @@ import type { PickerCascaderValue } from '@pennyspring/ui';
 import { EXPENSE_TABS, type ExpenseTabKey } from './cascader-options';
 
 function joinLabels(labels: Array<string | undefined>): string {
-  const visibleLabels = labels.filter((label): label is string =>
-    label !== undefined && label.length > 0,
+  const visibleLabels = labels.filter(
+    (label): label is string => label !== undefined && label.length > 0,
   );
 
   if (visibleLabels.length === 0) {
@@ -22,9 +22,8 @@ export function PickerCascaderControlledDemo() {
     daily: ['traffic', 'metro'],
     fixed: ['home', 'rent'],
   });
-  const [controlledSummary, setControlledSummary] = React.useState(
-    '交通 / 地铁',
-  );
+  const [controlledSummary, setControlledSummary] =
+    React.useState('交通 / 地铁');
 
   return (
     <Space block direction="vertical" gap="large">
@@ -35,7 +34,9 @@ export function PickerCascaderControlledDemo() {
         value={controlledValue}
         onChange={nextValue => setControlledValue(nextValue)}
         onOk={(_nextValue, params) => {
-          setControlledSummary(joinLabels(params.path.map(item => item.labelText)));
+          setControlledSummary(
+            joinLabels(params.path.map(item => item.labelText)),
+          );
         }}
       />
       <Text color="description" size="sm">

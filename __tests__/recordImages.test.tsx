@@ -18,11 +18,7 @@ jest.mock('@pennyspring/theme', () => ({
 
 jest.mock('@pennyspring/ui', () => {
   const ReactLib = require('react');
-  const {
-    Image: RNImage,
-    Text,
-    View,
-  } = require('react-native');
+  const { Image: RNImage, Text, View } = require('react-native');
 
   const MockImage = ({
     src,

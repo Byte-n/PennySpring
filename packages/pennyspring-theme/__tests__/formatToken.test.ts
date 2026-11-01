@@ -68,9 +68,15 @@ describe('formatToken', () => {
     const mapToken = derivative(defaultSeedToken, false);
     const alias = formatToken(mapToken);
 
-    expect(alias.paddingContentVertical).toBe(alias.paddingContentHorizontal / 2);
-    expect(alias.paddingContentVerticalSM).toBe(alias.paddingContentHorizontalSM / 2);
-    expect(alias.paddingContentVerticalLG).toBe(alias.paddingContentHorizontalLG / 2);
+    expect(alias.paddingContentVertical).toBe(
+      alias.paddingContentHorizontal / 2,
+    );
+    expect(alias.paddingContentVerticalSM).toBe(
+      alias.paddingContentHorizontalSM / 2,
+    );
+    expect(alias.paddingContentVerticalLG).toBe(
+      alias.paddingContentHorizontalLG / 2,
+    );
   });
 
   it('generates boxShadow tokens', () => {
@@ -100,13 +106,19 @@ describe('formatToken', () => {
     expect(alias.boxShadow.elevation).toBe(4);
 
     // Secondary shadow: offsetY=2, blur=8, opacity=0.04, elevation=3
-    expect(alias.boxShadowSecondary.shadowOffset).toEqual({ width: 0, height: 2 });
+    expect(alias.boxShadowSecondary.shadowOffset).toEqual({
+      width: 0,
+      height: 2,
+    });
     expect(alias.boxShadowSecondary.shadowRadius).toBe(8);
     expect(alias.boxShadowSecondary.shadowOpacity).toBeCloseTo(0.04, 3);
     expect(alias.boxShadowSecondary.elevation).toBe(3);
 
     // Tertiary shadow: offsetY=1, blur=4, opacity=0.02, elevation=2
-    expect(alias.boxShadowTertiary.shadowOffset).toEqual({ width: 0, height: 1 });
+    expect(alias.boxShadowTertiary.shadowOffset).toEqual({
+      width: 0,
+      height: 1,
+    });
     expect(alias.boxShadowTertiary.shadowRadius).toBe(4);
     expect(alias.boxShadowTertiary.shadowOpacity).toBeCloseTo(0.02, 3);
     expect(alias.boxShadowTertiary.elevation).toBe(2);
@@ -118,7 +130,9 @@ describe('formatToken', () => {
     const mapToken = derivative(defaultSeedToken, false);
     const alias = formatToken(mapToken);
 
-    expect(alias.boxShadow.shadowRadius).toBeGreaterThan(alias.boxShadowTertiary.shadowRadius);
+    expect(alias.boxShadow.shadowRadius).toBeGreaterThan(
+      alias.boxShadowTertiary.shadowRadius,
+    );
   });
 
   it('boxShadowTertiary is the shallowest shadow', () => {
@@ -127,10 +141,12 @@ describe('formatToken', () => {
     const mapToken = derivative(defaultSeedToken, false);
     const alias = formatToken(mapToken);
 
-    expect(alias.boxShadowTertiary.shadowRadius).toBeLessThan(alias.boxShadow.shadowRadius);
+    expect(alias.boxShadowTertiary.shadowRadius).toBeLessThan(
+      alias.boxShadow.shadowRadius,
+    );
   });
 
-    it('fontWeightStrong maps to fontWeightSemiBold from MapToken', () => {
+  it('fontWeightStrong maps to fontWeightSemiBold from MapToken', () => {
     const { defaultSeedToken } = require('../src/defaults');
     const { derivative } = require('../src/algorithms/derivative');
     const mapToken = {

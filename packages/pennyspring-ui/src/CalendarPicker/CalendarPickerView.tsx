@@ -81,8 +81,7 @@ const useCalendarStyles = createUseSheetStyle(
     header: {
       marginBottom: token.marginSM,
     },
-    title: {
-    },
+    title: {},
     titleColumn: {
       flexShrink: 1,
     },
@@ -164,7 +163,10 @@ const useCalendarStyles = createUseSheetStyle(
   }),
 );
 
-const createEmptyCellStyles = (token: AliasToken, { size }: CalendarStyleOptions) => ({
+const createEmptyCellStyles = (
+  token: AliasToken,
+  { size }: CalendarStyleOptions,
+) => ({
   cell: {
     flexBasis: resolveCellFlexBasis('date'),
     flexShrink: 1,
@@ -191,11 +193,17 @@ function parsePanel(value: CalendarPickerViewValue | undefined): PanelDate {
 
   return {
     year: Number(year) || now.getFullYear(),
-    month: Math.max(1, Math.min(MONTH_COUNT, Number(month) || now.getMonth() + 1)),
+    month: Math.max(
+      1,
+      Math.min(MONTH_COUNT, Number(month) || now.getMonth() + 1),
+    ),
   };
 }
 
-function normalizeValue(value: CalendarPickerViewValue | undefined, mode: CalendarPickerViewMode): CalendarPickerViewValue {
+function normalizeValue(
+  value: CalendarPickerViewValue | undefined,
+  mode: CalendarPickerViewMode,
+): CalendarPickerViewValue {
   const panel = parsePanel(value);
   const day = Number(String(value ?? '').split('-')[2]) || 1;
 
@@ -227,15 +235,24 @@ function todayValue(mode: CalendarPickerViewMode): CalendarPickerViewValue {
   return `${year}-${pad(month)}-${pad(day)}`;
 }
 
-function compareValue(first: CalendarPickerViewValue, second: CalendarPickerViewValue): number {
+function compareValue(
+  first: CalendarPickerViewValue,
+  second: CalendarPickerViewValue,
+): number {
   return first.localeCompare(second);
 }
 
-function sortRange(range: CalendarPickerViewRangeValue): CalendarPickerViewRangeValue {
+function sortRange(
+  range: CalendarPickerViewRangeValue,
+): CalendarPickerViewRangeValue {
   return compareValue(range[0], range[1]) <= 0 ? range : [range[1], range[0]];
 }
 
-function formatCalendarPickerViewValue(value: CalendarPickerViewValue, mode: CalendarPickerViewMode, format?: CalendarPickerViewFormat): string {
+function formatCalendarPickerViewValue(
+  value: CalendarPickerViewValue,
+  mode: CalendarPickerViewMode,
+  format?: CalendarPickerViewFormat,
+): string {
   if (typeof format === 'function') {
     return format(value);
   }
@@ -261,7 +278,11 @@ function formatCalendarPickerViewValue(value: CalendarPickerViewValue, mode: Cal
   return normalizeValue(value, mode);
 }
 
-function addPanel(panel: PanelDate, mode: CalendarPickerViewMode, offset: number): PanelDate {
+function addPanel(
+  panel: PanelDate,
+  mode: CalendarPickerViewMode,
+  offset: number,
+): PanelDate {
   if (mode === 'year') {
     return { ...panel, year: panel.year + offset * YEAR_WINDOW };
   }
@@ -283,15 +304,23 @@ function daysInMonth(year: number, month: number): number {
   return new Date(year, month, 0).getDate();
 }
 
-function buildValues(panel: PanelDate, mode: CalendarPickerViewMode): CalendarPickerViewValue[] {
+function buildValues(
+  panel: PanelDate,
+  mode: CalendarPickerViewMode,
+): CalendarPickerViewValue[] {
   if (mode === 'year') {
     const startYear = panel.year - (panel.year % YEAR_WINDOW);
 
-    return Array.from({ length: YEAR_WINDOW }, (_, index) => String(startYear + index));
+    return Array.from({ length: YEAR_WINDOW }, (_, index) =>
+      String(startYear + index),
+    );
   }
 
   if (mode === 'month') {
-    return Array.from({ length: MONTH_COUNT }, (_, index) => `${panel.year}-${pad(index + 1)}`);
+    return Array.from(
+      { length: MONTH_COUNT },
+      (_, index) => `${panel.year}-${pad(index + 1)}`,
+    );
   }
 
   return Array.from(
@@ -307,10 +336,14 @@ function buildDateValues(
   const values = buildValues(panel, 'date');
   const firstDay = new Date(panel.year, panel.month - 1, 1).getDay();
   const leading = weekStartsOn === 'monday' ? (firstDay + 6) % 7 : firstDay;
-  const total = Math.ceil((leading + values.length) / DATE_COLUMN_COUNT) * DATE_COLUMN_COUNT;
+  const total =
+    Math.ceil((leading + values.length) / DATE_COLUMN_COUNT) *
+    DATE_COLUMN_COUNT;
 
   return Array.from({ length: total }, (_, index) =>
-    index < leading || index - leading >= values.length ? null : values[index - leading],
+    index < leading || index - leading >= values.length
+      ? null
+      : values[index - leading],
   );
 }
 
@@ -329,7 +362,10 @@ function panelTitle(panel: PanelDate, mode: CalendarPickerViewMode): string {
 
 function isValueDisabled(
   value: CalendarPickerViewValue,
-  props: Pick<CalendarPickerViewProps, 'disabled' | 'disabledDate' | 'maxDate' | 'minDate'>,
+  props: Pick<
+    CalendarPickerViewProps,
+    'disabled' | 'disabledDate' | 'maxDate' | 'minDate'
+  >,
   mode: CalendarPickerViewMode,
 ): boolean {
   if (props.disabled) {
@@ -338,11 +374,17 @@ function isValueDisabled(
 
   const normalized = normalizeValue(value, mode);
 
-  if (props.minDate && compareValue(normalized, normalizeValue(props.minDate, mode)) < 0) {
+  if (
+    props.minDate &&
+    compareValue(normalized, normalizeValue(props.minDate, mode)) < 0
+  ) {
     return true;
   }
 
-  if (props.maxDate && compareValue(normalized, normalizeValue(props.maxDate, mode)) > 0) {
+  if (
+    props.maxDate &&
+    compareValue(normalized, normalizeValue(props.maxDate, mode)) > 0
+  ) {
     return true;
   }
 
@@ -362,7 +404,10 @@ function renderTextNode(node: ReactNode) {
 }
 
 interface CalendarGridProps {
-  disabledProps: Pick<CalendarPickerViewProps, 'disabled' | 'disabledDate' | 'maxDate' | 'minDate'>;
+  disabledProps: Pick<
+    CalendarPickerViewProps,
+    'disabled' | 'disabledDate' | 'maxDate' | 'minDate'
+  >;
   draftRange?: CalendarPickerViewValue[];
   marks?: CalendarPickerViewProps['marks'];
   mode: CalendarPickerViewMode;
@@ -391,33 +436,52 @@ function CalendarGrid({
   size,
 }: CalendarGridProps) {
   const emptyCellStyles = useEmptyCellStyles({ size });
-  const values = mode === 'date' ? buildDateValues(panel, weekStartsOn) : buildValues(panel, mode);
+  const values =
+    mode === 'date'
+      ? buildDateValues(panel, weekStartsOn)
+      : buildValues(panel, mode);
   const columnCount = resolveColumnCount(mode);
   const today = todayValue(mode);
-  const activeRange = draftRange?.length === 2
-    ? sortRange([draftRange[0], draftRange[1]])
-    : rangeValue;
+  const activeRange =
+    draftRange?.length === 2
+      ? sortRange([draftRange[0], draftRange[1]])
+      : rangeValue;
 
   return (
-    <Grid columns={columnCount} gap="small" style={[styles.grid, slotStyles?.grid]}>
+    <Grid
+      columns={columnCount}
+      gap="small"
+      style={[styles.grid, slotStyles?.grid]}
+    >
       {values.map((value, index) => {
         if (value === null) {
-          return <Grid.Item key={`empty-${index}`} style={emptyCellStyles.cell} testID="calendar-empty-cell" />;
+          return (
+            <Grid.Item
+              key={`empty-${index}`}
+              style={emptyCellStyles.cell}
+              testID="calendar-empty-cell"
+            />
+          );
         }
 
         const normalized = normalizeValue(value, mode);
         const disabled = isValueDisabled(normalized, disabledProps, mode);
-        const selected = selectedValue === normalized ||
-          Boolean(activeRange && (activeRange[0] === normalized || activeRange[1] === normalized));
+        const selected =
+          selectedValue === normalized ||
+          Boolean(
+            activeRange &&
+            (activeRange[0] === normalized || activeRange[1] === normalized),
+          );
         const inRange = Boolean(
           activeRange &&
           compareValue(normalized, activeRange[0]) >= 0 &&
           compareValue(normalized, activeRange[1]) <= 0,
         );
         const isToday = today === normalized;
-        const mark = mode === 'date'
-          ? marks?.find(item => item.date === normalized)
-          : undefined;
+        const mark =
+          mode === 'date'
+            ? marks?.find(item => item.date === normalized)
+            : undefined;
         const cellState: CalendarPickerViewCellState = {
           isSelected: selected,
           isToday,
@@ -428,11 +492,18 @@ function CalendarGrid({
         const customDateTextStyle = slotStyles?.dateText;
         const isDynamicCellStyle = typeof customCellStyle === 'function';
         const cellStyle = isDynamicCellStyle
-          ? (customCellStyle as CalendarPickerViewCellStyle)(normalized, cellState)
+          ? (customCellStyle as CalendarPickerViewCellStyle)(
+              normalized,
+              cellState,
+            )
           : customCellStyle;
-        const dateTextStyle = typeof customDateTextStyle === 'function'
-          ? (customDateTextStyle as CalendarPickerViewDateTextStyle)(normalized, cellState)
-          : customDateTextStyle;
+        const dateTextStyle =
+          typeof customDateTextStyle === 'function'
+            ? (customDateTextStyle as CalendarPickerViewDateTextStyle)(
+                normalized,
+                cellState,
+              )
+            : customDateTextStyle;
 
         return (
           <Grid.Item
@@ -457,7 +528,9 @@ function CalendarGrid({
             ]}
           >
             <Text
-              color={selected ? 'lightSolid' : isToday ? 'primaryText' : 'default'}
+              color={
+                selected ? 'lightSolid' : isToday ? 'primaryText' : 'default'
+              }
               numberOfLines={1}
               style={dateTextStyle}
             >
@@ -520,7 +593,8 @@ function CalendarHeader({
   styles,
   valueText,
 }: CalendarHeaderProps) {
-  const hasPreviousContent = previous !== undefined || previousText !== undefined;
+  const hasPreviousContent =
+    previous !== undefined || previousText !== undefined;
   const hasNextContent = next !== undefined || nextText !== undefined;
 
   return (
@@ -563,7 +637,9 @@ function CalendarHeader({
           {previous !== undefined ? (
             previous
           ) : previousText !== undefined ? (
-            <Text numberOfLines={1} size="sm">{previousText}</Text>
+            <Text numberOfLines={1} size="sm">
+              {previousText}
+            </Text>
           ) : (
             <Icon color="icon" icon="caret-left" size={size} />
           )}
@@ -580,7 +656,9 @@ function CalendarHeader({
           {next !== undefined ? (
             next
           ) : nextText !== undefined ? (
-            <Text numberOfLines={1} size="sm">{nextText}</Text>
+            <Text numberOfLines={1} size="sm">
+              {nextText}
+            </Text>
           ) : (
             <Icon color="icon" icon="caret-right" size={size} />
           )}
@@ -628,7 +706,11 @@ function CalendarFooter({
   return (
     <View style={[styles.footer, slotStyles?.footer]}>
       {showToday ? (
-        <Pressable disabled={disabled} hitSlop={actionHitSlop} onPress={onToday}>
+        <Pressable
+          disabled={disabled}
+          hitSlop={actionHitSlop}
+          onPress={onToday}
+        >
           {today !== undefined ? (
             today
           ) : (
@@ -640,7 +722,11 @@ function CalendarFooter({
       ) : null}
       {showConfirm ? (
         <>
-          <Pressable disabled={disabled} hitSlop={actionHitSlop} onPress={onCancel}>
+          <Pressable
+            disabled={disabled}
+            hitSlop={actionHitSlop}
+            onPress={onCancel}
+          >
             {cancel !== undefined ? (
               cancel
             ) : (
@@ -714,7 +800,9 @@ function CalendarPickerViewRoot({
     normalizedControlledValue,
     onChange,
   );
-  const [draftValue, setDraftValue] = useState<CalendarPickerViewValue | undefined>(undefined);
+  const [draftValue, setDraftValue] = useState<
+    CalendarPickerViewValue | undefined
+  >(undefined);
   const visibleValue = draftValue ?? committedValue;
   const [panel, setPanel] = useState(parsePanel(visibleValue));
   const isInteractive = !disabled && !readonly;
@@ -748,7 +836,13 @@ function CalendarPickerViewRoot({
 
     setPanel(parsePanel(nextToday));
 
-    if (!isValueDisabled(nextToday, { disabled, disabledDate, maxDate, minDate }, resolvedMode)) {
+    if (
+      !isValueDisabled(
+        nextToday,
+        { disabled, disabledDate, maxDate, minDate },
+        resolvedMode,
+      )
+    ) {
       handleSelect(nextToday);
     }
   };
@@ -759,42 +853,48 @@ function CalendarPickerViewRoot({
 
   return (
     <View style={[tokenStyles.root, styles?.root, style]}>
-      {showHeader ? <CalendarHeader
-        disabled={disabled}
-        mode={resolvedMode}
-        next={next}
-        nextText={nextText}
-        onNext={() => {
-          if (!disabled) {
-            setPanel(addPanel(panel, resolvedMode, 1));
-          }
-        }}
-        onPrevious={() => {
-          if (!disabled) {
-            setPanel(addPanel(panel, resolvedMode, -1));
-          }
-        }}
-        panel={panel}
-        previous={previous}
-        previousText={previousText}
-        showValue={showValue}
-        size={resolvedSize}
-        slotStyles={styles}
-        styles={tokenStyles}
-        valueText={valueText}
-      /> : null}
+      {showHeader ? (
+        <CalendarHeader
+          disabled={disabled}
+          mode={resolvedMode}
+          next={next}
+          nextText={nextText}
+          onNext={() => {
+            if (!disabled) {
+              setPanel(addPanel(panel, resolvedMode, 1));
+            }
+          }}
+          onPrevious={() => {
+            if (!disabled) {
+              setPanel(addPanel(panel, resolvedMode, -1));
+            }
+          }}
+          panel={panel}
+          previous={previous}
+          previousText={previousText}
+          showValue={showValue}
+          size={resolvedSize}
+          slotStyles={styles}
+          styles={tokenStyles}
+          valueText={valueText}
+        />
+      ) : null}
       {resolvedMode === 'date' ? (
         <View style={[tokenStyles.weekHeader, styles?.weekHeader]}>
           {weekStartsOn === 'monday'
             ? [...WEEK_DAYS.slice(1), WEEK_DAYS[0]].map(day => (
                 <View key={day} style={tokenStyles.weekCell}>
-                  <Text color="tertiary" style={styles?.weekText}>{day}</Text>
+                  <Text color="tertiary" style={styles?.weekText}>
+                    {day}
+                  </Text>
                 </View>
               ))
             : WEEK_DAYS.map(day => (
-            <View key={day} style={tokenStyles.weekCell}>
-              <Text color="tertiary" style={styles?.weekText}>{day}</Text>
-            </View>
+                <View key={day} style={tokenStyles.weekCell}>
+                  <Text color="tertiary" style={styles?.weekText}>
+                    {day}
+                  </Text>
+                </View>
               ))}
         </View>
       ) : null}
@@ -875,14 +975,21 @@ function CalendarPickerViewRange({
   const normalizedControlledValue =
     value === undefined
       ? undefined
-      : [normalizeValue(value[0], resolvedMode), normalizeValue(value[1], resolvedMode)] as CalendarPickerViewRangeValue;
-  const [committedValue, setCommittedValue] = useControllableValue<CalendarPickerViewRangeValue>(
-    defaultValue
-      ? [normalizeValue(defaultValue[0], resolvedMode), normalizeValue(defaultValue[1], resolvedMode)]
-      : undefined,
-    normalizedControlledValue,
-    onChange,
-  );
+      : ([
+          normalizeValue(value[0], resolvedMode),
+          normalizeValue(value[1], resolvedMode),
+        ] as CalendarPickerViewRangeValue);
+  const [committedValue, setCommittedValue] =
+    useControllableValue<CalendarPickerViewRangeValue>(
+      defaultValue
+        ? [
+            normalizeValue(defaultValue[0], resolvedMode),
+            normalizeValue(defaultValue[1], resolvedMode),
+          ]
+        : undefined,
+      normalizedControlledValue,
+      onChange,
+    );
   const [draftRange, setDraftRange] = useState<CalendarPickerViewValue[]>([]);
   const [panel, setPanel] = useState(parsePanel(committedValue?.[0]));
   const isInteractive = !disabled && !readonly;
@@ -983,7 +1090,13 @@ function CalendarPickerViewRange({
             const nextToday = todayValue(resolvedMode);
             setPanel(parsePanel(nextToday));
 
-            if (!isValueDisabled(nextToday, { disabled, disabledDate, maxDate, minDate }, resolvedMode)) {
+            if (
+              !isValueDisabled(
+                nextToday,
+                { disabled, disabledDate, maxDate, minDate },
+                resolvedMode,
+              )
+            ) {
               handleSelect(nextToday);
             }
           }}

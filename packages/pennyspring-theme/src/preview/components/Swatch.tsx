@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text } from 'react-native';
 import { createUseSheetStyle } from '../../createUseSheetStyle';
 
-const useSwatchStyles = createUseSheetStyle((tokens) => ({
+const useSwatchStyles = createUseSheetStyle(tokens => ({
   swatchRow: {
     flexDirection: 'row',
     alignItems: 'center',

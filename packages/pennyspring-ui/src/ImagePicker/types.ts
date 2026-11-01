@@ -8,17 +8,7 @@ import type { TriggerFieldStyles } from '../shares/pickerStyles';
 export type ImagePickerSource = 'camera' | 'photo' | 'fileSystem';
 
 export type ImagePickerImageQuality =
-  | 0
-  | 0.1
-  | 0.2
-  | 0.3
-  | 0.4
-  | 0.5
-  | 0.6
-  | 0.7
-  | 0.8
-  | 0.9
-  | 1;
+  0 | 0.1 | 0.2 | 0.3 | 0.4 | 0.5 | 0.6 | 0.7 | 0.8 | 0.9 | 1;
 
 export interface ImagePickerValue {
   uri: string;
@@ -74,10 +64,7 @@ export type ImagePickerDisplayInputProps = PickerDisplayInputProps;
 interface ImagePickerBaseProps {
   open?: boolean;
   defaultOpen?: boolean;
-  onOpenChange?: (
-    open: boolean,
-    params: ImagePickerOpenChangeParams,
-  ) => void;
+  onOpenChange?: (open: boolean, params: ImagePickerOpenChangeParams) => void;
   onError?: (error: unknown) => void;
   readonly?: boolean;
   disabled?: boolean;
@@ -129,15 +116,13 @@ export interface ImagePickerMultipleProps extends ImagePickerBaseProps {
   onChange?: (value: ImagePickerValue[]) => void;
 }
 
-export type ImagePickerProps = ImagePickerSingleProps | ImagePickerMultipleProps;
+export type ImagePickerProps =
+  ImagePickerSingleProps | ImagePickerMultipleProps;
 
 export interface ImagePickerPopupBaseProps {
   open?: boolean;
   defaultOpen?: boolean;
-  onOpenChange?: (
-    open: boolean,
-    params: ImagePickerOpenChangeParams,
-  ) => void;
+  onOpenChange?: (open: boolean, params: ImagePickerOpenChangeParams) => void;
   onError?: (error: unknown) => void;
   readonly?: boolean;
   disabled?: boolean;
@@ -165,16 +150,14 @@ export interface ImagePickerPopupBaseProps {
   styles?: ImagePickerStyles;
 }
 
-export interface ImagePickerPopupSingleProps
-  extends ImagePickerPopupBaseProps {
+export interface ImagePickerPopupSingleProps extends ImagePickerPopupBaseProps {
   multiple?: false;
   value?: ImagePickerValue;
   defaultValue?: ImagePickerValue;
   onChange?: (value: ImagePickerValue) => void;
 }
 
-export interface ImagePickerPopupMultipleProps
-  extends ImagePickerPopupBaseProps {
+export interface ImagePickerPopupMultipleProps extends ImagePickerPopupBaseProps {
   multiple: true;
   value?: ImagePickerValue[];
   defaultValue?: ImagePickerValue[];
@@ -182,16 +165,12 @@ export interface ImagePickerPopupMultipleProps
 }
 
 export type ImagePickerPopupProps =
-  | ImagePickerPopupSingleProps
-  | ImagePickerPopupMultipleProps;
+  ImagePickerPopupSingleProps | ImagePickerPopupMultipleProps;
 
 export interface ImagePickerActionSheetBaseProps {
   open?: boolean;
   defaultOpen?: boolean;
-  onOpenChange?: (
-    open: boolean,
-    params: ImagePickerOpenChangeParams,
-  ) => void;
+  onOpenChange?: (open: boolean, params: ImagePickerOpenChangeParams) => void;
   onError?: (error: unknown) => void;
   cameraText?: string;
   photoText?: string;
@@ -210,16 +189,14 @@ export interface ImagePickerActionSheetBaseProps {
   quality?: ImagePickerImageQuality;
 }
 
-export interface ImagePickerActionSheetSingleProps
-  extends ImagePickerActionSheetBaseProps {
+export interface ImagePickerActionSheetSingleProps extends ImagePickerActionSheetBaseProps {
   multiple?: false;
   value?: ImagePickerValue;
   defaultValue?: ImagePickerValue;
   onChange?: (value: ImagePickerValue) => void;
 }
 
-export interface ImagePickerActionSheetMultipleProps
-  extends ImagePickerActionSheetBaseProps {
+export interface ImagePickerActionSheetMultipleProps extends ImagePickerActionSheetBaseProps {
   multiple: true;
   value?: ImagePickerValue[];
   defaultValue?: ImagePickerValue[];
@@ -227,5 +204,4 @@ export interface ImagePickerActionSheetMultipleProps
 }
 
 export type ImagePickerActionSheetProps =
-  | ImagePickerActionSheetSingleProps
-  | ImagePickerActionSheetMultipleProps;
+  ImagePickerActionSheetSingleProps | ImagePickerActionSheetMultipleProps;

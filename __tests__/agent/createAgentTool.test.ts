@@ -47,7 +47,10 @@ describe('createAgentTool', () => {
       '工具 demo 执行失败：boom',
     );
     expect(console.error).toHaveBeenCalledTimes(1);
-    expect(console.error).toHaveBeenCalledWith('[agent:demo] 工具执行失败', cause);
+    expect(console.error).toHaveBeenCalledWith(
+      '[agent:demo] 工具执行失败',
+      cause,
+    );
   });
 
   it('does not log or wrap abort errors', async () => {

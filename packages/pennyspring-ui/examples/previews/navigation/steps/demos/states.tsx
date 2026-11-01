@@ -32,11 +32,13 @@ export function StepsStatesDemo() {
   return (
     <Column gap="normal">
       <Text color="tertiary" size="xs">
-        四态全览：wait 发丝描边 + 二级标题；process 主色 + 4px colorPrimaryBg 外环；finish 成功色 + 勾；error 错误色 + 叉
+        四态全览：wait 发丝描边 + 二级标题；process 主色 + 4px colorPrimaryBg
+        外环；finish 成功色 + 勾；error 错误色 + 叉
       </Text>
       <Steps items={INTERACTIVE_ITEMS} value={value} onChange={setValue} />
       <Text color="tertiary" size="xs">
-        点击未完成步：该步变 process，之前的步变 finish；点击当前步不重复触发 onChange
+        点击未完成步：该步变 process，之前的步变 finish；点击当前步不重复触发
+        onChange
       </Text>
       <Steps
         defaultValue={0}

@@ -9,7 +9,11 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
-import { createUseSheetStyle, toShadowStyle, useTheme } from '@pennyspring/theme';
+import {
+  createUseSheetStyle,
+  toShadowStyle,
+  useTheme,
+} from '@pennyspring/theme';
 import { Icon } from '../Icon';
 import { PortalContext } from '../Portal/Portal';
 import { resolvePortalMount } from '../Portal/resolvePortalMount';
@@ -85,7 +89,10 @@ interface MessageStyleOptions {
 }
 
 const useStyles = createUseSheetStyle(
-  (token, { placement, safeAreaBottom, safeAreaTop, status }: MessageStyleOptions) => {
+  (
+    token,
+    { placement, safeAreaBottom, safeAreaTop, status }: MessageStyleOptions,
+  ) => {
     const statusConfig = STATUS_STYLE_MAP[status];
 
     return {
@@ -191,7 +198,13 @@ function MessageBody({
         }
       },
     );
-  }, [handleClosed, isOpen, progress, token.motionDurationMid, token.motionEaseInOut]);
+  }, [
+    handleClosed,
+    isOpen,
+    progress,
+    token.motionDurationMid,
+    token.motionEaseInOut,
+  ]);
 
   React.useEffect(() => {
     // 有操作时常驻，等用户点操作或关闭；显式 duration 仍然生效。
@@ -240,28 +253,31 @@ function MessageBody({
     };
   });
 
-  const isActionAttachedInline = isPrimitiveContent(message ?? messageText) && action !== undefined;
-  const actionNode = action === undefined ? null : (
-    <Text
-      color={statusConfig.actionColor}
-      onPress={action.onPress}
-      size="sm"
-      style={[tokenStyles.action, styles?.action]}
-      weight="semibold"
-    >
-      {isActionAttachedInline ? `  ${action.text}` : action.text}
-    </Text>
-  );
-  const resolvedIcon = icon === undefined
-    ? (
+  const isActionAttachedInline =
+    isPrimitiveContent(message ?? messageText) && action !== undefined;
+  const actionNode =
+    action === undefined ? null : (
+      <Text
+        color={statusConfig.actionColor}
+        onPress={action.onPress}
+        size="sm"
+        style={[tokenStyles.action, styles?.action]}
+        weight="semibold"
+      >
+        {isActionAttachedInline ? `  ${action.text}` : action.text}
+      </Text>
+    );
+  const resolvedIcon =
+    icon === undefined ? (
       <Icon
         color={statusConfig.iconColor}
         icon={statusConfig.icon}
         size={ICON_SIZE}
         style={tokenStyles.icon}
       />
-    )
-    : icon;
+    ) : (
+      icon
+    );
 
   return (
     <Animated.View
@@ -271,7 +287,7 @@ function MessageBody({
       <Row style={tokenStyles.body}>
         {resolvedIcon}
         <View style={tokenStyles.bodyContent}>
-          {renderTextNode(message ?? messageText, (text) => (
+          {renderTextNode(message ?? messageText, text => (
             <Text
               color="default"
               numberOfLines={2}
@@ -285,7 +301,11 @@ function MessageBody({
           {!isActionAttachedInline ? actionNode : null}
         </View>
         {closable ? (
-          <Pressable hitSlop={token.marginXXS} onPress={onCloseStart} style={tokenStyles.close}>
+          <Pressable
+            hitSlop={token.marginXXS}
+            onPress={onCloseStart}
+            style={tokenStyles.close}
+          >
             <Icon color="tertiary" icon="close" size={CLOSE_ICON_SIZE} />
           </Pressable>
         ) : null}
@@ -368,19 +388,17 @@ export function useMessage(): MessageController {
     render: (options, params) => {
       const { onCancel, ...restOptions } = options;
 
-      return (
-        resolvePortalMount(
-          <MessageBody
-            {...restOptions}
-            isOpen={params.isOpen}
-            onExited={() => {
-              onCancel?.();
-              params.onExited();
-            }}
-          />,
-          'portal',
-          true,
-        )
+      return resolvePortalMount(
+        <MessageBody
+          {...restOptions}
+          isOpen={params.isOpen}
+          onExited={() => {
+            onCancel?.();
+            params.onExited();
+          }}
+        />,
+        'portal',
+        true,
       );
     },
   });

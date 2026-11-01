@@ -82,7 +82,11 @@ export function NetWorthSparkline({ points }: NetWorthSparklineProps) {
         lineStyle: { color: lineColor, width: 2 },
         areaStyle: { color: lineColor, opacity: 0.18 },
         emphasis: {
-          itemStyle: { color: lineColor, borderColor: token.colorBgContainer, borderWidth: 1.5 },
+          itemStyle: {
+            color: lineColor,
+            borderColor: token.colorBgContainer,
+            borderWidth: 1.5,
+          },
         },
       },
     ],
@@ -91,7 +95,11 @@ export function NetWorthSparkline({ points }: NetWorthSparklineProps) {
   return (
     <View style={styles.wrap} onLayout={onLayout}>
       {width > 0 ? (
-        <EChartView option={option} width={width} height={width * HEIGHT_RATIO} />
+        <EChartView
+          option={option}
+          width={width}
+          height={width * HEIGHT_RATIO}
+        />
       ) : null}
     </View>
   );

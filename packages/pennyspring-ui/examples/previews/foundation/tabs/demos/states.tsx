@@ -11,7 +11,8 @@ export function TabsStatesDemo() {
   return (
     <Column gap="normal">
       <Text color="tertiary" size="sm">
-        未选三级文字、无下划线；选中 colorPrimary 600 + 2px 下划线；按压是 8 圆角 colorFillTertiary
+        未选三级文字、无下划线；选中 colorPrimary 600 + 2px 下划线；按压是 8
+        圆角 colorFillTertiary
       </Text>
       <Tabs defaultValue="records" items={ITEMS} />
       <Text color="tertiary" size="sm">

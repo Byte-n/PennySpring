@@ -31,8 +31,10 @@ export interface StepsStyles {
   connector?: StyleProp<ViewStyle>;
 }
 
-export interface StepsProps
-  extends Omit<PressableProps, 'style' | 'children' | 'disabled' | 'onPress'> {
+export interface StepsProps extends Omit<
+  PressableProps,
+  'style' | 'children' | 'disabled' | 'onPress'
+> {
   items: StepsItem[];
   value?: number;
   defaultValue?: number;

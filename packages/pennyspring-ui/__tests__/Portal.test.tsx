@@ -132,9 +132,7 @@ describe('Portal', () => {
     );
 
     const allViews = testRenderer.root.findAllByType(View);
-    const viewsWithId = allViews.filter(
-      view => view.props.id !== undefined,
-    );
+    const viewsWithId = allViews.filter(view => view.props.id !== undefined);
 
     expect(viewsWithId).toHaveLength(0);
   });

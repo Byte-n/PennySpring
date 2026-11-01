@@ -1,5 +1,11 @@
 import type { ReactNode } from 'react';
-import type { FlatListProps, GestureResponderEvent, ListRenderItemInfo, StyleProp, ViewStyle } from 'react-native';
+import type {
+  FlatListProps,
+  GestureResponderEvent,
+  ListRenderItemInfo,
+  StyleProp,
+  ViewStyle,
+} from 'react-native';
 import type { IconName } from '../Icon';
 import type { ComponentSize } from '../shares/types';
 import type { SwipeActionAction } from '../SwipeAction';
@@ -69,8 +75,14 @@ export interface ListSectionData<ItemT = ListItemData> {
   onOpenChange?: (open: boolean) => void;
 }
 
-export interface ListProps<ItemT = ListItemData>
-  extends Omit<FlatListProps<ItemT>, 'data' | 'renderItem' | 'ListHeaderComponent' | 'ListFooterComponent' | 'ListEmptyComponent'> {
+export interface ListProps<ItemT = ListItemData> extends Omit<
+  FlatListProps<ItemT>,
+  | 'data'
+  | 'renderItem'
+  | 'ListHeaderComponent'
+  | 'ListFooterComponent'
+  | 'ListEmptyComponent'
+> {
   size?: ComponentSize;
   data?: readonly ItemT[] | null;
   /** 分组列表；与 data 二选一，分组标题由 List 渲染。 */

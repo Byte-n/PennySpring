@@ -76,8 +76,7 @@ export interface ImagePreviewGroupItem {
 }
 
 export type ImagePreviewGroupItemInput =
-  | ImageSourcePropType
-  | ImagePreviewGroupItem;
+  ImageSourcePropType | ImagePreviewGroupItem;
 
 export interface ImagePreviewGroupProps {
   /**

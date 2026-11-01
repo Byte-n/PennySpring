@@ -139,7 +139,8 @@ describe('Segmented - labelText and label separation', () => {
     const hasBLabel = itemB
       .findAllByType(RNText)
       .some(
-        (node: { props: { children?: unknown } }) => node.props.children === 'b',
+        (node: { props: { children?: unknown } }) =>
+          node.props.children === 'b',
       );
 
     expect(textContent(testRenderer)).toContain('Alpha');
@@ -199,9 +200,9 @@ describe('Segmented - Text semantic props', () => {
       ],
     });
 
-    expect(testRenderer.root.findByProps({ children: 'Selected' }).props.color).toBe(
-      'default',
-    );
+    expect(
+      testRenderer.root.findByProps({ children: 'Selected' }).props.color,
+    ).toBe('default');
     expect(testRenderer.root.findByProps({ children: 'Off' }).props.color).toBe(
       'quaternary',
     );
@@ -215,7 +216,8 @@ describe('Segmented - Text semantic props', () => {
     });
 
     expect(
-      selectedDisabled.root.findByProps({ children: 'SelectedOff' }).props.color,
+      selectedDisabled.root.findByProps({ children: 'SelectedOff' }).props
+        .color,
     ).toBe('tertiary');
   });
 });

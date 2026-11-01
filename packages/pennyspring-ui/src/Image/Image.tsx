@@ -132,7 +132,9 @@ function ImageRoot({
     onPress !== undefined ||
     status === 'error';
   const errorContent =
-    error === null ? null : error !== undefined ? error : (
+    error === null ? null : error !== undefined ? (
+      error
+    ) : (
       <>
         <Icon color="tertiary" icon="warning" size={WARNING_ICON_SIZE} />
         <Text

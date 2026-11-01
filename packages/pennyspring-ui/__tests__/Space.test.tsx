@@ -6,17 +6,23 @@ import { Space } from '../src/Space';
 function renderSpace(props: Partial<React.ComponentProps<typeof Space>> = {}) {
   let testRenderer: renderer.ReactTestRenderer;
   act(() => {
-    testRenderer = renderer.create(<><Space {...props}>
+    testRenderer = renderer.create(
+      <>
+        <Space {...props}>
           <Text>Income</Text>
           {null}
           <Text>Expense</Text>
           {undefined}
           <Text>Balance</Text>
-        </Space></>);
+        </Space>
+      </>,
+    );
   });
   return testRenderer!;
 }
-function renderThemedSpace(props: Partial<React.ComponentProps<typeof Space>> = {}) {
+function renderThemedSpace(
+  props: Partial<React.ComponentProps<typeof Space>> = {},
+) {
   let testRenderer: renderer.ReactTestRenderer;
   act(() => {
     testRenderer = renderer.create(
@@ -48,7 +54,7 @@ function getSpaceRoot(testRenderer: renderer.ReactTestRenderer) {
 describe('Space', () => {
   it('stretches the root container when block is enabled', () => {
     const testRenderer = renderSpace({
-      block: true
+      block: true,
     });
     const rootStyle = flattenStyle(getSpaceRoot(testRenderer).props.style);
     expect(rootStyle.alignSelf).toBe('stretch');
@@ -101,18 +107,21 @@ describe('Space', () => {
     ['small', 3],
     ['normal', 5],
     ['large', 7],
-  ] as const)('maps %s gap to the same gap in vertical direction', (gap, expectedGap) => {
-    const testRenderer = renderThemedSpace({
-      direction: 'vertical',
-      gap,
-    });
-    const itemStyles = testRenderer.root
-      .findAllByType(View)
-      .map(node => StyleSheet.flatten(node.props.style))
-      .filter(style => style?.marginBottom !== undefined);
+  ] as const)(
+    'maps %s gap to the same gap in vertical direction',
+    (gap, expectedGap) => {
+      const testRenderer = renderThemedSpace({
+        direction: 'vertical',
+        gap,
+      });
+      const itemStyles = testRenderer.root
+        .findAllByType(View)
+        .map(node => StyleSheet.flatten(node.props.style))
+        .filter(style => style?.marginBottom !== undefined);
 
-    expect(itemStyles[0].marginBottom).toBe(expectedGap);
-  });
+      expect(itemStyles[0].marginBottom).toBe(expectedGap);
+    },
+  );
 
   it('defaults to horizontal direction with row layout', () => {
     const testRenderer = renderSpace();
@@ -177,7 +186,9 @@ describe('Space', () => {
     const items = testRenderer.root
       .findAllByType(View)
       .map(node => StyleSheet.flatten(node.props.style))
-      .filter(style => style?.flexShrink === 0 && style?.marginRight !== undefined);
+      .filter(
+        style => style?.flexShrink === 0 && style?.marginRight !== undefined,
+      );
 
     expect(items[0].marginBottom).toBe(5);
   });
@@ -220,6 +231,10 @@ describe('Space', () => {
     const testRenderer = renderSpace();
     const textNodes = testRenderer.root.findAllByType(Text);
     expect(textNodes).toHaveLength(3);
-    expect(textNodes.map(n => n.props.children)).toEqual(['Income', 'Expense', 'Balance']);
+    expect(textNodes.map(n => n.props.children)).toEqual([
+      'Income',
+      'Expense',
+      'Balance',
+    ]);
   });
 });

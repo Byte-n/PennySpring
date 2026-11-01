@@ -42,7 +42,9 @@ it('shows clear button and clears without opening picker trigger', () => {
   });
 
   act(() => {
-    testRenderer.root.findByProps({ testID: 'picker-trigger-clear-button' }).props.onPress();
+    testRenderer.root
+      .findByProps({ testID: 'picker-trigger-clear-button' })
+      .props.onPress();
   });
   act(() => {
     testRenderer.root.findByType(DisplayInput).props.onPress();
@@ -67,7 +69,9 @@ it('resets the clear guard so the next trigger press still opens', () => {
   });
 
   act(() => {
-    testRenderer.root.findByProps({ testID: 'picker-trigger-clear-button' }).props.onPress();
+    testRenderer.root
+      .findByProps({ testID: 'picker-trigger-clear-button' })
+      .props.onPress();
   });
   act(() => {
     jest.advanceTimersByTime(1);
@@ -94,13 +98,19 @@ it('hides clear button when readonly, disabled or without value', () => {
   const emptyRenderer = renderTrigger({ allowClear: true });
 
   expect(
-    readonlyRenderer.root.findAllByProps({ testID: 'picker-trigger-clear-button' }),
+    readonlyRenderer.root.findAllByProps({
+      testID: 'picker-trigger-clear-button',
+    }),
   ).toHaveLength(0);
   expect(
-    disabledRenderer.root.findAllByProps({ testID: 'picker-trigger-clear-button' }),
+    disabledRenderer.root.findAllByProps({
+      testID: 'picker-trigger-clear-button',
+    }),
   ).toHaveLength(0);
   expect(
-    emptyRenderer.root.findAllByProps({ testID: 'picker-trigger-clear-button' }),
+    emptyRenderer.root.findAllByProps({
+      testID: 'picker-trigger-clear-button',
+    }),
   ).toHaveLength(0);
 });
 
@@ -129,9 +139,10 @@ it('replaces the component suffix with the clear button when allowClear is set',
   const plainRenderer = renderTrigger({ suffix: componentSuffix });
 
   expect(
-    clearRenderer.root.findAllByProps({ testID: 'picker-trigger-clear-button' }).length,
+    clearRenderer.root.findAllByProps({ testID: 'picker-trigger-clear-button' })
+      .length,
   ).toBeGreaterThan(0);
-  expect(
-    plainRenderer.root.findByType(DisplayInput).props.suffix,
-  ).toBe(componentSuffix);
+  expect(plainRenderer.root.findByType(DisplayInput).props.suffix).toBe(
+    componentSuffix,
+  );
 });

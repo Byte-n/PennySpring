@@ -75,11 +75,16 @@ const PRESET_COLORS = [
 
 const TRANSPARENT = 'transparent';
 
-function isPresetColor(color: TagColor): color is (typeof PRESET_COLORS)[number] {
+function isPresetColor(
+  color: TagColor,
+): color is (typeof PRESET_COLORS)[number] {
   return PRESET_COLORS.includes(color as (typeof PRESET_COLORS)[number]);
 }
 
-function resolveColorConfig(token: AliasToken, color: TagColor): ColorStyleConfig {
+function resolveColorConfig(
+  token: AliasToken,
+  color: TagColor,
+): ColorStyleConfig {
   if (color === 'primary') {
     return {
       base: token.colorPrimary,

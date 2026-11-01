@@ -3,7 +3,9 @@ import type { ComponentConfig, ConfigProviderProps } from './types';
 
 const DEFAULT_COMPONENT_CONFIG: ComponentConfig = {};
 
-const ConfigContext = React.createContext<ComponentConfig>(DEFAULT_COMPONENT_CONFIG);
+const ConfigContext = React.createContext<ComponentConfig>(
+  DEFAULT_COMPONENT_CONFIG,
+);
 
 export function ConfigProvider({
   children,
@@ -18,7 +20,9 @@ export function ConfigProvider({
     [config, parentConfig],
   );
 
-  return <ConfigContext.Provider value={value}>{children}</ConfigContext.Provider>;
+  return (
+    <ConfigContext.Provider value={value}>{children}</ConfigContext.Provider>
+  );
 }
 
 export function useComponentConfig(): ComponentConfig {

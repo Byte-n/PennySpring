@@ -8,7 +8,7 @@ const previewRoot = path.resolve(__dirname, 'examples/previews');
 const themePreviewPath = path.resolve(
   repoRoot,
   'packages/pennyspring-theme/src/ThemePreview.tsx',
-)
+);
 function collectPreviewSources(rootDir) {
   const sources = {};
 

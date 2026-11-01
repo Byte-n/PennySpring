@@ -16,17 +16,31 @@ function flattenStyle(style: unknown) {
   };
   return Object.assign({}, ...flatten(style));
 }
-function renderDialog(props: Partial<React.ComponentProps<typeof Dialog>> = {}, children: React.ReactNode = <RNText>Dialog content</RNText>) {
+function renderDialog(
+  props: Partial<React.ComponentProps<typeof Dialog>> = {},
+  children: React.ReactNode = <RNText>Dialog content</RNText>,
+) {
   let testRenderer: renderer.ReactTestRenderer;
   act(() => {
-    testRenderer = renderer.create(<><Dialog {...props}>{children}</Dialog></>);
+    testRenderer = renderer.create(
+      <>
+        <Dialog {...props}>{children}</Dialog>
+      </>,
+    );
   });
   return testRenderer!;
 }
-function renderPopup(props: Partial<React.ComponentProps<typeof Popup>> = {}, children: React.ReactNode = <RNText>Popup content</RNText>) {
+function renderPopup(
+  props: Partial<React.ComponentProps<typeof Popup>> = {},
+  children: React.ReactNode = <RNText>Popup content</RNText>,
+) {
   let testRenderer: renderer.ReactTestRenderer;
   act(() => {
-    testRenderer = renderer.create(<><Popup {...props}>{children}</Popup></>);
+    testRenderer = renderer.create(
+      <>
+        <Popup {...props}>{children}</Popup>
+      </>,
+    );
   });
   return testRenderer!;
 }
@@ -38,7 +52,7 @@ describe('Dialog', () => {
   it('renders title content and default actions when opened', () => {
     const testRenderer = renderDialog({
       defaultOpen: true,
-      titleText: 'Delete transaction'
+      titleText: 'Delete transaction',
     });
     const treeString = JSON.stringify(testRenderer.toJSON());
     expect(treeString).toContain('Delete transaction');
@@ -49,22 +63,26 @@ describe('Dialog', () => {
   it('uses layout primitives for dialog structure when opened', () => {
     const testRenderer = renderDialog({
       defaultOpen: true,
-      titleText: 'Delete transaction'
+      titleText: 'Delete transaction',
     });
-    expect(testRenderer.root.findAllByProps({
-      testID: 'column'
-    }).length).toBeGreaterThanOrEqual(2);
-    expect(testRenderer.root.findAllByProps({
-      testID: 'row'
-    }).length).toBeGreaterThanOrEqual(1);
+    expect(
+      testRenderer.root.findAllByProps({
+        testID: 'column',
+      }).length,
+    ).toBeGreaterThanOrEqual(2);
+    expect(
+      testRenderer.root.findAllByProps({
+        testID: 'row',
+      }).length,
+    ).toBeGreaterThanOrEqual(1);
   });
   it('renders title text with semantic Text props by default', () => {
     const testRenderer = renderDialog({
       defaultOpen: true,
-      titleText: 'Delete transaction'
+      titleText: 'Delete transaction',
     });
     const title = testRenderer.root.findByProps({
-      testID: 'dialog-title-text'
+      testID: 'dialog-title-text',
     });
     expect(title.props.size).toBe('md');
     expect(title.props.color).toBe('heading');
@@ -75,7 +93,7 @@ describe('Dialog', () => {
       cancel: <RNText>Keep</RNText>,
       defaultOpen: true,
       ok: <RNText>Delete</RNText>,
-      title: <RNText>Custom title</RNText>
+      title: <RNText>Custom title</RNText>,
     });
     const treeString = JSON.stringify(testRenderer.toJSON());
     expect(treeString).toContain('Custom title');
@@ -87,12 +105,15 @@ describe('Dialog', () => {
     const testRenderer = renderDialog({
       defaultOpen: true,
       onCancel: params => calls.push(`cancel:${params.reason}`),
-      onOpenChange: (nextOpen, params) => calls.push(`open:${nextOpen}:${params.reason}`)
+      onOpenChange: (nextOpen, params) =>
+        calls.push(`open:${nextOpen}:${params.reason}`),
     });
     act(() => {
-      testRenderer.root.findByProps({
-        testID: 'dialog-cancel-button'
-      }).props.onPress();
+      testRenderer.root
+        .findByProps({
+          testID: 'dialog-cancel-button',
+        })
+        .props.onPress();
     });
     expect(calls).toEqual(['cancel:cancel', 'open:false:cancel']);
     expect(testRenderer.toJSON()).toBeNull();
@@ -104,12 +125,15 @@ describe('Dialog', () => {
       onOk: () => {
         calls.push('ok');
       },
-      onOpenChange: (nextOpen, params) => calls.push(`open:${nextOpen}:${params.reason}`)
+      onOpenChange: (nextOpen, params) =>
+        calls.push(`open:${nextOpen}:${params.reason}`),
     });
     await act(async () => {
-      await testRenderer.root.findByProps({
-        testID: 'dialog-ok-button'
-      }).props.onPress();
+      await testRenderer.root
+        .findByProps({
+          testID: 'dialog-ok-button',
+        })
+        .props.onPress();
     });
     expect(calls).toEqual(['ok', 'open:false:ok']);
     expect(testRenderer.toJSON()).toBeNull();
@@ -118,12 +142,14 @@ describe('Dialog', () => {
     const onOk = jest.fn(() => false);
     const testRenderer = renderDialog({
       defaultOpen: true,
-      onOk
+      onOk,
     });
     await act(async () => {
-      await testRenderer.root.findByProps({
-        testID: 'dialog-ok-button'
-      }).props.onPress();
+      await testRenderer.root
+        .findByProps({
+          testID: 'dialog-ok-button',
+        })
+        .props.onPress();
     });
     expect(onOk).toHaveBeenCalledTimes(1);
     expect(JSON.stringify(testRenderer.toJSON())).toContain('Dialog content');
@@ -134,12 +160,14 @@ describe('Dialog', () => {
     });
     const testRenderer = renderDialog({
       defaultOpen: true,
-      onOk
+      onOk,
     });
     await act(async () => {
-      await testRenderer.root.findByProps({
-        testID: 'dialog-ok-button'
-      }).props.onPress();
+      await testRenderer.root
+        .findByProps({
+          testID: 'dialog-ok-button',
+        })
+        .props.onPress();
     });
     expect(onOk).toHaveBeenCalledTimes(1);
     expect(JSON.stringify(testRenderer.toJSON())).toContain('Dialog content');
@@ -149,12 +177,14 @@ describe('Dialog', () => {
     const testRenderer = renderDialog({
       defaultOpen: true,
       okDisabled: true,
-      onOk
+      onOk,
     });
     act(() => {
-      testRenderer.root.findByProps({
-        testID: 'dialog-ok-button'
-      }).props.onPress();
+      testRenderer.root
+        .findByProps({
+          testID: 'dialog-ok-button',
+        })
+        .props.onPress();
     });
     expect(onOk).not.toHaveBeenCalled();
     expect(JSON.stringify(testRenderer.toJSON())).toContain('Dialog content');
@@ -164,12 +194,15 @@ describe('Dialog', () => {
     const testRenderer = renderDialog({
       defaultOpen: true,
       onCancel: params => calls.push(`cancel:${params.reason}`),
-      onOpenChange: (nextOpen, params) => calls.push(`open:${nextOpen}:${params.reason}`)
+      onOpenChange: (nextOpen, params) =>
+        calls.push(`open:${nextOpen}:${params.reason}`),
     });
     act(() => {
-      testRenderer.root.findByProps({
-        testID: 'popup-mask'
-      }).props.onPress();
+      testRenderer.root
+        .findByProps({
+          testID: 'popup-mask',
+        })
+        .props.onPress();
     });
     expect(calls).toEqual(['cancel:mask', 'open:false:mask']);
     expect(testRenderer.toJSON()).toBeNull();
@@ -179,59 +212,80 @@ describe('Dialog', () => {
     const onOpenChange = jest.fn();
     let testRenderer: renderer.ReactTestRenderer;
     act(() => {
-      testRenderer = renderer.create(<><Dialog open onCancel={onCancel} onOpenChange={onOpenChange}>
+      testRenderer = renderer.create(
+        <>
+          <Dialog open onCancel={onCancel} onOpenChange={onOpenChange}>
             <RNText>Dialog content</RNText>
-          </Dialog></>);
+          </Dialog>
+        </>,
+      );
     });
     act(() => {
-      testRenderer!.update(<><Dialog open={false} onCancel={onCancel} onOpenChange={onOpenChange}>
+      testRenderer!.update(
+        <>
+          <Dialog open={false} onCancel={onCancel} onOpenChange={onOpenChange}>
             <RNText>Dialog content</RNText>
-          </Dialog></>);
+          </Dialog>
+        </>,
+      );
     });
     expect(onCancel).not.toHaveBeenCalled();
     expect(onOpenChange).not.toHaveBeenCalled();
   });
   it('uses the same default popup layer as Popup', () => {
     const dialogRenderer = renderDialog({
-      defaultOpen: true
+      defaultOpen: true,
     });
     const popupRenderer = renderPopup({
-      defaultOpen: true
+      defaultOpen: true,
     });
-    const dialogLayout = flattenStyle(dialogRenderer.root.findByProps({
-      testID: 'popup-layout'
-    }).props.style);
-    const popupLayout = flattenStyle(popupRenderer.root.findByProps({
-      testID: 'popup-layout'
-    }).props.style);
+    const dialogLayout = flattenStyle(
+      dialogRenderer.root.findByProps({
+        testID: 'popup-layout',
+      }).props.style,
+    );
+    const popupLayout = flattenStyle(
+      popupRenderer.root.findByProps({
+        testID: 'popup-layout',
+      }).props.style,
+    );
     expect(dialogLayout.zIndex).toBe(popupLayout.zIndex);
   });
   it('renders arbitrary children as dialog body content', () => {
-    const testRenderer = renderDialog({
-      defaultOpen: true
-    }, <View testID="custom-dialog-child">
+    const testRenderer = renderDialog(
+      {
+        defaultOpen: true,
+      },
+      <View testID="custom-dialog-child">
         <RNText>Custom body</RNText>
-      </View>);
-    expect(testRenderer.root.findByProps({
-      testID: 'custom-dialog-child'
-    })).toBeTruthy();
+      </View>,
+    );
+    expect(
+      testRenderer.root.findByProps({
+        testID: 'custom-dialog-child',
+      }),
+    ).toBeTruthy();
   });
   it('keeps content local when mountPoint is local inside a PortalProvider', () => {
     let testRenderer: renderer.ReactTestRenderer;
     act(() => {
-      testRenderer = renderer.create(<><PortalProvider>
+      testRenderer = renderer.create(
+        <>
+          <PortalProvider>
             <View testID="provider-host">
               <Dialog open mountPoint="local">
                 <RNText>Dialog content</RNText>
               </Dialog>
             </View>
-          </PortalProvider></>);
+          </PortalProvider>
+        </>,
+      );
     });
     const providerHost = testRenderer!.root.findByProps({
-      testID: 'provider-host'
+      testID: 'provider-host',
     });
     const popupBody = testRenderer!.root.findByProps({
-      testID: 'popup-body'
+      testID: 'popup-body',
     });
     const ancestors: renderer.ReactTestInstance[] = [];
     let current = popupBody.parent;
@@ -244,28 +298,36 @@ describe('Dialog', () => {
   it('throws when mountPoint is portal without a PortalProvider', () => {
     expect(() => {
       act(() => {
-        renderer.create(<><Dialog open mountPoint="portal">
+        renderer.create(
+          <>
+            <Dialog open mountPoint="portal">
               <RNText>Dialog content</RNText>
-            </Dialog></>);
+            </Dialog>
+          </>,
+        );
       });
     }).toThrow('PortalProvider');
   });
   it('renders the ok button as primary by default and danger when okDanger is true', () => {
     const primary = renderDialog({
       defaultOpen: true,
-      okText: 'Delete'
+      okText: 'Delete',
     });
-    expect(primary.root.findByProps({
-      testID: 'dialog-ok-button'
-    }).props.type).toBe('primary');
+    expect(
+      primary.root.findByProps({
+        testID: 'dialog-ok-button',
+      }).props.type,
+    ).toBe('primary');
 
     const danger = renderDialog({
       defaultOpen: true,
       okDanger: true,
-      okText: 'Delete'
+      okText: 'Delete',
     });
-    expect(danger.root.findByProps({
-      testID: 'dialog-ok-button'
-    }).props.type).toBe('danger');
+    expect(
+      danger.root.findByProps({
+        testID: 'dialog-ok-button',
+      }).props.type,
+    ).toBe('danger');
   });
 });

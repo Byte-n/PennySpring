@@ -254,8 +254,7 @@ export function TagManageScreen() {
     return [
       { text: '编辑标签', icon: 'edit' as const },
       {
-        text:
-          tag?.invisible === VISIBILITY.hidden ? '显示标签' : '隐藏标签',
+        text: tag?.invisible === VISIBILITY.hidden ? '显示标签' : '隐藏标签',
         icon:
           tag?.invisible === VISIBILITY.hidden
             ? ('eye' as const)
@@ -361,7 +360,12 @@ export function TagManageScreen() {
           </Column>
         ) : null}
 
-        <Text size="xs" style={styles.listEnd} color="tertiary" textAlign="center">
+        <Text
+          size="xs"
+          style={styles.listEnd}
+          color="tertiary"
+          textAlign="center"
+        >
           轻点标签可编辑、隐藏或删除{'\n'}
           删除只解除关联，不影响记录金额
         </Text>
@@ -476,9 +480,7 @@ export function TagManageScreen() {
         onConfirm={handleDelete}
         open={pendingDeleteTag !== null}
         titleText={
-          pendingDeleteTag
-            ? `删除「${pendingDeleteTag.name}」？`
-            : '删除标签'
+          pendingDeleteTag ? `删除「${pendingDeleteTag.name}」？` : '删除标签'
         }
       />
     </Column>

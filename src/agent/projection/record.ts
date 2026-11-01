@@ -107,7 +107,10 @@ function toYuan(cents: number): number {
   return Math.round(cents) / CENTS_PER_YUAN;
 }
 
-function parseDateField(value: unknown, field: 'from' | 'to'): string | undefined {
+function parseDateField(
+  value: unknown,
+  field: 'from' | 'to',
+): string | undefined {
   if (value === undefined || value === null) {
     return undefined;
   }
@@ -193,9 +196,8 @@ function parseQueryOptions(raw: Record<string, unknown>): QueryOptions {
     throw new Error('起始日期不能晚于结束日期');
   }
 
-  const keyword = raw.keyword === undefined || raw.keyword === null
-    ? ''
-    : raw.keyword;
+  const keyword =
+    raw.keyword === undefined || raw.keyword === null ? '' : raw.keyword;
   if (typeof keyword !== 'string') {
     throw new Error('keyword 必须是字符串');
   }
@@ -261,18 +263,11 @@ function buildTagBuckets(
   }
 
   return tagIds.map(tagId =>
-    createBucket(
-      String(tagId),
-      tagNames.get(tagId) ?? `标签 ${tagId}`,
-    ),
+    createBucket(String(tagId), tagNames.get(tagId) ?? `标签 ${tagId}`),
   );
 }
 
-function createBucket(
-  key: string,
-  label: string,
-  category?: string,
-): Bucket {
+function createBucket(key: string, label: string, category?: string): Bucket {
   return {
     key,
     label,
@@ -312,7 +307,11 @@ function recordBucketKey(
   }
 }
 
-function applyAmounts(bucket: Bucket, record: RecordRow, category: string): void {
+function applyAmounts(
+  bucket: Bucket,
+  record: RecordRow,
+  category: string,
+): void {
   if (category === '支出') {
     bucket.expenseCents += record.finalAmount;
   } else if (category === '收入') {
@@ -330,13 +329,13 @@ function collectBuckets(
   tagNames: ReadonlyMap<number, string>,
   recordTagMap: ReadonlyMap<number, readonly number[]>,
 ): Bucket[] {
-  const buckets = new Map<string, Bucket>()
+  const buckets = new Map<string, Bucket>();
 
   for (const record of records) {
-    const type = typeMap.get(record.typeId)
-    const category = categoryLabel(type?.typeCategory)
-    const tagIds = recordTagMap.get(record.id) ?? []
-    const date = dayjs(record.recordTime)
+    const type = typeMap.get(record.typeId);
+    const category = categoryLabel(type?.typeCategory);
+    const tagIds = recordTagMap.get(record.id) ?? [];
+    const date = dayjs(record.recordTime);
     const recordBuckets = recordBucketKey(
       record,
       groupBy,
@@ -344,31 +343,31 @@ function collectBuckets(
       tagIds,
       tagNames,
       date,
-    )
+    );
 
     for (const candidate of recordBuckets) {
-      const bucket = buckets.get(candidate.key) ?? candidate
-      applyAmounts(bucket, record, category)
-      buckets.set(bucket.key, bucket)
+      const bucket = buckets.get(candidate.key) ?? candidate;
+      applyAmounts(bucket, record, category);
+      buckets.set(bucket.key, bucket);
     }
   }
 
-  const list = [...buckets.values()]
+  const list = [...buckets.values()];
   if (groupBy === 'day' || groupBy === 'month') {
-    list.sort((left, right) => left.key.localeCompare(right.key))
+    list.sort((left, right) => left.key.localeCompare(right.key));
   } else {
     list.sort((left, right) => {
-      const leftIncome = left.expenseCents + left.incomeCents
-      const rightIncome = right.expenseCents + right.incomeCents
+      const leftIncome = left.expenseCents + left.incomeCents;
+      const rightIncome = right.expenseCents + right.incomeCents;
       return (
         rightIncome - leftIncome ||
         right.count - left.count ||
         right.transferCents - left.transferCents ||
         left.label.localeCompare(right.label)
-      )
-    })
+      );
+    });
   }
-  return list
+  return list;
 }
 
 function toQueryGroup(bucket: Bucket): QueryGroup {
@@ -389,9 +388,9 @@ function toQueryRecord(
   tagNames: readonly string[],
   withRemark: boolean,
 ): QueryRecordItem {
-  const category = categoryLabel(type?.typeCategory)
-  const isTransfer = category === '转账'
-  const remark = record.remark.trim()
+  const category = categoryLabel(type?.typeCategory);
+  const isTransfer = category === '转账';
+  const remark = record.remark.trim();
 
   return {
     id: record.id,
@@ -404,13 +403,19 @@ function toQueryRecord(
     ...(isTransfer && record.charge > 0
       ? { charge: toYuan(record.charge) }
       : {}),
-  }
+  };
 }
 
-export function projectQueryResult(input: QueryResultInput): QueryResultPayload {
+export function projectQueryResult(
+  input: QueryResultInput,
+): QueryResultPayload {
   const { options } = input;
-  const fromTime = options.from ? dayjs(options.from).startOf('day').valueOf() : undefined;
-  const toTime = options.to ? dayjs(options.to).endOf('day').valueOf() : undefined;
+  const fromTime = options.from
+    ? dayjs(options.from).startOf('day').valueOf()
+    : undefined;
+  const toTime = options.to
+    ? dayjs(options.to).endOf('day').valueOf()
+    : undefined;
   const typeFilter = expandTypeIds(options.typeIds, input.types);
   const tagFilter = options.tagIds.length ? new Set(options.tagIds) : undefined;
   const keyword = options.keyword.toLowerCase();
@@ -428,12 +433,12 @@ export function projectQueryResult(input: QueryResultInput): QueryResultPayload 
         const tagIds = recordTagMap.get(record.id) ?? [];
         if (!tagIds.some(tagId => tagFilter.has(tagId))) return false;
       }
-      if (keyword && !record.remark.toLowerCase().includes(keyword)) return false;
+      if (keyword && !record.remark.toLowerCase().includes(keyword))
+        return false;
       return true;
     })
     .sort(
-      (left, right) =>
-        right.recordTime - left.recordTime || right.id - left.id,
+      (left, right) => right.recordTime - left.recordTime || right.id - left.id,
     );
 
   let expenseCents = 0;

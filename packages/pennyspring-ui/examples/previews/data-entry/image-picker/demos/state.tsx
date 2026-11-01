@@ -32,11 +32,7 @@ export function ImagePickerStateDemo() {
         labelText="Choose image"
         size="small"
       />
-      <ImagePicker
-        label="Error"
-        labelText="Choose image"
-        status="error"
-      />
+      <ImagePicker label="Error" labelText="Choose image" status="error" />
     </Column>
   );
 }

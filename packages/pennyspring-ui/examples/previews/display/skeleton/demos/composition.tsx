@@ -48,7 +48,9 @@ export function SkeletonCompositionDemo() {
   return (
     <Column gap="large">
       <Column gap="small">
-        <Text color="tertiary" size="xs">列表行：行高 64，与 List 行一致，加载完不跳</Text>
+        <Text color="tertiary" size="xs">
+          列表行：行高 64，与 List 行一致，加载完不跳
+        </Text>
         <Column style={styles.card}>
           <Row style={styles.row}>
             <Skeleton shape="circle" />
@@ -69,7 +71,9 @@ export function SkeletonCompositionDemo() {
         </Column>
       </Column>
       <Column gap="small">
-        <Text color="tertiary" size="xs">卡片：标题、图表、正文、说明四层</Text>
+        <Text color="tertiary" size="xs">
+          卡片：标题、图表、正文、说明四层
+        </Text>
         <Column style={styles.card}>
           <Row style={styles.row}>
             <Skeleton shape="circle" size="small" />
@@ -81,7 +85,9 @@ export function SkeletonCompositionDemo() {
         </Column>
       </Column>
       <Column gap="small">
-        <Text color="tertiary" size="xs">统计块：大数字用 28 高、8 圆角，与金额排印对齐</Text>
+        <Text color="tertiary" size="xs">
+          统计块：大数字用 28 高、8 圆角，与金额排印对齐
+        </Text>
         <Row gap="small">
           <Skeleton style={styles.statValue} />
           <Skeleton size="small" style={styles.w30} />

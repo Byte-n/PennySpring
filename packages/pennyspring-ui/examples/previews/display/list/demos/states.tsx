@@ -19,7 +19,11 @@ export function ListStatesDemo() {
   const loadedRows: ListItemData[] = Array.from(
     { length: loadedCount },
     (_, index) => ({
-      right: <Text color="error" weight="semibold">-¥120.00</Text>,
+      right: (
+        <Text color="error" weight="semibold">
+          -¥120.00
+        </Text>
+      ),
       descriptionText: '刚刚加载的记录',
       icon: 'list' as const,
       titleText: `新增记录 ${index + 1}`,
@@ -30,11 +34,18 @@ export function ListStatesDemo() {
   return (
     <Column gap="normal">
       <Text color="tertiary" size="sm">
-        空态直接传 Empty variant=boxed；列表底部加载用 Loading variant=more，加载完在同位置显示「已加载全部」。预览页由外层统一滚动，这里用按钮模拟加载更多
+        空态直接传 Empty variant=boxed；列表底部加载用 Loading
+        variant=more，加载完在同位置显示「已加载全部」。预览页由外层统一滚动，这里用按钮模拟加载更多
       </Text>
       <List<ListItemData>
         data={[]}
-        empty={<Empty size="small" titleText="还没有交易记录" descriptionText="点右下角 + 记一笔。" />}
+        empty={
+          <Empty
+            size="small"
+            titleText="还没有交易记录"
+            descriptionText="点右下角 + 记一笔。"
+          />
+        }
         header="空状态"
         scrollEnabled={false}
       />
@@ -57,7 +68,12 @@ export function ListStatesDemo() {
         scrollEnabled={false}
       />
       {hasMore ? (
-        <Button disabled={loading} onPress={loadMore} size="small" type="primary">
+        <Button
+          disabled={loading}
+          onPress={loadMore}
+          size="small"
+          type="primary"
+        >
           加载更多
         </Button>
       ) : null}

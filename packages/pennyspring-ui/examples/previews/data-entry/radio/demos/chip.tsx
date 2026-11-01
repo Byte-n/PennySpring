@@ -1,6 +1,10 @@
 import React from 'react';
 import { Column, Radio, Text } from '@pennyspring/ui';
-import type { ComponentSize, RadioGroupOption, RadioGroupValue } from '@pennyspring/ui';
+import type {
+  ComponentSize,
+  RadioGroupOption,
+  RadioGroupValue,
+} from '@pennyspring/ui';
 
 const RANGE_OPTIONS: RadioGroupOption[] = [
   { label: '本月', value: 'month' },
@@ -31,7 +35,8 @@ export function RadioChipDemo() {
   return (
     <Column gap="normal">
       <Text color="tertiary" size="sm">
-        999 圆角 chip，无描边：未选 colorFillTertiary + 二级文字，选中 colorPrimaryBg + 主色 600，禁用 colorFillQuaternary + 四级文字
+        999 圆角 chip，无描边：未选 colorFillTertiary + 二级文字，选中
+        colorPrimaryBg + 主色 600，禁用 colorFillQuaternary + 四级文字
       </Text>
       <Radio.Group
         displayType="button"
@@ -42,10 +47,14 @@ export function RadioChipDemo() {
       <Text color="tertiary" size="sm">
         当前区间：{String(range)}；一屏只放一组 chip
       </Text>
-      <Text color="tertiary" size="sm">chip 三档高度</Text>
+      <Text color="tertiary" size="sm">
+        chip 三档高度
+      </Text>
       {CHIP_SIZES.map(({ hint, size }) => (
         <Column key={size} gap="small">
-          <Text color="tertiary" size="sm">{hint}</Text>
+          <Text color="tertiary" size="sm">
+            {hint}
+          </Text>
           <Radio.Group
             displayType="button"
             defaultValue="month"

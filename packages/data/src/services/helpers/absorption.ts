@@ -1,50 +1,59 @@
-import { eq } from 'drizzle-orm'
+import { eq } from 'drizzle-orm';
 
-import { records, recordWithRecord } from '../../schema'
-import type { Tx } from '../types'
+import { records, recordWithRecord } from '../../schema';
+import type { Tx } from '../types';
 
 export async function recalculateAbsorption(tx: Tx, expenseRecordId: number) {
   const expense = await tx
     .select({ amount: records.amount, charge: records.charge })
     .from(records)
     .where(eq(records.id, expenseRecordId))
-    .get()
+    .get();
 
-  if (!expense) return
+  if (!expense) return;
 
-  const originalImpact = expense.amount + expense.charge
+  const originalImpact = expense.amount + expense.charge;
 
   const links = await tx
     .select({ recordId: recordWithRecord.recordId })
     .from(recordWithRecord)
     .where(eq(recordWithRecord.relatedRecordId, expenseRecordId))
-    .orderBy(recordWithRecord.recordId)
+    .orderBy(recordWithRecord.recordId);
 
-  let cumulativeAbsorbed = 0
+  let cumulativeAbsorbed = 0;
 
   for (const link of links) {
     const incomeRecord = await tx
-      .select({ id: records.id, amount: records.amount, charge: records.charge })
+      .select({
+        id: records.id,
+        amount: records.amount,
+        charge: records.charge,
+      })
       .from(records)
       .where(eq(records.id, link.recordId))
-      .get()
+      .get();
 
-    if (!incomeRecord) continue
+    if (!incomeRecord) continue;
 
-    const arrivalAmount = incomeRecord.amount - incomeRecord.charge
-    const availableToAbsorb = originalImpact - cumulativeAbsorbed
-    const actualAbsorption = Math.min(arrivalAmount, Math.max(0, availableToAbsorb))
-    const incomeFinalAmount = Math.max(0, arrivalAmount - actualAbsorption)
+    const arrivalAmount = incomeRecord.amount - incomeRecord.charge;
+    const availableToAbsorb = originalImpact - cumulativeAbsorbed;
+    const actualAbsorption = Math.min(
+      arrivalAmount,
+      Math.max(0, availableToAbsorb),
+    );
+    const incomeFinalAmount = Math.max(0, arrivalAmount - actualAbsorption);
 
-    await tx.update(records)
+    await tx
+      .update(records)
       .set({ finalAmount: incomeFinalAmount })
-      .where(eq(records.id, incomeRecord.id))
+      .where(eq(records.id, incomeRecord.id));
 
-    cumulativeAbsorbed += actualAbsorption
+    cumulativeAbsorbed += actualAbsorption;
   }
 
-  const expenseFinalAmount = Math.max(0, originalImpact - cumulativeAbsorbed)
-  await tx.update(records)
+  const expenseFinalAmount = Math.max(0, originalImpact - cumulativeAbsorbed);
+  await tx
+    .update(records)
     .set({ finalAmount: expenseFinalAmount })
-    .where(eq(records.id, expenseRecordId))
+    .where(eq(records.id, expenseRecordId));
 }

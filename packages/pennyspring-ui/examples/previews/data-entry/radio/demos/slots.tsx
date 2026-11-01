@@ -24,13 +24,16 @@ export function RadioSlotsDemo() {
   return (
     <Column gap="normal">
       <Text color="tertiary" size="sm">
-        children 支持字符串 / 数字 / 自定义节点；字符串自动套 Text，自定义节点自带内部间距
+        children 支持字符串 / 数字 / 自定义节点；字符串自动套
+        Text，自定义节点自带内部间距
       </Text>
       <Radio defaultValue>保存记录</Radio>
       <Radio defaultValue>
         <Row gap="small">
           <Text>保存记录</Text>
-          <Text color="tertiary" size="sm">默认账本</Text>
+          <Text color="tertiary" size="sm">
+            默认账本
+          </Text>
         </Row>
       </Radio>
       <Text color="tertiary" size="sm">
@@ -44,7 +47,8 @@ export function RadioSlotsDemo() {
       </Text>
       <Radio defaultValue />
       <Text color="tertiary" size="sm">
-        styles.control / styles.indicator / styles.label 只调外边距与原位覆盖，不改尺寸与 2px 描边
+        styles.control / styles.indicator / styles.label
+        只调外边距与原位覆盖，不改尺寸与 2px 描边
       </Text>
       <Radio defaultValue styles={{ control: styles.spaciousRing }}>
         同一张卡连续记账
@@ -52,7 +56,11 @@ export function RadioSlotsDemo() {
       <Text color="tertiary" size="sm">
         Group 的 option 支持 label / labelText / value 与 option.disabled
       </Text>
-      <Radio.Group direction="vertical" options={LABEL_PRIORITY_OPTIONS} defaultValue="template" />
+      <Radio.Group
+        direction="vertical"
+        options={LABEL_PRIORITY_OPTIONS}
+        defaultValue="template"
+      />
     </Column>
   );
 }

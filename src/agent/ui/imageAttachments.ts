@@ -4,10 +4,7 @@ import type {
   ImagePickerValue,
 } from '@pennyspring/ui';
 
-import {
-  toMediaSaveInput,
-  type MediaStore,
-} from '../../media';
+import { toMediaSaveInput, type MediaStore } from '../../media';
 import {
   createAgentAttachment,
   type AgentAttachment,
@@ -31,7 +28,9 @@ export function isSendableImageValue(value: ImagePickerValue): boolean {
   if (!value.uri.trim()) {
     return false;
   }
-  return value.fileSize === undefined || value.fileSize <= AGENT_IMAGE_MAX_BYTES;
+  return (
+    value.fileSize === undefined || value.fileSize <= AGENT_IMAGE_MAX_BYTES
+  );
 }
 
 function getImageMediaType(value: ImagePickerValue): string {

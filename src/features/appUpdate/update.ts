@@ -1,7 +1,8 @@
 const RELEASE_DOWNLOAD_PREFIX =
   'https://github.com/Byte-n/PennySpring/releases/download/';
 const RELEASE_TAG_PATTERN = /^v(\d+\.\d+\.\d+)$/;
-const APK_NAME_PATTERN = /^PennySpring-(\d+\.\d+\.\d+)(?:-(arm64-v8a|armeabi-v7a))?\.apk$/;
+const APK_NAME_PATTERN =
+  /^PennySpring-(\d+\.\d+\.\d+)(?:-(arm64-v8a|armeabi-v7a))?\.apk$/;
 const DIGEST_PATTERN = /^sha256:([a-f0-9]{64})$/i;
 
 export const UPDATE_APK_ABIS = ['arm64-v8a', 'armeabi-v7a'] as const;
@@ -29,8 +30,7 @@ export interface UpdateTarget {
 }
 
 export type UpdateCheckResult =
-  | ({ status: 'available' } & UpdateTarget)
-  | { status: 'current' };
+  ({ status: 'available' } & UpdateTarget) | { status: 'current' };
 
 export type UpdateVersionStatus = 'available' | 'current';
 
@@ -115,7 +115,10 @@ function parseAsset(
   if (!digestMatch) {
     throw new Error(`${name} 校验值格式不正确`);
   }
-  return [abi ?? 'universal', { url, size, sha256: digestMatch[1].toLowerCase() }];
+  return [
+    abi ?? 'universal',
+    { url, size, sha256: digestMatch[1].toLowerCase() },
+  ];
 }
 
 function parseReleaseAssets(
@@ -157,18 +160,26 @@ export function parseGitHubReleases(value: unknown): UpdateRelease[] {
     throw new Error('GitHub Release 列表格式不正确');
   }
   return (value as GitHubRelease[]).flatMap(release => {
-    if (!isRecord(release) || release.draft === true || release.prerelease === true) return [];
+    if (
+      !isRecord(release) ||
+      release.draft === true ||
+      release.prerelease === true
+    )
+      return [];
     const tag = typeof release.tag_name === 'string' ? release.tag_name : '';
     const match = RELEASE_TAG_PATTERN.exec(tag);
     const versionName = match?.[1];
     if (!versionName) return [];
-    return [{
-      versionName,
-      versionCode: getVersionCode(versionName),
-      publishedAt: typeof release.published_at === 'string' ? release.published_at : '',
-      notes: typeof release.body === 'string' ? release.body.trim() : '',
-      ...parseReleaseAssets(release.assets, versionName),
-    }];
+    return [
+      {
+        versionName,
+        versionCode: getVersionCode(versionName),
+        publishedAt:
+          typeof release.published_at === 'string' ? release.published_at : '',
+        notes: typeof release.body === 'string' ? release.body.trim() : '',
+        ...parseReleaseAssets(release.assets, versionName),
+      },
+    ];
   });
 }
 
@@ -195,7 +206,9 @@ export function compareUpdateVersion(
   return remoteVersionCode > localVersionCode ? 'available' : 'current';
 }
 
-export function parseContentRange(value: string | undefined): ContentRange | null {
+export function parseContentRange(
+  value: string | undefined,
+): ContentRange | null {
   if (!value) return null;
   const match = /^bytes\s+(\d+)-(\d+)\/(\d+)$/.exec(value.trim());
   if (!match) return null;

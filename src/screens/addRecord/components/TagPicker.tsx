@@ -1,7 +1,11 @@
 import React, { useMemo } from 'react';
 import type { StyleProp, ViewStyle } from 'react-native';
 import { TagPicker as BaseTagPicker } from '@pennyspring/ui';
-import type { TagPickerOption, TagPickerTexts, TagPickerValue } from '@pennyspring/ui';
+import type {
+  TagPickerOption,
+  TagPickerTexts,
+  TagPickerValue,
+} from '@pennyspring/ui';
 import { VISIBILITY, type TagRow } from '@pennyspring/api';
 
 import { getPhosphorIconComponent } from '../../../constants/typeIconTree';

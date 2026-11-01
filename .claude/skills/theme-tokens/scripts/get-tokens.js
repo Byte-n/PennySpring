@@ -6,7 +6,10 @@ const ts = require('typescript');
 const Module = require('node:module');
 
 const PROJECT_ROOT = path.resolve(__dirname, '../../../..');
-const THEME_SRC_ROOT = path.join(PROJECT_ROOT, 'packages/pennyspring-theme/src');
+const THEME_SRC_ROOT = path.join(
+  PROJECT_ROOT,
+  'packages/pennyspring-theme/src',
+);
 
 function getUsageText() {
   return (
@@ -62,7 +65,7 @@ function stubReactNative() {
     if (request === 'react-native') {
       return {
         Platform: {
-          select: (options) => options.default ?? options.ios ?? options.android,
+          select: options => options.default ?? options.ios ?? options.android,
         },
       };
     }
@@ -75,9 +78,15 @@ function getDefaultAliasToken() {
   registerTsLoader();
   stubReactNative();
 
-  const { defaultSeedToken } = require(path.join(THEME_SRC_ROOT, 'defaults.ts'));
-  const { derivative } = require(path.join(THEME_SRC_ROOT, 'algorithms/derivative.ts'));
-  const { formatToken } = require(path.join(THEME_SRC_ROOT, 'algorithms/formatToken.ts'));
+  const { defaultSeedToken } = require(
+    path.join(THEME_SRC_ROOT, 'defaults.ts'),
+  );
+  const { derivative } = require(
+    path.join(THEME_SRC_ROOT, 'algorithms/derivative.ts'),
+  );
+  const { formatToken } = require(
+    path.join(THEME_SRC_ROOT, 'algorithms/formatToken.ts'),
+  );
 
   return formatToken(derivative(defaultSeedToken, false));
 }
@@ -92,7 +101,11 @@ function getValueByPath(target, tokenPath) {
   let current = target;
 
   for (const segment of segments) {
-    if (current === null || current === undefined || !(segment in Object(current))) {
+    if (
+      current === null ||
+      current === undefined ||
+      !(segment in Object(current))
+    ) {
       throw new Error(`Unknown token path: ${tokenPath}`);
     }
 
@@ -106,7 +119,9 @@ function parseArgs(argv) {
   const args = argv.slice(2);
   const showHelp = args.includes('--help') || args.includes('-h');
   const isJson = args.includes('--json');
-  const tokenPaths = args.filter((arg) => arg !== '--json' && arg !== '--help' && arg !== '-h');
+  const tokenPaths = args.filter(
+    arg => arg !== '--json' && arg !== '--help' && arg !== '-h',
+  );
 
   return {
     showHelp,
@@ -142,9 +157,10 @@ function main() {
       return;
     }
 
-    const lines = tokenPaths.map((tokenPath) => {
+    const lines = tokenPaths.map(tokenPath => {
       const value = result[tokenPath];
-      const output = typeof value === 'object' ? JSON.stringify(value) : String(value);
+      const output =
+        typeof value === 'object' ? JSON.stringify(value) : String(value);
       return `${tokenPath}=${output}`;
     });
 

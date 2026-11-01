@@ -2,8 +2,7 @@ import React from 'react';
 import { Portal } from './Portal';
 import type { PortalMountPoint } from './types';
 
-const PORTAL_PROVIDER_ERROR =
-  'Portal mount point requires a PortalProvider.';
+const PORTAL_PROVIDER_ERROR = 'Portal mount point requires a PortalProvider.';
 
 export function resolvePortalMount(
   children: React.ReactNode,

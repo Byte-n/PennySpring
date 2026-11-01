@@ -20,7 +20,9 @@ function DarkSurface() {
         subtitleText="¥ 128.00 · 餐饮 · 日常开销"
         titleText="记账成功"
         extra={
-          <Button size="small" variant="solid">完成</Button>
+          <Button size="small" variant="solid">
+            完成
+          </Button>
         }
       />
     </Column>

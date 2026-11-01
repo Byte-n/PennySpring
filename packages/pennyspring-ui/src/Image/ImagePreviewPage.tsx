@@ -51,7 +51,9 @@ export function ImagePreviewPage({
 }: ImagePreviewPageProps): React.ReactElement {
   const { token } = useTheme();
   const tokenStyles = usePageStyles();
-  const [status, setStatus] = useState<'error' | 'loaded' | 'loading'>('loading');
+  const [status, setStatus] = useState<'error' | 'loaded' | 'loading'>(
+    'loading',
+  );
   const [zoomed, setZoomed] = useState(false);
   const [reloadToken, setReloadToken] = useState(0);
   const scale = useSharedValue(MIN_SCALE);
@@ -302,11 +304,7 @@ export function ImagePreviewPage({
           style={[tokenStyles.error, styles?.error]}
           testID="image-preview-error"
         >
-          <Icon
-            color="lightSolid"
-            icon="warning"
-            size={WARNING_ICON_SIZE}
-          />
+          <Icon color="lightSolid" icon="warning" size={WARNING_ICON_SIZE} />
           <Text
             color="lightSolid"
             size="sm"
@@ -314,11 +312,7 @@ export function ImagePreviewPage({
           >
             加载失败
           </Text>
-          <Text
-            color="lightSolid"
-            size="xs"
-            style={tokenStyles.errorHint}
-          >
+          <Text color="lightSolid" size="xs" style={tokenStyles.errorHint}>
             点击重试
           </Text>
         </Pressable>

@@ -12,7 +12,9 @@ export function LoadingSizeDemo() {
     <Column gap="normal">
       {SIZES.map(({ label, value }) => (
         <Column key={value} gap="small">
-          <Text color="tertiary" size="sm">{label}</Text>
+          <Text color="tertiary" size="sm">
+            {label}
+          </Text>
           <Loading size={value} text="正在加载" />
         </Column>
       ))}

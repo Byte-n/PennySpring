@@ -2,7 +2,13 @@ import React, { useMemo, useState } from 'react';
 import { Pressable } from 'react-native';
 import { Column, Empty, Icon, Row, Text } from '@pennyspring/ui';
 import { createUseSheetStyle, useTheme } from '@pennyspring/ui';
-import type { AssetRow, RecordRelationRow, RecordRow, TagRow, TypeRow } from '@pennyspring/api';
+import type {
+  AssetRow,
+  RecordRelationRow,
+  RecordRow,
+  TagRow,
+  TypeRow,
+} from '@pennyspring/api';
 
 import { aggregateExpenseStatsForRange } from './chartData';
 import {
@@ -37,7 +43,12 @@ const DIMENSION_OPTIONS: Array<{ value: ExpenseDimension; label: string }> = [
   { value: 'tag', label: '标签' },
   { value: 'asset', label: '账户' },
 ];
-const VIRTUAL_KEYS = new Set(['uncategorized', 'untagged', 'unassigned', 'other']);
+const VIRTUAL_KEYS = new Set([
+  'uncategorized',
+  'untagged',
+  'unassigned',
+  'other',
+]);
 
 interface ExpenseViewProps {
   records: readonly RecordRow[];
@@ -45,7 +56,10 @@ interface ExpenseViewProps {
   assets: readonly AssetRow[];
   tags: readonly TagRow[];
   recordTags: ReadonlyMap<number, readonly number[]>;
-  recordRelations: readonly Pick<RecordRelationRow, 'recordId' | 'relatedRecordId'>[];
+  recordRelations: readonly Pick<
+    RecordRelationRow,
+    'recordId' | 'relatedRecordId'
+  >[];
   period: ChartPeriod;
   compareEnabled: boolean;
   selectedParentTypeId: number | null;
@@ -90,11 +104,7 @@ function Pill({ label, active, onPress }: PillProps) {
   const styles = usePillStyles({ active });
   return (
     <Pressable onPress={onPress} style={styles.pill}>
-      <Text
-        size="xs"
-        weight="medium"
-        color={active ? 'primary' : 'secondary'}
-      >
+      <Text size="xs" weight="medium" color={active ? 'primary' : 'secondary'}>
         {label}
       </Text>
     </Pressable>
@@ -131,7 +141,8 @@ export function ExpenseView({
     [records, types, selectedParentTypeId, period.start, cutoff],
   );
   const levelOneAnalysis = useMemo(
-    () => aggregateExpenseStatsForRange(records, types, null, period.start, cutoff),
+    () =>
+      aggregateExpenseStatsForRange(records, types, null, period.start, cutoff),
     [records, types, period.start, cutoff],
   );
   const previousAnalysis = useMemo(() => {
@@ -145,16 +156,33 @@ export function ExpenseView({
     );
   }, [records, types, period]);
   const tagStats = useMemo(
-    () => buildTagStats(records, types, period, new Map(tags.map(tag => [tag.id, tag])), recordTags),
+    () =>
+      buildTagStats(
+        records,
+        types,
+        period,
+        new Map(tags.map(tag => [tag.id, tag])),
+        recordTags,
+      ),
     [records, types, period, tags, recordTags],
   );
   const assetStats = useMemo(
-    () => buildAssetStats(records, types, period, new Map(assets.map(asset => [asset.id, asset]))),
+    () =>
+      buildAssetStats(
+        records,
+        types,
+        period,
+        new Map(assets.map(asset => [asset.id, asset])),
+      ),
     [records, types, period, assets],
   );
 
   const displayStats =
-    dimension === 'category' ? analysis.stats : dimension === 'tag' ? tagStats : assetStats;
+    dimension === 'category'
+      ? analysis.stats
+      : dimension === 'tag'
+        ? tagStats
+        : assetStats;
   const total = displayStats.reduce((sum, item) => sum + item.amount, 0);
   const count = displayStats.reduce((sum, item) => sum + item.count, 0);
   const allMovers = useMemo(
@@ -171,7 +199,8 @@ export function ExpenseView({
     [allMovers],
   );
   const topMovers = useMemo(
-    () => buildMovers(levelOneAnalysis.stats, previousAnalysis.stats, MOVER_LIMIT),
+    () =>
+      buildMovers(levelOneAnalysis.stats, previousAnalysis.stats, MOVER_LIMIT),
     [levelOneAnalysis.stats, previousAnalysis.stats],
   );
   const topExpenses = useMemo(
@@ -185,9 +214,7 @@ export function ExpenseView({
   const parentIdsWithChildren = useMemo(
     () =>
       new Set(
-        types
-          .filter(type => type.parentId > 0)
-          .map(type => type.parentId),
+        types.filter(type => type.parentId > 0).map(type => type.parentId),
       ),
     [types],
   );
@@ -211,7 +238,7 @@ export function ExpenseView({
           count: item.count,
           delta:
             selectedParentTypeId === null
-              ? deltaMap.get(item.key) ?? null
+              ? (deltaMap.get(item.key) ?? null)
               : null,
           color: VIRTUAL_KEYS.has(item.key)
             ? token.colorTextTertiary
@@ -247,7 +274,8 @@ export function ExpenseView({
       : dimension === 'asset'
         ? '按支付账户归集'
         : `${displayStats.length} 个分类 · 点击分类下钻`;
-  const totalDelta = levelOneAnalysis.totalExpense - previousAnalysis.totalExpense;
+  const totalDelta =
+    levelOneAnalysis.totalExpense - previousAnalysis.totalExpense;
 
   function handleDimension(next: ExpenseDimension) {
     setDimension(next);
@@ -257,7 +285,7 @@ export function ExpenseView({
   if (total === 0) {
     return (
       <Column gap="normal">
-        <Row gap="small" >
+        <Row gap="small">
           {DIMENSION_OPTIONS.map(option => (
             <Pill
               key={option.value}
@@ -276,7 +304,7 @@ export function ExpenseView({
 
   return (
     <Column gap="normal">
-      <Row gap="small" >
+      <Row gap="small">
         {DIMENSION_OPTIONS.map(option => (
           <Pill
             key={option.value}
@@ -301,13 +329,15 @@ export function ExpenseView({
             </Text>
           </Row>
         ) : null}
-        <DonutChart
-          slices={donutSlices}
-        />
+        <DonutChart slices={donutSlices} />
         <RankList
           items={rankItems}
           nameHeader={
-            dimension === 'tag' ? '标签' : dimension === 'asset' ? '账户' : '分类'
+            dimension === 'tag'
+              ? '标签'
+              : dimension === 'asset'
+                ? '账户'
+                : '分类'
           }
           showDelta={showDelta}
           showCount
@@ -347,10 +377,7 @@ export function ExpenseView({
       ) : null}
 
       {reimbursement ? (
-        <ChartCard
-          title="报销与退款"
-          subtitle="避免把可报销支出当成最终负担"
-        >
+        <ChartCard title="报销与退款" subtitle="避免把可报销支出当成最终负担">
           <ReimbursementCard summary={reimbursement} />
         </ChartCard>
       ) : null}

@@ -3,8 +3,7 @@ import React from 'react';
 import { View } from 'react-native';
 import { createUseSheetStyle } from '@pennyspring/theme';
 import { Text } from '../Text';
-import type {
-  AliasToken } from '@pennyspring/theme';
+import type { AliasToken } from '@pennyspring/theme';
 import type {
   DividerContentPosition,
   DividerDirection,
@@ -46,53 +45,51 @@ const SIZE_STYLE_MAP: Record<ComponentSize, DividerSizeStyleConfig> = {
   },
 };
 
-const useStyles = createUseSheetStyle(
-  (token, options: DividerStyleOptions) => {
-    const sizeConfig = SIZE_STYLE_MAP[options.size];
-    const isHorizontal = options.direction === 'horizontal';
-    const contentLinePosition: ContentLinePosition = options.hasContent
-      ? options.contentPosition
-      : 'none';
-    const isStartLineShort = contentLinePosition === 'left';
-    const isEndLineShort = contentLinePosition === 'right';
-    const resolvedSpacing =
-      options.spacing === 'none'
-        ? 0
-        : options.spacing
-          ? SIZE_STYLE_MAP[options.spacing].marginVertical(token)
-          : isHorizontal
-            ? sizeConfig.marginVertical(token)
-            : sizeConfig.verticalMarginHorizontal(token);
+const useStyles = createUseSheetStyle((token, options: DividerStyleOptions) => {
+  const sizeConfig = SIZE_STYLE_MAP[options.size];
+  const isHorizontal = options.direction === 'horizontal';
+  const contentLinePosition: ContentLinePosition = options.hasContent
+    ? options.contentPosition
+    : 'none';
+  const isStartLineShort = contentLinePosition === 'left';
+  const isEndLineShort = contentLinePosition === 'right';
+  const resolvedSpacing =
+    options.spacing === 'none'
+      ? 0
+      : options.spacing
+        ? SIZE_STYLE_MAP[options.spacing].marginVertical(token)
+        : isHorizontal
+          ? sizeConfig.marginVertical(token)
+          : sizeConfig.verticalMarginHorizontal(token);
 
-    return {
-      root: {
-        alignItems: isHorizontal ? 'center' : undefined,
-        alignSelf: isHorizontal ? 'stretch' : undefined,
-        borderLeftColor: token.colorSplit,
-        borderLeftWidth: isHorizontal ? 0 : token.lineWidth,
-        flexDirection: isHorizontal ? 'row' : undefined,
-        height: isHorizontal ? undefined : sizeConfig.verticalHeight(token),
-        marginHorizontal: isHorizontal ? 0 : resolvedSpacing,
-        marginVertical: isHorizontal ? resolvedSpacing : 0,
-      },
-      firstLine: {
-        borderTopColor: token.colorSplit,
-        borderTopWidth: isHorizontal ? token.lineWidth : 0,
-        flexGrow: isHorizontal && !isStartLineShort ? 1 : 0,
-        width: isStartLineShort ? token.sizeLG : undefined,
-      },
-      secondLine: {
-        borderTopColor: token.colorSplit,
-        borderTopWidth: isHorizontal ? token.lineWidth : 0,
-        flexGrow: isHorizontal && !isEndLineShort ? 1 : 0,
-        width: isEndLineShort ? token.sizeLG : undefined,
-      },
-      contentContainer: {
-        paddingHorizontal: isHorizontal ? token.paddingSM : 0,
-      },
-    };
-  },
-);
+  return {
+    root: {
+      alignItems: isHorizontal ? 'center' : undefined,
+      alignSelf: isHorizontal ? 'stretch' : undefined,
+      borderLeftColor: token.colorSplit,
+      borderLeftWidth: isHorizontal ? 0 : token.lineWidth,
+      flexDirection: isHorizontal ? 'row' : undefined,
+      height: isHorizontal ? undefined : sizeConfig.verticalHeight(token),
+      marginHorizontal: isHorizontal ? 0 : resolvedSpacing,
+      marginVertical: isHorizontal ? resolvedSpacing : 0,
+    },
+    firstLine: {
+      borderTopColor: token.colorSplit,
+      borderTopWidth: isHorizontal ? token.lineWidth : 0,
+      flexGrow: isHorizontal && !isStartLineShort ? 1 : 0,
+      width: isStartLineShort ? token.sizeLG : undefined,
+    },
+    secondLine: {
+      borderTopColor: token.colorSplit,
+      borderTopWidth: isHorizontal ? token.lineWidth : 0,
+      flexGrow: isHorizontal && !isEndLineShort ? 1 : 0,
+      width: isEndLineShort ? token.sizeLG : undefined,
+    },
+    contentContainer: {
+      paddingHorizontal: isHorizontal ? token.paddingSM : 0,
+    },
+  };
+});
 
 function hasContent(children: DividerProps['children']) {
   return children !== undefined && children !== null && children !== false;

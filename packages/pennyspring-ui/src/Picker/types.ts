@@ -1,9 +1,5 @@
 import type { ReactNode } from 'react';
-import type {
-  StyleProp,
-  TextStyle,
-  ViewStyle,
-} from 'react-native';
+import type { StyleProp, TextStyle, ViewStyle } from 'react-native';
 import type { ComponentSize } from '../shares/types';
 import type { InputStatus } from '../Input';
 import type { DisplayInputProps } from '../DisplayInput';
@@ -85,9 +81,7 @@ export interface PickerClearChangeParams<
 
 export type PickerChangeParams<
   TItem extends PickerColumnItemData = PickerColumnItemData,
-> =
-  | PickerSelectChangeParams<TItem>
-  | PickerClearChangeParams<TItem>;
+> = PickerSelectChangeParams<TItem> | PickerClearChangeParams<TItem>;
 
 export interface PickerStyles {
   trigger?: StyleProp<ViewStyle>;
@@ -134,7 +128,8 @@ export interface PickerPopupProps<
     columnIndex: number,
     itemIndex: number,
   ) => ReactNode;
-  renderHeader?: ((params: PickerRenderHeaderParams<TItem>) => ReactNode) | null;
+  renderHeader?:
+    ((params: PickerRenderHeaderParams<TItem>) => ReactNode) | null;
 }
 
 export interface PickerProps<
@@ -178,9 +173,8 @@ export interface PickerProps<
 
 export type PickerCascaderTabKey = string | number;
 
-export type PickerCascaderValue<
-  TTabKey extends PickerCascaderTabKey = string,
-> = Record<TTabKey, PickerValue[]>;
+export type PickerCascaderValue<TTabKey extends PickerCascaderTabKey = string> =
+  Record<TTabKey, PickerValue[]>;
 
 export interface PickerCascaderOption<TData = unknown> {
   labelText?: string;

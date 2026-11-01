@@ -26,15 +26,27 @@ const useStyles = createUseSheetStyle(token => ({
   },
 }));
 
-export function PaceChart({ current, previous, totalDays, todayDay }: PaceChartProps) {
+export function PaceChart({
+  current,
+  previous,
+  totalDays,
+  todayDay,
+}: PaceChartProps) {
   const styles = useStyles();
   const { token } = useTheme();
   const { width, onLayout } = useMeasuredWidth();
   const lastCurrent = current[current.length - 1];
   const days = Array.from({ length: totalDays }, (_, index) => index + 1);
-  const currentByDay = new Map(current.map(point => [point.day, point.cumulative]));
-  const previousByDay = new Map(previous.map(point => [point.day, point.cumulative]));
-  const xLabels = new Set([...X_LABEL_STEPS.filter(day => day < totalDays), totalDays]);
+  const currentByDay = new Map(
+    current.map(point => [point.day, point.cumulative]),
+  );
+  const previousByDay = new Map(
+    previous.map(point => [point.day, point.cumulative]),
+  );
+  const xLabels = new Set([
+    ...X_LABEL_STEPS.filter(day => day < totalDays),
+    totalDays,
+  ]);
   const option: EChartsOption = {
     animation: false,
     grid: { left: 38, right: 5, top: 10, bottom: 24 },
@@ -68,7 +80,9 @@ export function PaceChart({ current, previous, totalDays, todayDay }: PaceChartP
         fontSize: token.fontSizeXS,
         formatter: formatAxisMoney,
       },
-      splitLine: { lineStyle: { color: token.colorSplit, width: token.lineWidth } },
+      splitLine: {
+        lineStyle: { color: token.colorSplit, width: token.lineWidth },
+      },
     },
     series: [
       {
@@ -83,9 +97,26 @@ export function PaceChart({ current, previous, totalDays, todayDay }: PaceChartP
             ? {
                 symbol: 'circle',
                 symbolSize: 7,
-                itemStyle: { color: token.colorPrimary, borderColor: token.colorBgContainer, borderWidth: 1.5 },
-                label: { show: true, formatter: '今天', color: token.colorPrimary, position: 'top' },
-                data: [{ name: '今天', coord: [Math.min(Math.max(todayDay, 1), totalDays), lastCurrent.cumulative] }],
+                itemStyle: {
+                  color: token.colorPrimary,
+                  borderColor: token.colorBgContainer,
+                  borderWidth: 1.5,
+                },
+                label: {
+                  show: true,
+                  formatter: '今天',
+                  color: token.colorPrimary,
+                  position: 'top',
+                },
+                data: [
+                  {
+                    name: '今天',
+                    coord: [
+                      Math.min(Math.max(todayDay, 1), totalDays),
+                      lastCurrent.cumulative,
+                    ],
+                  },
+                ],
               }
             : undefined,
       },
@@ -94,7 +125,11 @@ export function PaceChart({ current, previous, totalDays, todayDay }: PaceChartP
         type: 'line' as const,
         data: days.map(day => previousByDay.get(day) ?? null),
         showSymbol: false,
-        lineStyle: { color: token.colorTextTertiary, width: 1.5, type: 'dashed' as const },
+        lineStyle: {
+          color: token.colorTextTertiary,
+          width: 1.5,
+          type: 'dashed' as const,
+        },
       },
     ],
   };
@@ -102,7 +137,11 @@ export function PaceChart({ current, previous, totalDays, todayDay }: PaceChartP
   return (
     <View style={styles.wrap} onLayout={onLayout}>
       {width > 0 ? (
-        <EChartView option={option} width={width} height={width * HEIGHT_RATIO} />
+        <EChartView
+          option={option}
+          width={width}
+          height={width * HEIGHT_RATIO}
+        />
       ) : null}
     </View>
   );

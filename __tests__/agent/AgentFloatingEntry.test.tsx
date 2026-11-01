@@ -82,9 +82,8 @@ const mockGlobalApi = {
 };
 
 jest.mock('../../src/stores/bookStore', () => ({
-  useBookStore: (
-    selector: (state: typeof mockBookStoreState) => unknown,
-  ) => selector(mockBookStoreState),
+  useBookStore: (selector: (state: typeof mockBookStoreState) => unknown) =>
+    selector(mockBookStoreState),
   useGlobalApi: () => mockGlobalApi,
 }));
 
@@ -144,7 +143,6 @@ jest.mock('../../src/agent/ui/AgentSessionsPanel', () => ({
 jest.mock('../../src/agent/ui/AgentProviderEditor', () => ({
   AgentProviderEditor: () => null,
 }));
-
 
 import { AgentFloatingEntry } from '../../src/agent/ui/AgentFloatingEntry';
 import { AgentRoot } from '../../src/agent/ui/AgentRoot';

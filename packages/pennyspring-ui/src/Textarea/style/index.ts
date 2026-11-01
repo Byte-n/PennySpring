@@ -39,7 +39,10 @@ export const SIZE_CONFIG: Record<ComponentSize, SizeConfig> = {
   },
 };
 
-export function resolveRows(rows: number | undefined, fallback: number): number {
+export function resolveRows(
+  rows: number | undefined,
+  fallback: number,
+): number {
   return Math.max(MIN_ALLOWED_ROWS, Math.floor(rows ?? fallback));
 }
 
@@ -51,7 +54,10 @@ export function getRowHeight(size: ComponentSize, token: AliasToken): number {
   return SIZE_CONFIG[size].lineHeight(token);
 }
 
-export function getVerticalPadding(_size: ComponentSize, token: AliasToken): number {
+export function getVerticalPadding(
+  _size: ComponentSize,
+  token: AliasToken,
+): number {
   return token.marginXS;
 }
 
@@ -87,12 +93,19 @@ export function getFieldHeight(
   );
 }
 
-export function clampHeight(value: number, minHeight: number, maxHeight: number): number {
+export function clampHeight(
+  value: number,
+  minHeight: number,
+  maxHeight: number,
+): number {
   return Math.min(Math.max(value, minHeight), maxHeight);
 }
 
 /** 指示条取同族基础色：错误 / 警示 / 成功各自换色，聚焦时用主色。 */
-export function getIndicatorColor(status: TextareaStatus, token: AliasToken): string {
+export function getIndicatorColor(
+  status: TextareaStatus,
+  token: AliasToken,
+): string {
   if (status === 'error') {
     return token.colorError;
   }
@@ -119,7 +132,10 @@ export function getTextColor(
   return isDisabled ? token.colorTextQuaternary : token.colorText;
 }
 
-function getStatusColor(status: TextareaStatus, token: AliasToken): string | null {
+function getStatusColor(
+  status: TextareaStatus,
+  token: AliasToken,
+): string | null {
   if (status === 'error') {
     return token.colorError;
   }
@@ -168,14 +184,14 @@ export const useStyles = createUseSheetStyle(
     const labelRestColor = options.isDisabled
       ? token.colorTextQuaternary
       : options.status === 'error'
-      ? token.colorError
-      : token.colorTextPlaceholder;
+        ? token.colorError
+        : token.colorTextPlaceholder;
     const labelFilledColor = options.isDisabled
       ? token.colorTextQuaternary
-      : statusColor ?? token.colorTextTertiary;
+      : (statusColor ?? token.colorTextTertiary);
     const labelActiveColor = options.isDisabled
       ? token.colorTextQuaternary
-      : statusColor ?? token.colorPrimary;
+      : (statusColor ?? token.colorPrimary);
 
     return {
       root: {
@@ -186,7 +202,9 @@ export const useStyles = createUseSheetStyle(
         maxHeight,
         height,
         backgroundColor: 'transparent',
-        borderBottomColor: options.isDisabled ? token.colorSplit : token.colorBorder,
+        borderBottomColor: options.isDisabled
+          ? token.colorSplit
+          : token.colorBorder,
         borderBottomWidth: token.lineWidth,
         borderRadius: 0,
         paddingHorizontal: 0,

@@ -53,7 +53,8 @@ jest.mock('react-native-gesture-handler', () => {
       Race: compose,
       Exclusive: compose,
     },
-    GestureDetector: ({ children }) => React.createElement(React.Fragment, null, children),
+    GestureDetector: ({ children }) =>
+      React.createElement(React.Fragment, null, children),
     GestureHandlerRootView: ({ children }) =>
       React.createElement(ReactNative.View, null, children),
   };

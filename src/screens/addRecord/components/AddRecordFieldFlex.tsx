@@ -37,11 +37,7 @@ function AddRecordFieldFlexRoot({ children }: AddRecordFieldFlexProps) {
 function AddRecordFieldFlexItem({ children }: AddRecordFieldFlexItemProps) {
   const styles = useStyles();
 
-  return (
-    <Column style={styles.item}>
-      {children}
-    </Column>
-  );
+  return <Column style={styles.item}>{children}</Column>;
 }
 
 export const AddRecordFieldFlex = Object.assign(AddRecordFieldFlexRoot, {

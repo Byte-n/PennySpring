@@ -1,4 +1,8 @@
-import { RECORD_TYPE_CATEGORY, type RecordRow, type TypeRow } from '@pennyspring/api';
+import {
+  RECORD_TYPE_CATEGORY,
+  type RecordRow,
+  type TypeRow,
+} from '@pennyspring/api';
 import {
   aggregateExpenseStats,
   toBarStats,
@@ -13,7 +17,11 @@ function ts(iso: string): number {
   return new Date(`${iso}${TZ_OFFSET}`).getTime();
 }
 
-function record(typeId: number, finalAmount: number, recordTime: number): RecordRow {
+function record(
+  typeId: number,
+  finalAmount: number,
+  recordTime: number,
+): RecordRow {
   return {
     id: typeId * 1000 + Math.floor(Math.random() * 1000),
     typeId,
@@ -75,14 +83,24 @@ describe('aggregateExpenseStats level 1', () => {
   });
 
   test('records on a top-level type group under that type id', () => {
-    const result = aggregateExpenseStats([record(1, 800, MONTH)], types, null, NOW);
+    const result = aggregateExpenseStats(
+      [record(1, 800, MONTH)],
+      types,
+      null,
+      NOW,
+    );
 
     expect(byKey(result.stats, '1')?.amount).toBe(800);
     expect(byKey(result.stats, '1')?.typeId).toBe(1);
   });
 
   test('records with missing type fall into 未分类', () => {
-    const result = aggregateExpenseStats([record(999, 400, MONTH)], types, null, NOW);
+    const result = aggregateExpenseStats(
+      [record(999, 400, MONTH)],
+      types,
+      null,
+      NOW,
+    );
 
     const uncategorized = byKey(result.stats, 'uncategorized');
     expect(uncategorized?.name).toBe('未分类');
@@ -91,7 +109,10 @@ describe('aggregateExpenseStats level 1', () => {
   });
 
   test('excludes non-expense, non-positive, and out-of-month records', () => {
-    const allTypes = [...types, type(3, 0, '工资', RECORD_TYPE_CATEGORY.income)];
+    const allTypes = [
+      ...types,
+      type(3, 0, '工资', RECORD_TYPE_CATEGORY.income),
+    ];
     const result = aggregateExpenseStats(
       [
         record(1, 1000, MONTH),
@@ -111,11 +132,7 @@ describe('aggregateExpenseStats level 1', () => {
 
   test('orders by amount, then count, then name', () => {
     const result = aggregateExpenseStats(
-      [
-        record(2, 500, MONTH),
-        record(1, 500, MONTH),
-        record(1, 0 + 1, MONTH),
-      ],
+      [record(2, 500, MONTH), record(1, 500, MONTH), record(1, 0 + 1, MONTH)],
       types,
       null,
       NOW,
@@ -183,7 +200,12 @@ describe('aggregateExpenseStats level 2', () => {
   });
 
   test('a parent with only direct records shows only 未细分', () => {
-    const result = aggregateExpenseStats([record(2, 500, MONTH)], types, 2, NOW);
+    const result = aggregateExpenseStats(
+      [record(2, 500, MONTH)],
+      types,
+      2,
+      NOW,
+    );
 
     expect(result.stats).toHaveLength(1);
     expect(result.stats[0].key).toBe('unclassified');
@@ -209,7 +231,11 @@ describe('aggregateExpenseStats level 2', () => {
   });
 });
 
-function stat(key: string, amount: number, percent: number): ExpenseCategoryStat {
+function stat(
+  key: string,
+  amount: number,
+  percent: number,
+): ExpenseCategoryStat {
   return {
     key,
     typeId: Number(key),
@@ -224,13 +250,17 @@ function stat(key: string, amount: number, percent: number): ExpenseCategoryStat
 
 describe('toPieStats', () => {
   test('keeps all items when six or fewer', () => {
-    const stats = Array.from({ length: 6 }, (_, i) => stat(String(i), 60 - i, 0.1));
+    const stats = Array.from({ length: 6 }, (_, i) =>
+      stat(String(i), 60 - i, 0.1),
+    );
     expect(toPieStats(stats)).toHaveLength(6);
     expect(byKey(toPieStats(stats), 'other')).toBeUndefined();
   });
 
   test('keeps top five and merges the rest into 其他 when over six', () => {
-    const stats = Array.from({ length: 7 }, (_, i) => stat(String(i), 70 - i, 0.1));
+    const stats = Array.from({ length: 7 }, (_, i) =>
+      stat(String(i), 70 - i, 0.1),
+    );
     const pie = toPieStats(stats);
 
     expect(pie).toHaveLength(6);
@@ -243,7 +273,9 @@ describe('toPieStats', () => {
 
 describe('toBarStats', () => {
   test('caps at the first ten items', () => {
-    const stats = Array.from({ length: 12 }, (_, i) => stat(String(i), 100 - i, 0.05));
+    const stats = Array.from({ length: 12 }, (_, i) =>
+      stat(String(i), 100 - i, 0.05),
+    );
     expect(toBarStats(stats)).toHaveLength(10);
   });
 });

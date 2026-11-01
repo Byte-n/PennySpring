@@ -13,16 +13,16 @@
 
 ## 2. 现状盘点
 
-| 维度 | Cascader | CascadePicker |
-| --- | --- | --- |
-| 交互载体 | Tabs（层级）+ FlatList（当前层选项） | Tabs（业务分类）+ WheelGroup 多列 |
-| 触发器 | 自建 `Pressable` + `Row` | 复用 `Picker`（`PickerTrigger` / `DisplayInput`） |
-| 浮层 | `Popup.FloatingPanel`（position/height 可配） | 复用 `Picker` 的 `PickerPopup` |
-| 值模型 | `Array<string \| number>`（路径） | `Record<TTabKey, Array<string \| number>>` |
-| 打开回调 | `(open, { reason })` | `(open, { reason })`（透传 `Picker`） |
-| 样式入口 | `styles.trigger / tabs / option / optionLabel / ...` | `styles.trigger / input / popup / panel / tabs` |
-| 消费者 | `AssetManageScreen` | 仅预览与测试 |
-| 独立 View | `Cascader.View` | 无 |
+| 维度      | Cascader                                             | CascadePicker                                     |
+| --------- | ---------------------------------------------------- | ------------------------------------------------- |
+| 交互载体  | Tabs（层级）+ FlatList（当前层选项）                 | Tabs（业务分类）+ WheelGroup 多列                 |
+| 触发器    | 自建 `Pressable` + `Row`                             | 复用 `Picker`（`PickerTrigger` / `DisplayInput`） |
+| 浮层      | `Popup.FloatingPanel`（position/height 可配）        | 复用 `Picker` 的 `PickerPopup`                    |
+| 值模型    | `Array<string \| number>`（路径）                    | `Record<TTabKey, Array<string \| number>>`        |
+| 打开回调  | `(open, { reason })`                                 | `(open, { reason })`（透传 `Picker`）             |
+| 样式入口  | `styles.trigger / tabs / option / optionLabel / ...` | `styles.trigger / input / popup / panel / tabs`   |
+| 消费者    | `AssetManageScreen`                                  | 仅预览与测试                                      |
+| 独立 View | `Cascader.View`                                      | 无                                                |
 
 主要问题：
 
@@ -89,9 +89,7 @@ export type ListPickerCascaderChangeParams<TData = unknown> =
   | ListPickerCascaderClearParams;
 
 export type ListPickerCascaderOpenChangeReason =
-  | 'trigger'
-  | 'select'
-  | 'cancel';
+  'trigger' | 'select' | 'cancel';
 
 export interface ListPickerCascaderOpenChangeParams {
   reason: ListPickerCascaderOpenChangeReason;
@@ -200,9 +198,8 @@ export interface ListPickerCascaderTabsStyles {
 ```ts
 export type PickerCascaderTabKey = string | number;
 
-export type PickerCascaderValue<
-  TTabKey extends PickerCascaderTabKey = string,
-> = Record<TTabKey, PickerValue[]>;
+export type PickerCascaderValue<TTabKey extends PickerCascaderTabKey = string> =
+  Record<TTabKey, PickerValue[]>;
 
 export interface PickerCascaderOption<TData = unknown> {
   labelText?: string;
@@ -274,10 +271,7 @@ export interface PickerCascaderProps<
 
   open?: boolean;
   defaultOpen?: boolean;
-  onOpenChange?: (
-    open: boolean,
-    params: PickerOpenChangeParams,
-  ) => void;
+  onOpenChange?: (open: boolean, params: PickerOpenChangeParams) => void;
   okDisabled?: boolean;
 
   titleText?: string;
@@ -481,14 +475,14 @@ packages/pennyspring-ui/src/
 
 在 `ListPicker/style/index.ts` 内按 `size` 派生：
 
-| 槽位 | 说明 |
-| --- | --- |
-| `cascaderPanel` | `flex: 1` + 层级间距 |
-| `cascaderList` / `cascaderListContent` | 列表与行间距 |
-| `cascaderOption` | 行容器，含 pressed / selected / disabled 三态 |
-| `cascaderOptionRow` / `cascaderMarker` / `cascaderOptionContent` | 行内结构 |
-| `cascaderEmpty` / `cascaderLoading` | 空态与加载态 |
-| `cascaderFloatingPanelContent` | 浮层内边距 |
+| 槽位                                                             | 说明                                          |
+| ---------------------------------------------------------------- | --------------------------------------------- |
+| `cascaderPanel`                                                  | `flex: 1` + 层级间距                          |
+| `cascaderList` / `cascaderListContent`                           | 列表与行间距                                  |
+| `cascaderOption`                                                 | 行容器，含 pressed / selected / disabled 三态 |
+| `cascaderOptionRow` / `cascaderMarker` / `cascaderOptionContent` | 行内结构                                      |
+| `cascaderEmpty` / `cascaderLoading`                              | 空态与加载态                                  |
+| `cascaderFloatingPanelContent`                                   | 浮层内边距                                    |
 
 约束：
 
@@ -604,14 +598,14 @@ yarn run test
 
 ## 9. 关键决策与风险
 
-| 决策 | 结论 | 理由 |
-| --- | --- | --- |
-| `ListPicker.Cascader` 是否支持业务 tabs | 不支持，仅层级 Tab | 层级 Tab 已占用导航语义；需要多棵树时使用 `Picker.Cascader` 或拆成多个 `ListPicker.Cascader` |
-| `Picker.Cascader` 是否保留 tabs | 保留 | 承接 `CascadePicker` 现有能力，避免行为回归 |
-| 是否保留 `Cascader.View` | 不保留 | 无业务消费者；纯面板场景可用 `Popup.FloatingPanel` + 未来按需补充 |
-| `ListPicker.Cascader` 触发器 | 统一 `PickerTrigger` | 与 `ListPicker` 视觉/状态/清除/校验能力一致 |
-| 旧类型别名 | 不保留 | 一次性迁移，避免双份 API 长期共存 |
-| `styles` 类型 | 自持语义类型 | 遵守组件规范，不直接复用底层 `TabsStyles` / `PickerStyles` |
+| 决策                                    | 结论                 | 理由                                                                                         |
+| --------------------------------------- | -------------------- | -------------------------------------------------------------------------------------------- |
+| `ListPicker.Cascader` 是否支持业务 tabs | 不支持，仅层级 Tab   | 层级 Tab 已占用导航语义；需要多棵树时使用 `Picker.Cascader` 或拆成多个 `ListPicker.Cascader` |
+| `Picker.Cascader` 是否保留 tabs         | 保留                 | 承接 `CascadePicker` 现有能力，避免行为回归                                                  |
+| 是否保留 `Cascader.View`                | 不保留               | 无业务消费者；纯面板场景可用 `Popup.FloatingPanel` + 未来按需补充                            |
+| `ListPicker.Cascader` 触发器            | 统一 `PickerTrigger` | 与 `ListPicker` 视觉/状态/清除/校验能力一致                                                  |
+| 旧类型别名                              | 不保留               | 一次性迁移，避免双份 API 长期共存                                                            |
+| `styles` 类型                           | 自持语义类型         | 遵守组件规范，不直接复用底层 `TabsStyles` / `PickerStyles`                                   |
 
 风险点：
 

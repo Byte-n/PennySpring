@@ -6,11 +6,7 @@ import {
   type AddRecordPresetPayload,
   type AddRecordTemplatePayload,
 } from './AddRecordContext';
-import {
-  Input,
-  KeyboardAwareScreen,
-  Loading,
-} from '@pennyspring/ui';
+import { Input, KeyboardAwareScreen, Loading } from '@pennyspring/ui';
 import { createUseSheetStyle, ThemeProvider, useTheme } from '@pennyspring/ui';
 import {
   RECORD_TYPE_CATEGORY,
@@ -25,7 +21,10 @@ import { useBookStore, useGlobalApi } from '../../stores/bookStore';
 import { useMediaStore } from '../../media';
 import { TabScreen, TopTabNavigator } from '../../component/TopTabNavigator';
 
-type AddRecordRoute = RouteProp<RootStackParamList, typeof ROOT_ROUTES.AddRecord>;
+type AddRecordRoute = RouteProp<
+  RootStackParamList,
+  typeof ROOT_ROUTES.AddRecord
+>;
 
 const TAB_NAME_BY_CATEGORY: Record<RecordTypeCategoryValue, string> = {
   [RECORD_TYPE_CATEGORY.expense]: 'ExpenseTab',
@@ -92,7 +91,10 @@ function AddRecordContent({
     if (recordId === undefined || !currentBook) return;
     let active = true;
     (async () => {
-      const detail = await globalApi.record.getDetailById(recordId, currentBook.id);
+      const detail = await globalApi.record.getDetailById(
+        recordId,
+        currentBook.id,
+      );
       const types = await globalApi.type.getAll(currentBook.id);
       const typeRow = types.find(type => type.id === detail.record.typeId);
       if (!active) return;
@@ -107,7 +109,8 @@ function AddRecordContent({
           media ? media.resolveSource(uri) : { uri },
         ),
         assetId: detail.record.assetId > 0 ? detail.record.assetId : null,
-        intoAssetId: detail.record.intoAssetId > 0 ? detail.record.intoAssetId : null,
+        intoAssetId:
+          detail.record.intoAssetId > 0 ? detail.record.intoAssetId : null,
         charge: detail.record.charge,
         reimbursable: detail.record.reimbursable === REIMBURSABLE.reimbursable,
         relatedRecordIds: detail.relatedRecordIds,

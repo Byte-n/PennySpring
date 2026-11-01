@@ -19,8 +19,10 @@ export interface KeyboardAwareScreenStyles {
   root?: StyleProp<ViewStyle>;
 }
 
-export interface KeyboardAwareScreenProps
-  extends Omit<ViewProps, 'children' | 'style'> {
+export interface KeyboardAwareScreenProps extends Omit<
+  ViewProps,
+  'children' | 'style'
+> {
   children?: ReactNode;
   enabled?: boolean;
   style?: StyleProp<ViewStyle>;
@@ -32,11 +34,10 @@ export interface KeyboardAwareFormScrollStyles {
   content?: StyleProp<ViewStyle>;
 }
 
-export interface KeyboardAwareFormScrollProps
-  extends Omit<
-    ScrollViewProps,
-    'children' | 'contentContainerStyle' | 'scrollEnabled' | 'style'
-  > {
+export interface KeyboardAwareFormScrollProps extends Omit<
+  ScrollViewProps,
+  'children' | 'contentContainerStyle' | 'scrollEnabled' | 'style'
+> {
   children?: ReactNode;
   extraBottomInset?: number;
   focusedInputBottomOffset?: number;

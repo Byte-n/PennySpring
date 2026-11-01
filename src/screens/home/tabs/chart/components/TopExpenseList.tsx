@@ -50,7 +50,12 @@ export function TopExpenseList({ items }: TopExpenseListProps) {
         return (
           <Row gap="small" align="center">
             <Column style={styles.date} align="start">
-              <Text size="xs" weight="medium" color="secondary" numberOfLines={1}>
+              <Text
+                size="xs"
+                weight="medium"
+                color="secondary"
+                numberOfLines={1}
+              >
                 {`${date.getMonth() + 1}/${date.getDate()}`}
               </Text>
               <Text size="xs" color="tertiary">
@@ -59,7 +64,10 @@ export function TopExpenseList({ items }: TopExpenseListProps) {
             </Column>
             <Column style={styles.iconBox} align="center" justify="center">
               {IconComponent ? (
-                <IconComponent color={token.colorTextSecondary} size={ICON_SIZE} />
+                <IconComponent
+                  color={token.colorTextSecondary}
+                  size={ICON_SIZE}
+                />
               ) : null}
             </Column>
             <Column style={styles.main} gap={token.marginXXS}>

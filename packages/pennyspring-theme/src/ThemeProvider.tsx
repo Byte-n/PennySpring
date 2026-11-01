@@ -17,12 +17,16 @@ export interface ThemeContextValue {
   tokenOverrides: Partial<AliasToken>;
 }
 
-function normalizeAlgorithms(raw?: ThemeAlgorithm | ThemeAlgorithm[]): ThemeAlgorithm[] {
+function normalizeAlgorithms(
+  raw?: ThemeAlgorithm | ThemeAlgorithm[],
+): ThemeAlgorithm[] {
   if (!raw) return ['default'];
   return Array.isArray(raw) ? raw : [raw];
 }
 
-function extractSeedOverrides(tokenOverrides: Partial<AliasToken>): Partial<SeedToken> {
+function extractSeedOverrides(
+  tokenOverrides: Partial<AliasToken>,
+): Partial<SeedToken> {
   const overrides: Record<string, unknown> = {};
   for (const key of Object.keys(tokenOverrides)) {
     if (key in defaultSeedToken) {
@@ -41,7 +45,8 @@ function buildContextValue(): ThemeContextValue {
   };
 }
 
-export const ThemeContext = createContext<ThemeContextValue>(buildContextValue());
+export const ThemeContext =
+  createContext<ThemeContextValue>(buildContextValue());
 
 interface ThemeProviderProps {
   config?: ThemeConfig;
@@ -52,7 +57,9 @@ export function ThemeProvider({ config, children }: ThemeProviderProps) {
   const parentContext = React.useContext(ThemeContext);
 
   const value = useMemo<ThemeContextValue>(() => {
-    const algorithms = normalizeAlgorithms(config?.algorithm ?? parentContext.algorithm);
+    const algorithms = normalizeAlgorithms(
+      config?.algorithm ?? parentContext.algorithm,
+    );
     const isDark = algorithms.includes('dark');
 
     const tokenOverrides: Partial<AliasToken> = {
@@ -70,7 +77,12 @@ export function ThemeProvider({ config, children }: ThemeProviderProps) {
       algorithm: algorithms,
       tokenOverrides,
     };
-  }, [config?.token, config?.algorithm, parentContext.algorithm, parentContext.tokenOverrides]);
+  }, [
+    config?.token,
+    config?.algorithm,
+    parentContext.algorithm,
+    parentContext.tokenOverrides,
+  ]);
 
   return (
     <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>

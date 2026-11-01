@@ -33,8 +33,10 @@ jest.mock('react-native-reanimated', () => {
     default: {
       View: ReactNative.View,
     },
-    createAnimatedComponent: (Component: React.ComponentType<Record<string, unknown>>) =>
-      (props: Record<string, unknown>) => ReactModule.createElement(Component, props),
+    createAnimatedComponent:
+      (Component: React.ComponentType<Record<string, unknown>>) =>
+      (props: Record<string, unknown>) =>
+        ReactModule.createElement(Component, props),
     interpolate: (value: number) => value,
     useAnimatedStyle: (updater: () => Record<string, unknown>) => updater(),
     useSharedValue: (value: number) => ({ value }),
@@ -42,7 +44,17 @@ jest.mock('react-native-reanimated', () => {
   };
 });
 
-import { Button, DisplayInput, Picker, Popup, Text, PickerColumn, PickerColumnItemData, PickerProps, PickerValue } from '../src';
+import {
+  Button,
+  DisplayInput,
+  Picker,
+  Popup,
+  Text,
+  PickerColumn,
+  PickerColumnItemData,
+  PickerProps,
+  PickerValue,
+} from '../src';
 import { PickerView } from '../src/Picker/PickerView';
 
 const columns: PickerColumn[] = [
@@ -58,9 +70,8 @@ interface UnsupportedBusinessPickerProps extends PickerProps {
   retry?: () => undefined;
 }
 
-const UnsupportedBusinessPicker = Picker as unknown as React.ComponentType<
-  UnsupportedBusinessPickerProps
->;
+const UnsupportedBusinessPicker =
+  Picker as unknown as React.ComponentType<UnsupportedBusinessPickerProps>;
 
 interface AccountPickerItem extends PickerColumnItemData<'cash' | 'card'> {
   data: {
@@ -128,8 +139,12 @@ it('renders custom header via renderHeader', () => {
   );
 
   const allText = testRenderer!.root.findAllByType(Text);
-  const defaultHeader = allText.find(node => node.props.children === 'Default Header');
-  const customHeader = allText.find(node => node.props.children === 'Custom Header');
+  const defaultHeader = allText.find(
+    node => node.props.children === 'Default Header',
+  );
+  const customHeader = allText.find(
+    node => node.props.children === 'Custom Header',
+  );
   expect(defaultHeader).toBeDefined();
   expect(customHeader).toBeDefined();
 });
@@ -151,9 +166,11 @@ it('renders the picker header through Popup.FloatingPanel header slot', () => {
     testID: 'floating-panel-header',
   });
 
-  expect(floatingPanelHeader.findByProps({
-    testID: 'picker-header',
-  })).toBeTruthy();
+  expect(
+    floatingPanelHeader.findByProps({
+      testID: 'picker-header',
+    }),
+  ).toBeTruthy();
 });
 
 it('does not render picker header when renderHeader is null', () => {
@@ -161,11 +178,17 @@ it('does not render picker header when renderHeader is null', () => {
 
   act(() => {
     testRenderer = renderer.create(
-      <Picker columns={columns} defaultOpen popupProps={{ renderHeader: null }} />,
+      <Picker
+        columns={columns}
+        defaultOpen
+        popupProps={{ renderHeader: null }}
+      />,
     );
   });
 
-  expect(testRenderer!.root.findAllByProps({ testID: 'picker-header' })).toHaveLength(0);
+  expect(
+    testRenderer!.root.findAllByProps({ testID: 'picker-header' }),
+  ).toHaveLength(0);
 });
 
 it('does not render picker title or action slots when they are null', () => {
@@ -211,7 +234,8 @@ it('does not open when readonly', () => {
 
   const displayInput = testRenderer!.root.findByType(DisplayInput);
   const trigger = displayInput.find(
-    node => node.props.onPress !== undefined && node.props.disabled !== undefined,
+    node =>
+      node.props.onPress !== undefined && node.props.disabled !== undefined,
   );
 
   expect(trigger.props.disabled).toBe(true);
@@ -308,7 +332,8 @@ it('opens from the interactive picker trigger', () => {
 
   const displayInput = testRenderer!.root.findByType(DisplayInput);
   const trigger = displayInput.find(
-    node => node.props.onPress !== undefined && node.props.disabled !== undefined,
+    node =>
+      node.props.onPress !== undefined && node.props.disabled !== undefined,
   );
 
   act(() => {
@@ -386,13 +411,17 @@ it('calls cancel then open change for cancel button', () => {
         defaultOpen
         popupProps={{ cancelText: 'Cancel' }}
         onCancel={params => calls.push(`cancel:${params.reason}`)}
-        onOpenChange={(open, params) => calls.push(`open:${open}:${params.reason}`)}
+        onOpenChange={(open, params) =>
+          calls.push(`open:${open}:${params.reason}`)
+        }
       />,
     );
   });
 
   act(() => {
-    testRenderer!.root.findByProps({ testID: 'picker-cancel-button' }).props.onPress();
+    testRenderer!.root
+      .findByProps({ testID: 'picker-cancel-button' })
+      .props.onPress();
   });
 
   expect(calls).toEqual(['cancel:cancel', 'open:false:cancel']);
@@ -408,7 +437,9 @@ it('calls cancel then open change for mask press', () => {
         columns={columns}
         defaultOpen
         onCancel={params => calls.push(`cancel:${params.reason}`)}
-        onOpenChange={(open, params) => calls.push(`open:${open}:${params.reason}`)}
+        onOpenChange={(open, params) =>
+          calls.push(`open:${open}:${params.reason}`)
+        }
       />,
     );
   });
@@ -432,13 +463,17 @@ it('calls ok then open change for ok button', () => {
         popupProps={{ okText: 'OK' }}
         onCancel={() => calls.push('cancel')}
         onOk={value => calls.push(`ok:${value.join(',')}`)}
-        onOpenChange={(open, params) => calls.push(`open:${open}:${params.reason}`)}
+        onOpenChange={(open, params) =>
+          calls.push(`open:${open}:${params.reason}`)
+        }
       />,
     );
   });
 
   act(() => {
-    testRenderer!.root.findByProps({ testID: 'picker-ok-button' }).props.onPress();
+    testRenderer!.root
+      .findByProps({ testID: 'picker-ok-button' })
+      .props.onPress();
   });
 
   expect(calls).toEqual(['ok:', 'open:false:ok']);
@@ -454,7 +489,8 @@ it('initializes draft from current value when opened', () => {
   });
 
   expect(
-    testRenderer!.root.findByProps({ testID: 'picker-item-0-1' }).props.selected,
+    testRenderer!.root.findByProps({ testID: 'picker-item-0-1' }).props
+      .selected,
   ).toBe(true);
 });
 
@@ -465,19 +501,30 @@ it('changes draft value before confirmation', () => {
 
   act(() => {
     testRenderer = renderer.create(
-      <Picker columns={columns} defaultOpen value={['a']} onChange={onChange} onOk={onOk} />,
+      <Picker
+        columns={columns}
+        defaultOpen
+        value={['a']}
+        onChange={onChange}
+        onOk={onOk}
+      />,
     );
   });
 
   act(() => {
-    testRenderer!.root.findByProps({ testID: 'picker-item-0-1' }).props.onPress();
+    testRenderer!.root
+      .findByProps({ testID: 'picker-item-0-1' })
+      .props.onPress();
   });
 
-  expect(onChange).toHaveBeenCalledWith(['b'], expect.objectContaining({
-    columnIndex: 0,
-    itemIndex: 1,
-    value: 'b',
-  }));
+  expect(onChange).toHaveBeenCalledWith(
+    ['b'],
+    expect.objectContaining({
+      columnIndex: 0,
+      itemIndex: 1,
+      value: 'b',
+    }),
+  );
   expect(onOk).not.toHaveBeenCalled();
 });
 
@@ -487,62 +534,94 @@ it('updates value when wheel column scroll settles', () => {
 
   act(() => {
     testRenderer = renderer.create(
-      <Picker columns={columns} defaultOpen value={['a']} onChange={onChange} />,
+      <Picker
+        columns={columns}
+        defaultOpen
+        value={['a']}
+        onChange={onChange}
+      />,
     );
   });
 
   act(() => {
-    testRenderer!.root.findByProps({ testID: 'picker-column-scroll-0' }).props.onMomentumScrollEnd({
-      nativeEvent: {
-        contentOffset: { y: 44 },
-      },
-    });
+    testRenderer!.root
+      .findByProps({ testID: 'picker-column-scroll-0' })
+      .props.onMomentumScrollEnd({
+        nativeEvent: {
+          contentOffset: { y: 44 },
+        },
+      });
   });
 
-  expect(onChange).toHaveBeenCalledWith(['b'], expect.objectContaining({
-    columnIndex: 0,
-    itemIndex: 1,
-    value: 'b',
-  }));
+  expect(onChange).toHaveBeenCalledWith(
+    ['b'],
+    expect.objectContaining({
+      columnIndex: 0,
+      itemIndex: 1,
+      value: 'b',
+    }),
+  );
 });
 
 it('disables ok when wheel focus is on disabled item', () => {
   const onOk = jest.fn();
-  const disabledColumns: PickerColumn[] = [[
-    { labelText: 'Alpha', value: 'a' },
-    { labelText: 'Beta', value: 'b', disabled: true },
-  ]];
+  const disabledColumns: PickerColumn[] = [
+    [
+      { labelText: 'Alpha', value: 'a' },
+      { labelText: 'Beta', value: 'b', disabled: true },
+    ],
+  ];
   let testRenderer: renderer.ReactTestRenderer;
 
   act(() => {
     testRenderer = renderer.create(
-      <Picker columns={disabledColumns} defaultOpen value={['a']} onOk={onOk} />,
+      <Picker
+        columns={disabledColumns}
+        defaultOpen
+        value={['a']}
+        onOk={onOk}
+      />,
     );
   });
 
   act(() => {
-    testRenderer!.root.findByProps({ testID: 'picker-column-scroll-0' }).props.onMomentumScrollEnd({
-      nativeEvent: {
-        contentOffset: { y: 44 },
-      },
-    });
+    testRenderer!.root
+      .findByProps({ testID: 'picker-column-scroll-0' })
+      .props.onMomentumScrollEnd({
+        nativeEvent: {
+          contentOffset: { y: 44 },
+        },
+      });
   });
 
-  expect(testRenderer!.root.findByProps({ testID: 'picker-ok-button' }).props.disabled).toBe(true);
   expect(
-    JSON.stringify(testRenderer!.root.findByProps({ testID: 'picker-indicator' }).props.style),
+    testRenderer!.root.findByProps({ testID: 'picker-ok-button' }).props
+      .disabled,
+  ).toBe(true);
+  expect(
+    JSON.stringify(
+      testRenderer!.root.findByProps({ testID: 'picker-indicator' }).props
+        .style,
+    ),
   ).toContain('#ffccc7');
 
   act(() => {
-    testRenderer!.root.findByProps({ testID: 'picker-column-scroll-0' }).props.onScrollBeginDrag();
+    testRenderer!.root
+      .findByProps({ testID: 'picker-column-scroll-0' })
+      .props.onScrollBeginDrag();
   });
 
   expect(
-    JSON.stringify(testRenderer!.root.findByProps({ testID: 'picker-indicator' }).props.style),
+    JSON.stringify(
+      testRenderer!.root.findByProps({ testID: 'picker-indicator' }).props
+        .style,
+    ),
   ).not.toContain('#ffccc7');
 
   act(() => {
-    testRenderer!.root.findByProps({ testID: 'picker-ok-button' }).props.onPress();
+    testRenderer!.root
+      .findByProps({ testID: 'picker-ok-button' })
+      .props.onPress();
   });
 
   expect(onOk).not.toHaveBeenCalled();
@@ -558,16 +637,26 @@ it('commits uncontrolled main value on ok', () => {
     );
   });
   act(() => {
-    testRenderer!.root.findByProps({ testID: 'picker-item-0-1' }).props.onPress();
-    testRenderer!.root.findByProps({ testID: 'picker-ok-button' }).props.onPress();
+    testRenderer!.root
+      .findByProps({ testID: 'picker-item-0-1' })
+      .props.onPress();
+    testRenderer!.root
+      .findByProps({ testID: 'picker-ok-button' })
+      .props.onPress();
     const displayInput = testRenderer!.root.findByType(DisplayInput);
     displayInput.props.onPress();
   });
 
-  expect(onOk).toHaveBeenCalledWith(['b'], expect.objectContaining({
-    items: [expect.objectContaining({ value: 'b' })],
-  }));
-  expect(testRenderer!.root.findByProps({ testID: 'picker-item-0-1' }).props.selected).toBe(true);
+  expect(onOk).toHaveBeenCalledWith(
+    ['b'],
+    expect.objectContaining({
+      items: [expect.objectContaining({ value: 'b' })],
+    }),
+  );
+  expect(
+    testRenderer!.root.findByProps({ testID: 'picker-item-0-1' }).props
+      .selected,
+  ).toBe(true);
 });
 
 it('resyncs draft when controlled value changes while open', () => {
@@ -582,7 +671,10 @@ it('resyncs draft when controlled value changes while open', () => {
     testRenderer!.update(<Picker columns={columns} open value={['b']} />);
   });
 
-  expect(testRenderer!.root.findByProps({ testID: 'picker-item-0-1' }).props.selected).toBe(true);
+  expect(
+    testRenderer!.root.findByProps({ testID: 'picker-item-0-1' }).props
+      .selected,
+  ).toBe(true);
 });
 
 const twoColumns: PickerColumn[] = [
@@ -599,39 +691,61 @@ it('updates one column without cascading other columns', () => {
 
   act(() => {
     testRenderer = renderer.create(
-      <Picker columns={twoColumns} defaultOpen value={['a', 1]} onChange={onChange} />,
+      <Picker
+        columns={twoColumns}
+        defaultOpen
+        value={['a', 1]}
+        onChange={onChange}
+      />,
     );
   });
   act(() => {
-    testRenderer!.root.findByProps({ testID: 'picker-item-1-1' }).props.onPress();
+    testRenderer!.root
+      .findByProps({ testID: 'picker-item-1-1' })
+      .props.onPress();
   });
 
-  expect(onChange).toHaveBeenCalledWith(['a', 2], expect.objectContaining({
-    columnIndex: 1,
-    itemIndex: 1,
-    value: 2,
-  }));
+  expect(onChange).toHaveBeenCalledWith(
+    ['a', 2],
+    expect.objectContaining({
+      columnIndex: 1,
+      itemIndex: 1,
+      value: 2,
+    }),
+  );
 });
 
 it('ignores disabled item selection', () => {
   const onChange = jest.fn();
-  const disabledColumns: PickerColumn[] = [[
-    { labelText: 'Alpha', value: 'a' },
-    { labelText: 'Beta', value: 'b', disabled: true },
-  ]];
+  const disabledColumns: PickerColumn[] = [
+    [
+      { labelText: 'Alpha', value: 'a' },
+      { labelText: 'Beta', value: 'b', disabled: true },
+    ],
+  ];
   let testRenderer: renderer.ReactTestRenderer;
 
   act(() => {
     testRenderer = renderer.create(
-      <Picker columns={disabledColumns} defaultOpen value={['a']} onChange={onChange} />,
+      <Picker
+        columns={disabledColumns}
+        defaultOpen
+        value={['a']}
+        onChange={onChange}
+      />,
     );
   });
   act(() => {
-    testRenderer!.root.findByProps({ testID: 'picker-item-0-1' }).props.onPress();
+    testRenderer!.root
+      .findByProps({ testID: 'picker-item-0-1' })
+      .props.onPress();
   });
 
   expect(onChange).not.toHaveBeenCalled();
-  expect(testRenderer!.root.findByProps({ testID: 'picker-item-0-0' }).props.selected).toBe(true);
+  expect(
+    testRenderer!.root.findByProps({ testID: 'picker-item-0-0' }).props
+      .selected,
+  ).toBe(true);
 });
 
 it('disabled picker blocks trigger and ok', () => {
@@ -641,7 +755,13 @@ it('disabled picker blocks trigger and ok', () => {
 
   act(() => {
     testRenderer = renderer.create(
-      <Picker columns={columns} disabled open onOk={onOk} onOpenChange={onOpenChange}>
+      <Picker
+        columns={columns}
+        disabled
+        open
+        onOk={onOk}
+        onOpenChange={onOpenChange}
+      >
         <Text>Open picker</Text>
       </Picker>,
     );
@@ -649,7 +769,9 @@ it('disabled picker blocks trigger and ok', () => {
   act(() => {
     const displayInput = testRenderer!.root.findByType(DisplayInput);
     displayInput.props.onPress();
-    testRenderer!.root.findByProps({ testID: 'picker-ok-button' }).props.onPress();
+    testRenderer!.root
+      .findByProps({ testID: 'picker-ok-button' })
+      .props.onPress();
   });
 
   expect(onOk).not.toHaveBeenCalled();
@@ -684,13 +806,18 @@ it('renders empty column placeholder without selected value', () => {
   });
 
   act(() => {
-    testRenderer!.root.findByProps({ testID: 'picker-ok-button' }).props.onPress();
+    testRenderer!.root
+      .findByProps({ testID: 'picker-ok-button' })
+      .props.onPress();
   });
 
   expect(JSON.stringify(testRenderer!.toJSON())).toContain('No options');
-  expect(onOk).toHaveBeenCalledWith([], expect.objectContaining({
-    items: [undefined, undefined],
-  }));
+  expect(onOk).toHaveBeenCalledWith(
+    [],
+    expect.objectContaining({
+      items: [undefined, undefined],
+    }),
+  );
 });
 
 it('renders loading content without combining disabled state', () => {
@@ -709,7 +836,9 @@ it('renders loading content without combining disabled state', () => {
   });
 
   act(() => {
-    testRenderer!.root.findByProps({ testID: 'picker-ok-button' }).props.onPress();
+    testRenderer!.root
+      .findByProps({ testID: 'picker-ok-button' })
+      .props.onPress();
   });
 
   expect(JSON.stringify(testRenderer!.toJSON())).toContain('Loading');
@@ -720,9 +849,7 @@ it('uses a five-row default height and updates the wheel viewport down to the mi
   let testRenderer: renderer.ReactTestRenderer;
 
   act(() => {
-    testRenderer = renderer.create(
-      <Picker columns={columns} defaultOpen />,
-    );
+    testRenderer = renderer.create(<Picker columns={columns} defaultOpen />);
   });
 
   const panelBody = testRenderer!.root.findByProps({
@@ -752,7 +879,9 @@ it('uses a five-row default height and updates the wheel viewport down to the mi
   });
 
   expect(testRenderer!.root.findByType(PickerView).props.wheelHeight).toBe(132);
-  expect(floatingPanel.props.height).toBeGreaterThan(floatingPanel.props.minHeight);
+  expect(floatingPanel.props.height).toBeGreaterThan(
+    floatingPanel.props.minHeight,
+  );
   expect(panelBody.type).toBe(View);
 });
 
@@ -765,8 +894,14 @@ it('does not auto fallback for missing or invalid values', () => {
     );
   });
 
-  expect(testRenderer!.root.findByProps({ testID: 'picker-item-0-0' }).props.selected).toBe(false);
-  expect(testRenderer!.root.findByProps({ testID: 'picker-item-0-1' }).props.selected).toBe(false);
+  expect(
+    testRenderer!.root.findByProps({ testID: 'picker-item-0-0' }).props
+      .selected,
+  ).toBe(false);
+  expect(
+    testRenderer!.root.findByProps({ testID: 'picker-item-0-1' }).props
+      .selected,
+  ).toBe(false);
 });
 
 it('passes label to display input trigger', () => {
@@ -787,9 +922,7 @@ it('shows selected label text in display input trigger', () => {
   let testRenderer: renderer.ReactTestRenderer;
 
   act(() => {
-    testRenderer = renderer.create(
-      <Picker columns={columns} value={['b']} />,
-    );
+    testRenderer = renderer.create(<Picker columns={columns} value={['b']} />);
   });
 
   const triggerInput = testRenderer!.root.findByType(DisplayInput);
@@ -818,7 +951,9 @@ it('clears controlled value through onChange', () => {
     );
   });
 
-  expect(testRenderer!.root.findByType(DisplayInput).props.valueText).toBe('Beta');
+  expect(testRenderer!.root.findByType(DisplayInput).props.valueText).toBe(
+    'Beta',
+  );
 
   act(() => {
     testRenderer!.root
@@ -826,13 +961,18 @@ it('clears controlled value through onChange', () => {
       .props.onPress();
   });
 
-  expect(onChange).toHaveBeenCalledWith([], expect.objectContaining({
-    items: [undefined],
-    reason: 'clear',
-  }));
+  expect(onChange).toHaveBeenCalledWith(
+    [],
+    expect.objectContaining({
+      items: [undefined],
+      reason: 'clear',
+    }),
+  );
   expect(onClear).toHaveBeenCalledTimes(1);
   expect(calls).toEqual(['clear', 'change:clear']);
-  expect(testRenderer!.root.findByType(DisplayInput).props.valueText).toBeUndefined();
+  expect(
+    testRenderer!.root.findByType(DisplayInput).props.valueText,
+  ).toBeUndefined();
 });
 
 it('shows combined selected labels for multi-column picker trigger', () => {
@@ -890,9 +1030,7 @@ it('passes size to display input trigger', () => {
   let testRenderer: renderer.ReactTestRenderer;
 
   act(() => {
-    testRenderer = renderer.create(
-      <Picker columns={columns} size="small" />,
-    );
+    testRenderer = renderer.create(<Picker columns={columns} size="small" />);
   });
 
   const triggerInput = testRenderer!.root.findByType(DisplayInput);
@@ -905,7 +1043,12 @@ it('passes size to header action buttons when open', () => {
 
   act(() => {
     testRenderer = renderer.create(
-      <Picker columns={columns} defaultOpen size="large" popupProps={{ okText: 'OK', cancelText: 'Cancel' }} />,
+      <Picker
+        columns={columns}
+        defaultOpen
+        size="large"
+        popupProps={{ okText: 'OK', cancelText: 'Cancel' }}
+      />,
     );
   });
 
@@ -936,7 +1079,11 @@ it('places title on the left and groups action buttons in a right-side container
       <Picker
         columns={columns}
         defaultOpen
-        popupProps={{ titleText: '选择项目', cancelText: '取消', okText: '确定' }}
+        popupProps={{
+          titleText: '选择项目',
+          cancelText: '取消',
+          okText: '确定',
+        }}
       />,
     );
   });
@@ -966,13 +1113,17 @@ it('renders title text with xl size and strong weight matching ImagePicker', () 
 
   act(() => {
     testRenderer = renderer.create(
-      <Picker columns={columns} defaultOpen popupProps={{ titleText: '选择项目' }} />,
+      <Picker
+        columns={columns}
+        defaultOpen
+        popupProps={{ titleText: '选择项目' }}
+      />,
     );
   });
 
-  const titleText = testRenderer!.root.findAllByType(Text).find(
-    node => node.props.children === '选择项目',
-  );
+  const titleText = testRenderer!.root
+    .findAllByType(Text)
+    .find(node => node.props.children === '选择项目');
 
   expect(titleText).toBeDefined();
   expect(titleText!.props.size).toBe('xl');
@@ -1001,12 +1152,20 @@ it('defaults cancel button to danger and ok button to primary color', () => {
 
   act(() => {
     testRenderer = renderer.create(
-      <Picker columns={columns} defaultOpen popupProps={{ cancelText: '取消', okText: '确定' }} />,
+      <Picker
+        columns={columns}
+        defaultOpen
+        popupProps={{ cancelText: '取消', okText: '确定' }}
+      />,
     );
   });
 
-  const cancelButton = testRenderer!.root.findByProps({ testID: 'picker-cancel-button' });
-  const okButton = testRenderer!.root.findByProps({ testID: 'picker-ok-button' });
+  const cancelButton = testRenderer!.root.findByProps({
+    testID: 'picker-cancel-button',
+  });
+  const okButton = testRenderer!.root.findByProps({
+    testID: 'picker-ok-button',
+  });
 
   expect(cancelButton.props.color).toBe('danger');
   expect(okButton.props.color).toBe('primary');

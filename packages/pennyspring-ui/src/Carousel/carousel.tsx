@@ -1,8 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import {
-  type LayoutChangeEvent,
-  View,
-} from 'react-native';
+import { type LayoutChangeEvent, View } from 'react-native';
 import { GestureDetector } from 'react-native-gesture-handler';
 import Animated, { useAnimatedStyle } from 'react-native-reanimated';
 import { useTheme } from '@pennyspring/theme';
@@ -115,7 +112,13 @@ export const Carousel = <Data = unknown,>(props: CarouselProps<Data>) => {
       slidePixels: trackSize * (normalizedSlideSize / 100),
       trackOffsetPixels: trackSize * (normalizedTrackOffset / 100),
     };
-  }, [direction, layout.height, layout.width, normalizedSlideSize, normalizedTrackOffset]);
+  }, [
+    direction,
+    layout.height,
+    layout.width,
+    normalizedSlideSize,
+    normalizedTrackOffset,
+  ]);
 
   const {
     current,
@@ -267,7 +270,9 @@ export const Carousel = <Data = unknown,>(props: CarouselProps<Data>) => {
   const content = (
     <Column style={[styles.container, style]} testID="carousel-root">
       <View style={styles.track} onLayout={onLayoutTrack}>
-        <Animated.View style={[styles.trackInner, trackInnerStyle, trackTransformStyle]}>
+        <Animated.View
+          style={[styles.trackInner, trackInnerStyle, trackTransformStyle]}
+        >
           <CarouselSlides<Data>
             data={data}
             renderItem={renderItem}

@@ -5,7 +5,7 @@ import { useTheme } from '../useTheme';
 import { Section } from './components/Section';
 import type { AliasToken } from '../types';
 
-const useColorPaletteStyles = createUseSheetStyle((tokens) => ({
+const useColorPaletteStyles = createUseSheetStyle(tokens => ({
   colorGroup: {
     marginBottom: 16,
   },

@@ -1,9 +1,9 @@
-import { asc, desc, eq } from 'drizzle-orm'
+import { asc, desc, eq } from 'drizzle-orm';
 
-import { agentMessages, agentThreads } from '../schema'
-import type { Database } from '../types'
-import { validateAgentSelection } from './agent-provider-service'
-import { validateBookExists } from './helpers'
+import { agentMessages, agentThreads } from '../schema';
+import type { Database } from '../types';
+import { validateAgentSelection } from './agent-provider-service';
+import { validateBookExists } from './helpers';
 import type {
   AgentMessageRow,
   AgentSelection,
@@ -11,17 +11,21 @@ import type {
   AgentThreadRow,
   CreateAgentMessageInput,
   Tx,
-} from './types'
+} from './types';
 
 async function getThreadRow(
   db: Database | Tx,
   threadId: number,
 ): Promise<AgentThreadRow> {
-  const row = await db.select().from(agentThreads).where(eq(agentThreads.id, threadId)).get()
+  const row = await db
+    .select()
+    .from(agentThreads)
+    .where(eq(agentThreads.id, threadId))
+    .get();
   if (!row) {
-    throw new Error(`会话不存在: ${threadId}`)
+    throw new Error(`会话不存在: ${threadId}`);
   }
-  return row
+  return row;
 }
 
 export function createThread(
@@ -30,8 +34,8 @@ export function createThread(
   selection: AgentSelection,
 ): Promise<AgentThreadRow> {
   return db.transaction(async tx => {
-    await validateBookExists(tx, { booksId }, 'booksId')
-    await validateAgentSelection(tx, selection)
+    await validateBookExists(tx, { booksId }, 'booksId');
+    await validateAgentSelection(tx, selection);
 
     const rows = await tx
       .insert(agentThreads)
@@ -41,36 +45,39 @@ export function createThread(
         providerId: selection.providerId,
         modelId: selection.modelId,
       })
-      .returning()
-    const created = rows[0]
+      .returning();
+    const created = rows[0];
     if (!created) {
-      throw new Error('创建会话失败')
+      throw new Error('创建会话失败');
     }
-    return created
-  })
+    return created;
+  });
 }
 
-export async function listThreads(db: Database, booksId: number): Promise<AgentThreadRow[]> {
+export async function listThreads(
+  db: Database,
+  booksId: number,
+): Promise<AgentThreadRow[]> {
   return db
     .select()
     .from(agentThreads)
     .where(eq(agentThreads.booksId, booksId))
     .orderBy(desc(agentThreads.updatedTime), desc(agentThreads.id))
-    .all()
+    .all();
 }
 
 export async function getThreadDetail(
   db: Database,
-  threadId: number
+  threadId: number,
 ): Promise<AgentThreadDetail> {
-  const thread = await getThreadRow(db, threadId)
+  const thread = await getThreadRow(db, threadId);
   const messages = await db
     .select()
     .from(agentMessages)
     .where(eq(agentMessages.threadId, thread.id))
     .orderBy(asc(agentMessages.id))
-    .all()
-  return { thread, messages }
+    .all();
+  return { thread, messages };
 }
 
 /**
@@ -86,8 +93,8 @@ export async function getLatestThreadWithMessages(
     .from(agentThreads)
     .where(eq(agentThreads.booksId, booksId))
     .orderBy(desc(agentThreads.updatedTime), desc(agentThreads.id))
-    .get()
-  return latest ? getThreadDetail(db, latest.id) : null
+    .get();
+  return latest ? getThreadDetail(db, latest.id) : null;
 }
 
 export function updateThreadModel(
@@ -96,14 +103,14 @@ export function updateThreadModel(
   selection: AgentSelection,
 ): Promise<AgentThreadRow> {
   return db.transaction(async tx => {
-    await getThreadRow(tx, threadId)
-    await validateAgentSelection(tx, selection)
+    await getThreadRow(tx, threadId);
+    await validateAgentSelection(tx, selection);
     await tx
       .update(agentThreads)
       .set({ providerId: selection.providerId, modelId: selection.modelId })
-      .where(eq(agentThreads.id, threadId))
-    return getThreadRow(tx, threadId)
-  })
+      .where(eq(agentThreads.id, threadId));
+    return getThreadRow(tx, threadId);
+  });
 }
 
 /**
@@ -114,10 +121,10 @@ export function updateThreadModel(
 export async function appendMessages(
   db: Database,
   threadId: number,
-  inputs: CreateAgentMessageInput[]
+  inputs: CreateAgentMessageInput[],
 ): Promise<AgentMessageRow[]> {
-  if (inputs.length === 0) return []
-  await getThreadRow(db, threadId)
+  if (inputs.length === 0) return [];
+  await getThreadRow(db, threadId);
   return db.transaction(async tx => {
     const rows = await tx
       .insert(agentMessages)
@@ -127,34 +134,43 @@ export async function appendMessages(
           role: input.role,
           message: input.message ?? '',
           usage: input.usage ?? '',
-        }))
+        })),
       )
-      .returning()
-    await tx.update(agentThreads).set({ updatedTime: Date.now() }).where(eq(agentThreads.id, threadId))
-    return rows
-  })
+      .returning();
+    await tx
+      .update(agentThreads)
+      .set({ updatedTime: Date.now() })
+      .where(eq(agentThreads.id, threadId));
+    return rows;
+  });
 }
 
 export async function updateThreadTitle(
   db: Database,
   threadId: number,
-  title: string
+  title: string,
 ): Promise<AgentThreadRow> {
-  const normalized = title.trim()
+  const normalized = title.trim();
   if (!normalized) {
-    throw new Error('会话标题不能为空')
+    throw new Error('会话标题不能为空');
   }
-  await getThreadRow(db, threadId)
+  await getThreadRow(db, threadId);
   await db.transaction(async tx => {
-    await tx.update(agentThreads).set({ title: normalized }).where(eq(agentThreads.id, threadId))
-  })
-  return getThreadRow(db, threadId)
+    await tx
+      .update(agentThreads)
+      .set({ title: normalized })
+      .where(eq(agentThreads.id, threadId));
+  });
+  return getThreadRow(db, threadId);
 }
 
-export async function deleteThread(db: Database, threadId: number): Promise<void> {
-  await getThreadRow(db, threadId)
+export async function deleteThread(
+  db: Database,
+  threadId: number,
+): Promise<void> {
+  await getThreadRow(db, threadId);
   await db.transaction(async tx => {
-    await tx.delete(agentMessages).where(eq(agentMessages.threadId, threadId))
-    await tx.delete(agentThreads).where(eq(agentThreads.id, threadId))
-  })
+    await tx.delete(agentMessages).where(eq(agentMessages.threadId, threadId));
+    await tx.delete(agentThreads).where(eq(agentThreads.id, threadId));
+  });
 }

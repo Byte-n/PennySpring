@@ -1,11 +1,16 @@
-import { index, sqliteTable, text } from 'drizzle-orm/sqlite-core'
+import { index, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 
 import {
   type RecordTypeCategoryValue,
   type ReimbursableValue,
   REIMBURSABLE,
-} from '../constants'
-import { enumColumn, integerColumn, primaryKeyColumn, timestampColumns } from '../shared'
+} from '../constants';
+import {
+  enumColumn,
+  integerColumn,
+  primaryKeyColumn,
+  timestampColumns,
+} from '../shared';
 
 /**
  * 账本级快捷记账模板。tagIds 以 JSON 数组存储。
@@ -20,7 +25,8 @@ export const quickTemplates = sqliteTable(
     // 展示名称
     name: text('name').notNull().default(''),
     // 记录大类
-    typeCategory: enumColumn<RecordTypeCategoryValue>('type_category').notNull(),
+    typeCategory:
+      enumColumn<RecordTypeCategoryValue>('type_category').notNull(),
     // 关联 tb_type.id
     typeId: integerColumn('type_id').notNull().default(0),
     // 原始金额，单位：分
@@ -48,4 +54,4 @@ export const quickTemplates = sqliteTable(
     ...timestampColumns(),
   },
   table => [index('tb_quick_template_books_id_index').on(table.booksId)],
-)
+);

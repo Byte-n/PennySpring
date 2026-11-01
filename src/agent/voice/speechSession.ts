@@ -20,7 +20,9 @@ export interface SpeechEngineHandle {
 export interface MicHandle {
   start(): Promise<void>;
   stop(): Promise<void>;
-  onData(callback: (samples: Float32Array, sampleRate: number) => void): () => void;
+  onData(
+    callback: (samples: Float32Array, sampleRate: number) => void,
+  ): () => void;
   onError(callback: (message: string) => void): () => void;
 }
 

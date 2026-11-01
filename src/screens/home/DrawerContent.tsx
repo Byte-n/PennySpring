@@ -237,10 +237,7 @@ const useStyles = createUseSheetStyle<number>((token, bottomInset) => ({
   },
 }));
 
-export function DrawerContent({
-  onClose,
-  onNavigate,
-}: DrawerContentProps) {
+export function DrawerContent({ onClose, onNavigate }: DrawerContentProps) {
   const insets = useSafeAreaInsets();
   const styles = useStyles(insets.bottom);
   const { token } = useTheme();
@@ -251,11 +248,7 @@ export function DrawerContent({
     currentBookRef?.kind === 'remote' ? currentBookRef.serverUrl : undefined;
   const remoteToken = useServerToken(remoteServerUrl);
   const backgroundSource = currentBook?.background
-    ? resolveMediaSource(
-        currentBook.background,
-        remoteServerUrl,
-        remoteToken,
-      )
+    ? resolveMediaSource(currentBook.background, remoteServerUrl, remoteToken)
     : undefined;
   const [isDeveloperOpen, setIsDeveloperOpen] = React.useState(false);
   const isDark = themeMode === 'dark';

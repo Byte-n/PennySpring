@@ -4,12 +4,12 @@
 
 ## 导出
 
-| 导出 | 说明 |
-|---|---|
-| `createDatabase(connection)` | 用 op-sqlite 连接创建 Drizzle 实例 |
-| `getDatabase()` | 打开 `pennyspring.db`、执行迁移与默认数据初始化，并返回单例 |
-| `runMigrations(db)` | 执行 `@pennyspring/data/drizzle/migrations` 中打包的迁移 |
-| `createLocalApi()` | 组装本地 `Api`，即应用默认使用的 `localApi` |
+| 导出                         | 说明                                                        |
+| ---------------------------- | ----------------------------------------------------------- |
+| `createDatabase(connection)` | 用 op-sqlite 连接创建 Drizzle 实例                          |
+| `getDatabase()`              | 打开 `pennyspring.db`、执行迁移与默认数据初始化，并返回单例 |
+| `runMigrations(db)`          | 执行 `@pennyspring/data/drizzle/migrations` 中打包的迁移    |
+| `createLocalApi()`           | 组装本地 `Api`，即应用默认使用的 `localApi`                 |
 
 ## 使用
 

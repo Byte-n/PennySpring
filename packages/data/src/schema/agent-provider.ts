@@ -1,7 +1,12 @@
-import { sqliteTable, text, unique } from 'drizzle-orm/sqlite-core'
+import { sqliteTable, text, unique } from 'drizzle-orm/sqlite-core';
 
-import type { AgentSelectionScope } from '../constants'
-import { enumColumn, integerColumn, primaryKeyColumn, timestampColumns } from '../shared'
+import type { AgentSelectionScope } from '../constants';
+import {
+  enumColumn,
+  integerColumn,
+  primaryKeyColumn,
+  timestampColumns,
+} from '../shared';
 
 /**
  * 服务器级 AI 提供商配置。不带 booksId：同一服务器/本地库的多本账本共享。
@@ -25,7 +30,7 @@ export const agentProviders = sqliteTable('tb_agent_provider', {
   // 记录创建时间（时间戳，毫秒），INSERT 时自动写入
   // 最后修改时间（时间戳，毫秒）
   ...timestampColumns(),
-})
+});
 
 /**
  * 账本级 API Key。按 booksId 隔离：同一服务器内不同账本各自配置。
@@ -51,7 +56,7 @@ export const bookProviderKeys = sqliteTable(
       table.providerId,
     ),
   ],
-)
+);
 
 /**
  * 服务器级模型选择。scope 区分 Agent 新会话默认值与快捷记账默认值。
@@ -72,4 +77,4 @@ export const agentSelections = sqliteTable(
     ...timestampColumns(),
   },
   table => [unique('tb_agent_selection_scope_unique').on(table.scope)],
-)
+);

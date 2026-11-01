@@ -53,7 +53,10 @@ function renderLabel(
   return label;
 }
 
-function getInitialValue(items: TabsItem[], defaultValue?: TabsValue): TabsValue | undefined {
+function getInitialValue(
+  items: TabsItem[],
+  defaultValue?: TabsValue,
+): TabsValue | undefined {
   if (defaultValue !== undefined) {
     return defaultValue;
   }
@@ -67,7 +70,21 @@ function renderItem(
   isSelected: boolean,
   size: ComponentSize,
   block: boolean,
-  rest: Omit<TabsProps, 'items' | 'value' | 'defaultValue' | 'onChange' | 'disabled' | 'size' | 'layout' | 'block' | 'style' | 'styles' | 'onPress' | 'renderContent'>,
+  rest: Omit<
+    TabsProps,
+    | 'items'
+    | 'value'
+    | 'defaultValue'
+    | 'onChange'
+    | 'disabled'
+    | 'size'
+    | 'layout'
+    | 'block'
+    | 'style'
+    | 'styles'
+    | 'onPress'
+    | 'renderContent'
+  >,
   tokenStyles: ReturnType<typeof useStyles>,
   styles: TabsProps['styles'],
   onPress: TabsProps['onPress'],
@@ -143,8 +160,11 @@ export function Tabs({
     onChange,
   );
 
-  const selectedIndex = normalizedItems.findIndex(item => item.value === selectedValue);
-  const selectedItem = selectedIndex >= 0 ? normalizedItems[selectedIndex] : undefined;
+  const selectedIndex = normalizedItems.findIndex(
+    item => item.value === selectedValue,
+  );
+  const selectedItem =
+    selectedIndex >= 0 ? normalizedItems[selectedIndex] : undefined;
 
   const renderItems = () =>
     normalizedItems.map(item => {

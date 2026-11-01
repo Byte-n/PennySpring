@@ -38,7 +38,8 @@ export function SwitchDarkDemo() {
   return (
     <Column gap="normal">
       <Text color="tertiary" size="sm">
-        固定深色，不随页面主题：关态轨道取 colorFillTertiary（8% 白），开态取 colorPrimary，滑块恒为白
+        固定深色，不随页面主题：关态轨道取 colorFillTertiary（8% 白），开态取
+        colorPrimary，滑块恒为白
       </Text>
       <ThemeProvider config={{ algorithm: 'dark' }}>
         <DarkSurface />

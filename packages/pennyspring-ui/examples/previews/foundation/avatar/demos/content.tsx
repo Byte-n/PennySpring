@@ -14,7 +14,8 @@ export function AvatarContentDemo() {
         <Avatar />
       </Row>
       <Text color="tertiary" size="xs">
-        优先级：图片 → 首字 → 图标 → 占位；首字只取 trim 后第一个字符，图片加载失败自动降级到首字
+        优先级：图片 → 首字 → 图标 → 占位；首字只取 trim
+        后第一个字符，图片加载失败自动降级到首字
       </Text>
       <Row gap="small">
         <Avatar size="small" text="评" />

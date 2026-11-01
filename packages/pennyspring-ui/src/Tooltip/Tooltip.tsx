@@ -15,7 +15,11 @@ import {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
-import { createUseSheetStyle, toShadowStyle, useTheme } from '@pennyspring/theme';
+import {
+  createUseSheetStyle,
+  toShadowStyle,
+  useTheme,
+} from '@pennyspring/theme';
 import { PortalContext } from '../Portal/Portal';
 import { resolvePortalMount } from '../Portal/resolvePortalMount';
 import { Text } from '../Text';
@@ -28,10 +32,17 @@ import type {
   PopoverAnchorRect,
   PopoverViewport,
 } from '../Popover/popoverLayout';
-import type { PopoverOpenChangeReason, PopoverPlacement } from '../Popover/types';
+import type {
+  PopoverOpenChangeReason,
+  PopoverPlacement,
+} from '../Popover/types';
 import type { TextColor } from '../Text';
 import type { TooltipContentSize, TooltipLayout } from './tooltipLayout';
-import type { TooltipOpenChangeParams, TooltipProps, TooltipVariant } from './types';
+import type {
+  TooltipOpenChangeParams,
+  TooltipProps,
+  TooltipVariant,
+} from './types';
 
 const DEFAULT_PLACEMENT: PopoverPlacement = 'top';
 const DEFAULT_ALIGN = 'center' as const;
@@ -83,77 +94,73 @@ function resolveArrowBox(
   };
 }
 
-const useStyles = createUseSheetStyle(
-  (token, options: TooltipStyleOptions) => {
-    const backgroundColor =
-      options.variant === 'dark'
-        ? token.colorBgSpotlight
-        : token.colorBgElevated;
-    const arrowPosition = resolveArrowPosition(
-      options.placement,
-      options.arrowBox,
-    );
-    const light = options.variant === 'light';
+const useStyles = createUseSheetStyle((token, options: TooltipStyleOptions) => {
+  const backgroundColor =
+    options.variant === 'dark' ? token.colorBgSpotlight : token.colorBgElevated;
+  const arrowPosition = resolveArrowPosition(
+    options.placement,
+    options.arrowBox,
+  );
+  const light = options.variant === 'light';
 
-    return {
-      overlay: {
-        bottom: 0,
-        left: 0,
-        position: 'absolute',
-        right: 0,
-        top: 0,
-        zIndex: token.zIndexPopupBase + 100,
-      },
-      mask: {
-        bottom: 0,
-        left: 0,
-        position: 'absolute',
-        right: 0,
-        top: 0,
-        backgroundColor: 'transparent',
-      },
-      content: {
-        position: 'absolute',
-        left: options.layout?.left ?? 0,
-        top: options.layout?.top ?? 0,
-        width: options.layout?.width,
-        maxWidth: options.maxWidth,
-        paddingHorizontal: token.paddingXS,
-        paddingVertical: token.paddingXS / 2,
-        borderRadius: token.borderRadiusSM,
-        backgroundColor,
-        pointerEvents: options.interactive ? 'auto' : 'none',
-        ...(light
-          ? {
-              borderWidth: token.lineWidth,
-              borderColor: token.colorBorder,
-              ...toShadowStyle(token.boxShadowSecondary),
-            }
-          : {}),
-      },
-      scroll: {
-        maxHeight: options.layout?.scrollMaxHeight
-          ? options.layout.scrollMaxHeight
-          : undefined,
-      },
-      arrow: {
-        position: 'absolute',
-        width: TOOLTIP_ARROW_SIZE,
-        height: TOOLTIP_ARROW_SIZE,
-        backgroundColor,
-        transform: [{ rotate: '45deg' }],
-        ...(light
-          ? {
-              borderColor: token.colorBorder,
-              borderStyle: 'solid' as const,
-              ...resolveArrowBorders(options.placement, token.lineWidth),
-            }
-          : {}),
-        ...arrowPosition,
-      },
-    };
-  },
-);
+  return {
+    overlay: {
+      bottom: 0,
+      left: 0,
+      position: 'absolute',
+      right: 0,
+      top: 0,
+      zIndex: token.zIndexPopupBase + 100,
+    },
+    mask: {
+      bottom: 0,
+      left: 0,
+      position: 'absolute',
+      right: 0,
+      top: 0,
+      backgroundColor: 'transparent',
+    },
+    content: {
+      position: 'absolute',
+      left: options.layout?.left ?? 0,
+      top: options.layout?.top ?? 0,
+      width: options.layout?.width,
+      maxWidth: options.maxWidth,
+      paddingHorizontal: token.paddingXS,
+      paddingVertical: token.paddingXS / 2,
+      borderRadius: token.borderRadiusSM,
+      backgroundColor,
+      pointerEvents: options.interactive ? 'auto' : 'none',
+      ...(light
+        ? {
+            borderWidth: token.lineWidth,
+            borderColor: token.colorBorder,
+            ...toShadowStyle(token.boxShadowSecondary),
+          }
+        : {}),
+    },
+    scroll: {
+      maxHeight: options.layout?.scrollMaxHeight
+        ? options.layout.scrollMaxHeight
+        : undefined,
+    },
+    arrow: {
+      position: 'absolute',
+      width: TOOLTIP_ARROW_SIZE,
+      height: TOOLTIP_ARROW_SIZE,
+      backgroundColor,
+      transform: [{ rotate: '45deg' }],
+      ...(light
+        ? {
+            borderColor: token.colorBorder,
+            borderStyle: 'solid' as const,
+            ...resolveArrowBorders(options.placement, token.lineWidth),
+          }
+        : {}),
+      ...arrowPosition,
+    },
+  };
+});
 
 function resolveArrowPosition(
   placement: PopoverPlacement,
@@ -435,8 +442,7 @@ export function Tooltip({
     opacity: progress.value,
     transform: [
       {
-        scale:
-          ENTER_SCALE_FROM + progress.value * (1 - ENTER_SCALE_FROM),
+        scale: ENTER_SCALE_FROM + progress.value * (1 - ENTER_SCALE_FROM),
       },
     ],
   }));
@@ -457,11 +463,11 @@ export function Tooltip({
     trigger === 'manual'
       ? {}
       : trigger === 'longPress'
-      ? {
-          onLongPress: handleTriggerLongPress,
-          onPress: handleTriggerTap,
-        }
-      : { onPress: handleTriggerPress };
+        ? {
+            onLongPress: handleTriggerLongPress,
+            onPress: handleTriggerTap,
+          }
+        : { onPress: handleTriggerPress };
 
   const anchor = (
     <View

@@ -46,17 +46,19 @@ function getPickerPanelHeight(
   const floatingPanelSize = getFloatingPanelSizeConfig(size);
   const itemHeight = getPickerItemHeight(size, token);
   const headerSectionHeight = hasHeader
-    ? Math.max(token.controlHeight, itemHeight)
-      + floatingPanelSize.contentPadding(token)
-      + floatingPanelSize.sectionPadding(token)
+    ? Math.max(token.controlHeight, itemHeight) +
+      floatingPanelSize.contentPadding(token) +
+      floatingPanelSize.sectionPadding(token)
     : 0;
   const pickerBodyInset = token.paddingMD + token.paddingSM;
   const wheelHeight = itemHeight * visibleItemCount;
 
-  return floatingPanelSize.handleHeight(token)
-    + headerSectionHeight
-    + pickerBodyInset
-    + wheelHeight;
+  return (
+    floatingPanelSize.handleHeight(token) +
+    headerSectionHeight +
+    pickerBodyInset +
+    wheelHeight
+  );
 }
 
 export function PickerPopup<TItem extends PickerColumnItemData>({
@@ -77,36 +79,38 @@ export function PickerPopup<TItem extends PickerColumnItemData>({
   styles,
 }: PickerPopupContainerProps<TItem>) {
   const { token } = useTheme();
-  const defaultHeader = props.renderHeader === null ? null : (
-    <PickerHeader
-      cancel={props.cancel}
-      cancelText={props.cancelText}
-      ok={props.ok}
-      okDisabled={props.okDisabled}
-      okText={props.okText}
-      onCancelPress={onCancelPress}
-      onOkPress={onOkPress}
-      size={size}
-      slotStyles={externalStyles?.panel?.header}
-      styles={styles}
-      title={props.title}
-      titleText={props.titleText}
-    />
-  );
-  const header = props.renderHeader === null
-    ? null
-    : props.renderHeader !== undefined
-      ? props.renderHeader({
-        header: defaultHeader,
-        draftValue,
-        columns,
-        hasDisabledFocusedItem,
-        isWheelScrolling,
-        okDisabled: props.okDisabled,
-        onCancel: onCancelPress ?? (() => {}),
-        onOk: onOkPress ?? (() => {}),
-      })
-      : defaultHeader;
+  const defaultHeader =
+    props.renderHeader === null ? null : (
+      <PickerHeader
+        cancel={props.cancel}
+        cancelText={props.cancelText}
+        ok={props.ok}
+        okDisabled={props.okDisabled}
+        okText={props.okText}
+        onCancelPress={onCancelPress}
+        onOkPress={onOkPress}
+        size={size}
+        slotStyles={externalStyles?.panel?.header}
+        styles={styles}
+        title={props.title}
+        titleText={props.titleText}
+      />
+    );
+  const header =
+    props.renderHeader === null
+      ? null
+      : props.renderHeader !== undefined
+        ? props.renderHeader({
+            header: defaultHeader,
+            draftValue,
+            columns,
+            hasDisabledFocusedItem,
+            isWheelScrolling,
+            okDisabled: props.okDisabled,
+            onCancel: onCancelPress ?? (() => {}),
+            onOk: onOkPress ?? (() => {}),
+          })
+        : defaultHeader;
   const resolvedSize = size ?? 'normal';
   const height = getPickerPanelHeight(
     header !== null,

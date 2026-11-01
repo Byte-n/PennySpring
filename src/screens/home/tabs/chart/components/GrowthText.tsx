@@ -21,9 +21,9 @@ export function GrowthText({
   const color = isNeutral ? 'tertiary' : isGood ? 'success' : 'error';
   const text = isNeutral
     ? '—'
-    : `${isUp ? '↑' : '↓'} ${Math.abs(
-        (ratio ?? 0) * PERCENT_BASE,
-      ).toFixed(FRACTION_DIGITS)}${points ? 'pt' : '%'}`;
+    : `${isUp ? '↑' : '↓'} ${Math.abs((ratio ?? 0) * PERCENT_BASE).toFixed(
+        FRACTION_DIGITS,
+      )}${points ? 'pt' : '%'}`;
 
   return (
     <Text size="xs" weight="medium" color={color}>

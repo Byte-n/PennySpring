@@ -1,10 +1,7 @@
 import React from 'react';
 import { Pressable, View } from 'react-native';
 import { useTheme } from '@pennyspring/theme';
-import type {
-  LayoutChangeEvent,
-  ViewStyle,
-} from 'react-native';
+import type { LayoutChangeEvent, ViewStyle } from 'react-native';
 import {
   Gesture,
   GestureDetector,
@@ -244,7 +241,11 @@ export const SwipeAction = React.forwardRef<SwipeActionRef, SwipeActionProps>(
 
     const settleOffset = React.useCallback(
       (nextOffset: number): void => {
-        const nextValue = resolveNearestValue(nextOffset, leftWidth, rightWidth);
+        const nextValue = resolveNearestValue(
+          nextOffset,
+          leftWidth,
+          rightWidth,
+        );
 
         animateToOffset(resolveOffsetByValue(nextValue, leftWidth, rightWidth));
         setSwipeValue(nextValue);
@@ -253,13 +254,7 @@ export const SwipeAction = React.forwardRef<SwipeActionRef, SwipeActionProps>(
           onActionsReveal?.(nextValue);
         }
       },
-      [
-        animateToOffset,
-        leftWidth,
-        onActionsReveal,
-        rightWidth,
-        setSwipeValue,
-      ],
+      [animateToOffset, leftWidth, onActionsReveal, rightWidth, setSwipeValue],
     );
 
     const handleGestureBegin = React.useCallback((): void => {
@@ -326,15 +321,15 @@ export const SwipeAction = React.forwardRef<SwipeActionRef, SwipeActionProps>(
       ],
     );
 
-    const handleGestureFinalize = React.useCallback((
-      _event: unknown,
-      success: boolean,
-    ): void => {
-      if (!success) {
-        animateToOffset(settledOffset);
-        draggingRef.current = false;
-      }
-    }, [animateToOffset, settledOffset]);
+    const handleGestureFinalize = React.useCallback(
+      (_event: unknown, success: boolean): void => {
+        if (!success) {
+          animateToOffset(settledOffset);
+          draggingRef.current = false;
+        }
+      },
+      [animateToOffset, settledOffset],
+    );
 
     function handleContentResponderRelease(): void {
       if (draggingRef.current || currentValue === null) {
@@ -352,10 +347,7 @@ export const SwipeAction = React.forwardRef<SwipeActionRef, SwipeActionProps>(
     ): React.ReactNode {
       const actionDisabled = isGestureBlocked || action.disabled === true;
       const color = resolveActionColor(action, side);
-      const backgroundStyle = resolveActionBackgroundStyle(
-        color,
-        tokenStyles,
-      );
+      const backgroundStyle = resolveActionBackgroundStyle(color, tokenStyles);
       const textColor = resolveActionTextColor(color, actionDisabled);
 
       function handleActionPress(): void {

@@ -107,7 +107,13 @@ function asset(
 }
 
 function tag(id: number, name: string): TagRow {
-  return { id, booksId: 1, name, icon: '', invisible: VISIBILITY.visible } as TagRow;
+  return {
+    id,
+    booksId: 1,
+    name,
+    icon: '',
+    invisible: VISIBILITY.visible,
+  } as TagRow;
 }
 
 function stat(
@@ -164,7 +170,10 @@ describe('createMonthPeriod', () => {
   });
 
   test('treats a past month as fully elapsed', () => {
-    const period = createMonthPeriod(new Date(`2026-04-10T12:00:00${TZ_OFFSET}`), NOW);
+    const period = createMonthPeriod(
+      new Date(`2026-04-10T12:00:00${TZ_OFFSET}`),
+      NOW,
+    );
 
     expect(period.totalDays).toBe(30);
     expect(period.elapsedDays).toBe(30);
@@ -239,8 +248,16 @@ describe('buildDailyExpense', () => {
     );
 
     expect(points).toHaveLength(15);
-    expect(points[0]).toMatchObject({ day: 1, amount: 12000, cumulative: 12000 });
-    expect(points[13]).toMatchObject({ day: 14, amount: 8000, cumulative: 20000 });
+    expect(points[0]).toMatchObject({
+      day: 1,
+      amount: 12000,
+      cumulative: 12000,
+    });
+    expect(points[13]).toMatchObject({
+      day: 14,
+      amount: 8000,
+      cumulative: 20000,
+    });
     expect(points[14]).toMatchObject({ day: 15, amount: 0, cumulative: 20000 });
   });
 });
@@ -268,13 +285,27 @@ describe('buildMovers', () => {
   test('merges categories and sorts by absolute change', () => {
     const movers = buildMovers(
       [stat('1', '餐饮', 10000, 2), stat('2', '交通', 5000, 1)],
-      [stat('1', '餐饮', 8000, 2), stat('2', '交通', 5000, 1), stat('3', '娱乐', 3000, 1)],
+      [
+        stat('1', '餐饮', 8000, 2),
+        stat('2', '交通', 5000, 1),
+        stat('3', '娱乐', 3000, 1),
+      ],
       3,
     );
 
     expect(movers.map(item => item.name)).toEqual(['娱乐', '餐饮', '交通']);
-    expect(movers[0]).toMatchObject({ current: 0, previous: 3000, delta: -3000, percent: -1 });
-    expect(movers[1]).toMatchObject({ current: 10000, previous: 8000, delta: 2000, count: 2 });
+    expect(movers[0]).toMatchObject({
+      current: 0,
+      previous: 3000,
+      delta: -3000,
+      percent: -1,
+    });
+    expect(movers[1]).toMatchObject({
+      current: 10000,
+      previous: 8000,
+      delta: 2000,
+      count: 2,
+    });
     expect(movers[1].percent).toBeCloseTo(0.25);
   });
 
@@ -288,11 +319,41 @@ describe('buildMovers', () => {
 describe('buildExpenseInsights', () => {
   test('returns pace, category and peak insights in that order', () => {
     const insights = buildExpenseInsights({
-      current: { expense: 20000, income: 30000, balance: 10000, expenseCount: 2, dailyAverage: 0, savingsRate: 0 },
-      previous: { expense: 10000, income: 20000, balance: 10000, expenseCount: 1, dailyAverage: 0, savingsRate: 0 },
+      current: {
+        expense: 20000,
+        income: 30000,
+        balance: 10000,
+        expenseCount: 2,
+        dailyAverage: 0,
+        savingsRate: 0,
+      },
+      previous: {
+        expense: 10000,
+        income: 20000,
+        balance: 10000,
+        expenseCount: 1,
+        dailyAverage: 0,
+        savingsRate: 0,
+      },
       movers: [
-        { key: '1', name: '餐饮', current: 10000, previous: 8000, delta: 2000, percent: 0.25, count: 2 },
-        { key: '3', name: '娱乐', current: 0, previous: 3000, delta: -3000, percent: -1, count: 1 },
+        {
+          key: '1',
+          name: '餐饮',
+          current: 10000,
+          previous: 8000,
+          delta: 2000,
+          percent: 0.25,
+          count: 2,
+        },
+        {
+          key: '3',
+          name: '娱乐',
+          current: 0,
+          previous: 3000,
+          delta: -3000,
+          percent: -1,
+          count: 1,
+        },
       ],
       calendar: [
         { day: 1, date: 0, amount: 12000, isFuture: false, isToday: false },
@@ -300,16 +361,44 @@ describe('buildExpenseInsights', () => {
       ],
     });
 
-    expect(insights.map(item => item.kind)).toEqual(['pace', 'category', 'peak']);
-    expect(insights[0]).toMatchObject({ kind: 'pace', expenseGrowth: 1, incomeGrowth: 0.5, balanceDelta: 0 });
-    expect(insights[1]).toMatchObject({ kind: 'category', name: '餐饮', delta: 2000, count: 2 });
+    expect(insights.map(item => item.kind)).toEqual([
+      'pace',
+      'category',
+      'peak',
+    ]);
+    expect(insights[0]).toMatchObject({
+      kind: 'pace',
+      expenseGrowth: 1,
+      incomeGrowth: 0.5,
+      balanceDelta: 0,
+    });
+    expect(insights[1]).toMatchObject({
+      kind: 'category',
+      name: '餐饮',
+      delta: 2000,
+      count: 2,
+    });
     expect(insights[2]).toMatchObject({ kind: 'peak', day: 1, amount: 12000 });
   });
 
   test('skips pace insight when expense growth does not exceed income growth', () => {
     const insights = buildExpenseInsights({
-      current: { expense: 12000, income: 30000, balance: 18000, expenseCount: 2, dailyAverage: 0, savingsRate: 0 },
-      previous: { expense: 10000, income: 20000, balance: 10000, expenseCount: 1, dailyAverage: 0, savingsRate: 0 },
+      current: {
+        expense: 12000,
+        income: 30000,
+        balance: 18000,
+        expenseCount: 2,
+        dailyAverage: 0,
+        savingsRate: 0,
+      },
+      previous: {
+        expense: 10000,
+        income: 20000,
+        balance: 10000,
+        expenseCount: 1,
+        dailyAverage: 0,
+        savingsRate: 0,
+      },
       movers: [],
       calendar: [],
     });
@@ -332,7 +421,11 @@ describe('buildStructure', () => {
     );
 
     expect(structure).toHaveLength(4);
-    expect(structure[3]).toMatchObject({ key: 'other', name: '其他 2 类', amount: 6000 });
+    expect(structure[3]).toMatchObject({
+      key: 'other',
+      name: '其他 2 类',
+      amount: 6000,
+    });
     expect(structure[3].percent).toBeCloseTo(0.2);
   });
 });
@@ -383,9 +476,17 @@ describe('buildIncomeTrend', () => {
 
     expect(trend).toHaveLength(6);
     expect(trend[0].label).toBe('12月');
-    expect(trend[4]).toMatchObject({ label: '4月', income: 20000, expense: 15000 });
+    expect(trend[4]).toMatchObject({
+      label: '4月',
+      income: 20000,
+      expense: 15000,
+    });
     expect(trend[4].savingsRate).toBeCloseTo(0.25);
-    expect(trend[5]).toMatchObject({ label: '5月*', income: 30000, expense: 20000 });
+    expect(trend[5]).toMatchObject({
+      label: '5月*',
+      income: 30000,
+      expense: 20000,
+    });
     expect(trend[5].savingsRate).toBeCloseTo(1 / 3);
   });
 });
@@ -432,7 +533,9 @@ describe('buildAssetOverview', () => {
     expect(overview.assetGroups.map(group => group.amount)).toEqual([
       100000, 1000, 20000, 4000,
     ]);
-    expect(overview.liabilityGroups.map(group => group.amount)).toEqual([30000, 5000]);
+    expect(overview.liabilityGroups.map(group => group.amount)).toEqual([
+      30000, 5000,
+    ]);
   });
 
   test('excludes hidden assets and shows liabilities as negative amounts', () => {
@@ -440,7 +543,9 @@ describe('buildAssetOverview', () => {
 
     expect(overview.accounts).toHaveLength(6);
     expect(overview.accounts.find(item => item.asset.id === 7)).toBeUndefined();
-    expect(overview.accounts.find(item => item.asset.id === 2)?.amount).toBe(-30000);
+    expect(overview.accounts.find(item => item.asset.id === 2)?.amount).toBe(
+      -30000,
+    );
     expect(overview.accounts[0].name).toBe('招行储蓄卡');
   });
 
@@ -572,7 +677,11 @@ describe('tag and asset dimensions', () => {
       assetMap,
     );
 
-    expect(stats.map(item => item.name)).toEqual(['招行储蓄卡', '招行信用卡', '未关联资产']);
+    expect(stats.map(item => item.name)).toEqual([
+      '招行储蓄卡',
+      '招行信用卡',
+      '未关联资产',
+    ]);
   });
 });
 
@@ -586,7 +695,11 @@ describe('foldForDonut', () => {
     const folded = foldForDonut(stats, 6);
 
     expect(folded).toHaveLength(7);
-    expect(folded[6]).toMatchObject({ key: 'other', name: '其他 2 类', amount: 3000 });
+    expect(folded[6]).toMatchObject({
+      key: 'other',
+      name: '其他 2 类',
+      amount: 3000,
+    });
     expect(folded[6].percent).toBeCloseTo(3000 / 36000);
   });
 });

@@ -39,7 +39,11 @@ jest.mock('@pennyspring/ui', () => {
   }: {
     data?: Array<Record<string, unknown>>;
     sections?: Array<{ data: Array<Record<string, unknown>> }>;
-    renderItem?: (info: { item: unknown; index: number; separators: object }) => React.ReactNode;
+    renderItem?: (info: {
+      item: unknown;
+      index: number;
+      separators: object;
+    }) => React.ReactNode;
   }) => {
     const rows = sections ? sections.flatMap(section => section.data) : data;
     return ReactLib.createElement(
@@ -133,9 +137,7 @@ function renderBookList(items: BookListItem[]): TestRenderer.ReactTestRenderer {
 function findNetworkCoverLabel(
   renderer: TestRenderer.ReactTestRenderer,
 ): unknown[] {
-  return renderer.root
-    .findAllByType(RNText)
-    .map(node => node.props.children);
+  return renderer.root.findAllByType(RNText).map(node => node.props.children);
 }
 
 describe('BookList 账本封面', () => {
@@ -146,7 +148,9 @@ describe('BookList 账本封面', () => {
   it('renders book sections through the shared List container', () => {
     const renderer = renderBookList([createRemoteItem('')]);
 
-    expect(renderer.root.findByProps({ testID: 'book-list' }).props.scrollEnabled).toBe(true);
+    expect(
+      renderer.root.findByProps({ testID: 'book-list' }).props.scrollEnabled,
+    ).toBe(true);
   });
 
   it('网络账本有封面地址时渲染图片封面', () => {

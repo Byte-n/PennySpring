@@ -72,7 +72,13 @@ function getPlacementStyle(
 export const useStyles = createUseSheetStyle(
   (
     token,
-    { maxWidth, placement, safeAreaBottom, safeAreaTop, size }: ToastStyleOptions,
+    {
+      maxWidth,
+      placement,
+      safeAreaBottom,
+      safeAreaTop,
+      size,
+    }: ToastStyleOptions,
   ) => {
     const sizeConfig = SIZE_TOKEN_MAP[size];
 

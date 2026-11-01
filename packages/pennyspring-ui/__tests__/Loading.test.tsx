@@ -1,5 +1,10 @@
 import React from 'react';
-import { ActivityIndicator, StyleSheet, Text as RNText, View } from 'react-native';
+import {
+  ActivityIndicator,
+  StyleSheet,
+  Text as RNText,
+  View,
+} from 'react-native';
 import renderer, { act } from 'react-test-renderer';
 import { ThemeProvider } from '@pennyspring/theme';
 import { Column } from '../src/Column';
@@ -71,7 +76,9 @@ describe('Loading', () => {
   ] as const)('maps %s to a %s indicator', (size, expectedSize) => {
     const testRenderer = renderLoading({ size });
 
-    expect(testRenderer.root.findByType(ActivityIndicator).props.size).toBe(expectedSize);
+    expect(testRenderer.root.findByType(ActivityIndicator).props.size).toBe(
+      expectedSize,
+    );
   });
 
   it('keeps inline text at 12 with an 8 gap and 20 min height', () => {
@@ -103,7 +110,10 @@ describe('Loading', () => {
   });
 
   it('renders more as a compact row with tertiary 12 text', () => {
-    const testRenderer = renderLoading({ variant: 'more', text: '加载更早的记录' });
+    const testRenderer = renderLoading({
+      variant: 'more',
+      text: '加载更早的记录',
+    });
     const rowStyle = getFirstRowStyle(testRenderer);
     const textNode = testRenderer.root.findByType(Text);
 
@@ -113,7 +123,10 @@ describe('Loading', () => {
   });
 
   it('renders overlay as a masked centered card', () => {
-    const testRenderer = renderLoading({ variant: 'overlay', text: '正在写入云端' });
+    const testRenderer = renderLoading({
+      variant: 'overlay',
+      text: '正在写入云端',
+    });
     const views = testRenderer.root.findAllByType(View);
     const maskStyle = StyleSheet.flatten(views[0].props.style);
     const cardStyle = StyleSheet.flatten(views[1].props.style);
@@ -132,9 +145,15 @@ describe('Loading', () => {
     const mutedRenderer = renderLoading({ tone: 'muted' });
     const inverseRenderer = renderLoading({ tone: 'inverse' });
 
-    expect(primaryRenderer.root.findByType(ActivityIndicator).props.color).toBe(TOKENS.colorPrimary);
-    expect(mutedRenderer.root.findByType(ActivityIndicator).props.color).toBe(TOKENS.colorTextTertiary);
-    expect(inverseRenderer.root.findByType(ActivityIndicator).props.color).toBe(TOKENS.colorTextLightSolid);
+    expect(primaryRenderer.root.findByType(ActivityIndicator).props.color).toBe(
+      TOKENS.colorPrimary,
+    );
+    expect(mutedRenderer.root.findByType(ActivityIndicator).props.color).toBe(
+      TOKENS.colorTextTertiary,
+    );
+    expect(inverseRenderer.root.findByType(ActivityIndicator).props.color).toBe(
+      TOKENS.colorTextLightSolid,
+    );
   });
 
   it('renders nothing when stopped without text', () => {
@@ -144,7 +163,10 @@ describe('Loading', () => {
   });
 
   it('keeps text but drops the indicator when stopped with text', () => {
-    const testRenderer = renderLoading({ animating: false, text: '已停止加载' });
+    const testRenderer = renderLoading({
+      animating: false,
+      text: '已停止加载',
+    });
 
     expect(() => testRenderer.root.findByType(ActivityIndicator)).toThrow();
     expect(JSON.stringify(testRenderer.toJSON())).toContain('已停止加载');

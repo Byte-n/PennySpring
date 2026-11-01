@@ -22,7 +22,9 @@ interface CarouselSlidesProps<Data = unknown> {
   };
 }
 
-export const CarouselSlides = <Data = unknown,>(props: CarouselSlidesProps<Data>) => {
+export const CarouselSlides = <Data = unknown,>(
+  props: CarouselSlidesProps<Data>,
+) => {
   const {
     data,
     renderItem,
@@ -68,7 +70,15 @@ export const CarouselSlides = <Data = unknown,>(props: CarouselSlidesProps<Data>
     }
 
     return elements;
-  }, [data, getIndexFromExtIndex, loopEnabled, renderItem, styles.slideWrapper, total, virtualRange]);
+  }, [
+    data,
+    getIndexFromExtIndex,
+    loopEnabled,
+    renderItem,
+    styles.slideWrapper,
+    total,
+    virtualRange,
+  ]);
 
   const leadSpacer = useMemo(() => {
     if (!virtualRange?.isVirtual) {

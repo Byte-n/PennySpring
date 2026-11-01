@@ -2,7 +2,10 @@ import React from 'react';
 import { Button, Empty, Loading, Result } from '@pennyspring/ui';
 import { createUseSheetStyle } from '@pennyspring/ui';
 import type { TypeRow } from '@pennyspring/api';
-import { CategoryGrid, type CategoryItem } from '../../../component/CategoryGrid';
+import {
+  CategoryGrid,
+  type CategoryItem,
+} from '../../../component/CategoryGrid';
 
 interface CategoryFieldProps {
   categories: TypeRow[];
@@ -51,7 +54,9 @@ export function CategoryField({
   }
 
   if (categories.length === 0) {
-    return <Empty size="small" descriptionText="暂无可用类型" style={styles.state} />;
+    return (
+      <Empty size="small" descriptionText="暂无可用类型" style={styles.state} />
+    );
   }
 
   return (

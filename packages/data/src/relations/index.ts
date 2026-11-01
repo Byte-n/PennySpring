@@ -7,4 +7,4 @@ export {
   tagsRelations,
   tagWithRecordRelations,
   typesRelations,
-} from './relations'
+} from './relations';

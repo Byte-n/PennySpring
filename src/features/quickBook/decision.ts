@@ -1,7 +1,4 @@
-import type {
-  QuickBookImage,
-  QuickBookScreenshotResult,
-} from './types';
+import type { QuickBookImage, QuickBookScreenshotResult } from './types';
 
 export type ScreenshotNudgeDecision =
   | {
@@ -11,12 +8,7 @@ export type ScreenshotNudgeDecision =
     }
   | {
       shouldPrompt: false;
-      reason:
-        | 'permission'
-        | 'empty'
-        | 'stale'
-        | 'unavailable'
-        | 'duplicate';
+      reason: 'permission' | 'empty' | 'stale' | 'unavailable' | 'duplicate';
     };
 
 export function decideScreenshotNudge(

@@ -90,7 +90,9 @@ const DEFAULT_ICON_MAP: Record<IconName, IconComponent> = {
   warning: WarningCircleIcon,
 };
 
-function resolveIcon(icon: IconName | IconComponent): IconComponent | undefined {
+function resolveIcon(
+  icon: IconName | IconComponent,
+): IconComponent | undefined {
   if (typeof icon === 'string') {
     return DEFAULT_ICON_MAP[icon];
   }

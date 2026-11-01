@@ -16,7 +16,9 @@ function DarkSurface() {
 
   return (
     <Column style={styles.surface}>
-      <Text color="secondary" size="xs">本月餐饮</Text>
+      <Text color="secondary" size="xs">
+        本月餐饮
+      </Text>
       <Progress.Bar percent={62} />
       <Row gap="large">
         <Progress.Circle percent={60} />

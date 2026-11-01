@@ -28,7 +28,9 @@ export function SessionManageScreen() {
   const navigation = useNavigation();
   const chat = useAgentChatState();
   const { openAgent } = useAgentLauncher();
-  const [pendingDelete, setPendingDelete] = useState<AgentThreadRow | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<AgentThreadRow | null>(
+    null,
+  );
 
   const handleCreate = useCallback((): void => {
     if (chat.sending) {

@@ -1,10 +1,6 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import {
-  createUseSheetStyle,
-  ThemePreview,
-  useTheme,
-} from '@pennyspring/ui';
+import { createUseSheetStyle, ThemePreview, useTheme } from '@pennyspring/ui';
 
 import { AddRecordScreen } from '../screens/addRecord/AddRecordScreen';
 import { AboutScreen } from '../screens/about/AboutScreen';

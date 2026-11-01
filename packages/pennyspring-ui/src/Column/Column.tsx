@@ -30,7 +30,10 @@ function mapJustifyContent(justify?: FlexJustify): ViewStyle['justifyContent'] {
   return justify;
 }
 
-function resolveGap(gap: number | ComponentSize | undefined, token: AliasToken) {
+function resolveGap(
+  gap: number | ComponentSize | undefined,
+  token: AliasToken,
+) {
   if (gap === undefined) {
     return undefined;
   }

@@ -89,7 +89,13 @@ function ToastBody({
         }
       },
     );
-  }, [handleClosed, isOpen, progress, token.motionDurationMid, token.motionEaseInOut]);
+  }, [
+    handleClosed,
+    isOpen,
+    progress,
+    token.motionDurationMid,
+    token.motionEaseInOut,
+  ]);
 
   React.useEffect(() => {
     if (duration === 0 || isOpen === false) {
@@ -118,17 +124,23 @@ function ToastBody({
         timerRef.current = null;
       }
     };
-  }, [duration, handleClosed, isOpen, progress, token.motionDurationMid, token.motionEaseInOut]);
+  }, [
+    duration,
+    handleClosed,
+    isOpen,
+    progress,
+    token.motionDurationMid,
+    token.motionEaseInOut,
+  ]);
 
   const animatedStyle = useAnimatedStyle(() => {
-    const hiddenOffset = contentHeight > 0 ? contentHeight : token.controlHeight;
+    const hiddenOffset =
+      contentHeight > 0 ? contentHeight : token.controlHeight;
 
     return {
       opacity: progress.value,
       transform: [
-        ...(placement === 'center'
-          ? [{ translateY: -hiddenOffset }]
-          : []),
+        ...(placement === 'center' ? [{ translateY: -hiddenOffset }] : []),
         {
           translateY: (1 - progress.value) * hiddenOffset,
         },
@@ -136,7 +148,8 @@ function ToastBody({
     };
   });
 
-  const hasMessage = message !== undefined && message !== null && message !== false;
+  const hasMessage =
+    message !== undefined && message !== null && message !== false;
   const hasText = messageText !== undefined && messageText !== '';
 
   // 没有文案时不再渲染空胶囊。
@@ -145,17 +158,20 @@ function ToastBody({
   }
 
   const sizeConfig = SIZE_TOKEN_MAP[size];
-  const resolvedIcon = icon === undefined
-    ? status === 'default'
-      ? <View style={tokenStyles.dot} />
-      : (
+  const resolvedIcon =
+    icon === undefined ? (
+      status === 'default' ? (
+        <View style={tokenStyles.dot} />
+      ) : (
         <Icon
           color="lightSolid"
           icon={status === 'success' ? 'check' : 'warning'}
           size={sizeConfig.iconSize}
         />
       )
-    : icon;
+    ) : (
+      icon
+    );
 
   return (
     <Animated.View
@@ -164,16 +180,11 @@ function ToastBody({
         const nextHeight = event.nativeEvent.layout.height;
         setContentHeight(nextHeight);
       }}
-      style={[
-        tokenStyles.content,
-        style,
-        styles?.content,
-        animatedStyle,
-      ]}
+      style={[tokenStyles.content, style, styles?.content, animatedStyle]}
     >
       <Row style={tokenStyles.row}>
         {resolvedIcon}
-        {renderTextNode(message ?? messageText, (text) => (
+        {renderTextNode(message ?? messageText, text => (
           <Text
             numberOfLines={1}
             size={sizeConfig.textSize}
@@ -262,19 +273,17 @@ export function useToast(): ToastController {
     render: (options, params) => {
       const { onCancel, ...restOptions } = options;
 
-      return (
-        resolvePortalMount(
-          <ToastBody
-            {...restOptions}
-            isOpen={params.isOpen}
-            onExited={() => {
-              onCancel?.();
-              params.onExited();
-            }}
-          />,
-          'portal',
-          true,
-        )
+      return resolvePortalMount(
+        <ToastBody
+          {...restOptions}
+          isOpen={params.isOpen}
+          onExited={() => {
+            onCancel?.();
+            params.onExited();
+          }}
+        />,
+        'portal',
+        true,
       );
     },
   });

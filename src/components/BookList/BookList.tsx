@@ -125,13 +125,14 @@ function BookSpine({ item }: { item: BookListItem }) {
 
   if (entry.background) {
     const serverUrl = item.networkRef?.serverUrl;
-    const source = isRemote && serverUrl
-      ? resolveMediaSource(
-          entry.background,
-          serverUrl,
-          getServerToken(serverUrl),
-        )
-      : { uri: entry.background };
+    const source =
+      isRemote && serverUrl
+        ? resolveMediaSource(
+            entry.background,
+            serverUrl,
+            getServerToken(serverUrl),
+          )
+        : { uri: entry.background };
     return (
       <View style={styles.spine}>
         <Image
@@ -148,7 +149,9 @@ function BookSpine({ item }: { item: BookListItem }) {
       <View style={styles.spine}>
         <View style={styles.spineNetwork}>
           <Icon color="secondary" icon={NetworkIcon} size="normal" />
-          <Text color="tertiary" size="xs">网络</Text>
+          <Text color="tertiary" size="xs">
+            网络
+          </Text>
         </View>
       </View>
     );
@@ -156,7 +159,9 @@ function BookSpine({ item }: { item: BookListItem }) {
 
   return (
     <View style={styles.spine}>
-      <Text color="primaryText" weight="semibold" size="lg">{getFirstCharacter(entry.name)}</Text>
+      <Text color="primaryText" weight="semibold" size="lg">
+        {getFirstCharacter(entry.name)}
+      </Text>
     </View>
   );
 }
@@ -203,9 +208,12 @@ export function BookList({
     item => item.entry.kind === BOOK_TYPE.remote,
   );
 
-  const toListItem = (item: BookListItem): ListItemData & { item: BookListItem } => {
+  const toListItem = (
+    item: BookListItem,
+  ): ListItemData & { item: BookListItem } => {
     const { entry } = item;
-    const isCurrentBook = currentBook?.kind === entry.kind && currentBook?.id === entry.id;
+    const isCurrentBook =
+      currentBook?.kind === entry.kind && currentBook?.id === entry.id;
     const isRemote = entry.kind === BOOK_TYPE.remote;
     const canSelect = !isCurrentBook && !item.error;
     const onSelect = () => {
@@ -220,7 +228,9 @@ export function BookList({
     ) : isCurrentBook ? (
       <View style={styles.currentTag}>
         <Icon color="primaryText" icon="check" size="small" />
-        <Text color="primaryText" weight="semibold" size="xs">当前</Text>
+        <Text color="primaryText" weight="semibold" size="xs">
+          当前
+        </Text>
       </View>
     ) : mode === 'manage' && onBookMenu ? (
       <Pressable
@@ -245,20 +255,35 @@ export function BookList({
       right: trailing,
       disclosure: mode === 'select' && canSelect,
       onPress: item.error || canSelect ? onSelect : undefined,
-      onLongPress: !item.error && mode === 'manage' && onBookMenu
-        ? () => onBookMenu(item)
-        : mode === 'select' && canSelect
-          ? onSelect
-          : undefined,
+      onLongPress:
+        !item.error && mode === 'manage' && onBookMenu
+          ? () => onBookMenu(item)
+          : mode === 'select' && canSelect
+            ? onSelect
+            : undefined,
     };
   };
 
   const sections = [
     ...(localItems.length > 0
-      ? [{ key: 'local', titleText: '本地账本', countText: String(localItems.length), data: localItems.map(toListItem) }]
+      ? [
+          {
+            key: 'local',
+            titleText: '本地账本',
+            countText: String(localItems.length),
+            data: localItems.map(toListItem),
+          },
+        ]
       : []),
     ...(networkItems.length > 0
-      ? [{ key: 'remote', titleText: '网络账本', countText: String(networkItems.length), data: networkItems.map(toListItem) }]
+      ? [
+          {
+            key: 'remote',
+            titleText: '网络账本',
+            countText: String(networkItems.length),
+            data: networkItems.map(toListItem),
+          },
+        ]
       : []),
   ];
 
@@ -266,7 +291,7 @@ export function BookList({
     <List
       contentContainerStyle={styles.content}
       sections={sections}
-      footer={(
+      footer={
         <Column style={styles.listEnd} align="center">
           <Text color="tertiary" size="xs" textAlign="center">
             {mode === 'manage'
@@ -274,54 +299,61 @@ export function BookList({
               : '轻点整行切换账本'}
           </Text>
         </Column>
-      )}
-      header={(
+      }
+      header={
         <Row style={styles.metaLine} gap={token.marginXXS} align="center">
-        <Text color="tertiary" size="xs">
-          共
-        </Text>
-        <Text color="secondary" size="xs" weight="semibold">
-          {items.length}
-        </Text>
-        <Text color="tertiary" size="xs">
-          本 · 本地
-        </Text>
-        <Text color="secondary" size="xs" weight="semibold">
-          {localItems.length}
-        </Text>
-        <Text color="tertiary" size="xs">
-          · 网络
-        </Text>
-        <Text color="secondary" size="xs" weight="semibold">
-          {networkItems.length}
-        </Text>
+          <Text color="tertiary" size="xs">
+            共
+          </Text>
+          <Text color="secondary" size="xs" weight="semibold">
+            {items.length}
+          </Text>
+          <Text color="tertiary" size="xs">
+            本 · 本地
+          </Text>
+          <Text color="secondary" size="xs" weight="semibold">
+            {localItems.length}
+          </Text>
+          <Text color="tertiary" size="xs">
+            · 网络
+          </Text>
+          <Text color="secondary" size="xs" weight="semibold">
+            {networkItems.length}
+          </Text>
         </Row>
-      )}
+      }
       renderSwipeActions={({ item }) => {
         const book = item.item;
         if (mode !== 'manage') return undefined;
         if (book.entry.kind === BOOK_TYPE.remote) {
-          return { rightActions: [{
-            key: 'remove',
-            actionText: '移除',
-            color: 'danger',
-            onPress: () => book.networkRef && onNetworkRemove?.(book.networkRef),
-          }] };
+          return {
+            rightActions: [
+              {
+                key: 'remove',
+                actionText: '移除',
+                color: 'danger',
+                onPress: () =>
+                  book.networkRef && onNetworkRemove?.(book.networkRef),
+              },
+            ],
+          };
         }
-        return { rightActions: [
-          {
-            key: 'edit',
-            actionText: '编辑',
-            color: 'primary',
-            onPress: () => onBookEdit?.(book.entry),
-          },
-          {
-            key: 'delete',
-            actionText: '删除',
-            color: 'danger',
-            onPress: () => onBookDelete?.(book.entry.id),
-          },
-        ] };
+        return {
+          rightActions: [
+            {
+              key: 'edit',
+              actionText: '编辑',
+              color: 'primary',
+              onPress: () => onBookEdit?.(book.entry),
+            },
+            {
+              key: 'delete',
+              actionText: '删除',
+              color: 'danger',
+              onPress: () => onBookDelete?.(book.entry.id),
+            },
+          ],
+        };
       }}
       scrollEnabled
       showsVerticalScrollIndicator={false}

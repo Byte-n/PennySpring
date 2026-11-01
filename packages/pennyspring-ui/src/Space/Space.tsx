@@ -1,10 +1,7 @@
 import React from 'react';
 import { View } from 'react-native';
 import { useTheme } from '@pennyspring/theme';
-import type {
-  SpaceDirection,
-  SpaceProps,
-} from './types';
+import type { SpaceDirection, SpaceProps } from './types';
 import {
   getGap,
   resolveDirection,
@@ -13,7 +10,7 @@ import {
 } from './style';
 
 function getValidChildren(children: React.ReactNode) {
-  return React.Children.toArray(children).filter((child) => {
+  return React.Children.toArray(children).filter(child => {
     return child !== null && child !== undefined;
   });
 }

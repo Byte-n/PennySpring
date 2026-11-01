@@ -12,7 +12,10 @@ interface DisplayInputStyleOptions {
 }
 
 export const useStyles = createUseSheetStyle(
-  (token, { disabled, display, hasLabel, isError, size }: DisplayInputStyleOptions) => {
+  (
+    token,
+    { disabled, display, hasLabel, isError, size }: DisplayInputStyleOptions,
+  ) => {
     const metrics = FIELD_SIZE_MAP[size];
     const height = metrics.height(token);
     const valueFontSize = metrics.valueFontSize(token);
@@ -22,8 +25,8 @@ export const useStyles = createUseSheetStyle(
     const labelColor = disabled
       ? token.colorTextDisabled
       : isError
-      ? token.colorError
-      : token.colorTextPlaceholder;
+        ? token.colorError
+        : token.colorTextPlaceholder;
 
     return {
       root: {
@@ -90,8 +93,8 @@ export const useStyles = createUseSheetStyle(
         color: disabled
           ? token.colorTextDisabled
           : isError
-          ? token.colorError
-          : token.colorTextTertiary,
+            ? token.colorError
+            : token.colorTextTertiary,
       },
       // 隐藏占位文本：只为行内模式预留标签宽度，不参与视觉
       labelWidthPlaceholder: {

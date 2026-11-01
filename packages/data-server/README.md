@@ -4,12 +4,12 @@
 
 ## 导出
 
-| 导出 | 说明 |
-|---|---|
-| `createDatabase(filename)` | 用 better-sqlite3 连接创建 Drizzle 实例 |
-| `getDatabase(dbPath)` | 打开数据库、执行迁移与默认数据初始化，并返回单例 |
-| `runMigrations(db)` | 从 `@pennyspring/data/drizzle` 目录执行迁移 |
-| `createRemoteApi({ dbPath })` | 组装服务端 `Api` |
+| 导出                          | 说明                                             |
+| ----------------------------- | ------------------------------------------------ |
+| `createDatabase(filename)`    | 用 better-sqlite3 连接创建 Drizzle 实例          |
+| `getDatabase(dbPath)`         | 打开数据库、执行迁移与默认数据初始化，并返回单例 |
+| `runMigrations(db)`           | 从 `@pennyspring/data/drizzle` 目录执行迁移      |
+| `createRemoteApi({ dbPath })` | 组装服务端 `Api`                                 |
 
 ## 使用
 

@@ -21,11 +21,11 @@
 - 可点击区域优先保证 `controlHeight` 或 `hitSlop`。
 - 需区分方向时，垂直值取水平 token 折半（`paddingVertical = paddingHorizontal / 2`）。
 
-| 用途 | small | normal | large | 特殊升级 |
-|------|-------|--------|-------|---------|
-| Layout gap（Space/Grid/Row/Column 子项） | `paddingXXS`/`marginXXS` | `paddingXS`/`marginXS` | `paddingSM`/`marginSM` | - |
-| Container padding（Card/面板/弹层内容区） | `paddingSM` | `padding` | `paddingMD` | `paddingLG` |
-| Section margin（页面区块外边距） | `marginSM` | `margin` | `marginMD` | `marginLG` |
+| 用途                                      | small                    | normal                 | large                  | 特殊升级    |
+| ----------------------------------------- | ------------------------ | ---------------------- | ---------------------- | ----------- |
+| Layout gap（Space/Grid/Row/Column 子项）  | `paddingXXS`/`marginXXS` | `paddingXS`/`marginXS` | `paddingSM`/`marginSM` | -           |
+| Container padding（Card/面板/弹层内容区） | `paddingSM`              | `padding`              | `paddingMD`            | `paddingLG` |
+| Section margin（页面区块外边距）          | `marginSM`               | `margin`               | `marginMD`             | `marginLG`  |
 
 ## 通用交互
 

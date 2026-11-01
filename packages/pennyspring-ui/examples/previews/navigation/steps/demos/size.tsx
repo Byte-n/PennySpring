@@ -31,7 +31,9 @@ export function StepsSizeDemo() {
     <Column gap="normal">
       {SIZE_SAMPLES.map(({ size, hint }) => (
         <Column key={size} gap="small">
-          <Text color="tertiary" size="xs">{hint}</Text>
+          <Text color="tertiary" size="xs">
+            {hint}
+          </Text>
           <Steps defaultValue={1} items={STEP_ITEMS} size={size} />
         </Column>
       ))}

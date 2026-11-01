@@ -3,23 +3,9 @@ import type { GestureResponderEvent, StyleProp, TextStyle } from 'react-native';
 import type { SemanticAliasColor } from '../shares/color';
 
 export type TextSize =
-  | 'xs'
-  | 'sm'
-  | 'md'
-  | 'lg'
-  | 'xl'
-  | 'h1'
-  | 'h2'
-  | 'h3'
-  | 'h4'
-  | 'h5';
+  'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5';
 export type TextWeight =
-  | 'light'
-  | 'regular'
-  | 'medium'
-  | 'semibold'
-  | 'bold'
-  | 'strong';
+  'light' | 'regular' | 'medium' | 'semibold' | 'bold' | 'strong';
 export type TextSemanticColor =
   | 'base'
   | 'default'

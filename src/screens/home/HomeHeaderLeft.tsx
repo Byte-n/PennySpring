@@ -1,11 +1,7 @@
 import { Row, Text } from '@pennyspring/ui';
 import { createUseSheetStyle, useTheme } from '@pennyspring/ui';
 import { Pressable, View } from 'react-native';
-import {
-  CaretDownIcon,
-  CaretRightIcon,
-  ListIcon,
-} from 'phosphor-react-native';
+import { CaretDownIcon, CaretRightIcon, ListIcon } from 'phosphor-react-native';
 
 import { APP_NAME } from '../../constants/app.ts';
 import { useBookStore } from '../../stores/bookStore';

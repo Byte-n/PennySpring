@@ -39,8 +39,7 @@ function RecordHero({
   const styles = useRecordDetailStyles();
   const isTransfer = view.category === RECORD_TYPE_CATEGORY.transfer;
   const isIncome = view.category === RECORD_TYPE_CATEGORY.income;
-  const isReimbursable =
-    view.record.reimbursable === REIMBURSABLE.reimbursable;
+  const isReimbursable = view.record.reimbursable === REIMBURSABLE.reimbursable;
   const CategoryIcon = view.iconValue
     ? getPhosphorIconComponent(view.iconValue)
     : null;
@@ -92,12 +91,7 @@ function RecordHero({
 
   return (
     <Column style={styles.hero}>
-      <Row
-        align="center"
-        justify="between"
-        gap="small"
-        style={styles.heroTop}
-      >
+      <Row align="center" justify="between" gap="small" style={styles.heroTop}>
         <Row align="center" gap="small" style={styles.heroType}>
           <Row
             align="center"
@@ -108,9 +102,7 @@ function RecordHero({
               <Icon icon={CategoryIcon} size="large" color={iconColor} />
             ) : null}
           </Row>
-          <Column style={styles.heroText}>
-            {crumb}
-          </Column>
+          <Column style={styles.heroText}>{crumb}</Column>
         </Row>
         {isReimbursable ? (
           <Row align="center" style={styles.badge}>
@@ -206,11 +198,7 @@ function InfoRow({
       {label}
     </Text>
   );
-  const valueNode = (
-    <Column style={styles.infoValue}>
-      {children}
-    </Column>
-  );
+  const valueNode = <Column style={styles.infoValue}>{children}</Column>;
 
   return (
     <Row
@@ -244,16 +232,8 @@ function InfoCard({ view }: { view: DetailRecordView }) {
 
   if (view.imageCount > 0) {
     rows.push(
-      <InfoRow
-        key="image"
-        label="图片"
-        showDivider={rows.length > 0}
-        isBlock
-      >
-        <RecordImages
-          imagePaths={view.imagePaths}
-          recordId={view.record.id}
-        />
+      <InfoRow key="image" label="图片" showDivider={rows.length > 0} isBlock>
+        <RecordImages imagePaths={view.imagePaths} recordId={view.record.id} />
       </InfoRow>,
     );
   }
@@ -285,12 +265,7 @@ function InfoCard({ view }: { view: DetailRecordView }) {
 
   if (view.record.remark) {
     rows.push(
-      <InfoRow
-        key="remark"
-        label="备注"
-        showDivider={rows.length > 0}
-        isBlock
-      >
+      <InfoRow key="remark" label="备注" showDivider={rows.length > 0} isBlock>
         <Text size="sm" color="default">
           {view.record.remark}
         </Text>
@@ -302,11 +277,7 @@ function InfoCard({ view }: { view: DetailRecordView }) {
     return null;
   }
 
-  return (
-    <Column style={styles.infoCard}>
-      {rows}
-    </Column>
-  );
+  return <Column style={styles.infoCard}>{rows}</Column>;
 }
 
 interface ComposeItem {

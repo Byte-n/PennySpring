@@ -47,7 +47,8 @@ export function PopupMaskAndCloseBehaviorDemo() {
             无遮罩
           </Text>
           <Text color="secondary">
-            mask 为 false 时不渲染遮罩层，点击空白处不会关闭，需通过按钮或硬件返回键关闭。
+            mask 为 false
+            时不渲染遮罩层，点击空白处不会关闭，需通过按钮或硬件返回键关闭。
           </Text>
           <Space justify="end" gap="small">
             <Button type="primary" onPress={() => setCenterOpen(false)}>
@@ -70,7 +71,8 @@ export function PopupMaskAndCloseBehaviorDemo() {
             遮罩锁定
           </Text>
           <Text color="secondary">
-            closeOnMaskClick 为 false 时遮罩可见但点击不关闭，强制用户通过按钮或确认流程关闭。
+            closeOnMaskClick 为 false
+            时遮罩可见但点击不关闭，强制用户通过按钮或确认流程关闭。
           </Text>
           <Space justify="end" gap="small">
             <Button type="primary" onPress={() => setLockedOpen(false)}>

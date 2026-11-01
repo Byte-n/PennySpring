@@ -26,10 +26,7 @@ import {
  * 移动端不提供 compact 算法：compact 会使 controlHeight 跌破 44×44 触达区底线，
  * 且手机屏本身已是紧凑形态，无信息密度红利。密集场景请直接覆盖 SeedToken。
  */
-export function derivative(
-  seed: SeedToken,
-  isDark: boolean,
-): MapToken {
+export function derivative(seed: SeedToken, isDark: boolean): MapToken {
   // --- Step 1. 浅色 baseline --- //
   const baseColorMap = genColorMapToken(seed, {
     generateColorPalettes,
@@ -49,7 +46,7 @@ export function derivative(
 
     // 预设色 hover/active 在暗色模式需用更亮的梯度（对齐 antd）
     const presetColorHoverActive: Record<string, string> = {};
-    PresetColors.forEach((colorKey) => {
+    PresetColors.forEach(colorKey => {
       const colorBase = seed[colorKey];
       if (colorBase) {
         const colorPalette = generateColorPalettesDark(colorBase);

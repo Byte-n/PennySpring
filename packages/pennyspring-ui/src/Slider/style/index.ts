@@ -56,7 +56,9 @@ export const useStyles = createUseSheetStyle(
         overflow: 'hidden',
       },
       trackFill: {
-        backgroundColor: disabled ? token.colorTextQuaternary : token.colorPrimary,
+        backgroundColor: disabled
+          ? token.colorTextQuaternary
+          : token.colorPrimary,
         borderRadius: PILL_RADIUS,
         height: '100%',
         width: `${progress * 100}%`,

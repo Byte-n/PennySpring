@@ -43,11 +43,15 @@ describe('Popup.FloatingPanel', () => {
       );
     });
 
-    const defaultBody = defaultRenderer!.root.findByProps({ testID: 'floating-panel-body' });
+    const defaultBody = defaultRenderer!.root.findByProps({
+      testID: 'floating-panel-body',
+    });
 
     expect(defaultBody.type).toBe(ScrollView);
     expect(defaultBody.props.scrollEnabled).toBe(false);
-    const scrollableBody = scrollableRenderer!.root.findByProps({ testID: 'floating-panel-body' });
+    const scrollableBody = scrollableRenderer!.root.findByProps({
+      testID: 'floating-panel-body',
+    });
 
     expect(scrollableBody.type).toBe(ScrollView);
     expect(scrollableBody.props.scrollEnabled).toBe(true);
@@ -160,15 +164,21 @@ describe('Popup.FloatingPanel', () => {
       );
     });
 
-    expect(testRenderer!.root.findByProps({
-      testID: 'floating-panel-footer',
-    })).toBeTruthy();
-    expect(testRenderer!.root.findByProps({
-      testID: 'floating-panel-cancel-button',
-    })).toBeTruthy();
-    expect(testRenderer!.root.findByProps({
-      testID: 'floating-panel-ok-button',
-    })).toBeTruthy();
+    expect(
+      testRenderer!.root.findByProps({
+        testID: 'floating-panel-footer',
+      }),
+    ).toBeTruthy();
+    expect(
+      testRenderer!.root.findByProps({
+        testID: 'floating-panel-cancel-button',
+      }),
+    ).toBeTruthy();
+    expect(
+      testRenderer!.root.findByProps({
+        testID: 'floating-panel-ok-button',
+      }),
+    ).toBeTruthy();
     expect(JSON.stringify(testRenderer!.toJSON())).toContain('取消');
     expect(JSON.stringify(testRenderer!.toJSON())).toContain('确定');
   });
@@ -184,15 +194,21 @@ describe('Popup.FloatingPanel', () => {
       );
     });
 
-    expect(testRenderer!.root.findAllByProps({
-      testID: 'floating-panel-footer',
-    })).toHaveLength(0);
-    expect(testRenderer!.root.findAllByProps({
-      testID: 'floating-panel-cancel-button',
-    })).toHaveLength(0);
-    expect(testRenderer!.root.findAllByProps({
-      testID: 'floating-panel-ok-button',
-    })).toHaveLength(0);
+    expect(
+      testRenderer!.root.findAllByProps({
+        testID: 'floating-panel-footer',
+      }),
+    ).toHaveLength(0);
+    expect(
+      testRenderer!.root.findAllByProps({
+        testID: 'floating-panel-cancel-button',
+      }),
+    ).toHaveLength(0);
+    expect(
+      testRenderer!.root.findAllByProps({
+        testID: 'floating-panel-ok-button',
+      }),
+    ).toHaveLength(0);
   });
 
   it('renders only the ok button when cancel is null', () => {
@@ -206,15 +222,21 @@ describe('Popup.FloatingPanel', () => {
       );
     });
 
-    expect(testRenderer!.root.findByProps({
-      testID: 'floating-panel-footer',
-    })).toBeTruthy();
-    expect(testRenderer!.root.findAllByProps({
-      testID: 'floating-panel-cancel-button',
-    })).toHaveLength(0);
-    expect(testRenderer!.root.findByProps({
-      testID: 'floating-panel-ok-button',
-    })).toBeTruthy();
+    expect(
+      testRenderer!.root.findByProps({
+        testID: 'floating-panel-footer',
+      }),
+    ).toBeTruthy();
+    expect(
+      testRenderer!.root.findAllByProps({
+        testID: 'floating-panel-cancel-button',
+      }),
+    ).toHaveLength(0);
+    expect(
+      testRenderer!.root.findByProps({
+        testID: 'floating-panel-ok-button',
+      }),
+    ).toBeTruthy();
     expect(JSON.stringify(testRenderer!.toJSON())).toContain('Save');
     expect(JSON.stringify(testRenderer!.toJSON())).not.toContain('取消');
   });
@@ -226,34 +248,36 @@ describe('Popup.FloatingPanel', () => {
       large: 'xl',
     } as const;
 
-    Object.entries(titleTextSizeByPanelSize).forEach(([size, titleTextSize]) => {
-      let testRenderer: renderer.ReactTestRenderer;
+    Object.entries(titleTextSizeByPanelSize).forEach(
+      ([size, titleTextSize]) => {
+        let testRenderer: renderer.ReactTestRenderer;
 
-      act(() => {
-        testRenderer = renderer.create(
-          <Popup.FloatingPanel
-            cancelText="Cancel"
-            defaultOpen
-            okText="OK"
-            size={size as keyof typeof titleTextSizeByPanelSize}
-            titleText="Panel title"
-          >
-            <RNText>content</RNText>
-          </Popup.FloatingPanel>,
-        );
-      });
+        act(() => {
+          testRenderer = renderer.create(
+            <Popup.FloatingPanel
+              cancelText="Cancel"
+              defaultOpen
+              okText="OK"
+              size={size as keyof typeof titleTextSizeByPanelSize}
+              titleText="Panel title"
+            >
+              <RNText>content</RNText>
+            </Popup.FloatingPanel>,
+          );
+        });
 
-      const titleText = testRenderer!.root.findByProps({
-        testID: 'floating-panel-title-text',
-      });
-      const defaultButtons = testRenderer!.root.findAllByType(Button);
+        const titleText = testRenderer!.root.findByProps({
+          testID: 'floating-panel-title-text',
+        });
+        const defaultButtons = testRenderer!.root.findAllByType(Button);
 
-      expect(titleText.props.size).toBe(titleTextSize);
-      expect(defaultButtons).toHaveLength(2);
-      defaultButtons.forEach(button => {
-        expect(button.props.size).toBe(size);
-      });
-    });
+        expect(titleText.props.size).toBe(titleTextSize);
+        expect(defaultButtons).toHaveLength(2);
+        defaultButtons.forEach(button => {
+          expect(button.props.size).toBe(size);
+        });
+      },
+    );
   });
 
   it('uses the height prop as a resizable initial height', () => {
@@ -376,9 +400,11 @@ describe('Popup.FloatingPanel', () => {
     });
 
     expect(JSON.stringify(testRenderer!.toJSON())).toContain('Panel title');
-    expect(testRenderer!.root.findByProps({
-      testID: 'floating-panel-header',
-    })).toBeTruthy();
+    expect(
+      testRenderer!.root.findByProps({
+        testID: 'floating-panel-header',
+      }),
+    ).toBeTruthy();
   });
 
   it('does not render header when title slot is null', () => {
@@ -392,12 +418,16 @@ describe('Popup.FloatingPanel', () => {
       );
     });
 
-    expect(testRenderer!.root.findAllByProps({
-      testID: 'floating-panel-header',
-    })).toHaveLength(0);
-    expect(testRenderer!.root.findAllByProps({
-      testID: 'floating-panel-title-text',
-    })).toHaveLength(0);
+    expect(
+      testRenderer!.root.findAllByProps({
+        testID: 'floating-panel-header',
+      }),
+    ).toHaveLength(0);
+    expect(
+      testRenderer!.root.findAllByProps({
+        testID: 'floating-panel-title-text',
+      }),
+    ).toHaveLength(0);
   });
 
   it('fires onCancel before onOpenChange when cancel is pressed', () => {
@@ -418,9 +448,11 @@ describe('Popup.FloatingPanel', () => {
     });
 
     act(() => {
-      testRenderer!.root.findByProps({
-        testID: 'floating-panel-cancel-button',
-      }).props.onPress();
+      testRenderer!.root
+        .findByProps({
+          testID: 'floating-panel-cancel-button',
+        })
+        .props.onPress();
     });
 
     expect(calls).toEqual(['cancel', 'open:false']);
@@ -447,9 +479,11 @@ describe('Popup.FloatingPanel', () => {
     });
 
     await act(async () => {
-      await testRenderer!.root.findByProps({
-        testID: 'floating-panel-ok-button',
-      }).props.onPress();
+      await testRenderer!.root
+        .findByProps({
+          testID: 'floating-panel-ok-button',
+        })
+        .props.onPress();
     });
 
     expect(calls).toEqual(['ok', 'open:false']);
@@ -474,9 +508,11 @@ describe('Popup.FloatingPanel', () => {
     });
 
     await act(async () => {
-      await testRenderer!.root.findByProps({
-        testID: 'floating-panel-ok-button',
-      }).props.onPress();
+      await testRenderer!.root
+        .findByProps({
+          testID: 'floating-panel-ok-button',
+        })
+        .props.onPress();
     });
 
     expect(onOpenChange).not.toHaveBeenCalled();
@@ -509,15 +545,19 @@ describe('Popup.FloatingPanel', () => {
     });
 
     act(() => {
-      testRenderer!.root.findByProps({
-        testID: 'custom-cancel',
-      }).props.onPress();
+      testRenderer!.root
+        .findByProps({
+          testID: 'custom-cancel',
+        })
+        .props.onPress();
     });
 
     await act(async () => {
-      await testRenderer!.root.findByProps({
-        testID: 'custom-confirm',
-      }).props.onPress();
+      await testRenderer!.root
+        .findByProps({
+          testID: 'custom-confirm',
+        })
+        .props.onPress();
     });
 
     expect(calls).toEqual(['cancel', 'ok']);
@@ -528,77 +568,79 @@ describe('Popup.FloatingPanel', () => {
     ['small', 11, 3],
     ['normal', 13, 5],
     ['large', 17, 7],
-  ] as const)('maps %s size to floating panel spacing tokens', (size, expectedPadding, expectedActionGap) => {
-    let testRenderer: renderer.ReactTestRenderer;
+  ] as const)(
+    'maps %s size to floating panel spacing tokens',
+    (size, expectedPadding, expectedActionGap) => {
+      let testRenderer: renderer.ReactTestRenderer;
 
-    act(() => {
-      testRenderer = renderer.create(
-        <ThemeProvider
-          config={{
-            token: {
-              marginXXS: 3,
-              marginXS: 5,
-              marginSM: 7,
-              margin: 29,
-              marginMD: 31,
-              paddingSM: 11,
-              padding: 13,
-              paddingMD: 17,
-            },
-          }}
-        >
-          <Popup.FloatingPanel
-            cancelText="Cancel"
-            defaultOpen
-            okText="OK"
-            size={size}
-            titleText="Panel title"
+      act(() => {
+        testRenderer = renderer.create(
+          <ThemeProvider
+            config={{
+              token: {
+                marginXXS: 3,
+                marginXS: 5,
+                marginSM: 7,
+                margin: 29,
+                marginMD: 31,
+                paddingSM: 11,
+                padding: 13,
+                paddingMD: 17,
+              },
+            }}
           >
-            <RNText>content</RNText>
-          </Popup.FloatingPanel>
-        </ThemeProvider>,
+            <Popup.FloatingPanel
+              cancelText="Cancel"
+              defaultOpen
+              okText="OK"
+              size={size}
+              titleText="Panel title"
+            >
+              <RNText>content</RNText>
+            </Popup.FloatingPanel>
+          </ThemeProvider>,
+        );
+      });
+
+      const header = testRenderer!.root.findByProps({
+        testID: 'floating-panel-header',
+      });
+      const footer = testRenderer!.root.findByProps({
+        testID: 'floating-panel-footer',
+      });
+      const panelBody = testRenderer!.root.findByProps({
+        testID: 'floating-panel-body',
+      });
+      const headerStyle = StyleSheet.flatten(header.props.style);
+      const panelBodyStyle = StyleSheet.flatten(
+        panelBody.props.contentContainerStyle,
       );
-    });
+      const footerStyle = StyleSheet.flatten(footer.props.style);
 
-    const header = testRenderer!.root.findByProps({
-      testID: 'floating-panel-header',
-    });
-    const footer = testRenderer!.root.findByProps({
-      testID: 'floating-panel-footer',
-    });
-    const panelBody = testRenderer!.root.findByProps({
-      testID: 'floating-panel-body',
-    });
-    const headerStyle = StyleSheet.flatten(header.props.style);
-    const panelBodyStyle = StyleSheet.flatten(
-      panelBody.props.contentContainerStyle,
-    );
-    const footerStyle = StyleSheet.flatten(footer.props.style);
-
-    expect(headerStyle.paddingHorizontal).toBe(expectedPadding);
-    expect(panelBodyStyle.paddingHorizontal).toBe(expectedPadding);
-    expect(footerStyle.paddingHorizontal).toBe(expectedPadding);
-    expect(footerStyle.gap).toBe(expectedActionGap);
-  });
+      expect(headerStyle.paddingHorizontal).toBe(expectedPadding);
+      expect(panelBodyStyle.paddingHorizontal).toBe(expectedPadding);
+      expect(footerStyle.paddingHorizontal).toBe(expectedPadding);
+      expect(footerStyle.gap).toBe(expectedActionGap);
+    },
+  );
 
   it('keeps panel open when closeOnCancel is false and cancel button is pressed', () => {
     let testRenderer: renderer.ReactTestRenderer;
 
     act(() => {
       testRenderer = renderer.create(
-        <Popup.FloatingPanel
-          closeOnCancel={false}
-          defaultOpen
-        >
+        <Popup.FloatingPanel closeOnCancel={false} defaultOpen>
           <RNText>content</RNText>
         </Popup.FloatingPanel>,
       );
     });
 
     act(() => {
-      testRenderer!.root.findByProps({
-        testID: 'floating-panel-cancel-button',
-      }).props.onPress();
+      testRenderer!.root
+        .findByProps({
+          testID: 'floating-panel-cancel-button',
+        })
+        .props.onPress();
     });
 
     expect(testRenderer!.toJSON()).not.toBeNull();
@@ -622,9 +664,11 @@ describe('Popup.FloatingPanel', () => {
     });
 
     await act(async () => {
-      await testRenderer!.root.findByProps({
-        testID: 'floating-panel-ok-button',
-      }).props.onPress();
+      await testRenderer!.root
+        .findByProps({
+          testID: 'floating-panel-ok-button',
+        })
+        .props.onPress();
     });
 
     expect(testRenderer!.toJSON()).not.toBeNull();
@@ -672,9 +716,11 @@ describe('Popup.FloatingPanel', () => {
     });
 
     act(() => {
-      testRenderer!.root.findByProps({
-        testID: 'popup-mask',
-      }).props.onPress();
+      testRenderer!.root
+        .findByProps({
+          testID: 'popup-mask',
+        })
+        .props.onPress();
     });
 
     expect(testRenderer!.toJSON()).toBeNull();
@@ -699,9 +745,11 @@ describe('Popup.FloatingPanel', () => {
     });
 
     act(() => {
-      testRenderer!.root.findByProps({
-        testID: 'floating-panel-close-button',
-      }).props.onPress();
+      testRenderer!.root
+        .findByProps({
+          testID: 'floating-panel-close-button',
+        })
+        .props.onPress();
     });
 
     expect(onCancel).toHaveBeenCalledTimes(1);
@@ -724,9 +772,11 @@ describe('Popup.FloatingPanel', () => {
       );
     });
 
-    expect(testRenderer!.root.findAllByProps({
-      testID: 'floating-panel-close-button',
-    })).toHaveLength(0);
+    expect(
+      testRenderer!.root.findAllByProps({
+        testID: 'floating-panel-close-button',
+      }),
+    ).toHaveLength(0);
   });
 
   it('renders header left and right slots around the title', () => {
@@ -750,7 +800,9 @@ describe('Popup.FloatingPanel', () => {
     expect(tree).toContain('Panel title');
     expect(tree).toContain('right-slot');
     expect(tree.indexOf('left-slot')).toBeLessThan(tree.indexOf('Panel title'));
-    expect(tree.indexOf('Panel title')).toBeLessThan(tree.indexOf('right-slot'));
+    expect(tree.indexOf('Panel title')).toBeLessThan(
+      tree.indexOf('right-slot'),
+    );
   });
 
   it('ignores header left and right slots when renderHeader is provided', () => {

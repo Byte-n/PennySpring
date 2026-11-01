@@ -70,9 +70,7 @@ export interface PopupFloatingPanelRenderFooterParams {
 }
 
 export type PopupFloatingPanelOkHandler = () =>
-  | void
-  | boolean
-  | Promise<void | boolean>;
+  void | boolean | Promise<void | boolean>;
 
 export interface PopupFloatingPanelProps {
   mountPoint?: PortalMountPoint;
@@ -103,11 +101,14 @@ export interface PopupFloatingPanelProps {
   titleText?: string;
   title?: ReactNode;
   header?: ReactNode;
-  renderHeader?: ((params: PopupFloatingPanelRenderHeaderParams) => ReactNode) | null;
+  renderHeader?:
+    ((params: PopupFloatingPanelRenderHeaderParams) => ReactNode) | null;
   /** 自定义头部左侧内容；提供 renderHeader 或 header 时无效。 */
-  renderHeaderLeft?: ((params: PopupFloatingPanelRenderHeaderParams) => ReactNode) | null;
+  renderHeaderLeft?:
+    ((params: PopupFloatingPanelRenderHeaderParams) => ReactNode) | null;
   /** 自定义头部右侧内容；提供 renderHeader 或 header 时无效。 */
-  renderHeaderRight?: ((params: PopupFloatingPanelRenderHeaderParams) => ReactNode) | null;
+  renderHeaderRight?:
+    ((params: PopupFloatingPanelRenderHeaderParams) => ReactNode) | null;
   /** 是否在头部右侧展示内置关闭按钮，默认 true。 */
   showCloseButton?: boolean;
   cancelText?: string;
@@ -117,7 +118,8 @@ export interface PopupFloatingPanelProps {
   okDisabled?: boolean;
   okLoading?: boolean;
   footer?: ReactNode;
-  renderFooter?: ((params: PopupFloatingPanelRenderFooterParams) => ReactNode) | null;
+  renderFooter?:
+    ((params: PopupFloatingPanelRenderFooterParams) => ReactNode) | null;
   children?: ReactNode;
   style?: StyleProp<ViewStyle>;
   styles?: PopupFloatingPanelStyles;

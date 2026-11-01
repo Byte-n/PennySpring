@@ -177,7 +177,11 @@ export function MarkdownText({
     firstLabel?: string,
   ): React.ReactNode =>
     items.map((block, index) =>
-      renderBlock(block, `${keyPrefix}-${index}`, index === 0 ? firstLabel : undefined),
+      renderBlock(
+        block,
+        `${keyPrefix}-${index}`,
+        index === 0 ? firstLabel : undefined,
+      ),
     );
 
   const renderBlock = (
@@ -209,7 +213,13 @@ export function MarkdownText({
 
       case 'code_block':
         return (
-          <Text key={key} selectable size={baseSize} style={styles.codeBlock} testID="markdown-code-block">
+          <Text
+            key={key}
+            selectable
+            size={baseSize}
+            style={styles.codeBlock}
+            testID="markdown-code-block"
+          >
             {block.value}
           </Text>
         );
@@ -219,7 +229,8 @@ export function MarkdownText({
           <Fragment key={key}>
             {block.items.map((item, itemIndex) => {
               const itemKey = `${key}-${itemIndex}`;
-              const label = item.number === null ? BULLET_TEXT : `${item.number}. `;
+              const label =
+                item.number === null ? BULLET_TEXT : `${item.number}. `;
               return renderBlocks(item.children, itemKey, label);
             })}
           </Fragment>
@@ -228,7 +239,12 @@ export function MarkdownText({
       case 'blockquote':
         return (
           <Column key={key} style={styles.quote}>
-            <Text key={`${key}-text`} selectable={selectable} size={baseSize} color="secondary">
+            <Text
+              key={`${key}-text`}
+              selectable={selectable}
+              size={baseSize}
+              color="secondary"
+            >
               {flattenBlocks(block.children)}
             </Text>
           </Column>
@@ -263,9 +279,5 @@ export function MarkdownText({
     }
   };
 
-  return (
-    <Column gap="small">
-      {renderBlocks(blocks, 'block')}
-    </Column>
-  );
+  return <Column gap="small">{renderBlocks(blocks, 'block')}</Column>;
 }

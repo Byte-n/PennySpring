@@ -6,7 +6,11 @@ export const previewMeta = {
   description: '主题算法、预设色和设计 token 预览。',
   order: 1,
   demos: [
-    { id: 'basic', title: 'Basic', description: '主题算法、预设色和设计 token 预览。' },
+    {
+      id: 'basic',
+      title: 'Basic',
+      description: '主题算法、预设色和设计 token 预览。',
+    },
   ],
 } satisfies PreviewMeta;
 

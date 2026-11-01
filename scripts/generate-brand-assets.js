@@ -23,7 +23,8 @@ const COLORS_XML = path.join(RES_DIR, 'values/colors.xml');
 const DEBUG_COLORS_XML = path.join(DEBUG_RES_DIR, 'values/colors.xml');
 
 const CHROME =
-  process.env.CHROME_PATH ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
+  process.env.CHROME_PATH ??
+  '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 
 const APP_ICON = path.join(BRAND_DIR, 'app-icon.svg');
 const APP_ICON_MONOCHROME = path.join(BRAND_DIR, 'app-icon-monochrome.svg');
@@ -55,7 +56,10 @@ const BOOTSPLASH_SCALE = 0.615;
 
 function readLauncherBackground(colorsXml) {
   const xml = fs.readFileSync(colorsXml, 'utf8');
-  const match = /<color name="ic_launcher_background">\s*(#[0-9a-fA-F]{3,8})\s*<\/color>/.exec(xml);
+  const match =
+    /<color name="ic_launcher_background">\s*(#[0-9a-fA-F]{3,8})\s*<\/color>/.exec(
+      xml,
+    );
   if (!match) {
     throw new Error(`ic_launcher_background not found in ${colorsXml}`);
   }
@@ -121,7 +125,9 @@ function writeAsset(source, target) {
 
 function main() {
   if (!fs.existsSync(CHROME)) {
-    throw new Error(`Chrome not found at ${CHROME}. Set CHROME_PATH to override.`);
+    throw new Error(
+      `Chrome not found at ${CHROME}. Set CHROME_PATH to override.`,
+    );
   }
   for (const svg of [APP_ICON, APP_ICON_MONOCHROME]) {
     if (!fs.existsSync(svg)) {
@@ -211,7 +217,9 @@ function main() {
         path.join(RES_DIR, `drawable-${bucket}/bootsplash_logo.png`),
       );
 
-      written.push(`${bucket}: icon ${legacySize}px, foreground ${foregroundSize}px, splash ${splashSize}px`);
+      written.push(
+        `${bucket}: icon ${legacySize}px, foreground ${foregroundSize}px, splash ${splashSize}px`,
+      );
     }
   } finally {
     fs.rmSync(tmpDir, { recursive: true, force: true });

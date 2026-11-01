@@ -37,7 +37,9 @@ function readModelIds(payload: unknown): string[] {
     return [];
   }
   return payload.data
-    .map(item => (isRecord(item) && typeof item.id === 'string' ? item.id : null))
+    .map(item =>
+      isRecord(item) && typeof item.id === 'string' ? item.id : null,
+    )
     .filter((id): id is string => id !== null);
 }
 
@@ -83,7 +85,10 @@ async function fetchWithTimeout(
   init: RequestInit,
 ): Promise<Response> {
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), CONNECTION_TEST_TIMEOUT_MS);
+  const timer = setTimeout(
+    () => controller.abort(),
+    CONNECTION_TEST_TIMEOUT_MS,
+  );
   try {
     return await fetch(url, { ...init, signal: controller.signal });
   } finally {

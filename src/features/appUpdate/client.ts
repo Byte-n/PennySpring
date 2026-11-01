@@ -22,7 +22,8 @@ export interface DownloadProgress {
   resumed: boolean;
 }
 
-const GITHUB_RELEASES_URL = 'https://api.github.com/repos/Byte-n/PennySpring/releases';
+const GITHUB_RELEASES_URL =
+  'https://api.github.com/repos/Byte-n/PennySpring/releases';
 const GITHUB_RELEASES_PAGE_SIZE = 100;
 
 export type ExistingDownload =
@@ -37,7 +38,8 @@ interface NativeUpdateModule {
 }
 
 function getNativeUpdateModule(): NativeUpdateModule | null {
-  const native = NativeModules.UpdateNative as Partial<NativeUpdateModule> | undefined;
+  const native = NativeModules.UpdateNative as
+    Partial<NativeUpdateModule> | undefined;
   return typeof native?.getVersion === 'function' &&
     typeof native.getSupportedAbis === 'function' &&
     typeof native.installApk === 'function'
@@ -83,11 +85,14 @@ async function fetchReleases(
         reachedInstalledVersion = true;
       }
     }
-    if (!Array.isArray(value) || value.length < GITHUB_RELEASES_PAGE_SIZE) break;
+    if (!Array.isArray(value) || value.length < GITHUB_RELEASES_PAGE_SIZE)
+      break;
     page += 1;
   }
 
-  return [...releasesByVersion.values()].sort((left, right) => left.versionCode - right.versionCode);
+  return [...releasesByVersion.values()].sort(
+    (left, right) => left.versionCode - right.versionCode,
+  );
 }
 
 export async function checkForUpdate(
@@ -99,7 +104,10 @@ export async function checkForUpdate(
   if (!latest) {
     throw new Error('未找到可用的正式版本');
   }
-  if (compareUpdateVersion(installed.versionCode, latest.versionCode) === 'current') {
+  if (
+    compareUpdateVersion(installed.versionCode, latest.versionCode) ===
+    'current'
+  ) {
     return { status: 'current' };
   }
 
@@ -234,7 +242,9 @@ export async function downloadUpdate(
         },
         reportProgress(partialBytes, apk.size, true, onProgress),
       );
-      const contentRange = parseContentRange(response.getHeader('content-range'));
+      const contentRange = parseContentRange(
+        response.getHeader('content-range'),
+      );
       if (
         response.status === 206 &&
         contentRange?.start === partialBytes &&

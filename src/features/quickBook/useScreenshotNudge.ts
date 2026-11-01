@@ -9,7 +9,10 @@ import {
 import { decideScreenshotNudge } from './decision';
 import { getLatestScreenshot } from './native';
 import { hasScreenshotPermission } from './permission';
-import { getLastHandledAssetId, useQuickBookRuntimeStore } from './runtimeStore';
+import {
+  getLastHandledAssetId,
+  useQuickBookRuntimeStore,
+} from './runtimeStore';
 import type { QuickBookImage } from './types';
 
 const NUDGE_ALLOWED_ROUTES = new Set<string>([
@@ -64,7 +67,12 @@ export function useScreenshotNudge({
   }, []);
 
   const check = useCallback(async (): Promise<void> => {
-    if (!enabled || suppressedRef.current || nudgeRef.current || busyRef.current) {
+    if (
+      !enabled ||
+      suppressedRef.current ||
+      nudgeRef.current ||
+      busyRef.current
+    ) {
       return;
     }
     if (!isNudgeRouteAllowed()) {

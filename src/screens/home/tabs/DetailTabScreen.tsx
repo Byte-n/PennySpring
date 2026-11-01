@@ -98,35 +98,30 @@ export function DetailTabScreen() {
   );
   const refreshAll = useCallback(() => refresh(), [refresh]);
 
-  const { groups, summary, dailyExpenses, counts, monthViews } =
-    useMemo(() => {
-      const selectedMonthViews = filterByMonth(records, selectedMonth);
-      const categories: DetailFilter[] = ['expense', 'income', 'transfer'];
-      const categoryCounts = categories.reduce<Record<string, number>>(
-        (result, category) => {
-          result[category] = selectedMonthViews.filter(
-            view => view.category === category,
-          ).length;
-          return result;
-        },
-        {},
-      );
-      const filteredViews =
-        activeFilter === 'all'
-          ? selectedMonthViews
-          : selectedMonthViews.filter(view => view.category === activeFilter);
-      return {
-        groups: groupByDay(filteredViews),
-        summary: summarizeCashflow(selectedMonthViews),
-        dailyExpenses: buildDailyExpenseBars(selectedMonthViews, selectedMonth),
-        counts: categoryCounts,
-        monthViews: selectedMonthViews,
-      };
-    }, [
-      records,
-      selectedMonth,
-      activeFilter,
-    ]);
+  const { groups, summary, dailyExpenses, counts, monthViews } = useMemo(() => {
+    const selectedMonthViews = filterByMonth(records, selectedMonth);
+    const categories: DetailFilter[] = ['expense', 'income', 'transfer'];
+    const categoryCounts = categories.reduce<Record<string, number>>(
+      (result, category) => {
+        result[category] = selectedMonthViews.filter(
+          view => view.category === category,
+        ).length;
+        return result;
+      },
+      {},
+    );
+    const filteredViews =
+      activeFilter === 'all'
+        ? selectedMonthViews
+        : selectedMonthViews.filter(view => view.category === activeFilter);
+    return {
+      groups: groupByDay(filteredViews),
+      summary: summarizeCashflow(selectedMonthViews),
+      dailyExpenses: buildDailyExpenseBars(selectedMonthViews, selectedMonth),
+      counts: categoryCounts,
+      monthViews: selectedMonthViews,
+    };
+  }, [records, selectedMonth, activeFilter]);
 
   const moveMonth = (offset: number) => {
     setSelectedMonth(
@@ -283,8 +278,8 @@ export function DetailTabScreen() {
               {activeFilter === 'expense'
                 ? '支出'
                 : activeFilter === 'income'
-                ? '收入'
-                : '转账'}{' '}
+                  ? '收入'
+                  : '转账'}{' '}
               · {groups.reduce((sum, group) => sum + group.records.length, 0)}{' '}
               笔
             </Text>

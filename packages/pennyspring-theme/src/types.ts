@@ -273,7 +273,8 @@ export interface ColorLinkMapToken {
 
 /** 完整颜色映射 token — 合并所有子色板 */
 export interface ColorMapToken
-  extends ColorNeutralMapToken,
+  extends
+    ColorNeutralMapToken,
     ColorPrimaryMapToken,
     ColorSuccessMapToken,
     ColorWarningMapToken,
@@ -420,7 +421,8 @@ export type PresetColorGradientToken = {
 
 /** 完整派生 token — 种子 token 经过全套算法链路的输出 */
 export interface MapToken
-  extends SeedToken,
+  extends
+    SeedToken,
     ColorMapToken,
     SizeMapToken,
     HeightMapToken,
@@ -564,9 +566,8 @@ export interface AliasToken extends MapToken {
   controlTmpOutline: string;
 }
 
-type AliasColorTokenKeyWithoutPrefix<
-  TKey extends string,
-> = TKey extends `color${infer ColorName}` ? Uncapitalize<ColorName> : never;
+type AliasColorTokenKeyWithoutPrefix<TKey extends string> =
+  TKey extends `color${infer ColorName}` ? Uncapitalize<ColorName> : never;
 
 export type AliasColorTokenKey =
   | AliasColorTokenKeyWithoutPrefix<Extract<keyof AliasToken, `color${string}`>>

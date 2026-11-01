@@ -46,24 +46,34 @@ export function AvatarStatesDemo() {
 
   return (
     <Column gap="normal">
-      <Text color="tertiary" size="xs">默认 / 禁用：禁用只降透明度并换 colorFillQuaternary，不改尺寸与环</Text>
+      <Text color="tertiary" size="xs">
+        默认 / 禁用：禁用只降透明度并换 colorFillQuaternary，不改尺寸与环
+      </Text>
       <Row gap="small">
         <Avatar text="王" />
         <Avatar disabled text="王" />
         <Avatar disabled shape="square" text="李" />
       </Row>
-      <Text color="tertiary" size="xs">列表行：行内头像固定 40，不随行高放大</Text>
+      <Text color="tertiary" size="xs">
+        列表行：行内头像固定 40，不随行高放大
+      </Text>
       <Column style={styles.surface}>
         <Row style={styles.row}>
           <Avatar text="陈" />
           <Column gap={0} style={styles.body}>
             <Text weight="medium">陈嘉宁</Text>
-            <Text color="tertiary" size="xs">共同记账 128 天 · 3 本账本</Text>
+            <Text color="tertiary" size="xs">
+              共同记账 128 天 · 3 本账本
+            </Text>
           </Column>
-          <Text style={styles.amount} weight="semibold">¥ 2,480.00</Text>
+          <Text style={styles.amount} weight="semibold">
+            ¥ 2,480.00
+          </Text>
         </Row>
       </Column>
-      <Text color="tertiary" size="xs">深色对照：环取 colorBgContainer，深色卡上自动变深环</Text>
+      <Text color="tertiary" size="xs">
+        深色对照：环取 colorBgContainer，深色卡上自动变深环
+      </Text>
       <ThemeProvider config={{ algorithm: 'dark' }}>
         <DarkSurface />
       </ThemeProvider>

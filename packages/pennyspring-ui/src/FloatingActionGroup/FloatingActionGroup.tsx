@@ -175,7 +175,9 @@ const useMoreButtonStyles = createUseSheetStyle(
         ...toShadowStyle(token.boxShadowSecondary),
       },
       icon: {
-        transform: [{ rotate: expanded ? MORE_ICON_ROTATION : IDLE_ICON_ROTATION }],
+        transform: [
+          { rotate: expanded ? MORE_ICON_ROTATION : IDLE_ICON_ROTATION },
+        ],
       },
     };
   },
@@ -394,8 +396,7 @@ function HiddenActionItem({
         },
         {
           scale:
-            HIDDEN_SCALE_START +
-            itemProgress.value * (1 - HIDDEN_SCALE_START),
+            HIDDEN_SCALE_START + itemProgress.value * (1 - HIDDEN_SCALE_START),
         },
       ],
     };
@@ -409,10 +410,18 @@ function HiddenActionItem({
   }
 
   return (
-    <Animated.View style={animatedStyle} testID="floating-action-group-hidden-item">
+    <Animated.View
+      style={animatedStyle}
+      testID="floating-action-group-hidden-item"
+    >
       <Row gap="small" style={tokenStyles.row}>
         {action.label === undefined ? null : (
-          <View style={[tokenStyles.capsule, isDisabled ? tokenStyles.disabled : null]}>
+          <View
+            style={[
+              tokenStyles.capsule,
+              isDisabled ? tokenStyles.disabled : null,
+            ]}
+          >
             <Text color="default" size="sm" weight="medium">
               {action.label}
             </Text>
@@ -460,8 +469,14 @@ export function FloatingActionGroup({
   const progress = useSharedValue(0);
 
   const visibleCount = Math.max(DEFAULT_VISIBLE_COUNT, defaultVisibleCount);
-  const visibleActions = useMemo(() => actions.slice(0, visibleCount), [actions, visibleCount]);
-  const hiddenActions = useMemo(() => actions.slice(visibleCount), [actions, visibleCount]);
+  const visibleActions = useMemo(
+    () => actions.slice(0, visibleCount),
+    [actions, visibleCount],
+  );
+  const hiddenActions = useMemo(
+    () => actions.slice(visibleCount),
+    [actions, visibleCount],
+  );
   const hasMore = hiddenActions.length > 0;
 
   const computedSpacing =

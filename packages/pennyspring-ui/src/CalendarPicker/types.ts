@@ -41,8 +41,7 @@ export type CalendarPickerViewFormatFunction = (
 ) => string;
 
 export type CalendarPickerViewFormat =
-  | CalendarPickerViewFormatPreset
-  | CalendarPickerViewFormatFunction;
+  CalendarPickerViewFormatPreset | CalendarPickerViewFormatFunction;
 
 export interface CalendarPickerViewMark {
   date: string;
@@ -122,11 +121,10 @@ export interface CalendarPickerViewProps {
   styles?: CalendarPickerViewStyles;
 }
 
-export interface CalendarPickerViewRangeProps
-  extends Omit<
-    CalendarPickerViewProps,
-    'value' | 'defaultValue' | 'onChange' | 'onOk'
-  > {
+export interface CalendarPickerViewRangeProps extends Omit<
+  CalendarPickerViewProps,
+  'value' | 'defaultValue' | 'onChange' | 'onOk'
+> {
   value?: CalendarPickerViewRangeValue;
   defaultValue?: CalendarPickerViewRangeValue;
   onChange?: (value: CalendarPickerViewRangeValue) => void;
@@ -193,11 +191,10 @@ export interface CalendarPickerProps {
   styles?: CalendarPickerStyles;
 }
 
-export interface CalendarPickerRangeProps
-  extends Omit<
-    CalendarPickerProps,
-    'precision' | 'value' | 'defaultValue' | 'onChange' | 'onOk'
-  > {
+export interface CalendarPickerRangeProps extends Omit<
+  CalendarPickerProps,
+  'precision' | 'value' | 'defaultValue' | 'onChange' | 'onOk'
+> {
   precision?: CalendarPickerPrecision;
   value?: [Date, Date];
   defaultValue?: [Date, Date];

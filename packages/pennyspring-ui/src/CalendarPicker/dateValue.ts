@@ -74,7 +74,15 @@ export function getCalendarViewMode(
 
 /** 将时间部分归零，保留本地日期字段；仅日期的选择器统一使用这一口径。 */
 export function startOfDay(date: Date): Date {
-  return new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0);
+  return new Date(
+    date.getFullYear(),
+    date.getMonth(),
+    date.getDate(),
+    0,
+    0,
+    0,
+    0,
+  );
 }
 
 /** 将日期拆成回传参数。 */

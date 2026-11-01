@@ -52,17 +52,17 @@ export function PickerBody<TItem extends PickerColumnItemData>({
   slotStyles,
   styles,
 }: PickerBodyProps<TItem>) {
-  const isEmpty = columns.length === 0 || columns.every(column => column.length === 0);
+  const isEmpty =
+    columns.length === 0 || columns.every(column => column.length === 0);
   const itemStyle = StyleSheet.flatten(styles.item);
-  const itemHeight = typeof itemStyle?.minHeight === 'number'
-    ? itemStyle.minHeight
-    : 0;
+  const itemHeight =
+    typeof itemStyle?.minHeight === 'number' ? itemStyle.minHeight : 0;
   const defaultWheelHeight = itemHeight * WHEEL_VISIBLE_ITEM_COUNT;
 
   if (loading) {
     return (
       <View style={[styles.loading, slotStyles?.loading]}>
-        {renderTextNode(loadingIndicator ?? loadingIndicatorText, (text) => (
+        {renderTextNode(loadingIndicator ?? loadingIndicatorText, text => (
           <Text>{text}</Text>
         ))}
       </View>
@@ -72,7 +72,7 @@ export function PickerBody<TItem extends PickerColumnItemData>({
   if (isEmpty) {
     return (
       <View style={[styles.empty, slotStyles?.empty]}>
-        {renderTextNode(empty ?? emptyText, (text) => (
+        {renderTextNode(empty ?? emptyText, text => (
           <Text>{text}</Text>
         ))}
       </View>
@@ -81,7 +81,9 @@ export function PickerBody<TItem extends PickerColumnItemData>({
 
   return (
     <View style={[styles.body, slotStyles?.root]}>
-      <GeometryReader defaultGeometry={{ width: 0, height: defaultWheelHeight }}>
+      <GeometryReader
+        defaultGeometry={{ width: 0, height: defaultWheelHeight }}
+      >
         {({ height }) => (
           <PickerView
             columns={columns}

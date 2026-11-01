@@ -1,5 +1,5 @@
-import React, { useCallback, useState } from 'react'
-import { ScrollView } from 'react-native'
+import React, { useCallback, useState } from 'react';
+import { ScrollView } from 'react-native';
 import {
   Button,
   Card,
@@ -8,26 +8,26 @@ import {
   Result,
   Row,
   Text,
-} from '@pennyspring/ui'
+} from '@pennyspring/ui';
 import {
   BOOK_TYPE,
   localApi,
   type ApplyLibrarySnapshotResult,
-} from '@pennyspring/api'
-import { createUseSheetStyle } from '@pennyspring/ui'
+} from '@pennyspring/api';
+import { createUseSheetStyle } from '@pennyspring/ui';
 
-import { formatBytes, totalRecords } from '../../features/transfer'
+import { formatBytes, totalRecords } from '../../features/transfer';
 import {
   importPackage,
   pickPackagePreview,
   type PickedPackagePreview,
-} from '../../features/transfer/operations'
-import { ROOT_ROUTES, useNavigation } from '../../navigation'
+} from '../../features/transfer/operations';
+import { ROOT_ROUTES, useNavigation } from '../../navigation';
 import {
   createBackupHistoryId,
   useBackupHistoryStore,
-} from '../../stores/backupHistoryStore'
-import { useBookStore } from '../../stores/bookStore'
+} from '../../stores/backupHistoryStore';
+import { useBookStore } from '../../stores/bookStore';
 
 const useStyles = createUseSheetStyle(token => ({
   container: {
@@ -56,41 +56,41 @@ const useStyles = createUseSheetStyle(token => ({
     gap: token.marginXS,
     width: '100%',
   },
-}))
+}));
 
 function getErrorMessage(error: unknown): string {
-  return error instanceof Error ? error.message : '导入失败'
+  return error instanceof Error ? error.message : '导入失败';
 }
 
 export function BackupImportScreen() {
-  const styles = useStyles()
-  const navigation = useNavigation()
-  const addHistory = useBackupHistoryStore(state => state.addEntry)
-  const [preview, setPreview] = useState<PickedPackagePreview | null>(null)
-  const [result, setResult] = useState<ApplyLibrarySnapshotResult | null>(null)
-  const [busy, setBusy] = useState(false)
-  const [errorText, setErrorText] = useState('')
+  const styles = useStyles();
+  const navigation = useNavigation();
+  const addHistory = useBackupHistoryStore(state => state.addEntry);
+  const [preview, setPreview] = useState<PickedPackagePreview | null>(null);
+  const [result, setResult] = useState<ApplyLibrarySnapshotResult | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [errorText, setErrorText] = useState('');
 
   const handlePick = useCallback(async () => {
-    if (busy) return
-    setBusy(true)
-    setErrorText('')
+    if (busy) return;
+    setBusy(true);
+    setErrorText('');
     try {
-      const picked = await pickPackagePreview()
-      if (picked) setPreview(picked)
+      const picked = await pickPackagePreview();
+      if (picked) setPreview(picked);
     } catch (error: unknown) {
-      setErrorText(getErrorMessage(error))
+      setErrorText(getErrorMessage(error));
     } finally {
-      setBusy(false)
+      setBusy(false);
     }
-  }, [busy])
+  }, [busy]);
 
   const handleImport = useCallback(async () => {
-    if (!preview || busy) return
-    setBusy(true)
-    setErrorText('')
+    if (!preview || busy) return;
+    setBusy(true);
+    setErrorText('');
     try {
-      const imported = await importPackage(preview.parsed)
+      const imported = await importPackage(preview.parsed);
       addHistory({
         id: createBackupHistoryId(),
         kind: 'import',
@@ -102,36 +102,45 @@ export function BackupImportScreen() {
         uri: '',
         status: 'success',
         errorText: '',
-      })
-      setResult(imported.result)
+      });
+      setResult(imported.result);
     } catch (error: unknown) {
-      setErrorText(getErrorMessage(error))
+      setErrorText(getErrorMessage(error));
     } finally {
-      setBusy(false)
+      setBusy(false);
     }
-  }, [addHistory, busy, preview])
+  }, [addHistory, busy, preview]);
 
   const openImportedBook = useCallback(async () => {
     if (!result?.books[0]) {
-      navigation.navigate(ROOT_ROUTES.Home)
-      return
+      navigation.navigate(ROOT_ROUTES.Home);
+      return;
     }
     try {
-      const book = await localApi.book.getById(result.books[0].bookId)
-      useBookStore.getState().setCurrentBook(
-        { kind: 'local', id: book.id },
-        { kind: BOOK_TYPE.local, ...book },
-      )
-      navigation.navigate(ROOT_ROUTES.Home)
+      const book = await localApi.book.getById(result.books[0].bookId);
+      useBookStore
+        .getState()
+        .setCurrentBook(
+          { kind: 'local', id: book.id },
+          { kind: BOOK_TYPE.local, ...book },
+        );
+      navigation.navigate(ROOT_ROUTES.Home);
     } catch (error: unknown) {
-      setErrorText(getErrorMessage(error))
+      setErrorText(getErrorMessage(error));
     }
-  }, [navigation, result])
+  }, [navigation, result]);
 
   if (result) {
-    const records = result.books.reduce((sum, book) => sum + book.counts.records, 0)
+    const records = result.books.reduce(
+      (sum, book) => sum + book.counts.records,
+      0,
+    );
     return (
-      <ScrollView contentContainerStyle={styles.content} scrollEnabled style={styles.container}>
+      <ScrollView
+        contentContainerStyle={styles.content}
+        scrollEnabled
+        style={styles.container}
+      >
         <Result
           status="success"
           titleText="导入完成"
@@ -141,47 +150,74 @@ export function BackupImportScreen() {
               <Button block onPress={openImportedBook} type="primary">
                 打开导入的账本
               </Button>
-              <Button block onPress={() => navigation.navigate(ROOT_ROUTES.Home)} type="dashed">
+              <Button
+                block
+                onPress={() => navigation.navigate(ROOT_ROUTES.Home)}
+                type="dashed"
+              >
                 完成
               </Button>
             </Column>
           }
         />
       </ScrollView>
-    )
+    );
   }
 
   if (!preview) {
     return (
-      <ScrollView contentContainerStyle={styles.content} scrollEnabled style={styles.container}>
+      <ScrollView
+        contentContainerStyle={styles.content}
+        scrollEnabled
+        style={styles.container}
+      >
         <Card>
           <Empty
             variant="boxed"
             titleText="还没有选择备份"
             descriptionText="选择 .psb 备份文件，先预览再导入。"
             action={
-              <Button loading={busy} onPress={handlePick} size="small" type="primary">
+              <Button
+                loading={busy}
+                onPress={handlePick}
+                size="small"
+                type="primary"
+              >
                 选择备份文件
               </Button>
             }
           />
         </Card>
         {errorText ? (
-          <Text color="errorText" size="sm" style={styles.error}>{errorText}</Text>
+          <Text color="errorText" size="sm" style={styles.error}>
+            {errorText}
+          </Text>
         ) : null}
       </ScrollView>
-    )
+    );
   }
 
-  const { manifest } = preview.parsed
+  const { manifest } = preview.parsed;
 
   return (
-    <ScrollView contentContainerStyle={styles.content} scrollEnabled style={styles.container}>
-      <Card titleText="备份文件" extra={<Text color="tertiary" size="xs">格式 v{manifest.formatVersion}</Text>}>
+    <ScrollView
+      contentContainerStyle={styles.content}
+      scrollEnabled
+      style={styles.container}
+    >
+      <Card
+        titleText="备份文件"
+        extra={
+          <Text color="tertiary" size="xs">
+            格式 v{manifest.formatVersion}
+          </Text>
+        }
+      >
         <Column style={styles.cardContent}>
           <Text weight="semibold">{preview.sourceName}</Text>
           <Text color="secondary" size="sm">
-            {formatBytes(preview.sizeBytes)} · {manifest.books.length} 个账本 · {totalRecords(manifest).toLocaleString('zh-CN')} 条流水
+            {formatBytes(preview.sizeBytes)} · {manifest.books.length} 个账本 ·{' '}
+            {totalRecords(manifest).toLocaleString('zh-CN')} 条流水
           </Text>
         </Column>
       </Card>
@@ -192,7 +228,8 @@ export function BackupImportScreen() {
             <Column key={book.key} style={styles.bookRow}>
               <Text>{book.name}</Text>
               <Text color="secondary" size="sm">
-                {book.counts.records.toLocaleString('zh-CN')} 条流水 · {book.counts.assets} 个资产 · {book.counts.images} 张图片
+                {book.counts.records.toLocaleString('zh-CN')} 条流水 ·{' '}
+                {book.counts.assets} 个资产 · {book.counts.images} 张图片
               </Text>
             </Column>
           ))}
@@ -202,14 +239,24 @@ export function BackupImportScreen() {
       <Card titleText="包含与排除">
         <Column style={styles.note}>
           <Row justify="between" gap="small">
-            <Text size="sm" color="secondary">图片附件</Text>
-            <Text size="sm">{manifest.options.includeImages ? '包含' : '不包含'}</Text>
+            <Text size="sm" color="secondary">
+              图片附件
+            </Text>
+            <Text size="sm">
+              {manifest.options.includeImages ? '包含' : '不包含'}
+            </Text>
           </Row>
           <Row justify="between" gap="small">
-            <Text size="sm" color="secondary">AI 会话</Text>
-            <Text size="sm">{manifest.options.includeAgent ? '包含' : '不包含'}</Text>
+            <Text size="sm" color="secondary">
+              AI 会话
+            </Text>
+            <Text size="sm">
+              {manifest.options.includeAgent ? '包含' : '不包含'}
+            </Text>
           </Row>
-          <Text size="sm" color="tertiary">API Key、AI 提供商配置、服务器连接信息不在备份中。</Text>
+          <Text size="sm" color="tertiary">
+            API Key、AI 提供商配置、服务器连接信息不在备份中。
+          </Text>
         </Column>
       </Card>
 
@@ -220,7 +267,9 @@ export function BackupImportScreen() {
       </Card>
 
       {errorText ? (
-        <Text color="errorText" size="sm" style={styles.error}>{errorText}</Text>
+        <Text color="errorText" size="sm" style={styles.error}>
+          {errorText}
+        </Text>
       ) : null}
 
       <Button block loading={busy} onPress={handleImport} type="primary">
@@ -230,5 +279,5 @@ export function BackupImportScreen() {
         重新选择文件
       </Button>
     </ScrollView>
-  )
+  );
 }

@@ -26,7 +26,11 @@ export type {
 
 export { defaultSeedToken } from './defaults';
 export { ThemeProvider, ThemeContext } from './ThemeProvider';
-export type { ThemeConfig, ThemeAlgorithm, ThemeContextValue } from './ThemeProvider';
+export type {
+  ThemeConfig,
+  ThemeAlgorithm,
+  ThemeContextValue,
+} from './ThemeProvider';
 export { useTheme } from './useTheme';
 export { toShadowStyle } from './shadowStyle';
 export { getAliasColorTokenValue } from './aliasColorToken';

@@ -118,10 +118,18 @@ function RadioControl({
     });
   }, [progress, selected, token.motionEaseInOut]);
 
-  const labelColor = getLabelColor({ disabled, displayType, readonly, selected });
+  const labelColor = getLabelColor({
+    disabled,
+    displayType,
+    readonly,
+    selected,
+  });
   const labelWeight: TextWeight = isButton && selected ? 'semibold' : 'regular';
   const labelSize: TextSize = isButton ? 'sm' : sizeConfig.labelSize;
-  const labelStyle: StyleProp<TextStyle> = [tokenStyles.label, slotStyles?.label];
+  const labelStyle: StyleProp<TextStyle> = [
+    tokenStyles.label,
+    slotStyles?.label,
+  ];
   const label = renderTextNode(children, text => (
     <Text
       color={labelColor}

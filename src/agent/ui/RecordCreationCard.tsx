@@ -1,13 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import type { ToolCallMessagePartProps } from '@assistant-ui/react-native';
-import {
-  Button,
-  Card,
-  Column,
-  Row,
-  Text,
-  useToast,
-} from '@pennyspring/ui';
+import { Button, Card, Column, Row, Text, useToast } from '@pennyspring/ui';
 
 import { useBookStore, useGlobalApi } from '../../stores/bookStore';
 import {
@@ -203,8 +196,8 @@ export function RecordCreationCard(
     const errorText = !parsed.success
       ? '记账参数不完整，请取消后让助手补充。'
       : resolved?.ok === false
-      ? resolved.error
-      : '记账参数不完整，请取消后让助手补充。';
+        ? resolved.error
+        : '记账参数不完整，请取消后让助手补充。';
     return (
       <StatusCard
         descriptionText={errorText}

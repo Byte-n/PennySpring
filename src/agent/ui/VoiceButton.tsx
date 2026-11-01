@@ -13,12 +13,14 @@ const ACTIVE_STATUS_TEXT: Record<Exclude<VoiceInputStatus, 'idle'>, string> = {
   finalizing: '正在整理文字…',
 };
 
-const ACTIVE_PLACEHOLDER_TEXT: Record<Exclude<VoiceInputStatus, 'idle'>, string> =
-  {
-    preparing: '首次使用需要加载内置模型',
-    listening: '请说话',
-    finalizing: '请稍候',
-  };
+const ACTIVE_PLACEHOLDER_TEXT: Record<
+  Exclude<VoiceInputStatus, 'idle'>,
+  string
+> = {
+  preparing: '首次使用需要加载内置模型',
+  listening: '请说话',
+  finalizing: '请稍候',
+};
 
 export interface VoiceButtonProps {
   status: VoiceInputStatus;
@@ -56,9 +58,7 @@ export function VoiceButton({
 
   const statusText = status === 'idle' ? '' : ACTIVE_STATUS_TEXT[status];
   const hintText =
-    status === 'idle'
-      ? ''
-      : partialText || ACTIVE_PLACEHOLDER_TEXT[status];
+    status === 'idle' ? '' : partialText || ACTIVE_PLACEHOLDER_TEXT[status];
 
   return (
     <Popover

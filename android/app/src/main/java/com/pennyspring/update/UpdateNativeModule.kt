@@ -16,7 +16,6 @@ import java.io.File
 class UpdateNativeModule(
     private val reactContext: ReactApplicationContext,
 ) : ReactContextBaseJavaModule(reactContext) {
-
     companion object {
         private const val MIME_APK = "application/vnd.android.package-archive"
     }
@@ -43,7 +42,10 @@ class UpdateNativeModule(
     }
 
     @ReactMethod
-    fun installApk(path: String, promise: Promise) {
+    fun installApk(
+        path: String,
+        promise: Promise,
+    ) {
         try {
             val file = File(path).canonicalFile
             val cacheDirectory = reactContext.cacheDir.canonicalFile
@@ -59,10 +61,11 @@ class UpdateNativeModule(
                 !reactContext.packageManager.canRequestPackageInstalls()
             ) {
                 val activity = reactContext.currentActivity
-                val settingsIntent = Intent(
-                    Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES,
-                    Uri.parse("package:${reactContext.packageName}"),
-                )
+                val settingsIntent =
+                    Intent(
+                        Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES,
+                        Uri.parse("package:${reactContext.packageName}"),
+                    )
                 if (activity != null) {
                     activity.startActivity(settingsIntent)
                 } else {
@@ -73,16 +76,18 @@ class UpdateNativeModule(
                 return
             }
 
-            val apkUri = FileProvider.getUriForFile(
-                reactContext,
-                "${reactContext.packageName}.fileprovider",
-                file,
-            )
-            val installIntent = Intent(Intent.ACTION_VIEW).apply {
-                setDataAndType(apkUri, MIME_APK)
-                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            }
+            val apkUri =
+                FileProvider.getUriForFile(
+                    reactContext,
+                    "${reactContext.packageName}.fileprovider",
+                    file,
+                )
+            val installIntent =
+                Intent(Intent.ACTION_VIEW).apply {
+                    setDataAndType(apkUri, MIME_APK)
+                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
             reactContext.startActivity(installIntent)
             promise.resolve(null)
         } catch (error: Exception) {

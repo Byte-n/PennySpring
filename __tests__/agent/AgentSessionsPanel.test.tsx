@@ -16,7 +16,8 @@ jest.mock('@pennyspring/ui', () => {
   const ReactLib = require('react');
   const { Pressable, Text, View } = require('react-native');
 
-  const passthrough = (Component: React.ComponentType) =>
+  const passthrough =
+    (Component: React.ComponentType) =>
     ({ children, ...props }: { children?: React.ReactNode }) =>
       ReactLib.createElement(Component, props, children);
 
@@ -51,7 +52,10 @@ jest.mock('@pennyspring/ui', () => {
           View,
           null,
           renderHeaderRight
-            ? renderHeaderRight({ cancel: () => undefined, confirm: async () => undefined })
+            ? renderHeaderRight({
+                cancel: () => undefined,
+                confirm: async () => undefined,
+              })
             : null,
           children,
         )
@@ -112,12 +116,18 @@ jest.mock('../../src/agent/ui/AgentSessionList', () => {
             { key: thread.id },
             ReactLib.createElement(
               Pressable,
-              { onPress: () => onSelect(thread), testID: `select-${thread.id}` },
+              {
+                onPress: () => onSelect(thread),
+                testID: `select-${thread.id}`,
+              },
               ReactLib.createElement(Text, null, 'select'),
             ),
             ReactLib.createElement(
               Pressable,
-              { onPress: () => onDelete(thread), testID: `delete-${thread.id}` },
+              {
+                onPress: () => onDelete(thread),
+                testID: `delete-${thread.id}`,
+              },
               ReactLib.createElement(Text, null, 'delete'),
             ),
           ),
@@ -127,8 +137,24 @@ jest.mock('../../src/agent/ui/AgentSessionList', () => {
 });
 
 const THREADS: AgentThreadRow[] = [
-  { id: 1, booksId: 1, title: '本月支出', providerId: 0, modelId: '', createdTime: 0, updatedTime: 1_700_000_000_000 },
-  { id: 2, booksId: 1, title: '', providerId: 0, modelId: '', createdTime: 0, updatedTime: 1_700_000_600_000 },
+  {
+    id: 1,
+    booksId: 1,
+    title: '本月支出',
+    providerId: 0,
+    modelId: '',
+    createdTime: 0,
+    updatedTime: 1_700_000_000_000,
+  },
+  {
+    id: 2,
+    booksId: 1,
+    title: '',
+    providerId: 0,
+    modelId: '',
+    createdTime: 0,
+    updatedTime: 1_700_000_600_000,
+  },
 ];
 
 function createChat(
@@ -163,10 +189,7 @@ function createChat(
   };
 }
 
-function renderPanel(
-  chat: AgentSessionState,
-  onOpenChange = jest.fn(),
-) {
+function renderPanel(chat: AgentSessionState, onOpenChange = jest.fn()) {
   let renderer: TestRenderer.ReactTestRenderer;
   act(() => {
     renderer = TestRenderer.create(
@@ -186,12 +209,16 @@ describe('AgentSessionsPanel', () => {
     const { renderer, onOpenChange } = renderPanel(chat);
 
     await act(async () => {
-      renderer.root.findByProps({ testID: 'agent-session-create' }).props.onPress();
+      renderer.root
+        .findByProps({ testID: 'agent-session-create' })
+        .props.onPress();
     });
 
     expect(chat.createThread).toHaveBeenCalledTimes(1);
     expect(onOpenChange).toHaveBeenCalledWith(false);
-    expect(mockToastShow).toHaveBeenCalledWith({ messageText: '已切换到新会话' });
+    expect(mockToastShow).toHaveBeenCalledWith({
+      messageText: '已切换到新会话',
+    });
   });
 
   it('restores the selected session and closes the panel', async () => {
@@ -215,10 +242,14 @@ describe('AgentSessionsPanel', () => {
     });
 
     await act(async () => {
-      await renderer.root.findByProps({ testID: 'confirm-delete' }).props.onPress();
+      await renderer.root
+        .findByProps({ testID: 'confirm-delete' })
+        .props.onPress();
     });
 
     expect(chat.deleteThread).toHaveBeenCalledWith(2);
-    expect(mockToastShow).toHaveBeenCalledWith({ messageText: '已删除「新对话」' });
+    expect(mockToastShow).toHaveBeenCalledWith({
+      messageText: '已删除「新对话」',
+    });
   });
 });

@@ -61,11 +61,14 @@ function updateFocusIndex<TItem extends PickerColumnItemData>(
   columnIndex: number,
   itemIndex: number,
 ): number[] {
-  const baseIndexes = currentIndexes.length === columns.length
-    ? currentIndexes
-    : getSelectedIndexes(columns, []);
+  const baseIndexes =
+    currentIndexes.length === columns.length
+      ? currentIndexes
+      : getSelectedIndexes(columns, []);
 
-  return baseIndexes.map((value, index) => (index === columnIndex ? itemIndex : value));
+  return baseIndexes.map((value, index) =>
+    index === columnIndex ? itemIndex : value,
+  );
 }
 
 function getItemDisplayText<TItem extends PickerColumnItemData>(
@@ -101,7 +104,9 @@ function getTriggerValueText<TItem extends PickerColumnItemData>(
   return itemTexts.join(' / ');
 }
 
-export function PickerCore<TItem extends PickerColumnItemData = PickerColumnItemData>({
+export function PickerCore<
+  TItem extends PickerColumnItemData = PickerColumnItemData,
+>({
   allowClear,
   children,
   columns,
@@ -148,11 +153,7 @@ export function PickerCore<TItem extends PickerColumnItemData = PickerColumnItem
   const isOpen = resolvedOpen === true;
   const [mainValue = [], setMainValue] = useControllableValue<
     Array<PickerItemValue<TItem>>
-  >(
-    getInitialValue(defaultValue, field.value),
-    field.value,
-    undefined,
-  );
+  >(getInitialValue(defaultValue, field.value), field.value, undefined);
   const [draftValue, setDraftValue] = useState(mainValue);
   const [focusedIndexes, setFocusedIndexes] = useState<number[]>(() =>
     getSelectedIndexes(columns, mainValue),
@@ -164,13 +165,15 @@ export function PickerCore<TItem extends PickerColumnItemData = PickerColumnItem
     ? formatValueText(mainValue, { items: selectedItems })
     : getTriggerValueText(columns, mainValue);
   const hasMainValue = mainValue.length > 0;
-  const hasDisabledFocusedItem = focusedIndexes.some((itemIndex, columnIndex) => {
-    if (itemIndex < 0) {
-      return false;
-    }
+  const hasDisabledFocusedItem = focusedIndexes.some(
+    (itemIndex, columnIndex) => {
+      if (itemIndex < 0) {
+        return false;
+      }
 
-    return columns[columnIndex]?.[itemIndex]?.disabled === true;
-  });
+      return columns[columnIndex]?.[itemIndex]?.disabled === true;
+    },
+  );
   const okDisabled = popupProps?.okDisabled === true || hasDisabledFocusedItem;
 
   useEffect(() => {

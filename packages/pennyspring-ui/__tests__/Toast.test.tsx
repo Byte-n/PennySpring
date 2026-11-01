@@ -27,41 +27,49 @@ function findToastContent(testRenderer: renderer.ReactTestRenderer) {
   return testRenderer.root.findAllByType(View).find(node => {
     const flattenedStyle = flattenStyle(node.props.style);
 
-    return flattenedStyle.position === 'absolute'
-      && flattenedStyle.backgroundColor !== undefined
-      && flattenedStyle.paddingHorizontal !== undefined;
+    return (
+      flattenedStyle.position === 'absolute' &&
+      flattenedStyle.backgroundColor !== undefined &&
+      flattenedStyle.paddingHorizontal !== undefined
+    );
   });
 }
 
 type WithTimingArgs = [number, WithTimingConfig?, (() => void)?];
-const mockWithTiming = jest.fn((value: number, _config?: WithTimingConfig, _callback?: () => void) => value);
+const mockWithTiming = jest.fn(
+  (value: number, _config?: WithTimingConfig, _callback?: () => void) => value,
+);
 jest.mock('react-native-reanimated', () => {
   const ReactNative = require('react-native');
   return {
     __esModule: true,
     default: {
-      View: ReactNative.View
+      View: ReactNative.View,
     },
     Easing: {
-      bezier: (...args: unknown[]) => args
+      bezier: (...args: unknown[]) => args,
     },
     runOnJS: (fn: () => void) => fn,
     useAnimatedStyle: (updater: () => Record<string, unknown>) => updater(),
     useSharedValue: (value: number) => ({
-      value
+      value,
     }),
     withTiming: (...args: WithTimingArgs) => {
       mockWithTiming(...args);
       return args[0];
-    }
+    },
   };
 });
 function renderToast(props: Partial<React.ComponentProps<typeof Toast>> = {}) {
   let testRenderer!: renderer.ReactTestRenderer;
   act(() => {
-    testRenderer = renderer.create(<><PortalProvider>
+    testRenderer = renderer.create(
+      <>
+        <PortalProvider>
           <Toast open messageText="Toast message" {...props} />
-        </PortalProvider></>);
+        </PortalProvider>
+      </>,
+    );
   });
   return testRenderer!;
 }
@@ -72,31 +80,49 @@ describe('Toast', () => {
   it('animates in from hidden state when opened', () => {
     const testRenderer = renderToast();
     const toastText = testRenderer.root.findByProps({
-      children: 'Toast message'
+      children: 'Toast message',
     });
-    expect(mockWithTiming).toHaveBeenCalledWith(1, expect.objectContaining({
-      duration: expect.any(Number)
-    }), expect.any(Function));
+    expect(mockWithTiming).toHaveBeenCalledWith(
+      1,
+      expect.objectContaining({
+        duration: expect.any(Number),
+      }),
+      expect.any(Function),
+    );
     expect(toastText).toBeTruthy();
   });
   it('animates out when closed', () => {
     let testRenderer!: renderer.ReactTestRenderer;
     act(() => {
-      testRenderer = renderer.create(<><PortalProvider>
+      testRenderer = renderer.create(
+        <>
+          <PortalProvider>
             <Toast open messageText="Toast message" />
-          </PortalProvider></>);
+          </PortalProvider>
+        </>,
+      );
     });
     act(() => {
-      testRenderer.update(<><PortalProvider>
+      testRenderer.update(
+        <>
+          <PortalProvider>
             <Toast open={false} messageText="Toast message" />
-          </PortalProvider></>);
+          </PortalProvider>
+        </>,
+      );
     });
-    expect(mockWithTiming).toHaveBeenCalledWith(0, expect.objectContaining({
-      duration: expect.any(Number)
-    }), expect.any(Function));
-    expect(testRenderer!.root.findByProps({
-      children: 'Toast message'
-    })).toBeTruthy();
+    expect(mockWithTiming).toHaveBeenCalledWith(
+      0,
+      expect.objectContaining({
+        duration: expect.any(Number),
+      }),
+      expect.any(Function),
+    );
+    expect(
+      testRenderer!.root.findByProps({
+        children: 'Toast message',
+      }),
+    ).toBeTruthy();
   });
   it('lets the content define toast width instead of stretching to both sides', () => {
     const testRenderer = renderToast();
@@ -111,44 +137,47 @@ describe('Toast', () => {
     ['small', 11, 34],
     ['normal', 13, 40],
     ['large', 17, 46],
-  ] as const)('maps %s size to capsule padding and min height', (size, expectedPadding, expectedMinHeight) => {
-    let testRenderer!: renderer.ReactTestRenderer;
-    act(() => {
-      testRenderer = renderer.create(
-        <ThemeProvider
-          config={{
-            token: {
-              marginSM: 12,
-              marginXS: 8,
-              marginXXS: 4,
-              paddingSM: 11,
-              padding: 13,
-              paddingMD: 17,
-            },
-          }}
-        >
-          <PortalProvider>
-            <Toast
-              open
-              messageText="Toast message"
-              size={size}
-            />
-          </PortalProvider>
-        </ThemeProvider>,
-      );
-    });
-    const toastContent = findToastContent(testRenderer);
-    const toastContentStyle = flattenStyle(toastContent?.props.style);
+  ] as const)(
+    'maps %s size to capsule padding and min height',
+    (size, expectedPadding, expectedMinHeight) => {
+      let testRenderer!: renderer.ReactTestRenderer;
+      act(() => {
+        testRenderer = renderer.create(
+          <ThemeProvider
+            config={{
+              token: {
+                marginSM: 12,
+                marginXS: 8,
+                marginXXS: 4,
+                paddingSM: 11,
+                padding: 13,
+                paddingMD: 17,
+              },
+            }}
+          >
+            <PortalProvider>
+              <Toast open messageText="Toast message" size={size} />
+            </PortalProvider>
+          </ThemeProvider>,
+        );
+      });
+      const toastContent = findToastContent(testRenderer);
+      const toastContentStyle = flattenStyle(toastContent?.props.style);
 
-    expect(toastContentStyle.paddingHorizontal).toBe(expectedPadding);
-    expect(toastContentStyle.minHeight).toBe(expectedMinHeight);
-    expect(toastContentStyle.borderRadius).toBe(999);
-  });
+      expect(toastContentStyle.paddingHorizontal).toBe(expectedPadding);
+      expect(toastContentStyle.minHeight).toBe(expectedMinHeight);
+      expect(toastContentStyle.borderRadius).toBe(999);
+    },
+  );
 
   it('caps the capsule width and keeps the message on one line', () => {
     const testRenderer = renderToast();
-    const toastContentStyle = flattenStyle(findToastContent(testRenderer)?.props.style);
-    const textNode = testRenderer.root.findAllByProps({ children: 'Toast message' })[0];
+    const toastContentStyle = flattenStyle(
+      findToastContent(testRenderer)?.props.style,
+    );
+    const textNode = testRenderer.root.findAllByProps({
+      children: 'Toast message',
+    })[0];
 
     expect(toastContentStyle.maxWidth).toBe(750 - 48);
     expect(textNode.props.numberOfLines).toBe(1);

@@ -16,8 +16,12 @@ export function SliderAnnotationsDemo() {
         </Text>
         <Slider max={5000} onChange={setBudget} step={100} value={budget} />
         <Row justify="between">
-          <Text color="tertiary" size="xs">¥0</Text>
-          <Text color="tertiary" size="xs">预算上限 ¥5,000</Text>
+          <Text color="tertiary" size="xs">
+            ¥0
+          </Text>
+          <Text color="tertiary" size="xs">
+            预算上限 ¥5,000
+          </Text>
         </Row>
       </Column>
       <Text color="tertiary" size="sm">
@@ -26,8 +30,12 @@ export function SliderAnnotationsDemo() {
       <Column gap="small">
         <Slider defaultValue={volume} onChange={setVolume} value={volume} />
         <Row justify="between">
-          <Text color="tertiary" size="xs">音量 {volume}%</Text>
-          <Text color="tertiary" size="xs">100%</Text>
+          <Text color="tertiary" size="xs">
+            音量 {volume}%
+          </Text>
+          <Text color="tertiary" size="xs">
+            100%
+          </Text>
         </Row>
       </Column>
     </Column>

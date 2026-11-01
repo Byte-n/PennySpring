@@ -34,12 +34,18 @@ export function buildReimbursementSummary(
   records: readonly RecordRow[],
   types: readonly TypeRow[],
   period: ChartPeriod,
-  relations: readonly Pick<RecordRelationRow, 'recordId' | 'relatedRecordId'>[] = [],
+  relations: readonly Pick<
+    RecordRelationRow,
+    'recordId' | 'relatedRecordId'
+  >[] = [],
 ): ReimbursementSummary | null {
   const typeMap = toTypeMap(types);
   const cutoff = getPeriodCutoff(period);
   let total = 0;
-  const reimbursableExpenses = new Map<number, { total: number; pending: number }>();
+  const reimbursableExpenses = new Map<
+    number,
+    { total: number; pending: number }
+  >();
 
   for (const record of records) {
     if (record.recordTime < period.start || record.recordTime >= cutoff) {
@@ -51,15 +57,26 @@ export function buildReimbursementSummary(
     }
     const expenseTotal = record.amount + record.charge;
     total += expenseTotal;
-    reimbursableExpenses.set(record.id, { total: expenseTotal, pending: record.finalAmount });
+    reimbursableExpenses.set(record.id, {
+      total: expenseTotal,
+      pending: record.finalAmount,
+    });
   }
 
   if (total <= 0) return null;
 
   if (relations.length === 0) {
-    const pending = [...reimbursableExpenses.values()].reduce((sum, expense) => sum + expense.pending, 0);
+    const pending = [...reimbursableExpenses.values()].reduce(
+      (sum, expense) => sum + expense.pending,
+      0,
+    );
     const reimbursed = Math.max(0, total - pending);
-    return { total, reimbursed, pending: Math.max(0, total - reimbursed), ratio: percentOf(reimbursed, total) };
+    return {
+      total,
+      reimbursed,
+      pending: Math.max(0, total - reimbursed),
+      ratio: percentOf(reimbursed, total),
+    };
   }
 
   const typeMapById = typeMap;
@@ -80,7 +97,8 @@ export function buildReimbursementSummary(
       const arrival = Math.max(0, income.amount - income.charge);
       const actual = Math.min(arrival, Math.max(0, expense.total - absorbed));
       absorbed += actual;
-      if (incomeType.specialBehavior === 'reimbursement_absorption') reimbursed += actual;
+      if (incomeType.specialBehavior === 'reimbursement_absorption')
+        reimbursed += actual;
     }
   }
   reimbursed = Math.min(total, reimbursed);
@@ -119,7 +137,7 @@ export function buildTagStats(
     const name =
       tagId === null
         ? UNTAGGED_NAME
-        : tagMap.get(tagId)?.name ?? UNKNOWN_TAG_NAME;
+        : (tagMap.get(tagId)?.name ?? UNKNOWN_TAG_NAME);
     const existing = buckets.get(key);
     if (existing) {
       existing.amount += record.finalAmount;
@@ -161,11 +179,10 @@ export function buildAssetStats(
       continue;
     }
 
-    const key =
-      record.assetId > 0 ? `asset-${record.assetId}` : UNASSIGNED_KEY;
+    const key = record.assetId > 0 ? `asset-${record.assetId}` : UNASSIGNED_KEY;
     const name =
       record.assetId > 0
-        ? assetMap.get(record.assetId)?.name ?? UNASSIGNED_NAME
+        ? (assetMap.get(record.assetId)?.name ?? UNASSIGNED_NAME)
         : UNASSIGNED_NAME;
     const existing = buckets.get(key);
     if (existing) {
@@ -240,13 +257,11 @@ export function buildTopExpenses(
       }
       if (record.finalAmount <= 0) return false;
       return (
-        categoryOf(typeMap, record.typeId) ===
-        RECORD_TYPE_CATEGORY.expense
+        categoryOf(typeMap, record.typeId) === RECORD_TYPE_CATEGORY.expense
       );
     })
     .sort(
-      (a, b) =>
-        b.finalAmount - a.finalAmount || b.recordTime - a.recordTime,
+      (a, b) => b.finalAmount - a.finalAmount || b.recordTime - a.recordTime,
     )
     .slice(0, limit)
     .map(record => {

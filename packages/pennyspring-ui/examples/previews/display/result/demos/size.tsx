@@ -13,14 +13,19 @@ export function ResultSizeDemo() {
     <Column gap="normal">
       {SIZE_SAMPLES.map(({ size, hint }) => (
         <Column key={size} gap="small">
-          <Text color="tertiary" size="xs">{hint}</Text>
+          <Text color="tertiary" size="xs">
+            {hint}
+          </Text>
           <Result
             size={size}
             status="success"
             subtitleText="¥ 128.00 · 餐饮 · 日常开销"
             titleText="记账成功"
             extra={
-              <Button size={size === 'small' ? 'small' : 'normal'} variant="solid">
+              <Button
+                size={size === 'small' ? 'small' : 'normal'}
+                variant="solid"
+              >
                 完成
               </Button>
             }

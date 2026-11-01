@@ -20,10 +20,7 @@ export function KeyboardStickyFooter({
   const tokenStyles = useStickyFooterStyles({ bottomInset });
 
   return (
-    <View
-      style={[tokenStyles.root, style, styles?.root]}
-      testID={testID}
-    >
+    <View style={[tokenStyles.root, style, styles?.root]} testID={testID}>
       {children}
     </View>
   );

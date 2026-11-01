@@ -91,9 +91,7 @@ export function Stepper(rawProps: StepperProps) {
         style={({ pressed }) => [
           tokenStyles.button,
           styles?.button,
-          pressed && !isDisabled && !isAtMin
-            ? tokenStyles.buttonPressed
-            : null,
+          pressed && !isDisabled && !isAtMin ? tokenStyles.buttonPressed : null,
         ]}
         hitSlop={hitSlop}
       >
@@ -115,7 +113,12 @@ export function Stepper(rawProps: StepperProps) {
           {String(safeValue)}
         </Text>
         {unitText === undefined ? null : (
-          <Text color="tertiary" size="xs" style={tokenStyles.unit} weight="medium">
+          <Text
+            color="tertiary"
+            size="xs"
+            style={tokenStyles.unit}
+            weight="medium"
+          >
             {unitText}
           </Text>
         )}
@@ -127,9 +130,7 @@ export function Stepper(rawProps: StepperProps) {
         style={({ pressed }) => [
           tokenStyles.button,
           styles?.button,
-          pressed && !isDisabled && !isAtMax
-            ? tokenStyles.buttonPressed
-            : null,
+          pressed && !isDisabled && !isAtMax ? tokenStyles.buttonPressed : null,
         ]}
         hitSlop={hitSlop}
       >

@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { Keyboard, Pressable } from 'react-native';
 import type { UIMessage } from 'ai';
 import { useAISDKChat } from '@assistant-ui/ai-sdk';
@@ -29,10 +35,7 @@ import {
   isMultimodalModel,
   resolveProviderModel,
 } from '../providers/models';
-import {
-  EMPTY_AGENT_SELECTION,
-  useProviders,
-} from '../providers/useProviders';
+import { EMPTY_AGENT_SELECTION, useProviders } from '../providers/useProviders';
 import { appendTranscript } from '../voice/transcript';
 import { useVoiceInput } from '../voice/useVoiceInput';
 import { hasPendingToolApproval } from './approval';
@@ -192,8 +195,7 @@ export function AgentComposer({
   const styles = useStyles({ isFocused: isInputFocused });
 
   const provider = useMemo(
-    () =>
-      providers.find(item => item.id === selection.providerId) ?? null,
+    () => providers.find(item => item.id === selection.providerId) ?? null,
     [providers, selection.providerId],
   );
 
@@ -263,7 +265,10 @@ export function AgentComposer({
           });
         }
         chat
-          .updateThreadModel({ providerId: provider.id, modelId: model.modelId })
+          .updateThreadModel({
+            providerId: provider.id,
+            modelId: model.modelId,
+          })
           .catch(error => {
             toast.show({
               messageText:
@@ -273,7 +278,14 @@ export function AgentComposer({
           });
       }
     },
-    [chat, onOpenModelSettings, pendingImages.length, provider, threadId, toast],
+    [
+      chat,
+      onOpenModelSettings,
+      pendingImages.length,
+      provider,
+      threadId,
+      toast,
+    ],
   );
 
   const voice = useVoiceInput({

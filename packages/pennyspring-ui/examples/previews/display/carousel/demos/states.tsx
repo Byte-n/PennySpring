@@ -53,9 +53,15 @@ function DarkSlide({ item }: { item: SlideItem }) {
 
   return (
     <Column style={styles.slide}>
-      <Text color="lightSolid" size="xs">{item.kicker}</Text>
-      <Text color="lightSolid" size="xl" weight="semibold">{item.title}</Text>
-      <Text color="lightSolid" size="xs">{item.meta}</Text>
+      <Text color="lightSolid" size="xs">
+        {item.kicker}
+      </Text>
+      <Text color="lightSolid" size="xl" weight="semibold">
+        {item.title}
+      </Text>
+      <Text color="lightSolid" size="xs">
+        {item.meta}
+      </Text>
     </Column>
   );
 }
@@ -65,9 +71,15 @@ function SurfaceSlide({ item }: { item: SlideItem }) {
 
   return (
     <Column style={styles.surfaceSlide}>
-      <Text color="tertiary" size="xs">{item.kicker}</Text>
-      <Text size="xl" weight="semibold">{item.title}</Text>
-      <Text color="tertiary" size="xs">{item.meta}</Text>
+      <Text color="tertiary" size="xs">
+        {item.kicker}
+      </Text>
+      <Text size="xl" weight="semibold">
+        {item.title}
+      </Text>
+      <Text color="tertiary" size="xs">
+        {item.meta}
+      </Text>
     </Column>
   );
 }
@@ -100,14 +112,17 @@ export function CarouselStatesDemo() {
     <Column gap="large">
       <Column style={styles.section}>
         <Text color="tertiary" size="xs">
-          深色对照：媒体预设不随主题变化，始终白点；surface 预设跟随 colorPrimary / colorTextQuaternary
+          深色对照：媒体预设不随主题变化，始终白点；surface 预设跟随
+          colorPrimary / colorTextQuaternary
         </Text>
         <ThemeProvider config={{ algorithm: 'dark' }}>
           <DarkSurface />
         </ThemeProvider>
       </Column>
       <Column style={styles.section}>
-        <Text color="tertiary" size="xs">单页：不渲染指示器，也不占位</Text>
+        <Text color="tertiary" size="xs">
+          单页：不渲染指示器，也不占位
+        </Text>
         <Column style={styles.frame}>
           <Carousel
             data={SINGLE_SLIDE}
@@ -116,7 +131,8 @@ export function CarouselStatesDemo() {
         </Column>
       </Column>
       <Text color="tertiary" size="xs">
-        loop=false 且到边界时不再回弹；loop=true 首尾相连。自动播放默认 4s，拖拽期间暂停
+        loop=false 且到边界时不再回弹；loop=true 首尾相连。自动播放默认
+        4s，拖拽期间暂停
       </Text>
     </Column>
   );

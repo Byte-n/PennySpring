@@ -1,18 +1,11 @@
-import {
-  DeviceEventEmitter,
-  NativeModules,
-  Platform,
-} from 'react-native';
+import { DeviceEventEmitter, NativeModules, Platform } from 'react-native';
 
 import {
   QUICK_BOOK_IMAGE_MAX_DIMENSION,
   QUICK_BOOK_IMAGE_QUALITY_PERCENT,
   QUICK_BOOK_SHARE_EVENT,
 } from './constants';
-import type {
-  QuickBookImage,
-  QuickBookScreenshotResult,
-} from './types';
+import type { QuickBookImage, QuickBookScreenshotResult } from './types';
 
 interface NativeScreenshotModule {
   getLatestScreenshot: (
@@ -31,11 +24,9 @@ interface NativeShareModule {
 }
 
 const NativeScreenshot = NativeModules.QuickBookScreenshot as
-  | NativeScreenshotModule
-  | undefined;
+  NativeScreenshotModule | undefined;
 const NativeShare = NativeModules.QuickBookShare as
-  | NativeShareModule
-  | undefined;
+  NativeShareModule | undefined;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null;
@@ -49,15 +40,8 @@ function parseImagePayload(value: unknown): QuickBookImage | null {
   if (!isRecord(value)) {
     return null;
   }
-  const {
-    localPath,
-    base64,
-    mimeType,
-    fileName,
-    fileSize,
-    width,
-    height,
-  } = value;
+  const { localPath, base64, mimeType, fileName, fileSize, width, height } =
+    value;
   if (
     typeof localPath !== 'string' ||
     localPath.length === 0 ||
@@ -88,11 +72,7 @@ function parseScreenshotResult(value: unknown): QuickBookScreenshotResult {
   }
   const status = value.status;
   if (status !== 'ok') {
-    if (
-      status === 'permission' ||
-      status === 'empty' ||
-      status === 'stale'
-    ) {
+    if (status === 'permission' || status === 'empty' || status === 'stale') {
       return { status };
     }
     return { status: 'unavailable' };

@@ -5,11 +5,7 @@ import { Icon } from '../Icon';
 import { Text } from '../Text';
 import { renderTextNode } from '../shares/node';
 import type { ResultProps } from './types';
-import {
-  SIZE_STYLE_MAP,
-  STATUS_CONFIG_MAP,
-  useStyles,
-} from './style';
+import { SIZE_STYLE_MAP, STATUS_CONFIG_MAP, useStyles } from './style';
 
 function hasRenderableContent(content: React.ReactNode): boolean {
   return content !== null && content !== undefined && content !== false;
@@ -31,31 +27,28 @@ export function Result({
   const sizeConfig = SIZE_STYLE_MAP[size];
   const statusConfig = STATUS_CONFIG_MAP[status];
 
-  const resolvedIcon = icon === undefined
-    ? (
+  const resolvedIcon =
+    icon === undefined ? (
       <Icon
         color={statusConfig.iconColor}
         icon={statusConfig.iconName}
         size={sizeConfig.iconSize}
       />
-    )
-    : icon;
+    ) : (
+      icon
+    );
   const resolvedTitle = title === undefined ? titleText : title;
   const resolvedSubtitle = subtitle === undefined ? subtitleText : subtitle;
   const hasIcon = hasRenderableContent(resolvedIcon);
 
   return (
-    <Column
-      align="center"
-      justify="center"
-      style={[tokenStyles.root, style]}
-    >
+    <Column align="center" justify="center" style={[tokenStyles.root, style]}>
       {hasIcon ? (
         <View style={[tokenStyles.iconContainer, styles?.iconContainer]}>
           {resolvedIcon}
         </View>
       ) : null}
-      {renderTextNode(resolvedTitle, (text) => (
+      {renderTextNode(resolvedTitle, text => (
         <Text
           size={sizeConfig.titleSize}
           weight="semibold"
@@ -69,7 +62,7 @@ export function Result({
           {text}
         </Text>
       ))}
-      {renderTextNode(resolvedSubtitle, (text) => (
+      {renderTextNode(resolvedSubtitle, text => (
         <Text
           size={sizeConfig.subtitleSize}
           color="secondary"

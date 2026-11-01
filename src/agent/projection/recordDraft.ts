@@ -63,8 +63,7 @@ export interface ResolvedRecordDraft {
 }
 
 export type ResolveCreateRecordResult =
-  | { ok: true; draft: ResolvedRecordDraft }
-  | { ok: false; error: string };
+  { ok: true; draft: ResolvedRecordDraft } | { ok: false; error: string };
 
 function toErrorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);

@@ -96,9 +96,11 @@ function layoutBubble(
   height: number,
 ) {
   act(() => {
-    testRenderer.root.findAllByProps({ testID: 'tooltip-body' })[0].props.onLayout(
-      { nativeEvent: { layout: { x: 0, y: 0, width, height } } },
-    );
+    testRenderer.root
+      .findAllByProps({ testID: 'tooltip-body' })[0]
+      .props.onLayout({
+        nativeEvent: { layout: { x: 0, y: 0, width, height } },
+      });
   });
 }
 
@@ -225,22 +227,23 @@ describe('Tooltip', () => {
 
   it('closes with the back reason on hardware back press', () => {
     const listeners: Array<() => boolean | null | undefined> = [];
-    jest
-      .spyOn(BackHandler, 'addEventListener')
-      .mockImplementation(((event: string, handler: () => boolean) => {
-        if (event === 'hardwareBackPress') {
-          listeners.push(handler);
-        }
+    jest.spyOn(BackHandler, 'addEventListener').mockImplementation(((
+      event: string,
+      handler: () => boolean,
+    ) => {
+      if (event === 'hardwareBackPress') {
+        listeners.push(handler);
+      }
 
-        return {
-          remove: () => {
-            const index = listeners.indexOf(handler);
-            if (index >= 0) {
-              listeners.splice(index, 1);
-            }
-          },
-        };
-      }) as unknown as typeof BackHandler.addEventListener);
+      return {
+        remove: () => {
+          const index = listeners.indexOf(handler);
+          if (index >= 0) {
+            listeners.splice(index, 1);
+          }
+        },
+      };
+    }) as unknown as typeof BackHandler.addEventListener);
     const calls: string[] = [];
     renderTooltip({
       defaultOpen: true,
@@ -328,7 +331,9 @@ describe('Tooltip', () => {
     layoutBubble(testRenderer, 160, 700);
 
     const bubbleStyle = findBubbleStyle(testRenderer);
-    const scrollStyle = StyleSheet.flatten(findScroll(testRenderer).props.style);
+    const scrollStyle = StyleSheet.flatten(
+      findScroll(testRenderer).props.style,
+    );
 
     expect(bubbleStyle.top).toBe(24);
     expect(scrollStyle.maxHeight).toBe(360);

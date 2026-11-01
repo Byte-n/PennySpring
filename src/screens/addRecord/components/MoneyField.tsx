@@ -3,7 +3,11 @@ import { Pressable } from 'react-native';
 import { CalculatorInput, Input } from '@pennyspring/ui';
 import { createUseSheetStyle } from '@pennyspring/ui';
 
-import { formatAmount, formatCentsAsExpression, yuanToCents } from '../addRecordDraft';
+import {
+  formatAmount,
+  formatCentsAsExpression,
+  yuanToCents,
+} from '../addRecordDraft';
 
 const MONEY_FIELD_WIDTH = 100;
 

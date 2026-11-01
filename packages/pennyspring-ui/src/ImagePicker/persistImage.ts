@@ -36,9 +36,7 @@ export async function persistImage(
 export async function persistImage(
   value: ImagePickerValue[],
 ): Promise<ImagePickerValue[]>;
-export async function persistImage(
-  value: undefined,
-): Promise<undefined>;
+export async function persistImage(value: undefined): Promise<undefined>;
 export async function persistImage(
   value: ImagePickerSelectedValue | undefined,
 ): Promise<ImagePickerSelectedValue | undefined> {

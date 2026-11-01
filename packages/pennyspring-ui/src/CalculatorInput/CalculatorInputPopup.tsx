@@ -2,7 +2,10 @@ import React from 'react';
 import { Popup } from '../Popup';
 import { useControllableValue } from '../_hooks';
 import { CalculatorInput } from './CalculatorInput';
-import type { CalculatorInputOkParams, CalculatorInputPopupProps } from './types';
+import type {
+  CalculatorInputOkParams,
+  CalculatorInputPopupProps,
+} from './types';
 
 export function CalculatorInputPopup({
   defaultOpen = false,
@@ -19,7 +22,11 @@ export function CalculatorInputPopup({
   styles,
   value,
 }: CalculatorInputPopupProps) {
-  const [isOpen, setIsOpen] = useControllableValue(defaultOpen, open, onOpenChange);
+  const [isOpen, setIsOpen] = useControllableValue(
+    defaultOpen,
+    open,
+    onOpenChange,
+  );
 
   function handleOk(params: CalculatorInputOkParams): void {
     onOk?.(params);
@@ -31,7 +38,7 @@ export function CalculatorInputPopup({
       open={isOpen}
       position="bottom"
       onCancel={onCancel}
-      onOpenChange={(nextOpen) => {
+      onOpenChange={nextOpen => {
         setIsOpen(nextOpen);
       }}
     >

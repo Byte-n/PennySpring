@@ -45,7 +45,9 @@ export function useAgentRuntime({
   const media = useMediaStore();
   const [errorText, setErrorText] = useState('');
   const usageRef = useRef<TokenUsage>(EMPTY_USAGE);
-  const activeThreadIdRef = useRef<number | null>(threadId && threadId > 0 ? threadId : null);
+  const activeThreadIdRef = useRef<number | null>(
+    threadId && threadId > 0 ? threadId : null,
+  );
 
   const { markActivity, ensureTitle, accumulateUsage, refreshThreads } =
     session;

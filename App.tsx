@@ -15,7 +15,10 @@ import { useBookStore } from './src/stores/bookStore';
 import { rehydrateNetworkBooks } from './src/stores/networkBookStore';
 import { useAutoBackup } from './src/features/backup/useAutoBackup';
 import { AutoUpdateChecker } from './src/features/appUpdate/AutoUpdateChecker';
-import { ThemeModeProvider, useThemeMode } from './src/contexts/ThemeModeContext';
+import {
+  ThemeModeProvider,
+  useThemeMode,
+} from './src/contexts/ThemeModeContext';
 import { BookLoadingScreen } from './src/screens/bookLoading';
 
 interface NavigationShellProps {
@@ -59,8 +62,8 @@ function NavigationShell({ children, isDark, onReady }: NavigationShellProps) {
 }
 
 function AppContent() {
-  const initializeBook = useBookStore((state) => state.initializeBook);
-  const initStatus = useBookStore((state) => state.initStatus);
+  const initializeBook = useBookStore(state => state.initializeBook);
+  const initStatus = useBookStore(state => state.initStatus);
   const { themeMode, themeToken } = useThemeMode();
   const splashHiddenRef = useRef(false);
 
@@ -85,7 +88,7 @@ function AppContent() {
       }
       await initializeBook();
     };
-    bootstrap().catch((error) => {
+    bootstrap().catch(error => {
       console.error('Book initialization failed:', error);
     });
   }, [initializeBook]);

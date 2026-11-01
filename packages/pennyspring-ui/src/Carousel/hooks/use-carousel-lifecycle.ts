@@ -55,7 +55,11 @@ export const useCarouselLifecycle = (params: UseCarouselLifecycleParams) => {
       return;
     }
 
-    const normalizedDefault = clampValue(Math.round(defaultIndex), 0, total - 1);
+    const normalizedDefault = clampValue(
+      Math.round(defaultIndex),
+      0,
+      total - 1,
+    );
     updateCurrent(normalizedDefault);
     reportIndexRef.current = normalizedDefault;
 

@@ -44,9 +44,7 @@ function isReceivableAsset(asset: AssetRow): boolean {
 }
 
 export function buildAssetOverview(assets: readonly AssetRow[]): AssetOverview {
-  const visible = assets.filter(
-    asset => asset.invisible !== VISIBILITY.hidden,
-  );
+  const visible = assets.filter(asset => asset.invisible !== VISIBILITY.hidden);
   let capital = 0;
   let stored = 0;
   let investment = 0;
@@ -218,4 +216,3 @@ export function buildDueReminders(
     .sort((a, b) => a.dueDate - b.dueDate || a.asset.id - b.asset.id)
     .slice(0, limit);
 }
-

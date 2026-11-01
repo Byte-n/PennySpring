@@ -112,11 +112,10 @@ export function IncomeView({
       ? 0
       : trend.reduce((sum, month) => sum + month.savingsRate, 0) / trend.length;
   const currentRate =
-    trend.length === 0 ? comparison.current.savingsRate : trend[trend.length - 1].savingsRate;
-  const incomeCount = analysis.stats.reduce(
-    (sum, item) => sum + item.count,
-    0,
-  );
+    trend.length === 0
+      ? comparison.current.savingsRate
+      : trend[trend.length - 1].savingsRate;
+  const incomeCount = analysis.stats.reduce((sum, item) => sum + item.count, 0);
 
   return (
     <Column gap="normal">
@@ -182,9 +181,7 @@ export function IncomeView({
           <Empty size="small" descriptionText="本月暂无收入" />
         ) : (
           <>
-            <DonutChart
-              slices={donutSlices}
-            />
+            <DonutChart slices={donutSlices} />
             <RankList
               items={rankItems}
               nameHeader="来源"
@@ -199,7 +196,7 @@ export function IncomeView({
         title="近 6 个月收支"
         subtitle="带 * 为月初至今"
         extra={
-          <Row align="center" gap="small" >
+          <Row align="center" gap="small">
             <ColorDot color={token.colorSuccess} />
             <Text size="xs" color="tertiary">
               收入

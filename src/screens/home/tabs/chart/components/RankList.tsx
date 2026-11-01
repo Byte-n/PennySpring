@@ -3,11 +3,7 @@ import { Pressable } from 'react-native';
 import { Column, Icon, List, Row, Text } from '@pennyspring/ui';
 import { createUseSheetStyle, useTheme } from '@pennyspring/ui';
 
-import {
-  formatMoney,
-  formatPercent,
-  formatSignedMoney,
-} from '../analysisData';
+import { formatMoney, formatPercent, formatSignedMoney } from '../analysisData';
 import { ColorDot } from './ColorDot';
 
 export interface RankItem {
@@ -95,34 +91,36 @@ export function RankList({
       data={items}
       keyExtractor={item => item.key}
       scrollEnabled={false}
-      header={showHeader ? (
-        <Row style={styles.header} gap="small" align="center">
-          <Column style={styles.headerDot} />
-          <Column style={styles.headerName}>
-            <Text size="xs" color="tertiary">
-              {nameHeader}
-            </Text>
-          </Column>
-          <Column style={styles.percent} align="end">
-            <Text size="xs" color="tertiary">
-              占比
-            </Text>
-          </Column>
-          {showDelta ? (
-            <Column style={styles.delta} align="end">
+      header={
+        showHeader ? (
+          <Row style={styles.header} gap="small" align="center">
+            <Column style={styles.headerDot} />
+            <Column style={styles.headerName}>
               <Text size="xs" color="tertiary">
-                较上月
+                {nameHeader}
               </Text>
             </Column>
-          ) : null}
-          <Column align="end">
-            <Text size="xs" color="tertiary">
-              金额
-            </Text>
-          </Column>
-          <Column style={styles.chevron} align="end" />
-        </Row>
-      ) : undefined}
+            <Column style={styles.percent} align="end">
+              <Text size="xs" color="tertiary">
+                占比
+              </Text>
+            </Column>
+            {showDelta ? (
+              <Column style={styles.delta} align="end">
+                <Text size="xs" color="tertiary">
+                  较上月
+                </Text>
+              </Column>
+            ) : null}
+            <Column align="end">
+              <Text size="xs" color="tertiary">
+                金额
+              </Text>
+            </Column>
+            <Column style={styles.chevron} align="end" />
+          </Row>
+        ) : undefined
+      }
       styles={{ header: styles.listHeader }}
       renderItem={({ item, index }) => {
         const deltaColor =

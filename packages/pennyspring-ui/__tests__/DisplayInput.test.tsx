@@ -22,9 +22,7 @@ function renderDisplayInput(
   return testRenderer!;
 }
 
-function findRootStyle(
-  testRenderer: renderer.ReactTestRenderer,
-): {
+function findRootStyle(testRenderer: renderer.ReactTestRenderer): {
   alignSelf?: string;
   maxWidth?: string;
   overflow?: string;
@@ -65,8 +63,10 @@ describe('DisplayInput', () => {
       children: '可点击内容',
     });
 
-    const trigger = testRenderer.root.findAll(node =>
-      typeof node.props.onPress === 'function' && typeof node.props.style === 'function'
+    const trigger = testRenderer.root.findAll(
+      node =>
+        typeof node.props.onPress === 'function' &&
+        typeof node.props.style === 'function',
     )[0];
 
     act(() => {
@@ -84,13 +84,17 @@ describe('DisplayInput', () => {
       onPress,
       valueText: '禁用内容',
     });
-    const trigger = testRenderer.root.findAll(node =>
-      typeof node.props.style === 'function' &&
-      Object.prototype.hasOwnProperty.call(node.props, 'disabled')
+    const trigger = testRenderer.root.findAll(
+      node =>
+        typeof node.props.style === 'function' &&
+        Object.prototype.hasOwnProperty.call(node.props, 'disabled'),
     )[0];
 
     // Act
-    if (trigger.props.disabled !== true && typeof trigger.props.onPress === 'function') {
+    if (
+      trigger.props.disabled !== true &&
+      typeof trigger.props.onPress === 'function'
+    ) {
       act(() => {
         trigger.props.onPress();
       });
@@ -109,13 +113,17 @@ describe('DisplayInput', () => {
       onPress,
       valueText: '只读内容',
     });
-    const trigger = testRenderer.root.findAll(node =>
-      typeof node.props.style === 'function' &&
-      Object.prototype.hasOwnProperty.call(node.props, 'disabled')
+    const trigger = testRenderer.root.findAll(
+      node =>
+        typeof node.props.style === 'function' &&
+        Object.prototype.hasOwnProperty.call(node.props, 'disabled'),
     )[0];
 
     // Act
-    if (trigger.props.disabled !== true && typeof trigger.props.onPress === 'function') {
+    if (
+      trigger.props.disabled !== true &&
+      typeof trigger.props.onPress === 'function'
+    ) {
       act(() => {
         trigger.props.onPress();
       });
@@ -264,7 +272,9 @@ describe('DisplayInput', () => {
     const tree = JSON.stringify(testRenderer.toJSON());
 
     // Assert
-    const customLabels = testRenderer.root.findAllByProps({ testID: 'custom-label-node' });
+    const customLabels = testRenderer.root.findAllByProps({
+      testID: 'custom-label-node',
+    });
     expect(customLabels.length).toBeGreaterThan(0);
     expect(tree).not.toContain('不应显示的标签文本');
   });
@@ -280,7 +290,9 @@ describe('DisplayInput', () => {
     });
 
     expect(label.type).toBe(View);
-    const customLabels = testRenderer.root.findAllByProps({ testID: 'custom-display-label-node' });
+    const customLabels = testRenderer.root.findAllByProps({
+      testID: 'custom-display-label-node',
+    });
     expect(customLabels.length).toBeGreaterThan(0);
   });
 
@@ -316,8 +328,9 @@ describe('DisplayInput', () => {
         .paddingHorizontal,
     ).toBe(token.paddingXS);
     expect(
-      findFieldStyle(renderDisplayInput({ size: 'normal', valueText: 'Normal' }))
-        .paddingHorizontal,
+      findFieldStyle(
+        renderDisplayInput({ size: 'normal', valueText: 'Normal' }),
+      ).paddingHorizontal,
     ).toBe(token.controlPaddingHorizontalSM);
     expect(
       findFieldStyle(renderDisplayInput({ size: 'large', valueText: 'Large' }))
@@ -344,9 +357,15 @@ describe('DisplayInput', () => {
 
   it('uses spacing tokens for field gap across all sizes', () => {
     // Arrange
-    const smallFieldStyle = findFieldContentStyle(renderDisplayInput({ size: 'small', valueText: 'Small' }));
-    const normalFieldStyle = findFieldContentStyle(renderDisplayInput({ size: 'normal', valueText: 'Normal' }));
-    const largeFieldStyle = findFieldContentStyle(renderDisplayInput({ size: 'large', valueText: 'Large' }));
+    const smallFieldStyle = findFieldContentStyle(
+      renderDisplayInput({ size: 'small', valueText: 'Small' }),
+    );
+    const normalFieldStyle = findFieldContentStyle(
+      renderDisplayInput({ size: 'normal', valueText: 'Normal' }),
+    );
+    const largeFieldStyle = findFieldContentStyle(
+      renderDisplayInput({ size: 'large', valueText: 'Large' }),
+    );
 
     // Act & Assert
     expect(smallFieldStyle.gap).toBe(token.sizeXXS);

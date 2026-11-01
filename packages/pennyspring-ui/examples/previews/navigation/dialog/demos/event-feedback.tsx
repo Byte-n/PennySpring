@@ -44,7 +44,9 @@ export function DialogEventFeedbackDemo() {
         onOk={() => setLastEvent('Confirmed (ok)')}
       >
         <Text color="secondary">
-          点击遮罩触发 onCancel（reason: mask），按下硬件返回键触发 onCancel（reason: back），确定按钮触发 onOk。状态行实时显示最近一次事件。
+          点击遮罩触发 onCancel（reason: mask），按下硬件返回键触发
+          onCancel（reason: back），确定按钮触发
+          onOk。状态行实时显示最近一次事件。
         </Text>
       </Dialog>
     </>

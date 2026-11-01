@@ -21,7 +21,9 @@ export function BadgeColorDemo() {
       </Row>
       <Column gap="small">
         {BADGE_COLORS.map(({ color, hint }) => (
-          <Text key={color} color="tertiary" size="xs">{hint}</Text>
+          <Text key={color} color="tertiary" size="xs">
+            {hint}
+          </Text>
         ))}
       </Column>
       <Text color="tertiary" size="xs">

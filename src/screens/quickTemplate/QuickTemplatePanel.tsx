@@ -90,7 +90,8 @@ export function QuickTemplatePanel({
         setBusyId(tpl.id);
         await saveAddRecordDraft(tabType, draft, undefined);
         toast.show({
-          messageText: `已记账 ¥${formatAmount(tpl.amount)} · ${tpl.name}`.trim(),
+          messageText:
+            `已记账 ¥${formatAmount(tpl.amount)} · ${tpl.name}`.trim(),
         });
         closePanel();
         bump();
@@ -108,7 +109,9 @@ export function QuickTemplatePanel({
   const handleEditFromPreset = useCallback(
     (tpl: QuickTemplate) => {
       closePanel();
-      navigation.navigate(ROOT_ROUTES.AddRecord, { preset: toPresetPayload(tpl) });
+      navigation.navigate(ROOT_ROUTES.AddRecord, {
+        preset: toPresetPayload(tpl),
+      });
     },
     [closePanel, navigation],
   );

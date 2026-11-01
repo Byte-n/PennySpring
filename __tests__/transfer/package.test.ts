@@ -1,4 +1,4 @@
-import type { BookSnapshot, LibrarySnapshot } from '@pennyspring/api'
+import type { BookSnapshot, LibrarySnapshot } from '@pennyspring/api';
 
 import {
   buildSnapshotPackage,
@@ -8,37 +8,40 @@ import {
   unzipSnapshotPackage,
   zipSnapshotPackage,
   type TransferFileSystem,
-} from '../../src/features/transfer'
+} from '../../src/features/transfer';
 
-const COVER_URI = 'file:///docs/cover.jpg'
-const RECEIPT_URI = 'file:///docs/receipt.jpg'
-const DATA_URL = 'data:image/jpeg;base64,QUJD'
-const NOW = 1_700_000_000_000
+const COVER_URI = 'file:///docs/cover.jpg';
+const RECEIPT_URI = 'file:///docs/receipt.jpg';
+const DATA_URL = 'data:image/jpeg;base64,QUJD';
+const NOW = 1_700_000_000_000;
 
 class MemoryFileSystem implements TransferFileSystem {
   readonly readFiles = new Map<string, string>([
     [COVER_URI, 'Q09WRVI='],
     [RECEIPT_URI, 'UkVDRUlQVA=='],
-  ])
-  readonly written: string[] = []
-  readonly deleted: string[] = []
+  ]);
+  readonly written: string[] = [];
+  readonly deleted: string[] = [];
 
   async readBase64(uri: string): Promise<string> {
-    const value = this.readFiles.get(uri)
-    if (value === undefined) throw new Error(`missing file: ${uri}`)
-    return value
+    const value = this.readFiles.get(uri);
+    if (value === undefined) throw new Error(`missing file: ${uri}`);
+    return value;
   }
 
-  async writeBase64ToDocuments(fileName: string, base64: string): Promise<string> {
-    const uri = `file:///docs/${fileName}`
-    this.readFiles.set(uri, base64)
-    this.written.push(uri)
-    return uri
+  async writeBase64ToDocuments(
+    fileName: string,
+    base64: string,
+  ): Promise<string> {
+    const uri = `file:///docs/${fileName}`;
+    this.readFiles.set(uri, base64);
+    this.written.push(uri);
+    return uri;
   }
 
   async delete(uri: string): Promise<void> {
-    this.readFiles.delete(uri)
-    this.deleted.push(uri)
+    this.readFiles.delete(uri);
+    this.deleted.push(uri);
   }
 }
 
@@ -191,21 +194,26 @@ function makeBook(): BookSnapshot {
         updatedTime: NOW,
       },
     ],
-  }
+  };
 }
 
 function makeLibrary(): LibrarySnapshot {
-  return { books: [makeBook()] }
+  return { books: [makeBook()] };
 }
 
 describe('snapshot package', () => {
   it('builds a manifest, rewrites media refs, and round-trips through zip', async () => {
-    const fs = new MemoryFileSystem()
+    const fs = new MemoryFileSystem();
     const pkg = await buildSnapshotPackage(
       makeLibrary(),
-      { includeImages: true, includeAgent: true, appVersion: 'test', createdAt: NOW },
+      {
+        includeImages: true,
+        includeAgent: true,
+        appVersion: 'test',
+        createdAt: NOW,
+      },
       fs,
-    )
+    );
 
     expect(pkg.manifest).toMatchObject({
       format: 'pennyspring.snapshot',
@@ -214,94 +222,124 @@ describe('snapshot package', () => {
       scope: 'book',
       media: { count: 3, totalBytes: 15 },
       options: { includeImages: true, includeAgent: true },
-    })
+    });
     expect(pkg.manifest.books[0]).toMatchObject({
       key: 'b1',
       name: '家庭账本',
       recordRange: [NOW, NOW],
-    })
-    expect(pkg.manifest.books[0]?.counts.records).toBe(1)
+    });
+    expect(pkg.manifest.books[0]?.counts.records).toBe(1);
 
-    const bookJson = JSON.parse(new TextDecoder().decode(pkg.files['books/b1/book.json']))
-    const imagesJson = JSON.parse(new TextDecoder().decode(pkg.files['books/b1/images.json']))
-    const messagesJson = JSON.parse(new TextDecoder().decode(pkg.files['books/b1/agent-messages.json']))
-    expect(bookJson.background).toBe('media:m1.jpg')
-    expect(imagesJson[0].imagePath).toBe('media:m2.jpg')
-    expect(messagesJson[0].message).toContain('media:m2.jpg')
-    expect(messagesJson[0].message).toContain('media:m3.jpg')
-    expect(messagesJson[0].message).not.toContain(RECEIPT_URI)
-    expect(messagesJson[0].message).not.toContain('localPath')
+    const bookJson = JSON.parse(
+      new TextDecoder().decode(pkg.files['books/b1/book.json']),
+    );
+    const imagesJson = JSON.parse(
+      new TextDecoder().decode(pkg.files['books/b1/images.json']),
+    );
+    const messagesJson = JSON.parse(
+      new TextDecoder().decode(pkg.files['books/b1/agent-messages.json']),
+    );
+    expect(bookJson.background).toBe('media:m1.jpg');
+    expect(imagesJson[0].imagePath).toBe('media:m2.jpg');
+    expect(messagesJson[0].message).toContain('media:m2.jpg');
+    expect(messagesJson[0].message).toContain('media:m3.jpg');
+    expect(messagesJson[0].message).not.toContain(RECEIPT_URI);
+    expect(messagesJson[0].message).not.toContain('localPath');
 
-    const zipped = await zipSnapshotPackage(pkg.files)
-    const parsed = await parseSnapshotPackage(zipped)
-    expect(parsed.manifest.media.count).toBe(3)
-    expect(Object.keys(parsed.mediaFiles).sort()).toEqual(['m1.jpg', 'm2.jpg', 'm3.jpg'])
-    expect(parsed.library.books[0]?.book.background).toBe('media:m1.jpg')
-    expect(parsed.library.books[0]?.images[0]?.imagePath).toBe('media:m2.jpg')
-  })
+    const zipped = await zipSnapshotPackage(pkg.files);
+    const parsed = await parseSnapshotPackage(zipped);
+    expect(parsed.manifest.media.count).toBe(3);
+    expect(Object.keys(parsed.mediaFiles).sort()).toEqual([
+      'm1.jpg',
+      'm2.jpg',
+      'm3.jpg',
+    ]);
+    expect(parsed.library.books[0]?.book.background).toBe('media:m1.jpg');
+    expect(parsed.library.books[0]?.images[0]?.imagePath).toBe('media:m2.jpg');
+  });
 
   it('prepares imported media and cleans it up', async () => {
-    const fs = new MemoryFileSystem()
+    const fs = new MemoryFileSystem();
     const pkg = await buildSnapshotPackage(
       makeLibrary(),
       { includeImages: true, includeAgent: true, createdAt: NOW },
       fs,
-    )
-    const parsed = await parseSnapshotPackage(await zipSnapshotPackage(pkg.files))
-    const importedFs = new MemoryFileSystem()
-    const prepared = await prepareImportedLibrary(parsed, importedFs)
+    );
+    const parsed = await parseSnapshotPackage(
+      await zipSnapshotPackage(pkg.files),
+    );
+    const importedFs = new MemoryFileSystem();
+    const prepared = await prepareImportedLibrary(parsed, importedFs);
 
-    expect(prepared.mediaUris).toHaveLength(3)
-    expect(prepared.library.books[0]?.book.background).toMatch(/^file:\/\/\/docs\/ps-import-/)
-    expect(prepared.library.books[0]?.images[0]?.imagePath).toMatch(/^file:\/\/\/docs\/ps-import-/)
-    expect(prepared.library.books[0]?.agentMessages[0]?.message).not.toContain('media:')
-    expect(importedFs.written).toHaveLength(3)
+    expect(prepared.mediaUris).toHaveLength(3);
+    expect(prepared.library.books[0]?.book.background).toMatch(
+      /^file:\/\/\/docs\/ps-import-/,
+    );
+    expect(prepared.library.books[0]?.images[0]?.imagePath).toMatch(
+      /^file:\/\/\/docs\/ps-import-/,
+    );
+    expect(prepared.library.books[0]?.agentMessages[0]?.message).not.toContain(
+      'media:',
+    );
+    expect(importedFs.written).toHaveLength(3);
 
-    await cleanupImportedMedia(prepared.mediaUris, importedFs)
-    expect(importedFs.deleted).toHaveLength(3)
-  })
+    await cleanupImportedMedia(prepared.mediaUris, importedFs);
+    expect(importedFs.deleted).toHaveLength(3);
+  });
 
   it('clears book images when includeImages is false but keeps AI text media', async () => {
-    const fs = new MemoryFileSystem()
+    const fs = new MemoryFileSystem();
     const pkg = await buildSnapshotPackage(
       makeLibrary(),
       { includeImages: false, includeAgent: true, createdAt: NOW },
       fs,
-    )
+    );
 
-    const bookJson = JSON.parse(new TextDecoder().decode(pkg.files['books/b1/book.json']))
-    const imagesJson = JSON.parse(new TextDecoder().decode(pkg.files['books/b1/images.json']))
-    expect(bookJson.background).toBe('')
-    expect(imagesJson).toEqual([])
-    expect(pkg.manifest.media.count).toBe(2)
-  })
+    const bookJson = JSON.parse(
+      new TextDecoder().decode(pkg.files['books/b1/book.json']),
+    );
+    const imagesJson = JSON.parse(
+      new TextDecoder().decode(pkg.files['books/b1/images.json']),
+    );
+    expect(bookJson.background).toBe('');
+    expect(imagesJson).toEqual([]);
+    expect(pkg.manifest.media.count).toBe(2);
+  });
 
   it('drops agent rows when includeAgent is false', async () => {
-    const fs = new MemoryFileSystem()
+    const fs = new MemoryFileSystem();
     const pkg = await buildSnapshotPackage(
       makeLibrary(),
       { includeImages: true, includeAgent: false, createdAt: NOW },
       fs,
-    )
+    );
 
-    const threadsJson = JSON.parse(new TextDecoder().decode(pkg.files['books/b1/agent-threads.json']))
-    const messagesJson = JSON.parse(new TextDecoder().decode(pkg.files['books/b1/agent-messages.json']))
-    expect(threadsJson).toEqual([])
-    expect(messagesJson).toEqual([])
-    expect(pkg.manifest.media.count).toBe(2)
-  })
+    const threadsJson = JSON.parse(
+      new TextDecoder().decode(pkg.files['books/b1/agent-threads.json']),
+    );
+    const messagesJson = JSON.parse(
+      new TextDecoder().decode(pkg.files['books/b1/agent-messages.json']),
+    );
+    expect(threadsJson).toEqual([]);
+    expect(messagesJson).toEqual([]);
+    expect(pkg.manifest.media.count).toBe(2);
+  });
 
   it('rejects a package missing a referenced media file', async () => {
-    const fs = new MemoryFileSystem()
+    const fs = new MemoryFileSystem();
     const pkg = await buildSnapshotPackage(
       makeLibrary(),
       { includeImages: true, includeAgent: false, createdAt: NOW },
       fs,
-    )
-    const files = await unzipSnapshotPackage(await zipSnapshotPackage(pkg.files))
-    delete files['media/m2.jpg']
-    const broken = await zipSnapshotPackage(files)
+    );
+    const files = await unzipSnapshotPackage(
+      await zipSnapshotPackage(pkg.files),
+    );
+    delete files['media/m2.jpg'];
+    const broken = await zipSnapshotPackage(files);
 
-    await expect(parseSnapshotPackage(broken)).rejects.toThrow('备份缺少媒体文件')
-  })
-})
+    await expect(parseSnapshotPackage(broken)).rejects.toThrow(
+      '备份缺少媒体文件',
+    );
+  });
+});

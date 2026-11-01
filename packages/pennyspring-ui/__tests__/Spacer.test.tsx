@@ -43,10 +43,7 @@ describe('Spacer', () => {
     });
 
     it('defaults direction to horizontal', () => {
-      const testRenderer = renderSpacer(
-        { size: 'normal' },
-        { paddingSM: 10 },
-      );
+      const testRenderer = renderSpacer({ size: 'normal' }, { paddingSM: 10 });
       const rootStyle = flattenStyle(getSpacerRoot(testRenderer).props.style);
 
       expect(rootStyle.width).toBe(10);

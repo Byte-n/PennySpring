@@ -4,10 +4,7 @@ import {
   TextDecoder as Utf8TextDecoder,
   type TextDecoderOptions,
 } from 'text-encoding-utf-8';
-import type {
-  ReadableStream,
-  WritableStream,
-} from 'web-streams-polyfill';
+import type { ReadableStream, WritableStream } from 'web-streams-polyfill';
 
 interface TextDecoderLike {
   decode(
@@ -264,11 +261,9 @@ if (AbortSignalCtor) {
           createAbortReason('TimeoutError', 'The operation timed out'),
         );
       }, milliseconds);
-      controller.signal.addEventListener(
-        'abort',
-        () => clearTimeout(timer),
-        { once: true },
-      );
+      controller.signal.addEventListener('abort', () => clearTimeout(timer), {
+        once: true,
+      });
       return controller.signal;
     };
   }

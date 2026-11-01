@@ -7,9 +7,7 @@ export const previewMeta = {
   title: 'Portal',
   description: '跨层级浮层挂载。',
   order: 7,
-  demos: [
-    { id: 'mount-only', title: 'Mount only' },
-  ],
+  demos: [{ id: 'mount-only', title: 'Mount only' }],
 } satisfies PreviewMeta;
 
 export function PortalPreview() {

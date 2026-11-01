@@ -5,7 +5,8 @@ export function SegmentedStatesDemo() {
   return (
     <Column gap="normal">
       <Text color="tertiary" size="sm">
-        未选二级文字；选中白块 + 投影 + colorText 600；按压只作用于未选项（colorFillSecondary）
+        未选二级文字；选中白块 + 投影 + colorText
+        600；按压只作用于未选项（colorFillSecondary）
       </Text>
       <Segmented
         defaultValue="income"
@@ -16,7 +17,8 @@ export function SegmentedStatesDemo() {
         ]}
       />
       <Text color="tertiary" size="sm">
-        禁用：轨道 colorFillQuaternary，文字四级；选中块降为 colorFillTertiary 并去投影
+        禁用：轨道 colorFillQuaternary，文字四级；选中块降为 colorFillTertiary
+        并去投影
       </Text>
       <Segmented
         disabled

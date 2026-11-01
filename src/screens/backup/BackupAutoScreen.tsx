@@ -1,6 +1,6 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { ScrollView } from 'react-native'
-import { useRequest } from 'ahooks'
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { ScrollView } from 'react-native';
+import { useRequest } from 'ahooks';
 import {
   ActionSheet,
   Button,
@@ -13,22 +13,22 @@ import {
   Text,
   createUseSheetStyle,
   useToast,
-} from '@pennyspring/ui'
-import type { BookRow } from '@pennyspring/api'
-import { localApi } from '@pennyspring/api'
+} from '@pennyspring/ui';
+import type { BookRow } from '@pennyspring/api';
+import { localApi } from '@pennyspring/api';
 
 import {
   clampCustomDays,
   rehydrateAutoBackup,
   useAutoBackupStore,
   type AutoBackupFrequency,
-} from '../../features/backup/autoBackupStore'
-import { runAutoBackup } from '../../features/backup/autoBackupRunner'
+} from '../../features/backup/autoBackupStore';
+import { runAutoBackup } from '../../features/backup/autoBackupRunner';
 import {
   describeDirectoryTarget,
   isCustomDirectorySupported,
   pickBackupDirectory,
-} from '../../features/backup/directory'
+} from '../../features/backup/directory';
 
 const FREQUENCIES: Array<{ value: AutoBackupFrequency; label: string }> = [
   { value: 'off', label: '关闭' },
@@ -37,14 +37,14 @@ const FREQUENCIES: Array<{ value: AutoBackupFrequency; label: string }> = [
   { value: 'weekly', label: '每周第一次进入' },
   { value: 'monthly', label: '每月第一次进入' },
   { value: 'customDays', label: '自定义天数' },
-]
+];
 
 const STATUS_LABELS: Record<string, string> = {
   success: '成功',
   failed: '失败',
   skipped: '已跳过',
   '': '尚未运行',
-}
+};
 
 const useStyles = createUseSheetStyle(token => ({
   container: {
@@ -72,131 +72,138 @@ const useStyles = createUseSheetStyle(token => ({
   actions: {
     gap: token.marginXS,
   },
-}))
+}));
 
 function getErrorMessage(error: unknown): string {
-  return error instanceof Error ? error.message : '操作失败'
+  return error instanceof Error ? error.message : '操作失败';
 }
 
 export function BackupAutoScreen() {
-  const styles = useStyles()
-  const toast = useToast()
-  const settings = useAutoBackupStore()
-  const { data, loading } = useRequest(() => localApi.book.getAll())
-  const books = data ?? []
-  const customDirectorySupported = isCustomDirectorySupported()
+  const styles = useStyles();
+  const toast = useToast();
+  const settings = useAutoBackupStore();
+  const { data, loading } = useRequest(() => localApi.book.getAll());
+  const books = data ?? [];
+  const customDirectorySupported = isCustomDirectorySupported();
 
-  const [frequencySheetOpen, setFrequencySheetOpen] = useState(false)
-  const [customDaysText, setCustomDaysText] = useState(String(settings.customDays))
+  const [frequencySheetOpen, setFrequencySheetOpen] = useState(false);
+  const [customDaysText, setCustomDaysText] = useState(
+    String(settings.customDays),
+  );
   const [retentionText, setRetentionText] = useState(
     settings.retention === null ? '0' : String(settings.retention),
-  )
-  const [directoryBusy, setDirectoryBusy] = useState(false)
-  const [runBusy, setRunBusy] = useState(false)
+  );
+  const [directoryBusy, setDirectoryBusy] = useState(false);
+  const [runBusy, setRunBusy] = useState(false);
 
   useEffect(() => {
-    rehydrateAutoBackup().catch(() => undefined)
-  }, [])
+    rehydrateAutoBackup().catch(() => undefined);
+  }, []);
 
   useEffect(() => {
-    setCustomDaysText(String(settings.customDays))
-  }, [settings.customDays])
+    setCustomDaysText(String(settings.customDays));
+  }, [settings.customDays]);
 
   useEffect(() => {
-    setRetentionText(settings.retention === null ? '0' : String(settings.retention))
-  }, [settings.retention])
+    setRetentionText(
+      settings.retention === null ? '0' : String(settings.retention),
+    );
+  }, [settings.retention]);
 
   const frequencyLabel = useMemo(
     () =>
-      FREQUENCIES.find(item => item.value === settings.frequency)?.label ?? '关闭',
+      FREQUENCIES.find(item => item.value === settings.frequency)?.label ??
+      '关闭',
     [settings.frequency],
-  )
+  );
   const frequencyActions = useMemo(
     () => FREQUENCIES.map(item => ({ text: item.label })),
     [],
-  )
-  const selectedBookIds = settings.bookIds ?? books.map(book => book.id)
-  const isAllBooks = settings.bookIds === null
+  );
+  const selectedBookIds = settings.bookIds ?? books.map(book => book.id);
+  const isAllBooks = settings.bookIds === null;
 
   const handleFrequencyAction = useCallback(
     (_action: unknown, index: number): void => {
-      const item = FREQUENCIES[index]
-      if (item) settings.setFrequency(item.value)
+      const item = FREQUENCIES[index];
+      if (item) settings.setFrequency(item.value);
     },
     [settings],
-  )
+  );
 
   const commitCustomDays = useCallback((): void => {
-    const days = clampCustomDays(Number(customDaysText))
-    settings.setCustomDays(days)
-    setCustomDaysText(String(days))
-  }, [customDaysText, settings])
+    const days = clampCustomDays(Number(customDaysText));
+    settings.setCustomDays(days);
+    setCustomDaysText(String(days));
+  }, [customDaysText, settings]);
 
   const commitRetention = useCallback((): void => {
-    const parsed = Number(retentionText)
-    const retention = Number.isFinite(parsed) && parsed > 0 ? Math.floor(parsed) : null
-    settings.setRetention(retention)
-    setRetentionText(retention === null ? '0' : String(retention))
-  }, [retentionText, settings])
+    const parsed = Number(retentionText);
+    const retention =
+      Number.isFinite(parsed) && parsed > 0 ? Math.floor(parsed) : null;
+    settings.setRetention(retention);
+    setRetentionText(retention === null ? '0' : String(retention));
+  }, [retentionText, settings]);
 
   const toggleAllBooks = useCallback(
     (value: boolean): void => {
-      settings.setBookIds(value ? null : books.map(book => book.id))
+      settings.setBookIds(value ? null : books.map(book => book.id));
     },
     [books, settings],
-  )
+  );
 
   const toggleBook = useCallback(
     (book: BookRow): void => {
-      const current = new Set(selectedBookIds)
-      if (current.has(book.id)) current.delete(book.id)
-      else current.add(book.id)
-      settings.setBookIds(Array.from(current))
+      const current = new Set(selectedBookIds);
+      if (current.has(book.id)) current.delete(book.id);
+      else current.add(book.id);
+      settings.setBookIds(Array.from(current));
     },
     [selectedBookIds, settings],
-  )
+  );
 
   const handlePickDirectory = useCallback(async (): Promise<void> => {
-    if (directoryBusy) return
-    setDirectoryBusy(true)
+    if (directoryBusy) return;
+    setDirectoryBusy(true);
     try {
-      const target = await pickBackupDirectory()
-      if (target) settings.setDirectory(target)
+      const target = await pickBackupDirectory();
+      if (target) settings.setDirectory(target);
     } catch (error: unknown) {
-      toast.show({ messageText: getErrorMessage(error), status: 'error' })
+      toast.show({ messageText: getErrorMessage(error), status: 'error' });
     } finally {
-      setDirectoryBusy(false)
+      setDirectoryBusy(false);
     }
-  }, [directoryBusy, settings, toast])
+  }, [directoryBusy, settings, toast]);
 
   const handleRunNow = useCallback(async (): Promise<void> => {
-    if (runBusy) return
-    setRunBusy(true)
+    if (runBusy) return;
+    setRunBusy(true);
     try {
-      const result = await runAutoBackup()
+      const result = await runAutoBackup();
       if (result.status === 'success') {
         toast.show({
           messageText: result.errorText
             ? `备份完成，但${result.errorText}`
             : `已生成 ${result.fileName}`,
           status: result.errorText ? 'default' : 'success',
-        })
+        });
       } else {
         toast.show({
           messageText: result.errorText || '自动备份已跳过',
           status: result.status === 'failed' ? 'error' : 'default',
-        })
+        });
       }
     } catch (error: unknown) {
-      toast.show({ messageText: getErrorMessage(error), status: 'error' })
+      toast.show({ messageText: getErrorMessage(error), status: 'error' });
     } finally {
-      setRunBusy(false)
+      setRunBusy(false);
     }
-  }, [runBusy, toast])
+  }, [runBusy, toast]);
 
-  const lastRunText = settings.lastRunAt > 0
-    ? `${new Date(settings.lastRunAt).toLocaleString('zh-CN')} · ${STATUS_LABELS[settings.lastRunStatus] ?? settings.lastRunStatus}`
-    : '尚未运行'
+  const lastRunText =
+    settings.lastRunAt > 0
+      ? `${new Date(settings.lastRunAt).toLocaleString('zh-CN')} · ${STATUS_LABELS[settings.lastRunStatus] ?? settings.lastRunStatus}`
+      : '尚未运行';
 
   return (
     <Column style={styles.container}>
@@ -219,7 +226,11 @@ export function BackupAutoScreen() {
                 labelText="间隔天数"
                 onBlur={commitCustomDays}
                 onChange={setCustomDaysText}
-                suffix={<Text color="secondary" size="sm">天</Text>}
+                suffix={
+                  <Text color="secondary" size="sm">
+                    天
+                  </Text>
+                }
                 value={customDaysText}
               />
             ) : null}
@@ -234,15 +245,21 @@ export function BackupAutoScreen() {
             <Row align="center" justify="between" gap="small">
               <Column style={styles.bookText}>
                 <Text>全部本地账本</Text>
-                <Text color="secondary" size="sm">关闭后可选择要自动备份的账本。</Text>
+                <Text color="secondary" size="sm">
+                  关闭后可选择要自动备份的账本。
+                </Text>
               </Column>
               <Switch onChange={toggleAllBooks} value={isAllBooks} />
             </Row>
             {!isAllBooks ? (
               loading ? (
-                <Text color="secondary" size="sm">正在读取本地账本…</Text>
+                <Text color="secondary" size="sm">
+                  正在读取本地账本…
+                </Text>
               ) : books.length === 0 ? (
-                <Text color="secondary" size="sm">没有本地账本。</Text>
+                <Text color="secondary" size="sm">
+                  没有本地账本。
+                </Text>
               ) : (
                 <Column style={styles.books}>
                   {books.map(book => (
@@ -260,7 +277,9 @@ export function BackupAutoScreen() {
             <Row align="center" justify="between" gap="small">
               <Column style={styles.bookText}>
                 <Text>图片附件</Text>
-                <Text color="secondary" size="sm">账本封面与流水图片会写入备份包。</Text>
+                <Text color="secondary" size="sm">
+                  账本封面与流水图片会写入备份包。
+                </Text>
               </Column>
               <Switch
                 onChange={settings.setIncludeImages}
@@ -270,7 +289,9 @@ export function BackupAutoScreen() {
             <Row align="center" justify="between" gap="small">
               <Column style={styles.bookText}>
                 <Text>AI 会话</Text>
-                <Text color="secondary" size="sm">包含会话、消息和消息中的图片。</Text>
+                <Text color="secondary" size="sm">
+                  包含会话、消息和消息中的图片。
+                </Text>
               </Column>
               <Switch
                 onChange={settings.setIncludeAgent}
@@ -320,11 +341,16 @@ export function BackupAutoScreen() {
               labelText="保留数量"
               onBlur={commitRetention}
               onChange={setRetentionText}
-              suffix={<Text color="secondary" size="sm">份</Text>}
+              suffix={
+                <Text color="secondary" size="sm">
+                  份
+                </Text>
+              }
               value={retentionText}
             />
             <Text color="tertiary" size="xs">
-              只清理 auto- 开头的自动备份文件；0 表示不限制。手动导出的文件不会删除。
+              只清理 auto- 开头的自动备份文件；0
+              表示不限制。手动导出的文件不会删除。
             </Text>
           </Column>
         </Card>
@@ -333,10 +359,14 @@ export function BackupAutoScreen() {
           <Column style={styles.section}>
             <Text size="sm">最近运行：{lastRunText}</Text>
             {settings.lastFileName ? (
-              <Text color="secondary" size="sm">{settings.lastFileName}</Text>
+              <Text color="secondary" size="sm">
+                {settings.lastFileName}
+              </Text>
             ) : null}
             {settings.lastRunError ? (
-              <Text color="errorText" size="sm">{settings.lastRunError}</Text>
+              <Text color="errorText" size="sm">
+                {settings.lastRunError}
+              </Text>
             ) : null}
             <Button loading={runBusy} onPress={handleRunNow} type="primary">
               立即备份一次
@@ -353,5 +383,5 @@ export function BackupAutoScreen() {
         titleText="自动备份频率"
       />
     </Column>
-  )
+  );
 }

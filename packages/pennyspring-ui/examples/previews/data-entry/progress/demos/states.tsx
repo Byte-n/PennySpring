@@ -2,7 +2,11 @@ import React from 'react';
 import { Column, Progress, Text } from '@pennyspring/ui';
 
 function RecordCountInfo() {
-  return <Text color="tertiary" size="xs">已记 12 / 20 笔</Text>;
+  return (
+    <Text color="tertiary" size="xs">
+      已记 12 / 20 笔
+    </Text>
+  );
 }
 
 function formatRecordCount() {
@@ -13,13 +17,17 @@ export function ProgressStatesDemo() {
   return (
     <Column gap="normal">
       <Column gap="small">
-        <Text color="tertiary" size="xs">default / success / error：只有已完成段与百分比跟状态色</Text>
+        <Text color="tertiary" size="xs">
+          default / success / error：只有已完成段与百分比跟状态色
+        </Text>
         <Progress.Bar percent={62} />
         <Progress.Bar percent={100} status="success" />
         <Progress.Bar percent={84} status="error" />
       </Column>
       <Column gap="small">
-        <Text color="tertiary" size="xs">error 必须配文案，不能只靠红色</Text>
+        <Text color="tertiary" size="xs">
+          error 必须配文案，不能只靠红色
+        </Text>
         <Progress.Bar
           percent={84}
           status="error"
@@ -27,11 +35,10 @@ export function ProgressStatesDemo() {
         />
       </Column>
       <Column gap="small">
-        <Text color="tertiary" size="xs">format 返回节点时不套默认字号；showInfo=false 完全收起信息位</Text>
-        <Progress.Bar
-          percent={60}
-          format={formatRecordCount}
-        />
+        <Text color="tertiary" size="xs">
+          format 返回节点时不套默认字号；showInfo=false 完全收起信息位
+        </Text>
+        <Progress.Bar percent={60} format={formatRecordCount} />
         <Progress.Bar percent={60} showInfo={false} />
       </Column>
     </Column>

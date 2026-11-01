@@ -59,9 +59,17 @@ interface TriggerContentProps {
 function TriggerContent({ label, meta, value }: TriggerContentProps) {
   return (
     <Column>
-      <Text color="description" size="sm">{label}</Text>
-      <Text color="heading" weight="strong">{value}</Text>
-      {meta ? <Text color="description" size="sm">{meta}</Text> : null}
+      <Text color="description" size="sm">
+        {label}
+      </Text>
+      <Text color="heading" weight="strong">
+        {value}
+      </Text>
+      {meta ? (
+        <Text color="description" size="sm">
+          {meta}
+        </Text>
+      ) : null}
     </Column>
   );
 }

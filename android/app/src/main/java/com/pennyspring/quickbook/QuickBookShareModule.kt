@@ -16,7 +16,6 @@ import java.util.concurrent.Executors
 class QuickBookShareModule(
     private val reactContext: ReactApplicationContext,
 ) : ReactContextBaseJavaModule(reactContext) {
-
     companion object {
         const val EVENT_NAME = "QuickBookShareAvailable"
         private const val EXTRA_HANDLED = "com.pennyspring.quickbook.HANDLED"
@@ -99,11 +98,12 @@ class QuickBookShareModule(
         quality: Double,
         promise: Promise,
     ) {
-        val uri = synchronized(lock) {
-            val current = pendingUri
-            pendingUri = null
-            current
-        }
+        val uri =
+            synchronized(lock) {
+                val current = pendingUri
+                pendingUri = null
+                current
+            }
         if (uri == null) {
             promise.resolve(null)
             return

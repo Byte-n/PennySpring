@@ -25,8 +25,7 @@ export type FormItemRule<TValue, TValues extends object> =
     ) => string | undefined | Promise<string | undefined>);
 
 export type FormItemRules<TValue, TValues extends object> =
-  | FormItemRule<TValue, TValues>
-  | readonly FormItemRule<TValue, TValues>[];
+  FormItemRule<TValue, TValues> | readonly FormItemRule<TValue, TValues>[];
 
 export type FormBeforeSubmit<TValues extends object = FormValues> = (
   values: TValues,
@@ -38,46 +37,46 @@ export type FormListItem<
 > = DeepValue<TValues, TName> extends readonly (infer TItem)[] ? TItem : never;
 
 type FormSyncValidator<TValues extends object> =
-  | FormValidateOrFn<TValues>
-  | undefined;
+  FormValidateOrFn<TValues> | undefined;
 
 type FormAsyncValidator<TValues extends object> =
-  | FormAsyncValidateOrFn<TValues>
-  | undefined;
+  FormAsyncValidateOrFn<TValues> | undefined;
 
 /**
  * Form instance returned by Form.useForm. Validator slots are erased to the
  * sync/async validator unions instead of TanStack's per-slot inference.
  */
-export type FormInstance<TValues extends object = FormValues> = ReactFormExtendedApi<
-  TValues,
-  FormSyncValidator<TValues>,
-  FormSyncValidator<TValues>,
-  FormAsyncValidator<TValues>,
-  FormSyncValidator<TValues>,
-  FormAsyncValidator<TValues>,
-  FormSyncValidator<TValues>,
-  FormAsyncValidator<TValues>,
-  FormSyncValidator<TValues>,
-  FormAsyncValidator<TValues>,
-  FormAsyncValidator<TValues>,
-  never
->;
+export type FormInstance<TValues extends object = FormValues> =
+  ReactFormExtendedApi<
+    TValues,
+    FormSyncValidator<TValues>,
+    FormSyncValidator<TValues>,
+    FormAsyncValidator<TValues>,
+    FormSyncValidator<TValues>,
+    FormAsyncValidator<TValues>,
+    FormSyncValidator<TValues>,
+    FormAsyncValidator<TValues>,
+    FormSyncValidator<TValues>,
+    FormAsyncValidator<TValues>,
+    FormAsyncValidator<TValues>,
+    never
+  >;
 
-export type FormOptions<TValues extends object = FormValues> = TanStackFormOptions<
-  TValues,
-  FormSyncValidator<TValues>,
-  FormSyncValidator<TValues>,
-  FormAsyncValidator<TValues>,
-  FormSyncValidator<TValues>,
-  FormAsyncValidator<TValues>,
-  FormSyncValidator<TValues>,
-  FormAsyncValidator<TValues>,
-  FormSyncValidator<TValues>,
-  FormAsyncValidator<TValues>,
-  FormAsyncValidator<TValues>,
-  never
->;
+export type FormOptions<TValues extends object = FormValues> =
+  TanStackFormOptions<
+    TValues,
+    FormSyncValidator<TValues>,
+    FormSyncValidator<TValues>,
+    FormAsyncValidator<TValues>,
+    FormSyncValidator<TValues>,
+    FormAsyncValidator<TValues>,
+    FormSyncValidator<TValues>,
+    FormAsyncValidator<TValues>,
+    FormSyncValidator<TValues>,
+    FormAsyncValidator<TValues>,
+    FormAsyncValidator<TValues>,
+    never
+  >;
 
 export type FormState<TValues extends object = FormValues> = TanStackFormState<
   TValues,

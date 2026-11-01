@@ -6,11 +6,7 @@ import { Text } from '../Text';
 import { renderTextNode } from '../shares/node';
 import { useFormInstance } from './hooks/useFormInstance.ts';
 import { getFormErrorMessages } from './utils/formError.ts';
-import type {
-  FormErrorSummaryProps,
-  FormState,
-  FormValues,
-} from './types';
+import type { FormErrorSummaryProps, FormState, FormValues } from './types';
 
 export function FormErrorSummary({
   title,
@@ -35,11 +31,7 @@ export function FormErrorSummary({
   }
 
   return (
-    <Column
-      gap={token.marginXXS}
-      style={style}
-      testID="form-error-summary"
-    >
+    <Column gap={token.marginXXS} style={style} testID="form-error-summary">
       {title !== null && title !== undefined
         ? renderTextNode(title, text => (
             <Text color="description" size="sm">
@@ -49,25 +41,17 @@ export function FormErrorSummary({
         : null}
       {messages.map(message => (
         <React.Fragment key={message}>
-          {renderMessage !== undefined
-            ? renderTextNode(renderMessage(message), text => (
-                <Text
-                  color="error"
-                  size="sm"
-                  testID="form-error-summary-item"
-                >
-                  {text}
-                </Text>
-              ))
-            : (
-                <Text
-                  color="error"
-                  size="sm"
-                  testID="form-error-summary-item"
-                >
-                  {message}
-                </Text>
-              )}
+          {renderMessage !== undefined ? (
+            renderTextNode(renderMessage(message), text => (
+              <Text color="error" size="sm" testID="form-error-summary-item">
+                {text}
+              </Text>
+            ))
+          ) : (
+            <Text color="error" size="sm" testID="form-error-summary-item">
+              {message}
+            </Text>
+          )}
         </React.Fragment>
       ))}
     </Column>

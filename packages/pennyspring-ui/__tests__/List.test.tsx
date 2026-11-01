@@ -10,7 +10,9 @@ import type { ListItemData } from '../src/List';
 
 function renderList(element: React.ReactElement) {
   let testRenderer: renderer.ReactTestRenderer;
-  act(() => { testRenderer = renderer.create(element); });
+  act(() => {
+    testRenderer = renderer.create(element);
+  });
   return testRenderer!;
 }
 
@@ -19,8 +21,12 @@ describe('List', () => {
     const defaultList = renderList(<List data={[]} />);
     const scrollableList = renderList(<List data={[]} scrollEnabled />);
 
-    expect(defaultList.root.findByType(FlatList).props.scrollEnabled).toBe(false);
-    expect(scrollableList.root.findByType(FlatList).props.scrollEnabled).toBe(true);
+    expect(defaultList.root.findByType(FlatList).props.scrollEnabled).toBe(
+      false,
+    );
+    expect(scrollableList.root.findByType(FlatList).props.scrollEnabled).toBe(
+      true,
+    );
   });
 
   it('wraps rendered rows with SwipeAction when row actions are provided', () => {
@@ -35,37 +41,64 @@ describe('List', () => {
     );
 
     const flatList = testRenderer.root.findByType(FlatList);
-    const row = flatList.props.renderItem({ item: 'one', index: 0, separators: {} });
+    const row = flatList.props.renderItem({
+      item: 'one',
+      index: 0,
+      separators: {},
+    });
 
     expect(row.type).toBe(SwipeAction);
   });
 
   it('renders data through a FlatList and forwards row rendering', () => {
-    const testRenderer = renderList(<List data={['one', 'two']} renderItem={({ item }) => <Text>{item}</Text>} />);
+    const testRenderer = renderList(
+      <List
+        data={['one', 'two']}
+        renderItem={({ item }) => <Text>{item}</Text>}
+      />,
+    );
     const flatList = testRenderer.root.findByType(FlatList);
     expect(flatList.props.data).toEqual(['one', 'two']);
-    const renderedRow = flatList.props.renderItem({ item: 'one', index: 0, separators: {} });
+    const renderedRow = flatList.props.renderItem({
+      item: 'one',
+      index: 0,
+      separators: {},
+    });
     expect(renderedRow.props.children.props.children).toBe('one');
   });
 
   it('shows a disclosure icon only when navigation is explicitly declared', () => {
-    const navigable = renderRow([{ disclosure: true, onPress: jest.fn(), titleText: '打开账本' }]);
+    const navigable = renderRow([
+      { disclosure: true, onPress: jest.fn(), titleText: '打开账本' },
+    ]);
     const action = renderRow([{ onPress: jest.fn(), titleText: '执行操作' }]);
 
-    expect(navigable.root.findAllByType(Icon).some(node => node.props.icon === 'caret-right')).toBe(true);
-    expect(action.root.findAllByType(Icon).some(node => node.props.icon === 'caret-right')).toBe(false);
+    expect(
+      navigable.root
+        .findAllByType(Icon)
+        .some(node => node.props.icon === 'caret-right'),
+    ).toBe(true);
+    expect(
+      action.root
+        .findAllByType(Icon)
+        .some(node => node.props.icon === 'caret-right'),
+    ).toBe(false);
   });
 
   it('renders section rows from section data and passes only domain items to renderItem', () => {
-    const renderItem = jest.fn(({ item }: { item: { title: string } }) => <Text>{item.title}</Text>);
+    const renderItem = jest.fn(({ item }: { item: { title: string } }) => (
+      <Text>{item.title}</Text>
+    ));
     const testRenderer = renderList(
       <List
-        sections={[{
-          key: 'local',
-          titleText: '本地账本',
-          countText: '1',
-          data: [{ title: '日常账本' }],
-        }]}
+        sections={[
+          {
+            key: 'local',
+            titleText: '本地账本',
+            countText: '1',
+            data: [{ title: '日常账本' }],
+          },
+        ]}
         renderItem={renderItem}
       />,
     );
@@ -73,38 +106,67 @@ describe('List', () => {
 
     expect(flatList.props.data).toHaveLength(2);
     expect(renderItem.mock.calls[0]?.[0].item).toEqual({ title: '日常账本' });
-    expect(testRenderer.root.findAllByType(Text).some(node => node.props.children === '本地账本')).toBe(true);
+    expect(
+      testRenderer.root
+        .findAllByType(Text)
+        .some(node => node.props.children === '本地账本'),
+    ).toBe(true);
   });
 
   it('renders metric values in aligned columns from data', () => {
-    const testRenderer = renderRow([{
-      titleText: '餐饮',
-      metrics: [
-        { key: 'percent', label: '占比', value: '35.4%' },
-        { key: 'amount', label: '金额', value: '¥2,421.30' },
-      ],
-    }]);
-    const values = testRenderer.root.findAllByType(Text).map(node => node.props.children);
+    const testRenderer = renderRow([
+      {
+        titleText: '餐饮',
+        metrics: [
+          { key: 'percent', label: '占比', value: '35.4%' },
+          { key: 'amount', label: '金额', value: '¥2,421.30' },
+        ],
+      },
+    ]);
+    const values = testRenderer.root
+      .findAllByType(Text)
+      .map(node => node.props.children);
 
     expect(values).toContain('35.4%');
     expect(values).toContain('¥2,421.30');
   });
 
   it('renders empty content when there are no rows', () => {
-    const testRenderer = renderList(<List data={[]} empty={<Text>Nothing here</Text>} />);
+    const testRenderer = renderList(
+      <List data={[]} empty={<Text>Nothing here</Text>} />,
+    );
     const flatList = testRenderer.root.findByType(FlatList);
-    expect(flatList.props.ListEmptyComponent.props.children.props.children).toBe('Nothing here');
+    expect(
+      flatList.props.ListEmptyComponent.props.children.props.children,
+    ).toBe('Nothing here');
   });
 
   it('renders loading content in the list footer', () => {
-    const testRenderer = renderList(<List data={[]} loading loadingText="Loading more" />);
-    expect(testRenderer.root.findAllByType(Text).some(node => node.props.children === 'Loading more')).toBe(true);
+    const testRenderer = renderList(
+      <List data={[]} loading loadingText="Loading more" />,
+    );
+    expect(
+      testRenderer.root
+        .findAllByType(Text)
+        .some(node => node.props.children === 'Loading more'),
+    ).toBe(true);
   });
 
   it('toggles a collapsible group and reports the new state', () => {
     const onOpenChange = jest.fn();
-    const testRenderer = renderList(<List collapsible titleText="Group" open={false} onOpenChange={onOpenChange}><Text>Nested row</Text></List>);
-    const header = testRenderer.root.findAll(node => typeof node.props.onPress === 'function').at(-1);
+    const testRenderer = renderList(
+      <List
+        collapsible
+        titleText="Group"
+        open={false}
+        onOpenChange={onOpenChange}
+      >
+        <Text>Nested row</Text>
+      </List>,
+    );
+    const header = testRenderer.root
+      .findAll(node => typeof node.props.onPress === 'function')
+      .at(-1);
     act(() => header?.props.onPress());
     expect(onOpenChange).toHaveBeenCalledWith(true);
   });
@@ -177,7 +239,9 @@ describe('List row spec', () => {
   });
 
   it('wraps the icon in a 38 plate and keeps the title at 14 medium', () => {
-    const testRenderer = renderRow([{ icon: 'list', titleText: '餐饮 · 外卖' }]);
+    const testRenderer = renderRow([
+      { icon: 'list', titleText: '餐饮 · 外卖' },
+    ]);
     const plate = testRenderer.root.findAllByType(View).find(node => {
       const style = StyleSheet.flatten(node.props.style);
 
@@ -231,7 +295,11 @@ describe('List row spec', () => {
     expect(icon.props.icon).toBe('check');
     expect(icon.props.size).toBe(18);
     expect(rowStyle.backgroundColor).toBe(ROW_TOKENS.colorPrimaryBg);
-    expect(testRenderer.root.findAllByType(Text).some(node => node.props.children === '28')).toBe(true);
+    expect(
+      testRenderer.root
+        .findAllByType(Text)
+        .some(node => node.props.children === '28'),
+    ).toBe(true);
   });
 
   it('marks a selected row with a primary left bar', () => {
@@ -239,7 +307,10 @@ describe('List row spec', () => {
     const marker = testRenderer.root.findAllByType(View).find(node => {
       const style = StyleSheet.flatten(node.props.style);
 
-      return style?.position === 'absolute' && style?.width === ROW_TOKENS.lineWidthBold;
+      return (
+        style?.position === 'absolute' &&
+        style?.width === ROW_TOKENS.lineWidthBold
+      );
     });
     const markerStyle = StyleSheet.flatten(marker?.props.style);
 
@@ -255,7 +326,10 @@ describe('List row spec', () => {
     const marker = testRenderer.root.findAllByType(View).find(node => {
       const style = StyleSheet.flatten(node.props.style);
 
-      return style?.position === 'absolute' && style?.width === ROW_TOKENS.lineWidthBold;
+      return (
+        style?.position === 'absolute' &&
+        style?.width === ROW_TOKENS.lineWidthBold
+      );
     });
 
     expect(marker).toBeUndefined();
@@ -277,8 +351,12 @@ describe('List row spec', () => {
         return style?.position === 'absolute' && style?.height === 1;
       });
 
-    const platedDivider = StyleSheet.flatten(findDivider(renderRow(platedRows, 0))?.props.style);
-    const textOnlyDivider = StyleSheet.flatten(findDivider(renderRow(textOnlyRows, 0))?.props.style);
+    const platedDivider = StyleSheet.flatten(
+      findDivider(renderRow(platedRows, 0))?.props.style,
+    );
+    const textOnlyDivider = StyleSheet.flatten(
+      findDivider(renderRow(textOnlyRows, 0))?.props.style,
+    );
     const lastRowDivider = findDivider(renderRow(platedRows, 1));
 
     expect(platedDivider.left).toBe(66);
@@ -287,7 +365,9 @@ describe('List row spec', () => {
   });
 
   it('greys a disabled row without fading the whole row', () => {
-    const testRenderer = renderRow([{ disabled: true, icon: 'list', titleText: '已归档账本' }]);
+    const testRenderer = renderRow([
+      { disabled: true, icon: 'list', titleText: '已归档账本' },
+    ]);
     const rowStyle = getRowStyle(testRenderer);
     const plate = testRenderer.root.findAllByType(View).find(node => {
       const style = StyleSheet.flatten(node.props.style);
@@ -299,7 +379,9 @@ describe('List row spec', () => {
       .find(node => node.props.children === '已归档账本');
 
     expect(rowStyle.opacity).toBeUndefined();
-    expect(StyleSheet.flatten(plate?.props.style).backgroundColor).toBe(ROW_TOKENS.colorFillQuaternary);
+    expect(StyleSheet.flatten(plate?.props.style).backgroundColor).toBe(
+      ROW_TOKENS.colorFillQuaternary,
+    );
     expect(titleNode?.props.color).toBe('tertiary');
   });
 
@@ -319,6 +401,8 @@ describe('List row spec', () => {
       .find(node => StyleSheet.flatten(node.props.style)?.minHeight === 32);
 
     expect(header).toBeTruthy();
-    expect(StyleSheet.flatten(header?.props.style).backgroundColor).toBeUndefined();
+    expect(
+      StyleSheet.flatten(header?.props.style).backgroundColor,
+    ).toBeUndefined();
   });
 });

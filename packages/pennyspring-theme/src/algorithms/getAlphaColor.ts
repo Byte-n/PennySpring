@@ -11,8 +11,16 @@ function isStableColor(color: number): boolean {
   return color >= 0 && color <= 255;
 }
 
-export function getAlphaColor(frontColor: string, backgroundColor: string): string {
-  const { r: fR, g: fG, b: fB, a: originAlpha } = new FastColor(frontColor).toRgb();
+export function getAlphaColor(
+  frontColor: string,
+  backgroundColor: string,
+): string {
+  const {
+    r: fR,
+    g: fG,
+    b: fB,
+    a: originAlpha,
+  } = new FastColor(frontColor).toRgb();
   // 如果前景本身已经带透明度，直接返回（避免二次叠加）
   if (originAlpha < 1) {
     return frontColor;
@@ -25,7 +33,12 @@ export function getAlphaColor(frontColor: string, backgroundColor: string): stri
     const g = Math.round((fG - bG * (1 - fA)) / fA);
     const b = Math.round((fB - bB * (1 - fA)) / fA);
     if (isStableColor(r) && isStableColor(g) && isStableColor(b)) {
-      return new FastColor({ r, g, b, a: Math.round(fA * 100) / 100 }).toRgbString();
+      return new FastColor({
+        r,
+        g,
+        b,
+        a: Math.round(fA * 100) / 100,
+      }).toRgbString();
     }
   }
 

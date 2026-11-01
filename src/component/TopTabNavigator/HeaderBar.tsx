@@ -43,10 +43,7 @@ export function HeaderBar({
         </Row>
       </Row>
       <Column style={[tokenStyles.tabsRow, styles?.center]}>
-        <MaterialTopTabBar
-          {...tabBarProps}
-          descriptors={themedDescriptors}
-        />
+        <MaterialTopTabBar {...tabBarProps} descriptors={themedDescriptors} />
       </Column>
     </Column>
   );

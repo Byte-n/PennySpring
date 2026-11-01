@@ -12,7 +12,9 @@ export function EmptySizeDemo() {
     <Column gap="normal">
       {SIZES.map(({ action, label, value }) => (
         <Column key={value} gap="small">
-          <Text color="tertiary" size="sm">{label}</Text>
+          <Text color="tertiary" size="sm">
+            {label}
+          </Text>
           <Empty
             size={value}
             titleText="还没有快捷模板"

@@ -115,26 +115,24 @@ describe('getPopoverAvailableExtent', () => {
   const viewport = { width: 400, height: 800 };
 
   it('measures the room above the anchor', () => {
-    expect(
-      getPopoverAvailableExtent('top', anchor, viewport, 12, 8),
-    ).toBe(280);
+    expect(getPopoverAvailableExtent('top', anchor, viewport, 12, 8)).toBe(280);
   });
 
   it('measures the room below the anchor', () => {
-    expect(
-      getPopoverAvailableExtent('bottom', anchor, viewport, 12, 8),
-    ).toBe(456);
+    expect(getPopoverAvailableExtent('bottom', anchor, viewport, 12, 8)).toBe(
+      456,
+    );
   });
 
   it('measures the room left of the anchor', () => {
-    expect(
-      getPopoverAvailableExtent('left', anchor, viewport, 12, 8),
-    ).toBe(180);
+    expect(getPopoverAvailableExtent('left', anchor, viewport, 12, 8)).toBe(
+      180,
+    );
   });
 
   it('measures the room right of the anchor', () => {
-    expect(
-      getPopoverAvailableExtent('right', anchor, viewport, 12, 8),
-    ).toBe(156);
+    expect(getPopoverAvailableExtent('right', anchor, viewport, 12, 8)).toBe(
+      156,
+    );
   });
 });

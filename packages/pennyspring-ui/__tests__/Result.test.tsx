@@ -5,10 +5,16 @@ import { Result } from '../src/Result';
 import { Icon } from '../src/Icon';
 import { useStyles } from '../src/Result/style';
 
-function renderResult(props: Partial<React.ComponentProps<typeof Result>> = {}) {
+function renderResult(
+  props: Partial<React.ComponentProps<typeof Result>> = {},
+) {
   let testRenderer: renderer.ReactTestRenderer;
   act(() => {
-    testRenderer = renderer.create(<><Result {...props} /></>);
+    testRenderer = renderer.create(
+      <>
+        <Result {...props} />
+      </>,
+    );
   });
   return testRenderer!;
 }
@@ -16,7 +22,7 @@ function renderResult(props: Partial<React.ComponentProps<typeof Result>> = {}) 
 describe('Result', () => {
   it('renders default info status with icon and title', () => {
     const testRenderer = renderResult({
-      titleText: 'Operation Info'
+      titleText: 'Operation Info',
     });
     const tree = JSON.stringify(testRenderer.toJSON());
     expect(tree).toContain('Operation Info');
@@ -25,7 +31,7 @@ describe('Result', () => {
   it('renders subtitleText below the title', () => {
     const testRenderer = renderResult({
       titleText: 'Success',
-      subtitleText: 'Your changes have been saved.'
+      subtitleText: 'Your changes have been saved.',
     });
     const tree = JSON.stringify(testRenderer.toJSON());
     expect(tree).toContain('Success');
@@ -43,20 +49,28 @@ describe('Result', () => {
       subtitle: customSubtitle,
       extra: customExtra,
       titleText: 'Fallback Title',
-      subtitleText: 'Fallback Sub'
+      subtitleText: 'Fallback Sub',
     });
-    expect(testRenderer.root.findByProps({
-      testID: 'custom-icon'
-    })).toBeTruthy();
-    expect(testRenderer.root.findByProps({
-      testID: 'custom-title'
-    })).toBeTruthy();
-    expect(testRenderer.root.findByProps({
-      testID: 'custom-subtitle'
-    })).toBeTruthy();
-    expect(testRenderer.root.findByProps({
-      testID: 'custom-extra'
-    })).toBeTruthy();
+    expect(
+      testRenderer.root.findByProps({
+        testID: 'custom-icon',
+      }),
+    ).toBeTruthy();
+    expect(
+      testRenderer.root.findByProps({
+        testID: 'custom-title',
+      }),
+    ).toBeTruthy();
+    expect(
+      testRenderer.root.findByProps({
+        testID: 'custom-subtitle',
+      }),
+    ).toBeTruthy();
+    expect(
+      testRenderer.root.findByProps({
+        testID: 'custom-extra',
+      }),
+    ).toBeTruthy();
     const tree = JSON.stringify(testRenderer.toJSON());
     expect(tree).not.toContain('Fallback Title');
     expect(tree).not.toContain('Fallback Sub');

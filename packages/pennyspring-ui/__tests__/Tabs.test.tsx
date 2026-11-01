@@ -7,29 +7,46 @@ import type { TabsProps } from '../src/Tabs';
 function renderTabs(props: Partial<TabsProps> = {}) {
   let testRenderer: renderer.ReactTestRenderer;
   act(() => {
-    testRenderer = renderer.create(<><Tabs items={[{
-        value: 'overview',
-        label: 'Overview'
-      }, {
-        value: 'records',
-        label: 'Records'
-      }, {
-        value: 'trend',
-        label: 'Trend'
-      }]} {...props} /></>);
+    testRenderer = renderer.create(
+      <>
+        <Tabs
+          items={[
+            {
+              value: 'overview',
+              label: 'Overview',
+            },
+            {
+              value: 'records',
+              label: 'Records',
+            },
+            {
+              value: 'trend',
+              label: 'Trend',
+            },
+          ]}
+          {...props}
+        />
+      </>,
+    );
   });
   return testRenderer!;
 }
-function pressByValue(testRenderer: renderer.ReactTestRenderer, value: string | number) {
+function pressByValue(
+  testRenderer: renderer.ReactTestRenderer,
+  value: string | number,
+) {
   const target = testRenderer.root.findByProps({
-    testID: `tabs-item-${String(value)}`
+    testID: `tabs-item-${String(value)}`,
   });
   act(() => {
     target.props.onPress();
   });
   return target;
 }
-function getTabStyle(testRenderer: renderer.ReactTestRenderer, value: string | number) {
+function getTabStyle(
+  testRenderer: renderer.ReactTestRenderer,
+  value: string | number,
+) {
   const host = testRenderer.root
     .findAllByProps({ testID: `tabs-item-${String(value)}` })
     .find(instance => typeof instance.type === 'string');
@@ -50,45 +67,51 @@ describe('Tabs', () => {
     const onChange = jest.fn();
     const testRenderer = renderTabs({
       defaultValue: 'overview',
-      onChange
+      onChange,
     });
     pressByValue(testRenderer, 'records');
     expect(onChange).toHaveBeenCalledWith('records');
   });
   it('keeps selection controlled by value prop', () => {
     const onChange = jest.fn();
-    const renderContent = jest.fn((item: {
-      value: string | number;
-    }) => <RNText>{`panel-${String(item.value)}`}</RNText>);
+    const renderContent = jest.fn((item: { value: string | number }) => (
+      <RNText>{`panel-${String(item.value)}`}</RNText>
+    ));
     const testRenderer = renderTabs({
       value: 'overview',
       onChange,
-      renderContent
+      renderContent,
     });
     pressByValue(testRenderer, 'records');
     const content = JSON.stringify(testRenderer.toJSON());
     expect(onChange).toHaveBeenCalledWith('records');
-    expect(renderContent).toHaveBeenLastCalledWith(expect.objectContaining({
-      value: 'overview'
-    }), 0);
+    expect(renderContent).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        value: 'overview',
+      }),
+      0,
+    );
     expect(content).toContain('panel-overview');
   });
   it('blocks interaction when disabled at root or item level', () => {
     const onChange = jest.fn();
     const disabledTabs = renderTabs({
       disabled: true,
-      onChange
+      onChange,
     });
     const itemDisabledTabs = renderTabs({
       onChange,
-      items: [{
-        value: 'overview',
-        label: 'Overview'
-      }, {
-        value: 'records',
-        label: 'Records',
-        disabled: true
-      }]
+      items: [
+        {
+          value: 'overview',
+          label: 'Overview',
+        },
+        {
+          value: 'records',
+          label: 'Records',
+          disabled: true,
+        },
+      ],
     });
     pressByValue(disabledTabs, 'records');
     const disabledItem = pressByValue(itemDisabledTabs, 'records');
@@ -113,17 +136,20 @@ describe('Tabs', () => {
   });
 
   it('renders panel with active item content', () => {
-    const renderContent = jest.fn((item: {
-      value: string | number;
-    }) => <RNText>{`panel-${String(item.value)}`}</RNText>);
+    const renderContent = jest.fn((item: { value: string | number }) => (
+      <RNText>{`panel-${String(item.value)}`}</RNText>
+    ));
     const testRenderer = renderTabs({
       defaultValue: 'overview',
-      renderContent
+      renderContent,
     });
     const content = JSON.stringify(testRenderer.toJSON());
-    expect(renderContent).toHaveBeenCalledWith(expect.objectContaining({
-      value: 'overview'
-    }), 0);
+    expect(renderContent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        value: 'overview',
+      }),
+      0,
+    );
     expect(content).toContain('panel-overview');
   });
   describe('labelText and label props', () => {
@@ -174,9 +200,7 @@ describe('Tabs', () => {
 
     it('falls back to labelText when label is undefined', () => {
       const testRenderer = renderTabs({
-        items: [
-          { value: 'a', labelText: 'Fallback' },
-        ],
+        items: [{ value: 'a', labelText: 'Fallback' }],
       });
       const content = JSON.stringify(testRenderer.toJSON());
 
@@ -198,16 +222,12 @@ describe('Tabs', () => {
           testRenderer = renderer.create(
             <Tabs
               size={tabsSize as 'small' | 'normal' | 'large'}
-              items={[
-                { value: 'a', labelText: 'Tab' },
-              ]}
+              items={[{ value: 'a', labelText: 'Tab' }]}
             />,
           );
         });
         const textNodes = testRenderer!.root.findAllByType(Text);
-        const labelText = textNodes.find(
-          node => node.props.children === 'Tab',
-        );
+        const labelText = textNodes.find(node => node.props.children === 'Tab');
 
         expect(labelText).toBeDefined();
         expect(labelText!.props.size).toBe(expectedTextSize);
@@ -231,9 +251,7 @@ describe('Tabs', () => {
       const selectedText = textNodes.find(
         node => node.props.children === 'Selected',
       );
-      const otherText = textNodes.find(
-        node => node.props.children === 'Other',
-      );
+      const otherText = textNodes.find(node => node.props.children === 'Other');
 
       expect(selectedText!.props.weight).toBe('strong');
       expect(selectedText!.props.color).toBe('primary');
@@ -246,9 +264,7 @@ describe('Tabs', () => {
       act(() => {
         testRenderer = renderer.create(
           <Tabs
-            items={[
-              { value: 'a', labelText: 'Disabled', disabled: true },
-            ]}
+            items={[{ value: 'a', labelText: 'Disabled', disabled: true }]}
           />,
         );
       });
@@ -264,18 +280,11 @@ describe('Tabs', () => {
       let testRenderer: renderer.ReactTestRenderer;
       act(() => {
         testRenderer = renderer.create(
-          <Tabs
-            disabled
-            items={[
-              { value: 'a', labelText: 'Tab' },
-            ]}
-          />,
+          <Tabs disabled items={[{ value: 'a', labelText: 'Tab' }]} />,
         );
       });
       const textNodes = testRenderer!.root.findAllByType(Text);
-      const labelText = textNodes.find(
-        node => node.props.children === 'Tab',
-      );
+      const labelText = textNodes.find(node => node.props.children === 'Tab');
 
       expect(labelText!.props.color).toBe('quaternary');
     });

@@ -33,16 +33,16 @@ export function Root() {
 
 ## 组件
 
-| 分类 | 组件 |
-|---|---|
-| 根与主题 | `App`、`ConfigProvider`、`Portal`、`PortalProvider`、`ThemeProvider`、`useTheme`、`createUseSheetStyle` |
-| 布局 | `Row`、`Column`、`Grid`、`Space`、`Spacer`、`Divider`、`GeometryReader`、`Sticky`、`StickyLayout`、`Card`、`List` |
-| 基础展示 | `Text`、`Icon`、`Avatar`、`Badge`、`Tag`、`Ellipsis`、`Empty`、`Result`、`Skeleton`、`Loading`、`Progress`、`ProgressBar`、`ProgressCircle` |
+| 分类       | 组件                                                                                                                                                                |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 根与主题   | `App`、`ConfigProvider`、`Portal`、`PortalProvider`、`ThemeProvider`、`useTheme`、`createUseSheetStyle`                                                             |
+| 布局       | `Row`、`Column`、`Grid`、`Space`、`Spacer`、`Divider`、`GeometryReader`、`Sticky`、`StickyLayout`、`Card`、`List`                                                   |
+| 基础展示   | `Text`、`Icon`、`Avatar`、`Badge`、`Tag`、`Ellipsis`、`Empty`、`Result`、`Skeleton`、`Loading`、`Progress`、`ProgressBar`、`ProgressCircle`                         |
 | 交互与输入 | `Button`、`Checkbox`、`Radio`、`RadioGroup`、`Switch`、`Slider`、`Stepper`、`Segmented`、`Input`、`Textarea`、`CalculatorInput`、`DisplayInput`、`Form`、`FormItem` |
-| 选择器 | `Picker`、`ListPicker`、`TagPicker`、`CalendarPicker`、`CalendarPickerView`、`DateTimePicker`、`WheelGroup`、`IndexBar` |
-| 导航与浮层 | `Tabs`、`TabBar`、`Drawer`、`Popup`、`ActionSheet`、`Dialog`、`Toast`、`Message`、`Notification`、`Tooltip`、`Popover`、`Steps` |
-| 媒体与手势 | `Image`、`ImagePreview`、`ImagePreviewGroup`、`Carousel`、`SwipeAction`、`FloatingActionGroup` |
-| 键盘适配 | `KeyboardAwareScreen`、`KeyboardAwareFormScroll`、`KeyboardStickyFooter`、`useKeyboardInsets` |
+| 选择器     | `Picker`、`ListPicker`、`TagPicker`、`CalendarPicker`、`CalendarPickerView`、`DateTimePicker`、`WheelGroup`、`IndexBar`                                             |
+| 导航与浮层 | `Tabs`、`TabBar`、`Drawer`、`Popup`、`ActionSheet`、`Dialog`、`Toast`、`Message`、`Notification`、`Tooltip`、`Popover`、`Steps`                                     |
+| 媒体与手势 | `Image`、`ImagePreview`、`ImagePreviewGroup`、`Carousel`、`SwipeAction`、`FloatingActionGroup`                                                                      |
+| 键盘适配   | `KeyboardAwareScreen`、`KeyboardAwareFormScroll`、`KeyboardStickyFooter`、`useKeyboardInsets`                                                                       |
 
 完整 API 与类型以各组件目录的 `types.ts` 和文档为准。
 

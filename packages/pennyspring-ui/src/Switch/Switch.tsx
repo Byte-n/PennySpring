@@ -73,7 +73,13 @@ export function Switch(rawProps: SwitchProps) {
       duration: token.motionDurationMid,
       easing: Easing.bezier(...token.motionEaseInOut),
     });
-  }, [checked, offset, token.motionDurationMid, token.motionEaseInOut, translateX]);
+  }, [
+    checked,
+    offset,
+    token.motionDurationMid,
+    token.motionEaseInOut,
+    translateX,
+  ]);
 
   const textColor: TextColor =
     checked && !isDisabled ? 'secondary' : 'tertiary';

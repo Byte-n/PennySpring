@@ -12,11 +12,12 @@ export function useMemoizedFn<T extends AnyFunction>(
   const fnRef = useRef<T>(fn);
   fnRef.current = useMemo(() => fn, [fn]);
 
-  const memoizedFnRef = useRef<MemoizedFunction<T>>(
-    function (this: ThisParameterType<T>, ...args: Parameters<T>) {
-      return fnRef.current.apply(this, args) as ReturnType<T>;
-    },
-  );
+  const memoizedFnRef = useRef<MemoizedFunction<T>>(function (
+    this: ThisParameterType<T>,
+    ...args: Parameters<T>
+  ) {
+    return fnRef.current.apply(this, args) as ReturnType<T>;
+  });
 
   return memoizedFnRef.current;
 }

@@ -51,7 +51,9 @@ export function IncomeTrendChart({ months }: IncomeTrendChartProps) {
         fontSize: token.fontSizeXS,
         formatter: formatAxisMoney,
       },
-      splitLine: { lineStyle: { color: token.colorSplit, width: token.lineWidth } },
+      splitLine: {
+        lineStyle: { color: token.colorSplit, width: token.lineWidth },
+      },
     },
     series: [
       {

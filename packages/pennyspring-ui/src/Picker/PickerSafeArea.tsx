@@ -15,8 +15,6 @@ export function PickerSafeArea({
   styles,
 }: PickerSafeAreaProps) {
   return (
-    <View style={[styles.safeArea, slotStyles?.safeArea]}>
-      {children}
-    </View>
+    <View style={[styles.safeArea, slotStyles?.safeArea]}>{children}</View>
   );
 }

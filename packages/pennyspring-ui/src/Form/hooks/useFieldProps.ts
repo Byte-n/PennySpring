@@ -19,8 +19,10 @@ export function useFieldProps<TValue = unknown, TBlurEvent = unknown>(
     field.onBlur();
     props.onBlur?.(event);
   };
-  const disabled = props.disabled !== undefined ? props.disabled : field.disabled;
-  const readonly = props.readonly !== undefined ? props.readonly : field.readonly;
+  const disabled =
+    props.disabled !== undefined ? props.disabled : field.disabled;
+  const readonly =
+    props.readonly !== undefined ? props.readonly : field.readonly;
   const status = props.status !== undefined ? props.status : field.status;
 
   if (field.controlLabel === null) {
@@ -45,8 +47,7 @@ export function useFieldProps<TValue = unknown, TBlurEvent = unknown>(
     disabled,
     readonly,
     status,
-    label:
-      props.label !== undefined ? props.label : field.controlLabel.label,
+    label: props.label !== undefined ? props.label : field.controlLabel.label,
     labelText:
       props.labelText !== undefined
         ? props.labelText

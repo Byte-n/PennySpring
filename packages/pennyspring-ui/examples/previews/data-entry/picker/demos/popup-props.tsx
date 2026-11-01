@@ -38,8 +38,8 @@ const CATEGORY_COLUMN: PickerColumn = [
 const EMPTY_COLUMN: PickerColumn = [];
 
 function joinLabels(labels: Array<string | undefined>): string {
-  const visibleLabels = labels.filter((label): label is string =>
-    label !== undefined && label.length > 0,
+  const visibleLabels = labels.filter(
+    (label): label is string => label !== undefined && label.length > 0,
   );
 
   if (visibleLabels.length === 0) {

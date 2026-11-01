@@ -29,11 +29,7 @@ export function TextareaSlotsDemo() {
         showCount
         status="warning"
       />
-      <Textarea
-        defaultValue="正在识别小票内容…"
-        labelText="识别结果"
-        loading
-      />
+      <Textarea defaultValue="正在识别小票内容…" labelText="识别结果" loading />
       <Textarea label={null} placeholder="没有标签时靠外部标题说明字段含义" />
     </Column>
   );

@@ -40,7 +40,9 @@ export function RadioSizeDemo() {
     <Column gap="normal">
       {SIZE_SAMPLES.map(sample => (
         <Column key={sample.size} gap="small">
-          <Text color="tertiary" size="sm">{sample.hint}</Text>
+          <Text color="tertiary" size="sm">
+            {sample.hint}
+          </Text>
           <Radio.Group
             direction="vertical"
             options={sample.options}
@@ -50,7 +52,9 @@ export function RadioSizeDemo() {
         </Column>
       ))}
       <Text color="tertiary" size="sm">
-        外圈 16 / 20 / 24 与圆点 10 无对应 token；8 / 12 分别取 sizeXS / paddingSM，行高 37.4 / 44 / 50.6 取 controlHeightSM / controlHeight / controlHeightLG
+        外圈 16 / 20 / 24 与圆点 10 无对应 token；8 / 12 分别取 sizeXS /
+        paddingSM，行高 37.4 / 44 / 50.6 取 controlHeightSM / controlHeight /
+        controlHeightLG
       </Text>
     </Column>
   );

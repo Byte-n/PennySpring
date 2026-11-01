@@ -6,7 +6,11 @@ import type { EChartsOption } from 'echarts';
 import * as echarts from 'echarts/core';
 import type { ECharts } from 'echarts/core';
 import { BarChart, LineChart, PieChart } from 'echarts/charts';
-import { AxisPointerComponent, GridComponent, TooltipComponent } from 'echarts/components';
+import {
+  AxisPointerComponent,
+  GridComponent,
+  TooltipComponent,
+} from 'echarts/components';
 
 echarts.use([
   SkiaRenderer,
@@ -60,12 +64,7 @@ export function EChartView({ option, width, height }: EChartViewProps) {
 
   return (
     <View style={styles.chart}>
-      <SkiaChart
-        ref={chartRef}
-        width={width}
-        height={height}
-        useRNGH
-      />
+      <SkiaChart ref={chartRef} width={width} height={height} useRNGH />
     </View>
   );
 }

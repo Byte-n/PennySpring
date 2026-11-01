@@ -9,7 +9,9 @@ const items = [
   { label: 'Health', value: 'health' },
 ];
 
-function render(props: Partial<React.ComponentProps<typeof TagValueDisplay>> = {}) {
+function render(
+  props: Partial<React.ComponentProps<typeof TagValueDisplay>> = {},
+) {
   let testRenderer: renderer.ReactTestRenderer;
   act(() => {
     testRenderer = renderer.create(
@@ -42,17 +44,23 @@ describe('TagValueDisplay', () => {
     const onRemove = jest.fn();
     const tree = render({ onRemove });
     const closeButtons = tree.root.findAll(
-      node => node.props.testID === 'tag-close' && typeof node.props.onPress === 'function',
+      node =>
+        node.props.testID === 'tag-close' &&
+        typeof node.props.onPress === 'function',
     );
     expect(closeButtons.length).toBe(4);
-    act(() => { closeButtons[1].props.onPress(); });
+    act(() => {
+      closeButtons[1].props.onPress();
+    });
     expect(onRemove).toHaveBeenCalledWith('transport');
   });
 
   it('hides close buttons when disabled', () => {
     const tree = render({ disabled: true });
     const closeButtons = tree.root.findAll(
-      node => node.props.testID === 'tag-close' && typeof node.props.onPress === 'function',
+      node =>
+        node.props.testID === 'tag-close' &&
+        typeof node.props.onPress === 'function',
     );
     expect(closeButtons.length).toBe(0);
   });
@@ -60,7 +68,9 @@ describe('TagValueDisplay', () => {
   it('hides close buttons when closable is false', () => {
     const tree = render({ tagProps: { closable: false } });
     const closeButtons = tree.root.findAll(
-      node => node.props.testID === 'tag-close' && typeof node.props.onPress === 'function',
+      node =>
+        node.props.testID === 'tag-close' &&
+        typeof node.props.onPress === 'function',
     );
     expect(closeButtons.length).toBe(0);
   });

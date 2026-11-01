@@ -74,7 +74,7 @@ export function projectTypeList(
       .map(type => [
         String(type.id),
         formatTypeDisplayName(type, parentIds.has(type.id)),
-        type.parentId === 0 ? '' : typeById.get(type.parentId)?.name ?? '',
+        type.parentId === 0 ? '' : (typeById.get(type.parentId)?.name ?? ''),
       ]);
     remaining -= rows.length;
     if (rows.length === 0) {

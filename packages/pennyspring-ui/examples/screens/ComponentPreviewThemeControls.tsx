@@ -14,31 +14,31 @@ interface ComponentPreviewThemeControlsProps {
 }
 
 const useStyles = createUseSheetStyle(token => ({
-    root: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: token.marginXXS,
-    },
-    button: {
-      alignItems: 'center',
-      justifyContent: 'center',
-      minHeight: token.controlHeightSM,
-      minWidth: token.controlHeightSM,
-      borderRadius: token.borderRadiusSM,
-      backgroundColor: token.colorBgContainer,
-    },
-    buttonPressed: {
-      backgroundColor: token.colorBgTextActive,
-    },
-    swatch: {
-      width: token.fontSizeLG,
-      height: token.fontSizeLG,
-      borderRadius: token.fontSizeLG,
-      backgroundColor: token.colorPrimary,
-      borderColor: token.colorBorderSecondary,
-      borderWidth: token.lineWidth,
-    },
-  }));
+  root: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: token.marginXXS,
+  },
+  button: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: token.controlHeightSM,
+    minWidth: token.controlHeightSM,
+    borderRadius: token.borderRadiusSM,
+    backgroundColor: token.colorBgContainer,
+  },
+  buttonPressed: {
+    backgroundColor: token.colorBgTextActive,
+  },
+  swatch: {
+    width: token.fontSizeLG,
+    height: token.fontSizeLG,
+    borderRadius: token.fontSizeLG,
+    backgroundColor: token.colorPrimary,
+    borderColor: token.colorBorderSecondary,
+    borderWidth: token.lineWidth,
+  },
+}));
 
 export function ComponentPreviewThemeControls({
   algorithm,

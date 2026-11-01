@@ -7,10 +7,7 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
-import {
-  Gesture,
-  GestureDetector,
-} from 'react-native-gesture-handler';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { useTheme } from '@pennyspring/theme';
 import { useControllableValue } from '../_hooks';
 import { useStyles } from './style';
@@ -23,7 +20,6 @@ const DEFAULT_STEP = 1;
 
 /** 按压时 thumb 放大 10%。 */
 const PRESS_SCALE_DELTA = 0.1;
-
 
 function resolveSize(size?: ComponentSize): ComponentSize {
   return size ?? 'normal';
@@ -49,7 +45,12 @@ function resolveStep(step?: number): number {
   return step;
 }
 
-function normalizeValue(value: number, min: number, max: number, step: number): number {
+function normalizeValue(
+  value: number,
+  min: number,
+  max: number,
+  step: number,
+): number {
   const safeMin = Math.min(min, max);
   const safeMax = Math.max(min, max);
   const clamped = clamp(value, safeMin, safeMax);
@@ -110,7 +111,8 @@ export function Slider(rawProps: SliderProps) {
     safeMax,
     safeStep,
   );
-  const progress = safeMax === safeMin ? 0 : (currentValue - safeMin) / (safeMax - safeMin);
+  const progress =
+    safeMax === safeMin ? 0 : (currentValue - safeMin) / (safeMax - safeMin);
   const clampedProgress = clamp(progress, 0, 1);
   const tokenStyles = useStyles({
     disabled: isReadOnly,
@@ -135,7 +137,9 @@ export function Slider(rawProps: SliderProps) {
     setInternalValue(nextValue);
   }
 
-  function handleTrackLayout(event: { nativeEvent: { layout: { width: number } } }): void {
+  function handleTrackLayout(event: {
+    nativeEvent: { layout: { width: number } };
+  }): void {
     setTrackWidth(event.nativeEvent.layout.width);
   }
 
@@ -156,14 +160,14 @@ export function Slider(rawProps: SliderProps) {
         .enabled(!isReadOnly)
         .runOnJS(true)
         .minDistance(0)
-        .onBegin((event) => {
+        .onBegin(event => {
           setPressed(true);
           updateFromLocation(event.x);
         })
-        .onUpdate((event) => {
+        .onUpdate(event => {
           updateFromLocation(event.x);
         })
-        .onEnd((event) => {
+        .onEnd(event => {
           updateFromLocation(event.x);
         })
         .onFinalize(() => {

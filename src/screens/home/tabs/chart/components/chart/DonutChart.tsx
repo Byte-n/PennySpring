@@ -43,7 +43,10 @@ export function DonutChart({ slices }: DonutChartProps) {
     xAxis: {
       type: 'value',
       axisLine: { lineStyle: { color: token.colorBorderSecondary } },
-      axisTick: { show: true, lineStyle: { color: token.colorBorderSecondary } },
+      axisTick: {
+        show: true,
+        lineStyle: { color: token.colorBorderSecondary },
+      },
       axisLabel: {
         show: true,
         color: token.colorTextTertiary,
@@ -51,14 +54,23 @@ export function DonutChart({ slices }: DonutChartProps) {
         fontSize: token.fontSizeXS,
         formatter: formatAxisMoney,
       },
-      splitLine: { show: true, lineStyle: { color: token.colorSplit, width: token.lineWidth } },
+      splitLine: {
+        show: true,
+        lineStyle: { color: token.colorSplit, width: token.lineWidth },
+      },
     },
     yAxis: {
       type: 'category',
       inverse: true,
       data: slices.map(slice => slice.name),
-      axisLine: { show: true, lineStyle: { color: token.colorBorderSecondary } },
-      axisTick: { show: true, lineStyle: { color: token.colorBorderSecondary } },
+      axisLine: {
+        show: true,
+        lineStyle: { color: token.colorBorderSecondary },
+      },
+      axisTick: {
+        show: true,
+        lineStyle: { color: token.colorBorderSecondary },
+      },
       axisLabel: {
         color: token.colorTextSecondary,
         fontFamily: token.fontFamily,
@@ -90,7 +102,9 @@ export function DonutChart({ slices }: DonutChartProps) {
 
   return (
     <View style={styles.wrap} onLayout={onLayout}>
-      {width > 0 ? <EChartView option={option} width={width} height={CHART_HEIGHT} /> : null}
+      {width > 0 ? (
+        <EChartView option={option} width={width} height={CHART_HEIGHT} />
+      ) : null}
     </View>
   );
 }

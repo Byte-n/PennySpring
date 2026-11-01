@@ -27,9 +27,7 @@ function renderListPicker(
   let testRenderer: renderer.ReactTestRenderer;
 
   act(() => {
-    testRenderer = renderer.create(
-      <ListPicker options={options} {...props} />,
-    );
+    testRenderer = renderer.create(<ListPicker options={options} {...props} />);
   });
 
   return testRenderer!;
@@ -72,9 +70,13 @@ describe('ListPicker', () => {
     });
 
     // Find option Pressables inside the popup (second option is 'card')
-    const popup = testRenderer.root.findByProps({ testID: 'list-picker-popup' });
-    const optionButtons = popup.findAll(node =>
-      typeof node.props.onPress === 'function' && typeof node.props.style === 'function'
+    const popup = testRenderer.root.findByProps({
+      testID: 'list-picker-popup',
+    });
+    const optionButtons = popup.findAll(
+      node =>
+        typeof node.props.onPress === 'function' &&
+        typeof node.props.style === 'function',
     );
     act(() => {
       optionButtons[1].props.onPress();
@@ -92,7 +94,9 @@ describe('ListPicker', () => {
     const floatingPanel = testRenderer.root.findByType(Popup.FloatingPanel);
 
     expect(floatingPanel.props.open).toBe(true);
-    expect(testRenderer.root.findByProps({ testID: 'floating-panel-root' })).toBeDefined();
+    expect(
+      testRenderer.root.findByProps({ testID: 'floating-panel-root' }),
+    ).toBeDefined();
   });
 
   it('keeps picker actions outside the scrolling list body', () => {
@@ -113,10 +117,14 @@ describe('ListPicker', () => {
     expect(floatingPanel.props.footer).toBe(null);
     expect(floatingPanel.props.header).toBeDefined();
     expect(floatingPanel.props.header.props.testID).toBe('list-picker-header');
-    const popup = testRenderer.root.findByProps({ testID: 'list-picker-popup' });
+    const popup = testRenderer.root.findByProps({
+      testID: 'list-picker-popup',
+    });
 
     expect(popup.props.style).toEqual(expect.objectContaining({ flex: 1 }));
-    expect(StyleSheet.flatten(list.props.style)).toEqual(expect.objectContaining({ flex: 1 }));
+    expect(StyleSheet.flatten(list.props.style)).toEqual(
+      expect.objectContaining({ flex: 1 }),
+    );
     expect(list.props.scrollEnabled).toBe(true);
   });
 
@@ -140,7 +148,9 @@ describe('ListPicker', () => {
       displayMode: 'tag',
       value: ['cash', 'card'],
     });
-    const container = testRenderer.root.findByProps({ testID: 'tag-value-container' });
+    const container = testRenderer.root.findByProps({
+      testID: 'tag-value-container',
+    });
     expect(container).toBeDefined();
     const json = JSON.stringify(testRenderer.toJSON());
     expect(json).toContain('Cash');
@@ -155,9 +165,13 @@ describe('ListPicker', () => {
       onChange,
     });
     const closeButtons = testRenderer.root.findAll(
-      node => node.props.testID === 'tag-close' && typeof node.props.onPress === 'function',
+      node =>
+        node.props.testID === 'tag-close' &&
+        typeof node.props.onPress === 'function',
     );
-    act(() => { closeButtons[0].props.onPress(); });
+    act(() => {
+      closeButtons[0].props.onPress();
+    });
     expect(onChange).toHaveBeenCalledWith(['card']);
   });
 
@@ -321,15 +335,21 @@ describe('ListPicker', () => {
       value: 'cash',
     });
 
-    const markerIcons = testRenderer.root.findAllByType(Icon).filter(
-      iconNode =>
-        iconNode.props.testID === 'list-picker-option-marker-selected' ||
-        iconNode.props.testID === 'list-picker-option-marker-unselected',
-    );
+    const markerIcons = testRenderer.root
+      .findAllByType(Icon)
+      .filter(
+        iconNode =>
+          iconNode.props.testID === 'list-picker-option-marker-selected' ||
+          iconNode.props.testID === 'list-picker-option-marker-unselected',
+      );
 
     expect(markerIcons).toHaveLength(2);
-    expect(markerIcons[0].props.testID).toBe('list-picker-option-marker-selected');
-    expect(markerIcons[1].props.testID).toBe('list-picker-option-marker-unselected');
+    expect(markerIcons[0].props.testID).toBe(
+      'list-picker-option-marker-selected',
+    );
+    expect(markerIcons[1].props.testID).toBe(
+      'list-picker-option-marker-unselected',
+    );
   });
 
   it('keeps readonly semantic on trigger input without converting to disabled', () => {
@@ -388,7 +408,9 @@ describe('ListPicker', () => {
     });
 
     expect(
-      testRenderer.root.findAllByProps({ testID: 'picker-trigger-clear-button' }),
+      testRenderer.root.findAllByProps({
+        testID: 'picker-trigger-clear-button',
+      }),
     ).toHaveLength(0);
   });
 

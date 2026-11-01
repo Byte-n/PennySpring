@@ -85,7 +85,10 @@ describe('app update check', () => {
       ],
     } as never) as typeof fetch;
 
-    const result = await checkForUpdate({ versionCode: 2, versionName: '0.0.2' });
+    const result = await checkForUpdate({
+      versionCode: 2,
+      versionName: '0.0.2',
+    });
 
     expect(result.status).toBe('available');
     if (result.status !== 'available') throw new Error('expected an update');
@@ -97,16 +100,20 @@ describe('app update check', () => {
     ]);
     expect(global.fetch).toHaveBeenCalledWith(
       'https://api.github.com/repos/Byte-n/PennySpring/releases?per_page=100&page=1',
-      expect.objectContaining({ headers: { Accept: 'application/vnd.github+json' } }),
+      expect.objectContaining({
+        headers: { Accept: 'application/vnd.github+json' },
+      }),
     );
   });
 
   it('continues through release pages until it reaches the installed version', async () => {
-    global.fetch = jest.fn()
+    global.fetch = jest
+      .fn()
       .mockResolvedValueOnce({
         ok: true,
         status: 200,
-        json: async () => Array.from({ length: 100 }, () => ({ tag_name: 'nightly' })),
+        json: async () =>
+          Array.from({ length: 100 }, () => ({ tag_name: 'nightly' })),
       } as never)
       .mockResolvedValueOnce({
         ok: true,
@@ -118,7 +125,10 @@ describe('app update check', () => {
         ],
       } as never) as typeof fetch;
 
-    const result = await checkForUpdate({ versionCode: 2, versionName: '0.0.2' });
+    const result = await checkForUpdate({
+      versionCode: 2,
+      versionName: '0.0.2',
+    });
 
     expect(result.status).toBe('available');
     if (result.status !== 'available') throw new Error('expected an update');
@@ -129,7 +139,9 @@ describe('app update check', () => {
     expect(global.fetch).toHaveBeenCalledTimes(2);
     expect(global.fetch).toHaveBeenLastCalledWith(
       'https://api.github.com/repos/Byte-n/PennySpring/releases?per_page=100&page=2',
-      expect.objectContaining({ headers: { Accept: 'application/vnd.github+json' } }),
+      expect.objectContaining({
+        headers: { Accept: 'application/vnd.github+json' },
+      }),
     );
   });
 
@@ -238,7 +250,9 @@ describe('app update download', () => {
   it('does not treat an oversized file as a completed download', async () => {
     mockedFileSystem.stat.mockResolvedValueOnce({ size: 101 } as never);
 
-    await expect(getExistingDownload(apk, '0.0.4')).resolves.toEqual({ status: 'none' });
+    await expect(getExistingDownload(apk, '0.0.4')).resolves.toEqual({
+      status: 'none',
+    });
     expect(mockedFileSystem.unlink).toHaveBeenCalledWith(
       getUpdateApkPath('0.0.4', apk.sha256),
     );

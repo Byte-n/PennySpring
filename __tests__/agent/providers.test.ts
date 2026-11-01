@@ -19,9 +19,9 @@ describe('provider catalog', () => {
       'alibaba',
       'openai-compatible',
     ]);
-    expect(getProviderDescriptor(OPENAI_RESPONSES_PROVIDER_ID)?.defaultBaseUrl).toBe(
-      'https://api.openai.com/v1',
-    );
+    expect(
+      getProviderDescriptor(OPENAI_RESPONSES_PROVIDER_ID)?.defaultBaseUrl,
+    ).toBe('https://api.openai.com/v1');
     expect(getProviderDescriptor(DASHSCOPE_PROVIDER_ID)?.defaultBaseUrl).toBe(
       'https://dashscope.aliyuncs.com/compatible-mode/v1',
     );

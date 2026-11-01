@@ -19,10 +19,7 @@ const IMAGE: ImagePickerValue = {
   fileSize: 1024,
 };
 
-function createStore(
-  kind: 'local' | 'remote',
-  savedRef: string,
-): MediaStore {
+function createStore(kind: 'local' | 'remote', savedRef: string): MediaStore {
   return {
     scope:
       kind === 'local'

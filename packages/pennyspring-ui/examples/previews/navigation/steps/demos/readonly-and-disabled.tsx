@@ -24,18 +24,28 @@ export function StepsReadonlyAndDisabledDemo() {
   return (
     <Column gap="large">
       <Column gap="small">
-        <Text color="tertiary" size="xs">只读：保留状态色与对比，仅去掉按压</Text>
+        <Text color="tertiary" size="xs">
+          只读：保留状态色与对比，仅去掉按压
+        </Text>
         <Steps defaultValue={0} items={STEP_ITEMS} readonly />
       </Column>
       <Column gap="small">
-        <Text color="tertiary" size="xs">禁用：整体透明度 .45，不响应按压</Text>
+        <Text color="tertiary" size="xs">
+          禁用：整体透明度 .45，不响应按压
+        </Text>
         <Steps defaultValue={1} items={STEP_ITEMS} disabled />
       </Column>
       <Column gap="small">
-        <Text color="tertiary" size="xs">单项禁用：仅该步降透明度，其余步仍可点</Text>
+        <Text color="tertiary" size="xs">
+          单项禁用：仅该步降透明度，其余步仍可点
+        </Text>
         <Steps
           defaultValue={0}
-          items={[STEP_ITEMS[0], { ...STEP_ITEMS[1], disabled: true }, STEP_ITEMS[2]]}
+          items={[
+            STEP_ITEMS[0],
+            { ...STEP_ITEMS[1], disabled: true },
+            STEP_ITEMS[2],
+          ]}
         />
       </Column>
     </Column>

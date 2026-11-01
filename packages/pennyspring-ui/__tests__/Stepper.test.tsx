@@ -6,13 +6,17 @@ import type { StepperProps } from '../src/Stepper';
 function renderStepper(props: Partial<StepperProps> = {}) {
   let testRenderer: renderer.ReactTestRenderer;
   act(() => {
-    testRenderer = renderer.create(<><Stepper {...props} /></>);
+    testRenderer = renderer.create(
+      <>
+        <Stepper {...props} />
+      </>,
+    );
   });
   return testRenderer!;
 }
 function pressIncrement(testRenderer: renderer.ReactTestRenderer) {
   const btn = testRenderer.root.findByProps({
-    testID: 'stepper-increment'
+    testID: 'stepper-increment',
   });
   act(() => {
     btn.props.onPress();
@@ -20,7 +24,7 @@ function pressIncrement(testRenderer: renderer.ReactTestRenderer) {
 }
 function pressDecrement(testRenderer: renderer.ReactTestRenderer) {
   const btn = testRenderer.root.findByProps({
-    testID: 'stepper-decrement'
+    testID: 'stepper-decrement',
   });
   act(() => {
     btn.props.onPress();
@@ -28,7 +32,7 @@ function pressDecrement(testRenderer: renderer.ReactTestRenderer) {
 }
 function getDisplayValue(testRenderer: renderer.ReactTestRenderer): string {
   const input = testRenderer.root.findByProps({
-    testID: 'stepper-input'
+    testID: 'stepper-input',
   });
   return input.props.children;
 }
@@ -37,7 +41,7 @@ describe('Stepper', () => {
     const onChange = jest.fn();
     const testRenderer = renderStepper({
       defaultValue: 5,
-      onChange
+      onChange,
     });
     pressIncrement(testRenderer);
     expect(onChange).toHaveBeenCalledTimes(1);
@@ -47,7 +51,7 @@ describe('Stepper', () => {
     const onChange = jest.fn();
     const testRenderer = renderStepper({
       defaultValue: 5,
-      onChange
+      onChange,
     });
     pressDecrement(testRenderer);
     expect(onChange).toHaveBeenCalledTimes(1);
@@ -57,7 +61,7 @@ describe('Stepper', () => {
     const onChange = jest.fn();
     const testRenderer = renderStepper({
       value: 5,
-      onChange
+      onChange,
     });
     pressIncrement(testRenderer);
     expect(onChange).toHaveBeenCalledTimes(1);
@@ -69,7 +73,7 @@ describe('Stepper', () => {
     const testRenderer = renderStepper({
       defaultValue: 5,
       disabled: true,
-      onChange
+      onChange,
     });
     pressIncrement(testRenderer);
     pressDecrement(testRenderer);
@@ -80,7 +84,7 @@ describe('Stepper', () => {
     const testRenderer = renderStepper({
       defaultValue: 5,
       readonly: true,
-      onChange
+      onChange,
     });
     pressIncrement(testRenderer);
     pressDecrement(testRenderer);
@@ -91,7 +95,7 @@ describe('Stepper', () => {
     const testRenderer = renderStepper({
       value: 0,
       min: 0,
-      onChange
+      onChange,
     });
     pressDecrement(testRenderer);
     expect(onChange).not.toHaveBeenCalled();
@@ -101,7 +105,7 @@ describe('Stepper', () => {
     const testRenderer = renderStepper({
       value: 10,
       max: 10,
-      onChange
+      onChange,
     });
     pressIncrement(testRenderer);
     expect(onChange).not.toHaveBeenCalled();
@@ -111,7 +115,7 @@ describe('Stepper', () => {
     const testRenderer = renderStepper({
       defaultValue: 0,
       step: 5,
-      onChange
+      onChange,
     });
     pressIncrement(testRenderer);
     expect(onChange).toHaveBeenCalledWith(5);

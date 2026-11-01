@@ -5,10 +5,7 @@ import type { BookRow } from '@pennyspring/api';
 import type { PendingQuickBookMessage } from '../../features/quickBook/types';
 import { AgentDebugProbe } from './AgentDebugProbe';
 import { AgentDrawer } from './AgentDrawer';
-import {
-  AgentRuntimeStatusBridge,
-  useAgentRuntime,
-} from './useAgentRuntime';
+import { AgentRuntimeStatusBridge, useAgentRuntime } from './useAgentRuntime';
 import type { AgentSessionState } from './useAgentSession';
 
 export interface AgentRuntimeHostProps {

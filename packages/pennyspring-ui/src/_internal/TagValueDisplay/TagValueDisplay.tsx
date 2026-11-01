@@ -18,7 +18,8 @@ export function TagValueDisplay({
   const maxCount = tagProps?.maxCount;
   const styles = useTagValueDisplayStyles({ size, wrap });
 
-  const visibleItems = maxCount !== undefined ? items.slice(0, maxCount) : items;
+  const visibleItems =
+    maxCount !== undefined ? items.slice(0, maxCount) : items;
   const overflowCount = maxCount !== undefined ? items.length - maxCount : 0;
 
   return (

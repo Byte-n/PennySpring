@@ -18,10 +18,14 @@ export function ProgressCircleDemo() {
       </Row>
       <Column gap="small">
         {CIRCLE_SIZES.map(({ size, hint }) => (
-          <Text key={size} color="tertiary" size="xs">{hint}</Text>
+          <Text key={size} color="tertiary" size="xs">
+            {hint}
+          </Text>
         ))}
       </Column>
-      <Text color="tertiary" size="xs">状态：success 与 exception 只改环与中心数字</Text>
+      <Text color="tertiary" size="xs">
+        状态：success 与 exception 只改环与中心数字
+      </Text>
       <Row gap="large" wrap>
         <Progress.Circle percent={60} />
         <Progress.Circle percent={100} status="success" />

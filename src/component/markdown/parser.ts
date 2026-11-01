@@ -1,8 +1,4 @@
-import type {
-  MarkdownBlock,
-  MarkdownInline,
-  MarkdownListItem,
-} from './types';
+import type { MarkdownBlock, MarkdownInline, MarkdownListItem } from './types';
 
 const HEADING_PATTERN = /^(#{1,6})\s+(.*)$/;
 const UNORDERED_ITEM_PATTERN = /^([-*+])\s+(.*)$/;
@@ -11,22 +7,42 @@ const FENCE_PATTERN = /^\s*```(.*)$/;
 const RULE_PATTERN = /^\s*([-*_])\s*(?:\1\s*){2,}$/;
 const BLOCK_START_PATTERN =
   /^(?:\s*(?:#{1,6}\s|>|```|([-*+]|\d{1,9}[.)])\s)|\s*([-*_])\s*(?:\2\s*){2,}$)/;
-const TABLE_SEPARATOR_PATTERN = /^\s*\|?\s*:?-{2,}:?\s*(?:\|\s*:?-{2,}:?\s*)*\|?\s*$/;
+const TABLE_SEPARATOR_PATTERN =
+  /^\s*\|?\s*:?-{2,}:?\s*(?:\|\s*:?-{2,}:?\s*)*\|?\s*$/;
 
 /** 行内解析按优先级匹配：转义符、代码段、链接图片、成对强调标记。 */
-const INLINE_PATTERNS: { pattern: RegExp; build: (match: RegExpExecArray) => MarkdownInline | null }[] = [
-  { pattern: /^\\([\\`*_~[\]()#+\-.!>])/, build: match => ({ type: 'text', value: match[1] }) },
-  { pattern: /^(`+)([^`]+?)\1/, build: match => ({ type: 'code', value: match[2] }) },
+const INLINE_PATTERNS: {
+  pattern: RegExp;
+  build: (match: RegExpExecArray) => MarkdownInline | null;
+}[] = [
+  {
+    pattern: /^\\([\\`*_~[\]()#+\-.!>])/,
+    build: match => ({ type: 'text', value: match[1] }),
+  },
+  {
+    pattern: /^(`+)([^`]+?)\1/,
+    build: match => ({ type: 'code', value: match[2] }),
+  },
   {
     pattern: /^\[([^\]]*)\]\(([^)\s]+)\)/,
-    build: match => ({ type: 'link', href: match[2], children: parseInline(match[1]) }),
+    build: match => ({
+      type: 'link',
+      href: match[2],
+      children: parseInline(match[1]),
+    }),
   },
   {
     pattern: /^!\[([^\]]*)\](?:\([^)]*\))?/,
     build: match => ({ type: 'text', value: match[1] }),
   },
-  { pattern: /^(\*\*|__)(?=\S)([\s\S]*?\S)\1/, build: match => ({ type: 'strong', children: parseInline(match[2]) }) },
-  { pattern: /^(~~)(?=\S)([\s\S]*?\S)\1/, build: match => ({ type: 'del', children: parseInline(match[2]) }) },
+  {
+    pattern: /^(\*\*|__)(?=\S)([\s\S]*?\S)\1/,
+    build: match => ({ type: 'strong', children: parseInline(match[2]) }),
+  },
+  {
+    pattern: /^(~~)(?=\S)([\s\S]*?\S)\1/,
+    build: match => ({ type: 'del', children: parseInline(match[2]) }),
+  },
 ];
 
 export function parseMarkdown(source: string): MarkdownBlock[] {
@@ -58,12 +74,10 @@ export function parseInline(source: string): MarkdownInline[] {
       }
     }
 
-    const matched = INLINE_PATTERNS
-      .map(({ pattern, build }) => {
-        const match = pattern.exec(rest);
-        return match ? { ...build(match)!, length: match[0].length } : null;
-      })
-      .find(token => token !== null);
+    const matched = INLINE_PATTERNS.map(({ pattern, build }) => {
+      const match = pattern.exec(rest);
+      return match ? { ...build(match)!, length: match[0].length } : null;
+    }).find(token => token !== null);
 
     if (matched) {
       pushText();
@@ -81,7 +95,9 @@ export function parseInline(source: string): MarkdownInline[] {
   return tokens;
 }
 
-function parseEmphasis(rest: string): { token: MarkdownInline; consumed: number } | null {
+function parseEmphasis(
+  rest: string,
+): { token: MarkdownInline; consumed: number } | null {
   const opener = matchEmphasisOpener(rest);
   if (!opener) {
     return null;
@@ -135,10 +151,15 @@ function findCloser(content: string, opener: string): number {
   while (index >= 0) {
     const before = content[index - 1];
     const after = content[index + opener.length];
-    const isFlankedBySameDelimiter = after === delimiter || before === delimiter;
+    const isFlankedBySameDelimiter =
+      after === delimiter || before === delimiter;
     const isUnderscoreIntraWord = isUnderscore && isWordChar(after);
 
-    if (isNonSpace(before) && !isFlankedBySameDelimiter && !isUnderscoreIntraWord) {
+    if (
+      isNonSpace(before) &&
+      !isFlankedBySameDelimiter &&
+      !isUnderscoreIntraWord
+    ) {
       return index;
     }
     index = content.indexOf(opener, index + 1);
@@ -181,7 +202,11 @@ function parseBlocks(lines: string[]): MarkdownBlock[] {
     }
 
     if (lines[index].trimStart().startsWith('>')) {
-      const end = collectUntil(lines, index + 1, line => !line.trimStart().startsWith('>'));
+      const end = collectUntil(
+        lines,
+        index + 1,
+        line => !line.trimStart().startsWith('>'),
+      );
       blocks.push({
         type: 'blockquote',
         children: parseBlocks(dedentQuote(lines.slice(index, end))),
@@ -203,7 +228,10 @@ function parseBlocks(lines: string[]): MarkdownBlock[] {
       continue;
     }
 
-    if (UNORDERED_ITEM_PATTERN.test(lines[index]) || ORDERED_ITEM_PATTERN.test(lines[index])) {
+    if (
+      UNORDERED_ITEM_PATTERN.test(lines[index]) ||
+      ORDERED_ITEM_PATTERN.test(lines[index])
+    ) {
       const list = parseList(lines, index);
       blocks.push(list.block);
       index = list.nextIndex;
@@ -225,7 +253,11 @@ function isBlockStart(line: string): boolean {
   return !line.trim() || BLOCK_START_PATTERN.test(line);
 }
 
-function collectUntil(lines: string[], start: number, stop: (line: string) => boolean): number {
+function collectUntil(
+  lines: string[],
+  start: number,
+  stop: (line: string) => boolean,
+): number {
   let index = start;
   while (index < lines.length && !stop(lines[index])) {
     index += 1;
@@ -241,7 +273,9 @@ function findFenceEnd(lines: string[], start: number): number {
 function dedentCode(lines: string[]): string {
   const indents = lines.filter(line => line.trim()).map(leadingIndentOf);
   const minIndent = indents.length ? Math.min(...indents) : 0;
-  return lines.map(line => (line.trim() ? line.slice(minIndent) : '')).join('\n');
+  return lines
+    .map(line => (line.trim() ? line.slice(minIndent) : ''))
+    .join('\n');
 }
 
 function leadingIndentOf(line: string): number {
@@ -252,7 +286,10 @@ function dedentQuote(lines: string[]): string[] {
   return lines.map(line => line.trimStart().replace(/^>\s?/, ''));
 }
 
-function parseList(lines: string[], start: number): { block: MarkdownBlock; nextIndex: number } {
+function parseList(
+  lines: string[],
+  start: number,
+): { block: MarkdownBlock; nextIndex: number } {
   const baseIndent = leadingIndentOf(lines[start]);
   const ordered = ORDERED_ITEM_PATTERN.test(lines[start]);
   const items: MarkdownListItem[] = [];
@@ -277,22 +314,36 @@ function parseList(lines: string[], start: number): { block: MarkdownBlock; next
     }
 
     const item = parseListItem(line);
-    if (!item || item.ordered !== ordered || leadingIndentOf(line) !== baseIndent) {
+    if (
+      !item ||
+      item.ordered !== ordered ||
+      leadingIndentOf(line) !== baseIndent
+    ) {
       break;
     }
 
     const contentEnd = collectItemContent(lines, index + 1, baseIndent);
-    items.push({ number: item.number, children: parseBlocks(dedentItem(lines.slice(index, contentEnd))) });
+    items.push({
+      number: item.number,
+      children: parseBlocks(dedentItem(lines.slice(index, contentEnd))),
+    });
     index = contentEnd;
   }
 
   return {
-    block: { type: 'list', ordered, start: ordered ? (items[0]?.number ?? 1) : 1, items },
+    block: {
+      type: 'list',
+      ordered,
+      start: ordered ? (items[0]?.number ?? 1) : 1,
+      items,
+    },
     nextIndex: index,
   };
 }
 
-function parseListItem(line: string): { number: number | null; ordered: boolean } | null {
+function parseListItem(
+  line: string,
+): { number: number | null; ordered: boolean } | null {
   const unordered = UNORDERED_ITEM_PATTERN.exec(line);
   if (unordered) {
     return { number: null, ordered: false };
@@ -304,7 +355,11 @@ function parseListItem(line: string): { number: number | null; ordered: boolean 
   return null;
 }
 
-function collectItemContent(lines: string[], start: number, baseIndent: number): number {
+function collectItemContent(
+  lines: string[],
+  start: number,
+  baseIndent: number,
+): number {
   let index = start;
 
   while (index < lines.length) {
@@ -330,7 +385,11 @@ function collectItemContent(lines: string[], start: number, baseIndent: number):
   return lines.length;
 }
 
-function peekNextItem(lines: string[], from: number, baseIndent: number): number | null {
+function peekNextItem(
+  lines: string[],
+  from: number,
+  baseIndent: number,
+): number | null {
   let index = from;
 
   while (index < lines.length && !lines[index].trim()) {
@@ -355,10 +414,17 @@ function dedentItem(lines: string[]): string[] {
   return [content, ...rest];
 }
 
-function parseTable(lines: string[], start: number): { block: MarkdownBlock; nextIndex: number } | null {
+function parseTable(
+  lines: string[],
+  start: number,
+): { block: MarkdownBlock; nextIndex: number } | null {
   const header = lines[start];
   const separator = lines[start + 1];
-  if (separator === undefined || !header.includes('|') || !TABLE_SEPARATOR_PATTERN.test(separator)) {
+  if (
+    separator === undefined ||
+    !header.includes('|') ||
+    !TABLE_SEPARATOR_PATTERN.test(separator)
+  ) {
     return null;
   }
 
@@ -370,7 +436,11 @@ function parseTable(lines: string[], start: number): { block: MarkdownBlock; nex
   const rows = [splitTableCells(header).map(cell => parseInline(cell))];
   let index = start + 2;
 
-  while (index < lines.length && lines[index].includes('|') && lines[index].trim()) {
+  while (
+    index < lines.length &&
+    lines[index].includes('|') &&
+    lines[index].trim()
+  ) {
     rows.push(splitTableCells(lines[index]).map(cell => parseInline(cell)));
     index += 1;
   }

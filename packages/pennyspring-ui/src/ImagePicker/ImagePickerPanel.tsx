@@ -162,8 +162,8 @@ export function ImagePickerPanel({
         source === 'camera'
           ? await pickImageFromCamera(pickOptions)
           : source === 'photo'
-          ? await pickImageFromLibrary(pickOptions)
-          : await pickImageFromFiles(pickOptions);
+            ? await pickImageFromLibrary(pickOptions)
+            : await pickImageFromFiles(pickOptions);
 
       if (nextValue !== undefined) {
         const nextValues = getSelectedValues(
@@ -270,11 +270,7 @@ export function ImagePickerPanel({
             error={
               <>
                 <Icon color="error" icon="warning" size={20} />
-                <Text
-                  color="error"
-                  size="xs"
-                  style={tokenStyles.errorText}
-                >
+                <Text color="error" size="xs" style={tokenStyles.errorText}>
                   加载失败
                 </Text>
               </>

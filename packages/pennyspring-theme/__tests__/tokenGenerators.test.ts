@@ -38,7 +38,12 @@ describe('genFontSizes', () => {
 });
 
 describe('genRadius', () => {
-  let genRadius: (base: number) => { borderRadiusLG: number; borderRadiusSM: number; borderRadiusXS: number; borderRadiusOuter: number };
+  let genRadius: (base: number) => {
+    borderRadiusLG: number;
+    borderRadiusSM: number;
+    borderRadiusXS: number;
+    borderRadiusOuter: number;
+  };
 
   beforeAll(() => {
     genRadius = require('../src/algorithms/genRadius').genRadius;
@@ -74,10 +79,14 @@ describe('genRadius', () => {
 });
 
 describe('genSizeMapToken', () => {
-  let genSizeMapToken: (seed: { sizeUnit: number; sizeStep: number }) => Record<string, number>;
+  let genSizeMapToken: (seed: {
+    sizeUnit: number;
+    sizeStep: number;
+  }) => Record<string, number>;
 
   beforeAll(() => {
-    genSizeMapToken = require('../src/algorithms/genSizeMapToken').genSizeMapToken;
+    genSizeMapToken =
+      require('../src/algorithms/genSizeMapToken').genSizeMapToken;
   });
 
   it('computes sizeXXL = 48 with default values (sizeUnit=4, sizeStep=4)', () => {
@@ -111,10 +120,15 @@ describe('genSizeMapToken', () => {
 });
 
 describe('genControlHeight', () => {
-  let genControlHeight: (controlHeight: number) => { controlHeightXS: number; controlHeightSM: number; controlHeightLG: number };
+  let genControlHeight: (controlHeight: number) => {
+    controlHeightXS: number;
+    controlHeightSM: number;
+    controlHeightLG: number;
+  };
 
   beforeAll(() => {
-    genControlHeight = require('../src/algorithms/genControlHeight').genControlHeight;
+    genControlHeight =
+      require('../src/algorithms/genControlHeight').genControlHeight;
   });
 
   it('controlHeightSM = 0.85x base', () => {
@@ -134,43 +148,78 @@ describe('genControlHeight', () => {
 });
 
 describe('genCommonMapToken', () => {
-  let genCommonMapToken: (seed: { motionUnit: number; motionBase: number; lineWidth: number; borderRadius: number }) => Record<string, number>;
+  let genCommonMapToken: (seed: {
+    motionUnit: number;
+    motionBase: number;
+    lineWidth: number;
+    borderRadius: number;
+  }) => Record<string, number>;
 
   beforeAll(() => {
-    genCommonMapToken = require('../src/algorithms/genCommonMapToken').genCommonMapToken;
+    genCommonMapToken =
+      require('../src/algorithms/genCommonMapToken').genCommonMapToken;
   });
 
   it('motionDurationFast = 100ms', () => {
-    const common = genCommonMapToken({ motionUnit: 0.1, motionBase: 0, lineWidth: 1, borderRadius: 6 });
+    const common = genCommonMapToken({
+      motionUnit: 0.1,
+      motionBase: 0,
+      lineWidth: 1,
+      borderRadius: 6,
+    });
     expect(common.motionDurationFast).toBe(100);
   });
 
   it('motionDurationMid = 200ms', () => {
-    const common = genCommonMapToken({ motionUnit: 0.1, motionBase: 0, lineWidth: 1, borderRadius: 6 });
+    const common = genCommonMapToken({
+      motionUnit: 0.1,
+      motionBase: 0,
+      lineWidth: 1,
+      borderRadius: 6,
+    });
     expect(common.motionDurationMid).toBe(200);
   });
 
   it('motionDurationSlow = 300ms)', () => {
-    const common = genCommonMapToken({ motionUnit: 0.1, motionBase: 0, lineWidth: 1, borderRadius: 6 });
+    const common = genCommonMapToken({
+      motionUnit: 0.1,
+      motionBase: 0,
+      lineWidth: 1,
+      borderRadius: 6,
+    });
     expect(common.motionDurationSlow).toBe(300);
   });
 
   it('motion durations are numbers (not CSS strings)', () => {
-    const common = genCommonMapToken({ motionUnit: 0.1, motionBase: 0, lineWidth: 1, borderRadius: 6 });
+    const common = genCommonMapToken({
+      motionUnit: 0.1,
+      motionBase: 0,
+      lineWidth: 1,
+      borderRadius: 6,
+    });
     expect(typeof common.motionDurationFast).toBe('number');
   });
 
   it('lineWidthBold = lineWidth + 1', () => {
-    const common = genCommonMapToken({ motionUnit: 0.1, motionBase: 0, lineWidth: 1, borderRadius: 6 });
+    const common = genCommonMapToken({
+      motionUnit: 0.1,
+      motionBase: 0,
+      lineWidth: 1,
+      borderRadius: 6,
+    });
     expect(common.lineWidthBold).toBe(2);
   });
 });
 
 describe('genPresetColorPalettes', () => {
-  let genPresetColorPalettes: (seed: any, algorithm: string) => Record<string, string>;
+  let genPresetColorPalettes: (
+    seed: any,
+    algorithm: string,
+  ) => Record<string, string>;
 
   beforeAll(() => {
-    genPresetColorPalettes = require('../src/algorithms/genPresetColorPalettes').genPresetColorPalettes;
+    genPresetColorPalettes =
+      require('../src/algorithms/genPresetColorPalettes').genPresetColorPalettes;
   });
 
   it('generates blue1..blue10', () => {
@@ -204,13 +253,18 @@ describe('genColorMapToken', () => {
   let genColorMapToken: any;
 
   beforeAll(() => {
-    genColorMapToken = require('../src/algorithms/genColorMapToken').genColorMapToken;
+    genColorMapToken =
+      require('../src/algorithms/genColorMapToken').genColorMapToken;
   });
 
   it('produces colorPrimary from palette step 6', () => {
     const { defaultSeedToken } = require('../src/defaults');
-    const { generateColorPalettes } = require('../src/algorithms/colorPalettes');
-    const { generateNeutralColorPalettes } = require('../src/algorithms/neutralPalettes');
+    const {
+      generateColorPalettes,
+    } = require('../src/algorithms/colorPalettes');
+    const {
+      generateNeutralColorPalettes,
+    } = require('../src/algorithms/neutralPalettes');
 
     const result = genColorMapToken(defaultSeedToken, {
       generateColorPalettes,
@@ -221,8 +275,12 @@ describe('genColorMapToken', () => {
 
   it('produces colorPrimaryBg from palette step 1', () => {
     const { defaultSeedToken } = require('../src/defaults');
-    const { generateColorPalettes } = require('../src/algorithms/colorPalettes');
-    const { generateNeutralColorPalettes } = require('../src/algorithms/neutralPalettes');
+    const {
+      generateColorPalettes,
+    } = require('../src/algorithms/colorPalettes');
+    const {
+      generateNeutralColorPalettes,
+    } = require('../src/algorithms/neutralPalettes');
 
     const result = genColorMapToken(defaultSeedToken, {
       generateColorPalettes,
@@ -234,8 +292,12 @@ describe('genColorMapToken', () => {
   it('colorErrorBgFilledHover is a mix of error step 2 and step 4 at 50%', () => {
     const { FastColor } = require('@ant-design/fast-color');
     const { defaultSeedToken } = require('../src/defaults');
-    const { generateColorPalettes } = require('../src/algorithms/colorPalettes');
-    const { generateNeutralColorPalettes } = require('../src/algorithms/neutralPalettes');
+    const {
+      generateColorPalettes,
+    } = require('../src/algorithms/colorPalettes');
+    const {
+      generateNeutralColorPalettes,
+    } = require('../src/algorithms/neutralPalettes');
 
     const result = genColorMapToken(defaultSeedToken, {
       generateColorPalettes,
@@ -246,7 +308,9 @@ describe('genColorMapToken', () => {
     const errorColors = generateColorPalettes(defaultSeedToken.colorError);
     const step2 = errorColors[1]; // BgHover
     const step4 = errorColors[3]; // BorderHover
-    const expectedMix = new FastColor(step2).mix(new FastColor(step4), 50).toHexString();
+    const expectedMix = new FastColor(step2)
+      .mix(new FastColor(step4), 50)
+      .toHexString();
 
     expect(result.colorErrorBgFilledHover).toBe(expectedMix);
     expect(result.colorErrorBgFilledHover).not.toBe(step2);
@@ -255,8 +319,12 @@ describe('genColorMapToken', () => {
 
   it('colorLink from seed colorLink (falls back to colorInfo)', () => {
     const { defaultSeedToken } = require('../src/defaults');
-    const { generateColorPalettes } = require('../src/algorithms/colorPalettes');
-    const { generateNeutralColorPalettes } = require('../src/algorithms/neutralPalettes');
+    const {
+      generateColorPalettes,
+    } = require('../src/algorithms/colorPalettes');
+    const {
+      generateNeutralColorPalettes,
+    } = require('../src/algorithms/neutralPalettes');
 
     const result = genColorMapToken(defaultSeedToken, {
       generateColorPalettes,
@@ -267,8 +335,12 @@ describe('genColorMapToken', () => {
 
   it('produces colorWhite and colorBgMask', () => {
     const { defaultSeedToken } = require('../src/defaults');
-    const { generateColorPalettes } = require('../src/algorithms/colorPalettes');
-    const { generateNeutralColorPalettes } = require('../src/algorithms/neutralPalettes');
+    const {
+      generateColorPalettes,
+    } = require('../src/algorithms/colorPalettes');
+    const {
+      generateNeutralColorPalettes,
+    } = require('../src/algorithms/neutralPalettes');
 
     const result = genColorMapToken(defaultSeedToken, {
       generateColorPalettes,
@@ -280,8 +352,12 @@ describe('genColorMapToken', () => {
 
   it('uses custom colorLink when provided in seed', () => {
     const { defaultSeedToken } = require('../src/defaults');
-    const { generateColorPalettes } = require('../src/algorithms/colorPalettes');
-    const { generateNeutralColorPalettes } = require('../src/algorithms/neutralPalettes');
+    const {
+      generateColorPalettes,
+    } = require('../src/algorithms/colorPalettes');
+    const {
+      generateNeutralColorPalettes,
+    } = require('../src/algorithms/neutralPalettes');
 
     const customSeed = { ...defaultSeedToken, colorLink: '#ff0000' };
     const result = genColorMapToken(customSeed, {
@@ -298,15 +374,24 @@ describe('genColorMapToken dark mode', () => {
   let genColorMapToken: any;
 
   beforeAll(() => {
-    genColorMapToken = require('../src/algorithms/genColorMapToken').genColorMapToken;
+    genColorMapToken =
+      require('../src/algorithms/genColorMapToken').genColorMapToken;
   });
 
   it('produces different colorPrimary in dark vs default mode', () => {
     const { defaultSeedToken } = require('../src/defaults');
-    const { generateColorPalettes } = require('../src/algorithms/colorPalettes');
-    const { generateColorPalettesDark } = require('../src/algorithms/colorPalettes');
-    const { generateNeutralColorPalettes } = require('../src/algorithms/neutralPalettes');
-    const { generateNeutralColorPalettesDark } = require('../src/algorithms/neutralPalettes');
+    const {
+      generateColorPalettes,
+    } = require('../src/algorithms/colorPalettes');
+    const {
+      generateColorPalettesDark,
+    } = require('../src/algorithms/colorPalettes');
+    const {
+      generateNeutralColorPalettes,
+    } = require('../src/algorithms/neutralPalettes');
+    const {
+      generateNeutralColorPalettesDark,
+    } = require('../src/algorithms/neutralPalettes');
 
     const defaultResult = genColorMapToken(defaultSeedToken, {
       generateColorPalettes,
@@ -325,10 +410,18 @@ describe('genColorMapToken dark mode', () => {
 
   it('produces different neutral colors in dark mode', () => {
     const { defaultSeedToken } = require('../src/defaults');
-    const { generateColorPalettes } = require('../src/algorithms/colorPalettes');
-    const { generateColorPalettesDark } = require('../src/algorithms/colorPalettes');
-    const { generateNeutralColorPalettes } = require('../src/algorithms/neutralPalettes');
-    const { generateNeutralColorPalettesDark } = require('../src/algorithms/neutralPalettes');
+    const {
+      generateColorPalettes,
+    } = require('../src/algorithms/colorPalettes');
+    const {
+      generateColorPalettesDark,
+    } = require('../src/algorithms/colorPalettes');
+    const {
+      generateNeutralColorPalettes,
+    } = require('../src/algorithms/neutralPalettes');
+    const {
+      generateNeutralColorPalettesDark,
+    } = require('../src/algorithms/neutralPalettes');
 
     const defaultResult = genColorMapToken(defaultSeedToken, {
       generateColorPalettes,
@@ -341,14 +434,20 @@ describe('genColorMapToken dark mode', () => {
     });
 
     // Neutral colors should differ
-    expect(defaultResult.colorBgContainer).not.toBe(darkResult.colorBgContainer);
+    expect(defaultResult.colorBgContainer).not.toBe(
+      darkResult.colorBgContainer,
+    );
     expect(defaultResult.colorText).not.toBe(darkResult.colorText);
   });
 
   it('preserves colorWhite and colorBgMask in dark mode', () => {
     const { defaultSeedToken } = require('../src/defaults');
-    const { generateColorPalettesDark } = require('../src/algorithms/colorPalettes');
-    const { generateNeutralColorPalettesDark } = require('../src/algorithms/neutralPalettes');
+    const {
+      generateColorPalettesDark,
+    } = require('../src/algorithms/colorPalettes');
+    const {
+      generateNeutralColorPalettesDark,
+    } = require('../src/algorithms/neutralPalettes');
 
     const darkResult = genColorMapToken(defaultSeedToken, {
       generateColorPalettes: generateColorPalettesDark,
@@ -365,11 +464,13 @@ describe('genFontMapToken', () => {
   let genFontMapToken: (base: number) => Record<string, number>;
 
   beforeAll(() => {
-    genFontMapToken = require('../src/algorithms/genFontMapToken').genFontMapToken;
+    genFontMapToken =
+      require('../src/algorithms/genFontMapToken').genFontMapToken;
   });
 
   beforeAll(() => {
-    genFontMapToken = require('../src/algorithms/genFontMapToken').genFontMapToken;
+    genFontMapToken =
+      require('../src/algorithms/genFontMapToken').genFontMapToken;
   });
 
   it('fontSize equals base font size', () => {

@@ -24,7 +24,9 @@ export function ShadowsPreview() {
             <Text style={previewStyles.shadowLabel}>
               {label}
               {'\n'}
-              blur={shadow.shadowRadius} offset=({shadow.shadowOffset.width},{shadow.shadowOffset.height}) opacity={shadow.shadowOpacity} elevation={shadow.elevation}
+              blur={shadow.shadowRadius} offset=({shadow.shadowOffset.width},
+              {shadow.shadowOffset.height}) opacity={shadow.shadowOpacity}{' '}
+              elevation={shadow.elevation}
             </Text>
           </View>
         );

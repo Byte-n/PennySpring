@@ -13,14 +13,17 @@ export function StepperSizeDemo() {
     <Column gap="normal">
       {SIZE_SAMPLES.map(({ size, hint, value }) => (
         <Column key={size} gap="small">
-          <Text color="tertiary" size="sm">{hint}</Text>
+          <Text color="tertiary" size="sm">
+            {hint}
+          </Text>
           <Row>
             <Stepper defaultValue={value} max={99} min={0} size={size} />
           </Row>
         </Column>
       ))}
       <Text color="tertiary" size="sm">
-        胶囊高度取 controlHeightSM / controlHeight / controlHeightLG；999 胶囊，无描边无分隔线
+        胶囊高度取 controlHeightSM / controlHeight / controlHeightLG；999
+        胶囊，无描边无分隔线
       </Text>
     </Column>
   );

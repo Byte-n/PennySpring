@@ -57,11 +57,7 @@ function isPromiseLike(value: unknown): value is Promise<unknown> {
 function isStandardSchema(
   rule: FormItemRule<unknown, object>,
 ): rule is StandardSchemaV1<unknown> {
-  return (
-    typeof rule === 'object' &&
-    rule !== null &&
-    '~standard' in rule
-  );
+  return typeof rule === 'object' && rule !== null && '~standard' in rule;
 }
 
 function getSchemaErrorMessage(result: unknown): string | undefined {
@@ -116,8 +112,10 @@ function runRule<TValue, TValues extends object>(
 
 function createCompositeRule<TValue, TValues extends object>(
   rules: readonly FormItemRule<TValue, TValues>[],
-): (value: TValue, context: { values: TValues; name: string }) =>
-  string | undefined | Promise<string | undefined> {
+): (
+  value: TValue,
+  context: { values: TValues; name: string },
+) => string | undefined | Promise<string | undefined> {
   return (value, context) => {
     let index = 0;
 
@@ -148,7 +146,10 @@ function createCompositeRule<TValue, TValues extends object>(
 }
 
 function createRuleRunner<TValue, TValues extends object>(
-  rule: (value: TValue, context: { values: TValues; name: string }) => string | undefined | Promise<string | undefined>,
+  rule: (
+    value: TValue,
+    context: { values: TValues; name: string },
+  ) => string | undefined | Promise<string | undefined>,
   name: string,
 ) {
   let cached: CachedRuleResult | null = null;
@@ -231,9 +232,10 @@ function resolveRules<TValue, TValues extends object>(
   options: NormalizeRulesOptions,
 ): FormItemRule<TValue, TValues>[] {
   if (rules !== undefined) {
-    return (
-      Array.isArray(rules) ? [...rules] : [rules]
-    ) as FormItemRule<TValue, TValues>[];
+    return (Array.isArray(rules) ? [...rules] : [rules]) as FormItemRule<
+      TValue,
+      TValues
+    >[];
   }
 
   if (options.required !== true) {
@@ -255,11 +257,12 @@ function attachDebouncedRules<TValue, TValues extends object>(
   name: string,
 ): NormalizedFieldValidators {
   const validators: NormalizedFieldValidators = { ...baseValidators };
-  const rule = (rules.length === 1
-    ? rules[0]
-    : createCompositeRule(rules)) as FormItemRule<TValue, TValues>;
+  const rule = (
+    rules.length === 1 ? rules[0] : createCompositeRule(rules)
+  ) as FormItemRule<TValue, TValues>;
   const asyncValidator =
-    rules.length === 1 && isStandardSchema(rule as FormItemRule<unknown, object>)
+    rules.length === 1 &&
+    isStandardSchema(rule as FormItemRule<unknown, object>)
       ? (rule as StandardSchemaV1<unknown>)
       : createRuleRunner(rule as RunnableRule<TValue, TValues>, name).async;
 

@@ -36,18 +36,17 @@ export interface InputStyles {
   clearButton?: StyleProp<ViewStyle>;
 }
 
-export interface InputProps
-  extends Omit<
-    TextInputProps,
-    | 'defaultValue'
-    | 'editable'
-    | 'onChange'
-    | 'onChangeText'
-    | 'placeholder'
-    | 'readOnly'
-    | 'style'
-    | 'value'
-  > {
+export interface InputProps extends Omit<
+  TextInputProps,
+  | 'defaultValue'
+  | 'editable'
+  | 'onChange'
+  | 'onChangeText'
+  | 'placeholder'
+  | 'readOnly'
+  | 'style'
+  | 'value'
+> {
   /**
    * Input size. Defaults to normal.
    */

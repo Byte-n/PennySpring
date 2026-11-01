@@ -139,11 +139,12 @@ export function AgentSettingsScreen() {
       await api.provider.delete(target.id);
       bumpProviderVersion();
       setPendingDelete(null);
-      toast.show({ messageText: `已删除「${getProviderDisplayName(target)}」` });
+      toast.show({
+        messageText: `已删除「${getProviderDisplayName(target)}」`,
+      });
     } catch (error) {
       toast.show({
-        messageText:
-          error instanceof Error ? error.message : '删除提供商失败',
+        messageText: error instanceof Error ? error.message : '删除提供商失败',
         status: 'error',
       });
     }
@@ -159,8 +160,9 @@ export function AgentSettingsScreen() {
     <Column style={styles.container}>
       <ScrollView contentContainerStyle={styles.content} scrollEnabled>
         <Column gap="normal">
-          <Text color="tertiary" size="xs" >
-            提供商配置与 API Key 保存在账本所在服务器；API Key 暂为明文存储，请勿在共享服务器使用敏感 Key。
+          <Text color="tertiary" size="xs">
+            提供商配置与 API Key 保存在账本所在服务器；API Key
+            暂为明文存储，请勿在共享服务器使用敏感 Key。
           </Text>
         </Column>
 
@@ -203,7 +205,9 @@ export function AgentSettingsScreen() {
                     <Button
                       disabled={isActive}
                       onPress={() => {
-                        handleSetActiveProvider(provider).catch(() => undefined);
+                        handleSetActiveProvider(provider).catch(
+                          () => undefined,
+                        );
                       }}
                       size="small"
                       type="text"
@@ -232,14 +236,16 @@ export function AgentSettingsScreen() {
                 variant="plain"
               >
                 <Column gap="small">
-                  {descriptor && descriptor.name !== getProviderDisplayName(provider) ? (
+                  {descriptor &&
+                  descriptor.name !== getProviderDisplayName(provider) ? (
                     <Text color="secondary" size="xs">
                       {descriptor.name}
                     </Text>
                   ) : null}
                   <Text size="xs">{provider.baseUrl}</Text>
                   <Text color="secondary" size="xs">
-                    默认模型：{getProviderDefaultModel(provider)?.modelId ?? '未设置'}
+                    默认模型：
+                    {getProviderDefaultModel(provider)?.modelId ?? '未设置'}
                     （共 {provider.models.length} 个）
                   </Text>
                 </Column>

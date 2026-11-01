@@ -19,7 +19,8 @@ jest.mock('@pennyspring/ui', () => {
   const ReactLib = require('react');
   const { Text, View } = require('react-native');
 
-  const passthrough = (Component: React.ComponentType) =>
+  const passthrough =
+    (Component: React.ComponentType) =>
     ({ children, ...props }: { children?: React.ReactNode }) =>
       ReactLib.createElement(Component, props, children);
 
@@ -72,12 +73,18 @@ jest.mock('../src/agent/ui/AgentSessionList', () => {
             { key: thread.id },
             ReactLib.createElement(
               Pressable,
-              { onPress: () => onSelect(thread), testID: `select-${thread.id}` },
+              {
+                onPress: () => onSelect(thread),
+                testID: `select-${thread.id}`,
+              },
               ReactLib.createElement(Text, null, 'select'),
             ),
             ReactLib.createElement(
               Pressable,
-              { onPress: () => onDelete(thread), testID: `delete-${thread.id}` },
+              {
+                onPress: () => onDelete(thread),
+                testID: `delete-${thread.id}`,
+              },
               ReactLib.createElement(Text, null, 'delete'),
             ),
           ),
@@ -109,8 +116,24 @@ jest.mock('../src/components/ManageConfirmDialog', () => {
 });
 
 const THREADS: AgentThreadRow[] = [
-  { id: 1, booksId: 1, title: '本月支出', providerId: 0, modelId: '', createdTime: 0, updatedTime: 1_700_000_000_000 },
-  { id: 2, booksId: 1, title: '', providerId: 0, modelId: '', createdTime: 0, updatedTime: 1_700_000_600_000 },
+  {
+    id: 1,
+    booksId: 1,
+    title: '本月支出',
+    providerId: 0,
+    modelId: '',
+    createdTime: 0,
+    updatedTime: 1_700_000_000_000,
+  },
+  {
+    id: 2,
+    booksId: 1,
+    title: '',
+    providerId: 0,
+    modelId: '',
+    createdTime: 0,
+    updatedTime: 1_700_000_600_000,
+  },
 ];
 
 function setupChat(overrides: Partial<AgentSessionState> = {}): void {
@@ -164,7 +187,9 @@ describe('SessionManageScreen', () => {
     });
 
     expect(mockChat.selectThread).toHaveBeenCalledWith(2);
-    expect(mockToastShow).toHaveBeenCalledWith({ messageText: '已恢复「新对话」' });
+    expect(mockToastShow).toHaveBeenCalledWith({
+      messageText: '已恢复「新对话」',
+    });
     expect(mockGoBack).toHaveBeenCalledTimes(1);
     expect(mockOpenAgent).toHaveBeenCalledTimes(1);
   });
@@ -177,11 +202,15 @@ describe('SessionManageScreen', () => {
     });
 
     await act(async () => {
-      await renderer.root.findByProps({ testID: 'confirm-delete' }).props.onPress();
+      await renderer.root
+        .findByProps({ testID: 'confirm-delete' })
+        .props.onPress();
     });
 
     expect(mockChat.deleteThread).toHaveBeenCalledWith(2);
-    expect(mockToastShow).toHaveBeenCalledWith({ messageText: '已删除「新对话」' });
+    expect(mockToastShow).toHaveBeenCalledWith({
+      messageText: '已删除「新对话」',
+    });
   });
 
   it('does not navigate when the session cannot be restored', async () => {

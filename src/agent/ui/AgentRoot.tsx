@@ -107,7 +107,8 @@ export function AgentRoot({ children }: AgentRootProps) {
   });
 
   const { data: providers = [] } = useProviders();
-  const { data: agentSelection = EMPTY_AGENT_SELECTION } = useProviderSelection();
+  const { data: agentSelection = EMPTY_AGENT_SELECTION } =
+    useProviderSelection();
   const { data: quickBookSelection = EMPTY_AGENT_SELECTION } =
     useQuickBookSelection();
 
@@ -129,13 +130,11 @@ export function AgentRoot({ children }: AgentRootProps) {
   const ensureQuickBookThread = session.ensureQuickBookThread;
   const syncDraftSelection = session.syncDraftSelection;
 
-  const {
-    data: configured = false,
-    refresh: refreshConfigured,
-  } = useProviderKeyStatus(
-    book?.id ?? null,
-    currentThread?.providerId ?? agentSelection.providerId,
-  );
+  const { data: configured = false, refresh: refreshConfigured } =
+    useProviderKeyStatus(
+      book?.id ?? null,
+      currentThread?.providerId ?? agentSelection.providerId,
+    );
 
   const editingProvider =
     providers.find(provider => provider.id === providerEditorId) ?? null;
@@ -302,8 +301,7 @@ export function AgentRoot({ children }: AgentRootProps) {
           };
         }
 
-        const text =
-          settings.presetPrompt.trim() || DEFAULT_QUICK_BOOK_PROMPT;
+        const text = settings.presetPrompt.trim() || DEFAULT_QUICK_BOOK_PROMPT;
         setPendingQuickBook({
           id: `${threadIdOrNull}-${Date.now()}`,
           threadId: threadIdOrNull,
@@ -323,14 +321,7 @@ export function AgentRoot({ children }: AgentRootProps) {
         startingQuickBookRef.current = false;
       }
     },
-    [
-      api,
-      book,
-      ensureQuickBookThread,
-      media,
-      sessionErrorText,
-      sessionSending,
-    ],
+    [api, book, ensureQuickBookThread, media, sessionErrorText, sessionSending],
   );
 
   const launcher = useMemo<AgentLauncher>(
@@ -348,9 +339,7 @@ export function AgentRoot({ children }: AgentRootProps) {
 
   const { nudge, dismiss } = useScreenshotNudge({
     enabled:
-      quickBookReady &&
-      quickBookSettings.nudgeEnabled &&
-      isQuickBookConfigured,
+      quickBookReady && quickBookSettings.nudgeEnabled && isQuickBookConfigured,
     windowSeconds: quickBookSettings.freshWindowSeconds,
     suppressed: drawerOpen,
   });

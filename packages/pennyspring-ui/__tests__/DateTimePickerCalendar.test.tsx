@@ -35,8 +35,10 @@ jest.mock('react-native-reanimated', () => {
     default: {
       View: ReactNative.View,
     },
-    createAnimatedComponent: (Component: React.ComponentType<Record<string, unknown>>) =>
-      (props: Record<string, unknown>) => ReactModule.createElement(Component, props),
+    createAnimatedComponent:
+      (Component: React.ComponentType<Record<string, unknown>>) =>
+      (props: Record<string, unknown>) =>
+        ReactModule.createElement(Component, props),
     interpolate: (value: number) => value,
     useAnimatedStyle: (updater: () => Record<string, unknown>) => updater(),
     useSharedValue: (value: number) => ({ value }),
@@ -88,7 +90,8 @@ it('replaces the calendar body with a loading state', () => {
   });
 
   expect(
-    testRenderer!.root.findAllByProps({ testID: 'date-time-calendar-loading' }).length,
+    testRenderer!.root.findAllByProps({ testID: 'date-time-calendar-loading' })
+      .length,
   ).toBeGreaterThan(0);
   expect(testRenderer!.root.findAllByType(CalendarPickerView)).toHaveLength(0);
 });
@@ -340,9 +343,9 @@ it('keeps the committed value on the trigger when cancelled', () => {
       .props.onPress();
   });
 
-  expect(
-    testRenderer!.root.findByType(DisplayInput).props.valueText,
-  ).toBe('2026-10-25 14:30');
+  expect(testRenderer!.root.findByType(DisplayInput).props.valueText).toBe(
+    '2026-10-25 14:30',
+  );
 });
 
 it('disables ok when the selected time is outside the allowed range', () => {
@@ -361,7 +364,8 @@ it('disables ok when the selected time is outside the allowed range', () => {
   });
 
   expect(
-    testRenderer!.root.findByProps({ testID: 'picker-ok-button' }).props.disabled,
+    testRenderer!.root.findByProps({ testID: 'picker-ok-button' }).props
+      .disabled,
   ).toBe(true);
 });
 

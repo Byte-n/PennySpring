@@ -1,4 +1,11 @@
-import React, { createContext, useCallback, useContext, useMemo, useRef, useState } from 'react';
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import type { ImagePickerValue } from '@pennyspring/ui';
 import type { RecordTypeCategoryValue } from '@pennyspring/api';
 
@@ -286,13 +293,19 @@ export function AddRecordProvider({
     ],
   );
 
-  return <AddRecordContext.Provider value={value}>{children}</AddRecordContext.Provider>;
+  return (
+    <AddRecordContext.Provider value={value}>
+      {children}
+    </AddRecordContext.Provider>
+  );
 }
 
 export function useAddRecordContext(): AddRecordContextValue {
   const ctx = useContext(AddRecordContext);
   if (ctx === null) {
-    throw new Error('useAddRecordContext must be used within AddRecordProvider');
+    throw new Error(
+      'useAddRecordContext must be used within AddRecordProvider',
+    );
   }
   return ctx;
 }

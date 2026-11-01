@@ -25,7 +25,9 @@ export function SwitchSizeDemo() {
     <Column gap="normal">
       {SIZE_SAMPLES.map(({ size, hint, label }) => (
         <Column key={size} gap="small">
-          <Text color="tertiary" size="sm">{hint}</Text>
+          <Text color="tertiary" size="sm">
+            {hint}
+          </Text>
           <Row align="center" gap="large">
             <Row align="center" gap="small">
               <Text size="sm">{label}</Text>
@@ -39,7 +41,8 @@ export function SwitchSizeDemo() {
         </Column>
       ))}
       <Text color="tertiary" size="sm">
-        轨道宽 = 滑块 × 2，位移 = 滑块直径；控件高度取 controlHeightSM / controlHeight / controlHeightLG
+        轨道宽 = 滑块 × 2，位移 = 滑块直径；控件高度取 controlHeightSM /
+        controlHeight / controlHeightLG
       </Text>
     </Column>
   );

@@ -1,6 +1,9 @@
 import type { TypeRow } from '@pennyspring/api';
 
-import type { AddRecordDraft, AddRecordTabType } from '../addRecord/addRecordDraft';
+import type {
+  AddRecordDraft,
+  AddRecordTabType,
+} from '../addRecord/addRecordDraft';
 import type { QuickTemplate } from './types';
 
 /**
