@@ -1,11 +1,8 @@
-export const UPDATE_MANIFEST_URL =
-  'https://github.com/Byte-n/PennySpring/releases/latest/download/latest.json';
-
 const RELEASE_DOWNLOAD_PREFIX =
   'https://github.com/Byte-n/PennySpring/releases/download/';
-const VERSION_PATTERN = /^\d+\.\d+\.\d+$/;
-const RELEASE_TITLE_PATTERN = /^PennySpring (\d+\.\d+\.\d+)$/;
-const SHA256_PATTERN = /^[a-f0-9]{64}$/i;
+const RELEASE_TAG_PATTERN = /^v(\d+\.\d+\.\d+)$/;
+const APK_NAME_PATTERN = /^PennySpring-(\d+\.\d+\.\d+)(?:-(arm64-v8a|armeabi-v7a))?\.apk$/;
+const DIGEST_PATTERN = /^sha256:([a-f0-9]{64})$/i;
 
 export const UPDATE_APK_ABIS = ['arm64-v8a', 'armeabi-v7a'] as const;
 export type UpdateApkAbi = (typeof UPDATE_APK_ABIS)[number];
@@ -16,31 +13,24 @@ export interface UpdateApk {
   sha256: string;
 }
 
-export interface UpdateReleaseNotes {
-  versionName: string;
-  versionCode: number;
-  publishedAt: string;
-  notes: string;
-}
-
-interface GitHubRelease {
-  name?: unknown;
-  published_at?: unknown;
-  body?: unknown;
-  draft?: unknown;
-  prerelease?: unknown;
-}
-
-export interface UpdateManifest {
-  formatVersion: number;
+export interface UpdateRelease {
   versionName: string;
   versionCode: number;
   publishedAt: string;
   notes: string;
   apk: UpdateApk;
-  apks?: Partial<Record<UpdateApkAbi, UpdateApk>>;
-  releaseNotes?: UpdateReleaseNotes[];
+  apks: Record<UpdateApkAbi, UpdateApk>;
 }
+
+export interface UpdateTarget {
+  release: UpdateRelease;
+  apk: UpdateApk;
+  releaseNotes: UpdateRelease[];
+}
+
+export type UpdateCheckResult =
+  | ({ status: 'available' } & UpdateTarget)
+  | { status: 'current' };
 
 export type UpdateVersionStatus = 'available' | 'current';
 
@@ -48,6 +38,22 @@ export interface ContentRange {
   start: number;
   end: number;
   total: number;
+}
+
+interface GitHubReleaseAsset {
+  name?: unknown;
+  size?: unknown;
+  digest?: unknown;
+  browser_download_url?: unknown;
+}
+
+interface GitHubRelease {
+  tag_name?: unknown;
+  published_at?: unknown;
+  body?: unknown;
+  draft?: unknown;
+  prerelease?: unknown;
+  assets?: unknown;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -85,65 +91,60 @@ export function isTrustedApkUrl(value: string): boolean {
   }
 }
 
-function parseApk(value: unknown): UpdateApk {
+function parseAsset(
+  value: unknown,
+  versionName: string,
+): [UpdateApkAbi | 'universal', UpdateApk] | null {
   if (!isRecord(value)) {
-    throw new Error('更新安装包信息缺失');
+    throw new Error('Release 附件格式不正确');
   }
-  const url = requireString(value.url, 'APK 下载地址缺失');
+  const name = requireString(value.name, 'Release 附件名称缺失');
+  const match = APK_NAME_PATTERN.exec(name);
+  if (!match) return null;
+  const [, assetVersion, abi] = match;
+  if (assetVersion !== versionName) return null;
+  if (abi !== undefined && !isUpdateApkAbi(abi)) return null;
+
+  const url = requireString(value.browser_download_url, `${name} 下载地址缺失`);
   if (!isTrustedApkUrl(url)) {
-    throw new Error('APK 下载地址不受信任');
+    throw new Error(`${name} 下载地址不受信任`);
   }
-  const size = requirePositiveInteger(value.size, 'APK 文件大小不正确');
-  const sha256 = requireString(value.sha256, 'APK 校验值缺失');
-  if (!SHA256_PATTERN.test(sha256)) {
-    throw new Error('APK SHA-256 校验值不正确');
+  const size = requirePositiveInteger(value.size, `${name} 文件大小不正确`);
+  const digest = requireString(value.digest, `${name} 校验值缺失`);
+  const digestMatch = DIGEST_PATTERN.exec(digest);
+  if (!digestMatch) {
+    throw new Error(`${name} 校验值格式不正确`);
   }
-  return { url, size, sha256: sha256.toLowerCase() };
+  return [abi ?? 'universal', { url, size, sha256: digestMatch[1].toLowerCase() }];
 }
 
-function isUpdateApkAbi(value: string): value is UpdateApkAbi {
-  return (UPDATE_APK_ABIS as readonly string[]).includes(value);
-}
-
-function parseApkVariants(value: unknown): Partial<Record<UpdateApkAbi, UpdateApk>> | undefined {
-  if (value === undefined) return undefined;
-  if (!isRecord(value)) {
-    throw new Error('分架构 APK 信息格式不正确');
-  }
-  const entries = Object.entries(value);
-  if (entries.length === 0) {
-    throw new Error('分架构 APK 信息不能为空');
-  }
-  return Object.fromEntries(
-    entries.map(([abi, apk]) => {
-      if (!isUpdateApkAbi(abi)) {
-        throw new Error(`不支持的 APK 架构：${abi}`);
-      }
-      return [abi, parseApk(apk)];
-    }),
-  ) as Partial<Record<UpdateApkAbi, UpdateApk>>;
-}
-
-function parseReleaseNotes(value: unknown): UpdateReleaseNotes[] | undefined {
-  if (value === undefined) return undefined;
+function parseReleaseAssets(
+  value: unknown,
+  versionName: string,
+): Pick<UpdateRelease, 'apk' | 'apks'> {
   if (!Array.isArray(value)) {
-    throw new Error('版本更新说明格式不正确');
+    throw new Error('Release 附件格式不正确');
   }
-  return value.map((entry, index) => {
-    if (!isRecord(entry)) {
-      throw new Error(`第 ${index + 1} 条版本更新说明格式不正确`);
-    }
-    const versionName = requireString(entry.versionName, '版本更新说明版本号缺失');
-    if (!VERSION_PATTERN.test(versionName)) {
-      throw new Error('版本更新说明版本号格式不正确');
-    }
-    return {
-      versionName,
-      versionCode: requirePositiveInteger(entry.versionCode, '版本更新说明版本编码不正确'),
-      publishedAt: requireString(entry.publishedAt, '版本更新时间缺失'),
-      notes: typeof entry.notes === 'string' ? entry.notes : '',
-    };
-  });
+  const assets = new Map<string, UpdateApk>();
+  for (const asset of value as GitHubReleaseAsset[]) {
+    const parsed = parseAsset(asset, versionName);
+    if (parsed) assets.set(parsed[0], parsed[1]);
+  }
+
+  const apk = assets.get('universal');
+  if (!apk) {
+    throw new Error(`v${versionName} 缺少通用安装包`);
+  }
+  const apks = Object.fromEntries(
+    UPDATE_APK_ABIS.map(abi => {
+      const variant = assets.get(abi);
+      if (!variant) {
+        throw new Error(`v${versionName} 缺少 ${abi} 安装包`);
+      }
+      return [abi, variant];
+    }),
+  ) as Record<UpdateApkAbi, UpdateApk>;
+  return { apk, apks };
 }
 
 function getVersionCode(versionName: string): number {
@@ -151,103 +152,40 @@ function getVersionCode(versionName: string): number {
   return major * 10000 + minor * 100 + patch;
 }
 
-export function parseGitHubReleasePage(
-  value: unknown,
-  installedVersionCode: number,
-  targetVersionCode: number,
-): UpdateReleaseNotes[] {
+export function parseGitHubReleases(value: unknown): UpdateRelease[] {
   if (!Array.isArray(value)) {
     throw new Error('GitHub Release 列表格式不正确');
   }
-  return (value as GitHubRelease[])
-    .flatMap(release => {
-      if (!isRecord(release) || release.draft === true || release.prerelease === true) return [];
-      const title = typeof release.name === 'string' ? release.name : '';
-      const match = RELEASE_TITLE_PATTERN.exec(title);
-      const versionName = match?.[1];
-      if (!versionName) return [];
-      const versionCode = getVersionCode(versionName);
-      if (versionCode <= installedVersionCode || versionCode > targetVersionCode) return [];
-      return [{
-        versionName,
-        versionCode,
-        publishedAt: typeof release.published_at === 'string' ? release.published_at : '',
-        notes: typeof release.body === 'string' ? release.body.trim() : '',
-      }];
-    })
-    .sort((left, right) => left.versionCode - right.versionCode);
-}
-
-export function parseUpdateManifest(value: unknown): UpdateManifest {
-  if (!isRecord(value)) {
-    throw new Error('更新清单格式不正确');
-  }
-  const formatVersion = requirePositiveInteger(value.formatVersion, '更新清单版本不正确');
-  if (formatVersion !== 1) {
-    throw new Error(`不支持的更新清单版本：${formatVersion}`);
-  }
-  const versionName = requireString(value.versionName, '更新版本号缺失');
-  if (!VERSION_PATTERN.test(versionName)) {
-    throw new Error('更新版本号格式不正确');
-  }
-  const versionCode = requirePositiveInteger(value.versionCode, '更新版本编码不正确');
-  const publishedAt = requireString(value.publishedAt, '更新时间缺失');
-  const notes = typeof value.notes === 'string' ? value.notes : '';
-  const apk = parseApk(value.apk);
-  const apks = parseApkVariants(value.apks);
-  const releaseNotes = parseReleaseNotes(value.releaseNotes);
-  return {
-    formatVersion,
-    versionName,
-    versionCode,
-    publishedAt,
-    notes,
-    apk,
-    ...(apks ? { apks } : {}),
-    ...(releaseNotes ? { releaseNotes } : {}),
-  };
-}
-
-export function getUpdateReleaseNotes(
-  manifest: UpdateManifest,
-  installedVersionCode: number,
-): UpdateReleaseNotes[] {
-  const releases = manifest.releaseNotes?.length
-    ? manifest.releaseNotes
-    : [{
-        versionName: manifest.versionName,
-        versionCode: manifest.versionCode,
-        publishedAt: manifest.publishedAt,
-        notes: manifest.notes,
-      }];
-  const hasTargetRelease = releases.some(release => release.versionCode === manifest.versionCode);
-  const allReleases = hasTargetRelease
-    ? releases
-    : [...releases, {
-        versionName: manifest.versionName,
-        versionCode: manifest.versionCode,
-        publishedAt: manifest.publishedAt,
-        notes: manifest.notes,
-      }];
-  return [...allReleases]
-    .filter(
-      release =>
-        release.versionCode > installedVersionCode &&
-        release.versionCode <= manifest.versionCode,
-    )
-    .sort((left, right) => left.versionCode - right.versionCode);
+  return (value as GitHubRelease[]).flatMap(release => {
+    if (!isRecord(release) || release.draft === true || release.prerelease === true) return [];
+    const tag = typeof release.tag_name === 'string' ? release.tag_name : '';
+    const match = RELEASE_TAG_PATTERN.exec(tag);
+    const versionName = match?.[1];
+    if (!versionName) return [];
+    return [{
+      versionName,
+      versionCode: getVersionCode(versionName),
+      publishedAt: typeof release.published_at === 'string' ? release.published_at : '',
+      notes: typeof release.body === 'string' ? release.body.trim() : '',
+      ...parseReleaseAssets(release.assets, versionName),
+    }];
+  });
 }
 
 export function selectUpdateApk(
-  manifest: UpdateManifest,
+  release: UpdateRelease,
   supportedAbis: readonly string[],
 ): UpdateApk {
   for (const abi of supportedAbis) {
     if (!isUpdateApkAbi(abi)) continue;
-    const apk = manifest.apks?.[abi];
+    const apk = release.apks[abi];
     if (apk) return apk;
   }
-  return manifest.apk;
+  return release.apk;
+}
+
+function isUpdateApkAbi(value: string): value is UpdateApkAbi {
+  return (UPDATE_APK_ABIS as readonly string[]).includes(value);
 }
 
 export function compareUpdateVersion(

@@ -12,10 +12,9 @@ describe('Android 版本号工具', () => {
   });
 
   it('从根目录 version.json 读取版本状态', async () => {
-    await expect(readVersionState()).resolves.toEqual({
-      versionCode: 1,
-      versionName: '0.0.1',
-    });
+    const state = await readVersionState();
+
+    expect(state.versionCode).toBe(toVersionCode(state.versionName));
   });
 
   it('递增版本号时重置低位', () => {

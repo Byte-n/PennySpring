@@ -83,6 +83,10 @@ jest.mock('../src/agent/ui/AgentRoot', () => ({
   AgentRoot: ({ children }: { children: React.ReactNode }) => children,
 }));
 
+jest.mock('../src/features/appUpdate/AutoUpdateChecker', () => ({
+  AutoUpdateChecker: () => null,
+}));
+
 jest.mock('../src/navigation/BookSelectNavigator', () => ({
   BookSelectNavigator: () => null,
 }));

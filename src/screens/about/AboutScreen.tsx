@@ -7,6 +7,7 @@ import {
   Progress,
   Popup,
   Row,
+  Switch,
   Tag,
   Text,
   createUseSheetStyle,
@@ -31,9 +32,10 @@ import {
   type InstalledVersion,
 } from '../../features/appUpdate/client';
 import {
-  getUpdateReleaseNotes,
-  type UpdateManifest,
-} from '../../features/appUpdate/update';
+  rehydrateAutoUpdate,
+  useAutoUpdateStore,
+} from '../../features/appUpdate/autoUpdateStore';
+import type { UpdateTarget } from '../../features/appUpdate/update';
 
 type UpdateState =
   | 'idle'
@@ -138,13 +140,21 @@ export function AboutScreen() {
   const styles = useStyles();
   const { token } = useTheme();
   const toast = useToast();
+  const autoCheckEnabled = useAutoUpdateStore(state => state.autoCheckEnabled);
+  const setAutoCheckEnabled = useAutoUpdateStore(
+    state => state.setAutoCheckEnabled,
+  );
   const [installed, setInstalled] = useState<InstalledVersion | null>(null);
-  const [manifest, setManifest] = useState<UpdateManifest | null>(null);
+  const [target, setTarget] = useState<UpdateTarget | null>(null);
   const [state, setState] = useState<UpdateState>('idle');
   const [errorText, setErrorText] = useState('');
   const [progress, setProgress] = useState<DownloadProgress | null>(null);
   const [downloadPath, setDownloadPath] = useState('');
   const [releaseNotesOpen, setReleaseNotesOpen] = useState(false);
+
+  useEffect(() => {
+    rehydrateAutoUpdate().catch(() => undefined);
+  }, []);
 
   useEffect(() => {
     getInstalledVersion()
@@ -161,20 +171,24 @@ export function AboutScreen() {
     setErrorText('');
     try {
       const result = await checkForUpdate(installed);
-      setManifest(result.manifest);
       if (result.status === 'current') {
+        setTarget(null);
         setDownloadPath('');
         setProgress(null);
         setState('current');
         toast.show({ messageText: '当前已是最新版本', status: 'success' });
         return;
       }
-      const existingDownload = await getExistingDownload(result.manifest);
+      setTarget(result);
+      const existingDownload = await getExistingDownload(
+        result.apk,
+        result.release.versionName,
+      );
       if (existingDownload.status === 'complete') {
         setDownloadPath(existingDownload.path);
         setProgress({
           bytesRead: existingDownload.sizeBytes,
-          totalBytes: result.manifest.apk.size,
+          totalBytes: result.apk.size,
           resumed: true,
         });
         setState('ready');
@@ -185,7 +199,7 @@ export function AboutScreen() {
         existingDownload.status === 'partial'
           ? {
               bytesRead: existingDownload.sizeBytes,
-              totalBytes: result.manifest.apk.size,
+              totalBytes: result.apk.size,
               resumed: true,
             }
           : null,
@@ -200,11 +214,15 @@ export function AboutScreen() {
   }, [installed, state, toast]);
 
   const handleDownload = useCallback(async (): Promise<void> => {
-    if (!manifest || state === 'downloading') return;
+    if (!target || state === 'downloading') return;
     setState('downloading');
     setErrorText('');
     try {
-      const result = await downloadUpdate(manifest, setProgress);
+      const result = await downloadUpdate(
+        target.apk,
+        target.release.versionName,
+        setProgress,
+      );
       setDownloadPath(result.path);
       setState('ready');
       toast.show({ messageText: '下载完成，文件校验通过', status: 'success' });
@@ -212,7 +230,7 @@ export function AboutScreen() {
       setState('interrupted');
       setErrorText(getErrorMessage(error));
     }
-  }, [manifest, state, toast]);
+  }, [target, state, toast]);
 
   const handleInstall = useCallback(async (): Promise<void> => {
     if (!downloadPath || state === 'installing') return;
@@ -232,10 +250,7 @@ export function AboutScreen() {
           (progress.bytesRead / progress.totalBytes) * FULL_PERCENT,
         )
       : 0;
-  const releaseNotes =
-    manifest && installed
-      ? getUpdateReleaseNotes(manifest, installed.versionCode)
-      : [];
+  const releaseNotes = target?.releaseNotes ?? [];
   const hasReleaseNotes = releaseNotes.some(release => release.notes.trim());
   const isBusy =
     state === 'checking' || state === 'downloading' || state === 'installing';
@@ -296,10 +311,10 @@ export function AboutScreen() {
               <Row style={styles.row}>
                 <Column style={styles.rowText}>
                   <Text size="lg" weight="semibold">
-                    发现新版本 v{manifest?.versionName}
+                    发现新版本 v{target?.release.versionName}
                   </Text>
                   <Text color="secondary" size="sm">
-                    {manifest ? formatBytes(manifest.apk.size) : ''}
+                    {target ? formatBytes(target.apk.size) : ''}
                   </Text>
                 </Column>
                 <Button
@@ -393,6 +408,19 @@ export function AboutScreen() {
               手动检查 GitHub Release 中的最新稳定版本。
             </Text>
           ) : null}
+          <Row style={styles.row}>
+            <Column style={styles.rowText}>
+              <Text size="sm">自动检查更新</Text>
+              <Text color="tertiary" size="xs">
+                每次启动应用时检查新版本，发现后弹窗提示
+              </Text>
+            </Column>
+            <Switch
+              accessibilityLabel="自动检查更新"
+              onChange={setAutoCheckEnabled}
+              value={autoCheckEnabled}
+            />
+          </Row>
           <Button
             disabled={isBusy || !installed}
             icon={ArrowClockwiseIcon}

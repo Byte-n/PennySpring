@@ -1,8 +1,8 @@
 name: Android Release
 
 # 发布方式：使用 PennySpring Android Release Skill 准备版本提交，标题形如
-# `update: v1.0.3`，正文包含面向用户的发布说明。工作流自动构建 APK、生成更新清单、
-# 创建 Release 并打 tag。也可以在 Actions 页面手动指定版本重跑。
+# `update: v1.0.3`，正文包含面向用户的发布说明。工作流自动构建 APK、创建 Release
+# （标题固定为 `v1.0.3`）并打 tag。也可以在 Actions 页面手动指定版本重跑。
 on:
   push:
     branches: [main]
@@ -151,28 +151,8 @@ jobs:
           # 提交信息首行是 update 标记，其余行作为更新说明
           git log -1 --pretty=%B | tail -n +2 | sed '/^[[:space:]]*$/d' > build/release/notes.md
           if [ ! -s build/release/notes.md ]; then
-            echo "PennySpring $VERSION_NAME" > build/release/notes.md
+            echo "v$VERSION_NAME" > build/release/notes.md
           fi
-
-      - name: 生成更新清单
-        env:
-          VERSION_NAME: ${{ steps.version.outputs.name }}
-          VERSION_CODE: ${{ steps.version.outputs.code }}
-          TAG: ${{ steps.version.outputs.tag }}
-        run: |
-          set -euo pipefail
-          RELEASE_URL_PREFIX="https://github.com/${GITHUB_REPOSITORY}/releases/download/${TAG}"
-          node scripts/android/make-manifest.js \
-            --apk "build/release/PennySpring-${VERSION_NAME}.apk" \
-            --version "$VERSION_NAME" \
-            --version-code "$VERSION_CODE" \
-            --url "$RELEASE_URL_PREFIX/PennySpring-${VERSION_NAME}.apk" \
-            --apk-arm64-v8a "build/release/PennySpring-${VERSION_NAME}-arm64-v8a.apk" \
-            --url-arm64-v8a "$RELEASE_URL_PREFIX/PennySpring-${VERSION_NAME}-arm64-v8a.apk" \
-            --apk-armeabi-v7a "build/release/PennySpring-${VERSION_NAME}-armeabi-v7a.apk" \
-            --url-armeabi-v7a "$RELEASE_URL_PREFIX/PennySpring-${VERSION_NAME}-armeabi-v7a.apk" \
-            --notes-file build/release/notes.md \
-            --out build/release/latest.json
 
       - name: 归档构建产物
         uses: actions/upload-artifact@v4
@@ -192,9 +172,8 @@ jobs:
             "build/release/PennySpring-${VERSION_NAME}.apk#PennySpring-${VERSION_NAME}.apk" \
             "build/release/PennySpring-${VERSION_NAME}-arm64-v8a.apk#PennySpring-${VERSION_NAME}-arm64-v8a.apk" \
             "build/release/PennySpring-${VERSION_NAME}-armeabi-v7a.apk#PennySpring-${VERSION_NAME}-armeabi-v7a.apk" \
-            "build/release/latest.json#latest.json" \
             --target "$GITHUB_SHA" \
-            --title "PennySpring $VERSION_NAME" \
+            --title "v$VERSION_NAME" \
             --notes-file build/release/notes.md
 
       - name: 写入任务摘要
@@ -210,5 +189,4 @@ jobs:
             echo "- 下载：https://github.com/${GITHUB_REPOSITORY}/releases/tag/${TAG}"
             echo "- ABI 分包：arm64-v8a（大多数 64 位手机）、armeabi-v7a（较旧的 32 位手机）"
             echo "- 通用包：PennySpring-${VERSION_NAME}.apk（兼容性兜底，体积较大）"
-            echo "- 更新清单：https://github.com/${GITHUB_REPOSITORY}/releases/latest/download/latest.json"
           } >> "$GITHUB_STEP_SUMMARY"

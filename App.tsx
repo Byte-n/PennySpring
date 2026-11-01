@@ -14,6 +14,7 @@ import {
 import { useBookStore } from './src/stores/bookStore';
 import { rehydrateNetworkBooks } from './src/stores/networkBookStore';
 import { useAutoBackup } from './src/features/backup/useAutoBackup';
+import { AutoUpdateChecker } from './src/features/appUpdate/AutoUpdateChecker';
 import { ThemeModeProvider, useThemeMode } from './src/contexts/ThemeModeContext';
 import { BookLoadingScreen } from './src/screens/bookLoading';
 
@@ -98,43 +99,27 @@ function AppContent() {
   }, [initStatus, hideBootSplash]);
 
   const isDark = themeMode === 'dark';
-
-  if (initStatus === 'loading' || initStatus === 'idle') {
-    return (
-      <SafeAreaProvider>
-        <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
-        <PSApp themeConfig={{ algorithm: themeMode, token: themeToken }}>
-          <BookLoadingScreen />
-        </PSApp>
-      </SafeAreaProvider>
+  const content =
+    initStatus === 'loading' || initStatus === 'idle' ? (
+      <BookLoadingScreen />
+    ) : initStatus === 'error' ? (
+      <NavigationShell isDark={isDark}>
+        <BookSelectNavigator />
+      </NavigationShell>
+    ) : (
+      <NavigationShell isDark={isDark} onReady={hideBootSplash}>
+        <AgentRoot>
+          <RootStackNavigator />
+        </AgentRoot>
+      </NavigationShell>
     );
-  }
-
-  if (initStatus === 'error') {
-    return (
-      <SafeAreaProvider>
-        <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
-        <PSApp themeConfig={{ algorithm: themeMode, token: themeToken }}>
-          <NavigationShell isDark={isDark}>
-            <BookSelectNavigator />
-          </NavigationShell>
-        </PSApp>
-      </SafeAreaProvider>
-    );
-  }
 
   return (
     <SafeAreaProvider>
       <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
       <PSApp themeConfig={{ algorithm: themeMode, token: themeToken }}>
-        <NavigationShell
-          isDark={isDark}
-          onReady={hideBootSplash}
-        >
-          <AgentRoot>
-            <RootStackNavigator />
-          </AgentRoot>
-        </NavigationShell>
+        <AutoUpdateChecker />
+        {content}
       </PSApp>
     </SafeAreaProvider>
   );
