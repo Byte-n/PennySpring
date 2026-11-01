@@ -18,6 +18,18 @@ Monorepo（Yarn workspaces）：根目录是 React Native App，`packages/*` 是
   `yarn workspace @pennyspring/data typecheck`，`yarn workspace @pennyspring/share typecheck`
 - DB check / generate：`yarn workspace @pennyspring/data db:check`，`yarn workspace @pennyspring/data db:generate`
 
+### 格式化
+
+- 全量格式化：`yarn format`（Prettier + swift-format + ktlint）
+- 全量格式检查：`yarn format:check`
+- 分项检查：`yarn format:check:prettier`、`yarn format:check:swift`、`yarn format:check:kotlin`
+- Prettier 覆盖 TS/TSX/JS/CJS/JSON/YAML/Markdown/MDX；生成产物已在 `.prettierignore` 排除
+  （`packages/pennyspring-ui/docs/components`、`registry.tsx`、`demos/index.ts`、`sidebars.generated.cjs`、
+  `packages/data/drizzle` 等），禁止手改或格式化这些文件。
+- Swift 使用 Xcode 自带的 `xcrun swift-format`；Kotlin 由 ktlint Gradle 插件执行，需要 Android SDK
+  （`ANDROID_HOME` 或 `android/local.properties`）。
+- 编辑器缩进、换行与末尾换行统一由根目录 `.editorconfig` 约束。
+
 ## 代码规范
 
 ### Accessibility
@@ -73,10 +85,11 @@ Monorepo（Yarn workspaces）：根目录是 React Native App，`packages/*` 是
 - 进入/退出动画必须成对设计（含 mount/unmount 生命周期），避免只进不出、闪烁或残留占位。
 
 Reanimated 极简核心总结：
-* 核心冲突：动画运行在 UI 线程，React 运行在 JS 线程。跨线程传递的对象会被底层深度冻结。
-* 拍平对象：严禁在 useAnimatedStyle 内部读取外部复杂对象，必须在外部解构成基础类型（数字/字符串）传入，否则报错或值不更新。
-* 禁用 Ref：内部严禁修改 React useRef，记录状态必须改用 useSharedValue。
-* 干净返回：不要去覆写或删除样式的深层属性，条件改变时直接 return 一个全新的样式对象。
+
+- 核心冲突：动画运行在 UI 线程，React 运行在 JS 线程。跨线程传递的对象会被底层深度冻结。
+- 拍平对象：严禁在 useAnimatedStyle 内部读取外部复杂对象，必须在外部解构成基础类型（数字/字符串）传入，否则报错或值不更新。
+- 禁用 Ref：内部严禁修改 React useRef，记录状态必须改用 useSharedValue。
+- 干净返回：不要去覆写或删除样式的深层属性，条件改变时直接 return 一个全新的样式对象。
 
 ### 手势
 
@@ -98,11 +111,11 @@ Reanimated 极简核心总结：
 
 通过扩展原生类型与 Dayjs 原型，提供统一的格式化方法，支持 `number`（时间戳）、`string`、`Date`、`Dayjs` 四种类型直接调用：
 
-| 方法 | 格式 | 说明 |
-|------|------|------|
-| `.formatDate(relative?)` | `MM-DD` | `relative=true`（默认）时追加今天/昨天/前天/明天后缀 |
-| `.formatDateTime()` | `YYYY-MM-DD HH:mm` | 精确到分钟 |
-| `.formatDateBy(format)` | 自定义 | 透传 dayjs 格式字符串 |
+| 方法                     | 格式               | 说明                                                 |
+| ------------------------ | ------------------ | ---------------------------------------------------- |
+| `.formatDate(relative?)` | `MM-DD`            | `relative=true`（默认）时追加今天/昨天/前天/明天后缀 |
+| `.formatDateTime()`      | `YYYY-MM-DD HH:mm` | 精确到分钟                                           |
+| `.formatDateBy(format)`  | 自定义             | 透传 dayjs 格式字符串                                |
 
 类型声明位于 `src/types/prototype.d.ts`，Dayjs 扩展通过 `declare module 'dayjs'` 声明。
 
@@ -115,6 +128,7 @@ Reanimated 极简核心总结：
 - `yarn run lint`
 - `yarn run typecheck`
 - `yarn run test` 或 `jest --watchman=false {指定测试文件}`
+- `yarn run format:check`
 
 必须在声明完成前执行，且仅当结果均无 error 时才允许宣称完成。若无法执行或未通过，必须明确报告阻塞原因与当前结果；问题消除前不得表述为「已完成」。
 

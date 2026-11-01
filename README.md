@@ -43,38 +43,38 @@
 
 ## 客户端类型
 
-| 客户端 | 平台 | 当前状态 |
-|---|---|---|
-| **PennySpring App** | Android | 正式发布。GitHub Actions 构建 `arm64-v8a`、`armeabi-v7a` 与通用 APK，支持应用内更新。 |
-| **PennySpring App** | iOS | 提供原生工程，需自行本地构建与真机验证；尚未配置正式 Bundle ID、发布流水线与应用内更新。 |
-| **数据服务** | Node.js | 可选的自建后端，为“网络账本”提供数据与媒体 API，不是记账客户端。 |
-| **组件预览 App** | Android / iOS | 开发工具，用于预览 `@pennyspring/ui`，不对外发布。 |
-| **Web** | — | 暂无记账 Web 客户端，仅提供组件库与主题文档站。 |
+| 客户端              | 平台          | 当前状态                                                                                 |
+| ------------------- | ------------- | ---------------------------------------------------------------------------------------- |
+| **PennySpring App** | Android       | 正式发布。GitHub Actions 构建 `arm64-v8a`、`armeabi-v7a` 与通用 APK，支持应用内更新。    |
+| **PennySpring App** | iOS           | 提供原生工程，需自行本地构建与真机验证；尚未配置正式 Bundle ID、发布流水线与应用内更新。 |
+| **数据服务**        | Node.js       | 可选的自建后端，为“网络账本”提供数据与媒体 API，不是记账客户端。                         |
+| **组件预览 App**    | Android / iOS | 开发工具，用于预览 `@pennyspring/ui`，不对外发布。                                       |
+| **Web**             | —             | 暂无记账 Web 客户端，仅提供组件库与主题文档站。                                          |
 
 ### 平台能力差异
 
-| 能力 | Android | iOS |
-|---|---|---|
-| 记账、账本、类型/标签/资产、图表 | ✅ | ✅（本地构建） |
-| 备份导入导出、自动备份、局域网收发 | ✅ | ✅（本地构建） |
-| 应用内更新（GitHub Releases APK） | ✅ | — |
-| 截图识别快捷记账 | ✅ | — |
-| 本地语音转文字 | ✅ | — |
+| 能力                               | Android | iOS            |
+| ---------------------------------- | ------- | -------------- |
+| 记账、账本、类型/标签/资产、图表   | ✅      | ✅（本地构建） |
+| 备份导入导出、自动备份、局域网收发 | ✅      | ✅（本地构建） |
+| 应用内更新（GitHub Releases APK）  | ✅      | —              |
+| 截图识别快捷记账                   | ✅      | —              |
+| 本地语音转文字                     | ✅      | —              |
 
 iOS 能力未纳入 CI 发布流程，实际可用性以本地构建和真机验证为准。
 
 ## 技术栈
 
-| 领域 | 选型 |
-|---|---|
-| 应用 | React Native 0.85、React 19、TypeScript 5.8 |
-| 数据库 | op-sqlite + Drizzle ORM（RN）；better-sqlite3 + Drizzle ORM（Node） |
-| 状态与数据 | Zustand、ahooks |
-| 动画与手势 | react-native-reanimated 4、react-native-gesture-handler |
-| AI | Vercel AI SDK、assistant-ui、zod |
-| 远程服务 | Hono + @hono/node-server |
-| 文档 | Docusaurus 3 + react-native-web |
-| 包管理 | Yarn 1 workspaces |
+| 领域       | 选型                                                                |
+| ---------- | ------------------------------------------------------------------- |
+| 应用       | React Native 0.85、React 19、TypeScript 5.8                         |
+| 数据库     | op-sqlite + Drizzle ORM（RN）；better-sqlite3 + Drizzle ORM（Node） |
+| 状态与数据 | Zustand、ahooks                                                     |
+| 动画与手势 | react-native-reanimated 4、react-native-gesture-handler             |
+| AI         | Vercel AI SDK、assistant-ui、zod                                    |
+| 远程服务   | Hono + @hono/node-server                                            |
+| 文档       | Docusaurus 3 + react-native-web                                     |
+| 包管理     | Yarn 1 workspaces                                                   |
 
 ## 仓库结构
 
@@ -142,18 +142,20 @@ yarn generate:brand
 
 ## 常用命令
 
-| 命令 | 说明 |
-|---|---|
-| `yarn lint` | ESLint 全仓检查 |
-| `yarn typecheck` | TypeScript 全仓类型检查 |
-| `yarn test` | Jest 全仓测试 |
-| `yarn ws` | 交互式选择并执行任意 workspace 脚本 |
-| `yarn android` / `yarn ios` | 运行 Android / iOS 调试包 |
-| `yarn release:android` | 本地构建 Release APK（需要签名配置） |
-| `yarn adb:wireless` | ADB 无线调试辅助 |
-| `yarn adb:tui` | ADB TUI 与数据库监听（见 `packages/adb-tui`） |
-| `yarn clean` | 清理构建缓存（支持 `--app <dir>`） |
-| `yarn generate:brand` | 生成品牌图标与启动图 |
+| 命令                        | 说明                                          |
+| --------------------------- | --------------------------------------------- |
+| `yarn format`               | 全仓格式化（Prettier / Swift / Kotlin）       |
+| `yarn format:check`         | 校验全仓格式（CI 按语言分项执行）             |
+| `yarn lint`                 | ESLint 全仓检查                               |
+| `yarn typecheck`            | TypeScript 全仓类型检查                       |
+| `yarn test`                 | Jest 全仓测试                                 |
+| `yarn ws`                   | 交互式选择并执行任意 workspace 脚本           |
+| `yarn android` / `yarn ios` | 运行 Android / iOS 调试包                     |
+| `yarn release:android`      | 本地构建 Release APK（需要签名配置）          |
+| `yarn adb:wireless`         | ADB 无线调试辅助                              |
+| `yarn adb:tui`              | ADB TUI 与数据库监听（见 `packages/adb-tui`） |
+| `yarn clean`                | 清理构建缓存（支持 `--app <dir>`）            |
+| `yarn generate:brand`       | 生成品牌图标与启动图                          |
 
 ## 数据层
 

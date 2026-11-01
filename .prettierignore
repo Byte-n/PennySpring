@@ -1,0 +1,38 @@
+# 依赖与构建产物
+node_modules/
+.worktrees/
+**/build/
+**/.gradle/
+**/.cxx/
+**/dist/
+**/docs-dist/
+**/.docusaurus/
+**/Pods/
+**/DerivedData/
+coverage/
+.yarn/
+
+# 生成产物：scripts/sync-previews.cjs 与 drizzle-kit 会按原样重写
+packages/pennyspring-ui/docs/components/
+packages/pennyspring-ui/examples/previews/registry.tsx
+packages/pennyspring-ui/examples/previews/**/demos/index.ts
+packages/pennyspring-ui/sidebars.generated.cjs
+packages/data/drizzle/migrations.js
+packages/data/drizzle/meta/
+
+# 由 CLI 生成的品牌与启动图资源
+src/assets/bootsplash/
+**/*.xcassets/
+
+# 补丁与二进制
+patches/
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.webp
+*.pdf
+*.zip
+*.onnx
+*.db
+*.sqlite

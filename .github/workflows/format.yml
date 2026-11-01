@@ -1,0 +1,53 @@
+name: Format Check
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: format-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  prettier:
+    name: Prettier（代码 / 配置 / 文档）
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: yarn
+      - run: yarn install --frozen-lockfile --ignore-scripts
+      - run: yarn format:check:prettier
+
+  kotlin:
+    name: Kotlin（ktlint）
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: yarn
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: gradle/actions/setup-gradle@v4
+      - run: yarn install --frozen-lockfile --ignore-scripts
+      - run: ./gradlew app:ktlintCheck --console=plain
+        working-directory: android
+      - run: ./gradlew app:ktlintCheck --console=plain
+        working-directory: packages/pennyspring-ui/examples/android
+
+  swift:
+    name: Swift（swift-format）
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - run: xcrun swift-format lint --strict --recursive ios/PennySpring packages/pennyspring-ui/examples/ios/PennySpringUIExamples
