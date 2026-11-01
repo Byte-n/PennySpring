@@ -4,17 +4,17 @@ apply plugin: "com.android.application"
 apply plugin: "org.jetbrains.kotlin.android"
 apply plugin: "com.facebook.react"
 
-def appVersionFile = rootProject.file("version.json")
+def appVersionFile = rootProject.file("../version.json")
 if (!appVersionFile.exists()) {
-    throw new GradleException("Missing Android version file: ${appVersionFile}")
+    throw new GradleException("Missing root version file: ${appVersionFile}")
 }
 
 def appVersion = new JsonSlurper().parse(appVersionFile)
 if (!(appVersion.versionCode instanceof Integer) || appVersion.versionCode < 1) {
-    throw new GradleException("android/version.json versionCode must be a positive integer")
+    throw new GradleException("version.json versionCode must be a positive integer")
 }
 if (!(appVersion.versionName instanceof String) || !(appVersion.versionName ==~ /\d+\.\d+\.\d+/)) {
-    throw new GradleException("android/version.json versionName must use major.minor.patch format")
+    throw new GradleException("version.json versionName must use major.minor.patch format")
 }
 
 // The upload keystore is not committed, so its secrets live in ~/.gradle/gradle.properties

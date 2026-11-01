@@ -9,7 +9,6 @@
   "scripts": {
     "android": "react-native run-android --active-arch-only --port 8080",
     "release:android": "node scripts/release-android.js",
-    "release:version": "node scripts/android/version.js set --commit",
     "ios": "react-native run-ios --port 8080",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",

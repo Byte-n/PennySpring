@@ -1,7 +1,7 @@
 name: Android Release
 
-# 发布方式：在 main 上提交一条形如 `update: v1.0.3` 的记录（同时把 version 与
-# android/version.json 改到同一版本），工作流自动构建 APK、生成更新清单、
+# 发布方式：使用 PennySpring Android Release Skill 准备版本提交，标题形如
+# `update: v1.0.3`，正文包含面向用户的发布说明。工作流自动构建 APK、生成更新清单、
 # 创建 Release 并打 tag。也可以在 Actions 页面手动指定版本重跑。
 on:
   push:
@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: '要发布的版本号（如 1.0.3，需与仓库 version 文件一致）'
+        description: '要发布的版本号（如 1.0.3，需与仓库 version.json 一致）'
         required: true
         type: string
 
@@ -47,12 +47,12 @@ jobs:
             VERSION_NAME="$(git log -1 --pretty=%B | node scripts/android/version.js from-commit)"
           fi
 
-          # version / android/version.json 必须与提交记录一致，不一致直接失败
+          # 根目录 version.json 必须与提交记录一致，不一致直接失败
           node scripts/android/version.js assert "$VERSION_NAME" > /dev/null
           # 以公式重算 versionCode，保证同版本名在任何机器上产出同一个 code
           node scripts/android/version.js set "$VERSION_NAME" > /dev/null
 
-          VERSION_CODE="$(node -p "require('./android/version.json').versionCode")"
+          VERSION_CODE="$(node -p "require('./version.json').versionCode")"
           echo "name=$VERSION_NAME" >> "$GITHUB_OUTPUT"
           echo "code=$VERSION_CODE" >> "$GITHUB_OUTPUT"
           echo "tag=v$VERSION_NAME" >> "$GITHUB_OUTPUT"

@@ -1,46 +1,24 @@
 #!/usr/bin/env node
 
 const { spawn, spawnSync } = require('node:child_process')
-const { access, readFile, writeFile } = require('node:fs/promises')
-const { writeFileSync } = require('node:fs')
+const { access } = require('node:fs/promises')
 const path = require('node:path')
-const inquirer = require('inquirer')
-const {
-  getNextVersionName,
-  readVersionState,
-  toVersionCode,
-  writeVersionState
-} = require('./android/version')
+const { readVersionState } = require('./android/version')
 
 const PROJECT_ROOT = path.resolve(__dirname, '..')
 const ANDROID_DIR = path.join(PROJECT_ROOT, 'android')
-const VERSION_FILE = path.join(PROJECT_ROOT, 'version')
-const ANDROID_VERSION_FILE = path.join(ANDROID_DIR, 'version.json')
-const BUILD_TARGETS = {
-  aab: {
-    gradleTask: 'bundleRelease',
-    outputFile: path.join(
-      ANDROID_DIR,
-      'app',
-      'build',
-      'outputs',
-      'bundle',
-      'release',
-      'app-release.aab'
-    )
-  },
-  apk: {
-    gradleTask: 'assembleRelease',
-    outputFile: path.join(
-      ANDROID_DIR,
-      'app',
-      'build',
-      'outputs',
-      'apk',
-      'release',
-      'app-release.apk'
-    )
-  }
+const APK_OUTPUT_FILE = path.join(
+  ANDROID_DIR,
+  'app',
+  'build',
+  'outputs',
+  'apk',
+  'release',
+  'app-release.apk'
+)
+const APK_BUILD_TARGET = {
+  gradleTask: 'assembleRelease',
+  outputFile: APK_OUTPUT_FILE
 }
 
 /**
@@ -109,91 +87,17 @@ async function main() {
   const isDryRun = process.argv.includes('--dry-run')
   await checkBuildEnvironment()
   process.stdout.write('构建环境检查通过。\n')
-  const originalContent = await readFile(VERSION_FILE, 'utf8')
-  const originalAndroidVersion = await readFile(ANDROID_VERSION_FILE, 'utf8')
   const currentVersion = await readVersionState()
-  const { releaseType } = await inquirer.prompt([
-    {
-      type: 'list',
-      name: 'releaseType',
-      message: `当前版本 ${currentVersion.versionName} (${currentVersion.versionCode})，请选择发布类型`,
-      choices: [
-        { name: '不递增  使用当前版本', value: 'none' },
-        { name: 'Patch  缺陷修复', value: 'patch' },
-        { name: 'Minor  功能更新', value: 'minor' },
-        { name: 'Major  重大更新', value: 'major' },
-        new inquirer.Separator(),
-        { name: '取消', value: 'cancel' }
-      ]
-    }
-  ])
+  process.stdout.write(`当前版本 ${currentVersion.versionName} (${currentVersion.versionCode})。\n`)
 
-  if (releaseType === 'cancel') {
-    process.stdout.write('已取消发布。\n')
+  if (isDryRun) {
+    process.stdout.write('Dry run 完成，未执行构建。\n')
     return
   }
 
-  const nextVersionName =
-    releaseType === 'none' ? currentVersion.versionName : getNextVersionName(currentVersion.versionName, releaseType)
-  const nextVersion = { versionName: nextVersionName, versionCode: toVersionCode(nextVersionName) }
-  const { artifactType, shouldRelease } = await inquirer.prompt([
-    {
-      type: 'list',
-      name: 'artifactType',
-      message: '请选择构建产物',
-      choices: [
-        { name: 'APK  直接安装或分发', value: 'apk' },
-        { name: 'AAB  应用商店发布', value: 'aab' }
-      ]
-    },
-    {
-      type: 'confirm',
-      name: 'shouldRelease',
-      message: (answers) =>
-        `确认发布 ${nextVersion.versionName} (${nextVersion.versionCode}) ${answers.artifactType.toUpperCase()}？`,
-      default: true
-    }
-  ])
-
-  if (!shouldRelease) {
-    process.stdout.write('已取消发布。\n')
-    return
-  }
-
-  await writeVersionState(nextVersion.versionName)
-
-  const restoreOnSignal = () => {
-    writeFileSync(VERSION_FILE, originalContent, 'utf8')
-    writeFileSync(ANDROID_VERSION_FILE, originalAndroidVersion, 'utf8')
-    process.exit(130)
-  }
-
-  process.once('SIGINT', restoreOnSignal)
-  process.once('SIGTERM', restoreOnSignal)
-
-  try {
-    if (isDryRun) {
-      process.stdout.write('Dry run 完成，未执行构建。\n')
-      return
-    }
-
-    const buildTarget = BUILD_TARGETS[artifactType]
-    process.stdout.write(`开始构建 Android Release ${artifactType.toUpperCase()}...\n`)
-    await buildRelease(buildTarget)
-    process.stdout.write(`构建完成: ${buildTarget.outputFile}\n`)
-  } catch (error) {
-    await writeFile(VERSION_FILE, originalContent, 'utf8')
-    await writeFile(ANDROID_VERSION_FILE, originalAndroidVersion, 'utf8')
-    throw error
-  } finally {
-    process.removeListener('SIGINT', restoreOnSignal)
-    process.removeListener('SIGTERM', restoreOnSignal)
-
-    if (isDryRun) {
-      await writeFile(VERSION_FILE, originalContent, 'utf8')
-      await writeFile(ANDROID_VERSION_FILE, originalAndroidVersion, 'utf8')
-    }
-  }
+  process.stdout.write('开始构建 Android Release APK...\n')
+  await buildRelease(APK_BUILD_TARGET)
+  process.stdout.write(`构建完成: ${APK_BUILD_TARGET.outputFile}\n`)
 }
 
 main().catch((error) => {
