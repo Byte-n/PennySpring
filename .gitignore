@@ -33,6 +33,9 @@ local.properties
 .cxx/
 *.keystore
 !debug.keystore
+*.jks
+*.p12
+*.p8
 .kotlin/
 
 # node.js
@@ -109,12 +112,14 @@ yarn-error.log*
 superpowers
 .superpowers
 
-# Local SQLite snapshots (watch:db output)
-/pennyspring.db
+# Local SQLite data (personal data, never commit)
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
 
-# tmp
-
-temp*
-tmp*
-temp/**
-tmp/*
+# Local scratch files at repository root
+/temp*
+/tmp*

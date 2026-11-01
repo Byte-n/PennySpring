@@ -2,11 +2,28 @@
   "name": "@pennyspring/api",
   "version": "0.0.1",
   "private": true,
+  "description": "PennySpring 应用 API 聚合入口：本地 op-sqlite 与远程 HTTP 两种实现。",
+  "license": "MIT",
+  "author": "Byte-n",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Byte-n/PennySpring.git",
+    "directory": "packages/api"
+  },
+  "homepage": "https://github.com/Byte-n/PennySpring/tree/main/packages/api#readme",
+  "bugs": {
+    "url": "https://github.com/Byte-n/PennySpring/issues"
+  },
+  "keywords": [
+    "react-native",
+    "api",
+    "remote",
+    "sqlite"
+  ],
   "main": "src/index.ts",
   "types": "src/index.ts",
   "exports": {
     ".": "./src/index.ts",
-    "./local": "./src/local.ts",
     "./remote": "./src/remote.ts",
     "./contract": "./src/contract.ts"
   },

@@ -1,7 +1,26 @@
 {
   "name": "pennyspring",
-  "version": "0.0.1",
+  "version": "0.0.6",
   "private": true,
+  "description": "本地优先的 React Native 记账应用：多账本、AI 助手、备份迁移与主题化组件库。",
+  "license": "MIT",
+  "author": "Byte-n",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Byte-n/PennySpring.git"
+  },
+  "homepage": "https://github.com/Byte-n/PennySpring#readme",
+  "bugs": {
+    "url": "https://github.com/Byte-n/PennySpring/issues"
+  },
+  "keywords": [
+    "react-native",
+    "personal-finance",
+    "accounting",
+    "sqlite",
+    "drizzle-orm",
+    "ai-agent"
+  ],
   "workspaces": [
     "packages/*",
     "packages/pennyspring-ui/examples"
@@ -29,8 +48,10 @@
     "@assistant-ui/ai-sdk": "0.0.16",
     "@assistant-ui/react-native": "0.1.51",
     "@op-engineering/op-sqlite": "^15.2.14",
+    "@pennyspring/api": "*",
     "@pennyspring/data": "*",
     "@pennyspring/share": "*",
+    "@pennyspring/theme": "*",
     "@pennyspring/ui": "*",
     "@react-native-documents/picker": "^10.1.7",
     "@react-navigation/material-top-tabs": "^7.4.24",
@@ -78,6 +99,7 @@
     "@docusaurus/theme-live-codeblock": "^3.10.1",
     "@easyops-cn/docusaurus-search-local": "^0.55.3",
     "@mdx-js/react": "^3.1.1",
+    "@pennyspring/data-server": "*",
     "@react-native-community/cli": "20.1.0",
     "@react-native-community/cli-platform-android": "20.1.0",
     "@react-native-community/cli-platform-ios": "20.1.0",

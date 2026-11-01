@@ -2,6 +2,24 @@
   "name": "@pennyspring/theme",
   "version": "0.0.1",
   "private": true,
+  "description": "PennySpring 的 React Native 主题引擎：ant-design 三层 token 模型与十套预设色板。",
+  "license": "MIT",
+  "author": "Byte-n",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Byte-n/PennySpring.git",
+    "directory": "packages/pennyspring-theme"
+  },
+  "homepage": "https://github.com/Byte-n/PennySpring/tree/main/packages/pennyspring-theme#readme",
+  "bugs": {
+    "url": "https://github.com/Byte-n/PennySpring/issues"
+  },
+  "keywords": [
+    "react-native",
+    "design-tokens",
+    "theme",
+    "ant-design"
+  ],
   "main": "src/index.ts",
   "types": "src/index.ts",
   "scripts": {
@@ -9,7 +27,7 @@
     "docs:build": "docusaurus build --out-dir docs-dist",
     "docs:preview": "docusaurus serve docs-dist",
     "typecheck": "tsc --noEmit",
-    "test": "echo 'No tests yet' && exit 0"
+    "test": "jest --config ../../jest.config.js --watchman=false packages/pennyspring-theme"
   },
   "peerDependencies": {
     "react": "*",

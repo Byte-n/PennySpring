@@ -2,6 +2,24 @@
   "name": "@pennyspring/data-rn",
   "version": "0.0.1",
   "private": true,
+  "description": "PennySpring 数据层的 React Native op-sqlite 适配器。",
+  "license": "MIT",
+  "author": "Byte-n",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Byte-n/PennySpring.git",
+    "directory": "packages/data-rn"
+  },
+  "homepage": "https://github.com/Byte-n/PennySpring/tree/main/packages/data-rn#readme",
+  "bugs": {
+    "url": "https://github.com/Byte-n/PennySpring/issues"
+  },
+  "keywords": [
+    "react-native",
+    "op-sqlite",
+    "drizzle-orm",
+    "sqlite"
+  ],
   "main": "src/index.ts",
   "types": "src/index.ts",
   "scripts": {

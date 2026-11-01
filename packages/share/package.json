@@ -2,12 +2,27 @@
   "name": "@pennyspring/share",
   "version": "0.0.1",
   "private": true,
+  "description": "PennySpring 共享工具函数与类型安全的 enumOf 枚举工具。",
+  "license": "MIT",
+  "author": "Byte-n",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Byte-n/PennySpring.git",
+    "directory": "packages/share"
+  },
+  "homepage": "https://github.com/Byte-n/PennySpring/tree/main/packages/share#readme",
+  "bugs": {
+    "url": "https://github.com/Byte-n/PennySpring/issues"
+  },
+  "keywords": [
+    "typescript",
+    "enum",
+    "utility"
+  ],
   "main": "src/index.ts",
   "types": "src/index.ts",
   "scripts": {
     "typecheck": "tsc --noEmit",
     "test": "echo 'No tests yet' && exit 0"
-  },
-  "peerDependencies": {
   }
 }

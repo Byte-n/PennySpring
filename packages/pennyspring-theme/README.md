@@ -139,3 +139,7 @@ npx jest packages/pennyspring-theme
 ```
 
 覆盖：colorAlgorithms / derivative pipeline / formatToken / genFontSizes / genRadius / genSizeMapToken / genControlHeight / genCommonMapToken / genPresetColorPalettes / genColorMapToken / genFontMapToken / themePresets / ThemeProvider / useTheme / ThemePreview / shadowStyle / types.
+
+## 许可
+
+[MIT](../../LICENSE) © 2026 Byte-n

@@ -2,6 +2,24 @@
   "name": "@pennyspring/data-server-wrapper",
   "version": "0.0.1",
   "private": true,
+  "description": "PennySpring 远程数据服务：Hono HTTP 包装层，提供 Bearer 鉴权、RPC 与媒体读写。",
+  "license": "MIT",
+  "author": "Byte-n",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Byte-n/PennySpring.git",
+    "directory": "packages/data-server-wrapper"
+  },
+  "homepage": "https://github.com/Byte-n/PennySpring/tree/main/packages/data-server-wrapper#readme",
+  "bugs": {
+    "url": "https://github.com/Byte-n/PennySpring/issues"
+  },
+  "keywords": [
+    "hono",
+    "http",
+    "sqlite",
+    "server"
+  ],
   "main": "src/index.ts",
   "types": "src/index.ts",
   "type": "module",
@@ -13,7 +31,7 @@
     "build": "esbuild src/bin.ts --bundle --platform=node --format=esm --target=es2022 --sourcemap --outfile=dist/bin.js --external:hono --external:@hono/node-server --external:better-sqlite3 --external:drizzle-orm --external:drizzle-orm/*",
     "dev": "DB_PATH=server.db SERVER_TOKEN=dev tsx src/bin.ts",
     "start": "export DB_PATH=\"server.db\" && node dist/bin.js",
-    "test": "echo 'No tests yet' && exit 0"
+    "test": "jest --config ../../jest.config.js --watchman=false __tests__/dataServerWrapper"
   },
   "dependencies": {
     "@hono/node-server": "^1.0.0",

@@ -2,6 +2,24 @@
   "name": "@pennyspring/ui-examples",
   "version": "0.0.1",
   "private": true,
+  "description": "PennySpring UI 的 React Native 预览应用，同时作为 Web 文档 demo 来源。",
+  "license": "MIT",
+  "author": "Byte-n",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Byte-n/PennySpring.git",
+    "directory": "packages/pennyspring-ui/examples"
+  },
+  "homepage": "https://github.com/Byte-n/PennySpring/tree/main/packages/pennyspring-ui/examples#readme",
+  "bugs": {
+    "url": "https://github.com/Byte-n/PennySpring/issues"
+  },
+  "keywords": [
+    "react-native",
+    "storybook",
+    "preview",
+    "components"
+  ],
   "main": "app.js",
   "scripts": {
     "preandroid": "node ../scripts/sync-previews.cjs",
