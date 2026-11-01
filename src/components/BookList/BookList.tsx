@@ -8,6 +8,7 @@ import {
   List,
   Row,
   Text,
+  toNativeImageSource,
   type ListItemData,
 } from '@pennyspring/ui';
 import { BOOK_TYPE, type BookRow } from '@pennyspring/api';
@@ -137,7 +138,7 @@ function BookSpine({ item }: { item: BookListItem }) {
       <View style={styles.spine}>
         <Image
           resizeMode="cover"
-          source={source}
+          source={toNativeImageSource(source)}
           style={styles.spineImage as StyleProp<ImageStyle>}
         />
       </View>

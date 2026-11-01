@@ -17,6 +17,7 @@ import Animated, {
 import { useTheme } from '@pennyspring/theme';
 import { Icon } from '../Icon';
 import { Loading } from '../Loading';
+import { toNativeImageSource } from '../shares/imageSource';
 import { Text } from '../Text';
 import { usePageStyles } from './style';
 import type { ImagePreviewStyles } from './types';
@@ -283,7 +284,7 @@ export function ImagePreviewPage({
               onLoad={handleLoad}
               onLoadStart={handleLoadStart}
               resizeMode="contain"
-              source={src}
+              source={toNativeImageSource(src)}
               style={[tokenStyles.image as ImageStyle, styles?.image]}
               testID="image-preview-image"
             />

@@ -1,4 +1,5 @@
 export type { ComponentSize } from './shares/types';
+export { toNativeImageSource } from './shares/imageSource';
 export { Text } from './Text';
 export type { TextColor, TextProps, TextSize, TextWeight } from './Text';
 export { App } from './App';

@@ -18,6 +18,7 @@ import { useTheme } from '@pennyspring/theme';
 import { Icon } from '../Icon';
 import { Text } from '../Text';
 import { useControllableValue } from '../_hooks';
+import { toNativeImageSource } from '../shares/imageSource';
 import { ImagePreview } from './ImagePreview';
 import { ImagePreviewGroup } from './ImagePreviewGroup';
 import { ImagePreviewGroupContext } from './context';
@@ -60,6 +61,7 @@ function ImageRoot({
   const registerDataRef = useRef({ src });
   registerDataRef.current = { src };
   const sourceKey = getSourceKey(src);
+  const nativeSource = toNativeImageSource(src);
   const tokenStyles = useStyles({ radius });
   const pressProgress = useSharedValue(0);
   const [easeX1, easeY1, easeX2, easeY2] = token.motionEaseOut;
@@ -166,7 +168,7 @@ function ImageRoot({
             onLoad={handleLoad}
             onLoadStart={handleLoadStart}
             resizeMode={fit}
-            source={src}
+            source={nativeSource}
             style={[tokenStyles.image as ImageStyle, styles?.image]}
           />
           {status === 'error' ? (

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Image, Text as RNText } from 'react-native';
+import { Image, Platform, Text as RNText } from 'react-native';
 import TestRenderer, { act } from 'react-test-renderer';
 
 jest.mock('@pennyspring/theme', () => ({
@@ -62,6 +62,9 @@ jest.mock('@pennyspring/ui', () => {
   };
 
   const theme = jest.requireMock('@pennyspring/theme');
+  const { toNativeImageSource } = jest.requireActual(
+    '../packages/pennyspring-ui/src/shares/imageSource',
+  );
 
   return {
     ...theme,
@@ -74,6 +77,7 @@ jest.mock('@pennyspring/ui', () => {
     SwipeAction: passthrough(View),
     Tag: passthrough(View),
     Text: passthrough(Text),
+    toNativeImageSource,
   };
 });
 
@@ -141,8 +145,17 @@ function findNetworkCoverLabel(
 }
 
 describe('BookList 账本封面', () => {
+  const ORIGINAL_PLATFORM_OS = Platform.OS;
+
   beforeEach(() => {
     useNetworkBookStore.setState({ tokens: {} });
+  });
+
+  afterEach(() => {
+    Object.defineProperty(Platform, 'OS', {
+      configurable: true,
+      value: ORIGINAL_PLATFORM_OS,
+    });
   });
 
   it('renders book sections through the shared List container', () => {
@@ -190,6 +203,24 @@ describe('BookList 账本封面', () => {
       uri: SERVER_MEDIA_URI,
       headers: { Authorization: `Bearer ${SERVER_TOKEN}` },
     });
+  });
+
+  it('Android 下网络账本封面以数组 source 传递鉴权头', () => {
+    useNetworkBookStore.setState({
+      tokens: { [REMOTE_SERVER_URL]: SERVER_TOKEN },
+    });
+    Object.defineProperty(Platform, 'OS', {
+      configurable: true,
+      value: 'android',
+    });
+    const renderer = renderBookList([createRemoteItem(SERVER_MEDIA_URI)]);
+
+    expect(renderer.root.findByType(Image).props.source).toEqual([
+      {
+        uri: SERVER_MEDIA_URI,
+        headers: { Authorization: `Bearer ${SERVER_TOKEN}` },
+      },
+    ]);
   });
 
   it('不为外部封面地址附带服务器访问令牌', () => {

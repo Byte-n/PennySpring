@@ -1,5 +1,5 @@
 import React from 'react';
-import { Image as RNImage, ScrollView } from 'react-native';
+import { Image as RNImage, Platform, ScrollView } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
 
 import { Image } from '../src/Image';
@@ -120,6 +120,43 @@ describe('Image', () => {
     pressByTestID(testRenderer, 'image-preview-close');
 
     expect(onOpenChange).toHaveBeenCalledWith(false);
+  });
+});
+
+describe('Image on Android', () => {
+  const ORIGINAL_PLATFORM_OS = Platform.OS;
+  const AUTH_SOURCE = {
+    uri: 'http://192.168.1.10:8080/api/media/a.jpg',
+    headers: { Authorization: 'Bearer test-token' },
+  };
+
+  function mockPlatformOS(os: typeof Platform.OS): void {
+    Object.defineProperty(Platform, 'OS', {
+      configurable: true,
+      value: os,
+    });
+  }
+
+  afterEach(() => {
+    mockPlatformOS(ORIGINAL_PLATFORM_OS);
+  });
+
+  it('forwards authorization headers through an array source', () => {
+    mockPlatformOS('android');
+    const testRenderer = render(<Image src={AUTH_SOURCE} testID="image" />);
+    const images = testRenderer.root.findAllByType(RNImage);
+
+    expect(images[0].props.source).toEqual([AUTH_SOURCE]);
+  });
+
+  it('forwards authorization headers in the image preview', () => {
+    mockPlatformOS('android');
+    const testRenderer = render(<Image.Preview images={[AUTH_SOURCE]} open />);
+    const previewImage = testRenderer.root
+      .findAllByType(RNImage)
+      .find(node => node.props.testID === 'image-preview-image');
+
+    expect(previewImage?.props.source).toEqual([AUTH_SOURCE]);
   });
 });
 

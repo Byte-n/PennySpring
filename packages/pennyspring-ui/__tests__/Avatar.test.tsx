@@ -1,5 +1,5 @@
 import React from 'react';
-import { Image, StyleSheet } from 'react-native';
+import { Image, Platform, StyleSheet } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
 import { Icon } from '../src/Icon';
 import { Text } from '../src/Text';
@@ -360,6 +360,32 @@ describe('Avatar.Group', () => {
     expect(normalRest.containerStyle.paddingHorizontal).toBeLessThan(
       largeRest.containerStyle.paddingHorizontal,
     );
+  });
+});
+
+describe('Avatar on Android', () => {
+  const ORIGINAL_PLATFORM_OS = Platform.OS;
+
+  afterEach(() => {
+    Object.defineProperty(Platform, 'OS', {
+      configurable: true,
+      value: ORIGINAL_PLATFORM_OS,
+    });
+  });
+
+  it('forwards authorization headers through an array source', () => {
+    Object.defineProperty(Platform, 'OS', {
+      configurable: true,
+      value: 'android',
+    });
+    const source = {
+      uri: 'http://192.168.1.10:8080/api/media/a.jpg',
+      headers: { Authorization: 'Bearer test-token' },
+    };
+
+    const testRenderer = renderAvatar({ src: source });
+
+    expect(testRenderer.root.findByType(Image).props.source).toEqual([source]);
   });
 });
 function renderAvatarGroup(props: React.ComponentProps<typeof Avatar.Group>) {

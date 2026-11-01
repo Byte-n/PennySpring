@@ -5,6 +5,7 @@ import { createUseSheetStyle } from '@pennyspring/theme';
 import { Icon } from '../Icon';
 import { Text } from '../Text';
 import { renderTextNode } from '../shares/node';
+import { toNativeImageSource } from '../shares/imageSource';
 import type { ReactNode } from 'react';
 import type {
   ImageSourcePropType,
@@ -161,9 +162,9 @@ export function AvatarRoot({
         style,
       ]}
     >
-      {displayType === 'image' ? (
+      {displayType === 'image' && src !== undefined ? (
         <Image
-          source={src}
+          source={toNativeImageSource(src)}
           style={[tokenStyles.image, styles?.image]}
           onError={handleImageError}
         />
