@@ -4,6 +4,7 @@ export const UPDATE_MANIFEST_URL =
 const RELEASE_DOWNLOAD_PREFIX =
   'https://github.com/Byte-n/PennySpring/releases/download/';
 const VERSION_PATTERN = /^\d+\.\d+\.\d+$/;
+const RELEASE_TITLE_PATTERN = /^PennySpring (\d+\.\d+\.\d+)$/;
 const SHA256_PATTERN = /^[a-f0-9]{64}$/i;
 
 export const UPDATE_APK_ABIS = ['arm64-v8a', 'armeabi-v7a'] as const;
@@ -15,6 +16,21 @@ export interface UpdateApk {
   sha256: string;
 }
 
+export interface UpdateReleaseNotes {
+  versionName: string;
+  versionCode: number;
+  publishedAt: string;
+  notes: string;
+}
+
+interface GitHubRelease {
+  name?: unknown;
+  published_at?: unknown;
+  body?: unknown;
+  draft?: unknown;
+  prerelease?: unknown;
+}
+
 export interface UpdateManifest {
   formatVersion: number;
   versionName: string;
@@ -23,6 +39,7 @@ export interface UpdateManifest {
   notes: string;
   apk: UpdateApk;
   apks?: Partial<Record<UpdateApkAbi, UpdateApk>>;
+  releaseNotes?: UpdateReleaseNotes[];
 }
 
 export type UpdateVersionStatus = 'available' | 'current';
@@ -107,6 +124,60 @@ function parseApkVariants(value: unknown): Partial<Record<UpdateApkAbi, UpdateAp
   ) as Partial<Record<UpdateApkAbi, UpdateApk>>;
 }
 
+function parseReleaseNotes(value: unknown): UpdateReleaseNotes[] | undefined {
+  if (value === undefined) return undefined;
+  if (!Array.isArray(value)) {
+    throw new Error('版本更新说明格式不正确');
+  }
+  return value.map((entry, index) => {
+    if (!isRecord(entry)) {
+      throw new Error(`第 ${index + 1} 条版本更新说明格式不正确`);
+    }
+    const versionName = requireString(entry.versionName, '版本更新说明版本号缺失');
+    if (!VERSION_PATTERN.test(versionName)) {
+      throw new Error('版本更新说明版本号格式不正确');
+    }
+    return {
+      versionName,
+      versionCode: requirePositiveInteger(entry.versionCode, '版本更新说明版本编码不正确'),
+      publishedAt: requireString(entry.publishedAt, '版本更新时间缺失'),
+      notes: typeof entry.notes === 'string' ? entry.notes : '',
+    };
+  });
+}
+
+function getVersionCode(versionName: string): number {
+  const [major, minor, patch] = versionName.split('.').map(Number);
+  return major * 10000 + minor * 100 + patch;
+}
+
+export function parseGitHubReleasePage(
+  value: unknown,
+  installedVersionCode: number,
+  targetVersionCode: number,
+): UpdateReleaseNotes[] {
+  if (!Array.isArray(value)) {
+    throw new Error('GitHub Release 列表格式不正确');
+  }
+  return (value as GitHubRelease[])
+    .flatMap(release => {
+      if (!isRecord(release) || release.draft === true || release.prerelease === true) return [];
+      const title = typeof release.name === 'string' ? release.name : '';
+      const match = RELEASE_TITLE_PATTERN.exec(title);
+      const versionName = match?.[1];
+      if (!versionName) return [];
+      const versionCode = getVersionCode(versionName);
+      if (versionCode <= installedVersionCode || versionCode > targetVersionCode) return [];
+      return [{
+        versionName,
+        versionCode,
+        publishedAt: typeof release.published_at === 'string' ? release.published_at : '',
+        notes: typeof release.body === 'string' ? release.body.trim() : '',
+      }];
+    })
+    .sort((left, right) => left.versionCode - right.versionCode);
+}
+
 export function parseUpdateManifest(value: unknown): UpdateManifest {
   if (!isRecord(value)) {
     throw new Error('更新清单格式不正确');
@@ -124,6 +195,7 @@ export function parseUpdateManifest(value: unknown): UpdateManifest {
   const notes = typeof value.notes === 'string' ? value.notes : '';
   const apk = parseApk(value.apk);
   const apks = parseApkVariants(value.apks);
+  const releaseNotes = parseReleaseNotes(value.releaseNotes);
   return {
     formatVersion,
     versionName,
@@ -132,7 +204,38 @@ export function parseUpdateManifest(value: unknown): UpdateManifest {
     notes,
     apk,
     ...(apks ? { apks } : {}),
+    ...(releaseNotes ? { releaseNotes } : {}),
   };
+}
+
+export function getUpdateReleaseNotes(
+  manifest: UpdateManifest,
+  installedVersionCode: number,
+): UpdateReleaseNotes[] {
+  const releases = manifest.releaseNotes?.length
+    ? manifest.releaseNotes
+    : [{
+        versionName: manifest.versionName,
+        versionCode: manifest.versionCode,
+        publishedAt: manifest.publishedAt,
+        notes: manifest.notes,
+      }];
+  const hasTargetRelease = releases.some(release => release.versionCode === manifest.versionCode);
+  const allReleases = hasTargetRelease
+    ? releases
+    : [...releases, {
+        versionName: manifest.versionName,
+        versionCode: manifest.versionCode,
+        publishedAt: manifest.publishedAt,
+        notes: manifest.notes,
+      }];
+  return [...allReleases]
+    .filter(
+      release =>
+        release.versionCode > installedVersionCode &&
+        release.versionCode <= manifest.versionCode,
+    )
+    .sort((left, right) => left.versionCode - right.versionCode);
 }
 
 export function selectUpdateApk(

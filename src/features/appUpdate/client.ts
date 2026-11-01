@@ -3,10 +3,12 @@ import { Dirs, FileSystem } from 'react-native-file-access';
 
 import {
   compareUpdateVersion,
+  parseGitHubReleasePage,
   parseContentRange,
   parseUpdateManifest,
   selectUpdateApk,
   UPDATE_MANIFEST_URL,
+  type UpdateReleaseNotes,
   type UpdateManifest,
 } from './update';
 
@@ -25,6 +27,14 @@ export interface DownloadProgress {
   totalBytes: number;
   resumed: boolean;
 }
+
+const GITHUB_RELEASES_URL = 'https://api.github.com/repos/Byte-n/PennySpring/releases';
+const GITHUB_RELEASES_PAGE_SIZE = 100;
+
+export type ExistingDownload =
+  | { status: 'none' }
+  | { status: 'partial'; path: string; sizeBytes: number }
+  | { status: 'complete'; path: string; sizeBytes: number };
 
 interface NativeUpdateModule {
   getVersion: () => Promise<InstalledVersion>;
@@ -74,22 +84,85 @@ export async function checkForUpdate(
     ...parsedManifest,
     apk: selectUpdateApk(parsedManifest, supportedAbis),
   };
+  if (compareUpdateVersion(installed.versionCode, manifest.versionCode) === 'available') {
+    try {
+      const releaseNotes = await fetchReleaseNotes(installed.versionCode, manifest, signal);
+      return {
+        manifest: { ...manifest, releaseNotes },
+        status: 'available',
+      };
+    } catch (error: unknown) {
+      if (signal?.aborted) throw error;
+      return {
+        manifest: {
+          ...manifest,
+          releaseNotes: [{
+            versionName: manifest.versionName,
+            versionCode: manifest.versionCode,
+            publishedAt: manifest.publishedAt,
+            notes: manifest.notes,
+          }],
+        },
+        status: 'available',
+      };
+    }
+  }
   return {
     manifest,
-    status: compareUpdateVersion(installed.versionCode, manifest.versionCode),
+    status: 'current',
   };
 }
 
-export function getUpdateApkPath(versionName: string): string {
-  return `${Dirs.CacheDir}/pennyspring-update-${versionName}.apk`;
+async function fetchReleaseNotes(
+  installedVersionCode: number,
+  manifest: UpdateManifest,
+  signal?: AbortSignal,
+): Promise<UpdateReleaseNotes[]> {
+  const releasesByVersion = new Map<number, UpdateReleaseNotes>();
+  let page = 1;
+  let reachedInstalledVersion = false;
+
+  while (!reachedInstalledVersion) {
+    const response = await fetch(
+      `${GITHUB_RELEASES_URL}?per_page=${GITHUB_RELEASES_PAGE_SIZE}&page=${page}`,
+      {
+        headers: { Accept: 'application/vnd.github+json' },
+        signal,
+      },
+    );
+    if (!response.ok) {
+      throw new Error(`获取版本更新说明失败（HTTP ${response.status}）`);
+    }
+    const value = (await response.json()) as unknown;
+    const pageReleaseNotes = parseGitHubReleasePage(
+      value,
+      installedVersionCode - 1,
+      manifest.versionCode,
+    );
+    for (const release of pageReleaseNotes) {
+      if (release.versionCode <= installedVersionCode) {
+        reachedInstalledVersion = true;
+      } else {
+        releasesByVersion.set(release.versionCode, release);
+      }
+    }
+    if (!Array.isArray(value) || value.length < GITHUB_RELEASES_PAGE_SIZE) break;
+    page += 1;
+  }
+
+  if (!releasesByVersion.has(manifest.versionCode)) {
+    releasesByVersion.set(manifest.versionCode, {
+      versionName: manifest.versionName,
+      versionCode: manifest.versionCode,
+      publishedAt: manifest.publishedAt,
+      notes: manifest.notes,
+    });
+  }
+  return [...releasesByVersion.values()].sort((left, right) => left.versionCode - right.versionCode);
 }
 
-export async function getPartialDownloadSize(versionName: string): Promise<number> {
-  try {
-    return (await FileSystem.stat(getUpdateApkPath(versionName))).size;
-  } catch {
-    return 0;
-  }
+export function getUpdateApkPath(versionName: string, sha256: string): string {
+  return `${Dirs.CacheDir}/pennyspring-update-${versionName}-${sha256.toLowerCase()}.apk`;
 }
 
 async function removeFile(path: string): Promise<void> {
@@ -110,6 +183,25 @@ async function verifyApk(path: string, manifest: UpdateManifest): Promise<number
     throw new Error('下载文件校验失败，请重新下载');
   }
   return stat.size;
+}
+
+export async function getExistingDownload(manifest: UpdateManifest): Promise<ExistingDownload> {
+  const path = getUpdateApkPath(manifest.versionName, manifest.apk.sha256);
+  let sizeBytes: number;
+  try {
+    sizeBytes = (await FileSystem.stat(path)).size;
+  } catch {
+    return { status: 'none' };
+  }
+
+  if (sizeBytes <= 0 || sizeBytes > manifest.apk.size) {
+    if (sizeBytes > manifest.apk.size) await removeFile(path);
+    return { status: 'none' };
+  }
+  if (sizeBytes < manifest.apk.size) {
+    return { status: 'partial', path, sizeBytes };
+  }
+  return { status: 'complete', path, sizeBytes };
 }
 
 function reportProgress(
@@ -145,7 +237,7 @@ export async function downloadUpdate(
   manifest: UpdateManifest,
   onProgress?: (progress: DownloadProgress) => void,
 ): Promise<{ path: string; sizeBytes: number; resumed: boolean }> {
-  const path = getUpdateApkPath(manifest.versionName);
+  const path = getUpdateApkPath(manifest.versionName, manifest.apk.sha256);
   let partialBytes = 0;
   try {
     partialBytes = (await FileSystem.stat(path)).size;

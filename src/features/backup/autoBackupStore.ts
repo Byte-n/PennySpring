@@ -48,7 +48,7 @@ interface AutoBackupStore extends AutoBackupSettings {
 }
 
 const DEFAULT_SETTINGS: AutoBackupSettings = {
-  frequency: 'daily',
+  frequency: 'off',
   customDays: 7,
   includeImages: true,
   includeAgent: false,

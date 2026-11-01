@@ -79,6 +79,7 @@ async function main() {
   }
 
   const notes = options['notes-file'] ? (await readFile(options['notes-file'], 'utf8')).trim() : ''
+  const publishedAt = new Date().toISOString()
   const apk = await createApkMetadata(apkPath, downloadUrl)
   const variantEntries = await Promise.all(
     APK_ABIS.map(async abi => {
@@ -92,12 +93,11 @@ async function main() {
     }),
   )
   const apks = Object.fromEntries(variantEntries.filter(entry => entry !== null))
-
   const manifest = {
     formatVersion: MANIFEST_FORMAT_VERSION,
     versionName,
     versionCode,
-    publishedAt: new Date().toISOString(),
+    publishedAt,
     notes,
     apk,
     ...(Object.keys(apks).length > 0 ? { apks } : {})

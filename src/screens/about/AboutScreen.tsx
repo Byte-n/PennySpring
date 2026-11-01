@@ -5,6 +5,7 @@ import {
   Card,
   Column,
   Progress,
+  Popup,
   Row,
   Tag,
   Text,
@@ -23,13 +24,16 @@ import {
 import {
   checkForUpdate,
   downloadUpdate,
+  getExistingDownload,
   getInstalledVersion,
-  getPartialDownloadSize,
   installUpdate,
   type DownloadProgress,
   type InstalledVersion,
 } from '../../features/appUpdate/client';
-import type { UpdateManifest } from '../../features/appUpdate/update';
+import {
+  getUpdateReleaseNotes,
+  type UpdateManifest,
+} from '../../features/appUpdate/update';
 
 type UpdateState =
   | 'idle'
@@ -99,9 +103,8 @@ const useStyles = createUseSheetStyle(token => ({
   notes: {
     gap: token.marginXXS,
   },
-  noteRow: {
-    alignItems: 'flex-start',
-    gap: token.marginXS,
+  releaseNotesContent: {
+    gap: token.marginSM,
   },
   error: {
     backgroundColor: token.colorErrorBg,
@@ -141,6 +144,7 @@ export function AboutScreen() {
   const [errorText, setErrorText] = useState('');
   const [progress, setProgress] = useState<DownloadProgress | null>(null);
   const [downloadPath, setDownloadPath] = useState('');
+  const [releaseNotesOpen, setReleaseNotesOpen] = useState(false);
 
   useEffect(() => {
     getInstalledVersion()
@@ -159,21 +163,36 @@ export function AboutScreen() {
       const result = await checkForUpdate(installed);
       setManifest(result.manifest);
       if (result.status === 'current') {
+        setDownloadPath('');
+        setProgress(null);
         setState('current');
         toast.show({ messageText: '当前已是最新版本', status: 'success' });
         return;
       }
-      const partialBytes = await getPartialDownloadSize(result.manifest.versionName);
+      const existingDownload = await getExistingDownload(result.manifest);
+      if (existingDownload.status === 'complete') {
+        setDownloadPath(existingDownload.path);
+        setProgress({
+          bytesRead: existingDownload.sizeBytes,
+          totalBytes: result.manifest.apk.size,
+          resumed: true,
+        });
+        setState('ready');
+        return;
+      }
+      setDownloadPath('');
       setProgress(
-        partialBytes > 0
+        existingDownload.status === 'partial'
           ? {
-              bytesRead: partialBytes,
+              bytesRead: existingDownload.sizeBytes,
               totalBytes: result.manifest.apk.size,
               resumed: true,
             }
           : null,
       );
-      setState(partialBytes > 0 ? 'interrupted' : 'available');
+      setState(
+        existingDownload.status === 'partial' ? 'interrupted' : 'available',
+      );
     } catch (error: unknown) {
       setState('error');
       setErrorText(getErrorMessage(error));
@@ -206,24 +225,42 @@ export function AboutScreen() {
     }
   }, [downloadPath, state]);
 
-  const progressPercent = progress && progress.totalBytes > 0
-    ? Math.min(FULL_PERCENT, (progress.bytesRead / progress.totalBytes) * FULL_PERCENT)
-    : 0;
-  const isBusy = state === 'checking' || state === 'downloading' || state === 'installing';
+  const progressPercent =
+    progress && progress.totalBytes > 0
+      ? Math.min(
+          FULL_PERCENT,
+          (progress.bytesRead / progress.totalBytes) * FULL_PERCENT,
+        )
+      : 0;
+  const releaseNotes =
+    manifest && installed
+      ? getUpdateReleaseNotes(manifest, installed.versionCode)
+      : [];
+  const hasReleaseNotes = releaseNotes.some(release => release.notes.trim());
+  const isBusy =
+    state === 'checking' || state === 'downloading' || state === 'installing';
 
   return (
     <ScrollView contentContainerStyle={styles.content} style={styles.container}>
       <Column style={styles.intro}>
-        <Column style={styles.logo}><Text style={styles.logoText}>P</Text></Column>
-        <Text size="h4" weight="strong">PennySpring</Text>
-        <Text color="tertiary" size="sm">个人账本 · Android</Text>
+        <Column style={styles.logo}>
+          <Text style={styles.logoText}>P</Text>
+        </Column>
+        <Text size="h4" weight="strong">
+          PennySpring
+        </Text>
+        <Text color="tertiary" size="sm">
+          个人账本 · Android
+        </Text>
       </Column>
 
       <Card titleText="当前版本" variant="elevated">
         <Column style={styles.cardContent}>
           <Row style={styles.row}>
             <Column style={styles.rowText}>
-              <Text color="secondary" size="sm">版本号</Text>
+              <Text color="secondary" size="sm">
+                版本号
+              </Text>
               <Text size="lg" weight="semibold">
                 {installed ? `v${installed.versionName}` : '读取中…'}
               </Text>
@@ -231,46 +268,59 @@ export function AboutScreen() {
             {installed ? <Tag color="success">正式版</Tag> : null}
           </Row>
           <Text color="tertiary" size="xs">
-            {installed ? `版本编码 ${installed.versionCode} · 直接安装` : '正在读取安装包版本信息'}
+            {installed
+              ? `版本编码 ${installed.versionCode} · 直接安装`
+              : '正在读取安装包版本信息'}
           </Text>
         </Column>
       </Card>
 
       <Card
         extra={
-          state === 'current' ? <Tag color="success" size="small">已是最新</Tag> : null
+          state === 'current' ? (
+            <Tag color="success" size="small">
+              已是最新
+            </Tag>
+          ) : null
         }
         titleText="应用更新"
         variant="elevated"
       >
         <Column style={styles.cardContent}>
-          {state === 'available' || state === 'interrupted' || state === 'downloading' || state === 'ready' || state === 'installing' ? (
+          {state === 'available' ||
+          state === 'interrupted' ||
+          state === 'downloading' ||
+          state === 'ready' ||
+          state === 'installing' ? (
             <Column style={styles.cardContent}>
               <Row style={styles.row}>
                 <Column style={styles.rowText}>
-                  <Text size="lg" weight="semibold">发现新版本 v{manifest?.versionName}</Text>
+                  <Text size="lg" weight="semibold">
+                    发现新版本 v{manifest?.versionName}
+                  </Text>
                   <Text color="secondary" size="sm">
                     {manifest ? formatBytes(manifest.apk.size) : ''}
                   </Text>
                 </Column>
-                <DownloadSimpleIcon color={token.colorPrimary} size={24} />
+                <Button
+                  onPress={() => setReleaseNotesOpen(true)}
+                  type="link"
+                >
+                  更新说明
+                </Button>
               </Row>
-              {manifest?.notes ? (
-                <Column style={styles.notes}>
-                  {manifest.notes.split(/\r?\n/).filter(Boolean).map(note => (
-                    <Row key={note} style={styles.noteRow}>
-                      <CheckCircleIcon color={token.colorSuccess} size={16} />
-                      <Text color="secondary" size="sm" style={styles.rowText}>{note}</Text>
-                    </Row>
-                  ))}
-                </Column>
-              ) : null}
-              {progress && (state === 'downloading' || state === 'interrupted') ? (
+              {progress &&
+              (state === 'downloading' || state === 'interrupted') ? (
                 <Column style={styles.progress}>
                   <Progress.Bar percent={progressPercent} showInfo={false} />
                   <Row style={styles.progressInfo}>
-                    <Text color="secondary" size="xs">{formatBytes(progress.bytesRead)} / {formatBytes(progress.totalBytes)}</Text>
-                    <Text color="secondary" size="xs">{Math.round(progressPercent)}%</Text>
+                    <Text color="secondary" size="xs">
+                      {formatBytes(progress.bytesRead)} /{' '}
+                      {formatBytes(progress.totalBytes)}
+                    </Text>
+                    <Text color="secondary" size="xs">
+                      {Math.round(progressPercent)}%
+                    </Text>
                   </Row>
                 </Column>
               ) : null}
@@ -278,13 +328,19 @@ export function AboutScreen() {
                 <Row style={styles.warning}>
                   <WarningCircleIcon color={token.colorWarning} size={18} />
                   <Text color="secondary" size="sm" style={styles.rowText}>
-                    {errorText || '下载已中断，已保留本地文件，继续下载会从已完成位置开始。'}
+                    {errorText ||
+                      '下载已中断，已保留本地文件，继续下载会从已完成位置开始。'}
                   </Text>
                 </Row>
               ) : null}
               <Row style={styles.actions}>
                 {state === 'ready' ? (
-                  <Button block icon={PlayIcon} onPress={handleInstall} type="primary">
+                  <Button
+                    block
+                    icon={PlayIcon}
+                    onPress={handleInstall}
+                    type="primary"
+                  >
                     安装更新
                   </Button>
                 ) : (
@@ -299,33 +355,43 @@ export function AboutScreen() {
                     {state === 'installing'
                       ? '正在打开安装器…'
                       : state === 'interrupted'
-                        ? '继续下载'
-                        : '下载更新'}
+                      ? '继续下载'
+                      : '下载更新'}
                   </Button>
                 )}
               </Row>
               {errorText && state === 'ready' ? (
-                <Text color="errorText" size="sm">{errorText}</Text>
+                <Text color="errorText" size="sm">
+                  {errorText}
+                </Text>
               ) : null}
             </Column>
           ) : null}
           {state === 'error' ? (
             <Row style={styles.error}>
               <WarningCircleIcon color={token.colorError} size={18} />
-              <Text color="errorText" size="sm" style={styles.rowText}>{errorText}</Text>
+              <Text color="errorText" size="sm" style={styles.rowText}>
+                {errorText}
+              </Text>
             </Row>
           ) : null}
           {state === 'current' ? (
             <Row style={styles.row}>
               <Row style={styles.rowText}>
                 <CheckCircleIcon color={token.colorSuccess} size={18} />
-                <Text color="secondary" size="sm">当前已是最新版本</Text>
+                <Text color="secondary" size="sm">
+                  当前已是最新版本
+                </Text>
               </Row>
-              <Text color="tertiary" size="xs">刚刚检查</Text>
+              <Text color="tertiary" size="xs">
+                刚刚检查
+              </Text>
             </Row>
           ) : null}
           {state === 'idle' || state === 'checking' ? (
-            <Text color="secondary" size="sm">手动检查 GitHub Release 中的最新稳定版本。</Text>
+            <Text color="secondary" size="sm">
+              手动检查 GitHub Release 中的最新稳定版本。
+            </Text>
           ) : null}
           <Button
             disabled={isBusy || !installed}
@@ -340,9 +406,43 @@ export function AboutScreen() {
       </Card>
 
       <Column style={styles.footer}>
-        <Text color="tertiary" size="xs">更新来源：Byte-n/PennySpring GitHub Release</Text>
-        <Text color="tertiary" size="xs">下载完成后会交由 Android 系统确认安装</Text>
+        <Text color="tertiary" size="xs">
+          更新来源：Byte-n/PennySpring GitHub Release
+        </Text>
+        <Text color="tertiary" size="xs">
+          下载完成后会交由 Android 系统确认安装
+        </Text>
       </Column>
+      <Popup.FloatingPanel
+        bodyScrollable
+        height="75%"
+        onOpenChange={setReleaseNotesOpen}
+        open={releaseNotesOpen}
+        scrollEnabled
+        titleText="版本更新说明"
+      >
+        {hasReleaseNotes ? (
+          <Column style={styles.releaseNotesContent}>
+            {releaseNotes.map(release => {
+              if (!release.notes.trim()) return null;
+              return (
+                <Column key={release.versionCode} style={styles.notes}>
+                  <Text color="secondary" size="sm" weight="semibold">
+                    v{release.versionName}
+                  </Text>
+                  <Text color="secondary" size="sm">
+                    {release.notes}
+                  </Text>
+                </Column>
+              );
+            })}
+          </Column>
+        ) : (
+          <Text color="tertiary" size="sm">
+            暂无更新说明
+          </Text>
+        )}
+      </Popup.FloatingPanel>
     </ScrollView>
   );
 }

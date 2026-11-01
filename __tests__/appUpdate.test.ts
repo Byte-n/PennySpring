@@ -1,6 +1,8 @@
 import {
   compareUpdateVersion,
+  getUpdateReleaseNotes,
   isTrustedApkUrl,
+  parseGitHubReleasePage,
   parseContentRange,
   parseUpdateManifest,
   selectUpdateApk,
@@ -76,6 +78,61 @@ describe('app update metadata', () => {
     expect(compareUpdateVersion(9, 10)).toBe('available');
     expect(compareUpdateVersion(10, 10)).toBe('current');
     expect(compareUpdateVersion(11, 10)).toBe('current');
+  });
+
+  it('returns release notes between the installed and target versions in order', () => {
+    const manifest = parseUpdateManifest({
+      formatVersion: 1,
+      versionName: '0.0.5',
+      versionCode: 5,
+      publishedAt: '2026-11-03T00:00:00.000Z',
+      notes: '最终修复',
+      apk: {
+        url: 'https://github.com/Byte-n/PennySpring/releases/download/v0.0.5/PennySpring-0.0.5.apk',
+        size: 123,
+        sha256: 'a'.repeat(64),
+      },
+      releaseNotes: [
+        {
+          versionName: '0.0.5',
+          versionCode: 5,
+          publishedAt: '2026-11-03T00:00:00.000Z',
+          notes: '最终修复',
+        },
+        {
+          versionName: '0.0.3',
+          versionCode: 3,
+          publishedAt: '2026-11-01T00:00:00.000Z',
+          notes: '中间版本',
+        },
+        {
+          versionName: '0.0.2',
+          versionCode: 2,
+          publishedAt: '2026-10-31T00:00:00.000Z',
+          notes: '已安装版本',
+        },
+      ],
+    });
+
+    expect(getUpdateReleaseNotes(manifest, 1).map(release => release.versionName)).toEqual([
+      '0.0.2',
+      '0.0.3',
+      '0.0.5',
+    ]);
+    expect(getUpdateReleaseNotes(manifest, 3).map(release => release.versionName)).toEqual([
+      '0.0.5',
+    ]);
+  });
+
+  it('parses only stable PennySpring releases between the installed and target versions', () => {
+    expect(parseGitHubReleasePage([
+      { name: 'PennySpring 0.0.5', published_at: '2026-11-03T00:00:00.000Z', body: '最新版' },
+      { name: 'PennySpring 0.0.3', published_at: '2026-11-01T00:00:00.000Z', body: '中间版本' },
+      { name: 'PennySpring 0.0.2', published_at: '2026-10-31T00:00:00.000Z', body: '已安装' },
+      { name: 'PennySpring 0.0.6', published_at: '2026-11-04T00:00:00.000Z', body: '未来版本' },
+      { name: 'PennySpring 0.0.4', prerelease: true, body: '预发布' },
+      { name: '其他标题', body: '不符合命名约定' },
+    ], 2, 5).map(release => release.versionName)).toEqual(['0.0.3', '0.0.5']);
   });
 
   it('parses a partial content range for resume', () => {
