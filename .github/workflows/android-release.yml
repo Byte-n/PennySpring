@@ -114,7 +114,7 @@ jobs:
           fi
           echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/upload.keystore"
 
-      - name: 构建 Release APK
+      - name: 构建 Release APK（通用包与 ABI 分包）
         working-directory: android
         env:
           ORG_GRADLE_PROJECT_PENNYSPRING_UPLOAD_STORE_FILE: ${{ runner.temp }}/upload.keystore
@@ -123,7 +123,8 @@ jobs:
           ORG_GRADLE_PROJECT_PENNYSPRING_UPLOAD_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: |
           ./gradlew assembleRelease --no-daemon \
-            -PreactNativeArchitectures=arm64-v8a,armeabi-v7a
+            -PreactNativeArchitectures=arm64-v8a,armeabi-v7a \
+            -PPENNYSPRING_ABI_SPLITS
 
       - name: 整理产物与发布说明
         env:
@@ -131,8 +132,22 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p build/release
-          cp android/app/build/outputs/apk/release/app-release.apk \
-            "build/release/PennySpring-$VERSION_NAME.apk"
+          for abi in arm64-v8a armeabi-v7a; do
+            source="android/app/build/outputs/apk/release/app-$abi-release.apk"
+            target="build/release/PennySpring-$VERSION_NAME-$abi.apk"
+            if [ ! -f "$source" ]; then
+              echo "::error::缺少 ABI APK：$source"
+              exit 1
+            fi
+            cp "$source" "$target"
+          done
+          universal_source="android/app/build/outputs/apk/release/app-universal-release.apk"
+          universal_target="build/release/PennySpring-$VERSION_NAME.apk"
+          if [ ! -f "$universal_source" ]; then
+            echo "::error::缺少通用 APK：$universal_source"
+            exit 1
+          fi
+          cp "$universal_source" "$universal_target"
           # 提交信息首行是 update 标记，其余行作为更新说明
           git log -1 --pretty=%B | tail -n +2 | sed '/^[[:space:]]*$/d' > build/release/notes.md
           if [ ! -s build/release/notes.md ]; then
@@ -146,12 +161,16 @@ jobs:
           TAG: ${{ steps.version.outputs.tag }}
         run: |
           set -euo pipefail
-          APK_URL="https://github.com/${GITHUB_REPOSITORY}/releases/download/${TAG}/PennySpring-${VERSION_NAME}.apk"
+          RELEASE_URL_PREFIX="https://github.com/${GITHUB_REPOSITORY}/releases/download/${TAG}"
           node scripts/android/make-manifest.js \
             --apk "build/release/PennySpring-${VERSION_NAME}.apk" \
             --version "$VERSION_NAME" \
             --version-code "$VERSION_CODE" \
-            --url "$APK_URL" \
+            --url "$RELEASE_URL_PREFIX/PennySpring-${VERSION_NAME}.apk" \
+            --apk-arm64-v8a "build/release/PennySpring-${VERSION_NAME}-arm64-v8a.apk" \
+            --url-arm64-v8a "$RELEASE_URL_PREFIX/PennySpring-${VERSION_NAME}-arm64-v8a.apk" \
+            --apk-armeabi-v7a "build/release/PennySpring-${VERSION_NAME}-armeabi-v7a.apk" \
+            --url-armeabi-v7a "$RELEASE_URL_PREFIX/PennySpring-${VERSION_NAME}-armeabi-v7a.apk" \
             --notes-file build/release/notes.md \
             --out build/release/latest.json
 
@@ -171,6 +190,8 @@ jobs:
           set -euo pipefail
           gh release create "$TAG" \
             "build/release/PennySpring-${VERSION_NAME}.apk#PennySpring-${VERSION_NAME}.apk" \
+            "build/release/PennySpring-${VERSION_NAME}-arm64-v8a.apk#PennySpring-${VERSION_NAME}-arm64-v8a.apk" \
+            "build/release/PennySpring-${VERSION_NAME}-armeabi-v7a.apk#PennySpring-${VERSION_NAME}-armeabi-v7a.apk" \
             "build/release/latest.json#latest.json" \
             --target "$GITHUB_SHA" \
             --title "PennySpring $VERSION_NAME" \
@@ -187,5 +208,7 @@ jobs:
             echo "### Android 发布完成"
             echo "- 版本：${VERSION_NAME}（versionCode ${VERSION_CODE}）"
             echo "- 下载：https://github.com/${GITHUB_REPOSITORY}/releases/tag/${TAG}"
+            echo "- ABI 分包：arm64-v8a（大多数 64 位手机）、armeabi-v7a（较旧的 32 位手机）"
+            echo "- 通用包：PennySpring-${VERSION_NAME}.apk（兼容性兜底，体积较大）"
             echo "- 更新清单：https://github.com/${GITHUB_REPOSITORY}/releases/latest/download/latest.json"
           } >> "$GITHUB_STEP_SUMMARY"

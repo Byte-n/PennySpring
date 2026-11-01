@@ -5,6 +5,7 @@ import {
   compareUpdateVersion,
   parseContentRange,
   parseUpdateManifest,
+  selectUpdateApk,
   UPDATE_MANIFEST_URL,
   type UpdateManifest,
 } from './update';
@@ -27,6 +28,7 @@ export interface DownloadProgress {
 
 interface NativeUpdateModule {
   getVersion: () => Promise<InstalledVersion>;
+  getSupportedAbis?: () => Promise<string[]>;
   installApk: (path: string) => Promise<void>;
 }
 
@@ -63,7 +65,15 @@ export async function checkForUpdate(
   if (!response.ok) {
     throw new Error(`检查更新失败（HTTP ${response.status}）`);
   }
-  const manifest = parseUpdateManifest((await response.json()) as unknown);
+  const parsedManifest = parseUpdateManifest((await response.json()) as unknown);
+  const native = getNativeUpdateModule();
+  const supportedAbis = native?.getSupportedAbis
+    ? await native.getSupportedAbis()
+    : [];
+  const manifest: UpdateManifest = {
+    ...parsedManifest,
+    apk: selectUpdateApk(parsedManifest, supportedAbis),
+  };
   return {
     manifest,
     status: compareUpdateVersion(installed.versionCode, manifest.versionCode),

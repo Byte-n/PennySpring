@@ -34,6 +34,15 @@ class UpdateNativeModule(
     }
 
     @ReactMethod
+    fun getSupportedAbis(promise: Promise) {
+        promise.resolve(
+            Arguments.createArray().apply {
+                Build.SUPPORTED_ABIS.forEach { abi -> pushString(abi) }
+            },
+        )
+    }
+
+    @ReactMethod
     fun installApk(path: String, promise: Promise) {
         try {
             val file = File(path).canonicalFile

@@ -6,6 +6,9 @@ const RELEASE_DOWNLOAD_PREFIX =
 const VERSION_PATTERN = /^\d+\.\d+\.\d+$/;
 const SHA256_PATTERN = /^[a-f0-9]{64}$/i;
 
+export const UPDATE_APK_ABIS = ['arm64-v8a', 'armeabi-v7a'] as const;
+export type UpdateApkAbi = (typeof UPDATE_APK_ABIS)[number];
+
 export interface UpdateApk {
   url: string;
   size: number;
@@ -19,6 +22,7 @@ export interface UpdateManifest {
   publishedAt: string;
   notes: string;
   apk: UpdateApk;
+  apks?: Partial<Record<UpdateApkAbi, UpdateApk>>;
 }
 
 export type UpdateVersionStatus = 'available' | 'current';
@@ -64,6 +68,45 @@ export function isTrustedApkUrl(value: string): boolean {
   }
 }
 
+function parseApk(value: unknown): UpdateApk {
+  if (!isRecord(value)) {
+    throw new Error('更新安装包信息缺失');
+  }
+  const url = requireString(value.url, 'APK 下载地址缺失');
+  if (!isTrustedApkUrl(url)) {
+    throw new Error('APK 下载地址不受信任');
+  }
+  const size = requirePositiveInteger(value.size, 'APK 文件大小不正确');
+  const sha256 = requireString(value.sha256, 'APK 校验值缺失');
+  if (!SHA256_PATTERN.test(sha256)) {
+    throw new Error('APK SHA-256 校验值不正确');
+  }
+  return { url, size, sha256: sha256.toLowerCase() };
+}
+
+function isUpdateApkAbi(value: string): value is UpdateApkAbi {
+  return (UPDATE_APK_ABIS as readonly string[]).includes(value);
+}
+
+function parseApkVariants(value: unknown): Partial<Record<UpdateApkAbi, UpdateApk>> | undefined {
+  if (value === undefined) return undefined;
+  if (!isRecord(value)) {
+    throw new Error('分架构 APK 信息格式不正确');
+  }
+  const entries = Object.entries(value);
+  if (entries.length === 0) {
+    throw new Error('分架构 APK 信息不能为空');
+  }
+  return Object.fromEntries(
+    entries.map(([abi, apk]) => {
+      if (!isUpdateApkAbi(abi)) {
+        throw new Error(`不支持的 APK 架构：${abi}`);
+      }
+      return [abi, parseApk(apk)];
+    }),
+  ) as Partial<Record<UpdateApkAbi, UpdateApk>>;
+}
+
 export function parseUpdateManifest(value: unknown): UpdateManifest {
   if (!isRecord(value)) {
     throw new Error('更新清单格式不正确');
@@ -79,26 +122,29 @@ export function parseUpdateManifest(value: unknown): UpdateManifest {
   const versionCode = requirePositiveInteger(value.versionCode, '更新版本编码不正确');
   const publishedAt = requireString(value.publishedAt, '更新时间缺失');
   const notes = typeof value.notes === 'string' ? value.notes : '';
-  if (!isRecord(value.apk)) {
-    throw new Error('更新安装包信息缺失');
-  }
-  const url = requireString(value.apk.url, 'APK 下载地址缺失');
-  if (!isTrustedApkUrl(url)) {
-    throw new Error('APK 下载地址不受信任');
-  }
-  const size = requirePositiveInteger(value.apk.size, 'APK 文件大小不正确');
-  const sha256 = requireString(value.apk.sha256, 'APK 校验值缺失');
-  if (!SHA256_PATTERN.test(sha256)) {
-    throw new Error('APK SHA-256 校验值不正确');
-  }
+  const apk = parseApk(value.apk);
+  const apks = parseApkVariants(value.apks);
   return {
     formatVersion,
     versionName,
     versionCode,
     publishedAt,
     notes,
-    apk: { url, size, sha256: sha256.toLowerCase() },
+    apk,
+    ...(apks ? { apks } : {}),
   };
+}
+
+export function selectUpdateApk(
+  manifest: UpdateManifest,
+  supportedAbis: readonly string[],
+): UpdateApk {
+  for (const abi of supportedAbis) {
+    if (!isUpdateApkAbi(abi)) continue;
+    const apk = manifest.apks?.[abi];
+    if (apk) return apk;
+  }
+  return manifest.apk;
 }
 
 export function compareUpdateVersion(

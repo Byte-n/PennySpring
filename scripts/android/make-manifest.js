@@ -6,6 +6,7 @@ const { mkdir, readFile, stat, writeFile } = require('node:fs/promises')
 const path = require('node:path')
 
 const MANIFEST_FORMAT_VERSION = 1
+const APK_ABIS = ['arm64-v8a', 'armeabi-v7a']
 
 /**
  * @param {unknown} error
@@ -50,6 +51,16 @@ function sha256OfFile(filePath) {
   })
 }
 
+/**
+ * @param {string} filePath
+ * @param {string} downloadUrl
+ * @returns {Promise<{url: string, size: number, sha256: string}>}
+ */
+async function createApkMetadata(filePath, downloadUrl) {
+  const [fileStat, sha256] = await Promise.all([stat(filePath), sha256OfFile(filePath)])
+  return { url: downloadUrl, size: fileStat.size, sha256 }
+}
+
 async function main() {
   const options = parseArguments(process.argv.slice(2))
   const apkPath = options.apk
@@ -60,15 +71,27 @@ async function main() {
 
   if (!apkPath || !versionName || !downloadUrl || !outputPath) {
     throw new Error(
-      '用法: make-manifest.js --apk <path> --version <x.y.z> --version-code <n> --url <download-url> --out <path> [--notes-file <path>]'
+      '用法: make-manifest.js --apk <path> --version <x.y.z> --version-code <n> --url <download-url> --out <path> [--apk-<abi> <path> --url-<abi> <download-url>] [--notes-file <path>]'
     )
   }
   if (!Number.isInteger(versionCode) || versionCode < 1) {
     throw new Error(`--version-code 必须是正整数，收到: ${options['version-code']}`)
   }
 
-  const [fileStat, sha256] = await Promise.all([stat(apkPath), sha256OfFile(apkPath)])
   const notes = options['notes-file'] ? (await readFile(options['notes-file'], 'utf8')).trim() : ''
+  const apk = await createApkMetadata(apkPath, downloadUrl)
+  const variantEntries = await Promise.all(
+    APK_ABIS.map(async abi => {
+      const variantPath = options[`apk-${abi}`]
+      const variantUrl = options[`url-${abi}`]
+      if ((variantPath && !variantUrl) || (!variantPath && variantUrl)) {
+        throw new Error(`ABI ${abi} 的 APK 路径和下载地址必须同时提供`)
+      }
+      if (!variantPath) return null
+      return [abi, await createApkMetadata(variantPath, variantUrl)]
+    }),
+  )
+  const apks = Object.fromEntries(variantEntries.filter(entry => entry !== null))
 
   const manifest = {
     formatVersion: MANIFEST_FORMAT_VERSION,
@@ -76,11 +99,8 @@ async function main() {
     versionCode,
     publishedAt: new Date().toISOString(),
     notes,
-    apk: {
-      url: downloadUrl,
-      size: fileStat.size,
-      sha256
-    }
+    apk,
+    ...(Object.keys(apks).length > 0 ? { apks } : {})
   }
 
   await mkdir(path.dirname(outputPath), { recursive: true })
