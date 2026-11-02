@@ -1,600 +1,575 @@
-import React, { useContext, useEffect, useMemo, useState } from 'react';
-import type { StyleProp, ViewStyle } from 'react-native';
-import { Pressable, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import React from 'react';
+import {
+  Pressable,
+  View,
+  useWindowDimensions,
+  type LayoutChangeEvent,
+} from 'react-native';
 import Animated, {
   Easing,
-  runOnJS,
   useAnimatedStyle,
   useSharedValue,
-  withDelay,
   withTiming,
 } from 'react-native-reanimated';
-import {
-  createUseSheetStyle,
-  toShadowStyle,
-  useTheme,
-  type AliasToken,
-} from '@pennyspring/theme';
-import { Button } from '../Button';
-import type { ButtonColor, ButtonProps, ButtonVariant } from '../Button';
-import { Icon } from '../Icon';
-import type { IconComponent, IconName } from '../Icon';
+import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
+import { useTheme } from '@pennyspring/theme';
 import { PortalContext } from '../Portal/Portal';
 import { resolvePortalMount } from '../Portal/resolvePortalMount';
-import { Row } from '../Row';
-import { Text } from '../Text';
 import type { ComponentSize } from '../shares/types';
+import { FloatingActionItem } from './ActionItem';
+import { FloatingActionTrigger } from './Trigger';
+import {
+  resolveActionLayout,
+  resolveClampCenterY,
+  resolveDockX,
+  resolveFloatX,
+  resolveGrowUp,
+  resolveHitSlop,
+  resolveInitialTop,
+  resolveMenuOriginX,
+  resolveMetrics,
+  resolveSide,
+  type FloatingSide,
+} from './layout';
+import { useOverlayStyles, useRailStyles, useRootStyles } from './style';
 import type {
-  FloatingActionGroupStyles,
   FloatingActionGroupProps,
-  FloatingActionItem,
+  FloatingActionGroupStyles,
+  FloatingLayout,
   FloatingPlacement,
 } from './types';
 
-interface FloatingStyleOptions {
-  positionStyle: {
-    top?: number;
-    right?: number;
-    bottom?: number;
-    left?: number;
-  };
-  alignEnd: boolean;
-  expandUp: boolean;
+const SAFE_INSET = 8;
+const DEFAULT_OFFSET = 16;
+const SCRIM_OPACITY = 0.32;
+const RAIL_WIDTH = 2;
+const RAIL_HEIGHT = 44;
+const RAIL_OPACITY = 0.24;
+const ZERO_INSETS = { top: 0, right: 0, bottom: 0, left: 0 };
+const DEFAULT_PLACEMENT: FloatingPlacement = 'bottomRight';
+const DEFAULT_SIZE: ComponentSize = 'normal';
+const DEFAULT_LAYOUT: FloatingLayout = 'grid';
+
+interface ContainerSize {
+  width: number;
+  height: number;
 }
 
-interface FloatingActionButtonStyleOptions {
-  shadow: boolean;
-  size: ComponentSize;
-  iconOnly: boolean;
+interface AnchorPosition {
+  x: number;
+  y: number;
 }
 
-interface FloatingActionButtonProps {
-  label?: string;
-  icon?: IconName | IconComponent;
-  disabled?: boolean;
-  color?: ButtonColor;
-  variant?: ButtonVariant;
-  size: ComponentSize;
-  shadow?: boolean;
-  onPress?: () => void;
-  style?: StyleProp<ViewStyle>;
-  buttonProps?: Omit<
-    ButtonProps,
-    'children' | 'icon' | 'onPress' | 'size' | 'style' | 'styles'
-  >;
-  testID?: string;
-}
-
-const DEFAULT_VISIBLE_COUNT = 1;
-const DEFAULT_PLACEMENT = 'bottomRight' as const;
-const DEFAULT_SIZE = 'normal' as const;
-const PILL_RADIUS = 999;
-const EXPANDED_ITEM_GAP = 10;
-const EXPAND_STAGGER = 30;
-const EXPAND_OFFSET = 8;
-const HIDDEN_SCALE_START = 0.94;
-const MORE_ICON_ROTATION = '45deg';
-const IDLE_ICON_ROTATION = '0deg';
-
-/**
- * 主 FAB 40 / 48 / 56；AliasToken 只覆盖 12 / 16 圆角，
- * 40 / 48 / 56 落在 4px 网格，用命名常量表达。
- */
-const BUTTON_SIZE_STYLES: Record<
-  ComponentSize,
-  {
-    height: number;
-    iconSize: number;
-    borderRadius: (token: AliasToken) => number;
-    paddingHorizontal: (token: AliasToken) => number;
-  }
-> = {
-  small: {
-    height: 40,
-    iconSize: 18,
-    borderRadius: token => token.borderRadius,
-    paddingHorizontal: token => token.paddingXS,
-  },
-  normal: {
-    height: 48,
-    iconSize: 22,
-    borderRadius: token => token.borderRadiusLG,
-    paddingHorizontal: token => token.paddingSM,
-  },
-  large: {
-    height: 56,
-    iconSize: 24,
-    borderRadius: token => token.borderRadiusLG,
-    paddingHorizontal: token => token.paddingMD,
-  },
-};
-
-const HIDDEN_ITEM_SIZES: Record<
-  ComponentSize,
-  { height: number; iconSize: number }
-> = {
-  small: { height: 40, iconSize: 18 },
-  normal: { height: 44, iconSize: 20 },
-  large: { height: 48, iconSize: 22 },
-};
-
-const useStyles = createUseSheetStyle(
-  (token, { positionStyle, alignEnd, expandUp }: FloatingStyleOptions) => ({
-    root: {
-      ...positionStyle,
-      position: 'absolute',
-      zIndex: token.zIndexPopupBase + token.zIndexBase,
-      gap: token.paddingXS,
-      alignItems: alignEnd ? 'flex-end' : 'flex-start',
-    },
-    outsideOverlay: {
-      position: 'absolute',
-      top: 0,
-      right: 0,
-      bottom: 0,
-      left: 0,
-    },
-    hiddenLayer: {
-      position: 'absolute',
-      ...(alignEnd ? { right: 0 } : { left: 0 }),
-      ...(expandUp ? { top: 0 } : { bottom: 0 }),
-      alignItems: alignEnd ? 'flex-end' : 'flex-start',
-    },
-  }),
-);
-
-const useButtonStyles = createUseSheetStyle(
-  (token, { iconOnly, shadow, size }: FloatingActionButtonStyleOptions) => {
-    const sizeStyle = BUTTON_SIZE_STYLES[size];
-
-    return {
-      button: {
-        width: iconOnly ? sizeStyle.height : undefined,
-        height: sizeStyle.height,
-        borderRadius: sizeStyle.borderRadius(token),
-        paddingHorizontal: iconOnly ? 0 : sizeStyle.paddingHorizontal(token),
-        ...(shadow ? toShadowStyle(token.boxShadowSecondary) : undefined),
-      },
-    };
-  },
-);
-
-const useMoreButtonStyles = createUseSheetStyle(
-  (token, { expanded, size }: { expanded: boolean; size: ComponentSize }) => {
-    const sizeStyle = BUTTON_SIZE_STYLES[size];
-
-    return {
-      button: {
-        width: sizeStyle.height,
-        height: sizeStyle.height,
-        borderRadius: sizeStyle.borderRadius(token),
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: token.colorPrimary,
-        ...toShadowStyle(token.boxShadowSecondary),
-      },
-      icon: {
-        transform: [
-          { rotate: expanded ? MORE_ICON_ROTATION : IDLE_ICON_ROTATION },
-        ],
-      },
-    };
-  },
-);
-
-const useHiddenItemStyles = createUseSheetStyle(
-  (token, { size }: { size: ComponentSize }) => {
-    const itemSize = HIDDEN_ITEM_SIZES[size];
-    // 小档复用 12 圆角 token，中/大档 14 无 token 档位。
-    const borderRadius = size === 'small' ? token.borderRadius : 14;
-
-    return {
-      row: {
-        alignItems: 'center',
-        gap: token.paddingXS,
-      },
-      capsule: {
-        height: token.sizeXL,
-        justifyContent: 'center',
-        paddingHorizontal: token.paddingSM,
-        borderRadius: PILL_RADIUS,
-        borderWidth: token.lineWidth,
-        borderColor: token.colorSplit,
-        backgroundColor: token.colorBgContainer,
-      },
-      mini: {
-        width: itemSize.height,
-        height: itemSize.height,
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderRadius,
-        borderWidth: token.lineWidth,
-        borderColor: token.colorSplit,
-        backgroundColor: token.colorBgContainer,
-      },
-      miniPressed: {
-        transform: [{ scale: 0.97 }],
-      },
-      disabled: {
-        opacity: token.opacityLoading,
-      },
-    };
-  },
-);
-
-function FloatingActionButton({
-  color = 'primary',
-  disabled,
-  icon,
-  label,
-  onPress,
-  shadow = true,
-  size,
-  style,
-  buttonProps,
-  testID,
-  variant = 'solid',
-}: FloatingActionButtonProps) {
-  const iconOnly = icon !== undefined;
-  const tokenStyles = useButtonStyles({ iconOnly, shadow, size });
-  const { testID: buttonTestID, ...restButtonProps } = buttonProps ?? {};
-  const resolvedTestID = testID ?? buttonTestID;
-
-  return (
-    <Button
-      color={color}
-      {...restButtonProps}
-      disabled={disabled || restButtonProps.disabled}
-      icon={icon}
-      iconProps={{ size: BUTTON_SIZE_STYLES[size].iconSize }}
-      onPress={onPress}
-      shape={iconOnly ? 'circle' : 'round'}
-      size={size}
-      style={[tokenStyles.button, style]}
-      testID={resolvedTestID}
-      variant={variant}
-    >
-      {iconOnly ? null : label}
-    </Button>
-  );
-}
-
-function MoreActionButton({
-  expanded,
-  onPress,
-  size,
-  style,
-  testID,
-}: {
-  expanded: boolean;
-  onPress: () => void;
-  size: ComponentSize;
-  style?: StyleProp<ViewStyle>;
-  testID?: string;
-}) {
-  const tokenStyles = useMoreButtonStyles({ expanded, size });
-
-  return (
-    <Pressable
-      onPress={onPress}
-      style={[tokenStyles.button, style]}
-      testID={testID}
-    >
-      <Icon
-        color="lightSolid"
-        icon="plus"
-        size={BUTTON_SIZE_STYLES[size].iconSize}
-        style={tokenStyles.icon}
-      />
-    </Pressable>
-  );
-}
-
-function resolvePlacementPosition(
-  placement: FloatingPlacement,
-  offset: NonNullable<FloatingActionGroupProps['offset']>,
-  token: AliasToken,
-  safeAreaTop: number,
-  safeAreaBottom: number,
-): { top?: number; right?: number; bottom?: number; left?: number } {
-  const baseX = offset.x ?? token.padding;
-  const baseY = offset.y ?? token.padding;
-
-  if (placement === 'topLeft') {
-    return { top: baseY + safeAreaTop, left: baseX };
-  }
-  if (placement === 'topRight') {
-    return { top: baseY + safeAreaTop, right: baseX };
-  }
-  if (placement === 'bottomLeft') {
-    return { bottom: baseY + safeAreaBottom, left: baseX };
-  }
-  if (placement === 'centerLeft') {
-    return { top: baseY + safeAreaTop, left: baseX };
-  }
-  if (placement === 'centerRight') {
-    return { top: baseY + safeAreaTop, right: baseX };
-  }
-
-  return { bottom: baseY + safeAreaBottom, right: baseX };
-}
-
-function resolveHiddenItemOffset(
-  index: number,
-  placement: FloatingPlacement,
-  spacing: number,
-): number {
-  'worklet';
-
-  const expandUp = placement.startsWith('bottom');
-  const verticalSign = expandUp ? -1 : 1;
-
-  return verticalSign * (index + 1) * spacing;
-}
-
-function HiddenActionItem({
-  action,
-  index,
-  isMounted,
-  isVisible,
-  placement,
-  spacing,
-  style,
-  size,
-}: {
-  action: FloatingActionItem;
-  index: number;
-  isMounted: boolean;
-  isVisible: boolean;
-  placement: FloatingPlacement;
-  spacing: number;
-  style: FloatingActionGroupStyles['actionButton'];
-  size: ComponentSize;
-}) {
-  const { token } = useTheme();
-  const tokenStyles = useHiddenItemStyles({ size });
-  const itemProgress = useSharedValue(0);
-  const animationEasing = useMemo(
-    () => Easing.bezier(...token.motionEaseOut),
-    [token.motionEaseOut],
-  );
-
-  useEffect(() => {
-    itemProgress.value = isVisible
-      ? withDelay(
-          index * EXPAND_STAGGER,
-          withTiming(1, {
-            duration: token.motionDurationMid,
-            easing: animationEasing,
-          }),
-        )
-      : withTiming(0, {
-          duration: token.motionDurationMid,
-          easing: animationEasing,
-        });
-  }, [
-    animationEasing,
-    index,
-    isVisible,
-    itemProgress,
-    token.motionDurationMid,
-  ]);
-
-  const animatedStyle = useAnimatedStyle(() => {
-    const baseOffset = resolveHiddenItemOffset(index, placement, spacing);
-    const isExpandUp = placement.startsWith('bottom');
-    const enterOffset = (1 - itemProgress.value) * EXPAND_OFFSET;
-
-    return {
-      position: 'absolute',
-      opacity: itemProgress.value,
-      transform: [
-        {
-          // 展开时从主 FAB 一侧浮出 8px；收起时原路退回。
-          translateY: baseOffset + (isExpandUp ? enterOffset : -enterOffset),
-        },
-        {
-          scale:
-            HIDDEN_SCALE_START + itemProgress.value * (1 - HIDDEN_SCALE_START),
-        },
-      ],
-    };
-  }, [index, placement, spacing]);
-
-  const itemSize = HIDDEN_ITEM_SIZES[size];
-  const isDisabled = action.disabled === true;
-
-  if (!isMounted) {
-    return null;
-  }
-
-  return (
-    <Animated.View
-      style={animatedStyle}
-      testID="floating-action-group-hidden-item"
-    >
-      <Row gap="small" style={tokenStyles.row}>
-        {action.label === undefined ? null : (
-          <View
-            style={[
-              tokenStyles.capsule,
-              isDisabled ? tokenStyles.disabled : null,
-            ]}
-          >
-            <Text color="default" size="sm" weight="medium">
-              {action.label}
-            </Text>
-          </View>
-        )}
-        <Pressable
-          disabled={isDisabled}
-          onPress={action.onPress}
-          style={({ pressed }) => [
-            tokenStyles.mini,
-            pressed ? tokenStyles.miniPressed : null,
-            isDisabled ? tokenStyles.disabled : null,
-            style,
-          ]}
-        >
-          <Icon
-            color="default"
-            icon={action.icon ?? 'plus'}
-            size={itemSize.iconSize}
-          />
-        </Pressable>
-      </Row>
-    </Animated.View>
-  );
+function clampX(value: number, width: number, size: number): number {
+  return Math.max(0, Math.min(width - size, value));
 }
 
 export function FloatingActionGroup({
   actions,
   collapseOnOutsidePress = true,
-  defaultVisibleCount = DEFAULT_VISIBLE_COUNT,
+  draggable = false,
+  layout = DEFAULT_LAYOUT,
   mountPoint = 'auto',
   offset,
   placement = DEFAULT_PLACEMENT,
   size = DEFAULT_SIZE,
+  snapToEdge = false,
   spacing,
   style,
   styles,
-  toggleOnMorePress = true,
 }: FloatingActionGroupProps) {
-  const portalContext = useContext(PortalContext);
   const { token } = useTheme();
-  const safeAreaInsets = useSafeAreaInsets();
-  const [expanded, setExpanded] = useState(false);
-  const [hiddenActionsMounted, setHiddenActionsMounted] = useState(false);
-  const progress = useSharedValue(0);
-
-  const visibleCount = Math.max(DEFAULT_VISIBLE_COUNT, defaultVisibleCount);
-  const visibleActions = useMemo(
-    () => actions.slice(0, visibleCount),
-    [actions, visibleCount],
+  const insets = React.useContext(SafeAreaInsetsContext) ?? ZERO_INSETS;
+  const window = useWindowDimensions();
+  const portalContext = React.useContext(PortalContext);
+  const isPortal =
+    mountPoint === 'portal' ||
+    (mountPoint === 'auto' && portalContext !== null);
+  const [container, setContainer] = React.useState<ContainerSize>({
+    width: window.width,
+    height: window.height,
+  });
+  const safeTop = (isPortal ? insets.top : ZERO_INSETS.top) + SAFE_INSET;
+  const safeBottom =
+    container.height -
+    (isPortal ? insets.bottom : ZERO_INSETS.bottom) -
+    SAFE_INSET;
+  const offsetX = offset?.x ?? DEFAULT_OFFSET;
+  const offsetY = offset?.y ?? DEFAULT_OFFSET;
+  const metrics = React.useMemo(
+    () => resolveMetrics(size, spacing),
+    [size, spacing],
   );
-  const hiddenActions = useMemo(
-    () => actions.slice(visibleCount),
-    [actions, visibleCount],
+  const actionCount = actions.length;
+  const hasLabel = React.useMemo(
+    () => actions.some(action => action.label !== undefined),
+    [actions],
   );
-  const hasMore = hiddenActions.length > 0;
+  const rootStyles = useRootStyles();
+  const overlayStyles = useOverlayStyles();
+  const railStyles = useRailStyles();
+  const initialSide = resolveSide(placement);
+  const initialPosition = React.useMemo<AnchorPosition>(() => {
+    const x = snapToEdge
+      ? resolveDockX(initialSide, container.width, metrics)
+      : resolveFloatX(initialSide, container.width, offsetX, metrics);
+    const top = resolveInitialTop(
+      placement,
+      container.height,
+      offsetY,
+      safeTop,
+      safeBottom,
+      metrics,
+    );
+    const growUp = resolveGrowUp(
+      top + metrics.anchorSize / 2,
+      container.height,
+    );
+    const resolved = resolveActionLayout({
+      count: actionCount,
+      layout,
+      side: initialSide,
+      metrics,
+      hasLabel,
+      growUp,
+    });
+    const centerY = resolveClampCenterY(
+      top + metrics.anchorSize / 2,
+      resolved,
+      safeTop,
+      safeBottom,
+    );
 
-  const computedSpacing =
-    spacing ?? HIDDEN_ITEM_SIZES[size].height + EXPANDED_ITEM_GAP;
-  const alignEnd = !placement.endsWith('Left');
-  const expandUp = placement.startsWith('bottom');
-
-  const positionStyle = resolvePlacementPosition(
+    return { x, y: centerY - metrics.anchorSize / 2 };
+  }, [
+    actionCount,
+    container.height,
+    container.width,
+    hasLabel,
+    initialSide,
+    layout,
+    metrics,
+    offsetX,
+    offsetY,
     placement,
-    offset ?? {},
-    token,
-    safeAreaInsets.top,
-    safeAreaInsets.bottom,
+    safeBottom,
+    safeTop,
+    size,
+    snapToEdge,
+  ]);
+  const [position, setPosition] =
+    React.useState<AnchorPosition>(initialPosition);
+  const [side, setSide] = React.useState<FloatingSide>(initialSide);
+  const [isDragging, setIsDragging] = React.useState(false);
+  const [isExpanded, setIsExpanded] = React.useState(false);
+  const positionRef = React.useRef(position);
+  const sideRef = React.useRef(side);
+  const lastSnapRef = React.useRef(snapToEdge);
+  const lastPlacementKeyRef = React.useRef(
+    `${placement}|${offsetX}|${offsetY}`,
   );
-  const tokenStyles = useStyles({ positionStyle, alignEnd, expandUp });
+  const isMenuOpen = isExpanded && actionCount >= 2;
+  const growUp = resolveGrowUp(
+    position.y + metrics.anchorSize / 2,
+    container.height,
+  );
+  const resolvedLayout = React.useMemo(
+    () =>
+      resolveActionLayout({
+        count: actionCount,
+        layout,
+        side,
+        metrics,
+        hasLabel,
+        growUp,
+      }),
+    [actionCount, growUp, hasLabel, layout, metrics, side],
+  );
+  const menuOriginX = resolveMenuOriginX({
+    side,
+    containerWidth: container.width,
+    anchorX: position.x,
+    snapToEdge,
+    metrics,
+    layout: resolvedLayout,
+  });
+  const menuOriginY = position.y + metrics.anchorSize / 2;
+  const anchorX = useSharedValue(position.x);
+  const anchorY = useSharedValue(position.y);
+  const scrimProgress = useSharedValue(0);
+  const animationEasing = React.useMemo(
+    () => Easing.bezier(...token.motionEaseOut),
+    [token.motionEaseOut],
+  );
+  const snapAnimation = React.useMemo(
+    () => ({
+      duration: token.motionDurationSlow,
+      easing: Easing.bezier(...token.motionEaseOutCirc),
+    }),
+    [token.motionDurationSlow, token.motionEaseOutCirc],
+  );
 
-  const collapse = (): void => {
-    setExpanded(false);
-    progress.value = withTiming(
-      0,
+  const commitPosition = React.useCallback(
+    (x: number, y: number, nextSide: FloatingSide) => {
+      positionRef.current = { x, y };
+      sideRef.current = nextSide;
+      setPosition({ x, y });
+      setSide(nextSide);
+    },
+    [],
+  );
+
+  const resolvePlacementPosition = React.useCallback((): AnchorPosition => {
+    const nextSide = resolveSide(placement);
+    const x = snapToEdge
+      ? resolveDockX(nextSide, container.width, metrics)
+      : resolveFloatX(nextSide, container.width, offsetX, metrics);
+    const top = resolveInitialTop(
+      placement,
+      container.height,
+      offsetY,
+      safeTop,
+      safeBottom,
+      metrics,
+    );
+    const nextGrowUp = resolveGrowUp(
+      top + metrics.anchorSize / 2,
+      container.height,
+    );
+    const nextLayout = resolveActionLayout({
+      count: actionCount,
+      layout,
+      side: nextSide,
+      metrics,
+      hasLabel,
+      growUp: nextGrowUp,
+    });
+    const centerY = resolveClampCenterY(
+      top + metrics.anchorSize / 2,
+      nextLayout,
+      safeTop,
+      safeBottom,
+    );
+
+    return { x, y: centerY - metrics.anchorSize / 2 };
+  }, [
+    actionCount,
+    container.height,
+    container.width,
+    hasLabel,
+    layout,
+    metrics,
+    offsetX,
+    offsetY,
+    placement,
+    safeBottom,
+    safeTop,
+    size,
+    snapToEdge,
+  ]);
+
+  React.useEffect(() => {
+    anchorX.value = withTiming(position.x, snapAnimation);
+    anchorY.value = withTiming(position.y, snapAnimation);
+  }, [anchorX, anchorY, position.x, position.y, snapAnimation]);
+
+  React.useEffect(() => {
+    scrimProgress.value = withTiming(
+      isMenuOpen && collapseOnOutsidePress ? 1 : 0,
       {
         duration: token.motionDurationMid,
-        easing: Easing.bezier(...token.motionEaseOut),
+        easing: animationEasing,
       },
-      finished => {
-        if (finished) {
-          runOnJS(setHiddenActionsMounted)(false);
-        }
-      },
+    );
+  }, [
+    animationEasing,
+    collapseOnOutsidePress,
+    isMenuOpen,
+    scrimProgress,
+    token.motionDurationMid,
+  ]);
+
+  React.useEffect(() => {
+    const placementKey = `${placement}|${offsetX}|${offsetY}`;
+
+    if (lastPlacementKeyRef.current === placementKey) {
+      return;
+    }
+
+    lastPlacementKeyRef.current = placementKey;
+    const nextPosition = resolvePlacementPosition();
+    const nextSide = resolveSide(placement);
+    commitPosition(nextPosition.x, nextPosition.y, nextSide);
+  }, [commitPosition, offsetX, offsetY, placement, resolvePlacementPosition]);
+
+  React.useEffect(() => {
+    if (container.width <= 0 || container.height <= 0) {
+      return;
+    }
+
+    const current = positionRef.current;
+    const snapChanged = lastSnapRef.current !== snapToEdge;
+    lastSnapRef.current = snapToEdge;
+    const nextSide: FloatingSide =
+      current.x + metrics.anchorSize / 2 < container.width / 2
+        ? 'left'
+        : 'right';
+    const currentGrowUp = resolveGrowUp(
+      current.y + metrics.anchorSize / 2,
+      container.height,
+    );
+    const nextLayout = resolveActionLayout({
+      count: actionCount,
+      layout,
+      side: nextSide,
+      metrics,
+      hasLabel,
+      growUp: currentGrowUp,
+    });
+    const nextX = snapToEdge
+      ? resolveDockX(nextSide, container.width, metrics)
+      : snapChanged
+        ? resolveFloatX(nextSide, container.width, offsetX, metrics)
+        : clampX(current.x, container.width, metrics.anchorSize);
+    const centerY = resolveClampCenterY(
+      current.y + metrics.anchorSize / 2,
+      nextLayout,
+      safeTop,
+      safeBottom,
+    );
+    const nextY = centerY - metrics.anchorSize / 2;
+
+    if (
+      nextX !== positionRef.current.x ||
+      nextY !== positionRef.current.y ||
+      nextSide !== sideRef.current
+    ) {
+      commitPosition(nextX, nextY, nextSide);
+    }
+  }, [
+    actionCount,
+    commitPosition,
+    container.height,
+    container.width,
+    hasLabel,
+    layout,
+    metrics,
+    offsetX,
+    safeBottom,
+    safeTop,
+    size,
+    snapToEdge,
+  ]);
+
+  const handleLayout = (event: LayoutChangeEvent): void => {
+    const { width, height } = event.nativeEvent.layout;
+
+    if (width <= 0 || height <= 0) {
+      return;
+    }
+
+    setContainer(current =>
+      current.width === width && current.height === height
+        ? current
+        : { width, height },
     );
   };
 
-  const handleToggleExpand = (): void => {
-    if (!hasMore) {
+  const handleTriggerPress = React.useCallback(() => {
+    if (actionCount === 0) {
       return;
     }
 
-    const nextExpanded = toggleOnMorePress ? !expanded : true;
+    if (actionCount === 1) {
+      const action = actions[0];
 
-    if (!nextExpanded) {
-      collapse();
+      if (action.disabled || action.buttonProps?.disabled) {
+        return;
+      }
+
+      action.onPress?.();
       return;
     }
 
-    progress.value = 1;
-    setHiddenActionsMounted(true);
-    setExpanded(true);
-  };
+    setIsExpanded(!isMenuOpen);
+  }, [actionCount, actions, isMenuOpen]);
 
-  const handleOutsidePress = (): void => {
-    if (!collapseOnOutsidePress || !expanded) {
-      return;
+  const handleActionPress = React.useCallback(() => {
+    setIsExpanded(false);
+  }, []);
+
+  const handleOutsidePress = React.useCallback(() => {
+    if (isMenuOpen) {
+      setIsExpanded(false);
     }
+  }, [isMenuOpen]);
 
-    collapse();
-  };
+  const handleDragStart = React.useCallback(() => {
+    setIsDragging(true);
+    setIsExpanded(false);
+  }, []);
+
+  const handleDragEnd = React.useCallback(
+    (x: number, y: number) => {
+      const nextSide: FloatingSide =
+        x + metrics.anchorSize / 2 < container.width / 2 ? 'left' : 'right';
+      const nextGrowUp = resolveGrowUp(
+        y + metrics.anchorSize / 2,
+        container.height,
+      );
+      const nextLayout = resolveActionLayout({
+        count: actionCount,
+        layout,
+        side: nextSide,
+        metrics,
+        hasLabel,
+        growUp: nextGrowUp,
+      });
+      const nextX = snapToEdge
+        ? resolveDockX(nextSide, container.width, metrics)
+        : clampX(x, container.width, metrics.anchorSize);
+      const centerY = resolveClampCenterY(
+        y + metrics.anchorSize / 2,
+        nextLayout,
+        safeTop,
+        safeBottom,
+      );
+      const nextY = centerY - metrics.anchorSize / 2;
+
+      setIsDragging(false);
+      commitPosition(nextX, nextY, nextSide);
+    },
+    [
+      actionCount,
+      commitPosition,
+      container.height,
+      container.width,
+      hasLabel,
+      layout,
+      metrics,
+      safeBottom,
+      safeTop,
+      size,
+      snapToEdge,
+    ],
+  );
+
+  const handleDragCancel = React.useCallback(() => {
+    setIsDragging(false);
+    anchorX.value = withTiming(positionRef.current.x, snapAnimation);
+    anchorY.value = withTiming(positionRef.current.y, snapAnimation);
+  }, [anchorX, anchorY, snapAnimation]);
+
+  const hitSlop = React.useMemo(
+    () => resolveHitSlop(metrics, side, snapToEdge),
+    [metrics, side, snapToEdge],
+  );
+
+  const railAnimatedStyle = useAnimatedStyle(() => {
+    const isRight =
+      anchorX.value + metrics.anchorSize / 2 >= container.width / 2;
+
+    return {
+      left: isRight ? container.width - RAIL_WIDTH : 0,
+      top: anchorY.value + metrics.anchorSize / 2 - RAIL_HEIGHT / 2,
+      opacity: isDragging && snapToEdge ? RAIL_OPACITY : 0,
+    };
+  }, [anchorX, anchorY, container.width, isDragging, size, snapToEdge]);
+
+  const scrimAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: scrimProgress.value * SCRIM_OPACITY,
+  }));
+
+  if (actionCount === 0) {
+    return null;
+  }
+
+  const directDisabled =
+    actionCount === 1 &&
+    (actions[0].disabled === true || actions[0].buttonProps?.disabled === true);
+  const triggerAccessibilityLabel =
+    actionCount === 1
+      ? (actions[0].label ?? '执行操作')
+      : isMenuOpen
+        ? '收起操作'
+        : '展开操作';
+  const triggerStyles: FloatingActionGroupStyles['trigger'] = styles?.trigger;
 
   const content = (
-    <>
-      {expanded && collapseOnOutsidePress ? (
+    <View
+      onLayout={handleLayout}
+      pointerEvents="box-none"
+      style={[rootStyles.root, style, styles?.root]}
+      testID="floating-action-group-container"
+    >
+      {collapseOnOutsidePress ? (
         <Pressable
           onPress={handleOutsidePress}
-          style={tokenStyles.outsideOverlay}
+          pointerEvents={isMenuOpen ? 'auto' : 'none'}
+          style={[overlayStyles.overlay, styles?.overlay]}
           testID="floating-action-group-outside-overlay"
-        />
+        >
+          <Animated.View
+            pointerEvents="none"
+            style={[overlayStyles.scrim, scrimAnimatedStyle]}
+          />
+        </Pressable>
       ) : null}
-      <View
-        pointerEvents="box-none"
-        style={[tokenStyles.root, style, styles?.root]}
-        testID="floating-action-group-container"
-      >
-        <View style={tokenStyles.hiddenLayer}>
-          {hiddenActions.map((action, index) => (
-            <HiddenActionItem
+      <Animated.View
+        pointerEvents="none"
+        style={[railStyles.rail, railAnimatedStyle, styles?.edgeRail]}
+        testID="floating-action-group-edge-rail"
+      />
+      {actionCount >= 2
+        ? actions.map((action, index) => (
+            <FloatingActionItem
               action={action}
               index={index}
-              isMounted={hiddenActionsMounted}
-              isVisible={expanded}
+              isDisabled={
+                action.disabled === true ||
+                action.buttonProps?.disabled === true
+              }
+              isOpen={isMenuOpen}
               key={action.key}
-              placement={placement}
-              spacing={computedSpacing}
-              style={styles?.actionButton}
+              layout={resolvedLayout.type}
+              metrics={metrics}
+              offset={resolvedLayout.offsets[index]}
+              onActionPress={handleActionPress}
+              originX={menuOriginX}
+              originY={menuOriginY}
               size={size}
+              spacing={spacing}
+              styles={styles}
             />
-          ))}
-        </View>
-        {placement.startsWith('bottom') && hasMore ? (
-          <MoreActionButton
-            expanded={expanded}
-            onPress={handleToggleExpand}
-            size={size}
-            style={styles?.moreButton}
-            testID="floating-action-group-more-button"
-          />
-        ) : null}
-        {visibleActions.map(action => (
-          <FloatingActionButton
-            disabled={action.disabled}
-            icon={action.icon}
-            key={action.key}
-            label={action.label}
-            onPress={action.onPress}
-            size={size}
-            style={styles?.actionButton}
-            buttonProps={action.buttonProps}
-          />
-        ))}
-        {!placement.startsWith('bottom') && hasMore ? (
-          <MoreActionButton
-            expanded={expanded}
-            onPress={handleToggleExpand}
-            size={size}
-            style={styles?.moreButton}
-            testID="floating-action-group-more-button"
-          />
-        ) : null}
-      </View>
-    </>
+          ))
+        : null}
+      <FloatingActionTrigger
+        accessibilityLabel={triggerAccessibilityLabel}
+        actionIcon={actions[0].icon}
+        containerWidth={container.width}
+        dragEnabled={draggable && !directDisabled}
+        hitSlop={hitSlop}
+        isDirect={actionCount === 1}
+        isDisabled={directDisabled}
+        isDocked={snapToEdge}
+        isDragging={isDragging}
+        isExpanded={isMenuOpen}
+        metrics={metrics}
+        onDragCancel={handleDragCancel}
+        onDragEnd={handleDragEnd}
+        onDragStart={handleDragStart}
+        onPress={handleTriggerPress}
+        safeBottom={safeBottom}
+        safeTop={safeTop}
+        side={side}
+        size={size}
+        snapToEdge={snapToEdge}
+        spacing={spacing}
+        style={triggerStyles}
+        x={anchorX}
+        y={anchorY}
+      />
+    </View>
   );
 
   return resolvePortalMount(content, mountPoint, portalContext !== null);

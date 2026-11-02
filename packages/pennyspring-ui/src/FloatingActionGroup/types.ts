@@ -1,4 +1,4 @@
-import type { StyleProp, ViewStyle } from 'react-native';
+import type { StyleProp, TextStyle, ViewStyle } from 'react-native';
 import type { ButtonProps } from '../Button';
 import type { IconComponent, IconName } from '../Icon';
 import type { PortalMountPoint } from '../Portal/types';
@@ -12,12 +12,14 @@ export type FloatingPlacement =
   | 'centerLeft'
   | 'centerRight';
 
+export type FloatingLayout = 'grid' | 'fan';
+
 export interface FloatingActionItem {
   key: string;
   label?: string;
   icon?: IconName | IconComponent;
   disabled?: boolean;
-  onPress: () => void;
+  onPress?: () => void;
   buttonProps?: Omit<
     ButtonProps,
     'children' | 'icon' | 'onPress' | 'size' | 'style' | 'styles'
@@ -26,21 +28,25 @@ export interface FloatingActionItem {
 
 export interface FloatingActionGroupStyles {
   root?: StyleProp<ViewStyle>;
-  moreButton?: StyleProp<ViewStyle>;
+  trigger?: StyleProp<ViewStyle>;
   actionButton?: StyleProp<ViewStyle>;
+  actionLabel?: StyleProp<TextStyle>;
+  overlay?: StyleProp<ViewStyle>;
+  edgeRail?: StyleProp<ViewStyle>;
 }
 
 export interface FloatingActionGroupProps {
   mountPoint?: PortalMountPoint;
   actions: FloatingActionItem[];
-  defaultVisibleCount?: number;
+  layout?: FloatingLayout;
+  draggable?: boolean;
+  snapToEdge?: boolean;
   placement?: FloatingPlacement;
   offset?: {
     x?: number;
     y?: number;
   };
   collapseOnOutsidePress?: boolean;
-  toggleOnMorePress?: boolean;
   size?: ComponentSize;
   spacing?: number;
   style?: StyleProp<ViewStyle>;
