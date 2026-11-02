@@ -22,20 +22,16 @@ const useStyles = createUseSheetStyle(token => ({
   spacer: { flex: 1 },
 }));
 
-interface DayGroupCardProps {
+interface DayGroupHeaderProps {
   group: DayGroup<DetailListItem>;
-  onPressRecord: (recordId: number) => void;
   hidden?: boolean;
 }
 
-export function DayGroupCard({
-  group,
-  onPressRecord,
-  hidden = false,
-}: DayGroupCardProps) {
+export function DayGroupHeader({ group, hidden = false }: DayGroupHeaderProps) {
   const styles = useStyles();
   const today = isSameDay(new Date(group.dayStart), new Date());
-  const title = (
+
+  return (
     <Row align="center" gap="small" style={styles.dayHeader}>
       <Text size="md" weight="semibold" color="heading">
         {group.dayStart.formatDateBy('M月D日')}
@@ -67,18 +63,29 @@ export function DayGroupCard({
       ) : null}
     </Row>
   );
+}
+
+interface DayGroupCardProps {
+  group: DayGroup<DetailListItem>;
+  onPressRecord: (recordId: number) => void;
+  hidden?: boolean;
+}
+
+export function DayGroupCard({
+  group,
+  onPressRecord,
+  hidden = false,
+}: DayGroupCardProps) {
+  const styles = useStyles();
 
   return (
-    <>
-      {title}
-      <Card style={styles.card} styles={{ body: styles.cardBody }}>
-        {group.records.map((view, index) => (
-          <React.Fragment key={view.record.id}>
-            {index > 0 ? <Divider spacing="none" /> : null}
-            <RecordRow view={view} onPress={onPressRecord} hidden={hidden} />
-          </React.Fragment>
-        ))}
-      </Card>
-    </>
+    <Card style={styles.card} styles={{ body: styles.cardBody }}>
+      {group.records.map((view, index) => (
+        <React.Fragment key={view.record.id}>
+          {index > 0 ? <Divider spacing="none" /> : null}
+          <RecordRow view={view} onPress={onPressRecord} hidden={hidden} />
+        </React.Fragment>
+      ))}
+    </Card>
   );
 }

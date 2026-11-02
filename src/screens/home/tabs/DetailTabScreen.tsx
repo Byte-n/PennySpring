@@ -18,7 +18,7 @@ import { useBookStore, useGlobalApi } from '../../../stores/bookStore';
 import { ROOT_ROUTES, useNavigation } from '../../../navigation';
 import { useRecordSync } from '../recordSync';
 import { MonthSummaryCard } from './detail/MonthSummaryCard';
-import { DayGroupCard } from './detail/DayGroupCard';
+import { DayGroupCard, DayGroupHeader } from './detail/DayGroupCard';
 import { RecordDetailPanel } from './detail/RecordDetailPanel';
 import {
   buildDailyExpenseBars,
@@ -192,13 +192,15 @@ export function DetailTabScreen() {
         />
       );
     }
-    return groups.map(group => (
+    // 日期头与卡片必须是 ScrollView 的同级子节点，stickyHeaderIndices 才能按 child 索引命中。
+    return groups.flatMap(group => [
+      <DayGroupHeader key={`header-${group.dayStart}`} group={group} />,
       <DayGroupCard
-        key={group.dayStart}
+        key={`card-${group.dayStart}`}
         group={group}
         onPressRecord={setActiveRecordId}
-      />
-    ));
+      />,
+    ]);
   };
 
   return (
@@ -240,9 +242,9 @@ export function DetailTabScreen() {
       <ScrollView
         scrollEnabled
         contentContainerStyle={styles.content}
-        stickyHeaderIndices={groups.flatMap((_, index) => [
-          2 + (activeFilter === 'all' ? 0 : 1) + index * 2,
-        ])}
+        stickyHeaderIndices={groups.map(
+          (_, index) => 2 + (activeFilter === 'all' ? 0 : 1) + index * 2,
+        )}
         refreshControl={
           <RefreshControl refreshing={loading} onRefresh={refreshAll} />
         }
