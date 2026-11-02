@@ -112,37 +112,61 @@ const TYPE: TypeRow = {
 
 const RECORD_TIME = new Date(2026, 9, 30, 12, 34).getTime();
 
-const DETAIL: RecordDetail = {
-  record: {
-    id: 100,
-    typeId: 2,
-    assetId: 0,
-    intoAssetId: 0,
-    booksId: 1,
-    amount: 3000,
-    finalAmount: 3000,
-    charge: 0,
-    remark: '午饭',
-    reimbursable: REIMBURSABLE.notReimbursable,
-    recordTime: RECORD_TIME,
-    createdTime: 0,
-    updatedTime: 0,
+const DETAILS: RecordDetail[] = [
+  {
+    record: {
+      id: 100,
+      typeId: 2,
+      assetId: 0,
+      intoAssetId: 0,
+      booksId: 1,
+      amount: 3000,
+      finalAmount: 3000,
+      charge: 0,
+      remark: '午饭',
+      reimbursable: REIMBURSABLE.notReimbursable,
+      recordTime: RECORD_TIME,
+      createdTime: 0,
+      updatedTime: 0,
+    },
+    tagIds: [],
+    imagePaths: ['file://a.jpg'],
+    relatedRecordIds: [],
   },
-  tagIds: [],
-  imagePaths: ['file://a.jpg'],
-  relatedRecordIds: [],
-};
+  {
+    record: {
+      id: 101,
+      typeId: 2,
+      assetId: 0,
+      intoAssetId: 0,
+      booksId: 1,
+      amount: 3000,
+      finalAmount: 3000,
+      charge: 0,
+      remark: '晚饭',
+      reimbursable: REIMBURSABLE.notReimbursable,
+      recordTime: RECORD_TIME,
+      createdTime: 0,
+      updatedTime: 0,
+    },
+    tagIds: [],
+    imagePaths: [],
+    relatedRecordIds: [],
+  },
+];
 
 function createProps(
   overrides: Partial<Record<string, unknown>> = {},
 ): ToolCallMessagePartProps {
   const args = (overrides.args as Record<string, unknown>) ?? {
-    recordId: 100,
-    amount: 35,
+    updates: [
+      { recordId: 100, amount: 35 },
+      { recordId: 101, remark: '夜宵' },
+    ],
   };
   return {
     type: 'tool-call',
-    toolName: 'updateRecord',
+    toolName: 'updateRecords',
     toolCallId: 'tool-update-1',
     args,
     argsText: JSON.stringify(args),
@@ -193,20 +217,26 @@ function containsText(
 
 beforeEach(() => {
   jest.clearAllMocks();
-  mockGetDetailById.mockResolvedValue(DETAIL);
+  mockGetDetailById.mockImplementation(async (recordId: number) => {
+    const detail = DETAILS.find(item => item.record.id === recordId);
+    if (!detail) throw new Error(`记录不存在: ${recordId}`);
+    return detail;
+  });
   mockTypeGetAll.mockResolvedValue([TYPE]);
   mockTagGetAll.mockResolvedValue([]);
   mockAssetGetByBook.mockResolvedValue([]);
 });
 
 describe('RecordUpdateCard', () => {
-  it('shows the field changes and approves the tool call', async () => {
+  it('shows every field change and approves the tool call', async () => {
     const renderer = await renderCard();
 
     expect(containsText(renderer, '待确认的修改')).toBe(true);
     expect(containsText(renderer, '¥30.00')).toBe(true);
     expect(containsText(renderer, '¥35.00')).toBe(true);
-    expect(containsText(renderer, '记录 #100')).toBe(true);
+    expect(containsText(renderer, '#100')).toBe(true);
+    expect(containsText(renderer, '#101')).toBe(true);
+    expect(containsText(renderer, '共 2 条')).toBe(true);
 
     await act(async () => {
       findByTestId(renderer, 'agent-record-update-confirm').props.onPress();
@@ -228,15 +258,15 @@ describe('RecordUpdateCard', () => {
     });
   });
 
-  it('renders the success state with the record id', async () => {
+  it('renders the success state with the updated count', async () => {
     const renderer = await renderCard({
       approval: { id: 'approval-1', approved: true },
       status: { type: 'complete', reason: 'stop' },
-      result: { ok: true, recordId: 100 },
+      result: { ok: true, count: 2, records: [] },
     });
 
     expect(containsText(renderer, '已修改')).toBe(true);
-    expect(containsText(renderer, '记录 #100')).toBe(true);
+    expect(containsText(renderer, '共 2 条')).toBe(true);
   });
 
   it('cancels with the load error when the record cannot be read', async () => {
@@ -257,7 +287,9 @@ describe('RecordUpdateCard', () => {
   });
 
   it('blocks confirmation when nothing changes', async () => {
-    const renderer = await renderCard({ args: { recordId: 100 } });
+    const renderer = await renderCard({
+      args: { updates: [{ recordId: 100 }] },
+    });
 
     expect(containsText(renderer, '没有需要修改的内容')).toBe(true);
     expect(

@@ -7,16 +7,58 @@ import { useBookStore, useGlobalApi } from '../../stores/bookStore';
 import type { RecordMetadata } from '../projection/recordDraft';
 import {
   resolveUpdateRecordInput,
-  summarizeRecord,
   type RecordChange,
 } from '../projection/recordUpdateDraft';
-import { updateRecordInputSchema } from '../tools/updateRecord';
+import { updateRecordsInputSchema } from '../tools/updateRecords';
 import { getErrorMessage } from './errorMessage';
 import {
-  getResultRecordId,
-  RecordSummary,
+  formatRecordTime,
+  formatYuan,
+  RecordBatchRow,
   StatusCard,
 } from './recordCardParts';
+
+interface ResolvedUpdateSuccess {
+  ok: true;
+  detail: RecordDetail;
+  changes: RecordChange[];
+  categoryLabel: string;
+  typePath: string;
+  amountCents: number;
+  recordTime: number;
+}
+
+interface ResolvedUpdateFailure {
+  ok: false;
+  error: string;
+}
+
+type ResolvedUpdateItem = ResolvedUpdateSuccess | ResolvedUpdateFailure;
+
+function formatChanges(changes: readonly RecordChange[]): string {
+  return changes
+    .map(change => `${change.label} ${change.before} → ${change.after}`)
+    .join('；');
+}
+
+function appendImageChange(
+  changes: readonly RecordChange[],
+  existingCount: number,
+  addedCount: number,
+): RecordChange[] {
+  if (addedCount === 0) {
+    return [...changes];
+  }
+  return [
+    ...changes.filter(change => change.field !== 'images'),
+    {
+      field: 'images',
+      label: '图片',
+      before: `${existingCount} 张`,
+      after: `${existingCount + addedCount} 张`,
+    },
+  ];
+}
 
 export function RecordUpdateCard(
   props: ToolCallMessagePartProps,
@@ -26,44 +68,50 @@ export function RecordUpdateCard(
   const book = useBookStore(state => state.currentBook);
   const toast = useToast();
   const bookId = book?.id;
-  const [detail, setDetail] = useState<RecordDetail | null>(null);
+  const [details, setDetails] = useState<RecordDetail[] | null>(null);
   const [metadata, setMetadata] = useState<RecordMetadata | null>(null);
   const [loadError, setLoadError] = useState('');
   const [responding, setResponding] = useState(false);
 
-  const parsed = useMemo(() => updateRecordInputSchema.safeParse(args), [args]);
-  const recordId = parsed.success ? parsed.data.recordId : undefined;
-  const addedImageCount = parsed.success
-    ? (parsed.data.attachmentIds?.length ?? 0)
-    : 0;
+  const parsed = useMemo(
+    () => updateRecordsInputSchema.safeParse(args),
+    [args],
+  );
+  const recordIds = useMemo(
+    () =>
+      parsed.success ? parsed.data.updates.map(item => item.recordId) : [],
+    [parsed],
+  );
 
   useEffect(() => {
     if (bookId === undefined) {
-      setDetail(null);
+      setDetails(null);
       setMetadata(null);
       setLoadError('未找到当前账本');
       return;
     }
-    if (recordId === undefined) {
-      setDetail(null);
+    if (!parsed.success) {
+      setDetails(null);
       setMetadata(null);
       setLoadError('修改参数不完整，请取消后让助手补充。');
       return;
     }
 
     let cancelled = false;
-    setDetail(null);
+    setDetails(null);
     setMetadata(null);
     setLoadError('');
     Promise.all([
-      api.record.getDetailById(recordId, bookId),
+      Promise.all(
+        recordIds.map(recordId => api.record.getDetailById(recordId, bookId)),
+      ),
       api.type.getAll(bookId),
       api.tag.getAll(bookId),
       api.asset.getByBook(bookId),
     ])
-      .then(([recordDetail, types, tags, assets]) => {
+      .then(([recordDetails, types, tags, assets]) => {
         if (!cancelled) {
-          setDetail(recordDetail);
+          setDetails(recordDetails);
           setMetadata({ types, tags, assets });
         }
       })
@@ -76,59 +124,73 @@ export function RecordUpdateCard(
     return () => {
       cancelled = true;
     };
-  }, [api, bookId, recordId]);
+  }, [api, bookId, parsed, recordIds]);
 
   const resolved = useMemo(() => {
-    if (bookId === undefined || detail === null || metadata === null) {
+    if (
+      bookId === undefined ||
+      details === null ||
+      metadata === null ||
+      !parsed.success
+    ) {
       return null;
     }
+    return parsed.data.updates.map((update, index): ResolvedUpdateItem => {
+      const detail = details[index];
+      if (!detail) {
+        return {
+          ok: false,
+          error: `记录 ${update.recordId} 不存在`,
+        };
+      }
+      const updateResult = resolveUpdateRecordInput(
+        bookId,
+        {
+          record: detail.record,
+          tagIds: detail.tagIds,
+          imagePaths: detail.imagePaths,
+        },
+        update,
+        metadata,
+      );
+      if (!updateResult.ok) {
+        return { ok: false, error: updateResult.error };
+      }
+      return {
+        ok: true,
+        detail,
+        changes: appendImageChange(
+          updateResult.changes,
+          detail.imagePaths.length,
+          update.attachmentIds?.length ?? 0,
+        ),
+        categoryLabel: updateResult.draft.categoryLabel,
+        typePath: updateResult.draft.typePath,
+        amountCents: updateResult.draft.amountCents,
+        recordTime: updateResult.draft.recordTime,
+      };
+    });
+  }, [bookId, details, metadata, parsed]);
+
+  const invalidError = useMemo(() => {
     if (!parsed.success) {
-      return null;
+      return '修改参数不完整，请取消后让助手补充。';
     }
-    return resolveUpdateRecordInput(
-      bookId,
-      {
-        record: detail.record,
-        tagIds: detail.tagIds,
-        imagePaths: detail.imagePaths,
-      },
-      parsed.data,
-      metadata,
+    if (resolved === null) {
+      return '';
+    }
+    const invalidIndex = resolved.findIndex(
+      item => !item.ok || item.changes.length === 0,
     );
-  }, [bookId, detail, metadata, parsed]);
-
-  const currentSummary = useMemo(() => {
-    if (detail === null || metadata === null) {
-      return null;
+    if (invalidIndex < 0) {
+      return '';
     }
-    return summarizeRecord(
-      {
-        record: detail.record,
-        tagIds: detail.tagIds,
-        imagePaths: detail.imagePaths,
-      },
-      metadata,
-    );
-  }, [detail, metadata]);
-
-  const changes = useMemo<RecordChange[]>(() => {
-    if (!resolved?.ok) {
-      return [];
+    const item = resolved[invalidIndex];
+    if (!item || !item.ok) {
+      return `第 ${invalidIndex + 1} 条：${item?.error ?? '无法确认修改内容'}`;
     }
-    if (addedImageCount === 0 || detail === null) {
-      return resolved.changes;
-    }
-    const existingCount = detail.imagePaths.length;
-    return [
-      ...resolved.changes.filter(change => change.field !== 'images'),
-      {
-        field: 'images',
-        label: '图片',
-        before: `${existingCount} 张`,
-        after: `${existingCount + addedImageCount} 张`,
-      },
-    ];
-  }, [addedImageCount, detail, resolved]);
+    return `第 ${invalidIndex + 1} 条：没有需要修改的内容`;
+  }, [parsed, resolved]);
 
   const handleRespond = useCallback(
     async (approved: boolean, reason?: string): Promise<void> => {
@@ -191,21 +253,11 @@ export function RecordUpdateCard(
   }
 
   if (result !== undefined) {
-    const resultRecordId = getResultRecordId(result);
     return (
       <Card size="small" titleText="已修改" variant="plain">
-        <Column gap="small">
-          {resolved?.ok ? (
-            <RecordSummary draft={resolved.draft} />
-          ) : (
-            <Text size="sm">记录已更新。</Text>
-          )}
-          {resultRecordId !== null ? (
-            <Text color="tertiary" size="xs">
-              {`记录 #${resultRecordId}`}
-            </Text>
-          ) : null}
-        </Column>
+        <Text size="sm">
+          {`已更新当前账本${resolved?.length ? `，共 ${resolved.length} 条` : ''}。`}
+        </Text>
       </Card>
     );
   }
@@ -213,7 +265,7 @@ export function RecordUpdateCard(
   if (approval?.approved === true) {
     return (
       <StatusCard
-        descriptionText="已确认，正在更新账本…"
+        descriptionText="已确认，正在批量更新账本…"
         loading
         titleText="正在修改记录"
       />
@@ -240,7 +292,7 @@ export function RecordUpdateCard(
     );
   }
 
-  if (detail === null || metadata === null) {
+  if (details === null || metadata === null) {
     return (
       <StatusCard
         descriptionText="正在读取原记录与类型、标签、资产…"
@@ -251,12 +303,10 @@ export function RecordUpdateCard(
     );
   }
 
-  if (!parsed.success || resolved === null || !resolved.ok) {
+  if (!parsed.success || resolved === null || invalidError) {
     const errorText = !parsed.success
       ? '修改参数不完整，请取消后让助手补充。'
-      : resolved?.ok === false
-        ? resolved.error
-        : '修改参数不完整，请取消后让助手补充。';
+      : invalidError;
     return (
       <StatusCard
         descriptionText={errorText}
@@ -273,29 +323,7 @@ export function RecordUpdateCard(
             </Button>
           </Row>
         }
-        titleText="无法确认这处修改"
-      />
-    );
-  }
-
-  if (changes.length === 0) {
-    return (
-      <StatusCard
-        descriptionText="传入参数与原记录一致，请取消后重新说明要修改的内容。"
-        footer={
-          <Row justify="end">
-            <Button
-              disabled={responding}
-              onPress={() => handleRespond(false, '没有需要修改的内容')}
-              size="small"
-              testID="agent-record-update-cancel"
-              type="default"
-            >
-              取消
-            </Button>
-          </Row>
-        }
-        titleText="没有需要修改的内容"
+        titleText="无法确认这批修改"
       />
     );
   }
@@ -329,31 +357,22 @@ export function RecordUpdateCard(
       variant="plain"
     >
       <Column gap="small">
-        <Text color="secondary" size="xs">
-          {`原记录 #${detail.record.id} · ${
-            currentSummary?.category ?? '未知类型'
-          } · ${currentSummary?.recordTime ?? ''}`}
-        </Text>
-        <Column gap="small">
-          {changes.map(change => (
-            <Row key={change.field} align="start" gap="small">
-              <Text color="secondary" size="xs">
-                {change.label}
-              </Text>
-              <Text color="secondary" size="sm">
-                {change.before}
-              </Text>
-              <Text color="tertiary" size="sm">
-                →
-              </Text>
-              <Text size="sm" weight="medium">
-                {change.after}
-              </Text>
-            </Row>
-          ))}
-        </Column>
+        {resolved.map((item, index) =>
+          item.ok ? (
+            <RecordBatchRow
+              index={index + 1}
+              key={`${item.detail.record.id}-${index}`}
+              amountText={`¥${formatYuan(item.amountCents)}`}
+              note={formatChanges(item.changes)}
+              timeText={`#${item.detail.record.id} · ${formatRecordTime(
+                item.recordTime,
+              )}`}
+              title={`${item.categoryLabel} · ${item.typePath}`}
+            />
+          ) : null,
+        )}
         <Text color="warningText" size="xs">
-          确认后将更新当前账本
+          {`确认后将更新当前账本，共 ${resolved.length} 条`}
         </Text>
       </Column>
     </Card>

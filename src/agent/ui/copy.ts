@@ -1,3 +1,7 @@
+import { CREATE_RECORDS_TOOL_NAME } from '../tools/createRecords';
+import { DELETE_RECORDS_TOOL_NAME } from '../tools/deleteRecords';
+import { UPDATE_RECORDS_TOOL_NAME } from '../tools/updateRecords';
+
 export const AGENT_NOT_CONFIGURED_MESSAGE =
   '尚未配置助手，请先打开设置添加 AI 提供商。';
 
@@ -27,16 +31,20 @@ export const THINKING_TEXT = '正在思考…';
 export const THINKING_LABEL = '思考过程';
 
 export const QUERY_RECORDS_TOOL_NAME = 'queryRecords';
-export const CREATE_RECORD_TOOL_NAME = 'createRecord';
-export const UPDATE_RECORD_TOOL_NAME = 'updateRecord';
+export {
+  CREATE_RECORDS_TOOL_NAME,
+  DELETE_RECORDS_TOOL_NAME,
+  UPDATE_RECORDS_TOOL_NAME,
+};
 
 const TOOL_LABELS: Record<string, string> = {
   queryRecords: '账本数据',
   listTypes: '类型清单',
   listTags: '标签清单',
   listAssets: '资产清单',
-  createRecord: '记账',
-  updateRecord: '修改记录',
+  createRecords: '记账',
+  updateRecords: '修改记录',
+  deleteRecords: '删除记录',
 };
 
 function toolLabel(toolName: string): string {
@@ -44,22 +52,28 @@ function toolLabel(toolName: string): string {
 }
 
 export function toolStatusText(toolName: string, isDone: boolean): string {
-  if (toolName === CREATE_RECORD_TOOL_NAME) {
+  if (toolName === CREATE_RECORDS_TOOL_NAME) {
     return isDone ? '已记账' : '正在记账…';
   }
-  if (toolName === UPDATE_RECORD_TOOL_NAME) {
+  if (toolName === UPDATE_RECORDS_TOOL_NAME) {
     return isDone ? '已修改记录' : '正在修改记录…';
+  }
+  if (toolName === DELETE_RECORDS_TOOL_NAME) {
+    return isDone ? '已删除记录' : '正在删除记录…';
   }
   const label = toolLabel(toolName);
   return isDone ? `已查询${label}` : `正在查询${label}…`;
 }
 
 export function toolErrorText(toolName: string): string {
-  if (toolName === CREATE_RECORD_TOOL_NAME) {
+  if (toolName === CREATE_RECORDS_TOOL_NAME) {
     return '记账失败，请稍后再试。';
   }
-  if (toolName === UPDATE_RECORD_TOOL_NAME) {
+  if (toolName === UPDATE_RECORDS_TOOL_NAME) {
     return '修改记录失败，请稍后再试。';
+  }
+  if (toolName === DELETE_RECORDS_TOOL_NAME) {
+    return '删除记录失败，请稍后再试。';
   }
   return `查询${toolLabel(toolName)}失败，请稍后再试。`;
 }

@@ -34,14 +34,16 @@ import {
 import { AgentComposer } from './AgentComposer';
 import { AgentDrawerFrame } from './AgentDrawerFrame';
 import {
-  CREATE_RECORD_TOOL_NAME,
+  CREATE_RECORDS_TOOL_NAME,
+  DELETE_RECORDS_TOOL_NAME,
   THINKING_TEXT,
   toolErrorText,
   toolStatusText,
-  UPDATE_RECORD_TOOL_NAME,
+  UPDATE_RECORDS_TOOL_NAME,
 } from './copy';
 import { getErrorMessage } from './errorMessage';
 import { RecordCreationCard } from './RecordCreationCard';
+import { RecordDeletionCard } from './RecordDeletionCard';
 import { RecordUpdateCard } from './RecordUpdateCard';
 import { ThinkingBlock } from './ThinkingBlock';
 import type { AgentSessionState } from './useAgentSession';
@@ -164,8 +166,9 @@ const ASSISTANT_COMPONENTS = {
   Reasoning: ThinkingBlock,
   tools: {
     by_name: {
-      [CREATE_RECORD_TOOL_NAME]: RecordCreationCard,
-      [UPDATE_RECORD_TOOL_NAME]: RecordUpdateCard,
+      [CREATE_RECORDS_TOOL_NAME]: RecordCreationCard,
+      [UPDATE_RECORDS_TOOL_NAME]: RecordUpdateCard,
+      [DELETE_RECORDS_TOOL_NAME]: RecordDeletionCard,
     },
     Fallback: ToolNote,
   },

@@ -107,11 +107,22 @@ const TYPE: TypeRow = {
 } as TypeRow;
 
 const BASE_ARGS = {
-  typeId: 2,
-  amount: 30,
-  date: '2026-10-30',
-  time: '12:34',
-  remark: '午饭',
+  records: [
+    {
+      typeId: 2,
+      amount: 30,
+      date: '2026-10-30',
+      time: '12:34',
+      remark: '午饭',
+    },
+    {
+      typeId: 2,
+      amount: 12.5,
+      date: '2026-10-30',
+      time: '18:00',
+      remark: '晚饭',
+    },
+  ],
 };
 
 function createProps(
@@ -119,7 +130,7 @@ function createProps(
 ): ToolCallMessagePartProps {
   return {
     type: 'tool-call',
-    toolName: 'createRecord',
+    toolName: 'createRecords',
     toolCallId: 'tool-1',
     args: BASE_ARGS,
     argsText: JSON.stringify(BASE_ARGS),
@@ -162,7 +173,7 @@ beforeEach(() => {
 });
 
 describe('RecordCreationCard', () => {
-  it('shows the record summary and approves the tool call', async () => {
+  it('shows every record in the batch and approves the tool call', async () => {
     const renderer = await renderCard();
 
     expect(
@@ -170,6 +181,20 @@ describe('RecordCreationCard', () => {
         node =>
           typeof node.props.children === 'string' &&
           node.props.children.includes('¥30.00'),
+      ).length,
+    ).toBeGreaterThan(0);
+    expect(
+      renderer.root.findAll(
+        node =>
+          typeof node.props.children === 'string' &&
+          node.props.children.includes('¥12.50'),
+      ).length,
+    ).toBeGreaterThan(0);
+    expect(
+      renderer.root.findAll(
+        node =>
+          typeof node.props.children === 'string' &&
+          node.props.children.includes('共 2 笔'),
       ).length,
     ).toBeGreaterThan(0);
 
@@ -203,23 +228,23 @@ describe('RecordCreationCard', () => {
       renderer.root.findAll(
         node =>
           typeof node.props.children === 'string' &&
-          node.props.children.includes('正在写入账本'),
+          node.props.children.includes('正在批量写入账本'),
       ).length,
     ).toBeGreaterThan(0);
   });
 
-  it('renders the success state with the record id', async () => {
+  it('renders the success state with the written count', async () => {
     const renderer = await renderCard({
       approval: { id: 'approval-1', approved: true },
       status: { type: 'complete', reason: 'stop' },
-      result: { ok: true, recordId: 99 },
+      result: { ok: true, count: 2, records: [] },
     });
 
     expect(
       renderer.root.findAll(
         node =>
           typeof node.props.children === 'string' &&
-          node.props.children.includes('记录 #99'),
+          node.props.children.includes('共 2 笔'),
       ).length,
     ).toBeGreaterThan(0);
   });
@@ -232,7 +257,7 @@ describe('RecordCreationCard', () => {
       renderer.root.findAll(
         node =>
           typeof node.props.children === 'string' &&
-          node.props.children.includes('无法确认这笔记账'),
+          node.props.children.includes('无法确认这批记账'),
       ).length,
     ).toBeGreaterThan(0);
 
@@ -242,7 +267,7 @@ describe('RecordCreationCard', () => {
 
     expect(mockRespondToApproval).toHaveBeenCalledWith({
       approved: false,
-      reason: '类型 ID 2 不存在',
+      reason: '第 1 笔：类型 ID 2 不存在',
     });
   });
 

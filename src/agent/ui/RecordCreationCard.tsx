@@ -6,14 +6,29 @@ import { useBookStore, useGlobalApi } from '../../stores/bookStore';
 import {
   resolveCreateRecordInput,
   type RecordMetadata,
+  type ResolvedRecordDraft,
 } from '../projection/recordDraft';
-import { createRecordInputSchema } from '../tools/createRecord';
+import { createRecordsInputSchema } from '../tools/createRecords';
 import { getErrorMessage } from './errorMessage';
 import {
-  getResultRecordId,
-  RecordSummary,
+  formatRecordTime,
+  formatYuan,
+  RecordBatchRow,
   StatusCard,
 } from './recordCardParts';
+
+function buildRecordNote(draft: ResolvedRecordDraft): string | undefined {
+  const parts: string[] = [];
+  if (draft.intoAssetName) {
+    parts.push(`转出：${draft.assetName} → 转入：${draft.intoAssetName}`);
+  } else if (draft.assetName) {
+    parts.push(`资产：${draft.assetName}`);
+  }
+  if (draft.tags.length > 0) {
+    parts.push(`标签：${draft.tags.map(tag => tag.name).join('、')}`);
+  }
+  return parts.length > 0 ? parts.join(' · ') : undefined;
+}
 
 export function RecordCreationCard(
   props: ToolCallMessagePartProps,
@@ -59,13 +74,33 @@ export function RecordCreationCard(
     };
   }, [api, bookId]);
 
-  const parsed = useMemo(() => createRecordInputSchema.safeParse(args), [args]);
+  const parsed = useMemo(
+    () => createRecordsInputSchema.safeParse(args),
+    [args],
+  );
   const resolved = useMemo(() => {
     if (bookId === undefined || metadata === null || !parsed.success) {
       return null;
     }
-    return resolveCreateRecordInput(bookId, parsed.data, metadata, now);
+    return parsed.data.records.map(record =>
+      resolveCreateRecordInput(bookId, record, metadata, now),
+    );
   }, [bookId, metadata, now, parsed]);
+
+  const invalidError = useMemo(() => {
+    if (!parsed.success) {
+      return '记账参数不完整，请取消后让助手补充。';
+    }
+    if (resolved === null) {
+      return '';
+    }
+    const invalidIndex = resolved.findIndex(item => !item.ok);
+    if (invalidIndex < 0) {
+      return '';
+    }
+    const item = resolved[invalidIndex];
+    return `第 ${invalidIndex + 1} 笔：${item.ok ? '' : item.error}`;
+  }, [parsed, resolved]);
 
   const handleRespond = useCallback(
     async (approved: boolean, reason?: string): Promise<void> => {
@@ -108,13 +143,9 @@ export function RecordCreationCard(
   if (approval?.approved === false) {
     return (
       <Card size="small" titleText="已取消" variant="plain">
-        {resolved?.ok ? (
-          <RecordSummary draft={resolved.draft} />
-        ) : (
-          <Text color="secondary" size="sm">
-            未写入账本。
-          </Text>
-        )}
+        <Text color="secondary" size="sm">
+          未写入账本。
+        </Text>
       </Card>
     );
   }
@@ -132,21 +163,11 @@ export function RecordCreationCard(
   }
 
   if (result !== undefined) {
-    const recordId = getResultRecordId(result);
     return (
       <Card size="small" titleText="已记账" variant="plain">
-        <Column gap="small">
-          {resolved?.ok ? (
-            <RecordSummary draft={resolved.draft} />
-          ) : (
-            <Text size="sm">记录已写入账本。</Text>
-          )}
-          {recordId !== null ? (
-            <Text color="tertiary" size="xs">
-              {`记录 #${recordId}`}
-            </Text>
-          ) : null}
-        </Column>
+        <Text size="sm">
+          {`已写入当前账本${resolved?.length ? `，共 ${resolved.length} 笔` : ''}。`}
+        </Text>
       </Card>
     );
   }
@@ -154,7 +175,7 @@ export function RecordCreationCard(
   if (approval?.approved === true) {
     return (
       <StatusCard
-        descriptionText="已确认，正在写入账本…"
+        descriptionText="已确认，正在批量写入账本…"
         loading
         titleText="正在记账"
       />
@@ -192,12 +213,10 @@ export function RecordCreationCard(
     );
   }
 
-  if (!parsed.success || resolved === null || !resolved.ok) {
+  if (!parsed.success || resolved === null || invalidError) {
     const errorText = !parsed.success
       ? '记账参数不完整，请取消后让助手补充。'
-      : resolved?.ok === false
-        ? resolved.error
-        : '记账参数不完整，请取消后让助手补充。';
+      : invalidError;
     return (
       <StatusCard
         descriptionText={errorText}
@@ -214,7 +233,7 @@ export function RecordCreationCard(
             </Button>
           </Row>
         }
-        titleText="无法确认这笔记账"
+        titleText="无法确认这批记账"
       />
     );
   }
@@ -248,9 +267,20 @@ export function RecordCreationCard(
       variant="plain"
     >
       <Column gap="small">
-        <RecordSummary draft={resolved.draft} />
+        {resolved.map((item, index) =>
+          item.ok ? (
+            <RecordBatchRow
+              index={index + 1}
+              key={`${item.draft.recordTime}-${index}`}
+              amountText={`¥${formatYuan(item.draft.amountCents)}`}
+              note={buildRecordNote(item.draft)}
+              timeText={formatRecordTime(item.draft.recordTime)}
+              title={`${item.draft.categoryLabel} · ${item.draft.typePath}`}
+            />
+          ) : null,
+        )}
         <Text color="warningText" size="xs">
-          确认后将写入当前账本
+          {`确认后将写入当前账本，共 ${resolved.length} 笔`}
         </Text>
       </Column>
     </Card>

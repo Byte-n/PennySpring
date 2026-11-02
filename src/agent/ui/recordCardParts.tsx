@@ -15,12 +15,33 @@ export function formatRecordTime(value: number): string {
   return dayjs(value).format('YYYY-MM-DD HH:mm');
 }
 
-export function getResultRecordId(result: unknown): number | null {
+export function getResultRecordIds(result: unknown): number[] {
   if (typeof result !== 'object' || result === null) {
-    return null;
+    return [];
   }
-  const recordId = (result as { recordId?: unknown }).recordId;
-  return typeof recordId === 'number' ? recordId : null;
+  const raw = result as {
+    recordId?: unknown;
+    recordIds?: unknown;
+    records?: unknown;
+  };
+  if (typeof raw.recordId === 'number') {
+    return [raw.recordId];
+  }
+  if (Array.isArray(raw.recordIds)) {
+    return raw.recordIds.filter(
+      (recordId): recordId is number => typeof recordId === 'number',
+    );
+  }
+  if (Array.isArray(raw.records)) {
+    return raw.records
+      .map(item =>
+        typeof item === 'object' && item !== null
+          ? (item as { recordId?: unknown }).recordId
+          : undefined,
+      )
+      .filter((recordId): recordId is number => typeof recordId === 'number');
+  }
+  return [];
 }
 
 export interface RecordSummaryProps {
@@ -70,6 +91,43 @@ export function RecordSummary({
           资产：{draft.assetName || '未选择'}
         </Text>
       )}
+    </Column>
+  );
+}
+
+export interface RecordBatchRowProps {
+  index: number;
+  title: string;
+  amountText: string;
+  timeText: string;
+  note?: string;
+}
+
+export function RecordBatchRow({
+  index,
+  title,
+  amountText,
+  timeText,
+  note,
+}: RecordBatchRowProps): React.ReactElement {
+  return (
+    <Column gap="small">
+      <Row align="center" gap="small" justify="between">
+        <Text numberOfLines={1} size="sm" weight="medium">
+          {`${index}. ${title}`}
+        </Text>
+        <Text size="md" weight="semibold">
+          {amountText}
+        </Text>
+      </Row>
+      <Text color="secondary" size="xs">
+        {timeText}
+      </Text>
+      {note ? (
+        <Text color="warningText" size="xs">
+          {note}
+        </Text>
+      ) : null}
     </Column>
   );
 }

@@ -37,14 +37,14 @@ describe('createAgent', () => {
       systemPrompt: 'system',
       tools: {},
       toolApproval: {
-        createRecord: 'user-approval',
+        createRecords: 'user-approval',
       },
     });
 
     expect(mockAgentSettings[0]).toEqual(
       expect.objectContaining({
         toolApproval: {
-          createRecord: 'user-approval',
+          createRecords: 'user-approval',
         },
       }),
     );

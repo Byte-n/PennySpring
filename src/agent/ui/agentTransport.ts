@@ -30,9 +30,13 @@ import { getUiMessageText, trimUiMessagesByTokens } from '../core/uiMessages';
 import { buildSystemPrompt } from '../projection/context';
 import { isMultimodalModel } from '../providers/models';
 import {
-  CREATE_RECORD_TOOL_NAME,
-  createCreateRecordTool,
-} from '../tools/createRecord';
+  CREATE_RECORDS_TOOL_NAME,
+  createCreateRecordsTool,
+} from '../tools/createRecords';
+import {
+  createDeleteRecordsTool,
+  DELETE_RECORDS_TOOL_NAME,
+} from '../tools/deleteRecords';
 import {
   createListAssetsTool,
   LIST_ASSETS_TOOL_NAME,
@@ -44,9 +48,9 @@ import {
   QUERY_RECORDS_TOOL_NAME,
 } from '../tools/queryRecords';
 import {
-  createUpdateRecordTool,
-  UPDATE_RECORD_TOOL_NAME,
-} from '../tools/updateRecord';
+  createUpdateRecordsTool,
+  UPDATE_RECORDS_TOOL_NAME,
+} from '../tools/updateRecords';
 import {
   AGENT_MODEL_NO_IMAGE_MESSAGE,
   AGENT_NO_MODEL_MESSAGE,
@@ -264,29 +268,37 @@ export function createAgentTransport(
           api: options.api,
           booksId: options.booksId,
         }),
-        [CREATE_RECORD_TOOL_NAME]: createCreateRecordTool({
+        [CREATE_RECORDS_TOOL_NAME]: createCreateRecordsTool({
           api: options.api,
           booksId: options.booksId,
           attachments,
         }),
-        [UPDATE_RECORD_TOOL_NAME]: createUpdateRecordTool({
+        [UPDATE_RECORDS_TOOL_NAME]: createUpdateRecordsTool({
           api: options.api,
           booksId: options.booksId,
           attachments,
+        }),
+        [DELETE_RECORDS_TOOL_NAME]: createDeleteRecordsTool({
+          api: options.api,
+          booksId: options.booksId,
         }),
       };
       const toolApproval = {
         ...(autoApproveCreate
           ? {}
           : {
-              [CREATE_RECORD_TOOL_NAME]: {
+              [CREATE_RECORDS_TOOL_NAME]: {
                 type: 'user-approval' as const,
                 reason: '将写入账本，请确认',
               },
             }),
-        [UPDATE_RECORD_TOOL_NAME]: {
+        [UPDATE_RECORDS_TOOL_NAME]: {
           type: 'user-approval' as const,
           reason: '将更新账本记录，请确认',
+        },
+        [DELETE_RECORDS_TOOL_NAME]: {
+          type: 'user-approval' as const,
+          reason: '将删除账本记录，请确认',
         },
       };
 

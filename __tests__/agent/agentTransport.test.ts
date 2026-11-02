@@ -12,7 +12,7 @@ const mockGetThreadDetail = jest.fn();
 const mockGetProvider = jest.fn();
 const mockGetProviderKey = jest.fn();
 const mockCreateAgentUIStream = jest.fn();
-const mockCreateCreateRecordTool = jest.fn((_deps: unknown) => ({}));
+const mockCreateCreateRecordsTool = jest.fn((_deps: unknown) => ({}));
 const mockCreateAgent = jest.fn((_options: unknown) => ({
   id: 'test-agent',
 }));
@@ -41,14 +41,19 @@ jest.mock('../../src/agent/tools/listAssets', () => ({
   createListAssetsTool: () => ({}),
 }));
 
-jest.mock('../../src/agent/tools/createRecord', () => ({
-  CREATE_RECORD_TOOL_NAME: 'createRecord',
-  createCreateRecordTool: (deps: unknown) => mockCreateCreateRecordTool(deps),
+jest.mock('../../src/agent/tools/createRecords', () => ({
+  CREATE_RECORDS_TOOL_NAME: 'createRecords',
+  createCreateRecordsTool: (deps: unknown) => mockCreateCreateRecordsTool(deps),
 }));
 
-jest.mock('../../src/agent/tools/updateRecord', () => ({
-  UPDATE_RECORD_TOOL_NAME: 'updateRecord',
-  createUpdateRecordTool: () => ({}),
+jest.mock('../../src/agent/tools/updateRecords', () => ({
+  UPDATE_RECORDS_TOOL_NAME: 'updateRecords',
+  createUpdateRecordsTool: () => ({}),
+}));
+
+jest.mock('../../src/agent/tools/deleteRecords', () => ({
+  DELETE_RECORDS_TOOL_NAME: 'deleteRecords',
+  createDeleteRecordsTool: () => ({}),
 }));
 
 jest.mock('../../src/agent/core/createAgent', () => ({
@@ -465,24 +470,29 @@ describe('createAgentTransport', () => {
           listTypes: expect.anything(),
           listTags: expect.anything(),
           listAssets: expect.anything(),
-          createRecord: expect.anything(),
-          updateRecord: expect.anything(),
+          createRecords: expect.anything(),
+          updateRecords: expect.anything(),
+          deleteRecords: expect.anything(),
         }),
         toolApproval: {
-          createRecord: {
+          createRecords: {
             type: 'user-approval',
             reason: '将写入账本，请确认',
           },
-          updateRecord: {
+          updateRecords: {
             type: 'user-approval',
             reason: '将更新账本记录，请确认',
+          },
+          deleteRecords: {
+            type: 'user-approval',
+            reason: '将删除账本记录，请确认',
           },
         },
       }),
     );
   });
 
-  it('skips createRecord approval only for screenshot quick book messages', async () => {
+  it('skips createRecords approval for screenshot quick book batches', async () => {
     const { transport } = createTransport();
 
     await transport.sendMessages!(submitRequest([AUTO_APPROVE_USER_MESSAGE]));
@@ -490,16 +500,20 @@ describe('createAgentTransport', () => {
     expect(mockCreateAgent).toHaveBeenCalledWith(
       expect.objectContaining({
         toolApproval: {
-          updateRecord: {
+          updateRecords: {
             type: 'user-approval',
             reason: '将更新账本记录，请确认',
+          },
+          deleteRecords: {
+            type: 'user-approval',
+            reason: '将删除账本记录，请确认',
           },
         },
       }),
     );
   });
 
-  it('keeps createRecord approval when only an older message opted out', async () => {
+  it('keeps createRecords approval when only an older message opted out', async () => {
     const latestUser: UIMessage = {
       id: 'user-2',
       role: 'user',
@@ -514,7 +528,7 @@ describe('createAgentTransport', () => {
     expect(mockCreateAgent).toHaveBeenCalledWith(
       expect.objectContaining({
         toolApproval: expect.objectContaining({
-          createRecord: {
+          createRecords: {
             type: 'user-approval',
             reason: '将写入账本，请确认',
           },
@@ -609,7 +623,7 @@ describe('createAgentTransport', () => {
       .spyOn(console, 'error')
       .mockImplementation(() => undefined);
     const validationError =
-      'Invalid input for tool createRecord: amount: Expected number, received string';
+      'Invalid input for tool createRecords: amount: Expected number, received string';
 
     expect(options.onError(validationError)).toBe(validationError);
     expect(errorLog).toHaveBeenCalledWith(
@@ -618,7 +632,7 @@ describe('createAgentTransport', () => {
     );
 
     const executedError = new Error(
-      '工具 createRecord 执行失败：database down',
+      '工具 createRecords 执行失败：database down',
     );
     expect(options.onError(executedError)).toBe(executedError.message);
     expect(errorLog).toHaveBeenCalledTimes(1);
@@ -657,13 +671,13 @@ describe('createAgentTransport', () => {
     expect(agentOptions.provider).toBe(provider);
   });
 
-  it('passes message attachments to the createRecord tool', async () => {
+  it('passes message attachments to the createRecords tool', async () => {
     mockGetThreadDetail.mockResolvedValue(threadDetail(1, 'gpt-5-vision'));
     const { transport } = createTransport();
 
     await transport.sendMessages!(submitRequest([ATTACHMENT_MESSAGE]));
 
-    expect(mockCreateCreateRecordTool).toHaveBeenCalledWith(
+    expect(mockCreateCreateRecordsTool).toHaveBeenCalledWith(
       expect.objectContaining({
         attachments: [ATTACHMENT],
       }),

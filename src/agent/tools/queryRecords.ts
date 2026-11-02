@@ -7,7 +7,7 @@ import { createAgentTool } from './createAgentTool';
 export const QUERY_RECORDS_TOOL_NAME = 'queryRecords';
 
 export const QUERY_RECORDS_TOOL_DESCRIPTION =
-  '查询当前账本的记账记录（只读）。金额单位为元。可按日期区间、类型、标签、备注关键词过滤，也可按日/月/类型/标签汇总。明细中的 id 可用于 updateRecord 修改记录。';
+  '查询当前账本的记账记录（只读）。金额单位为元。可按日期区间、类型、标签、备注关键词过滤，也可按日/月/类型/标签汇总。明细中的 id 可用于 updateRecords 修改或 deleteRecords 删除记录。';
 
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 

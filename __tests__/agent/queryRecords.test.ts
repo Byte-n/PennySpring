@@ -391,8 +391,9 @@ describe('buildSystemPrompt', () => {
     expect(prompt).toContain('日常账本');
     expect(prompt).toContain('2026-10-27');
     expect(prompt).toContain('listTypes');
-    expect(prompt).toContain('createRecord');
-    expect(prompt).toContain('updateRecord');
+    expect(prompt).toContain('createRecords');
+    expect(prompt).toContain('updateRecords');
+    expect(prompt).toContain('deleteRecords');
     expect(prompt).toContain('修改记录前必须先调用 queryRecords');
     expect(prompt).toContain('用户确认');
     expect(prompt).toContain('金额单位：元');

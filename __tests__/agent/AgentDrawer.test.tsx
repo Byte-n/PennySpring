@@ -549,16 +549,20 @@ const PENDING_RECORD_APPROVAL: ThreadMessageLike[] = [
       {
         type: 'tool-call',
         toolCallId: 'call-record-1',
-        toolName: 'createRecord',
+        toolName: 'createRecords',
         args: {
-          typeId: 2,
-          amount: 30,
-          date: '2026-10-30',
-          time: '12:34',
-          remark: '午饭',
+          records: [
+            {
+              typeId: 2,
+              amount: 30,
+              date: '2026-10-30',
+              time: '12:34',
+              remark: '午饭',
+            },
+          ],
         },
         argsText:
-          '{"typeId":2,"amount":30,"date":"2026-10-30","time":"12:34","remark":"午饭"}',
+          '{"records":[{"typeId":2,"amount":30,"date":"2026-10-30","time":"12:34","remark":"午饭"}]}',
         approval: { id: 'approval-1' },
       },
     ],
@@ -573,18 +577,22 @@ const COMPLETED_RECORD_APPROVAL: ThreadMessageLike[] = [
       {
         type: 'tool-call',
         toolCallId: 'call-record-1',
-        toolName: 'createRecord',
+        toolName: 'createRecords',
         args: {
-          typeId: 2,
-          amount: 30,
-          date: '2026-10-30',
-          time: '12:34',
-          remark: '午饭',
+          records: [
+            {
+              typeId: 2,
+              amount: 30,
+              date: '2026-10-30',
+              time: '12:34',
+              remark: '午饭',
+            },
+          ],
         },
         argsText:
-          '{"typeId":2,"amount":30,"date":"2026-10-30","time":"12:34","remark":"午饭"}',
+          '{"records":[{"typeId":2,"amount":30,"date":"2026-10-30","time":"12:34","remark":"午饭"}]}',
         approval: { id: 'approval-1', approved: true },
-        result: { ok: true, recordId: 99 },
+        result: { ok: true, count: 1, records: [{ recordId: 99 }] },
       },
     ],
   },
@@ -598,10 +606,27 @@ const PENDING_UPDATE_APPROVAL: ThreadMessageLike[] = [
       {
         type: 'tool-call',
         toolCallId: 'call-record-update-1',
-        toolName: 'updateRecord',
-        args: { recordId: 100, amount: 35 },
-        argsText: '{"recordId":100,"amount":35}',
+        toolName: 'updateRecords',
+        args: { updates: [{ recordId: 100, amount: 35 }] },
+        argsText: '{"updates":[{"recordId":100,"amount":35}]}',
         approval: { id: 'approval-update-1' },
+      },
+    ],
+  },
+];
+
+const PENDING_DELETE_APPROVAL: ThreadMessageLike[] = [
+  { role: 'user', content: '删掉午饭那笔' },
+  {
+    role: 'assistant',
+    content: [
+      {
+        type: 'tool-call',
+        toolCallId: 'call-record-delete-1',
+        toolName: 'deleteRecords',
+        args: { recordIds: [100] },
+        argsText: '{"recordIds":[100]}',
+        approval: { id: 'approval-delete-1' },
       },
     ],
   },
@@ -670,7 +695,7 @@ describe('AgentDrawer', () => {
     expect(text).toContain('已查询账本数据');
   });
 
-  it('renders the record approval card for a pending createRecord call', async () => {
+  it('renders the record approval card for a pending createRecords call', async () => {
     const { renderer } = renderDrawer({
       initialMessages: PENDING_RECORD_APPROVAL,
     });
@@ -690,7 +715,7 @@ describe('AgentDrawer', () => {
     ).toBeGreaterThan(0);
   });
 
-  it('renders the record update card for a pending updateRecord call', async () => {
+  it('renders the record update card for a pending updateRecords call', async () => {
     const { renderer } = renderDrawer({
       initialMessages: PENDING_UPDATE_APPROVAL,
     });
@@ -702,10 +727,33 @@ describe('AgentDrawer', () => {
     const text = renderedText(renderer);
     expect(text).toContain('待确认的修改');
     expect(text).toContain('¥35.00');
-    expect(text).toContain('记录 #100');
+    expect(text).toContain('#100');
     expect(text).toContain('确认修改');
     expect(
       renderer.root.findAllByProps({ testID: 'agent-record-update-confirm' })
+        .length,
+    ).toBeGreaterThan(0);
+  });
+
+  it('renders the record deletion card for a pending deleteRecords call', async () => {
+    const { renderer } = renderDrawer({
+      initialMessages: PENDING_DELETE_APPROVAL,
+    });
+
+    await act(async () => {
+      await flush();
+    });
+
+    const text = renderedText(renderer);
+    expect(text).toContain('待确认的删除');
+    expect(text).toContain('#100');
+    expect(text).toContain('确认删除');
+    expect(
+      renderer.root.findAllByProps({ testID: 'agent-record-delete-confirm' })
+        .length,
+    ).toBeGreaterThan(0);
+    expect(
+      renderer.root.findAllByProps({ testID: 'agent-record-delete-cancel' })
         .length,
     ).toBeGreaterThan(0);
   });
@@ -735,8 +783,7 @@ describe('AgentDrawer', () => {
     });
 
     expect(renderedText(renderer)).toContain('已记账');
-    expect(renderedText(renderer)).toContain('¥30.00');
-    expect(renderedText(renderer)).toContain('记录 #99');
+    expect(renderedText(renderer)).toContain('共 1 笔');
   });
 
   it('collapses reasoning by default and expands it on tap', () => {

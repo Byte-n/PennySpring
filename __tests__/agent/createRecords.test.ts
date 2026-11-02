@@ -12,9 +12,9 @@ import {
 } from '@pennyspring/api';
 
 import {
-  createCreateRecordTool,
-  type CreateRecordToolDeps,
-} from '../../src/agent/tools/createRecord';
+  createCreateRecordsTool,
+  type CreateRecordsToolDeps,
+} from '../../src/agent/tools/createRecords';
 
 function typeRow(
   overrides: Partial<TypeRow> & Pick<TypeRow, 'id' | 'name' | 'typeCategory'>,
@@ -81,7 +81,7 @@ const ASSETS: AssetRow[] = [assetRow({ id: 20, name: '现金' })];
 
 function createApi(
   overrides: {
-    create?: jest.Mock;
+    createMany?: jest.Mock;
     getTypes?: jest.Mock;
   } = {},
 ): Api {
@@ -90,27 +90,27 @@ function createApi(
     tag: { getAll: jest.fn(async () => TAGS) },
     asset: { getByBook: jest.fn(async () => ASSETS) },
     record: {
-      create:
-        overrides.create ??
-        jest.fn(async () => ({
-          id: 99,
-        })),
+      createMany:
+        overrides.createMany ??
+        jest.fn(async (inputs: unknown[]) =>
+          inputs.map((_, index) => ({ id: 99 + index })),
+        ),
     },
   } as unknown as Api;
 }
 
 function createExecute(
   api: Api,
-  overrides: Omit<CreateRecordToolDeps, 'api' | 'booksId'> = {},
+  overrides: Omit<CreateRecordsToolDeps, 'api' | 'booksId'> = {},
 ) {
-  const created = createCreateRecordTool({ api, booksId: 1, ...overrides });
+  const created = createCreateRecordsTool({ api, booksId: 1, ...overrides });
   return created.execute as (
     input: Record<string, unknown>,
     options: unknown,
   ) => Promise<unknown>;
 }
 
-describe('createCreateRecordTool', () => {
+describe('createCreateRecordsTool', () => {
   beforeEach(() => {
     jest.spyOn(console, 'error').mockImplementation(() => undefined);
   });
@@ -119,24 +119,37 @@ describe('createCreateRecordTool', () => {
     jest.restoreAllMocks();
   });
 
-  it('writes the record and returns a compact result', async () => {
-    const create = jest.fn(async () => ({ id: 99 }));
-    const api = createApi({ create });
-    const execute = createExecute(api);
+  it('writes the whole batch in one call and returns compact results', async () => {
+    const createMany = jest.fn(async (inputs: unknown[]) =>
+      inputs.map((_, index) => ({ id: 99 + index })),
+    );
+    const execute = createExecute(createApi({ createMany }));
 
     const output = await execute(
       {
-        typeId: 2,
-        amount: 30,
-        date: '2026-10-30',
-        time: '12:34',
-        remark: '午饭',
-        tagIds: [10],
+        records: [
+          {
+            typeId: 2,
+            amount: 30,
+            date: '2026-10-30',
+            time: '12:34',
+            remark: '午饭',
+            tagIds: [10],
+          },
+          {
+            typeId: 2,
+            amount: 12.5,
+            date: '2026-10-30',
+            time: '18:00',
+            remark: '晚饭',
+          },
+        ],
       },
       {},
     );
 
-    expect(create).toHaveBeenCalledWith(
+    expect(createMany).toHaveBeenCalledTimes(1);
+    expect(createMany).toHaveBeenCalledWith([
       expect.objectContaining({
         typeId: 2,
         booksId: 1,
@@ -145,38 +158,63 @@ describe('createCreateRecordTool', () => {
         tagIds: [10],
         assetId: 0,
       }),
-    );
+      expect.objectContaining({
+        typeId: 2,
+        booksId: 1,
+        amount: 1250,
+        remark: '晚饭',
+        assetId: 0,
+      }),
+    ]);
     expect(output).toEqual({
       ok: true,
-      recordId: 99,
-      category: 'expense',
-      type: '三餐',
-      amountYuan: 30,
-      recordTime: '2026-10-30 12:34',
+      count: 2,
+      records: [
+        {
+          recordId: 99,
+          category: 'expense',
+          type: '三餐',
+          amountYuan: 30,
+          recordTime: '2026-10-30 12:34',
+        },
+        {
+          recordId: 100,
+          category: 'expense',
+          type: '三餐',
+          amountYuan: 12.5,
+          recordTime: '2026-10-30 18:00',
+        },
+      ],
     });
   });
 
-  it('does not write when validation fails', async () => {
-    const create = jest.fn();
-    const api = createApi({ create });
-    const execute = createExecute(api);
+  it('does not write when any item is invalid', async () => {
+    const createMany = jest.fn();
+    const execute = createExecute(createApi({ createMany }));
 
-    await expect(execute({ typeId: 999, amount: 30 }, {})).rejects.toThrow(
-      '工具 createRecord 执行失败：类型 ID 999 不存在',
-    );
-    expect(create).not.toHaveBeenCalled();
+    await expect(
+      execute(
+        {
+          records: [
+            { typeId: 2, amount: 30 },
+            { typeId: 999, amount: 20 },
+          ],
+        },
+        {},
+      ),
+    ).rejects.toThrow('第 2 笔：类型 ID 999 不存在');
+    expect(createMany).not.toHaveBeenCalled();
   });
 
   it('wraps database write failures with the tool name', async () => {
-    const create = jest.fn(async () => {
+    const createMany = jest.fn(async () => {
       throw new Error('database locked');
     });
-    const api = createApi({ create });
-    const execute = createExecute(api);
+    const execute = createExecute(createApi({ createMany }));
 
-    await expect(execute({ typeId: 2, amount: 30 }, {})).rejects.toThrow(
-      '工具 createRecord 执行失败：database locked',
-    );
+    await expect(
+      execute({ records: [{ typeId: 2, amount: 30 }] }, {}),
+    ).rejects.toThrow('工具 createRecords 执行失败：database locked');
   });
 
   it('wraps metadata read failures with the tool name', async () => {
@@ -185,16 +223,16 @@ describe('createCreateRecordTool', () => {
     });
     const execute = createExecute(createApi({ getTypes }));
 
-    await expect(execute({ typeId: 2, amount: 30 }, {})).rejects.toThrow(
-      '工具 createRecord 执行失败：metadata down',
-    );
+    await expect(
+      execute({ records: [{ typeId: 2, amount: 30 }] }, {}),
+    ).rejects.toThrow('工具 createRecords 执行失败：metadata down');
   });
 
-  it('attaches the image attachments selected by the model', async () => {
-    const create = jest.fn(async () => ({ id: 100 }));
-    const created = createCreateRecordTool({
-      api: createApi({ create }),
-      booksId: 1,
+  it('attaches image attachments per record', async () => {
+    const createMany = jest.fn(async (inputs: unknown[]) =>
+      inputs.map((_, index) => ({ id: 100 + index })),
+    );
+    const execute = createExecute(createApi({ createMany }), {
       attachments: [
         {
           id: 'att_1',
@@ -210,46 +248,35 @@ describe('createCreateRecordTool', () => {
         },
       ],
     });
-    const execute = created.execute as (
-      input: Record<string, unknown>,
-      options: unknown,
-    ) => Promise<unknown>;
 
     await execute(
-      { typeId: 2, amount: 30, attachmentIds: ['att_2', 'att_1'] },
+      {
+        records: [
+          { typeId: 2, amount: 30 },
+          {
+            typeId: 2,
+            amount: 40,
+            attachmentIds: ['att_2', 'att_1'],
+          },
+        ],
+      },
       {},
     );
 
-    expect(create).toHaveBeenCalledWith(
+    const inputs = createMany.mock.calls[0]?.[0] as Array<
+      Record<string, unknown>
+    >;
+    expect(inputs[0]).not.toHaveProperty('imagePaths');
+    expect(inputs[1]).toEqual(
       expect.objectContaining({
         imagePaths: ['media:receipt.png', 'media:shot.png'],
       }),
     );
   });
 
-  it('writes the record without images when the model omits attachmentIds', async () => {
-    const create = jest.fn(async (_input: Record<string, unknown>) => ({
-      id: 101,
-    }));
-    const execute = createExecute(createApi({ create }), {
-      attachments: [
-        {
-          id: 'att_1',
-          ref: 'media:shot.png',
-          mediaType: 'image/jpeg',
-          filename: 'shot.jpg',
-        },
-      ],
-    });
-
-    await execute({ typeId: 2, amount: 30 }, {});
-
-    expect(create.mock.calls[0]?.[0]).not.toHaveProperty('imagePaths');
-  });
-
   it('rejects unknown attachment ids before writing', async () => {
-    const create = jest.fn();
-    const execute = createExecute(createApi({ create }), {
+    const createMany = jest.fn();
+    const execute = createExecute(createApi({ createMany }), {
       attachments: [
         {
           id: 'att_1',
@@ -261,8 +288,13 @@ describe('createCreateRecordTool', () => {
     });
 
     await expect(
-      execute({ typeId: 2, amount: 30, attachmentIds: ['att_missing'] }, {}),
+      execute(
+        {
+          records: [{ typeId: 2, amount: 30, attachmentIds: ['att_missing'] }],
+        },
+        {},
+      ),
     ).rejects.toThrow('未知附件 id：att_missing');
-    expect(create).not.toHaveBeenCalled();
+    expect(createMany).not.toHaveBeenCalled();
   });
 });
