@@ -508,7 +508,7 @@ export function TypeManageScreen() {
                 required
                 requiredMessage="请输入类型名称"
               >
-                <Input placeholder="例如：餐饮" />
+                <Input allowClear placeholder="例如：餐饮" />
               </TypedForm.Item>
             )}
           </TypedForm.Subscribe>

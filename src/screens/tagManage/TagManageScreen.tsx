@@ -403,7 +403,7 @@ export function TagManageScreen() {
             required
             requiredMessage="请输入标签名称"
           >
-            <Input placeholder="例如：报销" />
+            <Input allowClear placeholder="例如：报销" />
           </TypedForm.Item>
           <TypedForm.Item name="icon" noStyle>
             <Column>

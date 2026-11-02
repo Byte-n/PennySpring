@@ -652,7 +652,7 @@ export function AssetManageScreen() {
             required
             requiredMessage="请输入资产名称"
           >
-            <Input placeholder="例如：招商银行储蓄卡" />
+            <Input allowClear placeholder="例如：招商银行储蓄卡" />
           </TypedForm.Item>
           <TypedForm.Item
             name="assetPath"
@@ -676,12 +676,20 @@ export function AssetManageScreen() {
                     name="balance"
                     labelText={isCreditCard ? '待还金额' : '当前余额'}
                   >
-                    <Input keyboardType="numeric" placeholder="0.00" />
+                    <Input
+                      allowClear
+                      keyboardType="numeric"
+                      placeholder="0.00"
+                    />
                   </TypedForm.Item>
                   {isCreditCard ? (
                     <>
                       <TypedForm.Item name="totalAmount" labelText="总额度">
-                        <Input keyboardType="numeric" placeholder="0.00" />
+                        <Input
+                          allowClear
+                          keyboardType="numeric"
+                          placeholder="0.00"
+                        />
                       </TypedForm.Item>
                       <Row gap="small">
                         <Column style={styles.switchText}>

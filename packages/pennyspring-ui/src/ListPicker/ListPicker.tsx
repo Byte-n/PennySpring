@@ -436,6 +436,7 @@ export function ListPickerPopup({
           {searchable === true ? (
             <Input
               {...searchInputProps}
+              allowClear
               disabled={disabled}
               labelText={texts?.searchLabelText}
               loading={loading}

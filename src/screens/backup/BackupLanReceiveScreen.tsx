@@ -292,6 +292,7 @@ export function BackupLanReceiveScreen() {
             位口令填到这里。两台设备需要在同一局域网。
           </Text>
           <Input
+            allowClear
             autoCapitalize="none"
             autoCorrect={false}
             labelText="接收地址"
@@ -300,6 +301,7 @@ export function BackupLanReceiveScreen() {
             value={address}
           />
           <Input
+            allowClear
             keyboardType="number-pad"
             labelText="一次性口令"
             maxLength={6}

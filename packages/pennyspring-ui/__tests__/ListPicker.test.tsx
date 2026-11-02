@@ -142,6 +142,30 @@ describe('ListPicker', () => {
     expect(treeText(testRenderer)).toContain('Card node');
   });
 
+  it('clears the search query through the clear action', () => {
+    const onSearchChange = jest.fn();
+    const testRenderer = renderListPicker({
+      defaultOpen: true,
+      searchable: true,
+      onSearchChange,
+    });
+
+    act(() => {
+      testRenderer.root.findByType(TextInput).props.onChangeText('credit');
+    });
+
+    expect(treeText(testRenderer)).not.toContain('Cash');
+
+    act(() => {
+      testRenderer.root
+        .findByProps({ testID: 'input-clear-button' })
+        .props.onPress();
+    });
+
+    expect(treeText(testRenderer)).toContain('Cash');
+    expect(onSearchChange).toHaveBeenLastCalledWith('');
+  });
+
   it('renders tags when displayMode is tag', () => {
     const testRenderer = renderListPicker({
       mode: 'multiple',

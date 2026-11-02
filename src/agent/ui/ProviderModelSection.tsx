@@ -542,6 +542,7 @@ export function ProviderModelSection({
       <Row gap="small" align="end">
         <Column style={styles.addField}>
           <Input
+            allowClear
             autoCapitalize="none"
             autoCorrect={false}
             labelText="手动添加模型"

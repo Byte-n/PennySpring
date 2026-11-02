@@ -715,10 +715,10 @@ export function BookManageScreen() {
             required
             requiredMessage="请输入账本名称"
           >
-            <Input placeholder="例如：家庭账本" />
+            <Input allowClear placeholder="例如：家庭账本" />
           </TypedForm.Item>
           <TypedForm.Item name="description" labelText="描述（可选）">
-            <Input placeholder="一句话说明这本账用在哪儿" />
+            <Input allowClear placeholder="一句话说明这本账用在哪儿" />
           </TypedForm.Item>
 
           <TypedForm.Item name="backgroundImage" labelText="封面">
@@ -739,6 +739,7 @@ export function BookManageScreen() {
                   requiredMessage="请输入服务器地址"
                 >
                   <Input
+                    allowClear
                     onChange={handleNetworkInputChange}
                     placeholder="http://192.168.1.12:8787"
                   />
@@ -749,12 +750,11 @@ export function BookManageScreen() {
                   required
                   requiredMessage="请输入访问令牌"
                 >
-                  <Input
+                  <Input.Password
                     autoCapitalize="none"
                     autoCorrect={false}
                     onChange={handleNetworkInputChange}
                     placeholder="服务器启动时设置的 SERVER_TOKEN"
-                    secureTextEntry
                   />
                 </TypedForm.Item>
                 <TypedForm.Subscribe selector={state => state.values}>
@@ -839,12 +839,11 @@ export function BookManageScreen() {
                   required
                   requiredMessage="请输入访问令牌"
                 >
-                  <Input
+                  <Input.Password
                     autoCapitalize="none"
                     autoCorrect={false}
                     onChange={handleNetworkInputChange}
                     placeholder="服务器启动时设置的 SERVER_TOKEN"
-                    secureTextEntry
                   />
                 </TypedForm.Item>
                 <TypedForm.Subscribe

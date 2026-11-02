@@ -169,6 +169,7 @@ function AddRecordContent({
       <KeyboardAwareScreen style={styles.screen}>
         {isTemplateMode && (
           <Input
+            allowClear
             labelText="模板名称"
             placeholder="如：通勤支出"
             value={templateName}

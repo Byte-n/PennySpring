@@ -277,12 +277,12 @@ export function IconPreviewScreen() {
             labelText="分类"
           />
           <Input
+            allowClear
             labelText="搜索"
-            style={styles.searchInput}
             placeholder="图标名称、分类或标签"
+            style={styles.searchInput}
             value={searchText}
             onChange={setSearchText}
-            allowClear
           />
         </Row>
       </View>

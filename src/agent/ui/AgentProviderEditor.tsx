@@ -447,6 +447,7 @@ export function AgentProviderEditor({
 
         <TypedForm.Item name="name" labelText="名称">
           <Input
+            allowClear
             autoCapitalize="none"
             autoCorrect={false}
             placeholder={descriptor.name}
@@ -463,6 +464,7 @@ export function AgentProviderEditor({
           }
         >
           <Input
+            allowClear
             autoCapitalize="none"
             autoCorrect={false}
             placeholder={descriptor.baseUrlHint}
@@ -479,11 +481,10 @@ export function AgentProviderEditor({
             keyStored || value.trim() ? undefined : '请填写 API Key。'
           }
         >
-          <Input
+          <Input.Password
             autoCapitalize="none"
             autoCorrect={false}
             placeholder={keyStored ? '已保存，留空不修改' : 'sk-...'}
-            secureTextEntry
             suffix={
               <InfoHint content="随账本保存在账本所在服务器，当前为明文存储；请勿在共享服务器使用敏感 Key。留空则保留原 Key。" />
             }
