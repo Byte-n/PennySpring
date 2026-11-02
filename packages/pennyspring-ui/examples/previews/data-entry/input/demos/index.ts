@@ -3,12 +3,14 @@ import Demo0 from './basic';
 import Demo1 from './size';
 import Demo2 from './search';
 import Demo3 from './state';
-import Demo4 from './status';
+import Demo4 from './password';
+import Demo5 from './status';
 
 export const inputDemos = [
   { id: 'basic', title: 'Basic', Component: Demo0 },
   { id: 'size', title: 'Size', Component: Demo1 },
   { id: 'search', title: 'Search', Component: Demo2 },
   { id: 'state', title: 'State', Component: Demo3 },
-  { id: 'status', title: 'Floating Label', Component: Demo4 },
+  { id: 'password', title: 'Password', Component: Demo4 },
+  { id: 'status', title: 'Floating Label', Component: Demo5 },
 ];

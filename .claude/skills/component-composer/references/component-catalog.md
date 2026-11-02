@@ -31,7 +31,7 @@
 ## 输入与控件
 
 - `Form` / `Form.Item`：表单与表单项；支持 item/child/noStyle 布局、跨字段 `dependencies`、`Form.Subscribe` 条件渲染、`required` 在未传 rules 时自动校验、`extra`/`errorRender` 反馈、rules 数组与 `asyncDebounceMs`。FormProps 提供 `initialValues`、`beforeSubmit`（校验通过后、onFinish 前的异步值变换，结果写回表单且抛错中止提交）、`onFinish`、`onFinishFailed`、`onValuesChange`、`validateTrigger`；`Form.useForm(form?)` 返回 `[FormInstance]`，不传 form 时 Form 自动创建实例。`Form.List` 提供动态行，`Form.ErrorSummary` 展示表单级/根级错误，`Form.useFormState(selector)` 读取提交态。`Form.infer<Values>()` 返回带类型的 Form（含 `Item`/`List`/`Subscribe`/`ErrorSummary`/`useForm`/`useFormInstance`/`useFormState`，不含 `infer`）；字段控件用 `Form.Item.useFieldProps` 自动绑定，状态读取用 `Form.Item.useFieldState`。校验规则只在 Form.Item，Form 不提供表单级 rules/validators。
-- `Input`：Material flat 风格的单行文本与搜索输入，支持浮动 label、独立底线、错误态、清除按钮、前后缀和加载态。
+- `Input`：Material flat 风格的单行文本与搜索输入，支持浮动 label、独立底线、错误态、清除按钮、加载态、前后缀，以及 `Input.Password` 密码显隐切换（`visibilityToggle` 可关闭）。清除/加载/密码显隐共用一个动作位（优先级：加载 > 显隐 > 清除），`suffix` 独占最右槽位；加载态禁止输入。
 - `Textarea`：多行文本输入；下划线字段（1px 底边 + 2px 状态指示条，无底色无圆角），浮动 label（与 Input 一致，placeholder 聚焦后出现），尺寸 14/24・16/26・18/28，错误不铺浅红底。
 - `DisplayInput`：只读或触发式输入展示。自身持有 pressed、disabled、readonly 与错误态视觉，不接受调用方叠加状态样式。
 - `Image`：图片显示原语。支持 `fit="cover" / "contain"`、圆角 none/small/normal/large/circle、缩略图底色占位、失败态点按重试与自定义 `error` 内容；`preview` 默认关闭，单图显式开启后才可点击打开全屏预览。`Image.PreviewGroup` 用 Context 自动注册子图片（组内忽略单图 `preview`），`items` 数据入口优先于 children，组内共享一个全屏预览：固定黑底、关闭/计数、横滑翻页、双指 1–3×、双击 2×、放大后平移；`Image.Preview` 为可直接受控使用的全屏预览层。

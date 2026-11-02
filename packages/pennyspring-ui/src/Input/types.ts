@@ -34,6 +34,9 @@ export interface InputStyles {
 
   /** Clear button container style. */
   clearButton?: StyleProp<ViewStyle>;
+
+  /** Password visibility toggle button container style. */
+  passwordButton?: StyleProp<ViewStyle>;
 }
 
 export interface InputProps extends Omit<
@@ -118,7 +121,8 @@ export interface InputProps extends Omit<
   readonly?: boolean;
 
   /**
-   * Loading state shown in the right side area.
+   * Loading locks the field, dims its content, and shows a spinner in the
+   * right side area.
    */
   loading?: boolean;
 
@@ -143,4 +147,14 @@ export interface InputSearchProps extends Omit<InputProps, 'suffix'> {
    * Custom right side search trigger icon.
    */
   searchIcon?: ReactNode;
+}
+
+export interface InputPasswordProps extends Omit<
+  InputProps,
+  'secureTextEntry'
+> {
+  /**
+   * Whether to render the password visibility toggle. Defaults to true.
+   */
+  visibilityToggle?: boolean;
 }

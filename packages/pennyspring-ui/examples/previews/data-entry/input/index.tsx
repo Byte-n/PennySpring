@@ -5,13 +5,14 @@ import type { PreviewMeta } from '../../types';
 
 export const previewMeta = {
   title: 'Input',
-  description: '单行输入、状态、前后缀和清除操作。',
+  description: '单行输入、状态、密码显隐、前后缀和清除操作。',
   order: 2,
   demos: [
     { id: 'basic', title: 'Basic' },
     { id: 'size', title: 'Size' },
     { id: 'search', title: 'Search' },
     { id: 'state', title: 'State' },
+    { id: 'password', title: 'Password' },
     { id: 'status', title: 'Floating Label' },
   ],
 } satisfies PreviewMeta;

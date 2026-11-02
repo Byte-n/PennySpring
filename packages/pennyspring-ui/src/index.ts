@@ -132,6 +132,7 @@ export { Card } from './Card';
 export type { CardProps, CardStyles, CardVariant } from './Card';
 export { Input } from './Input';
 export type {
+  InputPasswordProps,
   InputProps,
   InputSearchProps,
   InputStatus,

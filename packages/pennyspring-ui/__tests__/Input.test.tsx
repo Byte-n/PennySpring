@@ -31,6 +31,18 @@ function renderSearchInput(
   return testRenderer!;
 }
 
+function renderPasswordInput(
+  props: Partial<React.ComponentProps<typeof Input.Password>> = {},
+) {
+  let testRenderer: renderer.ReactTestRenderer;
+
+  act(() => {
+    testRenderer = renderer.create(<Input.Password {...props} />);
+  });
+
+  return testRenderer!;
+}
+
 function findNativeInput(testRenderer: renderer.ReactTestRenderer) {
   return testRenderer.root.findByType(TextInput);
 }
@@ -39,6 +51,13 @@ function findFieldStyle(testRenderer: renderer.ReactTestRenderer) {
   const field = testRenderer.root.findByProps({ testID: 'input-field' });
 
   return StyleSheet.flatten(field.props.style);
+}
+
+function hasTestID(
+  testRenderer: renderer.ReactTestRenderer,
+  testID: string,
+): boolean {
+  return testRenderer.root.findAllByProps({ testID }).length > 0;
 }
 
 describe('Input', () => {
@@ -168,13 +187,66 @@ describe('Input', () => {
     ).toBe(false);
   });
 
-  it('renders loading before suffix content', () => {
+  it('makes loading fields non-editable', () => {
+    expect(findNativeInput(renderInput({ loading: true })).props.editable).toBe(
+      false,
+    );
+  });
+
+  it('dims field content while loading without dimming the underline', () => {
+    const testRenderer = renderInput({
+      defaultValue: 'Checking',
+      labelText: 'Status',
+      loading: true,
+      prefix: <Icon icon="search" />,
+      suffix: <Icon icon="close" />,
+    });
+
+    const contentStyle = StyleSheet.flatten(
+      findNativeInput(testRenderer).parent?.props.style,
+    );
+    const suffixStyle = StyleSheet.flatten(
+      testRenderer.root.findByProps({ testID: 'input-suffix' }).props.style,
+    );
+    const underlineStyle = StyleSheet.flatten(
+      testRenderer.root.findByProps({ testID: 'input-underline' }).props.style,
+    );
+
+    expect(contentStyle.opacity).toBe(token.opacityLoading);
+    expect(suffixStyle.opacity).toBe(token.opacityLoading);
+    expect(underlineStyle.opacity).toBeUndefined();
+  });
+
+  it('keeps suffix visible alongside loading', () => {
     const testRenderer = renderInput({
       loading: true,
       suffix: <Icon icon="search" />,
     });
 
     expect(testRenderer.root.findAllByType(ActivityIndicator)).toHaveLength(1);
+    expect(hasTestID(testRenderer, 'input-suffix')).toBe(true);
+  });
+
+  it('keeps suffix visible alongside the clear action', () => {
+    const testRenderer = renderInput({
+      allowClear: true,
+      defaultValue: 'Draft',
+      suffix: <Icon icon="search" />,
+    });
+
+    expect(hasTestID(testRenderer, 'input-clear-button')).toBe(true);
+    expect(hasTestID(testRenderer, 'input-suffix')).toBe(true);
+  });
+
+  it('shows loading instead of the clear action while busy', () => {
+    const testRenderer = renderInput({
+      allowClear: true,
+      defaultValue: 'Draft',
+      loading: true,
+    });
+
+    expect(testRenderer.root.findAllByType(ActivityIndicator)).toHaveLength(1);
+    expect(hasTestID(testRenderer, 'input-clear-button')).toBe(false);
   });
 
   it('renders as a multiline field when multiline is requested', () => {
@@ -236,6 +308,78 @@ describe('Input', () => {
           inputStyle.lineHeight,
       ).toBeCloseTo(height);
     });
+  });
+});
+
+describe('Input.Password', () => {
+  it('renders a secure input and toggles visibility from the eye action', () => {
+    const testRenderer = renderPasswordInput({ defaultValue: 'secret' });
+
+    expect(findNativeInput(testRenderer).props.secureTextEntry).toBe(true);
+    expect(testRenderer.root.findAllByProps({ icon: 'eye' })).toHaveLength(1);
+
+    act(() => {
+      testRenderer.root
+        .findByProps({ testID: 'input-password-toggle' })
+        .props.onPress();
+    });
+
+    expect(findNativeInput(testRenderer).props.secureTextEntry).toBe(false);
+    expect(
+      testRenderer.root.findAllByProps({ icon: 'eye-slash' }),
+    ).toHaveLength(1);
+
+    act(() => {
+      testRenderer.root
+        .findByProps({ testID: 'input-password-toggle' })
+        .props.onPress();
+    });
+
+    expect(findNativeInput(testRenderer).props.secureTextEntry).toBe(true);
+  });
+
+  it('hides the visibility toggle when visibilityToggle is false', () => {
+    const testRenderer = renderPasswordInput({ visibilityToggle: false });
+
+    expect(findNativeInput(testRenderer).props.secureTextEntry).toBe(true);
+    expect(hasTestID(testRenderer, 'input-password-toggle')).toBe(false);
+  });
+
+  it('shares one action slot between clear and the visibility toggle', () => {
+    const testRenderer = renderPasswordInput({
+      allowClear: true,
+      defaultValue: 'secret',
+      suffix: <Icon icon="search" />,
+    });
+
+    expect(hasTestID(testRenderer, 'input-password-toggle')).toBe(true);
+    expect(hasTestID(testRenderer, 'input-clear-button')).toBe(false);
+    expect(hasTestID(testRenderer, 'input-suffix')).toBe(true);
+  });
+
+  it('falls back to the clear action when the visibility toggle is disabled', () => {
+    const testRenderer = renderPasswordInput({
+      allowClear: true,
+      defaultValue: 'secret',
+      visibilityToggle: false,
+    });
+
+    expect(hasTestID(testRenderer, 'input-password-toggle')).toBe(false);
+    expect(hasTestID(testRenderer, 'input-clear-button')).toBe(true);
+  });
+
+  it('shows loading in the shared action slot and hides other actions', () => {
+    const testRenderer = renderPasswordInput({
+      allowClear: true,
+      defaultValue: 'secret',
+      loading: true,
+      suffix: <Icon icon="search" />,
+    });
+
+    expect(testRenderer.root.findAllByType(ActivityIndicator)).toHaveLength(1);
+    expect(hasTestID(testRenderer, 'input-password-toggle')).toBe(false);
+    expect(hasTestID(testRenderer, 'input-clear-button')).toBe(false);
+    expect(hasTestID(testRenderer, 'input-suffix')).toBe(true);
   });
 });
 

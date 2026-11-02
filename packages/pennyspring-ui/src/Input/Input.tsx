@@ -24,7 +24,7 @@ import type {
   TextStyle,
   ViewStyle,
 } from 'react-native';
-import type { InputProps, InputSearchProps } from './types';
+import type { InputPasswordProps, InputProps, InputSearchProps } from './types';
 import { useFieldProps } from '../Form/hooks/useFieldProps.ts';
 
 const AnimatedText = createAnimatedComponent(Text);
@@ -35,10 +35,15 @@ interface InputStyleOptions {
   disabled: boolean;
   isError: boolean;
   hasLabel: boolean;
+  loading: boolean;
 }
 
-interface SearchInputStyleOptions {
-  size: ComponentSize;
+interface InputViewProps extends InputProps {
+  /**
+   * Internal action sharing the single trailing action slot with loading and
+   * clear. Loading wins over this action, which wins over clear.
+   */
+  action?: React.ReactNode;
 }
 
 function hasNode(node: React.ReactNode | null | undefined): boolean {
@@ -56,8 +61,24 @@ function resolveLabel({
   return label ?? labelText ?? null;
 }
 
+const useActionButtonStyles = createUseSheetStyle(token => ({
+  button: {
+    minHeight: token.controlHeightSM,
+    minWidth: token.controlHeightSM,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: token.borderRadiusSM,
+  },
+  pressed: {
+    backgroundColor: token.colorBgTextActive,
+  },
+}));
+
 const useStyles = createUseSheetStyle(
-  (token, { disabled, hasLabel, isError, size }: InputStyleOptions) => {
+  (
+    token,
+    { disabled, hasLabel, isError, loading, size }: InputStyleOptions,
+  ) => {
     const metrics = FIELD_SIZE_MAP[size];
     const height = metrics.height(token);
     const valueFontSize = metrics.valueFontSize(token);
@@ -173,15 +194,9 @@ const useStyles = createUseSheetStyle(
       underlineActive: {
         backgroundColor: activeUnderlineColor,
       },
-      clearButton: {
-        minHeight: token.controlHeightSM,
-        minWidth: token.controlHeightSM,
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderRadius: token.borderRadiusSM,
-      },
-      clearButtonPressed: {
-        backgroundColor: token.colorBgTextActive,
+      // 忙碌态只压暗内容，下划线保持常规颜色，避免与 disabled 的灰边混淆
+      contentLoading: {
+        opacity: loading ? token.opacityLoading : 1,
       },
       loading: {
         flexShrink: 0,
@@ -190,30 +205,8 @@ const useStyles = createUseSheetStyle(
   },
 );
 
-const useSearchStyles = createUseSheetStyle(
-  (token, { size }: SearchInputStyleOptions) => {
-    const metrics = FIELD_SIZE_MAP[size];
-
-    return {
-      searchButton: {
-        minHeight: token.controlHeightSM,
-        minWidth: token.controlHeightSM,
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderRadius: token.borderRadiusSM,
-      },
-      searchButtonPressed: {
-        backgroundColor: token.colorBgTextActive,
-      },
-      searchIcon: {
-        color: token.colorTextTertiary,
-        fontSize: metrics.valueFontSize(token),
-      },
-    };
-  },
-);
-
 function InputView({
+  action,
   allowClear,
   defaultValue,
   disabled = false,
@@ -235,9 +228,10 @@ function InputView({
   suffix,
   value,
   ...rest
-}: InputProps) {
+}: InputViewProps) {
   const resolvedSize = resolveFieldSize(size);
   const { token } = useTheme();
+  const actionButtonStyles = useActionButtonStyles();
   const [isFocused, setIsFocused] = useState(false);
   const [mergedValue = '', setMergedValue] = useControllableValue(
     defaultValue ?? '',
@@ -251,17 +245,15 @@ function InputView({
     disabled,
     hasLabel: hasFloatingLabel,
     isError,
+    loading: loading === true,
     size: resolvedSize,
   });
-  const isEditable = !disabled && !readonly;
+  const isEditable = !disabled && !readonly && loading !== true;
   const hasPrefix = hasNode(prefix);
   const hasSuffix = hasNode(suffix);
   const isActive = isFocused || Boolean(mergedValue);
   const shouldShowClearButton =
-    allowClear === true &&
-    Boolean(mergedValue) &&
-    isEditable &&
-    loading !== true;
+    allowClear === true && Boolean(mergedValue) && isEditable;
   const progress = useSharedValue(isActive ? 1 : 0);
   const metrics = FIELD_SIZE_MAP[resolvedSize];
   const bodyFontSize = metrics.valueFontSize(token);
@@ -355,7 +347,13 @@ function InputView({
           testID="input-underline"
         />
         {hasPrefix ? (
-          <Row style={[tokenStyles.prefix, styles?.prefix]}>
+          <Row
+            style={[
+              tokenStyles.prefix,
+              tokenStyles.contentLoading,
+              styles?.prefix,
+            ]}
+          >
             {renderTextNode(prefix, text => (
               <Text>{text}</Text>
             ))}
@@ -365,6 +363,7 @@ function InputView({
           style={[
             tokenStyles.inputWrapper,
             multiline ? tokenStyles.inputWrapperMultiline : null,
+            tokenStyles.contentLoading,
           ]}
         >
           {hasFloatingLabel && isTextLabel ? (
@@ -416,26 +415,37 @@ function InputView({
             value={mergedValue}
           />
         </View>
-        {shouldShowClearButton ? (
-          <Pressable
-            hitSlop={token.sizeXS}
-            onPress={handleClear}
-            style={({ pressed }) => [
-              tokenStyles.clearButton,
-              pressed ? tokenStyles.clearButtonPressed : null,
-              styles?.clearButton,
-            ]}
-            testID="input-clear-button"
-          >
-            <Icon color="icon" icon="close" size={resolvedSize} />
-          </Pressable>
-        ) : loading === true ? (
+        {loading === true ? (
           <ActivityIndicator
             color={token.colorTextTertiary}
             style={tokenStyles.loading}
           />
-        ) : hasSuffix ? (
-          <Row style={[tokenStyles.suffix, styles?.suffix]}>
+        ) : (
+          (action ??
+          (shouldShowClearButton ? (
+            <Pressable
+              hitSlop={token.sizeXS}
+              onPress={handleClear}
+              style={({ pressed }) => [
+                actionButtonStyles.button,
+                pressed ? actionButtonStyles.pressed : null,
+                styles?.clearButton,
+              ]}
+              testID="input-clear-button"
+            >
+              <Icon color="icon" icon="close" size={resolvedSize} />
+            </Pressable>
+          ) : null))
+        )}
+        {hasSuffix ? (
+          <Row
+            style={[
+              tokenStyles.suffix,
+              tokenStyles.contentLoading,
+              styles?.suffix,
+            ]}
+            testID="input-suffix"
+          >
             {renderTextNode(suffix, text => (
               <Text>{text}</Text>
             ))}
@@ -448,7 +458,9 @@ function InputView({
 
 type InputBlurEvent = Parameters<NonNullable<TextInputProps['onBlur']>>[0];
 
-function useBoundInputProps(props: InputProps | InputSearchProps) {
+function useBoundInputProps(
+  props: InputPasswordProps | InputProps | InputSearchProps,
+) {
   return useFieldProps<string, InputBlurEvent>({
     value: props.value,
     onChange: props.onChange,
@@ -480,7 +492,7 @@ function SearchInput(rawProps: InputSearchProps) {
     ...rest
   } = rawProps;
   const resolvedSize = resolveFieldSize(size);
-  const tokenStyles = useSearchStyles({ size: resolvedSize });
+  const actionButtonStyles = useActionButtonStyles();
   const { token } = useTheme();
   const [mergedValue = '', setMergedValue] = useControllableValue(
     defaultValue ?? '',
@@ -541,8 +553,8 @@ function SearchInput(rawProps: InputSearchProps) {
           hitSlop={token.sizeXS}
           onPress={handleSearch}
           style={({ pressed }) => [
-            tokenStyles.searchButton,
-            pressed && canSearch ? tokenStyles.searchButtonPressed : null,
+            actionButtonStyles.button,
+            pressed && canSearch ? actionButtonStyles.pressed : null,
           ]}
           testID="input-search-button"
         >
@@ -554,6 +566,44 @@ function SearchInput(rawProps: InputSearchProps) {
   );
 }
 
+function PasswordInput(rawProps: InputPasswordProps) {
+  const field = useBoundInputProps(rawProps);
+  const [isVisible, setIsVisible] = useState(false);
+  const { visibilityToggle = true, ...rest } = rawProps;
+  const resolvedSize = resolveFieldSize(rest.size);
+  const actionButtonStyles = useActionButtonStyles();
+  const { token } = useTheme();
+
+  return (
+    <InputView
+      {...rest}
+      {...field}
+      action={
+        visibilityToggle ? (
+          <Pressable
+            hitSlop={token.sizeXS}
+            onPress={() => setIsVisible(visible => !visible)}
+            style={({ pressed }) => [
+              actionButtonStyles.button,
+              pressed ? actionButtonStyles.pressed : null,
+              rest.styles?.passwordButton,
+            ]}
+            testID="input-password-toggle"
+          >
+            <Icon
+              color="icon"
+              icon={isVisible ? 'eye-slash' : 'eye'}
+              size={resolvedSize}
+            />
+          </Pressable>
+        ) : null
+      }
+      secureTextEntry={!isVisible}
+    />
+  );
+}
+
 export const Input = Object.assign(InputRoot, {
+  Password: PasswordInput,
   Search: SearchInput,
 });
