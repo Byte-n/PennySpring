@@ -1,12 +1,24 @@
 import { RECORD_TYPE_SPECIAL_BEHAVIOR, type TypeRow } from '@pennyspring/api';
 
-export const MAX_METADATA_ROWS = 200;
+import { estimateTokens } from '../core/tokens';
+
+export const MAX_METADATA_TOKENS = 6_000;
+
+export interface TokenLimitedTableRows {
+  rows: string[][];
+  truncated: boolean;
+  tokens: number;
+}
 
 export function escapeTableCell(value: string): string {
   return value
     .replace(/\|/g, '\\|')
     .replace(/\r\n?|\n/g, '<br>')
     .trim();
+}
+
+function renderTableRow(row: readonly string[]): string {
+  return `| ${row.map(escapeTableCell).join(' | ')} |`;
 }
 
 export function renderMarkdownTable(
@@ -17,11 +29,27 @@ export function renderMarkdownTable(
   const separator = `| ${headers
     .map((_, index) => (index === 0 ? '---:' : '---'))
     .join(' | ')} |`;
-  const body = rows
-    .map(row => `| ${row.map(escapeTableCell).join(' | ')} |`)
-    .join('\n');
+  const body = rows.map(renderTableRow).join('\n');
 
   return body ? `${header}\n${separator}\n${body}` : `${header}\n${separator}`;
+}
+
+export function limitTableRowsByTokens(
+  headers: readonly string[],
+  rows: readonly (readonly string[])[],
+  tokenBudget: number = MAX_METADATA_TOKENS,
+): TokenLimitedTableRows {
+  let tokens = estimateTokens(`${renderMarkdownTable(headers, [])}\n`);
+  const limited: string[][] = [];
+  for (const row of rows) {
+    const cost = estimateTokens(`${renderTableRow(row)}\n`);
+    if (limited.length > 0 && tokens + cost > tokenBudget) {
+      break;
+    }
+    tokens += cost;
+    limited.push([...row]);
+  }
+  return { rows: limited, truncated: limited.length < rows.length, tokens };
 }
 
 function getRootTypeId(type: TypeRow, typeIds: ReadonlySet<number>): number {

@@ -2,7 +2,10 @@ import type { Api } from '@pennyspring/api';
 import { VISIBILITY, type TagRow } from '@pennyspring/api';
 import { z } from 'zod';
 
-import { MAX_METADATA_ROWS, renderMarkdownTable } from '../projection/metadata';
+import {
+  limitTableRowsByTokens,
+  renderMarkdownTable,
+} from '../projection/metadata';
 import { createAgentTool } from './createAgentTool';
 
 export const LIST_TAGS_TOOL_NAME = 'listTags';
@@ -40,15 +43,12 @@ export function projectTagList(
     return '没有匹配的标签。';
   }
 
-  const limited = filtered.slice(0, MAX_METADATA_ROWS);
-  const table = renderMarkdownTable(
-    ['id', '标签'],
-    limited.map(tag => [String(tag.id), tag.name]),
-  );
-  const truncated =
-    filtered.length > MAX_METADATA_ROWS
-      ? `\n\n（已截断，仅显示前 ${MAX_METADATA_ROWS} 条）`
-      : '';
+  const rows = filtered.map(tag => [String(tag.id), tag.name]);
+  const limited = limitTableRowsByTokens(['id', '标签'], rows);
+  const table = renderMarkdownTable(['id', '标签'], limited.rows);
+  const truncated = limited.truncated
+    ? `\n\n（已截断，仅显示前 ${limited.rows.length} 条）`
+    : '';
   return `${table}${truncated}`;
 }
 

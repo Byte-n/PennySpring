@@ -147,6 +147,55 @@ describe('projectTypeList', () => {
   });
 });
 
+describe('metadata token budget', () => {
+  const longName = '超长名称用于消耗令牌'.repeat(12);
+
+  it('truncates a long tag list and reports the shown count', () => {
+    const tags = Array.from({ length: 100 }, (_, index) =>
+      tagRow({ id: index + 1, name: `${longName}${index + 1}` }),
+    );
+
+    const output = projectTagList(tags, {});
+
+    expect(output).toContain('| 1 |');
+    expect(output).toContain('（已截断，仅显示前 ');
+    expect(output).not.toContain('| 100 |');
+  });
+
+  it('stops rendering later type categories once the token budget is spent', () => {
+    const expenseTypes = Array.from({ length: 100 }, (_, index) =>
+      typeRow({
+        id: index + 1,
+        name: `${longName}${index + 1}`,
+        typeCategory: RECORD_TYPE_CATEGORY.expense,
+      }),
+    );
+    const incomeType = typeRow({
+      id: 999,
+      name: '薪资',
+      typeCategory: RECORD_TYPE_CATEGORY.income,
+    });
+
+    const output = projectTypeList([...expenseTypes, incomeType], {});
+
+    expect(output).toContain('## 支出');
+    expect(output).toContain('（已截断，仅显示前 ');
+    expect(output).not.toContain('## 收入');
+  });
+
+  it('truncates a long asset list and reports the shown count', () => {
+    const assets = Array.from({ length: 100 }, (_, index) =>
+      assetRow({ id: index + 1, name: `${longName}${index + 1}` }),
+    );
+
+    const output = projectAssetList(assets);
+
+    expect(output).toContain('| 1 |');
+    expect(output).toContain('（已截断，仅显示前 ');
+    expect(output).not.toContain('| 100 |');
+  });
+});
+
 describe('projectTagList', () => {
   it('renders visible tags sorted by id and escapes separators', () => {
     const output = projectTagList(

@@ -7,7 +7,10 @@ import {
 } from '@pennyspring/api';
 import { z } from 'zod';
 
-import { MAX_METADATA_ROWS, renderMarkdownTable } from '../projection/metadata';
+import {
+  limitTableRowsByTokens,
+  renderMarkdownTable,
+} from '../projection/metadata';
 import { createAgentTool } from './createAgentTool';
 
 export const LIST_ASSETS_TOOL_NAME = 'listAssets';
@@ -38,20 +41,20 @@ export function projectAssetList(assets: readonly AssetRow[]): string {
     return '当前账本没有可用资产。';
   }
 
-  const limited = visibleAssets.slice(0, MAX_METADATA_ROWS);
+  const rows = visibleAssets.map(asset => [
+    String(asset.id),
+    asset.name,
+    assetTypeLabel(asset),
+    assetClassificationLabel(asset),
+  ]);
+  const limited = limitTableRowsByTokens(['id', '名称', '类型', '分类'], rows);
   const table = renderMarkdownTable(
     ['id', '名称', '类型', '分类'],
-    limited.map(asset => [
-      String(asset.id),
-      asset.name,
-      assetTypeLabel(asset),
-      assetClassificationLabel(asset),
-    ]),
+    limited.rows,
   );
-  const truncated =
-    visibleAssets.length > MAX_METADATA_ROWS
-      ? `\n\n（已截断，仅显示前 ${MAX_METADATA_ROWS} 条）`
-      : '';
+  const truncated = limited.truncated
+    ? `\n\n（已截断，仅显示前 ${limited.rows.length} 条）`
+    : '';
   return `${table}${truncated}`;
 }
 

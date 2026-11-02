@@ -6,10 +6,12 @@ import {
 } from '@pennyspring/api';
 import { z } from 'zod';
 
+import { estimateTokens } from '../core/tokens';
 import {
   formatTypeDisplayName,
   getParentTypeIds,
-  MAX_METADATA_ROWS,
+  limitTableRowsByTokens,
+  MAX_METADATA_TOKENS,
   renderMarkdownTable,
   sortTypesForDisplay,
 } from '../projection/metadata';
@@ -25,6 +27,8 @@ const CATEGORY_ORDER: readonly RecordTypeCategoryValue[] = [
   RECORD_TYPE_CATEGORY.income,
   RECORD_TYPE_CATEGORY.transfer,
 ];
+
+const TYPE_TABLE_HEADERS = ['id', '名称', '父类型'];
 
 const listTypesInputSchema = z.object({
   category: z
@@ -63,39 +67,51 @@ export function projectTypeList(
   const typeById = new Map(types.map(type => [type.id, type]));
   const sorted = sortTypesForDisplay(filtered);
   const categories = input.category ? [input.category] : CATEGORY_ORDER;
-  let remaining = MAX_METADATA_ROWS;
-  const sections = categories.flatMap(category => {
-    if (remaining <= 0) {
-      return [];
-    }
+  let remaining = MAX_METADATA_TOKENS;
+  let shown = 0;
+  let truncated = false;
+  const sections: string[] = [];
+
+  for (const category of categories) {
     const rows = sorted
       .filter(type => type.typeCategory === category)
-      .slice(0, remaining)
       .map(type => [
         String(type.id),
         formatTypeDisplayName(type, parentIds.has(type.id)),
         type.parentId === 0 ? '' : (typeById.get(type.parentId)?.name ?? ''),
       ]);
-    remaining -= rows.length;
     if (rows.length === 0) {
-      return [];
+      continue;
     }
-    return [
-      `## ${RECORD_TYPE_CATEGORY.label(category)}\n\n${renderMarkdownTable(
-        ['id', '名称', '父类型'],
-        rows,
-      )}`,
-    ];
-  });
+
+    const heading = `## ${RECORD_TYPE_CATEGORY.label(category)}\n\n`;
+    const headingTokens = estimateTokens(heading);
+    if (headingTokens >= remaining) {
+      truncated = true;
+      break;
+    }
+    const limited = limitTableRowsByTokens(
+      TYPE_TABLE_HEADERS,
+      rows,
+      remaining - headingTokens,
+    );
+    sections.push(
+      `${heading}${renderMarkdownTable(TYPE_TABLE_HEADERS, limited.rows)}`,
+    );
+    shown += limited.rows.length;
+    remaining -= headingTokens + limited.tokens;
+    if (limited.truncated) {
+      truncated = true;
+      break;
+    }
+  }
 
   if (sections.length === 0) {
     return '没有匹配的类型。';
   }
 
-  const shown = MAX_METADATA_ROWS - remaining;
-  const truncated =
-    sorted.length > shown ? `\n\n（已截断，仅显示前 ${shown} 条）` : '';
-  return `${sections.join('\n\n')}${truncated}`;
+  const truncatedNote = truncated ? `\n\n（已截断，仅显示前 ${shown} 条）` : '';
+  return `${sections.join('\n\n')}${truncatedNote}`;
 }
 
 export function createListTypesTool(deps: ListTypesToolDeps) {
