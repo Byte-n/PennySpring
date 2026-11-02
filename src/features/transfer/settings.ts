@@ -19,6 +19,7 @@ export interface SettingsQuickBook {
   freshWindowSeconds: number;
   presetPrompt: string;
   nudgeEnabled: boolean;
+  autoApproveScreenshot: boolean;
 }
 
 export interface SettingsTheme {
@@ -58,6 +59,7 @@ const quickBookSchema = z.object({
   freshWindowSeconds: z.number().int().positive(),
   presetPrompt: z.string(),
   nudgeEnabled: z.boolean(),
+  autoApproveScreenshot: z.boolean(),
 });
 
 const themeSchema = z.object({

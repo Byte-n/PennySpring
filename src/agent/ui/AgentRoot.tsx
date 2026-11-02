@@ -221,7 +221,7 @@ export function AgentRoot({ children }: AgentRootProps) {
   const handleStartQuickBook = useCallback(
     async (
       image: QuickBookImage,
-      _source: QuickBookSource,
+      source: QuickBookSource,
     ): Promise<QuickBookStartResult> => {
       if (startingQuickBookRef.current) {
         return {
@@ -308,6 +308,8 @@ export function AgentRoot({ children }: AgentRootProps) {
           text,
           files: prepared.files,
           attachments: prepared.attachments,
+          autoApproveCreate:
+            source === 'nudge' && settings.autoApproveScreenshot,
         });
         setDrawerOpen(true);
         return { ok: true };

@@ -65,6 +65,12 @@ const USER_MESSAGE: UIMessage = {
   parts: [{ type: 'text', text: '上个月吃饭花了多少？' }],
 };
 
+const AUTO_APPROVE_USER_MESSAGE: UIMessage = {
+  ...USER_MESSAGE,
+  id: 'user-quick-book',
+  metadata: { autoApproveCreate: true },
+};
+
 const ASSISTANT_MESSAGE: UIMessage = {
   id: 'assistant-1',
   role: 'assistant',
@@ -472,6 +478,47 @@ describe('createAgentTransport', () => {
             reason: '将更新账本记录，请确认',
           },
         },
+      }),
+    );
+  });
+
+  it('skips createRecord approval only for screenshot quick book messages', async () => {
+    const { transport } = createTransport();
+
+    await transport.sendMessages!(submitRequest([AUTO_APPROVE_USER_MESSAGE]));
+
+    expect(mockCreateAgent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        toolApproval: {
+          updateRecord: {
+            type: 'user-approval',
+            reason: '将更新账本记录，请确认',
+          },
+        },
+      }),
+    );
+  });
+
+  it('keeps createRecord approval when only an older message opted out', async () => {
+    const latestUser: UIMessage = {
+      id: 'user-2',
+      role: 'user',
+      parts: [{ type: 'text', text: '最近一笔呢？' }],
+    };
+    const { transport } = createTransport();
+
+    await transport.sendMessages!(
+      submitRequest([AUTO_APPROVE_USER_MESSAGE, ASSISTANT_MESSAGE, latestUser]),
+    );
+
+    expect(mockCreateAgent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        toolApproval: expect.objectContaining({
+          createRecord: {
+            type: 'user-approval',
+            reason: '将写入账本，请确认',
+          },
+        }),
       }),
     );
   });

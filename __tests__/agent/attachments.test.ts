@@ -8,6 +8,7 @@ import {
   hasUiMessageImages,
   readMessageAttachments,
   resolveAttachmentsByIds,
+  shouldAutoApproveCreate,
   stripAttachmentCaptions,
   stripUiMessageFiles,
 } from '../../src/agent/core/attachments';
@@ -183,5 +184,31 @@ describe('agent message attachments', () => {
     expect(stripAttachmentCaptions(text)).toBe('请根据这两张截图记账。');
     expect(stripAttachmentCaptions('【图片附件 att_1：shot.jpg】')).toBe('');
     expect(buildAttachmentMessageParts([], [], '')).toEqual([]);
+  });
+
+  it('reads the createRecord auto approval flag from metadata', () => {
+    expect(
+      shouldAutoApproveCreate({
+        id: 'user-1',
+        role: 'user',
+        parts: [TEXT_PART],
+        metadata: { autoApproveCreate: true },
+      }),
+    ).toBe(true);
+    expect(
+      shouldAutoApproveCreate({
+        id: 'user-2',
+        role: 'user',
+        parts: [TEXT_PART],
+        metadata: { autoApproveCreate: false },
+      }),
+    ).toBe(false);
+    expect(
+      shouldAutoApproveCreate({
+        id: 'user-3',
+        role: 'user',
+        parts: [TEXT_PART],
+      }),
+    ).toBe(false);
   });
 });

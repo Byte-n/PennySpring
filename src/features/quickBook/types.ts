@@ -38,6 +38,8 @@ export interface PendingQuickBookMessage {
   text: string;
   files: FileUIPart[];
   attachments: AgentAttachment[];
+  /** 本次消息创建记录时跳过人工确认。 */
+  autoApproveCreate: boolean;
 }
 
 export type QuickBookScreenshotResult =

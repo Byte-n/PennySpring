@@ -280,6 +280,19 @@ export function QuickBookSettingsScreen(): React.ReactElement {
               {MIN_SCREENSHOT_FRESH_WINDOW_SECONDS}–
               {MAX_SCREENSHOT_FRESH_WINDOW_SECONDS} 秒）才会提示。
             </Text>
+            <Row align="center" gap="normal" justify="between">
+              <Column gap="small" style={styles.truncate}>
+                <Text size="sm">新增记录免确认</Text>
+                <Text color="secondary" size="xs">
+                  截图触发的记账会直接写入账本，不再弹出确认卡片；分享图片进入的记账仍会先确认。
+                </Text>
+              </Column>
+              <Switch
+                disabled={!isAndroid}
+                onChange={settings.setAutoApproveScreenshot}
+                value={isAndroid && settings.autoApproveScreenshot}
+              />
+            </Row>
           </Column>
         </Card>
 

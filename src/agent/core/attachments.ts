@@ -26,6 +26,8 @@ export interface AgentAttachmentInput {
 
 export interface AgentMessageMetadata {
   attachments?: AgentAttachment[];
+  /** 本次用户消息由截图记账触发，可跳过新增记录的写入确认。 */
+  autoApproveCreate?: boolean;
 }
 
 const DEFAULT_ATTACHMENT_MEDIA_TYPE = 'image/jpeg';
@@ -83,6 +85,12 @@ export function readMessageAttachments(message: UIMessage): AgentAttachment[] {
     return [];
   }
   return metadata.attachments.filter(isAgentAttachment);
+}
+
+/** 仅截图快捷记账会在消息元数据里声明免审批，普通对话不受历史消息影响。 */
+export function shouldAutoApproveCreate(message: UIMessage): boolean {
+  const metadata = message.metadata;
+  return isRecord(metadata) && metadata.autoApproveCreate === true;
 }
 
 export function collectMessageAttachments(

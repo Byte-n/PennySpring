@@ -400,4 +400,17 @@ describe('buildSystemPrompt', () => {
     expect(prompt).not.toContain('- 1 餐饮（支出）');
     expect(prompt).not.toContain('- 2 午饭（支出，父类型：餐饮）');
   });
+
+  it('声明截图快捷记账免审批并保留修改记录的确认', () => {
+    const prompt = buildSystemPrompt({
+      bookName: '日常账本',
+      today: '2026-10-27',
+      autoApproveCreate: true,
+    });
+
+    expect(prompt).toContain('本次截图快捷记账已开启免审批');
+    expect(prompt).toContain('直接写入账本');
+    expect(prompt).toContain('修改已有记录');
+    expect(prompt).toContain('调用后会先请用户确认');
+  });
 });

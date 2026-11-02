@@ -1,11 +1,17 @@
 export interface SystemPromptInput {
   bookName: string;
   today: string;
+  /** 截图快捷记账开启免审批时为 true。 */
+  autoApproveCreate?: boolean;
 }
 
 export function buildSystemPrompt(input: SystemPromptInput): string {
+  const createRecordLine = input.autoApproveCreate
+    ? '- createRecord：创建记录；可用 attachmentIds 引用用户消息里的图片附件；本次截图快捷记账已开启免审批，调用后会直接写入账本，无需再请用户确认。'
+    : '- createRecord：创建记录；可用 attachmentIds 引用用户消息里的图片附件；调用后会先请用户确认，只有用户确认且工具返回成功后才算写入。';
+
   return [
-    '你是 PennySpring 的记账助手，帮助用户查看、分析账目，并在用户确认后创建或修改记账记录。',
+    '你是 PennySpring 的记账助手，帮助用户查看、分析账目，并创建或修改记账记录。',
     `当前日期：${input.today}`,
     `当前账本：${input.bookName}`,
     '金额单位：元（人民币）。',
@@ -15,7 +21,7 @@ export function buildSystemPrompt(input: SystemPromptInput): string {
     '- listTypes：查询类型清单，返回 markdown 表格（id、名称、父类型）。',
     '- listTags：查询标签清单，返回 markdown 表格（id、名称）。',
     '- listAssets：查询资产清单，返回 markdown 表格（id、名称、类型、分类）。',
-    '- createRecord：创建记录；可用 attachmentIds 引用用户消息里的图片附件；调用后会先请用户确认，只有用户确认且工具返回成功后才算写入。',
+    createRecordLine,
     '- updateRecord：修改已有记录；recordId 必须来自 queryRecords 明细里的 id，只传需要修改的字段；调用后会先请用户确认，只有用户确认且工具返回成功后才算修改。',
     '',
     '规则：',

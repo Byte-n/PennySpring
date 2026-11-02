@@ -18,6 +18,7 @@ import {
   collectMessageAttachments,
   hasUiMessageImages,
   isUiFilePart,
+  shouldAutoApproveCreate,
   stripAttachmentCaptions,
   stripUiMessageFiles,
 } from '../core/attachments';
@@ -213,9 +214,12 @@ export function createAgentTransport(
       }
 
       const attachments = collectMessageAttachments(messages);
+      const autoApproveCreate =
+        userMessage?.role === 'user' && shouldAutoApproveCreate(userMessage);
       const systemPrompt = buildSystemPrompt({
         bookName: options.bookName,
         today: dayjs().format('YYYY-MM-DD'),
+        autoApproveCreate,
       });
       const tokenBudget =
         model.contextWindow -
@@ -272,10 +276,14 @@ export function createAgentTransport(
         }),
       };
       const toolApproval = {
-        [CREATE_RECORD_TOOL_NAME]: {
-          type: 'user-approval' as const,
-          reason: '将写入账本，请确认',
-        },
+        ...(autoApproveCreate
+          ? {}
+          : {
+              [CREATE_RECORD_TOOL_NAME]: {
+                type: 'user-approval' as const,
+                reason: '将写入账本，请确认',
+              },
+            }),
         [UPDATE_RECORD_TOOL_NAME]: {
           type: 'user-approval' as const,
           reason: '将更新账本记录，请确认',

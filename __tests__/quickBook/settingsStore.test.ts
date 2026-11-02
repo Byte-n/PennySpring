@@ -22,6 +22,7 @@ beforeEach(() => {
     freshWindowSeconds: DEFAULT_SCREENSHOT_FRESH_WINDOW_SECONDS,
     presetPrompt: DEFAULT_QUICK_BOOK_PROMPT,
     nudgeEnabled: false,
+    autoApproveScreenshot: true,
   });
 });
 
@@ -55,6 +56,7 @@ describe('quick book settings store', () => {
   it('starts with a disabled switch and default device settings', () => {
     const state = useQuickBookSettingsStore.getState();
     expect(state.nudgeEnabled).toBe(false);
+    expect(state.autoApproveScreenshot).toBe(true);
     expect(state.freshWindowSeconds).toBe(
       DEFAULT_SCREENSHOT_FRESH_WINDOW_SECONDS,
     );
@@ -75,6 +77,16 @@ describe('quick book settings store', () => {
 
     expect(useQuickBookSettingsStore.getState().presetPrompt).toBe('帮我记账');
     expect(useQuickBookSettingsStore.getState().nudgeEnabled).toBe(true);
+  });
+
+  it('toggles screenshot auto approval independently', () => {
+    const state = useQuickBookSettingsStore.getState();
+    state.setAutoApproveScreenshot(false);
+
+    expect(useQuickBookSettingsStore.getState().autoApproveScreenshot).toBe(
+      false,
+    );
+    expect(useQuickBookSettingsStore.getState().nudgeEnabled).toBe(false);
   });
 
   it('keeps device settings independent from the nudge switch', () => {

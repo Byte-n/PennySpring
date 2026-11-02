@@ -16,12 +16,15 @@ export interface QuickBookSettings {
   freshWindowSeconds: number;
   presetPrompt: string;
   nudgeEnabled: boolean;
+  /** 截图触发的快捷记账直接写入，不再弹出新增记录确认卡片。 */
+  autoApproveScreenshot: boolean;
 }
 
 interface QuickBookSettingsStore extends QuickBookSettings {
   setFreshWindowSeconds: (seconds: number) => void;
   setPresetPrompt: (prompt: string) => void;
   setNudgeEnabled: (enabled: boolean) => void;
+  setAutoApproveScreenshot: (enabled: boolean) => void;
 }
 
 export function clampFreshWindowSeconds(seconds: number): number {
@@ -38,6 +41,7 @@ const DEFAULT_SETTINGS: QuickBookSettings = {
   freshWindowSeconds: DEFAULT_SCREENSHOT_FRESH_WINDOW_SECONDS,
   presetPrompt: DEFAULT_QUICK_BOOK_PROMPT,
   nudgeEnabled: false,
+  autoApproveScreenshot: true,
 };
 
 export const useQuickBookSettingsStore = create<QuickBookSettingsStore>()(
@@ -53,6 +57,9 @@ export const useQuickBookSettingsStore = create<QuickBookSettingsStore>()(
       setNudgeEnabled: nudgeEnabled => {
         set({ nudgeEnabled });
       },
+      setAutoApproveScreenshot: autoApproveScreenshot => {
+        set({ autoApproveScreenshot });
+      },
     }),
     {
       name: QUICK_BOOK_SETTINGS_STORE_KEY,
@@ -61,6 +68,7 @@ export const useQuickBookSettingsStore = create<QuickBookSettingsStore>()(
         freshWindowSeconds: state.freshWindowSeconds,
         presetPrompt: state.presetPrompt,
         nudgeEnabled: state.nudgeEnabled,
+        autoApproveScreenshot: state.autoApproveScreenshot,
       }),
       skipHydration: true,
       version: 2,
@@ -78,5 +86,6 @@ export function getQuickBookSettings(): QuickBookSettings {
     freshWindowSeconds: state.freshWindowSeconds,
     presetPrompt: state.presetPrompt,
     nudgeEnabled: state.nudgeEnabled,
+    autoApproveScreenshot: state.autoApproveScreenshot,
   };
 }

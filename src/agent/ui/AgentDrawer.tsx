@@ -367,7 +367,10 @@ export function AgentDrawer({
           pendingQuickBook.attachments,
           pendingQuickBook.text,
         ),
-        metadata: { attachments: pendingQuickBook.attachments },
+        metadata: {
+          attachments: pendingQuickBook.attachments,
+          autoApproveCreate: pendingQuickBook.autoApproveCreate,
+        },
       })
       .then(() => {
         onPendingQuickBookSent();

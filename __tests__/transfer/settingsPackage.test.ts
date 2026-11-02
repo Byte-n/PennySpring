@@ -16,6 +16,7 @@ const SNAPSHOT: SettingsSnapshot = {
     freshWindowSeconds: 90,
     presetPrompt: '请识别截图中的消费信息',
     nudgeEnabled: true,
+    autoApproveScreenshot: false,
   },
   theme: {
     themeMode: 'dark',
