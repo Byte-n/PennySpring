@@ -44,9 +44,15 @@ function DarkSurface() {
         <Badge color="danger" dot size="normal">
           <IconButton icon="calendar" />
         </Badge>
-        <Badge count={12} />
-        <Badge count={2} color="primary" />
-        <Badge count={5} color="success" />
+        <Badge count={12}>
+          <IconButton icon="calendar" />
+        </Badge>
+        <Badge count={2} color="primary">
+          <IconButton icon="calendar" />
+        </Badge>
+        <Badge count={5} color="success">
+          <IconButton icon="calendar" />
+        </Badge>
       </Row>
     </Column>
   );
