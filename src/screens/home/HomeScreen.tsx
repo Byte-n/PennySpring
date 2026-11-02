@@ -71,23 +71,25 @@ export function HomeScreen() {
         </Drawer.Layout>
         {isFocused && (
           <>
+            <AgentFloatingEntry />
             <FloatingActionGroup
-              defaultVisibleCount={2}
               actions={[
                 {
-                  key: 'quick-template',
-                  icon: 'list',
-                  onPress: () => setIsTemplatePanelOpen(true),
-                  buttonProps: { type: 'default' },
-                },
-                {
                   key: 'add-record',
+                  label: '记一笔',
                   icon: 'plus',
                   onPress: () => navigation.navigate(ROOT_ROUTES.AddRecord),
                 },
+                {
+                  key: 'quick-template',
+                  label: '快捷模板',
+                  icon: 'list',
+                  onPress: () => setIsTemplatePanelOpen(true),
+                },
               ]}
+              draggable
+              snapToEdge
             />
-            <AgentFloatingEntry />
           </>
         )}
         <QuickTemplatePanel

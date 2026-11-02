@@ -8,21 +8,23 @@ export function AgentFloatingEntry() {
   const { token } = useTheme();
   const { openAgent } = useAgentLauncher();
 
-  const fabOffset =
-    token.paddingLG + token.controlHeight * 2 + token.paddingXS * 2;
+  // 让出首页动作网格的展开区域，避免书签与菜单重叠。
+  const fabOffset = token.paddingLG + token.controlHeight * 3 + token.paddingXS;
 
   return (
     <FloatingActionGroup
       actions={[
         {
           key: 'agent',
+          label: 'AI 助手',
           icon: SparkleIcon,
           onPress: openAgent,
-          buttonProps: { type: 'primary' },
         },
       ]}
+      draggable
       offset={{ y: fabOffset }}
       placement="bottomRight"
+      snapToEdge
     />
   );
 }
