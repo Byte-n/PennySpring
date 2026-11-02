@@ -121,33 +121,45 @@ export const useCarouselIndex = (params: UseCarouselIndexParams) => {
     [clonesBefore, loopEnabled, total],
   );
 
-  const getBoundedPosition = useMemoizedFn((nextPosition: number) => {
-    if (loopEnabled) return nextPosition;
-    if (slidePixels <= 0) return nextPosition;
-    if (total <= 0) return 0;
+  const getBoundedPosition = useCallback(
+    (nextPosition: number) => {
+      'worklet';
+      if (loopEnabled) return nextPosition;
+      if (slidePixels <= 0) return nextPosition;
+      if (total <= 0) return 0;
 
-    // 计算轮播边界索引范围
-    let min = 0;
-    let max = total - 1;
-    if (stuckAtBoundary) {
-      const slideRatio = normalizedSlideSize / 100;
-      const offsetRatio = normalizedTrackOffset / 100;
-      min = 0 + offsetRatio / (slideRatio || 1);
-      max = total - 1 - (1 - slideRatio - offsetRatio) / (slideRatio || 1);
-    }
-    const minPos = min * slidePixels;
-    const maxPos = max * slidePixels;
+      // 计算轮播边界索引范围
+      let min = 0;
+      let max = total - 1;
+      if (stuckAtBoundary) {
+        const slideRatio = normalizedSlideSize / 100;
+        const offsetRatio = normalizedTrackOffset / 100;
+        min = 0 + offsetRatio / (slideRatio || 1);
+        max = total - 1 - (1 - slideRatio - offsetRatio) / (slideRatio || 1);
+      }
+      const minPos = min * slidePixels;
+      const maxPos = max * slidePixels;
 
-    if (nextPosition < minPos) {
-      if (!rubberband) return minPos;
-      return minPos - (minPos - nextPosition) * RUBBERBAND_DAMPING;
-    }
-    if (nextPosition > maxPos) {
-      if (!rubberband) return maxPos;
-      return maxPos + (nextPosition - maxPos) * RUBBERBAND_DAMPING;
-    }
-    return nextPosition;
-  });
+      if (nextPosition < minPos) {
+        if (!rubberband) return minPos;
+        return minPos - (minPos - nextPosition) * RUBBERBAND_DAMPING;
+      }
+      if (nextPosition > maxPos) {
+        if (!rubberband) return maxPos;
+        return maxPos + (nextPosition - maxPos) * RUBBERBAND_DAMPING;
+      }
+      return nextPosition;
+    },
+    [
+      loopEnabled,
+      normalizedSlideSize,
+      normalizedTrackOffset,
+      rubberband,
+      slidePixels,
+      stuckAtBoundary,
+      total,
+    ],
+  );
 
   return {
     current,

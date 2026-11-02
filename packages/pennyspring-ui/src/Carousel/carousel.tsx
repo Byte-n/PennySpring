@@ -306,5 +306,12 @@ export const Carousel = <Data = unknown,>(props: CarouselProps<Data>) => {
     return content;
   }
 
-  return <GestureDetector gesture={panGesture}>{content}</GestureDetector>;
+  return (
+    <GestureDetector
+      gesture={panGesture}
+      touchAction={direction === 'horizontal' ? 'pan-y' : 'pan-x'}
+    >
+      {content}
+    </GestureDetector>
+  );
 };

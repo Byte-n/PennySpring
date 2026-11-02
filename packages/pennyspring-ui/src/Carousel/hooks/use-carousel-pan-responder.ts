@@ -1,9 +1,17 @@
 import { type RefObject, useMemo } from 'react';
 import { Gesture } from 'react-native-gesture-handler';
-import { runOnJS, type SharedValue } from 'react-native-reanimated';
+import {
+  runOnJS,
+  type SharedValue,
+  useSharedValue,
+} from 'react-native-reanimated';
 import { clampValue } from '../utils';
+import { useMemoizedFn } from '../../_hooks';
 
-const GESTURE_MIN_DISTANCE = 5;
+/** 主轴位移达到该值才激活轮播手势，避免轻触误触。 */
+const AXIS_ACTIVATION_OFFSET = 5;
+/** 交叉轴位移超过该值时让手势失败，把滚动交还给外层 ScrollView。 */
+const CROSS_AXIS_FAIL_OFFSET = 10;
 const VELOCITY_PROJECTION_FACTOR = 2000;
 
 interface UseCarouselPanResponderParams {
@@ -43,27 +51,51 @@ export const useCarouselPanResponder = (
     swipeToExtIndex,
   } = params;
 
+  const startPosition = useSharedValue(0);
+
+  const syncDragIndex = useMemoizedFn((extIndex: number) => {
+    extIndexRef.current = extIndex;
+    updateCurrent(getIndexFromExtIndex(extIndex));
+  });
+
   return useMemo(() => {
     if (!allowTouchMove || total <= 1 || slidePixels <= 0) {
       return null;
     }
 
     const axisIsHorizontal = direction === 'horizontal';
-    let startPosition = 0;
+    const axisOffset: [number, number] = [
+      -AXIS_ACTIVATION_OFFSET,
+      AXIS_ACTIVATION_OFFSET,
+    ];
+    const crossAxisOffset: [number, number] = [
+      -CROSS_AXIS_FAIL_OFFSET,
+      CROSS_AXIS_FAIL_OFFSET,
+    ];
 
-    const pan = Gesture.Pan()
-      .enabled(allowTouchMove)
-      .minDistance(GESTURE_MIN_DISTANCE)
+    const pan = Gesture.Pan().enabled(allowTouchMove);
+
+    // 只按主轴方向激活，并在交叉轴超限时失败，
+    // 使外层 ScrollView 能接管另一个方向的滚动。
+    if (axisIsHorizontal) {
+      pan.activeOffsetX(axisOffset).failOffsetY(crossAxisOffset);
+    } else {
+      pan.activeOffsetY(axisOffset).failOffsetX(crossAxisOffset);
+    }
+
+    pan
       .onBegin(() => {
-        startPosition = position.value;
+        'worklet';
+        startPosition.value = position.value;
         runOnJS(setDragging)(true);
         runOnJS(setAnimating)(false);
       })
       .onUpdate(event => {
+        'worklet';
         const delta = axisIsHorizontal
           ? event.translationX
           : event.translationY;
-        let nextPosition = startPosition - delta;
+        let nextPosition = startPosition.value - delta;
 
         if (extTotal > total && slidePixels > 0) {
           const totalPixels = total * slidePixels;
@@ -71,11 +103,11 @@ export const useCarouselPanResponder = (
           const maxPos = (clonesBefore + total) * slidePixels;
           while (nextPosition < minPos) {
             nextPosition += totalPixels;
-            startPosition += totalPixels;
+            startPosition.value += totalPixels;
           }
           while (nextPosition > maxPos) {
             nextPosition -= totalPixels;
-            startPosition -= totalPixels;
+            startPosition.value -= totalPixels;
           }
         }
 
@@ -88,12 +120,10 @@ export const useCarouselPanResponder = (
           extTotal - 1,
         );
 
-        runOnJS(() => {
-          extIndexRef.current = nextExtIndex;
-          updateCurrent(getIndexFromExtIndex(nextExtIndex));
-        })();
+        runOnJS(syncDragIndex)(nextExtIndex);
       })
       .onEnd(event => {
+        'worklet';
         const velocity = axisIsHorizontal ? event.velocityX : event.velocityY;
         const baseIndex = position.value / slidePixels;
         const projectedIndex =
@@ -109,6 +139,7 @@ export const useCarouselPanResponder = (
         runOnJS(swipeToExtIndex)(adjacent);
       })
       .onFinalize(() => {
+        'worklet';
         runOnJS(setDragging)(false);
       });
 
@@ -117,16 +148,15 @@ export const useCarouselPanResponder = (
     allowTouchMove,
     clonesBefore,
     direction,
-    extIndexRef,
     extTotal,
     getBoundedPosition,
-    getIndexFromExtIndex,
     position,
     setAnimating,
     setDragging,
     slidePixels,
+    startPosition,
     swipeToExtIndex,
+    syncDragIndex,
     total,
-    updateCurrent,
   ]);
 };
