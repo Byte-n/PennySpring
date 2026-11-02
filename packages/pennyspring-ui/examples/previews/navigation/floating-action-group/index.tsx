@@ -5,11 +5,13 @@ import type { PreviewMeta } from '../../types';
 
 export const previewMeta = {
   title: 'FloatingActionGroup',
-  description: '悬浮按钮组：任意定位、更多展开、三种展开方向与 mountPoint。',
+  description:
+    '悬浮按钮组：贴边书签头、独立拖拽 / 自动贴边、网格与扇形动作菜单。',
   order: 8,
   demos: [
-    { id: 'placement-and-mount-point', title: 'Placement and mountPoint' },
-    { id: 'preview-canvas', title: 'Preview canvas' },
+    { id: 'grid', title: '网格与贴边' },
+    { id: 'fan', title: '扇形展开' },
+    { id: 'count-lab', title: '数量与属性' },
   ],
 } satisfies PreviewMeta;
 

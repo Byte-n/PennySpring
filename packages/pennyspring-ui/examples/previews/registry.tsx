@@ -555,7 +555,7 @@ export const COMPONENT_PREVIEW_SECTIONS = [
       {
         id: 'floating-action-group',
         title: 'FloatingActionGroup',
-        description: '悬浮按钮组：任意定位、更多展开、三种展开方向与 mountPoint。',
+        description: '悬浮按钮组：贴边书签头、独立拖拽 / 自动贴边、网格与扇形动作菜单。',
         component: FloatingActionGroupPreview,
       },
       {
