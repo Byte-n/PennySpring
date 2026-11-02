@@ -20,7 +20,7 @@ import { createAgentTool } from './createAgentTool';
 export const LIST_TYPES_TOOL_NAME = 'listTypes';
 
 export const LIST_TYPES_TOOL_DESCRIPTION =
-  '列出当前账本的记录类型，返回精简 markdown 表格（id、名称、父类型）。创建记录前用它获取 typeId，可按分类或名称过滤。';
+  '列出当前账本的记录类型，返回精简 markdown 表格（id、名称、父类型）。创建/修改记录前用它获取 typeId；标注「（父类）」的类型下还有子类型，不要直接选，优先选择最具体子类型；标注「暂不支持」的类型不要选。可按分类或名称过滤。';
 
 const CATEGORY_ORDER: readonly RecordTypeCategoryValue[] = [
   RECORD_TYPE_CATEGORY.expense,

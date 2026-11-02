@@ -398,6 +398,9 @@ describe('buildSystemPrompt', () => {
     expect(prompt).toContain('用户确认');
     expect(prompt).toContain('金额单位：元');
     expect(prompt).toContain('attachmentIds');
+    expect(prompt).toContain('优先选择最精确的子类型');
+    expect(prompt).toContain('不要为分类追问');
+    expect(prompt).not.toContain('类型或日期不明确时先追问');
     expect(prompt).not.toContain('- 1 餐饮（支出）');
     expect(prompt).not.toContain('- 2 午饭（支出，父类型：餐饮）');
   });

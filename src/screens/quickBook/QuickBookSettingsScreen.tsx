@@ -88,6 +88,7 @@ export function QuickBookSettingsScreen(): React.ReactElement {
 
   const [providerSheetOpen, setProviderSheetOpen] = useState(false);
   const [modelSheetOpen, setModelSheetOpen] = useState(false);
+  const [resetPromptArmed, setResetPromptArmed] = useState(false);
   const [windowText, setWindowText] = useState(
     String(settings.freshWindowSeconds),
   );
@@ -232,6 +233,16 @@ export function QuickBookSettingsScreen(): React.ReactElement {
     setWindowText(String(clamped));
   }, [settings, windowText]);
 
+  const handleResetPrompt = useCallback((): void => {
+    if (!resetPromptArmed) {
+      setResetPromptArmed(true);
+      return;
+    }
+    settings.setPresetPrompt(DEFAULT_QUICK_BOOK_PROMPT);
+    setResetPromptArmed(false);
+    toast.show({ messageText: '已恢复默认提示词' });
+  }, [resetPromptArmed, settings, toast]);
+
   const handleOpenProviderSettings = useCallback((): void => {
     navigation.navigate(ROOT_ROUTES.AgentSettings);
   }, [navigation]);
@@ -362,12 +373,29 @@ export function QuickBookSettingsScreen(): React.ReactElement {
           </Column>
         </Card>
 
-        <Card titleText="预设提示词" variant="plain">
+        <Card
+          extra={
+            settings.presetPrompt !== DEFAULT_QUICK_BOOK_PROMPT ? (
+              <Button
+                onPress={handleResetPrompt}
+                size="small"
+                type={resetPromptArmed ? 'danger' : 'text'}
+              >
+                {resetPromptArmed ? '确认恢复' : '恢复默认'}
+              </Button>
+            ) : null
+          }
+          titleText="预设提示词"
+          variant="plain"
+        >
           <Column style={styles.section}>
             <Textarea
               maxRows={8}
               minRows={4}
-              onChange={settings.setPresetPrompt}
+              onChange={value => {
+                setResetPromptArmed(false);
+                settings.setPresetPrompt(value);
+              }}
               placeholder={DEFAULT_QUICK_BOOK_PROMPT}
               showCount
               value={settings.presetPrompt}

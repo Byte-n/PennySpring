@@ -5,11 +5,13 @@ import { createSqliteStateStorage } from '../../stores/bookStorage';
 import {
   DEFAULT_QUICK_BOOK_PROMPT,
   DEFAULT_SCREENSHOT_FRESH_WINDOW_SECONDS,
+  LEGACY_DEFAULT_QUICK_BOOK_PROMPT,
   MAX_SCREENSHOT_FRESH_WINDOW_SECONDS,
   MIN_SCREENSHOT_FRESH_WINDOW_SECONDS,
 } from './constants';
 
 const QUICK_BOOK_SETTINGS_STORE_KEY = 'pennyspring-quick-book-settings-v2';
+const QUICK_BOOK_SETTINGS_STORE_VERSION = 3;
 
 /** 快捷记账的设备级设置；provider/model 属于服务器级选择，见 api.quickBook。 */
 export interface QuickBookSettings {
@@ -44,6 +46,21 @@ const DEFAULT_SETTINGS: QuickBookSettings = {
   autoApproveScreenshot: true,
 };
 
+export function migrateQuickBookSettings(
+  persistedState: unknown,
+  version: number,
+): QuickBookSettings {
+  const state = (persistedState ?? {}) as Partial<QuickBookSettings>;
+  const migrated = { ...DEFAULT_SETTINGS, ...state };
+  if (
+    version < QUICK_BOOK_SETTINGS_STORE_VERSION &&
+    state.presetPrompt === LEGACY_DEFAULT_QUICK_BOOK_PROMPT
+  ) {
+    return { ...migrated, presetPrompt: DEFAULT_QUICK_BOOK_PROMPT };
+  }
+  return migrated;
+}
+
 export const useQuickBookSettingsStore = create<QuickBookSettingsStore>()(
   persist(
     set => ({
@@ -71,7 +88,8 @@ export const useQuickBookSettingsStore = create<QuickBookSettingsStore>()(
         autoApproveScreenshot: state.autoApproveScreenshot,
       }),
       skipHydration: true,
-      version: 2,
+      version: QUICK_BOOK_SETTINGS_STORE_VERSION,
+      migrate: migrateQuickBookSettings,
     },
   ),
 );

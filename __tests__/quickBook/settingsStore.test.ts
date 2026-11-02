@@ -9,11 +9,13 @@ jest.mock('../../src/stores/bookStorage', () => ({
 import {
   DEFAULT_QUICK_BOOK_PROMPT,
   DEFAULT_SCREENSHOT_FRESH_WINDOW_SECONDS,
+  LEGACY_DEFAULT_QUICK_BOOK_PROMPT,
   MAX_SCREENSHOT_FRESH_WINDOW_SECONDS,
   MIN_SCREENSHOT_FRESH_WINDOW_SECONDS,
 } from '../../src/features/quickBook/constants';
 import {
   clampFreshWindowSeconds,
+  migrateQuickBookSettings,
   useQuickBookSettingsStore,
 } from '../../src/features/quickBook/settingsStore';
 
@@ -49,6 +51,46 @@ describe('clampFreshWindowSeconds', () => {
   it('rounds fractional seconds', () => {
     expect(clampFreshWindowSeconds(60.4)).toBe(60);
     expect(clampFreshWindowSeconds(60.6)).toBe(61);
+  });
+});
+
+describe('DEFAULT_QUICK_BOOK_PROMPT', () => {
+  it('lets the agent choose the most specific type without asking', () => {
+    expect(DEFAULT_QUICK_BOOK_PROMPT).not.toContain('先问我');
+    expect(DEFAULT_QUICK_BOOK_PROMPT).toContain('最精确的子类型');
+  });
+});
+
+describe('migrateQuickBookSettings', () => {
+  const persisted = {
+    freshWindowSeconds: 90,
+    presetPrompt: LEGACY_DEFAULT_QUICK_BOOK_PROMPT,
+    nudgeEnabled: true,
+    autoApproveScreenshot: false,
+  };
+
+  it('replaces only the legacy default prompt', () => {
+    const migrated = migrateQuickBookSettings(persisted, 2);
+
+    expect(migrated.presetPrompt).toBe(DEFAULT_QUICK_BOOK_PROMPT);
+    expect(migrated.freshWindowSeconds).toBe(90);
+    expect(migrated.nudgeEnabled).toBe(true);
+    expect(migrated.autoApproveScreenshot).toBe(false);
+  });
+
+  it('keeps a custom prompt unchanged', () => {
+    const migrated = migrateQuickBookSettings(
+      { ...persisted, presetPrompt: '自定义提示' },
+      2,
+    );
+
+    expect(migrated.presetPrompt).toBe('自定义提示');
+  });
+
+  it('does not rewrite data that is already on the current version', () => {
+    const migrated = migrateQuickBookSettings(persisted, 3);
+
+    expect(migrated.presetPrompt).toBe(LEGACY_DEFAULT_QUICK_BOOK_PROMPT);
   });
 });
 

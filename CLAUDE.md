@@ -8,7 +8,7 @@ Monorepo（Yarn workspaces）：根目录是 React Native App，`packages/*` 是
 
 - 数据层路径：`packages/data/src/schema` 定义表，`relations` 定义关联，`runtime/client/createDatabase()` 通过
   op-sqlite connection 创建 Drizzle DB，`runtime/migrations/runMigrations()` 执行打包迁移。
-- 数据库表结构的修改不需要走迁移脚本，因为目前此项目应用并为投入正式使用，直接破坏性修改即可。
+- 项目已上线；数据库表结构或持久化格式的修改涉及兼容/迁移时，必须先给出方案并由用户拍板，禁止擅自按破坏性变更处理。
 
 ## 开发命令
 
