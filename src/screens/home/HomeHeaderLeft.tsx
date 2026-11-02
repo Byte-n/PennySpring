@@ -23,14 +23,14 @@ interface HomeHeaderLeftProps {
 }
 
 interface HeaderStyleOptions {
-  bottomInset: number;
+  topInset: number;
   quickListMaxHeight: number;
 }
 
 const QUICK_SWITCH_LIST_MAX_HEIGHT_RATIO = 0.45;
 
 const useStyles = createUseSheetStyle<HeaderStyleOptions>(
-  (token, { bottomInset, quickListMaxHeight }) => ({
+  (token, { topInset, quickListMaxHeight }) => ({
     root: {
       flex: 1,
       minWidth: 0,
@@ -83,7 +83,7 @@ const useStyles = createUseSheetStyle<HeaderStyleOptions>(
       lineHeight: token.lineHeightSM,
     },
     quickSheet: {
-      paddingBottom: Math.max(bottomInset, token.paddingSM),
+      paddingTop: Math.max(topInset, token.paddingSM),
     },
     quickPanel: {
       gap: token.marginSM,
@@ -144,7 +144,7 @@ export function HomeHeaderLeft({ onMenuPress }: HomeHeaderLeftProps) {
   const insets = useSafeAreaInsets();
   const { height: viewportHeight } = useWindowDimensions();
   const styles = useStyles({
-    bottomInset: insets.bottom,
+    topInset: insets.top,
     quickListMaxHeight: Math.round(
       viewportHeight * QUICK_SWITCH_LIST_MAX_HEIGHT_RATIO,
     ),
@@ -343,7 +343,7 @@ export function HomeHeaderLeft({ onMenuPress }: HomeHeaderLeftProps) {
       <Popup
         onOpenChange={setIsQuickSwitchOpen}
         open={isQuickSwitchOpen}
-        position="bottom"
+        position="top"
         styles={{ body: styles.quickSheet }}
       >
         <Column style={styles.quickPanel}>
