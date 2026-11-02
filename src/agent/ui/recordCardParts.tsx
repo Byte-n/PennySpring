@@ -1,11 +1,26 @@
-import React from 'react';
+import React, { useState } from 'react';
 import dayjs from 'dayjs';
 import { RECORD_TYPE_CATEGORY } from '@pennyspring/api';
-import { Card, Column, Loading, Row, Text } from '@pennyspring/ui';
+import {
+  Card,
+  Column,
+  Icon,
+  Loading,
+  Row,
+  Text,
+  useTheme,
+} from '@pennyspring/ui';
+import { Pressable, StyleSheet } from 'react-native';
 
 import type { ResolvedRecordDraft } from '../projection/recordDraft';
 
 const CENTS_PER_YUAN = 100;
+
+const styles = StyleSheet.create({
+  flexOne: {
+    flex: 1,
+  },
+});
 
 export function formatYuan(cents: number): string {
   return (cents / CENTS_PER_YUAN).toFixed(2);
@@ -13,6 +28,17 @@ export function formatYuan(cents: number): string {
 
 export function formatRecordTime(value: number): string {
   return dayjs(value).format('YYYY-MM-DD HH:mm');
+}
+
+/** 审批列表默认收起，同年省略年份以减少单行宽度。 */
+export function formatRecordTimeCompact(
+  value: number,
+  now = Date.now(),
+): string {
+  const time = dayjs(value);
+  return time.year() === dayjs(now).year()
+    ? time.format('MM-DD HH:mm')
+    : time.format('YYYY-MM-DD HH:mm');
 }
 
 export function getResultRecordIds(result: unknown): number[] {
@@ -95,40 +121,106 @@ export function RecordSummary({
   );
 }
 
+export interface RecordBatchRowDetail {
+  label: string;
+  value: string;
+}
+
 export interface RecordBatchRowProps {
   index: number;
   title: string;
   amountText: string;
-  timeText: string;
-  note?: string;
+  /** 默认展示的一行摘要，例如时间、记录 ID 或变更项。 */
+  metaText: string;
+  /** 始终展示的风险提示，例如关联记录数量。 */
+  warningText?: string;
+  /** 默认折叠的次要信息。 */
+  details?: readonly RecordBatchRowDetail[];
+  testID?: string;
 }
 
 export function RecordBatchRow({
   index,
   title,
   amountText,
-  timeText,
-  note,
+  metaText,
+  warningText,
+  details,
+  testID,
 }: RecordBatchRowProps): React.ReactElement {
-  return (
-    <Column gap="small">
+  const { token } = useTheme();
+  const [expanded, setExpanded] = useState(false);
+  const detailItems = details ?? [];
+  const hasDetails = detailItems.length > 0;
+  const isExpanded = hasDetails && expanded;
+
+  const content = (
+    <Column gap={token.marginXXS}>
       <Row align="center" gap="small" justify="between">
-        <Text numberOfLines={1} size="sm" weight="medium">
+        <Text
+          numberOfLines={1}
+          size="sm"
+          style={styles.flexOne}
+          weight="medium"
+        >
           {`${index}. ${title}`}
         </Text>
         <Text size="md" weight="semibold">
           {amountText}
         </Text>
       </Row>
-      <Text color="secondary" size="xs">
-        {timeText}
-      </Text>
-      {note ? (
+      <Row align="center" gap="small" justify="between">
+        <Text
+          color="secondary"
+          numberOfLines={1}
+          size="xs"
+          style={styles.flexOne}
+        >
+          {metaText}
+        </Text>
+        {hasDetails ? (
+          <Icon
+            color="tertiary"
+            icon={isExpanded ? 'caret-up' : 'caret-down'}
+            size="small"
+          />
+        ) : null}
+      </Row>
+      {warningText ? (
         <Text color="warningText" size="xs">
-          {note}
+          {warningText}
         </Text>
       ) : null}
+      {isExpanded ? (
+        <Column gap={token.marginXXS}>
+          {detailItems.map((detail, detailIndex) => (
+            <Text
+              color="secondary"
+              key={`${detail.label}-${detailIndex}`}
+              size="xs"
+            >
+              {`${detail.label}：${detail.value}`}
+            </Text>
+          ))}
+        </Column>
+      ) : null}
     </Column>
+  );
+
+  if (!hasDetails) {
+    return content;
+  }
+
+  return (
+    <Pressable
+      accessibilityHint={isExpanded ? '收起明细' : '展开明细'}
+      accessibilityRole="button"
+      accessibilityState={{ expanded: isExpanded }}
+      onPress={() => setExpanded(value => !value)}
+      testID={testID}
+    >
+      {content}
+    </Pressable>
   );
 }
 

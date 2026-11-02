@@ -89,9 +89,11 @@ jest.mock('@pennyspring/ui', () => {
     Button: MockButton,
     Card: MockCard,
     Column: MockLayout,
+    Icon: () => null,
     Loading: MockLoading,
     Row: MockLayout,
     Text: MockText,
+    useTheme: () => ({ token: { marginXXS: 4 } }),
     useToast: () => ({ show: jest.fn() }),
   };
 });
@@ -181,7 +183,14 @@ function findByTestId(
   renderer: TestRenderer.ReactTestRenderer,
   testID: string,
 ): TestRenderer.ReactTestInstance {
-  return renderer.root.findByProps({ testID });
+  const instances = renderer.root.findAllByProps({ testID });
+  const instance =
+    instances.find(node => typeof node.props.onPress === 'function') ??
+    instances[0];
+  if (!instance) {
+    throw new Error(`未找到 testID: ${testID}`);
+  }
+  return instance;
 }
 
 function containsText(
@@ -225,6 +234,18 @@ describe('RecordDeletionCard', () => {
     });
 
     expect(mockRespondToApproval).toHaveBeenCalledWith({ approved: true });
+  });
+
+  it('keeps secondary details collapsed until the row is expanded', async () => {
+    const renderer = await renderCard();
+
+    expect(containsText(renderer, '备注：午饭')).toBe(false);
+
+    await act(async () => {
+      findByTestId(renderer, 'agent-record-delete-item-1').props.onPress();
+    });
+
+    expect(containsText(renderer, '备注：午饭')).toBe(true);
   });
 
   it('denies the delete with a cancellation reason', async () => {

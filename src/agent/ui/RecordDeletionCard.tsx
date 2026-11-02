@@ -8,22 +8,47 @@ import type { RecordMetadata } from '../projection/recordDraft';
 import { summarizeRecord } from '../projection/recordUpdateDraft';
 import { deleteRecordsInputSchema } from '../tools/deleteRecords';
 import { getErrorMessage } from './errorMessage';
-import { RecordBatchRow, StatusCard } from './recordCardParts';
+import {
+  formatRecordTimeCompact,
+  RecordBatchRow,
+  type RecordBatchRowDetail,
+  StatusCard,
+} from './recordCardParts';
 
-function buildDeleteNote(
+function buildDeleteWarning(detail: RecordDetail): string | undefined {
+  return detail.relatedRecordIds.length > 0
+    ? `含 ${detail.relatedRecordIds.length} 笔关联记录，删除后会重新计算`
+    : undefined;
+}
+
+function buildDeleteDetails(
   detail: RecordDetail,
-  assetText: string,
-): string | undefined {
-  const parts: string[] = [];
-  if (detail.relatedRecordIds.length > 0) {
-    parts.push(
-      `含 ${detail.relatedRecordIds.length} 笔关联记录，删除后会重新计算`,
-    );
+  metadata: RecordMetadata,
+): RecordBatchRowDetail[] {
+  const { record } = detail;
+  const details: RecordBatchRowDetail[] = [];
+  if (record.remark) {
+    details.push({ label: '备注', value: record.remark });
   }
-  if (assetText) {
-    parts.push(`资产：${assetText}`);
+  const tagNames = detail.tagIds
+    .map(tagId => metadata.tags.find(tag => tag.id === tagId)?.name)
+    .filter((name): name is string => Boolean(name));
+  if (tagNames.length > 0) {
+    details.push({ label: '标签', value: tagNames.join('、') });
   }
-  return parts.length > 0 ? parts.join(' · ') : undefined;
+  const assetName =
+    metadata.assets.find(asset => asset.id === record.assetId)?.name ?? '';
+  const intoAssetName =
+    metadata.assets.find(asset => asset.id === record.intoAssetId)?.name ?? '';
+  if (intoAssetName) {
+    details.push({
+      label: '资产',
+      value: `${assetName || '未选择'} → ${intoAssetName}`,
+    });
+  } else if (assetName) {
+    details.push({ label: '资产', value: assetName });
+  }
+  return details;
 }
 
 export function RecordDeletionCard(
@@ -292,9 +317,13 @@ export function RecordDeletionCard(
               index={index + 1}
               key={`${item.detail.record.id}-${index}`}
               amountText={item.summary.amount}
-              note={buildDeleteNote(item.detail, item.summary.asset)}
-              timeText={`#${item.detail.record.id} · ${item.summary.recordTime}`}
+              details={buildDeleteDetails(item.detail, metadata)}
+              metaText={`#${item.detail.record.id} · ${formatRecordTimeCompact(
+                item.detail.record.recordTime,
+              )}`}
+              testID={`agent-record-delete-item-${index + 1}`}
               title={item.summary.category}
+              warningText={buildDeleteWarning(item.detail)}
             />
           ) : null,
         )}

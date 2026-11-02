@@ -5,6 +5,8 @@ import {
   RECORD_TYPE_CATEGORY,
   RECORD_TYPE_SPECIAL_BEHAVIOR,
   SYSTEM_STATUS,
+  VISIBILITY,
+  type TagRow,
   type TypeRow,
 } from '@pennyspring/api';
 
@@ -85,9 +87,11 @@ jest.mock('@pennyspring/ui', () => {
     Button: MockButton,
     Card: MockCard,
     Column: MockLayout,
+    Icon: () => null,
     Loading: MockLoading,
     Row: MockLayout,
     Text: MockText,
+    useTheme: () => ({ token: { marginXXS: 4 } }),
     useToast: () => ({ show: jest.fn() }),
   };
 });
@@ -106,6 +110,16 @@ const TYPE: TypeRow = {
   updatedTime: 0,
 } as TypeRow;
 
+const TAG: TagRow = {
+  id: 7,
+  booksId: 1,
+  name: '餐饮',
+  invisible: VISIBILITY.visible,
+  icon: '',
+  createdTime: 0,
+  updatedTime: 0,
+} as TagRow;
+
 const BASE_ARGS = {
   records: [
     {
@@ -114,6 +128,7 @@ const BASE_ARGS = {
       date: '2026-10-30',
       time: '12:34',
       remark: '午饭',
+      tagIds: [7],
     },
     {
       typeId: 2,
@@ -162,13 +177,33 @@ function findByTestId(
   renderer: TestRenderer.ReactTestRenderer,
   testID: string,
 ): TestRenderer.ReactTestInstance {
-  return renderer.root.findByProps({ testID });
+  const instances = renderer.root.findAllByProps({ testID });
+  const instance =
+    instances.find(node => typeof node.props.onPress === 'function') ??
+    instances[0];
+  if (!instance) {
+    throw new Error(`未找到 testID: ${testID}`);
+  }
+  return instance;
+}
+
+function containsText(
+  renderer: TestRenderer.ReactTestRenderer,
+  text: string,
+): boolean {
+  return (
+    renderer.root.findAll(
+      node =>
+        typeof node.props.children === 'string' &&
+        node.props.children.includes(text),
+    ).length > 0
+  );
 }
 
 beforeEach(() => {
   jest.clearAllMocks();
   mockTypeGetAll.mockResolvedValue([TYPE]);
-  mockTagGetAll.mockResolvedValue([]);
+  mockTagGetAll.mockResolvedValue([TAG]);
   mockAssetGetByBook.mockResolvedValue([]);
 });
 
@@ -203,6 +238,18 @@ describe('RecordCreationCard', () => {
     });
 
     expect(mockRespondToApproval).toHaveBeenCalledWith({ approved: true });
+  });
+
+  it('keeps secondary details collapsed until the row is expanded', async () => {
+    const renderer = await renderCard();
+
+    expect(containsText(renderer, '标签：餐饮')).toBe(false);
+
+    await act(async () => {
+      findByTestId(renderer, 'agent-record-create-item-1').props.onPress();
+    });
+
+    expect(containsText(renderer, '标签：餐饮')).toBe(true);
   });
 
   it('denies the tool call with a cancellation reason', async () => {

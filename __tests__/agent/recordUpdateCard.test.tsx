@@ -89,9 +89,11 @@ jest.mock('@pennyspring/ui', () => {
     Button: MockButton,
     Card: MockCard,
     Column: MockLayout,
+    Icon: () => null,
     Loading: MockLoading,
     Row: MockLayout,
     Text: MockText,
+    useTheme: () => ({ token: { marginXXS: 4 } }),
     useToast: () => ({ show: jest.fn() }),
   };
 });
@@ -199,7 +201,14 @@ function findByTestId(
   renderer: TestRenderer.ReactTestRenderer,
   testID: string,
 ): TestRenderer.ReactTestInstance {
-  return renderer.root.findByProps({ testID });
+  const instances = renderer.root.findAllByProps({ testID });
+  const instance =
+    instances.find(node => typeof node.props.onPress === 'function') ??
+    instances[0];
+  if (!instance) {
+    throw new Error(`未找到 testID: ${testID}`);
+  }
+  return instance;
 }
 
 function containsText(
@@ -228,15 +237,21 @@ beforeEach(() => {
 });
 
 describe('RecordUpdateCard', () => {
-  it('shows every field change and approves the tool call', async () => {
+  it('keeps field changes collapsed until expanded and approves the tool call', async () => {
     const renderer = await renderCard();
 
     expect(containsText(renderer, '待确认的修改')).toBe(true);
-    expect(containsText(renderer, '¥30.00')).toBe(true);
     expect(containsText(renderer, '¥35.00')).toBe(true);
+    expect(containsText(renderer, '金额：¥30.00 → ¥35.00')).toBe(false);
     expect(containsText(renderer, '#100')).toBe(true);
     expect(containsText(renderer, '#101')).toBe(true);
     expect(containsText(renderer, '共 2 条')).toBe(true);
+
+    await act(async () => {
+      findByTestId(renderer, 'agent-record-update-item-1').props.onPress();
+    });
+
+    expect(containsText(renderer, '金额：¥30.00 → ¥35.00')).toBe(true);
 
     await act(async () => {
       findByTestId(renderer, 'agent-record-update-confirm').props.onPress();

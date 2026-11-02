@@ -12,9 +12,10 @@ import {
 import { updateRecordsInputSchema } from '../tools/updateRecords';
 import { getErrorMessage } from './errorMessage';
 import {
-  formatRecordTime,
+  formatRecordTimeCompact,
   formatYuan,
   RecordBatchRow,
+  type RecordBatchRowDetail,
   StatusCard,
 } from './recordCardParts';
 
@@ -35,10 +36,20 @@ interface ResolvedUpdateFailure {
 
 type ResolvedUpdateItem = ResolvedUpdateSuccess | ResolvedUpdateFailure;
 
-function formatChanges(changes: readonly RecordChange[]): string {
-  return changes
-    .map(change => `${change.label} ${change.before} → ${change.after}`)
-    .join('；');
+function formatChangeSummary(changes: readonly RecordChange[]): string {
+  if (changes.length > 2) {
+    return `${changes.length} 项修改`;
+  }
+  return changes.map(change => change.label).join('、');
+}
+
+function buildChangeDetails(
+  changes: readonly RecordChange[],
+): RecordBatchRowDetail[] {
+  return changes.map(change => ({
+    label: change.label,
+    value: `${change.before} → ${change.after}`,
+  }));
 }
 
 function appendImageChange(
@@ -363,10 +374,11 @@ export function RecordUpdateCard(
               index={index + 1}
               key={`${item.detail.record.id}-${index}`}
               amountText={`¥${formatYuan(item.amountCents)}`}
-              note={formatChanges(item.changes)}
-              timeText={`#${item.detail.record.id} · ${formatRecordTime(
-                item.recordTime,
-              )}`}
+              details={buildChangeDetails(item.changes)}
+              metaText={`#${item.detail.record.id} · ${formatChangeSummary(
+                item.changes,
+              )} · ${formatRecordTimeCompact(item.recordTime)}`}
+              testID={`agent-record-update-item-${index + 1}`}
               title={`${item.categoryLabel} · ${item.typePath}`}
             />
           ) : null,

@@ -11,23 +11,46 @@ import {
 import { createRecordsInputSchema } from '../tools/createRecords';
 import { getErrorMessage } from './errorMessage';
 import {
-  formatRecordTime,
+  formatRecordTimeCompact,
   formatYuan,
   RecordBatchRow,
+  type RecordBatchRowDetail,
   StatusCard,
 } from './recordCardParts';
 
-function buildRecordNote(draft: ResolvedRecordDraft): string | undefined {
-  const parts: string[] = [];
+function buildRecordMeta(draft: ResolvedRecordDraft): string {
+  const timeText = formatRecordTimeCompact(draft.recordTime);
+  return draft.remark ? `${timeText} · ${draft.remark}` : timeText;
+}
+
+function buildRecordDetails(
+  draft: ResolvedRecordDraft,
+): RecordBatchRowDetail[] {
+  const details: RecordBatchRowDetail[] = [];
   if (draft.intoAssetName) {
-    parts.push(`转出：${draft.assetName} → 转入：${draft.intoAssetName}`);
+    details.push({
+      label: '转账',
+      value: `${draft.assetName || '未选择'} → ${draft.intoAssetName}`,
+    });
   } else if (draft.assetName) {
-    parts.push(`资产：${draft.assetName}`);
+    details.push({ label: '资产', value: draft.assetName });
   }
   if (draft.tags.length > 0) {
-    parts.push(`标签：${draft.tags.map(tag => tag.name).join('、')}`);
+    details.push({
+      label: '标签',
+      value: draft.tags.map(tag => tag.name).join('、'),
+    });
   }
-  return parts.length > 0 ? parts.join(' · ') : undefined;
+  if (draft.chargeCents > 0) {
+    details.push({
+      label: '手续费',
+      value: `¥${formatYuan(draft.chargeCents)}`,
+    });
+  }
+  if (draft.isReimbursable) {
+    details.push({ label: '可报销', value: '是' });
+  }
+  return details;
 }
 
 export function RecordCreationCard(
@@ -273,8 +296,9 @@ export function RecordCreationCard(
               index={index + 1}
               key={`${item.draft.recordTime}-${index}`}
               amountText={`¥${formatYuan(item.draft.amountCents)}`}
-              note={buildRecordNote(item.draft)}
-              timeText={formatRecordTime(item.draft.recordTime)}
+              details={buildRecordDetails(item.draft)}
+              metaText={buildRecordMeta(item.draft)}
+              testID={`agent-record-create-item-${index + 1}`}
               title={`${item.draft.categoryLabel} · ${item.draft.typePath}`}
             />
           ) : null,
