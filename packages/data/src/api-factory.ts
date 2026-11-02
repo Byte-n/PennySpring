@@ -36,10 +36,16 @@ export function createApi(getDatabase: () => Promise<Database>) {
     record: {
       create: async (input: CreateRecordInput) =>
         services.createRecord(await getDatabase(), input),
+      createMany: async (inputs: readonly CreateRecordInput[]) =>
+        services.createRecords(await getDatabase(), inputs),
       update: async (input: UpdateRecordInput) =>
         services.updateRecord(await getDatabase(), input),
+      updateMany: async (inputs: readonly UpdateRecordInput[]) =>
+        services.updateRecords(await getDatabase(), inputs),
       delete: async (recordId: number, booksId: number) =>
         services.deleteRecord(await getDatabase(), recordId, booksId),
+      deleteMany: async (recordIds: readonly number[], booksId: number) =>
+        services.deleteRecords(await getDatabase(), recordIds, booksId),
       getByBook: async (booksId: number, range?: RecordTimeRange) =>
         services.getRecordsByBook(await getDatabase(), booksId, range),
       getListByBook: async (booksId: number, range?: RecordTimeRange) =>

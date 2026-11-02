@@ -50,7 +50,9 @@ export {
 } from './quick-template-service';
 export {
   createRecord,
+  createRecords,
   deleteRecord,
+  deleteRecords,
   getImageCountsByBook,
   getRecordDetailById,
   getRecordListByBook,
@@ -58,6 +60,7 @@ export {
   getRecordsByBook,
   getRecordTagsByBook,
   updateRecord,
+  updateRecords,
 } from './record-service';
 export { createTag, deleteTag, getAllTags, updateTag } from './tag-service';
 export {

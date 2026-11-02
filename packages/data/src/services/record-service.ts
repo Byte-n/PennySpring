@@ -108,6 +108,19 @@ function assertUpdateCashflowInput(
     throw new Error('reimbursable is required');
 }
 
+function assertUniqueRecordIds(
+  recordIds: readonly number[],
+  message: string,
+): void {
+  const seen = new Set<number>();
+  for (const recordId of recordIds) {
+    if (seen.has(recordId)) {
+      throw new Error(message);
+    }
+    seen.add(recordId);
+  }
+}
+
 async function rollbackRecord(tx: Tx, record: RecordRow, typeRow: TypeRow) {
   switch (typeRow.typeCategory) {
     case RECORD_TYPE_CATEGORY.expense:
@@ -373,29 +386,131 @@ export async function getRecordTagsByBook(
   return result;
 }
 
+async function createRecordInTransaction(
+  tx: Tx,
+  input: CreateRecordInput,
+): Promise<RecordRow> {
+  const typeRow = await getTypeRow(tx, input.typeId, input.booksId);
+  await validateBookExists(tx, input, 'booksId');
+
+  switch (typeRow.typeCategory) {
+    case RECORD_TYPE_CATEGORY.expense:
+      assertCreateCashflowInput(input);
+      return createExpense(tx, input);
+    case RECORD_TYPE_CATEGORY.income:
+      assertCreateCashflowInput(input);
+      return createIncome(tx, input, typeRow);
+    case RECORD_TYPE_CATEGORY.transfer:
+      return createTransfer(tx, input as CreateTransferRecordInput, typeRow);
+    default:
+      throw new Error(`Unknown type category: ${typeRow.typeCategory}`);
+  }
+}
+
 export function createRecord(
   db: Database,
   input: CreateRecordInput,
 ): Promise<RecordRow> {
   validateInput(input);
+  return db.transaction(tx => createRecordInTransaction(tx, input));
+}
 
+export async function createRecords(
+  db: Database,
+  inputs: readonly CreateRecordInput[],
+): Promise<RecordRow[]> {
+  inputs.forEach(validateInput);
+  if (inputs.length === 0) {
+    return [];
+  }
   return db.transaction(async tx => {
-    const typeRow = await getTypeRow(tx, input.typeId, input.booksId);
-    await validateBookExists(tx, input, 'booksId');
-
-    switch (typeRow.typeCategory) {
-      case RECORD_TYPE_CATEGORY.expense:
-        assertCreateCashflowInput(input);
-        return createExpense(tx, input);
-      case RECORD_TYPE_CATEGORY.income:
-        assertCreateCashflowInput(input);
-        return createIncome(tx, input, typeRow);
-      case RECORD_TYPE_CATEGORY.transfer:
-        return createTransfer(tx, input as CreateTransferRecordInput, typeRow);
-      default:
-        throw new Error(`Unknown type category: ${typeRow.typeCategory}`);
+    const rows: RecordRow[] = [];
+    for (const input of inputs) {
+      rows.push(await createRecordInTransaction(tx, input));
     }
+    return rows;
   });
+}
+
+async function updateRecordInTransaction(
+  tx: Tx,
+  input: UpdateRecordInput,
+): Promise<RecordRow> {
+  const oldRecord = await getRecordRow(tx, input.id, input.booksId);
+  const oldTypeRow = await getTypeRow(tx, oldRecord.typeId, input.booksId);
+  const newTypeRow = await getTypeRow(tx, input.typeId, input.booksId);
+  await validateBookExists(tx, input, 'booksId');
+  const intoAssetId = await validateUpdateRecordReferences(
+    tx,
+    input,
+    newTypeRow,
+  );
+  const charge = input.charge ?? 0;
+
+  await rollbackRecord(tx, oldRecord, oldTypeRow);
+
+  let finalAmount: number;
+  switch (newTypeRow.typeCategory) {
+    case RECORD_TYPE_CATEGORY.expense:
+      assertUpdateCashflowInput(input);
+      finalAmount = input.amount + charge;
+      break;
+    case RECORD_TYPE_CATEGORY.income:
+      assertUpdateCashflowInput(input);
+      finalAmount = input.amount - charge;
+      if (finalAmount < 0)
+        throw new Error('Income final amount (amount - charge) must be >= 0');
+      break;
+    case RECORD_TYPE_CATEGORY.transfer:
+      finalAmount = charge;
+      break;
+    default:
+      throw new Error(`Unknown type category: ${newTypeRow.typeCategory}`);
+  }
+
+  await tx
+    .update(records)
+    .set({
+      typeId: input.typeId,
+      assetId:
+        newTypeRow.typeCategory === RECORD_TYPE_CATEGORY.transfer
+          ? (input as UpdateTransferRecordInput).assetId
+          : ((input as UpdateCashflowRecordInput).assetId ?? 0),
+      intoAssetId,
+      booksId: input.booksId,
+      amount: input.amount,
+      finalAmount,
+      charge,
+      remark: input.remark ?? '',
+      reimbursable:
+        newTypeRow.typeCategory === RECORD_TYPE_CATEGORY.transfer
+          ? REIMBURSABLE.notReimbursable
+          : newTypeRow.typeCategory === RECORD_TYPE_CATEGORY.income
+            ? REIMBURSABLE.notReimbursable
+            : (input as UpdateCashflowRecordInput).reimbursable,
+      recordTime: input.recordTime,
+    })
+    .where(eq(records.id, input.id));
+
+  const updatedRecord = await getRecordRow(tx, input.id);
+
+  switch (newTypeRow.typeCategory) {
+    case RECORD_TYPE_CATEGORY.expense:
+      await applyExpense(tx, updatedRecord);
+      await handleExpenseAbsorptionOnModify(tx, input.id);
+      break;
+    case RECORD_TYPE_CATEGORY.income:
+      await applyIncome(tx, updatedRecord, newTypeRow, input.relatedRecordIds);
+      break;
+    case RECORD_TYPE_CATEGORY.transfer:
+      await applyTransfer(tx, updatedRecord);
+      break;
+  }
+
+  await syncTags(tx, input.id, input.tagIds ?? []);
+  await syncImages(tx, input.id, input.imagePaths ?? []);
+
+  return getRecordRow(tx, input.id);
 }
 
 export function updateRecord(
@@ -403,88 +518,27 @@ export function updateRecord(
   input: UpdateRecordInput,
 ): Promise<RecordRow> {
   validateInput(input);
+  return db.transaction(tx => updateRecordInTransaction(tx, input));
+}
 
+export async function updateRecords(
+  db: Database,
+  inputs: readonly UpdateRecordInput[],
+): Promise<RecordRow[]> {
+  inputs.forEach(validateInput);
+  assertUniqueRecordIds(
+    inputs.map(input => input.id),
+    '批量修改包含重复的记录',
+  );
+  if (inputs.length === 0) {
+    return [];
+  }
   return db.transaction(async tx => {
-    const oldRecord = await getRecordRow(tx, input.id, input.booksId);
-    const oldTypeRow = await getTypeRow(tx, oldRecord.typeId, input.booksId);
-    const newTypeRow = await getTypeRow(tx, input.typeId, input.booksId);
-    await validateBookExists(tx, input, 'booksId');
-    const intoAssetId = await validateUpdateRecordReferences(
-      tx,
-      input,
-      newTypeRow,
-    );
-    const charge = input.charge ?? 0;
-
-    await rollbackRecord(tx, oldRecord, oldTypeRow);
-
-    let finalAmount: number;
-    switch (newTypeRow.typeCategory) {
-      case RECORD_TYPE_CATEGORY.expense:
-        assertUpdateCashflowInput(input);
-        finalAmount = input.amount + charge;
-        break;
-      case RECORD_TYPE_CATEGORY.income:
-        assertUpdateCashflowInput(input);
-        finalAmount = input.amount - charge;
-        if (finalAmount < 0)
-          throw new Error('Income final amount (amount - charge) must be >= 0');
-        break;
-      case RECORD_TYPE_CATEGORY.transfer:
-        finalAmount = charge;
-        break;
-      default:
-        throw new Error(`Unknown type category: ${newTypeRow.typeCategory}`);
+    const rows: RecordRow[] = [];
+    for (const input of inputs) {
+      rows.push(await updateRecordInTransaction(tx, input));
     }
-
-    await tx
-      .update(records)
-      .set({
-        typeId: input.typeId,
-        assetId:
-          newTypeRow.typeCategory === RECORD_TYPE_CATEGORY.transfer
-            ? (input as UpdateTransferRecordInput).assetId
-            : ((input as UpdateCashflowRecordInput).assetId ?? 0),
-        intoAssetId,
-        booksId: input.booksId,
-        amount: input.amount,
-        finalAmount,
-        charge,
-        remark: input.remark ?? '',
-        reimbursable:
-          newTypeRow.typeCategory === RECORD_TYPE_CATEGORY.transfer
-            ? REIMBURSABLE.notReimbursable
-            : newTypeRow.typeCategory === RECORD_TYPE_CATEGORY.income
-              ? REIMBURSABLE.notReimbursable
-              : (input as UpdateCashflowRecordInput).reimbursable,
-        recordTime: input.recordTime,
-      })
-      .where(eq(records.id, input.id));
-
-    const updatedRecord = await getRecordRow(tx, input.id);
-
-    switch (newTypeRow.typeCategory) {
-      case RECORD_TYPE_CATEGORY.expense:
-        await applyExpense(tx, updatedRecord);
-        await handleExpenseAbsorptionOnModify(tx, input.id);
-        break;
-      case RECORD_TYPE_CATEGORY.income:
-        await applyIncome(
-          tx,
-          updatedRecord,
-          newTypeRow,
-          input.relatedRecordIds,
-        );
-        break;
-      case RECORD_TYPE_CATEGORY.transfer:
-        await applyTransfer(tx, updatedRecord);
-        break;
-    }
-
-    await syncTags(tx, input.id, input.tagIds ?? []);
-    await syncImages(tx, input.id, input.imagePaths ?? []);
-
-    return getRecordRow(tx, input.id);
+    return rows;
   });
 }
 
@@ -499,58 +553,80 @@ async function handleExpenseAbsorptionOnModify(tx: Tx, recordId: number) {
   }
 }
 
+async function deleteRecordInTransaction(
+  tx: Tx,
+  recordId: number,
+  booksId: number,
+): Promise<void> {
+  const record = await getRecordRow(tx, recordId, booksId);
+  const typeRow = await getTypeRow(tx, record.typeId, booksId);
+
+  const absorbedByLinks = await tx
+    .select({ recordId: recordWithRecord.recordId })
+    .from(recordWithRecord)
+    .where(eq(recordWithRecord.relatedRecordId, recordId));
+
+  if (absorbedByLinks.length > 0) {
+    await tx
+      .delete(recordWithRecord)
+      .where(eq(recordWithRecord.relatedRecordId, recordId));
+
+    const affectedExpenseIds = new Set<number>();
+    for (const link of absorbedByLinks) {
+      const remainingLinks = await tx
+        .select({ relatedRecordId: recordWithRecord.relatedRecordId })
+        .from(recordWithRecord)
+        .where(eq(recordWithRecord.recordId, link.recordId));
+
+      if (remainingLinks.length === 0) {
+        const incomeRecord = await tx
+          .select()
+          .from(records)
+          .where(eq(records.id, link.recordId))
+          .get();
+        if (incomeRecord) {
+          await tx
+            .update(records)
+            .set({ finalAmount: incomeRecord.amount - incomeRecord.charge })
+            .where(eq(records.id, link.recordId));
+        }
+      } else {
+        for (const r of remainingLinks) {
+          affectedExpenseIds.add(r.relatedRecordId);
+        }
+      }
+    }
+
+    for (const expenseId of affectedExpenseIds) {
+      await recalculateAbsorption(tx, expenseId);
+    }
+  }
+
+  await rollbackRecord(tx, record, typeRow);
+  await deleteAllJunctions(tx, recordId);
+  await tx.delete(records).where(eq(records.id, recordId));
+}
+
 export function deleteRecord(
   db: Database,
   recordId: number,
   booksId: number,
 ): Promise<void> {
-  return db.transaction(async tx => {
-    const record = await getRecordRow(tx, recordId, booksId);
-    const typeRow = await getTypeRow(tx, record.typeId, booksId);
+  return db.transaction(tx => deleteRecordInTransaction(tx, recordId, booksId));
+}
 
-    const absorbedByLinks = await tx
-      .select({ recordId: recordWithRecord.recordId })
-      .from(recordWithRecord)
-      .where(eq(recordWithRecord.relatedRecordId, recordId));
-
-    if (absorbedByLinks.length > 0) {
-      await tx
-        .delete(recordWithRecord)
-        .where(eq(recordWithRecord.relatedRecordId, recordId));
-
-      const affectedExpenseIds = new Set<number>();
-      for (const link of absorbedByLinks) {
-        const remainingLinks = await tx
-          .select({ relatedRecordId: recordWithRecord.relatedRecordId })
-          .from(recordWithRecord)
-          .where(eq(recordWithRecord.recordId, link.recordId));
-
-        if (remainingLinks.length === 0) {
-          const incomeRecord = await tx
-            .select()
-            .from(records)
-            .where(eq(records.id, link.recordId))
-            .get();
-          if (incomeRecord) {
-            await tx
-              .update(records)
-              .set({ finalAmount: incomeRecord.amount - incomeRecord.charge })
-              .where(eq(records.id, link.recordId));
-          }
-        } else {
-          for (const r of remainingLinks) {
-            affectedExpenseIds.add(r.relatedRecordId);
-          }
-        }
-      }
-
-      for (const expenseId of affectedExpenseIds) {
-        await recalculateAbsorption(tx, expenseId);
-      }
+export async function deleteRecords(
+  db: Database,
+  recordIds: readonly number[],
+  booksId: number,
+): Promise<void> {
+  assertUniqueRecordIds(recordIds, '批量删除包含重复的记录');
+  if (recordIds.length === 0) {
+    return;
+  }
+  await db.transaction(async tx => {
+    for (const recordId of recordIds) {
+      await deleteRecordInTransaction(tx, recordId, booksId);
     }
-
-    await rollbackRecord(tx, record, typeRow);
-    await deleteAllJunctions(tx, recordId);
-    await tx.delete(records).where(eq(records.id, recordId));
   });
 }
