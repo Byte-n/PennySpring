@@ -8,19 +8,28 @@ interface DisplayInputStyleOptions {
   display: DisplayInputDisplay;
   hasLabel: boolean;
   isError: boolean;
+  reserveLabelSpace: boolean;
   size: ComponentSize;
 }
 
 export const useStyles = createUseSheetStyle(
   (
     token,
-    { disabled, display, hasLabel, isError, size }: DisplayInputStyleOptions,
+    {
+      disabled,
+      display,
+      hasLabel,
+      isError,
+      reserveLabelSpace,
+      size,
+    }: DisplayInputStyleOptions,
   ) => {
     const metrics = FIELD_SIZE_MAP[size];
     const height = metrics.height(token);
     const valueFontSize = metrics.valueFontSize(token);
     const valueLineHeight = metrics.valueLineHeight(token);
     const valuePaddingBottom = metrics.valuePaddingBottom;
+    const labelReserve = metrics.labelTop + metrics.labelLineHeight(token);
     const underlineColor = isError ? token.colorError : token.colorBorder;
     const labelColor = disabled
       ? token.colorTextDisabled
@@ -76,6 +85,8 @@ export const useStyles = createUseSheetStyle(
         minHeight: height,
         // 有标签时值贴底，无标签时值在控件内垂直居中
         justifyContent: hasLabel ? 'flex-end' : 'center',
+        // 内容可换行时预留悬浮标签占据的顶部区域，避免内容向上生长压住标签
+        paddingTop: reserveLabelSpace ? labelReserve : 0,
         position: 'relative',
       },
       floatingLabelContainer: {

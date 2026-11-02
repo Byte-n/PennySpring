@@ -102,6 +102,9 @@ export function DisplayInput({
     display: resolvedDisplay,
     hasLabel: hasFloatingLabel,
     isError,
+    // 自定义节点与可换行文本会向上生长，需要把标签条带让出来
+    reserveLabelSpace:
+      hasFloatingLabel && (hasCustomValue || resolvedOverflow === 'visible'),
     size: resolvedSize,
   });
   const isFloatingLabelActive = hasFloatingLabel && hasDisplayValue;
@@ -183,7 +186,7 @@ export function DisplayInput({
             ))}
           </Row>
         ) : null}
-        <View style={tokenStyles.valueWrapper}>
+        <View style={tokenStyles.valueWrapper} testID="display-input-value">
           {hasFloatingLabel && isTextLabel ? (
             <>
               <Text

@@ -40,6 +40,9 @@ export const useStyles = createUseSheetStyle(
         paddingBottom: safeAreaInsetBottom ? token.sizeXS : token.sizeXXS,
         paddingTop: token.sizeXXS,
       },
+      tabList: {
+        flex: 1,
+      },
       tab: {
         flex: 1,
         height: tabHeight,

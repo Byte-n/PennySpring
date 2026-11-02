@@ -1,6 +1,7 @@
 import React from 'react';
-import { Text as RNText, View } from 'react-native';
+import { StyleSheet, Text as RNText, View } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
+import { Row } from '../src/Row';
 import { Text } from '../src/Text';
 import { TabBar } from '../src/TabBar';
 import type { TabBarProps } from '../src/TabBar';
@@ -66,6 +67,15 @@ describe('TabBar', () => {
     expect(content).toContain('A');
     expect(content).toContain('P');
     expect(content).toContain('3');
+  });
+
+  it('stretches the tab list so items split the full tab bar width', () => {
+    const testRenderer = renderTabBar();
+    const tabList = testRenderer.root
+      .findAllByType(Row)
+      .find(node => node.props.testID !== 'tab-bar-root');
+
+    expect(StyleSheet.flatten(tabList?.props.style).flex).toBe(1);
   });
 
   it('updates uncontrolled value and calls onChange', () => {

@@ -7,6 +7,7 @@ import renderer, { act } from 'react-test-renderer';
 import { DisplayInput } from '../src/DisplayInput';
 import { DisplayInputOverflow } from '../src/DisplayInput';
 import { DisplayInputOverflow as PublicDisplayInputOverflow } from '../src';
+import { FIELD_SIZE_MAP } from '../src/shares/fieldMetrics';
 
 const token = formatToken(derivative(defaultSeedToken, false));
 
@@ -53,6 +54,14 @@ function findUnderlineStyle(testRenderer: renderer.ReactTestRenderer) {
 
 function findFieldContentStyle(testRenderer: renderer.ReactTestRenderer) {
   return findFieldStyle(testRenderer);
+}
+
+function findValueWrapperStyle(testRenderer: renderer.ReactTestRenderer) {
+  const wrapper = testRenderer.root.findByProps({
+    testID: 'display-input-value',
+  });
+
+  return StyleSheet.flatten(wrapper.props.style);
 }
 
 describe('DisplayInput', () => {
@@ -320,6 +329,43 @@ describe('DisplayInput', () => {
     expect(defaultText.props.ellipsizeMode).toBe('tail');
     expect(visibleText.props.numberOfLines).toBeUndefined();
     expect(visibleText.props.ellipsizeMode).toBeUndefined();
+  });
+
+  it('reserves the floating label strip above growing value content', () => {
+    // Arrange
+    const metrics = FIELD_SIZE_MAP.normal;
+    const expectedReserve = metrics.labelTop + metrics.labelLineHeight(token);
+    const visibleTextRenderer = renderDisplayInput({
+      labelText: '标签文本',
+      overflow: 'visible',
+      valueText: '会换行的长文本',
+    });
+    const customNodeRenderer = renderDisplayInput({
+      labelText: '标签文本',
+      children: <View testID="custom-multiline-value" />,
+    });
+
+    // Act
+    const visibleTextStyle = findValueWrapperStyle(visibleTextRenderer);
+    const customNodeStyle = findValueWrapperStyle(customNodeRenderer);
+
+    // Assert
+    expect(visibleTextStyle.paddingTop).toBe(expectedReserve);
+    expect(customNodeStyle.paddingTop).toBe(expectedReserve);
+  });
+
+  it('keeps single-line hidden values without reserved label space', () => {
+    // Arrange
+    const testRenderer = renderDisplayInput({
+      labelText: '标签文本',
+      valueText: '单行内容',
+    });
+
+    // Act
+    const wrapperStyle = findValueWrapperStyle(testRenderer);
+
+    // Assert
+    expect(wrapperStyle.paddingTop).toBe(0);
   });
 
   it('uses compact horizontal padding for every size', () => {

@@ -100,7 +100,7 @@ export function TabBar({
       testID="tab-bar-root"
       style={[tokenStyles.root, style]}
     >
-      <Row align="stretch" style={styles?.tabList}>
+      <Row align="stretch" style={[tokenStyles.tabList, styles?.tabList]}>
         {normalizedItems.map(item => {
           const itemDisabled = disabled || item.disabled === true;
           const isSelected = selectedValue === item.value;
