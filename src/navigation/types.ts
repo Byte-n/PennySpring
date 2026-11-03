@@ -31,6 +31,7 @@ export type RootStackParamList = {
   [ROOT_ROUTES.BackupAuto]: undefined;
   [ROOT_ROUTES.BackupAiConfig]: undefined;
   [ROOT_ROUTES.BackupSettings]: undefined;
+  [ROOT_ROUTES.BackupLan]: undefined;
   [ROOT_ROUTES.BackupLanSend]: undefined;
   [ROOT_ROUTES.BackupLanReceive]: undefined;
 };

@@ -288,17 +288,10 @@ export function BackupHomeScreen() {
           </Button>
           <Button
             block
-            onPress={() => navigation.navigate(ROOT_ROUTES.BackupLanSend)}
+            onPress={() => navigation.navigate(ROOT_ROUTES.BackupLan)}
             type="default"
           >
-            局域网发送
-          </Button>
-          <Button
-            block
-            onPress={() => navigation.navigate(ROOT_ROUTES.BackupLanReceive)}
-            type="default"
-          >
-            局域网接收
+            局域网传输
           </Button>
         </Column>
       </Card>

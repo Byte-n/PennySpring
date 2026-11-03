@@ -73,6 +73,7 @@ jest.mock('react-native-reanimated', () => {
     createAnimatedComponent: component => component,
     Easing: {
       bezier: jest.fn(() => value => value),
+      linear: jest.fn(value => value),
     },
     interpolate: (value, inputRange, outputRange) => {
       if (value <= inputRange[0]) {
@@ -87,6 +88,7 @@ jest.mock('react-native-reanimated', () => {
     },
     useAnimatedStyle: updater => updater(),
     useSharedValue: value => ({ value }),
+    useReducedMotion: () => false,
     cancelAnimation: jest.fn(),
     runOnJS: jest.fn(fn => fn),
     withDelay: (_delay, value) => value,

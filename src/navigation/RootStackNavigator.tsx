@@ -11,8 +11,7 @@ import { BackupAutoScreen } from '../screens/backup/BackupAutoScreen';
 import { BackupExportScreen } from '../screens/backup/BackupExportScreen';
 import { BackupHomeScreen } from '../screens/backup/BackupHomeScreen';
 import { BackupImportScreen } from '../screens/backup/BackupImportScreen';
-import { BackupLanReceiveScreen } from '../screens/backup/BackupLanReceiveScreen';
-import { BackupLanSendScreen } from '../screens/backup/BackupLanSendScreen';
+import { BackupLanScreen } from '../screens/backup/BackupLanScreen';
 import { BackupSettingsScreen } from '../screens/backup/BackupSettingsScreen';
 import { BookManageScreen } from '../screens/bookManage/BookManageScreen';
 import { HomeScreen } from '../screens/home/HomeScreen';
@@ -153,14 +152,19 @@ export function RootStackNavigator() {
         options={{ title: '设置包' }}
       />
       <Stack.Screen
-        component={BackupLanSendScreen}
-        name={ROOT_ROUTES.BackupLanSend}
-        options={{ title: '局域网发送' }}
+        component={BackupLanScreen}
+        name={ROOT_ROUTES.BackupLan}
+        options={{ title: '局域网传输' }}
       />
       <Stack.Screen
-        component={BackupLanReceiveScreen}
+        component={BackupLanScreen}
+        name={ROOT_ROUTES.BackupLanSend}
+        options={{ title: '局域网传输' }}
+      />
+      <Stack.Screen
+        component={BackupLanScreen}
         name={ROOT_ROUTES.BackupLanReceive}
-        options={{ title: '局域网接收' }}
+        options={{ title: '局域网传输' }}
       />
     </Stack.Navigator>
   );

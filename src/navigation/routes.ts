@@ -18,6 +18,7 @@ export const ROOT_ROUTES = {
   BackupAuto: 'BackupAuto',
   BackupAiConfig: 'BackupAiConfig',
   BackupSettings: 'BackupSettings',
+  BackupLan: 'BackupLan',
   BackupLanSend: 'BackupLanSend',
   BackupLanReceive: 'BackupLanReceive',
 } as const;

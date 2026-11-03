@@ -1,7 +1,7 @@
 import { toByteArray } from 'base64-js';
 import { Dirs, FileSystem } from 'react-native-file-access';
 
-import { isValidLanToken, normalizeLanAddress } from './lan';
+import { buildPackageUrl, isValidPeerHost, type LanPeer } from './lanProtocol';
 
 export interface LanDownloadProgress {
   bytesRead: number;
@@ -24,16 +24,19 @@ function createProgressHandler(
 }
 
 export async function downloadLanPackage(
-  address: string,
-  token: string,
+  peer: LanPeer,
+  sessionToken: string,
   onProgress?: (progress: LanDownloadProgress) => void,
 ): Promise<LanDownloadResult> {
-  if (!isValidLanToken(token)) {
-    throw new Error('传输口令必须是 6 位数字');
+  if (!sessionToken) {
+    throw new Error('传输会话已失效，请重新配对');
   }
-  const base = normalizeLanAddress(address);
+  if (!isValidPeerHost(peer.host)) {
+    throw new Error('对方设备地址不正确');
+  }
+
   const path = `${Dirs.CacheDir}/lan-${Date.now()}.psb`;
-  const url = `${base}/package?token=${encodeURIComponent(token)}`;
+  const url = buildPackageUrl(peer, sessionToken);
 
   const cleanup = async (): Promise<void> => {
     try {
@@ -50,10 +53,10 @@ export async function downloadLanPackage(
       createProgressHandler(onProgress),
     );
     if (result.status === 403) {
-      throw new Error('传输口令不正确或已过期');
+      throw new Error('传输会话已失效，请重新配对');
     }
     if (!result.ok) {
-      throw new Error(`下载失败（HTTP ${result.status}）`);
+      throw new Error(`接收失败（HTTP ${result.status}）`);
     }
     const base64 = await FileSystem.readFile(path, 'base64');
     const bytes = toByteArray(base64);
