@@ -890,6 +890,35 @@ describe('AgentDrawer', () => {
     expect(onOpenSessions).toHaveBeenCalledTimes(1);
   });
 
+  it('creates a new session from the header', async () => {
+    const { renderer, session } = renderDrawer();
+
+    await act(async () => {
+      renderer.root
+        .findByProps({ testID: 'agent-new-session-button' })
+        .props.onPress();
+      await flush();
+    });
+
+    expect(session.createThread).toHaveBeenCalledTimes(1);
+  });
+
+  it('disables the new-session button while sending or on a draft', () => {
+    const sending = renderDrawer({ session: { sending: true } });
+    expect(
+      sending.renderer.root.findByProps({
+        testID: 'agent-new-session-button',
+      }).props.disabled,
+    ).toBe(true);
+
+    const draft = renderDrawer({ session: { currentThreadId: 0 } });
+    expect(
+      draft.renderer.root.findByProps({
+        testID: 'agent-new-session-button',
+      }).props.disabled,
+    ).toBe(true);
+  });
+
   it('switches the conversation model and opens model settings', () => {
     const provider: AgentProviderConfig = {
       id: 1,

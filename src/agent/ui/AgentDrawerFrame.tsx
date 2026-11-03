@@ -1,7 +1,11 @@
 import React from 'react';
 import { Button, Popup, Row } from '@pennyspring/ui';
 import { createUseSheetStyle } from '@pennyspring/ui';
-import { ClockCounterClockwiseIcon, GearSixIcon } from 'phosphor-react-native';
+import {
+  ClockCounterClockwiseIcon,
+  GearSixIcon,
+  PlusIcon,
+} from 'phosphor-react-native';
 
 const useStyles = createUseSheetStyle(() => ({
   panelBody: {
@@ -12,6 +16,8 @@ const useStyles = createUseSheetStyle(() => ({
 export interface AgentDrawerFrameProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onCreateSession?: () => void;
+  createSessionDisabled?: boolean;
   onOpenSessions: () => void;
   onOpenSettings: () => void;
   children: React.ReactNode;
@@ -20,6 +26,8 @@ export interface AgentDrawerFrameProps {
 export function AgentDrawerFrame({
   open,
   onOpenChange,
+  onCreateSession,
+  createSessionDisabled = false,
   onOpenSessions,
   onOpenSettings,
   children,
@@ -41,6 +49,17 @@ export function AgentDrawerFrame({
       renderFooter={null}
       renderHeaderRight={() => (
         <Row align="center" gap="small">
+          {onCreateSession ? (
+            <Button
+              disabled={createSessionDisabled}
+              icon={PlusIcon}
+              onPress={onCreateSession}
+              shape="circle"
+              size="small"
+              testID="agent-new-session-button"
+              type="text"
+            />
+          ) : null}
           <Button
             icon={ClockCounterClockwiseIcon}
             onPress={onOpenSessions}

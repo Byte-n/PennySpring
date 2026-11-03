@@ -393,6 +393,14 @@ export function AgentDrawer({
     toast,
   ]);
 
+  const createThread = session.createThread;
+  const canCreateSession =
+    !session.sending && (session.currentThreadId ?? 0) > 0;
+
+  const handleCreateSession = useCallback((): void => {
+    createThread().catch(() => undefined);
+  }, [createThread]);
+
   const handleSuggestion = useCallback(
     (text: string): void => {
       if (!configured) {
@@ -420,6 +428,8 @@ export function AgentDrawer({
 
   return (
     <AgentDrawerFrame
+      createSessionDisabled={!canCreateSession}
+      onCreateSession={handleCreateSession}
       onOpenChange={onOpenChange}
       onOpenSessions={onOpenSessions}
       onOpenSettings={onOpenSettings}
