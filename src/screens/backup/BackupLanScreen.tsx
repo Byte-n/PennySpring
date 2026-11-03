@@ -5,10 +5,11 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { ScrollView, View } from 'react-native';
+import { Pressable, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRequest } from 'ahooks';
 import { fromByteArray } from 'base64-js';
+import { ArrowClockwiseIcon } from 'phosphor-react-native';
 import {
   BOOK_TYPE,
   localApi,
@@ -17,13 +18,12 @@ import {
 } from '@pennyspring/api';
 import {
   Button,
-  Card,
   Column,
-  Empty,
   Result,
   Text,
   createUseSheetStyle,
   toShadowStyle,
+  useTheme,
   useToast,
 } from '@pennyspring/ui';
 
@@ -63,7 +63,8 @@ import {
 import { LanTransferCard } from './components/LanTransferCard';
 
 const SCAN_DOT_SIZE = 8;
-const EMPTY_TOP = 160;
+const SCAN_REFRESH_SIZE = 16;
+const SCAN_REFRESH_HIT_SLOP = 8;
 
 interface ScreenStyleOptions {
   bottomInset: number;
@@ -107,12 +108,11 @@ const useStyles = createUseSheetStyle(
     scanTitle: {
       flex: 1,
     },
-    emptyWrap: {
-      position: 'absolute' as const,
-      top: EMPTY_TOP,
-      left: token.paddingLG,
-      right: token.paddingLG,
-      zIndex: 4,
+    scanRefresh: {
+      width: SCAN_REFRESH_SIZE,
+      height: SCAN_REFRESH_SIZE,
+      alignItems: 'center' as const,
+      justifyContent: 'center' as const,
     },
     connectedScroll: {
       flex: 1,
@@ -175,6 +175,7 @@ interface SentOfferSnapshot {
 export function BackupLanScreen() {
   const insets = useSafeAreaInsets();
   const styles = useStyles({ bottomInset: insets.bottom });
+  const { token } = useTheme();
   const navigation = useNavigation();
   const toast = useToast();
   const addHistory = useBackupHistoryStore(state => state.addEntry);
@@ -531,7 +532,10 @@ export function BackupLanScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.radarStage}>
-        <LanRadar paused={isSheetOpen || isTransferring} />
+        <LanRadar
+          paused={isSheetOpen || isTransferring}
+          peerCount={view.nearby.length}
+        />
 
         {view.connectedPeer ? (
           <ScrollView
@@ -599,28 +603,17 @@ export function BackupLanScreen() {
               <Text color="tertiary" size="xs">
                 {peers.length} 台 · 同一 Wi-Fi
               </Text>
+              <Pressable
+                hitSlop={SCAN_REFRESH_HIT_SLOP}
+                onPress={refreshNearby}
+                style={styles.scanRefresh}
+              >
+                <ArrowClockwiseIcon
+                  color={token.colorTextTertiary}
+                  size={SCAN_REFRESH_SIZE}
+                />
+              </Pressable>
             </View>
-
-            {view.session && peers.length === 0 ? (
-              <View style={styles.emptyWrap}>
-                <Card>
-                  <Empty
-                    action={
-                      <Button
-                        onPress={refreshNearby}
-                        size="small"
-                        type="primary"
-                      >
-                        重新搜索
-                      </Button>
-                    }
-                    descriptionText="确认两台设备连接同一 Wi-Fi，并保持此页面打开。关闭 VPN 后重试。"
-                    titleText="还没有发现设备"
-                    variant="boxed"
-                  />
-                </Card>
-              </View>
-            ) : null}
 
             {peers.map((peer, index) => (
               <LanDeviceCard

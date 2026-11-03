@@ -1,5 +1,15 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View } from 'react-native';
+import {
+  Easing,
+  cancelAnimation,
+  createAnimatedComponent,
+  useAnimatedStyle,
+  useReducedMotion,
+  useSharedValue,
+  withRepeat,
+  withTiming,
+} from 'react-native-reanimated';
 import {
   Button,
   Column,
@@ -13,9 +23,11 @@ import { formatLanCode } from '../../../features/backup/lanProtocol';
 import type { LanSessionInfo } from '../../../features/backup/lan';
 import { LanDeviceGlyph } from './LanDeviceGlyph';
 
+const AnimatedView = createAnimatedComponent(View);
 const LOCAL_CARD_Z_INDEX = 5;
 const ONLINE_DOT_SIZE = 8;
 const EMITTER_SIZE = 10;
+const EMITTER_BREATHE_MS = 1200;
 
 interface LanLocalCardProps {
   session: LanSessionInfo | null;
@@ -95,6 +107,34 @@ export function LanLocalCard({
   onRefresh,
 }: LanLocalCardProps) {
   const styles = useStyles();
+  const reduceMotion = useReducedMotion();
+  const breathe = useSharedValue(0);
+
+  useEffect(() => {
+    if (reduceMotion) {
+      cancelAnimation(breathe);
+      breathe.value = 0;
+      return undefined;
+    }
+
+    breathe.value = withRepeat(
+      withTiming(1, {
+        duration: EMITTER_BREATHE_MS / 2,
+        easing: Easing.inOut(Easing.quad),
+      }),
+      -1,
+      true,
+    );
+
+    return () => {
+      cancelAnimation(breathe);
+    };
+  }, [breathe, reduceMotion]);
+
+  const emitterStyle = useAnimatedStyle(() => ({
+    opacity: 1 - 0.38 * breathe.value,
+    transform: [{ scale: 1 + 0.28 * breathe.value }],
+  }));
 
   return (
     <View style={styles.card}>
@@ -132,7 +172,7 @@ export function LanLocalCard({
       <Text color="tertiary" size="xs">
         只通过局域网传输；内容由发送方勾选，可能包含 API Key 与访问令牌。
       </Text>
-      <View style={styles.emitter} />
+      <AnimatedView style={[styles.emitter, emitterStyle]} />
     </View>
   );
 }
