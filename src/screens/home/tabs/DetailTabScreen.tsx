@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { ScrollView, RefreshControl } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { useRequest } from 'ahooks';
@@ -14,9 +14,16 @@ import {
   useToast,
 } from '@pennyspring/ui';
 import { createUseSheetStyle } from '@pennyspring/ui';
-import { useBookStore, useGlobalApi } from '../../../stores/bookStore';
+import {
+  useBookKey,
+  useBookStore,
+  useGlobalApi,
+} from '../../../stores/bookStore';
+import {
+  bumpRecordVersion,
+  useRecordVersion,
+} from '../../../stores/syncVersionStore';
 import { ROOT_ROUTES, useNavigation } from '../../../navigation';
-import { useRecordSync } from '../recordSync';
 import { MonthSummaryCard } from './detail/MonthSummaryCard';
 import { DayGroupCard, DayGroupHeader } from './detail/DayGroupCard';
 import { RecordDetailPanel } from './detail/RecordDetailPanel';
@@ -63,7 +70,8 @@ export function DetailTabScreen() {
   const toast = useToast();
   const currentBook = useBookStore(state => state.currentBook);
   const globalApi = useGlobalApi();
-  const { version } = useRecordSync();
+  const bookKey = useBookKey();
+  const recordVersion = useRecordVersion();
   const [activeRecordId, setActiveRecordId] = useState<number | null>(null);
   const [pendingDeleteId, setPendingDeleteId] = useState<number | null>(null);
   const [selectedMonth, setSelectedMonth] = useState(() => new Date());
@@ -94,9 +102,16 @@ export function DetailTabScreen() {
       bookId
         ? globalApi.record.getListByBook(bookId, dataRange)
         : Promise.resolve([]),
-    { refreshDeps: [bookId, version, dataRange] },
+    { refreshDeps: [bookKey, recordVersion, dataRange] },
   );
   const refreshAll = useCallback(() => refresh(), [refresh]);
+
+  // 账本切换后，上一条账本的详情与筛选状态不能带入新账本。
+  useEffect(() => {
+    setActiveRecordId(null);
+    setPendingDeleteId(null);
+    setActiveFilter('all');
+  }, [bookKey]);
 
   const { groups, summary, dailyExpenses, counts, monthViews } = useMemo(() => {
     const selectedMonthViews = filterByMonth(records, selectedMonth);
@@ -157,7 +172,7 @@ export function DetailTabScreen() {
 
       await globalApi.record.delete(recordId, currentBook.id);
       closePanel();
-      refreshAll();
+      bumpRecordVersion();
       toast.show({ messageText: '已删除记录' });
     } catch {
       toast.show({ messageText: '删除失败，请稍后重试', status: 'error' });

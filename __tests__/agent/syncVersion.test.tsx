@@ -20,6 +20,7 @@ jest.mock('../../src/stores/bookStore', () => {
   const state = { currentBook: { id: 1 } };
   return {
     useGlobalApi: () => api,
+    useBookKey: () => 'local:1',
     useBookStore: (selector: (value: typeof state) => unknown) =>
       selector(state),
     __api: api,

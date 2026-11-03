@@ -13,6 +13,7 @@ const mockApi = {
 jest.mock('../src/stores/bookStore', () => ({
   useBookStore: (selector: (state: unknown) => unknown) =>
     selector({ currentBook: { id: 1 } }),
+  useBookKey: () => 'local:1',
   useGlobalApi: () => mockApi,
 }));
 

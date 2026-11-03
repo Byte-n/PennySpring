@@ -12,6 +12,7 @@ import {
   VISIBILITY,
 } from '@pennyspring/api';
 import { getGlobalApi } from '../../stores/bookStore';
+import { bumpRecordVersion } from '../../stores/syncVersionStore';
 
 export type AddRecordTabType = 'expense' | 'income' | 'transfer';
 export type TransferAssetRole = 'from' | 'to';
@@ -191,9 +192,10 @@ export async function saveAddRecordDraft(
   const api = getGlobalApi();
   if (editingRecordId !== undefined) {
     await api.record.update({ ...input, id: editingRecordId });
-    return;
+  } else {
+    await api.record.create(input);
   }
-  await api.record.create(input);
+  bumpRecordVersion();
 }
 
 function isVisibleAsset(asset: AssetRow): boolean {

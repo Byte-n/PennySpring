@@ -23,8 +23,11 @@ import {
   formatCentsAsExpression,
   getRelatedExpenseCandidates,
   normalizeMoneyTextToCents,
+  saveAddRecordDraft,
   validateAddRecordDraft,
 } from '../src/screens/addRecord/addRecordDraft';
+import { getGlobalApi } from '../src/stores/bookStore';
+import { useSyncVersionStore } from '../src/stores/syncVersionStore';
 
 const NOW = new Date('2026-05-24T12:00:00+08:00').getTime();
 
@@ -249,5 +252,68 @@ describe('addRecordDraft', () => {
         reimbursementType,
       ).map(record => record.id),
     ).toEqual([2]);
+  });
+});
+
+describe('saveAddRecordDraft', () => {
+  it('bumps the record version after a successful write', async () => {
+    const create = jest.fn(async () => 1);
+    jest.mocked(getGlobalApi).mockReturnValue({
+      record: { create, update: jest.fn() },
+    } as never);
+    const before = useSyncVersionStore.getState().recordVersion;
+
+    await saveAddRecordDraft(
+      'expense',
+      {
+        booksId: 1,
+        typeId: 1,
+        selectedType: typeRow({}),
+        amount: 1000,
+        charge: 0,
+        recordTime: NOW,
+        remark: '',
+        tagIds: [],
+        imagePaths: [],
+        relatedRecordIds: [],
+      },
+      undefined,
+    );
+
+    expect(create).toHaveBeenCalledTimes(1);
+    expect(useSyncVersionStore.getState().recordVersion).toBe(before + 1);
+  });
+
+  it('does not bump the record version when the write fails', async () => {
+    jest.mocked(getGlobalApi).mockReturnValue({
+      record: {
+        create: jest.fn(async () => {
+          throw new Error('database locked');
+        }),
+        update: jest.fn(),
+      },
+    } as never);
+    const before = useSyncVersionStore.getState().recordVersion;
+
+    await expect(
+      saveAddRecordDraft(
+        'expense',
+        {
+          booksId: 1,
+          typeId: 1,
+          selectedType: typeRow({}),
+          amount: 1000,
+          charge: 0,
+          recordTime: NOW,
+          remark: '',
+          tagIds: [],
+          imagePaths: [],
+          relatedRecordIds: [],
+        },
+        undefined,
+      ),
+    ).rejects.toThrow('database locked');
+
+    expect(useSyncVersionStore.getState().recordVersion).toBe(before);
   });
 });

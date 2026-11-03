@@ -116,4 +116,30 @@ describe('createDeleteRecordsTool', () => {
       '工具 deleteRecords 执行失败：database locked',
     );
   });
+
+  it('notifies after the whole batch is deleted', async () => {
+    const onRecordsChanged = jest.fn();
+    const execute = createExecute(createApi(), { onRecordsChanged });
+
+    await execute({ recordIds: [100] }, {});
+
+    expect(onRecordsChanged).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not notify when the delete is rejected', async () => {
+    const onRecordsChanged = jest.fn();
+    const execute = createExecute(
+      createApi({
+        deleteMany: jest.fn(async () => {
+          throw new Error('database locked');
+        }),
+      }),
+      { onRecordsChanged },
+    );
+
+    await expect(execute({ recordIds: [100] }, {})).rejects.toThrow(
+      '工具 deleteRecords 执行失败：database locked',
+    );
+    expect(onRecordsChanged).not.toHaveBeenCalled();
+  });
 });

@@ -130,6 +130,8 @@ export interface UpdateRecordsToolDeps {
   booksId: number;
   /** 当前会话可引用的图片附件，按 id 由模型选择。 */
   attachments?: readonly AgentAttachment[];
+  /** 批量更新成功后通知应用层失效记录数据。 */
+  onRecordsChanged?: () => void;
 }
 
 function resolveAllAttachments(
@@ -233,6 +235,7 @@ export function createUpdateRecordsTool(deps: UpdateRecordsToolDeps) {
       }
 
       const rows = await deps.api.record.updateMany(updateInputs);
+      deps.onRecordsChanged?.();
       return {
         ok: true,
         count: rows.length,

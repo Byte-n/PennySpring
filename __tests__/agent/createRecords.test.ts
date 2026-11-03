@@ -297,4 +297,30 @@ describe('createCreateRecordsTool', () => {
     ).rejects.toThrow('未知附件 id：att_missing');
     expect(createMany).not.toHaveBeenCalled();
   });
+
+  it('notifies after the whole batch is created', async () => {
+    const onRecordsChanged = jest.fn();
+    const execute = createExecute(createApi(), { onRecordsChanged });
+
+    await execute({ records: [{ typeId: 2, amount: 30 }] }, {});
+
+    expect(onRecordsChanged).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not notify when the create is rejected', async () => {
+    const onRecordsChanged = jest.fn();
+    const execute = createExecute(
+      createApi({
+        createMany: jest.fn(async () => {
+          throw new Error('database locked');
+        }),
+      }),
+      { onRecordsChanged },
+    );
+
+    await expect(
+      execute({ records: [{ typeId: 2, amount: 30 }] }, {}),
+    ).rejects.toThrow('工具 createRecords 执行失败：database locked');
+    expect(onRecordsChanged).not.toHaveBeenCalled();
+  });
 });

@@ -33,7 +33,7 @@ jest.mock('@pennyspring/api', () => ({
 }));
 
 import { createRemoteApi, localApi } from '@pennyspring/api';
-import { useBookStore } from '../src/stores/bookStore';
+import { getBookKey, useBookStore } from '../src/stores/bookStore';
 import { useNetworkBookStore } from '../src/stores/networkBookStore';
 
 const STORE_KEY = 'pennyspring-book-store';
@@ -150,5 +150,24 @@ describe('bookStore', () => {
       ...remoteBook,
     });
     expect(useBookStore.getState().currentBookRef).toEqual(networkRef);
+  });
+});
+
+describe('getBookKey', () => {
+  test('keeps local and remote books with the same numeric id distinct', () => {
+    const localKey = getBookKey({ kind: 'local', id: 1 });
+    const remoteKey = getBookKey({
+      kind: 'remote',
+      serverUrl: 'http://example.com',
+      bookId: 1,
+    });
+
+    expect(localKey).toBe('local:1');
+    expect(remoteKey).toBe('remote:http://example.com:1');
+    expect(localKey).not.toBe(remoteKey);
+  });
+
+  test('returns null when no book is selected', () => {
+    expect(getBookKey(null)).toBeNull();
   });
 });

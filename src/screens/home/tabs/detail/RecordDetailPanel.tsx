@@ -3,7 +3,12 @@ import { useWindowDimensions } from 'react-native';
 import { useRequest } from 'ahooks';
 import { Button, Empty, Loading, Popup, Row, Text } from '@pennyspring/ui';
 import { RECORD_TYPE_CATEGORY } from '@pennyspring/api';
-import { useBookStore, useGlobalApi } from '../../../../stores/bookStore';
+import {
+  useBookKey,
+  useBookStore,
+  useGlobalApi,
+} from '../../../../stores/bookStore';
+import { useRecordVersion } from '../../../../stores/syncVersionStore';
 import { RecordDetailContent } from './RecordDetailContent';
 import { useRecordDetailStyles } from './recordDetailStyles';
 import { buildDetailViews, type DetailRecordView } from './detailData';
@@ -66,6 +71,8 @@ export function RecordDetailPanel({
   const { height: viewportHeight } = useWindowDimensions();
   const currentBook = useBookStore(state => state.currentBook);
   const globalApi = useGlobalApi();
+  const bookKey = useBookKey();
+  const recordVersion = useRecordVersion();
   const bookId = currentBook?.id;
   const { data, loading, error } = useRequest<RecordDetailPanelData | null, []>(
     async () => {
@@ -121,8 +128,8 @@ export function RecordDetailPanel({
       };
     },
     {
-      ready: open && recordId !== null && Boolean(bookId),
-      refreshDeps: [open, recordId, bookId, globalApi],
+      ready: open && recordId !== null && Boolean(bookKey),
+      refreshDeps: [open, recordId, bookKey, recordVersion, globalApi],
     },
   );
   const detailData = data?.recordId === recordId ? data : null;

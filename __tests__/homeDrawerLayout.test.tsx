@@ -84,11 +84,6 @@ jest.mock('../src/navigation', () => ({
   useNavigation: () => mockNavigation,
 }));
 
-jest.mock('../src/screens/home/recordSync', () => ({
-  RecordSyncProvider: ({ children }: { children?: React.ReactNode }) =>
-    children ?? null,
-}));
-
 jest.mock('../src/screens/quickTemplate/QuickTemplatePanel', () => ({
   QuickTemplatePanel: () => null,
 }));

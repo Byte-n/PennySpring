@@ -1,6 +1,6 @@
 import { useRequest } from 'ahooks';
 
-import { useBookStore, useGlobalApi } from '../../stores/bookStore';
+import { useBookKey, useBookStore, useGlobalApi } from '../../stores/bookStore';
 import { useSyncVersionStore } from '../../stores/syncVersionStore';
 import type { QuickTemplate } from './types';
 
@@ -8,6 +8,7 @@ const EMPTY_TEMPLATES: QuickTemplate[] = [];
 
 export function useQuickTemplates() {
   const api = useGlobalApi();
+  const bookKey = useBookKey();
   const booksId = useBookStore(state => state.currentBook?.id);
   const version = useSyncVersionStore(state => state.templateVersion);
   const request = useRequest(
@@ -15,7 +16,7 @@ export function useQuickTemplates() {
       booksId === undefined
         ? Promise.resolve(EMPTY_TEMPLATES)
         : api.quickTemplate.list(booksId),
-    { refreshDeps: [api, booksId, version] },
+    { refreshDeps: [api, bookKey, version] },
   );
 
   return {

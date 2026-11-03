@@ -30,6 +30,19 @@ export type CurrentBookRef =
   | { kind: 'local'; id: number }
   | { kind: 'remote'; serverUrl: string; bookId: number };
 
+/**
+ * 账本的稳定身份键：本地账本按 id，网络账本按服务器 + 远程 id。
+ * 数据请求与视图依赖必须使用该键，不能只用数字 id——本地与网络账本可能同号。
+ */
+export function getBookKey(ref: CurrentBookRef | null): string | null {
+  if (!ref) {
+    return null;
+  }
+  return ref.kind === 'local'
+    ? `local:${ref.id}`
+    : `remote:${ref.serverUrl}:${ref.bookId}`;
+}
+
 export function getRemoteApi(
   serverUrl: string,
   token: string = getServerToken(serverUrl),
@@ -166,6 +179,11 @@ rehydrateBookStore = async (): Promise<void> => {
 export function useGlobalApi(): Api {
   const ref = useBookStore(state => state.currentBookRef);
   return createApiForRef(ref);
+}
+
+export function useBookKey(): string | null {
+  const ref = useBookStore(state => state.currentBookRef);
+  return getBookKey(ref);
 }
 
 export function getGlobalApi(): Api {

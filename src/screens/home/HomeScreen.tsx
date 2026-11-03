@@ -12,7 +12,6 @@ import {
   useNavigation,
 } from '../../navigation';
 import type { RootStackParamList } from '../../navigation/types';
-import { RecordSyncProvider } from './recordSync';
 import { QuickTemplatePanel } from '../quickTemplate/QuickTemplatePanel';
 import { DrawerContent } from './DrawerContent';
 
@@ -55,48 +54,46 @@ export function HomeScreen() {
   );
 
   return (
-    <RecordSyncProvider>
-      <SafeAreaView edges={['top']} style={styles.screen}>
-        <Drawer.Layout
-          onCancel={closeDrawer}
-          onOpenChange={setIsDrawerOpen}
-          open={isDrawerOpen}
-          renderDrawerContent={() => (
-            <DrawerContent onClose={closeDrawer} onNavigate={handleNavigate} />
-          )}
-          styles={drawerStyles}
-          width="82%"
-        >
-          <HomeTabsNavigator openDrawer={openDrawer} />
-        </Drawer.Layout>
-        {isFocused && (
-          <>
-            <AgentFloatingEntry />
-            <FloatingActionGroup
-              actions={[
-                {
-                  key: 'add-record',
-                  label: '记一笔',
-                  icon: 'plus',
-                  onPress: () => navigation.navigate(ROOT_ROUTES.AddRecord),
-                },
-                {
-                  key: 'quick-template',
-                  label: '快捷模板',
-                  icon: 'list',
-                  onPress: () => setIsTemplatePanelOpen(true),
-                },
-              ]}
-              draggable
-              snapToEdge
-            />
-          </>
+    <SafeAreaView edges={['top']} style={styles.screen}>
+      <Drawer.Layout
+        onCancel={closeDrawer}
+        onOpenChange={setIsDrawerOpen}
+        open={isDrawerOpen}
+        renderDrawerContent={() => (
+          <DrawerContent onClose={closeDrawer} onNavigate={handleNavigate} />
         )}
-        <QuickTemplatePanel
-          open={isTemplatePanelOpen}
-          onOpenChange={setIsTemplatePanelOpen}
-        />
-      </SafeAreaView>
-    </RecordSyncProvider>
+        styles={drawerStyles}
+        width="82%"
+      >
+        <HomeTabsNavigator openDrawer={openDrawer} />
+      </Drawer.Layout>
+      {isFocused && (
+        <>
+          <AgentFloatingEntry />
+          <FloatingActionGroup
+            actions={[
+              {
+                key: 'add-record',
+                label: '记一笔',
+                icon: 'plus',
+                onPress: () => navigation.navigate(ROOT_ROUTES.AddRecord),
+              },
+              {
+                key: 'quick-template',
+                label: '快捷模板',
+                icon: 'list',
+                onPress: () => setIsTemplatePanelOpen(true),
+              },
+            ]}
+            draggable
+            snapToEdge
+          />
+        </>
+      )}
+      <QuickTemplatePanel
+        open={isTemplatePanelOpen}
+        onOpenChange={setIsTemplatePanelOpen}
+      />
+    </SafeAreaView>
   );
 }

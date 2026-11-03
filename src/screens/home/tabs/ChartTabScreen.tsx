@@ -1,4 +1,10 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { RefreshControl, ScrollView } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { useRequest } from 'ahooks';
@@ -14,7 +20,12 @@ import type {
 } from '@pennyspring/api';
 
 import { ROOT_ROUTES, useNavigation } from '../../../navigation';
-import { useBookStore, useGlobalApi } from '../../../stores/bookStore';
+import {
+  useBookKey,
+  useBookStore,
+  useGlobalApi,
+} from '../../../stores/bookStore';
+import { useRecordVersion } from '../../../stores/syncVersionStore';
 import {
   createMonthPeriod,
   shiftMonth,
@@ -74,6 +85,8 @@ export function ChartTabScreen() {
   const navigation = useNavigation();
   const currentBook = useBookStore(state => state.currentBook);
   const globalApi = useGlobalApi();
+  const bookKey = useBookKey();
+  const recordVersion = useRecordVersion();
   const scrollRef = useRef<ScrollView>(null);
   const [now, setNow] = useState(() => new Date());
   const [anchor, setAnchor] = useState(
@@ -110,7 +123,7 @@ export function ChartTabScreen() {
       bookId
         ? globalApi.record.getByBook(bookId, dataRange)
         : Promise.resolve([]),
-    { refreshDeps: [bookId, dataRange] },
+    { refreshDeps: [bookKey, recordVersion, dataRange] },
   );
   const {
     data: types = [],
@@ -119,7 +132,7 @@ export function ChartTabScreen() {
   } = useRequest<TypeRow[], []>(
     () =>
       bookId ? globalApi.type.getAll(bookId, dataRange) : Promise.resolve([]),
-    { refreshDeps: [bookId, dataRange] },
+    { refreshDeps: [bookKey, recordVersion, dataRange] },
   );
   const {
     data: assets = [],
@@ -127,7 +140,7 @@ export function ChartTabScreen() {
     refresh: refreshAssets,
   } = useRequest<AssetRow[], []>(
     () => (bookId ? globalApi.asset.getByBook(bookId) : Promise.resolve([])),
-    { refreshDeps: [bookId] },
+    { refreshDeps: [bookKey, recordVersion] },
   );
   const {
     data: tags = [],
@@ -136,7 +149,7 @@ export function ChartTabScreen() {
   } = useRequest<TagRow[], []>(
     () =>
       bookId ? globalApi.tag.getAll(bookId, dataRange) : Promise.resolve([]),
-    { refreshDeps: [bookId, dataRange] },
+    { refreshDeps: [bookKey, recordVersion, dataRange] },
   );
   const {
     data: recordRelations = EMPTY_RELATIONS,
@@ -147,7 +160,7 @@ export function ChartTabScreen() {
       bookId
         ? globalApi.record.getRelationsByBook(bookId, dataRange)
         : Promise.resolve([]),
-    { refreshDeps: [bookId, dataRange] },
+    { refreshDeps: [bookKey, recordVersion, dataRange] },
   );
   const {
     data: recordTags = EMPTY_RECORD_TAGS,
@@ -165,7 +178,7 @@ export function ChartTabScreen() {
       }
       return map;
     },
-    { refreshDeps: [bookId, dataRange] },
+    { refreshDeps: [bookKey, recordVersion, dataRange] },
   );
 
   const isLoading =
@@ -230,6 +243,11 @@ export function ChartTabScreen() {
       refreshAllRef.current();
     }, []),
   );
+
+  // 类型筛选属于具体账本，切换后回到总览，避免旧账本的分类 id 命中新账本。
+  useEffect(() => {
+    setSelectedParentTypeId(null);
+  }, [bookKey]);
 
   const handlePrevious = useCallback(() => {
     updatePeriod(shiftMonth(anchor, -1));

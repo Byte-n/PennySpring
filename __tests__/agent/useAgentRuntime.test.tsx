@@ -25,6 +25,7 @@ jest.mock('../../src/stores/bookStore', () => {
   return {
     useBookStore: (selector: (value: typeof state) => unknown) =>
       selector(state),
+    useBookKey: () => 'local:1',
     useGlobalApi: () => ({
       agent: { appendMessages: jest.fn(async () => []) },
     }),

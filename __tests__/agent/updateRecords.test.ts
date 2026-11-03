@@ -345,4 +345,30 @@ describe('createUpdateRecordsTool', () => {
       execute({ updates: [{ recordId: 100, amount: 35 }] }, {}),
     ).rejects.toThrow('工具 updateRecords 执行失败：database locked');
   });
+
+  it('notifies after the whole batch is updated', async () => {
+    const onRecordsChanged = jest.fn();
+    const execute = createExecute(createApi(), { onRecordsChanged });
+
+    await execute({ updates: [{ recordId: 100, amount: 35 }] }, {});
+
+    expect(onRecordsChanged).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not notify when the update is rejected', async () => {
+    const onRecordsChanged = jest.fn();
+    const execute = createExecute(
+      createApi({
+        updateMany: jest.fn(async () => {
+          throw new Error('database locked');
+        }),
+      }),
+      { onRecordsChanged },
+    );
+
+    await expect(
+      execute({ updates: [{ recordId: 100, amount: 35 }] }, {}),
+    ).rejects.toThrow('工具 updateRecords 执行失败：database locked');
+    expect(onRecordsChanged).not.toHaveBeenCalled();
+  });
 });

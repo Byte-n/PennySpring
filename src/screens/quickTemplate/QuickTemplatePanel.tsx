@@ -18,11 +18,10 @@ import {
   saveAddRecordDraft,
   validateAddRecordDraft,
 } from '../addRecord/addRecordDraft';
-import { useBookStore, useGlobalApi } from '../../stores/bookStore';
+import { useBookKey, useBookStore, useGlobalApi } from '../../stores/bookStore';
 import { useSyncVersionStore } from '../../stores/syncVersionStore';
 import { ROOT_ROUTES, useNavigation } from '../../navigation';
 import { getPhosphorIconComponent } from '../../constants/typeIconTree';
-import { useRecordSync } from '../home/recordSync';
 import { buildDraftFromTemplate, tabTypeFor } from './buildDraft';
 import { toPresetPayload, toTemplatePayload } from './payload';
 import { useQuickTemplates } from './useQuickTemplates';
@@ -36,7 +35,7 @@ interface QuickTemplatePanelProps {
 /**
  * 快捷模板面板：单击直接记账、长按预填后新建、右滑编辑/删除、头部「+」新增模板。
  * 受控于 HomeScreen（open/onOpenChange）；悬浮按钮已合并进 HomeScreen 的 FloatingActionGroup。
- * 记账成功后通过 useRecordSync().bump 通知明细列表刷新。
+ * 记账写入统一走 saveAddRecordDraft，由写入层 bumpRecordVersion 通知订阅方刷新。
  * 模板编辑/新增复用 AddRecord 界面（template 模式）。
  */
 export function QuickTemplatePanel({
@@ -47,9 +46,9 @@ export function QuickTemplatePanel({
   const styles = useStyles();
   const toast = useToast();
   const navigation = useNavigation();
-  const { bump } = useRecordSync();
   const currentBook = useBookStore(state => state.currentBook);
   const globalApi = useGlobalApi();
+  const bookKey = useBookKey();
   const bumpTemplateVersion = useSyncVersionStore(
     state => state.bumpTemplateVersion,
   );
@@ -59,7 +58,7 @@ export function QuickTemplatePanel({
   const bookId = currentBook?.id;
   const { data: types = [] } = useRequest(
     () => (bookId ? globalApi.type.getAll(bookId) : Promise.resolve([])),
-    { refreshDeps: [bookId] },
+    { refreshDeps: [globalApi, bookKey] },
   );
   const typeMap = useMemo(
     () => new Map(types.map(type => [type.id, type])),
@@ -94,7 +93,6 @@ export function QuickTemplatePanel({
             `已记账 ¥${formatAmount(tpl.amount)} · ${tpl.name}`.trim(),
         });
         closePanel();
-        bump();
       } catch (error: unknown) {
         toast.show({
           messageText: error instanceof Error ? error.message : '记账失败',
@@ -103,7 +101,7 @@ export function QuickTemplatePanel({
         setBusyId(null);
       }
     },
-    [bump, closePanel, currentBook, toast, typeMap],
+    [closePanel, currentBook, toast, typeMap],
   );
 
   const handleEditFromPreset = useCallback(

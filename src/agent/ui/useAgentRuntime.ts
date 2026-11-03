@@ -8,7 +8,8 @@ import { useAuiState, type AssistantRuntime } from '@assistant-ui/react-native';
 import type { BookRow } from '@pennyspring/api';
 
 import { useMediaStore } from '../../media';
-import { useGlobalApi } from '../../stores/bookStore';
+import { useBookKey, useGlobalApi } from '../../stores/bookStore';
+import { bumpRecordVersion } from '../../stores/syncVersionStore';
 import { EMPTY_USAGE } from '../core/messages';
 import type { TokenUsage } from '../core/types';
 import { hasUiMessageContent, toPersistedUiInput } from '../core/uiMessages';
@@ -42,6 +43,7 @@ export function useAgentRuntime({
   initialMessages,
 }: UseAgentRuntimeOptions): AgentRuntimeHandle {
   const api = useGlobalApi();
+  const bookKey = useBookKey();
   const media = useMediaStore();
   const [errorText, setErrorText] = useState('');
   const usageRef = useRef<TokenUsage>(EMPTY_USAGE);
@@ -92,6 +94,7 @@ export function useAgentRuntime({
       persistUserMessage,
       ensureTitle,
       onRunStart: () => setErrorText(''),
+      onRecordsChanged: bumpRecordVersion,
     });
   }, [
     api,
@@ -137,7 +140,7 @@ export function useAgentRuntime({
   );
 
   const runtime = useChatRuntime<UIMessage>({
-    id: `agent-book-${book.id}`,
+    id: `agent-book-${bookKey ?? book.id}`,
     messages: initialMessages,
     transport,
     sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithApprovalResponses,

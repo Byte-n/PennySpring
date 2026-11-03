@@ -13,6 +13,8 @@ const mockGetProvider = jest.fn();
 const mockGetProviderKey = jest.fn();
 const mockCreateAgentUIStream = jest.fn();
 const mockCreateCreateRecordsTool = jest.fn((_deps: unknown) => ({}));
+const mockCreateUpdateRecordsTool = jest.fn((_deps: unknown) => ({}));
+const mockCreateDeleteRecordsTool = jest.fn((_deps: unknown) => ({}));
 const mockCreateAgent = jest.fn((_options: unknown) => ({
   id: 'test-agent',
 }));
@@ -48,12 +50,12 @@ jest.mock('../../src/agent/tools/createRecords', () => ({
 
 jest.mock('../../src/agent/tools/updateRecords', () => ({
   UPDATE_RECORDS_TOOL_NAME: 'updateRecords',
-  createUpdateRecordsTool: () => ({}),
+  createUpdateRecordsTool: (deps: unknown) => mockCreateUpdateRecordsTool(deps),
 }));
 
 jest.mock('../../src/agent/tools/deleteRecords', () => ({
   DELETE_RECORDS_TOOL_NAME: 'deleteRecords',
-  createDeleteRecordsTool: () => ({}),
+  createDeleteRecordsTool: (deps: unknown) => mockCreateDeleteRecordsTool(deps),
 }));
 
 jest.mock('../../src/agent/core/createAgent', () => ({
@@ -144,6 +146,7 @@ function createTransport(
     media?: MediaStore;
     persistUserMessage?: jest.Mock;
     ensureTitle?: jest.Mock;
+    onRecordsChanged?: () => void;
     usageRef?: {
       current: {
         promptTokens: number;
@@ -185,6 +188,7 @@ function createTransport(
     media,
     persistUserMessage,
     ensureTitle,
+    onRecordsChanged: overrides.onRecordsChanged,
   });
 
   return { transport, media, persistUserMessage, ensureTitle, usageRef };
@@ -691,5 +695,23 @@ describe('createAgentTransport', () => {
     await transport.sendMessages!(submitRequest([CAPTION_ONLY_MESSAGE]));
 
     expect(ensureTitle).toHaveBeenCalledWith(IMAGE_MESSAGE_TITLE);
+  });
+
+  it('passes the record change notifier to every record write tool', async () => {
+    mockGetThreadDetail.mockResolvedValue(threadDetail(1, 'gpt-5-vision'));
+    const onRecordsChanged = jest.fn();
+    const { transport } = createTransport({ onRecordsChanged });
+
+    await transport.sendMessages!(submitRequest([USER_MESSAGE]));
+
+    expect(mockCreateCreateRecordsTool).toHaveBeenCalledWith(
+      expect.objectContaining({ onRecordsChanged }),
+    );
+    expect(mockCreateUpdateRecordsTool).toHaveBeenCalledWith(
+      expect.objectContaining({ onRecordsChanged }),
+    );
+    expect(mockCreateDeleteRecordsTool).toHaveBeenCalledWith(
+      expect.objectContaining({ onRecordsChanged }),
+    );
   });
 });

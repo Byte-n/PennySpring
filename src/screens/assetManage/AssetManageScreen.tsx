@@ -49,7 +49,8 @@ import {
   ASSET_CLASSIFICATION_TREE,
   type AssetClassificationTreeNode,
 } from '../../constants/assetClassificationTree';
-import { useBookStore, useGlobalApi } from '../../stores/bookStore';
+import { useBookKey, useBookStore, useGlobalApi } from '../../stores/bookStore';
+import { useRecordVersion } from '../../stores/syncVersionStore';
 import { useNavigation } from '../../navigation';
 import { createHeaderAddButton } from '../../components/HeaderAddButton';
 import { ManageConfirmDialog } from '../../components/ManageConfirmDialog';
@@ -266,11 +267,16 @@ export function AssetManageScreen() {
   const navigation = useNavigation();
   const currentBook = useBookStore(state => state.currentBook);
   const globalApi = useGlobalApi();
+  const bookKey = useBookKey();
+  const recordVersion = useRecordVersion();
 
-  const { data, loading, refresh } = useRequest(() => {
-    if (!currentBook) return Promise.resolve<AssetRow[]>([]);
-    return globalApi.asset.getAll(currentBook.id);
-  });
+  const { data, loading, refresh } = useRequest(
+    () => {
+      if (!currentBook) return Promise.resolve<AssetRow[]>([]);
+      return globalApi.asset.getAll(currentBook.id);
+    },
+    { refreshDeps: [bookKey, recordVersion] },
+  );
 
   const assets = data ?? [];
   const overview = useMemo(() => buildAssetOverview(assets), [assets]);

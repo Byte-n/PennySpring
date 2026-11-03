@@ -26,6 +26,8 @@ export type DeleteRecordsToolInput = z.infer<typeof deleteRecordsInputSchema>;
 export interface DeleteRecordsToolDeps {
   api: Api;
   booksId: number;
+  /** 批量删除成功后通知应用层失效记录数据。 */
+  onRecordsChanged?: () => void;
 }
 
 export function createDeleteRecordsTool(deps: DeleteRecordsToolDeps) {
@@ -43,6 +45,7 @@ export function createDeleteRecordsTool(deps: DeleteRecordsToolDeps) {
         ),
       );
       await deps.api.record.deleteMany(input.recordIds, deps.booksId);
+      deps.onRecordsChanged?.();
       return {
         ok: true,
         count: input.recordIds.length,

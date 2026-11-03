@@ -69,6 +69,8 @@ export interface AgentTransportOptions {
   persistUserMessage: (message: UIMessage) => Promise<void>;
   ensureTitle: (text: string) => Promise<void>;
   onRunStart?: () => void;
+  /** 记录写工具成功后通知应用层失效数据。 */
+  onRecordsChanged?: () => void;
 }
 
 async function hydrateMessageFiles(
@@ -272,15 +274,18 @@ export function createAgentTransport(
           api: options.api,
           booksId: options.booksId,
           attachments,
+          onRecordsChanged: options.onRecordsChanged,
         }),
         [UPDATE_RECORDS_TOOL_NAME]: createUpdateRecordsTool({
           api: options.api,
           booksId: options.booksId,
           attachments,
+          onRecordsChanged: options.onRecordsChanged,
         }),
         [DELETE_RECORDS_TOOL_NAME]: createDeleteRecordsTool({
           api: options.api,
           booksId: options.booksId,
+          onRecordsChanged: options.onRecordsChanged,
         }),
       };
       const toolApproval = {
