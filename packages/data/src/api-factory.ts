@@ -130,10 +130,10 @@ export function createApi(getDatabase: () => Promise<Database>) {
         services.setAgentSelection(await getDatabase(), 'quickBook', selection),
     },
     agentConfig: {
-      exportConfig: async () =>
-        services.buildAiConfigSnapshot(await getDatabase()),
-      importConfig: async (snapshot: AiConfigSnapshot) =>
-        services.applyAiConfigSnapshot(await getDatabase(), snapshot),
+      exportConfig: async (booksId: number) =>
+        services.buildAiConfigSnapshot(await getDatabase(), booksId),
+      importConfig: async (snapshot: AiConfigSnapshot, booksId: number) =>
+        services.applyAiConfigSnapshot(await getDatabase(), snapshot, booksId),
     },
     credential: {
       hasKey: async (booksId: number, providerId: number) =>

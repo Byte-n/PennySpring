@@ -1,4 +1,8 @@
-import type { BookSnapshot, LibrarySnapshot } from '@pennyspring/api';
+import type {
+  AiConfigSnapshot,
+  BookSnapshot,
+  LibrarySnapshot,
+} from '@pennyspring/api';
 
 import {
   buildSnapshotPackage,
@@ -7,13 +11,63 @@ import {
   prepareImportedLibrary,
   unzipSnapshotPackage,
   zipSnapshotPackage,
+  type BookContentOptions,
   type TransferFileSystem,
 } from '../../src/features/transfer';
+import type { SettingsSnapshot } from '../../src/features/transfer/settings';
+import type { NetworkBooksSnapshot } from '../../src/features/transfer/networkBooks';
 
 const COVER_URI = 'file:///docs/cover.jpg';
 const RECEIPT_URI = 'file:///docs/receipt.jpg';
 const DATA_URL = 'data:image/jpeg;base64,QUJD';
 const NOW = 1_700_000_000_000;
+
+const AI_CONFIG: AiConfigSnapshot = {
+  providers: [
+    {
+      id: 1,
+      descriptorId: 'openai-compatible',
+      name: '主提供商',
+      baseUrl: 'https://api.example.com/v1',
+      defaultModelId: 'gpt-4.1',
+      models: [
+        {
+          modelId: 'gpt-4.1',
+          contextWindow: 200_000,
+          reasoningEffort: 'off',
+          multimodal: true,
+        },
+      ],
+      storeResponses: true,
+      apiKey: 'sk-package',
+    },
+  ],
+  agentSelection: { providerId: 1, modelId: 'gpt-4.1' },
+  quickBookSelection: { providerId: 0, modelId: '' },
+};
+
+const SETTINGS: SettingsSnapshot = {
+  quickBook: {
+    freshWindowSeconds: 90,
+    presetPrompt: '请识别截图中的消费信息',
+    nudgeEnabled: true,
+    autoApproveScreenshot: false,
+  },
+  theme: { themeMode: 'dark', themePreset: 'kaori' },
+};
+
+const NETWORK_BOOKS: NetworkBooksSnapshot = {
+  servers: [{ serverUrl: 'http://192.168.1.10:8787', token: 'token-a' }],
+  refs: [{ serverUrl: 'http://192.168.1.10:8787', bookId: 3 }],
+};
+
+function contentOptions(
+  includeImages: boolean,
+  includeAgent: boolean,
+  includeAiConfig = false,
+): Record<number, BookContentOptions> {
+  return { 1: { includeImages, includeAgent, includeAiConfig } };
+}
 
 class MemoryFileSystem implements TransferFileSystem {
   readonly readFiles = new Map<string, string>([
@@ -207,8 +261,7 @@ describe('snapshot package', () => {
     const pkg = await buildSnapshotPackage(
       makeLibrary(),
       {
-        includeImages: true,
-        includeAgent: true,
+        bookOptions: contentOptions(true, true),
         appVersion: 'test',
         createdAt: NOW,
       },
@@ -217,16 +270,21 @@ describe('snapshot package', () => {
 
     expect(pkg.manifest).toMatchObject({
       format: 'pennyspring.snapshot',
-      formatVersion: 1,
+      formatVersion: 2,
       appVersion: 'test',
       scope: 'book',
       media: { count: 3, totalBytes: 15 },
-      options: { includeImages: true, includeAgent: true },
+      options: { includeSettings: false, includeNetworkBooks: false },
     });
     expect(pkg.manifest.books[0]).toMatchObject({
       key: 'b1',
       name: '家庭账本',
       recordRange: [NOW, NOW],
+      options: {
+        includeImages: true,
+        includeAgent: true,
+        includeAiConfig: false,
+      },
     });
     expect(pkg.manifest.books[0]?.counts.records).toBe(1);
 
@@ -262,7 +320,7 @@ describe('snapshot package', () => {
     const fs = new MemoryFileSystem();
     const pkg = await buildSnapshotPackage(
       makeLibrary(),
-      { includeImages: true, includeAgent: true, createdAt: NOW },
+      { bookOptions: contentOptions(true, true), createdAt: NOW },
       fs,
     );
     const parsed = await parseSnapshotPackage(
@@ -291,7 +349,7 @@ describe('snapshot package', () => {
     const fs = new MemoryFileSystem();
     const pkg = await buildSnapshotPackage(
       makeLibrary(),
-      { includeImages: false, includeAgent: true, createdAt: NOW },
+      { bookOptions: contentOptions(false, true), createdAt: NOW },
       fs,
     );
 
@@ -310,7 +368,7 @@ describe('snapshot package', () => {
     const fs = new MemoryFileSystem();
     const pkg = await buildSnapshotPackage(
       makeLibrary(),
-      { includeImages: true, includeAgent: false, createdAt: NOW },
+      { bookOptions: contentOptions(true, false), createdAt: NOW },
       fs,
     );
 
@@ -325,11 +383,97 @@ describe('snapshot package', () => {
     expect(pkg.manifest.media.count).toBe(2);
   });
 
+  it('round-trips per-book ai config and system settings', async () => {
+    const fs = new MemoryFileSystem();
+    const pkg = await buildSnapshotPackage(
+      makeLibrary(),
+      {
+        bookOptions: contentOptions(true, false, true),
+        aiConfigs: { 1: AI_CONFIG },
+        settings: SETTINGS,
+        networkBooks: NETWORK_BOOKS,
+        createdAt: NOW,
+      },
+      fs,
+    );
+
+    expect(pkg.manifest.books[0]?.options).toMatchObject({
+      includeImages: true,
+      includeAgent: false,
+      includeAiConfig: true,
+    });
+    expect(pkg.manifest.options).toMatchObject({
+      includeSettings: true,
+      includeNetworkBooks: true,
+    });
+
+    const parsed = await parseSnapshotPackage(
+      await zipSnapshotPackage(pkg.files),
+    );
+    expect(parsed.bookAiConfigs).toEqual({ b1: AI_CONFIG });
+    expect(parsed.settings).toEqual(SETTINGS);
+    expect(parsed.networkBooks).toEqual(NETWORK_BOOKS);
+  });
+
+  it('supports config-only packages with system settings', async () => {
+    const fs = new MemoryFileSystem();
+    const pkg = await buildSnapshotPackage(
+      { books: [] },
+      {
+        bookOptions: {},
+        settings: SETTINGS,
+        networkBooks: NETWORK_BOOKS,
+        createdAt: NOW,
+      },
+      fs,
+    );
+
+    expect(pkg.manifest.books).toEqual([]);
+    const parsed = await parseSnapshotPackage(
+      await zipSnapshotPackage(pkg.files),
+    );
+    expect(parsed.settings).toEqual(SETTINGS);
+    expect(parsed.networkBooks).toEqual(NETWORK_BOOKS);
+  });
+
+  it('normalizes v1 global content options into per-book options', async () => {
+    const fs = new MemoryFileSystem();
+    const pkg = await buildSnapshotPackage(
+      makeLibrary(),
+      { bookOptions: contentOptions(false, true), createdAt: NOW },
+      fs,
+    );
+    const files = await unzipSnapshotPackage(
+      await zipSnapshotPackage(pkg.files),
+    );
+    const manifest = JSON.parse(
+      new TextDecoder().decode(files['manifest.json']),
+    ) as Record<string, unknown>;
+    manifest.formatVersion = 1;
+    manifest.options = { includeImages: false, includeAgent: true };
+    const legacyBook = (manifest.books as Array<Record<string, unknown>>)[0]!;
+    delete legacyBook.options;
+    files['manifest.json'] = new TextEncoder().encode(JSON.stringify(manifest));
+
+    const parsed = await parseSnapshotPackage(await zipSnapshotPackage(files));
+
+    expect(parsed.manifest.formatVersion).toBe(1);
+    expect(parsed.manifest.books[0]?.options).toEqual({
+      includeImages: false,
+      includeAgent: true,
+      includeAiConfig: false,
+    });
+    expect(parsed.manifest.options).toEqual({
+      includeSettings: false,
+      includeNetworkBooks: false,
+    });
+  });
+
   it('rejects a package missing a referenced media file', async () => {
     const fs = new MemoryFileSystem();
     const pkg = await buildSnapshotPackage(
       makeLibrary(),
-      { includeImages: true, includeAgent: false, createdAt: NOW },
+      { bookOptions: contentOptions(true, false), createdAt: NOW },
       fs,
     );
     const files = await unzipSnapshotPackage(

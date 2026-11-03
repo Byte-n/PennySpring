@@ -14,6 +14,8 @@ export type BackupHistoryKind =
   | 'settings-import'
   | 'ai-config-export'
   | 'ai-config-import'
+  | 'network-books-export'
+  | 'network-books-import'
   | 'lan-send'
   | 'lan-receive';
 

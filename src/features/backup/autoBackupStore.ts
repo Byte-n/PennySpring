@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
+import { DEFAULT_BOOK_CONTENT_OPTIONS } from '../transfer/contentSelection';
+import type { BookContentOptions } from '../transfer/types';
 import { bookStorage } from '../../stores/bookStorage';
 import type { BackupDirectoryTarget } from './directory';
 
@@ -15,9 +17,11 @@ export type AutoBackupRunStatus = 'success' | 'failed' | 'skipped' | '';
 export interface AutoBackupSettings {
   frequency: AutoBackupFrequency;
   customDays: number;
-  includeImages: boolean;
-  includeAgent: boolean;
-  bookIds: number[] | null;
+  selectedBookIds: number[] | null;
+  defaultBookOptions: BookContentOptions;
+  bookOptions: Record<number, BookContentOptions>;
+  includeSettings: boolean;
+  includeNetworkBooks: boolean;
   directory: BackupDirectoryTarget | null;
   retention: number | null;
   lastRunAt: number;
@@ -29,9 +33,11 @@ export interface AutoBackupSettings {
 interface AutoBackupStore extends AutoBackupSettings {
   setFrequency: (frequency: AutoBackupFrequency) => void;
   setCustomDays: (days: number) => void;
-  setIncludeImages: (includeImages: boolean) => void;
-  setIncludeAgent: (includeAgent: boolean) => void;
-  setBookIds: (bookIds: number[] | null) => void;
+  setSelectedBookIds: (bookIds: number[] | null) => void;
+  setDefaultBookOptions: (options: BookContentOptions) => void;
+  setBookOptions: (bookId: number, options: BookContentOptions) => void;
+  setIncludeSettings: (includeSettings: boolean) => void;
+  setIncludeNetworkBooks: (includeNetworkBooks: boolean) => void;
   setDirectory: (directory: BackupDirectoryTarget | null) => void;
   setRetention: (retention: number | null) => void;
   markRun: (input: {
@@ -42,12 +48,28 @@ interface AutoBackupStore extends AutoBackupSettings {
   }) => void;
 }
 
+interface LegacyAutoBackupSettings {
+  bookIds?: number[] | null;
+  includeImages?: boolean;
+  includeAgent?: boolean;
+  frequency?: AutoBackupFrequency;
+  customDays?: number;
+  directory?: BackupDirectoryTarget | null;
+  retention?: number | null;
+  lastRunAt?: number;
+  lastRunStatus?: AutoBackupRunStatus;
+  lastRunError?: string;
+  lastFileName?: string;
+}
+
 const DEFAULT_SETTINGS: AutoBackupSettings = {
   frequency: 'off',
   customDays: 7,
-  includeImages: true,
-  includeAgent: false,
-  bookIds: null,
+  selectedBookIds: null,
+  defaultBookOptions: DEFAULT_BOOK_CONTENT_OPTIONS,
+  bookOptions: {},
+  includeSettings: false,
+  includeNetworkBooks: false,
   directory: null,
   retention: DEFAULT_AUTO_BACKUP_RETENTION,
   lastRunAt: 0,
@@ -75,9 +97,15 @@ export const useAutoBackupStore = create<AutoBackupStore>()(
       setFrequency: frequency => set({ frequency }),
       setCustomDays: customDays =>
         set({ customDays: clampCustomDays(customDays) }),
-      setIncludeImages: includeImages => set({ includeImages }),
-      setIncludeAgent: includeAgent => set({ includeAgent }),
-      setBookIds: bookIds => set({ bookIds }),
+      setSelectedBookIds: selectedBookIds => set({ selectedBookIds }),
+      setDefaultBookOptions: defaultBookOptions => set({ defaultBookOptions }),
+      setBookOptions: (bookId, options) =>
+        set(state => ({
+          bookOptions: { ...state.bookOptions, [bookId]: options },
+        })),
+      setIncludeSettings: includeSettings => set({ includeSettings }),
+      setIncludeNetworkBooks: includeNetworkBooks =>
+        set({ includeNetworkBooks }),
       setDirectory: directory => set({ directory }),
       setRetention: retention => set({ retention: clampRetention(retention) }),
       markRun: ({ status, at, fileName, error }) =>
@@ -94,9 +122,11 @@ export const useAutoBackupStore = create<AutoBackupStore>()(
       partialize: (state): AutoBackupSettings => ({
         frequency: state.frequency,
         customDays: state.customDays,
-        includeImages: state.includeImages,
-        includeAgent: state.includeAgent,
-        bookIds: state.bookIds,
+        selectedBookIds: state.selectedBookIds,
+        defaultBookOptions: state.defaultBookOptions,
+        bookOptions: state.bookOptions,
+        includeSettings: state.includeSettings,
+        includeNetworkBooks: state.includeNetworkBooks,
         directory: state.directory,
         retention: state.retention,
         lastRunAt: state.lastRunAt,
@@ -104,8 +134,36 @@ export const useAutoBackupStore = create<AutoBackupStore>()(
         lastRunError: state.lastRunError,
         lastFileName: state.lastFileName,
       }),
+      migrate: (
+        persistedState: unknown,
+        version: number,
+      ): AutoBackupSettings => {
+        if (version < 2) {
+          const legacy = (persistedState ?? {}) as LegacyAutoBackupSettings;
+          return {
+            frequency: legacy.frequency ?? DEFAULT_SETTINGS.frequency,
+            customDays: legacy.customDays ?? DEFAULT_SETTINGS.customDays,
+            selectedBookIds: legacy.bookIds ?? null,
+            defaultBookOptions: {
+              includeImages: legacy.includeImages ?? true,
+              includeAgent: legacy.includeAgent ?? false,
+              includeAiConfig: true,
+            },
+            bookOptions: {},
+            includeSettings: false,
+            includeNetworkBooks: false,
+            directory: legacy.directory ?? null,
+            retention: legacy.retention ?? DEFAULT_SETTINGS.retention,
+            lastRunAt: legacy.lastRunAt ?? 0,
+            lastRunStatus: legacy.lastRunStatus ?? '',
+            lastRunError: legacy.lastRunError ?? '',
+            lastFileName: legacy.lastFileName ?? '',
+          };
+        }
+        return persistedState as AutoBackupSettings;
+      },
       skipHydration: true,
-      version: 1,
+      version: 2,
     },
   ),
 );
@@ -114,14 +172,23 @@ export async function rehydrateAutoBackup(): Promise<void> {
   await useAutoBackupStore.persist.rehydrate();
 }
 
+export function getBookContentOptions(
+  settings: AutoBackupSettings,
+  bookId: number,
+): BookContentOptions {
+  return settings.bookOptions[bookId] ?? settings.defaultBookOptions;
+}
+
 export function getAutoBackupSettings(): AutoBackupSettings {
   const state = useAutoBackupStore.getState();
   return {
     frequency: state.frequency,
     customDays: state.customDays,
-    includeImages: state.includeImages,
-    includeAgent: state.includeAgent,
-    bookIds: state.bookIds,
+    selectedBookIds: state.selectedBookIds,
+    defaultBookOptions: state.defaultBookOptions,
+    bookOptions: state.bookOptions,
+    includeSettings: state.includeSettings,
+    includeNetworkBooks: state.includeNetworkBooks,
     directory: state.directory,
     retention: state.retention,
     lastRunAt: state.lastRunAt,

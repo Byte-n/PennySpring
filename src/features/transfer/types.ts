@@ -1,13 +1,27 @@
-import type { LibrarySnapshot, SnapshotCounts } from '@pennyspring/api';
+import type {
+  AiConfigSnapshot,
+  LibrarySnapshot,
+  SnapshotCounts,
+} from '@pennyspring/api';
+
+import type { NetworkBooksSnapshot } from './networkBooks';
+import type { SettingsSnapshot } from './settings';
 
 export const SNAPSHOT_FORMAT = 'pennyspring.snapshot';
-export const SNAPSHOT_FORMAT_VERSION = 1;
+export const SNAPSHOT_FORMAT_VERSION = 2;
+
+export interface BookContentOptions {
+  includeImages: boolean;
+  includeAgent: boolean;
+  includeAiConfig: boolean;
+}
 
 export interface SnapshotManifestBook {
   key: string;
   name: string;
   counts: SnapshotCounts;
   recordRange: [number, number] | null;
+  options: BookContentOptions;
 }
 
 export interface SnapshotManifest {
@@ -22,8 +36,8 @@ export interface SnapshotManifest {
     totalBytes: number;
   };
   options: {
-    includeImages: boolean;
-    includeAgent: boolean;
+    includeSettings: boolean;
+    includeNetworkBooks: boolean;
   };
 }
 
@@ -38,6 +52,9 @@ export interface ParsedSnapshotPackage {
   manifest: SnapshotManifest;
   library: LibrarySnapshot;
   mediaFiles: Record<string, Uint8Array>;
+  bookAiConfigs: Record<string, AiConfigSnapshot>;
+  settings: SettingsSnapshot | null;
+  networkBooks: NetworkBooksSnapshot | null;
 }
 
 export interface TransferFileSystem {
@@ -47,8 +64,10 @@ export interface TransferFileSystem {
 }
 
 export interface BuildSnapshotPackageOptions {
-  includeImages: boolean;
-  includeAgent: boolean;
+  bookOptions: Record<number, BookContentOptions>;
+  aiConfigs?: Record<number, AiConfigSnapshot>;
+  settings?: SettingsSnapshot;
+  networkBooks?: NetworkBooksSnapshot;
   appVersion?: string;
   createdAt?: number;
 }

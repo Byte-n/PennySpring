@@ -41,6 +41,8 @@ const HISTORY_KIND_LABELS: Record<BackupHistoryKind, string> = {
   'settings-import': '设置包导入',
   'ai-config-export': 'AI 配置导出',
   'ai-config-import': 'AI 配置导入',
+  'network-books-export': '网络账本列表导出',
+  'network-books-import': '网络账本列表导入',
   'lan-send': '局域网发送',
   'lan-receive': '局域网接收',
 };
@@ -248,8 +250,8 @@ export function BackupHomeScreen() {
       <Card titleText="账本快照" variant="elevated">
         <Column gap="small">
           <Text color="secondary" size="sm">
-            完整导出本地账本的账本信息、资产、分类、标签、快捷模板和流水；图片可选，AI
-            会话默认关闭。导入时只新建账本，不覆盖现有数据。
+            按账本逐项选择业务数据、图片、AI 会话与 AI
+            设置；也可同时包含设置包与网络账本列表。导入时新建账本并恢复所选内容。
           </Text>
           <Column style={styles.actions}>
             <Button
@@ -257,7 +259,7 @@ export function BackupHomeScreen() {
               onPress={() => navigation.navigate(ROOT_ROUTES.BackupExport)}
               type="primary"
             >
-              导出账本
+              导出内容
             </Button>
             <Button
               block
@@ -274,10 +276,10 @@ export function BackupHomeScreen() {
         <Column style={styles.actions}>
           <Button
             block
-            onPress={() => navigation.navigate(ROOT_ROUTES.BackupAiConfig)}
+            onPress={() => navigation.navigate(ROOT_ROUTES.BackupNetworkBooks)}
             type="default"
           >
-            AI 配置包（不含 API Key）
+            网络账本列表（含访问令牌）
           </Button>
           <Button
             block
@@ -299,17 +301,14 @@ export function BackupHomeScreen() {
       <Card titleText="边界说明">
         <Column style={styles.note}>
           <Text size="sm" color="secondary">
-            包含：账本信息、资产、分类、标签、快捷模板、流水、可选图片、可选 AI
-            会话。
+            账本数据：账本信息、资产、分类、标签、快捷模板、流水，可选图片、AI
+            会话与 AI 设置（含当前账本 API Key）。
           </Text>
           <Text size="sm" color="secondary">
-            AI 配置包：提供商定义与模型选择，不含 API Key。
-          </Text>
-          <Text size="sm" color="secondary">
-            设置包：快捷记账设置与主题，不含网络账本和服务器连接。
+            系统设置：设置包（快捷记账与主题）与网络账本列表（服务器与访问令牌）。
           </Text>
           <Text size="sm" color="tertiary">
-            网络账本不在一期导出范围内。
+            自动备份、手动导出与局域网传输使用同一套内容选项。
           </Text>
         </Column>
       </Card>

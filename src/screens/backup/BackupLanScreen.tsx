@@ -33,10 +33,16 @@ import {
   writePackageToCache,
 } from '../../features/transfer/nativeFileSystem';
 import {
+  applyImportedPackageContent,
   buildExportPackage,
   importPackage,
 } from '../../features/transfer/operations';
-import { parseSnapshotPackage, totalRecords } from '../../features/transfer';
+import {
+  DEFAULT_BOOK_CONTENT_OPTIONS,
+  parseSnapshotPackage,
+  totalRecords,
+} from '../../features/transfer';
+import type { BookContentOptions } from '../../features/transfer/types';
 import type { LanPeer } from '../../features/backup/lanProtocol';
 import { ROOT_ROUTES, useNavigation } from '../../navigation';
 import {
@@ -198,8 +204,11 @@ export function BackupLanScreen() {
   } = useLanSession();
 
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
-  const [includeImages, setIncludeImages] = useState(true);
-  const [includeAgent, setIncludeAgent] = useState(false);
+  const [bookOptions, setBookOptions] = useState<
+    Record<number, BookContentOptions>
+  >({});
+  const [includeSettings, setIncludeSettings] = useState(false);
+  const [includeNetworkBooks, setIncludeNetworkBooks] = useState(false);
   const [preparing, setPreparing] = useState(false);
   const [importedResult, setImportedResult] =
     useState<ApplyLibrarySnapshotResult | null>(null);
@@ -278,29 +287,46 @@ export function BackupLanScreen() {
         try {
           const parsed = await parseSnapshotPackage(downloaded.bytes);
           const imported = await importPackage(parsed);
+          const applied = await applyImportedPackageContent(
+            parsed,
+            imported.result,
+          );
           const records = imported.result.books.reduce(
             (sum, book) => sum + book.counts.records,
             0,
           );
           if (!active) return;
-          setImportedResult(imported.result);
+          setImportedResult(
+            imported.result.books.length > 0 ? imported.result : null,
+          );
           addHistory({
             id: createBackupHistoryId(),
             kind: 'lan-receive',
             fileName: offer.fileName,
             sizeBytes: offer.sizeBytes,
             createdAt: Date.now(),
-            bookNames: offer.books.map(book => book.name),
-            recordCount: offer.totalRecords,
+            bookNames: parsed.manifest.books.map(book => book.name),
+            recordCount: records,
             uri: '',
             status: 'success',
             errorText: '',
           });
+          const parts: string[] = [];
+          if (imported.result.books.length > 0) {
+            parts.push(
+              `${imported.result.books.length} 个账本 · ${records.toLocaleString(
+                'zh-CN',
+              )} 条流水`,
+            );
+          }
+          if (applied.aiConfigsApplied > 0) {
+            parts.push(`${applied.aiConfigsApplied} 份 AI 设置`);
+          }
+          if (applied.settingsApplied) parts.push('设置包');
+          if (applied.networkBooks) parts.push('网络账本列表');
           await completeReceive(
             true,
-            `${imported.result.books.length} 个账本 · ${records.toLocaleString(
-              'zh-CN',
-            )} 条流水已创建`,
+            parts.length > 0 ? `已恢复 ${parts.join(' · ')}` : '内容已接收',
           );
         } finally {
           await downloaded.cleanup();
@@ -327,22 +353,22 @@ export function BackupLanScreen() {
     view.phase,
   ]);
 
-  const toggleBook = useCallback((bookId: number): void => {
-    setSelectedIds(current =>
-      current.includes(bookId)
-        ? current.filter(id => id !== bookId)
-        : [...current, bookId],
-    );
-  }, []);
-
   const handleSend = useCallback(async (): Promise<void> => {
-    if (preparing || selectedIds.length === 0) return;
+    const hasContent =
+      selectedIds.length > 0 || includeSettings || includeNetworkBooks;
+    if (preparing || !hasContent) return;
     setPreparing(true);
     try {
       const pkg = await buildExportPackage({
         bookIds: selectedIds,
-        includeImages,
-        includeAgent,
+        bookOptions: Object.fromEntries(
+          selectedIds.map(bookId => [
+            bookId,
+            bookOptions[bookId] ?? DEFAULT_BOOK_CONTENT_OPTIONS,
+          ]),
+        ),
+        includeSettings,
+        includeNetworkBooks,
       });
       const cacheUri = await writePackageToCache(
         pkg.fileName,
@@ -371,16 +397,26 @@ export function BackupLanScreen() {
           assets: book.counts.assets,
           images: book.counts.images,
         })),
+        includeSettings: pkg.manifest.options.includeSettings,
+        includeNetworkBooks: pkg.manifest.options.includeNetworkBooks,
       });
     } catch (error: unknown) {
       toast.show({
-        messageText: getErrorMessage(error, '打包账本失败'),
+        messageText: getErrorMessage(error, '打包内容失败'),
         status: 'error',
       });
     } finally {
       setPreparing(false);
     }
-  }, [includeAgent, includeImages, preparing, selectedIds, sendOffer, toast]);
+  }, [
+    bookOptions,
+    includeNetworkBooks,
+    includeSettings,
+    preparing,
+    selectedIds,
+    sendOffer,
+    toast,
+  ]);
 
   const handlePair = useCallback((): void => {
     if (!view.pairTarget) return;
@@ -523,16 +559,24 @@ export function BackupLanScreen() {
               <LanTransferCard transfer={view.transfer} />
             ) : (
               <LanSendPanel
+                bookOptions={bookOptions}
                 books={books}
                 busy={preparing || view.busy || view.phase === 'waiting-offer'}
-                includeAgent={includeAgent}
-                includeImages={includeImages}
+                defaultBookOptions={DEFAULT_BOOK_CONTENT_OPTIONS}
+                includeNetworkBooks={includeNetworkBooks}
+                includeSettings={includeSettings}
                 loading={booksLoading}
-                onIncludeAgentChange={setIncludeAgent}
-                onIncludeImagesChange={setIncludeImages}
+                onBookOptionsChange={(bookId, options) =>
+                  setBookOptions(current => ({
+                    ...current,
+                    [bookId]: options,
+                  }))
+                }
+                onIncludeNetworkBooksChange={setIncludeNetworkBooks}
+                onIncludeSettingsChange={setIncludeSettings}
+                onSelectedBookIdsChange={setSelectedIds}
                 onSend={handleSend}
-                onToggleBook={toggleBook}
-                selectedIds={selectedIds}
+                selectedBookIds={selectedIds}
               />
             )}
 

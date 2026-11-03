@@ -175,6 +175,8 @@ export function createLanMessageHandlers(ctx: LanMessageContext) {
         sizeBytes: message.sizeBytes,
         totalRecords: message.totalRecords,
         books: message.books,
+        includeSettings: message.includeSettings,
+        includeNetworkBooks: message.includeNetworkBooks,
       },
     });
   };

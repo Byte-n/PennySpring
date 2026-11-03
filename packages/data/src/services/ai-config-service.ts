@@ -1,6 +1,11 @@
 import { eq } from 'drizzle-orm';
 
-import { agentProviders, agentSelections, agentThreads } from '../schema';
+import {
+  agentProviders,
+  agentSelections,
+  agentThreads,
+  bookProviderKeys,
+} from '../schema';
 import type { Database } from '../types';
 import {
   getAllProviders,
@@ -20,6 +25,7 @@ import type {
 interface NormalizedProviderEntry {
   id: number;
   config: NormalizedProviderConfig;
+  apiKey: string;
 }
 
 interface ProviderKeyRow {
@@ -49,7 +55,7 @@ function normalizeProviders(
       throw new Error('AI 配置包含重复的提供商');
     }
     keys.add(key);
-    return { id: provider.id, config };
+    return { id: provider.id, config, apiKey: provider.apiKey?.trim() ?? '' };
   });
 }
 
@@ -110,12 +116,25 @@ function upsertSelection(
 
 export async function buildAiConfigSnapshot(
   db: Database,
+  booksId: number,
 ): Promise<AiConfigSnapshot> {
-  const [providers, agentSelection, quickBookSelection] = await Promise.all([
-    getAllProviders(db),
-    getAgentSelection(db, 'agent'),
-    getAgentSelection(db, 'quickBook'),
-  ]);
+  const [providers, agentSelection, quickBookSelection, keyRows] =
+    await Promise.all([
+      getAllProviders(db),
+      getAgentSelection(db, 'agent'),
+      getAgentSelection(db, 'quickBook'),
+      db
+        .select({
+          providerId: bookProviderKeys.providerId,
+          apiKey: bookProviderKeys.apiKey,
+        })
+        .from(bookProviderKeys)
+        .where(eq(bookProviderKeys.booksId, booksId))
+        .all(),
+    ]);
+  const keysByProvider = new Map(
+    keyRows.map(row => [row.providerId, row.apiKey]),
+  );
 
   return {
     providers: providers.map(provider => ({
@@ -126,6 +145,7 @@ export async function buildAiConfigSnapshot(
       defaultModelId: provider.defaultModelId,
       models: provider.models,
       storeResponses: provider.storeResponses,
+      apiKey: keysByProvider.get(provider.id) ?? '',
     })),
     agentSelection,
     quickBookSelection,
@@ -135,6 +155,7 @@ export async function buildAiConfigSnapshot(
 export async function applyAiConfigSnapshot(
   db: Database,
   snapshot: AiConfigSnapshot,
+  booksId: number,
 ): Promise<ApplyAiConfigResult> {
   const normalizedProviders = normalizeProviders(snapshot.providers);
 
@@ -233,11 +254,27 @@ export async function applyAiConfigSnapshot(
       mapSelection(snapshot.quickBookSelection, providerIdMap, providersById),
     );
 
+    let keysUpdated = 0;
+    for (const entry of normalizedProviders) {
+      if (!entry.apiKey) continue;
+      const providerId = providerIdMap[entry.id];
+      if (providerId === undefined) continue;
+      await tx
+        .insert(bookProviderKeys)
+        .values({ booksId, providerId, apiKey: entry.apiKey })
+        .onConflictDoUpdate({
+          target: [bookProviderKeys.booksId, bookProviderKeys.providerId],
+          set: { apiKey: entry.apiKey, updatedTime: Date.now() },
+        });
+      keysUpdated += 1;
+    }
+
     return {
       providerIdMap,
       providersCreated,
       providersUpdated,
       threadsUpdated,
+      keysUpdated,
     };
   });
 }

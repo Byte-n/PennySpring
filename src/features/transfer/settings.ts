@@ -79,6 +79,16 @@ const manifestSchema = z.object({
   createdAt: z.number().int().nonnegative(),
 });
 
+export function parseSettingsSnapshot(value: unknown): SettingsSnapshot {
+  const result = settingsSchema.safeParse(value);
+  if (!result.success) {
+    throw new Error(
+      `设置包内容格式不正确: ${result.error.issues[0]?.message ?? '未知错误'}`,
+    );
+  }
+  return result.data as SettingsSnapshot;
+}
+
 function readJson(files: PackageFiles, path: string): unknown {
   const file = files[path];
   if (!file) throw new Error(`设置包缺少文件: ${path}`);
@@ -130,18 +140,9 @@ export async function parseSettingsPackage(
     throw new Error('设置包版本过高，请升级 PennySpring 后再导入');
   }
 
-  const settingsResult = settingsSchema.safeParse(
-    readJson(files, 'settings.json'),
-  );
-  if (!settingsResult.success) {
-    throw new Error(
-      `设置包内容格式不正确: ${settingsResult.error.issues[0]?.message ?? '未知错误'}`,
-    );
-  }
-
   return {
     manifest: manifestResult.data,
-    settings: settingsResult.data as SettingsSnapshot,
+    settings: parseSettingsSnapshot(readJson(files, 'settings.json')),
   };
 }
 

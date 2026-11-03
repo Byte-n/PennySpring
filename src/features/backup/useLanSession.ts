@@ -506,6 +506,8 @@ export function useLanSession() {
           sizeBytes: input.sizeBytes,
           totalRecords: input.totalRecords,
           books: input.books,
+          includeSettings: input.includeSettings,
+          includeNetworkBooks: input.includeNetworkBooks,
         };
         await sendTo(state.connectedPeer, {
           kind: 'offer',
@@ -516,6 +518,8 @@ export function useLanSession() {
           sizeBytes: input.sizeBytes,
           totalRecords: input.totalRecords,
           books: input.books,
+          includeSettings: input.includeSettings,
+          includeNetworkBooks: input.includeNetworkBooks,
         });
         if (!mountedRef.current) return;
         commit({

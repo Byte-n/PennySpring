@@ -10,6 +10,7 @@ import { buildExportPackage } from '../transfer/operations';
 import { totalRecords } from '../transfer/summary';
 import {
   getAutoBackupSettings,
+  getBookContentOptions,
   useAutoBackupStore,
   type AutoBackupSettings,
 } from './autoBackupStore';
@@ -123,20 +124,28 @@ async function executeAutoBackup(): Promise<AutoBackupRunResult> {
   try {
     const books = await localApi.book.getAll();
     const selected =
-      settings.bookIds === null
+      settings.selectedBookIds === null
         ? books
-        : books.filter(book => settings.bookIds?.includes(book.id) ?? false);
+        : books.filter(
+            book => settings.selectedBookIds?.includes(book.id) ?? false,
+          );
+    const hasSystemContent =
+      settings.includeSettings || settings.includeNetworkBooks;
 
-    if (selected.length === 0) {
-      const errorText = '没有可备份的本地账本';
+    if (selected.length === 0 && !hasSystemContent) {
+      const errorText = '没有可备份的内容';
       markRun({ status: 'skipped', at: now.getTime(), error: errorText });
       return { status: 'skipped', fileName: '', sizeBytes: 0, errorText };
     }
 
+    const bookOptions = Object.fromEntries(
+      selected.map(book => [book.id, getBookContentOptions(settings, book.id)]),
+    );
     const pkg = await buildExportPackage({
       bookIds: selected.map(book => book.id),
-      includeAgent: settings.includeAgent,
-      includeImages: settings.includeImages,
+      bookOptions,
+      includeSettings: settings.includeSettings,
+      includeNetworkBooks: settings.includeNetworkBooks,
     });
     const fileName = createAutoBackupFileName(now);
     const base64 = fromByteArray(pkg.zip);

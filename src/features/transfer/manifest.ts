@@ -19,11 +19,18 @@ const countsSchema = z.object({
   agentMessages: z.number().int().nonnegative(),
 });
 
+const bookOptionsSchema = z.object({
+  includeImages: z.boolean(),
+  includeAgent: z.boolean(),
+  includeAiConfig: z.boolean(),
+});
+
 const bookSchema = z.object({
   key: z.string().min(1),
   name: z.string(),
   counts: countsSchema,
   recordRange: z.tuple([z.number(), z.number()]).nullable(),
+  options: bookOptionsSchema.optional(),
 });
 
 const manifestSchema = z.object({
@@ -32,14 +39,17 @@ const manifestSchema = z.object({
   appVersion: z.string(),
   createdAt: z.number().int().nonnegative(),
   scope: z.enum(['book', 'library']),
-  books: z.array(bookSchema).min(1),
+  books: z.array(bookSchema),
   media: z.object({
     count: z.number().int().nonnegative(),
     totalBytes: z.number().int().nonnegative(),
   }),
   options: z.object({
-    includeImages: z.boolean(),
-    includeAgent: z.boolean(),
+    // v1 把图片与 AI 会话放在全局；读取后下放到每本账本
+    includeImages: z.boolean().optional(),
+    includeAgent: z.boolean().optional(),
+    includeSettings: z.boolean().default(false),
+    includeNetworkBooks: z.boolean().default(false),
   }),
 });
 
@@ -53,12 +63,43 @@ export function parseSnapshotManifest(value: unknown): SnapshotManifest {
   if (result.data.formatVersion > SNAPSHOT_FORMAT_VERSION) {
     throw new Error('备份版本过高，请升级 PennySpring 后再导入');
   }
+
+  const books = result.data.books.map(book => ({
+    ...book,
+    options: book.options ?? {
+      includeImages: result.data.options.includeImages ?? true,
+      includeAgent: result.data.options.includeAgent ?? false,
+      includeAiConfig: false,
+    },
+  }));
+  const options = {
+    includeSettings: result.data.options.includeSettings,
+    includeNetworkBooks: result.data.options.includeNetworkBooks,
+  };
+  if (
+    books.length === 0 &&
+    !options.includeSettings &&
+    !options.includeNetworkBooks
+  ) {
+    throw new Error('备份清单格式不正确: 至少包含一项内容');
+  }
+
   const keys = new Set<string>();
-  for (const book of result.data.books) {
+  for (const book of books) {
     if (keys.has(book.key)) {
       throw new Error(`备份清单存在重复账本: ${book.key}`);
     }
     keys.add(book.key);
   }
-  return result.data;
+
+  return {
+    format: result.data.format,
+    formatVersion: result.data.formatVersion,
+    appVersion: result.data.appVersion,
+    createdAt: result.data.createdAt,
+    scope: result.data.scope,
+    books,
+    media: result.data.media,
+    options,
+  };
 }

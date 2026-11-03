@@ -3,6 +3,13 @@ export {
   rewriteAgentMessageIds,
   rewriteAgentMessageMedia,
 } from './agentMessages';
+export {
+  createTransferContentSelection,
+  DEFAULT_BOOK_CONTENT_OPTIONS,
+  hasTransferContent,
+  type BookContentSelection,
+  type TransferContentSelection,
+} from './contentSelection';
 export { parseSnapshotManifest } from './manifest';
 export {
   base64ByteLength,
@@ -39,6 +46,7 @@ export {
   SNAPSHOT_FORMAT_VERSION,
   type BuildSnapshotPackageOptions,
   type BuiltSnapshotPackage,
+  type BookContentOptions,
   type ParsedSnapshotPackage,
   type PreparedSnapshotImport,
   type SnapshotManifest,

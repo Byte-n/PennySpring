@@ -16,7 +16,7 @@ export const ROOT_ROUTES = {
   BackupExport: 'BackupExport',
   BackupImport: 'BackupImport',
   BackupAuto: 'BackupAuto',
-  BackupAiConfig: 'BackupAiConfig',
+  BackupNetworkBooks: 'BackupNetworkBooks',
   BackupSettings: 'BackupSettings',
   BackupLan: 'BackupLan',
   BackupLanSend: 'BackupLanSend',

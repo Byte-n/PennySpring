@@ -130,7 +130,7 @@ export function LanLocalCard({
         对方连接你时输入这组口令 · 10 分钟后自动刷新
       </Text>
       <Text color="tertiary" size="xs">
-        只通过局域网传输；不包含 API Key 或服务器连接。
+        只通过局域网传输；内容由发送方勾选，可能包含 API Key 与访问令牌。
       </Text>
       <View style={styles.emitter} />
     </View>

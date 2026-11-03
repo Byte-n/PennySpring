@@ -317,25 +317,30 @@ export function LanOfferSheet({
           传输提议
         </Text>
         <Text color="secondary" size="sm">
-          {offer?.peer.name ?? '对方设备'} 想发送 {offer?.books.length ?? 0}{' '}
-          个账本
+          {offer?.peer.name ?? '对方设备'} 想发送：
+          {offer?.books.length ? `${offer.books.length} 个账本` : '系统设置'}
+          {offer?.includeSettings ? ' · 设置包' : ''}
+          {offer?.includeNetworkBooks ? ' · 网络账本列表' : ''}
         </Text>
 
-        <View style={styles.bookList}>
-          {offer?.books.map((book, index) => (
-            <Row
-              align="center"
-              justify="between"
-              key={`${book.name}-${index}`}
-              style={styles.bookRow}
-            >
-              <Text size="sm">{book.name}</Text>
-              <Text color="tertiary" size="xs">
-                {book.records.toLocaleString('zh-CN')} 条 · {book.assets} 个资产
-              </Text>
-            </Row>
-          ))}
-        </View>
+        {offer && offer.books.length > 0 ? (
+          <View style={styles.bookList}>
+            {offer.books.map((book, index) => (
+              <Row
+                align="center"
+                justify="between"
+                key={`${book.name}-${index}`}
+                style={styles.bookRow}
+              >
+                <Text size="sm">{book.name}</Text>
+                <Text color="tertiary" size="xs">
+                  {book.records.toLocaleString('zh-CN')} 条 · {book.assets}{' '}
+                  个资产
+                </Text>
+              </Row>
+            ))}
+          </View>
+        ) : null}
 
         <View style={styles.verifyStrip}>
           <Text color="secondary" size="sm">
@@ -347,8 +352,10 @@ export function LanOfferSheet({
           </Text>
         </View>
         <Text color="tertiary" size="xs">
-          会新建账本，不覆盖现有数据；不包含 API Key、AI
-          提供商配置或服务器连接。
+          {offer && offer.books.length > 0
+            ? '会新建账本，并恢复包内包含的 AI 设置与系统设置；'
+            : '会恢复包内包含的系统设置；'}
+          网络账本列表会合并，不删除本机已有项。
         </Text>
 
         <Row gap="small" style={styles.actions}>
@@ -393,7 +400,9 @@ export function LanOfferWaitingSheet({
         <Loading text="等待对方接受" variant="block" />
         <Text color="secondary" size="sm" textAlign="center">
           已向 {offer?.peer.name ?? '对方设备'} 发送传输提议：
-          {offer?.books.length ?? 0} 个账本 ·{' '}
+          {offer?.books.length ? `${offer.books.length} 个账本` : '系统设置'}
+          {offer?.includeSettings ? ' · 设置包' : ''}
+          {offer?.includeNetworkBooks ? ' · 网络账本列表' : ''} ·{' '}
           {(offer?.totalRecords ?? 0).toLocaleString('zh-CN')} 条流水 ·{' '}
           {formatBytes(offer?.sizeBytes ?? 0)}
         </Text>

@@ -17,6 +17,18 @@ jest.mock('react-native-safe-area-context', () => ({
 }));
 
 jest.mock('@pennyspring/theme', () => ({
+  themePresets: [
+    'default',
+    'april',
+    'kaori',
+    'penny',
+    'spring',
+    'yonder',
+    'mauve',
+    'cocoa',
+    'slate',
+    'mono',
+  ].map(value => ({ label: value, value, data: {} })),
   ThemeProvider: ({ children }: { children: React.ReactNode }) => children,
   useTheme: () => ({
     token: {

@@ -5,16 +5,13 @@ import {
   ActionSheet,
   Button,
   Card,
-  Checkbox,
   Column,
   Input,
   Row,
-  Switch,
   Text,
   createUseSheetStyle,
   useToast,
 } from '@pennyspring/ui';
-import type { BookRow } from '@pennyspring/api';
 import { localApi } from '@pennyspring/api';
 
 import {
@@ -29,6 +26,7 @@ import {
   isCustomDirectorySupported,
   pickBackupDirectory,
 } from '../../features/backup/directory';
+import { BackupContentSelector } from './components/BackupContentSelector';
 
 const FREQUENCIES: Array<{ value: AutoBackupFrequency; label: string }> = [
   { value: 'off', label: '关闭' },
@@ -58,9 +56,6 @@ const useStyles = createUseSheetStyle(token => ({
   },
   section: {
     gap: token.marginSM,
-  },
-  books: {
-    gap: token.marginXS,
   },
   bookText: {
     flex: 1,
@@ -120,8 +115,8 @@ export function BackupAutoScreen() {
     () => FREQUENCIES.map(item => ({ text: item.label })),
     [],
   );
-  const selectedBookIds = settings.bookIds ?? books.map(book => book.id);
-  const isAllBooks = settings.bookIds === null;
+  const selectedBookIds =
+    settings.selectedBookIds ?? books.map(book => book.id);
 
   const handleFrequencyAction = useCallback(
     (_action: unknown, index: number): void => {
@@ -144,23 +139,6 @@ export function BackupAutoScreen() {
     settings.setRetention(retention);
     setRetentionText(retention === null ? '0' : String(retention));
   }, [retentionText, settings]);
-
-  const toggleAllBooks = useCallback(
-    (value: boolean): void => {
-      settings.setBookIds(value ? null : books.map(book => book.id));
-    },
-    [books, settings],
-  );
-
-  const toggleBook = useCallback(
-    (book: BookRow): void => {
-      const current = new Set(selectedBookIds);
-      if (current.has(book.id)) current.delete(book.id);
-      else current.add(book.id);
-      settings.setBookIds(Array.from(current));
-    },
-    [selectedBookIds, settings],
-  );
 
   const handlePickDirectory = useCallback(async (): Promise<void> => {
     if (directoryBusy) return;
@@ -240,66 +218,24 @@ export function BackupAutoScreen() {
           </Column>
         </Card>
 
-        <Card titleText="备份内容">
-          <Column style={styles.section}>
-            <Row align="center" justify="between" gap="small">
-              <Column style={styles.bookText}>
-                <Text>全部本地账本</Text>
-                <Text color="secondary" size="sm">
-                  关闭后可选择要自动备份的账本。
-                </Text>
-              </Column>
-              <Switch onChange={toggleAllBooks} value={isAllBooks} />
-            </Row>
-            {!isAllBooks ? (
-              loading ? (
-                <Text color="secondary" size="sm">
-                  正在读取本地账本…
-                </Text>
-              ) : books.length === 0 ? (
-                <Text color="secondary" size="sm">
-                  没有本地账本。
-                </Text>
-              ) : (
-                <Column style={styles.books}>
-                  {books.map(book => (
-                    <Checkbox
-                      key={book.id}
-                      onChange={() => toggleBook(book)}
-                      value={selectedBookIds.includes(book.id)}
-                    >
-                      <Text>{book.name}</Text>
-                    </Checkbox>
-                  ))}
-                </Column>
-              )
-            ) : null}
-            <Row align="center" justify="between" gap="small">
-              <Column style={styles.bookText}>
-                <Text>图片附件</Text>
-                <Text color="secondary" size="sm">
-                  账本封面与流水图片会写入备份包。
-                </Text>
-              </Column>
-              <Switch
-                onChange={settings.setIncludeImages}
-                value={settings.includeImages}
-              />
-            </Row>
-            <Row align="center" justify="between" gap="small">
-              <Column style={styles.bookText}>
-                <Text>AI 会话</Text>
-                <Text color="secondary" size="sm">
-                  包含会话、消息和消息中的图片。
-                </Text>
-              </Column>
-              <Switch
-                onChange={settings.setIncludeAgent}
-                value={settings.includeAgent}
-              />
-            </Row>
-          </Column>
-        </Card>
+        <BackupContentSelector
+          bookOptions={settings.bookOptions}
+          books={books}
+          defaultBookOptions={settings.defaultBookOptions}
+          includeNetworkBooks={settings.includeNetworkBooks}
+          includeSettings={settings.includeSettings}
+          loading={loading}
+          onBookOptionsChange={settings.setBookOptions}
+          onIncludeNetworkBooksChange={settings.setIncludeNetworkBooks}
+          onIncludeSettingsChange={settings.setIncludeSettings}
+          onSelectedBookIdsChange={ids =>
+            settings.setSelectedBookIds(
+              ids.length === books.length && books.length > 0 ? null : ids,
+            )
+          }
+          selectedBookIds={selectedBookIds}
+          showSelectAll
+        />
 
         <Card titleText="保存位置">
           <Column style={styles.section}>

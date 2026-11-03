@@ -51,6 +51,8 @@ export interface LanOfferMessage extends LanMessageBase {
   sizeBytes: number;
   books: LanBookSummary[];
   totalRecords: number;
+  includeSettings?: boolean;
+  includeNetworkBooks?: boolean;
 }
 
 export type LanOfferRejectReason = 'denied' | 'busy' | 'expired';
@@ -237,6 +239,8 @@ export function parseLanMessage(body: string): LanMessage | null {
         sizeBytes,
         books,
         totalRecords,
+        includeSettings: value.includeSettings === true,
+        includeNetworkBooks: value.includeNetworkBooks === true,
       };
     }
     case 'offer-response': {

@@ -1,6 +1,11 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
+import {
+  mergeNetworkBooks,
+  type NetworkBookMergeResult,
+  type NetworkBooksSnapshot,
+} from '../features/transfer/networkBooks';
 import { bookStorage } from './bookStorage';
 
 const NETWORK_BOOK_STORE_KEY = 'pennyspring-network-books';
@@ -21,6 +26,7 @@ interface NetworkBookStoreState {
   removeRef: (serverUrl: string, bookId: number) => void;
   setRefs: (refs: NetworkBookRef[]) => void;
   setServerToken: (serverUrl: string, token: string) => void;
+  mergeSnapshot: (snapshot: NetworkBooksSnapshot) => NetworkBookMergeResult;
 }
 
 interface PersistedNetworkBookStore {
@@ -60,6 +66,14 @@ export const useNetworkBookStore = create<NetworkBookStoreState>()(
           return;
         }
         set({ tokens: { ...get().tokens, [serverUrl]: token } });
+      },
+      mergeSnapshot: snapshot => {
+        const merged = mergeNetworkBooks(
+          { refs: get().refs, tokens: get().tokens },
+          snapshot,
+        );
+        set({ refs: merged.refs, tokens: merged.tokens });
+        return merged;
       },
     }),
     {

@@ -318,6 +318,7 @@ export interface AiConfigProvider {
   defaultModelId: string;
   models: AgentProviderModel[];
   storeResponses: boolean;
+  apiKey: string;
 }
 
 export interface AiConfigSnapshot {
@@ -331,6 +332,7 @@ export interface ApplyAiConfigResult {
   providersCreated: number;
   providersUpdated: number;
   threadsUpdated: number;
+  keysUpdated: number;
 }
 
 export type { AgentReasoningEffort, AgentSelectionScope };

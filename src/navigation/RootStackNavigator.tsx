@@ -6,12 +6,12 @@ import { AddRecordScreen } from '../screens/addRecord/AddRecordScreen';
 import { AboutScreen } from '../screens/about/AboutScreen';
 import { AgentSettingsScreen } from '../screens/agentSettings/AgentSettingsScreen';
 import { AssetManageScreen } from '../screens/assetManage/AssetManageScreen';
-import { BackupAiConfigScreen } from '../screens/backup/BackupAiConfigScreen';
 import { BackupAutoScreen } from '../screens/backup/BackupAutoScreen';
 import { BackupExportScreen } from '../screens/backup/BackupExportScreen';
 import { BackupHomeScreen } from '../screens/backup/BackupHomeScreen';
 import { BackupImportScreen } from '../screens/backup/BackupImportScreen';
 import { BackupLanScreen } from '../screens/backup/BackupLanScreen';
+import { BackupNetworkBooksScreen } from '../screens/backup/BackupNetworkBooksScreen';
 import { BackupSettingsScreen } from '../screens/backup/BackupSettingsScreen';
 import { BookManageScreen } from '../screens/bookManage/BookManageScreen';
 import { HomeScreen } from '../screens/home/HomeScreen';
@@ -129,7 +129,7 @@ export function RootStackNavigator() {
       <Stack.Screen
         component={BackupExportScreen}
         name={ROOT_ROUTES.BackupExport}
-        options={{ title: '导出账本' }}
+        options={{ title: '导出内容' }}
       />
       <Stack.Screen
         component={BackupImportScreen}
@@ -142,9 +142,9 @@ export function RootStackNavigator() {
         options={{ title: '自动备份' }}
       />
       <Stack.Screen
-        component={BackupAiConfigScreen}
-        name={ROOT_ROUTES.BackupAiConfig}
-        options={{ title: 'AI 配置包' }}
+        component={BackupNetworkBooksScreen}
+        name={ROOT_ROUTES.BackupNetworkBooks}
+        options={{ title: '网络账本列表' }}
       />
       <Stack.Screen
         component={BackupSettingsScreen}

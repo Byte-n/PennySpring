@@ -78,7 +78,7 @@ async function insertDanglingThread(
 }
 
 describe('ai-config-service', () => {
-  it('exports provider definitions and selections without api keys', async () => {
+  it('exports provider definitions, selections and the current book api key', async () => {
     const db = createTestDatabase();
     const book = await createBook(db, { name: '家庭账本' });
     const provider = await seedProvider(db);
@@ -92,7 +92,7 @@ describe('ai-config-service', () => {
     });
     await setProviderKey(db, book.id, provider.id, 'sk-secret');
 
-    const snapshot = await buildAiConfigSnapshot(db);
+    const snapshot = await buildAiConfigSnapshot(db, book.id);
 
     expect(snapshot.providers).toEqual([
       {
@@ -103,6 +103,7 @@ describe('ai-config-service', () => {
         defaultModelId: 'gpt-4.1',
         models: MODELS,
         storeResponses: true,
+        apiKey: 'sk-secret',
       },
     ]);
     expect(snapshot.agentSelection).toEqual({
@@ -113,12 +114,26 @@ describe('ai-config-service', () => {
       providerId: provider.id,
       modelId: 'gpt-4.1',
     });
-    expect(JSON.stringify(snapshot)).not.toContain('sk-secret');
+  });
+
+  it('exports only the selected book api keys', async () => {
+    const db = createTestDatabase();
+    const currentBook = await createBook(db, { name: '当前账本' });
+    const otherBook = await createBook(db, { name: '其他账本' });
+    const provider = await seedProvider(db);
+    await setProviderKey(db, currentBook.id, provider.id, 'sk-current');
+    await setProviderKey(db, otherBook.id, provider.id, 'sk-other');
+
+    const snapshot = await buildAiConfigSnapshot(db, currentBook.id);
+
+    expect(snapshot.providers[0]?.apiKey).toBe('sk-current');
+    expect(JSON.stringify(snapshot)).not.toContain('sk-other');
   });
 
   it('imports providers and remaps dangling thread and selection references', async () => {
     const sourceDb = createTestDatabase();
     const targetDb = createTestDatabase();
+    const sourceBook = await createBook(sourceDb, { name: '源账本' });
     const sourceProvider = await seedProvider(sourceDb);
     await setAgentSelection(sourceDb, 'agent', {
       providerId: sourceProvider.id,
@@ -128,7 +143,13 @@ describe('ai-config-service', () => {
       providerId: sourceProvider.id,
       modelId: 'gpt-4.1',
     });
-    const snapshot = await buildAiConfigSnapshot(sourceDb);
+    await setProviderKey(
+      sourceDb,
+      sourceBook.id,
+      sourceProvider.id,
+      'sk-source',
+    );
+    const snapshot = await buildAiConfigSnapshot(sourceDb, sourceBook.id);
 
     const targetBook = await createBook(targetDb, { name: '恢复账本' });
     const targetThread = await insertDanglingThread(
@@ -138,7 +159,11 @@ describe('ai-config-service', () => {
       'gpt-4.1-mini',
     );
 
-    const result = await applyAiConfigSnapshot(targetDb, snapshot);
+    const result = await applyAiConfigSnapshot(
+      targetDb,
+      snapshot,
+      targetBook.id,
+    );
 
     const providers = await targetDb.select().from(schema.agentProviders).all();
     expect(providers).toHaveLength(1);
@@ -161,13 +186,24 @@ describe('ai-config-service', () => {
     expect(threads[0]?.modelId).toBe('gpt-4.1-mini');
     expect(result.providersCreated).toBe(1);
     expect(result.threadsUpdated).toBe(1);
+    expect(result.keysUpdated).toBe(1);
+
+    const keys = await targetDb.select().from(schema.bookProviderKeys).all();
+    expect(keys).toEqual([
+      expect.objectContaining({
+        booksId: targetBook.id,
+        providerId: providers[0]?.id,
+        apiKey: 'sk-source',
+      }),
+    ]);
   });
 
   it('reuses a provider with the same descriptor, base url and name', async () => {
     const sourceDb = createTestDatabase();
     const targetDb = createTestDatabase();
+    const sourceBook = await createBook(sourceDb, { name: '源账本' });
     const sourceProvider = await seedProvider(sourceDb);
-    const snapshot = await buildAiConfigSnapshot(sourceDb);
+    const snapshot = await buildAiConfigSnapshot(sourceDb, sourceBook.id);
 
     const targetBook = await createBook(targetDb, { name: '目标账本' });
     const existing = await createProvider(targetDb, {
@@ -185,10 +221,15 @@ describe('ai-config-service', () => {
       'gpt-4.1-mini',
     );
 
-    const result = await applyAiConfigSnapshot(targetDb, snapshot);
+    const result = await applyAiConfigSnapshot(
+      targetDb,
+      snapshot,
+      targetBook.id,
+    );
 
     expect(result.providersCreated).toBe(0);
     expect(result.providersUpdated).toBe(1);
+    expect(result.keysUpdated).toBe(0);
     expect(result.providerIdMap[sourceProvider.id]).toBe(existing.id);
     const providers = await targetDb.select().from(schema.agentProviders).all();
     expect(providers).toHaveLength(1);
@@ -215,8 +256,9 @@ describe('ai-config-service', () => {
   it('falls back to the provider default model when the imported thread model is gone', async () => {
     const sourceDb = createTestDatabase();
     const targetDb = createTestDatabase();
+    const sourceBook = await createBook(sourceDb, { name: '源账本' });
     const sourceProvider = await seedProvider(sourceDb);
-    const snapshot = await buildAiConfigSnapshot(sourceDb);
+    const snapshot = await buildAiConfigSnapshot(sourceDb, sourceBook.id);
     const compactSnapshot = {
       ...snapshot,
       providers: snapshot.providers.map(provider => ({
@@ -234,7 +276,7 @@ describe('ai-config-service', () => {
       'gpt-4.1-mini',
     );
 
-    await applyAiConfigSnapshot(targetDb, compactSnapshot);
+    await applyAiConfigSnapshot(targetDb, compactSnapshot, targetBook.id);
 
     const threads = await targetDb
       .select()
@@ -247,8 +289,10 @@ describe('ai-config-service', () => {
   it('rejects duplicate providers in the package and rolls back', async () => {
     const sourceDb = createTestDatabase();
     const targetDb = createTestDatabase();
+    const sourceBook = await createBook(sourceDb, { name: '源账本' });
+    const targetBook = await createBook(targetDb, { name: '目标账本' });
     const provider = await seedProvider(sourceDb);
-    const snapshot = await buildAiConfigSnapshot(sourceDb);
+    const snapshot = await buildAiConfigSnapshot(sourceDb, sourceBook.id);
     const invalid = {
       ...snapshot,
       providers: [
@@ -257,9 +301,9 @@ describe('ai-config-service', () => {
       ],
     };
 
-    await expect(applyAiConfigSnapshot(targetDb, invalid)).rejects.toThrow(
-      'AI 配置包含重复的提供商',
-    );
+    await expect(
+      applyAiConfigSnapshot(targetDb, invalid, targetBook.id),
+    ).rejects.toThrow('AI 配置包含重复的提供商');
     expect(await targetDb.select().from(schema.agentProviders).all()).toEqual(
       [],
     );

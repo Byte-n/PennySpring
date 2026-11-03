@@ -5,6 +5,7 @@ import { unzipFiles, zipFiles } from './zip';
 
 import type {
   AgentMessageRow,
+  AiConfigSnapshot,
   BookSnapshot,
   LibrarySnapshot,
   SnapshotCounts,
@@ -16,7 +17,10 @@ import {
   rewriteAgentMessageIds,
   rewriteAgentMessageMedia,
 } from './agentMessages';
+import { parseAiConfigSnapshot } from './aiConfig';
 import { parseSnapshotManifest } from './manifest';
+import { parseNetworkBooksSnapshot } from './networkBooks';
+import { parseSettingsSnapshot } from './settings';
 import {
   base64ByteLength,
   getMediaKey,
@@ -106,6 +110,14 @@ function addMediaEntry(
   return entry;
 }
 
+function getBookOptions(options: BuildSnapshotPackageOptions, bookId: number) {
+  const content = options.bookOptions[bookId];
+  if (!content) {
+    throw new Error(`缺少账本内容选项: ${bookId}`);
+  }
+  return content;
+}
+
 async function collectMediaEntries(
   library: LibrarySnapshot,
   options: BuildSnapshotPackageOptions,
@@ -113,11 +125,12 @@ async function collectMediaEntries(
 ): Promise<Map<string, MediaEntry>> {
   const refs = new Set<string>();
   for (const book of library.books) {
-    if (options.includeImages) {
+    const content = getBookOptions(options, book.book.id);
+    if (content.includeImages) {
       if (book.book.background) refs.add(book.book.background);
       for (const image of book.images) refs.add(image.imagePath);
     }
-    if (options.includeAgent) {
+    if (content.includeAgent) {
       for (const message of book.agentMessages) {
         for (const ref of collectAgentMessageMediaRefs(message.message)) {
           refs.add(ref);
@@ -171,8 +184,14 @@ export async function buildSnapshotPackage(
   options: BuildSnapshotPackageOptions,
   fileSystem: TransferFileSystem,
 ): Promise<BuiltSnapshotPackage> {
-  if (library.books.length === 0) {
-    throw new Error('至少选择一个账本');
+  const settings = options.settings
+    ? parseSettingsSnapshot(options.settings)
+    : null;
+  const networkBooks = options.networkBooks
+    ? parseNetworkBooksSnapshot(options.networkBooks)
+    : null;
+  if (library.books.length === 0 && !settings && !networkBooks) {
+    throw new Error('至少选择一个账本或一项系统设置');
   }
 
   const books = cloneLibrary(library).books;
@@ -187,8 +206,9 @@ export async function buildSnapshotPackage(
 
   for (const [index, book] of books.entries()) {
     const key = `b${index + 1}`;
+    const content = getBookOptions(options, book.book.id);
 
-    if (options.includeImages) {
+    if (content.includeImages) {
       if (book.book.background) {
         book.book.background =
           resolveMedia(book.book.background) ?? book.book.background;
@@ -202,7 +222,7 @@ export async function buildSnapshotPackage(
       book.images = [];
     }
 
-    if (options.includeAgent) {
+    if (content.includeAgent) {
       book.agentMessages = book.agentMessages.map(message => ({
         ...message,
         message: rewriteAgentMessageMedia(
@@ -232,11 +252,24 @@ export async function buildSnapshotPackage(
     writeJson(files, `books/${key}/agent-threads.json`, book.agentThreads);
     writeJson(files, `books/${key}/agent-messages.json`, book.agentMessages);
 
+    if (content.includeAiConfig) {
+      const aiConfig = options.aiConfigs?.[book.book.id];
+      if (!aiConfig) {
+        throw new Error(`缺少账本 AI 设置: ${book.book.name}`);
+      }
+      writeJson(
+        files,
+        `books/${key}/ai-config.json`,
+        parseAiConfigSnapshot(aiConfig),
+      );
+    }
+
     manifestBooks.push({
       key,
       name: book.book.name,
       counts: countsOf(book),
       recordRange: recordRangeOf(book),
+      options: content,
     });
   }
 
@@ -244,12 +277,19 @@ export async function buildSnapshotPackage(
     files[`media/${entry.key}`] = toByteArray(entry.base64);
   }
 
+  if (settings) {
+    writeJson(files, 'configs/settings.json', settings);
+  }
+  if (networkBooks) {
+    writeJson(files, 'configs/network-books.json', networkBooks);
+  }
+
   const manifest: SnapshotManifest = {
     format: SNAPSHOT_FORMAT,
     formatVersion: SNAPSHOT_FORMAT_VERSION,
     appVersion: options.appVersion ?? DEFAULT_APP_VERSION,
     createdAt: options.createdAt ?? Date.now(),
-    scope: books.length === 1 ? ('book' as const) : ('library' as const),
+    scope: books.length > 1 ? ('library' as const) : ('book' as const),
     books: manifestBooks,
     media: {
       count: mediaEntries.size,
@@ -259,8 +299,8 @@ export async function buildSnapshotPackage(
       ),
     },
     options: {
-      includeImages: options.includeImages,
-      includeAgent: options.includeAgent,
+      includeSettings: settings !== null,
+      includeNetworkBooks: networkBooks !== null,
     },
   };
 
@@ -351,7 +391,29 @@ export async function parseSnapshotPackage(
     }
   }
 
-  return { manifest, library: { books }, mediaFiles };
+  const bookAiConfigs: Record<string, AiConfigSnapshot> = {};
+  for (const book of manifest.books) {
+    if (!book.options.includeAiConfig) continue;
+    bookAiConfigs[book.key] = parseAiConfigSnapshot(
+      readJson(files, `books/${book.key}/ai-config.json`),
+    );
+  }
+
+  const settings = manifest.options.includeSettings
+    ? parseSettingsSnapshot(readJson(files, 'configs/settings.json'))
+    : null;
+  const networkBooks = manifest.options.includeNetworkBooks
+    ? parseNetworkBooksSnapshot(readJson(files, 'configs/network-books.json'))
+    : null;
+
+  return {
+    manifest,
+    library: { books },
+    mediaFiles,
+    bookAiConfigs,
+    settings,
+    networkBooks,
+  };
 }
 
 function createImportMediaResolver(mediaUris: Map<string, string>) {

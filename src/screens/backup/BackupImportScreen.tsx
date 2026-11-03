@@ -1,14 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { ScrollView } from 'react-native';
-import {
-  Button,
-  Card,
-  Column,
-  Empty,
-  Result,
-  Row,
-  Text,
-} from '@pennyspring/ui';
+import { Button, Card, Column, Empty, Result, Text } from '@pennyspring/ui';
 import {
   BOOK_TYPE,
   localApi,
@@ -18,8 +10,10 @@ import { createUseSheetStyle } from '@pennyspring/ui';
 
 import { formatBytes, totalRecords } from '../../features/transfer';
 import {
+  applyImportedPackageContent,
   importPackage,
   pickPackagePreview,
+  type AppliedImportedContent,
   type PickedPackagePreview,
 } from '../../features/transfer/operations';
 import { ROOT_ROUTES, useNavigation } from '../../navigation';
@@ -68,6 +62,8 @@ export function BackupImportScreen() {
   const addHistory = useBackupHistoryStore(state => state.addEntry);
   const [preview, setPreview] = useState<PickedPackagePreview | null>(null);
   const [result, setResult] = useState<ApplyLibrarySnapshotResult | null>(null);
+  const [appliedContent, setAppliedContent] =
+    useState<AppliedImportedContent | null>(null);
   const [busy, setBusy] = useState(false);
   const [errorText, setErrorText] = useState('');
 
@@ -91,6 +87,10 @@ export function BackupImportScreen() {
     setErrorText('');
     try {
       const imported = await importPackage(preview.parsed);
+      const applied = await applyImportedPackageContent(
+        preview.parsed,
+        imported.result,
+      );
       addHistory({
         id: createBackupHistoryId(),
         kind: 'import',
@@ -104,6 +104,7 @@ export function BackupImportScreen() {
         errorText: '',
       });
       setResult(imported.result);
+      setAppliedContent(applied);
     } catch (error: unknown) {
       setErrorText(getErrorMessage(error));
     } finally {
@@ -135,6 +136,24 @@ export function BackupImportScreen() {
       (sum, book) => sum + book.counts.records,
       0,
     );
+    const parts: string[] = [];
+    if (result.books.length > 0) {
+      parts.push(
+        `${result.books.length} 个账本 · ${records.toLocaleString('zh-CN')} 条流水`,
+      );
+    }
+    if (appliedContent && appliedContent.aiConfigsApplied > 0) {
+      parts.push(`${appliedContent.aiConfigsApplied} 份 AI 设置`);
+    }
+    if (appliedContent?.settingsApplied) parts.push('设置包');
+    if (appliedContent?.networkBooks) {
+      parts.push(
+        `网络账本列表 +${appliedContent.networkBooks.serversAdded} 个服务器`,
+      );
+    }
+    const subtitleText =
+      parts.length > 0 ? `已恢复 ${parts.join(' · ')}` : '内容已导入';
+
     return (
       <ScrollView
         contentContainerStyle={styles.content}
@@ -144,16 +163,18 @@ export function BackupImportScreen() {
         <Result
           status="success"
           titleText="导入完成"
-          subtitleText={`${result.books.length} 个账本已创建 · ${records.toLocaleString('zh-CN')} 条流水`}
+          subtitleText={subtitleText}
           extra={
             <Column style={styles.actions}>
-              <Button block onPress={openImportedBook} type="primary">
-                打开导入的账本
-              </Button>
+              {result.books.length > 0 ? (
+                <Button block onPress={openImportedBook} type="primary">
+                  打开导入的账本
+                </Button>
+              ) : null}
               <Button
                 block
                 onPress={() => navigation.navigate(ROOT_ROUTES.Home)}
-                type="dashed"
+                type={result.books.length > 0 ? 'dashed' : 'primary'}
               >
                 完成
               </Button>
@@ -216,53 +237,64 @@ export function BackupImportScreen() {
         <Column style={styles.cardContent}>
           <Text weight="semibold">{preview.sourceName}</Text>
           <Text color="secondary" size="sm">
-            {formatBytes(preview.sizeBytes)} · {manifest.books.length} 个账本 ·{' '}
-            {totalRecords(manifest).toLocaleString('zh-CN')} 条流水
+            {formatBytes(preview.sizeBytes)}
+            {manifest.books.length > 0
+              ? ` · ${manifest.books.length} 个账本 · ${totalRecords(
+                  manifest,
+                ).toLocaleString('zh-CN')} 条流水`
+              : ' · 系统设置'}
           </Text>
         </Column>
       </Card>
 
-      <Card titleText="将创建的账本">
-        <Column style={styles.cardContent}>
+      {manifest.books.length > 0 ? (
+        <Card titleText="将创建的账本">
+          <Column style={styles.cardContent}>
+            {manifest.books.map(book => (
+              <Column key={book.key} style={styles.bookRow}>
+                <Text>{book.name}</Text>
+                <Text color="secondary" size="sm">
+                  {book.counts.records.toLocaleString('zh-CN')} 条流水 ·{' '}
+                  {book.counts.assets} 个资产 · {book.counts.images} 张图片
+                </Text>
+              </Column>
+            ))}
+          </Column>
+        </Card>
+      ) : null}
+
+      <Card titleText="包含内容">
+        <Column style={styles.note}>
           {manifest.books.map(book => (
             <Column key={book.key} style={styles.bookRow}>
-              <Text>{book.name}</Text>
-              <Text color="secondary" size="sm">
-                {book.counts.records.toLocaleString('zh-CN')} 条流水 ·{' '}
-                {book.counts.assets} 个资产 · {book.counts.images} 张图片
+              <Text size="sm">{book.name}</Text>
+              <Text size="sm" color="secondary">
+                图片：{book.options.includeImages ? '包含' : '不包含'} · AI
+                会话：{book.options.includeAgent ? '包含' : '不包含'} · AI
+                设置：{book.options.includeAiConfig ? '包含' : '不包含'}
               </Text>
             </Column>
           ))}
-        </Column>
-      </Card>
-
-      <Card titleText="包含与排除">
-        <Column style={styles.note}>
-          <Row justify="between" gap="small">
+          {manifest.options.includeSettings ? (
             <Text size="sm" color="secondary">
-              图片附件
+              设置包（快捷记账与主题）
             </Text>
-            <Text size="sm">
-              {manifest.options.includeImages ? '包含' : '不包含'}
-            </Text>
-          </Row>
-          <Row justify="between" gap="small">
+          ) : null}
+          {manifest.options.includeNetworkBooks ? (
             <Text size="sm" color="secondary">
-              AI 会话
+              网络账本列表（服务器与访问令牌）
             </Text>
-            <Text size="sm">
-              {manifest.options.includeAgent ? '包含' : '不包含'}
-            </Text>
-          </Row>
+          ) : null}
           <Text size="sm" color="tertiary">
-            API Key、AI 提供商配置、服务器连接信息不在备份中。
+            导入会恢复包内包含的 AI 设置、设置包与网络账本列表。
           </Text>
         </Column>
       </Card>
 
       <Card titleText="导入规则">
         <Text size="sm" color="secondary">
-          会新建账本，不会覆盖或合并现有数据；原设备后续修改不会自动同步。
+          会新建账本；AI
+          设置写入新账本，设置包覆盖当前设置，网络账本列表合并且不删除本机已有项。
         </Text>
       </Card>
 

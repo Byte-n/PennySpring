@@ -26,6 +26,8 @@ export interface LanOffer {
   sizeBytes: number;
   totalRecords: number;
   books: LanBookSummary[];
+  includeSettings?: boolean;
+  includeNetworkBooks?: boolean;
 }
 
 export interface LanTransferState {
@@ -70,4 +72,6 @@ export interface LanOfferInput {
   sizeBytes: number;
   totalRecords: number;
   books: LanBookSummary[];
+  includeSettings?: boolean;
+  includeNetworkBooks?: boolean;
 }

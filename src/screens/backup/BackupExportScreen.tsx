@@ -1,27 +1,22 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { ScrollView } from 'react-native';
 import { useRequest } from 'ahooks';
-import {
-  Button,
-  Card,
-  Checkbox,
-  Column,
-  Result,
-  Row,
-  Switch,
-  Text,
-  useToast,
-} from '@pennyspring/ui';
-import type { BookRow } from '@pennyspring/api';
+import { Button, Card, Column, Result, Text, useToast } from '@pennyspring/ui';
 import { localApi } from '@pennyspring/api';
 import { createUseSheetStyle } from '@pennyspring/ui';
 
 import { shareBackupBytes } from '../../features/backup/share';
-import { formatBytes, totalRecords } from '../../features/transfer';
+import {
+  DEFAULT_BOOK_CONTENT_OPTIONS,
+  formatBytes,
+  totalRecords,
+} from '../../features/transfer';
 import {
   exportBooksToFile,
   type SavedExportResult,
 } from '../../features/transfer/operations';
+import type { BookContentOptions } from '../../features/transfer/types';
+import { BackupContentSelector } from './components/BackupContentSelector';
 import { useNavigation } from '../../navigation';
 import {
   createBackupHistoryId,
@@ -38,19 +33,6 @@ const useStyles = createUseSheetStyle(token => ({
     gap: token.marginSM,
     padding: token.padding,
     paddingBottom: token.paddingXL,
-  },
-  books: {
-    gap: token.marginXS,
-  },
-  bookText: {
-    gap: token.marginXXS,
-  },
-  options: {
-    gap: token.marginSM,
-  },
-  optionText: {
-    flex: 1,
-    gap: token.marginXXS,
   },
   note: {
     gap: token.marginXXS,
@@ -78,8 +60,11 @@ export function BackupExportScreen() {
   const books = data ?? [];
 
   const [selectedIds, setSelectedIds] = useState<number[] | null>(null);
-  const [includeImages, setIncludeImages] = useState(true);
-  const [includeAgent, setIncludeAgent] = useState(false);
+  const [bookOptions, setBookOptions] = useState<
+    Record<number, BookContentOptions>
+  >({});
+  const [includeSettings, setIncludeSettings] = useState(false);
+  const [includeNetworkBooks, setIncludeNetworkBooks] = useState(false);
   const [busy, setBusy] = useState(false);
   const [sharing, setSharing] = useState(false);
   const [errorText, setErrorText] = useState('');
@@ -97,24 +82,25 @@ export function BackupExportScreen() {
     [books, selectedIds],
   );
 
-  const toggleBook = useCallback((book: BookRow) => {
-    setSelectedIds(current => {
-      const values = current ?? [];
-      return values.includes(book.id)
-        ? values.filter(id => id !== book.id)
-        : [...values, book.id];
-    });
-  }, []);
-
   const handleExport = useCallback(async () => {
-    if (!selectedIds || selectedIds.length === 0 || busy) return;
+    if (busy) return;
+    const bookIds = selectedIds ?? [];
+    if (bookIds.length === 0 && !includeSettings && !includeNetworkBooks) {
+      return;
+    }
     setBusy(true);
     setErrorText('');
     try {
       const result = await exportBooksToFile({
-        bookIds: selectedIds,
-        includeAgent,
-        includeImages,
+        bookIds,
+        bookOptions: Object.fromEntries(
+          bookIds.map(bookId => [
+            bookId,
+            bookOptions[bookId] ?? DEFAULT_BOOK_CONTENT_OPTIONS,
+          ]),
+        ),
+        includeSettings,
+        includeNetworkBooks,
       });
       addHistory({
         id: createBackupHistoryId(),
@@ -134,7 +120,14 @@ export function BackupExportScreen() {
     } finally {
       setBusy(false);
     }
-  }, [addHistory, busy, includeAgent, includeImages, selectedIds]);
+  }, [
+    addHistory,
+    bookOptions,
+    busy,
+    includeNetworkBooks,
+    includeSettings,
+    selectedIds,
+  ]);
 
   const handleShare = useCallback(async (): Promise<void> => {
     if (!saved || sharing) return;
@@ -179,7 +172,11 @@ export function BackupExportScreen() {
     );
   }
 
-  const canExport = (selectedIds?.length ?? 0) > 0 && !busy;
+  const canExport =
+    ((selectedIds?.length ?? 0) > 0 ||
+      includeSettings ||
+      includeNetworkBooks) &&
+    !busy;
 
   return (
     <ScrollView
@@ -187,73 +184,30 @@ export function BackupExportScreen() {
       scrollEnabled
       style={styles.container}
     >
-      <Card titleText="选择账本">
-        {loading ? (
-          <Text color="secondary" size="sm">
-            正在读取本地账本…
-          </Text>
-        ) : books.length === 0 ? (
-          <Text color="secondary" size="sm">
-            没有可导出的本地账本。
-          </Text>
-        ) : (
-          <Column style={styles.books}>
-            {books.map(book => (
-              <Checkbox
-                key={book.id}
-                value={selectedIds?.includes(book.id) ?? false}
-                onChange={() => toggleBook(book)}
-              >
-                <Column style={styles.bookText}>
-                  <Text>{book.name}</Text>
-                  <Text color="secondary" size="sm">
-                    {book.description || '本地账本'}
-                  </Text>
-                </Column>
-              </Checkbox>
-            ))}
-          </Column>
-        )}
-      </Card>
-
-      <Card titleText="包含内容">
-        <Column style={styles.options}>
-          <Row align="center" justify="between" gap="small">
-            <Column style={styles.optionText}>
-              <Text>图片附件</Text>
-              <Text color="secondary" size="sm">
-                账本封面与流水图片会打入备份包。
-              </Text>
-            </Column>
-            <Switch
-              accessibilityLabel="图片附件"
-              onChange={setIncludeImages}
-              value={includeImages}
-            />
-          </Row>
-          <Row align="center" justify="between" gap="small">
-            <Column style={styles.optionText}>
-              <Text>AI 会话</Text>
-              <Text color="secondary" size="sm">
-                默认关闭；开启后包含会话、消息和消息中的图片。
-              </Text>
-            </Column>
-            <Switch
-              accessibilityLabel="AI 会话"
-              onChange={setIncludeAgent}
-              value={includeAgent}
-            />
-          </Row>
-        </Column>
-      </Card>
+      <BackupContentSelector
+        bookOptions={bookOptions}
+        books={books}
+        defaultBookOptions={DEFAULT_BOOK_CONTENT_OPTIONS}
+        includeNetworkBooks={includeNetworkBooks}
+        includeSettings={includeSettings}
+        loading={loading}
+        onBookOptionsChange={(bookId, options) =>
+          setBookOptions(current => ({ ...current, [bookId]: options }))
+        }
+        onIncludeNetworkBooksChange={setIncludeNetworkBooks}
+        onIncludeSettingsChange={setIncludeSettings}
+        onSelectedBookIdsChange={setSelectedIds}
+        selectedBookIds={selectedIds ?? []}
+      />
 
       <Card titleText="安全边界">
         <Column style={styles.note}>
           <Text color="secondary" size="sm">
-            API Key、AI 提供商配置、服务器连接信息永不写入备份。
+            勾选 AI 设置会写入当前账本的 API
+            Key；勾选网络账本列表会写入服务器地址与访问令牌。
           </Text>
           <Text color="tertiary" size="xs">
-            导入时只新建账本，不覆盖、不合并现有数据。
+            导入时会新建账本，并恢复包内包含的 AI 设置、系统设置与网络账本列表。
           </Text>
         </Column>
       </Card>
@@ -275,6 +229,8 @@ export function BackupExportScreen() {
       </Button>
       <Text color="tertiary" size="xs" style={styles.error}>
         已选择 {selectedBooks.length} 个账本
+        {includeSettings ? ' · 设置包' : ''}
+        {includeNetworkBooks ? ' · 网络账本列表' : ''}
       </Text>
     </ScrollView>
   );
