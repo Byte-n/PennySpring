@@ -43,6 +43,8 @@ export function createLanMessageHandlers(ctx: LanMessageContext) {
     if (
       state.connectedPeer ||
       state.incomingPair ||
+      state.pairTarget ||
+      state.phase === 'waiting-peer' ||
       state.phase === 'sending' ||
       state.phase === 'receiving' ||
       state.phase === 'waiting-offer'
