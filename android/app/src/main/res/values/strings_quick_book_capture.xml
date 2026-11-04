@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 截图浮层 -->
+    <string name="quick_book_capture_hint">拖动选择记账区域</string>
+    <string name="quick_book_capture_cancel">取消</string>
+    <string name="quick_book_capture_next">下一步</string>
+    <string name="quick_book_capture_send">发送</string>
+
+    <!-- 预设栏 -->
+    <string name="quick_book_capture_label_book">账本</string>
+    <string name="quick_book_capture_label_asset">资产</string>
+    <string name="quick_book_capture_label_type">类型</string>
+    <string name="quick_book_capture_unspecified">不指定</string>
+    <string name="quick_book_capture_no_books">无本地账本</string>
+
+    <!-- 失败提示 -->
+    <string name="quick_book_capture_projection_denied">未获得录屏权限</string>
+    <string name="quick_book_capture_failed">截图失败，请重试</string>
+    <string name="quick_book_capture_timeout">截图超时，请重试</string>
+    <string name="quick_book_capture_blank">当前页面不支持截图</string>
+    <string name="quick_book_capture_saving_failed">截图保存失败</string>
+    <string name="quick_book_capture_send_failed">启动草稿任务失败</string>
+</resources>

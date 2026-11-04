@@ -15,6 +15,13 @@
       "when": 1793419932700,
       "tag": "0001_normal_dorian_gray",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1793771418143,
+      "tag": "0002_condemned_christian_walker",
+      "breakpoints": true
     }
   ]
 }

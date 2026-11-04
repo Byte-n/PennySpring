@@ -3,6 +3,7 @@ import {
   ASSET_TYPE,
   type AssetRow,
   type CreateRecordInput,
+  localApi,
   type RecordRow,
   RECORD_TYPE_CATEGORY,
   type RecordTypeCategoryValue,
@@ -12,7 +13,9 @@ import {
   VISIBILITY,
 } from '@pennyspring/api';
 import { getGlobalApi } from '../../stores/bookStore';
+import { bumpDraftVersion } from '../../stores/draftVersionStore';
 import { bumpRecordVersion } from '../../stores/syncVersionStore';
+import type { AddRecordDraftTarget } from './draftPrefill';
 
 export type AddRecordTabType = 'expense' | 'income' | 'transfer';
 export type TransferAssetRole = 'from' | 'to';
@@ -183,12 +186,30 @@ export function buildCreateRecordInput(
   };
 }
 
+export interface SaveAddRecordDraftOptions {
+  /** 草稿模式：通过 confirmItem 在同一事务内写入目标账本并回写草稿。 */
+  draft?: AddRecordDraftTarget;
+}
+
 export async function saveAddRecordDraft(
   tabType: AddRecordTabType,
   draft: AddRecordDraft,
   editingRecordId: number | undefined,
+  options?: SaveAddRecordDraftOptions,
 ): Promise<void> {
   const input = buildCreateRecordInput(tabType, draft);
+
+  if (options?.draft !== undefined) {
+    const { draftId, itemIndex, booksId } = options.draft;
+    await localApi.quickBookDraft.confirmItem(draftId, itemIndex, {
+      ...input,
+      booksId,
+    });
+    bumpRecordVersion();
+    bumpDraftVersion();
+    return;
+  }
+
   const api = getGlobalApi();
   if (editingRecordId !== undefined) {
     await api.record.update({ ...input, id: editingRecordId });

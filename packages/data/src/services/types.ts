@@ -6,6 +6,8 @@ import type {
   AgentSelectionScope,
   AssetClassificationValue,
   AssetTypeValue,
+  QuickBookDraftSourceValue,
+  QuickBookDraftStatusValue,
   RecordTypeCategoryValue,
   RecordTypeSpecialBehaviorValue,
   ReimbursableValue,
@@ -247,6 +249,88 @@ export interface CreateQuickTemplateInput {
 
 export interface UpdateQuickTemplateInput extends CreateQuickTemplateInput {
   id: number;
+}
+
+/** 草稿单笔状态：待确认 / 已写入记录。 */
+export type DraftItemStatus = 'pending' | 'confirmed';
+
+/** 截图记账草稿的逐笔内容，金额统一以分存储。 */
+export interface DraftItem {
+  status: DraftItemStatus;
+  /** 0 表示尚未写入记录；写入后关联 tb_record.id */
+  recordId: number;
+  /** 0 表示未选择类型 */
+  typeId: number;
+  /** 展示兜底，不参与写入 */
+  typeName: string;
+  /** null 表示金额待确认 */
+  amountCents: number | null;
+  recordTime: number;
+  remark: string;
+  assetId: number;
+  assetName: string;
+  intoAssetId: number;
+  intoAssetName: string;
+  chargeCents: number;
+  /** 一期为空数组，预留 */
+  tagIds: number[];
+  reimbursable: boolean;
+  warnings: string[];
+}
+
+/** 草稿组预设；0 表示未指定。 */
+export interface QuickBookDraftPreset {
+  assetId: number;
+  typeId: number;
+}
+
+/** 草稿组（设备级中间态），payload 与 preset 已解析为结构化字段。 */
+export interface QuickBookDraftRow {
+  id: string;
+  booksId: number;
+  status: QuickBookDraftStatusValue;
+  source: QuickBookDraftSourceValue;
+  imagePath: string;
+  items: DraftItem[];
+  preset: QuickBookDraftPreset;
+  agentProviderId: number;
+  agentModelId: string;
+  agentSummary: string;
+  errorText: string;
+  confirmedCount: number;
+  recordIds: number[];
+  createdTime: number;
+  updatedTime: number;
+  confirmedAt: number;
+}
+
+export interface CreateQuickBookDraftPlaceholderInput {
+  /** 设备侧生成的 UUID；同一 id 重新生成会重置草稿 */
+  id: string;
+  booksId: number;
+  imagePath: string;
+  source?: QuickBookDraftSourceValue;
+  preset?: Partial<QuickBookDraftPreset>;
+  agentProviderId?: number;
+  agentModelId?: string;
+}
+
+export interface QuickBookDraftListFilter {
+  /** 默认仅 generating / pending / failed */
+  statuses?: QuickBookDraftStatusValue[];
+  booksId?: number;
+}
+
+/** 更新草稿内容时可选写入的 Agent 诊断信息；未提供的字段保持原值。 */
+export interface QuickBookDraftUpdateMeta {
+  agentSummary?: string;
+  agentProviderId?: number;
+  agentModelId?: string;
+}
+
+export interface ConfirmQuickBookDraftItemResult {
+  item: DraftItem;
+  recordId: number;
 }
 
 export interface BookSnapshot {

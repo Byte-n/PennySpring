@@ -5,6 +5,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import { Linking } from 'react-native';
 import { Column, useToast } from '@pennyspring/ui';
 import { createUseSheetStyle } from '@pennyspring/ui';
 
@@ -27,7 +28,9 @@ import type {
 import { useQuickBookShare } from '../../features/quickBook/useQuickBookShare';
 import { useScreenshotNudge } from '../../features/quickBook/useScreenshotNudge';
 import { resolveQuickBookModel } from '../../features/quickBook/validation';
+import { useFloatingBallLifecycle } from '../../features/quickBookDraft/useFloatingBallLifecycle';
 import { ROOT_ROUTES, rootNavigationRef } from '../../navigation';
+import { isAgentDeepLinkUrl } from '../../navigation/linking';
 import { useBookStore, useGlobalApi } from '../../stores/bookStore';
 import { useMediaStore } from '../../media';
 import {
@@ -123,6 +126,40 @@ export function AgentRoot({ children }: AgentRootProps) {
   const startingQuickBookRef = useRef(false);
 
   const quickBookSettings = useQuickBookSettingsStore();
+
+  useFloatingBallLifecycle({
+    book,
+    quickBookReady,
+    floatingBallEnabled: quickBookSettings.floatingBallEnabled,
+    setFloatingBallEnabled: quickBookSettings.setFloatingBallEnabled,
+  });
+
+  useEffect(() => {
+    const openAgentFromUrl = (url: string | null): void => {
+      if (url !== null && isAgentDeepLinkUrl(url)) {
+        setDrawerOpen(true);
+      }
+    };
+    try {
+      Linking.getInitialURL()
+        .then(openAgentFromUrl)
+        .catch(() => undefined);
+    } catch {
+      // 部分运行环境没有 Linking 原生实现，忽略冷启动深链。
+    }
+    let subscription: ReturnType<typeof Linking.addEventListener> | null = null;
+    try {
+      subscription = Linking.addEventListener('url', event => {
+        openAgentFromUrl(event.url);
+      });
+    } catch {
+      // 没有原生 Linking 时无法接收运行中深链。
+    }
+    return () => {
+      subscription?.remove();
+    };
+  }, []);
+
   const threadId = session.currentThreadId;
   const currentThread = session.currentThread;
   const sessionSending = session.sending;

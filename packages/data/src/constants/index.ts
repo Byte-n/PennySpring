@@ -367,6 +367,54 @@ export const AGENT_MESSAGE_ROLE = enumOf({
   },
 });
 
+/** 截图记账草稿组状态；草稿为设备级中间态。 */
+export const QUICK_BOOK_DRAFT_STATUS = enumOf({
+  generating: {
+    value: 'generating',
+    label: '生成中',
+    description: '后台任务正在生成草稿',
+  },
+  pending: {
+    value: 'pending',
+    label: '待确认',
+    description: '草稿已生成，仍有未处理的笔',
+  },
+  failed: {
+    value: 'failed',
+    label: '生成失败',
+    description: '未生成任何草稿，保留截图与错误原因',
+  },
+  confirmed: {
+    value: 'confirmed',
+    label: '已确认',
+    description: '草稿内所有笔都已写入记录',
+  },
+  discarded: {
+    value: 'discarded',
+    label: '已丢弃',
+    description: '用户放弃草稿',
+  },
+});
+
+/** 截图记账草稿来源。 */
+export const QUICK_BOOK_DRAFT_SOURCE = enumOf({
+  floatingCapture: {
+    value: 'floating_capture',
+    label: '悬浮球截图',
+    description: 'Android 悬浮球自由截图',
+  },
+  share: {
+    value: 'share',
+    label: '系统分享',
+    description: '系统分享图片入口',
+  },
+  screenshotNudge: {
+    value: 'screenshot_nudge',
+    label: '截图提醒',
+    description: '发现新截图的提醒入口',
+  },
+});
+
 /** 模型推理强度；随提供商模型配置以 JSON 存储。 */
 export type AgentReasoningEffort = 'off' | 'low' | 'medium' | 'high';
 
@@ -386,3 +434,5 @@ export type ReimbursableValue = EnumOf<typeof REIMBURSABLE>;
 
 export type BookTypeValue = EnumOf<typeof BOOK_TYPE>;
 export type AgentMessageRoleValue = EnumOf<typeof AGENT_MESSAGE_ROLE>;
+export type QuickBookDraftStatusValue = EnumOf<typeof QUICK_BOOK_DRAFT_STATUS>;
+export type QuickBookDraftSourceValue = EnumOf<typeof QUICK_BOOK_DRAFT_SOURCE>;

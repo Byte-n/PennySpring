@@ -33,6 +33,7 @@ import { useSyncVersionStore } from '../../../stores/syncVersionStore';
 import {
   MEDIA_IMAGE_MAX_DIMENSION,
   MEDIA_IMAGE_QUALITY,
+  createMediaStore,
   useMediaStore,
 } from '../../../media';
 
@@ -48,6 +49,8 @@ export function ExpenseTabScreen() {
   const {
     amount,
     assetId,
+    charge,
+    draftTarget,
     editingRecordId,
     editingTemplateId,
     images,
@@ -73,14 +76,22 @@ export function ExpenseTabScreen() {
     error: categoriesError,
     loading: categoriesLoading,
     refresh: refreshCategories,
-  } = useCategoryItems(RECORD_TYPE_CATEGORY.expense);
+  } = useCategoryItems(RECORD_TYPE_CATEGORY.expense, draftTarget?.booksId);
   const {
     assetsLoading,
+    booksId,
     currentBook,
     tags: allTags,
     tagsLoading,
     visibleAssets,
-  } = useAddRecordResources();
+  } = useAddRecordResources(draftTarget?.booksId);
+  const draftMedia = useMemo(
+    () =>
+      draftTarget
+        ? createMediaStore({ kind: 'local', booksId: draftTarget.booksId })
+        : null,
+    [draftTarget],
+  );
   const selectedType = useMemo(
     () =>
       categories.find(
@@ -96,9 +107,9 @@ export function ExpenseTabScreen() {
 
   const handleSave = useCallback(async () => {
     const draft = {
-      booksId: currentBook?.id,
+      booksId,
       amount,
-      charge: 0,
+      charge: draftTarget ? charge : 0,
       typeId: selectedTypeId,
       selectedType,
       assetId,
@@ -111,6 +122,10 @@ export function ExpenseTabScreen() {
     };
 
     if (template) {
+      if (draftTarget) {
+        toast.show({ messageText: '草稿模式不支持保存模板' });
+        return;
+      }
       const validationMessage = validateTemplateDraft(
         templateName,
         'expense',
@@ -161,24 +176,29 @@ export function ExpenseTabScreen() {
       return;
     }
 
-    if (!media) {
+    const mediaStore = draftMedia ?? media;
+    if (!mediaStore) {
       toast.show({ messageText: '未找到当前账本' });
       return;
     }
 
     try {
       setSubmitting(true);
-      const persisted = await persistRecordImages(images, media);
+      const persisted = await persistRecordImages(images, mediaStore);
       setImages(persisted.images);
       await saveAddRecordDraft(
         'expense',
         { ...draft, imagePaths: persisted.imagePaths },
         editingRecordId,
+        draftTarget ? { draft: draftTarget } : undefined,
       );
       reset();
       toast.show({
-        messageText:
-          editingRecordId !== undefined ? '已更新支出' : '已新增支出',
+        messageText: draftTarget
+          ? '已记账'
+          : editingRecordId !== undefined
+            ? '已更新支出'
+            : '已新增支出',
       });
       navigation.goBack();
     } catch (error: unknown) {
@@ -192,8 +212,12 @@ export function ExpenseTabScreen() {
     amount,
     api,
     assetId,
+    booksId,
     bumpTemplateVersion,
+    charge,
     currentBook,
+    draftMedia,
+    draftTarget,
     editingRecordId,
     editingTemplateId,
     images,

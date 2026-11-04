@@ -6,15 +6,22 @@ import type {
   ApplySnapshotOptions,
   BookSnapshot,
   BuildSnapshotOptions,
+  ConfirmQuickBookDraftItemResult,
   CreateAgentMessageInput,
   CreateAgentProviderInput,
   CreateAssetInput,
   CreateBookInput,
+  CreateQuickBookDraftPlaceholderInput,
   CreateQuickTemplateInput,
   CreateRecordInput,
   CreateTagInput,
   CreateTypeInput,
+  DraftItem,
   LibrarySnapshot,
+  QuickBookDraftListFilter,
+  QuickBookDraftPreset,
+  QuickBookDraftRow,
+  QuickBookDraftUpdateMeta,
   UpdateAgentProviderInput,
   UpdateAssetInput,
   UpdateBookInput,
@@ -128,6 +135,50 @@ export function createApi(getDatabase: () => Promise<Database>) {
         services.getAgentSelection(await getDatabase(), 'quickBook'),
       setSelection: async (selection: AgentSelection) =>
         services.setAgentSelection(await getDatabase(), 'quickBook', selection),
+    },
+    quickBookDraft: {
+      createPlaceholder: async (input: CreateQuickBookDraftPlaceholderInput) =>
+        services.createQuickBookDraftPlaceholder(await getDatabase(), input),
+      getById: async (id: string): Promise<QuickBookDraftRow> =>
+        services.getQuickBookDraftById(await getDatabase(), id),
+      list: async (
+        filter?: QuickBookDraftListFilter,
+      ): Promise<QuickBookDraftRow[]> =>
+        services.listQuickBookDrafts(await getDatabase(), filter),
+      countPending: async (): Promise<number> =>
+        services.countPendingQuickBookDrafts(await getDatabase()),
+      updateItems: async (
+        id: string,
+        items: DraftItem[],
+        preset: QuickBookDraftPreset,
+        meta?: QuickBookDraftUpdateMeta,
+      ): Promise<QuickBookDraftRow> =>
+        services.updateQuickBookDraftItems(
+          await getDatabase(),
+          id,
+          items,
+          preset,
+          meta,
+        ),
+      markFailed: async (id: string, errorText: string): Promise<void> =>
+        services.markQuickBookDraftFailed(await getDatabase(), id, errorText),
+      getItem: async (id: string, itemIndex: number): Promise<DraftItem> =>
+        services.getQuickBookDraftItem(await getDatabase(), id, itemIndex),
+      confirmItem: async (
+        id: string,
+        itemIndex: number,
+        input?: CreateRecordInput,
+      ): Promise<ConfirmQuickBookDraftItemResult> =>
+        services.confirmQuickBookDraftItem(
+          await getDatabase(),
+          id,
+          itemIndex,
+          input,
+        ),
+      discard: async (id: string): Promise<string[]> =>
+        services.discardQuickBookDraft(await getDatabase(), id),
+      cleanup: async (): Promise<string[]> =>
+        services.cleanupQuickBookDrafts(await getDatabase()),
     },
     agentConfig: {
       exportConfig: async (booksId: number) =>

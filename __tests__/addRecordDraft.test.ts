@@ -2,12 +2,14 @@ import {
   ASSET_CLASSIFICATION,
   ASSET_TYPE,
   IconValue,
+  localApi,
   RECORD_TYPE_CATEGORY,
   RECORD_TYPE_SPECIAL_BEHAVIOR,
   REIMBURSABLE,
   SYSTEM_STATUS,
   VISIBILITY,
   type AssetRow,
+  type DraftItem,
   type RecordRow,
   type TypeRow,
 } from '@pennyspring/api';
@@ -27,6 +29,7 @@ import {
   validateAddRecordDraft,
 } from '../src/screens/addRecord/addRecordDraft';
 import { getGlobalApi } from '../src/stores/bookStore';
+import { useDraftVersionStore } from '../src/stores/draftVersionStore';
 import { useSyncVersionStore } from '../src/stores/syncVersionStore';
 
 const NOW = new Date('2026-05-24T12:00:00+08:00').getTime();
@@ -85,6 +88,27 @@ function recordRow(overrides: Partial<RecordRow>): RecordRow {
     recordTime: NOW,
     createdTime: NOW,
     updatedTime: NOW,
+    ...overrides,
+  };
+}
+
+function draftItem(overrides: Partial<DraftItem> = {}): DraftItem {
+  return {
+    status: 'pending',
+    recordId: 0,
+    typeId: 0,
+    typeName: '',
+    amountCents: null,
+    recordTime: NOW,
+    remark: '',
+    assetId: 0,
+    assetName: '',
+    intoAssetId: 0,
+    intoAssetName: '',
+    chargeCents: 0,
+    tagIds: [],
+    reimbursable: false,
+    warnings: [],
     ...overrides,
   };
 }
@@ -315,5 +339,91 @@ describe('saveAddRecordDraft', () => {
     ).rejects.toThrow('database locked');
 
     expect(useSyncVersionStore.getState().recordVersion).toBe(before);
+  });
+
+  it('confirms the draft item with the target book instead of creating a record directly', async () => {
+    // Arrange
+    const create = jest.fn(async () => 1);
+    jest.mocked(getGlobalApi).mockReturnValue({
+      record: { create, update: jest.fn() },
+    } as never);
+    const confirmItem = jest
+      .spyOn(localApi.quickBookDraft, 'confirmItem')
+      .mockResolvedValue({ item: draftItem(), recordId: 9 });
+    const recordVersionBefore = useSyncVersionStore.getState().recordVersion;
+    const draftVersionBefore = useDraftVersionStore.getState().draftVersion;
+
+    // Act
+    await saveAddRecordDraft(
+      'expense',
+      {
+        booksId: 2,
+        typeId: 1,
+        selectedType: typeRow({}),
+        amount: 1000,
+        charge: 0,
+        recordTime: NOW,
+        remark: '',
+        tagIds: [],
+        imagePaths: ['file://a.jpg'],
+        relatedRecordIds: [],
+      },
+      undefined,
+      { draft: { draftId: 'draft-1', itemIndex: 1, booksId: 2 } },
+    );
+
+    // Assert
+    expect(confirmItem).toHaveBeenCalledTimes(1);
+    expect(confirmItem).toHaveBeenCalledWith(
+      'draft-1',
+      1,
+      expect.objectContaining({ booksId: 2, amount: 1000 }),
+    );
+    expect(create).not.toHaveBeenCalled();
+    expect(useSyncVersionStore.getState().recordVersion).toBe(
+      recordVersionBefore + 1,
+    );
+    expect(useDraftVersionStore.getState().draftVersion).toBe(
+      draftVersionBefore + 1,
+    );
+    confirmItem.mockRestore();
+  });
+
+  it('does not bump any version when confirming the draft item fails', async () => {
+    // Arrange
+    const confirmItem = jest
+      .spyOn(localApi.quickBookDraft, 'confirmItem')
+      .mockRejectedValue(new Error('记账类型不属于目标账本'));
+    const recordVersionBefore = useSyncVersionStore.getState().recordVersion;
+    const draftVersionBefore = useDraftVersionStore.getState().draftVersion;
+
+    // Act & Assert
+    await expect(
+      saveAddRecordDraft(
+        'expense',
+        {
+          booksId: 2,
+          typeId: 1,
+          selectedType: typeRow({}),
+          amount: 1000,
+          charge: 0,
+          recordTime: NOW,
+          remark: '',
+          tagIds: [],
+          imagePaths: [],
+          relatedRecordIds: [],
+        },
+        undefined,
+        { draft: { draftId: 'draft-1', itemIndex: 0, booksId: 2 } },
+      ),
+    ).rejects.toThrow('记账类型不属于目标账本');
+
+    expect(useSyncVersionStore.getState().recordVersion).toBe(
+      recordVersionBefore,
+    );
+    expect(useDraftVersionStore.getState().draftVersion).toBe(
+      draftVersionBefore,
+    );
+    confirmItem.mockRestore();
   });
 });

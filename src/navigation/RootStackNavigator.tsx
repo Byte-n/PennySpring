@@ -17,6 +17,7 @@ import { BookManageScreen } from '../screens/bookManage/BookManageScreen';
 import { HomeScreen } from '../screens/home/HomeScreen';
 import { IconPreviewScreen } from '../screens/iconPreview';
 import { QuickBookSettingsScreen } from '../screens/quickBook/QuickBookSettingsScreen';
+import { QuickBookDraftDetailScreen } from '../screens/quickBookDraft/QuickBookDraftDetailScreen';
 import { SessionManageScreen } from '../screens/sessionManage/SessionManageScreen';
 import { TestScreen } from '../screens/test';
 import { TagManageScreen } from '../screens/tagManage/TagManageScreen';
@@ -62,13 +63,16 @@ export function RootStackNavigator() {
         component={AddRecordScreen}
         name={ROOT_ROUTES.AddRecord}
         options={({ route }) => ({
-          title: route.params?.template
-            ? route.params?.templatePayload
-              ? '编辑模板'
-              : '新增模板'
-            : route.params?.recordId !== undefined
-              ? '编辑记录'
-              : '新增记录',
+          title:
+            route.params?.draftId !== undefined
+              ? '确认草稿'
+              : route.params?.template
+                ? route.params?.templatePayload
+                  ? '编辑模板'
+                  : '新增模板'
+                : route.params?.recordId !== undefined
+                  ? '编辑记录'
+                  : '新增记录',
         })}
       />
       <Stack.Screen
@@ -165,6 +169,11 @@ export function RootStackNavigator() {
         component={BackupLanScreen}
         name={ROOT_ROUTES.BackupLanReceive}
         options={{ title: '局域网传输' }}
+      />
+      <Stack.Screen
+        component={QuickBookDraftDetailScreen}
+        name={ROOT_ROUTES.QuickBookDraft}
+        options={{ title: '草稿详情' }}
       />
     </Stack.Navigator>
   );

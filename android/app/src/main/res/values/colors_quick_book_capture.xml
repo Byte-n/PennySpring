@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 截图浮层与预设栏专用色，通用 quick_book_* 色由 colors.xml 提供 -->
+    <color name="quick_book_capture_on_primary">#FFFFFF</color>
+    <color name="quick_book_capture_guide">#4DFFFFFF</color>
+    <color name="quick_book_capture_tip_bg">#B3000000</color>
+    <color name="quick_book_capture_action_bg">#59000000</color>
+</resources>

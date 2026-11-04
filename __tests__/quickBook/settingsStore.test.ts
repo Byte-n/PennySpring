@@ -25,6 +25,7 @@ beforeEach(() => {
     presetPrompt: DEFAULT_QUICK_BOOK_PROMPT,
     nudgeEnabled: false,
     autoApproveScreenshot: true,
+    floatingBallEnabled: false,
   });
 });
 
@@ -88,9 +89,28 @@ describe('migrateQuickBookSettings', () => {
   });
 
   it('does not rewrite data that is already on the current version', () => {
-    const migrated = migrateQuickBookSettings(persisted, 3);
+    const migrated = migrateQuickBookSettings(persisted, 4);
 
     expect(migrated.presetPrompt).toBe(LEGACY_DEFAULT_QUICK_BOOK_PROMPT);
+  });
+
+  it('adds the floating ball switch as disabled for older data', () => {
+    const migrated = migrateQuickBookSettings(persisted, 3);
+
+    expect(migrated.floatingBallEnabled).toBe(false);
+    expect(migrated.freshWindowSeconds).toBe(90);
+    expect(migrated.nudgeEnabled).toBe(true);
+    expect(migrated.autoApproveScreenshot).toBe(false);
+  });
+
+  it('keeps an existing floating ball setting during migration', () => {
+    const migrated = migrateQuickBookSettings(
+      { ...persisted, floatingBallEnabled: true },
+      3,
+    );
+
+    expect(migrated.floatingBallEnabled).toBe(true);
+    expect(migrated.freshWindowSeconds).toBe(90);
   });
 });
 
@@ -99,6 +119,7 @@ describe('quick book settings store', () => {
     const state = useQuickBookSettingsStore.getState();
     expect(state.nudgeEnabled).toBe(false);
     expect(state.autoApproveScreenshot).toBe(true);
+    expect(state.floatingBallEnabled).toBe(false);
     expect(state.freshWindowSeconds).toBe(
       DEFAULT_SCREENSHOT_FRESH_WINDOW_SECONDS,
     );
@@ -142,5 +163,18 @@ describe('quick book settings store', () => {
     expect(next.nudgeEnabled).toBe(false);
     expect(next.freshWindowSeconds).toBe(120);
     expect(next.presetPrompt).toBe('自定义提示');
+  });
+
+  it('toggles the floating ball switch independently', () => {
+    useQuickBookSettingsStore.getState().setFloatingBallEnabled(true);
+
+    let next = useQuickBookSettingsStore.getState();
+    expect(next.floatingBallEnabled).toBe(true);
+    expect(next.nudgeEnabled).toBe(false);
+
+    next.setFloatingBallEnabled(false);
+
+    next = useQuickBookSettingsStore.getState();
+    expect(next.floatingBallEnabled).toBe(false);
   });
 });

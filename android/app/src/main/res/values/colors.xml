@@ -1,4 +1,16 @@
 <resources>
     <color name="bootsplash_background">#f7f8fa</color>
     <color name="ic_launcher_background">#E9F2FA</color>
+
+    <!-- 截图记账草稿悬浮层 -->
+    <color name="quick_book_primary">#1677FF</color>
+    <color name="quick_book_bg">#FFFFFF</color>
+    <color name="quick_book_text">#141414</color>
+    <color name="quick_book_text_secondary">#8C8C8C</color>
+    <color name="quick_book_text_tertiary">#737373</color>
+    <color name="quick_book_line">#14000000</color>
+    <color name="quick_book_warning">#D46B08</color>
+    <color name="quick_book_danger">#CF1322</color>
+    <color name="quick_book_success">#389E0D</color>
+    <color name="quick_book_dim">#8C000000</color>
 </resources>

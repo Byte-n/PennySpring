@@ -13,6 +13,8 @@ export type RootStackParamList = {
         preset?: AddRecordPresetPayload;
         template?: boolean;
         templatePayload?: AddRecordTemplatePayload;
+        draftId?: string;
+        itemIndex?: number;
       }
     | undefined;
   [ROOT_ROUTES.Test]: undefined;
@@ -34,6 +36,7 @@ export type RootStackParamList = {
   [ROOT_ROUTES.BackupLan]: undefined;
   [ROOT_ROUTES.BackupLanSend]: undefined;
   [ROOT_ROUTES.BackupLanReceive]: undefined;
+  [ROOT_ROUTES.QuickBookDraft]: { draftId: string };
 };
 
 export type BookSelectStackParamList = {

@@ -6,6 +6,7 @@ export {
 } from './agent-provider';
 export { assets } from './assets';
 export { books } from './books';
+export { quickBookDrafts } from './quick-book-draft';
 export { quickTemplates } from './quick-template';
 export {
   imageWithRelated,

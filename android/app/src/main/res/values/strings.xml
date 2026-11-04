@@ -1,3 +1,38 @@
 <resources>
     <string name="app_name">PennySpring</string>
+
+    <!-- 截图记账草稿通知渠道 -->
+    <string name="quick_book_channel_floating_name">悬浮球</string>
+    <string name="quick_book_channel_floating_description">保持悬浮球在后台运行</string>
+    <string name="quick_book_channel_draft_name">草稿生成</string>
+    <string name="quick_book_channel_draft_description">截图记账草稿生成结果</string>
+    <string name="quick_book_channel_capture_name">屏幕截图</string>
+    <string name="quick_book_channel_capture_description">自由截图期间保持服务运行</string>
+
+    <!-- 截图记账草稿通知 -->
+    <string name="quick_book_notification_floating_title">悬浮球已开启</string>
+    <string name="quick_book_notification_floating_text">点按打开 PennySpring，随时截图记账</string>
+    <string name="quick_book_notification_generating_title">正在生成记账草稿</string>
+    <string name="quick_book_notification_generating_text">完成后会通知你确认</string>
+    <string name="quick_book_notification_success_title">截图记账草稿已生成</string>
+    <string name="quick_book_notification_success_text">共 %1$d 笔草稿，点击确认</string>
+    <string name="quick_book_notification_failure_title">截图记账失败，点击查看原因</string>
+    <string name="quick_book_notification_failure_text">点击打开 PennySpring 查看草稿</string>
+    <string name="quick_book_notification_capture_title">正在截图</string>
+    <string name="quick_book_notification_capture_text">完成选区后将自动生成草稿</string>
+
+    <!-- 截图记账草稿悬浮层动作 -->
+    <string name="quick_book_floating_ball_description">打开截图记账菜单</string>
+    <string name="quick_book_action_capture">自由截图</string>
+    <string name="quick_book_action_open_app">打开 App</string>
+    <string name="quick_book_action_ai">AI 助手</string>
+
+    <!-- 截图记账草稿提示 -->
+    <string name="quick_book_toast_draft_generated">已生成 %1$d 笔草稿</string>
+    <string name="quick_book_toast_draft_failed">截图记账失败</string>
+    <string name="quick_book_toast_missing_params">缺少生成草稿所需参数</string>
+    <string name="quick_book_toast_overlay_permission">请先授予悬浮窗权限</string>
+    <string name="quick_book_toast_capture_failed">无法打开自由截图，请重试</string>
+    <string name="quick_book_toast_open_app_failed">无法打开 PennySpring，请重试</string>
+    <string name="quick_book_toast_menu_failed">无法展开悬浮球菜单，请重试</string>
 </resources>

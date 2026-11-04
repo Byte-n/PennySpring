@@ -175,14 +175,14 @@ function RecordHero({
   );
 }
 
-interface InfoRowProps {
+export interface InfoRowProps {
   label: string;
   children: React.ReactNode;
   showDivider: boolean;
   isBlock?: boolean;
 }
 
-function InfoRow({
+export function InfoRow({
   label,
   children,
   showDivider,
@@ -368,7 +368,7 @@ function AmountComposition({
   );
 }
 
-function RouteRow({
+export function RouteRow({
   label,
   name,
   isOutline,

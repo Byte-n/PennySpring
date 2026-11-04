@@ -1,5 +1,7 @@
-import React, { useCallback, useMemo, useState } from 'react';
-import { ScrollView } from 'react-native';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
+import { AppState, ScrollView } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
+import { BOOK_TYPE } from '@pennyspring/api';
 import {
   ActionSheet,
   Button,
@@ -21,7 +23,7 @@ import {
   useQuickBookSelection,
   useProviders,
 } from '../../agent/providers/useProviders';
-import { useGlobalApi } from '../../stores/bookStore';
+import { useBookStore, useGlobalApi } from '../../stores/bookStore';
 import { useSyncVersionStore } from '../../stores/syncVersionStore';
 import {
   DEFAULT_QUICK_BOOK_PROMPT,
@@ -41,6 +43,19 @@ import {
   getDefaultQuickBookModel,
   resolveQuickBookModel,
 } from '../../features/quickBook/validation';
+import { getDraftErrorMessage } from '../../features/quickBookDraft/errorMessage';
+import {
+  getFloatingBallEnableBlockReason,
+  getFloatingBallStatus,
+  isFloatingBallSupported,
+  openNotificationSettings,
+  openOverlaySettings,
+  requestNotificationPermission,
+  startFloatingBall,
+  stopFloatingBall,
+  syncFloatingBallEnabledSetting,
+} from '../../features/quickBookDraft/floatingBall';
+import type { QuickBookDraftNativeStatus } from '../../features/quickBookDraft/native';
 import { ROOT_ROUTES, useNavigation } from '../../navigation';
 
 const useStyles = createUseSheetStyle(token => ({
@@ -108,6 +123,19 @@ export function QuickBookSettingsScreen(): React.ReactElement {
   );
   const isConfigured = resolution.ok;
   const isAndroid = isScreenshotDetectionSupported();
+  const book = useBookStore(state => state.currentBook);
+  const floatingBallSupported = isFloatingBallSupported();
+  const isLocalBook = book !== null && book.kind === BOOK_TYPE.local;
+  const floatingBallBlockReason = getFloatingBallEnableBlockReason({
+    isSupported: floatingBallSupported,
+    isConfigured,
+    isLocalBook,
+  });
+  const [floatingBallStatus, setFloatingBallStatus] =
+    useState<QuickBookDraftNativeStatus | null>(null);
+  const [floatingBallBusy, setFloatingBallBusy] = useState(false);
+  const floatingBallBusyRef = useRef(false);
+  const floatingBallAutoStoppedRef = useRef(false);
 
   const providerActions = useMemo(
     () =>
@@ -211,6 +239,193 @@ export function QuickBookSettingsScreen(): React.ReactElement {
     [isConfigured, settings, toast],
   );
 
+  const refreshFloatingBallStatus = useCallback(async (): Promise<void> => {
+    if (!floatingBallSupported) {
+      return;
+    }
+    try {
+      const status = await getFloatingBallStatus();
+      setFloatingBallStatus(status);
+      const store = useQuickBookSettingsStore.getState();
+      const permissionMissing =
+        !status.overlayPermission || !status.notificationPermission;
+      if (
+        store.floatingBallEnabled &&
+        !floatingBallBusyRef.current &&
+        (permissionMissing || !status.floatingBallRunning)
+      ) {
+        if (status.floatingBallRunning) {
+          try {
+            await stopFloatingBall();
+          } catch {
+            // 权限失效时尽力停掉旧服务，失败不阻塞开关回写。
+          }
+        }
+        store.setFloatingBallEnabled(false);
+        try {
+          syncFloatingBallEnabledSetting(false);
+        } catch {
+          // JS 侧已经关闭开关，原生标记失败不阻塞页面状态回写。
+        }
+        if (!floatingBallAutoStoppedRef.current) {
+          floatingBallAutoStoppedRef.current = true;
+          toast.show({
+            messageText: permissionMissing
+              ? '悬浮窗或通知权限已失效，悬浮球已关闭，请重新授权后开启。'
+              : '悬浮球已停止运行（服务被系统关闭），开关已自动关闭。',
+            status: 'error',
+          });
+        }
+      }
+    } catch (error) {
+      setFloatingBallStatus(null);
+      console.error('Floating ball status refresh failed:', error);
+    }
+  }, [floatingBallSupported, toast]);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!floatingBallSupported) {
+        return undefined;
+      }
+      refreshFloatingBallStatus().catch(() => undefined);
+      const subscription = AppState.addEventListener('change', state => {
+        if (state === 'active') {
+          refreshFloatingBallStatus().catch(() => undefined);
+        }
+      });
+      return () => {
+        subscription.remove();
+      };
+    }, [floatingBallSupported, refreshFloatingBallStatus]),
+  );
+
+  const handleOpenOverlaySettings = useCallback((): void => {
+    try {
+      openOverlaySettings();
+    } catch (error) {
+      toast.show({
+        messageText: getDraftErrorMessage(error, '打开悬浮窗设置失败'),
+        status: 'error',
+      });
+    }
+  }, [toast]);
+
+  const handleOpenNotificationSettings = useCallback((): void => {
+    try {
+      openNotificationSettings();
+    } catch (error) {
+      toast.show({
+        messageText: getDraftErrorMessage(error, '打开通知设置失败'),
+        status: 'error',
+      });
+    }
+  }, [toast]);
+
+  const setFloatingBallBusyState = useCallback((busy: boolean): void => {
+    floatingBallBusyRef.current = busy;
+    setFloatingBallBusy(busy);
+  }, []);
+
+  const handleFloatingBallToggle = useCallback(
+    async (next: boolean): Promise<void> => {
+      if (!floatingBallSupported || floatingBallBusyRef.current) {
+        return;
+      }
+      if (!next) {
+        setFloatingBallBusyState(true);
+        try {
+          await stopFloatingBall();
+        } catch (error) {
+          toast.show({
+            messageText: getDraftErrorMessage(error, '关闭悬浮球失败'),
+            status: 'error',
+          });
+        }
+        settings.setFloatingBallEnabled(false);
+        try {
+          syncFloatingBallEnabledSetting(false);
+        } catch {
+          // 开关已按用户意图关闭，原生标记失败不回滚。
+        }
+        floatingBallAutoStoppedRef.current = false;
+        setFloatingBallBusyState(false);
+        await refreshFloatingBallStatus();
+        return;
+      }
+
+      if (floatingBallBlockReason !== null) {
+        toast.show({
+          messageText: floatingBallBlockReason,
+          status: 'error',
+        });
+        return;
+      }
+
+      setFloatingBallBusyState(true);
+      try {
+        const status = await getFloatingBallStatus();
+        setFloatingBallStatus(status);
+        if (!status.supported) {
+          toast.show({
+            messageText: '当前设备不支持悬浮球截图记账。',
+            status: 'error',
+          });
+          return;
+        }
+        if (!status.overlayPermission) {
+          openOverlaySettings();
+          toast.show({
+            messageText: '请先授权悬浮窗权限，授权后返回再次开启。',
+            status: 'error',
+          });
+          return;
+        }
+        const notificationGranted =
+          status.notificationPermission ||
+          (await requestNotificationPermission());
+        if (!notificationGranted) {
+          toast.show({
+            messageText: '需要通知权限才能接收草稿提醒，请在系统设置中允许。',
+            status: 'error',
+          });
+          return;
+        }
+        const started = await startFloatingBall();
+        if (!started) {
+          toast.show({
+            messageText: '悬浮球启动失败，请稍后重试。',
+            status: 'error',
+          });
+          return;
+        }
+        settings.setFloatingBallEnabled(true);
+        try {
+          syncFloatingBallEnabledSetting(true);
+        } catch {
+          // 服务已启动，原生标记失败不影响 JS 开关。
+        }
+        floatingBallAutoStoppedRef.current = false;
+        setFloatingBallStatus(await getFloatingBallStatus());
+      } catch (error) {
+        toast.show({
+          messageText: getDraftErrorMessage(error, '开启悬浮球失败'),
+          status: 'error',
+        });
+      } finally {
+        setFloatingBallBusyState(false);
+      }
+    },
+    [
+      floatingBallBlockReason,
+      floatingBallSupported,
+      refreshFloatingBallStatus,
+      setFloatingBallBusyState,
+      settings,
+      toast,
+    ],
+  );
+
   const handleClearProviderModel = useCallback((): void => {
     settings.setNudgeEnabled(false);
     api.quickBook
@@ -306,6 +521,92 @@ export function QuickBookSettingsScreen(): React.ReactElement {
             </Row>
           </Column>
         </Card>
+
+        {isAndroid && floatingBallSupported ? (
+          <Card titleText="悬浮球截图记账" variant="plain">
+            <Column style={styles.section}>
+              <Row align="center" gap="normal" justify="between">
+                <Column gap="small" style={styles.truncate}>
+                  <Text size="sm">启用悬浮球</Text>
+                  <Text color="secondary" size="xs">
+                    在其他应用上自由截图，草稿生成后回到首页确认入账。
+                  </Text>
+                </Column>
+                <Switch
+                  disabled={
+                    floatingBallBusy ||
+                    (floatingBallBlockReason !== null &&
+                      !settings.floatingBallEnabled)
+                  }
+                  onChange={value => {
+                    handleFloatingBallToggle(value).catch(() => undefined);
+                  }}
+                  value={settings.floatingBallEnabled}
+                />
+              </Row>
+              {floatingBallBlockReason !== null ? (
+                <Text color="warningText" size="xs" style={styles.hint}>
+                  {floatingBallBlockReason}
+                </Text>
+              ) : null}
+              <Row align="center" justify="between">
+                <Text size="sm">悬浮窗权限</Text>
+                <Row align="center" gap="small">
+                  <Text
+                    color={
+                      floatingBallStatus?.overlayPermission
+                        ? 'successText'
+                        : 'warningText'
+                    }
+                    size="xs"
+                  >
+                    {floatingBallStatus === null
+                      ? '未检测'
+                      : floatingBallStatus.overlayPermission
+                        ? '已授权'
+                        : '未授权'}
+                  </Text>
+                  <Button
+                    onPress={handleOpenOverlaySettings}
+                    size="small"
+                    type="text"
+                  >
+                    去设置
+                  </Button>
+                </Row>
+              </Row>
+              <Row align="center" justify="between">
+                <Text size="sm">通知权限</Text>
+                <Row align="center" gap="small">
+                  <Text
+                    color={
+                      floatingBallStatus?.notificationPermission
+                        ? 'successText'
+                        : 'warningText'
+                    }
+                    size="xs"
+                  >
+                    {floatingBallStatus === null
+                      ? '未检测'
+                      : floatingBallStatus.notificationPermission
+                        ? '已授权'
+                        : '未授权'}
+                  </Text>
+                  <Button
+                    onPress={handleOpenNotificationSettings}
+                    size="small"
+                    type="text"
+                  >
+                    去设置
+                  </Button>
+                </Row>
+              </Row>
+              <Text color="tertiary" size="xs" style={styles.hint}>
+                每次自由截图时系统会请求屏幕录制授权。
+              </Text>
+            </Column>
+          </Card>
+        ) : null}
 
         <Card
           extra={

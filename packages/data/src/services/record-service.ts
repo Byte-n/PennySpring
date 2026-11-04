@@ -386,7 +386,7 @@ export async function getRecordTagsByBook(
   return result;
 }
 
-async function createRecordInTransaction(
+export async function createRecordInTransaction(
   tx: Tx,
   input: CreateRecordInput,
 ): Promise<RecordRow> {

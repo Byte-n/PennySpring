@@ -4,6 +4,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import BootSplash from 'react-native-bootsplash';
 import { App as PSApp, useTheme } from '@pennyspring/ui';
 import { rootNavigationRef, RootStackNavigator } from './src/navigation';
+import { linking } from './src/navigation/linking';
 import { AgentRoot } from './src/agent/ui/AgentRoot';
 import { BookSelectNavigator } from './src/navigation/BookSelectNavigator';
 import {
@@ -14,6 +15,7 @@ import {
 import { useBookStore } from './src/stores/bookStore';
 import { rehydrateNetworkBooks } from './src/stores/networkBookStore';
 import { useAutoBackup } from './src/features/backup/useAutoBackup';
+import { cleanupQuickBookDraftsOnStartup } from './src/features/quickBookDraft/startupCleanup';
 import { AutoUpdateChecker } from './src/features/appUpdate/AutoUpdateChecker';
 import {
   ThemeModeProvider,
@@ -53,6 +55,7 @@ function NavigationShell({ children, isDark, onReady }: NavigationShellProps) {
   return (
     <NavigationContainer
       ref={rootNavigationRef}
+      linking={linking}
       onReady={onReady}
       theme={navigationTheme}
     >
@@ -87,6 +90,11 @@ function AppContent() {
         console.error('Network book rehydration failed:', error);
       }
       await initializeBook();
+      try {
+        await cleanupQuickBookDraftsOnStartup();
+      } catch (error) {
+        console.error('Quick book draft cleanup failed:', error);
+      }
     };
     bootstrap().catch(error => {
       console.error('Book initialization failed:', error);

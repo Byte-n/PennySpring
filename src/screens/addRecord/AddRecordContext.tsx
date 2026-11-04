@@ -9,6 +9,11 @@ import React, {
 import type { ImagePickerValue } from '@pennyspring/ui';
 import type { RecordTypeCategoryValue } from '@pennyspring/api';
 
+import type {
+  AddRecordDraftInitPayload,
+  AddRecordDraftTarget,
+} from './draftPrefill';
+
 export type AddRecordMode = 'create' | 'edit';
 
 export interface AddRecordInitPayload {
@@ -65,6 +70,8 @@ export interface AddRecordContextValue {
   editingRecordId?: number;
   /** 是否处于模板编辑流程（新增/编辑模板） */
   template: boolean;
+  /** 草稿预填目标；null 表示普通新增/编辑/模板流程 */
+  draftTarget: AddRecordDraftTarget | null;
   /** 编辑模板时携带的模板 id；undefined 表示新增模板 */
   editingTemplateId?: number;
   templateName: string;
@@ -95,6 +102,8 @@ export interface AddRecordContextValue {
   initFromPreset: (payload: AddRecordPresetPayload) => void;
   initFromTemplate: (payload: AddRecordTemplatePayload) => void;
   initBlankTemplate: () => void;
+  /** 从截图草稿进入新建记录：只预填表单，不写入记录。 */
+  initFromDraft: (payload: AddRecordDraftInitPayload) => void;
   reset: () => void;
   /**
    * 一次性消费「进入新增记录后自动打开金额弹窗」的机会。
@@ -117,6 +126,9 @@ export function AddRecordProvider({
   const [mode, setMode] = useState<AddRecordMode>('create');
   const [editingRecordId, setEditingRecordId] = useState<number>();
   const [template, setTemplate] = useState(false);
+  const [draftTarget, setDraftTarget] = useState<AddRecordDraftTarget | null>(
+    null,
+  );
   const [editingTemplateId, setEditingTemplateId] = useState<number>();
   const [templateName, setTemplateName] = useState('');
   const [reimbursable, setReimbursable] = useState(false);
@@ -145,6 +157,7 @@ export function AddRecordProvider({
     setMode('create');
     setEditingRecordId(undefined);
     setTemplate(false);
+    setDraftTarget(null);
     setEditingTemplateId(undefined);
     setTemplateName('');
     setReimbursable(false);
@@ -163,6 +176,8 @@ export function AddRecordProvider({
   const init = useCallback((payload: AddRecordInitPayload) => {
     setMode('edit');
     setEditingRecordId(payload.editingRecordId);
+    setTemplate(false);
+    setDraftTarget(null);
     setTypeId(payload.typeId);
     setAmount(payload.amount);
     setRemark(payload.remark);
@@ -179,6 +194,8 @@ export function AddRecordProvider({
   const initFromPreset = useCallback((payload: AddRecordPresetPayload) => {
     setMode('create');
     setEditingRecordId(undefined);
+    setTemplate(false);
+    setDraftTarget(null);
     setTypeId(payload.typeId);
     setAmount(payload.amount);
     setRemark(payload.remark);
@@ -196,6 +213,7 @@ export function AddRecordProvider({
     setMode('create');
     setEditingRecordId(undefined);
     setTemplate(true);
+    setDraftTarget(null);
     setEditingTemplateId(payload.id);
     setTemplateName(payload.name);
     setReimbursable(payload.reimbursable);
@@ -215,6 +233,7 @@ export function AddRecordProvider({
     setMode('create');
     setEditingRecordId(undefined);
     setTemplate(true);
+    setDraftTarget(null);
     setEditingTemplateId(undefined);
     setTemplateName('');
     setReimbursable(false);
@@ -230,11 +249,36 @@ export function AddRecordProvider({
     setRecordTime(Date.now());
   }, []);
 
+  const initFromDraft = useCallback((payload: AddRecordDraftInitPayload) => {
+    setMode('create');
+    setEditingRecordId(undefined);
+    setTemplate(false);
+    setEditingTemplateId(undefined);
+    setTemplateName('');
+    setDraftTarget({
+      draftId: payload.draftId,
+      itemIndex: payload.itemIndex,
+      booksId: payload.booksId,
+    });
+    setReimbursable(payload.reimbursable);
+    setTypeId(payload.typeId);
+    setAmount(payload.amount);
+    setRemark(payload.remark);
+    setRecordTime(payload.recordTime);
+    setTags(payload.tagIds);
+    setImages(payload.images);
+    setAssetId(payload.assetId);
+    setIntoAssetId(payload.intoAssetId);
+    setRelatedRecordIds([]);
+    setCharge(payload.charge);
+  }, []);
+
   const value = useMemo<AddRecordContextValue>(
     () => ({
       mode,
       editingRecordId,
       template,
+      draftTarget,
       editingTemplateId,
       templateName,
       setTemplateName,
@@ -264,6 +308,7 @@ export function AddRecordProvider({
       initFromPreset,
       initFromTemplate,
       initBlankTemplate,
+      initFromDraft,
       reset,
       consumeAutoOpenAmount,
     }),
@@ -272,11 +317,13 @@ export function AddRecordProvider({
       assetId,
       charge,
       consumeAutoOpenAmount,
+      draftTarget,
       editingRecordId,
       editingTemplateId,
       images,
       init,
       initBlankTemplate,
+      initFromDraft,
       initFromPreset,
       initFromTemplate,
       intoAssetId,
