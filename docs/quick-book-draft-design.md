@@ -1,8 +1,8 @@
 # 截图记账草稿设计方案
 
-> 状态：已评审，实施中（本轮范围：P1 + P2 + P4，Android 悬浮球与通知下一轮）
-> 范围：Android 悬浮球自由截图 → Agent 生成草稿 → 首页草稿 Tab 确认记账
-> 更新：2026-11-04
+> 状态：已实施（悬浮球点按截图、手绘圈选、草稿 Tab 确认）
+> 范围：Android 悬浮球圈选截图 → Agent 生成草稿 → 首页草稿 Tab 确认记账
+> 更新：2026-11-07
 > 关联：[Agent P0 实施计划](./agent-p0-plan.md)
 
 一句话：悬浮球负责“截得准、选得快”，Agent 负责“看懂截图”，草稿 Tab 负责“用户最终确认”。
@@ -20,8 +20,8 @@
 
 ### 1.2 新目标
 
-- Android 系统级悬浮球：在任意 App 上自由截图、框选区域。
-- 截图后直接在选区附近预设账本、资产、类型，减少 Agent 猜测。
+- Android 系统级悬浮球：点按即截图，在任意 App 上用手绘路径圈出区域。
+- 松手后直接在选区附近出现账本、资产、类型与提交，减少一步确认。
 - 截图发送后**不打开 App 界面**，由 Headless JS 在后台生成记账草稿。
 - 首页新增“草稿”Tab，用户最终检查、修改、确认后才写入业务表。
 - Agent 只提供中间态，不允许直接写 `tb_record`。
@@ -59,16 +59,15 @@
 ### 3.1 生成草稿
 
 ```text
-用户在任意 App 打开悬浮球
-  → 展开扇形菜单
-  → 点击“自由截图”
-  → 全屏选区
-  → 确认选区
-  → 截图完成，选区下方出现预设栏
+用户在任意 App 点按悬浮球
+  → 直接抓取当前屏幕（无菜单）
+  → 手指绘制路径圈出区域
+  → 松手后按路径外接矩形裁剪
+  → 选区旁出现预设栏
        账本（必选，默认当前账本）
        资产（可选）
        类型（可选）
-  → 点击“发送”
+  → 点击“提交”
   → 原生隐藏悬浮 UI，启动 Headless JS 任务
   → Agent 识别截图并调用 saveRecordDrafts
   → 草稿写入本地数据库
@@ -134,19 +133,22 @@ pending ──确定/新建记录保存──> confirmed
 
 ### 4.1 悬浮球与预设栏
 
-- 悬浮球、扇形菜单、选区裁剪均为原生实现。
-- 预设栏出现在选区下方；空间不足时自动翻到选区上方。
+- 悬浮球、手绘选区与裁剪均为原生实现；点按悬浮球直接截图，拖动只移动悬浮球，不再弹菜单。
+- 截图后不预置选框：用户按住绘制任意路径，松手后取路径所有点的外接矩形。
+- 外接矩形按笔宽外扩 3dp，再夹到屏幕内；任一边小于 64dp 视为无效，保留上一次选区并提示“区域太小，请重新圈选”。
+- 矩形不旋转、不做套索遮罩；不提供拖角、拖动或手柄，空白处再画一笔即可替换。
+- 预设栏出现在选区下方；空间不足时自动翻到选区上方，与选区保持 12dp 间距；顶部安全线位于右上角关闭按钮下方，避免贴近顶部时遮挡关闭入口。
 - 预设栏压缩为**单行紧凑条**，高度约 56：
   - 左侧三段：`账本 | 资产 | 类型`，每段由小标签 + 当前值组成。
-  - 右侧一个圆形发送按钮。
-  - 不展示标题、说明和取消按钮；点击选区外取消。
-- 每段点击后向上弹出选项菜单，避免遮挡选区下方内容。
+  - 右侧一个 44dp 圆形提交按钮。
+  - 不展示标题、说明和取消按钮；右上角关闭按钮或返回键取消，空白处点击不再取消。
+- 每段点击后向上弹出选项菜单，避免遮挡选区下方内容；靠近屏幕顶部时菜单改为向下。
 - 预设顺序固定：**账本 → 资产 → 类型**。
 - 账本默认当前账本；切换账本后清空已选资产、类型，并重新查询。
 - 资产、类型均为单选，允许“不指定”。
 - 多笔混合账单建议类型选“不指定”，由 Agent 逐笔判断；账本、资产仍按预设锁定。
 - 一期不提供标签预设。
-- 点击发送后立即收起所有浮层，避免截图被浮层污染。
+- 点击提交后立即收起所有浮层，避免截图被浮层污染。
 
 预设栏数据通过原生只读查询本地 SQLite：
 
@@ -571,12 +573,12 @@ confirmQuickBookDraftItem(
 
 ### 9.1 原生
 
-- 系统悬浮球、扇形菜单、拖拽吸边。
-- 无障碍服务全屏抓帧（`AccessibilityService#takeScreenshot`）、选区裁剪。
-- 选区下方单行预设栏：`账本 | 资产 | 类型` + 圆形发送。
+- 系统悬浮球：点按截图、拖动吸边，不再弹菜单。
+- 无障碍服务全屏抓帧（`AccessibilityService#takeScreenshot`）、手绘路径外接矩形选区与裁剪。
+- 选区旁单行预设栏：`账本 | 资产 | 类型` + 44dp 圆形提交。
 - 原生只读 SQLite 查询预设数据。
 - 前台服务、通知渠道、Headless 任务启动。
-- 生成结果气泡/通知、深链跳转草稿详情。
+- 生成结果气泡/通知、点击通知打开 App 的草稿 Tab。
 - 权限校验：悬浮窗、通知、无障碍截图服务。
 
 ### 9.2 JS
@@ -695,8 +697,8 @@ confirmQuickBookDraftItem(
 ### 12.4 原生
 
 - 悬浮窗权限、通知权限、无障碍截图服务。
-- 选区坐标与图片裁剪。
-- 预设栏定位、滚动、键盘避让。
+- 手绘路径外接矩形、最小尺寸、边界夹取与图片裁剪。
+- 预设栏定位、上下翻转与菜单滚动。
 - Headless 任务启动与超时。
 - 通知在锁屏与后台的展示。
 
@@ -759,12 +761,13 @@ confirmQuickBookDraftItem(
 
 ### Android
 
-- `android/app/src/main/java/com/pennyspring/quickbook/capture/FloatingBallService.kt`
-- `android/app/src/main/java/com/pennyspring/quickbook/capture/ScreenCaptureActivity.kt`
-- `android/app/src/main/java/com/pennyspring/quickbook/capture/CropOverlayView.kt`
-- `android/app/src/main/java/com/pennyspring/quickbook/capture/PresetBarView.kt`
-- `android/app/src/main/java/com/pennyspring/quickbook/QuickBookJobService.kt`
-- `android/app/src/main/java/com/pennyspring/quickbook/QuickBookDraftModule.kt`
+- `android/app/src/main/java/com/pennyspring/quickbook/draft/FloatingBallService.kt`
+- `android/app/src/main/java/com/pennyspring/quickbook/draft/ScreenCaptureActivity.kt`
+- `android/app/src/main/java/com/pennyspring/quickbook/draft/CropOverlayView.kt`
+- `android/app/src/main/java/com/pennyspring/quickbook/draft/SelectionBoundsCalculator.kt`
+- `android/app/src/main/java/com/pennyspring/quickbook/draft/PresetBarView.kt`
+- `android/app/src/main/java/com/pennyspring/quickbook/draft/QuickBookJobService.kt`
+- `android/app/src/main/java/com/pennyspring/quickbook/draft/QuickBookDraftModule.kt`
 - `android/app/src/main/AndroidManifest.xml`
 
 ---

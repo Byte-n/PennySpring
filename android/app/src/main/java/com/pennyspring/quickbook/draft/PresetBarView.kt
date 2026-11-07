@@ -435,7 +435,7 @@ class PresetBarView(
         const val DIVIDER_WIDTH_DP = 1
         const val DIVIDER_HEIGHT_DP = 24
         const val DIVIDER_MARGIN_DP = 2
-        const val SEND_BUTTON_SIZE_DP = 38
+        const val SEND_BUTTON_SIZE_DP = 44
         const val SEND_BUTTON_MARGIN_DP = 4
         const val SEND_BUTTON_ELEVATION_DP = 2
         const val SEND_ICON_SIZE_DP = 17

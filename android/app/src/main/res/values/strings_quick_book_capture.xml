@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- 截图浮层 -->
-    <string name="quick_book_capture_hint">拖动选择记账区域</string>
-    <string name="quick_book_capture_cancel">取消</string>
-    <string name="quick_book_capture_next">下一步</string>
-    <string name="quick_book_capture_send">发送</string>
+    <string name="quick_book_capture_hint">圈出要记账的区域</string>
+    <string name="quick_book_capture_hint_release">松手完成圈选</string>
+    <string name="quick_book_capture_too_small">区域太小，请重新圈选</string>
+    <string name="quick_book_capture_close">取消截图</string>
+    <string name="quick_book_capture_send">提交</string>
 
     <!-- 预设栏 -->
     <string name="quick_book_capture_label_book">账本</string>

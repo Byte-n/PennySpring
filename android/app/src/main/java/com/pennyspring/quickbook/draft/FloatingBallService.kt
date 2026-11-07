@@ -10,7 +10,6 @@ import android.content.res.Configuration
 import android.graphics.PixelFormat
 import android.graphics.Point
 import android.graphics.Rect
-import android.net.Uri
 import android.os.Build
 import android.provider.Settings
 import android.util.Log
@@ -22,18 +21,16 @@ import android.view.WindowManager
 import android.view.animation.DecelerateInterpolator
 import android.widget.FrameLayout
 import android.widget.ImageView
-import android.widget.PopupWindow
 import android.widget.Toast
 import androidx.core.app.ServiceCompat
 import androidx.core.content.ContextCompat
-import com.pennyspring.MainActivity
 import com.pennyspring.R
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
 /**
- * 系统级悬浮球：自由截图、打开 App、AI 助手。
+ * 系统级悬浮球：点按直接进入自由截图，拖动只负责移动。
  *
  * - 窗口类型：API 26+ TYPE_APPLICATION_OVERLAY，以下 TYPE_PHONE。
  * - Android 12+ 后台启动 Activity 受限：点击动作来自用户直接触摸悬浮窗，
@@ -105,7 +102,6 @@ class FloatingBallService : Service() {
     private lateinit var windowManager: WindowManager
     private var ballView: View? = null
     private var windowParams: WindowManager.LayoutParams? = null
-    private var menuPopup: PopupWindow? = null
     private var snapAnimator: ValueAnimator? = null
     private var isOverlayAttached = false
 
@@ -147,14 +143,12 @@ class FloatingBallService : Service() {
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-        dismissMenu()
         val params = windowParams ?: return
         clampToScreen(params)
         updateOverlayLayout()
     }
 
     override fun onDestroy() {
-        dismissMenu()
         snapAnimator?.cancel()
         snapAnimator = null
         removeOverlayView()
@@ -253,7 +247,6 @@ class FloatingBallService : Service() {
     }
 
     private fun hideOverlay() {
-        dismissMenu()
         removeOverlayView()
     }
 
@@ -322,35 +315,6 @@ class FloatingBallService : Service() {
             }
     }
 
-    private fun toggleMenu() {
-        val anchor = ballView ?: return
-        if (menuPopup?.isShowing == true) {
-            dismissMenu()
-            return
-        }
-        menuPopup =
-            try {
-                FloatingBallMenu.show(anchor) { action -> handleAction(action) }
-            } catch (error: Exception) {
-                Log.w(TAG, "展开悬浮球菜单失败", error)
-                Toast.makeText(applicationContext, R.string.quick_book_toast_menu_failed, Toast.LENGTH_SHORT).show()
-                null
-            }
-    }
-
-    private fun dismissMenu() {
-        menuPopup?.takeIf { it.isShowing }?.dismiss()
-        menuPopup = null
-    }
-
-    private fun handleAction(action: FloatingBallAction) {
-        when (action) {
-            FloatingBallAction.CAPTURE -> launchCapture()
-            FloatingBallAction.OPEN_APP -> launchMainActivity(null)
-            FloatingBallAction.AI_ASSISTANT -> launchMainActivity(Uri.parse(QuickBookDraftTaskContract.AGENT_DEEP_LINK))
-        }
-    }
-
     private fun launchCapture() {
         hideOverlay()
         try {
@@ -359,30 +323,6 @@ class FloatingBallService : Service() {
             Log.w(TAG, "打开自由截图失败", error)
             restoreOverlay()
             Toast.makeText(applicationContext, R.string.quick_book_toast_capture_failed, Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    private fun launchMainActivity(deepLink: Uri?) {
-        val intent =
-            Intent(this, MainActivity::class.java).apply {
-                flags =
-                    Intent.FLAG_ACTIVITY_NEW_TASK or
-                    Intent.FLAG_ACTIVITY_SINGLE_TOP or
-                    Intent.FLAG_ACTIVITY_CLEAR_TOP
-                if (deepLink == null) {
-                    action = Intent.ACTION_MAIN
-                    addCategory(Intent.CATEGORY_LAUNCHER)
-                } else {
-                    action = Intent.ACTION_VIEW
-                    data = deepLink
-                }
-            }
-        try {
-            startActivity(intent)
-        } catch (error: Exception) {
-            // Android 12+ 后台启动 Activity 受限或 OEM 拦截时给出提示，不崩溃。
-            Log.w(TAG, "打开 PennySpring 失败", error)
-            Toast.makeText(applicationContext, R.string.quick_book_toast_open_app_failed, Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -417,7 +357,6 @@ class FloatingBallService : Service() {
                     val deltaY = (event.rawY - downRawY).toInt()
                     if (!isDragging && (abs(deltaX) > touchSlop || abs(deltaY) > touchSlop)) {
                         isDragging = true
-                        dismissMenu()
                     }
                     if (isDragging) {
                         params.x = startX + deltaX
@@ -434,7 +373,7 @@ class FloatingBallService : Service() {
                         snapToEdge()
                     } else {
                         view.performClick()
-                        toggleMenu()
+                        launchCapture()
                     }
                     return true
                 }

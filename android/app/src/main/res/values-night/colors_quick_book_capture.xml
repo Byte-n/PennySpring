@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 预设栏跟随系统深色；截图内容来自其他 App，不跟随主题。 -->
+    <color name="quick_book_bg">#141414</color>
+    <color name="quick_book_text">#D9FFFFFF</color>
+    <color name="quick_book_text_secondary">#A6FFFFFF</color>
+    <color name="quick_book_text_tertiary">#73FFFFFF</color>
+    <color name="quick_book_line">#17FFFFFF</color>
+</resources>

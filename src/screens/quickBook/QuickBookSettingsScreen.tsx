@@ -555,7 +555,7 @@ export function QuickBookSettingsScreen(): React.ReactElement {
                 <Column gap="small" style={styles.truncate}>
                   <Text size="sm">启用悬浮球</Text>
                   <Text color="secondary" size="xs">
-                    在其他应用上自由截图，草稿生成后回到首页确认入账。
+                    点按悬浮球圈选区域，草稿生成后回到首页确认入账。
                   </Text>
                 </Column>
                 <Switch
