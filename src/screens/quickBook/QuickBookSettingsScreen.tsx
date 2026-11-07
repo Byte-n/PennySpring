@@ -48,6 +48,7 @@ import {
   getFloatingBallEnableBlockReason,
   getFloatingBallStatus,
   isFloatingBallSupported,
+  openAccessibilitySettings,
   openNotificationSettings,
   openOverlaySettings,
   requestNotificationPermission,
@@ -248,7 +249,9 @@ export function QuickBookSettingsScreen(): React.ReactElement {
       setFloatingBallStatus(status);
       const store = useQuickBookSettingsStore.getState();
       const permissionMissing =
-        !status.overlayPermission || !status.notificationPermission;
+        !status.overlayPermission ||
+        !status.notificationPermission ||
+        !status.accessibilityPermission;
       if (
         store.floatingBallEnabled &&
         !floatingBallBusyRef.current &&
@@ -269,10 +272,13 @@ export function QuickBookSettingsScreen(): React.ReactElement {
         }
         if (!floatingBallAutoStoppedRef.current) {
           floatingBallAutoStoppedRef.current = true;
-          toast.show({
-            messageText: permissionMissing
+          const autoStoppedMessage = !status.accessibilityPermission
+            ? '无障碍截图服务已关闭，悬浮球已关闭，请重新启用后开启。'
+            : !status.overlayPermission || !status.notificationPermission
               ? '悬浮窗或通知权限已失效，悬浮球已关闭，请重新授权后开启。'
-              : '悬浮球已停止运行（服务被系统关闭），开关已自动关闭。',
+              : '悬浮球已停止运行（服务被系统关闭），开关已自动关闭。';
+          toast.show({
+            messageText: autoStoppedMessage,
             status: 'error',
           });
         }
@@ -317,6 +323,17 @@ export function QuickBookSettingsScreen(): React.ReactElement {
     } catch (error) {
       toast.show({
         messageText: getDraftErrorMessage(error, '打开通知设置失败'),
+        status: 'error',
+      });
+    }
+  }, [toast]);
+
+  const handleOpenAccessibilitySettings = useCallback((): void => {
+    try {
+      openAccessibilitySettings();
+    } catch (error) {
+      toast.show({
+        messageText: getDraftErrorMessage(error, '打开无障碍设置失败'),
         status: 'error',
       });
     }
@@ -377,6 +394,15 @@ export function QuickBookSettingsScreen(): React.ReactElement {
           openOverlaySettings();
           toast.show({
             messageText: '请先授权悬浮窗权限，授权后返回再次开启。',
+            status: 'error',
+          });
+          return;
+        }
+        if (!status.accessibilityPermission) {
+          openAccessibilitySettings();
+          toast.show({
+            messageText:
+              '请先启用 PennySpring 截图服务（无障碍），启用后返回再次开启。',
             status: 'error',
           });
           return;
@@ -576,6 +602,32 @@ export function QuickBookSettingsScreen(): React.ReactElement {
                 </Row>
               </Row>
               <Row align="center" justify="between">
+                <Text size="sm">无障碍截图服务</Text>
+                <Row align="center" gap="small">
+                  <Text
+                    color={
+                      floatingBallStatus?.accessibilityPermission
+                        ? 'successText'
+                        : 'warningText'
+                    }
+                    size="xs"
+                  >
+                    {floatingBallStatus === null
+                      ? '未检测'
+                      : floatingBallStatus.accessibilityPermission
+                        ? '已启用'
+                        : '未启用'}
+                  </Text>
+                  <Button
+                    onPress={handleOpenAccessibilitySettings}
+                    size="small"
+                    type="text"
+                  >
+                    去设置
+                  </Button>
+                </Row>
+              </Row>
+              <Row align="center" justify="between">
                 <Text size="sm">通知权限</Text>
                 <Row align="center" gap="small">
                   <Text
@@ -602,7 +654,8 @@ export function QuickBookSettingsScreen(): React.ReactElement {
                 </Row>
               </Row>
               <Text color="tertiary" size="xs" style={styles.hint}>
-                每次自由截图时系统会请求屏幕录制授权。
+                自由截图通过无障碍服务完成，启用后无需每次授权；请先在系统设置中开启
+                PennySpring 截图服务。
               </Text>
             </Column>
           </Card>

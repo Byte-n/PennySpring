@@ -26,12 +26,10 @@ object QuickBookDraftNotifications {
 
     const val CHANNEL_FLOATING = "quick_book_floating"
     const val CHANNEL_DRAFT = "quick_book_draft"
-    const val CHANNEL_CAPTURE = "quick_book_capture"
 
     const val NOTIFICATION_ID_FLOATING = 3101
     const val NOTIFICATION_ID_GENERATING = 3102
     const val NOTIFICATION_ID_RESULT = 3103
-    const val NOTIFICATION_ID_CAPTURE = 3104
 
     private const val REQUEST_CODE_OPEN_APP = 4101
     private const val REQUEST_CODE_DRAFT_BASE = 5000
@@ -59,16 +57,7 @@ object QuickBookDraftNotifications {
             ).apply {
                 description = context.getString(R.string.quick_book_channel_draft_description)
             }
-        val captureChannel =
-            NotificationChannel(
-                CHANNEL_CAPTURE,
-                context.getString(R.string.quick_book_channel_capture_name),
-                NotificationManager.IMPORTANCE_LOW,
-            ).apply {
-                description = context.getString(R.string.quick_book_channel_capture_description)
-                setShowBadge(false)
-            }
-        manager.createNotificationChannels(listOf(floatingChannel, draftChannel, captureChannel))
+        manager.createNotificationChannels(listOf(floatingChannel, draftChannel))
     }
 
     fun canPostNotifications(context: Context): Boolean =
@@ -135,17 +124,6 @@ object QuickBookDraftNotifications {
             .setContentText(context.getString(R.string.quick_book_notification_failure_text))
             .setContentIntent(draftPendingIntent(context, draftId))
             .setAutoCancel(true)
-            .build()
-    }
-
-    fun captureNotification(context: Context): Notification {
-        ensureChannels(context)
-        return baseBuilder(context, CHANNEL_CAPTURE, NotificationCompat.PRIORITY_LOW)
-            .setContentTitle(context.getString(R.string.quick_book_notification_capture_title))
-            .setContentText(context.getString(R.string.quick_book_notification_capture_text))
-            .setOngoing(true)
-            .setShowWhen(false)
-            .setCategory(NotificationCompat.CATEGORY_SERVICE)
             .build()
     }
 

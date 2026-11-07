@@ -37,9 +37,13 @@ class QuickBookDraftModule(
                 Arguments.createMap().apply {
                     putBoolean("overlayPermission", Settings.canDrawOverlays(reactContext))
                     putBoolean("notificationPermission", hasNotificationPermission())
+                    putBoolean(
+                        "accessibilityPermission",
+                        ScreenshotAccessibilityService.isEnabled(reactContext),
+                    )
                     putBoolean("floatingBallRunning", FloatingBallService.isRunning())
                     putInt("currentBookId", QuickBookDraftPrefs.getCurrentBookId(reactContext))
-                    putBoolean("supported", true)
+                    putBoolean("supported", ScreenshotAccessibilityService.isSupported())
                 }
             promise.resolve(status)
         } catch (error: Exception) {
@@ -64,6 +68,13 @@ class QuickBookDraftModule(
                 Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, packageUri())
             }
         startSettings(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+    }
+
+    @ReactMethod
+    fun openAccessibilitySettings() {
+        startSettings(
+            Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+        )
     }
 
     @ReactMethod

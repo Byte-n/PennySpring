@@ -5,24 +5,14 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Color
-import android.graphics.PixelFormat
-import android.graphics.Point
 import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.GradientDrawable
-import android.hardware.display.DisplayManager
-import android.hardware.display.VirtualDisplay
-import android.media.Image
-import android.media.ImageReader
-import android.media.projection.MediaProjection
-import android.media.projection.MediaProjectionManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
-import android.os.HandlerThread
 import android.os.Looper
-import android.util.DisplayMetrics
 import android.view.Gravity
 import android.view.View
 import android.view.WindowManager
@@ -44,7 +34,7 @@ import kotlin.math.min
 import kotlin.math.roundToInt
 
 /**
- * 透明全屏截图 Activity：申请 MediaProjection，抓取一帧屏幕后进入框选和预设栏。
+ * 透明全屏截图 Activity：通过无障碍服务抓取一帧屏幕后进入框选和预设栏。
  * 抓帧前不展示任何内容，确保截图包含下层 App 而不是本 Activity UI。
  */
 class ScreenCaptureActivity : Activity() {
@@ -58,21 +48,7 @@ class ScreenCaptureActivity : Activity() {
     private val hasCapturedFrame = AtomicBoolean(false)
     private val captureTimeout = Runnable { onCaptureTimeout() }
 
-    private var mediaProjectionManager: MediaProjectionManager? = null
-    private var projectionResultCode = 0
-    private var projectionData: Intent? = null
-    private var mediaProjection: MediaProjection? = null
-    private var mediaProjectionCallback: MediaProjection.Callback? = null
-    private var imageReader: ImageReader? = null
-    private var virtualDisplay: VirtualDisplay? = null
-    private var captureThread: HandlerThread? = null
-    private var captureHandler: Handler? = null
-
     private var screenBitmap: Bitmap? = null
-    private var isProjectionServiceStarted = false
-
-    @Volatile
-    private var isPipelineStopped = false
 
     private var isPresetStage = false
     private var isCleanedUp = false
@@ -84,26 +60,8 @@ class ScreenCaptureActivity : Activity() {
         super.onCreate(savedInstanceState)
         configureWindow()
         runCatching { FloatingBallService.hideForCapture() }
-        requestScreenCapture()
-    }
-
-    @Suppress("DEPRECATION")
-    override fun onActivityResult(
-        requestCode: Int,
-        resultCode: Int,
-        data: Intent?,
-    ) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode != REQUEST_MEDIA_PROJECTION) {
-            return
-        }
-        if (resultCode != RESULT_OK || data == null) {
-            failCapture(R.string.quick_book_capture_projection_denied)
-            return
-        }
-        projectionResultCode = resultCode
-        projectionData = data
-        startProjectionServiceThenCapture()
+        // 等待悬浮球窗口从合成层移除后再抓帧，避免把悬浮球截进画面。
+        mainHandler.postDelayed({ captureScreen() }, CAPTURE_DELAY_MS)
     }
 
     @Suppress("DEPRECATION")
@@ -136,138 +94,23 @@ class ScreenCaptureActivity : Activity() {
         }
     }
 
-    private fun requestScreenCapture() {
-        val manager = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as? MediaProjectionManager
-        if (manager == null) {
-            failCapture(R.string.quick_book_capture_failed)
+    private fun captureScreen() {
+        if (isFinishing || isDestroyed || isCleanedUp) {
             return
         }
-        mediaProjectionManager = manager
-        startActivityForResult(manager.createScreenCaptureIntent(), REQUEST_MEDIA_PROJECTION)
-    }
-
-    private fun startProjectionServiceThenCapture() {
-        try {
-            MediaProjectionService.start(this)
-            isProjectionServiceStarted = true
-        } catch (_: Exception) {
-            failCapture(R.string.quick_book_capture_failed)
-            return
-        }
-        mainHandler.postDelayed({ startCaptureSession() }, PROJECTION_WARM_UP_MS)
-    }
-
-    private fun startCaptureSession() {
-        if (isFinishing || isDestroyed || isPipelineStopped) {
-            return
-        }
-        val manager = mediaProjectionManager
-        val data = projectionData
-        if (manager == null || data == null) {
-            failCapture(R.string.quick_book_capture_failed)
-            return
-        }
-        val projection =
-            try {
-                manager.getMediaProjection(projectionResultCode, data)
-            } catch (_: Exception) {
-                null
-            }
-        if (projection == null) {
-            failCapture(R.string.quick_book_capture_failed)
-            return
-        }
-        mediaProjection = projection
-        val screenSize = resolveScreenSize()
-        if (screenSize.x <= 0 || screenSize.y <= 0) {
-            failCapture(R.string.quick_book_capture_failed)
-            return
-        }
-        val reader =
-            try {
-                ImageReader.newInstance(
-                    screenSize.x,
-                    screenSize.y,
-                    PixelFormat.RGBA_8888,
-                    MAX_IMAGES,
-                )
-            } catch (_: Exception) {
-                null
-            }
-        if (reader == null) {
-            failCapture(R.string.quick_book_capture_failed)
-            return
-        }
-        imageReader = reader
-        val thread = HandlerThread(CAPTURE_THREAD_NAME).apply { start() }
-        captureThread = thread
-        val handler = Handler(thread.looper)
-        captureHandler = handler
-        val callback =
-            object : MediaProjection.Callback() {
-                override fun onStop() {
-                    if (!isPipelineStopped && !hasCapturedFrame.get()) {
-                        mainHandler.post { failCapture(R.string.quick_book_capture_failed) }
-                    }
+        val requested =
+            ScreenshotAccessibilityService.capture { bitmap ->
+                if (!hasCapturedFrame.compareAndSet(false, true)) {
+                    bitmap?.recycle()
+                    return@capture
                 }
+                handleCapturedBitmap(bitmap)
             }
-        mediaProjectionCallback = callback
-        projection.registerCallback(callback, handler)
-        reader.setOnImageAvailableListener({ activeReader -> onImageAvailable(activeReader) }, handler)
-        virtualDisplay =
-            projection.createVirtualDisplay(
-                CAPTURE_DISPLAY_NAME,
-                screenSize.x,
-                screenSize.y,
-                resources.displayMetrics.densityDpi,
-                DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
-                reader.surface,
-                null,
-                null,
-            )
+        if (!requested) {
+            failCapture(R.string.quick_book_capture_accessibility_required)
+            return
+        }
         mainHandler.postDelayed(captureTimeout, CAPTURE_TIMEOUT_MS)
-    }
-
-    private fun onImageAvailable(reader: ImageReader) {
-        if (!hasCapturedFrame.compareAndSet(false, true)) {
-            return
-        }
-        val image =
-            try {
-                reader.acquireLatestImage()
-            } catch (_: Exception) {
-                null
-            }
-        val bitmap =
-            if (image == null) {
-                null
-            } else {
-                try {
-                    imageToBitmap(image)
-                } catch (_: Exception) {
-                    null
-                } finally {
-                    image.close()
-                }
-            }
-        mainHandler.post { handleCapturedBitmap(bitmap) }
-    }
-
-    private fun imageToBitmap(image: Image): Bitmap? {
-        val plane = image.planes.firstOrNull() ?: return null
-        if (plane.pixelStride <= 0 || image.width <= 0 || image.height <= 0) {
-            return null
-        }
-        val rowPadding = plane.rowStride - plane.pixelStride * image.width
-        val paddedWidth = image.width + rowPadding / plane.pixelStride
-        val padded = Bitmap.createBitmap(paddedWidth, image.height, Bitmap.Config.ARGB_8888)
-        padded.copyPixelsFromBuffer(plane.buffer)
-        if (paddedWidth == image.width) {
-            return padded
-        }
-        val cropped = Bitmap.createBitmap(padded, 0, 0, image.width, image.height)
-        padded.recycle()
-        return cropped
     }
 
     private fun onCaptureTimeout() {
@@ -279,7 +122,6 @@ class ScreenCaptureActivity : Activity() {
 
     private fun handleCapturedBitmap(bitmap: Bitmap?) {
         mainHandler.removeCallbacks(captureTimeout)
-        stopCapturePipeline()
         if (isFinishing || isDestroyed) {
             bitmap?.recycle()
             return
@@ -550,17 +392,6 @@ class ScreenCaptureActivity : Activity() {
         }
     }
 
-    @Suppress("DEPRECATION")
-    private fun resolveScreenSize(): Point {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            val bounds = windowManager.currentWindowMetrics.bounds
-            return Point(bounds.width(), bounds.height())
-        }
-        val metrics = DisplayMetrics()
-        windowManager.defaultDisplay.getRealMetrics(metrics)
-        return Point(metrics.widthPixels, metrics.heightPixels)
-    }
-
     private fun isBlankBitmap(bitmap: Bitmap): Boolean {
         val stepX = (bitmap.width / BLANK_SAMPLE_GRID).coerceAtLeast(1)
         val stepY = (bitmap.height / BLANK_SAMPLE_GRID).coerceAtLeast(1)
@@ -585,40 +416,12 @@ class ScreenCaptureActivity : Activity() {
     }
 
     private fun failCapture(messageResId: Int) {
-        stopCapturePipeline()
+        mainHandler.removeCallbacks(captureTimeout)
         if (isFinishing || isDestroyed || isCleanedUp) {
             return
         }
         Toast.makeText(this, messageResId, Toast.LENGTH_SHORT).show()
         finish()
-    }
-
-    private fun stopCapturePipeline() {
-        if (isPipelineStopped) {
-            return
-        }
-        isPipelineStopped = true
-        mainHandler.removeCallbacks(captureTimeout)
-        imageReader?.setOnImageAvailableListener(null, null)
-        runCatching { imageReader?.close() }
-        imageReader = null
-        runCatching { virtualDisplay?.release() }
-        virtualDisplay = null
-        val callback = mediaProjectionCallback
-        if (callback != null) {
-            runCatching { mediaProjection?.unregisterCallback(callback) }
-        }
-        mediaProjectionCallback = null
-        runCatching { mediaProjection?.stop() }
-        mediaProjection = null
-        captureHandler?.removeCallbacksAndMessages(null)
-        captureHandler = null
-        captureThread?.quitSafely()
-        captureThread = null
-        if (isProjectionServiceStarted) {
-            runCatching { MediaProjectionService.stop(this) }
-            isProjectionServiceStarted = false
-        }
     }
 
     private fun cleanupResources() {
@@ -636,7 +439,6 @@ class ScreenCaptureActivity : Activity() {
             }
         }
         screenBitmap = null
-        stopCapturePipeline()
         mainHandler.removeCallbacksAndMessages(null)
         runCatching { FloatingBallService.restoreAfterCapture() }
     }
@@ -666,12 +468,8 @@ class ScreenCaptureActivity : Activity() {
         get() = ContextCompat.getColor(this, R.color.quick_book_capture_action_bg)
 
     companion object {
-        private const val REQUEST_MEDIA_PROJECTION = 4101
-        private const val PROJECTION_WARM_UP_MS = 500L
+        private const val CAPTURE_DELAY_MS = 180L
         private const val CAPTURE_TIMEOUT_MS = 3000L
-        private const val MAX_IMAGES = 2
-        private const val CAPTURE_THREAD_NAME = "QuickBookScreenCapture"
-        private const val CAPTURE_DISPLAY_NAME = "QuickBookScreenCapture"
         private const val JPEG_QUALITY = 92
         private const val DRAFT_DIRECTORY = "quick-book-drafts"
         private const val BLANK_SAMPLE_GRID = 24

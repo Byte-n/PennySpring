@@ -89,7 +89,7 @@ class FloatingBallService : Service() {
         @JvmStatic
         fun isRunning(): Boolean = running.get()
 
-        /** 截图 Activity 启动前隐藏悬浮球，避免被 MediaProjection 截入。 */
+        /** 截图 Activity 启动前隐藏悬浮球，避免被无障碍截图抓入。 */
         @JvmStatic
         fun hideForCapture() {
             instance?.hideOverlay()

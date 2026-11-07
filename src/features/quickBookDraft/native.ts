@@ -4,6 +4,7 @@ import { NativeModules, Platform } from 'react-native';
 export interface QuickBookDraftNativeStatus {
   overlayPermission: boolean;
   notificationPermission: boolean;
+  accessibilityPermission: boolean;
   floatingBallRunning: boolean;
   currentBookId: number;
   supported: boolean;
@@ -12,6 +13,7 @@ export interface QuickBookDraftNativeStatus {
 export const UNSUPPORTED_FLOATING_BALL_STATUS: QuickBookDraftNativeStatus = {
   overlayPermission: false,
   notificationPermission: false,
+  accessibilityPermission: false,
   floatingBallRunning: false,
   currentBookId: 0,
   supported: false,
@@ -25,6 +27,7 @@ interface QuickBookDraftNativeModule {
   getStatus: () => Promise<unknown>;
   openOverlaySettings: () => void;
   openNotificationSettings: () => void;
+  openAccessibilitySettings: () => void;
   startFloatingBall: () => Promise<unknown>;
   stopFloatingBall: () => void;
   setCurrentBookId: (booksId: number) => void;
@@ -58,6 +61,7 @@ function parseNativeStatus(value: unknown): QuickBookDraftNativeStatus {
   const {
     overlayPermission,
     notificationPermission,
+    accessibilityPermission,
     floatingBallRunning,
     currentBookId,
     supported,
@@ -65,6 +69,7 @@ function parseNativeStatus(value: unknown): QuickBookDraftNativeStatus {
   if (
     typeof overlayPermission !== 'boolean' ||
     typeof notificationPermission !== 'boolean' ||
+    typeof accessibilityPermission !== 'boolean' ||
     typeof floatingBallRunning !== 'boolean' ||
     typeof currentBookId !== 'number' ||
     !Number.isFinite(currentBookId) ||
@@ -75,6 +80,7 @@ function parseNativeStatus(value: unknown): QuickBookDraftNativeStatus {
   return {
     overlayPermission,
     notificationPermission,
+    accessibilityPermission,
     floatingBallRunning,
     currentBookId,
     supported,
@@ -154,6 +160,18 @@ export function openQuickBookDraftNotificationSettings(): void {
     module.openNotificationSettings();
   } catch {
     throw toChineseError('打开通知设置');
+  }
+}
+
+export function openQuickBookDraftAccessibilitySettings(): void {
+  const module = getNativeModule();
+  if (!module) {
+    return;
+  }
+  try {
+    module.openAccessibilitySettings();
+  } catch {
+    throw toChineseError('打开无障碍设置');
   }
 }
 

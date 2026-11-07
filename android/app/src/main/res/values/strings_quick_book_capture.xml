@@ -14,7 +14,7 @@
     <string name="quick_book_capture_no_books">无本地账本</string>
 
     <!-- 失败提示 -->
-    <string name="quick_book_capture_projection_denied">未获得录屏权限</string>
+    <string name="quick_book_capture_accessibility_required">请先在系统设置中启用 PennySpring 截图服务</string>
     <string name="quick_book_capture_failed">截图失败，请重试</string>
     <string name="quick_book_capture_timeout">截图超时，请重试</string>
     <string name="quick_book_capture_blank">当前页面不支持截图</string>

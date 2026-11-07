@@ -124,7 +124,11 @@ export function useFloatingBallLifecycle({
         if (cancelled) {
           return;
         }
-        if (!status.overlayPermission || !status.notificationPermission) {
+        const permissionMissing =
+          !status.overlayPermission ||
+          !status.notificationPermission ||
+          !status.accessibilityPermission;
+        if (permissionMissing) {
           if (status.floatingBallRunning) {
             try {
               await stopFloatingBall();

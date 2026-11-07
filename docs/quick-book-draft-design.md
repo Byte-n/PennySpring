@@ -577,12 +577,12 @@ confirmQuickBookDraftItem(
 ### 9.1 原生
 
 - 系统悬浮球、扇形菜单、拖拽吸边。
-- MediaProjection 授权、全屏抓帧、选区裁剪。
+- 无障碍服务全屏抓帧（`AccessibilityService#takeScreenshot`）、选区裁剪。
 - 选区下方单行预设栏：`账本 | 资产 | 类型` + 圆形发送。
 - 原生只读 SQLite 查询预设数据。
 - 前台服务、通知渠道、Headless 任务启动。
 - 生成结果气泡/通知、深链跳转草稿详情。
-- 权限校验：悬浮窗、通知、MediaProjection。
+- 权限校验：悬浮窗、通知、无障碍截图服务。
 
 ### 9.2 JS
 
@@ -598,9 +598,10 @@ confirmQuickBookDraftItem(
 
 - 设置页开启悬浮球时逐项校验：
   - 悬浮窗权限
+  - 无障碍截图服务（用户手动启用一次）
   - 通知权限
   - 前台服务启动成功
-- MediaProjection 无法提前永久授权，按次在“自由截图”动作前申请。
+- 自由截图通过无障碍服务抓帧，不再按次弹出屏幕录制授权；Android 11 以下没有 `takeScreenshot`，不开放该功能。
 - 权限被撤销后自动关闭悬浮球开关。
 - 用户强行停止 App 后服务不会启动，需重新打开一次 App。
 
@@ -698,7 +699,7 @@ confirmQuickBookDraftItem(
 
 ### 12.4 原生
 
-- 悬浮窗权限、通知权限、MediaProjection 授权。
+- 悬浮窗权限、通知权限、无障碍截图服务。
 - 选区坐标与图片裁剪。
 - 预设栏定位、滚动、键盘避让。
 - Headless 任务启动与超时。

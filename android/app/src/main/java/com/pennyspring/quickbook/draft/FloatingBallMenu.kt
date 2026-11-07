@@ -2,6 +2,8 @@ package com.pennyspring.quickbook.draft
 
 import android.content.Context
 import android.graphics.Color
+import android.graphics.Point
+import android.graphics.Rect
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.os.Build
@@ -14,12 +16,47 @@ import android.widget.PopupWindow
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import com.pennyspring.R
+import kotlin.math.max
 import kotlin.math.roundToInt
 
 internal enum class FloatingBallAction {
     CAPTURE,
     OPEN_APP,
     AI_ASSISTANT,
+}
+
+internal data class PopupPosition(
+    val x: Int,
+    val y: Int,
+)
+
+/**
+ * 菜单使用绝对屏幕坐标：锚点位于 TYPE_APPLICATION_OVERLAY 窗口时，
+ * PopupWindow 的 showAsDropDown 会把窗口内坐标当作屏幕坐标，导致菜单飞出屏幕。
+ */
+internal fun calculatePopupPosition(
+    anchorX: Int,
+    anchorY: Int,
+    anchorWidth: Int,
+    anchorHeight: Int,
+    popupWidth: Int,
+    popupHeight: Int,
+    screenWidth: Int,
+    screenHeight: Int,
+    statusBarHeight: Int,
+    margin: Int,
+): PopupPosition {
+    val maxX = max(margin, screenWidth - margin - popupWidth)
+    val x = (anchorX + anchorWidth - popupWidth).coerceIn(margin, maxX)
+    val aboveY = anchorY - popupHeight - margin
+    val y =
+        if (aboveY >= statusBarHeight) {
+            aboveY
+        } else {
+            val maxY = max(statusBarHeight, screenHeight - margin - popupHeight)
+            (anchorY + anchorHeight + margin).coerceIn(statusBarHeight, maxY)
+        }
+    return PopupPosition(x, y)
 }
 
 /**
@@ -85,6 +122,10 @@ internal object FloatingBallMenu {
                 // 悬浮球本身是 TYPE_APPLICATION_OVERLAY 窗口，菜单也使用 overlay 类型，
                 // 避免部分机型不允许在非 Activity 窗口上添加应用子面板。
                 setWindowLayoutType(overlayWindowType())
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    // 锚点窗口是 overlay，只有按绝对屏幕坐标定位才不会叠加窗口内偏移。
+                    setIsLaidOutInScreen(true)
+                }
             }
         showAboveAnchor(popup, content, anchor)
         return popup
@@ -146,35 +187,35 @@ internal object FloatingBallMenu {
             View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY),
             View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
         )
-        val popupWidth = content.measuredWidth
-        val popupHeight = content.measuredHeight
         val anchorLocation = IntArray(2)
         anchor.getLocationOnScreen(anchorLocation)
-        val screenWidth = context.resources.displayMetrics.widthPixels
-        val statusBarHeight = getStatusBarHeight(context)
-        val margin = dp(context, MARGIN_DP)
-        val offsetX = calculateOffsetX(anchor, anchorLocation[0], popupWidth, screenWidth, margin)
-        val aboveOffsetY = -(anchor.height + popupHeight + margin)
-        val hasRoomAbove = anchorLocation[1] + aboveOffsetY >= statusBarHeight
-        val offsetY = if (hasRoomAbove) aboveOffsetY else margin
-        popup.showAsDropDown(anchor, offsetX, offsetY)
+        val bounds = screenBounds(context)
+        val position =
+            calculatePopupPosition(
+                anchorX = anchorLocation[0],
+                anchorY = anchorLocation[1],
+                anchorWidth = anchor.width,
+                anchorHeight = anchor.height,
+                popupWidth = content.measuredWidth,
+                popupHeight = content.measuredHeight,
+                screenWidth = bounds.width(),
+                screenHeight = bounds.height(),
+                statusBarHeight = getStatusBarHeight(context),
+                margin = dp(context, MARGIN_DP),
+            )
+        popup.showAtLocation(anchor, Gravity.TOP or Gravity.START, position.x, position.y)
     }
 
-    private fun calculateOffsetX(
-        anchor: View,
-        anchorScreenX: Int,
-        popupWidth: Int,
-        screenWidth: Int,
-        margin: Int,
-    ): Int {
-        var offsetX = anchor.width - popupWidth
-        if (anchorScreenX + offsetX < margin) {
-            offsetX = margin - anchorScreenX
+    @Suppress("DEPRECATION")
+    private fun screenBounds(context: Context): Rect {
+        val windowManager = context.getSystemService(WindowManager::class.java)
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            windowManager.currentWindowMetrics.bounds
+        } else {
+            val point = Point()
+            windowManager.defaultDisplay.getRealSize(point)
+            Rect(0, 0, point.x, point.y)
         }
-        if (anchorScreenX + offsetX + popupWidth > screenWidth - margin) {
-            offsetX = screenWidth - margin - popupWidth - anchorScreenX
-        }
-        return offsetX
     }
 
     private fun selectableItemBackground(context: Context): Drawable? {

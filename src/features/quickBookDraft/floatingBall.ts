@@ -8,6 +8,7 @@ import {
   getQuickBookDraftStatus,
   hasQuickBookDraftNativeModule,
   isQuickBookDraftFloatingBallRunning,
+  openQuickBookDraftAccessibilitySettings,
   openQuickBookDraftNotificationSettings,
   openQuickBookDraftOverlaySettings,
   setQuickBookDraftCurrentBookId,
@@ -16,6 +17,7 @@ import {
   stopQuickBookDraftFloatingBall,
 } from './native';
 
+const ANDROID_11_API_LEVEL = 30;
 const ANDROID_13_API_LEVEL = 33;
 const POST_NOTIFICATIONS_PERMISSION =
   PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS;
@@ -46,7 +48,11 @@ export function getFloatingBallEnableBlockReason(
 }
 
 export function isFloatingBallSupported(): boolean {
-  return Platform.OS === 'android' && hasQuickBookDraftNativeModule();
+  return (
+    Platform.OS === 'android' &&
+    Number(Platform.Version) >= ANDROID_11_API_LEVEL &&
+    hasQuickBookDraftNativeModule()
+  );
 }
 
 export async function getFloatingBallStatus(): Promise<QuickBookDraftNativeStatus> {
@@ -89,6 +95,13 @@ export function openNotificationSettings(): void {
     return;
   }
   openQuickBookDraftNotificationSettings();
+}
+
+export function openAccessibilitySettings(): void {
+  if (!isFloatingBallSupported()) {
+    return;
+  }
+  openQuickBookDraftAccessibilitySettings();
 }
 
 /** 把当前账本同步给原生预设栏；远程账本或未选择账本传 0。 */
