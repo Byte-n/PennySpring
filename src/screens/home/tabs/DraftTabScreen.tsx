@@ -237,7 +237,6 @@ export function DraftTabScreen(): React.ReactElement {
           booksId: draft.booksId,
           preset: draft.preset,
         });
-        bumpDraftVersion();
         toast.show({ messageText: '草稿已重新生成' });
       } catch (retryError) {
         toast.show({
@@ -246,10 +245,9 @@ export function DraftTabScreen(): React.ReactElement {
         });
       } finally {
         setRetryingId(null);
-        refresh();
       }
     },
-    [refresh, retryingId, toast],
+    [retryingId, toast],
   );
 
   const handleToggleAttach = useCallback(
@@ -601,7 +599,7 @@ export function DraftTabScreen(): React.ReactElement {
       <>
         <Row align="baseline" justify="between" style={styles.summary}>
           <Text color="tertiary" size="xs">
-            {`${summary.draftCount} 个草稿待处理`}
+            {`${summary.draftCount} 个草稿`}
           </Text>
           {summary.itemCount > 0 ? (
             <Text color="tertiary" size="xs" style={styles.num}>

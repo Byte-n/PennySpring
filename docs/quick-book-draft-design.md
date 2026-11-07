@@ -109,7 +109,7 @@ generating ──成功──> pending ──全部笔完成──> confirmed
                   └──丢弃──> discarded
 ```
 
-- `generating`：后台任务进行中。App 若在此期间打开，可显示“生成中”。
+- `generating`：后台任务进行中，占位行在任务入口立即写入。App 若在此期间打开，显示“分析中”。
 - `pending`：Agent 已产出草稿，至少还有一笔未处理。
 - `failed`：未生成任何草稿，保留截图和错误原因，允许重试或丢弃。
 - `confirmed`：草稿内所有笔都已写入记录。
@@ -162,7 +162,7 @@ pending ──确定/新建记录保存──> confirmed
 
 - 新增 `HOME_TAB_ROUTES.DraftTab`。
 - 建议顺序：`明细 / 图表 / 草稿`，保留现有 Tab 位置，减少肌肉记忆变化。
-- Tab 标题带角标：待处理草稿数量（`pending + failed`）。
+- Tab 标题带角标：未完结草稿数量（`generating + pending + failed`）。
 - 图标建议使用 `NotePencilIcon` 或 `TrayIcon`。
 
 **列表页**
@@ -190,8 +190,8 @@ pending ──确定/新建记录保存──> confirmed
 **角标**
 
 - 使用设备级草稿计数，不依赖当前账本。
-- 生成完成、确认、丢弃后刷新角标。
-- 建议只计数 `pending + failed`；`generating` 不计入。
+- 生成开始、生成完成、确认、丢弃后刷新角标。
+- 计数 `generating + pending + failed`：分析一开始就让用户看到草稿入口有动静。
 
 ### 4.3 列表卡内逐笔确认
 
@@ -335,11 +335,14 @@ interface SaveRecordDraftsInput {
   → QuickBookJobService（HeadlessJsTaskService）
   → AppRegistry headless task: QuickBookDraftTask
   → 参数：draftId、imagePath、bookId、assetId?、typeId?
-  → createDraftPlaceholder(status = generating)
-  → 读取 quickBook 模型选择与 API Key
+  → createDraftPlaceholder(status = generating)（任务第一笔写入）
+  → bumpDraftVersion：前台列表与角标立即出现“分析中”
+  → 读取 quickBook 模型选择与 API Key，记录 provider/model
   → 构造用户消息（图片 data URL + 预设锁定文本）
   → 运行 Agent（仅草稿工具集）
-  → saveRecordDrafts 写入草稿并置为 pending
+  → saveRecordDrafts 写入逐笔内容（组状态保持 generating）
+  → Agent 结束后 markReady：有逐笔内容时置为 pending
+  → bumpDraftVersion：前台列表切换为“待确认”
   → 原生提示 / 通知
 ```
 
@@ -451,8 +454,10 @@ localApi.quickBookDraft = {
   createPlaceholder(input): Promise<QuickBookDraftRow>;
   getById(id): Promise<QuickBookDraftRow>;
   list(filter?): Promise<QuickBookDraftRow[]>;
-  countPending(): Promise<number>;
+  countOpen(): Promise<number>;
   updateItems(id, payload, preset): Promise<QuickBookDraftRow>;
+  setAgent(id, { agentProviderId, agentModelId }): Promise<QuickBookDraftRow>;
+  markReady(id): Promise<QuickBookDraftRow>;
   markFailed(id, errorText): Promise<void>;
   getItem(id, itemIndex): Promise<DraftItem>;
   confirmItem(

@@ -349,6 +349,12 @@ export interface QuickBookDraftUpdateMeta {
   agentModelId?: string;
 }
 
+/** 本次草稿生成实际使用的提供商与模型，用于诊断。 */
+export interface QuickBookDraftAgentInfo {
+  agentProviderId: number;
+  agentModelId: string;
+}
+
 export interface ConfirmQuickBookDraftItemResult {
   item: DraftItem;
   recordId: number;

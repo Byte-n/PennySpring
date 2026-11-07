@@ -2,6 +2,7 @@ import dayjs from 'dayjs';
 import {
   localApi,
   QUICK_BOOK_DRAFT_SOURCE,
+  QUICK_BOOK_DRAFT_STATUS,
   type Api,
   type QuickBookDraftPreset,
   type QuickBookDraftSourceValue,
@@ -10,6 +11,7 @@ import type { ModelMessage } from 'ai';
 import { FileSystem } from 'react-native-file-access';
 
 import { resolveQuickBookModel } from '../../features/quickBook/validation';
+import { bumpDraftVersion } from '../../stores/draftVersionStore';
 import { AGENT_TIMEOUT_MS } from '../core/constants';
 import { createAgent } from '../core/createAgent';
 import { agentDebugLog } from '../core/debug';
@@ -192,8 +194,6 @@ function createDraftPlaceholder(
   api: Api,
   input: RunQuickBookDraftInput,
   preset: QuickBookDraftPreset,
-  agentProviderId: number,
-  agentModelId: string,
 ) {
   return api.quickBookDraft.createPlaceholder({
     id: input.draftId,
@@ -201,8 +201,6 @@ function createDraftPlaceholder(
     imagePath: input.imagePath,
     source: input.source ?? QUICK_BOOK_DRAFT_SOURCE.floatingCapture,
     preset,
-    agentProviderId,
-    agentModelId,
   });
 }
 
@@ -211,18 +209,19 @@ async function executeQuickBookDraft(
 ): Promise<void> {
   const api = localApi;
   const preset = normalizePreset(input.preset);
-  let resolved: Awaited<ReturnType<typeof resolveDraftModel>>;
-  try {
-    resolved = await resolveDraftModel(api, input.booksId);
-  } catch (error) {
-    // 先落一个 generating 占位，让外层 catch 能把它标记为 failed，
-    // 用户下次打开 App 时可以看到失败原因并重试。
-    await createDraftPlaceholder(api, input, preset, 0, '').catch(() => {});
-    throw error;
-  }
-  const { provider, model, apiKey } = resolved;
+  // 第一笔写入必须是占位行：草稿列表由此立即可见“分析中”，
+  // 模型解析失败时也能在外层标记 failed 供用户重试。
+  await createDraftPlaceholder(api, input, preset);
+  bumpDraftVersion();
 
-  await createDraftPlaceholder(api, input, preset, provider.id, model.modelId);
+  const { provider, model, apiKey } = await resolveDraftModel(
+    api,
+    input.booksId,
+  );
+  await api.quickBookDraft.setAgent(input.draftId, {
+    agentProviderId: provider.id,
+    agentModelId: model.modelId,
+  });
 
   const book = await api.book.getById(input.booksId);
   const image = await readImageContent(input.imagePath);
@@ -255,7 +254,12 @@ async function executeQuickBookDraft(
   });
 
   const draft = await api.quickBookDraft.getById(input.draftId);
-  if (draft.status !== 'pending' || draft.items.length === 0) {
+  if (draft.items.length === 0) {
+    throw new Error(NO_DRAFT_ERROR);
+  }
+  if (draft.status === QUICK_BOOK_DRAFT_STATUS.generating) {
+    await api.quickBookDraft.markReady(input.draftId);
+  } else if (draft.status !== QUICK_BOOK_DRAFT_STATUS.pending) {
     throw new Error(NO_DRAFT_ERROR);
   }
 }
@@ -263,6 +267,7 @@ async function executeQuickBookDraft(
 /**
  * 在 Headless JS 中生成截图记账草稿。
  * 不创建 Agent 会话线程；失败时把草稿标记为 failed 并抛出中文错误。
+ * 每次生命周期变化都 bump 草稿版本，让前台列表与角标实时失效刷新。
  */
 export async function runQuickBookDraft(
   input: RunQuickBookDraftInput,
@@ -273,5 +278,7 @@ export async function runQuickBookDraft(
     const message = toDraftErrorMessage(error);
     await markDraftFailedBestEffort(localApi, input.draftId, message);
     throw error instanceof Error ? error : new Error(message);
+  } finally {
+    bumpDraftVersion();
   }
 }

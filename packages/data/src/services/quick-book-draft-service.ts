@@ -18,6 +18,7 @@ import type {
   CreateRecordInput,
   DraftItem,
   DraftItemStatus,
+  QuickBookDraftAgentInfo,
   QuickBookDraftItemPatch,
   QuickBookDraftListFilter,
   QuickBookDraftPreset,
@@ -32,6 +33,7 @@ export type {
   CreateQuickBookDraftPlaceholderInput,
   DraftItem,
   DraftItemStatus,
+  QuickBookDraftAgentInfo,
   QuickBookDraftItemPatch,
   QuickBookDraftListFilter,
   QuickBookDraftPreset,
@@ -461,14 +463,14 @@ export async function listQuickBookDrafts(
   return rows.map(toDraftRow);
 }
 
-export async function countPendingQuickBookDrafts(
-  db: Database,
-): Promise<number> {
+/** 草稿 Tab 角标：未完结草稿数量（分析中 + 待确认 + 生成失败）。 */
+export async function countOpenQuickBookDrafts(db: Database): Promise<number> {
   const result = await db
     .select({ value: count() })
     .from(quickBookDrafts)
     .where(
       inArray(quickBookDrafts.status, [
+        QUICK_BOOK_DRAFT_STATUS.generating,
         QUICK_BOOK_DRAFT_STATUS.pending,
         QUICK_BOOK_DRAFT_STATUS.failed,
       ]),
@@ -478,7 +480,8 @@ export async function countPendingQuickBookDrafts(
 }
 
 /**
- * 覆盖草稿逐笔内容与预设，并把组状态置为 pending。
+ * 覆盖草稿逐笔内容与预设，不改变组状态。
+ * 组状态由生成完成流程显式置为 pending，避免分析中途提前进入确认。
  * 已有笔写入记录时拒绝覆盖，避免丢失 recordId 造成重复记账。
  */
 export function updateQuickBookDraftItems(
@@ -508,7 +511,6 @@ export function updateQuickBookDraftItems(
     await tx
       .update(quickBookDrafts)
       .set({
-        status: QUICK_BOOK_DRAFT_STATUS.pending,
         payload: JSON.stringify(nextItems),
         preset: JSON.stringify(normalizePreset(preset)),
         ...normalizeUpdateMeta(meta),
@@ -517,6 +519,64 @@ export function updateQuickBookDraftItems(
         recordIds: '[]',
         confirmedAt: 0,
         updatedTime: now,
+      })
+      .where(eq(quickBookDrafts.id, id));
+    return toDraftRow(await getDraftRow(tx, id));
+  });
+}
+
+/** 完成生成：generating 且已有逐笔内容时置为 pending，进入待确认。 */
+export function markQuickBookDraftReady(
+  db: Database,
+  id: string,
+): Promise<QuickBookDraftRow> {
+  return db.transaction(async tx => {
+    const row = await getDraftRow(tx, id);
+    if (row.status !== QUICK_BOOK_DRAFT_STATUS.generating) {
+      throw new Error(`草稿状态不允许完成生成: ${row.status}`);
+    }
+    const now = Date.now();
+    const items = parseDraftItems(row.payload, now);
+    if (items.length === 0) {
+      throw new Error('草稿没有生成任何明细');
+    }
+    await tx
+      .update(quickBookDrafts)
+      .set({
+        status: QUICK_BOOK_DRAFT_STATUS.pending,
+        errorText: '',
+        updatedTime: now,
+      })
+      .where(eq(quickBookDrafts.id, id));
+    return toDraftRow(await getDraftRow(tx, id));
+  });
+}
+
+/** 记录本次生成使用的提供商与模型；仅生成中草稿可更新。 */
+export function setQuickBookDraftAgent(
+  db: Database,
+  id: string,
+  info: QuickBookDraftAgentInfo,
+): Promise<QuickBookDraftRow> {
+  const agentProviderId = readNonNegativeInteger(
+    info?.agentProviderId,
+    '草稿提供商 id',
+    0,
+  );
+  if (typeof info?.agentModelId !== 'string') {
+    throw new Error('草稿模型 id 不合法');
+  }
+  return db.transaction(async tx => {
+    const row = await getDraftRow(tx, id);
+    if (row.status !== QUICK_BOOK_DRAFT_STATUS.generating) {
+      throw new Error(`草稿状态不允许更新生成信息: ${row.status}`);
+    }
+    await tx
+      .update(quickBookDrafts)
+      .set({
+        agentProviderId,
+        agentModelId: info.agentModelId,
+        updatedTime: Date.now(),
       })
       .where(eq(quickBookDrafts.id, id));
     return toDraftRow(await getDraftRow(tx, id));

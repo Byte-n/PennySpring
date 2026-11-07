@@ -24,13 +24,15 @@ import {
 import {
   cleanupQuickBookDrafts,
   confirmQuickBookDraftItem,
-  countPendingQuickBookDrafts,
+  countOpenQuickBookDrafts,
   createQuickBookDraftPlaceholder,
   discardQuickBookDraft,
   getQuickBookDraftById,
   getQuickBookDraftItem,
   listQuickBookDrafts,
   markQuickBookDraftFailed,
+  markQuickBookDraftReady,
+  setQuickBookDraftAgent,
   setQuickBookDraftAttachImage,
   updateQuickBookDraftItem,
   updateQuickBookDraftItems,
@@ -167,15 +169,16 @@ async function createDraft(
     imagePath: overrides.imagePath ?? IMAGE_PATH,
     preset: overrides.preset ?? preset(),
   });
-  if (items.length > 0) {
-    return updateQuickBookDraftItems(
-      fixture.db,
-      created.id,
-      items,
-      overrides.preset ?? preset(),
-    );
+  if (items.length === 0) {
+    return created;
   }
-  return created;
+  await updateQuickBookDraftItems(
+    fixture.db,
+    created.id,
+    items,
+    overrides.preset ?? preset(),
+  );
+  return markQuickBookDraftReady(fixture.db, created.id);
 }
 
 async function setDraftTimestamps(
@@ -276,7 +279,7 @@ describe('quick book draft service', () => {
     ).toEqual(['draft-confirmed', 'draft-discarded']);
   });
 
-  it('counts only pending and failed drafts as pending work', async () => {
+  it('counts generating, pending and failed drafts as open work', async () => {
     const fixture = await createFixture();
     const generating = await createDraft(fixture, 'draft-generating', []);
     await createDraft(fixture, 'draft-pending', [draftItem(fixture)]);
@@ -289,13 +292,13 @@ describe('quick book draft service', () => {
     const discarded = await createDraft(fixture, 'draft-discarded', []);
     await discardQuickBookDraft(fixture.db, discarded.id);
 
-    await expect(countPendingQuickBookDrafts(fixture.db)).resolves.toBe(2);
+    await expect(countOpenQuickBookDrafts(fixture.db)).resolves.toBe(3);
     await expect(
       getQuickBookDraftById(fixture.db, generating.id),
     ).resolves.toMatchObject({ status: 'generating' });
   });
 
-  it('stores draft items and preset while switching generating to pending', async () => {
+  it('stores draft items and preset without leaving the generating state', async () => {
     const fixture = await createFixture();
     const created = await createDraft(fixture, 'draft-items', []);
     const items = [
@@ -318,12 +321,52 @@ describe('quick book draft service', () => {
       nextPreset,
     );
 
-    expect(updated.status).toBe('pending');
+    expect(updated.status).toBe('generating');
     expect(updated.items).toEqual(items);
     expect(updated.preset).toEqual(nextPreset);
     await expect(
       getQuickBookDraftItem(fixture.db, created.id, 1),
     ).resolves.toEqual(items[1]);
+  });
+
+  it('marks a generating draft ready for confirmation after items are stored', async () => {
+    const fixture = await createFixture();
+    const created = await createDraft(fixture, 'draft-ready', []);
+    const items = [draftItem(fixture, { remark: '早餐' })];
+    await updateQuickBookDraftItems(fixture.db, created.id, items, preset());
+
+    const ready = await markQuickBookDraftReady(fixture.db, created.id);
+
+    expect(ready).toMatchObject({ status: 'pending', errorText: '' });
+    expect(ready.items).toEqual(items);
+  });
+
+  it('rejects marking ready when no items were generated', async () => {
+    const fixture = await createFixture();
+    const created = await createDraft(fixture, 'draft-empty', []);
+
+    await expect(
+      markQuickBookDraftReady(fixture.db, created.id),
+    ).rejects.toThrow('草稿没有生成任何明细');
+    await expect(
+      getQuickBookDraftById(fixture.db, created.id),
+    ).resolves.toMatchObject({ status: 'generating' });
+  });
+
+  it('records the provider and model while the draft is generating', async () => {
+    const fixture = await createFixture();
+    const created = await createDraft(fixture, 'draft-agent', []);
+
+    const updated = await setQuickBookDraftAgent(fixture.db, created.id, {
+      agentProviderId: 9,
+      agentModelId: 'vision-model',
+    });
+
+    expect(updated).toMatchObject({
+      status: 'generating',
+      agentProviderId: 9,
+      agentModelId: 'vision-model',
+    });
   });
 
   it('persists optional agent metadata through updateItems', async () => {
@@ -346,7 +389,7 @@ describe('quick book draft service', () => {
     );
 
     expect(updated).toMatchObject({
-      status: 'pending',
+      status: 'generating',
       agentProviderId: 7,
       agentModelId: 'vision-model',
       agentSummary: '识别到一笔午餐',

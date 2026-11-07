@@ -18,6 +18,7 @@ import type {
   CreateTypeInput,
   DraftItem,
   LibrarySnapshot,
+  QuickBookDraftAgentInfo,
   QuickBookDraftItemPatch,
   QuickBookDraftListFilter,
   QuickBookDraftPreset,
@@ -146,8 +147,8 @@ export function createApi(getDatabase: () => Promise<Database>) {
         filter?: QuickBookDraftListFilter,
       ): Promise<QuickBookDraftRow[]> =>
         services.listQuickBookDrafts(await getDatabase(), filter),
-      countPending: async (): Promise<number> =>
-        services.countPendingQuickBookDrafts(await getDatabase()),
+      countOpen: async (): Promise<number> =>
+        services.countOpenQuickBookDrafts(await getDatabase()),
       updateItems: async (
         id: string,
         items: DraftItem[],
@@ -161,6 +162,13 @@ export function createApi(getDatabase: () => Promise<Database>) {
           preset,
           meta,
         ),
+      setAgent: async (
+        id: string,
+        info: QuickBookDraftAgentInfo,
+      ): Promise<QuickBookDraftRow> =>
+        services.setQuickBookDraftAgent(await getDatabase(), id, info),
+      markReady: async (id: string): Promise<QuickBookDraftRow> =>
+        services.markQuickBookDraftReady(await getDatabase(), id),
       markFailed: async (id: string, errorText: string): Promise<void> =>
         services.markQuickBookDraftFailed(await getDatabase(), id, errorText),
       getItem: async (id: string, itemIndex: number): Promise<DraftItem> =>

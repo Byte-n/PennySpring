@@ -371,8 +371,8 @@ export const AGENT_MESSAGE_ROLE = enumOf({
 export const QUICK_BOOK_DRAFT_STATUS = enumOf({
   generating: {
     value: 'generating',
-    label: '生成中',
-    description: '后台任务正在生成草稿',
+    label: '分析中',
+    description: '后台任务正在分析截图',
   },
   pending: {
     value: 'pending',

@@ -68,7 +68,7 @@ export function DraftListCard({
   const progressText = isFailed
     ? '失败'
     : isGenerating
-      ? '生成中'
+      ? '分析中'
       : itemCount === 0
         ? '暂无明细'
         : isConfirmed

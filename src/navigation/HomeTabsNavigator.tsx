@@ -17,7 +17,7 @@ import {
   type TabScreen,
   TopTabNavigator,
 } from '../component/TopTabNavigator';
-import { useDraftPendingCount } from '../features/quickBookDraft/useDraftPendingCount';
+import { useDraftOpenCount } from '../features/quickBookDraft/useDraftOpenCount';
 import { ThemeSwitchButton } from '../screens/home/ThemeSwitchButton.tsx';
 import { HomeHeaderLeft } from '../screens/home/HomeHeaderLeft.tsx';
 
@@ -44,7 +44,7 @@ function DraftTabLabelContent({ focused }: TabLabelRenderProps) {
   const isDraftTabFocused = useNavigationState(
     state => state.routes[state.index ?? 0]?.name === HOME_TAB_ROUTES.DraftTab,
   );
-  const pendingCount = useDraftPendingCount(isDraftTabFocused);
+  const openCount = useDraftOpenCount(isDraftTabFocused);
   const color = focused ? 'primary' : 'tertiary';
 
   return (
@@ -53,8 +53,8 @@ function DraftTabLabelContent({ focused }: TabLabelRenderProps) {
       <Text color={color} size="sm" weight={focused ? 'strong' : 'regular'}>
         草稿
       </Text>
-      {pendingCount > 0 ? (
-        <Badge color="danger" count={pendingCount} size="small" />
+      {openCount > 0 ? (
+        <Badge color="danger" count={openCount} size="small" />
       ) : null}
     </Row>
   );
