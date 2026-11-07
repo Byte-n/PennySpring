@@ -29,4 +29,10 @@
     <string name="quick_book_toast_draft_failed">截图记账失败</string>
     <string name="quick_book_toast_missing_params">缺少生成草稿所需参数</string>
     <string name="quick_book_toast_capture_failed">无法打开自由截图，请重试</string>
+
+    <!-- 系统分享记账 -->
+    <string name="quick_book_share_no_local_book">请先切换到本地账本，再分享图片记账</string>
+    <string name="quick_book_share_busy">已有草稿正在生成，请稍后再分享</string>
+    <string name="quick_book_share_too_large">图片过大，无法生成记账草稿</string>
+    <string name="quick_book_share_unreadable">无法读取分享的图片，请重试</string>
 </resources>

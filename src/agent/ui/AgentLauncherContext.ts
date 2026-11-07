@@ -2,16 +2,12 @@ import { createContext, useContext } from 'react';
 
 import type {
   QuickBookImage,
-  QuickBookSource,
   QuickBookStartResult,
 } from '../../features/quickBook/types';
 
 export interface AgentLauncher {
   openAgent: () => void;
-  startQuickBook: (
-    image: QuickBookImage,
-    source: QuickBookSource,
-  ) => Promise<QuickBookStartResult>;
+  startQuickBook: (image: QuickBookImage) => Promise<QuickBookStartResult>;
 }
 
 export const AgentLauncherContext = createContext<AgentLauncher | null>(null);

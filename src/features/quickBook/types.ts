@@ -12,8 +12,6 @@ export interface QuickBookImage {
   height: number;
 }
 
-export type QuickBookSource = 'share' | 'nudge';
-
 export type QuickBookConfigErrorReason =
   | 'no-book'
   | 'provider-missing'

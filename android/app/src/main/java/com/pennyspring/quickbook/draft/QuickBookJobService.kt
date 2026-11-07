@@ -48,6 +48,7 @@ class QuickBookJobService : HeadlessJsTaskService() {
             booksId: Int,
             assetId: Int,
             typeId: Int,
+            source: String,
         ): Boolean {
             synchronized(lock) {
                 if (running.get()) {
@@ -62,6 +63,7 @@ class QuickBookJobService : HeadlessJsTaskService() {
                     putExtra(QuickBookDraftTaskContract.EXTRA_BOOKS_ID, booksId)
                     putExtra(QuickBookDraftTaskContract.EXTRA_ASSET_ID, assetId)
                     putExtra(QuickBookDraftTaskContract.EXTRA_TYPE_ID, typeId)
+                    putExtra(QuickBookDraftTaskContract.EXTRA_SOURCE, source)
                 }
             return try {
                 ContextCompat.startForegroundService(context, intent)
@@ -124,6 +126,14 @@ class QuickBookJobService : HeadlessJsTaskService() {
                 putInt(
                     QuickBookDraftTaskContract.EXTRA_TYPE_ID,
                     intent.getIntExtra(QuickBookDraftTaskContract.EXTRA_TYPE_ID, INVALID_ID),
+                )
+                putString(
+                    QuickBookDraftTaskContract.EXTRA_SOURCE,
+                    intent
+                        .getStringExtra(QuickBookDraftTaskContract.EXTRA_SOURCE)
+                        ?.trim()
+                        .orEmpty()
+                        .ifEmpty { QuickBookDraftTaskContract.SOURCE_FLOATING_CAPTURE },
                 )
             }
         return HeadlessJsTaskConfig(

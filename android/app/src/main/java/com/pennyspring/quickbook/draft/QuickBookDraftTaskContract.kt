@@ -14,6 +14,10 @@ object QuickBookDraftTaskContract {
     const val EXTRA_BOOKS_ID = "booksId"
     const val EXTRA_ASSET_ID = "assetId"
     const val EXTRA_TYPE_ID = "typeId"
+    const val EXTRA_SOURCE = "source"
+
+    const val SOURCE_FLOATING_CAPTURE = "floating_capture"
+    const val SOURCE_SHARE = "share"
 
     const val AGENT_DEEP_LINK = "pennyspring://agent"
 }

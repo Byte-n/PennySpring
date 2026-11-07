@@ -10,8 +10,8 @@ import {
   isFloatingBallSupported,
   startFloatingBall,
   stopFloatingBall,
-  syncFloatingBallBook,
   syncFloatingBallEnabledSetting,
+  syncQuickBookDraftBook,
 } from './floatingBall';
 
 interface UseFloatingBallLifecycleOptions {
@@ -40,18 +40,15 @@ export function useFloatingBallLifecycle({
   const remoteStoppedBookRef = useRef<string | null>(null);
 
   useEffect(() => {
-    if (!isSupported) {
-      return;
-    }
     try {
-      syncFloatingBallBook(book);
+      syncQuickBookDraftBook(book);
     } catch (error) {
       toast.show({
-        messageText: getDraftErrorMessage(error, '同步悬浮球账本失败'),
+        messageText: getDraftErrorMessage(error, '同步草稿账本失败'),
         status: 'error',
       });
     }
-  }, [book, bookKey, isSupported, toast]);
+  }, [book, bookKey, toast]);
 
   useEffect(() => {
     if (!isSupported || !floatingBallEnabled || isLocalBook) {

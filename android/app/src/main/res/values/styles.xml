@@ -18,4 +18,7 @@
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowDisablePreview">true</item>
     </style>
+
+    <!-- 系统分享跳板不创建窗口，避免分屏/小窗出现透明空面板 -->
+    <style name="QuickBookShareTheme" parent="@android:style/Theme.NoDisplay" />
 </resources>

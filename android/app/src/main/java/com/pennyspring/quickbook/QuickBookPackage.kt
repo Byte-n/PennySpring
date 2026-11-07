@@ -10,7 +10,6 @@ class QuickBookPackage : ReactPackage {
     override fun createNativeModules(reactContext: ReactApplicationContext): List<NativeModule> =
         listOf(
             QuickBookScreenshotModule(reactContext),
-            QuickBookShareModule(reactContext),
             QuickBookDraftModule(reactContext),
         )
 

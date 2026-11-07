@@ -22,10 +22,8 @@ import type {
   PendingQuickBookMessage,
   QuickBookConfigErrorReason,
   QuickBookImage,
-  QuickBookSource,
   QuickBookStartResult,
 } from '../../features/quickBook/types';
-import { useQuickBookShare } from '../../features/quickBook/useQuickBookShare';
 import { useScreenshotNudge } from '../../features/quickBook/useScreenshotNudge';
 import { resolveQuickBookModel } from '../../features/quickBook/validation';
 import { useFloatingBallLifecycle } from '../../features/quickBookDraft/useFloatingBallLifecycle';
@@ -121,8 +119,6 @@ export function AgentRoot({ children }: AgentRootProps) {
   const [quickBookReady, setQuickBookReady] = useState(false);
   const [pendingQuickBook, setPendingQuickBook] =
     useState<PendingQuickBookMessage | null>(null);
-  const [pendingShareImage, setPendingShareImage] =
-    useState<QuickBookImage | null>(null);
   const startingQuickBookRef = useRef(false);
 
   const quickBookSettings = useQuickBookSettingsStore();
@@ -256,10 +252,7 @@ export function AgentRoot({ children }: AgentRootProps) {
   );
 
   const handleStartQuickBook = useCallback(
-    async (
-      image: QuickBookImage,
-      source: QuickBookSource,
-    ): Promise<QuickBookStartResult> => {
+    async (image: QuickBookImage): Promise<QuickBookStartResult> => {
       if (startingQuickBookRef.current) {
         return {
           ok: false,
@@ -345,8 +338,7 @@ export function AgentRoot({ children }: AgentRootProps) {
           text,
           files: prepared.files,
           attachments: prepared.attachments,
-          autoApproveCreate:
-            source === 'nudge' && settings.autoApproveScreenshot,
+          autoApproveCreate: settings.autoApproveScreenshot,
         });
         setDrawerOpen(true);
         return { ok: true };
@@ -389,7 +381,7 @@ export function AgentRoot({ children }: AgentRootProps) {
     }
     const image = nudge.image;
     dismiss();
-    handleStartQuickBook(image, 'nudge')
+    handleStartQuickBook(image)
       .then(result => {
         if (!result.ok) {
           showQuickBookError(result);
@@ -397,46 +389,6 @@ export function AgentRoot({ children }: AgentRootProps) {
       })
       .catch(() => undefined);
   }, [dismiss, handleStartQuickBook, nudge, showQuickBookError]);
-
-  const handleShareImage = useCallback(
-    (image: QuickBookImage): void => {
-      if (!quickBookReady || !book) {
-        setPendingShareImage(image);
-        return;
-      }
-      handleStartQuickBook(image, 'share')
-        .then(result => {
-          if (!result.ok) {
-            showQuickBookError(result);
-          }
-        })
-        .catch(() => undefined);
-    },
-    [book, handleStartQuickBook, quickBookReady, showQuickBookError],
-  );
-
-  useQuickBookShare(handleShareImage);
-
-  useEffect(() => {
-    if (pendingShareImage === null || !quickBookReady || !book) {
-      return;
-    }
-    const image = pendingShareImage;
-    setPendingShareImage(null);
-    handleStartQuickBook(image, 'share')
-      .then(result => {
-        if (!result.ok) {
-          showQuickBookError(result);
-        }
-      })
-      .catch(() => undefined);
-  }, [
-    book,
-    handleStartQuickBook,
-    pendingShareImage,
-    quickBookReady,
-    showQuickBookError,
-  ]);
 
   return (
     <AgentLauncherContext.Provider value={launcher}>

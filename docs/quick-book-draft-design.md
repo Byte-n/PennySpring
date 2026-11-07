@@ -14,7 +14,7 @@
 ### 1.1 现状
 
 - 已有 `QuickBookScreenshotModule`：读取相册最新截图，在首页触发“发现新截图”提示。
-- 已有 `QuickBookShareModule`：接收系统分享图片，直接进入快捷记账。
+- 系统分享图片已改为后台生成草稿：`ShareDraftActivity` 接收分享并启动 Headless 任务，不再进入应用界面。
 - 已有 `startQuickBook`：准备图片、创建会话、向 Agent 发送消息，并按 `autoApproveScreenshot` 直接写入记录。
 - 已有 `FloatingActionGroup`，但当前是应用内组件，不能覆盖其他 App。
 
@@ -614,21 +614,18 @@ confirmQuickBookDraftItem(
 
 ### 10.2 现有快捷记账入口
 
-现状：
+历史行为：
 
 - 截图提醒与系统分享会通过 `startQuickBook` 直接写入记录。
-- `autoApproveScreenshot` 控制是否跳过确认。
+- `autoApproveScreenshot` 控制截图提醒是否跳过确认。
 
-本方案定义悬浮球入口为草稿模式。现有入口是否统一，作为待拍板项：
+当前已拍板：
 
-| 方案                | 行为                                                                 |
-| ------------------- | -------------------------------------------------------------------- |
-| A. 全部统一（推荐） | 截图提醒、系统分享、悬浮球全部生成草稿；`autoApproveScreenshot` 废弃 |
-| B. 仅悬浮球         | 悬浮球生成草稿；现有入口保持直接写入                                 |
-
-推荐 A：草稿 Tab 成为统一入口，避免两套确认逻辑；需要同步修改 `QuickBookNudge` 文案与相关测试。
-
-> 已拍板：本轮采用方案 B。仅悬浮球入口生成草稿；截图提醒与系统分享保持现有直接写入行为，`autoApproveScreenshot` 暂不废弃。
+- 悬浮球自由截图、系统分享均生成草稿；分享入口不再打开应用界面。
+- 截图提醒保持现有直接写入行为，`autoApproveScreenshot` 仅作用于截图提醒。
+- 系统分享使用 `Theme.NoDisplay` 跳板 Activity：同步把图片压缩落盘到草稿目录，启动 `QuickBookJobService` 后立即结束；不会在分屏或小窗中留下透明空面板。
+- 一期多图分享只处理第一张；分享时没有本地账本则 Toast 提示，不生成草稿。
+- 草稿来源写入 `source = share`，生成结果通过通知与草稿 Tab 告知。
 
 ### 10.3 Agent 会话
 
@@ -774,12 +771,12 @@ confirmQuickBookDraftItem(
 
 ## 附录 B：与现有 quickBook 的关系
 
-| 现有能力                    | 本方案处理                                           |
-| --------------------------- | ---------------------------------------------------- |
-| `QuickBookScreenshotModule` | 保留，作为截图提醒入口；若统一草稿模式则改为生成草稿 |
-| `QuickBookShareModule`      | 保留，作为系统分享入口；若统一草稿模式则改为生成草稿 |
-| `startQuickBook`            | 普通聊天入口继续保留；快捷记账改为草稿任务           |
-| `autoApproveScreenshot`     | 若统一草稿模式则废弃；否则仅保留给旧入口             |
-| `QuickBookNudge`            | 若统一草稿模式，文案改为“生成记账草稿”               |
-| `QuickBookImageProcessor`   | 可复用于草稿图片压缩与落盘                           |
-| `buildQuickBookThreadTitle` | 草稿模式不创建线程，可仅旧入口使用                   |
+| 现有能力                    | 本方案处理                                     |
+| --------------------------- | ---------------------------------------------- |
+| `QuickBookScreenshotModule` | 保留，作为截图提醒入口，继续直接写入           |
+| `QuickBookShareModule`      | 已移除，改由 `ShareDraftActivity` 生成后台草稿 |
+| `startQuickBook`            | 保留给截图提醒；系统分享不再进入该会话链路     |
+| `autoApproveScreenshot`     | 保留，仅作用于截图提醒                         |
+| `QuickBookNudge`            | 保留，文案与行为不变                           |
+| `QuickBookImageProcessor`   | 复用于系统分享图片的压缩与草稿目录落盘         |
+| `buildQuickBookThreadTitle` | 草稿模式不创建线程，仅截图提醒会话使用         |

@@ -104,9 +104,9 @@ export function openAccessibilitySettings(): void {
   openQuickBookDraftAccessibilitySettings();
 }
 
-/** 把当前账本同步给原生预设栏；远程账本或未选择账本传 0。 */
-export function syncFloatingBallBook(currentBook: BookEntry | null): void {
-  if (!isFloatingBallSupported()) {
+/** 把当前账本同步给原生；远程账本或未选择账本传 0。 */
+export function syncQuickBookDraftBook(currentBook: BookEntry | null): void {
+  if (Platform.OS !== 'android' || !hasQuickBookDraftNativeModule()) {
     return;
   }
   const booksId =

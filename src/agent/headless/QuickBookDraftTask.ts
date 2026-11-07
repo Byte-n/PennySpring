@@ -1,4 +1,9 @@
 import {
+  QUICK_BOOK_DRAFT_SOURCE,
+  type QuickBookDraftSourceValue,
+} from '@pennyspring/api';
+
+import {
   runQuickBookDraft,
   type RunQuickBookDraftInput,
 } from './runQuickBookDraft';
@@ -39,6 +44,24 @@ function readOptionalId(data: Record<string, unknown>, key: string): number {
   return value;
 }
 
+function readOptionalSource(
+  data: Record<string, unknown>,
+): QuickBookDraftSourceValue | undefined {
+  const value = data.source;
+  if (value === undefined) {
+    return undefined;
+  }
+  if (
+    typeof value !== 'string' ||
+    !QUICK_BOOK_DRAFT_SOURCE.values().includes(
+      value as QuickBookDraftSourceValue,
+    )
+  ) {
+    throw new Error('Headless 参数 source 格式不正确');
+  }
+  return value as QuickBookDraftSourceValue;
+}
+
 /** 兼容预设对象与设计稿中的顶层 assetId/typeId 两种传参。 */
 export function parseQuickBookDraftTaskData(
   data: unknown,
@@ -52,11 +75,13 @@ export function parseQuickBookDraftTaskData(
   const presetSource = isRecord(data.preset) ? data.preset : data;
   const assetId = readOptionalId(presetSource, 'assetId');
   const typeId = readOptionalId(presetSource, 'typeId');
+  const source = readOptionalSource(data);
 
   return {
     draftId,
     imagePath,
     booksId,
+    ...(source === undefined ? {} : { source }),
     ...(assetId > 0 || typeId > 0 ? { preset: { assetId, typeId } } : {}),
   };
 }

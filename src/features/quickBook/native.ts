@@ -1,9 +1,8 @@
-import { DeviceEventEmitter, NativeModules, Platform } from 'react-native';
+import { NativeModules, Platform } from 'react-native';
 
 import {
   QUICK_BOOK_IMAGE_MAX_DIMENSION,
   QUICK_BOOK_IMAGE_QUALITY_PERCENT,
-  QUICK_BOOK_SHARE_EVENT,
 } from './constants';
 import type { QuickBookImage, QuickBookScreenshotResult } from './types';
 
@@ -16,17 +15,11 @@ interface NativeScreenshotModule {
 }
 
 /**
- * 截图查询与分享接收目前只有 Android 原生实现。
- * iOS 没有等价的系统截屏感知能力；分享入口需要单独的 Share Extension，暂不提供。
+ * 截图查询只有 Android 原生实现；iOS 没有等价的系统截屏感知能力。
+ * 系统分享由 Android 的 ShareDraftActivity 直接转成后台草稿，不再进入 JS。
  */
-interface NativeShareModule {
-  consumeSharedImage: (maxEdge: number, quality: number) => Promise<unknown>;
-}
-
 const NativeScreenshot = NativeModules.QuickBookScreenshot as
   NativeScreenshotModule | undefined;
-const NativeShare = NativeModules.QuickBookShare as
-  NativeShareModule | undefined;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null;
@@ -109,32 +102,4 @@ export async function getLatestScreenshot(
   } catch {
     return { status: 'unavailable' };
   }
-}
-
-export async function consumeSharedImage(): Promise<QuickBookImage | null> {
-  if (Platform.OS !== 'android' || !NativeShare) {
-    return null;
-  }
-  try {
-    const result = await NativeShare.consumeSharedImage(
-      QUICK_BOOK_IMAGE_MAX_DIMENSION,
-      QUICK_BOOK_IMAGE_QUALITY_PERCENT,
-    );
-    return parseImagePayload(result);
-  } catch {
-    return null;
-  }
-}
-
-export function addSharedImageListener(listener: () => void): () => void {
-  if (Platform.OS !== 'android') {
-    return () => undefined;
-  }
-  const subscription = DeviceEventEmitter.addListener(
-    QUICK_BOOK_SHARE_EVENT,
-    listener,
-  );
-  return () => {
-    subscription.remove();
-  };
 }

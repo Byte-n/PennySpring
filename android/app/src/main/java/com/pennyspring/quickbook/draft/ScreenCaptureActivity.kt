@@ -406,6 +406,7 @@ class ScreenCaptureActivity : Activity() {
                     bookId,
                     assetId,
                     typeId,
+                    QuickBookDraftTaskContract.SOURCE_FLOATING_CAPTURE,
                 )
             } catch (_: Exception) {
                 false

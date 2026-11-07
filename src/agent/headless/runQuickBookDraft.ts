@@ -4,6 +4,7 @@ import {
   QUICK_BOOK_DRAFT_SOURCE,
   type Api,
   type QuickBookDraftPreset,
+  type QuickBookDraftSourceValue,
 } from '@pennyspring/api';
 import type { ModelMessage } from 'ai';
 import { FileSystem } from 'react-native-file-access';
@@ -33,6 +34,7 @@ export interface RunQuickBookDraftInput {
   draftId: string;
   imagePath: string;
   booksId: number;
+  source?: QuickBookDraftSourceValue;
   preset?: { assetId: number; typeId: number };
 }
 
@@ -197,7 +199,7 @@ function createDraftPlaceholder(
     id: input.draftId,
     booksId: input.booksId,
     imagePath: input.imagePath,
-    source: QUICK_BOOK_DRAFT_SOURCE.floatingCapture,
+    source: input.source ?? QUICK_BOOK_DRAFT_SOURCE.floatingCapture,
     preset,
     agentProviderId,
     agentModelId,

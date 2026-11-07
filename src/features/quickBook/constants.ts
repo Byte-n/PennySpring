@@ -21,5 +21,3 @@ export const QUICK_BOOK_IMAGE_MAX_DIMENSION = AGENT_IMAGE_MAX_DIMENSION;
 export const QUICK_BOOK_IMAGE_QUALITY_PERCENT = Math.round(
   AGENT_IMAGE_QUALITY * 100,
 );
-
-export const QUICK_BOOK_SHARE_EVENT = 'QuickBookShareAvailable';

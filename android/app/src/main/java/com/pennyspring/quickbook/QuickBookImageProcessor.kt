@@ -26,25 +26,13 @@ object QuickBookImageProcessor {
         quality: Int,
     ): WritableMap? {
         return try {
-            val decoded = decode(context, uri, maxEdge) ?: return null
-            val scaled = scaleToMaxEdge(decoded, maxEdge)
-            if (scaled !== decoded) {
-                decoded.recycle()
-            }
-
             val directory = File(context.filesDir, OUTPUT_DIR).apply { mkdirs() }
             val file =
                 File(
                     directory,
                     "quick_book_${System.currentTimeMillis()}_${UUID.randomUUID().toString().take(8)}.jpg",
                 )
-            FileOutputStream(file).use { output ->
-                scaled.compress(
-                    Bitmap.CompressFormat.JPEG,
-                    quality.coerceIn(1, 100),
-                    output,
-                )
-            }
+            val scaled = renderJpeg(context, uri, file, maxEdge, quality) ?: return null
             val bytes = file.readBytes()
             val result =
                 Arguments.createMap().apply {
@@ -59,6 +47,58 @@ object QuickBookImageProcessor {
             scaled.recycle()
             result
         } catch (_: Exception) {
+            null
+        }
+    }
+
+    /** 把图片解码、缩放到 [maxEdge] 并写成 JPEG；失败时不保留目标文件。 */
+    fun writeJpeg(
+        context: Context,
+        uri: Uri,
+        target: File,
+        maxEdge: Int,
+        quality: Int,
+    ): Boolean {
+        val bitmap = renderJpeg(context, uri, target, maxEdge, quality) ?: return false
+        bitmap.recycle()
+        return true
+    }
+
+    private fun renderJpeg(
+        context: Context,
+        uri: Uri,
+        target: File,
+        maxEdge: Int,
+        quality: Int,
+    ): Bitmap? {
+        return try {
+            val decoded = decode(context, uri, maxEdge) ?: return null
+            val scaled = scaleToMaxEdge(decoded, maxEdge)
+            if (scaled !== decoded) {
+                decoded.recycle()
+            }
+            try {
+                FileOutputStream(target).use { output ->
+                    scaled.compress(
+                        Bitmap.CompressFormat.JPEG,
+                        quality.coerceIn(1, 100),
+                        output,
+                    )
+                }
+                if (target.length() > 0) {
+                    scaled
+                } else {
+                    target.delete()
+                    scaled.recycle()
+                    null
+                }
+            } catch (_: Exception) {
+                target.delete()
+                scaled.recycle()
+                null
+            }
+        } catch (_: Exception) {
+            target.delete()
             null
         }
     }
