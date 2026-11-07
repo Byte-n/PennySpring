@@ -1,5 +1,11 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
-import { AppState, ScrollView } from 'react-native';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+import { AppState } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { BOOK_TYPE } from '@pennyspring/api';
 import {
@@ -8,6 +14,8 @@ import {
   Card,
   Column,
   Input,
+  KeyboardAwareFormScroll,
+  KeyboardAwareScreen,
   Row,
   Switch,
   Text,
@@ -105,9 +113,19 @@ export function QuickBookSettingsScreen(): React.ReactElement {
   const [providerSheetOpen, setProviderSheetOpen] = useState(false);
   const [modelSheetOpen, setModelSheetOpen] = useState(false);
   const [resetPromptArmed, setResetPromptArmed] = useState(false);
+  const [promptDraft, setPromptDraft] = useState(settings.presetPrompt);
+  const savedPromptRef = useRef(settings.presetPrompt);
   const [windowText, setWindowText] = useState(
     String(settings.freshWindowSeconds),
   );
+
+  useEffect(() => {
+    const previousSavedPrompt = savedPromptRef.current;
+    savedPromptRef.current = settings.presetPrompt;
+    setPromptDraft(current =>
+      current === previousSavedPrompt ? settings.presetPrompt : current,
+    );
+  }, [settings.presetPrompt]);
 
   const selectedProvider = useMemo(
     () =>
@@ -479,18 +497,27 @@ export function QuickBookSettingsScreen(): React.ReactElement {
       setResetPromptArmed(true);
       return;
     }
-    settings.setPresetPrompt(DEFAULT_QUICK_BOOK_PROMPT);
+    setPromptDraft(DEFAULT_QUICK_BOOK_PROMPT);
     setResetPromptArmed(false);
-    toast.show({ messageText: '已恢复默认提示词' });
-  }, [resetPromptArmed, settings, toast]);
+  }, [resetPromptArmed]);
+
+  const handleSavePrompt = useCallback((): void => {
+    settings.setPresetPrompt(promptDraft);
+    savedPromptRef.current = promptDraft;
+    setResetPromptArmed(false);
+    toast.show({ messageText: '提示词已保存，下次截图触发时生效' });
+  }, [promptDraft, settings, toast]);
 
   const handleOpenProviderSettings = useCallback((): void => {
     navigation.navigate(ROOT_ROUTES.AgentSettings);
   }, [navigation]);
 
   return (
-    <Column style={styles.container}>
-      <ScrollView contentContainerStyle={styles.content} scrollEnabled>
+    <KeyboardAwareScreen style={styles.container}>
+      <KeyboardAwareFormScroll
+        scrollEnabled
+        styles={{ content: styles.content }}
+      >
         <Card titleText="截图提醒" variant="plain">
           <Column style={styles.section}>
             <Row align="center" gap="normal" justify="between">
@@ -730,15 +757,25 @@ export function QuickBookSettingsScreen(): React.ReactElement {
 
         <Card
           extra={
-            settings.presetPrompt !== DEFAULT_QUICK_BOOK_PROMPT ? (
-              <Button
-                onPress={handleResetPrompt}
-                size="small"
-                type={resetPromptArmed ? 'danger' : 'text'}
-              >
-                {resetPromptArmed ? '确认恢复' : '恢复默认'}
-              </Button>
-            ) : null
+            <Button
+              disabled={promptDraft === DEFAULT_QUICK_BOOK_PROMPT}
+              onPress={handleResetPrompt}
+              size="small"
+              type={resetPromptArmed ? 'danger' : 'text'}
+            >
+              {resetPromptArmed ? '确认恢复' : '恢复默认'}
+            </Button>
+          }
+          footer={
+            <Button
+              block
+              disabled={promptDraft === settings.presetPrompt}
+              onPress={handleSavePrompt}
+              testID="quick-book-save-prompt"
+              type="primary"
+            >
+              保存提示词
+            </Button>
           }
           titleText="预设提示词"
           variant="plain"
@@ -749,18 +786,18 @@ export function QuickBookSettingsScreen(): React.ReactElement {
               minRows={4}
               onChange={value => {
                 setResetPromptArmed(false);
-                settings.setPresetPrompt(value);
+                setPromptDraft(value);
               }}
               placeholder={DEFAULT_QUICK_BOOK_PROMPT}
               showCount
-              value={settings.presetPrompt}
+              value={promptDraft}
             />
             <Text color="tertiary" size="xs">
               发送截图时，这段文字会作为用户消息的第一段内容。
             </Text>
           </Column>
         </Card>
-      </ScrollView>
+      </KeyboardAwareFormScroll>
 
       <ActionSheet
         actions={providerActions}
@@ -776,6 +813,6 @@ export function QuickBookSettingsScreen(): React.ReactElement {
         open={modelSheetOpen}
         titleText="选择支持图片的模型"
       />
-    </Column>
+    </KeyboardAwareScreen>
   );
 }
