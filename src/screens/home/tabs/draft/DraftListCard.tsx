@@ -2,26 +2,22 @@ import React from 'react';
 import {
   Button,
   Column,
-  Image,
+  Icon,
   Loading,
   Row,
-  Tag,
+  Switch,
   Text,
 } from '@pennyspring/ui';
 import {
   QUICK_BOOK_DRAFT_STATUS,
+  type AssetRow,
   type QuickBookDraftRow,
   type TypeRow,
 } from '@pennyspring/api';
+import { ImageSquareIcon } from 'phosphor-react-native';
 
-import {
-  DRAFT_MISSING_AMOUNT_TEXT,
-  DRAFT_MISSING_TYPE_TEXT,
-  formatDraftAmount,
-  formatDraftTimestamp,
-  getDraftItemMissingLabels,
-  getDraftItemTypeLabel,
-} from '../../../../features/quickBookDraft/draftLogic';
+import { formatDraftTimestamp } from '../../../../features/quickBookDraft/draftLogic';
+import { DraftItemRow, type DraftFillField } from './DraftItemRow';
 import { useDraftTabStyles } from './draftTabStyles';
 
 interface DraftListCardProps {
@@ -29,44 +25,17 @@ interface DraftListCardProps {
   bookName: string;
   isBookMissing: boolean;
   typeMap: ReadonlyMap<number, TypeRow>;
+  assetMap: ReadonlyMap<number, AssetRow>;
+  isBusy: boolean;
   isRetrying: boolean;
-  onOpen: () => void;
+  isTogglingAttach: boolean;
+  confirmingItemIndex: number | null;
   onDiscard: () => void;
   onRetry: () => void;
-}
-
-interface DraftStatusView {
-  label: string;
-  color: 'warning' | 'danger' | 'info' | 'success';
-}
-
-function getStatusView(status: QuickBookDraftRow['status']): DraftStatusView {
-  if (status === QUICK_BOOK_DRAFT_STATUS.failed) {
-    return { label: '失败', color: 'danger' };
-  }
-  if (status === QUICK_BOOK_DRAFT_STATUS.generating) {
-    return { label: '生成中', color: 'info' };
-  }
-  if (status === QUICK_BOOK_DRAFT_STATUS.confirmed) {
-    return { label: '已完成', color: 'success' };
-  }
-  return { label: '待确认', color: 'warning' };
-}
-
-function getMissingHint(
-  draft: QuickBookDraftRow,
-  item: QuickBookDraftRow['items'][number],
-  typeMap: ReadonlyMap<number, TypeRow>,
-): string {
-  const labels = getDraftItemMissingLabels(
-    item,
-    typeMap.get(item.typeId),
-    draft.booksId,
-  ).filter(
-    label =>
-      label !== DRAFT_MISSING_AMOUNT_TEXT && label !== DRAFT_MISSING_TYPE_TEXT,
-  );
-  return labels.join(' · ');
+  onToggleAttach: (next: boolean) => void;
+  onFill: (itemIndex: number, field: DraftFillField) => void;
+  onEdit: (itemIndex: number) => void;
+  onConfirm: (itemIndex: number) => void;
 }
 
 export function DraftListCard({
@@ -74,122 +43,135 @@ export function DraftListCard({
   bookName,
   isBookMissing,
   typeMap,
+  assetMap,
+  isBusy,
   isRetrying,
-  onOpen,
+  isTogglingAttach,
+  confirmingItemIndex,
   onDiscard,
   onRetry,
+  onToggleAttach,
+  onFill,
+  onEdit,
+  onConfirm,
 }: DraftListCardProps): React.ReactElement {
   const styles = useDraftTabStyles();
-  const statusView = getStatusView(draft.status);
   const isFailed = draft.status === QUICK_BOOK_DRAFT_STATUS.failed;
   const isGenerating = draft.status === QUICK_BOOK_DRAFT_STATUS.generating;
   const isPending = draft.status === QUICK_BOOK_DRAFT_STATUS.pending;
+  const isConfirmed = draft.status === QUICK_BOOK_DRAFT_STATUS.confirmed;
+  const canDiscard =
+    draft.status !== QUICK_BOOK_DRAFT_STATUS.confirmed &&
+    draft.status !== QUICK_BOOK_DRAFT_STATUS.discarded;
   const displayTime = isFailed ? draft.updatedTime : draft.createdTime;
-  const title = isFailed
-    ? `生成失败 · ${formatDraftTimestamp(displayTime)}`
+  const itemCount = draft.items.length;
+  const progressText = isFailed
+    ? '失败'
     : isGenerating
-      ? `生成中 · ${formatDraftTimestamp(displayTime)}`
-      : `共 ${draft.items.length} 笔 · ${formatDraftTimestamp(displayTime)}`;
+      ? '生成中'
+      : itemCount === 0
+        ? '暂无明细'
+        : isConfirmed
+          ? `全部完成 ${itemCount}/${itemCount}`
+          : `已记账 ${draft.confirmedCount}/${itemCount}`;
 
   return (
     <Column style={styles.card} testID={`draft-card-${draft.id}`}>
-      <Row style={styles.cardHead}>
-        <Image
-          preview
-          radius="normal"
-          src={{ uri: draft.imagePath }}
-          style={styles.thumb}
-        />
-        <Column style={styles.meta}>
-          <Text
-            color={isFailed ? 'errorText' : 'heading'}
-            numberOfLines={1}
-            size="sm"
-            weight="semibold"
-          >
-            {title}
-          </Text>
-          <Text
-            color={isBookMissing ? 'warningText' : 'tertiary'}
-            numberOfLines={1}
-            size="xs"
-          >
-            {`账本：${bookName}`}
-          </Text>
-          {isPending ? (
-            <Text color="secondary" size="xs">
-              {`已确认 ${draft.confirmedCount}/${draft.items.length}`}
-            </Text>
-          ) : null}
-        </Column>
-        <Tag
-          color={statusView.color}
-          size="small"
-          testID={`draft-status-${draft.id}`}
+      <Row
+        align="baseline"
+        gap="small"
+        justify="between"
+        style={styles.cardMeta}
+      >
+        <Text
+          color={isBookMissing ? 'warningText' : 'tertiary'}
+          numberOfLines={1}
+          size="xs"
+          style={styles.metaText}
         >
-          {statusView.label}
-        </Tag>
+          {`${bookName} · ${formatDraftTimestamp(displayTime)}`}
+        </Text>
+        <Text
+          color={isFailed ? 'errorText' : 'tertiary'}
+          size="xs"
+          style={styles.progress}
+        >
+          {progressText}
+        </Text>
       </Row>
 
       {isFailed ? (
-        <Text color="secondary" size="sm" style={styles.errorText}>
+        <Text color="secondary" numberOfLines={2} size="sm">
           {draft.errorText || '未能生成草稿，可重试或丢弃。'}
         </Text>
       ) : null}
 
-      {isGenerating ? <Loading size="small" text="生成中" /> : null}
+      {isGenerating ? <Loading size="small" /> : null}
 
       {isPending ? (
         <Column style={styles.items}>
-          {draft.items.map((item, index) => {
-            const type = typeMap.get(item.typeId);
-            const missingHint = getMissingHint(draft, item, typeMap);
-            const isAmountMissing =
-              item.amountCents === null || item.amountCents <= 0;
-            return (
-              <Row key={`${draft.id}-${index}`} style={styles.itemRow}>
-                <Column style={styles.itemCopy}>
-                  <Text color="default" numberOfLines={1} size="sm">
-                    {getDraftItemTypeLabel(type, typeMap)}
-                  </Text>
-                  {missingHint ? (
-                    <Text color="warningText" size="xs">
-                      {missingHint}
-                    </Text>
-                  ) : null}
-                </Column>
-                <Column style={styles.itemAmount}>
-                  <Text
-                    color={isAmountMissing ? 'warningText' : 'heading'}
-                    numberOfLines={1}
-                    size="sm"
-                    style={styles.num}
-                    weight="medium"
-                  >
-                    {formatDraftAmount(
-                      isAmountMissing ? null : item.amountCents,
-                    )}
-                  </Text>
-                </Column>
-              </Row>
-            );
-          })}
+          {draft.items.map((item, index) => (
+            <DraftItemRow
+              assetMap={assetMap}
+              booksId={draft.booksId}
+              isBookMissing={isBookMissing}
+              isBusy={isBusy}
+              isConfirming={confirmingItemIndex === index}
+              item={item}
+              key={`${draft.id}-${index}`}
+              onConfirm={() => onConfirm(index)}
+              onEdit={() => onEdit(index)}
+              onFill={field => onFill(index, field)}
+              typeMap={typeMap}
+            />
+          ))}
         </Column>
       ) : null}
 
-      {isFailed || isPending ? (
-        <Row style={styles.actions}>
-          <Button disabled={isRetrying} onPress={onDiscard} type="default">
-            丢弃
-          </Button>
-          {isFailed ? (
-            <Button loading={isRetrying} onPress={onRetry} type="primary">
-              重试
+      {isPending ? (
+        <Row align="center" gap="small" style={styles.attachRow}>
+          <Icon color="tertiary" icon={ImageSquareIcon} size="small" />
+          <Text color="tertiary" size="xs" style={styles.attachLabel}>
+            随记录带上截图
+          </Text>
+          <Switch
+            disabled={isTogglingAttach || isBookMissing || isBusy}
+            onChange={onToggleAttach}
+            value={draft.attachImage}
+          />
+        </Row>
+      ) : null}
+
+      {isBookMissing && isPending ? (
+        <Text color="warningText" size="xs">
+          目标账本已不存在，请丢弃后重新截图。
+        </Text>
+      ) : null}
+
+      {canDiscard || isFailed ? (
+        <Row align="center" justify="between" style={styles.actions}>
+          {canDiscard ? (
+            <Button
+              color="default"
+              disabled={isRetrying || isBusy}
+              onPress={onDiscard}
+              size="small"
+              type="text"
+            >
+              丢弃
             </Button>
-          ) : null}
-          {isPending ? (
-            <Button onPress={onOpen} type="primary">
-              去确认
+          ) : (
+            <Row />
+          )}
+          {isFailed ? (
+            <Button
+              disabled={isBusy}
+              loading={isRetrying}
+              onPress={onRetry}
+              size="small"
+              type="primary"
+            >
+              重试
             </Button>
           ) : null}
         </Row>

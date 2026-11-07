@@ -44,6 +44,7 @@ function draftRow(
     status: QUICK_BOOK_DRAFT_STATUS.pending,
     source: QUICK_BOOK_DRAFT_SOURCE.floatingCapture,
     imagePath: 'file://draft/screenshot.jpg',
+    attachImage: true,
     items: [draftItem()],
     preset: { assetId: 0, typeId: 0 },
     agentProviderId: 0,
@@ -205,6 +206,17 @@ describe('buildAddRecordInitFromDraft', () => {
     // Act
     const prefill = buildAddRecordInitFromDraft(
       draftRow({ imagePath: '' }),
+      draftItem(),
+    );
+
+    // Assert
+    expect(prefill.images).toEqual([]);
+  });
+
+  test('returns no images when the draft attach switch is off', () => {
+    // Act
+    const prefill = buildAddRecordInitFromDraft(
+      draftRow({ attachImage: false }),
       draftItem(),
     );
 

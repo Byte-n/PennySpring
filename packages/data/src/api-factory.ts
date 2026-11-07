@@ -18,6 +18,7 @@ import type {
   CreateTypeInput,
   DraftItem,
   LibrarySnapshot,
+  QuickBookDraftItemPatch,
   QuickBookDraftListFilter,
   QuickBookDraftPreset,
   QuickBookDraftRow,
@@ -164,6 +165,26 @@ export function createApi(getDatabase: () => Promise<Database>) {
         services.markQuickBookDraftFailed(await getDatabase(), id, errorText),
       getItem: async (id: string, itemIndex: number): Promise<DraftItem> =>
         services.getQuickBookDraftItem(await getDatabase(), id, itemIndex),
+      updateItem: async (
+        id: string,
+        itemIndex: number,
+        patch: QuickBookDraftItemPatch,
+      ): Promise<DraftItem> =>
+        services.updateQuickBookDraftItem(
+          await getDatabase(),
+          id,
+          itemIndex,
+          patch,
+        ),
+      setAttachImage: async (
+        id: string,
+        attachImage: boolean,
+      ): Promise<QuickBookDraftRow> =>
+        services.setQuickBookDraftAttachImage(
+          await getDatabase(),
+          id,
+          attachImage,
+        ),
       confirmItem: async (
         id: string,
         itemIndex: number,

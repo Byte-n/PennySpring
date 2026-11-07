@@ -58,6 +58,8 @@ export {
   getQuickBookDraftItem,
   listQuickBookDrafts,
   markQuickBookDraftFailed,
+  setQuickBookDraftAttachImage,
+  updateQuickBookDraftItem,
   updateQuickBookDraftItems,
 } from './quick-book-draft-service';
 export {
@@ -124,6 +126,7 @@ export type {
   CreateRecordInput,
   CreateTagInput,
   CreateTypeInput,
+  QuickBookDraftItemPatch,
   QuickBookDraftListFilter,
   QuickBookDraftPreset,
   QuickBookDraftRow,

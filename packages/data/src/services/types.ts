@@ -278,6 +278,25 @@ export interface DraftItem {
   warnings: string[];
 }
 
+/** 快捷补全可修改的逐笔字段；status 与 recordId 只由确认流程维护。 */
+export type QuickBookDraftItemPatch = Partial<
+  Pick<
+    DraftItem,
+    | 'typeId'
+    | 'typeName'
+    | 'amountCents'
+    | 'recordTime'
+    | 'remark'
+    | 'assetId'
+    | 'assetName'
+    | 'intoAssetId'
+    | 'intoAssetName'
+    | 'chargeCents'
+    | 'tagIds'
+    | 'reimbursable'
+  >
+>;
+
 /** 草稿组预设；0 表示未指定。 */
 export interface QuickBookDraftPreset {
   assetId: number;
@@ -291,6 +310,8 @@ export interface QuickBookDraftRow {
   status: QuickBookDraftStatusValue;
   source: QuickBookDraftSourceValue;
   imagePath: string;
+  /** 记账时是否附带来源截图 */
+  attachImage: boolean;
   items: DraftItem[];
   preset: QuickBookDraftPreset;
   agentProviderId: number;

@@ -18,7 +18,6 @@ export const linking: LinkingOptions<RootStackParamList> = {
     initialRouteName: ROOT_ROUTES.Home,
     screens: {
       [ROOT_ROUTES.Home]: '',
-      [ROOT_ROUTES.QuickBookDraft]: 'draft/:draftId',
     },
   },
 };

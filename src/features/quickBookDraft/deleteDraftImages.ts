@@ -1,4 +1,5 @@
 import { FileSystem } from 'react-native-file-access';
+import { QUICK_BOOK_DRAFT_STATUS, localApi } from '@pennyspring/api';
 
 const FILE_URI_PREFIX = 'file://';
 
@@ -32,4 +33,18 @@ export async function deleteDraftImageFiles(
   imagePaths: readonly string[],
 ): Promise<void> {
   await Promise.all(imagePaths.map(deleteOne));
+}
+
+/** 草稿全部确认后删除原始截图；部分确认时保留，供后续笔继续转存。 */
+export async function deleteDraftImageIfConfirmed(
+  draftId: string,
+): Promise<void> {
+  try {
+    const draft = await localApi.quickBookDraft.getById(draftId);
+    if (draft.status === QUICK_BOOK_DRAFT_STATUS.confirmed) {
+      await deleteDraftImageFiles([draft.imagePath]);
+    }
+  } catch {
+    // 草稿可能已被清理；截图残留不阻断记账结果。
+  }
 }

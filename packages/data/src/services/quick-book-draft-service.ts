@@ -18,6 +18,7 @@ import type {
   CreateRecordInput,
   DraftItem,
   DraftItemStatus,
+  QuickBookDraftItemPatch,
   QuickBookDraftListFilter,
   QuickBookDraftPreset,
   QuickBookDraftRow,
@@ -31,6 +32,7 @@ export type {
   CreateQuickBookDraftPlaceholderInput,
   DraftItem,
   DraftItemStatus,
+  QuickBookDraftItemPatch,
   QuickBookDraftListFilter,
   QuickBookDraftPreset,
   QuickBookDraftRow,
@@ -240,6 +242,7 @@ function toDraftRow(row: QuickBookDraftDbRow): QuickBookDraftRow {
     status: row.status,
     source: row.source,
     imagePath: row.imagePath,
+    attachImage: row.attachImage === 1,
     items: parseDraftItems(row.payload, now),
     preset: parsePreset(row.preset),
     agentProviderId: row.agentProviderId,
@@ -400,6 +403,7 @@ export function createQuickBookDraftPlaceholder(
         status: QUICK_BOOK_DRAFT_STATUS.generating,
         source: normalized.source,
         imagePath: normalized.imagePath,
+        attachImage: 0,
         payload: '[]',
         preset: JSON.stringify(normalized.preset),
         agentProviderId: normalized.agentProviderId,
@@ -552,6 +556,83 @@ export async function getQuickBookDraftItem(
   return getItemAtIndex(parseDraftItems(row.payload, Date.now()), itemIndex);
 }
 
+/**
+ * 快捷补全：只替换指定的一笔，保留其余笔（包括已确认笔）。
+ * 与 updateItems 不同，部分确认后仍可修改未确认笔。
+ */
+export function updateQuickBookDraftItem(
+  db: Database,
+  id: string,
+  itemIndex: number,
+  patch: QuickBookDraftItemPatch,
+): Promise<DraftItem> {
+  if (!isRecord(patch)) {
+    throw new Error('草稿笔修改内容格式不正确');
+  }
+  return db.transaction(async tx => {
+    const row = await getDraftRow(tx, id);
+    if (row.status !== QUICK_BOOK_DRAFT_STATUS.pending) {
+      throw new Error(`草稿状态不允许修改: ${row.status}`);
+    }
+    const now = Date.now();
+    const items = parseDraftItems(row.payload, now);
+    const current = getItemAtIndex(items, itemIndex);
+    if (current.status === 'confirmed') {
+      throw new Error('已记账的草稿笔不能修改');
+    }
+    const updated = normalizeDraftItem(
+      {
+        ...current,
+        ...patch,
+        status: current.status,
+        recordId: current.recordId,
+      },
+      itemIndex,
+      'stored',
+      now,
+    );
+    const nextItems = items.map((item, index) =>
+      index === itemIndex ? updated : item,
+    );
+    await tx
+      .update(quickBookDrafts)
+      .set({
+        payload: JSON.stringify(nextItems),
+        updatedTime: now,
+      })
+      .where(eq(quickBookDrafts.id, id));
+    return updated;
+  });
+}
+
+/**
+ * 设置草稿组是否在记账时附带来源截图。
+ * 仅 pending 草稿可修改；截图文件本身保留，由丢弃/清理流程处理。
+ */
+export function setQuickBookDraftAttachImage(
+  db: Database,
+  id: string,
+  attachImage: boolean,
+): Promise<QuickBookDraftRow> {
+  if (typeof attachImage !== 'boolean') {
+    throw new Error('草稿带图设置不合法');
+  }
+  return db.transaction(async tx => {
+    const row = await getDraftRow(tx, id);
+    if (row.status !== QUICK_BOOK_DRAFT_STATUS.pending) {
+      throw new Error(`草稿状态不允许修改: ${row.status}`);
+    }
+    await tx
+      .update(quickBookDrafts)
+      .set({
+        attachImage: attachImage ? 1 : 0,
+        updatedTime: Date.now(),
+      })
+      .where(eq(quickBookDrafts.id, id));
+    return toDraftRow(await getDraftRow(tx, id));
+  });
+}
+
 async function getDraftTypeRow(
   tx: Tx,
   typeId: number,
@@ -605,10 +686,12 @@ async function buildConfirmRecordInput(
     throw new Error('记账时间不合法');
   }
 
-  // P1 直接复用草稿图片路径（本地账本 file:// 约定）；
-  // P4 把图片转入媒体存储后，可通过 input.imagePaths 覆盖或传 [] 取消。
+  // 默认遵循草稿组的带图开关；调用方仍可通过 input.imagePaths 覆盖或传 [] 取消。
   const imagePaths =
-    input?.imagePaths ?? (draftRow.imagePath ? [draftRow.imagePath] : []);
+    input?.imagePaths ??
+    (draftRow.attachImage === 1 && draftRow.imagePath
+      ? [draftRow.imagePath]
+      : []);
 
   const common = {
     booksId,

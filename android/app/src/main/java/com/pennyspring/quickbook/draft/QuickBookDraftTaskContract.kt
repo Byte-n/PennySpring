@@ -1,7 +1,5 @@
 package com.pennyspring.quickbook.draft
 
-import android.net.Uri
-
 /**
  * 原生与 JS 之间共享的 Headless 任务契约。
  *
@@ -17,15 +15,5 @@ object QuickBookDraftTaskContract {
     const val EXTRA_ASSET_ID = "assetId"
     const val EXTRA_TYPE_ID = "typeId"
 
-    const val DEEP_LINK_SCHEME = "pennyspring"
-    const val DEEP_LINK_DRAFT_HOST = "draft"
     const val AGENT_DEEP_LINK = "pennyspring://agent"
-
-    fun draftDeepLink(draftId: String): Uri =
-        Uri
-            .Builder()
-            .scheme(DEEP_LINK_SCHEME)
-            .authority(DEEP_LINK_DRAFT_HOST)
-            .appendPath(draftId)
-            .build()
 }

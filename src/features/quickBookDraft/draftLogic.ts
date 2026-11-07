@@ -9,6 +9,8 @@ import {
 
 export const DRAFT_MISSING_AMOUNT_TEXT = '金额待确认';
 export const DRAFT_MISSING_TYPE_TEXT = '待选择类型';
+export const DRAFT_MISSING_FROM_ASSET_TEXT = '缺少转出资产';
+export const DRAFT_MISSING_INTO_ASSET_TEXT = '缺少转入资产';
 
 const CENTS_PER_YUAN = 100;
 const DEFAULT_AMOUNT_DECIMAL = '00';
@@ -116,10 +118,10 @@ export function getDraftItemMissingLabels(
   }
   if (type?.typeCategory === RECORD_TYPE_CATEGORY.transfer) {
     if (item.assetId <= 0) {
-      labels.push('缺少转出资产');
+      labels.push(DRAFT_MISSING_FROM_ASSET_TEXT);
     }
     if (item.intoAssetId <= 0) {
-      labels.push('缺少转入资产');
+      labels.push(DRAFT_MISSING_INTO_ASSET_TEXT);
     } else if (item.assetId > 0 && item.assetId === item.intoAssetId) {
       labels.push('转出与转入资产不能相同');
     }

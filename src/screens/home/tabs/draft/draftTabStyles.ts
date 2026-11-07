@@ -1,7 +1,8 @@
 import { createUseSheetStyle, toShadowStyle } from '@pennyspring/ui';
 
-const DRAFT_THUMB_SIZE = 56;
-const HINT_ICON_SIZE = 28;
+const MISS_CHIP_HEIGHT = 24;
+const MISS_CHIP_RADIUS = 999;
+const MISS_CHIP_PADDING = 8;
 
 export const useDraftTabStyles = createUseSheetStyle(token => ({
   container: {
@@ -23,7 +24,7 @@ export const useDraftTabStyles = createUseSheetStyle(token => ({
     paddingTop: token.paddingXXS,
   },
   card: {
-    gap: token.marginXS,
+    gap: token.marginXXS,
     padding: token.paddingSM,
     backgroundColor: token.colorBgContainer,
     borderRadius: token.borderRadiusLG,
@@ -31,73 +32,95 @@ export const useDraftTabStyles = createUseSheetStyle(token => ({
     borderColor: token.colorSplit,
     ...toShadowStyle(token.boxShadowTertiary),
   },
-  cardHead: {
-    gap: token.marginXS,
-    alignItems: 'center',
+  cardMeta: {
+    alignItems: 'baseline',
   },
-  thumb: {
-    width: DRAFT_THUMB_SIZE,
-    height: DRAFT_THUMB_SIZE,
-    borderRadius: token.borderRadius,
+  metaText: {
+    flexShrink: 1,
   },
-  meta: {
-    flex: 1,
-    minWidth: 0,
-    gap: token.marginXXS,
+  progress: {
+    flexShrink: 0,
   },
   items: {
-    gap: token.marginXS,
-    paddingTop: token.paddingXS,
-    borderTopWidth: token.lineWidth,
-    borderTopColor: token.colorSplit,
+    gap: token.marginXXS,
+  },
+  itemBlock: {
+    gap: token.marginXXS / 2,
+    paddingVertical: token.marginXXS / 2,
   },
   itemRow: {
-    alignItems: 'flex-start',
-    gap: token.marginXS,
+    alignItems: 'center',
   },
   itemCopy: {
     flex: 1,
     minWidth: 0,
-    gap: token.marginXXS,
+    alignItems: 'center',
   },
-  itemAmount: {
-    alignItems: 'flex-end',
+  itemType: {
+    flexShrink: 1,
+  },
+  itemRight: {
+    flexShrink: 0,
+    alignItems: 'center',
   },
   num: {
     fontVariant: ['tabular-nums'],
   },
-  actions: {
-    justifyContent: 'flex-end',
-    gap: token.marginXS,
-    paddingTop: token.paddingXS,
-    borderTopWidth: token.lineWidth,
-    borderTopColor: token.colorSplit,
-  },
-  errorText: {
-    paddingTop: token.paddingXXS,
-  },
-  hintCard: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: token.marginXS,
-    padding: token.paddingSM,
-    borderRadius: token.borderRadiusLG,
-    borderWidth: token.lineWidth,
-    borderStyle: 'dashed',
-    borderColor: token.colorBorder,
-  },
-  hintIcon: {
-    width: HINT_ICON_SIZE,
-    height: HINT_ICON_SIZE,
-    borderRadius: token.borderRadius,
+  itemMetaRow: {
     alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: token.colorPrimaryBg,
-    flexShrink: 0,
   },
-  hintCopy: {
+  itemMeta: {
     flex: 1,
     minWidth: 0,
-    gap: token.marginXXS,
+    alignItems: 'center',
+  },
+  remark: {
+    flexShrink: 1,
+  },
+  attachRow: {
+    alignItems: 'center',
+    gap: token.marginXS,
+    minHeight: token.controlHeight,
+    paddingTop: token.paddingXXS,
+  },
+  attachLabel: {
+    flex: 1,
+    minWidth: 0,
+  },
+  actions: {
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingTop: token.paddingXXS,
+  },
+  missChip: {
+    height: MISS_CHIP_HEIGHT,
+    paddingHorizontal: MISS_CHIP_PADDING,
+    borderRadius: MISS_CHIP_RADIUS,
+    justifyContent: 'center',
+    backgroundColor: token.colorWarningBg,
+  },
+  missChipDisabled: {
+    opacity: token.opacityLoading,
+  },
+  missChipPressed: {
+    backgroundColor: token.colorWarningBgHover,
+  },
+  fillOption: {
+    minHeight: token.controlHeight,
+    justifyContent: 'center',
+    paddingHorizontal: token.paddingXS,
+    paddingVertical: token.paddingXS,
+    borderRadius: token.borderRadius,
+    borderBottomWidth: token.lineWidth,
+    borderBottomColor: token.colorSplit,
+  },
+  fillOptionLast: {
+    borderBottomWidth: 0,
+  },
+  fillOptionPressed: {
+    backgroundColor: token.colorFillQuaternary,
+  },
+  fillOptionDescription: {
+    marginTop: token.marginXXS / 2,
   },
 }));

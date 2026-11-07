@@ -152,7 +152,7 @@ class QuickBookJobService : HeadlessJsTaskService() {
                     QuickBookDraftNotifications.notifyIfAllowed(
                         this,
                         RESULT_NOTIFICATION_ID,
-                        QuickBookDraftNotifications.successNotification(this, draftId, itemCount),
+                        QuickBookDraftNotifications.successNotification(this, itemCount),
                     )
                     Toast
                         .makeText(
@@ -164,7 +164,7 @@ class QuickBookJobService : HeadlessJsTaskService() {
                     QuickBookDraftNotifications.notifyIfAllowed(
                         this,
                         RESULT_NOTIFICATION_ID,
-                        QuickBookDraftNotifications.failureNotification(this, draftId),
+                        QuickBookDraftNotifications.failureNotification(this),
                     )
                     Toast.makeText(applicationContext, R.string.quick_book_toast_draft_failed, Toast.LENGTH_SHORT).show()
                 }
@@ -191,7 +191,7 @@ class QuickBookJobService : HeadlessJsTaskService() {
     private fun startAsForegroundService(draftId: String) {
         // Android 13+ 无通知权限时系统允许前台服务继续运行，只是不展示通知；
         // Android 14+ 需要显式传入 specialUse 类型，否则会抛 MissingForegroundServiceTypeException。
-        val notification = QuickBookDraftNotifications.generatingNotification(this, draftId)
+        val notification = QuickBookDraftNotifications.generatingNotification(this)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             startForeground(
                 NOTIFICATION_ID,

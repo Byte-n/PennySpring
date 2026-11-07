@@ -31,6 +31,8 @@ import {
   getQuickBookDraftItem,
   listQuickBookDrafts,
   markQuickBookDraftFailed,
+  setQuickBookDraftAttachImage,
+  updateQuickBookDraftItem,
   updateQuickBookDraftItems,
 } from '../src/services/quick-book-draft-service';
 import type {
@@ -204,6 +206,7 @@ describe('quick book draft service', () => {
       status: 'generating',
       source: 'floating_capture',
       imagePath: IMAGE_PATH,
+      attachImage: false,
       items: [],
       preset: { assetId: fixture.assetId, typeId: 0 },
       confirmedCount: 0,
@@ -372,6 +375,99 @@ describe('quick book draft service', () => {
     });
   });
 
+  it('defaults attachImage to false and honours the group switch on confirm', async () => {
+    const fixture = await createFixture();
+    const withoutImage = await createDraft(fixture, 'draft-attach-off', [
+      draftItem(fixture),
+    ]);
+    expect(withoutImage.attachImage).toBe(false);
+
+    const detached = await confirmQuickBookDraftItem(
+      fixture.db,
+      withoutImage.id,
+      0,
+    );
+    const detachedDetail = await getRecordDetailById(
+      fixture.db,
+      detached.recordId,
+      fixture.booksId,
+    );
+    expect(detachedDetail.imagePaths).toEqual([]);
+
+    const withImage = await createDraft(fixture, 'draft-attach-on', [
+      draftItem(fixture),
+    ]);
+    await expect(
+      setQuickBookDraftAttachImage(fixture.db, withImage.id, true),
+    ).resolves.toMatchObject({ attachImage: true });
+
+    const attached = await confirmQuickBookDraftItem(
+      fixture.db,
+      withImage.id,
+      0,
+    );
+    const attachedDetail = await getRecordDetailById(
+      fixture.db,
+      attached.recordId,
+      fixture.booksId,
+    );
+    expect(attachedDetail.imagePaths).toEqual([IMAGE_PATH]);
+  });
+
+  it('updates a pending item after partial confirmation without touching confirmed items', async () => {
+    const fixture = await createFixture();
+    const created = await createDraft(fixture, 'draft-quick-fill', [
+      draftItem(fixture, { remark: '第一笔' }),
+      draftItem(fixture, {
+        remark: '第二笔',
+        typeId: 0,
+        typeName: '',
+        amountCents: null,
+      }),
+    ]);
+    const first = await confirmQuickBookDraftItem(fixture.db, created.id, 0);
+
+    const updated = await updateQuickBookDraftItem(fixture.db, created.id, 1, {
+      typeId: fixture.expenseTypeId,
+      typeName: '餐饮',
+      amountCents: 2_300,
+      assetId: fixture.assetId,
+      assetName: '现金',
+    });
+
+    expect(updated).toMatchObject({
+      status: 'pending',
+      recordId: 0,
+      typeId: fixture.expenseTypeId,
+      amountCents: 2_300,
+      remark: '第二笔',
+    });
+    const draft = await getQuickBookDraftById(fixture.db, created.id);
+    expect(draft).toMatchObject({
+      status: 'pending',
+      confirmedCount: 1,
+      attachImage: false,
+    });
+    expect(draft.items[0]).toMatchObject({
+      status: 'confirmed',
+      recordId: first.recordId,
+      remark: '第一笔',
+    });
+    expect(draft.items[1]).toMatchObject({
+      status: 'pending',
+      recordId: 0,
+      amountCents: 2_300,
+      typeId: fixture.expenseTypeId,
+    });
+    expect(await getRecordsByBook(fixture.db, fixture.booksId)).toHaveLength(1);
+
+    await expect(
+      updateQuickBookDraftItem(fixture.db, created.id, 0, {
+        amountCents: 1_000,
+      }),
+    ).rejects.toThrow('已记账的草稿笔不能修改');
+  });
+
   it('keeps the error text when marking a draft failed', async () => {
     const fixture = await createFixture();
     const created = await createDraft(fixture, 'draft-failed', []);
@@ -415,6 +511,7 @@ describe('quick book draft service', () => {
     const created = await createDraft(fixture, 'draft-complete', [
       draftItem(fixture, { remark: '晚餐', amountCents: 5_600 }),
     ]);
+    await setQuickBookDraftAttachImage(fixture.db, created.id, true);
 
     const result = await confirmQuickBookDraftItem(fixture.db, created.id, 0);
 

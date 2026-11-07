@@ -1,0 +1,1 @@
+ALTER TABLE `tb_quick_book_draft` ADD `attach_image` integer DEFAULT 0 NOT NULL;

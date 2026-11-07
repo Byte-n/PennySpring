@@ -15,6 +15,7 @@ import {
 import { getGlobalApi } from '../../stores/bookStore';
 import { bumpDraftVersion } from '../../stores/draftVersionStore';
 import { bumpRecordVersion } from '../../stores/syncVersionStore';
+import { deleteDraftImageIfConfirmed } from '../../features/quickBookDraft/deleteDraftImages';
 import type { AddRecordDraftTarget } from './draftPrefill';
 
 export type AddRecordTabType = 'expense' | 'income' | 'transfer';
@@ -207,6 +208,7 @@ export async function saveAddRecordDraft(
     });
     bumpRecordVersion();
     bumpDraftVersion();
+    await deleteDraftImageIfConfirmed(draftId);
     return;
   }
 

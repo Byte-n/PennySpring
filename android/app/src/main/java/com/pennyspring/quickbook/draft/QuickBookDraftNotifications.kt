@@ -32,7 +32,6 @@ object QuickBookDraftNotifications {
     const val NOTIFICATION_ID_RESULT = 3103
 
     private const val REQUEST_CODE_OPEN_APP = 4101
-    private const val REQUEST_CODE_DRAFT_BASE = 5000
     private const val PENDING_INTENT_FLAGS = PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
 
     fun ensureChannels(context: Context) {
@@ -80,49 +79,37 @@ object QuickBookDraftNotifications {
             .build()
     }
 
-    fun generatingNotification(
-        context: Context,
-        draftId: String,
-    ): Notification {
+    fun generatingNotification(context: Context): Notification {
         ensureChannels(context)
-        val builder =
-            baseBuilder(context, CHANNEL_DRAFT, NotificationCompat.PRIORITY_DEFAULT)
-                .setContentTitle(context.getString(R.string.quick_book_notification_generating_title))
-                .setContentText(context.getString(R.string.quick_book_notification_generating_text))
-                .setOngoing(true)
-                .setProgress(0, 0, true)
-                .setCategory(NotificationCompat.CATEGORY_PROGRESS)
-        if (draftId.isNotBlank()) {
-            builder.setContentIntent(draftPendingIntent(context, draftId))
-        } else {
-            builder.setContentIntent(openAppPendingIntent(context))
-        }
-        return builder.build()
+        return baseBuilder(context, CHANNEL_DRAFT, NotificationCompat.PRIORITY_DEFAULT)
+            .setContentTitle(context.getString(R.string.quick_book_notification_generating_title))
+            .setContentText(context.getString(R.string.quick_book_notification_generating_text))
+            .setOngoing(true)
+            .setProgress(0, 0, true)
+            .setCategory(NotificationCompat.CATEGORY_PROGRESS)
+            .setContentIntent(openAppPendingIntent(context))
+            .build()
     }
 
     fun successNotification(
         context: Context,
-        draftId: String,
         itemCount: Int,
     ): Notification {
         ensureChannels(context)
         return baseBuilder(context, CHANNEL_DRAFT, NotificationCompat.PRIORITY_DEFAULT)
             .setContentTitle(context.getString(R.string.quick_book_notification_success_title))
             .setContentText(context.getString(R.string.quick_book_notification_success_text, itemCount))
-            .setContentIntent(draftPendingIntent(context, draftId))
+            .setContentIntent(openAppPendingIntent(context))
             .setAutoCancel(true)
             .build()
     }
 
-    fun failureNotification(
-        context: Context,
-        draftId: String,
-    ): Notification {
+    fun failureNotification(context: Context): Notification {
         ensureChannels(context)
         return baseBuilder(context, CHANNEL_DRAFT, NotificationCompat.PRIORITY_DEFAULT)
             .setContentTitle(context.getString(R.string.quick_book_notification_failure_title))
             .setContentText(context.getString(R.string.quick_book_notification_failure_text))
-            .setContentIntent(draftPendingIntent(context, draftId))
+            .setContentIntent(openAppPendingIntent(context))
             .setAutoCancel(true)
             .build()
     }
@@ -172,21 +159,4 @@ object QuickBookDraftNotifications {
             openAppIntent(context),
             PENDING_INTENT_FLAGS,
         )
-
-    private fun draftPendingIntent(
-        context: Context,
-        draftId: String,
-    ): PendingIntent {
-        val intent =
-            Intent(context, MainActivity::class.java).apply {
-                action = Intent.ACTION_VIEW
-                data = QuickBookDraftTaskContract.draftDeepLink(draftId)
-                flags =
-                    Intent.FLAG_ACTIVITY_NEW_TASK or
-                    Intent.FLAG_ACTIVITY_SINGLE_TOP or
-                    Intent.FLAG_ACTIVITY_CLEAR_TOP
-            }
-        val requestCode = REQUEST_CODE_DRAFT_BASE + draftId.hashCode()
-        return PendingIntent.getActivity(context, requestCode, intent, PENDING_INTENT_FLAGS)
-    }
 }

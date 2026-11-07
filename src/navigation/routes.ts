@@ -21,7 +21,6 @@ export const ROOT_ROUTES = {
   BackupLan: 'BackupLan',
   BackupLanSend: 'BackupLanSend',
   BackupLanReceive: 'BackupLanReceive',
-  QuickBookDraft: 'QuickBookDraft',
 } as const;
 
 export const HOME_TAB_ROUTES = {

@@ -6,26 +6,15 @@ import {
   type AddRecordPresetPayload,
   type AddRecordTemplatePayload,
 } from './AddRecordContext';
-import {
-  Input,
-  KeyboardAwareScreen,
-  Loading,
-  Column,
-  Row,
-  Text,
-  Icon,
-  useToast,
-} from '@pennyspring/ui';
+import { Input, KeyboardAwareScreen, Loading, useToast } from '@pennyspring/ui';
 import { createUseSheetStyle, ThemeProvider, useTheme } from '@pennyspring/ui';
 import {
-  BOOK_TYPE,
   localApi,
   QUICK_BOOK_DRAFT_STATUS,
   RECORD_TYPE_CATEGORY,
   REIMBURSABLE,
   type RecordTypeCategoryValue,
 } from '@pennyspring/api';
-import { NotePencilIcon } from 'phosphor-react-native';
 import { ExpenseTabScreen } from './tabs/ExpenseTabScreen';
 import { IncomeTabScreen } from './tabs/IncomeTabScreen';
 import { TransferTabScreen } from './tabs/TransferTabScreen';
@@ -105,7 +94,6 @@ function AddRecordContent({
     initFromTemplate,
     initBlankTemplate,
     initFromDraft,
-    draftTarget,
     template: isTemplateMode,
     templateName,
     setTemplateName,
@@ -114,7 +102,6 @@ function AddRecordContent({
   const globalApi = useGlobalApi();
   const media = useMediaStore();
   const [initialRouteName, setInitialRouteName] = useState<string>();
-  const [draftBookName, setDraftBookName] = useState('');
   const [loading, setLoading] = useState(
     recordId !== undefined ||
       preset !== undefined ||
@@ -227,7 +214,6 @@ function AddRecordContent({
           itemIndex: itemIndex ?? 0,
           ...prefill,
         });
-        setDraftBookName(book.name);
         setInitialRouteName(TAB_NAME_BY_CATEGORY[prefill.typeCategory]);
         setLoading(false);
       } catch (error: unknown) {
@@ -252,36 +238,10 @@ function AddRecordContent({
   }
 
   const tabColor = token[TAB_COLORS[currentTabIndex]];
-  const isDifferentBook =
-    draftTarget !== null &&
-    (currentBook === null ||
-      currentBook.kind !== BOOK_TYPE.local ||
-      currentBook.id !== draftTarget.booksId);
 
   return (
     <ThemeProvider config={{ token: { colorPrimary: tabColor } }}>
       <KeyboardAwareScreen style={styles.screen}>
-        {draftTarget !== null && (
-          <Row style={styles.draftBanner}>
-            <Icon color="secondary" icon={NotePencilIcon} size="small" />
-            <Column style={styles.draftBannerCopy}>
-              <Text color="heading" size="sm" weight="semibold">
-                来自截图草稿
-              </Text>
-              <Text color="secondary" size="xs">
-                保存后才会写入账本
-              </Text>
-              <Text
-                color={isDifferentBook ? 'warningText' : 'secondary'}
-                size="xs"
-              >
-                {isDifferentBook
-                  ? `目标账本：${draftBookName}（与当前账本不同，保存不会切换当前账本）`
-                  : `目标账本：${draftBookName}`}
-              </Text>
-            </Column>
-          </Row>
-        )}
         {isTemplateMode && (
           <Input
             allowClear
@@ -334,19 +294,5 @@ const useStyles = createUseSheetStyle(token => ({
     paddingHorizontal: token.paddingContentHorizontal,
     paddingTop: token.paddingMD,
     paddingBottom: token.paddingXS,
-  },
-  draftBanner: {
-    alignItems: 'flex-start',
-    gap: token.marginXS,
-    marginHorizontal: token.paddingContentHorizontal,
-    marginTop: token.paddingMD,
-    padding: token.paddingXS,
-    borderRadius: token.borderRadiusLG,
-    backgroundColor: token.colorFillQuaternary,
-  },
-  draftBannerCopy: {
-    flex: 1,
-    minWidth: 0,
-    gap: token.marginXXS,
   },
 }));

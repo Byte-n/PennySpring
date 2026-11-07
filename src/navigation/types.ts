@@ -36,7 +36,6 @@ export type RootStackParamList = {
   [ROOT_ROUTES.BackupLan]: undefined;
   [ROOT_ROUTES.BackupLanSend]: undefined;
   [ROOT_ROUTES.BackupLanReceive]: undefined;
-  [ROOT_ROUTES.QuickBookDraft]: { draftId: string };
 };
 
 export type BookSelectStackParamList = {

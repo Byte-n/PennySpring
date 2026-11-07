@@ -30,6 +30,8 @@ export const quickBookDrafts = sqliteTable(
     source: enumColumn<QuickBookDraftSourceValue>('source').notNull(),
     // 草稿截图文件路径
     imagePath: text('image_path').notNull(),
+    // 记账时是否附带来源截图：1 附带，0 不附带
+    attachImage: integerColumn('attach_image').notNull().default(0),
     // 逐笔草稿 JSON（DraftItem[]）
     payload: text('payload').notNull(),
     // 预设 JSON（{ assetId, typeId }）

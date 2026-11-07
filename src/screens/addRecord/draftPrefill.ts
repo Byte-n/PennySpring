@@ -64,6 +64,7 @@ export function buildAddRecordInitFromDraft(
     recordTime: item.recordTime,
     remark: item.remark,
     tagIds: [...item.tagIds],
-    images: draft.imagePath ? [{ uri: draft.imagePath }] : [],
+    images:
+      draft.attachImage && draft.imagePath ? [{ uri: draft.imagePath }] : [],
   };
 }
