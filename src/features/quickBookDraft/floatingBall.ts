@@ -4,14 +4,17 @@ import { BOOK_TYPE } from '@pennyspring/api';
 import type { BookEntry } from '../../stores/bookStore';
 import {
   type QuickBookDraftNativeStatus,
+  type QuickBookInstalledApp,
   UNSUPPORTED_FLOATING_BALL_STATUS,
   getQuickBookDraftStatus,
+  getQuickBookInstalledApps,
   hasQuickBookDraftNativeModule,
   isQuickBookDraftFloatingBallRunning,
   openQuickBookDraftAccessibilitySettings,
   openQuickBookDraftNotificationSettings,
   openQuickBookDraftOverlaySettings,
   setQuickBookDraftCurrentBookId,
+  setQuickBookDraftExcludedPackages,
   setQuickBookDraftFloatingBallEnabled,
   startQuickBookDraftFloatingBall,
   stopQuickBookDraftFloatingBall,
@@ -122,6 +125,23 @@ export function syncFloatingBallEnabledSetting(enabled: boolean): void {
     return;
   }
   setQuickBookDraftFloatingBallEnabled(enabled);
+}
+
+export async function getFloatingBallExcludedAppCandidates(): Promise<
+  QuickBookInstalledApp[]
+> {
+  if (!isFloatingBallSupported()) {
+    return [];
+  }
+  return getQuickBookInstalledApps();
+}
+
+/** 把排除应用列表同步给原生，前台命中时隐藏悬浮球。 */
+export function syncFloatingBallExcludedPackages(packages: string[]): void {
+  if (!isFloatingBallSupported()) {
+    return;
+  }
+  setQuickBookDraftExcludedPackages(packages);
 }
 
 /** Android 13+ 需要 POST_NOTIFICATIONS；低版本直接视为已授权。 */

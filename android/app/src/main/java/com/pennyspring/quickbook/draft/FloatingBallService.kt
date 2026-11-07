@@ -11,6 +11,8 @@ import android.graphics.PixelFormat
 import android.graphics.Point
 import android.graphics.Rect
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.provider.Settings
 import android.util.Log
 import android.view.Gravity
@@ -42,11 +44,9 @@ class FloatingBallService : Service() {
         private const val TAG = "FloatingBallService"
         private const val NOTIFICATION_ID = QuickBookDraftNotifications.NOTIFICATION_ID_FLOATING
 
-        private const val WINDOW_SIZE_DP = 72
+        private const val WINDOW_SIZE_DP = 48
         private const val BALL_SIZE_DP = 48
-        private const val ICON_SIZE_DP = 22
         private const val INITIAL_BOTTOM_MARGIN_DP = 52
-        private const val BALL_ELEVATION_DP = 10
         private const val SNAP_DURATION_MS = 180L
 
         private val running = AtomicBoolean(false)
@@ -97,6 +97,18 @@ class FloatingBallService : Service() {
         fun restoreAfterCapture() {
             instance?.restoreOverlay()
         }
+
+        /** JS 侧排除列表变化；服务未运行时只依赖已落盘的偏好。 */
+        @JvmStatic
+        fun updateExcludedPackages(packages: Set<String>) {
+            instance?.applyExcludedPackages(packages)
+        }
+
+        /** 无障碍服务报告前台应用变化。 */
+        @JvmStatic
+        fun onForegroundPackageChanged(packageName: String) {
+            instance?.applyForegroundPackage(packageName)
+        }
     }
 
     private lateinit var windowManager: WindowManager
@@ -104,6 +116,11 @@ class FloatingBallService : Service() {
     private var windowParams: WindowManager.LayoutParams? = null
     private var snapAnimator: ValueAnimator? = null
     private var isOverlayAttached = false
+    private val mainHandler = Handler(Looper.getMainLooper())
+    private var excludedPackages: Set<String> = emptySet()
+    private var foregroundPackage: String? = null
+    private var isCaptureHidden = false
+    private var isDestroyed = false
 
     override fun onBind(intent: Intent?): android.os.IBinder? = null
 
@@ -119,7 +136,9 @@ class FloatingBallService : Service() {
             return
         }
         QuickBookDraftNotifications.ensureChannels(this)
-        setupOverlay()
+        excludedPackages = QuickBookDraftPrefs.getExcludedPackages(this)
+        foregroundPackage = ScreenshotAccessibilityService.currentForegroundPackage
+        syncOverlayVisibility()
         running.set(true)
     }
 
@@ -135,7 +154,7 @@ class FloatingBallService : Service() {
             return START_NOT_STICKY
         }
         if (!isOverlayAttached) {
-            setupOverlay()
+            syncOverlayVisibility()
         }
         running.set(true)
         return START_NOT_STICKY
@@ -146,9 +165,12 @@ class FloatingBallService : Service() {
         val params = windowParams ?: return
         clampToScreen(params)
         updateOverlayLayout()
+        snapToEdge()
     }
 
     override fun onDestroy() {
+        isDestroyed = true
+        mainHandler.removeCallbacksAndMessages(null)
         snapAnimator?.cancel()
         snapAnimator = null
         removeOverlayView()
@@ -221,7 +243,6 @@ class FloatingBallService : Service() {
         val ball =
             FrameLayout(this).apply {
                 background = ContextCompat.getDrawable(this@FloatingBallService, R.drawable.bg_quick_book_ball)
-                elevation = dp(BALL_ELEVATION_DP).toFloat()
                 contentDescription = getString(R.string.quick_book_floating_ball_description)
                 layoutParams =
                     FrameLayout.LayoutParams(
@@ -235,8 +256,8 @@ class FloatingBallService : Service() {
                 setImageResource(R.drawable.ic_quick_book_ball)
                 layoutParams =
                     FrameLayout.LayoutParams(
-                        dp(ICON_SIZE_DP),
-                        dp(ICON_SIZE_DP),
+                        dp(BALL_SIZE_DP),
+                        dp(BALL_SIZE_DP),
                         Gravity.CENTER,
                     )
             }
@@ -247,7 +268,8 @@ class FloatingBallService : Service() {
     }
 
     private fun hideOverlay() {
-        removeOverlayView()
+        isCaptureHidden = true
+        syncOverlayVisibility()
     }
 
     private fun restoreOverlay() {
@@ -256,7 +278,39 @@ class FloatingBallService : Service() {
             stopSelf()
             return
         }
-        setupOverlay()
+        isCaptureHidden = false
+        syncOverlayVisibility()
+    }
+
+    private fun syncOverlayVisibility() {
+        if (isDestroyed) {
+            return
+        }
+        if (FloatingBallPolicy.shouldShow(foregroundPackage, excludedPackages, isCaptureHidden)) {
+            setupOverlay()
+        } else {
+            removeOverlayView()
+        }
+    }
+
+    private fun applyExcludedPackages(packages: Set<String>) {
+        mainHandler.post {
+            if (excludedPackages == packages) {
+                return@post
+            }
+            excludedPackages = packages
+            syncOverlayVisibility()
+        }
+    }
+
+    private fun applyForegroundPackage(packageName: String) {
+        mainHandler.post {
+            if (foregroundPackage == packageName) {
+                return@post
+            }
+            foregroundPackage = packageName
+            syncOverlayVisibility()
+        }
     }
 
     private fun removeOverlayView() {
@@ -295,6 +349,9 @@ class FloatingBallService : Service() {
     }
 
     private fun snapToEdge() {
+        if (!isOverlayAttached) {
+            return
+        }
         val params = windowParams ?: return
         val bounds = screenBounds()
         val maxX = maxOf(0, bounds.width() - params.width)

@@ -12,6 +12,7 @@ import android.util.Log
 import android.view.Display
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityManager
+import android.view.inputmethod.InputMethodManager
 import androidx.annotation.RequiresApi
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -26,11 +27,17 @@ import java.util.concurrent.atomic.AtomicBoolean
 class ScreenshotAccessibilityService : AccessibilityService() {
     companion object {
         private const val TAG = "QuickBookScreenshot"
+        private const val SYSTEM_UI_PACKAGE = "com.android.systemui"
 
         @Volatile
         private var instance: ScreenshotAccessibilityService? = null
 
         private val captureExecutor: ExecutorService = Executors.newSingleThreadExecutor()
+
+        /** 最近一次前台应用包名；临时系统窗口与输入法不会覆盖它。 */
+        @Volatile
+        var currentForegroundPackage: String? = null
+            private set
 
         /** takeScreenshot 从 Android 11 开始提供。 */
         fun isSupported(): Boolean = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
@@ -64,14 +71,24 @@ class ScreenshotAccessibilityService : AccessibilityService() {
     }
 
     private val mainHandler = Handler(Looper.getMainLooper())
+    private var transientPackages: Set<String> = setOf(SYSTEM_UI_PACKAGE)
 
     override fun onServiceConnected() {
         super.onServiceConnected()
         instance = this
+        transientPackages = buildTransientPackages()
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
-        // 截图服务不监听任何事件。
+        if (event?.eventType != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
+            return
+        }
+        val packageName = event.packageName?.toString()?.takeIf { it.isNotBlank() } ?: return
+        if (packageName in transientPackages || packageName == currentForegroundPackage) {
+            return
+        }
+        currentForegroundPackage = packageName
+        FloatingBallService.onForegroundPackageChanged(packageName)
     }
 
     override fun onInterrupt() {
@@ -86,6 +103,16 @@ class ScreenshotAccessibilityService : AccessibilityService() {
     override fun onDestroy() {
         instance = null
         super.onDestroy()
+    }
+
+    /** 输入法、系统弹层会触发窗口事件，不能据此判断前台应用。 */
+    private fun buildTransientPackages(): Set<String> {
+        val packages = mutableSetOf(SYSTEM_UI_PACKAGE)
+        val inputMethodManager = getSystemService(InputMethodManager::class.java)
+        inputMethodManager?.enabledInputMethodList?.forEach { method ->
+            method.packageName?.takeIf { it.isNotBlank() }?.let(packages::add)
+        }
+        return packages
     }
 
     @RequiresApi(Build.VERSION_CODES.R)

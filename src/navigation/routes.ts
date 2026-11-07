@@ -12,6 +12,7 @@ export const ROOT_ROUTES = {
   IconPreview: 'IconPreview',
   AgentSettings: 'AgentSettings',
   QuickBookSettings: 'QuickBookSettings',
+  QuickBookExcludedApps: 'QuickBookExcludedApps',
   Backup: 'Backup',
   BackupExport: 'BackupExport',
   BackupImport: 'BackupImport',

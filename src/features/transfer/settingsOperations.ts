@@ -77,5 +77,8 @@ export function applySettingsPackage(snapshot: SettingsSnapshot): void {
   quickBook.setPresetPrompt(snapshot.quickBook.presetPrompt);
   quickBook.setNudgeEnabled(snapshot.quickBook.nudgeEnabled);
   quickBook.setAutoApproveScreenshot(snapshot.quickBook.autoApproveScreenshot);
+  if (snapshot.quickBook.excludedPackages !== undefined) {
+    quickBook.setExcludedPackages(snapshot.quickBook.excludedPackages);
+  }
   useThemeStore.getState().setTheme(snapshot.theme);
 }

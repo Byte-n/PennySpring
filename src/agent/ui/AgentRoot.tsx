@@ -127,6 +127,7 @@ export function AgentRoot({ children }: AgentRootProps) {
     book,
     quickBookReady,
     floatingBallEnabled: quickBookSettings.floatingBallEnabled,
+    excludedPackages: quickBookSettings.excludedPackages,
     setFloatingBallEnabled: quickBookSettings.setFloatingBallEnabled,
   });
 

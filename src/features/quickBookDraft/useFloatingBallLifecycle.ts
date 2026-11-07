@@ -11,6 +11,7 @@ import {
   startFloatingBall,
   stopFloatingBall,
   syncFloatingBallEnabledSetting,
+  syncFloatingBallExcludedPackages,
   syncQuickBookDraftBook,
 } from './floatingBall';
 
@@ -18,6 +19,7 @@ interface UseFloatingBallLifecycleOptions {
   book: BookEntry | null;
   quickBookReady: boolean;
   floatingBallEnabled: boolean;
+  excludedPackages: string[];
   setFloatingBallEnabled: (enabled: boolean) => void;
 }
 
@@ -31,6 +33,7 @@ export function useFloatingBallLifecycle({
   book,
   quickBookReady,
   floatingBallEnabled,
+  excludedPackages,
   setFloatingBallEnabled,
 }: UseFloatingBallLifecycleOptions): void {
   const toast = useToast();
@@ -38,6 +41,20 @@ export function useFloatingBallLifecycle({
   const isLocalBook = book !== null && book.kind === BOOK_TYPE.local;
   const bookKey = book !== null ? `${book.kind}:${book.id}` : 'none';
   const remoteStoppedBookRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!isSupported || !quickBookReady) {
+      return;
+    }
+    try {
+      syncFloatingBallExcludedPackages(excludedPackages);
+    } catch (error) {
+      toast.show({
+        messageText: getDraftErrorMessage(error, '同步排除应用失败'),
+        status: 'error',
+      });
+    }
+  }, [excludedPackages, isSupported, quickBookReady]);
 
   useEffect(() => {
     try {

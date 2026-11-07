@@ -11,7 +11,7 @@ import {
 } from './constants';
 
 const QUICK_BOOK_SETTINGS_STORE_KEY = 'pennyspring-quick-book-settings-v2';
-const QUICK_BOOK_SETTINGS_STORE_VERSION = 4;
+const QUICK_BOOK_SETTINGS_STORE_VERSION = 6;
 
 /** 快捷记账的设备级设置；provider/model 属于服务器级选择，见 api.quickBook。 */
 export interface QuickBookSettings {
@@ -22,6 +22,8 @@ export interface QuickBookSettings {
   autoApproveScreenshot: boolean;
   /** 悬浮球截图记账：仅 Android 本地账本生效，设备级开关。 */
   floatingBallEnabled: boolean;
+  /** 这些包名位于前台时不显示悬浮球；默认空。 */
+  excludedPackages: string[];
 }
 
 interface QuickBookSettingsStore extends QuickBookSettings {
@@ -30,6 +32,26 @@ interface QuickBookSettingsStore extends QuickBookSettings {
   setNudgeEnabled: (enabled: boolean) => void;
   setAutoApproveScreenshot: (enabled: boolean) => void;
   setFloatingBallEnabled: (enabled: boolean) => void;
+  setExcludedPackages: (packages: readonly string[]) => void;
+}
+
+export function normalizeExcludedPackages(
+  packages: readonly unknown[],
+): string[] {
+  const result: string[] = [];
+  const seen = new Set<string>();
+  for (const packageName of packages) {
+    if (typeof packageName !== 'string') {
+      continue;
+    }
+    const trimmed = packageName.trim();
+    if (trimmed === '' || seen.has(trimmed)) {
+      continue;
+    }
+    seen.add(trimmed);
+    result.push(trimmed);
+  }
+  return result;
 }
 
 export function clampFreshWindowSeconds(seconds: number): number {
@@ -48,6 +70,7 @@ const DEFAULT_SETTINGS: QuickBookSettings = {
   nudgeEnabled: false,
   autoApproveScreenshot: true,
   floatingBallEnabled: false,
+  excludedPackages: [],
 };
 
 export function migrateQuickBookSettings(
@@ -55,7 +78,13 @@ export function migrateQuickBookSettings(
   version: number,
 ): QuickBookSettings {
   const state = (persistedState ?? {}) as Partial<QuickBookSettings>;
-  const migrated = { ...DEFAULT_SETTINGS, ...state };
+  const migrated = {
+    ...DEFAULT_SETTINGS,
+    ...state,
+    excludedPackages: normalizeExcludedPackages(
+      Array.isArray(state.excludedPackages) ? state.excludedPackages : [],
+    ),
+  };
   if (
     version < QUICK_BOOK_SETTINGS_STORE_VERSION &&
     state.presetPrompt === LEGACY_DEFAULT_QUICK_BOOK_PROMPT
@@ -84,6 +113,9 @@ export const useQuickBookSettingsStore = create<QuickBookSettingsStore>()(
       setFloatingBallEnabled: floatingBallEnabled => {
         set({ floatingBallEnabled });
       },
+      setExcludedPackages: packages => {
+        set({ excludedPackages: normalizeExcludedPackages(packages) });
+      },
     }),
     {
       name: QUICK_BOOK_SETTINGS_STORE_KEY,
@@ -94,6 +126,7 @@ export const useQuickBookSettingsStore = create<QuickBookSettingsStore>()(
         nudgeEnabled: state.nudgeEnabled,
         autoApproveScreenshot: state.autoApproveScreenshot,
         floatingBallEnabled: state.floatingBallEnabled,
+        excludedPackages: state.excludedPackages,
       }),
       skipHydration: true,
       version: QUICK_BOOK_SETTINGS_STORE_VERSION,
@@ -114,5 +147,6 @@ export function getQuickBookSettings(): QuickBookSettings {
     nudgeEnabled: state.nudgeEnabled,
     autoApproveScreenshot: state.autoApproveScreenshot,
     floatingBallEnabled: state.floatingBallEnabled,
+    excludedPackages: state.excludedPackages,
   };
 }

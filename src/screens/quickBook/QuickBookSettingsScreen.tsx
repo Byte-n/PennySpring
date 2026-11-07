@@ -5,7 +5,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { AppState } from 'react-native';
+import { AppState, Pressable } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { BOOK_TYPE } from '@pennyspring/api';
 import {
@@ -13,6 +13,7 @@ import {
   Button,
   Card,
   Column,
+  Icon,
   Input,
   KeyboardAwareFormScroll,
   KeyboardAwareScreen,
@@ -85,6 +86,9 @@ const useStyles = createUseSheetStyle(token => ({
   },
   truncate: {
     flexShrink: 1,
+  },
+  pressed: {
+    opacity: 0.55,
   },
 }));
 
@@ -681,6 +685,30 @@ export function QuickBookSettingsScreen(): React.ReactElement {
                   </Button>
                 </Row>
               </Row>
+              <Pressable
+                accessibilityRole="button"
+                onPress={() =>
+                  navigation.navigate(ROOT_ROUTES.QuickBookExcludedApps)
+                }
+                style={({ pressed }) => (pressed ? styles.pressed : undefined)}
+              >
+                <Row align="center" gap="normal" justify="between">
+                  <Column gap="small" style={styles.truncate}>
+                    <Text size="sm">排除的应用</Text>
+                    <Text color="secondary" size="xs">
+                      在这些应用中不显示悬浮球，例如游戏。
+                    </Text>
+                  </Column>
+                  <Row align="center" gap="small">
+                    <Text color="secondary" size="xs">
+                      {settings.excludedPackages.length > 0
+                        ? `已排除 ${settings.excludedPackages.length} 个`
+                        : '未设置'}
+                    </Text>
+                    <Icon color="tertiary" icon="caret-right" size={16} />
+                  </Row>
+                </Row>
+              </Pressable>
               <Text color="tertiary" size="xs" style={styles.hint}>
                 自由截图通过无障碍服务完成，启用后无需每次授权；请先在系统设置中开启
                 PennySpring 截图服务。

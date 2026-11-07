@@ -19,12 +19,21 @@ export const UNSUPPORTED_FLOATING_BALL_STATUS: QuickBookDraftNativeStatus = {
   supported: false,
 };
 
+/** 可被选为“不显示悬浮球”的已安装应用。 */
+export interface QuickBookInstalledApp {
+  packageName: string;
+  label: string;
+  /** PNG data URL；原生无法解码图标时为空串。 */
+  icon: string;
+}
+
 /**
  * Android 原生悬浮球模块契约。
  * 非 Android 或模块缺失时所有方法走 no-op / unsupported 分支。
  */
 interface QuickBookDraftNativeModule {
   getStatus: () => Promise<unknown>;
+  getInstalledApps: () => Promise<unknown>;
   openOverlaySettings: () => void;
   openNotificationSettings: () => void;
   openAccessibilitySettings: () => void;
@@ -32,6 +41,7 @@ interface QuickBookDraftNativeModule {
   stopFloatingBall: () => void;
   setCurrentBookId: (booksId: number) => void;
   setFloatingBallEnabled: (enabled: boolean) => void;
+  setExcludedPackages: (packages: string[]) => void;
   isFloatingBallRunning: () => Promise<unknown>;
   cleanupOrphanImages: () => Promise<unknown>;
 }
@@ -89,6 +99,43 @@ function parseNativeStatus(value: unknown): QuickBookDraftNativeStatus {
 
 function toChineseError(action: string): Error {
   return new Error(`${action}失败，请稍后重试`);
+}
+
+function parseInstalledApps(value: unknown): QuickBookInstalledApp[] {
+  if (!Array.isArray(value)) {
+    throw new Error('应用列表返回格式不正确');
+  }
+  const apps: QuickBookInstalledApp[] = [];
+  for (const entry of value) {
+    if (!isRecord(entry)) {
+      continue;
+    }
+    const { packageName, label, icon } = entry;
+    if (
+      typeof packageName !== 'string' ||
+      packageName.trim() === '' ||
+      typeof label !== 'string' ||
+      typeof icon !== 'string'
+    ) {
+      continue;
+    }
+    apps.push({ packageName, label, icon });
+  }
+  return apps;
+}
+
+export async function getQuickBookInstalledApps(): Promise<
+  QuickBookInstalledApp[]
+> {
+  const module = getNativeModule();
+  if (!module) {
+    return [];
+  }
+  try {
+    return parseInstalledApps(await module.getInstalledApps());
+  } catch {
+    throw toChineseError('读取应用列表');
+  }
 }
 
 export async function getQuickBookDraftStatus(): Promise<QuickBookDraftNativeStatus> {
@@ -211,5 +258,17 @@ export function setQuickBookDraftFloatingBallEnabled(enabled: boolean): void {
     module.setFloatingBallEnabled(enabled);
   } catch {
     throw toChineseError('同步悬浮球开关');
+  }
+}
+
+export function setQuickBookDraftExcludedPackages(packages: string[]): void {
+  const module = getNativeModule();
+  if (!module) {
+    return;
+  }
+  try {
+    module.setExcludedPackages(packages);
+  } catch {
+    throw toChineseError('同步排除应用');
   }
 }

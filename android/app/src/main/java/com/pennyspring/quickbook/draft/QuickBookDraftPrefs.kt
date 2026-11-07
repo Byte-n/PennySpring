@@ -14,6 +14,7 @@ object QuickBookDraftPrefs {
 
     private const val KEY_CURRENT_BOOK_ID = "current_book_id"
     private const val KEY_FLOATING_BALL_ENABLED = "floating_ball_enabled"
+    private const val KEY_EXCLUDED_PACKAGES = "excluded_packages"
     private const val DEFAULT_BOOK_ID = 0
 
     private fun prefs(context: Context): SharedPreferences =
@@ -35,5 +36,15 @@ object QuickBookDraftPrefs {
         enabled: Boolean,
     ) {
         prefs(context).edit().putBoolean(KEY_FLOATING_BALL_ENABLED, enabled).apply()
+    }
+
+    fun getExcludedPackages(context: Context): Set<String> =
+        prefs(context).getStringSet(KEY_EXCLUDED_PACKAGES, emptySet())?.toSet() ?: emptySet()
+
+    fun setExcludedPackages(
+        context: Context,
+        packages: Set<String>,
+    ) {
+        prefs(context).edit().putStringSet(KEY_EXCLUDED_PACKAGES, HashSet(packages)).apply()
     }
 }

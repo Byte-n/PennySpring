@@ -14,6 +14,8 @@ import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
+import com.facebook.react.bridge.ReadableArray
+import java.util.concurrent.Executors
 
 /**
  * 截图记账草稿 JS 桥。
@@ -26,7 +28,10 @@ class QuickBookDraftModule(
     companion object {
         private const val TAG = "QuickBookDraftModule"
         private const val ERROR_STATUS = "QUICK_BOOK_DRAFT_STATUS_FAILED"
+        private const val ERROR_APPS = "QUICK_BOOK_DRAFT_APPS_FAILED"
     }
+
+    private val appListExecutor = Executors.newSingleThreadExecutor()
 
     override fun getName(): String = "QuickBookDraft"
 
@@ -75,6 +80,42 @@ class QuickBookDraftModule(
         startSettings(
             Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
         )
+    }
+
+    @ReactMethod
+    fun getInstalledApps(promise: Promise) {
+        appListExecutor.execute {
+            try {
+                val apps = QuickBookAppCatalog.list(reactContext)
+                val result = Arguments.createArray()
+                apps.forEach { app ->
+                    result.pushMap(
+                        Arguments.createMap().apply {
+                            putString("packageName", app.packageName)
+                            putString("label", app.label)
+                            putString("icon", app.iconDataUrl)
+                        },
+                    )
+                }
+                promise.resolve(result)
+            } catch (error: Exception) {
+                Log.w(TAG, "读取应用列表失败", error)
+                promise.reject(ERROR_APPS, error)
+            }
+        }
+    }
+
+    @ReactMethod
+    fun setExcludedPackages(packages: ReadableArray) {
+        val normalized = HashSet<String>()
+        for (index in 0 until packages.size()) {
+            val packageName = packages.getString(index)?.trim().orEmpty()
+            if (packageName.isNotEmpty()) {
+                normalized.add(packageName)
+            }
+        }
+        QuickBookDraftPrefs.setExcludedPackages(reactContext, normalized)
+        FloatingBallService.updateExcludedPackages(normalized)
     }
 
     @ReactMethod

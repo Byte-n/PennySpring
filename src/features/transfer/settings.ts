@@ -20,6 +20,8 @@ export interface SettingsQuickBook {
   presetPrompt: string;
   nudgeEnabled: boolean;
   autoApproveScreenshot: boolean;
+  /** 旧版设置包没有该字段；缺失时导入不覆盖目标设备已有排除列表。 */
+  excludedPackages?: string[];
 }
 
 export interface SettingsTheme {
@@ -60,6 +62,7 @@ const quickBookSchema = z.object({
   presetPrompt: z.string(),
   nudgeEnabled: z.boolean(),
   autoApproveScreenshot: z.boolean(),
+  excludedPackages: z.array(z.string()).optional(),
 });
 
 const themeSchema = z.object({

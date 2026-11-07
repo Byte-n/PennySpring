@@ -17,6 +17,7 @@ import { BookManageScreen } from '../screens/bookManage/BookManageScreen';
 import { HomeScreen } from '../screens/home/HomeScreen';
 import { IconPreviewScreen } from '../screens/iconPreview';
 import { QuickBookSettingsScreen } from '../screens/quickBook/QuickBookSettingsScreen';
+import { QuickBookExcludedAppsScreen } from '../screens/quickBook/QuickBookExcludedAppsScreen';
 import { SessionManageScreen } from '../screens/sessionManage/SessionManageScreen';
 import { TestScreen } from '../screens/test';
 import { TagManageScreen } from '../screens/tagManage/TagManageScreen';
@@ -120,6 +121,11 @@ export function RootStackNavigator() {
         component={QuickBookSettingsScreen}
         name={ROOT_ROUTES.QuickBookSettings}
         options={{ title: 'AI 记账' }}
+      />
+      <Stack.Screen
+        component={QuickBookExcludedAppsScreen}
+        name={ROOT_ROUTES.QuickBookExcludedApps}
+        options={{ title: '排除的应用' }}
       />
       <Stack.Screen
         component={BackupHomeScreen}

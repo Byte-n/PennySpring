@@ -4,6 +4,8 @@
 
     <!-- 截图记账草稿悬浮层 -->
     <color name="quick_book_primary">#1677FF</color>
+    <color name="quick_book_ball_bg">#FFFFFF</color>
+    <color name="quick_book_ball_border">#1F000000</color>
     <color name="quick_book_bg">#FFFFFF</color>
     <color name="quick_book_text">#141414</color>
     <color name="quick_book_text_secondary">#8C8C8C</color>

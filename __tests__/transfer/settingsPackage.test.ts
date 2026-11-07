@@ -17,6 +17,7 @@ const SNAPSHOT: SettingsSnapshot = {
     presetPrompt: '请识别截图中的消费信息',
     nudgeEnabled: true,
     autoApproveScreenshot: false,
+    excludedPackages: ['com.example.game'],
   },
   theme: {
     themeMode: 'dark',
@@ -79,5 +80,29 @@ describe('settings package', () => {
     await expect(parseSettingsPackage(data)).rejects.toThrow(
       '设置包内容格式不正确',
     );
+  });
+
+  it('parses an older package that has no excluded app list', async () => {
+    const {
+      freshWindowSeconds,
+      presetPrompt,
+      nudgeEnabled,
+      autoApproveScreenshot,
+    } = SNAPSHOT.quickBook;
+    const data = await zipFiles(
+      createPackageFiles({
+        ...SNAPSHOT,
+        quickBook: {
+          freshWindowSeconds,
+          presetPrompt,
+          nudgeEnabled,
+          autoApproveScreenshot,
+        },
+      }),
+    );
+
+    const parsed = await parseSettingsPackage(data);
+
+    expect(parsed.settings.quickBook.excludedPackages).toBeUndefined();
   });
 });

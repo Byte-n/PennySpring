@@ -26,6 +26,7 @@ beforeEach(() => {
     nudgeEnabled: false,
     autoApproveScreenshot: true,
     floatingBallEnabled: false,
+    excludedPackages: [],
   });
 });
 
@@ -89,7 +90,7 @@ describe('migrateQuickBookSettings', () => {
   });
 
   it('does not rewrite data that is already on the current version', () => {
-    const migrated = migrateQuickBookSettings(persisted, 4);
+    const migrated = migrateQuickBookSettings(persisted, 6);
 
     expect(migrated.presetPrompt).toBe(LEGACY_DEFAULT_QUICK_BOOK_PROMPT);
   });
@@ -112,6 +113,24 @@ describe('migrateQuickBookSettings', () => {
     expect(migrated.floatingBallEnabled).toBe(true);
     expect(migrated.freshWindowSeconds).toBe(90);
   });
+
+  it('defaults the excluded app list to empty for older data', () => {
+    const migrated = migrateQuickBookSettings(persisted, 5);
+
+    expect(migrated.excludedPackages).toEqual([]);
+  });
+
+  it('keeps and normalizes an existing excluded app list', () => {
+    const migrated = migrateQuickBookSettings(
+      {
+        ...persisted,
+        excludedPackages: ['com.example.game', ' com.example.game ', '', 42],
+      },
+      5,
+    );
+
+    expect(migrated.excludedPackages).toEqual(['com.example.game']);
+  });
 });
 
 describe('quick book settings store', () => {
@@ -120,6 +139,7 @@ describe('quick book settings store', () => {
     expect(state.nudgeEnabled).toBe(false);
     expect(state.autoApproveScreenshot).toBe(true);
     expect(state.floatingBallEnabled).toBe(false);
+    expect(state.excludedPackages).toEqual([]);
     expect(state.freshWindowSeconds).toBe(
       DEFAULT_SCREENSHOT_FRESH_WINDOW_SECONDS,
     );
@@ -176,5 +196,21 @@ describe('quick book settings store', () => {
 
     next = useQuickBookSettingsStore.getState();
     expect(next.floatingBallEnabled).toBe(false);
+  });
+
+  it('stores a normalized excluded app list', () => {
+    useQuickBookSettingsStore
+      .getState()
+      .setExcludedPackages([
+        'com.example.game',
+        ' com.example.game ',
+        '',
+        'com.example.video',
+      ]);
+
+    expect(useQuickBookSettingsStore.getState().excludedPackages).toEqual([
+      'com.example.game',
+      'com.example.video',
+    ]);
   });
 });
