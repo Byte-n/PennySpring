@@ -25,6 +25,7 @@ import {
 } from '@pennyspring/ui';
 import { createUseSheetStyle } from '@pennyspring/ui';
 
+import { AgentRulesCard } from '../../agent/ui/AgentRulesCard';
 import { getProviderDisplayName } from '../../agent/providers/display';
 import type { AgentProviderConfig } from '../../agent/providers/types';
 import {
@@ -789,6 +790,7 @@ export function QuickBookSettingsScreen(): React.ReactElement {
               disabled={promptDraft === DEFAULT_QUICK_BOOK_PROMPT}
               onPress={handleResetPrompt}
               size="small"
+              testID="quick-book-reset-prompt"
               type={resetPromptArmed ? 'danger' : 'text'}
             >
               {resetPromptArmed ? '确认恢复' : '恢复默认'}
@@ -805,7 +807,7 @@ export function QuickBookSettingsScreen(): React.ReactElement {
               保存提示词
             </Button>
           }
-          titleText="预设提示词"
+          titleText="截图记账预设提示词"
           variant="plain"
         >
           <Column style={styles.section}>
@@ -821,10 +823,13 @@ export function QuickBookSettingsScreen(): React.ReactElement {
               value={promptDraft}
             />
             <Text color="tertiary" size="xs">
-              发送截图时，这段文字会作为用户消息的第一段内容。
+              仅回到 App
+              发现新截图后触发的记账对话使用这段文字；悬浮球与分享图片生成的草稿不使用它，草稿规则见下方「助手规则」。
             </Text>
           </Column>
         </Card>
+
+        {book !== null ? <AgentRulesCard booksId={book.id} /> : null}
       </KeyboardAwareFormScroll>
 
       <ActionSheet

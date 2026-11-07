@@ -12,6 +12,7 @@ import { FileSystem } from 'react-native-file-access';
 
 import { resolveQuickBookModel } from '../../features/quickBook/validation';
 import { bumpDraftVersion } from '../../stores/draftVersionStore';
+import { loadBookAgentRules } from '../core/agentRules';
 import { AGENT_TIMEOUT_MS } from '../core/constants';
 import { createAgent } from '../core/createAgent';
 import { agentDebugLog } from '../core/debug';
@@ -223,7 +224,10 @@ async function executeQuickBookDraft(
     agentModelId: model.modelId,
   });
 
-  const book = await api.book.getById(input.booksId);
+  const [book, agentRules] = await Promise.all([
+    api.book.getById(input.booksId),
+    loadBookAgentRules(api, input.booksId),
+  ]);
   const image = await readImageContent(input.imagePath);
   const userText = buildQuickBookDraftUserMessage({
     bookName: book.name,
@@ -238,6 +242,7 @@ async function executeQuickBookDraft(
       bookName: book.name,
       today: dayjs().format('YYYY-MM-DD'),
       preset,
+      rules: agentRules?.quickBookRules,
     }),
     tools: createQuickBookDraftTools({
       api,

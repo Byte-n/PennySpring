@@ -19,6 +19,7 @@ import {
   FlaskIcon,
   InfoIcon,
   MoonIcon,
+  NotebookIcon,
   PaletteIcon,
   RobotIcon,
   ShapesIcon,
@@ -93,6 +94,13 @@ const DATA_ITEMS: DrawerNavItem[] = [
 ];
 
 const AI_ITEMS: DrawerNavItem[] = [
+  {
+    icon: NotebookIcon,
+    key: 'aiBook',
+    label: 'AI 记账',
+    requiresBook: true,
+    route: ROOT_ROUTES.QuickBookSettings,
+  },
   {
     icon: ChatsCircleIcon,
     key: 'session',

@@ -4,11 +4,15 @@ import {
 } from '../../agent/ui/imageAttachments';
 
 export const DEFAULT_QUICK_BOOK_PROMPT =
-  '请根据这张截图帮我记账。先调用 listTypes 获取 typeId，再调用 createRecords；请根据截图内容从类型清单中自行选择最精确的子类型，不要为了分类反复确认；金额确实无法确定时再问我，不要猜测。不要查询已有记录。';
+  '请根据这张截图帮我记账。分类按账本里的分类自行判断，优先选最具体的；金额确实无法确定时再问我，不要猜。不要查询已有记录。';
 
 /** 旧版默认提示词，仅用于一次性升级迁移。 */
 export const LEGACY_DEFAULT_QUICK_BOOK_PROMPT =
   '请根据这张截图帮我记账。先调用 listTypes 获取 typeId，再调用 createRecords；金额、类型或日期不明确时先问我，不要猜测。不要查询已有记录。';
+
+/** 上一版默认提示词，仅用于把已持久化的旧默认值迁移到自然语言版本。 */
+export const PREVIOUS_DEFAULT_QUICK_BOOK_PROMPT =
+  '请根据这张截图帮我记账。先调用 listTypes 获取 typeId，再调用 createRecords；请根据截图内容从类型清单中自行选择最精确的子类型，不要为了分类反复确认；金额确实无法确定时再问我，不要猜测。不要查询已有记录。';
 
 export const DEFAULT_SCREENSHOT_FRESH_WINDOW_SECONDS = 60;
 export const MIN_SCREENSHOT_FRESH_WINDOW_SECONDS = 5;

@@ -4,6 +4,7 @@ export {
   agentSelections,
   bookProviderKeys,
 } from './agent-provider';
+export { agentRules } from './agent-rules';
 export { assets } from './assets';
 export { books } from './books';
 export { quickBookDrafts } from './quick-book-draft';

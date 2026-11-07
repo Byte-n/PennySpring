@@ -180,6 +180,17 @@ function createTransport(
       credential: {
         getKey: (...args: unknown[]) => mockGetProviderKey(...args),
       },
+      agentRules: {
+        get: jest.fn(() =>
+          Promise.resolve({
+            booksId: 1,
+            agentRules: '',
+            quickBookRules: '',
+            createdTime: 0,
+            updatedTime: 0,
+          }),
+        ),
+      },
     } as never,
     booksId: 1,
     bookName: '测试账本',

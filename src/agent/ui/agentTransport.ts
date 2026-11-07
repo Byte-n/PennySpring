@@ -12,6 +12,7 @@ import {
   AGENT_RESPONSE_TOKEN_RESERVE,
   AGENT_TIMEOUT_MS,
 } from '../core/constants';
+import { loadBookAgentRules } from '../core/agentRules';
 import { agentDebugLog } from '../core/debug';
 import { createAgent } from '../core/createAgent';
 import {
@@ -222,10 +223,12 @@ export function createAgentTransport(
       const attachments = collectMessageAttachments(messages);
       const autoApproveCreate =
         userMessage?.role === 'user' && shouldAutoApproveCreate(userMessage);
+      const agentRules = await loadBookAgentRules(options.api, options.booksId);
       const systemPrompt = buildSystemPrompt({
         bookName: options.bookName,
         today: dayjs().format('YYYY-MM-DD'),
         autoApproveCreate,
+        rules: agentRules?.agentRules,
       });
       const tokenBudget =
         model.contextWindow -

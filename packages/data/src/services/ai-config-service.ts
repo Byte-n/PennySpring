@@ -2,6 +2,7 @@ import { eq } from 'drizzle-orm';
 
 import {
   agentProviders,
+  agentRules,
   agentSelections,
   agentThreads,
   bookProviderKeys,
@@ -13,6 +14,7 @@ import {
   normalizeProviderConfig,
   type NormalizedProviderConfig,
 } from './agent-provider-service';
+import { normalizeAgentRulesText } from './agent-rules-service';
 import type {
   AgentSelection,
   AgentSelectionScope,
@@ -118,7 +120,7 @@ export async function buildAiConfigSnapshot(
   db: Database,
   booksId: number,
 ): Promise<AiConfigSnapshot> {
-  const [providers, agentSelection, quickBookSelection, keyRows] =
+  const [providers, agentSelection, quickBookSelection, keyRows, rules] =
     await Promise.all([
       getAllProviders(db),
       getAgentSelection(db, 'agent'),
@@ -131,6 +133,7 @@ export async function buildAiConfigSnapshot(
         .from(bookProviderKeys)
         .where(eq(bookProviderKeys.booksId, booksId))
         .all(),
+      db.select().from(agentRules).where(eq(agentRules.booksId, booksId)).get(),
     ]);
   const keysByProvider = new Map(
     keyRows.map(row => [row.providerId, row.apiKey]),
@@ -149,6 +152,10 @@ export async function buildAiConfigSnapshot(
     })),
     agentSelection,
     quickBookSelection,
+    agentRules: {
+      agentRules: rules?.agentRules ?? '',
+      quickBookRules: rules?.quickBookRules ?? '',
+    },
   };
 }
 
@@ -267,6 +274,22 @@ export async function applyAiConfigSnapshot(
           set: { apiKey: entry.apiKey, updatedTime: Date.now() },
         });
       keysUpdated += 1;
+    }
+
+    if (snapshot.agentRules) {
+      const normalizedRules = {
+        agentRules: normalizeAgentRulesText(snapshot.agentRules.agentRules),
+        quickBookRules: normalizeAgentRulesText(
+          snapshot.agentRules.quickBookRules,
+        ),
+      };
+      await tx
+        .insert(agentRules)
+        .values({ booksId, ...normalizedRules })
+        .onConflictDoUpdate({
+          target: agentRules.booksId,
+          set: { ...normalizedRules, updatedTime: Date.now() },
+        });
     }
 
     return {

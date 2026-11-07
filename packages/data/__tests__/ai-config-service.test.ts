@@ -14,6 +14,10 @@ import {
   getAgentSelection,
   setAgentSelection,
 } from '../src/services/agent-provider-service';
+import {
+  getAgentRules,
+  setAgentRules,
+} from '../src/services/agent-rules-service';
 import { setProviderKey } from '../src/services/agent-credential-service';
 import { createBook } from '../src/services/book-service';
 import type { Database as AppDatabase } from '../src/types';
@@ -91,6 +95,11 @@ describe('ai-config-service', () => {
       modelId: 'gpt-4.1',
     });
     await setProviderKey(db, book.id, provider.id, 'sk-secret');
+    await setAgentRules(db, {
+      booksId: book.id,
+      agentRules: '金额不确定时先追问。',
+      quickBookRules: '日期不明确按今天。',
+    });
 
     const snapshot = await buildAiConfigSnapshot(db, book.id);
 
@@ -113,6 +122,10 @@ describe('ai-config-service', () => {
     expect(snapshot.quickBookSelection).toEqual({
       providerId: provider.id,
       modelId: 'gpt-4.1',
+    });
+    expect(snapshot.agentRules).toEqual({
+      agentRules: '金额不确定时先追问。',
+      quickBookRules: '日期不明确按今天。',
     });
   });
 
@@ -149,6 +162,11 @@ describe('ai-config-service', () => {
       sourceProvider.id,
       'sk-source',
     );
+    await setAgentRules(sourceDb, {
+      booksId: sourceBook.id,
+      agentRules: '源规则',
+      quickBookRules: '源草稿规则',
+    });
     const snapshot = await buildAiConfigSnapshot(sourceDb, sourceBook.id);
 
     const targetBook = await createBook(targetDb, { name: '恢复账本' });
@@ -196,6 +214,36 @@ describe('ai-config-service', () => {
         apiKey: 'sk-source',
       }),
     ]);
+
+    await expect(getAgentRules(targetDb, targetBook.id)).resolves.toMatchObject(
+      {
+        agentRules: '源规则',
+        quickBookRules: '源草稿规则',
+      },
+    );
+  });
+
+  it('keeps target rules when importing a legacy snapshot without rules', async () => {
+    const sourceDb = createTestDatabase();
+    const targetDb = createTestDatabase();
+    const sourceBook = await createBook(sourceDb, { name: '源账本' });
+    const targetBook = await createBook(targetDb, { name: '恢复账本' });
+    const snapshot = await buildAiConfigSnapshot(sourceDb, sourceBook.id);
+    delete snapshot.agentRules;
+    await setAgentRules(targetDb, {
+      booksId: targetBook.id,
+      agentRules: '目标规则',
+      quickBookRules: '目标草稿规则',
+    });
+
+    await applyAiConfigSnapshot(targetDb, snapshot, targetBook.id);
+
+    await expect(getAgentRules(targetDb, targetBook.id)).resolves.toMatchObject(
+      {
+        agentRules: '目标规则',
+        quickBookRules: '目标草稿规则',
+      },
+    );
   });
 
   it('reuses a provider with the same descriptor, base url and name', async () => {

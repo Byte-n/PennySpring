@@ -337,17 +337,50 @@ describe('DrawerContent 交互', () => {
     );
   });
 
-  it('places session management and AI provider entries in the AI section', () => {
+  it('places AI bookkeeping, session management and provider entries in the AI section', () => {
+    bookStoreMock.__bookStoreState.currentBook = createBook();
+    bookStoreMock.__bookStoreState.currentBookRef = { id: 1, kind: 'local' };
     const texts = collectTexts(renderDrawer(createCallbacks()));
     const aiIndex = texts.indexOf('AI');
+    const bookkeepingIndex = texts.indexOf('AI 记账');
     const sessionIndex = texts.indexOf('会话管理');
     const providerIndex = texts.indexOf('AI 提供商');
     const appearanceIndex = texts.indexOf('外观');
 
     expect(texts.indexOf('管理')).toBeLessThan(aiIndex);
-    expect(aiIndex).toBeLessThan(sessionIndex);
+    expect(aiIndex).toBeLessThan(bookkeepingIndex);
+    expect(bookkeepingIndex).toBeLessThan(sessionIndex);
     expect(sessionIndex).toBeLessThan(providerIndex);
     expect(providerIndex).toBeLessThan(appearanceIndex);
+  });
+
+  it('disables the AI bookkeeping entry when no book is selected', () => {
+    const renderer = renderDrawer(createCallbacks());
+
+    expect(
+      renderer.root
+        .findAllByProps({ testID: 'drawer-nav-aiBook' })
+        .some(node => node.props.disabled === true),
+    ).toBe(true);
+    expect(collectTexts(renderer)).toContain('AI 记账');
+  });
+
+  it('navigates to AI bookkeeping settings', () => {
+    bookStoreMock.__bookStoreState.currentBook = createBook();
+    bookStoreMock.__bookStoreState.currentBookRef = { id: 1, kind: 'local' };
+    const callbacks = createCallbacks();
+    const renderer = renderDrawer(callbacks);
+
+    act(() => {
+      renderer.root
+        .findByProps({ testID: 'drawer-nav-aiBook' })
+        .props.onPress();
+    });
+
+    expect(callbacks.onClose).toHaveBeenCalledTimes(1);
+    expect(callbacks.onNavigate).toHaveBeenCalledWith(
+      ROOT_ROUTES.QuickBookSettings,
+    );
   });
 
   it('navigates to AI provider settings even without a current book', () => {

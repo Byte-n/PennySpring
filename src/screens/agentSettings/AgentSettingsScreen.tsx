@@ -5,7 +5,6 @@ import {
   Button,
   Card,
   Column,
-  Divider,
   Empty,
   Row,
   Tag,
@@ -18,8 +17,6 @@ import { TrashIcon } from 'phosphor-react-native';
 import { ManageConfirmDialog } from '../../components/ManageConfirmDialog';
 import { createHeaderAddButton } from '../../components/HeaderAddButton';
 import { useNavigation } from '../../navigation';
-import { ROOT_ROUTES } from '../../navigation/routes';
-import { useAgentChatState } from '../../agent/ui/AgentChatContext';
 import { AgentProviderEditor } from '../../agent/ui/AgentProviderEditor';
 import {
   PROVIDER_DESCRIPTORS,
@@ -36,7 +33,6 @@ import {
 } from '../../agent/providers/useProviders';
 import { useGlobalApi } from '../../stores/bookStore';
 import { useSyncVersionStore } from '../../stores/syncVersionStore';
-import { formatTokenCount } from '../../agent/core/messages';
 
 const useStyles = createUseSheetStyle(token => ({
   container: {
@@ -48,16 +44,12 @@ const useStyles = createUseSheetStyle(token => ({
     padding: token.padding,
     paddingBottom: token.paddingXL,
   },
-  dangerAction: {
-    alignSelf: 'flex-start',
-  },
 }));
 
 export function AgentSettingsScreen() {
   const styles = useStyles();
   const toast = useToast();
   const navigation = useNavigation();
-  const chat = useAgentChatState();
 
   const api = useGlobalApi();
   const bumpProviderVersion = useSyncVersionStore(
@@ -76,7 +68,6 @@ export function AgentSettingsScreen() {
   );
   const [pendingDelete, setPendingDelete] =
     useState<AgentProviderConfig | null>(null);
-  const [deleteConversationOpen, setDeleteConversationOpen] = useState(false);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -150,12 +141,6 @@ export function AgentSettingsScreen() {
     }
   }, [api, bumpProviderVersion, pendingDelete, toast]);
 
-  const handleDeleteConversation = useCallback(async (): Promise<void> => {
-    await chat.deleteCurrentThread();
-    setDeleteConversationOpen(false);
-    toast.show({ messageText: '当前会话已删除' });
-  }, [chat, toast]);
-
   return (
     <Column style={styles.container}>
       <ScrollView contentContainerStyle={styles.content} scrollEnabled>
@@ -165,24 +150,6 @@ export function AgentSettingsScreen() {
             暂为明文存储，请勿在共享服务器使用敏感 Key。
           </Text>
         </Column>
-
-        <Card
-          footer={
-            <Button
-              onPress={() => navigation.navigate(ROOT_ROUTES.QuickBookSettings)}
-              size="small"
-              type="default"
-            >
-              配置 AI 记账
-            </Button>
-          }
-          titleText="AI 记账"
-          variant="plain"
-        >
-          <Text color="secondary" size="xs">
-            截图后由助手识别并记账。需要选择支持图片的提供商与模型，并授予相册读取权限。
-          </Text>
-        </Card>
 
         {providers.length === 0 ? (
           <Empty descriptionText="还没有 AI 提供商，点击右上角添加。" />
@@ -253,31 +220,6 @@ export function AgentSettingsScreen() {
             );
           })
         )}
-
-        <Divider />
-
-        <Column gap="normal">
-          <Row align="center" justify="between">
-            <Text color="secondary" size="xs">
-              累计 token
-            </Text>
-            <Text size="xs">
-              {formatTokenCount(chat.usage.totalTokens)}（输入{' '}
-              {formatTokenCount(chat.usage.promptTokens)} / 输出{' '}
-              {formatTokenCount(chat.usage.completionTokens)}）
-            </Text>
-          </Row>
-          <Button
-            color="danger"
-            icon={TrashIcon}
-            onPress={() => setDeleteConversationOpen(true)}
-            size="small"
-            style={styles.dangerAction}
-            type="text"
-          >
-            删除当前会话
-          </Button>
-        </Column>
       </ScrollView>
 
       <ActionSheet
@@ -312,15 +254,6 @@ export function AgentSettingsScreen() {
             ? `删除「${getProviderDisplayName(pendingDelete)}」？`
             : '删除提供商'
         }
-      />
-
-      <ManageConfirmDialog
-        messageText="将删除当前会话及其全部消息，删除后不可恢复。"
-        okText="删除"
-        onCancel={() => setDeleteConversationOpen(false)}
-        onConfirm={handleDeleteConversation}
-        open={deleteConversationOpen}
-        titleText="删除会话"
       />
     </Column>
   );

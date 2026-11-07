@@ -7,6 +7,7 @@ import {
   DEFAULT_SCREENSHOT_FRESH_WINDOW_SECONDS,
   LEGACY_DEFAULT_QUICK_BOOK_PROMPT,
   MAX_SCREENSHOT_FRESH_WINDOW_SECONDS,
+  PREVIOUS_DEFAULT_QUICK_BOOK_PROMPT,
   MIN_SCREENSHOT_FRESH_WINDOW_SECONDS,
 } from './constants';
 
@@ -87,7 +88,8 @@ export function migrateQuickBookSettings(
   };
   if (
     version < QUICK_BOOK_SETTINGS_STORE_VERSION &&
-    state.presetPrompt === LEGACY_DEFAULT_QUICK_BOOK_PROMPT
+    (state.presetPrompt === LEGACY_DEFAULT_QUICK_BOOK_PROMPT ||
+      state.presetPrompt === PREVIOUS_DEFAULT_QUICK_BOOK_PROMPT)
   ) {
     return { ...migrated, presetPrompt: DEFAULT_QUICK_BOOK_PROMPT };
   }

@@ -3,6 +3,12 @@ export {
   buildAiConfigSnapshot,
 } from './ai-config-service';
 export {
+  getAgentRules,
+  MAX_AGENT_RULES_LENGTH,
+  normalizeAgentRulesText,
+  setAgentRules,
+} from './agent-rules-service';
+export {
   appendMessages,
   createThread,
   deleteThread,
@@ -102,6 +108,8 @@ export type {
   AgentReasoningEffort,
   AgentSelection,
   AgentSelectionScope,
+  AgentRulesRow,
+  AgentRulesSnapshot,
   AgentThreadDetail,
   AgentThreadRow,
   AiConfigProvider,
@@ -147,6 +155,7 @@ export type {
   Tx,
   TypeRow,
   UpdateAgentProviderInput,
+  UpdateAgentRulesInput,
   UpdateAssetInput,
   UpdateBookInput,
   UpdateQuickTemplateInput,

@@ -398,11 +398,38 @@ describe('buildSystemPrompt', () => {
     expect(prompt).toContain('用户确认');
     expect(prompt).toContain('金额单位：元');
     expect(prompt).toContain('attachmentIds');
-    expect(prompt).toContain('优先选择最精确的子类型');
-    expect(prompt).toContain('不要为分类追问');
+    expect(prompt).toContain('优先选最具体的');
+    expect(prompt).toContain('不要为分类反复问我');
+    const rulesSection = prompt.split('【规则】')[1] ?? '';
+    expect(rulesSection).not.toContain('listTypes');
+    expect(rulesSection).not.toContain('typeId');
     expect(prompt).not.toContain('类型或日期不明确时先追问');
     expect(prompt).not.toContain('- 1 餐饮（支出）');
     expect(prompt).not.toContain('- 2 午饭（支出，父类型：餐饮）');
+  });
+
+  it('用用户自定义规则替换默认规则，同时保留系统内置约束', () => {
+    const prompt = buildSystemPrompt({
+      bookName: '日常账本',
+      today: '2026-10-27',
+      rules: '1. 金额不确定时一律先追问。',
+    });
+
+    expect(prompt).toContain('1. 金额不确定时一律先追问。');
+    expect(prompt).not.toContain('优先选最具体的');
+    expect(prompt).toContain('修改记录前必须先调用 queryRecords');
+    expect(prompt).toContain('任何金额都不得编造');
+  });
+
+  it('规则留空时回退到默认规则', () => {
+    const prompt = buildSystemPrompt({
+      bookName: '日常账本',
+      today: '2026-10-27',
+      rules: '   ',
+    });
+
+    expect(prompt).toContain('优先选最具体的');
+    expect(prompt).toContain('日期不明确时按今天');
   });
 
   it('声明截图快捷记账免审批并保留修改记录的确认', () => {

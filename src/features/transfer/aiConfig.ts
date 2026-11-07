@@ -24,10 +24,17 @@ const selectionSchema = z.object({
   modelId: z.string(),
 });
 
+const agentRulesSchema = z.object({
+  agentRules: z.string(),
+  quickBookRules: z.string(),
+});
+
 const snapshotSchema = z.object({
   providers: z.array(providerSchema),
   agentSelection: selectionSchema,
   quickBookSelection: selectionSchema,
+  /** 旧版设置包没有该字段；缺失时导入不覆盖目标账本已有规则。 */
+  agentRules: agentRulesSchema.optional(),
 });
 
 export function parseAiConfigSnapshot(value: unknown): AiConfigSnapshot {

@@ -25,6 +25,7 @@ import type {
   QuickBookDraftRow,
   QuickBookDraftUpdateMeta,
   UpdateAgentProviderInput,
+  UpdateAgentRulesInput,
   UpdateAssetInput,
   UpdateBookInput,
   UpdateQuickTemplateInput,
@@ -137,6 +138,12 @@ export function createApi(getDatabase: () => Promise<Database>) {
         services.getAgentSelection(await getDatabase(), 'quickBook'),
       setSelection: async (selection: AgentSelection) =>
         services.setAgentSelection(await getDatabase(), 'quickBook', selection),
+    },
+    agentRules: {
+      get: async (booksId: number) =>
+        services.getAgentRules(await getDatabase(), booksId),
+      set: async (input: UpdateAgentRulesInput) =>
+        services.setAgentRules(await getDatabase(), input),
     },
     quickBookDraft: {
       createPlaceholder: async (input: CreateQuickBookDraftPlaceholderInput) =>

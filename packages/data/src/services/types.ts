@@ -432,10 +432,27 @@ export interface AiConfigProvider {
   apiKey: string;
 }
 
+export interface AgentRulesSnapshot {
+  agentRules: string;
+  quickBookRules: string;
+}
+
+export interface AgentRulesRow extends AgentRulesSnapshot {
+  booksId: number;
+  createdTime: number;
+  updatedTime: number;
+}
+
+export interface UpdateAgentRulesInput extends AgentRulesSnapshot {
+  booksId: number;
+}
+
 export interface AiConfigSnapshot {
   providers: AiConfigProvider[];
   agentSelection: AgentSelection;
   quickBookSelection: AgentSelection;
+  /** 旧版 AI 设置包没有该字段；缺失时导入不覆盖目标账本已有规则。 */
+  agentRules?: AgentRulesSnapshot;
 }
 
 export interface ApplyAiConfigResult {
