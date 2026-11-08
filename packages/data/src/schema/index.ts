@@ -12,6 +12,7 @@ export { quickTemplates } from './quick-template';
 export {
   imageWithRelated,
   records,
+  recordClientMutations,
   recordWithRecord,
   tagWithRecord,
 } from './records';

@@ -8,7 +8,6 @@ import {
 const READY_CONTEXT = {
   isSupported: true,
   isConfigured: true,
-  isLocalBook: true,
 };
 
 const READY_STATUS: QuickBookDraftNativeStatus = {
@@ -18,7 +17,6 @@ const READY_STATUS: QuickBookDraftNativeStatus = {
   floatingBallRunning: false,
   notificationTriggerActive: false,
   entryDisabledByUser: false,
-  currentBookId: 1,
   supported: true,
   excludedPackages: [],
 };
@@ -32,7 +30,6 @@ describe('getQuickBookEntryEnableBlockReason', () => {
     const reason = getQuickBookEntryEnableBlockReason({
       isSupported: false,
       isConfigured: false,
-      isLocalBook: false,
     });
 
     expect(reason).toBe('当前平台不支持截图记账入口。');
@@ -45,15 +42,6 @@ describe('getQuickBookEntryEnableBlockReason', () => {
     });
 
     expect(reason).toBe('请先配置支持图片的 AI 模型。');
-  });
-
-  it('rejects remote or missing books', () => {
-    const reason = getQuickBookEntryEnableBlockReason({
-      ...READY_CONTEXT,
-      isLocalBook: false,
-    });
-
-    expect(reason).toBe('截图记账入口只支持本地账本，请先切换到本地账本。');
   });
 });
 

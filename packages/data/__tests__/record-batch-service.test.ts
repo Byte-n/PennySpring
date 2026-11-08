@@ -107,6 +107,43 @@ function expenseInput(
   };
 }
 
+describe('record client mutation idempotency', () => {
+  it('returns the existing record when the same mutation id is created twice', async () => {
+    const fixture = await createFixture();
+    const input = {
+      ...expenseInput(fixture, 1200, '幂等记录'),
+      clientMutationId: 'draft-1:0',
+    };
+
+    const first = await createRecord(fixture.db, input);
+    const second = await createRecord(fixture.db, input);
+
+    expect(second.id).toBe(first.id);
+    expect(await getRecordsByBook(fixture.db, fixture.booksId)).toHaveLength(1);
+  });
+
+  it('creates separate records when mutation ids differ or are empty', async () => {
+    const fixture = await createFixture();
+
+    await createRecord(fixture.db, {
+      ...expenseInput(fixture, 100, '第一次'),
+      clientMutationId: 'draft-1:0',
+    });
+    await createRecord(fixture.db, {
+      ...expenseInput(fixture, 200, '第二次'),
+      clientMutationId: 'draft-1:1',
+    });
+    await createRecord(fixture.db, {
+      ...expenseInput(fixture, 300, '无幂等键一'),
+    });
+    await createRecord(fixture.db, {
+      ...expenseInput(fixture, 400, '无幂等键二'),
+    });
+
+    expect(await getRecordsByBook(fixture.db, fixture.booksId)).toHaveLength(4);
+  });
+});
+
 function updateInput(
   fixture: BatchFixture,
   id: number,

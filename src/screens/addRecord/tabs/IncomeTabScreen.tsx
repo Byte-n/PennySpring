@@ -38,7 +38,6 @@ import { useSyncVersionStore } from '../../../stores/syncVersionStore';
 import {
   MEDIA_IMAGE_MAX_DIMENSION,
   MEDIA_IMAGE_QUALITY,
-  createMediaStore,
   useMediaStore,
 } from '../../../media';
 
@@ -102,13 +101,6 @@ export function IncomeTabScreen() {
         ? recordsApi.record.getByBook(booksId)
         : Promise.resolve([]),
     { refreshDeps: [booksId, recordsApi] },
-  );
-  const draftMedia = useMemo(
-    () =>
-      draftTarget
-        ? createMediaStore({ kind: 'local', booksId: draftTarget.booksId })
-        : null,
-    [draftTarget],
   );
   const selectedType = useMemo(
     () =>
@@ -217,7 +209,7 @@ export function IncomeTabScreen() {
       return;
     }
 
-    const mediaStore = draftMedia ?? media;
+    const mediaStore = media;
     if (!mediaStore) {
       toast.show({ messageText: '未找到当前账本' });
       return;
@@ -257,7 +249,6 @@ export function IncomeTabScreen() {
     bumpTemplateVersion,
     charge,
     currentBook,
-    draftMedia,
     draftTarget,
     editingRecordId,
     editingTemplateId,

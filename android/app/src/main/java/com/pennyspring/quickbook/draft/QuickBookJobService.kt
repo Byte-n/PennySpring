@@ -14,14 +14,13 @@ import com.facebook.react.HeadlessJsTaskService
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.jstasks.HeadlessJsTaskConfig
 import com.pennyspring.R
-import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * 在后台运行截图记账草稿 Headless JS 任务。
  *
- * 生成期间不启动任何 Activity；任务结束后读取本地草稿状态，
- * 通过通知与 Toast 告知结果，满足 Android 14 specialUse 前台服务要求。
+ * 生成期间不启动任何 Activity；任务结束前由 JS 回报结果，
+ * 原生通过通知与 Toast 告知，满足 Android 14 specialUse 前台服务要求。
  */
 class QuickBookJobService : HeadlessJsTaskService() {
     companion object {
@@ -32,7 +31,6 @@ class QuickBookJobService : HeadlessJsTaskService() {
 
         private val running = AtomicBoolean(false)
         private val lock = Any()
-        private val resultExecutor = Executors.newSingleThreadExecutor()
 
         /**
          * 启动一次草稿生成任务。
@@ -45,6 +43,7 @@ class QuickBookJobService : HeadlessJsTaskService() {
             context: Context,
             draftId: String,
             imagePath: String,
+            bookRefJson: String,
             booksId: Int,
             assetId: Int,
             typeId: Int,
@@ -60,6 +59,7 @@ class QuickBookJobService : HeadlessJsTaskService() {
                 Intent(context, QuickBookJobService::class.java).apply {
                     putExtra(QuickBookDraftTaskContract.EXTRA_DRAFT_ID, draftId)
                     putExtra(QuickBookDraftTaskContract.EXTRA_IMAGE_PATH, imagePath)
+                    putExtra(QuickBookDraftTaskContract.EXTRA_BOOK_REF, bookRefJson)
                     putExtra(QuickBookDraftTaskContract.EXTRA_BOOKS_ID, booksId)
                     putExtra(QuickBookDraftTaskContract.EXTRA_ASSET_ID, assetId)
                     putExtra(QuickBookDraftTaskContract.EXTRA_TYPE_ID, typeId)
@@ -99,6 +99,7 @@ class QuickBookJobService : HeadlessJsTaskService() {
             return START_NOT_STICKY
         }
         currentDraftId = draftId
+        QuickBookDraftTaskResults.clear()
         super.onStartCommand(intent, flags, startId)
         // HeadlessJsTaskService 默认返回 START_REDELIVER_INTENT；
         // 草稿任务结束即完成，重投只会造成重复生成，这里改为不重启。
@@ -111,10 +112,14 @@ class QuickBookJobService : HeadlessJsTaskService() {
         }
         val draftId = intent.getStringExtra(QuickBookDraftTaskContract.EXTRA_DRAFT_ID)?.trim().orEmpty()
         val imagePath = intent.getStringExtra(QuickBookDraftTaskContract.EXTRA_IMAGE_PATH)?.trim().orEmpty()
+        val bookRef = intent.getStringExtra(QuickBookDraftTaskContract.EXTRA_BOOK_REF)?.trim().orEmpty()
         val data =
             Arguments.createMap().apply {
                 putString(QuickBookDraftTaskContract.EXTRA_DRAFT_ID, draftId)
                 putString(QuickBookDraftTaskContract.EXTRA_IMAGE_PATH, imagePath)
+                if (bookRef.isNotEmpty()) {
+                    putString(QuickBookDraftTaskContract.EXTRA_BOOK_REF, bookRef)
+                }
                 putInt(
                     QuickBookDraftTaskContract.EXTRA_BOOKS_ID,
                     intent.getIntExtra(QuickBookDraftTaskContract.EXTRA_BOOKS_ID, INVALID_ID),
@@ -147,42 +152,32 @@ class QuickBookJobService : HeadlessJsTaskService() {
 
     override fun onHeadlessJsTaskFinish(taskId: Int) {
         val draftId = currentDraftId
-        // 先保持前台服务存活，读取完草稿结果并发出通知后再停止，避免结果丢失。
-        resultExecutor.execute {
-            val summary =
-                if (draftId.isBlank()) {
-                    null
-                } else {
-                    QuickBookDraftDb.loadSummary(this, draftId)
-                }
-            val succeeded = QuickBookDraftDb.isPendingWithItems(summary)
-            val itemCount = summary?.itemCount ?: 0
-            mainHandler.post {
-                if (succeeded) {
-                    QuickBookDraftNotifications.notifyIfAllowed(
-                        this,
-                        RESULT_NOTIFICATION_ID,
-                        QuickBookDraftNotifications.successNotification(this, itemCount),
-                    )
-                    Toast
-                        .makeText(
-                            applicationContext,
-                            getString(R.string.quick_book_toast_draft_generated, itemCount),
-                            Toast.LENGTH_SHORT,
-                        ).show()
-                } else {
-                    QuickBookDraftNotifications.notifyIfAllowed(
-                        this,
-                        RESULT_NOTIFICATION_ID,
-                        QuickBookDraftNotifications.failureNotification(this),
-                    )
-                    Toast.makeText(applicationContext, R.string.quick_book_toast_draft_failed, Toast.LENGTH_SHORT).show()
-                }
-                // 任务完成后再交给基类清理 activeTasks 并 stopSelf。
-                finishTaskTracking(taskId)
-                stopJob()
-            }
+        val outcome = if (draftId.isBlank()) null else QuickBookDraftTaskResults.take(draftId)
+        val succeeded = outcome?.succeeded == true
+        val itemCount = outcome?.itemCount ?: 0
+        if (succeeded) {
+            QuickBookDraftNotifications.notifyIfAllowed(
+                this,
+                RESULT_NOTIFICATION_ID,
+                QuickBookDraftNotifications.successNotification(this, itemCount),
+            )
+            Toast
+                .makeText(
+                    applicationContext,
+                    getString(R.string.quick_book_toast_draft_generated, itemCount),
+                    Toast.LENGTH_SHORT,
+                ).show()
+        } else {
+            QuickBookDraftNotifications.notifyIfAllowed(
+                this,
+                RESULT_NOTIFICATION_ID,
+                QuickBookDraftNotifications.failureNotification(this),
+            )
+            Toast.makeText(applicationContext, R.string.quick_book_toast_draft_failed, Toast.LENGTH_SHORT).show()
         }
+        // 任务完成后再交给基类清理 activeTasks 并 stopSelf。
+        finishTaskTracking(taskId)
+        stopJob()
     }
 
     override fun onDestroy() {
@@ -194,8 +189,9 @@ class QuickBookJobService : HeadlessJsTaskService() {
     private fun hasRequiredExtras(intent: Intent): Boolean {
         val draftId = intent.getStringExtra(QuickBookDraftTaskContract.EXTRA_DRAFT_ID)?.trim().orEmpty()
         val imagePath = intent.getStringExtra(QuickBookDraftTaskContract.EXTRA_IMAGE_PATH)?.trim().orEmpty()
+        val bookRef = intent.getStringExtra(QuickBookDraftTaskContract.EXTRA_BOOK_REF)?.trim().orEmpty()
         val booksId = intent.getIntExtra(QuickBookDraftTaskContract.EXTRA_BOOKS_ID, INVALID_ID)
-        return draftId.isNotEmpty() && imagePath.isNotEmpty() && booksId > 0
+        return draftId.isNotEmpty() && imagePath.isNotEmpty() && (bookRef.isNotEmpty() || booksId > 0)
     }
 
     private fun startAsForegroundService(draftId: String) {

@@ -100,6 +100,8 @@ interface CreateRecordInputBase {
   tagIds?: number[];
   imagePaths?: string[];
   relatedRecordIds?: number[];
+  /** 客户端幂等键；同账本同键重复创建返回已有记录。空串表示不使用。 */
+  clientMutationId?: string;
 }
 
 interface UpdateRecordInputBase extends CreateRecordInputBase {
@@ -276,6 +278,8 @@ export interface DraftItem {
   tagIds: number[];
   reimbursable: boolean;
   warnings: string[];
+  /** 确认尝试 id；非空表示已发起确认，重试复用 */
+  confirmAttemptId?: string;
 }
 
 /** 快捷补全可修改的逐笔字段；status 与 recordId 只由确认流程维护。 */

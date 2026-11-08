@@ -1,4 +1,9 @@
-import { sqliteTable, text, unique } from 'drizzle-orm/sqlite-core';
+import {
+  sqliteTable,
+  text,
+  unique,
+  uniqueIndex,
+} from 'drizzle-orm/sqlite-core';
 
 import { type ReimbursableValue, REIMBURSABLE } from '../constants';
 import {
@@ -39,6 +44,23 @@ export const records = sqliteTable('tb_record', {
   // 最后修改时间（时间戳，毫秒），
   ...timestampColumns(),
 });
+
+/** 记录创建的客户端幂等映射；同一账本同一键只对应一条记录。 */
+export const recordClientMutations = sqliteTable(
+  'tb_record_client_mutation',
+  {
+    id: primaryKeyColumn(),
+    booksId: integerColumn('books_id').notNull(),
+    clientMutationId: text('client_mutation_id').notNull(),
+    recordId: integerColumn('record_id').notNull(),
+    ...timestampColumns(),
+  },
+  table => [
+    uniqueIndex(
+      'tb_record_client_mutation_books_id_client_mutation_id_unique',
+    ).on(table.booksId, table.clientMutationId),
+  ],
+);
 
 export const recordWithRecord = sqliteTable(
   'tb_record_with_record',

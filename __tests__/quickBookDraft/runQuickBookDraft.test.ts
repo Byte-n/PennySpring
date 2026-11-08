@@ -23,38 +23,61 @@ jest.mock('../../src/agent/projection/quickBookDraftContext', () => ({
   buildQuickBookDraftUserMessage: jest.fn(() => 'user'),
 }));
 
-jest.mock('@pennyspring/api', () => {
-  const actual = jest.requireActual('@pennyspring/api');
-  return {
-    ...actual,
-    localApi: {
-      book: { getById: jest.fn() },
-      provider: { getAll: jest.fn() },
-      quickBook: { getSelection: jest.fn() },
-      credential: { getKey: jest.fn() },
-      quickBookDraft: {
-        createPlaceholder: jest.fn(),
-        setAgent: jest.fn(),
-        getById: jest.fn(),
-        markReady: jest.fn(),
-        markFailed: jest.fn(),
-      },
-    },
-  };
-});
+jest.mock('../../src/features/quickBookDraft/bookApi', () => ({
+  resolveBookApi: jest.fn(),
+  resolveBookMedia: jest.fn(async () => null),
+}));
+
+jest.mock('../../src/features/quickBookDraft/draftCacheStorage', () => ({
+  quickBookDraftCache: {
+    createPlaceholder: jest.fn(),
+    setAgent: jest.fn(),
+    getById: jest.fn(),
+    markReady: jest.fn(),
+    markFailed: jest.fn(),
+  },
+}));
+
+jest.mock('../../src/features/quickBookDraft/native', () => ({
+  reportQuickBookDraftOutcome: jest.fn(async () => undefined),
+}));
 
 import type { AgentProviderModel, AgentSelection } from '@pennyspring/api';
-import { localApi } from '@pennyspring/api';
 
 import { createAgent } from '../../src/agent/core/createAgent';
 import { runQuickBookDraft } from '../../src/agent/headless/runQuickBookDraft';
 import { resolveQuickBookModel } from '../../src/features/quickBook/validation';
+import { resolveBookApi } from '../../src/features/quickBookDraft/bookApi';
+import type { DraftBookTarget } from '../../src/features/quickBookDraft/draftBook';
+import { quickBookDraftCache } from '../../src/features/quickBookDraft/draftCacheStorage';
 import { useDraftVersionStore } from '../../src/stores/draftVersionStore';
+
+const mockBookApi = {
+  book: { getById: jest.fn() },
+  provider: { getAll: jest.fn() },
+  quickBook: { getSelection: jest.fn() },
+  credential: { getKey: jest.fn() },
+};
+
+const mockDraftCache = quickBookDraftCache as unknown as {
+  createPlaceholder: jest.Mock;
+  setAgent: jest.Mock;
+  getById: jest.Mock;
+  markReady: jest.Mock;
+  markFailed: jest.Mock;
+};
+
+const TARGET: DraftBookTarget = {
+  kind: 'local',
+  serverUrl: '',
+  booksId: 3,
+  bookName: '草稿账本',
+};
 
 const INPUT = {
   draftId: 'draft-1',
   imagePath: '/tmp/share.jpg',
-  booksId: 3,
+  target: TARGET,
 };
 
 const SELECTION: AgentSelection = {
@@ -81,47 +104,33 @@ const MODEL: AgentProviderModel = {
   multimodal: true,
 };
 
-const draftApi = localApi.quickBookDraft as unknown as {
-  createPlaceholder: jest.Mock;
-  setAgent: jest.Mock;
-  getById: jest.Mock;
-  markReady: jest.Mock;
-  markFailed: jest.Mock;
-};
-
-const bookApi = localApi.book as unknown as { getById: jest.Mock };
-const providerApi = localApi.provider as unknown as { getAll: jest.Mock };
-const quickBookApi = localApi.quickBook as unknown as {
-  getSelection: jest.Mock;
-};
-const credentialApi = localApi.credential as unknown as { getKey: jest.Mock };
-
 let order: string[];
 
 beforeEach(() => {
   order = [];
   jest.clearAllMocks();
-  draftApi.createPlaceholder.mockImplementation(async () => {
+  (resolveBookApi as jest.Mock).mockResolvedValue(mockBookApi as never);
+  mockDraftCache.createPlaceholder.mockImplementation(async () => {
     order.push('placeholder');
     return { status: 'generating', items: [] };
   });
-  draftApi.setAgent.mockResolvedValue({ status: 'generating' });
-  draftApi.getById.mockResolvedValue({
+  mockDraftCache.setAgent.mockResolvedValue({ status: 'generating' });
+  mockDraftCache.getById.mockResolvedValue({
     status: 'generating',
     items: [{ status: 'pending' }],
   });
-  draftApi.markReady.mockImplementation(async () => {
+  mockDraftCache.markReady.mockImplementation(async () => {
     order.push('ready');
     return { status: 'pending' };
   });
-  draftApi.markFailed.mockResolvedValue(undefined);
-  bookApi.getById.mockResolvedValue({ id: 3, name: '草稿账本' });
-  providerApi.getAll.mockResolvedValue([PROVIDER]);
-  quickBookApi.getSelection.mockImplementation(async () => {
+  mockDraftCache.markFailed.mockResolvedValue(undefined);
+  mockBookApi.book.getById.mockResolvedValue({ id: 3, name: '草稿账本' });
+  mockBookApi.provider.getAll.mockResolvedValue([PROVIDER]);
+  mockBookApi.quickBook.getSelection.mockImplementation(async () => {
     order.push('resolve');
     return SELECTION;
   });
-  credentialApi.getKey.mockResolvedValue('api-key');
+  mockBookApi.credential.getKey.mockResolvedValue('api-key');
   (resolveQuickBookModel as jest.Mock).mockReturnValue({
     ok: true,
     provider: PROVIDER,
@@ -139,13 +148,13 @@ describe('runQuickBookDraft lifecycle', () => {
     await runQuickBookDraft(INPUT);
 
     expect(order).toEqual(['placeholder', 'resolve', 'generate', 'ready']);
-    expect(draftApi.markReady).toHaveBeenCalledWith(INPUT.draftId);
+    expect(mockDraftCache.markReady).toHaveBeenCalledWith(INPUT.draftId);
   });
 
   it('records the provider and model as soon as model resolution succeeds', async () => {
     await runQuickBookDraft(INPUT);
 
-    expect(draftApi.setAgent).toHaveBeenCalledWith(INPUT.draftId, {
+    expect(mockDraftCache.setAgent).toHaveBeenCalledWith(INPUT.draftId, {
       agentProviderId: 7,
       agentModelId: 'vision-model',
     });
@@ -171,7 +180,7 @@ describe('runQuickBookDraft lifecycle', () => {
     );
 
     expect(order[0]).toBe('placeholder');
-    expect(draftApi.markFailed).toHaveBeenCalledWith(
+    expect(mockDraftCache.markFailed).toHaveBeenCalledWith(
       INPUT.draftId,
       '请先在 AI 记账设置中选择 AI 提供商。',
     );
@@ -179,14 +188,17 @@ describe('runQuickBookDraft lifecycle', () => {
   });
 
   it('marks the draft failed instead of ready when the agent produced no items', async () => {
-    draftApi.getById.mockResolvedValue({ status: 'generating', items: [] });
+    mockDraftCache.getById.mockResolvedValue({
+      status: 'generating',
+      items: [],
+    });
 
     await expect(runQuickBookDraft(INPUT)).rejects.toThrow(
       '未能从截图生成草稿',
     );
 
-    expect(draftApi.markReady).not.toHaveBeenCalled();
-    expect(draftApi.markFailed).toHaveBeenCalledWith(
+    expect(mockDraftCache.markReady).not.toHaveBeenCalled();
+    expect(mockDraftCache.markFailed).toHaveBeenCalledWith(
       INPUT.draftId,
       '未能从截图生成草稿',
     );

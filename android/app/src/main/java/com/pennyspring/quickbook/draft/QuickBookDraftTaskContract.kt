@@ -11,6 +11,7 @@ object QuickBookDraftTaskContract {
 
     const val EXTRA_DRAFT_ID = "draftId"
     const val EXTRA_IMAGE_PATH = "imagePath"
+    const val EXTRA_BOOK_REF = "bookRef"
     const val EXTRA_BOOKS_ID = "booksId"
     const val EXTRA_ASSET_ID = "assetId"
     const val EXTRA_TYPE_ID = "typeId"

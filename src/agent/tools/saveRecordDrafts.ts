@@ -9,6 +9,7 @@ import type {
 import type { ToolSet } from 'ai';
 import { z } from 'zod';
 
+import type { QuickBookDraftCache } from '../../features/quickBookDraft/draftCache';
 import {
   CREATE_RECORD_DATE_PATTERN,
   CREATE_RECORD_MAX_AMOUNT_YUAN,
@@ -318,7 +319,8 @@ export function normalizeRecordDraftItems(
 }
 
 export interface SaveRecordDraftsToolDeps {
-  api: Api;
+  bookApi: Api;
+  draftApi: QuickBookDraftCache;
   booksId: number;
   draftId: string;
   preset: QuickBookDraftPreset;
@@ -345,8 +347,8 @@ export function createSaveRecordDraftsTool(deps: SaveRecordDraftsToolDeps) {
         throw new Error('草稿截图路径不能为空');
       }
       const [types, assets] = await Promise.all([
-        deps.api.type.getAll(deps.booksId),
-        deps.api.asset.getByBook(deps.booksId),
+        deps.bookApi.type.getAll(deps.booksId),
+        deps.bookApi.asset.getByBook(deps.booksId),
       ]);
       const items = normalizeRecordDraftItems({
         input,
@@ -356,7 +358,7 @@ export function createSaveRecordDraftsTool(deps: SaveRecordDraftsToolDeps) {
         assets,
       });
       const summary = normalizeSummary(input.summary);
-      await deps.api.quickBookDraft.updateItems(
+      await deps.draftApi.updateItems(
         deps.draftId,
         items,
         deps.preset,
@@ -378,11 +380,11 @@ export function createQuickBookDraftTools(
 ): ToolSet {
   return {
     [LIST_TYPES_TOOL_NAME]: createListTypesTool({
-      api: deps.api,
+      api: deps.bookApi,
       booksId: deps.booksId,
     }),
     [LIST_ASSETS_TOOL_NAME]: createListAssetsTool({
-      api: deps.api,
+      api: deps.bookApi,
       booksId: deps.booksId,
     }),
     [SAVE_RECORD_DRAFTS_TOOL_NAME]: createSaveRecordDraftsTool(deps),

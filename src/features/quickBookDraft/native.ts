@@ -10,10 +10,17 @@ export interface QuickBookDraftNativeStatus {
   floatingBallRunning: boolean;
   notificationTriggerActive: boolean;
   entryDisabledByUser: boolean;
-  currentBookId: number;
   supported: boolean;
   /** 原生侧已落盘的悬浮球排除应用，用于启动时与设备设置合并。 */
   excludedPackages: string[];
+}
+
+/** 原生 Headless 任务结果，用于原生通知；草稿数据仍由 JS 管理。 */
+export interface QuickBookDraftOutcome {
+  draftId: string;
+  status: 'success' | 'failed';
+  itemCount: number;
+  bookKey?: string;
 }
 
 export const UNSUPPORTED_QUICK_BOOK_ENTRY_STATUS: QuickBookDraftNativeStatus = {
@@ -23,7 +30,6 @@ export const UNSUPPORTED_QUICK_BOOK_ENTRY_STATUS: QuickBookDraftNativeStatus = {
   floatingBallRunning: false,
   notificationTriggerActive: false,
   entryDisabledByUser: false,
-  currentBookId: 0,
   supported: false,
   excludedPackages: [],
 };
@@ -52,10 +58,15 @@ interface QuickBookDraftNativeModule {
   ) => Promise<unknown>;
   stopEntry: () => void;
   consumeEntryDisabledByUser: () => Promise<unknown>;
-  setCurrentBookId: (booksId: number) => void;
   setFloatingBallEnabled: (enabled: boolean) => void;
   setExcludedPackages: (packages: string[]) => void;
-  cleanupOrphanImages: () => Promise<unknown>;
+  setCaptureCatalog: (catalogJson: string) => Promise<unknown>;
+  reportDraftOutcome: (outcome: {
+    draftId: string;
+    status: 'success' | 'failed';
+    itemCount: number;
+    bookKey?: string;
+  }) => Promise<unknown>;
 }
 
 function getNativeModule(): QuickBookDraftNativeModule | null {
@@ -87,7 +98,6 @@ function parseNativeStatus(value: unknown): QuickBookDraftNativeStatus {
     floatingBallRunning,
     notificationTriggerActive,
     entryDisabledByUser,
-    currentBookId,
     supported,
     excludedPackages,
   } = value;
@@ -98,8 +108,6 @@ function parseNativeStatus(value: unknown): QuickBookDraftNativeStatus {
     typeof floatingBallRunning !== 'boolean' ||
     typeof notificationTriggerActive !== 'boolean' ||
     typeof entryDisabledByUser !== 'boolean' ||
-    typeof currentBookId !== 'number' ||
-    !Number.isFinite(currentBookId) ||
     typeof supported !== 'boolean'
   ) {
     throw new Error('截图记账入口状态返回格式不正确');
@@ -117,7 +125,6 @@ function parseNativeStatus(value: unknown): QuickBookDraftNativeStatus {
     floatingBallRunning,
     notificationTriggerActive,
     entryDisabledByUser,
-    currentBookId,
     supported,
     excludedPackages: parsedExcludedPackages,
   };
@@ -251,30 +258,36 @@ export function openQuickBookDraftAccessibilitySettings(): void {
   }
 }
 
-export function setQuickBookDraftCurrentBookId(booksId: number): void {
+export async function setQuickBookCaptureCatalog(
+  catalogJson: string,
+): Promise<boolean> {
+  const module = getNativeModule();
+  if (!module) {
+    return false;
+  }
+  try {
+    return (await module.setCaptureCatalog(catalogJson)) === true;
+  } catch {
+    throw toChineseError('同步截图记账目录');
+  }
+}
+
+export async function reportQuickBookDraftOutcome(
+  outcome: QuickBookDraftOutcome,
+): Promise<void> {
   const module = getNativeModule();
   if (!module) {
     return;
   }
   try {
-    module.setCurrentBookId(booksId);
+    await module.reportDraftOutcome({
+      draftId: outcome.draftId,
+      status: outcome.status,
+      itemCount: outcome.itemCount,
+      ...(outcome.bookKey === undefined ? {} : { bookKey: outcome.bookKey }),
+    });
   } catch {
-    throw toChineseError('同步截图记账账本');
-  }
-}
-
-export async function cleanupQuickBookDraftOrphanImages(): Promise<number> {
-  const module = getNativeModule();
-  if (!module) {
-    return 0;
-  }
-  try {
-    const removed = await module.cleanupOrphanImages();
-    return typeof removed === 'number' && Number.isFinite(removed)
-      ? removed
-      : 0;
-  } catch {
-    throw toChineseError('清理孤儿草稿截图');
+    throw toChineseError('回报草稿生成结果');
   }
 }
 

@@ -101,6 +101,7 @@ function AddRecordContent({
     setTemplateName,
   } = useAddRecordContext();
   const currentBook = useBookStore(state => state.currentBook);
+  const currentBookRef = useBookStore(state => state.currentBookRef);
   const globalApi = useGlobalApi();
   const media = useMediaStore();
   const [initialRouteName, setInitialRouteName] = useState<string>();
@@ -128,13 +129,14 @@ function AddRecordContent({
         ? Promise.resolve(null)
         : loadAddRecordInitSeed(initSource, {
             currentBook,
+            currentBookRef,
             recordApi: globalApi.record,
             typeApi: globalApi.type,
             media,
           }),
     {
       ready: isInitReady,
-      refreshDeps: [initSource],
+      refreshDeps: [initSource, currentBookRef],
       onSuccess: seed => {
         if (seed === null) {
           return;

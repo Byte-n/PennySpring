@@ -366,7 +366,7 @@ class ScreenCaptureActivity : Activity() {
         val root = rootView ?: error("root view missing")
         val bar =
             PresetBarView(this).apply {
-                setOnSendListener { bookId, assetId, typeId -> handleSend(bookId, assetId, typeId) }
+                setOnSendListener { bookRef, assetId, typeId -> handleSend(bookRef, assetId, typeId) }
                 visibility = View.INVISIBLE
             }
         val availableWidth = (root.width - dp(PRESET_BAR_SIDE_MARGIN_DP) * 2).coerceAtLeast(0)
@@ -427,7 +427,7 @@ class ScreenCaptureActivity : Activity() {
     }
 
     private fun handleSend(
-        bookId: Int,
+        bookRef: QuickBookCaptureCatalogStore.BookRef,
         assetId: Int,
         typeId: Int,
     ) {
@@ -455,7 +455,8 @@ class ScreenCaptureActivity : Activity() {
                     this,
                     draftId,
                     Uri.fromFile(file).toString(),
-                    bookId,
+                    QuickBookCaptureCatalogStore.toRefJson(bookRef),
+                    bookRef.booksId,
                     assetId,
                     typeId,
                     QuickBookDraftTaskContract.SOURCE_FLOATING_CAPTURE,

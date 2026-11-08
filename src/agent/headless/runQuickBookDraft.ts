@@ -1,6 +1,5 @@
 import dayjs from 'dayjs';
 import {
-  localApi,
   QUICK_BOOK_DRAFT_SOURCE,
   QUICK_BOOK_DRAFT_STATUS,
   type Api,
@@ -11,6 +10,16 @@ import type { ModelMessage } from 'ai';
 import { FileSystem } from 'react-native-file-access';
 
 import { resolveQuickBookModel } from '../../features/quickBook/validation';
+import {
+  resolveBookApi,
+  resolveBookMedia,
+} from '../../features/quickBookDraft/bookApi';
+import {
+  getDraftBookKey,
+  type DraftBookTarget,
+} from '../../features/quickBookDraft/draftBook';
+import { quickBookDraftCache } from '../../features/quickBookDraft/draftCacheStorage';
+import { reportQuickBookDraftOutcome } from '../../features/quickBookDraft/native';
 import { bumpDraftVersion } from '../../stores/draftVersionStore';
 import { loadBookAgentRules } from '../core/agentRules';
 import { AGENT_TIMEOUT_MS } from '../core/constants';
@@ -36,9 +45,11 @@ const GENERATION_FAILED_ERROR = '生成草稿失败，请重试';
 export interface RunQuickBookDraftInput {
   draftId: string;
   imagePath: string;
-  booksId: number;
+  target: DraftBookTarget;
   source?: QuickBookDraftSourceValue;
   preset?: { assetId: number; typeId: number };
+  /** 原生 Headless 任务需要把结果回报给原生通知；前台重试不回报。 */
+  reportOutcome?: boolean;
 }
 
 interface ImageContent {
@@ -96,7 +107,7 @@ function detectImageFormat(path: string): ImageFormat {
   };
 }
 
-function toLocalImagePath(imagePath: string): string {
+function toLocalImagePath(imagePath: string): string | null {
   if (imagePath.startsWith('file://')) {
     try {
       return decodeURIComponent(imagePath.slice('file://'.length));
@@ -107,11 +118,31 @@ function toLocalImagePath(imagePath: string): string {
   if (imagePath.startsWith('/')) {
     return imagePath;
   }
-  throw new Error('截图路径不合法，无法读取图片');
+  return null;
 }
 
-async function readImageContent(imagePath: string): Promise<ImageContent> {
+function parseDataUrl(dataUrl: string): ImageContent {
+  const match = /^data:([^;]+);base64,(.*)$/s.exec(dataUrl);
+  if (match === null) {
+    throw new Error('截图图片格式不正确');
+  }
+  const mediaType = match[1] ?? DEFAULT_IMAGE_MEDIA_TYPE;
+  return {
+    mediaType,
+    extension: mediaType.split('/')[1] ?? DEFAULT_IMAGE_EXTENSION,
+    base64: match[2] ?? '',
+  };
+}
+
+async function readImageContent(
+  imagePath: string,
+  target: DraftBookTarget,
+): Promise<ImageContent> {
   const localPath = toLocalImagePath(imagePath);
+  if (localPath === null) {
+    const media = await resolveBookMedia(target);
+    return parseDataUrl(await media.toDataUrl(imagePath));
+  }
   const format = detectImageFormat(localPath);
   let base64: string;
   try {
@@ -147,18 +178,17 @@ function buildImageUserMessage(
 }
 
 async function markDraftFailedBestEffort(
-  api: Api,
   draftId: string,
   errorText: string,
 ): Promise<void> {
   try {
-    const draft = await api.quickBookDraft.getById(draftId);
+    const draft = await quickBookDraftCache.getById(draftId);
     if (draft.status !== 'generating' && draft.status !== 'failed') {
       return;
     }
-    await api.quickBookDraft.markFailed(draftId, errorText);
+    await quickBookDraftCache.markFailed(draftId, errorText);
   } catch (markError: unknown) {
-    // 保留原始生成错误；草稿已进入 pending 或行不存在时不覆盖。
+    // 保留原始生成错误；草稿已进入 pending 或缓存不存在时不覆盖。
     agentDebugLog('quickBookDraft', 'mark-failed-error', {
       message: getErrorMessage(markError),
     });
@@ -192,13 +222,12 @@ async function resolveDraftModel(api: Api, booksId: number) {
 }
 
 function createDraftPlaceholder(
-  api: Api,
   input: RunQuickBookDraftInput,
   preset: QuickBookDraftPreset,
 ) {
-  return api.quickBookDraft.createPlaceholder({
+  return quickBookDraftCache.createPlaceholder({
     id: input.draftId,
-    booksId: input.booksId,
+    target: input.target,
     imagePath: input.imagePath,
     source: input.source ?? QUICK_BOOK_DRAFT_SOURCE.floatingCapture,
     preset,
@@ -207,28 +236,25 @@ function createDraftPlaceholder(
 
 async function executeQuickBookDraft(
   input: RunQuickBookDraftInput,
-): Promise<void> {
-  const api = localApi;
+): Promise<number> {
+  const booksId = input.target.booksId;
   const preset = normalizePreset(input.preset);
-  // 第一笔写入必须是占位行：草稿列表由此立即可见“分析中”，
-  // 模型解析失败时也能在外层标记 failed 供用户重试。
-  await createDraftPlaceholder(api, input, preset);
+  // 占位草稿先落本地：即使账本 API 不可达，也能在列表里留下 failed 可重试记录。
+  await createDraftPlaceholder(input, preset);
   bumpDraftVersion();
 
-  const { provider, model, apiKey } = await resolveDraftModel(
-    api,
-    input.booksId,
-  );
-  await api.quickBookDraft.setAgent(input.draftId, {
+  const api = await resolveBookApi(input.target);
+  const { provider, model, apiKey } = await resolveDraftModel(api, booksId);
+  await quickBookDraftCache.setAgent(input.draftId, {
     agentProviderId: provider.id,
     agentModelId: model.modelId,
   });
 
   const [book, agentRules] = await Promise.all([
-    api.book.getById(input.booksId),
-    loadBookAgentRules(api, input.booksId),
+    api.book.getById(booksId),
+    loadBookAgentRules(api, booksId),
   ]);
-  const image = await readImageContent(input.imagePath);
+  const image = await readImageContent(input.imagePath, input.target);
   const userText = buildQuickBookDraftUserMessage({
     bookName: book.name,
     preset,
@@ -245,8 +271,9 @@ async function executeQuickBookDraft(
       rules: agentRules?.quickBookRules,
     }),
     tools: createQuickBookDraftTools({
-      api,
-      booksId: input.booksId,
+      bookApi: api,
+      draftApi: quickBookDraftCache,
+      booksId,
       draftId: input.draftId,
       preset,
       imagePath: input.imagePath,
@@ -258,15 +285,16 @@ async function executeQuickBookDraft(
     timeout: { totalMs: AGENT_TIMEOUT_MS },
   });
 
-  const draft = await api.quickBookDraft.getById(input.draftId);
+  const draft = await quickBookDraftCache.getById(input.draftId);
   if (draft.items.length === 0) {
     throw new Error(NO_DRAFT_ERROR);
   }
   if (draft.status === QUICK_BOOK_DRAFT_STATUS.generating) {
-    await api.quickBookDraft.markReady(input.draftId);
+    await quickBookDraftCache.markReady(input.draftId);
   } else if (draft.status !== QUICK_BOOK_DRAFT_STATUS.pending) {
     throw new Error(NO_DRAFT_ERROR);
   }
+  return draft.items.length;
 }
 
 /**
@@ -277,11 +305,29 @@ async function executeQuickBookDraft(
 export async function runQuickBookDraft(
   input: RunQuickBookDraftInput,
 ): Promise<void> {
+  let itemCount = 0;
+  const bookKey = getDraftBookKey(input.target);
   try {
-    await executeQuickBookDraft(input);
+    itemCount = await executeQuickBookDraft(input);
+    if (input.reportOutcome) {
+      await reportQuickBookDraftOutcome({
+        draftId: input.draftId,
+        status: 'success',
+        itemCount,
+        bookKey,
+      }).catch(() => undefined);
+    }
   } catch (error: unknown) {
     const message = toDraftErrorMessage(error);
-    await markDraftFailedBestEffort(localApi, input.draftId, message);
+    await markDraftFailedBestEffort(input.draftId, message);
+    if (input.reportOutcome) {
+      await reportQuickBookDraftOutcome({
+        draftId: input.draftId,
+        status: 'failed',
+        itemCount,
+        bookKey,
+      }).catch(() => undefined);
+    }
     throw error instanceof Error ? error : new Error(message);
   } finally {
     bumpDraftVersion();

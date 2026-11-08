@@ -146,7 +146,7 @@ export interface BuildDraftConfirmInputParams {
   item: DraftItem;
   type: TypeRow;
   booksId: number;
-  imagePaths: readonly string[];
+  imagePaths?: readonly string[];
 }
 
 /** 把草稿逐笔转换为完整的新增记录入参；不完整时抛出中文错误。 */
@@ -156,6 +156,9 @@ export function buildDraftConfirmInput({
   booksId,
   imagePaths,
 }: BuildDraftConfirmInputParams): CreateRecordInput {
+  const imageField =
+    imagePaths === undefined ? {} : { imagePaths: [...imagePaths] };
+
   if (!isDraftTypeInBook(type, booksId)) {
     throw new Error('记账类型不属于目标账本');
   }
@@ -174,7 +177,7 @@ export function buildDraftConfirmInput({
     remark: item.remark,
     recordTime: item.recordTime,
     tagIds: item.tagIds,
-    imagePaths: [...imagePaths],
+    ...imageField,
   };
 
   if (type.typeCategory === RECORD_TYPE_CATEGORY.transfer) {

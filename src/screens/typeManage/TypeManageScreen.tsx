@@ -28,6 +28,8 @@ import {
   type TypeRow,
 } from '@pennyspring/api';
 import { createUseSheetStyle, useTheme } from '@pennyspring/ui';
+
+import { publishQuickBookCaptureCatalog } from '../../features/quickBookDraft/captureCatalog';
 import { CategoryGrid } from '../../component/CategoryGrid';
 import { FormIconGrid, TYPE_FORM_ICONS } from '../../component/FormIconGrid';
 import { PhosphorIconPicker } from '../../component/PhosphorIconPicker';
@@ -294,6 +296,7 @@ export function TypeManageScreen() {
           await globalApi.type.create(payload);
         }
         refresh();
+        publishQuickBookCaptureCatalog().catch(() => undefined);
         submitSucceededRef.current = true;
       } catch (error: unknown) {
         toast.show({
@@ -347,6 +350,7 @@ export function TypeManageScreen() {
     }
     setPendingDeleteType(null);
     refresh();
+    publishQuickBookCaptureCatalog().catch(() => undefined);
   }, [
     currentBook,
     editingType?.id,

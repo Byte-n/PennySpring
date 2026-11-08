@@ -37,8 +37,8 @@ class ShareDraftActivity : Activity() {
             showToast(R.string.quick_book_share_busy)
             return
         }
-        val booksId = QuickBookDraftPrefs.getCurrentBookId(this)
-        if (booksId <= 0) {
+        val book = QuickBookCaptureCatalogStore.currentBook(this)
+        if (book == null) {
             showToast(R.string.quick_book_share_no_local_book)
             return
         }
@@ -58,7 +58,8 @@ class ShareDraftActivity : Activity() {
                     this,
                     draftId,
                     Uri.fromFile(file).toString(),
-                    booksId,
+                    QuickBookCaptureCatalogStore.toRefJson(book.ref),
+                    book.ref.booksId,
                     INVALID_ID,
                     INVALID_ID,
                     QuickBookDraftTaskContract.SOURCE_SHARE,

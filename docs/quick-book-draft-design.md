@@ -2,10 +2,19 @@
 
 > 状态：已实施（悬浮球 / 常驻通知两种触发方式、手绘圈选、草稿 Tab 确认）
 > 范围：Android 截图记账入口（悬浮球 / 常驻通知）→ 手绘圈选 → Agent 生成草稿 → 首页草稿 Tab 确认记账
-> 更新：2026-11-08
+> 更新：2026-11-08（草稿改为设备本地 KV 缓存，支持本地与网络账本）
 > 关联：[Agent P0 实施计划](./agent-p0-plan.md)
 
 一句话：截图记账入口负责“截得准、选得快”，Agent 负责“看懂截图”，草稿 Tab 负责“用户最终确认”。
+
+> **2026-11 架构更新**
+>
+> - 草稿不再使用 `tb_quick_book_draft` 表，改为设备本地持久化 KV 缓存；旧表不做数据迁移。
+> - 草稿记录目标账本身份（`kind/serverUrl/booksId/bookName`），草稿 Tab 按当前账本隔离展示；草稿仍不跨设备同步。
+> - 截图记账入口同时支持本地账本与网络账本；远程账本需要联网生成/确认，离线时保留本地 failed 可重试草稿。
+> - 原生不再读取业务数据库；预设栏读取 JS 发布的 SharedPreferences 目录快照，Headless 任务通过 `bookRef` 指定目标账本。
+> - 草稿确认由 JS 编排：本地/网络账本都用 `clientMutationId` 幂等建记录，再回写本地草稿缓存；服务端不开放草稿 API。
+> - 下文涉及“本地 SQLite 草稿表”“仅支持本地账本”“原生直读 SQLite 预设栏”的描述为历史设计，以本节为准。
 
 ---
 
@@ -50,7 +59,7 @@
    Agent 可以给出不完整草稿：金额缺失、类型不确定、资产未匹配都允许，但必须写入 `warnings`。草稿详情高亮缺失项；不完整笔不显示“确定”，用户可通过“确认”进入新建记录补全。
 
 5. **草稿按设备保存，按账本归属**
-   草稿本身是设备级中间态，不属于账本内容；每条草稿记录目标本地账本 `booksId`，逐笔确定或保存时写入对应账本。
+   草稿本身是设备级中间态，不属于账本内容；每条草稿记录目标账本身份（本地或网络账本），草稿 Tab 按当前账本隔离展示，逐笔确认时写入对应账本。
 
 ---
 
@@ -160,11 +169,11 @@ pending ──确定/新建记录保存──> confirmed
 - 一期不提供标签预设。
 - 点击提交后立即收起所有浮层，避免截图被浮层污染。
 
-预设栏数据通过原生只读查询本地 SQLite：
+预设栏数据由 JS 通过 `globalApi` 拉取后发布为 SharedPreferences 目录快照，原生只读快照，不访问业务数据库：
 
-- `tb_books`：本地账本。
-- `tb_asset`：按 `books_id` 过滤，`invisible != 'hidden'`。
-- `tb_type`：按 `books_id` 过滤，按 `sort` 排序，按 `parent_id` 组树。
+- 账本列表：本地账本 + 已注册网络账本；网络账本不可用时标记 `available=false`。
+- 资产：JS 已过滤 `invisible == hidden`。
+- 类型：JS 已计算叶子类型与父级展示名，原生直接渲染。
 
 ### 4.2 首页草稿 Tab
 
@@ -199,7 +208,7 @@ pending ──确定/新建记录保存──> confirmed
 
 **角标**
 
-- 使用设备级草稿计数，不依赖当前账本。
+- 角标按当前账本的 `target` 过滤未完结草稿；切换账本后重新计数。
 - 生成开始、生成完成、确认、丢弃后刷新角标。
 - 计数 `generating + pending + failed`：分析一开始就让用户看到草稿入口有动静。
 
@@ -361,11 +370,12 @@ interface SaveRecordDraftsInput {
 实现约束：
 
 - Headless 入口不要 import `App.tsx`，避免加载导航、主题、Reanimated 等 UI 依赖。
-- 使用 `localApi` 与 `getDatabase()`，不依赖 React 或当前账本 store。
+- 通过传入的 `bookRef` 解析目标账本 `BookApi`；草稿读写使用设备本地 `quickBookDraftCache`，不依赖当前账本 store。
 - Headless 任务超时必须大于 Agent 总超时。
 - App 在前台时，`HeadlessJsTaskConfig` 需要允许前台执行，避免崩溃。
-- 生成过程不持久化 Agent 对话线程；草稿表保存 `provider_id`、`model_id`、`summary`、`error_text` 即可，避免污染会话列表和备份体积。
-- 任务被系统中断时，`generating` 草稿在下次启动时按超时时间标记为 `failed`。
+- 生成过程不持久化 Agent 对话线程；草稿缓存保存 `agentProviderId`、`agentModelId`、`agentSummary`、`errorText` 即可，避免污染会话列表和备份体积。
+- 任务被系统中断时，`generating` 草稿在下次启动清理时按超时时间标记为 `failed`。
+- 任务结束前 JS 调原生 `reportDraftOutcome`，原生据此发通知，不再读取草稿数据库。
 
 ---
 
@@ -375,48 +385,52 @@ interface SaveRecordDraftsInput {
 
 按《数据持久化存储规范》，新增持久化数据前需要明确存储位置与作用域。
 
-| 方案            | 位置                    | 优点                                                     | 缺点                                                                  | 建议     |
-| --------------- | ----------------------- | -------------------------------------------------------- | --------------------------------------------------------------------- | -------- |
-| A. 设备级草稿表 | 本地 SQLite，无账本快照 | 可跨账本聚合同一 Tab；不随账本同步；确认前不污染账本数据 | 换设备不同步；卸载丢失                                                | **推荐** |
-| B. 账本级草稿表 | 账本所在服务            | 可随账本导出/同步                                        | 草稿 Tab 只能看当前账本；远程账本也要实现接口；Agent 远程模式下不可用 | 不推荐   |
+| 方案              | 位置          | 优点                                                   | 缺点                                           | 结论     |
+| ----------------- | ------------- | ------------------------------------------------------ | ---------------------------------------------- | -------- |
+| A. 设备级本地草稿 | 本地持久化 KV | 离线可用；确认前不污染账本；不进入服务器 API；隐私更好 | 换设备不同步；离线确认需重试；旧表不迁移       | **采用** |
+| B. 账本级草稿表   | 账本所在服务  | 可随账本同步；草稿与记录同库单事务                     | 需要服务端草稿 API；草稿图片上传；离线无法创建 | 未采用   |
 
-推荐 A，并明确：
+已拍板：采用设备级本地持久化 KV 缓存（不使用业务表），决策已回写 `.claude/rules/common/persistence.md`。
 
-- 已拍板：采用方案 A（设备级本地 SQLite 表），决策已回写 `.claude/rules/common/persistence.md`。
 - 不进入自动备份、手动导出、局域网传输。
 - 不进入网络账本服务器 API。
-- 只有本地账本可生成草稿；远程账本模式禁用悬浮球。
-- 草稿确认后写入目标本地账本。
+- 本地账本与网络账本都可生成草稿；网络账本生成/确认需要联网，离线时保留 failed 可重试草稿。
+- 草稿记录目标账本身份，草稿 Tab 按当前账本隔离展示；确认时写入目标账本。
 
-### 6.2 表草案
+### 6.2 设备本地缓存草案（当前实现）
 
-新增表 `tb_quick_book_draft`（仅本地库）：
+草稿不再使用 `tb_quick_book_draft` 表，旧表不做迁移。每条草稿是一个持久化 KV 文档：
 
 ```ts
-// packages/data/src/schema/quick-book-draft.ts
-tb_quick_book_draft
-  id: text primary key          // uuid
-  books_id: integer not null    // 目标本地账本
-  status: text not null         // generating | pending | failed | confirmed | discarded
-  source: text not null         // floating_capture | share | screenshot_nudge
-  image_path: text not null     // 草稿图片文件路径
-  payload: text not null        // JSON: DraftItem[]
-  preset: text not null         // JSON: { assetId, typeId }
-  agent_provider_id: integer not null default 0
-  agent_model_id: text not null default ''
-  agent_summary: text not null default ''
-  error_text: text not null default ''
-  confirmed_count: integer not null default 0
-  record_ids: text not null default '' // JSON: number[]
-  created_at: integer not null
-  updated_at: integer not null
-  confirmed_at: integer not null default 0
+// src/features/quickBookDraft/draftCache.ts
+interface CachedQuickBookDraft {
+  id: string; // uuid
+  target: {
+    kind: 'local' | 'remote';
+    serverUrl: string; // 本地为空串
+    booksId: number;
+    bookName: string; // 离线展示缓存
+  };
+  status: 'generating' | 'pending' | 'failed' | 'confirmed' | 'discarded';
+  source: 'floating_capture' | 'share' | 'screenshot_nudge';
+  imagePath: string; // 本地暂存图片路径
+  attachImage: boolean;
+  items: DraftItem[];
+  preset: { assetId: number; typeId: number };
+  agentProviderId: number;
+  agentModelId: string;
+  agentSummary: string;
+  errorText: string;
+  attachmentRef: string; // 远程确认上传后的 media: 引用
+  createdTime: number;
+  updatedTime: number;
+  confirmedAt: number;
+}
 ```
 
-索引：
-
-- `(status, updated_at)`
-- `(books_id, status)`
+- 存储：op-sqlite `Storage`，key 为 `pennyspring-quick-book-draft:v1:<id>`。
+- 列表/角标通过扫描前缀并在 JS 按 `target` 过滤；不再需要数据库索引。
+- `confirmedCount` / `recordIds` 从 items 推导，不单独持久化。
 
 ### 6.3 DraftItem JSON
 
@@ -450,42 +464,44 @@ interface DraftItem {
 
 ### 6.4 生命周期与清理
 
-- `generating` 超过 5 分钟未被更新：下次启动标记为 `failed`。
+- `generating` 超过 5 分钟未被更新：启动清理时标记为 `failed`。
 - `pending / failed`：保留，直到所有笔确认或用户丢弃；部分确认时草稿图片继续保留。
-- `discarded`：图片文件立即删除，行保留 7 天后清理。
-- `confirmed`：全部笔写入后删除草稿图片；行保留 30 天后清理。
-- 启动时清理无对应草稿行的孤儿图片。
-- 草稿确认、丢弃、清理全部走事务或明确的文件清理顺序。
+- `discarded`：图片文件立即删除，缓存条目保留 7 天后清理。
+- `confirmed`：全部笔写入后删除本地草稿图片；缓存条目保留 30 天后清理。
+- 启动清理只检查本地账本的账本是否存在，网络账本草稿不做本地存在性判断。
+- 远程账本草稿在确认需要附件时上传到服务器媒体库，`media:` 引用缓存在 `attachmentRef`；本地账本使用本地媒体存储。
+- 草稿确认通过 JS 编排：本地/网络账本都用 `clientMutationId` 幂等建记录，再回写缓存状态。
 
-### 6.5 API
+### 6.5 API 分层
 
-只挂本地 API：
+草稿从通用 `Api` 中拆出，`createApi` / `remoteApi` 不再包含 `quickBookDraft`：
 
 ```ts
-localApi.quickBookDraft = {
-  createPlaceholder(input): Promise<QuickBookDraftRow>;
-  getById(id): Promise<QuickBookDraftRow>;
-  list(filter?): Promise<QuickBookDraftRow[]>;
-  countOpen(): Promise<number>;
-  updateItems(id, payload, preset): Promise<QuickBookDraftRow>;
-  setAgent(id, { agentProviderId, agentModelId }): Promise<QuickBookDraftRow>;
-  markReady(id): Promise<QuickBookDraftRow>;
-  markFailed(id, errorText): Promise<void>;
-  getItem(id, itemIndex): Promise<DraftItem>;
-  confirmItem(
-    id,
-    itemIndex,
-    input?: CreateRecordInput,
-  ): Promise<{ item: DraftItem; recordId: number }>;
-  discard(id): Promise<void>;
-  cleanup(): Promise<void>;
+// 设备本地草稿 API，仅本地 KV 缓存
+quickBookDraftCache = {
+  createPlaceholder(input): Promise<QuickBookDraftRecord>;
+  getById(id): Promise<QuickBookDraftRecord>;
+  list({ target, statuses? }): Promise<QuickBookDraftRecord[]>;
+  countOpen({ target }): Promise<number>;
+  updateItems(...);
+  setAgent(...);
+  markReady(id);
+  markFailed(id, errorText);
+  getItem(id, itemIndex);
+  updateItem(id, itemIndex, patch);
+  setAttachImage(id, value);
+  setConfirmAttempt(id, itemIndex, attemptId);
+  setAttachmentRef(id, ref);
+  markItemConfirmed(id, itemIndex, recordId);
+  discard(id): Promise<string[]>;
+  cleanup(options?): Promise<string[]>;
 };
 ```
 
-- `confirmItem` 是唯一写入路径：直接“确定”传空 input 使用草稿字段；新建记录页保存时传入用户修改后的 input。
-- 每笔独立事务；重复调用同一 `itemIndex` 必须幂等，返回已有 `recordId`，不得重复创建。
-
-草稿 Tab 与悬浮球功能都使用 `localApi`，不通过 `useGlobalApi()`，避免远程账本模式下 404。
+- `BookApi`（`localApi` / `remoteApi` / `globalApi`）负责账本、资产、类型、记录与媒体。
+- 确认编排在 `src/features/quickBookDraft/confirmDraft.ts`：按 `target` 选择 BookApi 与 media store，建记录后回写本地草稿缓存。
+- 本地/网络账本都用 `clientMutationId` 幂等建记录；不再依赖草稿与记录同库事务。
+- 草稿 Tab、角标、补全、重试都按当前账本的 `target` 过滤。
 
 ---
 
@@ -519,37 +535,27 @@ localApi.quickBookDraft = {
 - 用户可修改任意字段，保存时调用 `confirmItem(draftId, itemIndex, input)`。
 - 用户取消返回，草稿保持不变。
 
-### 7.3 事务与幂等
+### 7.3 幂等确认
 
-新增数据层方法：
+草稿在设备本地缓存，记录在目标账本，不能跨库做单一事务。确认流程：
 
-```ts
-confirmQuickBookDraftItem(
-  db,
-  draftId,
-  itemIndex,
-  input?: CreateRecordInput,
-): Promise<{ item: DraftItem; recordId: number }>
-```
+1. 从本地缓存读取草稿并校验 `target` 与当前账本一致。
+2. 用目标账本的 `BookApi` 校验类型、资产并构建记录入参。
+3. 若该笔已有 `confirmAttemptId` 则复用；否则生成并先写入本地草稿。
+4. 调用目标账本 `record.create`，携带 `clientMutationId = confirmAttemptId`。
+5. 记录创建成功后回写草稿 `status=confirmed`、`recordId`，清除确认尝试标记。
+6. 若记录创建成功但本地回写失败，重试时相同的 `clientMutationId` 会返回已有记录，不会重复记账。
 
-要求：
-
-1. 在同一个事务内重新读取草稿，校验组状态不是 `discarded`。
-2. 校验目标笔当前必须是 `pending`；若已 `confirmed`，直接返回已有 `recordId`，不得重复创建。
-3. 使用现有记录创建逻辑写入一条记录（复用事务内创建 helper）。
-4. 更新该笔 `status = confirmed`、`recordId`。
-5. 重新计算 `confirmed_count`；全部完成时组状态置为 `confirmed`，写入 `confirmed_at`。
-6. 任一步失败整笔回滚，草稿保持 `pending`。
-
-禁止先调 `createRecords` 再单独回写草稿状态，否则状态更新失败会造成重复记账。
+数据层记录幂等：`tb_record_client_mutation` 保存 `(books_id, client_mutation_id) → record_id`，同键重复创建返回已有记录。
 
 ### 7.4 图片附件
 
-- 草稿图片在确认前只存在于草稿目录。
-- 首次确认任意一笔时复制到目标账本的媒体存储；后续笔复用同一媒体路径。
+- 草稿图片在确认前只存在于设备本地草稿目录。
+- 本地账本首次确认时复制到本地媒体存储；网络账本首次确认时上传到目标服务器媒体库并缓存 `media:` 引用。
+- 后续笔复用同一媒体引用；远程确认失败重试不重复上传。
 - 每笔记录默认附加该截图；后续可在新建记录页取消附件。
-- 全部笔确认或丢弃后删除草稿图片。
-- 文件复制成功但事务失败会产生孤儿媒体文件；按现有规范接受孤儿文件，不做联动删除。
+- 全部笔确认或丢弃后删除本地草稿图片。
+- 远程确认上传成功但记录创建失败时，按现有媒体规范接受孤儿文件。
 
 ### 7.5 完成后
 
@@ -626,11 +632,11 @@ confirmQuickBookDraftItem(
 
 ## 10. 兼容与迁移
 
-### 10.1 数据库
+### 10.1 数据与缓存
 
-- 只新增 `tb_quick_book_draft`，不修改现有表与字段。
-- 使用 `db:generate` 生成迁移，按现有迁移流程执行。
-- 新表只存在本地库，远程服务器无需变更。
+- 草稿改用设备本地持久化 KV 缓存，不新增草稿业务表；旧 `tb_quick_book_draft` 不做数据迁移，旧草稿与图片由启动清理按设备本地策略处理。
+- 记录创建新增 `tb_record_client_mutation` 幂等映射表，本地与远程服务器共用同一迁移。
+- 远程服务器不新增草稿 API；网络账本草稿只存设备本地，确认时调用目标账本的记录创建接口。
 
 ### 10.2 现有快捷记账入口
 

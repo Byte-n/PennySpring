@@ -7,7 +7,6 @@ import React, {
 } from 'react';
 import { AppState, Pressable } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import { BOOK_TYPE } from '@pennyspring/api';
 import {
   ActionSheet,
   Button,
@@ -163,11 +162,9 @@ export function QuickBookSettingsScreen(): React.ReactElement {
   const isAndroid = isScreenshotDetectionSupported();
   const book = useBookStore(state => state.currentBook);
   const entrySupported = isQuickBookEntrySupported();
-  const isLocalBook = book !== null && book.kind === BOOK_TYPE.local;
   const entryBlockReason = getQuickBookEntryEnableBlockReason({
     isSupported: entrySupported,
     isConfigured,
-    isLocalBook,
   });
   const [entryStatus, setEntryStatus] =
     useState<QuickBookDraftNativeStatus | null>(null);

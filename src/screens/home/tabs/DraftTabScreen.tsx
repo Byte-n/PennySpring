@@ -15,18 +15,30 @@ import {
   useToast,
 } from '@pennyspring/ui';
 import {
-  QUICK_BOOK_DRAFT_STATUS,
   RECORD_TYPE_CATEGORY,
   VISIBILITY,
-  localApi,
+  type Api,
   type AssetRow,
   type QuickBookDraftItemPatch,
-  type QuickBookDraftRow,
   type RecordTypeCategoryValue,
   type TypeRow,
 } from '@pennyspring/api';
 
 import { runQuickBookDraft } from '../../../agent/headless/runQuickBookDraft';
+import {
+  draftTargetFromBookRef,
+  resolveBookApi,
+  resolveBookMedia,
+} from '../../../features/quickBookDraft/bookApi';
+import { confirmQuickBookDraftItem } from '../../../features/quickBookDraft/confirmDraft';
+import {
+  getDraftBookKey,
+  type DraftBookTarget,
+} from '../../../features/quickBookDraft/draftBook';
+import {
+  type QuickBookDraftRecord,
+  quickBookDraftCache,
+} from '../../../features/quickBookDraft/draftCacheStorage';
 import {
   buildDraftConfirmInput,
   formatDraftAmount,
@@ -37,8 +49,9 @@ import {
   deleteDraftImageIfConfirmed,
 } from '../../../features/quickBookDraft/deleteDraftImages';
 import { getDraftErrorMessage } from '../../../features/quickBookDraft/errorMessage';
-import { createMediaStore } from '../../../media';
+import type { MediaStore } from '../../../media';
 import { ROOT_ROUTES, useNavigation } from '../../../navigation';
+import { getBookKey, useBookStore } from '../../../stores/bookStore';
 import {
   bumpDraftVersion,
   useDraftVersion,
@@ -50,10 +63,12 @@ import { DraftListCard } from './draft/DraftListCard';
 import { useDraftTabStyles } from './draft/draftTabStyles';
 
 interface DraftTabData {
-  drafts: QuickBookDraftRow[];
-  bookNameById: ReadonlyMap<number, string>;
-  typesByBook: ReadonlyMap<number, ReadonlyMap<number, TypeRow>>;
-  assetsByBook: ReadonlyMap<number, ReadonlyMap<number, AssetRow>>;
+  drafts: QuickBookDraftRecord[];
+  types: ReadonlyMap<number, TypeRow>;
+  assets: ReadonlyMap<number, AssetRow>;
+  bookApi: Api | null;
+  media: MediaStore | null;
+  isBookAvailable: boolean;
 }
 
 interface DraftFillState {
@@ -67,10 +82,42 @@ interface DraftConfirmingState {
   itemIndex: number;
 }
 
+interface DraftFillOption {
+  text: string;
+  description?: string;
+}
+
 const EMPTY_TYPE_MAP: ReadonlyMap<number, TypeRow> = new Map();
 const EMPTY_ASSET_MAP: ReadonlyMap<number, AssetRow> = new Map();
-const EMPTY_DRAFTS: QuickBookDraftRow[] = [];
-const MISSING_BOOK_NAME = '目标账本已不存在';
+const EMPTY_DATA: DraftTabData = {
+  drafts: [],
+  types: EMPTY_TYPE_MAP,
+  assets: EMPTY_ASSET_MAP,
+  bookApi: null,
+  media: null,
+  isBookAvailable: false,
+};
+const MISSING_BOOK_NAME = '目标账本';
+const DRAFT_BOOK_TIMEOUT_MS = 4_000;
+
+function withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(
+      () => reject(new Error('目标账本连接超时')),
+      timeoutMs,
+    );
+    promise.then(
+      value => {
+        clearTimeout(timer);
+        resolve(value);
+      },
+      error => {
+        clearTimeout(timer);
+        reject(error);
+      },
+    );
+  });
+}
 
 function toMapById<T extends { id: number }>(
   rows: readonly T[],
@@ -100,38 +147,34 @@ function formatCentsAsExpression(cents: number | null): string {
   return cents !== null && cents > 0 ? String(cents / 100) : '';
 }
 
-async function loadDraftTabData(): Promise<DraftTabData> {
-  const [drafts, books] = await Promise.all([
-    localApi.quickBookDraft.list(),
-    localApi.book.getAll(),
-  ]);
-  const bookIds = Array.from(new Set(drafts.map(draft => draft.booksId)));
-  const bookEntries = await Promise.all(
-    bookIds.map(async bookId => {
-      const [types, assets] = await Promise.all([
-        localApi.type.getAll(bookId),
-        localApi.asset.getByBook(bookId),
-      ]);
-      return [
-        bookId,
-        { types: toMapById(types), assets: toMapById(assets) },
-      ] as const;
-    }),
-  );
-
-  const typesByBook = new Map<number, ReadonlyMap<number, TypeRow>>();
-  const assetsByBook = new Map<number, ReadonlyMap<number, AssetRow>>();
-  for (const [bookId, entry] of bookEntries) {
-    typesByBook.set(bookId, entry.types);
-    assetsByBook.set(bookId, entry.assets);
+async function loadDraftTabData(
+  target: DraftBookTarget,
+): Promise<DraftTabData> {
+  const drafts = await quickBookDraftCache.list({ target });
+  try {
+    const [bookApi, media] = await Promise.all([
+      resolveBookApi(target),
+      resolveBookMedia(target),
+    ]);
+    const [book, types, assets] = await withTimeout(
+      Promise.all([
+        bookApi.book.getById(target.booksId),
+        bookApi.type.getAll(target.booksId),
+        bookApi.asset.getByBook(target.booksId),
+      ]),
+      DRAFT_BOOK_TIMEOUT_MS,
+    );
+    return {
+      drafts,
+      types: toMapById(types),
+      assets: toMapById(assets),
+      bookApi,
+      media,
+      isBookAvailable: book !== null,
+    };
+  } catch {
+    return { ...EMPTY_DATA, drafts };
   }
-
-  return {
-    drafts,
-    bookNameById: new Map(books.map(book => [book.id, book.name])),
-    typesByBook,
-    assetsByBook,
-  };
 }
 
 export function DraftTabScreen(): React.ReactElement {
@@ -139,6 +182,8 @@ export function DraftTabScreen(): React.ReactElement {
   const navigation = useNavigation();
   const toast = useToast();
   const draftVersion = useDraftVersion();
+  const currentBook = useBookStore(state => state.currentBook);
+  const currentBookRef = useBookStore(state => state.currentBookRef);
   const [retryingId, setRetryingId] = useState<string | null>(null);
   const [togglingAttachId, setTogglingAttachId] = useState<string | null>(null);
   const [busyDraftId, setBusyDraftId] = useState<string | null>(null);
@@ -147,17 +192,25 @@ export function DraftTabScreen(): React.ReactElement {
   );
   const [fillState, setFillState] = useState<DraftFillState | null>(null);
   const [amountExpression, setAmountExpression] = useState('');
-  const [discardTarget, setDiscardTarget] = useState<QuickBookDraftRow | null>(
-    null,
-  );
+  const [discardTarget, setDiscardTarget] =
+    useState<QuickBookDraftRecord | null>(null);
   const [isDiscarding, setIsDiscarding] = useState(false);
-  const savedImageCacheRef = useRef<Map<string, string>>(new Map());
   const hasFocusedRef = useRef(false);
 
+  const target = useMemo(
+    () =>
+      currentBookRef === null || currentBook === null
+        ? null
+        : draftTargetFromBookRef(currentBookRef, currentBook.name),
+    [currentBook, currentBookRef],
+  );
+  const targetKey = target === null ? '' : getDraftBookKey(target);
+
   const { data, loading, error, mutate, refresh } = useRequest(
-    loadDraftTabData,
+    () =>
+      target === null ? Promise.resolve(EMPTY_DATA) : loadDraftTabData(target),
     {
-      refreshDeps: [draftVersion],
+      refreshDeps: [draftVersion, targetKey],
     },
   );
 
@@ -171,7 +224,7 @@ export function DraftTabScreen(): React.ReactElement {
     }, [refresh]),
   );
 
-  const drafts = data?.drafts ?? EMPTY_DRAFTS;
+  const drafts = data?.drafts ?? EMPTY_DATA.drafts;
   const summary = useMemo(
     () => ({
       draftCount: drafts.length,
@@ -184,14 +237,8 @@ export function DraftTabScreen(): React.ReactElement {
     fillState === null
       ? undefined
       : drafts.find(draft => draft.id === fillState.draftId);
-  const fillTypeMap =
-    fillDraft === undefined
-      ? EMPTY_TYPE_MAP
-      : (data?.typesByBook.get(fillDraft.booksId) ?? EMPTY_TYPE_MAP);
-  const fillAssetMap =
-    fillDraft === undefined
-      ? EMPTY_ASSET_MAP
-      : (data?.assetsByBook.get(fillDraft.booksId) ?? EMPTY_ASSET_MAP);
+  const fillTypeMap = data?.types ?? EMPTY_TYPE_MAP;
+  const fillAssetMap = data?.assets ?? EMPTY_ASSET_MAP;
   const fillTypeOptions = useMemo(
     () => getSelectableTypes(fillTypeMap),
     [fillTypeMap],
@@ -215,7 +262,7 @@ export function DraftTabScreen(): React.ReactElement {
       ),
     [fillAssetMap],
   );
-  const fillAssetActions = useMemo(
+  const fillAssetActions: DraftFillOption[] = useMemo(
     () =>
       toAssetOptions(fillVisibleAssets).map(option => ({
         text: String(option.labelText ?? ''),
@@ -225,7 +272,7 @@ export function DraftTabScreen(): React.ReactElement {
   );
 
   const handleRetry = useCallback(
-    async (draft: QuickBookDraftRow): Promise<void> => {
+    async (draft: QuickBookDraftRecord): Promise<void> => {
       if (retryingId !== null) {
         return;
       }
@@ -234,7 +281,7 @@ export function DraftTabScreen(): React.ReactElement {
         await runQuickBookDraft({
           draftId: draft.id,
           imagePath: draft.imagePath,
-          booksId: draft.booksId,
+          target: draft.target,
           preset: draft.preset,
         });
         toast.show({ messageText: '草稿已重新生成' });
@@ -251,12 +298,11 @@ export function DraftTabScreen(): React.ReactElement {
   );
 
   const handleToggleAttach = useCallback(
-    async (draft: QuickBookDraftRow, next: boolean): Promise<void> => {
+    async (draft: QuickBookDraftRecord, next: boolean): Promise<void> => {
       if (togglingAttachId !== null) {
         return;
       }
       const previous = draft.attachImage;
-      savedImageCacheRef.current.delete(draft.id);
       setTogglingAttachId(draft.id);
       mutate(current =>
         current
@@ -269,7 +315,7 @@ export function DraftTabScreen(): React.ReactElement {
           : current,
       );
       try {
-        await localApi.quickBookDraft.setAttachImage(draft.id, next);
+        await quickBookDraftCache.setAttachImage(draft.id, next);
       } catch (toggleError) {
         mutate(current =>
           current
@@ -299,7 +345,7 @@ export function DraftTabScreen(): React.ReactElement {
 
   const applyItemPatch = useCallback(
     async (
-      draft: QuickBookDraftRow,
+      draft: QuickBookDraftRecord,
       itemIndex: number,
       patch: QuickBookDraftItemPatch,
     ): Promise<void> => {
@@ -308,12 +354,12 @@ export function DraftTabScreen(): React.ReactElement {
       }
       setBusyDraftId(draft.id);
       try {
-        const updatedItem = await localApi.quickBookDraft.updateItem(
+        const updatedItem = await quickBookDraftCache.updateItem(
           draft.id,
           itemIndex,
           patch,
         );
-        mutate(current =>
+        mutate((current: DraftTabData | undefined) =>
           current
             ? {
                 ...current,
@@ -347,7 +393,7 @@ export function DraftTabScreen(): React.ReactElement {
   );
 
   const openFill = useCallback(
-    (draft: QuickBookDraftRow, itemIndex: number, field: DraftFillField) => {
+    (draft: QuickBookDraftRecord, itemIndex: number, field: DraftFillField) => {
       const item = draft.items[itemIndex];
       if (item === undefined) {
         return;
@@ -407,33 +453,8 @@ export function DraftTabScreen(): React.ReactElement {
     [applyItemPatch, fillDraft, fillState, toast],
   );
 
-  const resolveImagePaths = useCallback(
-    async (targetDraft: QuickBookDraftRow): Promise<string[]> => {
-      if (!targetDraft.attachImage || !targetDraft.imagePath) {
-        return [];
-      }
-      const cached = savedImageCacheRef.current.get(targetDraft.id);
-      if (cached !== undefined) {
-        return cached ? [cached] : [];
-      }
-      const media = createMediaStore({
-        kind: 'local',
-        booksId: targetDraft.booksId,
-      });
-      let savedRef: string;
-      try {
-        savedRef = await media.save({ uri: targetDraft.imagePath });
-      } catch {
-        throw new Error('截图转存失败，请重试');
-      }
-      savedImageCacheRef.current.set(targetDraft.id, savedRef);
-      return [savedRef];
-    },
-    [],
-  );
-
   const handleConfirmItem = useCallback(
-    async (draft: QuickBookDraftRow, itemIndex: number): Promise<void> => {
+    async (draft: QuickBookDraftRecord, itemIndex: number): Promise<void> => {
       if (busyDraftId !== null || confirming !== null || data === undefined) {
         return;
       }
@@ -441,15 +462,18 @@ export function DraftTabScreen(): React.ReactElement {
       if (item === undefined || item.status === 'confirmed') {
         return;
       }
-      if (!data.bookNameById.has(draft.booksId)) {
+      if (
+        !data.isBookAvailable ||
+        data.bookApi === null ||
+        data.media === null
+      ) {
         toast.show({
-          messageText: '目标账本已不存在，请丢弃草稿后重新截图',
+          messageText: '目标账本当前不可用，请联网或切换账本后重试',
           status: 'error',
         });
         return;
       }
-      const typeMap = data.typesByBook.get(draft.booksId) ?? EMPTY_TYPE_MAP;
-      const type = typeMap.get(item.typeId);
+      const type = data.types.get(item.typeId);
       if (!isDraftItemComplete(item, type, draft.booksId)) {
         toast.show({
           messageText: '该笔信息不完整，请点「补全」或「新建记录」',
@@ -464,55 +488,23 @@ export function DraftTabScreen(): React.ReactElement {
       setBusyDraftId(draft.id);
       setConfirming({ draftId: draft.id, itemIndex });
       try {
-        const imagePaths = await resolveImagePaths(draft);
         const input = buildDraftConfirmInput({
           item,
           type,
           booksId: draft.booksId,
-          imagePaths,
         });
-        const result = await localApi.quickBookDraft.confirmItem(
-          draft.id,
+        await confirmQuickBookDraftItem({
+          draftId: draft.id,
           itemIndex,
+          target: draft.target,
+          bookApi: data.bookApi,
+          media: data.media,
           input,
-        );
+        });
         bumpRecordVersion();
         bumpDraftVersion();
         await deleteDraftImageIfConfirmed(draft.id);
-        mutate(current =>
-          current
-            ? {
-                ...current,
-                drafts: current.drafts
-                  .map(currentDraft => {
-                    if (currentDraft.id !== draft.id) {
-                      return currentDraft;
-                    }
-                    const items = currentDraft.items.map(
-                      (currentItem, index) =>
-                        index === itemIndex ? result.item : currentItem,
-                    );
-                    const confirmedCount = items.filter(
-                      currentItem => currentItem.status === 'confirmed',
-                    ).length;
-                    const isComplete =
-                      items.length > 0 && confirmedCount === items.length;
-                    return {
-                      ...currentDraft,
-                      items,
-                      confirmedCount,
-                      status: isComplete
-                        ? QUICK_BOOK_DRAFT_STATUS.confirmed
-                        : currentDraft.status,
-                    };
-                  })
-                  .filter(
-                    currentDraft =>
-                      currentDraft.status !== QUICK_BOOK_DRAFT_STATUS.confirmed,
-                  ),
-              }
-            : current,
-        );
+        await refresh();
         toast.show({
           messageText: `已记账：${type.name} ${formatDraftAmount(
             item.amountCents,
@@ -531,11 +523,11 @@ export function DraftTabScreen(): React.ReactElement {
         setConfirming(null);
       }
     },
-    [busyDraftId, confirming, data, mutate, resolveImagePaths, toast],
+    [busyDraftId, confirming, data, refresh, toast],
   );
 
   const handleOpenForm = useCallback(
-    (draft: QuickBookDraftRow, itemIndex: number): void => {
+    (draft: QuickBookDraftRecord, itemIndex: number): void => {
       navigation.navigate(ROOT_ROUTES.AddRecord, {
         draftId: draft.id,
         itemIndex,
@@ -551,11 +543,11 @@ export function DraftTabScreen(): React.ReactElement {
     }
     setIsDiscarding(true);
     try {
-      const imagePaths = await localApi.quickBookDraft.discard(draft.id);
+      const imagePaths = await quickBookDraftCache.discard(draft.id);
       await deleteDraftImageFiles(imagePaths);
-      savedImageCacheRef.current.delete(draft.id);
       bumpDraftVersion();
       setDiscardTarget(null);
+      await refresh();
       toast.show({ messageText: '草稿已丢弃' });
     } catch (discardError) {
       toast.show({
@@ -565,9 +557,18 @@ export function DraftTabScreen(): React.ReactElement {
     } finally {
       setIsDiscarding(false);
     }
-  }, [discardTarget, isDiscarding, toast]);
+  }, [discardTarget, isDiscarding, refresh, toast]);
 
   const renderBody = (): React.ReactElement => {
+    if (currentBook === null || target === null) {
+      return (
+        <Empty
+          descriptionText="选择账本后，截图记账草稿会按账本展示。"
+          style={styles.state}
+          titleText="暂无当前账本"
+        />
+      );
+    }
     if (loading && !data) {
       return <Loading style={styles.state} text="加载草稿" variant="block" />;
     }
@@ -608,20 +609,21 @@ export function DraftTabScreen(): React.ReactElement {
           ) : null}
         </Row>
         {drafts.map(draft => {
-          const bookName = data?.bookNameById.get(draft.booksId);
-          const isBookMissing = bookName === undefined;
+          const bookName =
+            draft.target.bookName || currentBook.name || MISSING_BOOK_NAME;
+          const isBookMissing = !(data?.isBookAvailable ?? false);
           const isBusy =
             busyDraftId !== null ||
             togglingAttachId === draft.id ||
             retryingId === draft.id;
           return (
             <DraftListCard
-              assetMap={
-                data?.assetsByBook.get(draft.booksId) ?? EMPTY_ASSET_MAP
-              }
-              bookName={bookName ?? MISSING_BOOK_NAME}
+              assetMap={data?.assets ?? EMPTY_ASSET_MAP}
+              bookName={bookName}
               confirmingItemIndex={
-                confirming?.draftId === draft.id ? confirming.itemIndex : null
+                confirming !== null && confirming.draftId === draft.id
+                  ? confirming.itemIndex
+                  : null
               }
               draft={draft}
               isBookMissing={isBookMissing}
@@ -639,7 +641,7 @@ export function DraftTabScreen(): React.ReactElement {
               onToggleAttach={next => {
                 handleToggleAttach(draft, next).catch(() => undefined);
               }}
-              typeMap={data?.typesByBook.get(draft.booksId) ?? EMPTY_TYPE_MAP}
+              typeMap={data?.types ?? EMPTY_TYPE_MAP}
             />
           );
         })}
@@ -660,9 +662,10 @@ export function DraftTabScreen(): React.ReactElement {
         : fillField === 'asset'
           ? `第 ${fillState.itemIndex + 1} 笔 · 选择转出资产`
           : `第 ${fillState.itemIndex + 1} 笔 · 选择转入资产`;
+  const bookKey = getBookKey(currentBookRef);
 
   return (
-    <Column style={styles.container}>
+    <Column key={bookKey ?? 'no-book'} style={styles.container}>
       <ScrollView
         contentContainerStyle={styles.content}
         refreshControl={

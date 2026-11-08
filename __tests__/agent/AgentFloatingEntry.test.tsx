@@ -85,6 +85,19 @@ jest.mock('../../src/stores/bookStore', () => ({
   useBookStore: (selector: (state: typeof mockBookStoreState) => unknown) =>
     selector(mockBookStoreState),
   useGlobalApi: () => mockGlobalApi,
+  getBookKey: (
+    ref: {
+      kind: string;
+      id?: number;
+      serverUrl?: string;
+      bookId?: number;
+    } | null,
+  ) =>
+    ref === null
+      ? null
+      : ref.kind === 'local'
+        ? `local:${ref.id}`
+        : `remote:${ref.serverUrl}:${ref.bookId}`,
 }));
 
 jest.mock('../../src/navigation', () => ({

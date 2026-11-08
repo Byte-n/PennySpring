@@ -125,7 +125,6 @@ export function AgentRoot({ children }: AgentRootProps) {
   const quickBookSettings = useQuickBookSettingsStore();
 
   useQuickBookEntryLifecycle({
-    book,
     quickBookReady,
     entryEnabled: quickBookSettings.floatingBallEnabled,
     triggerMode: quickBookSettings.triggerMode,

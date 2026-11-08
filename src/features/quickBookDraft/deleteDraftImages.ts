@@ -1,5 +1,7 @@
 import { FileSystem } from 'react-native-file-access';
-import { QUICK_BOOK_DRAFT_STATUS, localApi } from '@pennyspring/api';
+import { QUICK_BOOK_DRAFT_STATUS } from '@pennyspring/api';
+
+import { quickBookDraftCache } from './draftCacheStorage';
 
 const FILE_URI_PREFIX = 'file://';
 
@@ -40,7 +42,7 @@ export async function deleteDraftImageIfConfirmed(
   draftId: string,
 ): Promise<void> {
   try {
-    const draft = await localApi.quickBookDraft.getById(draftId);
+    const draft = await quickBookDraftCache.getById(draftId);
     if (draft.status === QUICK_BOOK_DRAFT_STATUS.confirmed) {
       await deleteDraftImageFiles([draft.imagePath]);
     }

@@ -18,6 +18,7 @@ import {
   type NormalizeRecordDraftItemsParams,
   type SaveRecordDraftsInput,
 } from '../../src/agent/tools/saveRecordDrafts';
+import type { QuickBookDraftCache } from '../../src/features/quickBookDraft/draftCache';
 
 function typeRow(
   overrides: Partial<TypeRow> & Pick<TypeRow, 'id' | 'name' | 'typeCategory'>,
@@ -96,33 +97,40 @@ function normalize(
   });
 }
 
-function createApi(
+interface TestApis {
+  bookApi: Api;
+  draftApi: QuickBookDraftCache;
+}
+
+function createApis(
   overrides: {
     updateItems?: jest.Mock;
     createMany?: jest.Mock;
   } = {},
-): Api {
-  return {
+): TestApis {
+  const bookApi = {
     type: { getAll: jest.fn(async () => TYPES) },
     asset: { getByBook: jest.fn(async () => ASSETS) },
-    quickBookDraft: {
-      updateItems:
-        overrides.updateItems ??
-        jest.fn(async (id: string, items: DraftItem[]) => ({
-          id,
-          status: 'pending',
-          items,
-        })),
-    },
     record: {
       createMany: overrides.createMany ?? jest.fn(async () => [{ id: 99 }]),
     },
   } as unknown as Api;
+  const draftApi = {
+    updateItems:
+      overrides.updateItems ??
+      jest.fn(async (id: string, items: DraftItem[]) => ({
+        id,
+        status: 'pending',
+        items,
+      })),
+  } as unknown as QuickBookDraftCache;
+  return { bookApi, draftApi };
 }
 
-function createSaveExecute(api: Api) {
+function createSaveExecute(apis: TestApis) {
   const tools = createQuickBookDraftTools({
-    api,
+    bookApi: apis.bookApi,
+    draftApi: apis.draftApi,
     booksId: 1,
     draftId: 'draft-1',
     preset: { assetId: 0, typeId: 0 },
@@ -339,7 +347,7 @@ describe('normalizeRecordDraftItems', () => {
 describe('createQuickBookDraftTools', () => {
   it('exposes only listTypes, listAssets and saveRecordDrafts', () => {
     const tools = createQuickBookDraftTools({
-      api: createApi(),
+      ...createApis(),
       booksId: 1,
       draftId: 'draft-1',
       preset: { assetId: 0, typeId: 0 },
@@ -371,7 +379,7 @@ describe('saveRecordDrafts tool', () => {
       items,
     }));
     const createMany = jest.fn(async () => [{ id: 99 }]);
-    const execute = createSaveExecute(createApi({ updateItems, createMany }));
+    const execute = createSaveExecute(createApis({ updateItems, createMany }));
 
     const result = await execute(
       {
@@ -404,7 +412,7 @@ describe('saveRecordDrafts tool', () => {
       status: 'pending',
       items,
     }));
-    const execute = createSaveExecute(createApi({ updateItems }));
+    const execute = createSaveExecute(createApis({ updateItems }));
 
     await execute({ items: [{ typeId: 2, amount: 10 }] }, {});
     const second = await execute({ items: [{ typeId: 3, amount: 20 }] }, {});

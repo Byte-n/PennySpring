@@ -51,6 +51,7 @@ import {
 } from '../../constants/assetClassificationTree';
 import { useBookKey, useBookStore, useGlobalApi } from '../../stores/bookStore';
 import { useRecordVersion } from '../../stores/syncVersionStore';
+import { publishQuickBookCaptureCatalog } from '../../features/quickBookDraft/captureCatalog';
 import { useNavigation } from '../../navigation';
 import { createHeaderAddButton } from '../../components/HeaderAddButton';
 import { ManageConfirmDialog } from '../../components/ManageConfirmDialog';
@@ -404,6 +405,7 @@ export function AssetManageScreen() {
           await globalApi.asset.create(input);
         }
         refresh();
+        publishQuickBookCaptureCatalog().catch(() => undefined);
         submitSucceededRef.current = true;
       } catch (error: unknown) {
         toast.show({ messageText: getErrorMessage(error, '保存失败') });
@@ -433,6 +435,7 @@ export function AssetManageScreen() {
     setPendingDeleteAsset(null);
     setMenuAsset(null);
     refresh();
+    publishQuickBookCaptureCatalog().catch(() => undefined);
   }, [currentBook, pendingDeleteAsset, refresh]);
 
   const menuActions = useMemo(

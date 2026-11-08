@@ -11,7 +11,6 @@ import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.RippleDrawable
 import android.text.TextUtils
-import android.util.Log
 import android.view.Gravity
 import android.view.View
 import android.widget.FrameLayout
@@ -26,7 +25,7 @@ import kotlin.math.roundToInt
 
 /**
  * 选区下方的单行预设栏：账本 | 资产 | 类型 + 圆形发送按钮。
- * 数据直接读取本地只读账本数据，点击分段弹出向上滚动菜单。
+ * 数据只读取 JS 发布的目录快照，点击分段弹出向上滚动菜单。
  */
 class PresetBarView(
     context: Context,
@@ -45,16 +44,17 @@ class PresetBarView(
     private val typeSegment = SegmentView(context, R.string.quick_book_capture_label_type)
     private val sendButton = FrameLayout(context)
 
-    private var books: List<DraftBook> = emptyList()
-    private var assets: List<DraftAsset> = emptyList()
-    private var types: List<DraftType> = emptyList()
+    private var books: List<QuickBookCaptureCatalogStore.Book> = emptyList()
+    private var assets: List<QuickBookCaptureCatalogStore.Asset> = emptyList()
+    private var types: List<QuickBookCaptureCatalogStore.TypeOption> = emptyList()
 
-    private var selectedBookId = NO_SELECTION_ID
+    private var selectedBookKey: String? = null
     private var selectedAssetId = NO_SELECTION_ID
     private var selectedTypeId = NO_SELECTION_ID
     private var isSending = false
     private var menuPopup: PopupWindow? = null
-    private var onSendListener: ((bookId: Int, assetId: Int, typeId: Int) -> Unit)? = null
+    private var onSendListener: ((bookRef: QuickBookCaptureCatalogStore.BookRef, assetId: Int, typeId: Int) -> Unit)? =
+        null
 
     val isMenuShowing: Boolean
         get() = menuPopup?.isShowing == true
@@ -82,7 +82,7 @@ class PresetBarView(
         reloadData()
     }
 
-    fun setOnSendListener(listener: (bookId: Int, assetId: Int, typeId: Int) -> Unit) {
+    fun setOnSendListener(listener: (bookRef: QuickBookCaptureCatalogStore.BookRef, assetId: Int, typeId: Int) -> Unit) {
         onSendListener = listener
     }
 
@@ -97,26 +97,27 @@ class PresetBarView(
     }
 
     private fun reloadData() {
-        books = querySafely { QuickBookDraftDb.loadBooks(context) }
-        val preferredBookId = runCatching { QuickBookDraftPrefs.getCurrentBookId(context) }.getOrDefault(0)
-        selectedBookId =
-            books.firstOrNull { it.id == preferredBookId }?.id
-                ?: books.firstOrNull()?.id
-                ?: NO_SELECTION_ID
+        val catalog = QuickBookCaptureCatalogStore.read(context)
+        books = catalog?.books?.filter { it.available } ?: emptyList()
+        val preferredBookKey = catalog?.currentBookKey
+        selectedBookKey = books.firstOrNull { it.key == preferredBookKey }?.key
         selectedAssetId = NO_SELECTION_ID
         selectedTypeId = NO_SELECTION_ID
         loadAssetsAndTypes()
         refreshSegments()
     }
 
+    private fun selectedBook(): QuickBookCaptureCatalogStore.Book? = books.firstOrNull { it.key == selectedBookKey }
+
     private fun loadAssetsAndTypes() {
-        if (selectedBookId == NO_SELECTION_ID) {
+        val book = selectedBook()
+        if (book == null) {
             assets = emptyList()
             types = emptyList()
             return
         }
-        assets = querySafely { QuickBookDraftDb.loadAssets(context, selectedBookId) }
-        types = querySafely { QuickBookDraftDb.loadTypes(context, selectedBookId) }
+        assets = book.assets
+        types = book.types.sortedWith(compareBy({ it.sort }, { it.label }))
         if (assets.none { it.id == selectedAssetId }) {
             selectedAssetId = NO_SELECTION_ID
         }
@@ -126,19 +127,19 @@ class PresetBarView(
     }
 
     private fun refreshSegments() {
-        val selectedBook = books.firstOrNull { it.id == selectedBookId }
+        val book = selectedBook()
         val selectedAsset = assets.firstOrNull { it.id == selectedAssetId }
         val selectedTypeLabel = selectedTypeLabel()
         val unspecified = context.getString(R.string.quick_book_capture_unspecified)
 
-        bookSegment.valueView.text = selectedBook?.name ?: context.getString(R.string.quick_book_capture_no_books)
-        bookSegment.valueView.setTextColor(if (selectedBook == null) colorTextTertiary else colorText)
+        bookSegment.valueView.text = book?.name ?: context.getString(R.string.quick_book_capture_no_books)
+        bookSegment.valueView.setTextColor(if (book == null) colorTextTertiary else colorText)
         assetSegment.valueView.text = selectedAsset?.name ?: unspecified
         assetSegment.valueView.setTextColor(if (selectedAsset == null) colorTextTertiary else colorText)
         typeSegment.valueView.text = selectedTypeLabel ?: unspecified
         typeSegment.valueView.setTextColor(if (selectedTypeLabel == null) colorTextTertiary else colorText)
 
-        val hasBook = selectedBook != null
+        val hasBook = book != null
         bookSegment.isEnabled = books.isNotEmpty() && !isSending
         assetSegment.isEnabled = hasBook && !isSending
         typeSegment.isEnabled = hasBook && !isSending
@@ -150,22 +151,19 @@ class PresetBarView(
         if (selectedTypeId == NO_SELECTION_ID) {
             return null
         }
-        val typeById = types.associateBy { it.id }
-        val type = typeById[selectedTypeId] ?: return null
-        val parentName = typeById[type.parentId]?.name
-        return if (parentName.isNullOrBlank()) type.name else "$parentName / ${type.name}"
+        return types.firstOrNull { it.id == selectedTypeId }?.label
     }
 
     private fun showBookMenu() {
         if (books.isEmpty() || isSending) {
             return
         }
-        val options = books.map { MenuOption(it.id, it.name) }
-        showOptionMenu(bookSegment, options, selectedBookId) { bookId ->
-            if (bookId == selectedBookId) {
+        val options = books.map { MenuOption(it.ref.booksId, it.name, it.key) }
+        showOptionMenu(bookSegment, options, NO_SELECTION_ID, selectedBookKey) { option ->
+            if (option.key == selectedBookKey) {
                 return@showOptionMenu
             }
-            selectedBookId = bookId
+            selectedBookKey = option.key
             selectedAssetId = NO_SELECTION_ID
             selectedTypeId = NO_SELECTION_ID
             loadAssetsAndTypes()
@@ -174,52 +172,35 @@ class PresetBarView(
     }
 
     private fun showAssetMenu() {
-        if (selectedBookId == NO_SELECTION_ID || isSending) {
+        if (selectedBook() == null || isSending) {
             return
         }
         val options = assets.map { MenuOption(it.id, it.name) }
         val unspecified = MenuOption(NO_SELECTION_ID, context.getString(R.string.quick_book_capture_unspecified))
-        showOptionMenu(assetSegment, options + unspecified, selectedAssetId) { assetId ->
-            selectedAssetId = assetId
+        showOptionMenu(assetSegment, options + unspecified, selectedAssetId, null) { option ->
+            selectedAssetId = option.id
             refreshSegments()
         }
     }
 
     private fun showTypeMenu() {
-        if (selectedBookId == NO_SELECTION_ID || isSending) {
+        if (selectedBook() == null || isSending) {
             return
         }
-        val options = leafTypes().map { MenuOption(it.id, it.label) }
+        val options = types.map { MenuOption(it.id, it.label) }
         val unspecified = MenuOption(NO_SELECTION_ID, context.getString(R.string.quick_book_capture_unspecified))
-        showOptionMenu(typeSegment, options + unspecified, selectedTypeId) { typeId ->
-            selectedTypeId = typeId
+        showOptionMenu(typeSegment, options + unspecified, selectedTypeId, null) { option ->
+            selectedTypeId = option.id
             refreshSegments()
         }
-    }
-
-    private data class LeafType(
-        val id: Int,
-        val label: String,
-    )
-
-    private fun leafTypes(): List<LeafType> {
-        val parentIds = types.map { it.parentId }.filter { it != NO_SELECTION_ID }.toSet()
-        val typeById = types.associateBy { it.id }
-        return types
-            .filter { it.id !in parentIds }
-            .sortedWith(compareBy({ it.sort }, { it.name }))
-            .map { type ->
-                val parentName = typeById[type.parentId]?.name
-                val label = if (parentName.isNullOrBlank()) type.name else "$parentName / ${type.name}"
-                LeafType(type.id, label)
-            }
     }
 
     private fun showOptionMenu(
         anchor: View,
         options: List<MenuOption>,
         selectedId: Int,
-        onSelected: (Int) -> Unit,
+        selectedKey: String?,
+        onSelected: (MenuOption) -> Unit,
     ) {
         dismissMenus()
         if (options.isEmpty()) {
@@ -232,9 +213,15 @@ class PresetBarView(
                 setPadding(dp(MENU_PADDING_DP), dp(MENU_PADDING_DP), dp(MENU_PADDING_DP), dp(MENU_PADDING_DP))
             }
         options.forEach { option ->
+            val isSelected =
+                if (selectedKey != null) {
+                    option.key == selectedKey
+                } else {
+                    option.id == selectedId
+                }
             column.addView(
-                createMenuRow(option, option.id == selectedId) {
-                    onSelected(option.id)
+                createMenuRow(option, isSelected) {
+                    onSelected(option)
                 },
                 LayoutParams(LayoutParams.MATCH_PARENT, dp(MENU_OPTION_HEIGHT_DP)),
             )
@@ -345,12 +332,13 @@ class PresetBarView(
     }
 
     private fun handleSendClick() {
-        if (isSending || selectedBookId == NO_SELECTION_ID) {
+        val book = selectedBook()
+        if (isSending || book == null) {
             return
         }
         isSending = true
         refreshSegments()
-        onSendListener?.invoke(selectedBookId, selectedAssetId, selectedTypeId)
+        onSendListener?.invoke(book.ref, selectedAssetId, selectedTypeId)
     }
 
     private inner class SegmentView(
@@ -406,14 +394,6 @@ class PresetBarView(
             }
         }
 
-    private fun <T> querySafely(block: () -> List<T>): List<T> =
-        try {
-            block()
-        } catch (error: Exception) {
-            Log.w(TAG, "读取预设数据失败", error)
-            emptyList()
-        }
-
     private fun dp(value: Int): Int = (value * resources.displayMetrics.density).roundToInt()
 
     private fun dp(value: Float): Float = value * resources.displayMetrics.density
@@ -421,10 +401,10 @@ class PresetBarView(
     private data class MenuOption(
         val id: Int,
         val label: String,
+        val key: String = "",
     )
 
     private companion object {
-        const val TAG = "PresetBarView"
         const val NO_SELECTION_ID = 0
         const val BAR_HEIGHT_DP = 56
         const val BAR_PADDING_DP = 6

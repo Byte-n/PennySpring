@@ -144,7 +144,7 @@ export function DraftListCard({
 
       {isBookMissing && isPending ? (
         <Text color="warningText" size="xs">
-          目标账本已不存在，请丢弃后重新截图。
+          目标账本当前不可用，请联网或切换账本后重试；也可以丢弃草稿。
         </Text>
       ) : null}
 

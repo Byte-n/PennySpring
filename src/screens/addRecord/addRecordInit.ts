@@ -1,13 +1,18 @@
 import {
   QUICK_BOOK_DRAFT_STATUS,
   REIMBURSABLE,
-  localApi,
   type Api,
   type RecordTypeCategoryValue,
 } from '@pennyspring/api';
 
+import {
+  draftTargetFromBookRef,
+  resolveBookApi,
+} from '../../features/quickBookDraft/bookApi';
+import { isSameDraftBook } from '../../features/quickBookDraft/draftBook';
+import { quickBookDraftCache } from '../../features/quickBookDraft/draftCacheStorage';
 import type { MediaStore } from '../../media';
-import type { BookEntry } from '../../stores/bookStore';
+import type { BookEntry, CurrentBookRef } from '../../stores/bookStore';
 import type {
   AddRecordInitPayload,
   AddRecordPresetPayload,
@@ -35,6 +40,7 @@ export type AddRecordInitSource =
 
 export interface AddRecordInitDeps {
   currentBook: BookEntry | null;
+  currentBookRef: CurrentBookRef | null;
   recordApi: Pick<Api['record'], 'getDetailById'>;
   typeApi: Pick<Api['type'], 'getAll'>;
   media: MediaStore | null;
@@ -144,7 +150,17 @@ export async function loadAddRecordInitSeed(
       };
     }
     case 'draft': {
-      const draft = await localApi.quickBookDraft.getById(source.draftId);
+      if (deps.currentBookRef === null || deps.currentBook === null) {
+        throw new Error('请先选择草稿所属账本');
+      }
+      const currentTarget = draftTargetFromBookRef(
+        deps.currentBookRef,
+        deps.currentBook.name,
+      );
+      const draft = await quickBookDraftCache.getById(source.draftId);
+      if (!isSameDraftBook(currentTarget, draft.target)) {
+        throw new Error('请先切换到草稿所属账本');
+      }
       if (draft.status === QUICK_BOOK_DRAFT_STATUS.discarded) {
         throw new Error('草稿已丢弃，无法确认');
       }
@@ -155,9 +171,10 @@ export async function loadAddRecordInitSeed(
       if (item === undefined || item.status === 'confirmed') {
         throw new Error('草稿内容已更新，请返回草稿详情刷新后重试');
       }
+      const draftApi = await resolveBookApi(draft.target);
       const [book, types] = await Promise.all([
-        localApi.book.getById(draft.booksId).catch(() => null),
-        localApi.type.getAll(draft.booksId),
+        draftApi.book.getById(draft.target.booksId).catch(() => null),
+        draftApi.type.getAll(draft.target.booksId),
       ]);
       if (book === null) {
         throw new Error('目标账本已不存在，请丢弃草稿后重新截图');

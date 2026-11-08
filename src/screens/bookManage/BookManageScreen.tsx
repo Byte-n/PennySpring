@@ -43,6 +43,7 @@ import {
 } from '../../stores/networkBookStore';
 import { BookList, type BookListItem } from '../../components/BookList';
 import { FormFloatingPanel } from '../../components/FormFloatingPanel';
+import { publishQuickBookCaptureCatalog } from '../../features/quickBookDraft/captureCatalog';
 import { createHeaderAddButton } from '../../components/HeaderAddButton';
 import { ManageConfirmDialog } from '../../components/ManageConfirmDialog';
 import { ManageCard } from '../../components/ManageRow';
@@ -331,6 +332,7 @@ export function BookManageScreen() {
         timeoutMessage: '连接服务器超时',
       }).book.getAll();
       setServerToken(url, token);
+      publishQuickBookCaptureCatalog().catch(() => undefined);
       setServerBookList(books);
       setNetworkConnected(true);
     } catch (error: unknown) {
@@ -350,6 +352,7 @@ export function BookManageScreen() {
         serverUrl: form.getFieldValue('networkServerUrl').trim(),
         bookId: book.id,
       });
+      publishQuickBookCaptureCatalog().catch(() => undefined);
       toast.show({ messageText: `已添加网络账本「${book.name}」` });
       setFormOpen(false);
     },
@@ -399,6 +402,7 @@ export function BookManageScreen() {
             });
           }
           refreshAll();
+          publishQuickBookCaptureCatalog().catch(() => undefined);
           submitSucceededRef.current = true;
           return;
         }
@@ -424,6 +428,7 @@ export function BookManageScreen() {
             },
           );
           setServerToken(url, token);
+          publishQuickBookCaptureCatalog().catch(() => undefined);
           refreshNetwork();
           if (
             currentBook?.kind === BOOK_TYPE.remote &&
@@ -451,6 +456,7 @@ export function BookManageScreen() {
         );
         setServerToken(url, token);
         addRef({ serverUrl: url, bookId: result.book.id });
+        publishQuickBookCaptureCatalog().catch(() => undefined);
         refreshNetwork();
 
         if (result.coverError) {
@@ -626,6 +632,7 @@ export function BookManageScreen() {
       const networkRef = state.item.networkRef;
       if (networkRef) {
         removeRef(networkRef.serverUrl, networkRef.bookId);
+        publishQuickBookCaptureCatalog().catch(() => undefined);
         if (
           currentBook?.kind === BOOK_TYPE.remote &&
           currentBook.id === networkRef.bookId
@@ -647,6 +654,7 @@ export function BookManageScreen() {
     }
     setConfirmState(null);
     refreshAll();
+    publishQuickBookCaptureCatalog().catch(() => undefined);
   }, [confirmState, currentBook, initializeBook, refreshAll, removeRef, toast]);
 
   const confirmIsCurrent =

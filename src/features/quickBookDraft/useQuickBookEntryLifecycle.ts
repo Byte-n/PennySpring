@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { AppState } from 'react-native';
-import { BOOK_TYPE } from '@pennyspring/api';
 import { useToast } from '@pennyspring/ui';
 
-import type { BookEntry } from '../../stores/bookStore';
+import { getBookKey, useBookStore } from '../../stores/bookStore';
+import { publishQuickBookCaptureCatalog } from './captureCatalog';
 import type { QuickBookEntryMode } from './entryMode';
 import { subscribeEntryDisabledByUser } from './entryEvents';
 import { getDraftErrorMessage } from './errorMessage';
@@ -19,11 +19,9 @@ import {
   stopQuickBookEntry,
   syncQuickBookEntryEnabledSetting,
   syncQuickBookExcludedPackages,
-  syncQuickBookDraftBook,
 } from './quickBookEntry';
 
 interface UseQuickBookEntryLifecycleOptions {
-  book: BookEntry | null;
   quickBookReady: boolean;
   entryEnabled: boolean;
   triggerMode: QuickBookEntryMode;
@@ -31,15 +29,11 @@ interface UseQuickBookEntryLifecycleOptions {
   setEntryEnabled: (enabled: boolean) => void;
 }
 
-const REMOTE_BOOK_NOTICE = '当前为远程账本，已关闭截图记账入口。';
-const MISSING_BOOK_NOTICE = '未选择本地账本，已关闭截图记账入口。';
-
 /**
- * 截图记账入口生命周期：随当前账本同步预设账本，并在启动/切换账本时恢复入口。
+ * 截图记账入口生命周期：随当前账本发布目录快照，并在启动/切换账本时恢复入口。
  * 所有原生调用失败都不会阻塞首屏，只做状态回写与一次性提示。
  */
 export function useQuickBookEntryLifecycle({
-  book,
   quickBookReady,
   entryEnabled,
   triggerMode,
@@ -48,9 +42,8 @@ export function useQuickBookEntryLifecycle({
 }: UseQuickBookEntryLifecycleOptions): void {
   const toast = useToast();
   const isSupported = useMemo(() => isQuickBookEntrySupported(), []);
-  const isLocalBook = book !== null && book.kind === BOOK_TYPE.local;
-  const bookKey = book !== null ? `${book.kind}:${book.id}` : 'none';
-  const remoteStoppedBookRef = useRef<string | null>(null);
+  const currentBookRef = useBookStore(state => state.currentBookRef);
+  const bookKey = getBookKey(currentBookRef) ?? 'none';
   const disabledReconcileRef = useRef<Promise<boolean> | null>(null);
 
   const reconcileDisabledByUser = useCallback((): Promise<boolean> => {
@@ -133,74 +126,31 @@ export function useQuickBookEntryLifecycle({
   }, [isSupported, quickBookReady]);
 
   useEffect(() => {
-    try {
-      syncQuickBookDraftBook(book);
-    } catch (error) {
+    if (!isSupported || !quickBookReady) {
+      return;
+    }
+    publishQuickBookCaptureCatalog().catch(error => {
       toast.show({
-        messageText: getDraftErrorMessage(error, '同步草稿账本失败'),
+        messageText: getDraftErrorMessage(error, '同步截图记账目录失败'),
         status: 'error',
       });
-    }
-  }, [book, bookKey, toast]);
+    });
+  }, [bookKey, isSupported, quickBookReady, toast]);
 
   useEffect(() => {
-    if (!isSupported || !entryEnabled || isLocalBook) {
-      remoteStoppedBookRef.current = null;
+    if (!isSupported || !quickBookReady) {
       return;
     }
-    if (book !== null && remoteStoppedBookRef.current === bookKey) {
-      return;
-    }
-    remoteStoppedBookRef.current = bookKey;
-    const disableNotice =
-      book === null ? MISSING_BOOK_NOTICE : REMOTE_BOOK_NOTICE;
-    let cancelled = false;
-    const disableForBook = async (): Promise<void> => {
-      try {
-        await stopQuickBookEntry();
-      } catch (error) {
-        if (!cancelled) {
-          toast.show({
-            messageText: getDraftErrorMessage(error, '关闭截图记账入口失败'),
-            status: 'error',
-          });
-        }
+    const subscription = AppState.addEventListener('change', state => {
+      if (state === 'active') {
+        publishQuickBookCaptureCatalog().catch(() => undefined);
       }
-      try {
-        syncQuickBookEntryEnabledSetting(false);
-      } catch (error) {
-        if (!cancelled) {
-          toast.show({
-            messageText: getDraftErrorMessage(
-              error,
-              '同步截图记账入口开关失败',
-            ),
-            status: 'error',
-          });
-        }
-      }
-      if (cancelled) {
-        return;
-      }
-      setEntryEnabled(false);
-      toast.show({ messageText: disableNotice });
-    };
-    disableForBook().catch(() => undefined);
-    return () => {
-      cancelled = true;
-    };
-  }, [
-    book,
-    bookKey,
-    entryEnabled,
-    isLocalBook,
-    isSupported,
-    setEntryEnabled,
-    toast,
-  ]);
+    });
+    return () => subscription.remove();
+  }, [isSupported, quickBookReady]);
 
   useEffect(() => {
-    if (!isSupported || !quickBookReady || !entryEnabled || !isLocalBook) {
+    if (!isSupported || !quickBookReady || !entryEnabled) {
       return;
     }
     let cancelled = false;
@@ -290,7 +240,6 @@ export function useQuickBookEntryLifecycle({
     };
   }, [
     entryEnabled,
-    isLocalBook,
     isSupported,
     quickBookReady,
     reconcileDisabledByUser,

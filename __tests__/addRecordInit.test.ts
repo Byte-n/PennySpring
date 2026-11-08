@@ -6,7 +6,6 @@ import {
   RECORD_TYPE_SPECIAL_BEHAVIOR,
   REIMBURSABLE,
   SYSTEM_STATUS,
-  localApi,
   type DraftItem,
   type IconValue,
   type QuickBookDraftRow,
@@ -27,7 +26,44 @@ import type {
   AddRecordTemplatePayload,
 } from '../src/screens/addRecord/AddRecordContext';
 import type { AddRecordDraftInitPayload } from '../src/screens/addRecord/draftPrefill';
+import type { DraftBookTarget } from '../src/features/quickBookDraft/draftBook';
 import type { BookEntry } from '../src/stores/bookStore';
+
+jest.mock('../src/features/quickBookDraft/draftCacheStorage', () => ({
+  quickBookDraftCache: { getById: jest.fn() },
+}));
+
+jest.mock('../src/features/quickBookDraft/bookApi', () => ({
+  draftTargetFromBookRef: (
+    ref: { kind: string; id?: number },
+    bookName: string,
+  ) =>
+    ref.kind === 'local'
+      ? { kind: 'local', serverUrl: '', booksId: ref.id, bookName }
+      : {
+          kind: 'remote',
+          serverUrl: '',
+          booksId: 0,
+          bookName,
+        },
+  resolveBookApi: jest.fn(),
+}));
+
+import { resolveBookApi } from '../src/features/quickBookDraft/bookApi';
+import { quickBookDraftCache } from '../src/features/quickBookDraft/draftCacheStorage';
+
+const mockDraftCache = quickBookDraftCache as unknown as { getById: jest.Mock };
+const mockBookApi = {
+  book: { getById: jest.fn() },
+  type: { getAll: jest.fn() },
+};
+
+beforeEach(() => {
+  mockDraftCache.getById.mockReset();
+  mockBookApi.book.getById.mockReset();
+  mockBookApi.type.getAll.mockReset();
+  jest.mocked(resolveBookApi).mockResolvedValue(mockBookApi as never);
+});
 
 const NOW = new Date('2026-05-24T12:00:00+08:00').getTime();
 
@@ -112,11 +148,17 @@ function draftItem(overrides: Partial<DraftItem> = {}): DraftItem {
 }
 
 function draftRow(
-  overrides: Partial<QuickBookDraftRow> = {},
-): QuickBookDraftRow {
+  overrides: Partial<QuickBookDraftRow & { target: DraftBookTarget }> = {},
+): QuickBookDraftRow & { target: DraftBookTarget } {
   return {
     id: 'draft-1',
-    booksId: 2,
+    booksId: 1,
+    target: {
+      kind: BOOK_TYPE.local,
+      serverUrl: '',
+      booksId: 1,
+      bookName: '日常账本',
+    },
     status: QUICK_BOOK_DRAFT_STATUS.pending,
     source: QUICK_BOOK_DRAFT_SOURCE.floatingCapture,
     imagePath: '',
@@ -203,6 +245,7 @@ function createDeps(): {
   return {
     deps: {
       currentBook: createBook(),
+      currentBookRef: { kind: BOOK_TYPE.local, id: 1 },
       recordApi: { getDetailById },
       typeApi: { getAll: getAllTypes },
       media: null,
@@ -408,18 +451,14 @@ describe('loadAddRecordInitSeed', () => {
 
   test('maps a draft item from the target book into the draft init payload', async () => {
     const { deps } = createDeps();
-    jest
-      .spyOn(localApi.quickBookDraft, 'getById')
-      .mockResolvedValue(
-        draftRow({ items: [draftItem({ typeId: 7, amountCents: 3650 })] }),
-      );
-    const getBook = jest
-      .spyOn(localApi.book, 'getById')
-      .mockResolvedValue(createBook({ id: 2 }));
-    const getAllTypes = jest.spyOn(localApi.type, 'getAll').mockResolvedValue([
+    mockDraftCache.getById.mockResolvedValue(
+      draftRow({ items: [draftItem({ typeId: 7, amountCents: 3650 })] }),
+    );
+    mockBookApi.book.getById.mockResolvedValue(createBook({ id: 1 }));
+    mockBookApi.type.getAll.mockResolvedValue([
       typeRow({
         id: 7,
-        booksId: 2,
+        booksId: 1,
         typeCategory: RECORD_TYPE_CATEGORY.transfer,
       }),
     ]);
@@ -429,28 +468,48 @@ describe('loadAddRecordInitSeed', () => {
       deps,
     );
 
-    expect(getBook).toHaveBeenCalledWith(2);
-    expect(getAllTypes).toHaveBeenCalledWith(2);
+    expect(mockBookApi.book.getById).toHaveBeenCalledWith(1);
+    expect(mockBookApi.type.getAll).toHaveBeenCalledWith(1);
     expect(seed).toEqual({
       kind: 'draft',
       typeCategory: RECORD_TYPE_CATEGORY.transfer,
       payload: expect.objectContaining({
         draftId: 'draft-1',
         itemIndex: 0,
-        booksId: 2,
+        booksId: 1,
         typeId: 7,
         amount: 3650,
       }),
     });
   });
 
+  test('rejects a draft belonging to another book', async () => {
+    const { deps } = createDeps();
+    mockDraftCache.getById.mockResolvedValue(
+      draftRow({
+        booksId: 2,
+        target: {
+          kind: BOOK_TYPE.local,
+          serverUrl: '',
+          booksId: 2,
+          bookName: '其他账本',
+        },
+      }),
+    );
+
+    await expect(
+      loadAddRecordInitSeed(
+        { kind: 'draft', draftId: 'draft-1', itemIndex: 0 },
+        deps,
+      ),
+    ).rejects.toThrow('请先切换到草稿所属账本');
+  });
+
   test('rejects a discarded draft', async () => {
     const { deps } = createDeps();
-    jest
-      .spyOn(localApi.quickBookDraft, 'getById')
-      .mockResolvedValue(
-        draftRow({ status: QUICK_BOOK_DRAFT_STATUS.discarded }),
-      );
+    mockDraftCache.getById.mockResolvedValue(
+      draftRow({ status: QUICK_BOOK_DRAFT_STATUS.discarded }),
+    );
 
     await expect(
       loadAddRecordInitSeed(
@@ -462,11 +521,9 @@ describe('loadAddRecordInitSeed', () => {
 
   test('rejects a confirmed draft item', async () => {
     const { deps } = createDeps();
-    jest
-      .spyOn(localApi.quickBookDraft, 'getById')
-      .mockResolvedValue(
-        draftRow({ items: [draftItem({ status: 'confirmed' })] }),
-      );
+    mockDraftCache.getById.mockResolvedValue(
+      draftRow({ items: [draftItem({ status: 'confirmed' })] }),
+    );
 
     await expect(
       loadAddRecordInitSeed(
@@ -478,9 +535,7 @@ describe('loadAddRecordInitSeed', () => {
 
   test('rejects a draft item index that no longer exists', async () => {
     const { deps } = createDeps();
-    jest
-      .spyOn(localApi.quickBookDraft, 'getById')
-      .mockResolvedValue(draftRow());
+    mockDraftCache.getById.mockResolvedValue(draftRow());
 
     await expect(
       loadAddRecordInitSeed(
@@ -492,13 +547,9 @@ describe('loadAddRecordInitSeed', () => {
 
   test('rejects a draft whose target book has been removed', async () => {
     const { deps } = createDeps();
-    jest
-      .spyOn(localApi.quickBookDraft, 'getById')
-      .mockResolvedValue(draftRow());
-    jest
-      .spyOn(localApi.book, 'getById')
-      .mockRejectedValue(new Error('missing'));
-    jest.spyOn(localApi.type, 'getAll').mockResolvedValue([typeRow()]);
+    mockDraftCache.getById.mockResolvedValue(draftRow());
+    mockBookApi.book.getById.mockRejectedValue(new Error('missing'));
+    mockBookApi.type.getAll.mockResolvedValue([typeRow()]);
 
     await expect(
       loadAddRecordInitSeed(

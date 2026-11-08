@@ -153,11 +153,19 @@ jest.mock('react-native-file-access', () => ({
 jest.mock('@op-engineering/op-sqlite', () => ({
   __esModule: true,
   open: jest.fn(),
-  Storage: jest.fn().mockImplementation(() => ({
-    getItem: jest.fn().mockResolvedValue(null),
-    setItem: jest.fn().mockResolvedValue(undefined),
-    removeItem: jest.fn().mockResolvedValue(undefined),
-  })),
+  Storage: jest.fn().mockImplementation(() => {
+    const values = new Map();
+    return {
+      getItem: jest.fn(async key => values.get(key) ?? null),
+      setItem: jest.fn(async (key, value) => {
+        values.set(key, value);
+      }),
+      removeItem: jest.fn(async key => {
+        values.delete(key);
+      }),
+      getAllKeys: jest.fn(() => Array.from(values.keys())),
+    };
+  }),
 }));
 
 // 语音识别依赖原生模块，单元测试只验证会话编排，统一替换为可注入的桩。

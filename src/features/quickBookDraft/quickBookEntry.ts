@@ -1,7 +1,6 @@
 import { PermissionsAndroid, Platform } from 'react-native';
-import { BOOK_TYPE } from '@pennyspring/api';
 
-import type { BookEntry } from '../../stores/bookStore';
+import { publishQuickBookCaptureCatalog } from './captureCatalog';
 import type { QuickBookEntryMode } from './entryMode';
 import {
   type QuickBookDraftNativeStatus,
@@ -14,7 +13,6 @@ import {
   openQuickBookDraftAccessibilitySettings,
   openQuickBookDraftNotificationSettings,
   openQuickBookDraftOverlaySettings,
-  setQuickBookDraftCurrentBookId,
   setQuickBookDraftExcludedPackages,
   setQuickBookDraftFloatingBallEnabled,
   startQuickBookDraftEntry,
@@ -29,12 +27,11 @@ const POST_NOTIFICATIONS_PERMISSION =
 export interface QuickBookEntryEnableContext {
   isSupported: boolean;
   isConfigured: boolean;
-  isLocalBook: boolean;
 }
 
 /**
  * 截图记账入口开关被禁用的原因；null 表示允许开启。
- * 顺序与开启校验一致：平台 → 模型 → 账本。
+ * 顺序与开启校验一致：平台 → 模型。
  */
 export function getQuickBookEntryEnableBlockReason(
   context: QuickBookEntryEnableContext,
@@ -44,9 +41,6 @@ export function getQuickBookEntryEnableBlockReason(
   }
   if (!context.isConfigured) {
     return '请先配置支持图片的 AI 模型。';
-  }
-  if (!context.isLocalBook) {
-    return '截图记账入口只支持本地账本，请先切换到本地账本。';
   }
   return null;
 }
@@ -73,6 +67,7 @@ export async function startQuickBookEntry(
   if (!isQuickBookEntrySupported()) {
     return false;
   }
+  await publishQuickBookCaptureCatalog();
   return startQuickBookDraftEntry(mode, userInitiated);
 }
 
@@ -135,18 +130,6 @@ export function openAccessibilitySettings(): void {
     return;
   }
   openQuickBookDraftAccessibilitySettings();
-}
-
-/** 把当前账本同步给原生；远程账本或未选择账本传 0。 */
-export function syncQuickBookDraftBook(currentBook: BookEntry | null): void {
-  if (Platform.OS !== 'android' || !hasQuickBookDraftNativeModule()) {
-    return;
-  }
-  const booksId =
-    currentBook !== null && currentBook.kind === BOOK_TYPE.local
-      ? currentBook.id
-      : 0;
-  setQuickBookDraftCurrentBookId(booksId);
 }
 
 /** 把 JS 开关状态同步给原生，供原生侧保持设置一致。 */

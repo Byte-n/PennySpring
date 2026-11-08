@@ -15,6 +15,7 @@ import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.bridge.ReadableArray
+import com.facebook.react.bridge.ReadableMap
 import java.util.concurrent.Executors
 
 /**
@@ -65,7 +66,6 @@ class QuickBookDraftModule(
                         "entryDisabledByUser",
                         QuickBookDraftPrefs.isEntryDisabledByUser(reactContext),
                     )
-                    putInt("currentBookId", QuickBookDraftPrefs.getCurrentBookId(reactContext))
                     putBoolean("supported", ScreenshotAccessibilityService.isSupported())
                     putArray(
                         "excludedPackages",
@@ -153,6 +153,10 @@ class QuickBookDraftModule(
             promise.resolve(false)
             return
         }
+        if (QuickBookCaptureCatalogStore.currentBook(reactContext) == null) {
+            promise.resolve(false)
+            return
+        }
         if (!userInitiated) {
             if (QuickBookDraftPrefs.isEntryDisabledByUser(reactContext)) {
                 QuickBookDraftPrefs.setFloatingBallEnabled(reactContext, false)
@@ -214,11 +218,6 @@ class QuickBookDraftModule(
     }
 
     @ReactMethod
-    fun setCurrentBookId(booksId: Double) {
-        QuickBookDraftPrefs.setCurrentBookId(reactContext, booksId.toInt())
-    }
-
-    @ReactMethod
     fun setFloatingBallEnabled(enabled: Boolean) {
         QuickBookDraftPrefs.setFloatingBallEnabled(reactContext, enabled)
     }
@@ -233,9 +232,40 @@ class QuickBookDraftModule(
     }
 
     @ReactMethod
-    fun cleanupOrphanImages(promise: Promise) {
+    fun setCaptureCatalog(
+        catalogJson: String,
+        promise: Promise,
+    ) {
         try {
-            promise.resolve(QuickBookDraftImageCleaner.cleanup(reactContext))
+            promise.resolve(QuickBookCaptureCatalogStore.write(reactContext, catalogJson))
+        } catch (error: Exception) {
+            promise.reject(ERROR_STATUS, error)
+        }
+    }
+
+    @ReactMethod
+    fun reportDraftOutcome(
+        outcome: ReadableMap,
+        promise: Promise,
+    ) {
+        try {
+            val draftId = outcome.getString("draftId")?.trim().orEmpty()
+            if (draftId.isEmpty()) {
+                throw IllegalArgumentException("草稿 id 不能为空")
+            }
+            val status = outcome.getString("status")
+            if (status != "success" && status != "failed") {
+                throw IllegalArgumentException("草稿结果状态不合法")
+            }
+            val itemCount = if (outcome.hasKey("itemCount")) outcome.getInt("itemCount") else 0
+            QuickBookDraftTaskResults.put(
+                QuickBookDraftTaskResults.Outcome(
+                    draftId = draftId,
+                    succeeded = status == "success",
+                    itemCount = itemCount.coerceAtLeast(0),
+                ),
+            )
+            promise.resolve(null)
         } catch (error: Exception) {
             promise.reject(ERROR_STATUS, error)
         }

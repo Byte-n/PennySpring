@@ -3,7 +3,6 @@ import {
   ASSET_TYPE,
   type AssetRow,
   type CreateRecordInput,
-  localApi,
   type RecordRow,
   RECORD_TYPE_CATEGORY,
   type RecordTypeCategoryValue,
@@ -15,6 +14,12 @@ import {
 import { getGlobalApi } from '../../stores/bookStore';
 import { bumpDraftVersion } from '../../stores/draftVersionStore';
 import { bumpRecordVersion } from '../../stores/syncVersionStore';
+import {
+  resolveBookApi,
+  resolveBookMedia,
+} from '../../features/quickBookDraft/bookApi';
+import { confirmQuickBookDraftItem } from '../../features/quickBookDraft/confirmDraft';
+import { quickBookDraftCache } from '../../features/quickBookDraft/draftCacheStorage';
 import { deleteDraftImageIfConfirmed } from '../../features/quickBookDraft/deleteDraftImages';
 import type { AddRecordDraftTarget } from './draftPrefill';
 
@@ -201,10 +206,19 @@ export async function saveAddRecordDraft(
   const input = buildCreateRecordInput(tabType, draft);
 
   if (options?.draft !== undefined) {
-    const { draftId, itemIndex, booksId } = options.draft;
-    await localApi.quickBookDraft.confirmItem(draftId, itemIndex, {
-      ...input,
-      booksId,
+    const { draftId, itemIndex } = options.draft;
+    const targetDraft = await quickBookDraftCache.getById(draftId);
+    const [bookApi, media] = await Promise.all([
+      resolveBookApi(targetDraft.target),
+      resolveBookMedia(targetDraft.target),
+    ]);
+    await confirmQuickBookDraftItem({
+      draftId,
+      itemIndex,
+      target: targetDraft.target,
+      bookApi,
+      media,
+      input: { ...input, booksId: targetDraft.target.booksId },
     });
     bumpRecordVersion();
     bumpDraftVersion();

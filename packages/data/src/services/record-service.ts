@@ -7,6 +7,7 @@ import {
   assets,
   imageWithRelated,
   records,
+  recordClientMutations,
   recordWithRecord,
   tagWithRecord,
   tags,
@@ -87,11 +88,26 @@ async function getRecordRow(
   return row;
 }
 
+function normalizeClientMutationId(value: unknown): string {
+  if (value === undefined) {
+    return '';
+  }
+  if (typeof value !== 'string') {
+    throw new Error('clientMutationId 不合法');
+  }
+  const trimmed = value.trim();
+  if (trimmed.length > 128) {
+    throw new Error('clientMutationId 过长');
+  }
+  return trimmed;
+}
+
 function validateInput(input: CreateRecordInput | UpdateRecordInput) {
   getRequiredForeignKey(input, 'typeId');
   getRequiredForeignKey(input, 'booksId');
   if (input.amount < 0) throw new Error('amount must be >= 0');
   if ((input.charge ?? 0) < 0) throw new Error('charge must be >= 0');
+  normalizeClientMutationId(input.clientMutationId);
 }
 
 function assertCreateCashflowInput(
@@ -390,21 +406,60 @@ export async function createRecordInTransaction(
   tx: Tx,
   input: CreateRecordInput,
 ): Promise<RecordRow> {
-  const typeRow = await getTypeRow(tx, input.typeId, input.booksId);
-  await validateBookExists(tx, input, 'booksId');
+  const clientMutationId = normalizeClientMutationId(input.clientMutationId);
+  if (clientMutationId !== '') {
+    const existing = await tx
+      .select({ recordId: recordClientMutations.recordId })
+      .from(recordClientMutations)
+      .where(
+        and(
+          eq(recordClientMutations.booksId, input.booksId),
+          eq(recordClientMutations.clientMutationId, clientMutationId),
+        ),
+      )
+      .get();
+    if (existing) {
+      return getRecordRow(tx, existing.recordId, input.booksId);
+    }
+  }
 
+  const normalizedInput = { ...input, clientMutationId } as CreateRecordInput;
+  const typeRow = await getTypeRow(
+    tx,
+    normalizedInput.typeId,
+    normalizedInput.booksId,
+  );
+  await validateBookExists(tx, normalizedInput, 'booksId');
+
+  let record: RecordRow;
   switch (typeRow.typeCategory) {
     case RECORD_TYPE_CATEGORY.expense:
-      assertCreateCashflowInput(input);
-      return createExpense(tx, input);
+      assertCreateCashflowInput(normalizedInput);
+      record = await createExpense(tx, normalizedInput);
+      break;
     case RECORD_TYPE_CATEGORY.income:
-      assertCreateCashflowInput(input);
-      return createIncome(tx, input, typeRow);
+      assertCreateCashflowInput(normalizedInput);
+      record = await createIncome(tx, normalizedInput, typeRow);
+      break;
     case RECORD_TYPE_CATEGORY.transfer:
-      return createTransfer(tx, input as CreateTransferRecordInput, typeRow);
+      record = await createTransfer(
+        tx,
+        normalizedInput as CreateTransferRecordInput,
+        typeRow,
+      );
+      break;
     default:
       throw new Error(`Unknown type category: ${typeRow.typeCategory}`);
   }
+
+  if (clientMutationId !== '') {
+    await tx.insert(recordClientMutations).values({
+      booksId: normalizedInput.booksId,
+      clientMutationId,
+      recordId: record.id,
+    });
+  }
+  return record;
 }
 
 export function createRecord(

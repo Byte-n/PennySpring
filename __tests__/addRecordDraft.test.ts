@@ -2,7 +2,6 @@ import {
   ASSET_CLASSIFICATION,
   ASSET_TYPE,
   IconValue,
-  localApi,
   RECORD_TYPE_CATEGORY,
   RECORD_TYPE_SPECIAL_BEHAVIOR,
   REIMBURSABLE,
@@ -18,6 +17,32 @@ jest.mock('../src/stores/bookStore', () => ({
   getGlobalApi: jest.fn(),
   useGlobalApi: jest.fn(),
 }));
+
+jest.mock('../src/features/quickBookDraft/confirmDraft', () => ({
+  confirmQuickBookDraftItem: jest.fn(),
+}));
+
+jest.mock('../src/features/quickBookDraft/draftCacheStorage', () => ({
+  quickBookDraftCache: { getById: jest.fn() },
+}));
+
+jest.mock('../src/features/quickBookDraft/bookApi', () => ({
+  resolveBookApi: jest.fn(),
+  resolveBookMedia: jest.fn(),
+}));
+
+import {
+  resolveBookApi,
+  resolveBookMedia,
+} from '../src/features/quickBookDraft/bookApi';
+import { confirmQuickBookDraftItem } from '../src/features/quickBookDraft/confirmDraft';
+import { quickBookDraftCache } from '../src/features/quickBookDraft/draftCacheStorage';
+
+const mockConfirmDraftItem = confirmQuickBookDraftItem as jest.Mock;
+const mockResolveBookApi = resolveBookApi as jest.Mock;
+const mockResolveBookMedia = resolveBookMedia as jest.Mock;
+const mockGetDraft = (quickBookDraftCache as unknown as { getById: jest.Mock })
+  .getById;
 
 import {
   buildCreateRecordInput,
@@ -91,6 +116,13 @@ function recordRow(overrides: Partial<RecordRow>): RecordRow {
     ...overrides,
   };
 }
+
+beforeEach(() => {
+  mockConfirmDraftItem.mockReset();
+  mockGetDraft.mockReset();
+  mockResolveBookApi.mockReset();
+  mockResolveBookMedia.mockReset();
+});
 
 function draftItem(overrides: Partial<DraftItem> = {}): DraftItem {
   return {
@@ -347,9 +379,19 @@ describe('saveAddRecordDraft', () => {
     jest.mocked(getGlobalApi).mockReturnValue({
       record: { create, update: jest.fn() },
     } as never);
-    const confirmItem = jest
-      .spyOn(localApi.quickBookDraft, 'confirmItem')
-      .mockResolvedValue({ item: draftItem(), recordId: 9 });
+    mockGetDraft.mockResolvedValue({
+      id: 'draft-1',
+      target: {
+        kind: 'local',
+        serverUrl: '',
+        booksId: 2,
+        bookName: '目标账本',
+      },
+      imagePath: '',
+    });
+    mockResolveBookApi.mockResolvedValue({});
+    mockResolveBookMedia.mockResolvedValue({});
+    mockConfirmDraftItem.mockResolvedValue({ item: draftItem(), recordId: 9 });
     const recordVersionBefore = useSyncVersionStore.getState().recordVersion;
     const draftVersionBefore = useDraftVersionStore.getState().draftVersion;
 
@@ -373,11 +415,13 @@ describe('saveAddRecordDraft', () => {
     );
 
     // Assert
-    expect(confirmItem).toHaveBeenCalledTimes(1);
-    expect(confirmItem).toHaveBeenCalledWith(
-      'draft-1',
-      1,
-      expect.objectContaining({ booksId: 2, amount: 1000 }),
+    expect(mockConfirmDraftItem).toHaveBeenCalledTimes(1);
+    expect(mockConfirmDraftItem).toHaveBeenCalledWith(
+      expect.objectContaining({
+        draftId: 'draft-1',
+        itemIndex: 1,
+        input: expect.objectContaining({ booksId: 2, amount: 1000 }),
+      }),
     );
     expect(create).not.toHaveBeenCalled();
     expect(useSyncVersionStore.getState().recordVersion).toBe(
@@ -386,14 +430,23 @@ describe('saveAddRecordDraft', () => {
     expect(useDraftVersionStore.getState().draftVersion).toBe(
       draftVersionBefore + 1,
     );
-    confirmItem.mockRestore();
   });
 
   it('does not bump any version when confirming the draft item fails', async () => {
     // Arrange
-    const confirmItem = jest
-      .spyOn(localApi.quickBookDraft, 'confirmItem')
-      .mockRejectedValue(new Error('记账类型不属于目标账本'));
+    mockGetDraft.mockResolvedValue({
+      id: 'draft-1',
+      target: {
+        kind: 'local',
+        serverUrl: '',
+        booksId: 2,
+        bookName: '目标账本',
+      },
+      imagePath: '',
+    });
+    mockResolveBookApi.mockResolvedValue({});
+    mockResolveBookMedia.mockResolvedValue({});
+    mockConfirmDraftItem.mockRejectedValue(new Error('记账类型不属于目标账本'));
     const recordVersionBefore = useSyncVersionStore.getState().recordVersion;
     const draftVersionBefore = useDraftVersionStore.getState().draftVersion;
 
@@ -424,6 +477,5 @@ describe('saveAddRecordDraft', () => {
     expect(useDraftVersionStore.getState().draftVersion).toBe(
       draftVersionBefore,
     );
-    confirmItem.mockRestore();
   });
 });

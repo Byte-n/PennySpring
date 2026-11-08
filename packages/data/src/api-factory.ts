@@ -6,24 +6,15 @@ import type {
   ApplySnapshotOptions,
   BookSnapshot,
   BuildSnapshotOptions,
-  ConfirmQuickBookDraftItemResult,
   CreateAgentMessageInput,
   CreateAgentProviderInput,
   CreateAssetInput,
   CreateBookInput,
-  CreateQuickBookDraftPlaceholderInput,
   CreateQuickTemplateInput,
   CreateRecordInput,
   CreateTagInput,
   CreateTypeInput,
-  DraftItem,
   LibrarySnapshot,
-  QuickBookDraftAgentInfo,
-  QuickBookDraftItemPatch,
-  QuickBookDraftListFilter,
-  QuickBookDraftPreset,
-  QuickBookDraftRow,
-  QuickBookDraftUpdateMeta,
   UpdateAgentProviderInput,
   UpdateAgentRulesInput,
   UpdateAssetInput,
@@ -144,77 +135,6 @@ export function createApi(getDatabase: () => Promise<Database>) {
         services.getAgentRules(await getDatabase(), booksId),
       set: async (input: UpdateAgentRulesInput) =>
         services.setAgentRules(await getDatabase(), input),
-    },
-    quickBookDraft: {
-      createPlaceholder: async (input: CreateQuickBookDraftPlaceholderInput) =>
-        services.createQuickBookDraftPlaceholder(await getDatabase(), input),
-      getById: async (id: string): Promise<QuickBookDraftRow> =>
-        services.getQuickBookDraftById(await getDatabase(), id),
-      list: async (
-        filter?: QuickBookDraftListFilter,
-      ): Promise<QuickBookDraftRow[]> =>
-        services.listQuickBookDrafts(await getDatabase(), filter),
-      countOpen: async (): Promise<number> =>
-        services.countOpenQuickBookDrafts(await getDatabase()),
-      updateItems: async (
-        id: string,
-        items: DraftItem[],
-        preset: QuickBookDraftPreset,
-        meta?: QuickBookDraftUpdateMeta,
-      ): Promise<QuickBookDraftRow> =>
-        services.updateQuickBookDraftItems(
-          await getDatabase(),
-          id,
-          items,
-          preset,
-          meta,
-        ),
-      setAgent: async (
-        id: string,
-        info: QuickBookDraftAgentInfo,
-      ): Promise<QuickBookDraftRow> =>
-        services.setQuickBookDraftAgent(await getDatabase(), id, info),
-      markReady: async (id: string): Promise<QuickBookDraftRow> =>
-        services.markQuickBookDraftReady(await getDatabase(), id),
-      markFailed: async (id: string, errorText: string): Promise<void> =>
-        services.markQuickBookDraftFailed(await getDatabase(), id, errorText),
-      getItem: async (id: string, itemIndex: number): Promise<DraftItem> =>
-        services.getQuickBookDraftItem(await getDatabase(), id, itemIndex),
-      updateItem: async (
-        id: string,
-        itemIndex: number,
-        patch: QuickBookDraftItemPatch,
-      ): Promise<DraftItem> =>
-        services.updateQuickBookDraftItem(
-          await getDatabase(),
-          id,
-          itemIndex,
-          patch,
-        ),
-      setAttachImage: async (
-        id: string,
-        attachImage: boolean,
-      ): Promise<QuickBookDraftRow> =>
-        services.setQuickBookDraftAttachImage(
-          await getDatabase(),
-          id,
-          attachImage,
-        ),
-      confirmItem: async (
-        id: string,
-        itemIndex: number,
-        input?: CreateRecordInput,
-      ): Promise<ConfirmQuickBookDraftItemResult> =>
-        services.confirmQuickBookDraftItem(
-          await getDatabase(),
-          id,
-          itemIndex,
-          input,
-        ),
-      discard: async (id: string): Promise<string[]> =>
-        services.discardQuickBookDraft(await getDatabase(), id),
-      cleanup: async (): Promise<string[]> =>
-        services.cleanupQuickBookDrafts(await getDatabase()),
     },
     agentConfig: {
       exportConfig: async (booksId: number) =>
