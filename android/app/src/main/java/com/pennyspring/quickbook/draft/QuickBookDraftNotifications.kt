@@ -29,7 +29,6 @@ object QuickBookDraftNotifications {
 
     const val NOTIFICATION_ID_FLOATING = 3101
     const val NOTIFICATION_ID_GENERATING = 3102
-    const val NOTIFICATION_ID_RESULT = 3103
     const val NOTIFICATION_ID_ENTRY_TRIGGER = 3111
 
     private const val REQUEST_CODE_OPEN_APP = 4101
@@ -136,49 +135,66 @@ object QuickBookDraftNotifications {
             false
         }
 
-    fun generatingNotification(context: Context): Notification {
+    fun generatingNotification(
+        context: Context,
+        completedCount: Int,
+        totalCount: Int,
+    ): Notification {
         ensureChannels(context)
+        val safeTotal = totalCount.coerceAtLeast(1)
+        val safeCompleted = completedCount.coerceIn(0, safeTotal)
+        val progressText =
+            context.getString(
+                R.string.quick_book_notification_generating_text,
+                safeCompleted,
+                safeTotal,
+            )
         return baseBuilder(context, CHANNEL_DRAFT, NotificationCompat.PRIORITY_DEFAULT)
             .setContentTitle(context.getString(R.string.quick_book_notification_generating_title))
-            .setContentText(context.getString(R.string.quick_book_notification_generating_text))
+            .setContentText(progressText)
             .setOngoing(true)
-            .setProgress(0, 0, true)
+            .setProgress(safeTotal, safeCompleted, false)
             .setCategory(NotificationCompat.CATEGORY_PROGRESS)
             .setContentIntent(openAppPendingIntent(context))
             .build()
     }
 
-    fun successNotification(
+    /** 整批草稿结束后复用同一条通知展示结果，不再逐条发结果通知。 */
+    fun batchResultNotification(
         context: Context,
+        successCount: Int,
+        failureCount: Int,
         itemCount: Int,
     ): Notification {
         ensureChannels(context)
+        val title: String
+        val text: String
+        if (failureCount == 0) {
+            title = context.getString(R.string.quick_book_notification_success_title)
+            text = context.getString(R.string.quick_book_notification_success_text, successCount, itemCount)
+        } else if (successCount == 0) {
+            title = context.getString(R.string.quick_book_notification_failure_title)
+            text = context.getString(R.string.quick_book_notification_failure_text)
+        } else {
+            title = context.getString(R.string.quick_book_notification_partial_title)
+            text = context.getString(R.string.quick_book_notification_partial_text, successCount, failureCount)
+        }
         return baseBuilder(context, CHANNEL_DRAFT, NotificationCompat.PRIORITY_DEFAULT)
-            .setContentTitle(context.getString(R.string.quick_book_notification_success_title))
-            .setContentText(context.getString(R.string.quick_book_notification_success_text, itemCount))
+            .setContentTitle(title)
+            .setContentText(text)
             .setContentIntent(openAppPendingIntent(context))
             .setAutoCancel(true)
             .build()
     }
 
-    fun failureNotification(context: Context): Notification {
-        ensureChannels(context)
-        return baseBuilder(context, CHANNEL_DRAFT, NotificationCompat.PRIORITY_DEFAULT)
-            .setContentTitle(context.getString(R.string.quick_book_notification_failure_title))
-            .setContentText(context.getString(R.string.quick_book_notification_failure_text))
-            .setContentIntent(openAppPendingIntent(context))
-            .setAutoCancel(true)
-            .build()
-    }
-
-    /** 结果通知只在系统通知开关打开时展示；前台通知必须由服务侧无条件 startForeground。 */
+    /** 结果通知只在系统通知开关打开时展示。 */
     fun notifyIfAllowed(
         context: Context,
         notificationId: Int,
         notification: Notification,
     ) {
         if (!canPostNotifications(context)) {
-            Log.i(TAG, "通知已关闭，跳过结果通知 $notificationId")
+            Log.i(TAG, "通知已关闭，跳过通知 $notificationId")
             return
         }
         try {

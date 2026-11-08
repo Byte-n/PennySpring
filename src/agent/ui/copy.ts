@@ -1,5 +1,6 @@
 import { CREATE_RECORDS_TOOL_NAME } from '../tools/createRecords';
 import { DELETE_RECORDS_TOOL_NAME } from '../tools/deleteRecords';
+import { SAVE_RECORD_DRAFTS_TOOL_NAME } from '../tools/saveRecordDrafts';
 import { UPDATE_RECORDS_TOOL_NAME } from '../tools/updateRecords';
 
 export const AGENT_NOT_CONFIGURED_MESSAGE =
@@ -52,6 +53,9 @@ function toolLabel(toolName: string): string {
 }
 
 export function toolStatusText(toolName: string, isDone: boolean): string {
+  if (toolName === SAVE_RECORD_DRAFTS_TOOL_NAME) {
+    return isDone ? '已写入草稿' : '正在写入草稿…';
+  }
   if (toolName === CREATE_RECORDS_TOOL_NAME) {
     return isDone ? '已记账' : '正在记账…';
   }
@@ -65,7 +69,17 @@ export function toolStatusText(toolName: string, isDone: boolean): string {
   return isDone ? `已查询${label}` : `正在查询${label}…`;
 }
 
+export function toolPreparingText(toolName: string): string {
+  if (toolName === SAVE_RECORD_DRAFTS_TOOL_NAME) {
+    return '正在整理草稿…';
+  }
+  return toolStatusText(toolName, false);
+}
+
 export function toolErrorText(toolName: string): string {
+  if (toolName === SAVE_RECORD_DRAFTS_TOOL_NAME) {
+    return '写入草稿失败，请稍后再试。';
+  }
   if (toolName === CREATE_RECORDS_TOOL_NAME) {
     return '记账失败，请稍后再试。';
   }

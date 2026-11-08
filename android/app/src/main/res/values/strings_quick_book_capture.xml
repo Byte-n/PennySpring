@@ -20,5 +20,6 @@
     <string name="quick_book_capture_timeout">截图超时，请重试</string>
     <string name="quick_book_capture_blank">当前页面不支持截图</string>
     <string name="quick_book_capture_saving_failed">截图保存失败</string>
+    <string name="quick_book_capture_busy">已有草稿正在生成，请稍后再试</string>
     <string name="quick_book_capture_send_failed">启动草稿任务失败</string>
 </resources>

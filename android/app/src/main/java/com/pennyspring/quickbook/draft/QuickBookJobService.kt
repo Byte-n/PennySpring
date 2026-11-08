@@ -4,39 +4,46 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.os.Build
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
 import android.widget.Toast
 import androidx.core.app.ServiceCompat
 import androidx.core.content.ContextCompat
 import com.facebook.react.HeadlessJsTaskService
 import com.facebook.react.bridge.Arguments
+import com.facebook.react.bridge.ReactContext
 import com.facebook.react.jstasks.HeadlessJsTaskConfig
+import com.facebook.react.jstasks.HeadlessJsTaskContext
 import com.pennyspring.R
-import java.util.concurrent.atomic.AtomicBoolean
+import java.lang.ref.WeakReference
 
 /**
  * 在后台运行截图记账草稿 Headless JS 任务。
  *
- * 生成期间不启动任何 Activity；任务结束前由 JS 回报结果，
- * 原生通过通知与 Toast 告知，满足 Android 14 specialUse 前台服务要求。
+ * 同一服务实例可并发托管多个任务；生成期间不启动任何 Activity，
+ * 任务结束前由 JS 回报结果，原生通过通知与 Toast 告知。
  */
 class QuickBookJobService : HeadlessJsTaskService() {
+    enum class StartResult {
+        STARTED,
+        BUSY,
+        FAILED,
+    }
+
     companion object {
         private const val TAG = "QuickBookJobService"
         private const val NOTIFICATION_ID = QuickBookDraftNotifications.NOTIFICATION_ID_GENERATING
-        private const val RESULT_NOTIFICATION_ID = QuickBookDraftNotifications.NOTIFICATION_ID_RESULT
         private const val INVALID_ID = 0
+        private const val MAX_CONCURRENT_DRAFTS = 3
+        private const val TASK_STALE_AFTER_MS = QuickBookDraftTaskContract.TASK_TIMEOUT_MS + 5_000L
 
-        private val running = AtomicBoolean(false)
-        private val lock = Any()
+        private val registry = QuickBookTaskRegistry(MAX_CONCURRENT_DRAFTS, TASK_STALE_AFTER_MS)
+        private var knownReactContextRef: WeakReference<ReactContext>? = null
 
         /**
          * 启动一次草稿生成任务。
          *
-         * @return false 表示已有任务在运行，或系统拒绝在后台启动前台服务
-         *   （Android 12+ 后台启动限制 / OEM 后台限制）。
+         * @return [StartResult.BUSY] 表示并发草稿已达上限；[StartResult.FAILED] 表示系统拒绝在后台
+         *   启动前台服务（Android 12+ 后台启动限制 / OEM 后台限制）。
          */
         @JvmStatic
         fun start(
@@ -48,12 +55,9 @@ class QuickBookJobService : HeadlessJsTaskService() {
             assetId: Int,
             typeId: Int,
             source: String,
-        ): Boolean {
-            synchronized(lock) {
-                if (running.get()) {
-                    return false
-                }
-                running.set(true)
+        ): StartResult {
+            if (!registry.tryAcquire(draftId)) {
+                return StartResult.BUSY
             }
             val intent =
                 Intent(context, QuickBookJobService::class.java).apply {
@@ -67,43 +71,63 @@ class QuickBookJobService : HeadlessJsTaskService() {
                 }
             return try {
                 ContextCompat.startForegroundService(context, intent)
-                true
+                StartResult.STARTED
             } catch (error: Exception) {
-                running.set(false)
+                registry.release(draftId)
                 Log.w(TAG, "启动草稿任务失败", error)
-                false
+                StartResult.FAILED
             }
         }
 
+        /**
+         * JS 回报草稿结果后立即结束对应 Headless 任务。
+         * 不依赖 RN 的 notifyTaskFinished：该回调在本项目的 bridgeless 链路下不可靠，
+         * 会导致前台通知一直停留到 180s 超时。
+         */
         @JvmStatic
-        fun isRunning(): Boolean = running.get()
+        fun finishReportedDraft(
+            context: ReactContext,
+            draftId: String,
+        ) {
+            val taskId = registry.findTaskId(draftId) ?: return
+            HeadlessJsTaskContext.getInstance(context).finishTask(taskId)
+        }
     }
 
-    private val mainHandler = Handler(Looper.getMainLooper())
-
-    @Volatile
-    private var currentDraftId: String = ""
+    private var batchSuccessCount = 0
+    private var batchFailureCount = 0
+    private var batchItemCount = 0
 
     override fun onStartCommand(
         intent: Intent?,
         flags: Int,
         startId: Int,
     ): Int {
-        val draftId = intent?.getStringExtra(QuickBookDraftTaskContract.EXTRA_DRAFT_ID)?.trim().orEmpty()
+        syncTaskContext()
         // 必须先 startForeground：服务由 startForegroundService 启动，
         // Android 8+ 要求 5 秒内进入前台，否则会抛 RemoteServiceException。
-        startAsForegroundService(draftId)
+        startAsForegroundService()
+        val draftId = intent?.getStringExtra(QuickBookDraftTaskContract.EXTRA_DRAFT_ID)?.trim().orEmpty()
         if (intent == null || !hasRequiredExtras(intent)) {
+            registry.release(draftId)
             Toast.makeText(applicationContext, R.string.quick_book_toast_missing_params, Toast.LENGTH_SHORT).show()
-            stopJob()
+            settleTasks(showSummary = false)
             return START_NOT_STICKY
         }
-        currentDraftId = draftId
-        QuickBookDraftTaskResults.clear()
-        super.onStartCommand(intent, flags, startId)
-        // HeadlessJsTaskService 默认返回 START_REDELIVER_INTENT；
-        // 草稿任务结束即完成，重投只会造成重复生成，这里改为不重启。
-        return START_NOT_STICKY
+        registry.expectTask(draftId)
+        return try {
+            super.onStartCommand(intent, flags, startId)
+            // HeadlessJsTaskService 默认返回 START_REDELIVER_INTENT；
+            // 草稿任务结束即完成，重投只会造成重复生成，这里改为不重启。
+            START_NOT_STICKY
+        } catch (error: Exception) {
+            Log.w(TAG, "启动草稿任务失败", error)
+            registry.cancelExpectedTask(draftId)
+            registry.release(draftId)
+            Toast.makeText(applicationContext, R.string.quick_book_capture_send_failed, Toast.LENGTH_SHORT).show()
+            settleTasks(showSummary = false)
+            START_NOT_STICKY
+        }
     }
 
     override fun getTaskConfig(intent: Intent?): HeadlessJsTaskConfig? {
@@ -150,40 +174,36 @@ class QuickBookJobService : HeadlessJsTaskService() {
         )
     }
 
+    override fun onHeadlessJsTaskStart(taskId: Int) {
+        reactContext?.let { knownReactContextRef = WeakReference(it) }
+        registry.bindTask(taskId)
+    }
+
     override fun onHeadlessJsTaskFinish(taskId: Int) {
-        val draftId = currentDraftId
-        val outcome = if (draftId.isBlank()) null else QuickBookDraftTaskResults.take(draftId)
-        val succeeded = outcome?.succeeded == true
-        val itemCount = outcome?.itemCount ?: 0
-        if (succeeded) {
-            QuickBookDraftNotifications.notifyIfAllowed(
-                this,
-                RESULT_NOTIFICATION_ID,
-                QuickBookDraftNotifications.successNotification(this, itemCount),
-            )
-            Toast
-                .makeText(
-                    applicationContext,
-                    getString(R.string.quick_book_toast_draft_generated, itemCount),
-                    Toast.LENGTH_SHORT,
-                ).show()
-        } else {
-            QuickBookDraftNotifications.notifyIfAllowed(
-                this,
-                RESULT_NOTIFICATION_ID,
-                QuickBookDraftNotifications.failureNotification(this),
-            )
-            Toast.makeText(applicationContext, R.string.quick_book_toast_draft_failed, Toast.LENGTH_SHORT).show()
+        val draftId = registry.completeTask(taskId)
+        if (draftId == null) {
+            settleTasks(showSummary = false)
+            return
         }
-        // 任务完成后再交给基类清理 activeTasks 并 stopSelf。
-        finishTaskTracking(taskId)
-        stopJob()
+        val outcome = QuickBookDraftTaskResults.take(draftId)
+        recordOutcome(outcome)
+        // 生命周期由 registry 管理，不调用 super，避免基类 activeTasks 为空时提前 stopSelf。
+        settleTasks(showSummary = true)
     }
 
     override fun onDestroy() {
         stopForegroundService()
-        running.set(false)
         super.onDestroy()
+    }
+
+    private fun syncTaskContext() {
+        val context = reactContext ?: return
+        val knownContext = knownReactContextRef?.get()
+        if (knownContext !== null && knownContext !== context) {
+            // JS 重载后 HeadlessJsTaskContext 会重建，taskId 从头计数；旧任务已随旧上下文失效。
+            registry.resetTaskMappings()
+        }
+        knownReactContextRef = WeakReference(context)
     }
 
     private fun hasRequiredExtras(intent: Intent): Boolean {
@@ -194,10 +214,13 @@ class QuickBookJobService : HeadlessJsTaskService() {
         return draftId.isNotEmpty() && imagePath.isNotEmpty() && (bookRef.isNotEmpty() || booksId > 0)
     }
 
-    private fun startAsForegroundService(draftId: String) {
+    private fun startAsForegroundService() {
         // Android 13+ 无通知权限时系统允许前台服务继续运行，只是不展示通知；
         // Android 14+ 需要显式传入 specialUse 类型，否则会抛 MissingForegroundServiceTypeException。
-        val notification = QuickBookDraftNotifications.generatingNotification(this)
+        val completedCount = batchSuccessCount + batchFailureCount
+        val totalCount = completedCount + registry.activeCount()
+        val notification =
+            QuickBookDraftNotifications.generatingNotification(this, completedCount, totalCount)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             startForeground(
                 NOTIFICATION_ID,
@@ -209,17 +232,73 @@ class QuickBookJobService : HeadlessJsTaskService() {
         }
     }
 
-    private fun stopJob() {
-        running.set(false)
-        stopForegroundService()
+    private fun recordOutcome(outcome: QuickBookDraftTaskResults.Outcome?) {
+        if (outcome?.succeeded == true) {
+            batchSuccessCount += 1
+            batchItemCount += outcome.itemCount
+        } else {
+            batchFailureCount += 1
+        }
+    }
+
+    /** 有任务在跑就刷新前台通知；全部结束才汇总提示并停止服务。 */
+    private fun settleTasks(showSummary: Boolean) {
+        if (registry.activeCount() > 0) {
+            startAsForegroundService()
+            return
+        }
+        if (showSummary) {
+            QuickBookDraftNotifications.notifyIfAllowed(
+                this,
+                NOTIFICATION_ID,
+                QuickBookDraftNotifications.batchResultNotification(
+                    this,
+                    batchSuccessCount,
+                    batchFailureCount,
+                    batchItemCount,
+                ),
+            )
+            detachForegroundService()
+            showBatchResultToast()
+        } else {
+            stopForegroundService()
+        }
+        QuickBookDraftTaskResults.clear()
+        batchSuccessCount = 0
+        batchFailureCount = 0
+        batchItemCount = 0
         stopSelf()
+    }
+
+    private fun showBatchResultToast() {
+        if (batchFailureCount == 0) {
+            Toast
+                .makeText(
+                    applicationContext,
+                    getString(R.string.quick_book_toast_draft_generated, batchItemCount),
+                    Toast.LENGTH_SHORT,
+                ).show()
+            return
+        }
+        val message =
+            if (batchItemCount > 0) {
+                R.string.quick_book_toast_draft_partial_failed
+            } else {
+                R.string.quick_book_toast_draft_failed
+            }
+        Toast.makeText(applicationContext, message, Toast.LENGTH_SHORT).show()
+    }
+
+    /** 结果通知复用前台通知：有通知权限时保留并更新，否则直接移除。 */
+    private fun detachForegroundService() {
+        if (QuickBookDraftNotifications.canPostNotifications(this)) {
+            ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_DETACH)
+        } else {
+            stopForegroundService()
+        }
     }
 
     private fun stopForegroundService() {
         ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
-    }
-
-    private fun finishTaskTracking(taskId: Int) {
-        super.onHeadlessJsTaskFinish(taskId)
     }
 }

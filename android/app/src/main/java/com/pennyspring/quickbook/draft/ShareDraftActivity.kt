@@ -33,10 +33,6 @@ class ShareDraftActivity : Activity() {
             return
         }
         val uri = extractImageUri(intent) ?: return
-        if (QuickBookJobService.isRunning()) {
-            showToast(R.string.quick_book_share_busy)
-            return
-        }
         val book = QuickBookCaptureCatalogStore.currentBook(this)
         if (book == null) {
             showToast(R.string.quick_book_share_no_local_book)
@@ -52,7 +48,7 @@ class ShareDraftActivity : Activity() {
             showToast(R.string.quick_book_share_unreadable)
             return
         }
-        val started =
+        val startResult =
             try {
                 QuickBookJobService.start(
                     this,
@@ -65,11 +61,18 @@ class ShareDraftActivity : Activity() {
                     QuickBookDraftTaskContract.SOURCE_SHARE,
                 )
             } catch (_: Exception) {
-                false
+                QuickBookJobService.StartResult.FAILED
             }
-        if (!started) {
-            file.delete()
-            showToast(R.string.quick_book_capture_send_failed)
+        when (startResult) {
+            QuickBookJobService.StartResult.STARTED -> Unit
+            QuickBookJobService.StartResult.BUSY -> {
+                file.delete()
+                showToast(R.string.quick_book_share_busy)
+            }
+            QuickBookJobService.StartResult.FAILED -> {
+                file.delete()
+                showToast(R.string.quick_book_capture_send_failed)
+            }
         }
     }
 

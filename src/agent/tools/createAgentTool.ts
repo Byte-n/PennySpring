@@ -6,6 +6,8 @@ import {
   type ToolExecutionOptions,
 } from 'ai';
 
+import { agentDebugLog } from '../core/debug';
+
 export interface AgentToolConfig<SCHEMA extends FlexibleSchema, OUTPUT> {
   name: string;
   description: string;
@@ -36,12 +38,24 @@ export function createAgentTool<SCHEMA extends FlexibleSchema, OUTPUT>(
       input: InferSchema<SCHEMA>,
       options: ToolExecutionOptions<unknown>,
     ) => {
+      const startedAt = Date.now();
+      agentDebugLog('tool', 'start', { name: config.name });
       try {
-        return await config.execute(input);
+        const result = await config.execute(input);
+        agentDebugLog('tool', 'finish', {
+          name: config.name,
+          ms: Date.now() - startedAt,
+        });
+        return result;
       } catch (error) {
         if (options.abortSignal?.aborted || isAbortError(error)) {
           throw error;
         }
+        agentDebugLog('tool', 'error', {
+          name: config.name,
+          ms: Date.now() - startedAt,
+          message: errorMessage(error),
+        });
         console.error(`[agent:${config.name}] 工具执行失败`, error);
         throw new Error(`工具 ${config.name} 执行失败：${errorMessage(error)}`);
       }

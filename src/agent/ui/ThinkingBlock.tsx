@@ -18,10 +18,15 @@ const useStyles = createUseSheetStyle(token => ({
   },
 }));
 
+export type ThinkingBlockProps = Pick<
+  ReasoningMessagePartProps,
+  'status' | 'text'
+>;
+
 export function ThinkingBlock({
   status,
   text,
-}: ReasoningMessagePartProps): React.ReactElement | null {
+}: ThinkingBlockProps): React.ReactElement | null {
   const { token } = useTheme();
   const styles = useStyles();
   const [isExpanded, setIsExpanded] = useState(false);

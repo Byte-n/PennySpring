@@ -14,7 +14,6 @@ import {
   Button,
   Column,
   Empty,
-  Icon,
   Image,
   Loading,
   Row,
@@ -22,7 +21,6 @@ import {
   useToast,
 } from '@pennyspring/ui';
 import { createUseSheetStyle, useTheme } from '@pennyspring/ui';
-import { CheckCircleIcon, WarningCircleIcon } from 'phosphor-react-native';
 
 import { MarkdownText } from '../../component/MarkdownText';
 import type { PendingQuickBookMessage } from '../../features/quickBook/types';
@@ -37,8 +35,6 @@ import {
   CREATE_RECORDS_TOOL_NAME,
   DELETE_RECORDS_TOOL_NAME,
   THINKING_TEXT,
-  toolErrorText,
-  toolStatusText,
   UPDATE_RECORDS_TOOL_NAME,
 } from './copy';
 import { getErrorMessage } from './errorMessage';
@@ -46,6 +42,7 @@ import { RecordCreationCard } from './RecordCreationCard';
 import { RecordDeletionCard } from './RecordDeletionCard';
 import { RecordUpdateCard } from './RecordUpdateCard';
 import { ThinkingBlock } from './ThinkingBlock';
+import { ToolStatusNote } from './ToolStatusNote';
 import type { AgentSessionState } from './useAgentSession';
 
 const SUGGESTIONS = [
@@ -102,9 +99,6 @@ const useStyles = createUseSheetStyle(token => ({
     paddingHorizontal: token.paddingSM,
     paddingVertical: token.paddingXS,
   },
-  toolStatus: {
-    paddingVertical: token.paddingXXS,
-  },
   thinking: {
     paddingVertical: token.paddingXXS,
   },
@@ -122,39 +116,14 @@ function ToolNote({
   isError,
   toolName,
 }: ToolCallMessagePartProps): React.ReactElement {
-  const { token } = useTheme();
-  const styles = useStyles();
+  const noteStatus =
+    isError || status.type === 'incomplete'
+      ? 'error'
+      : status.type === 'running'
+        ? 'running'
+        : 'done';
 
-  if (isError || status.type === 'incomplete') {
-    return (
-      <Row style={styles.toolStatus} gap={token.marginXXS} align="center">
-        <Icon color="errorText" icon={WarningCircleIcon} size="small" />
-        <Text color="errorText" size="xs">
-          {toolErrorText(toolName)}
-        </Text>
-      </Row>
-    );
-  }
-
-  if (status.type === 'running') {
-    return (
-      <Row style={styles.toolStatus} gap={token.marginXXS} align="center">
-        <Loading size="small" />
-        <Text color="secondary" size="xs">
-          {toolStatusText(toolName, false)}
-        </Text>
-      </Row>
-    );
-  }
-
-  return (
-    <Row style={styles.toolStatus} gap={token.marginXXS} align="center">
-      <Icon color="tertiary" icon={CheckCircleIcon} size="small" />
-      <Text color="tertiary" size="xs">
-        {toolStatusText(toolName, true)}
-      </Text>
-    </Row>
-  );
+  return <ToolStatusNote status={noteStatus} toolName={toolName} />;
 }
 
 function MarkdownPart({ text }: { text: string }): React.ReactElement {

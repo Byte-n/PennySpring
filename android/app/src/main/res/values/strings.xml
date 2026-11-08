@@ -14,9 +14,11 @@
     <string name="quick_book_notification_entry_text">点按圈选截图记账</string>
     <string name="quick_book_notification_entry_disable">关闭入口</string>
     <string name="quick_book_notification_generating_title">正在生成记账草稿</string>
-    <string name="quick_book_notification_generating_text">完成后会通知你确认</string>
+    <string name="quick_book_notification_generating_text">已完成 %1$d/%2$d 个草稿</string>
     <string name="quick_book_notification_success_title">截图记账草稿已生成</string>
-    <string name="quick_book_notification_success_text">共 %1$d 笔草稿，点击确认</string>
+    <string name="quick_book_notification_success_text">%1$d 个草稿，共 %2$d 笔，点击确认</string>
+    <string name="quick_book_notification_partial_title">部分截图记账草稿生成失败</string>
+    <string name="quick_book_notification_partial_text">%1$d 个成功，%2$d 个失败，点击查看</string>
     <string name="quick_book_notification_failure_title">截图记账失败，点击查看原因</string>
     <string name="quick_book_notification_failure_text">点击打开 PennySpring 查看草稿</string>
 
@@ -36,6 +38,7 @@
     <!-- 截图记账草稿提示 -->
     <string name="quick_book_toast_draft_generated">已生成 %1$d 笔草稿</string>
     <string name="quick_book_toast_draft_failed">截图记账失败</string>
+    <string name="quick_book_toast_draft_partial_failed">部分草稿生成失败，请查看草稿列表</string>
     <string name="quick_book_toast_missing_params">缺少生成草稿所需参数</string>
     <string name="quick_book_toast_capture_failed">无法打开自由截图，请重试</string>
 

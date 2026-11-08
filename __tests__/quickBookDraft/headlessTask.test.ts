@@ -90,4 +90,16 @@ describe('QuickBookDraftTask', () => {
       reportOutcome: true,
     });
   });
+
+  it('resolves when draft generation fails so native receives the task finish', async () => {
+    mockedRunQuickBookDraft.mockRejectedValueOnce(new Error('生成草稿失败'));
+
+    await expect(QuickBookDraftTask(BASE_DATA)).resolves.toBeUndefined();
+  });
+
+  it('resolves when task data is invalid so native receives the task finish', async () => {
+    await expect(QuickBookDraftTask({})).resolves.toBeUndefined();
+
+    expect(mockedRunQuickBookDraft).not.toHaveBeenCalled();
+  });
 });

@@ -17,6 +17,8 @@ import {
 import { ImageSquareIcon } from 'phosphor-react-native';
 
 import { formatDraftTimestamp } from '../../../../features/quickBookDraft/draftLogic';
+import { useQuickBookDraftProgress } from '../../../../features/quickBookDraft/draftProgress';
+import { DraftAgentStream } from './DraftAgentStream';
 import { DraftItemRow, type DraftFillField } from './DraftItemRow';
 import { useDraftTabStyles } from './draftTabStyles';
 
@@ -56,6 +58,7 @@ export function DraftListCard({
   onConfirm,
 }: DraftListCardProps): React.ReactElement {
   const styles = useDraftTabStyles();
+  const progress = useQuickBookDraftProgress(draft.id);
   const isFailed = draft.status === QUICK_BOOK_DRAFT_STATUS.failed;
   const isGenerating = draft.status === QUICK_BOOK_DRAFT_STATUS.generating;
   const isPending = draft.status === QUICK_BOOK_DRAFT_STATUS.pending;
@@ -106,7 +109,13 @@ export function DraftListCard({
         </Text>
       ) : null}
 
-      {isGenerating ? <Loading size="small" /> : null}
+      {isGenerating ? (
+        progress.parts.length > 0 ? (
+          <DraftAgentStream parts={progress.parts} />
+        ) : (
+          <Loading size="small" />
+        )
+      ) : null}
 
       {isPending ? (
         <Column style={styles.items}>

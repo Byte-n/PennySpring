@@ -50,6 +50,10 @@ import { resolveQuickBookModel } from '../../src/features/quickBook/validation';
 import { resolveBookApi } from '../../src/features/quickBookDraft/bookApi';
 import type { DraftBookTarget } from '../../src/features/quickBookDraft/draftBook';
 import { quickBookDraftCache } from '../../src/features/quickBookDraft/draftCacheStorage';
+import {
+  useQuickBookDraftProgressStore,
+  type QuickBookDraftProgress,
+} from '../../src/features/quickBookDraft/draftProgress';
 import { useDraftVersionStore } from '../../src/stores/draftVersionStore';
 
 const mockBookApi = {
@@ -106,9 +110,18 @@ const MODEL: AgentProviderModel = {
 
 let order: string[];
 
+async function* streamOf(
+  parts: readonly Record<string, unknown>[],
+): AsyncGenerator<Record<string, unknown>> {
+  for (const part of parts) {
+    yield part;
+  }
+}
+
 beforeEach(() => {
   order = [];
   jest.clearAllMocks();
+  useQuickBookDraftProgressStore.setState({ progressById: {} });
   (resolveBookApi as jest.Mock).mockResolvedValue(mockBookApi as never);
   mockDraftCache.createPlaceholder.mockImplementation(async () => {
     order.push('placeholder');
@@ -137,8 +150,9 @@ beforeEach(() => {
     model: MODEL,
   });
   (createAgent as jest.Mock).mockImplementation(() => ({
-    generate: jest.fn(async () => {
-      order.push('generate');
+    stream: jest.fn(async () => {
+      order.push('stream');
+      return { fullStream: streamOf([]) };
     }),
   }));
 });
@@ -147,7 +161,7 @@ describe('runQuickBookDraft lifecycle', () => {
   it('creates the placeholder before model resolution and marks ready after generation', async () => {
     await runQuickBookDraft(INPUT);
 
-    expect(order).toEqual(['placeholder', 'resolve', 'generate', 'ready']);
+    expect(order).toEqual(['placeholder', 'resolve', 'stream', 'ready']);
     expect(mockDraftCache.markReady).toHaveBeenCalledWith(INPUT.draftId);
   });
 
@@ -202,5 +216,132 @@ describe('runQuickBookDraft lifecycle', () => {
       INPUT.draftId,
       '未能从截图生成草稿',
     );
+  });
+
+  it('publishes reasoning, text and tool events while the agent streams', async () => {
+    (createAgent as jest.Mock).mockImplementation(() => ({
+      stream: jest.fn(async () => ({
+        fullStream: streamOf([
+          { type: 'reasoning-start', id: 'r1' },
+          { type: 'reasoning-delta', id: 'r1', text: '先看金额' },
+          { type: 'reasoning-end', id: 'r1' },
+          { type: 'text-start', id: 't1' },
+          { type: 'text-delta', id: 't1', text: '识别到两笔' },
+          { type: 'text-end', id: 't1' },
+          {
+            type: 'tool-call',
+            toolCallId: 'call-1',
+            toolName: 'saveRecordDrafts',
+          },
+          { type: 'tool-result', toolCallId: 'call-1' },
+        ]),
+      })),
+    }));
+    const snapshots: QuickBookDraftProgress[] = [];
+    const unsubscribe = useQuickBookDraftProgressStore.subscribe(state => {
+      const progress = state.progressById[INPUT.draftId];
+      if (progress !== undefined) {
+        snapshots.push(progress);
+      }
+    });
+
+    await runQuickBookDraft(INPUT);
+    unsubscribe();
+
+    expect(snapshots[snapshots.length - 1]?.parts).toEqual([
+      { type: 'reasoning', id: 'r1', text: '先看金额', isDone: true },
+      { type: 'text', id: 't1', text: '识别到两笔', isDone: true },
+      {
+        type: 'tool',
+        toolCallId: 'call-1',
+        toolName: 'saveRecordDrafts',
+        status: 'done',
+      },
+    ]);
+    expect(
+      useQuickBookDraftProgressStore.getState().progressById[INPUT.draftId],
+    ).toBeUndefined();
+  });
+
+  it('publishes partial saveRecordDrafts input before the tool finishes', async () => {
+    (createAgent as jest.Mock).mockImplementation(() => ({
+      stream: jest.fn(async () => ({
+        fullStream: streamOf([
+          {
+            type: 'tool-input-start',
+            id: 'call-1',
+            toolName: 'saveRecordDrafts',
+          },
+          {
+            type: 'tool-input-delta',
+            id: 'call-1',
+            delta:
+              '{"summary":"午餐两笔","items":[{"amount":36.5},{"amount":12}]}',
+          },
+          {
+            type: 'tool-call',
+            toolCallId: 'call-1',
+            toolName: 'saveRecordDrafts',
+            input: {
+              summary: '午餐两笔',
+              items: [{ amount: 36.5 }, { amount: 12 }],
+            },
+          },
+          { type: 'tool-result', toolCallId: 'call-1' },
+        ]),
+      })),
+    }));
+    const snapshots: QuickBookDraftProgress[] = [];
+    const unsubscribe = useQuickBookDraftProgressStore.subscribe(state => {
+      const progress = state.progressById[INPUT.draftId];
+      if (progress !== undefined) {
+        snapshots.push(progress);
+      }
+    });
+
+    await runQuickBookDraft(INPUT);
+    unsubscribe();
+
+    expect(
+      snapshots.some(progress =>
+        progress.parts.some(
+          part =>
+            part.type === 'tool' &&
+            part.status === 'preparing' &&
+            part.summary === '午餐两笔' &&
+            part.itemCount === 2,
+        ),
+      ),
+    ).toBe(true);
+    expect(snapshots[snapshots.length - 1]?.parts).toEqual([
+      {
+        type: 'tool',
+        toolCallId: 'call-1',
+        toolName: 'saveRecordDrafts',
+        status: 'done',
+        summary: '午餐两笔',
+        itemCount: 2,
+      },
+    ]);
+  });
+
+  it('fails the draft when the stream reports an error', async () => {
+    (createAgent as jest.Mock).mockImplementation(() => ({
+      stream: jest.fn(async () => ({
+        fullStream: streamOf([
+          { type: 'error', error: new Error('模型服务不可用') },
+        ]),
+      })),
+    }));
+
+    await expect(runQuickBookDraft(INPUT)).rejects.toThrow('模型服务不可用');
+
+    expect(mockDraftCache.markFailed).toHaveBeenCalledWith(
+      INPUT.draftId,
+      '模型服务不可用',
+    );
+    expect(
+      useQuickBookDraftProgressStore.getState().progressById[INPUT.draftId],
+    ).toBeUndefined();
   });
 });

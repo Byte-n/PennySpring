@@ -265,6 +265,7 @@ class QuickBookDraftModule(
                     itemCount = itemCount.coerceAtLeast(0),
                 ),
             )
+            QuickBookJobService.finishReportedDraft(reactContext, draftId)
             promise.resolve(null)
         } catch (error: Exception) {
             promise.reject(ERROR_STATUS, error)

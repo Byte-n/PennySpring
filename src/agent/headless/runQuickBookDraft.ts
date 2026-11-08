@@ -6,7 +6,12 @@ import {
   type QuickBookDraftPreset,
   type QuickBookDraftSourceValue,
 } from '@pennyspring/api';
-import type { ModelMessage } from 'ai';
+import {
+  parsePartialJson,
+  type ModelMessage,
+  type TextStreamPart,
+  type ToolSet,
+} from 'ai';
 import { FileSystem } from 'react-native-file-access';
 
 import { resolveQuickBookModel } from '../../features/quickBook/validation';
@@ -19,6 +24,12 @@ import {
   type DraftBookTarget,
 } from '../../features/quickBookDraft/draftBook';
 import { quickBookDraftCache } from '../../features/quickBookDraft/draftCacheStorage';
+import {
+  applyQuickBookDraftStreamEvent,
+  beginQuickBookDraftProgress,
+  clearQuickBookDraftProgress,
+  type QuickBookDraftStreamEvent,
+} from '../../features/quickBookDraft/draftProgress';
 import { reportQuickBookDraftOutcome } from '../../features/quickBookDraft/native';
 import { bumpDraftVersion } from '../../stores/draftVersionStore';
 import { loadBookAgentRules } from '../core/agentRules';
@@ -29,7 +40,10 @@ import {
   buildQuickBookDraftSystemPrompt,
   buildQuickBookDraftUserMessage,
 } from '../projection/quickBookDraftContext';
-import { createQuickBookDraftTools } from '../tools/saveRecordDrafts';
+import {
+  createQuickBookDraftTools,
+  SAVE_RECORD_DRAFTS_TOOL_NAME,
+} from '../tools/saveRecordDrafts';
 
 /**
  * 原生 HeadlessJsTaskConfig.timeout 使用的总超时；必须大于 Agent 总超时。
@@ -41,6 +55,7 @@ const DEFAULT_IMAGE_MEDIA_TYPE = 'image/jpeg';
 const DEFAULT_IMAGE_EXTENSION = 'jpg';
 const NO_DRAFT_ERROR = '未能从截图生成草稿';
 const GENERATION_FAILED_ERROR = '生成草稿失败，请重试';
+const TOOL_INPUT_PREVIEW_INTERVAL_MS = 250;
 
 export interface RunQuickBookDraftInput {
   draftId: string;
@@ -221,6 +236,193 @@ async function resolveDraftModel(api: Api, booksId: number) {
   };
 }
 
+function toDraftStreamEvent<TOOLS extends ToolSet>(
+  part: TextStreamPart<TOOLS>,
+): QuickBookDraftStreamEvent | null {
+  switch (part.type) {
+    case 'reasoning-start':
+      return { type: 'reasoning-start', id: part.id };
+    case 'reasoning-delta':
+      return { type: 'reasoning-delta', id: part.id, text: part.text };
+    case 'reasoning-end':
+      return { type: 'reasoning-end', id: part.id };
+    case 'text-start':
+      return { type: 'text-start', id: part.id };
+    case 'text-delta':
+      return { type: 'text-delta', id: part.id, text: part.text };
+    case 'text-end':
+      return { type: 'text-end', id: part.id };
+    case 'tool-call':
+      return {
+        type: 'tool-call',
+        toolCallId: part.toolCallId,
+        toolName: part.toolName,
+      };
+    case 'tool-result':
+      return { type: 'tool-result', toolCallId: part.toolCallId };
+    case 'tool-error':
+      return { type: 'tool-error', toolCallId: part.toolCallId };
+    default:
+      return null;
+  }
+}
+
+interface DraftToolInputPreview {
+  summary: string;
+  itemCount: number;
+}
+
+const EMPTY_TOOL_INPUT_PREVIEW: DraftToolInputPreview = {
+  summary: '',
+  itemCount: 0,
+};
+
+interface DraftToolInputStreamState {
+  inputTextById: Map<string, string>;
+  toolNameById: Map<string, string>;
+  lastPreviewAt: number;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function extractDraftToolInputPreview(value: unknown): DraftToolInputPreview {
+  if (!isRecord(value)) {
+    return EMPTY_TOOL_INPUT_PREVIEW;
+  }
+  const summary = typeof value.summary === 'string' ? value.summary.trim() : '';
+  const itemCount = Array.isArray(value.items) ? value.items.length : 0;
+  return { summary, itemCount };
+}
+
+async function parseDraftToolInputPreview(
+  inputText: string,
+): Promise<DraftToolInputPreview> {
+  if (inputText.trim() === '') {
+    return EMPTY_TOOL_INPUT_PREVIEW;
+  }
+  try {
+    const parsed = await parsePartialJson(inputText);
+    return extractDraftToolInputPreview(parsed.value);
+  } catch {
+    return EMPTY_TOOL_INPUT_PREVIEW;
+  }
+}
+
+function applyDraftToolInputPreview(
+  draftId: string,
+  toolCallId: string,
+  toolName: string,
+  preview: DraftToolInputPreview,
+): void {
+  if (preview.summary === '' && preview.itemCount === 0) {
+    return;
+  }
+  applyQuickBookDraftStreamEvent(draftId, {
+    type: 'tool-input',
+    toolCallId,
+    toolName,
+    summary: preview.summary,
+    itemCount: preview.itemCount,
+  });
+}
+
+async function handleDraftToolInputPart<TOOLS extends ToolSet>(
+  draftId: string,
+  state: DraftToolInputStreamState,
+  part: TextStreamPart<TOOLS>,
+): Promise<boolean> {
+  if (part.type === 'tool-input-start') {
+    state.inputTextById.set(part.id, '');
+    state.toolNameById.set(part.id, part.toolName);
+    applyQuickBookDraftStreamEvent(draftId, {
+      type: 'tool-input-start',
+      toolCallId: part.id,
+      toolName: part.toolName,
+    });
+    return true;
+  }
+
+  if (part.type !== 'tool-input-delta') {
+    return false;
+  }
+
+  const toolName = state.toolNameById.get(part.id);
+  if (toolName === undefined) {
+    return true;
+  }
+  const inputText = `${state.inputTextById.get(part.id) ?? ''}${part.delta}`;
+  state.inputTextById.set(part.id, inputText);
+  if (toolName !== SAVE_RECORD_DRAFTS_TOOL_NAME) {
+    return true;
+  }
+  const now = Date.now();
+  if (now - state.lastPreviewAt < TOOL_INPUT_PREVIEW_INTERVAL_MS) {
+    return true;
+  }
+  state.lastPreviewAt = now;
+  applyDraftToolInputPreview(
+    draftId,
+    part.id,
+    toolName,
+    await parseDraftToolInputPreview(inputText),
+  );
+  return true;
+}
+
+function applyDraftToolCallPreview(
+  draftId: string,
+  state: DraftToolInputStreamState,
+  toolCallId: string,
+  toolName: string,
+  input: unknown,
+): void {
+  applyDraftToolInputPreview(
+    draftId,
+    toolCallId,
+    toolName,
+    extractDraftToolInputPreview(input),
+  );
+  state.inputTextById.delete(toolCallId);
+  state.toolNameById.delete(toolCallId);
+}
+
+async function consumeDraftStream<TOOLS extends ToolSet>(
+  draftId: string,
+  fullStream: AsyncIterable<TextStreamPart<TOOLS>>,
+): Promise<void> {
+  const state: DraftToolInputStreamState = {
+    inputTextById: new Map(),
+    toolNameById: new Map(),
+    lastPreviewAt: 0,
+  };
+  for await (const part of fullStream) {
+    if (part.type === 'error') {
+      throw part.error;
+    }
+    if (part.type === 'abort') {
+      throw new Error('草稿生成已中止');
+    }
+    if (await handleDraftToolInputPart(draftId, state, part)) {
+      continue;
+    }
+    if (part.type === 'tool-call') {
+      applyDraftToolCallPreview(
+        draftId,
+        state,
+        part.toolCallId,
+        part.toolName,
+        part.input,
+      );
+    }
+    const progressEvent = toDraftStreamEvent(part);
+    if (progressEvent !== null) {
+      applyQuickBookDraftStreamEvent(draftId, progressEvent);
+    }
+  }
+}
+
 function createDraftPlaceholder(
   input: RunQuickBookDraftInput,
   preset: QuickBookDraftPreset,
@@ -239,12 +441,24 @@ async function executeQuickBookDraft(
 ): Promise<number> {
   const booksId = input.target.booksId;
   const preset = normalizePreset(input.preset);
+  beginQuickBookDraftProgress(input.draftId);
+  agentDebugLog('quickBookDraft', 'placeholder-start', {
+    draftId: input.draftId,
+    kind: input.target.kind,
+    booksId,
+  });
   // 占位草稿先落本地：即使账本 API 不可达，也能在列表里留下 failed 可重试记录。
   await createDraftPlaceholder(input, preset);
   bumpDraftVersion();
+  agentDebugLog('quickBookDraft', 'placeholder-done');
 
   const api = await resolveBookApi(input.target);
+  agentDebugLog('quickBookDraft', 'api-done');
   const { provider, model, apiKey } = await resolveDraftModel(api, booksId);
+  agentDebugLog('quickBookDraft', 'model-done', {
+    provider: provider.id,
+    model: model.modelId,
+  });
   await quickBookDraftCache.setAgent(input.draftId, {
     agentProviderId: provider.id,
     agentModelId: model.modelId,
@@ -254,7 +468,9 @@ async function executeQuickBookDraft(
     api.book.getById(booksId),
     loadBookAgentRules(api, booksId),
   ]);
+  agentDebugLog('quickBookDraft', 'book-done');
   const image = await readImageContent(input.imagePath, input.target);
+  agentDebugLog('quickBookDraft', 'image-done', { bytes: image.base64.length });
   const userText = buildQuickBookDraftUserMessage({
     bookName: book.name,
     preset,
@@ -280,12 +496,19 @@ async function executeQuickBookDraft(
     }),
   });
 
-  await agent.generate({
+  agentDebugLog('quickBookDraft', 'generate-start');
+  const stream = await agent.stream({
     messages: [buildImageUserMessage(image, userText)],
     timeout: { totalMs: AGENT_TIMEOUT_MS },
   });
+  await consumeDraftStream(input.draftId, stream.fullStream);
+  agentDebugLog('quickBookDraft', 'generate-done');
 
   const draft = await quickBookDraftCache.getById(input.draftId);
+  agentDebugLog('quickBookDraft', 'draft-read', {
+    status: draft.status,
+    items: draft.items.length,
+  });
   if (draft.items.length === 0) {
     throw new Error(NO_DRAFT_ERROR);
   }
@@ -307,8 +530,13 @@ export async function runQuickBookDraft(
 ): Promise<void> {
   let itemCount = 0;
   const bookKey = getDraftBookKey(input.target);
+  agentDebugLog('quickBookDraft', 'run-start', {
+    draftId: input.draftId,
+    reportOutcome: input.reportOutcome === true,
+  });
   try {
     itemCount = await executeQuickBookDraft(input);
+    agentDebugLog('quickBookDraft', 'run-success', { itemCount });
     if (input.reportOutcome) {
       await reportQuickBookDraftOutcome({
         draftId: input.draftId,
@@ -319,6 +547,10 @@ export async function runQuickBookDraft(
     }
   } catch (error: unknown) {
     const message = toDraftErrorMessage(error);
+    agentDebugLog('quickBookDraft', 'run-error', {
+      message,
+      name: error instanceof Error ? error.name : typeof error,
+    });
     await markDraftFailedBestEffort(input.draftId, message);
     if (input.reportOutcome) {
       await reportQuickBookDraftOutcome({
@@ -330,6 +562,7 @@ export async function runQuickBookDraft(
     }
     throw error instanceof Error ? error : new Error(message);
   } finally {
+    clearQuickBookDraftProgress(input.draftId);
     bumpDraftVersion();
   }
 }

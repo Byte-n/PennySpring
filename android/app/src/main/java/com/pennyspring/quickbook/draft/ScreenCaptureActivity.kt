@@ -449,7 +449,7 @@ class ScreenCaptureActivity : Activity() {
             finish()
             return
         }
-        val started =
+        val startResult =
             try {
                 QuickBookJobService.start(
                     this,
@@ -462,11 +462,17 @@ class ScreenCaptureActivity : Activity() {
                     QuickBookDraftTaskContract.SOURCE_FLOATING_CAPTURE,
                 )
             } catch (_: Exception) {
-                false
+                QuickBookJobService.StartResult.FAILED
             }
-        if (!started) {
+        if (startResult != QuickBookJobService.StartResult.STARTED) {
             file.delete()
-            Toast.makeText(this, R.string.quick_book_capture_send_failed, Toast.LENGTH_SHORT).show()
+            val message =
+                if (startResult == QuickBookJobService.StartResult.BUSY) {
+                    R.string.quick_book_capture_busy
+                } else {
+                    R.string.quick_book_capture_send_failed
+                }
+            Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
         }
         finish()
     }
