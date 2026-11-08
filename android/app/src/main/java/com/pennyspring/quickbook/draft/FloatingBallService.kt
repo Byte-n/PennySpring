@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
 import android.content.res.ColorStateList
 import android.content.res.Configuration
@@ -56,6 +57,9 @@ class FloatingBallService : Service() {
         private const val BALL_SIZE_DP = 48
         private const val INITIAL_BOTTOM_MARGIN_DP = 52
         private const val SNAP_DURATION_MS = 180L
+
+        // 显示去抖：过滤应用切换时的瞬时中间窗口；隐藏始终立即生效。
+        private const val SHOW_DELAY_MS = 300L
 
         private const val MENU_WIDTH_DP = 196
         private const val MENU_ITEM_HEIGHT_DP = 48
@@ -134,9 +138,16 @@ class FloatingBallService : Service() {
     private var actionMenuView: View? = null
     private var windowParams: WindowManager.LayoutParams? = null
     private var snapAnimator: ValueAnimator? = null
+    private var pendingShowRunnable: Runnable? = null
     private var isOverlayAttached = false
     private val mainHandler = Handler(Looper.getMainLooper())
     private var excludedPackages: Set<String> = emptySet()
+
+    // 服务生命周期内缓存；用户切换默认桌面后，重启悬浮球服务才会刷新。
+    private val homePackage: String? by lazy { resolveHomePackage() }
+    private val systemSurfacePackages: Set<String> by lazy {
+        homePackage?.let { setOf(it) } ?: emptySet()
+    }
     private var foregroundPackage: String? = null
     private var isCaptureHidden = false
     private var isDestroyed = false
@@ -157,7 +168,7 @@ class FloatingBallService : Service() {
         QuickBookDraftNotifications.ensureChannels(this)
         excludedPackages = QuickBookDraftPrefs.getExcludedPackages(this)
         foregroundPackage = ScreenshotAccessibilityService.currentForegroundPackage
-        syncOverlayVisibility()
+        syncOverlayVisibility(immediate = true)
         running.set(true)
     }
 
@@ -173,7 +184,7 @@ class FloatingBallService : Service() {
             return START_NOT_STICKY
         }
         if (!isOverlayAttached) {
-            syncOverlayVisibility()
+            syncOverlayVisibility(immediate = true)
         }
         running.set(true)
         return START_NOT_STICKY
@@ -191,6 +202,7 @@ class FloatingBallService : Service() {
     override fun onDestroy() {
         isDestroyed = true
         mainHandler.removeCallbacksAndMessages(null)
+        pendingShowRunnable = null
         snapAnimator?.cancel()
         snapAnimator = null
         removeOverlayView()
@@ -299,19 +311,72 @@ class FloatingBallService : Service() {
             return
         }
         isCaptureHidden = false
-        syncOverlayVisibility()
+        syncOverlayVisibility(immediate = true)
     }
 
-    private fun syncOverlayVisibility() {
+    /**
+     * 显示延迟去抖，隐藏立即执行：应用切换中间窗口不会让球闪现；
+     * 显式恢复（服务启动、截图返回）直接显示。
+     */
+    private fun syncOverlayVisibility(immediate: Boolean = false) {
         if (isDestroyed) {
             return
         }
-        if (FloatingBallPolicy.shouldShow(foregroundPackage, excludedPackages, isCaptureHidden)) {
-            setupOverlay()
-        } else {
+        if (!shouldShowOverlay()) {
+            cancelPendingShow()
             removeOverlayView()
+            return
         }
+        if (isOverlayAttached) {
+            cancelPendingShow()
+            return
+        }
+        if (immediate) {
+            cancelPendingShow()
+            setupOverlay()
+            return
+        }
+        if (pendingShowRunnable != null) {
+            return
+        }
+        val runnable =
+            Runnable {
+                pendingShowRunnable = null
+                if (!isDestroyed && shouldShowOverlay()) {
+                    setupOverlay()
+                }
+            }
+        pendingShowRunnable = runnable
+        mainHandler.postDelayed(runnable, SHOW_DELAY_MS)
     }
+
+    private fun shouldShowOverlay(): Boolean =
+        FloatingBallPolicy.shouldShow(
+            foregroundPackage,
+            excludedPackages,
+            systemSurfacePackages,
+            isCaptureHidden,
+        )
+
+    private fun cancelPendingShow() {
+        val runnable = pendingShowRunnable ?: return
+        pendingShowRunnable = null
+        mainHandler.removeCallbacks(runnable)
+    }
+
+    private fun resolveHomePackage(): String? =
+        try {
+            packageManager
+                .resolveActivity(
+                    Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME),
+                    PackageManager.MATCH_DEFAULT_ONLY,
+                )?.activityInfo
+                ?.packageName
+                ?.takeIf { it.isNotBlank() }
+        } catch (error: Exception) {
+            Log.w(TAG, "读取默认桌面失败", error)
+            null
+        }
 
     private fun applyExcludedPackages(packages: Set<String>) {
         mainHandler.post {
@@ -330,6 +395,7 @@ class FloatingBallService : Service() {
             }
             foregroundPackage = packageName
             dismissActionMenu()
+            cancelPendingShow()
             syncOverlayVisibility()
         }
     }

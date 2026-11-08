@@ -3,6 +3,10 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 
 import { createSqliteStateStorage } from '../../stores/bookStorage';
 import {
+  normalizeQuickBookEntryMode,
+  type QuickBookEntryMode,
+} from '../quickBookDraft/entryMode';
+import {
   DEFAULT_QUICK_BOOK_PROMPT,
   DEFAULT_SCREENSHOT_FRESH_WINDOW_SECONDS,
   LEGACY_DEFAULT_QUICK_BOOK_PROMPT,
@@ -12,7 +16,7 @@ import {
 } from './constants';
 
 const QUICK_BOOK_SETTINGS_STORE_KEY = 'pennyspring-quick-book-settings-v2';
-const QUICK_BOOK_SETTINGS_STORE_VERSION = 6;
+const QUICK_BOOK_SETTINGS_STORE_VERSION = 7;
 
 /** 快捷记账的设备级设置；provider/model 属于服务器级选择，见 api.quickBook。 */
 export interface QuickBookSettings {
@@ -21,8 +25,10 @@ export interface QuickBookSettings {
   nudgeEnabled: boolean;
   /** 截图触发的快捷记账直接写入，不再弹出新增记录确认卡片。 */
   autoApproveScreenshot: boolean;
-  /** 悬浮球截图记账：仅 Android 本地账本生效，设备级开关。 */
+  /** 截图记账入口：仅 Android 本地账本生效，设备级开关。 */
   floatingBallEnabled: boolean;
+  /** 截图记账入口的触发方式；两种方式互斥。 */
+  triggerMode: QuickBookEntryMode;
   /** 这些包名位于前台时不显示悬浮球；默认空。 */
   excludedPackages: string[];
 }
@@ -33,6 +39,7 @@ interface QuickBookSettingsStore extends QuickBookSettings {
   setNudgeEnabled: (enabled: boolean) => void;
   setAutoApproveScreenshot: (enabled: boolean) => void;
   setFloatingBallEnabled: (enabled: boolean) => void;
+  setTriggerMode: (mode: QuickBookEntryMode) => void;
   setExcludedPackages: (packages: readonly string[]) => void;
 }
 
@@ -71,6 +78,7 @@ const DEFAULT_SETTINGS: QuickBookSettings = {
   nudgeEnabled: false,
   autoApproveScreenshot: true,
   floatingBallEnabled: false,
+  triggerMode: 'floatingBall',
   excludedPackages: [],
 };
 
@@ -82,6 +90,7 @@ export function migrateQuickBookSettings(
   const migrated = {
     ...DEFAULT_SETTINGS,
     ...state,
+    triggerMode: normalizeQuickBookEntryMode(state.triggerMode),
     excludedPackages: normalizeExcludedPackages(
       Array.isArray(state.excludedPackages) ? state.excludedPackages : [],
     ),
@@ -115,6 +124,9 @@ export const useQuickBookSettingsStore = create<QuickBookSettingsStore>()(
       setFloatingBallEnabled: floatingBallEnabled => {
         set({ floatingBallEnabled });
       },
+      setTriggerMode: triggerMode => {
+        set({ triggerMode });
+      },
       setExcludedPackages: packages => {
         set({ excludedPackages: normalizeExcludedPackages(packages) });
       },
@@ -128,6 +140,7 @@ export const useQuickBookSettingsStore = create<QuickBookSettingsStore>()(
         nudgeEnabled: state.nudgeEnabled,
         autoApproveScreenshot: state.autoApproveScreenshot,
         floatingBallEnabled: state.floatingBallEnabled,
+        triggerMode: state.triggerMode,
         excludedPackages: state.excludedPackages,
       }),
       skipHydration: true,
@@ -149,6 +162,7 @@ export function getQuickBookSettings(): QuickBookSettings {
     nudgeEnabled: state.nudgeEnabled,
     autoApproveScreenshot: state.autoApproveScreenshot,
     floatingBallEnabled: state.floatingBallEnabled,
+    triggerMode: state.triggerMode,
     excludedPackages: state.excludedPackages,
   };
 }

@@ -26,7 +26,7 @@ import type {
 } from '../../features/quickBook/types';
 import { useScreenshotNudge } from '../../features/quickBook/useScreenshotNudge';
 import { resolveQuickBookModel } from '../../features/quickBook/validation';
-import { useFloatingBallLifecycle } from '../../features/quickBookDraft/useFloatingBallLifecycle';
+import { useQuickBookEntryLifecycle } from '../../features/quickBookDraft/useQuickBookEntryLifecycle';
 import { mergeNativeExcludedPackages } from '../../features/quickBookDraft/excludedPackagesSync';
 import { ROOT_ROUTES, rootNavigationRef } from '../../navigation';
 import { isAgentDeepLinkUrl } from '../../navigation/linking';
@@ -124,12 +124,13 @@ export function AgentRoot({ children }: AgentRootProps) {
 
   const quickBookSettings = useQuickBookSettingsStore();
 
-  useFloatingBallLifecycle({
+  useQuickBookEntryLifecycle({
     book,
     quickBookReady,
-    floatingBallEnabled: quickBookSettings.floatingBallEnabled,
+    entryEnabled: quickBookSettings.floatingBallEnabled,
+    triggerMode: quickBookSettings.triggerMode,
     excludedPackages: quickBookSettings.excludedPackages,
-    setFloatingBallEnabled: quickBookSettings.setFloatingBallEnabled,
+    setEntryEnabled: quickBookSettings.setFloatingBallEnabled,
   });
 
   useEffect(() => {

@@ -44,8 +44,13 @@ class ScreenCaptureActivity : Activity() {
 
     private val mainHandler = Handler(Looper.getMainLooper())
     private val hasCapturedFrame = AtomicBoolean(false)
+    private val hasCaptureStarted = AtomicBoolean(false)
     private val captureTimeout = Runnable { onCaptureTimeout() }
+    private val captureRetry = Runnable { attemptCapture() }
 
+    private var captureAttempts = 0
+    private var triggerSource = TRIGGER_FLOATING_BALL
+    private var notificationCaptureScheduled = false
     private var isCleanedUp = false
 
     private var systemTopInset = 0
@@ -54,9 +59,31 @@ class ScreenCaptureActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         configureWindow()
+        triggerSource = intent?.getStringExtra(EXTRA_TRIGGER_SOURCE) ?: TRIGGER_FLOATING_BALL
         runCatching { FloatingBallService.hideForCapture() }
-        // 等待悬浮球窗口从合成层移除后再抓帧，避免把悬浮球截进画面。
-        mainHandler.postDelayed({ captureScreen() }, CAPTURE_DELAY_MS)
+        if (triggerSource == TRIGGER_NOTIFICATION) {
+            runCatching { ScreenshotAccessibilityService.dismissNotificationShade() }
+            // 通知栏收起前不抓帧；等待 Activity 获得焦点后再延迟抓取。
+            mainHandler.postDelayed({ onNotificationCaptureTimeout() }, NOTIFICATION_FOCUS_TIMEOUT_MS)
+        } else {
+            // 等待悬浮球窗口从合成层移除后再抓帧，避免把悬浮球截进画面。
+            mainHandler.postDelayed({ captureScreen() }, CAPTURE_DELAY_MS)
+        }
+    }
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (
+            !hasFocus ||
+            triggerSource != TRIGGER_NOTIFICATION ||
+            notificationCaptureScheduled ||
+            isFinishing ||
+            isDestroyed
+        ) {
+            return
+        }
+        notificationCaptureScheduled = true
+        mainHandler.postDelayed({ captureScreen() }, NOTIFICATION_CAPTURE_DELAY_MS)
     }
 
     @Suppress("DEPRECATION")
@@ -89,8 +116,27 @@ class ScreenCaptureActivity : Activity() {
         }
     }
 
+    private fun onNotificationCaptureTimeout() {
+        if (notificationCaptureScheduled || hasCapturedFrame.get()) {
+            return
+        }
+        failCapture(R.string.quick_book_capture_timeout)
+    }
+
     private fun captureScreen() {
+        if (!hasCaptureStarted.compareAndSet(false, true)) {
+            return
+        }
         if (isFinishing || isDestroyed || isCleanedUp) {
+            return
+        }
+        mainHandler.postDelayed(captureTimeout, CAPTURE_TIMEOUT_MS)
+        attemptCapture()
+    }
+
+    /** 通知冷启动时无障碍服务可能尚未连接，短暂重试而不是立即失败。 */
+    private fun attemptCapture() {
+        if (isFinishing || isDestroyed || isCleanedUp || hasCapturedFrame.get()) {
             return
         }
         val requested =
@@ -101,14 +147,19 @@ class ScreenCaptureActivity : Activity() {
                 }
                 handleCapturedBitmap(bitmap)
             }
-        if (!requested) {
+        if (requested) {
+            return
+        }
+        if (captureAttempts >= CAPTURE_MAX_RETRIES) {
             failCapture(R.string.quick_book_capture_accessibility_required)
             return
         }
-        mainHandler.postDelayed(captureTimeout, CAPTURE_TIMEOUT_MS)
+        captureAttempts++
+        mainHandler.postDelayed(captureRetry, CAPTURE_RETRY_INTERVAL_MS)
     }
 
     private fun onCaptureTimeout() {
+        mainHandler.removeCallbacks(captureRetry)
         if (hasCapturedFrame.get()) {
             return
         }
@@ -117,6 +168,7 @@ class ScreenCaptureActivity : Activity() {
 
     private fun handleCapturedBitmap(bitmap: Bitmap?) {
         mainHandler.removeCallbacks(captureTimeout)
+        mainHandler.removeCallbacks(captureRetry)
         if (isFinishing || isDestroyed) {
             bitmap?.recycle()
             return
@@ -469,6 +521,7 @@ class ScreenCaptureActivity : Activity() {
 
     private fun failCapture(messageResId: Int) {
         mainHandler.removeCallbacks(captureTimeout)
+        mainHandler.removeCallbacks(captureRetry)
         if (isFinishing || isDestroyed || isCleanedUp) {
             return
         }
@@ -517,7 +570,14 @@ class ScreenCaptureActivity : Activity() {
 
     companion object {
         private const val CAPTURE_DELAY_MS = 180L
+        private const val NOTIFICATION_CAPTURE_DELAY_MS = 350L
+        private const val NOTIFICATION_FOCUS_TIMEOUT_MS = 3000L
         private const val CAPTURE_TIMEOUT_MS = 3000L
+        private const val CAPTURE_RETRY_INTERVAL_MS = 100L
+        private const val CAPTURE_MAX_RETRIES = 20
+        const val EXTRA_TRIGGER_SOURCE = "com.pennyspring.quickbook.EXTRA_TRIGGER_SOURCE"
+        const val TRIGGER_FLOATING_BALL = "floating_ball"
+        const val TRIGGER_NOTIFICATION = "notification"
         private const val JPEG_QUALITY = 92
         private const val DRAFT_DIRECTORY = "quick-book-drafts"
         private const val BLANK_SAMPLE_GRID = 24
@@ -544,12 +604,17 @@ class ScreenCaptureActivity : Activity() {
         private const val PRESET_BAR_ANIMATION_MS = 160L
         private const val PRESET_BAR_EXIT_ANIMATION_MS = 120L
 
+        fun createIntent(
+            context: Context,
+            trigger: String,
+        ): Intent =
+            Intent(context, ScreenCaptureActivity::class.java).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                putExtra(EXTRA_TRIGGER_SOURCE, trigger)
+            }
+
         fun start(context: Context) {
-            val intent =
-                Intent(context, ScreenCaptureActivity::class.java).apply {
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                }
-            context.startActivity(intent)
+            context.startActivity(createIntent(context, TRIGGER_FLOATING_BALL))
         }
     }
 }

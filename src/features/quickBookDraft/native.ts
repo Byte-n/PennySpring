@@ -1,22 +1,28 @@
 import { NativeModules, Platform } from 'react-native';
 
-/** 原生悬浮球状态；supported=false 表示当前平台没有可用实现。 */
+import type { QuickBookEntryMode } from './entryMode';
+
+/** 原生截图记账入口状态；supported=false 表示当前平台没有可用实现。 */
 export interface QuickBookDraftNativeStatus {
   overlayPermission: boolean;
   notificationPermission: boolean;
   accessibilityPermission: boolean;
   floatingBallRunning: boolean;
+  notificationTriggerActive: boolean;
+  entryDisabledByUser: boolean;
   currentBookId: number;
   supported: boolean;
   /** 原生侧已落盘的悬浮球排除应用，用于启动时与设备设置合并。 */
   excludedPackages: string[];
 }
 
-export const UNSUPPORTED_FLOATING_BALL_STATUS: QuickBookDraftNativeStatus = {
+export const UNSUPPORTED_QUICK_BOOK_ENTRY_STATUS: QuickBookDraftNativeStatus = {
   overlayPermission: false,
   notificationPermission: false,
   accessibilityPermission: false,
   floatingBallRunning: false,
+  notificationTriggerActive: false,
+  entryDisabledByUser: false,
   currentBookId: 0,
   supported: false,
   excludedPackages: [],
@@ -31,7 +37,7 @@ export interface QuickBookInstalledApp {
 }
 
 /**
- * Android 原生悬浮球模块契约。
+ * Android 原生截图记账入口模块契约。
  * 非 Android 或模块缺失时所有方法走 no-op / unsupported 分支。
  */
 interface QuickBookDraftNativeModule {
@@ -40,12 +46,15 @@ interface QuickBookDraftNativeModule {
   openOverlaySettings: () => void;
   openNotificationSettings: () => void;
   openAccessibilitySettings: () => void;
-  startFloatingBall: () => Promise<unknown>;
-  stopFloatingBall: () => void;
+  startEntry: (
+    mode: QuickBookEntryMode,
+    userInitiated: boolean,
+  ) => Promise<unknown>;
+  stopEntry: () => void;
+  consumeEntryDisabledByUser: () => Promise<unknown>;
   setCurrentBookId: (booksId: number) => void;
   setFloatingBallEnabled: (enabled: boolean) => void;
   setExcludedPackages: (packages: string[]) => void;
-  isFloatingBallRunning: () => Promise<unknown>;
   cleanupOrphanImages: () => Promise<unknown>;
 }
 
@@ -69,13 +78,15 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 function parseNativeStatus(value: unknown): QuickBookDraftNativeStatus {
   if (!isRecord(value)) {
-    throw new Error('悬浮球状态返回格式不正确');
+    throw new Error('截图记账入口状态返回格式不正确');
   }
   const {
     overlayPermission,
     notificationPermission,
     accessibilityPermission,
     floatingBallRunning,
+    notificationTriggerActive,
+    entryDisabledByUser,
     currentBookId,
     supported,
     excludedPackages,
@@ -85,11 +96,13 @@ function parseNativeStatus(value: unknown): QuickBookDraftNativeStatus {
     typeof notificationPermission !== 'boolean' ||
     typeof accessibilityPermission !== 'boolean' ||
     typeof floatingBallRunning !== 'boolean' ||
+    typeof notificationTriggerActive !== 'boolean' ||
+    typeof entryDisabledByUser !== 'boolean' ||
     typeof currentBookId !== 'number' ||
     !Number.isFinite(currentBookId) ||
     typeof supported !== 'boolean'
   ) {
-    throw new Error('悬浮球状态返回格式不正确');
+    throw new Error('截图记账入口状态返回格式不正确');
   }
   const parsedExcludedPackages = Array.isArray(excludedPackages)
     ? excludedPackages.filter(
@@ -102,6 +115,8 @@ function parseNativeStatus(value: unknown): QuickBookDraftNativeStatus {
     notificationPermission,
     accessibilityPermission,
     floatingBallRunning,
+    notificationTriggerActive,
+    entryDisabledByUser,
     currentBookId,
     supported,
     excludedPackages: parsedExcludedPackages,
@@ -152,48 +167,51 @@ export async function getQuickBookInstalledApps(): Promise<
 export async function getQuickBookDraftStatus(): Promise<QuickBookDraftNativeStatus> {
   const module = getNativeModule();
   if (!module) {
-    return UNSUPPORTED_FLOATING_BALL_STATUS;
+    return UNSUPPORTED_QUICK_BOOK_ENTRY_STATUS;
   }
   try {
     return parseNativeStatus(await module.getStatus());
   } catch {
-    throw toChineseError('读取悬浮球状态');
+    throw toChineseError('读取截图记账入口状态');
   }
 }
 
-export async function startQuickBookDraftFloatingBall(): Promise<boolean> {
+export async function startQuickBookDraftEntry(
+  mode: QuickBookEntryMode,
+  userInitiated: boolean,
+): Promise<boolean> {
   const module = getNativeModule();
   if (!module) {
     return false;
   }
   try {
-    return (await module.startFloatingBall()) === true;
+    return (await module.startEntry(mode, userInitiated)) === true;
   } catch {
-    throw toChineseError('启动悬浮球');
+    throw toChineseError('启动截图记账入口');
   }
 }
 
-export async function stopQuickBookDraftFloatingBall(): Promise<void> {
+export async function consumeQuickBookDraftEntryDisabledByUser(): Promise<boolean> {
+  const module = getNativeModule();
+  if (!module) {
+    return false;
+  }
+  try {
+    return (await module.consumeEntryDisabledByUser()) === true;
+  } catch {
+    throw toChineseError('读取截图记账入口关闭状态');
+  }
+}
+
+export async function stopQuickBookDraftEntry(): Promise<void> {
   const module = getNativeModule();
   if (!module) {
     return;
   }
   try {
-    module.stopFloatingBall();
+    module.stopEntry();
   } catch {
-    throw toChineseError('关闭悬浮球');
-  }
-}
-
-export async function isQuickBookDraftFloatingBallRunning(): Promise<boolean> {
-  const module = getNativeModule();
-  if (!module) {
-    return false;
-  }
-  try {
-    return (await module.isFloatingBallRunning()) === true;
-  } catch {
-    throw toChineseError('读取悬浮球运行状态');
+    throw toChineseError('关闭截图记账入口');
   }
 }
 
@@ -241,7 +259,7 @@ export function setQuickBookDraftCurrentBookId(booksId: number): void {
   try {
     module.setCurrentBookId(booksId);
   } catch {
-    throw toChineseError('同步悬浮球账本');
+    throw toChineseError('同步截图记账账本');
   }
 }
 
@@ -268,7 +286,7 @@ export function setQuickBookDraftFloatingBallEnabled(enabled: boolean): void {
   try {
     module.setFloatingBallEnabled(enabled);
   } catch {
-    throw toChineseError('同步悬浮球开关');
+    throw toChineseError('同步截图记账入口开关');
   }
 }
 

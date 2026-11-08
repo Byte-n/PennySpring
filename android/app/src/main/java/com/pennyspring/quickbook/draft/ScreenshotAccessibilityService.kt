@@ -4,6 +4,8 @@ import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.AccessibilityServiceInfo
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ApplicationInfo
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.os.Build
 import android.os.Handler
@@ -12,6 +14,7 @@ import android.util.Log
 import android.view.Display
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityManager
+import android.view.accessibility.AccessibilityWindowInfo
 import android.view.inputmethod.InputMethodManager
 import androidx.annotation.RequiresApi
 import java.util.concurrent.ExecutorService
@@ -68,10 +71,19 @@ class ScreenshotAccessibilityService : AccessibilityService() {
             val service = instance ?: return false
             return service.requestCapture(callback)
         }
+
+        /** 通知入口触发时主动收起通知栏；Android 12+ 支持。 */
+        fun dismissNotificationShade(): Boolean {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+                return false
+            }
+            return instance?.performGlobalAction(AccessibilityService.GLOBAL_ACTION_DISMISS_NOTIFICATION_SHADE) == true
+        }
     }
 
     private val mainHandler = Handler(Looper.getMainLooper())
     private var transientPackages: Set<String> = setOf(SYSTEM_UI_PACKAGE)
+    private val systemSurfaceCache = mutableMapOf<String, Boolean>()
 
     override fun onServiceConnected() {
         super.onServiceConnected()
@@ -87,8 +99,40 @@ class ScreenshotAccessibilityService : AccessibilityService() {
         if (packageName in transientPackages || packageName == currentForegroundPackage) {
             return
         }
+        if (isSystemSurface(event, packageName)) {
+            return
+        }
         currentForegroundPackage = packageName
         FloatingBallService.onForegroundPackageChanged(packageName)
+    }
+
+    /**
+     * 音量面板、状态栏、权限弹窗等系统界面不能当作前台应用，
+     * 否则排除应用之间切换时悬浮球会闪现。
+     */
+    private fun isSystemSurface(
+        event: AccessibilityEvent,
+        packageName: String,
+    ): Boolean = isNonApplicationWindow(event) || isSystemAppWithoutLauncher(packageName)
+
+    private fun isNonApplicationWindow(event: AccessibilityEvent): Boolean {
+        val window = windows.firstOrNull { it.id == event.windowId } ?: return false
+        return window.type != AccessibilityWindowInfo.TYPE_APPLICATION
+    }
+
+    private fun isSystemAppWithoutLauncher(packageName: String): Boolean {
+        systemSurfaceCache[packageName]?.let { return it }
+        val isSystemSurface =
+            try {
+                val appInfo = packageManager.getApplicationInfo(packageName, 0)
+                val isSystem =
+                    (appInfo.flags and (ApplicationInfo.FLAG_SYSTEM or ApplicationInfo.FLAG_UPDATED_SYSTEM_APP)) != 0
+                isSystem && packageManager.getLaunchIntentForPackage(packageName) == null
+            } catch (_: PackageManager.NameNotFoundException) {
+                false
+            }
+        systemSurfaceCache[packageName] = isSystemSurface
+        return isSystemSurface
     }
 
     override fun onInterrupt() {

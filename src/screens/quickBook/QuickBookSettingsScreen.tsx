@@ -18,10 +18,12 @@ import {
   KeyboardAwareFormScroll,
   KeyboardAwareScreen,
   Row,
+  Segmented,
   Switch,
   Text,
   Textarea,
   useToast,
+  type SegmentedValue,
 } from '@pennyspring/ui';
 import { createUseSheetStyle } from '@pennyspring/ui';
 
@@ -53,19 +55,26 @@ import {
   getDefaultQuickBookModel,
   resolveQuickBookModel,
 } from '../../features/quickBook/validation';
+import {
+  parseQuickBookEntryMode,
+  type QuickBookEntryMode,
+} from '../../features/quickBookDraft/entryMode';
 import { getDraftErrorMessage } from '../../features/quickBookDraft/errorMessage';
 import {
-  getFloatingBallEnableBlockReason,
-  getFloatingBallStatus,
-  isFloatingBallSupported,
+  getQuickBookEntryEnableBlockReason,
+  getQuickBookEntryStatus,
+  isAnyEntryActive,
+  isEntryActive,
+  isEntryPermissionMissing,
+  isQuickBookEntrySupported,
   openAccessibilitySettings,
   openNotificationSettings,
   openOverlaySettings,
   requestNotificationPermission,
-  startFloatingBall,
-  stopFloatingBall,
-  syncFloatingBallEnabledSetting,
-} from '../../features/quickBookDraft/floatingBall';
+  startQuickBookEntry,
+  stopQuickBookEntry,
+  syncQuickBookEntryEnabledSetting,
+} from '../../features/quickBookDraft/quickBookEntry';
 import type { QuickBookDraftNativeStatus } from '../../features/quickBookDraft/native';
 import { ROOT_ROUTES, useNavigation } from '../../navigation';
 
@@ -92,6 +101,11 @@ const useStyles = createUseSheetStyle(token => ({
     opacity: 0.55,
   },
 }));
+
+const TRIGGER_MODE_OPTIONS = [
+  { value: 'floatingBall', labelText: '悬浮球' },
+  { value: 'notification', labelText: '常驻通知' },
+];
 
 function getMultimodalModels(
   provider: AgentProviderConfig | null,
@@ -148,18 +162,18 @@ export function QuickBookSettingsScreen(): React.ReactElement {
   const isConfigured = resolution.ok;
   const isAndroid = isScreenshotDetectionSupported();
   const book = useBookStore(state => state.currentBook);
-  const floatingBallSupported = isFloatingBallSupported();
+  const entrySupported = isQuickBookEntrySupported();
   const isLocalBook = book !== null && book.kind === BOOK_TYPE.local;
-  const floatingBallBlockReason = getFloatingBallEnableBlockReason({
-    isSupported: floatingBallSupported,
+  const entryBlockReason = getQuickBookEntryEnableBlockReason({
+    isSupported: entrySupported,
     isConfigured,
     isLocalBook,
   });
-  const [floatingBallStatus, setFloatingBallStatus] =
+  const [entryStatus, setEntryStatus] =
     useState<QuickBookDraftNativeStatus | null>(null);
-  const [floatingBallBusy, setFloatingBallBusy] = useState(false);
-  const floatingBallBusyRef = useRef(false);
-  const floatingBallAutoStoppedRef = useRef(false);
+  const [entryBusy, setEntryBusy] = useState(false);
+  const entryBusyRef = useRef(false);
+  const entryAutoStoppedRef = useRef(false);
 
   const providerActions = useMemo(
     () =>
@@ -263,43 +277,47 @@ export function QuickBookSettingsScreen(): React.ReactElement {
     [isConfigured, settings, toast],
   );
 
-  const refreshFloatingBallStatus = useCallback(async (): Promise<void> => {
-    if (!floatingBallSupported) {
+  const refreshEntryStatus = useCallback(async (): Promise<void> => {
+    if (!entrySupported) {
       return;
     }
     try {
-      const status = await getFloatingBallStatus();
-      setFloatingBallStatus(status);
+      const status = await getQuickBookEntryStatus();
+      setEntryStatus(status);
+      if (status.entryDisabledByUser) {
+        // 通知栏关闭动作由生命周期 hook 消费并提示，这里只刷新状态。
+        return;
+      }
       const store = useQuickBookSettingsStore.getState();
-      const permissionMissing =
-        !status.overlayPermission ||
-        !status.notificationPermission ||
-        !status.accessibilityPermission;
+      const mode = store.triggerMode;
+      const permissionMissing = isEntryPermissionMissing(status, mode);
       if (
         store.floatingBallEnabled &&
-        !floatingBallBusyRef.current &&
-        (permissionMissing || !status.floatingBallRunning)
+        !entryBusyRef.current &&
+        (permissionMissing || !isEntryActive(status, mode))
       ) {
-        if (status.floatingBallRunning) {
+        if (isAnyEntryActive(status)) {
           try {
-            await stopFloatingBall();
+            await stopQuickBookEntry();
           } catch {
-            // 权限失效时尽力停掉旧服务，失败不阻塞开关回写。
+            // 权限失效时尽力停掉旧入口，失败不阻塞开关回写。
           }
         }
         store.setFloatingBallEnabled(false);
         try {
-          syncFloatingBallEnabledSetting(false);
+          syncQuickBookEntryEnabledSetting(false);
         } catch {
           // JS 侧已经关闭开关，原生标记失败不阻塞页面状态回写。
         }
-        if (!floatingBallAutoStoppedRef.current) {
-          floatingBallAutoStoppedRef.current = true;
+        if (!entryAutoStoppedRef.current) {
+          entryAutoStoppedRef.current = true;
           const autoStoppedMessage = !status.accessibilityPermission
-            ? '无障碍截图服务已关闭，悬浮球已关闭，请重新启用后开启。'
-            : !status.overlayPermission || !status.notificationPermission
-              ? '悬浮窗或通知权限已失效，悬浮球已关闭，请重新授权后开启。'
-              : '悬浮球已停止运行（服务被系统关闭），开关已自动关闭。';
+            ? '无障碍截图服务已关闭，截图记账入口已关闭，请重新启用后开启。'
+            : mode === 'floatingBall' && !status.overlayPermission
+              ? '悬浮窗权限已失效，截图记账入口已关闭，请重新授权后开启。'
+              : !status.notificationPermission
+                ? '通知权限已失效，截图记账入口已关闭，请重新授权后开启。'
+                : '截图记账入口已停止运行（服务或通知被系统关闭），开关已自动关闭。';
           toast.show({
             messageText: autoStoppedMessage,
             status: 'error',
@@ -307,26 +325,26 @@ export function QuickBookSettingsScreen(): React.ReactElement {
         }
       }
     } catch (error) {
-      setFloatingBallStatus(null);
-      console.error('Floating ball status refresh failed:', error);
+      setEntryStatus(null);
+      console.error('Quick book entry status refresh failed:', error);
     }
-  }, [floatingBallSupported, toast]);
+  }, [entrySupported, toast]);
 
   useFocusEffect(
     useCallback(() => {
-      if (!floatingBallSupported) {
+      if (!entrySupported) {
         return undefined;
       }
-      refreshFloatingBallStatus().catch(() => undefined);
+      refreshEntryStatus().catch(() => undefined);
       const subscription = AppState.addEventListener('change', state => {
         if (state === 'active') {
-          refreshFloatingBallStatus().catch(() => undefined);
+          refreshEntryStatus().catch(() => undefined);
         }
       });
       return () => {
         subscription.remove();
       };
-    }, [floatingBallSupported, refreshFloatingBallStatus]),
+    }, [entrySupported, refreshEntryStatus]),
   );
 
   const handleOpenOverlaySettings = useCallback((): void => {
@@ -362,116 +380,181 @@ export function QuickBookSettingsScreen(): React.ReactElement {
     }
   }, [toast]);
 
-  const setFloatingBallBusyState = useCallback((busy: boolean): void => {
-    floatingBallBusyRef.current = busy;
-    setFloatingBallBusy(busy);
+  const setEntryBusyState = useCallback((busy: boolean): void => {
+    entryBusyRef.current = busy;
+    setEntryBusy(busy);
   }, []);
 
-  const handleFloatingBallToggle = useCallback(
+  const verifyEntryPermissions = useCallback(
+    async (mode: QuickBookEntryMode): Promise<boolean> => {
+      const status = await getQuickBookEntryStatus();
+      setEntryStatus(status);
+      if (!status.supported) {
+        toast.show({
+          messageText: '当前设备不支持截图记账入口。',
+          status: 'error',
+        });
+        return false;
+      }
+      if (!status.accessibilityPermission) {
+        openAccessibilitySettings();
+        toast.show({
+          messageText:
+            '请先启用 PennySpring 截图服务（无障碍），启用后返回再次开启。',
+          status: 'error',
+        });
+        return false;
+      }
+      if (mode === 'floatingBall' && !status.overlayPermission) {
+        openOverlaySettings();
+        toast.show({
+          messageText: '请先授权悬浮窗权限，授权后返回再次开启。',
+          status: 'error',
+        });
+        return false;
+      }
+      const notificationGranted =
+        status.notificationPermission ||
+        (await requestNotificationPermission());
+      if (!notificationGranted) {
+        toast.show({
+          messageText:
+            mode === 'notification'
+              ? '需要通知权限才能显示常驻通知入口，请在系统设置中允许。'
+              : '需要通知权限才能接收草稿提醒，请在系统设置中允许。',
+          status: 'error',
+        });
+        return false;
+      }
+      return true;
+    },
+    [setEntryStatus, toast],
+  );
+
+  const handleEntryToggle = useCallback(
     async (next: boolean): Promise<void> => {
-      if (!floatingBallSupported || floatingBallBusyRef.current) {
+      if (!entrySupported || entryBusyRef.current) {
         return;
       }
       if (!next) {
-        setFloatingBallBusyState(true);
+        setEntryBusyState(true);
         try {
-          await stopFloatingBall();
+          await stopQuickBookEntry();
         } catch (error) {
           toast.show({
-            messageText: getDraftErrorMessage(error, '关闭悬浮球失败'),
+            messageText: getDraftErrorMessage(error, '关闭截图记账入口失败'),
             status: 'error',
           });
         }
         settings.setFloatingBallEnabled(false);
         try {
-          syncFloatingBallEnabledSetting(false);
+          syncQuickBookEntryEnabledSetting(false);
         } catch {
           // 开关已按用户意图关闭，原生标记失败不回滚。
         }
-        floatingBallAutoStoppedRef.current = false;
-        setFloatingBallBusyState(false);
-        await refreshFloatingBallStatus();
+        entryAutoStoppedRef.current = false;
+        setEntryBusyState(false);
+        await refreshEntryStatus();
         return;
       }
 
-      if (floatingBallBlockReason !== null) {
+      if (entryBlockReason !== null) {
         toast.show({
-          messageText: floatingBallBlockReason,
+          messageText: entryBlockReason,
           status: 'error',
         });
         return;
       }
 
-      setFloatingBallBusyState(true);
+      setEntryBusyState(true);
       try {
-        const status = await getFloatingBallStatus();
-        setFloatingBallStatus(status);
-        if (!status.supported) {
-          toast.show({
-            messageText: '当前设备不支持悬浮球截图记账。',
-            status: 'error',
-          });
+        const permissionsReady = await verifyEntryPermissions(
+          settings.triggerMode,
+        );
+        if (!permissionsReady) {
           return;
         }
-        if (!status.overlayPermission) {
-          openOverlaySettings();
-          toast.show({
-            messageText: '请先授权悬浮窗权限，授权后返回再次开启。',
-            status: 'error',
-          });
-          return;
-        }
-        if (!status.accessibilityPermission) {
-          openAccessibilitySettings();
-          toast.show({
-            messageText:
-              '请先启用 PennySpring 截图服务（无障碍），启用后返回再次开启。',
-            status: 'error',
-          });
-          return;
-        }
-        const notificationGranted =
-          status.notificationPermission ||
-          (await requestNotificationPermission());
-        if (!notificationGranted) {
-          toast.show({
-            messageText: '需要通知权限才能接收草稿提醒，请在系统设置中允许。',
-            status: 'error',
-          });
-          return;
-        }
-        const started = await startFloatingBall();
+        const started = await startQuickBookEntry(settings.triggerMode, true);
         if (!started) {
           toast.show({
-            messageText: '悬浮球启动失败，请稍后重试。',
+            messageText: '截图记账入口启动失败，请稍后重试。',
             status: 'error',
           });
           return;
         }
         settings.setFloatingBallEnabled(true);
         try {
-          syncFloatingBallEnabledSetting(true);
+          syncQuickBookEntryEnabledSetting(true);
         } catch {
-          // 服务已启动，原生标记失败不影响 JS 开关。
+          // 入口已启动，原生标记失败不影响 JS 开关。
         }
-        floatingBallAutoStoppedRef.current = false;
-        setFloatingBallStatus(await getFloatingBallStatus());
+        entryAutoStoppedRef.current = false;
+        setEntryStatus(await getQuickBookEntryStatus());
       } catch (error) {
         toast.show({
-          messageText: getDraftErrorMessage(error, '开启悬浮球失败'),
+          messageText: getDraftErrorMessage(error, '开启截图记账入口失败'),
           status: 'error',
         });
       } finally {
-        setFloatingBallBusyState(false);
+        setEntryBusyState(false);
       }
     },
     [
-      floatingBallBlockReason,
-      floatingBallSupported,
-      refreshFloatingBallStatus,
-      setFloatingBallBusyState,
+      entryBlockReason,
+      entrySupported,
+      refreshEntryStatus,
+      setEntryBusyState,
       settings,
       toast,
+      verifyEntryPermissions,
+    ],
+  );
+
+  const handleTriggerModeChange = useCallback(
+    async (value: SegmentedValue): Promise<void> => {
+      const nextMode = parseQuickBookEntryMode(value);
+      if (nextMode === null || nextMode === settings.triggerMode) {
+        return;
+      }
+      if (!settings.floatingBallEnabled) {
+        settings.setTriggerMode(nextMode);
+        return;
+      }
+      if (!entrySupported || entryBusyRef.current) {
+        return;
+      }
+      setEntryBusyState(true);
+      try {
+        const permissionsReady = await verifyEntryPermissions(nextMode);
+        if (!permissionsReady) {
+          return;
+        }
+        const started = await startQuickBookEntry(nextMode, true);
+        if (!started) {
+          toast.show({
+            messageText: '切换截图记账入口失败，请稍后重试。',
+            status: 'error',
+          });
+          return;
+        }
+        settings.setTriggerMode(nextMode);
+        entryAutoStoppedRef.current = false;
+        setEntryStatus(await getQuickBookEntryStatus());
+      } catch (error) {
+        toast.show({
+          messageText: getDraftErrorMessage(error, '切换截图记账入口失败'),
+          status: 'error',
+        });
+      } finally {
+        setEntryBusyState(false);
+      }
+    },
+    [
+      entrySupported,
+      setEntryBusyState,
+      settings,
+      toast,
+      verifyEntryPermissions,
     ],
   );
 
@@ -581,73 +664,91 @@ export function QuickBookSettingsScreen(): React.ReactElement {
           </Column>
         </Card>
 
-        {isAndroid && floatingBallSupported ? (
-          <Card titleText="悬浮球截图记账" variant="plain">
+        {isAndroid && entrySupported ? (
+          <Card titleText="截图记账入口" variant="plain">
             <Column style={styles.section}>
               <Row align="center" gap="normal" justify="between">
                 <Column gap="small" style={styles.truncate}>
-                  <Text size="sm">启用悬浮球</Text>
+                  <Text size="sm">启用</Text>
                   <Text color="secondary" size="xs">
-                    点按悬浮球圈选区域，草稿生成后回到首页确认入账。
+                    选择一种触发方式；切换后入口会自动重启。
                   </Text>
                 </Column>
                 <Switch
                   disabled={
-                    floatingBallBusy ||
-                    (floatingBallBlockReason !== null &&
-                      !settings.floatingBallEnabled)
+                    entryBusy ||
+                    (entryBlockReason !== null && !settings.floatingBallEnabled)
                   }
                   onChange={value => {
-                    handleFloatingBallToggle(value).catch(() => undefined);
+                    handleEntryToggle(value).catch(() => undefined);
                   }}
                   value={settings.floatingBallEnabled}
                 />
               </Row>
-              {floatingBallBlockReason !== null ? (
+              {entryBlockReason !== null ? (
                 <Text color="warningText" size="xs" style={styles.hint}>
-                  {floatingBallBlockReason}
+                  {entryBlockReason}
                 </Text>
               ) : null}
-              <Row align="center" justify="between">
-                <Text size="sm">悬浮窗权限</Text>
-                <Row align="center" gap="small">
-                  <Text
-                    color={
-                      floatingBallStatus?.overlayPermission
-                        ? 'successText'
-                        : 'warningText'
-                    }
-                    size="xs"
-                  >
-                    {floatingBallStatus === null
-                      ? '未检测'
-                      : floatingBallStatus.overlayPermission
-                        ? '已授权'
-                        : '未授权'}
-                  </Text>
-                  <Button
-                    onPress={handleOpenOverlaySettings}
-                    size="small"
-                    type="text"
-                  >
-                    去设置
-                  </Button>
+              <Column gap="small">
+                <Text size="sm">触发方式</Text>
+                <Segmented
+                  block
+                  disabled={entryBusy}
+                  onChange={value => {
+                    handleTriggerModeChange(value).catch(() => undefined);
+                  }}
+                  options={TRIGGER_MODE_OPTIONS}
+                  value={settings.triggerMode}
+                />
+                <Text color="secondary" size="xs">
+                  {settings.triggerMode === 'floatingBall'
+                    ? '悬浮球常驻屏幕边缘，点按后圈选截图；需要悬浮窗权限，可在下方排除应用。'
+                    : '下拉通知栏点按入口通知，不显示悬浮球，也无需悬浮窗权限。'}
+                </Text>
+              </Column>
+              {settings.triggerMode === 'floatingBall' ? (
+                <Row align="center" justify="between">
+                  <Text size="sm">悬浮窗权限</Text>
+                  <Row align="center" gap="small">
+                    <Text
+                      color={
+                        entryStatus?.overlayPermission
+                          ? 'successText'
+                          : 'warningText'
+                      }
+                      size="xs"
+                    >
+                      {entryStatus === null
+                        ? '未检测'
+                        : entryStatus.overlayPermission
+                          ? '已授权'
+                          : '未授权'}
+                    </Text>
+                    <Button
+                      onPress={handleOpenOverlaySettings}
+                      size="small"
+                      type="text"
+                    >
+                      去设置
+                    </Button>
+                  </Row>
                 </Row>
-              </Row>
+              ) : null}
               <Row align="center" justify="between">
                 <Text size="sm">无障碍截图服务</Text>
                 <Row align="center" gap="small">
                   <Text
                     color={
-                      floatingBallStatus?.accessibilityPermission
+                      entryStatus?.accessibilityPermission
                         ? 'successText'
                         : 'warningText'
                     }
                     size="xs"
                   >
-                    {floatingBallStatus === null
+                    {entryStatus === null
                       ? '未检测'
-                      : floatingBallStatus.accessibilityPermission
+                      : entryStatus.accessibilityPermission
                         ? '已启用'
                         : '未启用'}
                   </Text>
@@ -665,15 +766,15 @@ export function QuickBookSettingsScreen(): React.ReactElement {
                 <Row align="center" gap="small">
                   <Text
                     color={
-                      floatingBallStatus?.notificationPermission
+                      entryStatus?.notificationPermission
                         ? 'successText'
                         : 'warningText'
                     }
                     size="xs"
                   >
-                    {floatingBallStatus === null
+                    {entryStatus === null
                       ? '未检测'
-                      : floatingBallStatus.notificationPermission
+                      : entryStatus.notificationPermission
                         ? '已授权'
                         : '未授权'}
                   </Text>
@@ -686,32 +787,36 @@ export function QuickBookSettingsScreen(): React.ReactElement {
                   </Button>
                 </Row>
               </Row>
-              <Pressable
-                accessibilityRole="button"
-                onPress={() =>
-                  navigation.navigate(ROOT_ROUTES.QuickBookExcludedApps)
-                }
-                style={({ pressed }) => (pressed ? styles.pressed : undefined)}
-              >
-                <Row align="center" gap="normal" justify="between">
-                  <Column gap="small" style={styles.truncate}>
-                    <Text size="sm">排除的应用</Text>
-                    <Text color="secondary" size="xs">
-                      在这些应用中不显示悬浮球，例如游戏。
-                    </Text>
-                  </Column>
-                  <Row align="center" gap="small">
-                    <Text color="secondary" size="xs">
-                      {settings.excludedPackages.length > 0
-                        ? `已排除 ${settings.excludedPackages.length} 个`
-                        : '未设置'}
-                    </Text>
-                    <Icon color="tertiary" icon="caret-right" size={16} />
+              {settings.triggerMode === 'floatingBall' ? (
+                <Pressable
+                  accessibilityRole="button"
+                  onPress={() =>
+                    navigation.navigate(ROOT_ROUTES.QuickBookExcludedApps)
+                  }
+                  style={({ pressed }) =>
+                    pressed ? styles.pressed : undefined
+                  }
+                >
+                  <Row align="center" gap="normal" justify="between">
+                    <Column gap="small" style={styles.truncate}>
+                      <Text size="sm">排除的应用</Text>
+                      <Text color="secondary" size="xs">
+                        在这些应用中不显示悬浮球，例如游戏。
+                      </Text>
+                    </Column>
+                    <Row align="center" gap="small">
+                      <Text color="secondary" size="xs">
+                        {settings.excludedPackages.length > 0
+                          ? `已排除 ${settings.excludedPackages.length} 个`
+                          : '未设置'}
+                      </Text>
+                      <Icon color="tertiary" icon="caret-right" size={16} />
+                    </Row>
                   </Row>
-                </Row>
-              </Pressable>
+                </Pressable>
+              ) : null}
               <Text color="tertiary" size="xs" style={styles.hint}>
-                自由截图通过无障碍服务完成，启用后无需每次授权；请先在系统设置中开启
+                两种触发方式都通过无障碍服务完成自由截图，启用后无需每次授权；请先在系统设置中开启
                 PennySpring 截图服务。
               </Text>
             </Column>

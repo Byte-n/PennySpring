@@ -13,6 +13,7 @@ object QuickBookDraftEvents {
     private const val TAG = "QuickBookDraftEvents"
 
     const val EVENT_EXCLUDED_PACKAGE_ADDED = "QuickBookDraftExcludedPackageAdded"
+    const val EVENT_ENTRY_DISABLED_BY_USER = "QuickBookDraftEntryDisabledByUser"
 
     @Volatile
     private var reactContext: ReactApplicationContext? = null
@@ -33,6 +34,15 @@ object QuickBookDraftEvents {
             context.emitDeviceEvent(EVENT_EXCLUDED_PACKAGE_ADDED, packageName)
         } catch (error: Exception) {
             Log.w(TAG, "发送排除应用事件失败", error)
+        }
+    }
+
+    fun emitEntryDisabledByUser() {
+        val context = reactContext ?: return
+        try {
+            context.emitDeviceEvent(EVENT_ENTRY_DISABLED_BY_USER, true)
+        } catch (error: Exception) {
+            Log.w(TAG, "发送入口关闭事件失败", error)
         }
     }
 }

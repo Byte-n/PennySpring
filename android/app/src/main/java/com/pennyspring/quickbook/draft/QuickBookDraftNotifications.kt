@@ -30,8 +30,12 @@ object QuickBookDraftNotifications {
     const val NOTIFICATION_ID_FLOATING = 3101
     const val NOTIFICATION_ID_GENERATING = 3102
     const val NOTIFICATION_ID_RESULT = 3103
+    const val NOTIFICATION_ID_ENTRY_TRIGGER = 3111
 
     private const val REQUEST_CODE_OPEN_APP = 4101
+    private const val REQUEST_CODE_CAPTURE = 4102
+    private const val REQUEST_CODE_REPOST = 4103
+    private const val REQUEST_CODE_DISABLE = 4104
     private const val PENDING_INTENT_FLAGS = PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
 
     fun ensureChannels(context: Context) {
@@ -78,6 +82,59 @@ object QuickBookDraftNotifications {
             .setCategory(NotificationCompat.CATEGORY_SERVICE)
             .build()
     }
+
+    fun entryTriggerNotification(context: Context): Notification {
+        ensureChannels(context)
+        return baseBuilder(context, CHANNEL_FLOATING, NotificationCompat.PRIORITY_LOW)
+            .setContentTitle(context.getString(R.string.quick_book_notification_entry_title))
+            .setContentText(context.getString(R.string.quick_book_notification_entry_text))
+            .setContentIntent(capturePendingIntent(context))
+            .setDeleteIntent(repostPendingIntent(context))
+            .addAction(
+                R.drawable.ic_quick_book_close,
+                context.getString(R.string.quick_book_notification_entry_disable),
+                disablePendingIntent(context),
+            ).setOngoing(true)
+            .setShowWhen(false)
+            .setCategory(NotificationCompat.CATEGORY_SERVICE)
+            .build()
+    }
+
+    /** 常驻通知入口由通知本身持有，不依赖前台服务。 */
+    fun postEntryTrigger(context: Context): Boolean {
+        if (!canPostNotifications(context)) {
+            Log.i(TAG, "通知已关闭，跳过常驻通知入口")
+            return false
+        }
+        return try {
+            NotificationManagerCompat
+                .from(context)
+                .notify(NOTIFICATION_ID_ENTRY_TRIGGER, entryTriggerNotification(context))
+            true
+        } catch (error: SecurityException) {
+            Log.w(TAG, "发送常驻通知入口失败", error)
+            false
+        }
+    }
+
+    fun cancelEntryTrigger(context: Context) {
+        try {
+            NotificationManagerCompat.from(context).cancel(NOTIFICATION_ID_ENTRY_TRIGGER)
+        } catch (error: Exception) {
+            Log.w(TAG, "取消常驻通知入口失败", error)
+        }
+    }
+
+    fun isEntryTriggerActive(context: Context): Boolean =
+        try {
+            context
+                .getSystemService(NotificationManager::class.java)
+                ?.activeNotifications
+                ?.any { it.id == NOTIFICATION_ID_ENTRY_TRIGGER } == true
+        } catch (error: Exception) {
+            Log.w(TAG, "读取常驻通知入口状态失败", error)
+            false
+        }
 
     fun generatingNotification(context: Context): Notification {
         ensureChannels(context)
@@ -157,6 +214,35 @@ object QuickBookDraftNotifications {
             context,
             REQUEST_CODE_OPEN_APP,
             openAppIntent(context),
+            PENDING_INTENT_FLAGS,
+        )
+
+    private fun capturePendingIntent(context: Context): PendingIntent =
+        PendingIntent.getActivity(
+            context,
+            REQUEST_CODE_CAPTURE,
+            ScreenCaptureActivity
+                .createIntent(context, ScreenCaptureActivity.TRIGGER_NOTIFICATION)
+                .apply {
+                    // 抓帧界面已在前台时复用实例，避免嵌套截到上一张抓帧 UI。
+                    addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                },
+            PENDING_INTENT_FLAGS,
+        )
+
+    private fun repostPendingIntent(context: Context): PendingIntent =
+        PendingIntent.getBroadcast(
+            context,
+            REQUEST_CODE_REPOST,
+            QuickBookEntryNotificationReceiver.repostIntent(context),
+            PENDING_INTENT_FLAGS,
+        )
+
+    private fun disablePendingIntent(context: Context): PendingIntent =
+        PendingIntent.getBroadcast(
+            context,
+            REQUEST_CODE_DISABLE,
+            QuickBookEntryNotificationReceiver.disableIntent(context),
             PENDING_INTENT_FLAGS,
         )
 }

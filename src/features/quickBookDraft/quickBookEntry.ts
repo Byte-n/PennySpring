@@ -2,22 +2,23 @@ import { PermissionsAndroid, Platform } from 'react-native';
 import { BOOK_TYPE } from '@pennyspring/api';
 
 import type { BookEntry } from '../../stores/bookStore';
+import type { QuickBookEntryMode } from './entryMode';
 import {
   type QuickBookDraftNativeStatus,
   type QuickBookInstalledApp,
-  UNSUPPORTED_FLOATING_BALL_STATUS,
+  UNSUPPORTED_QUICK_BOOK_ENTRY_STATUS,
+  consumeQuickBookDraftEntryDisabledByUser,
   getQuickBookDraftStatus,
   getQuickBookInstalledApps,
   hasQuickBookDraftNativeModule,
-  isQuickBookDraftFloatingBallRunning,
   openQuickBookDraftAccessibilitySettings,
   openQuickBookDraftNotificationSettings,
   openQuickBookDraftOverlaySettings,
   setQuickBookDraftCurrentBookId,
   setQuickBookDraftExcludedPackages,
   setQuickBookDraftFloatingBallEnabled,
-  startQuickBookDraftFloatingBall,
-  stopQuickBookDraftFloatingBall,
+  startQuickBookDraftEntry,
+  stopQuickBookDraftEntry,
 } from './native';
 
 const ANDROID_11_API_LEVEL = 30;
@@ -25,32 +26,32 @@ const ANDROID_13_API_LEVEL = 33;
 const POST_NOTIFICATIONS_PERMISSION =
   PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS;
 
-export interface FloatingBallEnableContext {
+export interface QuickBookEntryEnableContext {
   isSupported: boolean;
   isConfigured: boolean;
   isLocalBook: boolean;
 }
 
 /**
- * 悬浮球开关被禁用的原因；null 表示允许开启。
+ * 截图记账入口开关被禁用的原因；null 表示允许开启。
  * 顺序与开启校验一致：平台 → 模型 → 账本。
  */
-export function getFloatingBallEnableBlockReason(
-  context: FloatingBallEnableContext,
+export function getQuickBookEntryEnableBlockReason(
+  context: QuickBookEntryEnableContext,
 ): string | null {
   if (!context.isSupported) {
-    return '当前平台不支持悬浮球截图记账。';
+    return '当前平台不支持截图记账入口。';
   }
   if (!context.isConfigured) {
     return '请先配置支持图片的 AI 模型。';
   }
   if (!context.isLocalBook) {
-    return '悬浮球只支持本地账本，请先切换到本地账本。';
+    return '截图记账入口只支持本地账本，请先切换到本地账本。';
   }
   return null;
 }
 
-export function isFloatingBallSupported(): boolean {
+export function isQuickBookEntrySupported(): boolean {
   return (
     Platform.OS === 'android' &&
     Number(Platform.Version) >= ANDROID_11_API_LEVEL &&
@@ -58,50 +59,79 @@ export function isFloatingBallSupported(): boolean {
   );
 }
 
-export async function getFloatingBallStatus(): Promise<QuickBookDraftNativeStatus> {
-  if (!isFloatingBallSupported()) {
-    return UNSUPPORTED_FLOATING_BALL_STATUS;
+export async function getQuickBookEntryStatus(): Promise<QuickBookDraftNativeStatus> {
+  if (!isQuickBookEntrySupported()) {
+    return UNSUPPORTED_QUICK_BOOK_ENTRY_STATUS;
   }
   return getQuickBookDraftStatus();
 }
 
-export async function startFloatingBall(): Promise<boolean> {
-  if (!isFloatingBallSupported()) {
+export async function startQuickBookEntry(
+  mode: QuickBookEntryMode,
+  userInitiated = false,
+): Promise<boolean> {
+  if (!isQuickBookEntrySupported()) {
     return false;
   }
-  return startQuickBookDraftFloatingBall();
+  return startQuickBookDraftEntry(mode, userInitiated);
 }
 
-export async function stopFloatingBall(): Promise<void> {
-  if (!isFloatingBallSupported()) {
+export async function consumeQuickBookEntryDisabledByUser(): Promise<boolean> {
+  if (!isQuickBookEntrySupported()) {
+    return false;
+  }
+  return consumeQuickBookDraftEntryDisabledByUser();
+}
+
+export async function stopQuickBookEntry(): Promise<void> {
+  if (!isQuickBookEntrySupported()) {
     return;
   }
-  await stopQuickBookDraftFloatingBall();
+  await stopQuickBookDraftEntry();
 }
 
-export async function isFloatingBallRunning(): Promise<boolean> {
-  if (!isFloatingBallSupported()) {
-    return false;
+/** 当前模式需要的前置权限；悬浮球模式额外要求悬浮窗权限。 */
+export function isEntryPermissionMissing(
+  status: QuickBookDraftNativeStatus,
+  mode: QuickBookEntryMode,
+): boolean {
+  if (!status.notificationPermission || !status.accessibilityPermission) {
+    return true;
   }
-  return isQuickBookDraftFloatingBallRunning();
+  return mode === 'floatingBall' && !status.overlayPermission;
+}
+
+/** 当前模式对应的入口是否正在运行。 */
+export function isEntryActive(
+  status: QuickBookDraftNativeStatus,
+  mode: QuickBookEntryMode,
+): boolean {
+  return mode === 'floatingBall'
+    ? status.floatingBallRunning
+    : status.notificationTriggerActive;
+}
+
+/** 任一入口是否在运行；关闭或切换时用于判断是否需要停旧入口。 */
+export function isAnyEntryActive(status: QuickBookDraftNativeStatus): boolean {
+  return status.floatingBallRunning || status.notificationTriggerActive;
 }
 
 export function openOverlaySettings(): void {
-  if (!isFloatingBallSupported()) {
+  if (!isQuickBookEntrySupported()) {
     return;
   }
   openQuickBookDraftOverlaySettings();
 }
 
 export function openNotificationSettings(): void {
-  if (!isFloatingBallSupported()) {
+  if (!isQuickBookEntrySupported()) {
     return;
   }
   openQuickBookDraftNotificationSettings();
 }
 
 export function openAccessibilitySettings(): void {
-  if (!isFloatingBallSupported()) {
+  if (!isQuickBookEntrySupported()) {
     return;
   }
   openQuickBookDraftAccessibilitySettings();
@@ -120,25 +150,25 @@ export function syncQuickBookDraftBook(currentBook: BookEntry | null): void {
 }
 
 /** 把 JS 开关状态同步给原生，供原生侧保持设置一致。 */
-export function syncFloatingBallEnabledSetting(enabled: boolean): void {
-  if (!isFloatingBallSupported()) {
+export function syncQuickBookEntryEnabledSetting(enabled: boolean): void {
+  if (!isQuickBookEntrySupported()) {
     return;
   }
   setQuickBookDraftFloatingBallEnabled(enabled);
 }
 
-export async function getFloatingBallExcludedAppCandidates(): Promise<
+export async function getQuickBookExcludedAppCandidates(): Promise<
   QuickBookInstalledApp[]
 > {
-  if (!isFloatingBallSupported()) {
+  if (!isQuickBookEntrySupported()) {
     return [];
   }
   return getQuickBookInstalledApps();
 }
 
 /** 把排除应用列表同步给原生，前台命中时隐藏悬浮球。 */
-export function syncFloatingBallExcludedPackages(packages: string[]): void {
-  if (!isFloatingBallSupported()) {
+export function syncQuickBookExcludedPackages(packages: string[]): void {
+  if (!isQuickBookEntrySupported()) {
     return;
   }
   setQuickBookDraftExcludedPackages(packages);

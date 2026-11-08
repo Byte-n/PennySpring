@@ -2,14 +2,17 @@
     <string name="app_name">PennySpring</string>
 
     <!-- 截图记账草稿通知渠道 -->
-    <string name="quick_book_channel_floating_name">悬浮球</string>
-    <string name="quick_book_channel_floating_description">保持悬浮球在后台运行</string>
+    <string name="quick_book_channel_floating_name">截图记账入口</string>
+    <string name="quick_book_channel_floating_description">保持截图记账入口可用</string>
     <string name="quick_book_channel_draft_name">草稿生成</string>
     <string name="quick_book_channel_draft_description">截图记账草稿生成结果</string>
 
     <!-- 截图记账草稿通知 -->
     <string name="quick_book_notification_floating_title">悬浮球已开启</string>
     <string name="quick_book_notification_floating_text">点按打开 PennySpring，随时截图记账</string>
+    <string name="quick_book_notification_entry_title">截图记账入口已开启</string>
+    <string name="quick_book_notification_entry_text">点按圈选截图记账</string>
+    <string name="quick_book_notification_entry_disable">关闭入口</string>
     <string name="quick_book_notification_generating_title">正在生成记账草稿</string>
     <string name="quick_book_notification_generating_text">完成后会通知你确认</string>
     <string name="quick_book_notification_success_title">截图记账草稿已生成</string>
@@ -19,7 +22,7 @@
 
     <!-- 无障碍截图服务 -->
     <string name="quick_book_accessibility_service_label">PennySpring 截图服务</string>
-    <string name="quick_book_accessibility_service_description">仅在你点按悬浮球截图时读取当前屏幕，用于生成记账草稿；不监听、不收集其他内容。</string>
+    <string name="quick_book_accessibility_service_description">仅在你点按截图记账入口时读取当前屏幕，用于生成记账草稿；同时读取前台应用包名与窗口类型，用于决定是否显示截图记账入口；不监听、不收集其他内容。</string>
 
     <!-- 截图记账草稿悬浮层动作 -->
     <string name="quick_book_floating_ball_description">圈选截图记账</string>

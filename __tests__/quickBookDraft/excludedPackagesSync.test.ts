@@ -6,8 +6,8 @@ jest.mock('../../src/stores/bookStorage', () => ({
   }),
 }));
 
-jest.mock('../../src/features/quickBookDraft/floatingBall', () => ({
-  isFloatingBallSupported: () => true,
+jest.mock('../../src/features/quickBookDraft/quickBookEntry', () => ({
+  isQuickBookEntrySupported: () => true,
 }));
 
 const mockGetQuickBookDraftStatus = jest.fn();
@@ -37,6 +37,7 @@ beforeEach(() => {
     nudgeEnabled: false,
     autoApproveScreenshot: true,
     floatingBallEnabled: true,
+    triggerMode: 'floatingBall',
     excludedPackages: [],
   });
   mockGetQuickBookDraftStatus.mockReset();

@@ -2,7 +2,7 @@ import { DeviceEventEmitter } from 'react-native';
 
 import { useQuickBookSettingsStore } from '../quickBook/settingsStore';
 import { addExcludedPackage, mergeExcludedPackages } from './excludedApps';
-import { isFloatingBallSupported } from './floatingBall';
+import { isQuickBookEntrySupported } from './quickBookEntry';
 import { getQuickBookDraftStatus } from './native';
 
 const EXCLUDED_PACKAGE_ADDED_EVENT = 'QuickBookDraftExcludedPackageAdded';
@@ -12,7 +12,7 @@ const EXCLUDED_PACKAGE_ADDED_EVENT = 'QuickBookDraftExcludedPackageAdded';
  * 由悬浮球生命周期在设置 rehydrate 完成后挂载，避免启动早期覆盖设置。
  */
 export function subscribeExcludedPackageAdded(): () => void {
-  if (!isFloatingBallSupported()) {
+  if (!isQuickBookEntrySupported()) {
     return () => undefined;
   }
   const subscription = DeviceEventEmitter.addListener(
@@ -34,7 +34,7 @@ export function subscribeExcludedPackageAdded(): () => void {
 
 /** 启动时合并原生已落盘的排除应用，避免 JS 未运行时遗漏长按菜单的结果。 */
 export async function mergeNativeExcludedPackages(): Promise<void> {
-  if (!isFloatingBallSupported()) {
+  if (!isQuickBookEntrySupported()) {
     return;
   }
   const status = await getQuickBookDraftStatus();

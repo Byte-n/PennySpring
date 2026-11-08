@@ -24,7 +24,7 @@ import {
   toggleExcludedPackage,
 } from '../../features/quickBookDraft/excludedApps';
 import { getDraftErrorMessage } from '../../features/quickBookDraft/errorMessage';
-import { getFloatingBallExcludedAppCandidates } from '../../features/quickBookDraft/floatingBall';
+import { getQuickBookExcludedAppCandidates } from '../../features/quickBookDraft/quickBookEntry';
 import type { QuickBookInstalledApp } from '../../features/quickBookDraft/native';
 import { useQuickBookSettingsStore } from '../../features/quickBook/settingsStore';
 import { useNavigation } from '../../navigation';
@@ -88,7 +88,7 @@ export function QuickBookExcludedAppsScreen(): React.ReactElement {
     setLoading(true);
     setLoadError('');
     try {
-      setApps(await getFloatingBallExcludedAppCandidates());
+      setApps(await getQuickBookExcludedAppCandidates());
     } catch (error) {
       setLoadError(getDraftErrorMessage(error, '读取应用列表失败'));
     } finally {

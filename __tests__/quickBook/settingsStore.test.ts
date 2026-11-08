@@ -27,6 +27,7 @@ beforeEach(() => {
     nudgeEnabled: false,
     autoApproveScreenshot: true,
     floatingBallEnabled: false,
+    triggerMode: 'floatingBall',
     excludedPackages: [],
   });
 });
@@ -103,7 +104,7 @@ describe('migrateQuickBookSettings', () => {
   });
 
   it('does not rewrite data that is already on the current version', () => {
-    const migrated = migrateQuickBookSettings(persisted, 6);
+    const migrated = migrateQuickBookSettings(persisted, 7);
 
     expect(migrated.presetPrompt).toBe(LEGACY_DEFAULT_QUICK_BOOK_PROMPT);
   });
@@ -143,6 +144,30 @@ describe('migrateQuickBookSettings', () => {
     );
 
     expect(migrated.excludedPackages).toEqual(['com.example.game']);
+  });
+
+  it('defaults the trigger mode to the floating ball for older data', () => {
+    const migrated = migrateQuickBookSettings(persisted, 6);
+
+    expect(migrated.triggerMode).toBe('floatingBall');
+  });
+
+  it('keeps an existing notification trigger mode during migration', () => {
+    const migrated = migrateQuickBookSettings(
+      { ...persisted, triggerMode: 'notification' },
+      6,
+    );
+
+    expect(migrated.triggerMode).toBe('notification');
+  });
+
+  it('falls back to the floating ball for an invalid trigger mode', () => {
+    const migrated = migrateQuickBookSettings(
+      { ...persisted, triggerMode: 'invalid' },
+      7,
+    );
+
+    expect(migrated.triggerMode).toBe('floatingBall');
   });
 });
 
@@ -209,6 +234,17 @@ describe('quick book settings store', () => {
 
     next = useQuickBookSettingsStore.getState();
     expect(next.floatingBallEnabled).toBe(false);
+  });
+
+  it('switches the trigger mode independently', () => {
+    useQuickBookSettingsStore.getState().setTriggerMode('notification');
+
+    expect(useQuickBookSettingsStore.getState().triggerMode).toBe(
+      'notification',
+    );
+    expect(useQuickBookSettingsStore.getState().floatingBallEnabled).toBe(
+      false,
+    );
   });
 
   it('stores a normalized excluded app list', () => {

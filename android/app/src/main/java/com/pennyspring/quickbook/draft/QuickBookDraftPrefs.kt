@@ -6,7 +6,7 @@ import android.content.SharedPreferences
 /**
  * 截图记账草稿的轻量设备级偏好。
  *
- * 只保存当前账本与悬浮球开关，草稿正文仍以本地 SQLite 为准；
+ * 只保存当前账本与截图记账入口开关，草稿正文仍以本地 SQLite 为准；
  * 该文件不参与备份与账本同步。
  */
 object QuickBookDraftPrefs {
@@ -14,6 +14,8 @@ object QuickBookDraftPrefs {
 
     private const val KEY_CURRENT_BOOK_ID = "current_book_id"
     private const val KEY_FLOATING_BALL_ENABLED = "floating_ball_enabled"
+    private const val KEY_ENTRY_MODE = "entry_mode"
+    private const val KEY_ENTRY_DISABLED_BY_USER = "entry_disabled_by_user"
     private const val KEY_EXCLUDED_PACKAGES = "excluded_packages"
     private const val DEFAULT_BOOK_ID = 0
 
@@ -36,6 +38,39 @@ object QuickBookDraftPrefs {
         enabled: Boolean,
     ) {
         prefs(context).edit().putBoolean(KEY_FLOATING_BALL_ENABLED, enabled).apply()
+    }
+
+    fun getEntryMode(context: Context): String? = prefs(context).getString(KEY_ENTRY_MODE, null)
+
+    fun setEntryMode(
+        context: Context,
+        mode: String?,
+    ) {
+        val editor = prefs(context).edit()
+        if (mode == null) {
+            editor.remove(KEY_ENTRY_MODE)
+        } else {
+            editor.putString(KEY_ENTRY_MODE, mode)
+        }
+        editor.apply()
+    }
+
+    fun isEntryDisabledByUser(context: Context): Boolean = prefs(context).getBoolean(KEY_ENTRY_DISABLED_BY_USER, false)
+
+    fun setEntryDisabledByUser(
+        context: Context,
+        disabled: Boolean,
+    ) {
+        prefs(context).edit().putBoolean(KEY_ENTRY_DISABLED_BY_USER, disabled).apply()
+    }
+
+    fun consumeEntryDisabledByUser(context: Context): Boolean {
+        val preferences = prefs(context)
+        if (!preferences.getBoolean(KEY_ENTRY_DISABLED_BY_USER, false)) {
+            return false
+        }
+        preferences.edit().putBoolean(KEY_ENTRY_DISABLED_BY_USER, false).apply()
+        return true
     }
 
     fun getExcludedPackages(context: Context): Set<String> =

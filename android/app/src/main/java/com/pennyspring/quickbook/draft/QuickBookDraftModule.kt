@@ -20,7 +20,7 @@ import java.util.concurrent.Executors
 /**
  * 截图记账草稿 JS 桥。
  *
- * 只暴露权限状态、当前账本与悬浮球开关，不直接操作草稿数据。
+ * 只暴露权限状态、当前账本与截图记账入口开关，不直接操作草稿数据。
  */
 class QuickBookDraftModule(
     private val reactContext: ReactApplicationContext,
@@ -57,6 +57,14 @@ class QuickBookDraftModule(
                         ScreenshotAccessibilityService.isEnabled(reactContext),
                     )
                     putBoolean("floatingBallRunning", FloatingBallService.isRunning())
+                    putBoolean(
+                        "notificationTriggerActive",
+                        QuickBookDraftNotifications.isEntryTriggerActive(reactContext),
+                    )
+                    putBoolean(
+                        "entryDisabledByUser",
+                        QuickBookDraftPrefs.isEntryDisabledByUser(reactContext),
+                    )
                     putInt("currentBookId", QuickBookDraftPrefs.getCurrentBookId(reactContext))
                     putBoolean("supported", ScreenshotAccessibilityService.isSupported())
                     putArray(
@@ -135,17 +143,74 @@ class QuickBookDraftModule(
     }
 
     @ReactMethod
-    fun startFloatingBall(promise: Promise) {
+    fun startEntry(
+        mode: String,
+        userInitiated: Boolean,
+        promise: Promise,
+    ) {
+        val entryMode = QuickBookEntryMode.fromWire(mode)
+        if (entryMode == null) {
+            promise.resolve(false)
+            return
+        }
+        if (!userInitiated) {
+            if (QuickBookDraftPrefs.isEntryDisabledByUser(reactContext)) {
+                QuickBookDraftPrefs.setFloatingBallEnabled(reactContext, false)
+                promise.resolve(false)
+                return
+            }
+            if (!QuickBookDraftPrefs.isFloatingBallEnabled(reactContext)) {
+                promise.resolve(false)
+                return
+            }
+        } else {
+            QuickBookDraftPrefs.setEntryDisabledByUser(reactContext, false)
+        }
         try {
-            promise.resolve(FloatingBallService.start(reactContext))
+            val started =
+                when (entryMode) {
+                    QuickBookEntryMode.FLOATING_BALL -> startFloatingBallEntry()
+                    QuickBookEntryMode.NOTIFICATION -> startNotificationEntry()
+                }
+            promise.resolve(started)
         } catch (error: Exception) {
             promise.reject(ERROR_STATUS, error)
         }
     }
 
+    private fun startFloatingBallEntry(): Boolean {
+        val started = FloatingBallService.start(reactContext)
+        if (started) {
+            QuickBookDraftPrefs.setFloatingBallEnabled(reactContext, true)
+            QuickBookDraftPrefs.setEntryMode(reactContext, QuickBookEntryMode.FLOATING_BALL.wireValue)
+            QuickBookDraftPrefs.setEntryDisabledByUser(reactContext, false)
+            QuickBookDraftNotifications.cancelEntryTrigger(reactContext)
+        }
+        return started
+    }
+
+    private fun startNotificationEntry(): Boolean {
+        val previousEnabled = QuickBookDraftPrefs.isFloatingBallEnabled(reactContext)
+        val previousMode = QuickBookDraftPrefs.getEntryMode(reactContext)
+        QuickBookDraftPrefs.setFloatingBallEnabled(reactContext, true)
+        QuickBookDraftPrefs.setEntryMode(reactContext, QuickBookEntryMode.NOTIFICATION.wireValue)
+        QuickBookDraftPrefs.setEntryDisabledByUser(reactContext, false)
+        val posted = QuickBookDraftNotifications.postEntryTrigger(reactContext)
+        if (posted) {
+            FloatingBallService.stop(reactContext)
+            return true
+        }
+        QuickBookDraftPrefs.setFloatingBallEnabled(reactContext, previousEnabled)
+        QuickBookDraftPrefs.setEntryMode(reactContext, previousMode)
+        return false
+    }
+
     @ReactMethod
-    fun stopFloatingBall() {
+    fun stopEntry() {
+        QuickBookDraftPrefs.setFloatingBallEnabled(reactContext, false)
+        QuickBookDraftPrefs.setEntryDisabledByUser(reactContext, false)
         FloatingBallService.stop(reactContext)
+        QuickBookDraftNotifications.cancelEntryTrigger(reactContext)
     }
 
     @ReactMethod
@@ -159,8 +224,12 @@ class QuickBookDraftModule(
     }
 
     @ReactMethod
-    fun isFloatingBallRunning(promise: Promise) {
-        promise.resolve(FloatingBallService.isRunning())
+    fun consumeEntryDisabledByUser(promise: Promise) {
+        try {
+            promise.resolve(QuickBookDraftPrefs.consumeEntryDisabledByUser(reactContext))
+        } catch (error: Exception) {
+            promise.reject(ERROR_STATUS, error)
+        }
     }
 
     @ReactMethod

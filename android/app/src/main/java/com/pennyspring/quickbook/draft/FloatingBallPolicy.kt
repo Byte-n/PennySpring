@@ -4,8 +4,15 @@ internal object FloatingBallPolicy {
     fun shouldShow(
         foregroundPackage: String?,
         excludedPackages: Set<String>,
+        systemSurfacePackages: Set<String>,
         captureHidden: Boolean,
-    ): Boolean =
-        !captureHidden &&
-            (foregroundPackage == null || foregroundPackage !in excludedPackages)
+    ): Boolean {
+        if (captureHidden) {
+            return false
+        }
+        if (foregroundPackage == null) {
+            return true
+        }
+        return foregroundPackage !in excludedPackages && foregroundPackage !in systemSurfacePackages
+    }
 }

@@ -17,6 +17,10 @@
       <action android:name="android.intent.action.MAIN" />
       <category android:name="android.intent.category.LAUNCHER" />
     </intent>
+    <intent>
+      <action android:name="android.intent.action.MAIN" />
+      <category android:name="android.intent.category.HOME" />
+    </intent>
   </queries>
 
   <application
@@ -76,6 +80,10 @@
         android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
         android:value="ai_draft_generation" />
     </service>
+
+    <receiver
+      android:name=".quickbook.draft.QuickBookEntryNotificationReceiver"
+      android:exported="false" />
 
     <service
       android:name=".quickbook.draft.ScreenshotAccessibilityService"
