@@ -116,16 +116,13 @@ export function QuickBookExcludedAppsScreen(): React.ReactElement {
     [excludedPackages, installedPackageSet, loading],
   );
 
-  const togglePackage = useCallback(
-    (packageName: string): void => {
-      const store = useQuickBookSettingsStore.getState();
-      const selected = store.excludedPackages.includes(packageName);
-      store.setExcludedPackages(
-        toggleExcludedPackage(store.excludedPackages, packageName, !selected),
-      );
-    },
-    [],
-  );
+  const togglePackage = useCallback((packageName: string): void => {
+    const store = useQuickBookSettingsStore.getState();
+    const selected = store.excludedPackages.includes(packageName);
+    store.setExcludedPackages(
+      toggleExcludedPackage(store.excludedPackages, packageName, !selected),
+    );
+  }, []);
 
   const rows = useMemo<ExcludedAppRow[]>(() => {
     const filtered = filterInstalledApps(apps, query);
@@ -231,14 +228,21 @@ export function QuickBookExcludedAppsScreen(): React.ReactElement {
           <Text color="errorText" size="sm">
             {loadError}
           </Text>
-          <Button onPress={() => loadApps().catch(() => undefined)} size="small">
+          <Button
+            onPress={() => loadApps().catch(() => undefined)}
+            size="small"
+          >
             重试
           </Button>
         </Column>
       ) : (
         <List<ExcludedAppRow>
           data={rows}
-          empty={<Text color="secondary" size="sm">{emptyText}</Text>}
+          empty={
+            <Text color="secondary" size="sm">
+              {emptyText}
+            </Text>
+          }
           keyExtractor={item => item.packageName}
           keyboardDismissMode="on-drag"
           keyboardShouldPersistTaps="handled"
