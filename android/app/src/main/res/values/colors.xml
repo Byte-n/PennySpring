@@ -15,4 +15,7 @@
     <color name="quick_book_danger">#CF1322</color>
     <color name="quick_book_success">#389E0D</color>
     <color name="quick_book_dim">#8C000000</color>
+
+    <!-- 悬浮球长按菜单 -->
+    <color name="quick_book_menu_scrim">#33000000</color>
 </resources>

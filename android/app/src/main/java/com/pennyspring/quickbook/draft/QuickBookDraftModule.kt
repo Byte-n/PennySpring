@@ -35,6 +35,16 @@ class QuickBookDraftModule(
 
     override fun getName(): String = "QuickBookDraft"
 
+    override fun initialize() {
+        super.initialize()
+        QuickBookDraftEvents.attach(reactApplicationContext)
+    }
+
+    override fun invalidate() {
+        QuickBookDraftEvents.detach(reactApplicationContext)
+        super.invalidate()
+    }
+
     @ReactMethod
     fun getStatus(promise: Promise) {
         try {
@@ -49,6 +59,12 @@ class QuickBookDraftModule(
                     putBoolean("floatingBallRunning", FloatingBallService.isRunning())
                     putInt("currentBookId", QuickBookDraftPrefs.getCurrentBookId(reactContext))
                     putBoolean("supported", ScreenshotAccessibilityService.isSupported())
+                    putArray(
+                        "excludedPackages",
+                        Arguments.createArray().apply {
+                            QuickBookDraftPrefs.getExcludedPackages(reactContext).forEach { pushString(it) }
+                        },
+                    )
                 }
             promise.resolve(status)
         } catch (error: Exception) {

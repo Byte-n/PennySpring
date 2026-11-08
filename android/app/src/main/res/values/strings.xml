@@ -24,6 +24,12 @@
     <!-- 截图记账草稿悬浮层动作 -->
     <string name="quick_book_floating_ball_description">圈选截图记账</string>
 
+    <!-- 悬浮球长按菜单 -->
+    <string name="quick_book_floating_menu_capture">截图记账</string>
+    <string name="quick_book_floating_menu_hide_in_app">在当前应用中不展示</string>
+    <string name="quick_book_toast_hidden_in_app">已在此应用中隐藏悬浮球，可在设置 → 排除的应用中恢复</string>
+    <string name="quick_book_toast_exclude_unavailable">无法识别当前应用，请稍后重试</string>
+
     <!-- 截图记账草稿提示 -->
     <string name="quick_book_toast_draft_generated">已生成 %1$d 笔草稿</string>
     <string name="quick_book_toast_draft_failed">截图记账失败</string>

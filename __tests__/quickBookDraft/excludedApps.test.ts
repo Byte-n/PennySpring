@@ -1,5 +1,7 @@
 import {
+  addExcludedPackage,
   filterInstalledApps,
+  mergeExcludedPackages,
   toggleExcludedPackage,
 } from '../../src/features/quickBookDraft/excludedApps';
 import type { QuickBookInstalledApp } from '../../src/features/quickBookDraft/native';
@@ -52,5 +54,46 @@ describe('toggleExcludedPackage', () => {
     expect(toggleExcludedPackage(packages, 'com.example.game', true)).toEqual([
       'com.example.game',
     ]);
+  });
+});
+
+describe('addExcludedPackage', () => {
+  it('appends a trimmed package without mutating the source list', () => {
+    const source = ['com.example.game'];
+
+    expect(addExcludedPackage(source, ' com.example.video ')).toEqual([
+      'com.example.game',
+      'com.example.video',
+    ]);
+    expect(source).toEqual(['com.example.game']);
+  });
+
+  it('ignores blank and duplicate package names', () => {
+    expect(addExcludedPackage(['com.example.game'], '  ')).toEqual([
+      'com.example.game',
+    ]);
+    expect(
+      addExcludedPackage(['com.example.game'], 'com.example.game'),
+    ).toEqual(['com.example.game']);
+  });
+});
+
+describe('mergeExcludedPackages', () => {
+  it('appends native-only packages after the local list', () => {
+    expect(
+      mergeExcludedPackages(
+        ['com.example.game'],
+        ['com.example.video', 'com.example.shop'],
+      ),
+    ).toEqual(['com.example.game', 'com.example.video', 'com.example.shop']);
+  });
+
+  it('keeps a single entry for packages present on both sides', () => {
+    expect(
+      mergeExcludedPackages(
+        ['com.example.game', 'com.example.video'],
+        ['com.example.video', 'com.example.shop'],
+      ),
+    ).toEqual(['com.example.game', 'com.example.video', 'com.example.shop']);
   });
 });

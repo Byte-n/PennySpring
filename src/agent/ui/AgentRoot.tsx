@@ -27,6 +27,7 @@ import type {
 import { useScreenshotNudge } from '../../features/quickBook/useScreenshotNudge';
 import { resolveQuickBookModel } from '../../features/quickBook/validation';
 import { useFloatingBallLifecycle } from '../../features/quickBookDraft/useFloatingBallLifecycle';
+import { mergeNativeExcludedPackages } from '../../features/quickBookDraft/excludedPackagesSync';
 import { ROOT_ROUTES, rootNavigationRef } from '../../navigation';
 import { isAgentDeepLinkUrl } from '../../navigation/linking';
 import { useBookStore, useGlobalApi } from '../../stores/bookStore';
@@ -180,6 +181,11 @@ export function AgentRoot({ children }: AgentRootProps) {
         rehydrateQuickBookSettings(),
         rehydrateQuickBookRuntime(),
       ]);
+      try {
+        await mergeNativeExcludedPackages();
+      } catch {
+        // 原生读取失败不阻塞首屏，排除列表保持本地设置。
+      }
       if (!cancelled) {
         setQuickBookReady(true);
       }

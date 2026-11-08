@@ -8,6 +8,8 @@ export interface QuickBookDraftNativeStatus {
   floatingBallRunning: boolean;
   currentBookId: number;
   supported: boolean;
+  /** 原生侧已落盘的悬浮球排除应用，用于启动时与设备设置合并。 */
+  excludedPackages: string[];
 }
 
 export const UNSUPPORTED_FLOATING_BALL_STATUS: QuickBookDraftNativeStatus = {
@@ -17,6 +19,7 @@ export const UNSUPPORTED_FLOATING_BALL_STATUS: QuickBookDraftNativeStatus = {
   floatingBallRunning: false,
   currentBookId: 0,
   supported: false,
+  excludedPackages: [],
 };
 
 /** 可被选为“不显示悬浮球”的已安装应用。 */
@@ -75,6 +78,7 @@ function parseNativeStatus(value: unknown): QuickBookDraftNativeStatus {
     floatingBallRunning,
     currentBookId,
     supported,
+    excludedPackages,
   } = value;
   if (
     typeof overlayPermission !== 'boolean' ||
@@ -87,6 +91,12 @@ function parseNativeStatus(value: unknown): QuickBookDraftNativeStatus {
   ) {
     throw new Error('悬浮球状态返回格式不正确');
   }
+  const parsedExcludedPackages = Array.isArray(excludedPackages)
+    ? excludedPackages.filter(
+        (packageName): packageName is string =>
+          typeof packageName === 'string' && packageName.trim() !== '',
+      )
+    : [];
   return {
     overlayPermission,
     notificationPermission,
@@ -94,6 +104,7 @@ function parseNativeStatus(value: unknown): QuickBookDraftNativeStatus {
     floatingBallRunning,
     currentBookId,
     supported,
+    excludedPackages: parsedExcludedPackages,
   };
 }
 

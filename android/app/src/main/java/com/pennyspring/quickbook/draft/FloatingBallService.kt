@@ -6,16 +6,22 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ServiceInfo
+import android.content.res.ColorStateList
 import android.content.res.Configuration
+import android.graphics.Color
 import android.graphics.PixelFormat
 import android.graphics.Point
 import android.graphics.Rect
+import android.graphics.drawable.GradientDrawable
+import android.graphics.drawable.RippleDrawable
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
 import android.util.Log
+import android.util.TypedValue
 import android.view.Gravity
+import android.view.HapticFeedbackConstants
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewConfiguration
@@ -23,6 +29,8 @@ import android.view.WindowManager
 import android.view.animation.DecelerateInterpolator
 import android.widget.FrameLayout
 import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.TextView
 import android.widget.Toast
 import androidx.core.app.ServiceCompat
 import androidx.core.content.ContextCompat
@@ -32,7 +40,7 @@ import kotlin.math.abs
 import kotlin.math.roundToInt
 
 /**
- * 系统级悬浮球：点按直接进入自由截图，拖动只负责移动。
+ * 系统级悬浮球：点按直接进入自由截图，拖动只负责移动，长按弹出操作菜单。
  *
  * - 窗口类型：API 26+ TYPE_APPLICATION_OVERLAY，以下 TYPE_PHONE。
  * - Android 12+ 后台启动 Activity 受限：点击动作来自用户直接触摸悬浮窗，
@@ -48,6 +56,16 @@ class FloatingBallService : Service() {
         private const val BALL_SIZE_DP = 48
         private const val INITIAL_BOTTOM_MARGIN_DP = 52
         private const val SNAP_DURATION_MS = 180L
+
+        private const val MENU_WIDTH_DP = 196
+        private const val MENU_ITEM_HEIGHT_DP = 48
+        private const val MENU_ITEM_TEXT_SP = 15f
+        private const val MENU_ITEM_HORIZONTAL_PADDING_DP = 16
+        private const val MENU_CARD_PADDING_DP = 4
+        private const val MENU_CORNER_RADIUS_DP = 12
+        private const val MENU_ELEVATION_DP = 8
+        private const val MENU_DIVIDER_DP = 1
+        private const val MENU_MARGIN_DP = 8
 
         private val running = AtomicBoolean(false)
         private val lock = Any()
@@ -113,6 +131,7 @@ class FloatingBallService : Service() {
 
     private lateinit var windowManager: WindowManager
     private var ballView: View? = null
+    private var actionMenuView: View? = null
     private var windowParams: WindowManager.LayoutParams? = null
     private var snapAnimator: ValueAnimator? = null
     private var isOverlayAttached = false
@@ -162,6 +181,7 @@ class FloatingBallService : Service() {
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
+        dismissActionMenu()
         val params = windowParams ?: return
         clampToScreen(params)
         updateOverlayLayout()
@@ -309,11 +329,13 @@ class FloatingBallService : Service() {
                 return@post
             }
             foregroundPackage = packageName
+            dismissActionMenu()
             syncOverlayVisibility()
         }
     }
 
     private fun removeOverlayView() {
+        dismissActionMenu()
         if (!isOverlayAttached) {
             return
         }
@@ -383,6 +405,184 @@ class FloatingBallService : Service() {
         }
     }
 
+    /**
+     * 长按菜单：全屏遮罩 + 贴靠悬浮球的圆角卡片。
+     * 菜单窗口不可聚焦，避免抢占前台窗口、污染无障碍服务的前台包名判断。
+     */
+    private fun showActionMenu() {
+        if (isDestroyed || !isOverlayAttached || actionMenuView != null) {
+            return
+        }
+        val ballParams = windowParams ?: return
+        val bounds = screenBounds()
+        val margin = dp(MENU_MARGIN_DP)
+        val menuWidth = dp(MENU_WIDTH_DP)
+        val card = createActionMenuCard()
+        card.measure(
+            View.MeasureSpec.makeMeasureSpec(menuWidth, View.MeasureSpec.EXACTLY),
+            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
+        )
+        val menuHeight = card.measuredHeight
+        val menuX =
+            if (ballParams.x + ballParams.width / 2 < bounds.width() / 2) {
+                ballParams.x
+            } else {
+                ballParams.x + ballParams.width - menuWidth
+            }.coerceIn(margin, maxOf(margin, bounds.width() - menuWidth - margin))
+        val minMenuY = systemBarHeight("status_bar_height") + margin
+        val maxMenuY =
+            bounds.height() - systemBarHeight("navigation_bar_height") - menuHeight - margin
+        val menuY =
+            if (ballParams.y + ballParams.height / 2 < bounds.height() / 2) {
+                ballParams.y + ballParams.height + margin
+            } else {
+                ballParams.y - menuHeight - margin
+            }.coerceIn(minMenuY, maxOf(minMenuY, maxMenuY))
+        val root =
+            FrameLayout(this).apply {
+                setBackgroundColor(ContextCompat.getColor(this@FloatingBallService, R.color.quick_book_menu_scrim))
+                setOnClickListener { dismissActionMenu() }
+            }
+        root.addView(
+            card,
+            FrameLayout.LayoutParams(menuWidth, FrameLayout.LayoutParams.WRAP_CONTENT).apply {
+                gravity = Gravity.TOP or Gravity.START
+                leftMargin = menuX
+                topMargin = menuY
+            },
+        )
+        val menuParams =
+            WindowManager
+                .LayoutParams(
+                    WindowManager.LayoutParams.MATCH_PARENT,
+                    WindowManager.LayoutParams.MATCH_PARENT,
+                    overlayWindowType(),
+                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                        WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
+                    PixelFormat.TRANSLUCENT,
+                ).apply {
+                    gravity = Gravity.TOP or Gravity.START
+                }
+        try {
+            windowManager.addView(root, menuParams)
+            actionMenuView = root
+        } catch (error: Exception) {
+            Log.w(TAG, "添加悬浮球菜单失败", error)
+        }
+    }
+
+    private fun createActionMenuCard(): LinearLayout {
+        val card =
+            LinearLayout(this).apply {
+                orientation = LinearLayout.VERTICAL
+                setPadding(0, dp(MENU_CARD_PADDING_DP), 0, dp(MENU_CARD_PADDING_DP))
+                background =
+                    GradientDrawable().apply {
+                        shape = GradientDrawable.RECTANGLE
+                        cornerRadius = dp(MENU_CORNER_RADIUS_DP).toFloat()
+                        setColor(ContextCompat.getColor(this@FloatingBallService, R.color.quick_book_bg))
+                    }
+                clipToOutline = true
+                elevation = dp(MENU_ELEVATION_DP).toFloat()
+                isClickable = true
+            }
+        card.addView(
+            createActionMenuItem(R.string.quick_book_floating_menu_capture) {
+                dismissActionMenu()
+                launchCapture()
+            },
+        )
+        card.addView(createActionMenuDivider())
+        card.addView(
+            createActionMenuItem(R.string.quick_book_floating_menu_hide_in_app) {
+                dismissActionMenu()
+                excludeCurrentPackage()
+            },
+        )
+        return card
+    }
+
+    private fun createActionMenuItem(
+        textRes: Int,
+        onClick: () -> Unit,
+    ): TextView =
+        TextView(this).apply {
+            text = getString(textRes)
+            setTextColor(ContextCompat.getColor(this@FloatingBallService, R.color.quick_book_text))
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, MENU_ITEM_TEXT_SP)
+            gravity = Gravity.CENTER_VERTICAL
+            setPadding(
+                dp(MENU_ITEM_HORIZONTAL_PADDING_DP),
+                0,
+                dp(MENU_ITEM_HORIZONTAL_PADDING_DP),
+                0,
+            )
+            layoutParams =
+                LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    dp(MENU_ITEM_HEIGHT_DP),
+                )
+            background = createMenuItemRipple()
+            isClickable = true
+            setOnClickListener { onClick() }
+        }
+
+    private fun createMenuItemRipple(): RippleDrawable {
+        val mask =
+            GradientDrawable().apply {
+                shape = GradientDrawable.RECTANGLE
+                cornerRadius = dp(MENU_CORNER_RADIUS_DP).toFloat()
+                setColor(Color.WHITE)
+            }
+        return RippleDrawable(
+            ColorStateList.valueOf(ContextCompat.getColor(this, R.color.quick_book_line)),
+            null,
+            mask,
+        )
+    }
+
+    private fun createActionMenuDivider(): View =
+        View(this).apply {
+            setBackgroundColor(ContextCompat.getColor(this@FloatingBallService, R.color.quick_book_line))
+            val dividerParams =
+                LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    dp(MENU_DIVIDER_DP),
+                )
+            dividerParams.leftMargin = dp(MENU_ITEM_HORIZONTAL_PADDING_DP)
+            dividerParams.rightMargin = dp(MENU_ITEM_HORIZONTAL_PADDING_DP)
+            layoutParams = dividerParams
+        }
+
+    private fun dismissActionMenu() {
+        val view = actionMenuView ?: return
+        actionMenuView = null
+        try {
+            windowManager.removeView(view)
+        } catch (error: IllegalArgumentException) {
+            Log.w(TAG, "移除悬浮球菜单失败", error)
+        }
+    }
+
+    private fun excludeCurrentPackage() {
+        val packageName =
+            (foregroundPackage ?: ScreenshotAccessibilityService.currentForegroundPackage)
+                ?.trim()
+                .orEmpty()
+        if (packageName.isEmpty()) {
+            Toast.makeText(applicationContext, R.string.quick_book_toast_exclude_unavailable, Toast.LENGTH_SHORT).show()
+            return
+        }
+        if (packageName !in excludedPackages) {
+            val updated = excludedPackages + packageName
+            excludedPackages = updated
+            QuickBookDraftPrefs.setExcludedPackages(this, updated)
+            QuickBookDraftEvents.emitExcludedPackageAdded(packageName)
+        }
+        syncOverlayVisibility()
+        Toast.makeText(applicationContext, R.string.quick_book_toast_hidden_in_app, Toast.LENGTH_LONG).show()
+    }
+
     @SuppressLint("ClickableViewAccessibility")
     private inner class BallTouchListener : View.OnTouchListener {
         private val touchSlop = ViewConfiguration.get(this@FloatingBallService).scaledTouchSlop
@@ -391,6 +591,17 @@ class FloatingBallService : Service() {
         private var startX = 0
         private var startY = 0
         private var isDragging = false
+        private var isLongPressTriggered = false
+        private val longPressRunnable =
+            Runnable {
+                if (isDragging) {
+                    return@Runnable
+                }
+                isLongPressTriggered = true
+                ballView?.isPressed = false
+                ballView?.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+                showActionMenu()
+            }
 
         override fun onTouch(
             view: View,
@@ -404,16 +615,23 @@ class FloatingBallService : Service() {
                     startX = params.x
                     startY = params.y
                     isDragging = false
+                    isLongPressTriggered = false
                     snapAnimator?.cancel()
+                    mainHandler.removeCallbacks(longPressRunnable)
+                    mainHandler.postDelayed(longPressRunnable, ViewConfiguration.getLongPressTimeout().toLong())
                     view.isPressed = true
                     return true
                 }
 
                 MotionEvent.ACTION_MOVE -> {
+                    if (isLongPressTriggered) {
+                        return true
+                    }
                     val deltaX = (event.rawX - downRawX).toInt()
                     val deltaY = (event.rawY - downRawY).toInt()
                     if (!isDragging && (abs(deltaX) > touchSlop || abs(deltaY) > touchSlop)) {
                         isDragging = true
+                        mainHandler.removeCallbacks(longPressRunnable)
                     }
                     if (isDragging) {
                         params.x = startX + deltaX
@@ -425,8 +643,11 @@ class FloatingBallService : Service() {
                 }
 
                 MotionEvent.ACTION_UP -> {
+                    mainHandler.removeCallbacks(longPressRunnable)
                     view.isPressed = false
-                    if (isDragging) {
+                    if (isLongPressTriggered) {
+                        isLongPressTriggered = false
+                    } else if (isDragging) {
                         snapToEdge()
                     } else {
                         view.performClick()
@@ -436,8 +657,11 @@ class FloatingBallService : Service() {
                 }
 
                 MotionEvent.ACTION_CANCEL -> {
+                    mainHandler.removeCallbacks(longPressRunnable)
                     view.isPressed = false
-                    if (isDragging) {
+                    if (isLongPressTriggered) {
+                        isLongPressTriggered = false
+                    } else if (isDragging) {
                         snapToEdge()
                     }
                     return true

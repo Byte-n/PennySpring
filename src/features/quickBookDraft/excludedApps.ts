@@ -27,3 +27,24 @@ export function toggleExcludedPackage(
   }
   return packages.filter(pkg => pkg !== packageName);
 }
+
+export function addExcludedPackage(
+  packages: readonly string[],
+  packageName: string,
+): string[] {
+  const trimmed = packageName.trim();
+  if (trimmed === '' || packages.includes(trimmed)) {
+    return [...packages];
+  }
+  return [...packages, trimmed];
+}
+
+export function mergeExcludedPackages(
+  packages: readonly string[],
+  incoming: readonly string[],
+): string[] {
+  return incoming.reduce(
+    (result, packageName) => addExcludedPackage(result, packageName),
+    [...packages],
+  );
+}

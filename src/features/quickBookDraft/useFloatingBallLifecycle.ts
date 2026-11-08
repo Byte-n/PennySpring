@@ -4,6 +4,7 @@ import { useToast } from '@pennyspring/ui';
 
 import type { BookEntry } from '../../stores/bookStore';
 import { getDraftErrorMessage } from './errorMessage';
+import { subscribeExcludedPackageAdded } from './excludedPackagesSync';
 import {
   getFloatingBallStatus,
   isFloatingBallRunning,
@@ -55,6 +56,13 @@ export function useFloatingBallLifecycle({
       });
     }
   }, [excludedPackages, isSupported, quickBookReady]);
+
+  useEffect(() => {
+    if (!isSupported || !quickBookReady) {
+      return;
+    }
+    return subscribeExcludedPackageAdded();
+  }, [isSupported, quickBookReady]);
 
   useEffect(() => {
     try {
