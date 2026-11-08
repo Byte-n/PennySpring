@@ -51,7 +51,7 @@
     "init:codex": "node scripts/init-codex.js",
     "clean": "bash scripts/clean.sh",
     "ws": "node scripts/workspace-runner.js",
-    "postinstall": "patch-package"
+    "postinstall": "patch-package && node scripts/link-agent-dirs.js"
   },
   "dependencies": {
     "@ai-sdk/alibaba": "2.0.80",

@@ -11,7 +11,7 @@ const {
 const path = require('node:path');
 
 const PROJECT_ROOT = path.resolve(__dirname, '..');
-const CLAUDE_DIR = path.join(PROJECT_ROOT, '.claude');
+const CLAUDE_DIR = path.join(PROJECT_ROOT, '.agents');
 const CODEX_DIR = path.join(PROJECT_ROOT, '.codex');
 const CLAUDE_SKILLS_DIR = path.join(CLAUDE_DIR, 'skills');
 const CLAUDE_AGENTS_DIR = path.join(CLAUDE_DIR, 'agents');
@@ -155,7 +155,7 @@ async function replaceDirectory(sourcePath, destinationPath) {
 
 async function syncSkills() {
   await replaceDirectory(CLAUDE_SKILLS_DIR, CODEX_SKILLS_DIR);
-  console.log('Copied .claude/skills -> .codex/skills');
+  console.log('Copied .agents/skills -> .codex/skills');
 }
 
 async function syncAgents() {
@@ -179,7 +179,7 @@ async function syncAgents() {
 
     await writeFile(destinationPath, tomlContent, 'utf8');
     console.log(
-      `Converted .claude/agents/${fileName} -> .codex/agents/${outputFileName}`,
+      `Converted .agents/agents/${fileName} -> .codex/agents/${outputFileName}`,
     );
   }
 }

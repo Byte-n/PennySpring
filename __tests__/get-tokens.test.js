@@ -3,7 +3,7 @@ const { spawnSync } = require('node:child_process');
 
 const scriptPath = path.resolve(
   __dirname,
-  '../.claude/skills/theme-tokens/scripts/get-tokens.js',
+  '../.agents/skills/theme-tokens/scripts/get-tokens.js',
 );
 
 function runGetTokens(args) {
