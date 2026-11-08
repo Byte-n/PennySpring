@@ -1,4 +1,8 @@
-import { parseDeviceList, parseMdnsServices } from '../src/adb';
+import {
+  collectMdnsServices,
+  parseDeviceList,
+  parseMdnsServices,
+} from '../src/adb';
 
 describe('parseDeviceList', () => {
   test('parses serial, state and -l metadata', () => {
@@ -38,6 +42,19 @@ describe('parseDeviceList', () => {
 
   test('returns an empty list when no devices are attached', () => {
     expect(parseDeviceList('List of devices attached\n')).toEqual([]);
+  });
+});
+
+describe('collectMdnsServices', () => {
+  test('resolves as soon as the adb process exits instead of waiting for the full duration', async () => {
+    const startedAt = Date.now();
+
+    // node 自身充当一个立即退出的 adb 进程（参数无效会直接报错退出）。
+    const output = await collectMdnsServices(process.execPath, 5000);
+    const elapsedMs = Date.now() - startedAt;
+
+    expect(elapsedMs).toBeLessThan(2000);
+    expect(typeof output).toBe('string');
   });
 });
 

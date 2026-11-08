@@ -10,20 +10,36 @@ export type MdnsCollector = (
 
 const SCAN_DURATION_MS = 5000;
 
-const defaultCollector: MdnsCollector = (adbPath, durationMs) =>
+export const collectMdnsServices: MdnsCollector = (adbPath, durationMs) =>
   new Promise(resolve => {
     const child = spawn(adbPath, ['mdns', 'services'], {
       stdio: ['ignore', 'pipe', 'pipe'],
     });
     let out = '';
+    let isDone = false;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+
+    const finish = () => {
+      if (isDone) {
+        return;
+      }
+      isDone = true;
+      if (timer !== undefined) {
+        clearTimeout(timer);
+      }
+      resolve(out);
+    };
+
     const onData = (chunk: Buffer) => {
       out += chunk.toString();
     };
     child.stdout.on('data', onData);
     child.stderr.on('data', onData);
-    setTimeout(() => {
+    child.on('close', finish);
+    child.on('error', finish);
+    timer = setTimeout(() => {
       child.kill();
-      resolve(out);
+      finish();
     }, durationMs);
   });
 
@@ -41,7 +57,7 @@ export class AdbClient {
     options: AdbClientOptions,
   ) {
     this.adbPath = options.adbPath;
-    this.collector = options.collector ?? defaultCollector;
+    this.collector = options.collector ?? collectMdnsServices;
   }
 
   async devices(): Promise<AdbDevice[]> {

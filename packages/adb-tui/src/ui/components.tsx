@@ -13,6 +13,7 @@ export interface PromptFrameProps {
   title: string;
   hint?: string;
   error?: string | null;
+  errorSuggestion?: string | null;
   message?: string;
   syncStatus?: string;
   children?: React.ReactNode;
@@ -88,6 +89,7 @@ export function PromptFrame({
   title,
   hint,
   error,
+  errorSuggestion,
   message,
   syncStatus,
   children,
@@ -118,8 +120,11 @@ export function PromptFrame({
         {children}
       </Box>
       {error ? (
-        <Box marginTop={1}>
+        <Box flexDirection="column" marginTop={1}>
           <Text color={UI_COLORS.error}>错误：{error}</Text>
+          {errorSuggestion ? (
+            <Text color={UI_COLORS.muted}>建议：{errorSuggestion}</Text>
+          ) : null}
         </Box>
       ) : null}
     </Box>
@@ -166,6 +171,7 @@ export function TextField({
   initialValue = '',
   password = false,
   error: externalError = null,
+  errorSuggestion,
   validate,
   onSubmit,
   onCancel,
@@ -224,7 +230,12 @@ export function TextField({
   );
 
   return (
-    <PromptFrame title={title} hint={hint} error={displayError}>
+    <PromptFrame
+      title={title}
+      hint={hint}
+      error={displayError}
+      errorSuggestion={error === null ? errorSuggestion : undefined}
+    >
       <TextInputFrame
         value={value}
         password={password}
