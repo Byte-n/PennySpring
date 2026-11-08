@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
-import { StatusBar, useColorScheme } from 'react-native';
+import { AppState, StatusBar, useColorScheme } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import BootSplash from 'react-native-bootsplash';
 import { App as PSApp, useTheme } from '@pennyspring/ui';
@@ -15,6 +15,7 @@ import {
 import { useBookStore } from './src/stores/bookStore';
 import { rehydrateNetworkBooks } from './src/stores/networkBookStore';
 import { useAutoBackup } from './src/features/backup/useAutoBackup';
+import { reconcileInterruptedQuickBookDrafts } from './src/features/quickBookDraft/reconcileInterruptedDrafts';
 import { cleanupQuickBookDraftsOnStartup } from './src/features/quickBookDraft/startupCleanup';
 import { AutoUpdateChecker } from './src/features/appUpdate/AutoUpdateChecker';
 import {
@@ -91,6 +92,11 @@ function AppContent() {
       }
       await initializeBook();
       try {
+        await reconcileInterruptedQuickBookDrafts();
+      } catch (error) {
+        console.error('Quick book draft reconciliation failed:', error);
+      }
+      try {
         await cleanupQuickBookDraftsOnStartup();
       } catch (error) {
         console.error('Quick book draft cleanup failed:', error);
@@ -100,6 +106,18 @@ function AppContent() {
       console.error('Book initialization failed:', error);
     });
   }, [initializeBook]);
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', state => {
+      if (state !== 'active') {
+        return;
+      }
+      reconcileInterruptedQuickBookDrafts().catch(error => {
+        console.error('Quick book draft reconciliation failed:', error);
+      });
+    });
+    return () => subscription.remove();
+  }, []);
 
   // 启动页/失败页已经上屏，原生 splash 就该退场，否则会盖住品牌页与文案。
   // 成功分支推迟到导航 onReady，避免导航容器首帧还是空白时提前露出白屏。

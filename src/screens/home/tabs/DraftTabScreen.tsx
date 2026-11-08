@@ -49,6 +49,7 @@ import {
   deleteDraftImageIfConfirmed,
 } from '../../../features/quickBookDraft/deleteDraftImages';
 import { getDraftErrorMessage } from '../../../features/quickBookDraft/errorMessage';
+import { reconcileInterruptedQuickBookDrafts } from '../../../features/quickBookDraft/reconcileInterruptedDrafts';
 import type { MediaStore } from '../../../media';
 import { ROOT_ROUTES, useNavigation } from '../../../navigation';
 import { getBookKey, useBookStore } from '../../../stores/bookStore';
@@ -216,6 +217,12 @@ export function DraftTabScreen(): React.ReactElement {
 
   useFocusEffect(
     useCallback(() => {
+      reconcileInterruptedQuickBookDrafts().catch(reconcileError => {
+        console.error(
+          'Quick book draft reconciliation failed:',
+          reconcileError,
+        );
+      });
       if (hasFocusedRef.current) {
         refresh();
       } else {

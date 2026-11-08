@@ -16,6 +16,7 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.bridge.ReadableMap
+import com.facebook.react.jstasks.HeadlessJsTaskContext
 import java.util.concurrent.Executors
 
 /**
@@ -30,6 +31,8 @@ class QuickBookDraftModule(
         private const val TAG = "QuickBookDraftModule"
         private const val ERROR_STATUS = "QUICK_BOOK_DRAFT_STATUS_FAILED"
         private const val ERROR_APPS = "QUICK_BOOK_DRAFT_APPS_FAILED"
+        private const val ERROR_ACTIVE_DRAFTS = "QUICK_BOOK_DRAFT_ACTIVE_FAILED"
+        private const val ERROR_DRAFT_JOBS = "QUICK_BOOK_DRAFT_JOBS_FAILED"
     }
 
     private val appListExecutor = Executors.newSingleThreadExecutor()
@@ -240,6 +243,65 @@ class QuickBookDraftModule(
             promise.resolve(QuickBookCaptureCatalogStore.write(reactContext, catalogJson))
         } catch (error: Exception) {
             promise.reject(ERROR_STATUS, error)
+        }
+    }
+
+    @ReactMethod
+    fun getActiveDraftIds(promise: Promise) {
+        try {
+            val taskContext = HeadlessJsTaskContext.getInstance(reactContext)
+            val draftIds =
+                QuickBookJobService.activeDraftIds { taskId ->
+                    taskContext.isTaskRunning(taskId)
+                }
+            val result =
+                Arguments.createArray().apply {
+                    draftIds.forEach { pushString(it) }
+                }
+            promise.resolve(result)
+        } catch (error: Exception) {
+            Log.w(TAG, "读取活跃草稿任务失败", error)
+            promise.reject(ERROR_ACTIVE_DRAFTS, error)
+        }
+    }
+
+    @ReactMethod
+    fun getPendingDraftJobs(promise: Promise) {
+        try {
+            val result =
+                Arguments.createArray().apply {
+                    QuickBookDraftJobJournal.list(reactContext).forEach { job ->
+                        pushMap(
+                            Arguments.createMap().apply {
+                                putString("draftId", job.draftId)
+                                putString("imagePath", job.imagePath)
+                                putString("bookRef", job.bookRefJson)
+                                putInt("booksId", job.booksId)
+                                putInt("assetId", job.assetId)
+                                putInt("typeId", job.typeId)
+                                putString("source", job.source)
+                            },
+                        )
+                    }
+                }
+            promise.resolve(result)
+        } catch (error: Exception) {
+            Log.w(TAG, "读取草稿任务日志失败", error)
+            promise.reject(ERROR_DRAFT_JOBS, error)
+        }
+    }
+
+    @ReactMethod
+    fun ackDraftJob(
+        draftId: String,
+        promise: Promise,
+    ) {
+        try {
+            QuickBookDraftJobJournal.remove(reactContext, draftId.trim())
+            promise.resolve(null)
+        } catch (error: Exception) {
+            Log.w(TAG, "更新草稿任务日志失败", error)
+            promise.reject(ERROR_DRAFT_JOBS, error)
         }
     }
 

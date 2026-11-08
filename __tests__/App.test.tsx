@@ -8,6 +8,10 @@ jest.mock('react-native-bootsplash', () => ({
 }));
 
 jest.mock('react-native', () => ({
+  AppState: {
+    addEventListener: jest.fn(() => ({ remove: jest.fn() })),
+  },
+  Platform: { OS: 'ios' },
   StatusBar: 'StatusBar',
   useColorScheme: jest.fn(() => 'light'),
 }));

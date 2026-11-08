@@ -3,10 +3,8 @@ jest.mock('../../src/agent/headless/runQuickBookDraft', () => ({
 }));
 
 import { runQuickBookDraft } from '../../src/agent/headless/runQuickBookDraft';
-import {
-  parseQuickBookDraftTaskData,
-  QuickBookDraftTask,
-} from '../../src/agent/headless/QuickBookDraftTask';
+import { QuickBookDraftTask } from '../../src/agent/headless/QuickBookDraftTask';
+import { parseQuickBookDraftTaskData } from '../../src/features/quickBookDraft/taskData';
 
 const mockedRunQuickBookDraft = runQuickBookDraft as jest.Mock;
 

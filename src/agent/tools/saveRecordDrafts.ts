@@ -325,6 +325,8 @@ export interface SaveRecordDraftsToolDeps {
   draftId: string;
   preset: QuickBookDraftPreset;
   imagePath: string;
+  /** 整次运行超时后阻止旧任务继续覆盖草稿。 */
+  abortSignal?: AbortSignal;
 }
 
 export interface SaveRecordDraftsOutput {
@@ -346,6 +348,9 @@ export function createSaveRecordDraftsTool(deps: SaveRecordDraftsToolDeps) {
       if (!deps.imagePath.trim()) {
         throw new Error('草稿截图路径不能为空');
       }
+      if (deps.abortSignal?.aborted) {
+        throw new Error('生成已中止，请重试');
+      }
       const [types, assets] = await Promise.all([
         deps.bookApi.type.getAll(deps.booksId),
         deps.bookApi.asset.getByBook(deps.booksId),
@@ -357,6 +362,9 @@ export function createSaveRecordDraftsTool(deps: SaveRecordDraftsToolDeps) {
         types,
         assets,
       });
+      if (deps.abortSignal?.aborted) {
+        throw new Error('生成已中止，请重试');
+      }
       const summary = normalizeSummary(input.summary);
       await deps.draftApi.updateItems(
         deps.draftId,

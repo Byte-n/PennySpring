@@ -39,13 +39,17 @@ jest.mock('../../src/features/quickBookDraft/draftCacheStorage', () => ({
 }));
 
 jest.mock('../../src/features/quickBookDraft/native', () => ({
+  ackQuickBookDraftJob: jest.fn(async () => undefined),
   reportQuickBookDraftOutcome: jest.fn(async () => undefined),
 }));
 
 import type { AgentProviderModel, AgentSelection } from '@pennyspring/api';
 
 import { createAgent } from '../../src/agent/core/createAgent';
-import { runQuickBookDraft } from '../../src/agent/headless/runQuickBookDraft';
+import {
+  QUICK_BOOK_DRAFT_RUN_TIMEOUT_MS,
+  runQuickBookDraft,
+} from '../../src/agent/headless/runQuickBookDraft';
 import { resolveQuickBookModel } from '../../src/features/quickBook/validation';
 import { resolveBookApi } from '../../src/features/quickBookDraft/bookApi';
 import type { DraftBookTarget } from '../../src/features/quickBookDraft/draftBook';
@@ -54,7 +58,10 @@ import {
   useQuickBookDraftProgressStore,
   type QuickBookDraftProgress,
 } from '../../src/features/quickBookDraft/draftProgress';
+import { ackQuickBookDraftJob } from '../../src/features/quickBookDraft/native';
 import { useDraftVersionStore } from '../../src/stores/draftVersionStore';
+
+const mockedAckQuickBookDraftJob = ackQuickBookDraftJob as jest.Mock;
 
 const mockBookApi = {
   book: { getById: jest.fn() },
@@ -343,5 +350,36 @@ describe('runQuickBookDraft lifecycle', () => {
     expect(
       useQuickBookDraftProgressStore.getState().progressById[INPUT.draftId],
     ).toBeUndefined();
+  });
+
+  it('fails the draft when the whole run exceeds the deadline', async () => {
+    jest.useFakeTimers();
+    try {
+      (resolveBookApi as jest.Mock).mockReturnValue(
+        new Promise(() => undefined),
+      );
+
+      const run = runQuickBookDraft(INPUT).catch(error => error);
+      await jest.advanceTimersByTimeAsync(QUICK_BOOK_DRAFT_RUN_TIMEOUT_MS);
+      const error = await run;
+
+      expect(error).toBeInstanceOf(Error);
+      expect((error as Error).message).toBe('生成超时，请重试');
+      expect(mockDraftCache.markFailed).toHaveBeenCalledWith(
+        INPUT.draftId,
+        '生成超时，请重试',
+      );
+      expect(
+        useQuickBookDraftProgressStore.getState().progressById[INPUT.draftId],
+      ).toBeUndefined();
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
+  it('acks the native job journal after the placeholder is stored', async () => {
+    await runQuickBookDraft({ ...INPUT, reportOutcome: true });
+
+    expect(mockedAckQuickBookDraftJob).toHaveBeenCalledWith(INPUT.draftId);
   });
 });

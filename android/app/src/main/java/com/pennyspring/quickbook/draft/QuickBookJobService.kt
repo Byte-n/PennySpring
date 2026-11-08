@@ -59,21 +59,35 @@ class QuickBookJobService : HeadlessJsTaskService() {
             if (!registry.tryAcquire(draftId)) {
                 return StartResult.BUSY
             }
-            val intent =
-                Intent(context, QuickBookJobService::class.java).apply {
-                    putExtra(QuickBookDraftTaskContract.EXTRA_DRAFT_ID, draftId)
-                    putExtra(QuickBookDraftTaskContract.EXTRA_IMAGE_PATH, imagePath)
-                    putExtra(QuickBookDraftTaskContract.EXTRA_BOOK_REF, bookRefJson)
-                    putExtra(QuickBookDraftTaskContract.EXTRA_BOOKS_ID, booksId)
-                    putExtra(QuickBookDraftTaskContract.EXTRA_ASSET_ID, assetId)
-                    putExtra(QuickBookDraftTaskContract.EXTRA_TYPE_ID, typeId)
-                    putExtra(QuickBookDraftTaskContract.EXTRA_SOURCE, source)
-                }
             return try {
+                QuickBookDraftJobJournal.put(
+                    context,
+                    QuickBookDraftJobJournal.Job(
+                        draftId = draftId,
+                        imagePath = imagePath,
+                        bookRefJson = bookRefJson,
+                        booksId = booksId,
+                        assetId = assetId,
+                        typeId = typeId,
+                        source = source,
+                        createdAt = System.currentTimeMillis(),
+                    ),
+                )
+                val intent =
+                    Intent(context, QuickBookJobService::class.java).apply {
+                        putExtra(QuickBookDraftTaskContract.EXTRA_DRAFT_ID, draftId)
+                        putExtra(QuickBookDraftTaskContract.EXTRA_IMAGE_PATH, imagePath)
+                        putExtra(QuickBookDraftTaskContract.EXTRA_BOOK_REF, bookRefJson)
+                        putExtra(QuickBookDraftTaskContract.EXTRA_BOOKS_ID, booksId)
+                        putExtra(QuickBookDraftTaskContract.EXTRA_ASSET_ID, assetId)
+                        putExtra(QuickBookDraftTaskContract.EXTRA_TYPE_ID, typeId)
+                        putExtra(QuickBookDraftTaskContract.EXTRA_SOURCE, source)
+                    }
                 ContextCompat.startForegroundService(context, intent)
                 StartResult.STARTED
             } catch (error: Exception) {
                 registry.release(draftId)
+                QuickBookDraftJobJournal.remove(context, draftId)
                 Log.w(TAG, "启动草稿任务失败", error)
                 StartResult.FAILED
             }
@@ -92,6 +106,10 @@ class QuickBookJobService : HeadlessJsTaskService() {
             val taskId = registry.findTaskId(draftId) ?: return
             HeadlessJsTaskContext.getInstance(context).finishTask(taskId)
         }
+
+        /** 供 JS 启动校准时查询仍存活的草稿任务。 */
+        @JvmStatic
+        fun activeDraftIds(isTaskRunning: (Int) -> Boolean): Set<String> = registry.activeDraftIds(isTaskRunning)
     }
 
     private var batchSuccessCount = 0

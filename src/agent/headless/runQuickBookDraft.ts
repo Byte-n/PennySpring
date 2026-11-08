@@ -30,7 +30,10 @@ import {
   clearQuickBookDraftProgress,
   type QuickBookDraftStreamEvent,
 } from '../../features/quickBookDraft/draftProgress';
-import { reportQuickBookDraftOutcome } from '../../features/quickBookDraft/native';
+import {
+  ackQuickBookDraftJob,
+  reportQuickBookDraftOutcome,
+} from '../../features/quickBookDraft/native';
 import { bumpDraftVersion } from '../../stores/draftVersionStore';
 import { loadBookAgentRules } from '../core/agentRules';
 import { AGENT_TIMEOUT_MS } from '../core/constants';
@@ -50,6 +53,14 @@ import {
  * P3 原生启动任务时传入该上限。
  */
 export const QUICK_BOOK_DRAFT_TASK_TIMEOUT_MS = 180_000;
+
+/**
+ * JS 侧整次运行硬截止：必须小于原生任务超时，
+ * 保证进程存活时草稿一定先由 JS 标记失败，而不是被原生静默摘除。
+ */
+export const QUICK_BOOK_DRAFT_RUN_TIMEOUT_MS = 150_000;
+
+const RUN_TIMEOUT_ERROR = '生成超时，请重试';
 
 const DEFAULT_IMAGE_MEDIA_TYPE = 'image/jpeg';
 const DEFAULT_IMAGE_EXTENSION = 'jpg';
@@ -436,8 +447,15 @@ function createDraftPlaceholder(
   });
 }
 
+function assertRunActive(signal: AbortSignal): void {
+  if (signal.aborted) {
+    throw new Error(RUN_TIMEOUT_ERROR);
+  }
+}
+
 async function executeQuickBookDraft(
   input: RunQuickBookDraftInput,
+  signal: AbortSignal,
 ): Promise<number> {
   const booksId = input.target.booksId;
   const preset = normalizePreset(input.preset);
@@ -449,6 +467,9 @@ async function executeQuickBookDraft(
   });
   // 占位草稿先落本地：即使账本 API 不可达，也能在列表里留下 failed 可重试记录。
   await createDraftPlaceholder(input, preset);
+  if (input.reportOutcome) {
+    await ackQuickBookDraftJob(input.draftId).catch(() => undefined);
+  }
   bumpDraftVersion();
   agentDebugLog('quickBookDraft', 'placeholder-done');
 
@@ -459,6 +480,7 @@ async function executeQuickBookDraft(
     provider: provider.id,
     model: model.modelId,
   });
+  assertRunActive(signal);
   await quickBookDraftCache.setAgent(input.draftId, {
     agentProviderId: provider.id,
     agentModelId: model.modelId,
@@ -493,18 +515,23 @@ async function executeQuickBookDraft(
       draftId: input.draftId,
       preset,
       imagePath: input.imagePath,
+      abortSignal: signal,
     }),
   });
 
+  assertRunActive(signal);
   agentDebugLog('quickBookDraft', 'generate-start');
   const stream = await agent.stream({
     messages: [buildImageUserMessage(image, userText)],
     timeout: { totalMs: AGENT_TIMEOUT_MS },
+    abortSignal: signal,
   });
   await consumeDraftStream(input.draftId, stream.fullStream);
   agentDebugLog('quickBookDraft', 'generate-done');
 
+  assertRunActive(signal);
   const draft = await quickBookDraftCache.getById(input.draftId);
+  assertRunActive(signal);
   agentDebugLog('quickBookDraft', 'draft-read', {
     status: draft.status,
     items: draft.items.length,
@@ -520,6 +547,22 @@ async function executeQuickBookDraft(
   return draft.items.length;
 }
 
+function waitForRunTimeout(signal: AbortSignal): Promise<never> {
+  return new Promise((_, reject) => {
+    if (signal.aborted) {
+      reject(new Error(RUN_TIMEOUT_ERROR));
+      return;
+    }
+    signal.addEventListener(
+      'abort',
+      () => reject(new Error(RUN_TIMEOUT_ERROR)),
+      {
+        once: true,
+      },
+    );
+  });
+}
+
 /**
  * 在 Headless JS 中生成截图记账草稿。
  * 不创建 Agent 会话线程；失败时把草稿标记为 failed 并抛出中文错误。
@@ -530,12 +573,20 @@ export async function runQuickBookDraft(
 ): Promise<void> {
   let itemCount = 0;
   const bookKey = getDraftBookKey(input.target);
+  const controller = new AbortController();
+  const timeoutId = setTimeout(
+    () => controller.abort(),
+    QUICK_BOOK_DRAFT_RUN_TIMEOUT_MS,
+  );
   agentDebugLog('quickBookDraft', 'run-start', {
     draftId: input.draftId,
     reportOutcome: input.reportOutcome === true,
   });
   try {
-    itemCount = await executeQuickBookDraft(input);
+    itemCount = await Promise.race([
+      executeQuickBookDraft(input, controller.signal),
+      waitForRunTimeout(controller.signal),
+    ]);
     agentDebugLog('quickBookDraft', 'run-success', { itemCount });
     if (input.reportOutcome) {
       await reportQuickBookDraftOutcome({
@@ -562,6 +613,7 @@ export async function runQuickBookDraft(
     }
     throw error instanceof Error ? error : new Error(message);
   } finally {
+    clearTimeout(timeoutId);
     clearQuickBookDraftProgress(input.draftId);
     bumpDraftVersion();
   }

@@ -127,7 +127,7 @@ function createApis(
   return { bookApi, draftApi };
 }
 
-function createSaveExecute(apis: TestApis) {
+function createSaveExecute(apis: TestApis, abortSignal?: AbortSignal) {
   const tools = createQuickBookDraftTools({
     bookApi: apis.bookApi,
     draftApi: apis.draftApi,
@@ -135,6 +135,7 @@ function createSaveExecute(apis: TestApis) {
     draftId: 'draft-1',
     preset: { assetId: 0, typeId: 0 },
     imagePath: 'file:///draft/one.jpg',
+    ...(abortSignal === undefined ? {} : { abortSignal }),
   });
   const tool = tools[SAVE_RECORD_DRAFTS_TOOL_NAME];
   if (!tool || typeof tool.execute !== 'function') {
@@ -404,6 +405,25 @@ describe('saveRecordDrafts tool', () => {
       { agentSummary: '午餐两笔' },
     );
     expect(createMany).not.toHaveBeenCalled();
+  });
+
+  it('refuses to write after the run is aborted', async () => {
+    const updateItems = jest.fn(async (id: string, items: DraftItem[]) => ({
+      id,
+      status: 'pending',
+      items,
+    }));
+    const controller = new AbortController();
+    controller.abort();
+    const execute = createSaveExecute(
+      createApis({ updateItems }),
+      controller.signal,
+    );
+
+    await expect(
+      execute({ items: [{ typeId: 2, amount: 10 }] }, {}),
+    ).rejects.toThrow('生成已中止，请重试');
+    expect(updateItems).not.toHaveBeenCalled();
   });
 
   it('overwrites the same draft when called repeatedly', async () => {

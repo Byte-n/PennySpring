@@ -125,6 +125,38 @@ class QuickBookTaskRegistryTest {
     }
 
     @Test
+    fun activeDraftIdsKeepsBoundTasksThatAreRunning() {
+        val registry = createRegistry()
+        registry.tryAcquire("draft-1")
+        registry.expectTask("draft-1")
+        assertEquals("draft-1", registry.bindTask(1))
+
+        assertEquals(setOf("draft-1"), registry.activeDraftIds { true })
+    }
+
+    @Test
+    fun activeDraftIdsDropsBoundTasksThatAreNoLongerRunning() {
+        val registry = createRegistry(maxConcurrent = 1)
+        registry.tryAcquire("draft-1")
+        registry.expectTask("draft-1")
+        assertEquals("draft-1", registry.bindTask(1))
+
+        assertTrue(registry.activeDraftIds { false }.isEmpty())
+        // 查询不能解绑 taskId，否则任务结束回调会丢结果。
+        assertEquals("draft-1", registry.completeTask(1))
+        assertEquals(0, registry.activeCount())
+    }
+
+    @Test
+    fun activeDraftIdsKeepsPendingDraftsWithoutBoundTask() {
+        val registry = createRegistry()
+        registry.tryAcquire("draft-1")
+        registry.expectTask("draft-1")
+
+        assertEquals(setOf("draft-1"), registry.activeDraftIds { false })
+    }
+
+    @Test
     fun resetTaskMappingsReleasesDraftsAndRestartsTaskIds() {
         val registry = createRegistry()
         registry.tryAcquire("draft-1")

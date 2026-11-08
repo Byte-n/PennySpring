@@ -61,6 +61,9 @@ interface QuickBookDraftNativeModule {
   setFloatingBallEnabled: (enabled: boolean) => void;
   setExcludedPackages: (packages: string[]) => void;
   setCaptureCatalog: (catalogJson: string) => Promise<unknown>;
+  getActiveDraftIds: () => Promise<unknown>;
+  getPendingDraftJobs: () => Promise<unknown>;
+  ackDraftJob: (draftId: string) => Promise<unknown>;
   reportDraftOutcome: (outcome: {
     draftId: string;
     status: 'success' | 'failed';
@@ -269,6 +272,62 @@ export async function setQuickBookCaptureCatalog(
     return (await module.setCaptureCatalog(catalogJson)) === true;
   } catch {
     throw toChineseError('同步截图记账目录');
+  }
+}
+
+function parseActiveDraftIds(value: unknown): string[] {
+  if (!Array.isArray(value)) {
+    throw new Error('草稿任务状态返回格式不正确');
+  }
+  return value
+    .filter((id): id is string => typeof id === 'string')
+    .map(id => id.trim())
+    .filter(id => id !== '');
+}
+
+/** 原生进程内仍在执行的草稿 id；非 Android 或模块缺失时返回空数组。 */
+export async function getQuickBookActiveDraftIds(): Promise<string[]> {
+  const module = getNativeModule();
+  if (!module) {
+    return [];
+  }
+  try {
+    return parseActiveDraftIds(await module.getActiveDraftIds());
+  } catch {
+    throw toChineseError('读取草稿任务状态');
+  }
+}
+
+function parsePendingDraftJobs(value: unknown): unknown[] {
+  if (!Array.isArray(value)) {
+    throw new Error('草稿任务日志返回格式不正确');
+  }
+  return value.filter(isRecord);
+}
+
+/** 已启动但尚未确认占位草稿写入的任务日志；非 Android 或模块缺失时返回空数组。 */
+export async function getQuickBookPendingDraftJobs(): Promise<unknown[]> {
+  const module = getNativeModule();
+  if (!module) {
+    return [];
+  }
+  try {
+    return parsePendingDraftJobs(await module.getPendingDraftJobs());
+  } catch {
+    throw toChineseError('读取草稿任务日志');
+  }
+}
+
+/** 占位草稿写入后删除任务日志；重复调用是幂等的。 */
+export async function ackQuickBookDraftJob(draftId: string): Promise<void> {
+  const module = getNativeModule();
+  if (!module) {
+    return;
+  }
+  try {
+    await module.ackDraftJob(draftId);
+  } catch {
+    throw toChineseError('更新草稿任务日志');
   }
 }
 

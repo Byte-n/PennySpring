@@ -104,6 +104,24 @@ class QuickBookTaskRegistry(
         }
     }
 
+    /**
+     * 返回仍存活的草稿 id。
+     * [isTaskRunning] 用于校验已绑定 taskId 是否还在 RN 侧执行，过滤 JS 重载后的陈旧登记。
+     * 只读过滤，不清理登记表，避免抢在任务结束回调前解绑 taskId。
+     */
+    fun activeDraftIds(isTaskRunning: (Int) -> Boolean): Set<String> {
+        synchronized(lock) {
+            removeStaleLocked()
+            removeStalePendingLocked()
+            val stoppedDraftIds =
+                taskIdToDraftId.entries
+                    .filter { !isTaskRunning(it.key) }
+                    .map { it.value }
+                    .toSet()
+            return activeDrafts.keys.filterNot { it in stoppedDraftIds }.toSet()
+        }
+    }
+
     private fun removeStaleLocked() {
         val timestamp = now()
         val iterator = activeDrafts.entries.iterator()
