@@ -8,8 +8,15 @@
 | ---------------------------- | ----------------------------------------------------------- |
 | `createDatabase(connection)` | 用 op-sqlite 连接创建 Drizzle 实例                          |
 | `getDatabase()`              | 打开 `pennyspring.db`、执行迁移与默认数据初始化，并返回单例 |
-| `runMigrations(db)`          | 执行 `@pennyspring/data/drizzle/migrations` 中打包的迁移    |
+| `runMigrations(connection)`  | 执行 `@pennyspring/data/drizzle/migrations` 中打包的迁移    |
 | `createLocalApi()`           | 组装本地 `Api`，即应用默认使用的 `localApi`                 |
+
+`runMigrations` 为每个迁移单独开事务，写入 `__drizzle_migrations` 记录与结构变更一起提交；
+遇到旧版本升级中断留下的“表/索引/列已存在但记录缺失”状态，会校验对象真实存在后跳过对应语句并补齐记录。
+
+`createDatabase` 会给 drizzle-orm 0.45.x 的 op-sqlite 会话打事务补丁：原实现没有等待
+`begin`/`commit` 与异步回调，事务不生效且失败不回滚。官方已在 1.0.0-rc.5 修复
+（“Fixed `op-sqlite` transaction being handled as synchronous”），升级 drizzle 到 1.0 后应删掉 `src/adapter-op-sqlite/transaction.ts`。
 
 ## 使用
 

@@ -24,7 +24,7 @@
   "types": "src/index.ts",
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "test": "echo 'No tests yet' && exit 0"
+    "test": "jest --config ../../jest.config.js --watchman=false packages/data-rn"
   },
   "dependencies": {
     "@op-engineering/op-sqlite": "^15.2.14",

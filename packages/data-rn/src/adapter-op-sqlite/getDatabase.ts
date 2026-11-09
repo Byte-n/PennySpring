@@ -18,7 +18,7 @@ export async function getDatabase(): Promise<Database> {
     const { open } = await import('@op-engineering/op-sqlite');
     const connection = open({ name: 'pennyspring.db' });
     const database = createDatabase(connection);
-    await runMigrations(database);
+    await runMigrations(connection);
     // op-sqlite 驱动类型在出口归一为 canonical Database（与 data-server 适配器一致），
     // 规避 OPSQLiteDatabase → BaseSQLiteDatabase 的私有字段可赋值性脆弱。
     const canonical = database as unknown as Database;
