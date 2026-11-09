@@ -1,5 +1,6 @@
 import {
   RECORD_TYPE_CATEGORY,
+  RECORD_TYPE_SPECIAL_BEHAVIOR,
   REIMBURSABLE,
   type DraftItem,
   type TypeRow,
@@ -8,9 +9,12 @@ import {
 import {
   buildDraftConfirmInput,
   formatDraftAmount,
+  formatDraftItemTime,
   formatDraftTimestamp,
   getDraftItemMissingLabels,
+  getDraftItemWarningTexts,
   isDraftItemComplete,
+  summarizeDraftTotals,
 } from '../../src/features/quickBookDraft/draftLogic';
 
 function createType(overrides: Partial<TypeRow> = {}): TypeRow {
@@ -78,6 +82,127 @@ describe('formatDraftTimestamp', () => {
   });
 });
 
+describe('formatDraftItemTime', () => {
+  it('returns time only when the item shares the card day', () => {
+    const reference = new Date(2026, 10, 4, 18, 0).getTime();
+    const itemTime = new Date(2026, 10, 4, 12, 34).getTime();
+
+    expect(formatDraftItemTime(itemTime, reference)).toBe('12:34');
+  });
+
+  it('prefixes month and day when the item is on another day', () => {
+    const reference = new Date(2026, 10, 5, 9, 0).getTime();
+    const itemTime = new Date(2026, 10, 4, 12, 34).getTime();
+
+    expect(formatDraftItemTime(itemTime, reference)).toBe('11-04 12:34');
+  });
+});
+
+describe('summarizeDraftTotals', () => {
+  const expenseType = createType({ id: 11, name: '午餐' });
+  const incomeType = createType({
+    id: 12,
+    name: '工资',
+    typeCategory: RECORD_TYPE_CATEGORY.income,
+  });
+  const transferType = createType({
+    id: 13,
+    name: '转账',
+    typeCategory: RECORD_TYPE_CATEGORY.transfer,
+  });
+  const typesById = new Map<number, TypeRow>(
+    [expenseType, incomeType, transferType].map(type => [type.id, type]),
+  );
+
+  it('splits expense, income and transfer without mixing them', () => {
+    const totals = summarizeDraftTotals(
+      [
+        createItem({ typeId: 11, amountCents: 3650 }),
+        createItem({ typeId: 12, amountCents: 500000 }),
+        createItem({ typeId: 13, amountCents: 100000 }),
+      ],
+      typesById,
+      1,
+    );
+
+    expect(totals).toEqual({
+      expenseCents: 3650,
+      incomeCents: 500000,
+      transferCents: 100000,
+      pendingAmountCount: 0,
+      unclassifiedCount: 0,
+      itemCount: 3,
+    });
+  });
+
+  it('excludes missing amounts and unclassified types from totals', () => {
+    const totals = summarizeDraftTotals(
+      [
+        createItem({ typeId: 11, amountCents: null }),
+        createItem({ typeId: 99, amountCents: 1000 }),
+      ],
+      typesById,
+      1,
+    );
+
+    expect(totals.expenseCents).toBe(0);
+    expect(totals.pendingAmountCount).toBe(1);
+    expect(totals.unclassifiedCount).toBe(1);
+    expect(totals.itemCount).toBe(2);
+  });
+
+  it('counts a type from another book as unclassified', () => {
+    const totals = summarizeDraftTotals(
+      [createItem({ typeId: 11, amountCents: 1000 })],
+      new Map([[11, createType({ booksId: 2 })]]),
+      1,
+    );
+
+    expect(totals.expenseCents).toBe(0);
+    expect(totals.unclassifiedCount).toBe(1);
+  });
+});
+
+describe('getDraftItemWarningTexts', () => {
+  it('keeps model warnings and adds derived warnings without duplicating chips', () => {
+    const type = createType({
+      typeCategory: RECORD_TYPE_CATEGORY.transfer,
+      name: '转账',
+    });
+    const item = createItem({
+      typeId: type.id,
+      amountCents: null,
+      assetId: 21,
+      intoAssetId: 21,
+      recordTime: 0,
+      warnings: ['金额不合法，已留空待确认', '模型提示', '模型提示'],
+    });
+
+    expect(getDraftItemWarningTexts(item, type, 1)).toEqual([
+      '金额不合法，已留空待确认',
+      '模型提示',
+      '时间不合法',
+      '转出与转入资产不能相同',
+    ]);
+  });
+
+  it('returns an empty list when there is nothing to warn about', () => {
+    expect(getDraftItemWarningTexts(createItem(), createType(), 1)).toEqual([]);
+  });
+
+  it('warns that absorption income needs a related expense', () => {
+    const type = createType({
+      typeCategory: RECORD_TYPE_CATEGORY.income,
+      specialBehavior: RECORD_TYPE_SPECIAL_BEHAVIOR.refundAbsorption,
+      name: '退款到账',
+    });
+
+    expect(
+      getDraftItemWarningTexts(createItem({ typeId: type.id }), type, 1),
+    ).toEqual(['退款/报销类收入必须关联一笔支出']);
+  });
+});
+
 describe('isDraftItemComplete', () => {
   it('accepts an expense with a valid type, positive amount and time', () => {
     expect(isDraftItemComplete(createItem(), createType(), 1)).toBe(true);
@@ -140,6 +265,18 @@ describe('getDraftItemMissingLabels', () => {
       '缺少转出资产',
       '缺少转入资产',
     ]);
+  });
+
+  it('requires a related expense for absorption income', () => {
+    const type = createType({
+      typeCategory: RECORD_TYPE_CATEGORY.income,
+      specialBehavior: RECORD_TYPE_SPECIAL_BEHAVIOR.reimbursementAbsorption,
+      name: '报销到账',
+    });
+    const item = createItem({ typeId: type.id });
+
+    expect(getDraftItemMissingLabels(item, type, 1)).toEqual(['需关联支出']);
+    expect(isDraftItemComplete(item, type, 1)).toBe(false);
   });
 });
 

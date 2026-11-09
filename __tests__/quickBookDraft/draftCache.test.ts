@@ -145,6 +145,97 @@ describe('quick book draft cache', () => {
     expect(allConfirmed.recordIds).toEqual([88, 89]);
   });
 
+  it('updates attachImage per item without changing its siblings', async () => {
+    const { cache } = createFixture();
+    await cache.createPlaceholder({
+      id: 'draft-1',
+      target: LOCAL_TARGET,
+      imagePath: '/tmp/a.jpg',
+    });
+    await cache.updateItems(
+      'draft-1',
+      [createDraftItem('午餐'), createDraftItem('晚餐')],
+      { assetId: 0, typeId: 10 },
+    );
+    await cache.markReady('draft-1');
+
+    const updated = await cache.updateItem('draft-1', 0, {
+      attachImage: true,
+    });
+    const draft = await cache.getById('draft-1');
+
+    expect(updated.attachImage).toBe(true);
+    expect(draft.items[0]?.attachImage).toBe(true);
+    expect(draft.items[1]?.attachImage).toBe(false);
+  });
+
+  it('falls back to the legacy draft-level attach flag for items without one', async () => {
+    const { cache, storage } = createFixture();
+    storage.values.set(
+      'pennyspring-quick-book-draft:v1:legacy',
+      JSON.stringify({
+        id: 'legacy',
+        target: LOCAL_TARGET,
+        status: QUICK_BOOK_DRAFT_STATUS.pending,
+        source: 'floating_capture',
+        imagePath: '/tmp/a.jpg',
+        attachImage: true,
+        items: [
+          {
+            status: 'pending',
+            recordId: 0,
+            typeId: 10,
+            typeName: '支出',
+            amountCents: 1200,
+            recordTime: NOW,
+            remark: '午餐',
+            assetId: 0,
+            assetName: '',
+            intoAssetId: 0,
+            intoAssetName: '',
+            chargeCents: 0,
+            tagIds: [],
+            reimbursable: false,
+            warnings: [],
+          },
+        ],
+        preset: { assetId: 0, typeId: 10 },
+        agentProviderId: 0,
+        agentModelId: '',
+        agentSummary: '',
+        errorText: '',
+        attachmentRef: '',
+        createdTime: NOW,
+        updatedTime: NOW,
+        confirmedAt: 0,
+      }),
+    );
+
+    const draft = await cache.getById('legacy');
+
+    expect(draft.items[0]?.attachImage).toBe(true);
+  });
+
+  it('keeps the legacy draft-level attach switch in sync with pending items', async () => {
+    const { cache } = createFixture();
+    await cache.createPlaceholder({
+      id: 'draft-1',
+      target: LOCAL_TARGET,
+      imagePath: '/tmp/a.jpg',
+    });
+    await cache.updateItems(
+      'draft-1',
+      [createDraftItem('午餐'), createDraftItem('晚餐')],
+      { assetId: 0, typeId: 10 },
+    );
+    await cache.markReady('draft-1');
+
+    await cache.setAttachImage('draft-1', true);
+    const draft = await cache.getById('draft-1');
+
+    expect(draft.items.every(item => item.attachImage === true)).toBe(true);
+  });
+
   it('rejects editing an item while its confirmation attempt is unresolved', async () => {
     const { cache } = createFixture();
     await cache.createPlaceholder({

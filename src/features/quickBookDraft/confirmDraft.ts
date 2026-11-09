@@ -140,13 +140,15 @@ function buildConfirmRecordInput(
 
 async function resolveImagePaths(
   draft: QuickBookDraftRecord,
+  item: DraftItem,
   media: MediaStore | null,
   input: CreateRecordInput | undefined,
 ): Promise<string[]> {
   if (input?.imagePaths !== undefined) {
     return input.imagePaths;
   }
-  if (!draft.attachImage || draft.imagePath === '') {
+  const shouldAttach = item.attachImage ?? draft.attachImage;
+  if (!shouldAttach || draft.imagePath === '') {
     return [];
   }
   if (draft.attachmentRef !== '') {
@@ -187,6 +189,7 @@ export async function confirmQuickBookDraftItem(
   const typeRow = getTypeRow(types, typeId, draft.target.booksId);
   const imagePaths = await resolveImagePaths(
     draft,
+    item,
     options.media,
     options.input,
   );

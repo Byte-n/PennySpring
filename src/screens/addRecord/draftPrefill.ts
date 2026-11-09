@@ -65,6 +65,8 @@ export function buildAddRecordInitFromDraft(
     remark: item.remark,
     tagIds: [...item.tagIds],
     images:
-      draft.attachImage && draft.imagePath ? [{ uri: draft.imagePath }] : [],
+      (item.attachImage ?? draft.attachImage) && draft.imagePath
+        ? [{ uri: draft.imagePath }]
+        : [],
   };
 }

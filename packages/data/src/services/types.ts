@@ -277,6 +277,8 @@ export interface DraftItem {
   /** 一期为空数组，预留 */
   tagIds: number[];
   reimbursable: boolean;
+  /** 记账时是否附带来源截图；缺省时回退到草稿级开关（旧数据兼容）。 */
+  attachImage?: boolean;
   warnings: string[];
   /** 确认尝试 id；非空表示已发起确认，重试复用 */
   confirmAttemptId?: string;
@@ -298,6 +300,7 @@ export type QuickBookDraftItemPatch = Partial<
     | 'chargeCents'
     | 'tagIds'
     | 'reimbursable'
+    | 'attachImage'
   >
 >;
 

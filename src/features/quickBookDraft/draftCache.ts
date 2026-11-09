@@ -319,7 +319,9 @@ export function createQuickBookDraftCache(
           throw new Error('草稿已有确认的记录，无法覆盖');
         }
         const timestamp = now();
-        const nextItems = normalizeDraftItems(items, 'input', timestamp);
+        const nextItems = normalizeDraftItems(items, 'input', timestamp).map(
+          item => ({ ...item, attachImage: draft.attachImage }),
+        );
         return {
           ...draft,
           items: nextItems,
@@ -410,6 +412,7 @@ export function createQuickBookDraftCache(
             ...patch,
             status: current.status,
             recordId: current.recordId,
+            warnings: [],
           },
           itemIndex,
           'stored',
@@ -431,7 +434,14 @@ export function createQuickBookDraftCache(
         if (draft.status !== QUICK_BOOK_DRAFT_STATUS.pending) {
           throw new Error(`草稿状态不允许修改: ${draft.status}`);
         }
-        return { ...draft, attachImage, updatedTime: now() };
+        return {
+          ...draft,
+          attachImage,
+          items: draft.items.map(item =>
+            item.status === 'confirmed' ? item : { ...item, attachImage },
+          ),
+          updatedTime: now(),
+        };
       });
     },
 

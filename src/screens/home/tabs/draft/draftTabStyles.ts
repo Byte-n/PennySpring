@@ -1,8 +1,6 @@
 import { createUseSheetStyle, toShadowStyle } from '@pennyspring/ui';
 
-const MISS_CHIP_HEIGHT = 24;
 const MISS_CHIP_RADIUS = 999;
-const MISS_CHIP_PADDING = 8;
 
 export const useDraftTabStyles = createUseSheetStyle(token => ({
   container: {
@@ -37,16 +35,45 @@ export const useDraftTabStyles = createUseSheetStyle(token => ({
   },
   metaText: {
     flexShrink: 1,
+    minWidth: 0,
+  },
+  cardTime: {
+    flexShrink: 0,
   },
   progress: {
     flexShrink: 0,
+  },
+  summaryRow: {
+    alignItems: 'flex-start',
+    gap: token.marginXS,
+  },
+  summaryText: {
+    flex: 1,
+    minWidth: 0,
+  },
+  imageButton: {
+    alignItems: 'center',
+    backgroundColor: token.colorFillQuaternary,
+    borderRadius: token.borderRadius,
+    flexDirection: 'row',
+    flexShrink: 0,
+    gap: token.marginXXS / 2,
+    height: token.controlHeightXS,
+    paddingHorizontal: token.paddingXXS,
+  },
+  imageButtonPressed: {
+    backgroundColor: token.colorFill,
   },
   items: {
     gap: token.marginXXS,
   },
   itemBlock: {
     gap: token.marginXXS / 2,
-    paddingVertical: token.marginXXS / 2,
+    paddingVertical: token.paddingXXS,
+  },
+  itemDivider: {
+    borderTopWidth: token.lineWidth,
+    borderTopColor: token.colorSplit,
   },
   itemRow: {
     alignItems: 'center',
@@ -66,35 +93,102 @@ export const useDraftTabStyles = createUseSheetStyle(token => ({
   num: {
     fontVariant: ['tabular-nums'],
   },
-  itemMetaRow: {
+  inlinePressable: {
+    flexShrink: 1,
+    minWidth: 0,
+  },
+  amountPressable: {
+    flexShrink: 0,
+    minWidth: 0,
+  },
+  textPressed: {
+    opacity: token.opacityLoading,
+  },
+  timeChip: {
     alignItems: 'center',
+    backgroundColor: token.colorFillQuaternary,
+    borderRadius: token.borderRadius,
+    flexShrink: 0,
+    height: token.controlHeightXS,
+    justifyContent: 'center',
+    paddingHorizontal: token.paddingXXS,
+  },
+  timeChipPressed: {
+    backgroundColor: token.colorFillTertiary,
   },
   itemMeta: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    flexWrap: 'nowrap',
+    gap: token.marginXXS,
+    marginTop: token.marginXXS / 2,
+    overflow: 'hidden',
+  },
+  metaAsset: {
+    flexShrink: 0,
+  },
+  metaCharge: {
+    flexShrink: 0,
+  },
+  metaRemark: {
     flex: 1,
     minWidth: 0,
-    alignItems: 'center',
   },
-  remark: {
+  metaBadge: {
+    alignItems: 'center',
+    backgroundColor: token.colorWarningBg,
+    borderRadius: MISS_CHIP_RADIUS,
+    flexShrink: 0,
+    height: token.controlHeightXS,
+    justifyContent: 'center',
+    paddingHorizontal: token.paddingXXS,
+  },
+  itemToolbar: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: token.marginXS,
+    marginTop: token.marginXXS,
+    minWidth: 0,
+  },
+  itemTags: {
+    alignItems: 'center',
+    flex: 1,
+    flexDirection: 'row',
+    gap: token.marginXXS,
+    height: token.controlHeightXS,
+    minWidth: 0,
+    overflow: 'hidden',
+  },
+  itemTagsPressed: {
+    opacity: token.opacityLoading,
+  },
+  tagChip: {
+    alignItems: 'center',
+    backgroundColor: token.colorFillQuaternary,
+    borderRadius: token.borderRadius,
+    flexShrink: 1,
+    height: token.controlHeightXS,
+    justifyContent: 'center',
+    minWidth: 0,
+    paddingHorizontal: token.paddingXXS,
+  },
+  tagText: {
     flexShrink: 1,
   },
-  attachRow: {
+  iconButton: {
     alignItems: 'center',
-    gap: token.marginXS,
-    minHeight: token.controlHeight,
-    paddingTop: token.paddingXXS,
+    borderRadius: token.borderRadiusSM,
+    flexShrink: 0,
+    height: token.controlHeightXS,
+    justifyContent: 'center',
+    width: token.controlHeightXS,
   },
-  attachLabel: {
-    flex: 1,
-    minWidth: 0,
-  },
-  actions: {
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingTop: token.paddingXXS,
+  iconButtonPressed: {
+    backgroundColor: token.colorFill,
   },
   missChip: {
-    height: MISS_CHIP_HEIGHT,
-    paddingHorizontal: MISS_CHIP_PADDING,
+    height: token.controlHeightXS,
+    paddingHorizontal: token.paddingXXS,
     borderRadius: MISS_CHIP_RADIUS,
     justifyContent: 'center',
     backgroundColor: token.colorWarningBg,
@@ -105,22 +199,56 @@ export const useDraftTabStyles = createUseSheetStyle(token => ({
   missChipPressed: {
     backgroundColor: token.colorWarningBgHover,
   },
-  fillOption: {
-    minHeight: token.controlHeight,
-    justifyContent: 'center',
-    paddingHorizontal: token.paddingXS,
-    paddingVertical: token.paddingXS,
-    borderRadius: token.borderRadius,
-    borderBottomWidth: token.lineWidth,
-    borderBottomColor: token.colorSplit,
+  warningRow: {
+    alignItems: 'flex-start',
+    flexDirection: 'row',
+    gap: token.marginXXS / 2,
+    marginTop: token.marginXXS,
   },
-  fillOptionLast: {
-    borderBottomWidth: 0,
+  warningText: {
+    flex: 1,
+    minWidth: 0,
   },
-  fillOptionPressed: {
-    backgroundColor: token.colorFillQuaternary,
+  totalRow: {
+    alignItems: 'baseline',
+    borderTopColor: token.colorSplit,
+    borderTopWidth: token.lineWidth,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: token.marginXXS,
+    justifyContent: 'space-between',
+    marginTop: token.marginXXS,
+    paddingTop: token.paddingXXS,
   },
-  fillOptionDescription: {
-    marginTop: token.marginXXS / 2,
+  totalItems: {
+    alignItems: 'baseline',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: token.marginXXS,
+  },
+  totalItem: {
+    alignItems: 'baseline',
+    flexDirection: 'row',
+    gap: token.marginXXS / 2,
+  },
+  totalAmount: {
+    fontVariant: ['tabular-nums'],
+  },
+  totalNote: {
+    flexShrink: 0,
+  },
+  attachStatic: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    flexShrink: 0,
+    gap: token.marginXXS / 2,
+  },
+  actions: {
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingTop: token.paddingXXS,
+  },
+  hiddenTrigger: {
+    display: 'none',
   },
 }));

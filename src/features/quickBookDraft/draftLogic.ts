@@ -1,5 +1,6 @@
 import {
   RECORD_TYPE_CATEGORY,
+  RECORD_TYPE_SPECIAL_BEHAVIOR,
   REIMBURSABLE,
   type CreateRecordInput,
   type DraftItem,
@@ -71,6 +72,109 @@ export function formatDraftTimestamp(
   return `${padTwo(date.getMonth() + 1)}-${padTwo(date.getDate())} ${time}`;
 }
 
+/** 逐笔时间：与卡头同一天只显示 HH:mm，否则显示 MM-DD HH:mm。 */
+export function formatDraftItemTime(
+  recordTime: number,
+  referenceTime: number = Date.now(),
+): string {
+  if (!isValidRecordTime(recordTime)) {
+    return '';
+  }
+  const date = new Date(recordTime);
+  const reference = new Date(referenceTime);
+  const time = `${padTwo(date.getHours())}:${padTwo(date.getMinutes())}`;
+  const isSameDay =
+    date.getFullYear() === reference.getFullYear() &&
+    date.getMonth() === reference.getMonth() &&
+    date.getDate() === reference.getDate();
+  if (isSameDay) {
+    return time;
+  }
+  return `${padTwo(date.getMonth() + 1)}-${padTwo(date.getDate())} ${time}`;
+}
+
+export interface DraftTotals {
+  expenseCents: number;
+  incomeCents: number;
+  transferCents: number;
+  pendingAmountCount: number;
+  unclassifiedCount: number;
+  itemCount: number;
+}
+
+/**
+ * 草稿合计：支出/收入分列，转账单独统计；金额缺失与类型不属于目标账本的笔
+ * 不参与合计，只单独计数。合计包含已记账与未记账笔。
+ */
+export function summarizeDraftTotals(
+  items: readonly DraftItem[],
+  typesById: ReadonlyMap<number, TypeRow>,
+  booksId: number,
+): DraftTotals {
+  const totals: DraftTotals = {
+    expenseCents: 0,
+    incomeCents: 0,
+    transferCents: 0,
+    pendingAmountCount: 0,
+    unclassifiedCount: 0,
+    itemCount: items.length,
+  };
+
+  items.forEach(item => {
+    const type = typesById.get(item.typeId);
+    const isClassified = type !== undefined && type.booksId === booksId;
+    if (!isClassified) {
+      totals.unclassifiedCount += 1;
+    }
+    if (item.amountCents === null || item.amountCents <= 0) {
+      totals.pendingAmountCount += 1;
+      return;
+    }
+    if (!isClassified) {
+      return;
+    }
+    if (type.typeCategory === RECORD_TYPE_CATEGORY.income) {
+      totals.incomeCents += item.amountCents;
+    } else if (type.typeCategory === RECORD_TYPE_CATEGORY.transfer) {
+      totals.transferCents += item.amountCents;
+    } else {
+      totals.expenseCents += item.amountCents;
+    }
+  });
+
+  return totals;
+}
+
+/** 逐笔警告：模型提示与可推导的字段冲突合并去重，最多由 UI 截断展示。 */
+export function getDraftItemWarningTexts(
+  item: DraftItem,
+  type: TypeRow | null | undefined,
+  booksId: number,
+): string[] {
+  const warnings = item.warnings
+    .filter(warning => typeof warning === 'string')
+    .map(warning => warning.trim())
+    .filter(warning => warning !== '');
+
+  if (!isValidRecordTime(item.recordTime)) {
+    warnings.push('时间不合法');
+  }
+  if (
+    type?.typeCategory === RECORD_TYPE_CATEGORY.transfer &&
+    type.booksId === booksId &&
+    item.assetId > 0 &&
+    item.intoAssetId > 0 &&
+    item.assetId === item.intoAssetId
+  ) {
+    warnings.push('转出与转入资产不能相同');
+  }
+  if (isAbsorptionDraftType(type)) {
+    warnings.push('退款/报销类收入必须关联一笔支出');
+  }
+
+  return Array.from(new Set(warnings));
+}
+
 /** 草稿类型分类；类型未解析时按支出展示，缺失状态由校验函数负责。 */
 export function getDraftItemCategory(
   type: TypeRow | null | undefined,
@@ -83,6 +187,18 @@ export function isDraftTypeInBook(
   booksId: number,
 ): type is TypeRow {
   return type !== null && type !== undefined && type.booksId === booksId;
+}
+
+/** 退款/报销等吸收类收入必须关联一笔支出，草稿卡片不能直接确认。 */
+export function isAbsorptionDraftType(
+  type: TypeRow | null | undefined,
+): boolean {
+  return (
+    type?.typeCategory === RECORD_TYPE_CATEGORY.income &&
+    (type.specialBehavior === RECORD_TYPE_SPECIAL_BEHAVIOR.refundAbsorption ||
+      type.specialBehavior ===
+        RECORD_TYPE_SPECIAL_BEHAVIOR.reimbursementAbsorption)
+  );
 }
 
 /** 逐笔类型展示：优先父类型路径，缺失时给出“待选择类型”。 */
@@ -128,6 +244,9 @@ export function getDraftItemMissingLabels(
   }
   if (!isValidRecordTime(item.recordTime)) {
     labels.push('时间不合法');
+  }
+  if (isAbsorptionDraftType(type)) {
+    labels.push('需关联支出');
   }
 
   return labels;

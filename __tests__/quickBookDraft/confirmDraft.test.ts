@@ -201,4 +201,48 @@ describe('confirmQuickBookDraftItem', () => {
     );
     expect(getDraftBookKey(REMOTE_TARGET)).toBe('remote:https://example.com:1');
   });
+
+  it('attaches the source screenshot only for items with attachImage', async () => {
+    await quickBookDraftCache.createPlaceholder({
+      id: 'draft-4',
+      target: REMOTE_TARGET,
+      imagePath: '/tmp/a.jpg',
+    });
+    await quickBookDraftCache.updateItems(
+      'draft-4',
+      [createDraftItem(), createDraftItem()],
+      { assetId: 0, typeId: TYPE_ROW.id },
+    );
+    await quickBookDraftCache.markReady('draft-4');
+    await quickBookDraftCache.updateItem('draft-4', 0, {
+      attachImage: true,
+    });
+    const create = jest
+      .fn()
+      .mockResolvedValueOnce({ id: 91 })
+      .mockResolvedValueOnce({ id: 92 });
+    const bookApi = createBookApi(create);
+    const media = {
+      save: jest.fn(async () => 'media:remote.jpg'),
+    } as unknown as MediaStore;
+
+    await confirmQuickBookDraftItem({
+      draftId: 'draft-4',
+      itemIndex: 0,
+      target: REMOTE_TARGET,
+      bookApi,
+      media,
+    });
+    await confirmQuickBookDraftItem({
+      draftId: 'draft-4',
+      itemIndex: 1,
+      target: REMOTE_TARGET,
+      bookApi,
+      media,
+    });
+
+    expect(media.save).toHaveBeenCalledTimes(1);
+    expect(create.mock.calls[0]?.[0].imagePaths).toEqual(['media:remote.jpg']);
+    expect(create.mock.calls[1]?.[0].imagePaths).toEqual([]);
+  });
 });

@@ -138,6 +138,7 @@ export function normalizeDraftItem(
   index: number,
   mode: DraftItemMode,
   now: number,
+  fallbackAttachImage = false,
 ): DraftItem {
   if (!isRecord(raw)) {
     throw new Error(`草稿第 ${index + 1} 笔格式不正确`);
@@ -166,6 +167,11 @@ export function normalizeDraftItem(
     chargeCents: readNonNegativeInteger(raw.chargeCents, `${label}手续费`, 0),
     tagIds: readTagIds(raw.tagIds),
     reimbursable: raw.reimbursable === true,
+    attachImage:
+      mode === 'input'
+        ? false
+        : raw.attachImage === true ||
+          (raw.attachImage === undefined && fallbackAttachImage),
     warnings: readWarnings(raw.warnings),
     ...(mode === 'stored'
       ? { confirmAttemptId: readAttemptId(raw.confirmAttemptId) }
@@ -177,11 +183,14 @@ export function normalizeDraftItems(
   raw: unknown,
   mode: DraftItemMode,
   now: number,
+  fallbackAttachImage = false,
 ): DraftItem[] {
   if (!Array.isArray(raw)) {
     throw new Error('草稿内容格式不正确');
   }
-  return raw.map((item, index) => normalizeDraftItem(item, index, mode, now));
+  return raw.map((item, index) =>
+    normalizeDraftItem(item, index, mode, now, fallbackAttachImage),
+  );
 }
 
 export function normalizePreset(
@@ -261,14 +270,15 @@ export function parseCachedDraft(
   const source = readString(parsed.source, '');
   assertDraftSource(source);
   const now = Date.now();
+  const legacyAttachImage = parsed.attachImage === true;
   return {
     id,
     target: normalizeTarget(parsed.target),
     status: status as QuickBookDraftStatusValue,
     source: source as QuickBookDraftSourceValue,
     imagePath: readString(parsed.imagePath, ''),
-    attachImage: parsed.attachImage === true,
-    items: normalizeDraftItems(parsed.items, 'stored', now),
+    attachImage: legacyAttachImage,
+    items: normalizeDraftItems(parsed.items, 'stored', now, legacyAttachImage),
     preset: normalizePreset(
       isRecord(parsed.preset)
         ? {
