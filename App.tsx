@@ -17,6 +17,7 @@ import { rehydrateNetworkBooks } from './src/stores/networkBookStore';
 import { useAutoBackup } from './src/features/backup/useAutoBackup';
 import { reconcileInterruptedQuickBookDrafts } from './src/features/quickBookDraft/reconcileInterruptedDrafts';
 import { cleanupQuickBookDraftsOnStartup } from './src/features/quickBookDraft/startupCleanup';
+import { useQuickTemplateWidgetSync } from './src/features/quickTemplateWidget/useQuickTemplateWidgetSync';
 import { AutoUpdateChecker } from './src/features/appUpdate/AutoUpdateChecker';
 import {
   ThemeModeProvider,
@@ -72,6 +73,7 @@ function AppContent() {
   const splashHiddenRef = useRef(false);
 
   useAutoBackup();
+  useQuickTemplateWidgetSync();
 
   const hideBootSplash = useCallback(() => {
     if (splashHiddenRef.current) {

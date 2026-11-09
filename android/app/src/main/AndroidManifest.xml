@@ -81,6 +81,27 @@
         android:value="ai_draft_generation" />
     </service>
 
+    <service
+      android:name=".quickbook.widget.QuickTemplateRecordService"
+      android:exported="false"
+      android:foregroundServiceType="specialUse">
+      <property
+        android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+        android:value="quick_template_record" />
+    </service>
+
+    <receiver
+      android:name=".quickbook.widget.QuickTemplateWidgetProvider"
+      android:exported="false"
+      android:label="@string/quick_template_widget_label">
+      <intent-filter>
+        <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+      </intent-filter>
+      <meta-data
+        android:name="android.appwidget.provider"
+        android:resource="@xml/quick_template_widget_info" />
+    </receiver>
+
     <receiver
       android:name=".quickbook.draft.QuickBookEntryNotificationReceiver"
       android:exported="false" />

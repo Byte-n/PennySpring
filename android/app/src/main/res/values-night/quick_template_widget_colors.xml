@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="quick_template_widget_card_bg">#141414</color>
+    <color name="quick_template_widget_border">#17FFFFFF</color>
+    <color name="quick_template_widget_text">#D9FFFFFF</color>
+    <color name="quick_template_widget_text_tertiary">#73FFFFFF</color>
+    <color name="quick_template_widget_tile_bg">#09FFFFFF</color>
+    <color name="quick_template_widget_primary">#3C89F8</color>
+    <color name="quick_template_widget_primary_soft">#293C89F8</color>
+</resources>

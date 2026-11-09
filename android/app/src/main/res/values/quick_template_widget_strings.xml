@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="quick_template_widget_label">快捷记账</string>
+    <string name="quick_template_widget_description">展示快捷记账模板，点击直接完成记账</string>
+    <string name="quick_template_widget_title">快捷记账</string>
+    <string name="quick_template_widget_all">全部</string>
+    <string name="quick_template_widget_book_none">未选择账本</string>
+    <string name="quick_template_widget_book_fallback">当前账本</string>
+    <string name="quick_template_widget_name_fallback">未命名</string>
+
+    <string name="quick_template_widget_empty_no_book_title">还没有选择账本</string>
+    <string name="quick_template_widget_empty_no_book_hint">打开应用选择一个账本</string>
+    <string name="quick_template_widget_empty_unavailable_title">当前账本不可用</string>
+    <string name="quick_template_widget_empty_unavailable_hint">打开应用检查账本连接</string>
+    <string name="quick_template_widget_empty_no_templates_title">还没有快捷模板</string>
+    <string name="quick_template_widget_empty_no_templates_hint">在应用里添加常用记账</string>
+    <string name="quick_template_widget_empty_action_open_app">打开应用</string>
+    <string name="quick_template_widget_empty_action_add_template">添加模板</string>
+
+    <string name="quick_template_widget_toast_missing_params">记账参数缺失</string>
+    <string name="quick_template_widget_toast_recorded">已记账 ¥%1$s · %2$s</string>
+    <string name="quick_template_widget_toast_recorded_no_name">已记账 ¥%1$s</string>
+    <string name="quick_template_widget_toast_failed">记账失败，请重试</string>
+    <string name="quick_template_widget_toast_failed_with_reason">记账失败：%1$s</string>
+    <string name="quick_template_widget_toast_busy">正在记账，请稍候</string>
+    <string name="quick_template_widget_toast_template_missing">模板已失效，请打开应用刷新</string>
+    <string name="quick_template_widget_toast_book_unavailable">当前账本不可用</string>
+
+    <string name="quick_template_widget_recording_title">正在记账…</string>
+    <string name="quick_template_widget_recording_text">完成后会提示结果</string>
+    <string name="quick_template_widget_channel_name">快捷记账</string>
+</resources>

@@ -1,0 +1,624 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/quick_template_widget_card"
+    android:orientation="vertical"
+    android:padding="8dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="24dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-medium"
+                android:text="@string/quick_template_widget_title"
+                android:textColor="@color/quick_template_widget_text"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/widget_book"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="5dp"
+                android:background="@drawable/quick_template_widget_book_bg"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:maxWidth="80dp"
+                android:paddingStart="6dp"
+                android:paddingTop="1dp"
+                android:paddingEnd="6dp"
+                android:paddingBottom="1dp"
+                android:text="@string/quick_template_widget_book_none"
+                android:textColor="@color/quick_template_widget_text_tertiary"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/widget_all"
+            android:layout_width="wrap_content"
+            android:layout_height="24dp"
+            android:fontFamily="sans-serif-medium"
+            android:gravity="center"
+            android:paddingStart="8dp"
+            android:text="@string/quick_template_widget_all"
+            android:textColor="@color/quick_template_widget_primary"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/widget_row_1"
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:layout_marginTop="4dp"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:id="@+id/widget_cell_1"
+            android:layout_width="0dp"
+            android:layout_height="44dp"
+            android:layout_weight="1"
+            android:background="@drawable/quick_template_widget_tile"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/widget_name_1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:fontFamily="sans-serif-medium"
+                android:maxLines="1"
+                android:textColor="@color/quick_template_widget_text"
+                android:textSize="12sp" />
+
+            <ProgressBar
+                android:id="@+id/widget_progress_1"
+                style="?android:attr/progressBarStyleSmall"
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:layout_marginStart="4dp"
+                android:indeterminateTint="@color/quick_template_widget_primary"
+                android:visibility="gone" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/widget_cell_2"
+            android:layout_width="0dp"
+            android:layout_height="44dp"
+            android:layout_marginStart="4dp"
+            android:layout_weight="1"
+            android:background="@drawable/quick_template_widget_tile"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/widget_name_2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:fontFamily="sans-serif-medium"
+                android:maxLines="1"
+                android:textColor="@color/quick_template_widget_text"
+                android:textSize="12sp" />
+
+            <ProgressBar
+                android:id="@+id/widget_progress_2"
+                style="?android:attr/progressBarStyleSmall"
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:layout_marginStart="4dp"
+                android:indeterminateTint="@color/quick_template_widget_primary"
+                android:visibility="gone" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/widget_cell_3"
+            android:layout_width="0dp"
+            android:layout_height="44dp"
+            android:layout_marginStart="4dp"
+            android:layout_weight="1"
+            android:background="@drawable/quick_template_widget_tile"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/widget_name_3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:fontFamily="sans-serif-medium"
+                android:maxLines="1"
+                android:textColor="@color/quick_template_widget_text"
+                android:textSize="12sp" />
+
+            <ProgressBar
+                android:id="@+id/widget_progress_3"
+                style="?android:attr/progressBarStyleSmall"
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:layout_marginStart="4dp"
+                android:indeterminateTint="@color/quick_template_widget_primary"
+                android:visibility="gone" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/widget_cell_4"
+            android:layout_width="0dp"
+            android:layout_height="44dp"
+            android:layout_marginStart="4dp"
+            android:layout_weight="1"
+            android:background="@drawable/quick_template_widget_tile"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/widget_name_4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:fontFamily="sans-serif-medium"
+                android:maxLines="1"
+                android:textColor="@color/quick_template_widget_text"
+                android:textSize="12sp" />
+
+            <ProgressBar
+                android:id="@+id/widget_progress_4"
+                style="?android:attr/progressBarStyleSmall"
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:layout_marginStart="4dp"
+                android:indeterminateTint="@color/quick_template_widget_primary"
+                android:visibility="gone" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/widget_row_2"
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:layout_marginTop="4dp"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:id="@+id/widget_cell_5"
+            android:layout_width="0dp"
+            android:layout_height="44dp"
+            android:layout_weight="1"
+            android:background="@drawable/quick_template_widget_tile"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/widget_name_5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:fontFamily="sans-serif-medium"
+                android:maxLines="1"
+                android:textColor="@color/quick_template_widget_text"
+                android:textSize="12sp" />
+
+            <ProgressBar
+                android:id="@+id/widget_progress_5"
+                style="?android:attr/progressBarStyleSmall"
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:layout_marginStart="4dp"
+                android:indeterminateTint="@color/quick_template_widget_primary"
+                android:visibility="gone" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/widget_cell_6"
+            android:layout_width="0dp"
+            android:layout_height="44dp"
+            android:layout_marginStart="4dp"
+            android:layout_weight="1"
+            android:background="@drawable/quick_template_widget_tile"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/widget_name_6"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:fontFamily="sans-serif-medium"
+                android:maxLines="1"
+                android:textColor="@color/quick_template_widget_text"
+                android:textSize="12sp" />
+
+            <ProgressBar
+                android:id="@+id/widget_progress_6"
+                style="?android:attr/progressBarStyleSmall"
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:layout_marginStart="4dp"
+                android:indeterminateTint="@color/quick_template_widget_primary"
+                android:visibility="gone" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/widget_cell_7"
+            android:layout_width="0dp"
+            android:layout_height="44dp"
+            android:layout_marginStart="4dp"
+            android:layout_weight="1"
+            android:background="@drawable/quick_template_widget_tile"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/widget_name_7"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:fontFamily="sans-serif-medium"
+                android:maxLines="1"
+                android:textColor="@color/quick_template_widget_text"
+                android:textSize="12sp" />
+
+            <ProgressBar
+                android:id="@+id/widget_progress_7"
+                style="?android:attr/progressBarStyleSmall"
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:layout_marginStart="4dp"
+                android:indeterminateTint="@color/quick_template_widget_primary"
+                android:visibility="gone" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/widget_cell_8"
+            android:layout_width="0dp"
+            android:layout_height="44dp"
+            android:layout_marginStart="4dp"
+            android:layout_weight="1"
+            android:background="@drawable/quick_template_widget_tile"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/widget_name_8"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:fontFamily="sans-serif-medium"
+                android:maxLines="1"
+                android:textColor="@color/quick_template_widget_text"
+                android:textSize="12sp" />
+
+            <ProgressBar
+                android:id="@+id/widget_progress_8"
+                style="?android:attr/progressBarStyleSmall"
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:layout_marginStart="4dp"
+                android:indeterminateTint="@color/quick_template_widget_primary"
+                android:visibility="gone" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/widget_row_3"
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:layout_marginTop="4dp"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:id="@+id/widget_cell_9"
+            android:layout_width="0dp"
+            android:layout_height="44dp"
+            android:layout_weight="1"
+            android:background="@drawable/quick_template_widget_tile"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/widget_name_9"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:fontFamily="sans-serif-medium"
+                android:maxLines="1"
+                android:textColor="@color/quick_template_widget_text"
+                android:textSize="12sp" />
+
+            <ProgressBar
+                android:id="@+id/widget_progress_9"
+                style="?android:attr/progressBarStyleSmall"
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:layout_marginStart="4dp"
+                android:indeterminateTint="@color/quick_template_widget_primary"
+                android:visibility="gone" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/widget_cell_10"
+            android:layout_width="0dp"
+            android:layout_height="44dp"
+            android:layout_marginStart="4dp"
+            android:layout_weight="1"
+            android:background="@drawable/quick_template_widget_tile"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/widget_name_10"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:fontFamily="sans-serif-medium"
+                android:maxLines="1"
+                android:textColor="@color/quick_template_widget_text"
+                android:textSize="12sp" />
+
+            <ProgressBar
+                android:id="@+id/widget_progress_10"
+                style="?android:attr/progressBarStyleSmall"
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:layout_marginStart="4dp"
+                android:indeterminateTint="@color/quick_template_widget_primary"
+                android:visibility="gone" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/widget_cell_11"
+            android:layout_width="0dp"
+            android:layout_height="44dp"
+            android:layout_marginStart="4dp"
+            android:layout_weight="1"
+            android:background="@drawable/quick_template_widget_tile"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/widget_name_11"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:fontFamily="sans-serif-medium"
+                android:maxLines="1"
+                android:textColor="@color/quick_template_widget_text"
+                android:textSize="12sp" />
+
+            <ProgressBar
+                android:id="@+id/widget_progress_11"
+                style="?android:attr/progressBarStyleSmall"
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:layout_marginStart="4dp"
+                android:indeterminateTint="@color/quick_template_widget_primary"
+                android:visibility="gone" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/widget_cell_12"
+            android:layout_width="0dp"
+            android:layout_height="44dp"
+            android:layout_marginStart="4dp"
+            android:layout_weight="1"
+            android:background="@drawable/quick_template_widget_tile"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/widget_name_12"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:fontFamily="sans-serif-medium"
+                android:maxLines="1"
+                android:textColor="@color/quick_template_widget_text"
+                android:textSize="12sp" />
+
+            <ProgressBar
+                android:id="@+id/widget_progress_12"
+                style="?android:attr/progressBarStyleSmall"
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:layout_marginStart="4dp"
+                android:indeterminateTint="@color/quick_template_widget_primary"
+                android:visibility="gone" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/widget_row_4"
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:layout_marginTop="4dp"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:id="@+id/widget_cell_13"
+            android:layout_width="0dp"
+            android:layout_height="44dp"
+            android:layout_weight="1"
+            android:background="@drawable/quick_template_widget_tile"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/widget_name_13"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:fontFamily="sans-serif-medium"
+                android:maxLines="1"
+                android:textColor="@color/quick_template_widget_text"
+                android:textSize="12sp" />
+
+            <ProgressBar
+                android:id="@+id/widget_progress_13"
+                style="?android:attr/progressBarStyleSmall"
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:layout_marginStart="4dp"
+                android:indeterminateTint="@color/quick_template_widget_primary"
+                android:visibility="gone" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/widget_cell_14"
+            android:layout_width="0dp"
+            android:layout_height="44dp"
+            android:layout_marginStart="4dp"
+            android:layout_weight="1"
+            android:background="@drawable/quick_template_widget_tile"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/widget_name_14"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:fontFamily="sans-serif-medium"
+                android:maxLines="1"
+                android:textColor="@color/quick_template_widget_text"
+                android:textSize="12sp" />
+
+            <ProgressBar
+                android:id="@+id/widget_progress_14"
+                style="?android:attr/progressBarStyleSmall"
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:layout_marginStart="4dp"
+                android:indeterminateTint="@color/quick_template_widget_primary"
+                android:visibility="gone" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/widget_cell_15"
+            android:layout_width="0dp"
+            android:layout_height="44dp"
+            android:layout_marginStart="4dp"
+            android:layout_weight="1"
+            android:background="@drawable/quick_template_widget_tile"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/widget_name_15"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:fontFamily="sans-serif-medium"
+                android:maxLines="1"
+                android:textColor="@color/quick_template_widget_text"
+                android:textSize="12sp" />
+
+            <ProgressBar
+                android:id="@+id/widget_progress_15"
+                style="?android:attr/progressBarStyleSmall"
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:layout_marginStart="4dp"
+                android:indeterminateTint="@color/quick_template_widget_primary"
+                android:visibility="gone" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/widget_cell_16"
+            android:layout_width="0dp"
+            android:layout_height="44dp"
+            android:layout_marginStart="4dp"
+            android:layout_weight="1"
+            android:background="@drawable/quick_template_widget_tile"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/widget_name_16"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:fontFamily="sans-serif-medium"
+                android:maxLines="1"
+                android:textColor="@color/quick_template_widget_text"
+                android:textSize="12sp" />
+
+            <ProgressBar
+                android:id="@+id/widget_progress_16"
+                style="?android:attr/progressBarStyleSmall"
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:layout_marginStart="4dp"
+                android:indeterminateTint="@color/quick_template_widget_primary"
+                android:visibility="gone" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/widget_empty"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:background="@drawable/quick_template_widget_empty"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:visibility="visible">
+
+        <TextView
+            android:id="@+id/widget_empty_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:fontFamily="sans-serif-medium"
+            android:gravity="center"
+            android:maxLines="1"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:text="@string/quick_template_widget_empty_no_templates_title"
+            android:textColor="@color/quick_template_widget_text"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/widget_empty_hint"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:ellipsize="end"
+            android:gravity="center"
+            android:maxLines="1"
+            android:text="@string/quick_template_widget_empty_no_templates_hint"
+            android:textColor="@color/quick_template_widget_text_tertiary"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/widget_empty_action"
+            android:layout_width="wrap_content"
+            android:layout_height="32dp"
+            android:layout_marginTop="6dp"
+            android:background="@drawable/quick_template_widget_empty_button"
+            android:fontFamily="sans-serif-medium"
+            android:gravity="center"
+            android:paddingStart="14dp"
+            android:paddingEnd="14dp"
+            android:text="@string/quick_template_widget_empty_action_add_template"
+            android:textColor="@color/quick_template_widget_primary"
+            android:textSize="12sp" />
+    </LinearLayout>
+</LinearLayout>

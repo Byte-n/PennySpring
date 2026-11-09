@@ -29,8 +29,12 @@ import { resolveQuickBookModel } from '../../features/quickBook/validation';
 import { useQuickBookEntryLifecycle } from '../../features/quickBookDraft/useQuickBookEntryLifecycle';
 import { mergeNativeExcludedPackages } from '../../features/quickBookDraft/excludedPackagesSync';
 import { ROOT_ROUTES, rootNavigationRef } from '../../navigation';
-import { isAgentDeepLinkUrl } from '../../navigation/linking';
+import {
+  isAgentDeepLinkUrl,
+  isQuickTemplatesDeepLinkUrl,
+} from '../../navigation/linking';
 import { useBookStore, useGlobalApi } from '../../stores/bookStore';
+import { useQuickTemplatePanelStore } from '../../stores/quickTemplatePanelStore';
 import { useMediaStore } from '../../media';
 import {
   EMPTY_AGENT_SELECTION,
@@ -133,14 +137,24 @@ export function AgentRoot({ children }: AgentRootProps) {
   });
 
   useEffect(() => {
-    const openAgentFromUrl = (url: string | null): void => {
-      if (url !== null && isAgentDeepLinkUrl(url)) {
+    const openDeepLinkFromUrl = (url: string | null): void => {
+      if (url === null) {
+        return;
+      }
+      if (isAgentDeepLinkUrl(url)) {
         setDrawerOpen(true);
+        return;
+      }
+      if (isQuickTemplatesDeepLinkUrl(url)) {
+        if (rootNavigationRef.isReady()) {
+          rootNavigationRef.navigate(ROOT_ROUTES.Home);
+        }
+        useQuickTemplatePanelStore.getState().setOpen(true);
       }
     };
     try {
       Linking.getInitialURL()
-        .then(openAgentFromUrl)
+        .then(openDeepLinkFromUrl)
         .catch(() => undefined);
     } catch {
       // 部分运行环境没有 Linking 原生实现，忽略冷启动深链。
@@ -148,7 +162,7 @@ export function AgentRoot({ children }: AgentRootProps) {
     let subscription: ReturnType<typeof Linking.addEventListener> | null = null;
     try {
       subscription = Linking.addEventListener('url', event => {
-        openAgentFromUrl(event.url);
+        openDeepLinkFromUrl(event.url);
       });
     } catch {
       // 没有原生 Linking 时无法接收运行中深链。

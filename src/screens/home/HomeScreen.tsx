@@ -12,6 +12,7 @@ import {
   useNavigation,
 } from '../../navigation';
 import type { RootStackParamList } from '../../navigation/types';
+import { useQuickTemplatePanelStore } from '../../stores/quickTemplatePanelStore';
 import { QuickTemplatePanel } from '../quickTemplate/QuickTemplatePanel';
 import { DrawerContent } from './DrawerContent';
 
@@ -28,7 +29,10 @@ export function HomeScreen() {
   const navigation = useNavigation();
   const isFocused = useIsFocused();
   const [isDrawerOpen, setIsDrawerOpen] = React.useState(false);
-  const [isTemplatePanelOpen, setIsTemplatePanelOpen] = React.useState(false);
+  const isTemplatePanelOpen = useQuickTemplatePanelStore(state => state.open);
+  const setIsTemplatePanelOpen = useQuickTemplatePanelStore(
+    state => state.setOpen,
+  );
 
   const drawerStyles = React.useMemo<DrawerLayoutStyles>(
     () => ({

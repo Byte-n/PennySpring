@@ -108,6 +108,7 @@ jest.mock('../src/navigation/BookSelectNavigator', () => ({
 }));
 
 jest.mock('../src/stores/bookStore', () => ({
+  getBookKey: jest.fn(() => null),
   useBookStore: (
     selector: (state: {
       initializeBook: () => Promise<void>;
