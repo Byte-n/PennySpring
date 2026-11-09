@@ -12,6 +12,7 @@ import {
   useNavigation,
 } from '../../navigation';
 import type { RootStackParamList } from '../../navigation/types';
+import { useBookStore } from '../../stores/bookStore';
 import { QuickTemplatePanel } from '../quickTemplate/QuickTemplatePanel';
 import { DrawerContent } from './DrawerContent';
 
@@ -27,6 +28,7 @@ export function HomeScreen() {
   const { token } = useTheme();
   const navigation = useNavigation();
   const isFocused = useIsFocused();
+  const currentBook = useBookStore(state => state.currentBook);
   const [isDrawerOpen, setIsDrawerOpen] = React.useState(false);
   const [isTemplatePanelOpen, setIsTemplatePanelOpen] = React.useState(false);
 
@@ -69,7 +71,7 @@ export function HomeScreen() {
       </Drawer.Layout>
       {isFocused && (
         <>
-          <AgentFloatingEntry />
+          {currentBook ? <AgentFloatingEntry /> : null}
           <FloatingActionGroup
             actions={[
               {

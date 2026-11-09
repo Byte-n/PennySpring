@@ -29,7 +29,3 @@ export const HOME_TAB_ROUTES = {
   ChartTab: 'ChartTab',
   DraftTab: 'DraftTab',
 } as const;
-
-export const BOOK_SELECT_ROUTES = {
-  BookSelect: 'BookSelect',
-} as const;

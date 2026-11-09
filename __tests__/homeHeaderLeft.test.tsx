@@ -24,6 +24,7 @@ interface MockBookItem {
 
 let mockCurrentBook: MockBookEntry | null = null;
 let mockCurrentBookRef: MockBookRef | null = null;
+let mockInitStatus: 'idle' | 'loading' | 'success' | 'error' = 'success';
 const mockSetCurrentBook = jest.fn();
 const mockRefresh = jest.fn();
 const mockToastShow = jest.fn();
@@ -66,12 +67,14 @@ jest.mock('../src/stores/bookStore', () => ({
     selector: (state: {
       currentBook: typeof mockCurrentBook;
       currentBookRef: typeof mockCurrentBookRef;
+      initStatus: typeof mockInitStatus;
       setCurrentBook: typeof mockSetCurrentBook;
     }) => unknown,
   ) =>
     selector({
       currentBook: mockCurrentBook,
       currentBookRef: mockCurrentBookRef,
+      initStatus: mockInitStatus,
       setCurrentBook: mockSetCurrentBook,
     }),
 }));
@@ -89,6 +92,17 @@ jest.mock('react-native-safe-area-context', () => ({
   useSafeAreaInsets: () => ({ bottom: 0, left: 0, right: 0, top: 0 }),
 }));
 
+const mockNavigate = jest.fn();
+
+jest.mock('@react-navigation/native', () => ({
+  useNavigation: () => ({ navigate: mockNavigate }),
+}));
+
+jest.mock('../src/navigation', () => ({
+  ROOT_ROUTES: { BookManage: 'BookManage' },
+  useNavigation: () => ({ navigate: mockNavigate }),
+}));
+
 jest.mock('@pennyspring/ui', () => {
   const ReactLib = require('react');
   const { Text, View } = require('react-native');
@@ -99,6 +113,12 @@ jest.mock('@pennyspring/ui', () => {
       ReactLib.createElement(Component, props, children);
 
   return {
+    Button: ({ children, ...props }: { children?: React.ReactNode }) =>
+      ReactLib.createElement(
+        require('react-native').Pressable,
+        props,
+        children,
+      ),
     Column: passthrough(View),
     Icon: (props: Record<string, unknown>) =>
       ReactLib.createElement('MockUiIcon', props),
@@ -161,12 +181,14 @@ function pressBook(renderer: TestRenderer.ReactTestRenderer): void {
 beforeEach(() => {
   mockCurrentBook = { ...LOCAL_BOOK.entry };
   mockCurrentBookRef = { ...LOCAL_BOOK.ref };
+  mockInitStatus = 'success';
   mockItems = [LOCAL_BOOK, REMOTE_BOOK];
   mockLoading = false;
   mockError = undefined;
   mockSetCurrentBook.mockClear();
   mockRefresh.mockClear();
   mockToastShow.mockClear();
+  mockNavigate.mockClear();
   onMenuPress.mockClear();
 });
 
@@ -185,6 +207,9 @@ describe('HomeHeaderLeft', () => {
       renderer.root.findByProps({ testID: 'home-header-book-name' }).props
         .children,
     ).toBe('家庭账本');
+    expect(
+      renderer.root.findAllByProps({ testID: 'home-header-book-loading' }),
+    ).toHaveLength(0);
   });
 
   it('shows the remote type for a remote book', () => {
@@ -287,6 +312,39 @@ describe('HomeHeaderLeft', () => {
     ).toBeTruthy();
   });
 
+  it('shows progress while the persisted book is loading', () => {
+    mockCurrentBook = null;
+    mockCurrentBookRef = { ...LOCAL_BOOK.ref };
+    mockInitStatus = 'loading';
+    const renderer = renderHeaderLeft();
+
+    expect(
+      renderer.root.findByProps({ testID: 'home-header-book-name' }).props
+        .children,
+    ).toBe('正在读取账本…');
+    expect(
+      renderer.root.findByProps({ testID: 'home-header-book-loading' }),
+    ).toBeTruthy();
+  });
+
+  it('shows a failed label when the persisted book cannot be loaded', () => {
+    mockCurrentBook = null;
+    mockCurrentBookRef = { ...REMOTE_BOOK.ref };
+    mockInitStatus = 'error';
+    const renderer = renderHeaderLeft();
+
+    expect(
+      renderer.root.findAllByProps({ testID: 'home-header-book-type' }),
+    ).toHaveLength(0);
+    expect(
+      renderer.root.findByProps({ testID: 'home-header-book-name' }).props
+        .children,
+    ).toBe('账本加载失败');
+    expect(
+      renderer.root.findAllByProps({ testID: 'home-header-book-loading' }),
+    ).toHaveLength(0);
+  });
+
   it('keeps the drawer entry on the menu button only', () => {
     const renderer = renderHeaderLeft();
 
@@ -332,5 +390,12 @@ describe('HomeHeaderLeft', () => {
     expect(
       renderer.root.findByProps({ testID: 'home-book-switch-empty' }),
     ).toBeTruthy();
+
+    act(() => {
+      renderer.root
+        .findByProps({ testID: 'home-book-switch-create' })
+        .props.onPress();
+    });
+    expect(mockNavigate).toHaveBeenCalledWith('BookManage');
   });
 });

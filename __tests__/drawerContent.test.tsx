@@ -70,6 +70,7 @@ jest.mock('@pennyspring/ui', () => {
     Skeleton: MockSkeleton,
     Switch: MockSwitch,
     Text: passthrough(RNTextMock),
+    useToast: () => ({ show: jest.fn() }),
   };
 });
 
@@ -89,7 +90,12 @@ jest.mock('react-native-safe-area-context', () => ({
 }));
 
 jest.mock('../src/stores/bookStore', () => {
-  const state = { currentBook: null, currentBookRef: null };
+  const state = {
+    currentBook: null,
+    currentBookRef: null,
+    initStatus: 'loading',
+    loadCurrentBook: jest.fn(async () => undefined),
+  };
   return {
     useBookStore: (selector: (value: typeof state) => unknown) =>
       selector(state),
@@ -126,6 +132,8 @@ const bookStoreMock = jest.requireMock('../src/stores/bookStore') as {
   __bookStoreState: {
     currentBook: BookEntry | null;
     currentBookRef: CurrentBookRef | null;
+    initStatus: 'idle' | 'loading' | 'success' | 'error';
+    loadCurrentBook: jest.Mock;
   };
 };
 const themeModeMock = jest.requireMock('../src/contexts/ThemeModeContext') as {
@@ -185,6 +193,8 @@ function collectTexts(renderer: TestRenderer.ReactTestRenderer): string[] {
 beforeEach(() => {
   bookStoreMock.__bookStoreState.currentBook = null;
   bookStoreMock.__bookStoreState.currentBookRef = null;
+  bookStoreMock.__bookStoreState.initStatus = 'loading';
+  bookStoreMock.__bookStoreState.loadCurrentBook.mockClear();
   themeModeMock.__themeModeState.mode = 'default';
   themeModeMock.__setThemeMode.mockClear();
   useNetworkBookStore.setState({ tokens: {} });
@@ -296,6 +306,50 @@ describe('DrawerContent 账本卡', () => {
         .some(node => node.props.disabled === true),
     ).toBe(true);
     expect(collectTexts(renderer)).toContain('正在读取账本…');
+  });
+
+  it('retries loading the persisted book after a failed load', () => {
+    bookStoreMock.__bookStoreState.initStatus = 'error';
+    bookStoreMock.__bookStoreState.currentBookRef = {
+      id: 1,
+      kind: 'local',
+    };
+    const renderer = renderDrawer(createCallbacks());
+
+    expect(
+      renderer.root.findByProps({ testID: 'drawer-book-error' }),
+    ).toBeDefined();
+    expect(collectTexts(renderer)).toContain('账本加载失败');
+    expect(collectTexts(renderer)).toContain('点击重试加载');
+
+    act(() => {
+      renderer.root
+        .findByProps({ testID: 'drawer-book-error' })
+        .props.onPress();
+    });
+
+    expect(
+      bookStoreMock.__bookStoreState.loadCurrentBook,
+    ).toHaveBeenCalledTimes(1);
+  });
+
+  it('offers book management when no book is available after a failed load', () => {
+    bookStoreMock.__bookStoreState.initStatus = 'error';
+    const callbacks = createCallbacks();
+    const renderer = renderDrawer(callbacks);
+
+    expect(
+      renderer.root.findByProps({ testID: 'drawer-book-empty' }),
+    ).toBeDefined();
+    expect(collectTexts(renderer)).toContain('未选择账本');
+
+    act(() => {
+      renderer.root
+        .findByProps({ testID: 'drawer-book-empty' })
+        .props.onPress();
+    });
+
+    expect(callbacks.onNavigate).toHaveBeenCalledWith(ROOT_ROUTES.BookManage);
   });
 });
 

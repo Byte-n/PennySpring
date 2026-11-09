@@ -25,11 +25,16 @@ import { FormIconGrid, TAG_FORM_ICONS } from '../../component/FormIconGrid';
 import { PhosphorIconPicker } from '../../component/PhosphorIconPicker';
 import { TagChip } from '../../component/TagChip';
 import { createHeaderAddButton } from '../../components/HeaderAddButton';
+import { LoadErrorEmpty } from '../../components/LoadErrorEmpty';
 import { ManageConfirmDialog } from '../../components/ManageConfirmDialog';
 import { FormFloatingPanel } from '../../components/FormFloatingPanel';
 import { ManageSkeleton } from '../../components/ManageSkeleton';
 import { useNavigation } from '../../navigation';
-import { useBookStore, useGlobalApi } from '../../stores/bookStore';
+import {
+  useBookKey,
+  useCurrentBookId,
+  useGlobalApi,
+} from '../../stores/bookStore';
 
 const useStyles = createUseSheetStyle(token => ({
   container: {
@@ -92,13 +97,22 @@ export function TagManageScreen() {
   const styles = useStyles();
   const toast = useToast();
   const navigation = useNavigation();
-  const currentBook = useBookStore(state => state.currentBook);
+  const bookKey = useBookKey();
+  const bookId = useCurrentBookId();
   const globalApi = useGlobalApi();
 
-  const { data, loading, refresh } = useRequest(() => {
-    if (!currentBook) return Promise.resolve<TagRow[]>([]);
-    return globalApi.tag.getAll(currentBook.id);
-  });
+  const {
+    data,
+    error: loadError,
+    loading,
+    refresh,
+  } = useRequest(
+    () => {
+      if (bookId === null) return Promise.resolve<TagRow[]>([]);
+      return globalApi.tag.getAll(bookId);
+    },
+    { refreshDeps: [bookKey] },
+  );
   const tags = data ?? [];
 
   const visibleTags = useMemo(
@@ -148,7 +162,7 @@ export function TagManageScreen() {
   const handleFinish = useCallback(
     async (values: TagFormValues) => {
       submitSucceededRef.current = false;
-      if (!currentBook) {
+      if (bookId === null) {
         toast.show({ messageText: '未找到当前账本' });
         return;
       }
@@ -159,7 +173,7 @@ export function TagManageScreen() {
           : VISIBILITY.visible;
         if (editingTag) {
           await globalApi.tag.update({
-            booksId: currentBook.id,
+            booksId: bookId,
             icon: values.icon,
             id: editingTag.id,
             invisible,
@@ -167,7 +181,7 @@ export function TagManageScreen() {
           });
         } else {
           await globalApi.tag.create({
-            booksId: currentBook.id,
+            booksId: bookId,
             icon: values.icon,
             invisible,
             name: values.name.trim(),
@@ -186,7 +200,7 @@ export function TagManageScreen() {
         setSubmitting(false);
       }
     },
-    [currentBook, editingTag, globalApi.tag, refresh, toast],
+    [bookId, editingTag, globalApi.tag, refresh, toast],
   );
 
   const handlePanelOk = useCallback(async () => {
@@ -197,7 +211,7 @@ export function TagManageScreen() {
 
   const toggleVisibility = useCallback(
     async (tag: TagRow) => {
-      if (!currentBook) {
+      if (bookId === null) {
         toast.show({ messageText: '未找到当前账本' });
         return;
       }
@@ -207,7 +221,7 @@ export function TagManageScreen() {
             ? VISIBILITY.visible
             : VISIBILITY.hidden;
         await globalApi.tag.update({
-          booksId: currentBook.id,
+          booksId: bookId,
           icon: tag.icon,
           id: tag.id,
           invisible,
@@ -229,16 +243,16 @@ export function TagManageScreen() {
         });
       }
     },
-    [currentBook, globalApi.tag, refresh, toast],
+    [bookId, globalApi.tag, refresh, toast],
   );
 
   const handleDelete = useCallback(async () => {
     const target = pendingDeleteTag;
-    if (!target || !currentBook) {
+    if (!target || bookId === null) {
       return;
     }
     try {
-      await globalApi.tag.delete(target.id, currentBook.id);
+      await globalApi.tag.delete(target.id, bookId);
     } catch (error: unknown) {
       throw new Error(getTagDeleteErrorMessage(error));
     }
@@ -247,7 +261,7 @@ export function TagManageScreen() {
     }
     setPendingDeleteTag(null);
     refresh();
-  }, [currentBook, editingTag?.id, globalApi.tag, pendingDeleteTag, refresh]);
+  }, [bookId, editingTag?.id, globalApi.tag, pendingDeleteTag, refresh]);
 
   const menuActions = useMemo(() => {
     const tag = menuTag;
@@ -290,6 +304,18 @@ export function TagManageScreen() {
         <ScrollView contentContainerStyle={styles.content} scrollEnabled>
           <ManageSkeleton rows={3} />
         </ScrollView>
+      </Column>
+    );
+  }
+
+  if (loadError && tags.length === 0) {
+    return (
+      <Column style={styles.container}>
+        <LoadErrorEmpty
+          descriptionText="标签数据加载失败，请检查网络或稍后重试。"
+          onRetry={refresh}
+          titleText="标签加载失败"
+        />
       </Column>
     );
   }

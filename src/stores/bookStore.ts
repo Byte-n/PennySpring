@@ -10,7 +10,7 @@ import {
 import { createJSONStorage, persist } from 'zustand/middleware';
 
 import { bookStorage } from './bookStorage';
-import { getServerToken } from './networkBookStore';
+import { getServerToken, rehydrateNetworkBooks } from './networkBookStore';
 
 const BOOK_STORE_KEY = 'pennyspring-book-store';
 
@@ -41,6 +41,14 @@ export function getBookKey(ref: CurrentBookRef | null): string | null {
   return ref.kind === 'local'
     ? `local:${ref.id}`
     : `remote:${ref.serverUrl}:${ref.bookId}`;
+}
+
+/** 账本的数据身份：本地取 id，网络取远程 id。元信息未加载也可用。 */
+export function getBookId(ref: CurrentBookRef | null): number | null {
+  if (!ref) {
+    return null;
+  }
+  return ref.kind === 'local' ? ref.id : ref.bookId;
 }
 
 export function getRemoteApi(
@@ -81,7 +89,7 @@ async function getLocalDefault(): Promise<{
 
 /**
  * 由持久化 ref 拉取完整账本信息并拼凑为 BookEntry。
- * 网络账本拉取失败时回退本地默认账本，保证应用可用。
+ * 失败时不自动回退，由 initializeBook 置错误态，用户手动切换账本。
  */
 async function getInitialBook(
   ref: CurrentBookRef | null,
@@ -99,14 +107,29 @@ async function getInitialBook(
 
 type InitStatus = 'idle' | 'loading' | 'success' | 'error';
 
+export interface BookSessionHydration {
+  ref: CurrentBookRef | null;
+  /** 已恢复账本 ref，但仍需拉取账本元信息。 */
+  needsMetadata: boolean;
+}
+
 interface BookStore {
   currentBook: BookEntry | null;
   currentBookRef: CurrentBookRef | null;
+  /** 当前账本初始化状态；仅用于展示与后台任务节流，不参与导航门禁 */
   initStatus: InitStatus;
-  initError: Error | null;
   setCurrentBook: (ref: CurrentBookRef, book: BookEntry) => void;
+  /** 当前账本被删除或移除时清空选择，不自动回退到其他账本。 */
+  clearCurrentBook: () => void;
+  /**
+   * 只做本地恢复：账本 ref 与网络令牌；没有 ref 时解析本地默认账本。
+   * 不等待远程账本元信息，供初始屏快速放行。
+   */
+  hydrateBookSession: () => Promise<BookSessionHydration>;
+  /** 按当前 ref 拉取账本元信息；失败保留 ref，供入口重试。 */
+  loadCurrentBook: () => Promise<void>;
+  /** 完整初始化：本地恢复 + 元信息加载。 */
   initializeBook: () => Promise<void>;
-  resetInitStatus: () => void;
 }
 
 interface PersistedBookStore {
@@ -115,39 +138,135 @@ interface PersistedBookStore {
 
 let rehydrateBookStore = async (): Promise<void> => undefined;
 
+/** 初始化代次：用户手动切换账本或重新初始化时递增，在途结果自动作废。 */
+let bookInitGeneration = 0;
+
 export const useBookStore = create<BookStore>()(
   persist(
-    (set, get) => ({
-      currentBook: null,
-      currentBookRef: null,
-      initStatus: 'idle',
-      initError: null,
-
-      setCurrentBook: (ref, book) => {
-        set({ currentBook: book, currentBookRef: ref });
-      },
-
-      initializeBook: async () => {
-        set({ initStatus: 'loading', initError: null });
+    (set, get) => {
+      const hydrateSession = async (
+        generation: number,
+      ): Promise<BookSessionHydration> => {
+        await rehydrateBookStore();
+        // 网络账本令牌与账本引用同属设备级数据，初始化时一并恢复。
         try {
-          await rehydrateBookStore();
-          const persistedRef = get().currentBookRef;
-          const { ref, book } = await getInitialBook(persistedRef);
+          await rehydrateNetworkBooks();
+        } catch (error) {
+          // 网络账本读取失败不应阻断本地账本启动。
+          console.error('Network book rehydration failed:', error);
+        }
+        if (generation !== bookInitGeneration) {
+          return { ref: get().currentBookRef, needsMetadata: false };
+        }
+        const persistedRef = get().currentBookRef;
+        if (persistedRef) {
+          set({ initStatus: 'loading' });
+          return { ref: persistedRef, needsMetadata: true };
+        }
+        // 首次使用：本地默认账本同时提供身份与元信息。
+        const { ref, book } = await getLocalDefault();
+        if (generation !== bookInitGeneration) {
+          return { ref: get().currentBookRef, needsMetadata: false };
+        }
+        set({
+          currentBook: book,
+          currentBookRef: ref,
+          initStatus: 'success',
+        });
+        return { ref, needsMetadata: false };
+      };
+
+      const loadMetadata = async (generation: number): Promise<void> => {
+        const ref = get().currentBookRef;
+        if (!ref) {
+          set({ currentBook: null, initStatus: 'success' });
+          return;
+        }
+        set({ initStatus: 'loading' });
+        try {
+          const { ref: loadedRef, book } = await getInitialBook(ref);
+          if (generation !== bookInitGeneration) {
+            return;
+          }
+          set({
+            currentBook: book,
+            currentBookRef: loadedRef,
+            initStatus: 'success',
+          });
+        } catch (error) {
+          if (generation !== bookInitGeneration) {
+            return;
+          }
+          // 保留 currentBookRef：瞬时失败不能丢掉用户的选择，入口据此提供重试。
+          set({
+            currentBook: null,
+            initStatus: 'error',
+          });
+          throw error;
+        }
+      };
+
+      return {
+        currentBook: null,
+        currentBookRef: null,
+        initStatus: 'idle',
+
+        setCurrentBook: (ref, book) => {
+          bookInitGeneration += 1;
           set({
             currentBook: book,
             currentBookRef: ref,
             initStatus: 'success',
           });
-        } catch (error) {
-          set({ initStatus: 'error', initError: error as Error });
-          throw error;
-        }
-      },
+        },
 
-      resetInitStatus: () => {
-        set({ initStatus: 'idle', initError: null });
-      },
-    }),
+        clearCurrentBook: () => {
+          bookInitGeneration += 1;
+          set({
+            currentBook: null,
+            currentBookRef: null,
+            initStatus: 'success',
+          });
+        },
+
+        hydrateBookSession: async () => {
+          const generation = (bookInitGeneration += 1);
+          try {
+            return await hydrateSession(generation);
+          } catch (error) {
+            if (generation !== bookInitGeneration) {
+              return { ref: get().currentBookRef, needsMetadata: false };
+            }
+            set({ currentBook: null, initStatus: 'error' });
+            throw error;
+          }
+        },
+
+        loadCurrentBook: async () => {
+          const generation = (bookInitGeneration += 1);
+          await loadMetadata(generation);
+        },
+
+        initializeBook: async () => {
+          const generation = (bookInitGeneration += 1);
+          try {
+            const { needsMetadata } = await hydrateSession(generation);
+            if (generation !== bookInitGeneration) {
+              return;
+            }
+            if (needsMetadata) {
+              await loadMetadata(generation);
+            }
+          } catch (error) {
+            if (generation !== bookInitGeneration) {
+              return;
+            }
+            set({ currentBook: null, initStatus: 'error' });
+            throw error;
+          }
+        },
+      };
+    },
     {
       name: BOOK_STORE_KEY,
       storage: createJSONStorage(() => bookStorage),
@@ -181,9 +300,16 @@ export function useGlobalApi(): Api {
   return createApiForRef(ref);
 }
 
+/**
+ * 当前账本的数据身份。只依赖 ref，账本元信息加载期间也可直接发起数据请求。
+ */
+export function useCurrentBookId(): number | null {
+  return useBookStore(state => getBookId(state.currentBookRef));
+}
+
+/** 当前账本的稳定身份键；切账本时变化，元信息加载完成不重复触发请求。 */
 export function useBookKey(): string | null {
-  const ref = useBookStore(state => state.currentBookRef);
-  return getBookKey(ref);
+  return useBookStore(state => getBookKey(state.currentBookRef));
 }
 
 export function getGlobalApi(): Api {

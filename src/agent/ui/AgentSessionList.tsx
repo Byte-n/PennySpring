@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import type { StyleProp, ViewStyle } from 'react-native';
 import {
+  Button,
   Column,
   Empty,
   Icon,
@@ -51,7 +52,9 @@ const useStyles = createUseSheetStyle(token => ({
 export interface AgentSessionListProps {
   threads: AgentThreadRow[];
   currentThreadId: number | null;
+  errorText?: string;
   loading?: boolean;
+  onRetry?: () => void;
   disabled?: boolean;
   contentStyle?: StyleProp<ViewStyle>;
   onSelect: (thread: AgentThreadRow) => void;
@@ -61,7 +64,9 @@ export interface AgentSessionListProps {
 export function AgentSessionList({
   threads,
   currentThreadId,
+  errorText = '',
   loading = false,
+  onRetry,
   disabled = false,
   contentStyle,
   onSelect,
@@ -101,6 +106,27 @@ export function AgentSessionList({
 
   if (loading && threads.length === 0) {
     return <Loading size="small" text="正在读取会话…" />;
+  }
+
+  if (errorText && threads.length === 0) {
+    return (
+      <Empty
+        action={
+          onRetry ? (
+            <Button
+              onPress={onRetry}
+              size="small"
+              testID="agent-session-list-retry"
+              type="text"
+            >
+              重试
+            </Button>
+          ) : undefined
+        }
+        descriptionText="请检查网络或稍后重试。"
+        titleText="会话加载失败"
+      />
+    );
   }
 
   if (threads.length === 0) {

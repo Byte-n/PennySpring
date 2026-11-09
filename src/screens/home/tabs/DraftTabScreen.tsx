@@ -203,10 +203,10 @@ export function DraftTabScreen(): React.ReactElement {
 
   const target = useMemo(
     () =>
-      currentBookRef === null || currentBook === null
+      currentBookRef === null
         ? null
-        : draftTargetFromBookRef(currentBookRef, currentBook.name),
-    [currentBook, currentBookRef],
+        : draftTargetFromBookRef(currentBookRef, currentBook?.name ?? ''),
+    [currentBook?.name, currentBookRef],
   );
   const targetKey = target === null ? '' : getDraftBookKey(target);
 
@@ -617,7 +617,7 @@ export function DraftTabScreen(): React.ReactElement {
   }, [discardTarget, isDiscarding, refresh, toast]);
 
   const renderBody = (): React.ReactElement => {
-    if (currentBook === null || target === null) {
+    if (currentBookRef === null || target === null) {
       return (
         <Empty
           descriptionText="选择账本后，截图记账草稿会按账本展示。"
@@ -667,7 +667,7 @@ export function DraftTabScreen(): React.ReactElement {
         </Row>
         {drafts.map(draft => {
           const bookName =
-            draft.target.bookName || currentBook.name || MISSING_BOOK_NAME;
+            draft.target.bookName || currentBook?.name || MISSING_BOOK_NAME;
           const isBookMissing = !(data?.isBookAvailable ?? false);
           const isBusy = busyDraftId !== null || retryingId === draft.id;
           return (

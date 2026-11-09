@@ -16,6 +16,7 @@ import { createUseSheetStyle, useTheme } from '@pennyspring/ui';
 import { NetworkIcon } from 'phosphor-react-native';
 import '../../utils/prototype';
 import { resolveMediaSource } from '../../media/refs';
+import { getBookKey } from '../../stores/bookStore';
 import type { BookEntry, CurrentBookRef } from '../../stores/bookStore';
 import {
   getServerToken,
@@ -34,7 +35,7 @@ export interface BookListProps {
   mode: 'select' | 'manage';
   items: BookListItem[];
   loading?: boolean;
-  currentBook: BookEntry | null;
+  currentBookRef: CurrentBookRef | null;
   onBookSelect?: (ref: CurrentBookRef, entry: BookEntry) => void;
   onBookEdit?: (book: BookRow) => void;
   onBookDelete?: (id: number) => void;
@@ -171,7 +172,7 @@ export function BookList({
   mode,
   items,
   loading = false,
-  currentBook,
+  currentBookRef,
   onBookSelect,
   onBookEdit,
   onBookDelete,
@@ -213,8 +214,7 @@ export function BookList({
     item: BookListItem,
   ): ListItemData & { item: BookListItem } => {
     const { entry } = item;
-    const isCurrentBook =
-      currentBook?.kind === entry.kind && currentBook?.id === entry.id;
+    const isCurrentBook = getBookKey(currentBookRef) === getBookKey(item.ref);
     const isRemote = entry.kind === BOOK_TYPE.remote;
     const canSelect = !isCurrentBook && !item.error;
     const onSelect = () => {

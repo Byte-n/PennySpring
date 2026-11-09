@@ -244,7 +244,7 @@ function createDeps(): {
   const getAllTypes = jest.fn();
   return {
     deps: {
-      currentBook: createBook(),
+      bookId: 1,
       currentBookRef: { kind: BOOK_TYPE.local, id: 1 },
       recordApi: { getDetailById },
       typeApi: { getAll: getAllTypes },
@@ -391,13 +391,13 @@ describe('loadAddRecordInitSeed', () => {
     expect(seed.typeCategory).toBeUndefined();
   });
 
-  test('rejects the edit flow when the current book is not ready', async () => {
+  test('rejects the edit flow when the current book identity is not ready', async () => {
     const { deps } = createDeps();
 
     await expect(
       loadAddRecordInitSeed(
         { kind: 'edit', recordId: 9 },
-        { ...deps, currentBook: null },
+        { ...deps, bookId: null },
       ),
     ).rejects.toThrow('当前账本未就绪，请稍后重试');
   });

@@ -6,6 +6,7 @@ import {
   Card,
   Column,
   Empty,
+  Loading,
   Row,
   Tag,
   Text,
@@ -15,6 +16,7 @@ import { createUseSheetStyle } from '@pennyspring/ui';
 import { TrashIcon } from 'phosphor-react-native';
 
 import { ManageConfirmDialog } from '../../components/ManageConfirmDialog';
+import { LoadErrorEmpty } from '../../components/LoadErrorEmpty';
 import { createHeaderAddButton } from '../../components/HeaderAddButton';
 import { useNavigation } from '../../navigation';
 import { AgentProviderEditor } from '../../agent/ui/AgentProviderEditor';
@@ -55,7 +57,12 @@ export function AgentSettingsScreen() {
   const bumpProviderVersion = useSyncVersionStore(
     state => state.bumpProviderVersion,
   );
-  const { data: providers = [] } = useProviders();
+  const {
+    data: providers = [],
+    error: providersError,
+    loading: providersLoading,
+    refresh: refreshProviders,
+  } = useProviders();
   const { data: selection = EMPTY_AGENT_SELECTION } = useProviderSelection();
   const activeProviderId = selection.providerId;
 
@@ -151,7 +158,15 @@ export function AgentSettingsScreen() {
           </Text>
         </Column>
 
-        {providers.length === 0 ? (
+        {providersError && providers.length === 0 ? (
+          <LoadErrorEmpty
+            descriptionText="请检查网络或稍后重试。"
+            onRetry={refreshProviders}
+            titleText="提供商加载失败"
+          />
+        ) : providersLoading && providers.length === 0 ? (
+          <Loading variant="block" text="加载提供商" />
+        ) : providers.length === 0 ? (
           <Empty descriptionText="还没有 AI 提供商，点击右上角添加。" />
         ) : (
           providers.map(provider => {

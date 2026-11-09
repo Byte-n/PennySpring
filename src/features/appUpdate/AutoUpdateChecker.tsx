@@ -2,12 +2,10 @@ import { useEffect, useRef } from 'react';
 import { useNotification } from '@pennyspring/ui';
 
 import { ROOT_ROUTES, rootNavigationRef } from '../../navigation';
-import { useBookStore } from '../../stores/bookStore';
 import { getAutoUpdateSettings, rehydrateAutoUpdate } from './autoUpdateStore';
 import { checkForUpdate, getInstalledVersion } from './client';
 
 export function AutoUpdateChecker(): null {
-  const initStatus = useBookStore(state => state.initStatus);
   const notification = useNotification();
   const notificationRef = useRef(notification);
   const startedRef = useRef(false);
@@ -17,7 +15,9 @@ export function AutoUpdateChecker(): null {
   }, [notification]);
 
   useEffect(() => {
-    if (initStatus !== 'success' || startedRef.current) return;
+    if (startedRef.current) {
+      return;
+    }
     startedRef.current = true;
 
     const controller = new AbortController();
@@ -61,7 +61,7 @@ export function AutoUpdateChecker(): null {
       cancelled = true;
       controller.abort();
     };
-  }, [initStatus]);
+  }, []);
 
   return null;
 }

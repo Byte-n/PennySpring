@@ -16,11 +16,6 @@ jest.mock('../src/stores/bookStorage', () => ({
   },
 }));
 
-jest.mock('../src/stores/bookStore', () => ({
-  useBookStore: (selector: (state: { initStatus: string }) => unknown) =>
-    selector({ initStatus: 'success' }),
-}));
-
 jest.mock('../src/navigation', () => ({
   ROOT_ROUTES: { About: 'About' },
   rootNavigationRef: {

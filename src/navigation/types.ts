@@ -1,4 +1,4 @@
-import type { BOOK_SELECT_ROUTES, ROOT_ROUTES } from './routes';
+import type { ROOT_ROUTES } from './routes';
 import type {
   AddRecordPresetPayload,
   AddRecordTemplatePayload,
@@ -37,8 +37,4 @@ export type RootStackParamList = {
   [ROOT_ROUTES.BackupLan]: undefined;
   [ROOT_ROUTES.BackupLanSend]: undefined;
   [ROOT_ROUTES.BackupLanReceive]: undefined;
-};
-
-export type BookSelectStackParamList = {
-  [BOOK_SELECT_ROUTES.BookSelect]: undefined;
 };

@@ -6,6 +6,7 @@ import {
   Column,
   Empty,
   Icon,
+  Loading,
   Popup,
   Row,
   SwipeAction,
@@ -18,10 +19,15 @@ import {
   saveAddRecordDraft,
   validateAddRecordDraft,
 } from '../addRecord/addRecordDraft';
-import { useBookKey, useBookStore, useGlobalApi } from '../../stores/bookStore';
+import {
+  useBookKey,
+  useCurrentBookId,
+  useGlobalApi,
+} from '../../stores/bookStore';
 import { useSyncVersionStore } from '../../stores/syncVersionStore';
 import { ROOT_ROUTES, useNavigation } from '../../navigation';
 import { getPhosphorIconComponent } from '../../constants/typeIconTree';
+import { LoadErrorEmpty } from '../../components/LoadErrorEmpty';
 import { buildDraftFromTemplate, tabTypeFor } from './buildDraft';
 import { toPresetPayload, toTemplatePayload } from './payload';
 import { useQuickTemplates } from './useQuickTemplates';
@@ -46,30 +52,44 @@ export function QuickTemplatePanel({
   const styles = useStyles();
   const toast = useToast();
   const navigation = useNavigation();
-  const currentBook = useBookStore(state => state.currentBook);
   const globalApi = useGlobalApi();
   const bookKey = useBookKey();
+  const bookId = useCurrentBookId();
   const bumpTemplateVersion = useSyncVersionStore(
     state => state.bumpTemplateVersion,
   );
-  const { templates } = useQuickTemplates();
+  const {
+    templates,
+    error: templatesError,
+    loading: templatesLoading,
+    refresh: refreshTemplates,
+  } = useQuickTemplates();
   const [busyId, setBusyId] = useState<number | null>(null);
 
-  const bookId = currentBook?.id;
-  const { data: types = [] } = useRequest(
-    () => (bookId ? globalApi.type.getAll(bookId) : Promise.resolve([])),
+  const {
+    data: types = [],
+    error: typesError,
+    refresh: refreshTypes,
+  } = useRequest(
+    () =>
+      bookId === null ? Promise.resolve([]) : globalApi.type.getAll(bookId),
     { refreshDeps: [globalApi, bookKey] },
   );
   const typeMap = useMemo(
     () => new Map(types.map(type => [type.id, type])),
     [types],
   );
+  const loadError = Boolean(templatesError || typesError);
+  const handleRetry = useCallback(() => {
+    refreshTemplates();
+    refreshTypes();
+  }, [refreshTemplates, refreshTypes]);
 
   const closePanel = useCallback(() => onOpenChange(false), [onOpenChange]);
 
   const handleDirectCreate = useCallback(
     async (tpl: QuickTemplate) => {
-      if (!currentBook) {
+      if (bookId === null) {
         toast.show({ messageText: '未找到当前账本' });
         return;
       }
@@ -79,7 +99,7 @@ export function QuickTemplatePanel({
         return;
       }
       const tabType = tabTypeFor(typeRow);
-      const draft = buildDraftFromTemplate(tpl, currentBook.id, typeRow);
+      const draft = buildDraftFromTemplate(tpl, bookId, typeRow);
       const validationMessage = validateAddRecordDraft(tabType, draft);
       if (validationMessage !== undefined) {
         toast.show({ messageText: validationMessage });
@@ -101,7 +121,7 @@ export function QuickTemplatePanel({
         setBusyId(null);
       }
     },
-    [closePanel, currentBook, toast, typeMap],
+    [bookId, closePanel, toast, typeMap],
   );
 
   const handleEditFromPreset = useCallback(
@@ -132,12 +152,12 @@ export function QuickTemplatePanel({
 
   const handleDeleteTemplate = useCallback(
     async (id: number): Promise<void> => {
-      if (!currentBook) {
+      if (bookId === null) {
         toast.show({ messageText: '未找到当前账本' });
         return;
       }
       try {
-        await globalApi.quickTemplate.delete(id, currentBook.id);
+        await globalApi.quickTemplate.delete(id, bookId);
         bumpTemplateVersion();
         toast.show({ messageText: '已删除模板' });
       } catch (error) {
@@ -147,7 +167,7 @@ export function QuickTemplatePanel({
         });
       }
     },
-    [bumpTemplateVersion, currentBook, globalApi, toast],
+    [bookId, bumpTemplateVersion, globalApi, toast],
   );
 
   const hasTemplates = templates.length > 0;
@@ -179,7 +199,16 @@ export function QuickTemplatePanel({
       )}
       styles={{ panelBody: styles.panelBody }}
     >
-      {hasTemplates ? (
+      {loadError ? (
+        <LoadErrorEmpty
+          descriptionText="请检查网络或稍后重试。"
+          onRetry={handleRetry}
+          style={styles.state}
+          titleText="快捷模板加载失败"
+        />
+      ) : templatesLoading && !hasTemplates ? (
+        <Loading style={styles.state} text="加载快捷模板" variant="block" />
+      ) : hasTemplates ? (
         templates.map(tpl => {
           const typeRow = typeMap.get(tpl.typeId);
           const iconComp = typeRow

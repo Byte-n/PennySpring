@@ -346,6 +346,7 @@ function createSession(
     errorText: '',
     usage: EMPTY_USAGE,
     threads: [],
+    threadsError: '',
     threadsLoading: false,
     currentThreadId: 1,
     currentThread: {

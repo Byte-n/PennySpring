@@ -21,7 +21,11 @@ import {
   useNavigation,
   type RootStackParamList,
 } from '../../navigation';
-import { useBookStore, useGlobalApi } from '../../stores/bookStore';
+import {
+  useBookStore,
+  useCurrentBookId,
+  useGlobalApi,
+} from '../../stores/bookStore';
 import { useMediaStore } from '../../media';
 import { TabScreen, TopTabNavigator } from '../../component/TopTabNavigator';
 import {
@@ -100,8 +104,8 @@ function AddRecordContent({
     templateName,
     setTemplateName,
   } = useAddRecordContext();
-  const currentBook = useBookStore(state => state.currentBook);
   const currentBookRef = useBookStore(state => state.currentBookRef);
+  const bookId = useCurrentBookId();
   const globalApi = useGlobalApi();
   const media = useMediaStore();
   const [initialRouteName, setInitialRouteName] = useState<string>();
@@ -122,13 +126,13 @@ function AddRecordContent({
   const isBookRequired =
     initSource?.kind === 'edit' || initSource?.kind === 'preset';
   const isInitReady =
-    initSource !== null && (!isBookRequired || currentBook !== null);
+    initSource !== null && (!isBookRequired || bookId !== null);
   const { loading: initLoading } = useRequest(
     () =>
       initSource === null
         ? Promise.resolve(null)
         : loadAddRecordInitSeed(initSource, {
-            currentBook,
+            bookId,
             currentBookRef,
             recordApi: globalApi.record,
             typeApi: globalApi.type,

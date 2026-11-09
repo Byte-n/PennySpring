@@ -56,7 +56,12 @@ export function BackupExportScreen() {
   const toast = useToast();
   const currentBookRef = useBookStore(state => state.currentBookRef);
   const addHistory = useBackupHistoryStore(state => state.addEntry);
-  const { data, loading } = useRequest(() => localApi.book.getAll());
+  const {
+    data,
+    error: booksError,
+    loading,
+    refresh: refreshBooks,
+  } = useRequest(() => localApi.book.getAll());
   const books = data ?? [];
 
   const [selectedIds, setSelectedIds] = useState<number[] | null>(null);
@@ -188,6 +193,7 @@ export function BackupExportScreen() {
         bookOptions={bookOptions}
         books={books}
         defaultBookOptions={DEFAULT_BOOK_CONTENT_OPTIONS}
+        error={Boolean(booksError)}
         includeNetworkBooks={includeNetworkBooks}
         includeSettings={includeSettings}
         loading={loading}
@@ -196,6 +202,7 @@ export function BackupExportScreen() {
         }
         onIncludeNetworkBooksChange={setIncludeNetworkBooks}
         onIncludeSettingsChange={setIncludeSettings}
+        onRetry={refreshBooks}
         onSelectedBookIdsChange={setSelectedIds}
         selectedBookIds={selectedIds ?? []}
       />

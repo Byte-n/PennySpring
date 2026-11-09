@@ -49,11 +49,16 @@ import {
   ASSET_CLASSIFICATION_TREE,
   type AssetClassificationTreeNode,
 } from '../../constants/assetClassificationTree';
-import { useBookKey, useBookStore, useGlobalApi } from '../../stores/bookStore';
+import {
+  useBookKey,
+  useCurrentBookId,
+  useGlobalApi,
+} from '../../stores/bookStore';
 import { useRecordVersion } from '../../stores/syncVersionStore';
 import { publishQuickBookCaptureCatalog } from '../../features/quickBookDraft/captureCatalog';
 import { useNavigation } from '../../navigation';
 import { createHeaderAddButton } from '../../components/HeaderAddButton';
+import { LoadErrorEmpty } from '../../components/LoadErrorEmpty';
 import { ManageConfirmDialog } from '../../components/ManageConfirmDialog';
 import { FormFloatingPanel } from '../../components/FormFloatingPanel';
 import { ManageSkeleton } from '../../components/ManageSkeleton';
@@ -266,15 +271,20 @@ export function AssetManageScreen() {
   const styles = useStyles();
   const toast = useToast();
   const navigation = useNavigation();
-  const currentBook = useBookStore(state => state.currentBook);
   const globalApi = useGlobalApi();
   const bookKey = useBookKey();
+  const bookId = useCurrentBookId();
   const recordVersion = useRecordVersion();
 
-  const { data, loading, refresh } = useRequest(
+  const {
+    data,
+    error: loadError,
+    loading,
+    refresh,
+  } = useRequest(
     () => {
-      if (!currentBook) return Promise.resolve<AssetRow[]>([]);
-      return globalApi.asset.getAll(currentBook.id);
+      if (bookId === null) return Promise.resolve<AssetRow[]>([]);
+      return globalApi.asset.getAll(bookId);
     },
     { refreshDeps: [bookKey, recordVersion] },
   );
@@ -371,7 +381,7 @@ export function AssetManageScreen() {
   const handleFinish = useCallback(
     async (values: AssetFormValues) => {
       submitSucceededRef.current = false;
-      if (!currentBook) {
+      if (bookId === null) {
         toast.show({ messageText: '未找到当前账本' });
         return;
       }
@@ -386,7 +396,7 @@ export function AssetManageScreen() {
             parseFloat(values.balance || '0') * CENTS_PER_YUAN,
           ),
           billingDate: values.billingDate ?? 0,
-          booksId: currentBook.id,
+          booksId: bookId,
           cardNo: editingAsset?.cardNo ?? '',
           classification,
           invisible: values.invisible ? VISIBILITY.hidden : VISIBILITY.visible,
@@ -413,7 +423,7 @@ export function AssetManageScreen() {
         setSubmitting(false);
       }
     },
-    [currentBook, editingAsset, globalApi.asset, refresh, toast],
+    [bookId, editingAsset, globalApi.asset, refresh, toast],
   );
 
   const handlePanelOk = useCallback(async () => {
@@ -424,11 +434,11 @@ export function AssetManageScreen() {
 
   const handleDelete = useCallback(async () => {
     const target = pendingDeleteAsset;
-    if (!target || !currentBook) {
+    if (!target || bookId === null) {
       return;
     }
     try {
-      await globalApi.asset.delete(target.id, currentBook.id);
+      await globalApi.asset.delete(target.id, bookId);
     } catch (error: unknown) {
       throw new Error(getErrorMessage(error, '删除失败'));
     }
@@ -436,7 +446,7 @@ export function AssetManageScreen() {
     setMenuAsset(null);
     refresh();
     publishQuickBookCaptureCatalog().catch(() => undefined);
-  }, [currentBook, pendingDeleteAsset, refresh]);
+  }, [bookId, pendingDeleteAsset, refresh]);
 
   const menuActions = useMemo(
     () => [
@@ -476,6 +486,12 @@ export function AssetManageScreen() {
       <ScrollView contentContainerStyle={styles.content} scrollEnabled>
         {loading && !hasAssets ? (
           <ManageSkeleton showHero />
+        ) : loadError && !hasAssets ? (
+          <LoadErrorEmpty
+            descriptionText="账户数据加载失败，请检查网络或稍后重试。"
+            onRetry={refresh}
+            titleText="账户加载失败"
+          />
         ) : !hasAssets ? (
           <ManageEmptyCard>
             <Column gap="small">

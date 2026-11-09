@@ -125,8 +125,16 @@ export function QuickBookSettingsScreen(): React.ReactElement {
   const bumpProviderVersion = useSyncVersionStore(
     state => state.bumpProviderVersion,
   );
-  const { data: providers = [] } = useProviders();
-  const { data: selection = EMPTY_AGENT_SELECTION } = useQuickBookSelection();
+  const {
+    data: providers = [],
+    error: providersError,
+    refresh: refreshProviders,
+  } = useProviders();
+  const {
+    data: selection = EMPTY_AGENT_SELECTION,
+    error: selectionError,
+    refresh: refreshSelection,
+  } = useQuickBookSelection();
 
   const [providerSheetOpen, setProviderSheetOpen] = useState(false);
   const [modelSheetOpen, setModelSheetOpen] = useState(false);
@@ -159,6 +167,13 @@ export function QuickBookSettingsScreen(): React.ReactElement {
     [providers, selection],
   );
   const isConfigured = resolution.ok;
+  const isModelConfigError = Boolean(
+    (providersError || selectionError) && providers.length === 0,
+  );
+  const retryModelConfig = useCallback(() => {
+    refreshProviders();
+    refreshSelection();
+  }, [refreshProviders, refreshSelection]);
   const isAndroid = isScreenshotDetectionSupported();
   const book = useBookStore(state => state.currentBook);
   const entrySupported = isQuickBookEntrySupported();
@@ -860,7 +875,16 @@ export function QuickBookSettingsScreen(): React.ReactElement {
                 {selection.modelId || '未选择'}
               </Button>
             </Row>
-            {providers.length === 0 ? (
+            {isModelConfigError ? (
+              <Row align="center" justify="between">
+                <Text color="errorText" size="xs">
+                  提供商与模型配置加载失败
+                </Text>
+                <Button onPress={retryModelConfig} size="small" type="text">
+                  重试
+                </Button>
+              </Row>
+            ) : providers.length === 0 ? (
               <Column gap="small">
                 <Text color="secondary" size="xs">
                   还没有 AI 提供商，先添加一个并配置支持图片的模型。

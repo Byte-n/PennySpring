@@ -16,13 +16,14 @@ import {
 import { createUseSheetStyle } from '@pennyspring/ui';
 import {
   useBookKey,
-  useBookStore,
+  useCurrentBookId,
   useGlobalApi,
 } from '../../../stores/bookStore';
 import {
   bumpRecordVersion,
   useRecordVersion,
 } from '../../../stores/syncVersionStore';
+import { LoadErrorEmpty } from '../../../components/LoadErrorEmpty';
 import { ROOT_ROUTES, useNavigation } from '../../../navigation';
 import { MonthSummaryCard } from './detail/MonthSummaryCard';
 import { DayGroupCard, DayGroupHeader } from './detail/DayGroupCard';
@@ -68,9 +69,9 @@ export function DetailTabScreen() {
   const styles = useStyles();
   const navigation = useNavigation();
   const toast = useToast();
-  const currentBook = useBookStore(state => state.currentBook);
   const globalApi = useGlobalApi();
   const bookKey = useBookKey();
+  const bookId = useCurrentBookId();
   const recordVersion = useRecordVersion();
   const [activeRecordId, setActiveRecordId] = useState<number | null>(null);
   const [pendingDeleteId, setPendingDeleteId] = useState<number | null>(null);
@@ -78,7 +79,6 @@ export function DetailTabScreen() {
   const [activeFilter, setActiveFilter] = useState<DetailFilter>('all');
   const [isAmountHidden, setIsAmountHidden] = useState(false);
 
-  const bookId = currentBook?.id;
   const dataRange = useMemo(() => {
     const start = new Date(
       selectedMonth.getFullYear(),
@@ -95,6 +95,7 @@ export function DetailTabScreen() {
 
   const {
     data: records = [],
+    error,
     loading,
     refresh,
   } = useRequest(
@@ -165,12 +166,12 @@ export function DetailTabScreen() {
     if (!recordId) return;
 
     try {
-      if (!currentBook) {
+      if (bookId === null) {
         toast.show({ messageText: '未找到当前账本' });
         return;
       }
 
-      await globalApi.record.delete(recordId, currentBook.id);
+      await globalApi.record.delete(recordId, bookId);
       closePanel();
       bumpRecordVersion();
       toast.show({ messageText: '已删除记录' });
@@ -182,6 +183,16 @@ export function DetailTabScreen() {
   const renderBody = () => {
     if (loading) {
       return <Loading variant="block" text="加载中" style={styles.state} />;
+    }
+    if (error && records.length === 0) {
+      return (
+        <LoadErrorEmpty
+          descriptionText="请检查网络或稍后重试。"
+          onRetry={refreshAll}
+          style={styles.state}
+          titleText="记录加载失败"
+        />
+      );
     }
     if (groups.length === 0) {
       return activeFilter === 'all' ? (

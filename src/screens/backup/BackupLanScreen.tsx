@@ -179,9 +179,12 @@ export function BackupLanScreen() {
   const navigation = useNavigation();
   const toast = useToast();
   const addHistory = useBackupHistoryStore(state => state.addEntry);
-  const { data, loading: booksLoading } = useRequest(() =>
-    localApi.book.getAll(),
-  );
+  const {
+    data,
+    error: booksError,
+    loading: booksLoading,
+    refresh: refreshBooks,
+  } = useRequest(() => localApi.book.getAll());
   const books = useMemo<BookRow[]>(() => data ?? [], [data]);
 
   const {
@@ -567,6 +570,7 @@ export function BackupLanScreen() {
                 books={books}
                 busy={preparing || view.busy || view.phase === 'waiting-offer'}
                 defaultBookOptions={DEFAULT_BOOK_CONTENT_OPTIONS}
+                error={Boolean(booksError)}
                 includeNetworkBooks={includeNetworkBooks}
                 includeSettings={includeSettings}
                 loading={booksLoading}
@@ -578,6 +582,7 @@ export function BackupLanScreen() {
                 }
                 onIncludeNetworkBooksChange={setIncludeNetworkBooks}
                 onIncludeSettingsChange={setIncludeSettings}
+                onRetry={refreshBooks}
                 onSelectedBookIdsChange={setSelectedIds}
                 onSend={handleSend}
                 selectedBookIds={selectedIds}

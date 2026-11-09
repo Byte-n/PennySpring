@@ -34,11 +34,16 @@ import { CategoryGrid } from '../../component/CategoryGrid';
 import { FormIconGrid, TYPE_FORM_ICONS } from '../../component/FormIconGrid';
 import { PhosphorIconPicker } from '../../component/PhosphorIconPicker';
 import { createHeaderAddButton } from '../../components/HeaderAddButton';
+import { LoadErrorEmpty } from '../../components/LoadErrorEmpty';
 import { ManageConfirmDialog } from '../../components/ManageConfirmDialog';
 import { FormFloatingPanel } from '../../components/FormFloatingPanel';
 import { ManageSkeleton } from '../../components/ManageSkeleton';
 import { useNavigation } from '../../navigation';
-import { useBookStore, useGlobalApi } from '../../stores/bookStore';
+import {
+  useBookKey,
+  useCurrentBookId,
+  useGlobalApi,
+} from '../../stores/bookStore';
 
 type TypeLevel = 'parent' | 'child';
 
@@ -129,7 +134,8 @@ export function TypeManageScreen() {
   const styles = useStyles();
   const toast = useToast();
   const navigation = useNavigation();
-  const currentBook = useBookStore(state => state.currentBook);
+  const bookKey = useBookKey();
+  const bookId = useCurrentBookId();
   const globalApi = useGlobalApi();
 
   const [category, setCategory] = useState<RecordTypeCategoryValue>(
@@ -141,14 +147,15 @@ export function TypeManageScreen() {
 
   const {
     data: allTypes = [],
+    error: loadError,
     loading,
     refresh,
   } = useRequest(
     () => {
-      if (!currentBook) return Promise.resolve<TypeRow[]>([]);
-      return globalApi.type.getByCategory(category, currentBook.id);
+      if (bookId === null) return Promise.resolve<TypeRow[]>([]);
+      return globalApi.type.getByCategory(category, bookId);
     },
-    { refreshDeps: [category, currentBook] },
+    { refreshDeps: [category, bookKey] },
   );
 
   const parents = useMemo(
@@ -258,7 +265,7 @@ export function TypeManageScreen() {
   const handleFinish = useCallback(
     async (values: TypeFormValues) => {
       submitSucceededRef.current = false;
-      if (!currentBook) {
+      if (bookId === null) {
         toast.show({ messageText: '未找到当前账本' });
         return;
       }
@@ -273,7 +280,7 @@ export function TypeManageScreen() {
           ? Math.max(0, ...parents.map(parent => parent.sort)) + 1
           : (editingType?.sort ?? 1);
         const payload = {
-          booksId: currentBook.id,
+          booksId: bookId,
           icon: values.icon,
           isSystem: editingType?.isSystem ?? SYSTEM_STATUS.custom,
           name: values.name.trim(),
@@ -310,8 +317,8 @@ export function TypeManageScreen() {
       }
     },
     [
+      bookId,
       category,
-      currentBook,
       editingType,
       expandedId,
       globalApi.type,
@@ -331,11 +338,11 @@ export function TypeManageScreen() {
 
   const handleDelete = useCallback(async () => {
     const target = pendingDeleteType;
-    if (!target || !currentBook) {
+    if (!target || bookId === null) {
       return;
     }
     try {
-      await globalApi.type.delete(target.id, currentBook.id);
+      await globalApi.type.delete(target.id, bookId);
     } catch (error: unknown) {
       throw new Error(getTypeDeleteErrorMessage(error));
     }
@@ -352,7 +359,7 @@ export function TypeManageScreen() {
     refresh();
     publishQuickBookCaptureCatalog().catch(() => undefined);
   }, [
-    currentBook,
+    bookId,
     editingType?.id,
     expandedId,
     globalApi.type,
@@ -451,6 +458,12 @@ export function TypeManageScreen() {
 
           {loading && allTypes.length === 0 ? (
             <ManageSkeleton rows={3} />
+          ) : loadError && allTypes.length === 0 ? (
+            <LoadErrorEmpty
+              descriptionText="类型数据加载失败，请检查网络或稍后重试。"
+              onRetry={refresh}
+              titleText="类型加载失败"
+            />
           ) : parents.length === 0 ? (
             <Empty descriptionText="暂无类型" />
           ) : (

@@ -128,11 +128,14 @@ function createRemoteItem(background: string): BookListItem {
   };
 }
 
-function renderBookList(items: BookListItem[]): TestRenderer.ReactTestRenderer {
+function renderBookList(
+  items: BookListItem[],
+  currentBookRef: CurrentBookRef | null = null,
+): TestRenderer.ReactTestRenderer {
   let renderer: TestRenderer.ReactTestRenderer;
   act(() => {
     renderer = TestRenderer.create(
-      <BookList mode="select" items={items} currentBook={null} />,
+      <BookList mode="select" items={items} currentBookRef={currentBookRef} />,
     );
   });
   return renderer!;
@@ -248,7 +251,7 @@ describe('BookList 账本封面', () => {
     act(() => {
       renderer = TestRenderer.create(
         <BookList
-          currentBook={null}
+          currentBookRef={null}
           items={[item]}
           mode="manage"
           onBookMenu={jest.fn()}
@@ -260,5 +263,46 @@ describe('BookList 账本封面', () => {
       node => String(node.type) === 'MockListRow',
     );
     expect(row.props.onLongPress).toBeUndefined();
+  });
+
+  it('仅当服务器地址与账本 id 都匹配时标记为当前账本', () => {
+    const item = createRemoteItem('');
+    const renderer = renderBookList([item], {
+      kind: 'remote',
+      serverUrl: REMOTE_SERVER_URL,
+      bookId: item.entry.id,
+    });
+
+    expect(findNetworkCoverLabel(renderer)).toContain('当前');
+    expect(
+      renderer.root.find(node => String(node.type) === 'MockListRow').props
+        .onPress,
+    ).toBeUndefined();
+  });
+
+  it('同一账本 id 来自其他服务器时不标记为当前账本', () => {
+    const item = createRemoteItem('');
+    const renderer = renderBookList([item], {
+      kind: 'remote',
+      serverUrl: 'http://192.168.1.99:8080',
+      bookId: item.entry.id,
+    });
+
+    expect(findNetworkCoverLabel(renderer)).not.toContain('当前');
+    expect(
+      renderer.root.find(node => String(node.type) === 'MockListRow').props
+        .onPress,
+    ).toBeInstanceOf(Function);
+  });
+
+  it('本地账本与相同 id 的网络账本选择互不混淆', () => {
+    const localItem = createLocalItem('');
+    const renderer = renderBookList([localItem], {
+      kind: 'remote',
+      serverUrl: REMOTE_SERVER_URL,
+      bookId: localItem.entry.id,
+    });
+
+    expect(findNetworkCoverLabel(renderer)).not.toContain('当前');
   });
 });

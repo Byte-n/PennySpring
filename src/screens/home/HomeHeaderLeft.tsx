@@ -2,6 +2,7 @@ import React from 'react';
 import { Pressable, ScrollView, View, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
+  Button,
   Column,
   Icon,
   Loading,
@@ -14,6 +15,7 @@ import { createUseSheetStyle, useTheme } from '@pennyspring/ui';
 import { CaretDownIcon, CaretRightIcon, ListIcon } from 'phosphor-react-native';
 
 import { APP_NAME } from '../../constants/app.ts';
+import { ROOT_ROUTES, useNavigation } from '../../navigation';
 import { type CurrentBookRef, useBookStore } from '../../stores/bookStore';
 import { getBookFooterStorage } from './drawerContentModel';
 import { type QuickBookItem, useQuickBookList } from './useQuickBookList';
@@ -151,15 +153,25 @@ export function HomeHeaderLeft({ onMenuPress }: HomeHeaderLeftProps) {
   });
   const { token } = useTheme();
   const toast = useToast();
+  const navigation = useNavigation();
   const currentBook = useBookStore(state => state.currentBook);
   const currentBookRef = useBookStore(state => state.currentBookRef);
+  const initStatus = useBookStore(state => state.initStatus);
   const setCurrentBook = useBookStore(state => state.setCurrentBook);
   const { error, items, loading, refresh } = useQuickBookList();
   const [isQuickSwitchOpen, setIsQuickSwitchOpen] = React.useState(false);
 
-  const bookName = currentBook?.name || '未选择账本';
+  const isBookMetaResolving =
+    currentBook === null && currentBookRef !== null && initStatus !== 'error';
+  const bookName =
+    currentBook?.name ??
+    (currentBookRef
+      ? initStatus === 'error'
+        ? '账本加载失败'
+        : '正在读取账本…'
+      : '未选择账本');
   const bookType = currentBook ? getBookFooterStorage(currentBook) : null;
-  const CaretIcon = currentBook ? CaretDownIcon : CaretRightIcon;
+  const CaretIcon = currentBookRef ? CaretDownIcon : CaretRightIcon;
 
   const handleBookPress = React.useCallback((): void => {
     const nextOpen = !isQuickSwitchOpen;
@@ -183,6 +195,11 @@ export function HomeHeaderLeft({ onMenuPress }: HomeHeaderLeftProps) {
     },
     [currentBookRef, setCurrentBook, toast],
   );
+
+  const handleOpenBookManage = React.useCallback((): void => {
+    setIsQuickSwitchOpen(false);
+    navigation.navigate(ROOT_ROUTES.BookManage);
+  }, [navigation]);
 
   const renderQuickSwitchBody = (): React.ReactNode => {
     if (loading) {
@@ -213,15 +230,24 @@ export function HomeHeaderLeft({ onMenuPress }: HomeHeaderLeftProps) {
 
     if (items.length === 0) {
       return (
-        <Row
-          justify="center"
+        <Column
+          align="center"
+          gap="small"
           style={styles.quickState}
           testID="home-book-switch-empty"
         >
           <Text color="tertiary" size="xs">
             还没有账本
           </Text>
-        </Row>
+          <Button
+            onPress={handleOpenBookManage}
+            size="small"
+            testID="home-book-switch-create"
+            type="text"
+          >
+            新建账本
+          </Button>
+        </Column>
       );
     }
 
@@ -336,6 +362,9 @@ export function HomeHeaderLeft({ onMenuPress }: HomeHeaderLeftProps) {
           >
             {bookName}
           </Text>
+          {isBookMetaResolving ? (
+            <Loading size="small" testID="home-header-book-loading" />
+          ) : null}
           <CaretIcon color={token.colorTextTertiary} size={token.sizeSM} />
         </Pressable>
       </Row>

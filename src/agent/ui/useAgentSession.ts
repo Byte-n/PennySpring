@@ -20,6 +20,7 @@ export interface AgentSessionState {
   errorText: string;
   usage: TokenUsage;
   threads: AgentThreadRow[];
+  threadsError: string;
   threadsLoading: boolean;
   currentThreadId: number | null;
   currentThread: AgentThreadRow | null;
@@ -63,6 +64,7 @@ export function useAgentSession({
   const [errorText, setErrorText] = useState('');
   const [usage, setUsage] = useState<TokenUsage>(EMPTY_USAGE);
   const [threads, setThreads] = useState<AgentThreadRow[]>([]);
+  const [threadsError, setThreadsError] = useState('');
   const [threadsLoading, setThreadsLoading] = useState(false);
   const [currentThreadId, setCurrentThreadId] = useState<number | null>(null);
   const [currentThread, setCurrentThread] = useState<AgentThreadRow | null>(
@@ -144,6 +146,7 @@ export function useAgentSession({
 
     resetConversation();
     setThreads([]);
+    setThreadsError('');
     setErrorText('');
     setSending(false);
 
@@ -187,11 +190,6 @@ export function useAgentSession({
         } else {
           applyDetail(detail);
         }
-
-        const list = await api.agent.listThreads(bookId);
-        if (!cancelled && seq === loadSeqRef.current) {
-          setThreads(list);
-        }
       } catch (error) {
         if (!cancelled && seq === loadSeqRef.current) {
           setErrorText(getErrorMessage(error));
@@ -199,6 +197,22 @@ export function useAgentSession({
       } finally {
         if (!cancelled && seq === loadSeqRef.current) {
           setLoading(false);
+        }
+      }
+
+      // 会话列表独立于当前会话加载，失败时单独展示重试。
+      try {
+        const list = await api.agent.listThreads(bookId);
+        if (!cancelled && seq === loadSeqRef.current) {
+          setThreads(list);
+          setThreadsError('');
+        }
+      } catch (error) {
+        if (!cancelled && seq === loadSeqRef.current) {
+          setThreadsError(getErrorMessage(error));
+        }
+      } finally {
+        if (!cancelled && seq === loadSeqRef.current) {
           setThreadsLoading(false);
         }
       }
@@ -229,10 +243,11 @@ export function useAgentSession({
       const list = await api.agent.listThreads(bookId);
       if (bookIdRef.current === bookId) {
         setThreads(list);
+        setThreadsError('');
       }
     } catch (error) {
       if (bookIdRef.current === bookId) {
-        setErrorText(getErrorMessage(error));
+        setThreadsError(getErrorMessage(error));
       }
     } finally {
       if (bookIdRef.current === bookId) {
@@ -483,6 +498,7 @@ export function useAgentSession({
     errorText,
     usage,
     threads,
+    threadsError,
     threadsLoading,
     currentThreadId,
     currentThread,

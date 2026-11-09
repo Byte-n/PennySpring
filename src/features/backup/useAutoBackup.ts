@@ -14,7 +14,7 @@ export function useAutoBackup(): void {
   const isHydrated = useRef(false);
 
   useEffect(() => {
-    if (initStatus !== 'success') return;
+    if (initStatus === 'idle' || initStatus === 'loading') return;
 
     let cancelled = false;
 

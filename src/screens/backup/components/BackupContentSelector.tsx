@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import {
+  Button,
   Card,
   Checkbox,
   Column,
@@ -15,7 +16,9 @@ import type { BookContentOptions } from '../../../features/transfer/types';
 
 interface BackupContentSelectorProps {
   books: BookRow[];
+  error?: boolean;
   loading?: boolean;
+  onRetry?: () => void;
   selectedBookIds: number[];
   bookOptions: Record<number, BookContentOptions>;
   defaultBookOptions: BookContentOptions;
@@ -51,6 +54,9 @@ const useStyles = createUseSheetStyle(token => ({
   hint: {
     gap: token.marginXXS,
   },
+  error: {
+    gap: token.marginXXS,
+  },
 }));
 
 function toOptionValues(options: BookContentOptions): string[] {
@@ -71,7 +77,9 @@ function fromOptionValues(values: string[]): BookContentOptions {
 
 export function BackupContentSelector({
   books,
+  error = false,
   loading = false,
+  onRetry,
   selectedBookIds,
   bookOptions,
   defaultBookOptions,
@@ -127,6 +135,20 @@ export function BackupContentSelector({
             <Text color="secondary" size="sm">
               正在读取本地账本…
             </Text>
+          ) : error ? (
+            <Column style={styles.error}>
+              <Text color="errorText" size="sm">
+                本地账本加载失败。
+              </Text>
+              <Button
+                onPress={onRetry}
+                size="small"
+                testID="backup-content-books-retry"
+                type="text"
+              >
+                重试
+              </Button>
+            </Column>
           ) : books.length === 0 ? (
             <Text color="secondary" size="sm">
               没有本地账本。

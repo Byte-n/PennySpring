@@ -23,6 +23,7 @@ import { useAddRecordContext } from '../AddRecordContext';
 import { RecordDateTimeField } from '../components/RecordDateTimeField';
 import { saveAddRecordDraft, validateAddRecordDraft } from '../addRecordDraft';
 import { persistRecordImages } from '../persistRecordImages';
+import { ResourceLoadError } from '../components/ResourceLoadError';
 import { buildNewQuickTemplate, validateTemplateDraft } from '../templateDraft';
 import { toAssetOptions } from '../recordOptions';
 import { toNumberValue } from '../selectValues';
@@ -77,10 +78,13 @@ export function ExpenseTabScreen() {
     refresh: refreshCategories,
   } = useCategoryItems(RECORD_TYPE_CATEGORY.expense, draftTarget?.booksId);
   const {
+    assetsError,
     assetsLoading,
     booksId,
-    currentBook,
+    refreshAssets,
+    refreshTags,
     tags: allTags,
+    tagsError,
     tagsLoading,
     visibleAssets,
   } = useAddRecordResources(draftTarget?.booksId);
@@ -127,14 +131,14 @@ export function ExpenseTabScreen() {
         toast.show({ messageText: validationMessage });
         return;
       }
-      if (!currentBook) {
+      if (booksId === undefined) {
         toast.show({ messageText: '未找到当前账本' });
         return;
       }
       try {
         setSubmitting(true);
         const payload = buildNewQuickTemplate('expense', draft, {
-          booksId: currentBook.id,
+          booksId,
           name: templateName,
         });
         if (editingTemplateId !== undefined) {
@@ -207,7 +211,6 @@ export function ExpenseTabScreen() {
     booksId,
     bumpTemplateVersion,
     charge,
-    currentBook,
     draftTarget,
     editingRecordId,
     editingTemplateId,
@@ -248,6 +251,13 @@ export function ExpenseTabScreen() {
               />
             </Card>
             <Card variant="elevated">
+              <ResourceLoadError
+                error={Boolean(assetsError || tagsError)}
+                onRetry={() => {
+                  refreshAssets();
+                  refreshTags();
+                }}
+              />
               <Row wrap gap={token.marginSM}>
                 <ListPicker
                   labelText="付款资产（可选）"

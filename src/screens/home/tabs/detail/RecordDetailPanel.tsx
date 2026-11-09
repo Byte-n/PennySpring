@@ -5,7 +5,7 @@ import { Button, Empty, Loading, Popup, Row, Text } from '@pennyspring/ui';
 import { RECORD_TYPE_CATEGORY } from '@pennyspring/api';
 import {
   useBookKey,
-  useBookStore,
+  useCurrentBookId,
   useGlobalApi,
 } from '../../../../stores/bookStore';
 import { useRecordVersion } from '../../../../stores/syncVersionStore';
@@ -69,12 +69,14 @@ export function RecordDetailPanel({
 }: RecordDetailPanelProps) {
   const styles = useRecordDetailStyles();
   const { height: viewportHeight } = useWindowDimensions();
-  const currentBook = useBookStore(state => state.currentBook);
   const globalApi = useGlobalApi();
   const bookKey = useBookKey();
+  const bookId = useCurrentBookId();
   const recordVersion = useRecordVersion();
-  const bookId = currentBook?.id;
-  const { data, loading, error } = useRequest<RecordDetailPanelData | null, []>(
+  const { data, loading, error, refresh } = useRequest<
+    RecordDetailPanelData | null,
+    []
+  >(
     async () => {
       if (recordId === null || !bookId) return null;
 
@@ -217,7 +219,15 @@ export function RecordDetailPanel({
       {loading ? (
         <Loading variant="block" text="加载详情" />
       ) : error ? (
-        <Empty titleText="详情加载失败" descriptionText="请关闭后重试。" />
+        <Empty
+          action={
+            <Button onPress={refresh} size="small" type="text">
+              重试
+            </Button>
+          }
+          descriptionText="请检查网络或稍后重试。"
+          titleText="详情加载失败"
+        />
       ) : view ? (
         <RecordDetailContent
           view={view}

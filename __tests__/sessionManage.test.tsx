@@ -143,6 +143,7 @@ function setupChat(overrides: Partial<AgentSessionState> = {}): void {
     errorText: '',
     usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 },
     threads: THREADS,
+    threadsError: '',
     threadsLoading: false,
     currentThreadId: 1,
     currentThread: null,

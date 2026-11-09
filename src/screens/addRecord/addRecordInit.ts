@@ -12,7 +12,7 @@ import {
 import { isSameDraftBook } from '../../features/quickBookDraft/draftBook';
 import { quickBookDraftCache } from '../../features/quickBookDraft/draftCacheStorage';
 import type { MediaStore } from '../../media';
-import type { BookEntry, CurrentBookRef } from '../../stores/bookStore';
+import type { CurrentBookRef } from '../../stores/bookStore';
 import type {
   AddRecordInitPayload,
   AddRecordPresetPayload,
@@ -39,7 +39,7 @@ export type AddRecordInitSource =
   | { kind: 'draft'; draftId: string; itemIndex?: number };
 
 export interface AddRecordInitDeps {
-  currentBook: BookEntry | null;
+  bookId: number | null;
   currentBookRef: CurrentBookRef | null;
   recordApi: Pick<Api['record'], 'getDetailById'>;
   typeApi: Pick<Api['type'], 'getAll'>;
@@ -97,13 +97,13 @@ export async function loadAddRecordInitSeed(
 ): Promise<AddRecordInitSeed> {
   switch (source.kind) {
     case 'edit': {
-      const { currentBook, recordApi, typeApi, media } = deps;
-      if (currentBook === null) {
+      const { bookId, recordApi, typeApi, media } = deps;
+      if (bookId === null) {
         throw new Error('当前账本未就绪，请稍后重试');
       }
       const [detail, types] = await Promise.all([
-        recordApi.getDetailById(source.recordId, currentBook.id),
-        typeApi.getAll(currentBook.id),
+        recordApi.getDetailById(source.recordId, bookId),
+        typeApi.getAll(bookId),
       ]);
       const typeRow = types.find(type => type.id === detail.record.typeId);
       return {
@@ -130,11 +130,11 @@ export async function loadAddRecordInitSeed(
       };
     }
     case 'preset': {
-      const { currentBook, typeApi } = deps;
-      if (currentBook === null) {
+      const { bookId, typeApi } = deps;
+      if (bookId === null) {
         throw new Error('当前账本未就绪，请稍后重试');
       }
-      const types = await typeApi.getAll(currentBook.id);
+      const types = await typeApi.getAll(bookId);
       const typeRow = types.find(type => type.id === source.preset.typeId);
       return {
         kind: 'preset',
@@ -150,13 +150,11 @@ export async function loadAddRecordInitSeed(
       };
     }
     case 'draft': {
-      if (deps.currentBookRef === null || deps.currentBook === null) {
+      if (deps.currentBookRef === null) {
         throw new Error('请先选择草稿所属账本');
       }
-      const currentTarget = draftTargetFromBookRef(
-        deps.currentBookRef,
-        deps.currentBook.name,
-      );
+      // 草稿身份只比较 kind/serverUrl/booksId，名称不参与匹配。
+      const currentTarget = draftTargetFromBookRef(deps.currentBookRef, '');
       const draft = await quickBookDraftCache.getById(source.draftId);
       if (!isSameDraftBook(currentTarget, draft.target)) {
         throw new Error('请先切换到草稿所属账本');

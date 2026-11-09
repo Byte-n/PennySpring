@@ -4,7 +4,7 @@ import {
   type RecordTypeCategoryValue,
   type TypeRow,
 } from '@pennyspring/api';
-import { useBookStore, useGlobalApi } from '../../stores/bookStore';
+import { useCurrentBookId, useGlobalApi } from '../../stores/bookStore';
 
 interface UseCategoryItemsResult {
   categories: TypeRow[];
@@ -21,9 +21,9 @@ export function useCategoryItems(
   typeCategory: RecordTypeCategoryValue,
   booksId?: number,
 ): UseCategoryItemsResult {
-  const currentBook = useBookStore(state => state.currentBook);
+  const currentBookId = useCurrentBookId();
   const globalApi = useGlobalApi();
-  const targetBooksId = booksId ?? currentBook?.id;
+  const targetBooksId = booksId ?? currentBookId ?? undefined;
   const api = booksId === undefined ? globalApi : localApi;
 
   const {

@@ -8,6 +8,7 @@ import {
   Skeleton,
   Switch,
   Text,
+  useToast,
 } from '@pennyspring/ui';
 import type { IconComponent } from '@pennyspring/ui';
 import { createUseSheetStyle, useTheme } from '@pennyspring/ui';
@@ -249,9 +250,12 @@ export function DrawerContent({ onClose, onNavigate }: DrawerContentProps) {
   const insets = useSafeAreaInsets();
   const styles = useStyles(insets.bottom);
   const { token } = useTheme();
+  const toast = useToast();
   const { setThemeMode, themeMode } = useThemeMode();
   const currentBook = useBookStore(state => state.currentBook);
   const currentBookRef = useBookStore(state => state.currentBookRef);
+  const initStatus = useBookStore(state => state.initStatus);
+  const loadCurrentBook = useBookStore(state => state.loadCurrentBook);
   const remoteServerUrl =
     currentBookRef?.kind === 'remote' ? currentBookRef.serverUrl : undefined;
   const remoteToken = useServerToken(remoteServerUrl);
@@ -273,6 +277,12 @@ export function DrawerContent({ onClose, onNavigate }: DrawerContentProps) {
     handleNavigate(ROOT_ROUTES.BookManage);
   }, [handleNavigate]);
 
+  const handleRetryBook = React.useCallback((): void => {
+    loadCurrentBook().catch(() => {
+      toast.show({ messageText: '账本加载失败，请稍后重试', status: 'error' });
+    });
+  }, [loadCurrentBook, toast]);
+
   const handleThemeChange = React.useCallback(
     (value: boolean): void => {
       setThemeMode(value ? 'dark' : 'default');
@@ -289,7 +299,13 @@ export function DrawerContent({ onClose, onNavigate }: DrawerContentProps) {
     : `v${APP_VERSION}`;
   const footerUpdated = currentBook
     ? `更新 ${formatUpdatedTime(currentBook.updatedTime)}`
-    : '正在读取账本…';
+    : initStatus === 'error'
+      ? currentBookRef
+        ? '账本加载失败'
+        : '未选择账本'
+      : initStatus === 'success'
+        ? '未选择账本'
+        : '正在读取账本…';
 
   return (
     <Column style={styles.root}>
@@ -363,7 +379,7 @@ export function DrawerContent({ onClose, onNavigate }: DrawerContentProps) {
               </Text>
             </Column>
           </Pressable>
-        ) : (
+        ) : initStatus === 'loading' || initStatus === 'idle' ? (
           <View style={styles.skeletonCard} testID="drawer-book-skeleton">
             <Skeleton
               animated={false}
@@ -389,6 +405,65 @@ export function DrawerContent({ onClose, onNavigate }: DrawerContentProps) {
               />
             </Column>
           </View>
+        ) : initStatus === 'error' && currentBookRef ? (
+          <Pressable
+            accessibilityHint="重新加载当前账本"
+            accessibilityRole="button"
+            onPress={handleRetryBook}
+            style={({ pressed }) => [
+              styles.bookCard,
+              pressed ? styles.bookCardPressed : undefined,
+            ]}
+            testID="drawer-book-error"
+          >
+            <Avatar shape="square" size="normal" text="账" />
+            <Column style={styles.bookMain}>
+              <Text
+                color="errorText"
+                numberOfLines={1}
+                size="md"
+                style={styles.bookName}
+                weight="semibold"
+              >
+                账本加载失败
+              </Text>
+              <Text color="tertiary" size="xs" style={styles.bookStorage}>
+                点击重试加载
+              </Text>
+            </Column>
+          </Pressable>
+        ) : (
+          <Pressable
+            accessibilityHint="进入账本列表"
+            accessibilityRole="button"
+            onPress={handleBookPress}
+            style={({ pressed }) => [
+              styles.bookCard,
+              pressed ? styles.bookCardPressed : undefined,
+            ]}
+            testID="drawer-book-empty"
+          >
+            <Avatar shape="square" size="normal" text="账" />
+            <Column style={styles.bookMain}>
+              <Row align="center" gap={token.paddingXXS}>
+                <Text
+                  numberOfLines={1}
+                  size="md"
+                  style={styles.bookName}
+                  weight="semibold"
+                >
+                  未选择账本
+                </Text>
+                <CaretRightIcon
+                  color={token.colorTextQuaternary}
+                  size={token.fontSize}
+                />
+              </Row>
+              <Text color="tertiary" size="xs" style={styles.bookStorage}>
+                点击选择、新建或导入账本
+              </Text>
+            </Column>
+          </Pressable>
         )}
       </View>
 

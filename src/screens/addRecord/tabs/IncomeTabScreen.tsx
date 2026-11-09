@@ -28,6 +28,7 @@ import {
   validateAddRecordDraft,
 } from '../addRecordDraft';
 import { persistRecordImages } from '../persistRecordImages';
+import { ResourceLoadError } from '../components/ResourceLoadError';
 import { buildNewQuickTemplate, validateTemplateDraft } from '../templateDraft';
 import { toAssetOptions, toRelatedRecordOptions } from '../recordOptions';
 import { toNumberValue, toNumberValues } from '../selectValues';
@@ -87,15 +88,23 @@ export function IncomeTabScreen() {
     draftTarget?.booksId,
   );
   const {
+    assetsError,
     assetsLoading,
     booksId,
-    currentBook,
+    refreshAssets,
+    refreshTags,
     tags: allTags,
+    tagsError,
     tagsLoading,
     visibleAssets,
   } = useAddRecordResources(draftTarget?.booksId);
   const recordsApi = draftTarget ? localApi : globalApi;
-  const { data: records = [], loading: recordsLoading } = useRequest(
+  const {
+    data: records = [],
+    error: recordsError,
+    loading: recordsLoading,
+    refresh: refreshRecords,
+  } = useRequest(
     () =>
       booksId !== undefined
         ? recordsApi.record.getByBook(booksId)
@@ -168,14 +177,14 @@ export function IncomeTabScreen() {
         toast.show({ messageText: validationMessage });
         return;
       }
-      if (!currentBook) {
+      if (booksId === undefined) {
         toast.show({ messageText: '未找到当前账本' });
         return;
       }
       try {
         setSubmitting(true);
         const payload = buildNewQuickTemplate('income', draft, {
-          booksId: currentBook.id,
+          booksId,
           name: templateName,
         });
         if (editingTemplateId !== undefined) {
@@ -248,7 +257,6 @@ export function IncomeTabScreen() {
     booksId,
     bumpTemplateVersion,
     charge,
-    currentBook,
     draftTarget,
     editingRecordId,
     editingTemplateId,
@@ -289,6 +297,17 @@ export function IncomeTabScreen() {
               />
             </Card>
             <Card variant="elevated">
+              <ResourceLoadError
+                error={Boolean(
+                  assetsError || tagsError || (isAbsorption && recordsError),
+                )}
+                messageText="资产、标签或关联记录加载失败"
+                onRetry={() => {
+                  refreshAssets();
+                  refreshTags();
+                  refreshRecords();
+                }}
+              />
               <Row wrap gap={token.marginSM}>
                 <ListPicker
                   labelText="付款资产（可选）"

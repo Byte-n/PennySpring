@@ -6,6 +6,7 @@ import React, {
   useState,
 } from 'react';
 import { useRequest } from 'ahooks';
+import { Pressable } from 'react-native';
 import {
   ActionSheet,
   Button,
@@ -33,6 +34,7 @@ import { createUseSheetStyle } from '@pennyspring/ui';
 import {
   type BookEntry,
   type CurrentBookRef,
+  getBookKey,
   getRemoteApi,
   useBookStore,
 } from '../../stores/bookStore';
@@ -94,6 +96,13 @@ const useStyles = createUseSheetStyle(token => ({
   remoteLoading: {
     paddingVertical: token.paddingSM,
   },
+  localError: {
+    backgroundColor: token.colorErrorBg,
+    borderBottomColor: token.colorErrorBorder,
+    borderBottomWidth: token.lineWidth,
+    paddingHorizontal: token.padding,
+    paddingVertical: token.paddingXS,
+  },
 }));
 
 function getImageValue(
@@ -117,8 +126,8 @@ export function BookManageScreen() {
   const styles = useStyles();
   const toast = useToast();
   const navigation = useNavigation();
-  const currentBook = useBookStore(state => state.currentBook);
-  const initializeBook = useBookStore(state => state.initializeBook);
+  const currentBookRef = useBookStore(state => state.currentBookRef);
+  const clearCurrentBook = useBookStore(state => state.clearCurrentBook);
   const setCurrentBook = useBookStore(state => state.setCurrentBook);
   const networkRefs = useNetworkBookRefs();
   const addRef = useNetworkBookStore(state => state.addRef);
@@ -128,6 +137,7 @@ export function BookManageScreen() {
 
   const {
     data: localBooks = [],
+    error: localError,
     loading: localLoading,
     refresh: refreshLocal,
   } = useRequest(() => localApi.book.getAll());
@@ -386,8 +396,8 @@ export function BookManageScreen() {
               background,
             });
             if (
-              currentBook?.kind === BOOK_TYPE.local &&
-              currentBook.id === updated.id
+              currentBookRef?.kind === BOOK_TYPE.local &&
+              currentBookRef.id === updated.id
             ) {
               setCurrentBook(
                 { kind: 'local', id: updated.id },
@@ -431,8 +441,9 @@ export function BookManageScreen() {
           publishQuickBookCaptureCatalog().catch(() => undefined);
           refreshNetwork();
           if (
-            currentBook?.kind === BOOK_TYPE.remote &&
-            currentBook.id === updated.id
+            currentBookRef?.kind === BOOK_TYPE.remote &&
+            currentBookRef.serverUrl === url &&
+            currentBookRef.bookId === updated.id
           ) {
             setCurrentBook(
               { kind: 'remote', serverUrl: url, bookId: updated.id },
@@ -490,7 +501,7 @@ export function BookManageScreen() {
     },
     [
       addRef,
-      currentBook,
+      currentBookRef,
       editingBook,
       formKind,
       refreshAll,
@@ -634,10 +645,11 @@ export function BookManageScreen() {
         removeRef(networkRef.serverUrl, networkRef.bookId);
         publishQuickBookCaptureCatalog().catch(() => undefined);
         if (
-          currentBook?.kind === BOOK_TYPE.remote &&
-          currentBook.id === networkRef.bookId
+          currentBookRef?.kind === BOOK_TYPE.remote &&
+          currentBookRef.serverUrl === networkRef.serverUrl &&
+          currentBookRef.bookId === networkRef.bookId
         ) {
-          await initializeBook();
+          clearCurrentBook();
         }
       }
       setConfirmState(null);
@@ -647,20 +659,26 @@ export function BookManageScreen() {
 
     await localApi.book.delete(state.item.entry.id);
     if (
-      currentBook?.kind === BOOK_TYPE.local &&
-      currentBook.id === state.item.entry.id
+      currentBookRef?.kind === BOOK_TYPE.local &&
+      currentBookRef.id === state.item.entry.id
     ) {
-      await initializeBook();
+      clearCurrentBook();
     }
     setConfirmState(null);
     refreshAll();
     publishQuickBookCaptureCatalog().catch(() => undefined);
-  }, [confirmState, currentBook, initializeBook, refreshAll, removeRef, toast]);
+  }, [
+    clearCurrentBook,
+    confirmState,
+    currentBookRef,
+    refreshAll,
+    removeRef,
+    toast,
+  ]);
 
   const confirmIsCurrent =
     confirmState !== null &&
-    currentBook?.kind === confirmState.item.entry.kind &&
-    currentBook?.id === confirmState.item.entry.id;
+    getBookKey(currentBookRef) === getBookKey(confirmState.item.ref);
 
   const formTitle = editingBook
     ? '编辑账本'
@@ -671,8 +689,19 @@ export function BookManageScreen() {
 
   return (
     <Column style={styles.container}>
+      {localError ? (
+        <Pressable
+          onPress={() => refreshLocal()}
+          style={styles.localError}
+          testID="book-manage-local-error"
+        >
+          <Text color="errorText" size="xs">
+            本地账本加载失败，点击重试
+          </Text>
+        </Pressable>
+      ) : null}
       <BookList
-        currentBook={currentBook}
+        currentBookRef={currentBookRef}
         items={items}
         loading={localLoading || networkDataLoading}
         mode="manage"

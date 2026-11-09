@@ -19,10 +19,11 @@ import type {
   TypeRow,
 } from '@pennyspring/api';
 
+import { LoadErrorEmpty } from '../../../components/LoadErrorEmpty';
 import { ROOT_ROUTES, useNavigation } from '../../../navigation';
 import {
   useBookKey,
-  useBookStore,
+  useCurrentBookId,
   useGlobalApi,
 } from '../../../stores/bookStore';
 import { useRecordVersion } from '../../../stores/syncVersionStore';
@@ -83,9 +84,9 @@ const useStyles = createUseSheetStyle(token => ({
 export function ChartTabScreen() {
   const styles = useStyles();
   const navigation = useNavigation();
-  const currentBook = useBookStore(state => state.currentBook);
   const globalApi = useGlobalApi();
   const bookKey = useBookKey();
+  const bookId = useCurrentBookId();
   const recordVersion = useRecordVersion();
   const scrollRef = useRef<ScrollView>(null);
   const [now, setNow] = useState(() => new Date());
@@ -98,7 +99,6 @@ export function ChartTabScreen() {
     number | null
   >(null);
 
-  const bookId = currentBook?.id;
   const dataRange = useMemo(() => {
     const rangeAnchor = view === 'assets' ? now : anchor;
     const start = new Date(
@@ -116,6 +116,7 @@ export function ChartTabScreen() {
 
   const {
     data: records = [],
+    error: recordsError,
     loading: recordsLoading,
     refresh: refreshRecords,
   } = useRequest<RecordRow[], []>(
@@ -295,7 +296,7 @@ export function ChartTabScreen() {
   }, []);
 
   const renderContent = () => {
-    if (!currentBook) {
+    if (bookId === null) {
       return (
         <Column style={styles.state}>
           <Empty
@@ -307,6 +308,16 @@ export function ChartTabScreen() {
     }
     if (isLoading && records.length === 0) {
       return <Loading variant="block" text="加载中" style={styles.state} />;
+    }
+    if (recordsError && records.length === 0) {
+      return (
+        <LoadErrorEmpty
+          descriptionText="请检查网络或稍后重试。"
+          onRetry={refreshRecords}
+          style={styles.state}
+          titleText="图表数据加载失败"
+        />
+      );
     }
     if (view !== 'assets' && !hasCashflow) {
       return (

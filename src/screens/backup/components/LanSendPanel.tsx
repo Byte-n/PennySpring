@@ -13,7 +13,9 @@ import { BackupContentSelector } from './BackupContentSelector';
 
 interface LanSendPanelProps {
   books: BookRow[];
+  error?: boolean;
   loading: boolean;
+  onRetry?: () => void;
   selectedBookIds: number[];
   bookOptions: Record<number, BookContentOptions>;
   defaultBookOptions: BookContentOptions;
@@ -41,7 +43,9 @@ const useStyles = createUseSheetStyle(token => ({
 
 export function LanSendPanel({
   books,
+  error = false,
   loading,
+  onRetry,
   selectedBookIds,
   bookOptions,
   defaultBookOptions,
@@ -64,12 +68,14 @@ export function LanSendPanel({
         bookOptions={bookOptions}
         books={books}
         defaultBookOptions={defaultBookOptions}
+        error={error}
         includeNetworkBooks={includeNetworkBooks}
         includeSettings={includeSettings}
         loading={loading}
         onBookOptionsChange={onBookOptionsChange}
         onIncludeNetworkBooksChange={onIncludeNetworkBooksChange}
         onIncludeSettingsChange={onIncludeSettingsChange}
+        onRetry={onRetry}
         onSelectedBookIdsChange={onSelectedBookIdsChange}
         selectedBookIds={selectedBookIds}
       />

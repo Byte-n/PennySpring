@@ -78,8 +78,12 @@ export function AgentSessionsPanel({
         <AgentSessionList
           currentThreadId={chat.currentThreadId}
           disabled={chat.sending || chat.loading}
+          errorText={chat.threadsError}
           loading={chat.threadsLoading}
           onDelete={setPendingDelete}
+          onRetry={() => {
+            chat.refreshThreads().catch(() => undefined);
+          }}
           onSelect={handleSelect}
           threads={chat.threads}
         />

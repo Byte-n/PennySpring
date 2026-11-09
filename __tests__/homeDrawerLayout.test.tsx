@@ -42,12 +42,31 @@ jest.mock('@pennyspring/ui', () => {
 
   return {
     ...theme,
+    Column: passthrough(View),
     Drawer: { Layout: DrawerLayout },
     FloatingActionGroup: () => null,
     Row: passthrough(View),
     Text: passthrough(RNText),
   };
 });
+
+let mockCurrentBook: { id: number; name: string } | null = {
+  id: 1,
+  name: '默认账本',
+};
+
+jest.mock('../src/stores/bookStore', () => ({
+  useBookStore: (
+    selector: (state: {
+      currentBook: typeof mockCurrentBook;
+      setCurrentBook: () => void;
+    }) => unknown,
+  ) =>
+    selector({
+      currentBook: mockCurrentBook,
+      setCurrentBook: jest.fn(),
+    }),
+}));
 
 jest.mock('@react-navigation/native', () => ({
   useIsFocused: () => mockFocus.isFocused,
@@ -115,6 +134,7 @@ function renderHomeScreen(): TestRenderer.ReactTestRenderer {
 beforeEach(() => {
   mockNavigation.navigate.mockClear();
   mockFocus.isFocused = true;
+  mockCurrentBook = { id: 1, name: '默认账本' };
   for (const key of Object.keys(mockDrawerProps)) {
     delete mockDrawerProps[key as keyof typeof mockDrawerProps];
   }
@@ -152,6 +172,16 @@ describe('HomeScreen 助手悬浮入口', () => {
 
   it('hides the entry when the screen is not focused', () => {
     mockFocus.isFocused = false;
+
+    const renderer = renderHomeScreen();
+
+    expect(() =>
+      renderer.root.findByProps({ testID: 'agent-floating-entry' }),
+    ).toThrow();
+  });
+
+  it('hides the entry when no book is selected', () => {
+    mockCurrentBook = null;
 
     const renderer = renderHomeScreen();
 

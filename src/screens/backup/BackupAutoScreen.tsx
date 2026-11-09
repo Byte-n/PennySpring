@@ -77,7 +77,12 @@ export function BackupAutoScreen() {
   const styles = useStyles();
   const toast = useToast();
   const settings = useAutoBackupStore();
-  const { data, loading } = useRequest(() => localApi.book.getAll());
+  const {
+    data,
+    error: booksError,
+    loading,
+    refresh: refreshBooks,
+  } = useRequest(() => localApi.book.getAll());
   const books = data ?? [];
   const customDirectorySupported = isCustomDirectorySupported();
 
@@ -222,12 +227,14 @@ export function BackupAutoScreen() {
           bookOptions={settings.bookOptions}
           books={books}
           defaultBookOptions={settings.defaultBookOptions}
+          error={Boolean(booksError)}
           includeNetworkBooks={settings.includeNetworkBooks}
           includeSettings={settings.includeSettings}
           loading={loading}
           onBookOptionsChange={settings.setBookOptions}
           onIncludeNetworkBooksChange={settings.setIncludeNetworkBooks}
           onIncludeSettingsChange={settings.setIncludeSettings}
+          onRetry={refreshBooks}
           onSelectedBookIdsChange={ids =>
             settings.setSelectedBookIds(
               ids.length === books.length && books.length > 0 ? null : ids,
